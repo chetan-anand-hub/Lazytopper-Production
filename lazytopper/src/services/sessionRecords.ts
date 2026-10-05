@@ -60,6 +60,15 @@ import {
   getWorksheetSession,
   type PersistedWorksheet,
 } from "./worksheetSessionStore";
+import {
+  MARKS_LOST_BY_TYPE_VERSION,
+  effectiveTypeCounts,
+  gradeStateOf,
+  isGradedQuestion,
+  isLossOnlyNotAttempted,
+  paperMarksLost,
+  type MarksLostByType,
+} from "../lib/mistakeDisplay";
 
 // ── The LOCKED §1 data contract ──────────────────────────────────────────────
 
@@ -160,6 +169,76 @@ export interface SessionRecord {
    *  → the chip shows "N topics". A DISPLAY count only — it NEVER feeds single-topic
    *  progress (topicKeys stays [] for mixed; spec §4.1). */
   topicCount?: number;
+  /** SCORECARD-MI-1 PR-2 (H10, B7) — ADDITIVE OPTIONAL, VERSIONED. The paper's marks lost per
+   *  bucket over its GRADED questions (`paperMarksLost`), written ONLY from a response that
+   *  carries GRADER-CORE-1 v2 `marksLostByType`, and read only with `marksLostByTypeVersion`.
+   *  Every record written before PR-2, and every count-only grade, has neither: it stays
+   *  count-only (`fourType`), is never converted and is never given invented marks (G5). */
+  marksLostByType?: MarksLostByType;
+  marksLostByTypeVersion?: typeof MARKS_LOST_BY_TYPE_VERSION;
+  /** SCORECARD-MI-1 PR-2 (H5, B2/A3) — ADDITIVE OPTIONAL. Check & Improve only: each
+   *  question's OWN subject and chapter, so a mixed Maths + Science paper is listed under
+   *  both subjects (`sessionRecordSubjects`) instead of under the paper's single `subject`.
+   *  Absent on every pre-PR-2 record → readers fall back to `subject`, exactly as before. */
+  questionTopics?: SessionQuestionTopic[];
+  /** SCORECARD-MI-1 PR-2 (controller ruling W2) — ADDITIVE OPTIONAL. Check & Improve only, and
+   *  only on a paper with questions that were NOT graded: true when EVERY one of them was an
+   *  unreadable page (could not be read); false when any was not graded for another reason
+   *  (the answer does not match, its option could not be read, the server did not grade it).
+   *  Absent on every older record (before PR-2 an unreadable page was the only not-graded
+   *  state) → the history card reads exactly as before. */
+  notGradedAllUnread?: boolean;
+}
+
+/** One question's own subject and chapter on a Check & Improve paper (H5). `null` = the
+ *  per-question read did not resolve it (an honest unknown, never the paper's guess). */
+export interface SessionQuestionTopic {
+  qNumber: number;
+  subject: SessionSubject | null;
+  topicSlug: string | null;
+}
+
+/**
+ * SCORECARD-MI-1 PR-2 (H5, A3) — every subject a session record's questions belong to. A
+ * Check & Improve paper written since PR-2 answers from its per-question breakdown, so a
+ * Maths + Science paper is listed under BOTH; every other record (and every pre-PR-2 record)
+ * answers `[record.subject]`, exactly as before.
+ */
+export function sessionRecordSubjects(record: Pick<SessionRecord, "subject" | "questionTopics">): SessionSubject[] {
+  const own = new Set<SessionSubject>();
+  for (const q of record.questionTopics ?? []) {
+    if (q && (q.subject === "maths" || q.subject === "science")) own.add(q.subject);
+  }
+  return own.size > 0 ? Array.from(own) : [record.subject];
+}
+
+/**
+ * SCORECARD-MI-1 PR-2 (H10) — the ONE reduction every record builder uses, so the record's
+ * four-type, the scorecard, the PDFs and Mistake Intelligence hold the same numbers (G3):
+ *   - `fourType`: per question, `effectiveTypeCounts` — and NOTHING for a question that was
+ *     not graded (could not be read, option unread, answer does not match the question; and any
+ *     later not-graded state, through the one predicate `isGradedQuestion`) or whose every lost
+ *     mark was NOT ATTEMPTED (`isLossOnlyNotAttempted` — the MI front door's own rule);
+ *   - the versioned marks, ONLY when the response carries v2 `marksLostByType` (`paperMarksLost`
+ *     over the graded questions); a count-only response gets none.
+ */
+export function recordFourTypeAndMarks(
+  results: WorksheetGradeResponse["results"],
+): { fourType: SessionFourType; marks: Pick<SessionRecord, "marksLostByType" | "marksLostByTypeVersion"> } {
+  const fourType: SessionFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  for (const r of results) {
+    if (!isGradedQuestion(r) || isLossOnlyNotAttempted(r)) continue;
+    const c = effectiveTypeCounts(r);
+    fourType.conceptual += c.conceptual;
+    fourType.calculation += c.calculation;
+    fourType.silly += c.silly;
+    fourType.presentation += c.presentation;
+  }
+  const pm = paperMarksLost(results);
+  return {
+    fourType,
+    marks: pm ? { marksLostByType: pm.byType, marksLostByTypeVersion: MARKS_LOST_BY_TYPE_VERSION } : {},
+  };
 }
 
 /** The per-question grade payload the `perQuestionRef` points at (§1b — a DATA
@@ -330,10 +409,14 @@ export function writeSessionRecord(
   }
 
   if (firestoreDb && uid !== "anonymous") {
+    // N5 (verifier, controller fix round 2026-10-05; owner ruling "re-grade replaces") — a FULL
+    // replace, never `{ merge: true }`: a re-grade that omits an optional field (its versioned
+    // marks, its per-question topics, `notGradedAllUnread`) must not inherit the earlier write's
+    // value, or the tutor's opener and the history card read a stale grade. This is the only
+    // writer of the doc, and it always writes the whole record (the local mirror already replaces).
     void setDoc(
       doc(firestoreDb, "sessionRecords", uid, "records", sanitizeDocId(record.id)),
       stripUndefined({ ...record, updatedAt: new Date().toISOString() }),
-      { merge: true },
     ).catch((error) => console.warn("[sessionRecords] record write failed", { id: record.id, error }));
   }
   return "recorded";
@@ -378,10 +461,11 @@ export function writeSessionPerQuestion(
   }
 
   if (firestoreDb && uid !== "anonymous") {
+    // N5 — the same full replace for the payload a re-grade rewrites (Firestore merges nested maps,
+    // so a stale `response` field would otherwise survive under the new grade).
     void setDoc(
       doc(firestoreDb, "sessionRecords", uid, "perQuestion", sanitizeDocId(payload.ref)),
       stripUndefined({ ...payload, updatedAt: new Date().toISOString() }),
-      { merge: true },
     ).catch((error) => console.warn("[sessionRecords] perQuestion write failed", { ref: payload.ref, error }));
   }
 }
@@ -530,17 +614,9 @@ export function buildWorksheetSessionRecord(
   nomen: Pick<WorksheetNomenclature, "code">,
   uid: string,
 ): SessionRecord {
-  const fourType = response.results.reduce<SessionFourType>(
-    (acc, r) => {
-      if (r.couldNotRead || !r.mistakeSummary) return acc;
-      acc.conceptual += Number(r.mistakeSummary.conceptual) || 0;
-      acc.calculation += Number(r.mistakeSummary.calculation) || 0;
-      acc.silly += Number(r.mistakeSummary.silly) || 0;
-      acc.presentation += Number(r.mistakeSummary.presentation) || 0;
-      return acc;
-    },
-    { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
-  );
+  // H10 — the ONE reduction: not-graded and not-attempted questions carry no type; a v2
+  // response also records its versioned marks (recordFourTypeAndMarks).
+  const { fourType, marks } = recordFourTypeAndMarks(response.results);
 
   const status: SessionStatus =
     response.gradedCount <= 0
@@ -562,6 +638,7 @@ export function buildWorksheetSessionRecord(
     marksTotal: Number(response.gradedMarksTotal) || 0,
     status,
     fourType,
+    ...marks,
     sectionBreakdown: null,
     gradedAt: Date.now(),
     perQuestionRef: `ws:${code}`,
@@ -666,14 +743,9 @@ export function buildChapterTestSessionRecord(args: {
 }): SessionRecord {
   const { paper, code, subject, topicKey, response, uid } = args;
 
-  const fourType: SessionFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  for (const r of response.results) {
-    if (r.couldNotRead || !r.mistakeSummary) continue;
-    fourType.conceptual += Number(r.mistakeSummary.conceptual) || 0;
-    fourType.calculation += Number(r.mistakeSummary.calculation) || 0;
-    fourType.silly += Number(r.mistakeSummary.silly) || 0;
-    fourType.presentation += Number(r.mistakeSummary.presentation) || 0;
-  }
+  // H10 — the ONE reduction: not-graded and not-attempted questions carry no type; a v2
+  // response also records its versioned marks (recordFourTypeAndMarks).
+  const { fourType, marks } = recordFourTypeAndMarks(response.results);
 
   const status: SessionStatus =
     response.gradedCount <= 0
@@ -701,6 +773,7 @@ export function buildChapterTestSessionRecord(args: {
     marksTotal: Number(response.gradedMarksTotal) || 0,
     status,
     fourType,
+    ...marks,
     sectionBreakdown: null,
     gradedAt: Date.now(),
     perQuestionRef: `ct:${code}`,
@@ -762,14 +835,9 @@ export function buildFullMockSessionRecord(args: {
 }): SessionRecord {
   const { paper, code, subject, response, uid, focus } = args;
 
-  const fourType: SessionFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  for (const r of response.results) {
-    if (r.couldNotRead || !r.mistakeSummary) continue;
-    fourType.conceptual += Number(r.mistakeSummary.conceptual) || 0;
-    fourType.calculation += Number(r.mistakeSummary.calculation) || 0;
-    fourType.silly += Number(r.mistakeSummary.silly) || 0;
-    fourType.presentation += Number(r.mistakeSummary.presentation) || 0;
-  }
+  // H10 — the ONE reduction: not-graded and not-attempted questions carry no type; a v2
+  // response also records its versioned marks (recordFourTypeAndMarks).
+  const { fourType, marks } = recordFourTypeAndMarks(response.results);
 
   const status: SessionStatus =
     response.gradedCount <= 0
@@ -792,6 +860,7 @@ export function buildFullMockSessionRecord(args: {
     marksTotal: Number(response.gradedMarksTotal) || 0,
     status,
     fourType,
+    ...marks,
     sectionBreakdown: null,
     gradedAt: Date.now(),
     perQuestionRef: `fm:${code}`,
@@ -912,14 +981,9 @@ export function buildCheckImproveSessionRecord(args: {
 }): SessionRecord {
   const { code, title, subject, topicSlug, topicSource, response, uid } = args;
 
-  const fourType: SessionFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  for (const r of response.results) {
-    if (r.couldNotRead || !r.mistakeSummary) continue;
-    fourType.conceptual += Number(r.mistakeSummary.conceptual) || 0;
-    fourType.calculation += Number(r.mistakeSummary.calculation) || 0;
-    fourType.silly += Number(r.mistakeSummary.silly) || 0;
-    fourType.presentation += Number(r.mistakeSummary.presentation) || 0;
-  }
+  // H10 — the ONE reduction: not-graded and not-attempted questions carry no type; a v2
+  // response also records its versioned marks (recordFourTypeAndMarks).
+  const { fourType, marks } = recordFourTypeAndMarks(response.results);
 
   const status: SessionStatus =
     response.gradedCount <= 0
@@ -941,6 +1005,21 @@ export function buildCheckImproveSessionRecord(args: {
   }
   const topicCount = distinctTopics.size;
 
+  // H5 (B2/A3) — each question's OWN subject and chapter, from the same client-enriched
+  // per-question read, so a mixed Maths + Science paper is listed under both subjects. Written
+  // only when at least one question resolved; an unresolved one is null (never the paper's).
+  const questionTopics: SessionQuestionTopic[] = response.results.map((r) => {
+    const named = r.topicSubject === "Science" ? "science" : r.topicSubject === "Maths" ? "maths" : null;
+    const s = String(r.topicSlug || "").trim();
+    return { qNumber: r.qNumber, subject: named, topicSlug: s ? resolveCanonicalSlug(s) || s : null };
+  });
+  const anyQuestionTopic = questionTopics.some((q) => q.subject !== null || q.topicSlug !== null);
+
+  // W2 (controller ruling) — the history card says "Some pages couldn't be read" ONLY when every
+  // not-graded question was an unreadable page; any other not-graded state reads "Some answers
+  // weren't graded". Written only when something was not graded.
+  const notGradedStates = response.results.filter((r) => !isGradedQuestion(r)).map((r) => gradeStateOf(r));
+
   return {
     id: code,
     // The same internal anchor the multi-question grade call already uses as its
@@ -955,12 +1034,15 @@ export function buildCheckImproveSessionRecord(args: {
     marksTotal: Number(response.gradedMarksTotal) || 0,
     status,
     fourType,
+    ...marks,
     sectionBreakdown: null,
     gradedAt: Date.now(),
     perQuestionRef: `ci:${code}`,
     dedupKey: `${uid}::${code}`,
     topicSource,
     ...(topicCount >= 2 ? { topicCount } : {}),
+    ...(anyQuestionTopic ? { questionTopics } : {}),
+    ...(notGradedStates.length ? { notGradedAllUnread: notGradedStates.every((s) => s === "could-not-read") } : {}),
   };
 }
 
@@ -1057,14 +1139,9 @@ export function buildQuickPracticeSessionRecord(args: {
 }): SessionRecord {
   const { code, title, subject, topicSlug, questionIds, response, uid } = args;
 
-  const fourType: SessionFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  for (const r of response.results) {
-    if (r.couldNotRead || !r.mistakeSummary) continue;
-    fourType.conceptual += Number(r.mistakeSummary.conceptual) || 0;
-    fourType.calculation += Number(r.mistakeSummary.calculation) || 0;
-    fourType.silly += Number(r.mistakeSummary.silly) || 0;
-    fourType.presentation += Number(r.mistakeSummary.presentation) || 0;
-  }
+  // H10 — the ONE reduction: not-graded and not-attempted questions carry no type; a v2
+  // response also records its versioned marks (recordFourTypeAndMarks).
+  const { fourType, marks } = recordFourTypeAndMarks(response.results);
 
   const slug = resolveCanonicalSlug(topicSlug) || "";
 
@@ -1082,6 +1159,7 @@ export function buildQuickPracticeSessionRecord(args: {
     // Always graded — QP has no upload cycle (see SessionStatus).
     status: "graded",
     fourType,
+    ...marks,
     sectionBreakdown: null,
     gradedAt: Date.now(),
     perQuestionRef: `qp:${code}`,

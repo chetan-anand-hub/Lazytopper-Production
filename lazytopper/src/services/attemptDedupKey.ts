@@ -4,8 +4,7 @@
  * Extracted into its own dependency-free module (no firebase, no React) so the key's
  * load-bearing properties can be proven in the CI-gated ops matrix by importing the
  * REAL function (transpile-then-require), never by re-deriving or text-scanning it.
- * `practiceInsights.ts` imports both functions from here; nothing else about the
- * attempt-recording path changed.
+ * `practiceInsights.ts` imports these functions from here.
  */
 
 /** The subset of a record-attempt context the key actually reads. `RecordAttemptContext`
@@ -15,6 +14,12 @@ export interface AttemptDedupContext {
   questionId?: string;
   question?: string;
   topic?: string;
+  /** SCORECARD-MI-1 PR-2 (H1) — the submission identity, the SAME fields Mistake Intelligence
+   *  keys on (ruling A2): which surface graded it, the session / paper / check id, and — only
+   *  where one context allows several answers to one question — the answer's own identity. */
+  surface?: string;
+  submissionId?: string;
+  answerKey?: string;
 }
 
 /** Stable, order-preserving DJB2-style hash → base36. Used only to fold free-typed
@@ -30,30 +35,116 @@ export function hashAttemptString(input: string): string {
 /**
  * The idempotency key for an attempt. It is ALSO the Firestore doc id (see
  * `recordAttempt` — `key.replace(...)` → `doc(..., "attempts", attemptId)` with
- * `{merge:true}`), so its dedup window is all-time and cross-device, not the local
- * 400-entry ring (that ring is only a fast pre-check).
+ * `{merge:true}`), so its window is all-time and cross-device, not the local 400-entry
+ * ring (that ring is only a fast pre-check).
  *
- * ★ `mode` is deliberately NOT in the key. The same question answered the same way to
- * the same result is ONE outcome regardless of HOW it was produced: an MCQ click
- * (`mode:"mcq"`, 1/1) and a graded typed answer (`mode:"graded"`, 1/1) on the same
- * question are the same 1/1 outcome and must collapse into one attempt doc — otherwise
- * a wrong-click-then-grade round-trip mints TWO permanent docs and progress counts the
- * question twice. The score IS in the key (`${scored}/${available}`), so two genuinely
- * different results (0/1 vs 1/1) still key apart and never collapse. `mode` is HOW, not
- * WHAT — the wrong axis of identity. Pinned in the ops matrix (objective-dedup
- * acceptance): mode-independence AND score-distinctness, each with a negative control.
+ * ★ SCORECARD-MI-1 PR-2 (H1, GA-17) — superseded by owner ruling 2026-10-05: re-grade
+ * replaces. The key is the SUBMISSION's identity — uid + surface + submission context +
+ * question identity (+ answer identity only where one context allows several answers to one
+ * question), built by the ONE identity function below (`gradeIdentityKey`, ruling A2). The
+ * SCORE IS NEVER IN THE KEY: re-grading the same submission writes the same key, so the stored
+ * attempt is REPLACED (latest wins — `upsertAttempt`) instead of a second attempt being added
+ * when the score changes. A genuinely NEW submission (a new session, paper or check, or a new
+ * answer where several are allowed) has a new key, so wrong-then-right across sessions or
+ * retries is still two attempts.
+ *
+ * ★ `mode` is deliberately NOT in the key, unchanged: an MCQ click (`mode:"mcq"`) and a
+ * graded typed answer (`mode:"graded"`) carrying the same identity are the same attempt.
+ * `mode` is HOW, not WHAT. Pinned in the ops matrix (objective-dedup acceptance §4b).
  */
-export function attemptDedupKey(
-  uid: string,
-  ctx: AttemptDedupContext,
-  scored: number,
-  available: number,
-): string {
+export function attemptDedupKey(uid: string, ctx: AttemptDedupContext): string {
+  return gradeIdentityKey(uid, {
+    surface: ctx.surface,
+    submissionId: ctx.submissionId,
+    questionId: ctx.questionId,
+    question: ctx.question || ctx.topic || "",
+    answerKey: ctx.answerKey,
+  });
+}
+
+/**
+ * N2 (verifier, controller fix round 2026-10-05) — superseded by owner ruling 2026-10-05: re-grade
+ * replaces. The practice card's ONE attempt identity. A card offers the same question two ways — an
+ * MCQ click (`mode:"mcq"`) and a graded written check through its SolutionChecker (`mode:"graded"`)
+ * — and BOTH record with this identity, so they are ONE attempt for that question, the latest
+ * outcome winning exactly as a re-grade does. (Recording them under two surfaces brought back the
+ * double count the mode-independence pin was written against.) Pinned on the live call sites by
+ * objective-dedup §4b.
+ */
+export const PRACTICE_CARD_SURFACE = "practice";
+
+export function practiceCardAttemptIdentity(questionId: string): { surface: string; questionId: string } {
+  return { surface: PRACTICE_CARD_SURFACE, questionId: String(questionId ?? "").trim() };
+}
+
+/**
+ * N1 (verifier, controller fix round 2026-10-05) — the PRE-PR-2 attempt key
+ * (`uid :: question :: scored/available`), reproduced EXACTLY so a submission recorded before the
+ * identity key existed can be RECOGNISED in the device's `seen` list. It is NEVER an identity again
+ * (the score is never in the attempt key — `attemptDedupKey` above); it is read only so the first
+ * re-record of such a submission does not add a second attempt.
+ */
+export function legacyAttemptKey(uid: string, ctx: AttemptDedupContext, scored: number, available: number): string {
+  return `${legacyAttemptKeyPrefix(uid, ctx)}${scored}/${available}`;
+}
+
+/** The legacy key up to (and including) the separator before `scored/available`. */
+export function legacyAttemptKeyPrefix(uid: string, ctx: AttemptDedupContext): string {
   const qid =
     ctx.questionId && ctx.questionId.trim()
       ? ctx.questionId.trim()
       : `t:${hashAttemptString(ctx.question || ctx.topic || "")}`;
-  return [uid, qid, `${scored}/${available}`].join("::");
+  return [uid, qid, ""].join("::");
+}
+
+/** A legacy key's outcome (`scored/available`), or null when `key` is not a legacy key for `prefix`. */
+export function legacyKeyOutcome(key: string, prefix: string): { scored: number; available: number } | null {
+  if (!key.startsWith(prefix)) return null;
+  const m = /^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/.exec(key.slice(prefix.length));
+  return m ? { scored: Number(m[1]), available: Number(m[2]) } : null;
+}
+
+/** The minimal stored-attempt shape `upsertAttempt` reads. */
+export interface UpsertableAttempt {
+  id: string;
+  marksScored?: number;
+  marksAvailable?: number;
+  notAttempted?: boolean;
+  marksLostByType?: unknown;
+}
+
+export type UpsertAttemptOutcome = "recorded" | "replaced" | "duplicate";
+
+/** The outcome an attempt records — what a re-grade may change. */
+function outcomeSignature(a: UpsertableAttempt): string {
+  return JSON.stringify([
+    Number(a.marksScored) || 0,
+    Number(a.marksAvailable) || 0,
+    a.notAttempted === true,
+    a.marksLostByType ?? null,
+  ]);
+}
+
+/**
+ * SCORECARD-MI-1 PR-2 (H1) — "re-grade replaces; latest wins", as ONE pure function over the
+ * stored list. The attempt whose `id` (the submission identity) matches `next.id` is REPLACED
+ * IN PLACE by `next`; the same outcome again is a no-op ("duplicate" — a cache-restore writes
+ * nothing); an id not yet stored is appended ("recorded"). Never two attempts for one
+ * submission. Pure: returns a new list, never mutates the input.
+ */
+export function upsertAttempt<A extends UpsertableAttempt>(
+  attempts: readonly A[],
+  next: A,
+): { attempts: A[]; outcome: UpsertAttemptOutcome; previous: A | null } {
+  const i = attempts.findIndex((a) => a.id === next.id);
+  if (i < 0) return { attempts: [...attempts, next], outcome: "recorded", previous: null };
+  const previous = attempts[i];
+  if (outcomeSignature(previous) === outcomeSignature(next)) {
+    return { attempts: [...attempts], outcome: "duplicate", previous };
+  }
+  const out = [...attempts];
+  out[i] = next;
+  return { attempts: out, outcome: "replaced", previous };
 }
 
 /* ── SCORECARD-MI-1 (wave B-15, controller ruling A2) — the ONE grade-identity function ──
@@ -64,12 +155,8 @@ export function attemptDedupKey(
  * allows several answers to one question, e.g. a Quick Practice retry). NEVER the score or
  * the counts — those are the OUTCOME, and a re-grade changes them.
  *
- * Used for the Mistake-Intelligence entry (its Firestore doc id, so a re-grade REPLACES).
- * ⚠ NOT YET for the attempt key above: `attemptDedupKey` keeps `${scored}/${available}`
- * because the CI gate `lazytopper/scripts/ops/objective_dedup_acceptance.mjs:94` pins
- * "0/1 and 1/1 on the same question stay DISTINCT (score is in the key)". Changing that is an
- * owner decision (HELD — SCORECARD-MI-1 report). When it is lifted, the attempt key should
- * become this function.
+ * Used for the Mistake-Intelligence entry (its Firestore doc id, so a re-grade REPLACES) and,
+ * since SCORECARD-MI-1 PR-2 (H1, owner ruling 2026-10-05), for the attempt key above.
  */
 export interface GradeIdentityContext {
   /** Which surface graded it ("check-improve", "worksheet", "quick-practice" …). */

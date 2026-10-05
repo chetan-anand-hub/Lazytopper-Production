@@ -56,7 +56,7 @@ import { getActiveProgressUser } from "./studentProgressStore";
 // the question bank on first load. Every number is unchanged: the same function runs.
 import { isChapterEchoSubtopic, normalizeSection, type BankConcept } from "./progressBankShape";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
-import { MISTAKE_TYPE_LABEL } from "../lib/mistakeDisplay";
+import { MISTAKE_TYPE_LABEL, isGradedQuestion, isLossOnlyNotAttempted } from "../lib/mistakeDisplay";
 
 // ── Per-surface history (§3a) ────────────────────────────────────────────────
 
@@ -204,6 +204,8 @@ interface MarkPoint {
   ts: number;
   scored: number;
   available: number;
+  /** SCORECARD-MI-1 PR-2 (H11) — marks on this point lost ONLY to work not attempted. */
+  notAttempted?: number;
 }
 
 /** Marks % over a set of MarkPoints. null when nothing measurable (marksAvailable≤0).
@@ -215,19 +217,21 @@ interface MarkPoint {
  *  two are different units and conflating them is what the control test pins. */
 function marksPercentOf(
   points: MarkPoint[],
-): { pct: number; sample: number; scored: number; available: number } | null {
+): { pct: number; sample: number; scored: number; available: number; notAttempted: number } | null {
   let scored = 0;
   let available = 0;
   let sample = 0;
+  let notAttempted = 0;
   for (const p of points) {
     const avail = Number(p.available) || 0;
     if (avail <= 0) continue;
     scored += Number(p.scored) || 0;
     available += avail;
+    notAttempted += Number(p.notAttempted) || 0;
     sample += 1;
   }
   if (available <= 0 || sample === 0) return null;
-  return { pct: Math.round((scored / available) * 1000) / 10, sample, scored, available };
+  return { pct: Math.round((scored / available) * 1000) / 10, sample, scored, available, notAttempted };
 }
 
 interface SplitTrend {
@@ -243,6 +247,8 @@ interface SplitTrend {
   marksAvailableBefore: number;
   marksScoredNow: number;
   marksAvailableNow: number;
+  /** SCORECARD-MI-1 PR-2 (H11) — present only when > 0: see RungTrend.marksNotAttempted. */
+  marksNotAttempted?: number;
 }
 
 /**
@@ -285,6 +291,11 @@ function splitTrendOf(points: MarkPoint[]): SplitTrend | null {
     marksAvailableBefore: before.available,
     marksScoredNow: later.scored,
     marksAvailableNow: later.available,
+    // H11 — marks lost ONLY to work not attempted (attempts carrying `notAttempted`, and
+    // record questions the same predicate marks so). Additive: absent when there are none.
+    ...(before.notAttempted + later.notAttempted > 0
+      ? { marksNotAttempted: Math.round((before.notAttempted + later.notAttempted) * 100) / 100 }
+      : {}),
   };
 }
 
@@ -427,6 +438,11 @@ export interface RungTrend {
   marksAvailableBefore?: number;
   marksScoredNow?: number;
   marksAvailableNow?: number;
+  /** SCORECARD-MI-1 PR-2 (H11) — marks rungs only, ADDITIVE OPTIONAL: of the marks LOST in the
+   *  window, those lost ONLY to work not attempted (the same predicate the MI front door uses, so
+   *  these questions have no MI entry and are never counted twice). Lets Me show them as "Not
+   *  attempted" instead of "no reason recorded". Absent = none recorded (every pre-PR-2 attempt). */
+  marksNotAttempted?: number;
 }
 
 /** Deduped mistakeLog readout — ENRICHMENT ONLY. Never feeds a before→now rate
@@ -507,6 +523,8 @@ interface GradedPoint {
   subject: "maths" | "science";
   topicKey: string;
   topicLabel?: string;
+  /** H11 — marks this point lost ONLY to work not attempted (0 when none, or unknown). */
+  notAttempted: number;
 }
 
 /** The synthetic per-question id prefix each session surface fans through
@@ -625,13 +643,17 @@ function buildUnifiedGradedPoints(
     if (qid) attemptQids.add(qid);
     const topicKey = canonicalKey(a.topicKey || a.topicName);
     if (topicFilter && topicKey !== topicFilter) continue;
+    const aScored = Number(a.marksScored) || 0;
+    const aAvailable = Number(a.marksAvailable) || 0;
     points.push({
       ts: a.timestamp,
-      scored: Number(a.marksScored) || 0,
-      available: Number(a.marksAvailable) || 0,
+      scored: aScored,
+      available: aAvailable,
       subject: normalizeSubject(a.subject),
       topicKey,
       topicLabel: a.topicName || a.topicKey,
+      // H11 — the attempt says its whole loss was not attempted (never inferred for an old one).
+      notAttempted: a.notAttempted === true ? Math.max(0, aAvailable - aScored) : 0,
     });
   }
 
@@ -650,7 +672,9 @@ function buildUnifiedGradedPoints(
     const recordTopic =
       Array.isArray(r.topicKeys) && r.topicKeys.length === 1 ? canonicalKey(r.topicKeys[0]) : "";
     for (const res of results) {
-      if (res.couldNotRead) continue;
+      // H10 — every NOT-GRADED state (could not be read, option unread, answer does not match
+      // the question), not only couldNotRead: such a question is never a 0 in progress.
+      if (!isGradedQuestion(res)) continue;
       const available = Number(res.totalMarks) || 0;
       if (available <= 0) continue;
       const idx = Number(res.qNumber) - 1;
@@ -659,12 +683,14 @@ function buildUnifiedGradedPoints(
       const bank = conceptForQuestionId(r.questionIds[idx]);
       const topicKey = bank?.topicKey ? canonicalKey(bank.topicKey) : recordTopic;
       if (topicFilter && topicKey !== topicFilter) continue;
+      const rScored = Number(res.marksAwarded) || 0;
       points.push({
         ts: r.gradedAt,
-        scored: Number(res.marksAwarded) || 0,
+        scored: rScored,
         available,
         subject: r.subject === "science" ? "science" : "maths",
         topicKey,
+        notAttempted: isLossOnlyNotAttempted(res) ? Math.max(0, available - rScored) : 0,
       });
     }
   }
@@ -676,7 +702,7 @@ function buildSubjectRung(points: GradedPoint[]): RungTrend[] {
   const groups = new Map<"maths" | "science", MarkPoint[]>();
   for (const p of points) {
     const arr = groups.get(p.subject) ?? [];
-    arr.push({ ts: p.ts, scored: p.scored, available: p.available });
+    arr.push({ ts: p.ts, scored: p.scored, available: p.available, notAttempted: p.notAttempted });
     groups.set(p.subject, arr);
   }
   const out: RungTrend[] = [];
@@ -693,7 +719,7 @@ function buildTopicRung(points: GradedPoint[]): RungTrend[] {
     if (!p.topicKey) continue; // unresolvable topic → subject rung only (honest)
     const g = groups.get(p.topicKey) ?? { label: "", pts: [] };
     if (!g.label && p.topicLabel) g.label = p.topicLabel;
-    g.pts.push({ ts: p.ts, scored: p.scored, available: p.available });
+    g.pts.push({ ts: p.ts, scored: p.scored, available: p.available, notAttempted: p.notAttempted });
     groups.set(p.topicKey, g);
   }
   const out: RungTrend[] = [];
@@ -758,7 +784,10 @@ function buildConceptSectionRungs(
     // index → omit the whole record rather than mis-attribute a concept.
     if (results.length !== r.questionIds.length) continue;
     for (const res of results) {
-      if (res.couldNotRead) continue;
+      // A question that was NOT graded (could not be read, option unread, answer does not match,
+      // or the server's notGraded) is never a 0 on a concept or a section — the same one
+      // predicate as the topic rungs above.
+      if (!isGradedQuestion(res)) continue;
       const idx = Number(res.qNumber) - 1;
       if (idx < 0 || idx >= r.questionIds.length) continue;
       const c = conceptForQuestionId(r.questionIds[idx]);

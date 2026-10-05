@@ -12,6 +12,15 @@ import type { CheckSolutionAnnotatedStep, WorksheetGradeResponse, WorksheetQuest
 import type { PracticeAttempt } from "../../services/practiceInsights";
 import type { TutorPendingMarker } from "../../services/tutorSessionStore";
 import type { TutorReturnedWork } from "../../ai/tutorClient";
+// SCORECARD-MI-1 PR-2 (H6/H8) — the openers name the owner's groups through the ONE display
+// module (a pure module: this file stays free of runtime dependencies beyond it).
+import {
+  entryMarksLost,
+  groupCounts,
+  groupMarks,
+  isGradedQuestion,
+  isWithdrawnStatus,
+} from "../../lib/mistakeDisplay";
 
 /** Encode a query object into a `?a=b` suffix (URLSearchParams — safe-encodes). */
 function query(params: Record<string, string | undefined>): string {
@@ -179,31 +188,111 @@ function shortAnnotation(raw: string): string {
 }
 
 /** How a faulty step reads in the opener. `missing` is a step never written, which is a
- *  different fact from one written wrongly — the copy must not conflate them. */
+ *  different fact from one written wrongly — the copy must not conflate them. (A v2
+ *  `unattempted` or crossed-out `withdrawn` step never reaches here: it is not a fault and is
+ *  never quoted — see `isQuotableFault`.) */
 function stepFaultPhrase(status: CheckSolutionAnnotatedStep["status"]): string {
   if (status === "missing") return "never got written";
   if (status === "partial") return "only half landed";
   return "is where it turned";
 }
 
-/** The first step the grader did NOT mark correct, in question then step order, that
- *  carries a real annotation to quote — read straight off a `WorksheetGradeResponse.results`
- *  array. null → no quotable fault. The C&I overlay leg has the response in-hand (Option 2b),
- *  so it reads it directly; `firstFaultyStep` wraps this for the QP payload leg. */
+/**
+ * SCORECARD-MI-1 PR-2 (H8) — superseded by owner ruling 2026-10-05 (taxonomy and wording).
+ * A step the opener may quote as WHERE IT WENT WRONG:
+ *   - never a crossed-out (`withdrawn`) attempt — struck work is not the answer and is never
+ *     quoted as its fault (B8);
+ *   - never a v2 `unattempted` step — not attempted is never a mistake, so it is not phrased as
+ *     a fault ("is where it turned" would say the student got it wrong);
+ *   - never a correct step, and only one with a real annotation to quote.
+ */
+function isQuotableFault(step: CheckSolutionAnnotatedStep): boolean {
+  if (step.status === "correct") return false;
+  if (isWithdrawnStatus(step.status) || step.status === "unattempted") return false;
+  return !!String(step.teacherAnnotation || "").trim();
+}
+
+/** The first QUOTABLE faulty step (`isQuotableFault`), in question then step order — read
+ *  straight off a `WorksheetGradeResponse.results` array. Questions that were not graded
+ *  (could not be read, option unread, answer does not match) are skipped. null → no quotable
+ *  fault. The C&I overlay leg has the response in-hand (Option 2b), so it reads it directly;
+ *  `firstFaultyStep` wraps this for the QP payload leg. */
 function firstFaultyStepInResults(
   results: WorksheetQuestionGrade[] | undefined | null,
 ): { qNumber: number; step: CheckSolutionAnnotatedStep } | null {
   const sorted = [...(results || [])].sort((a, b) => a.qNumber - b.qNumber);
   for (const r of sorted) {
-    if (r.couldNotRead || !r.annotatedSteps?.length) continue;
+    if (!isGradedQuestion(r) || !r.annotatedSteps?.length) continue;
     const steps = [...r.annotatedSteps].sort((a, b) => a.stepNumber - b.stepNumber);
     for (const step of steps) {
-      if (step.status === "correct") continue;
-      if (!String(step.teacherAnnotation || "").trim()) continue;
+      if (!isQuotableFault(step)) continue;
       return { qNumber: r.qNumber, step };
     }
   }
   return null;
+}
+
+/** The biggest loss on a record, in the owner's groups (H6). */
+type RootLoss = "knowledge" | "technique" | "careless" | "notAttempted" | null;
+
+/**
+ * SCORECARD-MI-1 PR-2 (H6) — superseded by owner ruling 2026-10-05 (taxonomy and wording;
+ * marks not counts). The ONE root-cause read every opener uses, replacing the pre-ruling
+ * "method (conceptual + calculation) vs presentation-led (presentation + silly)" split, which
+ * filed a calculation slip as a method fault and a silly slip as presentation:
+ *   - knowledge gap = conceptual; exam technique = presentation; careless = calculation + silly
+ *     (lib/mistakeDisplay groups);
+ *   - in MARKS when the record carries v2 marks (`marksLostByType`, H10), else in counts;
+ *   - not attempted (marks only) is its own answer, never a mistake;
+ *   - ties go to the group shown first (knowledge, technique, careless); null when nothing is named.
+ */
+function dominantLoss(record: SessionRecord): RootLoss {
+  const marks = entryMarksLost(record);
+  const g = marks
+    ? groupMarks(marks)
+    : { ...groupCounts(record.fourType || { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }), notAttempted: 0 };
+  const order: Array<Exclude<RootLoss, null>> = ["knowledge", "technique", "careless", "notAttempted"];
+  let best: RootLoss = null;
+  let bestN = 0;
+  for (const k of order) {
+    const n = Number(g[k]) || 0;
+    if (n > bestN) {
+      best = k;
+      bestN = n;
+    }
+  }
+  return best;
+}
+
+/** The opener's root-cause clause + the hand-back, phrased for the biggest loss (H6). */
+function rootCauseFor(record: SessionRecord, marks: string): { rootCause: string; fix: string } {
+  switch (dominantLoss(record)) {
+    case "technique":
+      // Exam technique is NOT a weakness (MI doctrine) — say so plainly.
+      return {
+        rootCause: `and the ${marks} came off the presentation, not your maths`,
+        fix: `You know this; it's the finish costing you. Want to tighten just the write-up, or something else?`,
+      };
+    case "careless":
+      // Careless is NOT a weakness either — the student already knows this.
+      return {
+        rootCause: `and the ${marks} slipped in the working — the approach was right, the checking let them go`,
+        fix: `You already know this. Want to slow down on just that, or something else?`,
+      };
+    case "knowledge":
+      return {
+        rootCause: `and the ${marks} came off the method itself — the setup needs a tweak`,
+        fix: `Want to fix just that, or something else?`,
+      };
+    case "notAttempted":
+      // Not attempted is never a mistake — it is marks still on the table.
+      return {
+        rootCause: `and the ${marks} were on work you didn't attempt — that's not a mistake, just marks still on the table`,
+        fix: `Want to try that part together, or something else?`,
+      };
+    default:
+      return { rootCause: `and ${marks} slipped`, fix: `Want to go through it, or something else?` };
+  }
 }
 
 /** The first quotable faulty step for the QP RECORD leg, off the persisted payload.
@@ -256,7 +345,7 @@ export function composePracticeRecordReturnOpener(
   // up" is a fact here (every step was marked correct), not a compliment we invented.
   if (lost === 0) {
     const hasWorking = (payload?.response?.results || []).some(
-      (r) => !r.couldNotRead && !!r.annotatedSteps?.length,
+      (r) => isGradedQuestion(r) && !!r.annotatedSteps?.length,
     );
     if (!hasWorking) return null; // MCQ-only clean set — the attempts line already says this.
     return {
@@ -270,29 +359,10 @@ export function composePracticeRecordReturnOpener(
   if (!fault) return null; // No visible reasoning to point at → the marks-only line is the honest one.
 
   const { qNumber, step } = fault;
-  const ft = record.fourType || { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  const method = (ft.conceptual || 0) + (ft.calculation || 0);
-  const presLed = (ft.presentation || 0) + (ft.silly || 0);
   const marks = `${lost} mark${lost === 1 ? "" : "s"}`;
 
-  // One root cause, from the record's own four-type totals — the same method-vs-
-  // presentation doctrine the C&I opener uses, now on the same grader's data.
-  let rootCause: string;
-  let fix: string;
-  if (presLed > method && presLed > 0) {
-    // Careless/presentation is NOT a weakness (MI doctrine) — say so plainly.
-    rootCause = `and the ${marks} came off the presentation, not your maths`;
-    fix = `You know this; it's the finish costing you. Want to tighten just the write-up, or something else?`;
-  } else if (method > 0) {
-    const calcLed = (ft.calculation || 0) >= (ft.conceptual || 0);
-    rootCause = calcLed
-      ? `and the ${marks} slipped in the working — the approach was right, the arithmetic wasn't`
-      : `and the ${marks} came off the method itself — the setup needs a tweak`;
-    fix = `Want to fix just that, or something else?`;
-  } else {
-    rootCause = `and ${marks} slipped`;
-    fix = `Want to go through it, or something else?`;
-  }
+  // H6 — one root cause, in the owner's groups (marks when the record has them): rootCauseFor.
+  const { rootCause, fix } = rootCauseFor(record, marks);
 
   const where = `On Q${qNumber}, step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)}`;
 
@@ -340,7 +410,7 @@ export function composeCheckImproveRichReturnOpener(
   // is a fact here (every step marked correct), not a compliment we invented.
   if (lost === 0) {
     const hasWorking = (response?.results || []).some(
-      (r) => !r.couldNotRead && !!r.annotatedSteps?.length,
+      (r) => isGradedQuestion(r) && !!r.annotatedSteps?.length,
     );
     if (!hasWorking) return null; // MCQ-only clean sheet — the thin opener already says this.
     return {
@@ -353,29 +423,10 @@ export function composeCheckImproveRichReturnOpener(
   if (!fault) return null; // No visible reasoning to point at → the marks-only line is the honest one.
 
   const { qNumber, step } = fault;
-  const ft = record.fourType || { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  const method = (ft.conceptual || 0) + (ft.calculation || 0);
-  const presLed = (ft.presentation || 0) + (ft.silly || 0);
   const marks = `${lost} mark${lost === 1 ? "" : "s"}`;
 
-  // One root cause, from the record's own four-type totals — the SAME method-vs-presentation
-  // doctrine the thin C&I opener uses, now naming the exact step the grader flagged.
-  let rootCause: string;
-  let fix: string;
-  if (presLed > method && presLed > 0) {
-    // Careless/presentation is NOT a weakness (MI doctrine) — say so plainly.
-    rootCause = `and the ${marks} came off the presentation, not your maths`;
-    fix = `You know this; it's the finish costing you. Want to tighten just the write-up, or something else?`;
-  } else if (method > 0) {
-    const calcLed = (ft.calculation || 0) >= (ft.conceptual || 0);
-    rootCause = calcLed
-      ? `and the ${marks} slipped in the working — the approach was right, the arithmetic wasn't`
-      : `and the ${marks} came off the method itself — the setup needs a tweak`;
-    fix = `Want to fix just that, or something else?`;
-  } else {
-    rootCause = `and ${marks} slipped`;
-    fix = `Want to go through it, or something else?`;
-  }
+  // H6 — one root cause, in the owner's groups (marks when the record has them): rootCauseFor.
+  const { rootCause, fix } = rootCauseFor(record, marks);
 
   const where = `On Q${qNumber}, step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)}`;
 
@@ -434,8 +485,11 @@ export function buildReturnedWork({
   if (includeDigest) {
     const results = [...(response?.results || [])].sort((a, b) => a.qNumber - b.qNumber);
     for (const r of results) {
-      if (r.couldNotRead || !r.annotatedSteps?.length) continue;
+      // H8 — a question that was not graded says nothing about the work, and a crossed-out
+      // (withdrawn) step is not part of the answer: neither reaches the model.
+      if (!isGradedQuestion(r) || !r.annotatedSteps?.length) continue;
       for (const s of [...r.annotatedSteps].sort((a, b) => a.stepNumber - b.stepNumber)) {
+        if (isWithdrawnStatus(s.status)) continue;
         const description = String(s.description || "").trim();
         if (!description) continue;
         steps.push({ q: r.qNumber, n: s.stepNumber, description, status: s.status });
@@ -509,25 +563,33 @@ export function composeReturnOpener(
     };
   }
 
-  const ft = record.fourType || { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  const method = (ft.conceptual || 0) + (ft.calculation || 0);
-  const presLed = (ft.presentation || 0) + (ft.silly || 0);
-
+  // H6 — the biggest loss in the owner's groups (marks when the record has them; dominantLoss).
+  const n = `${lost} mark${lost === 1 ? "" : "s"}`;
   let rootCause: string;
   let fix: string;
-  if (presLed > method && presLed > 0) {
-    // Not the maths — presentation / careless. Careless is NOT a weakness (MI doctrine).
-    rootCause = `and here's the thing: the ${lost} mark${lost === 1 ? "" : "s"} came off the presentation, not your maths — the method held up.`;
-    fix = `You know this; it's the finish costing you. Want to nail just the write-up, or something else?`;
-  } else if (method > 0) {
-    const calcLed = (ft.calculation || 0) >= (ft.conceptual || 0);
-    rootCause = calcLed
-      ? `the ${lost} mark${lost === 1 ? "" : "s"} slipped in the working — the approach was right, the arithmetic wasn't.`
-      : `the ${lost} mark${lost === 1 ? "" : "s"} came off the method itself — the setup needs a tweak.`;
-    fix = `Want to fix just that, or something else?`;
-  } else {
-    rootCause = `you dropped ${lost} of ${total}.`;
-    fix = `Want to go through where, or something else?`;
+  switch (dominantLoss(record)) {
+    case "technique":
+      // Not the maths — exam technique. It is NOT a weakness (MI doctrine).
+      rootCause = `and here's the thing: the ${n} came off the presentation, not your maths — the method held up.`;
+      fix = `You know this; it's the finish costing you. Want to nail just the write-up, or something else?`;
+      break;
+    case "careless":
+      // Careless is NOT a weakness either — the student already knows this.
+      rootCause = `the ${n} slipped in the working — the approach was right, the checking let them go.`;
+      fix = `You already know this. Want to slow down on just that, or something else?`;
+      break;
+    case "knowledge":
+      rootCause = `the ${n} came off the method itself — the setup needs a tweak.`;
+      fix = `Want to fix just that, or something else?`;
+      break;
+    case "notAttempted":
+      // Not attempted is never a mistake.
+      rootCause = `the ${n} were on work you didn't attempt — that's not a mistake, just marks still on the table.`;
+      fix = `Want to try that part together, or something else?`;
+      break;
+    default:
+      rootCause = `you dropped ${lost} of ${total}.`;
+      fix = `Want to go through where, or something else?`;
   }
 
   return {

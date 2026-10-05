@@ -14,7 +14,17 @@ import {
   isQuestionNotAttempted,
   stepDisplay,
   stepForDisplay,
+  gradeStateOf,
+  paperMarksLost,
+  gradeStateCopy,
+  isGradedQuestion,
+  mismatchSummaryLine,
+  notGradedSummaryLine,
+  pendingBreakdown,
+  questionMarksLost,
+  splitWithdrawnSteps,
 } from "../../lib/mistakeDisplay";
+import { MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import { MathText } from "../question/MathText";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 // FAIR-USE-UI-1 (UI1) — dark unless /api/usage/me says `enforced: true`.
@@ -85,6 +95,10 @@ function buildCoaching(response: WorksheetGradeResponse): string {
     marksAwarded: response.gradedMarksAwarded,
     marksTotal: response.gradedMarksTotal,
     counts: effectivePaperCounts(response.results),
+    // SCORECARD-MI-1 PR-2 (B7) — in MARKS when the grade carries them (else counts, unit-labelled).
+    marks: paperMarksLost(response.results)?.byType ?? null,
+    mismatchCount: response.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length,
+    notGradedCount: pendingBreakdown(response.results, response.pendingCount).notGraded,
     pendingCount: response.pendingCount,
     notAttemptedCount: response.results.filter((r) => isQuestionNotAttempted(r)).length,
   });
@@ -105,7 +119,7 @@ function miBannerFrom(outcome: WorksheetGradeOutcome | null): MiBanner {
 function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; objective?: boolean }) {
   // SCORECARD-MI-1 — step state from the ONE module ("missing" = Not attempted, no "−N";
   // an unknown status is neutral, never "Incorrect").
-  const display = stepDisplay(step.status);
+  const display = stepDisplay(step.status, step.mistakeType);
   const cls =
     display.kind === "correct"
       ? "ok"
@@ -143,19 +157,26 @@ function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; object
 
 function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestionGrade }) {
   const q = ws.questions.find((x) => x.qNumber === g.qNumber);
-  if (g.couldNotRead) {
+  // SCORECARD-MI-1 PR-2 (B8 + owner addendum) — not graded: the owner's sentence, no mark.
+  if (!isGradedQuestion(g)) {
+    const state = gradeStateOf(g);
     return (
-      <div className="lt-wg__q lt-wg__q--pending">
+      <div className="lt-wg__q lt-wg__q--pending" data-grade-state={state}>
         <div className="lt-wg__qhead">
           <span className="lt-wg__qn">Q{g.qNumber}</span>
-          <span className="lt-wg__qpending">Couldn’t read — re-upload this page</span>
+          <span className="lt-wg__qpending">{gradeStateCopy(g)}</span>
         </div>
         <p className="lt-wg__qnote">
-          {g.note || "We couldn’t read your answer for this question clearly. Re-scan that page and upload again — it isn’t counted as wrong."}
+          {state === "answer-mismatch" || state === "not-graded"
+            ? "Nothing has been marked, scored 0 or saved for it."
+            : g.note || "We couldn’t read your answer for this question clearly. Re-scan that page and upload again — it isn’t counted as wrong."}
         </p>
       </div>
     );
   }
+  // B8 — crossed-out attempts are drawn apart, struck; never inside the marked working.
+  const { marked } = splitWithdrawnSteps(g.annotatedSteps ?? []);
+  const qMarks = questionMarksLost(g);
   const pct = Number(g.percentage) || 0;
   const tone = pct >= 80 ? "good" : pct >= 50 ? "mid" : "low";
   return (
@@ -168,14 +189,17 @@ function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestio
         </span>
       </div>
       {q?.questionText && <p className="lt-wg__qtext"><MathText text={q.questionText} /></p>}
-      {g.annotatedSteps && g.annotatedSteps.length > 0 && (
+      {marked.length > 0 && (
         <ul className="lt-wg__steps">
-          {g.annotatedSteps.map((s) => (
+          {marked.map((s) => (
             <StepRow key={s.stepNumber} step={stepForDisplay(s, g)} objective={g.objective} />
           ))}
         </ul>
       )}
+      <WithdrawnWorkBlock steps={g.annotatedSteps} />
       {g.teacherNote && <div className="lt-wg__qexaminer">{g.teacherNote}</div>}
+      <RubricBlock rubric={g.rubric} />
+      {qMarks && <MarksLostLines marks={qMarks} />}
     </div>
   );
 }
@@ -508,7 +532,28 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
             </div>
             {response.pendingCount > 0 && (
               <div className="lt-wg__totpending">
-                {response.pendingCount} question{response.pendingCount === 1 ? "" : "s"} couldn’t be read — re-upload those pages to complete your score. The worksheet is worth {response.worksheetTotalMarks} marks in total.
+                {/* PR-2 — an answer that does not match its question was read: it is not "unreadable". */}
+                {(() => {
+                  // notGraded (owner-approved 2026-10-05) — never called an unreadable page.
+                  const { unread, mismatch, notGraded } = pendingBreakdown(response.results, response.pendingCount);
+                  return (
+                    <>
+                      {unread > 0 && (
+                        <>
+                          {unread} question{unread === 1 ? "" : "s"} couldn’t be read — re-upload those pages to complete your score.{" "}
+                        </>
+                      )}
+                      {mismatch > 0 && (
+                        <>
+                          {/* N7 — the owner's sentence, verbatim (never paraphrased). */}
+                          {mismatchSummaryLine(mismatch)}{" "}
+                        </>
+                      )}
+                      {notGraded > 0 && <>{notGradedSummaryLine(notGraded)} </>}
+                      The worksheet is worth {response.worksheetTotalMarks} marks in total.
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>

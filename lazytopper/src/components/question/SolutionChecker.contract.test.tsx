@@ -518,6 +518,12 @@ describe("SolutionChecker -- the post-grade persistence twins", () => {
       marksScored: 2,
       marksAvailable: 3,
       mode: "graded",
+      // SCORECARD-MI-1 PR-2 (H1, owner ruling 2026-10-05: re-grade replaces) — the SAME identity
+      // as the MI entry above, so re-checking THIS answer replaces its attempt; and the grade
+      // itself, for its versioned marks and its not-attempted state (H7/H11).
+      surface: "solution-checker",
+      answerKey: `t:${hashAttemptString("working")}`,
+      grade: response,
     });
 
     expect(onResult).toHaveBeenCalledWith(response);

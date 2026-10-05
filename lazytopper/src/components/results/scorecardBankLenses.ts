@@ -19,6 +19,7 @@
 // static edge). `bankReach.guard.test.ts` (src/config) goes red, naming the chain, if a
 // protected page reaches canonicalQuestionBank.ts again.
 
+import { isGradedQuestion } from "../../lib/mistakeDisplay";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { buildGradedAnswersFromWorksheetResponse } from "../../services/gradedAnswerAssembly";
 import type { SessionRecord } from "../../services/sessionRecords";
@@ -27,6 +28,8 @@ import type { SessionRecord } from "../../services/sessionRecords";
 import { bankIndexEntries } from "../../data/bankChapters/bankIdIndex";
 import {
   aggregateFourType,
+  aggregateMarksLost,
+  pendingStrip,
   deriveChapterTestSectionLens,
   deriveFullMockChapterLens,
   deriveFullMockSectionLens,
@@ -81,7 +84,7 @@ export function deriveChapterTestConceptLens(
 
   const buckets = new Map<string, { awarded: number; total: number }>();
   for (const r of response.results) {
-    if (r.couldNotRead) continue;
+    if (!isGradedQuestion(r)) continue; // PR-2: not graded is never a 0
     const id = idByQNumber.get(r.qNumber);
     if (!id) continue; // no matching paper question — skip (still in the hero total)
     const subtopic = subtopicForQuestionId(id);
@@ -209,6 +212,7 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
       totalQuestions: response.totalQuestions,
     },
     fourType: aggregateFourType(response),
+    marksLost: aggregateMarksLost(response),
     sectionLens: deriveChapterTestSectionLens(response),
     conceptLens: input.questions ? deriveChapterTestConceptLens(response, input.questions) : null,
     // GRADED-STEP-BLOCK - the per-answer sheet, with the student's own per-step working.
@@ -218,10 +222,7 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
     // SHARED assembly, the same one Quick Practice uses - one shape, one clamp, one set
     // of honest-ungraded rules.
     gradedAnswers: ctGradedAnswers.length > 0 ? ctGradedAnswers : null,
-    pending:
-      response.pendingCount > 0
-        ? { count: response.pendingCount, worksheetTotalMarks: response.worksheetTotalMarks }
-        : null,
+    pending: pendingStrip(response),
     allPending: null,
     actionsHeading: "What next?",
     stackActions: true,
@@ -301,6 +302,8 @@ export function storedChapterTestScorecardVariant(
     },
     message: record.status === "partial" ? "Graded portion shown — some pages were pending on this test." : null,
     fourType: record.fourType,
+    // PR-2 (B7) — marks when the stored payload carries them; a count-only record stays counts (G5).
+    marksLost: input.response ? aggregateMarksLost(input.response) : null,
     sectionLens: response ? deriveChapterTestSectionLens(response) : null,
     conceptLens: conceptQuestions ? deriveChapterTestConceptLens(response!, conceptQuestions) : null,
     pending: null,
@@ -419,6 +422,8 @@ export function storedFullMockScorecardVariant(
     message: record.status === "partial" ? "Graded portion shown — some pages were pending on this mock." : null,
     note: focusLine,
     fourType: record.fourType,
+    // PR-2 (B7) — marks when the stored payload carries them; a count-only record stays counts (G5).
+    marksLost: input.response ? aggregateMarksLost(input.response) : null,
     sectionLens: response ? deriveFullMockSectionLens(response) : null,
     chapterLens,
     chapterLensNote: fullMockChapterLensNote(chapterLens),

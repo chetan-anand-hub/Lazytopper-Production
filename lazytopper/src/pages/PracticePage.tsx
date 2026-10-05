@@ -430,6 +430,7 @@ import {
   buildGradedAnswer,
   dominantMistakeKind,
   marksDescriptor,
+  notGradedAnswer,
   optionLetter,
   sortGradedAnswers,
   ungradedAnswer,
@@ -504,6 +505,7 @@ import { downloadWorksheet } from "../components/practice/worksheetGenerator";
 import ResultsScorecard from "../components/results/ResultsScorecard";
 import {
   aggregateFourType,
+  aggregateMarksLost,
   quickPracticeGradedScorecardVariant,
   quickPracticeScorecardVariant,
   type ScorecardGradedAnswer,
@@ -2891,6 +2893,20 @@ const packTopicKey = useMemo(() => {
       const label = `Question ${saved.qNumber}`;
       const objective = saved.objective === true;
       const descriptor = marksDescriptor(marks, objective);
+      if (!graded && entry?.notGraded) {
+        // SCORECARD-MI-1 PR-2 (B8 + owner addendum) — the grader answered but did NOT grade it
+        // (could not read it, could not read the option, or the answer does not match the
+        // question): the owner's sentence, no mark, nothing recorded.
+        answers.push(notGradedAnswer(label, descriptor, {
+          couldNotRead: entry.notGraded === "could-not-read",
+          answerMismatch: entry.notGraded === "answer-mismatch" ? true : null,
+          objectiveResolved: entry.notGraded === "unread-option" ? false : null,
+          // notGraded (A's PR-3; owner-approved 2026-10-05) — the server's own reason decides the
+          // sentence ("please try again"), so a timeout never reads "retake the photo".
+          notGraded: entry.notGradedReason ?? (entry.notGraded === "not-graded" ? "error" : null),
+        }));
+        continue;
+      }
       if (!graded) {
         // ★ HONEST-UNGRADED. The grader could not read this answer, so there is NO mark.
         // Rendering a 0 would be the fabrication (CLAUDE.md §5).
@@ -2938,6 +2954,9 @@ const packTopicKey = useMemo(() => {
         annotatedSteps: graded.annotatedSteps,
         includeSteps: true,
         lostFromStepsOnly: true,
+        // PR-2 (B7/B8) — this answer's marks lost per type, and how it was marked.
+        marksLostByType: graded.marksLostByType,
+        rubric: graded.rubric,
       }));
     }
     // ★★ OVER THE PHOTO CAP: saved, honestly NOT in this grade. One call takes at most
@@ -2968,6 +2987,8 @@ const packTopicKey = useMemo(() => {
           nothingSaved: unansweredLabels,
           answers,
           fourType: aggregateFourType(response),
+          // PR-2 (B7) — "Where your marks went" in MARKS when the grade carries them.
+          marksLost: aggregateMarksLost(response),
           onKeepPracticing: () => { setBatchResult(null); setSessionFinished(false); },
           onFreshSet: () => buildFreshSet(),
           returnTicket: overlay

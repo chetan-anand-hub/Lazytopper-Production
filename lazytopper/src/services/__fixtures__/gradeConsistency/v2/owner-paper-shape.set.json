@@ -1,0 +1,779 @@
+{
+ "source": "SYNTHETIC — built from GRADER-CORE-1 v2 contract (A's report §V2 FIELDS, branch lane/grader-core-1 @e5f81a3a server/grading/postprocess.cjs)",
+ "about": "The owner's paper SHAPE (10 questions, Maths + Science): Q2 an unread MCQ option (couldNotRead + objectiveResolved:false), Q4 an answer that does not match its question (answerMismatch:true, NOT graded), Q5 a rubric, Q6 NOT attempted (one 'unattempted' step, marksLostByType.unattempted = total), Q7 a 'withdrawn' (crossed-out) step plus real mistakes, Q9 a loss the grader gave no reason for (untyped), Q10 a case-based question with one part not attempted and one calculation slip. Totals per the v2 rule (checkSolution.cjs handleGradeWorksheet): not-graded questions excluded from gradedCount / gradedMarksAwarded / gradedMarksTotal, counted in pendingCount, included in worksheetTotalMarks.",
+ "grader": "GRADER-CORE-1 v2 (acceptsV2: true)",
+ "surface": "SET",
+ "request": {
+  "subject": "Maths",
+  "questions": [
+   {
+    "qNumber": 1,
+    "marks": 1,
+    "subject": "Maths",
+    "topic": "Real Numbers",
+    "questionText": "The HCF of 96 and 404 is (a) 4 (b) 12 (c) 24 (d) 96",
+    "objective": true
+   },
+   {
+    "qNumber": 2,
+    "marks": 1,
+    "subject": "Maths",
+    "topic": "Polynomials",
+    "questionText": "The number of zeroes of the polynomial whose graph meets the x-axis at three points is (a) 1 (b) 2 (c) 3 (d) 0",
+    "objective": true
+   },
+   {
+    "qNumber": 3,
+    "marks": 2,
+    "subject": "Maths",
+    "topic": "Pair of Linear Equations in Two Variables",
+    "questionText": "Solve 2x + 3y = 13 and x - y = -1.",
+    "objective": false
+   },
+   {
+    "qNumber": 4,
+    "marks": 3,
+    "subject": "Maths",
+    "topic": "Quadratic Equations",
+    "questionText": "Find the roots of 2x² - 5x + 3 = 0 by factorisation.",
+    "objective": false
+   },
+   {
+    "qNumber": 5,
+    "marks": 3,
+    "subject": "Maths",
+    "topic": "Arithmetic Progressions",
+    "questionText": "Find the 20th term of the AP 3, 7, 11, ...",
+    "objective": false
+   },
+   {
+    "qNumber": 6,
+    "marks": 5,
+    "subject": "Maths",
+    "topic": "Coordinate Geometry",
+    "questionText": "Find the ratio in which the line segment joining A(1, -5) and B(-4, 5) is divided by the x-axis, and the point of division.",
+    "objective": false
+   },
+   {
+    "qNumber": 7,
+    "marks": 3,
+    "subject": "Science",
+    "topic": "Chemical Reactions and Equations",
+    "questionText": "Write the balanced equation for burning magnesium ribbon in air, name the type of reaction and give the state symbols.",
+    "objective": false
+   },
+   {
+    "qNumber": 8,
+    "marks": 2,
+    "subject": "Science",
+    "topic": "Life Processes",
+    "questionText": "Name the site of photosynthesis in a leaf cell and the pigment it contains.",
+    "objective": false
+   },
+   {
+    "qNumber": 9,
+    "marks": 5,
+    "subject": "Science",
+    "topic": "Electricity",
+    "questionText": "Three resistors of 2 Ω, 3 Ω and 6 Ω are joined in parallel across a 6 V battery. Find the equivalent resistance and the total current.",
+    "objective": false
+   },
+   {
+    "qNumber": 10,
+    "marks": 4,
+    "subject": "Science",
+    "topic": "Light - Reflection and Refraction",
+    "questionText": "Case study: a concave mirror of focal length 15 cm forms an image of an object placed 10 cm in front of it. (i) Name the mirror. (ii) State the nature of the image. (iii) Find the image distance.",
+    "objective": false
+   }
+  ]
+ },
+ "trueChapters": {
+  "1": "real-numbers",
+  "2": "polynomials",
+  "3": "pair-of-linear-equations-in-two-variables",
+  "4": "quadratic-equations",
+  "5": "arithmetic-progression",
+  "6": "coordinate-geometry",
+  "7": "chemical-reactions-and-equations",
+  "8": "life-processes",
+  "9": "electricity",
+  "10": "light-reflection-and-refraction"
+ },
+ "trueSubjects": {
+  "1": "Maths",
+  "2": "Maths",
+  "3": "Maths",
+  "4": "Maths",
+  "5": "Maths",
+  "6": "Maths",
+  "7": "Science",
+  "8": "Science",
+  "9": "Science",
+  "10": "Science"
+ },
+ "body": {
+  "ok": true,
+  "worksheetId": "g3v2-owner-paper-shape",
+  "results": [
+   {
+    "qNumber": 1,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 1,
+    "marksAwarded": 1,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Final answer",
+      "studentWork": "(a) 4",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correct option.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 0
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": true,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 0,
+     "untyped": 0
+    },
+    "rubric": null,
+    "objectiveResolved": true
+   },
+   {
+    "qNumber": 2,
+    "couldNotRead": true,
+    "totalMarks": 1,
+    "marksAwarded": 0,
+    "note": "We could not read which option you chose, so this question has not been marked — make your final choice clear and check it again.",
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 0,
+     "untyped": 0
+    },
+    "rubric": null,
+    "objectiveResolved": false
+   },
+   {
+    "qNumber": 3,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 1,
+    "percentage": 50,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Express x from the second equation",
+      "studentWork": "x = y - 1",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 2,
+      "description": "Substitute and solve",
+      "studentWork": "2(y - 1) + 3y = 13 so 5y = 11",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "2(y - 1) + 3y = 13 gives 5y = 15.",
+      "mistakeType": "calculation",
+      "correctedWorking": "5y = 15, y = 3, x = 2",
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 1,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 1,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 0,
+     "untyped": 0
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   },
+   {
+    "qNumber": 4,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 0,
+    "percentage": 0,
+    "annotatedSteps": [],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "This answer does not address the question that was set, so it has not been marked — check that you uploaded your answer to this question.",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": true,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 0,
+     "untyped": 0
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   },
+   {
+    "qNumber": 5,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 2,
+    "percentage": 67,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "State the formula for the nth term",
+      "studentWork": "a_n = a + (n - 1)d",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 2,
+      "description": "Identify a and d",
+      "studentWork": "a = 3, d = 4",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 3,
+      "description": "Find the 20th term",
+      "studentWork": "a_20 = 3 + 20 × 4 = 83",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "Use (n - 1)d, not nd.",
+      "mistakeType": "conceptual",
+      "correctedWorking": "a_20 = 3 + 19 × 4 = 79",
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 1,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 1,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 0,
+     "untyped": 0
+    },
+    "rubric": [
+     {
+      "point": "States a_n = a + (n - 1)d",
+      "marks": 1
+     },
+     {
+      "point": "Identifies a = 3 and d = 4",
+      "marks": 1
+     },
+     {
+      "point": "Finds a_20 = 79",
+      "marks": 1
+     }
+    ],
+    "objectiveResolved": null
+   },
+   {
+    "qNumber": 6,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 5,
+    "marksAwarded": 0,
+    "percentage": 0,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Answer",
+      "studentWork": "",
+      "status": "unattempted",
+      "marksAwarded": 0,
+      "marksDeducted": 5,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 5
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 5,
+     "untyped": 0
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   },
+   {
+    "qNumber": 7,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 1.5,
+    "percentage": 50,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Crossed-out attempt",
+      "studentWork": "Mg + O2 → MgO",
+      "status": "withdrawn",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 0
+     },
+     {
+      "stepNumber": 2,
+      "description": "Write the balanced equation",
+      "studentWork": "2Mg + O2 → 2MgO",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 3,
+      "description": "Name the type of reaction",
+      "studentWork": "Displacement reaction",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "Two substances combine into one: a combination reaction.",
+      "mistakeType": "conceptual",
+      "correctedWorking": "Combination reaction",
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 4,
+      "description": "Give the state symbols",
+      "studentWork": "2Mg + O2 → 2MgO (s)",
+      "status": "partial",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0.5,
+      "teacherAnnotation": "Every species needs its state symbol.",
+      "mistakeType": "presentation",
+      "correctedWorking": "2Mg(s) + O2(g) → 2MgO(s)",
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 1,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 1,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 1,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0.5,
+     "unattempted": 0,
+     "untyped": 0
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   },
+   {
+    "qNumber": 8,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 2,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Name the site",
+      "studentWork": "Chloroplast",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 2,
+      "description": "Name the pigment",
+      "studentWork": "Chlorophyll",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 0,
+     "untyped": 0
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   },
+   {
+    "qNumber": 9,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 5,
+    "marksAwarded": 3,
+    "percentage": 60,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Write the parallel-combination formula",
+      "studentWork": "1/R = 1/R1 + 1/R2 + 1/R3",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 2,
+      "description": "Substitute the values",
+      "studentWork": "1/R = 1/2 + 1/3 + 1/6",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 3,
+      "description": "Find R",
+      "studentWork": "1/R = 1 so R = 1",
+      "status": "partial",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0.5,
+      "teacherAnnotation": "The unit was dropped on the final line.",
+      "mistakeType": "silly",
+      "correctedWorking": "R = 1 Ω",
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 4,
+      "description": "Write Ohm's law for the current",
+      "studentWork": "I = V × R",
+      "status": "partial",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0.5,
+      "teacherAnnotation": "State I = V/R before substituting.",
+      "mistakeType": "presentation",
+      "correctedWorking": "I = V/R",
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 5,
+      "description": "Find the current",
+      "studentWork": "I = 6 A",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "The current is not supported by the working shown.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 1,
+     "presentation": 1,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0.5,
+     "presentation": 0.5,
+     "unattempted": 0,
+     "untyped": 1
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   },
+   {
+    "qNumber": 10,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 4,
+    "marksAwarded": 2,
+    "percentage": 50,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Name the mirror",
+      "studentWork": "Concave mirror",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": "i",
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 2,
+      "description": "State the nature of the image",
+      "studentWork": "Virtual and erect",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": "ii",
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 3,
+      "description": "Apply the mirror formula",
+      "studentWork": "1/v = 1/15 - 1/10 = 1/30",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "Take u = -10 cm and f = -15 cm.",
+      "mistakeType": "calculation",
+      "correctedWorking": "1/v = 1/(-15) - 1/(-10) = 1/30",
+      "isDeparture": false,
+      "isReturn": false,
+      "part": "iii",
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 4,
+      "description": "Find the image distance",
+      "studentWork": "",
+      "status": "unattempted",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": "iii",
+      "marksAvailable": 1
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 1,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 1,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 1,
+     "untyped": 0
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   }
+  ],
+  "totalQuestions": 10,
+  "gradedCount": 8,
+  "pendingCount": 2,
+  "gradedMarksAwarded": 12.5,
+  "gradedMarksTotal": 25,
+  "worksheetTotalMarks": 29,
+  "summary": "",
+  "provider": "synthetic",
+  "model": "none"
+ }
+}

@@ -115,6 +115,7 @@ function audit(writes: readonly { key: string; value: string }[], allow: Allow):
 const UID = "uid-sentinel-9f3c4b";
 const QID = "RN-1";
 const TOPIC = "real-numbers";
+const SUBMISSION = "ws-sentinel-1";
 const ATTEMPT_DEDUP_KEY = "lazytopper.attempt.dedup.v1";
 const TS = 1754006400000;
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
@@ -132,6 +133,9 @@ const CONTEXT: RecordAttemptContext = {
   mode: "graded",
   difficulty: "Medium",
   timestamp: TS,
+  // SCORECARD-MI-1 PR-2 (H1) — the submission identity every production caller now passes.
+  surface: "worksheet",
+  submissionId: SUBMISSION,
 };
 
 const ALLOW: Allow = {
@@ -160,6 +164,16 @@ const ALLOW: Allow = {
     "mode",
     "marksSource",
     "detectionOverride",
+    // SCORECARD-MI-1 PR-2 (H7/H11) — academic grade fields, declared deliberately:
+    "notAttempted",
+    "marksLostByType",
+    "marksLostByTypeVersion",
+    "conceptual",
+    "calculation",
+    "silly",
+    "presentation",
+    "unattempted",
+    "untyped",
     "timestamp",
     "updatedAt",
     // present on the merged progress snapshot, absent from this fixture:
@@ -178,12 +192,14 @@ const ALLOW: Allow = {
     "maths",
     "graded",
     "Medium",
-    /^\d+\/\d+$/, //         the dedup key's score segment
+    // SCORECARD-MI-1 PR-2 (H1, owner ruling 2026-10-05: re-grade replaces) — the key (and the
+    // attempt's id, which IS the key) is uid + surface + submission + question. The SCORE
+    // segment is gone, so its old allowance (/^\d+\/\d+$/) is removed: a score in the key
+    // would now fail this guard. The surface is the app's own vocabulary, the submission is
+    // THIS fixture's paper id — pinned exactly, never a loose pattern that fails open.
+    "worksheet",
+    SUBMISSION,
     /^t:[a-z0-9]+$/, //      hashed free-typed question (no questionId)
-    // `appendAttempt`'s generated id: `${questionId}-${topicKey}-${base36 now}`.
-    // Pinned to THIS fixture's question + topic rather than a loose
-    // `/^[\w-]+$/`, which would fail OPEN and wave through arbitrary strings.
-    new RegExp(`^${QID}-${TOPIC}-[a-z0-9]+$`),
     ISO,
     /^\d+$/, //              marks, epoch ms
     /^(true|false)$/,
@@ -227,7 +243,7 @@ describe("practiceInsights — only the uid reaches localStorage", () => {
     ).toEqual([]);
   });
 
-  it("★ sink #16 was exercised, and its signature is uid + question + score only", () => {
+  it("★ sink #16 was exercised, and its signature is uid + surface + submission + question only (H1: never the score)", () => {
     recordAttempt(USER, CONTEXT);
 
     const dedup = writes.filter((w) => w.key === ATTEMPT_DEDUP_KEY);
@@ -239,9 +255,21 @@ describe("practiceInsights — only the uid reaches localStorage", () => {
     const segments = entries[0].split("::");
     // The uid IS persisted — this is the value CodeQL is complaining about.
     expect(segments[0]).toBe(UID);
-    expect(segments[1]).toBe(QID);
-    expect(segments[2]).toBe("1/3");
-    expect(segments).toHaveLength(3);
+    expect(segments[1]).toBe("worksheet");
+    expect(segments[2]).toBe(SUBMISSION);
+    expect(segments[3]).toBe(QID);
+    expect(segments).toHaveLength(4);
+    expect(entries[0]).not.toMatch(/\d+\/\d+/);
+  });
+
+  it("★ a v2 grade's academic fields (marks per bucket, not attempted) stay inside the allowlist", () => {
+    const grade = {
+      totalMarks: 3,
+      marksAwarded: 1,
+      marksLostByType: { conceptual: 1, calculation: 1, silly: 0, presentation: 0, unattempted: 0, untyped: 0 },
+    };
+    expect(recordAttempt(USER, { ...CONTEXT, grade })).toBe("recorded");
+    expect(audit(writes, ALLOW)).toEqual([]);
   });
 
   it("★ NEGATIVE CONTROL — a uid-only run is GREEN (the guard does not fail on everything)", () => {
@@ -252,19 +280,19 @@ describe("practiceInsights — only the uid reaches localStorage", () => {
   it("★ CONTROL — the audit CAN fire: email, phone, and a denylist-evading field", () => {
     const blob = `lazytopper.progress.scope.v1:practiceInsights:${UID}`;
 
-    expect(audit([{ key: blob, value: JSON.stringify({ attempts: [{ id: `${QID}-${TOPIC}-abc123`,email: "a@b.test" }] }) }], ALLOW)).toEqual([
+    expect(audit([{ key: blob, value: JSON.stringify({ attempts: [{ id: `${UID}::worksheet::${SUBMISSION}::${QID}`, email: "a@b.test" }] }) }], ALLOW)).toEqual([
       `payload key "email" written to "${blob}"`,
       `payload value "a@b.test" written to "${blob}"`,
     ]);
 
     // An identifier folded into the composite dedup key.
     expect(
-      audit([{ key: ATTEMPT_DEDUP_KEY, value: JSON.stringify([`${UID}::${QID}::1/3::+910000000000`]) }], ALLOW),
+      audit([{ key: ATTEMPT_DEDUP_KEY, value: JSON.stringify([`${UID}::worksheet::${SUBMISSION}::${QID}::+910000000000`]) }], ALLOW),
     ).toEqual([`payload value "+910000000000" written to "${ATTEMPT_DEDUP_KEY}"`]);
 
     // ★ THE CASE A DENYLIST WOULD MISS — named neither `email` nor `phone`.
     expect(
-      audit([{ key: blob, value: JSON.stringify({ attempts: [{ id: `${QID}-${TOPIC}-abc123`,guardianPhone: "+910000000000" }] }) }], ALLOW),
+      audit([{ key: blob, value: JSON.stringify({ attempts: [{ id: `${UID}::worksheet::${SUBMISSION}::${QID}`, guardianPhone: "+910000000000" }] }) }], ALLOW),
     ).toEqual([
       `payload key "guardianPhone" written to "${blob}"`,
       `payload value "+910000000000" written to "${blob}"`,

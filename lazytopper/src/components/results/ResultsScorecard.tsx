@@ -2,13 +2,22 @@ import { useEffect } from "react";
 import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
 import { MathText } from "../question/MathText";
 import {
+  ANSWER_MISMATCH_COPY,
+  COULD_NOT_READ_COPY,
+  UNREAD_OPTION_COPY,
+  MARKS_HEADING,
   MISTAKES_BY_KIND_HEADING,
   NOT_ATTEMPTED,
+  UNTYPED_MARKS_LABEL,
   countWithUnit,
   groupRows,
+  marksGroupRows,
+  marksWithUnit,
   mistakeGroupOf,
   stepDisplay,
+  type PaperMarksLost,
 } from "../../lib/mistakeDisplay";
+import { MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "./GradeStateParts";
 import type {
   ScorecardVariant,
   ScorecardScore,
@@ -254,7 +263,7 @@ function GradedStepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; 
   // SCORECARD-MI-1 (D3/D4) — the step's state from the ONE module: "missing" reads
   // "Not attempted" with no "−N" against it, and an unknown status never crashes and never
   // reads "Incorrect".
-  const display = stepDisplay(step.status);
+  const display = stepDisplay(step.status, step.mistakeType);
   const tone =
     display.kind === "correct"
       ? "ok"
@@ -264,7 +273,9 @@ function GradedStepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; 
           ? "miss"
           : display.kind === "partial"
             ? "part"
-            : "unk";
+            : display.kind === "withdrawn"
+              ? "struck"
+              : "unk";
   return (
     <li className={`lt-sc__gst lt-sc__gst--${tone}`}>
       <div className="lt-sc__gst-head">
@@ -350,6 +361,11 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
         </div>
       )}
       <GradedStepBlock answer={answer} />
+      {/* SCORECARD-MI-1 PR-2 (B8) — crossed-out work apart and struck; the marking scheme apart
+          from the note; this answer's lost marks in marks. Each renders nothing when absent. */}
+      <WithdrawnWorkBlock steps={answer.withdrawnSteps} dark />
+      <RubricBlock rubric={answer.rubric} dark />
+      {answer.marksLost && <MarksLostLines marks={answer.marksLost} dark />}
       {answer.mistakeType && (
         <div
           className={`lt-sc__ga-mtype lt-sc__ga-mtype--${colorKey}`}
@@ -441,6 +457,50 @@ function FourTypeBlock({ ft }: { ft: ScorecardFourType }) {
   );
 }
 
+/**
+ * "Where your marks went" — SCORECARD-MI-1 PR-2 (B7). The owner's three groups in MARKS from the
+ * grade's `marksLostByType`, then "Not attempted" (never a mistake) and "Marks lost, reason not
+ * recorded" — the parts sum to the marks lost on the graded questions (G3). Rendered INSTEAD of
+ * the count block whenever the grade carries marks.
+ */
+function MarksBlock({ pm }: { pm: PaperMarksLost }) {
+  const rows = marksGroupRows(pm.byType);
+  return (
+    <>
+      <div className="lt-sc__mbk" data-testid="sc-marks-heading">{MARKS_HEADING}</div>
+      <div className="lt-sc__groups" data-testid="sc-marks-lost" data-lost={pm.lost}>
+        {rows.map(({ group, marks, types }) => (
+          <div key={group.key} className={`lt-sc__col lt-sc__col--${group.colorKey}`} data-group={group.key} data-marks={marks}>
+            <div className="lt-sc__gh">{group.heading}</div>
+            <div className="lt-sc__gsub">
+              {group.label} · {marksWithUnit(marks)}
+            </div>
+            {types.map((t) => (
+              <div key={t.type} className="lt-sc__row">
+                <span className={`lt-sc__sw lt-sc__sw--${t.type}`} />
+                {t.label}
+                <span className="lt-sc__ct">{marksWithUnit(t.marks)}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      {pm.byType.unattempted > 0 && (
+        <div className="lt-sc__row lt-sc__row--na" data-group="not-attempted" data-marks={pm.byType.unattempted}>
+          {NOT_ATTEMPTED.label} — not counted as a mistake
+          <span className="lt-sc__ct">{marksWithUnit(pm.byType.unattempted)}</span>
+        </div>
+      )}
+      {pm.byType.untyped > 0 && (
+        <div className="lt-sc__row lt-sc__row--na" data-group="untyped" data-marks={pm.byType.untyped}>
+          {UNTYPED_MARKS_LABEL}
+          <span className="lt-sc__ct">{marksWithUnit(pm.byType.untyped)}</span>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function ResultsScorecard({ variant, onClose }: ResultsScorecardProps) {
   // Close on Escape — modal etiquette without a modal library.
   useEffect(() => {
@@ -486,15 +546,42 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
             <>
               <ScoreHero score={variant.score} />
 
-              {variant.pending && (
-                <div className="lt-sc__pend">
-                  <b>
-                    {variant.pending.count} question{variant.pending.count === 1 ? "" : "s"} couldn’t be read
-                  </b>{" "}
-                  — re-upload those pages to complete your score. Worksheet is worth{" "}
-                  {variant.pending.worksheetTotalMarks} marks in total.
-                </div>
-              )}
+              {variant.pending && (() => {
+                // SCORECARD-MI-1 PR-2 — an answer that does not match its question is NOT an
+                // unreadable page: it is named apart, in the owner's words.
+                const mismatch = variant.pending.mismatch ?? [];
+                // notGraded (owner-approved 2026-10-05) — a question the server did not grade is
+                // listed below with its own sentence; it is never counted as an unreadable page.
+                const notGraded = (variant.pending.items ?? []).filter((it) => it.state === "not-graded").length;
+                const unread = Math.max(0, variant.pending.count - mismatch.length - notGraded);
+                return (
+                  <>
+                    {unread > 0 && (
+                      <div className="lt-sc__pend">
+                        <b>
+                          {unread} question{unread === 1 ? "" : "s"} couldn’t be read
+                        </b>{" "}
+                        — re-upload those pages to complete your score. Worksheet is worth{" "}
+                        {variant.pending.worksheetTotalMarks} marks in total.
+                      </div>
+                    )}
+                    {mismatch.map((q) => (
+                      <div key={q} className="lt-sc__pend" data-grade-state="answer-mismatch">
+                        <b>{q}:</b> {ANSWER_MISMATCH_COPY}
+                      </div>
+                    ))}
+                    {/* Controller ruling — every other question that was not graded is named too,
+                        with its honest state (unreadable answer, unread option). */}
+                    {(variant.pending.items ?? [])
+                      .filter((it) => it.state !== "answer-mismatch")
+                      .map((it) => (
+                        <div key={`${it.label}-${it.state}`} className="lt-sc__pend lt-sc__pend--item" data-grade-state={it.state}>
+                          <b>{it.label}:</b> {it.copy || (it.state === "unread-option" ? UNREAD_OPTION_COPY : COULD_NOT_READ_COPY)}
+                        </div>
+                      ))}
+                  </>
+                );
+              })()}
 
               {variant.message && <p className="lt-sc__msg">{variant.message}</p>}
               {variant.note && <p className="lt-sc__note">{variant.note}</p>}
@@ -533,7 +620,11 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
                 />
               )}
               {variant.split && <SplitBlock split={variant.split} />}
-              {variant.fourType && <FourTypeBlock ft={variant.fourType} />}
+              {variant.marksLost && variant.marksLost.lost > 0 ? (
+                <MarksBlock pm={variant.marksLost} />
+              ) : variant.marksLost ? null : (
+                variant.fourType && <FourTypeBlock ft={variant.fourType} />
+              )}
               {variant.gradedAnswers && variant.gradedAnswers.length > 0 && (
                 <GradedSheetBlock answers={variant.gradedAnswers} />
               )}
@@ -749,6 +840,8 @@ const SC_CSS = `
 .lt-sc__gst--part { border-left-color: #f2c879; }
 .lt-sc__gst--bad { border-left-color: #ef8686; }
 .lt-sc__gst--miss { border-left-color: #8695ac; }
+.lt-sc__gst--struck { border-left-color: #5b6b82; opacity: 0.8; }
+.lt-sc__row--na { color: #a9b8cc; font-size: 12.5px; margin: 4px 0 6px; }
 .lt-sc__gst-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .lt-sc__gst-n {
   font-size: 10px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;

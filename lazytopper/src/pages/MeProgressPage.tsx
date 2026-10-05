@@ -19,7 +19,10 @@ import {
   MISTAKES_BY_KIND_HEADING,
   MISTAKE_GROUPS,
   MISTAKE_TYPE_LABEL,
+  NOT_ATTEMPTED,
   countWithUnit,
+  entryMarksLost,
+  groupMarks,
   isStoredMistakeType,
   mistakeGroupByKey,
   mistakeGroupOf,
@@ -171,6 +174,15 @@ const GROUP_HEADING = {
  */
 const SECURED_TONE = "hsl(152, 55%, 45%)";
 const UNCLASSIFIED_TONE = "hsl(215, 15%, 72%)";
+/** SCORECARD-MI-1 PR-2 — "Not attempted" (never a mistake). A light warm neutral, apart from
+ *  every mistake tone and from the remainder grey; navy-on-tone ≈ 8.3:1 (relative luminance
+ *  ≈ 0.64 against navy's 0.0331), so it clears 4.5:1 with room. Repeated in ME_CSS. */
+const NOT_ATTEMPTED_TONE = "hsl(40, 25%, 80%)";
+
+/** The remainder row's label — lost marks with no mistake type on record (OR-LIVE L5). */
+const REMAINDER_LABEL = "no reason recorded";
+/** The remainder row's label when the two streams disagree and the split is withheld. */
+const REMAINDER_WITHHELD_LABEL = "reason not shown";
 
 /**
  * The share a segment needs PER CHARACTER of its numeral before that numeral is
@@ -239,6 +251,13 @@ export interface PaperSplit {
   knowledge: number;
   /** SCORECARD-MI-1 — exam technique (presentation), its own group. */
   technique: number;
+  /**
+   * SCORECARD-MI-1 PR-2 — marks the v2 grader recorded as NOT ATTEMPTED (its `unattempted`
+   * bucket). Never a mistake and never folded into a group. Known only from entries that carry
+   * `marksLostByType`; a count-only entry never contributes here (0, not a guess).
+   */
+  notAttempted: number;
+  /** The honest remainder: lost marks with no mistake type recorded (see `splitPaperMarks`). */
   unclassified: number;
   /**
    * False when the mistake log attributes MORE marks than the graded stream says
@@ -254,11 +273,22 @@ export interface PaperSplit {
  * which owns the denominators); `logs` are that paper's mistake-log entries, which
  * own the careless/knowledge attribution.
  *
- * `unclassified` is the honest remainder: lost marks that carry no mistake type. It
- * has TWO real sources - binary one-markers, which are simply right or wrong, and
- * [FU-GRADER-DEDUCTION-WITHOUT-TYPE], a live server-side defect where the grader
- * deducts on a step carrying no `mistakeType`. It is never a dumping ground and it is
- * never the place to hide a rounding difference.
+ * TWO KINDS OF ENTRY, NEVER MIXED UP (SCORECARD-MI-1 PR-2, B7 / G5):
+ *   - an entry that carries GRADER-CORE-1 v2 marks (`entryMarksLost`) is split by THOSE
+ *     marks, grouped by lib/mistakeDisplay (`groupMarks`): knowledge = conceptual, technique =
+ *     presentation, careless = calculation + silly, notAttempted = unattempted. Its "reason
+ *     not recorded" marks stay in the remainder;
+ *   - a count-only entry (every entry written before PR-2) keeps today's rule: the step
+ *     deductions the grader wrote on typed steps. It is never given an unattempted figure or
+ *     any other invented mark.
+ *
+ * `unclassified` is the honest remainder: lost marks with no mistake type on record. It is
+ * whatever the graded stream lost that the log does not name — marks the grader gave no
+ * reason for ([FU-GRADER-DEDUCTION-WITHOUT-TYPE], a v2 `untyped` bucket), binary one-markers,
+ * and, on count-only entries, questions or parts the student did not attempt. It does NOT
+ * claim which; OR-LIVE L5 caught the old sentence asserting "the grader took these marks",
+ * which is false for an unanswered MCQ. It is never a dumping ground and it is never the
+ * place to hide a rounding difference.
  */
 export function splitPaperMarks(
   rung: RungTrend | null | undefined,
@@ -274,7 +304,22 @@ export function splitPaperMarks(
   let careless = 0;
   let knowledge = 0;
   let technique = 0;
+  let notAttempted = 0;
+  // v2 marks the grader explicitly gave no reason for. They belong to the remainder, but they
+  // are counted here so a log that names more lost marks than the graded stream holds is
+  // caught by the same over-attribution check below.
+  let untyped = 0;
   for (const entry of logs) {
+    const v2 = entryMarksLost(entry);
+    if (v2) {
+      const g = groupMarks(v2);
+      knowledge += g.knowledge;
+      technique += g.technique;
+      careless += g.careless;
+      notAttempted += g.notAttempted;
+      untyped += g.untyped;
+      continue;
+    }
     for (const step of entry.stepDetails ?? []) {
       const type = String(step?.mistakeType ?? "").trim().toLowerCase();
       const marks = Number(step?.marksDeducted);
@@ -285,11 +330,22 @@ export function splitPaperMarks(
       else if (group === "technique") technique += marks;
     }
   }
+  // SCORECARD-MI-1 PR-2 (H11) — marks lost ONLY to work not attempted (a wholly unattempted
+  // question, or one whose only loss is unwritten parts) have NO MI entry by design (OR-LIVE
+  // L3), so the log above can never name them. The graded stream now does: an attempt carries
+  // `notAttempted` (the MI front door's own predicate), and the rung sums those marks. They
+  // leave "no reason recorded" and show as "Not attempted". Never double counted: such a
+  // question has no MI entry, and an entry's own `unattempted` marks belong to questions that
+  // DID lose marks to work. Absent on the rung (every pre-PR-2 attempt) → nothing added.
+  const rungNotAttempted = Number(rung.marksNotAttempted);
+  if (Number.isFinite(rungNotAttempted) && rungNotAttempted > 0) notAttempted += rungNotAttempted;
   careless = round1(careless);
   knowledge = round1(knowledge);
   technique = round1(technique);
+  notAttempted = round1(notAttempted);
+  untyped = round1(untyped);
 
-  if (careless + knowledge + technique > lost + 0.05) {
+  if (careless + knowledge + technique + notAttempted + untyped > lost + 0.05) {
     return {
       available: round1(available),
       secured: round1(secured),
@@ -297,6 +353,7 @@ export function splitPaperMarks(
       careless: 0,
       knowledge: 0,
       technique: 0,
+      notAttempted: 0,
       unclassified: lost,
       splitKnown: false,
     };
@@ -308,9 +365,21 @@ export function splitPaperMarks(
     careless,
     knowledge,
     technique,
-    unclassified: Math.max(0, round1(lost - careless - knowledge - technique)),
+    notAttempted,
+    unclassified: Math.max(0, round1(lost - careless - knowledge - technique - notAttempted)),
     splitKnown: true,
   };
+}
+
+/**
+ * The remainder row's sentence — OR-LIVE L5 (binding): it says ONLY what is true. It never
+ * names a cause it does not know (the old "The grader took these marks…" was false for marks
+ * that were simply not attempted, e.g. an unanswered MCQ).
+ */
+export function remainderSentence(split: Pick<PaperSplit, "splitKnown">): string {
+  return split.splitKnown
+    ? "No mistake type is recorded for these marks — some may be questions you did not attempt — so we will not guess one."
+    : "We can see which marks went, but not yet why, so we are not going to guess.";
 }
 
 export interface ViewRow {
@@ -874,14 +943,22 @@ export default function MeProgressPage() {
         { key: "knowledge", value: split.knowledge, tone: MISTAKE_TONE.conceptual },
         { key: "technique", value: split.technique, tone: MISTAKE_TONE.presentation },
         { key: "careless", value: split.careless, tone: MISTAKE_TONE.silly },
+        // PR-2 — its own segment, never folded into a mistake group (only v2 entries feed it).
+        { key: NOT_ATTEMPTED.key, value: split.notAttempted, tone: NOT_ATTEMPTED_TONE },
         { key: "unclassified", value: split.unclassified, tone: UNCLASSIFIED_TONE },
       ].filter((s) => s.value > 0)
     : [];
 
+  // OR-LIVE L5 — the label claims no cause it does not know: the remainder is "no reason
+  // recorded", and not-attempted marks are named as such, never as a mistake.
   const barLabel = split
     ? `Of ${split.available} marks in your ${paper} paper: ${split.secured} secured, ` +
       `${split.knowledge} marks lost to knowledge gaps, ${split.technique} marks lost to exam technique, ` +
-      `${split.careless} marks lost to careless slips, ${split.unclassified} marks not yet classified.`
+      `${split.careless} marks lost to careless slips, ` +
+      (split.notAttempted > 0
+        ? `${split.notAttempted} marks not attempted (not counted as a mistake), `
+        : "") +
+      `${split.unclassified} marks lost with ${split.splitKnown ? REMAINDER_LABEL : REMAINDER_WITHHELD_LABEL}.`
     : "";
 
   /* ---------- deeper analysis ---------- */
@@ -1024,17 +1101,30 @@ export default function MeProgressPage() {
                       {GROUP_HEADING.careless}. A slip in copying or in working.
                     </span>
                   </li>
-                  <li className="lt-me__lg">
+                  {/* PR-2 — "Not attempted" is its own state (lib/mistakeDisplay), never a
+                      mistake. Shown only when v2 entries actually recorded such marks. */}
+                  {split.notAttempted > 0 ? (
+                    <li className="lt-me__lg" data-testid="me-not-attempted">
+                      <span className="lt-me__sw" data-tone={NOT_ATTEMPTED.key} aria-hidden="true" />
+                      <span>
+                        <b>
+                          <MarksWord value={split.notAttempted} /> &middot; {NOT_ATTEMPTED.label}
+                        </b>
+                        Work you did not attempt &mdash; not counted as a mistake.
+                      </span>
+                    </li>
+                  ) : null}
+                  <li className="lt-me__lg" data-testid="me-remainder-reason">
                     <span className="lt-me__sw" data-tone="unclassified" aria-hidden="true" />
                     <span>
                       <b>
-                        <MarksWord value={split.unclassified} /> not yet classified
+                        <MarksWord value={split.unclassified} /> &middot;{" "}
+                        {split.splitKnown ? REMAINDER_LABEL : REMAINDER_WITHHELD_LABEL}
                       </b>
-                      {/* P8 — only what is true: the grader took these marks without naming a
-                          type (any question, any mark value), or the two streams disagree. */}
-                      {split.splitKnown
-                        ? "The grader took these marks without naming a mistake type, so we will not guess one."
-                        : "We can see which marks went, but not yet why, so we are not going to guess."}
+                      {/* P8 + OR-LIVE L5 — only what is true: no mistake type is on record for
+                          these marks (some may not have been attempted), or the two streams
+                          disagree. Never "the grader took these marks". */}
+                      {remainderSentence(split)}
                     </span>
                   </li>
                 </ul>
@@ -1796,6 +1886,7 @@ const ME_CSS = `
 .lt-me__sw[data-tone="knowledge"] { background: hsl(215, 85%, 68%); }
 .lt-me__sw[data-tone="technique"] { background: hsl(280, 65%, 72%); }
 .lt-me__sw[data-tone="unclassified"] { background: hsl(215, 15%, 72%); }
+.lt-me__sw[data-tone="not-attempted"] { background: hsl(40, 25%, 80%); }
 
 /* --- the four-type mix --- */
 .lt-me__mix { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }

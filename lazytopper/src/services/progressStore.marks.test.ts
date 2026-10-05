@@ -103,7 +103,14 @@ function rec(over: Partial<SessionRecord>): SessionRecord {
 
 function payload(
   ref: string,
-  results: Array<{ qNumber: number; couldNotRead?: boolean; totalMarks: number; marksAwarded?: number }>,
+  results: Array<{
+    qNumber: number;
+    couldNotRead?: boolean;
+    totalMarks: number;
+    marksAwarded?: number;
+    answerMismatch?: boolean | null;
+    notGraded?: "unreadable" | "withheld" | "timeout" | "error" | null;
+  }>,
 ): SessionPerQuestionPayload {
   return {
     ref,
@@ -409,5 +416,44 @@ describe("MARKS-1 — reads data written BEFORE this change (old shape, not clea
     expect(wp.subjects[0].marksAvailable).toBe(27);
     expect(wp.subjects[0].before).toBe(50); // pre-existing field, unmoved
     expect(wp.topics).toEqual([]); // no resolvable topic → honestly silent
+  });
+});
+
+/* SCORECARD-MI-1 PR-2 (notGraded, OWNER-APPROVED 2026-10-05) — a question the server did not grade
+ * (A's PR-3 `notGraded`), or whose answer did not match it, is never a 0 on ANY rung: the concept
+ * and section rungs use the same one predicate as the subject / topic rungs. */
+describe("not-graded questions — notGraded never a 0 on a concept or a section", () => {
+  it("a notGraded (timeout) and a mismatched question stay out of the subject, concept AND section marks", async () => {
+    BANK = Object.fromEntries(
+      ["k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8"].map((k) => [k, { subtopic: "Euclid's division lemma", section: "B", topicKey: "real-numbers" }]),
+    );
+    CLOUD_RECORDS = [
+      rec({ id: "NG-WS-1", worksheetId: "ws-ng-1", perQuestionRef: "ws:NG-WS-1", gradedAt: NOW - 20 * DAY, questionIds: ["k1", "k2", "k3", "k7"] }),
+      rec({ id: "NG-WS-2", worksheetId: "ws-ng-2", perQuestionRef: "ws:NG-WS-2", gradedAt: NOW - 4 * DAY, questionIds: ["k4", "k5", "k6", "k8"] }),
+    ];
+    PAYLOADS = [
+      payload("ws:NG-WS-1", [
+        { qNumber: 1, totalMarks: 4, marksAwarded: 1 },
+        { qNumber: 2, totalMarks: 4, marksAwarded: 2 },
+        { qNumber: 3, totalMarks: 4, marksAwarded: 0, notGraded: "timeout" },
+        { qNumber: 4, totalMarks: 4, marksAwarded: 3 },
+      ]),
+      payload("ws:NG-WS-2", [
+        { qNumber: 1, totalMarks: 5, marksAwarded: 4 },
+        { qNumber: 2, totalMarks: 5, marksAwarded: 0, answerMismatch: true },
+        { qNumber: 3, totalMarks: 5, marksAwarded: 5 },
+        { qNumber: 4, totalMarks: 5, marksAwarded: 4 },
+      ]),
+    ];
+    const wp = await getWindowedProgress("u1", "month", undefined, NOW);
+    // graded only: 1 + 2 + 3 + 4 + 5 + 4 = 19 of 4 + 4 + 4 + 5 + 5 + 5 = 27 (never 19 of 36)
+    expect(wp.subjects).toHaveLength(1);
+    expect([wp.subjects[0].marksScored, wp.subjects[0].marksAvailable]).toEqual([19, 27]);
+    const concept = wp.concepts.find((c) => c.key === "Euclid's division lemma");
+    expect(concept).toBeDefined();
+    expect([concept!.marksScored, concept!.marksAvailable]).toEqual([19, 27]);
+    const section = wp.sections.find((x) => x.key === "B");
+    expect(section).toBeDefined();
+    expect([section!.marksScored, section!.marksAvailable]).toEqual([19, 27]);
   });
 });

@@ -361,8 +361,17 @@ const FORBIDDEN = [
   // → THE OTHER TWO ENTRIES REMAIN, BY DELIBERATE DECISION: the batching arc touches neither
   // the SessionRecord shape nor the C&I persist seam. Do NOT re-add this entry without a
   // deliberate owner decision — the absence assertion below will fail if you do.
-  "lazytopper/src/services/sessionRecords.ts", // SessionRecord shape (we only IMPORT the builder)
-  "lazytopper/src/services/checkImproveGradeService.ts", // the persist seam
+  "lazytopper/src/services/sessionRecords.ts", // SessionRecord shape (we only IMPORT the builder) — narrowed to ADDITIVE-ONLY below (owner ruling 2026-10-05: marks not counts)
+  // ★★ checkImproveGradeService.ts — blanket ban LIFTED (SCORECARD-MI-1 PR-2, H4/H9): superseded by
+  // owner ruling 2026-10-05 (taxonomy and wording; marks not counts). WAS:
+  //   "lazytopper/src/services/checkImproveGradeService.ts", // the persist seam
+  // PR-2 must change THIS file: its single-question adapter now carries GA-38's `objective` flag,
+  // the GRADER-CORE-1 v2 fields and an honest not-graded paper itself — so the tutor's IN-HAND
+  // response (HUNK B2, `buildOverlayReturnResponse` → `singleCheckToWorksheetResponse`, whose line
+  // stays pinned byte-identical above) finally carries them too. The convergence gate lifted its own
+  // ban on this file in the SAME PR (a half-lift is the PR-C1 / FORBID-4 trap). THE PROTECTION
+  // CHANGES FORM: the inverse assertion, the replacement contract suite (EXISTS · COLLECTED · RUNS ·
+  // SUBJECT) and the pins on the adapter below. Do NOT re-add without an owner decision.
 ];
 
 // ★ MEMBERSHIP, asserted UNCONDITIONALLY — the two surviving entries. The git-diff loop below
@@ -373,11 +382,13 @@ const FORBIDDEN = [
 // loop below is what proves matchability; these two assertions are complementary, not redundant.
 // ⚠ THE LIFTED ENTRY'S LINE MUST LEAVE THIS LIST TOO — a removal from FORBIDDEN alone would fail
 // the gate on its own amendment — and the surviving entries' lines must NOT be touched.
+// superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts — WAS two entries
+// (sessionRecords.ts + checkImproveGradeService.ts); the latter's line left BOTH lists together
+// (SCORECARD-MI-1 PR-2, H4/H9), its inverse assertion is below.
 for (const f of [
   "lazytopper/src/services/sessionRecords.ts",
-  "lazytopper/src/services/checkImproveGradeService.ts",
 ]) {
-  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx; FORBID-6 lifted ResultsScorecard.tsx — nothing else)`,
+  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx; FORBID-6 lifted ResultsScorecard.tsx; SCORECARD-MI-1 PR-2 lifted checkImproveGradeService.ts — nothing else)`,
     FORBIDDEN.includes(f),
     "both lifts were deliberate ONE-FILE amendments — this entry must survive them");
 }
@@ -482,6 +493,36 @@ check("RESULTSSCORECARD-TESTS: they keep the variant SET open (they must NOT for
   "the batch-grading lane ADDS a variant — a replacement that pinned today's set would forbid "
   + "exactly the change this lift exists to permit");
 
+/* ══════════════════════════════════════════════════════════════════════════
+   ★★ SCORECARD-MI-1 PR-2 (H4/H9) — the lifted checkImproveGradeService.ts ban, re-formed.
+   superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts.
+   ══════════════════════════════════════════════════════════════════════════ */
+check("FORBIDDEN(lifted): checkImproveGradeService.ts is NOT in the guarded set (owner ruling 2026-10-05; ban replaced by checkImproveGradeService.contract.test.ts + the adapter pins)",
+  !FORBIDDEN.includes("lazytopper/src/services/checkImproveGradeService.ts"),
+  "re-adding the blanket entry needs an owner decision AND removal of the replacement pins");
+{
+  const cigs = stripComments(read("src/services/checkImproveGradeService.ts"));
+  check("CIGS (H4/H9): the tutor's in-hand response carries GA-38's objective flag and the v2 fields — the ADAPTER itself carries them (one path)",
+    /graded\.objective === true \? \{ objective: true \} : \{\}/.test(cigs) && /\.\.\.v2GradeFields\(graded\)/.test(cigs),
+    "HUNK B2 hands the tutor singleCheckToWorksheetResponse(result) — without these the tutor reads a grade stripped of its flags");
+  check("CIGS (H4/H9): an answer that was NOT graded reaches the tutor as \"nothing graded, one pending\" — never a graded 0",
+    /if \(!isGradedQuestion\(result\)\) \{[\s\S]{0,200}?gradedCount: 0,\s*pendingCount: 1,/.test(cigs));
+  const CIGS_CONTRACT = "lazytopper/src/services/checkImproveGradeService.contract.test.ts";
+  // The SUBJECT is read COMMENT-STRIPPED: a header comment naming the subject must never stand in
+  // for the test itself (proven by a mutation that deleted the test and stayed green).
+  const cigsTests = existsSync(path.join(ROOT, CIGS_CONTRACT)) ? stripComments(readFileSync(path.join(ROOT, CIGS_CONTRACT), "utf8")) : "";
+  check(`CIGS-CONTRACT: ${CIGS_CONTRACT} exists (the replacement for the lifted blanket ban)`,
+    existsSync(path.join(ROOT, CIGS_CONTRACT)), "the ban was lifted in favour of this suite — without it the persist seam is unguarded");
+  check("CIGS-CONTRACT: it is COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",
+    /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/.test(readFileSync(path.join(LAZY, "vitest.config.ts"), "utf8"))
+      && CIGS_CONTRACT.startsWith("lazytopper/src/") && CIGS_CONTRACT.endsWith(".test.ts"));
+  check("CIGS-CONTRACT: vitest actually RUNS in CI (quality-gate.yml has a required `vitest run` step)",
+    /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")));
+  check("CIGS-CONTRACT: it still asserts its SUBJECT (one record + one payload · objective + v2 carried · never a graded 0)",
+    [/exactly ONE record and ONE payload/, /objective:true survives/, /v2 fields are carried/, /never a graded 0/].every((r) => r.test(cigsTests)),
+    "the suite exists and runs, but the assertions the lift relies on are gone");
+}
+
 function hasRef(ref) {
   try {
     execFileSync("git", ["rev-parse", "--verify", "--quiet", `${ref}^{commit}`], { cwd: ROOT, stdio: "pipe" });
@@ -515,38 +556,170 @@ function resolveForbiddenBase() {
 // quick_practice_overlay_additive_acceptance.mjs (same entry, same rule): a lift in only one
 // gate is the PR-C1 / FORBID-4 trap. The rule is self-tested below with fixtures. A matcher
 // nobody proved can fire is not a guard.
-const IMPORT_ONLY_ENTRIES = new Set(["lazytopper/src/services/sessionRecords.ts"]);
-function codeWithoutImports(src) {
-  return String(src)
-    .replace(/\r\n/g, "\n")
-    .replace(/^import\s*["'][^"']+["'];?[ \t]*$/gm, "")
-    .replace(/^import\s[^;]*?\sfrom\s*["'][^"']+["'];?[ \t]*$/gm, "")
-    .split("\n")
-    .filter((l) => l.trim() !== "" && !/^\s*\/\//.test(l))
-    .join("\n");
+// ★★ SCORECARD-MI-1 PR-2 (H5 / H10) — superseded by owner ruling 2026-10-05: marks not counts ·
+// taxonomy and wording. WAS: IMPORT-ONLY (BANK-LEAN-1, kept above as history) — the file had to be
+// byte-identical to its merge-base outside its import declarations. PR-2 MUST change it: the record
+// gains the versioned marks (H10), its four-type skips every not-graded / not-attempted question
+// (H10), and a Check & Improve record gains each question's own subject and chapter (H5). The entry
+// STAYS in FORBIDDEN and the rule is NARROWED AGAIN, not removed — ADDITIVE-ONLY. What the entry
+// protected ("the SessionRecord shape / read") must still hold, so the file may change ONLY if:
+//   (1) every member of SessionRecord, SessionPerQuestionPayload and SessionFourType at the
+//       merge-base is still present, byte-identical — nothing removed, nothing retyped;
+//   (2) every NEW member is OPTIONAL — an old record, which lacks it, still reads;
+//   (3) the read predicate `isSessionRecord` and the `VALID_SURFACES` allow-list are unchanged —
+//       an old record is accepted exactly as before.
+// The pins after the rule assert what the additions DO, and the additive contract suite proves an
+// old record reads back unchanged. Mirrored in LOCK-STEP in the twin overlay gate (same entry, same
+// rule): a lift in only one gate is the PR-C1 / FORBID-4 trap. Self-tested below with fixtures.
+const ADDITIVE_ONLY_ENTRIES = new Set(["lazytopper/src/services/sessionRecords.ts"]);
+function srCode(src) {
+  return stripComments(String(src).replace(/\r\n/g, "\n"));
 }
-function onlyImportsChanged(base, f) {
+function srInterfaceMembers(src, name) {
+  const m = srCode(src).match(new RegExp(`export interface ${name} \\{([\\s\\S]*?)\\n\\}`));
+  return m ? m[1].split("\n").map((l) => l.trim()).filter(Boolean) : null;
+}
+function srBlock(src, re) {
+  const m = srCode(src).match(re);
+  return m ? m[0].split("\n").map((l) => l.trim()).filter(Boolean).join("\n") : null;
+}
+const SR_READ_PREDICATE = /function isSessionRecord\([\s\S]*?\n\}/;
+const SR_VALID_SURFACES = /const VALID_SURFACES[\s\S]*?\];/;
+// superseded by owner ruling 2026-10-05: marks not counts — HARDENED (verifier N3, controller fix
+// round 2026-10-05): "the read unchanged" now covers the WHOLE read of an old record, not only its
+// predicate — the cloud read, its merge over the local mirror and the local read are frozen too
+// (a probe that made the cloud read drop non-graded records passed both gates GREEN before this).
+const SR_CLOUD_READ = /export async function getSessionRecordsFromCloud\([\s\S]*?\n\}/;
+const SR_MERGE_BY_ID = /function mergeById\([\s\S]*?\n\}/;
+const SR_LOCAL_READ = /export function loadLocalSessionRecords\([\s\S]*?\n\}/;
+function additiveOnlyProblems(baseSrc, headSrc) {
+  const problems = [];
+  for (const name of ["SessionRecord", "SessionPerQuestionPayload", "SessionFourType"]) {
+    const before = srInterfaceMembers(baseSrc, name);
+    const after = srInterfaceMembers(headSrc, name);
+    if (!before || !after) {
+      problems.push(`${name}: interface not found`);
+      continue;
+    }
+    for (const l of before) if (!after.includes(l)) problems.push(`${name}: existing member changed or removed: ${l}`);
+    for (const l of after) {
+      if (!before.includes(l) && /^[A-Za-z_$][\w$]*\s*:/.test(l)) problems.push(`${name}: new member is not optional: ${l}`);
+    }
+  }
+  for (const [label, re] of [
+    ["isSessionRecord (the read predicate)", SR_READ_PREDICATE],
+    ["VALID_SURFACES", SR_VALID_SURFACES],
+    // superseded by owner ruling 2026-10-05: marks not counts — hardened (verifier N3).
+    ["getSessionRecordsFromCloud (the cloud read)", SR_CLOUD_READ],
+    ["mergeById (cloud over the local mirror)", SR_MERGE_BY_ID],
+    ["loadLocalSessionRecords (the local read)", SR_LOCAL_READ],
+  ]) {
+    const b = srBlock(baseSrc, re);
+    const h = srBlock(headSrc, re);
+    if (!b || !h || b !== h) problems.push(`${label} changed`);
+  }
+  return problems;
+}
+function additiveOnlyChange(base, f) {
   try {
     const mb = execFileSync("git", ["merge-base", base, "HEAD"], { cwd: ROOT }).toString().trim();
     const show = (ref) =>
       execFileSync("git", ["show", `${ref}:${f}`], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 }).toString();
-    return codeWithoutImports(show(mb)) === codeWithoutImports(show("HEAD"));
-  } catch {
-    return false;
+    return additiveOnlyProblems(show(mb), show("HEAD"));
+  } catch (e) {
+    return [`could not compare against the merge-base: ${e && e.message}`];
   }
 }
 {
-  const fx = 'import { a } from "./x";\n// note\nexport interface R {\n  id: string;\n}\n';
-  check("FORBIDDEN(import-only): an import-path + comment change is NOT a shape change",
-    codeWithoutImports(fx) === codeWithoutImports('// moved\nimport {\n  a,\n} from "./y";\n' + fx.split("\n").slice(1).join("\n")),
-    "the import-only rule rejects the very change it exists to allow");
-  check("FORBIDDEN(import-only): CONTROL — a shape change IS caught",
-    codeWithoutImports(fx) !== codeWithoutImports(fx.replace("id: string;", "id: string;\n  extra: number;")),
-    "the import-only rule would let a SessionRecord shape change through");
-  for (const f of IMPORT_ONLY_ENTRIES) {
-    check(`FORBIDDEN(import-only): ${f} is still in the guarded set`, FORBIDDEN.includes(f),
-      "the import-only rule narrows an entry; it must never stand in for a removed one");
+  const fx = [
+    "export interface SessionRecord {",
+    "  id: string;",
+    "  /** doc */",
+    "  fourType: SessionFourType;",
+    "}",
+    "export interface SessionPerQuestionPayload {",
+    "  ref: string;",
+    "}",
+    "export interface SessionFourType {",
+    "  conceptual: number;",
+    "}",
+    "const VALID_SURFACES: SessionSurface[] = [",
+    '  "worksheet",',
+    "];",
+    "function isSessionRecord(v: unknown): v is SessionRecord {",
+    "  return !!v;",
+    "}",
+    // superseded by owner ruling 2026-10-05: marks not counts — hardened (verifier N3): the fixture
+    // carries the three frozen read functions too.
+    "export function loadLocalSessionRecords(uid?: string | null): SessionRecord[] {",
+    "  return [];",
+    "}",
+    "function mergeById(primary: SessionRecord[], secondary: SessionRecord[]): SessionRecord[] {",
+    "  return [...secondary, ...primary];",
+    "}",
+    "export async function getSessionRecordsFromCloud(uid?: string | null): Promise<SessionRecord[]> {",
+    "  return mergeById([], loadLocalSessionRecords(uid));",
+    "}",
+    "export function build() {",
+    "  return 1;",
+    "}",
+    "",
+  ].join("\n");
+  // superseded by owner ruling 2026-10-05: marks not counts — WAS the two import-only fixtures.
+  check("FORBIDDEN(additive-only): an OPTIONAL new member + a builder-body change is ALLOWED (owner ruling 2026-10-05: marks not counts)",
+    additiveOnlyProblems(fx, fx.replace("  fourType: SessionFourType;\n", "  fourType: SessionFourType;\n  marksLostByType?: MarksLostByType;\n").replace("return 1;", "return 2;")).length === 0,
+    "the additive-only rule rejects the very change it exists to allow");
+  check("FORBIDDEN(additive-only): CONTROL — a REQUIRED new member is caught (an old record would no longer type-check)",
+    additiveOnlyProblems(fx, fx.replace("  id: string;\n", "  id: string;\n  extra: number;\n")).length > 0,
+    "the additive-only rule would let a non-additive shape change through");
+  check("FORBIDDEN(additive-only): CONTROL — an existing member removed or retyped is caught",
+    additiveOnlyProblems(fx, fx.replace("  id: string;\n", "  id: number;\n")).length > 0
+      && additiveOnlyProblems(fx, fx.replace("  ref: string;\n", "")).length > 0,
+    "the additive-only rule would let an existing field change or vanish");
+  check("FORBIDDEN(additive-only): CONTROL — a changed read predicate (old records read differently) is caught",
+    additiveOnlyProblems(fx, fx.replace("return !!v;", "return !!v && false;")).length > 0
+      && additiveOnlyProblems(fx, fx.replace('  "worksheet",\n', '  "worksheet",\n  "other",\n')).length > 0,
+    "the additive-only rule would let the read of an old record change");
+  // superseded by owner ruling 2026-10-05: marks not counts — hardened (verifier N3): the WHOLE read.
+  check("FORBIDDEN(additive-only): CONTROL — a changed cloud read, merge or local read (old records read differently) is caught",
+    additiveOnlyProblems(fx, fx.replace("  return mergeById([], loadLocalSessionRecords(uid));", "  return mergeById([], loadLocalSessionRecords(uid)).filter((r) => r.status === \"graded\");")).length > 0
+      && additiveOnlyProblems(fx, fx.replace("  return [...secondary, ...primary];", "  return [...primary];")).length > 0
+      && additiveOnlyProblems(fx, fx.replace("  return [];\n}\nfunction mergeById", "  return [].slice(1);\n}\nfunction mergeById")).length > 0,
+    "the additive-only rule would let the cloud / merged / local read of an old record change");
+  for (const f of ADDITIVE_ONLY_ENTRIES) {
+    check(`FORBIDDEN(additive-only): ${f} is still in the guarded set`, FORBIDDEN.includes(f),
+      "the additive-only rule narrows an entry; it must never stand in for a removed one");
   }
+}
+
+// ── What sessionRecords' additions DO (superseded by owner ruling 2026-10-05: marks not counts ·
+//    taxonomy and wording). Source pins on the file itself + the additive contract suite.
+{
+  const sr = stripComments(read("src/services/sessionRecords.ts"));
+  check("SR (H10): every record builder uses the ONE reduction (recordFourTypeAndMarks) — no couldNotRead-only loop left",
+    (sr.match(/recordFourTypeAndMarks\(response\.results\)/g) || []).length === 5 && !/r\.couldNotRead \|\| !r\.mistakeSummary/.test(sr));
+  check("SR (H10): the reduction skips EVERY not-graded and not-attempted question (the MI front door's own predicates)",
+    /if \(!isGradedQuestion\(r\) \|\| isLossOnlyNotAttempted\(r\)\) continue;/.test(sr));
+  check("SR (H10): marks are written ONLY versioned — a count-only record stays count-only",
+    /marksLostByType: pm\.byType, marksLostByTypeVersion: MARKS_LOST_BY_TYPE_VERSION/.test(sr));
+  check("SR (H5): a record without the per-question breakdown answers its own subject (old records read unchanged)",
+    /return own\.size > 0 \? Array\.from\(own\) : \[record\.subject\];/.test(sr));
+  const SR_CONTRACT = "lazytopper/src/services/sessionRecords.additive.contract.test.ts";
+  // The SUBJECT is read COMMENT-STRIPPED: a header comment naming the subject must never stand in
+  // for the test itself (proven by a mutation that deleted the test and stayed green).
+  const srTests = existsSync(path.join(ROOT, SR_CONTRACT)) ? stripComments(readFileSync(path.join(ROOT, SR_CONTRACT), "utf8")) : "";
+  check(`SR-CONTRACT: ${SR_CONTRACT} exists (owner ruling 2026-10-05: marks not counts — the additive rule's behaviour suite)`,
+    existsSync(path.join(ROOT, SR_CONTRACT)), "the rule was narrowed in favour of this suite — without it the additions are unguarded");
+  check("SR-CONTRACT: it is COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",
+    /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/.test(readFileSync(path.join(LAZY, "vitest.config.ts"), "utf8"))
+      && SR_CONTRACT.startsWith("lazytopper/src/") && SR_CONTRACT.endsWith(".test.ts"),
+    "the include glob no longer matches the suite — it would never be discovered");
+  check("SR-CONTRACT: vitest actually RUNS in CI (quality-gate.yml has a required `vitest run` step)",
+    /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")),
+    "no vitest step in CI — a .test.ts cannot replace a guard that nothing executes");
+  check("SR-CONTRACT: it still asserts its SUBJECT (old records read unchanged · marks only v2 · no type when not graded · mixed subjects)",
+    [/OLD RECORDS READ UNCHANGED/, /records NO marks/, /add NO type/, /listed under both subjects/].every((r) => r.test(srTests)),
+    "the suite exists and runs, but the assertions the narrowed rule relies on are gone");
 }
 
 const forbiddenBase = resolveForbiddenBase();
@@ -558,10 +731,13 @@ if (forbiddenBase) {
     .filter(Boolean);
   for (const f of FORBIDDEN) {
     const touched = changed.includes(f);
-    const importOnly = IMPORT_ONLY_ENTRIES.has(f);
-    const ok = !touched || (importOnly && onlyImportsChanged(forbiddenBase, f));
-    check(`FORBIDDEN: ${f} shows zero changes${importOnly ? " outside its import declarations" : ""} (vs ${forbiddenBase})`, ok,
-      ok ? "" : "THIS FILE WAS MODIFIED");
+    // superseded by owner ruling 2026-10-05: marks not counts · taxonomy and wording — WAS the
+    // import-only test (`onlyImportsChanged`); sessionRecords.ts is now ADDITIVE-ONLY (H5 / H10).
+    const additive = ADDITIVE_ONLY_ENTRIES.has(f);
+    const problems = touched && additive ? additiveOnlyChange(forbiddenBase, f) : [];
+    const ok = !touched || (additive && problems.length === 0);
+    check(`FORBIDDEN: ${f} shows ${additive ? "no NON-ADDITIVE change (members kept, new members optional, the read unchanged)" : "zero changes"} (vs ${forbiddenBase})`, ok,
+      ok ? "" : problems.length ? problems.join("; ") : "THIS FILE WAS MODIFIED");
   }
 } else if (EVENT === "push") {
   console.log("  --  N/A: push-to-trunk run — no PR to scope a forbidden-path diff to.");
@@ -583,6 +759,8 @@ console.log("  additive: default-off question + optional prop + route :320 ·");
 console.log("  hunks overlay-gated: chrome-suppress · pinned ✕ · scorecard Back · in-process record (no re-persist) · graded response in-hand (Option 2b) ·");
 console.log("  poll-free return: RICH opener with the thin composeReturnOpener as the honest floor · question+digest reach the model as one-shot returnedWork · navigate/marker leg retired ·");
 console.log("  honest floor: thin composeReturnOpener byte-identical (rich ADDED BESIDE) · digest ships ON (live rubric-2 eval cleared it) ·");
-console.log("  forbidden zero-diff: sessionRecords · gradeService ·");
+// superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts
+console.log("  forbidden: sessionRecords ADDITIVE-ONLY (members kept, new members optional, the read unchanged) ·");
+console.log("  ban LIFTED, protection re-formed: checkImproveGradeService → checkImproveGradeService.contract.test.ts + adapter pins (SCORECARD-MI-1 PR-2) ·");
 console.log("  bans LIFTED, protection re-formed: grader → checkSolution.test.cjs (PR-C1) · App.tsx → App.routing.contract.test.tsx (FORBID-4) ·");
 console.log("  ResultsScorecard → ResultsScorecard.contract.test.tsx (FORBID-6; presence, collection, CI execution and SUBJECT asserted)\n");

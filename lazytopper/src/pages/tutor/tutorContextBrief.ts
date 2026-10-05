@@ -28,6 +28,24 @@ export function describeTopMistakeType(type: unknown): string {
   return group && label ? `${group.label.toLowerCase()} (${label.toLowerCase()})` : String(type ?? "");
 }
 
+/** The suffix the brief adds when the top type was decided on MARKS (SCORECARD-MI-1 PR-2). */
+// The server renders the brief as "Most common recent slip: <topType> mistakes."
+// (server/prompts/tutorSystemPrompt.cjs, outside this lane), so a suffix here would read as a
+// broken sentence to the tutor. The TYPE now comes from marks (the real biggest loss); the
+// wording of that server line is FU-B15-TUTOR-BRIEF-SERVER-WORDING. No suffix is added.
+export const MARKS_BASIS_SUFFIX = "";
+
+/**
+ * SCORECARD-MI-1 PR-2 (B7) — the brief's `topType` string. The insight now picks the type that
+ * cost the most MARKS whenever v2 entries exist, so the tutor coaches the real biggest loss;
+ * when that is the basis the string says so, briefly, inside the existing field (the TutorBrief
+ * shape is unchanged). A count-based top type reads exactly as before.
+ */
+export function describeBriefTopType(type: unknown, basis: "marks" | "counts" | null | undefined): string {
+  const described = describeTopMistakeType(type);
+  return basis === "marks" && described ? `${described}${MARKS_BASIS_SUFFIX}` : described;
+}
+
 const MI_WINDOW_DAYS = 14;
 const TREND_EPSILON = 2; // pct-points that count as real movement (else "stable")
 
@@ -82,11 +100,12 @@ export async function assembleTutorBrief({
     /* honest-or-silent: no trend */
   }
 
-  // Mistake Intelligence (cross-device, subject-level) — dominant recent slip.
+  // Mistake Intelligence (cross-device, subject-level) — the biggest recent loss: by MARKS
+  // when the window holds v2 entries, else by count (the insight decides; we only describe).
   try {
     const mi = await getMistakeInsights(uid, MI_WINDOW_DAYS);
     if (mi && mi.hasEnoughData) {
-      if (mi.topMistakeType) brief.mistakes.topType = describeTopMistakeType(mi.topMistakeType);
+      if (mi.topMistakeType) brief.mistakes.topType = describeBriefTopType(mi.topMistakeType, mi.topMistakeBasis);
       if (typeof mi.totalMarksLost === "number") brief.mistakes.marksLostRecent = mi.totalMarksLost;
     }
   } catch {

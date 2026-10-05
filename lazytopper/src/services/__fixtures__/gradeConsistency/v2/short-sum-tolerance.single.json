@@ -1,0 +1,93 @@
+{
+ "source": "SYNTHETIC, deliberately OFF the v2 contract — built from GRADER-CORE-1 v2 contract (A's report §V2 FIELDS, branch lane/grader-core-1 @e5f81a3a server/grading/postprocess.cjs)",
+ "about": "OFF-CONTRACT on purpose: marksLostByType sums to 1 while the loss is 2. GRADER-CORE-1 guarantees the buckets sum to the loss (postprocess.cjs 'never ship a ledger that does not add up'); this pins the CLIENT's documented tolerance (lib/mistakeDisplay questionMarksLost): the shortfall is shown as 'Marks lost, reason not recorded', never assigned to a type, so every displayed part still sums to the loss.",
+ "grader": "GRADER-CORE-1 v2 (acceptsV2: true) — edited",
+ "surface": "CI-SINGLE",
+ "request": {
+  "subject": "Maths",
+  "topic": "Areas Related to Circles",
+  "marks": 3,
+  "question": "Find the area of a circle of radius 7 cm."
+ },
+ "body": {
+  "ok": true,
+  "detectedSubject": null,
+  "detectedTopic": null,
+  "marksSource": null,
+  "provider": "synthetic",
+  "model": "none",
+  "couldNotRead": false,
+  "totalMarks": 3,
+  "marksAwarded": 1,
+  "percentage": 33,
+  "annotatedSteps": [
+   {
+    "stepNumber": 1,
+    "description": "Write the area formula",
+    "studentWork": "A = πr²",
+    "status": "correct",
+    "marksAwarded": 1,
+    "marksDeducted": 0,
+    "teacherAnnotation": "",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false,
+    "part": null,
+    "marksAvailable": 1
+   },
+   {
+    "stepNumber": 2,
+    "description": "Substitute r = 7",
+    "studentWork": "A = 22/7 × 7 = 22",
+    "status": "incorrect",
+    "marksAwarded": 0,
+    "marksDeducted": 1,
+    "teacherAnnotation": "r² = 49, not 7.",
+    "mistakeType": "calculation",
+    "correctedWorking": "A = 22/7 × 49 = 154",
+    "isDeparture": false,
+    "isReturn": false,
+    "part": null,
+    "marksAvailable": 1
+   },
+   {
+    "stepNumber": 3,
+    "description": "State the area with its unit",
+    "studentWork": "",
+    "status": "incorrect",
+    "marksAwarded": 0,
+    "marksDeducted": 1,
+    "teacherAnnotation": "",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false,
+    "part": null,
+    "marksAvailable": 1
+   }
+  ],
+  "mistakeSummary": {
+   "conceptual": 0,
+   "calculation": 1,
+   "silly": 0,
+   "presentation": 0,
+   "departure": 0
+  },
+  "teacherNote": "",
+  "questionDepartureError": false,
+  "objective": false,
+  "answerMismatch": null,
+  "departureKind": null,
+  "marksLostByType": {
+   "conceptual": 0,
+   "calculation": 1,
+   "silly": 0,
+   "presentation": 0,
+   "unattempted": 0,
+   "untyped": 0
+  },
+  "rubric": null,
+  "objectiveResolved": null
+ }
+}

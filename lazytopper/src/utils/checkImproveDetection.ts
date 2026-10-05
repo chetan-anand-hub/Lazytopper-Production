@@ -15,7 +15,6 @@ import {
   type CheckSolutionTopicVocab,
   type DetectQuestionResponse,
   type PaidCallOptions,
-  type WorksheetGradeResponse,
 } from "../ai/aiClient";
 
 /**
@@ -259,19 +258,26 @@ export function ciQuestionIds(code: string, results: ReadonlyArray<{ qNumber: nu
   });
 }
 
+/* SCORECARD-MI-1 PR-2 (H4/H9) — `withObjectiveEcho` and `withV2Echo` are RETIRED: the single-question
+ * adapter (`singleCheckToWorksheetResponse`, services/checkImproveGradeService.ts) now carries the
+ * `objective` flag, the v2 fields and the honest not-graded paper itself — one path, owner ruling
+ * 2026-10-05. */
+
 /**
- * GA-38 — the single-question response adapter drops the grader's `objective` echo, so a
- * re-opened single MCQ showed "0 marks" step chips again. The adapter itself is pinned
- * zero-diff by two CI gates, so the flag is carried across HERE, before the record and the
- * scorecard read it. Absent on the grade → absent here (never invented).
+ * OR-LIVE L1 (PR-1 finding) — the detected question text for the result at `index`, matched by
+ * OCCURRENCE, never by printed number alone: two questions both printed "Q5" are the 1st and 2nd
+ * "5" in the detected list and in the results, so each keeps its own text. Undefined when the
+ * occurrence has no detected twin (honest — never another question's text).
  */
-export function withObjectiveEcho(
-  response: WorksheetGradeResponse,
-  graded: { objective?: boolean | null },
-): WorksheetGradeResponse {
-  if (graded.objective !== true) return response;
-  return {
-    ...response,
-    results: response.results.map((r, i) => (i === 0 ? { ...r, objective: true } : r)),
-  };
+export function detectedTextForResult(
+  detected: ReadonlyArray<{ questionNumber: number; questionText: string }> | null | undefined,
+  results: ReadonlyArray<{ qNumber: number }>,
+  index: number,
+): string | undefined {
+  const r = results[index];
+  if (!r) return undefined;
+  let occurrence = 0;
+  for (let i = 0; i < index; i += 1) if (results[i]?.qNumber === r.qNumber) occurrence += 1;
+  const same = (detected ?? []).filter((q) => q.questionNumber === r.qNumber);
+  return same[occurrence]?.questionText;
 }

@@ -30,6 +30,11 @@
  * regression because a real hit hid among comments).
  */
 import { readFileSync, existsSync } from 'node:fs';
+// SCORECARD-MI-1 PR-2 — owner ruling 2026-10-05 (re-grade replaces; marks not counts): the GA-21
+// pin below transpiles and CALLS the real weak-area rule, so it needs a temp dir + createRequire.
+import { mkdtempSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -206,6 +211,20 @@ const DELETED_EXPECTED = [
   'Each successful grading is saved to your mistake history so we',
   "Sign in to save mistake history. Without an account we'll",
 ];
+// ★★ SCORECARD-MI-1 PR-2 (H2, GA-14 / GA-32) — superseded by owner ruling 2026-10-05: taxonomy and
+// wording. The THREE survivor lines below were the multi-question C&I PDF coaching's PRE-RULING
+// two-bucket split (knowledge = conceptual + calculation, careless = silly + presentation). The
+// owner's taxonomy files calculation and silly as CARELESS and presentation as EXAM TECHNIQUE, so
+// this grouping contradicted every other surface. They are REMOVED (the coaching now reads the
+// paper's counts / marks through lib/mistakeDisplay's one coaching function), and they are the
+// ONLY additional lines that may go: named verbatim, so the moat still fails on ANY other change.
+// No other MI line moved — recordMistake / recordAttempt call sites, the summary defaults, the
+// step chips and every save-status region are untouched and still asserted above.
+const SUPERSEDED_OLD_GROUPING = [
+  'if (g.couldNotRead || !g.mistakeSummary) return a;',
+  'a.k += (g.mistakeSummary.conceptual || 0) + (g.mistakeSummary.calculation || 0);',
+  'a.c += (g.mistakeSummary.silly || 0) + (g.mistakeSummary.presentation || 0);',
+];
 if (hasRef(MI_ANCHOR)) {
   const norm = (s) => s.split('\n').map((l) => l.trim()).filter((l) => /mistake/i.test(l));
   const baseFile = execFileSync(
@@ -224,13 +243,26 @@ if (hasRef(MI_ANCHOR)) {
   check('MI: the anchor e8f75af had 55 "mistake" lines (re-derived from the SHA, not remembered)',
     baseLines.length === 55, `found ${baseLines.length}`);
   // ★ THE MOAT, made permanent. Anchored to the FIXED SHA, this is no longer a one-shot
-  // "the convergence didn't touch MI" — it is a standing guarantee that those 52 lines
+  // "the convergence didn't touch MI" — it is a standing guarantee that those lines
   // survive byte-identical in EVERY future commit. Any lane that alters one goes red.
-  check('MI: all 52 survivors are still present BYTE-IDENTICAL (permanent moat guard)',
-    survived.length === 52, `found ${survived.length}`);
-  check('MI: exactly the deleted rail card\'s 3 lines are gone — no more, no fewer',
-    gone.length === 3 && DELETED_EXPECTED.every((d) => gone.some((g) => g === d)),
+  // superseded by owner ruling 2026-10-05: taxonomy and wording — WAS `survived.length === 52`;
+  // the 3 SUPERSEDED_OLD_GROUPING lines (H2) left, so 49 survive. Still EXACT, never a floor.
+  check('MI: all 49 survivors are still present BYTE-IDENTICAL (permanent moat guard; 52 − the 3 superseded old-grouping lines, owner ruling 2026-10-05)',
+    survived.length === 49, `found ${survived.length}`);
+  // superseded by owner ruling 2026-10-05: taxonomy and wording — WAS `gone.length === 3` (the rail
+  // card only); now EXACTLY the rail card's 3 + the 3 named SUPERSEDED_OLD_GROUPING lines.
+  check('MI: exactly the deleted rail card\'s 3 lines + the 3 superseded old-grouping lines are gone — no more, no fewer',
+    gone.length === 6
+      && DELETED_EXPECTED.every((d) => gone.some((g) => g === d))
+      && SUPERSEDED_OLD_GROUPING.every((d) => gone.some((g) => g === d)),
     `gone(${gone.length}): ${JSON.stringify(gone)}`);
+  // NEW PIN (H2) — the old grouping is not merely moved: no two-bucket split survives ANYWHERE on
+  // the surface, and the paper's coaching reads the counts through the one coaching function.
+  check('MI (H2): no pre-ruling two-bucket coaching split on the surface (no `a.k +=` / `a.c +=` / `knowledge: agg.k`)',
+    !/\ba\.k\s*\+=/.test(converged) && !/\ba\.c\s*\+=/.test(converged) && !/knowledge:\s*agg\.k/.test(converged)
+      && !/careless:\s*agg\.c/.test(converged));
+  check('MI (H2): the multi-question PDF coaching passes the paper\'s counts to the ONE coaching function',
+    /coaching: buildCiCoaching\(\{[\s\S]{0,400}?counts: effectivePaperCounts\(ws\.results\)/.test(converged));
 } else if (IN_CI) {
   // ★ HARD FAILURE, by design. In CI the anchor MUST be reachable; if it is not, the
   // moat check could not run, and a check that silently did not run reads as green.
@@ -552,9 +584,22 @@ const FORBIDDEN = [
   // practiceInsights and the MI panels but writes neither, and it does not go near the C&I
   // persist seam. Do NOT re-add this entry without a deliberate owner decision — the
   // absence assertion below will fail if you do.
-  'lazytopper/src/services/practiceInsights.ts',
-  'lazytopper/src/services/checkImproveGradeService.ts',
-  'lazytopper/src/components/desktop/MistakeIntelCard.tsx',
+  //
+  // ★★ SCORECARD-MI-1 PR-2 (wave B-15) — the last THREE blanket bans LIFTED, each by name, each
+  // for a file PR-2 must change (owner approval 2026-10-05, conditions quoted in the PR body).
+  // THE PROTECTION CHANGES FORM, IT DOES NOT DISAPPEAR: each lift has an inverse assertion, a
+  // replacement contract suite asserted EXISTS / RUNS / COLLECTED / SUBJECT, and direct pins on
+  // the file's NEW behaviour (section "SCORECARD-MI-1 PR-2 — the three lifted bans" below):
+  //   - 'lazytopper/src/services/practiceInsights.ts'          // superseded by owner ruling 2026-10-05: re-grade replaces; marks not counts
+  //       H1 one attempt per submission (latest wins), H7 GA-21 weak-area accuracy from
+  //       knowledge-gap marks only, H11 "not attempted" carried → practiceInsights.contract.test.ts
+  //   - 'lazytopper/src/services/checkImproveGradeService.ts'  // superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts
+  //       H4/H9 the adapter carries `objective` (GA-38) + the v2 fields, one path
+  //       → checkImproveGradeService.contract.test.ts
+  //   - 'lazytopper/src/components/desktop/MistakeIntelCard.tsx' // superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts
+  //       H3 labels from lib/mistakeDisplay, checked answers = graded answers, marks per group
+  //       → MistakeIntelCard.contract.test.tsx
+  // Do NOT re-add any of them without a deliberate owner decision — the inverse assertions fail.
   // ★ l2/MistakeIntelligencePanel.tsx — entry REMOVED with the FILE (CLEANUP-2, wave B-11,
   // owner ruling). It was an ORPHAN: its only importer was DesktopWorksheetsPage.tsx, itself
   // unreachable from any live root (noOrphans.guard.test.ts ALLOWED_ORPHANS). The owner ruled
@@ -695,14 +740,25 @@ const FORBIDDEN = [
 // mistakeIntelligence.ts line left BOTH this list and FORBIDDEN in the SAME PR. Removing it
 // from FORBIDDEN alone would have failed the gate on its own amendment — this loop asserts
 // membership UNCONDITIONALLY, so it does not care why the entry went away.
-for (const f of [
-  'lazytopper/src/services/practiceInsights.ts',
-  'lazytopper/src/services/checkImproveGradeService.ts',
-  'lazytopper/src/components/desktop/MistakeIntelCard.tsx',
+//
+// ★★ SCORECARD-MI-1 PR-2 — superseded by owner ruling 2026-10-05 (taxonomy and wording · marks
+// not counts · re-grade replaces). WAS: this loop asserted the three surviving entries
+// (practiceInsights.ts, checkImproveGradeService.ts, MistakeIntelCard.tsx) were still in
+// FORBIDDEN. All three are lifted by name in the SAME PR (the warning above, honoured: each line
+// left BOTH lists together). REPLACED by the three INVERSE assertions below — each lift is itself
+// observable — and by the replacement pins in "SCORECARD-MI-1 PR-2 — the three lifted bans".
+// The FORBIDDEN machinery itself (shape loop + PR-scoped diff loop) stays, unchanged, for the next
+// ban an owner decision adds.
+for (const [f, why] of [
+  ['lazytopper/src/services/practiceInsights.ts', 're-grade replaces; marks not counts (H1 / H7 / H11)'],
+  ['lazytopper/src/services/checkImproveGradeService.ts', 'taxonomy and wording; marks not counts (H4 / H9)'],
+  ['lazytopper/src/components/desktop/MistakeIntelCard.tsx', 'taxonomy and wording; marks not counts (H3)'],
 ]) {
-  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-1 lifted SolutionChecker.tsx; FORBID-6 lifted ResultsScorecard.tsx; OPS-LIFT-1 lifted mistakeIntelligence.ts; CLEANUP-2 deleted l2/MistakeIntelligencePanel.tsx — nothing else)`,
-    FORBIDDEN.includes(f),
-    'all three lifts were deliberate ONE-FILE amendments — this entry must survive them');
+  // superseded by owner ruling 2026-10-05: taxonomy and wording | marks not counts | re-grade replaces
+  check(`FORBIDDEN(lifted): ${f} is NOT in the guarded set (owner ruling 2026-10-05: ${why}; ban replaced by its contract suite + the PR-2 pins)`,
+    !FORBIDDEN.includes(f),
+    're-adding the blanket entry needs an owner decision AND removal of the replacement pins — it would '
+    + 're-block the owner-ruled marks / taxonomy / re-grade behaviour this file now carries');
 }
 
 // ★ THE INVERSE ASSERTION for CLEANUP-2 — the orphan l2/MistakeIntelligencePanel.tsx left the
@@ -920,6 +976,128 @@ check('MI-CONTRACT-TESTS: the entry shape stays OPEN to additive change (the ant
   'a replacement that froze the entry\'s key set would re-impose the lifted ban by the back '
   + 'door and block MI-CONCEPT-1, ARRIVAL-1 and RETRY-1');
 
+/* ══════════════════════════════════════════════════════════════════════════
+   SCORECARD-MI-1 PR-2 — the three lifted bans (owner approval 2026-10-05), re-formed as pins on
+   each file's NEW behaviour. The owner's conditions, mechanised: every check here cites the
+   ruling it serves; each replaces a loosened line (the three FORBIDDEN entries + their
+   membership checks); each has a mutation proven RED (PR-2 report); nothing is report-only or
+   skipped (filesystem + in-process only — no git base, so nothing here can skip).
+   ══════════════════════════════════════════════════════════════════════════ */
+section('SCORECARD-MI-1 PR-2 — the three lifted bans, re-formed as pins (owner ruling 2026-10-05)');
+
+const requireCjs = createRequire(import.meta.url);
+/** Transpile src modules (TypeScript's own transpileModule: no type-check, type-only imports
+ *  erased) into a temp tree mirroring src/, and return a require for them. The REAL source is
+ *  what runs — never a re-derivation. */
+function loadSrcModules(rels) {
+  const ts = requireCjs(path.join(LAZY, 'node_modules', 'typescript'));
+  const out = mkdtempSync(path.join(tmpdir(), 'lt-conv-'));
+  for (const rel of rels) {
+    const js = ts.transpileModule(read(path.join(LAZY, 'src', rel)), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
+    }).outputText;
+    const dest = path.join(out, rel.replace(/\.tsx?$/, '.js'));
+    mkdirSync(path.dirname(dest), { recursive: true });
+    writeFileSync(dest, js);
+  }
+  writeFileSync(path.join(out, 'package.json'), '{"type":"commonjs"}');
+  return (rel) => requireCjs(path.join(out, rel.replace(/\.tsx?$/, '.js')));
+}
+/** Every shipped .ts/.tsx under src (tests excluded), comment-stripped — for "nowhere" pins. */
+function shippedSrc(dir = path.join(LAZY, 'src'), out = []) {
+  for (const name of readdirSync(dir)) {
+    const abs = path.join(dir, name);
+    if (statSync(abs).isDirectory()) shippedSrc(abs, out);
+    else if (/\.(ts|tsx)$/.test(name) && !/\.test\.(ts|tsx)$/.test(name) && !/\.d\.ts$/.test(name)) {
+      out.push({ file: abs, src: stripComments(read(abs)) });
+    }
+  }
+  return out;
+}
+
+// ── practiceInsights.ts — superseded by owner ruling 2026-10-05: re-grade replaces; marks not counts
+const piSrc = stripComments(read(path.join(LAZY, 'src', 'services', 'practiceInsights.ts')));
+const miFrontDoor = stripComments(read(path.join(LAZY, 'src', 'services', 'mistakeIntelligence.ts')));
+check('PI (H1, re-grade replaces): the attempt key is the SUBMISSION identity — attemptDedupKey(user.uid, ctx), never the score',
+  /attemptDedupKey\(user\.uid, ctx\)/.test(piSrc) && !/attemptDedupKey\([^)]*scored/.test(piSrc));
+check('PI (H1, re-grade replaces): attempts are stored through upsertAttempt (latest wins) — never appended',
+  /upsertAttempt\(/.test(piSrc) && !/attempts\.push\(/.test(piSrc));
+check('PI (H11, taxonomy and wording): notAttempted comes from the MI front door\'s OWN predicate, in both files',
+  /isLossOnlyNotAttempted\(grade\)/.test(piSrc) && /isLossOnlyNotAttempted\(gradeResult\)/.test(miFrontDoor));
+check('PI (H7, marks not counts): v2 marks ride the attempt ONLY versioned',
+  /marksLostByTypeVersion: MARKS_LOST_BY_TYPE_VERSION/.test(piSrc));
+
+// GA-21 — the REAL rule, transpiled and called (marks not counts; taxonomy and wording).
+{
+  const req = loadSrcModules(['services/attemptOutcome.ts', 'lib/mistakeDisplay.ts']);
+  const { attemptWeakAreaOutcome } = req('services/attemptOutcome.ts');
+  const lost = (m) => ({
+    correct: false, marksScored: 2, marksAvailable: 3, marksLostByTypeVersion: 1,
+    marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 0, ...m },
+  });
+  check('GA-21 (H7): a careless-only loss is NOT a weakness — the real rule says "knows"',
+    attemptWeakAreaOutcome(lost({ calculation: 0.5, silly: 0.5 })) === 'knows');
+  check('GA-21 (H7): an exam-technique-only loss is NOT a weakness — "knows"',
+    attemptWeakAreaOutcome(lost({ presentation: 1 })) === 'knows');
+  check('GA-21 (H7): CONTROL — a knowledge-gap loss IS a gap',
+    attemptWeakAreaOutcome(lost({ conceptual: 1 })) === 'gap');
+  check('GA-21 (H7): an old count-only attempt is judged exactly as before (never converted)',
+    attemptWeakAreaOutcome({ correct: false, marksScored: 2, marksAvailable: 3 }) === 'gap'
+      && attemptWeakAreaOutcome({ correct: true, marksScored: 3, marksAvailable: 3 }) === 'knows');
+  const waSrc = stripComments(read(path.join(LAZY, 'src', 'services', 'weakAreaAggregator.ts')));
+  check('GA-21 (H7): the weak-area accuracy READS that rule (attemptWeakAreaOutcome over the judged attempts)',
+    /attemptWeakAreaOutcome\(a\)/.test(waSrc) && /attemptData\.correct \/ attemptData\.judged/.test(waSrc));
+}
+
+// ── checkImproveGradeService.ts — superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts
+const cigsSrc = stripComments(read(path.join(LAZY, 'src', 'services', 'checkImproveGradeService.ts')));
+check('CIGS (H4/H9): the adapter carries GA-38\'s objective flag AND the v2 fields itself',
+  /graded\.objective === true \? \{ objective: true \} : \{\}/.test(cigsSrc) && /\.\.\.v2GradeFields\(graded\)/.test(cigsSrc));
+check('CIGS (H4/H9): an answer NOT graded becomes "nothing graded, one pending" — never a graded 0',
+  /if \(!isGradedQuestion\(result\)\) \{[\s\S]{0,200}?gradedCount: 0,\s*pendingCount: 1,/.test(cigsSrc));
+check('CIGS (H4/H9): ONE path — no caller-side echo patch (withV2Echo / withObjectiveEcho) anywhere under src/',
+  !shippedSrc().some((x) => /\bwith(V2|Objective)Echo\b/.test(x.src)));
+check('CIGS: ONE persist = ONE record + ONE payload (the double-write hazard the ban guarded)',
+  (cigsSrc.match(/writeSessionRecord\(/g) || []).length === 1 && (cigsSrc.match(/writeSessionPerQuestion\(/g) || []).length === 1);
+
+// ── MistakeIntelCard.tsx — superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts
+const micSrc = stripComments(read(path.join(LAZY, 'src', 'components', 'desktop', 'MistakeIntelCard.tsx')));
+check('MIC (H3): its labels come ONLY from lib/mistakeDisplay — no local type-label map, no legacy label',
+  /from "\.\.\/\.\.\/lib\/mistakeDisplay"/.test(micSrc) && /mistakeGroupByKey\(/.test(micSrc)
+    && !/PATTERN_LABELS/.test(micSrc) && !/concept gaps|calculation slips|silly mistakes|presentation issues/i.test(micSrc));
+check('MIC (H3): "checked answers" = GRADED ANSWERS from the attempt store, never MI log entries',
+  /getAttemptsFromCloud\(/.test(micSrc) && /a\.mode === "graded"/.test(micSrc) && !/answerCount:\s*entries\.length/.test(micSrc));
+check('MIC (H3): the biggest loss is decided in MARKS per group when entries carry them',
+  /aggregateEntryMarks\(entries\)/.test(micSrc) && /groupMarks\(marks\)/.test(micSrc));
+
+// ── The three replacement contract suites — EXIST · RUN · COLLECTED · SUBJECT (the house
+//    pattern of FORBID-1 / FORBID-6 / OPS-LIFT-1: a deleted ban plus a suite nobody runs is worse
+//    than the ban, because it reads as protection).
+for (const t of [
+  { tag: 'PI', file: 'lazytopper/src/services/practiceInsights.contract.test.ts', ext: '.test.ts',
+    why: 're-grade replaces; marks not counts',
+    subject: [/REPLACES the attempt/, /writes NOTHING/, /notAttempted: true/, /careless-only loss is NOT a weakness/] },
+  { tag: 'CIGS', file: 'lazytopper/src/services/checkImproveGradeService.contract.test.ts', ext: '.test.ts',
+    why: 'taxonomy and wording; marks not counts',
+    subject: [/objective:true survives/, /v2 fields are carried/, /never a graded 0/, /exactly ONE record and ONE payload/] },
+  { tag: 'MIC', file: 'lazytopper/src/components/desktop/MistakeIntelCard.contract.test.tsx', ext: '.test.tsx',
+    why: 'taxonomy and wording; marks not counts',
+    subject: [/checked answers are GRADED ANSWERS/, /comes from lib\/mistakeDisplay/, /decided in MISTAKES/, /LEGACY/] },
+]) {
+  // The SUBJECT is read COMMENT-STRIPPED: a header comment naming the subject must never stand in
+  // for the test itself (proven by a mutation that deleted the test and stayed green).
+  const src = existsSync(path.join(ROOT, t.file)) ? stripComments(read(path.join(ROOT, t.file))) : '';
+  check(`${t.tag}-CONTRACT: ${t.file} exists (owner ruling 2026-10-05: ${t.why} — the replacement for the lifted ban)`,
+    existsSync(path.join(ROOT, t.file)), 'the ban was lifted in favour of this suite — without it the file is unguarded');
+  check(`${t.tag}-CONTRACT: it RUNS — quality-gate.yml has a required lazytopper \`vitest run\` step`,
+    /pnpm --filter lazytopper exec vitest run/.test(qualityGate), 'a test nobody runs guards nothing');
+  check(`${t.tag}-CONTRACT: it is COLLECTED — the vitest include glob covers src/**/*${t.ext}`,
+    /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/.test(read(path.join(LAZY, 'vitest.config.ts')))
+      && t.file.startsWith('lazytopper/src/') && t.file.endsWith(t.ext));
+  check(`${t.tag}-CONTRACT: it still asserts its SUBJECT (the behaviour the lift re-formed)`,
+    t.subject.every((r) => r.test(src)), 'the suite exists and runs, but the assertions the lift relies on are gone');
+}
+
 // ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED GRADER BAN (PR-C1).
 // Lifting a blanket ban is only safe if the thing replacing it actually runs. A
 // deleted FORBIDDEN entry plus a test file nobody invokes is strictly WORSE than the
@@ -1110,7 +1288,8 @@ if (failures.length > 0) {
   process.exit(1);
 }
 console.log(`Check & Improve convergence acceptance PASSED — ${pass}/${pass} checks green.`);
-console.log('  MI untouched (52 survive + 1 relocated) · one component · zero matchMedia · basis 340 ·');
+// superseded by owner ruling 2026-10-05: taxonomy and wording (H2 — 3 old-grouping lines left the moat)
+console.log('  MI moat (49 survive + 1 relocated; H2 removed the 3 pre-ruling grouping lines) · one component · zero matchMedia · basis 340 ·');
 console.log('  question-before-answer · canonical sentence · tight accept · guard on both inputs ·');
 console.log('  five purples gone · QR + camera + Your-papers intact · SHOW_DETECTION_META unflipped ·');
 console.log('  question-side parity: EquationInput + QR(question mode) + camera + paste · autoGrow default-off ·');
@@ -1118,4 +1297,8 @@ console.log('  QR "question" mode threaded (client type + both COPY maps + serve
 console.log('  bans LIFTED, protection re-formed: SolutionChecker → SolutionChecker.contract.test.tsx (FORBID-1) ·');
 console.log('  ResultsScorecard → ResultsScorecard.contract.test.tsx (FORBID-6) ·');
 console.log('  mistakeIntelligence → mistakeIntelligence.contract.test.ts (OPS-LIFT-1) — presence, CI execution,');
-console.log('  collection and SUBJECT asserted for each; THREE MI/persist entries still guarded (CLEANUP-2 deleted the orphan l2 panel)\n');
+console.log('  collection and SUBJECT asserted for each ·');
+// superseded by owner ruling 2026-10-05: taxonomy and wording · marks not counts · re-grade replaces
+console.log('  SCORECARD-MI-1 PR-2: the last THREE bans lifted by owner ruling 2026-10-05 and re-formed as pins —');
+console.log('  practiceInsights (H1 one attempt per submission · H7 GA-21 · H11) · checkImproveGradeService (H4/H9 one path) ·');
+console.log('  MistakeIntelCard (H3 owner labels · graded answers · marks) · MI moat 49 survive (3 superseded old-grouping lines named)\n');
