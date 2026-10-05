@@ -480,8 +480,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         objectiveResolved: null,
         // PR-3 (C8): WHY it was not graded, for a client that can render it — "unreadable"
         // (the answer could not be read), "withheld" (C6), "timeout" / "error" (the marking
-        // did not finish), "unreadOption" (the page was read, the pick was not). null on every
-        // graded result.
+        // did not finish) — the four values the client knows (SCORECARD-MI). null on every graded
+        // result, and on an unread PICK (its state is objectiveResolved: false, which the client
+        // renders as "we couldn't read your option"; an unknown value would read "try again").
         notGraded: extra.notGraded || 'unreadable',
       }, extra.v2 || {});
     }
@@ -616,7 +617,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 },
         teacherNote: R.UNREAD_OPTION_NOTE, questionDepartureError: false, objective: true,
         answerMismatch: null, departureKind: null, marksLostByType: zeroLost(), rubric: null, objectiveResolved: false,
-        notGraded: 'unreadOption', // PR-3: v2 only (this branch is v2-only)
+        notGraded: null, // PR-3: v2 only — the state is objectiveResolved: false, never a notGraded reason
       };
       Object.defineProperty(out, '_graded', { value: false });
       Object.defineProperty(out, '_reason', { value: 'objectiveUnresolved' });

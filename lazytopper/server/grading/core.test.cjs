@@ -472,6 +472,9 @@ test('§C5.8 an UNRESOLVED objective: legacy keeps a graded 0; v2 is not graded 
   const v2 = (await harness({ replies: [raw] }).sheet(sheet([q], { acceptsV2: true }))).body;
   const r = v2.results[0];
   assert.deepEqual([r.couldNotRead, r.objectiveResolved, r.marksAwarded, r.annotatedSteps.length, v2.gradedCount, v2.pendingCount], [false, false, 0, 0, 0, 1]);
+  // PR-3: notGraded stays null — the client keys "couldn't read your option" on objectiveResolved
+  // false, and maps any notGraded value it does not know to "try again" (SCORECARD-MI contract)
+  assert.equal(r.notGraded, null);
   assert.deepEqual(r.marksLostByType, grading.zeroLost(), 'not graded: nothing counted as lost');
   assert.equal(r.teacherNote, grading.UNREAD_OPTION_NOTE);
   assert.equal(v2.gradedMarksTotal, 0, 'excluded from the graded totals exactly like couldNotRead');
