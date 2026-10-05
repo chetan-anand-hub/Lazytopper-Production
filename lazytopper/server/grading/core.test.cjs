@@ -128,12 +128,13 @@ test('§C1.2 PARITY: identical marksAwarded, step marks/statuses, mistakeSummary
     const h = harness({ replies: [REPLY(R(1, PARITY_STEPS))] });
     const a = (await h.single(single({ marks: 4, acceptsV2 }))).body;
     const b = (await h.sheet(sheet([sq(1, { marks: 4 })], { acceptsV2 }))).body.results[0];
-    assert.equal(a.marksAwarded, 1, 'model sum 3; the departure zeroes 1 and the arithmetic flag 1');
+    // PR-2b (targeted round): an arithmetic flag costs ½, the smallest CBSE unit (was a whole mark).
+    assert.equal(a.marksAwarded, 1.5, 'model sum 3; the departure zeroes 1 and the arithmetic flag ½');
     for (const k of ['marksAwarded', 'totalMarks', 'percentage', 'annotatedSteps', 'mistakeSummary', 'teacherNote', 'questionDepartureError', 'objective']) {
       assert.deepEqual(a[k], b[k], k + ' differs between endpoints (acceptsV2=' + acceptsV2 + ')');
     }
     if (acceptsV2) for (const k of V2_KEYS) assert.deepEqual(a[k], b[k], k);
-    assert.deepEqual(a.annotatedSteps.map((s) => [s.status, s.marksAwarded]), [['correct', 1], ['incorrect', 0], ['incorrect', 0], ['correct', 0]]);
+    assert.deepEqual(a.annotatedSteps.map((s) => [s.status, s.marksAwarded]), [['correct', 1], ['partial', 0.5], ['incorrect', 0], ['correct', 0]]);
     assert.deepEqual(a.mistakeSummary, { conceptual: 1, calculation: 1, silly: 0, presentation: 0, departure: 1 });
   }
 });
@@ -198,18 +199,21 @@ const MISCOPY = (dep = {}) => [
 test('§C2.3 a miscopied value is ONE silly mistake; the later correct ECF steps keep every mark', async () => {
   const h = harness({ replies: [REPLY(R(1, MISCOPY(), { finalAnswerCorrect: false }))] });
   const r = (await h.single(single({ marks: 4, acceptsV2: true }))).body;
-  assert.deepEqual(r.annotatedSteps.map((s) => s.marksAwarded), [0, 1, 1, 1]);
-  assert.equal(r.marksAwarded, 3);
+  // PR-2b (targeted round, half-mark weighting): the miscopy is penalised ONCE at ½ — every
+  // examiner-verified key charges a miscopy ½ (owner Q2, GS-M07-a, GS-SUP-03, CP01-Q05, CP02-Q05,
+  // CP03-Q08) — never the whole 1-mark step the model put it on.
+  assert.deepEqual(r.annotatedSteps.map((s) => s.marksAwarded), [0.5, 1, 1, 1]);
+  assert.equal(r.marksAwarded, 3.5);
   assert.deepEqual(r.mistakeSummary, { conceptual: 0, calculation: 0, silly: 1, presentation: 0, departure: 0 });
   assert.equal(r.questionDepartureError, false);
-  assert.deepEqual(r.marksLostByType, { conceptual: 0, calculation: 0, silly: 1, presentation: 0, unattempted: 0, untyped: 0 });
+  assert.deepEqual(r.marksLostByType, { conceptual: 0, calculation: 0, silly: 0.5, presentation: 0, unattempted: 0, untyped: 0 });
 });
 
 test('§C2.4 a departure flag WITHOUT a valid kind (absent, or "miscopy") zeroes nothing and says nothing', async () => {
   for (const dep of [{ isDeparture: true }, { isDeparture: true, departureKind: 'miscopy' }]) {
     const h = harness({ replies: [REPLY(R(1, MISCOPY(dep), { finalAnswerCorrect: false }))] });
     const r = (await h.single(single({ marks: 4, acceptsV2: true }))).body;
-    assert.equal(r.marksAwarded, 3, JSON.stringify(dep));
+    assert.equal(r.marksAwarded, 3.5, JSON.stringify(dep)); // PR-2b: the miscopy costs ½ (§C2.3)
     assert.equal(r.departureKind, null);
     assert.equal(r.questionDepartureError, false);
     assert.ok(!r.teacherNote.includes(grading.DEPARTURE_LINES['different-problem']));
@@ -242,7 +246,7 @@ test('§C2.7 two departures in ONE part are a contradiction and fail safe to no 
   steps[2] = { ...steps[2], isDeparture: true, departureKind: 'invalid-method' };
   const h = harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: false }))] });
   const r = (await h.single(single({ marks: 4, acceptsV2: true }))).body;
-  assert.equal(r.marksAwarded, 3);
+  assert.equal(r.marksAwarded, 3.5); // PR-2b: no departure stands, so the miscopy costs ½ (§C2.3)
   assert.equal(r.departureKind, null);
 });
 
@@ -343,10 +347,12 @@ test('§C4.1 "1232/308 = 8" in a step marked correct is flagged and full marks a
   const h = harness({ replies: [REPLY(R(1, ARITH_STEPS('1232/308 = 8'), { finalAnswerCorrect: true }))] });
   const r = (await h.single(single())).body;
   const s = r.annotatedSteps[1];
-  assert.equal(s.status, 'incorrect');
+  // PR-2b (targeted round): the flag costs ½ — the value point every examiner-verified key
+  // charges for such a slip (GS-M12-a, CP02-Q08) — not the whole step.
+  assert.equal(s.status, 'partial');
   assert.equal(s.mistakeType, 'calculation');
-  assert.equal(s.marksAwarded, 0);
-  assert.equal(s.teacherAnnotation, '× Check the arithmetic here: 1232/308 is not 8.');
+  assert.equal(s.marksAwarded, 0.5);
+  assert.equal(s.teacherAnnotation, '½ Check the arithmetic here: 1232/308 is not 8.');
   assert.equal(r.marksAwarded, 2.5, 'never full marks after an arithmetic flag');
 });
 
@@ -394,7 +400,7 @@ test('§C4.6 a radical quoted WITHOUT its brackets ("√196 + 110.25 = √306.25
   // CONTROL: with its brackets the radical is evaluated, and a false value IS flagged
   assert.equal(falseEqualities('√(196 + 110.25) = 18.5').length, 1);
   const bad = [S({ marksAwarded: 1, studentWork: 'l = √(196 + 110.25) = 18.5' }), S({ marksAwarded: 1, studentWork: 'CSA = 770 m²' })];
-  assert.equal((await harness({ replies: [REPLY(R(1, bad, { finalAnswerCorrect: true }))] }).single(single({ marks: 2 }))).body.marksAwarded, 1);
+  assert.equal((await harness({ replies: [REPLY(R(1, bad, { finalAnswerCorrect: true }))] }).single(single({ marks: 2 }))).body.marksAwarded, 1.5); // PR-2b: a flag costs ½
 });
 
 test('§C4.7 a STACKED FRACTION flattened onto one line ("-8/7 - 4 / 8/7 + 1 = -36/7 / 15/7") is never charged (live CP01-Q05)', async () => {
@@ -632,7 +638,7 @@ const LOST_TABLE = [
   ['objective wrong, bare pick', LETTER_MCQ({ qNumber: 4, textAnswer: '(c)' }), R(4, [S({ studentWork: '(c)', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' })]), 0, { untyped: 1 }],
   ['objective wrong, with working', LETTER_MCQ({ qNumber: 5, textAnswer: 'Answer: (c) since the slopes match' }), R(5, [S({ studentWork: 'Answer: (c) since the slopes match', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' })]), 0, { conceptual: 1 }],
   ['objective right', LETTER_MCQ({ qNumber: 6, textAnswer: '(a)' }), R(6, [S({ studentWork: '(a)', mistakeType: 'silly' })]), 1, {}],
-  ['arithmetic flag', sq(7, { marks: 2 }), R(7, [S(), S({ studentWork: '1232/308 = 8' })]), 1, { calculation: 1 }],
+  ['arithmetic flag', sq(7, { marks: 2 }), R(7, [S(), S({ studentWork: '1232/308 = 8' })]), 1.5, { calculation: 0.5 }], // PR-2b: a flag costs ½
   ['key mismatch cap', sq(8, { marks: 2, finalAnswer: '75 cm' }), R(8, [S(), S({ studentWork: 'Length = 65 cm' })], { finalAnswerCorrect: true, studentFinalAnswer: '65 cm' }), 1.5, { untyped: 0.5 }],
 ];
 const MISMATCH_Q = (n) => sq(n, { textAnswer: 'Photosynthesis makes glucose in the leaves.' });
@@ -895,11 +901,12 @@ test('§C2.10 (b) CBSE 11: below the ORIGINAL slip, an untyped step that lost ma
   const grade = async (steps, marks = 4, v2 = true) => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: false }))] })
     .sheet(sheet([sq(1, { marks })], { acceptsV2: v2 }))).body.results[0];
   const r = await grade(SLIP_STEPS());
-  assert.deepEqual(r.annotatedSteps.map((s) => s.marksAwarded), [1, 0, 1, 1], 'the miscopy costs its own mark ONCE; the work after it earns ECF');
-  assert.deepEqual(r.annotatedSteps.map((s) => s.marksDeducted), [0, 1, 0, 0], 'a carried value is never deducted twice');
+  // PR-2b (targeted round, half-mark weighting): the miscopy is charged ONCE at ½ (§C2.3).
+  assert.deepEqual(r.annotatedSteps.map((s) => s.marksAwarded), [1, 0.5, 1, 1], 'the miscopy costs ½ ONCE; the work after it earns ECF');
+  assert.deepEqual(r.annotatedSteps.map((s) => s.marksDeducted), [0, 0.5, 0, 0], 'a carried value is never deducted twice');
   assert.deepEqual(r.annotatedSteps.map((s) => s.mistakeType), [null, 'silly', null, null]);
-  assert.equal(r.marksAwarded, 3);
-  assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), silly: 1 });
+  assert.equal(r.marksAwarded, 3.5);
+  assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), silly: 0.5 });
   // CONTROLS — each fixture differs in ONE thing and the charge stands:
   // no typed slip anywhere (the schema marks no original) → nothing to carry, nothing restored
   assert.equal((await grade(SLIP_STEPS({ s1: { mistakeType: null } }))).marksAwarded, 1);
@@ -950,6 +957,111 @@ test('§C2.12 ★ the August §13.1b rule on the MULTI-question path (C&I multi,
     assert.deepEqual(body.results[2].annotatedSteps.map((s) => s.marksAwarded), [1, 1, 1, 0.5], label + ': only FULL marks are withheld (13.1b)');
     assert.ok(body.results.every((r) => r.questionDepartureError === false), label + ': nothing here is a departure');
   }
+});
+
+/* ══ §T · GRADER-CORE-1 PR-2b — THE TARGETED ROUND (owner, 2026-10-05) ════════════════
+   The failing items of PR-2's acceptance run only, in the owner's priority order:
+   (1) false comments, (2) minus-sign quotes, (3) ECF on fudged steps, (4) half-mark weighting. */
+
+test('§T1.1 ★ a final value with its UNIT is still arithmetic: "50 − 16 = 36 m" is charged (live CP02-Q08 scored 5/5, "flawless"); a variable is never read as a unit', async () => {
+  assert.equal(falseEqualities('Length of pool = 50 − 16 = 36 m').length, 1);
+  assert.equal(falseEqualities('A = 1/2 × 22 × 14 = 144 cm²').length, 1);
+  assert.deepEqual(falseEqualities('Breadth of pool = 40 − 16 = 24 m'), [], 'CONTROL: a true line with its unit stands');
+  // a letter with more equation after it is a VARIABLE (a quote that joined two lines, live GS-SUP-03)
+  assert.deepEqual(falseEqualities('1/v = −1/30 − 1/90 = −4/90 = −2/45 v = −45/2 = −22.5 cm'), []);
+  assert.deepEqual(falseEqualities('2l = 10'), [], 'a coefficient on a variable is never a number with a unit');
+  const steps = [S({ marksAwarded: 4, studentWork: 'x = 8' }), S({ marksAwarded: 1, studentWork: 'Length of pool = 50 − 16 = 36 m\nBreadth of pool = 40 − 16 = 24 m' })];
+  const r = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] }).single(single({ marks: 5 }))).body;
+  assert.equal(r.marksAwarded, 4.5);
+  assert.equal(r.annotatedSteps[1].teacherAnnotation, '½ Check the arithmetic here: 50 − 16 is not 36 m.');
+});
+
+test('§T1.2 ★ a note written for FULL marks is replaced when the arithmetic check lowers the grade, and a rubric that states the wrong value is dropped (live GS-MM-05.Q4)', async () => {
+  const steps = [S({ marksAwarded: 1, studentWork: 'R − r = 1' }), S({ marksAwarded: 1, studentWork: 'R² − r² = 1232/308 = 8' }), S({ marksAwarded: 1, studentWork: 'R = 4.5 cm, r = 3.5 cm' })];
+  const rubric = [{ point: 'R − r = 1 and the volume equation', marks: 1 }, { point: 'Evaluating R² − r² = 8 and R + r = 8', marks: 1 }, { point: 'Solving for R and r', marks: 1 }];
+  const full = R(1, steps, { finalAnswerCorrect: true, rubric, teacherNote: 'Excellent solution! The steps are clear and the calculations are exact.' });
+  for (const acceptsV2 of [false, true]) {
+    const r = (await harness({ replies: [REPLY(full)] }).single(single({ marks: 3, acceptsV2 }))).body;
+    assert.equal(r.marksAwarded, 2.5);
+    assert.equal(r.teacherNote, 'Check the arithmetic in your working: 1232/308 is not 8.', 'the praise for "exact calculations" is gone (acceptsV2=' + acceptsV2 + ')');
+    if (acceptsV2) assert.equal(r.rubric, null, 'a rubric derived from the student\'s wrong value is not shown');
+    // the later tick no longer calls the carried wrong radii "correct": it says they are ECF
+    assert.equal(r.annotatedSteps[2].teacherAnnotation, '✓ Worked correctly from your own earlier value (error carried forward), so no further mark is lost here.');
+    assert.equal(r.annotatedSteps[2].marksAwarded, 1, 'and keeps its marks');
+  }
+  // CONTROL: the model did NOT think it full marks — its own note is kept and the finding added;
+  // a rubric that does not state the wrong value stays
+  const part = R(1, [steps[0], steps[1], S({ status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation', studentWork: 'R = 5 cm' })],
+    { finalAnswerCorrect: false, rubric: [rubric[0], { point: 'Evaluating R² − r²', marks: 1 }, rubric[2]], teacherNote: 'Check your final values.' });
+  const c = (await harness({ replies: [REPLY(part)] }).single(single({ marks: 3, acceptsV2: true }))).body;
+  assert.equal(c.teacherNote, 'Check your final values. Check the arithmetic in your working: 1232/308 is not 8.');
+  assert.equal(c.rubric.length, 3);
+});
+
+test('§T1.3 ★ an OBJECTIVE question listed in the page inventory is held to PRESENCE only — its step quotes the option, not the first line (live CP04-Q01: "no answer found" on an answered MCQ)', async () => {
+  const mcq = MCQ({ textAnswer: '' });
+  const pick = R(1, [S({ description: 'Option chosen', studentWork: 'Ans: TTww', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'silly' })], { finalAnswerCorrect: false });
+  const listed = WITH_INV(INV([1, 'Cross: Tt x Tt gives TT, Tt, Tt, tt so the answer is']), pick);
+  const r = (await harness({ replies: [listed] }).sheet(sheet([mcq], { ...DOC, acceptsV2: true }))).body.results[0];
+  assert.notEqual(r.teacherNote, grading.NO_ANSWER_ON_PAGE_NOTE);
+  assert.deepEqual([r.marksAwarded, r.annotatedSteps[0].status, r.annotatedSteps[0].mistakeType], [0, 'incorrect', 'silly']);
+  // CONTROLS: an objective question ABSENT from the inventory is NOT GRADED (controller decision D38,
+  // GRADER-CORE-1 PR-3: pending, never a 0 shown as graded); a SUBJECTIVE question whose first line
+  // is not in its work is still unattempted (§P0.8)
+  const absent = (await harness({ replies: [WITH_INV(INV([2, 'Something else entirely here']), pick)] }).sheet(sheet([mcq], { ...DOC, acceptsV2: true }))).body.results[0];
+  assert.deepEqual([absent.couldNotRead, absent.note, absent.notGraded], [true, grading.NOT_FOUND_ON_PAGE_NOTE, 'unreadable']);
+  const subj = WITH_INV(INV([1, 'Mendel crossed tall pea plants with dwarf pea plants']), FULL(1, PARAPHRASE));
+  assert.equal((await harness({ replies: [subj] }).sheet(sheet([R5_Q(1)], DOC))).body.results[0].marksAwarded, 0);
+});
+
+test('§T1.4 the glyph agrees with the mark: a "½" on a step that lost nothing becomes ✓; a "×" on a step that kept marks becomes ½', async () => {
+  const steps = [S({ marksAwarded: 1, teacherAnnotation: '½ Correct rejection of the negative root.' }),
+    S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'calculation', teacherAnnotation: '× Slip in the last line.' })];
+  const r = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: false }))] }).single(single({ marks: 2 }))).body;
+  assert.equal(r.annotatedSteps[0].teacherAnnotation, '✓ Correct rejection of the negative root.');
+  assert.equal(r.annotatedSteps[1].teacherAnnotation, '½ Slip in the last line.');
+  // CONTROL: a "½" on a step that did lose half its marks is left alone (not a unit: on a Maths
+  // question that never asks for one, ruling 6 gives a unit deduction back — GRADER-CORE-1 PR-3)
+  assert.equal(r.annotatedSteps.length, 2);
+  const keep = [S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Conclusion not written.' }), S()];
+  assert.equal((await harness({ replies: [REPLY(R(1, keep, { finalAnswerCorrect: false }))] }).single(single({ marks: 2 }))).body.annotatedSteps[0].teacherAnnotation, '½ Conclusion not written.');
+});
+
+test('§T2.1 ★ a QUOTE that lost a minus sign never turns a correct step wrong (live CP01-Q05); the same unsigned line in the student\'s TYPED words is still charged', async () => {
+  const quoted = 'x = (-8/7 - 4)/(8/7 + 1) = (-36/7)/(15/7) = 36/15 = 12/5';
+  const steps = [S({ marksAwarded: 1, studentWork: 'k = 8/7' }), S({ marksAwarded: 1, studentWork: quoted })];
+  const photo = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] })
+    .sheet(sheet([sq(1, { marks: 2, textAnswer: '' })], { uploads: [{ qNumber: 1, ...PHOTO }] }))).body.results[0];
+  assert.equal(photo.marksAwarded, 2, 'a sign-only difference in the model\'s quote is not charged');
+  assert.ok(!/Check the arithmetic/.test(JSON.stringify(photo)), 'and no false arithmetic comment');
+  // CONTROL 1: the student TYPED the unsigned equality — a real sign slip, charged
+  const typed = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] }).single(single({ marks: 2, textAnswer: 'k = 8/7\n' + quoted }))).body;
+  assert.equal(typed.marksAwarded, 1.5);
+  // CONTROL 2: a difference that is not sign-only is charged in a quote; the model's own text
+  // (correctedWorking) keeps the strict check
+  assert.equal(falseEqualities('(-36/7)/(15/7) = 36/14', { quoted: true }).length, 1);
+  assert.equal(falseEqualities(quoted).length, 1);
+});
+
+test('§T4.1 ★ a FORMAT deduction is charged ONCE per question: two answers without their unit lose ½, not 1 (owner Q5; GS-S10-a arrows)', async () => {
+  const steps = [
+    S({ description: 'R', studentWork: 'R = 1', status: 'partial', marksAwarded: 1, marksDeducted: 0.5, marksAvailable: 1.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct value, but the SI unit (Ω) is missing.' }),
+    S({ description: 'I', studentWork: 'I = 6/1 = 6', status: 'partial', marksAwarded: 1, marksDeducted: 0.5, marksAvailable: 1.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct value, but the unit A is missing.' }),
+  ];
+  const sci = (st, acceptsV2 = true) => harness({ replies: [REPLY(R(1, st, { finalAnswerCorrect: true }))] }).single(single({ subject: 'Science', marks: 3, acceptsV2 }));
+  const r = (await sci(steps)).body;
+  assert.equal(r.marksAwarded, 2.5);
+  assert.deepEqual(r.annotatedSteps.map((s) => [s.status, s.marksAwarded, s.mistakeType]), [['partial', 1, 'presentation'], ['correct', 1.5, null]]);
+  assert.ok(r.annotatedSteps[1].teacherAnnotation.startsWith('✓ ') && r.annotatedSteps[1].teacherAnnotation.endsWith('no further mark is lost here.'));
+  assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), presentation: 0.5 });
+  // the model's note claiming the deduction PER answer is false once it is charged once — it goes;
+  // its plain advice stays (live GS-S10-a: "rays without arrowheads lose ½ mark per diagram")
+  const noted = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true, teacherNote: 'Good working. Missing units cost ½ mark for each answer. Always write SI units.' }))] })
+    .single(single({ subject: 'Science', marks: 3, acceptsV2: true }))).body;
+  assert.equal(noted.teacherNote, 'Good working. Always write SI units.');
+  // CONTROL: two DIFFERENT format elements (a unit and the ray arrows) are two deductions
+  const two = [steps[0], { ...steps[1], teacherAnnotation: '½ The arrows are missing on the rays.' }];
+  assert.equal((await sci(two)).body.marksAwarded, 2);
 });
 
 /* ══ §C3b · ANSWER–QUESTION MISMATCH ═════════════════════════════════════════ */

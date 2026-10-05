@@ -131,11 +131,50 @@ const flattenedFraction = (norm) => {
   return /[+\-]/.test(s.replace(/^[-+]/, '')) || (s.match(/\//g) || []).length >= 2;
 };
 
+/* GRADER-CORE-1 PR-2b (targeted round) · A FINAL VALUE WITH ITS UNIT IS STILL ARITHMETIC.
+   Live, 2026-10-05 (CP02-Q08, a planted slip): "Length of pool = 50 − 16 = 36 m" (50 − 16 = 34)
+   was marked correct and scored 5/5 with "executed flawlessly" — the check skipped the line
+   because "36 m" carries a letter. A unit written AFTER the last number of the LAST side of an
+   equality is set aside before that side is evaluated — only the last side, because a letter
+   with more equation after it is a VARIABLE (a quote that joined two lines, "… = −2/45 v =
+   −45/2", must never read "v" as volts). Single-letter units only as written (m, g, s, V, A, W,
+   J, N — case-sensitive) and only after a SPACE, so "2l" / "3m" (a coefficient on a variable)
+   is never read as a number with a unit. */
+const MULTI_LETTER_UNIT = new RegExp('(?<=[\\d)])\\s*(?:km\\/h|m\\/s|cm\\/s|kmph|km|cm|mm|kg|mg|ml|kj|kw|hz|ohms?|Ω|hrs?|min|sec)(?:\\s*(?:\\^\\s*\\(?[23]\\)?|[²³]))?\\s*\\.?\\s*$', 'i');
+const SINGLE_LETTER_UNIT = /(?<=[\d)])\s+(?:m|g|s|V|A|W|J|N)(?:\s*(?:\^\s*\(?[23]\)?|[²³]))?\s*\.?\s*$/;
+function withoutTrailingUnit(side) {
+  const s = String(side == null ? '' : side);
+  if (MULTI_LETTER_UNIT.test(s)) return s.replace(MULTI_LETTER_UNIT, '');
+  if (SINGLE_LETTER_UNIT.test(s)) return s.replace(SINGLE_LETTER_UNIT, '');
+  return s;
+}
+
+/* GRADER-CORE-1 PR-2b (targeted round) · A QUOTE THAT LOST A SIGN NEVER TURNS A CORRECT STEP WRONG.
+   Live, 2026-10-05 (CP01-Q05, 3 of 9 gradings): the student wrote "(−36/7)/(15/7) = −36/15 =
+   −12/5"; the model marked the step correct but QUOTED it "(-36/7)/(15/7) = 36/15 = 12/5", and
+   this check then charged the correct step "(-36/7)/(15/7) is not 36/15" — a false comment and
+   a lost mark. In a line the model QUOTED from the student, two sides that differ ONLY BY SIGN
+   (equal size, opposite sign) are not charged: the model judged the step right, so the likelier
+   story is a sign dropped while quoting. Where the student's own words are known verbatim (a
+   TYPED answer), a quote found in them is the student's real sign slip and is still charged.
+   `correctedWorking` (the model's own text) is checked without this exemption. */
+const compactExpr = (s) => normaliseExpr(withoutTrailingUnit(s)).replace(/\s+/g, '');
+function quotedInSource(leftRaw, rightRaw, source) {
+  const src = String(source == null ? '' : source);
+  if (!src.trim()) return false;
+  const hay = src.split(/\n/).map((l) => normaliseExpr(l).replace(/\s+/g, '')).join('\n');
+  return hay.includes(compactExpr(leftRaw) + '=' + compactExpr(rightRaw));
+}
+
 /**
  * Every FALSE plain numeric equality in a line of student work.
+ * @param {string} text
+ * @param {{ quoted?: boolean, source?: string }} [opts]  quoted: the text is the MODEL'S QUOTE of the
+ *   student's work (a sign-only difference is not charged unless `source`, the student's verbatim
+ *   typed answer, contains the same equality).
  * @returns {Array<{ left: string, right: string, leftValue: number, rightValue: number }>}
  */
-function falseEqualities(text) {
+function falseEqualities(text, opts = {}) {
   const out = [];
   const clauses = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i);
   for (const clause of clauses) {
@@ -147,8 +186,9 @@ function falseEqualities(text) {
     for (let k = 0; k + 1 < parts.length; k += 1) {
       const a = parts[k];
       const b = parts[k + 1];
+      const lastSide = k + 1 === parts.length - 1;
       const na = normaliseExpr(a.raw);
-      const nb = normaliseExpr(b.raw);
+      const nb = normaliseExpr(lastSide ? withoutTrailingUnit(b.raw) : b.raw);
       if (!na || !nb || !PLAIN.test(na) || !PLAIN.test(nb)) continue;
       if (!hasOperator(na) && !hasOperator(nb)) continue; // "8 = 8" — nothing computed
       // A RADICAL WITHOUT BRACKETS beside a + or − has an unknowable scope: the student's
@@ -176,7 +216,11 @@ function falseEqualities(text) {
       const scale = Math.max(Math.abs(va), Math.abs(vb));
       let tol = rel * scale + 1e-9 * Math.max(1, scale);
       if (b.approxBefore) tol = Math.max(tol, scale * 0.01);
-      if (Math.abs(va - vb) > tol) out.push({ left: a.raw.trim(), right: b.raw.trim(), leftValue: va, rightValue: vb });
+      if (Math.abs(va - vb) > tol) {
+        const signOnly = scale > 1e-12 && Math.abs(va + vb) <= tol;
+        if (signOnly && opts.quoted === true && !quotedInSource(a.raw, b.raw, opts.source)) continue;
+        out.push({ left: a.raw.trim(), right: b.raw.trim(), leftValue: va, rightValue: vb });
+      }
     }
   }
   return out;
