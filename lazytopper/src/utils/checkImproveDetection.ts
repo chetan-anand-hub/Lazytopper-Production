@@ -8,7 +8,6 @@
 // real `topics.ts` key instead of a free-text label.
 
 import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
-import { isGradedQuestion, v2GradeFields } from "../lib/mistakeDisplay";
 import type { DesktopSubject } from "../lib/desktop/navigation";
 import {
   detectQuestion,
@@ -16,7 +15,6 @@ import {
   type CheckSolutionTopicVocab,
   type DetectQuestionResponse,
   type PaidCallOptions,
-  type WorksheetGradeResponse,
 } from "../ai/aiClient";
 
 /**
@@ -260,48 +258,10 @@ export function ciQuestionIds(code: string, results: ReadonlyArray<{ qNumber: nu
   });
 }
 
-/**
- * GA-38 — the single-question response adapter drops the grader's `objective` echo, so a
- * re-opened single MCQ showed "0 marks" step chips again. The adapter itself is pinned
- * zero-diff by two CI gates, so the flag is carried across HERE, before the record and the
- * scorecard read it. Absent on the grade → absent here (never invented).
- */
-export function withObjectiveEcho(
-  response: WorksheetGradeResponse,
-  graded: { objective?: boolean | null },
-): WorksheetGradeResponse {
-  if (graded.objective !== true) return response;
-  return {
-    ...response,
-    results: response.results.map((r, i) => (i === 0 ? { ...r, objective: true } : r)),
-  };
-}
-
-/**
- * SCORECARD-MI-1 PR-2 — the single-question grade adapted into the one-question paper shape
- * (`singleCheckToWorksheetResponse`, a gate-frozen file) loses the v2 fields. This puts them
- * back on the one result, and when the answer was NOT graded (could not be read, option
- * unread, answer does not match the question) makes the paper say so honestly: nothing
- * graded, one pending — never a graded 0. A legacy grade (no v2 fields) is returned unchanged.
- */
-export function withV2Echo(
-  response: WorksheetGradeResponse,
-  graded: CheckSolutionResponse | null | undefined,
-): WorksheetGradeResponse {
-  const fields = v2GradeFields(graded);
-  if (Object.keys(fields).length === 0 || response.results.length === 0) return response;
-  const first = { ...response.results[0], ...fields };
-  if (isGradedQuestion(first)) return { ...response, results: [first, ...response.results.slice(1)] };
-  return {
-    ...response,
-    results: [first],
-    totalQuestions: 1,
-    gradedCount: 0,
-    pendingCount: 1,
-    gradedMarksAwarded: 0,
-    gradedMarksTotal: 0,
-  };
-}
+/* SCORECARD-MI-1 PR-2 (H4/H9) — `withObjectiveEcho` and `withV2Echo` are RETIRED: the single-question
+ * adapter (`singleCheckToWorksheetResponse`, services/checkImproveGradeService.ts) now carries the
+ * `objective` flag, the v2 fields and the honest not-graded paper itself — one path, owner ruling
+ * 2026-10-05. */
 
 /**
  * OR-LIVE L1 (PR-1 finding) — the detected question text for the result at `index`, matched by

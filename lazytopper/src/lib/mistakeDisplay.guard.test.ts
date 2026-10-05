@@ -105,45 +105,16 @@ export function scanSource(file: string, raw: string): Violation[] {
   return out;
 }
 
-/** HELD-OWNER-GATE-RULING — the ONLY exceptions (controller ruling A4). Exact trimmed lines. */
-const HELD: ReadonlyArray<{ file: string; line: string; tag: "HELD-OWNER-GATE-RULING"; gate: string }> = [
-  {
-    file: "pages/desktop/DesktopCheckImprovePage.tsx",
-    line: "a.k += (g.mistakeSummary.conceptual || 0) + (g.mistakeSummary.calculation || 0);",
-    tag: "HELD-OWNER-GATE-RULING",
-    gate: "lazytopper/scripts/ops/check_improve_convergence_acceptance.mjs:230 (MI moat — 52 survivors byte-identical)",
-  },
-  {
-    file: "pages/desktop/DesktopCheckImprovePage.tsx",
-    line: "a.c += (g.mistakeSummary.silly || 0) + (g.mistakeSummary.presentation || 0);",
-    tag: "HELD-OWNER-GATE-RULING",
-    gate: "lazytopper/scripts/ops/check_improve_convergence_acceptance.mjs:230 (MI moat — 52 survivors byte-identical)",
-  },
-  {
-    file: "components/desktop/MistakeIntelCard.tsx",
-    line: 'calculation: "calculation slips",',
-    tag: "HELD-OWNER-GATE-RULING",
-    gate: "lazytopper/scripts/ops/check_improve_convergence_acceptance.mjs:557 (FORBIDDEN zero-diff)",
-  },
-  {
-    file: "components/desktop/MistakeIntelCard.tsx",
-    line: 'silly: "silly mistakes",',
-    tag: "HELD-OWNER-GATE-RULING",
-    gate: "lazytopper/scripts/ops/check_improve_convergence_acceptance.mjs:557 (FORBIDDEN zero-diff)",
-  },
-  {
-    file: "pages/tutor/tutorRoundTrip.ts",
-    line: "const method = (ft.conceptual || 0) + (ft.calculation || 0);",
-    tag: "HELD-OWNER-GATE-RULING",
-    gate: "lazytopper/scripts/ops/quick_practice_overlay_additive_acceptance.mjs:437 (FORBIDDEN zero-diff)",
-  },
-  {
-    file: "pages/tutor/tutorRoundTrip.ts",
-    line: "const presLed = (ft.presentation || 0) + (ft.silly || 0);",
-    tag: "HELD-OWNER-GATE-RULING",
-    gate: "lazytopper/scripts/ops/quick_practice_overlay_additive_acceptance.mjs:437 (FORBIDDEN zero-diff)",
-  },
-];
+/**
+ * HELD-OWNER-GATE-RULING — the ONLY exceptions (controller ruling A4). Exact trimmed lines.
+ *
+ * EMPTY since SCORECARD-MI-1 PR-2: the owner approved the gate amendments (2026-10-05 —
+ * "taxonomy and wording, marks not counts, re-grade replaces"), and every line this list held
+ * was rewritten through lib/mistakeDisplay — the DIC old two-bucket grouping (H2), the sidebar
+ * MistakeIntelCard labels (H3) and the tutor round-trip method / presentation-led grouping
+ * (H6). The test below fails if an exception is ever added back without its own owner ruling.
+ */
+const HELD: ReadonlyArray<{ file: string; line: string; tag: "HELD-OWNER-GATE-RULING"; gate: string }> = [];
 
 function shippedSources(dir: string, rel = ""): Array<{ file: string; source: string }> {
   const out: Array<{ file: string; source: string }> = [];
@@ -176,6 +147,10 @@ describe("G4 · one display module — no other hard-coded grouping or legacy la
   it("finds NO grouping or legacy label outside lib/mistakeDisplay.ts (HELD lines excepted, by name)", () => {
     const violations = files.flatMap((f) => scanSource(f.file, f.source)).filter((v) => !isHeld(v));
     expect(violations.map((v) => `${v.file} [${v.rule}] ${v.line}`)).toEqual([]);
+  });
+
+  it("NO exception remains (SCORECARD-MI-1 PR-2 — every HELD line was lifted by owner ruling)", () => {
+    expect(HELD).toEqual([]);
   });
 
   it("every HELD exception still points at a real line (a stale exception fails), and only HELD lines are excepted", () => {

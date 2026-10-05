@@ -174,8 +174,9 @@ export async function gradeWorksheetAndRecord(
     });
 
     // Score-twin of the mistake door: every graded answer (full marks included)
-    // is also an attempt, so worksheet scores feed accuracy / Me. Deduped on the
-    // same stable id, so a re-grade with the same score never double-counts.
+    // is also an attempt, so worksheet scores feed accuracy / Me. H1 (owner ruling
+    // 2026-10-05, re-grade replaces): keyed on the SAME submission identity as the MI entry,
+    // so a re-upload of this worksheet REPLACES the attempt (latest wins), whatever the score.
     recordAttempt(user, {
       subject: q.subject,
       topic: q.topicLabel,
@@ -185,6 +186,9 @@ export async function gradeWorksheetAndRecord(
       marksScored: csr.marksAwarded,
       marksAvailable: csr.totalMarks,
       mode: "graded",
+      surface: "worksheet",
+      submissionId: worksheet.worksheetId,
+      grade: csr,
     });
 
     miOutcomes.push({ qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged });

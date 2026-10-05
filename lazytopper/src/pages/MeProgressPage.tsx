@@ -330,6 +330,15 @@ export function splitPaperMarks(
       else if (group === "technique") technique += marks;
     }
   }
+  // SCORECARD-MI-1 PR-2 (H11) — marks lost ONLY to work not attempted (a wholly unattempted
+  // question, or one whose only loss is unwritten parts) have NO MI entry by design (OR-LIVE
+  // L3), so the log above can never name them. The graded stream now does: an attempt carries
+  // `notAttempted` (the MI front door's own predicate), and the rung sums those marks. They
+  // leave "no reason recorded" and show as "Not attempted". Never double counted: such a
+  // question has no MI entry, and an entry's own `unattempted` marks belong to questions that
+  // DID lose marks to work. Absent on the rung (every pre-PR-2 attempt) → nothing added.
+  const rungNotAttempted = Number(rung.marksNotAttempted);
+  if (Number.isFinite(rungNotAttempted) && rungNotAttempted > 0) notAttempted += rungNotAttempted;
   careless = round1(careless);
   knowledge = round1(knowledge);
   technique = round1(technique);

@@ -44,7 +44,8 @@
  *
  * REAL CODE (every distinct SET body, every SINGLE, every curated fixture): through the real
  * `gradeWorksheetAndRecord` (a single is first adapted exactly as Check & Improve adapts it —
- * `singleCheckToWorksheetResponse` → `withObjectiveEcho` → `withV2Echo`), with only the network
+ * `singleCheckToWorksheetResponse`, which carries the objective flag and the v2 fields itself
+ * since H4/H9), with only the network
  * (`gradeWorksheet`), Firestore (an in-memory map) and the session hooks replaced:
  *   scorecard = `worksheetScorecardVariant` + rendered `<ResultsScorecard>`; PDF = rendered
  *   `WorksheetGradedPrintDoc`; MI = the stored entries; Me = `splitPaperMarks`; Tutor =
@@ -217,7 +218,6 @@ import { recordAttempt } from "./practiceInsights";
 import { getMistakeInsights } from "./mistakeInsightsService";
 import { setActiveProgressUser } from "./studentProgressStore";
 import { singleCheckToWorksheetResponse } from "./checkImproveGradeService";
-import { withObjectiveEcho, withV2Echo } from "../utils/checkImproveDetection";
 import { splitPaperMarks } from "../pages/MeProgressPage";
 import {
   ANSWER_MISMATCH_COPY,
@@ -567,7 +567,7 @@ function checkPaper(S: string, paper: Any) {
 }
 
 /** A single, adapted into the one-question paper exactly as Check & Improve adapts it. */
-const adaptSingle = (b: Any): WorksheetGradeResponse => withV2Echo(withObjectiveEcho(singleCheckToWorksheetResponse(b), b), b);
+const adaptSingle = (b: Any): WorksheetGradeResponse => singleCheckToWorksheetResponse(b);
 
 /* ── harness ───────────────────────────────────────────────────────────────── */
 const UID = "g3v2-student";

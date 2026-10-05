@@ -948,6 +948,11 @@ export async function gradeQuickPracticeBatch(args: {
       marksScored: csr.marksAwarded,
       marksAvailable: csr.totalMarks,
       mode: "graded",
+      // H1 — the same submission identity as the MI entry: this practice session is the
+      // submission; re-grading it replaces, a new session is a new attempt.
+      surface: "quick-practice",
+      submissionId: worksheetId,
+      grade: csr,
     });
     miOutcomes.push({
       qNumber: answer.qNumber,

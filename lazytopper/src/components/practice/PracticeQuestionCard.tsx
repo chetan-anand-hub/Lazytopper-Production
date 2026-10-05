@@ -309,6 +309,11 @@ export function PracticeQuestionCard({
           marksScored: resultStatus === "correct" ? 1 : 0,
           marksAvailable: 1,
           mode: "mcq",
+          // H1 (A2) — a practice card allows several answers to one question, so the picked
+          // option is the answer's identity: the same pick again is the same attempt, a
+          // different pick (wrong-then-right) is a new one — never keyed on the score.
+          surface: "practice-mcq",
+          answerKey: `o:${oi}`,
         });
       }
     };

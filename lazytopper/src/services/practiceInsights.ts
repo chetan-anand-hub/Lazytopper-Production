@@ -15,7 +15,15 @@ import {
 import { clearWrongAnswer, getWrongConceptsForTopic } from "./adaptivePracticeEngine";
 import { resolveCanonicalSlug, canonicalSlugMatches } from "../data/syllabus/canonicalTopicSlug";
 import { firestoreDb } from "./firebaseClient";
-import { attemptDedupKey } from "./attemptDedupKey";
+import { attemptDedupKey, upsertAttempt } from "./attemptDedupKey";
+import {
+  MARKS_LOST_BY_TYPE_VERSION,
+  isGradedQuestion,
+  isLossOnlyNotAttempted,
+  questionMarksLost,
+  type GradedQuestionLike,
+  type MarksLostByType,
+} from "../lib/mistakeDisplay";
 
 export type LTSubject = "maths" | "science";
 export type DifficultyLevel = "Easy" | "Medium" | "Hard";
@@ -45,6 +53,17 @@ export interface PracticeAttempt {
    *  classifier-accuracy measurement; never shown to the student. */
   marksSource?: string;
   detectionOverride?: DetectionOverrideLog | null;
+  /** SCORECARD-MI-1 PR-2 (H11) — ADDITIVE OPTIONAL. True when every mark this attempt lost was
+   *  NOT ATTEMPTED (the question as a whole, or only unwritten parts) — the same decision the
+   *  MI front door makes (`isLossOnlyNotAttempted`), which writes no MI entry for it. Lets Me
+   *  show those marks as "Not attempted" rather than "no reason recorded". Absent on every
+   *  attempt written before PR-2 (never back-filled). */
+  notAttempted?: boolean;
+  /** SCORECARD-MI-1 PR-2 (H7, B7) — ADDITIVE OPTIONAL, VERSIONED. The grade's marks lost per
+   *  bucket, written ONLY from a grade that carries GRADER-CORE-1 v2 `marksLostByType`, and read
+   *  only with `marksLostByTypeVersion` (an old or count-only attempt is never given marks). */
+  marksLostByType?: MarksLostByType;
+  marksLostByTypeVersion?: typeof MARKS_LOST_BY_TYPE_VERSION;
   timestamp: number;
 }
 
@@ -132,17 +151,20 @@ export function saveInsights(data: PracticeInsights): void {
 }
 
 /**
- * Append a single practice attempt to the store (localStorage + Firestore
- * mirror via saveInsights). Internal — every write goes through the
- * `recordAttempt` front door so policy + dedup can never be bypassed.
+ * Store a single practice attempt (localStorage + Firestore mirror via saveInsights).
+ * Internal — every write goes through the `recordAttempt` front door so policy + identity
+ * can never be bypassed.
+ *
+ * SCORECARD-MI-1 PR-2 (H1) — superseded by owner ruling 2026-10-05 (re-grade replaces): the
+ * attempt's `id` is its submission identity, and `upsertAttempt` REPLACES the stored attempt
+ * with that id (latest wins) instead of appending a second one. The same outcome again writes
+ * nothing ("duplicate").
  */
-function appendAttempt(attempt: Omit<PracticeAttempt, "id"> & { id?: string }): void {
+function storeAttempt(attempt: PracticeAttempt): { outcome: "recorded" | "replaced" | "duplicate"; previous: PracticeAttempt | null } {
   const data = loadInsights();
-  const id =
-    attempt.id ??
-    `${attempt.questionId || "q"}-${attempt.topicKey}-${Date.now().toString(36)}`;
-  data.attempts.push({ ...attempt, id });
-  saveInsights(data);
+  const { attempts, outcome, previous } = upsertAttempt(data.attempts, attempt);
+  if (outcome !== "duplicate") saveInsights({ ...data, attempts });
+  return { outcome, previous };
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -180,11 +202,23 @@ export interface RecordAttemptContext {
   detectionOverride?: DetectionOverrideLog | null;
   /** Defaults to now; pass-through kept for testability. */
   timestamp?: number;
+  /** SCORECARD-MI-1 PR-2 (H1, ruling A2) — the submission identity, the SAME fields the
+   *  sibling `recordMistake` call keys its entry on: which surface graded it, the session /
+   *  paper / check id, and the answer's own identity only where one context allows several
+   *  answers to one question. Re-grading the same submission REPLACES its attempt. */
+  surface?: string;
+  submissionId?: string;
+  answerKey?: string;
+  /** SCORECARD-MI-1 PR-2 (H7/H11) — the per-question grade this attempt records, when the
+   *  surface has one. Read only for its v2 marks (versioned) and its not-attempted state
+   *  (`isLossOnlyNotAttempted`); the marks recorded stay `marksScored` / `marksAvailable`. */
+  grade?: GradedQuestionLike | null;
 }
 
 export type RecordAttemptOutcome =
   | "recorded" // newly persisted
-  | "duplicate" // same (user, question, score, mode) already recorded
+  | "replaced" // a re-grade of the same submission: its attempt now holds the LATEST outcome
+  | "duplicate" // the same submission with the same outcome already recorded
   | "skipped-no-user" // signed out
   | "skipped-local" // local/browse session — never persists fabricated history
   | "skipped-invalid"; // no positive marksAvailable — nothing measurable to record
@@ -216,10 +250,10 @@ function writeAttemptDedup(keys: string[]): void {
   }
 }
 
-// attemptDedupKey + hashAttemptString now live in ./attemptDedupKey (a dependency-free
-// module) so the key's mode-independence + score-distinctness are provable in the
-// CI-gated ops matrix by importing the REAL function. Behaviour is byte-identical apart
-// from the deliberate `mode` drop documented there.
+// attemptDedupKey + upsertAttempt live in ./attemptDedupKey (a dependency-free module) so
+// the key's properties — mode-independence, and (SCORECARD-MI-1 PR-2, H1) one key per
+// SUBMISSION with the score never in it, latest outcome wins — are provable in the CI-gated
+// ops matrix by importing the REAL functions (objective_dedup_acceptance.mjs §4b).
 
 function toLTSubject(subject: string): LTSubject {
   return String(subject).trim().toLowerCase() === "science" ? "science" : "maths";
@@ -233,8 +267,9 @@ function toDifficulty(difficulty?: string): DifficultyLevel {
 }
 
 /**
- * The single attempt-ingestion front door. Idempotent per (user, question,
- * score, mode). Returns the outcome so a surface can drive its own status.
+ * The single attempt-ingestion front door. ONE attempt per SUBMISSION (ruling A2; H1):
+ * re-grading the same submission REPLACES its attempt (latest wins), a new submission adds
+ * one. Returns the outcome so a surface can drive its own status.
  */
 export function recordAttempt(
   user: AuthUser | null | undefined,
@@ -251,10 +286,19 @@ export function recordAttempt(
   // Clamp to [0, available] so a stray grader value can never invent marks.
   scored = Math.max(0, Math.min(scored, available));
 
-  // ── Dedup ─────────────────────────────────────────────────────────────
-  const key = attemptDedupKey(user.uid, ctx, scored, available);
+  // ── Identity (H1 — superseded by owner ruling 2026-10-05: re-grade replaces) ──
+  // The submission's identity — never the score. A re-grade writes the SAME key, so the
+  // stored attempt (local id AND Firestore doc id) is replaced, never doubled.
+  const key = attemptDedupKey(user.uid, ctx);
+  // Sanitize Firestore-illegal chars ("/", ".", "#", "$", "[", "]", whitespace) to "_" so the
+  // key is a valid doc id. The same id is the local attempt's id, so both stores replace.
+  const attemptId = key.replace(/[/.#$[\]\s]/g, "_");
   const seen = readAttemptDedup();
-  if (seen.includes(key)) return "duplicate";
+
+  // ── H7 / H11 — what the grade says beyond the marks (both additive, both versioned) ──
+  const grade = ctx.grade && isGradedQuestion(ctx.grade) ? ctx.grade : null;
+  const v2Marks = grade ? questionMarksLost(grade) : null;
+  const notAttempted = grade ? isLossOnlyNotAttempted(grade) : false;
 
   // ── Build + persist ───────────────────────────────────────────────────
   const topicLabel = String(ctx.topic ?? ctx.topicKey ?? "").trim();
@@ -264,7 +308,8 @@ export function recordAttempt(
   // canonical bucket, so no historical backfill is needed.
   const canonicalTopicKey = resolveCanonicalSlug(ctx.topicKey ?? ctx.topic) || topicLabel;
   const isCorrect = scored >= available;
-  const attemptDoc = {
+  const attemptDoc: PracticeAttempt = {
+    id: attemptId,
     questionId: ctx.questionId?.trim() || "",
     topicKey: canonicalTopicKey,
     topicName: topicLabel || undefined,
@@ -277,25 +322,24 @@ export function recordAttempt(
     mode: ctx.mode,                       // AttemptMode: "graded" | "mcq" | "self-assess" — UNCHANGED
     ...(ctx.marksSource ? { marksSource: ctx.marksSource } : {}),
     ...(ctx.detectionOverride ? { detectionOverride: ctx.detectionOverride } : {}),
+    ...(notAttempted ? { notAttempted: true } : {}),
+    ...(v2Marks ? { marksLostByType: v2Marks, marksLostByTypeVersion: MARKS_LOST_BY_TYPE_VERSION } : {}),
     timestamp: Number(ctx.timestamp) || Date.now(),
   };
-  appendAttempt(attemptDoc);
+  const stored = storeAttempt(attemptDoc);
+  if (stored.outcome === "duplicate") return "duplicate";
   writeAttemptDedup([key, ...seen.filter((k) => k !== key)]);
 
   // PR-B: durable per-attempt time-series. Write each recorded attempt as an
-  // independently queryable Firestore document. Idempotent BY CONSTRUCTION — the
-  // doc id derives from the same dedup signature `key`, so a cache-restore replay
-  // overwrites the same doc (never duplicates). Fire-and-forget, mirrors the
-  // blob-write guard in saveInsights. The root blob still loads on app start;
-  // this subcollection is the new durable, range-queryable layer.
+  // independently queryable Firestore document. Idempotent BY CONSTRUCTION — the doc id IS
+  // the submission identity, so a re-grade (or a cache-restore replay) OVERWRITES the same
+  // doc: latest wins, never a duplicate. `merge: false` so a field the new outcome no longer
+  // carries (e.g. `notAttempted` after a re-grade) does not linger from the old one.
+  // Fire-and-forget, mirrors the blob-write guard in saveInsights.
   if (firestoreDb && user.uid !== "anonymous") {
-    // `key` is `uid::qid::scored/available::mode` — sanitize Firestore-illegal chars
-    // ("/", ".", "#", "$", "[", "]", whitespace) to "_" so it is a valid doc id.
-    const attemptId = key.replace(/[/.#$[\]\s]/g, "_");
     void setDoc(
       doc(firestoreDb, "practiceInsights", user.uid, "attempts", attemptId),
-      { ...attemptDoc, id: attemptId },
-      { merge: true },
+      attemptDoc,
     ).catch((e) => console.warn("[practiceInsights] attempt write failed", e));
   }
 
@@ -312,7 +356,12 @@ export function recordAttempt(
   // (`resolveCanonicalSlug(topicKey ?? topic)`), so we resolve the SAME canonical
   // key here (NOT the raw human label) and decrement the stored entry using its
   // OWN key, so the map key matches exactly (P0 [FU-TOPICKEY-UNIVERSAL]).
-  if (isCorrect) {
+  //
+  // H1 — it fires when the SUBMISSION becomes fully correct: a new correct attempt, or a
+  // re-grade that turns a wrong one right. A re-grade of an already-correct submission
+  // drains nothing twice.
+  const becameCorrect = isCorrect && !(stored.outcome === "replaced" && stored.previous?.correct === true);
+  if (becameCorrect) {
     try {
       const canonicalKey = resolveCanonicalSlug(ctx.topicKey ?? ctx.topic) || "";
       if (canonicalKey) {
@@ -330,7 +379,7 @@ export function recordAttempt(
     }
   }
 
-  return "recorded";
+  return stored.outcome;
 }
 
 /**

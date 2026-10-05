@@ -35,8 +35,6 @@ import {
   resolveCiQuestionText,
   resolvePerQuestionGradeTopics,
   SHOW_DETECTION_META,
-  withObjectiveEcho,
-  withV2Echo,
   detectedTextForResult,
   type ConfirmedDetection,
 } from "../../utils/checkImproveDetection";
@@ -1482,15 +1480,6 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (!wsResult) return null;
     const ws = wsResult;
     const code = ciCode ?? "CI";
-    const agg = ws.results.reduce(
-      (a, g) => {
-        if (g.couldNotRead || !g.mistakeSummary) return a;
-        a.k += (g.mistakeSummary.conceptual || 0) + (g.mistakeSummary.calculation || 0);
-        a.c += (g.mistakeSummary.silly || 0) + (g.mistakeSummary.presentation || 0);
-        return a;
-      },
-      { k: 0, c: 0 },
-    );
     const questions: CiGradedQuestion[] = ws.results.map((g, gi) => ({
       qNumber: g.qNumber,
       // OR-LIVE L1 — by occurrence, so two questions printed "Q5" keep their own text.
@@ -1517,11 +1506,13 @@ const DesktopCheckImprovePageInner: React.FC<{
       coaching: buildCiCoaching({
         gradedMarksAwarded: ws.gradedMarksAwarded,
         gradedMarksTotal: ws.gradedMarksTotal,
-        // HELD-OWNER-GATE-RULING — `agg` (moat-pinned lines above) is the pre-ruling two-bucket
-        // split; buildCiCoaching prints only its SUM until the MI moat is re-based.
-        knowledge: agg.k,
-        careless: agg.c,
-        ...(pm ? { counts: effectivePaperCounts(ws.results), marks: pm.byType } : {}),
+        // H2 (GA-14 / GA-32) — superseded by owner ruling 2026-10-05 (taxonomy and wording): the
+        // pre-ruling two-bucket split (conceptual + calculation / silly + presentation) is gone.
+        // The paper's counts — and on a v2 paper its marks — go through the ONE coaching
+        // function, which names the owner's three groups (lib/mistakeDisplay).
+        counts: effectivePaperCounts(ws.results),
+        ...(pm ? { marks: pm.byType } : {}),
+        notAttemptedCount: ws.results.filter((g) => isQuestionNotAttempted(g)).length,
         mismatchCount: ws.results.filter((g) => gradeStateOf(g) === "answer-mismatch").length,
         pendingCount: ws.pendingCount,
       }),
@@ -1588,6 +1579,10 @@ const DesktopCheckImprovePageInner: React.FC<{
         mode: "graded",
         marksSource: ctx.marksSource ?? undefined,
         detectionOverride: ctx.detectionOverride,
+        // H1 — the SAME submission identity as the MI entry: a re-grade replaces this attempt.
+        surface: "check-improve",
+        submissionId: ctx.sessionCode,
+        grade: graded,
       });
       switch (rec.outcome) {
         case "logged":
@@ -1801,6 +1796,10 @@ const DesktopCheckImprovePageInner: React.FC<{
             marksScored: csr.marksAwarded,
             marksAvailable: csr.totalMarks,
             mode: "graded",
+            // H1 — the same submission identity as the MI entry above.
+            surface: "check-improve",
+            submissionId: sessionCode,
+            grade: csr,
           });
           if (
             rec.outcome === "logged" ||
@@ -2006,8 +2005,9 @@ const DesktopCheckImprovePageInner: React.FC<{
         subject: sessionSubject,
         topicSlug: confirmed.topicSlug,
         topicSource,
-        // GA-38 — the objective flag survives into the stored payload; ONE set of counts.
-        response: withEffectiveCounts(withV2Echo(withObjectiveEcho(singleCheckToWorksheetResponse(graded), graded), graded)),
+        // GA-38 — the objective flag survives into the stored payload; ONE set of counts. H4/H9:
+        // the adapter itself carries the flag and the v2 fields (one path, no caller-side echo).
+        response: withEffectiveCounts(singleCheckToWorksheetResponse(graded)),
       });
       setCiSaved(persistOutcome === "recorded");
       if (persistOutcome === "recorded") void loadCiRecords();
@@ -3405,7 +3405,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             topicName: resultCtx.topicName,
             code: ciCode,
             topicSource: ciTopicSource ?? deriveTopicSource(resultCtx.topicSlug, topicTouched),
-            response: withEffectiveCounts(withV2Echo(withObjectiveEcho(singleCheckToWorksheetResponse(result), result), result)),
+            response: withEffectiveCounts(singleCheckToWorksheetResponse(result)),
             saved: ciSaved,
             ...(isFreeMode ? { signUpToSave: freeSignUpToSave } : {}),
             downloading,

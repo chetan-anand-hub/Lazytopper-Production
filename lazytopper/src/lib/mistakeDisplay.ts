@@ -623,6 +623,19 @@ export function marksLostToWork(q: GradedQuestionLike): number {
   return isQuestionNotAttempted(q) ? 0 : lost;
 }
 
+/**
+ * True when a GRADED question lost marks and EVERY lost mark is "not attempted" — the question
+ * as a whole, or (v2) only parts the student never wrote. This is the ONE not-attempted decision
+ * shared by the Mistake-Intelligence front door (no entry: not a mistake, OR-LIVE L3) and the
+ * attempt store (the attempt carries `notAttempted`, so Me can show those marks as "Not
+ * attempted" instead of "no reason recorded" — H11). One predicate, so the two can never
+ * disagree about the same question.
+ */
+export function isLossOnlyNotAttempted(q: GradedQuestionLike): boolean {
+  if (!isGradedQuestion(q)) return false;
+  return isQuestionNotAttempted(q) || (marksLostOn(q) > 0 && marksLostToWork(q) <= 0);
+}
+
 /** A stored MI entry's marks per bucket — ONLY when it carries the versioned field (PR-2). An
  *  entry without it is COUNT-ONLY: null, and the reader shows its counts (G5). */
 export function entryMarksLost(entry: { marksLostByType?: unknown; marksLostByTypeVersion?: unknown } | null | undefined): MarksLostByType | null {

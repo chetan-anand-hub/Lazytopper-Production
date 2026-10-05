@@ -106,3 +106,38 @@ describe("G5 — entries without marks are weighed exactly as before (count)", (
     expect(wrongAnswerEvidenceUnits({ ...base, conceptualMarksLost: 4, conceptualMarksCount: 3 })).toBe(4);
   });
 });
+
+/* SCORECARD-MI-1 PR-2 (H7, GA-21) — owner ruling 2026-10-05: ONLY knowledge-gap marks lower a
+ * chapter's accuracy toward a weak area (attemptWeakAreaOutcome). A careless-only or an
+ * exam-technique-only loss is not a weakness; an attempt without marks is judged as before. */
+describe("GA-21 — the accuracy clause counts only knowledge-gap losses", () => {
+  const lossy = (topicKey: string, n: number, m: Record<string, number>) => {
+    for (let i = 0; i < n; i++) {
+      h.attempts.push({
+        topicKey, correct: false, timestamp: Date.now(), marksScored: 2, marksAvailable: 3,
+        marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 0, ...m },
+        marksLostByTypeVersion: 1,
+      } as (typeof h.attempts)[number]);
+    }
+  };
+
+  it("★ careless-only losses never make a chapter weak", () => {
+    lossy("triangles", 3, { calculation: 0.5, silly: 0.5 });
+    expect(scoreOf("triangles")).toBeUndefined();
+  });
+
+  it("★ exam-technique-only losses never make a chapter weak", () => {
+    lossy("triangles", 3, { presentation: 1 });
+    expect(scoreOf("triangles")).toBeUndefined();
+  });
+
+  it("CONTROL — knowledge-gap losses DO (accuracy 0% over 3 judged attempts → 18)", () => {
+    lossy("triangles", 3, { conceptual: 1 });
+    expect(scoreOf("triangles")).toBe(18);
+  });
+
+  it("CONTROL — attempts without marks are judged as before (correct:false → a miss)", () => {
+    for (let i = 0; i < 3; i++) h.attempts.push({ topicKey: "triangles", correct: false, timestamp: Date.now() });
+    expect(scoreOf("triangles")).toBe(18);
+  });
+});

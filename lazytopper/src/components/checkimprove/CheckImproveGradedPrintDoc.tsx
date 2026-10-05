@@ -106,28 +106,25 @@ function markPill(q: CiGradedQuestion): string {
  * "Not attempted" on screen says it here too, and an unknown status never reads "Incorrect". */
 
 /**
- * Product-voice coaching line (GA-24, B3). With `counts` (the paper's four-type counts, through
- * `effectiveTypeCounts`) it speaks the owner's three groups from lib/mistakeDisplay. It never
- * says "Clean" while marks were lost.
+ * Product-voice coaching line (GA-24, B3). From `counts` (the paper's four-type counts, through
+ * `effectiveTypeCounts`) — and `marks` on a v2 paper — it speaks the owner's three groups from
+ * lib/mistakeDisplay. It never says "Clean" while marks were lost.
  *
- * `knowledge` / `careless` are the LEGACY two-bucket input. One caller still sends it: the
- * multi-question C&I page, whose aggregation lines are pinned byte-identical by the CI MI moat
- * (check_improve_convergence_acceptance.mjs, 52 survivors) — HELD for an owner ruling. Their
- * split is the pre-ruling grouping, so this function never names a group from it: it prints
- * only their SUM (the true total of mistakes), until the moat is re-based.
+ * SCORECARD-MI-1 PR-2 (H2, GA-14 / GA-32) — superseded by owner ruling 2026-10-05 (taxonomy and
+ * wording): the LEGACY two-bucket input (`knowledge` = conceptual + calculation, `careless` =
+ * silly + presentation) is GONE. Its one caller, the multi-question C&I page, now passes the
+ * paper's counts like every other caller, so `counts` is required and no pre-ruling split can
+ * reach a student.
  */
 export function buildCiCoaching(args: {
   gradedMarksAwarded: number;
   gradedMarksTotal: number;
-  /** Paper-level four-type counts (preferred). */
-  counts?: Partial<MistakeTypeCounts> | null;
+  /** Paper-level four-type counts (through `effectiveTypeCounts`); null = none recorded. */
+  counts: Partial<MistakeTypeCounts> | null;
   /** PR-2 (B7) — the paper's marks lost per bucket; when present the coaching speaks in marks. */
   marks?: MarksLostByType | null;
   /** Questions not graded because the answer does not match the question (owner addendum). */
   mismatchCount?: number;
-  /** LEGACY two-bucket split — HELD caller only; only its sum is used. */
-  knowledge?: number;
-  careless?: number;
   pendingCount: number;
   /** Questions not attempted (today's data: every step "missing"). Never a mistake. */
   notAttemptedCount?: number;
@@ -150,34 +147,16 @@ export function buildCiCoaching(args: {
       "From one step on you were solving a different question — check each line against the question as you go.",
     );
   }
-  if (args.counts) {
-    const line = coachingLine({
-      marksAwarded: gradedMarksAwarded,
-      marksTotal: gradedMarksTotal,
-      counts: args.counts,
-      marks: args.marks ?? null,
-      pendingCount,
-      notAttemptedCount: args.notAttemptedCount,
-      mismatchCount: args.mismatchCount,
-    });
-    if (line) parts.push(line);
-    return parts.join(" ");
-  }
-  // LEGACY (HELD) caller — no group named, only the true total of mistakes.
-  const total = (Number(args.knowledge) || 0) + (Number(args.careless) || 0);
-  const lost = Math.max(0, gradedMarksTotal - gradedMarksAwarded);
-  if (total > 0) {
-    parts.push(`${countWithUnit(total)} cost you marks — each is named on its question below.`);
-  } else if (lost > 0) {
-    parts.push(`You lost ${lost} ${lost === 1 ? "mark" : "marks"}, and the examiner did not name a mistake type for ${lost === 1 ? "it" : "them"}.`);
-  } else if (gradedMarksTotal > 0) {
-    parts.push("Full marks on everything graded — keep showing every step so an examiner can award every method mark.");
-  }
-  if (pendingCount > 0) {
-    parts.push(
-      `${pendingCount} page${pendingCount === 1 ? "" : "s"} couldn't be read — re-upload a clearer photo for a complete picture.`,
-    );
-  }
+  const line = coachingLine({
+    marksAwarded: gradedMarksAwarded,
+    marksTotal: gradedMarksTotal,
+    counts: args.counts,
+    marks: args.marks ?? null,
+    pendingCount,
+    notAttemptedCount: args.notAttemptedCount,
+    mismatchCount: args.mismatchCount,
+  });
+  if (line) parts.push(line);
   return parts.join(" ");
 }
 

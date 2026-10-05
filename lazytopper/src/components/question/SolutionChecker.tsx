@@ -633,13 +633,17 @@ export function SolutionChecker({
     }).then((res) => {
       if (!cancelled) setLogStatus(statusFromOutcome(res.outcome));
     });
-    // Score-twin: a restored graded result is also an attempt (deduped, so a
-    // cache-restore of the same score never double-counts toward accuracy).
+    // Score-twin: a restored graded result is also an attempt. H1 — the SAME submission
+    // identity as the fresh grade (surface + question + answer), so a cache-restore replaces
+    // nothing new and never double-counts toward accuracy.
     recordAttempt(user, {
       subject, topic, question, questionId,
       marksScored: result.marksAwarded,
       marksAvailable: result.totalMarks,
       mode: "graded",
+      surface: "solution-checker",
+      answerKey: savedAnswerKey,
+      grade: result,
     });
     return () => { cancelled = true; };
   }, [result, isFromCache, user, questionId, subject, topic, question, savedAnswerKey]);
@@ -765,6 +769,10 @@ export function SolutionChecker({
           marksScored: response.marksAwarded,
           marksAvailable: response.totalMarks,
           mode: "graded",
+          // H1 (A2) — re-checking the SAME answer replaces its attempt; a new answer is a new one.
+          surface: "solution-checker",
+          answerKey,
+          grade: response,
         });
       } else {
         setError(response.error || "Could not evaluate. Try a clearer image or type your answer.");

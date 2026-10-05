@@ -218,6 +218,10 @@ export async function gradeFullMockUpload(args: {
       marksScored: csr.marksAwarded,
       marksAvailable: csr.totalMarks,
       mode: "graded",
+      // H1 — the same submission identity as the MI entry: a re-upload replaces the attempt.
+      surface: "full-mock",
+      submissionId: paper.worksheetId,
+      grade: csr,
     });
     miOutcomes.push({ qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged });
   }

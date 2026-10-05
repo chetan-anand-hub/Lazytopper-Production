@@ -8,6 +8,7 @@ import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { getMockTopicScores } from "./mockScoreHistory";
 import { getActiveProgressUser } from "./studentProgressStore";
 import { firestoreDb } from "./firebaseClient";
+import { attemptWeakAreaOutcome } from "./attemptOutcome";
 
 export interface WeakArea {
   topicKey: string;
@@ -87,13 +88,26 @@ function computeTopicMastery(topicKey: string): { percent: number; state: TopicH
   return { percent: total / nodes.length, state: worstState };
 }
 
-function aggregateAttemptsByTopic(attempts: PracticeAttempt[]): Map<string, { correct: number; total: number; lastTs: number }> {
-  const map = new Map<string, { correct: number; total: number; lastTs: number }>();
+/**
+ * Per chapter: every attempt (`total` — "never attempted" and the reported attempt count read
+ * it, unchanged) and the attempts that are EVIDENCE for the weak-area accuracy (`judged`,
+ * `correct`).
+ *
+ * SCORECARD-MI-1 PR-2 (H7, GA-21) — superseded by owner ruling 2026-10-05 (taxonomy and
+ * wording; marks not counts): the accuracy reads `attemptWeakAreaOutcome`, so ONLY a
+ * knowledge-gap loss lowers it. A careless-only or exam-technique-only loss counts as knowing
+ * the topic; nothing attempted, or a loss with no recorded reason, is left out (never guessed).
+ * An attempt written before PR-2 carries no marks and is judged exactly as before (`correct`).
+ */
+function aggregateAttemptsByTopic(attempts: PracticeAttempt[]): Map<string, { correct: number; judged: number; total: number; lastTs: number }> {
+  const map = new Map<string, { correct: number; judged: number; total: number; lastTs: number }>();
   for (const a of attempts) {
     const key = resolveCanonicalSlug(a.topicKey) || a.topicKey;
-    const prev = map.get(key) || { correct: 0, total: 0, lastTs: 0 };
+    const prev = map.get(key) || { correct: 0, judged: 0, total: 0, lastTs: 0 };
     prev.total++;
-    if (a.correct) prev.correct++;
+    const outcome = attemptWeakAreaOutcome(a);
+    if (outcome !== "skip") prev.judged++;
+    if (outcome === "knows") prev.correct++;
     prev.lastTs = Math.max(prev.lastTs, a.timestamp);
     map.set(key, prev);
   }
@@ -159,13 +173,14 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
     if (options?.subject && subject !== options.subject) continue;
 
     const { percent: masteryPercent, state: masteryState } = computeTopicMastery(masteryKey);
-    const attemptData = attemptMap.get(topicKey) || { correct: 0, total: 0, lastTs: 0 };
+    const attemptData = attemptMap.get(topicKey) || { correct: 0, judged: 0, total: 0, lastTs: 0 };
     const wrongData = wrongMap.get(topicKey) || { count: 0, units: 0, concepts: [] };
 
     totalMastery += masteryPercent;
     topicCount++;
 
-    const accuracy = attemptData.total > 0 ? (attemptData.correct / attemptData.total) * 100 : 0;
+    // H7 — over the JUDGED attempts only (see aggregateAttemptsByTopic).
+    const accuracy = attemptData.judged > 0 ? (attemptData.correct / attemptData.judged) * 100 : 0;
 
     const mockData = mockTopicScores.get(topicKey);
 
@@ -177,7 +192,7 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
     // the count where it does not (identical to before for every pre-PR-2 entry); the ×5
     // weight and the 30 cap are unchanged.
     let evidenceScore = 0;
-    if (accuracy < 60 && attemptData.total >= 2) evidenceScore += (60 - accuracy) * 0.3;
+    if (accuracy < 60 && attemptData.judged >= 2) evidenceScore += (60 - accuracy) * 0.3;
     if (wrongData.units > 0) evidenceScore += Math.min(wrongData.units * 5, 30);
     if (mockData && mockData.avgPercent < 50) evidenceScore += (50 - mockData.avgPercent) * 0.25;
 
@@ -231,8 +246,11 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
       (a) => (normalizeTopicKey(a.topicKey) === tk) && a.timestamp <= oneWeekAgo
     );
     if (olderAttempts.length === 0) continue;
-    const olderCorrect = olderAttempts.filter((a) => a.correct).length;
-    const olderAccuracy = (olderCorrect / olderAttempts.length) * 100;
+    // H7 — the same weak-area rule as the accuracy above (only knowledge-gap losses count).
+    const olderJudged = olderAttempts.map(attemptWeakAreaOutcome).filter((o) => o !== "skip");
+    if (olderJudged.length === 0) continue;
+    const olderCorrect = olderJudged.filter((o) => o === "knows").length;
+    const olderAccuracy = (olderCorrect / olderJudged.length) * 100;
     if (olderAccuracy < 50) {
       closedThisWeek++;
     }

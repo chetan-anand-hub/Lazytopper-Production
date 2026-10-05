@@ -40,6 +40,11 @@ import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+// SCORECARD-MI-1 PR-2 — owner ruling 2026-10-05 (taxonomy and wording; marks not counts): the
+// tutorRoundTrip pins below transpile and CALL the real openers, so they need these.
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { createRequire } from "node:module";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LAZY = path.join(__dirname, "..", "..");
@@ -434,8 +439,19 @@ const FORBIDDEN = [
   // assertion below will fail if you do.
   "lazytopper/src/data/predictionDataService.ts", // the subtopicHint fetch-filter (draw stays)
   "lazytopper/src/data/practiceSetGenerator.ts", // the question draw / count logic
-  "lazytopper/src/pages/tutor/tutorRoundTrip.ts", // composePracticeRecordReturnOpener — the graded read
-  "lazytopper/src/services/sessionRecords.ts", // the SessionRecord shape / read
+  // ★★ tutorRoundTrip.ts — blanket ban LIFTED (SCORECARD-MI-1 PR-2, H6/H8): superseded by owner
+  // ruling 2026-10-05 (taxonomy and wording; marks not counts). WAS:
+  //   "lazytopper/src/pages/tutor/tutorRoundTrip.ts", // composePracticeRecordReturnOpener — the graded read
+  // PR-2 must change THIS file: its three openers named the root cause with the PRE-RULING split
+  // (method = conceptual + calculation, presentation-led = presentation + silly), quoted a crossed-out
+  // ("withdrawn") step as the fault, and phrased a v2 "unattempted" step as one ("is where it turned")
+  // — the documented TRANSITIONAL Tutor contradiction (W6). It ends here. THE PROTECTION CHANGES FORM:
+  // the inverse assertion, the replacement contract suite (EXISTS · COLLECTED · RUNS · SUBJECT) and
+  // pins that TRANSPILE AND CALL the real openers (below). The graded READ path this ban protected —
+  // `composePracticeRecordReturnOpener` over the record + payload — is still the read, and is pinned.
+  // The C&I overlay gate's FLOOR checks on this file (the thin opener's signature + honest-floor line)
+  // are untouched and still pass. Do NOT re-add without an owner decision.
+  "lazytopper/src/services/sessionRecords.ts", // the SessionRecord shape / read — narrowed to ADDITIVE-ONLY below (owner ruling 2026-10-05: marks not counts)
 ];
 
 // ★ SHAPE, asserted UNCONDITIONALLY. Ported from the C&I twin, which has carried it since a commit
@@ -457,13 +473,14 @@ for (const f of FORBIDDEN) {
 // FORBIDDEN(path) loop above is what proves an entry can match. The two are complementary.
 // ⚠ THE LIFTED ENTRY'S LINE MUST LEAVE THIS LIST TOO — a removal from FORBIDDEN alone would fail
 // the gate on its own amendment, and the surviving entries' lines must NOT be touched.
+// superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts — WAS four entries;
+// tutorRoundTrip.ts's line left BOTH lists together (SCORECARD-MI-1 PR-2, H6/H8). Inverse below.
 for (const f of [
   "lazytopper/src/data/predictionDataService.ts",
   "lazytopper/src/data/practiceSetGenerator.ts",
-  "lazytopper/src/pages/tutor/tutorRoundTrip.ts",
   "lazytopper/src/services/sessionRecords.ts",
 ]) {
-  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx; FORBID-5 lifted quickPracticeSessionService.ts — nothing else)`,
+  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx; FORBID-5 lifted quickPracticeSessionService.ts; SCORECARD-MI-1 PR-2 lifted tutorRoundTrip.ts — nothing else)`,
     FORBIDDEN.includes(f),
     "both lifts were deliberate ONE-FILE amendments — this entry must survive them");
 }
@@ -533,6 +550,76 @@ check("APP-TESTS: vitest actually RUNS in CI (quality-gate.yml has a required `v
   /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")),
   "no vitest step in CI — a .test.tsx cannot replace a forbidden-path entry that nothing executes");
 
+/* ══════════════════════════════════════════════════════════════════════════
+   ★★ SCORECARD-MI-1 PR-2 (H6/H8) — the lifted tutorRoundTrip.ts ban, re-formed.
+   superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts.
+   The REAL openers are transpiled (TypeScript's transpileModule: no type-check, type-only imports
+   erased; the one runtime import is the pure lib/mistakeDisplay) and CALLED — never re-derived.
+   ══════════════════════════════════════════════════════════════════════════ */
+check("FORBIDDEN(lifted): tutorRoundTrip.ts is NOT in the guarded set (owner ruling 2026-10-05; ban replaced by tutorRoundTrip.contract.test.ts + the opener pins)",
+  !FORBIDDEN.includes("lazytopper/src/pages/tutor/tutorRoundTrip.ts"),
+  "re-adding the blanket entry needs an owner decision AND removal of the replacement pins");
+{
+  const requireCjs = createRequire(import.meta.url);
+  const ts = requireCjs(path.join(LAZY, "node_modules", "typescript"));
+  const out = mkdtempSync(path.join(tmpdir(), "lt-qpov-"));
+  for (const rel of ["pages/tutor/tutorRoundTrip.ts", "lib/mistakeDisplay.ts"]) {
+    const js = ts.transpileModule(read(`src/${rel}`), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
+    }).outputText;
+    const dest = path.join(out, rel.replace(/\.ts$/, ".js"));
+    mkdirSync(path.dirname(dest), { recursive: true });
+    writeFileSync(dest, js);
+  }
+  writeFileSync(path.join(out, "package.json"), '{"type":"commonjs"}');
+  const rt = requireCjs(path.join(out, "pages/tutor/tutorRoundTrip.js"));
+  const rec = (over = {}) => ({
+    id: "CI-1", worksheetId: "ci:CI-1", surface: "check-improve", title: "T", subject: "maths", topicKeys: [], questionIds: [],
+    marksAwarded: 3, marksTotal: 5, status: "graded", fourType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    sectionBreakdown: null, gradedAt: 2, perQuestionRef: "ci:CI-1", dedupKey: "u::CI-1", ...over,
+  });
+  const step = (over = {}) => ({ stepNumber: 1, description: "Real step", studentWork: "w", status: "incorrect", marksAwarded: 0,
+    marksDeducted: 1, teacherAnnotation: "Fix this.", mistakeType: "calculation", correctedWorking: null, ...over });
+  const resp = (steps, extra = {}) => ({ ok: true, totalQuestions: 1, gradedCount: 1, pendingCount: 0, gradedMarksAwarded: 3,
+    gradedMarksTotal: 5, worksheetTotalMarks: 5,
+    results: [{ qNumber: 1, couldNotRead: false, ok: true, totalMarks: 5, marksAwarded: 3, percentage: 60, annotatedSteps: steps, ...extra }] });
+  const silly = rec({ fourType: { conceptual: 0, calculation: 0, silly: 2, presentation: 0 } });
+  check("TRT (H6): silly is CARELESS in the owner's groups — 'you already know this', never the pre-ruling 'presentation' bucket",
+    /You already know this/.test(rt.composeReturnOpener(silly, "T").text) && !/presentation/.test(rt.composeReturnOpener(silly, "T").text));
+  const calc = rec({ fourType: { conceptual: 0, calculation: 2, silly: 0, presentation: 0 } });
+  check("TRT (H6): calculation is CARELESS, never a 'method' fault (the rich opener, the record's read)",
+    /You already know this/.test(rt.composeCheckImproveRichReturnOpener(calc, resp([step()]), "T").text)
+      && !/method itself/.test(rt.composeCheckImproveRichReturnOpener(calc, resp([step()]), "T").text));
+  const byMarks = rec({ fourType: { conceptual: 1, calculation: 3, silly: 0, presentation: 0 }, marksLostByTypeVersion: 1,
+    marksLostByType: { conceptual: 1.5, calculation: 0.5, silly: 0, presentation: 0, unattempted: 0, untyped: 0 } });
+  check("TRT (H6, marks not counts): MARKS decide when the record carries them — 1.5 knowledge marks beat 3 careless COUNTS",
+    /method itself/.test(rt.composeReturnOpener(byMarks, "T").text));
+  const struck = [step({ stepNumber: 1, status: "withdrawn", description: "Struck attempt", teacherAnnotation: "Crossed." }), step({ stepNumber: 2, description: "Real fault" })];
+  const struckOpener = rt.composePracticeRecordReturnOpener(calc, { ref: "r", code: "c", worksheetId: "w", surface: "quick-practice", gradedAt: 2, response: resp(struck) }, "T");
+  check("TRT (H8): a crossed-out (withdrawn) step is NEVER quoted as the fault — the graded read quotes the next real one",
+    !!struckOpener && /Real fault/.test(struckOpener.text) && !/Struck attempt/.test(struckOpener.text));
+  check("TRT (H8): a v2 'unattempted' step is never phrased as a fault (nothing quotable → the honest floor)",
+    rt.composeCheckImproveRichReturnOpener(calc, resp([step({ status: "unattempted", description: "Part b" })]), "T") === null);
+  const digest = rt.buildReturnedWork({ question: { text: "Q", imageBase64: null }, response: resp(struck), includeDigest: true });
+  check("TRT (H8): a crossed-out step never reaches the model's digest",
+    !!digest && Array.isArray(digest.steps) && !digest.steps.some((x) => x.status === "withdrawn"));
+  const trt = stripComments(read("src/pages/tutor/tutorRoundTrip.ts"));
+  check("TRT (H6): the pre-ruling grouping is gone — no method / presentation-led sums; the openers read the ONE root-cause function",
+    !/const method = /.test(trt) && !/const presLed = /.test(trt) && (trt.match(/dominantLoss\(record\)/g) || []).length === 2);
+  const TRT_CONTRACT = "lazytopper/src/pages/tutor/tutorRoundTrip.contract.test.ts";
+  const trtTests = existsSync(path.join(ROOT, TRT_CONTRACT)) ? readFileSync(path.join(ROOT, TRT_CONTRACT), "utf8") : "";
+  check(`TRT-CONTRACT: ${TRT_CONTRACT} exists (the replacement for the lifted blanket ban)`,
+    existsSync(path.join(ROOT, TRT_CONTRACT)), "the ban was lifted in favour of this suite — without it the graded read is unguarded");
+  check("TRT-CONTRACT: it is COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",
+    /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/.test(readFileSync(path.join(LAZY, "vitest.config.ts"), "utf8"))
+      && TRT_CONTRACT.startsWith("lazytopper/src/") && TRT_CONTRACT.endsWith(".test.ts"));
+  check("TRT-CONTRACT: vitest actually RUNS in CI (quality-gate.yml has a required `vitest run` step)",
+    /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")));
+  check("TRT-CONTRACT: it still asserts its SUBJECT (owner groups · marks decide · withdrawn never quoted · not attempted is not a fault)",
+    [/silly is CARELESS too/, /MARKS decide/, /withdrawn \(crossed-out\) step is NEVER quoted/, /'unattempted' step is not phrased as a fault/].every((r) => r.test(trtTests)),
+    "the suite exists and runs, but the assertions the lift relies on are gone");
+}
+
 function hasRef(ref) {
   try {
     execFileSync("git", ["rev-parse", "--verify", "--quiet", `${ref}^{commit}`], { cwd: ROOT, stdio: "pipe" });
@@ -565,38 +652,137 @@ function resolveForbiddenBase() {
 // are unchanged. Mirrored in LOCK-STEP in check_improve_overlay_additive_acceptance.mjs (same
 // entry, same rule): a lift in only one gate is the PR-C1 / FORBIDDEN-4 trap. The rule is
 // self-tested below with fixtures. A matcher nobody proved can fire is not a guard.
-const IMPORT_ONLY_ENTRIES = new Set(["lazytopper/src/services/sessionRecords.ts"]);
-function codeWithoutImports(src) {
-  return String(src)
-    .replace(/\r\n/g, "\n")
-    .replace(/^import\s*["'][^"']+["'];?[ \t]*$/gm, "")
-    .replace(/^import\s[^;]*?\sfrom\s*["'][^"']+["'];?[ \t]*$/gm, "")
-    .split("\n")
-    .filter((l) => l.trim() !== "" && !/^\s*\/\//.test(l))
-    .join("\n");
+// ★★ SCORECARD-MI-1 PR-2 (H5 / H10) — superseded by owner ruling 2026-10-05: marks not counts ·
+// taxonomy and wording. WAS: IMPORT-ONLY (BANK-LEAN-1, kept above as history) — the file had to be
+// byte-identical to its merge-base outside its import declarations. PR-2 MUST change it: the record
+// gains the versioned marks (H10), its four-type skips every not-graded / not-attempted question
+// (H10), and a Check & Improve record gains each question's own subject and chapter (H5). The entry
+// STAYS in FORBIDDEN and the rule is NARROWED AGAIN, not removed — ADDITIVE-ONLY. What the entry
+// protected ("the SessionRecord shape / read") must still hold, so the file may change ONLY if:
+//   (1) every member of SessionRecord, SessionPerQuestionPayload and SessionFourType at the
+//       merge-base is still present, byte-identical — nothing removed, nothing retyped;
+//   (2) every NEW member is OPTIONAL — an old record, which lacks it, still reads;
+//   (3) the read predicate `isSessionRecord` and the `VALID_SURFACES` allow-list are unchanged —
+//       an old record is accepted exactly as before.
+// The pins after the rule assert what the additions DO, and the additive contract suite proves an
+// old record reads back unchanged. Mirrored in LOCK-STEP in the twin overlay gate (same entry, same
+// rule): a lift in only one gate is the PR-C1 / FORBID-4 trap. Self-tested below with fixtures.
+const ADDITIVE_ONLY_ENTRIES = new Set(["lazytopper/src/services/sessionRecords.ts"]);
+function srCode(src) {
+  return stripComments(String(src).replace(/\r\n/g, "\n"));
 }
-function onlyImportsChanged(base, f) {
+function srInterfaceMembers(src, name) {
+  const m = srCode(src).match(new RegExp(`export interface ${name} \\{([\\s\\S]*?)\\n\\}`));
+  return m ? m[1].split("\n").map((l) => l.trim()).filter(Boolean) : null;
+}
+function srBlock(src, re) {
+  const m = srCode(src).match(re);
+  return m ? m[0].split("\n").map((l) => l.trim()).filter(Boolean).join("\n") : null;
+}
+const SR_READ_PREDICATE = /function isSessionRecord\([\s\S]*?\n\}/;
+const SR_VALID_SURFACES = /const VALID_SURFACES[\s\S]*?\];/;
+function additiveOnlyProblems(baseSrc, headSrc) {
+  const problems = [];
+  for (const name of ["SessionRecord", "SessionPerQuestionPayload", "SessionFourType"]) {
+    const before = srInterfaceMembers(baseSrc, name);
+    const after = srInterfaceMembers(headSrc, name);
+    if (!before || !after) {
+      problems.push(`${name}: interface not found`);
+      continue;
+    }
+    for (const l of before) if (!after.includes(l)) problems.push(`${name}: existing member changed or removed: ${l}`);
+    for (const l of after) {
+      if (!before.includes(l) && /^[A-Za-z_$][\w$]*\s*:/.test(l)) problems.push(`${name}: new member is not optional: ${l}`);
+    }
+  }
+  for (const [label, re] of [["isSessionRecord (the read predicate)", SR_READ_PREDICATE], ["VALID_SURFACES", SR_VALID_SURFACES]]) {
+    const b = srBlock(baseSrc, re);
+    const h = srBlock(headSrc, re);
+    if (!b || !h || b !== h) problems.push(`${label} changed`);
+  }
+  return problems;
+}
+function additiveOnlyChange(base, f) {
   try {
     const mb = execFileSync("git", ["merge-base", base, "HEAD"], { cwd: ROOT }).toString().trim();
     const show = (ref) =>
       execFileSync("git", ["show", `${ref}:${f}`], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 }).toString();
-    return codeWithoutImports(show(mb)) === codeWithoutImports(show("HEAD"));
-  } catch {
-    return false;
+    return additiveOnlyProblems(show(mb), show("HEAD"));
+  } catch (e) {
+    return [`could not compare against the merge-base: ${e && e.message}`];
   }
 }
 {
-  const fx = 'import { a } from "./x";\n// note\nexport interface R {\n  id: string;\n}\n';
-  check("FORBIDDEN(import-only): an import-path + comment change is NOT a shape change",
-    codeWithoutImports(fx) === codeWithoutImports('// moved\nimport {\n  a,\n} from "./y";\n' + fx.split("\n").slice(1).join("\n")),
-    "the import-only rule rejects the very change it exists to allow");
-  check("FORBIDDEN(import-only): CONTROL — a shape change IS caught",
-    codeWithoutImports(fx) !== codeWithoutImports(fx.replace("id: string;", "id: string;\n  extra: number;")),
-    "the import-only rule would let a SessionRecord shape change through");
-  for (const f of IMPORT_ONLY_ENTRIES) {
-    check(`FORBIDDEN(import-only): ${f} is still in the guarded set`, FORBIDDEN.includes(f),
-      "the import-only rule narrows an entry; it must never stand in for a removed one");
+  const fx = [
+    "export interface SessionRecord {",
+    "  id: string;",
+    "  /** doc */",
+    "  fourType: SessionFourType;",
+    "}",
+    "export interface SessionPerQuestionPayload {",
+    "  ref: string;",
+    "}",
+    "export interface SessionFourType {",
+    "  conceptual: number;",
+    "}",
+    "const VALID_SURFACES: SessionSurface[] = [",
+    '  "worksheet",',
+    "];",
+    "function isSessionRecord(v: unknown): v is SessionRecord {",
+    "  return !!v;",
+    "}",
+    "export function build() {",
+    "  return 1;",
+    "}",
+    "",
+  ].join("\n");
+  // superseded by owner ruling 2026-10-05: marks not counts — WAS the two import-only fixtures.
+  check("FORBIDDEN(additive-only): an OPTIONAL new member + a builder-body change is ALLOWED (owner ruling 2026-10-05: marks not counts)",
+    additiveOnlyProblems(fx, fx.replace("  fourType: SessionFourType;\n", "  fourType: SessionFourType;\n  marksLostByType?: MarksLostByType;\n").replace("return 1;", "return 2;")).length === 0,
+    "the additive-only rule rejects the very change it exists to allow");
+  check("FORBIDDEN(additive-only): CONTROL — a REQUIRED new member is caught (an old record would no longer type-check)",
+    additiveOnlyProblems(fx, fx.replace("  id: string;\n", "  id: string;\n  extra: number;\n")).length > 0,
+    "the additive-only rule would let a non-additive shape change through");
+  check("FORBIDDEN(additive-only): CONTROL — an existing member removed or retyped is caught",
+    additiveOnlyProblems(fx, fx.replace("  id: string;\n", "  id: number;\n")).length > 0
+      && additiveOnlyProblems(fx, fx.replace("  ref: string;\n", "")).length > 0,
+    "the additive-only rule would let an existing field change or vanish");
+  check("FORBIDDEN(additive-only): CONTROL — a changed read predicate (old records read differently) is caught",
+    additiveOnlyProblems(fx, fx.replace("return !!v;", "return !!v && false;")).length > 0
+      && additiveOnlyProblems(fx, fx.replace('  "worksheet",\n', '  "worksheet",\n  "other",\n')).length > 0,
+    "the additive-only rule would let the read of an old record change");
+  for (const f of ADDITIVE_ONLY_ENTRIES) {
+    check(`FORBIDDEN(additive-only): ${f} is still in the guarded set`, FORBIDDEN.includes(f),
+      "the additive-only rule narrows an entry; it must never stand in for a removed one");
   }
+}
+
+// ── What sessionRecords' additions DO (superseded by owner ruling 2026-10-05: marks not counts ·
+//    taxonomy and wording). Source pins on the file itself + the additive contract suite.
+{
+  const sr = stripComments(read("src/services/sessionRecords.ts"));
+  check("SR (H10): every record builder uses the ONE reduction (recordFourTypeAndMarks) — no couldNotRead-only loop left",
+    (sr.match(/recordFourTypeAndMarks\(response\.results\)/g) || []).length === 5 && !/r\.couldNotRead \|\| !r\.mistakeSummary/.test(sr));
+  check("SR (H10): the reduction skips EVERY not-graded and not-attempted question (the MI front door's own predicates)",
+    /if \(!isGradedQuestion\(r\) \|\| isLossOnlyNotAttempted\(r\)\) continue;/.test(sr));
+  check("SR (H10): marks are written ONLY versioned — a count-only record stays count-only",
+    /marksLostByType: pm\.byType, marksLostByTypeVersion: MARKS_LOST_BY_TYPE_VERSION/.test(sr));
+  check("SR (H5): a record without the per-question breakdown answers its own subject (old records read unchanged)",
+    /return own\.size > 0 \? Array\.from\(own\) : \[record\.subject\];/.test(sr));
+  const SR_CONTRACT = "lazytopper/src/services/sessionRecords.additive.contract.test.ts";
+  const srTests = existsSync(path.join(ROOT, SR_CONTRACT)) ? readFileSync(path.join(ROOT, SR_CONTRACT), "utf8") : "";
+  check(`SR-CONTRACT: ${SR_CONTRACT} exists (owner ruling 2026-10-05: marks not counts — the additive rule's behaviour suite)`,
+    existsSync(path.join(ROOT, SR_CONTRACT)), "the rule was narrowed in favour of this suite — without it the additions are unguarded");
+  check("SR-CONTRACT: it is COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",
+    /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/.test(readFileSync(path.join(LAZY, "vitest.config.ts"), "utf8"))
+      && SR_CONTRACT.startsWith("lazytopper/src/") && SR_CONTRACT.endsWith(".test.ts"),
+    "the include glob no longer matches the suite — it would never be discovered");
+  check("SR-CONTRACT: vitest actually RUNS in CI (quality-gate.yml has a required `vitest run` step)",
+    /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")),
+    "no vitest step in CI — a .test.ts cannot replace a guard that nothing executes");
+  check("SR-CONTRACT: it still asserts its SUBJECT (old records read unchanged · marks only v2 · no type when not graded · mixed subjects)",
+    [/OLD RECORDS READ UNCHANGED/, /records NO marks/, /add NO type/, /listed under both subjects/].every((r) => r.test(srTests)),
+    "the suite exists and runs, but the assertions the narrowed rule relies on are gone");
 }
 
 const forbiddenBase = resolveForbiddenBase();
@@ -608,10 +794,13 @@ if (forbiddenBase) {
     .filter(Boolean);
   for (const f of FORBIDDEN) {
     const touched = changed.includes(f);
-    const importOnly = IMPORT_ONLY_ENTRIES.has(f);
-    const ok = !touched || (importOnly && onlyImportsChanged(forbiddenBase, f));
-    check(`FORBIDDEN: ${f} shows zero changes${importOnly ? " outside its import declarations" : ""} (vs ${forbiddenBase})`, ok,
-      ok ? "" : "THIS FILE WAS MODIFIED");
+    // superseded by owner ruling 2026-10-05: marks not counts · taxonomy and wording — WAS the
+    // import-only test (`onlyImportsChanged`); sessionRecords.ts is now ADDITIVE-ONLY (H5 / H10).
+    const additive = ADDITIVE_ONLY_ENTRIES.has(f);
+    const problems = touched && additive ? additiveOnlyChange(forbiddenBase, f) : [];
+    const ok = !touched || (additive && problems.length === 0);
+    check(`FORBIDDEN: ${f} shows ${additive ? "no NON-ADDITIVE change (members kept, new members optional, the read unchanged)" : "zero changes"} (vs ${forbiddenBase})`, ok,
+      ok ? "" : problems.length ? problems.join("; ") : "THIS FILE WAS MODIFIED");
   }
 } else if (EVENT === "push") {
   console.log("  --  N/A: push-to-trunk run — no PR to scope a forbidden-path diff to.");
@@ -634,6 +823,8 @@ console.log("  hunks overlay-gated: pinned ✕ · breadcrumb suppressed · Ask-t
 console.log("  host: NO nested Router (#490 guard) · seed via <Routes location> + RouteContext reset · navigation CONTAINED to onClose · shared --qp frame ·");
 console.log("  harness: the integration test mounts an OUTER router inside a matched /tutor route + a CONTROL case that must throw ·");
 console.log("  wiring: Practise-this opens the overlay · routeToPractice/routeOut retired · graded read-back over the existing storage round-trip ·");
-console.log("  forbidden zero-diff: predictionDataService · practiceSetGenerator · tutorRoundTrip · sessionRecords ·");
+// superseded by owner ruling 2026-10-05: taxonomy and wording; marks not counts
+console.log("  forbidden zero-diff: predictionDataService · practiceSetGenerator · sessionRecords ADDITIVE-ONLY ·");
+console.log("  ban LIFTED, protection re-formed: tutorRoundTrip → tutorRoundTrip.contract.test.ts + transpiled opener pins (SCORECARD-MI-1 PR-2) ·");
 console.log("  ban LIFTED, protection re-formed: App.tsx → GUARD 3 (route propless) + App.routing.contract.test.tsx (FORBID-4) ·");
 console.log("  ban LIFTED, protection re-formed: quickPracticeSessionService.ts → quickPracticeSessionService.persist.contract.test.ts (FORBID-5)\n");

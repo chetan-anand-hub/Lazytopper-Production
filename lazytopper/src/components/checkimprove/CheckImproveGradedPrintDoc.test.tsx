@@ -122,25 +122,30 @@ describe("buildCiCoaching — the owner's three groups, counted in mistakes (B3/
   });
 });
 
-describe("buildCiCoaching — the LEGACY two-bucket input (HELD caller) names no group", () => {
-  it("prints only the true total of mistakes", () => {
+/* SCORECARD-MI-1 PR-2 (H2) — owner ruling 2026-10-05 (taxonomy and wording): the LEGACY
+ * two-bucket input (knowledge = conceptual + calculation, careless = silly + presentation) is
+ * GONE. Its only caller, the multi-question C&I page, passes the paper's counts. */
+describe("buildCiCoaching — the pre-ruling two-bucket input is gone (H2)", () => {
+  it("the two-bucket fields are not accepted (a typecheck failure if they come back)", () => {
     const line = buildCiCoaching({
       gradedMarksAwarded: 3,
       gradedMarksTotal: 5,
+      counts: { conceptual: 0, calculation: 1, silly: 1, presentation: 0 },
+      // @ts-expect-error — `knowledge` / `careless` no longer exist (H2).
       knowledge: 2,
       careless: 1,
       pendingCount: 0,
     });
-    expect(line).toContain("3 mistakes cost you marks");
-    expect(line).not.toMatch(/knowledge gap|careless slip/i);
+    // The counts decide, in the owner's groups: calculation + silly are CARELESS.
+    expect(line).toContain("You already know this: 2 careless slips");
+    expect(line).not.toMatch(/knowledge gap|cost you marks/i);
   });
 
-  it("★ GA-24 on the legacy input too — lost marks are never 'clean'", () => {
+  it("★ GA-24 — counts of nothing with marks lost are never 'clean'", () => {
     const line = buildCiCoaching({
       gradedMarksAwarded: 0,
       gradedMarksTotal: 3,
-      knowledge: 0,
-      careless: 0,
+      counts: null,
       pendingCount: 0,
     });
     expect(line).not.toMatch(/clean (work|sheet)/i);

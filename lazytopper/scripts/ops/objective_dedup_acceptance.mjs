@@ -10,9 +10,15 @@
  * What it pins:
  *   §4b  the attempt-dedup key is MODE-INDEPENDENT (a click and a graded typed answer to
  *        the same question at the same score collapse to ONE key → one Firestore doc →
- *        counted once) and SCORE-DISTINCT (0/1 and 1/1 never collapse). Negative control:
- *        the OLD mode-in-key formula is reconstructed inline and shown to DIVERGE for the
- *        click∪graded pair — so a regression that re-adds `mode` goes red here.
+ *        counted once). Negative control: the OLD mode-in-key formula is reconstructed
+ *        inline and shown to DIVERGE for the click∪graded pair — so a regression that
+ *        re-adds `mode` goes red here.
+ *        // superseded by owner ruling 2026-10-05: re-grade replaces — the key was
+ *        // SCORE-DISTINCT ("0/1 and 1/1 never collapse"); it is now the SUBMISSION's identity:
+ *        // a re-grade of the SAME submission keeps ONE key and the stored attempt is REPLACED
+ *        // (latest wins, `upsertAttempt`); a NEW submission gets a new key; the score is never
+ *        // in the key (SCORECARD-MI-1 PR-2, H1 / GA-17, controller ruling A2). Negative control:
+ *        // the superseded score-in-key formula is reconstructed and shown to SPLIT a re-grade.
  *   §2   BOTH grader functions (handleCheckSolution AND normaliseStructuredResult — the
  *        keep-in-sync pair) emit `objective`, correctly true for an objective question
  *        (Section A) and falsy for a subjective one, and the objective clamp zeroes every
@@ -72,7 +78,9 @@ console.log('\n§4b · attempt-dedup key (the REAL function, transpiled from src
     '--moduleResolution', 'node', '--skipLibCheck', '--esModuleInterop',
   ], { cwd: LAZY, stdio: ['ignore', 'ignore', 'inherit'] });
   writeFileSync(path.join(out, 'package.json'), '{"type":"commonjs"}');
-  const { attemptDedupKey } = require(path.join(out, 'services/attemptDedupKey.js'));
+  // superseded by owner ruling 2026-10-05: re-grade replaces — `upsertAttempt` (latest wins) is
+  // required from the same REAL module so §4b proves the replacement, not only the key.
+  const { attemptDedupKey, upsertAttempt } = require(path.join(out, 'services/attemptDedupKey.js'));
 
   const uid = 'u1';
   // The two live paths that record the SAME MCQ: a click (mode "mcq") and a graded typed
@@ -88,11 +96,40 @@ console.log('\n§4b · attempt-dedup key (the REAL function, transpiled from src
   check('the key contains NO trace of mode ("mcq"/"graded")',
     !clickKey.includes('mcq') && !clickKey.includes('graded'), clickKey);
 
-  // Score-distinctness: a genuinely different result must NOT collapse.
-  const wrong = attemptDedupKey(uid, { questionId: 'bank-q-1' }, 0, 1);
-  const right = attemptDedupKey(uid, { questionId: 'bank-q-1' }, 1, 1);
-  check('0/1 and 1/1 on the same question stay DISTINCT (score is in the key)',
-    wrong !== right, `wrong=${wrong} right=${right}`);
+  // ── superseded by owner ruling 2026-10-05: re-grade replaces (SCORECARD-MI-1 PR-2, H1 / GA-17).
+  // WAS (one check): '0/1 and 1/1 on the same question stay DISTINCT (score is in the key)' —
+  // `wrong !== right`. A re-grade of the SAME submission that changed the score therefore added a
+  // SECOND attempt. REPLACED by the pins below on the new behaviour (identity rule A2): one key
+  // per submission, latest wins, a new submission is a new key, the score is never in the key.
+  const sub = { questionId: 'ws:ws-1:q1', surface: 'worksheet', submissionId: 'ws-1' };
+  const firstGrade = attemptDedupKey(uid, { ...sub, marksScored: 0, marksAvailable: 1 }, 0, 1);
+  const reGrade = attemptDedupKey(uid, { ...sub, marksScored: 1, marksAvailable: 1 }, 1, 1);
+  check('a re-grade of the SAME submission keeps ONE key (0/1 then 1/1 on ws-1 Q1 → the same key) — superseded by owner ruling 2026-10-05: re-grade replaces',
+    firstGrade === reGrade, `first=${firstGrade} regrade=${reGrade}`);
+  check('the score is NEVER in the key (no "s/a" segment, and the function takes no score argument)',
+    !/\d+\/\d+/.test(firstGrade) && attemptDedupKey.length === 2, `key=${firstGrade} arity=${attemptDedupKey.length}`);
+  check('a NEW submission gets a NEW key (the same question on another worksheet)',
+    attemptDedupKey(uid, { ...sub, submissionId: 'ws-2' }) !== firstGrade);
+  check('a NEW answer where one context allows several (a retry) gets a NEW key',
+    attemptDedupKey(uid, { ...sub, answerKey: 'o:1' }) !== attemptDedupKey(uid, { ...sub, answerKey: 'o:2' }));
+  // Latest wins — the REAL store function, not a re-derivation.
+  const stale = { id: 'k1', marksScored: 0, marksAvailable: 1 };
+  const latest = { id: 'k1', marksScored: 1, marksAvailable: 1 };
+  const otherSub = { id: 'k2', marksScored: 1, marksAvailable: 1 };
+  const replaced = upsertAttempt([otherSub, stale], latest);
+  check('latest wins: a re-grade REPLACES the stored attempt in place (still one attempt per submission, the new score)',
+    replaced.outcome === 'replaced' && replaced.attempts.length === 2
+      && replaced.attempts[1].marksScored === 1 && replaced.attempts[0] === otherSub,
+    JSON.stringify(replaced));
+  check('the SAME outcome again writes nothing ("duplicate" — a cache-restore is a no-op)',
+    upsertAttempt([latest], { ...latest }).outcome === 'duplicate');
+  check('a NEW submission is appended ("recorded")',
+    (() => { const r = upsertAttempt([latest], otherSub); return r.outcome === 'recorded' && r.attempts.length === 2; })());
+  // ★ NEGATIVE CONTROL — the superseded score-in-key formula DID split this re-grade into two
+  // keys. If these were equal the old bug never existed and the checks above prove nothing.
+  const scoreInKey = (u, ctx, s, a) => [u, ctx.questionId, `${s}/${a}`].join('::');
+  check('negative control: the superseded score-in-key formula DID split a re-grade of one submission',
+    scoreInKey(uid, sub, 0, 1) !== scoreInKey(uid, sub, 1, 1));
   check('different questions stay distinct',
     attemptDedupKey(uid, { questionId: 'q-A' }, 1, 1) !== attemptDedupKey(uid, { questionId: 'q-B' }, 1, 1));
   check('different users stay distinct',

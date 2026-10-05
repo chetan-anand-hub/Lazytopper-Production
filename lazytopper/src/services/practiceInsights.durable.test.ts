@@ -76,15 +76,14 @@ describe("PR-B Change 1 — durable per-attempt subcollection write", () => {
     const calls = attemptSubcolCalls();
     expect(calls).toHaveLength(1);
     const { path, data } = calls[0];
-    // path: uid then sanitized dedup signature; the "5/5" slash must be gone.
-    // `mode` is deliberately NOT part of the id (see attemptDedupKey's doc block +
-    // the ops-matrix objective-dedup acceptance): the same question at the same score
-    // is ONE outcome however it was produced, so an mcq-click→graded round-trip must
-    // not mint two permanent docs. mode still travels in the doc BODY (asserted below).
-    expect(path).toBe("practiceInsights/u1/attempts/u1::q-abc::5_5");
-    expect(path).not.toContain("/attempts/u1::q-abc::5/5");
+    // path: uid then the sanitized SUBMISSION identity (SCORECARD-MI-1 PR-2, H1 — owner ruling
+    // 2026-10-05, re-grade replaces): uid + surface + submission + question, NEVER the score.
+    // `mode` is deliberately NOT part of the id (see attemptDedupKey's doc block + the ops-matrix
+    // objective-dedup acceptance). mode still travels in the doc BODY (asserted below).
+    expect(path).toBe("practiceInsights/u1/attempts/u1::unknown::::q-abc");
+    expect(path).not.toMatch(/5[_/]5/);
     expect(String(data.id)).not.toContain("/");
-    expect(data.id).toBe("u1::q-abc::5_5");
+    expect(data.id).toBe("u1::unknown::::q-abc");
     // Doc carries the PracticeAttempt fields, including mode as an AttemptMode.
     expect(data.mode).toBe("graded");
     expect(data.questionId).toBe("q-abc");
@@ -95,20 +94,23 @@ describe("PR-B Change 1 — durable per-attempt subcollection write", () => {
     expect(typeof data.timestamp).toBe("number");
   });
 
-  it("(b) replaying the SAME ctx (cache restore) dedups and produces no second distinct doc id (idempotent)", () => {
+  it("(b) replaying the SAME ctx (cache restore) dedups; a re-grade REPLACES on the same doc id (idempotent)", () => {
     expect(recordAttempt(user, baseCtx)).toBe("recorded");
     expect(recordAttempt(user, baseCtx)).toBe("duplicate");
-    // Same question, same score, DIFFERENT mode: one outcome, so still a duplicate —
+    // Same submission, same score, DIFFERENT mode: one outcome, so still a duplicate —
     // the mcq-click → graded-typed round-trip must never mint a second permanent doc.
     expect(recordAttempt(user, { ...baseCtx, mode: "mcq" })).toBe("duplicate");
-    // A genuinely different RESULT still keys apart (mode-independent ≠ score-blind).
-    expect(recordAttempt(user, { ...baseCtx, marksScored: 2 })).toBe("recorded");
+    // H1 (owner ruling 2026-10-05, re-grade replaces): a different RESULT for the SAME
+    // submission REPLACES its attempt — latest wins, on the SAME doc id, never a second doc.
+    expect(recordAttempt(user, { ...baseCtx, marksScored: 2 })).toBe("replaced");
 
     const calls = attemptSubcolCalls();
-    // The replays short-circuit before the write: 2 writes for the 2 distinct results.
+    // The replays short-circuit before the write: 2 writes (the first grade, the re-grade)…
     expect(calls).toHaveLength(2);
+    // …to ONE doc id, holding the latest outcome.
     const distinctIds = new Set(calls.map((c) => c.path));
-    expect(distinctIds.size).toBe(2);
+    expect(distinctIds.size).toBe(1);
+    expect(calls[1].data.marksScored).toBe(2);
   });
 
   it("(c) no user and local session do not write to the subcollection (guard holds, no throw)", () => {

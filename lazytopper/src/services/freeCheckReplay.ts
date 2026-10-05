@@ -62,7 +62,6 @@ import {
   ciQuestionIds,
   isMixedPaper,
   perQuestionFiling,
-  withObjectiveEcho,
 } from "../utils/checkImproveDetection";
 import { withEffectiveCounts } from "../lib/mistakeDisplay";
 import type { DesktopSubject } from "../lib/desktop/navigation";
@@ -145,6 +144,10 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
       marksSource: pending.marksSource ?? undefined,
       detectionOverride: pending.detectionOverride,
       timestamp: pending.gradedAt, // hazard 2
+      // H1 — the same submission identity as the MI entry above: a replay replaces, never adds.
+      surface: "check-improve",
+      submissionId: nomen.code,
+      grade: graded,
     });
     persistCheckImproveSession({
       user,
@@ -153,7 +156,8 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
       subject: sessionSubject,
       topicSlug: pending.topicSlug,
       topicSource,
-      response: withEffectiveCounts(withObjectiveEcho(singleCheckToWorksheetResponse(graded), graded)),
+      // H4/H9 — the adapter itself now carries the `objective` flag and the v2 fields (one path).
+      response: withEffectiveCounts(singleCheckToWorksheetResponse(graded)),
     });
     return nomen.code;
   }
@@ -206,6 +210,9 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
       marksAvailable: csr.totalMarks,
       mode: "graded",
       timestamp: pending.gradedAt, // hazard 2
+      surface: "check-improve",
+      submissionId: nomen.code,
+      grade: csr,
     });
   }
   return nomen.code;

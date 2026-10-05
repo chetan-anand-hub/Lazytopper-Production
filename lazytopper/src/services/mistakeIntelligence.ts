@@ -43,8 +43,7 @@ import {
   effectiveTypeCounts,
   isGradedQuestion,
   isKnowledgeGapType,
-  isQuestionNotAttempted,
-  marksLostOn,
+  isLossOnlyNotAttempted,
   marksLostToWork,
   questionMarksLost,
   stepShowsType,
@@ -382,8 +381,9 @@ export async function recordMistake(
   // Neither it nor a clean grade is logged; a RE-grade that comes back that way removes the
   // submission's earlier entry (W1).
   // A loss made only of parts NOT attempted is not a mistake (OR-LIVE L3) — the same state.
-  const notAttempted =
-    isQuestionNotAttempted(gradeResult) || (marksLostOn(gradeResult) > 0 && marksLostToWork(gradeResult) <= 0);
+  // ONE predicate (lib/mistakeDisplay), shared with the attempt store (H11), so MI and the
+  // attempt can never disagree about the same question.
+  const notAttempted = isLossOnlyNotAttempted(gradeResult);
   if (notAttempted || !hasMistakeSignal(gradeResult)) {
     const cleared = await clearSupersededEntry(user.uid, context, gradeResult);
     return {

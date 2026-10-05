@@ -20,9 +20,10 @@
  * `everyLostMarkHasAType`) are measured and REPORTED as a baseline only — they become PR-2's
  * gate once GRADER-CORE-1 ships `marksLostByType`.
  *
- * HELD (owner gate rulings, not checked here): the attempt identity (objective_dedup gate
- * pins the score in the key) and the sidebar MI card's checked-count (convergence gate keeps
- * MistakeIntelCard.tsx zero-diff). See the SCORECARD-MI-1 report's HELD list.
+ * FORMERLY HELD, NOW IN THE 100% (SCORECARD-MI-1 PR-2 — owner ruling 2026-10-05 approved the gate
+ * amendments): ONE ATTEMPT per re-grade on every replayed surface (H1 — the attempt key is the
+ * submission identity, latest wins), and the sidebar MI card's checked-count = the GRADED answers,
+ * never the MI log entries (H3).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createElement } from "react";
@@ -167,6 +168,8 @@ import { hashAttemptString } from "./attemptDedupKey";
 import { removeStableMistakeLog } from "./mistakeLogService";
 import { desktopTopicBySlug } from "../lib/desktop/topics";
 import { marksLostToWork } from "../lib/mistakeDisplay";
+import { recordAttempt } from "./practiceInsights";
+import { computeMiCardSummary } from "../components/desktop/MistakeIntelCard";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 
@@ -276,6 +279,8 @@ const docsUnder = (prefix: string) =>
   [...H.store.entries()].filter(([p]) => p.startsWith(prefix) && !p.slice(prefix.length).includes("/")).map(([p, d]) => ({ path: p, ...(d as Any) }));
 const miEntries = () => docsUnder(`learnerProfiles/${UID}/mistakeLogs/`);
 const records = () => docsUnder(`sessionRecords/${UID}/records/`);
+// H1 — one durable attempt doc per SUBMISSION (its id is the submission identity).
+const attempts = () => docsUnder(`practiceInsights/${UID}/attempts/`);
 
 /* ── harness ───────────────────────────────────────────────────────────────── */
 beforeEach(() => {
@@ -420,6 +425,17 @@ describe("G3 · Check & Improve, whole paper (rendered)", () => {
     });
     check(S, "regrade.oneMiEntryPerQuestion", miEntries().length === expectedEntries.length, `${miEntries().length} entries vs ${expectedEntries.length} questions`);
     check(S, "regrade.oneRecord", records().length === 1, `${records().length} records`);
+    // H1 (formerly HELD) — the re-grade REPLACED each question's attempt: one per graded question,
+    // and the re-graded question's attempt holds the LATEST score.
+    const gradedQs = fs.filter((x) => !x.couldNotRead).length;
+    await waitFor(() => {
+      const a = attempts().find((x) => x.questionId === `ci:${code}:q${target.qNumber}`);
+      expect(a?.marksScored).toBe(Number(target.marksAwarded));
+    });
+    check(S, "regrade.oneAttemptPerQuestion", attempts().length === gradedQs, `${attempts().length} attempts vs ${gradedQs} graded questions`);
+    // H3 (formerly HELD) — the sidebar card's "checked answers" are the GRADED answers, not MI entries.
+    const card = computeMiCardSummary(miEntries() as never, attempts() as never);
+    check(S, "miCard.checkedCount=gradedAnswers", card.checkedCount === gradedQs, `card ${card.checkedCount} vs graded ${gradedQs} (MI entries ${miEntries().length})`);
   }, 30000);
 });
 
@@ -509,6 +525,9 @@ describe("G3 · Check & Improve, single question (rendered)", () => {
       await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(2));
       await waitFor(() => expect(miEntries()[0]?.marksLost).toBe(Number(again.totalMarks) - Number(again.marksAwarded)));
       check(S, "regrade.oneMiEntry", miEntries().length === 1, `${miEntries().length} entries`);
+      // H1 (formerly HELD) — and ONE attempt, holding the latest score.
+      await waitFor(() => expect(attempts()[0]?.marksScored).toBe(Number(again.marksAwarded)));
+      check(S, "regrade.oneAttempt", attempts().length === 1, `${attempts().length} attempts`);
       // W1 — the same answer re-graded to FULL MARKS removes the entry; the mistake back re-writes it.
       const clean = clone(fx.body);
       clean.marksAwarded = Number(clean.totalMarks);
@@ -639,6 +658,9 @@ describe("G3 · Worksheet and Chapter Test (real grade services)", () => {
     H.gradeWorksheet.mockResolvedValue(regraded);
     await gradeWorksheetAndRecord(USER as never, ws, { imageBase64: "AAAA", imageMimeType: "application/pdf" });
     check(S, "reupload.oneMiEntryPerQuestion", miEntries().length === want, `${miEntries().length} vs ${want}`);
+    // H1 (formerly HELD) — the re-upload REPLACED the attempts: one per graded question.
+    const wsGraded = fx.body.results.filter((r: Any) => !r.couldNotRead).length;
+    check(S, "reupload.oneAttemptPerQuestion", attempts().length === wsGraded, `${attempts().length} vs ${wsGraded}`);
   });
 
   it("W1 — a re-upload that comes back CLEAN removes that question's entry (cloud + device); the mistake back re-writes it; a legacy random-id entry is never touched", async () => {
@@ -718,6 +740,9 @@ describe("G3 · Worksheet and Chapter Test (real grade services)", () => {
     t.marksAwarded = Math.max(0, Number(t.marksAwarded) - 0.5);
     await run(regraded);
     check(S, "reupload.oneMiEntryPerQuestion", miEntries().length === want, `${miEntries().length} vs ${want}`);
+    // H1 (formerly HELD) — the re-upload REPLACED the attempts: one per graded subjective question.
+    const ctGraded = fx.body.results.filter((r: Any) => !r.couldNotRead).length;
+    check(S, "reupload.oneAttemptPerQuestion", attempts().length === ctGraded, `${attempts().length} vs ${ctGraded}`);
   });
 });
 
@@ -741,6 +766,15 @@ describe("G3 · SolutionChecker re-check (front-door replay with the context Sol
     check(S, "recheck.sameAnswer.oneEntry", miEntries().length === 1, `${miEntries().length} entries`);
     await recordMistake(USER as never, clone(fx.body), ctx("a different answer"));
     check(S, "recheck.newAnswer.newEntry", miEntries().length === 2, `${miEntries().length} entries`);
+    // H1 (formerly HELD) — the attempt twin, with the SAME context SolutionChecker sends: the same
+    // answer re-checked to a different score replaces ONE attempt; a new answer is a new attempt.
+    const att = (answer: string, body: Any) =>
+      recordAttempt(USER as never, { ...ctx(answer), marksScored: body.marksAwarded, marksAvailable: body.totalMarks, mode: "graded", grade: body });
+    att("first answer", clone(fx.body));
+    att("first answer", again);
+    check(S, "recheck.sameAnswer.oneAttempt", attempts().length === 1 && attempts()[0].marksScored === again.marksAwarded, `${attempts().length} attempts`);
+    att("a different answer", clone(fx.body));
+    check(S, "recheck.newAnswer.newAttempt", attempts().length === 2, `${attempts().length} attempts`);
   });
 });
 
