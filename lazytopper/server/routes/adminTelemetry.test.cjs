@@ -425,6 +425,50 @@ test("★ a REAL uid-header denial from the REAL gate is visible in the payload 
     "a token that did not verify is a different case and must not move this counter");
 });
 
+// GRADER-CORE-1 PR-2 (D20): the owner-ordered alert for a silent grading-quality drop.
+test("★ gradingModelFallback counts every grading call the REAL core served on the fallback model — CONTROL: 0 before traffic and 0 while the model works", async () => {
+  const { createGradingCore } = require("../grading/core.cjs");
+  const counts = {};
+  const telemetry = {
+    increment: (e, v = 1) => { counts[e] = (counts[e] || 0) + v; },
+    snapshot: () => ({ ...counts }),
+  };
+  const { r } = routes({ telemetry });
+  assert.equal(r.buildTelemetryPayload().gradingModelFallback.count, 0, "reads 0 before any traffic, never undefined");
+
+  let modelDown = false;
+  const core = createGradingCore({
+    callGemini: async (model) => {
+      if (model === "strong-model" && modelDown) throw Object.assign(new Error("model not found"), { status: 404 });
+      return { text: JSON.stringify({ results: [{ qNumber: 1, annotatedSteps: [{ description: "Step", studentWork: "x = 4", status: "correct", marksAwarded: 1 }] }] }) };
+    },
+    GEMINI_MODEL: "base-model",
+    GRADING_MODEL: "strong-model",
+    extractJsonObjectFromText: (t) => JSON.parse(t),
+    buildGeminiImagePart: () => ({}),
+    makeFenceNonce: () => "testnonce",
+    telemetry,
+  });
+  const gradeOne = () => core.gradeSet({ questions: [{ qNumber: 1, marks: 1, questionText: "Solve x - 4 = 0.", textAnswer: "x = 4" }] });
+
+  await gradeOne();
+  assert.equal(r.buildTelemetryPayload().gradingModelFallback.count, 0, "CONTROL: a working grading model is never counted");
+
+  modelDown = true;
+  const warn = console.warn;
+  console.warn = () => {};
+  try {
+    await gradeOne(); // fails on strong-model, served by the fallback
+    await gradeOne(); // goes straight to the fallback
+  } finally {
+    console.warn = warn;
+  }
+  const field = r.buildTelemetryPayload().gradingModelFallback;
+  assert.equal(field.count, 2);
+  assert.equal(typeof field.note, "string");
+  assert.match(field.note, /fallback model/);
+});
+
 /* ══════════════════════════════════════════════════════════════════════════════
    §T · TELEMETRY-1 — the WORKLOAD axis, percentiles, and the marks bands.
 

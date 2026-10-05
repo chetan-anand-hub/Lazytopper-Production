@@ -1,0 +1,5 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+α + β = −(−8)/2 = 4,   αβ = 5/2
+(α + 1/β)(β + 1/α) = (αβ + 1)/β × (αβ + 1)/α = (αβ + 1)²/αβ
+= (5/2 + 1)²/(5/2) = (49/4)/(5/2)
+= 49/4 × 2/5 = 49/10

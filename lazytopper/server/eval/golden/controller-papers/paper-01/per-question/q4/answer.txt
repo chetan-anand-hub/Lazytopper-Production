@@ -1,0 +1,5 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+H = V²/R × t
+400 = V²/4 × 1
+V² = 1600
+V = 40

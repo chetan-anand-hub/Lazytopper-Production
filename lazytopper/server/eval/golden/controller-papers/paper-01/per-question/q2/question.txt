@@ -1,0 +1,7 @@
+Q2. [1 marks]
+Assertion (A): In an ecosystem, 1% of energy is available for transfer from one trophic level to the next.
+Reason (R): An average of 10% of the food eaten by organisms is available for flow in the form of chemical energy.
+(A) Both A and R are true, and R is the correct explanation of A.
+(B) Both A and R are true, and R is not the correct explanation of A.
+(C) A is true but R is false.
+(D) A is false but R is true.

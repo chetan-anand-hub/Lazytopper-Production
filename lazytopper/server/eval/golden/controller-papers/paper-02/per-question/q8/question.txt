@@ -1,0 +1,2 @@
+Q8. [5 marks]
+In a rectangular park measuring 50 m × 40 m, the gram panchayat plans to construct a rectangular swimming pool in the middle, surrounded by a uniform-width grass strip throughout the park. Find the dimensions of the swimming pool, if the area of the grassy strip is 1184 m².

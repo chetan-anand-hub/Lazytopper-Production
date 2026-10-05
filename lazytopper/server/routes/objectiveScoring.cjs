@@ -32,11 +32,35 @@ function isObjective(q) {
 // — lowercase, punctuation → space, whitespace squeezed, trimmed. So "(a)", "A",
 // "a", "a." all become "a"; option text compares case/space/punctuation-insensitively.
 function normaliseOption(s) {
+  return normaliseOptionKeepCase(s).toLowerCase();
+}
+
+// normaliseOptionKeepCase(s): the same collapse WITHOUT folding case.
+function normaliseOptionKeepCase(s) {
   return String(s == null ? '' : s)
-    .toLowerCase()
     .replace(/[()[\]{}.,:;!?"']/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+// C5 (GRADER-CORE-1) · CASE MATTERS ONLY WHEN THE OPTIONS SAY SO. Genetics MCQs offer
+// "TTWW", "TTww", "TtWW", "TtWw": folded, all four are "ttww", so EVERY option scored full
+// (audit GA-06, 7 served rows). But folding is what RESCUES "Coincident" vs "coincident" on
+// a normal row. So: compare case-SENSITIVELY exactly when two options differ only by case,
+// and case-folded otherwise.
+function optionsDifferOnlyByCase(options) {
+  const opts = Array.isArray(options) ? options : [];
+  for (let i = 0; i < opts.length; i += 1) {
+    for (let j = i + 1; j < opts.length; j += 1) {
+      const a = normaliseOptionKeepCase(opts[i]);
+      const b = normaliseOptionKeepCase(opts[j]);
+      if (a && a !== b && a.toLowerCase() === b.toLowerCase()) return true;
+    }
+  }
+  return false;
+}
+function optionNormaliser(options) {
+  return optionsDifferOnlyByCase(options) ? normaliseOptionKeepCase : normaliseOption;
 }
 
 // A single option letter a–h (after normalisation), else -1.
@@ -50,21 +74,22 @@ function letterIndex(norm) {
 // (parity-tested): letter → position; exact text → index; partial text → index.
 function resolveOptionIndex(pick, options) {
   const opts = Array.isArray(options) ? options : [];
-  const norm = normaliseOption(pick);
+  const N = optionNormaliser(opts);
+  const norm = N(pick);
   if (!norm) return -1;
   // Letter form, but only when we actually have that many options.
-  const li = letterIndex(norm);
+  const li = letterIndex(norm.toLowerCase());
   if (li >= 0 && li < opts.length) return li;
   if (opts.length === 0) return -1;
   // Exact option-text match.
-  const exact = opts.findIndex((o) => normaliseOption(o) === norm);
+  const exact = opts.findIndex((o) => N(o) === norm);
   if (exact >= 0) return exact;
   // Partial match (handwriting may carry extra words) — mirrors the client fallback,
   // but the CONTAINED string must be ≥3 chars so a short token (e.g. a 1-digit numeric
   // option "1", or a corrupt key fragment) can't spuriously match inside unrelated
   // text. Corrupt keys that match nothing return -1 → scoreObjective defers to the model.
   return opts.findIndex((o) => {
-    const no = normaliseOption(o);
+    const no = N(o);
     if (no.length === 0) return false;
     if (no.length >= 3 && norm.includes(no)) return true;
     if (norm.length >= 3 && no.includes(norm)) return true;
@@ -84,8 +109,9 @@ function resolveOptionIndex(pick, options) {
 // 0 on data we could not confidently score.
 function scoreObjective({ answerKey, studentPick, options, totalMarks }) {
   const full = Number(totalMarks) > 0 ? Number(totalMarks) : 1;
-  const keyNorm = normaliseOption(answerKey);
-  const pickNorm = normaliseOption(studentPick);
+  const N = optionNormaliser(options);
+  const keyNorm = N(answerKey);
+  const pickNorm = N(studentPick);
 
   if (!keyNorm || !pickNorm) return { marksAwarded: 0, correct: false, resolved: false };
 
@@ -104,8 +130,8 @@ function scoreObjective({ answerKey, studentPick, options, totalMarks }) {
 
   // Both sides are clean single letters — directly comparable even with no options[]
   // (e.g. a letter answer key vs a letter pick). "a" vs "b" is a confident MISS.
-  const keyLetter = letterIndex(keyNorm);
-  const pickLetter = letterIndex(pickNorm);
+  const keyLetter = letterIndex(keyNorm.toLowerCase());
+  const pickLetter = letterIndex(pickNorm.toLowerCase());
   if (keyLetter >= 0 && pickLetter >= 0) {
     const correct = keyLetter === pickLetter;
     return { marksAwarded: correct ? full : 0, correct, resolved: true };
@@ -144,32 +170,78 @@ const OPTION_DECLARATION_LETTER =
 const OPTION_DECLARATION_VALUE =
   /(?:\banswer\b|\bans\b|\boption\b|\bopt\b)\s*(?:is\s*)?(?:[=:\-–—]\s*)?(.+)$/i;
 
-function extractOptionPick(steps, options) {
+// C5 (GRADER-CORE-1) · TWO OPTIONS OFFERED AS ALTERNATIVES ARE A HEDGE, AND A HEDGE SCORES 0.
+// "(a) or (c)" used to score by its FIRST letter; a student cannot earn the mark by naming
+// two answers. A hedge is two DIFFERENT option letters joined as alternatives on one line.
+const HEDGE_LINE = /^\s*(?:(?:answer|ans|option|opt)\s*(?:is\s*)?[=:\-–—]?\s*)?\(?\s*([a-h])\s*\)?\s*(?:or|\/|and|,|&)\s*\(?\s*([a-h])\s*\)?\s*\.?\s*$/i;
+const HEDGE_IN_DECLARATION = /(?:\banswer\b|\bans\b|\boption\b|\bopt\b|\bpicked\b|\bchose\b|\bselected\b)\s*(?:is\s*)?(?:[=:\-–—]\s*)?\(?\s*([a-h])\s*\)?\s*(?:or|\/|&)\s*\(?\s*([a-h])\s*\)?(?![a-zA-Z0-9])/i;
+// A SELF-CORRECTION is a declaration: "no wait, a", "actually (b)", "sorry, c", "changed to d",
+// "final answer: a". The letter must be bracketed or end the line, so the article in
+// "actually a mistake" is never read as option (a).
+const SELF_CORRECTION =
+  /(?:\bno\s*,?\s*wait\b|\bwait\b|\bactually\b|\bsorry\b|\bcorrection\b|\bchanged?\s+(?:it\s+)?to\b|\binstead\b|\bfinal(?:\s+answer)?\b)[\s,:\-–—]*(?:\(\s*([a-hA-H])\s*\)|\b([a-hA-H])\b\s*[.)]?\s*$)/i;
+// A line that DISCUSSES an option ("option (b) is wrong because…") is not a declaration of it.
+const NEGATED_MENTION = /\b(?:is|was|are)\s+(?:wrong|incorrect|not)\b|\bnot\b|\bwrong\b|\bincorrect\b|\beliminat|\brule[sd]? out\b|\breject/i;
+
+/** The declaration (if any) on ONE line of student work. */
+function declarationOn(line, opts) {
+  const w = String(line || '').trim();
+  if (!w) return null;
+  const N = optionNormaliser(opts);
+  const norm = N(w);
+  if (!norm) return null;
+  const hl = HEDGE_LINE.exec(w) || HEDGE_IN_DECLARATION.exec(w);
+  if (hl && hl[1].toLowerCase() !== hl[2].toLowerCase()) return { hedge: true, pick: '' };
+  // (1) whole line is a bare option letter.
+  if (/^[a-h]$/i.test(norm)) return { pick: norm.toLowerCase() };
+  // (2) whole line is an option's text.
+  if (opts.some((o) => N(o) === norm)) return { pick: w };
+  const sc = SELF_CORRECTION.exec(w);
+  if (sc) return { pick: String(sc[1] || sc[2]).toLowerCase() };
+  if (NEGATED_MENTION.test(w)) return null;
+  // (3) an explicit letter declaration inside a longer line.
+  const ml = OPTION_DECLARATION_LETTER.exec(w);
+  if (ml) return { pick: ml[1].toLowerCase() };
+  // (4) a declaration whose value is an option's text.
+  const mv = OPTION_DECLARATION_VALUE.exec(w);
+  if (mv) {
+    const cand = mv[1].trim();
+    if (cand && opts.some((o) => N(o) === N(cand))) return { pick: cand };
+  }
+  return null;
+}
+
+// C5 (GRADER-CORE-1) · THE LAST DECLARED OPTION WINS. "c … no wait, a" used to score c (the
+// first declaration). A student who changes their answer is marked on the answer they ended
+// with, exactly as an examiner reads the page. Every line of every step is read in order and
+// the LAST declaration is the pick; if that last declaration is a hedge, the pick is a hedge.
+function lastDeclaration(steps, options) {
   const list = Array.isArray(steps) ? steps : [];
   const opts = Array.isArray(options) ? options : [];
+  let last = null;
   for (let i = 0; i < list.length; i += 1) {
     const s = list[i];
-    const w = s && s.studentWork != null ? String(s.studentWork).trim() : '';
-    if (!w) continue;
-    const norm = normaliseOption(w);
-    if (!norm) continue;
-    // (1) whole line is a bare option letter.
-    if (/^[a-h]$/.test(norm)) return { pick: norm, stepIndex: i };
-    // (2) whole line is an option's text.
-    if (opts.some((o) => normaliseOption(o) === norm)) return { pick: w, stepIndex: i };
-    // (3) an explicit letter declaration inside a longer line.
-    const ml = OPTION_DECLARATION_LETTER.exec(w);
-    if (ml) return { pick: ml[1].toLowerCase(), stepIndex: i };
-    // (4) a declaration whose value is an option's text.
-    const mv = OPTION_DECLARATION_VALUE.exec(w);
-    if (mv) {
-      const cand = mv[1].trim();
-      if (cand && opts.some((o) => normaliseOption(o) === normaliseOption(cand))) {
-        return { pick: cand, stepIndex: i };
-      }
+    const w = s && s.studentWork != null ? String(s.studentWork) : '';
+    for (const line of w.split(/\n/)) {
+      const d = declarationOn(line, opts);
+      if (d) last = { ...d, stepIndex: i };
     }
   }
-  return { pick: '', stepIndex: -1 };
+  return last;
+}
+
+// The public shape is unchanged — { pick, stepIndex } — and a hedge reads as "no single
+// option" (pick ''), on the step that carries it. The clamp asks `isHedgedPick` separately.
+function extractOptionPick(steps, options) {
+  const last = lastDeclaration(steps, options);
+  if (!last) return { pick: '', stepIndex: -1 };
+  return { pick: last.hedge ? '' : last.pick, stepIndex: last.stepIndex };
+}
+
+/** True when the student's LAST declaration offers two options as alternatives. */
+function isHedgedPick(steps, options) {
+  const last = lastDeclaration(steps, options);
+  return Boolean(last && last.hedge);
 }
 
 // modelStatedAnswerCorrect(v): the model's OWN stated verdict on the student's final
@@ -224,13 +296,25 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
       : q.correctOption != null
         ? String(q.correctOption).trim()
         : '';
-  const { pick: studentPick, stepIndex: answerStepIndex } = extractOptionPick(steps, q.options);
+  const extracted = extractOptionPick(steps, q.options);
+  const answerStepIndex = extracted.stepIndex;
+  // C5 · the option the student chose IN THE UI (Quick Practice records it) is the pick of
+  // record: it is what they selected, not a reading of their handwriting.
+  const recorded = q.pickedOption != null ? String(q.pickedOption).trim() : '';
+  const studentPick = recorded || extracted.pick;
+  const hedge = !recorded && isHedgedPick(steps, q.options);
 
   let correct = false;
   let resolved = false;
 
+  // 0. A hedge ("(a) or (c)") is a resolved WRONG answer: 0, never the first letter's mark.
+  if (hedge) {
+    resolved = true;
+    correct = false;
+  }
+
   // 1. The answer key, compared against the EXTRACTED OPTION (never a working line).
-  if (answerKey && studentPick) {
+  if (!resolved && answerKey && studentPick) {
     const scored = scoreObjective({ answerKey, studentPick, options: q.options, totalMarks: full });
     if (scored.resolved) {
       correct = scored.correct;
@@ -322,10 +406,13 @@ function applyObjectiveMistakeGuard(steps, opts) {
 module.exports = {
   isObjective,
   normaliseOption,
+  normaliseOptionKeepCase,
+  optionsDifferOnlyByCase,
   letterIndex,
   resolveOptionIndex,
   scoreObjective,
   extractOptionPick,
+  isHedgedPick,
   modelStatedAnswerCorrect,
   clampObjectiveResult,
   objectiveHasWorking,

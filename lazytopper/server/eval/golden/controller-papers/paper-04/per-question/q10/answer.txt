@@ -1,0 +1,6 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+Let us assume that 2 + 3√3 is a rational number.
+Then 2 + 3√3 = a/b, where a and b are integers and b ≠ 0.
+⇒ 3√3 = a/b − 2 = (a − 2b)/b ⇒ √3 = (a − 2b)/3b
+Since a and b are integers, (a − 2b)/3b is rational.
+So √3 is rational. But this contradicts the given fact that √3 is irrational.

@@ -1,0 +1,2 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+The earth wire has green insulation. It is connected to the metal body of the appliance. It provides a low-resistance conducting path for the current, so if the live wire touches the metal body, the current goes to the earth and the user does not get a severe electric shock.

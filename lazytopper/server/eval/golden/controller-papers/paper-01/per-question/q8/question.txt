@@ -1,0 +1,2 @@
+Q8. [5 marks]
+Tara scored 40 marks in a test, getting 3 marks for each right answer and losing 1 mark for each wrong answer. Had 4 marks been awarded for each correct answer and 2 marks been deducted for each wrong answer, then Tara would have scored 50 marks. Assuming that Tara attempted all questions, find the total number of questions in the test.

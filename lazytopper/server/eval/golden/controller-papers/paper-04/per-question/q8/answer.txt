@@ -1,0 +1,9 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+Let the height of the cone be h cm, r = 3.5 cm.
+Volume of toy = volume of cone + volume of hemisphere
+166 5/6 = 1/3 πr²h + 2/3 πr³
+1001/6 = 1/3 × 22/7 × (3.5)² × h + 2/3 × 22/7 × (3.5)³
+1001/6 = 77/6 h + 539/6
+1001 = 77h + 539 ⇒ 77h = 462 ⇒ h = 7 cm
+CSA of hemisphere = 2πr² = 2 × 22/7 × 3.5 × 3.5 = 77 cm²
+Cost of painting = 15 × 77 = ₹ 1155

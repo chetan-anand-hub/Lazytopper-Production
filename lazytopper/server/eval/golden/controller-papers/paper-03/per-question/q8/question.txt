@@ -1,0 +1,2 @@
+Q8. [5 marks]
+A tent is in the shape of a cylinder surmounted by a conical top. If the height and radius of the cylindrical part are 3 m and 14 m respectively, and the total height of the tent is 13.5 m, then find the area of the canvas required for making the tent, keeping a provision of 26 m² of canvas for stitching and wastage. Also, find the cost of the canvas to be purchased at the rate of ₹ 250 per m². (Take π = 22/7.)

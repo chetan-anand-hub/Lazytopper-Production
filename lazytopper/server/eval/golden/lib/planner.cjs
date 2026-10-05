@@ -52,6 +52,17 @@ const CI_MULTI_SETS = [
   { setId: 'CMS', subject: 'Science', cases: ['GS-S03-a', 'GS-S05-a'] },
 ];
 const PARITY_SET_SIZE = 4;
+// GRADER-CORE-1 PR-2 · P0 (OR-LIVE R5, production 2026-10-05): a Chapter-Test-shaped set with
+// stored schemes whose ONE uploaded page answers only Q3. Every other question must come back
+// UNATTEMPTED (no marks, no type) — never full marks written from the scheme.
+const P0_SETS = [
+  { setId: 'P0-01', surface: 'P0-CT', subject: 'Science', cases: ['GS-S10-a', 'GS-S05-a', 'GS-S14-a', 'GS-S06-a'], answered: 3 },
+];
+// v2 copies (acceptsV2: true) of the jobs whose bar needs a v2-only field: the answer-mismatch
+// verdict, the P0 case, the owner paper (unattempted / withdrawn statuses) and the golden
+// cases whose unattempted STATUS is scored (truth/repins.json unattemptedStatusRequired).
+const V2_SURFACES = new Set(['MISMATCH', 'P0-CT', 'CI-MULTI-OWNER', 'CP-MULTI']);
+const V2_SINGLE_CASES = ['GS-M17-a', 'GS-M19-a', 'GS-M22-a', 'GS-M24-a', 'GS-S12-a'];
 
 function answerPartSingle(c) {
   if (c.mode === 'typed') return { textAnswer: c.textAnswer };
@@ -84,8 +95,10 @@ function buildPlan(opts = {}) {
   const G = load();
   const byId = G.casesById;
   const jobs = [];
+  const all = [];
   const push = (job) => {
     job.requestDigest = digest(job.request);
+    all.push(job);
     if (!opts.filter || opts.filter(job.jobKey)) jobs.push(job);
   };
 
@@ -229,6 +242,54 @@ function buildPlan(opts = {}) {
     }
   }
 
+  // ── P0 (GRADER-CORE-1 PR-2): one answer page for a four-question Chapter-Test-shaped set ─
+  for (const s of P0_SETS) {
+    const qNumbers = {};
+    const caseIds = [];
+    const questions = s.cases.map((cid, i) => {
+      const c = byId[cid]; const n = i + 1;
+      const id = n === s.answered ? cid : s.setId + '.Q' + n;
+      qNumbers[id] = n; caseIds.push(id);
+      return { qNumber: n, marks: c.marks, topic: c.chapterName, topicLabel: c.chapterName, questionText: c.questionText,
+        section: c.section, solutionSteps: c.schemeSteps, finalAnswer: c.finalAnswer };
+    });
+    const page = byId[s.cases[s.answered - 1]];
+    const pdf = jpegsToPdf([{ jpeg: fs.readFileSync(goldenFile(page.imageCompressed)), label: 'Q' + s.answered + '.' }]).toString('base64');
+    push({ jobKey: 'W.CT.' + s.setId, entry: 'set', handler: 'handleGradeWorksheet', surface: s.surface, caseIds, qNumbers,
+      request: { worksheetId: 'ct-golden-' + s.setId, subject: s.subject, questions, imageBase64: pdf, imageMimeType: 'application/pdf' } });
+  }
+
+  // ── CONTROLLER TEST PAPERS (owner addendum): each paper as a Check & Improve MULTI set (ONE
+  //    answer PDF, every block labelled with the session topic = the first question's chapter)
+  //    AND each of its questions as a Check & Improve SINGLE (its own answer crop). ─
+  for (const p of G.papers || []) {
+    const sessionTopic = p.questions[0].chapterName;
+    const qNumbers = {};
+    const questions = p.questions.map((q) => {
+      qNumbers[q.caseId] = q.qNumber;
+      return { qNumber: q.qNumber, marks: q.marks, topic: sessionTopic, topicLabel: sessionTopic, questionText: q.questionText, objective: q.objective === true };
+    });
+    push({ jobKey: 'W.CP.' + p.paperId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'CP-MULTI', caseIds: p.questions.map((q) => q.caseId), qNumbers,
+      request: { worksheetId: 'ci:GOLDEN-CP-' + p.paperId, subject: p.questions[0].subject, questions, imageBase64: b64(p.dir + '/answers.pdf'), imageMimeType: 'application/pdf' } });
+    for (const q of p.questions) {
+      push({ jobKey: 'S.CP.' + q.caseId, entry: 'single', handler: 'handleCheckSolution', surface: 'CP-SINGLE', caseIds: [q.caseId], qNumbers: { [q.caseId]: 1 },
+        request: { question: q.questionText, subject: q.subject, topic: q.chapterName, marks: q.marks, ...(q.objective ? { objective: true } : {}),
+          imageBase64: b64(q.answerImage), imageMimeType: 'image/jpeg' } });
+      if (q.expected && q.expected.answerMismatch === true) {
+        push({ jobKey: 'V2.S.CP.' + q.caseId, entry: 'single', handler: 'handleCheckSolution', surface: 'CP-SINGLE-V2', caseIds: [q.caseId], qNumbers: { [q.caseId]: 1 },
+          request: { question: q.questionText, subject: q.subject, topic: q.chapterName, marks: q.marks, ...(q.objective ? { objective: true } : {}),
+            imageBase64: b64(q.answerImage), imageMimeType: 'image/jpeg', acceptsV2: true } });
+      }
+    }
+  }
+
+  // ── v2 (acceptsV2: true) copies — a separate job key, so no stored PR-1 record is affected ─
+  for (const j of all.slice()) {
+    const v2Single = j.entry === 'single' && j.surface === 'CI-SINGLE' && V2_SINGLE_CASES.includes(j.caseIds[0]);
+    if (!V2_SURFACES.has(j.surface) && !v2Single) continue;
+    push({ ...j, jobKey: 'V2.' + j.jobKey, surface: j.surface + '-V2', request: { ...j.request, acceptsV2: true } });
+  }
+
   // ── detect: /api/detect-question (handleDetectQuestion) — chapter / marks / owner paper ─
   if (opts.includeDetect) {
     const seen = new Set();
@@ -248,4 +309,4 @@ function buildPlan(opts = {}) {
   return jobs;
 }
 
-module.exports = { buildPlan, digest, stable, HPQ_CASES, QP_SETS, DOC_SETS, CI_MULTI_SETS, paritySets };
+module.exports = { buildPlan, digest, stable, HPQ_CASES, QP_SETS, DOC_SETS, CI_MULTI_SETS, P0_SETS, V2_SINGLE_CASES, paritySets };

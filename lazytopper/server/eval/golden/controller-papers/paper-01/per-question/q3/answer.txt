@@ -1,0 +1,5 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+Radius = 28/2 = 14 cm
+Area of sector = 1/2 × l × r
+= 1/2 × 22 × 14
+= 144 cm²

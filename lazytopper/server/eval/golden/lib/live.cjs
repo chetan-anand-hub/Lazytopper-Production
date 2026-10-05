@@ -83,6 +83,9 @@ function createLiveClient(o) {
         const c = d.candidates && d.candidates[0];
         finish = c ? c.finishReason || null : null;
         if (!res.ok && d.error) errClass = String(d.error.status || '') + ' ' + String(d.error.code || '');
+        // GRADER-CORE-1 PR-2: Google answers an INVALID key with HTTP 400 (reason API_KEY_INVALID),
+        // not 401 — observed 2026-10-05 on a malformed eval key. It is a key failure too.
+        if (status === 400 && /API_KEY_INVALID|API key not valid/i.test(text) && !keyFailure) keyFailure = { status, errClass: 'API_KEY_INVALID' };
       } catch { /* non-JSON */ }
       if (status === 429) { stats.status429 += 1; pauseUntil = Date.now() + 20000; }
       // A key / billing failure (401 unauthenticated, 402 prepaid credits depleted, 403 permission)

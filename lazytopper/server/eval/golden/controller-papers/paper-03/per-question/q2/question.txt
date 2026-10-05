@@ -1,0 +1,7 @@
+Q2. [1 marks]
+Assertion (A): If zeroes of the polynomial (2k − 1)x² + 4x − 3 are reciprocal of each other, then k = −1.
+Reason (R): If a = c, then zeroes of the polynomial ax² + bx + c, a ≠ 0 are reciprocal of each other.
+(A) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).
+(B) Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).
+(C) Assertion (A) is true but Reason (R) is false.
+(D) Assertion (A) is false but Reason (R) is true.

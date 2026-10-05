@@ -114,9 +114,10 @@ const job = (request) => ({ handler: 'handleGradeWorksheet', request });
 
 /** The EXACT `contents` production's handleGradeWorksheet would send to the model for
  *  these questions — captured from the real handler with a stubbed model (0 calls). */
-async function renderPrompt(questions, subject) {
+async function renderPrompt(questions, subject, opts = {}) {
   let captured = null;
   const driver = createDriver({
+    makeFenceNonce: opts.makeFenceNonce,
     callGemini: async (_model, contents) => {
       captured = captured || contents;
       return { text: JSON.stringify({ results: questions.map((q) => ({ qNumber: q.qNumber, couldNotRead: true })) }), raw: {} };

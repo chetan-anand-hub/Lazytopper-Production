@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const { resolveGradingModel } = require('../grading/modelConfig.cjs');
 
 function loadDotEnvIfPresent() {
   const envPath = path.join(__dirname, '..', '.env');
@@ -66,6 +67,14 @@ function resolveConfig() {
   const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const GEMINI_TUTOR_MODEL = process.env.GEMINI_TUTOR_MODEL || GEMINI_MODEL;
   if (process.env.GEMINI_TUTOR_MODEL) ENV_USED.push(`GEMINI_TUTOR_MODEL=${GEMINI_TUTOR_MODEL}`);
+  // GRADER-CORE-1 PR-2 (D17): the GRADING-ONLY model. Its code default lives in
+  // server/grading/modelConfig.cjs and is what production runs (Railway sets no
+  // GRADING_MODEL); GEMINI_MODEL keeps driving detection and the tutor.
+  const { model: GRADING_MODEL, thinkingBudget: GRADING_THINKING_BUDGET, mode: GRADING_MODE, lightModel: GRADING_LIGHT_MODEL } = resolveGradingModel(process.env);
+  if (process.env.GRADING_MODE) ENV_USED.push(`GRADING_MODE=${GRADING_MODE}`);
+  if (process.env.GRADING_LIGHT_MODEL) ENV_USED.push(`GRADING_LIGHT_MODEL=${GRADING_LIGHT_MODEL}`);
+  if (process.env.GRADING_MODEL) ENV_USED.push(`GRADING_MODEL=${GRADING_MODEL}`);
+  if (process.env.GRADING_THINKING_BUDGET) ENV_USED.push(`GRADING_THINKING_BUDGET=${GRADING_THINKING_BUDGET}`);
   const GEMINI_TIMEOUT_MS = Math.max(5000, Number(process.env.GEMINI_TIMEOUT_MS || 55000) || 55000);
   const IS_DEV = String(process.env.NODE_ENV || '').toLowerCase() !== 'production';
   const REPO_ROOT = process.cwd();
@@ -90,6 +99,7 @@ function resolveConfig() {
   return {
     PORT, CORS_ORIGIN, ENV_USED,
     GEMINI_API_KEY, DIRECT_GEMINI_API_KEY, GEMINI_MODEL, GEMINI_TUTOR_MODEL, GEMINI_TIMEOUT_MS,
+    GRADING_MODEL, GRADING_THINKING_BUDGET, GRADING_MODE, GRADING_LIGHT_MODEL,
     HAS_REPLIT_PROXY, REPLIT_GEMINI_BASE_URL, REPLIT_GEMINI_API_KEY,
     HAS_ANTHROPIC_PROXY, REPLIT_ANTHROPIC_BASE_URL, REPLIT_ANTHROPIC_API_KEY,
     ANTHROPIC_TIMEOUT_MS,

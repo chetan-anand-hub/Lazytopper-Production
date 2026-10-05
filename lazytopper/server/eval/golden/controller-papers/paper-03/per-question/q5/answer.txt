@@ -1,0 +1,4 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+A. Right-hand thumb rule: Imagine that you are holding a current-carrying straight conductor in your right hand such that the thumb points towards the direction of current. Then your fingers will wrap around the conductor in the direction of the field lines of the magnetic field.
+So if we know the direction of current, the curled fingers give us the direction of the magnetic field lines (concentric circles) around the wire.
+B. I don't know this part.

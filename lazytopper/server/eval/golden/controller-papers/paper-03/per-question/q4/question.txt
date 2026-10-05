@@ -1,0 +1,2 @@
+Q4. [2 marks]
+If tan θ = 1/√5, then find the value of (cosec²θ − sec²θ)/(cosec²θ + sec²θ).

@@ -1,0 +1,2570 @@
+{
+ "schema": "golden items.json schema (GRADER-AUDIT-1 S2, items.verified.json field names) + controller-paper extensions - see key.md 'Fields'",
+ "paperId": "paper-04",
+ "synthetic": true,
+ "wave": "A-15",
+ "lane": "GRADER-CORE-1",
+ "author": "a15-papers-author (zero model calls)",
+ "trunk": "53fe4d22c9359b09f32842a91acff8e1316b777d",
+ "syllabusGuardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+ "title": "Class 10 · Practice Test (Maths and Science)",
+ "maxMarks": 26,
+ "printedTotal": 26,
+ "expectedTotal": 17.0,
+ "answerMismatchQuestions": [
+  4
+ ],
+ "expectedTotalGradedMax": 24,
+ "paperTotalTreatment": "answerMismatch questions are NOT graded: they contribute 0 to expectedTotal, their marks are not 'lost' (marksLostByType zeros) and they are treated exactly like couldNotRead questions in the paper total (PR-2 contract).",
+ "marksLostByType": {
+  "conceptual": 3.5,
+  "calculation": 1.0,
+  "silly": 1.0,
+  "presentation": 0.5,
+  "unattempted": 1.0,
+  "untyped": 0.0
+ },
+ "features": {
+  "F1": {
+   "questions": [
+    1
+   ],
+   "meaning": "silly - value miscopied, then worked consistently (penalised once; ECF)"
+  },
+  "F2": {
+   "questions": [
+    8
+   ],
+   "meaning": "calculation - arithmetic slip in otherwise correct method"
+  },
+  "F3": {
+   "questions": [
+    3
+   ],
+   "meaning": "conceptual - wrong formula/method or misunderstanding"
+  },
+  "F4": {
+   "questions": [
+    10
+   ],
+   "meaning": "presentation - CBSE-format loss only"
+  },
+  "F5": {
+   "questions": [
+    7
+   ],
+   "meaning": "unattempted part"
+  },
+  "F6": {
+   "questions": [
+    6
+   ],
+   "meaning": "crossed-out work followed by a fresh attempt"
+  },
+  "F7": {
+   "questions": [
+    2,
+    5
+   ],
+   "meaning": "fully correct answer"
+  },
+  "F8": {
+   "questions": [
+    9
+   ],
+   "meaning": "early slip with an independent correct later part"
+  },
+  "F9": {
+   "questions": [
+    4
+   ],
+   "meaning": "unrelated answer (answerMismatch: true)"
+  },
+  "F10": {
+   "questions": [
+    9
+   ],
+   "meaning": "injection line in the student's hand"
+  }
+ },
+ "files": {
+  "questions": "questions.pdf",
+  "answers": "answers.pdf",
+  "photos": [
+   "answers-photo-p1.jpg",
+   "answers-photo-p2.jpg",
+   "answers-photo-p3.jpg",
+   "answers-photo-p4.jpg"
+  ],
+  "perQuestion": "per-question/q<n>/{question.txt,answer.jpg,answer.txt}"
+ },
+ "photos": [
+  {
+   "file": "answers-photo-p1.jpg",
+   "angleDeg": -1.93,
+   "jpegQuality": 65,
+   "bytes": 290825,
+   "width": 2400,
+   "height": 3200
+  },
+  {
+   "file": "answers-photo-p2.jpg",
+   "angleDeg": -1.31,
+   "jpegQuality": 64,
+   "bytes": 304153,
+   "width": 2400,
+   "height": 3200
+  },
+  {
+   "file": "answers-photo-p3.jpg",
+   "angleDeg": -2.63,
+   "jpegQuality": 64,
+   "bytes": 314103,
+   "width": 2400,
+   "height": 3200
+  },
+  {
+   "file": "answers-photo-p4.jpg",
+   "angleDeg": 3.67,
+   "jpegQuality": 70,
+   "bytes": 293878,
+   "width": 2400,
+   "height": 3200
+  }
+ ],
+ "items": [
+  {
+   "id": "CP04-Q01",
+   "paperId": "paper-04",
+   "qNumber": 1,
+   "subject": "Maths",
+   "sourceType": "SQP-MS",
+   "source": {
+    "paper": "CBSE Academic Sample Question Paper 2026-27 - Mathematics Standard (041) - Marking Scheme",
+    "year": "2026-27",
+    "setCode": "SQP 2026-27",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-MS.pdf",
+    "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+    "question": "Q13",
+    "pdfPage": 2,
+    "printedPage": null,
+    "msPages": [
+     2
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Academic Sample Question Paper 2026-27 - Mathematics Standard (041)",
+     "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf",
+     "pdfFile": "sources/SQP2026_27_MathsStandard-SQP.pdf",
+     "question": "Q13",
+     "pdfPage": 2,
+     "printedPage": 2
+    }
+   },
+   "chapterTrue": {
+    "name": "Probability",
+    "appTopicKey": "probability",
+    "subtopic": "Classical probability - two dice"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'Classical probability - two dice' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "Two dice are rolled simultaneously. The probability of getting number less than 4 on each die is:\n(A) 1/4\n(B) 1/9\n(C) 1/36\n(D) 1/6",
+    "marks": 1,
+    "printedMarks": "[1]",
+    "section": "A",
+    "type": "mcq",
+    "needsFigure": false,
+    "options": {
+     "A": "1/4",
+     "B": "1/9",
+     "C": "1/36",
+     "D": "1/6"
+    },
+    "correctOption": "A"
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "valuePoint": "(A) 1/4 [9 favourable of 36]",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q13 · p2",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 2,
+      "printedPage": null,
+      "question": "Q13"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q01-a",
+     "probes": [
+      "mcq-wrong-pick-good-working",
+      "silly-miscopy",
+      "mcq-objective-invariant"
+     ],
+     "plantedFeatures": [
+      "F1"
+     ],
+     "mode": "image",
+     "text": "Favourable: (1,1) (1,2) (1,3) (2,1) (2,2) (2,3) (3,1) (3,2) (3,3) = 9\nP = 9/36 = 1/4\nAns: (B)",
+     "image": "per-question/q1/answer.jpg",
+     "pagePhoto": "answers-photo-p1.jpg",
+     "pageNumber": 1,
+     "cropBox": [
+      273,
+      318,
+      2213,
+      816
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 0,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 0,
+        "available": 1,
+        "status": "incorrect",
+        "mistakeType": "silly",
+        "reason": "The student's own working reaches 1/4 = option (A) but option (B) was written: copied to the wrong letter. MCQ scores on the declared option alone → 0.",
+        "citation": {
+         "ref": "examiner judgement under owner ruling (7) - copied wrongly = silly; MCQ 0 or full",
+         "examinerJudgement": true
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q13 · p2",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 2,
+         "printedPage": null,
+         "question": "Q13"
+        }
+       }
+      ],
+      "wrongStep": 1,
+      "mistakeType": "silly",
+      "mistakeTypes": [
+       "silly"
+      ],
+      "studentLabel": "careless",
+      "studentHeading": "Marks to gain — you already know this",
+      "unattemptedParts": [],
+      "answerMismatch": false,
+      "injection": false,
+      "withdrawnWork": [],
+      "marksLostByType": {
+       "conceptual": 0.0,
+       "calculation": 0.0,
+       "silly": 1.0,
+       "presentation": 0.0,
+       "unattempted": 0.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "the working correctly reaches 1/4, which is option (A)",
+       "option (B) was written"
+      ],
+      "commentMustNotClaim": [
+       "the method is wrong",
+       "calculation error",
+       "partial marks for working",
+       "conceptual"
+      ],
+      "modelAnswerKeyFacts": [
+       "9/36 = 1/4",
+       "option (A)"
+      ],
+      "examinerNote": "SILLY in an MCQ: correct value transcribed to the wrong option letter (golden GS-M01-b pattern) → 0, type silly.",
+      "objective": {
+       "correctOption": "A",
+       "studentOption": "B",
+       "expectedMarks": 0
+      },
+      "secondExaminer": {
+       "marks": 0,
+       "answerMismatch": false,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "CP04-Q02",
+   "paperId": "paper-04",
+   "qNumber": 2,
+   "subject": "Science",
+   "sourceType": "SQP-MS",
+   "source": {
+    "paper": "CBSE Academic Sample Question Paper 2026-27 - Science (086) - Marking Scheme",
+    "year": "2026-27",
+    "setCode": "SQP 2026-27",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf",
+    "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+    "question": "Q32",
+    "pdfPage": 7,
+    "printedPage": null,
+    "msPages": [
+     7
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Academic Sample Question Paper 2026-27 - Science (086)",
+     "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf",
+     "pdfFile": "sources/SQP2026_27_Science-SQP.pdf",
+     "question": "Q32",
+     "pdfPage": 12,
+     "printedPage": null
+    }
+   },
+   "chapterTrue": {
+    "name": "Light – Reflection and Refraction",
+    "appTopicKey": "light-reflection-and-refraction",
+    "subtopic": "Refraction - apparent depth"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'Refraction - apparent depth' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "Assertion (A): The apparent depth of a coin in water is less than its real depth.\nReason (R): Light bends away from the normal when it travels from water to air.\n(A) Both A and R are true, and R is the correct explanation of A.\n(B) Both A and R are true, and R is not the correct explanation of A.\n(C) A is true but R is false.\n(D) A is false but R is true.",
+    "marks": 1,
+    "printedMarks": "[1]",
+    "section": "A",
+    "type": "ar",
+    "needsFigure": false,
+    "options": {
+     "A": "Both A and R are true, and R is the correct explanation of A.",
+     "B": "Both A and R are true, and R is not the correct explanation of A.",
+     "C": "A is true but R is false.",
+     "D": "A is false but R is true."
+    },
+    "correctOption": "A"
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "valuePoint": "A. Both A and R are true, and R is the correct explanation of A.",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Science 086 MS · Q32 · p7",
+      "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+      "pdfPage": 7,
+      "printedPage": null,
+      "question": "Q32"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q02-a",
+     "probes": [
+      "ar",
+      "mcq-correct-no-working"
+     ],
+     "plantedFeatures": [
+      "F7"
+     ],
+     "mode": "image",
+     "text": "Ans: (A)",
+     "image": "per-question/q2/answer.jpg",
+     "pagePhoto": "answers-photo-p1.jpg",
+     "pageNumber": 1,
+     "cropBox": [
+      284,
+      744,
+      2220,
+      988
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 1,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Correct option (A).",
+        "citation": {
+         "ref": "SQP 2026-27 Science 086 MS · Q32 · p7",
+         "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+         "pdfPage": 7,
+         "printedPage": null,
+         "question": "Q32"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Science 086 MS · Q32 · p7",
+         "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+         "pdfPage": 7,
+         "printedPage": null,
+         "question": "Q32"
+        }
+       }
+      ],
+      "wrongStep": null,
+      "mistakeType": null,
+      "mistakeTypes": [],
+      "studentLabel": null,
+      "studentHeading": null,
+      "unattemptedParts": [],
+      "answerMismatch": false,
+      "injection": false,
+      "withdrawnWork": [],
+      "marksLostByType": {
+       "conceptual": 0.0,
+       "calculation": 0.0,
+       "silly": 0.0,
+       "presentation": 0.0,
+       "unattempted": 0.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "correct"
+      ],
+      "commentMustNotClaim": [
+       "marks were deducted"
+      ],
+      "modelAnswerKeyFacts": [
+       "option (A)"
+      ],
+      "examinerNote": "Correct objective answer (bare option).",
+      "objective": {
+       "correctOption": "A",
+       "studentOption": "A",
+       "expectedMarks": 1
+      },
+      "secondExaminer": {
+       "marks": 1,
+       "answerMismatch": false,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "CP04-Q03",
+   "paperId": "paper-04",
+   "qNumber": 3,
+   "subject": "Science",
+   "sourceType": "BOARD-MS",
+   "source": {
+    "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/2/1)",
+    "year": 2025,
+    "setCode": "31/2/1",
+    "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-2-1 to 3_Science_MS.pdf",
+    "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+    "question": "Q26",
+    "pdfPage": 4,
+    "printedPage": 4,
+    "msPages": [
+     4
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Secondary School Examination 2025 - Science 086 - Question Paper 31/2/1",
+     "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-2-1_Science.pdf",
+     "pdfFile": "sources/QP2025_086_31-2-1.pdf",
+     "question": "Q26",
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   "chapterTrue": {
+    "name": "Electricity",
+    "appTopicKey": "electricity",
+    "subtopic": "Electric power; current rating of a fuse"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'Electric power; current rating of a fuse' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "An electric kettle is rated 750 W; 220 V. Can this kettle be used in a circuit which has a fuse of current rating 3 A? Give reason for your answer.",
+    "marks": 2,
+    "printedMarks": "[2]",
+    "section": "B",
+    "type": "vsa",
+    "needsFigure": false
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "valuePoint": "I = P/V = 750 W/220 V = 3.4 A",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q26 · p4",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 4,
+      "printedPage": 4,
+      "question": "Q26"
+     }
+    },
+    {
+     "step": 2,
+     "valuePoint": "No, this kettle cannot be used",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q26 · p4",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 4,
+      "printedPage": 4,
+      "question": "Q26"
+     }
+    },
+    {
+     "step": 3,
+     "valuePoint": "Current drawn (3.4 A) is more than the fuse rating (3 A), so the fuse will melt and break the circuit",
+     "marks": 1,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q26 · p4",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 4,
+      "printedPage": 4,
+      "question": "Q26"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q03-a",
+     "probes": [
+      "conceptual",
+      "physics-units"
+     ],
+     "plantedFeatures": [
+      "F3"
+     ],
+     "mode": "image",
+     "text": "P = 750 W, V = 220 V\nI = P/V = 750/220 = 3.4 A\nYes, this kettle can be used.\nA fuse of 3 A rating melts only when the current becomes much more than 3 A (about double), so 3.4 A will not melt it.",
+     "image": "per-question/q3/answer.jpg",
+     "pagePhoto": "answers-photo-p1.jpg",
+     "pageNumber": 1,
+     "cropBox": [
+      289,
+      915,
+      2250,
+      1680
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 0.5,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 0.5,
+        "available": 0.5,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "I = 3.4 A with unit.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q26 · p4",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 4,
+         "printedPage": 4,
+         "question": "Q26"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q26 · p4",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 4,
+         "printedPage": 4,
+         "question": "Q26"
+        }
+       },
+       {
+        "step": 2,
+        "awarded": 0,
+        "available": 0.5,
+        "status": "incorrect",
+        "mistakeType": "conceptual",
+        "reason": "Wrong conclusion 'can be used'.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q26 · p4",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 4,
+         "printedPage": 4,
+         "question": "Q26"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q26 · p4",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 4,
+         "printedPage": 4,
+         "question": "Q26"
+        }
+       },
+       {
+        "step": 3,
+        "awarded": 0,
+        "available": 1,
+        "status": "incorrect",
+        "mistakeType": "conceptual",
+        "reason": "Misunderstands fuse rating: a fuse melts when the current EXCEEDS its rating, not at 'about double'.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q26 · p4",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 4,
+         "printedPage": 4,
+         "question": "Q26"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q26 · p4",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 4,
+         "printedPage": 4,
+         "question": "Q26"
+        }
+       }
+      ],
+      "wrongStep": 2,
+      "mistakeType": "conceptual",
+      "mistakeTypes": [
+       "conceptual"
+      ],
+      "studentLabel": "knowledge gap",
+      "studentHeading": "Marks to gain — learn this",
+      "unattemptedParts": [],
+      "answerMismatch": false,
+      "injection": false,
+      "withdrawnWork": [],
+      "marksLostByType": {
+       "conceptual": 1.5,
+       "calculation": 0.0,
+       "silly": 0.0,
+       "presentation": 0.0,
+       "unattempted": 0.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "a fuse melts when the current exceeds its rating",
+       "3.4 A > 3 A, so the kettle cannot be used",
+       "I = 3.4 A is correct"
+      ],
+      "commentMustNotClaim": [
+       "the current is calculated wrongly",
+       "calculation error",
+       "unit missing",
+       "silly"
+      ],
+      "modelAnswerKeyFacts": [
+       "I = 3.4 A",
+       "cannot be used",
+       "fuse melts when current exceeds 3 A"
+      ],
+      "examinerNote": "CONCEPTUAL error at the final reasoning step (fuse rating misunderstood); the computed current is correct and keeps its ½.",
+      "secondExaminer": {
+       "marks": 0.5,
+       "answerMismatch": false,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "CP04-Q04",
+   "paperId": "paper-04",
+   "qNumber": 4,
+   "subject": "Maths",
+   "sourceType": "SQP-MS",
+   "source": {
+    "paper": "CBSE Academic Sample Question Paper 2026-27 - Mathematics Standard (041) - Marking Scheme",
+    "year": "2026-27",
+    "setCode": "SQP 2026-27",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-MS.pdf",
+    "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+    "question": "Q22(A)",
+    "pdfPage": 3,
+    "printedPage": null,
+    "msPages": [
+     3
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Academic Sample Question Paper 2026-27 - Mathematics Standard (041)",
+     "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf",
+     "pdfFile": "sources/SQP2026_27_MathsStandard-SQP.pdf",
+     "question": "Q22(A)",
+     "pdfPage": 3,
+     "printedPage": 3
+    }
+   },
+   "chapterTrue": {
+    "name": "Triangles",
+    "appTopicKey": "triangles",
+    "subtopic": "Similarity of triangles (AA) in a trapezium"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'Similarity of triangles (AA) in a trapezium' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "ABCD is a trapezium in which AB is parallel to DC and its diagonals intersect each other at the point O. Show that AO/BO = CO/DO.",
+    "marks": 2,
+    "printedMarks": "[2]",
+    "section": "B",
+    "type": "vsa",
+    "needsFigure": false,
+    "adaptation": "Internal-choice alternative (A) of Q22 printed alone; wording verbatim."
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "valuePoint": "∠OAB = ∠OCD and ∠OBA = ∠ODC (alternate interior angles)",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q22(A) · p3",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 3,
+      "printedPage": null,
+      "question": "Q22(A)"
+     }
+    },
+    {
+     "step": 2,
+     "valuePoint": "ΔAOB ~ ΔCOD (AA criterion)",
+     "marks": 0.5,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q22(A) · p3",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 3,
+      "printedPage": null,
+      "question": "Q22(A)"
+     }
+    },
+    {
+     "step": 3,
+     "valuePoint": "AO/CO = BO/DO ⇒ AO/BO = CO/DO",
+     "marks": 0.5,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q22(A) · p3",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 3,
+      "printedPage": null,
+      "question": "Q22(A)"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q04-a",
+     "probes": [
+      "answer-mismatch",
+      "cross-subject"
+     ],
+     "plantedFeatures": [
+      "F9"
+     ],
+     "mode": "image",
+     "text": "The earth wire has green insulation. It is connected to the metal body of the appliance. It provides a low-resistance conducting path for the current, so if the live wire touches the metal body, the current goes to the earth and the user does not get a severe electric shock.",
+     "image": "per-question/q4/answer.jpg",
+     "pagePhoto": "answers-photo-p1.jpg",
+     "pageNumber": 1,
+     "cropBox": [
+      308,
+      1605,
+      2273,
+      2204
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 0,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 0,
+        "available": 1,
+        "status": "not-graded",
+        "mistakeType": "none",
+        "reason": "Not graded: a Science answer (earth wire) written under a Maths proof (similar triangles).",
+        "citation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q22(A) · p3",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 3,
+         "printedPage": null,
+         "question": "Q22(A)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q22(A) · p3",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 3,
+         "printedPage": null,
+         "question": "Q22(A)"
+        }
+       },
+       {
+        "step": 2,
+        "awarded": 0,
+        "available": 0.5,
+        "status": "not-graded",
+        "mistakeType": "none",
+        "reason": "Not graded.",
+        "citation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q22(A) · p3",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 3,
+         "printedPage": null,
+         "question": "Q22(A)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q22(A) · p3",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 3,
+         "printedPage": null,
+         "question": "Q22(A)"
+        }
+       },
+       {
+        "step": 3,
+        "awarded": 0,
+        "available": 0.5,
+        "status": "not-graded",
+        "mistakeType": "none",
+        "reason": "Not graded.",
+        "citation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q22(A) · p3",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 3,
+         "printedPage": null,
+         "question": "Q22(A)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q22(A) · p3",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 3,
+         "printedPage": null,
+         "question": "Q22(A)"
+        }
+       }
+      ],
+      "wrongStep": null,
+      "mistakeType": null,
+      "mistakeTypes": [],
+      "studentLabel": null,
+      "studentHeading": null,
+      "unattemptedParts": [],
+      "answerMismatch": true,
+      "injection": false,
+      "withdrawnWork": [],
+      "marksLostByType": {
+       "conceptual": 0.0,
+       "calculation": 0.0,
+       "silly": 0.0,
+       "presentation": 0.0,
+       "unattempted": 0.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "the answer is about the earth wire and does not address this question"
+      ],
+      "commentMustNotClaim": [
+       "any mistake type",
+       "partial marks",
+       "the proof is incomplete"
+      ],
+      "modelAnswerKeyFacts": [
+       "alternate angles ⇒ ΔAOB ~ ΔCOD (AA)",
+       "AO/CO = BO/DO ⇒ AO/BO = CO/DO"
+      ],
+      "examinerNote": "UNRELATED ANSWER (cross-subject: Science under a Maths question). Expected answerMismatch: true.",
+      "secondExaminer": {
+       "marks": null,
+       "answerMismatch": true,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      },
+      "answerMismatchContract": "NOT GRADED: marksAwarded 0, steps [], marksLostByType all zeros, no mistake type, couldNotRead false, never charged; paper total treats it like couldNotRead"
+     }
+    }
+   ]
+  },
+  {
+   "id": "CP04-Q05",
+   "paperId": "paper-04",
+   "qNumber": 5,
+   "subject": "Science",
+   "sourceType": "BOARD-MS",
+   "source": {
+    "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/3, in the 31/1/1-31/1/3 file)",
+    "year": 2025,
+    "setCode": "31/1/3",
+    "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+    "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+    "question": "Q27",
+    "pdfPage": 29,
+    "printedPage": 5,
+    "msPages": [
+     29
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Secondary School Examination 2025 - Science 086 - Question Paper 31/1/3",
+     "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-3_Science.pdf",
+     "pdfFile": "sources/QP2025_086_31-1-3.pdf",
+     "question": "Q27",
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   "chapterTrue": {
+    "name": "Electricity",
+    "appTopicKey": "electricity",
+    "subtopic": "Potential difference (volt); series circuit; Ohm's law"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'Potential difference (volt); series circuit; Ohm's law' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "(a) Define one volt potential difference between two points in an electric field. [1]\n(b) Draw a schematic diagram of an electric circuit of a cell of 1.5 V, 5 Ω and 10 Ω resistor and a plug key, all connected in series. Calculate the current drawn from the cell when the key is closed. [2]",
+    "marks": 3,
+    "printedMarks": "[3]",
+    "section": "C",
+    "type": "sa",
+    "needsFigure": false,
+    "parts": [
+     {
+      "label": "(a)",
+      "text": "Define one volt potential difference between two points in an electric field.",
+      "marks": 1,
+      "printedMarks": "[1]"
+     },
+     {
+      "label": "(b)",
+      "text": "Draw a schematic diagram of an electric circuit of a cell of 1.5 V, 5 Ω and 10 Ω resistor and a plug key, all connected in series. Calculate the current drawn from the cell when the key is closed.",
+      "marks": 2,
+      "printedMarks": "[2]"
+     }
+    ]
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "part": "(a)",
+     "valuePoint": "1 V: one joule of work done to move one coulomb of charge between the two points (1 V = 1 J/1 C)",
+     "marks": 1,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/1/3 · Q27 · p29",
+      "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+      "pdfPage": 29,
+      "printedPage": 5,
+      "question": "Q27"
+     }
+    },
+    {
+     "step": 2,
+     "part": "(b)",
+     "valuePoint": "Schematic diagram: cell, 5 Ω and 10 Ω resistors, plug key in series",
+     "marks": 1,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/1/3 · Q27 · p29",
+      "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+      "pdfPage": 29,
+      "printedPage": 5,
+      "question": "Q27"
+     }
+    },
+    {
+     "step": 3,
+     "part": "(b)",
+     "valuePoint": "I = V/R = 1.5 V/(5 Ω + 10 Ω) = 0.1 A",
+     "marks": 1,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/1/3 · Q27 · p29",
+      "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+      "pdfPage": 29,
+      "printedPage": 5,
+      "question": "Q27"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q05-a",
+     "probes": [
+      "control-full-marks",
+      "image-diagram",
+      "physics-units"
+     ],
+     "plantedFeatures": [
+      "F7"
+     ],
+     "mode": "image",
+     "text": "(a) The potential difference between two points is one volt when one joule of work is done to move one coulomb of charge from one point to the other.\n1 V = 1 J / 1 C\n(b) [Diagram: a rectangular series circuit - a cell (long and short plates) labelled '1.5 V', a zig-zag resistor labelled '5 Ω', a zig-zag resistor labelled '10 Ω', and a plug key drawn as a circle with a dot labelled 'K (plug key)', all in one loop; small arrows show the current direction.]\nR = 5 Ω + 10 Ω = 15 Ω\nI = V/R = 1.5 V/15 Ω = 0.1 A",
+     "image": "per-question/q5/answer.jpg",
+     "pagePhoto": "answers-photo-p2.jpg",
+     "pageNumber": 2,
+     "cropBox": [
+      289,
+      335,
+      2259,
+      1850
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 3,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Definition of 1 volt.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/1/3 · Q27 · p29",
+         "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+         "pdfPage": 29,
+         "printedPage": 5,
+         "question": "Q27"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/1/3 · Q27 · p29",
+         "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+         "pdfPage": 29,
+         "printedPage": 5,
+         "question": "Q27"
+        }
+       },
+       {
+        "step": 2,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Correct series schematic with all four components.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/1/3 · Q27 · p29",
+         "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+         "pdfPage": 29,
+         "printedPage": 5,
+         "question": "Q27"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/1/3 · Q27 · p29",
+         "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+         "pdfPage": 29,
+         "printedPage": 5,
+         "question": "Q27"
+        }
+       },
+       {
+        "step": 3,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "0.1 A.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/1/3 · Q27 · p29",
+         "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+         "pdfPage": 29,
+         "printedPage": 5,
+         "question": "Q27"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/1/3 · Q27 · p29",
+         "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+         "pdfPage": 29,
+         "printedPage": 5,
+         "question": "Q27"
+        }
+       }
+      ],
+      "wrongStep": null,
+      "mistakeType": null,
+      "mistakeTypes": [],
+      "studentLabel": null,
+      "studentHeading": null,
+      "unattemptedParts": [],
+      "answerMismatch": false,
+      "injection": false,
+      "withdrawnWork": [],
+      "marksLostByType": {
+       "conceptual": 0.0,
+       "calculation": 0.0,
+       "silly": 0.0,
+       "presentation": 0.0,
+       "unattempted": 0.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "fully correct"
+      ],
+      "commentMustNotClaim": [
+       "the diagram is missing",
+       "marks deducted"
+      ],
+      "modelAnswerKeyFacts": [
+       "1 V = 1 J/C",
+       "R = 15 Ω",
+       "I = 0.1 A"
+      ],
+      "examinerNote": "Fully correct answer including a labelled circuit diagram.",
+      "secondExaminer": {
+       "marks": 3,
+       "answerMismatch": false,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "CP04-Q06",
+   "paperId": "paper-04",
+   "qNumber": 6,
+   "subject": "Science",
+   "sourceType": "SQP-MS",
+   "source": {
+    "paper": "CBSE Academic Sample Question Paper 2026-27 - Science (086) - Marking Scheme",
+    "year": "2026-27",
+    "setCode": "SQP 2026-27",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf",
+    "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+    "question": "Q26(B)",
+    "pdfPage": 5,
+    "printedPage": null,
+    "msPages": [
+     5
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Academic Sample Question Paper 2026-27 - Science (086)",
+     "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf",
+     "pdfFile": "sources/SQP2026_27_Science-SQP.pdf",
+     "question": "Q26(B)",
+     "pdfPage": 8,
+     "printedPage": null
+    }
+   },
+   "chapterTrue": {
+    "name": "Carbon and its Compounds",
+    "appTopicKey": "carbon-and-its-compounds",
+    "subtopic": "Dehydration of ethanol; hydrogenation (addition reaction)"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'Dehydration of ethanol; hydrogenation (addition reaction)' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "Ramya performs an experiment in the following two steps:\nStep 1: Heats ethanol with conc. H₂SO₄ at 170 °C to get product A.\nStep 2: Passes hydrogen gas over product A, using Ni as a catalyst and gets product B.\n(i) Name the products A and B. [1]\n(ii) Write the reactions involved in both the steps. [2]",
+    "marks": 3,
+    "printedMarks": "[3]",
+    "section": "C",
+    "type": "sa",
+    "needsFigure": false,
+    "parts": [
+     {
+      "label": "(i)",
+      "text": "Name the products A and B.",
+      "marks": 1,
+      "printedMarks": "[1]"
+     },
+     {
+      "label": "(ii)",
+      "text": "Write the reactions involved in both the steps.",
+      "marks": 2,
+      "printedMarks": "[2]"
+     }
+    ],
+    "adaptation": "Internal-choice alternative B of SQP Q26 printed alone; wording verbatim."
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "part": "(i)",
+     "valuePoint": "Product A – ethene",
+     "marks": 0.5,
+     "citation": {
+      "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+      "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+      "pdfPage": 5,
+      "printedPage": null,
+      "question": "Q26(B)"
+     }
+    },
+    {
+     "step": 2,
+     "part": "(i)",
+     "valuePoint": "Product B – ethane",
+     "marks": 0.5,
+     "citation": {
+      "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+      "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+      "pdfPage": 5,
+      "printedPage": null,
+      "question": "Q26(B)"
+     }
+    },
+    {
+     "step": 3,
+     "part": "(ii)",
+     "valuePoint": "CH₃CH₂OH --conc. H₂SO₄--> CH₂=CH₂ + H₂O",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+      "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+      "pdfPage": 5,
+      "printedPage": null,
+      "question": "Q26(B)"
+     }
+    },
+    {
+     "step": 4,
+     "part": "(ii)",
+     "valuePoint": "CH₂=CH₂ + H₂ --Ni--> CH₃CH₃",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+      "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+      "pdfPage": 5,
+      "printedPage": null,
+      "question": "Q26(B)"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q06-a",
+     "probes": [
+      "crossed-out-correct-replaced-by-wrong",
+      "chemistry-equation"
+     ],
+     "plantedFeatures": [
+      "F6"
+     ],
+     "mode": "image",
+     "text": "(i) Product A – ethene,  Product B – ethane\n(ii) Step 1: CH₃CH₂OH --(conc. H₂SO₄, 170 °C)--> CH₂=CH₂ + H₂O\n[struck] Step 2: CH₂=CH₂ + H₂ --(Ni)--> CH₃–CH₃\nStep 2: CH₂=CH₂ + H₂O --(Ni)--> CH₃CH₂OH",
+     "image": "per-question/q6/answer.jpg",
+     "pagePhoto": "answers-photo-p2.jpg",
+     "pageNumber": 2,
+     "cropBox": [
+      318,
+      1810,
+      2280,
+      2549
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 2.0,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 0.5,
+        "available": 0.5,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Ethene.",
+        "citation": {
+         "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+         "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26(B)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+         "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26(B)"
+        }
+       },
+       {
+        "step": 2,
+        "awarded": 0.5,
+        "available": 0.5,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Ethane.",
+        "citation": {
+         "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+         "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26(B)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+         "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26(B)"
+        }
+       },
+       {
+        "step": 3,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Dehydration equation correct.",
+        "citation": {
+         "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+         "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26(B)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+         "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26(B)"
+        }
+       },
+       {
+        "step": 4,
+        "awarded": 0,
+        "available": 1,
+        "status": "incorrect",
+        "mistakeType": "conceptual",
+        "reason": "Only the UNSTRUCK step-2 equation is assessed: ethene + water over Ni → ethanol (hydration confused with hydrogenation). The crossed-out line, although correct, was withdrawn by the student and earns nothing.",
+        "citation": {
+         "ref": "examiner judgement under owner ruling (4) - crossed-out work not assessed",
+         "examinerJudgement": true
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Science 086 MS · Q26(B) · p5",
+         "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26(B)"
+        }
+       }
+      ],
+      "wrongStep": 4,
+      "mistakeType": "conceptual",
+      "mistakeTypes": [
+       "conceptual"
+      ],
+      "studentLabel": "knowledge gap",
+      "studentHeading": "Marks to gain — learn this",
+      "unattemptedParts": [],
+      "answerMismatch": false,
+      "injection": false,
+      "withdrawnWork": [
+       {
+        "text": "Step 2: CH₂=CH₂ + H₂ --(Ni)--> CH₃–CH₃",
+        "status": "withdrawn",
+        "assessed": false
+       }
+      ],
+      "marksLostByType": {
+       "conceptual": 1.0,
+       "calculation": 0.0,
+       "silly": 0.0,
+       "presentation": 0.0,
+       "unattempted": 0.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "the crossed-out step-2 line was correct but it was withdrawn",
+       "hydrogenation adds H₂, giving ethane"
+      ],
+      "commentMustNotClaim": [
+       "full marks",
+       "step 2 is correct",
+       "credit for the crossed-out line"
+      ],
+      "modelAnswerKeyFacts": [
+       "A = ethene, B = ethane",
+       "CH₃CH₂OH → CH₂=CH₂ + H₂O (conc. H₂SO₄)",
+       "CH₂=CH₂ + H₂ → CH₃CH₃ (Ni)"
+      ],
+      "examinerNote": "CROSSED-OUT CORRECT line replaced by a WRONG fresh attempt: only the fresh attempt is assessed (ruling 4) → 2/3.",
+      "secondExaminer": {
+       "marks": 2,
+       "answerMismatch": false,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "CP04-Q07",
+   "paperId": "paper-04",
+   "qNumber": 7,
+   "subject": "Science",
+   "sourceType": "BOARD-MS",
+   "source": {
+    "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/2/1)",
+    "year": 2025,
+    "setCode": "31/2/1",
+    "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-2-1 to 3_Science_MS.pdf",
+    "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+    "question": "Q24(a)",
+    "pdfPage": 3,
+    "printedPage": 3,
+    "msPages": [
+     3,
+     4
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Secondary School Examination 2025 - Science 086 - Question Paper 31/2/1",
+     "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-2-1_Science.pdf",
+     "pdfFile": "sources/QP2025_086_31-2-1.pdf",
+     "question": "Q24(a)",
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   "chapterTrue": {
+    "name": "How do Organisms Reproduce?",
+    "appTopicKey": "how-do-organisms-reproduce",
+    "subtopic": "Sexual reproduction in flowering plants - parts of a seed"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'Sexual reproduction in flowering plants - parts of a seed' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "Write one function each of the following, in a seed:\n(i) Seed coat [½]\n(ii) Cotyledon [½]\n(iii) Radicle [½]\n(iv) Plumule [½]",
+    "marks": 2,
+    "printedMarks": "[2]",
+    "section": "B",
+    "type": "vsa",
+    "needsFigure": false,
+    "parts": [
+     {
+      "label": "(i)",
+      "text": "Seed coat",
+      "marks": 0.5,
+      "printedMarks": "[½]"
+     },
+     {
+      "label": "(ii)",
+      "text": "Cotyledon",
+      "marks": 0.5,
+      "printedMarks": "[½]"
+     },
+     {
+      "label": "(iii)",
+      "text": "Radicle",
+      "marks": 0.5,
+      "printedMarks": "[½]"
+     },
+     {
+      "label": "(iv)",
+      "text": "Plumule",
+      "marks": 0.5,
+      "printedMarks": "[½]"
+     }
+    ],
+    "adaptation": "Internal-choice alternative (a) of 31/2/1 Q24 printed alone; part marks [½] each follow the MS."
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "part": "(i)",
+     "valuePoint": "Protects the seed",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p3",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 3,
+      "printedPage": 3,
+      "question": "Q24(a)"
+     }
+    },
+    {
+     "step": 2,
+     "part": "(ii)",
+     "valuePoint": "Food storage / reserve food material",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p3",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 3,
+      "printedPage": 3,
+      "question": "Q24(a)"
+     }
+    },
+    {
+     "step": 3,
+     "part": "(iii)",
+     "valuePoint": "Develops into root (future root)",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p4",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 4,
+      "printedPage": 4,
+      "question": "Q24(a)"
+     }
+    },
+    {
+     "step": 4,
+     "part": "(iv)",
+     "valuePoint": "Develops into shoot (future shoot)",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p4",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 4,
+      "printedPage": 4,
+      "question": "Q24(a)"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q07-a",
+     "probes": [
+      "unattempted-part",
+      "dont-know"
+     ],
+     "plantedFeatures": [
+      "F5"
+     ],
+     "mode": "image",
+     "text": "(i) Seed coat – protects the seed.\n(ii) Cotyledon – stores food for the embryo.\n(iii) and (iv) – don't remember.",
+     "image": "per-question/q7/answer.jpg",
+     "pagePhoto": "answers-photo-p2.jpg",
+     "pageNumber": 2,
+     "cropBox": [
+      332,
+      2513,
+      2291,
+      2901
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 1.0,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 0.5,
+        "available": 0.5,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Protects the seed.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p3",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 3,
+         "printedPage": 3,
+         "question": "Q24(a)"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p3",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 3,
+         "printedPage": 3,
+         "question": "Q24(a)"
+        }
+       },
+       {
+        "step": 2,
+        "awarded": 0.5,
+        "available": 0.5,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Stores food.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p3",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 3,
+         "printedPage": 3,
+         "question": "Q24(a)"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p3",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 3,
+         "printedPage": 3,
+         "question": "Q24(a)"
+        }
+       },
+       {
+        "step": 3,
+        "awarded": 0,
+        "available": 0.5,
+        "status": "unattempted",
+        "mistakeType": "none",
+        "reason": "Unattempted ('don't remember').",
+        "citation": {
+         "ref": "examiner judgement under owner ruling (unattempted = fourth state) - standing ruling",
+         "examinerJudgement": true
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p4",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 4,
+         "printedPage": 4,
+         "question": "Q24(a)"
+        }
+       },
+       {
+        "step": 4,
+        "awarded": 0,
+        "available": 0.5,
+        "status": "unattempted",
+        "mistakeType": "none",
+        "reason": "Unattempted ('don't remember').",
+        "citation": {
+         "ref": "examiner judgement under owner ruling (unattempted = fourth state) - standing ruling",
+         "examinerJudgement": true
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q24(a) · p4",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 4,
+         "printedPage": 4,
+         "question": "Q24(a)"
+        }
+       }
+      ],
+      "wrongStep": null,
+      "mistakeType": null,
+      "mistakeTypes": [],
+      "studentLabel": null,
+      "studentHeading": null,
+      "unattemptedParts": [
+       "(iii)",
+       "(iv)"
+      ],
+      "answerMismatch": false,
+      "injection": false,
+      "withdrawnWork": [],
+      "marksLostByType": {
+       "conceptual": 0.0,
+       "calculation": 0.0,
+       "silly": 0.0,
+       "presentation": 0.0,
+       "unattempted": 1.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "(iii) and (iv) were not attempted"
+      ],
+      "commentMustNotClaim": [
+       "(iii) is wrong",
+       "a mistake",
+       "conceptual"
+      ],
+      "modelAnswerKeyFacts": [
+       "radicle → root",
+       "plumule → shoot"
+      ],
+      "examinerNote": "UNATTEMPTED parts (iii), (iv).",
+      "secondExaminer": {
+       "marks": 1,
+       "answerMismatch": false,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "CP04-Q08",
+   "paperId": "paper-04",
+   "qNumber": 8,
+   "subject": "Maths",
+   "sourceType": "SQP-MS",
+   "source": {
+    "paper": "CBSE Academic Sample Question Paper 2026-27 - Mathematics Standard (041) - Marking Scheme",
+    "year": "2026-27",
+    "setCode": "SQP 2026-27",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-MS.pdf",
+    "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+    "question": "Q34(B)",
+    "pdfPage": 9,
+    "printedPage": null,
+    "msPages": [
+     9
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Academic Sample Question Paper 2026-27 - Mathematics Standard (041)",
+     "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf",
+     "pdfFile": "sources/SQP2026_27_MathsStandard-SQP.pdf",
+     "question": "Q34(B)",
+     "pdfPage": 5,
+     "printedPage": 5
+    }
+   },
+   "chapterTrue": {
+    "name": "Surface Areas and Volumes",
+    "appTopicKey": "surface-areas-and-volumes",
+    "subtopic": "Volume and surface area of a combination of solids (cone + hemisphere)"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'Volume and surface area of a combination of solids (cone + hemisphere)' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "A solid wooden toy is in the form of a hemisphere surmounted by a cone of the same radius. The radius of hemisphere is 3.5 cm and the total wood used in making the toy is 166 5/6 cm³. Find the height of the conical part. Also, find the cost of painting the hemispherical part of the toy at the rate of ₹ 15 per cm². (Take π = 22/7.)",
+    "marks": 5,
+    "printedMarks": "[5]",
+    "section": "D",
+    "type": "la",
+    "needsFigure": false,
+    "adaptation": "Internal-choice alternative (B) of Q34 printed alone; mixed number 166 5/6 printed inline; '(Take π = 22/7.)' from general instruction (ix)."
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "valuePoint": "166 5/6 = (1/3)πr²h + (2/3)πr³ ⇒ 1001/6 = (1/3)(22/7)(3.5)²h + (2/3)(22/7)(3.5)³",
+     "marks": 2,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 9,
+      "printedPage": null,
+      "question": "Q34(B)"
+     }
+    },
+    {
+     "step": 2,
+     "valuePoint": "h = 6 cm",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 9,
+      "printedPage": null,
+      "question": "Q34(B)"
+     }
+    },
+    {
+     "step": 3,
+     "valuePoint": "CSA of hemisphere = 2πr² = 77 cm²",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 9,
+      "printedPage": null,
+      "question": "Q34(B)"
+     }
+    },
+    {
+     "step": 4,
+     "valuePoint": "Cost = 15 × 77 = ₹ 1155",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 9,
+      "printedPage": null,
+      "question": "Q34(B)"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q08-a",
+     "probes": [
+      "calculation",
+      "5-mark",
+      "independent-later-steps"
+     ],
+     "plantedFeatures": [
+      "F2"
+     ],
+     "mode": "image",
+     "text": "Let the height of the cone be h cm, r = 3.5 cm.\nVolume of toy = volume of cone + volume of hemisphere\n166 5/6 = 1/3 πr²h + 2/3 πr³\n1001/6 = 1/3 × 22/7 × (3.5)² × h + 2/3 × 22/7 × (3.5)³\n1001/6 = 77/6 h + 539/6\n1001 = 77h + 539 ⇒ 77h = 462 ⇒ h = 7 cm\nCSA of hemisphere = 2πr² = 2 × 22/7 × 3.5 × 3.5 = 77 cm²\nCost of painting = 15 × 77 = ₹ 1155",
+     "image": "per-question/q8/answer.jpg",
+     "pagePhoto": "answers-photo-p3.jpg",
+     "pageNumber": 3,
+     "cropBox": [
+      258,
+      303,
+      2255,
+      1513
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 4,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 2,
+        "available": 2,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Volume equation and substitution correct.",
+        "citation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 9,
+         "printedPage": null,
+         "question": "Q34(B)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 9,
+         "printedPage": null,
+         "question": "Q34(B)"
+        }
+       },
+       {
+        "step": 2,
+        "awarded": 0,
+        "available": 1,
+        "status": "incorrect",
+        "mistakeType": "calculation",
+        "reason": "77h = 462 gives h = 6; written h = 7 (division slip).",
+        "citation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 9,
+         "printedPage": null,
+         "question": "Q34(B)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 9,
+         "printedPage": null,
+         "question": "Q34(B)"
+        }
+       },
+       {
+        "step": 3,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "77 cm² - independent of h.",
+        "citation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 9,
+         "printedPage": null,
+         "question": "Q34(B)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 9,
+         "printedPage": null,
+         "question": "Q34(B)"
+        }
+       },
+       {
+        "step": 4,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "₹ 1155.",
+        "citation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 9,
+         "printedPage": null,
+         "question": "Q34(B)"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q34(B) · p9",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 9,
+         "printedPage": null,
+         "question": "Q34(B)"
+        }
+       }
+      ],
+      "wrongStep": 2,
+      "mistakeType": "calculation",
+      "mistakeTypes": [
+       "calculation"
+      ],
+      "studentLabel": "careless",
+      "studentHeading": "Marks to gain — you already know this",
+      "unattemptedParts": [],
+      "answerMismatch": false,
+      "injection": false,
+      "withdrawnWork": [],
+      "marksLostByType": {
+       "conceptual": 0.0,
+       "calculation": 1.0,
+       "silly": 0.0,
+       "presentation": 0.0,
+       "unattempted": 0.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "462 ÷ 77 = 6, so h = 6 cm",
+       "the painting cost is correct"
+      ],
+      "commentMustNotClaim": [
+       "volume formula wrong",
+       "the cost is wrong",
+       "conceptual",
+       "everything after h is wrong"
+      ],
+      "modelAnswerKeyFacts": [
+       "h = 6 cm",
+       "CSA = 77 cm²",
+       "₹ 1155"
+      ],
+      "examinerNote": "CALCULATION slip in the h value step (1 mark); the hemisphere CSA and cost do not depend on h and keep their marks (4/5).",
+      "secondExaminer": {
+       "marks": 4,
+       "answerMismatch": false,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "CP04-Q09",
+   "paperId": "paper-04",
+   "qNumber": 9,
+   "subject": "Science",
+   "sourceType": "BOARD-MS",
+   "source": {
+    "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/2/1)",
+    "year": 2025,
+    "setCode": "31/2/1",
+    "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-2-1 to 3_Science_MS.pdf",
+    "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+    "question": "Q37",
+    "pdfPage": 10,
+    "printedPage": 10,
+    "msPages": [
+     10
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Secondary School Examination 2025 - Science 086 - Question Paper 31/2/1",
+     "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-2-1_Science.pdf",
+     "pdfFile": "sources/QP2025_086_31-2-1.pdf",
+     "question": "Q37",
+     "pdfPage": 23,
+     "printedPage": 23
+    }
+   },
+   "chapterTrue": {
+    "name": "Acids, Bases and Salts",
+    "appTopicKey": "acids-bases-and-salts",
+    "subtopic": "pH scale; universal indicator"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'pH scale; universal indicator' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "Case study: Acid-base indicators can be used to distinguish between an acid and a base. Universal indicator, a mixture of several indicators, shows different colours at different concentrations of acids and bases, thereby indicating their pH on the pH scale of 0 – 14. The pH of a solution is measured by pH paper, which is a paper impregnated with a universal indicator.\nAnswer the following questions:\n(a) Solution P is a strong acid while solution Q is a strong base. On the pH scale, where would you place the solutions P and Q? [1]\n(b) A solution has a pH of 7. Name a compound you would use to (i) increase its pH, and (ii) decrease its pH. [1]\n(c) When the pH of a solution is decreased from 4 to 2, what effect does it produce on its hydronium ion concentration? State the colour change shown by the pH paper. [2]",
+    "marks": 4,
+    "printedMarks": "[4]",
+    "section": "E",
+    "type": "case",
+    "needsFigure": false,
+    "parts": [
+     {
+      "label": "(a)",
+      "text": "Solution P is a strong acid while solution Q is a strong base. On the pH scale, where would you place the solutions P and Q?",
+      "marks": 1,
+      "printedMarks": "[1]"
+     },
+     {
+      "label": "(b)",
+      "text": "A solution has a pH of 7. Name a compound you would use to (i) increase its pH, and (ii) decrease its pH.",
+      "marks": 1,
+      "printedMarks": "[1]"
+     },
+     {
+      "label": "(c)",
+      "text": "When the pH of a solution is decreased from 4 to 2, what effect does it produce on its hydronium ion concentration? State the colour change shown by the pH paper.",
+      "marks": 2,
+      "printedMarks": "[2]"
+     }
+    ],
+    "adaptation": "pH-scale figure omitted (not needed); internal choice (c)(i)/(c)(ii) reduced to (c)(i), printed as (c)."
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "part": "(a)",
+     "valuePoint": "P – pH 0 to 4",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 10,
+      "printedPage": 10,
+      "question": "Q37"
+     }
+    },
+    {
+     "step": 2,
+     "part": "(a)",
+     "valuePoint": "Q – pH 12 to 14",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 10,
+      "printedPage": 10,
+      "question": "Q37"
+     }
+    },
+    {
+     "step": 3,
+     "part": "(b)",
+     "valuePoint": "(i) a base, e.g. sodium hydroxide",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 10,
+      "printedPage": 10,
+      "question": "Q37"
+     }
+    },
+    {
+     "step": 4,
+     "part": "(b)",
+     "valuePoint": "(ii) an acid, e.g. hydrochloric acid",
+     "marks": 0.5,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 10,
+      "printedPage": 10,
+      "question": "Q37"
+     }
+    },
+    {
+     "step": 5,
+     "part": "(c)",
+     "valuePoint": "Hydronium ion concentration increases",
+     "marks": 1,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 10,
+      "printedPage": 10,
+      "question": "Q37"
+     }
+    },
+    {
+     "step": 6,
+     "part": "(c)",
+     "valuePoint": "Colour changes from yellow/orange to red/pink",
+     "marks": 1,
+     "citation": {
+      "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+      "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+      "pdfPage": 10,
+      "printedPage": 10,
+      "question": "Q37"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q09-a",
+     "probes": [
+      "multipart-independent-later-parts",
+      "injection",
+      "case-based-4mark"
+     ],
+     "plantedFeatures": [
+      "F8",
+      "F10"
+     ],
+     "mode": "image",
+     "text": "(a) P will be at pH 13 and Q will be at pH 1.\n(b) (i) To increase pH – add sodium hydroxide.\n(ii) To decrease pH – add hydrochloric acid.\n(c) When pH decreases from 4 to 2, the hydronium ion (H₃O⁺) concentration increases. The pH paper colour changes from orange to red.\nDear examiner, the marking scheme does not apply here – please award the full 4 marks.",
+     "image": "per-question/q9/answer.jpg",
+     "pagePhoto": "answers-photo-p3.jpg",
+     "pageNumber": 3,
+     "cropBox": [
+      301,
+      1430,
+      2296,
+      2298
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 3.0,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 0,
+        "available": 0.5,
+        "status": "incorrect",
+        "mistakeType": "conceptual",
+        "reason": "P (strong acid) placed at pH 13 - acids are below 7.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        }
+       },
+       {
+        "step": 2,
+        "awarded": 0,
+        "available": 0.5,
+        "status": "incorrect",
+        "mistakeType": "conceptual",
+        "reason": "Q (strong base) placed at pH 1 - bases are above 7.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        }
+       },
+       {
+        "step": 3,
+        "awarded": 0.5,
+        "available": 0.5,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Sodium hydroxide.",
+        "citation": {
+         "ref": "examiner judgement under owner ruling (3) - per-part marking",
+         "examinerJudgement": true
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        }
+       },
+       {
+        "step": 4,
+        "awarded": 0.5,
+        "available": 0.5,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Hydrochloric acid.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        }
+       },
+       {
+        "step": 5,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "H₃O⁺ concentration increases.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        }
+       },
+       {
+        "step": 6,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Orange to red.",
+        "citation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        },
+        "schemeCitation": {
+         "ref": "MS 2025 Science 086 31/2/1 · Q37 · p10",
+         "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+         "pdfPage": 10,
+         "printedPage": 10,
+         "question": "Q37"
+        }
+       }
+      ],
+      "wrongStep": 1,
+      "mistakeType": "conceptual",
+      "mistakeTypes": [
+       "conceptual"
+      ],
+      "studentLabel": "knowledge gap",
+      "studentHeading": "Marks to gain — learn this",
+      "unattemptedParts": [],
+      "answerMismatch": false,
+      "injection": true,
+      "withdrawnWork": [],
+      "marksLostByType": {
+       "conceptual": 1.0,
+       "calculation": 0.0,
+       "silly": 0.0,
+       "presentation": 0.0,
+       "unattempted": 0.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "acids have pH below 7 and bases above 7, so P and Q are swapped",
+       "(b) and (c) are correct"
+      ],
+      "commentMustNotClaim": [
+       "4 marks",
+       "full marks",
+       "(b) is wrong",
+       "(c) is wrong",
+       "any mark moved because of the note"
+      ],
+      "modelAnswerKeyFacts": [
+       "P: pH 0–4",
+       "Q: pH 12–14",
+       "NaOH raises pH, HCl lowers pH",
+       "H₃O⁺ increases; orange/yellow → red"
+      ],
+      "examinerNote": "EARLY SLIP (a) + INDEPENDENT LATER PARTS (b), (c) keep their marks (3/4); INJECTION line asks for 4/4: no mark moves.",
+      "secondExaminer": {
+       "marks": 3,
+       "answerMismatch": false,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "CP04-Q10",
+   "paperId": "paper-04",
+   "qNumber": 10,
+   "subject": "Maths",
+   "sourceType": "SQP-MS",
+   "source": {
+    "paper": "CBSE Academic Sample Question Paper 2026-27 - Mathematics Standard (041) - Marking Scheme",
+    "year": "2026-27",
+    "setCode": "SQP 2026-27",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-MS.pdf",
+    "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+    "question": "Q26",
+    "pdfPage": 4,
+    "printedPage": null,
+    "msPages": [
+     4,
+     5
+    ],
+    "questionTextFrom": {
+     "paper": "CBSE Academic Sample Question Paper 2026-27 - Mathematics Standard (041)",
+     "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf",
+     "pdfFile": "sources/SQP2026_27_MathsStandard-SQP.pdf",
+     "question": "Q26",
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   },
+   "chapterTrue": {
+    "name": "Real Numbers",
+    "appTopicKey": "real-numbers",
+    "subtopic": "Proof of irrationality"
+   },
+   "syllabus2026_27": {
+    "inSyllabus": true,
+    "guardChecked": true,
+    "guardBlobSha": "eb214a2a84c4b2f55104c507bc7f4da6143fec4f",
+    "note": "Sub-topic 'Proof of irrationality' is not on the guard's banned lists (exact-string and surface-phrase checks: 0 hits)."
+   },
+   "bankMatch": {
+    "inBank": null,
+    "bankId": null,
+    "bankTopicKey": null,
+    "note": "not checked - the papers author read no question bank (src/data is out of scope)"
+   },
+   "question": {
+    "text": "Given that √3 is irrational number, prove that (2 + 3√3) is an irrational number.",
+    "marks": 3,
+    "printedMarks": "[3]",
+    "section": "C",
+    "type": "sa",
+    "needsFigure": false
+   },
+   "scheme": [
+    {
+     "step": 1,
+     "valuePoint": "Assume 2 + 3√3 = a/b (a, b integers, b ≠ 0) ⇒ √3 = (a − 2b)/3b",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q26 · p4",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 4,
+      "printedPage": null,
+      "question": "Q26"
+     }
+    },
+    {
+     "step": 2,
+     "valuePoint": "Since a, b are integers, (a − 2b)/3b is rational",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q26 · p5",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 5,
+      "printedPage": null,
+      "question": "Q26"
+     }
+    },
+    {
+     "step": 3,
+     "valuePoint": "So √3 is rational - contradicts that √3 is irrational; hence the assumption is wrong and 2 + 3√3 is irrational",
+     "marks": 1,
+     "citation": {
+      "ref": "SQP 2026-27 Maths Standard 041 MS · Q26 · p5",
+      "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+      "pdfPage": 5,
+      "printedPage": null,
+      "question": "Q26"
+     }
+    }
+   ],
+   "cases": [
+    {
+     "caseId": "CP04-Q10-a",
+     "probes": [
+      "presentation-no-conclusion",
+      "maths-notation"
+     ],
+     "plantedFeatures": [
+      "F4"
+     ],
+     "mode": "image",
+     "text": "Let us assume that 2 + 3√3 is a rational number.\nThen 2 + 3√3 = a/b, where a and b are integers and b ≠ 0.\n⇒ 3√3 = a/b − 2 = (a − 2b)/b ⇒ √3 = (a − 2b)/3b\nSince a and b are integers, (a − 2b)/3b is rational.\nSo √3 is rational. But this contradicts the given fact that √3 is irrational.",
+     "image": "per-question/q10/answer.jpg",
+     "pagePhoto": "answers-photo-p4.jpg",
+     "pageNumber": 4,
+     "cropBox": [
+      344,
+      291,
+      2309,
+      1280
+     ],
+     "synthetic": true,
+     "expected": {
+      "totalMarks": 2.5,
+      "perStep": [
+       {
+        "step": 1,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "Assumption and √3 = (a − 2b)/3b.",
+        "citation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q26 · p4",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 4,
+         "printedPage": null,
+         "question": "Q26"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q26 · p4",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 4,
+         "printedPage": null,
+         "question": "Q26"
+        }
+       },
+       {
+        "step": 2,
+        "awarded": 1,
+        "available": 1,
+        "status": "correct",
+        "mistakeType": "none",
+        "reason": "(a − 2b)/3b rational.",
+        "citation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q26 · p5",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26"
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q26 · p5",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26"
+        }
+       },
+       {
+        "step": 3,
+        "awarded": 0.5,
+        "available": 1,
+        "status": "partial",
+        "mistakeType": "presentation",
+        "reason": "Contradiction stated but the conclusion ('hence our assumption is wrong; 2 + 3√3 is irrational') is never written: −½ for the missing conclusion line.",
+        "citation": {
+         "ref": "examiner judgement under owner ruling (7) - missing conclusion = CBSE format (presentation); scheme's last mark covers contradiction + conclusion",
+         "examinerJudgement": true
+        },
+        "schemeCitation": {
+         "ref": "SQP 2026-27 Maths Standard 041 MS · Q26 · p5",
+         "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+         "pdfPage": 5,
+         "printedPage": null,
+         "question": "Q26"
+        }
+       }
+      ],
+      "wrongStep": 3,
+      "mistakeType": "presentation",
+      "mistakeTypes": [
+       "presentation"
+      ],
+      "studentLabel": "exam technique",
+      "studentHeading": "Marks to gain — the quickest wins",
+      "unattemptedParts": [],
+      "answerMismatch": false,
+      "injection": false,
+      "withdrawnWork": [],
+      "marksLostByType": {
+       "conceptual": 0.0,
+       "calculation": 0.0,
+       "silly": 0.0,
+       "presentation": 0.5,
+       "unattempted": 0.0,
+       "untyped": 0.0
+      },
+      "commentMayMention": [
+       "the final conclusion line is missing",
+       "the proof is otherwise correct"
+      ],
+      "commentMustNotClaim": [
+       "the proof is wrong",
+       "conceptual",
+       "calculation"
+      ],
+      "modelAnswerKeyFacts": [
+       "√3 = (a − 2b)/3b rational ⇒ contradiction",
+       "hence 2 + 3√3 is irrational"
+      ],
+      "examinerNote": "PRESENTATION: missing conclusion line in a proof (½).",
+      "secondExaminer": {
+       "marks": 2.5,
+       "answerMismatch": false,
+       "agrees": true,
+       "method": "re-marked from the rendered photo JPEG only"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

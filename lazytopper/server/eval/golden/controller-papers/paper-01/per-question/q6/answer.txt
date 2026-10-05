@@ -1,0 +1,9 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+[struck] (a) Woman FF × Man ff → all children Ff, so all have free earlobes
+(a) Free earlobe (F) is dominant, attached earlobe (f) is recessive.
+Man (attached) is ff. Woman (free) must be Ff because half the children are attached.
+Parents:   Ff   ×   ff
+Gametes:   F, f       f, f
+F₁:   Ff,  Ff,  ff,  ff
+Progeny: Ff (free) : ff (attached) = 1 : 1, i.e. 50% : 50%
+(b) Father – ff,  Mother – Ff

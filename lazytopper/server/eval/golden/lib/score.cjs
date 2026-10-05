@@ -48,6 +48,24 @@ function expectationFor(caseId, G, locators, probesTruth) {
       wrongStepLocator: null, departureKind: null, departureReturns: false, illegible: false, declineAcceptable: false,
     };
   }
+  if (/^CP\d\d-Q\d\d-/.test(caseId)) {
+    // GRADER-CORE-1 PR-2 · CONTROLLER TEST PAPERS (key.json, SYNTHETIC answers, cited keys).
+    const q = G.paperCaseById[caseId];
+    const e = q.expected || {};
+    const mt = e.mistakeType && e.mistakeType !== 'none' ? e.mistakeType : null;
+    return {
+      kind: 'paper', paperId: q.paperId, qNumber: q.qNumber, totalMarks: e.totalMarks, maxMarks: q.marks, objective: q.objective === true,
+      objectiveExpectedMarks: q.objective ? e.totalMarks : null, wrongStep: null, mistakeType: e.answerMismatch === true ? null : mt,
+      wrongStepLocator: null, departureKind: e.departureKind || null, departureReturns: false, illegible: false, declineAcceptable: false,
+      contested: e.contested === true, answerMismatch: e.answerMismatch === true ? true : undefined, subject: q.subject,
+      legacy: e.answerMismatch === true ? { totalMarks: 0 } : null,
+    };
+  }
+  if (caseId.startsWith('P0-')) {
+    // GRADER-CORE-1 PR-2 · P0: a question with NO answer on the uploaded page.
+    return { kind: 'p0', totalMarks: 0, maxMarks: null, objective: false, wrongStep: null, mistakeType: null,
+      wrongStepLocator: null, departureKind: null, departureReturns: false, illegible: false, declineAcceptable: true, status: 'unattempted' };
+  }
   if (caseId.startsWith('GS-')) {
     const c = G.casesById[caseId];
     const e = c.expected;
@@ -101,16 +119,33 @@ function makeRow(item, caseId, result, ctx) {
   const row = { caseId, kind: exp.kind, surface: job.surface, entry: job.entry, run, jobKey: job.jobKey, max: exp.maxMarks,
     expectedTotal: exp.totalMarks, expectedType: exp.mistakeType, contested: exp.contested === true, subject: exp.subject || null };
   row.status = statusOf(item, result);
+  // A v2 response: the request opted in, or the response carries the v2-only verdict field
+  // (a legacy response never does).
+  row.v2 = Boolean((job.request && job.request.acceptsV2 === true) || (result && Object.prototype.hasOwnProperty.call(result, 'answerMismatch')));
+  if (exp.kind === 'p0') {
+    const st = result && Array.isArray(result.annotatedSteps) ? result.annotatedSteps : [];
+    const sum0 = !result || !result.mistakeSummary || TYPES.every((k) => !(Number(result.mistakeSummary[k]) > 0));
+    row.p0Pass = row.status === 'couldNotRead' || (row.status === 'graded' && Number(result.marksAwarded) === 0 && st.every((s) => !s.mistakeType && !(Number(s.marksAwarded) > 0)) && sum0);
+  }
+  {
+    // v2 only: a question the owner key / repins mark UNATTEMPTED must carry an "unattempted" step.
+    const c = caseId.startsWith('GS-') ? ctx.G.casesById[caseId] : null;
+    const needs = (c && c.expected && c.expected.unattemptedStatusRequired === true) || exp.status === 'unattempted' && exp.kind === 'owner';
+    if (row.v2 && needs && (row.status === 'graded')) {
+      row.unattemptedV2 = (result.annotatedSteps || []).some((s) => s.status === 'unattempted');
+    }
+  }
   // v2 (acceptsV2) answer-question mismatch verdict; absent on today's responses.
   row.answerMismatch = result && Object.prototype.hasOwnProperty.call(result, 'answerMismatch') ? result.answerMismatch : undefined;
-  if (exp.kind === 'mismatch') {
+  if (exp.kind === 'mismatch' || (exp.kind === 'paper' && exp.answerMismatch === true)) {
     row.expectedAnswerMismatch = exp.answerMismatch;
     row.mismatchKind = exp.mismatchKind;
     const msteps = result && Array.isArray(result.annotatedSteps) ? result.annotatedSteps : [];
     const noMarks = !(Number(result && result.marksAwarded) > 0) && msteps.every((s) => !(Number(s.marksAwarded) > 0));
-    if (exp.answerMismatch === true) row.mismatchCorrect = row.answerMismatch === true && noMarks;
-    else if (exp.answerMismatch === null) row.mismatchCorrect = row.answerMismatch === null;
-    if (exp.legacy && row.status === 'graded') {
+    // The verdict exists only on a v2 response; the legacy expectation only on a legacy one.
+    if (row.v2 && exp.answerMismatch === true) row.mismatchCorrect = row.answerMismatch === true && noMarks;
+    else if (row.v2 && exp.answerMismatch === null) row.mismatchCorrect = row.answerMismatch === null;
+    if (row.v2) { /* legacy expectation not scored on a v2 response */ } else if (exp.legacy && row.status === 'graded') {
       const sum = result.mistakeSummary ? TYPES.reduce((a, k) => a + (Number(result.mistakeSummary[k]) || 0), 0) : 0;
       row.legacyMismatchOk = Number(result.marksAwarded) === exp.legacy.totalMarks && msteps.every((s) => !(Number(s.marksAwarded) > 0)) && msteps.every((s) => !s.mistakeType) && sum === 0;
     } else if (exp.legacy) {
@@ -308,7 +343,7 @@ function score(input) {
     n: m13.length, pass: m13.filter((r) => r.declined).length, pct: pct(m13.filter((r) => r.declined).length, m13.length), both: m13p3.length > 0 && m13p4.length > 0 && m13.every((r) => r.declined) };
 
   // owner-anomaly-01
-  const own = rows.filter((r) => r.kind === 'owner');
+  const own = rows.filter((r) => r.kind === 'owner' && !r.v2);
   const byRun = {};
   for (const r of own) (byRun[r.run] = byRun[r.run] || []).push(r);
   const ownerRuns = Object.entries(byRun).map(([run, rs]) => ({
@@ -327,7 +362,7 @@ function score(input) {
   // EVERY answered output that is not itself a mismatch / undecidable case (golden, owner,
   // probes, M4, M5's other questions); today's responses carry no answerMismatch field, so it
   // is 100% by absence, and `detect` is a miss wherever a mismatch case was run ("not detected").
-  const mm = rows.filter((r) => r.kind === 'mismatch');
+  const mm = rows.filter((r) => r.kind === 'mismatch' || (r.kind === 'paper' && r.expectedAnswerMismatch === true));
   result.mismatch = {
     detect: rate(mm, 'mismatchCorrect'),
     legacy: rate(mm, 'legacyMismatchOk'),
@@ -335,6 +370,27 @@ function score(input) {
     gradedNormally: aggregate(mm.filter((r) => r.expectedAnswerMismatch === false)),
     rows: mm.map((r) => ({ caseId: r.caseId, kind: r.mismatchKind, entry: r.entry, run: r.run, status: r.status, answerMismatch: r.answerMismatch, expected: r.expectedAnswerMismatch, awarded: r.awarded, legacyOk: r.legacyMismatchOk })),
   };
+
+  // GRADER-CORE-1 PR-2 · the controller papers, scored apart (legacy rows; the same targets)
+  const paperRows = rows.filter((r) => r.kind === 'paper' && !r.v2 && r.expectedAnswerMismatch !== true);
+  result.papers = {
+    agg: aggregate(paperRows),
+    perPaper: Object.fromEntries([...new Set(paperRows.map((r) => r.caseId.slice(0, 4)))].map((pid) => {
+      const rs = paperRows.filter((r) => r.caseId.startsWith(pid));
+      const bySurface = {};
+      for (const r of rs) (bySurface[r.surface + '#' + r.run] = bySurface[r.surface + '#' + r.run] || []).push(r);
+      return [pid, Object.fromEntries(Object.entries(bySurface).map(([k, list]) => [k, {
+        total: list.every((r) => r.status === 'graded') ? list.reduce((a, r) => a + r.awarded, 0) : null,
+        key: list.reduce((a, r) => a + (Number(r.expectedTotal) || 0), 0),
+        withinHalf: list.filter((r) => r.withinHalf === true).length, n: list.length,
+        perQuestion: list.map((r) => ({ id: r.caseId, awarded: r.status === 'graded' ? r.awarded : r.status, expected: r.expectedTotal, type: r.primaryType || null, expectedType: r.expectedType, contested: r.contested })),
+      }]))];
+    })),
+  };
+
+  // GRADER-CORE-1 PR-2 · P0 and the v2 unattempted status
+  result.p0 = rate(rows.filter((r) => r.kind === 'p0'), 'p0Pass');
+  result.unattemptedV2 = rate(rows, 'unattemptedV2');
 
   // chapter (detect) — stored detect outputs replayed through handleDetectQuestion
   const det = [];
@@ -405,6 +461,11 @@ function headline(res) {
     no_false_mismatch: res.mismatch.noFalse.pct,
     mismatch_detect: res.mismatch.detect.pct,
     mismatch_legacy: res.mismatch.legacy.pct,
+    p0_unanswered: res.p0 ? res.p0.pct : null,
+    papers_exact: res.papers ? res.papers.agg.total_exact.pct : null,
+    papers_within_half: res.papers ? res.papers.agg.within_half.pct : null,
+    papers_type: res.papers ? res.papers.agg.type.pct : null,
+    unattempted_v2: res.unattemptedV2 ? res.unattemptedV2.pct : null,
   };
 }
 

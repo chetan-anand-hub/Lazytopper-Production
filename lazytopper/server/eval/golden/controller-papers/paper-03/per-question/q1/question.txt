@@ -1,0 +1,6 @@
+Q1. [1 marks]
+A cross made between two pea plants produces 50% tall and 50% short pea plants. The gene combination of the parental pea plants must be:
+(A) Tt and Tt
+(B) TT and Tt
+(C) Tt and tt
+(D) TT and tt

@@ -1,0 +1,7 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+Multiples of both 4 and 5 are multiples of 20: 20, 40, 60, …, 380
+a = 20, d = 20, aₙ = 380
+20 + (n − 1) × 20 = 380
+n − 1 = 18 ⇒ n = 19
+S₁₉ = 19/2 [20 + 380]
+= 19 × 200 = 3600

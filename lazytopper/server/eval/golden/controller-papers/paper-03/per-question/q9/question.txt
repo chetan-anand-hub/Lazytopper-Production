@@ -1,0 +1,6 @@
+Q9. [4 marks]
+Case study: In a technology park in Hyderabad, a company installed a circular meditation garden for its employees. Arjun, a designer, stood at a point P outside the garden and drew two tangents PA and PB to the circular boundary. The radius of the garden is 9 m, and the distance of point P from the centre O is 18 m. For preparing safety guidelines, Arjun needed the lengths of the tangents. During a demonstration to interns, he asked them to compute the angle formed between the two tangents using the properties of circle.
+Based on the above information, answer the following questions:
+(i) What is the measure of ∠OAP? [1]
+(ii) Calculate the length of the tangent PA. [1]
+(iii) Calculate the measure of ∠AOB. [2]

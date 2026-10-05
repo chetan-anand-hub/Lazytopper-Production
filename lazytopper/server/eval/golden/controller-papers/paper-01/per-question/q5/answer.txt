@@ -1,0 +1,7 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+Let the x-axis divide A(−4, −8) and B(−1, 7) in k : 1 at P(x, 0).
+P = ((k(−1) + 1(−4))/(k + 1), (k(7) + 1(−8))/(k + 1)) = ((−k − 4)/(k + 1), (7k − 8)/(k + 1))
+P lies on x-axis ⇒ (7k − 8)/(k + 1) = 0 ⇒ 7k − 8 = 0 ⇒ k = 8/7
+∴ Ratio = 8 : 7
+x = (−8/7 − 4)/(8/7 + 1) = (−36/7)/(15/7) = −36/15 = −12/5
+Point of division = (−12/5, 0)

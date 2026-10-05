@@ -1,0 +1,5 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+(i) The most common performance range (modal class) is 30 – 40.
+(ii) cf : 3, 9, 21, 36, 50.   N = 50, N/2 = 25
+25 lies in cf 36 ⇒ median class = 30 – 40
+(iii) Don't know.

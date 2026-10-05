@@ -1,0 +1,5 @@
+Q5. [3 marks]
+A 15 V battery is connected in series with three resistors of 2 Ω, 3 Ω, and 5 Ω. Calculate:
+(A) The total resistance in the circuit. [1]
+(B) The total current supplied by the battery. [1]
+(C) The voltage drop across the 3 Ω resistor. [1]

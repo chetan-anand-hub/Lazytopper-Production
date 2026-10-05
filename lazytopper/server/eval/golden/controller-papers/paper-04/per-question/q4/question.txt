@@ -1,0 +1,2 @@
+Q4. [2 marks]
+ABCD is a trapezium in which AB is parallel to DC and its diagonals intersect each other at the point O. Show that AO/BO = CO/DO.

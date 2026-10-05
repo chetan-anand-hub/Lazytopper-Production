@@ -30,6 +30,25 @@ const crypto = require('crypto');
 const { buildPlan, digest } = require('./lib/planner.cjs');
 const { createDriver } = require('./lib/driver.cjs');
 const { redact } = require('./lib/redact.cjs');
+const { PRICES } = require('./lib/score.cjs');
+
+// GRADER-CORE-1 PR-2 (controller decision D19): a RUPEE budget. Spend = tokens x list price
+// (lib/score.cjs PRICES; thinking billed at the output rate) x 88 INR/USD, summed over this PR's
+// ledger lines. --budget-inr N stops the run before a job once spend reaches N.
+const USD_INR = 88;
+function ledgerSpendInr(file, pr) {
+  let inr = 0;
+  if (!fs.existsSync(file)) return 0;
+  for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    let r; try { r = JSON.parse(line); } catch { continue; }
+    if (pr && r.pr !== pr) continue;
+    const p = PRICES[r.model];
+    if (!p) continue;
+    inr += ((Number(r.promptTokens) || 0) * p.in + ((Number(r.outputTokens) || 0) + (Number(r.thinkingTokens) || 0)) * p.out) / 1e6 * USD_INR;
+  }
+  return inr;
+}
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -40,6 +59,12 @@ const CONFIGS = {
   // B/C were specified as gemini-2.5-pro. On 2026-10-05 the eval key's project got HTTP 404 "This model models/gemini-2.5-pro is no longer available to new users. Please update your code to use models/gemini-3.1-pro-preview" (one recorded call), so B/C run the provider-named successor and say so in every label.
   B: { id: 'B-pro31-dynamic', model: 'gemini-3.1-pro-preview', thinkingBudget: null, label: 'gemini-3.1-pro-preview (substitute: gemini-2.5-pro refused for this key), default thinking' },
   C: { id: 'C-pro31-cap2048', model: 'gemini-3.1-pro-preview', thinkingBudget: 2048, label: 'gemini-3.1-pro-preview (substitute), thinkingBudget 2048 on grading calls' },
+  // GRADER-CORE-1 PR-2 (owner ruling 2026-10-05): the three configurations compared under the
+  // NEW rules. The core itself applies the thinking cap to its grading model (core: true), so the
+  // router caps only its strong model and the live client injects nothing.
+  PA: { id: 'PR2-a-flash', model: 'gemini-2.5-flash', thinkingBudget: null, core: true, gradingMode: 'single', label: 'PR-2 (a): gemini-2.5-flash only, dynamic thinking' },
+  PB: { id: 'PR2-b-pro2048', model: 'gemini-3.1-pro-preview', thinkingBudget: 2048, core: true, gradingMode: 'single', label: 'PR-2 (b): gemini-3.1-pro-preview only, thinking capped at 2048' },
+  PC: { id: 'PR2-c-router', model: 'gemini-3.1-pro-preview', thinkingBudget: 2048, core: true, gradingMode: 'router', lightModel: 'gemini-2.5-flash', label: 'PR-2 (c): router — known MCQ picks no call; typed 1-2 mark -> gemini-2.5-flash; 3-5 mark, proofs, photos -> gemini-3.1-pro-preview capped 2048' },
 };
 
 function out(...a) { process.stdout.write(redact(a.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ')) + '\n'); }
@@ -67,6 +92,7 @@ async function main() {
   const ledger = arg('--ledger', path.join(os.homedir(), 'OneDrive', 'Desktop', 'diff', 'a15', 'calls', 'a15-pr1-golden-eval.jsonl'));
   const cap = Number(arg('--cap', '1200'));
   const maxCalls = arg('--max-calls') != null ? Number(arg('--max-calls')) : null;
+  const budgetInr = arg('--budget-inr') != null ? Number(arg('--budget-inr')) : null;
   fs.mkdirSync(runDir, { recursive: true });
   fs.mkdirSync(path.dirname(ledger), { recursive: true });
 
@@ -78,17 +104,21 @@ async function main() {
       used: () => 0, sentThisProcess: () => 0, stats: {}, resolvedTimeoutMs: null,
     };
   } else {
-    client = require('./lib/live.cjs').createLiveClient({ model: cfg.model, thinkingBudget: cfg.thinkingBudget, ledgerFile: ledger, cap, maxCalls, configId: cfg.id });
+    client = require('./lib/live.cjs').createLiveClient({ model: cfg.model, thinkingBudget: cfg.core ? null : cfg.thinkingBudget, ledgerFile: ledger, cap, maxCalls, configId: cfg.id, pr: arg('--pr', 'PR-1') });
   }
-  const driver = createDriver({ callGemini: client.callGemini, model: cfg.model });
+  const driver = cfg.core
+    ? createDriver({ callGemini: client.callGemini, model: 'gemini-2.5-flash', gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
+    : createDriver({ callGemini: client.callGemini, model: cfg.model });
 
-  const serverFiles = ['routes/checkSolution.cjs', 'routes/objectiveScoring.cjs', 'services/geminiClient.cjs', 'services/serverConfig.cjs', 'services/httpUtils.cjs', 'mentorImageSupport.cjs', 'services/serverUtils.cjs'];
+  const serverFiles = ['grading/rules.cjs', 'grading/prompt.cjs', 'grading/postprocess.cjs', 'grading/core.cjs', 'grading/verify.cjs', 'grading/schema.cjs', 'grading/fence.cjs', 'routes/checkSolution.cjs', 'routes/objectiveScoring.cjs', 'services/geminiClient.cjs', 'services/serverConfig.cjs', 'services/httpUtils.cjs', 'mentorImageSupport.cjs', 'services/serverUtils.cjs'];
   const serverDir = path.join(__dirname, '..', '..');
   const lfOnlyHash = (f) => crypto.createHash('sha256').update(fs.readFileSync(path.join(serverDir, f), 'utf8').replace(/\r\n/g, '\n')).digest('hex');
   const manifestPath = path.join(runDir, 'manifest.json');
   const manifest = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : {
     runId, config: cfg, createdAt: new Date().toISOString(), dry,
-    note: 'Runs under the CURRENT (pre-GRADER-CORE-1) prompts and post-processing: these outputs measure the model\'s reading and judgement under today\'s rules.',
+    note: cfg.core
+      ? 'Runs under the GRADER-CORE-1 PR-2 grading core (one prompt builder, one post-processing path, the owner rulings of 2026-10-05).'
+      : 'Runs under the CURRENT (pre-GRADER-CORE-1) prompts and post-processing: these outputs measure the model\'s reading and judgement under today\'s rules.',
     serverFileSha256LF: Object.fromEntries(serverFiles.map((f) => [f, lfOnlyHash(f)])),
     timeoutMs: client.resolvedTimeoutMs, concurrency, runsPlanned: runs, ledger: path.basename(ledger), stubs: 'no fair-use/idempotency/entitlement middleware (handler called directly); solution cache returns null (production with no DATABASE_URL)',
   };
@@ -120,6 +150,7 @@ async function main() {
       if (!dry && client.keyFailure && client.keyFailure()) { stopped = true; out('KEY FAILURE (HTTP ' + client.keyFailure().status + ') — stopping the run; no further requests'); break; }
       if (!dry && client.used() >= cap) { stopped = true; out('CAP reached — stopping'); break; }
       if (!dry && maxCalls != null && client.sentThisProcess() >= maxCalls) { stopped = true; out('--max-calls reached — stopping'); break; }
+      if (!dry && budgetInr != null && ledgerSpendInr(ledger, arg('--pr', 'PR-1')) >= budgetInr) { stopped = true; out('BUDGET Rs ' + budgetInr + ' reached — stopping'); break; }
       const { out: res, calls } = await client.runInContext({ fn: job.handler, jobKey: job.jobKey, run }, () => driver.run(job));
       const rec = {
         jobKey: job.jobKey, run, entry: job.entry, surface: job.surface, caseIds: job.caseIds, qNumbers: job.qNumbers,
@@ -141,7 +172,8 @@ async function main() {
   manifest.completedAt = new Date().toISOString();
   manifest.httpStats = client.stats;
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 1) + '\n');
-  out('golden live: finished ' + finished + ' jobs; ledger lines now ' + client.used() + '; stats ' + JSON.stringify(client.stats));
+  out('golden live: finished ' + finished + ' jobs; ledger lines now ' + client.used() + '; stats ' + JSON.stringify(client.stats) + '; spend Rs ' + ledgerSpendInr(ledger, arg('--pr', 'PR-1')).toFixed(1) + ' (' + arg('--pr', 'PR-1') + ' ledger lines)');
 }
 
-main().catch((e) => { out('golden live crashed: ' + ((e && e.stack) || e)); process.exit(1); });
+module.exports = { ledgerSpendInr };
+if (require.main === module) main().catch((e) => { out('golden live crashed: ' + ((e && e.stack) || e)); process.exit(1); });

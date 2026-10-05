@@ -1,0 +1,8 @@
+Q9. [4 marks]
+Case study: A school conducted a weekly test for Class X students, before the commencement of the pre-board examination and recorded their scores (out of 50). To analyse performance patterns, the academic coordinator grouped the marks into intervals. The grouped frequency distribution is as below:
+Marks obtained | 0 – 10 | 10 – 20 | 20 – 30 | 30 – 40 | 40 – 50
+Number of students | 3 | 6 | 12 | 15 | 14
+Based on the above information, answer the following questions:
+(i) Identify the class with the most common performance range. [1]
+(ii) Find the class interval containing the median. [1]
+(iii) What is the average performance of the students? [2]

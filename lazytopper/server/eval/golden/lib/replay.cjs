@@ -43,8 +43,14 @@ class ReplayExhaustedError extends Error {
 async function replayJob(planJob, record, opts = {}) {
   const queue = (record.calls || []).slice();
   let served = 0;
-  const callGemini = opts.callGeminiOverride || (async () => {
-    const next = queue.shift();
+  const callGemini = opts.callGeminiOverride || (async (model) => {
+    // GRADER-CORE-1 PR-2 router: one job may call two models, in parallel groups. A stored
+    // call is matched to the request by MODEL (first unconsumed call for that model), so
+    // replay does not depend on which group finished first. One-model jobs are unchanged.
+    const modelOf = (c) => (c && c.http && c.http[0] && c.http[0].model) || null;
+    let at = queue.findIndex((c) => modelOf(c) === model);
+    if (at < 0) at = 0;
+    const next = queue.splice(at, 1)[0];
     if (!next) throw new ReplayExhaustedError(record.jobKey);
     served += 1;
     if (next.ok) return { text: next.text, raw: { candidates: [{ finishReason: next.finishReason || null }] } };

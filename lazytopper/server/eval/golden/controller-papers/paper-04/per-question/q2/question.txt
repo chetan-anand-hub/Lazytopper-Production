@@ -1,0 +1,7 @@
+Q2. [1 marks]
+Assertion (A): The apparent depth of a coin in water is less than its real depth.
+Reason (R): Light bends away from the normal when it travels from water to air.
+(A) Both A and R are true, and R is the correct explanation of A.
+(B) Both A and R are true, and R is not the correct explanation of A.
+(C) A is true but R is false.
+(D) A is false but R is true.
