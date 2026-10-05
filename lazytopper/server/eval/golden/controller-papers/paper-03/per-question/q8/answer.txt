@@ -1,0 +1,7 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+Height of conical part = 13.5 − 3 = 10.5 m
+Slant height l = √(14² + 10.5²) = √(196 + 110.25) = √306.25 = 17.5 m
+CSA of cone = πrl = 22/7 × 14 × 17.5 = 770 m²
+CSA of cylinder = 2πrh = 2 × 22/7 × 14 × 3 = 264 m²
+Total canvas = 770 + 264 + 62 = 1096 m²
+Cost = 250 × 1096 = ₹ 274000

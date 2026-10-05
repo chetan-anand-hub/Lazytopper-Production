@@ -1,0 +1,2 @@
+Q10. [2 marks]
+Consider two lamps A and B of rating 50 W; 220 V and 25 W; 220 V respectively. Find the ratio of the resistances of the two lamps (i.e. R_A : R_B).

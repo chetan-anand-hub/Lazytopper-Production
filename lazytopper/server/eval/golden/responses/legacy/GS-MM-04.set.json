@@ -1,0 +1,74 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-04",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 1,
+   "percentage": 25,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Find the 4th, 5th, and 6th terms of the AP",
+     "studentWork": "a = 300, d = 50.\na₄ = 300 + 3 × 50 = 450 m, a₅ = 500 m, a₆ = 550 m.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct terms: a₄ = 450 m, a₅ = 500 m, a₆ = 550 m",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Determine the distance of the 8th round",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Unattempted",
+     "mistakeType": null,
+     "correctedWorking": "a₈ = a + 7d = 300 + 7(50) = 300 + 350 = 650 m",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculate total distance completed using sum formula",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "× Unattempted",
+     "mistakeType": null,
+     "correctedWorking": "S₁₀ = (10/2)[2(300) + (10 - 1)(50)] = 5[600 + 450] = 5 × 1050 = 5250 m",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (i) Determine 4th / 5th / and 6th terms of the AP (1); (ii) Determine distance of 8th round using a₈ = a + 7d (1); (iii) Formula / substitution / and calculation of total distance S₁₀ (or S₆) (2). Subpart (i) is answered accurately with full working and units. Ensure you attempt all parts of a case-study question to secure full marks.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 1,
+ "gradedMarksTotal": 4,
+ "worksheetTotalMarks": 4,
+ "summary": "You have solved the first subpart on identifying AP terms accurately. Make sure to complete all subparts of case-study questions in future attempts to maximise your marks.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

@@ -1,0 +1,36 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Probability of drawing a red ball and a yellow ball",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "Unattempted",
+   "mistakeType": null,
+   "correctedWorking": "Total balls = 4 + 3 + 2 = 9. (i) P(red) = 4/9. (ii) P(yellow) = 2/9.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Total number of possible outcomes = 9 and P(red) = 4/9 (1); P(yellow) = 2/9 (1). This question was left completely unattempted. Remember that writing down the total number of outcomes and formula for probability can earn you valuable step marks.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

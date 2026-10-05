@@ -1,0 +1,428 @@
+{
+ "ok": true,
+ "worksheetId": "ci:GOLDEN-CP-paper-02",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Selection of the correct MCQ option",
+     "studentWork": "Ans: (A) or (C)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Multiple options provided",
+     "mistakeType": null,
+     "correctedWorking": "Ans: (A) 10/9",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (A) (1). Offering multiple alternative options in an objective question invalidates your answer. Commit to a single option.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Selection of option (A)",
+     "studentWork": "Ans: (A)",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (A) (1). Correct option selected. The replaced option is clearly struck through.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it earns no marks — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Convert dimensions to cm and find prime factors",
+     "studentWork": "Length = 9.75 m = 975 cm, Breadth = 6.75 m = 675 cm, Height = 5.25 m = 525 cm\nLongest ruler = HCF (975, 675, 525)\n975 = 3 × 5² × 13\n675 = 3³ × 5²\n525 = 3 × 5² × 7",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct prime factorisation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculate HCF and state longest ruler",
+     "studentWork": "HCF = 3³ × 5² = 675 (product of highest powers of common prime factors)\n∴ Longest ruler = 675 cm = 6.75 m",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Confused HCF with LCM definition (took highest powers instead of lowest powers)",
+     "mistakeType": "conceptual",
+     "correctedWorking": "HCF = 3¹ × 5² = 75 cm = 0.75 m\n∴ Longest ruler = 75 cm (or 0.75 m)",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Identification of HCF and prime factorisation of 975 /  675 / and 525 (1); Calculation of HCF as 75 cm (or 0.75 m) and final statement (1). Prime factorisation was correct, but HCF is the product of the lowest powers of common prime factors (3 × 5² = 75 cm), not the highest powers.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 5,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Calculation of equivalent series resistance",
+     "studentWork": "(A) In series, R = R₁ + R₂ + R₃ = 2 + 3 + 5 = 10 Ω",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculation of total current using Ohm's law",
+     "studentWork": "(B) I = V / R = 18 / 10 = 1.8 A",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Copied V as 18 instead of 15",
+     "mistakeType": "silly",
+     "correctedWorking": "I = V / R = 15 / 10 = 1.5 A",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculation of voltage drop across 3 Ω resistor",
+     "studentWork": "(C) V₃ = I × R₃ = 1.8 × 3 = 5.4 V",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ ECF: correctly calculated from student's value of I",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (A) Total resistance R = 10 Ω (1); (B) Total current I = V / R = 15 / 10 = 1.5 A (1); (C) Voltage drop across 3 Ω resistor V = I × R = 4.5 V (1). Parts (A) and (C) were executed very well. In part (B), you miscopied the voltage as 18 V instead of the given 15 V.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 6,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 3,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Determine sum and product of zeroes",
+     "studentWork": "α + β = -(-8)/2 = 4, αβ = 5/2",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Simplify the algebraic expression",
+     "studentWork": "(α + 1/β)(β + 1/α) = (αβ + 1)/β × (αβ + 1)/α = (αβ + 1)² / (αβ)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Valid algebraic reformulation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Substitute values and evaluate",
+     "studentWork": "= ((5/2) + 1)² / (5/2) = (49/4) / (5/2) = (49/4) × (2/5) = 49/10",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Finding sum and product of roots: α + β = 4 / αβ = 5/2 (1); Algebraic expansion or simplification of (α + 1/β)(β + 1/α) (1); Correct substitution and evaluation to 49/10 (1). Neat and elegant solution using an efficient simplification method.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 7,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Name parts of hind-brain",
+     "studentWork": "(a) The parts of hind-brain are pons, medulla and cerebellum.",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Identify part controlling involuntary actions (medulla)",
+     "studentWork": "(b)",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "Unattempted",
+     "mistakeType": null,
+     "correctedWorking": "Medulla",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (a) Three parts of hind-brain: pons / cerebellum / medulla (½ mark each) (1.5); (b) Medulla (or medulla oblongata) (0.5). Part (a) is completely correct. Do not leave sub-part (b) unattempted; medulla controls blood pressure and salivation.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 8,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 4,
+   "percentage": 80,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Formulate quadratic equation",
+     "studentWork": "Let the uniform width of the grass strip be x m.\nLength of pool = (50 - 2x) m, breadth of pool = (40 - 2x) m\nArea of park - area of pool = area of grass strip\n50 × 40 - (50 - 2x)(40 - 2x) = 1184\n2000 - (2000 - 180x + 4x²) = 1184\n180x - 4x² = 1184\nx² - 45x + 296 = 0",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct quadratic equation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Solve quadratic equation and reject x = 37",
+     "studentWork": "(x - 8)(x - 37) = 0 ⇒ x = 8 or x = 37\nx = 37 is rejected (40 - 2x would be negative) ⇒ x = 8",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct root found and valid contextual rejection",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculate pool dimensions",
+     "studentWork": "Length of pool = 50 - 16 = 36 m\nBreadth of pool = 40 - 16 = 24 m",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 1,
+     "teacherAnnotation": "½ 50 - 16 = 34 m, not 36 m",
+     "mistakeType": "calculation",
+     "correctedWorking": "Length of pool = 50 - 16 = 34 m\nBreadth of pool = 40 - 16 = 24 m",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Setting up dimensions and quadratic equation in standard form: x² − 45x + 296 = 0 (2); Factorising/solving for x and rejecting x = 37 with context: x = 8 m (1.5); Finding length (34 m) and breadth (24 m) of the pool (1.5). Great method and clear contextual rejection of the root. Watch out for simple subtraction: 50 − 16 = 34 m, not 36 m.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 9,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 2.5,
+   "percentage": 63,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Name phenomenon of splitting of white light",
+     "studentWork": "(a) Refraction of light.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× The phenomenon is dispersion, not just refraction",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Dispersion of light",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Reason for separation into spectrum",
+     "studentWork": "(b) Different colours of light bend through different angles with respect to the incident ray as they pass through the prism, so they get separated.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Labelled ray diagram of rainbow formation with arrows",
+     "studentWork": "(Diagram showing raindrop with labels: sunlight (white light), refraction + dispersion, internal reflection, violet, red, to observer)",
+     "status": "partial",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Ray arrows missing along the path of light",
+     "mistakeType": "presentation",
+     "correctedWorking": "Draw directional arrows on incoming sunlight, internally reflected rays, and emerging rays towards observer.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (a) Dispersion of light (1); (b) Different colours travel at different speeds / bend through different angles in glass (1); (c) Labelled ray diagram of rainbow formation showing refraction / dispersion / internal reflection / and ray direction arrows (2). Splitting of white light into constituent colours is called dispersion. Always remember to draw directional arrows on light rays in optical diagrams.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 9,
+ "gradedCount": 9,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 15,
+ "gradedMarksTotal": 23,
+ "worksheetTotalMarks": 23,
+ "summary": "You demonstrated solid algebraic and analytical capabilities in Q6 and Q8. Be mindful of transcription and simple arithmetic errors, always put arrows on optics ray diagrams, and ensure you answer the exact question asked on the paper.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

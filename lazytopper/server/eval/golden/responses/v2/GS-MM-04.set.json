@@ -1,0 +1,105 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-04",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 1,
+   "percentage": 25,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identify first term, common difference, and find the 4th, 5th, and 6th terms",
+     "studentWork": "(i) a = 300, d = 50. a₄ = 300 + 3 × 50 = 450 m, a₅ = 500 m, a₆ = 550 m.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly identified a and d, and computed the required terms accurately.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculate distance of the 8th round",
+     "studentWork": "",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "Unattempted sub-part.",
+     "mistakeType": null,
+     "correctedWorking": "a₈ = a + 7d = 300 + 7(50) = 300 + 350 = 650 m",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(ii)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculate total distance run after completing all 10 rounds",
+     "studentWork": "",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "Unattempted sub-part.",
+     "mistakeType": null,
+     "correctedWorking": "S₁₀ = (10/2)[2(300) + (10 - 1)(50)] = 5[600 + 450] = 5(1050) = 5250 m",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(iii)",
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Part (i) was executed correctly with clear working and appropriate units. Be sure to complete the remaining sub-parts (ii) and (iii) to secure all marks in case-study questions.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 3,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "(i) Correct calculation of 4th, 5th, and 6th terms (450 m, 500 m, 550 m)",
+     "marks": 1
+    },
+    {
+     "point": "(ii) Distance of the 8th round using a₈ = a + 7d = 650 m",
+     "marks": 1
+    },
+    {
+     "point": "(iii) Total distance using S_n formula: S₁₀ = 5250 m (or for 6 rounds: S₆ = 2550 m)",
+     "marks": 2
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 1,
+ "gradedMarksTotal": 4,
+ "worksheetTotalMarks": 4,
+ "summary": "Good start with an accurate solution to the first sub-part showing strong arithmetic progression fundamentals. Make sure to budget sufficient exam time to answer all sub-questions of the case study.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

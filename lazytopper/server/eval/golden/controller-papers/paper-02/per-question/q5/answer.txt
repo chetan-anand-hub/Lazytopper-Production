@@ -1,0 +1,4 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+(A) In series, R = R₁ + R₂ + R₃ = 2 + 3 + 5 = 10 Ω
+(B) I = V/R = 18/10 = 1.8 A
+(C) V₃ = I × R₃ = 1.8 × 3 = 5.4 V

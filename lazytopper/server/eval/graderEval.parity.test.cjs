@@ -21,6 +21,11 @@ const { createCheckSolutionRoute } = require('../routes/checkSolution.cjs');
 const { createHttpUtils, extractJsonObjectFromText } = require('../services/httpUtils.cjs');
 const { buildGeminiImagePart, validateMentorImagePayload } = require('../mentorImageSupport.cjs');
 
+// GRADER-CORE-1 PR-2 (C6): every request's fences carry a RANDOM nonce from crypto, so two
+// renders of one request differ in that nonce alone. Both sides of the byte comparison are
+// handed the SAME fixed nonce, which keeps the comparison exact.
+const FIXED_NONCE = () => 'paritynonce0000';
+
 // Production's prompt for a request, captured from the shipped handler with a stub model.
 // Built from the route module directly — NOT through the harness or its driver — so the
 // comparison is harness vs product, never harness vs itself.
@@ -37,6 +42,7 @@ async function productionPrompt(request) {
     extractJsonObjectFromText,
     buildGeminiImagePart,
     validateMentorImagePayload,
+    makeFenceNonce: FIXED_NONCE,
   });
   const res = { writeHead() {}, setHeader() {}, end() {} };
   await routes.handleGradeWorksheet({ body: JSON.parse(JSON.stringify(request)) }, res);
@@ -68,7 +74,7 @@ test('§1 BYTE EQUALITY — the harness renders exactly the prompt production se
   const questions = CASES.map((c, i) => ({ ...c.question, qNumber: i + 1 }));
   const req = independentRequest();
   req.questions.forEach((q, i) => { q.qNumber = i + 1; });
-  const harness = await renderPrompt(questions, 'Maths');
+  const harness = await renderPrompt(questions, 'Maths', { makeFenceNonce: FIXED_NONCE });
   const product = await productionPrompt(req);
   assert.ok(Array.isArray(product) && product.length > 0, 'CONTROL: production rendered no contents — the comparison would be vacuous');
   assert.ok(Array.isArray(harness) && harness.length > 0, 'the harness rendered no contents');
@@ -84,18 +90,20 @@ test('§1 BYTE EQUALITY — the harness renders exactly the prompt production se
 
 test('§2 NO THIRD COPY — graderEval.cjs contains none of the grading rule text it used to copy', () => {
   const evalSrc = fs.readFileSync(path.join(__dirname, 'graderEval.cjs'), 'utf8');
-  const routeSrc = fs.readFileSync(path.join(__dirname, '..', 'routes', 'checkSolution.cjs'), 'utf8');
+  // PR-2: the rule text and the post-processing now live in the ONE grading core.
+  const routeSrc = ['rules.cjs', 'prompt.cjs', 'postprocess.cjs']
+    .map((f) => fs.readFileSync(path.join(__dirname, '..', 'grading', f), 'utf8')).join(' ');
   const markers = [
     'function buildGradingRules',
-    'STRUCTURED_MISTAKE_TAXONOMY',
-    'For each mistake choose the type by the CAUSE',
+    'MISTAKE_TAXONOMY_PROMPT',
+    'MISTAKE TYPE — choose by the CAUSE',
     'GRADING RULES:',
-    'function normaliseStructuredResult',
+    'function normaliseQuestionResult',
     'ERROR CARRIED FORWARD',
   ];
   for (const m of markers) {
     if (m !== 'function buildGradingRules') {
-      assert.ok(routeSrc.includes(m), 'CONTROL: the route no longer contains "' + m + '" — the absence check below would be vacuous');
+      assert.ok(routeSrc.includes(m), 'CONTROL: the grading core no longer contains "' + m + '" — the absence check below would be vacuous');
     }
     assert.ok(!evalSrc.includes(m), 'graderEval.cjs carries a copy of production grading text: "' + m + '"');
   }
@@ -103,11 +111,11 @@ test('§2 NO THIRD COPY — graderEval.cjs contains none of the grading rule tex
 
 test('§3 the rendered prompt carries production-only rules the old copy never had', async () => {
   const product = JSON.stringify(await productionPrompt(independentRequest()));
-  // TYPED-3 typed-only HONEST READ head and the FENCE-1 clause (rule 17) — both absent
-  // from the retired copy (its §4 pinned them OUT). Their presence proves this is the
-  // product's typed-batch prompt, not a reconstruction.
-  assert.ok(/couldNotRead\\" DOES NOT APPLY|couldNotRead" DOES NOT APPLY/.test(product), 'typed-only rule 6 head missing');
-  assert.ok(product.includes('STUDENT\'S OWN WORK') || product.includes('STUDENT\\\'S OWN WORK') || product.includes("STUDENT'S OWN WORK"), 'fence clause (rule 17) missing');
+  // TYPED-3 typed-only HONEST READ head and the C6 nonce-fence clause — both absent from the
+  // retired copy (its §4 pinned them OUT). Their presence proves this is the product's
+  // typed-batch prompt, not a reconstruction.
+  assert.ok(/couldNotRead\\" DOES NOT APPLY|couldNotRead" DOES NOT APPLY/.test(product), 'typed-only HONEST READ head missing');
+  assert.ok(product.includes('MATERIAL TO BE MARKED') && product.includes('<<<STUDENT WORK '), 'C6 fence clause / fenced student work missing');
   assert.ok(product.includes('isReturn'), 'the isReturn field (absent from the old copy) is missing');
 });
 

@@ -1,0 +1,2 @@
+Q3. [2 marks]
+Find the area of a sector of a circle with diameter 28 cm, if the length of the corresponding arc is 22 cm.

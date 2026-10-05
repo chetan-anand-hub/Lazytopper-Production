@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Chemical equation for reaction between barium chloride and aluminium sulphate",
+   "studentWork": "(i) BaCl₂ + Al₂(SO₄)₃ → BaSO₄ + AlCl₃",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct formulae of reactants and products, but the equation is left unbalanced.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Chemical equation for reaction between aluminium and steam",
+   "studentWork": "(ii) Al + H₂O → Al₂O₃ + H₂",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct formulae of reactants and products, but the equation is left unbalanced.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "2Al + 3H₂O → Al₂O₃ + 3H₂",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 2,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "You identified all chemical formulae correctly in both parts. However, the question specifically asked to balance the equations, which was left undone. Always check that the number of atoms of each element is equal on both sides to satisfy the law of conservation of mass.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Part (i): Correct balanced chemical equation (3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃)",
+   "marks": 1
+  },
+  {
+   "point": "Part (ii): Correct balanced chemical equation (2Al + 3H₂O → Al₂O₃ + 3H₂)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

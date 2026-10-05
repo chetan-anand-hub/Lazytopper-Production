@@ -1,13 +1,12 @@
 'use strict';
 // lib/driver.cjs — run one golden job through the REAL production route handlers.
 //
-// The handlers come from the tracked, unmodified `createCheckSolutionRoute`
+// The handlers come from the tracked `createCheckSolutionRoute`
 // (routes/checkSolution.cjs), wired with the same primitives server/index.cjs and
 // routes/questions.cjs give it (httpUtils sendJson + extractJsonObjectFromText,
 // mentorImageSupport buildGeminiImagePart + validateMentorImagePayload). Prompt
-// building, the parse gate + retry, normalisation, the objective clamp + guard,
-// applyEcfPolicyV2, buildMistakeSummary and withDepartureNote all run exactly as
-// they ship. ONLY `callGemini` is injected:
+// building, the parse gate + retry and the ONE post-processing path
+// (server/grading/ — GRADER-CORE-1 PR-2) all run exactly as they ship. ONLY `callGemini` is injected:
 //   * LIVE   — lib/live.cjs wraps the real geminiClient (key from the env, ledger, cap)
 //   * REPLAY — lib/replay.cjs returns the stored raw model text, network hard-blocked
 //   * SHAPE  — the G2 guard passes a canned model reply
@@ -42,7 +41,11 @@ function fakeRes() {
 }
 
 /**
- * @param {{ callGemini: Function, model?: string, provider?: string }} opts
+ * @param {{ callGemini: Function, model?: string, provider?: string,
+ *           gradingModel?: string, gradingThinkingBudget?: number|null, makeFenceNonce?: Function }} opts
+ *   gradingModel / gradingThinkingBudget: the grading-only model setting production passes
+ *   (server/index.cjs → GRADING_MODEL); absent, the core grades on `model` exactly as before.
+ *   makeFenceNonce: a fixed fence nonce for byte-equality tests (production draws it from crypto).
  */
 function createDriver(opts) {
   const { sendJson } = createHttpUtils('*');
@@ -57,6 +60,9 @@ function createDriver(opts) {
     extractJsonObjectFromText,
     buildGeminiImagePart,
     validateMentorImagePayload,
+    ...(opts.gradingModel ? { GRADING_MODEL: opts.gradingModel, GRADING_THINKING_BUDGET: opts.gradingThinkingBudget ?? null } : {}),
+    ...(opts.gradingMode ? { GRADING_MODE: opts.gradingMode, GRADING_LIGHT_MODEL: opts.gradingLightModel || 'gemini-2.5-flash' } : {}),
+    ...(typeof opts.makeFenceNonce === 'function' ? { makeFenceNonce: opts.makeFenceNonce } : {}),
     solutionCache: {
       getOrCreateModelSolution: async () => { cacheHook.calls += 1; return null; },
     },

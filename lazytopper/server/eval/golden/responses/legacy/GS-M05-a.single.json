@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculate radius from diameter and set up distance equation",
+   "studentWork": "Radius = diameter/2 = 10√2/2 = 5√2 units.\nDistance between the centre (2a, a − 7) and (11, −9) = radius\n⇒ (2a − 11)² + (a − 7 + 9)² = (5√2)² = 50",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly found radius and applied the distance formula.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Simplify algebraic terms, form quadratic equation, and solve for a",
+   "studentWork": "⇒ 4a² − 44a + 121 + a² + 4a + 4 = 50\n⇒ 5a² − 40a + 75 = 0 ⇒ a² − 8a + 15 = 0\n⇒ (a − 5)(a − 3) = 0 ⇒ a = 5 or a = 3.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct expansion, simplification, and factorisation to find a = 5 or a = 3.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Finding radius from diameter and applying distance formula between centre and given point (1); Forming the quadratic equation and solving to find the values of a (1). Excellent solution. You correctly determined the radius, set up the distance formula, and accurately solved the resulting quadratic equation.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

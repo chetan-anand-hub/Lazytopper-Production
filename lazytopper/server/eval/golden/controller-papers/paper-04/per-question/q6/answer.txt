@@ -1,0 +1,5 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+(i) Product A – ethene,  Product B – ethane
+(ii) Step 1: CH₃CH₂OH --(conc. H₂SO₄, 170 °C)--> CH₂=CH₂ + H₂O
+[struck] Step 2: CH₂=CH₂ + H₂ --(Ni)--> CH₃–CH₃
+Step 2: CH₂=CH₂ + H₂O --(Ni)--> CH₃CH₂OH

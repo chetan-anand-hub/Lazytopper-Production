@@ -1,36 +1,52 @@
 {
- "_about": "G1 floor. PR-1 (GOLDEN-EVAL-1): the committed BASELINE — config A (gemini-2.5-flash, dynamic thinking, the production default) under the CURRENT (pre-GRADER-CORE-1) rules, 3 runs, both entry points. Non-regression only: goldenGate.cjs fails if any metric below falls under its value here, naming it. PR-2 records a new run under the new rules, points runId at it and raises these values to the acceptance bar (truth/targets.json). Metrics are percentages on the golden set (see lib/score.cjs headline()); written by `node server/eval/golden/goldenGate.cjs --write-floor`.",
- "runId": "2026-10-05.A-flash-dynamic",
+ "_about": "G1 floor — GRADER-CORE-1 PR-2 ACCEPTANCE run (gemini-3.8-flash, dynamic thinking, single mode = the shipped code default; 3 runs, both entry points, every surface; production timeout 80 s; judge verdicts stored). Each metric is the spec section 3 ACCEPTANCE BAR (truth/targets.json) where the run meets it; where it does NOT, the floor is the measured value (non-regression of the accepted state) and the metric is listed in barMissed — the bar is NOT met there and PR-2 is not ready on these numbers (report-a15-pr2c-grader-core-2026-10-05.md). Non-bar metrics (consistency, unattempted_v2) are pinned at the measured value. chapter is measured on the PR-1 detect outputs (detect is unchanged by PR-2; its model gemini-2.5-flash is refused to the eval key). Written by the PR-2 live-phase builder.",
+ "runId": "2026-10-05.PR2-accept-a-flash38",
  "metrics": {
-  "mcq": 98.1,
-  "total_exact": 73.6,
-  "within_half": 88.5,
-  "wrong_step": 67.2,
-  "type": 71.3,
-  "comments_det": 77.7,
-  "consistency": 67.7,
+  "mcq": 100,
+  "total_exact": 89,
+  "within_half": 98.7,
+  "wrong_step": 90,
+  "type": 85,
+  "comments_det": 100,
+  "comments_judge": 100,
+  "comments": 100,
+  "consistency": 90.5,
   "run_to_run": 95,
-  "single_vs_set": 75.9,
-  "injection": 63.9,
-  "m13_declined": 66.7,
-  "owner_within_half": 0,
-  "chapter": 95.3,
+  "single_vs_set": 98.1,
+  "injection": 100,
+  "m13_declined": 100,
+  "owner_within_half": 100,
+  "chapter": 95,
   "no_false_mismatch": 100,
-  "mismatch_detect": null,
-  "mismatch_legacy": null
+  "mismatch_detect": 100,
+  "mismatch_legacy": 100,
+  "p0_unanswered": 100,
+  "papers_exact": 78.1,
+  "papers_within_half": 99,
+  "papers_type": 85,
+  "unattempted_v2": 66.7
  },
- "generatedAt": "2026-10-05T07:57:37.509Z",
- "extraRuns": [
-  {
-   "label": "owner_diag",
-   "runId": "2026-10-05.A-flash-owner-diag-180s",
-   "keys": [
-    "owner_within_half"
-   ],
-   "note": "owner-anomaly-01 graded with a 180 s provider timeout (diagnostic, NOT production settings): production times this paper out at 55 s on every baseline run, so the owner within-1/2 check needs these graded outputs to be live.",
-   "metrics": {
-    "owner_within_half": 60
-   }
+ "barMissed": {
+  "total_exact": {
+   "bar": 90,
+   "measured": 89
+  },
+  "within_half": {
+   "bar": 100,
+   "measured": 98.7
+  },
+  "single_vs_set": {
+   "bar": 100,
+   "measured": 98.1
+  },
+  "papers_exact": {
+   "bar": 90,
+   "measured": 78.1
+  },
+  "papers_within_half": {
+   "bar": 100,
+   "measured": 99
   }
- ]
+ },
+ "generatedAt": "2026-10-05T14:17:16.105Z"
 }

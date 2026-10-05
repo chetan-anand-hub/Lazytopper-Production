@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Subtracting remainders to determine the required numbers and their prime factorisation",
+   "studentWork": "85 = 5 × 17\n72 = 2³ × 3²",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Remainders must be subtracted first: 85 − 1 = 84 and 72 − 2 = 70.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "85 − 1 = 84 = 2² × 3 × 7\n72 − 2 = 70 = 2 × 5 × 7",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculating the HCF and concluding the greatest number",
+   "studentWork": "There is no common prime factor, so HCF(85, 72) = 1.\n∴ The greatest number is 1.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× HCF must be calculated for 84 and 70, which gives 14.",
+   "mistakeType": null,
+   "correctedWorking": "HCF(84, 70) = 2 × 7 = 14\n∴ The greatest number is 14.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Subtracting the remainders from given numbers: 85 − 1 = 84 and 72 − 2 = 70 (1); Finding HCF(84 / 70) = 14 and concluding the greatest number is 14 (1). When a problem asks for the greatest number dividing given numbers leaving specific remainders, you must subtract the remainders first: 85 − 1 = 84 and 72 − 2 = 70. Finding the HCF of 84 and 70 then gives the correct divisor, 14.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

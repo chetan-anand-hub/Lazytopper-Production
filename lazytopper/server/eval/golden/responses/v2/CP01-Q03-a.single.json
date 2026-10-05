@@ -1,0 +1,113 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculate radius from diameter",
+   "studentWork": "Radius = 28 / 2 = 14 cm",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Radius correctly calculated",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "State the formula for area of sector",
+   "studentWork": "Area of sector = 1 / 2 × l × r",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula used",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "Substitute arc length and radius into the formula",
+   "studentWork": "= 1 / 2 × 22 × 14",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct substitution",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 4,
+   "description": "Evaluate final area",
+   "studentWork": "= 144 cm²",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Calculation error: 11 × 14 = 154, not 144",
+   "mistakeType": "calculation",
+   "correctedWorking": "= 154 cm²",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "You used the correct relationship between arc length, radius, and sector area, substituting the values accurately. However, a small arithmetic slip in the final product (11 × 14 = 154, not 144) cost you the final half mark.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0.5,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Calculation of radius from diameter (r = 14 cm)",
+   "marks": 0.5
+  },
+  {
+   "point": "Formula for area of sector in terms of arc length and radius (Area = 1/2 * l * r)",
+   "marks": 0.5
+  },
+  {
+   "point": "Correct substitution of values (1/2 * 22 * 14)",
+   "marks": 0.5
+  },
+  {
+   "point": "Correct final evaluation with units (154 cm²)",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Reason for plugging the leak (loss of blood pressure and reduced efficiency of pumping system)",
+   "studentWork": "(क) रक्त वाहिका में रिसाव होने पर रक्त दाब कम हो जाता है, जिससे पंपिंग तंत्र की दक्षता घट जाती है। इसलिए रिसाव को रोकना आवश्यक है।",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct explanation of loss of pressure reducing pumping efficiency",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Identification of the blood component (Platelets)",
+   "studentWork": "रुधिर का यह संघटक प्लेटलेट्स (बिंबाणु) है।",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified platelets",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Function/action of platelets (clotting at the site of injury)",
+   "studentWork": "प्लेटलेट्स चोट के स्थान पर रुधिर का थक्का बनाकर रिसाव को बंद कर देते हैं।",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly stated clotting at the site of injury",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Reason to plug leak: Leakage leads to a loss of pressure / reducing the efficiency of the pumping system (1); Name of blood component: Platelets (0.5); Mechanism: Circulate and form a blood clot at the site of injury to plug the leak (0.5). Excellent answer! You correctly covered all key points: loss of pressure reducing the pumping system's efficiency, identification of platelets, and their role in blood clotting.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

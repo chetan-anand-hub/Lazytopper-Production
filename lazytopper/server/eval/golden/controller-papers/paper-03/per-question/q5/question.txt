@@ -1,0 +1,3 @@
+Q5. [3 marks]
+A. State the Right-Hand Thumb Rule and describe how it helps determine the direction of magnetic field around a current-carrying conductor. [2]
+B. Explain how the magnetic field changes with distance from the conductor. [1]

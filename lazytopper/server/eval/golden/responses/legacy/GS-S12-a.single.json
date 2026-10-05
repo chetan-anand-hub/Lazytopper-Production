@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Translate statement (i) into a chemical equation and balance it",
+   "studentWork": "(i) BaCl₂ + Al₂(SO₄)₃ → BaSO₄ + AlCl₃",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct chemical formulae written, but the equation is left unbalanced.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Translate statement (ii) into a chemical equation and balance it",
+   "studentWork": "(ii) Al + H₂O → Al₂O₃ + H₂",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct chemical formulae written, but the equation is left unbalanced.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "2Al + 3H₂O → Al₂O₃ + 3H₂",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 2,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Part (i): Balanced chemical equation: 3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃ (½ mark for correct formulae / ½ mark for balancing) (1); Part (ii): Balanced chemical equation: 2Al + 3H₂O → Al₂O₃ + 3H₂ (½ mark for correct formulae / ½ mark for balancing) (1). You identified all the correct chemical formulae for reactants and products accurately. However, both equations were left unbalanced despite the question explicitly asking to balance them. Remember to equalize the number of atoms of each element on both sides according to the law of conservation of mass.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

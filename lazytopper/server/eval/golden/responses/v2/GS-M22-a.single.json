@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Elimination of y to solve for x",
+   "studentWork": "7x − 2y = 5 …(1)\n8x + 7y = 15 …(2)\n(1) × 7: 49x − 14y = 35\n(2) × 2: 16x + 14y = 30\nAdding: 65x = 65 ⇒ x = 1",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly multiplied and added equations to get x = 1",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitute x = 1 to solve for y",
+   "studentWork": "Put x = 1 in (1): 7 − 2y = 5 ⇒ 2y = 2 ⇒ y = 1\n∴ x = 1, y = 1",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct substitution yielding y = 1",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "Verification of the solution in both original equations",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Verification step omitted",
+   "mistakeType": null,
+   "correctedWorking": "Verification:\nIn (1): LHS = 7(1) − 2(1) = 5 = RHS\nIn (2): LHS = 8(1) + 7(1) = 15 = RHS\nHence verified.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Your elimination method and solution for x and y are entirely correct. However, always re-read the prompt carefully: the question specifically asked to verify your answer, which you left out.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0.5
+ },
+ "rubric": [
+  {
+   "point": "Elimination or substitution to solve for first variable (x = 1)",
+   "marks": 1
+  },
+  {
+   "point": "Substitution to find second variable (y = 1)",
+   "marks": 0.5
+  },
+  {
+   "point": "Verification of obtained values in the given equations",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

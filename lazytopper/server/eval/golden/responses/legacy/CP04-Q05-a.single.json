@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 3,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Definition of 1 volt potential difference and formula",
+   "studentWork": "The potential difference between two points is one volt when one joule of work is done to move one coulomb of charge from one point to the other.\n1 V = 1 J / 1 C",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct definition and relation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Schematic diagram of the circuit in series",
+   "studentWork": "[Circuit diagram drawn with 1.5 V cell, 5 Ω and 10 Ω resistors in series, closed plug key K, and current direction arrows]",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct schematic diagram with proper symbols and direction of current",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculation of equivalent resistance and circuit current",
+   "studentWork": "R = 5 Ω + 10 Ω = 15 Ω\nI = V / R = 1.5 V / 15 Ω = 0.1 A",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation with formula and unit",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Definition of one volt potential difference (1); Schematic circuit diagram showing cell / two resistors / and closed plug key in series (1); Calculation of total equivalent resistance and current drawn with SI unit (1). Excellent response. The definition of one volt is precise, the circuit diagram is neatly drawn with correct component symbols and current arrows, and the numerical calculation is completely accurate with units.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

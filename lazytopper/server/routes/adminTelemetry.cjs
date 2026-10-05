@@ -366,6 +366,15 @@ function createAdminTelemetryRoutes(deps) {
         'Counters are cumulative for the current server process and reset on restart. '
         + 'uptimeSeconds bounds the window they cover.',
       uptimeSeconds: Math.floor(process.uptime()),
+      // GRADER-CORE-1 PR-2 (owner-ordered alert, D20): grading calls served by the FALLBACK
+      // model because the configured grading model was unavailable to this key. Any value
+      // above zero means grading quality may have silently dropped — check GRADING_MODEL.
+      gradingModelFallback: {
+        count: Number(counters['grading.model_fallback']) || 0,
+        note: 'Grading calls served by the fallback model because the configured grading model '
+          + 'was unavailable (HTTP 403/404 or a model-specific 400). Non-zero = a possible silent '
+          + 'quality drop; check the grading model\'s access for this key.',
+      },
       byCallClass,
       totals: sumRows(byCallClass),
       // ── The workload axis (TELEMETRY-1) ──────────────────────────────────

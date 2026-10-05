@@ -1,0 +1,10 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+Let number of correct answers = x and number of wrong answers = y.
+3x + y = 40   …(1)
+4x − 2y = 50   …(2)
+From (1): y = 40 − 3x
+Substituting in (2): 4x − 2(40 − 3x) = 50
+4x − 80 + 6x = 50
+10x = 130 ⇒ x = 13
+y = 40 − 3(13) = 40 − 39 = 1
+∴ Total number of questions = x + y = 13 + 1 = 14

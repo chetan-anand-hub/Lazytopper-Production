@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Statement of formula for Joule's law of heating in terms of potential difference",
+   "studentWork": "H = \\frac{V^2}{R} \\times t",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitution of given values and solving for V²",
+   "studentWork": "400 = \\frac{V^2}{4} \\times 1\nV^2 = 1600",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct substitution and algebraic rearrangement",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculation of potential difference V with proper SI unit",
+   "studentWork": "V = 40",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct numerical value, but SI unit (V or volts) is missing",
+   "mistakeType": "presentation",
+   "correctedWorking": "V = 40 V",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "Your formula selection, substitution, and algebraic calculation are completely accurate. However, remember to always include the SI unit (V or volts) with your final numerical answer to avoid losing presentation marks.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0.5,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Formula relating heat, resistance, potential difference, and time (H = (V² / R) × t)",
+   "marks": 0.5
+  },
+  {
+   "point": "Substitution of given values and simplification to find V²",
+   "marks": 0.5
+  },
+  {
+   "point": "Final value of potential difference with correct SI unit (40 V)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

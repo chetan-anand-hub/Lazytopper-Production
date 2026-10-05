@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 3,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Convert tan θ and cot θ into terms of sin θ and cos θ",
+   "studentWork": "LHS = tanθ/(1 − cotθ) + cotθ/(1 − tanθ)\n= (sinθ/cosθ)/((sinθ − cosθ)/sinθ) + (cosθ/sinθ)/((cosθ − sinθ)/cosθ)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly converted tan and cot to ratios of sin and cos",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Simplify fractions, adjust sign to find common denominator, and combine",
+   "studentWork": "= sin²θ/(cosθ(sinθ − cosθ)) − cos²θ/(sinθ(sinθ − cosθ))\n= (sin³θ − cos³θ)/(sinθ cosθ (sinθ − cosθ))",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly handled the negative sign change and formed the common denominator",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Factorise numerator using a³ − b³ identity and simplify using sin²θ + cos²θ = 1 to reach RHS",
+   "studentWork": "= (sinθ − cosθ)(sin²θ + sinθ cosθ + cos²θ)/(sinθ cosθ (sinθ − cosθ))\n= (1 + sinθ cosθ)/(sinθ cosθ)\n= 1/(sinθ cosθ) + 1\n= 1 + secθ cosecθ = RHS. Hence proved.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Perfectly factored and simplified to RHS with valid identities",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Expressing tan θ and cot θ in terms of sin θ and cos θ and simplifying denominators (1); Taking common denominator to obtain (sin³θ − cos³θ) / (sinθ cosθ (sinθ − cosθ)) (1); Applying a³ − b³ expansion and sin²θ + cos²θ = 1 to arrive at RHS (1). Excellent solution. Every step, sign adjustment, and algebraic identity was applied accurately and written out clearly.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

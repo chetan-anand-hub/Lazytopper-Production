@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 2.5,
+ "percentage": 63,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identification of the phenomenon splitting white light into colours",
+   "studentWork": "Q9. (a) Refraction of light.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Refraction is the bending of light; the splitting into colours is called dispersion of light.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Dispersion of light",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Reason for obtaining a spectrum of seven colours",
+   "studentWork": "(b) Different colours of light bend through different angles with respect to the incident ray as they pass through the prism, so they get separated.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly stated reason for separation into seven colours.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Ray diagram representing the internal phenomena in a raindrop",
+   "studentWork": "[Draws circular raindrop with incident ray, refraction, dispersion, internal reflection, and emerging rays]",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct path showing entry, dispersion, internal reflection, and emergence.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Labels and directional arrows on rays",
+   "studentWork": "sunlight (white light)\nraindrop\nrefraction + dispersion\ninternal reflection\nviolet\nred\nto observer",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Key stages labelled, but ray arrows are entirely missing and emerging rays are inverted (red emerges above violet).",
+   "mistakeType": "presentation",
+   "correctedWorking": "Add arrows showing the direction of light rays; the upper emerging ray should be labelled 'red' and the lower 'violet'.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: (a) Naming the phenomenon as dispersion of light (1); (b) Stating the reason: different colours bend through different angles / travel at different speeds (1); (c) Ray diagram showing refraction / dispersion / and internal reflection in a water droplet (1); (c) Complete and correct labelling with directional arrows on rays (1). Well-attempted explanation for part (b) and a neat diagram. Be careful with definitions: splitting of white light into constituent colours is 'dispersion', not 'refraction'. Also ensure all optical ray diagrams include directional arrows and accurate emerging colour positions.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

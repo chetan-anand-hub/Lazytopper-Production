@@ -176,7 +176,25 @@ function load() {
   const probes = readJson('probes/injection.json');
   const mismatch = resolveMismatch(readJson('truth/mismatch.json'), { itemsById, casesById, detect, nameBySlug });
 
-  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, GOLDEN_DIR };
+  // GRADER-CORE-1 PR-2 · the four CONTROLLER TEST PAPERS (owner addendum 2026-10-05). SYNTHETIC
+  // answer sheets (font-rendered handwriting) for CBSE published questions, every value point
+  // cited (controller-papers/INDEX.md). One question = one case (`items[].cases[0]`).
+  const papers = ['paper-01', 'paper-02', 'paper-03', 'paper-04'].map((p) => {
+    const key = readJson('controller-papers/' + p + '/key.json');
+    if (key.synthetic !== true) throw new Error('controller paper ' + p + ' is not labelled synthetic');
+    return {
+      paperId: p, dir: 'controller-papers/' + p, key,
+      questions: key.items.map((it) => ({
+        id: it.id, qNumber: it.qNumber, subject: it.subject, marks: it.question.marks, questionText: it.question.text,
+        objective: it.question.type === 'mcq' || it.question.type === 'ar', chapterName: (it.chapterTrue && it.chapterTrue.name) || '',
+        chapterKey: (it.chapterTrue && it.chapterTrue.appTopicKey) || null,
+        caseId: it.cases[0].caseId, answerImage: 'controller-papers/' + p + '/' + it.cases[0].image, expected: it.cases[0].expected,
+      })),
+    };
+  });
+  const paperCaseById = Object.fromEntries(papers.flatMap((p) => p.questions.map((q) => [q.caseId, { ...q, paperId: p.paperId }])));
+
+  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, papers, paperCaseById, GOLDEN_DIR };
   return _cache;
 }
 

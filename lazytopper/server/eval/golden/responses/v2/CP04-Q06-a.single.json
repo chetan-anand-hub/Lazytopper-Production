@@ -1,0 +1,109 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify and name products A and B",
+   "studentWork": "Product A - ethene, Product B - ethane",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified product A as ethene and product B as ethane.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Write chemical equation for Step 1",
+   "studentWork": "Step 1: CH₃CH₂OH ――(conc. H₂SO₄, 170 °C)→ CH₂=CH₂ + H₂O",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct equation for dehydration of ethanol.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Withdrawn chemical equation for Step 2",
+   "studentWork": "Step 2: CH₂=CH₂ + H₂ ――(Ni)→ CH₃-CH₃",
+   "status": "withdrawn",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "Struck-through by student; not evaluated.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 0
+  },
+  {
+   "stepNumber": 4,
+   "description": "Write chemical equation for Step 2",
+   "studentWork": "Step 2: CH₂=CH₂ + H₂O ――(Ni)→ CH₃CH₂OH",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect reaction; hydrogen gas (H₂) is added across the double bond to form ethane, not water.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "CH₂=CH₂ + H₂ ――(Ni)→ CH₃-CH₃",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Products A and B as well as the Step 1 reaction are well written. Notice that your crossed-out equation for Step 2 was actually completely correct; Step 2 involves hydrogenation (adding H₂), not hydration (adding H₂O).",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Name product A (ethene) and product B (ethane)",
+   "marks": 1
+  },
+  {
+   "point": "Chemical equation for Step 1 (dehydration of ethanol to ethene with conc. H₂SO₄ at 170 °C)",
+   "marks": 1
+  },
+  {
+   "point": "Chemical equation for Step 2 (hydrogenation of ethene to ethane using Ni catalyst)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

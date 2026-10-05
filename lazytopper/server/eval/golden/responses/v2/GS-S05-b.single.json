@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 0.5,
+ "percentage": 25,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Labelled ray diagram showing refraction of light through a glass slab with angle of incidence θ and emergent ray parallel to incident ray",
+   "studentWork": "The ray of light enters the glass slab and bends towards the normal because glass is optically denser than air. At the second surface it bends away from the normal and comes out parallel to the incident ray.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1.5,
+   "teacherAnnotation": "× Ray diagram not drawn; required labelled figure is missing.",
+   "mistakeType": "presentation",
+   "correctedWorking": "Draw a rectangular glass slab ABCD. At the first interface, draw a normal and an incident ray at angle of incidence θ. Draw the refracted ray bending towards the normal. At the second interface, draw a normal and the emergent ray bending away from the normal, parallel to the incident ray, with directional arrows on all rays.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "Marking/identifying lateral displacement",
+   "studentWork": "The emergent ray is shifted sideways from the path of the incident ray; this perpendicular shift is called lateral displacement.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified lateral displacement as the perpendicular shift of the emergent ray from the incident ray path.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "Your written explanation of refraction through the glass slab and lateral displacement is scientifically accurate. However, the question specifically asked to draw a labelled ray diagram; without the diagram, the figure and labelling marks cannot be awarded. Always draw the diagram with directional arrows and angle labels when requested.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1.5,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Labelled ray diagram showing refraction of light through a glass slab with angle of incidence θ, arrows, and emergent ray parallel to incident ray",
+   "marks": 1.5
+  },
+  {
+   "point": "Marking/indicating lateral displacement on the diagram",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

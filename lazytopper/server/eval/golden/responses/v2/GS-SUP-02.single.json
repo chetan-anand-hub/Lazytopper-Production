@@ -1,0 +1,132 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 4,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify insulation colours of live and neutral wires",
+   "studentWork": "Live wire — red insulation; neutral wire — black insulation.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct wire colour conventions identified.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Erroneous initial calculation of current and rating (withdrawn by student)",
+   "studentWork": "P = V/I ⇒ I = V/P = 220/1000 = 0.22 A.\nSo a circuit of current rating 1 A would be enough for the iron.",
+   "status": "withdrawn",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "Withdrawn by candidate.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 0
+  },
+  {
+   "stepNumber": 3,
+   "description": "Correct formula and calculation of current drawn by electric iron",
+   "studentWork": "P = V × I ⇒ I = P/V = 1000 W / 220 V = 4.54 A.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and calculation of current.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 4,
+   "description": "State the standard circuit rating required",
+   "studentWork": "So the circuit must have a current rating of 5 A.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct standard rating (5 A circuit).",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 5,
+   "description": "Explain function and advantage of earth wire",
+   "studentWork": "The earth wire provides a low-resistance conducting path for current, so any current leaking to the metallic body of the iron flows to the earth and the body stays at the potential of the earth. Hence the user does not get an electric shock.",
+   "status": "correct",
+   "marksAwarded": 2,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurate function and advantage stated with proper scientific terms.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(c)(i)",
+   "marksAvailable": 2
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Excellent self-correction in part (b) to use P = V × I. All parts are accurately answered with clear explanations and correct technical terms.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "(a) Correct insulation colours for live wire (red) and neutral wire (black)",
+   "marks": 1
+  },
+  {
+   "point": "(b) Calculation of current: I = P/V = 1000/220 = 4.54 A (or 4.5 A)",
+   "marks": 0.5
+  },
+  {
+   "point": "(b) Specification of required circuit rating (5 A)",
+   "marks": 0.5
+  },
+  {
+   "point": "(c)(i) Function of earth wire (provides a low-resistance conducting path to earth)",
+   "marks": 1
+  },
+  {
+   "point": "(c)(i) Advantage/safety aspect (ensures metal body remains at earth potential so the user avoids electric shock)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -6,7 +6,14 @@
 
 const path = require('path');
 const { SERVER_DIR } = require('./driver.cjs');
-const { DEPARTURE_TEACHER_LINE, DEPARTURE_RETURN_TEACHER_LINE } = require(path.join(SERVER_DIR, 'routes', 'checkSolution.cjs'));
+// GRADER-CORE-1 PR-2: one sentence PER departure kind (the fixed P11 sentence is retired).
+// The historic two names are the different-problem pair; the maps carry every kind.
+const {
+  DEPARTURE_TEACHER_LINE,
+  DEPARTURE_RETURN_TEACHER_LINE,
+  DEPARTURE_LINES,
+  DEPARTURE_RETURN_LINES,
+} = require(path.join(SERVER_DIR, 'routes', 'checkSolution.cjs'));
 
 const TYPES = ['conceptual', 'calculation', 'silly', 'presentation'];
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -80,11 +87,20 @@ function commentFailures(result, exp, citesInstruction) {
     if (!lossMatch && praised) out.push({ id: 'T04-wrong-line-not-praised', detail: 'the examiner\'s wrong line is shown as a correct step' });
   }
   const note = String(result.teacherNote || '');
-  if (note.includes(DEPARTURE_TEACHER_LINE) && !['different-problem', 'invalid-method'].includes(exp.departureKind)) {
-    out.push({ id: 'T05-departure-sentence-only-for-its-kind', detail: 'departure sentence on a case whose expected departureKind is ' + (exp.departureKind || 'none') });
+  // Each kind's sentence is true only on a case of THAT kind (a different-problem sentence on
+  // an invalid-method case is as false as one on a slip); the return sentence only where the
+  // expected departure returns.
+  const lines = DEPARTURE_LINES || { 'different-problem': DEPARTURE_TEACHER_LINE };
+  const returnLines = DEPARTURE_RETURN_LINES || { 'different-problem': DEPARTURE_RETURN_TEACHER_LINE };
+  for (const [kind, line] of Object.entries(lines)) {
+    if (note.includes(line) && exp.departureKind !== kind) {
+      out.push({ id: 'T05-departure-sentence-only-for-its-kind', detail: kind + ' sentence on a case whose expected departureKind is ' + (exp.departureKind || 'none') });
+    }
   }
-  if (note.includes(DEPARTURE_RETURN_TEACHER_LINE) && !exp.departureReturns) {
-    out.push({ id: 'T05-departure-sentence-only-for-its-kind', detail: 'return sentence on a case with no departure that returns' });
+  for (const [kind, line] of Object.entries(returnLines)) {
+    if (note.includes(line) && (!exp.departureReturns || exp.departureKind !== kind)) {
+      out.push({ id: 'T05-departure-sentence-only-for-its-kind', detail: kind + ' return sentence on a case with no ' + kind + ' departure that returns' });
+    }
   }
   if (exp.objective && exp.objectiveExpectedMarks > 0 && WRONG_OPTION.test(text)) out.push({ id: 'T06-no-wrong-option-claim-on-correct-pick', detail: 'correct pick told the option is wrong' });
   if (exp.illegible && NO_WORK.test(text)) out.push({ id: 'T07-illegible-is-not-no-work', detail: 'illegible page described as no work' });

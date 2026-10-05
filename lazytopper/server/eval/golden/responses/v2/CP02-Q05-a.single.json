@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculation of total resistance in series",
+   "studentWork": "In series, R = R_1 + R_2 + R_3 = 2 + 3 + 5 = 10 Ω",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and addition to find total resistance as 10 Ω.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(A)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculation of total current supplied by the battery",
+   "studentWork": "I = V / R = 18 / 10 = 1.8 A",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Battery voltage copied incorrectly as 18 V instead of 15 V from the question.",
+   "mistakeType": "silly",
+   "correctedWorking": "I = V / R = 15 / 10 = 1.5 A",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(B)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculation of voltage drop across 3 Ω resistor",
+   "studentWork": "V_3 = I × R_3 = 1.8 × 3 = 5.4 V",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct method and computation using carried-forward current value (ECF applied).",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(C)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Clear working and correct application of Ohm's law throughout. Take extra care when copying given values from the question paper, as the voltage was 15 V rather than 18 V. Full marks are awarded for part (C) under the error carried forward rule.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Calculation of total series resistance: R = R1 + R2 + R3 = 10 Ω",
+   "marks": 1
+  },
+  {
+   "point": "Calculation of total current: I = V / R = 15 / 10 = 1.5 A",
+   "marks": 1
+  },
+  {
+   "point": "Calculation of voltage drop across 3 Ω resistor: V = I * R = 1.5 * 3 = 4.5 V",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

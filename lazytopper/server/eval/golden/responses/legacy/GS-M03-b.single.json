@@ -1,0 +1,36 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 1,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Evaluate Assertion and Reason to select the correct code",
+   "studentWork": "A is true because two equal hemispheres joined at the bases form a sphere.\nR is false because the total surface area of a sphere is 2πr².\nAnswer: (C)",
+   "status": "correct",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Option (C) is correct. Note that the total surface area of a sphere is 4πr², not 2πr².",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Correct option (C): Assertion (A) is true / but Reason (R) is false (1). Correct choice of option (C). Do remember that the total surface area of a sphere is 4πr², while 2πr² is the curved surface area of a hemisphere.",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

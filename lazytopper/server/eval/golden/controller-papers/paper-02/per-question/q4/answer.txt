@@ -1,0 +1,8 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+Length = 9.75 m = 975 cm, Breadth = 6.75 m = 675 cm, Height = 5.25 m = 525 cm
+Longest ruler = HCF (975, 675, 525)
+975 = 3 × 5² × 13
+675 = 3³ × 5²
+525 = 3 × 5² × 7
+HCF = 3³ × 5² = 675   (product of highest powers of common prime factors)
+∴ Longest ruler = 675 cm = 6.75 m

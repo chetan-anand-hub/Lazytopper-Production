@@ -167,23 +167,25 @@ describe("grading reliability — config + prompt changes on BOTH paths", () => 
     expect(route.calls[0].genConfig.responseMimeType).toBe("application/json");
   });
 
-  it("(c) the 'Don't know' non-attempt exception is present in BOTH prompts", async () => {
+  // ⚠ EXPECTATION MOVED 2026-10-05 (GRADER-CORE-1 PR-2, C1 + owner ruling 7). This test
+  // pinned TWO differently worded non-attempt rules: an adapted "NOTE ON NON-ATTEMPTS" on
+  // handleCheckSolution (which then had no couldNotRead field) and a verbatim "IMPORTANT
+  // EXCEPTION" on gradeStructuredSet. Both endpoints now render ONE rulebook
+  // (server/grading/rules.cjs) through ONE prompt builder, and a non-attempt is its own
+  // state, "unattempted" — never couldNotRead — on either endpoint.
+  it("(c) the 'Don't know' non-attempt rule is ONE rule, present in BOTH prompts", async () => {
     const check = buildCheckRoute(oneStepGrade);
     await check.run(checkPayload);
-    const checkPrompt = check.calls[0].prompt;
-    // handleCheckSolution uses the adapted note (it has no couldNotRead field).
-    expect(checkPrompt).toContain("NOTE ON NON-ATTEMPTS");
-    expect(checkPrompt).toContain("Don't know");
-    expect(checkPrompt).toContain("Never treat a legible non-attempt phrase");
-
     const ws = buildWorksheetRoute(worksheetGrade);
     await ws.run(worksheetPayload);
-    const wsPrompt = ws.calls[0].prompt;
-    // gradeStructuredSet keeps the verbatim couldNotRead exception.
-    expect(wsPrompt).toContain("IMPORTANT EXCEPTION");
-    expect(wsPrompt).toContain("Don't know");
-    expect(wsPrompt).toContain("it is NOT couldNotRead");
-    expect(wsPrompt).toContain("Never set couldNotRead for a clearly-written non-attempt phrase");
+    for (const prompt of [check.calls[0].prompt, ws.calls[0].prompt]) {
+      expect(prompt).toContain("Don't know");
+      expect(prompt).toContain('gets ONE step with status "unattempted"');
+      expect(prompt).toContain("A legible non-attempt phrase is READ — it is never couldNotRead.");
+      // CONTROL — the retired per-endpoint wordings are absent, not merely unasserted.
+      expect(prompt).not.toContain("NOTE ON NON-ATTEMPTS");
+      expect(prompt).not.toContain("IMPORTANT EXCEPTION");
+    }
   });
 
   it("(d) the word-problem closure rule is present in BOTH prompts", async () => {
@@ -198,18 +200,24 @@ describe("grading reliability — config + prompt changes on BOTH paths", () => 
     expect(ws.calls[0].prompt).toContain("deduct ½ mark as a presentation step");
   });
 
-  it("(f) the crossed-out NO-ATTEMPT rule is present in the worksheet prompt only (gradeStructuredSet has couldNotRead; handleCheckSolution does not)", async () => {
+  // ⚠ EXPECTATION MOVED 2026-10-05 (GRADER-CORE-1 PR-2, C1 + owner ruling 4). This test
+  // pinned the crossed-out rule as worksheet-ONLY and asserted that handleCheckSolution's
+  // prompt did NOT contain "crossed out", because the single grader then had no
+  // couldNotRead field. One rulebook now serves both endpoints: an answer crossed out
+  // completely is unattempted, and work struck through and replaced is "withdrawn" — not
+  // assessed — on either endpoint.
+  it("(f) the crossed-out rules (fully crossed out = unattempted; struck and replaced = withdrawn) are present in BOTH prompts", async () => {
     const ws = buildWorksheetRoute(worksheetGrade);
     await ws.run(worksheetPayload);
-    const wsPrompt = ws.calls[0].prompt;
-    expect(wsPrompt).toContain("clearly and completely crossed out with no replacement");
-    expect(wsPrompt).toContain("Never set couldNotRead for a clearly crossed-out answer");
-
-    // handleCheckSolution has no couldNotRead field, so it must NOT carry the
-    // crossed-out couldNotRead rule (Fix A is gradeStructuredSet-only by design).
     const check = buildCheckRoute(oneStepGrade);
     await check.run(checkPayload);
-    expect(check.calls[0].prompt).not.toContain("crossed out");
+    for (const prompt of [ws.calls[0].prompt, check.calls[0].prompt]) {
+      expect(prompt).toContain("crossed out completely with nothing written in its place");
+      expect(prompt).toContain("WITHDRAWN: work the student crossed out / struck through and replaced is NOT ASSESSED.");
+      expect(prompt).toContain('status "withdrawn"');
+      // CONTROL — the retired couldNotRead-specific wording is absent from both.
+      expect(prompt).not.toContain("Never set couldNotRead for a clearly crossed-out answer");
+    }
   });
 
   it("(g) the PARTIAL CREDIT step-weight rule is present in BOTH prompts", async () => {
@@ -224,50 +232,42 @@ describe("grading reliability — config + prompt changes on BOTH paths", () => 
     expect(ws.calls[0].prompt).toContain("never redistribute or re-weight marks across steps");
   });
 
-  // ⚠ EXPECTATION MOVED 2026-08-16 (Wave MI-INTEGRITY-3) — TWO stale substrings, not
-  // one. Only `classify mistakeType as 'silly'` appeared in the failure output, because
-  // `expect` short-circuits at the first miss; `A correctly solved wrong problem earns
-  // no credit` was equally gone and would have surfaced on the next run. THE RUNNER'S
-  // LIST WAS NOT THE SET — both were confirmed absent by `grep -cF` (0 hits each).
-  // WHY they are gone: the miscopy rule was REWRITTEN by ECF_POLICY_V2 from a flat zero
-  // into a DEPARTURE. Awarding 0 for the whole question is now exactly what the prompt
-  // forbids, and `silly` is exactly the bucket the departure must NOT be filed under,
-  // so re-anchoring to the nearest surviving phrase would have re-pinned the retired
-  // doctrine. These four replacements are load-bearing: each is a clause the rule would
-  // be wrong without, and each is verified present in BOTH prompts (`grep -cF` = 2).
-  it("(j) the QUESTION MISCOPY rule — as ECF_POLICY_V2, not a flat zero — is present in BOTH prompts", async () => {
-    // The miscopy rule must land on BOTH grading functions (rule 15 in
-    // handleCheckSolution, rule 9 in gradeStructuredSet) — never one and not the
-    // other. A correctly-solved WRONG problem (the student miscopied the question from
-    // the paper) is a DEPARTURE: the first step that is no longer the question is
-    // marked, whatever was still the question keeps its marks, and every step below
-    // earns zero.
+  // ⚠ EXPECTATION MOVED 2026-10-05 (GRADER-CORE-1 PR-2, owner rulings 2 and 3). This test
+  // pinned ECF_POLICY_V2, under which a miscopied question was a DEPARTURE that zeroed
+  // every step below it (and, before that, a flat zero typed "silly"). The owner ruled:
+  // a value COPIED wrongly is penalised ONCE, typed "silly", and the later correct work
+  // earns ECF; ONLY answering a different problem or using an invalid method zeroes later
+  // work, and only inside its own part. Each clause below is load-bearing for that ruling,
+  // and both endpoints now carry it from ONE rulebook.
+  it("(j) a QUESTION MISCOPY is one silly slip with ECF after it — never a departure — in BOTH prompts", async () => {
     const expectedClauses = [
+      // Controller decision D26 (2026-10-05): a miscopy that changes no value used is not penalised,
+      // and one that removes what the question tests is a different problem; any other is ruling 2.
+      '(a) COPIED WRONGLY: the step where a value/sign/term was copied wrongly, so that the working uses a wrong value, loses its mark ONCE and is typed "silly".',
+      "Any other miscopy is NEVER a departure and never zeroes later work.",
+      "A miscopy that changes NO value used in the working (an immaterial transcription) is NOT penalised at all.",
+      "DEPARTURE — ONLY TWO KINDS ZERO LATER WORK",
+      '"departureKind" set to one of the two values', // the server zeroes only on a valid kind
+      "A departure NEVER reaches into another part", // per-PART scope
+    ];
+    // The retired departure-for-a-miscopy doctrine and the older flat-zero wording.
+    const retiredClauses = [
       "QUESTION MISCOPY",
-      "solves a DIFFERENT equation/expression/problem",
-      // The four below are the ECF_POLICY_V2 rewrite, each load-bearing:
-      "READ THIS AS ECF_POLICY_V2, NOT AS A FLAT ZERO", // the doctrine's name + its negation
-      '"isDeparture": true', // the machine-readable marker findDepartureIndex reads
-      "award ZERO for every step below it", // rule 5
-      "Do NOT award 0 for the entire question", // the flat zero, explicitly retired
+      "READ THIS AS ECF_POLICY_V2, NOT AS A FLAT ZERO",
+      "award ZERO for every step below it",
+      "classify mistakeType as 'silly'",
+      "A correctly solved wrong problem earns no credit",
     ];
 
     const check = buildCheckRoute(oneStepGrade);
     await check.run(checkPayload);
-    for (const clause of expectedClauses) {
-      expect(check.calls[0].prompt).toContain(clause);
-    }
-    // CONTROL — the RETIRED flat-zero doctrine must be absent, not merely unasserted.
-    expect(check.calls[0].prompt).not.toContain("classify mistakeType as 'silly'");
-    expect(check.calls[0].prompt).not.toContain("A correctly solved wrong problem earns no credit");
-
     const ws = buildWorksheetRoute(worksheetGrade);
     await ws.run(worksheetPayload);
-    for (const clause of expectedClauses) {
-      expect(ws.calls[0].prompt).toContain(clause);
+    for (const prompt of [check.calls[0].prompt, ws.calls[0].prompt]) {
+      for (const clause of expectedClauses) expect(prompt).toContain(clause);
+      // CONTROL — the retired doctrine must be absent, not merely unasserted.
+      for (const clause of retiredClauses) expect(prompt).not.toContain(clause);
     }
-    expect(ws.calls[0].prompt).not.toContain("classify mistakeType as 'silly'");
-    expect(ws.calls[0].prompt).not.toContain("A correctly solved wrong problem earns no credit");
   });
 });
 

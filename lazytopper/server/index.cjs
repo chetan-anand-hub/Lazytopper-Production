@@ -281,6 +281,12 @@ const routeDeps = {
   callGemini, callClaude,
   GEMINI_MODEL: config.GEMINI_MODEL,
   GEMINI_TUTOR_MODEL: config.GEMINI_TUTOR_MODEL,
+  // GRADER-CORE-1 PR-2 (D17): the grading-only model reaches the two grading routes
+  // (routes/checkSolution.cjs → server/grading/core.cjs); detect and the tutor keep GEMINI_MODEL.
+  GRADING_MODEL: config.GRADING_MODEL,
+  GRADING_THINKING_BUDGET: config.GRADING_THINKING_BUDGET,
+  GRADING_MODE: config.GRADING_MODE,
+  GRADING_LIGHT_MODEL: config.GRADING_LIGHT_MODEL,
   CLAUDE_MODEL_SONNET: config.CLAUDE_MODEL_SONNET,
   ACTIVE_PROVIDER: config.ACTIVE_PROVIDER,
   STUB_MODE: config.STUB_MODE,

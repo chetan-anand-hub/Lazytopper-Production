@@ -64,6 +64,8 @@ const CANNED_WORKSHEET_GRADE = {
 };
 
 const SCHEME = ["Writing the formula: x = (-b +/- sqrt(D)) / 2a [1 mark]", "Final answer: x = 1 [2 marks]"];
+// The per-question scheme header of the ONE prompt builder (server/grading/prompt.cjs).
+const SCHEME_HEADER = "Stored marking scheme (CORROBORATION only - never authority on method):";
 
 function buildRoutes(opts: {
   solutionCache?: unknown;
@@ -144,8 +146,12 @@ describe("handleCheckSolution — scheme-first hook", () => {
     expect(calls[0].question).toBe(KEYLESS_SUBJECTIVE.question);
     expect(JSON.stringify(calls[0])).not.toContain("my answer");
     // The grading prompt carries the injected scheme through the EXISTING block.
+    // ⚠ HEADER TEXT MOVED 2026-10-05 (GRADER-CORE-1 PR-2, C1): both endpoints now render
+    // the scheme through ONE prompt builder (server/grading/prompt.cjs), whose per-question
+    // header is the one below; the single-path header "STORED MARKING SCHEME — …" is gone.
     const gradingPrompt = geminiPrompts[0];
-    expect(gradingPrompt).toContain("STORED MARKING SCHEME — CORROBORATION, NEVER AUTHORITY ON METHOD:");
+    expect(gradingPrompt).toContain(SCHEME_HEADER);
+    expect(gradingPrompt).not.toContain("STORED MARKING SCHEME — CORROBORATION, NEVER AUTHORITY ON METHOD:");
     expect(gradingPrompt).toContain(SCHEME[0]);
     expect(gradingPrompt).toContain(SCHEME[1]);
   });
@@ -178,6 +184,9 @@ describe("handleCheckSolution — scheme-first hook", () => {
     const out = await runCheck(KEYLESS_SUBJECTIVE);
     expect(out.status).toBe(200);
     expect(out.body.ok).toBe(true);
+    // The current one-core header (the older "OFFICIAL CBSE MARKING SCHEME" header no
+    // longer exists anywhere, so asserting its absence alone could not fail).
+    expect(geminiPrompts[0]).not.toContain(SCHEME_HEADER);
     expect(geminiPrompts[0]).not.toContain("OFFICIAL CBSE MARKING SCHEME");
   });
 
@@ -192,6 +201,7 @@ describe("handleCheckSolution — scheme-first hook", () => {
     const out = await runCheck(KEYLESS_SUBJECTIVE);
     expect(out.status).toBe(200);
     expect(out.body.ok).toBe(true);
+    expect(geminiPrompts[0]).not.toContain(SCHEME_HEADER);
     expect(geminiPrompts[0]).not.toContain("OFFICIAL CBSE MARKING SCHEME");
   });
 });

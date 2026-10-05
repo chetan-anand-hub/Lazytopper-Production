@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Assume 5 − 2√3 is rational and express √3 in terms of integers a and b",
+   "studentWork": "Let 5 − 2√3 be rational. Then 5 − 2√3 = a/b, where a and b are integers and b ≠ 0.\n⇒ 2√3 = 5 − a/b = (5b − a)/b\n⇒ √3 = (5b − a)/(2b)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct assumption and algebraic rearrangement to isolate √3",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Deduce contradiction and state final conclusion that 5 − 2√3 is irrational",
+   "studentWork": "Since a and b are integers, (5b − a)/(2b) is rational, but √3 is irrational. This is a contradiction.",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Contradiction noted, but explicit final conclusion ('Therefore, 5 − 2√3 is irrational') is missing",
+   "mistakeType": "presentation",
+   "correctedWorking": "Since a and b are integers, (5b − a)/(2b) is rational, but √3 is irrational. This contradicts the given fact that √3 is irrational. Hence, our assumption is incorrect, and 5 − 2√3 is an irrational number.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "Your algebraic rearrangement and identification of the contradiction are spot on. Remember to always write the concluding statement ('Therefore, 5 − 2√3 is irrational') to secure full marks in proof questions.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0.5,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Assumption of rationality and correctly rearranging to isolate √3 = (5b − a)/(2b)",
+   "marks": 1
+  },
+  {
+   "point": "Stating contradiction with given fact and concluding that 5 − 2√3 is irrational",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

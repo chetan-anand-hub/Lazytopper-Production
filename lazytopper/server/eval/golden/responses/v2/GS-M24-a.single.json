@@ -1,0 +1,60 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Probability of drawing a red ball and a yellow ball",
+   "studentWork": "",
+   "status": "unattempted",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "Unattempted.",
+   "mistakeType": null,
+   "correctedWorking": "Total number of balls = 4 + 3 + 2 = 9\n(i) P(red ball) = 4/9\n(ii) P(yellow ball) = 2/9",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 2
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "This question was left blank. Always attempt probability questions by finding the total number of possible outcomes and the number of favourable outcomes.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 2,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Total number of outcomes = 9 and P(drawing a red ball) = 4/9",
+   "marks": 1
+  },
+  {
+   "point": "P(drawing a yellow ball) = 2/9",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

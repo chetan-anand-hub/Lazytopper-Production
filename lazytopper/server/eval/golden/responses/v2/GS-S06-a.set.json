@@ -1,0 +1,337 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARS2",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Ray diagram of refraction through glass slab with directional arrows",
+     "studentWork": "Diagram showing incident ray, refracted ray bending towards normal, emergent ray bending away from normal with arrows",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Accurately drawn ray diagram with correct bends and arrows",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Labelling of rays, angles, and marking lateral displacement",
+     "studentWork": "Labels: incident ray, normal, refracted ray, emergent ray, i = θ, r, e, and lateral displacement indicated perpendicularly between emergent ray and extended incident ray",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ All required labels and lateral displacement correctly marked",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Neat, accurate, and fully labelled diagram. All rays, angles, and the lateral displacement are correctly shown.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Ray diagram showing refraction at both surfaces of glass slab with correct directional arrows",
+     "marks": 1
+    },
+    {
+     "point": "Correct labelling of normal, angles (i = θ, r, e) and marking lateral displacement",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Draw ray diagram showing refraction through glass slab",
+     "studentWork": "The ray of light enters the glass slab and bends towards the normal because glass is optically denser than air. At the second surface it bends away from the normal and comes out parallel to the incident ray.",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Required ray diagram not drawn; only a text explanation was provided",
+     "mistakeType": "presentation",
+     "correctedWorking": "Draw a neat ray diagram showing refraction at air-glass and glass-air interfaces with appropriate arrows.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Mark lateral displacement on the diagram",
+     "studentWork": "The emergent ray is shifted sideways from the path of the incident ray; this perpendicular shift is called lateral displacement.",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Lateral displacement was not marked on a diagram as asked",
+     "mistakeType": null,
+     "correctedWorking": "Extend the incident ray forward as a dotted line and draw a perpendicular from it to the emergent ray, labelling it 'lateral displacement'.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "The question explicitly asked to draw a labelled ray diagram and mark lateral displacement on it. While your verbal description is accurate, marks cannot be awarded without the diagram.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "unattempted": 0,
+    "untyped": 1
+   },
+   "rubric": [
+    {
+     "point": "Ray diagram showing refraction at both surfaces of glass slab with directional arrows",
+     "marks": 1
+    },
+    {
+     "point": "Correct labelling of rays, angles, and marking lateral displacement on the diagram",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "State why it is essential to plug any leak",
+     "studentWork": "(क) रक्त वाहिका में रिसाव होने पर रक्त दाब कम हो जाता है, जिससे पंपिंग तंत्र की दक्षता घट जाती है। इसलिए रिसाव को रोकना आवश्यक है।",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ बिल्कुल सही कारण: रक्त दाब कम होने से पंपिंग दक्षता घट जाती है",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Name the component of blood helping in plugging",
+     "studentWork": "रुधिर का यह संघटक प्लेटलेट्स (बिंबाणु) है।",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ सही संघटक: प्लेटलेट्स (बिंबाणु)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 0.5
+    },
+    {
+     "stepNumber": 3,
+     "description": "State how this component performs its function",
+     "studentWork": "प्लेटलेट्स चोट के स्थान पर रुधिर का थक्का बनाकर रिसाव को बंद कर देते हैं।",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ सही कार्यप्रणाली: थक्का बनाकर रिसाव बंद करना",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 0.5
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "उत्कृष्ट उत्तर! आपने रक्त दाब और पंपिंग दक्षता में कमी का सही कारण दिया तथा प्लेटलेट्स और उसके कार्य को सटीक रूप से समझाया।",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Reason for plugging leak: loss of pressure reduces pumping efficiency of the heart",
+     "marks": 1
+    },
+    {
+     "point": "Name of the component: Platelets (बिंबाणु)",
+     "marks": 0.5
+    },
+    {
+     "point": "How component performs function: forms a clot at the site of injury/leak",
+     "marks": 0.5
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "State why it is essential to plug any leak",
+     "studentWork": "If a leak in a blood vessel is not plugged, the blood pressure in the system falls and the heart cannot pump blood efficiently.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct reason: drop in blood pressure and reduced efficiency of pumping system",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Name the component of blood helping in plugging",
+     "studentWork": "The component is the clotting cells present in the blood.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "× Used descriptive phrase 'clotting cells' instead of the required biological term 'platelets'",
+     "mistakeType": "presentation",
+     "correctedWorking": "Platelets",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 0.5
+    },
+    {
+     "stepNumber": 3,
+     "description": "State how this component performs its function",
+     "studentWork": "They collect at the cut and form a clot which seals the leak.",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct mechanism: forming a clot to seal the leak",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 0.5
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Well-explained physiological reason and clotting mechanism. Make sure to use the specific scientific term 'platelets' rather than general descriptions like 'clotting cells'.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0.5,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Reason for plugging leak: loss of pressure reduces pumping efficiency of the heart",
+     "marks": 1
+    },
+    {
+     "point": "Name of the component: Platelets",
+     "marks": 0.5
+    },
+    {
+     "point": "How component performs function: forms a clot at the site of injury/leak",
+     "marks": 0.5
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 5.5,
+ "gradedMarksTotal": 8,
+ "worksheetTotalMarks": 8,
+ "summary": "Overall good conceptual understanding across both Biology and Physics. When a question asks to draw a labelled diagram, always draw it with a pencil and ruler rather than writing only text. In Biology, ensure you mention exact standard terminology (e.g., 'platelets') to secure full marks.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

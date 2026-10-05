@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Statement of Snell's law with formula",
+   "studentWork": "Snell's law: for light of a given colour and a given pair of media, the ratio of the sine of the angle of incidence to the sine of the angle of refraction is constant: sin i / sin r = constant.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly stated with all conditions (given colour and pair of media) and formula.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Definition and mathematical expression of relative refractive index",
+   "studentWork": "The refractive index of medium 2 with respect to medium 1 is the ratio of the speed of light in medium 1 to the speed of light in medium 2: n₂₁ = v₁/v₂.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurate definition and correct mathematical expression.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Statement of Snell's law along with the formula sin i / sin r = constant (1); Definition of refractive index of one medium with respect to another in terms of speed of light (0.5); Mathematical expression for relative refractive index (n₂₁ = v₁/v₂) (0.5). Excellent response. Both Snell's law and relative refractive index are accurately defined with their correct mathematical formulations.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

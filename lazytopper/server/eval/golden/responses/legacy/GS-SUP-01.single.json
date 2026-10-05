@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 2,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculate fourth, fifth, and sixth terms using the AP term formula",
+   "studentWork": "(i) a = 300, d = 50. Using aₙ = a + nd:\na₄ = 300 + 4 × 50 = 500 m, a₅ = 300 + 5 × 50 = 550 m, a₆ = 300 + 6 × 50 = 600 m.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect nth-term formula used (aₙ = a + nd instead of a + (n − 1)d).",
+   "mistakeType": "conceptual",
+   "correctedWorking": "a₄ = 300 + 3(50) = 450 m, a₅ = 300 + 4(50) = 500 m, a₆ = 300 + 5(50) = 550 m",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculate distance of the 8th round",
+   "studentWork": "(ii) a₈ = 300 + 8 × 50 = 700 m.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Evaluated using the incorrect formula a + 8d instead of a + 7d.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "a₈ = a + 7d = 300 + 7(50) = 650 m",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Formula statement and substitution for total distance of 10 rounds",
+   "studentWork": "(iii)(a) Before finding the sum I checked my formula: with aₙ = a + nd the first round would be a₁ = 300 + 50 = 350 m, but the first round is 300 m. So aₙ = a + nd is wrong; the correct formula is aₙ = a + (n − 1)d. I will use the correct formula from here.\nS₁₀ = (10/2)[2 × 300 + (10 − 1) × 50]",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified the conceptual error and substituted correctly into the sum formula.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Compute the total sum S₁₀ with unit",
+   "studentWork": "= 5 × [600 + 450] = 5 × 1050 = 5250 m.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct computation and unit.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 2,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: (i) Calculate fourth / fifth and sixth terms: a₄ = 450 m / a₅ = 500 m / a₆ = 550 m (1); (ii) Determine distance of 8th round: a₈ = a + 7d = 650 m (1); (iii)(a) State sum formula Sₙ = n/2[2a + (n - 1)d] and substitute values (1); (iii)(a) Evaluate total distance run: S₁₀ = 5250 m (1). Great job spotting the formula error yourself in part (iii) and correctly calculating the total sum! Remember to go back and update parts (i) and (ii) whenever you self-correct during an exam, as the nth term of an AP is aₙ = a + (n − 1)d.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

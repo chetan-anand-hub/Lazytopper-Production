@@ -1,0 +1,132 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 5,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Forming the linear and product relations for the terms",
+   "studentWork": "a + a_8 = 32 => a + a + 7d = 32 => 2a + 7d = 32 ...(1)\na x a_8 = 60 => a(a + 7d) = 60 ...(2)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly expressed given conditions in terms of first term and common difference.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitution and formation of quadratic equation in a",
+   "studentWork": "From (1): a + 7d = 32 - a\n:. a(32 - a) = 60 => a^2 - 32a + 60 = 0",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly substituted to obtain standard quadratic equation.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Factorisation and finding values of a",
+   "studentWork": "=> (a - 2)(a - 30) = 0 => a = 2 or a = 30",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct roots obtained.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Finding corresponding common difference d for both values of a",
+   "studentWork": "When a = 2: 7d = 32 - 4 = 28 => d = 4\nWhen a = 30: 7d = 32 - 60 = -28 => d = -4",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Both pairs of (a, d) correctly evaluated.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 5,
+   "description": "Applying formula for sum of 20 terms for both cases",
+   "studentWork": "S_20 = 20/2 [2a + 19d]\nFor a = 2, d = 4: S_20 = 10[4 + 76] = 800\nFor a = 30, d = -4: S_20 = 10[60 - 76] = -160",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurate calculation of S_20 for both possible APs.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Excellent solution! You handled both cases for the values of a and d meticulously and evaluated the sum of the first 20 terms accurately for each.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Setting up equations from the given conditions: a + a8 = 32 and a · a8 = 60",
+   "marks": 1
+  },
+  {
+   "point": "Forming quadratic equation in a (or d)",
+   "marks": 1
+  },
+  {
+   "point": "Solving quadratic equation to find values of a",
+   "marks": 1
+  },
+  {
+   "point": "Finding the corresponding values of d for both cases",
+   "marks": 1
+  },
+  {
+   "point": "Using Sn formula to calculate S20 for both sets of (a, d)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

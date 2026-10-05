@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Finding sec²θ and cosec²θ using trigonometric identities",
+   "studentWork": "tan θ = 1/√5 ⇒ cot θ = √5\nsec²θ = 1 + tan²θ = 1 + 1/5 = 6/5\ncosec²θ = 1 + cot²θ = 1 + 5 = 6",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation of sec²θ and cosec²θ using standard identities.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substituting values into the required expression",
+   "studentWork": "(cosec²θ − sec²θ)/(cosec²θ + sec²θ) = (6 − 6/5)/(6 + 6/5)",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct substitution into the expression.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "Simplification to the final answer",
+   "studentWork": "= (-6/5)/(6/5) (cancelling 6 from top and bottom)\n= -1",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Terms connected by addition or subtraction cannot be directly cancelled.",
+   "mistakeType": "calculation",
+   "correctedWorking": "(6 − 6/5)/(6 + 6/5) = (24/5)/(36/5) = 24/36 = 2/3",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "You used the trigonometric identities correctly to evaluate sec²θ and cosec²θ. However, remember that terms cannot be cancelled across addition or subtraction; evaluate the numerator and denominator separately to get (24/5)/(36/5) = 2/3.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0.5,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Finding the values of sec²θ and cosec²θ using identities",
+   "marks": 1
+  },
+  {
+   "point": "Substituting the values into the expression",
+   "marks": 0.5
+  },
+  {
+   "point": "Simplifying to find the correct final value (2/3)",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

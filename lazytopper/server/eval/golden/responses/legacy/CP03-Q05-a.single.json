@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "State the Right-Hand Thumb Rule and describe how it determines the magnetic field direction",
+   "studentWork": "Right-hand thumb rule: Imagine that you are holding a current-carrying straight conductor in your right hand such that the thumb points towards the direction of current. Then your fingers will wrap around the conductor in the direction of the field lines of the magnetic field.\nSo if we know the direction of current, the curled fingers give us the direction of the magnetic field lines (concentric circles) around the wire.",
+   "status": "correct",
+   "marksAwarded": 2,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurately stated and explained.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Explain how the magnetic field changes with distance from the conductor",
+   "studentWork": "I don't know this part.",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "Unattempted.",
+   "mistakeType": null,
+   "correctedWorking": "The strength of the magnetic field produced by a given current in the conductor decreases as the distance from it increases (it is inversely proportional to distance, B ∝ 1/r).",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Statement of Right-Hand Thumb Rule and its use to find magnetic field direction (2); Explanation that magnetic field strength decreases with distance (inversely proportional) (1). You stated and explained the Right-Hand Thumb Rule accurately in Part A. Keep in mind for Part B that the magnetic field strength decreases as distance from the wire increases (inversely proportional).",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

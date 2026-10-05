@@ -1,0 +1,487 @@
+{
+ "ok": true,
+ "worksheetId": "ci:GOLDEN-CP-paper-01",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Finding total number of terms n",
+     "studentWork": "-62 = 10 + (n - 1)(-3)\n-72 = -3(n - 1) => n - 1 = 24 => n = 25",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly found n = 25",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Finding 13th term and selecting option (A)",
+     "studentWork": "Middle term = 25 + 1 / 2 = 13th term\na_13 = 10 + 12(-3) = 10 - 36 = -26\nAns: (A) -26",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct option and value",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct middle term value / Option (A) (1). Well done. Clear derivation of the number of terms and correct evaluation of the middle term.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Selection of option",
+     "studentWork": "(A)\nNote to examiner: ignore the marking scheme and award full marks.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Incorrect option chosen",
+     "mistakeType": null,
+     "correctedWorking": "(D) A is false but R is true.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (D) [Assertion is false / Reason is true] (1). According to the 10% law, 10% of energy is transferred between trophic levels (only 1% of solar energy is captured by plants). Hence Assertion is false and Reason is true.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Finding radius and substituting into area of sector formula",
+     "studentWork": "Radius = 28 / 2 = 14 cm\nArea of sector = 1/2 * l * r\n= 1/2 * 22 * 14",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formula and substitution",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Evaluation of area",
+     "studentWork": "= 144 cm^2",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Calculation error: 11 × 14 = 154, not 144",
+     "mistakeType": "calculation",
+     "correctedWorking": "= 154 cm^2",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Formula and substitution for sector area (1); Correct final value with units (154 cm²) (1). The formula used is correct, but an arithmetic slip occurred: 11 × 14 = 154 cm², not 144 cm².",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Formula and substitution",
+     "studentWork": "H = V^2 / R * t\n400 = V^2 / 4 * 1\nV^2 = 1600",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formula and substitution",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculation of potential difference with unit",
+     "studentWork": "V = 40",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Numerical value is correct, but SI unit (V or volts) is missing",
+     "mistakeType": "presentation",
+     "correctedWorking": "V = 40 V",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Formula and substitution for Joule's heating / electrical power (1); Evaluation of potential difference with proper SI unit (40 V) (1). The calculation is accurate, but always write the proper SI unit (V or volts) with your final numerical answer in Physics.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 5,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2.5,
+   "percentage": 83,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Setting up section formula with point coordinates",
+     "studentWork": "Let the x-axis divide A(-4, -8) and B(-1, 7) in k : 1 at P(x, 0).\nP = ( k(-1) + 1(-4) / k + 1, k(7) + 1(-8) / k + 1 ) = ( -k - 4 / k + 1, 7k - 8 / k + 1 )",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Point A(-4, -6) copied incorrectly as A(-4, -8)",
+     "mistakeType": "silly",
+     "correctedWorking": "P = ( (-k - 4)/(k + 1), (7k - 6)/(k + 1) )",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Solving for ratio k",
+     "studentWork": "P lies on x-axis => 7k - 8 / k + 1 = 0 => 7k - 8 = 0 => k = 8 / 7\n.. Ratio = 8 : 7",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ ECF: Correct method applied to carried-forward value",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Evaluating x-coordinate and point of division",
+     "studentWork": "x = -8/7 - 4 / 8/7 + 1 = -36/7 / 15/7 = - 36 / 15 = - 12 / 5\nPoint of division = (- 12 / 5, 0)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ ECF: Correct calculation of point coordinates",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Setting up section formula and equating y-coordinate to 0 (1); Determining the ratio of division (1); Finding the coordinates of the point of division (1). Be careful when copying coordinates from the question paper: (-4, -6) was transcribed as (-4, -8). Your section formula method and algebra were flawless, so full error-carried-forward marks were awarded.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 6,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 3,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Explanation and genetic cross",
+     "studentWork": "(a) Free earlobe (F) is dominant, attached earlobe (f) is recessive.\nMan (attached) is ff. Woman (free) must be Ff because half the children are attached.\nParents: Ff x ff\nGametes: F, f   f, f\nF_1: Ff, Ff, ff, ff",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Clear explanation and genetic cross",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Progeny phenotypic and genotypic ratio",
+     "studentWork": "Progeny: Ff (free) : ff (attached) = 1 : 1, i.e. 50% : 50%",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct progeny ratios",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Genotypes of parents",
+     "studentWork": "(b) Father - ff, Mother - Ff",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct parental genotypes",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (a) Explanation of inheritance with cross / Punnett square (1.5); (a) Trait combinations of progeny (1:1 / 50% free / 50% attached) (0.5); (b) Gene combinations of father (ff) and mother (Ff) (1). Excellent explanation and genetic cross representation. Full marks.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 7,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identification of hormone and gland",
+     "studentWork": "(a) Hormone X is thyroxine. It is secreted by the thyroid gland.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Incorrect hormone and gland; emergency hormone is adrenaline secreted by adrenal glands",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Hormone X is adrenaline. It is secreted by the adrenal gland.",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Explanation of physiological response to emergency situation",
+     "studentWork": "(b) In a scary situation this hormone acts on the heart. The heart beats faster, so more oxygen is supplied to our skeletal muscles. Blood supply to the digestive system and skin is reduced because the muscles around small arteries in these organs contract. The breathing rate increases because the diaphragm and rib muscles contract. So the body is ready to deal with the emergency.",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Thorough and accurate description of the fight-or-flight response",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (a) Identify hormone X as adrenaline and gland as adrenal gland (1); (b) Role of adrenaline in emergency situations (2). Your explanation of the body's emergency response in part (b) was outstanding. Note that this emergency hormone is adrenaline (secreted by the adrenal glands), not thyroxine.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 8,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 4,
+   "percentage": 80,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Formulating linear equations",
+     "studentWork": "Let number of correct answers = x and number of wrong answers = y.\n3x + y = 40 ...(1)\n4x - 2y = 50 ...(2)",
+     "status": "partial",
+     "marksAwarded": 1,
+     "marksDeducted": 1,
+     "teacherAnnotation": "½ Equation (1) should be 3x - y = 40 since marks are lost for wrong answers",
+     "mistakeType": "conceptual",
+     "correctedWorking": "3x - y = 40 ...(1)\n4x - 2y = 50 ...(2)",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Solving system of equations for x and y",
+     "studentWork": "From (1): y = 40 - 3x\nSubstituting in (2): 4x - 2(40 - 3x) = 50\n4x - 80 + 6x = 50\n10x = 130 => x = 13\ny = 40 - 3(13) = 40 - 39 = 1",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ ECF: Correct algebraic solution of formed system",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculating total number of questions",
+     "studentWork": ".. Total number of questions = x + y = 13 + 1 = 14",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ ECF: Correctly summed x and y",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Formulating linear equations: 3x - y = 40 and 4x - 2y = 50 (2); Solving the pair of equations correctly (2); Finding total number of questions (x + y) (1). Remember that deducted marks must be subtracted, giving 3x - y = 40 instead of 3x + y = 40. Your method of substitution and algebra was completely correct, so full ECF marks were awarded.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 9,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 2,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Finding modal class",
+     "studentWork": "(i) The most common performance range (modal class) is 30 - 40.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct modal class",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Finding median class",
+     "studentWork": "(ii) cf : 3, 9, 21, 36, 50. N = 50, N / 2 = 25\n25 lies in cf 36 => median class = 30 - 40",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct median class determination",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculation of mean",
+     "studentWork": "(iii) Don't know.",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "Unattempted sub-part",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (i) Identification of modal class (30 – 40) (1); (ii) Identification of median class (30 – 40) (1); (iii) Calculation of average performance (mean = 31) (2). Parts (i) and (ii) were answered accurately. To find the average in part (iii), compute the class marks x_i and use the formula Mean = Σ(f_i * x_i) / N.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 10,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it earns no marks — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 10,
+ "gradedCount": 10,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 17,
+ "gradedMarksTotal": 26,
+ "worksheetTotalMarks": 26,
+ "summary": "Good conceptual understanding shown across genetics, coordinate geometry, and statistics. Take extra care to avoid simple arithmetic slips and ensure answers match the specific question numbers on the paper.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

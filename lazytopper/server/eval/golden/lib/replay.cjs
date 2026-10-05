@@ -43,8 +43,14 @@ class ReplayExhaustedError extends Error {
 async function replayJob(planJob, record, opts = {}) {
   const queue = (record.calls || []).slice();
   let served = 0;
-  const callGemini = opts.callGeminiOverride || (async () => {
-    const next = queue.shift();
+  const callGemini = opts.callGeminiOverride || (async (model) => {
+    // GRADER-CORE-1 PR-2 router: one job may call two models, in parallel groups. A stored
+    // call is matched to the request by MODEL (first unconsumed call for that model), so
+    // replay does not depend on which group finished first. One-model jobs are unchanged.
+    const modelOf = (c) => (c && c.http && c.http[0] && c.http[0].model) || null;
+    let at = queue.findIndex((c) => modelOf(c) === model);
+    if (at < 0) at = 0;
+    const next = queue.splice(at, 1)[0];
     if (!next) throw new ReplayExhaustedError(record.jobKey);
     served += 1;
     if (next.ok) return { text: next.text, raw: { candidates: [{ finishReason: next.finishReason || null }] } };
@@ -52,7 +58,15 @@ async function replayJob(planJob, record, opts = {}) {
     err.status = next.error ? next.error.status : null;
     throw err;
   });
-  const driver = createDriver({ callGemini, model: record.model || opts.model });
+  // A run recorded under the GRADER-CORE-1 grading core (manifest config `core: true`) replays
+  // with the SAME grading configuration it ran with — the grading model, its thinking cap, and
+  // above all the MODE: a router run splits a set into per-model groups and scores known MCQ
+  // picks with no call, so replaying it in single mode would consume the wrong stored replies.
+  const cfg = opts.config || null;
+  const driver = cfg && cfg.core
+    ? createDriver({ callGemini, model: 'gemini-2.5-flash', gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget ?? null,
+      gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
+    : createDriver({ callGemini, model: record.model || opts.model });
   const out = await driver.run(planJob);
   return {
     ...out,

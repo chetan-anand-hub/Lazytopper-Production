@@ -1,0 +1,6 @@
+Q1. [1 marks]
+Two dice are rolled simultaneously. The probability of getting number less than 4 on each die is:
+(A) 1/4
+(B) 1/9
+(C) 1/36
+(D) 1/6

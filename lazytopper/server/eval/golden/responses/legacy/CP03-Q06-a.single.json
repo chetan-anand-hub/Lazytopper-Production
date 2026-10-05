@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2.5,
+ "percentage": 83,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Forming the AP between 1 and 400",
+   "studentWork": "Multiples of both 4 and 5 are multiples of 20: 20, 40, 60, ..., 380\na = 20, d = 20, a_n = 380",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified multiples of 20 between 1 and 400 and correctly excluded 400.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Finding the number of terms n",
+   "studentWork": "20 + (n - 1) x 20 = 380\nn - 1 = 18 ⇒ n = 19",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation of the number of terms.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculating the sum of terms",
+   "studentWork": "S_19 = 19/2 [20 + 380]\n= 19 x 200 = 3600",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct formula and substitution, but an arithmetic calculation error: 19 × 200 = 3800, not 3600.",
+   "mistakeType": "calculation",
+   "correctedWorking": "S_19 = 19/2 [20 + 380] = 19 x 200 = 3800",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Identify multiples of LCM(4 / 5) = 20 and form the AP with a = 20 / d = 20 / and last term a_n = 380 (1); Use an = a + (n - 1)d to correctly determine the number of terms n = 19 (1); Substitute into the sum formula Sn = n/2 (a + l) and calculate the final sum = 3800 (1). Great job identifying that 'between 1 and 400' excludes 400 and accurately finding n = 19. Just take a moment to recheck simple multiplications: 19 × 200 equals 3800 rather than 3600.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

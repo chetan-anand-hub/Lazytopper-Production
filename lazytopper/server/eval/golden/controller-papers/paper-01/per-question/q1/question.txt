@@ -1,0 +1,6 @@
+Q1. [1 marks]
+The middle term of the A.P.: 10, 7, 4, …, −62 is:
+(A) −26
+(B) −29
+(C) −32
+(D) −35

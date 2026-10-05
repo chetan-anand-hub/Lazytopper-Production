@@ -1,0 +1,2 @@
+Q10. [3 marks]
+Given that √3 is irrational number, prove that (2 + 3√3) is an irrational number.

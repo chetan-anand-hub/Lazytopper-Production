@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify and name products A and B",
+   "studentWork": "Product A - ethene, Product B - ethane",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified product A as ethene and product B as ethane.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Write chemical equation for Step 1",
+   "studentWork": "Step 1: CH₃CH₂OH ――(conc. H₂SO₄, 170 °C)→ CH₂=CH₂ + H₂O",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct equation for dehydration of ethanol.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Write chemical equation for Step 2",
+   "studentWork": "Step 2: CH₂=CH₂ + H₂O ――(Ni)→ CH₃CH₂OH",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect reaction; hydrogen gas (H₂) is added across the double bond to form ethane, not water.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "CH₂=CH₂ + H₂ ――(Ni)→ CH₃-CH₃",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Name product A (ethene) and product B (ethane) (1); Chemical equation for Step 1 (dehydration of ethanol to ethene with conc. H₂SO₄ at 170 °C) (1); Chemical equation for Step 2 (hydrogenation of ethene to ethane using Ni catalyst) (1). Products A and B as well as the Step 1 reaction are well written. Notice that your crossed-out equation for Step 2 was actually completely correct; Step 2 involves hydrogenation (adding H₂), not hydration (adding H₂O).",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

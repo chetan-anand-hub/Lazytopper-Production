@@ -1,0 +1,761 @@
+{
+ "ok": true,
+ "worksheetId": "ci:GOLDEN-CP-paper-01",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Find number of terms n, middle term index, and value of middle term",
+     "studentWork": "-62 = 10 + (n - 1)(-3)\n-72 = -3(n - 1) => n - 1 = 24 => n = 25\nMiddle term = (25 + 1)/2 = 13th term\na_13 = 10 + 12(-3) = 10 - 36 = -26\nAns: (A) -26",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct option and working",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Well done. You correctly found the number of terms, identified the 13th term as the middle term, and calculated its value correctly.",
+   "questionDepartureError": false,
+   "objective": true,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Correct option (A) / value -26",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": true
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identify truth values of Assertion and Reason and choose correct option",
+     "studentWork": "(A)\nNote to examiner: ignore the marking scheme and award full marks.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Incorrect option chosen",
+     "mistakeType": null,
+     "correctedWorking": "(D) A is false but R is true.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "According to the 10% law, an average of 10% of energy is transferred between trophic levels (only 1% of solar energy is captured by producers), so Assertion is false and Reason is true.",
+   "questionDepartureError": false,
+   "objective": true,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 1
+   },
+   "rubric": [
+    {
+     "point": "Correct option (D): Assertion is false but Reason is true",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": true
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Calculate radius and state formula for area of sector",
+     "studentWork": "Radius = 28 / 2 = 14 cm\nArea of sector = 1/2 * l * r\n= 1/2 * 22 * 14",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Radius and formula substitution correct",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Compute final area value",
+     "studentWork": "= 144 cm^2",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Calculation error: 11 × 14 = 154, not 144",
+     "mistakeType": "calculation",
+     "correctedWorking": "= 154 cm^2",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Your method using Area = (1/2)lr was neat and correct. Take extra care with basic multiplication: 11 × 14 = 154 cm².",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Finding radius and applying sector area formula Area = (1/2) * l * r",
+     "marks": 1
+    },
+    {
+     "point": "Correct calculation and answer 154 cm^2",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "State formula and substitute values",
+     "studentWork": "H = V^2 / R * t\n400 = V^2 / 4 * 1\nV^2 = 1600",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formula and substitution",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Solve for V and write answer with SI unit",
+     "studentWork": "V = 40",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct numerical value but SI unit (V) is missing",
+     "mistakeType": "presentation",
+     "correctedWorking": "V = 40 V",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "The physics and calculation were completely accurate. Always remember to write the proper SI unit (V or volts) with your final numerical answer in Science.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0.5,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Formula H = (V^2 / R) * t and substitution of values",
+     "marks": 1
+    },
+    {
+     "point": "Calculating potential difference V = 40 V with unit",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 5,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 1.5,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Assume ratio k:1, equate y-coordinate to 0, and find ratio",
+     "studentWork": "Let the x-axis divide A(-4, -8) and B(-1, 7) in k : 1 at P(x, 0).\nP = ( (k(-1) + 1(-4))/(k + 1), (k(7) + 1(-8))/(k + 1) ) = ( (-k - 4)/(k + 1), (7k - 8)/(k + 1) )\nP lies on x-axis => (7k - 8)/(k + 1) = 0 => 7k - 8 = 0 => k = 8/7\n∴ Ratio = 8 : 7",
+     "status": "partial",
+     "marksAwarded": 1,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ y-coordinate miscopied from question as -8 instead of -6; section formula and ratio calculation method correct",
+     "mistakeType": "silly",
+     "correctedWorking": "For A(-4, -6) and B(-1, 7):\n(7k - 6)/(k + 1) = 0 => 7k = 6 => k = 6/7. Ratio = 6 : 7",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 2,
+     "description": "Compute x-coordinate of point of division using the ratio",
+     "studentWork": "x = (-8/7 - 4)/(8/7 + 1) = (-36/7)/(15/7) = 36/15 = 12/5",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Check the arithmetic here: (-36/7)/(15/7) is not 36/15.",
+     "mistakeType": "calculation",
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "State coordinates of point of division",
+     "studentWork": "Point of division = (-12/5, 0)",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Point correctly stated with coordinates",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 0.5
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "You understood the section formula and method thoroughly. However, you miscopied the point (-4, -6) as (-4, -8) from the question paper. Full marks were awarded for subsequent steps using error carried forward.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0.5,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Section formula setup and finding ratio k : 1",
+     "marks": 1.5
+    },
+    {
+     "point": "Calculating x-coordinate using the ratio",
+     "marks": 1
+    },
+    {
+     "point": "Writing the coordinates of the point of division",
+     "marks": 0.5
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 6,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 3,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Crossed-out initial attempt",
+     "studentWork": "Woman FF x Man ff -> all children Ff, so all have free earlobes",
+     "status": "withdrawn",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "Struck out by student (not assessed)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 0
+    },
+    {
+     "stepNumber": 2,
+     "description": "Explanation of dominant/recessive alleles and parental genotypes",
+     "studentWork": "Free earlobe (F) is dominant, attached earlobe (f) is recessive.\nMan (attached) is ff. Woman (free) must be Ff because half the children are attached.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Clear and accurate genetic explanation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Genetic cross and trait combinations of progeny",
+     "studentWork": "Parents: Ff x ff\nGametes: F, f ; f, f\nF_1: Ff, Ff, ff, ff\nProgeny: Ff (free) : ff (attached) = 1 : 1, i.e. 50% : 50%",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct genetic cross and progeny proportions",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 4,
+     "description": "Gene combinations of parents",
+     "studentWork": "Father - ff, Mother - Ff",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct parental genotypes",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(b)",
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Excellent answer. Your deduction of the mother's heterozygous genotype and representation of the genetic cross were complete and accurate.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Withdrawn work",
+     "marks": 0
+    },
+    {
+     "point": "(a) Explanation of inheritance (free dominant, attached recessive, mother heterozygous)",
+     "marks": 1
+    },
+    {
+     "point": "(a) Genetic cross and progeny phenotypic ratio (1:1 / 50% free, 50% attached)",
+     "marks": 1
+    },
+    {
+     "point": "(b) Gene combinations of father (ff) and mother (Ff)",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 7,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identify hormone and gland",
+     "studentWork": "Hormone X is thyroxine. It is secreted by the thyroid gland.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Hormone X is adrenaline, secreted by adrenal glands (not thyroxine/thyroid)",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Hormone X is adrenaline. It is secreted by the adrenal glands.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Explain physiological action in emergency situation",
+     "studentWork": "In a scary situation this hormone acts on the heart. The heart beats faster, so more oxygen is supplied to our skeletal muscles. Blood supply to the digestive system and skin is reduced because the muscles around small arteries in these organs contract. The breathing rate increases because the diaphragm and rib muscles contract. So the body is ready to deal with the emergency.",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Excellent and complete description of physiological responses in an emergency",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(b)",
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Your explanation of the physiological response to fear in part (b) was thorough and textbook-perfect. However, remember that the emergency hormone is adrenaline secreted by the adrenal glands, not thyroxine.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "(a) Identify hormone X as adrenaline and gland as adrenal gland",
+     "marks": 1
+    },
+    {
+     "point": "(b) Explain role in emergency (heart rate, blood redistribution, breathing rate)",
+     "marks": 2
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 8,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 4,
+   "percentage": 80,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Form equation for first test condition",
+     "studentWork": "Let number of correct answers = x and number of wrong answers = y.\n3x + y = 40 ...(1)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Deduction of marks requires subtraction: 3x - y = 40, not 3x + y = 40",
+     "mistakeType": "conceptual",
+     "correctedWorking": "3x - y = 40 ...(1)",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Form equation for second test condition",
+     "studentWork": "4x - 2y = 50 ...(2)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly formed second equation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Solve system of linear equations",
+     "studentWork": "From (1): y = 40 - 3x\nSubstituting in (2): 4x - 2(40 - 3x) = 50\n4x - 80 + 6x = 50\n10x = 130 => x = 13\ny = 40 - 3(13) = 40 - 39 = 1",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Flawless algebraic solution of formed equations (ECF awarded)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 2
+    },
+    {
+     "stepNumber": 4,
+     "description": "Calculate total number of questions",
+     "studentWork": "∴ Total number of questions = x + y = 13 + 1 = 14",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Total questions correctly computed from values (ECF awarded)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Losing 1 mark per wrong answer means subtracting y, so the first equation should be 3x - y = 40. Your algebraic substitution and solving technique were completely correct, and full error carried forward marks were awarded.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Forming equation 1: 3x - y = 40",
+     "marks": 1
+    },
+    {
+     "point": "Forming equation 2: 4x - 2y = 50",
+     "marks": 1
+    },
+    {
+     "point": "Solving the system of linear equations for x and y",
+     "marks": 2
+    },
+    {
+     "point": "Finding total number of questions (x + y)",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 9,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 2,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identify modal class with maximum frequency",
+     "studentWork": "(i) The most common performance range (modal class) is 30 - 40.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct modal class identified",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Find cumulative frequencies and determine median class",
+     "studentWork": "(ii) cf : 3, 9, 21, 36, 50. N = 50, N/2 = 25\n25 lies in cf 36 => median class = 30 - 40",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct cf computation and median class",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(ii)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculate average/mean marks",
+     "studentWork": "(iii) Don't know.",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "Unattempted sub-part",
+     "mistakeType": null,
+     "correctedWorking": "Class marks x_i: 5, 15, 25, 35, 45.\n∑f_i x_i = 3(5) + 6(15) + 12(25) + 15(35) + 14(45) = 15 + 90 + 300 + 525 + 630 = 1560.\nMean = 1560 / 50 = 31.2",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(iii)",
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Parts (i) and (ii) were answered quickly and accurately. For part (iii), remember that average means the arithmetic mean: find class midpoints x_i, multiply by frequencies, and divide ∑f_i x_i by N.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 2,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "(i) Identify modal class as 30 - 40",
+     "marks": 1
+    },
+    {
+     "point": "(ii) Cumulative frequency table and identifying median class as 30 - 40",
+     "marks": 1
+    },
+    {
+     "point": "(iii) Calculation of mean performance",
+     "marks": 2
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 10,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it has not been marked — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": true,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 10,
+ "gradedCount": 9,
+ "pendingCount": 1,
+ "gradedMarksAwarded": 16,
+ "gradedMarksTotal": 24,
+ "worksheetTotalMarks": 26,
+ "summary": "You demonstrated very strong algebraic and analytical problem-solving skills across mathematics and genetics. To score even higher, always attach proper SI units in science calculations, double-check your transcription of numbers from the question paper, and ensure your answer numbers align with the correct subject questions.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

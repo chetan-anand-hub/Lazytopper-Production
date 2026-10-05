@@ -1,0 +1,56 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Evaluation of Assertion (A) and Reason (R) to select correct option",
+   "studentWork": "Each hemisphere has total surface area 3πr², so two hemispheres joined make a sphere and the sphere also has TSA 3πr². Both A and R are true and R explains A.\nAnswer: (A)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Incorrect option chosen. The total surface area of a sphere of radius r is 4πr², not 3πr².",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Assertion (A) is true: joining two hemispheres of radius r along their bases gives a sphere of radius r.\nReason (R) is false: Total surface area of a sphere of radius r is 4πr² (3πr² is the total surface area of a solid hemisphere).\nTherefore, the correct code is (C).",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Assertion (A) is correct, but Reason (R) is false because the total surface area of a sphere of radius r is 4πr², whereas 3πr² is the TSA of a single solid hemisphere. Therefore, the correct option is (C).",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Correct option: (C) A is true, but R is false",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": true
+}

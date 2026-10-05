@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 3,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Explanation of why decomposition reactions are called the opposite of combination reactions",
+   "studentWork": "In a combination reaction two or more substances combine to form a single product, whereas in a decomposition reaction a single substance breaks down into two or more simpler products. Since one joins substances and the other breaks them apart, they are opposite to each other.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Clear and accurate explanation contrasting the two reaction types.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Balanced chemical equation for combination reaction with names of reactants and products",
+   "studentWork": "Combination: CaO + H₂O → Ca(OH)₂ (calcium oxide + water → calcium hydroxide)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct balanced equation with all reactants and products accurately named.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Balanced chemical equation for decomposition reaction with names of reactants and products",
+   "studentWork": "Decomposition: CaCO₃ → CaO + CO₂ on heating (calcium carbonate → calcium oxide + carbon dioxide)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct balanced thermal decomposition equation with accurate chemical names.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Excellent answer! You provided a clear conceptual explanation along with correctly balanced chemical equations and complete naming of all reactants and products.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Explanation of why decomposition is opposite of combination reaction (definition/contrast)",
+   "marks": 1
+  },
+  {
+   "point": "Chemical equation for combination reaction with names of reactants and products",
+   "marks": 1
+  },
+  {
+   "point": "Chemical equation for decomposition reaction with names of reactants and products",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

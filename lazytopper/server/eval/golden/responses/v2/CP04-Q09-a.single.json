@@ -1,0 +1,113 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 3,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Placing solutions P and Q on the pH scale",
+   "studentWork": "P will be at pH 13 and Q will be at pH 1.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Solution P is a strong acid and should be placed at pH 0–2, while Q is a strong base and should be placed at pH 12–14.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Solution P (strong acid) is placed at pH 0–2 (or ~1) and solution Q (strong base) is placed at pH 12–14 (or ~13).",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Naming compounds to increase and decrease pH of neutral solution",
+   "studentWork": "(i) To increase pH - add sodium hydroxide.\n(ii) To decrease pH - add hydrochloric acid.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified a base (NaOH) to increase pH and an acid (HCl) to decrease pH.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Effect on hydronium ion concentration when pH decreases from 4 to 2",
+   "studentWork": "When pH decreases from 4 to 2, the hydronium ion (H3O+) concentration increases.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly stated that hydronium ion concentration increases.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(c)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Colour change shown by pH paper when pH decreases from 4 to 2",
+   "studentWork": "The pH paper colour changes from orange to red.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct colour transition from orange to red identified.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(c)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Well done on parts (b) and (c) for accurately identifying compounds and interpreting pH changes on hydronium ion concentration and indicator colors. Be careful with the pH scale: acids have pH values below 7 (strong acids near 0–1), while bases have pH values above 7 (strong bases near 13–14).",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Placement of solution P (strong acid, pH ~0–2) and solution Q (strong base, pH ~12–14) on the pH scale",
+   "marks": 1
+  },
+  {
+   "point": "Naming a suitable compound to (i) increase pH (base/alkali) and (ii) decrease pH (acid)",
+   "marks": 1
+  },
+  {
+   "point": "Effect of decreasing pH from 4 to 2 on hydronium ion concentration (increases)",
+   "marks": 1
+  },
+  {
+   "point": "Colour change shown by pH paper (orange to red)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

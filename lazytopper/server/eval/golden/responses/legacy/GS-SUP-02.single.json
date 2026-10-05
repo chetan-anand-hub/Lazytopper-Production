@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 4,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify insulation colours of live and neutral wires",
+   "studentWork": "Live wire — red insulation; neutral wire — black insulation.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct wire colour conventions identified.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Correct formula and calculation of current drawn by electric iron",
+   "studentWork": "P = V × I ⇒ I = P/V = 1000 W / 220 V = 4.54 A.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and calculation of current.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "State the standard circuit rating required",
+   "studentWork": "So the circuit must have a current rating of 5 A.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct standard rating (5 A circuit).",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Explain function and advantage of earth wire",
+   "studentWork": "The earth wire provides a low-resistance conducting path for current, so any current leaking to the metallic body of the iron flows to the earth and the body stays at the potential of the earth. Hence the user does not get an electric shock.",
+   "status": "correct",
+   "marksAwarded": 2,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurate function and advantage stated with proper scientific terms.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: (a) Correct insulation colours for live wire (red) and neutral wire (black) (1); (b) Calculation of current: I = P/V = 1000/220 = 4.54 A (or 4.5 A) (0.5); (b) Specification of required circuit rating (5 A) (0.5); (c)(i) Function of earth wire (provides a low-resistance conducting path to earth) (1); (c)(i) Advantage/safety aspect (ensures metal body remains at earth potential so the user avoids electric shock) (1). Excellent self-correction in part (b) to use P = V × I. All parts are accurately answered with clear explanations and correct technical terms.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

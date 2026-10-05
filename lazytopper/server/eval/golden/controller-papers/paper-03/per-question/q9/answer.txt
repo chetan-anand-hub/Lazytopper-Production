@@ -1,0 +1,8 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+(i) ∠OAP = 60°
+(ii) In right △OAP, OP² = OA² + AP²
+18² = 9² + AP² ⇒ AP² = 324 − 81 = 243
+AP = √243 = 9√3 m
+(iii) In right △OAP, cos θ = OA/OP = 9/18 = 1/2 = cos 60°
+⇒ θ = ∠AOP = 60°
+∴ ∠AOB = 2θ = 120°
