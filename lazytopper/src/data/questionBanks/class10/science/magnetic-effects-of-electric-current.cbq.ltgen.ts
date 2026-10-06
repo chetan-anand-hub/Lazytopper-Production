@@ -39,7 +39,7 @@ export const MAGNETIC_EFFECTS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In a school laboratory in Pune, Ishaan passed a thick straight copper wire vertically through the centre of a horizontal sheet of cardboard. He connected the wire to a battery, a rheostat, an ammeter and a plug key so that the current in the wire flowed vertically upwards. When he sprinkled iron filings on the cardboard and tapped it gently, the filings formed a pattern around the wire. He then placed a small compass on the cardboard at a distance of 5 cm from the wire and noted the deflection of its needle with a current of 1 A. Next, he increased the current to 3 A using the rheostat. Finally, keeping the current at 3 A, he shifted the compass to a point 10 cm from the wire.\n(i) Describe the pattern formed by the iron filings around the wire.\n(ii) Looking down on the cardboard from above, will the magnetic field lines be clockwise or anticlockwise? Name the rule used.\n(iii) How does the deflection of the compass needle change (a) when the current is increased from 1 A to 3 A at the same point, and (b) when the compass is shifted from 5 cm to 10 cm from the wire at the same current? Give a reason for each.",
+    "questionText": "In a school laboratory in Pune, Ishaan passed a thick straight copper wire vertically through the centre of a horizontal sheet of cardboard. He connected the wire to a battery, a rheostat, an ammeter and a plug key so that the current in the wire flowed vertically upwards. When he sprinkled iron filings on the cardboard and tapped it gently, the filings formed a pattern around the wire. He then placed a small compass on the cardboard at a distance of 5 cm from the wire and noted the deflection of its needle with a current of 1 A. Next, he increased the current to 3 A using the rheostat. Finally, keeping the current at 3 A, he shifted the compass to a point 10 cm from the wire.\n(i) Describe the pattern formed by the iron filings around the wire.\n(ii) Looking down on the cardboard from above, will the magnetic field lines be clockwise or anticlockwise? Name the rule used.\n(iii) How does the strength of the magnetic field at the compass, and hence the deflection of its needle, change (a) when the current is increased from 1 A to 3 A at the same point, and (b) when the compass is shifted from 5 cm to 10 cm from the wire at the same current? Give a reason for each.",
     "options": [],
     "answer": "(i) Concentric circles centred on the wire. (ii) Anticlockwise (right-hand thumb rule). (iii) (a) Deflection increases — the field is stronger for a larger current. (b) Deflection decreases — the field becomes weaker farther from the wire.",
     "solutionSteps": [
@@ -315,10 +315,10 @@ export const MAGNETIC_EFFECTS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Displacement decreases (still to the right). (b) Rod is displaced towards the left. (c) Rod is displaced towards the right. Rule: Fleming's left-hand rule.",
     "solutionSteps": [
-      "[1 mark] (a) The displacement decreases (the rod still moves to the right), because the force on the rod decreases when the current decreases.",
-      "[1 mark] (b) The rod is displaced towards the left, because reversing the direction of the magnetic field reverses the direction of the force.",
-      "[0.5 mark] (c) The rod is displaced towards the right again: reversing both the current and the field leaves the direction of the force unchanged.",
-      "[0.5 mark] The direction of the force is given by Fleming's left-hand rule."
+      "[0.5 mark] (a) Force is proportional to current, so the displacement decreases, still to the right.",
+      "[1 mark] (b) Reversing the field reverses the force: the rod is displaced to the left.",
+      "[1 mark] (c) Reversing both current and field reverses the force twice, so the rod is still displaced to the right.",
+      "[0.5 mark] Fleming's left-hand rule gives the direction of force."
     ],
     "finalAnswer": "(a) Smaller displacement to the right; (b) displaced to the left; (c) displaced to the right; Fleming's left-hand rule.",
     "isCompetencyBased": true,

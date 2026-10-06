@@ -264,7 +264,7 @@ export const CONTROL_COORDINATION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Fore-brain; cerebellum. (b) Receptors in the eyes → sensory neurons → brain (fore-brain) → motor neurons (via the spinal cord) → arm muscles. (c) Proteins in the muscle cells change their shape and arrangement in response to the electrical impulse, making the cells shorter so the muscle contracts. (d) Adrenaline; adrenal glands. (e) Hormonal signals travel through the blood and reach all cells of the body, while nerve impulses reach only cells connected by nervous tissue; nerve impulses are electrical and very fast, while hormonal action is chemical and slower.",
     "solutionSteps": [
-      "[1 mark] (a) Fore-brain — the main thinking part of the brain, which takes the decision [0.5]; cerebellum — maintains posture and balance of the body [0.5].",
+      "[1 mark] (a) Fore-brain (cerebrum is also accepted) — the main thinking part of the brain, which takes the decision [0.5]; cerebellum — maintains posture and balance of the body [0.5].",
       "[1 mark] (b) Receptors in the eyes (photoreceptors) detect the ball → sensory neurons carry the impulse to the brain (fore-brain) → the decision is sent through motor neurons (via the spinal cord) → the muscles of the arms (effectors).",
       "[1 mark] (c) Muscle cells contain special proteins that change both their shape and their arrangement in the cell in response to the nervous electrical impulse; this gives the muscle cells a shorter form, so the muscle contracts and the arm moves.",
       "[1 mark] (d) Adrenaline [0.5]; secreted by the adrenal glands [0.5].",

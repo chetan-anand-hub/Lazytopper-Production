@@ -90,7 +90,7 @@ export const HEREDITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In pea plants, tallness (T) is dominant over dwarfness (t) and violet flower colour (V) is dominant over white flower colour (v). A plant breeder crossed two pea plants, both of genotype TtVV.\n(a) Write the types of gametes produced by each parent.\n(b) What percentage of the progeny will be tall with violet flowers?\n(c) What percentage of the progeny will be pure-breeding (homozygous) for both traits?",
+    "questionText": "In pea plants, tallness (T) is dominant over dwarfness (t) and violet flower colour (V) is dominant over white flower colour (v). A plant breeder crossed two pea plants, both of genotype TtVV.\n(a) Write the types of gametes produced by each parent.\n(b) What percentage of the progeny will be tall with violet flowers?\n(c) What percentage of the progeny will be pure-breeding for BOTH genes (that is, carry two identical copies of each gene), whatever their phenotype?",
     "options": [],
     "answer": "(a) TV and tV (in equal numbers). (b) Progeny TTVV : TtVV : ttVV = 1 : 2 : 1, so tall violet = 75%. (c) TTVV + ttVV = 25% + 25% = 50%.",
     "solutionSteps": [

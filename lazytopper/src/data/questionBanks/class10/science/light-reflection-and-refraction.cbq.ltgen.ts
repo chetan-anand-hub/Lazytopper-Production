@@ -179,11 +179,12 @@ export const LIGHT_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Angle of incidence = angle of reflection; the incident ray, the normal and the reflected ray lie in the same plane. (b) v = −60 cm — screen 60 cm in front of the mirror. (c) m = −2, image height −6 cm; real, inverted, magnified. (d) No — the object is within the focal length, so the image is virtual, erect and behind the mirror.",
     "solutionSteps": [
-      "[1 mark] (a) (1) The angle of incidence is equal to the angle of reflection. (2) The incident ray, the normal to the mirror at the point of incidence and the reflected ray all lie in the same plane.",
-      "[1 mark] (b) u = −30 cm, f = −20 cm. 1/v + 1/u = 1/f ⇒ 1/v = 1/f − 1/u = −1/20 + 1/30 = (−3 + 2)/60 = −1/60.",
-      "[1 mark] (b) v = −60 cm, so the screen must be placed 60 cm in front of the mirror (on the same side as the flame).",
-      "[1 mark] (c) m = −v/u = −(−60)/(−30) = −2; h′ = m × h = −2 × 3 cm = −6 cm; the image is real, inverted and magnified (twice the size).",
-      "[1 mark] (d) No. At 10 cm the flame lies between the pole and the focus (less than 20 cm), so the image is virtual, erect and formed behind the mirror; a virtual image cannot be obtained on a screen."
+      "[1 mark] (a) Laws: (i) angle of incidence = angle of reflection; (ii) incident ray, normal at the point of incidence and reflected ray lie in the same plane.",
+      "[0.5 mark] (b) u = −30 cm, f = −20 cm; mirror formula 1/v + 1/u = 1/f.",
+      "[1 mark] (b) 1/v = 1/f − 1/u = −1/20 + 1/30 = −1/60, so v = −60 cm: screen 60 cm in front of the mirror.",
+      "[0.5 mark] (c) m = −v/u = −(−60)/(−30) = −2.",
+      "[1 mark] (c) h' = m × h = −2 × 3 = −6 cm; image is real, inverted and magnified (6 cm tall).",
+      "[1 mark] (d) No: object between P and F gives 1/v = −1/20 + 1/10 = 1/20, v = +20 cm, a virtual, erect image behind the mirror, which cannot be taken on a screen."
     ],
     "finalAnswer": "(a) i = r; incident ray, normal and reflected ray in one plane; (b) screen 60 cm in front of the mirror (v = −60 cm); (c) m = −2, image 6 cm tall, real, inverted, magnified; (d) no — the image is virtual (object within focus).",
     "isCompetencyBased": true,

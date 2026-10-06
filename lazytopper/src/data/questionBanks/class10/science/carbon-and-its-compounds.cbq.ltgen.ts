@@ -207,7 +207,7 @@ export const CARBON_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) P = ethanol (C2H5OH); Q = ethanoic acid (CH3COOH). (ii) Carbon dioxide; it turns lime water milky. (iii) CH3COOH + C2H5OH → CH3COOC2H5 + H2O (acid catalyst), esterification; R (an ester) on heating with NaOH: CH3COOC2H5 + NaOH → C2H5OH + CH3COONa (saponification).",
     "solutionSteps": [
-      "[1 mark] (i) P = ethanol, C2H5OH; Q = ethanoic acid, CH3COOH.",
+      "[1 mark] (i) P = ethanol, C2H5OH; Q = ethanoic acid (acetic acid), CH3COOH — the common name or the formula earns the mark.",
       "[1 mark] (ii) Carbon dioxide (CH3COOH + NaHCO3 → CH3COONa + H2O + CO2); when passed through lime water it turns the lime water milky.",
       "[1 mark] (iii) CH3COOH + C2H5OH → CH3COOC2H5 + H2O (in the presence of an acid); this is esterification, and R is a sweet-smelling ester.",
       "[1 mark] (iii) Heating the ester R with sodium hydroxide gives back ethanol and sodium ethanoate (saponification): CH3COOC2H5 + NaOH → C2H5OH + CH3COONa."

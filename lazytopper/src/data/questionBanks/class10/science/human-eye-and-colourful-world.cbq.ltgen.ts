@@ -45,7 +45,7 @@ export const HUMAN_EYE_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] (i) In the eastern sky, i.e. opposite to the Sun; a rainbow is always formed in a direction opposite to that of the Sun, with the Sun behind the observer.",
       "[1 mark] (ii) The tiny water droplets suspended in the atmosphere act as small prisms.",
-      "[1 mark] (iii) Sunlight is first refracted and dispersed as it enters the raindrop — this is where the colours separate.",
+      "[1 mark] (iii) Sunlight is first refracted and dispersed as it enters the raindrop — this is where the colours separate (listing dispersion as a separate step is also accepted).",
       "[1 mark] (iii) It is then reflected internally at the back surface of the drop, and is finally refracted again as it comes out of the drop, reaching the observer's eye as a band of colours."
     ],
     "finalAnswer": "(i) Eastern sky, opposite the Sun; (ii) tiny water droplets; (iii) refraction and dispersion on entry (colours separate) → internal reflection → refraction on leaving.",

@@ -522,6 +522,18 @@ import { AP_LT_GENERATED } from './questionBanks/class10/maths/arithmetic-progre
 import { TRIANGLES_LT_GENERATED } from './questionBanks/class10/maths/triangles.ltgen';
 import { CIRCLES_LT_GENERATED } from './questionBanks/class10/maths/circles.ltgen';
 import { MAGNETIC_EFFECTS_LT_GENERATED } from './questionBanks/class10/science/magnetic-effects-of-electric-current.ltgen';
+// GEN-THIN-1 PR-2 — competency-based questions of every mark (owner ruling: chapters below 8
+// served case studies in the CBQ chooser). Same internal-only provenance; + `competencyVerified`.
+import { MAGNETIC_EFFECTS_CBQ_LT_GENERATED } from './questionBanks/class10/science/magnetic-effects-of-electric-current.cbq.ltgen';
+import { REPRODUCTION_CBQ_LT_GENERATED } from './questionBanks/class10/science/how-do-organisms-reproduce.cbq.ltgen';
+import { CONTROL_COORDINATION_CBQ_LT_GENERATED } from './questionBanks/class10/science/control-and-coordination.cbq.ltgen';
+import { CIRCLES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/circles.cbq.ltgen';
+import { CARBON_CBQ_LT_GENERATED } from './questionBanks/class10/science/carbon-and-its-compounds.cbq.ltgen';
+import { HEREDITY_CBQ_LT_GENERATED } from './questionBanks/class10/science/heredity.cbq.ltgen';
+import { HUMAN_EYE_CBQ_LT_GENERATED } from './questionBanks/class10/science/human-eye-and-colourful-world.cbq.ltgen';
+import { OUR_ENVIRONMENT_CBQ_LT_GENERATED } from './questionBanks/class10/science/our-environment.cbq.ltgen';
+import { REAL_NUMBERS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/real-numbers.cbq.ltgen';
+import { LIGHT_CBQ_LT_GENERATED } from './questionBanks/class10/science/light-reflection-and-refraction.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1009,6 +1021,17 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...TRIANGLES_LT_GENERATED,
   ...CIRCLES_LT_GENERATED,
   ...MAGNETIC_EFFECTS_LT_GENERATED,
+  // GEN-THIN-1 PR-2 — competency-based questions of every mark.
+  ...MAGNETIC_EFFECTS_CBQ_LT_GENERATED,
+  ...REPRODUCTION_CBQ_LT_GENERATED,
+  ...CONTROL_COORDINATION_CBQ_LT_GENERATED,
+  ...CIRCLES_CBQ_LT_GENERATED,
+  ...CARBON_CBQ_LT_GENERATED,
+  ...HEREDITY_CBQ_LT_GENERATED,
+  ...HUMAN_EYE_CBQ_LT_GENERATED,
+  ...OUR_ENVIRONMENT_CBQ_LT_GENERATED,
+  ...REAL_NUMBERS_CBQ_LT_GENERATED,
+  ...LIGHT_CBQ_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------
