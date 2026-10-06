@@ -1754,13 +1754,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
-          "id": "M-TRI-6",
-          "text": "In ΔABC, right-angled at B, if AB = 6 cm and BC = 8 cm, find AC and verify Pythagoras theorem.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
           "id": "M-TRI-8",
           "text": "In ΔABC and ΔPQR, if ∠A = ∠P, ∠B = ∠Q and BC/QR = CA/RP, prove that triangles are similar.",
           "marks": 4,

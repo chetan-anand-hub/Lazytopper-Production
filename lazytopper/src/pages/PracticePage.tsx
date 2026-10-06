@@ -491,8 +491,12 @@ import {
   multiTopicSessionIdentity,
   MULTI_TOPIC_MIN_TOPICS,
 } from "../components/practice/multiTopicPractice";
+import {
+  composeFullSubjectSet,
+  resolveFullSubjectChapterKeys,
+} from "../components/practice/fullSubjectPractice";
 import { buildTutorPath } from "./tutor/tutorPath";
-import { ensureBankChapters } from "../data/bankChapters/loader";
+import { ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import { PracticeControls } from "../components/practice/PracticeControls";
 import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
@@ -637,7 +641,19 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // fetch per topic and merges (shape "3c"). 0/1 members → `isMultiTopic` is false and
   // every single-topic derivation below is byte-unchanged (the additive guarantee).
   // Resolved HERE, before `rotationOffset`, so the rotation seed can key on the topic SET.
-  const multiTopicSlugsRaw = useMemo(() => parseTopicsParam(qp.get("topics")), [qp]);
+  // QUICK-FIXES-1 (Q1): a FULL-SUBJECT arrival (`scope=full-subject`, no topic) is a
+  // multi-topic set over EVERY board chapter of the subject (2026-27 syllabus module).
+  // Before this, an absent topic fell through to the default chapter above, so "Full
+  // subject" served Real Numbers only (P4). Explicit topic= / topics= always win.
+  const fullSubjectChapterKeys = useMemo(
+    () => resolveFullSubjectChapterKeys(qp, subjectKey),
+    [qp, subjectKey],
+  );
+  const isFullSubject = fullSubjectChapterKeys.length >= MULTI_TOPIC_MIN_TOPICS;
+  const multiTopicSlugsRaw = useMemo(
+    () => (isFullSubject ? fullSubjectChapterKeys : parseTopicsParam(qp.get("topics"))),
+    [isFullSubject, fullSubjectChapterKeys, qp],
+  );
   const multiTopics = useMemo(() => {
     if (multiTopicSlugsRaw.length < MULTI_TOPIC_MIN_TOPICS) return [];
     const subjLower = String(subjectKey).toLowerCase();
@@ -1615,11 +1631,22 @@ const packTopicKey = useMemo(() => {
               ),
               timeout,
             ]);
-            next = composeBoardMultiTopicSet({
-              pools,
-              total: questionCount,
-              offset: rotationOffset,
-            });
+            next = isFullSubject
+              ? // Full subject: proportional to each chapter's SERVED questions, no chapter
+                // above 30% of the set, seeded by the same session offset (deterministic).
+                composeFullSubjectSet({
+                  pools,
+                  weights: new Map(
+                    multiTopics.map((t) => [t.canonicalSlug, getBankRows([t.canonicalSlug]).length]),
+                  ),
+                  total: questionCount,
+                  seed: rotationOffset,
+                })
+              : composeBoardMultiTopicSet({
+                  pools,
+                  total: questionCount,
+                  offset: rotationOffset,
+                });
           } else {
             // NARROW preset (a specific mark bucket / style the student chose) — one deep
             // single-topic fetch per topic, merged + interleaved so the head spans topics;
@@ -1801,6 +1828,7 @@ const packTopicKey = useMemo(() => {
     regenerationKey,
     // Multi-topic fan-out deps (the single-topic path never reads these).
     isMultiTopic,
+    isFullSubject,
     multiTopics,
     rotationOffset,
   ]);
@@ -2409,7 +2437,9 @@ const packTopicKey = useMemo(() => {
     persistQuickPracticeSession({
       user: authUserForJourney,
       title: mtIdentity
-        ? mtIdentity.title
+        ? isFullSubject
+          ? `Full ${subjectKey} · Practice set`
+          : mtIdentity.title
         : topicLabel
           ? `${topicLabel} · Practice set`
           : "Practice set",
@@ -2425,7 +2455,7 @@ const packTopicKey = useMemo(() => {
   }, [
     showScorecard, committedPoolSelection.displayed, gradedResults, mcqResults,
     authUserForJourney, topicLabel, subjectKey, canonicalTopicKey, topicParam,
-    filterSignature, sessionStartedAt, isMultiTopic, multiTopics,
+    filterSignature, sessionStartedAt, isMultiTopic, isFullSubject, multiTopics,
     batchResult, batchSelection.batch.length,
   ]);
 
