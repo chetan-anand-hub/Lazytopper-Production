@@ -20,6 +20,8 @@ import {
   type PingRun,
   type RolloutDeps,
 } from "../../scripts/seo/searchPing";
+import { verdictForFiles } from "../../scripts/ops/vercel_ignore_build.mjs";
+import { SKIP_LINE, classifyLiveRead, decideInertSkip } from "../../scripts/ops/searchping_inert_skip.mjs";
 
 /**
  * GUARD — SEO-FRESH-1 F4/F5: the post-deploy search ping.
@@ -151,14 +153,14 @@ interface IfContext {
 
 /**
  * Evaluate a workflow `if:` against a context. Supports exactly the grammar these conditions
- * use — `path == 'lit'` operands over `github.*` / `steps.*`, joined by `&&` / `||`, with
+ * use — `path == 'lit'` / `path != 'lit'` operands over `github.*` / `steps.*`, joined by `&&` / `||`, with
  * parentheses — and THROWS on anything else, so a condition this cannot read fails loudly
  * instead of being judged permissive. An ABSENT `if:` is `true` (GitHub's default).
  */
 function evaluateIf(condition: string | undefined, context: IfContext): boolean {
   if (condition === undefined) return true;
   const source = condition.replace(/^\s*\$\{\{\s*|\s*\}\}\s*$/g, "");
-  const tokens = source.match(/\(|\)|&&|\|\||[\w.-]+\s*==\s*'[^']*'|\S+/g) ?? [];
+  const tokens = source.match(/\(|\)|&&|\|\||[\w.-]+\s*[!=]=\s*'[^']*'|\S+/g) ?? [];
   let at = 0;
   const lookup = (path: string): unknown =>
     path.split(".").reduce<unknown>(
@@ -172,9 +174,11 @@ function evaluateIf(condition: string | undefined, context: IfContext): boolean 
       if (tokens[at++] !== ")") throw new Error(`unbalanced ( in if: "${source}"`);
       return value;
     }
-    const match = /^((?:github|steps)\.[\w.-]+)\s*==\s*'([^']*)'$/.exec(token ?? "");
+    const match = /^((?:github|steps)\.[\w.-]+)\s*([!=])=\s*'([^']*)'$/.exec(token ?? "");
     if (!match) throw new Error(`unsupported token "${token}" in if: "${source}"`);
-    return lookup(match[1]) === match[2];
+    // A missing output is '' in Actions; `!=` against a literal is therefore TRUE when it is absent.
+    const equal = lookup(match[1]) === match[3];
+    return match[2] === "=" ? equal : !equal;
   };
   const andExpr = (): boolean => {
     let value = operand();
@@ -423,6 +427,8 @@ describe("search-ping.yml — S2 gate: no ping until the release is live", () =>
   const steps = Object.values(workflow.jobs).flatMap((job) => job.steps);
   const ping = steps.find((step) => step.name === PING_STEP_NAME);
   const wait = steps.find((step) => typeof step.run === "string" && /searchPing\.ts\b.*--wait\b/.test(step.run));
+  const inert = steps.find((step) => typeof step.run === "string" && /searchPing\.ts\b.*--inert-skip-check\b/.test(step.run));
+  const INERT_ID = "inert";
 
   it("the ping step exists under the exact name S3 looks for", () => {
     expect(ping, `no step named "${PING_STEP_NAME}"`).toBeDefined();
@@ -446,8 +452,137 @@ describe("search-ping.yml — S2 gate: no ping until the release is live", () =>
     }
   });
 
-  it("★ SEARCHPING-3 — the wait step itself runs for EVERY trigger, push included (no ping skips the wait)", () => {
-    for (const [name, trigger] of TRIGGERS) expect(stepRunsFor(wait as WorkflowStep, trigger, {}), name).toBe(true);
+  // ★ AMENDED (CI-SPEED-1, owner ruling 2026-10-07 "Amend guard in #969"). This assertion was
+  //   "the wait step runs for EVERY trigger". A docs-only merge that vercel.json's ignoreCommand
+  //   did not deploy is never served by www, so that wait could only time out red. The rule is now:
+  //   the wait runs for EVERY trigger UNLESS the deploy-inert check step says skipped == 'true' —
+  //   and a missing, empty or any other value of that output still runs it.
+  it("★ SEARCHPING-3 — the wait step runs for EVERY trigger, push included, unless the deploy-inert skip applies", () => {
+    for (const [name, trigger] of TRIGGERS) {
+      expect(stepRunsFor(wait as WorkflowStep, trigger, {}), name).toBe(true);
+      expect(stepRunsFor(wait as WorkflowStep, trigger, { [INERT_ID]: { skipped: "false" } }), name).toBe(true);
+      expect(
+        stepRunsFor(wait as WorkflowStep, trigger, { [INERT_ID]: { skipped: "true" } }),
+        `${name}: waits for a SHA the ignoreCommand never deployed`,
+      ).toBe(false);
+    }
+    // The ONLY thing that can turn the wait off is that one output.
+    expect(wait?.if).toBe(`steps.${INERT_ID}.outputs.skipped != 'true'`);
+  });
+
+  it("CI-SPEED-1 (a) — the deploy-inert check runs searchPing.ts --inert-skip-check BEFORE the wait, for EVERY trigger", () => {
+    expect(inert, "no step runs searchPing.ts --inert-skip-check").toBeDefined();
+    expect(inert?.id).toBe(INERT_ID);
+    expect(steps.indexOf(inert as WorkflowStep)).toBeLessThan(steps.indexOf(wait as WorkflowStep));
+    for (const [name, trigger] of TRIGGERS) expect(stepRunsFor(inert as WorkflowStep, trigger, {}), name).toBe(true);
+    expect(inert?.env?.DEPLOY_SHA).toBe(PINGED_SHA);
+    expect(inert?.run).toBe('pnpm --filter lazytopper exec tsx scripts/seo/searchPing.ts --sha="$DEPLOY_SHA" --inert-skip-check');
+  });
+
+  it("★ CI-SPEED-1 (b) — the skip decision calls the SHARED classifier and nothing else (no path rule in YAML or in the skip module)", () => {
+    // No inline path list anywhere in the workflow's step logic.
+    for (const step of steps) {
+      for (const text of [step.run ?? "", step.if ?? ""]) {
+        expect(text, `${step.name ?? step.uses}: an inline path rule`).not.toMatch(/\.md\b|handoff\/|paths?-ignore|git diff/);
+      }
+    }
+    // searchPing.ts wires the shared module; the module imports vercel_ignore_build.mjs's verdictForFiles.
+    const host = readFileSync(resolve(process.cwd(), "scripts", "seo", "searchPing.ts"), "utf8");
+    expect(host).toMatch(/import \{[^}]*\bdecideInertSkip\b[^}]*\} from "\.\.\/ops\/searchping_inert_skip\.mjs"/);
+    expect(host).toMatch(/import \{[^}]*\blistChangedPaths\b[^}]*\} from "\.\.\/ops\/vercel_ignore_build\.mjs"/);
+    const skipSource = readFileSync(resolve(process.cwd(), "scripts", "ops", "searchping_inert_skip.mjs"), "utf8");
+    expect(skipSource).toMatch(/import \{[^}]*\bverdictForFiles\b[^}]*\} from "\.\/vercel_ignore_build\.mjs"/);
+    expect(skipSource.replace(/^\s*\/\/.*$/gm, ""), "the skip module holds a path rule of its own").not.toMatch(
+      /\.md\b|endsWith|SHIPPING_SEGMENTS|handoff\//,
+    );
+    // Behaviourally: for every path, the skip module's verdict IS verdictForFiles's verdict.
+    const SHA = "1111111111111111111111111111111111111111";
+    const LIVE = "0000000000000000000000000000000000000000";
+    const isAncestor = (a: string, d: string): boolean => a === LIVE && d === SHA;
+    for (const path of [
+      "handoff/CURRENT_STATE.md",
+      "CLAUDE.md",
+      "notes/NoteSpec_Schema.md",
+      "lazytopper/src/data/bsre/notes.md",
+      "lazytopper/public/llms.md",
+      "lazytopper/prerendered/__desktop/index.md",
+      "handoff/curation/conceptFigureCatalogue.curated.ts",
+      ".github/workflows/search-ping.yml",
+      "vercel.json",
+    ]) {
+      const kind = classifyLiveRead(SHA, LIVE, { isAncestor, changedFiles: () => [path] }).kind;
+      expect(kind, path).toBe(verdictForFiles([path]).skip ? "inert" : "wait");
+    }
+  });
+
+  it("★ CI-SPEED-1 (c) — the ping NEVER runs on the skip path, for EVERY trigger", () => {
+    const waitId = wait?.id as string;
+    for (const [name, trigger] of TRIGGERS) {
+      expect(stepRunsFor(ping as WorkflowStep, trigger, { [INERT_ID]: { skipped: "true" } }), name).toBe(false);
+      // Even if a live=true somehow coexisted with the skip, the skip wins.
+      expect(
+        stepRunsFor(ping as WorkflowStep, trigger, { [INERT_ID]: { skipped: "true" }, [waitId]: { live: "true" } }),
+        `${name}: pings on the skip path`,
+      ).toBe(false);
+      // CONTROL — the normal path is untouched: skipped=false + live=true pings.
+      expect(
+        stepRunsFor(ping as WorkflowStep, trigger, { [INERT_ID]: { skipped: "false" }, [waitId]: { live: "true" } }),
+        name,
+      ).toBe(true);
+    }
+    expect(SKIP_LINE).toBe("deploy skipped by ignoreCommand: nothing new to ping");
+  });
+
+  it("★ CI-SPEED-1 (d) — FAILS TOWARD WAITING: a crashed, missing or unreadable check runs the wait, never skips", async () => {
+    // YAML: a crash must not fail the job AND must not skip — continue-on-error + a `!= 'true'` condition.
+    expect((inert as WorkflowStep & { "continue-on-error"?: boolean })["continue-on-error"]).toBe(true);
+    const crashed: Array<Record<string, Record<string, string>>> = [
+      {},
+      { [INERT_ID]: {} },
+      { [INERT_ID]: { skipped: "" } },
+      { [INERT_ID]: { skipped: "yes" } },
+    ];
+    for (const [name, trigger] of TRIGGERS) {
+      for (const outputs of crashed) {
+        expect(stepRunsFor(wait as WorkflowStep, trigger, outputs), `${name} ${JSON.stringify(outputs)}`).toBe(true);
+      }
+    }
+    // The decision: unreadable live (null or a throwing fetch), or a git error, is never a skip.
+    const SHA = "1111111111111111111111111111111111111111";
+    const LIVE = "0000000000000000000000000000000000000000";
+    const base = {
+      isAncestor: (a: string, d: string): boolean => a === LIVE && d === SHA,
+      changedFiles: (): string[] => ["handoff/CURRENT_STATE.md"],
+      sleep: async (): Promise<void> => {},
+      log: (): void => {},
+    };
+    const unreadable = await decideInertSkip(SHA, { ...base, readLiveSha: async () => null }, { intervalMs: 0 });
+    const throwing = await decideInertSkip(
+      SHA,
+      {
+        ...base,
+        readLiveSha: async (): Promise<string | null> => {
+          throw new Error("fetch failed");
+        },
+      },
+      { intervalMs: 0 },
+    );
+    const gitError = await decideInertSkip(
+      SHA,
+      {
+        ...base,
+        readLiveSha: async () => LIVE,
+        isAncestor: (): boolean => {
+          throw new Error("git");
+        },
+      },
+      { intervalMs: 0 },
+    );
+    for (const result of [unreadable, throwing, gitError]) expect(result).toMatchObject({ skip: false, path: "wait" });
+    // CONTROL — the same deps with a readable ancestor DO skip, so the three above are not vacuous.
+    await expect(
+      decideInertSkip(SHA, { ...base, readLiveSha: async () => LIVE }, { intervalMs: 0 }),
+    ).resolves.toMatchObject({ skip: true, path: "skip" });
   });
 
   it("S4 — the ping step still carries the GSC secret/variable, unchanged", () => {

@@ -41,9 +41,12 @@
 # `github.sha` (the pushed commit — the resolution order above falls through to it): the same
 # 5-in-a-row version.json wait, 30-minute cap, descendant -> clean exit, timeout -> red, and
 # the same S3 diff from the last successful ping.
-#   · NO path filter: docs-only pushes (handoff commits) deploy too, so they are pinged and
-#     are expected to report changed=0 (no IndexNow request). A path filter would also skip
-#     the wait for a commit that DOES go live and can supersede the previous one.
+#   · NO path filter: a path filter would also skip the wait for a commit that DOES go live
+#     and can supersede the previous one.
+#   · CI-SPEED-1: a docs-only push that Vercel's ignoreCommand did NOT deploy is detected by
+#     step "Skip if the deploy was ignored" (what www serves is an ancestor, and every file
+#     since is deploy-inert by the same classifier) — the run exits GREEN with
+#     "deploy skipped by ignoreCommand: nothing new to ping", no wait, no ping.
 #   · deployment_status is kept exactly as is. If Vercel ever posts one again, its run shares
 #     this SHA's concurrency group, so it QUEUES behind the push run (never pings at the same
 #     time), and then either diffs from the push run's ping (changed=0) or, if www has moved
@@ -106,8 +109,25 @@ jobs:
       - name: Install workspace (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
+      # CI-SPEED-1 (owner ruling 2026-10-07, "Amend guard in #969"). vercel.json's ignoreCommand
+      # skips a production build when everything since the deployed commit is deploy-inert
+      # markdown; www then never serves this SHA and the wait below would time out red. This step
+      # reads what www ACTUALLY serves and sets skipped=true ONLY when that commit is an ancestor
+      # of this one and every file in between is deploy-inert by vercel_ignore_build.mjs's own
+      # classifier (lazytopper/scripts/ops/searchping_inert_skip.mjs — no path rule lives here).
+      # ★ FAILS TOWARD WAITING: any other outcome writes skipped=false; a crash leaves the output
+      # unset (continue-on-error), and the wait's condition is `!= 'true'`, so it still runs.
+      - name: Skip if the deploy was ignored (deploy-inert docs only)
+        id: inert
+        continue-on-error: true
+        timeout-minutes: 5
+        env:
+          DEPLOY_SHA: ${{ github.event.deployment.sha || inputs.sha || github.sha }}
+        run: pnpm --filter lazytopper exec tsx scripts/seo/searchPing.ts --sha="$DEPLOY_SHA" --inert-skip-check
+
       - name: Wait for the rollout to reach www
         id: rollout
+        if: steps.inert.outputs.skipped != 'true'
         timeout-minutes: 35
         env:
           DEPLOY_SHA: ${{ github.event.deployment.sha || inputs.sha || github.sha }}
@@ -116,7 +136,7 @@ jobs:
       # ⚠ This step's NAME is load-bearing: a later run treats a past run as "pinged" only if
       # a step with exactly this name concluded success in it (searchPing.ts PING_STEP_NAME).
       - name: Ping IndexNow (and Search Console when configured)
-        if: steps.rollout.outputs.live == 'true'
+        if: steps.inert.outputs.skipped != 'true' && steps.rollout.outputs.live == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           DEPLOY_SHA: ${{ github.event.deployment.sha || inputs.sha || github.sha }}
