@@ -534,6 +534,73 @@ test('U3 · premium 5-HOUR cap ₹25 over rolling IST hour buckets -> 429 fiveHo
   assert.equal(out.res.sent.body.resetAt, '2026-09-27T22:30:00.000Z');
 });
 
+/* A-17 J1b METER-PRICE-1 (owner 2026-10-07): "grading must count its real cost against premium fair-use caps". */
+
+/** A Firestore that APPLIES the ledger's merge increments (nested hour buckets too) and reads them back. */
+function applyingFirestore() {
+  const docs = new Map();
+  const FieldValue = { increment: (n) => ({ __inc: n }) };
+  const merge = (into, data) => {
+    for (const [k, v] of Object.entries(data)) {
+      if (v && typeof v === 'object' && '__inc' in v) into[k] = (Number(into[k]) || 0) + v.__inc;
+      else if (v && typeof v === 'object') merge((into[k] = into[k] && typeof into[k] === 'object' ? into[k] : {}), v);
+      else into[k] = v;
+    }
+  };
+  const docRef = (p) => ({
+    collection: (name) => collRef(p + '/' + name),
+    async set(data) { const d = docs.get(p) || {}; merge(d, data); docs.set(p, d); },
+    async get() { const d = docs.get(p); return { exists: Boolean(d), data: () => (d ? JSON.parse(JSON.stringify(d)) : undefined) }; },
+  });
+  const collRef = (p) => ({ doc: (id) => docRef(p + '/' + id) });
+  return { docs, resolve: () => ({ db: { collection: collRef }, FieldValue }) };
+}
+
+// MUTATION J1b-M1 (delete the gemini-3.8-flash price row) -> RED: four grading calls cost 0 and the 5th request is SERVED.
+test('J1b (c) · a PREMIUM student driven past the 5-hour cap by gemini-3.8-flash GRADING calls is refused (429 fiveHour)', async () => {
+  const ledgerLib = require('./usageLedger.cjs');
+  // One grading call: 10,000 prompt + 20,000 thinking tokens on gemini-3.8-flash (Sept 2026 price):
+  // (10000 * $0.75 + 20000 * $3.75) / 1M * 88 = Rs 7.26. Three calls = Rs 21.78 (< Rs 25); four = Rs 29.04 (>= Rs 25).
+  const CALL = { model: 'gemini-3.8-flash', promptTokenCount: 10000, candidatesTokenCount: 0, thoughtsTokenCount: 20000 };
+  assert.equal(ledgerLib.buildLedgerIncrement(CALL, { env: {}, nowMs: NOW }).increment.costMicroInr, 7.26 * INR);
+  const store = applyingFirestore();
+  const ledger = ledgerLib.createUsageLedger({ resolveFirestore: store.resolve, telemetry: { increment() {} }, env: {}, now: () => NOW });
+  const sent = [];
+  const gate = createFairUse({
+    tierOf: async () => 'premium', ledger, telemetry: recorder(), env: { FAIR_USE_ENFORCE: '1' }, now: () => NOW,
+    readJson: rawReadJson, resolveFirestore: () => ({ db: store.resolve().db }),
+    sendJson: (res, status, body) => { sent.push({ status, body }); res.sent = { status, body }; },
+    verifiedCaller: { resolveVerifiedUid: async () => 'stu-1' },
+  });
+  /** One graded request: the grading core holds the call in a meter group and settles it at the graded share (1). */
+  async function gradeOnce() {
+    const req = fakeReq({ body: { question: 'Q', marks: 3 } });
+    const res = fakeRes();
+    const answered = await ledgerLib.runWithRequestContext(async () => {
+      ledgerLib.bindRequestUid('stu-1', CHECK_SOLUTION_PATH);
+      const refused = await gate.applyToRequest(req, res, CHECK_SOLUTION_PATH, 'stu-1');
+      if (refused) return true;
+      const group = ledgerLib.createMeterGroup();
+      await ledgerLib.runInMeterGroup(group, async () => ledger.recordUsage(CALL)); // what geminiClient does
+      ledgerLib.settleMeterGroup(group, 1); // every question graded
+      res.serve(200);
+      return false;
+    });
+    for (let i = 0; i < 5; i += 1) await new Promise((r) => setImmediate(r));
+    return { answered, res };
+  }
+  for (let i = 1; i <= 4; i += 1) assert.equal((await gradeOnce()).answered, false, 'grade ' + i + ' is served (the cap has not been reached before it)');
+  const day = store.docs.get('usageLedger/stu-1/days/' + TODAY);
+  assert.equal(day.costMicroInr, 4 * 7.26 * INR, 'the premium meter holds the real cost of the four grading calls');
+  assert.equal(day.hourCostMicroInr['11'], 4 * 7.26 * INR, 'in the 11:00 IST bucket the 5-hour cap reads');
+  assert.equal(day.providerSpendMicroInr, 4 * 7.26 * INR, 'and the real spend');
+  const over = await gradeOnce();
+  assert.equal(over.answered, true, 'the 5th grade is refused');
+  assert.equal(over.res.sent.status, 429);
+  assert.equal(over.res.sent.body.error, 'usage_limit');
+  assert.equal(over.res.sent.body.window, 'fiveHour');
+});
+
 // MUTATION MUT-3 target.
 test('U3 · the caps come from env ONLY — never from the request', async () => {
   const days = { [TODAY]: { costMicroInr: 38 * INR, trialChecks: 5 } };

@@ -10,7 +10,10 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
-    setupFiles: ["./src/test/setup.ts"],
+    // clockRecorder (CI-SPEED-1 D39): in the NORMAL run, fails a test file whose repo code read
+    // the clock while the file is missing from scripts/testClock/date-sensitive-tests.json - the
+    // list the CI clock jobs run. Inactive under LT_TEST_CLOCK. See that file.
+    setupFiles: ["./src/test/setup.ts", "./scripts/testClock/clockRecorder.setup.mjs"],
     include: ["src/**/*.test.{ts,tsx}"],
     // WORKER CAP — paired with NODE_OPTIONS=--max-old-space-size=6144 on the CI
     // vitest step. Each worker gets its own module registry, so whichever suites

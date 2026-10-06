@@ -47,7 +47,7 @@ const {
   istHourKey,
   TELEMETRY,
 } = require('./usageLedger.cjs');
-const { MODEL_PRICES, DEFAULT_USD_INR, usdInrRate } = require('./modelPrices.cjs');
+const { MODEL_PRICES, DEFAULT_USD_INR, usdInrRate, priceFor, IST_2027_01_01_MS } = require('./modelPrices.cjs');
 const { createGeminiClient } = require('./geminiClient.cjs');
 const { PAID_ENDPOINTS, istDayKey } = require('./rateLimiter.cjs');
 
@@ -202,6 +202,91 @@ test('M2 · an UNKNOWN model costs 0 and is COUNTED as unpriced — never a gues
   }
   // CONTROL: a priced model does NOT emit the unpriced count.
   assert.equal(buildLedgerIncrement({ model: 'gemini-2.5-flash' }).priced, true);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   A-17 J1b METER-PRICE-1 · grading counts its REAL cost (owner 2026-10-07)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const REC_38 = { model: 'gemini-3.8-flash', promptTokenCount: 1000, candidatesTokenCount: 200, thoughtsTokenCount: 800 };
+// 1000 * $0.75/M = 750 micro-USD; (200 + 800) * $3.75/M = 3750 micro-USD; 4500 * 88 = 396,000 micro-INR (Rs 0.396).
+const COST_38_2026 = 396000;
+// From 2027-01-01 IST the list price doubles ($1.50 / $7.50): 9000 micro-USD * 88 = 792,000 micro-INR.
+const COST_38_2027 = 792000;
+
+// MUTATION J1b-M1: delete the gemini-3.8-flash row from MODEL_PRICES -> RED (priced false, cost 0).
+test('J1b (a) · a gemini-3.8-flash grading call records its exact real cost — no longer 0', async () => {
+  const sep30 = Date.UTC(2026, 8, 27, 6, 0, 0);
+  const built = buildLedgerIncrement(REC_38, { env: {}, nowMs: sep30 });
+  assert.equal(built.priced, true, 'gemini-3.8-flash is priced');
+  assert.equal(built.increment.costMicroInr, COST_38_2026);
+  // End to end: the real Gemini client -> the real ledger, a bound student, the model production grades with.
+  const f = stubFetch(USAGE);
+  const { client, store, sink } = rig({ now: () => sep30 });
+  try {
+    await asVerifiedStudent('stu-1', () => client.callGemini('gemini-3.8-flash', CONTENTS, {}), '/api/grade-worksheet');
+    await settle();
+    assert.equal(store.writes.length, 1);
+    assert.deepEqual(store.writes[0].data.costMicroInr, { __increment: COST_38_2026 });
+    assert.deepEqual(store.writes[0].data.hourCostMicroInr, { 11: { __increment: COST_38_2026 } });
+    assert.equal(sink.count(TELEMETRY.UNPRICED_MODEL), 0, 'not counted as unpriced');
+  } finally {
+    f.restore();
+  }
+});
+
+// MUTATION J1b-M2: drop the PRICE_CHANGES row (or ignore atMs in priceFor) -> RED (January costs the 2026 price).
+test('J1b (a) · DATE-EFFECTIVE: the 2026 price through 2026-12-31 IST, double from 2027-01-01 00:00 IST — both sides pinned', async () => {
+  assert.equal(IST_2027_01_01_MS, Date.parse('2027-01-01T00:00:00+05:30'));
+  const lastMs = IST_2027_01_01_MS - 1;
+  assert.equal(buildLedgerIncrement(REC_38, { env: {}, nowMs: lastMs }).increment.costMicroInr, COST_38_2026, '23:59:59.999 IST on 2026-12-31');
+  assert.equal(buildLedgerIncrement(REC_38, { env: {}, nowMs: IST_2027_01_01_MS }).increment.costMicroInr, COST_38_2027, '00:00 IST on 2027-01-01');
+  assert.deepEqual(priceFor('gemini-3.8-flash', IST_2027_01_01_MS), { inputUsdPerMillion: 1.5, outputUsdPerMillion: 7.5 });
+  // CONTROL: a model with no scheduled change keeps its price across the boundary.
+  assert.equal(buildLedgerIncrement({ ...REC_38, model: 'gemini-2.5-flash' }, { env: {}, nowMs: IST_2027_01_01_MS }).increment.costMicroInr, 246400);
+  // Through the ledger's own clock (the test clock), on each side of the boundary.
+  for (const [nowMs, cost, day] of [[lastMs, COST_38_2026, '2026-12-31'], [IST_2027_01_01_MS, COST_38_2027, '2027-01-01']]) {
+    const f = stubFetch(USAGE);
+    const { client, store } = rig({ now: () => nowMs });
+    try {
+      await asVerifiedStudent('stu-1', () => client.callGemini('gemini-3.8-flash', CONTENTS, {}), '/api/grade-worksheet');
+      await settle();
+      assert.equal(store.writes[0].path, `${USAGE_LEDGER_COLLECTION}/stu-1/days/${day}`);
+      assert.deepEqual(store.writes[0].data.costMicroInr, { __increment: cost }, day);
+    } finally {
+      f.restore();
+    }
+  }
+});
+
+// MUTATION J1b-M1 also turns this RED. A NEW grading model with no price row turns it RED too:
+// a model that grading can call must never silently record Rs 0 again.
+test('J1b · GUARD: every model grading can call (primary, light, fallback, detect / scheme generation) has a price row', () => {
+  const modelConfig = require('../grading/modelConfig.cjs');
+  const { resolveConfig } = require('./serverConfig.cjs');
+  const KEYS = ['GEMINI_MODEL', 'GEMINI_TUTOR_MODEL', 'GRADING_MODEL', 'GRADING_LIGHT_MODEL'];
+  const saved = Object.fromEntries(KEYS.map((k) => [k, process.env[k]]));
+  let cfg;
+  try {
+    for (const k of KEYS) delete process.env[k];
+    cfg = resolveConfig(); // the code defaults = what production runs (Railway sets none of these)
+  } finally {
+    for (const k of KEYS) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }
+  }
+  const configured = {
+    'grading model (GRADING_MODEL default)': modelConfig.DEFAULT_GRADING_MODEL,
+    'grading model as served (serverConfig)': cfg.GRADING_MODEL,
+    'router light model': modelConfig.DEFAULT_GRADING_LIGHT_MODEL,
+    'router light model as served (serverConfig)': cfg.GRADING_LIGHT_MODEL,
+    'unavailable-model fallback': modelConfig.GRADING_FALLBACK_MODEL,
+    'detect + scheme-cache generation (GEMINI_MODEL default)': cfg.GEMINI_MODEL,
+  };
+  assert.equal(configured['grading model (GRADING_MODEL default)'], 'gemini-3.8-flash', 'precondition: production grades on gemini-3.8-flash');
+  for (const [role, model] of Object.entries(configured)) {
+    assert.ok(typeof model === 'string' && model.length > 0, role + ': no model resolved');
+    assert.ok(priceFor(model, Date.now()), role + ' "' + model + '" has NO price row in modelPrices.cjs — it would record Rs 0');
+    assert.equal(buildLedgerIncrement({ ...REC_38, model }, { env: {} }).priced, true, role);
+  }
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
