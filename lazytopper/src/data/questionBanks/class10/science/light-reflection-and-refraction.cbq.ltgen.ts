@@ -1,0 +1,197 @@
+import type { CanonicalQuestion } from "../../../predictionTypes";
+
+/** Light — Reflection and Refraction — LazyTopper-generated competency-based questions (GEN-THIN-1 PR-2, 2026-10-06). Provenance is internal only; never rendered. */
+export const LIGHT_CBQ_LT_GENERATED: CanonicalQuestion[] = [
+  {
+    "id": "LTG-S-LIGHT-101",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Mirror Formula & Magnification",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "Students of a school in Rajkot built a simple solar cooker using a concave mirror. They pointed the mirror towards the Sun so that sunlight fell on it parallel to its principal axis. They found that the reflected rays met at a point on the principal axis 30 cm in front of the pole of the mirror, and placed a small black vessel of water at that point. The water became hot within a few minutes. Later, one of the students noticed that when she held her face close to the same mirror, she saw an enlarged image of her face, just like in a make-up mirror.\n(i) What is the radius of curvature of this mirror?\n(ii) Why was the vessel placed exactly at the point where the reflected rays met?\n(iii) The student's face is 20 cm in front of the pole of the same mirror. Using the mirror formula, find the position of the image and its magnification. State the nature of the image.",
+    "options": [],
+    "answer": "(i) R = 60 cm. (ii) It is the principal focus, where the parallel rays of sunlight converge and concentrate heat. (iii) v = +60 cm (60 cm behind the mirror); m = +3; virtual, erect and magnified.",
+    "solutionSteps": [
+      "[1 mark] (i) Parallel rays meet at the principal focus, so f = 30 cm; R = 2f = 2 × 30 = 60 cm.",
+      "[1 mark] (ii) That point is the principal focus of the concave mirror: the parallel rays of sunlight converge there, so the heat is concentrated on the vessel and the water heats up quickly.",
+      "[1 mark] (iii) u = −20 cm, f = −30 cm. 1/v + 1/u = 1/f ⇒ 1/v = 1/f − 1/u = −1/30 + 1/20 = (−2 + 3)/60 = 1/60 ⇒ v = +60 cm, i.e. the image is 60 cm behind the mirror.",
+      "[1 mark] (iii) m = −v/u = −(+60)/(−20) = +3; the image is virtual, erect and magnified three times."
+    ],
+    "finalAnswer": "(i) 60 cm; (ii) it is the principal focus, where sunlight converges; (iii) v = +60 cm (behind the mirror), m = +3 — virtual, erect, magnified.",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "PYQ-S-2024-LIGHT-010",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Board 2024 31/5/1 Q39"
+  },
+  {
+    "id": "LTG-S-LIGHT-102",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Lens Formula & Magnification",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "For a science exhibition in Kochi, Aditi made a simple box camera. At the front of a closed cardboard box she fixed a lens of focal length 10 cm, and at the back she fixed a translucent tracing-paper screen that could slide to and fro. When she pointed the box at a lighted candle, she could see a sharp but upside-down picture of the flame on the tracing paper. A visitor asked what would happen if half of the lens were covered with black paper. Aditi then placed a candle flame 4 cm tall at a distance of 30 cm in front of the lens and adjusted the screen until the picture was sharp.\n(i) Which type of lens has Aditi used? What is the nature of the image formed on the screen?\n(ii) If the lower half of the lens is covered with black paper, will the complete image of the flame still be formed? What change will be seen?\n(iii) Using the lens formula, find the distance of the screen from the lens and the height of the image of the flame.",
+    "options": [],
+    "answer": "(i) Convex lens; real and inverted image. (ii) Yes, the complete image forms but it is less bright. (iii) v = +15 cm (screen 15 cm behind the lens); image height = −2 cm (inverted, diminished).",
+    "solutionSteps": [
+      "[1 mark] (i) A convex (converging) lens — only it can form a real image on a screen; the image is real and inverted.",
+      "[1 mark] (ii) Yes, the complete image of the flame is still formed, because rays from every point of the flame still pass through the uncovered half of the lens; the image is only less bright (reduced intensity).",
+      "[1 mark] (iii) u = −30 cm, f = +10 cm. 1/v − 1/u = 1/f ⇒ 1/v = 1/10 + 1/(−30) = (3 − 1)/30 = 1/15 ⇒ v = +15 cm, so the screen is 15 cm behind the lens.",
+      "[1 mark] (iii) m = v/u = 15/(−30) = −0.5; h′ = m × h = −0.5 × 4 cm = −2 cm, i.e. the image is 2 cm tall, inverted and diminished."
+    ],
+    "finalAnswer": "(i) Convex lens; real, inverted image; (ii) full image, but less bright; (iii) v = +15 cm, image height −2 cm (2 cm, inverted).",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "SQP-S-2025-LGHT-038",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Sample Question Paper 2025-26 Science, Section E case study (SQP-S-2025-LGHT-038)"
+  },
+  {
+    "id": "LTG-S-LIGHT-103",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Relative Refractive Index",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A glass slab lies at the bottom of a tank filled with water. A ray of light travels from the water into the glass. If the absolute refractive indices of water and glass are 4/3 and 3/2 respectively, the refractive index of glass with respect to water is",
+    "options": [
+      "8/9",
+      "9/8",
+      "2",
+      "1/2"
+    ],
+    "answer": "9/8",
+    "solutionSteps": [
+      "[1 mark] 9/8 — the refractive index of glass with respect to water = n(glass)/n(water) = (3/2) ÷ (4/3) = (3/2) × (3/4) = 9/8."
+    ],
+    "finalAnswer": "9/8",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "PYQ-S-2025-LIGHT-003",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Board 2025 31/2/1 Q11"
+  },
+  {
+    "id": "LTG-S-LIGHT-104",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Magnifying Glass",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Using a convex lens, a student obtains a sharp image of a distant building on a wall 20 cm behind the lens. She now wants to use the same lens as a magnifying glass to read very small print. At which distance from the lens should she hold the print?",
+    "options": [
+      "12 cm",
+      "24 cm",
+      "36 cm",
+      "48 cm"
+    ],
+    "answer": "12 cm",
+    "solutionSteps": [
+      "[1 mark] 12 cm — the image of a distant object forms at the focus, so f = 20 cm; a convex lens gives a virtual, erect, magnified image only when the object is between the optical centre and the focus (less than 20 cm), and 12 cm is the only such option."
+    ],
+    "finalAnswer": "12 cm",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "PYQ-S-2026-LIGHT-003",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Board 2026 31/5/1 Q30"
+  },
+  {
+    "id": "LTG-S-LIGHT-105",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Convex Mirror Uses",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "At a sharp hairpin bend on a hill road near Mussoorie, a large round mirror is fixed on a pole so that drivers can see vehicles coming from the other side of the bend.\n(a) Which type of spherical mirror is used here?\n(b) State two properties of the image formed by this mirror that make it suitable for this purpose.",
+    "options": [],
+    "answer": "(a) Convex mirror. (b) The image is always erect (and virtual), and diminished, which gives a much wider field of view.",
+    "solutionSteps": [
+      "[1 mark] (a) A convex mirror.",
+      "[1 mark] (b) It always forms a virtual and erect image, and the image is diminished, so the mirror gives a much wider field of view of the road around the bend."
+    ],
+    "finalAnswer": "(a) Convex mirror; (b) erect (virtual) and diminished image, giving a wider field of view.",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "APQ-S-LIGHT-002",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Additional Practice Questions Science-PQ Q24"
+  },
+  {
+    "id": "LTG-S-LIGHT-106",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Refractive Index and Speed of Light",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A jeweller in Surat explains to students that a diamond sparkles partly because light slows down a great deal inside it. The speed of light in diamond is 1.24 × 10⁸ m/s and in kerosene is 2.08 × 10⁸ m/s. The speed of light in vacuum is 3 × 10⁸ m/s.\n(a) Calculate the absolute refractive index of diamond.\n(b) A ray of light passes obliquely from kerosene into diamond. Will it bend towards or away from the normal? Give a reason.\n(c) Calculate the refractive index of diamond with respect to kerosene.",
+    "options": [],
+    "answer": "(a) n(diamond) ≈ 2.42. (b) Towards the normal — light slows down entering the optically denser diamond. (c) ≈ 1.68.",
+    "solutionSteps": [
+      "[1 mark] (a) n(diamond) = c/v = (3 × 10⁸)/(1.24 × 10⁸) ≈ 2.42.",
+      "[1 mark] (b) Towards the normal: the speed of light in diamond is less than in kerosene, so diamond is optically denser, and a ray going from a rarer to a denser medium bends towards the normal.",
+      "[1 mark] (c) n(diamond w.r.t. kerosene) = v(kerosene)/v(diamond) = (2.08 × 10⁸)/(1.24 × 10⁸) ≈ 1.68."
+    ],
+    "finalAnswer": "(a) ≈ 2.42; (b) towards the normal (diamond is optically denser, light slows down); (c) ≈ 1.68.",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "APQ-S-LIGHT-003",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Additional Practice Questions Science-PQ Q31"
+  },
+  {
+    "id": "LTG-S-LIGHT-107",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Concave Mirror Numerical",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "In a school laboratory in Lucknow, Farhan wants to obtain a sharp image of a candle flame on a screen using a concave mirror of focal length 20 cm.\n(a) State the two laws of reflection of light.\n(b) The flame, 3 cm tall, is placed 30 cm in front of the mirror. At what distance from the mirror should the screen be placed to get a sharp image? Use the mirror formula.\n(c) Find the magnification and the height of the image, and state its nature.\n(d) Farhan then moves the flame to 10 cm from the mirror. Can he now obtain its image on the screen? Give a reason.",
+    "options": [],
+    "answer": "(a) Angle of incidence = angle of reflection; the incident ray, the normal and the reflected ray lie in the same plane. (b) v = −60 cm — screen 60 cm in front of the mirror. (c) m = −2, image height −6 cm; real, inverted, magnified. (d) No — the object is within the focal length, so the image is virtual, erect and behind the mirror.",
+    "solutionSteps": [
+      "[1 mark] (a) Laws: (i) angle of incidence = angle of reflection; (ii) incident ray, normal at the point of incidence and reflected ray lie in the same plane.",
+      "[0.5 mark] (b) u = −30 cm, f = −20 cm; mirror formula 1/v + 1/u = 1/f.",
+      "[1 mark] (b) 1/v = 1/f − 1/u = −1/20 + 1/30 = −1/60, so v = −60 cm: screen 60 cm in front of the mirror.",
+      "[0.5 mark] (c) m = −v/u = −(−60)/(−30) = −2.",
+      "[1 mark] (c) h' = m × h = −2 × 3 = −6 cm; image is real, inverted and magnified (6 cm tall).",
+      "[1 mark] (d) No: object between P and F gives 1/v = −1/20 + 1/10 = 1/20, v = +20 cm, a virtual, erect image behind the mirror, which cannot be taken on a screen."
+    ],
+    "finalAnswer": "(a) i = r; incident ray, normal and reflected ray in one plane; (b) screen 60 cm in front of the mirror (v = −60 cm); (c) m = −2, image 6 cm tall, real, inverted, magnified; (d) no — the image is virtual (object within focus).",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "PYQ-S-2024-LIGHT-009",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Board 2024 31/4/3 Q36"
+  }
+];

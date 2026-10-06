@@ -144,8 +144,10 @@ describe("BANK-FIX-1 × GEN-THIN-1 · both lanes' fields survive the shared-file
   const served = canonicalQuestionBank as Array<CanonicalQuestion>;
   const generated = served.filter((q) => q.origin === "lt-generated");
   const overridden = served.filter((q) => q.sourceOverride === "others");
-  it("GEN-THIN-1 rows are served with origin + modelledOn (50 rows)", () => {
-    expect(generated.length).toBe(50);
+  it("GEN-THIN-1 rows are served with origin + modelledOn (>= 144: 50 PR-1 + 94 PR-2)", () => {
+    // Floor, not an exact count: GEN-THIN-1 PR-2 (#965) added 94 competency rows on top of
+    // PR-1's 50; a later content lane may add more. The pin is that they SURVIVE the merge.
+    expect(generated.length).toBeGreaterThanOrEqual(144);
     for (const q of generated) expect(typeof q.modelledOn === "string" && q.modelledOn.length > 0).toBe(true);
   });
   it("BANK-FIX-1 'Others' rows are served (non-vacuous) and never overlap the generated rows", () => {
