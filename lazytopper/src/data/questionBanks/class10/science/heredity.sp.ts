@@ -55,6 +55,7 @@ export const HERD_SP: CanonicalQuestion[] = [
   },
   {
     "id": "SP-S-2023-HERD-A-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "heredity",
     "subtopic": "Mendelian Inheritance (Dihybrid)",

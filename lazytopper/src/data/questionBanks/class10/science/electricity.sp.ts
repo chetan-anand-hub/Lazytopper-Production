@@ -7,6 +7,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const ELEC_SP: CanonicalQuestion[] = [
   {
     "id": "SQP-S-2023-ELEC-A-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "electricity",
     "subtopic": "Electric current in a simple circuit",

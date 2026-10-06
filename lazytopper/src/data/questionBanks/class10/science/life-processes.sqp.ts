@@ -34,6 +34,7 @@ export const LIFE_PROCESSES_SQP: CanonicalQuestion[] = [
   },
   {
     "id": "SQP-S-LP-002",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "life-processes",
     "subtopic": "Respiration — Anaerobic in Muscles (Lactic Acid)",

@@ -21,6 +21,8 @@ import type {
   QuestionMeta,
 } from "../../data/contentStrategy/types";
 import type { StudentMentorIntent } from "../../types/studentMentorIntent";
+import { PredictionCore } from "../../data/predictionCore";
+import { CBQ_FLAG_CLEARED, cbqFlagOf, filterCbqs, interleaveCbqsByMarks, isCbq } from "../../lib/cbq/cbqClassification";
 
 export type SubjectKey = "Maths" | "Science";
 export type DifficultyChoice = "All" | "Easy" | "Medium" | "Hard";
@@ -274,8 +276,67 @@ export function buildPracticeQuestionsFromEngine(args: {
       // BANK-FIX-1: carry the source override so the Practice source filter honours it.
       sourceOverride: (q as { sourceOverride?: "others" }).sourceOverride,
       isCompetencyBased: (q as { isCompetencyBased?: boolean }).isCompetencyBased,
+      // CBQ-1 PR-1: carry the ONE CBQ flag so the card label and the CBQ filter see it.
+      ...cbqFlagOf(q),
     } as PracticeQuestion;
   });
+}
+
+/**
+ * CBQ-1 PR-1 — the CBQ pool for one chapter: EVERY served row of the chapter that
+ * `isCbq` (the one classifier), of every mark value, interleaved by mark so any head
+ * slice is mixed-marks. Read from the same served pool the engine draws from
+ * (PredictionCore.getLikelyQuestionsForConcept, predictionScore order) — NOT an engine
+ * top-N draw (capped at MAX_QUESTION_COUNT and section-shaped, which could hide CBQs).
+ * Real bank rows only: no canonical fallback, no AI top-up — a chapter with no CBQs
+ * returns [] (the honest empty state). The chapter must already be loaded
+ * (ensureBankChapters).
+ */
+export function buildCbqPracticePool(args: {
+  subjectKey: SubjectKey;
+  topicKey: string;
+}): PracticeQuestion[] {
+  const want = args.subjectKey.toLowerCase();
+  const served = PredictionCore.getLikelyQuestionsForConcept(args.topicKey).filter(
+    (q) => String((q as { subject?: unknown }).subject ?? "").trim().toLowerCase() === want,
+  );
+  const cbqs = filterCbqs(served);
+  if (cbqs.length === 0) return [];
+  return buildPracticeQuestionsFromEngineRows(interleaveCbqsByMarks(cbqs) as unknown as RawQuestion[]);
+}
+
+/** The engine's row -> PracticeQuestion mapping, over a given row list (no draw, no slice). */
+function buildPracticeQuestionsFromEngineRows(rows: RawQuestion[]): PracticeQuestion[] {
+  const seenTexts = new Set<string>();
+  const out: PracticeQuestion[] = [];
+  rows.forEach((q, index) => {
+    const key = questionKey(q);
+    if (seenTexts.has(key)) return;
+    seenTexts.add(key);
+    out.push({
+      id: String(q.id ?? q.questionId ?? `Q-${index + 1}`),
+      marks: q.marks != null ? q.marks : 1,
+      difficulty: q.canonicalDifficulty ?? q.difficulty ?? "Medium",
+      section: q.section ?? q.sectionLabel ?? "",
+      bloomSkill: q.bloomSkill ?? q.bloomLevel ?? "",
+      questionText: q.questionText ?? q.text ?? "",
+      options: q.options,
+      solutionSteps: q.solutionSteps ?? [],
+      finalAnswer: (q.finalAnswer as string | undefined) ?? "",
+      explanation: q.explanation ?? "",
+      answer: q.answer ?? "",
+      subject: q.subject ?? "",
+      topicKey: q.topicKey ?? "",
+      subtopic: q.subtopic ?? q.conceptKey ?? q.subtopicKey ?? "",
+      format: q.format ?? "",
+      pyqYear: q.pyqYear as string | undefined,
+      pyqSet: q.pyqSet as string | undefined,
+      sourceOverride: (q as { sourceOverride?: "others" }).sourceOverride,
+      isCompetencyBased: (q as { isCompetencyBased?: boolean }).isCompetencyBased,
+      ...cbqFlagOf(q),
+    } as PracticeQuestion);
+  });
+  return out;
 }
 
 function normaliseKey(raw: string): string {
@@ -504,7 +565,6 @@ export async function buildPracticeQuestionsWithAiTopup(
     const qt = args.questionType;
     const filtered = bankQuestionsFiltered.filter((q) => {
       const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
-      const isCompetency = Boolean((q as { isCompetencyBased?: unknown }).isCompetencyBased);
       if (qt === "MCQ") return fmt.includes("mcq") || fmt.includes("multiple");
       if (qt === "Proof") {
         const qId = String((q as { id?: unknown }).id ?? "").toLowerCase();
@@ -528,13 +588,8 @@ export async function buildPracticeQuestionsWithAiTopup(
           )
         );
       }
-      if (qt === "Competency") {
-        // Section A + Remembering is never competency-based regardless of skillFamily
-        const qSection = String((q as { section?: unknown }).section ?? "");
-        const qBloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
-        if (qSection === "A" && qBloom === "Remembering") return false;
-        return isCompetency || fmt.includes("competency") || fmt.includes("application");
-      }
+      // CBQ-1 PR-1: "Competency" means a CBQ — the one classifier (isCbq), every mark value.
+      if (qt === "Competency") return isCbq(q);
       if (qt === "AR") return fmt.includes("assertion") || fmt === "ar";
       if (qt === "Case") return fmt.includes("case") || (q as { section?: unknown }).section === "E";
       return true;
@@ -667,6 +722,9 @@ export async function buildPracticeQuestionsWithAiTopup(
     if (!variantText) return null;
     return {
       ...template,
+      // CBQ-1 PR-1: an AI/cache variant is NOT a verified CBQ even when its seed was —
+      // never inherit the flag through the spread (no fake "CBQ" label).
+      ...CBQ_FLAG_CLEARED,
       id: `${seedId}-${idPrefix}-${index + 1}`,
       marks: variant.marks != null ? variant.marks : template.marks ?? seedMarks ?? 1,
       difficulty: args.difficulty !== "All"

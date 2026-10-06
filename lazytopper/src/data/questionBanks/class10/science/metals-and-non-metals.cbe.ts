@@ -8,6 +8,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const MNM_CBE: CanonicalQuestion[] = [
   {
     "id": "CBE-S-MNM-A-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "metals-and-non-metals",
     "subtopic": "Ionic and Covalent Compounds (Properties)",
@@ -27,6 +28,7 @@ export const MNM_CBE: CanonicalQuestion[] = [
   },
   {
     "id": "CBE-S-MNM-A-002",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
@@ -89,6 +91,7 @@ export const MNM_CBE: CanonicalQuestion[] = [
   },
   {
     "id": "CBE-S-MNM-B-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "metals-and-non-metals",
     "subtopic": "Displacement Reactions of Metals",
