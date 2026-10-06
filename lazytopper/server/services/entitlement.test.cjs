@@ -130,12 +130,13 @@ function reqStub(withToken = true) {
   return { method: 'POST', headers: withToken ? { authorization: 'Bearer tok' } : {} };
 }
 
-function gateFor(doc, { throwOn, uid = 'u1', cacheTtlMs = 0, admin } = {}) {
+function gateFor(doc, { throwOn, uid = 'u1', cacheTtlMs = 0, admin, firebaseAdmin = null } = {}) {
   const telemetry = telemetryStub();
   const logger = loggerStub();
   const store = admin === null ? null : firestoreStub(doc, { throwOn });
   const gate = createEntitlementGate({
     adminFirestore: store,
+    firebaseAdmin,
     telemetry,
     logger,
     sendJson: sendJsonStub,
@@ -1092,8 +1093,9 @@ const FLAG = { FREE_CHECK_ENABLED: 'true' };
  * `admin: null` / `firestore: null` reproduce a deploy without firebase-admin.
  */
 function freeEdgeFor(doc, { env = FLAG, admin, firestore, failTx, limits } = {}) {
-  const g = gateFor(doc);
   const fakeAdminObj = freeAdmin();
+  // AUTHGATE-2: the entitlement gate reads appCheck() from the same firebase-admin index.cjs passes it.
+  const g = gateFor(doc, { firebaseAdmin: admin === undefined ? fakeAdminObj : admin });
   const store = freeStore({ failTx });
   const verifiedCaller = createVerifiedCaller({ firebaseAdmin: fakeAdminObj, telemetry: g.telemetry });
   const limiter = createRateLimiter({ telemetry: g.telemetry, now: () => NOW, ...(limits ? { limits } : {}) });
@@ -1112,6 +1114,10 @@ function freeEdgeFor(doc, { env = FLAG, admin, firestore, failTx, limits } = {})
     const verification = await verifiedCaller.resolveVerifiedCaller(req);
     const uid = verification.uid;
     if (g.gate.rejectUnverifiedToken(req, res, reqPath, verification)) return { res, stage: 'reauth', admitted: false };
+    const ai = await g.gate.requireVerifiedCallerOrAppCheck(req, res, reqPath, verification, {
+      freeCheckRequest: free.isFreeCheckRequest(req, reqPath, uid),
+    });
+    if (ai.refused) return { res, stage: 'ai-caller', admitted: false };
     let admitted = false;
     if (free.isFreeCheckRequest(req, reqPath, uid)) {
       const a = await free.admit(req, reqPath);
@@ -1120,7 +1126,7 @@ function freeEdgeFor(doc, { env = FLAG, admin, firestore, failTx, limits } = {})
     }
     const v = admitted
       ? limiter.check(req, reqPath, uid, { freeCheck: true })
-      : limiter.check(req, reqPath, uid, { tokenRejected: verification.reason === 'invalid' });
+      : limiter.check(req, reqPath, uid, { tokenRejected: verification.reason === 'invalid', signedOut: ai.signedOut });
     if (!v.allowed) { sendJsonStub(res, v.status, v.body); return { res, stage: 'limiter', admitted }; }
     if (!admitted && await g.gate.applyToRequest(req, res, reqPath, uid, verification)) return { res, stage: 'entitlement', admitted };
     return { res, stage: 'handler', admitted };
@@ -1248,8 +1254,14 @@ test('FC-E4 · ★ the marker on a NON-free-check path is never admitted (paid h
   for (const p of ['/api/tutor', '/api/generate-visual', '/api/generate-diagram', '/api/step-solution', '/api/more-like-this']) {
     const e = freeEdgeFor({ tier: 'free' });
     assert.equal(e.free.isFreeCheckRequest(reqMarked(), p, ''), false, `${p} must not be a free-check path`);
-    await e.run(reqMarked(), p);
-    assert.equal(e.fakeAdmin.calls.verifyToken, 0);
+    const r = await e.run(reqMarked(), p);
+    assert.equal(r.admitted, false, `${p}: never admitted as a free check`);
+    // REWRITTEN for AUTHGATE-2 (HARDEN-1 §2 PR-1: a signed-out caller on the four AI routes
+    // needs App Check). The FREE-CHECK gate still verifies nothing here; on the three AI
+    // routes the AUTHGATE-2 gate now verifies the token once, CONSUMING it.
+    const aiRoute = ENT.AI_CALLER_ROUTES.includes(p);
+    assert.equal(e.fakeAdmin.calls.verifyToken, aiRoute ? 1 : 0, p);
+    if (aiRoute) assert.deepEqual(e.fakeAdmin.calls.options, [{ consume: true }], p);
     assert.deepEqual(e.store.touches, { reads: 0, writes: 0, transactions: 0 });
   }
   const tutor = freeEdgeFor({ tier: 'free' });
@@ -1566,16 +1578,24 @@ test('AG-3 · ★ the verifier UNAVAILABLE is the only fail-open: served, logged
 
 // MUTATION M3 (the limiter keys on the uid header for a token that does not verify) ⇒ RED here.
 test('AG-4 · ★ the limiter ignores the uid header for a token that does not verify and keys on the IP — CONTROL: verifier unavailable keeps the header', async () => {
+  // REWRITTEN for AUTHGATE-2 (HARDEN-1 §2 PR-1: an invalid bearer on the four AI routes is
+  // 401). detect-question was the last paid route where a rejected token reached the
+  // limiter; at the edge it is now refused before it, so the limiter's own rule is pinned
+  // directly on the limiter, and the edge pins the refusal.
   const e = freeEdgeFor({ tier: 'free' });
+  for (let i = 0; i < 4; i += 1) {
+    const r = await e.run(reqTokenFailed(`rotating-${i}`), '/api/detect-question');
+    assert.equal(r.stage, 'ai-caller');
+    assert.equal(r.res.last().status, 401);
+  }
+  assert.deepEqual(e.limiter.snapshot(), {}, 'a refused token spends no limiter slot');
+  const direct = createRateLimiter({ telemetry: telemetryStub(), now: () => NOW });
   const verdicts = [];
   for (let i = 0; i < 4; i += 1) {
-    // An ungated paid route: it is not refused 401, so the limiter decides.
-    const r = await e.run(reqTokenFailed(`rotating-${i}`), '/api/detect-question');
-    verdicts.push(r.stage === 'limiter' ? r.res.last().status : 'served');
+    verdicts.push(direct.check(reqTokenFailed(`rotating-${i}`), '/api/detect-question', '', { tokenRejected: true }).allowed);
   }
-  assert.deepEqual(verdicts, ['served', 'served', 'served', 429], 'every request with a rejected token shares the one IP bucket');
-  assert.ok(Object.keys(e.limiter.snapshot()).every((k) => !k.startsWith('rotating-')), 'no bucket keyed on the header');
-  assert.equal(e.telemetry.get('rate_limit.uid_source.header'), 0);
+  assert.deepEqual(verdicts, [true, true, true, false], 'every request with a rejected token shares the one IP bucket');
+  assert.ok(Object.keys(direct.snapshot()).every((k) => !k.startsWith('rotating-')), 'no bucket keyed on the header');
 
   const tel = telemetryStub();
   const limiter = createRateLimiter({ telemetry: tel, now: () => NOW });
@@ -1607,16 +1627,17 @@ test('AG-H1 · ★ over REAL HTTP: a token that does not verify gets 401 on ever
       assert.equal(r.json.message, 'Please sign in again to continue.');
     }
 
-    // The limiter, over the wire: requests with a rejected token share one IP
-    // bucket. Runs FIRST, while the loopback IP bucket is still empty.
+    // REWRITTEN for AUTHGATE-2 (HARDEN-1 §2 PR-1): detect-question now refuses a rejected
+    // token 401 too, BEFORE the limiter, so four rotating calls are four 401s and never a
+    // 429 (a refused call spends no slot). The limiter's IP-keying rule is pinned in AG-4.
     const statuses = [];
     for (let i = 0; i < 4; i += 1) {
       const r = await post(port, '/api/detect-question', { question: 'Q' },
         { [UID_HEADER]: `rotating-${i}`, authorization: 'Bearer not-a-token' });
       statuses.push(r.status);
+      assert.equal(r.json && r.json.error, 'reauth_required', r.text);
     }
-    assert.equal(statuses[3], 429, `the 4th call from one IP must hit the anonymous cap: ${statuses.join(',')}`);
-    assert.ok(statuses.slice(0, 3).every((st) => st !== 429), statuses.join(','));
+    assert.deepEqual(statuses, [401, 401, 401, 401], statuses.join(','));
 
     // A different client address, so the bucket the loop above filled is not this one.
     const anon = await post(port, '/api/check-solution', bodies['/api/check-solution'], { 'x-forwarded-for': '198.51.100.7' });
@@ -1626,4 +1647,373 @@ test('AG-H1 · ★ over REAL HTTP: a token that does not verify gets 401 on ever
       { [UID_HEADER]: 'student-1', authorization: 'Bearer good-token' });
     assert.ok(![401, 402].includes(ok.status), `a verified premium token is served, got ${ok.status}: ${ok.text}`);
 
+  });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §12 · AUTHGATE-2 (HARDEN-1 §2 PR-1) — a verified caller, or App Check, on
+   detect-question, more-like-this, generate-visual and generate-diagram.
+   Pins (spec §2 PR-1 / controller D53), each with the mutation that reddens it:
+     invalid bearer on each route → 401, no model call ...................... AG2-1, AG2-H1
+     signed-out without App Check (missing / invalid) → refused ............. AG2-2, AG2-H2
+     signed-out free check end to end → works, unchanged .................... AG2-3b, AG2-H3
+     detect verifies WITHOUT consuming; the other three consume ............. AG2-3, AG2-H3
+     signed-in Premium → unchanged .......................................... AG2-1, AG2-H4
+     a refused call charges 0 (no limiter slot, no ledger, no model) ........ AG2-H2, AG2-H5
+     an App-Check-only caller is keyed to the anonymous bucket .............. AG2-4
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const AI_ROUTES = ENT.AI_CALLER_ROUTES;
+const reqSignedOut = (extra = {}) => ({ method: 'POST', headers: { ...extra }, socket: { remoteAddress: '203.0.113.70' } });
+
+test('AG2-0 · the four routes, the header name and the wire constants are exactly the spec\'s', () => {
+  assert.deepEqual([...AI_ROUTES].sort(), ['/api/detect-question', '/api/generate-diagram', '/api/generate-visual', '/api/more-like-this']);
+  assert.deepEqual([...ENT.NON_CONSUMING_APP_CHECK_ROUTES], ['/api/detect-question']);
+  assert.equal(ENT.AI_APP_CHECK_HEADER, FC.APP_CHECK_HEADER, 'one App Check header name, server-wide');
+  const clientHeader = /export const APP_CHECK_HEADER = "([^"]+)"/
+    .exec(fs.readFileSync(path.resolve(__dirname, '..', '..', 'src', 'services', 'freeCheckClient.ts'), 'utf8'))[1];
+  assert.equal(ENT.AI_APP_CHECK_HEADER, clientHeader, 'the header the client sends');
+  assert.equal(ENT.APP_CHECK_STATUS[ENT.APP_CHECK_REASONS.MISSING], 401);
+  assert.equal(ENT.APP_CHECK_STATUS[ENT.APP_CHECK_REASONS.INVALID], 403);
+  assert.equal(ENT.APP_CHECK_STATUS[ENT.APP_CHECK_REASONS.UNAVAILABLE], 403);
+  assert.ok(![...DIAGNOSTIC_KEYS].includes('reason'), 'the reason survives sendJson');
+});
+
+// MUTATION AG2-M1 (a token that does not verify passes the AI-route gate) ⇒ RED here.
+// MUTATION AG2-M7 (the gate refuses a VERIFIED caller) ⇒ RED here (the CONTROL half).
+for (const p of AI_ROUTES) {
+  test(`AG2-1 · ★ ${p}: a token that does not verify is 401 reauth_required at the edge, before the limiter and App Check — CONTROL: a verified Premium token reaches the handler`, async () => {
+    const e = freeEdgeFor({ tier: 'premium' });
+    const r = await e.run(reqTokenFailed(), p);
+    assert.equal(r.stage, 'ai-caller');
+    assert.equal(r.res.last().status, 401);
+    assert.deepEqual(r.res.last().body, { error: REAUTH_ERROR, message: REAUTH_MESSAGE });
+    assert.deepEqual(e.limiter.snapshot(), {}, 'a refused token spends no limiter slot');
+    assert.equal(e.fakeAdmin.calls.verifyToken, 0, 'never reaches App Check');
+    assert.equal(e.telemetry.get(ENT.AI_ROUTE_REFUSED_REAUTH), 1);
+
+    const ok = freeEdgeFor({ tier: 'premium' });
+    const rok = await ok.run({ method: 'POST', headers: { [UID_HEADER]: 'student-1', authorization: 'Bearer good-token' } }, p);
+    assert.equal(rok.stage, 'handler', 'a verified Premium student is served exactly as before');
+    assert.equal(ok.fakeAdmin.calls.verifyToken, 0, 'a verified caller is never asked for App Check');
+    assert.ok(Object.keys(ok.limiter.snapshot()).some((k) => k.startsWith('student-1:')), 'keyed on the verified uid, as before');
+  });
+}
+
+// MUTATION AG2-M2 (a signed-out caller with no App Check token passes) ⇒ RED here.
+for (const p of AI_ROUTES) {
+  test(`AG2-2 · ★ ${p}: signed out — no App Check is 401, a forged one 403, no firebase-admin 403, all before the limiter — CONTROL: a valid token is admitted`, async () => {
+    const none = freeEdgeFor({ tier: 'free' });
+    const r0 = await none.run(reqSignedOut(), p);
+    assert.equal(r0.stage, 'ai-caller');
+    assert.equal(r0.res.last().status, 401);
+    assert.deepEqual(r0.res.last().body, { error: 'app_check_required', reason: 'app_check_missing', message: ENT.APP_CHECK_MESSAGE });
+    assert.deepEqual(none.limiter.snapshot(), {});
+
+    // A typed uid header with no token is still signed out.
+    const typed = freeEdgeFor({ tier: 'free' });
+    const rt = await typed.run(reqSignedOut({ [UID_HEADER]: 'student-1' }), p);
+    assert.equal(rt.res.last().status, 401);
+
+    const forged = freeEdgeFor({ tier: 'free' });
+    const r1 = await forged.run(reqSignedOut({ [APPCHECK]: 'forged' }), p);
+    assert.equal(r1.stage, 'ai-caller');
+    assert.equal(r1.res.last().status, 403);
+    assert.equal(r1.res.last().body.reason, 'app_check_invalid');
+    assert.deepEqual(forged.limiter.snapshot(), {});
+
+    const closed = freeEdgeFor({ tier: 'free' }, { admin: null });
+    const r2 = await closed.run(reqSignedOut({ [APPCHECK]: AC_GOOD }), p);
+    assert.equal(r2.res.last().status, 403, 'no firebase-admin fails CLOSED for a signed-out caller');
+    assert.equal(r2.res.last().body.reason, 'app_check_unavailable');
+
+    const good = freeEdgeFor({ tier: 'free' });
+    const r3 = await good.run(reqSignedOut({ [APPCHECK]: AC_GOOD }), p);
+    assert.equal(r3.stage, 'handler', `a valid App Check token is admitted on ${p}`);
+    assert.equal(good.telemetry.get(ENT.AI_ROUTE_ADMITTED_APP_CHECK), 1);
+  });
+}
+
+// MUTATION AG2-M3 (detect-question consumes the App Check token) ⇒ RED here.
+test('AG2-3 · ★ detect-question verifies WITHOUT consuming (the same token is admitted twice); the other three CONSUME (a replay is 403)', async () => {
+  const d = freeEdgeFor({ tier: 'free' });
+  const a = await d.run(reqSignedOut({ [APPCHECK]: AC_GOOD }), '/api/detect-question');
+  const b = await d.run(reqSignedOut({ [APPCHECK]: AC_GOOD }), '/api/detect-question');
+  assert.equal(a.stage, 'handler');
+  assert.equal(b.stage, 'handler', 'the same token is still good for a second detect');
+  assert.deepEqual(d.fakeAdmin.calls.options, [undefined, undefined], 'no consume option on detect');
+  for (const p of AI_ROUTES.filter((x) => x !== '/api/detect-question')) {
+    const e = freeEdgeFor({ tier: 'free' });
+    const first = await e.run(reqSignedOut({ [APPCHECK]: AC_GOOD }), p);
+    const replay = await e.run(reqSignedOut({ [APPCHECK]: AC_GOOD }), p);
+    assert.equal(first.stage, 'handler', p);
+    assert.equal(replay.res.last().status, 403, `${p}: a replayed token is refused`);
+    assert.equal(replay.res.last().body.reason, 'app_check_invalid');
+    assert.deepEqual(e.fakeAdmin.calls.options, [{ consume: true }, { consume: true }], p);
+  }
+});
+
+// MUTATION AG2-M4 (a MARKED free check is decided by the AI-route gate instead of freeCheck.cjs) ⇒ RED here.
+test('AG2-3b · ★ a marked free check on detect-question is left to freeCheck.cjs: ONE consuming verify (its own), admitted exactly as before — CONTROL: flag OFF, the AI-route gate verifies it non-consuming', async () => {
+  const on = freeEdgeFor({ tier: 'free' });
+  const r = await on.run(reqMarked(), '/api/detect-question');
+  assert.equal(r.stage, 'handler');
+  assert.equal(r.admitted, true, 'admitted as a free check');
+  assert.deepEqual(on.fakeAdmin.calls.options, [{ consume: true }], 'only freeCheck.cjs verified it');
+  assert.equal(on.telemetry.get(ENT.AI_ROUTE_ADMITTED_APP_CHECK), 0);
+
+  const off = freeEdgeFor({ tier: 'free' }, { env: {} });
+  const r2 = await off.run(reqMarked(), '/api/detect-question');
+  assert.equal(r2.stage, 'handler');
+  assert.equal(r2.admitted, false);
+  assert.deepEqual(off.fakeAdmin.calls.options, [undefined]);
+  assert.equal(off.telemetry.get(ENT.AI_ROUTE_ADMITTED_APP_CHECK), 1);
+});
+
+// MUTATION AG2-M5 (index.cjs does not pass `signedOut` to the limiter) ⇒ RED here.
+test('AG2-4 · ★ an App-Check-only caller is keyed to the ANONYMOUS bucket — a typed uid header buys no allowance', async () => {
+  const e = freeEdgeFor({ tier: 'free' });
+  const stages = [];
+  for (let i = 0; i < 4; i += 1) {
+    const r = await e.run(reqSignedOut({ [APPCHECK]: AC_GOOD, [UID_HEADER]: `typed-${i}` }), '/api/detect-question');
+    stages.push(r.stage === 'limiter' ? r.res.last().status : r.stage);
+  }
+  assert.deepEqual(stages, ['handler', 'handler', 'handler', 429], 'one anonymous IP bucket, cap 3');
+  assert.ok(Object.keys(e.limiter.snapshot()).every((k) => !k.startsWith('typed-')), 'no bucket keyed on the typed header');
+});
+
+test('AG2-5 · routes outside the four are untouched by the AI-route gate; the verifier UNAVAILABLE is served as on the entitlement routes', async () => {
+  const g = gateFor({ tier: 'free' }, { firebaseAdmin: freeAdmin() });
+  for (const p of ['/api/check-solution', '/api/grade-worksheet', '/api/tutor', '/api/step-solution', '/api/activity']) {
+    const res = resStub();
+    const out = await g.gate.requireVerifiedCallerOrAppCheck(reqSignedOut(), res, p, { uid: '', reason: 'no-token' });
+    assert.deepEqual(out, { refused: false, signedOut: false }, p);
+    assert.equal(res.sent.length, 0, p);
+  }
+  const res = resStub();
+  const out = await g.gate.requireVerifiedCallerOrAppCheck(reqTokenFailed(), res, '/api/detect-question', { uid: '', reason: 'unavailable' });
+  assert.deepEqual(out, { refused: false, signedOut: false });
+  assert.equal(res.sent.length, 0);
+});
+
+/* ── over REAL HTTP, through the REAL index.cjs, with every model call witnessed ── */
+
+/**
+ * The real server with: firebase-admin swapped (strict ID tokens, App Check with the
+ * firebase-admin consume contract, a transactional Firestore, Premium subscriptions,
+ * ledger writes logged as LEDGER_SET), and global fetch swapped so EVERY outbound model
+ * call is logged as MODEL_FETCH. FREE_CHECK_ENABLED on, as in production.
+ */
+function bootAuthGate2Server(port) {
+  const launcher = `
+    const Module = require('module');
+    const store = new Map();
+    const consumed = new Set();
+    const docRef = (p) => ({
+      key: p,
+      path: p,
+      collection: (n) => collRef(p + '/' + n),
+      get: async () => (p.startsWith('subscriptions/')
+        ? { exists: true, data: () => ({ tier: 'premium' }) }
+        : { exists: store.has(p), data: () => store.get(p) }),
+      set: async () => { if (p.startsWith('usageLedger/')) console.log('LEDGER_SET ' + p); },
+    });
+    const collRef = (p) => ({ doc: (id) => docRef(p + '/' + id) });
+    const firestore = () => ({
+      collection: (n) => collRef(n),
+      runTransaction: async (fn) => {
+        const pending = [];
+        const out = await fn({ get: async (ref) => ({ exists: store.has(ref.key), data: () => store.get(ref.key) }), set: (ref, d) => pending.push([ref.key, d]) });
+        for (const [k, d] of pending) store.set(k, Object.assign({}, store.get(k) || {}, d));
+        return out;
+      },
+    });
+    firestore.FieldValue = { increment: (n) => ({ increment: n }) };
+    const fake = {
+      apps: [],
+      credential: { cert: () => ({}) },
+      initializeApp() { fake.apps.push({}); },
+      auth: () => ({ verifyIdToken: async (t) => { if (t === 'good-token') return { uid: 'premium-student' }; const e = new Error('rejected'); e.code = 'auth/argument-error'; throw e; } }),
+      appCheck: () => ({ verifyToken: async (t, o) => {
+        if (!String(t).startsWith(${JSON.stringify(AC_GOOD)})) throw new Error('bad app check');
+        const out = { appId: '1:123:web:abc' };
+        if (o && o.consume === true) { out.alreadyConsumed = consumed.has(t); consumed.add(t); }
+        return out;
+      } }),
+      firestore,
+    };
+    const orig = Module._load;
+    Module._load = function (r) { return r === 'firebase-admin' ? fake : orig.apply(this, arguments); };
+    globalThis.fetch = async (url) => {
+      console.log('MODEL_FETCH ' + String(url).split('?')[0].split('/').pop());
+      return {
+        ok: true, status: 200, statusText: 'OK', headers: { get: () => null },
+        text: async () => JSON.stringify({
+          candidates: [{ content: { parts: [{ text: '{"question":"Q","marks":3,"reply":"ok","variants":[]}' }] } }],
+          usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 2, totalTokenCount: 12 },
+        }),
+      };
+    };
+    require(${JSON.stringify(INDEX_CJS)});
+  `;
+  const env = { ...process.env, PORT: String(port) };
+  for (const k of Object.keys(env)) {
+    if (k.startsWith('LT_TEST_CLOCK')) continue;
+    if (/^(AI_INTEGRATIONS_|GEMINI_|WARM_POOL_|LT_|REPLIT_)/.test(k)) delete env[k];
+  }
+  delete env.DATABASE_URL; delete env.FIREBASE_SERVICE_ACCOUNT_KEY; delete env.DIRECT_GEMINI_API_KEY;
+  env.API_KEY = 'fake-model-key';
+  env.AI_PROVIDER = 'gemini';
+  env.VITE_FIREBASE_PROJECT_ID = 'demo-authgate2';
+  env.FREE_CHECK_ENABLED = '1';
+  const child = spawn(process.execPath, ['-e', launcher], { env, cwd: path.dirname(INDEX_CJS) });
+  let out = '';
+  child.stdout.on('data', (d) => { out += d; });
+  child.stderr.on('data', (d) => { out += d; });
+  const ready = new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`server did not start:\n${out}`)), 60000);
+    const tick = setInterval(() => {
+      if (/running on port/.test(out)) { clearInterval(tick); clearTimeout(t); resolve(); }
+      if (child.exitCode !== null) { clearInterval(tick); clearTimeout(t); reject(new Error(`server exited:\n${out}`)); }
+    }, 100);
+  });
+  return { child, ready, log: () => out };
+}
+
+const AG2_BODIES = {
+  '/api/detect-question': { question: 'Find the resistance of a 2 m wire of resistivity 1.6e-8.' },
+  '/api/more-like-this': { subject: 'Maths', seedQuestion: { question: 'Solve x^2 - 5x + 6 = 0.', marks: 2 } },
+  '/api/generate-visual': { topic: 'Triangles', concept: 'Basic proportionality theorem' },
+  '/api/generate-diagram': { questionText: 'Draw a triangle ABC with AB = 5 cm and BC = 6 cm.' },
+};
+const modelCalls = (log) => (log.match(/MODEL_FETCH/g) || []).length;
+const charges = (log) => (log.match(/LEDGER_SET/g) || []).length;
+const settle = (ms = 400) => new Promise((r) => setTimeout(r, ms));
+/** Each probe from its own client address, so one probe never fills another's anonymous bucket. */
+let ag2Ip = 10;
+const fromNewIp = (h = {}) => ({ 'x-forwarded-for': `198.51.100.${(ag2Ip += 1)}`, ...h });
+
+// MUTATION AG2-M6 (index.cjs never calls the AI-route gate) ⇒ RED here.
+test('AG2-H1 · ★ over REAL HTTP: an invalid bearer on EACH of the four routes is 401 with ZERO model calls and ZERO charges',
+  { timeout: 120000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootAuthGate2Server(port);
+    t.after(() => srv.child.kill());
+    await srv.ready;
+    for (const [p, body] of Object.entries(AG2_BODIES)) {
+      const before = srv.log().length;
+      const r = await post(port, p, body, fromNewIp({ authorization: 'Bearer fake-token', [UID_HEADER]: 'someone' }));
+      await settle();
+      const delta = srv.log().slice(before);
+      assert.equal(r.status, 401, `${p}: ${r.status} ${r.text}`);
+      assert.equal(r.json.error, 'reauth_required');
+      assert.equal(modelCalls(delta), 0, `${p}: a refused call reached the model\n${delta}`);
+      assert.equal(charges(delta), 0, `${p}: a refused call was charged\n${delta}`);
+    }
+  });
+
+test('AG2-H2 · ★ over REAL HTTP: signed out with no App Check (401) or a forged one (403) on each route — ZERO model calls, ZERO charges',
+  { timeout: 120000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootAuthGate2Server(port);
+    t.after(() => srv.child.kill());
+    await srv.ready;
+    for (const [p, body] of Object.entries(AG2_BODIES)) {
+      const before = srv.log().length;
+      const none = await post(port, p, body, fromNewIp());
+      const forged = await post(port, p, body, fromNewIp({ [APPCHECK]: 'forged-attestation' }));
+      await settle();
+      const delta = srv.log().slice(before);
+      assert.equal(none.status, 401, `${p}: ${none.status} ${none.text}`);
+      assert.equal(none.json.reason, 'app_check_missing');
+      assert.equal(forged.status, 403, `${p}: ${forged.status} ${forged.text}`);
+      assert.equal(forged.json.reason, 'app_check_invalid');
+      assert.equal(modelCalls(delta), 0, `${p}\n${delta}`);
+      assert.equal(charges(delta), 0, `${p}\n${delta}`);
+    }
+  });
+
+test('AG2-H3 · ★ over REAL HTTP: the signed-out FREE CHECK works end to end, unchanged — confirm detect, two per-question detects (fresh token each), then the grade; a replayed token is still refused by the free check',
+  { timeout: 120000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootAuthGate2Server(port);
+    t.after(() => srv.child.kill());
+    await srv.ready;
+    const ip = { 'x-forwarded-for': '198.51.100.200' };
+    // Exactly the client's shape (freeCheckClient.freeCheckJsonHeaders): marker + a fresh
+    // limited-use token per call, NO Authorization, NO uid header.
+    const marked = (tok) => ({ ...ip, [MARKER]: FC.FREE_CHECK_MARKER_VALUE, [APPCHECK]: tok });
+    const before = srv.log().length;
+    for (const tok of [`${AC_GOOD}.confirm`, `${AC_GOOD}.q1`, `${AC_GOOD}.q2`]) {
+      const r = await post(port, '/api/detect-question', AG2_BODIES['/api/detect-question'], marked(tok));
+      assert.equal(r.status, 200, `free-check detect (${tok}) must be served: ${r.status} ${r.text}`);
+    }
+    const grade = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' }, marked(`${AC_GOOD}.grade`));
+    assert.ok(![401, 402, 403, 429].includes(grade.status), `the free-check grade is served: ${grade.status} ${grade.text}`);
+    await settle();
+    const delta = srv.log().slice(before);
+    assert.ok(modelCalls(delta) >= 4, `CONTROL: every free-check call really reached the model\n${delta}`);
+    assert.equal(charges(delta), 0, `a free check is charged to nobody\n${delta}`);
+    // OR-13 unchanged: a token freeCheck.cjs already consumed is refused with ITS wire contract.
+    const replay = await post(port, '/api/detect-question', AG2_BODIES['/api/detect-question'], marked(`${AC_GOOD}.q1`));
+    assert.equal(replay.status, 403);
+    assert.equal(replay.json.error, 'free_check_refused');
+    assert.equal(replay.json.reason, FC.REASONS.APP_CHECK_INVALID);
+    // An UNMARKED signed-out detect with App Check: non-consuming, so the same token works twice.
+    const ip2 = { 'x-forwarded-for': '198.51.100.201', [APPCHECK]: `${AC_GOOD}.plain` };
+    const p1 = await post(port, '/api/detect-question', AG2_BODIES['/api/detect-question'], ip2);
+    const p2 = await post(port, '/api/detect-question', AG2_BODIES['/api/detect-question'], ip2);
+    assert.equal(p1.status, 200, p1.text);
+    assert.equal(p2.status, 200, `detect must not consume the App Check token: ${p2.status} ${p2.text}`);
+  });
+
+test('AG2-H4 · ★ over REAL HTTP: a signed-in Premium student is unchanged on all four routes — served, reaches the model, never asked for App Check',
+  { timeout: 120000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootAuthGate2Server(port);
+    t.after(() => srv.child.kill());
+    await srv.ready;
+    for (const [p, body] of Object.entries(AG2_BODIES)) {
+      const before = srv.log().length;
+      const r = await post(port, p, body, fromNewIp({ authorization: 'Bearer good-token', [UID_HEADER]: 'premium-student' }));
+      await settle();
+      const delta = srv.log().slice(before);
+      assert.ok(![401, 402, 403, 429].includes(r.status), `${p}: ${r.status} ${r.text}`);
+      // ⚠ more-like-this is EXCLUDED from the model-call control, and not because of
+      // AUTHGATE-2: on trunk its handler throws before any model call (index.cjs takes
+      // buildMoreLikeThisUserPrompt from promptLearn.cjs, which exports only
+      // createLearnPrompts) — FU-MORE-LIKE-THIS-PROMPT-UNDEFINED. Its gate behaviour is
+      // still pinned: the call passed the gate and reached the limiter as a VERIFIED caller.
+      if (p === '/api/more-like-this') {
+        assert.match(delta, /rate_limit\.uid_source\.verified/, `${p}: reached the limiter as a verified caller\n${delta}`);
+        continue;
+      }
+      assert.ok(modelCalls(delta) >= 1, `${p}: CONTROL — a Premium call reaches the model\n${r.status} ${r.text}\n${delta}`);
+    }
+  });
+
+// MUTATION AG2-M8 (the AI-route gate runs AFTER the limiter) ⇒ RED here.
+test('AG2-H5 · ★ over REAL HTTP: a refused call charges 0 — five refusals from one address leave its 3/day anonymous bucket untouched',
+  { timeout: 120000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootAuthGate2Server(port);
+    t.after(() => srv.child.kill());
+    await srv.ready;
+    const ip = { 'x-forwarded-for': '198.51.100.250' };
+    const body = AG2_BODIES['/api/more-like-this'];
+    for (let i = 0; i < 5; i += 1) {
+      const r = await post(port, '/api/more-like-this', body, i % 2 ? { ...ip, [APPCHECK]: 'forged' } : ip);
+      assert.ok([401, 403].includes(r.status), `refusal ${i}: ${r.status} ${r.text}`);
+    }
+    // All three anonymous slots are still there (consuming App Check, a fresh token each).
+    // Each also types a DIFFERENT uid header: an App-Check-only caller is signed out, so the
+    // header must key nothing (MUTATION AG2-M5 at the wiring: index.cjs drops `signedOut`
+    // ⇒ every call gets its own header bucket ⇒ the 4th is not 429 ⇒ RED here).
+    for (let i = 0; i < 3; i += 1) {
+      const r = await post(port, '/api/more-like-this', body, { ...ip, [APPCHECK]: `${AC_GOOD}.slot${i}`, [UID_HEADER]: `typed-${i}` });
+      assert.notEqual(r.status, 429, `slot ${i} was spent by a refused call: ${r.text}`);
+      assert.ok(![401, 403].includes(r.status), `slot ${i}: ${r.status} ${r.text}`);
+    }
+    // CONTROL: the 4th admitted call from that address does hit the cap, so the bucket is real.
+    const fourth = await post(port, '/api/more-like-this', body, { ...ip, [APPCHECK]: `${AC_GOOD}.slot3`, [UID_HEADER]: 'typed-3' });
+    assert.equal(fourth.status, 429, `${fourth.status} ${fourth.text}`);
   });
