@@ -324,14 +324,6 @@ function createGradingCore(deps) {
     const first = await run(chunk.questions, 1, t1);
     if (first.results) return [{ questions: chunk.questions, attempt: first }];
     if (first.error && !timingLib.isRetryableError(first.error)) return [{ questions: chunk.questions, attempt: first }];
-    // HOTFIX-2: an attempt that had the WHOLE remaining budget (no operator cap) and timed out ran
-    // into the request DEADLINE — the time is spent; never re-send it. Live this is already true
-    // (fewer than minRetryMs remain); a 0-call replay of a deadline-pending call must not re-send
-    // either. Only an attempt cut short by GRADING_CHUNK_TIMEOUT_MS can be retried (split) below.
-    if (first.timedOut && !(t1 < left0)) return [{ questions: chunk.questions, attempt: first }];
-    // HOTFIX-2: with no early cap (the default), a timeout means the DEADLINE was reached — there
-    // is no time to re-send. Only an operator-set cap (GRADING_CHUNK_TIMEOUT_MS) can end a first
-    // attempt early, and only then is the split retry below reachable on a timeout.
     const left = ctx.callDeadlineAt - now();
     if (left < timing.minRetryMs) return [{ questions: chunk.questions, attempt: first }];
     const split = Boolean(first.timedOut) && chunk.questions.length > 1;
@@ -444,7 +436,7 @@ function createGradingCore(deps) {
     const chunked = questions.length > timing.singleCallMaxQuestions;
     const chunks = [];
     for (const g of groups.values()) {
-      for (const qs of planChunks(g.questions, chunked ? timing.chunkQuestions : Math.max(1, g.questions.length))) chunks.push({ model: g.model, subject: g.subject, questions: qs });
+      for (const qs of planChunks(g.questions, chunked ? timingLib.MAX_CHUNK_QUESTIONS : Math.max(1, g.questions.length))) chunks.push({ model: g.model, subject: g.subject, questions: qs });
     }
 
     const ctx = {

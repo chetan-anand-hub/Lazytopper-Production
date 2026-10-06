@@ -30,21 +30,14 @@
 //                             no timeouts) — chunking a small paper re-sends the whole document
 //                             and the rulebook per chunk and roughly doubles its cost and
 //                             thinking without cutting its latency. A larger paper is chunked
-//                             (HOTFIX-2, owner direction: ≈ 8–10 questions per chunk — FEWER
-//                             calls; 38 questions = 4 chunks of 10/10/9/9 — ALL in flight at
-//                             once, no concurrency cap), so a slow part costs only its own
-//                             questions ("not graded") instead of the whole paper. Live
-//                             2026-10-06 (27 questions in 3-question chunks): the time is model
-//                             time per call, not queueing, and two 3-question chunks killed at
-//                             45 s then re-sent as singles put the paper at 78 s.
+//                             (≤ 3 questions per chunk, in parallel), so a slow part costs only
+//                             its own questions ("not graded") instead of the whole paper.
 //                             Two questions printed with the SAME number never share a call, so
 //                             such a paper splits at the duplicate even when small.
-//   GRADING_CHUNK_TIMEOUT_MS  an optional cap on a multi-question chunk's FIRST attempt,
-//                             clamped to [10 000, deadline]. HOTFIX-2: the code default is the
-//                             DEADLINE itself, i.e. no early kill — a chunk that is still
-//                             producing keeps the whole remaining budget (the 45 s kill threw
-//                             away work that was nearly done). A chunk is re-sent only after an
-//                             ERROR (5xx, 429, network, unparseable reply), never on a timeout.
+//   GRADING_CHUNK_TIMEOUT_MS  first attempt of a MULTI-question chunk, code default 45 000,
+//                             clamped to [10 000, deadline]. A one-question chunk's first
+//                             attempt gets the whole remaining budget instead: its retry is
+//                             the same size, so cutting it early cannot make it faster.
 //   GRADING_CACHE_BUDGET_MS   the scheme-first solution-cache pre-phase, code default 10 000,
 //                             clamped to [0, 20 000], from handler entry. A cache generation
 //                             still running then is abandoned FOR THIS REQUEST (it finishes in
@@ -56,7 +49,7 @@
 const DEFAULT_GRADING_DEADLINE_MS = 80000;
 const MIN_GRADING_DEADLINE_MS = 20000;
 const MAX_GRADING_DEADLINE_MS = 80000;
-const DEFAULT_GRADING_CHUNK_TIMEOUT_MS = DEFAULT_GRADING_DEADLINE_MS; // HOTFIX-2: no early kill
+const DEFAULT_GRADING_CHUNK_TIMEOUT_MS = 45000;
 const MIN_GRADING_CHUNK_TIMEOUT_MS = 10000;
 const DEFAULT_GRADING_CACHE_BUDGET_MS = 10000;
 const MAX_GRADING_CACHE_BUDGET_MS = 20000;
@@ -65,7 +58,7 @@ const GRADING_MARGIN_MS = 2000;
 // A retry with less time left than this cannot usefully finish (single-question p50 ≈ 14 s).
 const GRADING_MIN_RETRY_MS = 10000;
 // C8: a CHUNKED paper is graded in chunks of at most this many questions, in parallel.
-const MAX_CHUNK_QUESTIONS = 8; // HOTFIX-2 (owner): 8–10 questions per chunk; 8 after round 1 (a 9-question chunk took 72 s live)
+const MAX_CHUNK_QUESTIONS = 3;
 // D43 (hybrid): a paper of at most this many questions is graded in ONE call (no chunks).
 const SINGLE_CALL_MAX_QUESTIONS = 10;
 // The client's per-attempt budget, for the worst-case arithmetic below (read-only mirror of
@@ -82,9 +75,9 @@ function clampInt(raw, lo, hi, dflt) {
 /** The grading time budget from explicit values (deps / env strings), with the clamps above. */
 function normaliseTiming({ deadlineMs, chunkTimeoutMs, cacheBudgetMs } = {}) {
   const deadline = clampInt(deadlineMs, MIN_GRADING_DEADLINE_MS, MAX_GRADING_DEADLINE_MS, DEFAULT_GRADING_DEADLINE_MS);
-  const chunk = clampInt(chunkTimeoutMs, MIN_GRADING_CHUNK_TIMEOUT_MS, deadline, deadline);
+  const chunk = clampInt(chunkTimeoutMs, MIN_GRADING_CHUNK_TIMEOUT_MS, deadline, Math.min(DEFAULT_GRADING_CHUNK_TIMEOUT_MS, deadline));
   const cache = clampInt(cacheBudgetMs, 0, MAX_GRADING_CACHE_BUDGET_MS, DEFAULT_GRADING_CACHE_BUDGET_MS);
-  return { deadlineMs: deadline, chunkTimeoutMs: chunk, cacheBudgetMs: cache, singleCallMaxQuestions: SINGLE_CALL_MAX_QUESTIONS, chunkQuestions: MAX_CHUNK_QUESTIONS };
+  return { deadlineMs: deadline, chunkTimeoutMs: chunk, cacheBudgetMs: cache, singleCallMaxQuestions: SINGLE_CALL_MAX_QUESTIONS };
 }
 
 /** Read the grading time budget from the environment. Never reads GEMINI_TIMEOUT_MS (D15). */
