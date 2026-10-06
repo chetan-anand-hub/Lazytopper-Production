@@ -1047,7 +1047,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Radius from a given circumference, diameter or area", oneLineUse: "Convert a given circumference, diameter or area into the radius you actually need.", marks: "1–2" },
       { name: "Length of an arc of a sector (l = (θ/360)×2πr)", oneLineUse: "Find arc length or the sector's perimeter (arc + two radii) in one step.", marks: "1–3" },
       { name: "Area of a sector (A = (θ/360)×πr²)", oneLineUse: "Turn a central angle and radius straight into the sector's area.", marks: "2–3" },
-      { name: "Area of a segment (sector area − area of triangle)", oneLineUse: "Subtract the triangle from the sector to get a minor segment; add for the major.", marks: "3–5" },
+      { name: "Area of a segment (sector area − area of triangle)", oneLineUse: "Split a shaded design into standard pieces: subtract the triangle from the sector to get a minor segment; add it for the major.", marks: "3–5" },
     ],
     formulaUsePreview: {
       kind: "formula",
