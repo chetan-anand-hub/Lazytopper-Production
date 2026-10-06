@@ -28,6 +28,7 @@ const H = vi.hoisted(() => ({
   checkSolutionImage: vi.fn(),
   gradeWorksheet: vi.fn(),
   track: vi.fn(),
+  recordMistake: vi.fn(),
 }));
 
 vi.mock("../../context/AuthContext", () => ({
@@ -53,7 +54,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 // The account writes a SIGNED-IN grade makes — stubbed so no Firestore is reached.
 vi.mock("../../services/mistakeIntelligence", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/mistakeIntelligence")>();
-  return { ...actual, recordMistake: () => Promise.resolve({ outcome: "logged", bridged: false }) };
+  return { ...actual, recordMistake: (...a: unknown[]) => H.recordMistake(...a) };
 });
 vi.mock("../../services/practiceInsights", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/practiceInsights")>();
@@ -150,7 +151,7 @@ function page(props: { overlay?: { onClose: () => void } } = {}) {
 }
 
 
-import { __setGradingJobTimersForTests, type StoredGradingJob } from "../../ai/gradingJobs";
+import { __setGradingJobTimersForTests, GradingJobGoneError, GradingJobInterruptedError, type GradingJobRow, type StoredGradingJob } from "../../ai/gradingJobs";
 
 const JOB_ID = "f".repeat(40);
 const SLOT = "lazytopper.gradingJob.v1.check-improve-paper";
@@ -180,6 +181,7 @@ beforeEach(() => {
   H.checkSolutionImage.mockReset();
   H.gradeWorksheet.mockReset().mockResolvedValue(PAPER_GRADED);
   H.track.mockReset();
+  H.recordMistake.mockReset().mockResolvedValue({ outcome: "logged", bridged: false });
   __setGradingJobTimersForTests({ now: () => 5_000 });
   vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 404 })));
   vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -220,5 +222,27 @@ describe("J2 · C&I paper — resume after a reload", () => {
     render(page());
     await act(async () => { await new Promise((r) => setTimeout(r, 200)); });
     expect(H.gradeWorksheet).not.toHaveBeenCalled();
+  });
+
+  it("★ D30-2: an interrupted paper records its FINAL graded rows only (not the interrupted one)", async () => {
+    seed();
+    const r = (index: number, extra: Record<string, unknown> = {}) =>
+      ({ index, final: true, qNumber: index + 1, totalMarks: 2, marksAwarded: 1, percentage: 50, couldNotRead: false, annotatedSteps: [], ...extra }) as unknown as GradingJobRow;
+    H.gradeWorksheet.mockReset().mockRejectedValue(
+      new GradingJobInterruptedError([r(0), r(1, { couldNotRead: true, marksAwarded: 0, notGraded: "interrupted" })], "ci:CI-M-REAL-07"),
+    );
+    render(page());
+    await waitFor(() => expect(H.recordMistake).toHaveBeenCalledTimes(1));
+    expect((H.recordMistake.mock.calls[0][2] as { submissionId: string }).submissionId).toBe("CI-M-REAL-07");
+    expect(await screen.findByRole("button", { name: "Grade the remaining 1 question" }).catch(() => null)).toBeNull(); // no photo after a reload
+    expect(screen.getByText("Upload your answers again to grade the remaining 1.")).toBeTruthy();
+  });
+
+  it("N2: a job that is gone after a reload shows the honest sentence, not 'Grading unavailable'", async () => {
+    seed();
+    H.gradeWorksheet.mockReset().mockRejectedValue(new GradingJobGoneError());
+    render(page());
+    expect(await screen.findByText(/This check is no longer available/)).toBeTruthy();
+    expect(screen.queryByText("Grading unavailable — please try again.")).toBeNull();
   });
 });

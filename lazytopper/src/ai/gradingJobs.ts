@@ -73,6 +73,9 @@ export interface StoredGradingJob {
   submittedAt: number;
   /** The paper this job grades (worksheetId / code) — a store never resumes another paper. */
   paperKey: string;
+  /** J2b (verifier N4) — a fingerprint of the request body this job grades (questions AND the
+   *  uploaded document). A new grade of the same paper with DIFFERENT content never resumes it. */
+  bodyHash?: string;
   context?: unknown;
 }
 
@@ -347,6 +350,14 @@ async function runOnce(
   onProgress: ((p: GradingJobProgress) => void) | undefined,
 ): Promise<Settled> {
   let rec = resumableJob(job.store, job.paperKey);
+  // N4: a kept job (e.g. after a network give-up) is resumed by a new grade ONLY when that grade
+  // sends the SAME content. A re-upload (a new photo) drops it and is graded as a new submit.
+  // A reload resume has no document to compare and polls the stored job as before.
+  const bodyHash = job.resumeOnly ? undefined : gradingBodyHash(body);
+  if (rec && bodyHash !== undefined && rec.bodyHash !== bodyHash) {
+    job.store.clear();
+    rec = null;
+  }
   if (!rec) {
     if (job.resumeOnly) {
       job.store.clear();
@@ -371,6 +382,7 @@ async function runOnce(
       total: Number(accepted?.total) || 0,
       submittedAt: nowImpl(),
       paperKey: job.paperKey,
+      ...(bodyHash !== undefined ? { bodyHash } : {}),
       ...(job.context !== undefined ? { context: job.context } : {}),
     };
     // §11: stored BEFORE the first poll, so a reload from here on resumes this job.
@@ -388,6 +400,26 @@ async function runOnce(
     // §3 404 mid-poll: the job is gone. Owner rule: today's synchronous path, NEW key.
     return syncFallback(body, deps);
   }
+}
+
+/** FNV-1a (32-bit) over the request body's JSON — a content fingerprint, not a secret. */
+export function gradingBodyHash(body: unknown): string {
+  const text = JSON.stringify(body) ?? "";
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i += 1) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return `${text.length.toString(36)}-${(h >>> 0).toString(36)}`;
+}
+
+function firstUploadPerQNumber(uploads: WorksheetGradeUpload[]): WorksheetGradeUpload[] {
+  const seen = new Set<number>();
+  return uploads.filter((u) => {
+    if (seen.has(u.qNumber)) return false;
+    seen.add(u.qNumber);
+    return true;
+  });
 }
 
 async function syncFallback(body: WorksheetGradeRequestBody, deps: GradingJobDeps): Promise<Settled> {
@@ -438,7 +470,9 @@ export async function gradeWorksheetJob(
   const subsetBody: WorksheetGradeRequestBody = {
     ...req,
     questions: subsetQs,
-    ...(req.uploads ? { uploads: req.uploads.filter((u) => subsetNumbers.has(u.qNumber)) } : {}),
+    // N6: questions are chosen by INDEX above; an upload can only name a printed qNumber, so at
+    // most ONE upload per remaining qNumber is sent (the first — the server keeps only the first).
+    ...(req.uploads ? { uploads: firstUploadPerQNumber(req.uploads.filter((u) => subsetNumbers.has(u.qNumber))) } : {}),
   };
   // Subset rows come back indexed within the subset; show them at their paper index.
   const remap = (rows: GradingJobRow[]): GradingJobRow[] =>
