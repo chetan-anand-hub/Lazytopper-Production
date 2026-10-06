@@ -1,6 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getWeakAreas, type WeakArea, type WeakAreaSummary } from "../services/weakAreaAggregator";
+import { useAuth } from "../context/AuthContext";
+import {
+  ME_DEFAULT_WINDOW,
+  boardChapterKey,
+  readStudyModel,
+  rungNamesWeakness,
+  type StudyReadModel,
+} from "../services/progressReadModel";
 import { getDueReviews, getSRStats, type SRConceptCard } from "../services/spacedRepetitionEngine";
 import {
   generateLearningPath,
@@ -11,6 +19,55 @@ import {
 } from "../services/learningPathGenerator";
 
 type ViewTab = "weak-areas" | "learning-path" | "reviews";
+
+/*
+ * ME-ENGINE-1 PR-2b — OWNER RULING 2026-10-06 (OWNER_RULINGS_B18_ME.md Round 2): "Mastery" is
+ * retired; every mastery display is gone from this page. A weak area's Accuracy and Attempts now
+ * come from the shared, synced read model (services/progressReadModel) — the same numbers on
+ * every device, for Me's default window — and only above Me's honesty threshold
+ * (`rungNamesWeakness`, the gate Me and the Tutor brief use): below it, NO number is shown. The
+ * practice difficulty follows the student's GRADED MARKS LOST in that chapter (the graded stream
+ * Me's "marks on the table" reads), not mastery.
+ */
+
+/** A weak area's evidence from the shared model, or null below Me's threshold (show no number). */
+export interface AreaEvidence {
+  /** Marks scored / marks available over the chapter's graded answers, as a whole percent. */
+  accuracy: number;
+  /** Graded answers in the chapter (measurable points, both halves of the window). */
+  attempts: number;
+  /** Graded marks lost in the chapter. */
+  marksLost: number;
+  /** marksLost / marks available, 0..1. */
+  lostShare: number;
+}
+
+export function areaEvidence(model: StudyReadModel | null, topicKey: string): AreaEvidence | null {
+  if (!model) return null;
+  const key = boardChapterKey(topicKey);
+  const rung = key ? model.progress.topics.find((r) => r.key === key) : undefined;
+  if (!rungNamesWeakness(rung)) return null;
+  const available = rung.marksAvailable;
+  const lost = Math.max(0, available - rung.marksScored);
+  return {
+    accuracy: Math.round((rung.marksScored / available) * 100),
+    attempts: (Number(rung.sampleBefore) || 0) + (Number(rung.sampleNow) || 0),
+    marksLost: lost,
+    lostShare: lost / available,
+  };
+}
+
+/**
+ * Practice difficulty from the graded marks lost in the chapter: losing most of the marks → start
+ * Easy; about a third or more → Medium; little lost → Hard. No evidence above the threshold →
+ * Easy (the targeted session's own start), never a guess from a retired figure.
+ */
+export function difficultyFromMarksLost(evidence: AreaEvidence | null): "Easy" | "Medium" | "Hard" {
+  if (!evidence) return "Easy";
+  if (evidence.lostShare >= 0.6) return "Easy";
+  if (evidence.lostShare >= 0.3) return "Medium";
+  return "Hard";
+}
 
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
@@ -29,7 +86,15 @@ function ProgressBar({ value, max, color }: { value: number; max: number; color:
   );
 }
 
-function WeakAreaCard({ area, onPractice }: { area: WeakArea; onPractice: (area: WeakArea) => void }) {
+function WeakAreaCard({
+  area,
+  evidence,
+  onPractice,
+}: {
+  area: WeakArea;
+  evidence: AreaEvidence | null;
+  onPractice: (area: WeakArea) => void;
+}) {
   const urgencyColor = area.confidenceScore >= 40 ? "#ef4444" : area.confidenceScore >= 20 ? "#f59e0b" : "#3b82f6";
   return (
     <div
@@ -60,22 +125,22 @@ function WeakAreaCard({ area, onPractice }: { area: WeakArea; onPractice: (area:
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 10, fontSize: 12 }}>
-        <div>
-          <span style={{ color: "var(--text-muted)" }}>Accuracy: </span>
-          <span style={{ fontWeight: 700 }}>{area.accuracy}%</span>
+      {evidence ? (
+        <div style={{ display: "flex", gap: 16, marginBottom: 10, fontSize: 12 }} data-testid="weak-area-evidence">
+          <div>
+            <span style={{ color: "var(--text-muted)" }}>Accuracy: </span>
+            <span style={{ fontWeight: 700 }}>{evidence.accuracy}%</span>
+          </div>
+          <div>
+            <span style={{ color: "var(--text-muted)" }}>Attempts: </span>
+            <span style={{ fontWeight: 700 }}>{evidence.attempts}</span>
+          </div>
         </div>
-        <div>
-          <span style={{ color: "var(--text-muted)" }}>Mastery: </span>
-          <span style={{ fontWeight: 700 }}>{area.masteryPercent}%</span>
+      ) : (
+        <div style={{ marginBottom: 10, fontSize: 12, color: "var(--text-muted)" }} data-testid="weak-area-evidence-thin">
+          Not enough graded answers yet to show accuracy.
         </div>
-        <div>
-          <span style={{ color: "var(--text-muted)" }}>Attempts: </span>
-          <span style={{ fontWeight: 700 }}>{area.totalAttempts}</span>
-        </div>
-      </div>
-
-      <ProgressBar value={area.masteryPercent} max={100} color={urgencyColor} />
+      )}
 
       {area.weakConcepts.length > 0 && (
         <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -302,6 +367,29 @@ export default function WeakAreaPracticePage() {
   const [learningPath, setLearningPath] = useState<LearningPath | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
+  const { user } = useAuth();
+  const uid = user?.uid ?? null;
+  const [model, setModel] = useState<StudyReadModel | null>(null);
+
+  // The shared, synced read model — Me's default window, both papers. A failed read shows no
+  // number (honest-or-silent), never a device-local stand-in.
+  useEffect(() => {
+    if (!uid) {
+      setModel(null);
+      return;
+    }
+    let cancelled = false;
+    readStudyModel(uid, { window: ME_DEFAULT_WINDOW })
+      .then((m) => {
+        if (!cancelled) setModel(m);
+      })
+      .catch(() => {
+        if (!cancelled) setModel(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [uid, refreshKey]);
 
   useEffect(() => {
     const subj = subjectFilter === "All" ? undefined : subjectFilter;
@@ -323,7 +411,7 @@ export default function WeakAreaPracticePage() {
   // safeguard, so the button stays plain rather than pretending to be busy.
 
   const handlePractice = (area: WeakArea) => {
-    const diff = area.masteryPercent < 20 ? "Easy" : area.masteryPercent < 50 ? "Medium" : "Hard";
+    const diff = difficultyFromMarksLost(areaEvidence(model, area.topicKey));
     navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=${diff}&weakMode=1`, { state: { back: "/weak-area-practice", backLabel: "Back to Weak Areas" } });
   };
 
@@ -403,7 +491,7 @@ export default function WeakAreaPracticePage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(2, 1fr)",
             gap: 10,
             marginBottom: 16,
           }}
@@ -415,10 +503,6 @@ export default function WeakAreaPracticePage() {
           <div style={{ padding: "12px 8px", borderRadius: 12, background: "rgba(34,197,94,0.08)", textAlign: "center" }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: "#22c55e" }}>{summary.closedThisWeek}</div>
             <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Closed This Week</div>
-          </div>
-          <div style={{ padding: "12px 8px", borderRadius: 12, background: "rgba(59,130,246,0.08)", textAlign: "center" }}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#3b82f6" }}>{summary.overallMasteryPercent}%</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Overall Mastery</div>
           </div>
         </div>
       )}
@@ -510,7 +594,12 @@ export default function WeakAreaPracticePage() {
                 Start Targeted Session — {summary.weakAreas[0]?.topicName} (15 questions, Easy → Hard)
               </button>
               {summary.weakAreas.map((area) => (
-                <WeakAreaCard key={area.topicKey} area={area} onPractice={handlePractice} />
+                <WeakAreaCard
+                  key={area.topicKey}
+                  area={area}
+                  evidence={areaEvidence(model, area.topicKey)}
+                  onPractice={handlePractice}
+                />
               ))}
             </>
           )}

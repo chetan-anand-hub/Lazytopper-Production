@@ -1065,10 +1065,20 @@ const micSrc = stripComments(read(path.join(LAZY, 'src', 'components', 'desktop'
 check('MIC (H3): its labels come ONLY from lib/mistakeDisplay — no local type-label map, no legacy label',
   /from "\.\.\/\.\.\/lib\/mistakeDisplay"/.test(micSrc) && /mistakeGroupByKey\(/.test(micSrc)
     && !/PATTERN_LABELS/.test(micSrc) && !/concept gaps|calculation slips|silly mistakes|presentation issues/i.test(micSrc));
-check('MIC (H3): "checked answers" = GRADED ANSWERS from the attempt store, never MI log entries',
-  /getAttemptsFromCloud\(/.test(micSrc) && /a\.mode === "graded"/.test(micSrc) && !/answerCount:\s*entries\.length/.test(micSrc));
-check('MIC (H3): the biggest loss is decided in MARKS per group when entries carry them',
-  /aggregateEntryMarks\(entries\)/.test(micSrc) && /groupMarks\(marks\)/.test(micSrc));
+// OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+// — the two H3 lines below WERE pinned to the OLD source (`getAttemptsFromCloud(` + `a.mode === "graded"`;
+// `aggregateEntryMarks(entries)` + `groupMarks(marks)`). Amended to pin the SAME behaviour on the shared read
+// model, and two NEW lines pin the new source (count 146 → 148, never down). Replacement pins + their RED
+// mutation: MistakeIntelCard.contract.test.tsx and progressReadModel.consistency.test.tsx (widget == Me == brief).
+check('MIC (H3): "checked answers" = GRADED ANSWERS from the shared read model, never MI log entries', // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+  /model\.progress\.activity\.gradedAnswers/.test(micSrc) && !/answerCount:\s*entries\.length/.test(micSrc) && !/checkedCount\s*=\s*[^;]*entries\.length/.test(micSrc)); // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+check('MIC (H3): the biggest loss is decided in MARKS per group by the shared model ONE group split', // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+  /topLossGroup\(byGroup\)/.test(micSrc) && /model\.mistakes\.byGroup/.test(micSrc)); // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+check('MIC (ME-ENGINE-1): the card reads ONE source — readStudyModel from services/progressReadModel; no device-local / MI-entry fetch', // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+  /from "\.\.\/\.\.\/services\/progressReadModel"/.test(micSrc) && /readStudyModel\(uid,/.test(micSrc)
+    && !/getMistakeLogs\(/.test(micSrc) && !/getAttemptsFromCloud\(/.test(micSrc));
+check('MIC (ME-ENGINE-1): "marks lost" = the GRADED STREAM (progress.totals.marksLost, Me "on the table"), never the MI-entry sum', // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget's "marks lost" = the graded stream
+  /model\.progress\.totals\?\.marksLost/.test(micSrc) && !/totalMarksLost\s*\+=\s*entry\.marksLost/.test(micSrc));
 
 // ── The three replacement contract suites — EXIST · RUN · COLLECTED · SUBJECT (the house
 //    pattern of FORBID-1 / FORBID-6 / OPS-LIFT-1: a deleted ban plus a suite nobody runs is worse

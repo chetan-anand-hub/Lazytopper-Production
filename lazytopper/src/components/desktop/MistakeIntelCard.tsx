@@ -2,14 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
-  getMistakeLogs,
-  type MistakeLogEntry,
-} from "../../services/mistakeLogService";
-import { getAttemptsFromCloud, type PracticeAttempt } from "../../services/practiceInsights";
-import { aggregateEntryMarks } from "../../services/mistakeInsightsService";
+  readStudyModel,
+  topLossGroup,
+  type StudyReadModel,
+} from "../../services/progressReadModel";
 import {
   groupCounts,
-  groupMarks,
   marksWithUnit,
   countWithUnit,
   mistakeGroupByKey,
@@ -35,10 +33,11 @@ import {
  * data driven sidebar that reads from the same production source the rest
  * of the desktop surfaces use:
  *
- *   getMistakeLogs(uid, days)
+ *   readStudyModel(uid, { window: "week" })   (services/progressReadModel)
  *
- * which returns real `MistakeLogEntry[]` for the signed-in user from
- * Firestore (with a localStorage fallback when offline / not yet wired).
+ * — ME-ENGINE-1 PR-1: the ONE shared read model Me/Progress also reads, from
+ * Firestore only (synced data; no device-only fallback), so the card and Me show
+ * the same numbers for the same window.
  *
  * States:
  *   1. Loading         — auth still resolving, or first fetch in flight.
@@ -83,13 +82,15 @@ import {
  */
 
 const WINDOW_DAYS = 7;
+/** ME-ENGINE-1 PR-1 — the shared read model's 7-day window (the same one Me's "Week" reads). */
+const CARD_WINDOW = "week" as const;
 
 /** The biggest loss, in the owner's groups (lib/mistakeDisplay), with its real unit. */
 export interface MiCardTopLoss {
   group: MistakeGroupKey;
   /** The group's label from lib/mistakeDisplay ("Knowledge gap", "Exam technique", "Careless"). */
   label: string;
-  /** "2 marks" when decided in marks (v2 entries), "3 mistakes" when decided in counts. */
+  /** "2 marks" when decided in marks, "3 mistakes" when decided in counts. */
   amount: string;
   basis: "marks" | "counts";
 }
@@ -101,47 +102,35 @@ export interface MiCardSummary {
   topLoss: MiCardTopLoss | null;
 }
 
-const GROUP_ORDER: MistakeGroupKey[] = ["knowledge", "technique", "careless"];
-
-function topOf(by: Record<MistakeGroupKey, number>): MistakeGroupKey | null {
-  let best: MistakeGroupKey | null = null;
-  let bestN = 0;
-  for (const k of GROUP_ORDER) {
-    if ((Number(by[k]) || 0) > bestN) {
-      best = k;
-      bestN = Number(by[k]) || 0;
-    }
-  }
-  return best;
-}
-
 /**
- * H3 — the card's numbers, from real data only. `entries` are the 7-day MI entries; `attempts`
- * the same window's attempts (the graded-answer count). Marks decide the biggest loss when any
- * entry carries v2 marks; a count-only window is decided in mistakes. Never invented: a group
- * with nothing lost is never named.
+ * H3, re-sourced by ME-ENGINE-1 PR-1 — the card's numbers, from the ONE shared read model
+ * (`progressReadModel`), so they are the numbers Me/Progress shows for the same window:
+ *   - checked answers = `progress.activity.gradedAnswers` (attempts with mode "graded");
+ *   - marks lost = the window's graded-stream loss `progress.totals.marksLost` (available −
+ *     scored over every graded answer) — the SAME figure as Me's "marks on the table". It used
+ *     to be the sum of Mistake-Intelligence entries, which leaves out every answer with no MI
+ *     entry (a not-attempted part, an MCQ), so the widget and Me disagreed (G3);
+ *   - biggest loss = the top group of `mistakes.byGroup` (the split Me's hero uses) in MARKS;
+ *     when no group lost a mark, the group with the most MISTAKES, in counts. Never invented:
+ *     a group with nothing lost is never named.
  */
-export function computeMiCardSummary(entries: MistakeLogEntry[], attempts: PracticeAttempt[]): MiCardSummary {
-  let totalMarksLost = 0;
-  for (const entry of entries) {
-    if (Number.isFinite(entry.marksLost)) totalMarksLost += entry.marksLost;
-  }
-  const checkedCount = attempts.filter((a) => a.mode === "graded").length;
+export function computeMiCardSummary(model: StudyReadModel): MiCardSummary {
+  const checkedCount = Number(model.progress.activity.gradedAnswers) || 0;
+  const totalMarksLost = Number(model.progress.totals?.marksLost) || 0;
 
   let topLoss: MiCardTopLoss | null = null;
-  const marks = aggregateEntryMarks(entries);
-  const byMarks = marks ? groupMarks(marks) : null;
-  const markTop = byMarks ? topOf(byMarks) : null;
-  if (byMarks && markTop) {
+  const byGroup = model.mistakes.byGroup;
+  const markTop = topLossGroup(byGroup);
+  if (markTop) {
     topLoss = {
       group: markTop,
       label: mistakeGroupByKey(markTop).label,
-      amount: marksWithUnit(byMarks[markTop]),
+      amount: marksWithUnit(byGroup[markTop]),
       basis: "marks",
     };
   } else {
     const counts = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-    for (const entry of entries) {
+    for (const entry of model.mistakes.entries) {
       const c = entry.mistakeCounts;
       if (!c) continue;
       counts.conceptual += Number(c.conceptual) || 0;
@@ -150,7 +139,7 @@ export function computeMiCardSummary(entries: MistakeLogEntry[], attempts: Pract
       counts.presentation += Number(c.presentation) || 0;
     }
     const byCount = groupCounts(counts);
-    const countTop = topOf(byCount);
+    const countTop = topLossGroup(byCount);
     if (countTop) {
       topLoss = {
         group: countTop,
@@ -242,35 +231,32 @@ export function MistakeIntelCard() {
 
   const [fetchState, setFetchState] = useState<{
     status: "idle" | "loading" | "ok" | "error";
-    entries: MistakeLogEntry[];
-    attempts: PracticeAttempt[];
-  }>({ status: "idle", entries: [], attempts: [] });
+    model: StudyReadModel | null;
+  }>({ status: "idle", model: null });
 
   useEffect(() => {
     if (!uid) {
       // No user — clear any prior fetch state so we render the signed-out
       // surface immediately instead of leaking the previous user's data.
-      setFetchState({ status: "idle", entries: [], attempts: [] });
+      setFetchState({ status: "idle", model: null });
       return;
     }
 
     let cancelled = false;
-    setFetchState((prev) => ({ status: "loading", entries: prev.entries, attempts: prev.attempts }));
+    setFetchState((prev) => ({ status: "loading", model: prev.model }));
 
     void (async () => {
       try {
-        // H3 — the graded-answer count comes from the attempt store (one per submission),
-        // read for the SAME 7-day window; it never fails the card (an empty read counts 0).
-        const since = Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000;
-        const [entries, attempts] = await Promise.all([
-          getMistakeLogs(uid, WINDOW_DAYS),
-          getAttemptsFromCloud(uid, { start: since }).catch(() => [] as PracticeAttempt[]),
-        ]);
+        // ME-ENGINE-1 PR-1 — the ONE shared read model, both papers, the 7-day window.
+        const model = await readStudyModel(uid, { window: CARD_WINDOW });
         if (cancelled) return;
-        setFetchState({ status: "ok", entries, attempts });
+        // A mistake history that could not be read is an error, never "no patterns yet".
+        setFetchState(
+          model.mistakes.complete ? { status: "ok", model } : { status: "error", model: null },
+        );
       } catch {
         if (cancelled) return;
-        setFetchState({ status: "error", entries: [], attempts: [] });
+        setFetchState({ status: "error", model: null });
       }
     })();
 
@@ -285,13 +271,14 @@ export function MistakeIntelCard() {
   const view: ViewState = useMemo(() => {
     if (authLoading) return { kind: "loading" };
     if (!uid) return { kind: "signed-out" };
-    if (fetchState.status === "loading" && fetchState.entries.length === 0) {
+    const entries = fetchState.model?.mistakes.entries ?? [];
+    if (fetchState.status === "loading" && entries.length === 0) {
       return { kind: "loading" };
     }
     if (fetchState.status === "error") return { kind: "error" };
-    if (fetchState.entries.length === 0) return { kind: "no-data" };
-    return { kind: "with-data", summary: computeMiCardSummary(fetchState.entries, fetchState.attempts) };
-  }, [authLoading, uid, fetchState.status, fetchState.entries, fetchState.attempts]);
+    if (!fetchState.model || entries.length === 0) return { kind: "no-data" };
+    return { kind: "with-data", summary: computeMiCardSummary(fetchState.model) };
+  }, [authLoading, uid, fetchState.status, fetchState.model]);
 
   return (
     <div style={CARD_STYLE}>

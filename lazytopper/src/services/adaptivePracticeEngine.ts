@@ -137,6 +137,35 @@ function pushWrongAnswerLog(uid: string, log: WrongAnswerLog): Promise<void> {
   return pushChain;
 }
 
+/** Re-reads allowed while this device's own writes to the profile are still in flight. */
+const MAX_PENDING_REREADS = 3;
+
+/**
+ * ME-ENGINE-1 PR-2b ([FU-ME2-WAL-HYDRATE-RACE]) — read `learnerProfiles/{uid}` as the SERVER has
+ * it, never through a pending local write. Sign-in also runs `ensureLearnerCloudBaseline`, a
+ * merge-write of `{uid, createdAt, updatedAt}` to this same document, beside this hydration. While
+ * that write is unacknowledged, the SDK's latency-compensated view of a document it has not cached
+ * is built from the pending write ALONE — the synced `wrongAnswerLog` is absent from it — so a
+ * second device compared against that view, found "no cloud log", and never pulled (OR-LIVE after
+ * #968: `pending true`, keys `createdAt|uid|updatedAt`, on every load). So a snapshot that carries
+ * pending writes is never trusted: wait until this device's writes are acknowledged, then read
+ * again. Order-independent (whichever of the two starts first) and no timer. Offline (a cached
+ * pending view, which cannot be acknowledged now) → null: nothing is decided, and the next
+ * sign-in retries. Null too if this device keeps writing the document under the read.
+ */
+async function readSyncedProfile(ref: NonNullable<Awaited<ReturnType<typeof cloudRef>>>) {
+  const firestore = await import("firebase/firestore");
+  for (let attempt = 0; attempt <= MAX_PENDING_REREADS; attempt += 1) {
+    const snap = await firestore.getDoc(ref);
+    if (!snap.metadata?.hasPendingWrites) return snap;
+    if (snap.metadata.fromCache || attempt === MAX_PENDING_REREADS) return null;
+    const { firestoreDb } = await import("./firebaseClient");
+    if (!firestoreDb) return null;
+    await firestore.waitForPendingWrites(firestoreDb);
+  }
+  return null;
+}
+
 /**
  * Bring the signed-in student's synced wrong-answer log onto this device (sign-in). The newer copy
  * wins: a newer cloud log replaces the device copy; a newer device log (written before it could
@@ -150,8 +179,8 @@ export async function hydrateWrongAnswerLogFromCloud(
   try {
     const ref = await cloudRef(id);
     if (!ref) return "skipped";
-    const { getDoc } = await import("firebase/firestore");
-    const snap = await getDoc(ref);
+    const snap = await readSyncedProfile(ref);
+    if (!snap) return "skipped";
     const cloud = snap.exists() ? parseWrongAnswerLog((snap.data() as Record<string, unknown>)[WRONG_ANSWER_CLOUD_FIELD]) : null;
     const local = readWrongAnswerLogFor(id);
     const cloudAt = Number(cloud?.updatedAt) || 0;

@@ -41,6 +41,7 @@ import {
   emptyWindowed,
   getWindowedProgress,
   windowRange,
+  type ProgressWindow,
   type ReadWindow,
   type RungTrend,
   type WindowedProgress,
@@ -246,6 +247,39 @@ export function topLossGroup(by: Pick<MistakeLossByGroup, MistakeGroupKey>): Mis
 /** The subject rung of a progress read (gated — null when the window is too thin). */
 export function subjectRungOf(progress: WindowedProgress, subject: ReadSubject): RungTrend | null {
   return progress.subjects.find((r) => r.key.toLowerCase() === subject) ?? null;
+}
+
+/**
+ * ME-ENGINE-1 PR-2b — Me/Progress's DEFAULT window (the window a student sees first on Me). Me
+ * opens on it and the Tutor brief (which has no window picker) speaks for it — both IMPORT this
+ * one constant (OWNER RULING 2026-10-06, Round 2: "imported, not copied").
+ */
+export const ME_DEFAULT_WINDOW: ProgressWindow = "month";
+
+/**
+ * ME-ENGINE-1 PR-2b — THE GATE FOR NAMING A WEAKNESS, one for every reader. Me/Progress names a
+ * weakness (its hero split: knowledge gap / exam technique / careless) only for a paper whose
+ * gated subject rung carries a real marks base; below it Me says "We will not name a weakness
+ * from one or two questions" and names nothing. Me's `splitPaperMarks` asks THIS predicate, and
+ * any other reader that NAMES a weakness — a figure, a mistake group or a concept label — asks it
+ * too (through `weaknessNamingRung`), so nothing names what Me withholds
+ * ([FU-ME2-BRIEF-CONCEPTS-BELOW-GATE]). The threshold is the existing rung gate, not lowered.
+ */
+export function rungNamesWeakness(
+  rung: RungTrend | null | undefined,
+): rung is RungTrend & { marksAvailable: number; marksScored: number } {
+  if (!rung) return false;
+  const available = rung.marksAvailable;
+  const secured = rung.marksScored;
+  if (typeof available !== "number" || typeof secured !== "number") return false;
+  return Number.isFinite(available) && Number.isFinite(secured) && available > 0;
+}
+
+/** The paper's subject rung when Me names a weakness for this read (`rungNamesWeakness`), else null. */
+export function weaknessNamingRung(model: Pick<StudyReadModel, "progress" | "subject">): RungTrend | null {
+  if (!model.subject) return null;
+  const rung = subjectRungOf(model.progress, model.subject);
+  return rungNamesWeakness(rung) ? rung : null;
 }
 
 function inRange(iso: unknown, start: number, end: number): boolean {

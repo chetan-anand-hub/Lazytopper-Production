@@ -11,13 +11,14 @@
  *
  * ★ The Tutor brief JOINED in ME-ENGINE-1 PR-2: for every window × paper and every chapter, the
  *   brief == Me's numbers == the model (`briefFromModel`), and a Tutor doubt is counted.
- * ★ ONE NAMED SLOT is left at the end (`it.todo`): the sidebar MI widget (its switch is HELD — the
- *   CI ops gate `check_improve_convergence_acceptance.mjs` MIC (H3) pins the card's OLD data source
- *   and may only be amended with the owner's words; the ready patch is recorded in PR-1).
+ * ★ The sidebar MI widget JOINED in ME-ENGINE-1 PR-2b (OWNER RULING 2026-10-06, Round 2 — the CI
+ *   ops gate MIC (H3) lines that pinned its OLD source were amended under the four standing
+ *   conditions): widget == Me == brief == the model, the last slot filled.
  *
  * Mutations this file turns RED: M3 — a reader with its own canonicaliser (Me's chapter list
  * grouping mistakes by `normalizeTopicKey` again, the topicAliasMap vocabulary); PR-2 W — the
- * brief reading a different window than the one it is asked for (e.g. its old fixed 120 days).
+ * brief reading a different window than the one it is asked for (e.g. its old fixed 120 days);
+ * PR-2b G — the brief names concept labels without Me's weakness gate (`weaknessNamingRung`).
  */
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
@@ -79,10 +80,12 @@ import {
   READ_WINDOWS,
   readStudyModel,
   subjectRungOf,
+  topLossGroup,
   type ReadSubject,
   type StudyReadModel,
 } from "./progressReadModel";
 import MeProgressPage, { buildChapters, splitPaperMarks } from "../pages/MeProgressPage";
+import { MistakeIntelCard, computeMiCardSummary } from "../components/desktop/MistakeIntelCard";
 import { assembleTutorBrief, briefFromModel } from "../pages/tutor/tutorContextBrief";
 import { mistakeGroupByKey } from "../lib/mistakeDisplay";
 import { zeroMarksLost } from "../lib/mistakeDisplay";
@@ -271,6 +274,16 @@ describe("G3 — the rendered surfaces print the model's numbers", () => {
 
 /* ───────────────────────────── the Tutor brief (PR-2) ───────────────────────────── */
 
+/** The chapter's live recorded concepts by marks lost (≤ 3) — the brief's rule above the gate. */
+function liveConcepts(m: StudyReadModel, chapter: string): string[] {
+  const by = new Map<string, number>();
+  for (const e of m.mistakes.byChapter[chapter] ?? []) {
+    const c = typeof e.concept === "string" ? e.concept.trim() : "";
+    if (c) by.set(c, (by.get(c) ?? 0) + Math.max(0, Number(e.marksLost) || 0));
+  }
+  return [...by.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3).map(([c]) => c);
+}
+
 const CHAPTERS = ["real-numbers", "polynomials", "heredity", "how-do-organisms-reproduce", "electricity"];
 
 describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every window × paper × chapter", () => {
@@ -298,6 +311,13 @@ describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every 
           // Me's chapter list is built from); named concepts only from the chapter's live mistakes.
           const rung = m.progress.topics.find((r) => r.key === chapter);
           expect(Boolean(brief.topic.trend)).toBe(Boolean(rung));
+          // PR-2b — ONE gate for NAMING a weakness: below Me's (no hero split) the brief names
+          // no concept either; above it, exactly the chapter's live recorded concepts by marks.
+          if (!split) {
+            expect(brief.topic.weakConcepts).toBeUndefined();
+          } else {
+            expect(brief.topic.weakConcepts ?? []).toEqual(liveConcepts(m, chapter));
+          }
           if (brief.topic.weakConcepts) {
             const live = new Set((m.mistakes.byChapter[chapter] ?? []).map((e) => e.concept));
             for (const c of brief.topic.weakConcepts) expect(live.has(c)).toBe(true);
@@ -321,6 +341,12 @@ describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every 
     const today = await assembleTutorBrief({ uid: UID, topicKey: "real-numbers", subject: "maths", window: "today", nowMs: NOW });
     expect(today.topic.trend).toBeUndefined();
     expect(today.mistakes).toEqual({});
+    // PR-2b — today the chapter HAS a live mistake with a recorded concept, but Me names no
+    // weakness (no hero split), so the brief names no concept (the gate is not vacuous here).
+    const todayModel = await model("today", "maths");
+    expect(liveConcepts(todayModel, "real-numbers")).toEqual(["Euclid's division lemma"]);
+    expect(splitPaperMarks(subjectRungOf((await model("today", null)).progress, "maths"), todayModel.mistakes.entries)).toBeNull();
+    expect(today.topic.weakConcepts).toBeUndefined();
   });
 });
 
@@ -346,11 +372,44 @@ describe("G3 — activity: a Tutor doubt is counted in every window, by the mode
   }
 });
 
-describe("G3 — the surface that joins this pin next", () => {
-  // ★ NAMED SLOT — the sidebar MI widget. HELD: `scripts/ops/check_improve_convergence_acceptance.mjs`
-  // MIC (H3) pins `getAttemptsFromCloud(` / `a.mode === "graded"` / `aggregateEntryMarks(entries)` /
-  // `groupMarks(marks)` in MistakeIntelCard.tsx, so the card cannot read this model until the owner
-  // approves amending those gate lines. Then: `computeMiCardSummary(readStudyModel(uid, { window:
-  // "week" }))` and assert checkedCount / marks lost / biggest loss == the model, every window and scope.
-  it.todo("[FU-ME1-WIDGET-GATE] · the sidebar MI widget reads readStudyModel and joins this pin");
+describe("G3 — the sidebar MI widget joins the pin: widget == Me == brief == the model (OWNER RULING 2026-10-06)", () => {
+  // OWNER RULING 2026-10-06 (OWNER_RULINGS_B18_ME.md Round 2): the convergence-gate amendment is
+  // approved; "the widget's 'marks lost' = the graded stream, the same as Me". The card reads
+  // `readStudyModel(uid, { window: "week" })`, both papers — so for the week: its checked answers
+  // are the model's graded answers, and its marks lost are the model's graded-stream total, which
+  // is Me's "marks on the table" for Maths plus Science, and the brief's figure for each paper.
+  it("★ week, both papers — the pure summary and the RENDERED card print the model's numbers", async () => {
+    const all = await model("week", null);
+    const card = computeMiCardSummary(all);
+    expect(card.checkedCount).toBe(all.progress.activity.gradedAnswers);
+    expect(card.checkedCount).toBeGreaterThan(0);
+    expect(card.totalMarksLost).toBe(all.progress.totals!.marksLost);
+
+    // == Me, per paper (both papers are above Me's gate in the week — asserted, not assumed).
+    let meSum = 0;
+    for (const subject of ["maths", "science"] as const) {
+      const m = await model("week", subject);
+      const split = splitPaperMarks(subjectRungOf(all.progress, subject), m.mistakes.entries);
+      expect(split).not.toBeNull();
+      meSum += split!.lost;
+      // == the brief for the same paper and window.
+      const brief = await assembleTutorBrief({ uid: UID, topicKey: "real-numbers", subject, window: "week", nowMs: NOW });
+      expect(brief.mistakes.marksLostRecent).toBe(split!.lost);
+    }
+    expect(card.totalMarksLost).toBeCloseTo(meSum, 5);
+    // The biggest loss is the model's ONE group split, in marks.
+    expect(card.topLoss?.basis).toBe("marks");
+    expect(card.topLoss?.group).toBe(topLossGroup(all.mistakes.byGroup));
+
+    render(
+      <MemoryRouter>
+        <MistakeIntelCard />
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("mi-card-checked").textContent).toBe(`${card.checkedCount} checked answers`),
+    );
+    expect(screen.getByTestId("mi-card-summary").textContent).toContain(`${card.totalMarksLost} marks lost`);
+    cleanup();
+  });
 });

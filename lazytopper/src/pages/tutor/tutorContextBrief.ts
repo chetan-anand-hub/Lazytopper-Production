@@ -13,13 +13,14 @@
 // WROTE two Firestore docs on every build), the 120-day trend read, and the 14-day both-papers
 // MI insight. No mastery or per-concept percentage is sent (A-17 ruling 6): a real per-concept
 // STATE needs the concept mapping (ME-ENGINE-1 PR-3); until then the brief names only the
-// concepts of the chapter's real, synced mistakes, or nothing.
+// concepts of the chapter's real, synced mistakes — and only above Me's weakness gate (PR-2b) — or nothing.
 
 import {
+  ME_DEFAULT_WINDOW,
   boardChapterKey,
   readStudyModel,
-  subjectRungOf,
   topLossGroup,
+  weaknessNamingRung,
   type ReadWindow,
   type StudyReadModel,
 } from "../../services/progressReadModel";
@@ -56,10 +57,11 @@ export function describeBriefTopType(type: unknown, basis: "marks" | "counts" | 
 }
 
 /**
- * The window the brief reads: Me/Progress's default window (`MeProgressPage` opens on "month").
- * The Tutor has no window picker, so it speaks for the window a student sees first on Me.
+ * The window the brief reads: Me/Progress's default window — the read model's ONE constant, which
+ * `MeProgressPage` also opens on (imported by both, never copied; OWNER RULING 2026-10-06). The
+ * Tutor has no window picker, so it speaks for the window a student sees first on Me.
  */
-export const TUTOR_BRIEF_WINDOW: ReadWindow = "month";
+export const TUTOR_BRIEF_WINDOW: ReadWindow = ME_DEFAULT_WINDOW;
 const TREND_EPSILON = 2; // pct-points that count as real movement (else "stable")
 /** At most this many weak concepts are named. */
 const MAX_WEAK_CONCEPTS = 3;
@@ -80,11 +82,12 @@ export interface AssembleBriefArgs {
  * Every field mirrors what Me shows for the same paper and window:
  *   - `mistakes.marksLostRecent` = Me's "marks on the table" (the ungated total), and
  *     `mistakes.topType` = the group that cost the most marks in Me's hero split — BOTH only when
- *     Me shows its hero (the paper's gated subject rung exists); below that gate, nothing;
+ *     Me names a weakness (`weaknessNamingRung`, Me's gate); below that gate, nothing;
  *   - `topic.trend` = the direction of the chapter's gated rung (±2 points dead-band), the rung
  *     Me's chapter list prints; no rung → no trend;
  *   - `topic.weakConcepts` = the recorded concepts of the chapter's LIVE synced mistakes, by
- *     marks lost (≤ 3). Only labels the grading wrote; never a percentage, never invented.
+ *     marks lost (≤ 3) — under the SAME gate (PR-2b): below it, none. Only labels the grading
+ *     wrote; never a percentage, never invented.
  */
 export function briefFromModel(model: StudyReadModel, chapterKey: string): TutorBrief {
   const brief: TutorBrief = { hasData: false, topic: {}, mistakes: {} };
@@ -95,24 +98,30 @@ export function briefFromModel(model: StudyReadModel, chapterKey: string): Tutor
     brief.topic.trend = d > TREND_EPSILON ? "improving" : d < -TREND_EPSILON ? "worsening" : "stable";
   }
 
-  const chapterMistakes = chapterKey ? model.mistakes.byChapter[chapterKey] ?? [] : [];
-  const byConcept = new Map<string, number>();
-  for (const e of chapterMistakes) {
-    const c = typeof e.concept === "string" ? e.concept.trim() : "";
-    if (!c) continue;
-    byConcept.set(c, (byConcept.get(c) ?? 0) + Math.max(0, Number(e.marksLost) || 0));
-  }
-  const weak = [...byConcept.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, MAX_WEAK_CONCEPTS)
-    .map(([c]) => c);
-  if (weak.length) brief.topic.weakConcepts = weak;
+  // ME-ENGINE-1 PR-2b — ONE gate for naming a weakness: Me's (`weaknessNamingRung`, the read
+  // model). Below it Me says "We will not name a weakness from one or two questions", so the
+  // brief names NOTHING either — no figure, no mistake group and no concept label (the labels
+  // are real, but naming them is naming a weakness) [FU-ME2-BRIEF-CONCEPTS-BELOW-GATE].
+  const namingRung = weaknessNamingRung(model);
+  if (namingRung) {
+    const chapterMistakes = chapterKey ? model.mistakes.byChapter[chapterKey] ?? [] : [];
+    const byConcept = new Map<string, number>();
+    for (const e of chapterMistakes) {
+      const c = typeof e.concept === "string" ? e.concept.trim() : "";
+      if (!c) continue;
+      byConcept.set(c, (byConcept.get(c) ?? 0) + Math.max(0, Number(e.marksLost) || 0));
+    }
+    const weak = [...byConcept.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, MAX_WEAK_CONCEPTS)
+      .map(([c]) => c);
+    if (weak.length) brief.topic.weakConcepts = weak;
 
-  const subjectRung = model.subject ? subjectRungOf(model.progress, model.subject) : null;
-  if (subjectRung && model.progress.totals) {
-    brief.mistakes.marksLostRecent = model.progress.totals.marksLost;
-    const top = topLossGroup(model.mistakes.byGroup);
-    if (top) brief.mistakes.topType = mistakeGroupByKey(top).label.toLowerCase();
+    if (model.progress.totals) {
+      brief.mistakes.marksLostRecent = model.progress.totals.marksLost;
+      const top = topLossGroup(model.mistakes.byGroup);
+      if (top) brief.mistakes.topType = mistakeGroupByKey(top).label.toLowerCase();
+    }
   }
 
   brief.hasData = Boolean(brief.topic.trend || (brief.topic.weakConcepts && brief.topic.weakConcepts.length) || brief.mistakes.topType);
