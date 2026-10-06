@@ -1,3 +1,29 @@
+## 2026-10-07 — WAVE CI1 (CI, CONTROLLER C) — **FU-CI1-NIGHTLY-RESTORE: THE FULL SUITE UNDER BOTH CLOCKS RUNS NIGHTLY AGAIN (02:00 IST); THREE GATES TREAT EVERY NON-PR EVENT AS N/A, NOT A PASS; `merge_group` TRIGGERS READY; THE NIGHTLY MUST RUN EVERY TEST FILE ON DISK** — `#981` MERGED — trunk `63e94564` — CI ONLY
+
+★ **PROVENANCE.** Controller C (also CI-1, coordinator), wave CI1. Owner mandate 2026-10-07 (`[FU-CI1-NIGHTLY-RESTORE]`). One builder (`ci/fu-ci1-nightly-restore`, worktree `ci1-nightly`), two rounds; an independent verifier sub-agent PASS before merge. Written by a separate docs builder in `C:/Projects/LT-worktrees/ci1-docs2` from `WAVE_STATE_CI1.md`, `COORDINATOR_LOG.md`, `ci1/report-fu-ci1-nightly-restore-2026-10-07.md`, `CI1_MERGE_QUEUE_STEPS.md` and `#981`; every SHA and run id re-checked with `gh` / `git`.
+
+**Lane.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| FU-CI1-NIGHTLY-RESTORE | `#981` `63e94564` (head `b2dce25f`) | N/A for push / schedule / workflow_dispatch / merge_group in 3 gates (+4 FORBIDDEN-PINs each); `schedule: '30 20 * * *'` restored; issue step schedule-only; `merge_group` on both required workflows, lane-overlap pass-through; nightly files-on-disk assertion; `ci_speed_acceptance` 31 → 36. Hand-run `37539342806`: both clocks 330/330 files, 4,755 tests, `NIGHTLY_VITEST_COVERAGE: PASS`. Merged-head run `37542218299`: 331 / 4,760, PASS. Trunk push `37542924022`: PASS 6.1 min | "only the convergence gate has the push-only N/A rule"; "the nightly ran one file fewer than the PR" |
+
+**Timeline (UTC, 6 Oct).**
+- 20:36Z trunk push `37520735385` (`d0cbdd3f`) RED: `DesktopPracticePage.cbqEntry.test.tsx` reaches the clock intermittently and was not in the manifest. Fix folded into B-18's `#970` (DEC-4) to avoid a lane-overlap deadlock.
+- 21:20Z `#970` merged `d1a8e88f`; manifest entry verified on trunk. Builder dispatched.
+- 21:39Z PR run `37535368225` green (`785b7c7c`). 21:45Z hand-run `37536071043` **RED**: convergence N/A worked, the C&I overlay gate failed the same way. → **D6** widen both overlay gates in `#981`; **D7** explain 326 vs 327 and guard the nightly.
+- 22:09Z PR run `37538714300` green (`b1b04f2d`, 330 / 4,755). 22:14–22:23Z hand-run **`37539342806` GREEN**, all 15 jobs.
+- Trunk moved three times while `#981` waited (`#982` 22:16Z, `#975` 22:30Z, `#984` 22:40Z) → three update-branch merges (`ac30136a`, `48d13c09`, `b2dce25f`).
+- **22:48:46Z `#981` merged** (guarded loop, attempt 1). Trunk push `37542924022` PASS; post-merge 5/5 reads + smoke 3/3; Vercel deployed.
+
+**Lessons.**
+- **(a) Running the nightly by hand BEFORE merging found two more gates with the same defect.** The fix targeted the convergence gate's push-only N/A rule; dispatch `37536071043` showed `check_improve_overlay_additive_acceptance.mjs` and `quick_practice_overlay_additive_acceptance.mjs` carried the identical rule. A PR run alone (green, `37535368225`) could not show it: on a pull_request the rule never fires. A sweep then confirmed no 4th gate.
+- **(b) The 326-vs-327 "gap" was a base difference, not lost coverage.** The PR run tests `refs/pull/981/merge` (branch + current trunk, which had just gained `#978`'s test file); the dispatch tests the bare branch head, which had 326 test files on disk. The nightly ran 326/326. A files-on-disk assertion now guards the nightly anyway (`NIGHTLY_VITEST_COVERAGE`).
+- **(c) Under the strict up-to-date rule a ~5-minute PR still waited about 35 minutes** (green 22:13:58Z → merged 22:48:46Z) through three trunk moves, two of them during its checks. A guarded update-and-merge loop — update-branch, prove the lane files byte-identical to the verifier-passed head, wait for every check green on that EXACT head, then `gh pr merge --squash --match-head-commit` — merged it on its first attempt.
+- **(d) The runtime clock recorder's seed runs miss tests that reach the clock only intermittently.** `DesktopPracticePage.cbqEntry.test.tsx` turned trunk push `37520735385` RED; fixed via `#970` (`d1a8e88f`). → `[FU-CI1-RECORDER-INTERMITTENT]`.
+
+**Owner-owed:** merge-queue option (A recommended; triggers on trunk), Railway `watchPatterns`; other lanes' OWNER-ASKs are in `Desktop/diff/COORDINATOR_LOG.md`. **Next:** the first scheduled nightly, 2026-10-07T20:30Z.
+
 ## 2026-10-07 — WAVE CI1 (CI, CONTROLLER C) — **CI-SPEED-1: THE REQUIRED QUALITY GATE AS PARALLEL JOBS, ~23 MIN → ~5 MIN WITH THE SAME 320 FILES / 4,709 TESTS AND NOTHING SKIPPED; DOCS FAST PATH FOR WAVE-CLOSERS; VERCEL SKIPS DEPLOY-INERT DOCS MERGES AND SEARCH-PING EXITS GREEN ON IT; NIGHTLY MANUAL-ONLY UNTIL `#970`** — `#969` MERGED — trunk `c6068552` — CI / PLATFORM ONLY
 
 ★ **PROVENANCE.** Controller C, wave CI1, lane CI-SPEED-1 (spec `794EFA16E871`, owner grant `.github/**`). **Handover from A-17:** A-17's builder built the lane; the owner moved it to C on 2026-10-07; C adopted `#969` as-is (head `6c0ee398`) and verified each piece against the run logs. The builder work was reused, not redone. C then ran one builder (`claude-opus-5-5`, high) for the search-ping skip and the nightly-off addendum. Written by a separate docs builder in `C:/Projects/LT-worktrees/ci1-docs` from `WAVE_STATE_CI1.md`, `ci1/PR969_BODY.md`, `ci1/OWNER_MERGE_QUEUE_STEPS.md`, `ci1/report-ci1-searchping-2026-10-07.md` and A-17's stop report.
