@@ -23,6 +23,43 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-06 — WAVE A-16 CLOSE (CONTROLLER A): SYLLABUS-FIX-CODE PR-2 (`#953` `decac82a`; PR-1 `#950` recorded in the B-16 section below) — 7 new open, 1 conditional not filed, 3 older confirmed open; LIVE
+
+Sources: `Desktop/diff/WAVE_STATE_A16.md` (FU, DECISIONS), `a16/report-a16-pr2-syllabus-code-2026-10-06.md` (Findings, FU bodies), `live-after-syllabus-fix-code-2026-10-06.md` (Observations). **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3). Every FU id named here has its own heading (standing rule 1).
+
+### A-16 — new, open
+
+### `[FU-A16-WORKSHEET-WEIGHTS]` — OPEN · MEDIUM (was conditional; needed)
+Worksheet full-subject allocation still uses `worksheetModel.weightFor` (`class10MathTopicWeights` / `class10ScienceTopicTrends`). Make it read the CBSE unit marks in `src/config/syllabus2026-27.ts` (needs `worksheetModel.ts`, outside the A-16 spec). `#953` changed only the label, to "estimated chapter weighting".
+
+### `[FU-A16-EXAMSIM-UNIT-MARKS]` — OPEN · MEDIUM
+Exam Simulation (`utils/unlimitedPaperEngine.ts`) still weights by the old per-chapter `weightagePercent`, not CBSE unit marks. Outside the A-16 spec.
+
+### `[FU-A16-TUTOR-SERVER-KEYCHECK]` — OPEN · MEDIUM
+`server/routes/tutor.cjs:196` accepts any topicKey / label. Reject keys outside the 26 board chapters server-side. The client check (`isTutorTopicKeyAllowed`, `TutorPage.tsx`) and the prompt gate are in place (`#953`).
+
+### `[FU-A16-EXAMTRENDS-CHIP-LABEL]` — OPEN · LOW
+`ExamTrendsRanked.tsx:1171` renders "~{weight} marks". The numbers are now derived and sum to 80, but the label should render `topic.marks` ("approx. N marks"). The file was outside the A-16 spec. Live-confirmed by OR-LIVE ("~N marks").
+
+### `[FU-A16-B-SAV-MELTING-ROWS]` — OPEN · Lane B content · **SUBAGENT-REPORTED, CONTROLLER-UNVERIFIED**
+The PR-2 builder reports that bank rows labelled "Combination/Transformation" in `surfaceAreasVolumes.pack1.ts` include melting / recasting questions (e.g. SAV-M09, "solid sphere is melted into a wire"). Melting / recasting is OUT (owner ruling 2) and these rows would still be served; `#951`'s served-set guard does not catch them because the label is not an OUT phrase. Verify first, then withhold or relabel. Sent to B-17.
+
+### `[FU-A16-BANK-PDF-JUNK-OPTIONS]` — OPEN · Lane B content · pre-existing
+OR-LIVE: Maths mock Q1 `PYQ-M-2025-REALNUM-001` option D carries a whole page of paper instructions ("p = 16y 30/3/1 # 3| P a g e General Instructions : … Use of calculator is not allowed."); Science mock Q1 `PYQ-S-2026-CHEMRXN-007` option D ends with "{ } of 32". Extraction junk; not caused by `#953`; the mock allocation is not affected *(agent-reported)*.
+
+### `[FU-A16-DELETE-ACCOUNT-NO-CONFIRM]` — OPEN · LOW (owner decision)
+OR-LIVE: after typing DELETE and confirming in /me, the page stayed on /me for 12 s still showing "Trial active - 7 days left" and the name. The deletion did succeed (UI and REST sign-in both refused, `INVALID_LOGIN_CREDENTIALS`). Owner may want a post-delete redirect or message. The network log of the delete call was not captured *(agent-reported)*.
+
+### A-16 — conditional, NOT filed
+
+### `FU-A16-PREDICTIONCORE-DELETION` — NOT FILED (not needed)
+Conditional on F6 needing `predictionCore` or its order-parity fixture. It needed neither: the formative exclusion sits inside `isScienceDeletedFor2026_27`, so predictionCore's memo-key mirror stays correct; the fixture is unchanged and green; a probe found no served bank row caught by the new predicates *(builder-reported)*. Recorded here so the id is not mistaken for a lost FU.
+
+### Older, confirmed still open by `#953` (no new heading — bodies in the B-16 section below)
+- `[FU-A16-CANONICAL-25]` — `#953` did not touch `cbse10Canonical`; /teacher, guidedJourneyService and topicResolver still read 25 chapters.
+- `[FU-A16-MASTERYKEY-CONTROL]` — unchanged.
+- `[FU-B16-SYLLABUS-AMBIGUOUS-7]` — atmospheric refraction was encoded IN by `#953`; the 7 remain.
+
 ## 2026-10-06 — WAVE B-16 (CONTROLLER B): SYLLABUS-FIX-CONTENT PR-1 (`#948` `bb57057f`), PR-2 (`#949` `8c3f3c28`), PR-3 (`#951` `9004f753`) — and Controller A-16's SYLLABUS-FIX-CODE PR-1 (`#950` `096f921a`) — B: 15 new open, 6 closed; A-16: 2 new open, 1 closed in-PR; LIVE
 
 Sources: `Desktop/diff/WAVE_STATE_B16.md` (FU ENTRIES, DECISIONS), `report-syllabus-content-1-pr1-2026-10-06.md` §11 + "New FUs (from the review)", `report-syllabus-content-1-pr2-2026-10-06.md` FUs, `report-syllabus-guard-2-pr3-2026-10-06.md` FU, `live-after-pr1-syllabus-fix-content-2026-10-06.md`, `b16-in-thin-extraction-list.md`, and Controller A-16's `closeout-a16-pr950-for-b16-docs.md` (A-AUTHORED). **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3). Every FU id named here has its own heading (standing rule 1).

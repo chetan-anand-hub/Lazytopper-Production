@@ -1,5 +1,37 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-06 — WAVE A-16 CLOSE (SYLLABUS, CONTROLLER A): SYLLABUS-FIX-CODE PR-2 (`#953` `decac82a`); PR-1 (`#950` `096f921a`) recorded under B-16 below; trunk `decac82a`. LIVE on deploy (no flag); rollout and OR-LIVE recorded in `CURRENT_STATE.md`.**
+> ★ **THE NUMBERS AND RULES BEHIND SEVEN SURFACES NOW FOLLOW CBSE'S 2026-27 SYLLABUS: EXAM TRENDS CHIPS (SUM 80), FULL MOCK (BY UNIT MARKS), WORKSHEET (LABEL ONLY), TUTOR (OUT / FORMATIVE GATE), PREDICTION / HPQ PREDICTED LAYER + EXAM TRENDS CONCEPTS (OUT DROPPED), WEAK AREAS (HUMAN EYE, LIVE-VERIFIED), `/cbse/class-10` (PDF CITES); PLUS QUICK PRACTICE'S COMPETENCY LINE.** **No matrix cell value changes:** every moved surface's completion cells already read ✅ (or keep their recorded reasons); this wave changes the numbers and rules they use, not their recorded build / redesign / verify status. Full Mock `Verified` ⬜ stays ⬜ (agent-driven only).
+
+### ✅ Exam Trends — marks chips — **HAND NUMBERS SUMMING 82 (MATHS) / 79 (SCIENCE) → DERIVED FROM CBSE UNIT MARKS, EXACTLY 80 PER SUBJECT; OUT CONCEPTS DROPPED — LIVE (`#953`)**
+- Live: 13 + 13 chips, both sums 80, desktop + mobile *(agent-reported)*. Open: `[FU-A16-EXAMTRENDS-CHIP-LABEL]` (still "~N marks"). Scope discovered → §2a.
+
+### ✅ Full Mock — **PAPER SPLIT BY PER-CHAPTER PERCENT ("as the board distributes it") → THE WHOLE PAPER BY CBSE UNIT MARKS, ASSERTED EVERY SEED — LIVE (`#953`)**
+- Live: Maths 6 / 20 / 6 / 15 / 12 / 10 / 11, Science 25 / 25 / 12 / 13 / 5 on drawn papers, 0 unmapped *(agent-reported)*. Open: `[FU-A16-BANK-PDF-JUNK-OPTIONS]` (pre-existing content), `[FU-A16-B-SAV-MELTING-ROWS]` (UNVERIFIED).
+
+### ✅ Worksheet — **ALLOCATION LABEL → "ESTIMATED CHAPTER WEIGHTING" (HONEST: THE WEIGHTS ARE STILL ESTIMATES); ALLOCATION UNCHANGED — LIVE (`#953`)**
+- Open: `[FU-A16-WORKSHEET-WEIGHTS]`. Scope discovered → §2a.
+
+### ✅ Tutor — **A GENERIC SYLLABUS GATE → GENERATED OUT / FORMATIVE / LIMIT LISTS (DECLINE OUT, NAME FORMATIVE-ONLY); NON-BOARD TOPIC KEYS → AN HONEST SCREEN; PICKER 13 + 13 — LIVE (`#953`)**
+- Live: area-ratio declined, EMI named school-only, `sources-of-energy` honest screen *(agent-reported)*. Open: `[FU-A16-TUTOR-SERVER-KEYCHECK]`.
+
+### ✅ Prediction / HPQ predicted layer + Exam Trends concepts — **"NO TOPICS ARE DELETED", AN UNREAD FORMATIVE LIST, PYTHAGORAS GUARANTEED → REAL OUT ITEMS EXCLUDED, FORMATIVE LIST READ, PYTHAGORAS + 2 ROTATION PAIRS REMOVED — LIVE (`#953`)**
+- `predictionCore.orderParity` fixture unchanged and green *(builder-reported)*.
+
+### ✅ Weak areas (Me / Progress) — **HUMAN EYE NEVER EVALUATED → SHOWN (`#950`), NOW LIVE-VERIFIED** *(agent-reported)*
+- Mistake Intelligence did not move (sidebar correctly "No mistake patterns yet" after MCQ clicks). Open: `[FU-A16-CANONICAL-25]`.
+
+### ✅ `/cbse/class-10` (Cbse2027 page) + Quick Practice competency line — **PAGE-1 CITES, "THE 40 MARKS STUDENTS LOSE", UNSOURCED 20% / 30% CLAIMS → PAGE-3 CITES, UNIT MARKS READ FROM THE MODULE, THE PDF'S OWN TYPOLOGY (MATHS 46% p8, SCIENCE 50% p9) — LIVE (`#953`)**
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- No grading, auth, pricing, Login, Landing, notes, Topic Hub or Check & Improve file changed this wave. Account deletion was exercised live, not changed (`[FU-A16-DELETE-ACCOUNT-NO-CONFIRM]`).
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, 2026-10-06, wave A-16, per `CLAUDE.md` §10)*
+- **Exam Trends (Scope = Settling):** the chip LABEL renders in `ExamTrendsRanked.tsx` (not `topics.ts`), and `ExamTrendsRanked.test.tsx` freezes an order sorted by `topic.weight`, so a weight change is an Exam Trends test change. Neither was in the spec.
+- **Worksheet (Scope = Settling):** the allocation lives in `worksheetModel.weightFor`, outside the spec; `WorksheetGenerator` has no hook.
+
+### 📋 Scope discovered? — **YES** — Exam Trends (label + order test) and Worksheet (allocation source). Logged in `DECISION_LOG.md` (2026-10-06, wave A-16) and in §2a above; Scope = Settling.
+
 > **2026-10-06 — WAVE B-16 (SYLLABUS, CONTROLLER B): SYLLABUS-FIX-CONTENT PR-1 (`#948` `bb57057f`), PR-2 (`#949` `8c3f3c28`), PR-3 (`#951` `9004f753`); and Controller A-16's SYLLABUS-FIX-CODE PR-1 (`#950` `096f921a`); trunk `9004f753`. LIVE on deploy (no flag); rollouts recorded in `CURRENT_STATE.md`.**
 > ★ **EVERY SURFACE THAT SERVES OR TEACHES CBSE CONTENT MOVES ON THE SYLLABUS AXIS: ONLY 2026-27 IN CONTENT IS SERVED (QUESTION POOLS, HPQ, PREDICTED, FALLBACK PACKS) AND TAUGHT (NOTES, TOPIC HUB, TUTOR CATALOGUE); THE MISSING IN TOPICS ARE WRITTEN; THE GUARD CHECKS THE SERVED SET; WEAK AREAS COVER 26 CHAPTERS (A-16).** **No matrix cell value changes:** every moved surface's completion cells already read ✅ (or keep their recorded reasons); this wave changes the content they serve, not their recorded build / redesign / verify status. Full Mock `Verified` ⬜ stays ⬜ (agent-driven only).
 
