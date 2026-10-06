@@ -1,3 +1,32 @@
+## 2026-10-07 — WAVE CI1 (CI, CONTROLLER C) — **CI-SPEED-1: THE REQUIRED QUALITY GATE AS PARALLEL JOBS, ~23 MIN → ~5 MIN WITH THE SAME 320 FILES / 4,709 TESTS AND NOTHING SKIPPED; DOCS FAST PATH FOR WAVE-CLOSERS; VERCEL SKIPS DEPLOY-INERT DOCS MERGES AND SEARCH-PING EXITS GREEN ON IT; NIGHTLY MANUAL-ONLY UNTIL `#970`** — `#969` MERGED — trunk `c6068552` — CI / PLATFORM ONLY
+
+★ **PROVENANCE.** Controller C, wave CI1, lane CI-SPEED-1 (spec `794EFA16E871`, owner grant `.github/**`). **Handover from A-17:** A-17's builder built the lane; the owner moved it to C on 2026-10-07; C adopted `#969` as-is (head `6c0ee398`) and verified each piece against the run logs. The builder work was reused, not redone. C then ran one builder (`claude-opus-5-5`, high) for the search-ping skip and the nightly-off addendum. Written by a separate docs builder in `C:/Projects/LT-worktrees/ci1-docs` from `WAVE_STATE_CI1.md`, `ci1/PR969_BODY.md`, `ci1/OWNER_MERGE_QUEUE_STEPS.md`, `ci1/report-ci1-searchping-2026-10-07.md` and A-17's stop report.
+
+**Lane.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| CI-SPEED-1 | `#969` `c6068552` (head `c9394034`) | Quality Gate as parallel jobs (classify, docs-lane, static, build-ops, vitest ×4, clock ×4, aggregate `quality-gate`); runtime clock recorder + 165-file date-sensitive manifest; docs fast path for wave-closers; Vercel `ignoreCommand`; search-ping green skip on deploy-inert ranges; nightly on dispatch only. Final head run `37517913640` 5.8 min, `VITEST_TOTAL: shards=4/4 files=320 (on disk 320) tests=4709 passed=4708 failed=0 skipped=0 todo=1`; trunk push `37519890478` 4.6 min, same total | "a docs-only PR cannot take the fast path when it closes a wave" (that rule made the B-15 docs PR run the full bar); "the static scan finds every clock-reading test" |
+
+**Timeline (UTC, 6 Oct).**
+- A-17's builder: probes `37510230817` (clock guard RED, as designed) and `37511021846` (silent shard → aggregate RED, as designed); Vercel skip probe → status success "Canceled by Ignored Build Step". All probes reverted byte-identically.
+- Handover to Controller C (owner). C read the 12-run baseline (17.1–25.7 min, median 23.4) and the same-tree counts (320 / 4701 vs 320 / 4701).
+- 18:47Z dispatch run `37514040888` on `6c0ee398` **RED** (convergence gate l.1156: only `push` is N/A) → owner: ship without `schedule:`.
+- Owner ruling: amend the search-ping guard in `#969`. Builder head `f4b8276a`, run `37516406996` green; CodeQL escape fix `bc2b88f3`; `gh pr update-branch` → `c9394034`.
+- 19:16–19:32Z last pre-`#969` trunk run `37517716467` (15.8 min, 4705 tests). 19:18–19:24Z final head run `37517913640` (5.8 min, 4709).
+- **19:33:39Z `#969` merged** (`--squash --match-head-commit c9394034`). Trunk push `37519890478` PASS 4.6 min; Vercel deployed the code merge; search-ping push run `37519890614` success.
+
+**Owner rulings.** (1) search-ping: "Amend guard in #969" — on a Vercel-skipped deploy-inert range it exits green, and the guard pins that rule. (2) Ship `#969` with the nightly `schedule:` OFF; restore it right after B-18's `#970` with the N/A fix and one green hand-run (`[FU-CI1-NIGHTLY-RESTORE]`).
+
+**Cofounder verdict:** PASS (owner relayed).
+
+**Lessons.**
+- **(a) A job that never ran hid an event-specific gate failure.** The nightly had never run; one hand dispatch (`37514040888`) showed that the convergence gate hard-fails on any non-`push`, non-PR event. Dispatch every new event-triggered job once before relying on it.
+- **(b) Under the strict up-to-date rule, `update-branch` is mandatory** after every other merge, and it now costs one ~5-min run (`#969` itself needed one: `c9394034`).
+- **(c) The runtime clock recorder catches transitive clock reads the static scan misses:** 3 trunk tests read the clock only through product code, and the static scan found none of them.
+
+**Owner-owed:** merge-queue option (A recommended), Railway `watchPatterns`, and the carried B-17 items (`NEXT_ACTION.md`). **Next:** `[FU-CI1-NIGHTLY-RESTORE]` after `#970`.
+
 ## 2026-10-06 — WAVE B-17 (SYLLABUS, CONTROLLER B) — **QUICK-FIXES-1: FULL-SUBJECT QUICK PRACTICE MIXES EVERY CHAPTER (BROKEN SINCE APRIL), THE OWNER'S SEVEN SYLLABUS RULINGS ENCODED AND WHAT THEY RULE OUT NO LONGER SERVED (8,124 → 8,052), LEGACY HUB TEXT GUARDED, NCERT FIGURES IN THE NOTES THAT FIT THE PHONE AND OPEN ON TAP** — `#955` + `#956` + `#958` MERGED — trunk `613d8996` — LIVE
 
 ★ **PROVENANCE.** Controller B, wave B-17, lane QUICK-FIXES-1 (spec `12ADECD863BB`, owner-authored). Builders `claude-opus-5-5` medium; figures and evidence / row rulings `claude-fable-5-1` high; a read-only P5 scout; read-only OR-LIVE agents. Written by a separate docs builder in `C:/Projects/LT-worktrees/b17-qf-docs` from `WAVE_STATE_B17.md`, the owner-rulings files and the lane / live reports.

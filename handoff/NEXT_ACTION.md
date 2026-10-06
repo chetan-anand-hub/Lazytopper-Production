@@ -1,3 +1,32 @@
+## ★★★ 2026-10-07 — WAVE CI1 (CI, CONTROLLER C) — CI-SPEED-1 COMPLETE: `#969` MERGED, REQUIRED CHECK ~23 MIN → ~5 MIN WITH THE SAME TESTS; NIGHTLY RESTORE PENDING `#970` (docs) — THIS BLOCK SUPERSEDES THE WAVE B-17 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-17, A-16 CLOSE, B-16, A-15 CLOSE, B-15, B-14, A-13 and every older block below stand unchanged, except the items this block names.)*
+
+**TRUNK IS `c6068552e925bb2e56b274527df60d9cf01010d0`** for this lane (`#969`, merged 2026-10-06T19:33:39Z, `gh pr view 969`, docs-builder-verified). When this docs PR was cut, trunk had moved on to `d0cbdd3f` (`#971`, another lane, no `handoff/` file); the eight non-CI1 commits since B-17's docs `#959` are not described here (see `CURRENT_STATE.md`). Results, numbers and run ids: `CURRENT_STATE.md`, `[CURRENT · CI]` block.
+
+★ **STANDING FOR EVERY CONTROLLER FROM NOW ON:**
+- **Docs-only PRs take the fast path, wave-closers included.** Put `[ci-full]` in a title only when you really want the full bar.
+- **A GitHub `Vercel` status of success "Canceled by Ignored Build Step" on a docs-only merge is a build skipped BY DESIGN, not a missing build.** The "no Vercel status within 15 minutes → ask the owner to redeploy" rule does NOT fire on it. It still fires on a trunk push with no Vercel status at all, or on a code merge showing that status.
+- **search-ping exits green on that skip** (owner ruling 2026-10-07): `SEARCH_PING_PATH: skip`.
+- **Under the strict up-to-date rule, `gh pr update-branch` is mandatory after any other merge** and costs one ~5-min run.
+
+### NEXT — CONTROLLER C (after this docs PR merges)
+1. **Verify the docs fast path live on this PR's merge:** the Vercel status "Canceled by Ignored Build Step", and the search-ping run printing `SEARCH_PING_PATH: skip`. Record them in the next docs PR.
+2. **Pass the three-way handoff lock** to A-17 and B-18 with this PR's merge SHA.
+3. **`[FU-CI1-NIGHTLY-RESTORE]` — right after B-18's `#970` merges** (B-18 messages the merge SHA; `#970` keeps out of the forbidden-diff block ~l.1138–1170), one small PR:
+   - the one-line N/A extension for every non-PR event (`schedule`, `workflow_dispatch`) in `lazytopper/scripts/ops/check_improve_convergence_acceptance.mjs` (~l.1156, today `else if (EVENT === 'push')`);
+   - a pinning check for it;
+   - `schedule:` restored in `.github/workflows/quality-gate.yml`;
+   - ONE green `workflow_dispatch` run of `nightly-full-clock`, quoted in its description.
+4. Remove only C's own worktrees (`controller-ci1`, `ci1-searchping`, `ci1-docs`); never A-17's `a17-ci-speed-1`.
+
+### NEXT — OWNER
+1. **Merge queue: not available on a user-owned repo** (GraphQL `isInOrganization=false`, `mergeQueue=null`). Options in `Desktop/diff/ci1/OWNER_MERGE_QUEUE_STEPS.md`:
+   - **A (recommended): change nothing** — with ~5-min CI the up-to-date re-run is cheap, and it is the only pre-merge test of two lanes together; revisit after a week.
+   - **B:** untick "Require branches to be up to date before merging" in ruleset `trunk-protection` — failures then surface after the merge, not before.
+   - **C:** move the repo into a free organization, merge a CI-SPEED-2 `merge_group:` PR first, then enable the queue (Vercel, Railway, secrets and ruleset bypass need re-checking).
+2. **Railway `watchPatterns`** (`[FU-CI1-RAILWAY-WATCHPATTERNS]`): docs merges redeploy Railway and kill in-flight grading; a proposed pattern list is in the same file. Your call; nothing was changed.
+3. **Carried:** every owner item of the B-17 block and older blocks stands.
+
 ## ★★★ 2026-10-06 — WAVE B-17 (SYLLABUS, CONTROLLER B) — QUICK-FIXES-1 COMPLETE: PR-1 `#955` + PR-2 `#956` + PR-3 `#958` LIVE, OR-LIVE PASS ×3 (docs) — THIS BLOCK SUPERSEDES THE WAVE A-16 CLOSE BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-16 CLOSE, B-16, A-15 CLOSE, B-15, B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except the items this block names as resolved.)*
 
