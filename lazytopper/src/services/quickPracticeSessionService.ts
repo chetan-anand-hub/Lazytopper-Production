@@ -27,6 +27,7 @@
 //   • a session where NOTHING was attempted writes NO record — no fabricated history.
 
 import type { AuthUser } from "../context/AuthContext";
+import type { GradingJobInterruptedError, GradingJobOptions } from "../ai/gradingJobs";
 import {
   gradeWorksheet,
   type CheckSolutionResponse,
@@ -688,6 +689,9 @@ export interface QuickPracticeBatchResult {
    *  nothing was thrown (a malformed response). */
   errorName?: string;
   error?: string;
+  /** GRADING-JOBS-1 J2 — on a background grade the server interrupted (contract §6): its final
+   *  rows and the questions to offer back as "grade the remaining N". Only with `skipped-error`. */
+  jobInterrupted?: GradingJobInterruptedError;
 }
 
 /**
@@ -713,6 +717,9 @@ export async function gradeQuickPracticeBatch(args: {
   user?: AuthUser | null;
   /** Test seam. Production omits it and gets `gradeWorksheet`. */
   grade?: QuickPracticeBatchGrader;
+  /** GRADING-JOBS-1 J2 — a background job, used ONLY for a batch of MORE THAN ONE question
+   *  (contract §11: a one-question batch is graded exactly as today). */
+  job?: GradingJobOptions;
 }): Promise<QuickPracticeBatchResult> {
   const { worksheetId, subject, answers, user } = args;
   const grade = args.grade ?? gradeWorksheet;
@@ -786,7 +793,10 @@ export async function gradeQuickPracticeBatch(args: {
 
   let response: WorksheetGradeResponse;
   try {
-    response = await grade({ worksheetId, subject, questions, uploads }, { surface: "quick-practice" });
+    response = await grade(
+      { worksheetId, subject, questions, uploads },
+      { surface: "quick-practice", ...(args.job && questions.length > 1 ? { job: args.job } : {}) },
+    );
   } catch (error) {
     // ★★ §4b · THE 402 IS NOT AN ERROR AND MUST NOT BE SWALLOWED HERE. The catch used
     // to be unconditional, so a free-past-trial student pressing Finish got
@@ -833,6 +843,10 @@ export async function gradeQuickPracticeBatch(args: {
       // SignInAgainError apart by name. Read as a plain field, not by `instanceof`.
       ...(typeof (error as { name?: unknown } | null)?.name === "string"
         ? { errorName: (error as { name: string }).name }
+        : {}),
+      // J2 — read by NAME, like the errors above (aiClient is mocked whole in some suites).
+      ...((error as { name?: unknown } | null)?.name === "GradingJobInterruptedError"
+        ? { jobInterrupted: error as GradingJobInterruptedError }
         : {}),
     };
   }

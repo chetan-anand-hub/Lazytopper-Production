@@ -23,6 +23,7 @@ import { trackUxEvent } from "../services/uxTelemetry";
 import { MathText, loadKatex } from "../components/question/MathText";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
+import type { PersistedWorksheet } from "../services/worksheetSessionStore";
 import {
   coachingLine as sharedCoachingLine,
   effectivePaperCounts,
@@ -71,6 +72,9 @@ import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import { useFairUse } from "../components/usage/useFairUse";
 import { gradingErrorMessage } from "../ai/gradingTransport";
+import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../ai/gradingJobs";
+import GradingJobRows from "../components/grading/GradingJobRows";
+import { useGradingJob } from "../components/grading/useGradingJob";
 
 type Phase = "setup" | "taking" | "results";
 type SubjectKey = "Maths" | "Science";
@@ -115,6 +119,22 @@ function coachingLine(resp: WorksheetGradeResponse): string {
     notAttemptedCount: resp.results.filter((r) => isQuestionNotAttempted(r)).length,
     practiseWhat: "this chapter",
   });
+}
+
+/** J2 — what a Chapter Test background grade stores beside its job, to resume after a reload. */
+interface ChapterTestJobContext {
+  paper: PersistedWorksheet;
+  objective: ObjectiveScore;
+  code: string;
+  name: string;
+}
+
+function readChapterTestJobContext(raw: unknown): ChapterTestJobContext | null {
+  if (!raw || typeof raw !== "object") return null;
+  const c = raw as Partial<ChapterTestJobContext>;
+  if (!c.paper || !Array.isArray(c.paper.questions) || typeof c.paper.worksheetId !== "string") return null;
+  if (!c.objective || typeof c.code !== "string" || typeof c.name !== "string") return null;
+  return c as ChapterTestJobContext;
 }
 
 export default function ChapterTestPage() {
@@ -223,7 +243,15 @@ export default function ChapterTestPage() {
   const [downloading, setDownloading] = useState(false);
   const [reopen, setReopen] = useState<{ record: SessionRecord; response: WorksheetGradeResponse | null } | null>(null);
 
-  const paper = draw?.paper ?? null;
+  // GRADING-JOBS-1 J2 — a background grade of this chapter's test survives a reload: the paper,
+  // its frozen objective score and its code are stored WITH the job (the answers were already
+  // cleared at submit), and the page re-opens the upload step on that paper and resumes the poll.
+  const jobUi = useGradingJob();
+  const jobStore = useMemo(() => sessionJobStore(`chapter-test:${topicKey}`), [topicKey]);
+  const [resumedCt, setResumedCt] = useState<ChapterTestJobContext | null>(null);
+  const [resumePending, setResumePending] = useState(false);
+  const lastUploadRef = useRef<{ imageBase64: string; imageMimeType: string } | null>(null);
+  const paper = resumedCt?.paper ?? draw?.paper ?? null;
   const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
   const progressKey = nomen ? `lazytopper.ct.progress.${nomen.code}` : null;
 
@@ -375,12 +403,18 @@ export default function ChapterTestPage() {
 
   // ── Upload → full ────────────────────────────────────────────────────────────
   const handleGrade = useCallback(
-    async (upload: { imageBase64: string; imageMimeType: string }) => {
+    async (
+      upload: { imageBase64: string; imageMimeType: string },
+      mode: { resume?: boolean; continueFrom?: GradingJobInterruptedError } = {},
+    ) => {
       if (!paper || !nomen || !objective || grading) return;
       setGrading(true);
       setGradeError(null);
       fairUse.clearLimit();
+      if (!mode.resume) lastUploadRef.current = upload;
+      if (!mode.continueFrom) jobUi.reset();
       try {
+        const context: ChapterTestJobContext = { paper, objective, code: nomen.code, name: nomen.name };
         const outcome = await gradeChapterTestUpload({
           user,
           paper,
@@ -390,7 +424,16 @@ export default function ChapterTestPage() {
           objective,
           subjectiveQuestions: subjectiveQs,
           upload,
+          job: {
+            store: jobStore,
+            paperKey: paper.worksheetId,
+            context,
+            onProgress: jobUi.onProgress,
+            ...(mode.resume ? { resumeOnly: true } : {}),
+            ...(mode.continueFrom ? { continueFrom: mode.continueFrom } : {}),
+          },
         });
+        jobUi.reset();
         if (!outcome.ok) {
           setGradeError(outcome.response.error || "We couldn’t grade your answers. Try a clearer scan, or try again.");
         } else {
@@ -405,6 +448,8 @@ export default function ChapterTestPage() {
           void loadRecords();
         }
       } catch (err) {
+        // J2 §6: an interrupted background grade keeps its marked rows and offers the rest back.
+        if (jobUi.captureInterrupted(err)) return;
         // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
         if (await fairUse.handleRefusal(err)) return;
         // LOW-END-1 R2: never a raw platform message ("Failed to fetch") — a plain sentence.
@@ -413,8 +458,34 @@ export default function ChapterTestPage() {
         setGrading(false);
       }
     },
-    [paper, nomen, objective, grading, user, sessionSubject, topicKey, subjectiveQs, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+    [paper, nomen, objective, grading, user, sessionSubject, topicKey, subjectiveQs, loadRecords, jobStore, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
   );
+
+  // J2 — resume after a reload. Once the durable records have loaded (so the mount effect has
+  // set its own code), re-open the stored paper on the upload step and poll the stored job.
+  const resumeCheckedRef = useRef(false);
+  useEffect(() => {
+    if (resumeCheckedRef.current || recordsLoading || !nomen) return;
+    resumeCheckedRef.current = true;
+    const rec = resumableJob(jobStore);
+    const ctx = rec ? readChapterTestJobContext(rec.context) : null;
+    if (!rec || !ctx || ctx.paper.worksheetId !== rec.paperKey) return;
+    setResumedCt(ctx);
+    setObjective(ctx.objective);
+    setResultsPhase("partial");
+    setScorecardOpen(false);
+    setPhase("results");
+    setResumePending(true);
+  }, [recordsLoading, nomen, jobStore]);
+  // The resumed paper keeps ITS code, whatever the mount effect minted meanwhile.
+  useEffect(() => {
+    if (resumedCt && nomen && nomen.code !== resumedCt.code) setNomen({ code: resumedCt.code, name: resumedCt.name });
+  }, [resumedCt, nomen]);
+  useEffect(() => {
+    if (!resumePending || !resumedCt || !objective || nomen?.code !== resumedCt.code || paper !== resumedCt.paper) return;
+    setResumePending(false);
+    void handleGrade({ imageBase64: "", imageMimeType: "application/pdf" }, { resume: true });
+  }, [resumePending, resumedCt, objective, nomen, paper, handleGrade]);
 
   // ── Downloads ────────────────────────────────────────────────────────────────
   const downloadTest = useCallback(async () => {
@@ -810,7 +881,7 @@ export default function ChapterTestPage() {
               grading={grading}
               error={gradeError}
               isSignedIn={isSignedIn}
-              onGrade={handleGrade}
+              onGrade={(upload) => void handleGrade(upload)}
               onSkip={() => navigate(backTo)}
             />
           ) : (
@@ -865,6 +936,19 @@ export default function ChapterTestPage() {
                 </div>
               </div>
             </div>
+          )}
+
+          {resultsPhase === "partial" && (
+            <GradingJobRows
+              progress={jobUi.progress}
+              interrupted={jobUi.interrupted}
+              onGradeRemaining={
+                jobUi.interrupted && lastUploadRef.current
+                  ? () => void handleGrade(lastUploadRef.current!, { continueFrom: jobUi.interrupted! })
+                  : undefined
+              }
+              busy={grading}
+            />
           )}
 
           {scorecardOpen && resultsPhase === "partial" && (

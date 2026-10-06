@@ -68,6 +68,8 @@ import {
   loadFullMockSession,
   clearFullMockSession,
   findInProgressSession,
+  fullMockJobStore,
+  listFullMockSessions,
   remainingMs,
   formatRemaining,
   type FullMockSessionState,
@@ -102,6 +104,9 @@ import FullMockPendingBanner from "../components/fullmock/FullMockPendingBanner"
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import { useFairUse } from "../components/usage/useFairUse";
 import { gradingErrorMessage } from "../ai/gradingTransport";
+import { resumableJob, type GradingJobInterruptedError } from "../ai/gradingJobs";
+import GradingJobRows from "../components/grading/GradingJobRows";
+import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 
 type Phase = "setup" | "taking" | "results";
@@ -557,13 +562,22 @@ export default function FullMockPage() {
   }, []);
 
   // ── Upload → full (same sitting, or rehydrated from the pending banner) ─────
+  // GRADING-JOBS-1 J2 — a background grade: rows as they land; the job lives on the persisted
+  // awaiting-upload session, so a reload resumes it; "grade the remaining N" after an interruption.
+  const jobUi = useGradingJob();
+  const lastUploadRef = useRef<{ imageBase64: string; imageMimeType: string } | null>(null);
   const handleGrade = useCallback(
-    async (upload: { imageBase64: string; imageMimeType: string }) => {
+    async (
+      upload: { imageBase64: string; imageMimeType: string },
+      mode: { resume?: boolean; continueFrom?: GradingJobInterruptedError } = {},
+    ) => {
       const a = activeRef.current;
       if (!a || !objective || grading) return;
       setGrading(true);
       setGradeError(null);
       fairUse.clearLimit();
+      if (!mode.resume) lastUploadRef.current = upload;
+      if (!mode.continueFrom) jobUi.reset();
       try {
         const outcome = await gradeFullMockUpload({
           user,
@@ -574,7 +588,15 @@ export default function FullMockPage() {
           subjectiveQuestions: fullMockSubjectiveQuestions(a.paper),
           upload,
           focus: focusRef.current,
+          job: {
+            store: fullMockJobStore(sessionUid, a.code),
+            paperKey: a.paper.worksheetId,
+            onProgress: jobUi.onProgress,
+            ...(mode.resume ? { resumeOnly: true } : {}),
+            ...(mode.continueFrom ? { continueFrom: mode.continueFrom } : {}),
+          },
         });
+        jobUi.reset();
         if (!outcome.ok) {
           setGradeError(outcome.response.error || "We couldn’t grade your answers. Try a clearer scan, or try again.");
         } else {
@@ -593,6 +615,8 @@ export default function FullMockPage() {
           void loadRecords();
         }
       } catch (err) {
+        // J2 §6: an interrupted background grade keeps its marked rows and offers the rest back.
+        if (jobUi.captureInterrupted(err)) return;
         // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
         if (await fairUse.handleRefusal(err)) return;
         // LOW-END-1 R2: never a raw platform message ("Failed to fetch") — a plain sentence.
@@ -601,8 +625,45 @@ export default function FullMockPage() {
         setGrading(false);
       }
     },
-    [objective, grading, user, sessionSubject, sessionUid, subject, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+    [objective, grading, user, sessionSubject, sessionUid, subject, loadRecords, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
   );
+
+  // J2 — resume after a reload: an awaiting-upload mock on this device with a background grade
+  // still stored re-opens on its upload step and polls the SAME job. Once, for a signed-in uid.
+  const [resumeCode, setResumeCode] = useState<string | null>(null);
+  const resumeCheckedRef = useRef(false);
+  useEffect(() => {
+    if (resumeCheckedRef.current || !sessionUid) return;
+    resumeCheckedRef.current = true;
+    const s = listFullMockSessions(sessionUid).find(
+      (x) => x.phase === "awaiting-upload" && !!x.objective && !!resumableJob(fullMockJobStore(sessionUid, x.code), x.paper.worksheetId),
+    );
+    if (!s || !s.objective) return;
+    const a: ActiveMock = {
+      paper: s.paper,
+      code: s.code,
+      name: s.name,
+      startedAt: s.startedAt,
+      durationMs: s.durationMs,
+      pyqCount: s.pyqCount,
+      freshCount: s.freshCount,
+    };
+    setActiveMock(a);
+    activeRef.current = a;
+    setObjective(s.objective);
+    focusRef.current = { ...EMPTY_FOCUS, ...s.focus };
+    submittedRef.current = true; // already submitted — the grade only
+    setFullResponse(null);
+    setResultsPhase("partial");
+    setScorecardOpen(false);
+    setPhase("results");
+    setResumeCode(s.code);
+  }, [sessionUid]);
+  useEffect(() => {
+    if (!resumeCode || !objective || activeRef.current?.code !== resumeCode) return;
+    setResumeCode(null);
+    void handleGrade({ imageBase64: "", imageMimeType: "application/pdf" }, { resume: true });
+  }, [resumeCode, objective, handleGrade]);
 
   // ── Pending deep-link (banner / panel): attach to the EXISTING record ────────
   const openPendingUpload = useCallback(
@@ -1239,6 +1300,18 @@ export default function FullMockPage() {
           </div>
 
           {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
+          {resultsPhase === "partial" && (
+            <GradingJobRows
+              progress={jobUi.progress}
+              interrupted={jobUi.interrupted}
+              onGradeRemaining={
+                jobUi.interrupted && lastUploadRef.current
+                  ? () => void handleGrade(lastUploadRef.current!, { continueFrom: jobUi.interrupted! })
+                  : undefined
+              }
+              busy={grading}
+            />
+          )}
           {resultsPhase === "partial" ? (
             <ChapterTestUploadPanel
               eyebrow="Full Mock · Result"
@@ -1249,7 +1322,7 @@ export default function FullMockPage() {
               grading={grading}
               error={gradeError}
               isSignedIn={isSignedIn}
-              onGrade={handleGrade}
+              onGrade={(upload) => void handleGrade(upload)}
               onSkip={() => setPhase("setup")}
             />
           ) : (

@@ -22,6 +22,7 @@
 //      fullMockSession); the record id keeps it idempotent.
 
 import type { AuthUser } from "../context/AuthContext";
+import type { GradingJobOptions } from "../ai/gradingJobs";
 import {
   gradeWorksheet,
   type CheckSolutionResponse,
@@ -145,6 +146,8 @@ export async function gradeFullMockUpload(args: {
   subjectiveQuestions: PersistedWorksheetQuestion[];
   upload: { imageBase64: string; imageMimeType: string };
   focus?: SessionFocusAggregates;
+  /** GRADING-JOBS-1 J2 — grade as a background job (rows land one by one; resume after a reload). */
+  job?: GradingJobOptions;
 }): Promise<FullMockGradeOutcome> {
   const { user, paper, code, subject, objective, subjectiveQuestions, upload, focus } = args;
 
@@ -165,7 +168,7 @@ export async function gradeFullMockUpload(args: {
     })),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
-  }, { surface: "full-mock", paperKey: paper.worksheetId });
+  }, { surface: "full-mock", paperKey: paper.worksheetId, ...(args.job ? { job: args.job } : {}) });
 
   if (!subjectiveResponse.ok) return { ok: false, response: subjectiveResponse, miOutcomes: [] };
 

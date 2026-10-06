@@ -464,6 +464,16 @@ import {
  *  partial factory, so a VALUE import from it throws "No X export is defined on the
  *  mock" in any suite that loads this page. */
 import { MAX_BATCH_UPLOADS } from "../config/gradingLimits";
+// GRADING-JOBS-1 J2 — the multi-question batch grades in the background (rows land one by one;
+// resume after a reload; "grade the remaining N"). A one-question batch is graded as today.
+import type { GradingJobInterruptedError } from "../ai/gradingJobs";
+import GradingJobRows from "../components/grading/GradingJobRows";
+import QuickPracticeJobResume, {
+  quickPracticeJobStore,
+  storableAnswers,
+  type QuickPracticeJobContext,
+} from "../components/grading/QuickPracticeJobResume";
+import { useGradingJob } from "../components/grading/useGradingJob";
 import { toSessionSubject } from "../services/checkImproveGradeService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R) on
 // the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
@@ -1228,6 +1238,10 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [batchResult, setBatchResult] = useState<QuickPracticeBatchResult | null>(null);
   const [batchGrading, setBatchGrading] = useState<boolean>(false);
   const [batchError, setBatchError] = useState<string | null>(null);
+  // J2 — the batch's background grade (only used when the batch has MORE than one question).
+  const qpJob = useGradingJob();
+  const qpJobStore = useMemo(() => quickPracticeJobStore(), []);
+  const qpLastLimitRef = useRef<number | null>(null);
   /** ★★ §4b — the 402, reaching the student. GATE-2's sheet, never a red error box: a
    *  locked feature is not a fault they committed. */
   const [premiumBlock, setPremiumBlock] = useState<{ feature: string; trialEndedAt: string | null } | null>(null);
@@ -2299,7 +2313,7 @@ const packTopicKey = useMemo(() => {
    * by nothing else \u2014 not by Finish, not by a mount, not by an effect. `batchGrading`
    * guards a double tap, so one confirmed session issues EXACTLY ONE call.
    */
-  const runGradeBatch = useCallback(async (limitTo: number | null) => {
+  const runGradeBatch = useCallback(async (limitTo: number | null, continueFrom?: GradingJobInterruptedError) => {
     // BUGFIX-1 (B1): only a GRADED result ends the flow. A `skipped-error` result is kept
     // (its free MCQ marks still feed the session record below) but it must NOT block the
     // retry its own copy promises: the button stays enabled after a failure, and before
@@ -2309,6 +2323,8 @@ const packTopicKey = useMemo(() => {
     setBatchGrading(true);
     setBatchError(null);
     fairUse.clearLimit();
+    qpLastLimitRef.current = limitTo;
+    if (!continueFrom) qpJob.reset();
     // FAIR-USE-UI-1 (UI2): the student agreed to "we'll mark the first R" - so EXACTLY the
     // first R batched answers, in their displayed order, keep their working. Every other
     // answer is sent without it, so the service's own selection (by working) batches
@@ -2320,13 +2336,46 @@ const packTopicKey = useMemo(() => {
         keep.has(a.qNumber) ? a : { ...a, imageBase64: null, imageMimeType: null, textAnswer: null },
       );
     }
+    const worksheetId = quickPracticeBatchId(filterSignature, sessionStartedAt);
+    // J2 — stored with the job (text only) so a reload can finish THIS grade: the session's
+    // record identity, the same values the record effect below writes with.
+    const mtId = isMultiTopic
+      ? multiTopicSessionIdentity(multiTopics.map((t) => ({ slug: t.canonicalSlug, label: t.label })))
+      : null;
+    const jobContext: QuickPracticeJobContext = {
+      worksheetId,
+      subject: subjectKey,
+      answers: storableAnswers(answersToSend),
+      persist: {
+        title: mtId
+          ? isFullSubject
+            ? `Full ${subjectKey} · Practice set`
+            : mtId.title
+          : topicLabel
+            ? `${topicLabel} · Practice set`
+            : "Practice set",
+        subject: toSessionSubject(subjectKey),
+        topicSlug: mtId ? mtId.topicSlug : canonicalTopicKey || topicParam,
+        ...(mtId ? { topicKeys: mtId.topicKeys } : {}),
+        filterSignature,
+        startedAt: sessionStartedAt,
+      },
+    };
     const result = await gradeQuickPracticeBatch({
-      worksheetId: quickPracticeBatchId(filterSignature, sessionStartedAt),
+      worksheetId,
       subject: subjectKey,
       answers: answersToSend,
       user: authUserForJourney,
+      job: {
+        store: qpJobStore,
+        paperKey: worksheetId,
+        context: jobContext,
+        onProgress: qpJob.onProgress,
+        ...(continueFrom ? { continueFrom } : {}),
+      },
     });
     setBatchGrading(false);
+    if (result.outcome === "graded") qpJob.reset();
     if (result.outcome === "skipped-signin-required") {
       // ★★ NO CALL WAS MADE — the service refused before the network (`calls: 0`). The
       // student meets an OFFER, not the 402 they would otherwise have earned. Their MCQ
@@ -2342,6 +2391,12 @@ const packTopicKey = useMemo(() => {
     }
     setBatchResult(result);
     if (result.outcome === "graded") fairUse.noteGraded();
+    // J2 §6 — interrupted: the marked rows stay on screen with "grade the remaining N"; the
+    // free MCQ marks still feed today's record (the result above), and no error box.
+    if (result.jobInterrupted) {
+      qpJob.captureInterrupted(result.jobInterrupted);
+      return;
+    }
     if (result.outcome === "skipped-error") {
       // FAIR-USE-UI-1 (UI1): a fair-use refusal (carried through the service by NAME) shows
       // the calm limit panel instead of the error box. Dark -> today's path, unchanged.
@@ -2355,7 +2410,7 @@ const packTopicKey = useMemo(() => {
           : "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
       );
     }
-  }, [batchGrading, batchResult, batchSelection.batch, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
+  }, [batchGrading, batchResult, batchSelection.batch, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney, isMultiTopic, multiTopics, isFullSubject, topicLabel, canonicalTopicKey, topicParam, qpJobStore, qpJob.reset, qpJob.onProgress, qpJob.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
 
   /** The student's "Grade my N answers" tap. FAIR-USE-UI-1 (UI2): with fewer checks left
    *  than answers, ask first; with none left, show the limit panel and send nothing.
@@ -2486,6 +2541,8 @@ const packTopicKey = useMemo(() => {
         paddingBottom: "80px",
       } as React.CSSProperties}
     >
+      {/* J2 — a background grade of the last practice set, still running after a reload. */}
+      <QuickPracticeJobResume user={authUserForJourney} />
       {/* Overlay-mode pinned close-bar (tutor⇄QP overlay). Sticky to the panel top; its ✕
           returns to the tutor via overlayReturn. overlay-GATED — absent on a direct visit, so
           the page is byte-identical there (additive guarantee). */}
@@ -3111,6 +3168,14 @@ const packTopicKey = useMemo(() => {
               {`${unansweredLabels.join(" and ")} ${unansweredLabels.length === 1 ? "has" : "have"} nothing saved \u2014 nothing has been scored 0.`}
             </p>
           )}
+          <GradingJobRows
+            progress={qpJob.progress}
+            interrupted={qpJob.interrupted}
+            onGradeRemaining={
+              qpJob.interrupted ? () => void runGradeBatch(qpLastLimitRef.current, qpJob.interrupted!) : undefined
+            }
+            busy={batchGrading}
+          />
           {batchError && <div className="qp-cf__err" role="alert">{batchError}</div>}
           {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
           {fairUseConfirm !== null ? (

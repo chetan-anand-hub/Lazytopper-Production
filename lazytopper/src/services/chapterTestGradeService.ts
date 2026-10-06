@@ -23,6 +23,7 @@
 // payload — exactly the shape the worksheet path already produces.
 
 import type { AuthUser } from "../context/AuthContext";
+import type { GradingJobOptions } from "../ai/gradingJobs";
 import {
   gradeWorksheet,
   type CheckSolutionResponse,
@@ -263,6 +264,8 @@ export async function gradeChapterTestUpload(args: {
   objective: ObjectiveScore;
   subjectiveQuestions: PersistedWorksheetQuestion[];
   upload: { imageBase64: string; imageMimeType: string };
+  /** GRADING-JOBS-1 J2 — grade as a background job (rows land one by one; resume after a reload). */
+  job?: GradingJobOptions;
 }): Promise<ChapterTestGradeOutcome> {
   const { user, paper, code, subject, topicKey, objective, subjectiveQuestions, upload } = args;
 
@@ -283,7 +286,7 @@ export async function gradeChapterTestUpload(args: {
     })),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
-  }, { surface: "chapter-test", paperKey: paper.worksheetId });
+  }, { surface: "chapter-test", paperKey: paper.worksheetId, ...(args.job ? { job: args.job } : {}) });
 
   if (!subjectiveResponse.ok) return { ok: false, response: subjectiveResponse, miOutcomes: [] };
 
