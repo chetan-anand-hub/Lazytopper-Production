@@ -297,6 +297,7 @@ export const NOTES_BLURB_SHORTENED: Readonly<Record<string, string>> = {
     "The human eye, defects of vision and their correction, plus dispersion and scattering of light.",
   "magnetic-effects-of-electric-current":
     "Magnetic field due to current-carrying conductors, the right-hand rule, and the force on a conductor.",
+  trigonometry: "Trigonometric ratios and identities with heights and distances applications.",
 };
 
 /** Where the note specs live: `<repo>/notes/specs/<slug>.json`. */
