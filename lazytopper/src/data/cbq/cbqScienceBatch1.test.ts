@@ -24,8 +24,8 @@ import { ELECTRICITY_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/scienc
 const PACKS = [
   { slug: "magnetic-effects-of-electric-current", rows: MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED, chapterFloor: 100 },
   { slug: "light-reflection-and-refraction", rows: LIGHT_CBQ_B1_LT_GENERATED, chapterFloor: 100 },
-  // Electricity: 95 here + its official tags (C2 PR-1, #976) ≥ 100 once both are on trunk; this file pins the pack alone.
-  { slug: "electricity", rows: ELECTRICITY_CBQ_B1_LT_GENERATED, chapterFloor: 95 },
+  // Electricity: 95 here + its official tags (C2 PR-1, #976, on trunk) ≥ 100.
+  { slug: "electricity", rows: ELECTRICITY_CBQ_B1_LT_GENERATED, chapterFloor: 100 },
 ] as const;
 
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
