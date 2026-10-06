@@ -200,6 +200,8 @@ describe("owner rulings R1–R7 of 2026-10-06 (QUICK-FIXES-1 PR-2) are encoded",
     expect(arc.out.find((o) => /^Areas of combinations of plane figures/.test(o.item))?.ruling).toMatch(/Owner ruling R3/);
     expect(arc.in.find((i) => /^Shaded regions made only of a sector or segment/.test(i.item))?.ruling).toMatch(/class c/);
     expect(arc.in.find((i) => /^Measures of a circle inscribed in a square/.test(i.item))?.ruling).toMatch(/class d/);
+    expect(arc.in.find((i) => /^Rings and annular sectors/.test(i.item))?.ruling).toMatch(/Maths Basic counted/);
+    expect(arc.out.some((o) => /rings or annuli/.test(o.item))).toBe(false);
     expect(JSON.stringify(arc)).not.toMatch(/routine board items/);
   });
 

@@ -128,13 +128,12 @@ describe("isMathsDeletedFor2026_27 — current 2026-27 state (subtopic-level del
     for (const kw of ["constructions", "division of a line segment", "construction of tangents", "frustum", "ogive", "graph ogive"]) {
       assert.ok(MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.includes(kw), `pre-F6 keyword dropped: ${kw}`);
     }
-    // 43 -> 52 at QUICK-FIXES-1 PR-2: +3 general-prime, +1 centroid, +5 combinations/annulus fragments.
-    assert.equal(MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.length, 52);
+    // 43 -> 49 at QUICK-FIXES-1 PR-2: +3 general-prime, +1 centroid, +2 combinations fragments (rings are IN, owner Round 2).
+    assert.equal(MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.length, 49);
   });
 
   test("QUICK-FIXES-1 PR-2: the R1-R3 OUT labels are excluded; their IN neighbours are not", () => {
     assert.equal(isMathsDeletedFor2026_27("Coordinate Geometry", "Centroid of a Triangle"), true);
-    assert.equal(isMathsDeletedFor2026_27("Areas Related to Circles", "Area of a Ring"), true);
     assert.equal(isMathsDeletedFor2026_27("Areas Related to Circles", "Areas of Combinations of Plane Figures"), true);
     assert.equal(isMathsDeletedFor2026_27("Real Numbers", "Square root of every prime is irrational"), true);
     // IN: same-method proofs, the official vertex-sector row's label, sector/segment areas, the section formula
@@ -142,6 +141,7 @@ describe("isMathsDeletedFor2026_27 — current 2026-27 state (subtopic-level del
     assert.equal(isMathsDeletedFor2026_27("Areas Related to Circles", "Combinations of Plane Figures"), false);
     assert.equal(isMathsDeletedFor2026_27("Areas Related to Circles", "Area of Sector and Segment"), false);
     assert.equal(isMathsDeletedFor2026_27("Coordinate Geometry", "Section Formula"), false);
+    assert.equal(isMathsDeletedFor2026_27("Areas Related to Circles", "Area of a Ring"), false);
   });
 
   test("the real Maths OUT items are excluded (area theorem, the theorem of the right triangle, coordinate area, melting/recasting)", () => {

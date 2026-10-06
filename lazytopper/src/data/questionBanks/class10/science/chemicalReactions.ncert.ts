@@ -633,7 +633,7 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     id: "CHEM-NCERT-1-VSA-007",
     subject: "Science",
     topicKey: "chemical-reactions-and-equations",
-    subtopic: "Corrosion and Rancidity",
+    subtopic: "Corrosion",
     section: "B",
     marks: 2,
     format: "VSA",

@@ -83,12 +83,12 @@
    ]
   },
   "areas-related-to-circles": {
-   "n": 190,
-   "sha256": "75a53a1c47934c14974b7fe9b46c70a2f9e314e2441e2c07e50c668f08f78c1b",
+   "n": 199,
+   "sha256": "51b21936b8c727b8ae9649390b1a8fdf5eb2e9cf83256332c3474d6d9d7729a1",
    "head": [
+    "Z3-ARC-001",
     "Z3-ARC-003",
-    "ARC-N-NCERT-11-CB-001",
-    "ARC-N-EXEM-11-CB-001"
+    "ARC-N-NCERT-11-CB-001"
    ]
   },
   "surface-areas-and-volumes": {
@@ -319,8 +319,8 @@
    ]
   },
   "areas-related-to-circles": {
-   "n": 85,
-   "sha256": "b4ae91a0fa26d257d9340e92db9e22c39a12ab54c9fc2b81f6ff7ca7b644301d",
+   "n": 90,
+   "sha256": "859d9b8336dd4a0b50eee3eb757258b688bc31ee79bd8a23c6f3675dd8907517",
    "head": [
     "Arc Length\tAPQ-M-ARC-001,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,ARC-N-NCERT-11-SA-001,ARC-N-EXEM-11-SA-006,APQ-M-ARC-009,PYQ-M-2024-ARC-006b,ARC-N-EXEM2-11-SA-006,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
     "Arc Length from Area\tAPQ-M-ARC-001,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,PYQ-M-2024-ARC-006b,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
@@ -355,8 +355,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 69,
-   "sha256": "6656fb6351e6516d57a3cce985c72a355e00df4a8cef9a1eeeff04c14366409f",
+   "n": 68,
+   "sha256": "269c4eeb31f87df38fd6ef109abeebe0b9b338a389d8bef71047ab120d013fd0",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
@@ -718,29 +718,29 @@
   },
   "areas-related-to-circles::seed1": {
    "n": 10,
-   "sha256": "037a231c9965198e0ffa2b7b711b9f31ccef3e21b9078b492bbed8d9910ebb8a",
+   "sha256": "1f2de28f77c7cecd4e24cb2595c29f93d606e8f7462e5c8adb0a07aa4cf5c22c",
    "head": [
-    "APQ-M-ARC-005",
+    "SP-M-2022-ARC-E-001",
     "Z3-ARC-003",
     "ARC-N-NCERT-11-MCQ-005"
    ]
   },
   "areas-related-to-circles::seed2": {
    "n": 10,
-   "sha256": "38433b1ea635f06f79a5283f8a30a92a4812460162dfdb86cffd319c4a82d4f6",
+   "sha256": "590205e1b4110ae1995f80a82fa89302225a786a986c34db987b0c1fe80199a0",
    "head": [
     "ARC-N-NCERT-11-MCQ-001",
     "Z3-ARC-002",
-    "ARC-N-NCERT-11-CB-001"
+    "Z3-ARC-001"
    ]
   },
   "areas-related-to-circles::seed3": {
    "n": 10,
-   "sha256": "94a2d628911cfa03d6540a9e82020ecff0e22d514b6cb478b20c4400eba7acdb",
+   "sha256": "2a1d909563f4531402029804006c956887721ea13e314f1298e73cf96a67ea41",
    "head": [
     "Z3-ARC-002",
-    "ARC-N-EXEM-11-CB-001",
-    "SP-M-2022-ARC-E-001"
+    "ARC-N-NCERT-11-CB-001",
+    "ARC-N-EXEM-11-CB-001"
    ]
   },
   "surface-areas-and-volumes::seed1": {

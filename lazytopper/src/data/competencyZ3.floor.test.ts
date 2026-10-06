@@ -20,8 +20,7 @@ import { Z3_COMPETENCY_QUESTIONS } from "./questionBanks/class10/maths/competenc
 const Z3_EXPECTED_COUNT = 102;
 // SYLLABUS-FIX-CONTENT PR-1 (2026-10-06, owner: "Yes, all of it"): Z3-TG-110 (symbolic elevation angles;
 // CBSE 2026-27 allows only 30/45/60) is withheld. It stays in the source array; it is not served.
-// QUICK-FIXES-1 PR-2 (owner ruling R3 + evidence rule, 2026-10-06): Z3-ARC-001 (annular-sector fan, R3 class (a)) withheld.
-const Z3_SYLLABUS_WITHHELD = ["Z3-TG-110", "Z3-ARC-001"];
+const Z3_SYLLABUS_WITHHELD = ["Z3-TG-110"];
 // Conservative absolute floor: the bank serves several thousand questions, so
 // this only fires on a catastrophic collapse. Kept well below the true count so
 // it never false-fails as the bank grows.

@@ -2131,6 +2131,13 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
+          "id": "M-ARC-4",
+          "text": "Find area of ring formed between two concentric circles of radii 7 cm and 14 cm.",
+          "marks": 3,
+          "difficulty": "Medium",
+          "questionType": "subjective"
+        },
+        {
           "id": "M-ARC-5",
           "text": "In a circle of radius 10 cm, find length of arc subtending central angle of 72°.",
           "marks": 2,

@@ -579,7 +579,6 @@ describe("served-set scan — QUICK-FIXES-1 PR-2: the owner's 2026-10-06 rulings
     ["R2 centroid", { id: "PLANT-R2", topicKey: "coordinate-geometry", subtopic: "Centroid of a Triangle" }, "coordinate-geometry/out[2]"],
     ["R3 combinations of plane figures", { id: "PLANT-R3", topicKey: "areas-related-to-circles", subtopic: "Area of Combinations of Plane Figures" },
       "areas-related-to-circles/out[0]"],
-    ["R3 class (a) ring", { id: "PLANT-R3A", topicKey: "areas-related-to-circles", subtopic: "Area of a Ring" }, "areas-related-to-circles/out[0]"],
     ["R5 rancidity", { id: "PLANT-R5", topicKey: "chemical-reactions-and-equations", subtopic: "Rancidity" }, "chemical-reactions-and-equations/out[0]"],
     ["R6 naming carboxylic acids", { id: "PLANT-R6", topicKey: "carbon-and-its-compounds", subtopic: "Nomenclature of Carboxylic Acids" },
       "carbon-and-its-compounds/out[0]"],
@@ -600,7 +599,7 @@ describe("served-set scan — QUICK-FIXES-1 PR-2: the owner's 2026-10-06 rulings
       questions: [
         { id: "PLANT-T1", text: "Show that the square root of every prime number is irrational." },
         { id: "PLANT-T2", text: "Find the centroid of a triangle with vertices (1, 2), (3, 4) and (5, 0)." },
-        { id: "PLANT-T3", text: "Find the area of the ring between two concentric circles of radii 7 cm and 14 cm." },
+        { id: "PLANT-T3", text: "Find the area of the shaded region using combinations of plane figures: a square with four semicircles." },
         { id: "PLANT-T5", text: "Give two ways to prevent rancidity of food." },
         { id: "PLANT-T6", text: "What does the -oic acid suffix tell you when naming carboxylic acids?" },
       ],
@@ -631,6 +630,9 @@ describe("served-set scan — QUICK-FIXES-1 PR-2: the owner's 2026-10-06 rulings
     { id: "PLANT-IN-R3-2", topicKey: "areas-related-to-circles", subtopic: "Quadrant at the Corner of a Square" },
     { id: "PLANT-IN-R3-3", topicKey: "areas-related-to-circles", subtopic: "Triangle minus Sectors at its Vertices" },
     { id: "PLANT-IN-R3-4", topicKey: "areas-related-to-circles", subtopic: "Circle Inscribed in a Square" },
+    // owner Round 2 (Maths Basic counts): rings / annular sectors and a quadrant minus a triangle are IN
+    { id: "PLANT-IN-R3-5", topicKey: "areas-related-to-circles", subtopic: "Area of Annulus" },
+    { id: "PLANT-IN-R3-6", topicKey: "areas-related-to-circles", subtopic: "Area of a Ring" },
     // R1: √2, √3, √5 and same-method named-prime proofs and expressions
     { id: "PLANT-IN-R1-1", topicKey: "real-numbers", subtopic: "Irrationality of √2, √3, √5" },
     { id: "PLANT-IN-R1-2", topicKey: "real-numbers", subtopic: "Irrationality Proofs" },
@@ -664,6 +666,41 @@ describe("served-set scan — QUICK-FIXES-1 PR-2: the owner's 2026-10-06 rulings
     // melting is OUT only as Surface Areas and Volumes content: a recast wire in Electricity passes
     assert.deepEqual(matchFreeText("A wire of resistance R is melted and recast to half its length.", MATCHER, "electricity"), []);
     assert.equal(matchFreeText("A sphere is melted and recast into a cone.", MATCHER, "surface-areas-and-volumes").length, 1);
+  });
+});
+
+describe("served-set scan — legacy Topic Hub datasets are scanned (QUICK-FIXES-1 PR-2, owner Round 2)", () => {
+  test("both legacy files are loaded and walked (non-empty)", () => {
+    assert.deepEqual(SERVED.legacyHub.map((l) => l.file), [
+      "lazytopper/src/data/topicHubContent.ts",
+      "lazytopper/src/data/topicHubV2Full.ts",
+    ]);
+    assert.ok(countBySurface(collectServedItems(SERVED)).legacyHub > 500);
+  });
+
+  for (const file of ["lazytopper/src/data/topicHubContent.ts", "lazytopper/src/data/topicHubV2Full.ts"]) {
+    test(`CONTROL: planted rancidity teaching in ${file} fails`, () => {
+      const planted = SERVED.legacyHub.map((l) =>
+        l.file === file
+          ? { file, data: [l.data, { topicKey: "chemical-reactions-and-equations", coreIdeas: ["Learn 3–4 points on rusting and rancidity and how to prevent them."] }] }
+          : l,
+      );
+      const hits = scanWith({ legacyHub: planted });
+      assert.deepEqual(hits.map((h) => [h.surface, h.id, h.referenceItemId]), [
+        ["legacyHub", file, "chemical-reactions-and-equations/out[0]"],
+      ]);
+    });
+  }
+
+  test("CONTROL: a planted legacy definition title for an OUT item fails (label match)", () => {
+    const planted = [...SERVED.legacyHub, { file: "PLANTED-LEGACY", data: { definitions: [{ title: "Centroid of a Triangle", description: "x" }] } }];
+    const hits = scanWith({ legacyHub: planted });
+    assert.deepEqual(hits.map((h) => [h.id, h.referenceItemId]), [["PLANTED-LEGACY", "coordinate-geometry/out[2]"]]);
+  });
+
+  test("IN legacy text passes: corrosion and its prevention", () => {
+    const planted = [...SERVED.legacyHub, { file: "PLANTED-LEGACY-IN", data: { coreIdeas: ["Effects of oxidation in daily life (rusting / corrosion)."] } }];
+    assert.deepEqual(scanWith({ legacyHub: planted }), []);
   });
 });
 

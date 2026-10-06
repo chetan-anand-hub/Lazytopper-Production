@@ -415,7 +415,7 @@ export const topicHubContent: TopicHubBlock[] = [
       'Word equation → formula equation → balanced equation.',
       'Types of reactions: combination, decomposition, displacement, double displacement, redox.',
       'Exothermic vs endothermic reactions.',
-      'Effects of oxidation in daily life (rusting, rancidity).',
+      'Effects of oxidation in daily life (rusting / corrosion).',
       'Use of symbols (s), (l), (g), (aq) and conditions over arrow.',
     ],
     commonMistakes: [
@@ -428,13 +428,13 @@ export const topicHubContent: TopicHubBlock[] = [
     examPatterns: [
       '1 mark (Reaction Types/Balancing): identify the type of reaction or complete/balance a given equation.',
       '2–3 marks (Balance + Classify): balance an equation, name reaction type, and briefly explain.',
-      '3–4 marks (Oxidation/Corrosion): notes or explanations on oxidation, reduction, rancidity, or corrosion.',
+      '3–4 marks (Oxidation/Corrosion): notes or explanations on oxidation, reduction, or corrosion.',
       'Case-based (Multi-step Process): passage describing a process with multiple reaction types.',
     ],
     howToScore95Plus: [
       'Practise balancing 15–20 representative equations daily for a few days.',
       'Make a one-page sheet with reaction types + 1 example each.',
-      'Learn 3–4 points on rusting and rancidity and how to prevent them.',
+      'Learn 3–4 points on rusting and how to prevent it.',
       'In exam, always write full balanced equation with states when asked.',
       'Underline key terms: “oxidation”, “reduction”, “displacement”, etc.',
     ],
@@ -462,7 +462,7 @@ export const topicHubContent: TopicHubBlock[] = [
       'Magnetic field and field lines: direction and properties.',
       'Right-hand thumb rule and magnetic field around straight conductor.',
       'Force on a current-carrying conductor in a magnetic field.',
-      'Fleming’s left-hand rule and electric motor principle.',
+      'Fleming’s left-hand rule (force on a current-carrying conductor).',
       'Domestic use: simple understanding of electromagnets.',
     ],
     commonMistakes: [
@@ -475,7 +475,6 @@ export const topicHubContent: TopicHubBlock[] = [
     examPatterns: [
       '1 mark (Direction Rules): determine direction using right-hand thumb rule or Fleming\'s left-hand rule.',
       '2–3 marks (Rules + Diagrams): explain a rule with a neat labelled diagram.',
-      '3–4 marks (Electric Motor): describe principle, construction, and working of an electric motor.',
       'Case-based (Conductor + Field): passage with current, field, and force direction sub-questions.',
     ],
     howToScore95Plus: [
@@ -900,28 +899,26 @@ export const topicHubContent: TopicHubBlock[] = [
     unitName: 'Mensuration',
     whyItMatters: [
       'High-scoring mensuration unit; formulas repeat across questions.',
-      'Used in word problems on melting, recasting, and combining solids.',
+      'Used in word problems on combining solids.',
     ],
     coreIdeas: [
       'TSA and CSA of cube, cuboid, cylinder, cone, sphere, hemisphere.',
       'Volumes: cube/cuboid (lbh), cylinder (πr²h), cone ((1/3)πr²h), sphere ((4/3)πr³), etc.',
       'Combination of solids (cylinder + hemisphere, etc.).',
-      'Melting and recasting problems (volume conservation).',
       'Unit conversions (cm³ to m³, etc.).',
     ],
     commonMistakes: [
       'Mixing TSA and CSA formulas.',
       'Using radius as diameter or vice versa.',
       'Forgetting to convert units (cm ↔ m).',
-      'Ignoring volume conservation in recasting questions.',
     ],
     examPatterns: [
       '2–3 marks (Single Solid): compute TSA, CSA, or volume of one standard solid (cylinder, cone, sphere).',
-      '3–4 marks (Combination/Recasting): surface area of combined solids, or volume conservation in melting/recasting.',
+      '3–4 marks (Combination): surface area or volume of combined solids.',
     ],
     howToScore95Plus: [
       'Make a neat formula sheet and revise frequently.',
-      'Practise 15–20 problems with mixing and melting solids.',
+      'Practise 15–20 problems on combined solids.',
       'In exam, note all given dimensions clearly and write formula before numbers.',
       'Check units in final answer (cm² vs cm³ vs m² etc.).',
     ],
@@ -929,10 +926,6 @@ export const topicHubContent: TopicHubBlock[] = [
       {
         question: 'Volume of cylinder with radius 3 cm and height 7 cm?',
         hint: 'πr²h.',
-      },
-      {
-        question: 'A solid sphere is melted and recast into 8 smaller equal spheres. If original radius is R, what about new radius?',
-        hint: 'Volume ratio gives r = R/2.',
       },
     ],
   },

@@ -22,7 +22,8 @@
  *   Owner rulings R1–R7 of 2026-10-06 (QUICK-FIXES-1 PR-2, typed reference only; the
  *   verbatim SOURCE is untouched): R1 irrationality (same-method named-prime proofs IN;
  *   general-prime statements OUT), R2 centroid OUT, R3 combinations of plane figures OUT
- *   (sector/segment + its defining triangle or square IN; inscribed measures IN), R4
+ *   (sector/segment + its defining triangle or square IN; rings / annular sectors and inscribed
+ *   measures IN, Maths Basic papers counted per owner Round 2), R4
  *   empirical relation IN, R5 rancidity OUT, R6 naming carboxylic acids OUT, R7 Motor/EMI/
  *   Generator FORMATIVE. Each carries a `ruling` note; R1–R3 cite the evidence-rule check
  *   (Desktop/diff/b17-qf-pr2-evidence.md). No item is left AMBIGUOUS.
@@ -731,6 +732,11 @@ export const SYLLABUS_2026_27 = {
             "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: a shaded region made only of a sector or segment with the triangle or square that defines it is IN, including a triangle or square minus the sectors at its vertices (class c: 2024 board 30(B) Q25, SQP 2025-26 Q24(A), 2024 board 30/3/1 Q36(iii))."
           },
           {
+            "item": "Rings and annular sectors (area between two concentric circles or sector arcs), and a quadrant or sector minus a triangle with a vertex at the centre",
+            "page": 7,
+            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), evidence rule with Maths Basic counted (owner Round 2): rings and annular sectors are IN (2024 Basic 430/3/1 Q12 and Q37(iii)(a): area between concentric sector arcs; 2025 Basic 430/1/1 Q13, 430/1/2 Q23: perimeters; a full ring is the 360° case), and a quadrant or sector minus a triangle with a vertex at the centre is IN (2025 Basic 430/3/1 Q25)."
+          },
+          {
             "item": "Measures of a circle inscribed in a square, or a square inscribed in a circle (no shaded region)",
             "page": 7,
             "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: measures of a circle inscribed in a square or a square inscribed in a circle, with no shaded region, are IN (class d: 2024 board 30/4/3 Q5; SQP 2025-26 Q7, visually-impaired alternative)."
@@ -738,10 +744,10 @@ export const SYLLABUS_2026_27 = {
         ],
         "out": [
           {
-            "item": "Areas of combinations of plane figures (circle parts with rectangles or other shapes, rings or annuli, a circle minus an inscribed square or triangle; the sector-or-segment exception is IN)",
+            "item": "Areas of combinations of plane figures (circle parts with rectangles or other shapes, a circle minus an inscribed square or triangle; the sector-or-segment and ring exceptions are IN)",
             "page": 7,
             "basis": "p7 limits the chapter to sectors and segments ('the above said plane figures'); no 2024-26 board or SQP use",
-            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: areas of combinations of plane figures are OUT, including rings/annuli (class a: no 2024-26 Standard-paper or SQP item) and a circle minus an inscribed square or triangle (class b: none in the window; the nearest is the 2023 board 30/2/2 Q31)."
+            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: areas of combinations of plane figures are OUT, including a circle minus an inscribed square or triangle (class b: none in any 2024-26 Standard or Basic text set or either SQP; the nearest is the 2023 board 30/2/2 Q31)."
           }
         ],
         "formative": [],
@@ -758,8 +764,8 @@ export const SYLLABUS_2026_27 = {
             "item": "Areas of combinations of plane figures beyond sectors/segments (old NCERT 'combination' section)",
             "page": 7,
             "quote": "the above said plane figures",
-            "workingReading": "'above said' = sectors and segments. Combinations of plane figures are OUT; a shaded region made only of a sector or segment with the triangle or square that defines it (incl. vertex sectors) and plain inscribed circle/square measures are IN.",
-            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: areas of combinations of plane figures are OUT, including rings/annuli (class a: no 2024-26 Standard-paper or SQP item) and a circle minus an inscribed square or triangle (class b: none in the window; the nearest is the 2023 board 30/2/2 Q31). Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: a shaded region made only of a sector or segment with the triangle or square that defines it is IN, including a triangle or square minus the sectors at its vertices (class c: 2024 board 30(B) Q25, SQP 2025-26 Q24(A), 2024 board 30/3/1 Q36(iii)). Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: measures of a circle inscribed in a square or a square inscribed in a circle, with no shaded region, are IN (class d: 2024 board 30/4/3 Q5; SQP 2025-26 Q7, visually-impaired alternative)."
+            "workingReading": "'above said' = sectors and segments. Combinations of plane figures are OUT; a shaded region made only of a sector or segment with the triangle or square that defines it (incl. vertex sectors), rings and annular sectors, a quadrant minus a triangle at its centre, and plain inscribed circle/square measures are IN.",
+            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: areas of combinations of plane figures are OUT, including a circle minus an inscribed square or triangle (class b: none in any 2024-26 Standard or Basic text set or either SQP; the nearest is the 2023 board 30/2/2 Q31). Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: a shaded region made only of a sector or segment with the triangle or square that defines it is IN, including a triangle or square minus the sectors at its vertices (class c: 2024 board 30(B) Q25, SQP 2025-26 Q24(A), 2024 board 30/3/1 Q36(iii)). Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: measures of a circle inscribed in a square or a square inscribed in a circle, with no shaded region, are IN (class d: 2024 board 30/4/3 Q5; SQP 2025-26 Q7, visually-impaired alternative)."
           }
         ]
       },

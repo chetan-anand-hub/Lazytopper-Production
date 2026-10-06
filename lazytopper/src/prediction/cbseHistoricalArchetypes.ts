@@ -746,12 +746,9 @@ export const MATHS_OUT_SUBTOPIC_FRAGMENTS: Readonly<Record<string, readonly stri
     "construction of similar",
   ],
   "Trigonometric ratios of complementary angles (sin(90°−A) = cos A etc.) as a topic": ["complementary angle"],
-  "Areas of combinations of plane figures (circle parts with rectangles or other shapes, rings or annuli, a circle minus an inscribed square or triangle; the sector-or-segment exception is IN)": [
+  "Areas of combinations of plane figures (circle parts with rectangles or other shapes, a circle minus an inscribed square or triangle; the sector-or-segment and ring exceptions are IN)": [
     "areas of combinations",
     "area of combinations",
-    "annulus",
-    "area of ring",
-    "area of a ring",
   ],
   "Frustum of a cone": ["frustum"],
   "Conversion of one solid into another (melting/recasting) as a topic": [

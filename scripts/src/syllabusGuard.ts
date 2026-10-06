@@ -529,11 +529,11 @@ export const LABEL_VARIANTS: readonly LabelVariantEntry[] = [
     freeText: ["centroid of a triangle", "centroid of the triangle", "centroid formula"] },
   // "Combinations of Plane Figures" and "Combined Figures" are NOT variants: served IN rows carry them (the official
   // vertex-sector row ARC-N-EXEM-11-LA-002, and sector-only LazyTopper rows); the reference term itself
-  // ("area(s) of combination(s) of plane figures") and the ring / annulus labels are matched.
+  // ("area(s) of combination(s) of plane figures") is matched. Rings / annuli are IN (owner Round 2: Maths Basic
+  // papers count; 2024 Basic 430/3/1 Q12, Q37), so no ring label or phrase is a variant.
   { key: "areas-related-to-circles", kind: "out", itemStartsWith: "Areas of combinations of plane figures",
-    labels: ["Annulus", "Area of Annulus", "Area of a Ring", "Area of Ring", "Area of Combined Figures", "Areas of Combined Figures"],
-    freeText: ["combination of plane figures", "combinations of plane figures", "area of the ring", "area of the annulus",
-      "combination figure"] },
+    labels: ["Area of Combined Figures", "Areas of Combined Figures"],
+    freeText: ["combination of plane figures", "combinations of plane figures", "combination figure"] },
   { key: "coordinate-geometry", kind: "out", itemStartsWith: "Section formula — external division",
     labels: ["External Division", "Section Formula for External Division"] },
   { key: "triangles", kind: "out", itemStartsWith: "Ratio of areas of similar triangles",
@@ -563,12 +563,12 @@ export const LABEL_VARIANTS: readonly LabelVariantEntry[] = [
     chapterScoped: true },
   { key: "statistics", kind: "out", itemStartsWith: "Graphical representation of cumulative frequency",
     labels: ["Ogive", "Cumulative Frequency Graph", "Cumulative Frequency Curve", "Less Than Ogive", "More Than Ogive", "Median from Ogive"] },
-  // QUICK-FIXES-1 PR-2 — owner rulings 2026-10-06. "Corrosion and Rancidity" is NOT a variant: corrosion is IN
-  // (Metals, p5) and two official corrosion-only rows still carry that label (FU-B17-R5-LABEL-RELABELS).
+  // QUICK-FIXES-1 PR-2 — owner rulings 2026-10-06. Corrosion is IN (Metals, p5): every served corrosion-only row was
+  // relabelled "Corrosion" (owner Round 2, incl. the two official rows' topic tag), so the combined label is now a variant.
   { key: "chemical-reactions-and-equations", kind: "out", itemStartsWith: "Rancidity",
-    labels: ["Rancidity", "Rancidity and its Prevention", "Prevention of Rancidity"],
+    labels: ["Rancidity", "Rancidity and its Prevention", "Prevention of Rancidity", "Corrosion and Rancidity", "Corrosion & Rancidity"],
     freeText: ["prevent rancidity", "prevention of rancidity", "rancidity of food", "corrosion and rancidity", "become rancid",
-      "rancidity is"] },
+      "rancidity is", "rusting and rancidity", "rancidity of fats", "rancidity or corrosion", "rusting rancidity"] },
   { key: "carbon-and-its-compounds", kind: "out", itemStartsWith: "Nomenclature of carboxylic acids",
     labels: ["Nomenclature of Carboxylic Acids", "Naming Carboxylic Acids", "IUPAC Naming of Carboxylic Acids"],
     freeText: ["naming carboxylic acids", "oic acid suffix", "suffix oic acid"] },
@@ -809,7 +809,7 @@ export function matchFreeText(
 
 // ── Served items ──────────────────────────────────────────────────────────────
 
-export type ServedSurface = "bank" | "hpq" | "predicted" | "promptD" | "notes" | "hub" | "catalogue";
+export type ServedSurface = "bank" | "hpq" | "predicted" | "promptD" | "notes" | "hub" | "catalogue" | "legacyHub";
 
 export interface ServedItem {
   readonly surface: ServedSurface;
@@ -863,6 +863,11 @@ export interface ServedSources {
   notes: readonly { file: string; spec: unknown }[];
   hub: readonly HubContentLike[];
   catalogue: readonly CatalogueRowLike[];
+  /**
+   * QUICK-FIXES-1 PR-2 (owner, 2026-10-06: "so older content can't hide again"): the two legacy Topic Hub
+   * datasets, `data/topicHubContent.ts` and `data/topicHubV2Full.ts`, walked as served text.
+   */
+  legacyHub: readonly { file: string; data: unknown }[];
 }
 
 /** Notes-spec keys that are machine metadata, never shown to a student. */
@@ -886,6 +891,27 @@ function walkNotes(file: string, chapter: string | undefined, v: unknown, path: 
   }
   if (v && typeof v === "object") {
     for (const [k, x] of Object.entries(v)) walkNotes(file, chapter, x, path ? `${path}.${k}` : k, k, out);
+  }
+}
+
+/** Legacy Topic Hub keys that are metadata; `title` / `topicName` are labels; every other string is text. */
+const LEGACY_HUB_HIDDEN_KEYS = new Set(["topicKey", "subject", "tier", "id", "slug", "kind"]);
+const LEGACY_HUB_LABEL_KEYS = new Set(["title", "topicName", "name"]);
+
+function walkLegacyHub(file: string, chapter: string | undefined, v: unknown, path: string, key: string, out: ServedItem[]): void {
+  if (typeof v === "string") {
+    if (LEGACY_HUB_HIDDEN_KEYS.has(key)) return;
+    out.push({ surface: "legacyHub", id: file, field: path, text: v, kind: LEGACY_HUB_LABEL_KEYS.has(key) ? "label" : "text", chapter });
+    return;
+  }
+  if (Array.isArray(v)) {
+    v.forEach((x, i) => walkLegacyHub(file, chapter, x, `${path}[${i}]`, key, out));
+    return;
+  }
+  if (v && typeof v === "object") {
+    const tk = (v as { topicKey?: unknown }).topicKey;
+    const ch = typeof tk === "string" ? tk : chapter;
+    for (const [k, x] of Object.entries(v)) walkLegacyHub(file, ch, x, path ? `${path}.${k}` : k, k, out);
   }
 }
 
@@ -942,6 +968,7 @@ export function collectServedItems(src: ServedSources): ServedItem[] {
     push("commonMistake", h.commonMistake, "text");
     push("examinerWarning", h.examinerWarning, "text");
   }
+  for (const l of src.legacyHub) walkLegacyHub(l.file, undefined, l.data, "", "", out);
   for (const c of src.catalogue) {
     out.push({ surface: "catalogue", id: c.conceptKey, field: "topicKey", text: c.topicKey, kind: "chapterKey" });
     out.push({ surface: "catalogue", id: c.conceptKey, field: "conceptLabel", text: c.conceptLabel, kind: "label", chapter: c.topicKey });
@@ -989,7 +1016,7 @@ function pick(s: ServedItem) {
 
 /** Per-surface counts of what was scanned (for the report). */
 export function countBySurface(items: readonly ServedItem[]): Record<ServedSurface, number> {
-  const c: Record<ServedSurface, number> = { bank: 0, hpq: 0, predicted: 0, promptD: 0, notes: 0, hub: 0, catalogue: 0 };
+  const c: Record<ServedSurface, number> = { bank: 0, hpq: 0, predicted: 0, promptD: 0, notes: 0, hub: 0, catalogue: 0, legacyHub: 0 };
   for (const s of items) c[s.surface]++;
   return c;
 }
@@ -1034,6 +1061,8 @@ export async function loadServedSources(): Promise<LoadedServedSources> {
     "lib/desktop/topicHubContent.ts",
   );
   const cat = await importApp<{ conceptFigureCatalogue: CatalogueRowLike[] }>("pages/tutor/conceptVisualCatalogue.data.ts");
+  const legacy = await importApp<{ topicHubContent: unknown }>("data/topicHubContent.ts");
+  const legacyV2 = await importApp<{ topicHubV2Content: unknown }>("data/topicHubV2Full.ts");
 
   const notesDir = join(REPO_ROOT, "notes/specs");
   const notes = readdirSync(notesDir)
@@ -1057,6 +1086,10 @@ export async function loadServedSources(): Promise<LoadedServedSources> {
     notes,
     hub,
     catalogue: cat.conceptFigureCatalogue,
+    legacyHub: [
+      { file: "lazytopper/src/data/topicHubContent.ts", data: legacy.topicHubContent },
+      { file: "lazytopper/src/data/topicHubV2Full.ts", data: legacyV2.topicHubV2Content },
+    ],
   };
 }
 
