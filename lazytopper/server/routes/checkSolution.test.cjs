@@ -884,7 +884,13 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // concept is not a carried value) and 12 (an incomplete list is a wrong value); S5's
 // sign-convention note. Every transport's prompt moved, so this pin moved with it.
 //   PREVIOUS fa1f938d5ab72ac81aae4ac1210c549555b57072b0471b911b1bebfe0b558167
-// ★ AND AGAIN — GRADER-CORE-1 PR-3, controller decision D31 (262e7eb4… → below): the SHARED
+// ★ AND AGAIN — the PR-2b TARGETED round (owner, 2026-10-05; 262e7eb4… → below), two rules aimed
+// at false comments the judge found on the controller papers: a value point states a numerical
+// result only once it is worked out and checked (CP01-Q09: "mean = 31" for 31.2), and DIAGRAM
+// rule D4 — a drawn figure is marked on what the scheme marks, never on unmarked features such
+// as the colour order of a rainbow diagram (CP02-Q09, 7 false comments). Every transport moved.
+//   PREVIOUS 262e7eb40d9a675803de80868cbb1e53f85381aef89f9356dcc6c967431980c8
+// ★ AND AGAIN — GRADER-CORE-1 PR-3, controller decision D31 (594d78d3… → below): the SHARED
 // PREFIX FIRST so implicit prompt caching applies — the rulebook (role, rubric-first, JSON shape,
 // rules; no nonce) leads, the answer document follows it, and the request-particular part (fence
 // declaration with the nonce, the questions, a closing reminder) comes last (a chunk of a larger paper
@@ -893,8 +899,9 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // its own "subject" (Maths | Science — ruling 6 is applied per question, PR-3), and (controller decision D38)
 // the PAGE INVENTORY lists every question number that appears, a blank slot with an empty firstLine, so a
 // blank answer (unattempted) is told apart from an answer not found (not graded). Every transport moved together.
-//   PREVIOUS 262e7eb40d9a675803de80868cbb1e53f85381aef89f9356dcc6c967431980c8
-const NO_UPLOADS_CONTENTS_SHA256 = 'e882944e850b5c7933a24ed93af3f4d5cfa3295d5a35220a9c8bcc34d6d3d40c';
+// The LOCAL combined PR-3 + PR-2b head also carries PR-2b's prompt rules (figures, rubric values, comments, ECF).
+//   PREVIOUS 594d78d3a487cdd9493c887b490c1d510d8cccb45952d635997c13094e133b68 (PR-2b alone) / e882944e850b5c7933a24ed93af3f4d5cfa3295d5a35220a9c8bcc34d6d3d40c (PR-3 alone)
+const NO_UPLOADS_CONTENTS_SHA256 = '5cab8ba315d6a589e3293d24a59810dff70b7562cfd9b2247420f265b9abe862';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

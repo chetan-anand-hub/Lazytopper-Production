@@ -26,7 +26,7 @@ const {
   applyObjectiveMistakeGuard,
 } = require('../routes/objectiveScoring.cjs');
 const R = require('./rules.cjs');
-const { falseEqualities, compareFinalAnswer } = require('./verify.cjs');
+const { falseEqualities, compareFinalAnswer, fudgedFactorisation } = require('./verify.cjs');
 
 const TYPES = R.MISTAKE_TYPES;
 const VALID_TYPES = new Set(TYPES);
@@ -163,11 +163,18 @@ function stripRubricFromNote(note) {
 
 const TICK = /^\s*(✓|✔)\s*/;
 const CROSS = /^\s*(×|✗|✘|x(?=\s))\s*/;
+const HALF = /^\s*½\s*/;
 function fixGlyph(ann, step) {
   const a = String(ann || '').trim();
-  const lost = (Number(step.marksDeducted) || 0) > 0 || ['incorrect', 'missing', 'unattempted'].includes(step.status);
-  if (TICK.test(a) && lost) return a.replace(TICK, (Number(step.marksAwarded) || 0) > 0 ? '½ ' : '× ');
-  if (CROSS.test(a) && step.status === 'correct' && !((Number(step.marksDeducted) || 0) > 0)) return a.replace(CROSS, '✓ ');
+  const awarded = Number(step.marksAwarded) || 0;
+  const deducted = (Number(step.marksDeducted) || 0) > 0;
+  const lost = deducted || ['incorrect', 'missing', 'unattempted'].includes(step.status);
+  if (TICK.test(a) && lost) return a.replace(TICK, awarded > 0 ? '½ ' : '× ');
+  if (CROSS.test(a) && step.status === 'correct' && !deducted) return a.replace(CROSS, '✓ ');
+  // GRADER-CORE-1 PR-2b: ½ and × agree with the marks too — a "½" (a deduction) on a step that
+  // lost nothing, and a "×" (everything lost) on a step that kept marks, contradict the mark shown.
+  if (HALF.test(a) && step.status === 'correct' && !deducted) return a.replace(HALF, '✓ ');
+  if (CROSS.test(a) && awarded > 0 && step.status === 'partial') return a.replace(CROSS, '½ ');
   return a;
 }
 
@@ -282,14 +289,20 @@ function firstLineInWork(lineRaw, workRaw) {
   if (tokens.length < 2) return false;
   return tokens.filter((x) => w.includes(compactText(x))).length / tokens.length >= 0.6;
 }
-/** 'notInInventory' | 'firstLineNotInWork' | null (the grade may stand). */
-function inventoryVerdict(inventory, steps, raw) {
+/** 'notInInventory' | 'firstLineNotInWork' | null (the grade may stand).
+ *  GRADER-CORE-1 PR-2b: an OBJECTIVE question listed in the inventory is held to PRESENCE only.
+ *  Its answer step quotes the declared option (OBJECTIVE_PROMPT), not the working before it, so
+ *  a first-line test cannot pass — live 2026-10-05 (CP04-Q01, v2 run 3): "Favourable: (1,1) …"
+ *  listed, studentWork "Ans: (B)", and an answered MCQ came back "No answer to this question was
+ *  found on your page". */
+function inventoryVerdict(inventory, steps, raw, opts = {}) {
   if (!inventory || typeof inventory !== 'object') return null;
   if (inventory.present !== true) return 'notInInventory';
   // D38: listed, but only as a BLANK answer slot ("" or a non-attempt quoted as written) — the
   // student left it: UNATTEMPTED (ruling 7), unlike a question not found at all (not graded).
   const all = Array.isArray(inventory.firstLines) ? inventory.firstLines : [];
   if (all.length > 0 && all.every((l) => !String(l).trim() || nonAttemptText(l) === 'phrase')) return 'blankInInventory';
+  if (opts.objective === true) return null;
   const lines = (Array.isArray(inventory.firstLines) ? inventory.firstLines : []).filter((l) => compactText(stripAnswerLabel(l)).length >= 4);
   if (lines.length === 0) return null;
   // PR-3 (C8 chunks): a CHUNK of a one-document paper writes the page inventory for the WHOLE
@@ -486,6 +499,32 @@ function takeFromEnd(steps, amount, onTake) {
   }
 }
 
+/* ── GRADER-CORE-1 PR-2b (targeted round) · server sentences and format classes ───────── */
+
+/** A format element whose deduction CBSE applies once per question (half-mark weighting (a)).
+ *  Matched on the model's own annotation, and only when it says the element is MISSING. */
+const FORMAT_ONCE = Object.freeze([
+  { id: 'unit', re: /\b(?:si\s+)?units?\b[^.;]*\b(?:missing|omitted|absent|not (?:written|stated|given|included|mentioned))\b|\b(?:missing|no|without|omitted)\s+(?:the\s+|an?\s+|any\s+)?(?:si\s+)?units?\b/i,
+    // a note sentence claiming the deduction is taken PER answer is false once it is charged once
+    noteClaim: /^(?=.*\bunits?\b)(?=.*(?:\b(?:per|each|every)\s+(?:answer|value|quantity|part|result)s?\b|\bboth\b|\btwice\b)).*$/i },
+  { id: 'arrow', re: /\barrow(?:s|heads?)?\b[^.;]*\b(?:missing|absent|omitted|not (?:drawn|shown|marked|given))\b|\b(?:missing|no|without)\s+(?:the\s+|any\s+)?(?:direction(?:al)?\s+)?arrow(?:s|heads?)?\b/i,
+    noteClaim: /^(?=.*\barrow)(?=.*(?:\b(?:per|each|every)\s+(?:diagram|figure|ray)s?\b|\bboth\b|\btwice\b)).*$/i },
+]);
+const FORMAT_ONCE_ANNOTATION = 'This was already charged once in this question, so no further mark is lost here.';
+const FUDGED_LATER_ANNOTATION = 'This follows from a factorisation that does not multiply out to your own equation, so it cannot earn marks.';
+const FUDGED_NOTE = 'Your factorisation does not multiply out to your own quadratic (which has no real roots), so the roots and the answer that follow from it cannot earn marks, even though the final number looks right. Check a factorisation by expanding it.';
+const ECF_AFTER_FLAG_ANNOTATION = 'Worked correctly from your own earlier value (error carried forward), so no further mark is lost here.';
+
+/** PR-2b: a rubric point that states the very value the arithmetic check found WRONG was derived
+ *  from the student's answer, not the question (GS-M12-a: "Evaluating R² − r² = 8 … (1)", where
+ *  1232/308 is 4) — it is dropped rather than shown as the scheme. */
+function rubricStatesValue(point, rightRaw) {
+  const v = String(rightRaw == null ? '' : rightRaw).replace(/\s*[A-Za-zΩ²³^]+\s*\.?\s*$/, '').replace(/[−–—]/g, '-').trim();
+  if (!v || !/\d/.test(v)) return false;
+  const esc = v.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&').replace(/\s+/g, '\\s*');
+  return new RegExp('(?<![\\d./])' + esc + '(?![\\d./])').test(String(point || '').replace(/[−–—]/g, '-'));
+}
+
 /* ── the one normaliser ────────────────────────────────────────────────────── */
 
 /**
@@ -575,7 +614,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // document for the whole set only; ctx.inventory is null everywhere else and when the
   // reply carried no usable inventory).
   {
-    const verdict = inventoryVerdict(ctx.inventory, all, raw);
+    const verdict = inventoryVerdict(ctx.inventory, all, raw, { objective: questionIsObjective });
     // D38: a question ABSENT from the inventory (no number or answer found on any uploaded page)
     // is NOT GRADED — legacy couldNotRead (the pre-lane "pending, re-upload" path), v2
     // couldNotRead + notGraded "unreadable" — never a final 0, and never charged (C9). A question
@@ -676,6 +715,12 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   const zeroedBy = new Map(); // step index -> departure step index
   let noFullMarks = false;
   let arithmeticFlags = 0;
+  // PR-2b: what the MODEL awarded before any server check, and what the checks found — a note
+  // the model wrote for a grade the checks then lowered is reconciled at stage 8.
+  const modelAwardedSum = half(steps.reduce((a, s) => a + (Number(s.marksAwarded) || 0), 0));
+  const arithmeticWrong = [];
+  let fudged = null;
+  let fudgedZeroed = 0;
   if (!questionIsObjective) {
     departures = acceptedDepartures(steps);
     for (const d of departures) {
@@ -691,13 +736,50 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         zeroedBy.set(j, d.index);
       }
     }
+    // PR-2b · NO ECF THROUGH A FUDGED STEP (owner ruling; verify.cjs fudgedFactorisation). After a
+    // "factorisation" of a quadratic with no real roots that does not multiply out to it, the
+    // later steps of that part were reached THROUGH an invented line: they earn nothing (the
+    // final answer included, even when it is the right number), and the loss is charged ONCE, to
+    // the fudged step's own type — the departure ledger's mechanics, but NOT a departure (the
+    // student never left the question: no departureKind, no departure sentence).
+    fudged = departures.length === 0 ? fudgedFactorisation(steps) : null;
+    if (fudged) {
+      const f = steps[fudged.index];
+      const fk = partKey(f.part);
+      if (f.status === 'correct' && f.marksAwarded > 0) {
+        // the model credited the false line itself: it costs ½ there, as an arithmetic flag does
+        // (the same step may also hold the student's correctly derived quadratic)
+        f.marksAwarded = half(f.marksAwarded - 0.5);
+        f.status = f.marksAwarded > 0 ? 'partial' : 'incorrect';
+        f.teacherAnnotation = (f.marksAwarded > 0 ? '½ ' : '× ') + 'Check the factorisation here: ' + fudged.factorised + ' does not multiply out to ' + fudged.quadratic + '.';
+        f._flagged = true;
+        noFullMarks = true;
+      }
+      if (!f.mistakeType) f.mistakeType = 'calculation';
+      for (let j = fudged.index + 1; j < steps.length; j += 1) {
+        const t = steps[j];
+        if (partKey(t.part) !== fk || ['unattempted', 'withdrawn', 'missing'].includes(t.status)) continue;
+        if (t.marksAwarded > 0) fudgedZeroed += 1;
+        t.marksAwarded = 0;
+        t.status = 'incorrect';
+        t.mistakeType = null;
+        t._ecf = false;
+        t.teacherAnnotation = '× ' + FUDGED_LATER_ANNOTATION;
+        zeroedBy.set(j, fudged.index);
+      }
+    }
     // C4.1 · arithmetic: a plain numeric equality that is false is not a correct step.
+    // PR-2b: the line is the MODEL'S QUOTE of the student — a sign-only difference is not charged
+    // unless the student's own typed words carry it (verify.cjs); and a flag costs ½ — the
+    // smallest CBSE unit, the value point every examiner-verified key charges for such a slip
+    // (GS-M12-a "1232/308 = 8": ½; CP02-Q08 "50 − 16 = 36": ½) — never a whole mark.
     steps.forEach((s, i) => {
       if (zeroedBy.has(i) || s.status !== 'correct' || !(s.marksAwarded > 0)) return;
-      const bad = falseEqualities(s.studentWork);
+      const bad = falseEqualities(s.studentWork, { quoted: true, source: q.textAnswer });
       if (!bad.length) return;
       arithmeticFlags += 1;
-      s.marksAwarded = s.marksAwarded <= 1 ? 0 : half(s.marksAwarded - 1);
+      arithmeticWrong.push(bad[0]);
+      s.marksAwarded = half(s.marksAwarded - 0.5);
       s.status = s.marksAwarded > 0 ? 'partial' : 'incorrect';
       if (!s.mistakeType) s.mistakeType = 'calculation';
       const note = 'Check the arithmetic here: ' + bad[0].left + ' is not ' + bad[0].right + '.';
@@ -705,6 +787,19 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       s._flagged = true;
     });
     if (arithmeticFlags > 0) noFullMarks = true;
+    // PR-2b: the model ticked the LATER steps of that part believing the flagged value was right
+    // ("✓ Correct values of outer and inner radii" over R = 4.5 from 1232/308 = 8, GS-MM-05.Q4).
+    // They stay credited (ECF), but a tick that calls a carried wrong value "correct" is not left
+    // standing: it says what is true — the step is worked correctly from the student's own value.
+    steps.forEach((s, i) => {
+      if (!s._flagged) return;
+      const k = partKey(s.part);
+      for (let j = i + 1; j < steps.length; j += 1) {
+        const t = steps[j];
+        if (partKey(t.part) !== k || zeroedBy.has(j) || t._flagged || t.status !== 'correct' || !(t.marksAwarded > 0)) continue;
+        t.teacherAnnotation = '✓ ' + ECF_AFTER_FLAG_ANNOTATION;
+      }
+    });
 
     // CBSE 11 · "penalized only once" (controller decision D26, defect (b)). The schema marks
     // the ORIGINAL slip: a step typed silly/calculation that lost marks. In the same part, every LATER step the
@@ -726,6 +821,39 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       }
       // a step with NO working shown (blank studentWork) carries nothing forward: it stays charged
       if (slipInPart.has(k) && s.studentWork && (s.marksDeducted > 0 || s.marksAwarded < s._available)) s._ecf = true;
+    });
+
+    // PR-2b · HALF-MARK WEIGHTING (owner priority 4) — two CBSE conventions that EVERY
+    // examiner-verified key in the golden set and the controller papers follows, and that the
+    // model's own value-point weights kept breaking (acceptance run, 2026-10-05):
+    //  (a) A FORMAT DEDUCTION IS CHARGED ONCE PER QUESTION. Missing units, missing ray arrows: the
+    //      scheme's "deduct ½ if arrows are not drawn" / "½ for the unit" is applied once, however
+    //      many answers or diagrams lack it (GS-S10-a: two diagrams, ½ once; owner Q5: two answers
+    //      without Ω and A, ½ once). A second presentation step whose loss is the SAME missing
+    //      element gets that ½ back.
+    //  (b) A MISCOPY COSTS ½ (ruling 2). A value copied wrongly is penalised ONCE, ½, at the step
+    //      where it entered, when later work — in that part or a later part that carries the
+    //      value (CP02-Q05: 18 V copied in (B), carried into (C)) — goes on to earn marks (owner
+    //      Q2, GS-M07-a, GS-SUP-03, CP01-Q05, CP02-Q05, CP03-Q08: ½ in every key) — never a
+    //      whole step. Only marks are restored here, never taken — and only within the room the
+    //      question's cap leaves AFTER the ECF steps have earned theirs (applied below, with them).
+    const formatSeen = new Set();
+    steps.forEach((s, i) => {
+      if (zeroedBy.has(i) || s._flagged || s.mistakeType !== 'presentation') return;
+      const lostHere = half(s._available - s.marksAwarded);
+      if (!(lostHere > 0)) return;
+      const cls = FORMAT_ONCE.find((f) => f.re.test(s.teacherAnnotation));
+      if (!cls) return;
+      if (!formatSeen.has(cls.id)) { formatSeen.add(cls.id); return; }
+      s._restore = { amount: Math.min(0.5, lostHere), why: 'formatOnce', cls };
+    });
+    steps.forEach((s, i) => {
+      if (zeroedBy.has(i) || s._flagged || s.mistakeType !== 'silly' || depIdx.has(i)) return;
+      const lostHere = half(s._available - s.marksAwarded);
+      if (!(lostHere > 0.5)) return;
+      const laterEarns = steps.some((t, j) => j > i && !zeroedBy.has(j) && t.status !== 'withdrawn' && (t.marksAwarded > 0 || t._ecf));
+      if (!laterEarns) return;
+      s._restore = { amount: half(lostHere - 0.5), why: 'miscopyHalf' };
     });
   }
   // C3 · a corrected version that is itself arithmetically false is not shown.
@@ -762,6 +890,20 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         if (add > 0) { s.marksAwarded = half(s.marksAwarded + add); room = half(room - add); }
         if (s.marksAwarded > 0) s.status = s.marksAwarded >= s._available ? 'correct' : 'partial';
       }
+      // PR-2b · half-mark weighting (above): a format deduction charged once, a miscopy at ½.
+      for (const s of steps) {
+        if (!s._restore) continue;
+        const add = Math.min(s._restore.amount, Math.max(0, room));
+        if (!(add > 0)) continue;
+        s.marksAwarded = half(s.marksAwarded + add);
+        s.marksDeducted = half(Math.max(0, s.marksDeducted - add));
+        room = half(room - add);
+        s.status = s.marksAwarded >= s._available ? 'correct' : 'partial';
+        if (s._restore.why === 'formatOnce') {
+          s.teacherAnnotation = String(s.teacherAnnotation || '').replace(/\s*$/, '') + ' ' + FORMAT_ONCE_ANNOTATION;
+          s._restoredFormat = s._restore.cls;
+        }
+      }
     }
     const stepSum = steps.reduce((a, s) => a + (Number(s.marksAwarded) || 0), 0);
     marksAwarded = half(Math.min(stepSum, cap));
@@ -786,6 +928,13 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       const ded = half(Math.max(0, s._available - s.marksAwarded));
       if (s._flagged || s.marksAvailable != null || ded > s.marksDeducted) s.marksDeducted = ded;
     });
+    // PR-2b: the steps zeroed below a FUDGED step are charged ONCE, on the fudged step itself.
+    if (fudged) {
+      const f = steps[fudged.index];
+      let carried = 0;
+      zeroedBy.forEach((src, j) => { if (src === fudged.index) carried += Math.max(0, steps[j]._available - steps[j].marksAwarded); });
+      f.marksDeducted = half(half(Math.max(0, f._available - f.marksAwarded)) + carried);
+    }
     if (departures.length === 0) {
       const lost = half(totalMarks - marksAwarded);
       let sum = half(steps.reduce((a, s) => a + s.marksDeducted, 0));
@@ -801,8 +950,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
           }
         }
       } else if (sum < lost) {
-        // never onto an ECF step (CBSE 11): it carries no separate charge
-        const charge = steps.filter((s) => !s._ecf);
+        // never onto an ECF step (CBSE 11): it carries no separate charge — nor onto a step zeroed
+        // below a fudged step (PR-2b): its loss is already charged once, on the fudged step
+        const charge = steps.filter((s, i) => !s._ecf && !zeroedBy.has(i));
         const target = [...charge].reverse().find((s) => s.marksDeducted > 0 || s.status !== 'correct') || charge[charge.length - 1];
         if (target) target.marksDeducted = half(target.marksDeducted + (lost - sum));
       }
@@ -829,12 +979,29 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   }
   let note = stripRubricFromNote(raw.teacherNote);
   note = scrubSentences(note, LEAK_SENTENCE);
+  // PR-2b: once a format deduction is charged ONCE, the model's "½ per diagram" claim is false
+  // (live GS-S10-a: "rays without arrowheads lose ½ mark per diagram") — that sentence goes.
+  for (const cls of new Set(steps.map((s) => s._restoredFormat).filter(Boolean))) note = scrubSentences(note, cls.noteClaim);
+  // PR-2b · A NOTE WRITTEN FOR A GRADE THE CHECKS LOWERED IS NOT LEFT STANDING. The model writes
+  // its note for the grade IT gave; when the arithmetic check or the fudged-step check then takes
+  // marks from steps it credited, a note written for full marks praises work that is wrong (live
+  // 2026-10-05: "Excellent solution! … calculations are exact" over "1232/308 is not 8",
+  // GS-MM-05.Q4; "every step … executed flawlessly" over "50 − 16 = 36", CP02-Q08). If the model
+  // thought the answer was worth FULL marks, its note is replaced by what the check found;
+  // otherwise the finding is added to it.
+  {
+    const found = [];
+    if (arithmeticWrong.length) found.push('Check the arithmetic in your working: ' + arithmeticWrong[0].left + ' is not ' + arithmeticWrong[0].right + '.');
+    if (fudged && fudgedZeroed > 0) found.push(FUDGED_NOTE);
+    if (found.length) note = (modelAwardedSum >= totalMarks || !note) ? found.join(' ') : note + ' ' + found.join(' ');
+  }
   // PR-3 (comments true): a note may not claim full marks / flawless work for an answer that did
   // not get full marks (live 2026-10-05, owner-anomaly-02 Q13: "Full marks … completely accurate"
   // beside 2/3). Such sentences go; a negated one ("not full marks") stays.
   if (marksAwarded < totalMarks) note = scrubSentences(note, FULL_MARKS_CLAIM);
   if (languageRestored > 0) note = scrubSentences(note, LANGUAGE_ADVICE);
-  const rubric = validRubric(raw.rubric, totalMarks);
+  let rubric = validRubric(raw.rubric, totalMarks);
+  if (rubric && arithmeticWrong.some((b) => rubric.some((it) => rubricStatesValue(it.point, b.right)))) rubric = null;
   if (primaryDeparture) {
     const line = primaryDeparture.returnIndex >= 0
       ? R.DEPARTURE_RETURN_LINES[primaryDeparture.kind]

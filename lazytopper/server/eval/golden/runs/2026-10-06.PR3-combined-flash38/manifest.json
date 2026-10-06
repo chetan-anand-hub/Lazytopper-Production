@@ -1,0 +1,183 @@
+{
+ "runId": "2026-10-06.PR3-combined-flash38",
+ "config": {
+  "id": "PR2-a-flash38",
+  "model": "gemini-3.8-flash",
+  "thinkingBudget": null,
+  "core": true,
+  "gradingMode": "single",
+  "label": "PR-2 (a): gemini-3.8-flash only (SUBSTITUTE: gemini-2.5-flash refused to this key), dynamic thinking"
+ },
+ "createdAt": "2026-10-05T19:20:05.257Z",
+ "dry": false,
+ "detectModel": "gemini-3.8-flash",
+ "detectModelIsProxy": true,
+ "note": "Runs under the GRADER-CORE-1 PR-2 grading core (one prompt builder, one post-processing path, the owner rulings of 2026-10-05).",
+ "serverFileSha256LF": {
+  "grading/rules.cjs": "bb39fae4fbf6c18db4efb597dc6a0423594df00f266c10e9908b27d1cd9b212a",
+  "grading/prompt.cjs": "619082e57a068e65aa0002507376eb57702b1f4695bc7098b1774d8394b58464",
+  "grading/postprocess.cjs": "bba05dbce421dba4dd8ede801c51d259c6f3e6fed1c9c38562174f910aaffdb9",
+  "grading/core.cjs": "74451268f2d05100f051080188a0877d0c3a859a00f04d840d3bb7f23a224a14",
+  "grading/verify.cjs": "a836d20abb4b4d190eefdc39f0fa3407cc6746963999adf24cf82f02fc23e1e4",
+  "grading/schema.cjs": "48f5530a6c8897a9da44141dbe4f72e2ecba6600b0e2356bdf2017fff506de8f",
+  "grading/fence.cjs": "0ec8a21922bd7da98c24ddd52a758bfee26ececc5b9f690f722da88a9317f64e",
+  "grading/timing.cjs": "b495ac0ff96054924b9f9da68e23b9ba528292f567ff9f4403e279907bf60892",
+  "grading/charge.cjs": "e05516a19af25bf27f78ecef712434c9d2e0e17f11107db3b42cdde84a207131",
+  "grading/detect.cjs": "b95a22cd0a34b5b2fbd534e27ef9c3d9d3824ef547b92158c9297d5c587e1f4b",
+  "grading/pdfTextLayer.cjs": "02f32f60165b740cac059ced383df317434b1b34547da6dd88def28b1eff59c8",
+  "routes/checkSolution.cjs": "9d818bb390d054cb709a80693df97b2dec8d146e9e44850f27fc73fc9c5db66d",
+  "routes/objectiveScoring.cjs": "b184e474a7b13f2438496a30ddf85580ea148a77152211fd1bffb6dba24249c5",
+  "services/geminiClient.cjs": "ed072dce3ea53a69051f542e400853338e067d8cb090e5aefa24fbbbe255015c",
+  "services/serverConfig.cjs": "9b9dfce312d3dfbaa207d25d2f0a85d7d005c509420e6476e28ba28a7c4e5745",
+  "services/httpUtils.cjs": "ca02bfeaedf71b47ea7f08cad526bd39db61a2920e5353d7bfaecab7116c6e54",
+  "mentorImageSupport.cjs": "105f1192a95789ba650b55067131b4e45d39aeaada640ad385552545b10b764b",
+  "services/serverUtils.cjs": "802142b6aadf83c23c2cb3324160b8ee0ce7675c6e2725279318e928de43e068"
+ },
+ "timeoutMs": 80000,
+ "concurrency": 32,
+ "runsPlanned": 1,
+ "ledger": "a15-pr3-grader-speed.jsonl",
+ "stubs": "no fair-use/idempotency/entitlement middleware (handler called directly); solution cache returns null (production with no DATABASE_URL)",
+ "completedAt": "2026-10-05T19:25:17.120Z",
+ "httpStats": {
+  "http": 0,
+  "ok": 0,
+  "status429": 0,
+  "timeouts": 0,
+  "errors": 0,
+  "httpInFlight": 0,
+  "peakHttpInFlight": 0
+ },
+ "parallel": [
+  {
+   "startedAt": "2026-10-05T19:20:05.734Z",
+   "wallMs": 10228,
+   "jobs": 1,
+   "ramp": [
+    8,
+    16,
+    32
+   ],
+   "rampEvery": 8,
+   "peakJobsInFlight": 1,
+   "peakHttpInFlight": 1,
+   "status429": 0,
+   "levels": [
+    {
+     "atMs": 0,
+     "inFlightCap": 8,
+     "why": "start"
+    }
+   ],
+   "timeoutMs": 80000
+  },
+  {
+   "startedAt": "2026-10-05T19:20:16.830Z",
+   "wallMs": 140239,
+   "jobs": 267,
+   "ramp": [
+    8,
+    16,
+    32
+   ],
+   "rampEvery": 8,
+   "peakJobsInFlight": 32,
+   "peakHttpInFlight": 70,
+   "status429": 0,
+   "levels": [
+    {
+     "atMs": 0,
+     "inFlightCap": 8,
+     "why": "start"
+    },
+    {
+     "atMs": 2565,
+     "inFlightCap": 16,
+     "why": "no 429 -> step up"
+    },
+    {
+     "atMs": 4294,
+     "inFlightCap": 32,
+     "why": "no 429 -> step up"
+    }
+   ],
+   "timeoutMs": 80000
+  },
+  {
+   "startedAt": "2026-10-05T19:22:37.775Z",
+   "wallMs": 156410,
+   "jobs": 166,
+   "ramp": [
+    8,
+    16,
+    32
+   ],
+   "rampEvery": 8,
+   "peakJobsInFlight": 32,
+   "peakHttpInFlight": 89,
+   "status429": 0,
+   "levels": [
+    {
+     "atMs": 0,
+     "inFlightCap": 8,
+     "why": "start"
+    },
+    {
+     "atMs": 24699,
+     "inFlightCap": 16,
+     "why": "no 429 -> step up"
+    },
+    {
+     "atMs": 34229,
+     "inFlightCap": 32,
+     "why": "no 429 -> step up"
+    }
+   ],
+   "timeoutMs": 80000
+  },
+  {
+   "startedAt": "2026-10-05T19:25:16.245Z",
+   "wallMs": 6,
+   "jobs": 0,
+   "ramp": [
+    8,
+    16,
+    32
+   ],
+   "rampEvery": 8,
+   "peakJobsInFlight": 1,
+   "peakHttpInFlight": null,
+   "status429": 0,
+   "levels": [
+    {
+     "atMs": 0,
+     "inFlightCap": 8,
+     "why": "start"
+    }
+   ],
+   "timeoutMs": 80000
+  },
+  {
+   "startedAt": "2026-10-05T19:25:17.116Z",
+   "wallMs": 4,
+   "jobs": 0,
+   "ramp": [
+    8,
+    16,
+    32
+   ],
+   "rampEvery": 8,
+   "peakJobsInFlight": 1,
+   "peakHttpInFlight": null,
+   "status429": 0,
+   "levels": [
+    {
+     "atMs": 0,
+     "inFlightCap": 8,
+     "why": "start"
+    }
+   ],
+   "timeoutMs": 80000
+  }
+ ]
+}
