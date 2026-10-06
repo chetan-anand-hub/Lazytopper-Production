@@ -1,3 +1,34 @@
+## 2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B) — **ME-ENGINE-1: ME / PROGRESS, THE TUTOR BRIEF AND THE MI WIDGET READ ONE SYNCED MODEL BEHIND ONE HONESTY GATE; MISTAKES RESOLVE, NOT DELETE; WON BACK = A LATER CORRECT ATTEMPT ONLY; WEAK AREA PRACTICE WITHOUT MASTERY OR UNEARNED PRAISE** — `#964` + `#968` + `#970` + `#983` MERGED — trunk `984bd663` — LIVE; PR-3 SKIPPED (owner)
+
+★ **PROVENANCE.** Controller B, wave B-18 (same session as B-17; owner-assigned). Spec ME-ENGINE-1 v1.0 `82C7034D6DF2` (owner-authored). Four builders (claude-opus-5-5; PR-1 high, the rest medium), an independent read-only verifier sub-agent on `#970` and `#983` (owner Round 4), OR-LIVE / smoke agents after each merge. Written by a separate docs builder in `C:/Projects/LT-worktrees/b18-me-docs` from `WAVE_STATE_B18.md`, `OWNER_RULINGS_B18_ME.md`, the builder / verifier / live reports and `COORD/BOARD.md`; every merge SHA and time re-checked with `gh pr view`.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| ME PR-2c | `#983` `984bd663` | a Tutor doubt counts only after a successful reply (live: a 500 wrote nothing); Weak Area Practice never praises — honest "Not Enough Graded Yet" below the subject's own gate, neutral copy above it | "the praise gate is right" (the first version praised on the Science tab with zero Science answers — caught by the independent verifier) |
+| ME PR-2b | `#970` `d1a8e88f` | second device always pulls the synced wrong-answer log; ONE weakness-naming gate imported by Me, the Tutor brief and the MI widget; Weak Area Practice: mastery displays removed, accuracy / attempts from the model, difficulty from marks lost (owner); MI widget on the model + MIC H3 amended under the four conditions (146 → 148); IST-midnight test fixed | "the IST-midnight failure is a code bug" (fixture only); "the widget can switch without naming below the gate" |
+| ME PR-2 | `#968` `bab5ad0d` | Tutor brief on `progressReadModel` (0 device-only reads); doubts timestamped + synced (`doubtsAt`); wrong-answer log synced; activity per window; G3 pin Me == brief == model | "a new synced field needs a new DPDP map location"; "Me renders activity counts" |
+| ME PR-1 | `#964` `dfb83379` | shared read model; resolve-not-delete (`resolvedAt` / `resolvedBy`); won back = later-correct only; IST today; graded-only tests; G14 pagination; free-check replay graded-only; Me / Progress wired | "won back counts any resolution" (the code counted re-grades — fixed per owner); "the widget can switch freely" (MIC H3 pins its old source) |
+
+**Timeline (UTC, 6 Oct).**
+- 15:36:15Z `#964` merged (after the owner's Round 1 won-back rule was confirmed, pinned and quoted in its description). OR-LIVE-1 PARTIAL, no regression: won back has no live re-attempt path; Me has no "today".
+- 17:36:31Z `#968` merged. OR-LIVE-2 PARTIAL: found the hydrate race and the brief naming concepts below Me's gate → PR-2b.
+- Owner Round 2 (Weak Area kept, mastery retired, gate amendment approved, widget basis, brief imports), Round 3 (speed), Round 4 (autonomy, 5 h; verifier before every merge), Round 5 (plan; skip PR-3).
+- 21:17:26Z `#970` merged after verifier PASS-WITH-NOTES and an update-branch with all 17 files byte-identical. Post-merge PARTIAL: smoke PASS; L1 unmeasured.
+- 21:24Z–21:37Z **`[PROD-AI-500]`**: grading ×4 and Tutor 500s in production; A-17 found no server change since 19:52Z; suspected Gemini billing; no revert; OWNER-ASKs posted. J2a `#979` (verified) HELD.
+- `#983` verifier round 1 **FAIL** (Science-tab praise), round 2 PASS-WITH-NOTES. 23:02:29Z `#983` merged. Smoke PASS; 23:09:45Z the Tutor still 500s.
+- 23:13Z the handoff lock passed to B-18; this docs PR.
+
+**Lessons.**
+- **(a) An independent verifier pays for itself** — `#983`'s first head praised on a tab whose subject had zero answers; the builder's tests checked the gate on the both-papers model only.
+- **(b) A live check that cannot create its precondition proves nothing** — the second-device pull could not be measured during the AI outage; it is recorded OWED, never PASS.
+- **(c) A cross-lane fast failure on two unrelated routes points upstream before code** — `/api/grade-worksheet` and `/api/tutor` share no code and both failed in 0.8–6.2 s.
+- **(d) `git stash` is shared by every worktree of a repo** — never use it in a lane.
+- **(e) A state-file edit keyed on a heading must assert the heading exists** — B-17 D23.
+
+**Owner-owed:** `[PROD-AI-500]` (Railway logs, Gemini billing, eval credit); optional re-tune of the Weak Area difficulty bands (D26) and of the J2 decisions (D30); ME-REPORT-1 and a won-back re-attempt path when scheduled. **Next:** J2a merge when a production grade succeeds, then J2b, then A-17's J3; the owed L1 live check.
+
 ## 2026-10-07 — WAVE CI1 (CI, CONTROLLER C) — **FU-CI1-NIGHTLY-RESTORE: THE FULL SUITE UNDER BOTH CLOCKS RUNS NIGHTLY AGAIN (02:00 IST); THREE GATES TREAT EVERY NON-PR EVENT AS N/A, NOT A PASS; `merge_group` TRIGGERS READY; THE NIGHTLY MUST RUN EVERY TEST FILE ON DISK** — `#981` MERGED — trunk `63e94564` — CI ONLY
 
 ★ **PROVENANCE.** Controller C (also CI-1, coordinator), wave CI1. Owner mandate 2026-10-07 (`[FU-CI1-NIGHTLY-RESTORE]`). One builder (`ci/fu-ci1-nightly-restore`, worktree `ci1-nightly`), two rounds; an independent verifier sub-agent PASS before merge. Written by a separate docs builder in `C:/Projects/LT-worktrees/ci1-docs2` from `WAVE_STATE_CI1.md`, `COORDINATOR_LOG.md`, `ci1/report-fu-ci1-nightly-restore-2026-10-07.md`, `CI1_MERGE_QUEUE_STEPS.md` and `#981`; every SHA and run id re-checked with `gh` / `git`.
