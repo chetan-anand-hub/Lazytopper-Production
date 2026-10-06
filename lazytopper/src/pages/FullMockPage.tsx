@@ -63,6 +63,7 @@ import {
   type DrawnFullMock,
   type FMSubject,
 } from "../components/fullmock/fullMockBlueprint";
+import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import {
   saveFullMockSession,
   loadFullMockSession,
@@ -969,6 +970,17 @@ export default function FullMockPage() {
                       {draw.pyqCount === 1 ? "" : "s"} · <b>{draw.freshCount}</b> fresh from the
                       LazyTopper bank.
                     </div>
+
+                    {/* CBQ-1 PR-2: the paper's REAL CBQ share (CBSE ≥ 40 of 80); an honest note when short. */}
+                    <CbqShareNote
+                      cbqMarks={draw.cbqMarks}
+                      totalMarks={draw.totalMarks}
+                      cbqShortfall={draw.cbqShortfall}
+                      plainMcqMarks={draw.plainMcqMarks}
+                      constructedMarks={draw.constructedMarks}
+                      scope="subject"
+                      scopeName={subject}
+                    />
 
                     {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
                     <div className="lt-ct__startrow">

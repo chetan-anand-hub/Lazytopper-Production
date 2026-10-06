@@ -59,6 +59,8 @@ import { allocateByPercent } from "../../utils/mockBlueprint";
 import { drawBalancedSet, mulberry32 } from "../../utils/balancedMockDraw";
 import { questionKey } from "../../utils/questionKey";
 import { isPYQQuestion } from "../../utils/isPYQQuestion";
+import { cbqFlagOf } from "../../lib/cbq/cbqClassification";
+import { balanceCbqShare } from "../../lib/cbq/cbqPaperBalance";
 import type {
   PersistedWorksheet,
   PersistedWorksheetQuestion,
@@ -138,6 +140,15 @@ export interface DrawnFullMock {
   pyqCount: number;
   freshCount: number;
   enoughQuestions: boolean;
+  /** CBQ-1 PR-2 — the paper's REAL CBQ share (CBSE: >= 40 of 80 marks). `cbqShortfall` > 0
+   *  only when the subject's pool has no more CBQs to place (shown honestly on the page). */
+  cbqMarks: number;
+  cbqTarget: number;
+  cbqShortfall: number;
+  /** Section A marks that are not CBQs (CBSE: ~20%). */
+  plainMcqMarks: number;
+  /** Section B-E marks that are not CBQs (CBSE: ~30%). */
+  constructedMarks: number;
 }
 
 // ── The union pool ───────────────────────────────────────────────────────────
@@ -146,7 +157,11 @@ export interface DrawnFullMock {
  *  Every field is copied from the source question (honest renames only, e.g. the
  *  shared-string `kind`→format distinction never matters here); nothing is
  *  fabricated. `pyqYear`/`isPYQ` pass through so `isPYQQuestion` classifies. */
-export interface FMPoolQuestion {
+/** The CBQ flag a pool item carries — copied from its source row by the one classifier
+ *  (`cbqFlagOf`, CBQ-1), never derived here. */
+type FMCbqFlag = ReturnType<typeof cbqFlagOf>;
+
+export interface FMPoolQuestion extends FMCbqFlag {
   id: string;
   topicSlug: string;
   subtopic?: string;
@@ -176,6 +191,7 @@ function fromCanonical(q: CanonicalQuestion): FMPoolQuestion {
     finalAnswer: q.finalAnswer,
     // BANK-FIX-1 ruling 2: an overridden row is never PYQ (isPYQQuestion, keeper).
     pyqYear: q.sourceOverride === "others" ? undefined : q.pyqYear,
+    ...cbqFlagOf(q),
     source: "canonical",
   };
 }
@@ -193,6 +209,7 @@ function fromPredicted(q: PredictedQuestion | SciencePredictedQuestion): FMPoolQ
     finalAnswer: q.finalAnswer,
     // No pyqYear on the predicted shape: predicted questions are the FRESH class
     // under the shipped isPYQQuestion matcher (authored, not past-year-tagged).
+    ...cbqFlagOf(q),
     source: "predicted",
   };
 }
@@ -550,6 +567,42 @@ export function drawFullMock(args: {
     bySection.set(spec.section, chosen);
   });
 
+  // CBQ-1 PR-2 — CBSE's 50 / 20 / 30 marks typology. A swap group is ONE section x ONE CBSE
+  // unit: every row in it carries the section's exact marks, so a swap keeps each unit's
+  // marks, each section's count, the Section A key bar and the no-repeat rule. A swap
+  // prefers the same chapter and the same PYQ class. A short subject keeps its real rows
+  // and reports the shortfall.
+  const unitOf = (q: FMPoolQuestion) => chapterUnit(q.topicSlug)?.unit ?? "?";
+  const groupPools = new Map<string, FMPoolQuestion[]>();
+  FM_BLUEPRINT.forEach((spec, i) => {
+    for (const q of sectionPools[i]) {
+      const g = `${spec.section}:${unitOf(q)}`;
+      const list = groupPools.get(g);
+      if (list) list.push(q);
+      else groupPools.set(g, [q]);
+    }
+  });
+  const balanced = balanceCbqShare({
+    slots: FM_BLUEPRINT.flatMap((spec) =>
+      (bySection.get(spec.section) ?? []).map((q) => ({
+        group: `${spec.section}:${unitOf(q)}`,
+        objective: spec.section === "A",
+        item: q,
+      })),
+    ),
+    groupPools,
+    keyOf: questionKey,
+    isPyq: isPYQQuestion,
+    affinityOf: (q) => q.topicSlug,
+    seed: seed ^ hashCell("FM:cbq"),
+  });
+  for (const spec of FM_BLUEPRINT) {
+    bySection.set(
+      spec.section,
+      balanced.slots.filter((s) => s.group.startsWith(`${spec.section}:`)).map((s) => s.item),
+    );
+  }
+
   // Assemble in board order A→E, numbered 1..N.
   const questions: PersistedWorksheetQuestion[] = [];
   let qNumber = 1;
@@ -627,6 +680,11 @@ export function drawFullMock(args: {
     pyqCount,
     freshCount: questions.length - pyqCount,
     enoughQuestions: questions.length >= MIN_MOCK_QUESTIONS,
+    cbqMarks: balanced.share.cbqMarks,
+    cbqTarget: balanced.share.cbqTarget,
+    cbqShortfall: balanced.share.cbqShortfall,
+    plainMcqMarks: balanced.share.plainMcqMarks,
+    constructedMarks: balanced.share.constructedMarks,
   };
 }
 

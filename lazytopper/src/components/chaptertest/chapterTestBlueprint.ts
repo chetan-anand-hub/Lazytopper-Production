@@ -23,6 +23,8 @@ import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { isAutoGradeableObjective, isMcqShaped } from "../practice/autoGradeableObjective";
 import { drawBalancedSet, type BalancedDrawResult } from "../../utils/balancedMockDraw";
 import { questionKey } from "../../utils/questionKey";
+import { isPYQQuestion } from "../../utils/isPYQQuestion";
+import { balanceCbqShare, type CbqShare } from "../../lib/cbq/cbqPaperBalance";
 import type {
   PersistedWorksheet,
   PersistedWorksheetQuestion,
@@ -147,6 +149,15 @@ export interface DrawnChapterTest {
   totalMarks: number;
   /** Honest gate — false → the setup shows an empty state, not a thin/faked test. */
   enoughQuestions: boolean;
+  /** CBQ-1 PR-2 — the paper's REAL CBQ share (CBSE: >= 50% of marks). `cbqShortfall` > 0
+   *  only when this chapter's pool has no more CBQs to place (shown honestly on the page). */
+  cbqMarks: number;
+  cbqTarget: number;
+  cbqShortfall: number;
+  /** Section A marks that are not CBQs (CBSE: ~20%). */
+  plainMcqMarks: number;
+  /** Section B-D marks that are not CBQs (CBSE: ~30%). */
+  constructedMarks: number;
 }
 
 /**
@@ -206,12 +217,24 @@ export function drawChapterTest(args: {
     }
   }
 
+  // CBQ-1 PR-2 — CBSE's 50 / 20 / 30 marks typology. Swaps stay INSIDE a section and use
+  // only that section's real eligible pool, so every rule above (bands, Section A key bar,
+  // counts, no repeat) still holds; a short chapter keeps its real rows and reports it.
+  const balanced = balanceCbqShare({
+    slots: chosen.map((c) => ({ group: c.section, objective: c.section === "A", item: c.q })),
+    groupPools: new Map(Object.entries(pools)),
+    keyOf: questionKey,
+    isPyq: isPYQQuestion,
+    seed: seed ^ hashCell("CT:cbq"),
+  });
+  const final = balanced.slots.map((s) => ({ q: s.item, section: s.group as BoardSection }));
+
   // Board order A→B→C→D, numbered 1..N.
   const order: BoardSection[] = ["A", "B", "C", "D"];
   const questions: PersistedWorksheetQuestion[] = [];
   let qNumber = 1;
   for (const sec of order) {
-    for (const { q } of chosen.filter((c) => c.section === sec)) {
+    for (const { q } of final.filter((c) => c.section === sec)) {
       questions.push({
         qNumber: qNumber++,
         id: q.id,
@@ -261,6 +284,18 @@ export function drawChapterTest(args: {
     subjectiveCount,
     totalMarks,
     enoughQuestions: questions.length >= MIN_TEST_QUESTIONS,
+    ...cbqFields(balanced.share),
+  };
+}
+
+/** The CBQ share fields of a drawn paper. */
+function cbqFields(share: CbqShare) {
+  return {
+    cbqMarks: share.cbqMarks,
+    cbqTarget: share.cbqTarget,
+    cbqShortfall: share.cbqShortfall,
+    plainMcqMarks: share.plainMcqMarks,
+    constructedMarks: share.constructedMarks,
   };
 }
 
