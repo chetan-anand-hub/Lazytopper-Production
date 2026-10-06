@@ -19,12 +19,11 @@ name: Quality Gate
 #   quality-gate  the AGGREGATE. Its name is the REQUIRED status check in the trunk ruleset; it
 #                 fails unless every job above passed (or, on the docs path, was skipped BY DESIGN),
 #                 and unless the vitest shards together ran every test file on disk.
-#   nightly-full-clock  manual dispatch only while the schedule is OFF (FU-CI1-NIGHTLY-RESTORE):
-#                 the FULL vitest suite + ops matrix under both clocks.
+#   nightly-full-clock  nightly (02:00 IST) + manual dispatch: the FULL vitest suite + ops matrix
+#                 under both clocks (schedule restored by FU-CI1-NIGHTLY-RESTORE).
 # NOTHING WAS REMOVED FROM THE FULL BAR. Every test the old single job ran still runs on every
 # full-bar run; only the two clock re-runs of vitest are narrowed to the manifest (the full set
-# runs in nightly-full-clock: on manual dispatch until FU-CI1-NIGHTLY-RESTORE re-adds the
-# schedule), and lazytopper/scripts/testClock/clockRecorder.setup.mjs fails the normal run if
+# runs in nightly-full-clock, every night and on manual dispatch), and lazytopper/scripts/testClock/clockRecorder.setup.mjs fails the normal run if
 # a test that reads the clock is missing from that manifest.
 #
 # ★★ THE FULL BAR IS STILL THIS PROJECT'S ONLY PRE-MERGE INTEGRATION CHECK, so the classifier is
@@ -47,19 +46,28 @@ on:
     branches: [base/approved-thru-437]
   push:
     branches: [base/approved-thru-437]
-  # The FULL CLOCK RUN (job nightly-full-clock); a failure opens an issue.
-  # ★ The nightly schedule is OFF until FU-CI1-NIGHTLY-RESTORE (owner ruling 2026-10-07,
-  # "Ship #969, nightly off for now"). The follow-up re-adds `schedule:` together with a one-line
-  # N/A extension for non-PR events in check_improve_convergence_acceptance.mjs, after #970
-  # merges. Until then a manual dispatch run is EXPECTED to fail that gate's one
-  # "FORBIDDEN: the PR base ref is reachable in CI" check (it treats only `push` as no-PR).
+  # The FULL CLOCK RUN (job nightly-full-clock); a scheduled failure opens an issue.
+  # ★ FU-CI1-NIGHTLY-RESTORE (owner mandate 2026-10-07): the schedule is back, together with the
+  # C&I convergence gate's N/A rule for EVERY non-PR event (push, schedule, workflow_dispatch,
+  # merge_group) — before it, a dispatch run went RED on "FORBIDDEN: the PR base ref is reachable
+  # in CI" (run 37514040888). Pinned by ci_speed_acceptance.mjs (w1) and the gate's FORBIDDEN-PIN.
+  schedule:
+    - cron: '30 20 * * *'   # 20:30 UTC = 02:00 IST
   workflow_dispatch:
+  # ★ READY FOR A FUTURE MERGE QUEUE (controller decision D3). Inert until the trunk ruleset turns
+  # a queue on. A merge_group run has no PR base ref, so the classifier fails closed to the FULL
+  # bar ("event=merge_group is not a pull_request") and the convergence gate reports N/A. Its ref
+  # (gh-readonly-queue/...) and the event name in the concurrency group keep it from cancelling,
+  # or being cancelled by, a PR run.
+  merge_group:
+    types: [checks_requested]
+    branches: [base/approved-thru-437]
 
 permissions:
   contents: read
 
 # A newer push to the same PR/branch supersedes an in-flight run. The EVENT is part of the
-# group so a nightly/dispatched run and a trunk push run (same ref) never cancel each other.
+# group so a nightly/dispatched run, a merge_group run and a PR/trunk push run never cancel each other.
 concurrency:
   group: quality-gate-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -298,8 +306,8 @@ jobs:
   # self-check runs FIRST and exits 1 if the switch is set but not in effect. Read the effective
   # now from the log: "[test-clock] SELF-CHECK OK ... effective now=2030-...".
   # ★ CI-SPEED-1: vitest here runs ONLY the date-sensitive manifest (date-sensitive-tests.json);
-  # the whole ops matrix still runs. The nightly-full-clock job (manual dispatch while the schedule
-  # is OFF, FU-CI1-NIGHTLY-RESTORE) runs the FULL vitest suite.
+  # the whole ops matrix still runs. The nightly-full-clock job (nightly + manual dispatch) runs
+  # the FULL vitest suite.
   clock:
     needs: classify
     if: needs.classify.outputs.docs_only != 'true'
@@ -396,9 +404,9 @@ jobs:
         run: node lazytopper/scripts/ops/ci_aggregate.mjs --aggregate
 
   # The FULL vitest suite and the FULL ops matrix under BOTH clocks — what every PR ran before
-  # CI-SPEED-1 narrowed the clock jobs to the manifest. On demand (Actions -> Quality Gate -> Run
-  # workflow). The nightly `schedule:` trigger is OFF until FU-CI1-NIGHTLY-RESTORE; this job and
-  # its issue-on-scheduled-failure step are kept unchanged and are dormant for schedule until then.
+  # CI-SPEED-1 narrowed the clock jobs to the manifest. Every night at 02:00 IST (`schedule:`,
+  # restored by FU-CI1-NIGHTLY-RESTORE) and on demand (Actions -> Quality Gate -> Run workflow).
+  # Only a SCHEDULED failure opens an issue; a dispatch run reports in its own run page.
   nightly-full-clock:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
@@ -441,8 +449,29 @@ jobs:
           set -euo pipefail
           PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
           NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
-          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
+          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-nightly.json"
           NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+      # ★ D7 (FU-CI1-NIGHTLY-RESTORE): the unsharded run must collect EVERY test file on disk — the
+      # same files-on-disk rule the PR's quality-gate aggregate applies to the 4 shards, counted by
+      # ci_aggregate.mjs's own functions (one counter, never a second copy). It also refuses a run
+      # that failed or skipped a test. Read NIGHTLY_VITEST_TOTAL / NIGHTLY_VITEST_COVERAGE here.
+      - name: Every test file on disk ran (files = files on disk)
+        if: ${{ !cancelled() }}
+        env:
+          VITEST_JSON: ${{ runner.temp }}/vitest-nightly.json
+        run: |
+          node --input-type=module -e '
+          import fs from "node:fs";
+          import { countTestFilesOnDisk, summariseVitestJson } from "./lazytopper/scripts/ops/ci_aggregate.mjs";
+          let json = {};
+          try { json = JSON.parse(fs.readFileSync(process.env.VITEST_JSON, "utf8")); } catch (e) { console.error(`no vitest JSON: ${e.message}`); }
+          const s = summariseVitestJson(json, "1/1");
+          const onDisk = countTestFilesOnDisk();
+          console.log(`NIGHTLY_VITEST_TOTAL: files=${s.files} (on disk ${onDisk}) tests=${s.tests} passed=${s.passed} failed=${s.failed} skipped=${s.skipped} todo=${s.todo}`);
+          const ok = s.files > 0 && s.files === onDisk && s.failed === 0 && s.skipped === 0;
+          console.log(`NIGHTLY_VITEST_COVERAGE: ${ok ? "PASS" : "FAIL"}`);
+          if (!ok) process.exit(1);
+          '
       - name: Open an issue (scheduled run failed)
         if: failure() && github.event_name == 'schedule'
         env:
