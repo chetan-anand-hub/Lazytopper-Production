@@ -629,9 +629,10 @@ function briefBlock(brief) {
   const topic = (b.topic && typeof b.topic === 'object') ? b.topic : {};
   const mistakes = (b.mistakes && typeof b.mistakes === 'object') ? b.mistakes : {};
   const facts = [];
-  if (typeof topic.masteryPercent === 'number') {
-    facts.push(`- Mastery on this topic: about ${Math.round(topic.masteryPercent)}%${topic.masteryState ? ` (${topic.masteryState})` : ''}.`);
-  }
+  // A17 owner ruling 6 (GRADING-JOBS-1): no mastery figure is ever written here. The client no
+  // longer sends one (src/pages/tutor/tutorContextBrief.ts), and an older client's value is
+  // ignored: it was not a real mastery measure ("0%" for a topic with no graded work). A real
+  // one returns with ME-ENGINE-1.
   if (topic.trend) {
     facts.push(`- Recent direction on this topic: ${topic.trend}.`);
   }

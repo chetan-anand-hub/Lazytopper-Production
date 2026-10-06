@@ -242,6 +242,20 @@ function buildPlan(opts = {}) {
     }
   }
 
+  // ── A17 owner rulings (GRADING-JOBS-1 J0; truth/rulings-a17.json): CI-SINGLE and PARITY shapes ─
+  for (const a of G.a17 || []) {
+    const r = a.resolved;
+    if (a.entries.includes('single')) {
+      push({ jobKey: 'S.A17.' + a.caseId, entry: 'single', handler: 'handleCheckSolution', surface: 'A17-SINGLE', caseIds: [a.caseId], qNumbers: { [a.caseId]: 1 },
+        request: { question: r.questionText, subject: r.subject, topic: r.topic, marks: r.marks, textAnswer: r.answer.text } });
+    }
+    if (a.entries.includes('set')) {
+      push({ jobKey: 'W.A17.' + a.caseId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'A17-SET', caseIds: [a.caseId], qNumbers: { [a.caseId]: 1 },
+        request: { worksheetId: 'golden-a17-' + a.caseId, subject: r.subject,
+          questions: [{ qNumber: 1, marks: r.marks, questionText: r.questionText, topic: r.topic, topicLabel: r.topic, textAnswer: r.answer.text }] } });
+    }
+  }
+
   // ── P0 (GRADER-CORE-1 PR-2): one answer page for a four-question Chapter-Test-shaped set ─
   for (const s of P0_SETS) {
     const qNumbers = {};

@@ -10,7 +10,7 @@
   "comments_det": 100,
   "comments_judge": 100,
   "comments": 100,
-  "consistency": 90.5,
+  "consistency": 92.8,
   "run_to_run": 95,
   "single_vs_set": 98.1,
   "injection": 100,
@@ -48,5 +48,19 @@
    "measured": 99
   }
  },
- "generatedAt": "2026-10-05T14:17:16.105Z"
+ "generatedAt": "2026-10-05T14:17:16.105Z",
+ "extraRuns": [
+  {
+   "label": "a17",
+   "runId": "2026-10-06.A17-J0-rulings",
+   "keys": [
+    "a17_rulings"
+   ],
+   "metrics": {
+    "a17_rulings": 100
+   },
+   "about": "A17 owner rulings 1-5 (GRADING-JOBS-1 J0): every A17 golden case passes every stated expectation (marks, type, unit / medium comment, not-attempted state, charged, metered share). Floor = the measured value."
+  }
+ ],
+ "consistencyRaisedBy": "A17 J0-FIXUP (audit FU-A17-REBASELINE-CLASS-UNCHECKED): consistency 90.5 -> 92.8, the value measured at HEAD (the C05 not-attempted exemption, A17 ruling 2). Floors only rise."
 }

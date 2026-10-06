@@ -23,6 +23,8 @@ const WRONG_OPTION = /wrong option|incorrect option|chose the wrong|wrong choice
 const NO_WORK = /no (work|working|answer)|not (shown|attempted)|\bblank\b|nothing (was )?written|has not provided/i;
 const LEAK = /marking scheme (had|has|contained|contains) an error|stored (marking )?scheme|question text (was|is|appears) garbled|derived rubric/i;
 const UNATTEMPTED_RE = /not attempted|no attempt|don'?t know|dont know|not answered|left blank|no work shown|did not attempt|not provided any work/i;
+// A17 owner ruling 2 (GRADING-JOBS-1 J0): the server's not-attempted note (grading/rules.cjs).
+const { NOT_ATTEMPTED_NOTE } = require(path.join(SERVER_DIR, 'grading', 'rules.cjs'));
 
 const FRAC = { '½': 0.5, '¼': 0.25, '¾': 0.75 };
 function num(tok) {
@@ -145,7 +147,10 @@ function consistencyFailures(result, opts = {}) {
   } else {
     if (Math.abs(stepSum - awarded) >= 0.01) out.push({ id: 'C03-score-equals-step-sum', detail: 'steps ' + stepSum + ' vs ' + awarded });
     if (Math.abs(deductSum - lost) >= 0.01) out.push({ id: 'C04-lost-equals-deductions', detail: 'deductions ' + deductSum + ' vs lost ' + lost });
-    if (lost > 0 && round2(typedLost) + 0.01 < lost) out.push({ id: 'C05-every-lost-mark-has-a-type', detail: 'lost ' + lost + ', typed ' + round2(typedLost) });
+    // A17 owner ruling 2: a question NOT ATTEMPTED at all is never a mistake — its marks are lost
+    // with no type by design (the server's one not-attempted note marks that state).
+    const notAttempted = result.teacherNote === NOT_ATTEMPTED_NOTE;
+    if (lost > 0 && !notAttempted && round2(typedLost) + 0.01 < lost) out.push({ id: 'C05-every-lost-mark-has-a-type', detail: 'lost ' + lost + ', typed ' + round2(typedLost) });
   }
   const summary = result.mistakeSummary || {};
   const shownNotCarried = TYPES.filter((t) => (Number(summary[t]) || 0) > 0 && stepTypeCounts[t] === 0);

@@ -24,6 +24,16 @@ const SERVER_DIR = path.join(__dirname, '..', '..', '..');
 const { createCheckSolutionRoute } = require(path.join(SERVER_DIR, 'routes', 'checkSolution.cjs'));
 const { createHttpUtils, extractJsonObjectFromText } = require(path.join(SERVER_DIR, 'services', 'httpUtils.cjs'));
 const { buildGeminiImagePart, validateMentorImagePayload } = require(path.join(SERVER_DIR, 'mentorImageSupport.cjs'));
+const { chargeableCountOf } = require(path.join(SERVER_DIR, 'grading', 'charge.cjs'));
+const ledgerLib = require(path.join(SERVER_DIR, 'services', 'usageLedger.cjs'));
+
+// A17 owner rulings 2 and 5 (GRADING-JOBS-1 J0): what a job CHARGES (the count fair use commits —
+// grading/charge.cjs, the handler's side channel on `res`) and what the PREMIUM METER records. The
+// meter runs exactly as in production (services/usageLedger.cjs meter groups) against an in-memory
+// store: every successful model call records one fixed unit of usage, so `meteredShare` = the cost
+// written / the cost of the calls made (1 = everything metered, 0 = nothing). Zero network.
+const METER_UID = 'golden-eval';
+const METER_UNIT = { model: 'gemini-2.5-flash', promptTokenCount: 1000, candidatesTokenCount: 200, thoughtsTokenCount: 800 };
 
 function fakeRes() {
   let resolve;
@@ -50,10 +60,16 @@ function fakeRes() {
 function createDriver(opts) {
   const { sendJson } = createHttpUtils('*');
   const cacheHook = { calls: 0 };
+  const meter = { writes: [], okCalls: 0 };
+  const ledger = ledgerLib.createUsageLedger({
+    resolveFirestore: () => ({ db: { collection: () => ({ doc: () => ({ collection: () => ({ doc: () => ({ set: (d) => { meter.writes.push(d); return Promise.resolve(); } }) }) }) }) }, FieldValue: { increment: (n) => n } }),
+    telemetry: { increment() {} }, env: {},
+  });
+  const meteredCallGemini = async (...a) => { const out = await opts.callGemini(...a); meter.okCalls += 1; ledger.recordUsage(METER_UNIT); return out; };
   const deps = {
     sendJson,
     readJson: async (req) => req.__payload,
-    callGemini: opts.callGemini,
+    callGemini: meteredCallGemini,
     GEMINI_MODEL: opts.model || 'gemini-2.5-flash',
     ACTIVE_PROVIDER: opts.provider || 'gemini',
     isStubMode: () => false,
@@ -76,8 +92,12 @@ function createDriver(opts) {
     const before = cacheHook.calls;
     const t0 = Date.now();
     let harnessError = null;
+    meter.writes = []; meter.okCalls = 0;
     try {
-      await handler({ __payload: JSON.parse(JSON.stringify(job.request)) }, res);
+      await ledgerLib.runWithRequestContext(async () => {
+        ledgerLib.bindRequestUid(METER_UID, job.handler === 'handleGradeWorksheet' ? '/api/grade-worksheet' : '/api/check-solution');
+        await handler({ __payload: JSON.parse(JSON.stringify(job.request)) }, res);
+      });
     } catch (e) {
       harnessError = (e && e.message) || String(e);
       res.statusCode = -1;
@@ -86,7 +106,12 @@ function createDriver(opts) {
     await res.done;
     let body;
     try { body = JSON.parse(res.body); } catch { body = res.body; }
-    return { httpStatus: res.statusCode, body, wallMs: Date.now() - t0, harnessError, cacheHookCalls: cacheHook.calls - before };
+    await new Promise((r) => setImmediate(r));
+    const unitCost = ledgerLib.buildLedgerIncrement(METER_UNIT, { env: {} }).increment.costMicroInr;
+    const written = meter.writes.reduce((a, w) => a + (Number(w.costMicroInr) || 0), 0);
+    const charged = chargeableCountOf(res);
+    return { httpStatus: res.statusCode, body, wallMs: Date.now() - t0, harnessError, cacheHookCalls: cacheHook.calls - before,
+      charged: charged === undefined ? null : charged, meteredShare: meter.okCalls > 0 ? Math.round((1000 * written) / (unitCost * meter.okCalls)) / 1000 : null };
   }
 
   return { run, deps };

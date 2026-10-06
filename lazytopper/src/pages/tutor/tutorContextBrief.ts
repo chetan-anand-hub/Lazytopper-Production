@@ -72,15 +72,18 @@ export async function assembleTutorBrief({
   const canonical = resolveCanonicalSlug(topicKey) || topicKey;
   const waSubject = subject === "science" ? "Science" : subject === "maths" ? "Maths" : undefined;
 
-  // Weak areas (sync, device-local) — mastery + weak sub-topics for THIS topic.
+  // Weak areas (sync, device-local) — weak sub-topics for THIS topic.
+  // A17 owner ruling 6 (GRADING-JOBS-1): NO MASTERY FIGURE is sent. The weak-area mastery
+  // value is not a real mastery measure (a topic with no graded work reads "0%"), so the tutor
+  // was told an invented "0% mastery". `masteryPercent` / `masteryState` stay unset until a
+  // real mastery signal exists (ME-ENGINE-1), and nothing here counts towards `hasData` unless
+  // it is real (weak concepts named by graded work, a trend, a mistake type).
   try {
     const summary = getWeakAreas(waSubject ? { subject: waSubject } : undefined);
     const match = summary.weakAreas.find(
       (w) => (resolveCanonicalSlug(w.topicKey) || w.topicKey) === canonical,
     );
     if (match) {
-      if (typeof match.masteryPercent === "number") brief.topic.masteryPercent = match.masteryPercent;
-      if (match.masteryState) brief.topic.masteryState = String(match.masteryState);
       if (Array.isArray(match.weakConcepts) && match.weakConcepts.length) {
         brief.topic.weakConcepts = match.weakConcepts.slice(0, 3);
       }
@@ -113,8 +116,7 @@ export async function assembleTutorBrief({
   }
 
   brief.hasData = Boolean(
-    brief.topic.masteryPercent != null ||
-      brief.topic.trend ||
+    brief.topic.trend ||
       (brief.topic.weakConcepts && brief.topic.weakConcepts.length) ||
       brief.mistakes.topType,
   );

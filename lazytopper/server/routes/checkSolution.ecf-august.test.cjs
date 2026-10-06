@@ -1520,9 +1520,12 @@ test('§16.14 ★★ UNITS — a correct answer with no unit is PRESENTATION, ne
   //    is that the numbered rule now reaches path B too, from ONE shared string.
   assert.ok(b.includes('PRESENTATION vs MISSING'),
     'the structured path must NOW carry the numbered PRESENTATION-vs-MISSING rule');
-  // RULING 6: Maths deducts for a missing unit only where the question or its scheme pays it.
-  await bothPathsSay('Maths — ONLY where the question asks for the unit or the scheme pays it; where the question is silent, NO deduction',
-    'the Maths units ruling');
+  // A17 OWNER RULING 1 (GRADING-JOBS-1, 2026-10-06) SUPERSEDES ruling 6's Maths half ("only where the
+  // question asks"): a missing unit costs ½ in Maths AND Science, once per question, never on a pure number.
+  await bothPathsSay('in MATHS AND IN SCIENCE ALIKE, whether or not the question or its scheme mentions the unit',
+    'the A17 units ruling (both subjects)');
+  await bothPathsSay('NEVER for a PURE NUMBER', 'the pure-number exemption');
+  await bothPathsSay('\u2212\u00BD: write the unit (cm\u00B3) with your final answer.', 'the one fixed unit comment');
   assert.ok(b.includes('UNITS. A CORRECT answer written WITHOUT ITS UNIT'),
     'the shared constant still carries the units ruling to the structured path');
 });
@@ -1662,7 +1665,9 @@ test('§17.2 ★★★ THE LANE — a SCIENCE set on the STRUCTURED path is chec
   assert.ok(b.includes('balanced equations'), 'the structured prompt never asks for balanced equations');
   // RULING 5: state symbols are NOT required — the checklist says so instead of demanding them.
   assert.ok(b.includes('state symbols are not required'), 'the structured prompt must say state symbols are not required');
-  assert.ok(b.includes('NCERT-standard language'), 'the structured prompt never asks for NCERT terminology');
+  // A17 OWNER RULING 3: the check is the NCERT TERM, never the language (was "NCERT-standard language").
+  assert.ok(b.includes('NCERT terminology'), 'the structured prompt never asks for NCERT terminology');
+  assert.ok(!b.includes('NCERT-standard language'), 'A17 ruling 3: the language of an answer is never a check');
   assert.ok(b.includes('diagrams labelled'), 'the structured prompt never asks for labelled diagrams');
 });
 
@@ -1689,7 +1694,8 @@ test('§17.4 the subject checklist reaches BOTH paths, for BOTH subjects', async
   const aSci = await U_A_SCI();
   const bSci = await U_B_SCI();
   // RULING 5: 'state symbols (s/l/g/aq)' (a demand) → 'state symbols are not required'.
-  for (const needle of ['terminology, balanced equations', 'state symbols are not required', 'NCERT-standard language', 'diagrams labelled']) {
+  // A17 OWNER RULING 3: 'NCERT-standard language' → 'NCERT terminology' (the term, never the language).
+  for (const needle of ['terminology, balanced equations', 'state symbols are not required', 'NCERT terminology', 'diagrams labelled']) {
     assert.ok(aSci.includes(needle), 'SINGLE-QUESTION Science prompt lost: ' + needle);
     assert.ok(bSci.includes(needle), 'STRUCTURED Science prompt never states: ' + needle);
   }
@@ -1697,8 +1703,8 @@ test('§17.4 the subject checklist reaches BOTH paths, for BOTH subjects', async
   //   submission must NOT be told to check state symbols, on either path.
   const a = await U_A();
   const b = await U_B();
-  assert.ok(!a.includes('NCERT-standard language'), 'CONTROL: a MATHS single-question prompt must not carry the Science checks');
-  assert.ok(!b.includes('NCERT-standard language'), 'CONTROL: a MATHS structured prompt must not carry the Science checks');
+  assert.ok(!a.includes('NCERT terminology'), 'CONTROL: a MATHS single-question prompt must not carry the Science checks');
+  assert.ok(!b.includes('NCERT terminology'), 'CONTROL: a MATHS structured prompt must not carry the Science checks');
 });
 
 
