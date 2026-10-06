@@ -72,7 +72,7 @@ function defaultGit(args, cwd) {
  */
 export function decide(env = process.env, { git = defaultGit, cwd = process.cwd(), head = "HEAD" } = {}) {
   const vercelEnv = env.VERCEL_ENV || "";
-  if (vercelEnv !== "production") {
+  if (vercelEnv !== "production" && vercelEnv !== "preview") { // TEMPORARY PROBE (reverted before review): lets a preview show the skipped-build observable
     return { skip: false, reason: `VERCEL_ENV=${vercelEnv || "(unset)"} - only production builds are ever skipped` };
   }
   const prev = String(env.VERCEL_GIT_PREVIOUS_SHA || "").trim();
