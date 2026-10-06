@@ -493,6 +493,21 @@ function buildLearnMindmapPrompt(payload) {
     .join('\n');
 }
 
+  return {
+    buildLearnSeedContext,
+    buildLearnTeachFallback,
+    buildLearnSolveWithMeFallback,
+    buildConversationalTeachSystemPrompt,
+    buildStructuredFallback,
+    buildLearnKeyDefinitionsPrompt,
+    buildLearnProofPrompt,
+    buildLearnMindmapPrompt,
+    buildMoreLikeThisUserPrompt,
+  };
+}
+// MLT-FIX-1: buildMoreLikeThisUserPrompt is PURE (it reads nothing from the factory ctx), so it lives at
+// module scope and is exported directly. index.cjs requires it by name; while it lived only inside
+// createLearnPrompts() that import was undefined and /api/more-like-this answered 500 (since #516).
 function buildMoreLikeThisUserPrompt(payload) {
   const subject = payload.subject || 'Maths/Science';
   const topicKey = payload.topicKey || '';
@@ -569,16 +584,4 @@ function buildMoreLikeThisUserPrompt(payload) {
   return { userPrompt: lines.join('\n'), numVariants };
 }
 
-  return {
-    buildLearnSeedContext,
-    buildLearnTeachFallback,
-    buildLearnSolveWithMeFallback,
-    buildConversationalTeachSystemPrompt,
-    buildStructuredFallback,
-    buildLearnKeyDefinitionsPrompt,
-    buildLearnProofPrompt,
-    buildLearnMindmapPrompt,
-    buildMoreLikeThisUserPrompt,
-  };
-}
-module.exports = { createLearnPrompts };
+module.exports = { createLearnPrompts, buildMoreLikeThisUserPrompt };
