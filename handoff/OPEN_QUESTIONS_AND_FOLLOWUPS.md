@@ -23,6 +23,98 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-06 — WAVE B-17 (CONTROLLER B): QUICK-FIXES-1 PR-1 (`#955` `6259187b`), PR-2 (`#956` `5cd9d97e`), PR-3 (`#958` `613d8996`) — 19 new open + 1 raised and resolved in-lane, 6 closed, 3 kept open; LIVE
+
+Sources: `Desktop/diff/WAVE_STATE_B17.md` (FU, DECISIONS), `report-quick-fixes-1-pr1/-pr2/-pr3-2026-10-06.md` (FU lists, findings), `live-after-quick-fixes-1-pr1/-pr2/-pr3-2026-10-06.md` (findings), `b17-qf-pr2-evidence.md`, `b17-qf-pr2-decisions.csv`, `audit-request-quick-fixes-1-final-2026-10-06.md` §5 (the controller's FU list). **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3) — closures of older ids are recorded HERE. Every FU id named here has its own heading (standing rule 1).
+
+### B-17 — closed (older ids; their dated entries below stand as written)
+
+### `[FU-B16-FULLSUBJECT-QP-ONE-CHAPTER]` — CLOSED by `#955`
+Cause found (P4): the hub's full-subject path sent no topic and `PracticePage.tsx` defaulted a missing topic to the first chapter — from `2888129b` (2026-04-11, Task #76), so it **pre-existed B-16** by six months. Fixed at the cause: a full-subject set draws from every IN board chapter, ≤ 30% each, seeded; pinned on 20 sets per subject. Live after `#955`: 8 chapters per set, max share 13% *(agent-reported)*.
+
+### `[FU-B16-TRIG-MINDMAP-ROOT-TITLE]` — CLOSED by `#955`
+The mind-map root now reads "Trigonometry: ratios, identities and heights & distances", equal to `meta.title`. Live: title = root *(agent-reported)*.
+
+### `[FU-B16-NOTES-FIGURES]` — CLOSED by `#955` + `#958`
+NCERT Fig 9.2, 9.3, 10.5, 12.15 added as labelled SVGs (`#955`, Fable; figure numbers confirmed against the NCERT 2026-27 reprint). Owner Round 2: 9.2 and 9.3 as two images (`#958`), "R" + 90° kept on 10.5. Owner's final look at the screenshots is owed (end-of-lane message).
+
+### `[FU-A16-B-SAV-MELTING-ROWS]` — CLOSED (already closed on trunk before this wave's PRs)
+PR-2 checked it against the module: SAV-M09 and 21 other melting / recasting rows were already withheld; 0 served. `#956` added chapter-scoped free-text phrases to the guard (the Electricity recast-wire row SCO-S-ELEC-009 stays IN) *(builder-reported)*.
+
+### `[FU-NOTES-FIGURE-390-NARROW]` — CLOSED by `#958` (raised by PR-1, defined here)
+At 390 px every notes figure rendered 183 px wide (notes layout, not the SVGs) — raised in `report-quick-fixes-1-pr1` and confirmed by OR-LIVE-1. `#958`: figures fill the card's inner width (256 px; 286 in a third-tab block), open full-size on tap. Live: 13 figures inside their cards at 390, no horizontal scroll *(agent-reported)*.
+
+### `[FU-B16-SYLLABUS-AMBIGUOUS-7]` — CLOSED by `#956`
+All 7 items were ruled by the owner (spec WHY + Round 1 + Round 2) and encoded with `ruling` notes; `SYLLABUS_AMBIGUOUS` is empty in both subjects *(builder-reported)*. *(Closure recorded by this docs builder: not in the controller's close list, but the item's own condition — "7 remain" — is met.)*
+
+### B-17 — kept open
+
+- `[FU-B16-IN-THIN-EXTRACTION]` — **KEPT OPEN, superseded in practice by GEN-THIN-1** (the next lane, Controller B, wave B-17): the owner ruled generated CBSE-shaped questions for the 5 thin concepts (no student-facing tag; provenance internal). Neither QF PR made a concept newly thin (`b17-thin-concepts-after-qf1.md`). Close it when GEN-THIN-1 lands.
+- `[FU-SCOPEGUARD-NO-PRODUCT-DOCS-MODE]` — still open; hit by all three QF PRs (product files + `notes/specs/*.json` / `notes/assets/*`); each proved its file set by `git status` / `git diff --name-only`.
+- `[FU-B16-PYTHAGORAS-TOOL-USE-RULINGS]` — **item (2) resolved by the owner** (spec ruling 1: M-TRI-6 withheld, `#955`); item (1) (`coordinate-geometry.json` converse-of-Pythagoras step = tool use, kept) stands in the override window.
+
+### B-17 — new, open
+
+### `[FU-PRACTICE-NO-TOPIC-DEFAULT-CHAPTER]` — OPEN · LOW
+The command palette and Home's `?focus=mistakes` still open Practice with no topic and get the default first chapter (the P4 default in `PracticePage.tsx`). Neither is labelled full-subject, so it is not the fixed defect, but the silent default remains *(builder-reported, PR-1)*.
+
+### `[FU-HUB-FULLSUBJECT-COPY]` — OPEN · LOW (copy)
+The hub's scope card says "in proportion to exam weight"; that is true for Worksheets, while Quick Practice now allocates in proportion to served questions *(builder-reported, PR-1)*.
+
+### `[FU-B17-QP-HEADER-COUNT-MISMATCH]` — OPEN · LOW · UNVERIFIED whether pre-existing
+OR-LIVE-1 measured the hub's default preset, Board mix (8 questions), while the page header said "10 questions in this set" *(agent-reported)*.
+
+### `[FU-B17-R5-LABEL-RELABELS]` — OPEN · LOW · likely discharged, confirm at audit
+Filed under controller ruling C1 (label-only relabels deferred). Round 1 then allowed LazyTopper repairs: PR-2 relabelled 7 LazyTopper rows (CR2-008/009/025/030/041, 2026-CR-AR-04, sci-cre-hpq-3 tag), and Round 2 relabelled the topic tag of the 2 official rows → "Corrosion". The audit should confirm no corrosion row still carries a rancidity label, then close.
+
+### `[FU-B17-MOTOR-EXPLAINER-REACHABILITY]` — OPEN · LOW
+The motor / generator entry was removed from `visualConceptRegistry.ts` and 9 `visualExplainerId` refs dropped (`magneticEffects.pack1.ts` ×6, `pack2.ts` ×3), but the public explainer HTML and `manifest.json` still ship, and `generateVisuals.mjs` / `visualConceptSource.json` would re-add the registry entry *(builder-reported, PR-2)*.
+
+### `[FU-B17-PROVENANCE-ARC-N-NCERT-11-CRE-001]` — OPEN · LOW (content honesty)
+`ARC-N-NCERT-11-CRE-001` is filed in `areasRelatedToCircles.ncert.ts` but reads as LazyTopper-authored ("Design a 'flower-petal' shape…"); its NCERT label may be wrong. Withheld under R3 either way; provenance not changed *(scout + controller ADDENDUM 1)*.
+
+### `[FU-B17-GUARD-BANK-TEXT]` — OPEN · MEDIUM (guard)
+The guard reads bank LABELS, not question text: un-withholding CC2-034 (a naming row) left the guard GREEN (mutation M11, informational) *(builder-reported, PR-2)*.
+
+### `[FU-B17-EXTRACT-2024-A6A7]` — OPEN · LOW (extraction)
+The evidence cites 2024 30(B) Q25, 30/3/x Q36–38 and 30/4/3 Q5, which are not in the bank *(builder-reported, PR-2)*.
+
+### `[FU-B17-SCANNED-SETS-OCR]` — OPEN · LOW (evidence coverage)
+19 of the 51 Standard board-paper sets used by the evidence check are scanned images with no OCR, so the evidence rule could not search them *(builder-reported, PR-2)*.
+
+### `[FU-B17-RESTORE-PYQ-M-2024-REALNUM-005b]` — OPEN · LOW (content)
+`PYQ-M-2024-REALNUM-005b` (the √6 board question, 2024 30/5/1) is withheld for garbled text only; a clean re-transcription from `30-5-1(Mathematics Standard).pdf` p15 would restore a real board √6 item (`b17-qf-pr2-evidence.md`).
+
+### `[FU-B17-ROW-QUALITY]` — OPEN · LOW (content)
+CR-E07, ARC2-054, ARC-N-NCERT-11-CRE-001, CARB-EXMPLR-4-MCQ-018, and an ARC-M06 duplicate (Fable review, PR-2). ARC2-035's original answer is wrong (693 / 4 ≠ 346.5) and was withheld rather than repaired.
+
+### `[FU-B17-ME2-FRHR-STEPS]` — OPEN · LOW (content)
+ME2-004 and ME2-030 are IN (Fleming's left-hand rule MCQs) but their solution step 3 mentions Fleming's right-hand rule / generators (EMI, FORMATIVE only); optional one-line repair: drop that step (`b17-qf-pr2-decisions.csv`).
+
+### `[FU-B17-CONTENTCONFIG-RANCIDITY]` — OPEN · LOW
+`class10ContentConfig.ts` still mentions rancidity; the file was not granted *(builder-reported, PR-2 Round 2)*.
+
+### `[FU-B17-PREDICTED-CHAPTER-MAP]` — OPEN · LOW (tooling)
+OR-LIVE-2's id-to-chapter map (from PR-1's tooling) missed predicted-layer ids — 2026-CIRC-AR-03, 2026-CCO-CASE-04, 2026-CC-CASE-05, 2026-CC-CS-02, 2026-MG-CS-01. None is withheld; a live check needs a map that covers the predicted layer *(agent-reported)*.
+
+### `[FU-B17-TUTOR-OUT-LIVE-CHECK]` — OPEN · MEDIUM (verification)
+OR-LIVE-2's tutor step was SKIPPED: the tutor is signed-in only and there was no test-account path without real student data. The regenerated syllabus block (`#956`) is therefore not live-verified *(agent-reported)*.
+
+### `[FU-NOTES-FIGURE-TABLET-NARROW]` — OPEN · LOW
+Viewports of 561 to about 800 px still get 211–284 px figures (outside "phones") *(builder-reported, PR-3)*.
+
+### `[FU-NOTE-MODAL-FOCUS-TRAP]` — OPEN · LOW (a11y) · body added here (previously a mention only)
+`NoteModal` + `NcertPageModal` focus in on open and restore on close but have no full Tab focus-trap. The new `NoteFigureLightbox` (`#958`) does trap focus *(builder-reported, PR-3)*.
+
+### `[FU-B17-WINDOWS-SVG-CRLF-HASH]` — OPEN · LOW (tooling, Windows)
+Windows autocrlf checks notes SVGs out as CRLF, so their asset hashes differ from CI's and a local build fails in `applyPrerendered` on stale asset refs; builders normalised working copies to LF (not committed). Hit by PR-2 and PR-3 *(builder-reported)*.
+
+### `[FU-PRACTICEPAGE-WINDOWS-COLDSTART-TESTS]` — OPEN · LOW (tooling, Windows)
+`PracticePage.batchGrading` (first test) and `PracticePage.freshSet` fail locally on the base tree too (Windows cold-start timing); both pass in CI *(builder-reported, PR-1)*.
+
+### `[FU-B17-LEGACY-HUB-TEXT]` — RAISED AND RESOLVED IN-LANE (`#956`)
+PR-2 round 1 found live legacy Topic Hub data teaching rancidity and annulus, unscanned by the guard (`data/topicHubContent.ts:418,431,437,866`, `data/topicHubV2Full.ts:558,568,581,1158`, the "Corrosion and Rancidity" concept). Owner Round 2 granted the files; `#956` cleaned them and the guard now scans both (4 CONTROLS + 1 IN negative, mutation RED).
+
 ## 2026-10-06 — WAVE A-16 CLOSE (CONTROLLER A): SYLLABUS-FIX-CODE PR-2 (`#953` `decac82a`; PR-1 `#950` recorded in the B-16 section below) — 7 new open, 1 conditional not filed, 3 older confirmed open; LIVE
 
 Sources: `Desktop/diff/WAVE_STATE_A16.md` (FU, DECISIONS), `a16/report-a16-pr2-syllabus-code-2026-10-06.md` (Findings, FU bodies), `live-after-syllabus-fix-code-2026-10-06.md` (Observations). **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3). Every FU id named here has its own heading (standing rule 1).

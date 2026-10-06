@@ -1,3 +1,29 @@
+## ★★★ 2026-10-06 — WAVE B-17 (SYLLABUS, CONTROLLER B) — QUICK-FIXES-1 COMPLETE: PR-1 `#955` + PR-2 `#956` + PR-3 `#958` LIVE, OR-LIVE PASS ×3 (docs) — THIS BLOCK SUPERSEDES THE WAVE A-16 CLOSE BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-16 CLOSE, B-16, A-15 CLOSE, B-15, B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except the items this block names as resolved.)*
+
+**TRUNK IS `613d8996f54137728d8e8c9f95042ffddc63baab`** when this docs PR was cut (`git ls-remote origin base/approved-thru-437`):
+- `613d8996` = `#958` (QF PR-3, owner figure follow-up: Fig 9.2 / 9.3 separate; notes figures fit the card on phones, tap to enlarge) — merged 2026-10-06T11:58:55Z.
+- `5cd9d97e` = `#956` (QF PR-2: the owner's seven syllabus rulings encoded; served bank 8,124 → 8,052; legacy hubs guarded; tutor block regenerated) — merged 11:06:28Z.
+- `6259187b` = `#955` (QF PR-1: full-subject quick practice mixes every chapter; M-TRI-6 withdrawn; trig mind-map title; NCERT figures) — merged 08:21:37Z.
+- `297cc0f4` = `#954` (docs: wave A-16 close).
+*(merge times from `gh pr view`, docs-builder-verified.)* Nothing else merged since `#954`. Open: only A-17's product PR `#957`.
+
+**Trunk is live** (3 / 3 cold `/version.json` reads = `613d8996` at 12:11Z, docs-builder-verified; OR-LIVE after `#958` PASS, agent-reported). The results and open rows are in `CURRENT_STATE.md`.
+
+### NEXT — CONTROLLER B-17 (after this docs PR merges)
+1. **Tell Controller A-17 this docs PR is MERGED, with its SHA** — the OR-16 handoff lock passes back; A-17 holds `#957` until then.
+2. **ONE final audit request** — `Desktop/diff/audit-request-quick-fixes-1-final-2026-10-06.md` with the docs SHA filled in.
+3. **The single end-of-lane owner message** with the 4 figure screenshots and the owner-owed list below.
+4. **Remove this lane's own worktrees** (`b17-qf-figures`, `b17-quick-fixes-1`, `b17-qf-figures-2`, the locked leftover of `b17-syllabus-rulings-7`) — never `git worktree prune` repo-wide.
+5. **Then GEN-THIN-1 v1.1** (same wave B-17, Controller B; spec `SPEC_GEN-THIN-1_B75242C03147.md`): owner-ruled generated CBSE-shaped questions for the 5 thin IN concepts + CBQs of every mark; **no student-facing tag of any kind** (provenance internal only); generated questions **proven reachable on every filter and surface**; the 15-question sample to the owner (sanctioned contact point). Thin-concept input: `Desktop/diff/b17-thin-concepts-after-qf1.md`.
+
+### NEXT — OWNER
+1. **A final look at the 4 figure screenshots** (end-of-lane message).
+2. **Optional R3(a) narrowing** — the full ring is IN as the 360° case; "annular sectors only" would take 8 rows OUT.
+3. **A-17's J2 client contract draft** (`Desktop/diff/a17/J2_CLIENT_CONTRACT.md`, v1.0 after J1) → the next Controller B.
+4. **Carried from the A-16 block, restated:** the delete-account confirmation (`[FU-A16-DELETE-ACCOUNT-NO-CONFIRM]`); Google sign-in; the next syllabus lanes (`[FU-A16-WORKSHEET-WEIGHTS]`, `[FU-A16-EXAMSIM-UNIT-MARKS]`, `[FU-A16-CANONICAL-25]`, `[FU-A16-TUTOR-SERVER-KEYCHECK]`, `[FU-A16-EXAMTRENDS-CHIP-LABEL]`, `[FU-A16-BANK-PDF-JUNK-OPTIONS]`); the D32 override window (item 1); the carried A-15 items — a signed-out free check by hand; delete Railway `GEMINI_TIMEOUT_MS` (safe); rotate the eval key; the D26 ECF rulings; `[FU-GRADER-2027-PRICE]` due 2026-12-15; `[FU-ADMIN-TELEMETRY-UI]`; **turn Vercel Rolling Releases back on — your call** (until then the rollout check stays cold `/version.json` reads with no `_vcrr`); read `grading.model_fallback` once.
+5. **Resolved by this wave (no action):** the 7 AMBIGUOUS items (ruled and encoded, `#956`); the figures FU; the trig mind-map root title; the Full-subject quick-practice check.
+
 ## ★★★ 2026-10-06 — WAVE A-16 CLOSE (SYLLABUS, CONTROLLER A) — SYLLABUS-FIX-CODE COMPLETE: PR-2 `#953` LIVE, OR-LIVE PASS 13 / 13 (PR-1 `#950` recorded by B-16's `#952`) (docs) — THIS BLOCK SUPERSEDES THE WAVE B-16 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-16, A-15 CLOSE, B-15, B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 

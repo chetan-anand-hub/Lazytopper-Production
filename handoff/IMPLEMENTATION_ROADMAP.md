@@ -1,5 +1,21 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-06 — SYLLABUS: **WAVE B-17 — QUICK-FIXES-1 PR-1 + PR-2 + PR-3** (`#955` + `#956` + `#958`) — trunk `613d8996` — ✅ COMPLETE (OR-LIVE after each merge PASS, no rollback; owner-owed: final look at the 4 figure screenshots, optional R3(a) narrowing, A-17's J2 contract to the next B controller; A-16's and A-15's carried items stand)
+
+- ✅ **Full-subject quick practice draws from every IN chapter** (`#955`, Q1, LIVE: 8 chapters per set, max share 13%) — cause `2888129b` (2026-04-11) fixed, not the symptom.
+- ✅ **promptD M-TRI-6 withdrawn** (`#955`, Q2, owner ruling 1).
+- ✅ **Trig mind-map root = note title** (`#955`, Q3).
+- ✅ **NCERT Fig 9.2, 9.3, 10.5, 12.15 in the notes** (`#955` Q4; 9.2 / 9.3 split into two figures by `#958`, owner).
+- ✅ **The owner's seven syllabus rulings encoded; what they rule out no longer served** (`#956`, R1–R7, LIVE: 0 ruled-out ids in 345 drawn) — served bank 8,124 → 8,052; `SYLLABUS_AMBIGUOUS` empty.
+- ✅ **Legacy Topic Hub data cleaned and scanned by the guard** (`#956`, owner grant).
+- ✅ **Tutor syllabus block regenerated** (`#956`, owner `server/**` grant, generated block only).
+- ✅ **Notes figures fit the card on phones and open full-size on tap** (`#958`, LIVE).
+- ✅ **Decisions + FUs recorded** (`DECISION_LOG.md`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, wave B-17).
+- ✅ **Docs:** this handoff (after A-16's `#954`, OR-16).
+- ⬜ **Controller B-17:** tell A-17 this docs PR merged; one final audit request; the end-of-lane owner message; remove own worktrees.
+- ⬜ **Next lane: GEN-THIN-1 v1.1** (Controller B, wave B-17) — owner-ruled generated CBSE-shaped questions for the 5 thin concepts + CBQs of every mark; no student-facing tag; reachable on every surface.
+- ⬜ **Owner:** the owner-owed list in `NEXT_ACTION.md`.
+
 ## 2026-10-06 — SYLLABUS: **WAVE A-16 CLOSE — SYLLABUS-FIX-CODE PR-2** (`#953`; PR-1 `#950` recorded under B-16 below) — trunk `decac82a` — ✅ COMPLETE (OR-LIVE PASS 13 / 13, no rollback; owner-owed: 7 AMBIGUOUS items, the delete-account confirmation FU, Google sign-in; B-16's and A-15's carried items stand)
 
 - ✅ **Exam Trends chips derived from CBSE unit marks, sum 80 per subject** (`#953`, F2, LIVE).
