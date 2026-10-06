@@ -1,5 +1,8 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-07 — WAVE CI1 (CI, CONTROLLER C): CI-SPEED-1 (`#969` `c6068552`); trunk `c6068552`. NO SURFACE MOVES.**
+> `#969` changed CI workflows, CI scripts, `vercel.json` (`ignoreCommand` line only), the vitest config and one guard test; **zero product files**. No product surface moved, no cell flips, and no scope was discovered on any surface. Recorded explicitly per `CLAUDE.md` §10 — a silent tracker is indistinguishable from an unchecked one.
+
 > **2026-10-06 — WAVE B-17 (SYLLABUS, CONTROLLER B): QUICK-FIXES-1 PR-1 (`#955` `6259187b`), PR-2 (`#956` `5cd9d97e`), PR-3 (`#958` `613d8996`); trunk `613d8996`. LIVE on deploy (no flag); rollouts and OR-LIVE recorded in `CURRENT_STATE.md`.**
 > ★ **PRACTICE "FULL SUBJECT" WORKS FOR THE FIRST TIME SINCE APRIL; EVERY SURFACE THAT SERVES OR TEACHES CBSE CONTENT FOLLOWS THE OWNER'S SEVEN RULINGS; THE NOTES GAIN NCERT FIGURES THAT FIT THE PHONE.** **No matrix cell value changes:** every moved surface's completion cells already read ✅ (or keep their recorded reasons); this wave changes what they serve and how a figure is sized, not their recorded build / redesign / verify status. Full Mock `Verified` ⬜ stays ⬜ (agent-driven only).
 
