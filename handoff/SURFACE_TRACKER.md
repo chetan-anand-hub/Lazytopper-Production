@@ -1,5 +1,37 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-06 — WAVE B-16 (SYLLABUS, CONTROLLER B): SYLLABUS-FIX-CONTENT PR-1 (`#948` `bb57057f`), PR-2 (`#949` `8c3f3c28`), PR-3 (`#951` `9004f753`); and Controller A-16's SYLLABUS-FIX-CODE PR-1 (`#950` `096f921a`); trunk `9004f753`. LIVE on deploy (no flag); rollouts recorded in `CURRENT_STATE.md`.**
+> ★ **EVERY SURFACE THAT SERVES OR TEACHES CBSE CONTENT MOVES ON THE SYLLABUS AXIS: ONLY 2026-27 IN CONTENT IS SERVED (QUESTION POOLS, HPQ, PREDICTED, FALLBACK PACKS) AND TAUGHT (NOTES, TOPIC HUB, TUTOR CATALOGUE); THE MISSING IN TOPICS ARE WRITTEN; THE GUARD CHECKS THE SERVED SET; WEAK AREAS COVER 26 CHAPTERS (A-16).** **No matrix cell value changes:** every moved surface's completion cells already read ✅ (or keep their recorded reasons); this wave changes the content they serve, not their recorded build / redesign / verify status. Full Mock `Verified` ⬜ stays ⬜ (agent-driven only).
+
+### ✅ Practice / Worksheets / Chapter Test / Full Mock — question pools — **8,515 SERVED BANK ROWS INCL. OUT-OF-SYLLABUS QUESTIONS → 8,124; 391 WITHHELD, 18 REPAIRED, 77 RELABELLED TO THE CONCEPT TESTED — LIVE (`#948`)**
+- Live: 281 drawn ids (141 Maths + 140 Science), 0 in the withheld / removed set; Full Mock clean *(agent-reported)*. Open: `[FU-B16-IN-THIN-EXTRACTION]`, `[FU-B16-FULLSUBJECT-QP-ONE-CHAPTER]`, `[FU-B16-THEOREM-6-7-STEPS]`, `[FU-B16-RECHAPTER]`, `[FU-B16-AI-PYQ-PROVENANCE]`, `[FU-B16-ROW-QUALITY]`.
+
+### ✅ HPQ pages, the Predicted layer, the promptD fallback — **OUT ROWS SERVED → 70 REMOVED (HPQ 11, PREDICTED 30, PROMPTD 29 INCL. THE PERIODIC-CLASSIFICATION PACK); HPQ 140 → 129 — LIVE (`#948`)**
+- Live: HPQ Maths 60 + Science 69 = 129 *(agent-reported)*. Open: `[FU-B16-PYTHAGORAS-TOOL-USE-RULINGS]` (promptD M-TRI-6 kept, owner override window).
+
+### ✅ Notes pages + the notes Questions tab — **OUT TEACHING (E.G. SUNRISE/SUNSET REDDENING, AREA RATIO, AREA OF A TRIANGLE FROM COORDINATES, APPARENT DEPTH) AND AN UNFILTERED TAB → REMOVED; HEIGHTS & DISTANCES, AC/DC + DOMESTIC CIRCUITS, MIRROR / LENS APPLICATIONS, P = P1 + P2, THEOREM 10.1 WRITTEN; TRIG RETITLED; TAB FILTERED BY A-16'S MODULE — LIVE (`#948`, `#949`, `#951`)**
+- Live: 12 changed pages × 2 widths 200; the Questions tab on 4 pages × 2 widths 3 / 3 matching trunk *(agent-reported)*. Open: `[FU-B16-NOTES-FIGURES]`, `[FU-B16-TRIG-MINDMAP-ROOT-TITLE]`, `[FU-B16-PYTHAGORAS-TOOL-USE-RULINGS]` (coordinate-geometry example 1).
+
+### ✅ Topic Hub — **OUT ROWS SHOWN → 10 REMOVED, 20 IN ROWS AUTHORED (MARKS CHIPS DISPLAY-ONLY ESTIMATES, OWNER D2); APPLICATIONS OF MIRRORS AND LENSES UNDER LIGHT; "✦ VISUAL" BADGES CHECKED HONEST — LIVE (`#949`)**
+- Live: OUT hub rows gone; Light applications row live *(agent-reported)*. Scope discovered → §2a.
+
+### ✅ Tutor — concept-visual catalogue — **3 OUT VISUALS OFFERED + A SUNRISE/SUNSET LABEL → DROPPED; LABEL RETARGETED TO "Scattering of light (Tyndall effect, blue sky, red danger signals)" — LIVE (`#949`, owner grant of 4 lines in A-16's file)**
+- Live: tutor 200 on-topic *(agent-reported)*. Scope discovered → §2a.
+
+### ✅ Syllabus guard (CI, no user surface) — **EXACT-STRING CHECK OF THE `subtopic:` FIELD → A SCAN OF THE SERVED SET (7 SURFACES) AGAINST THE ONE REFERENCE MODULE, 0 HITS, CONTROLS FIRE — CI (`#951`)**
+- Open: `[FU-B16-GUARD-CHAPTER-VOCAB]`, `[FU-B16-GUARD-LIMITS]`, `[FU-B16-PHRASE-RECOGNISER]`.
+
+### ✅ Weak areas (Me / Progress, Controller A-16) — **25 CANONICAL CHAPTERS, HUMAN EYE NEVER EVALUATED → THE 26 BOARD CHAPTERS — LIVE (`#950`; live check with A-16's PR-2 OR-LIVE)** *(A-16-reported)*
+- Open: `[FU-A16-CANONICAL-25]`, `[FU-A16-MASTERYKEY-CONTROL]`.
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- No grading, auth, pricing, Login, Landing or Check & Improve file changed this wave.
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, 2026-10-06, wave B-16, per `CLAUDE.md` §10)*
+- **Topic Hub ↔ Tutor catalogue (Scope = Settling):** a CI gate (`tutor_visual_catalogue_acceptance.mjs:97-104`) requires every `conceptLabel` in `pages/tutor/conceptVisualCatalogue.data.ts` to match a live Topic Hub row, so a hub row rename or removal is a change to the tutor catalogue too. Neither lane's spec listed the coupling. Topic Hub's `Scope` already reads Settling; the tutor catalogue is set to **Settling** here.
+
+### 📋 Scope discovered? — **YES** — the hub-name ↔ tutor-catalogue coupling. Logged in `DECISION_LOG.md` (2026-10-06, wave B-16) and in §2a above; Scope = Settling.
+
 > **2026-10-06 — WAVE A-15 CLOSE (GRADER, CONTROLLER A): GRADER-CORE-1 PR-3 (`#942` `76447a63`) + PR-2b (`#944` `28ae0354`); HOTFIX-2 (`#945` `b5ff8cdc`) rolled back by `#946` `e2c5bb46`; trunk `e2c5bb46`. LIVE on deploy (no flag); rollouts recorded in `CURRENT_STATE.md`.**
 > ★ **THE GRADER MOVES UNDER EVERY GRADING SURFACE (C&I single + multi, Quick Practice, Chapter Test, Full Mock, Worksheet, HPQ / Predicted): CHARGED ONLY FOR GRADED QUESTIONS; ONE 80 s DEADLINE WITH NOT-GRADED (UNCHARGED) FOR UNFINISHED QUESTIONS; ≤ 10-QUESTION PAPERS IN ONE CALL, LARGER ONES CHUNKED; ABSENT FROM EVERY PAGE = NOT GRADED; DETECTION KEEPS MINUS SIGNS AND (OPT-IN) PER-QUESTION SUBJECT / CHAPTER; TRUTHFUL COMMENTS AND THE SCHEMES' HALF-MARKS.** **No matrix cell value changes:** every grading surface's cells already read ✅, and this wave changes server behaviour beneath them, not their recorded status; Full Mock `Verified` ⬜ stays ⬜ (driven by agents only, not the owner). Server-only: no client file changed.
 

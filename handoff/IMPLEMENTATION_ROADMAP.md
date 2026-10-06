@@ -1,5 +1,18 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-06 — SYLLABUS: **WAVE B-16 — SYLLABUS-FIX-CONTENT PR-1 + PR-2 + PR-3** (`#948` + `#949` + `#951`) **and Controller A-16's SYLLABUS-FIX-CODE PR-1** (`#950`) — trunk `9004f753` — ✅ COMPLETE for B (OR-LIVE AFTER-PR1 PASS 9 / 9, AFTER-PR2 PASS 7 / 7, AFTER-PR3 PASS 4 / 4, no rollback; owner-owed: IN-thin extraction, figures FU, D32 override window, trig mind-map root title, Full-subject quick-practice check, A-16's 7 AMBIGUOUS items, Google sign-in, Rolling Releases back on); A-16's PR-2 in A-16's docs
+
+- ✅ **Out-of-syllabus questions no longer served** (`#948`, LIVE): 391 withheld, 18 repaired, 77 relabelled, 70 HPQ / predicted / promptD removed; served bank 8,515 → 8,124; 0 of 281 live-drawn ids in the withheld set.
+- ✅ **Notes Questions tab filtered by the 2026-27 syllabus** (`#948`; reads A-16's module since `#951`, LIVE).
+- ✅ **Out-of-syllabus teaching removed, missing IN topics written** (`#949`, LIVE): 22 passages removed; 28 notes sections + 20 Topic Hub rows; trig retitled; 4 tutor-catalogue labels.
+- ✅ **One 2026-27 syllabus reference module; weak areas over 26 board chapters** (`#950`, Controller A-16, LIVE; Human Eye live check with A-16's PR-2 OR-LIVE).
+- ✅ **The syllabus guard checks what is served** (`#951`, CI): 7 surfaces, 0 hits, controls fire.
+- ✅ **Rulings recorded:** owner (spec (1)–(6), dispatch rulings, three asks) and controller decisions D0–D35 (`DECISION_LOG.md`).
+- ✅ **FUs:** new, closed (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`, wave B-16).
+- ✅ **Docs:** this handoff (after A-15's `#947`, OR-16).
+- ⬜ **Controller B:** tell A-16; one final audit request; the end-of-lane owner message; STOP.
+- ⬜ **Owner:** the owner-owed list in `NEXT_ACTION.md`.
+
 ## 2026-10-06 — GRADER: **WAVE A-15 CLOSE — GRADER-CORE-1 PR-3 + PR-2b** (`#942` + `#944`; HOTFIX-2 `#945` rolled back by `#946`) — trunk `e2c5bb46` — ✅ COMPLETE (OR-LIVE FINAL PASS; owner papers OA-01 14.5 / 24 vs 15, OA-02 19 / 27 graded on HOTFIX-2 → rolled back; owner-owed: free check by hand, delete `GEMINI_TIMEOUT_MS` (safe), rotate the eval key, D26 ECF rulings, `[FU-GRADER-2027-PRICE]` 2026-12-15, `[FU-ADMIN-TELEMETRY-UI]`, Rolling Releases back on, read the fallback counter)
 
 - ✅ **Charged only for graded questions** (`#942`, C9, LIVE): failed / timed-out / unfinished / couldn't-read / mismatch / unattempted / unread-option questions are uncharged; live: mismatch charged 0.
