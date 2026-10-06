@@ -1,0 +1,3480 @@
+[
+ {
+  "pageId": "notesTrig",
+  "profileId": "Bold",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/notes/trigonometry",
+  "finalPath": "/notes/trigonometry",
+  "title": "NCERT Ch. 8 · Trigonometry: ratios, identities and heights & distances — Class 10 Notes & Board Questions | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T12:54:49.756Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 84,
+  "settledMs": 24401,
+  "fcp": 8240,
+  "lcp": 17432,
+  "lcpEl": {
+   "t": 17432,
+   "size": 54237,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "",
+    "text": "What the board actually asks: finding all six ratios from one, evaluating expres",
+    "w": 186,
+    "h": 358,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 8240,
+    "size": 940,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Notes",
+     "w": 320,
+     "h": 21,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 17432,
+    "size": 54237,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "",
+     "text": "What the board actually asks: finding all six ratios from one, evaluating expres",
+     "w": 186,
+     "h": 358,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 6239,
+  "tbtAll": 9695,
+  "longest": 3506,
+  "longTasks": [
+   [
+    4705,
+    3506
+   ],
+   [
+    8241,
+    324
+   ],
+   [
+    8575,
+    83
+   ],
+   [
+    13413,
+    1630
+   ],
+   [
+    15094,
+    339
+   ],
+   [
+    15434,
+    313
+   ],
+   [
+    16061,
+    1388
+   ],
+   [
+    17503,
+    747
+   ],
+   [
+    18252,
+    69
+   ],
+   [
+    18400,
+    60
+   ],
+   [
+    19416,
+    1125
+   ],
+   [
+    20549,
+    711
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 15747,
+  "prerenderTextLen": 44485,
+  "fontEvents": [
+   [
+    8666,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ],
+   [
+    18332,
+    "Fraunces 700,Fraunces Fallback 100 900,KaTeX_Math 400,KaTeX_Main 400"
+   ]
+  ],
+  "nav": {
+   "responseStart": 796,
+   "responseEnd": 3021,
+   "dcl": 15041,
+   "load": 15081
+  },
+  "totals": {
+   "requests": 23,
+   "failed": 0,
+   "transferKB": 677.7,
+   "htmlKB": 29,
+   "htmlDecodedKB": 220.4,
+   "jsKB": 500,
+   "jsDecodedKB": 1591.1,
+   "cssKB": 27.5,
+   "fontKB": 77,
+   "imgKB": 43.5,
+   "apiKB": 0.8,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 3020,
+   "fontsCssEnd": null,
+   "appCssEnd": 16044,
+   "lastFontEnd": 17444,
+   "entryJsEnd": 13370,
+   "lastJsEnd": 19395,
+   "katexEnd": 17444
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.6,
+    "decKB": 1137.3,
+    "endMs": 13370
+   },
+   {
+    "url": "/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "KB": 78,
+    "decKB": 255.6,
+    "endMs": 7767
+   },
+   {
+    "url": "/assets/Note-DLD36Mkb.js",
+    "cat": "js",
+    "KB": 36.6,
+    "decKB": 111.6,
+    "endMs": 6027
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.9,
+    "decKB": 34.7,
+    "endMs": 5747
+   },
+   {
+    "url": "/notes/trigonometry",
+    "cat": "doc",
+    "KB": 29,
+    "decKB": 220.4,
+    "endMs": 3020
+   },
+   {
+    "url": "/assets/KaTeX_Main-Regular-B22Nviop.woff2",
+    "cat": "font",
+    "KB": 25.8,
+    "decKB": 25.7,
+    "endMs": 17444
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.7,
+    "decKB": 91.1,
+    "endMs": 4664
+   },
+   {
+    "url": "/assets/KaTeX_Math-Italic-t53AETM-.woff2",
+    "cat": "font",
+    "KB": 16.3,
+    "decKB": 16.1,
+    "endMs": 17236
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/notes/trigonometry",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 3020,
+    "encoded": 29693,
+    "decoded": 225739
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 1200,
+    "endMs": 5747,
+    "encoded": 35713,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1264,
+    "endMs": 2000,
+    "encoded": 2368,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1295,
+    "endMs": 13370,
+    "encoded": 361088,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 1296,
+    "endMs": 4664,
+    "encoded": 20131,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopNotesPage-BGtKgLs3.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1296,
+    "endMs": 2182,
+    "encoded": 1608,
+    "decoded": 3226
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/Card-DokOBhBl.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1296,
+    "endMs": 1944,
+    "encoded": 462,
+    "decoded": 324
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/ReturnTicket-zuDT405M.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1297,
+    "endMs": 1801,
+    "encoded": 1036,
+    "decoded": 874
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/Note-DLD36Mkb.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1297,
+    "endMs": 6027,
+    "encoded": 37484,
+    "decoded": 114282
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/noteSpecRegistry-BLVaCtsc.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1298,
+    "endMs": 4248,
+    "encoded": 15820,
+    "decoded": 44873
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/tokens-ByyN2DrX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1298,
+    "endMs": 1906,
+    "encoded": 481,
+    "decoded": 337
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1298,
+    "endMs": 7767,
+    "encoded": 79873,
+    "decoded": 261718
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/NcertPageModal-CiFWj7YW.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1298,
+    "endMs": 2217,
+    "encoded": 2301,
+    "decoded": 5261
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fig_ratio_triangle_84-C-ds3Pl4.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 1512,
+    "endMs": 4286,
+    "encoded": 14867,
+    "decoded": 14700
+   },
+   {
+    "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjkwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkFuIG9ic2VydmVyIHN0YW5kaW5nIG9uIHRoZSBncm91bmQgbG9va3MgdXAgYXQgYW4gb2JqZWN0IGFib3",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 1806,
+    "endMs": 1808,
+    "encoded": 0,
+    "decoded": 3122
+   },
+   {
+    "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjcyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkFuIG9ic2VydmVyIG9uIGEgYmFsY29ueSBsb29rcyBkb3duIGF0IGFuIG9iamVjdCBvbiB0aGUgZ3JvdW",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 1839,
+    "endMs": 1841,
+    "encoded": 0,
+    "decoded": 3463
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-Y--T_F3K.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 15396,
+    "endMs": 16044,
+    "encoded": 8073,
+    "decoded": 30249
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fig_ratio_triangle_84-C-ds3Pl4.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 15431,
+    "endMs": 16229,
+    "encoded": 14811,
+    "decoded": 14700
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 15751,
+    "endMs": 16199,
+    "encoded": 772,
+    "decoded": 308
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/KaTeX_Main-Regular-B22Nviop.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 16246,
+    "endMs": 17444,
+    "encoded": 26445,
+    "decoded": 26272
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/KaTeX_Math-Italic-t53AETM-.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 16246,
+    "endMs": 17236,
+    "encoded": 16646,
+    "decoded": 16440
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry-B9tPhHcF.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 18492,
+    "endMs": 19395,
+    "encoded": 9450,
+    "decoded": 29253
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fig_ratio_triangle_84-C-ds3Pl4.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 19636,
+    "endMs": 20328,
+    "encoded": 14830,
+    "decoded": 14700
+   }
+  ],
+  "after": null,
+  "run": 0
+ },
+ {
+  "pageId": "notesTrig",
+  "profileId": "Bold",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/notes/trigonometry",
+  "finalPath": "/notes/trigonometry",
+  "title": "NCERT Ch. 8 · Trigonometry: ratios, identities and heights & distances — Class 10 Notes & Board Questions | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T12:55:14.617Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 77,
+  "settledMs": 23996,
+  "fcp": 6836,
+  "lcp": 20844,
+  "lcpEl": {
+   "t": 20844,
+   "size": 54237,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "",
+    "text": "What the board actually asks: finding all six ratios from one, evaluating expres",
+    "w": 186,
+    "h": 358,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": true,
+  "lcpList": [
+   {
+    "t": 6836,
+    "size": 940,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Notes",
+     "w": 320,
+     "h": 21,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 18340,
+    "size": 18395,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "lt-notes-page__title",
+     "text": "Trigonometry — Class 10 Notes",
+     "w": 288,
+     "h": 65,
+     "font": "Fraunces, Georgia, serif"
+    },
+    "committedBefore": true
+   },
+   {
+    "t": 20844,
+    "size": 54237,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "",
+     "text": "What the board actually asks: finding all six ratios from one, evaluating expres",
+     "w": 186,
+     "h": 358,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 6469,
+  "tbtAll": 9358,
+  "longest": 2830,
+  "longTasks": [
+   [
+    3940,
+    2830
+   ],
+   [
+    6835,
+    159
+   ],
+   [
+    12697,
+    1201
+   ],
+   [
+    13944,
+    681
+   ],
+   [
+    14630,
+    675
+   ],
+   [
+    15337,
+    77
+   ],
+   [
+    15417,
+    1616
+   ],
+   [
+    17136,
+    917
+   ],
+   [
+    18089,
+    59
+   ],
+   [
+    18241,
+    84
+   ],
+   [
+    19187,
+    994
+   ],
+   [
+    20188,
+    665
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 17052,
+  "prerenderTextLen": 44485,
+  "fontEvents": [
+   [
+    6999,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ],
+   [
+    18087,
+    "Fraunces 700,Fraunces Fallback 100 900,KaTeX_Math 400,KaTeX_Main 400"
+   ]
+  ],
+  "nav": {
+   "responseStart": 91,
+   "responseEnd": 2226,
+   "dcl": 13897,
+   "load": 13932
+  },
+  "totals": {
+   "requests": 23,
+   "failed": 0,
+   "transferKB": 677.7,
+   "htmlKB": 29,
+   "htmlDecodedKB": 220.4,
+   "jsKB": 500,
+   "jsDecodedKB": 1591.1,
+   "cssKB": 27.5,
+   "fontKB": 77,
+   "imgKB": 43.5,
+   "apiKB": 0.8,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 2226,
+   "fontsCssEnd": null,
+   "appCssEnd": 14947,
+   "lastFontEnd": 17037,
+   "entryJsEnd": 12606,
+   "lastJsEnd": 19170,
+   "katexEnd": 17037
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 12606
+   },
+   {
+    "url": "/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "KB": 78,
+    "decKB": 255.6,
+    "endMs": 6990
+   },
+   {
+    "url": "/assets/Note-DLD36Mkb.js",
+    "cat": "js",
+    "KB": 36.6,
+    "decKB": 111.6,
+    "endMs": 5219
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.9,
+    "decKB": 34.7,
+    "endMs": 4985
+   },
+   {
+    "url": "/notes/trigonometry",
+    "cat": "doc",
+    "KB": 29,
+    "decKB": 220.4,
+    "endMs": 2226
+   },
+   {
+    "url": "/assets/KaTeX_Main-Regular-B22Nviop.woff2",
+    "cat": "font",
+    "KB": 25.8,
+    "decKB": 25.7,
+    "endMs": 17037
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.6,
+    "decKB": 91.1,
+    "endMs": 3934
+   },
+   {
+    "url": "/assets/KaTeX_Math-Italic-t53AETM-.woff2",
+    "cat": "font",
+    "KB": 16.2,
+    "decKB": 16.1,
+    "endMs": 16705
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/notes/trigonometry",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 2226,
+    "encoded": 29692,
+    "decoded": 225739
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 453,
+    "endMs": 4985,
+    "encoded": 35706,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 490,
+    "endMs": 1261,
+    "encoded": 2367,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 518,
+    "endMs": 12606,
+    "encoded": 361114,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 522,
+    "endMs": 3934,
+    "encoded": 20103,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopNotesPage-BGtKgLs3.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 524,
+    "endMs": 1435,
+    "encoded": 1561,
+    "decoded": 3226
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/Card-DokOBhBl.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 526,
+    "endMs": 993,
+    "encoded": 461,
+    "decoded": 324
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/ReturnTicket-zuDT405M.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 527,
+    "endMs": 1024,
+    "encoded": 1062,
+    "decoded": 874
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/Note-DLD36Mkb.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 530,
+    "endMs": 5219,
+    "encoded": 37517,
+    "decoded": 114282
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/noteSpecRegistry-BLVaCtsc.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 532,
+    "endMs": 3508,
+    "encoded": 15836,
+    "decoded": 44873
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/tokens-ByyN2DrX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 534,
+    "endMs": 1232,
+    "encoded": 468,
+    "decoded": 337
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 537,
+    "endMs": 6990,
+    "encoded": 79873,
+    "decoded": 261718
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/NcertPageModal-CiFWj7YW.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 539,
+    "endMs": 1530,
+    "encoded": 2294,
+    "decoded": 5261
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fig_ratio_triangle_84-C-ds3Pl4.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 725,
+    "endMs": 3444,
+    "encoded": 14889,
+    "decoded": 14700
+   },
+   {
+    "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjkwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkFuIG9ic2VydmVyIHN0YW5kaW5nIG9uIHRoZSBncm91bmQgbG9va3MgdXAgYXQgYW4gb2JqZWN0IGFib3",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 987,
+    "endMs": 989,
+    "encoded": 0,
+    "decoded": 3122
+   },
+   {
+    "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjcyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkFuIG9ic2VydmVyIG9uIGEgYmFsY29ueSBsb29rcyBkb3duIGF0IGFuIG9iamVjdCBvbiB0aGUgZ3JvdW",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 1044,
+    "endMs": 1046,
+    "encoded": 0,
+    "decoded": 3463
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-Y--T_F3K.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 14304,
+    "endMs": 14947,
+    "encoded": 8069,
+    "decoded": 30249
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fig_ratio_triangle_84-C-ds3Pl4.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 14600,
+    "endMs": 15483,
+    "encoded": 14833,
+    "decoded": 14700
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 15388,
+    "endMs": 16116,
+    "encoded": 776,
+    "decoded": 308
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/KaTeX_Main-Regular-B22Nviop.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 15695,
+    "endMs": 17037,
+    "encoded": 26460,
+    "decoded": 26272
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/KaTeX_Math-Italic-t53AETM-.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 15697,
+    "endMs": 16705,
+    "encoded": 16632,
+    "decoded": 16440
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry-B9tPhHcF.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 18370,
+    "endMs": 19170,
+    "encoded": 9445,
+    "decoded": 29253
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fig_ratio_triangle_84-C-ds3Pl4.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 19471,
+    "endMs": 20103,
+    "encoded": 14830,
+    "decoded": 14700
+   }
+  ],
+  "after": null,
+  "run": 1
+ },
+ {
+  "pageId": "notesTrig",
+  "profileId": "Bold",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/notes/trigonometry",
+  "finalPath": "/notes/trigonometry",
+  "title": "NCERT Ch. 8 · Trigonometry: ratios, identities and heights & distances — Class 10 Notes & Board Questions | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T12:55:42.931Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 78,
+  "settledMs": 25002,
+  "fcp": 9028,
+  "lcp": 17556,
+  "lcpEl": {
+   "t": 17556,
+   "size": 54237,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "",
+    "text": "What the board actually asks: finding all six ratios from one, evaluating expres",
+    "w": 186,
+    "h": 358,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 9028,
+    "size": 940,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Notes",
+     "w": 320,
+     "h": 21,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 16212,
+    "size": 20007,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H2",
+     "id": null,
+     "cls": "lt-note__title",
+     "text": "Trigonometry: ratios, identities and heights & distances",
+     "w": 258,
+     "h": 78,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": true
+   },
+   {
+    "t": 17556,
+    "size": 54237,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "",
+     "text": "What the board actually asks: finding all six ratios from one, evaluating expres",
+     "w": 186,
+     "h": 358,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 5356,
+  "tbtAll": 9196,
+  "longest": 3890,
+  "longTasks": [
+   [
+    5110,
+    3890
+   ],
+   [
+    9266,
+    57
+   ],
+   [
+    13449,
+    1008
+   ],
+   [
+    14459,
+    57
+   ],
+   [
+    14517,
+    281
+   ],
+   [
+    14875,
+    251
+   ],
+   [
+    15136,
+    54
+   ],
+   [
+    15240,
+    50
+   ],
+   [
+    15786,
+    421
+   ],
+   [
+    16227,
+    1338
+   ],
+   [
+    17591,
+    73
+   ],
+   [
+    17747,
+    61
+   ],
+   [
+    19106,
+    981
+   ],
+   [
+    20088,
+    1237
+   ],
+   [
+    21351,
+    187
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 14852,
+  "prerenderTextLen": 44485,
+  "fontEvents": [
+   [
+    18302,
+    "Fraunces Fallback 100 900,Fraunces 700,Fraunces 700,Fraunces Fallback 100 900,KaTeX_Math 400,KaTeX_Main 400"
+   ]
+  ],
+  "nav": {
+   "responseStart": 3091,
+   "responseEnd": 3908,
+   "dcl": 14457,
+   "load": 18287
+  },
+  "totals": {
+   "requests": 22,
+   "failed": 0,
+   "transferKB": 663.3,
+   "htmlKB": 29,
+   "htmlDecodedKB": 220.4,
+   "jsKB": 500,
+   "jsDecodedKB": 1591.1,
+   "cssKB": 27.5,
+   "fontKB": 77,
+   "imgKB": 29,
+   "apiKB": 0.7,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 3908,
+   "fontsCssEnd": null,
+   "appCssEnd": 16059,
+   "lastFontEnd": 18269,
+   "entryJsEnd": 13378,
+   "lastJsEnd": 19088,
+   "katexEnd": 18269
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.6,
+    "decKB": 1137.3,
+    "endMs": 13378
+   },
+   {
+    "url": "/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "KB": 78,
+    "decKB": 255.6,
+    "endMs": 15281
+   },
+   {
+    "url": "/assets/Note-DLD36Mkb.js",
+    "cat": "js",
+    "KB": 36.6,
+    "decKB": 111.6,
+    "endMs": 5967
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.9,
+    "decKB": 34.7,
+    "endMs": 15748
+   },
+   {
+    "url": "/notes/trigonometry",
+    "cat": "doc",
+    "KB": 29,
+    "decKB": 220.4,
+    "endMs": 3908
+   },
+   {
+    "url": "/assets/KaTeX_Main-Regular-B22Nviop.woff2",
+    "cat": "font",
+    "KB": 25.8,
+    "decKB": 25.7,
+    "endMs": 18269
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.7,
+    "decKB": 91.1,
+    "endMs": 5078
+   },
+   {
+    "url": "/assets/KaTeX_Math-Italic-t53AETM-.woff2",
+    "cat": "font",
+    "KB": 16.3,
+    "decKB": 16.1,
+    "endMs": 18037
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/notes/trigonometry",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 3908,
+    "encoded": 29692,
+    "decoded": 225739
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 3397,
+    "endMs": 15748,
+    "encoded": 35707,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3434,
+    "endMs": 4206,
+    "encoded": 2344,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3467,
+    "endMs": 13378,
+    "encoded": 361088,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 3469,
+    "endMs": 5078,
+    "encoded": 20127,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopNotesPage-BGtKgLs3.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3471,
+    "endMs": 4240,
+    "encoded": 1562,
+    "decoded": 3226
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/Card-DokOBhBl.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3475,
+    "endMs": 3987,
+    "encoded": 538,
+    "decoded": 324
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/ReturnTicket-zuDT405M.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3477,
+    "endMs": 6267,
+    "encoded": 1043,
+    "decoded": 874
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/Note-DLD36Mkb.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3479,
+    "endMs": 5967,
+    "encoded": 37483,
+    "decoded": 114282
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/noteSpecRegistry-BLVaCtsc.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3482,
+    "endMs": 5859,
+    "encoded": 15813,
+    "decoded": 44873
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/tokens-ByyN2DrX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3486,
+    "endMs": 4107,
+    "encoded": 468,
+    "decoded": 337
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3490,
+    "endMs": 15281,
+    "encoded": 79903,
+    "decoded": 261718
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/NcertPageModal-CiFWj7YW.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3492,
+    "endMs": 11560,
+    "encoded": 2326,
+    "decoded": 5261
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fig_ratio_triangle_84-C-ds3Pl4.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 3659,
+    "endMs": 15327,
+    "encoded": 14911,
+    "decoded": 14700
+   },
+   {
+    "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjkwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkFuIG9ic2VydmVyIHN0YW5kaW5nIG9uIHRoZSBncm91bmQgbG9va3MgdXAgYXQgYW4gb2JqZWN0IGFib3",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 3813,
+    "endMs": 3813,
+    "encoded": 0,
+    "decoded": 3122
+   },
+   {
+    "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjcyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkFuIG9ic2VydmVyIG9uIGEgYmFsY29ueSBsb29rcyBkb3duIGF0IGFuIG9iamVjdCBvbiB0aGUgZ3JvdW",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 3836,
+    "endMs": 3836,
+    "encoded": 0,
+    "decoded": 3463
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-Y--T_F3K.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 14487,
+    "endMs": 16059,
+    "encoded": 8068,
+    "decoded": 30249
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 14834,
+    "endMs": 16802,
+    "encoded": 727,
+    "decoded": 308
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/KaTeX_Main-Regular-B22Nviop.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 16368,
+    "endMs": 18269,
+    "encoded": 26463,
+    "decoded": 26272
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/KaTeX_Math-Italic-t53AETM-.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 16371,
+    "endMs": 18037,
+    "encoded": 16641,
+    "decoded": 16440
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry-B9tPhHcF.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 17840,
+    "endMs": 19088,
+    "encoded": 9454,
+    "decoded": 29253
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fig_ratio_triangle_84-C-ds3Pl4.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 19425,
+    "endMs": 21206,
+    "encoded": 14812,
+    "decoded": 14700
+   }
+  ],
+  "after": null,
+  "run": 2
+ },
+ {
+  "pageId": "topichub",
+  "profileId": "Bold",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/topic-hub/trigonometry",
+  "finalPath": "/topic-hub/trigonometry",
+  "title": "Trigonometry — CBSE Class 10 Maths | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T12:56:12.644Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 72,
+  "settledMs": 22237,
+  "fcp": 9504,
+  "lcp": 16464,
+  "lcpEl": {
+   "t": 16464,
+   "size": 12798,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "lt-spine__row-use",
+    "text": "Define each ratio from the labelled right triangle and find all six from one — w",
+    "w": 258,
+    "h": 56,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": true,
+  "lcpList": [
+   {
+    "t": 9504,
+    "size": 1660,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Topic Hub",
+     "w": 320,
+     "h": 21,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 9792,
+    "size": 5760,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "lt-spine__title",
+     "text": "Trigonometry",
+     "w": 250,
+     "h": 32,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 16464,
+    "size": 12798,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "lt-spine__row-use",
+     "text": "Define each ratio from the labelled right triangle and find all six from one — w",
+     "w": 258,
+     "h": 56,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 1881,
+  "tbtAll": 3147,
+  "longest": 1388,
+  "longTasks": [
+   [
+    8182,
+    1316
+   ],
+   [
+    9684,
+    90
+   ],
+   [
+    14242,
+    1388
+   ],
+   [
+    15638,
+    388
+   ],
+   [
+    16060,
+    68
+   ],
+   [
+    16212,
+    184
+   ],
+   [
+    16398,
+    62
+   ],
+   [
+    16529,
+    51
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 16058,
+  "prerenderTextLen": 11139,
+  "fontEvents": [
+   [
+    9772,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 2522,
+   "responseEnd": 2969,
+   "dcl": 15607,
+   "load": 15631
+  },
+  "totals": {
+   "requests": 16,
+   "failed": 0,
+   "transferKB": 490.9,
+   "htmlKB": 10.8,
+   "htmlDecodedKB": 37.6,
+   "jsKB": 424.9,
+   "jsDecodedKB": 1410.1,
+   "cssKB": 19.6,
+   "fontKB": 34.9,
+   "imgKB": 0,
+   "apiKB": 0.7,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 2969,
+   "fontsCssEnd": null,
+   "appCssEnd": 8164,
+   "lastFontEnd": 9663,
+   "entryJsEnd": 14201,
+   "lastJsEnd": 14201,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 14201
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.9,
+    "decKB": 34.7,
+    "endMs": 9663
+   },
+   {
+    "url": "/assets/topicHubContent-BXTWZzrK.js",
+    "cat": "js",
+    "KB": 25.3,
+    "decKB": 74,
+    "endMs": 9396
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.6,
+    "decKB": 91.1,
+    "endMs": 8164
+   },
+   {
+    "url": "/assets/noteSpecRegistry-BLVaCtsc.js",
+    "cat": "js",
+    "KB": 15.5,
+    "decKB": 43.8,
+    "endMs": 4687
+   },
+   {
+    "url": "/assets/visualConceptRegistry-CXEQqRC2.js",
+    "cat": "js",
+    "KB": 11.2,
+    "decKB": 102.5,
+    "endMs": 4586
+   },
+   {
+    "url": "/topic-hub/trigonometry",
+    "cat": "doc",
+    "KB": 10.8,
+    "decKB": 37.6,
+    "endMs": 2969
+   },
+   {
+    "url": "/assets/DesktopTopicHubPage-CqSrSQ5k.js",
+    "cat": "js",
+    "KB": 7.5,
+    "decKB": 23.3,
+    "endMs": 8320
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/topic-hub/trigonometry",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 2969,
+    "encoded": 11011,
+    "decoded": 38512
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 2796,
+    "endMs": 9663,
+    "encoded": 35704,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2871,
+    "endMs": 4138,
+    "encoded": 2345,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2899,
+    "endMs": 14201,
+    "encoded": 361114,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2900,
+    "endMs": 8164,
+    "encoded": 20110,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopTopicHubPage-CqSrSQ5k.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2900,
+    "endMs": 8320,
+    "encoded": 7641,
+    "decoded": 23875
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2902,
+    "endMs": 4019,
+    "encoded": 1063,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/topicHubContent-BXTWZzrK.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2905,
+    "endMs": 9396,
+    "encoded": 25949,
+    "decoded": 75766
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/Card-DokOBhBl.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2908,
+    "endMs": 4822,
+    "encoded": 461,
+    "decoded": 324
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/noteSpecRegistry-BLVaCtsc.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2911,
+    "endMs": 4687,
+    "encoded": 15838,
+    "decoded": 44873
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/visualConceptRegistry-CXEQqRC2.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2915,
+    "endMs": 4586,
+    "encoded": 11500,
+    "decoded": 104987
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/progressStore-1eOlX7rP.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2919,
+    "endMs": 7752,
+    "encoded": 3679,
+    "decoded": 9131
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/tokens-ByyN2DrX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2921,
+    "endMs": 4918,
+    "encoded": 469,
+    "decoded": 337
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/sessionRecords-CyUVu5EY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2927,
+    "endMs": 7927,
+    "encoded": 4682,
+    "decoded": 13217
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/progressBankShape-xG1YaDz9.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2930,
+    "endMs": 7350,
+    "encoded": 401,
+    "decoded": 262
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 16111,
+    "endMs": 19031,
+    "encoded": 746,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": 0
+ },
+ {
+  "pageId": "topichub",
+  "profileId": "Bold",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/topic-hub/trigonometry",
+  "finalPath": "/topic-hub/trigonometry",
+  "title": "Trigonometry — CBSE Class 10 Maths | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T12:56:35.501Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 72,
+  "settledMs": 16922,
+  "fcp": 5952,
+  "lcp": 5952,
+  "lcpEl": {
+   "t": 5952,
+   "size": 1660,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "H1",
+    "id": null,
+    "cls": "",
+    "text": "Topic Hub",
+    "w": 320,
+    "h": 21,
+    "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+   },
+   "committedBefore": false
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 5952,
+    "size": 1660,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Topic Hub",
+     "w": 320,
+     "h": 21,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   }
+  ],
+  "tbt": 1161,
+  "tbtAll": 2435,
+  "longest": 1324,
+  "longTasks": [
+   [
+    4621,
+    1324
+   ],
+   [
+    5986,
+    79
+   ],
+   [
+    12213,
+    929
+   ],
+   [
+    13144,
+    138
+   ],
+   [
+    13332,
+    62
+   ],
+   [
+    13413,
+    50
+   ],
+   [
+    13463,
+    203
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 13304,
+  "prerenderTextLen": 11139,
+  "fontEvents": [
+   [
+    6077,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 1087,
+   "responseEnd": 1324,
+   "dcl": 13140,
+   "load": 13142
+  },
+  "totals": {
+   "requests": 16,
+   "failed": 0,
+   "transferKB": 490.9,
+   "htmlKB": 10.8,
+   "htmlDecodedKB": 37.6,
+   "jsKB": 424.9,
+   "jsDecodedKB": 1410.1,
+   "cssKB": 19.6,
+   "fontKB": 34.9,
+   "imgKB": 0,
+   "apiKB": 0.8,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 1324,
+   "fontsCssEnd": null,
+   "appCssEnd": 4599,
+   "lastFontEnd": 5287,
+   "entryJsEnd": 12120,
+   "lastJsEnd": 12120,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.6,
+    "decKB": 1137.3,
+    "endMs": 12120
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.9,
+    "decKB": 34.7,
+    "endMs": 5287
+   },
+   {
+    "url": "/assets/topicHubContent-BXTWZzrK.js",
+    "cat": "js",
+    "KB": 25.4,
+    "decKB": 74,
+    "endMs": 5503
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.6,
+    "decKB": 91.1,
+    "endMs": 4599
+   },
+   {
+    "url": "/assets/noteSpecRegistry-BLVaCtsc.js",
+    "cat": "js",
+    "KB": 15.4,
+    "decKB": 43.8,
+    "endMs": 5550
+   },
+   {
+    "url": "/assets/visualConceptRegistry-CXEQqRC2.js",
+    "cat": "js",
+    "KB": 11.3,
+    "decKB": 102.5,
+    "endMs": 4237
+   },
+   {
+    "url": "/topic-hub/trigonometry",
+    "cat": "doc",
+    "KB": 10.8,
+    "decKB": 37.6,
+    "endMs": 1324
+   },
+   {
+    "url": "/assets/DesktopTopicHubPage-CqSrSQ5k.js",
+    "cat": "js",
+    "KB": 7.5,
+    "decKB": 23.3,
+    "endMs": 3154
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/topic-hub/trigonometry",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 1324,
+    "encoded": 11010,
+    "decoded": 38512
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 1169,
+    "endMs": 5287,
+    "encoded": 35731,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1208,
+    "endMs": 2161,
+    "encoded": 2372,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1246,
+    "endMs": 12120,
+    "encoded": 361088,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 1248,
+    "endMs": 4599,
+    "encoded": 20104,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopTopicHubPage-CqSrSQ5k.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1251,
+    "endMs": 3154,
+    "encoded": 7694,
+    "decoded": 23875
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1254,
+    "endMs": 3031,
+    "encoded": 954,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/topicHubContent-BXTWZzrK.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1256,
+    "endMs": 5503,
+    "encoded": 25977,
+    "decoded": 75766
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/Card-DokOBhBl.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1257,
+    "endMs": 2685,
+    "encoded": 482,
+    "decoded": 324
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/noteSpecRegistry-BLVaCtsc.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1257,
+    "endMs": 5550,
+    "encoded": 15813,
+    "decoded": 44873
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/visualConceptRegistry-CXEQqRC2.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1257,
+    "endMs": 4237,
+    "encoded": 11528,
+    "decoded": 104987
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/progressStore-1eOlX7rP.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1257,
+    "endMs": 3251,
+    "encoded": 3565,
+    "decoded": 9131
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/tokens-ByyN2DrX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1257,
+    "endMs": 2763,
+    "encoded": 471,
+    "decoded": 337
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/sessionRecords-CyUVu5EY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1258,
+    "endMs": 3391,
+    "encoded": 4699,
+    "decoded": 13217
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/progressBankShape-xG1YaDz9.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 1258,
+    "endMs": 4745,
+    "encoded": 429,
+    "decoded": 262
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 13301,
+    "endMs": 13895,
+    "encoded": 777,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": 1
+ },
+ {
+  "pageId": "topichub",
+  "profileId": "Bold",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/topic-hub/trigonometry",
+  "finalPath": "/topic-hub/trigonometry",
+  "title": "Trigonometry — CBSE Class 10 Maths | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T12:57:15.092Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 63,
+  "settledMs": 31988,
+  "fcp": 13608,
+  "lcp": 28244,
+  "lcpEl": {
+   "t": 28244,
+   "size": 12798,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "lt-spine__row-use",
+    "text": "Define each ratio from the labelled right triangle and find all six from one — w",
+    "w": 258,
+    "h": 56,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": true,
+  "lcpList": [
+   {
+    "t": 13608,
+    "size": 1660,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Topic Hub",
+     "w": 320,
+     "h": 21,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 22752,
+    "size": 5760,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "lt-spine__title",
+     "text": "Trigonometry",
+     "w": 250,
+     "h": 32,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 28244,
+    "size": 12798,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "lt-spine__row-use",
+     "text": "Define each ratio from the labelled right triangle and find all six from one — w",
+     "w": 258,
+     "h": 56,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 1929,
+  "tbtAll": 3456,
+  "longest": 1577,
+  "longTasks": [
+   [
+    12024,
+    1577
+   ],
+   [
+    22656,
+    93
+   ],
+   [
+    25969,
+    1407
+   ],
+   [
+    27383,
+    400
+   ],
+   [
+    27785,
+    51
+   ],
+   [
+    27839,
+    61
+   ],
+   [
+    28004,
+    148
+   ],
+   [
+    28153,
+    88
+   ],
+   [
+    28321,
+    64
+   ],
+   [
+    28438,
+    67
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 27902,
+  "prerenderTextLen": 11139,
+  "fontEvents": [
+   [
+    22754,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 5778,
+   "responseEnd": 6009,
+   "dcl": 27369,
+   "load": 27374
+  },
+  "totals": {
+   "requests": 16,
+   "failed": 0,
+   "transferKB": 490.9,
+   "htmlKB": 10.8,
+   "htmlDecodedKB": 37.6,
+   "jsKB": 424.9,
+   "jsDecodedKB": 1410.1,
+   "cssKB": 19.7,
+   "fontKB": 34.9,
+   "imgKB": 0,
+   "apiKB": 0.7,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 6008,
+   "fontsCssEnd": null,
+   "appCssEnd": 11984,
+   "lastFontEnd": 22629,
+   "entryJsEnd": 25841,
+   "lastJsEnd": 25841,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 25841
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.9,
+    "decKB": 34.7,
+    "endMs": 22629
+   },
+   {
+    "url": "/assets/topicHubContent-BXTWZzrK.js",
+    "cat": "js",
+    "KB": 25.4,
+    "decKB": 74,
+    "endMs": 10320
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.7,
+    "decKB": 91.1,
+    "endMs": 11984
+   },
+   {
+    "url": "/assets/noteSpecRegistry-BLVaCtsc.js",
+    "cat": "js",
+    "KB": 15.4,
+    "decKB": 43.8,
+    "endMs": 21844
+   },
+   {
+    "url": "/assets/visualConceptRegistry-CXEQqRC2.js",
+    "cat": "js",
+    "KB": 11.2,
+    "decKB": 102.5,
+    "endMs": 10887
+   },
+   {
+    "url": "/topic-hub/trigonometry",
+    "cat": "doc",
+    "KB": 10.8,
+    "decKB": 37.6,
+    "endMs": 6008
+   },
+   {
+    "url": "/assets/DesktopTopicHubPage-CqSrSQ5k.js",
+    "cat": "js",
+    "KB": 7.5,
+    "decKB": 23.3,
+    "endMs": 12906
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/topic-hub/trigonometry",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 6008,
+    "encoded": 11011,
+    "decoded": 38512
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 5871,
+    "endMs": 22629,
+    "encoded": 35702,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5905,
+    "endMs": 12750,
+    "encoded": 2355,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5919,
+    "endMs": 25841,
+    "encoded": 361180,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 5922,
+    "endMs": 11984,
+    "encoded": 20130,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopTopicHubPage-CqSrSQ5k.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5926,
+    "endMs": 12906,
+    "encoded": 7645,
+    "decoded": 23875
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5929,
+    "endMs": 12101,
+    "encoded": 959,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/topicHubContent-BXTWZzrK.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5932,
+    "endMs": 10320,
+    "encoded": 26052,
+    "decoded": 75766
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/Card-DokOBhBl.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5934,
+    "endMs": 12039,
+    "encoded": 455,
+    "decoded": 324
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/noteSpecRegistry-BLVaCtsc.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5937,
+    "endMs": 21844,
+    "encoded": 15813,
+    "decoded": 44873
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/visualConceptRegistry-CXEQqRC2.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5938,
+    "endMs": 10887,
+    "encoded": 11500,
+    "decoded": 104987
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/progressStore-1eOlX7rP.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5940,
+    "endMs": 10653,
+    "encoded": 3562,
+    "decoded": 9131
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/tokens-ByyN2DrX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5943,
+    "endMs": 12003,
+    "encoded": 501,
+    "decoded": 337
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/sessionRecords-CyUVu5EY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5945,
+    "endMs": 8522,
+    "encoded": 4693,
+    "decoded": 13217
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/progressBankShape-xG1YaDz9.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 5946,
+    "endMs": 12069,
+    "encoded": 401,
+    "decoded": 262
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 27883,
+    "endMs": 28324,
+    "encoded": 731,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": 2
+ },
+ {
+  "pageId": "trends",
+  "profileId": "Bold",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/exam-trends",
+  "finalPath": "/exam-trends",
+  "title": "CBSE Class 10 Exam Trends — Chapter Weightage | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": null,
+  "at": "2026-10-06T12:57:43.482Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 93,
+  "settledMs": 19884,
+  "fcp": 7224,
+  "lcp": 7472,
+  "lcpEl": {
+   "t": 7472,
+   "size": 3200,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "H1",
+    "id": null,
+    "cls": "",
+    "text": "Exam Trends",
+    "w": 264,
+    "h": 24,
+    "font": "Fraunces, \"Source Serif Pro\", Georgia, \"Times New Roman\", se"
+   },
+   "committedBefore": false
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 7224,
+    "size": 2080,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Exam Trends",
+     "w": 320,
+     "h": 21,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 7472,
+    "size": 3200,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Exam Trends",
+     "w": 264,
+     "h": 24,
+     "font": "Fraunces, \"Source Serif Pro\", Georgia, \"Times New Roman\", se"
+    },
+    "committedBefore": false
+   }
+  ],
+  "tbt": 803,
+  "tbtAll": 2109,
+  "longest": 1266,
+  "longTasks": [
+   [
+    3712,
+    109
+   ],
+   [
+    4925,
+    81
+   ],
+   [
+    5940,
+    1266
+   ],
+   [
+    7229,
+    215
+   ],
+   [
+    13562,
+    559
+   ],
+   [
+    14132,
+    133
+   ],
+   [
+    14338,
+    96
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 14313,
+  "prerenderTextLen": 18451,
+  "fontEvents": [
+   [
+    7445,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 3558,
+   "responseEnd": 3812,
+   "dcl": 14118,
+   "load": 14121
+  },
+  "totals": {
+   "requests": 11,
+   "failed": 0,
+   "transferKB": 472.1,
+   "htmlKB": 13.1,
+   "htmlDecodedKB": 51,
+   "jsKB": 403.7,
+   "jsDecodedKB": 1321.7,
+   "cssKB": 19.6,
+   "fontKB": 34.9,
+   "imgKB": 0,
+   "apiKB": 0.8,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 3812,
+   "fontsCssEnd": null,
+   "appCssEnd": 5914,
+   "lastFontEnd": 6608,
+   "entryJsEnd": 13507,
+   "lastJsEnd": 13507,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 13507
+   },
+   {
+    "url": "/assets/highlyProbableQuestions-DM1VYP-o.js",
+    "cat": "js",
+    "KB": 35,
+    "decKB": 139.7,
+    "endMs": 7200
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.9,
+    "decKB": 34.7,
+    "endMs": 6608
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.6,
+    "decKB": 91.1,
+    "endMs": 5914
+   },
+   {
+    "url": "/exam-trends",
+    "cat": "doc",
+    "KB": 13.1,
+    "decKB": 51,
+    "endMs": 3812
+   },
+   {
+    "url": "/assets/ExamTrendsRanked-BbZ8Hjj6.js",
+    "cat": "js",
+    "KB": 9.9,
+    "decKB": 31.1,
+    "endMs": 5941
+   },
+   {
+    "url": "/assets/class10ScienceTopicTrends-Mg9de0lz.js",
+    "cat": "js",
+    "KB": 2.7,
+    "decKB": 7.2,
+    "endMs": 5100
+   },
+   {
+    "url": "/_vercel/insights/script.js",
+    "cat": "js",
+    "KB": 2.3,
+    "decKB": 4.4,
+    "endMs": 4236
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/exam-trends",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 3812,
+    "encoded": 13415,
+    "decoded": 52201
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 3648,
+    "endMs": 6608,
+    "encoded": 35736,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3734,
+    "endMs": 4236,
+    "encoded": 2341,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3744,
+    "endMs": 13507,
+    "encoded": 361142,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 3761,
+    "endMs": 5914,
+    "encoded": 20103,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/ExamTrendsRanked-BbZ8Hjj6.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3762,
+    "endMs": 5941,
+    "encoded": 10103,
+    "decoded": 31819
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/evidenceBase-D-EjExjB.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3766,
+    "endMs": 4862,
+    "encoded": 199,
+    "decoded": 37
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3786,
+    "endMs": 4993,
+    "encoded": 986,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/highlyProbableQuestions-DM1VYP-o.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3813,
+    "endMs": 7200,
+    "encoded": 35845,
+    "decoded": 143032
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/class10ScienceTopicTrends-Mg9de0lz.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3819,
+    "endMs": 5100,
+    "encoded": 2785,
+    "decoded": 7384
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 14307,
+    "endMs": 16451,
+    "encoded": 780,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": 0
+ },
+ {
+  "pageId": "trends",
+  "profileId": "Bold",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/exam-trends",
+  "finalPath": "/exam-trends",
+  "title": "CBSE Class 10 Exam Trends — Chapter Weightage | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T12:58:11.463Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 63,
+  "settledMs": 23407,
+  "fcp": 9932,
+  "lcp": 14828,
+  "lcpEl": {
+   "t": 14828,
+   "size": 3200,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "H1",
+    "id": null,
+    "cls": "",
+    "text": "Exam Trends",
+    "w": 264,
+    "h": 24,
+    "font": "Fraunces, \"Source Serif Pro\", Georgia, \"Times New Roman\", se"
+   },
+   "committedBefore": false
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 9932,
+    "size": 2080,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Exam Trends",
+     "w": 320,
+     "h": 21,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 14828,
+    "size": 3200,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Exam Trends",
+     "w": 264,
+     "h": 24,
+     "font": "Fraunces, \"Source Serif Pro\", Georgia, \"Times New Roman\", se"
+    },
+    "committedBefore": false
+   }
+  ],
+  "tbt": 2469,
+  "tbtAll": 3847,
+  "longest": 1428,
+  "longTasks": [
+   [
+    8491,
+    1428
+   ],
+   [
+    14642,
+    179
+   ],
+   [
+    15489,
+    1399
+   ],
+   [
+    16896,
+    510
+   ],
+   [
+    17407,
+    124
+   ],
+   [
+    17680,
+    343
+   ],
+   [
+    18025,
+    147
+   ],
+   [
+    18238,
+    90
+   ],
+   [
+    18398,
+    77
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 17532,
+  "prerenderTextLen": 18451,
+  "fontEvents": [
+   [
+    14828,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 3490,
+   "responseEnd": 3755,
+   "dcl": 16862,
+   "load": 16885
+  },
+  "totals": {
+   "requests": 11,
+   "failed": 0,
+   "transferKB": 472.1,
+   "htmlKB": 13.1,
+   "htmlDecodedKB": 51,
+   "jsKB": 403.7,
+   "jsDecodedKB": 1321.7,
+   "cssKB": 19.6,
+   "fontKB": 34.9,
+   "imgKB": 0,
+   "apiKB": 0.7,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 3755,
+   "fontsCssEnd": null,
+   "appCssEnd": 8455,
+   "lastFontEnd": 14623,
+   "entryJsEnd": 15422,
+   "lastJsEnd": 15422,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 15422
+   },
+   {
+    "url": "/assets/highlyProbableQuestions-DM1VYP-o.js",
+    "cat": "js",
+    "KB": 35,
+    "decKB": 139.7,
+    "endMs": 6270
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.9,
+    "decKB": 34.7,
+    "endMs": 14623
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.6,
+    "decKB": 91.1,
+    "endMs": 8455
+   },
+   {
+    "url": "/exam-trends",
+    "cat": "doc",
+    "KB": 13.1,
+    "decKB": 51,
+    "endMs": 3755
+   },
+   {
+    "url": "/assets/ExamTrendsRanked-BbZ8Hjj6.js",
+    "cat": "js",
+    "KB": 9.8,
+    "decKB": 31.1,
+    "endMs": 8010
+   },
+   {
+    "url": "/assets/class10ScienceTopicTrends-Mg9de0lz.js",
+    "cat": "js",
+    "KB": 2.7,
+    "decKB": 7.2,
+    "endMs": 9962
+   },
+   {
+    "url": "/_vercel/insights/script.js",
+    "cat": "js",
+    "KB": 2.3,
+    "decKB": 4.4,
+    "endMs": 11154
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/exam-trends",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 3755,
+    "encoded": 13416,
+    "decoded": 52201
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 3576,
+    "endMs": 14623,
+    "encoded": 35703,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3614,
+    "endMs": 11154,
+    "encoded": 2347,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3644,
+    "endMs": 15422,
+    "encoded": 361114,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 3647,
+    "endMs": 8455,
+    "encoded": 20104,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/ExamTrendsRanked-BbZ8Hjj6.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3649,
+    "endMs": 8010,
+    "encoded": 10076,
+    "decoded": 31819
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/evidenceBase-D-EjExjB.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3651,
+    "endMs": 9817,
+    "encoded": 177,
+    "decoded": 37
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3654,
+    "endMs": 4960,
+    "encoded": 1058,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/highlyProbableQuestions-DM1VYP-o.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3658,
+    "endMs": 6270,
+    "encoded": 35872,
+    "decoded": 143032
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/class10ScienceTopicTrends-Mg9de0lz.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3661,
+    "endMs": 9962,
+    "encoded": 2786,
+    "decoded": 7384
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 17569,
+    "endMs": 20009,
+    "encoded": 756,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": 1
+ },
+ {
+  "pageId": "trends",
+  "profileId": "Bold",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/exam-trends",
+  "finalPath": "/exam-trends",
+  "title": "CBSE Class 10 Exam Trends — Chapter Weightage | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T12:58:30.383Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 69,
+  "settledMs": 16337,
+  "fcp": 5416,
+  "lcp": 6032,
+  "lcpEl": {
+   "t": 6032,
+   "size": 3200,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "H1",
+    "id": null,
+    "cls": "",
+    "text": "Exam Trends",
+    "w": 264,
+    "h": 24,
+    "font": "Fraunces, \"Source Serif Pro\", Georgia, \"Times New Roman\", se"
+   },
+   "committedBefore": false
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 5416,
+    "size": 2080,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Exam Trends",
+     "w": 320,
+     "h": 21,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 6032,
+    "size": 3200,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "H1",
+     "id": null,
+     "cls": "",
+     "text": "Exam Trends",
+     "w": 264,
+     "h": 24,
+     "font": "Fraunces, \"Source Serif Pro\", Georgia, \"Times New Roman\", se"
+    },
+    "committedBefore": false
+   }
+  ],
+  "tbt": 805,
+  "tbtAll": 1971,
+  "longest": 1216,
+  "longTasks": [
+   [
+    4191,
+    1216
+   ],
+   [
+    5922,
+    100
+   ],
+   [
+    12113,
+    269
+   ],
+   [
+    12391,
+    309
+   ],
+   [
+    12756,
+    130
+   ],
+   [
+    12887,
+    225
+   ],
+   [
+    13168,
+    72
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 12737,
+  "prerenderTextLen": 18451,
+  "fontEvents": [
+   [
+    6024,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 2153,
+   "responseEnd": 2437,
+   "dcl": 12366,
+   "load": 12382
+  },
+  "totals": {
+   "requests": 11,
+   "failed": 0,
+   "transferKB": 472.1,
+   "htmlKB": 13.1,
+   "htmlDecodedKB": 51,
+   "jsKB": 403.7,
+   "jsDecodedKB": 1321.7,
+   "cssKB": 19.7,
+   "fontKB": 34.9,
+   "imgKB": 0,
+   "apiKB": 0.7,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 2437,
+   "fontsCssEnd": null,
+   "appCssEnd": 4170,
+   "lastFontEnd": 5885,
+   "entryJsEnd": 12064,
+   "lastJsEnd": 12064,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.6,
+    "decKB": 1137.3,
+    "endMs": 12064
+   },
+   {
+    "url": "/assets/highlyProbableQuestions-DM1VYP-o.js",
+    "cat": "js",
+    "KB": 35,
+    "decKB": 139.7,
+    "endMs": 5351
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.9,
+    "decKB": 34.7,
+    "endMs": 5885
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.7,
+    "decKB": 91.1,
+    "endMs": 4170
+   },
+   {
+    "url": "/exam-trends",
+    "cat": "doc",
+    "KB": 13.1,
+    "decKB": 51,
+    "endMs": 2437
+   },
+   {
+    "url": "/assets/ExamTrendsRanked-BbZ8Hjj6.js",
+    "cat": "js",
+    "KB": 9.9,
+    "decKB": 31.1,
+    "endMs": 3461
+   },
+   {
+    "url": "/assets/class10ScienceTopicTrends-Mg9de0lz.js",
+    "cat": "js",
+    "KB": 2.7,
+    "decKB": 7.2,
+    "endMs": 2939
+   },
+   {
+    "url": "/_vercel/insights/script.js",
+    "cat": "js",
+    "KB": 2.3,
+    "decKB": 4.4,
+    "endMs": 2639
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/exam-trends",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 2437,
+    "encoded": 13416,
+    "decoded": 52201
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 2242,
+    "endMs": 5885,
+    "encoded": 35704,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2293,
+    "endMs": 2639,
+    "encoded": 2345,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2325,
+    "endMs": 12064,
+    "encoded": 361087,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2327,
+    "endMs": 4170,
+    "encoded": 20127,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/ExamTrendsRanked-BbZ8Hjj6.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2329,
+    "endMs": 3461,
+    "encoded": 10153,
+    "decoded": 31819
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/evidenceBase-D-EjExjB.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2330,
+    "endMs": 2805,
+    "encoded": 177,
+    "decoded": 37
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2331,
+    "endMs": 2761,
+    "encoded": 981,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/highlyProbableQuestions-DM1VYP-o.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2332,
+    "endMs": 5351,
+    "encoded": 35851,
+    "decoded": 143032
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/class10ScienceTopicTrends-Mg9de0lz.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2333,
+    "endMs": 2939,
+    "encoded": 2813,
+    "decoded": 7384
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 12726,
+    "endMs": 13137,
+    "encoded": 756,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": 2
+ }
+]

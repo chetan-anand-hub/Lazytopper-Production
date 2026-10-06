@@ -1,0 +1,2642 @@
+[
+ {
+  "pageId": "qp-hub",
+  "profileId": "A",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/practice-hub",
+  "finalPath": "/practice/10/Maths?topic=trigonometry&source=practice&returnTo=%2Fpractice-hub&built=1",
+  "title": "Practice CBSE Class 10 Maths & Science | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T13:54:15.653Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 28,
+  "settledMs": 51218,
+  "fcp": 996,
+  "lcp": 1952,
+  "lcpEl": {
+   "t": 1952,
+   "size": 2880,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "",
+    "text": "Pick a scope, then choose what to do.",
+    "w": 350,
+    "h": 15,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 1636,
+    "size": 814,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "SPAN",
+     "id": null,
+     "cls": "",
+     "text": "Exam Trends",
+     "w": 72,
+     "h": 11,
+     "font": "Arial"
+    },
+    "committedBefore": true
+   },
+   {
+    "t": 1952,
+    "size": 2880,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "",
+     "text": "Pick a scope, then choose what to do.",
+     "w": 350,
+     "h": 15,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 1744,
+  "tbtAll": 2044,
+  "longest": 729,
+  "longTasks": [
+   [
+    637,
+    350
+   ],
+   [
+    1024,
+    452
+   ],
+   [
+    1508,
+    101
+   ],
+   [
+    1760,
+    136
+   ],
+   [
+    1896,
+    51
+   ],
+   [
+    2727,
+    65
+   ],
+   [
+    2824,
+    98
+   ],
+   [
+    2979,
+    129
+   ],
+   [
+    3393,
+    65
+   ],
+   [
+    3791,
+    729
+   ],
+   [
+    4551,
+    208
+   ],
+   [
+    5432,
+    260
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 1630,
+  "prerenderTextLen": 9629,
+  "fontEvents": [
+   [
+    1010,
+    "Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 102,
+   "responseEnd": 272,
+   "dcl": 1471,
+   "load": 1476
+  },
+  "totals": {
+   "requests": 64,
+   "failed": 0,
+   "transferKB": 860.9,
+   "htmlKB": 11,
+   "htmlDecodedKB": 45,
+   "jsKB": 777.1,
+   "jsDecodedKB": 2701.2,
+   "cssKB": 31,
+   "fontKB": 34.8,
+   "imgKB": 4.4,
+   "apiKB": 2.6,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 272,
+   "fontsCssEnd": null,
+   "appCssEnd": 3069,
+   "lastFontEnd": 620,
+   "entryJsEnd": 918,
+   "lastJsEnd": 3781,
+   "katexEnd": 3245
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 918
+   },
+   {
+    "url": "/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "KB": 78,
+    "decKB": 255.6,
+    "endMs": 3245
+   },
+   {
+    "url": "/assets/class10MathTopicTrends-BNcIF1Mq.js",
+    "cat": "js",
+    "KB": 64.3,
+    "decKB": 237.2,
+    "endMs": 3211
+   },
+   {
+    "url": "/assets/PracticePage-BqvN4Q1F.js",
+    "cat": "js",
+    "KB": 49.4,
+    "decKB": 163,
+    "endMs": 3177
+   },
+   {
+    "url": "/assets/trigonometry.pyq2025-dFE8Aknn.js",
+    "cat": "js",
+    "KB": 38.6,
+    "decKB": 173.8,
+    "endMs": 3781
+   },
+   {
+    "url": "/assets/competency.z3-Biu03BdA.js",
+    "cat": "js",
+    "KB": 36.3,
+    "decKB": 129.8,
+    "endMs": 3781
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.8,
+    "decKB": 34.7,
+    "endMs": 620
+   },
+   {
+    "url": "/assets/trigonometry.pack3-CKUedDcM.js",
+    "cat": "js",
+    "KB": 24.5,
+    "decKB": 130.2,
+    "endMs": 3726
+   }
+  ],
+  "api": [
+   "404 /api/user/progress",
+   "200 /api/usage/me"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/practice-hub",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 272,
+    "encoded": 11237,
+    "decoded": 46063
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 315,
+    "endMs": 620,
+    "encoded": 35676,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 320,
+    "endMs": 521,
+    "encoded": 2372,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 323,
+    "endMs": 918,
+    "encoded": 361138,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 325,
+    "endMs": 593,
+    "encoded": 20104,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopPracticePage-KzmQE4AY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 325,
+    "endMs": 577,
+    "encoded": 16866,
+    "decoded": 58136
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/useSubjectContext-CAP0jdfJ.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 326,
+    "endMs": 520,
+    "encoded": 514,
+    "decoded": 346
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 326,
+    "endMs": 519,
+    "encoded": 981,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fullSubjectPractice-DBE-DpCM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 327,
+    "endMs": 521,
+    "encoded": 2789,
+    "decoded": 6561
+   },
+   {
+    "url": "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=REDACTED",
+    "cat": "other",
+    "status": 200,
+    "failed": null,
+    "startMs": 2055,
+    "endMs": 2395,
+    "encoded": 0,
+    "decoded": 0
+   },
+   {
+    "url": "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=REDACTED",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 2054,
+    "endMs": 2714,
+    "encoded": 630,
+    "decoded": 798
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/PracticePage-BqvN4Q1F.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2739,
+    "endMs": 3177,
+    "encoded": 50609,
+    "decoded": 166920
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/predictionCore-fPUGO_2C.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2744,
+    "endMs": 2963,
+    "encoded": 7473,
+    "decoded": 19836
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/loader-B4CINqzC.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2746,
+    "endMs": 2958,
+    "encoded": 3220,
+    "decoded": 9718
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/class10MathTopicTrends-BNcIF1Mq.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2750,
+    "endMs": 3211,
+    "encoded": 65850,
+    "decoded": 242881
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/class10ScienceTopicTrends-Mg9de0lz.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2754,
+    "endMs": 2942,
+    "encoded": 2840,
+    "decoded": 7384
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/probabilisticScoring-DFAwwpwk.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2755,
+    "endMs": 3036,
+    "encoded": 8360,
+    "decoded": 63527
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/aiClient-DA5UU7Ch.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2756,
+    "endMs": 3036,
+    "encoded": 5569,
+    "decoded": 12653
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/paidCallHeaders-CpOI3tdY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2757,
+    "endMs": 2943,
+    "encoded": 790,
+    "decoded": 1115
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/scorecardVariants-SSSJqzH6.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2758,
+    "endMs": 3080,
+    "encoded": 14827,
+    "decoded": 46626
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/GradeStateParts-C_Lb1i2P.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2760,
+    "endMs": 3036,
+    "encoded": 6480,
+    "decoded": 17706
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/usageClient-gFgkGpuK.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2761,
+    "endMs": 2972,
+    "encoded": 2514,
+    "decoded": 5901
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/usageClient-DnQ-hNpP.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2763,
+    "endMs": 2949,
+    "encoded": 1033,
+    "decoded": 2306
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/PageTray-Ci2J9fWX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2764,
+    "endMs": 3080,
+    "encoded": 11117,
+    "decoded": 30857
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/objectiveScoring-C_gSo6T-.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2766,
+    "endMs": 2949,
+    "encoded": 776,
+    "decoded": 1458
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/sessionRecords-CyUVu5EY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2767,
+    "endMs": 3036,
+    "encoded": 4666,
+    "decoded": 13217
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/FairUseConfirm-BYb44c1D.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2770,
+    "endMs": 2958,
+    "encoded": 1162,
+    "decoded": 2097
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/useBankChapters-BVkQDxxX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2771,
+    "endMs": 2959,
+    "encoded": 931,
+    "decoded": 754
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/worksheetGenerator-Dcqbksjc.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2772,
+    "endMs": 3004,
+    "encoded": 2599,
+    "decoded": 5596
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katexEager-DayZomgY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2773,
+    "endMs": 2971,
+    "encoded": 305,
+    "decoded": 116
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2774,
+    "endMs": 3245,
+    "encoded": 79875,
+    "decoded": 261718
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-Y--T_F3K.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2775,
+    "endMs": 3069,
+    "encoded": 8060,
+    "decoded": 30249
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/QuestionVisualAid-D3EqdeuP.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2776,
+    "endMs": 2977,
+    "encoded": 1107,
+    "decoded": 1664
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/visualConceptRegistry-CXEQqRC2.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2778,
+    "endMs": 3080,
+    "encoded": 11474,
+    "decoded": 104987
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/SolutionChecker-CtM6AiZ4.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2779,
+    "endMs": 3068,
+    "encoded": 8286,
+    "decoded": 23825
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/UpgradeSheet-DQC6Ghd5.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2780,
+    "endMs": 3005,
+    "encoded": 2391,
+    "decoded": 5354
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/EquationInput-C3ANnEIC.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2781,
+    "endMs": 3004,
+    "encoded": 2120,
+    "decoded": 4347
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/EquationInput-5vtM3Dev.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2782,
+    "endMs": 2989,
+    "encoded": 1162,
+    "decoded": 3091
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/gradingTransport-C35iVA_f.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2783,
+    "endMs": 3005,
+    "encoded": 2244,
+    "decoded": 3976
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/celebrations-schjLVrF.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2786,
+    "endMs": 3019,
+    "encoded": 2045,
+    "decoded": 4245
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/celebrations-KjHOjiyF.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2787,
+    "endMs": 2989,
+    "encoded": 1406,
+    "decoded": 4219
+   },
+   {
+    "url": "https://www.lazytopper.com/api/user/progress",
+    "cat": "api",
+    "status": 404,
+    "failed": null,
+    "startMs": 2830,
+    "endMs": 3333,
+    "encoded": 542,
+    "decoded": 21
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=81504&CVER=22&X-HTTP-Session-Id=gsessionid&zx=ato5pj9912s3&t=1",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 2947,
+    "endMs": 3227,
+    "encoded": 184,
+    "decoded": 54
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=2821&CVER=22&X-HTTP-Session-Id=gsessionid&zx=6z5468hemgw&t=1",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 2962,
+    "endMs": 3212,
+    "encoded": 457,
+    "decoded": 54
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?gsessionid=-rbWzGcQRv6qvd7spImSXmLA_EsVNvyiT72O2Xqf5HdLYHI86Rlxqg&VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=rpc&SID=U",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3244,
+    "endMs": null,
+    "encoded": 0,
+    "decoded": 1013
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?gsessionid=Lxp1lOg_Cab7WqbTvmKckeARlcP7QbDY5fSVDVuED1VjNBEVSX_j9w&VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=rpc&SID=",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3275,
+    "endMs": null,
+    "encoded": 0,
+    "decoded": 5206
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry-BGRZtZKU.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3471,
+    "endMs": 3652,
+    "encoded": 683,
+    "decoded": 1315
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/defineChapter-Bkz6W-dM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3474,
+    "endMs": 3668,
+    "encoded": 521,
+    "decoded": 302
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry.pack3-CKUedDcM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3478,
+    "endMs": 3726,
+    "encoded": 25042,
+    "decoded": 133323
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry.pyq2025-dFE8Aknn.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3480,
+    "endMs": 3781,
+    "encoded": 39576,
+    "decoded": 177949
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/competency.z3-Biu03BdA.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3483,
+    "endMs": 3781,
+    "encoded": 37208,
+    "decoded": 132916
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/curatedInline-DMhG4HaX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3486,
+    "endMs": 3701,
+    "encoded": 8457,
+    "decoded": 25513
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=Lxp1lOg_Cab7WqbTvmKckeARlcP7QbDY5fSVDVuED1VjNBEVSX_j9w&SID=K3unkUiZ",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3495,
+    "endMs": 3732,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://www.lazytopper.com/api/usage/me",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3500,
+    "endMs": 4451,
+    "encoded": 318,
+    "decoded": 346
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=-rbWzGcQRv6qvd7spImSXmLA_EsVNvyiT72O2Xqf5HdLYHI86Rlxqg&SID=UZXrNQlxv",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3504,
+    "endMs": 3717,
+    "encoded": 49,
+    "decoded": 10
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=Lxp1lOg_Cab7WqbTvmKckeARlcP7QbDY5fSVDVuED1VjNBEVSX_j9w&SID=K3unkUiZ",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3512,
+    "endMs": 3739,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=Lxp1lOg_Cab7WqbTvmKckeARlcP7QbDY5fSVDVuED1VjNBEVSX_j9w&SID=K3unkUiZ",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3514,
+    "endMs": 3738,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=Lxp1lOg_Cab7WqbTvmKckeARlcP7QbDY5fSVDVuED1VjNBEVSX_j9w&SID=K3unkUiZ",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3516,
+    "endMs": 3750,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=Lxp1lOg_Cab7WqbTvmKckeARlcP7QbDY5fSVDVuED1VjNBEVSX_j9w&SID=K3unkUiZ",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3519,
+    "endMs": 3765,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=-rbWzGcQRv6qvd7spImSXmLA_EsVNvyiT72O2Xqf5HdLYHI86Rlxqg&SID=UZXrNQlxv",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3523,
+    "endMs": 3765,
+    "encoded": 49,
+    "decoded": 10
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=Lxp1lOg_Cab7WqbTvmKckeARlcP7QbDY5fSVDVuED1VjNBEVSX_j9w&SID=K3unkUiZ",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3630,
+    "endMs": 3834,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://www.lazytopper.com/visuals/maths/trigonometry/z3-tg-004.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 5704,
+    "endMs": 5884,
+    "encoded": 4474,
+    "decoded": 4258
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=Lxp1lOg_Cab7WqbTvmKckeARlcP7QbDY5fSVDVuED1VjNBEVSX_j9w&SID=K3unkUiZ",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 5795,
+    "endMs": 6000,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=Lxp1lOg_Cab7WqbTvmKckeARlcP7QbDY5fSVDVuED1VjNBEVSX_j9w&SID=K3unkUiZ",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 5909,
+    "endMs": 6115,
+    "encoded": 50,
+    "decoded": 11
+   }
+  ],
+  "after": {
+   "presetsAt": 5326,
+   "presetsLiveAt": 5334,
+   "presetClickAt": 5334,
+   "presetToQ1": 464,
+   "startToPresets": 2876,
+   "visibleAt": 2058,
+   "liveAtVisible": true,
+   "deadTap": null,
+   "liveAt": 2143,
+   "deadWindowMs": 85,
+   "clickAt": 2450,
+   "q1At": 5798,
+   "clickToQ1": 3348,
+   "path": "/practice/10/Maths?topic=trigonometry&source=practice&returnTo=%2Fpractice-hub&built=1"
+  },
+  "run": 0
+ },
+ {
+  "pageId": "qp-hub",
+  "profileId": "A",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/practice-hub",
+  "finalPath": "/practice/10/Maths?topic=trigonometry&source=practice&returnTo=%2Fpractice-hub&built=1",
+  "title": "Practice CBSE Class 10 Maths & Science | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T13:55:06.986Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 36,
+  "settledMs": 50749,
+  "fcp": 860,
+  "lcp": 860,
+  "lcpEl": {
+   "t": 860,
+   "size": 2880,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "",
+    "text": "Pick a scope, then choose what to do.",
+    "w": 350,
+    "h": 15,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": false
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 860,
+    "size": 2880,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "",
+     "text": "Pick a scope, then choose what to do.",
+     "w": 350,
+     "h": 15,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": false
+   }
+  ],
+  "tbt": 1528,
+  "tbtAll": 1742,
+  "longest": 561,
+  "longTasks": [
+   [
+    586,
+    264
+   ],
+   [
+    895,
+    381
+   ],
+   [
+    1287,
+    92
+   ],
+   [
+    1496,
+    88
+   ],
+   [
+    1585,
+    63
+   ],
+   [
+    2511,
+    65
+   ],
+   [
+    2613,
+    134
+   ],
+   [
+    2830,
+    114
+   ],
+   [
+    3112,
+    79
+   ],
+   [
+    3556,
+    561
+   ],
+   [
+    4174,
+    172
+   ],
+   [
+    4937,
+    329
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 1380,
+  "prerenderTextLen": 9629,
+  "fontEvents": [
+   [
+    854,
+    "Fraunces 700"
+   ],
+   [
+    3025,
+    "Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 100,
+   "responseEnd": 257,
+   "dcl": 1269,
+   "load": 1276
+  },
+  "totals": {
+   "requests": 63,
+   "failed": 0,
+   "transferKB": 856.6,
+   "htmlKB": 11,
+   "htmlDecodedKB": 45,
+   "jsKB": 777,
+   "jsDecodedKB": 2701.2,
+   "cssKB": 31.1,
+   "fontKB": 34.8,
+   "imgKB": 0,
+   "apiKB": 2.6,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 257,
+   "fontsCssEnd": null,
+   "appCssEnd": 2849,
+   "lastFontEnd": 572,
+   "entryJsEnd": 872,
+   "lastJsEnd": 3499,
+   "katexEnd": 3007
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 872
+   },
+   {
+    "url": "/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "KB": 78,
+    "decKB": 255.6,
+    "endMs": 3007
+   },
+   {
+    "url": "/assets/class10MathTopicTrends-BNcIF1Mq.js",
+    "cat": "js",
+    "KB": 64.3,
+    "decKB": 237.2,
+    "endMs": 2992
+   },
+   {
+    "url": "/assets/PracticePage-BqvN4Q1F.js",
+    "cat": "js",
+    "KB": 49.4,
+    "decKB": 163,
+    "endMs": 2961
+   },
+   {
+    "url": "/assets/trigonometry.pyq2025-dFE8Aknn.js",
+    "cat": "js",
+    "KB": 38.6,
+    "decKB": 173.8,
+    "endMs": 3499
+   },
+   {
+    "url": "/assets/competency.z3-Biu03BdA.js",
+    "cat": "js",
+    "KB": 36.3,
+    "decKB": 129.8,
+    "endMs": 3498
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.8,
+    "decKB": 34.7,
+    "endMs": 572
+   },
+   {
+    "url": "/assets/trigonometry.pack3-CKUedDcM.js",
+    "cat": "js",
+    "KB": 24.5,
+    "decKB": 130.2,
+    "endMs": 3471
+   }
+  ],
+  "api": [
+   "404 /api/user/progress",
+   "200 /api/usage/me"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/practice-hub",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 257,
+    "encoded": 11238,
+    "decoded": 46063
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 282,
+    "endMs": 572,
+    "encoded": 35676,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 284,
+    "endMs": 473,
+    "encoded": 2372,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 285,
+    "endMs": 872,
+    "encoded": 361138,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 286,
+    "endMs": 555,
+    "encoded": 20104,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopPracticePage-KzmQE4AY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 287,
+    "endMs": 541,
+    "encoded": 16870,
+    "decoded": 58136
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/useSubjectContext-CAP0jdfJ.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 290,
+    "endMs": 474,
+    "encoded": 514,
+    "decoded": 346
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 292,
+    "endMs": 477,
+    "encoded": 982,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fullSubjectPractice-DBE-DpCM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 293,
+    "endMs": 494,
+    "encoded": 2795,
+    "decoded": 6561
+   },
+   {
+    "url": "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=REDACTED",
+    "cat": "other",
+    "status": 200,
+    "failed": null,
+    "startMs": 1759,
+    "endMs": 2131,
+    "encoded": 0,
+    "decoded": 0
+   },
+   {
+    "url": "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=REDACTED",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 1757,
+    "endMs": 2502,
+    "encoded": 630,
+    "decoded": 798
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/PracticePage-BqvN4Q1F.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2519,
+    "endMs": 2961,
+    "encoded": 50608,
+    "decoded": 166920
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/predictionCore-fPUGO_2C.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2525,
+    "endMs": 2797,
+    "encoded": 7469,
+    "decoded": 19836
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/loader-B4CINqzC.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2527,
+    "endMs": 2756,
+    "encoded": 3218,
+    "decoded": 9718
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/class10MathTopicTrends-BNcIF1Mq.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2528,
+    "endMs": 2992,
+    "encoded": 65844,
+    "decoded": 242881
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/class10ScienceTopicTrends-Mg9de0lz.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2529,
+    "endMs": 2725,
+    "encoded": 2840,
+    "decoded": 7384
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/probabilisticScoring-DFAwwpwk.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2530,
+    "endMs": 2822,
+    "encoded": 8360,
+    "decoded": 63527
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/aiClient-DA5UU7Ch.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2534,
+    "endMs": 2801,
+    "encoded": 5545,
+    "decoded": 12653
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/paidCallHeaders-CpOI3tdY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2538,
+    "endMs": 2740,
+    "encoded": 790,
+    "decoded": 1115
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/scorecardVariants-SSSJqzH6.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2541,
+    "endMs": 2868,
+    "encoded": 14796,
+    "decoded": 46626
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/GradeStateParts-C_Lb1i2P.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2543,
+    "endMs": 2822,
+    "encoded": 6480,
+    "decoded": 17706
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/usageClient-gFgkGpuK.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2544,
+    "endMs": 2774,
+    "encoded": 2514,
+    "decoded": 5901
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/usageClient-DnQ-hNpP.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2546,
+    "endMs": 2740,
+    "encoded": 1016,
+    "decoded": 2306
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/PageTray-Ci2J9fWX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2548,
+    "endMs": 2862,
+    "encoded": 11145,
+    "decoded": 30857
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/objectiveScoring-C_gSo6T-.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2549,
+    "endMs": 2740,
+    "encoded": 776,
+    "decoded": 1458
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/sessionRecords-CyUVu5EY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2550,
+    "endMs": 2822,
+    "encoded": 4689,
+    "decoded": 13217
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/FairUseConfirm-BYb44c1D.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2551,
+    "endMs": 2741,
+    "encoded": 1153,
+    "decoded": 2097
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/useBankChapters-BVkQDxxX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2552,
+    "endMs": 2741,
+    "encoded": 940,
+    "decoded": 754
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/worksheetGenerator-Dcqbksjc.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2553,
+    "endMs": 2790,
+    "encoded": 2626,
+    "decoded": 5596
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katexEager-DayZomgY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2556,
+    "endMs": 2756,
+    "encoded": 305,
+    "decoded": 116
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2557,
+    "endMs": 3007,
+    "encoded": 79876,
+    "decoded": 261718
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-Y--T_F3K.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2558,
+    "endMs": 2849,
+    "encoded": 8069,
+    "decoded": 30249
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/QuestionVisualAid-D3EqdeuP.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2559,
+    "endMs": 2756,
+    "encoded": 1074,
+    "decoded": 1664
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/visualConceptRegistry-CXEQqRC2.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2561,
+    "endMs": 2862,
+    "encoded": 11474,
+    "decoded": 104987
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/SolutionChecker-CtM6AiZ4.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2562,
+    "endMs": 2850,
+    "encoded": 8286,
+    "decoded": 23825
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/UpgradeSheet-DQC6Ghd5.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2563,
+    "endMs": 2790,
+    "encoded": 2391,
+    "decoded": 5354
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/EquationInput-C3ANnEIC.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2564,
+    "endMs": 2790,
+    "encoded": 2099,
+    "decoded": 4347
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/EquationInput-5vtM3Dev.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2565,
+    "endMs": 2774,
+    "encoded": 1189,
+    "decoded": 3091
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/gradingTransport-C35iVA_f.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2566,
+    "endMs": 2790,
+    "encoded": 2234,
+    "decoded": 3976
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/celebrations-schjLVrF.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 2567,
+    "endMs": 2790,
+    "encoded": 2039,
+    "decoded": 4245
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/celebrations-KjHOjiyF.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 2569,
+    "endMs": 2774,
+    "encoded": 1466,
+    "decoded": 4219
+   },
+   {
+    "url": "https://www.lazytopper.com/api/user/progress",
+    "cat": "api",
+    "status": 404,
+    "failed": null,
+    "startMs": 2650,
+    "endMs": 3675,
+    "encoded": 557,
+    "decoded": 21
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=67742&CVER=22&X-HTTP-Session-Id=gsessionid&zx=huwm6qhj1stk&t=1",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 2794,
+    "endMs": 3086,
+    "encoded": 456,
+    "decoded": 54
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=23232&CVER=22&X-HTTP-Session-Id=gsessionid&zx=oky0c4ib9fsp&t=1",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 2803,
+    "endMs": 3071,
+    "encoded": 184,
+    "decoded": 54
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?gsessionid=FW1JGZJUonavOb17WNAQrGYtlal-MxZ8XlpJlNXAvwl7gYU-BTzssQ&VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=rpc&SID=p",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3106,
+    "endMs": null,
+    "encoded": 0,
+    "decoded": 1013
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry-BGRZtZKU.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3205,
+    "endMs": 3394,
+    "encoded": 756,
+    "decoded": 1315
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/defineChapter-Bkz6W-dM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3210,
+    "endMs": 3395,
+    "encoded": 444,
+    "decoded": 302
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry.pack3-CKUedDcM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3213,
+    "endMs": 3471,
+    "encoded": 25042,
+    "decoded": 133323
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry.pyq2025-dFE8Aknn.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3216,
+    "endMs": 3499,
+    "encoded": 39571,
+    "decoded": 177949
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/competency.z3-Biu03BdA.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3219,
+    "endMs": 3498,
+    "encoded": 37185,
+    "decoded": 132916
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/curatedInline-DMhG4HaX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3222,
+    "endMs": 3435,
+    "encoded": 8457,
+    "decoded": 25513
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?gsessionid=08YUhpe5Gk6KpaLSYUmaU_QIihjiBaijsBxaoF9N1nax2PNzFz3EzA&VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=rpc&SID=",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3239,
+    "endMs": null,
+    "encoded": 0,
+    "decoded": 7795
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=08YUhpe5Gk6KpaLSYUmaU_QIihjiBaijsBxaoF9N1nax2PNzFz3EzA&SID=rTGVIKbr",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3243,
+    "endMs": 3429,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://www.lazytopper.com/api/usage/me",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3248,
+    "endMs": 4053,
+    "encoded": 335,
+    "decoded": 346
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=FW1JGZJUonavOb17WNAQrGYtlal-MxZ8XlpJlNXAvwl7gYU-BTzssQ&SID=p1sahxALe",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3301,
+    "endMs": 3502,
+    "encoded": 49,
+    "decoded": 10
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=08YUhpe5Gk6KpaLSYUmaU_QIihjiBaijsBxaoF9N1nax2PNzFz3EzA&SID=rTGVIKbr",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3497,
+    "endMs": 3703,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=08YUhpe5Gk6KpaLSYUmaU_QIihjiBaijsBxaoF9N1nax2PNzFz3EzA&SID=rTGVIKbr",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3503,
+    "endMs": 3703,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=08YUhpe5Gk6KpaLSYUmaU_QIihjiBaijsBxaoF9N1nax2PNzFz3EzA&SID=rTGVIKbr",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3510,
+    "endMs": 3719,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=08YUhpe5Gk6KpaLSYUmaU_QIihjiBaijsBxaoF9N1nax2PNzFz3EzA&SID=rTGVIKbr",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3514,
+    "endMs": 3719,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=08YUhpe5Gk6KpaLSYUmaU_QIihjiBaijsBxaoF9N1nax2PNzFz3EzA&SID=rTGVIKbr",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3519,
+    "endMs": 3720,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=FW1JGZJUonavOb17WNAQrGYtlal-MxZ8XlpJlNXAvwl7gYU-BTzssQ&SID=p1sahxALe",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3552,
+    "endMs": 3752,
+    "encoded": 49,
+    "decoded": 10
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=08YUhpe5Gk6KpaLSYUmaU_QIihjiBaijsBxaoF9N1nax2PNzFz3EzA&SID=rTGVIKbr",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 5373,
+    "endMs": 5573,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=08YUhpe5Gk6KpaLSYUmaU_QIihjiBaijsBxaoF9N1nax2PNzFz3EzA&SID=rTGVIKbr",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 5452,
+    "endMs": 5658,
+    "encoded": 50,
+    "decoded": 11
+   }
+  ],
+  "after": {
+   "presetsAt": 4891,
+   "presetsLiveAt": 4897,
+   "presetClickAt": 4897,
+   "presetToQ1": 481,
+   "startToPresets": 2720,
+   "visibleAt": 1760,
+   "liveAtVisible": true,
+   "deadTap": null,
+   "liveAt": 1834,
+   "deadWindowMs": 74,
+   "clickAt": 2171,
+   "q1At": 5378,
+   "clickToQ1": 3207,
+   "path": "/practice/10/Maths?topic=trigonometry&source=practice&returnTo=%2Fpractice-hub&built=1"
+  },
+  "run": 1
+ },
+ {
+  "pageId": "qp-hub",
+  "profileId": "A",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/practice-hub",
+  "finalPath": "/practice/10/Maths?topic=trigonometry&source=practice&returnTo=%2Fpractice-hub&built=1",
+  "title": "Practice CBSE Class 10 Maths & Science | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "a21457d278a4c37152ac8edf6afdfa6c6e995754",
+  "at": "2026-10-06T13:56:01.065Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 49,
+  "settledMs": 53228,
+  "fcp": 980,
+  "lcp": 1936,
+  "lcpEl": {
+   "t": 1936,
+   "size": 2880,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "",
+    "text": "Pick a scope, then choose what to do.",
+    "w": 350,
+    "h": 15,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 1624,
+    "size": 814,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "SPAN",
+     "id": null,
+     "cls": "",
+     "text": "Exam Trends",
+     "w": 72,
+     "h": 11,
+     "font": "Arial"
+    },
+    "committedBefore": true
+   },
+   {
+    "t": 1936,
+    "size": 2880,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "",
+     "text": "Pick a scope, then choose what to do.",
+     "w": 350,
+     "h": 15,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 3225,
+  "tbtAll": 3557,
+  "longest": 1176,
+  "longTasks": [
+   [
+    588,
+    382
+   ],
+   [
+    993,
+    415
+   ],
+   [
+    1423,
+    179
+   ],
+   [
+    1703,
+    186
+   ],
+   [
+    2736,
+    91
+   ],
+   [
+    2828,
+    107
+   ],
+   [
+    2935,
+    189
+   ],
+   [
+    3218,
+    146
+   ],
+   [
+    3541,
+    88
+   ],
+   [
+    4379,
+    109
+   ],
+   [
+    4492,
+    59
+   ],
+   [
+    4839,
+    1176
+   ],
+   [
+    6067,
+    512
+   ],
+   [
+    7251,
+    618
+   ]
+  ],
+  "cls": 0.275,
+  "firstCommitAt": 1622,
+  "prerenderTextLen": 9629,
+  "fontEvents": [
+   [
+    990,
+    "Fraunces 700"
+   ],
+   [
+    4272,
+    "Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 110,
+   "responseEnd": 274,
+   "dcl": 1403,
+   "load": 1408
+  },
+  "totals": {
+   "requests": 65,
+   "failed": 0,
+   "transferKB": 861,
+   "htmlKB": 11,
+   "htmlDecodedKB": 45,
+   "jsKB": 777,
+   "jsDecodedKB": 2701.2,
+   "cssKB": 31.1,
+   "fontKB": 34.8,
+   "imgKB": 4.4,
+   "apiKB": 2.6,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 274,
+   "fontsCssEnd": null,
+   "appCssEnd": 3896,
+   "lastFontEnd": 578,
+   "entryJsEnd": 888,
+   "lastJsEnd": 4823,
+   "katexEnd": 4033
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.6,
+    "decKB": 1137.3,
+    "endMs": 888
+   },
+   {
+    "url": "/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "KB": 78,
+    "decKB": 255.6,
+    "endMs": 4033
+   },
+   {
+    "url": "/assets/class10MathTopicTrends-BNcIF1Mq.js",
+    "cat": "js",
+    "KB": 64.3,
+    "decKB": 237.2,
+    "endMs": 4016
+   },
+   {
+    "url": "/assets/PracticePage-BqvN4Q1F.js",
+    "cat": "js",
+    "KB": 49.4,
+    "decKB": 163,
+    "endMs": 3952
+   },
+   {
+    "url": "/assets/trigonometry.pyq2025-dFE8Aknn.js",
+    "cat": "js",
+    "KB": 38.6,
+    "decKB": 173.8,
+    "endMs": 4823
+   },
+   {
+    "url": "/assets/competency.z3-Biu03BdA.js",
+    "cat": "js",
+    "KB": 36.3,
+    "decKB": 129.8,
+    "endMs": 4823
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.8,
+    "decKB": 34.7,
+    "endMs": 578
+   },
+   {
+    "url": "/assets/trigonometry.pack3-CKUedDcM.js",
+    "cat": "js",
+    "KB": 24.5,
+    "decKB": 130.2,
+    "endMs": 4791
+   }
+  ],
+  "api": [
+   "404 /api/user/progress",
+   "200 /api/usage/me"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/practice-hub",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 274,
+    "encoded": 11239,
+    "decoded": 46063
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 290,
+    "endMs": 578,
+    "encoded": 35685,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 292,
+    "endMs": 481,
+    "encoded": 2341,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 293,
+    "endMs": 888,
+    "encoded": 361088,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 293,
+    "endMs": 559,
+    "encoded": 20131,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopPracticePage-KzmQE4AY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 294,
+    "endMs": 559,
+    "encoded": 16943,
+    "decoded": 58136
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/useSubjectContext-CAP0jdfJ.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 295,
+    "endMs": 495,
+    "encoded": 491,
+    "decoded": 346
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 296,
+    "endMs": 495,
+    "encoded": 981,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fullSubjectPractice-DBE-DpCM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 296,
+    "endMs": 496,
+    "encoded": 2788,
+    "decoded": 6561
+   },
+   {
+    "url": "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=REDACTED",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 2003,
+    "endMs": 2722,
+    "encoded": 630,
+    "decoded": 798
+   },
+   {
+    "url": "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=REDACTED",
+    "cat": "other",
+    "status": 200,
+    "failed": null,
+    "startMs": 2004,
+    "endMs": 2350,
+    "encoded": 0,
+    "decoded": 0
+   },
+   {
+    "url": "https://www.lazytopper.com/api/user/progress",
+    "cat": "api",
+    "status": 404,
+    "failed": null,
+    "startMs": 2997,
+    "endMs": 3857,
+    "encoded": 551,
+    "decoded": 21
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=20722&CVER=22&X-HTTP-Session-Id=gsessionid&zx=xvsi4aakyb3m&t=1",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3178,
+    "endMs": 3467,
+    "encoded": 457,
+    "decoded": 54
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=84866&CVER=22&X-HTTP-Session-Id=gsessionid&zx=7hs1fmoeut4m&t=1",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3186,
+    "endMs": 3436,
+    "encoded": 185,
+    "decoded": 54
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?gsessionid=-1DD_7GvT_DF_SgZvnUMz1XPvCkCdhqBeTapYUPRHFxc7FW_LXzVug&VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=rpc&SID=F",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3516,
+    "endMs": null,
+    "encoded": 0,
+    "decoded": 1013
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/PracticePage-BqvN4Q1F.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3547,
+    "endMs": 3952,
+    "encoded": 50608,
+    "decoded": 166920
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/predictionCore-fPUGO_2C.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3556,
+    "endMs": 3836,
+    "encoded": 7455,
+    "decoded": 19836
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/loader-B4CINqzC.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3560,
+    "endMs": 3777,
+    "encoded": 3210,
+    "decoded": 9718
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/class10MathTopicTrends-BNcIF1Mq.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3563,
+    "endMs": 4016,
+    "encoded": 65845,
+    "decoded": 242881
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/class10ScienceTopicTrends-Mg9de0lz.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3566,
+    "endMs": 3776,
+    "encoded": 2813,
+    "decoded": 7384
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/probabilisticScoring-DFAwwpwk.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3568,
+    "endMs": 3851,
+    "encoded": 8413,
+    "decoded": 63527
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/aiClient-DA5UU7Ch.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3570,
+    "endMs": 3817,
+    "encoded": 5541,
+    "decoded": 12653
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/paidCallHeaders-CpOI3tdY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3572,
+    "endMs": 3753,
+    "encoded": 816,
+    "decoded": 1115
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/scorecardVariants-SSSJqzH6.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3574,
+    "endMs": 3900,
+    "encoded": 14795,
+    "decoded": 46626
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/GradeStateParts-C_Lb1i2P.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3578,
+    "endMs": 3851,
+    "encoded": 6479,
+    "decoded": 17706
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/usageClient-gFgkGpuK.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3580,
+    "endMs": 3788,
+    "encoded": 2568,
+    "decoded": 5901
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/usageClient-DnQ-hNpP.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 3584,
+    "endMs": 3776,
+    "encoded": 1009,
+    "decoded": 2306
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/PageTray-Ci2J9fWX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3588,
+    "endMs": 3897,
+    "encoded": 11117,
+    "decoded": 30857
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/objectiveScoring-C_gSo6T-.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3590,
+    "endMs": 3780,
+    "encoded": 776,
+    "decoded": 1458
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/sessionRecords-CyUVu5EY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3592,
+    "endMs": 3857,
+    "encoded": 4699,
+    "decoded": 13217
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/FairUseConfirm-BYb44c1D.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3596,
+    "endMs": 3781,
+    "encoded": 1163,
+    "decoded": 2097
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/useBankChapters-BVkQDxxX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3598,
+    "endMs": 3788,
+    "encoded": 931,
+    "decoded": 754
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/worksheetGenerator-Dcqbksjc.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3600,
+    "endMs": 3807,
+    "encoded": 2599,
+    "decoded": 5596
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katexEager-DayZomgY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3603,
+    "endMs": 3805,
+    "encoded": 278,
+    "decoded": 116
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-B9rO5sNH.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3605,
+    "endMs": 4033,
+    "encoded": 79848,
+    "decoded": 261718
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/katex-Y--T_F3K.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 3607,
+    "endMs": 3896,
+    "encoded": 8068,
+    "decoded": 30249
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/QuestionVisualAid-D3EqdeuP.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3610,
+    "endMs": 3806,
+    "encoded": 1074,
+    "decoded": 1664
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/visualConceptRegistry-CXEQqRC2.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3613,
+    "endMs": 3906,
+    "encoded": 11474,
+    "decoded": 104987
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/SolutionChecker-CtM6AiZ4.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3615,
+    "endMs": 3896,
+    "encoded": 8286,
+    "decoded": 23825
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/UpgradeSheet-DQC6Ghd5.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3617,
+    "endMs": 3836,
+    "encoded": 2390,
+    "decoded": 5354
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/EquationInput-C3ANnEIC.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3618,
+    "endMs": 3837,
+    "encoded": 2120,
+    "decoded": 4347
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/EquationInput-5vtM3Dev.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 3620,
+    "endMs": 3817,
+    "encoded": 1202,
+    "decoded": 3091
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/gradingTransport-C35iVA_f.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3622,
+    "endMs": 3838,
+    "encoded": 2227,
+    "decoded": 3976
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/celebrations-schjLVrF.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 3624,
+    "endMs": 3842,
+    "encoded": 2065,
+    "decoded": 4245
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/celebrations-KjHOjiyF.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 3627,
+    "endMs": 3817,
+    "encoded": 1466,
+    "decoded": 4219
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&RID=rpc&SID=",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3648,
+    "endMs": null,
+    "encoded": 0,
+    "decoded": 9089
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=-1DD_7GvT_DF_SgZvnUMz1XPvCkCdhqBeTapYUPRHFxc7FW_LXzVug&SID=FyP-icAKL",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 3772,
+    "endMs": 3983,
+    "encoded": 49,
+    "decoded": 10
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&SID=UhbleskU",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4193,
+    "endMs": 4388,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&SID=UhbleskU",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4201,
+    "endMs": 4388,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&SID=UhbleskU",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4212,
+    "endMs": 4394,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&SID=UhbleskU",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4215,
+    "endMs": 4411,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&SID=UhbleskU",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4226,
+    "endMs": 4411,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=-1DD_7GvT_DF_SgZvnUMz1XPvCkCdhqBeTapYUPRHFxc7FW_LXzVug&SID=FyP-icAKL",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4286,
+    "endMs": 4503,
+    "encoded": 49,
+    "decoded": 10
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry-BGRZtZKU.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 4503,
+    "endMs": 4706,
+    "encoded": 728,
+    "decoded": 1315
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/defineChapter-Bkz6W-dM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 4513,
+    "endMs": 4705,
+    "encoded": 443,
+    "decoded": 302
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry.pack3-CKUedDcM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 4516,
+    "endMs": 4791,
+    "encoded": 25042,
+    "decoded": 133323
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/trigonometry.pyq2025-dFE8Aknn.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 4522,
+    "endMs": 4823,
+    "encoded": 39567,
+    "decoded": 177949
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/competency.z3-Biu03BdA.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 4526,
+    "endMs": 4823,
+    "encoded": 37184,
+    "decoded": 132916
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/curatedInline-DMhG4HaX.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 4530,
+    "endMs": 4738,
+    "encoded": 8456,
+    "decoded": 25513
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&SID=UhbleskU",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4549,
+    "endMs": 4733,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://www.lazytopper.com/api/usage/me",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4579,
+    "endMs": 5474,
+    "encoded": 332,
+    "decoded": 346
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&SID=UhbleskU",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4668,
+    "endMs": 4916,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://www.lazytopper.com/visuals/maths/trigonometry/z3-tg-004.webp",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 7887,
+    "endMs": 8069,
+    "encoded": 4475,
+    "decoded": 4258
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&SID=UhbleskU",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 7983,
+    "endMs": 8189,
+    "encoded": 50,
+    "decoded": 11
+   },
+   {
+    "url": "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Flazzyy-topper%2Fdatabases%2F(default)&gsessionid=RUgy_xqSJlHmBs3SC4r0UhxKx13INaXoah0KE0IgBYSAK_GGw8gGHA&SID=UhbleskU",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 8061,
+    "endMs": 8270,
+    "encoded": 50,
+    "decoded": 11
+   }
+  ],
+  "after": {
+   "presetsAt": 7153,
+   "presetsLiveAt": 7166,
+   "presetClickAt": 7166,
+   "presetToQ1": 785,
+   "startToPresets": 4771,
+   "visibleAt": 2006,
+   "liveAtVisible": true,
+   "deadTap": null,
+   "liveAt": 2056,
+   "deadWindowMs": 50,
+   "clickAt": 2382,
+   "q1At": 7951,
+   "clickToQ1": 5569,
+   "path": "/practice/10/Maths?topic=trigonometry&source=practice&returnTo=%2Fpractice-hub&built=1"
+  },
+  "run": 2
+ }
+]

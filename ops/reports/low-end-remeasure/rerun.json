@@ -1,0 +1,1446 @@
+[
+ {
+  "pageId": "landing",
+  "profileId": "B",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/",
+  "finalPath": "/",
+  "title": "LazyTopper — CBSE Class 10 Prep That Finds Lost Marks",
+  "shaBefore": null,
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T13:00:01.104Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 48,
+  "settledMs": 30599,
+  "fcp": 12320,
+  "lcp": 12332,
+  "lcpEl": {
+   "t": 12332,
+   "size": 58266,
+   "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint.png",
+   "loadTime": 12307,
+   "el": {
+    "tag": "IMG",
+    "id": null,
+    "cls": "lt-landing-bgmark",
+    "text": "",
+    "w": 320,
+    "h": 442,
+    "font": "Inter, \"Inter Fallback\", system-ui, sans-serif"
+   },
+   "committedBefore": false
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 12320,
+    "size": 16992,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "EM",
+     "id": null,
+     "cls": "",
+     "text": "milenge kya?",
+     "w": 350,
+     "h": 45,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 12332,
+    "size": 58266,
+    "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint.png",
+    "loadTime": 12307,
+    "el": {
+     "tag": "IMG",
+     "id": null,
+     "cls": "lt-landing-bgmark",
+     "text": "",
+     "w": 320,
+     "h": 442,
+     "font": "Inter, \"Inter Fallback\", system-ui, sans-serif"
+    },
+    "committedBefore": false
+   }
+  ],
+  "tbt": 651,
+  "tbtAll": 1110,
+  "longest": 536,
+  "longTasks": [
+   [
+    11812,
+    493
+   ],
+   [
+    12317,
+    66
+   ],
+   [
+    13540,
+    536
+   ],
+   [
+    14083,
+    215
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 14348,
+  "prerenderTextLen": 14213,
+  "fontEvents": [
+   [
+    12383,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 191,
+   "responseEnd": 542,
+   "dcl": 14076,
+   "load": 14080
+  },
+  "totals": {
+   "requests": 12,
+   "failed": 0,
+   "transferKB": 552.7,
+   "htmlKB": 11.3,
+   "htmlDecodedKB": 30.1,
+   "jsKB": 355,
+   "jsDecodedKB": 1141.8,
+   "cssKB": 19.6,
+   "fontKB": 34.8,
+   "imgKB": 131.1,
+   "apiKB": 0.7,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 542,
+   "fontsCssEnd": null,
+   "appCssEnd": 11803,
+   "lastFontEnd": 12114,
+   "entryJsEnd": 13510,
+   "lastJsEnd": 13510,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 13510
+   },
+   {
+    "url": "/brand/lazytopper-fingerprint.png",
+    "cat": "img",
+    "KB": 37.4,
+    "decKB": 37.3,
+    "endMs": 12160
+   },
+   {
+    "url": "/brand/lazytopper-fingerprint.png",
+    "cat": "img",
+    "KB": 37.4,
+    "decKB": 37.3,
+    "endMs": 25886
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.8,
+    "decKB": 34.7,
+    "endMs": 12114
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.6,
+    "decKB": 91.1,
+    "endMs": 11803
+   },
+   {
+    "url": "/brand/lazytopper-wordmark.png",
+    "cat": "img",
+    "KB": 17.7,
+    "decKB": 17.5,
+    "endMs": 11897
+   },
+   {
+    "url": "/brand/lazytopper-wordmark.png",
+    "cat": "img",
+    "KB": 17.6,
+    "decKB": 17.5,
+    "endMs": 25833
+   },
+   {
+    "url": "/",
+    "cat": "doc",
+    "KB": 11.3,
+    "decKB": 30.1,
+    "endMs": 542
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 542,
+    "encoded": 11601,
+    "decoded": 30838
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 493,
+    "endMs": 12114,
+    "encoded": 35680,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 513,
+    "endMs": 7622,
+    "encoded": 2377,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 518,
+    "endMs": 13510,
+    "encoded": 361138,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 520,
+    "endMs": 11803,
+    "encoded": 20103,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 553,
+    "endMs": 12160,
+    "encoded": 38346,
+    "decoded": 38180
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-wordmark.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 554,
+    "endMs": 11897,
+    "encoded": 18087,
+    "decoded": 17941
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-tagline.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 555,
+    "endMs": 11690,
+    "encoded": 10797,
+    "decoded": 10623
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 14198,
+    "endMs": 25886,
+    "encoded": 38310,
+    "decoded": 38180
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-wordmark.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 14220,
+    "endMs": 25833,
+    "encoded": 18024,
+    "decoded": 17941
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-tagline.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 14225,
+    "endMs": 25826,
+    "encoded": 10730,
+    "decoded": 10623
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 14377,
+    "endMs": 27239,
+    "encoded": 746,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": "re0"
+ },
+ {
+  "pageId": "landing",
+  "profileId": "C",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/",
+  "finalPath": "/",
+  "title": "LazyTopper — CBSE Class 10 Prep That Finds Lost Marks",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T13:00:06.677Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 39,
+  "settledMs": 4543,
+  "fcp": 632,
+  "lcp": 956,
+  "lcpEl": {
+   "t": 956,
+   "size": 189440,
+   "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint-mark.png",
+   "loadTime": 931,
+   "el": {
+    "tag": "IMG",
+    "id": null,
+    "cls": "lt-landing-bgmark",
+    "text": "",
+    "w": 370,
+    "h": 512,
+    "font": "Inter, \"Inter Fallback\", system-ui, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": true,
+  "lcpList": [
+   {
+    "t": 632,
+    "size": 62941,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "EM",
+     "id": null,
+     "cls": "",
+     "text": "milenge kya?",
+     "w": 727,
+     "h": 86,
+     "font": "Fraunces, \"Fraunces Fallback\", Georgia, serif"
+    },
+    "committedBefore": false
+   },
+   {
+    "t": 956,
+    "size": 189440,
+    "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint-mark.png",
+    "loadTime": 931,
+    "el": {
+     "tag": "IMG",
+     "id": null,
+     "cls": "lt-landing-bgmark",
+     "text": "",
+     "w": 370,
+     "h": 512,
+     "font": "Inter, \"Inter Fallback\", system-ui, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 7,
+  "tbtAll": 22,
+  "longest": 65,
+  "longTasks": [
+   [
+    552,
+    65
+   ],
+   [
+    849,
+    57
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 927,
+  "prerenderTextLen": 14213,
+  "fontEvents": [
+   [
+    956,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 248,
+   "responseEnd": 278,
+   "dcl": 906,
+   "load": 943
+  },
+  "totals": {
+   "requests": 10,
+   "failed": 0,
+   "transferKB": 641.3,
+   "htmlKB": 11.3,
+   "htmlDecodedKB": 30.1,
+   "jsKB": 355,
+   "jsDecodedKB": 1141.8,
+   "cssKB": 19.6,
+   "fontKB": 34.8,
+   "imgKB": 219.7,
+   "apiKB": 0.7,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 277,
+   "fontsCssEnd": null,
+   "appCssEnd": 445,
+   "lastFontEnd": 872,
+   "entryJsEnd": 836,
+   "lastJsEnd": 836,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 836
+   },
+   {
+    "url": "/brand/lazytopper-fingerprint-mark.png",
+    "cat": "img",
+    "KB": 154.1,
+    "decKB": 153.8,
+    "endMs": 923
+   },
+   {
+    "url": "/brand/lazytopper-fingerprint.png",
+    "cat": "img",
+    "KB": 37.4,
+    "decKB": 37.3,
+    "endMs": 850
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.8,
+    "decKB": 34.7,
+    "endMs": 872
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.6,
+    "decKB": 91.1,
+    "endMs": 445
+   },
+   {
+    "url": "/brand/lazytopper-wordmark.png",
+    "cat": "img",
+    "KB": 17.7,
+    "decKB": 17.5,
+    "endMs": 724
+   },
+   {
+    "url": "/",
+    "cat": "doc",
+    "KB": 11.3,
+    "decKB": 30.1,
+    "endMs": 277
+   },
+   {
+    "url": "/brand/lazytopper-tagline.png",
+    "cat": "img",
+    "KB": 10.5,
+    "decKB": 10.4,
+    "endMs": 850
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 277,
+    "encoded": 11619,
+    "decoded": 30838
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 278,
+    "endMs": 872,
+    "encoded": 35676,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 279,
+    "endMs": 393,
+    "encoded": 2341,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 279,
+    "endMs": 836,
+    "encoded": 361169,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 279,
+    "endMs": 445,
+    "encoded": 20104,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint-mark.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 279,
+    "endMs": 923,
+    "encoded": 157783,
+    "decoded": 157513
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 279,
+    "endMs": 850,
+    "encoded": 38345,
+    "decoded": 38180
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-wordmark.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 279,
+    "endMs": 724,
+    "encoded": 18126,
+    "decoded": 17941
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-tagline.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 279,
+    "endMs": 850,
+    "encoded": 10767,
+    "decoded": 10623
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 942,
+    "endMs": 1341,
+    "encoded": 766,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": "re0"
+ },
+ {
+  "pageId": "landing",
+  "profileId": "C",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/",
+  "finalPath": "/",
+  "title": "LazyTopper — CBSE Class 10 Prep That Finds Lost Marks",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T13:00:12.891Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 50,
+  "settledMs": 4254,
+  "fcp": 524,
+  "lcp": 656,
+  "lcpEl": {
+   "t": 656,
+   "size": 189440,
+   "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint-mark.png",
+   "loadTime": 631,
+   "el": {
+    "tag": "IMG",
+    "id": null,
+    "cls": "lt-landing-bgmark",
+    "text": "",
+    "w": 370,
+    "h": 512,
+    "font": "Inter, \"Inter Fallback\", system-ui, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": true,
+  "lcpList": [
+   {
+    "t": 656,
+    "size": 189440,
+    "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint-mark.png",
+    "loadTime": 631,
+    "el": {
+     "tag": "IMG",
+     "id": null,
+     "cls": "lt-landing-bgmark",
+     "text": "",
+     "w": 370,
+     "h": 512,
+     "font": "Inter, \"Inter Fallback\", system-ui, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 22,
+  "tbtAll": 52,
+  "longest": 80,
+  "longTasks": [
+   [
+    430,
+    80
+   ],
+   [
+    529,
+    72
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 629,
+  "prerenderTextLen": 14213,
+  "fontEvents": [
+   [
+    661,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 225,
+   "responseEnd": 227,
+   "dcl": 601,
+   "load": 645
+  },
+  "totals": {
+   "requests": 10,
+   "failed": 0,
+   "transferKB": 641.3,
+   "htmlKB": 11.3,
+   "htmlDecodedKB": 30.1,
+   "jsKB": 354.9,
+   "jsDecodedKB": 1141.8,
+   "cssKB": 19.7,
+   "fontKB": 34.8,
+   "imgKB": 219.7,
+   "apiKB": 0.8,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 226,
+   "fontsCssEnd": null,
+   "appCssEnd": 324,
+   "lastFontEnd": 524,
+   "entryJsEnd": 512,
+   "lastJsEnd": 512,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.6,
+    "decKB": 1137.3,
+    "endMs": 512
+   },
+   {
+    "url": "/brand/lazytopper-fingerprint-mark.png",
+    "cat": "img",
+    "KB": 154.1,
+    "decKB": 153.8,
+    "endMs": 560
+   },
+   {
+    "url": "/brand/lazytopper-fingerprint.png",
+    "cat": "img",
+    "KB": 37.5,
+    "decKB": 37.3,
+    "endMs": 564
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.8,
+    "decKB": 34.7,
+    "endMs": 524
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.7,
+    "decKB": 91.1,
+    "endMs": 324
+   },
+   {
+    "url": "/brand/lazytopper-wordmark.png",
+    "cat": "img",
+    "KB": 17.7,
+    "decKB": 17.5,
+    "endMs": 525
+   },
+   {
+    "url": "/",
+    "cat": "doc",
+    "KB": 11.3,
+    "decKB": 30.1,
+    "endMs": 226
+   },
+   {
+    "url": "/brand/lazytopper-tagline.png",
+    "cat": "img",
+    "KB": 10.5,
+    "decKB": 10.4,
+    "endMs": 526
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 226,
+    "encoded": 11618,
+    "decoded": 30838
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 231,
+    "endMs": 524,
+    "encoded": 35681,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 232,
+    "endMs": 323,
+    "encoded": 2371,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 232,
+    "endMs": 512,
+    "encoded": 361088,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 232,
+    "endMs": 324,
+    "encoded": 20154,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint-mark.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 232,
+    "endMs": 560,
+    "encoded": 157780,
+    "decoded": 157513
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-fingerprint.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 232,
+    "endMs": 564,
+    "encoded": 38352,
+    "decoded": 38180
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-wordmark.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 232,
+    "endMs": 525,
+    "encoded": 18121,
+    "decoded": 17941
+   },
+   {
+    "url": "https://www.lazytopper.com/brand/lazytopper-tagline.png",
+    "cat": "img",
+    "status": 200,
+    "failed": null,
+    "startMs": 232,
+    "endMs": 526,
+    "encoded": 10766,
+    "decoded": 10623
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 649,
+    "endMs": 1083,
+    "encoded": 783,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": "re1"
+ },
+ {
+  "pageId": "practicehub",
+  "profileId": "A",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/practice-hub",
+  "finalPath": "/practice-hub",
+  "title": "Practice CBSE Class 10 Maths & Science | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T13:00:18.927Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 70,
+  "settledMs": 5206,
+  "fcp": 1080,
+  "lcp": 1080,
+  "lcpEl": {
+   "t": 1080,
+   "size": 2880,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "",
+    "text": "Pick a scope, then choose what to do.",
+    "w": 350,
+    "h": 15,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": false
+  },
+  "lcpConnectedAtEnd": false,
+  "lcpList": [
+   {
+    "t": 1080,
+    "size": 2880,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "",
+     "text": "Pick a scope, then choose what to do.",
+     "w": 350,
+     "h": 15,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": false
+   }
+  ],
+  "tbt": 526,
+  "tbtAll": 692,
+  "longest": 411,
+  "longTasks": [
+   [
+    855,
+    216
+   ],
+   [
+    1169,
+    411
+   ],
+   [
+    1584,
+    151
+   ],
+   [
+    1814,
+    99
+   ],
+   [
+    1914,
+    65
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 1760,
+  "prerenderTextLen": 9629,
+  "fontEvents": [
+   [
+    1078,
+    "Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 262,
+   "responseEnd": 558,
+   "dcl": 1579,
+   "load": 1581
+  },
+  "totals": {
+   "requests": 10,
+   "failed": 0,
+   "transferKB": 441.9,
+   "htmlKB": 11,
+   "htmlDecodedKB": 45,
+   "jsKB": 375.6,
+   "jsDecodedKB": 1207.2,
+   "cssKB": 19.7,
+   "fontKB": 34.8,
+   "imgKB": 0,
+   "apiKB": 0.8,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 557,
+   "fontsCssEnd": null,
+   "appCssEnd": 810,
+   "lastFontEnd": 842,
+   "entryJsEnd": 1151,
+   "lastJsEnd": 1556,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.6,
+    "decKB": 1137.3,
+    "endMs": 1151
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.8,
+    "decKB": 34.7,
+    "endMs": 842
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.7,
+    "decKB": 91.1,
+    "endMs": 810
+   },
+   {
+    "url": "/assets/DesktopPracticePage-KzmQE4AY.js",
+    "cat": "js",
+    "KB": 16.5,
+    "decKB": 56.8,
+    "endMs": 1556
+   },
+   {
+    "url": "/practice-hub",
+    "cat": "doc",
+    "KB": 11,
+    "decKB": 45,
+    "endMs": 557
+   },
+   {
+    "url": "/assets/fullSubjectPractice-DBE-DpCM.js",
+    "cat": "js",
+    "KB": 2.7,
+    "decKB": 6.4,
+    "endMs": 857
+   },
+   {
+    "url": "/_vercel/insights/script.js",
+    "cat": "js",
+    "KB": 2.3,
+    "decKB": 4.4,
+    "endMs": 756
+   },
+   {
+    "url": "/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "KB": 1,
+    "decKB": 1.9,
+    "endMs": 763
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/practice-hub",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 557,
+    "encoded": 11237,
+    "decoded": 46063
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 575,
+    "endMs": 842,
+    "encoded": 35681,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 577,
+    "endMs": 756,
+    "encoded": 2377,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 578,
+    "endMs": 1151,
+    "encoded": 361087,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 579,
+    "endMs": 810,
+    "encoded": 20181,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopPracticePage-KzmQE4AY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 580,
+    "endMs": 1556,
+    "encoded": 16871,
+    "decoded": 58136
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/useSubjectContext-CAP0jdfJ.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 581,
+    "endMs": 842,
+    "encoded": 508,
+    "decoded": 346
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 582,
+    "endMs": 763,
+    "encoded": 980,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fullSubjectPractice-DBE-DpCM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 583,
+    "endMs": 857,
+    "encoded": 2788,
+    "decoded": 6561
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 1782,
+    "endMs": 2090,
+    "encoded": 772,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": "re0"
+ },
+ {
+  "pageId": "practicehub",
+  "profileId": "A",
+  "mode": "plain",
+  "url": "https://www.lazytopper.com/practice-hub",
+  "finalPath": "/practice-hub",
+  "title": "Practice CBSE Class 10 Maths & Science | LazyTopper",
+  "shaBefore": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "shaAfter": "b52d46c5a8eb842ffb3d0674bd03e921d38ed94d",
+  "at": "2026-10-06T13:00:38.490Z",
+  "browser": "147.0.7727.15",
+  "err": null,
+  "hostCpuPct": 60,
+  "settledMs": 8909,
+  "fcp": 3796,
+  "lcp": 5264,
+  "lcpEl": {
+   "t": 5264,
+   "size": 2880,
+   "url": null,
+   "loadTime": 0,
+   "el": {
+    "tag": "P",
+    "id": null,
+    "cls": "",
+    "text": "Pick a scope, then choose what to do.",
+    "w": 350,
+    "h": 15,
+    "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+   },
+   "committedBefore": true
+  },
+  "lcpConnectedAtEnd": true,
+  "lcpList": [
+   {
+    "t": 4904,
+    "size": 814,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "SPAN",
+     "id": null,
+     "cls": "",
+     "text": "Exam Trends",
+     "w": 72,
+     "h": 11,
+     "font": "Arial"
+    },
+    "committedBefore": true
+   },
+   {
+    "t": 5264,
+    "size": 2880,
+    "url": null,
+    "loadTime": 0,
+    "el": {
+     "tag": "P",
+     "id": null,
+     "cls": "",
+     "text": "Pick a scope, then choose what to do.",
+     "w": 350,
+     "h": 15,
+     "font": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    "committedBefore": true
+   }
+  ],
+  "tbt": 1022,
+  "tbtAll": 1416,
+  "longest": 654,
+  "longTasks": [
+   [
+    3341,
+    444
+   ],
+   [
+    3834,
+    99
+   ],
+   [
+    3942,
+    654
+   ],
+   [
+    4615,
+    241
+   ],
+   [
+    4981,
+    169
+   ],
+   [
+    5150,
+    109
+   ]
+  ],
+  "cls": 0,
+  "firstCommitAt": 4903,
+  "prerenderTextLen": 9629,
+  "fontEvents": [
+   [
+    4904,
+    "Fraunces Fallback 100 900,Fraunces 700"
+   ]
+  ],
+  "nav": {
+   "responseStart": 86,
+   "responseEnd": 268,
+   "dcl": 4577,
+   "load": 4594
+  },
+  "totals": {
+   "requests": 10,
+   "failed": 0,
+   "transferKB": 441.8,
+   "htmlKB": 11,
+   "htmlDecodedKB": 45,
+   "jsKB": 375.6,
+   "jsDecodedKB": 1207.2,
+   "cssKB": 19.6,
+   "fontKB": 34.8,
+   "imgKB": 0,
+   "apiKB": 0.7,
+   "otherKB": 0
+  },
+  "marks": {
+   "docEnd": 267,
+   "fontsCssEnd": null,
+   "appCssEnd": 3331,
+   "lastFontEnd": 3551,
+   "entryJsEnd": 3675,
+   "lastJsEnd": 3675,
+   "katexEnd": null
+  },
+  "top8": [
+   {
+    "url": "/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "KB": 352.7,
+    "decKB": 1137.3,
+    "endMs": 3675
+   },
+   {
+    "url": "/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "KB": 34.8,
+    "decKB": 34.7,
+    "endMs": 3551
+   },
+   {
+    "url": "/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "KB": 19.6,
+    "decKB": 91.1,
+    "endMs": 3331
+   },
+   {
+    "url": "/assets/DesktopPracticePage-KzmQE4AY.js",
+    "cat": "js",
+    "KB": 16.5,
+    "decKB": 56.8,
+    "endMs": 3367
+   },
+   {
+    "url": "/practice-hub",
+    "cat": "doc",
+    "KB": 11,
+    "decKB": 45,
+    "endMs": 267
+   },
+   {
+    "url": "/assets/fullSubjectPractice-DBE-DpCM.js",
+    "cat": "js",
+    "KB": 2.7,
+    "decKB": 6.4,
+    "endMs": 3504
+   },
+   {
+    "url": "/_vercel/insights/script.js",
+    "cat": "js",
+    "KB": 2.3,
+    "decKB": 4.4,
+    "endMs": 499
+   },
+   {
+    "url": "/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "KB": 1,
+    "decKB": 1.9,
+    "endMs": 3473
+   }
+  ],
+  "api": [
+   "200 /api/cbse-exam-date?class=10"
+  ],
+  "requests": [
+   {
+    "url": "https://www.lazytopper.com/practice-hub",
+    "cat": "doc",
+    "status": 200,
+    "failed": null,
+    "startMs": 0,
+    "endMs": 267,
+    "encoded": 11236,
+    "decoded": 46063
+   },
+   {
+    "url": "https://www.lazytopper.com/fonts/fraunces-700-latin.woff2",
+    "cat": "font",
+    "status": 200,
+    "failed": null,
+    "startMs": 292,
+    "endMs": 3551,
+    "encoded": 35680,
+    "decoded": 35512
+   },
+   {
+    "url": "https://www.lazytopper.com/_vercel/insights/script.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 294,
+    "endMs": 499,
+    "encoded": 2341,
+    "decoded": 4550
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-Dq3mVS-l.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 295,
+    "endMs": 3675,
+    "encoded": 361168,
+    "decoded": 1164604
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/index-BUeEFq71.css",
+    "cat": "css",
+    "status": 200,
+    "failed": null,
+    "startMs": 296,
+    "endMs": 3331,
+    "encoded": 20104,
+    "decoded": 93297
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/DesktopPracticePage-KzmQE4AY.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 297,
+    "endMs": 3367,
+    "encoded": 16888,
+    "decoded": 58136
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/useSubjectContext-CAP0jdfJ.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 297,
+    "endMs": 3504,
+    "encoded": 486,
+    "decoded": 346
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/navigation--oj_GHmx.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 299,
+    "endMs": 3473,
+    "encoded": 981,
+    "decoded": 1994
+   },
+   {
+    "url": "https://www.lazytopper.com/assets/fullSubjectPractice-DBE-DpCM.js",
+    "cat": "js",
+    "status": 200,
+    "failed": null,
+    "startMs": 299,
+    "endMs": 3504,
+    "encoded": 2788,
+    "decoded": 6561
+   },
+   {
+    "url": "https://www.lazytopper.com/api/cbse-exam-date?class=10",
+    "cat": "api",
+    "status": 200,
+    "failed": null,
+    "startMs": 4931,
+    "endMs": 5434,
+    "encoded": 747,
+    "decoded": 308
+   }
+  ],
+  "after": null,
+  "run": "re1"
+ }
+]

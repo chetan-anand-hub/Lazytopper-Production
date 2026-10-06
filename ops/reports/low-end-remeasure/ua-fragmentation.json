@@ -1,0 +1,204 @@
+{
+ "uas": {
+  "ua1": "Android 13 SM-A145F Chrome 146",
+  "ua2": "Android 12 Redmi Note 11 Chrome 145",
+  "ua3": "Android 14 V2250 Chrome 146",
+  "ua4": "Android 11 RMX3231 Chrome 144",
+  "ua5": "Android 13 CPH2591 Chrome 146",
+  "ua6": "iPhone iOS 18.5 Safari"
+ },
+ "rows": [
+  {
+   "ua": "ua1",
+   "path": "/notes/trigonometry",
+   "try": 1,
+   "ttfbS": 1.334521,
+   "cache": "HIT",
+   "age": 1029
+  },
+  {
+   "ua": "ua1",
+   "path": "/notes/trigonometry",
+   "try": 2,
+   "ttfbS": 1.448833,
+   "cache": "HIT",
+   "age": 1033
+  },
+  {
+   "ua": "ua1",
+   "path": "/exam-trends",
+   "try": 1,
+   "ttfbS": 0.569188,
+   "cache": "HIT",
+   "age": 860
+  },
+  {
+   "ua": "ua1",
+   "path": "/exam-trends",
+   "try": 2,
+   "ttfbS": 0.799723,
+   "cache": "HIT",
+   "age": 861
+  },
+  {
+   "ua": "ua2",
+   "path": "/notes/trigonometry",
+   "try": 1,
+   "ttfbS": 0.449612,
+   "cache": "HIT",
+   "age": 1037
+  },
+  {
+   "ua": "ua2",
+   "path": "/notes/trigonometry",
+   "try": 2,
+   "ttfbS": 0.819996,
+   "cache": "HIT",
+   "age": 1038
+  },
+  {
+   "ua": "ua2",
+   "path": "/exam-trends",
+   "try": 1,
+   "ttfbS": 0.523652,
+   "cache": "HIT",
+   "age": 866
+  },
+  {
+   "ua": "ua2",
+   "path": "/exam-trends",
+   "try": 2,
+   "ttfbS": 1.274624,
+   "cache": "HIT",
+   "age": 867
+  },
+  {
+   "ua": "ua3",
+   "path": "/notes/trigonometry",
+   "try": 1,
+   "ttfbS": 0.594154,
+   "cache": "HIT",
+   "age": 1043
+  },
+  {
+   "ua": "ua3",
+   "path": "/notes/trigonometry",
+   "try": 2,
+   "ttfbS": 0.785789,
+   "cache": "HIT",
+   "age": 1044
+  },
+  {
+   "ua": "ua3",
+   "path": "/exam-trends",
+   "try": 1,
+   "ttfbS": 1.729423,
+   "cache": "HIT",
+   "age": 872
+  },
+  {
+   "ua": "ua3",
+   "path": "/exam-trends",
+   "try": 2,
+   "ttfbS": 1.010307,
+   "cache": "HIT",
+   "age": 875
+  },
+  {
+   "ua": "ua4",
+   "path": "/notes/trigonometry",
+   "try": 1,
+   "ttfbS": 0.561853,
+   "cache": "HIT",
+   "age": 1050
+  },
+  {
+   "ua": "ua4",
+   "path": "/notes/trigonometry",
+   "try": 2,
+   "ttfbS": 8.741522,
+   "cache": "HIT",
+   "age": 1058
+  },
+  {
+   "ua": "ua4",
+   "path": "/exam-trends",
+   "try": 1,
+   "ttfbS": 0.458758,
+   "cache": "HIT",
+   "age": 886
+  },
+  {
+   "ua": "ua4",
+   "path": "/exam-trends",
+   "try": 2,
+   "ttfbS": 0.858748,
+   "cache": "HIT",
+   "age": 888
+  },
+  {
+   "ua": "ua5",
+   "path": "/notes/trigonometry",
+   "try": 1,
+   "ttfbS": 0.422276,
+   "cache": "HIT",
+   "age": 1064
+  },
+  {
+   "ua": "ua5",
+   "path": "/notes/trigonometry",
+   "try": 2,
+   "ttfbS": 1.256994,
+   "cache": "HIT",
+   "age": 1065
+  },
+  {
+   "ua": "ua5",
+   "path": "/exam-trends",
+   "try": 1,
+   "ttfbS": 0.266648,
+   "cache": "HIT",
+   "age": 892
+  },
+  {
+   "ua": "ua5",
+   "path": "/exam-trends",
+   "try": 2,
+   "ttfbS": 0.293237,
+   "cache": "HIT",
+   "age": 893
+  },
+  {
+   "ua": "ua6",
+   "path": "/notes/trigonometry",
+   "try": 1,
+   "ttfbS": 0.396297,
+   "cache": "HIT",
+   "age": 1068
+  },
+  {
+   "ua": "ua6",
+   "path": "/notes/trigonometry",
+   "try": 2,
+   "ttfbS": 0.328107,
+   "cache": "HIT",
+   "age": 1069
+  },
+  {
+   "ua": "ua6",
+   "path": "/exam-trends",
+   "try": 1,
+   "ttfbS": 1.35577,
+   "cache": "HIT",
+   "age": 896
+  },
+  {
+   "ua": "ua6",
+   "path": "/exam-trends",
+   "try": 2,
+   "ttfbS": 0.339264,
+   "cache": "HIT",
+   "age": 898
+  }
+ ]
+}

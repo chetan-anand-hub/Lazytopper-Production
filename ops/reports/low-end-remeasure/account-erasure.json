@@ -1,0 +1,10 @@
+{
+ "email": "lem-scout-muwpv8mzjn7u@example.com",
+ "signInBefore": 200,
+ "uidPrefix": "KCXOqt",
+ "eraseStatus": 200,
+ "eraseBody": "{\"ok\":true,\"complete\":false,\"locations\":[{\"id\":\"learnerProfiles.sessions.messages\",\"kind\":\"firestore-subcollection\",\"mechanism\":\"browser-sdk\",\"path\":\"learnerProfiles/{uid}/sessions/{sessionId}/message",
+ "proofStatus": 400,
+ "proof": "INVALID_LOGIN_CREDENTIALS",
+ "at": "2026-10-06T13:56:29.492Z"
+}
