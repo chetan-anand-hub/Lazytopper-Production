@@ -6,7 +6,10 @@
  *   (b) the date-sensitive manifest - static guard + the runtime recorder's call-site filter;
  *   (c) the aggregate behind the REQUIRED `quality-gate` check - fails closed on any failed,
  *       skipped or cancelled job and on shards that do not cover every test file;
- *   (d) the workflow wiring - shards, clock jobs, nightly full run, concurrency.
+ *   (d) the workflow wiring - shards, clock jobs, nightly full run, concurrency;
+ *   (e) search-ping's deploy-inert skip (searchping_inert_skip.mjs) - skips ONLY when what www
+ *       serves is an ancestor and the whole range is deploy-inert by verdictForFiles; every other
+ *       case (code in range, not an ancestor, unreadable live, git error) waits.
  *
  * Run by quality-gate.yml (build-ops job).   node scripts/ops/ci_speed_acceptance.mjs
  */
@@ -15,7 +18,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { decide, isDeployInertPath, verdictForFiles } from "./vercel_ignore_build.mjs";
+import { decide, isDeployInertPath, listChangedPaths, verdictForFiles } from "./vercel_ignore_build.mjs";
+import { CONFIRM_READS, SETTLE_READS, SKIP_LINE, classifyLiveRead, decideInertSkip } from "./searchping_inert_skip.mjs";
 import { guard, dateSignalsIn, readList, scan } from "../testClock/dateSensitive.mjs";
 import { isRepoFrame } from "../testClock/clockRecorderFrames.mjs";
 import { evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
@@ -195,7 +199,13 @@ export const REAL_COMMITS = [
     const m = wf.match(new RegExp(`\\n  ${id.replace(/[-]/g, "\\-")}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z][\\w-]*:\\n|$)`));
     return m ? m[1] : "";
   };
-  check("w1_nightly_schedule_and_dispatch_triggers", /\n  schedule:\s*\n\s*- cron:\s*'[^']+'/.test(wf) && /\n  workflow_dispatch:\s*\n/.test(wf));
+  // ★ FU-CI1-NIGHTLY-RESTORE (owner ruling 2026-10-07, "Ship #969, nightly off for now"): the
+  //   nightly `schedule:` is OFF until #970 merges and the convergence gate learns that non-PR
+  //   events are N/A. This pins the NEW state - dispatch present, schedule ABSENT, FU id named.
+  //   The follow-up flips it back to requiring the cron.
+  check("w1_dispatch_trigger_present_schedule_off_until_FU_CI1_NIGHTLY_RESTORE",
+    !/\n  schedule:/.test(wf) && !/- cron:/.test(wf) && /\n  workflow_dispatch:\s*\n/.test(wf) &&
+      /FU-CI1-NIGHTLY-RESTORE/.test(wf));
   check("w2_concurrency_separates_events",
     /group:\s*quality-gate-\$\{\{\s*github\.event_name\s*\}\}-\$\{\{\s*github\.ref\s*\}\}/.test(wf),
     "a nightly/dispatched run must never cancel (or be cancelled by) a trunk push run");
@@ -220,6 +230,109 @@ export const REAL_COMMITS = [
   check("w6_static_guard_and_this_suite_run_on_the_full_bar",
     /dateSensitive\.mjs --guard/.test(buildOps) && /ci_speed_acceptance\.mjs/.test(buildOps) &&
       /if: needs\.classify\.outputs\.docs_only != 'true'/.test(buildOps));
+}
+
+// ---- (e) search-ping deploy-inert skip ---------------------------------------------------------
+{
+  const SHA = "1111111111111111111111111111111111111111";
+  const LIVE = "0000000000000000000000000000000000000000"; // an ancestor of SHA
+  const OLDER = "4444444444444444444444444444444444444444"; // another ancestor of SHA
+  const OTHER = "2222222222222222222222222222222222222222"; // unrelated
+  const NEWER = "3333333333333333333333333333333333333333"; // a descendant of SHA
+  const anc = new Set([`${LIVE}>${SHA}`, `${OLDER}>${SHA}`, `${SHA}>${NEWER}`, `${LIVE}>${NEWER}`]);
+  const isAnc = (a, d) => anc.has(`${a}>${d}`);
+  const fake = (reads, files, { gitThrows = false } = {}) => {
+    let i = 0;
+    return {
+      deps: {
+        readLiveSha: async () => {
+          const r = reads[Math.min(i++, reads.length - 1)];
+          if (r instanceof Error) throw r;
+          return r;
+        },
+        isAncestor: (a, d) => {
+          if (gitThrows) throw new Error("git exploded");
+          return isAnc(a, d);
+        },
+        changedFiles: () => files,
+        sleep: async () => {},
+        log: () => {},
+      },
+      reads: () => i,
+    };
+  };
+  const run = (f) => decideInertSkip(SHA, f.deps, { intervalMs: 0 });
+  const DOCS = ["handoff/CURRENT_STATE.md", "handoff/SESSION_LOG.md", "CLAUDE.md"];
+
+  const a = fake([LIVE], DOCS);
+  const ra = await run(a);
+  check("s1_ancestor_and_all_inert_skips_after_confirm_reads",
+    ra.skip === true && ra.path === "skip" && a.reads() === CONFIRM_READS && ra.files.length === 3 &&
+      ra.range === "000000000000..111111111111" && SKIP_LINE === "deploy skipped by ignoreCommand: nothing new to ping",
+    `${ra.path} after ${a.reads()} reads: ${ra.reason}`);
+
+  const b = fake([LIVE], [...DOCS, "lazytopper/src/pages/Home.tsx"]);
+  const rb = await run(b);
+  check("s2_ancestor_plus_one_code_file_waits_at_once", !rb.skip && rb.path === "wait" && b.reads() === 1, rb.reason);
+
+  const c = fake([OTHER], DOCS);
+  const rc = await run(c);
+  check("s3_live_not_an_ancestor_waits", !rc.skip && rc.path === "wait" && c.reads() === 1, rc.reason);
+
+  const d1 = fake([null], DOCS);
+  const d2 = fake([new Error("fetch failed")], DOCS);
+  const d3 = fake([LIVE], DOCS, { gitThrows: true });
+  const rd1 = await run(d1);
+  const rd2 = await run(d2);
+  const rd3 = await run(d3);
+  check("s4_unreadable_live_or_git_error_waits_never_skips",
+    !rd1.skip && rd1.path === "wait" && d1.reads() === SETTLE_READS &&
+      !rd2.skip && rd2.path === "wait" && !rd3.skip && rd3.path === "wait",
+    `null: ${rd1.reason} | throw: ${rd2.reason} | git: ${rd3.reason}`);
+
+  const e1 = fake([SHA], DOCS);
+  const e2 = fake([NEWER], DOCS);
+  const re1 = await run(e1);
+  const re2 = await run(e2);
+  check("s5_live_is_sha_or_a_descendant_takes_the_existing_wait_path",
+    !re1.skip && re1.path === "existing" && e1.reads() === 1 && !re2.skip && re2.path === "existing",
+    `${re1.reason} | ${re2.reason}`);
+
+  // A rollout mid-way: inert reads must be CONSECUTIVE and of the SAME live SHA.
+  const f = fake([LIVE, LIVE, null, LIVE, OLDER, LIVE, LIVE, null], DOCS);
+  const rf = await run(f);
+  check("s6_inert_reads_must_be_consecutive_and_stable_or_it_waits",
+    !rf.skip && rf.path === "wait" && f.reads() === SETTLE_READS, rf.reason);
+
+  // ONE copy of the rule: the decision defers to verdictForFiles for every path, the tricky ones included.
+  const kindFor = (files) => classifyLiveRead(SHA, LIVE, { isAncestor: isAnc, changedFiles: () => files }).kind;
+  const diverge = PATHS.filter(([p, inert]) => {
+    const got = kindFor([p]);
+    return got !== (verdictForFiles([p]).skip ? "inert" : "wait") || got !== (inert ? "inert" : "wait");
+  });
+  const src = read(path.join(HERE, "searchping_inert_skip.mjs"));
+  const code = src.replace(/^\s*\/\/.*$/gm, "");
+  check("s7_skip_uses_the_shared_classifier_and_no_rule_of_its_own",
+    diverge.length === 0 && kindFor([]) === "wait" &&
+      /import \{[^}]*\bverdictForFiles\b[^}]*\} from "\.\/vercel_ignore_build\.mjs"/.test(src) &&
+      !/\.md\b|endsWith|SHIPPING_SEGMENTS|handoff\//.test(code),
+    diverge.length ? `diverges on: ${diverge.map(([p]) => p).join(", ")}` : `${PATHS.length} paths agree with verdictForFiles; empty range waits`);
+
+  // Real history: a docs-only squash merge vs its parent is inert; a product merge vs its parent waits.
+  let hasHistory = true;
+  try { git(["cat-file", "-e", "b52d46c5^{commit}"]); } catch { hasHistory = false; }
+  if (!hasHistory) {
+    check("s8_real_trunk_ranges", false, "history not available - this suite needs full history (fetch-depth: 0)");
+  } else {
+    const realDeps = {
+      isAncestor: (x, y) => { try { git(["merge-base", "--is-ancestor", x, y]); return true; } catch { return false; } },
+      changedFiles: (from, to) => listChangedPaths(from, to, { cwd: REPO_ROOT }),
+    };
+    const rev = (r) => git(["rev-parse", r]).trim();
+    const docs = classifyLiveRead(rev("b52d46c5"), rev("b52d46c5^"), realDeps).kind;
+    const prod = classifyLiveRead(rev("1e489130"), rev("1e489130^"), realDeps).kind;
+    check("s8_real_trunk_ranges", docs === "inert" && prod === "wait", `b52d46c5^..b52d46c5=${docs} 1e489130^..1e489130=${prod}`);
+  }
 }
 
 // ---- report -----------------------------------------------------------------------------------

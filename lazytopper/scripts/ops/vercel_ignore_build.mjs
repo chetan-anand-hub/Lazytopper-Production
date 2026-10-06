@@ -67,6 +67,16 @@ function defaultGit(args, cwd) {
 }
 
 /**
+ * The changed-file list between two commits, exactly as this step computes it. Exported so
+ * search-ping's deploy-inert skip (searchping_inert_skip.mjs) uses the SAME git arguments.
+ * Throws on a git error (callers treat that as "not skippable").
+ */
+export function listChangedPaths(from, to, { git = defaultGit, cwd = process.cwd() } = {}) {
+  const out = git(["diff", "--name-only", "--no-renames", from, to], cwd);
+  return out.split("\n").map((s) => s.trim()).filter(Boolean);
+}
+
+/**
  * The whole decision. `env` is Vercel's system env; `git` is injectable so the acceptance suite
  * can replay real trunk commits with a chosen HEAD.
  */
@@ -84,13 +94,12 @@ export function decide(env = process.env, { git = defaultGit, cwd = process.cwd(
   } catch {
     return { skip: false, reason: `previous deployment ${prev.slice(0, 12)} is not in this clone - building` };
   }
-  let out;
+  let files;
   try {
-    out = git(["diff", "--name-only", "--no-renames", prev, head], cwd);
+    files = listChangedPaths(prev, head, { git, cwd });
   } catch (err) {
     return { skip: false, reason: `git diff ${prev.slice(0, 12)}..${head} failed - building (${String(err?.message || err).split("\n")[0]})` };
   }
-  const files = out.split("\n").map((s) => s.trim()).filter(Boolean);
   const v = verdictForFiles(files);
   return { ...v, files, range: `${prev.slice(0, 12)}..${head}` };
 }
