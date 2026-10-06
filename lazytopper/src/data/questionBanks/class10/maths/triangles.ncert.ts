@@ -125,7 +125,7 @@ export const TRI_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 6.5 Q1", isCompetencyBased: false,
     strategyHint: "By converse of Pythagoras: triangle is right ⇔ (largest side)² = sum of squares of other two." },
 
-  { id: "TRI-N-NCERT-6-LA-006", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "TRI-N-NCERT-6-LA-006", subject: "Maths", topicKey: "triangles", subtopic: "Similarity in Right Triangles", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "ABD is a triangle right-angled at A and AC ⊥ BD. Show that (i) AB² = BC · BD, (ii) AC² = BC · DC, (iii) AD² = BD · CD.",
     answer: "Given: △ABD right-angled at A, with AC ⊥ BD (C lies on BD). To prove: (i) AB² = BC · BD, (ii) AC² = BC · DC, (iii) AD² = BD · CD. Proof: By Theorem 6.7, the perpendicular from the right-angle vertex to the hypotenuse creates two triangles each similar to the original. So △ABC ~ △DBA (sharing ∠B, both have a right angle: at C and at A respectively) and △ACD ~ △BAD (sharing ∠D, both right-angled). From △ABC ~ △DBA: AB/DB = BC/BA ⇒ AB² = BC · BD. (i) ✓ From △ABC ~ △BCA (wait — use the third similarity): the two smaller triangles △ABC and △ACD are similar to each other; from △ABC ~ △DCA (correspondence A↔D, B↔C, C↔A): AC/DC = BC/AC ⇒ AC² = BC · DC. (ii) ✓ From △ACD ~ △BAD: AD/BD = CD/AD ⇒ AD² = BD · CD. (iii) ✓",
     solutionSteps: ["Given: △ABD with ∠A = 90°; AC ⊥ BD; C lies on BD.", "To prove: (i) AB² = BC · BD; (ii) AC² = BC · DC; (iii) AD² = BD · CD.", "Key result (Theorem 6.7): the foot of the altitude from the right angle creates three mutually similar triangles: △ABD, △CBA, △CAD.", "Proof of (i): △ABC and △DBA share ∠B; ∠ACB = ∠DAB = 90°. By AA, △ABC ~ △DBA. So AB/DB = BC/AB ⇒ AB² = BC · BD.", "Proof of (ii): The two smaller triangles △ABC and △ACD are both similar to △ABD, hence to each other (△ABC ~ △DCA with A↔D, B↔C, C↔A). So AC/DC = BC/AC ⇒ AC² = BC · DC.", "Proof of (iii): △ACD ~ △BAD (share ∠D; both have a right angle at C and A respectively). So AD/BD = CD/AD ⇒ AD² = BD · CD.", "All three results follow from Theorem 6.7."],
@@ -141,7 +141,7 @@ export const TRI_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 6.5 Q4", isCompetencyBased: false,
     strategyHint: "Pythagoras at the right angle + isosceles condition AC = BC." },
 
-  { id: "TRI-N-NCERT-6-SA-006", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "TRI-N-NCERT-6-SA-006", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "ABC is an equilateral triangle of side 2a. Find each of its altitudes.",
     answer: "Drop an altitude AD from A onto BC; D is the foot. In an equilateral triangle, the altitude from any vertex bisects the opposite side, so BD = DC = a. △ABD is right-angled at D, with AB = 2a (hypotenuse) and BD = a. By Pythagoras: AD² = AB² − BD² = (2a)² − a² = 4a² − a² = 3a². So AD = a√3. Each altitude has length a√3.",
     solutionSteps: ["Let △ABC be equilateral with side 2a. Drop altitude AD ⊥ BC at D.", "In an equilateral triangle, the altitude bisects the base, so BD = DC = a.", "△ABD is right-angled at D with hypotenuse AB = 2a and one leg BD = a.", "By Pythagoras: AD² = AB² − BD² = 4a² − a² = 3a².", "AD = √(3a²) = a√3.", "By symmetry, every altitude has length a√3."],
@@ -149,7 +149,7 @@ export const TRI_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 6.5 Q6", isCompetencyBased: false,
     strategyHint: "Altitude bisects the base in an equilateral triangle; apply Pythagoras to the half-triangle." },
 
-  { id: "TRI-N-NCERT-6-SA-007", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+  { id: "TRI-N-NCERT-6-SA-007", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "A ladder 10 m long reaches a window 8 m above the ground. Find the distance of the foot of the ladder from the base of the wall.",
     answer: "Let the foot of the ladder be x m from the wall. The wall, the ground, and the ladder form a right triangle with hypotenuse 10 m (ladder) and vertical leg 8 m (height to the window). By Pythagoras: 10² = 8² + x², so x² = 100 − 64 = 36, giving x = 6 m.",
     solutionSteps: ["Let foot-to-wall distance = x m. Wall is vertical, ground is horizontal ⇒ right angle at base.", "Apply Pythagoras: (ladder)² = (height)² + (base)².", "10² = 8² + x² ⇒ 100 = 64 + x² ⇒ x² = 36 ⇒ x = 6 m."],
@@ -157,7 +157,7 @@ export const TRI_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 6.5 Q9", isCompetencyBased: true,
     strategyHint: "Ladder + wall + ground = right triangle; ladder is the hypotenuse." },
 
-  { id: "TRI-N-NCERT-6-SA-008", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "TRI-N-NCERT-6-SA-008", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An aeroplane leaves an airport and flies due north at 1000 km/h. At the same time, another aeroplane leaves the same airport and flies due west at 1200 km/h. How far apart will the two planes be after 1½ hours?",
     answer: "Distance flown by the north-bound plane in 1.5 h = 1000 × 1.5 = 1500 km. Distance flown by the west-bound plane in 1.5 h = 1200 × 1.5 = 1800 km. North and west are perpendicular directions, so the airport and the two plane positions form a right triangle with legs 1500 km and 1800 km. By Pythagoras, distance between planes = √(1500² + 1800²) = √(2,250,000 + 3,240,000) = √5,490,000 = 300√61 km.",
     solutionSteps: ["North-bound plane: distance = 1000 × 1.5 = 1500 km.", "West-bound plane: distance = 1200 × 1.5 = 1800 km.", "North ⊥ West, so the two paths and the line between the planes form a right triangle with legs 1500 and 1800.", "By Pythagoras: separation² = 1500² + 1800² = 2,250,000 + 3,240,000 = 5,490,000.", "Separation = √5,490,000 = √(900 × 6100) = 30√6100 = 300√61 km (≈ 2343.07 km)."],
@@ -210,7 +210,7 @@ export const TRI_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Example 7 (Ch 6)", isCompetencyBased: true,
     strategyHint: "Vertical objects + same sunlight/shadow tip ⇒ AA similarity. Set up and solve the proportion." },
 
-  { id: "TRI-N-NCERT-6-CB-002", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "TRI-N-NCERT-6-CB-002", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Case study: A guy wire attached to the top of a vertical pole of height 18 m is 24 m long, and the other end is fixed to a stake on the ground. Answer:\n(i) Name the right angle in the pole-wire-ground triangle.\n(ii) Identify the hypotenuse.\n(iii) How far from the base of the pole should the stake be driven so that the wire is taut? (Use Pythagoras.)\n(iv) If a second guy wire 30 m long is used from the same top, what would be the new distance of the stake from the base?",
     answer: "(i) The pole is vertical and the ground is horizontal, so the right angle is at the base of the pole. (ii) The guy wire (the slant side opposite the right angle) is the hypotenuse. (iii) Let the stake be x m from the base. By Pythagoras: x² + 18² = 24² ⇒ x² = 576 − 324 = 252 ⇒ x = √252 = 6√7 m ≈ 15.87 m. (iv) With a 30 m wire: x² + 18² = 30² ⇒ x² = 900 − 324 = 576 ⇒ x = 24 m.",
     solutionSteps: ["(i) Pole ⊥ ground at the base of the pole ⇒ right angle at the base.", "(ii) Hypotenuse = side opposite the right angle = the guy wire.", "(iii) Apply Pythagoras: (stake distance)² + (pole height)² = (wire length)². Let stake distance = x. x² + 18² = 24² ⇒ x² = 576 − 324 = 252 ⇒ x = 6√7 m ≈ 15.87 m.", "(iv) With wire = 30 m: x² + 18² = 30² ⇒ x² = 900 − 324 = 576 ⇒ x = 24 m."],

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "coordinate-geometry" (Maths): 297 served rows from 19 source arrays, 3 withheld.
+// Chapter "coordinate-geometry" (Maths): 278 served rows from 19 source arrays, 22 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -47,7 +47,26 @@ export default defineChapter("coordinate-geometry", [
   [352, COORDINATE_GEOMETRY_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
 ], [
+  "CG-N05",
+  "CG-ND02",
+  "CG2-044",
+  "CG2-052",
+  "CG2-057",
+  "CG-N-NCERT-7-EX-011",
+  "CG-N-NCERT-7-EX-026",
+  "CG-N-NCERT-7-EX-027",
+  "CG-N-NCERT-7-EX-028",
+  "CG-N-NCERT-7-EX-029",
+  "CG-N-NCERT-7-EX-030",
+  "CG-N-EXMPLR-7-EX-006",
   "CG-N-EXMPLR-7-EX-010",
+  "CG-N-EXMPLR-7-EX-012",
+  "CG-N-EXMPLR-7-EX-013",
+  "CG-N-EXMPLR-7-EX-018",
+  "CG-N-EXMPLR-7-EX-019",
+  "CG-N-EXMPLR-7-EX-021",
+  "CG-N-EXMPLR-7-EX-025",
+  "SP-M-2022-CG-A-001",
   "PYQ-M-CG-002",
   "PYQ-M-2025-CG-003",
 ]);

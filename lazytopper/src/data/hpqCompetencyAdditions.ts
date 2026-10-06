@@ -148,36 +148,6 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
     defaultTier: "high-roi",
     questions: [
       {
-        id: "cg-comp-01",
-        subject: "Maths",
-        topic: "Coordinate Geometry",
-        subtopic: "Distance Formula",
-        concept: "Assertion–Reason",
-        section: "A",
-        type: "AssertionReason",
-        difficulty: "Medium",
-        marks: 1,
-        likelihood: "Medium-High",
-        tier: "high-roi",
-        bloomSkill: "Analysing",
-        kind: "assertion-reason",
-        question: "Assertion–Reason: refer to assertion and reason below.",
-        assertion:
-          "The points A(1, 2), B(4, 6) and C(7, 10) are collinear.",
-        reason:
-          "Three points are collinear if the area of the triangle formed by them is zero.",
-        aROptions: [
-          { label: "A", text: "Both Assertion and Reason are true and Reason is the correct explanation." },
-          { label: "B", text: "Both Assertion and Reason are true but Reason is not the correct explanation." },
-          { label: "C", text: "Assertion is true but Reason is false." },
-          { label: "D", text: "Assertion is false but Reason is true." },
-        ],
-        correctOption: "A",
-        answer: "A",
-        explanation:
-          "Area = ½|1(6−10) + 4(10−2) + 7(2−6)| = ½|−4 + 32 − 28| = 0. So the points are collinear, and the reason is the correct explanation.",
-      },
-      {
         id: "cg-comp-02",
         subject: "Maths",
         topic: "Coordinate Geometry",
@@ -268,56 +238,6 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
     subject: "Maths",
     defaultTier: "high-roi",
     questions: [
-      {
-        id: "sav-comp-01",
-        subject: "Maths",
-        topic: "Surface Areas and Volumes",
-        subtopic: "Combination/Transformation",
-        concept: "Water tank problem",
-        section: "E",
-        type: "CaseBased",
-        difficulty: "Medium",
-        marks: 4,
-        likelihood: "High",
-        tier: "high-roi",
-        bloomSkill: "Applying",
-        question:
-          "A farmer has a cylindrical water tank of diameter 2 m and height 3.5 m. He wants to pour all the water into a conical pit of radius 3.5 m.\n(a) Find the volume of the cylindrical tank.\n(b) Find the depth of water in the conical pit.\n(c) If the farmer increases the tank diameter to 3 m (keeping height same), by what factor does the volume increase?",
-        answer:
-          "(a) V = π × 1² × 3.5 = 3.5π ≈ 11 m³. (b) 3.5π = (1/3)π × 3.5² × h ⇒ h = 3.5 × 3/(3.5²) = 10.5/12.25 ≈ 0.857 m. (c) New V = π × 1.5² × 3.5 = 7.875π. Factor = 7.875/3.5 = 2.25.",
-        explanation:
-          "Applies volume conversion between cylinder and cone in a farming context.",
-      },
-      {
-        id: "sav-comp-02",
-        subject: "Maths",
-        topic: "Surface Areas and Volumes",
-        subtopic: "Cylinder/Cone/Sphere",
-        concept: "Assertion–Reason",
-        section: "A",
-        type: "AssertionReason",
-        difficulty: "Medium",
-        marks: 1,
-        likelihood: "Medium-High",
-        tier: "high-roi",
-        bloomSkill: "Analysing",
-        kind: "assertion-reason",
-        question: "Assertion–Reason: refer to assertion and reason below.",
-        assertion:
-          "When a solid sphere is melted and recast into a solid cylinder of the same radius, the height of the cylinder equals (4/3) times the radius.",
-        reason:
-          "Volume of sphere = (4/3)πr³ and Volume of cylinder = πr²h.",
-        aROptions: [
-          { label: "A", text: "Both Assertion and Reason are true and Reason is the correct explanation." },
-          { label: "B", text: "Both Assertion and Reason are true but Reason is not the correct explanation." },
-          { label: "C", text: "Assertion is true but Reason is false." },
-          { label: "D", text: "Assertion is false but Reason is true." },
-        ],
-        correctOption: "A",
-        answer: "A",
-        explanation:
-          "Equating volumes: (4/3)πr³ = πr²h ⇒ h = (4/3)r. Both the assertion and reason are true and the reason correctly explains the assertion.",
-      },
     ],
   },
   {
@@ -755,25 +675,6 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
     subject: "Maths",
     defaultTier: "must-crack",
     questions: [
-      {
-        id: "tri-comp-01",
-        subject: "Maths",
-        topic: "Triangles",
-        subtopic: "Similar Triangles",
-        concept: "Case-based BPT application",
-        section: "E",
-        type: "CaseBased",
-        difficulty: "Medium",
-        marks: 4,
-        likelihood: "High",
-        tier: "must-crack",
-        bloomSkill: "Applying",
-        question:
-          "In triangle ABC, DE is drawn parallel to BC such that AD = 4 cm, DB = 6 cm, and AE = 5 cm.\n(a) State the theorem used.\n(b) Find EC.\n(c) If BC = 15 cm, find DE.\n(d) Find the ratio of areas of triangles ADE and ABC.",
-        answer:
-          "(a) Basic Proportionality Theorem (Thales). (b) EC = 7.5 cm. (c) DE = 6 cm. (d) Ratio = 4/25.",
-        explanation: "Case-based application of BPT and area ratio of similar triangles.",
-      },
       {
         id: "tri-comp-02",
         subject: "Maths",

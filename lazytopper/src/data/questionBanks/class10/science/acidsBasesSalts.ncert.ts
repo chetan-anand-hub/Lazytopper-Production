@@ -260,8 +260,8 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
     questionText: "Do basic solutions also have H⁺(aq) ions? If yes, then why are these basic?",
     answer: "Yes, basic solutions also contain H⁺(aq) ions, but the concentration of OH⁻ ions is much greater than that of H⁺ ions. The dominance of OH⁻ ions makes the solution basic.",
     solutionSteps: [
-      "[1 mark] In any aqueous solution, water self-ionises (Kw = [H⁺][OH⁻] = 10⁻¹⁴ at 25°C). So both H⁺ and OH⁻ are always present.",
-      "[0.5 mark] In a basic solution, [OH⁻] > [H⁺]. The H⁺ is small but not zero (e.g. for pH 11, [H⁺] = 10⁻¹¹ M).",
+      "[1 mark] Water ionises slightly, so every aqueous solution contains both H⁺(aq) and OH⁻(aq) ions.",
+      "[0.5 mark] In a basic solution, [OH⁻] > [H⁺]; the H⁺ ion concentration is small but not zero.",
       "[0.5 mark] Since OH⁻ dominates, the solution is basic.",
     ],
     finalAnswer: "Yes, but [OH⁻] > [H⁺] in basic solutions, hence basic in nature.",

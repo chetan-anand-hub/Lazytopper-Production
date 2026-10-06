@@ -338,101 +338,6 @@ export const promptDPracticePacks: PracticePacksIndex =
         }
       ]
     },
-    "periodic_classification": {
-      "subject": "science",
-      "topicKey": "periodic_classification",
-      "topicName": "Periodic Classification of Elements",
-      "modes": {
-        "speed_practice": {
-          "targetCount": 10,
-          "difficultyMix": {
-            "Easy": 5,
-            "Medium": 4,
-            "Hard": 1
-          }
-        },
-        "exam_mix": {
-          "targetCount": 10,
-          "difficultyMix": {
-            "Easy": 3,
-            "Medium": 5,
-            "Hard": 2
-          }
-        }
-      },
-      "questions": [
-        {
-          "id": "S-PER-1",
-          "text": "State Mendeleev's Periodic Law.",
-          "marks": 1,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-2",
-          "text": "State the Modern Periodic Law.",
-          "marks": 1,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-3",
-          "text": "What were Dobereiner's triads? Give one example.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-4",
-          "text": "State Newlands' Law of Octaves and mention one limitation.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-5",
-          "text": "Mention any two merits of Mendeleev's Periodic Table.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-6",
-          "text": "State any two limitations of Mendeleev's Periodic Table.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-7",
-          "text": "How does the atomic size change on moving from left to right across a period? Give a reason.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-8",
-          "text": "How does the metallic character of elements change (a) across a period and (b) down a group in the Modern Periodic Table?",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-9",
-          "text": "Elements in the same group of the Periodic Table have similar chemical properties. Why?",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-10",
-          "text": "How did Mendeleev's Periodic Table overcome the limitations of Dobereiner's triads and Newlands' Law of Octaves? Explain with two points.",
-          "marks": 3,
-          "difficulty": "Hard",
-          "questionType": "subjective"
-        }
-      ]
-    },
     "carbon_compounds": {
       "subject": "science",
       "topicKey": "carbon_compounds",
@@ -946,13 +851,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
-          "id": "S-HER-5",
-          "text": "Why are traits such as big biceps of a person not inherited by his children?",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
           "id": "S-HER-8",
           "text": "Explain briefly how sex of a child is determined in human beings.",
           "marks": 3,
@@ -1143,13 +1041,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
-          "id": "S-EYE-6",
-          "text": "Explain briefly why the Sun appears reddish at sunrise and sunset.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
           "id": "S-EYE-7",
           "text": "What is atmospheric refraction? Give one example to illustrate it.",
           "marks": 2,
@@ -1228,27 +1119,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "text": "Write two factors on which magnetic field produced by current-carrying solenoid depends.",
           "marks": 2,
           "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-MAG-5",
-          "text": "How does Fleming’s left-hand rule help in understanding working of electric motor?",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-MAG-6",
-          "text": "What is meant by electromagnetic induction? Name one device based on this principle.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-MAG-7",
-          "text": "Draw a neat diagram of simple electric motor (or describe its main parts).",
-          "marks": 3,
-          "difficulty": "Hard",
           "questionType": "subjective"
         },
         {
@@ -1543,13 +1413,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "text": "If the graph of a quadratic polynomial intersects the x-axis at two distinct points, what can you say about its zeroes? Give reason.",
           "marks": 2,
           "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-POLY-9",
-          "text": "For polynomial f(x) = x^3 − 4x^2 + x + 6, if (x − 2) is a factor, find the remaining factors and all zeroes.",
-          "marks": 4,
-          "difficulty": "Hard",
           "questionType": "subjective"
         },
         {
@@ -1884,22 +1747,8 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
-          "id": "M-TRI-3",
-          "text": "In two similar triangles, ratio of their corresponding sides is 3:5. Find ratio of their areas.",
-          "marks": 1,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
           "id": "M-TRI-4",
           "text": "Prove that if a line is drawn parallel to one side of a triangle to intersect other two sides, then it divides them in the same ratio.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-TRI-5",
-          "text": "Prove that in a right-angled triangle, the square on hypotenuse is equal to sum of squares on other two sides.",
           "marks": 3,
           "difficulty": "Medium",
           "questionType": "subjective"
@@ -1912,24 +1761,10 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
-          "id": "M-TRI-7",
-          "text": "Two triangles are similar and area of first is 49 cm^2 while area of second is 121 cm^2. If one side of first triangle is 7 cm, find corresponding side of second.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
           "id": "M-TRI-8",
           "text": "In ΔABC and ΔPQR, if ∠A = ∠P, ∠B = ∠Q and BC/QR = CA/RP, prove that triangles are similar.",
           "marks": 4,
           "difficulty": "Hard",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-TRI-9",
-          "text": "In ΔABC, DE ∥ BC with AD/DB = 3/2. If area of ΔADE is 27 cm^2, find area of trapezium DECB.",
-          "marks": 3,
-          "difficulty": "Medium",
           "questionType": "subjective"
         },
         {
@@ -1986,34 +1821,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
-          "id": "M-CG-4",
-          "text": "Find the area of triangle with vertices (1, 1), (4, 5) and (7, 2).",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-CG-5",
-          "text": "For what value of k are points (2, 3), (4, k) and (6, 7) collinear?",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-CG-6",
-          "text": "The points A(2, 3), B(6, 7) and C(4, 5) form a triangle. Show that its area is zero.",
-          "marks": 3,
-          "difficulty": "Hard",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-CG-7",
-          "text": "If A(1, 2), B(4, y) and C(7, 8) are collinear, find y.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
           "id": "M-CG-8",
           "text": "A point P(x, 4) is equidistant from A(2, 3) and B(6, 7). Find x.",
           "marks": 3,
@@ -2027,13 +1834,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "difficulty": "Hard",
           "questionType": "subjective"
         },
-        {
-          "id": "M-CG-10",
-          "text": "If vertices of a triangle are (0, 0), (a, 0) and (0, b), find its area and comment when a or b is zero.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        }
       ]
     },
     "introduction_to_trigonometry": {
@@ -2097,13 +1897,6 @@ export const promptDPracticePacks: PracticePacksIndex =
         {
           "id": "M-TRIG-6",
           "text": "If sin A = 5/13, A acute, find value of 2 tan A − 3 cot A.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-TRIG-7",
-          "text": "Prove that cos(90° − A) = sin A and hence find cos 30° from table of sin values.",
           "marks": 3,
           "difficulty": "Medium",
           "questionType": "subjective"
@@ -2198,7 +1991,7 @@ export const promptDPracticePacks: PracticePacksIndex =
         },
         {
           "id": "M-APPTRIG-7",
-          "text": "At a point on level ground, angle of elevation of a vertical tower is 40°. On moving 20 m closer, angle becomes 60°. Find height of tower.",
+          "text": "At a point on level ground, angle of elevation of a vertical tower is 30°. On moving 20 m closer, angle becomes 60°. Find height of tower.",
           "marks": 4,
           "difficulty": "Hard",
           "questionType": "subjective"
@@ -2280,13 +2073,6 @@ export const promptDPracticePacks: PracticePacksIndex =
         {
           "id": "M-CIR-5",
           "text": "From point P outside circle, two tangents are drawn touching circle at A and B. Prove that the quadrilateral PAOB is cyclic.",
-          "marks": 4,
-          "difficulty": "Hard",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-CIR-6",
-          "text": "A tangent PT is drawn to circle from external point P, and secant PAB cuts circle at A and B. Prove that PT² = PA × PB.",
           "marks": 4,
           "difficulty": "Hard",
           "questionType": "subjective"
@@ -2472,13 +2258,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "text": "A cylindrical pipe has internal radius 3 cm, height 21 cm. Find volume of water it can hold.",
           "marks": 3,
           "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-SAV-6",
-          "text": "A solid cylinder of radius 7 cm and height 10 cm is melted and recast into spheres of radius 7 cm. Find number of spheres formed.",
-          "marks": 4,
-          "difficulty": "Hard",
           "questionType": "subjective"
         },
         {

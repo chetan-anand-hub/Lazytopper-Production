@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "areas-related-to-circles" (Maths): 224 served rows from 16 source arrays, 3 withheld.
+// Chapter "areas-related-to-circles" (Maths): 219 served rows from 16 source arrays, 8 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -42,6 +42,11 @@ export default defineChapter("areas-related-to-circles", [
   [415, CURATED_INLINE_QUESTIONS, false],
 ], [
   "ARC-M15",
+  "ARC-H08",
+  "ARC2-007",
+  "ARC2-017",
+  "ARC2-021",
+  "ARC2-037",
   "PYQ-M-ARC-002",
   "PYQ-M-ARC-003",
 ]);
