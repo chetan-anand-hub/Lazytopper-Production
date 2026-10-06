@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import {
   ME_DEFAULT_WINDOW,
   boardChapterKey,
+  modelNamesWeakness,
   readStudyModel,
   rungNamesWeakness,
   type StudyReadModel,
@@ -565,7 +566,35 @@ export default function WeakAreaPracticePage() {
 
       {tab === "weak-areas" && (
         <div>
-          {!summary || summary.weakAreas.length === 0 ? (
+          {/* ME-ENGINE-1 PR-2c [WEAKAREA-EMPTY-PRAISE]: an empty list is praise ONLY when the
+              shared model has graded evidence above Me's gate (`modelNamesWeakness`, the gate Me
+              uses); below it — no graded answers, signed out, or a failed read — it is an honest
+              "not enough graded yet", never "your topics are looking strong". */}
+          {(!summary || summary.weakAreas.length === 0) && !(model && modelNamesWeakness(model)) ? (
+            <div style={{ textAlign: "center", padding: "40px 20px" }} data-testid="weak-area-empty-thin">
+              <div style={{ fontSize: 48, marginBottom: 12 }}>&#128218;</div>
+              <h3 style={{ fontWeight: 800, fontSize: 18 }}>Not Enough Graded Yet</h3>
+              <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 8 }}>
+                Not enough of your answers have been graded yet to suggest a topic. Practise a few questions and check back.
+              </p>
+              <button
+                onClick={() => navigate("/practice-hub")}
+                style={{
+                  marginTop: 16,
+                  padding: "10px 20px",
+                  borderRadius: 12,
+                  border: "none",
+                  background: "#58cc02",
+                  color: "var(--text)",
+                  fontWeight: 800,
+                  fontSize: 14,
+                  cursor: "pointer",
+                }}
+              >
+                Go to Practice
+              </button>
+            </div>
+          ) : !summary || summary.weakAreas.length === 0 ? (
             <div style={{ textAlign: "center", padding: "40px 20px" }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>&#127881;</div>
               <h3 style={{ fontWeight: 800, fontSize: 18, color: "#22c55e" }}>No Weak Areas!</h3>

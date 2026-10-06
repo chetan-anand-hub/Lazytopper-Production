@@ -14,6 +14,9 @@
  * Mutations this file turns RED: A1 — a mastery label comes back; A2 — a 0% is shown below the
  * threshold (the old `area.accuracy` with no evidence); A3 — Accuracy/Attempts read the
  * device-local weak-area figures again; A4 — difficulty from mastery again.
+ *
+ * ME-ENGINE-1 PR-2c [WEAKAREA-EMPTY-PRAISE]: E1 — drop the `modelNamesWeakness` gate on the empty
+ * list (praise with no graded evidence) → the "0 graded" pin goes RED.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, cleanup, fireEvent } from "@testing-library/react";
@@ -26,6 +29,7 @@ const NOW = Date.now();
 const H = vi.hoisted(() => ({
   attempts: [] as PracticeAttempt[],
   navigate: [] as string[],
+  emptyList: false,
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => ({
@@ -59,6 +63,7 @@ vi.mock("../context/AuthContext", () => ({
 const DEVICE_KEY = "test.device";
 vi.mock("../services/weakAreaAggregator", () => ({
   getWeakAreas: () => {
+    if (H.emptyList) return { weakAreas: [], totalWeak: 0, closedThisWeek: 0, overallMasteryPercent: 0 };
     const deviceA = window.localStorage.getItem("test.device") === "A";
     const area = {
       topicKey: "arithmetic-progression",
@@ -125,6 +130,7 @@ beforeEach(() => {
   cleanup();
   n = 0;
   H.navigate = [];
+  H.emptyList = false;
 });
 
 describe("Weak Area Practice — no mastery, and Accuracy/Attempts from the shared model (OWNER RULING 2026-10-06)", () => {
@@ -175,5 +181,54 @@ describe("Weak Area Practice — no mastery, and Accuracy/Attempts from the shar
     expect(difficultyFromMarksLost(ev(0.75))).toBe("Easy");
     expect(difficultyFromMarksLost(ev(0.5))).toBe("Medium");
     expect(difficultyFromMarksLost(ev(0.1))).toBe("Hard");
+  });
+});
+
+describe("Weak Area Practice — an empty list never praises without graded evidence (PR-2c)", () => {
+  const PRAISE = /looking strong|No Weak Areas/i;
+  async function renderEmpty(): Promise<void> {
+    render(
+      <MemoryRouter>
+        <WeakAreaPracticePage />
+      </MemoryRouter>,
+    );
+    await screen.findByText("Fix My Weak Areas");
+  }
+
+  it("★ 0 graded answers: no praise — the honest 'not enough graded yet' state, pointing to Practice", async () => {
+    H.emptyList = true;
+    H.attempts = [];
+    device("B");
+    await renderEmpty();
+    const thin = await screen.findByTestId("weak-area-empty-thin");
+    expect(thin.textContent).toMatch(/Not enough of your answers have been graded yet to suggest a topic/);
+    // Let the read model settle, then re-check: it must still not praise.
+    await waitFor(() => expect(screen.getByTestId("weak-area-empty-thin")).toBeTruthy());
+    await new Promise((r) => setTimeout(r, 20));
+    expect(screen.queryByTestId("weak-area-empty-thin")).not.toBeNull();
+    expect(document.body.textContent).not.toMatch(PRAISE);
+    fireEvent.click(screen.getByRole("button", { name: "Go to Practice" }));
+    expect(H.navigate.at(-1)).toBe("/practice-hub");
+  });
+
+  it("below the gate (2 graded answers): still no praise", async () => {
+    H.emptyList = true;
+    H.attempts = [attempt(0.5 * HOUR, 2, 2), attempt(0.5 * HOUR, 2, 2)];
+    device("B");
+    await renderEmpty();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(screen.queryByTestId("weak-area-empty-thin")).not.toBeNull();
+    expect(document.body.textContent).not.toMatch(PRAISE);
+  });
+
+  it("CONTROL — above the gate with real graded evidence and no weak topic: the praise may show", async () => {
+    H.emptyList = true;
+    H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(h * HOUR, 2, 2));
+    const { modelNamesWeakness } = await import("../services/progressReadModel");
+    expect(modelNamesWeakness(await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW }))).toBe(true); // precondition
+    device("B");
+    await renderEmpty();
+    await waitFor(() => expect(document.body.textContent).toMatch(/All your topics are looking strong/));
+    expect(screen.queryByTestId("weak-area-empty-thin")).toBeNull();
   });
 });
