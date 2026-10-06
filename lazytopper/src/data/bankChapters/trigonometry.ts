@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "trigonometry" (Maths): 417 served rows from 18 source arrays, 14 withheld.
+// Chapter "trigonometry" (Maths): 394 served rows from 18 source arrays, 37 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -45,8 +45,31 @@ export default defineChapter("trigonometry", [
   [353, TRIGONOMETRY_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
 ], [
+  "TRIG2-E08",
+  "TRIG2-H02",
+  "TRIG2-H06",
   "TRIG2-H09",
   "TRIG2-E12",
+  "TG3-019",
+  "TG3-023",
+  "TG3-047",
+  "TRIG-N-NCERT-8-SA-009",
+  "TRIG-N-NCERT-8-SA-010",
+  "TRIG-N-NCERT-8-SA-011",
+  "TRIG-N-NCERT-8-SA-012",
+  "TRIG-N-EXMPLR-8-MCQ-003",
+  "TRIG-N-EXMPLR-8-MCQ-005",
+  "TRIG-N-EXMPLR-8-MCQ-006",
+  "TRIG-N-EXMPLR-8-SA-001",
+  "TRIG-N-EXMPLR-9-LA-002",
+  "TRIG-N-EXMPLR-9-LA-006",
+  "Z3-TG-110",
+  "AR-TRIG-001",
+  "TRIG-PRF-D-005",
+  "TRIG-PRF-C-005",
+  "PB-M-1-TRIG-C-002",
+  "PB-M-2-TRIG-C-002",
+  "APQ-M-TRIG-001",
   "PYQ-M-TRIG-002",
   "PYQ-M-TRIG-003",
   "PYQ-M-TRIG-005",

@@ -42,7 +42,9 @@ const batch = MATHS_FIGURE_VISUALS.filter((f) => FIG_MATHS_1_PREFIXES.some((p) =
 describe("FIG-MATHS-1 bindings are served and reachable", () => {
   it("the batch is present and is the size this lane shipped", () => {
     // 88 = 49 Item Bank + 13 Additional Practice + 4 preboard + 7 sample paper + 11 board papers + 3 NCERT + 1 Exemplar
-    expect(batch).toHaveLength(90); // +2: CBE-M-CG-A-001 / CBE-M-CG-B-002 (Item Bank p230, rulings 1-4 PR)
+    // 90 -> 86 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): bindings of 4 withheld rows removed (CBE-M-SAV-D-001,
+    // CBE-M-TRI-A-004, CBE-M-TRI-C-006, SP-M-2022-TRI-A-003; Z3-TG-110 is outside this batch). Crops kept on disk.
+    expect(batch).toHaveLength(86); // +2: CBE-M-CG-A-001 / CBE-M-CG-B-002 (Item Bank p230, rulings 1-4 PR)
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {

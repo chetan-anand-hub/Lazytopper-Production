@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "pair-of-linear-equations" (Maths): 382 served rows from 19 source arrays, 4 withheld.
+// Chapter "pair-of-linear-equations" (Maths): 337 served rows from 19 source arrays, 49 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -47,8 +47,53 @@ export default defineChapter("pair-of-linear-equations", [
   [349, PAIR_LINEAR_EQUATIONS_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
 ], [
+  "PLE-M03",
+  "PLE-M04",
+  "PLE-M14",
+  "PLE-H01",
+  "PLE-H05",
+  "PLE-H07",
+  "PLE-H10",
+  "PLE2-012",
+  "PLE2-039",
+  "PLE2-041",
+  "PLE2-R01",
+  "PLE-N-NCERT-3-LA-004",
   "PLE-N-EXMPLR-3-MCQ-001",
   "PLE-N-EXMPLR-3-MCQ-005",
+  "PLE-N-EXMPLR-3-SA-008",
+  "PLE-N-EXMPLR-3-CB-001",
+  "PLE-N-EXMPLR-3-CB-002",
+  "BX-PLE-RED-EX-A-001",
+  "BX-PLE-RED-EX-A-002",
+  "BX-PLE-RED-EX-A-003",
+  "BX-PLE-RED-EX-B-001",
+  "BX-PLE-RED-EX-B-002",
+  "BX-PLE-RED-EX-C-001",
+  "BX-PLE-RED-EX-C-002",
+  "BX-PLE-RED-EX-C-003",
+  "BX-PLE-RED-D-001",
+  "BX-PLE-RED-D-002",
+  "BX-PLE-RED-D-004",
+  "BX-PLE-RED-D-005",
+  "BX-PLE-RED-D-007",
+  "BX-PLE-RED-D-008",
+  "BX-PLE-RED-D-009",
+  "BX-PLE-RED-D-010",
+  "BX-PLE-RED-D-011",
+  "BX-PLE-RED-E-001",
+  "BX-PLE-RED-E-002",
+  "BX-PLE-RED-E-003",
+  "BX-PLE-RED-E-004",
+  "BX-PLE-RED-E-005",
+  "BX-PLE-RED-E-006",
+  "BX-PLE-RED-E-007",
+  "BX-PLE-RED-E-008",
+  "BX-PLE-RED-E-009",
+  "BX-PLE-RED-E-010",
+  "BX-PLE-RED-E-011",
+  "BX-PLE-RED-E-012",
+  "BX-PLE-RED-E-013",
   "APQ-M-PLE-002",
   "PYQ-M-PLE-003",
 ]);

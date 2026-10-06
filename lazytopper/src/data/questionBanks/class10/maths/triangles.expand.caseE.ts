@@ -7,26 +7,26 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
   { id: "BX-TRI-E-001", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "To measure the height of a building, Ria places a small mirror flat on the level ground and steps back until she just sees the top of the building reflected in it. Her eyes are 1.5 m above the ground, she stands 1.2 m from the mirror, and the mirror is 9.6 m from the foot of the building. Because the angle of incidence equals the angle of reflection, the girl-mirror triangle and the building-mirror triangle are similar.\n(i) State the similarity criterion and the equal angles.\n(ii) Write the proportion relating the building height H to the given lengths.\n(iii) Find the height H of the building.\n(iv) Find the ratio of the areas of the smaller (girl) triangle to the larger (building) triangle.",
+    questionText: "To measure the height of a building, Ria places a small mirror flat on the level ground and steps back until she just sees the top of the building reflected in it. Her eyes are 1.5 m above the ground, she stands 1.2 m from the mirror, and the mirror is 9.6 m from the foot of the building. Because the angle of incidence equals the angle of reflection, the girl-mirror triangle and the building-mirror triangle are similar.\n(i) State the similarity criterion and the equal angles.\n(ii) Write the proportion relating the building height H to the given lengths.\n(iii) Find the height H of the building.\n(iv) Find the ratio of the perimeters of the smaller (girl) triangle to the larger (building) triangle.",
     solutionSteps: [
       "[1 mark] (i) Both triangles have a right angle (girl and building are vertical) and equal angles at the mirror (incidence = reflection), so by the AA criterion the triangles are similar.",
       "[1 mark] (ii) Corresponding sides are proportional: H/1.5 = 9.6/1.2.",
       "[1 mark] (iii) H = 1.5 x (9.6/1.2) = 1.5 x 8 = 12 m.",
-      "[1 mark] (iv) Ratio of areas = (1.2/9.6)^2 = (1/8)^2 = 1/64, i.e. 1 : 64.",
+      "[1 mark] (iv) For similar triangles the ratio of perimeters equals the ratio of corresponding sides = 1.2/9.6 = 1/8, i.e. 1 : 8.",
     ],
-    finalAnswer: "(i) AA similarity (ii) H/1.5 = 9.6/1.2 (iii) 12 m (iv) 1 : 64" },
+    finalAnswer: "(i) AA similarity (ii) H/1.5 = 9.6/1.2 (iii) 12 m (iv) 1 : 8" },
 
   { id: "BX-TRI-E-002", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "A student measures the width of a canal without crossing it. AB is the width (A on the near bank, B a post on the far bank, with AB perpendicular to the bank direction). She walks 30 m along the bank from A to a rod at C, a further 10 m to D, then turns inland at right angles to the bank and walks until the post B is exactly in line with the rod at C; she has walked DE = 9 m. This makes triangle ABC similar to triangle EDC.\n(i) State the similarity criterion that makes the two triangles similar.\n(ii) Write the proportion for the width AB.\n(iii) Find the width AB of the canal.\n(iv) Find the ratio of the areas of triangle ABC to triangle EDC.",
+    questionText: "A student measures the width of a canal without crossing it. AB is the width (A on the near bank, B a post on the far bank, with AB perpendicular to the bank direction). She walks 30 m along the bank from A to a rod at C, a further 10 m to D, then turns inland at right angles to the bank and walks until the post B is exactly in line with the rod at C; she has walked DE = 9 m. This makes triangle ABC similar to triangle EDC.\n(i) State the similarity criterion that makes the two triangles similar.\n(ii) Write the proportion for the width AB.\n(iii) Find the width AB of the canal.\n(iv) Find the ratio of the perimeters of triangle ABC to triangle EDC.",
     solutionSteps: [
       "[1 mark] (i) Right angles at A and D are equal, and the angles at C are vertically opposite (equal), so by AA the triangles are similar.",
       "[1 mark] (ii) Corresponding sides: AB/DE = AC/DC, i.e. AB/9 = 30/10.",
       "[1 mark] (iii) AB = 9 x (30/10) = 9 x 3 = 27 m.",
-      "[1 mark] (iv) Ratio of areas = (AC/DC)^2 = (30/10)^2 = 9 : 1.",
+      "[1 mark] (iv) Ratio of perimeters = ratio of corresponding sides = AC/DC = 30/10 = 3 : 1.",
     ],
-    finalAnswer: "(i) AA similarity (ii) AB/9 = 30/10 (iii) 27 m (iv) 9 : 1" },
+    finalAnswer: "(i) AA similarity (ii) AB/9 = 30/10 (iii) 27 m (iv) 3 : 1" },
 
-  { id: "BX-TRI-E-003", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+  { id: "BX-TRI-E-003", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "During a storm a straight vertical tree cracks at a point B above the ground. The upper part bends over (still attached at B) and its tip touches the ground at a point 5 m from the foot of the tree. The broken (bent) part measures 13 m.\n(i) Explain why the figure formed is a right triangle and name the right angle.\n(ii) Find the height of the standing part (foot to the crack B).\n(iii) Find the original total height of the tree.\n(iv) Find the area of the right triangle formed by the standing part, the ground distance and the bent part.",
     solutionSteps: [
       "[1 mark] (i) The standing part is vertical and the ground is horizontal, so the triangle is right-angled at the foot of the tree; the bent part is the hypotenuse.",
@@ -46,7 +46,7 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) 6.5 m (ii) SAS similarity, ratio 1:2 (iii) 1 : 4 (iv) 60 m^2" },
 
-  { id: "BX-TRI-E-005", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+  { id: "BX-TRI-E-005", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "A carpenter builds a staircase whose stringer is the hypotenuse of a right triangle with total rise 3 m and total run 4 m. A client then asks for a steeper staircase keeping the same run 4 m but with rise 7.5 m.\n(i) Find the stringer length of the first staircase.\n(ii) Find the stringer length of the steeper staircase.\n(iii) By how much is the second stringer longer?\n(iv) Are the two staircase triangles similar? Justify by comparing side ratios.",
     solutionSteps: [
       "[1 mark] (i) Stringer = sqrt(3^2 + 4^2) = sqrt(25) = 5 m.",
@@ -66,15 +66,15 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) 10 m (ii) 8 m (iii) 1 : 4 (iv) 12 m^2" },
 
-  { id: "BX-TRI-E-007", subject: "Maths", topicKey: "triangles", subtopic: "Areas of Similar Triangles", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "The triangular cross-section of a camping tent is an isosceles triangle with base 6 m and each slanting side 5 m. A larger family tent has the same shape with base 9 m and slanting sides 7.5 m.\n(i) Find the height of the small tent's cross-section.\n(ii) Find the area of the small tent's triangular cross-section.\n(iii) Are the two cross-sections similar? Give the criterion.\n(iv) Find the ratio of their areas.",
+  { id: "BX-TRI-E-007", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+    questionText: "The triangular cross-section of a camping tent is an isosceles triangle with base 6 m and each slanting side 5 m. A larger family tent has the same shape with base 9 m and slanting sides 7.5 m.\n(i) Find the height of the small tent's cross-section.\n(ii) Find the area of the small tent's triangular cross-section.\n(iii) Are the two cross-sections similar? Give the criterion.\n(iv) Find the ratio of their perimeters.",
     solutionSteps: [
       "[1 mark] (i) Half-base = 3 m, slant = 5 m, so height = sqrt(5^2 - 3^2) = sqrt(16) = 4 m.",
       "[1 mark] (ii) Area = 1/2 x 6 x 4 = 12 m^2.",
       "[1 mark] (iii) 6/9 = 5/7.5 = 2/3 for base and both equal slants, so by SSS the triangles are similar.",
-      "[1 mark] (iv) Ratio of areas = (2/3)^2 = 4 : 9.",
+      "[1 mark] (iv) Perimeters are 6 + 5 + 5 = 16 m and 9 + 7.5 + 7.5 = 24 m, so the ratio = 16 : 24 = 2 : 3 (the ratio of corresponding sides).",
     ],
-    finalAnswer: "(i) 4 m (ii) 12 m^2 (iii) SSS similarity (2:3) (iv) 4 : 9" },
+    finalAnswer: "(i) 4 m (ii) 12 m^2 (iii) SSS similarity (2:3) (iv) 2 : 3" },
 
   { id: "BX-TRI-E-008", subject: "Maths", topicKey: "triangles", subtopic: "Areas of Similar Triangles", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "A rectangular photograph 8 cm by 6 cm is enlarged for a poster so that it keeps the same shape (similar). The diagonal of the enlarged poster measures 50 cm.\n(i) Find the diagonal of the original photograph.\n(ii) Find the enlargement (scale) factor.\n(iii) Find the dimensions of the enlarged poster.\n(iv) Find the ratio of the area of the original photograph to the enlarged poster.",
@@ -106,7 +106,7 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) converse of Pythagoras (ii) yes (iii) no (iv) 100 cm" },
 
-  { id: "BX-TRI-E-011", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+  { id: "BX-TRI-E-011", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "A kite is flying with its string taut. The kite is at a horizontal distance of 40 m from Meera and at a height of 30 m above her hand. A friend's kite of the same design flies taut at horizontal distance 80 m and height 60 m.\n(i) Find the length of Meera's kite string.\n(ii) Are the two string triangles similar? Give the criterion.\n(iii) Find the ratio of their perimeters.\n(iv) A third kite of the same design has string 100 m at height 60 m; find its horizontal distance.",
     solutionSteps: [
       "[1 mark] (i) String = sqrt(40^2 + 30^2) = sqrt(2500) = 50 m.",
@@ -177,16 +177,16 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     finalAnswer: "(i) right-angled (ii) 50 : 1 (iii) 8.5 m (iv) 1 : 2500" },
 
   { id: "BX-TRI-E-018", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "A slide projector throws the image of a slide onto a screen. The slide is 3 cm tall and sits 5 cm from the lens; the screen is 400 cm from the lens. The rays through the lens form two similar triangles on either side of the lens.\n(i) State why the two triangles are similar.\n(ii) Write the proportion relating the image height H to the given lengths.\n(iii) Find the height of the image on the screen.\n(iv) Find the ratio of the areas of the slide triangle to the image triangle.",
+    questionText: "A slide projector throws the image of a slide onto a screen. The slide is 3 cm tall and sits 5 cm from the lens; the screen is 400 cm from the lens. The rays through the lens form two similar triangles on either side of the lens.\n(i) State why the two triangles are similar.\n(ii) Write the proportion relating the image height H to the given lengths.\n(iii) Find the height of the image on the screen.\n(iv) Find the ratio of the perimeters of the slide triangle to the image triangle.",
     solutionSteps: [
       "[1 mark] (i) The vertically opposite angles at the lens are equal and both triangles are right-angled (heights perpendicular to the axis), so by AA they are similar.",
       "[1 mark] (ii) H/3 = 400/5.",
       "[1 mark] (iii) H = 3 x 80 = 240 cm.",
-      "[1 mark] (iv) Ratio of areas = (5/400)^2 = (1/80)^2 = 1 : 6400.",
+      "[1 mark] (iv) Ratio of perimeters = ratio of corresponding sides = 5/400 = 1 : 80.",
     ],
-    finalAnswer: "(i) AA similarity (ii) H/3 = 400/5 (iii) 240 cm (iv) 1 : 6400" },
+    finalAnswer: "(i) AA similarity (ii) H/3 = 400/5 (iii) 240 cm (iv) 1 : 80" },
 
-  { id: "BX-TRI-E-019", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+  { id: "BX-TRI-E-019", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "A zip-line runs from the top of a 21 m tower to the top of a shorter 6 m tower. The two towers stand on level ground 8 m apart.\n(i) Find the vertical drop between the two tower tops.\n(ii) Find the length of the zip-line (straight cable between the tops).\n(iii) A second cable runs from the 21 m top to the base of the short tower; find its length.\n(iv) Are the two cable right-triangles similar? Justify.",
     solutionSteps: [
       "[1 mark] (i) Vertical drop = 21 - 6 = 15 m.",
@@ -197,14 +197,14 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     finalAnswer: "(i) 15 m (ii) 17 m (iii) sqrt(505) approx 22.47 m (iv) not similar" },
 
   { id: "BX-TRI-E-020", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "A vertical lamp-post PQ = 12 m stands beside a straight road QA. A shorter vertical sign-post MN is placed with its foot N on the road between Q and A, and its top M lies exactly on the straight line joining the top P of the lamp-post to the point A on the road. Given QN = 6 m and NA = 3 m.\n(i) Explain why triangle ANM is similar to triangle AQP.\n(ii) Find QA and the ratio NA : QA.\n(iii) Find the height MN of the sign-post.\n(iv) Find the ratio of the areas of triangle ANM to triangle AQP.",
+    questionText: "A vertical lamp-post PQ = 12 m stands beside a straight road QA. A shorter vertical sign-post MN is placed with its foot N on the road between Q and A, and its top M lies exactly on the straight line joining the top P of the lamp-post to the point A on the road. Given QN = 6 m and NA = 3 m.\n(i) Explain why triangle ANM is similar to triangle AQP.\n(ii) Find QA and the ratio NA : QA.\n(iii) Find the height MN of the sign-post.\n(iv) Find the ratio of the perimeters of triangle ANM to triangle AQP.",
     solutionSteps: [
       "[1 mark] (i) MN is parallel to PQ (both vertical) and angle A is common, so by AA triangle ANM ~ triangle AQP.",
       "[1 mark] (ii) QA = QN + NA = 6 + 3 = 9 m; NA : QA = 3 : 9 = 1 : 3.",
       "[1 mark] (iii) MN/PQ = NA/QA = 1/3, so MN = 12 x 1/3 = 4 m.",
-      "[1 mark] (iv) Ratio of areas = (1/3)^2 = 1 : 9.",
+      "[1 mark] (iv) Ratio of perimeters = ratio of corresponding sides = NA/QA = 1 : 3.",
     ],
-    finalAnswer: "(i) AA (MN parallel PQ, common angle A) (ii) QA = 9 m, 1 : 3 (iii) 4 m (iv) 1 : 9" },
+    finalAnswer: "(i) AA (MN parallel PQ, common angle A) (ii) QA = 9 m, 1 : 3 (iii) 4 m (iv) 1 : 3" },
 
   { id: "BX-TRI-E-021", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "A rectangular football practice field is 80 m long and 60 m wide. A junior field is similar in shape with its longer side 40 m.\n(i) Find the diagonal of the senior field.\n(ii) Find the ratio of the sides (senior : junior) and the diagonal of the junior field.\n(iii) Find the ratio of their areas.\n(iv) Marking the senior field boundary needs 280 m of tape; how much for the junior field?",
@@ -216,15 +216,15 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) 100 m (ii) 2 : 1, 50 m (iii) 4 : 1 (iv) 140 m" },
 
-  { id: "BX-TRI-E-022", subject: "Maths", topicKey: "triangles", subtopic: "Areas of Similar Triangles", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "A straight hill path rises steadily. A hiker notes that after walking 130 m along the path she has risen 50 m vertically. A gentler branch path of the same hill rises 20 m over a slope length of 52 m.\n(i) Find the horizontal distance covered on the main path.\n(ii) Find the horizontal distance covered on the branch path.\n(iii) Are the two path triangles similar? Give the reason.\n(iv) Find the ratio of their areas.",
+  { id: "BX-TRI-E-022", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+    questionText: "A straight hill path rises steadily. A hiker notes that after walking 130 m along the path she has risen 50 m vertically. A gentler branch path of the same hill rises 20 m over a slope length of 52 m.\n(i) Find the horizontal distance covered on the main path.\n(ii) Find the horizontal distance covered on the branch path.\n(iii) Are the two path triangles similar? Give the reason.\n(iv) Find the ratio of their perimeters.",
     solutionSteps: [
       "[1 mark] (i) Horizontal = sqrt(130^2 - 50^2) = sqrt(14400) = 120 m.",
       "[1 mark] (ii) Horizontal = sqrt(52^2 - 20^2) = sqrt(2304) = 48 m.",
       "[1 mark] (iii) Sides (50, 120, 130) and (20, 48, 52): 50/20 = 120/48 = 130/52 = 2.5, so by SSS they are similar.",
-      "[1 mark] (iv) Ratio of areas = 2.5^2 = 6.25 = 25 : 4.",
+      "[1 mark] (iv) Perimeters are 50 + 120 + 130 = 300 m and 20 + 48 + 52 = 120 m, so the ratio = 300 : 120 = 5 : 2 (the scale factor 2.5).",
     ],
-    finalAnswer: "(i) 120 m (ii) 48 m (iii) SSS similarity (2.5) (iv) 25 : 4" },
+    finalAnswer: "(i) 120 m (ii) 48 m (iii) SSS similarity (2.5) (iv) 5 : 2" },
 
   { id: "BX-TRI-E-023", subject: "Maths", topicKey: "triangles", subtopic: "Areas of Similar Triangles", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "A triangular pennant flag ABC has a coloured stripe DE printed parallel to the free edge BC, with D on AB and E on AC, at one-third of the way down from the tip A, so that AD : AB = 1 : 3.\n(i) Find the ratio AD : DB.\n(ii) Find the ratio DE : BC.\n(iii) Find the ratio of the area of the top triangle ADE to the whole flag ABC.\n(iv) Find the ratio of the area of the top triangle ADE to the trapezium DBCE below the stripe.",
@@ -246,7 +246,7 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) 4 : 9 (ii) 2 : 3 (iii) 12 m (iv) 2 : 3" },
 
-  { id: "BX-TRI-E-025", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+  { id: "BX-TRI-E-025", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "From the top of a vertical lighthouse 60 m high, the keeper sees a boat. The straight-line distance from the top of the lighthouse to the boat is 100 m (the boat, the foot of the lighthouse and the top form a right triangle with the right angle at the foot).\n(i) Find the horizontal distance of the boat from the foot of the lighthouse.\n(ii) The boat moves so that this horizontal distance becomes 45 m; find the new straight-line distance from the top.\n(iii) By how much did the straight-line distance change?\n(iv) A second lighthouse of height 90 m has a boat at horizontal distance 120 m; is its triangle similar to the first boat position? Justify.",
     solutionSteps: [
       "[1 mark] (i) Horizontal = sqrt(100^2 - 60^2) = sqrt(6400) = 80 m.",
@@ -256,25 +256,25 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) 80 m (ii) 75 m (iii) 25 m decrease (iv) similar (SSS, 2:3)" },
 
-  { id: "BX-TRI-E-026", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "A shopping-mall escalator rises 4.8 m vertically between two floors and covers 6.4 m horizontally.\n(i) Find the length of the escalator (its sloping length).\n(ii) A taller escalator of the same slope rises 7.2 m vertically; find its horizontal run.\n(iii) Find the ratio of the sloping lengths of the two escalators.\n(iv) Find the ratio of the areas of the two right triangles.",
+  { id: "BX-TRI-E-026", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+    questionText: "A shopping-mall escalator rises 4.8 m vertically between two floors and covers 6.4 m horizontally.\n(i) Find the length of the escalator (its sloping length).\n(ii) A taller escalator of the same slope rises 7.2 m vertically; find its horizontal run.\n(iii) Find the ratio of the sloping lengths of the two escalators.\n(iv) Find the sloping length of the taller escalator.",
     solutionSteps: [
       "[1 mark] (i) Length = sqrt(4.8^2 + 6.4^2) = sqrt(23.04 + 40.96) = sqrt(64) = 8 m.",
       "[1 mark] (ii) Same slope means similar; vertical rise 4.8 -> 7.2 is x1.5, so horizontal = 6.4 x 1.5 = 9.6 m.",
       "[1 mark] (iii) Ratio of sloping lengths = 1 : 1.5 = 2 : 3.",
-      "[1 mark] (iv) Ratio of areas = (2/3)^2 = 4 : 9.",
+      "[1 mark] (iv) Corresponding sides are in the ratio 2 : 3, so the taller escalator's sloping length = 8 x 1.5 = 12 m.",
     ],
-    finalAnswer: "(i) 8 m (ii) 9.6 m (iii) 2 : 3 (iv) 4 : 9" },
+    finalAnswer: "(i) 8 m (ii) 9.6 m (iii) 2 : 3 (iv) 12 m" },
 
   { id: "BX-TRI-E-027", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "To find the height of a distant tower two similar triangles are used with a marked ruler held at arm's length. When the 10 cm mark of the ruler is held 50 cm from the eye, the tower exactly spans the 10 cm at that mark. The tower is 300 m from the observer.\n(i) State why the small (ruler) triangle and the large (tower) triangle are similar.\n(ii) Write the proportion for the tower height H (use 300 m = 30000 cm).\n(iii) Find the height of the tower.\n(iv) Find the ratio of the areas of the ruler triangle to the tower triangle.",
+    questionText: "To find the height of a distant tower two similar triangles are used with a marked ruler held at arm's length. When the 10 cm mark of the ruler is held 50 cm from the eye, the tower exactly spans the 10 cm at that mark. The tower is 300 m from the observer.\n(i) State why the small (ruler) triangle and the large (tower) triangle are similar.\n(ii) Write the proportion for the tower height H (use 300 m = 30000 cm).\n(iii) Find the height of the tower.\n(iv) Find the ratio of the perimeters of the ruler triangle to the tower triangle.",
     solutionSteps: [
       "[1 mark] (i) The two triangles share the apex angle at the eye and both bases are perpendicular to the line of sight, so by AA they are similar.",
       "[1 mark] (ii) H/10 = 30000/50.",
       "[1 mark] (iii) H = 10 x 600 = 6000 cm = 60 m.",
-      "[1 mark] (iv) Ratio of areas = (50/30000)^2 = (1/600)^2 = 1 : 360000.",
+      "[1 mark] (iv) Ratio of perimeters = ratio of corresponding sides = 50/30000 = 1 : 600.",
     ],
-    finalAnswer: "(i) AA similarity (ii) H/10 = 30000/50 (iii) 60 m (iv) 1 : 360000" },
+    finalAnswer: "(i) AA similarity (ii) H/10 = 30000/50 (iii) 60 m (iv) 1 : 600" },
 
   { id: "BX-TRI-E-028", subject: "Maths", topicKey: "triangles", subtopic: "Basic Proportionality Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "In a triangular bracket ABC, a strut DE is fixed parallel to the base BC (D on AB, E on AC). The measured lengths in cm are AD = x, DB = x - 3, AE = x + 2 and EC = x - 2.\n(i) Write the proportionality condition from BPT.\n(ii) Form the equation in x.\n(iii) Solve for x.\n(iv) Find the actual lengths AD and DB.",
@@ -306,7 +306,7 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) 40 cm (ii) 9 : 25 (iii) 50 cm^2 (iv) 64 rupees" },
 
-  { id: "BX-TRI-E-031", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Evaluating", requiresDiagram: false, isCompetencyBased: true,
+  { id: "BX-TRI-E-031", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Evaluating", requiresDiagram: false, isCompetencyBased: true,
     questionText: "Accessibility rules require a ramp's slope to be at most 1 vertical to 12 horizontal. A new ramp rises 1.5 m over a horizontal distance of 15 m.\n(i) Find the sloping length of the ramp.\n(ii) Does the ramp meet the 1 : 12 rule? Justify.\n(iii) What is the maximum rise allowed for a 15 m run under the rule?\n(iv) Find the sloping length if the ramp were built at that maximum allowed rise.",
     solutionSteps: [
       "[1 mark] (i) Sloping length = sqrt(15^2 + 1.5^2) = sqrt(227.25) = approximately 15.07 m.",
@@ -366,7 +366,7 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) 2 : 9 (ii) 2 : 3 (iii) 1 : 3 (iv) DE = 4 cm, FG = 12 cm" },
 
-  { id: "BX-TRI-E-037", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+  { id: "BX-TRI-E-037", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "From a crossroads, one car drives due north and another due east. After some time the northbound car is 24 km from the crossroads and the eastbound car is 7 km from it.\n(i) Explain why the two cars' positions form a right triangle.\n(ii) Find the straight-line distance between the two cars.\n(iii) Later the cars are 15 km (north) and 20 km (east) from the crossroads; find the distance between them.\n(iv) Are the two position triangles similar? Justify.",
     solutionSteps: [
       "[1 mark] (i) North and east are perpendicular directions, so the two distances are the legs of a right triangle with the crossroads at the right angle.",
@@ -406,35 +406,35 @@ export const TRI_EXPAND_CASE_E: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) right-angled (ii) 600 m, 800 m, 1000 m (iii) 2400 m (iv) 1 : 4 x 10^8" },
 
-  { id: "BX-TRI-E-041", subject: "Maths", topicKey: "triangles", subtopic: "Areas of Similar Triangles", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "Two triangular sails are similar, triangle ABC ~ triangle DEF, with a scale factor 5 : 8 (small : large). The median AM of the smaller sail (from A to BC) is 15 cm.\n(i) Find the length of the corresponding median DN of the larger sail.\n(ii) Find the ratio of their perimeters.\n(iii) Find the ratio of their areas.\n(iv) If the smaller sail's perimeter is 40 cm, find the larger sail's perimeter.",
+  { id: "BX-TRI-E-041", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+    questionText: "Two triangular sails are similar, triangle ABC ~ triangle DEF, with a scale factor 5 : 8 (small : large). The median AM of the smaller sail (from A to BC) is 15 cm.\n(i) Find the length of the corresponding median DN of the larger sail.\n(ii) Find the ratio of their perimeters.\n(iii) Find the ratio of their corresponding altitudes.\n(iv) If the smaller sail's perimeter is 40 cm, find the larger sail's perimeter.",
     solutionSteps: [
       "[1 mark] (i) Corresponding medians are in the ratio 5 : 8, so DN = 15 x 8/5 = 24 cm.",
       "[1 mark] (ii) Ratio of perimeters = 5 : 8.",
-      "[1 mark] (iii) Ratio of areas = 5^2 : 8^2 = 25 : 64.",
+      "[1 mark] (iii) Corresponding altitudes of similar triangles are in the ratio of corresponding sides = 5 : 8.",
       "[1 mark] (iv) Larger perimeter = 40 x 8/5 = 64 cm.",
     ],
-    finalAnswer: "(i) 24 cm (ii) 5 : 8 (iii) 25 : 64 (iv) 64 cm" },
+    finalAnswer: "(i) 24 cm (ii) 5 : 8 (iii) 5 : 8 (iv) 64 cm" },
 
-  { id: "BX-TRI-E-042", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "The sloping face of a canal embankment rises 7 m vertically over a horizontal distance of 24 m.\n(i) Find the slant length of the embankment face.\n(ii) A scale model of the embankment has horizontal distance 6 m; find its vertical rise.\n(iii) Find the ratio of the slant lengths (model : real).\n(iv) Find the ratio of the areas of the two triangular cross-sections.",
+  { id: "BX-TRI-E-042", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
+    questionText: "The sloping face of a canal embankment rises 7 m vertically over a horizontal distance of 24 m.\n(i) Find the slant length of the embankment face.\n(ii) A scale model of the embankment has horizontal distance 6 m; find its vertical rise.\n(iii) Find the ratio of the slant lengths (model : real).\n(iv) Find the perimeter of the model's triangular cross-section.",
     solutionSteps: [
       "[1 mark] (i) Slant = sqrt(24^2 + 7^2) = sqrt(576 + 49) = sqrt(625) = 25 m.",
       "[1 mark] (ii) 6 = 24/4, so the model is 1/4 scale and its rise = 7/4 = 1.75 m.",
       "[1 mark] (iii) Slant lengths ratio (model : real) = 1 : 4 (model slant = 25/4 = 6.25 m).",
-      "[1 mark] (iv) Ratio of areas = (1/4)^2 = 1 : 16.",
+      "[1 mark] (iv) Real perimeter = 7 + 24 + 25 = 56 m; the model is 1/4 scale, so its perimeter = 56/4 = 14 m (check: 6 + 1.75 + 6.25 = 14 m).",
     ],
-    finalAnswer: "(i) 25 m (ii) 1.75 m (iii) 1 : 4 (iv) 1 : 16" },
+    finalAnswer: "(i) 25 m (ii) 1.75 m (iii) 1 : 4 (iv) 14 m" },
 
   { id: "BX-TRI-E-043", subject: "Maths", topicKey: "triangles", subtopic: "Similarity in Right Triangles", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
-    questionText: "Two similar right-angled triangular brackets are used on a shelf. In the smaller bracket the legs are 6 cm and 8 cm. The larger bracket's hypotenuse is 20 cm.\n(i) Find the hypotenuse of the smaller bracket.\n(ii) Find the scale factor (large : small).\n(iii) Find the legs of the larger bracket.\n(iv) Find the ratio of the areas of the two brackets (small : large).",
+    questionText: "Two similar right-angled triangular brackets are used on a shelf. In the smaller bracket the legs are 6 cm and 8 cm. The larger bracket's hypotenuse is 20 cm.\n(i) Find the hypotenuse of the smaller bracket.\n(ii) Find the scale factor (large : small).\n(iii) Find the legs of the larger bracket.\n(iv) Find the ratio of the perimeters of the two brackets (small : large).",
     solutionSteps: [
       "[1 mark] (i) Hypotenuse = sqrt(6^2 + 8^2) = sqrt(100) = 10 cm.",
       "[1 mark] (ii) Scale factor = 20/10 = 2.",
       "[1 mark] (iii) Larger legs = 6 x 2 and 8 x 2 = 12 cm and 16 cm.",
-      "[1 mark] (iv) Ratio of areas (small : large) = (1/2)^2 = 1 : 4.",
+      "[1 mark] (iv) Perimeters are 6 + 8 + 10 = 24 cm and 12 + 16 + 20 = 48 cm, so the ratio (small : large) = 1 : 2.",
     ],
-    finalAnswer: "(i) 10 cm (ii) 2 (iii) 12 cm and 16 cm (iv) 1 : 4" },
+    finalAnswer: "(i) 10 cm (ii) 2 (iii) 12 cm and 16 cm (iv) 1 : 2" },
 
   { id: "BX-TRI-E-044", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", requiresDiagram: false, isCompetencyBased: true,
     questionText: "A vertical flag mast casts a shadow 8 m long at the same moment a 1 m rod casts a shadow 0.5 m long. A guy wire runs from the top of the mast to a point on the ground 5 m from its foot.\n(i) Using similar triangles, find the height of the mast.\n(ii) State the similarity criterion used.\n(iii) Find the length of the guy wire.\n(iv) Using the converse of Pythagoras, confirm that the wire, mast and ground form a right triangle at the foot.",

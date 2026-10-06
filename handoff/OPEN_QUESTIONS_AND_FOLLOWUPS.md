@@ -23,6 +23,143 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-06 — WAVE A-15 CLOSE (CONTROLLER A): GRADER-CORE-1 PR-3 (`#942` `76447a63`) + PR-2b (`#944` `28ae0354`); HOTFIX-2 (`#945` `b5ff8cdc`) rolled back by `#946` `e2c5bb46` — 26 new open (one an alias), 2 carried restated, 10 closed, 1 not opened (owner ruling); 8 older FUs re-checked; LIVE
+
+Sources: `Desktop/diff/WAVE_STATE_A15.md` (EVENTS, CHECKPOINT, the controller's final fill), `report-a15-pr3-grader-speed-2026-10-06.md` §10, `report-a15-pr2t-targeted-2026-10-05.md` §12, `live-final-orlive-grader-core-1-2026-10-06.md`, `live-final-owner-papers-2026-10-06.md`, `a15/CHUNK_TIMING_OA2.md`, `a15/PROPOSAL_GRADING_JOBS.md`. **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3); status changes to older entries are recorded in this section. Every FU id named here has its own heading (standing rule 1). The A-15 FUs recorded in the WAVE B-15 section below and not named here stay open as written.
+
+### A-15 close — new, open
+
+### `[FU-GRADING-JOBS]` — OPEN · ★ NEXT LANE (proposed, owner's call)
+A synchronous web request cannot promise that a 38–39-question board paper finishes inside 80 s: the slowest chunk decides the paper, and the same 8-question chunk thought 5.8k–15.4k tokens on different runs. HOTFIX-2 (8 per chunk) missed ≤ 65 s in 1 of 3 eval runs and lost a 7-question chunk on the owner's paper in production (rolled back, D46). Proposal (`Desktop/diff/a15/PROPOSAL_GRADING_JOBS.md`): `POST /api/grade-worksheet/jobs` → `202 {jobId, total}` in under 1 s (idempotency key = job key); a worker runs the existing core and writes each chunk's final results as it settles; `GET …/jobs/:id` returns the results so far, with the final payload byte-identical to today's v2 response; a per-job wall cap (e.g. 180 s) marks anything unfinished as not graded and uncharged; ~₹22–33 per 38-question paper. Needs a client half (B-lane) *(builder-reported; controller-decided)*.
+
+### `[FU-GRADER-SINGLECALL-NEAR-DEADLINE]` — OPEN · MEDIUM (grader speed; fix = `[FU-GRADING-JOBS]`)
+On trunk `e2c5bb46` (OR-LIVE TRUNK-FINAL, 2026-10-06), a 4-question C&I paper (owner-anomaly-01 Q1–Q4) graded in ONE call took **77.1 s** of server time against the 80 s grading deadline (before the lane the same four questions took 48.97 s at the 55 s timeout). It graded fully (0 not graded), so this is not a regression, but papers of 10 questions or fewer go through the single call and are all-or-nothing at the deadline, so a 5–10-question paper may come back with every question not graded. The background-grading-jobs lane is the fix *(agent-reported; controller-stated)*.
+
+### `[FU-GRADER-UNATTEMPTED-SINGLE-CHARGED]` — OPEN · MEDIUM (server, next grader lane)
+A subjective C&I single answered "Don't know" is classified `unattempted` (0 / 2, "Not attempted — not counted as a mistake") but is still **charged 1 check** and shows "Saved to your mistake history". Cause (read from trunk code): `postprocess.cjs` has a `notAttempted` early return only for OBJECTIVE questions (~line 682), so an all-unattempted subjective single ends with `_reason: 'graded'` and `charge.isChargeable` counts it. D25's "unattempted is not charged" is not met on this path. BEFORE PR-3 it was also charged → not a regression. A truly blank answer cannot be submitted *(agent-reported, OR-LIVE FINAL)*.
+
+### `[FU-GRADER-CT-LINE-JOIN]` — OPEN · LOW (one sample)
+A Chapter Test Q7 correct answer was marked 1.5 / 2: the grader joined two of the student's lines into one. One sample only *(agent-reported, OR-LIVE FINAL)*.
+
+### `[FU-B-PENDING-COPY]` — OPEN · LOW (client, B-lane)
+On a Chapter Test with one answer, the 8 questions absent from the page (D38: not graded, pending) are shown as "couldn't read — retake the photo", and the header says "fully graded" although 8 are pending. Belongs with `[FU-B15-MISSING-PAGE-HINT]`; record the fix there, do not duplicate *(agent-reported, OR-LIVE FINAL)*.
+
+### `[FU-PREMIUM-WINDOW-COUNTS-UNGRADED]` — OPEN · MEDIUM (owner-visible; outside A's allowlist)
+On the owner's 27-question paper the premium fair-use meter rose +46% (5-hour window) although 8 questions were not graded. The premium window counts model cost (D25 treated per-model-call cost metering as telemetry, not a charge), so ungraded questions still consume a premium student's window *(agent-reported, OWNER-CHROME FINAL; controller-decided)*.
+
+### `[FU-RULE6-HINGLISH-STILL-LIVE]` — OPEN · MEDIUM (grader)
+On the owner's paper in production, two deductions the rulings forbid survived PR-3's deterministic rules: Q12 a Maths-unit −½ (ruling 6) and Q18 a Hinglish −½ (the language rule). Both were "fixed" on the acceptance replay (Q12 5 / 5 in 7 of 8 graded instances), so the rules miss some live phrasings *(agent-reported, OWNER-CHROME FINAL; builder-reported)*.
+
+### `[FU-GRADER-SPEED-PAGE-CROPPED-CHUNKS]` — OPEN · grader speed
+Each chunk receives the WHOLE document (a 10-question paper's prompt 11k → 43k tokens; 3-question chunks of a photo paper routinely past 45 s). Send each chunk only its own pages / photos. HOTFIX-2 found no reliable page map today (handwritten scans have no text layer; detect returns no page numbers), so this needs detect to map questions to pages first. C8's "10-question p95 < 45 s" stays MISSED until then *(builder-reported)*.
+
+### `[FU-CHUNK-THINKING-COST]` — OPEN · cost
+Per chunked paper, thinking is about 3× and the prompt about 4× PR-2's single call (₹1.12 vs ₹0.53 per paper question before the hybrid). The hybrid limits it to papers over 10 questions *(builder-reported)*.
+
+### `[FU-IDEMPOTENCY-WAIT-75-VS-80]` — OPEN · LOW
+A CONCURRENT duplicate press waits 75 s for the first result, but the grading deadline is now 80 s, so a concurrent duplicate can give up before the first finishes. A client re-send comes only at 90 s, so this matters only for concurrent duplicates *(builder-reported)*.
+
+### `[FU-G3-NOTGRADED-COPY]` — OPEN · LOW (Controller B's G3-v2 oracle)
+G3-v2's `OWNER_COPY` has no entry for the "not graded" state (timeout / error) that chunked > 10-question papers emit. PR-3's CI went red on it once; worked around by committing OA-02's responses from run 3 (no timeouts) *(builder-reported; Controller B's close)*.
+
+### `[FU-UNTYPED-DEDUCTIONS]` — OPEN · grader (model)
+166 deducted steps in the combined run had no mistake type (184 marks), and the model's raw step was untyped in all of them; post-processing never drops a type, and inventing one would break B's R2 ruling. Needs a prompt rule plus a live run. This is the server side of "Marks lost, reason not recorded" *(builder-reported)*.
+
+### `[FU-SLIP-WEIGHT]` — OPEN · grader (needs a marking-convention ruling)
+A copying or sign slip costs ½ (OA-02 Q3, Q7, Q25), but the owner's key charges 1; stable in every run. PR-2b's half-mark convention ("a miscopy costs ½ where later work earns marks") follows the other examiner-verified keys, so the keys disagree → owner ruling needed *(builder-reported)*.
+
+### `[FU-OA2-Q18-CONTENT]` — OPEN · grader (model)
+OA-02 Q18, a correct Hinglish answer, is still under-marked on content (0.5–1.5 vs 2) after the language deduction was removed *(builder-reported)*.
+
+### `[FU-DETECT-R2R3-NOT-RUN]` — OPEN · eval (D41 budget)
+Detect was measured in one run only, on a PROXY model (the eval key cannot call production's detect model) *(builder-reported)*.
+
+### `[FU-SINGLES-ONE-RUN]` — OPEN · eval (D41 budget)
+Single questions ran once in the combined acceptance, so single-vs-set (96.3) and run-to-run for singles rest on one run *(builder-reported)*.
+
+### `[FU-JUDGE-NOT-RUN]` — OPEN · eval (D41 budget)
+The LLM comment judge was not run on the combined acceptance; comments 99.6 is the deterministic check only *(builder-reported)*.
+
+### `[FU-GRADER-SPEED-SUMMARY-PER-CHUNK]` — OPEN · LOW
+A chunked paper's summary covers only its first chunk *(builder-reported)*.
+
+### `[FU-DETECT-V2-ADOPTION]` — ALIAS of `[FU-B15-DETECT-V2-PER-QUESTION]` (recorded once, there)
+A's name for the client half: send `acceptsV2: true` on detect to get `questionId`, subject and chapter; drop the N per-question re-detects; join by `questionId`, not by printed number. Track it under the B-15 entry *(builder-reported)*.
+
+### `[FU-FREECHECK-CEILING-SPENT-ON-FAIL]` — OPEN · LOW (forbidden file for A)
+The free check's GLOBAL daily ceiling (`freeCheck.cjs` admission) is still consumed by a failed / not-graded free check. D25 ruled it is not a student charge (the visitor's own free check is spent client-side only on `ok: true`) and left it untouched *(controller-decided D25; builder-reported)*.
+
+### `[FU-FREECHECK-MISMATCH-SPENT]` — OPEN · LOW (forbidden file for A)
+The same ceiling is consumed by a free check whose answer does not match the question *(controller-decided D25; builder-reported)*.
+
+### `[FU-LIMITER-SLOT-ON-FAIL]` — OPEN · LOW (forbidden file for A)
+Rate-limiter slots (`rateLimiter.cjs`, throttling) are taken by failed / not-graded requests; D25 ruled throttling is not a charge *(controller-decided D25; builder-reported)*.
+
+### `[FU-IDEMPOTENCY-VERIFIED-UIDS-ONLY]` — OPEN · LOW
+The one-key-per-press idempotency guard covers verified uids only; the free check and anonymous requests fall through *(builder-reported)*.
+
+### `[FU-SENDJSON-STRIPS-AT-LINES]` — OPEN · LOW (forbidden file for A)
+`sendJson` strips lines beginning "at " (a stack-trace guard) from response text. Detect and text-layer output join lines with single spaces, so they cannot trigger it today *(builder-reported)*.
+
+### `[FU-REPLAY-NO-GRADING-MODEL-HEADER]` — OPEN · LOW
+An idempotent replay (fair use `replay()`) carries no `X-Grading-Model` header, so a replayed response cannot show which model graded it *(builder-reported)*.
+
+### `[FU-RETRY-AFTER-UNCAPPED-NONGRADING]` — OPEN · LOW
+`Retry-After` is capped only under a grading deadline; non-grading calls are unchanged (D15) *(builder-reported)*.
+
+### A-15 close — carried, status restated (each already has its body in the WAVE B-15 section below)
+
+### `[FU-GRADER-2027-PRICE]` — OPEN · ★ DATED, due 2026-12-15 (owner)
+Restated with the close numbers: after the hybrid, ₹77.31 per student-month today → ₹154.62 at the 2027 price (over the ₹125 budget). Options to cost are unchanged: thinking cap, routing (MCQ with no model; short answers on a cheaper tier), implicit caching (45% of prompt tokens were cached in the combined acceptance), rulebook trimming *(builder-reported)*.
+
+### `[FU-ADMIN-TELEMETRY-UI]` — OPEN · APPROVED for after both grader lanes (both now closed)
+Unchanged scope. Now more useful: the agent could not read `grading.model_fallback` this wave (in-page token read denied), so only the owner's API call reads it today *(controller-decided)*.
+
+### A-15 close — closed
+
+### `[FU-GRADER-503-NOT-RETRIED]` — CLOSED by `#942`
+A provider 500 / 503 surfaced as a student-visible error; PR-3 retries it once within the deadline (core.test §MODEL.3) *(builder-reported)*.
+
+### `[FU-GRADER-CORE-C4-SIGN-DROP]` — CLOSED by `#944`
+A quoted line that differs from the student's only by a dropped minus is no longer charged unless the student's typed answer contains that equality (CP01-Q05 1.5 → 2.5 = key, 3 / 3; test §T2.1) *(builder-reported)*.
+
+### `[FU-GRADER-CORE-FUDGED-STEP-ECF]` — CLOSED by `#944`
+A factorisation of a quadratic with no real roots earns no ECF after it, charged once on that step, not a departure (GS-M15-a within ½ 5 / 9 → 9 / 9; test §T3.1) *(builder-reported)*.
+
+### `[FU-GRADER-CORE-PAPER-COMMENTS]` — CLOSED by `#944` (one item carried)
+18 of the 19 judge-false comments on the controller papers fixed (live 3-run re-check 0 false); the one left, a photo misread (154 for 144), is tracked as `[FU-GRADER-CORE-READING-FIDELITY-PHOTO]` *(builder-reported)*.
+
+### `[FU-GRADER-CORE-S12A-REPIN-VS-S4A]` — CLOSED by `#944` (D33)
+GS-S12-a re-pinned: attempted, so not unattempted; no balancing attempted where asked = conceptual; wrong coefficients = calculation *(builder-reported; controller-decided D33)*.
+
+### `[FU-GRADER-CORE-SVS-MODAL-TIE]` — CLOSED by `#944` (D37)
+Single-vs-set now compares each side's MEDIAN; the alphabetical modal is printed only as `single_vs_set_modal_legacy` (mutation M15) *(builder-reported)*.
+
+### `[FU-GRADER-CORE-PR3-REANCHOR]` — CLOSED (process)
+PR-3's and PR-2b's shifted premise-ledger anchors were re-anchored in each builder's local spec copy under D6 and the gate exited 0 with an exact-line control 13 / 13 *(builder-reported)*.
+
+### `[FU-GRADER-SPEED-PROMPT-CACHE]` — CLOSED by `#942` (D31)
+Chunk prompts share a byte-identical prefix (rulebook + document) with chunk-specific text last; 45% of prompt tokens were cached in the combined acceptance *(builder-reported)*.
+
+### `[FU-FIRSTLINE-CHUNKED]` — CLOSED by `#942` (D43)
+The chunked first-line check overrode 8 / 825 real grades; inventory union + "a listed question graded with marks keeps its grade" → 0 (replay: exactly 11 of 1,032 results change) *(builder-reported)*.
+
+### `[FU-EVAL-ENV-BARE-TOKEN]` — CLOSED
+The eval env file held an unassigned token that sourcing would execute; the file is clean and is now only ever parsed, never sourced *(builder-reported)*.
+
+### `[FU-B15-TRIG-CHAPTER-MERGE]` — NOT OPENED (owner ruling)
+PR-3 answered the condition from code: the single "Trigonometry" chapter comes from the CLIENT vocabulary (`src/lib/desktop/topics.ts:89`, sent via `DesktopCheckImprovePage.tsx:1354`; the server validates against the request's `topicVocabulary`, `checkSolution.cjs:441`). **The owner ruled the Applications-of-Trigonometry → Trigonometry alias STANDS** — no FU. This also answers the owner question (11) in the WAVE B-15 section *(builder-reported; owner ruling relayed by Controller B)*.
+
+### Older FUs re-checked (bodies stand as written below; status only)
+- **`[FU-B15-DUP-QNUMBER-TOPIC-MAP]` — STAYS OPEN, now UNBLOCKED:** its input, detect-v2 `questionId`, is on trunk since `#942`; the server merge no longer collides on duplicate printed numbers. The client half is B-lane.
+- **`[FU-B15-DETECT-V2-PER-QUESTION]` — STAYS OPEN, now UNBLOCKED** (A's PR-3 merged); alias `[FU-DETECT-V2-ADOPTION]`.
+- **`[FU-B15-NO-CHARGE-COPY]` — STAYS OPEN, now UNBLOCKED** (not-graded questions are uncharged since `#942`); any copy must respect `[FU-GRADER-UNATTEMPTED-SINGLE-CHARGED]` and `[FU-PREMIUM-WINDOW-COUNTS-UNGRADED]`.
+- **`[FU-B15-MISSING-PAGE-HINT]` — STAYS OPEN, now UNBLOCKED** (D38 on trunk); see `[FU-B-PENDING-COPY]`.
+- **`[FU-B15-FREECHECK-V2]` — STAYS OPEN; ★ the owner's priority for the next client lane.**
+- **`[FU-B15-TUTOR-BRIEF-SERVER-WORDING]` — STAYS OPEN** (server prompt outside A's allowlist; unchanged).
+- **`[FU-UPLOADS-KEYED-BY-QNUMBER]` — STAYS OPEN** (PR-3 lists it as still open; client + server).
+- **`[FU-GRADE-OKFALSE-IS-CHARGED]` — STAYS OPEN, fixed in code by `#942`:** C9 makes failed / timed-out / couldn't-read replies uncharged (unit-tested, builder-reported); live, the mismatch row was uncharged, but a couldn't-read single has not been measured on production. Close it on one live couldn't-read single.
+
 ## 2026-10-05 — WAVE B-15 (CONTROLLER B): SCORECARD-MI-1 (`#935` `dd338130`, `#940` `834fea7c`) + CBQ-ENTRY-1 (`#938` `fdfdff11`, `#939` `4de266dc`) — and WAVE A-15's MERGED PRs (CONTROLLER A): GRADER-CORE-1 (`#936` `532d3635`, `#937` `9678a259`, `#941` `07936091`) — B: 47 new open (one conditional), 19 (18 closed, 1 retired) opened and closed; the HELD group H1–H11 CLOSED; A: 22 open (one shared with B), 10 closed; LIVE
 
 Sources: `Desktop/diff/WAVE_STATE_B15.md` (LANES, DECISIONS, the HELD lists, BLOCKED / OWNER-OWED), the builder reports (`report-scorecard-mi-1-pr1-…`, `-pr2-…`, `-pr2-finish-…`, `-pr2-land-…`, `report-cbq-entry-1-…`, `report-cbq-entry-1-fix-…`, `report-b15-reanchor-…`), the verifier reports (`report-b15-pr1-verify-…` incl. its VERIFY-2 addendum, `report-b15-pr2-verify-…`), the OR-LIVE reports (`live-after-scorecard-mi-1-pr1-…`, `-pr2-…`, `live-after-cbq-entry-1-…`, `-fix-…`) and the comparison report (`report-b15-owner-papers-live-…`), all 2026-10-05; Controller B's message to the docs builder (three late OR-LIVE-2 FUs); and, for Controller A's FUs, A's bounded close-out `Desktop/diff/closeout-a15-for-b15-docs.md` with the bodies from A's reports and `WAVE_STATE_A15.md` *(A-reported)*. **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `834fea7c` *(docs-builder-verified)* found no prior entry for any id below except the three older ones named at the end. No dated entry is edited (standing rule 3). Line numbers are as recorded on their dates (most are pre-`#940`). Controller A's open `#942` is not covered; **A's in-flight FUs (PR-3 / PR-2b) are recorded by A's docs PR**, not here.

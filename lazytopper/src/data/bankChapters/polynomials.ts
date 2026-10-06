@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "polynomials" (Maths): 266 served rows from 17 source arrays, 2 withheld.
+// Chapter "polynomials" (Maths): 240 served rows from 17 source arrays, 28 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -43,6 +43,32 @@ export default defineChapter("polynomials", [
   [348, POLYNOMIALS_PYQ_2025, false],
   [408, POLYNOMIALS_CFPQ, false],
 ], [
+  "POLY-M04",
+  "POLY-M06",
+  "POLY-H01",
+  "POLY-H02",
+  "POLY-H03",
+  "POLY-H09",
+  "POLY-H11",
+  "POLY-H12",
+  "POLY-M13-R",
+  "POLY-ND01",
+  "PL2-003",
+  "PL2-015",
+  "PL2-018",
+  "PL2-021",
+  "PL2-035",
+  "PL2-040",
+  "PL2-R04",
+  "PL2-R12",
+  "PL2-R18",
+  "POLY-N-NCERT-2-LA-001",
+  "POLY-N-EXEM-2-MCQ-005",
+  "POLY-N-EXEM-2-VSA-003",
+  "POLY-N-EXEM-2-SA-005",
+  "POLY-N-EXEM-2-LA-001",
+  "POLY-N-EXEM-2-LA-002",
+  "POLY-N-EXEM-2-CRE-001",
   "PYQ-M-POLY-001",
   "PYQ-M-2025-POLY-003",
 ]);

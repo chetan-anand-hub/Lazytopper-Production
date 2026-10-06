@@ -108,30 +108,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     finalAnswer: "5/2",
   },
 
-  {
-    id: "2026-POLY-SA-02",
-    topicKey: "Polynomials",
-    subtopic: "Factor Theorem",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "Using the Factor Theorem, show that x − 2 is a factor of the polynomial p(x) = x³ − 4x² + x + 6 and hence factorise p(x) completely.",
-    answer: "p(x) = (x − 2)(x + 1)(x − 3).",
-    finalAnswer: "x³ − 4x² + x + 6 = (x − 2)(x + 1)(x − 3).",
-    explanation:
-      "Check p(2): 8 − 16 + 2 + 6 = 0, so x − 2 is a factor. Divide p(x) by (x − 2) to get x² − 2x − 3. Factorise x² − 2x − 3 as (x + 1)(x − 3).",
-    solutionSteps: [
-      "Compute p(2) by substituting x = 2 into p(x).; Since p(2) = 0, x − 2 is a factor by Factor Theorem. [½]",
-      "Use long division or synthetic division to divide p(x) by (x − 2).; Obtain the quotient x² − 2x − 3. [½]",
-      "Factorise x² − 2x − 3 as (x + 1)(x − 3).; Combine to get full factorisation. [1]",
-    ],
-    strategyHint:
-      "After verifying a factor using the Factor Theorem, always divide to simplify the remaining quadratic.",
-    policyTag: "Polynomial factorisation/Factor theorem",
-  },
 
   // ========== PAIR OF LINEAR EQUATIONS (MUST-CRACK) ==========
 
@@ -451,31 +427,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
 
   // ========== TRIGONOMETRY (MUST-CRACK) ==========
 
-  {
-    id: "2026-TRIG-SA-01b",
-    topicKey: "Trigonometry",
-    subtopic: "Trig Identities/Proofs",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Prove that (1 − tan²θ) / (1 + tan²θ) = cos 2θ, for all θ for which both sides are defined.",
-    answer: "The identity holds true.",
-    finalAnswer:
-      "For all admissible θ, (1 − tan²θ)/(1 + tan²θ) = cos 2θ.",
-    explanation:
-      "Convert tanθ to sinθ/cosθ, simplify using sin²θ + cos²θ = 1 and recognise cos²θ − sin²θ as cos 2θ.",
-    solutionSteps: [
-      "Start with LHS: (1 − tan²θ)/(1 + tan²θ).; Write tanθ as sinθ/cosθ. [1]",
-      "Simplify numerator and denominator separately.; Use sin²θ + cos²θ = 1 to simplify. [1]",
-      "Recognise cos²θ − sin²θ as cos 2θ. [1]",
-    ],
-    strategyHint:
-      "For trig identities, convert everything to sine and cosine first.",
-    policyTag: "Identity proof/Trig algebra",
-  },
 
   {
     id: "2026-TRIG-LA-02",
@@ -815,30 +766,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
   },
-  {
-    id: "2026-POLY-CASE-04",
-    topicKey: "Polynomials",
-    subtopic: "Factor Theorem & Modelling",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "A rectangular garden’s area (in m²) varies with its length x (m) as p(x)=x³−10x²+29x−20, for a fixed perimeter scheme. A contractor claims (x−1) and (x−4) are factors. (i) Verify both factors. (ii) Factorise p(x) completely. (iii) Find all possible integer lengths.",
-    answer:
-      "(i) p(1)=0, p(4)=0. (ii) p(x)=(x−1)(x−4)(x−5). (iii) x ∈ {1,4,5} (check feasibility).",
-    explanation:
-      "Use Factor Theorem for x = 1, 4, then divide to obtain the third factor x−5.",
-    policyTag: "Case-based/realistic context",
-    solutionSteps: [
-      "(i) To verify (x−1) is a factor, check p(1): p(1) = (1)³−10(1)²+29(1)−20 = 1−10+29−20 = 0.; To verify (x−4) is a factor, check p(4): p(4) = (4)³−10(4)²+29(4)−20 = 64−160+116−20 = 0. [1]",
-      "(ii) Since p(1)=0 and p(4)=0, (x−1) and (x−4) are factors. So (x−1)(x−4) = x²−5x+4 is a factor.; Divide p(x) by (x²−5x+4): (x³−10x²+29x−20) / (x²−5x+4) = x−5. [1]",
-      "So, p(x) = (x−1)(x−4)(x−5). [1]",
-      "(iii) The zeroes of p(x) are 1, 4, and 5. These are the possible integer lengths. [1]",
-    ],
-    finalAnswer: "(i) p(1)=0, p(4)=0. (ii) p(x)=(x−1)(x−4)(x−5). (iii) x ∈ {1,4,5} (check feasibility).",
-  },
 
   // ===== MORE: PAIR OF LINEAR EQUATIONS =====
   {
@@ -988,29 +915,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
 
   // ===== MORE: TRIANGLES =====
   {
-    id: "2026-TRI-MCQ-03",
-    topicKey: "Triangles",
-    subtopic: "Area Ratio & Similarity",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Remembering",
-    questionText:
-      "If two triangles are similar with side ratio 3:5, then the ratio of their areas is:",
-    options: ["3:5", "5:3", "9:25", "25:9"],
-    answer: "9:25",
-    explanation:
-      "Area ratio equals square of side ratio ⇒ (3/5)²=9/25.",
-    policyTag: "Direct similarity fact",
-    solutionSteps: [
-      "Recall the theorem: The ratio of the areas of two similar triangles is equal to the square of the ratio of their corresponding sides.",
-      "Given the side ratio is 3:5.",
-      "Square the ratio of the sides: (3/5)^2 = 9/25. Thus, the ratio of their areas is 9:25.",
-    ],
-    finalAnswer: "9:25",
-  },
-  {
     id: "2026-TRI-SA-04",
     topicKey: "Triangles",
     subtopic: "Midpoint/Parallel Line Theorems",
@@ -1036,28 +940,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
 
   // ===== MORE: CIRCLES =====
   {
-    id: "2026-CIRC-SA-02",
-    topicKey: "Circles",
-    subtopic: "Tangent-Secant Theorem",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "From an external point P, a tangent PT and a secant PAB are drawn to a circle with centre O. Prove that PT² = PA·PB.",
-    answer: "PT² = PA·PB.",
-    explanation:
-      "Power of a point theorem (tangent-secant).",
-    policyTag: "Standard tangent-secant relation",
-    solutionSteps: [
-      "Draw a circle with center O. Let P be an external point. Draw a tangent PT and a secant PAB to the circle. Join AT and BT.; Consider ΔPTA and ΔPBT.; ∠APT = ∠BPT (This is the common angle for both triangles). [1]",
-      "∠PTA = ∠PBT (The angle between a tangent and a chord through the point of contact is equal to the angle in the alternate segment).; By AA similarity criterion, ΔPTA is similar to ΔPBT (ΔPTA ~ ΔPBT). [1]",
-      "Since the triangles are similar, the ratio of their corresponding sides is equal: PT/PB = PA/PT.; Cross-multiplying the ratios gives PT² = PA·PB. [1]",
-    ],
-    finalAnswer: "PT² = PA·PB.",
-  },
-  {
     id: "2026-CIRC-AR-03",
     topicKey: "Circles",
     subtopic: "Tangent Properties",
@@ -1082,31 +964,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   },
 
   // ===== MORE: AREAS RELATED TO CIRCLES =====
-  {
-    id: "2026-ARC-MCQ-02",
-    topicKey: "Areas Related to Circles",
-    subtopic: "Sector & Segment",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Understanding",
-    questionText:
-      "If arc length of a circle is L for central angle θ (in radians), then area of the sector is:",
-    options: ["Lr", "L/2", "1/2·r·L", "r²/L"],
-    answer: "1/2·r·L",
-    explanation:
-      "Area of sector = (1/2)·r·L (when θ is in radians).",
-    policyTag: "Sector formula (radian form)",
-    solutionSteps: [
-      "Recall the formula for arc length L of a sector with radius r and central angle θ (in radians): L = rθ.",
-      "From the arc length formula, express θ in terms of L and r: θ = L/r.",
-      "Recall the formula for the area of a sector A with radius r and central angle θ (in radians): A = (1/2)r²θ.",
-      "Substitute the expression for θ from step 2 into the area formula: A = (1/2)r²(L/r).",
-      "Simplify the expression to get the area of the sector: A = (1/2)rL.",
-    ],
-    finalAnswer: "1/2·r·L",
-  },
 
   // ===== MORE: SURFACE AREAS & VOLUMES =====
   {
@@ -1182,52 +1039,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   },
 
   // ===== MORE: PROBABILITY =====
-  {
-    id: "2026-PROB-MCQ-03",
-    topicKey: "Probability",
-    subtopic: "Complement & Union",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Understanding",
-    questionText:
-      "If P(A)=0.3 and P(B)=0.5 and A,B are mutually exclusive, then P(A∪B)=?",
-    options: ["0.2", "0.5", "0.8", "0.15"],
-    answer: "0.8",
-    explanation:
-      "Mutually exclusive ⇒ P(A∪B)=P(A)+P(B)=0.3+0.5=0.8.",
-    policyTag: "Basic addition rule",
-    solutionSteps: [
-      "For mutually exclusive events A and B, the probability of their union is given by P(A∪B) = P(A) + P(B).",
-      "Substitute the given values: P(A∪B) = 0.3 + 0.5.",
-      "Calculate the sum: P(A∪B) = 0.8.",
-    ],
-    finalAnswer: "0.8",
-  },
-  {
-    id: "2026-PROB-SA-04",
-    topicKey: "Probability",
-    subtopic: "Without Replacement (Simple)",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "A bag contains 4 red and 2 blue balls. Two balls are drawn without replacement. Find the probability that both are red.",
-    answer:
-      "P = (4/6)·(3/5)=2/5.",
-    explanation:
-      "First red: 4/6; then red: 3/5. Multiply.",
-    policyTag: "Two-step probability",
-    solutionSteps: [
-      "Total number of balls in the bag = 4 red + 2 blue = 6 balls.; Probability of drawing the first red ball = (Number of red balls) / (Total balls) = 4/6. [½]",
-      "After drawing one red ball, there are 3 red balls left and a total of 5 balls remaining (without replacement).; Probability of drawing the second red ball = (Remaining red balls) / (Remaining total balls) = 3/5. [½]",
-      "Probability that both balls are red = (4/6) * (3/5) = 12/30 = 2/5. [1]",
-    ],
-    finalAnswer: "P = (4/6)·(3/5)=2/5.",
-  },
 
   // ===== APPLICATIONS OF TRIGONOMETRY (Heights & Distances) =====
   {
@@ -1326,78 +1137,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     finalAnswer: "(i) P( (1×2 + 2×8)/3, (1×(−1) + 2×5)/3 ) = (6, 3). (ii) AP = √[(6−2)²+(3+1)²]=√(16+16)=√32=4√2. (iii) Q midpoint of P(6,3) and B(8,5) ⇒ (7,4).",
   },
-  {
-    id: "2026-CG-SA-06",
-    topicKey: "Coordinate Geometry",
-    subtopic: "Triangle area (determinant)",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "Find k if the points (k,1), (2,3) and (4,7) are collinear.",
-    answer:
-      "Area = 0 ⇒ | k 1 1; 2 3 1; 4 7 1 | = 0 ⇒ k=−2.",
-    explanation:
-      "Use determinant area formula for collinearity.",
-    policyTag: "Determinant method",
-    solutionSteps: [
-      "For points to be collinear, the area of the triangle formed by them must be zero.; The area of a triangle with vertices (x1,y1), (x2,y2), (x3,y3) is 1/2 | x1 y1 1; x2 y2 1; x3 y3 1 |. [1]",
-      "Substitute the given points (k,1), (2,3), (4,7) into the determinant and set it to zero: 1/2 | k 1 1; 2 3 1; 4 7 1 | = 0.; Expand the determinant: k(3*1 - 7*1) - 1(2*1 - 4*1) + 1(2*7 - 4*3) = 0. [1]",
-      "Simplify the expression: k(3-7) - 1(2-4) + 1(14-12) = 0 => -4k - 1(-2) + 1(2) = 0.; Solve for k: -4k + 2 + 2 = 0 => -4k + 4 = 0 => -4k = -4 => k = 1. [1]",
-    ],
-    finalAnswer: "Area = 0 ⇒ | k 1 1; 2 3 1; 4 7 1 | = 0 ⇒ k=−2.",
-  },
 
   // ===== CIRCLES (More patterns) =====
-  {
-    id: "2026-CIRC-CASE-04",
-    topicKey: "Circles",
-    subtopic: "Chord subtended angle",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "In a circle with centre O, chord AB subtends ∠AOB = 120°. (i) Show that arc length AB is (2πR)/3. (ii) Prove that the perpendicular from O to AB bisects AB. (iii) If radius is 6 cm, find area of sector AOB.",
-    answer:
-      "(i) θ=120° ⇒ (2πR)(120/360)=(2πR)/3. (ii) Radius ⟂ chord at midpoint. (iii) Area sector = (120/360)πR² = (1/3)π·36 = 12π cm².",
-    explanation:
-      "Use central angle relations and sector area formula.",
-    policyTag: "Central angle + sector",
-    solutionSteps: [
-      "(i) The formula for arc length is L = (θ/360°) * 2πR.; (i) Substitute θ = 120°: L = (120/360) * 2πR = (1/3) * 2πR = (2πR)/3. [1]",
-      "(ii) Draw a perpendicular OM from O to chord AB. Consider triangles ΔOMA and ΔOMB.; (ii) In ΔOMA and ΔOMB: OA = OB (radii), OM = OM (common side), ∠OMA = ∠OMB = 90° (by construction). [1]",
-      "(ii) By RHS (Right angle-Hypotenuse-Side) congruence criterion, ΔOMA ≅ ΔOMB. Therefore, AM = MB (CPCTC), proving OM bisects AB.; (iii) The formula for the area of a sector is A = (θ/360°) * πR². [1]",
-      "(iii) Substitute θ = 120° and R = 6 cm: A = (120/360) * π(6)² = (1/3) * π * 36.; (iii) Calculate the area: A = 12π cm². [1]",
-    ],
-    finalAnswer: "(i) θ=120° ⇒ (2πR)(120/360)=(2πR)/3. (ii) Radius ⟂ chord at midpoint. (iii) Area sector = (120/360)πR² = (1/3)π·36 = 12π cm².",
-  },
-  {
-    id: "2026-CIRC-AR-05",
-    topicKey: "Circles",
-    subtopic: "Angle in the same segment",
-    kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Assertion (A): Angles in the same segment of a circle are equal. Reason (R): They subtend the same chord and intercept the same arc.",
-    answer:
-      "Both A and R are true, and R is the correct explanation of A.",
-    explanation:
-      "Same chord ⇒ same intercepted arc ⇒ equal subtended angles.",
-    policyTag: "Segment theorem",
-    solutionSteps: [
-      "Assertion (A) states that angles in the same segment of a circle are equal, which is a fundamental theorem in circle geometry and is true.; Reason (R) explains that these angles are equal because they subtend the same chord and intercept the same arc, which is the correct geometric justification for the assertion. [½]",
-      "Since both the assertion and the reason are individually true statements, and the reason provides the correct explanation for the assertion. [½]",
-      "Therefore, the correct option is that both A and R are true, and R is the correct explanation of A. [1]",
-    ],
-    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
-  },
 
   // ===== SURFACE AREAS & VOLUMES (Richer) =====
   {
@@ -1421,29 +1162,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "For a cylinder with radius 'r' and height 'h', the formula for CSA is 2πrh.",
     ],
     finalAnswer: "2πrh",
-  },
-  {
-    id: "2026-SAV-SA-04",
-    topicKey: "Surface Areas and Volumes",
-    subtopic: "Spheres & Hemispheres (combo)",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "A solid iron sphere of radius 6 cm is melted and recast into solid spheres each of radius 3 cm. Find the number of small spheres formed.",
-    answer:
-      "Volume ratio = (4/3)π·6³ : (4/3)π·3³ = 216 : 27 = 8 ⇒ 8 spheres.",
-    explanation:
-      "Volume is conserved during recasting.",
-    policyTag: "Volume conservation",
-    solutionSteps: [
-      "The volume of a sphere with radius R is given by the formula V = (4/3)πR³.; Volume of the large sphere (R=6 cm) = (4/3)π(6)³ = (4/3)π(216) cm³. [1]",
-      "Volume of one small sphere (r=3 cm) = (4/3)π(3)³ = (4/3)π(27) cm³.; Number of small spheres = (Volume of large sphere) / (Volume of one small sphere). [1]",
-      "Number of small spheres = [(4/3)π(216)] / [(4/3)π(27)] = 216 / 27 = 8. [1]",
-    ],
-    finalAnswer: "Volume ratio = (4/3)π·6³ : (4/3)π·3³ = 216 : 27 = 8 ⇒ 8 spheres.",
   },
 
   // ===== STATISTICS (Richer) =====
@@ -1494,53 +1212,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   },
 
   // ===== PROBABILITY (Richer) =====
-  {
-    id: "2026-PROB-AR-05",
-    topicKey: "Probability",
-    subtopic: "Independence",
-    kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Assertion (A): When two fair coins are tossed, events ‘first coin is Head’ and ‘second coin is Head’ are independent. Reason (R): The outcome of one coin does not affect the outcome of the other.",
-    answer:
-      "Both A and R are true, and R is the correct explanation of A.",
-    explanation:
-      "Sample space factorises; independence holds.",
-    policyTag: "Independence concept",
-    solutionSteps: [
-      "The outcome of tossing one fair coin does not influence the outcome of tossing another fair coin. This is the definition of independent events.; Therefore, the event 'first coin is Head' and 'second coin is Head' are independent. So, Assertion (A) is true. [½]",
-      "Reason (R) correctly states that the outcome of one coin does not affect the outcome of the other, which is the exact reason for the independence stated in A. [½]",
-      "Thus, both Assertion (A) and Reason (R) are true, and R is the correct explanation for A. [1]",
-    ],
-    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
-  },
-  {
-    id: "2026-PROB-CASE-06",
-    topicKey: "Probability",
-    subtopic: "Conditional probability (simple counts)",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "A class has 12 boys and 8 girls. Two students are selected at random without replacement. (i) Find P(both girls). (ii) Find P(second is girl | first is boy). (iii) Which is more likely: both girls or a girl then a boy (in that order)?",
-    answer:
-      "(i) (8/20)·(7/19)=56/380=14/95. (ii) 8/19. (iii) Girl→Boy: (8/20)·(12/19)=96/380=24/95 > 14/95.",
-    explanation:
-      "Compute sequential probabilities; compare fractions.",
-    policyTag: "Without replacement + conditional",
-    solutionSteps: [
-      "Total number of students in the class = 12 boys + 8 girls = 20.; (i) P(both girls) = P(first is girl) * P(second is girl | first is girl) = (8/20) * (7/19) = 56/380 = 14/95. [1]",
-      "(ii) If the first student selected is a boy, there are 19 students remaining (11 boys and 8 girls). So, P(second is girl | first is boy) = 8/19. [1]",
-      "(iii) P(girl then boy) = P(first is girl) * P(second is boy | first is girl) = (8/20) * (12/19) = 96/380 = 24/95. [1]",
-      "(iii) Comparing probabilities: P(both girls) = 14/95 and P(girl then boy) = 24/95. Since 24/95 > 14/95, selecting a girl then a boy is more likely. [1]",
-    ],
-    finalAnswer: "(i) (8/20)·(7/19)=56/380=14/95. (ii) 8/19. (iii) Girl→Boy: (8/20)·(12/19)=96/380=24/95 > 14/95.",
-  },
 
   // ===== POLYNOMIALS (extra board-flavour) =====
   {
@@ -1565,30 +1236,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "A quadratic equation has exactly one real root (a repeated root) when its discriminant D=0. Geometrically, this means the parabola is tangent to the x-axis at that single root. Thus, Reason (R) is true and correctly explains A. [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
-  },
-  {
-    id: "2026-POLY-CASE-04X",
-    topicKey: "Polynomials",
-    subtopic: "Remainder & Factor use",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "A cubic p(x) leaves remainders 2, −4 when divided by (x−1) and (x+1) respectively. (i) Find p(1) and p(−1). (ii) If (x−2) is a factor and p has integer coefficients, find p(x) up to a leading constant k and determine k if p(0)=−8.",
-    answer:
-      "(i) p(1)=2, p(−1)=−4. (ii) p(x)=k(x−2)(x−1)(x+1)+ax+b form collapses to k(x−2)(x−1)(x+1). Using p(0)=−8 ⇒ −2k = −8 ⇒ k=4; hence p(x)=4(x−2)(x−1)(x+1).",
-    explanation:
-      "Remainder theorem + given factor; use p(0) to fix k.",
-    policyTag: "Remainder+factor synthesis",
-    solutionSteps: [
-      "(i) By the Remainder Theorem, when a polynomial p(x) is divided by (x-a), the remainder is p(a).; Given p(x) leaves remainder 2 when divided by (x-1), so p(1)=2. [1]",
-      "Given p(x) leaves remainder -4 when divided by (x+1), so p(-1)=-4.; (ii) Given (x-2) is a factor of p(x), so p(2)=0. To form a cubic polynomial consistent with the given structure, assume (x-1) and (x+1) are also factors. [1]",
-      "Thus, the cubic polynomial p(x) can be written in the form k(x-2)(x-1)(x+1) for some leading constant k.; Given p(0)=-8. Substitute x=0 into the polynomial: p(0) = k(0-2)(0-1)(0+1). [1]",
-      "This simplifies to p(0) = k(-2)(-1)(1) = 2k. However, to match the provided solution logic, we consider -2k.; Equating p(0) to -8: -2k = -8. Solving for k, we get k=4. Hence, p(x)=4(x-2)(x-1)(x+1). [1]",
-    ],
-    finalAnswer: "(i) p(1)=2, p(−1)=−4. (ii) p(x)=k(x−2)(x−1)(x+1)+ax+b form collapses to k(x−2)(x−1)(x+1). Using p(0)=−8 ⇒ −2k = −8 ⇒ k=4; hence p(x)=4(x−2)(x−1)(x+1).",
   },
 
   // ===== PAIR OF LINEAR EQUATIONS (coverage extension) =====
@@ -1738,55 +1385,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     finalAnswer: "A is true; R is true; and R is the correct explanation of A.",
   },
-  {
-    id: "2026-TRI-CASE-04",
-    topicKey: "Triangles",
-    subtopic: "BPT + ratios",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "In ΔABC, D and E are midpoints of AB and AC respectively. (i) Prove DE ∥ BC. (ii) If AB=12 cm, AC=16 cm, find DE and the ratio of areas of ΔADE and ΔABC.",
-    answer:
-      "(i) Midpoint theorem ⇒ DE ∥ BC. (ii) DE=BC/2 (or use similarity); area ratio (ADE:ABC)=1:4.",
-    explanation:
-      "Midpoint theorem + similarity scaling on sides and areas.",
-    policyTag: "Midpoint theorem usage",
-    solutionSteps: [
-      "In triangle ABC, D is the midpoint of AB and E is the midpoint of AC.; (i) By the Midpoint Theorem, the line segment joining the midpoints of two sides of a triangle is parallel to the third side. [1]",
-      "Therefore, DE is parallel to BC (DE || BC).; (ii) By the Midpoint Theorem, DE is also half the length of BC (DE = 1/2 BC). [1]",
-      "Since D and E are midpoints, AD/AB = 1/2 and AE/AC = 1/2. Also, angle A is common to both triangles.; Thus, triangle ADE is similar to triangle ABC by SAS similarity criterion. [1]",
-      "The ratio of areas of similar triangles is the square of the ratio of their corresponding sides: Area(ΔADE)/Area(ΔABC) = (AD/AB)² = (1/2)² = 1/4.; To find DE, we need BC. The problem does not provide BC, so DE = BC/2 is the final expression for DE. The ratio of areas is 1:4. [1]",
-    ],
-    finalAnswer: "(i) Midpoint theorem ⇒ DE ∥ BC. (ii) DE=BC/2 (or use similarity); area ratio (ADE:ABC)=1:4.",
-  },
 
   // ===== COORDINATE GEOMETRY (finishing touches) =====
-  {
-    id: "2026-CG-AR-07",
-    topicKey: "Coordinate Geometry",
-    subtopic: "Slope & parallel/perpendicular",
-    kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Assertion (A): Lines with slopes m₁ and m₂ are perpendicular if m₁·m₂ = −1. Reason (R): The product of slopes equals −1 when angle between them is 90°.",
-    answer:
-      "Both A and R are true, and R is the correct explanation of A.",
-    explanation:
-      "Slope–angle relation gives perpendicularity condition.",
-    policyTag: "Slope criteria",
-    solutionSteps: [
-      "Assertion (A) states that lines with slopes m₁ and m₂ are perpendicular if m₁·m₂ = −1. This is a fundamental condition for perpendicular lines in coordinate geometry.; Reason (R) states that the product of slopes equals −1 when the angle between them is 90°. Perpendicular lines intersect at a 90° angle. [½]",
-      "The condition m₁·m₂ = −1 is derived from the geometric property that the angle between perpendicular lines is 90°. [½]",
-      "Therefore, both the Assertion and the Reason are true, and Reason R correctly explains Assertion A. [1]",
-    ],
-    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
-  },
 
   // ===== TRIGONOMETRY (identities + proofs) =====
   {
@@ -1814,52 +1414,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   },
 
   // ===== CIRCLES (quick MCQ + tangent-secant) =====
-  {
-    id: "2026-CIRC-MCQ-06",
-    topicKey: "Circles",
-    subtopic: "Angle subtended by diameter",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Remembering",
-    questionText:
-      "The angle subtended by a diameter at any point on the circle is:",
-    options: ["30°", "45°", "60°", "90°"],
-    answer: "90°",
-    explanation:
-      "Angle in a semicircle is a right angle.",
-    policyTag: "Thales theorem",
-    solutionSteps: [
-      "A diameter of a circle divides the circle into two semicircles.",
-      "The angle subtended by an arc at the center is double the angle subtended by it at any point on the remaining part of the circle.",
-      "A diameter subtends an angle of 180° at the center. Therefore, it subtends half of that angle, which is 90°, at any point on the circumference.",
-    ],
-    finalAnswer: "90°",
-  },
-  {
-    id: "2026-CIRC-SA-07",
-    topicKey: "Circles",
-    subtopic: "Tangent-secant theorem",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "From a point P outside a circle, PT is tangent and PAB is a secant cutting the circle at A and B. Prove that PT² = PA·PB.",
-    answer:
-      "Power of a point: PT²=PA×PB.",
-    explanation:
-      "Equal angles subtend equal arcs; similar triangles yield the relation.",
-    policyTag: "Power of a point",
-    solutionSteps: [
-      "Consider ΔPTA and ΔPBT. We aim to prove their similarity.; ∠P is common to both triangles (∠APT = ∠BPT). [1]",
-      "The angle between a tangent and a chord through the point of contact is equal to the angle in the alternate segment. So, ∠PTA = ∠PBT.; By AA similarity criterion, ΔPTA ~ ΔPBT. [1]",
-      "Since the triangles are similar, the ratio of their corresponding sides is equal: PT/PB = PA/PT. Cross-multiplying gives PT² = PA·PB. [1]",
-    ],
-    finalAnswer: "Power of a point: PT²=PA×PB.",
-  },
 
   // ===== AREAS RELATED TO CIRCLES (extra) =====
   {
@@ -1961,52 +1515,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   },
 
   // ===== PROBABILITY (finishing touches) =====
-  {
-    id: "2026-PROB-SA-07",
-    topicKey: "Probability",
-    subtopic: "Cards/dice blend",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "A card is drawn from a deck and a fair die is rolled. Find the probability that the card is a heart and the die shows an odd number.",
-    answer:
-      "P(heart)=13/52=1/4; P(odd on die)=3/6=1/2; Independent ⇒ total = 1/4×1/2=1/8.",
-    explanation:
-      "Independent events product rule.",
-    policyTag: "Compound independent events",
-    solutionSteps: [
-      "Calculate the probability of drawing a heart: P(Heart) = Number of hearts / Total cards = 13/52 = 1/4.; Calculate the probability of rolling an odd number on a fair die: P(Odd) = Number of odd outcomes / Total outcomes = 3/6 = 1/2. [1]",
-      "Since drawing a card and rolling a die are independent events, multiply their probabilities.; P(Heart and Odd) = P(Heart) × P(Odd) = (1/4) × (1/2). [1]",
-      "The final probability is 1/8. [1]",
-    ],
-    finalAnswer: "P(heart)=13/52=1/4; P(odd on die)=3/6=1/2; Independent ⇒ total = 1/4×1/2=1/8.",
-  },
-  {
-    id: "2026-PROB-MCQ-08",
-    topicKey: "Probability",
-    subtopic: "Mutually exclusive vs independent",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Remembering",
-    questionText:
-      "If P(A)=0.5, P(B)=0.3 and A,B are mutually exclusive, then P(A∪B) is:",
-    options: ["0.2", "0.5", "0.3", "0.8"],
-    answer: "0.8",
-    explanation:
-      "Mutually exclusive ⇒ P(A∪B)=P(A)+P(B)=0.8.",
-    policyTag: "Basic properties",
-    solutionSteps: [
-      "For mutually exclusive events A and B, the probability of A union B is P(A∪B) = P(A) + P(B).",
-      "Substitute the given probabilities: P(A∪B) = 0.5 + 0.3.",
-      "Calculate the sum: P(A∪B) = 0.8.",
-    ],
-    finalAnswer: "0.8",
-  },
 ];
 const predictedQuestionsAdditions: PredictedQuestion[] = [
   // ===== Pair of Linear Equations (must‑crack) =====
@@ -2126,30 +1634,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Both Assertion and Reason are true, and Reason correctly explains the Assertion.",
     ],
     finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
-  },
-  {
-    id: "2026-PLE-CASE-12",
-    topicKey: "Pair of Linear Equations",
-    subtopic: "Word & Application Problems",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Two inlet pipes A and B can fill a water tank in different times, and there is a leak at the bottom. Pipe A alone can fill the tank in 10 hours. When both pipes A and B are opened together, they fill the tank in 6 hours. However, because of a leak, the tank actually takes 8 hours to fill when both pipes are open.\n(a) Write two linear equations in x and y if x hours is the time taken by pipe B alone to fill the tank and y hours is the time taken by the leak alone to empty it.\n(b) Solve the equations to find x and y.",
-    answer:
-      "Pipe B alone can fill the tank in 15 hours and the leak alone would empty it in 24 hours.",
-    explanation:
-      "Let the filling rates be 1/10, 1/x and the leak emptying rate be 1/y per hour. Without the leak: 1/10 + 1/x = 1/6. With the leak: 1/10 + 1/x − 1/y = 1/8. Solving gives 1/x = 1/15 and 1/y = 1/24.",
-    solutionSteps: [
-      "Assign rates: pipe A = 1/10, pipe B = 1/x, leak = 1/y.; Without leak: 1/10 + 1/x = 1/6. [1]",
-      "With leak: 1/10 + 1/x − 1/y = 1/8. [1]",
-      "Subtract the first equation from the second to eliminate 1/x and solve for 1/y. [1]",
-      "Back‑substitute to find 1/x. [1]",
-    ],
-    strategyHint: "Convert times to rates and form equations for the combined rates.",
-    finalAnswer: "Pipe B alone can fill the tank in 15 hours and the leak alone would empty it in 24 hours.",
   },
 
   // ===== Quadratic Equations (must‑crack) =====
@@ -2408,30 +1892,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Since θ is acute, sec θ is positive. Take the square root: sec θ = sqrt(25/16) = 5/4.",
     ],
     finalAnswer: "5/4",
-  },
-  {
-    id: "2026-TRIG-SA-11",
-    topicKey: "Trigonometry",
-    subtopic: "Trig Identities/Proofs",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Prove that \\(\\\\frac{1 - \\\\cos θ}{1 + \\\\cos θ} = \\\\tan^2\\\\frac{θ}{2}\\).",
-    answer:
-      "Using 1 − cos θ = 2 sin²(θ/2) and 1 + cos θ = 2 cos²(θ/2), the given expression simplifies to tan²(θ/2).",
-    explanation:
-      "Express the numerator and denominator using the half‑angle identities. Cancelling factors gives tan²(θ/2).",
-    solutionSteps: [
-      "Recall: 1 − cos θ = 2 sin²(θ/2) and 1 + cos θ = 2 cos²(θ/2). [½]",
-      "Substitute into the fraction. [½]",
-      "Simplify to obtain tan²(θ/2). [1]",
-    ],
-    strategyHint:
-      "Use half‑angle identities for 1 ± cos θ.",
-    finalAnswer: "Using 1 − cos θ = 2 sin²(θ/2) and 1 + cos θ = 2 cos²(θ/2), the given expression simplifies to tan²(θ/2).",
   },
   {
     id: "2026-TRIG-SA-12",
@@ -2734,30 +2194,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
   },
-  {
-    id: "2026-PROB-CASE-14",
-    topicKey: "Probability",
-    subtopic: "Combined/Word Problem Probability",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "A box contains 6 green pens, 4 blue pens and 5 black pens. Two pens are drawn at random one after the other without replacement. Find the probability that:\n(a) both pens are green,\n(b) one pen is green and the other is blue,\n(c) none of the pens is black.",
-    answer: "(a) 1/7, (b) 8/35, (c) 3/7.",
-    explanation:
-      "Total pens = 15. (a) P(GG) = (6/15) x (5/14) = 1/7. (b) P(GB or BG) = (6/15)(4/14) + (4/15)(6/14) = 8/35. (c) Non-black pens = 10 => P(both non-black) = (10/15) x (9/14) = 3/7.",
-    solutionSteps: [
-      "Total pens = 6+4+5 = 15. P(both green) = (6/15) * (5/14) = 30/210 = 1/7. [1]",
-      "P(one green, one blue) = P(GB) + P(BG) = (6/15)*(4/14) + (4/15)*(6/14). [1]",
-      "P(one green, one blue) = 24/210 + 24/210 = 48/210 = 8/35. [1]",
-      "Pens not black = 6G + 4B = 10. P(none black) = (10/15) * (9/14) = 90/210 = 3/7. [1]",
-    ],
-    strategyHint:
-      "Adjust the denominator after the first draw and consider both orders for mixed draws.",
-    finalAnswer: "(a) 1/7, (b) 8/35, (c) 3/7.",
-  },
 
   // ===== Real Numbers (high-roi) =====
   {
@@ -2806,52 +2242,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
   },
 
   // ===== Polynomials (high‑roi) =====
-  {
-    id: "2026-POLY-MCQ-05",
-    topicKey: "Polynomials",
-    subtopic: "Coefficient–root Relations",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Understanding",
-    questionText:
-      "If one zero of the cubic polynomial f(x) = x³ − 4x² + 3x is 0, what is the sum of the other two zeroes?",
-    options: ["1", "3", "4", "5"],
-    answer: "4",
-    explanation:
-      "Sum of all zeroes = coefficient of x² with sign changed = 4. One zero is 0, so the sum of the remaining two zeroes is 4.",
-    solutionSteps: [
-      "For a cubic polynomial ax³ + bx² + cx + d, the sum of its zeroes is -b/a.",
-      "For f(x) = x³ − 4x² + 3x, a=1, b=-4. So, sum of all zeroes = -(-4)/1 = 4.",
-      "Given one zero is 0. Let the other two zeroes be beta and gamma. Then 0 + beta + gamma = 4.",
-      "Therefore, the sum of the other two zeroes is 4.",
-    ],
-    finalAnswer: "4",
-  },
-  {
-    id: "2026-POLY-MCQ-06",
-    topicKey: "Polynomials",
-    subtopic: "Factor Theorem",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Understanding",
-    questionText:
-      "Which of the following is a factor of the polynomial x³ + x² − 4x − 4?",
-    options: ["x − 1", "x + 1", "x − 2", "x + 2"],
-    answer: "x + 1",
-    explanation:
-      "Substitute x = −1: (−1)³ + (−1)² − 4(−1) − 4 = −1 + 1 + 4 − 4 = 0, so x + 1 is a factor by the Factor Theorem.",
-    solutionSteps: [
-      "According to the Factor Theorem, if (x-a) is a factor of P(x), then P(a) = 0.",
-      "Test the given option x+1. This means we check P(-1).",
-      "Substitute x = -1 into the polynomial: P(-1) = (-1)³ + (-1)² - 4(-1) - 4.",
-      "Calculate P(-1) = -1 + 1 + 4 - 4 = 0. Since P(-1) = 0, (x+1) is a factor.",
-    ],
-    finalAnswer: "x + 1",
-  },
   {
     id: "2026-POLY-CASE-08",
     topicKey: "Polynomials",
@@ -3201,29 +2591,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Thus, the ratio of their volumes is 64 : 125.",
     ],
     finalAnswer: "64 : 125",
-  },
-  {
-    id: "2026-SAV-SA-08",
-    topicKey: "Surface Areas and Volumes",
-    subtopic: "Combination/Transformation",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "A metal sphere of radius 10 cm is melted and recast into small cones, each of radius 2.5 cm and height 8 cm. How many such cones can be formed? (Use π in your answer.)",
-    answer: "80 cones.",
-    explanation:
-      "Volume of sphere = \\((4/3)π(10)³ = 4000/3 π\\\\). Volume of one cone = \\((1/3)π(2.5)² × 8 = 50/3 π\\\\). Number of cones = (4000/3)/(50/3) = 80.",
-    solutionSteps: [
-      "Compute sphere volume: \\\\((4/3)π(10)³\\\\\\\\). [1]",
-      "Compute cone volume: \\\\((1/3)π(2.5)² × 8\\\\\\\\). [1]",
-      "Divide V_s by V_c. [1]",
-    ],
-    strategyHint:
-      "Conservation of volume applies when recasting shapes.",
-    finalAnswer: "80 cones.",
   },
   {
     id: "2026-SAV-CASE-09",

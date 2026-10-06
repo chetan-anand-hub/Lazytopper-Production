@@ -1,3 +1,33 @@
+## ★★★ 2026-10-06 — WAVE A-15 CLOSE (GRADER, CONTROLLER A) — GRADER-CORE-1 COMPLETE: PR-3 `#942` + PR-2b `#944` LIVE; HOTFIX-2 `#945` ROLLED BACK by `#946` (docs) — THIS BLOCK SUPERSEDES THE WAVE B-15 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-15, B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except the two B-15 items this block names as resolved.)*
+
+**TRUNK IS `e2c5bb468415c5309b6a315d637e1cacd1ecbeea`** when this docs PR was cut (`git ls-remote origin base/approved-thru-437`):
+- `e2c5bb46` = `#946` (ROLLBACK of HOTFIX-2; whole tree = `28ae0354`) — merged 2026-10-06T01:12:56Z.
+- `b5ff8cdc` = `#945` (HOTFIX-2: 8 questions per chunk, no 45 s kill — reverted) — merged 2026-10-05T23:25:56Z.
+- `28ae0354` = `#944` (GRADER-CORE-1 PR-2b: truthful comments, sign-safe quotes, no ECF through fudged steps, scheme half-marks) — merged 22:51:09Z.
+- `76447a63` = `#942` (GRADER-CORE-1 PR-3: 80 s deadline, hybrid one-call / chunked, charged per graded question, detection) — merged 22:15:59Z.
+- `64ee11c7` = `#943` (docs: wave B-15, incl. A's `#936` / `#937` / `#941`)
+*(merge times from `gh pr view`, docs-builder-verified)*
+
+No other PR was open when this docs PR was opened; this is the only docs PR (OR-16). **Trunk is live** (5 / 5 cold `/version.json` reads = `e2c5bb46`; Production and backend deployments `success`, docs-builder-verified). The results and open rows are in `CURRENT_STATE.md`.
+
+### NEXT — CONTROLLER A (after this docs PR merges)
+1. **Tell Controller B (wave B-16) this docs PR is MERGED** (OR-16 handoff lock released).
+2. **ONE final audit request** — `Desktop/diff/audit-request-grader-core-1-final-2026-10-06.md`: each PR with its merge SHA and CI run (incl. `#945` and its rollback `#946`), the live results, every Chrome action, every controller decision D1–D46 with its reason.
+3. **The single end-of-lane owner message**, which must confirm: PR-2 merged on gemini-3.8-flash with the production-key probe passed; `grading.model_fallback` **not readable by the agent** (evidence: `X-Grading-Model: gemini-3.8-flash` on every live grade) + the one-liner; Railway `GEMINI_TIMEOUT_MS` **safe to delete**; eval-key rotation recommended; the numbers (accuracy per target, ₹77.31 per student-month, p50 / p95); the HOTFIX-2 rollback and the background-jobs proposal. Then **STOP**.
+
+### NEXT — OWNER
+1. **A signed-out FREE CHECK by hand** (App Check returns 403 to automated browsers).
+2. **Delete Railway `GEMINI_TIMEOUT_MS`** — safe now (grading has its own 80 s deadline; detect p95 2.6 s). Optional.
+3. **Rotate the eval key** (precaution).
+4. **Confirm or overrule the D26 ECF judgement rulings** (`DECISION_LOG.md`).
+5. **`[FU-GRADER-2027-PRICE]` — due 2026-12-15** (the 3.8-flash price doubles on 2027-01-01: ₹77.31 → ₹154.62 per student-month at today's mix).
+6. **`[FU-ADMIN-TELEMETRY-UI]`** — approved by you for after both grader lanes; both are now closed.
+7. **Turn Vercel Rolling Releases back on** — your call (both grader lanes are closed). Until you say so, the rollout check stays 5 cold reads.
+8. **Read `grading.model_fallback` once** (the one-liner in `CURRENT_STATE.md`; the agent's in-page read was denied).
+9. **Pick the next lanes — the owner's call; this docs PR does not dispatch them.** Proposed for Controller A: **background grading jobs** (`[FU-GRADING-JOBS]`, `Desktop/diff/a15/PROPOSAL_GRADING_JOBS.md`) — the only design that can promise a full board paper with no timeouts. Your stated priority for the next client lane: **`[FU-B15-FREECHECK-V2]`**.
+- Resolved from the B-15 block: "delete `GEMINI_TIMEOUT_MS` only after A's PR-3 live check" → safe now; "re-enable Rolling Releases after both grader lanes close" → both closed.
+
 ## ★★★ 2026-10-05 — WAVE B-15 (RESULTS, CONTROLLER B) + WAVE A-15's MERGED PRs (GRADER, CONTROLLER A) — SCORECARD-MI-1 + CBQ-ENTRY-1 CLOSED, LIVE; GRADER-CORE-1 PR-1 / PR-2 / HOTFIX-1 LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE B-14 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 
