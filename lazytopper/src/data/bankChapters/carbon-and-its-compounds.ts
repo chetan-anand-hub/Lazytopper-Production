@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "carbon-and-its-compounds" (Science): 291 served rows from 16 source arrays, 10 withheld.
+// Chapter "carbon-and-its-compounds" (Science): 367 served rows from 17 source arrays, 10 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -22,6 +22,7 @@ import { carbonCompoundsPYQ2024 } from "../questionBanks/class10/science/carbonC
 import { CARB_CFPQ } from "../questionBanks/class10/science/carbon-and-its-compounds.cfpq";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 import { CARBON_CBQ_LT_GENERATED } from "../questionBanks/class10/science/carbon-and-its-compounds.cbq.ltgen";
+import { CARBON_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/carbon-and-its-compounds.b1.cbq.ltgen";
 
 export default defineChapter("carbon-and-its-compounds", [
   [34, CARBON_COMPOUNDS_PACK1, true],
@@ -40,6 +41,7 @@ export default defineChapter("carbon-and-its-compounds", [
   [400, CARB_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [424, CARBON_CBQ_LT_GENERATED, false],
+  [435, CARBON_CBQ_B1_LT_GENERATED, false],
 ], [
   "CC2-034",
   "CARB-EXMPLR-4-MCQ-018",
