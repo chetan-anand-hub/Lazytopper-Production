@@ -120,7 +120,7 @@
   },
   "chemical-reactions-and-equations": {
    "n": 522,
-   "sha256": "e4be55acdf1cd13509d9b3fb3c04fbc06ba3edbbe98ea7743d8d636c4a47e1fe",
+   "sha256": "683fcf7483a26498397884fab2b444572b3b9759f47ac4d1c7d2f49dfbb21b53",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -355,8 +355,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 74,
-   "sha256": "f2cef6c1f0954095929befd9705252930f42a500078c0e7e4a8430c2ef7e6b42",
+   "n": 73,
+   "sha256": "5c05d1c1a1225edf1422e89483100b05ec268a62359b4acfa42862f146465c65",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",

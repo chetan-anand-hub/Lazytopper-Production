@@ -186,7 +186,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Evaluating",
-    "questionText": "While dusting old books in the school library in Guwahati, Pooja sneezed several times. Her friend joked that Pooja was \"sneezing on purpose to avoid the work\".\n(a) Is the friend's claim scientifically correct? Classify Pooja's action and give one reason.\n(b) State how this action is useful to the body.",
+    "questionText": "While dusting old books in the school library in Guwahati, Pooja sneezed several times. Her friend joked that Pooja was \"sneezing on purpose to avoid the work\".\n(a) Is the friend's claim scientifically correct? Classify Pooja's action and give one reason. [1 mark]\n(b) State how this action is useful to the body. [1 mark]",
     "options": [],
     "answer": "(a) No; sneezing here is a reflex (involuntary) action — an automatic, sudden response to dust irritating the nose, not a decision. (b) It forcefully expels dust from the nasal passage, protecting the air passages.",
     "solutionSteps": [
@@ -211,7 +211,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Mary, a nursing student in Kochi, wrote four events on separate cards while revising how a message passes along a nerve cell, but mixed them up:\nP – chemicals are released at the end of the axon\nQ – a chemical reaction at the dendrite tip sets off an electrical impulse\nR – the impulse travels along the axon\nS – the impulse passes from the dendrite into the cell body\n(a) Arrange the cards in the correct order.\n(b) At which part of the neuron is the electrical signal converted into a chemical signal, and why is this conversion needed for the message to reach the next neuron?",
+    "questionText": "Mary, a nursing student in Kochi, wrote four events on separate cards while revising how a message passes along a nerve cell, but mixed them up:\nP – chemicals are released at the end of the axon\nQ – a chemical reaction at the dendrite tip sets off an electrical impulse\nR – the impulse travels along the axon\nS – the impulse passes from the dendrite into the cell body\n(a) Arrange the cards in the correct order. [1 mark]\n(b) At which part of the neuron is the electrical signal converted into a chemical signal, and why is this conversion needed for the message to reach the next neuron? [1 mark]",
     "options": [],
     "answer": "(a) Q → S → R → P. (b) At the axon ending; the electrical impulse cannot cross the synapse, so chemicals carry the signal across the gap and start a new impulse in the next neuron's dendrite.",
     "solutionSteps": [
@@ -236,7 +236,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "At a roadside dhaba in Patna, Anjali bit into a very hot green chilli. Within a moment her eyes began to water. A few seconds later she reached for a glass of water and drank it.\n(a) Classify each of the two responses — watering of the eyes and reaching for the glass — as voluntary or involuntary.\n(b) For reaching for the glass, name the part of the brain that takes the decision, and state the path by which the message reaches the muscles of her hand.",
+    "questionText": "At a roadside dhaba in Patna, Anjali bit into a very hot green chilli. Within a moment her eyes began to water. A few seconds later she reached for a glass of water and drank it.\n(a) Classify each of the two responses — watering of the eyes and reaching for the glass — as voluntary or involuntary. [1 mark]\n(b) For reaching for the glass, name the part of the brain that takes the decision, and state the path by which the message reaches the muscles of her hand. [1 mark]",
     "options": [],
     "answer": "(a) Watering of the eyes — involuntary; reaching for the glass — voluntary. (b) The fore-brain (cerebrum) decides; the message travels from the brain through the spinal cord and along motor nerves to the hand muscles.",
     "solutionSteps": [
@@ -261,7 +261,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Three-year-old Zoya in Lucknow touched a hot clothes iron that had just been switched off and instantly pulled her hand back, crying only after that. Her grandmother said, \"Now she will remember, and next time she will keep away from the iron.\"\n(a) Name the receptor that detected the heat, and list in order the three types of neurons through which the message travelled to make her pull her hand back.\n(b) Why did Zoya pull her hand back before she started crying in pain?\n(c) Name the part of the brain that will store this experience, and state whether keeping away from the iron in future is a voluntary or a reflex action.",
+    "questionText": "Three-year-old Zoya in Lucknow touched a hot clothes iron that had just been switched off and instantly pulled her hand back, crying only after that. Her grandmother said, \"Now she will remember, and next time she will keep away from the iron.\"\n(a) Name the receptor that detected the heat, and list in order the three types of neurons through which the message travelled to make her pull her hand back. [1 mark]\n(b) Why did Zoya pull her hand back before she started crying in pain? [1 mark]\n(c) Name the part of the brain that will store this experience, and state whether keeping away from the iron in future is a voluntary or a reflex action. [1 mark]",
     "options": [],
     "answer": "(a) Heat receptors in the skin; sensory neuron → relay neuron (spinal cord) → motor neuron. (b) The reflex connection is made in the spinal cord, so the hand moves before the message reaches the brain and is felt as pain. (c) Fore-brain; voluntary.",
     "solutionSteps": [
@@ -289,7 +289,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Leela, a Class 10 student in Mysuru, wrote in her notebook: \"The beating of the heart, the knee-jerk, and pulling the hand away on accidentally brushing against a diya flame are all reflex actions, because we do not think before any of them.\"\n(a) Which one of her three examples is NOT a reflex action? Justify.\n(b) Name the part of the brain that controls the action you identified in (a).\n(c) State one feature that all three actions share, and one feature that the two reflex actions have which the other action does not.",
+    "questionText": "Leela, a Class 10 student in Mysuru, wrote in her notebook: \"The beating of the heart, the knee-jerk, and pulling the hand away on accidentally brushing against a diya flame are all reflex actions, because we do not think before any of them.\"\n(a) Which one of her three examples is NOT a reflex action? Justify. [1 mark]\n(b) Name the part of the brain that controls the action you identified in (a). [1 mark]\n(c) State one feature that all three actions share, and one feature that the two reflex actions have which the other action does not. [1 mark]",
     "options": [],
     "answer": "(a) The beating of the heart — it is a continuous involuntary action, not a sudden response to a particular stimulus through a reflex arc. (b) Medulla in the hind-brain. (c) All are involuntary; reflex actions are sudden responses to a stimulus, with the connection made in the spinal cord through a reflex arc.",
     "solutionSteps": [
@@ -316,7 +316,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In a laboratory in Dehradun, three nerve cells P, Q and R are linked in a chain: the axon ending of P meets the dendrites of Q, and the axon ending of Q meets the dendrites of R. A researcher gives a tiny stimulus only at the dendrites of neuron Q and records which neurons carry an electrical impulse.\n(a) In which of the neurons P, Q and R will an electrical impulse be recorded?\n(b) Explain why no impulse is recorded in the other neuron.\n(c) Describe what happens at the junction between Q and R that allows the impulse to continue.",
+    "questionText": "In a laboratory in Dehradun, three nerve cells P, Q and R are linked in a chain: the axon ending of P meets the dendrites of Q, and the axon ending of Q meets the dendrites of R. A researcher gives a tiny stimulus only at the dendrites of neuron Q and records which neurons carry an electrical impulse.\n(a) In which of the neurons P, Q and R will an electrical impulse be recorded? [1 mark]\n(b) Explain why no impulse is recorded in the other neuron. [1 mark]\n(c) Describe what happens at the junction between Q and R that allows the impulse to continue. [1 mark]",
     "options": [],
     "answer": "(a) In Q and R only. (b) Chemicals that carry the signal across a synapse are released only at an axon ending, so Q's dendrites cannot pass a signal back to P's axon; transmission is one-way. (c) The impulse reaching Q's axon ending releases chemicals that cross the synapse and set off a new electrical impulse in R's dendrites.",
     "solutionSteps": [
@@ -708,7 +708,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Gurpreet is learning to play the tabla in Amritsar. While practising a fast rhythm, she has to (i) decide which pattern of beats to play next, and (ii) keep every stroke precise and evenly timed. Name the part of the brain chiefly responsible for (i) and for (ii), and state whether each part lies in the forebrain, the midbrain or the hindbrain.",
+    "questionText": "Gurpreet is learning to play the tabla in Amritsar. While practising a fast rhythm, she has to (i) decide which pattern of beats to play next, and (ii) keep every stroke precise and evenly timed. Name the part of the brain chiefly responsible for (i) and for (ii), and state whether each part lies in the forebrain, the midbrain or the hindbrain.\n[Marks: (i) 1 mark, (ii) 1 mark]",
     "options": [],
     "answer": "(i) Cerebrum — forebrain; (ii) Cerebellum — hindbrain.",
     "solutionSteps": [
@@ -758,7 +758,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Lorraine coaches the junior football team at her school in Margao. She allows the younger players to head the ball only a few times in each practice session, and only with a soft, light ball.\n(a) Name the two natural structures that protect the brain from knocks, and state how each helps.\n(b) Using these ideas, explain why Lorraine still limits heading practice.",
+    "questionText": "Lorraine coaches the junior football team at her school in Margao. She allows the younger players to head the ball only a few times in each practice session, and only with a soft, light ball.\n(a) Name the two natural structures that protect the brain from knocks, and state how each helps. [1 mark]\n(b) Using these ideas, explain why Lorraine still limits heading practice. [1 mark]",
     "options": [],
     "answer": "(a) Skull (cranium) — bony box resisting blows; cerebrospinal fluid — shock absorber. (b) Natural protection absorbs only small jolts; repeated or hard knocks can still injure the brain.",
     "solutionSteps": [
@@ -784,7 +784,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "At a science club in Kozhikode, Aparna plays a card game called 'Who controls me?'. Each card describes an action, and the player must name the part of the brain that controls it and the region (forebrain, midbrain or hindbrain) in which that part lies. Aparna picked these three cards:\n(a) 'You recognise your best friend's voice when she calls you from behind.'\n(b) 'Your mouth waters when you smell hot dosas being made in the school canteen.'\n(c) 'You walk along a narrow balance beam in the gym without falling off.'\nGive the correct answer for each card.",
+    "questionText": "At a science club in Kozhikode, Aparna plays a card game called 'Who controls me?'. Each card describes an action, and the player must name the part of the brain that controls it and the region (forebrain, midbrain or hindbrain) in which that part lies. Aparna picked these three cards:\n(a) 'You recognise your best friend's voice when she calls you from behind.' [1 mark]\n(b) 'Your mouth waters when you smell hot dosas being made in the school canteen.' [1 mark]\n(c) 'You walk along a narrow balance beam in the gym without falling off.'\nGive the correct answer for each card. [1 mark]",
     "options": [],
     "answer": "(a) Cerebrum — forebrain; (b) Medulla — hindbrain; (c) Cerebellum — hindbrain.",
     "solutionSteps": [
@@ -810,7 +810,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Thomas rows a narrow wooden country boat along the backwaters of Alappuzha every morning. While rowing, he keeps his balance in the rocking boat and makes precise, well-timed strokes with the oar. At the same time, his breathing rate and blood pressure adjust to the hard work without his thinking about them.\n(a) Name the region of the brain that controls both these sets of activities.\n(b) Name the part of this region that controls (i) his balance and the precision of his strokes, and (ii) his blood pressure.\n(c) Why is it an advantage for Thomas that these activities do not need the thinking part of the brain?",
+    "questionText": "Thomas rows a narrow wooden country boat along the backwaters of Alappuzha every morning. While rowing, he keeps his balance in the rocking boat and makes precise, well-timed strokes with the oar. At the same time, his breathing rate and blood pressure adjust to the hard work without his thinking about them.\n(a) Name the region of the brain that controls both these sets of activities. [1 mark]\n(b) Name the part of this region that controls (i) his balance and the precision of his strokes, and (ii) his blood pressure. [1 mark]\n(c) Why is it an advantage for Thomas that these activities do not need the thinking part of the brain? [1 mark]",
     "options": [],
     "answer": "(a) Hindbrain. (b)(i) Cerebellum; (ii) Medulla. (c) They happen automatically, leaving the forebrain free for thinking, and vital actions continue even when attention is elsewhere.",
     "solutionSteps": [
@@ -837,7 +837,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Bhavesh, a student in Nadiad, is eating lunch. He tears a piece of roti, picks it up with his fingers and puts it in his mouth. After he swallows, the food moves down his oesophagus to the stomach without any effort on his part.\n(a) Classify the muscles that move his fingers and the muscles in the wall of his oesophagus as voluntary or involuntary.\n(b) Both kinds of muscle become shorter when they receive a nerve impulse. What change takes place inside the muscle cells to bring this about?\n(c) State one advantage to Bhavesh of the oesophagus muscles working without his conscious control.",
+    "questionText": "Bhavesh, a student in Nadiad, is eating lunch. He tears a piece of roti, picks it up with his fingers and puts it in his mouth. After he swallows, the food moves down his oesophagus to the stomach without any effort on his part.\n(a) Classify the muscles that move his fingers and the muscles in the wall of his oesophagus as voluntary or involuntary. [1 mark]\n(b) Both kinds of muscle become shorter when they receive a nerve impulse. What change takes place inside the muscle cells to bring this about? [1 mark]\n(c) State one advantage to Bhavesh of the oesophagus muscles working without his conscious control. [1 mark]",
     "options": [],
     "answer": "(a) Finger muscles voluntary; oesophagus muscles involuntary. (b) Special proteins change shape and arrangement, shortening the cells. (c) Food moves on its own, leaving him free to attend to other things.",
     "solutionSteps": [
@@ -1355,7 +1355,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Ramesh runs a plant nursery in Saharanpur and has three tasks to complete:\n(a) make the stems of some young dwarf ornamental plants grow taller;\n(b) increase the number of cells in small pieces of plant tissue so that many new plantlets can be raised from them;\n(c) slow down the growth of a batch of seedlings for a few days until a delivery truck arrives.\nFor each task, name the plant hormone he should use and give a reason for your choice. [1 mark each]",
+    "questionText": "Ramesh runs a plant nursery in Saharanpur and has three tasks to complete:\n(a) make the stems of some young dwarf ornamental plants grow taller; [1 mark]\n(b) increase the number of cells in small pieces of plant tissue so that many new plantlets can be raised from them; [1 mark]\n(c) slow down the growth of a batch of seedlings for a few days until a delivery truck arrives.\nFor each task, name the plant hormone he should use and give a reason for your choice. [1 mark each] [1 mark]",
     "options": [],
     "answer": "(a) Gibberellin, as it promotes growth of the stem; (b) cytokinin, as it promotes cell division; (c) abscisic acid, as it inhibits growth.",
     "solutionSteps": [
@@ -1746,7 +1746,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Ritvik and his cousin Mohit, both 10 years old, live in Gwalior. Ritvik is 112 cm tall while Mohit is 138 cm, close to the average for their age. Ritvik's blood tests show a low level of growth hormone; his thyroxin and insulin levels are normal.\n(a) Name the gland that is not releasing enough growth hormone, and the condition Ritvik may develop if he is not treated.\n(b) This gland lies at the base of the brain, yet the problem shows up in the length of Ritvik's leg bones and his height. Explain how a hormone made in the head can control the growth of the whole body.",
+    "questionText": "Ritvik and his cousin Mohit, both 10 years old, live in Gwalior. Ritvik is 112 cm tall while Mohit is 138 cm, close to the average for their age. Ritvik's blood tests show a low level of growth hormone; his thyroxin and insulin levels are normal.\n(a) Name the gland that is not releasing enough growth hormone, and the condition Ritvik may develop if he is not treated. [1 mark]\n(b) This gland lies at the base of the brain, yet the problem shows up in the length of Ritvik's leg bones and his height. Explain how a hormone made in the head can control the growth of the whole body. [1 mark]",
     "options": [],
     "answer": "(a) Pituitary gland; dwarfism. (b) Growth hormone is released directly into the blood, which carries it to all parts of the body, including the bones, where it acts.",
     "solutionSteps": [
@@ -1772,7 +1772,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Karthik's grandmother in Madurai has started buying loose, non-iodised sea salt for the family because she feels it is \"more natural\". Karthik wants to convince the family to go back to iodised salt.\n(a) Predict the health problem family members may develop if they use only this salt for many years, and name the gland that would be affected.\n(b) Give Karthik one scientific reason, based on the role of the hormone involved, that he can use to justify iodised salt.",
+    "questionText": "Karthik's grandmother in Madurai has started buying loose, non-iodised sea salt for the family because she feels it is \"more natural\". Karthik wants to convince the family to go back to iodised salt.\n(a) Predict the health problem family members may develop if they use only this salt for many years, and name the gland that would be affected. [1 mark]\n(b) Give Karthik one scientific reason, based on the role of the hormone involved, that he can use to justify iodised salt. [1 mark]",
     "options": [],
     "answer": "(a) Goitre (swollen neck); thyroid gland. (b) The thyroid needs iodine to make thyroxin, which regulates carbohydrate, protein and fat metabolism for balanced growth; without iodine too little thyroxin is made.",
     "solutionSteps": [
@@ -1798,7 +1798,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "During a class discussion in Jammu, Rabia said: \"The thyroid gland has no duct, so it cannot send its product anywhere. Only glands with ducts, like the salivary glands, can affect other organs.\"\n(a) Identify the error in Rabia's reasoning.\n(b) Name one gland in the human body that releases one product through a duct and also releases a hormone without a duct, and name that hormone.",
+    "questionText": "During a class discussion in Jammu, Rabia said: \"The thyroid gland has no duct, so it cannot send its product anywhere. Only glands with ducts, like the salivary glands, can affect other organs.\"\n(a) Identify the error in Rabia's reasoning. [1 mark]\n(b) Name one gland in the human body that releases one product through a duct and also releases a hormone without a duct, and name that hormone. [1 mark]",
     "options": [],
     "answer": "(a) The thyroid is an endocrine (ductless) gland; it releases thyroxin directly into the blood, which carries it to organs all over the body. (b) Pancreas; insulin.",
     "solutionSteps": [
@@ -1824,7 +1824,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "At a family function in Ujjain, 16-year-old Vandana and her uncle, who has diabetes, each drank the same glass of sweet sugarcane juice. Their blood sugar was checked with a glucometer:\nVandana — before the juice: 90 mg/dL; 2 hours later: 105 mg/dL\nUncle — before the juice: 135 mg/dL; 2 hours later: 230 mg/dL\n(a) Which organ in Vandana's body sensed the rise in her blood sugar, and which hormone did it release in response?\n(b) As Vandana's blood sugar came back towards normal, how would the amount of this hormone released have changed? Why is this called a feedback mechanism?\n(c) Suggest why her uncle's blood sugar stayed high, and why doctors give insulin injections to such patients.",
+    "questionText": "At a family function in Ujjain, 16-year-old Vandana and her uncle, who has diabetes, each drank the same glass of sweet sugarcane juice. Their blood sugar was checked with a glucometer:\nVandana — before the juice: 90 mg/dL; 2 hours later: 105 mg/dL\nUncle — before the juice: 135 mg/dL; 2 hours later: 230 mg/dL\n(a) Which organ in Vandana's body sensed the rise in her blood sugar, and which hormone did it release in response? [1 mark]\n(b) As Vandana's blood sugar came back towards normal, how would the amount of this hormone released have changed? Why is this called a feedback mechanism? [1 mark]\n(c) Suggest why her uncle's blood sugar stayed high, and why doctors give insulin injections to such patients. [1 mark]",
     "options": [],
     "answer": "(a) Pancreas; insulin. (b) Insulin release is reduced as sugar falls — the sugar level itself controls how much hormone is released (feedback). (c) His pancreas does not release enough insulin; injections supply the missing insulin to lower his blood sugar.",
     "solutionSteps": [
@@ -1882,7 +1882,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Ayesha is the goalkeeper of her school handball team in Dibrugarh. As she faces the deciding penalty throw of a match, her adrenal glands release adrenaline into the blood. Show that this single hormone acts on several organs by explaining how adrenaline affects each of the following, and how each effect helps her respond:\n(a) her heart\n(b) her breathing\n(c) the small arteries supplying her digestive system and skin",
+    "questionText": "Ayesha is the goalkeeper of her school handball team in Dibrugarh. As she faces the deciding penalty throw of a match, her adrenal glands release adrenaline into the blood. Show that this single hormone acts on several organs by explaining how adrenaline affects each of the following, and how each effect helps her respond:\n(a) her heart [1 mark]\n(b) her breathing [1 mark]\n(c) the small arteries supplying her digestive system and skin [1 mark]",
     "options": [],
     "answer": "(a) Heart beats faster, supplying more oxygen to her muscles. (b) Diaphragm and rib muscles contract more, so breathing rate increases. (c) Muscles around these small arteries contract, reducing blood to the digestive system and skin and diverting it to the skeletal muscles.",
     "solutionSteps": [
@@ -2072,7 +2072,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Swara, a Class 10 student in Kolhapur, noted five observations from a school health camp and wrote a claim to explain each one. Use each observation to decide whether her claim is correct or incorrect. If a claim is incorrect, rewrite it correctly and show how the observation supports your correction. (1 mark each)\n(a) Observation: during a surprise fire drill, a student's pulse rose from 75 to 115 beats per minute. Claim: \"This was caused by adrenaline from the pituitary gland, which slows down the heart in danger.\"\n(b) Observation: in a village where families switched to iodised salt, the number of new cases of swollen necks fell steadily over ten years. Claim: \"The thyroid needs iodine to make thyroxin, and too little iodine causes goitre.\"\n(c) Observation: insulin injected under the skin of a patient's arm lowered the sugar level of blood in her whole body. Claim: \"Hormones normally travel to their target organs only through ducts.\"\n(d) Observation: a 10-year-old boy is 20 cm shorter than the average for his age; his growth hormone level is low and his thyroxin level is normal. Claim: \"His short height is due to too little growth hormone from the pituitary; if untreated, this can lead to dwarfism.\"\n(e) Observation: a healthy teenager's insulin level was high 30 minutes after lunch and back to a low level 3 hours later, when her blood sugar had returned to normal. Claim: \"After a meal, the pancreas keeps releasing the same amount of insulin until the next meal, whatever the blood sugar level.\"",
+    "questionText": "Swara, a Class 10 student in Kolhapur, noted five observations from a school health camp and wrote a claim to explain each one. Use each observation to decide whether her claim is correct or incorrect. If a claim is incorrect, rewrite it correctly and show how the observation supports your correction. (1 mark each)\n(a) Observation: during a surprise fire drill, a student's pulse rose from 75 to 115 beats per minute. Claim: \"This was caused by adrenaline from the pituitary gland, which slows down the heart in danger.\" [1 mark]\n(b) Observation: in a village where families switched to iodised salt, the number of new cases of swollen necks fell steadily over ten years. Claim: \"The thyroid needs iodine to make thyroxin, and too little iodine causes goitre.\" [1 mark]\n(c) Observation: insulin injected under the skin of a patient's arm lowered the sugar level of blood in her whole body. Claim: \"Hormones normally travel to their target organs only through ducts.\" [1 mark]\n(d) Observation: a 10-year-old boy is 20 cm shorter than the average for his age; his growth hormone level is low and his thyroxin level is normal. Claim: \"His short height is due to too little growth hormone from the pituitary; if untreated, this can lead to dwarfism.\" [1 mark]\n(e) Observation: a healthy teenager's insulin level was high 30 minutes after lunch and back to a low level 3 hours later, when her blood sugar had returned to normal. Claim: \"After a meal, the pancreas keeps releasing the same amount of insulin until the next meal, whatever the blood sugar level.\" [1 mark]",
     "options": [],
     "answer": "(a) Incorrect: adrenaline is secreted by the adrenal glands and makes the heart beat faster, as the pulse rise shows. (b) Correct. (c) Incorrect: hormones are released into the blood, which carries them to target organs all over the body, as the whole-body effect of insulin from the arm shows. (d) Correct. (e) Incorrect: insulin release rises as blood sugar rises and falls as it returns to normal — a feedback mechanism, as the falling insulin level shows.",
     "solutionSteps": [
@@ -2377,7 +2377,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In the last raid of a kabaddi final in Rohtak, Rinku:\n(i) decides which defender to touch;\n(ii) keeps her balance while twisting away from the defenders;\n(iii) notices, while still waiting at the line before the raid begins, that her heart is pounding and her muscles feel ready for action.\nFor each of (i), (ii) and (iii), name the part of the brain or the hormone mainly responsible, and give one reason for your choice. [1 mark each]",
+    "questionText": "In the last raid of a kabaddi final in Rohtak, Rinku:\n(i) decides which defender to touch; [1 mark]\n(ii) keeps her balance while twisting away from the defenders; [1 mark]\n(iii) notices, while still waiting at the line before the raid begins, that her heart is pounding and her muscles feel ready for action.\nFor each of (i), (ii) and (iii), name the part of the brain or the hormone mainly responsible, and give one reason for your choice. [1 mark each] [1 mark]",
     "options": [],
     "answer": "(i) Forebrain (cerebrum) - it is the thinking part that makes voluntary decisions. (ii) Cerebellum (hindbrain) - it maintains posture and balance and makes voluntary movements precise. (iii) Adrenaline (from the adrenal glands) - it prepares the body for action by raising the heart rate and blood supply to muscles, even before she has started exercising.",
     "solutionSteps": [

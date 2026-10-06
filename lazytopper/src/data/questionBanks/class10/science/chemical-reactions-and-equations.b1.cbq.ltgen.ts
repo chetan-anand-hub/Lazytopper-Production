@@ -1068,7 +1068,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Tungsten oxide is reduced and hydrogen is the reducing agent.",
     "solutionSteps": [
-      "[1 mark] Tungsten oxide loses oxygen, so it is reduced; hydrogen gains that oxygen (is oxidised to water) and therefore acts as the reducing agent. Option 1 reverses the roles — hydrogen gains oxygen, so it cannot be reduced."
+      "[1 mark] Tungsten oxide loses oxygen, so it is reduced; hydrogen gains that oxygen (is oxidised to water) and therefore acts as the reducing agent. The idea that hydrogen is reduced reverses the roles — hydrogen gains oxygen, so it cannot be reduced."
     ],
     "finalAnswer": "Tungsten oxide is reduced and hydrogen is the reducing agent.",
     "isCompetencyBased": true,
@@ -1111,30 +1111,30 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "id": "LTG-S-CHEMRXN-243",
     "subject": "Science",
     "topicKey": "chemical-reactions-and-equations",
-    "subtopic": "Rancidity",
+    "subtopic": "Double Displacement Reaction",
     "section": "A",
     "marks": 1,
     "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Understanding",
-    "questionText": "Which of the following everyday changes is an example of rancidity?",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Farida, a block-printing artist in Jaipur, makes her own blue-green colour. She dissolves blue copper sulphate crystals in water in one jar and washing soda (sodium carbonate) in water in another. When she pours one clear solution into the other, a blue-green solid settles at the bottom, which she filters off and uses as colour.\nWhich statement correctly describes this reaction?",
     "options": [
-      "The cut surface of an apple turns brown a few minutes after slicing.",
-      "Milk left outside the refrigerator on a hot day turns sour.",
-      "Ghee kept in an open container for several months develops an unpleasant smell and taste.",
-      "An iron griddle left wet overnight develops a red-brown layer."
+      "It is a displacement reaction: sodium is more reactive than copper and pushes it out, so the solid is copper metal.",
+      "It is a combination reaction: the two salts join together to form a single blue-green compound.",
+      "It is a double displacement reaction: the two salts exchange their ions, so the solid is copper carbonate and sodium sulphate stays dissolved.",
+      "It is a double displacement reaction: the two salts exchange their ions, so the solid is sodium sulphate and copper carbonate stays dissolved."
     ],
-    "answer": "Ghee kept in an open container for several months develops an unpleasant smell and taste.",
+    "answer": "It is a double displacement reaction: the two salts exchange their ions, so the solid is copper carbonate and sodium sulphate stays dissolved.",
     "solutionSteps": [
-      "[1 mark] Rancidity is the oxidation of fats and oils, which changes their smell and taste — ghee is a fat exposed to air for months. Apple browning is also an oxidation change, but it is not of a fat or oil, so it is not rancidity."
+      "[1 mark] The salts swap partners: CuSO₄(aq) + Na₂CO₃(aq) → CuCO₃(s) + Na₂SO₄(aq); insoluble copper carbonate settles, soluble sodium sulphate stays dissolved. The 'sodium displaces copper' idea fails — no free metal reacts, and a blue-green solid is not copper metal."
     ],
-    "finalAnswer": "Ghee kept in an open container for several months develops an unpleasant smell and taste.",
+    "finalAnswer": "It is a double displacement reaction: the two salts exchange their ions, so the solid is copper carbonate and sodium sulphate stays dissolved.",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "CFPQ-S-CHEM-001",
+    "shapedFrom": "CHEM-EXMPLR-1-MCQ-010",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Competency Focused Practice Questions, Class 10 Science (CFPQ-S-CHEM-001)"
+    "modelledOn": "NCERT Exemplar, Class 10 Science (CHEM-EXMPLR-1-MCQ-010)"
   },
   {
     "id": "LTG-S-CHEMRXN-244",
@@ -1169,30 +1169,30 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "id": "LTG-S-CHEMRXN-245",
     "subject": "Science",
     "topicKey": "chemical-reactions-and-equations",
-    "subtopic": "Rancidity",
+    "subtopic": "Combination Reaction",
     "section": "A",
     "marks": 1,
     "format": "Assertion-Reasoning",
-    "difficulty": "Easy",
+    "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Assertion (A): A shopkeeper in Kozhikode finds that sealed packets of fried banana chips, flushed with nitrogen gas before sealing, stay crisp and fresh-smelling for weeks longer than chips sold loose from an open jar.\nReason (R): Nitrogen is a highly reactive gas that combines with the oil in the chips to form a protective layer over them.",
+    "questionText": "Assertion (A): In a carbon-capture trial at a cement plant in Ariyalur, solid calcium oxide placed in the path of the waste gases takes up carbon dioxide and forms calcium carbonate as the only product; this is a combination reaction.\nReason (R): Calcium carbonate breaks down into calcium oxide and carbon dioxide when it is heated strongly.",
     "options": [
       "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
       "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
       "(C) Assertion is true but Reason is false.",
       "(D) Assertion is false but Reason is true."
     ],
-    "answer": "(C) Assertion is true but Reason is false.",
+    "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: nitrogen replaces the air (oxygen) in the packet, so oxidation of the oil (rancidity) is slowed. R is false: nitrogen is an unreactive gas — it protects the chips because it does not react with the oil."
+      "[1 mark] (B) A is true: CaO(s) + CO₂(g) → CaCO₃(s) — two reactants form a single product, so it is a combination reaction. R is also true (the reverse, a decomposition), but it describes a different reaction and does not explain A."
     ],
-    "finalAnswer": "(C) Assertion is true but Reason is false.",
+    "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "SQP-S-CHEM-003",
+    "shapedFrom": "CHEM-NCERT-1-SA-011",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Sample Question Paper, Science (SQP-S-CHEM-003)"
+    "modelledOn": "NCERT Class 10 Science textbook (CHEM-NCERT-1-SA-011)"
   },
   {
     "id": "LTG-S-CHEMRXN-246",
@@ -1278,21 +1278,22 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "id": "LTG-S-CHEMRXN-249",
     "subject": "Science",
     "topicKey": "chemical-reactions-and-equations",
-    "subtopic": "Rancidity",
+    "subtopic": "Precipitation Reaction",
     "section": "B",
     "marks": 2,
     "format": "Short",
-    "difficulty": "Easy",
+    "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Zoya's grandmother in Rampur made ghee laddoos and stored them in two ways: Batch 1 in an airtight steel container kept in a cool, dark cupboard; Batch 2 on an open plate near a sunny window. After three weeks, Batch 2 smelt and tasted unpleasant, while Batch 1 was still fine.\n(a) Name the change that spoiled Batch 2 and the type of chemical reaction responsible for it. (1 mark)\n(b) Give two features of the storage of Batch 1 that slowed this change, explaining each. (1 mark)",
+    "questionText": "To model how a water-treatment plant clears muddy river water, Jasleen, a student in Bathinda, works under her teacher's supervision. She stirs some aluminium sulphate solution into a jar of muddy water and then adds a small, measured amount of sodium hydroxide solution. A white, jelly-like solid forms, slowly sinks and carries the mud down with it. She filters the water, which is now clear.\n(a) Write the balanced chemical equation, with state symbols, for the reaction that forms the white solid. (1 mark)\n(b) Jasleen concludes, \"The clear filtered water now contains no dissolved substance from this reaction.\" Is she correct? Give a reason. (1 mark)",
     "options": [],
-    "answer": "(a) Rancidity — oxidation of the fats in the ghee. (b) Airtight container cuts off oxygen (air); the cool, dark cupboard keeps away heat and light, which speed up oxidation.",
+    "answer": "(a) Al₂(SO₄)₃(aq) + 6NaOH(aq) → 2Al(OH)₃(s) + 3Na₂SO₄(aq). (b) No — only the insoluble aluminium hydroxide is filtered off; the other product, sodium sulphate, is soluble and stays dissolved in the water.",
     "solutionSteps": [
-      "[1 mark] (a) Rancidity: the fats in the ghee are oxidised by oxygen of air, giving an unpleasant smell and taste.",
-      "[0.5 mark] (b) The airtight container limits contact with air, so little oxygen is available for oxidation.",
-      "[0.5 mark] (b) The cool, dark cupboard keeps away heat and sunlight, which speed up the oxidation of fats."
+      "[0.5 mark] (a) Balanced equation: Al₂(SO₄)₃ + 6NaOH → 2Al(OH)₃ + 3Na₂SO₄; the white, jelly-like precipitate is aluminium hydroxide.",
+      "[0.5 mark] (a) With state symbols: Al₂(SO₄)₃(aq) + 6NaOH(aq) → 2Al(OH)₃(s) + 3Na₂SO₄(aq).",
+      "[0.5 mark] (b) No, Jasleen is not correct.",
+      "[0.5 mark] (b) Filtering removes only the insoluble aluminium hydroxide; the other product, sodium sulphate, is soluble in water and stays dissolved in the clear filtrate."
     ],
-    "finalAnswer": "(a) Rancidity — oxidation of the fats in the ghee. (b) Airtight container cuts off oxygen (air); the cool, dark cupboard keeps away heat and light, which speed up oxidation.",
+    "finalAnswer": "(a) Al₂(SO₄)₃(aq) + 6NaOH(aq) → 2Al(OH)₃(s) + 3Na₂SO₄(aq). (b) No — only the insoluble aluminium hydroxide is filtered off; the other product, sodium sulphate, is soluble and stays dissolved in the water.",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
@@ -1358,28 +1359,29 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "id": "LTG-S-CHEMRXN-252",
     "subject": "Science",
     "topicKey": "chemical-reactions-and-equations",
-    "subtopic": "Rancidity",
+    "subtopic": "Oxidation and Reduction",
     "section": "C",
     "marks": 3,
     "format": "Short",
-    "difficulty": "Medium",
+    "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "The food-science club of a Jabalpur school, led by Ishaan, stored three samples of the same fresh cooking oil for 30 days and then gave each a smell score (1 = fresh, 5 = strongly stale):\nSample 1 — clear glass bottle, half full, kept on a sunny window-sill: score 5\nSample 2 — dark glass bottle, filled to the brim and capped, kept in a cupboard: score 2\nSample 3 — same as Sample 2, but with a small amount of an antioxidant (vitamin E) added: score 1\n(a) Name the process that made Sample 1 smell stale and state the type of chemical reaction involved. (1 mark)\n(b) Give two reasons why Sample 1 spoiled more than Sample 2. (1 mark)\n(c) Explain how the vitamin E improved the result for Sample 3. (1 mark)",
+    "questionText": "Refinery gases often contain poisonous hydrogen sulphide. At a refinery near Mathura, this gas is not released into the air. Instead, part of it is burnt to form sulphur dioxide, and the two gases are then made to react together in a converter. Yellow sulphur collects and is sold to fertiliser makers:\n2H₂S(g) + SO₂(g) → 3S(s) + 2H₂O(g)\n(a) Identify the substance oxidised and the substance reduced, giving a reason for each in terms of gain or loss of hydrogen or oxygen. (1 mark)\n(b) Name the oxidising agent and the reducing agent in this reaction. (1 mark)\n(c) A trainee, Devika, says, \"Both reactants end up as the same element, sulphur, so this cannot be a redox reaction.\" Evaluate her statement. (1 mark)",
     "options": [],
-    "answer": "(a) Rancidity — oxidation of the oil. (b) More air (oxygen) in the half-empty bottle, and sunlight/heat through clear glass speed oxidation. (c) The antioxidant slows down the oxidation of the oil, so it stays fresh longer.",
+    "answer": "(a) H₂S is oxidised (loses hydrogen); SO₂ is reduced (loses oxygen). (b) Oxidising agent: SO₂; reducing agent: H₂S. (c) Devika is wrong — one reactant loses hydrogen (oxidation) while the other loses oxygen (reduction) at the same time, so it is a redox reaction.",
     "solutionSteps": [
-      "[1 mark] (a) Rancidity: the oil is oxidised by oxygen of air, producing substances with an unpleasant smell and taste.",
-      "[0.5 mark] (b) Sample 1's half-empty bottle held much more air, so more oxygen was available to oxidise the oil.",
-      "[0.5 mark] (b) The clear bottle on a sunny sill let in light and heat, which speed up oxidation; Sample 2 was dark and cool.",
-      "[1 mark] (c) Vitamin E is an antioxidant: it slows down the oxidation of the oil, so Sample 3 stayed the freshest even with the same storage as Sample 2."
+      "[0.5 mark] (a) H₂S is oxidised: it loses hydrogen, which ends up in water.",
+      "[0.5 mark] (a) SO₂ is reduced: it loses oxygen, which ends up in water.",
+      "[0.5 mark] (b) Oxidising agent: SO₂ — it removes hydrogen from H₂S and is itself reduced.",
+      "[0.5 mark] (b) Reducing agent: H₂S — it removes oxygen from SO₂ and is itself oxidised.",
+      "[1 mark] (c) Devika is wrong: a common product does not decide it. H₂S loses hydrogen (oxidation) while SO₂ loses oxygen (reduction) at the same time, so this is a redox reaction."
     ],
-    "finalAnswer": "(a) Rancidity — oxidation of the oil. (b) More air (oxygen) in the half-empty bottle, and sunlight/heat through clear glass speed oxidation. (c) The antioxidant slows down the oxidation of the oil, so it stays fresh longer.",
+    "finalAnswer": "(a) H₂S is oxidised (loses hydrogen); SO₂ is reduced (loses oxygen). (b) Oxidising agent: SO₂; reducing agent: H₂S. (c) Devika is wrong — one reactant loses hydrogen (oxidation) while the other loses oxygen (reduction) at the same time, so it is a redox reaction.",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "CFPQ-S-CHEM-010",
+    "shapedFrom": "PYQ-S-CHEM-010",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Competency Focused Practice Questions, Class 10 Science (CFPQ-S-CHEM-010)"
+    "modelledOn": "CBSE Board Examination 2023, Science (PYQ-S-CHEM-010)"
   },
   {
     "id": "LTG-S-CHEMRXN-253",
@@ -1416,24 +1418,24 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "section": "E",
     "marks": 4,
     "format": "Case-Based",
-    "difficulty": "Hard",
-    "bloomSkill": "Applying",
-    "questionText": "At a food factory in Ghaziabad, liquid vegetable oil is converted into a solid cooking fat. Hydrogen gas is bubbled through the hot oil in the presence of finely divided nickel, which is a catalyst. The oil molecules add on hydrogen, and the product sets into a soft solid on cooling.\nThe quality-control officer, Ms. Rupinder Kaur, kept samples of the oil and of the solid fat in open bowls side by side and checked them every week. The oil developed a stale, unpleasant smell after about 3 weeks, while the solid fat took about 9 weeks to do so. She explains that oxygen from the air attacks oil molecules mainly at their carbon–carbon double bonds, and that adding hydrogen removes most of these double bonds.\nThe factory's health note adds that solid fats made this way are rich in saturated fats, so doctors advise using them only in small amounts.\n(i) In terms of gain or loss of hydrogen, is the oil oxidised or reduced when it is converted into the solid fat? Give a reason. (1 mark)\n(ii) Name the change that made the samples smell stale and the type of reaction that causes it. (1 mark)\n(iii) Explain why the solid fat took longer to smell stale than the oil, and suggest one way the factory could slow this change further in its packed product. (2 marks)",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "The school aquarium in Kohima has goldfish and a bunch of green water plants. At a science-club meeting, Ms Neikhrienuo asks her students to describe what happens in the tank in terms of oxidation and reduction. She writes two overall equations on the board.\nRespiration (in the fish and in the plants, day and night):\nC₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energy\nPhotosynthesis (in the plants, only in light, in the presence of chlorophyll):\n6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂\nShe reminds the class that a substance is oxidised when it gains oxygen or loses hydrogen, and is reduced when it loses oxygen or gains hydrogen. A student, Vilhouzo, notices that the two equations are reverses of each other and asks whether the oxidation and reduction are reversed too. The teacher adds that the energy for photosynthesis comes from sunlight absorbed by chlorophyll, and that the fish depend on the oxygen given out by the plants.\n(i) In respiration, which reactant is oxidised? Give a reason in terms of gain or loss of oxygen or hydrogen. (1 mark)\n(ii) In photosynthesis, is carbon dioxide oxidised or reduced? Give a reason. (1 mark)\n(iii) Answer Vilhouzo's question: name the substance that is reduced in respiration and the substance that is oxidised in photosynthesis, giving a reason for each. (2 marks)",
     "options": [],
-    "answer": "(i) Reduced — the oil gains hydrogen. (ii) Rancidity, caused by oxidation of fats/oils. (iii) Adding hydrogen removed most double bonds where oxygen attacks, so oxidation is slower; pack in airtight containers flushed with nitrogen (or add antioxidants / store cool and dark).",
+    "answer": "(i) Glucose is oxidised — it gains oxygen and loses hydrogen. (ii) Reduced — carbon dioxide gains hydrogen and loses oxygen. (iii) In respiration oxygen is reduced (gains hydrogen to form water); in photosynthesis water is oxidised (loses hydrogen, giving oxygen gas), so the roles are reversed.",
     "solutionSteps": [
-      "[1 mark] (i) The oil is reduced, because it gains hydrogen (addition of hydrogen is reduction).",
-      "[1 mark] (ii) Rancidity — the oxidation of fats and oils by oxygen of air, which changes their smell and taste.",
-      "[1 mark] (iii) Oxygen attacks mainly at carbon–carbon double bonds; hydrogenation removed most of them, so the solid fat is oxidised more slowly and turns rancid later.",
-      "[1 mark] (iii) Pack the fat in airtight containers flushed with nitrogen (or add an antioxidant, or store it cool and away from light) to cut off or slow oxidation."
+      "[1 mark] (i) Glucose is oxidised: its carbon gains oxygen to form CO₂ and it loses hydrogen, which ends up in H₂O.",
+      "[1 mark] (ii) Carbon dioxide is reduced: it gains hydrogen and loses oxygen as it is converted into glucose.",
+      "[1 mark] (iii) In respiration, oxygen (O₂) is reduced: it gains hydrogen and forms water.",
+      "[1 mark] (iii) In photosynthesis, water is oxidised: it loses hydrogen and is given out as oxygen gas — so yes, the roles are reversed in the two processes."
     ],
-    "finalAnswer": "(i) Reduced — the oil gains hydrogen. (ii) Rancidity, caused by oxidation of fats/oils. (iii) Adding hydrogen removed most double bonds where oxygen attacks, so oxidation is slower; pack in airtight containers flushed with nitrogen (or add antioxidants / store cool and dark).",
+    "finalAnswer": "(i) Glucose is oxidised — it gains oxygen and loses hydrogen. (ii) Reduced — carbon dioxide gains hydrogen and loses oxygen. (iii) In respiration oxygen is reduced (gains hydrogen to form water); in photosynthesis water is oxidised (loses hydrogen, giving oxygen gas), so the roles are reversed.",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-S-2025-CHEMRXN-021",
+    "shapedFrom": "PYQ-S-2026-CHEMRXN-001",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board Examination 2025, Science (PYQ-S-2025-CHEMRXN-021)"
+    "modelledOn": "CBSE Board Examination 2026, Science (PYQ-S-2026-CHEMRXN-001)"
   },
   {
     "id": "LTG-S-CHEMRXN-255",
@@ -1493,28 +1495,28 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "id": "LTG-S-CHEMRXN-257",
     "subject": "Science",
     "topicKey": "chemical-reactions-and-equations",
-    "subtopic": "Rancidity",
+    "subtopic": "Double Displacement Reaction",
     "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Medium",
-    "bloomSkill": "Evaluating",
-    "questionText": "Nikhat has started a small business in Warangal selling salted, fried peanuts. Customers complained that some batches smelled and tasted stale. She ran a shelf-life test on one fresh batch, packed four ways, and noted the number of days before an off-smell was first detected:\nP — open bowl, kept at 30 °C: 6 days\nQ — sealed pouch containing air, kept at 30 °C: 25 days\nR — sealed pouch flushed with nitrogen gas before sealing, kept at 30 °C: 90 days\nS — sealed pouch containing air, kept at 10 °C: 60 days\nAll pouches were made of the same opaque material, and the peanuts in every pack came from the same batch. Her shop has no refrigerator, and the room stays at about 30 °C for most of the year.\n(i) Name the change that makes the peanuts smell and taste stale, and the type of chemical reaction behind it. (1 mark)\n(ii) Which factor is tested by comparing Q and S, and what do the results show? (1 mark)\n(iii) Compare Q and R and explain the result. Then recommend, with a reason, the best way for Nikhat to pack peanuts for her shop. (2 marks)",
+    "bloomSkill": "Applying",
+    "questionText": "Zothanpuii, a pharmacy trainee in Aizawl, is asked to check that a jar of white crystals labelled 'magnesium sulphate' has been labelled correctly. She dissolves a few crystals in distilled water to get a clear, colourless solution and divides it among three test tubes. To each tube she adds a few drops of a different clear, colourless solution and records what she sees:\nTube 1 — sodium hydroxide solution: a white precipitate forms at once.\nTube 2 — barium chloride solution: a thick white precipitate forms at once.\nTube 3 — potassium nitrate solution: no visible change, even after shaking.\nHer supervisor explains that in such reactions the two dissolved salts swap their partners, and that a precipitate appears only when one of the new substances does not dissolve in water. He adds that magnesium hydroxide and barium sulphate are both insoluble in water, so the results of Tubes 1 and 2 match the label.\n(i) Name the type of reaction taking place in Tubes 1 and 2, and state what is exchanged in it. (1 mark)\n(ii) Explain why there is no visible change in Tube 3. (1 mark)\n(iii) Write the balanced chemical equations, with state symbols, for the reactions in Tube 1 and Tube 2. (2 marks)",
     "options": [],
-    "answer": "(i) Rancidity — oxidation of the fats/oils in the peanuts. (ii) Temperature — lower temperature slows oxidation (60 days vs 25 days). (iii) Nitrogen is unreactive and replaces the oxygen of air, so oxidation is slowed (90 vs 25 days); she should use sealed nitrogen-flushed pouches, the best option at 30 °C.",
+    "answer": "(i) Double displacement (precipitation) reaction — the two salts exchange ions. (ii) The possible products, magnesium nitrate and potassium sulphate, are both soluble, so nothing precipitates. (iii) MgSO₄(aq) + 2NaOH(aq) → Mg(OH)₂(s) + Na₂SO₄(aq); MgSO₄(aq) + BaCl₂(aq) → BaSO₄(s) + MgCl₂(aq).",
     "solutionSteps": [
-      "[1 mark] (i) Rancidity: the fats and oils in the fried peanuts are oxidised by oxygen of air, giving a stale smell and taste.",
-      "[1 mark] (ii) Q and S differ only in temperature; S (10 °C) lasted 60 days against 25 days for Q (30 °C), so a lower temperature slows down the oxidation.",
-      "[1 mark] (iii) R lasted 90 days against 25 for Q because nitrogen, an unreactive gas, replaced the air, leaving little oxygen to oxidise the fats.",
-      "[1 mark] (iii) Recommendation: sealed pouches flushed with nitrogen (option R) — they gave the longest shelf life at 30 °C, which suits a shop without a refrigerator."
+      "[1 mark] (i) Double displacement (precipitation) reaction: the two salts exchange their ions (partners).",
+      "[1 mark] (ii) The possible new products, magnesium nitrate and potassium sulphate, are both soluble in water, so no precipitate forms and no change is seen.",
+      "[1 mark] (iii) Tube 1: MgSO₄(aq) + 2NaOH(aq) → Mg(OH)₂(s) + Na₂SO₄(aq).",
+      "[1 mark] (iii) Tube 2: MgSO₄(aq) + BaCl₂(aq) → BaSO₄(s) + MgCl₂(aq)."
     ],
-    "finalAnswer": "(i) Rancidity — oxidation of the fats/oils in the peanuts. (ii) Temperature — lower temperature slows oxidation (60 days vs 25 days). (iii) Nitrogen is unreactive and replaces the oxygen of air, so oxidation is slowed (90 vs 25 days); she should use sealed nitrogen-flushed pouches, the best option at 30 °C.",
+    "finalAnswer": "(i) Double displacement (precipitation) reaction — the two salts exchange ions. (ii) The possible products, magnesium nitrate and potassium sulphate, are both soluble, so nothing precipitates. (iii) MgSO₄(aq) + 2NaOH(aq) → Mg(OH)₂(s) + Na₂SO₄(aq); MgSO₄(aq) + BaCl₂(aq) → BaSO₄(s) + MgCl₂(aq).",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-S-2025-CHEMRXN-021",
+    "shapedFrom": "CHEM-EXMPLR-1-LONG-002",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board Examination 2025, Science (PYQ-S-2025-CHEMRXN-021)"
+    "modelledOn": "NCERT Exemplar, Class 10 Science (CHEM-EXMPLR-1-LONG-002)"
   },
   {
     "id": "LTG-S-CHEMRXN-258",
@@ -2297,7 +2299,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Bushra, in Srinagar, is boiling rice for dinner on a gas stove. She observes two things: (1) the kitchen becomes warm while the gas burns; (2) the rice cooks only while the flame keeps heating the pan, and stops cooking as soon as the flame is switched off. Classify (a) the burning of the cooking gas and (b) the cooking of the rice as exothermic or endothermic, giving one reason for each from her observations.",
+    "questionText": "Bushra, in Srinagar, is boiling rice for dinner on a gas stove. She observes two things: (1) the kitchen becomes warm while the gas burns; (2) the rice cooks only while the flame keeps heating the pan, and stops cooking as soon as the flame is switched off. Classify (a) the burning of the cooking gas and (b) the cooking of the rice as exothermic or endothermic, giving one reason for each from her observations.\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) Burning of cooking gas is exothermic — it gives out heat that warms the kitchen. (b) Cooking of rice is endothermic — it needs a continuous supply of heat and stops when the flame is removed.",
     "solutionSteps": [
@@ -2347,7 +2349,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "A lab instruction sheet in a Bikaner school says: 'To make sodium hydroxide solution, add the pellets a few at a time to water in a beaker that stands in a trough of cold water. Stir gently. Never add all the pellets at once.' (a) Is dissolving sodium hydroxide in water an exothermic or an endothermic process? Give the evidence from the instruction sheet. (b) Explain why the pellets must be added a few at a time.",
+    "questionText": "A lab instruction sheet in a Bikaner school says: 'To make sodium hydroxide solution, add the pellets a few at a time to water in a beaker that stands in a trough of cold water. Stir gently. Never add all the pellets at once.' (a) Is dissolving sodium hydroxide in water an exothermic or an endothermic process? Give the evidence from the instruction sheet. (b) Explain why the pellets must be added a few at a time.\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) Exothermic — the beaker has to be cooled in cold water, so the process releases heat. (b) Adding pellets slowly lets heat be released gradually; adding all at once releases so much heat that the solution can boil and spurt caustic alkali or crack the beaker.",
     "solutionSteps": [
@@ -2372,7 +2374,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A school science club in Solapur takes two identical thermos flasks, each closed with a cotton plug through which a thermometer is inserted. Flask A holds 200 g of soaked, germinating moong seeds; Flask B holds 200 g of soaked moong seeds that were boiled and then cooled. Readings after 24 hours: Flask A — 31 °C; Flask B — 25 °C; room — 25 °C.\n(a) Explain why the temperature in Flask A rose.\n(b) Write the balanced chemical equation for the reaction responsible for the rise.\n(c) Why did the club include Flask B, with boiled seeds?",
+    "questionText": "A school science club in Solapur takes two identical thermos flasks, each closed with a cotton plug through which a thermometer is inserted. Flask A holds 200 g of soaked, germinating moong seeds; Flask B holds 200 g of soaked moong seeds that were boiled and then cooled. Readings after 24 hours: Flask A — 31 °C; Flask B — 25 °C; room — 25 °C.\n(a) Explain why the temperature in Flask A rose. [1 mark]\n(b) Write the balanced chemical equation for the reaction responsible for the rise. [1 mark]\n(c) Why did the club include Flask B, with boiled seeds? [1 mark]",
     "options": [],
     "answer": "(a) Living germinating seeds respire; respiration is exothermic and the thermos keeps in the heat released. (b) C₆H₁₂O₆(aq) + 6O₂(aq) → 6CO₂(aq) + 6H₂O(l) + energy. (c) Flask B is a control: dead seeds do not respire, so its steady 25 °C shows the heat in A came from respiration.",
     "solutionSteps": [
@@ -2399,7 +2401,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Baldev, a painter in Patiala, adds water to a heap of quicklime in a metal tub the evening before he whitewashes a house. The tub becomes very hot and the water hisses. Next day he applies the clear upper solution on the walls, and three days later the walls look white and shiny.\n(a) Write the balanced chemical equation for the reaction in the tub and state whether it is exothermic or endothermic.\n(b) Explain, with a balanced chemical equation, why the walls become shiny after two to three days.\n(c) Suggest one safety precaution Baldev should take while adding water to quicklime, with its reason.",
+    "questionText": "Baldev, a painter in Patiala, adds water to a heap of quicklime in a metal tub the evening before he whitewashes a house. The tub becomes very hot and the water hisses. Next day he applies the clear upper solution on the walls, and three days later the walls look white and shiny.\n(a) Write the balanced chemical equation for the reaction in the tub and state whether it is exothermic or endothermic. [1 mark]\n(b) Explain, with a balanced chemical equation, why the walls become shiny after two to three days. [1 mark]\n(c) Suggest one safety precaution Baldev should take while adding water to quicklime, with its reason. [1 mark]",
     "options": [],
     "answer": "(a) CaO(s) + H₂O(l) → Ca(OH)₂(aq) + heat; exothermic. (b) Ca(OH)₂(aq) + CO₂(g) → CaCO₃(s) + H₂O(l); slaked lime slowly reacts with carbon dioxide of air to form a thin shiny layer of calcium carbonate. (c) Add water slowly, stand back and wear gloves and goggles, because the large heat released can boil the water and splash caustic slaked lime.",
     "solutionSteps": [
@@ -2587,7 +2589,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Mrinalini, a student in Imphal, notes five experiments, (a) to (e), in her lab journal without naming the reactions. For each experiment, name the type of reaction (combination, decomposition, displacement or double displacement) and write the balanced chemical equation with state symbols. (1 mark each)\n(a) Brown iron(III) hydroxide, scraped off a filter paper, is heated strongly in a dry test tube; a dark brown powder (iron(III) oxide) is left, and droplets of water collect near the mouth of the tube.\n(b) Zinc dust is stirred into colourless lead nitrate solution; a dull grey metal (lead) collects at the bottom.\n(c) Colourless potassium bromide solution is added to colourless silver nitrate solution, and a pale yellow solid (silver bromide) separates.\n(d) A little sulphur is burnt in a deflagrating spoon lowered into a gas jar of oxygen; it burns with a blue flame and forms a single gas, sulphur dioxide.\n(e) A jar holding equal volumes of hydrogen and chlorine is kept in diffused sunlight; the greenish-yellow colour of chlorine slowly fades, leaving only a colourless gas, hydrogen chloride.",
+    "questionText": "Mrinalini, a student in Imphal, notes five experiments, (a) to (e), in her lab journal without naming the reactions. For each experiment, name the type of reaction (combination, decomposition, displacement or double displacement) and write the balanced chemical equation with state symbols. (1 mark each)\n(a) Brown iron(III) hydroxide, scraped off a filter paper, is heated strongly in a dry test tube; a dark brown powder (iron(III) oxide) is left, and droplets of water collect near the mouth of the tube. [1 mark]\n(b) Zinc dust is stirred into colourless lead nitrate solution; a dull grey metal (lead) collects at the bottom. [1 mark]\n(c) Colourless potassium bromide solution is added to colourless silver nitrate solution, and a pale yellow solid (silver bromide) separates. [1 mark]\n(d) A little sulphur is burnt in a deflagrating spoon lowered into a gas jar of oxygen; it burns with a blue flame and forms a single gas, sulphur dioxide. [1 mark]\n(e) A jar holding equal volumes of hydrogen and chlorine is kept in diffused sunlight; the greenish-yellow colour of chlorine slowly fades, leaving only a colourless gas, hydrogen chloride. [1 mark]",
     "options": [],
     "answer": "(a) Decomposition: 2Fe(OH)₃(s) → Fe₂O₃(s) + 3H₂O(g). (b) Displacement: Zn(s) + Pb(NO₃)₂(aq) → Zn(NO₃)₂(aq) + Pb(s). (c) Double displacement: AgNO₃(aq) + KBr(aq) → AgBr(s) + KNO₃(aq). (d) Combination: S(s) + O₂(g) → SO₂(g). (e) Combination: H₂(g) + Cl₂(g) → 2HCl(g).",
     "solutionSteps": [
@@ -2620,7 +2622,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "The eco-club of a school in Bhubaneswar puts up a poster titled 'Energy In or Energy Out?'. Anaya, a Class 10 student, is asked to check it. For each claim (a) to (e), state whether it is correct or incorrect, and give a scientific reason. (1 mark each)\n(a) \"Rusting of an iron gate is endothermic, because we never feel the gate getting hot while it rusts.\"\n(b) \"Making glucose in green leaves is endothermic, because the leaves must keep absorbing sunlight for it to continue.\"\n(c) \"A person sitting still in a cold room produces no heat, because respiration releases energy only during exercise.\"\n(d) \"Sweat cools the body because its evaporation is an exothermic process.\"\n(e) \"When quicklime is dropped into water, the water becomes hot, so this reaction takes in heat from the water.\"",
+    "questionText": "The eco-club of a school in Bhubaneswar puts up a poster titled 'Energy In or Energy Out?'. Anaya, a Class 10 student, is asked to check it. For each claim (a) to (e), state whether it is correct or incorrect, and give a scientific reason. (1 mark each)\n(a) \"Rusting of an iron gate is endothermic, because we never feel the gate getting hot while it rusts.\" [1 mark]\n(b) \"Making glucose in green leaves is endothermic, because the leaves must keep absorbing sunlight for it to continue.\" [1 mark]\n(c) \"A person sitting still in a cold room produces no heat, because respiration releases energy only during exercise.\" [1 mark]\n(d) \"Sweat cools the body because its evaporation is an exothermic process.\" [1 mark]\n(e) \"When quicklime is dropped into water, the water becomes hot, so this reaction takes in heat from the water.\" [1 mark]",
     "options": [],
     "answer": "(a) Incorrect — rusting is exothermic; heat is released so slowly that it is not noticed. (b) Correct — photosynthesis absorbs light energy, so it is endothermic. (c) Incorrect — respiration goes on all the time and its heat maintains body temperature. (d) Incorrect — evaporation absorbs heat (endothermic) from the skin, which is why it cools. (e) Incorrect — CaO + H₂O → Ca(OH)₂ releases heat (exothermic), which warms the water.",
     "solutionSteps": [
