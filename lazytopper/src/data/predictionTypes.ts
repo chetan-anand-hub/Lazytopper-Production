@@ -125,7 +125,7 @@ export interface CanonicalQuestion {
    *              "Others"), but it is still served. The row id is unchanged, so
    *              Mistake Intelligence history keyed on it stays valid.
    * Rows carrying it have no `pyqYear` / `pyqSet`; the original provenance is
-   * kept in `data/bankFix/bankFix1Ledger.ts`. Pinned by `sourceOverride.test.ts`.
+   * kept in `data/bankFix/bankFix1Ledger.ts`. Pinned by `data/bankFix/bankFix1.pr1.test.ts`.
    */
   sourceOverride?: "others";
 }

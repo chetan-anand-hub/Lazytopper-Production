@@ -28,6 +28,8 @@ import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { isPYQQuestion as engineIsPYQQuestion } from "../practiceSetGenerator";
 import { questionMatchesFilters } from "../../pages/PracticePage";
 import { BANK_FIX_1_PR1, BANK_FIX_1_RAW_COUNT } from "./bankFix1Ledger";
+import type { CanonicalQuestion } from "../predictionTypes";
+import type { SelectableQuestion } from "../../lib/boardQuestions/selectionRule";
 
 type Row = Record<string, unknown> & { id: string };
 const bankById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q as unknown as Row]));
@@ -55,7 +57,10 @@ describe("BANK-FIX-1 PR-1 · ids unchanged", () => {
   it("every ledger id exists on its surface; raw bank row count and id uniqueness unchanged", () => {
     const missing = BANK_FIX_1_PR1.filter((e) => !rowOf(e)).map((e) => `${e.surface}:${e.id}`);
     expect(missing).toEqual([]);
-    expect(RAW_CANONICAL_QUESTION_BANK.length).toBe(BANK_FIX_1_RAW_COUNT);
+    // BANK-FIX-1 adds and removes no row. The count is pinned on the rows that existed when the
+    // lane measured it: GEN-THIN-1's 50 `origin: "lt-generated"` rows (#961) merged after that.
+    const preexisting = RAW_CANONICAL_QUESTION_BANK.filter((q) => (q as CanonicalQuestion).origin !== "lt-generated");
+    expect(preexisting.length).toBe(BANK_FIX_1_RAW_COUNT);
     expect(new Set(RAW_CANONICAL_QUESTION_BANK.map((q) => q.id)).size).toBeGreaterThan(0);
   });
 });
@@ -132,5 +137,23 @@ describe("BANK-FIX-1 ruling 2 · changed rows are 'Others' everywhere", () => {
     expect(questionMatchesFilters(over, "all", "all", "pyq", "all", null)).toBe(false);
     expect(questionMatchesFilters(over, "all", "all", "ncert", "all", null)).toBe(false);
     expect(questionMatchesFilters(over, "all", "all", "others", "all", null)).toBe(true);
+  });
+});
+
+describe("BANK-FIX-1 × GEN-THIN-1 · both lanes' fields survive the shared-file merge", () => {
+  const served = canonicalQuestionBank as Array<CanonicalQuestion>;
+  const generated = served.filter((q) => q.origin === "lt-generated");
+  const overridden = served.filter((q) => q.sourceOverride === "others");
+  it("GEN-THIN-1 rows are served with origin + modelledOn (50 rows)", () => {
+    expect(generated.length).toBe(50);
+    for (const q of generated) expect(typeof q.modelledOn === "string" && q.modelledOn.length > 0).toBe(true);
+  });
+  it("BANK-FIX-1 'Others' rows are served (non-vacuous) and never overlap the generated rows", () => {
+    expect(overridden.length).toBeGreaterThan(100);
+    expect(overridden.filter((q) => q.origin === "lt-generated")).toEqual([]);
+  });
+  it("the board-questions selector type carries both fields", () => {
+    const row: SelectableQuestion = { id: "X", origin: "lt-generated", sourceOverride: "others" } as SelectableQuestion;
+    expect([row.origin, row.sourceOverride]).toEqual(["lt-generated", "others"]);
   });
 });
