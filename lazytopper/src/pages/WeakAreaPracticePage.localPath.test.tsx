@@ -46,6 +46,10 @@ vi.mock("../services/weakAreaAggregator", () => ({
   getWeakAreas: vi.fn(() => summary),
 }));
 
+// ME-ENGINE-1 PR-2b — the page reads the shared model for the signed-in student; signed out here,
+// so no model read (and no network) happens — this file pins the learning path only.
+vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
+
 vi.mock("../services/spacedRepetitionEngine", () => ({
   getDueReviews: vi.fn(() => []),
   getSRStats: vi.fn(() => ({
