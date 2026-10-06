@@ -16,6 +16,7 @@ import "../../test/preloadBankChapters";
 import { describe, it, expect } from "vitest";
 
 import { canonicalQuestionBank } from "../canonicalQuestionBank";
+import { isCbq } from "../../lib/cbq/cbqClassification";
 import type { CanonicalQuestion } from "../predictionTypes";
 import { LIFE_PROCESSES_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/life-processes.b1.cbq.ltgen";
 import { ACIDS_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/acids-bases-and-salts.b1.cbq.ltgen";
@@ -29,7 +30,7 @@ const PACKS = [
 ] as const;
 
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
-const isCbq = (q: CanonicalQuestion) => q.competencyVerified === true;
+// C1's single classifier (lib/cbq/cbqClassification.ts, #977): isCbq = competencyVerified === true.
 
 describe("CBQ-1 · C2 batch 2 (Life Processes, Acids, Carbon)", () => {
   it("every pack row is served, in its chapter, generated, and a CBQ", () => {
