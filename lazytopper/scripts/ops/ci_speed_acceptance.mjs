@@ -112,9 +112,16 @@ export const REAL_COMMITS = [
 }
 {
   const anySha = git(["rev-parse", "HEAD"]).trim();
-  const preview = decide({ VERCEL_ENV: "preview", VERCEL_GIT_PREVIOUS_SHA: anySha }, { cwd: REPO_ROOT });
-  const unset = decide({ VERCEL_GIT_PREVIOUS_SHA: anySha }, { cwd: REPO_ROOT });
-  check("v6_previews_and_unknown_env_always_build", !preview.skip && !unset.skip);
+  // ★ On a range that WOULD skip in production (a pure docs merge) - an empty range would build
+  //   anyway and make this check pass for the wrong reason (mutation M3 caught exactly that).
+  let docsPrev = "";
+  try { docsPrev = git(["rev-parse", "b52d46c5^"]).trim(); } catch { /* no history: v4 already fails */ }
+  const opts = { cwd: REPO_ROOT, head: "b52d46c5" };
+  const prod = docsPrev ? decide({ VERCEL_ENV: "production", VERCEL_GIT_PREVIOUS_SHA: docsPrev }, opts) : { skip: false };
+  const preview = decide({ VERCEL_ENV: "preview", VERCEL_GIT_PREVIOUS_SHA: docsPrev }, opts);
+  const unset = decide({ VERCEL_GIT_PREVIOUS_SHA: docsPrev }, opts);
+  check("v6_previews_and_unknown_env_always_build", prod.skip && !preview.skip && !unset.skip,
+    `same docs-only range: production=${prod.skip ? "skip" : "build"} preview=${preview.skip ? "skip" : "build"} unset=${unset.skip ? "skip" : "build"}`);
   const noPrev = decide({ VERCEL_ENV: "production" }, { cwd: REPO_ROOT });
   const badPrev = decide({ VERCEL_ENV: "production", VERCEL_GIT_PREVIOUS_SHA: "0123456789abcdef0123456789abcdef01234567" }, { cwd: REPO_ROOT });
   const sameSha = decide({ VERCEL_ENV: "production", VERCEL_GIT_PREVIOUS_SHA: anySha }, { cwd: REPO_ROOT, head: anySha });
