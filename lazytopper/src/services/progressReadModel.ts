@@ -282,6 +282,19 @@ export function weaknessNamingRung(model: Pick<StudyReadModel, "progress" | "sub
   return rungNamesWeakness(rung) ? rung : null;
 }
 
+/**
+ * ME-ENGINE-1 PR-2b (controller decision C-W1) — the same gate for a reader of a model that may
+ * span BOTH papers (the sidebar MI widget reads both). A one-paper read asks `weaknessNamingRung`.
+ * A both-papers read names a weakness only when EVERY paper with graded answers in the window
+ * passes Me's gate (`rungNamesWeakness`), because its mistake groups mix both papers, and Me
+ * would withhold for a paper below the gate. No graded answers → name nothing.
+ */
+export function modelNamesWeakness(model: Pick<StudyReadModel, "progress" | "subject">): boolean {
+  if (model.subject) return weaknessNamingRung(model) !== null;
+  const papers = (["maths", "science"] as const).filter((s) => (Number(model.progress.subjectTotals[s]?.answers) || 0) > 0);
+  return papers.length > 0 && papers.every((s) => rungNamesWeakness(subjectRungOf(model.progress, s)));
+}
+
 function inRange(iso: unknown, start: number, end: number): boolean {
   const ts = Date.parse(String(iso ?? ""));
   return Number.isFinite(ts) && ts >= start && ts <= end;

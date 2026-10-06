@@ -11,8 +11,9 @@
  *   - above the gate (8 graded answers) Me names (its hero split renders) and the brief names the
  *     same student's real recorded concepts and Me's "marks on the table".
  *
- * Mutation this file turns RED: G — `briefFromModel` names concepts without asking
- * `weaknessNamingRung` (the #968 rule).
+ * Mutations this file turns RED: G — `briefFromModel` names concepts without asking
+ * `weaknessNamingRung` (the #968 rule); WG (PR-2b, C-W1) — the MI widget names a group without
+ * asking `modelNamesWeakness`.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
@@ -62,6 +63,7 @@ vi.mock("../context/AuthContext", () => ({
 import { readStudyModel, subjectRungOf, weaknessNamingRung } from "./progressReadModel";
 import MeProgressPage, { splitPaperMarks } from "../pages/MeProgressPage";
 import { assembleTutorBrief, briefFromModel, TUTOR_BRIEF_WINDOW } from "../pages/tutor/tutorContextBrief";
+import { MistakeIntelCard, computeMiCardSummary } from "../components/desktop/MistakeIntelCard";
 import { zeroMarksLost } from "../lib/mistakeDisplay";
 
 const UID = "u-gate";
@@ -141,6 +143,21 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
     await renderMe();
     await waitFor(() => expect(screen.getByText(WITHHOLD)).toBeTruthy());
     cleanup();
+
+    // PR-2b (C-W1) — the sidebar MI widget names nothing either: no group, no marks figure.
+    const week = await readStudyModel(UID, { window: "week", nowMs: NOW });
+    const card = computeMiCardSummary(week);
+    expect(card.namesWeakness).toBe(false);
+    expect(card.topLoss).toBeNull();
+    render(
+      <MemoryRouter>
+        <MistakeIntelCard />
+      </MemoryRouter>,
+    );
+    expect((await screen.findByTestId("mi-card-withheld", {}, { timeout: 8000 })).textContent).toMatch(WITHHOLD);
+    expect(screen.queryByTestId("mi-card-top")).toBeNull();
+    expect(screen.getByTestId("mi-card-summary").textContent).not.toMatch(/marks? lost|Biggest loss/);
+    cleanup();
   });
 
   it("★ above the gate (8 graded answers): Me names, and the brief names the same student's real concepts and Me's figure", async () => {
@@ -161,6 +178,21 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
     await renderMe();
     await waitFor(() => expect(screen.getByRole("heading", { level: 1 }).textContent ?? "").toMatch(/on the table/));
     expect(screen.queryByText(WITHHOLD)).toBeNull();
+    cleanup();
+
+    // PR-2b (C-W1) — above the gate the widget names too: the model's group, the model's figure.
+    const week = await readStudyModel(UID, { window: "week", nowMs: NOW });
+    const card = computeMiCardSummary(week);
+    expect(card.namesWeakness).toBe(true);
+    expect(card.topLoss?.label).toBe("Knowledge gap");
+    render(
+      <MemoryRouter>
+        <MistakeIntelCard />
+      </MemoryRouter>,
+    );
+    expect((await screen.findByTestId("mi-card-top", {}, { timeout: 8000 })).textContent).toMatch(/^Knowledge gap/);
+    expect(screen.getByTestId("mi-card-summary").textContent).toContain(`${card.totalMarksLost} marks lost`);
+    expect(screen.queryByTestId("mi-card-withheld")).toBeNull();
     cleanup();
   });
 });

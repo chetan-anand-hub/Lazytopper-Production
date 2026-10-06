@@ -18,7 +18,9 @@
  * REAL read model over mocked CLOUD streams (attempts, session records, the mistake history).
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, configure } from "@testing-library/react";
+// The first render pays the read model's cold import; the 1 s default wait is a flake source.
+configure({ asyncUtilTimeout: 8000 });
 import { MemoryRouter } from "react-router-dom";
 
 const h = vi.hoisted(() => ({
@@ -57,6 +59,10 @@ function model(entries: MistakeLogEntry[], graded = 0, marksLost = 0): StudyRead
   const progress = emptyWindowed("week");
   progress.activity = { ...progress.activity, gradedAnswers: graded };
   progress.totals = marksLost > 0 ? { marksScored: 0, marksAvailable: marksLost, marksLost, marksNotAttempted: 0, answers: graded } : null;
+  // ME-ENGINE-1 PR-2b (C-W1) — a Maths paper ABOVE Me's gate, so the pure summary may name a
+  // group (the below-gate case is pinned separately).
+  progress.subjects = [{ key: "maths", label: "Maths", before: 50, now: 50, delta: 0, sampleBefore: 3, sampleNow: 3, spanDays: 5, marksScored: 6, marksAvailable: 12 }];
+  progress.subjectTotals = { maths: { marksScored: 6, marksAvailable: 12, marksLost: 6, marksNotAttempted: 0, answers: 6 } };
   return {
     window: "week",
     subject: null,
@@ -79,8 +85,10 @@ const v2 = (m: Record<string, number>) => ({
 let seq = 0;
 const entry = (marksLost: number, c: Parameters<typeof counts>[0], extra: Record<string, unknown> = {}) =>
   ({ id: `e${++seq}`, timestamp: new Date().toISOString(), topic: "Real Numbers", subject: "Maths", marksLost, mistakeCounts: counts(c), ...extra }) as unknown as MistakeLogEntry;
-const attempt = (mode: string) =>
-  ({ mode, subject: "maths", topicKey: "real-numbers", marksScored: 1, marksAvailable: 2, timestamp: Date.now() - 1000 }) as unknown as PracticeAttempt;
+const attempt = (mode: string, agoMs = 1000) =>
+  ({ mode, subject: "maths", topicKey: "real-numbers", marksScored: 1, marksAvailable: 2, timestamp: Date.now() - agoMs }) as unknown as PracticeAttempt;
+/** ME-ENGINE-1 PR-2b (C-W1) — 8 graded answers spread over the week: ABOVE Me's naming gate. */
+const aboveGate = () => [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt("graded", h * 60 * 60 * 1000));
 
 const renderCard = () => render(<MemoryRouter><MistakeIntelCard /></MemoryRouter>);
 
@@ -99,12 +107,23 @@ describe("H3 — checked answers are GRADED ANSWERS, not log entries", () => {
   });
 
   it("★ ME-ENGINE-1 G3 — 'marks lost' is the window's graded-stream loss (Me's 'on the table'), not the MI-entry sum", async () => {
-    // 6 attempts × (2 available, 1 scored) = 6 marks lost in the graded stream; the two MI
-    // entries alone name only 3. The card says 6 — the number Me shows for the same window.
+    // 8 graded attempts + 1 MCQ, each (2 available, 1 scored) = 9 marks lost in the graded stream
+    // (an MCQ is not a checked answer, but its lost mark is on the table); the two MI entries
+    // alone name only 3. The card says 9 — the number Me shows for the same window.
     h.entries = [entry(1, { silly: 1 }), entry(2, { conceptual: 1 })];
-    h.attempts = [attempt("graded"), attempt("graded"), attempt("graded"), attempt("graded"), attempt("graded"), attempt("mcq")];
+    h.attempts = [...aboveGate(), attempt("mcq")];
     renderCard();
-    await waitFor(() => expect(screen.getByTestId("mi-card-summary").textContent).toContain("6 marks lost"));
+    await waitFor(() => expect(screen.getByTestId("mi-card-summary").textContent).toContain("9 marks lost"));
+  });
+
+  it("★ ME-ENGINE-1 PR-2b (C-W1) — below Me's gate (2 graded answers) the card names NOTHING: no group, no marks figure", async () => {
+    h.entries = [entry(2, { conceptual: 1 }, v2({ conceptual: 2 })), entry(2, { conceptual: 1 }, v2({ conceptual: 2 }))];
+    h.attempts = [attempt("graded"), attempt("graded")];
+    renderCard();
+    await waitFor(() => expect(screen.getByTestId("mi-card-checked").textContent).toBe("2 checked answers"));
+    expect(screen.getByTestId("mi-card-withheld").textContent).toMatch(/We will not name a weakness from one or two questions/);
+    expect(screen.queryByTestId("mi-card-top")).toBeNull();
+    expect(screen.getByTestId("mi-card-summary").textContent).not.toMatch(/marks? lost|Biggest loss/);
   });
 
   it("the rendered card says it, and never a legacy label", async () => {
@@ -129,6 +148,7 @@ describe("H3 — the biggest loss, in the owner's groups and in MARKS when entri
 
   it("★ the label comes from lib/mistakeDisplay — calculation is CARELESS, never a concept gap", async () => {
     h.entries = [entry(2, { calculation: 2 }, v2({ calculation: 2 }))];
+    h.attempts = aboveGate();
     renderCard();
     const top = await screen.findByTestId("mi-card-top");
     expect(top.textContent).toBe(`${mistakeGroupByKey("careless").label} (2 marks)`);

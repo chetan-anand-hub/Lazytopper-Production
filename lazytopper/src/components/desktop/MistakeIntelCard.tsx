@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
+  modelNamesWeakness,
   readStudyModel,
   topLossGroup,
   type StudyReadModel,
@@ -100,6 +101,12 @@ export interface MiCardSummary {
   checkedCount: number;
   totalMarksLost: number;
   topLoss: MiCardTopLoss | null;
+  /**
+   * ME-ENGINE-1 PR-2b (C-W1) — Me's gate for naming a weakness (`modelNamesWeakness`, imported
+   * from the read model). False → the card names no group and prints no marks figure: it says
+   * what Me says, "We will not name a weakness from one or two questions".
+   */
+  namesWeakness: boolean;
 }
 
 /**
@@ -117,8 +124,13 @@ export interface MiCardSummary {
 export function computeMiCardSummary(model: StudyReadModel): MiCardSummary {
   const checkedCount = Number(model.progress.activity.gradedAnswers) || 0;
   const totalMarksLost = Number(model.progress.totals?.marksLost) || 0;
+  const namesWeakness = modelNamesWeakness(model);
 
   let topLoss: MiCardTopLoss | null = null;
+  // Below Me's gate nothing is named — no group, in marks or in counts.
+  if (!namesWeakness) {
+    return { checkedCount, totalMarksLost: Math.round(totalMarksLost * 10) / 10, topLoss: null, namesWeakness };
+  }
   const byGroup = model.mistakes.byGroup;
   const markTop = topLossGroup(byGroup);
   if (markTop) {
@@ -154,6 +166,7 @@ export function computeMiCardSummary(model: StudyReadModel): MiCardSummary {
     checkedCount,
     totalMarksLost: Math.round(totalMarksLost * 10) / 10,
     topLoss,
+    namesWeakness,
   };
 }
 
@@ -337,7 +350,7 @@ export function MistakeIntelCard() {
                 {view.summary.checkedCount === 1 ? "answer" : "answers"}
               </span>
             ) : null}
-            {view.summary.totalMarksLost > 0 ? (
+            {view.summary.namesWeakness && view.summary.totalMarksLost > 0 ? (
               <>
                 {view.summary.checkedCount > 0 ? ", " : ""}
                 <span style={{ color: "#fff", fontWeight: 700 }}>
@@ -346,7 +359,10 @@ export function MistakeIntelCard() {
               </>
             ) : null}
             .
-            {view.summary.topLoss ? (
+            {!view.summary.namesWeakness ? (
+              <span data-testid="mi-card-withheld"> We will not name a weakness from one or two questions.</span>
+            ) : null}
+            {view.summary.namesWeakness && view.summary.topLoss ? (
               <>
                 {" "}Biggest loss:{" "}
                 <span style={{ color: "#fff", fontWeight: 700 }} data-testid="mi-card-top" data-basis={view.summary.topLoss.basis}>
