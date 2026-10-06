@@ -4,8 +4,8 @@
  *   "on phones, figures fit the screen width (scale down, never cut off; tap to enlarge if available)".
  *
  * What this pins:
- *   1. FIT — the phone rule that sizes every notes figure to the screen width (viewport less
- *      a 16 px gutter each side, centred, aspect kept). jsdom has no layout, so the rule text
+ *   1. FIT — the phone rules that make every notes figure fill the full content width of the
+ *      card that holds it, edge to edge inside the card's border (aspect kept). jsdom has no layout, so the rule text
  *      in the note's scoped stylesheet is the assertion; the live widths are measured in the
  *      lane's 390/1440 screenshots.
  *   2. ENLARGE — every asset figure is a button that opens an accessible full-screen view,
@@ -68,19 +68,24 @@ describe("notes figures fit the phone screen", () => {
     expect(css).toMatch(/\.lt-note__fimg \{[^}]*width: 100%;[^}]*height: auto;/);
   });
 
-  it("on phones a figure is sized to the screen width (viewport less 16 px gutters), centred", () => {
+  it("on phones a figure fills its card's full content width, inside the card's border", () => {
     const { container } = mountNote("trigonometry");
-    const phone = phoneBlocks(noteCss(container)).join("\n");
-    // The figure rule itself.
-    const rule = /\.lt-note__figure \{([^}]*)\}/.exec(phone);
-    expect(rule, "phone .lt-note__figure rule").not.toBeNull();
-    expect(rule![1]).toContain("width: calc(100vw - 32px)");
-    expect(rule![1]).toContain("margin-left: calc(50% - 50vw + 16px - var(--lt-note-fig-shift, 0px))");
-    // A concept row's number column (28 px) + gap (13 px) is compensated: half of 41 px.
-    expect(phone).toMatch(/\.lt-note__concept \.lt-note__figure \{ --lt-note-fig-shift: 20\.5px; \}/);
-    // CONTROL: the desktop rule is untouched — outside the phone block the card is not resized.
+    const phone = phoneBlocks(noteCss(container)).join(" ");
+    // Concept row: reclaim the card padding (15 px) + number column (28 px) + gap (13 px) on
+    // the left and the card padding (15 px) on the right — exactly to the card's inner border.
+    expect(phone).toMatch(
+      /\.lt-note__concept \.lt-note__figure \{ margin-left: -56px; margin-right: -15px; \}/,
+    );
+    // Third-tab figure: exactly the block's phone padding (14 px) each side.
+    expect(phone).toMatch(/\.lt-note__block \{ padding: 16px 14px; \}/);
+    expect(phone).toMatch(
+      /\.lt-note__block > \.lt-note__figure \{ margin-left: -14px; margin-right: -14px; \}/,
+    );
+    // Never sized to the viewport: nothing can break out of the note card.
+    expect(noteCss(container)).not.toContain("100vw");
+    // CONTROL: the desktop rules carry no negative margin for figures.
     const desktop = noteCss(container).split("@media")[0];
-    expect(desktop).not.toContain("100vw");
+    expect(desktop).not.toMatch(/\.lt-note__figure \{[^}]*margin-left: -/);
   });
 });
 

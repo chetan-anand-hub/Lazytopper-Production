@@ -423,17 +423,17 @@ const NOTE_CSS = `
 
 @media (max-width: 560px) {
   .lt-note__frow, .lt-note__signtable { grid-template-columns: 1fr; }
-  /* Phones: a figure fits the SCREEN width, not the deeply nested card column
-     (page + note + block + concept paddings left it 183 px wide at 390). It is
-     sized to the viewport less a 16 px gutter each side and centred on the
-     viewport: every note container is symmetric except a concept row, whose
-     number column + gap (28 + 13 px) shifts the column right by 20.5 px.
-     Aspect ratio is kept (img height: auto); nothing is cropped. */
-  .lt-note__figure {
-    width: calc(100vw - 32px); max-width: none;
-    margin-left: calc(50% - 50vw + 16px - var(--lt-note-fig-shift, 0px));
-  }
-  .lt-note__concept .lt-note__figure { --lt-note-fig-shift: 20.5px; }
+  /* Phones: a figure fills the FULL content width of the card that holds it,
+     edge to edge inside that card's border — never past it, never over its
+     edge (QUICK-FIXES-1 owner follow-up: "fit the screen width, never cut
+     off"). In a concept row it also reclaims the number column (28 px) + gap
+     (13 px): 183 -> 256 px at 390. A third-tab figure spans its block's padding
+     (14 px each side). Aspect ratio is kept (img height: auto); tap to enlarge
+     gives the full-screen view. The figure card drops its side borders and
+     radius because the holding card's border now frames it. */
+  .lt-note__figure { border-left: 0; border-right: 0; border-radius: 0; }
+  .lt-note__concept .lt-note__figure { margin-left: -56px; margin-right: -15px; }
+  .lt-note__block > .lt-note__figure { margin-left: -14px; margin-right: -14px; }
   .lt-note__keyterms dl { grid-template-columns: 1fr; }
   .lt-note__block { padding: 16px 14px; }
 }
