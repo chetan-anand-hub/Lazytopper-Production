@@ -468,7 +468,7 @@ function score(input) {
     bySurfaceRun: Object.fromEntries([...new Set(oa2Rows.map((r) => r.surface + '#' + r.run))].map((k) => {
       const list = oa2Rows.filter((r) => r.surface + '#' + r.run === k);
       return [k, { total: list.filter((r) => r.status === 'graded' && r.expectedAnswerMismatch !== true).reduce((a2, r) => a2 + r.awarded, 0),
-        // the owner key's total (33½ before A17; Q12 re-pinned by A17 ruling 1 → 33), from the expectations
+        // the owner key's total (33½ before A17; Q12 and Q18 re-pinned by A17 rulings 1 and 3 → 32½), from the expectations
         key: list.filter((r) => r.expectedAnswerMismatch !== true).reduce((a2, r) => a2 + (Number(r.expectedTotal) || 0), 0),
         withinHalf: list.filter((r) => r.withinHalf === true).length, n: list.length,
         perQuestion: list.map((r) => ({ id: r.caseId, awarded: r.status === 'graded' ? r.awarded : r.status, expected: r.expectedTotal, type: r.primaryType || null, expectedType: r.expectedType })) }];

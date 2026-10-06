@@ -215,14 +215,33 @@ const TERMINOLOGY_LOSS = /\b(?:terminolog\w*|(?:technical|scientific|exact|corre
 const ROMAN_HINDI = new Set(('hai hain ka ki ke ko se mein aur nahi nahin nhi kyunki kyonki kyuki isliye islie iska iski iske uska uski uske yeh woh wo ' +
   'kar karta karte karti karna karo kiya hota hoti hote hoga hogi gaya gayi gaye liye jab tab agar lekin bhi sakta sakti sakte rehta rehti ' +
   'wala wale wali kya kaise matlab yani yaani raha rahi rahe hua hui hue diya liya jata jati jaata jaati paas sahi galat toh phir pehle ' +
-  'baad sirf bahut zyada ek teen chaar bana banta banti milta milti chahiye humein hume hum aap tum unka unki inka inki iss uss ab yahan wahan').split(' '));
+  'baad sirf bahut zyada ek chaar bana banta banti milta milti chahiye humein hume aap tum unka unki inka inki iss uss yahan wahan').split(' '));
+// A17 J0-FIXUP (audit FU-A17-MEDIUM-AB-TOKEN): REMOVED from the list because they are also English
+// or Maths/Science tokens — "ab" (segment AB, the product ab), "hue" (colour), "teen", "tab", "jab",
+// "hum". And a marker counts only when it is written as a WORD, never as notation (mediumOf):
+//   • ALL-CAPS never counts (KE, AB, KI), and a 2-letter marker counts only in lower case ("Se" is
+//     selenium, "Ka" / "Ke" are symbols or variables); a longer one may start a sentence ("Isliye");
+//   • a token glued to a digit (2ka, ke2) or beside an operator (ka = 5, x + ke) is notation.
 const DEVANAGARI = /[ऀ-ॿ]/g;
 /** 'devanagari' | 'hinglish' | 'english' — the medium of the student's own words. */
+const NOTATION_OPERATOR = /[=+×*/^<>≤≥±÷−–]/;
+function isMarkerWord(t, w, at) {
+  const lw = w.toLowerCase();
+  if (!ROMAN_HINDI.has(lw)) return false;
+  if (w !== lw && !(w.length >= 3 && w[0] !== lw[0] && w.slice(1) === lw.slice(1))) return false; // AB, KE, Se
+  const before = t.slice(0, at);
+  const after = t.slice(at + w.length);
+  if (/\d$/.test(before) || /^\d/.test(after)) return false;                 // 2ab, ke2
+  const prev = before.replace(/\s+$/, '').slice(-1);
+  const next = after.replace(/^\s+/, '').slice(0, 1);
+  if (NOTATION_OPERATOR.test(prev) || NOTATION_OPERATOR.test(next)) return false; // ka = 5, x + ke
+  return true;
+}
 function mediumOf(text) {
   const t = String(text || '');
   if ((t.match(DEVANAGARI) || []).length >= 10) return 'devanagari';
-  const words = t.toLowerCase().match(/[a-z]+/g) || [];
-  const hits = words.filter((w) => ROMAN_HINDI.has(w));
+  const hits = [];
+  for (const m of t.matchAll(/[A-Za-z]+/g)) if (isMarkerWord(t, m[0], m.index)) hits.push(m[0].toLowerCase());
   return hits.length >= 3 && new Set(hits).size >= 2 ? 'hinglish' : 'english';
 }
 const languageWhy = (s) => [s.teacherAnnotation, s.correctedWorking, s.description].join(' . ');
@@ -245,7 +264,8 @@ function applyMediumRuling(steps, q, raw) {
       // the ONE medium charge of this answer: exactly ½
       if (lostHere > 0.5) giveBack(s, lostHere - 0.5);
       s.mistakeType = 'presentation';
-      if (s.status === 'correct') s.status = s.marksAwarded > 0 ? 'partial' : 'incorrect';
+      // J0-FIXUP (audit FU-A17-MEDIUM-STEP-STATUS): the content is right; only the medium cost ½.
+      if (s.status === 'correct' || (s.status === 'incorrect' && s.marksAwarded > 0)) s.status = 'partial';
       s.teacherAnnotation = R.MEDIUM_COMMENT;
       s._mediumCharged = true;
       charged += 1;
@@ -259,14 +279,20 @@ function applyMediumRuling(steps, q, raw) {
     restored += 1;
   }
   if (medium === 'hinglish' && charged === 0) {
-    // the model did not charge the medium: ½ from the last credited, untyped step (never below 0)
-    const target = [...steps].reverse().find((s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && !s.mistakeType && !s._unitCharged && s.marksAwarded >= 0.5)
-      || [...steps].reverse().find((s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && !s._unitCharged && s.mistakeType === 'presentation' && s.marksAwarded >= 0.5);
-    if (target && target.mistakeType !== 'presentation') {
+    // the model did not charge the medium: ½ from the credited, untyped step that earned MOST (the
+    // last of equals), never below 0. J0-FIXUP (audit FU-A17-MEDIUM-STEP-STATUS): the medium is exam
+    // technique, so that content step stays PARTIAL (its content is right) and keeps marks where it can
+    // — before, a ½-mark final step was zeroed and shown "incorrect" (GS-M06-a).
+    let target = null;
+    for (const s of steps) {
+      if (s.status === 'withdrawn' || s.status === 'unattempted' || s.mistakeType || s._unitCharged || !(s.marksAwarded >= 0.5)) continue;
+      if (!target || s.marksAwarded >= target.marksAwarded) target = s;
+    }
+    if (target) {
       target.marksAwarded = half(target.marksAwarded - 0.5);
       target.marksDeducted = half(target.marksDeducted + 0.5);
       target.mistakeType = 'presentation';
-      target.status = target.marksAwarded > 0 ? 'partial' : 'incorrect';
+      target.status = 'partial';
       target.correctedWorking = null;
       target.teacherAnnotation = R.MEDIUM_COMMENT;
       target._mediumCharged = true;

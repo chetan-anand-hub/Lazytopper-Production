@@ -329,6 +329,54 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
   }
 });
 
+test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its class: replaying the body and undoing its delta lands exactly on a17.base, and the delta obeys the class rules (lib/rebaselineClasses.cjs)', async () => {
+  const quiet = { warn: console.warn, error: console.error };
+  console.warn = () => {}; console.error = () => {};
+  try {
+    const { loadRun, replayJob } = require('./lib/replay.cjs');
+    const { buildPlan, digest } = require('./lib/planner.cjs');
+    const { undoDelta, classViolations, diffBodies } = require('./lib/rebaselineClasses.cjs');
+    const runDir = path.join(GOLDEN, 'runs', floor.runId);
+    const R = loadRun(runDir);
+    const rb = R.rebaseline;
+    const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
+    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class));
+    assert.ok(keys.length > 0, 'CONTROL: there are A17 entries to verify');
+    const byKey = {};
+    for (const run of Object.keys(R.runs)) for (const rec of R.runs[run]) byKey['run' + run + ':' + rec.jobKey] = rec;
+    let checked = 0;
+    let sample = null;
+    for (const k of keys) {
+      const e = rb.entries[k];
+      assert.ok(e.a17 && Array.isArray(e.a17.delta) && e.a17.delta.length > 0, k + ': an A17 entry carries its base and delta');
+      const classes = e.class.split('+').filter((c) => c.startsWith('a17-'));
+      if (!e.class.split('+').some((c) => !c.startsWith('a17-'))) assert.strictEqual(e.a17.base, e.from, k + ': an A17-only entry starts from the stored body');
+      const rep = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
+      assert.strictEqual(digest(rep.body), e.to, k + ': the replayed body is the pinned one');
+      const before = undoDelta(rep.body, e.a17.delta);
+      assert.ok(before && digest(before) === e.a17.base, k + ': undoing the delta must land exactly on a17.base (nothing changed outside it)');
+      assert.deepStrictEqual(classViolations(classes, e.a17.delta, rep.body), [], k + ' (' + classes.join('+') + ')');
+      if (!sample && classes.length === 1 && classes[0] === 'a17-r1-units' && Array.isArray(rep.body.results)) sample = { k, e, body: rep.body, before };
+      checked += 1;
+    }
+    assert.strictEqual(checked, keys.length);
+    // CONTROL 1 (the audit's relabel): a not-attempted body labelled "units" is REFUSED.
+    const na = keys.find((k) => rb.entries[k].class.split('+').includes('a17-r2-not-attempted'));
+    const naRec = byKey[na];
+    const naRep = await replayJob(plan[naRec.jobKey], naRec, { config: R.manifest && R.manifest.config });
+    assert.notDeepStrictEqual(classViolations(['a17-r1-units'], rb.entries[na].a17.delta, naRep.body), [], 'a not-attempted change is not a units change');
+    // CONTROL 2 (the audit's mutation): the units change ALSO takes ½ from an UNRELATED step — the
+    // delta a generator would record is REFUSED by the units rule.
+    assert.ok(sample, 'CONTROL: a units entry on a paper body');
+    const mutated = JSON.parse(JSON.stringify(sample.body));
+    const r = mutated.results.find((x) => (x.annotatedSteps || []).some((st) => /write the unit/.test(st.teacherAnnotation)) && (x.annotatedSteps || []).some((st) => !/unit/.test(st.teacherAnnotation) && st.marksAwarded >= 0.5));
+    const other = r.annotatedSteps.find((st) => !/unit/.test(st.teacherAnnotation) && st.marksAwarded >= 0.5);
+    other.marksAwarded -= 0.5; other.marksDeducted += 0.5; r.marksAwarded -= 0.5;
+    const v = classViolations(['a17-r1-units'], diffBodies(sample.before, mutated), mutated);
+    assert.ok(v.some((x) => /a step that ends with no a17-r1-units text changed/.test(x)), 'an unrelated ½ under the units class is refused: ' + JSON.stringify(v));
+  } finally { console.warn = quiet.warn; console.error = quiet.error; }
+});
+
 test('§12 replay of a PR-3 live run is faithful: a call still in flight at the request deadline replays as that TIMEOUT; detection replays on the run\'s own (proxy) detect model', async () => {
   const { replayJob } = require('./lib/replay.cjs');
   const { buildPlan } = require('./lib/planner.cjs');

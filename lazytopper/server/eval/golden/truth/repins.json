@@ -276,11 +276,53 @@
     {
       "caseId": "GS-M06-a",
       "kind": "changed",
-      "field": "perStep.2.awarded",
-      "old": 0.5,
-      "new": 0,
+      "field": "perStep.1.awarded",
+      "old": 1.5,
+      "new": 1,
       "ruling": "A17-3",
-      "basis": "The medium 1/2 is taken on the final step (the step ledger sums to the re-pinned 1.5)."
+      "basis": "The medium 1/2 is taken from the step that earned most (step 1), which stays partial: the content is right (J0-FIXUP, audit FU-A17-MEDIUM-STEP-STATUS). The step ledger sums to the re-pinned 1.5."
+    },
+    {
+      "caseId": "GS-M06-a",
+      "kind": "changed",
+      "field": "examinerNote",
+      "old": "Hinglish answer, fully correct: 2/2. Language must not cost marks or be called a mistake.",
+      "new": "Hinglish answer, content fully correct. A17 ruling 3 (owner change 2026-10-06): the medium costs exactly 1/2 once (1.5/2), typed presentation (exam technique), with the comment \"Write in English (or Hindi in Devanagari): board examiners expect one medium.\" The content must not be called wrong.",
+      "ruling": "A17-3",
+      "basis": "The judge truth must agree with the medium ruling (audit FU-A17-GSM06A-JUDGE-TRUTH-STALE)."
+    },
+    {
+      "caseId": "GS-M06-a",
+      "kind": "changed",
+      "field": "commentMustNotClaim",
+      "old": [
+        "language is a mistake",
+        "answer must be in English",
+        "any mistake"
+      ],
+      "new": [
+        "the values or the calculation are wrong",
+        "a concept or calculation mistake",
+        "more than 1/2 is lost for the medium"
+      ],
+      "ruling": "A17-3",
+      "basis": "Under A17 ruling 3 the medium comment (write in English or Hindi in Devanagari) is TRUE and must not count as a false claim; claiming a content mistake still is one."
+    },
+    {
+      "caseId": "GS-M06-a",
+      "kind": "changed",
+      "field": "commentMayMention",
+      "old": [
+        "values tan 60° = √3, sin 60° = cos 30° = √3/2",
+        "answer 2"
+      ],
+      "new": [
+        "values tan 60° = √3, sin 60° = cos 30° = √3/2",
+        "answer 2",
+        "write in English (or Hindi in Devanagari)"
+      ],
+      "ruling": "A17-3",
+      "basis": "The fixed medium comment is an expected comment under A17 ruling 3."
     },
     {
       "caseId": "OA2-Q18",

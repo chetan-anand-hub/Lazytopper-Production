@@ -115,8 +115,11 @@ async function drive(s, { mutateTarget, targetSteps, otherSteps, acceptsV2 = fal
   await new Promise((r) => setImmediate(r));
   const body = captured && captured.body;
   const result = single ? body : body.results.find((r) => Number(r.qNumber) === Number(targetQ));
-  const costWritten = writes.reduce((a, w) => a + (Number(w.costMicroInr) || 0), 0);
-  return { body, result, res, calls, writes, costWritten, single, targetQ, targetMarks, total: single ? 1 : req.questions.length };
+  // the METER writes (costMicroInr) vs the REAL-spend writes (J0-FIXUP: providerSpendMicroInr, never read by fair use)
+  const meterWrites = writes.filter((w) => 'costMicroInr' in w);
+  const spendWritten = writes.reduce((a, w) => a + (Number(w[ledgerLib.LEDGER_SPEND_FIELD]) || 0), 0);
+  const costWritten = meterWrites.reduce((a, w) => a + (Number(w.costMicroInr) || 0), 0);
+  return { body, result, res, calls, writes: meterWrites, spendWritten, costWritten, single, targetQ, targetMarks, total: single ? 1 : req.questions.length };
 }
 
 // A bank question's stored final answer is compared on its own (verify.cjs compareFinalAnswer) and can cap
@@ -136,6 +139,9 @@ const dontKnowSteps = (marks) => [
 // surface sends the same words as its textAnswer (setText), so the server judges the student's own text.
 const HINGLISH = 'Carbon ke paas 4 valence electrons hain, isliye woh electrons share karta hai aur covalent bonds banata hai.';
 const ENGLISH_TECH = 'Carbon has 4 valence electrons, so it shares electrons and forms covalent bonds (catenation, tetravalency).';
+// J0-FIXUP (audit FU-A17-MEDIUM-AB-TOKEN): ENGLISH Maths/Science full of tokens that collide with Roman
+// Hindi — segment AB, the product ab, KE, Se, hue, teen — is still English.
+const ENGLISH_NOTATION = 'In triangle ABC, AB = BC, so the angles opposite AB and BC are equal. Let ab be the product of the two sides: ab = 12, so ab is 12 cm². The hue of red light is seen by a teen; KE = ½mv² and Se is selenium. Hence ab = 12.';
 const DEVANAGARI_HINDI = 'कार्बन के पास 4 valence electrons होते हैं, इसलिए यह electrons share करके covalent bond बनाता है।';
 const setText = (t) => (q) => { q.textAnswer = t; noKey(q); };
 const workSteps = (text, last) => (marks) => [
@@ -148,6 +154,8 @@ const hinglishCharged = workSteps(HINGLISH, { status: 'incorrect', marksAvailabl
 const hinglishUncharged = workSteps(HINGLISH, { status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓ Correct.' });
 // false positives the model might commit: English with technical terms, Hindi in Devanagari
 const englishCharged = workSteps(ENGLISH_TECH, { status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct, but informal English with grammar errors.' });
+const notationCharged = workSteps(ENGLISH_NOTATION, { status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct, but written in Hinglish.' });
+const notationUncharged = workSteps(ENGLISH_NOTATION, { status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓ Correct.' });
 const devanagariCharged = workSteps(DEVANAGARI_HINDI, { status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct, but written in Hindi instead of English.' });
 const termSteps = (marks) => [
   { description: 'Working', studentWork: 'Food goes down the food pipe by peristalsis', status: 'partial', marksAvailable: marks, marksAwarded: marks - 0.5, marksDeducted: 0.5, mistakeType: 'presentation',
@@ -202,6 +210,8 @@ for (const s of SURFACES) {
     const all = await drive(s, { mutateTarget: (q) => { q.textAnswer = "Don't know"; }, targetSteps: dontKnowSteps, otherSteps: dontKnowSteps });
     assert.equal(chargeableCountOf(all.res), 0, s.id + ': nothing charged');
     assert.equal(all.writes.length, 0, s.id + ': nothing metered');
+    // J0-FIXUP (FU-A17-METER-SPEND-VISIBILITY): the REAL provider spend is still recorded, apart from the meter
+    assert.equal(all.spendWritten, CALL_COST * all.calls.length, s.id + ': real spend recorded in providerSpendMicroInr');
   });
 
   test('A17 ruling 3 (medium) — ' + s.id + ': a HINGLISH answer keeps its content marks and loses EXACTLY ½ once, typed presentation, with the one fixed comment — whether or not the model charged it', async () => {
@@ -213,7 +223,9 @@ for (const s of SURFACES) {
         const m = out.annotatedSteps.filter((st) => st.teacherAnnotation === R.MEDIUM_COMMENT);
         assert.equal(m.length, 1, s.id + ' ' + label + ': one medium step');
         assert.equal(R.MEDIUM_COMMENT, 'Write in English (or Hindi in Devanagari): board examiners expect one medium.');
-        assert.deepEqual([m[0].marksDeducted, m[0].mistakeType], [0.5, 'presentation'], s.id + ' ' + label);
+        assert.deepEqual([m[0].marksDeducted, m[0].mistakeType, m[0].status], [0.5, 'presentation', 'partial'], s.id + ' ' + label);
+        // J0-FIXUP (FU-A17-MEDIUM-STEP-STATUS): the content is right — no step is shown "incorrect"
+        assert.ok(out.annotatedSteps.every((st) => st.status !== 'incorrect'), s.id + ' ' + label + ': no content step marked incorrect');
         if (acceptsV2) assert.equal(out.marksLostByType.presentation, 0.5);
       }
     }
@@ -223,7 +235,8 @@ for (const s of SURFACES) {
   });
 
   test('A17 ruling 3 (medium) — ' + s.id + ': FALSE-POSITIVE GUARD — English with technical terms and Hindi in Devanagari never lose the ½ (a model deduction for language is given back)', async () => {
-    for (const [label, text, steps] of [['English + technical terms', ENGLISH_TECH, englishCharged], ['Hindi in Devanagari', DEVANAGARI_HINDI, devanagariCharged]]) {
+    for (const [label, text, steps] of [['English + technical terms', ENGLISH_TECH, englishCharged], ['Hindi in Devanagari', DEVANAGARI_HINDI, devanagariCharged],
+      ['English geometry/physics notation (AB, ab, KE, Se, hue, teen) — model charged', ENGLISH_NOTATION, notationCharged], ['the same — model charged nothing', ENGLISH_NOTATION, notationUncharged]]) {
       const r = await drive(s, { mutateTarget: setText(text + '\n' + text), targetSteps: steps });
       assert.equal(r.result.marksAwarded, r.targetMarks, s.id + ' ' + label);
       assert.ok(!r.result.annotatedSteps.some((st) => st.teacherAnnotation === R.MEDIUM_COMMENT), s.id + ' ' + label + ': no medium comment');
@@ -289,5 +302,7 @@ test('A17 ruling 5 — a chunk RETRY and a scheme-cache GENERATION follow the sa
   await new Promise((r) => setImmediate(r));
   assert.equal(n, 2, 'a parse miss and its retry');
   assert.equal(chargeableCountOf(res), 0);
-  assert.equal(writes.length, 0, 'the first attempt, the retry and the cache generation all record 0 for a not-attempted question');
+  const meterWrites = writes.filter((w) => 'costMicroInr' in w);
+  assert.equal(meterWrites.length, 0, 'the first attempt, the retry and the cache generation all record 0 for a not-attempted question');
+  assert.equal(writes.reduce((a, w) => a + (Number(w[ledgerLib.LEDGER_SPEND_FIELD]) || 0), 0), CALL_COST * 3, 'the REAL spend of all three calls is still recorded');
 });

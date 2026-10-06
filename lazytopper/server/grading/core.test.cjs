@@ -1765,6 +1765,34 @@ test('§FIX.6 ★ the MEDIUM of an answer (A17 ruling 3 as changed 2026-10-06: H
   assert.deepEqual([w.annotatedSteps[1].mistakeType, w.annotatedSteps[1].teacherAnnotation === grading.LANGUAGE_NOT_MARKED_ANNOTATION], ['presentation', false]);
 });
 
+test('§FIX.7 ★ J0-FIXUP (FU-A17-MEDIUM-STEP-STATUS): the medium ½ is EXAM TECHNIQUE — when the server applies it, it lands on the step that earned most and that step stays PARTIAL; no content step is shown "incorrect" (GS-M06-a shape)', async () => {
+  const hing = 'tan 60° ki value √3 hoti hai, toh tan²60° = 3. Ab answer 2 hai, isliye value = 2.';
+  const steps = [S({ description: 'Values substituted', studentWork: 'tan 60° ki value √3 hoti hai', marksAvailable: 1.5, marksAwarded: 1.5 }),
+    S({ description: 'Final value', studentWork: 'isliye value = 2', marksAvailable: 0.5, marksAwarded: 0.5, teacherAnnotation: '✓ Correct division giving final value 2' })];
+  const r = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] }).single(single({ marks: 2, question: 'Evaluate tan²60° / (sin²60° + cos²30°).', textAnswer: hing, acceptsV2: true }))).body;
+  assert.equal(r.marksAwarded, 1.5);
+  assert.deepEqual(r.annotatedSteps.map((x) => [x.status, x.marksAwarded, x.mistakeType]), [['partial', 1, 'presentation'], ['correct', 0.5, null]]);
+  assert.equal(r.annotatedSteps[0].teacherAnnotation, grading.MEDIUM_COMMENT);
+  assert.ok(r.annotatedSteps.every((x) => x.status !== 'incorrect'));
+});
+
+test('§FIX.8 ★ J0-FIXUP (FU-A17-OBJECTIVE-DK-CHARGE-UNPINNED): an OBJECTIVE "Don\'t know" is NOT ATTEMPTED and charged 0 — single and paper (A17 ruling 2)', async () => {
+  const mcq = { question: 'Which of these is irrational? (a) 2 (b) √2', marks: 1, section: 'A', options: ['2', '√2'], answer: '√2', textAnswer: "Don't know" };
+  const dk = [S({ description: 'Option chosen', studentWork: "Don't know", status: 'unattempted', marksAwarded: 0, marksDeducted: 1 })];
+  for (const acceptsV2 of [false, true]) {
+    const h = harness({ replies: [REPLY(R(1, dk))] });
+    const r = (await h.single(single({ ...mcq, acceptsV2 }))).body;
+    assert.deepEqual([r.marksAwarded, r.teacherNote], [0, grading.NOT_ATTEMPTED_NOTE], 'single v2=' + acceptsV2);
+    assert.ok(r.annotatedSteps.every((x) => x.mistakeType === null));
+    assert.equal(require('./charge.cjs').chargeableCountOf(h.res), 0, 'single: never charged');
+    // paper: the objective DK beside one graded subjective question → charged 1
+    const hp = harness({ replies: [REPLY(R(1, dk), R(2, [S({ marksAwarded: 3 })]))] });
+    const b = (await hp.sheet(sheet([sq(1, { marks: 1, section: 'A', options: ['2', '√2'], answer: '√2', questionText: mcq.question, textAnswer: "Don't know" }), sq(2)], { acceptsV2 }))).body;
+    assert.deepEqual([b.results[0].marksAwarded, b.results[0].teacherNote], [0, grading.NOT_ATTEMPTED_NOTE], 'paper v2=' + acceptsV2);
+    assert.equal(require('./charge.cjs').chargeableCountOf(hp.res), 1, 'paper: only the graded question is charged');
+  }
+});
+
 test('§D43.1 ★ a chunked paper\'s page inventory is the UNION of every chunk\'s inventory: a question its OWN chunk did not list but ANOTHER chunk saw is graded, never "not found"; a first line quoted by any chunk counts', async () => {
   const N = 11; const nums = Array.from({ length: N }, (_, i) => i + 1);
   const RULER = 'Longest ruler = HCF of the lengths';

@@ -82,6 +82,17 @@ const LEDGER_FIELDS = Object.freeze([
  */
 const LEDGER_HOUR_FIELD = 'hourCostMicroInr';
 
+/**
+ * A17 J0-FIXUP (audit FU-A17-METER-SPEND-VISIBILITY). Since A17 ruling 5, `costMicroInr` on a GRADING
+ * call is the METER (scaled by the chargeable share; 0 for a not-attempted question), no longer what
+ * the provider billed — and the admin Students panel reads `costMicroInr` as "₹ spent". So every
+ * grading call ALSO adds its REAL, unscaled cost here, at the moment it returns. Fair use never reads
+ * this field (it reads `costMicroInr` and the hour buckets), so the meter is unchanged. A number only,
+ * like every other ledger field. (An admin view that should show real spend reads this field — that
+ * view is outside this lane: FU-A17-ADMIN-SPEND-FIELD.)
+ */
+const LEDGER_SPEND_FIELD = 'providerSpendMicroInr';
+
 /** FAIR-USE-1 (U2) trial counters, stored on the same IST day document. */
 const TRIAL_COUNTER_FIELDS = Object.freeze({
   checks: 'trialChecks',
@@ -278,6 +289,7 @@ function createUsageLedger(deps = {}) {
       const store = requestContext.getStore();
       const meter = store && store.meter;
       if (meter) {
+        writeSpend(uid, record);
         if (!meter.settled) {
           meter.held.push((fraction) => writeUsage(uid, record, fraction));
           return null;
@@ -331,6 +343,23 @@ function createUsageLedger(deps = {}) {
             return false;
           }
         );
+    } catch {
+      count(TELEMETRY.ERROR);
+      return null;
+    }
+  }
+
+  /** A grading call's REAL cost, unscaled, into LEDGER_SPEND_FIELD (never read by fair use). */
+  function writeSpend(uid, record) {
+    try {
+      const { increment } = buildLedgerIncrement(record, { env });
+      if (!(increment.costMicroInr > 0)) return null;
+      const fs = resolveFirestore();
+      if (!fs || !fs.db || !fs.FieldValue) return null;
+      const ref = dayRef(fs.db, uid, istDayKey(now()));
+      return Promise.resolve()
+        .then(() => ref.set({ [LEDGER_SPEND_FIELD]: fs.FieldValue.increment(increment.costMicroInr) }, { merge: true }))
+        .then(() => true, () => { count(TELEMETRY.WRITE_FAILED); return false; });
     } catch {
       count(TELEMETRY.ERROR);
       return null;
@@ -432,6 +461,7 @@ module.exports = {
   LEDGER_SEGMENTS,
   LEDGER_FIELDS,
   LEDGER_HOUR_FIELD,
+  LEDGER_SPEND_FIELD,
   TRIAL_COUNTER_FIELDS,
   istHourKey,
   TELEMETRY,
