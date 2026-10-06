@@ -213,13 +213,16 @@ function toCount(value) {
  * costMicroInr = round((prompt * inputUsd/M + (output + thoughts) * outputUsd/M) * usdInr)
  * — `tokens * usdPerMillion` is micro-dollars; times the rate it is micro-rupees.
  * ★ THINKING IS COSTED AT THE OUTPUT RATE.
+ * ★ THE PRICE IN FORCE AT `opts.nowMs` (the ledger's clock; Date.now() when absent), so a
+ *   scheduled list-price change (modelPrices.cjs PRICE_CHANGES) is metered from its first minute.
  */
 function buildLedgerIncrement(record, opts = {}) {
   const r = record && typeof record === 'object' ? record : {};
   const promptTokens = toCount(r.promptTokenCount);
   const outputTokens = toCount(r.candidatesTokenCount);
   const thoughtsTokens = toCount(r.thoughtsTokenCount);
-  const price = priceFor(r.model);
+  const atMs = Number.isFinite(opts.nowMs) ? opts.nowMs : Date.now();
+  const price = priceFor(r.model, atMs);
   let costMicroInr = 0;
   if (price) {
     const microUsd =
@@ -321,7 +324,8 @@ function createUsageLedger(deps = {}) {
   function writeUsage(uid, record, fraction) {
     try {
       if (!(fraction > 0)) return null;
-      const built = buildLedgerIncrement(record, { env });
+      const nowMs = now();
+      const built = buildLedgerIncrement(record, { env, nowMs });
       const { priced } = built;
       const increment = fraction >= 1 ? built.increment : scaleIncrement(built.increment, fraction);
       if (!priced) count(TELEMETRY.UNPRICED_MODEL);
@@ -332,7 +336,6 @@ function createUsageLedger(deps = {}) {
         return null;
       }
       const { db, FieldValue } = fs;
-      const nowMs = now();
       const ref = dayRef(db, uid, istDayKey(nowMs));
 
       const data = {
@@ -366,11 +369,12 @@ function createUsageLedger(deps = {}) {
   /** A grading call's REAL cost, unscaled, into LEDGER_SPEND_FIELD (never read by fair use). */
   function writeSpend(uid, record) {
     try {
-      const { increment } = buildLedgerIncrement(record, { env });
+      const nowMs = now();
+      const { increment } = buildLedgerIncrement(record, { env, nowMs });
       if (!(increment.costMicroInr > 0)) return null;
       const fs = resolveFirestore();
       if (!fs || !fs.db || !fs.FieldValue) return null;
-      const ref = dayRef(fs.db, uid, istDayKey(now()));
+      const ref = dayRef(fs.db, uid, istDayKey(nowMs));
       return Promise.resolve()
         .then(() => ref.set({ [LEDGER_SPEND_FIELD]: fs.FieldValue.increment(increment.costMicroInr) }, { merge: true }))
         .then(() => true, () => { count(TELEMETRY.WRITE_FAILED); return false; });
