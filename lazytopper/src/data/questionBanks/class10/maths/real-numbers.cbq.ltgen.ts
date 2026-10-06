@@ -1,0 +1,196 @@
+import type { CanonicalQuestion } from "../../../predictionTypes";
+
+/** Real Numbers — LazyTopper-generated competency-based questions (GEN-THIN-1 PR-2, 2026-10-06). Provenance is internal only; never rendered. */
+export const REAL_NUMBERS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
+  {
+    "id": "LTG-M-RN-101",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "LCM in Real-Life Context",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Three lawn sprinklers in a school garden switch on every 4 minutes, 6 minutes and 15 minutes respectively. They all switch on together at 6:00 AM. How many more times will they all switch on together up to and including 9:00 AM?",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "6"
+    ],
+    "answer": "3",
+    "solutionSteps": [
+      "[1 mark] LCM(4, 6, 15) = 2² × 3 × 5 = 60, so they switch on together every 60 minutes; from 6:00 AM to 9:00 AM is 180 minutes, 180 ÷ 60 = 3 more times (7:00, 8:00 and 9:00 AM)."
+    ],
+    "finalAnswer": "3",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "CBE-M-RN-A-005",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE CBE Item Bank Maths Class X (2021) CBE-M-RN-A-005"
+  },
+  {
+    "id": "LTG-M-RN-102",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Prime Factorisation",
+    "section": "A",
+    "marks": 1,
+    "format": "Assertion-Reasoning",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "In a laboratory, the number of cells in a culture after n hours is 6ⁿ, where n is a natural number.\nAssertion (A): The number of cells in the culture can never end with the digit 0.\nReason (R): The prime factorisation of 6ⁿ is 2ⁿ × 3ⁿ, which does not contain the prime 5.",
+    "options": [
+      "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+      "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
+      "(C) Assertion is true but Reason is false.",
+      "(D) Assertion is false but Reason is true."
+    ],
+    "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+    "solutionSteps": [
+      "[1 mark] (A): A number ending in 0 is divisible by 10 = 2 × 5, so its prime factorisation must contain 5; by the Fundamental Theorem of Arithmetic 6ⁿ = 2ⁿ × 3ⁿ uniquely, with no factor 5. So A and R are true and R explains A."
+    ],
+    "finalAnswer": "(A)",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "APQ-M-RN-001",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Additional Practice Questions 2023-24 Maths Standard PQ1 Q19"
+  },
+  {
+    "id": "LTG-M-RN-103",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "LCM in Real-Life Context",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Three lighthouses on the Kerala coast flash their lights every 40 seconds, 60 seconds and 90 seconds respectively. If they all flash together at 7:15:00 PM, at what time will they next flash together?",
+    "options": [],
+    "answer": "7:21:00 PM",
+    "solutionSteps": [
+      "[1 mark] 40 = 2³ × 5, 60 = 2² × 3 × 5, 90 = 2 × 3² × 5, so LCM = 2³ × 3² × 5 = 360 seconds.",
+      "[0.5 mark] 360 seconds = 6 minutes.",
+      "[0.5 mark] They next flash together at 7:15:00 PM + 6 min = 7:21:00 PM."
+    ],
+    "finalAnswer": "7:21:00 PM",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "CBE-M-RN-B-004",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE CBE Item Bank Maths Class X (2021) CBE-M-RN-B-004"
+  },
+  {
+    "id": "LTG-M-RN-104",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "HCF Application — Real-World Grouping",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "For a three-day science camp, 72 students registered for robotics, 96 for astronomy and 120 for environmental science. The organisers want to form the minimum number of groups such that every group has the same number of students and all students in a group have chosen the same activity. Find the number of students in each group, the number of groups for each activity, and the number of rooms needed if each group is given one room.",
+    "options": [],
+    "answer": "24 students per group; 3, 4 and 5 groups; 12 rooms",
+    "solutionSteps": [
+      "[1 mark] Students per group = HCF(72, 96, 120); 72 = 2³ × 3², 96 = 2⁵ × 3, 120 = 2³ × 3 × 5, so HCF = 2³ × 3 = 24.",
+      "[1 mark] Groups: robotics = 72 ÷ 24 = 3, astronomy = 96 ÷ 24 = 4, environmental science = 120 ÷ 24 = 5.",
+      "[1 mark] Rooms needed = 3 + 4 + 5 = 12."
+    ],
+    "finalAnswer": "24 students per group; 3, 4, 5 groups; 12 rooms",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "SQP-M-RN-003",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Sample Question Paper 2023-24 Maths Standard (Real Numbers, SQP-M-RN-003)"
+  },
+  {
+    "id": "LTG-M-RN-105",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "HCF in Real-Life Context",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "The floor of a new school activity hall is a rectangle 10 m 20 cm long and 7 m 80 cm wide. The school wants to cover it completely with identical square tiles, without cutting any tile, and using the largest possible tiles so that the work is quick. The contractor, Mr. Iqbal, first writes the length and breadth in centimetres as 1020 cm and 780 cm and expresses each as a product of primes.\nBased on the above information, answer the following questions:\n(i) Express 1020 and 780 as products of their prime factors.\n(ii) Find the side of the largest square tile that can be used.\n(iii) Find the number of such tiles needed and their total cost at ₹85 per tile.",
+    "options": [],
+    "answer": "(i) 1020 = 2² × 3 × 5 × 17, 780 = 2² × 3 × 5 × 13 (ii) 60 cm (iii) 221 tiles, ₹18785",
+    "solutionSteps": [
+      "[1 mark] (i) 1020 = 2² × 3 × 5 × 17 and 780 = 2² × 3 × 5 × 13.",
+      "[1 mark] (ii) Side of the largest tile = HCF(1020, 780) = 2² × 3 × 5 = 60 cm.",
+      "[1 mark] (iii) Tiles along the length = 1020 ÷ 60 = 17 and along the breadth = 780 ÷ 60 = 13, so number of tiles = 17 × 13 = 221.",
+      "[1 mark] (iii) Cost = 221 × ₹85 = ₹18785."
+    ],
+    "finalAnswer": "(i) 1020 = 2² × 3 × 5 × 17, 780 = 2² × 3 × 5 × 13 (ii) 60 cm (iii) 221 tiles; ₹18785",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "PYQ-M-2025-PLE-004",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Board 2025 30/2/1 Q36"
+  },
+  {
+    "id": "LTG-M-RN-106",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "HCF and LCM (Applications)",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A sweet shop in Kolkata receives a festival order of 420 rasgullas, 588 sandesh and 252 cham-chams. The shopkeeper packs them in boxes so that each box contains only one kind of sweet, every box contains the same number of sweets, and the number of boxes is as small as possible.\nBased on the above information, answer the following questions:\n(i) Write 588 as a product of its prime factors.\n(ii) How many sweets should be packed in each box?\n(iii) Find the number of boxes of each kind and the total number of boxes needed.",
+    "options": [],
+    "answer": "(i) 588 = 2² × 3 × 7² (ii) 84 (iii) 5, 7 and 3 boxes; 15 boxes",
+    "solutionSteps": [
+      "[1 mark] (i) 588 = 2² × 3 × 7².",
+      "[1 mark] (ii) 420 = 2² × 3 × 5 × 7 and 252 = 2² × 3² × 7, so sweets per box = HCF(420, 588, 252) = 2² × 3 × 7 = 84.",
+      "[1 mark] (iii) Boxes: rasgullas = 420 ÷ 84 = 5, sandesh = 588 ÷ 84 = 7, cham-chams = 252 ÷ 84 = 3.",
+      "[1 mark] (iii) Total boxes = 5 + 7 + 3 = 15."
+    ],
+    "finalAnswer": "(i) 588 = 2² × 3 × 7² (ii) 84 sweets per box (iii) 5, 7, 3 boxes; 15 in all",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "PYQ-M-2024-SAV-006",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Board 2024 30/4/1 Q38"
+  },
+  {
+    "id": "LTG-M-RN-107",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "LCM in Real-Life Context",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "At a busy junction in Pune, the traffic signals on three roads turn green after every 45 seconds, 75 seconds and 120 seconds respectively. A traffic warden notices that all three signals turned green together at exactly 8:00 AM. She wants to know how often this happens so that she can plan her checks.\nBased on the above information, answer the following questions:\n(i) Express 120 as a product of its prime factors.\n(ii) After how many minutes will all three signals next turn green together?\n(iii) How many times in all will the three signals turn green together from 8:00 AM to 11:00 AM, counting both 8:00 AM and 11:00 AM?",
+    "options": [],
+    "answer": "(i) 120 = 2³ × 3 × 5 (ii) 30 minutes (iii) 7 times",
+    "solutionSteps": [
+      "[1 mark] (i) 120 = 2³ × 3 × 5.",
+      "[1 mark] (ii) 45 = 3² × 5 and 75 = 3 × 5², so LCM(45, 75, 120) = 2³ × 3² × 5² = 1800 seconds = 30 minutes.",
+      "[1 mark] (iii) From 8:00 AM to 11:00 AM is 180 minutes, which contains 180 ÷ 30 = 6 intervals of 30 minutes.",
+      "[1 mark] (iii) Counting 8:00 AM as well, they turn green together 6 + 1 = 7 times (8:00, 8:30, …, 11:00 AM)."
+    ],
+    "finalAnswer": "(i) 120 = 2³ × 3 × 5 (ii) 30 minutes (iii) 7 times",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "PYQ-M-2025-AP-002",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Board 2025 30/1/1 Q36"
+  }
+];
