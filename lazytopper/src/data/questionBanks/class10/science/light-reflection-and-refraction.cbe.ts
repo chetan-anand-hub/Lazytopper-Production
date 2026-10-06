@@ -410,16 +410,17 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The focal length f of a convex lens is 20 cm. The lens forms an image of an object at a distance v = 50 cm. Using the lens equation 1/f = 1/v + 1/u, calculate the distance u of the object from the lens.",
+    "questionText": "The focal length f of a convex lens is 20 cm. The lens forms a real image of an object at a distance v = 50 cm. Using the lens formula 1/v − 1/u = 1/f (New Cartesian sign convention), calculate the distance u of the object from the lens.",
     "options": [],
-    "answer": "u = 33 cm (approximately)",
+    "answer": "u = −33.3 cm (object about 33.3 cm in front of the lens)",
     "solutionSteps": [
-      "[1 mark] Substitute into the lens equation: 1/20 = 1/50 + 1/u.",
-      "[1 mark] Rearrange: 1/u = 1/20 − 1/50 = 3/100.",
-      "[1 mark] Solve: u = 100/3 ≈ 33 cm."
+      "[1 mark] f = +20 cm, v = +50 cm; lens formula: 1/v − 1/u = 1/f ⇒ 1/u = 1/v − 1/f.",
+      "[1 mark] 1/u = 1/50 − 1/20 = (2 − 5)/100 = −3/100.",
+      "[1 mark] u = −100/3 ≈ −33.3 cm, i.e. the object is 33.3 cm in front of the lens."
     ],
-    "finalAnswer": "u ≈ 33 cm",
-    "isCompetencyBased": false
+    "finalAnswer": "u ≈ −33.3 cm",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-LGHT-C-005",

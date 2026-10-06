@@ -42,12 +42,13 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjescco01 Q5", isCompetencyBased: true },
   // cbjescco01 Q6
   { id: "SCO-S-CHEM-005", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "A student added dilute HCl to a test tube containing zinc granules and made following observations :",
-    options: ["the zinc surface became dull and black", "a gas evolved which burnt with a pop sound", "the solution remained colourless", "the solution becomes green in colour"],
+    questionText: "A student added dilute HCl to a test tube containing zinc granules. Which of the following observations is correct?",
+    options: ["a gas evolved which turned lime water milky", "a gas evolved which burnt with a pop sound", "the solution turned blue", "the solution becomes green in colour"],
     answer: "a gas evolved which burnt with a pop sound",
-    solutionSteps: ["[1 mark] Correct option is (b) a gas evolved which burnt with a pop sound."],
+    solutionSteps: ["[1 mark] Zn + 2HCl → ZnCl₂ + H₂; hydrogen gas burns with a pop sound and zinc chloride solution is colourless (not blue or green), and no CO₂ is formed to turn lime water milky. Correct option is (b) a gas evolved which burnt with a pop sound."],
     finalAnswer: "(b) a gas evolved which burnt with a pop sound",
-    ncertRef: "cbjescco01 Q6", isCompetencyBased: true },
+    ncertRef: "cbjescco01 Q6", isCompetencyBased: true,
+    sourceOverride: "others" },
   // cbjescco01 Q7
   { id: "SCO-S-CHEM-006", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "A dilute solution of sodium carbonate was added to two test tubes - one containing dil HCl",

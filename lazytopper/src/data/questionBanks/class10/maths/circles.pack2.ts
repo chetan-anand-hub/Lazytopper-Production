@@ -246,7 +246,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "options": [
       "OP bisects AB at right angles",
       "OP is parallel to AB",
-      "OP bisects ∠APB",
+      "OP is perpendicular to PA",
       "AB bisects OP"
     ],
     "answer": "OP bisects AB at right angles",
@@ -258,9 +258,8 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "OP bisects AB at right angles",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 10.2"
+    "ncertRef": "Ex 10.2",
+    sourceOverride: "others",
   },
   {
     "id": "CI2-010",
@@ -461,20 +460,20 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "(i) In quadrilateral OAPB: ∠OAP = 90°, ∠OBP = 90°, ∠APB = 60°",
       "∠AOB = 360° - 90° - 90° - 60° = 120°",
       "",
-      "(ii) In quadrilateral OQCQD: ∠OCP = 90°, ∠ODQ = 90°, ∠CQD = 90°",
+      "(ii) In quadrilateral OCQD: ∠OCQ = 90°, ∠ODQ = 90°, ∠CQD = 90°",
       "∠COD = 360° - 90° - 90° - 90° = 90°",
       "",
       "(iii) In right triangle OAP: OA = 2 m, OP = 4 m",
       "PA² = OP² - OA² = 16 - 4 = 12",
       "PA = 2√3 m",
       "",
-      "∠CQD = 90° > ∠APB = 60°, so Q is closer to the circle than P."
+      "(iv) OP bisects ∠APB, so sin 30° = OA/OP gives OP = 4 m; OQ bisects ∠CQD, so sin 45° = OC/OQ gives OQ = 2√2 m ≈ 2.83 m.",
+      "Since OQ < OP (∠CQD = 90° > ∠APB = 60°), Q is closer to the circle than P."
     ],
     "finalAnswer": "(i) 120°, (ii) 90°, (iii) 2√3 m, (iv) Q is closer to the circle than P",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 10.2"
+    "ncertRef": "Ex 10.2",
+    sourceOverride: "others",
   },
   {
     "id": "CI2-017",
@@ -486,9 +485,9 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A triangular park has an inscribed circular garden. The circle touches side BC at point X, side CA at point Y, and side AB at point Z. The lengths of the tangent segments are: AZ = 4 cm, BX = 5 cm, and CY = 6 cm.\n\n(i) Find the lengths of the sides of the triangle.\n(ii) Find the semi-perimeter (s) of the triangle.\n(iii) Which tangent property did you use to solve this problem?\n(iv) Verify that the sum of opposite sides are equal (Property of tangent quadrilaterals).",
+    "questionText": "A triangular park has an inscribed circular garden. The circle touches side BC at point X, side CA at point Y, and side AB at point Z. The lengths of the tangent segments are: AZ = 4 cm, BX = 5 cm, and CY = 6 cm.\n\n(i) Find the lengths of the sides of the triangle.\n(ii) Find the semi-perimeter (s) of the triangle.\n(iii) Which tangent property did you use to solve this problem?\n(iv) Verify that AZ + BX + CY = s.",
     "options": [],
-    "answer": "(i) AB = 9 cm, BC = 11 cm, CA = 10 cm; (ii) s = 15 cm; (iii) Tangent segments from external point are equal; (iv) Verified",
+    "answer": "(i) AB = 9 cm, BC = 11 cm, CA = 10 cm; (ii) s = 15 cm; (iii) Tangent segments from an external point are equal; (iv) AZ + BX + CY = 15 cm = s (verified)",
     "solutionSteps": [
       "(i) Using the property that tangents from an external point are equal:",
       "AZ = AY = 4 cm",
@@ -503,16 +502,13 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "",
       "(iii) The tangent property used: Tangent segments from an external point to a circle are equal in length.",
       "",
-      "(iv) For verification in tangential quadrilateral ABXC:",
-      "AB + CX = 9 + 6 = 15 cm",
-      "BC + AY = 11 + 4 = 15 cm",
-      "Yes, sum of opposite sides are equal ✓"
+      "(iv) Perimeter = (AZ + AY) + (BX + BZ) + (CX + CY) = 2(AZ + BX + CY), so AZ + BX + CY = s.",
+      "Check: AZ + BX + CY = 4 + 5 + 6 = 15 cm = s ✓"
     ],
-    "finalAnswer": "(i) AB = 9 cm, BC = 11 cm, CA = 10 cm; (ii) s = 15 cm; (iii) Tangent segments from external point are equal; (iv) Verified",
+    "finalAnswer": "(i) AB = 9 cm, BC = 11 cm, CA = 10 cm; (ii) s = 15 cm; (iii) Tangent segments from an external point are equal; (iv) AZ + BX + CY = 15 cm = s (verified)",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 10.2"
+    "ncertRef": "Ex 10.2",
+    sourceOverride: "others",
   },
   {
     "id": "CI2-018",

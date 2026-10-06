@@ -56,8 +56,8 @@
    ]
   },
   "coordinate-geometry": {
-   "n": 272,
-   "sha256": "1f2f942e5d8d4ae5caa8742263730e1dbe6f72ef50f0d4ab970ebec357b7ee63",
+   "n": 271,
+   "sha256": "f06fcc7cb734c535b4b03c65c82fb4fa44ff2ac92afe21aacefa3e75c9f8a9af",
    "head": [
     "BX-COORD-E-014",
     "BX-COORD-E-016",
@@ -65,8 +65,8 @@
    ]
   },
   "trigonometry": {
-   "n": 407,
-   "sha256": "22d6b5975f739ae11abcb6fafd958a57e6dd6c88f03f71a43b4f1cdb6bdf67d8",
+   "n": 406,
+   "sha256": "6136f23f17023dface2b48bf8530fdf6b4399a8496990dc9b3e6f862303056bf",
    "head": [
     "Z3-TG-003",
     "Z3-TG-006",
@@ -191,8 +191,8 @@
    ]
   },
   "life-processes": {
-   "n": 506,
-   "sha256": "8a752d919dbd1303245e6efcce21aea96acb2f2a96936cb93dabc93e9d9fb7fc",
+   "n": 505,
+   "sha256": "538fdd9934bcb6dcda1e0cb6f7ffd28bd3a30e8df2468536ab9f0d41d0e15dfb",
    "head": [
     "AR-LP-003",
     "PYQ-S-2024-LIFEP-008",
@@ -227,8 +227,8 @@
    ]
   },
   "our-environment": {
-   "n": 264,
-   "sha256": "ca257dc6f50b6a0c2c183b0a1244b5be9a19744d9fb09c27aff423d3d677f3ee",
+   "n": 263,
+   "sha256": "2703d09998ac927b3035ffc59b812776f0c00342feae220952c79463bae5f2eb",
    "head": [
     "LTG-S-ENV-107",
     "CBE-S-ENVI-E-002",
@@ -293,7 +293,7 @@
   },
   "coordinate-geometry": {
    "n": 55,
-   "sha256": "abe70a002597e2c737f7514d175d0f10581717d36f42dfd9ff3fa632c71c104e",
+   "sha256": "64f4dbfd21f112af2235a79f544500f55d6a3721ca544a9c28c65c1a49801478",
    "head": [
     "Case-Based — Football Field Coordinates\tSQP-M-CG-003",
     "Coordinate Geometry\t2026-CG-SA-01",
@@ -301,8 +301,8 @@
    ]
   },
   "trigonometry": {
-   "n": 53,
-   "sha256": "d08632b4bab0e9f5e8b72381bab6bb2cc93a075cbcfc2407a5ab1f37af008995",
+   "n": 52,
+   "sha256": "8cae8c3dfc3b0e32e5c07aac4eaa90bc3d30eb750ad5d9e01cf67c0242d9eefd",
    "head": [
     "Angle of Depression\tTRIG-N-NCERT-9-CB-002,TRIG-N-NCERT-9-CB-001,APQ-M-TRIG-009",
     "Angle of Elevation\tTRIG-N-EXMPLR-9-MCQ-001,SQP-M-TRIG-003,TRIG-N-EXMPLR-9-SA-001,TRIG-N-EXMPLR-9-SA-002,TRIG-N-EXMPLR-9-SA-003,TRIG-N-NCERT-9-LA-003,TRIG-N-EXMPLR-9-SA-006,TRIG-N-NCERT-9-SA-004,TRIG-N-EXMPLR-9-SA-004",
@@ -428,7 +428,7 @@
   },
   "life-processes": {
    "n": 136,
-   "sha256": "4626eba0fd9171f0ca297f9548360b3c8ef2fdf3ecc0fcc5994292e5f3937ca4",
+   "sha256": "93ce0bfe77906f206395d3e50a6e9129007e4fa7812a5842936bca505e26d820",
    "head": [
     "ATP\tLIFE-EXMPLR-5-SA-026",
     "Acidity in Stomach\tLIFE-EXMPLR-5-MCQ-006,LIFE-NCERT-5-VSA-005",
@@ -464,7 +464,7 @@
   },
   "our-environment": {
    "n": 65,
-   "sha256": "cdcae06c0f5ccb057b513afd1fd4e9ca7847e480b4a71196774ed0f9c9b766b0",
+   "sha256": "bfab47255b380c8905aab0814e5e229c1b30d5edce00d224d2585477d32c42e0",
    "head": [
     "Biodegradability\tOE-E01a,OE2-036,OE-M02,OE2-011,OE-M05,OE2-017,OE2-030,OE-E06,OE-E07,OE-E12,OE2-005,OE2-007,OE-D03,OE2-034,OE-B04,OE2-028,OE-B01,OE2-021",
     "Biodegradable and Non-biodegradable\tLTG-S-ENV-109,OEX-A-033,PYQ-S-2026-ENV-005,PYQ-S-2026-ENV-007,PYQ-S-2024-ENV-001,PYQ-S-ENV-006,PYQ-S-2024-ENV-003,OEX-A-001,CFPQ-S-ENV-006,OEX-A-024,OESE-024,OESE-009,OESE-017,OESE-020",

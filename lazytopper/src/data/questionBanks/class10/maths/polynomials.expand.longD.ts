@@ -36,17 +36,18 @@ export const POLYNOMIALS_EXPAND_LONG_D: CanonicalQuestion[] = [
     isCompetencyBased: true },
 
   { id: "BX-POLY-D-003", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "The zeroes α, β of p(x) = x² − 5x + k satisfy 1/α² + 1/β² = 13/36 — the sum of the reciprocals of their squares. Calculate k and identify the zeroes.",
+    questionText: "The zeroes α, β of p(x) = x² − 5x + k, where k is an integer, satisfy 1/α² + 1/β² = 13/36 — the sum of the reciprocals of their squares. Calculate k and identify the zeroes.",
     options: [],
     solutionSteps: [
       "[1 mark] For x² − 5x + k: α + β = 5 and αβ = k; and 1/α² + 1/β² = (α² + β²)/(αβ)².",
       "[1 mark] α² + β² = (α + β)² − 2αβ = 25 − 2k, so the expression = (25 − 2k)/k².",
       "[1 mark] Set (25 − 2k)/k² = 13/36 ⇒ 36(25 − 2k) = 13k².",
-      "[1 mark] 13k² + 72k − 900 = 0 ⇒ (k − 6)(13k + 150) = 0 ⇒ k = 6 (the value giving real rational zeroes).",
+      "[1 mark] 13k² + 72k − 900 = 0 ⇒ (k − 6)(13k + 150) = 0 ⇒ k = 6 or k = −150/13; since k is an integer, k = 6.",
       "[1 mark] Then p(x) = x² − 5x + 6 = (x − 2)(x − 3), zeroes 2 and 3; check 1/4 + 1/9 = 13/36. ✓"
     ],
     finalAnswer: "k = 6; zeroes 2 and 3.",
-    isCompetencyBased: true },
+    isCompetencyBased: true,
+    sourceOverride: "others" },
 
   { id: "BX-POLY-D-004", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Given the zeroes α and β of p(x) = x² − 7x + k, the combined ratio expression α/β + β/α evaluates to 25/12. Compute k and the two zeroes.",

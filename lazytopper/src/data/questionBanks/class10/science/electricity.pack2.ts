@@ -11,24 +11,22 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Electric current is defined as the flow of:",
+    "questionText": "Electric current is defined as the rate of flow of:",
     "options": [
       "Protons",
-      "Electrons",
+      "Energy",
       "Charge",
       "Neutrons"
     ],
     "answer": "Charge",
     "solutionSteps": [
-      "Electric current is the flow of electric charge through a conductor.",
-      "It is measured in Amperes (A)."
+      "Electric current is the rate of flow of electric charge through a conductor, I = Q/t; it is measured in amperes (A). (Rate of flow of energy is power, not current.)"
     ],
     "finalAnswer": "Charge",
-    "explanation": "Electric current is the flow of electric charge through a conductor. It is measured in Amperes (A). Therefore, the correct answer is Charge.",
+    "explanation": "Electric current is the amount of charge flowing through a cross-section per unit time (I = Q/t). It is measured in amperes (A). Rate of flow of energy is power. Therefore, the correct answer is Charge.",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch12 InText"
+    "ncertRef": "NCERT Ch12 InText",
+    sourceOverride: "others",
   },
   {
     "id": "EL2-002",
@@ -456,25 +454,24 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion: Electric current can flow through both conductors and insulators. Reasoning: All materials have free electrons that can move.",
+    "questionText": "Assertion: Electric current can flow through both conductors and insulators. Reasoning: Conductors have a large number of free electrons, whereas insulators have almost no free electrons.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A is true, R is false.",
+    "answer": "A is false, R is true.",
     "solutionSteps": [
-      "Assertion is true: current flows through conductors; minimal/negligible through insulators",
-      "Reasoning is false: insulators lack free electrons for conduction",
-      "Conductors have abundant free electrons, insulators have very few"
+      "Assertion is false: an insulator does not allow electric current to flow through it (practically no current); only conductors carry current.",
+      "Reasoning is true: conductors have many free electrons that can move, while insulators have almost no free electrons.",
+      "Hence A is false and R is true; the lack of free electrons in insulators is exactly why A fails."
     ],
-    "finalAnswer": "A is true, R is false.",
-    "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
+    "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion is false because insulators do not conduct electric current. The Reason is a correct statement: conductors have plenty of free electrons while insulators have almost none. So A is false, R is true.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch12 InText"
+    "ncertRef": "NCERT Ch12 InText",
+    sourceOverride: "others",
   },
   {
     "id": "EL2-018",
@@ -517,7 +514,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion: In a series circuit, if one bulb burns out, all other bulbs will stop glowing. Reasoning: In series, the same current flows through all components.",
+    "questionText": "Assertion: In a series circuit, if one bulb burns out, all other bulbs will stop glowing. Reasoning: In series, there is only one path for the current, which passes through every component.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -526,19 +523,16 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
-      "Assertion is true: series circuit breaks when one component fails",
-      "Reasoning is true: current must flow through all components",
-      "When one breaks, circuit is open, current = 0 everywhere",
-      "R explains A correctly"
+      "Assertion is true: when one bulb in a series circuit burns out (filament breaks), all the other bulbs go off.",
+      "Reasoning is true: a series circuit has only one path, and the same current passes through every component.",
+      "When the one path breaks at the burnt bulb, the circuit is open and the current becomes zero everywhere — so R correctly explains A."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "explanation": "Both statements are true. Because a series circuit has only one path for current, a break anywhere (a burnt-out bulb) opens the whole circuit and current stops in all bulbs. So R is the correct explanation of A.",
     "visualExplainerId": "science-electricity-circuit-diagram-builder",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "B",
-    "ncertRef": "NCERT Ch12 Exercise"
+    "ncertRef": "NCERT Ch12 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "EL2-020",
@@ -580,24 +574,18 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student sets up a circuit with a 6V battery and three resistors: R₁ = 2 Ω, R₂ = 3 Ω, R₃ = 6 Ω. First, all resistors are connected in series, then in parallel.\n(a) Calculate total resistance and current in series circuit.\n(b) Calculate total resistance and total current in parallel circuit.\n(c) In which configuration is the power dissipated greater?",
     "options": [],
-    "answer": "Series: R=11Ω, I=0.545A, P=3.27W; Parallel: R=1Ω, I=5.5A, P=33W; Power greater in parallel",
+    "answer": "Series: R = 11 Ω, I ≈ 0.545 A, P ≈ 3.27 W; Parallel: R = 1 Ω, I = 6 A, P = 36 W; Power greater in parallel",
     "solutionSteps": [
-      "Circuit Diagram: Draw resistors in the specified configuration (series: end-to-end; parallel: side-by-side). Include cell, switch, ammeter (in series), and voltmeter (across each resistor).",
-      "(a) Series: R_total = 2 + 3 + 6 = 11 Ω",
-      "I = V/R = 6/11 ≈ 0.545 A",
-      "(b) Parallel: 1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 = 1",
-      "R_total ≈ 1.09 Ω (reciprocal of 1)",
-      "I = 6/1.09 ≈ 5.5 A",
-      "(c) Power in series: P = VI = 6 × 0.545 ≈ 3.27 W",
-      "Power in parallel: P = VI = 6 × 5.5 = 33 W",
-      "Power is much greater in parallel (lower resistance = higher current)"
+      "(a) Series: R_total = 2 + 3 + 6 = 11 Ω; I = V/R = 6/11 ≈ 0.545 A",
+      "(b) Parallel: 1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 = 1, so R_total = 1 Ω",
+      "Total current I = V/R = 6/1 = 6 A",
+      "(c) Power in series: P = VI = 6 × 6/11 ≈ 3.27 W; power in parallel: P = VI = 6 × 6 = 36 W. Power is much greater in parallel (lower resistance → larger current)."
     ],
-    "finalAnswer": "Series: R=11Ω, I=0.545A, P=3.27W; Parallel: R=1Ω, I=5.5A, P=33W; Power greater in parallel",
+    "finalAnswer": "Series: R = 11 Ω, I ≈ 0.545 A, P ≈ 3.27 W; Parallel: R = 1 Ω, I = 6 A, P = 36 W; Power greater in parallel",
     "visualExplainerId": "science-electricity-series-and-parallel-circuits",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "C",
-    "ncertRef": "NCERT Ch12 Exercise"
+    "ncertRef": "NCERT Ch12 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "EL2-022",
@@ -611,27 +599,18 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A household has the following electrical appliances: 5 LED bulbs (10 W each), 2 fans (60 W each), 1 refrigerator (200 W), and 1 washing machine (500 W). The electricity tariff is Rs. 5 per kWh. Calculate: (a) Total power consumed when all appliances are on. (b) Total energy consumed in 24 hours. (c) Electricity bill for one month (30 days) if appliances run for 8 hours daily. (d) Suggest ways to reduce electricity consumption.",
     "options": [],
-    "answer": "(a) 870 W (b) 6.96 kWh/day (c) Rs. 1044/month (d) Use LED bulbs, efficient appliances, reduce usage hours",
+    "answer": "(a) 870 W (b) 20.88 kWh in 24 hours (c) Rs. 1044/month (d) Use LED bulbs, efficient appliances, reduce usage hours",
     "solutionSteps": [
-      "(a) Total power = (5×10) + (2×60) + 200 + 500",
-      "= 50 + 120 + 200 + 500 = 870 W",
-      "Total power: 50 + 120 + 200 + 500 = 870 W",
-      "(b) Daily usage: 870 W × 8 hours = 6960 Wh = 6.96 kWh",
-      "In 24 hours (if running 8 hrs): 6.96 kWh",
-      "(c) Monthly consumption: 6.96 × 30 = 208.8 kWh",
-      "Monthly bill: 208.8 × 5 = Rs. 1044",
-      "(d) Energy saving tips:",
-      "- Use LED bulbs instead of incandescent",
-      "- Use fans during needed hours only",
-      "- Keep refrigerator coils clean",
-      "- Use energy-efficient appliances",
-      "- Unplug devices when not in use"
+      "(a) Total power = (5×10) + (2×60) + 200 + 500 = 50 + 120 + 200 + 500 = 870 W = 0.87 kW",
+      "(b) Energy in 24 hours with all appliances on: E = P × t = 0.87 kW × 24 h = 20.88 kWh",
+      "(c) Daily use at 8 hours: 0.87 kW × 8 h = 6.96 kWh; monthly consumption = 6.96 × 30 = 208.8 kWh",
+      "Monthly bill = 208.8 kWh × Rs. 5/kWh = Rs. 1044",
+      "(d) Ways to reduce consumption: use LED bulbs and energy-efficient (star-rated) appliances, switch off fans/lights when not needed, keep refrigerator coils clean, unplug devices when not in use."
     ],
-    "finalAnswer": "(a) 870 W (b) 6.96 kWh/day (c) Rs. 1044/month (d) Use LED bulbs, efficient appliances, reduce usage hours",
+    "finalAnswer": "(a) 870 W (b) 20.88 kWh in 24 hours (c) Rs. 1044/month (d) Use LED bulbs, efficient appliances, reduce usage hours",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "B",
-    "ncertRef": "NCERT Ch12 Exercise"
+    "ncertRef": "NCERT Ch12 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "EL2-023",

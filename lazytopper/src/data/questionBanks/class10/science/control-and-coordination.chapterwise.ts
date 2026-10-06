@@ -35,11 +35,12 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjescco07 Q6
   { id: "SCO-S-CTRL-004", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Which part of the human brain controls body temperature?",
-    options: ["Pituitary", "Diencephalon", "Hypothalamus", "None of these"],
+    options: ["Pituitary", "Medulla", "Hypothalamus", "None of these"],
     answer: "Hypothalamus",
     solutionSteps: ["Correct option is (c) Hypothalamus.", "Hypothalamus controls and regulates temperature of body, urge of eating, drinking. sleeping, etc."],
     finalAnswer: "(c) Hypothalamus",
-    ncertRef: "cbjescco07 Q6", isCompetencyBased: true },
+    ncertRef: "cbjescco07 Q6", isCompetencyBased: true,
+    sourceOverride: "others" },
   // cbjescco07 Q7
   { id: "SCO-S-CTRL-005", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Coordination via the nervous system tends to differ from that produced by the endocrine system because the nervous system:",

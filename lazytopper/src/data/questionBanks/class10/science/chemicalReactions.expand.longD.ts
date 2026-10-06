@@ -826,18 +826,19 @@ export const CHEM_REACTIONS_EXPAND_LONG_D: CanonicalQuestion[] = [
       "Explain the colour change observed in each case, giving a balanced equation and the type of reaction:\n(i) An iron nail dipped in copper sulphate solution: the blue solution slowly turns pale green.\n(ii) Blue copper sulphate crystals are heated until they turn white.\n(iii) On adding water to the white solid from (ii), it turns blue again.\n(iv) State whether (ii) and (iii) are chemical or reversible changes.\n(v) Name the water present in the blue crystals.",
     options: [],
     answer:
-      "(i) Fe+CuSO4->FeSO4+Cu, displacement, blue->green; (ii) CuSO4.5H2O ->(heat) CuSO4 + 5H2O, blue->white (loss of water of crystallisation); (iii) adding water reverses it, white->blue; it is reversible. The water is 'water of crystallisation'.",
+      "(i) Fe + CuSO4 -> FeSO4 + Cu, displacement reaction, blue -> pale green; (ii) CuSO4.5H2O ->(heat) CuSO4 + 5H2O, thermal decomposition, blue -> white (loss of water of crystallisation); (iii) CuSO4 + 5H2O -> CuSO4.5H2O, combination reaction, white -> blue; (iv) both (ii) and (iii) are chemical changes (different substances form), and together they are reversible; (v) the water is 'water of crystallisation'.",
     solutionSteps: [
-      "[1 mark] Fe + CuSO4 -> FeSO4 + Cu — iron displaces copper; the blue copper sulphate becomes pale green iron sulphate (a displacement reaction).",
-      "[1 mark] CuSO4.5H2O -> CuSO4 + 5H2O on heating — the blue hydrated crystals lose their water of crystallisation and turn white.",
-      "[1 mark] Adding water back: CuSO4 + 5H2O -> CuSO4.5H2O — the white anhydrous salt becomes blue again.",
-      "[1 mark] Steps (ii) and (iii) together form a reversible change (loss and gain of water of crystallisation), not a permanent chemical change of the salt.",
-      "[1 mark] The water that gives the crystals their blue colour and definite shape is called the water of crystallisation.",
+      "[1 mark] (i) Fe + CuSO4 -> FeSO4 + Cu — iron displaces copper; the blue copper sulphate solution becomes pale green iron sulphate (a displacement reaction).",
+      "[1 mark] (ii) CuSO4.5H2O -> CuSO4 + 5H2O on heating — a thermal decomposition reaction; the blue hydrated crystals lose their water of crystallisation and turn white (anhydrous CuSO4).",
+      "[1 mark] (iii) CuSO4 + 5H2O -> CuSO4.5H2O — a combination reaction; the white anhydrous salt combines with water and becomes blue again.",
+      "[1 mark] (iv) Both (ii) and (iii) are chemical changes (hydrated and anhydrous copper sulphate are different substances), and since (iii) undoes (ii), together they are reversible changes.",
+      "[1 mark] (v) The water that gives the crystals their blue colour and definite shape is called the water of crystallisation."
     ],
     finalAnswer:
-      "Blue->green = displacement (Fe/Cu); blue->white->blue = reversible loss/gain of water of crystallisation.",
+      "(i) displacement, blue -> green; (ii) thermal decomposition, blue -> white; (iii) combination, white -> blue; (ii) and (iii) are reversible chemical changes; water of crystallisation.",
     isCompetencyBased: false,
     requiresDiagram: false,
+    sourceOverride: "others",
   },
   {
     id: "BX-CHEM-D-032",

@@ -1,12 +1,13 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
-  { id: "LP-E01", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The process by which organisms obtain energy from food is called:", options: ["Respiration", "Nutrition", "Transportation", "Excretion"], answer: "Nutrition", explanation: "The correct answer is Nutrition. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Nutrition" , isCompetencyBased: false,
+  { id: "LP-E01", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The process by which organisms obtain energy from food is called:", options: ["Respiration", "Nutrition", "Transportation", "Excretion"], answer: "Respiration", explanation: "The correct answer is Respiration. NCERT: nutrition is the taking in of food (the energy source), while respiration is the breakdown of food in cells to release energy for cellular needs. Obtaining energy from food is therefore respiration.", finalAnswer: "Respiration", isCompetencyBased: false,
     solutionSteps: [
-      "Recall that light-dependent reactions of photosynthesis involve absorption of light energy, its conversion to chemical energy, and the formation of ATP and NADPH.",
-      "The reduction of carbon dioxide to carbohydrates is part of the light-independent reactions (Calvin cycle), which uses the ATP and NADPH produced in the light reactions.",
-      "Therefore, the reduction of carbon dioxide to carbohydrates does NOT occur in the light-dependent reactions.",
+      "Nutrition is the process of taking in food (the source of energy and materials) from outside into the body.",
+      "Respiration is the breakdown of food (e.g. glucose) inside cells to release energy (ATP).",
+      "Obtaining energy from food is therefore respiration."
     ],
+    sourceOverride: "others",
   },
   { id: "LP-E02", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which pigment absorbs sunlight for photosynthesis?", options: ["Haemoglobin", "Chlorophyll", "Melanin", "Carotene"], answer: "Chlorophyll", explanation: "The correct answer is Chlorophyll. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Chlorophyll" , isCompetencyBased: false,
     solutionSteps: [
@@ -117,12 +118,13 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
       "Oxygenated blood returns to left atrium via pulmonary veins; Flows to left ventricle, pumped to body via aorta [1]",
       "Called double circulation: pulmonary + systemic [1]",
     ], finalAnswer: "Double circulation: pulmonary (heart→lungs→heart) and systemic (heart→body→heart)" , isCompetencyBased: false },
-  { id: "LP-M04", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Pancreatic juice contains trypsin that digests proteins.\nReason (R): Trypsin works in an alkaline medium provided by bile.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "LP-M04", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Pancreatic juice contains trypsin that digests proteins.\nReason (R): Trypsin works in an alkaline medium provided by bile.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, but R is not the correct explanation of A.", explanation: "Both statements are true: pancreatic juice contains trypsin, which digests proteins, and bile makes the food in the small intestine alkaline so that pancreatic enzymes can act. But the alkaline medium is only the condition in which trypsin works; it does not explain why trypsin digests proteins. So R is not the correct explanation of A.", finalAnswer: "Both A and R are true, but R is not the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A) states that the inner lining of the small intestine has numerous finger-like projections called villi, which is true.",
-      "Reason (R) states that villi increase the surface area for absorption of digested food, which is also true.",
-      "The presence of villi directly serves the purpose of increasing surface area for efficient absorption, thus Reason (R) correctly explains Assertion (A).",
+      "Assertion (A): Pancreatic juice contains trypsin, which digests proteins — true (NCERT).",
+      "Reason (R): Bile makes the medium in the small intestine alkaline so that pancreatic enzymes like trypsin can act — true.",
+      "R describes the condition for trypsin's action, not why trypsin digests proteins; hence both are true but R is not the correct explanation of A."
     ],
+    sourceOverride: "others",
   },
   { id: "LP-M05", subject: "Science", topicKey: "life-processes", subtopic: "Excretion", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Describe the process of urine formation in the kidneys.", solutionSteps: [
       "Step 1: Filtration — blood is filtered in the glomerulus; filtrate enters Bowman's capsule; Step 2: Selective reabsorption — useful substances (glucose, amino acids, water) are reabsorbed in the tubules [1]",

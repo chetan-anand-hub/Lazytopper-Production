@@ -143,9 +143,18 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     id: "learnerProfiles",
     kind: "firestore-collection",
     path: "learnerProfiles/{uid}",
-    holds: "Profile document: goals, preferences, learner metadata.",
+    holds:
+      "Profile document: goals, preferences, learner metadata. Since ME-ENGINE-1 PR-2 also the " +
+      "child's wrong-answer log (per chapter and concept: how many answers were wrong, when, and " +
+      "the knowledge-gap marks lost) — the input to weak areas.",
     mechanism: "browser-sdk",
     exportable: true,
+    notes:
+      "ME-ENGINE-1 PR-2 (G11) added ONE FIELD to this existing document, no new location: " +
+      "`wrongAnswerLog`, the synced copy of the device log (services/adaptivePracticeEngine.ts), so " +
+      "a second device shows the same weak areas. Before PR-2 it lived only in the browser. Export " +
+      "and erasure walk this path with the rest of the map. Rules: owner-only (firestore.rules), " +
+      "pinned by the root Firestore rules suite (`test:firestore-rules`, cases 19-19b).",
   },
   {
     id: "learnerProfiles.sessions",
@@ -175,9 +184,21 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     path: "learnerProfiles/{uid}/mistakeLogs/{logId}",
     holds:
       "★ Every mistake the child made, classified by type — the Mistake Intelligence " +
-      "store. The most detailed record of a named child's academic weaknesses.",
+      "store. The most detailed record of a named child's academic weaknesses. Since " +
+      "ME-ENGINE-1 PR-1 an entry is never deleted when the mistake is fixed: it keeps " +
+      "`resolvedAt` (when) and `resolvedBy` (a re-grade, or a later correct attempt) — the " +
+      "child's history of marks won back.",
     mechanism: "browser-sdk",
     exportable: true,
+    notes:
+      "★ ME-ENGINE-1 PR-1 added two FIELDS to this existing document, no new location: " +
+      "`resolvedAt` (ISO date) and `resolvedBy` (\"re-grade\" | \"re-grade-not-attempted\" | " +
+      "\"later-correct-attempt\"). Export and erasure walk this path document-by-document " +
+      "(server/services/accountExport.cjs, accountErasure.cjs iterate STUDENT_DATA_MAP), so the " +
+      "fields are exported and erased with the entry they sit on. ★ Resolution means the " +
+      "erasure has MORE to delete than before (entries are kept, not removed), never less. " +
+      "Rules: `learnerProfiles/{uid}/mistakeLogs/{logId}` is owner-only read/write " +
+      "(firestore.rules), pinned by the root Firestore rules suite (`test:firestore-rules`, cases 17-17c).",
   },
   {
     id: "learnerProfiles.savedWorksheets",
@@ -323,9 +344,18 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     id: "tutorSessions",
     kind: "firestore-collection",
     path: "tutorSessions/{uid}",
-    holds: "Tutor session container.",
+    holds:
+      "Tutor session container. Since ME-ENGINE-1 PR-2 it also holds when the child sent each " +
+      "doubt to the tutor, per chapter and paper (times only — no message text, no grade).",
     mechanism: "browser-sdk",
     exportable: true,
+    notes:
+      "ME-ENGINE-1 PR-2 (G8) added ONE FIELD to this existing document, no new location: " +
+      "`doubtsAt` — a map of \"<paper>:<chapter>\" to the send times (epoch ms) of the child's " +
+      "doubts (services/tutorSessionStore.ts recordTutorTurn), read to count Tutor activity per " +
+      "window (services/progressReadModel.ts). Export and erasure walk this path with the rest of " +
+      "the map, so the field goes with the document. Rules: owner-only (firestore.rules), pinned " +
+      "by the root Firestore rules suite (`test:firestore-rules`, cases 18-18c).",
   },
   {
     id: "tutorSessions.topics",

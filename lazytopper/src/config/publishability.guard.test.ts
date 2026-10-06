@@ -157,7 +157,10 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // 5,378 -> 5,341: -37. QUICK-FIXES-1 PR-2 (owner rulings R1-R7 + evidence rule, 2026-10-06) withheld 72 rows
     // (R1 6, R2 12, R3 23, R5 22, R6 7, R7 2); 37 of them are human rows - exactly the 37 that left this set.
     // See the "QUICK-FIXES-1 PR-2" block of WITHHELD_QUESTION_IDS.
-    expect(human.length).toBeGreaterThanOrEqual(5341);
+    // 5,341 -> 5,339: -2. BANK-FIX-1 PR-1 (2026-10-06, owner: "fix everything") withheld 4 wrong rows that cannot
+    // be corrected without becoming a different question; 2 are human rows (APQ-M-TRIG-010, OEX-A-005) - exactly
+    // the 2 that left this set. See the "BANK-FIX-1 PR-1" block of WITHHELD_QUESTION_IDS.
+    expect(human.length).toBeGreaterThanOrEqual(5339);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.
@@ -964,7 +967,8 @@ describe("the achievable ceiling — ruling 5", () => {
     // (-190) and 5,122 -> 4,963 (-159); every row that left either ceiling is a PR-1 withheld row and
     // none entered. Withholding removes rows — the "only a lost row lowers them" case above.
     // 5,364 -> 5,327 and 4,963 -> 4,928 at QUICK-FIXES-1 PR-2 (2026-10-06): -37 and -35, all PR-2 withheld rows.
-    expect(naiveCeiling).toBeGreaterThanOrEqual(5327);
+    // 5,327 -> 5,326 at BANK-FIX-1 PR-1 (2026-10-06): -1, a BANK-FIX-1 PR-1 withheld row; achievable unchanged at >= 4,928.
+    expect(naiveCeiling).toBeGreaterThanOrEqual(5326);
 
     // ★ THE AUTHORITATIVE ACHIEVABLE FIGURE.
     expect(achievableCeiling).toBeGreaterThanOrEqual(4928);

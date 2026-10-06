@@ -283,18 +283,13 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "PQRS forms a parallelogram (opposite sides equal)",
     "solutionSteps": [
-      "Check if opposite sides are equal",
-      "PQ = √[(5-1)² + (0-0)²] = 4",
-      "SR = √[(6-2)² + (3-3)²] = 4",
-      "PR = √[(6-1)² + (3-0)²] = √34",
-      "QS = √[(2-5)² + (3-0)²] = √18",
-      "Also check diagonals: both bisect each other at (3.5, 1.5)"
+      "[1 mark] Opposite sides: PQ = √[(5−1)² + (0−0)²] = 4 and SR = √[(6−2)² + (3−3)²] = 4, so PQ = SR.",
+      "[1 mark] QR = √[(6−5)² + (3−0)²] = √10 and PS = √[(2−1)² + (3−0)²] = √10, so QR = PS. Both pairs of opposite sides are equal (also, diagonals PR and QS both have midpoint (3.5, 1.5)), so PQRS is a parallelogram."
     ],
     "finalAnswer": "PQRS forms a parallelogram (opposite sides equal)",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "II",
-    "ncertRef": "Ex 7.1, Ex 7.2"
+    "ncertRef": "Ex 7.1, Ex 7.2",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-015",
@@ -420,25 +415,24 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Which point is equidistant from A(2, 3) and B(6, 3)?",
     "options": [
-      "(4, 0)",
+      "(3, 0)",
       "(4, 3)",
-      "(4, 5)",
+      "(5, 5)",
       "(2, 6)"
     ],
     "answer": "(4, 3)",
     "solutionSteps": [
-      "Point equidistant from A and B lies on perpendicular bisector",
-      "Midpoint of AB = [(2+6)/2, (3+3)/2] = (4, 3)",
-      "Perpendicular bisector passes through (4, 3)",
+      "Point equidistant from A and B lies on the perpendicular bisector of AB",
+      "Midpoint of AB = [(2+6)/2, (3+3)/2] = (4, 3); AB is horizontal, so the perpendicular bisector is x = 4",
+      "Only (4, 3) among the options has x = 4",
       "Check: distance from (4,3) to A = √[(4-2)² + (3-3)²] = 2",
       "Distance from (4,3) to B = √[(4-6)² + (3-3)²] = 2"
     ],
     "finalAnswer": "(4, 3)",
-    "explanation": "Point equidistant from A and B lies on perpendicular bisector. Therefore, the correct answer is (4, 3).",
+    "explanation": "A point equidistant from A(2, 3) and B(6, 3) lies on the perpendicular bisector x = 4. Only (4, 3) lies on it (PA = PB = 2). Therefore, the correct answer is (4, 3).",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 7.1, Ex 7.2"
+    "ncertRef": "Ex 7.1, Ex 7.2",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-022",
@@ -539,10 +533,10 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Which points are at equal distance from the origin?",
     "options": [
-      "(1, 2) and (2, 1)",
+      "(1, 2) and (2, 2)",
       "(3, 4) and (4, 3)",
-      "(1, 0) and (0, 1)",
-      "(5, 12) and (12, 5)"
+      "(1, 0) and (1, 1)",
+      "(5, 12) and (6, 12)"
     ],
     "answer": "(3, 4) and (4, 3)",
     "solutionSteps": [
@@ -553,9 +547,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "(3, 4) and (4, 3)",
     "explanation": "Distance of (3, 4) from origin = √(9 + 16) = 5. Distance of (4, 3) from origin = √(16 + 9) = 5. Both distances are equal. Therefore, the correct answer is (3, 4) and (4, 3).",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 7.1"
+    "ncertRef": "Ex 7.1",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-026",
@@ -655,18 +648,17 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "((x₁+x₂)/2, (y₁+y₂)/2)",
       "((3x₁+x₂)/4, (3y₁+y₂)/4)"
     ],
-    "answer": "((2x₁+x₂)/3, (2y₁+y₂)/3)",
+    "answer": "((x₁+2x₂)/3, (y₁+2y₂)/3)",
     "solutionSteps": [
-      "Section formula for ratio m:n is ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n))",
+      "Section formula for ratio m:n is ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n)), with A(x₁, y₁), B(x₂, y₂)",
       "For ratio 2:1: ((2x₂+1x₁)/(2+1), (2y₂+1y₁)/(2+1))",
-      "= ((2x₂+x₁)/3, (2y₂+y₁)/3)"
+      "= ((x₁+2x₂)/3, (y₁+2y₂)/3)"
     ],
-    "finalAnswer": "((2x₁+x₂)/3, (2y₁+y₂)/3)",
-    "explanation": "Section formula for ratio m:n is ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n)). For ratio 2:1: ((2x₂+1x₁)/(2+1), (2y₂+1y₁)/(2+1)). = ((2x₂+x₁)/3, (2y₂+y₁)/3). Therefore, the correct answer is ((2x₁+x₂)/3, (2y₁+y₂)/3).",
+    "finalAnswer": "((x₁+2x₂)/3, (y₁+2y₂)/3)",
+    "explanation": "Section formula for ratio m:n is ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n)). For ratio 2:1: ((2x₂+1x₁)/(2+1), (2y₂+1y₁)/(2+1)) = ((x₁+2x₂)/3, (y₁+2y₂)/3). Therefore, the correct answer is ((x₁+2x₂)/3, (y₁+2y₂)/3).",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 7.2"
+    "ncertRef": "Ex 7.2",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-030",
@@ -1054,13 +1046,14 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "The coordinates are (2, 0). This matches option (A).",
     ],
   },
-  { id: "CG2-051", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between (−5, 7) and (−1, 3) is:", options: ["4√2","√32","4","5√2"], answer: "4√2", explanation: "The correct answer is 4√2. d = √((−1+5)²+(3−7)²) = √(16+16) = 4√2.", finalAnswer: "d = √((−1+5)²+(3−7)²) = √(16+16) = 4√2.", isCompetencyBased: false,
+  { id: "CG2-051", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between (−5, 7) and (−1, 3) is:", options: ["4√2", "2√2", "4", "5√2"], answer: "4√2", explanation: "The correct answer is 4√2. d = √((−1+5)²+(3−7)²) = √(16+16) = 4√2.", finalAnswer: "d = √((−1+5)²+(3−7)²) = √(16+16) = 4√2.", isCompetencyBased: false,
     solutionSteps: [
-      "Identify the coordinates of the point P(x, y) = (3, -4) and the origin O(0, 0).",
-      "Apply the distance formula from the origin: d = sqrt[x^2 + y^2].",
-      "Substitute values: d = sqrt[3^2 + (-4)^2] = sqrt[9 + 16].",
-      "Calculate the distance: d = sqrt[25] = 5 units. This matches option (C).",
+      "Let A(−5, 7) and B(−1, 3).",
+      "Apply the distance formula: d = √[(x₂ − x₁)² + (y₂ − y₁)²].",
+      "Substitute: d = √[(−1 + 5)² + (3 − 7)²] = √[16 + 16] = √32.",
+      "Simplify: d = √32 = 4√2 units. This matches option (A)."
     ],
+    sourceOverride: "others",
   },
   { id: "CG2-052", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Area of Triangle", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of the triangle with vertices (0,0), (6,0) and (0,4) is:", options: ["12 sq units","24 sq units","8 sq units","6 sq units"], answer: "12 sq units", explanation: "The correct answer is 12 sq units. Area = ½ × base × height = ½ × 6 × 4 = 12 sq units.", finalAnswer: "Area = ½ × base × height = ½ × 6 × 4 = 12 sq units.", isCompetencyBased: false,
     solutionSteps: [

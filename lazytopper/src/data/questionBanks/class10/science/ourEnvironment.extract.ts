@@ -213,7 +213,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "bloomSkill": "Remembering",
     "questionText": "The harmful chemical which accumulates in human beings through the food chain by biomagnification is:",
     "options": [
-      "Benzene hexachloride",
+      "Urea",
       "Dichlorodiphenyltrichloroethane",
       "Chlorofluorocarbon",
       "Abscisic acid"
@@ -224,7 +224,8 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Dichlorodiphenyltrichloroethane",
     "isCompetencyBased": false,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-011",

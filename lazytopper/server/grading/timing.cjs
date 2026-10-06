@@ -65,6 +65,34 @@ const SINGLE_CALL_MAX_QUESTIONS = 10;
 // src/ai/gradingTransport.ts; the client is Controller B's file).
 const CLIENT_PER_ATTEMPT_BUDGET_MS = 90000;
 
+/* ── GRADING-JOBS-1 J1 (owner ruling 7) · THE BACKGROUND-JOB BUDGET ──────────────────────────
+   A grading JOB (POST /api/grade-worksheet with `Prefer: respond-async`, behind GRADING_JOBS) holds
+   no web request open, so none of the request numbers above apply to it. It has its OWN budget,
+   deliberately NOT read from the environment and NOT passed through normaliseTiming (whose deadline
+   clamp is 80 000): the synchronous path's timing above is unchanged, number for number.
+     JOB_WALL_MS          180 000 — from the moment the job starts RUNNING (queue time excluded). A
+                          question unfinished then is "not graded" (timeout) and never charged.
+     JOB_PER_CALL_MS      120 000 — every model call's cap (first attempt AND retry). Above the
+                          highest grading call ever observed: 77.1 s server time for a 4-question
+                          single-call paper (OR-LIVE TRUNK-FINAL on e2c5bb46, WAVE_STATE_A15 l.295) and
+                          67 s for the slowest 8-question chunk (HOTFIX-2 run b, review §3.4 —
+                          agent-reported). No 45 s first-attempt kill: a killed chunk throws its work away.
+     JOB_CHUNK_QUESTIONS  8 — a cost choice, not a timeout choice (review §7: ~₹29–33 for a 38-Q paper
+                          at 8–10 per chunk vs ~₹51 at 3 — agent-reported); rows still arrive per chunk.
+     JOB_HEARTBEAT_MS     10 000 — a live job writes heartbeatAtMs at least this often.
+     JOB_STALE_MS         30 000 — a queued/running job whose heartbeat is older is INTERRUPTED (decided
+                          on read: a restart or redeploy killed the process that ran it). */
+const JOB_WALL_MS = 180000;
+const JOB_PER_CALL_MS = 120000;
+const JOB_CHUNK_QUESTIONS = 8;
+const JOB_HEARTBEAT_MS = 10000;
+const JOB_STALE_MS = 30000;
+
+/** The job budget the grading core takes as `jobTiming` (a fresh object; never env-driven). */
+function jobTiming() {
+  return { wallMs: JOB_WALL_MS, perCallMs: JOB_PER_CALL_MS, chunkQuestions: JOB_CHUNK_QUESTIONS };
+}
+
 function clampInt(raw, lo, hi, dflt) {
   if (raw === null || raw === undefined || String(raw).trim() === '') return dflt;
   const n = Number(raw);
@@ -129,6 +157,12 @@ module.exports = {
   MAX_CHUNK_QUESTIONS,
   SINGLE_CALL_MAX_QUESTIONS,
   CLIENT_PER_ATTEMPT_BUDGET_MS,
+  JOB_WALL_MS,
+  JOB_PER_CALL_MS,
+  JOB_CHUNK_QUESTIONS,
+  JOB_HEARTBEAT_MS,
+  JOB_STALE_MS,
+  jobTiming,
   normaliseTiming,
   resolveGradingTiming,
   serverWorstCaseMs,

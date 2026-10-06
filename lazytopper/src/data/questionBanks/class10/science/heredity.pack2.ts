@@ -236,18 +236,15 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "1/16 or 6.25%",
     "solutionSteps": [
-      "Punnett Square: Set up a 2×2 grid. Write the two parental gametes along the top and left side. Fill all four cells to obtain offspring genotypes. State the genotypic ratio and phenotypic ratio.",
-      "For dihybrid cross: AaBb × AaBb",
-      "Probability of aa = 1/4",
-      "Probability of bb = 1/4",
-      "Probability of aabb = 1/4 × 1/4 = 1/16"
+      "Each parent AaBb produces four types of gametes: AB, Ab, aB, ab (each with probability 1/4); a full Punnett square is 4×4 = 16 boxes.",
+      "Consider each gene separately: Aa × Aa gives aa with probability 1/4; Bb × Bb gives bb with probability 1/4.",
+      "Probability of aabb = 1/4 × 1/4 = 1/16 (only one of the 16 boxes, ab × ab) = 6.25%."
     ],
     "finalAnswer": "1/16 or 6.25%",
     "visualExplainerId": "science-heredity-evolution-mendels-laws-of-inheritance",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "Set-I",
-    "ncertRef": "NCERT Ch9 InText"
+    "ncertRef": "NCERT Ch9 InText",
+    sourceOverride: "others",
   },
   {
     "id": "HE2-015",

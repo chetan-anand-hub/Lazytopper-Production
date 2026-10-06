@@ -13,9 +13,9 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Remembering",
     "questionText": "A solid is formed by combining a hemisphere and a cylinder. What is the total surface area formula for this combined solid (hemisphere on top of cylinder)?",
     "options": [
-      "πr² + 2πrh + 2πr²",
+      "2πrh + 4πr²",
       "2πrh + 3πr²",
-      "πr² + 2πrh + πr²",
+      "2πrh + πr²",
       "2πr(h + r)"
     ],
     "answer": "2πrh + 3πr²",
@@ -28,9 +28,8 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "2πrh + 3πr²",
     "explanation": "For hemisphere: curved surface = 2πr². For cylinder: lateral surface = 2πrh. For cylinder base (only bottom): πr². Total = 2πr² + 2πrh + πr² = 2πrh + 3πr². Therefore, the correct answer is 2πrh + 3πr².",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.1"
+    "ncertRef": "Ex 13.1",
+    sourceOverride: "others",
   },
 {
     "id": "SAV2-002",
@@ -76,22 +75,20 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "options": [
       "πr²(h₁ + h₂/3)",
       "πr²(h₁ + h₂)",
-      "πr²h₁ + (1/3)πr²h₂",
-      "Both A and C"
+      "πr²h₁ + (2/3)πr²h₂",
+      "(1/3)πr²(h₁ + h₂)"
     ],
-    "answer": "Both A and C",
+    "answer": "πr²(h₁ + h₂/3)",
     "solutionSteps": [
       "Volume of cylinder = πr²h₁",
       "Volume of cone = (1/3)πr²h₂",
-      "Total = πr²h₁ + (1/3)πr²h₂ = πr²(h₁ + h₂/3)",
-      "Options A and C are equivalent"
+      "Total = πr²h₁ + (1/3)πr²h₂ = πr²(h₁ + h₂/3)"
     ],
-    "finalAnswer": "Both A and C",
-    "explanation": "Volume of cylinder = πr²h₁. Volume of cone = (1/3)πr²h₂. Total = πr²h₁ + (1/3)πr²h₂ = πr²(h₁ + h₂/3). Options A and C are equivalent. Therefore, the correct answer is Both A and C.",
+    "finalAnswer": "πr²(h₁ + h₂/3)",
+    "explanation": "Volume of cylinder = πr²h₁. Volume of cone = (1/3)πr²h₂. Total = πr²h₁ + (1/3)πr²h₂ = πr²(h₁ + h₂/3). Therefore, the correct answer is πr²(h₁ + h₂/3).",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.1"
+    "ncertRef": "Ex 13.1",
+    sourceOverride: "others",
   },
 {
     "id": "SAV2-004",
@@ -164,19 +161,17 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "answer": "A is false, R is true.",
     "solutionSteps": [
       "TSA = Lateral cylinder + Base of cylinder + Curved cone surface",
-      "= 2πrh + πr² + πrl",
-      "The junction area is internal, hence excluded",
-      "R explains why πr² (top of cylinder) is excluded from being counted twice"
+      "= 2πrh + πr² + πrl, not 2πrh + 2πr² + πrl, so A is false",
+      "The junction area (top of cylinder / base of cone) is hidden, hence excluded, so R is true"
     ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "finalAnswer": "A is false, R is true.",
+    "explanation": "The top of the cylinder is covered by the cone's base, so TSA = 2πrh + πr² + πrl; the Assertion's 2πr² wrongly counts the hidden top, so A is false. The Reason (the joining area is excluded) is true. Hence A is false, R is true.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.1"
+    "ncertRef": "Ex 13.1",
+    sourceOverride: "others",
   },
 {
     "id": "SAV2-019",
@@ -281,7 +276,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "questionText": "A cone is placed on top of a cylinder of equal radius r. The total surface area includes:",
     "options": [
       "Curved surface area of both only",
-      "Base of cylinder, curved surfaces of both, and lateral surface of cone",
+      "Base of cylinder, curved surfaces of both, and base of cone",
       "Base of cylinder and curved surfaces of both",
       "All surfaces including the top of cylinder"
     ],
@@ -294,9 +289,8 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "Base of cylinder and curved surfaces of both",
     "explanation": "Top of cylinder is hidden by cone base. So only base of cylinder is counted. Curved surfaces of cylinder and cone are included. Therefore, the correct answer is Base of cylinder and curved surfaces of both.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.1"
+    "ncertRef": "Ex 13.1",
+    sourceOverride: "others",
   },
 {
     "id": "SAV2-026",
@@ -310,20 +304,18 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "A cylinder of radius 3 cm and height 10 cm has a hemisphere of radius 3 cm placed on top. Find the total surface area (excluding the base of cylinder).",
     "options": [],
-    "answer": "78π cm² (curved only) or 87π cm² (with top surface)",
+    "answer": "78π cm² ≈ 245.14 cm²",
     "solutionSteps": [
       "Curved surface area of cylinder = 2πrh = 2π(3)(10) = 60π cm²",
       "Curved surface area of hemisphere = 2πr² = 2π(3)² = 18π cm²",
-      "Total = 60π + 18π = 78π cm²",
-      "TSA = 2πrh + 2πr² = 2π(3)(10) + 2π(9) = 60π + 18π = 78π cm²",
-      "Total excluding base = 60π + 18π + 9π = 87π ≈ 273 cm²"
+      "The top of the cylinder is covered by the hemisphere and the base is excluded, so no flat faces are added",
+      "Total = 60π + 18π = 78π cm² ≈ 78 × 22/7 ≈ 245.14 cm²"
     ],
-    "finalAnswer": "78π cm² (curved only) or 87π cm² (with top surface)",
+    "finalAnswer": "78π cm² ≈ 245.14 cm²",
     "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.1"
+    "ncertRef": "Ex 13.1",
+    sourceOverride: "others",
   },
 {
     "id": "SAV2-027",
@@ -489,25 +481,22 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "questionText": "A solid is formed by combining a cube of side 10 cm with a hemisphere of radius 5 cm placed on one of its faces. What is the total surface area?",
     "options": [
       "600 + 50π cm²",
-      "500 + 50π cm²",
+      "600 + 25π cm²",
       "600 + 100π cm²",
       "550 + 75π cm²"
     ],
-    "answer": "500 + 50π cm²",
+    "answer": "600 + 25π cm²",
     "solutionSteps": [
       "Surface area of cube = 6a² = 6(10)² = 600 cm²",
-      "One face is covered by hemisphere = -100 cm²",
+      "The hemisphere's base covers only a circle of radius 5 cm on the face: subtract πr² = 25π cm²",
       "Curved surface area of hemisphere = 2πr² = 2π(5)² = 50π cm²",
-      "Total = 600 - 100 + 50π = 500 + 50π cm²",
-      "But option A is 600 + 50π, which assumes no subtraction",
-      "This implies the hemisphere adds to the outer surface. Correct interpretation: TSA = 5×100 + 50π + base of cube if exposed"
+      "Total = 600 − 25π + 50π = 600 + 25π cm²"
     ],
-    "finalAnswer": "500 + 50π cm²",
+    "finalAnswer": "600 + 25π cm²",
     "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.1"
+    "ncertRef": "Ex 13.1",
+    sourceOverride: "others",
   },
 {
     "id": "SAV2-046",

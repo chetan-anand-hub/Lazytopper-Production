@@ -41,19 +41,19 @@ export const CIRC_PREBOARD: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "ABC is a triangle. A circle touches side AB and side AC produced and side BC at X, Y and Z respectively. Show that AX = ½ × perimeter of △ABC.",
+    "questionText": "ABC is a triangle. A circle touches side BC at Z and the sides AB and AC produced at X and Y respectively. Show that AX = ½ × perimeter of △ABC.",
     "options": [],
     "answer": "Proved: AX = ½ (perimeter of △ABC)",
     "solutionSteps": [
       "[1 mark] Tangents drawn from an external point to a circle are equal. From A: AX = AY. From B: BX = BZ. From C: CY = CZ.",
-      "[1 mark] Perimeter = AB + BC + CA = (AX − BX) + (BZ + ZC) + (CY − AY)... arranged as: AX + AY = (AB + BX) + (AC + CY) = AB + BZ + AC + CZ = AB + (BZ + ZC) + AC = AB + BC + CA.",
+      "[1 mark] Since X lies on AB produced and Y on AC produced: AX + AY = (AB + BX) + (AC + CY) = AB + BZ + AC + CZ = AB + (BZ + ZC) + AC = AB + BC + CA.",
       "[1 mark] Since AX = AY, we get 2 AX = AB + BC + CA = perimeter of △ABC. Therefore AX = ½ × perimeter of △ABC. Hence proved."
     ],
     "finalAnswer": "AX = ½ × (perimeter of △ABC) (proved)",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "diagramDescription": "Triangle ABC with a circle (excircle opposite A) lying outside the triangle beyond side BC. The circle touches side AB at X, touches side AC produced beyond C at Y, and touches side BC at Z. Tangent segments AX and AY from A, BX and BZ from B, CY and CZ from C are equal in pairs."
-  },
+    "diagramDescription": "Triangle ABC with a circle (excircle opposite A) lying outside the triangle beyond side BC. The circle touches side BC at Z, side AB produced beyond B at X, and side AC produced beyond C at Y. Tangent segments AX and AY from A, BX and BZ from B, CY and CZ from C are equal in pairs.",
+    sourceOverride: "others",},
   {
     "id": "PB-M-2-CIRC-C-001",
     "subject": "Maths",

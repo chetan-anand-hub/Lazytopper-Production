@@ -1338,17 +1338,17 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     questionText:
       "A student uses spectacles with lenses of power −2.0 D for distant vision. (a) Identify the type of lens used and calculate its focal length. (b) If another lens of power +1.0 D is placed in contact with it, find the net power and nature of the resulting lens. (c) Comment on how this combination affects the student’s vision for distant objects.",
     answer:
-      "(a) Negative power ⇒ concave lens, focal length f = 1/P = 1/−2.0 = −0.5 m. (b) Net power Pₙ = −2.0 + 1.0 = −1.0 D, so resulting lens is still concave with f = −1.0 m. (c) Combination reduces the effective divergence; distant objects remain clear but with slightly reduced correction strength.",
+      "(a) Negative power ⇒ concave lens, focal length f = 1/P = 1/−2.0 = −0.5 m. (b) Net power Pₙ = −2.0 + 1.0 = −1.0 D, so resulting lens is still concave (diverging) with f = −1.0 m. (c) The student is myopic and needs −2.0 D; the combination gives only −1.0 D, so the myopia is under-corrected — the far point is not brought to infinity and distant objects will still appear blurred.",
     explanation:
       "Use relation P = 1/f (in m) and add powers algebraically for lenses in contact; interpret sign of net power for nature of lens and its effect on correction.",
     policyTag: "Lens power combination case",
     solutionSteps: [
       "For part (a), the given power P = -2.0 D is negative, which indicates that the lens used is a concave lens.; The focal length (f) is calculated using the formula f = 1/P. [1]",
       "Substituting the power, f = 1/(-2.0) = -0.5 m. So, the focal length is -0.5 meters.; For part (b), when another lens of power P2 = +1.0 D is placed in contact, the net power P_net = P1 + P2. [1]",
-      "P_net = -2.0 D + 1.0 D = -1.0 D. Since the net power is negative, the resulting lens is still concave. [1]",
-      "For part (c), this combination reduces the overall diverging power of the spectacles. The student's vision for distant objects will still be corrected, but with slightly reduced correction strength compared to the original lens. [1]",
+      "P_net = -2.0 D + 1.0 D = -1.0 D (f = -1.0 m). Since the net power is negative, the resulting lens is still concave. [1]",
+      "For part (c), the student's myopia needs -2.0 D of correction, but the combination provides only -1.0 D. The eye is under-corrected: the far point is not brought to infinity, so distant objects will still appear blurred. [1]"
     ],
-    finalAnswer: "(a) Negative power ⇒ concave lens, focal length f = 1/P = 1/−2.0 = −0.5 m. (b) Net power Pₙ = −2.0 + 1.0 = −1.0 D, so resulting lens is still concave with f = −1.0 m. (c) Combination reduces the effective divergence; distant objects remain clear but with slightly reduced correction strength.",
+    finalAnswer: "(a) Negative power ⇒ concave lens, focal length f = 1/P = 1/−2.0 = −0.5 m. (b) Net power Pₙ = −2.0 + 1.0 = −1.0 D, so resulting lens is still concave (diverging) with f = −1.0 m. (c) The student is myopic and needs −2.0 D; the combination gives only −1.0 D, so the myopia is under-corrected — the far point is not brought to infinity and distant objects will still appear blurred.",
   },
 
   // ================================================================
@@ -1730,7 +1730,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     questionText:
       "An electric bulb is rated 60 W, 220 V. Calculate (a) the current drawn by the bulb, (b) the resistance of its filament.",
     answer:
-      "P = VI ⇒ I = P / V = 60 / 220 ≈ 0.27 A; R = V / I ≈ 220 / 0.27 ≈ 815 Ω.",
+      "P = VI ⇒ I = P / V = 60 / 220 ≈ 0.27 A; R = V² / P = 220² / 60 ≈ 807 Ω.",
     explanation:
       "Use P = VI to find current, then apply Ohm's law V = IR to find resistance.",
     policyTag: "Electricity numericals – power, current, resistance",
@@ -1739,7 +1739,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Substitute values: I = 60 W / 220 V = 0.2727 A (approx 0.27 A).; (b) Use Ohm's law: V = IR, so R = V / I. [1]",
       "Substitute values: R = 220 V / 0.2727 A = approx 807 Ω (or using R = V²/P = 220²/60 = 807 Ω).; Therefore, current drawn ≈ 0.27 A and resistance of filament ≈ 807 Ω. [1]",
     ],
-    finalAnswer: "P = VI ⇒ I = P / V = 60 / 220 ≈ 0.27 A; R = V / I ≈ 220 / 0.27 ≈ 815 Ω.",
+    finalAnswer: "P = VI ⇒ I = P / V = 60 / 220 ≈ 0.27 A; R = V² / P = 220² / 60 ≈ 807 Ω.",
   },
 
   {

@@ -573,14 +573,15 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
 {
     id: "POLY-H08", subject: "Maths", topicKey: "polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "If α, β are zeroes of p(x) = x² − 2x + 3 with α > β, find the value of (α² − β²)/(α − β).",
+    questionText: "If α, β are zeroes of p(x) = x² − 2x − 3 with α > β, find the value of (α² − β²)/(α − β).",
     solutionSteps: [
       "(α² − β²)/(α − β) = (α − β)(α + β)/(α − β) = α + β (since α ≠ β). [1]",
-      "For x² − 2x + 3, sum of zeroes α + β = -(-2)/1 = 2. [1]",
-      "Therefore, the value of the expression is 2. [1]",
+      "For x² − 2x − 3, sum of zeroes α + β = −(−2)/1 = 2 (zeroes are 3 and −1, so α = 3, β = −1). [1]",
+      "Therefore, the value of the expression is 2 (check: (9 − 1)/(3 − (−1)) = 8/4 = 2). [1]"
     ],
     finalAnswer: "2",
     visualExplainerId: "maths-polynomials-zeroes-of-a-polynomial", isCompetencyBased: true,
+    sourceOverride: "others",
   },
 {
     id: "POLY-H09", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros & Factorisation",

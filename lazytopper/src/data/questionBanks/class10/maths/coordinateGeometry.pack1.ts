@@ -160,10 +160,11 @@ export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "a = 1, b = 1" , isCompetencyBased: true },
   { id: "CG-H14", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A flag is placed at each corner of a triangular park at A(2, 3), B(8, 5) and C(4, 9). A pole is to be placed at P such that PA = PB = PC.\n(i) What is P called?\n(ii) Write two equations using PA² = PB² and PB² = PC².\n(iii) Solve for P.\n(iv) Find PA.", solutionSteps: [
       "(i) Circumcentre; (ii) (x−2)²+(y−3)² = (x−8)²+(y−5)²: 12x+4y = 76 → 3x+y = 19 [1]",
-      "(x−8)²+(y−5)² = (x−4)²+(y−9)²: −8x+8y = 72 → −x+y = 9 [1]",
-      "(iii) From 3x+y=19 and −x+y=9: 4x=10 → x=5/2, y=23/2 [1]",
-      "(iv) PA = √((5/2−2)²+(23/2−3)²) = √(1/4+289/4) = √(290/4) = √290/2 [1]",
-    ], finalAnswer: "(i) Circumcentre (ii) 3x+y=19, −x+y=9 (iii) (5/2, 23/2) (iv) √290/2" , isCompetencyBased: true },
+      "(x−8)²+(y−5)² = (x−4)²+(y−9)²: −8x+8y = 8 → y − x = 1 [1]",
+      "(iii) From 3x+y = 19 and y = x+1: 4x = 18 → x = 9/2, y = 11/2, so P(9/2, 11/2) [1]",
+      "(iv) PA = √((9/2−2)²+(11/2−3)²) = √(25/4+25/4) = √(50/4) = 5√2/2 units [1]"
+    ], finalAnswer: "(i) Circumcentre (ii) 3x+y = 19, y − x = 1 (iii) (9/2, 11/2) (iv) PA = 5√2/2 units", isCompetencyBased: true,
+      sourceOverride: "others" },
   { id: "CG-CB01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A school corridor runs in a straight line from gate A(1, 3) to the main building B(9, 7). The school plans to place benches and a water fountain along this corridor.\n(i) Find the coordinates of the midpoint M of AB.\n(ii) A bench is placed at point P that divides AB in ratio 3:1. Find the coordinates of P.\n(iii) Find the distance AP.\n(iv) Is the bench closer to A or to B? Justify.", solutionSteps: [
       "(i) M = ((1+9)/2, (3+7)/2) = (5, 5) [1]",
       "(ii) P divides AB in 3:1: x = (3×9+1×1)/4 = 28/4 = 7, y = (3×7+1×3)/4 = 24/4 = 6. So P(7, 6). [1]",

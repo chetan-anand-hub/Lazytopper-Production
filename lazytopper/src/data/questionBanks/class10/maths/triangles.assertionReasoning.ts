@@ -182,7 +182,7 @@ export const TRIANGLES_AR_QUESTIONS: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): In △ABC and △DEF, if AB/DE = BC/EF but ∠B ≠ ∠E, then the triangles are similar.\nReason (R): Two triangles are similar if two sides of one are proportional to two sides of the other.",
+    "questionText": "Assertion (A): In △ABC and △DEF, if AB/DE = BC/EF but ∠B ≠ ∠E, then the triangles are similar.\nReason (R): Two triangles are similar if two sides of one are proportional to two sides of the other and the included angles are equal.",
     "options": [
       "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
       "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
@@ -191,21 +191,15 @@ export const TRIANGLES_AR_QUESTIONS: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "Assertion: SAS similarity requires two sides proportional AND the INCLUDED angle equal. Here ∠B ≠ ∠E, so SAS is not satisfied. With only two sides proportional and no angle condition, similarity cannot be concluded. FALSE.",
-      "Reason: This is an incomplete statement of SAS similarity — two sides proportional alone is NOT sufficient. However, if we read R as the definition of SSS similarity (all three sides proportional), that is true. But as stated, R is actually FALSE because two sides proportional without the included angle is not a similarity criterion.",
-      "Wait — re-reading: R says 'two sides proportional' only. This is NOT sufficient for similarity. R is also FALSE.",
-      "Actually, the standard CBSE interpretation: R states a necessary but not sufficient condition. R as written is FALSE (you need included angle too for SAS, or all three sides for SSS).",
-      "A is false (can't conclude similarity). R is also technically incomplete/false.",
-      "Best CBSE answer: (D) — A is false, R is true only if R is read as 'two sides proportional AND included angle equal'.",
-      "In CBSE SQP context, the expected answer is (D): A is false, R is the (correctly stated) SAS criterion which is true.",
-      "Answer: (D)"
+      "Assertion: SAS similarity requires two sides proportional AND the included angle equal. Here ∠B ≠ ∠E, so the SAS condition fails and similarity cannot be concluded. A is FALSE.",
+      "Reason: This is exactly the SAS similarity criterion (Theorem 6.5). R is TRUE.",
+      "A is false and R is true, so the answer is (D)."
     ],
     "finalAnswer": "(D)",
-    "explanation": "A is false: two sides proportional without included angle being equal is insufficient for similarity. R is the SAS similarity criterion which is true when applied correctly. So A is false, R is true.",
+    "explanation": "A is false: two sides proportional while the included angles are unequal does not give similarity. R is the correctly stated SAS similarity criterion, so R is true. Hence A is false but R is true.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Theorem 6.5 (SAS similarity)"
+    "ncertRef": "Theorem 6.5 (SAS similarity)",
+    sourceOverride: "others",
   },
 
 {

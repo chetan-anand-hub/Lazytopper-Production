@@ -5,15 +5,22 @@ import { useAuth } from "../context/AuthContext";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { useSubscription } from "../hooks/useSubscription";
 import {
-  WINDOW_DAYS,
-  getWindowedProgress,
   isShortSpan,
   type ProgressWindow,
   type WindowedProgress,
   type RungTrend,
   type WindowedProgressScope,
 } from "../services/progressStore";
-import { getMistakeLogs, type MistakeLogEntry } from "../services/mistakeLogService";
+import type { MistakeLogEntry } from "../services/mistakeLogService";
+// ME-ENGINE-1 PR-1 — every number on this page comes from the ONE shared read model (the
+// one the sidebar Mistake Intelligence widget joins next, [FU-ME1-WIDGET-GATE]), with its one topic canonicaliser
+// and its one mistake group split.
+import {
+  boardChapterKey,
+  mistakeLossByGroup,
+  readStudyModel,
+  type MistakeView,
+} from "../services/progressReadModel";
 import { summarizeCareless } from "../services/mistakeInsightsService";
 import {
   MISTAKES_BY_KIND_HEADING,
@@ -21,14 +28,11 @@ import {
   MISTAKE_TYPE_LABEL,
   NOT_ATTEMPTED,
   countWithUnit,
-  entryMarksLost,
-  groupMarks,
   isStoredMistakeType,
   mistakeGroupByKey,
   mistakeGroupOf,
 } from "../lib/mistakeDisplay";
 import { planMistakeRetry, retryCopyFor } from "../services/mistakeRetry";
-import { normalizeTopicKey } from "../utils/topicResolver";
 import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
 import { buildActionableDesktopTopicHubContent } from "../lib/desktop/topicHubContent";
 import {
@@ -301,35 +305,17 @@ export function splitPaperMarks(
   if (!Number.isFinite(available) || !Number.isFinite(secured) || available <= 0) return null;
 
   const lost = Math.max(0, round1(available - secured));
-  let careless = 0;
-  let knowledge = 0;
-  let technique = 0;
-  let notAttempted = 0;
-  // v2 marks the grader explicitly gave no reason for. They belong to the remainder, but they
-  // are counted here so a log that names more lost marks than the graded stream holds is
-  // caught by the same over-attribution check below.
-  let untyped = 0;
-  for (const entry of logs) {
-    const v2 = entryMarksLost(entry);
-    if (v2) {
-      const g = groupMarks(v2);
-      knowledge += g.knowledge;
-      technique += g.technique;
-      careless += g.careless;
-      notAttempted += g.notAttempted;
-      untyped += g.untyped;
-      continue;
-    }
-    for (const step of entry.stepDetails ?? []) {
-      const type = String(step?.mistakeType ?? "").trim().toLowerCase();
-      const marks = Number(step?.marksDeducted);
-      if (!Number.isFinite(marks) || marks <= 0) continue;
-      const group = mistakeGroupOf(type)?.key;
-      if (group === "careless") careless += marks;
-      else if (group === "knowledge") knowledge += marks;
-      else if (group === "technique") technique += marks;
-    }
-  }
+  // ME-ENGINE-1 PR-1 — THE one group split (services/progressReadModel), the same function the
+  // sidebar widget's "biggest loss" reads once it joins: v2 entries by their own marks, legacy count-only
+  // entries by their step deductions, as stored. `untyped` (v2 marks the grader gave no reason
+  // for) belongs to the remainder, but is counted so a log that names more lost marks than the
+  // graded stream holds is caught by the same over-attribution check below.
+  const byGroup = mistakeLossByGroup(logs);
+  let careless = byGroup.careless;
+  let knowledge = byGroup.knowledge;
+  let technique = byGroup.technique;
+  let notAttempted = byGroup.notAttempted;
+  let untyped = byGroup.untyped;
   // SCORECARD-MI-1 PR-2 (H11) — marks lost ONLY to work not attempted (a wholly unattempted
   // question, or one whose only loss is unwritten parts) have NO MI entry by design (OR-LIVE
   // L3), so the log above can never name them. The graded stream now does: an attempt carries
@@ -458,20 +444,15 @@ interface Chapter {
  * so it is STABLE between visits and only moves when new graded data moves it. It is
  * never reshuffled for variety.
  */
-function buildChapters(
+export function buildChapters(
   topics: RungTrend[],
   paper: DesktopSubject,
-  logs: MistakeLogEntry[],
+  byChapter: MistakeView["byChapter"],
 ): Chapter[] {
-  const byChapter = new Map<string, MistakeLogEntry[]>();
-  for (const entry of logs) {
-    const key = normalizeTopicKey(entry.topic) || String(entry.topic ?? "").trim().toLowerCase();
-    if (!key) continue;
-    const bucket = byChapter.get(key) ?? [];
-    bucket.push(entry);
-    byChapter.set(key, bucket);
-  }
-
+  // ME-ENGINE-1 PR-1 — the mistakes per chapter come from the shared read model, grouped by its
+  // ONE canonicaliser (`boardChapterKey`, the 26 board chapters). This page used to group them
+  // with `normalizeTopicKey` (the topicAliasMap vocabulary: "reproduction",
+  // "heredity-and-evolution") — a second canonicaliser, the G3 #10 split.
   const rows: Chapter[] = [];
   for (const rung of topics) {
     // A mistake-type key can never enter the chapter list - it is not a chapter.
@@ -481,8 +462,8 @@ function buildChapters(
     // that RESOLVES to the other paper; an unresolvable key is kept and routed honestly.
     if (meta?.subject && meta.subject !== paper) continue;
 
-    const canonical = normalizeTopicKey(rung.key) || rung.key.toLowerCase();
-    const entries = (byChapter.get(canonical) ?? [])
+    const canonical = boardChapterKey(rung.key);
+    const entries = (canonical ? byChapter[canonical] ?? [] : [])
       .slice()
       .sort((a, b) => Date.parse(b.timestamp || "") - Date.parse(a.timestamp || ""));
 
@@ -654,7 +635,7 @@ const MarksWord = ({ value }: { value: number }) => (
 export default function MeProgressPage() {
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
-  const { user, loading, mistakeLogsHydrated } = useAuth();
+  const { user, loading } = useAuth();
   const { isPremium } = useSubscription();
 
   // The cross-device reads need a REAL account. A local/browse session has no
@@ -676,7 +657,10 @@ export default function MeProgressPage() {
   const [data, setData] = useState<WindowedProgress | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [openConcepts, setOpenConcepts] = useState<RungTrend[]>([]);
+  // ME-ENGINE-1 PR-1 — the live mistakes of the window from the SAME shared read: both papers
+  // (the has-data decision) and the chosen paper (the split, chapters, retry candidates).
   const [mistakeLogs, setMistakeLogs] = useState<MistakeLogEntry[]>([]);
+  const [paperMistakes, setPaperMistakes] = useState<MistakeView | null>(null);
   const [premiumBlock, setPremiumBlock] = useState<string | null>(null);
 
   const openPremium = useCallback((feature: string) => {
@@ -689,11 +673,17 @@ export default function MeProgressPage() {
     setAllLoading(true);
     void (async () => {
       try {
-        const next = await getWindowedProgress(realUid, windowSel);
-        if (!cancelled) setAll(next);
+        const next = await readStudyModel(realUid, { window: windowSel });
+        if (!cancelled) {
+          setAll(next.progress);
+          setMistakeLogs(next.mistakes.entries);
+        }
       } catch {
         // Honest degradation: no data beats a guessed number.
-        if (!cancelled) setAll(null);
+        if (!cancelled) {
+          setAll(null);
+          setMistakeLogs([]);
+        }
       } finally {
         if (!cancelled) setAllLoading(false);
       }
@@ -709,12 +699,16 @@ export default function MeProgressPage() {
     setDataLoading(true);
     void (async () => {
       try {
-        const next = await getWindowedProgress(realUid, windowSel, {
-          subject: paperScopeKey(paper),
-        });
-        if (!cancelled) setData(next);
+        const next = await readStudyModel(realUid, { window: windowSel, subject: paperScopeKey(paper) });
+        if (!cancelled) {
+          setData(next.progress);
+          setPaperMistakes(next.mistakes);
+        }
       } catch {
-        if (!cancelled) setData(null);
+        if (!cancelled) {
+          setData(null);
+          setPaperMistakes(null);
+        }
       } finally {
         if (!cancelled) setDataLoading(false);
       }
@@ -735,10 +729,13 @@ export default function MeProgressPage() {
     let cancelled = false;
     void (async () => {
       try {
-        const scoped = await getWindowedProgress(realUid, windowSel, {
+        const scoped = await readStudyModel(realUid, {
+          window: windowSel,
           topicKey: openChapter,
+          mistakes: false,
         });
-        if (!cancelled) setOpenConcepts(Array.isArray(scoped.concepts) ? scoped.concepts : []);
+        const concepts = scoped.progress.concepts;
+        if (!cancelled) setOpenConcepts(Array.isArray(concepts) ? concepts : []);
       } catch {
         if (!cancelled) setOpenConcepts([]);
       }
@@ -748,27 +745,8 @@ export default function MeProgressPage() {
     };
   }, [openChapter, windowSel, realUid]);
 
-  /* -- mistake logs: the careless/knowledge split and the retry candidates -- */
-  useEffect(() => {
-    if (!user) {
-      setMistakeLogs([]);
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      try {
-        // GA-19 — the log is read for the SAME window the hero shows, never a fixed 30
-        // days under a week / four-month hero.
-        const logs = await getMistakeLogs(user.uid, WINDOW_DAYS[windowSel]);
-        if (!cancelled) setMistakeLogs(Array.isArray(logs) ? logs : []);
-      } catch {
-        if (!cancelled) setMistakeLogs([]);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.uid, mistakeLogsHydrated, windowSel]);
+  /* -- mistake logs: read INSIDE the two reads above (GA-19: the SAME window the hero shows),
+        from the synced history only — the careless/knowledge split and the retry candidates -- */
 
   /* -- derived -- */
 
@@ -791,10 +769,10 @@ export default function MeProgressPage() {
     if (best && (lostByPaper[best] ?? 0) > 0) setPaper(best);
   }, [subjectRungs, lostByPaper, paperTouched]);
 
-  const paperLogs = useMemo(() => {
-    const key = paperScopeKey(paper);
-    return mistakeLogs.filter((e) => String(e.subject ?? "").trim().toLowerCase() === key);
-  }, [mistakeLogs, paper]);
+  // The chosen paper's live mistakes, scoped by the read model's ONE subject split (a
+  // "Mathematics" entry is a Maths mistake; the old exact `=== "maths"` dropped it).
+  const paperLogs = useMemo(() => paperMistakes?.entries ?? [], [paperMistakes]);
+  const paperByChapter = useMemo(() => paperMistakes?.byChapter ?? {}, [paperMistakes]);
 
   const paperRung = useMemo(
     () => subjectRungs.find((r) => r.key.toLowerCase() === paperScopeKey(paper)) ?? null,
@@ -806,8 +784,8 @@ export default function MeProgressPage() {
   const careless = useMemo(() => summarizeCareless(paperLogs), [paperLogs]);
 
   const chapters = useMemo(
-    () => buildChapters(data?.topics ?? [], paper, paperLogs),
-    [data, paper, paperLogs],
+    () => buildChapters(data?.topics ?? [], paper, paperByChapter),
+    [data, paper, paperByChapter],
   );
 
   const mistakeRungs = useMemo(() => data?.mistakeTypes ?? [], [data]);
