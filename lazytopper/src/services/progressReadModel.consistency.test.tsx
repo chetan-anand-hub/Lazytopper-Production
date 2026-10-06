@@ -28,11 +28,22 @@ import type { PracticeAttempt } from "./practiceInsights";
 import type { SessionRecord } from "./sessionRecords";
 import type { MistakeLogEntry } from "./mistakeLogService";
 import type { TutorTurnEvent } from "./tutorSessionStore";
+import { istDayStartMs } from "./progressStore";
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
-/** One clock for the whole fixture — far enough from an IST midnight that `today` is stable. */
+/** One clock for the whole fixture (the test clock when LT_TEST_CLOCK is set). */
 const NOW = Date.now();
+/**
+ * [FU-ME-PROGRESS-CONSISTENCY-IST-MIDNIGHT] — the fixture's "today" activity (everything under
+ * an hour old) must fall INSIDE the current IST calendar day, which `today` and Tutor sessions
+ * are keyed on (by design: progressStore.windowRange / tutorSessionStore.istDayKey). The old
+ * fixture put it 6–24 minutes before NOW, so in the first ~24 minutes after an IST midnight
+ * (18:30–18:54Z) it landed on YESTERDAY and the pin failed — a TEST defect; the code's IST
+ * boundaries are right. Sub-hour offsets are now scaled into the part of the IST day that has
+ * elapsed (at most an hour), so their order is kept and they stay "today" at every instant.
+ */
+const TODAY_SPAN_MS = Math.min(60 * 60 * 1000, NOW - istDayStartMs(NOW));
 
 const H = vi.hoisted(() => ({
   attempts: [] as PracticeAttempt[],
@@ -119,7 +130,8 @@ const v2 = (m: Partial<ReturnType<typeof zeroMarksLost>>) => ({
 });
 
 beforeAll(() => {
-  const at = (h: number) => h * HOUR;
+  // Sub-hour offsets are "today" activity — kept inside the current IST day (see TODAY_SPAN_MS).
+  const at = (h: number) => (h < 1 ? h * TODAY_SPAN_MS : h * HOUR);
   H.attempts = [
     // Maths, Real Numbers — recent (some within the last hour = "today" in any time zone)
     attempt(at(0.2), "maths", "real-numbers", 1, 3),
