@@ -196,7 +196,7 @@ export const REAL_COMMITS = [
 {
   const wf = read(WORKFLOW);
   const jobBlock = (id) => {
-    const m = wf.match(new RegExp(`\\n  ${id.replace(/[-]/g, "\\-")}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z][\\w-]*:\\n|$)`));
+    const m = wf.match(new RegExp(`\\n  ${id.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z][\\w-]*:\\n|$)`));
     return m ? m[1] : "";
   };
   // ★ FU-CI1-NIGHTLY-RESTORE (owner ruling 2026-10-07, "Ship #969, nightly off for now"): the
