@@ -31,7 +31,7 @@ import {
   assertFails,
   assertSucceeds,
 } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const RULES_PATH = path.resolve(HERE, "..", "firestore.rules");
@@ -667,4 +667,44 @@ test("16d ★ R2 update that NULLS passEnd is DENIED", async () => {
   await assertFails(
     setDoc(subDoc(asStudent(FRANK), FRANK), { ...clientWrite({ tier: "free", plan: "none" }), passEnd: null }, merge),
   );
+});
+
+// ===========================================================================
+// 17 — ME-ENGINE-1 PR-1 (G7): the MISTAKE HISTORY write. A fixed mistake is no longer
+//      deleted — the browser adds `resolvedAt` + `resolvedBy` to the student's own
+//      `learnerProfiles/{uid}/mistakeLogs/{logId}` entry (updateDoc). firestore.rules is
+//      UNCHANGED (that path is owner-only read/write); these pin that the new write works
+//      for the owner and for NO ONE else. They live in this suite because it is the one the
+//      CI rules gate runs (root `test:firestore-rules`).
+// ===========================================================================
+const MI_ID = "quick-practice::S1::b1";
+const miDoc = (db, uid) => doc(db, "learnerProfiles", uid, "mistakeLogs", MI_ID);
+const MI_ENTRY = {
+  id: MI_ID,
+  timestamp: "2026-10-05T10:00:00.000Z",
+  questionText: "Q",
+  topic: "Real Numbers",
+  subject: "Maths",
+  totalMarks: 3,
+  marksLost: 2,
+  mistakeCounts: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 },
+  stepDetails: [],
+};
+const RESOLUTION = { resolvedAt: "2026-10-06T10:00:00.000Z", resolvedBy: "later-correct-attempt" };
+
+test("17 ME-ENGINE-1 — the OWNER resolves her own mistake entry (updateDoc resolvedAt/resolvedBy) and reads it back whole", async () => {
+  await assertSucceeds(setDoc(miDoc(asStudent(STUDENT), STUDENT), MI_ENTRY));
+  await assertSucceeds(updateDoc(miDoc(asStudent(STUDENT), STUDENT), RESOLUTION));
+  const snap = await assertSucceeds(getDoc(miDoc(asStudent(STUDENT), STUDENT)));
+  assert.deepEqual(snap.data(), { ...MI_ENTRY, ...RESOLUTION }, "the entry was not kept whole with its resolution");
+});
+
+test("17b ME-ENGINE-1 — ANOTHER student can neither resolve nor read it", async () => {
+  await assertFails(updateDoc(miDoc(asStudent(OTHER), STUDENT), { resolvedAt: "2026-10-07T00:00:00.000Z", resolvedBy: "re-grade" }));
+  await assertFails(getDoc(miDoc(asStudent(OTHER), STUDENT)));
+});
+
+test("17c ME-ENGINE-1 — a signed-out visitor can neither resolve nor read it", async () => {
+  await assertFails(updateDoc(miDoc(asSignedOut(), STUDENT), RESOLUTION));
+  await assertFails(getDoc(miDoc(asSignedOut(), STUDENT)));
 });

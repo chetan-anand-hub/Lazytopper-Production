@@ -39,7 +39,9 @@ const logMistakes = vi.fn(async () => {});
 const recordWrongAnswer = vi.fn(() => {});
 vi.mock("./mistakeLogService", () => ({
   logMistakes: (...a: unknown[]) => logMistakes(...(a as [])),
-  removeStableMistakeLog: async () => false,
+  resolveStableMistakeLog: async () => false,
+  isJoinableQuestionId: (id: unknown) => !!id && !String(id).includes(":"),
+  resolveEarlierMistakesForQuestion: async () => 0,
 }));
 vi.mock("./mistakeInsightsService", () => ({ isSafeEntry: () => true }));
 vi.mock("./adaptivePracticeEngine", () => ({

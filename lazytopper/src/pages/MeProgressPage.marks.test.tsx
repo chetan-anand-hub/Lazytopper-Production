@@ -20,16 +20,22 @@ import { zeroMarksLost } from "../lib/mistakeDisplay";
 const mockGetWindowedProgress = vi.fn();
 const mockGetMistakeLogs = vi.fn();
 
-vi.mock("../services/progressStore", () => ({
-  WINDOW_DAYS: { week: 7, "2wk": 14, month: 30, "4mo": 120 },
+vi.mock("../services/progressStore", async (importOriginal) => ({
+  // ME-ENGINE-1 PR-1 — the page reads the REAL shared read model (services/progressReadModel),
+  // which uses the REAL window / canonicaliser helpers; only the cloud aggregation is mocked.
+  ...(await importOriginal<typeof import("../services/progressStore")>()),
   getWindowedProgress: (...a: unknown[]) => mockGetWindowedProgress(...a),
   getRecentSessions: () => [],
   getActivitySummary: () => ({ worksheets: 0, chapterTests: 0, fullMocks: 0, practiceAttempts: 0 }),
   getTopicTrendFromCloud: vi.fn(async () => ({ window: "month", trend: null, points: [] })),
   isShortSpan: () => false,
 }));
-vi.mock("../services/mistakeLogService", () => ({
-  getMistakeLogs: (...a: unknown[]) => mockGetMistakeLogs(...a),
+vi.mock("../services/mistakeLogService", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../services/mistakeLogService")>()),
+  getMistakeLogHistoryFromCloud: async (uid: string, startMs: number) => ({
+    entries: (await mockGetMistakeLogs(uid, startMs)) ?? [],
+    complete: true,
+  }),
 }));
 vi.mock("../components/subscription/UpgradeSheet", () => ({
   UpgradeSheet: () => <div data-testid="upgrade-sheet" />,
@@ -76,7 +82,7 @@ const countOnly = (stepDetails: MistakeLogEntry["stepDetails"]): MistakeLogEntry
   seq += 1;
   return {
     id: `m-${seq}`,
-    timestamp: new Date("2026-10-01T10:00:00Z").toISOString(),
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     questionText: "q",
     topic: "Real Numbers",
     subject: "maths",
