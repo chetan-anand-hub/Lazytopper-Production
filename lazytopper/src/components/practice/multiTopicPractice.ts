@@ -28,6 +28,7 @@
 // competency contributes none. Nothing is padded, mis-tagged, or invented.
 
 import type { PracticeQuestion } from "../../data/predictionDataService";
+import { isCbq } from "../../lib/cbq/cbqClassification";
 
 /** CBSE 2026-27 mandate: ~50% competency-based. The board-preset floor. */
 export const COMPETENCY_FLOOR = 0.5;
@@ -90,10 +91,17 @@ function dedupeById(questions: PracticeQuestion[]): PracticeQuestion[] {
   return out;
 }
 
-/** Is this a competency (case-based / application) question? Mirrors the engine's own
- *  `questionType === "Competency"` classifier (practiceQuestionBuilder) so the floor
- *  counts exactly what the bank flags — never a re-derivation from memory. */
+/** Is this a competency (case-based / application) question FOR THE BOARD-MIX FLOOR?
+ *
+ *  CBQ-1 PR-1 (builder decision): this is the Board-mix COMPOSITION heuristic, not the
+ *  student-facing CBQ classifier. What a student is TOLD is a CBQ (the card label, the
+ *  CBQ filter, the chooser, the Competency preset) is `isCbq` alone
+ *  (src/lib/cbq/cbqClassification.ts). A verified CBQ (`isCbq`) always counts toward the
+ *  floor; the legacy signals below are KEPT so the Board-mix ~50% floor composes exactly
+ *  as before — switching the floor to `isCbq` alone would starve it in every chapter
+ *  that have no verified CBQ yet. CBQ-1 PR-2 moves Chapter Test / Full Mock to `isCbq`. */
 export function isCompetencyQuestion(q: PracticeQuestion): boolean {
+  if (isCbq(q)) return true;
   const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
   const section = String((q as { section?: unknown }).section ?? "");
   const bloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");

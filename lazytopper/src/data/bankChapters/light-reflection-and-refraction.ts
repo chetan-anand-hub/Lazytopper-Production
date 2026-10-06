@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "light-reflection-and-refraction" (Science): 693 served rows from 21 source arrays, 72 withheld.
+// Chapter "light-reflection-and-refraction" (Science): 788 served rows from 22 source arrays, 72 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -25,6 +25,7 @@ import { LGHT_CFPQ_SQP25 } from "../questionBanks/class10/science/light-reflecti
 import { LGHT_GDR, LGHT_GDR_BEYOND_BOARD } from "../questionBanks/class10/science/light-reflection-and-refraction.gdr";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 import { LIGHT_CBQ_LT_GENERATED } from "../questionBanks/class10/science/light-reflection-and-refraction.cbq.ltgen";
+import { LIGHT_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/light-reflection-and-refraction.b1.cbq.ltgen";
 
 export default defineChapter("light-reflection-and-refraction", [
   [44, LIGHT_PACK1, true],
@@ -48,6 +49,7 @@ export default defineChapter("light-reflection-and-refraction", [
   [410, LGHT_GDR_BEYOND_BOARD, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [429, LIGHT_CBQ_LT_GENERATED, false],
+  [431, LIGHT_CBQ_B1_LT_GENERATED, false],
 ], [
   "LT-H05",
   "LT2-013",
