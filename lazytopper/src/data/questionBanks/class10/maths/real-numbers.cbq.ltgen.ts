@@ -75,8 +75,7 @@ export const REAL_NUMBERS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "answer": "7:21:00 PM",
     "solutionSteps": [
       "[1 mark] 40 = 2³ × 5, 60 = 2² × 3 × 5, 90 = 2 × 3² × 5, so LCM = 2³ × 3² × 5 = 360 seconds.",
-      "[0.5 mark] 360 seconds = 6 minutes.",
-      "[0.5 mark] They next flash together at 7:15:00 PM + 6 min = 7:21:00 PM."
+      "[1 mark] 360 seconds = 6 minutes, so they next flash together at 7:15:00 PM + 6 min = 7:21:00 PM."
     ],
     "finalAnswer": "7:21:00 PM",
     "isCompetencyBased": true,
