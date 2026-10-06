@@ -2218,28 +2218,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     finalAnswer: "60",
   },
-  {
-    id: "2026-RN-AR-06",
-    topicKey: "Real Numbers",
-    subtopic: "Irrational Numbers & Proofs",
-    kind: "Assertion-Reasoning",
-    section: "A",
-    marks: 1,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Assertion (A): \\(\\\\sqrt{5}\\) is an irrational number.\nReason (R): The square root of any prime number is irrational.",
-    answer:
-      "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
-    explanation:
-      "Prime factors of 5 cannot be paired to form a rational square. The Fundamental Theorem of Arithmetic shows that √p is irrational for any prime p.",
-    solutionSteps: [
-      "Assertion (A) states that sqrt(5) is irrational, which is true because 5 is a prime number.",
-      "Reason (R) states that the square root of any prime number is irrational, which is a correct mathematical theorem.",
-      "Since 5 is a prime number, Reason (R) directly explains why sqrt(5) is irrational.",
-    ],
-    finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
-  },
 
   // ===== Polynomials (high‑roi) =====
   {
@@ -2639,30 +2617,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Simplify the expression: Area = (1/6) * (22/7) * 49 = (1/6) * 22 * 7 = 11 * 7 / 3 = 77/3 cm^2.",
     ],
     finalAnswer: "77/3 cm²",
-  },
-  {
-    id: "2026-ARC-SA-04",
-    topicKey: "Areas Related to Circles",
-    subtopic: "Composite Figures",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "A running track consists of two straight sections each of length 50 m joined by two semicircles of radius 20 m. Find the total length of the track and the area enclosed by it. (Take π = 3.14.)",
-    answer:
-      "Length ≈ 225.6 m; Area ≈ 3,256 m².",
-    explanation:
-      "Length: two semicircles make a full circle of circumference 2πr = 40π m; adding straight sections gives 40π + 100 ≈ 125.6 + 100 = 225.6 m. Area: rectangle 50 × 40 = 2,000 m² plus circle area πr² = 3.14 × 400 = 1,256 m²; total ≈ 3,256 m².",
-    solutionSteps: [
-      "Compute the circular part: circumference = 2π×20 = 40π m.; Add the two straight segments (100 m). [1]",
-      "For area, combine the area of the rectangle (50 × 40) and the area of the full circle (π×20²). [1]",
-      "Use π = 3.14 for numerical results. [1]",
-    ],
-    strategyHint:
-      "Break the track into simple geometric shapes: a rectangle and a circle.",
-    finalAnswer: "Length ≈ 225.6 m; Area ≈ 3,256 m².",
   },
   {
     id: "2026-TRIG-LA-13",

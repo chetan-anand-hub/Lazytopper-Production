@@ -105,13 +105,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
-          "id": "S-CHEM-5",
-          "text": "Explain rancidity. How can it be prevented?",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
           "id": "S-CHEM-6",
           "text": "Classify the reaction CaCO3 → CaO + CO2 and write one more example of same type.",
           "marks": 2,
@@ -1300,13 +1293,6 @@ export const promptDPracticePacks: PracticePacksIndex =
             "questionType": "subjective"
           },
           {
-            "id": "M-REAL-6",
-            "text": "[Assertion-Reason — Competency-based] Assertion (A): √2 is irrational. Reason (R): If p is a prime number, then √p is irrational.",
-            "marks": 1,
-            "difficulty": "Easy",
-            "questionType": "assertion-reason"
-          },
-          {
             "id": "M-REAL-7",
             "text": "Prove that √3 is an irrational number.",
             "marks": 2,
@@ -2141,13 +2127,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "id": "M-ARC-3",
           "text": "Find area of a sector of circle of radius 6 cm and angle 60°.",
           "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-ARC-4",
-          "text": "Find area of ring formed between two concentric circles of radii 7 cm and 14 cm.",
-          "marks": 3,
           "difficulty": "Medium",
           "questionType": "subjective"
         },

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "magnetic-effects-of-electric-current" (Science): 159 served rows from 18 source arrays, 64 withheld.
+// Chapter "magnetic-effects-of-electric-current" (Science): 157 served rows from 18 source arrays, 66 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -65,6 +65,7 @@ export default defineChapter("magnetic-effects-of-electric-current", [
   "ME2-013",
   "ME2-014",
   "ME2-015",
+  "ME2-016",
   "ME2-019",
   "ME2-020",
   "ME2-021",
@@ -88,6 +89,7 @@ export default defineChapter("magnetic-effects-of-electric-current", [
   "MAG-NCERT-12-LA-001",
   "MAG-EXMPLR-12-MCQ-006",
   "MAG-EXMPLR-12-MCQ-007",
+  "MAG-EXMPLR-12-MCQ-008",
   "MAG-EXMPLR-12-SA-009",
   "MAG-EXMPLR-12-SA-010",
   "MAG-EXMPLR-12-LA-005",

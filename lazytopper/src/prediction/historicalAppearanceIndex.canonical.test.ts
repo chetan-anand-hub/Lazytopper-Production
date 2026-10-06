@@ -104,10 +104,11 @@ describe("why the LIVE signal keeps the legacy matcher — measured, not asserte
     return moved;
   }
 
-  it("the live HPQ set is 129 questions", () => {
+  it("the live HPQ set is 128 questions", () => {
     const total = highlyProbableQuestions.reduce((n, b) => n + b.questions.length, 0);
     // 140 -> 129 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): 11 out-of-syllabus HPQ rows removed.
-    expect(total).toBe(129);
+    // 129 -> 128 at QUICK-FIXES-1 PR-2 (owner ruling R1, 2026-10-06): rn-comp-02 removed.
+    expect(total).toBe(128);
   });
 
   it("★ canonicalising BOTH dimensions moves a large share of the live HPQ set", () => {

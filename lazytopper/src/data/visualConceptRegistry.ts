@@ -317,7 +317,6 @@ export const SCIENCE_VISUALS: ChapterVisuals[] = [
       c("science", "magnetic-effects", "Magnetic Field Lines", ["field", "lines", "bar", "magnet", "direction"]),
       c("science", "magnetic-effects", "Electromagnet and Solenoid", ["electromagnet", "solenoid", "coil", "current"]),
       c("science", "magnetic-effects", "Flemings Left Hand Rule", ["fleming", "force", "motor", "conductor", "magnetic"]),
-      c("science", "magnetic-effects", "Electric Motor and Generator", ["motor", "generator", "AC", "DC", "electromagnetic"]),
     ],
   },
 ];

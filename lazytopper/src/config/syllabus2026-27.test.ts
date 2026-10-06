@@ -163,6 +163,73 @@ describe("owner rulings (2026-10-05) are encoded", () => {
   });
 });
 
+describe("owner rulings R1–R7 of 2026-10-06 (QUICK-FIXES-1 PR-2) are encoded", () => {
+  const TAG = /owner ruling 2026-10-06 \(QUICK-FIXES-1 PR-2\)/;
+  const rn = chapter("maths", "real-numbers");
+  const cg = chapter("maths", "coordinate-geometry");
+  const arc = chapter("maths", "areas-related-to-circles");
+  const stats = chapter("maths", "statistics");
+  const cr = chapter("science", "chemical-reactions-and-equations");
+  const carbon = chapter("science", "carbon-and-its-compounds");
+  const mag = chapter("science", "magnetic-effects-of-electric-current");
+
+  it("no item is left AMBIGUOUS in either subject", () => {
+    expect(SYLLABUS_AMBIGUOUS.maths).toEqual([]);
+    expect(SYLLABUS_AMBIGUOUS.science).toEqual([]);
+  });
+
+  it("R1: same-method named-prime proofs IN; general-prime statements and composite surds OUT (evidence cited)", () => {
+    const inn = rn.in.find((i) => /^Same-method irrationality proofs/.test(i.item));
+    expect(inn?.ruling).toMatch(/Owner ruling R1/);
+    expect(inn?.ruling).toMatch(TAG);
+    expect(inn?.item).toMatch(/6 − √7/);
+    const out = rn.out.find((o) => /general prime/.test(o.item));
+    expect(out?.ruling).toMatch(/evidence rule/);
+    expect(rn.resolved.some((r) => /surds other than √2, √3, √5/.test(r.item) && /Owner ruling R1/.test(r.ruling))).toBe(true);
+    // the reversed working reading is gone (C2: no contradiction left)
+    expect(JSON.stringify(rn)).not.toMatch(/Corrects the cofounder/);
+  });
+
+  it("R2: centroid OUT", () => {
+    expect(cg.out.find((o) => /^Centroid of a triangle/.test(o.item))?.ruling).toMatch(/Owner ruling R2/);
+    expect(SYLLABUS_OUT.maths.some((r) => r.key === "coordinate-geometry" && /^Centroid/.test(r.item))).toBe(true);
+    expect(cg.resolved.some((r) => /Centroid/.test(r.item) && /Owner ruling R2/.test(r.ruling))).toBe(true);
+  });
+
+  it("R3: combinations OUT; sector/segment with its defining triangle or square IN; inscribed measures IN", () => {
+    expect(arc.out.find((o) => /^Areas of combinations of plane figures/.test(o.item))?.ruling).toMatch(/Owner ruling R3/);
+    expect(arc.in.find((i) => /^Shaded regions made only of a sector or segment/.test(i.item))?.ruling).toMatch(/class c/);
+    expect(arc.in.find((i) => /^Measures of a circle inscribed in a square/.test(i.item))?.ruling).toMatch(/class d/);
+    expect(JSON.stringify(arc)).not.toMatch(/routine board items/);
+  });
+
+  it("R4: the empirical relation is IN as a tool (encode only)", () => {
+    expect(stats.in.find((i) => /^Empirical relation 3 Median = Mode \+ 2 Mean/.test(i.item))?.ruling).toMatch(/Owner ruling R4/);
+    expect(SYLLABUS_OUT.maths.some((r) => /empirical/i.test(r.item))).toBe(false);
+  });
+
+  it("R5: rancidity OUT; corrosion is not OUT", () => {
+    expect(cr.out.find((o) => /^Rancidity/.test(o.item))?.ruling).toMatch(/Owner ruling R5/);
+    expect(SYLLABUS_OUT.science.some((r) => /corrosion/i.test(r.item))).toBe(false);
+  });
+
+  it("R6: naming carboxylic acids OUT; the -COOH group and natural acids IN", () => {
+    expect(carbon.out.find((o) => /^Nomenclature of carboxylic acids/.test(o.item))?.ruling).toMatch(/Owner ruling R6/);
+    expect(carbon.in.find((i) => /^Identifying the -COOH/.test(i.item))?.ruling).toMatch(/Owner ruling R6/);
+    expect(SYLLABUS_OUT.science.some((r) => /ethanoic/i.test(r.item) && !/-oic acid/.test(r.item))).toBe(false);
+  });
+
+  it("R7: Motor / EMI / Generator stay FORMATIVE (as already applied), with the ruling note", () => {
+    expect(mag.formative[0]?.ruling).toMatch(/Owner ruling R7/);
+    expect(mag.resolved.some((r) => /Electric Effects of Electric Current/.test(r.item) && /Owner ruling R7/.test(r.ruling))).toBe(true);
+    expect(FORMATIVE_ONLY_TOPICS.filter((t) => t.parentKey === "magnetic-effects-of-electric-current").map((t) => t.name)).toEqual([
+      "Electric Motor",
+      "Electromagnetic Induction",
+      "Electric Generator",
+    ]);
+  });
+});
+
 describe("formative-only topics named by the PDF", () => {
   it("Periodic Classification (p4), Evolution (p5), Motor/EMI/Generator (p6)", () => {
     const by = new Map(FORMATIVE_ONLY_TOPICS.map((t) => [t.name, t]));

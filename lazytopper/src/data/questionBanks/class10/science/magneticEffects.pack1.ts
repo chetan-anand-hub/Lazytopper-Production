@@ -15,7 +15,7 @@ export const MAGNETIC_EFFECTS_PACK1: CanonicalQuestion[] = [
       "Diagram: rectangular coil ABCD between poles of magnet, split ring commutator, brushes, battery; Principle: current-carrying conductor in magnetic field experiences a force (motor effect) [1]",
       "Working: current flows through coil → force on AB (up) and CD (down) by Fleming's left-hand rule [1]",
       "Coil rotates; at 180°, commutator reverses current direction → continuous rotation [1]",
-    ], finalAnswer: "Labelled diagram; principle: force on current in field; commutator ensures continuous rotation" , visualExplainerId: "science-magnetic-effects-electric-motor-and-generator", isCompetencyBased: false },
+    ], finalAnswer: "Labelled diagram; principle: force on current in field; commutator ensures continuous rotation" , isCompetencyBased: false },
   { id: "ME-M02", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "EMI", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Explain electromagnetic induction. State Faraday's law.", solutionSteps: [
       "EMI: whenever magnetic flux through a coil changes, an EMF (and current, if circuit closed) is induced; Can be caused by: moving magnet near coil, moving coil in magnetic field, changing current in nearby coil [1]",
       "Faraday's law: The magnitude of induced EMF is proportional to the rate of change of magnetic flux [1]",
@@ -36,12 +36,12 @@ export const MAGNETIC_EFFECTS_PACK1: CanonicalQuestion[] = [
       "Circuit Diagram: Draw the domestic household wiring circuit showing: Live wire (L, red/brown), Neutral wire (N, black/blue), Earth wire (E, green/yellow), MCB/fuse box, energy meter, and household appliances connected in parallel across L and N.; Live wire (red/brown): carries current at high potential (~220V) [1]",
       "Neutral wire (black/blue): at approximately zero potential; completes the circuit; Earth wire (green/yellow): connected to metal body of appliance and ground [1]",
       "Main supply → fuse/MCB → live wire branches to different circuits; Each circuit has its own fuse; appliances connected in parallel between live and neutral [1]",
-    ], finalAnswer: "Live (220V), Neutral (~0V), Earth (safety); parallel circuits with fuses" , visualExplainerId: "science-magnetic-effects-electric-motor-and-generator", isCompetencyBased: false },
+    ], finalAnswer: "Live (220V), Neutral (~0V), Earth (safety); parallel circuits with fuses" , isCompetencyBased: false },
   { id: "ME-M08", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "EMI", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Draw a labelled diagram of an AC generator. Explain its working principle.", solutionSteps: [
       "Diagram: rectangular coil between magnetic poles, slip rings, brushes, external load; Principle: electromagnetic induction — coil rotates in magnetic field, flux changes → EMF induced [1]",
       "Working: as coil rotates, flux through it changes continuously; EMF alternates direction every half rotation → alternating current (AC) [1]",
       "Slip rings (not split rings) maintain continuous contact [1]",
-    ], finalAnswer: "Labelled AC generator; EMI principle; rotating coil → changing flux → AC output" , visualExplainerId: "science-magnetic-effects-electric-motor-and-generator", isCompetencyBased: false },
+    ], finalAnswer: "Labelled AC generator; EMI principle; rotating coil → changing flux → AC output" , isCompetencyBased: false },
   { id: "ME-M10", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Force on Conductor", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A wire carrying current is placed between two poles of a horseshoe magnet. The wire moves upward.\n(i) Name the rule used to find the direction of force.\n(ii) What happens if the current direction is reversed?\n(iii) What happens if the magnetic poles are interchanged?\n(iv) What happens if both current and field are reversed?", solutionSteps: [
       "(i) Fleming's left-hand rule [1]",
       "(ii) Force reverses → wire moves downward [1]",
@@ -63,7 +63,7 @@ export const MAGNETIC_EFFECTS_PACK1: CanonicalQuestion[] = [
       "Magnets: provide uniform magnetic field; Split ring commutator: reverses current every half rotation for continuous rotation [1]",
       "Brushes: provide sliding electrical contact to commutator [1]",
       "Working: current in coil → force on each arm (Fleming's left-hand rule) → coil rotates → commutator reverses current → continuous rotation [1]",
-    ], finalAnswer: "Detailed DC motor with principle, construction, working, and component roles" , visualExplainerId: "science-magnetic-effects-electric-motor-and-generator", isCompetencyBased: true },
+    ], finalAnswer: "Detailed DC motor with principle, construction, working, and component roles" , isCompetencyBased: true },
   { id: "ME-H02", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "EMI", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Distinguish between AC and DC generators with respect to: (i) type of current produced (ii) type of rings used (iii) one application each.", solutionSteps: [
       "(i) AC generator: alternating current; DC generator: direct current [1]",
       "(ii) AC: slip rings; DC: split ring commutator [1]",
@@ -79,14 +79,14 @@ export const MAGNETIC_EFFECTS_PACK1: CanonicalQuestion[] = [
       "(ii) MCB can be reset after tripping; fuse wire melts and must be replaced [1]",
       "(iii) Direct contact between live and neutral wires (damaged insulation, loose connections) [1]",
       "(iv) Overloading draws excessive current → wires overheat → fire risk [1]",
-    ], finalAnswer: "(i) Auto circuit breaker (ii) Reusable vs single-use (iii) Live-neutral contact (iv) Overheating/fire" , visualExplainerId: "science-magnetic-effects-electric-motor-and-generator", isCompetencyBased: true },
+    ], finalAnswer: "(i) Auto circuit breaker (ii) Reusable vs single-use (iii) Live-neutral contact (iv) Overheating/fire" , isCompetencyBased: true },
   { id: "ME-H05", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "EMI", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Explain the principle, construction, and working of an AC generator with a labelled diagram. Derive the expression for the induced EMF.", solutionSteps: [
       "Diagram: Draw the electric motor (or generator) showing the rectangular coil ABCD between the poles of a magnet, commutator (motor) or slip rings (generator), carbon brushes, and external circuit.; Principle: electromagnetic induction — rotating coil in magnetic field induces EMF [1]",
       "Construction: armature coil (ABCD), permanent magnets (N-S), slip rings, brushes, load; Working: coil rotates → magnetic flux changes → EMF induced (Faraday's law) [1]",
       "When coil is perpendicular to field: maximum flux change → maximum EMF; When coil is parallel to field: minimum flux change → zero EMF [1]",
       "EMF varies sinusoidally: e = NBA ω sin(ωt) = e₀ sin(ωt) [1]",
       "Where e₀ = NBAω is the peak EMF [1]",
-    ], finalAnswer: "EMI principle; labelled diagram; e = NBAω sin(ωt) derived" , visualExplainerId: "science-magnetic-effects-electric-motor-and-generator", isCompetencyBased: true },
+    ], finalAnswer: "EMI principle; labelled diagram; e = NBAω sin(ωt) derived" , isCompetencyBased: true },
   { id: "ME-H06", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "How does the magnetic field pattern of a current-carrying circular loop differ from that of a straight conductor? Where is the field strongest in a circular loop?", solutionSteps: [
       "Straight conductor: concentric circles around the wire, decreasing strength with distance; Circular loop: field lines are concentric near wire but appear as straight lines at the centre [1]",
       "At the centre of the loop, field contributions from all parts add up → strongest [1]",

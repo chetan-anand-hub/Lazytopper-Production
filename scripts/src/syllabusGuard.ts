@@ -496,6 +496,12 @@ export const LABEL_VARIANTS: readonly LabelVariantEntry[] = [
   { key: "real-numbers", kind: "out", itemStartsWith: "Euclid's division lemma",
     labels: ["Euclid's Division Lemma", "Euclid's Division Algorithm", "Euclid Division Lemma", "HCF by Euclid's Division"],
     freeText: ["euclid's division lemma", "euclid's division algorithm"] },
+  // QUICK-FIXES-1 PR-2 — owner rulings R1–R3 of 2026-10-06 (evidence rule). Same-method proofs for a NAMED prime
+  // (√7, 6 − √7) are IN and are never matched; only the general-prime / composite-surd forms are.
+  { key: "real-numbers", kind: "out", itemStartsWith: "Irrationality statements or proofs for a general prime",
+    labels: ["Irrationality of √p", "Irrationality of Square Root of a Prime", "Square Root of Every Prime is Irrational",
+      "Irrationality of √p + √q"],
+    freeText: ["square root of every prime", "square root of any prime", "is irrational for any prime", "is irrational for every prime"] },
   { key: "real-numbers", kind: "out", itemStartsWith: "Decimal expansions of rational numbers",
     labels: ["Decimal Expansion(s)", "Decimal Expansions of Rational Numbers", "Decimal Representation of Rational Numbers",
       "Terminating and Non-Terminating Decimals", "Terminating Decimal Expansion"] },
@@ -518,6 +524,16 @@ export const LABEL_VARIANTS: readonly LabelVariantEntry[] = [
       "Collinearity using Area"],
     freeText: ["area of a triangle from coordinates", "area of a triangle from its vertices", "area of a triangle whose vertices"],
     chapterScoped: true },
+  { key: "coordinate-geometry", kind: "out", itemStartsWith: "Centroid of a triangle",
+    labels: ["Centroid", "Centroid of a Triangle", "Centroid Formula", "Coordinates of the Centroid"],
+    freeText: ["centroid of a triangle", "centroid of the triangle", "centroid formula"] },
+  // "Combinations of Plane Figures" and "Combined Figures" are NOT variants: served IN rows carry them (the official
+  // vertex-sector row ARC-N-EXEM-11-LA-002, and sector-only LazyTopper rows); the reference term itself
+  // ("area(s) of combination(s) of plane figures") and the ring / annulus labels are matched.
+  { key: "areas-related-to-circles", kind: "out", itemStartsWith: "Areas of combinations of plane figures",
+    labels: ["Annulus", "Area of Annulus", "Area of a Ring", "Area of Ring", "Area of Combined Figures", "Areas of Combined Figures"],
+    freeText: ["combination of plane figures", "combinations of plane figures", "area of the ring", "area of the annulus",
+      "combination figure"] },
   { key: "coordinate-geometry", kind: "out", itemStartsWith: "Section formula — external division",
     labels: ["External Division", "Section Formula for External Division"] },
   { key: "triangles", kind: "out", itemStartsWith: "Ratio of areas of similar triangles",
@@ -539,9 +555,23 @@ export const LABEL_VARIANTS: readonly LabelVariantEntry[] = [
   { key: "surface-areas-and-volumes", kind: "out", itemStartsWith: "Frustum of a cone",
     labels: ["Frustum", "Frustum of a Cone"] },
   { key: "surface-areas-and-volumes", kind: "out", itemStartsWith: "Conversion of one solid into another",
-    labels: ["Conversion of Solids", "Conversion of Solid from One Shape to Another", "Melting and Recasting"] },
+    labels: ["Conversion of Solids", "Conversion of Solid from One Shape to Another", "Melting and Recasting", "Recasting of Solids"],
+    // QUICK-FIXES-1 PR-2 (FU-A16-B-SAV-MELTING-ROWS): bank rows filed under "Combination/Transformation" carry no OUT
+    // label, so the free-text phrases catch a melting/recasting stem on the text surfaces (promptD, notes, Hub).
+    // chapterScoped: a melted-and-recast WIRE in Electricity (resistance, R = ρl/A) is IN (Fable ruling, SCO-S-ELEC-009).
+    freeText: ["melted and recast", "is melted into", "recast into", "melted to form"],
+    chapterScoped: true },
   { key: "statistics", kind: "out", itemStartsWith: "Graphical representation of cumulative frequency",
     labels: ["Ogive", "Cumulative Frequency Graph", "Cumulative Frequency Curve", "Less Than Ogive", "More Than Ogive", "Median from Ogive"] },
+  // QUICK-FIXES-1 PR-2 — owner rulings 2026-10-06. "Corrosion and Rancidity" is NOT a variant: corrosion is IN
+  // (Metals, p5) and two official corrosion-only rows still carry that label (FU-B17-R5-LABEL-RELABELS).
+  { key: "chemical-reactions-and-equations", kind: "out", itemStartsWith: "Rancidity",
+    labels: ["Rancidity", "Rancidity and its Prevention", "Prevention of Rancidity"],
+    freeText: ["prevent rancidity", "prevention of rancidity", "rancidity of food", "corrosion and rancidity", "become rancid",
+      "rancidity is"] },
+  { key: "carbon-and-its-compounds", kind: "out", itemStartsWith: "Nomenclature of carboxylic acids",
+    labels: ["Nomenclature of Carboxylic Acids", "Naming Carboxylic Acids", "IUPAC Naming of Carboxylic Acids"],
+    freeText: ["naming carboxylic acids", "oic acid suffix", "suffix oic acid"] },
   { key: "light-reflection-and-refraction", kind: "out", itemStartsWith: "Derivation of the mirror formula",
     labels: ["Derivation of Mirror Formula", "Derivation of Lens Formula"] },
   { key: "light-reflection-and-refraction", kind: "out", itemStartsWith: "Beyond-Class-X optics",

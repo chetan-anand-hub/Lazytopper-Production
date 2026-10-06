@@ -12,7 +12,7 @@
     },
     "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 1"
   },
-  "board_asks": "balance a skeletal equation and add the physical-state symbols (s)/(l)/(g)/(aq); identify the reaction type (combination, decomposition, displacement, double displacement/precipitation, or oxidation-reduction); classify a decomposition by its energy source (heat, light or electricity); say which substance is oxidised and which is reduced; and explain the everyday effects of oxidation - corrosion and rancidity. The balanced equation IS the answer in most questions here.",
+  "board_asks": "balance a skeletal equation and add the physical-state symbols (s)/(l)/(g)/(aq); identify the reaction type (combination, decomposition, displacement, double displacement/precipitation, or oxidation-reduction); classify a decomposition by its energy source (heat, light or electricity); say which substance is oxidised and which is reduced; and explain corrosion, the everyday effect of oxidation on metals. The balanced equation IS the answer in most questions here.",
   "big_idea": {
     "tagline": "New substances form - and we record them as a balanced equation.",
     "body": "A chemical reaction makes one or more new substances; you notice it as a change in state, colour or temperature, or a gas being given off. We write the change as a chemical equation and then balance it, because atoms are only rearranged, never created or destroyed. Almost every reaction in this chapter sorts into one of five types, and many are also redox reactions - oxygen or hydrogen changing hands. Most marks sit in writing the correct balanced equation with the right classification."
@@ -149,19 +149,6 @@
       }
     },
     {
-      "id": "def_rancidity",
-      "tier": "headline",
-      "term": "Rancidity",
-      "verbatim": "When fats and oils are oxidised, they become rancid and their smell and taste change.",
-      "plain": "The oxidation of fats and oils in food, which spoils their smell and taste; slowed by antioxidants or by flushing the pack with nitrogen.",
-      "memorise": true,
-      "source": {
-        "ncert_page": 13,
-        "edition": "2026-27",
-        "chapter": 1
-      }
-    },
-    {
       "id": "kt_skeletal_equation",
       "tier": "key-term",
       "term": "Skeletal chemical equation",
@@ -234,8 +221,8 @@
     {
       "id": "c7",
       "title": "Effects of oxidation in everyday life",
-      "body": "Corrosion is the slow attack of a metal by moisture and acids in its surroundings - the rusting of iron is the commonest example, and it damages railings, bridges, ships and car bodies. Rancidity is the oxidation of fats and oils in food, which changes their smell and taste; it is slowed by adding antioxidants, using air-tight packs, or flushing the pack with nitrogen.",
-      "tested": "2-mark: define corrosion and rancidity with an example each; why food packs are flushed with nitrogen.",
+      "body": "Corrosion is the slow attack of a metal by moisture and acids in its surroundings - the rusting of iron is the commonest example, and it damages railings, bridges, ships and car bodies.",
+      "tested": "2-mark: define corrosion with an example; name two ways to prevent the rusting of iron.",
       "figure_ref": null
     }
   ],
@@ -524,7 +511,7 @@
     },
     {
       "label": "Everyday oxidation",
-      "math": "Corrosion (rusting of iron)  .  Rancidity (fats/oils oxidise) - slowed by antioxidants / nitrogen flush"
+      "math": "Corrosion (rusting of iron) - prevented by painting, oiling, greasing or galvanising"
     }
   ],
   "mindmap": {
@@ -577,8 +564,7 @@
         "label": "Everyday effects",
         "children": [
           "Corrosion - rusting of iron",
-          "Rancidity - fats/oils oxidise",
-          "Slowed by antioxidants / nitrogen flush"
+          "Prevented by paint, oil, grease, galvanising"
         ]
       }
     ]
@@ -815,7 +801,6 @@
     { "item": "Exothermic reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.7" },
     { "item": "Endothermic reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.10" },
     { "item": "Corrosion", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.13" },
-    { "item": "Rancidity", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.13" },
     { "item": "Skeletal chemical equation", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.3" },
     { "item": "Precipitation reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.11" },
     { "item": "Balancing a skeletal equation", "type": "example", "source": "NCERT 2026-27 Ch1 Steps I-VII, Eq. 1.10, p.5" },
