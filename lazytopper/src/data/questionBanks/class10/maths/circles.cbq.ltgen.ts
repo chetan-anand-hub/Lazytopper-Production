@@ -81,9 +81,9 @@ export const CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "APQ-M-CIRC-004",
+    "shapedFrom": "SP-M-2022-CIRC-C-001",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Additional Practice Questions 2023-24 Maths Standard PQ2 Q24"
+    "modelledOn": "CBSE Sample Paper Maths Standard 2022 (Circles, SP-M-2022-CIRC-C-001)"
   },
   {
     "id": "LTG-M-CIRC-104",
