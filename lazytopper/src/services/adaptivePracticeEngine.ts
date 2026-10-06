@@ -33,6 +33,10 @@ export interface WrongAnswerEntry {
 export interface WrongAnswerLog {
   version: 1;
   entries: Record<string, WrongAnswerEntry>;
+  /** ME-ENGINE-1 PR-2 (G11) — epoch ms of the last change, set on every save. Decides which copy
+   *  wins when a device and the cloud disagree (newer wins, as the Tutor thread). Optional and
+   *  additive: a log saved before PR-2 has none and counts as oldest (0). */
+  updatedAt?: number;
 }
 
 export interface AdaptiveDifficultyMix {
@@ -71,13 +75,108 @@ const ACTIVE_PROGRESS_UID_KEY = "lazytopper.progress.active_uid.v1";
  * areas. A signed-in uid now owns `lazytopper.wrongAnswerLog.v1:<uid>`; the unscoped key is
  * read only when nobody is active (never merged into a student's log, which is what leaked).
  */
-function wrongAnswerStorageKey(): string {
-  if (typeof window === "undefined") return WRONG_ANSWER_STORAGE_KEY;
+function activeUid(): string | null {
+  if (typeof window === "undefined") return null;
   try {
     const uid = window.localStorage.getItem(ACTIVE_PROGRESS_UID_KEY);
-    return uid && uid.trim() ? `${WRONG_ANSWER_STORAGE_KEY}:${uid.trim()}` : WRONG_ANSWER_STORAGE_KEY;
+    return uid && uid.trim() ? uid.trim() : null;
   } catch {
-    return WRONG_ANSWER_STORAGE_KEY;
+    return null;
+  }
+}
+
+function wrongAnswerStorageKey(uid: string | null = activeUid()): string {
+  return uid ? `${WRONG_ANSWER_STORAGE_KEY}:${uid}` : WRONG_ANSWER_STORAGE_KEY;
+}
+
+function parseWrongAnswerLog(raw: unknown): WrongAnswerLog | null {
+  if (raw && typeof raw === "object") {
+    const parsed = raw as WrongAnswerLog;
+    if (parsed.version === 1 && parsed.entries && typeof parsed.entries === "object") return parsed;
+  }
+  return null;
+}
+
+/* ── ME-ENGINE-1 PR-2 (G11) — the wrong-answer log is SYNCED ─────────────────────────────────
+ * It used to live on one device only, so a second device showed no weak areas at all. Every save
+ * now also writes the whole log as ONE field, `wrongAnswerLog`, of the student's existing profile
+ * document `learnerProfiles/{uid}` (owner-only rules; DPDP map id `learnerProfiles`, which export
+ * and erasure already walk — a new field on an existing location, no new location). The field is
+ * REPLACED whole on each write (`mergeFields`), never deep-merged, so a cleared entry stays
+ * cleared; every other profile field is untouched. Sign-in hydrates it back
+ * (`hydrateWrongAnswerLogFromCloud`, run with the mistake-log hydration). The newer copy wins by
+ * `updatedAt`. The Firebase modules are imported lazily so this module's static import graph
+ * stays Firebase-free.
+ */
+const WRONG_ANSWER_CLOUD_FIELD = "wrongAnswerLog";
+
+function isCloudUid(uid: string | null): uid is string {
+  return Boolean(uid && uid !== "anonymous");
+}
+
+async function cloudRef(uid: string) {
+  const [{ firestoreDb }, { doc }] = await Promise.all([import("./firebaseClient"), import("firebase/firestore")]);
+  return firestoreDb ? doc(firestoreDb, "learnerProfiles", uid) : null;
+}
+
+/** Pushes run ONE AT A TIME, in save order — two quick saves must never land newest-first. */
+let pushChain: Promise<void> = Promise.resolve();
+
+function pushWrongAnswerLog(uid: string, log: WrongAnswerLog): Promise<void> {
+  const snapshot = JSON.parse(JSON.stringify(log)) as WrongAnswerLog;
+  pushChain = pushChain
+    .then(async () => {
+      const ref = await cloudRef(uid);
+      if (!ref) return;
+      const { setDoc } = await import("firebase/firestore");
+      await setDoc(ref, { [WRONG_ANSWER_CLOUD_FIELD]: snapshot }, { mergeFields: [WRONG_ANSWER_CLOUD_FIELD] });
+    })
+    .catch(() => {
+      /* best-effort: the device copy stays, and the next save or sign-in retries */
+    });
+  return pushChain;
+}
+
+/**
+ * Bring the signed-in student's synced wrong-answer log onto this device (sign-in). The newer copy
+ * wins: a newer cloud log replaces the device copy; a newer device log (written before it could
+ * sync) is pushed up. Never throws. Returns which way it went (for tests and diagnostics).
+ */
+export async function hydrateWrongAnswerLogFromCloud(
+  uid: string | null | undefined,
+): Promise<"pulled" | "pushed" | "same" | "skipped"> {
+  const id = uid ?? null;
+  if (typeof window === "undefined" || !isCloudUid(id)) return "skipped";
+  try {
+    const ref = await cloudRef(id);
+    if (!ref) return "skipped";
+    const { getDoc } = await import("firebase/firestore");
+    const snap = await getDoc(ref);
+    const cloud = snap.exists() ? parseWrongAnswerLog((snap.data() as Record<string, unknown>)[WRONG_ANSWER_CLOUD_FIELD]) : null;
+    const local = readWrongAnswerLogFor(id);
+    const cloudAt = Number(cloud?.updatedAt) || 0;
+    const localAt = Number(local?.updatedAt) || 0;
+    if (cloud && cloudAt > localAt) {
+      window.localStorage.setItem(wrongAnswerStorageKey(id), JSON.stringify(cloud));
+      return "pulled";
+    }
+    if (local && Object.keys(local.entries).length > 0 && localAt > cloudAt) {
+      await pushWrongAnswerLog(id, { ...local, updatedAt: localAt || Date.now() });
+      return "pushed";
+    }
+    return "same";
+  } catch {
+    return "skipped";
+  }
+}
+
+function readWrongAnswerLogFor(uid: string | null): WrongAnswerLog | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(wrongAnswerStorageKey(uid));
+    return raw ? parseWrongAnswerLog(JSON.parse(raw)) : null;
+  } catch {
+    return null;
   }
 }
 
@@ -86,27 +185,20 @@ function nowMs(): number {
 }
 
 export function loadWrongAnswerLog(): WrongAnswerLog {
-  if (typeof window === "undefined") return { version: 1, entries: {} };
-  try {
-    const raw = window.localStorage.getItem(wrongAnswerStorageKey());
-    if (!raw) return { version: 1, entries: {} };
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === "object" && parsed.version === 1 && parsed.entries) {
-      return parsed as WrongAnswerLog;
-    }
-    return { version: 1, entries: {} };
-  } catch {
-    return { version: 1, entries: {} };
-  }
+  return readWrongAnswerLogFor(activeUid()) ?? { version: 1, entries: {} };
 }
 
 export function saveWrongAnswerLog(log: WrongAnswerLog): void {
   if (typeof window === "undefined") return;
+  const uid = activeUid();
+  const stamped: WrongAnswerLog = { ...log, updatedAt: Date.now() };
   try {
-    window.localStorage.setItem(wrongAnswerStorageKey(), JSON.stringify(log));
+    window.localStorage.setItem(wrongAnswerStorageKey(uid), JSON.stringify(stamped));
   } catch {
     /* ignore */
   }
+  // G11 — the signed-in student's log is synced (never the unscoped signed-out key).
+  if (isCloudUid(uid)) void pushWrongAnswerLog(uid, stamped);
 }
 
 /** A usable conceptual-marks figure (finite, > 0), else null — never an invented 0. */
