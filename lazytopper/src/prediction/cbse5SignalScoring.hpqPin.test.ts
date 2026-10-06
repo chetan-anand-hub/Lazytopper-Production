@@ -102,7 +102,6 @@ const FROZEN_HPQ_RANKING: string[] = [
   "qe-hpq-105|0.8555555556|0.6841666667",
   "qe-hpq-1|0.9111111111|0.6583333333",
   "rn-comp-01|0.9111111111|0.9008333333",
-  "rn-comp-02|0.3222222222|0.5116666667",
   "rn-hpq-2|0.9111111111|0.8633333333",
   "rn-hpq-4|0.3222222222|0.4916666667",
   "sav-comp-03|0.3222222222|0.5291666667",
@@ -190,8 +189,10 @@ describe("HPQ ranking pin", () => {
     // that asserts nothing.
     // 140 -> 129 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06, owner: "Yes, all of it"): the 11 out-of-syllabus HPQ rows
     // removed (cg-comp-01, math-tri-hpq-3, prob-hpq-105, rn-hpq-3, rn-hpq-5, sav-comp-01, sav-comp-02, sci-eye-hpq-3, tri-comp-01, tri-hpq-102, tri-hpq-105); their frozen lines deleted, every other line unchanged.
-    expect(FROZEN_HPQ_RANKING.length).toBe(129);
-    expect(currentRanking().length).toBe(129);
+    // 129 -> 128 at QUICK-FIXES-1 PR-2 (owner ruling R1 + evidence rule, 2026-10-06): rn-comp-02 removed (its A-R
+    // reason "the square root of any prime number is irrational" is OUT); its frozen line deleted, every other line unchanged.
+    expect(FROZEN_HPQ_RANKING.length).toBe(128);
+    expect(currentRanking().length).toBe(128);
   });
 
   it("CONTROL: the frozen snapshot is discriminating, not uniform", () => {

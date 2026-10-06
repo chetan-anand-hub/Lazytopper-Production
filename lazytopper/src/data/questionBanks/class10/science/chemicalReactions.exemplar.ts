@@ -1036,7 +1036,7 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     id: "CHEM-EXMPLR-1-SA-021",
     subject: "Science",
     topicKey: "chemical-reactions-and-equations",
-    subtopic: "Corrosion and Rancidity",
+    subtopic: "Corrosion",
     section: "C",
     marks: 3,
     format: "Short",

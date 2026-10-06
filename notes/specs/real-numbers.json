@@ -392,8 +392,8 @@
       "text": "Use $\\text{LCM} = \\dfrac{a \\times b}{\\text{HCF}}$ — don't re-factorise. (Two numbers ONLY.)"
     },
     {
-      "cue": "'Prove √p is irrational'?",
-      "text": "Assume $= a/b$ coprime → square → $p\\mid a^2 \\Rightarrow p\\mid a$ (Theorem 1.2) → sub back → $p\\mid b$ → contradiction."
+      "cue": "'Prove √3 is irrational' (same steps for √2, √5, √7)?",
+      "text": "Assume $\\sqrt{3} = a/b$ coprime → square → $3\\mid a^2 \\Rightarrow 3\\mid a$ (Theorem 1.2) → sub back → $3\\mid b$ → contradiction."
     },
     {
       "cue": "'Show rational ± irrational is irrational'?",

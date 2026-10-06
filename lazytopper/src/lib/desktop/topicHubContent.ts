@@ -621,7 +621,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Types of reactions (combination, decomposition, displacement, double displacement)", oneLineUse: "Identify the type from the form of reactants and products.", marks: "1–2" },
       { name: "Exothermic and endothermic reactions", oneLineUse: "Say whether heat is released (burning, respiration, quicklime + water) or absorbed (decomposition by heat, light or electricity).", marks: "1–2" },
       { name: "Oxidation and reduction (redox)", oneLineUse: "Mark which species gains/loses oxygen or hydrogen.", marks: "2–3" },
-      { name: "Effects of oxidation in daily life (rancidity, corrosion)", oneLineUse: "Quick recall question — name the effect and a prevention method.", marks: "1–2" },
+      { name: "Effects of oxidation in daily life (corrosion)", oneLineUse: "Quick recall question — name the effect on a metal and a prevention method.", marks: "1–2" },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -1040,15 +1040,14 @@ const SEEDED: Record<string, ActionableSeed> = {
   },
   "areas-related-to-circles": {
     topicSnapshot: {
-      likelySection: "Sections A/C/D — a 1-mark arc-or-sector recall, a sector/segment numerical, and a combination-of-figures application.",
+      likelySection: "Sections A/C/D — a 1-mark arc-or-sector recall, a sector/segment numerical, and a sector/segment application (a grazing or shaded-segment problem).",
       examinerNotes: "Boards reward the correct θ/360 fraction, keeping π symbolic until the last step (then substituting 22/7 or 3.14 exactly as told), subtracting the triangle for a minor segment, and clean cm² units.",
     },
     boardEssentials: [
       { name: "Radius from a given circumference, diameter or area", oneLineUse: "Convert a given circumference, diameter or area into the radius you actually need.", marks: "1–2" },
       { name: "Length of an arc of a sector (l = (θ/360)×2πr)", oneLineUse: "Find arc length or the sector's perimeter (arc + two radii) in one step.", marks: "1–3" },
       { name: "Area of a sector (A = (θ/360)×πr²)", oneLineUse: "Turn a central angle and radius straight into the sector's area.", marks: "2–3" },
-      { name: "Area of a segment (sector area − area of triangle)", oneLineUse: "Subtract the triangle from the sector to get a minor segment; add for the major.", marks: "3–5" },
-      { name: "Area of combinations of plane figures (add/subtract circle ± triangle/square/rectangle)", oneLineUse: "Split a shaded design into standard pieces, then add or subtract their areas.", marks: "3–5" },
+      { name: "Area of a segment (sector area − area of triangle)", oneLineUse: "Split a shaded design into standard pieces: subtract the triangle from the sector to get a minor segment; add it for the major.", marks: "3–5" },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -1056,7 +1055,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       whenToUse: [
         "A slice of a circle is cut by a central angle θ and you need its area (e.g. a fan, pizza slice or wiper sweep).",
         "You must find the area of a minor segment — compute the sector first, then subtract the triangle.",
-        "A combination figure contains a quarter or half circle (θ = 90° or 180°) hidden inside it.",
+        "A shaded design is built from a quadrant or semicircle together with the square or triangle that defines it (θ = 90° or 180°).",
       ],
       directUse: "Read off θ and r, put them in as the fraction θ/360 of the full πr².",
       hiddenUse: "The same θ/360 fraction gives the arc length when you multiply the whole circumference 2πr instead of the area.",

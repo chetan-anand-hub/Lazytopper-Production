@@ -154,7 +154,10 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // 5,569 -> 5,378: -191. SYLLABUS-FIX-CONTENT PR-1 (2026-10-06, owner: "Yes, all of it") withheld 391
     // out-of-syllabus / formative-only rows (CBSE 2026-27); 191 of them are human rows — exactly the 191 that
     // left this set (0 other drift). See the "SYLLABUS-FIX-CONTENT PR-1" block of WITHHELD_QUESTION_IDS.
-    expect(human.length).toBeGreaterThanOrEqual(5378);
+    // 5,378 -> 5,341: -37. QUICK-FIXES-1 PR-2 (owner rulings R1-R7 + evidence rule, 2026-10-06) withheld 72 rows
+    // (R1 6, R2 12, R3 23, R5 22, R6 7, R7 2); 37 of them are human rows - exactly the 37 that left this set.
+    // See the "QUICK-FIXES-1 PR-2" block of WITHHELD_QUESTION_IDS.
+    expect(human.length).toBeGreaterThanOrEqual(5341);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.
@@ -960,10 +963,11 @@ describe("the achievable ceiling — ruling 5", () => {
     // 5,409 -> 5,364 and 4,985 -> 4,963 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): measured 5,554 -> 5,364
     // (-190) and 5,122 -> 4,963 (-159); every row that left either ceiling is a PR-1 withheld row and
     // none entered. Withholding removes rows — the "only a lost row lowers them" case above.
-    expect(naiveCeiling).toBeGreaterThanOrEqual(5364);
+    // 5,364 -> 5,327 and 4,963 -> 4,928 at QUICK-FIXES-1 PR-2 (2026-10-06): -37 and -35, all PR-2 withheld rows.
+    expect(naiveCeiling).toBeGreaterThanOrEqual(5327);
 
     // ★ THE AUTHORITATIVE ACHIEVABLE FIGURE.
-    expect(achievableCeiling).toBeGreaterThanOrEqual(4963);
+    expect(achievableCeiling).toBeGreaterThanOrEqual(4928);
 
     // IDENTITIES, literal-free. The achievable ceiling never exceeds the naive one, is
     // never below what already publishes, and the two differ by exactly the cannot-sum

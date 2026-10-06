@@ -174,9 +174,9 @@ export const CHEMICAL_REACTIONS_PACK1: CanonicalQuestion[] = [
       "This is a double displacement and precipitation reaction [1]",
     ], finalAnswer: "BaSO₄ is insoluble; double displacement/precipitation reaction" , isCompetencyBased: false },
   { id: "CR-M15", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Oxidation-Reduction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing", questionText: "In the reaction MnO₂ + 4HCl → MnCl₂ + 2H₂O + Cl₂, the substance oxidised is:", options: ["MnO₂", "HCl", "MnCl₂", "H₂O"], answer: "HCl", explanation: "HCl loses hydrogen (is oxidised to Cl₂). Therefore, the correct answer is HCl.", solutionSteps: ["HCl loses hydrogen (is oxidised to Cl₂)"], finalAnswer: "HCl" , isCompetencyBased: true },
-  { id: "CR-H01", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Oxidation-Reduction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain the following terms with one example each: (i) Corrosion (ii) Rancidity (iii) Precipitation reaction (iv) Neutralisation reaction (v) Exothermic reaction.", solutionSteps: [
+  { id: "CR-H01", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Oxidation-Reduction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain the following terms with one example each: (i) Corrosion (ii) Displacement reaction (iii) Precipitation reaction (iv) Neutralisation reaction (v) Exothermic reaction.", solutionSteps: [
       "(i) Corrosion: surface degradation of metal by environment. 4Fe + 3O₂ + 2xH₂O → 2Fe₂O₃·xH₂O (rust) [1]",
-      "(ii) Rancidity: oxidation of fats/oils giving bad smell. Chips left in air become rancid [1]",
+      "(ii) Displacement: a more reactive metal displaces a less reactive one from its salt solution. Fe + CuSO₄ → FeSO₄ + Cu [1]",
       "(iii) Precipitation: Na₂SO₄ + BaCl₂ → BaSO₄↓ + 2NaCl (BaSO₄ precipitate) [1]",
       "(iv) Neutralisation: HCl + NaOH → NaCl + H₂O [1]",
       "(v) Exothermic: CaO + H₂O → Ca(OH)₂ + heat [1]",

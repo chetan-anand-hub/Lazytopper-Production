@@ -210,17 +210,6 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     vocabSource: "boardEssentials",
     ncertPage: { subject: "maths", chapter: 11, page: 157 },
   },
-  {
-    conceptKey: "area-of-combinations-of-plane-figures",
-    topicKey: "areas-related-to-circles",
-    subject: "maths",
-    conceptLabel: "Area of combinations of plane figures (add/subtract circle ± triangle/square/rectangle)",
-    best: { kind: "interactive", ref: "maths-areas-circles-combined-figures-area", why: "Only asset addressing add/subtract shaded regions." },
-    alternates: [],
-    gap: false,
-    vocabSource: "boardEssentials",
-    scopeCaveat: "notes/specs board_asks states combinations of plane figures are OUT of the trimmed 2026-27 chapter (no notes figure exists). This row is interactive-only and arguably retired — flag for owner.",
-  },
 
   // --- surface-areas-and-volumes ---
   {

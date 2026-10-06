@@ -95,12 +95,12 @@ export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
       "CD = √(9+25) = √34; DA = √(25+9) = √34 [1]",
       "AC = √(4+64) = √68, BD = √(64+4) = √68; All sides equal, diagonals equal → Square [1]",
     ], finalAnswer: "Square (proved)" , isCompetencyBased: true },
-  { id: "CG-M15", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Three friends are seated at A(−2, −3), B(4, 1) and C(2, 5) in a triangular seating arrangement.\n(i) Find AB, BC and CA.\n(ii) Is the triangle equilateral, isosceles or scalene?\n(iii) Find the centroid of △ABC.\n(iv) Find the midpoint of the longest side.", solutionSteps: [
-      "(i) AB = √(36+16) = √52, BC = √(4+16) = √20, CA = √(16+64) = √80 [1]",
-      "(ii) All different → Scalene [1]",
-      "(iii) G = ((−2+4+2)/3, (−3+1+5)/3) = (4/3, 1) [1]",
-      "(iv) Longest = CA. Midpoint = ((−2+2)/2, (−3+5)/2) = (0, 1) [1]",
-    ], finalAnswer: "(i) √52, √20, √80 (ii) Scalene (iii) (4/3, 1) (iv) (0, 1)" , isCompetencyBased: true },
+  { id: "CG-M15", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Three friends are seated at A(−2, −3), B(4, 1) and C(2, 5) in a triangular seating arrangement.\n(i) Find AB, BC and CA. (2 marks)\n(ii) Is the triangle equilateral, isosceles or scalene?\n(iii) Find the midpoint of the longest side.", solutionSteps: [
+      "(i) AB = √((4+2)² + (1+3)²) = √(36+16) = √52 and BC = √((2−4)² + (5−1)²) = √(4+16) = √20 [1]",
+      "(i) CA = √((2+2)² + (5+3)²) = √(16+64) = √80 [1]",
+      "(ii) All three sides are different → Scalene [1]",
+      "(iii) Longest = CA. Midpoint = ((−2+2)/2, (−3+5)/2) = (0, 1) [1]",
+    ], finalAnswer: "(i) √52, √20, √80 (ii) Scalene (iii) (0, 1)" , isCompetencyBased: true },
   { id: "CG-M16", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find a relation between x and y such that the point (x, y) is equidistant from (3, 6) and (−3, 4).", solutionSteps: [
       "(x−3)²+(y−6)² = (x+3)²+(y−4)² [½]",
       "−6x+9−12y+36 = 6x+9−8y+16 [½]",

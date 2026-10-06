@@ -1275,8 +1275,8 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
   { id: "ARC2-054", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Annulus", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area between two concentric circles with radii 7 cm and 14 cm is:", options: ["462 cm²","308 cm²","154 cm²","616 cm²"], answer: "462 cm²", explanation: "The correct answer is 462 cm². Area = π(R²−r²) = (22/7)(196−49) = (22/7)×147 = 462 cm².", finalAnswer: "Area = π(R²−r²) = (22/7)(196−49) = (22/7)×147 = 462 cm².", isCompetencyBased: false,
     solutionSteps: [
       "The area of the region between two concentric circles (annulus) is A = pi * (R^2 - r^2).",
-      "Given outer radius R = 4 cm and inner radius r = 3 cm. Substitute pi = 22/7.",
-      "Area = (22/7) * (4^2 - 3^2) = (22/7) * (16 - 9) = (22/7) * 7 = 22 cm^2.",
+      "Given outer radius R = 14 cm and inner radius r = 7 cm. Substitute pi = 22/7.",
+      "Area = (22/7) * (14^2 - 7^2) = (22/7) * (196 - 49) = (22/7) * 147 = 462 cm^2.",
     ],
   },
   { id: "ARC2-055", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Arc Length", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the area of a circle is 154 cm², its circumference is:", options: ["44 cm","22 cm","11 cm","66 cm"], answer: "44 cm", explanation: "The correct answer is 44 cm. 154 = πr² → r = 7 cm. Circumference = 2πr = 2×(22/7)×7 = 44 cm.", finalAnswer: "154 = πr² → r = 7 cm. Circumference = 2πr = 2×(22/7)×7 = 44 cm.", isCompetencyBased: false,

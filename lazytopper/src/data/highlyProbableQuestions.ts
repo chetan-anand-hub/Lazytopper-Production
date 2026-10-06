@@ -1466,7 +1466,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "(a) Rusting; it is an oxidation/redox reaction. (b) Painting, galvanising, oiling, greasing, or using stainless steel. (c) Paint forms a protective layer, preventing oxygen and moisture from directly reaching the iron surface.",
         explanation:
           "Rusting is a slow redox process. Case-based questions frequently link daily life observations with corrosion and prevention.",
-        policyTag: "Corrosion/rancidity NEP",
+        policyTag: "Corrosion NEP",
         solutionSteps: [
           "(a) The process of developing brown flaky patches on a steel gate is called rusting. It is an oxidation or redox reaction.; (b) Two preventive measures to protect the steel gate from rusting are painting and galvanising. [1]",
           "(b) Other valid measures include oiling, greasing, or using stainless steel. [1]",
@@ -1814,17 +1814,17 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Applying",
         question:
-          "Give the IUPAC names of CH₃–CH₂–CH₂–OH and CH₃–CH₂–COOH.",
-        answer: "Propan-1-ol and propanoic acid.",
+          "Give the IUPAC names of CH₃–CH₂–CH₂–OH and CH₃–CO–CH₃.",
+        answer: "Propan-1-ol and propanone.",
         explanation:
-          "Identify the longest carbon chain and functional group; use suffix -ol for alcohol and -oic acid for carboxylic acid.",
+          "Identify the longest carbon chain and functional group; use suffix -ol for alcohol and -one for ketone.",
         policyTag: "Nomenclature 2M",
         solutionSteps: [
           "Identify CH3-CH2-CH2-OH as an alcohol with a three-carbon chain.; The hydroxyl (-OH) functional group is on the first carbon, so its IUPAC name is Propan-1-ol. [½]",
-          "Identify CH3-CH2-COOH as a carboxylic acid with a three-carbon chain. [½]",
-          "The carboxyl (-COOH) functional group is always at the end, so its IUPAC name is Propanoic acid. [1]",
+          "Identify CH3-CO-CH3 as a ketone with a three-carbon chain. [½]",
+          "The ketone (C=O) group is on the middle carbon, so with the suffix -one its IUPAC name is Propanone. [1]",
         ],
-        finalAnswer: "Propan-1-ol and propanoic acid.",
+        finalAnswer: "Propan-1-ol and propanone.",
       },
       {
         id: "sci-cic-hpq-4",

@@ -2,8 +2,8 @@
  "targetYear": "2026",
  "chapters": {
   "real-numbers": {
-   "n": 240,
-   "sha256": "f5d7b6fc3688112e702158ece42a4be0a4ecf12e75f2f47ac8b283cad14595d2",
+   "n": 233,
+   "sha256": "d73f386f87b8bad61c8ddd73a61ab8552d3e94b0c375834cc598cb6f5eb3c90d",
    "head": [
     "RNX2-A-003",
     "RN-N-NCERT-1-MCQ-004",
@@ -56,8 +56,8 @@
    ]
   },
   "coordinate-geometry": {
-   "n": 284,
-   "sha256": "2ab314a079131774f197e5e145ed6f51795c1f84273dab7e21accd86fffb9a13",
+   "n": 272,
+   "sha256": "1f2f942e5d8d4ae5caa8742263730e1dbe6f72ef50f0d4ab970ebec357b7ee63",
    "head": [
     "BX-COORD-E-014",
     "BX-COORD-E-016",
@@ -83,12 +83,12 @@
    ]
   },
   "areas-related-to-circles": {
-   "n": 223,
-   "sha256": "0024eebafd9c345c7ca8773065428f8979194ffb0dbd756430b211db50666aef",
+   "n": 199,
+   "sha256": "51b21936b8c727b8ae9649390b1a8fdf5eb2e9cf83256332c3474d6d9d7729a1",
    "head": [
     "Z3-ARC-001",
     "Z3-ARC-003",
-    "CBE-M-ARC-E-001"
+    "ARC-N-NCERT-11-CB-001"
    ]
   },
   "surface-areas-and-volumes": {
@@ -119,8 +119,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 448,
-   "sha256": "c19889eec223bf027ade86d48acbe378e4588385ab85b5622cb4c18ac9d989f7",
+   "n": 427,
+   "sha256": "4af2d6cfce6e9a37fe284261d313c7ac9465b3c4b11a0f632858703953a791e7",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -128,8 +128,8 @@
    ]
   },
   "acids-bases-and-salts": {
-   "n": 476,
-   "sha256": "8c52b64fdb7eed1bebfae2ab2fb725376dd177946dd4e1e0dfc33b72e0519ae4",
+   "n": 475,
+   "sha256": "d5ab0361c2a8512da01dd5f032dbeed74cfdb6c5afc5d354d0fc8b2c9df5b33c",
    "head": [
     "BX-ABS-E-002",
     "BX-ABS-E-004",
@@ -146,12 +146,12 @@
    ]
   },
   "carbon-and-its-compounds": {
-   "n": 296,
-   "sha256": "f9982c2a9ed942ea477d826444b4ed3a15e4127076c958b936b1de3b6bf03497",
+   "n": 289,
+   "sha256": "db98437ed56baaf4ceb459b1e60ea20d599517dab314a405e7fc1cd94e2b32ca",
    "head": [
     "APQ-S-CARB-004",
-    "SQP-S-CC-002",
-    "SP-S-2023-CARB-E-001"
+    "SP-S-2023-CARB-E-001",
+    "APQ-S-CARB-003"
    ]
   },
   "light-reflection-and-refraction": {
@@ -182,8 +182,8 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 164,
-   "sha256": "52427207ed3c90beb33061c6c64bd10bb27066cc055bd5abf8f2e911641b0ed7",
+   "n": 162,
+   "sha256": "952405a0025cf9bc9e65ab3fdc84f38e88bceb39ad068fc111d983db230793f2",
    "head": [
     "SQP-S-2023-MAGN-A-002",
     "SP-S-2023-MAGN-A-001",
@@ -238,8 +238,8 @@
  },
  "concepts": {
   "real-numbers": {
-   "n": 34,
-   "sha256": "1f1562e536eab42195a91fd42360c314596876ee8f2a9fe1f9fcde18e9e63865",
+   "n": 33,
+   "sha256": "6a1c23b51e6cc2b8502b611a74113e8cf64d5c873aebf7b921e8eb3231813144",
    "head": [
     "Assertion-Reasoning\tRN2-040,RN2-041",
     "Divisibility\tSP-M-2022-RN-A-002,PB-M-2-RN-A-001,PYQ-M-RN-004,PYQ-M-2024-REALNUM-002",
@@ -292,12 +292,12 @@
    ]
   },
   "coordinate-geometry": {
-   "n": 58,
-   "sha256": "bd28278a445fcd9f44413d0269b24870dd14c402b91d9ba4ef5cd8bca5c06f32",
+   "n": 55,
+   "sha256": "abe70a002597e2c737f7514d175d0f10581717d36f42dfd9ff3fa632c71c104e",
    "head": [
     "Case-Based — Football Field Coordinates\tSQP-M-CG-003",
-    "Centroid of a Triangle\tSP-M-2022-CG-A-002",
-    "Centroid, Triangle Type, Area, Section Formula\tAPQ-M-CG-006,PYQ-M-2026-CG-003,BX-COORD-E-004,BX-COORD-E-005,BX-COORD-E-008,BX-COORD-E-009,BX-COORD-E-017,BX-COORD-E-018,BX-COORD-E-019,BX-COORD-E-027,BX-COORD-E-028,BX-COORD-E-032,BX-COORD-E-033,BX-COORD-E-042,BX-COORD-E-044,BX-COORD-E-047,BX-COORD-E-050,BX-COORD-E-023,BX-COORD-E-025,BX-COORD-E-034,BX-COORD-E-036,PYQ-M-2024-CG-007,PYQ-M-2024-CG-003,SP-M-2022-CG-A-003,CG-N-EXMPLR-7-EX-008,PB-M-1-CG-A-002,CG-N-EXMPLR-7-EX-015,CG-N-NCERT-7-EX-006,CG-N-NCERT-7-EX-020,CG-N-NCERT-7-EX-007,CG-N-NCERT-7-EX-008,CG-N-NCERT-7-EX-009,CG-N-NCERT-7-EX-021,CG-N-NCERT-7-EX-022,CG-N-NCERT-7-EX-023,BX-COORD-EX-C-004,CG-N-EXMPLR-7-EX-020,BX-COORD-D-007,BX-COORD-D-010,BX-COORD-D-013,BX-COORD-D-001,BX-COORD-D-006,BX-COORD-D-011,2026-CG-SA-02,2026-CG-SA-10,CG-M15,CG-CB01,CG-H14,CG-CB02,CG2-047,CG2-039,CG-M05,CG-E08,CG-M18,CG2-035,CG-E04,CG-E15,CG-M11,CG-M17,CG2-006,CG2-015,CG2-023,CG2-030,CG-E12,CG-E19,CG-H03,CG-H11,CG-M02,CG-M08,CG2-056,CG2-058,CG-H05,CG2-007,CG-H08,CG-ND01,CG-E02,CG-N02,CG-N04,CG2-029,CG2-050,CG2-053,CG2-019"
+    "Coordinate Geometry\t2026-CG-SA-01",
+    "Coordinates and Distance Formula (Garden Grid)\tBX-COORD-E-014,BX-COORD-E-016,BX-COORD-E-020,BX-COORD-E-024,BX-COORD-E-026,BX-COORD-E-030,BX-COORD-E-048,Z3-CG-010,BX-COORD-E-012,BX-COORD-E-013,BX-COORD-E-015,BX-COORD-E-021,BX-COORD-E-043,BX-COORD-E-001,BX-COORD-E-002,BX-COORD-E-003,BX-COORD-E-010,BX-COORD-E-011,BX-COORD-E-031,BX-COORD-E-037,BX-COORD-E-039,BX-COORD-E-040,BX-COORD-E-041,BX-COORD-E-045,BX-COORD-E-046,CG-N-EXMPLR-7-EX-023,BX-COORD-E-029,BX-COORD-E-035,BX-COORD-E-038,PYQ-M-2024-CG-006,BX-COORD-EX-A-002,CG-N-EXMPLR-7-EX-005,CG-N-EXMPLR-7-EX-007,CG-N-EXMPLR-7-EX-011,PB-M-2-CG-A-001,APQ-M-CG-003,BX-COORD-EX-A-001,CG-N-EXMPLR-7-EX-002,CG-N-EXMPLR-7-EX-003,CG-N-EXMPLR-7-EX-004,APQ-M-CG-001,CG-N-EXMPLR-7-EX-001,CG-N-NCERT-7-EX-016,CG-N-EXMPLR-7-EX-014,BX-COORD-EX-C-001,CG-N-NCERT-7-EX-001,CG-N-NCERT-7-EX-004,CG-N-NCERT-7-EX-005,CG-N-NCERT-7-EX-017,CG-N-NCERT-7-EX-018,CG-N-NCERT-7-EX-019,BX-COORD-EX-B-001,BX-COORD-EX-C-002,BX-COORD-EX-C-005,CG-N-EXMPLR-7-EX-016,CG-N-EXMPLR-7-EX-017,CG-N-NCERT-7-EX-012,CG-N-NCERT-7-EX-013,CG-N-NCERT-7-EX-014,BX-COORD-D-002,BX-COORD-D-003,BX-COORD-D-004,BX-COORD-D-008,BX-COORD-D-012,PB-M-1-CG-B-001,BX-COORD-D-005,BX-COORD-D-009,CG-N-NCERT-7-EX-002,CG-N-EXMPLR-7-EX-022,2026-CG-MCQ-09,2026-CG-MCQ-08,2026-CG-MCQ-01,CG2-016,CG2-037,CG2-055,CG2-011,CG2-022,CG2-040,CG-M12,CG2-020,CG-E01,CG-E03,CG-E07,CG-E09,CG-E14,CG-E11,CG2-002,CG2-025,CG2-042,CG2-034,CG-M01,CG-M04,CG-M07,CG-M10,CG-M14,CG-M16,CG-M19,CG2-003,CG2-014,CG2-026,CG2-045,CG-E06,CG-E16,CG-H01,CG-H07,CG-H10,CG-H13,CG2-018,CG-E18,CG-N01,CG-N03,CG-N06,CG2-001,CG2-024,CG2-049,CG2-051,CG2-054"
    ]
   },
   "trigonometry": {
@@ -319,8 +319,8 @@
    ]
   },
   "areas-related-to-circles": {
-   "n": 96,
-   "sha256": "123489206f6e173f79b64489138e6a06e3b19fc0aaf2b086631fd5a55348d550",
+   "n": 90,
+   "sha256": "859d9b8336dd4a0b50eee3eb757258b688bc31ee79bd8a23c6f3675dd8907517",
    "head": [
     "Arc Length\tAPQ-M-ARC-001,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,ARC-N-NCERT-11-SA-001,ARC-N-EXEM-11-SA-006,APQ-M-ARC-009,PYQ-M-2024-ARC-006b,ARC-N-EXEM2-11-SA-006,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
     "Arc Length from Area\tAPQ-M-ARC-001,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,PYQ-M-2024-ARC-006b,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
@@ -355,8 +355,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 71,
-   "sha256": "339fbc7689cd2b5cf9d2551250cfe965d096efb5f97922dbbf202f90781346ac",
+   "n": 68,
+   "sha256": "269c4eeb31f87df38fd6ef109abeebe0b9b338a389d8bef71047ab120d013fd0",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
@@ -365,7 +365,7 @@
   },
   "acids-bases-and-salts": {
    "n": 139,
-   "sha256": "e2d70f05d7a007b28c3138491f5821b5e2bde1cd51bce080de6c1bb56db3a0f9",
+   "sha256": "7b2ff23e17403ea5984ca31d1a87dd02d85bb7b1fe607746f2db310d6c4471bc",
    "head": [
     "Acid Rain\tPYQ-S-2026-ACID-019,PYQ-S-2026-ACID-004,BX-ABS-D-016",
     "Acid-Base Indicators (Litmus)\tBX-ABS-E-002,BX-ABS-E-004,BX-ABS-E-001,BX-ABS-E-003,BX-ABS-E-006,BX-ABS-E-005,BX-ABS-EX-A-036,PYQ-S-ACID-005,PYQ-S-2026-ACID-009,PYQ-S-2026-ACID-014,PYQ-S-2024-ACID-001,ACID-EXMPLR-2-MCQ-002,ACID-EXMPLR-2-MCQ-017,BX-ABS-EX-A-014,BX-ABS-EX-A-019,ACID-EXMPLR-2-SA-003,ACID-EXMPLR-2-SA-006,BX-ABS-EX-C-011,PYQ-S-2026-ACID-015,PYQ-S-2025-ACID-005,PYQ-S-2024-ACID-004,BX-ABS-EX-A-027,BX-ABS-EX-B-006,BX-ABS-D-018,CBE-S-ACID-A-001",
@@ -382,8 +382,8 @@
    ]
   },
   "carbon-and-its-compounds": {
-   "n": 108,
-   "sha256": "09f723ab44293c91b30662406c081cdcf757868b55e1b33b88833708dab9bce6",
+   "n": 104,
+   "sha256": "8017b470361e6052154230d1d421301d92d87a49988dee72585f01e5a929cdc1",
    "head": [
     "Acid Properties\tCARB-EXMPLR-4-LONG-001",
     "Action of Soap in Hard Water\tCBE-S-CARB-C-005",
@@ -419,10 +419,10 @@
   },
   "magnetic-effects-of-electric-current": {
    "n": 54,
-   "sha256": "9ddd96f0aab02f060c99e74907117dc175acf208647a85c074e984e932ab5a40",
+   "sha256": "9168e17c174f3e511a342cd82134bf25e52ba792e6ad4fca2ffacd77350bf159",
    "head": [
-    "AC and DC\tPYQ-S-2026-ACID-018,ME2-048,ME2-016,ME2-017,ME2-039,ME2-041",
-    "AC vs DC\tMAG-EXMPLR-12-MCQ-008,MAG-EXMPLR-12-SA-011",
+    "AC and DC\tPYQ-S-2026-ACID-018,ME2-048,ME2-017,ME2-039,ME2-041",
+    "AC vs DC\tMAG-EXMPLR-12-SA-011",
     "Advantages of AC over DC\tCBE-S-MAGN-B-006"
    ]
   },
@@ -718,7 +718,7 @@
   },
   "areas-related-to-circles::seed1": {
    "n": 10,
-   "sha256": "f54f3173d6452835561981c7bffed6a67cdaa4becaf09a2e7b3eb08500fd7652",
+   "sha256": "1f2de28f77c7cecd4e24cb2595c29f93d606e8f7462e5c8adb0a07aa4cf5c22c",
    "head": [
     "SP-M-2022-ARC-E-001",
     "Z3-ARC-003",
@@ -727,18 +727,18 @@
   },
   "areas-related-to-circles::seed2": {
    "n": 10,
-   "sha256": "1f016fea53ba7a4772295d4fe0df4b4f8e961493de4e976a8b82b7959ec105cd",
+   "sha256": "590205e1b4110ae1995f80a82fa89302225a786a986c34db987b0c1fe80199a0",
    "head": [
     "ARC-N-NCERT-11-MCQ-001",
-    "CBE-M-ARC-E-001",
+    "Z3-ARC-002",
     "Z3-ARC-001"
    ]
   },
   "areas-related-to-circles::seed3": {
    "n": 10,
-   "sha256": "83c28b9f92eaf6a93f8cb7770f5f57f4f358c3acf8f4b5a79093a9f875b21a2c",
+   "sha256": "2a1d909563f4531402029804006c956887721ea13e314f1298e73cf96a67ea41",
    "head": [
-    "CBE-M-ARC-E-001",
+    "Z3-ARC-002",
     "ARC-N-NCERT-11-CB-001",
     "ARC-N-EXEM-11-CB-001"
    ]
@@ -826,25 +826,25 @@
   },
   "chemical-reactions-and-equations::seed1": {
    "n": 10,
-   "sha256": "3a4aabe0b1e31a8cea2610e5de9d5694586ac6b0553cd29b26d12376f87a192b",
+   "sha256": "fe1c0a00bf26dfed3dd278f6e8ccf558907ebbcd68ebe4d5cbf42b85c8efa858",
    "head": [
     "CHEM-EXMPLR-1-MCQ-002",
     "BX-CHEM-E-056",
-    "BX-CHEM-E-018"
+    "BX-CHEM-E-028"
    ]
   },
   "chemical-reactions-and-equations::seed2": {
    "n": 10,
-   "sha256": "9084e7ea2ff5500a16e3ce22f9b50f1adf38e0fe20a13b360bb88398481a803a",
+   "sha256": "716375ca9cab6589727bec64c2e4ba42f20bc7b98a359fe87fb9038db0331c76",
    "head": [
-    "BX-CHEM-E-013",
+    "BX-CHEM-E-052",
     "BX-CHEM-E-061",
     "BX-CHEM-E-063"
    ]
   },
   "chemical-reactions-and-equations::seed3": {
    "n": 10,
-   "sha256": "5105c1c48ae185664067d819cd414d016537c7b287bca20d5c5b35c968205557",
+   "sha256": "928d121dd96ac7b9f7c24edd5cb958c177ad710fce109afbcc249faacaf5ce53",
    "head": [
     "BX-CHEM-E-061",
     "BX-CHEM-E-041",
@@ -907,27 +907,27 @@
   },
   "carbon-and-its-compounds::seed1": {
    "n": 10,
-   "sha256": "ba3571c1cbe72c8e7f157a5fecc1068965429f722d6cc4ad09639fbcc4f3cdc2",
+   "sha256": "c0d3e8968643c47bbb1d70cc3836c90fd8c6744884d6843dfcdd79f4632bfed8",
    "head": [
     "PYQ-S-CARB-002",
-    "SQP-S-CC-002",
+    "SP-S-2023-CARB-E-001",
     "CARB-NCERT-4-VSA-006"
    ]
   },
   "carbon-and-its-compounds::seed2": {
    "n": 10,
-   "sha256": "e04ae6629e3dedb7a2b432b3fe991199b2c2ad49f4c931bd3b91bd3d4900d466",
+   "sha256": "77b9ee300d9ab2f9a33651994a79076edc70b8d6eda18dc837c1fd3992692572",
    "head": [
     "CARB-EXMPLR-4-MCQ-025",
-    "SP-S-2023-CARB-E-001",
+    "CFPQ-S-CARB-003",
     "APQ-S-CARB-004"
    ]
   },
   "carbon-and-its-compounds::seed3": {
    "n": 10,
-   "sha256": "2e722599933b6b7e3c3540df14020e4fa25ed8250605386a1c1304637a5b062b",
+   "sha256": "b1c38ecee17b0d730f328c1a726d071021b58b8c1b638b34bed18dbb3d1b3f62",
    "head": [
-    "SP-S-2023-CARB-E-001",
+    "CFPQ-S-CARB-003",
     "APQ-S-CARB-003",
     "PYQ-S-CARB-001"
    ]
@@ -1015,27 +1015,27 @@
   },
   "magnetic-effects-of-electric-current::seed1": {
    "n": 10,
-   "sha256": "34f5a3bc098afded28386db25c9c33e8c16148bb3aa0c9537ee3c5054f65aac1",
+   "sha256": "c26dc09445675f162ddee798564208d0ef3a9dd441a011e6b85db3dc199e74fc",
    "head": [
     "APQ-S-MAG-003",
-    "MAG-EXMPLR-12-MCQ-008",
+    "MAG-NCERT-12-MCQ-003",
     "MAG-NCERT-12-MCQ-005"
    ]
   },
   "magnetic-effects-of-electric-current::seed2": {
    "n": 10,
-   "sha256": "0e3dd6781a0598207743edb8969677c32fee64277612e64ff34f48838d3bfc61",
+   "sha256": "13d9d8350f193919e0efa37ebda1f745f76278fefd720ddab18cb556e874e64a",
    "head": [
     "MAG-NCERT-12-MCQ-006",
-    "MAG-NCERT-12-MCQ-003",
+    "MAG-NCERT-12-MCQ-004",
     "SQP-S-2023-MAGN-A-002"
    ]
   },
   "magnetic-effects-of-electric-current::seed3": {
    "n": 10,
-   "sha256": "bc0d0cdadbaa05d29fb17ac78759fe8dc5ffae3280a8e393224c36202159f74b",
+   "sha256": "3aa978d25ba72e45b2db7b5ba1dc86dc62a41fed3f0dac71805e54b63151eb93",
    "head": [
-    "MAG-NCERT-12-MCQ-003",
+    "MAG-NCERT-12-MCQ-004",
     "SP-S-2023-MAGN-A-001",
     "APQ-S-MAG-001"
    ]

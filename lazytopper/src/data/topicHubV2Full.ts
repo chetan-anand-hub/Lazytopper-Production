@@ -358,10 +358,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "If a line is drawn parallel to one side of a triangle, it divides the other two sides in the same ratio. The converse also holds true."
       },
       {
-        "title": "Pythagoras Theorem and its converse",
-        "description": "In a right-angled triangle, the square of the hypotenuse equals the sum of the squares of the other two sides; conversely, if this relation holds, the triangle is right-angled."
-      },
-      {
         "title": "Ratios in similar triangles",
         "description": "For similar triangles, the ratio of corresponding sides equals the ratio of perimeters, and the ratio of areas equals the square of the ratio of corresponding sides."
       },
@@ -555,7 +551,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       },
       {
         "title": "Oxidation in daily life",
-        "description": "Oxidation reactions in everyday life include rusting of iron (corrosion) and rancidity of fats/oils; both can be prevented by specific measures."
+        "description": "Oxidation reactions in everyday life include rusting of iron (corrosion), which can be prevented by painting, oiling, greasing or galvanising."
       },
       {
         "title": "State symbols and reaction conditions",
@@ -565,7 +561,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "examPatterns": [
       "1 mark (Reaction Types/Balancing): identify the type of reaction or complete/balance a given equation.",
       "2–3 marks (Balance + Classify): balance an equation, name reaction type, and briefly explain.",
-      "3–4 marks (Oxidation/Corrosion): notes or explanations on oxidation, reduction, rancidity, or corrosion.",
+      "3–4 marks (Oxidation/Corrosion): notes or explanations on oxidation, reduction, or corrosion.",
       "Case-based (Multi-step Process): passage describing a process with multiple reaction types.",
     ],
     "markingTips": [
@@ -578,7 +574,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "scoreTips": [
       "Practise balancing 15–20 representative equations daily for a few days.",
       "Make a one-page sheet with reaction types + 1 example each.",
-      "Learn 3–4 points on rusting and rancidity and how to prevent them.",
+      "Learn 3–4 points on rusting and how to prevent it.",
       "In exam, always write full balanced equation with states when asked.",
       "Underline key terms: “oxidation”, “reduction”, “displacement”, etc."
     ],
@@ -617,10 +613,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "A current-carrying conductor placed in a magnetic field experiences a force whose direction depends on the directions of the current and the field."
       },
       {
-        "title": "Fleming’s left-hand rule and electric motor",
-        "description": "Fleming’s left-hand rule gives the direction of force on a conductor in a magnetic field; this principle is used in the electric motor to convert electrical energy to mechanical energy."
-      },
-      {
         "title": "Electromagnets and their applications",
         "description": "An electromagnet is a temporary magnet made by passing current through a coil wound around a soft iron core; it is used in doorbells, cranes, and circuit breakers."
       }
@@ -628,7 +620,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "examPatterns": [
       "1 mark (Direction Rules): determine direction using right-hand thumb rule or Fleming's left-hand rule.",
       "2–3 marks (Rules + Diagrams): explain a rule with a neat labelled diagram.",
-      "3–4 marks (Electric Motor): describe principle, construction, and working of an electric motor.",
       "Case-based (Conductor + Field): passage with current, field, and force direction sub-questions.",
     ],
     "markingTips": [
@@ -746,10 +737,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         {
           "title": "Proof of Irrational Numbers",
           "description": "√2, √3, and √5 are irrational. The proof uses contradiction: assume √2 = p/q where p and q are coprime integers (gcd = 1). Squaring gives p² = 2q², so 2 divides p² and therefore 2 divides p. Write p = 2k; substituting gives q² = 2k², so 2 divides q. Now 2 divides both p and q — contradicting gcd(p, q) = 1. Therefore √2 is irrational. The same template proves compound surds like 3 + 2√5 are irrational: assume it equals a rational r, isolate √5 = (r − 3)/2, and conclude √5 is rational — a contradiction."
-        },
-        {
-          "title": "Terminating and non-terminating decimals",
-          "description": "A rational number p/q in its lowest terms has a terminating decimal expansion if and only if the prime factorisation of q has only the primes 2 and 5 (i.e. q = 2ᵐ × 5ⁿ). If q has any prime factor other than 2 or 5, the decimal is non-terminating and repeating. Example: 7/8 = 7/2³ terminates (= 0.875); 1/7 is non-terminating repeating. This connects rational numbers to their decimal form — a common 1-mark MCQ."
         }
       ],
       "examPatterns": [
@@ -922,10 +909,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       {
         "title": "Mid-point and section formula",
         "description": "The mid-point of a segment is the average of the endpoints’ coordinates; the section formula finds the point dividing a segment internally in a given ratio m:n."
-      },
-      {
-        "title": "Area of a triangle using coordinates",
-        "description": "The area of a triangle with vertices (x₁, y₁), (x₂, y₂), (x₃, y₃) is ½ |x₁(y₂ − y₃) + x₂(y₃ − y₁) + x₃(y₁ − y₂)|."
       },
       {
         "title": "Collinearity condition",
@@ -1198,7 +1181,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "tier": "high-roi",
     "overview": [
       "High-scoring mensuration unit; formulas repeat across questions.",
-      "Used in word problems on melting, recasting, and combining solids."
+      "Used in word problems on combining solids."
     ],
     "definitions": [
       {
@@ -1214,27 +1197,22 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "When two or more basic solids are joined (e.g., cylinder + hemisphere), the total surface area and volume are calculated by combining individual measurements."
       },
       {
-        "title": "Melting, recasting and conversion of solids",
-        "description": "When a solid is melted and recast into a different shape, the volume remains constant; this principle is used to find the dimensions or count of new shapes."
-      },
-      {
         "title": "Unit conversions in mensuration",
         "description": "Converting between units (e.g., 1 m³ = 10⁶ cm³, 1 litre = 1000 cm³) is essential for correctly solving surface area and volume problems."
       }
     ],
     "examPatterns": [
       "2–3 marks (Single Solid): compute TSA, CSA, or volume of one standard solid (cylinder, cone, sphere).",
-      "3–4 marks (Combination/Recasting): surface area of combined solids, or volume conservation in melting/recasting.",
+      "3–4 marks (Combination): surface area or volume of combined solids.",
     ],
     "markingTips": [
       "Mixing TSA and CSA formulas.",
       "Using radius as diameter or vice versa.",
-      "Forgetting to convert units (cm ↔ m).",
-      "Ignoring volume conservation in recasting questions."
+      "Forgetting to convert units (cm ↔ m)."
     ],
     "scoreTips": [
       "Make a neat formula sheet and revise frequently.",
-      "Practise 15–20 problems with mixing and melting solids.",
+      "Practise 15–20 problems on combined solids.",
       "In exam, note all given dimensions clearly and write formula before numbers.",
       "Check units in final answer (cm² vs cm³ vs m² etc.)."
     ],
@@ -1243,10 +1221,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       {
         "title": "Volume of cylinder with radius 3 cm and height 7 cm?",
         "question": "Volume of cylinder with radius 3 cm and height 7 cm?"
-      },
-      {
-        "title": "A solid sphere is melted and recast into 8 smaller equal spheres. If original radius is R, what about new radius?",
-        "question": "A solid sphere is melted and recast into 8 smaller equal spheres. If original radius is R, what about new radius?"
       }
     ]
   },
@@ -1512,7 +1486,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "markingTips": [
       "Confusing genotype notation (Tt, TT, tt).",
-      "Mixing acquired and inherited traits.",
       "Weak explanation of sex determination.",
       "Not writing both parents' genotypes before drawing the Punnett square, leaving the working incomplete.",
     ],

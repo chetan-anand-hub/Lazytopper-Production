@@ -19,6 +19,14 @@
  *   verbatim SYLLABUS_2026_27_SOURCE is untouched): atmospheric refraction moved from
  *   AMBIGUOUS to IN (human-eye-and-colourful-world); the colour of the Sun at
  *   sunrise/sunset stays OUT.
+ *   Owner rulings R1–R7 of 2026-10-06 (QUICK-FIXES-1 PR-2, typed reference only; the
+ *   verbatim SOURCE is untouched): R1 irrationality (same-method named-prime proofs IN;
+ *   general-prime statements OUT), R2 centroid OUT, R3 combinations of plane figures OUT
+ *   (sector/segment + its defining triangle or square IN; rings / annular sectors and inscribed
+ *   measures IN, Maths Basic papers counted per owner Round 2), R4
+ *   empirical relation IN, R5 rancidity OUT, R6 naming carboxylic acids OUT, R7 Motor/EMI/
+ *   Generator FORMATIVE. Each carries a `ruling` note; R1–R3 cite the evidence-rule check
+ *   (Desktop/diff/b17-qf-pr2-evidence.md). No item is left AMBIGUOUS.
  *
  * Pure data module: it imports NOTHING from the app (no new import edges).
  *
@@ -251,6 +259,11 @@ export const SYLLABUS_2026_27 = {
             "item": "Proofs of irrationality of √2, √3, √5 and expressions built on them (e.g. 3 + 2√5)",
             "page": 3,
             "quote": "Proofs of irrationality of √2, √3, √5 … Prove algebraically the Irrationality of numbers like √2, √3, √5, 3 + 2√5 etc."
+          },
+          {
+            "item": "Same-method irrationality proofs for the square root of a named prime (e.g. √7, √11) and expressions built from such surds (e.g. 6 − √7, 5 + 6√7)",
+            "page": 3,
+            "ruling": "Owner ruling R1, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): same-method irrationality proofs of the square root of a named prime (e.g. √7) and expressions built from such surds (e.g. 6 − √7, 5 + 6√7) are IN; √6 is IN only as a given surd inside such an expression proof (2024 board 30/5/1 Q26(b): prove (√2+√3)² irrational, given √6 irrational)."
           }
         ],
         "out": [
@@ -263,19 +276,26 @@ export const SYLLABUS_2026_27 = {
             "item": "Decimal expansions of rational numbers (terminating / non-terminating repeating; 2^m5^n denominator test)",
             "page": 3,
             "basis": "absent from the full Real Numbers list on p3"
+          },
+          {
+            "item": "Irrationality statements or proofs for a general prime p and for composite surds (e.g. √p for any prime p, √p + √q, 'the square root of every prime is irrational', prove √15 irrational)",
+            "page": 3,
+            "basis": "the p3 list names √2, √3, √5 and expressions like 3 + 2√5; no 2024-26 board or SQP use of the general form",
+            "ruling": "Owner ruling R1, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: general-prime statements or proofs (√p for any prime p, √p + √q, 'the square root of every prime is irrational') and from-scratch proofs for composite surds (e.g. √15) were not asked in any 2024-26 board text set or either SQP, so they are OUT."
           }
         ],
         "formative": [],
         "limits": [],
-        "ambiguous": [
+        "ambiguous": [],
+        "resolved": [
           {
             "item": "Irrationality proofs for surds other than √2, √3, √5 (e.g. √7, √11)",
             "page": 3,
             "quote": "numbers like √2, √3, √5, 3 + 2√5 etc.",
-            "workingReading": "'like … etc.' admits same-method proofs; NOT a finding. Corrects the cofounder's 'only √2, √3, √5'."
+            "workingReading": "'like … etc.' admits same-method proofs for a named prime and expressions built from it (IN); general-prime statements and composite-surd proofs are OUT by the evidence rule.",
+            "ruling": "Owner ruling R1, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): same-method irrationality proofs of the square root of a named prime (e.g. √7) and expressions built from such surds (e.g. 6 − √7, 5 + 6√7) are IN; √6 is IN only as a given surd inside such an expression proof (2024 board 30/5/1 Q26(b): prove (√2+√3)² irrational, given √6 irrational). Owner ruling R1, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: general-prime statements or proofs (√p for any prime p, √p + √q, 'the square root of every prime is irrational') and from-scratch proofs for composite surds (e.g. √15) were not asked in any 2024-26 board text set or either SQP, so they are OUT."
           }
-        ],
-        "resolved": []
+        ]
       },
       {
         "key": "polynomials",
@@ -474,6 +494,12 @@ export const SYLLABUS_2026_27 = {
             "item": "Section formula — external division",
             "page": 5,
             "basis": "p5 '(internal division)'"
+          },
+          {
+            "item": "Centroid of a triangle from coordinates",
+            "page": 5,
+            "basis": "absent from the full Coordinate Geometry list on p5; no 2024-26 board or SQP use",
+            "ruling": "Owner ruling R2, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: the centroid was not asked in any 2024-26 board text set or either SQP (medians were: 2025 30/1/3 Q25, SQP 2026-27 Q14), so it is OUT; Coordinate Geometry is distance + section formula (internal) only."
           }
         ],
         "formative": [],
@@ -483,15 +509,16 @@ export const SYLLABUS_2026_27 = {
             "page": 5
           }
         ],
-        "ambiguous": [
+        "ambiguous": [],
+        "resolved": [
           {
             "item": "Centroid of a triangle from coordinates",
             "page": 5,
             "quote": "Section formula (internal division).",
-            "workingReading": "derivable from the section formula but not named; NOT a finding"
+            "workingReading": "derivable from the section formula but not named on p5 and not asked 2024-26; ruled OUT.",
+            "ruling": "Owner ruling R2, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: the centroid was not asked in any 2024-26 board text set or either SQP (medians were: 2025 30/1/3 Q25, SQP 2026-27 Q14), so it is OUT; Coordinate Geometry is distance + section formula (internal) only."
           }
-        ],
-        "resolved": []
+        ]
       },
       {
         "key": "triangles",
@@ -698,9 +725,31 @@ export const SYLLABUS_2026_27 = {
             "item": "Problems on areas and perimeter/circumference of those figures",
             "page": 7,
             "quote": "Problems based on areas and perimeter /circumference of the above said plane figures."
+          },
+          {
+            "item": "Shaded regions made only of a sector or segment with the triangle or square that defines it, including a triangle or square minus the sectors at its vertices",
+            "page": 7,
+            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: a shaded region made only of a sector or segment with the triangle or square that defines it is IN, including a triangle or square minus the sectors at its vertices (class c: 2024 board 30(B) Q25, SQP 2025-26 Q24(A), 2024 board 30/3/1 Q36(iii))."
+          },
+          {
+            "item": "Rings and annular sectors (area between two concentric circles or sector arcs), and a quadrant or sector minus a triangle with a vertex at the centre",
+            "page": 7,
+            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), evidence rule with Maths Basic counted (owner Round 2): rings and annular sectors are IN (2024 Basic 430/3/1 Q12 and Q37(iii)(a): area between concentric sector arcs; 2025 Basic 430/1/1 Q13, 430/1/2 Q23: perimeters; a full ring is the 360° case), and a quadrant or sector minus a triangle with a vertex at the centre is IN (2025 Basic 430/3/1 Q25)."
+          },
+          {
+            "item": "Measures of a circle inscribed in a square, or a square inscribed in a circle (no shaded region)",
+            "page": 7,
+            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: measures of a circle inscribed in a square or a square inscribed in a circle, with no shaded region, are IN (class d: 2024 board 30/4/3 Q5; SQP 2025-26 Q7, visually-impaired alternative)."
           }
         ],
-        "out": [],
+        "out": [
+          {
+            "item": "Areas of combinations of plane figures (circle parts with rectangles or other shapes, a circle minus an inscribed square or triangle; the sector-or-segment and ring exceptions are IN)",
+            "page": 7,
+            "basis": "p7 limits the chapter to sectors and segments ('the above said plane figures'); no 2024-26 board or SQP use",
+            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: areas of combinations of plane figures are OUT, including a circle minus an inscribed square or triangle (class b: none in any 2024-26 Standard or Basic text set or either SQP; the nearest is the 2023 board 30/2/2 Q31)."
+          }
+        ],
         "formative": [],
         "limits": [
           {
@@ -709,15 +758,16 @@ export const SYLLABUS_2026_27 = {
             "quote": "(In calculating area of segment of a circle, problems should be restricted to central angle of 60°, 90° and 120° only."
           }
         ],
-        "ambiguous": [
+        "ambiguous": [],
+        "resolved": [
           {
             "item": "Areas of combinations of plane figures beyond sectors/segments (old NCERT 'combination' section)",
             "page": 7,
             "quote": "the above said plane figures",
-            "workingReading": "'above said' = sectors and segments; combination problems built from sectors/segments + basic shapes are routine board items. NOT a finding unless a segment angle breaks the limit."
+            "workingReading": "'above said' = sectors and segments. Combinations of plane figures are OUT; a shaded region made only of a sector or segment with the triangle or square that defines it (incl. vertex sectors), rings and annular sectors, a quadrant minus a triangle at its centre, and plain inscribed circle/square measures are IN.",
+            "ruling": "Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: areas of combinations of plane figures are OUT, including a circle minus an inscribed square or triangle (class b: none in any 2024-26 Standard or Basic text set or either SQP; the nearest is the 2023 board 30/2/2 Q31). Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: a shaded region made only of a sector or segment with the triangle or square that defines it is IN, including a triangle or square minus the sectors at its vertices (class c: 2024 board 30(B) Q25, SQP 2025-26 Q24(A), 2024 board 30/3/1 Q36(iii)). Owner ruling R3, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2), by the evidence rule: IN only if asked in a 2024-2026 CBSE board paper or the 2025-26/2026-27 SQP; evidence Desktop/diff/b17-qf-pr2-evidence.md: measures of a circle inscribed in a square or a square inscribed in a circle, with no shaded region, are IN (class d: 2024 board 30/4/3 Q5; SQP 2025-26 Q7, visually-impaired alternative)."
           }
-        ],
-        "resolved": []
+        ]
       },
       {
         "key": "surface-areas-and-volumes",
@@ -772,6 +822,11 @@ export const SYLLABUS_2026_27 = {
             "item": "Median and mode of grouped data (algebraic method)",
             "page": 7,
             "quote": "Computes the median and mode of grouped frequency distribution by algebraic method"
+          },
+          {
+            "item": "Empirical relation 3 Median = Mode + 2 Mean, used as a tool",
+            "page": 7,
+            "ruling": "Owner ruling R4, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): the empirical relation 3 Median = Mode + 2 Mean is IN, used as a tool (NCERT-retained remark); encode only."
           }
         ],
         "out": [
@@ -789,14 +844,15 @@ export const SYLLABUS_2026_27 = {
             "quote": "Mean, median and mode of grouped data (bimodal situation to be avoided)."
           }
         ],
-        "ambiguous": [
+        "ambiguous": [],
+        "resolved": [
           {
             "item": "Empirical relation 3 Median = Mode + 2 Mean",
             "page": 7,
-            "workingReading": "not named; NOT a finding"
+            "workingReading": "not named on p7, but it is a tool for the named median/mode/mean of grouped data; ruled IN (as a tool).",
+            "ruling": "Owner ruling R4, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): the empirical relation 3 Median = Mode + 2 Mean is IN, used as a tool (NCERT-retained remark); encode only."
           }
-        ],
-        "resolved": []
+        ]
       },
       {
         "key": "probability",
@@ -945,17 +1001,25 @@ export const SYLLABUS_2026_27 = {
             "quote": "Chemical reactions, Chemical equation, Balanced chemical equation, types of chemical reactions: combination, decomposition, displacement, double displacement, precipitation, endothermic exothermic reactions, oxidation and reduction."
           }
         ],
-        "out": [],
+        "out": [
+          {
+            "item": "Rancidity (oxidation of fats and oils in food, and its prevention by antioxidants or nitrogen flushing)",
+            "page": 4,
+            "basis": "absent from the full Chemical Reactions list on p4",
+            "ruling": "Owner ruling R5, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): rancidity is OUT (absent from the p4 Chemical Reactions content list); corrosion and its prevention stay IN under Metals and Non-metals (p5)."
+          }
+        ],
         "formative": [],
         "limits": [],
-        "ambiguous": [
+        "ambiguous": [],
+        "resolved": [
           {
             "item": "Rancidity (NCERT ch.1 'effects of oxidation in everyday life')",
             "page": 4,
-            "workingReading": "not named on p4; corrosion IS named under Metals (p5). Reported, NOT a finding."
+            "workingReading": "not named on p4; corrosion IS named under Metals (p5). Ruled OUT; corrosion stays IN.",
+            "ruling": "Owner ruling R5, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): rancidity is OUT (absent from the p4 Chemical Reactions content list); corrosion and its prevention stay IN under Metals and Non-metals (p5)."
           }
-        ],
-        "resolved": []
+        ]
       },
       {
         "key": "periodic-classification-of-elements",
@@ -1042,9 +1106,21 @@ export const SYLLABUS_2026_27 = {
             "item": "Covalent bonds; versatile nature of carbon; saturated/unsaturated hydrocarbons; homologous series; nomenclature (alkanes, alkenes, alkynes, halogens, alcohol, ketones, aldehydes); combustion, oxidation, addition, substitution; ethanol and ethanoic acid (only properties and uses); soaps and detergents",
             "page": 5,
             "quote": "Covalent bonds – formation and properties of covalent compounds, Versatile nature of carbon, Hydrocarbons – saturated and unsaturated Homologous series. Nomenclature of alkanes, alkenes, alkyne and carbon compounds containing functional groups (halogens, alcohol, ketones, aldehydes). Chemical properties of carbon compounds (combustion, oxidation, addition and substitution reaction). Ethanol and Ethanoic acid (only properties and uses), soaps and detergents."
+          },
+          {
+            "item": "Identifying the -COOH (carboxylic acid) functional group, and natural acids such as methanoic acid in an ant sting",
+            "page": 5,
+            "ruling": "Owner ruling R6, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): naming carboxylic acids is OUT (the p5 nomenclature list names halogens, alcohol, ketones, aldehydes only); identifying the -COOH group and natural acids (e.g. methanoic acid in an ant sting) is IN; ethanoic acid's properties and uses stay IN."
           }
         ],
-        "out": [],
+        "out": [
+          {
+            "item": "Nomenclature of carboxylic acids (naming an acid by the -oic acid suffix, e.g. propanoic or butanoic acid)",
+            "page": 5,
+            "basis": "the p5 nomenclature list names halogens, alcohol, ketones, aldehydes, not carboxylic acids",
+            "ruling": "Owner ruling R6, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): naming carboxylic acids is OUT (the p5 nomenclature list names halogens, alcohol, ketones, aldehydes only); identifying the -COOH group and natural acids (e.g. methanoic acid in an ant sting) is IN; ethanoic acid's properties and uses stay IN."
+          }
+        ],
         "formative": [],
         "limits": [
           {
@@ -1052,14 +1128,15 @@ export const SYLLABUS_2026_27 = {
             "page": 5
           }
         ],
-        "ambiguous": [
+        "ambiguous": [],
+        "resolved": [
           {
             "item": "Carboxylic-acid functional-group nomenclature",
             "page": 5,
-            "workingReading": "the nomenclature list names halogens, alcohol, ketones, aldehydes but not carboxylic acids, while ethanoic acid is IN; NOT a finding"
+            "workingReading": "the nomenclature list names halogens, alcohol, ketones, aldehydes but not carboxylic acids. Ruled OUT for naming; identifying the -COOH group, natural acids and ethanoic acid's properties and uses stay IN.",
+            "ruling": "Owner ruling R6, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): naming carboxylic acids is OUT (the p5 nomenclature list names halogens, alcohol, ketones, aldehydes only); identifying the -COOH group and natural acids (e.g. methanoic acid in an ant sting) is IN; ethanoic acid's properties and uses stay IN."
           }
-        ],
-        "resolved": []
+        ]
       },
       {
         "key": "life-processes",
@@ -1302,19 +1379,21 @@ export const SYLLABUS_2026_27 = {
           {
             "item": "Electric motor; electromagnetic induction (incl. Fleming's right-hand rule, galvanometer deflection by a moving magnet); electric generator",
             "page": 6,
-            "quote": "The following topics are included in the syllabus but will be assessed only formatively … Motor, Electromagnetic Induction, Electric Generator"
+            "quote": "The following topics are included in the syllabus but will be assessed only formatively … Motor, Electromagnetic Induction, Electric Generator",
+            "ruling": "Owner ruling R7, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): the p6 Note's 'Electric Effects of Electric Current' is read as Magnetic Effects: Motor, EMI, Generator, which are FORMATIVE only (as already applied)."
           }
         ],
         "limits": [],
-        "ambiguous": [
+        "ambiguous": [],
+        "resolved": [
           {
             "item": "Note for Teachers names 'Electric Effects of Electric Current' as not assessed",
             "page": 6,
             "quote": "1. The topics Periodic Classification of Elements; Heredity and Evolution; and Electric Effects of Electric Current will not be assessed in the year-end   examination.",
-            "workingReading": "no chapter is called that. Unit IV (p6) lists electricity and magnetic-effects content as assessed and puts only Motor/EMI/Generator under the formative paragraph. Working reading: the Note means the formative Motor/EMI/Generator block. NOT used to mark Electricity or Magnetic Effects OUT."
+            "workingReading": "no chapter is called that. Unit IV (p6) lists electricity and magnetic-effects content as assessed and puts only Motor/EMI/Generator under the formative paragraph. The Note means the formative Motor/EMI/Generator block. NOT used to mark Electricity or Magnetic Effects OUT.",
+            "ruling": "Owner ruling R7, owner ruling 2026-10-06 (QUICK-FIXES-1 PR-2): the p6 Note's 'Electric Effects of Electric Current' is read as Magnetic Effects: Motor, EMI, Generator, which are FORMATIVE only (as already applied)."
           }
-        ],
-        "resolved": []
+        ]
       },
       {
         "key": "our-environment",

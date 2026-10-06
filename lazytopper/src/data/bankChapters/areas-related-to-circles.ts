@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "areas-related-to-circles" (Maths): 219 served rows from 16 source arrays, 8 withheld.
+// Chapter "areas-related-to-circles" (Maths): 196 served rows from 16 source arrays, 31 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -41,12 +41,35 @@ export default defineChapter("areas-related-to-circles", [
   [355, AREAS_RELATED_TO_CIRCLES_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
 ], [
+  "ARC-E10",
+  "ARC-M14",
   "ARC-M15",
+  "ARC-M18",
+  "ARC-M20",
+  "ARC-H01",
   "ARC-H08",
+  "ARC-H12",
+  "ARC-H15",
   "ARC2-007",
+  "ARC2-008",
   "ARC2-017",
+  "ARC2-018",
   "ARC2-021",
+  "ARC2-022",
+  "ARC2-030",
+  "ARC2-035",
   "ARC2-037",
+  "ARC2-038",
+  "ARC2-041",
+  "ARC-N-NCERT-11-LA-001",
+  "ARC-N-NCERT-11-LA-002",
+  "ARC-N-NCERT-11-CRE-001",
+  "ARC-N-EXEM2-11-LA-001",
+  "SQP-M-ARC-003",
+  "CBE-M-ARC-C-001",
+  "CBE-M-ARC-C-002",
+  "CBE-M-ARC-E-001",
   "PYQ-M-ARC-002",
   "PYQ-M-ARC-003",
+  "PYQ-M-ARC-005",
 ]);
