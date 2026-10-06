@@ -1,5 +1,43 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B): ME-ENGINE-1 PR-1 (`#964` `dfb83379`), PR-2 (`#968` `bab5ad0d`), PR-2b (`#970` `d1a8e88f`), PR-2c (`#983` `984bd663`); trunk `984bd663`. LIVE on deploy (no flag); rollouts and OR-LIVE recorded in `CURRENT_STATE.md`.**
+> ★ **EVERY PROGRESS SURFACE NOW READS ONE SYNCED MODEL BEHIND ONE HONESTY GATE: ME / PROGRESS, THE MI WIDGET, THE TUTOR BRIEF, WEAK AREA PRACTICE; MISTAKES RESOLVE INSTEAD OF DISAPPEARING; A SECOND DEVICE MATCHES THE FIRST.** **No matrix cell value changes:** Me / Progress and Tutor / Learn already read Scope = Settling with their completion cells as recorded; this wave changes the data they read and what they withhold, not their recorded build / redesign / verify status. Me / Progress `Verified` stays as recorded: the second-device pull (L1) is OWED live (`[FU-B18-L1-SECOND-DEVICE-PULL-LIVE]`).
+
+### ✅ Me / Progress (data) — **DEVICE-LOCAL + PER-SURFACE FIGURES, MISTAKES DELETED ON RE-GRADE → ONE SHARED SYNCED READ MODEL (`progressReadModel.ts`: IST TODAY, 7 / 14 / 30 / 120 DAYS, 26 BOARD CHAPTERS, GRADED-ONLY TESTS, PAGINATED); WEAKNESS NAMED ONLY ABOVE ONE GATE — LIVE (`#964`, `#970`)**
+- Live: B == A for synced mistakes; nothing named below the 6-graded-answer gate *(agent-reported)*. Open: `[FU-ME1-NO-TODAY-ON-ME]` (→ ME-REPORT-1), `[FU-ME-GATE-COPY]`, `[FU-ME2-TUTOR-ACTIVITY-NOT-RENDERED]`.
+
+### ✅ MI sidebar widget (data; navy-sidebar chrome only) — **OLD MI-ENTRY SOURCE, MARKS LOST = MI-ENTRY SUM → THE SHARED MODEL, MARKS LOST = THE GRADED STREAM (= ME), NAMES NOTHING BELOW THE GATE; MIC H3 AMENDED UNDER THE OWNER'S FOUR CONDITIONS (146 → 148) — LIVE (`#970`)**
+- Open: `[FU-B18-WIDGET-HIDES-TOTAL-BELOW-GATE]`. Scope discovered → §2a.
+
+### ✅ Tutor brief — **DEVICE-ONLY WEAK AREAS, CONCEPTS NAMED AT 2 GRADED ANSWERS → THE SHARED MODEL WITH ME'S MONTH WINDOW, GROUPS AND GATE, IMPORTED; PIN ME == BRIEF == MODEL — LIVE (`#968`, `#970`)**
+
+### ✅ Weak Area Practice — **"MASTERY %", MASTERY BAR, "OVERALL MASTERY", DEVICE-LOCAL ATTEMPTS, FAKE 0%, DIFFICULTY FROM MASTERY, "ALL YOUR TOPICS ARE LOOKING STRONG" WITH ZERO EVIDENCE → NO MASTERY ANYWHERE, ACCURACY / ATTEMPTS FROM THE MODEL, DIFFICULTY FROM MARKS LOST, HONEST "NOT ENOUGH GRADED YET" PER PAPER, NEVER PRAISE — LIVE (`#970`, `#983`)**
+- Live: 6 views honest at 0 graded *(agent-reported)*. Open: `[FU-B18-WEAKAREA-LOCAL-LIST]`, `[FU-B18-WEAKAREA-OTHER-LOCAL-FIGURES]`, `[FU-B18-WEAKAREA-WINDOW-LABEL]`, `[FU-B18-WEAKAREA-REVIEWS-MASTERED]`, `[FU-B18-WAP-CTA-HARDCODED-COLOR]`.
+
+### ✅ Mistake history (no user surface of its own) — **A RE-GRADE OR LATER CORRECT ATTEMPT DELETED THE MISTAKE → RESOLVED (`resolvedAt` / `resolvedBy`, SYNCED); "WON BACK" = A LATER CORRECT ATTEMPT ONLY — LIVE (`#964`)**
+- Live: `resolvedBy: 're-grade'` persisted, not deleted *(agent-reported)*. Open: `[FU-ME1-WONBACK-UNREACHABLE]`, `[FU-ME1-SYNTHETIC-WONBACK]`.
+
+### ✅ Free-check replay — **RECORDED EVERY ANSWER → RECORDS GRADED ANSWERS ONLY — LIVE (`#964`)**
+- Open (kept): `[FU-B15-FREECHECK-V2]`.
+
+### ✅ Tutor activity — **NOT RECORDED; A FAILED TURN COUNTED (`#968`) → DOUBTS TIMESTAMPED + SYNCED (`doubtsAt`), RECORDED ONLY AFTER A SUCCESSFUL REPLY — LIVE (`#968`, `#983`; a Tutor 500 wrote nothing, live)**
+- Open: `[FU-ME2-TUTOR-ACTIVITY-NOT-RENDERED]`, `[FU-ME2-DOUBTSAT-GROWTH]`.
+
+### 🟡 Second-device parity — **DEVICE B NEVER PULLED THE WRONG-ANSWER LOG (HYDRATE RACE) → SYNCED LOG + HYDRATION WAITS FOR PENDING WRITES (`#968`, `#970`); THE LIVE PULL IS OWED**
+- Live L1 unmeasured during `[PROD-AI-500]` → `[FU-B18-L1-SECOND-DEVICE-PULL-LIVE]`.
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- No grading, auth, pricing, Login, Landing, Practice, Check & Improve, Chapter Test, Full Mock or Worksheet file changed in these four PRs; ME-ENGINE-1 PR-3 (concepts) did not run.
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, 2026-10-07, wave B-18, per `CLAUDE.md` §10)*
+- **Me / Progress synced fields ↔ the DPDP export (Scope = Settling):** a new synced Firestore LOCATION must be added to the DPDP map (`src/services/studentDataMap.ts`), and `server/services/accountExport.test.cjs` pins those locations — so a client lane that adds one breaks a `server/**` test. `#968` added `doubtsAt` / `wrongAnswerLog` as FIELDS on already-mapped docs instead.
+- **MI sidebar widget ↔ the MIC ops gate (Scope = Settling):** `check_improve_convergence_acceptance.mjs` (MIC H3) pinned the widget's old data source, so changing the widget's data needs a gate amendment under the owner's four conditions.
+
+### 📋 Scope discovered? — **YES** — the DPDP map ↔ `accountExport.test.cjs` coupling and the MIC gate pinning the widget's source. Logged in `DECISION_LOG.md` (2026-10-07, wave B-18) and in §2a above; Scope = Settling.
+
+> **2026-10-07 — WAVE CI1 (CI, CONTROLLER C): FU-CI1-NIGHTLY-RESTORE (`#981` `63e94564`); trunk `63e94564`. NO SURFACE MOVES.**
+> `#981` changed two CI workflows (`quality-gate.yml`, `lane-overlap.yml`) and four ops scripts (`ci_speed_acceptance.mjs` and three acceptance gates); **zero product files**. No product surface moved, no cell flips, and no scope was discovered on any surface. Recorded explicitly per `CLAUDE.md` §10 — a silent tracker is indistinguishable from an unchecked one.
+
 > **2026-10-07 — WAVE CI1 (CI, CONTROLLER C): CI-SPEED-1 (`#969` `c6068552`); trunk `c6068552`. NO SURFACE MOVES.**
 > `#969` changed CI workflows, CI scripts, `vercel.json` (`ignoreCommand` line only), the vitest config and one guard test; **zero product files**. No product surface moved, no cell flips, and no scope was discovered on any surface. Recorded explicitly per `CLAUDE.md` §10 — a silent tracker is indistinguishable from an unchecked one.
 

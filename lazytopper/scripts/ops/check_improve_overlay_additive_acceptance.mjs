@@ -739,13 +739,39 @@ if (forbiddenBase) {
     check(`FORBIDDEN: ${f} shows ${additive ? "no NON-ADDITIVE change (members kept, new members optional, the read unchanged)" : "zero changes"} (vs ${forbiddenBase})`, ok,
       ok ? "" : problems.length ? problems.join("; ") : "THIS FILE WAS MODIFIED");
   }
-} else if (EVENT === "push") {
-  console.log("  --  N/A: push-to-trunk run — no PR to scope a forbidden-path diff to.");
+} else if (["push", "schedule", "workflow_dispatch", "merge_group"].includes(EVENT)) {
+  // Every CI event that is NOT a pull_request (FU-CI1-NIGHTLY-RESTORE, ruling D6): a push to
+  // trunk, the nightly schedule, a hand-run workflow_dispatch, a merge-queue merge_group. None
+  // carries a PR base ref — N/A, NOT counted as a pass. `pull_request` is deliberately NOT in
+  // this list (pinned below): a PR whose base ref cannot be resolved still hard-fails.
+  console.log(`  --  N/A: ${EVENT} run — no PR to scope a forbidden-path diff to.`);
 } else if (IN_CI) {
   check("FORBIDDEN: the PR base ref is reachable in CI (fetch-depth must be 0)", false,
     `could not resolve the PR target ref${PR_TARGET ? ` (origin/${PR_TARGET})` : ""} — hard failure by design.`);
 } else {
   console.log("  ~~  SKIPPED (local, non-CI): no base ref — forbidden-path diff not checked.");
+}
+
+// ★ PIN (FU-CI1-NIGHTLY-RESTORE, ruling D6) — the N/A branch above, asserted by SOURCE INSPECTION
+// of this very file, so it runs on every invocation whichever event branch fired. A widened N/A
+// set that swallowed `pull_request` would turn the PR hard-failure into a silent skip.
+{
+  const self = readFileSync(fileURLToPath(import.meta.url), "utf8").replace(/\r\n/g, "\n");
+  const naLine = self.match(/^\} else if \(\[([^\]\n]*)\]\.includes\(EVENT\)\) \{$/m);
+  const naSet = naLine ? [...naLine[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]) : [];
+  check("FORBIDDEN-PIN: the non-PR N/A branch exists as one `[...].includes(EVENT)` list",
+    !!naLine && naSet.length > 0, "N/A branch not found in the expected shape");
+  check("FORBIDDEN-PIN: `pull_request` is NEVER in the N/A set (a PR with no base ref must hard-fail)",
+    !!naLine && !naSet.includes("pull_request") && !naSet.includes("pull_request_target"),
+    `N/A set = ${JSON.stringify(naSet)}`);
+  check("FORBIDDEN-PIN: the N/A set covers push, schedule, workflow_dispatch and merge_group",
+    ["push", "schedule", "workflow_dispatch", "merge_group"].every((e) => naSet.includes(e)),
+    `N/A set = ${JSON.stringify(naSet)}`);
+  const hardFail = /^\} else if \(IN_CI\) \{\n\s*check\("FORBIDDEN: the PR base ref is reachable in CI \(fetch-depth must be 0\)", false,/m;
+  const hfIdx = self.search(hardFail);
+  check("FORBIDDEN-PIN: the IN_CI hard-fail branch (check(..., false)) still follows the N/A branch",
+    hfIdx > -1 && !!naLine && hfIdx > self.indexOf(naLine[0]),
+    hfIdx === -1 ? "the IN_CI `FORBIDDEN: the PR base ref is reachable` hard failure is GONE" : "out of order");
 }
 
 console.log("");

@@ -1,3 +1,60 @@
+## 2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B) — **ME-ENGINE-1: ME / PROGRESS, THE TUTOR BRIEF AND THE MI WIDGET READ ONE SYNCED MODEL BEHIND ONE HONESTY GATE; MISTAKES RESOLVE, NOT DELETE; WON BACK = A LATER CORRECT ATTEMPT ONLY; WEAK AREA PRACTICE WITHOUT MASTERY OR UNEARNED PRAISE** — `#964` + `#968` + `#970` + `#983` MERGED — trunk `984bd663` — LIVE; PR-3 SKIPPED (owner)
+
+★ **PROVENANCE.** Controller B, wave B-18 (same session as B-17; owner-assigned). Spec ME-ENGINE-1 v1.0 `82C7034D6DF2` (owner-authored). Four builders (claude-opus-5-5; PR-1 high, the rest medium), an independent read-only verifier sub-agent on `#970` and `#983` (owner Round 4), OR-LIVE / smoke agents after each merge. Written by a separate docs builder in `C:/Projects/LT-worktrees/b18-me-docs` from `WAVE_STATE_B18.md`, `OWNER_RULINGS_B18_ME.md`, the builder / verifier / live reports and `COORD/BOARD.md`; every merge SHA and time re-checked with `gh pr view`.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| ME PR-2c | `#983` `984bd663` | a Tutor doubt counts only after a successful reply (live: a 500 wrote nothing); Weak Area Practice never praises — honest "Not Enough Graded Yet" below the subject's own gate, neutral copy above it | "the praise gate is right" (the first version praised on the Science tab with zero Science answers — caught by the independent verifier) |
+| ME PR-2b | `#970` `d1a8e88f` | second device always pulls the synced wrong-answer log; ONE weakness-naming gate imported by Me, the Tutor brief and the MI widget; Weak Area Practice: mastery displays removed, accuracy / attempts from the model, difficulty from marks lost (owner); MI widget on the model + MIC H3 amended under the four conditions (146 → 148); IST-midnight test fixed | "the IST-midnight failure is a code bug" (fixture only); "the widget can switch without naming below the gate" |
+| ME PR-2 | `#968` `bab5ad0d` | Tutor brief on `progressReadModel` (0 device-only reads); doubts timestamped + synced (`doubtsAt`); wrong-answer log synced; activity per window; G3 pin Me == brief == model | "a new synced field needs a new DPDP map location"; "Me renders activity counts" |
+| ME PR-1 | `#964` `dfb83379` | shared read model; resolve-not-delete (`resolvedAt` / `resolvedBy`); won back = later-correct only; IST today; graded-only tests; G14 pagination; free-check replay graded-only; Me / Progress wired | "won back counts any resolution" (the code counted re-grades — fixed per owner); "the widget can switch freely" (MIC H3 pins its old source) |
+
+**Timeline (UTC, 6 Oct).**
+- 15:36:15Z `#964` merged (after the owner's Round 1 won-back rule was confirmed, pinned and quoted in its description). OR-LIVE-1 PARTIAL, no regression: won back has no live re-attempt path; Me has no "today".
+- 17:36:31Z `#968` merged. OR-LIVE-2 PARTIAL: found the hydrate race and the brief naming concepts below Me's gate → PR-2b.
+- Owner Round 2 (Weak Area kept, mastery retired, gate amendment approved, widget basis, brief imports), Round 3 (speed), Round 4 (autonomy, 5 h; verifier before every merge), Round 5 (plan; skip PR-3).
+- 21:17:26Z `#970` merged after verifier PASS-WITH-NOTES and an update-branch with all 17 files byte-identical. Post-merge PARTIAL: smoke PASS; L1 unmeasured.
+- 21:24Z–21:37Z **`[PROD-AI-500]`**: grading ×4 and Tutor 500s in production; A-17 found no server change since 19:52Z; suspected Gemini billing; no revert; OWNER-ASKs posted. J2a `#979` (verified) HELD.
+- `#983` verifier round 1 **FAIL** (Science-tab praise), round 2 PASS-WITH-NOTES. 23:02:29Z `#983` merged. Smoke PASS; 23:09:45Z the Tutor still 500s.
+- 23:13Z the handoff lock passed to B-18; this docs PR.
+
+**Lessons.**
+- **(a) An independent verifier pays for itself** — `#983`'s first head praised on a tab whose subject had zero answers; the builder's tests checked the gate on the both-papers model only.
+- **(b) A live check that cannot create its precondition proves nothing** — the second-device pull could not be measured during the AI outage; it is recorded OWED, never PASS.
+- **(c) A cross-lane fast failure on two unrelated routes points upstream before code** — `/api/grade-worksheet` and `/api/tutor` share no code and both failed in 0.8–6.2 s.
+- **(d) `git stash` is shared by every worktree of a repo** — never use it in a lane.
+- **(e) A state-file edit keyed on a heading must assert the heading exists** — B-17 D23.
+
+**Owner-owed:** `[PROD-AI-500]` (Railway logs, Gemini billing, eval credit); optional re-tune of the Weak Area difficulty bands (D26) and of the J2 decisions (D30); ME-REPORT-1 and a won-back re-attempt path when scheduled. **Next:** J2a merge when a production grade succeeds, then J2b, then A-17's J3; the owed L1 live check.
+
+## 2026-10-07 — WAVE CI1 (CI, CONTROLLER C) — **FU-CI1-NIGHTLY-RESTORE: THE FULL SUITE UNDER BOTH CLOCKS RUNS NIGHTLY AGAIN (02:00 IST); THREE GATES TREAT EVERY NON-PR EVENT AS N/A, NOT A PASS; `merge_group` TRIGGERS READY; THE NIGHTLY MUST RUN EVERY TEST FILE ON DISK** — `#981` MERGED — trunk `63e94564` — CI ONLY
+
+★ **PROVENANCE.** Controller C (also CI-1, coordinator), wave CI1. Owner mandate 2026-10-07 (`[FU-CI1-NIGHTLY-RESTORE]`). One builder (`ci/fu-ci1-nightly-restore`, worktree `ci1-nightly`), two rounds; an independent verifier sub-agent PASS before merge. Written by a separate docs builder in `C:/Projects/LT-worktrees/ci1-docs2` from `WAVE_STATE_CI1.md`, `COORDINATOR_LOG.md`, `ci1/report-fu-ci1-nightly-restore-2026-10-07.md`, `CI1_MERGE_QUEUE_STEPS.md` and `#981`; every SHA and run id re-checked with `gh` / `git`.
+
+**Lane.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| FU-CI1-NIGHTLY-RESTORE | `#981` `63e94564` (head `b2dce25f`) | N/A for push / schedule / workflow_dispatch / merge_group in 3 gates (+4 FORBIDDEN-PINs each); `schedule: '30 20 * * *'` restored; issue step schedule-only; `merge_group` on both required workflows, lane-overlap pass-through; nightly files-on-disk assertion; `ci_speed_acceptance` 31 → 36. Hand-run `37539342806`: both clocks 330/330 files, 4,755 tests, `NIGHTLY_VITEST_COVERAGE: PASS`. Merged-head run `37542218299`: 331 / 4,760, PASS. Trunk push `37542924022`: PASS 6.1 min | "only the convergence gate has the push-only N/A rule"; "the nightly ran one file fewer than the PR" |
+
+**Timeline (UTC, 6 Oct).**
+- 20:36Z trunk push `37520735385` (`d0cbdd3f`) RED: `DesktopPracticePage.cbqEntry.test.tsx` reaches the clock intermittently and was not in the manifest. Fix folded into B-18's `#970` (DEC-4) to avoid a lane-overlap deadlock.
+- 21:20Z `#970` merged `d1a8e88f`; manifest entry verified on trunk. Builder dispatched.
+- 21:39Z PR run `37535368225` green (`785b7c7c`). 21:45Z hand-run `37536071043` **RED**: convergence N/A worked, the C&I overlay gate failed the same way. → **D6** widen both overlay gates in `#981`; **D7** explain 326 vs 327 and guard the nightly.
+- 22:09Z PR run `37538714300` green (`b1b04f2d`, 330 / 4,755). 22:14–22:23Z hand-run **`37539342806` GREEN**, all 15 jobs.
+- Trunk moved three times while `#981` waited (`#982` 22:16Z, `#975` 22:30Z, `#984` 22:40Z) → three update-branch merges (`ac30136a`, `48d13c09`, `b2dce25f`).
+- **22:48:46Z `#981` merged** (guarded loop, attempt 1). Trunk push `37542924022` PASS; post-merge 5/5 reads + smoke 3/3; Vercel deployed.
+
+**Lessons.**
+- **(a) Running the nightly by hand BEFORE merging found two more gates with the same defect.** The fix targeted the convergence gate's push-only N/A rule; dispatch `37536071043` showed `check_improve_overlay_additive_acceptance.mjs` and `quick_practice_overlay_additive_acceptance.mjs` carried the identical rule. A PR run alone (green, `37535368225`) could not show it: on a pull_request the rule never fires. A sweep then confirmed no 4th gate.
+- **(b) The 326-vs-327 "gap" was a base difference, not lost coverage.** The PR run tests `refs/pull/981/merge` (branch + current trunk, which had just gained `#978`'s test file); the dispatch tests the bare branch head, which had 326 test files on disk. The nightly ran 326/326. A files-on-disk assertion now guards the nightly anyway (`NIGHTLY_VITEST_COVERAGE`).
+- **(c) Under the strict up-to-date rule a ~5-minute PR still waited about 35 minutes** (green 22:13:58Z → merged 22:48:46Z) through three trunk moves, two of them during its checks. A guarded update-and-merge loop — update-branch, prove the lane files byte-identical to the verifier-passed head, wait for every check green on that EXACT head, then `gh pr merge --squash --match-head-commit` — merged it on its first attempt.
+- **(d) The runtime clock recorder's seed runs miss tests that reach the clock only intermittently.** `DesktopPracticePage.cbqEntry.test.tsx` turned trunk push `37520735385` RED; fixed via `#970` (`d1a8e88f`). → `[FU-CI1-RECORDER-INTERMITTENT]`.
+
+**Owner-owed:** merge-queue option (A recommended; triggers on trunk), Railway `watchPatterns`; other lanes' OWNER-ASKs are in `Desktop/diff/COORDINATOR_LOG.md`. **Next:** the first scheduled nightly, 2026-10-07T20:30Z.
+
 ## 2026-10-07 — WAVE CI1 (CI, CONTROLLER C) — **CI-SPEED-1: THE REQUIRED QUALITY GATE AS PARALLEL JOBS, ~23 MIN → ~5 MIN WITH THE SAME 320 FILES / 4,709 TESTS AND NOTHING SKIPPED; DOCS FAST PATH FOR WAVE-CLOSERS; VERCEL SKIPS DEPLOY-INERT DOCS MERGES AND SEARCH-PING EXITS GREEN ON IT; NIGHTLY MANUAL-ONLY UNTIL `#970`** — `#969` MERGED — trunk `c6068552` — CI / PLATFORM ONLY
 
 ★ **PROVENANCE.** Controller C, wave CI1, lane CI-SPEED-1 (spec `794EFA16E871`, owner grant `.github/**`). **Handover from A-17:** A-17's builder built the lane; the owner moved it to C on 2026-10-07; C adopted `#969` as-is (head `6c0ee398`) and verified each piece against the run logs. The builder work was reused, not redone. C then ran one builder (`claude-opus-5-5`, high) for the search-ping skip and the nightly-off addendum. Written by a separate docs builder in `C:/Projects/LT-worktrees/ci1-docs` from `WAVE_STATE_CI1.md`, `ci1/PR969_BODY.md`, `ci1/OWNER_MERGE_QUEUE_STEPS.md`, `ci1/report-ci1-searchping-2026-10-07.md` and A-17's stop report.
