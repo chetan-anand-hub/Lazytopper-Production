@@ -15,6 +15,7 @@ import { join, dirname, resolve } from "node:path";
 import {
   PRERENDERED_DIR,
   applyArtifact,
+  bootEntryIn,
   desktopFragmentPathFor,
   dynamicImportCssOf,
   entryStylesheetOf,
@@ -25,6 +26,7 @@ import {
   modulepreloadHrefsIn,
   stylesheetLinksIn,
   verifyBuiltPages,
+  withDeferredBoot,
   withPreloads,
 } from "../../scripts/seo/applyPrerendered";
 
@@ -157,29 +159,111 @@ describe("LOW-END-3 (c)+(d): the stylesheet is inlined, route CSS with it, prelo
     }
   });
 
-  it("moves the route modulepreloads to the end of the body: none left in the head", () => {
+  it("starts no JS before the first frame: entry script and route preloads move into one boot script", () => {
     const { out, art, cleanup } = build();
     try {
       applyArtifact(out, art, PATHS);
-      const html = read(out, "check-your-answer.html");
-      const head = html.slice(0, html.indexOf("</head>"));
-      expect(modulepreloadHrefsIn(head)).toEqual([]);
-      expect(modulepreloadHrefsIn(html)).toEqual([
-        "/assets/CheckYourAnswerPage-CCCCCCCC.js",
-      ]);
-      expect(html.indexOf('rel="modulepreload"')).toBeGreaterThan(
-        html.indexOf("</main>"),
+      for (const file of [
+        "check-your-answer.html",
+        "__desktop/check-your-answer.html",
+        "index.html",
+      ]) {
+        const html = read(out, file);
+        // Nothing the preload scanner would fetch early: no module script, no modulepreload link.
+        expect(html, file).not.toMatch(/<scriptb[^>]*type="module"/);
+        expect(html, file).not.toMatch(/<linkb[^>]*rel="modulepreload"/);
+        // One boot script, after the prerendered body, importing the shell's own entry.
+        expect(bootEntryIn(html), file).toBe("/assets/index-AAAAAAAA.js");
+        expect(html.indexOf('id="lt-boot"'), file).toBeGreaterThan(
+          html.indexOf("</main>"),
+        );
+        expect(html.indexOf('id="lt-boot"'), file).toBeLessThan(
+          html.indexOf("</body>"),
+        );
+      }
+      expect(modulepreloadHrefsIn(read(out, "check-your-answer.html"))).toEqual(
+        ["/assets/CheckYourAnswerPage-CCCCCCCC.js"],
       );
-      expect(html.indexOf('rel="modulepreload"')).toBeLessThan(
-        html.indexOf("</body>"),
+      // ★ CONTROL: the SPA shell keeps Vite's ordinary module script and no boot script.
+      expect(read(out, "__shell.html")).toContain(
+        '<script type="module" crossorigin src="/assets/index-AAAAAAAA.js"></script>',
       );
+      expect(bootEntryIn(read(out, "__shell.html"))).toBeNull();
       expect(verifyBuiltPages(out, PATHS).failures).toEqual([]);
     } finally {
       cleanup();
     }
   });
 
-  it("RED: verifyBuiltPages names a page that still links the stylesheet, or preloads in its head", () => {
+  it("the boot script runs: after the first frame it adds the preloads and imports the entry, once", () => {
+    const { out, art, cleanup } = build();
+    try {
+      applyArtifact(out, art, PATHS);
+      const html = read(out, "check-your-answer.html");
+      const script = (
+        html.match(
+          /<script id="lt-boot"[^>]*>([\s\S]*?)<\/script>/,
+        ) as RegExpMatchArray
+      )[1];
+      const appended: Array<{
+        rel: string;
+        href: string;
+        crossOrigin: string;
+      }> = [];
+      const imports: string[] = [];
+      const frames: Array<() => void> = [];
+      const timers: Array<() => void> = [];
+      const attrs: Record<string, string> = {
+        "data-entry": bootEntryIn(html) as string,
+        "data-preload": modulepreloadHrefsIn(html).join(" "),
+      };
+      const run = new Function(
+        "document",
+        "window",
+        "requestAnimationFrame",
+        "setTimeout",
+        "__import",
+        script.replace("import(", "__import("),
+      );
+      run(
+        {
+          currentScript: {
+            getAttribute: (name: string) => attrs[name] ?? null,
+          },
+          createElement: () => ({ rel: "", href: "", crossOrigin: "" }),
+          head: {
+            appendChild: (el: {
+              rel: string;
+              href: string;
+              crossOrigin: string;
+            }) => appended.push(el),
+          },
+        },
+        { requestAnimationFrame: true },
+        (cb: () => void) => frames.push(cb),
+        (cb: () => void) => timers.push(cb),
+        (src: string) => imports.push(src),
+      );
+      // Nothing starts while the document is still being parsed and painted.
+      expect(imports).toEqual([]);
+      expect(appended).toEqual([]);
+      frames.forEach((cb) => cb()); // first frame
+      timers.forEach((cb) => cb()); // the task after it, and the 200 ms safety timer
+      timers.slice(1).forEach((cb) => cb());
+      expect(imports).toEqual(["/assets/index-AAAAAAAA.js"]);
+      expect(appended).toEqual([
+        {
+          rel: "modulepreload",
+          href: "/assets/CheckYourAnswerPage-CCCCCCCC.js",
+          crossOrigin: "anonymous",
+        },
+      ]);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("RED: verifyBuiltPages names a stylesheet link, a preload link, a module script, a missing boot", () => {
     const { out, art, cleanup } = build();
     try {
       applyArtifact(out, art, PATHS);
@@ -189,10 +273,10 @@ describe("LOW-END-3 (c)+(d): the stylesheet is inlined, route CSS with it, prelo
           /<style data-lt-inline="index-SSSSSSSS\.css">[^<]*<\/style>/,
           '<link rel="stylesheet" crossorigin href="/assets/index-SSSSSSSS.css">',
         )
-        .replace(/(<link rel="modulepreload"[^>]*>)<\/body>/, "</body>")
+        .replace(/<script id="lt-boot"[\s\S]*?<\/script>/, "")
         .replace(
           "</head>",
-          '<link rel="modulepreload" crossorigin href="/assets/CheckYourAnswerPage-CCCCCCCC.js"></head>',
+          '<script type="module" crossorigin src="/assets/index-AAAAAAAA.js"></script><link rel="modulepreload" crossorigin href="/assets/CheckYourAnswerPage-CCCCCCCC.js"></head>',
         );
       writeFileSync(file, html, "utf8");
       const failures = verifyBuiltPages(out, PATHS).failures.join("\n");
@@ -203,7 +287,13 @@ describe("LOW-END-3 (c)+(d): the stylesheet is inlined, route CSS with it, prelo
         "__desktop/check-your-answer.html does not inline the entry CSS index-SSSSSSSS.css",
       );
       expect(failures).toContain(
-        "__desktop/check-your-answer.html carries modulepreload links in its HEAD",
+        "__desktop/check-your-answer.html carries modulepreload links in its markup",
+      );
+      expect(failures).toContain(
+        "__desktop/check-your-answer.html still loads a module script before the first frame",
+      );
+      expect(failures).toContain(
+        "__desktop/check-your-answer.html does not boot the entry /assets/index-AAAAAAAA.js exactly once",
       );
     } finally {
       cleanup();

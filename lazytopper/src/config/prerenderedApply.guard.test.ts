@@ -416,9 +416,10 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
       ]);
       // The root's page is in the entry chunk already: nothing to preload.
       expect(modulepreloadHrefsIn(readFileSync(join(out, "index.html"), "utf8"))).toEqual([]);
-      // crossorigin, so the browser reuses the preload for the module request.
+      // LOW-END-3 PR-1 (c): the preloads ride on the deferred boot script (added after the first
+      // frame, crossorigin so the module request reuses them), not on <link> tags in the markup.
       expect(readFileSync(join(out, "pricing.html"), "utf8")).toContain(
-        '<link rel="modulepreload" crossorigin href="/assets/PricingPage-CCCCCCCC.js">',
+        'data-preload="/assets/PricingPage-CCCCCCCC.js /assets/Card-DDDDDDDD.js /assets/tokens-GGGGGGGG.js"',
       );
     } finally {
       cleanup();
@@ -462,7 +463,7 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
     try {
       applyArtifact(out, art, PATHS);
       const file = join(out, "notes", "electricity.html");
-      writeFileSync(file, readFileSync(file, "utf8").replace(/<link rel="modulepreload"[^>]*>/g, ""), "utf8");
+      writeFileSync(file, readFileSync(file, "utf8").replace(/data-preload="[^"]*"/g, 'data-preload=""'), "utf8");
       expect(verifyBuiltPages(out, PATHS).failures.join(" ")).toContain("carries no modulepreload for its route chunk");
     } finally {
       cleanup();

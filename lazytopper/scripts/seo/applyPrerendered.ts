@@ -407,6 +407,66 @@ export function withPreloads(html: string, hrefs: readonly string[]): string {
   return html.replace("</body>", () => `${links}</body>`);
 }
 
+/** The id of the deferred boot script on a prerendered page. */
+export const BOOT_SCRIPT_ID = "lt-boot";
+
+/**
+ * The deferred boot loader. Classic inline script, ES5, no dependencies. It waits for the
+ * first frame after the prerendered body is parsed (requestAnimationFrame, then a task), then
+ * adds the route `modulepreload` links and imports the entry module. A hidden tab never runs
+ * requestAnimationFrame, so a 200 ms timer starts the app regardless; whichever fires first wins.
+ */
+const BOOT_LOADER =
+  "(function(s){var d=0;function go(){if(d)return;d=1;" +
+  'var p=(s.getAttribute("data-preload")||"").split(" ");' +
+  'for(var i=0;i<p.length;i++){if(!p[i])continue;var l=document.createElement("link");' +
+  'l.rel="modulepreload";l.crossOrigin="anonymous";l.href=p[i];document.head.appendChild(l);}' +
+  'import(s.getAttribute("data-entry"));}' +
+  "if(window.requestAnimationFrame)requestAnimationFrame(function(){setTimeout(go,0);});" +
+  "setTimeout(go,200);})(document.currentScript);";
+
+/**
+ * ★ LOW-END-3 PR-1 (c): FIRST PAINT NEVER WAITS FOR BIG JS, made literal.
+ *
+ * A `<script type="module" src>` in the head and `<link rel="modulepreload">`s anywhere in the
+ * document are fetched at once by the preload scanner, so ~355–500 KB of JS (br) shares the pipe
+ * with the document while it is still arriving. On a fast link that JS also finishes and RUNS
+ * before Chrome's first frame, so the first paint follows the JS (which is what Lighthouse's
+ * simulation then charges every slow profile for). Here the entry `<script>` leaves the head
+ * and the route preloads leave the markup: one inline boot script at the end of the body
+ * starts both after the first frame. The prerendered body is complete without JS, and while a
+ * route chunk loads the Suspense fallback re-inserts it (`App.tsx` `PrerenderedRouteBody`), so
+ * nothing on screen changes until React's own render: no Loading swap (D27).
+ *
+ * `__shell.html` (no prerendered body) keeps the ordinary module script.
+ */
+export function withDeferredBoot(html: string, entryTag: string, entrySrc: string, hrefs: readonly string[]): string {
+  const tags = html.split(entryTag).length - 1;
+  if (tags !== 1) {
+    throw new Error(`applyPrerendered: expected the entry <script type="module"> exactly once to defer it, found ${tags}`);
+  }
+  const bodyCloses = html.split("</body>").length - 1;
+  if (bodyCloses !== 1) {
+    throw new Error(`applyPrerendered: expected exactly one </body> to insert the boot script, found ${bodyCloses}`);
+  }
+  const boot =
+    `<script id="${BOOT_SCRIPT_ID}" data-entry="${entrySrc}" data-preload="${hrefs.join(" ")}">` +
+    `${BOOT_LOADER}</script>`;
+  return html.replace(entryTag, () => "").replace("</body>", () => `${boot}</body>`);
+}
+
+/** The shell's entry module tag, exactly as Vite wrote it (null when absent). */
+export function entryScriptTagOf(shellHtml: string): { tag: string; src: string } | null {
+  const match = shellHtml.match(/<script\b[^>]*\btype="module"[^>]*\bsrc="([^"]*assets\/[^"/]+\.js)"[^>]*><\/script>/);
+  return match ? { tag: match[0], src: match[1] } : null;
+}
+
+/** The entry src a page's deferred boot script imports (null when the page has none). */
+export function bootEntryIn(html: string): string | null {
+  const match = html.match(new RegExp(`<script id="${BOOT_SCRIPT_ID}" data-entry="([^"]+)"`));
+  return match ? match[1] : null;
+}
+
 /**
  * LOW-END-3 PR-1 (c): the shell's ONE render-blocking stylesheet, the entry CSS Vite links
  * (`<link rel="stylesheet" crossorigin href="/assets/index-X.css">`). `null` when the shell has
@@ -539,13 +599,18 @@ export function hopUrlsIn(html: string): string[] {
   return [...bad];
 }
 
-/** Every `<link rel="modulepreload" href>` in a built page. */
+/**
+ * Every modulepreload href in a built page: `<link rel="modulepreload" href>` tags, then the
+ * hrefs the deferred boot script (`data-preload`) adds after the first frame.
+ */
 export function modulepreloadHrefsIn(html: string): string[] {
   const hrefs: string[] = [];
   for (const tag of html.match(/<link\b[^>]*\brel="modulepreload"[^>]*>/g) ?? []) {
     const href = tag.match(/\bhref="([^"]+)"/);
     if (href) hrefs.push(href[1]);
   }
+  const boot = html.match(new RegExp(`<script id="${BOOT_SCRIPT_ID}"[^>]*\\bdata-preload="([^"]*)"`));
+  if (boot) hrefs.push(...boot[1].split(" ").filter(Boolean));
   return hrefs;
 }
 
@@ -568,7 +633,9 @@ export function verifyBuiltPages(
   let preloadLinks = 0;
   // The entry CSS every page must inline, as named by the clean shell (which keeps its link).
   const shellFile = join(outDir, SPA_SHELL);
-  const entryCss = existsSync(shellFile) ? (entryStylesheetOf(readFileSync(shellFile, "utf8"))?.file ?? null) : null;
+  const shellHtml = existsSync(shellFile) ? readFileSync(shellFile, "utf8") : null;
+  const entryCss = shellHtml !== null ? (entryStylesheetOf(shellHtml)?.file ?? null) : null;
+  const entrySrc = shellHtml !== null ? (entryScriptTagOf(shellHtml)?.src ?? null) : null;
   for (const path of expected) {
     const relative = path.replace(/^\//, "");
     const mobile = path === "/" ? ["index.html"] : [`${relative}.html`, join(relative, "index.html")];
@@ -601,9 +668,16 @@ export function verifyBuiltPages(
       if (entryCss !== null && inlinedStylesIn(html).filter((name) => name === entryCss).length !== 1) {
         failures.push(`${path}: the ${variant} file ${file} does not inline the entry CSS ${entryCss} exactly once`);
       }
-      // LOW-END-3 PR-1 (c): the route preloads sit after the body content, never in the head.
-      if (modulepreloadHrefsIn(html.slice(0, html.indexOf("</head>"))).length > 0) {
-        failures.push(`${path}: the ${variant} file ${file} carries modulepreload links in its HEAD`);
+      // LOW-END-3 PR-1 (c): no JS fetched before the first frame: no modulepreload link and no
+      // module script in the markup; the boot script imports the shell's own entry, once.
+      if (html.match(/<link\b[^>]*\brel="modulepreload"[^>]*>/g)) {
+        failures.push(`${path}: the ${variant} file ${file} carries modulepreload links in its markup`);
+      }
+      if (/<script\b[^>]*\btype="module"[^>]*\bsrc=/.test(html)) {
+        failures.push(`${path}: the ${variant} file ${file} still loads a module script before the first frame`);
+      }
+      if (entrySrc !== null && (bootEntryIn(html) !== entrySrc || html.split(`id="${BOOT_SCRIPT_ID}"`).length !== 2)) {
+        failures.push(`${path}: the ${variant} file ${file} does not boot the entry ${entrySrc} exactly once`);
       }
       // LOW-END-3 PR-1 (a): no URL that costs the reader a redirect hop.
       for (const url of hopUrlsIn(html)) {
@@ -768,6 +842,8 @@ export function applyArtifact(
   // render-blocking link, resolved and checked before anything is written. `__shell.html`
   // (written above) keeps the link: it has no prerendered body to paint early.
   const entryStylesheet = entryStylesheetOf(cleanShell);
+  // LOW-END-3 PR-1 (c): the entry module and route preloads start after the first frame.
+  const entryScript = entryScriptTagOf(cleanShell);
   const styleBlocks = new Map<string, Array<{ file: string; css: string }>>();
   if (entryStylesheet !== null) {
     const readCss = (file: string): { file: string; css: string } => ({
@@ -784,7 +860,9 @@ export function applyArtifact(
   const finish = (path: string, html: string, hrefs: readonly string[]): string => {
     const blocks = styleBlocks.get(path);
     const styled = entryStylesheet !== null && blocks ? withInlineStyles(html, entryStylesheet.tag, blocks) : html;
-    return withPreloads(styled, hrefs);
+    return entryScript !== null
+      ? withDeferredBoot(styled, entryScript.tag, entryScript.src, hrefs)
+      : withPreloads(styled, hrefs);
   };
 
   let filesWritten = 0;
