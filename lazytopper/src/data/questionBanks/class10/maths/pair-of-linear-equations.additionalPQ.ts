@@ -29,10 +29,11 @@ export const PAIR_OF_LINEAR_EQUATIONS_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-PLE-003", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Consistency Conditions", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Two linear equations in variables x and y are given below: a1·x + b1·y + c = 0 and a2·x + b2·y + c = 0. Which of the following pieces of information is independently sufficient to determine if a solution exists or not for this pair of linear equations? I. a1/b1 = a2/b2 = 1   II. a1/a2 = b1/b2   III. a1/a2 = a1/b1 ≠ 1   IV. a1/a2 ≠ b1/b2",
     options: ["IV only", "I and IV", "II and IV", "I and III"],
-    answer: "I and IV",
-    solutionSteps: ["IV alone: a1/a2 ≠ b1/b2 ⟹ unique solution exists (intersecting lines). Sufficient.", "I alone: a1/b1 = a2/b2 = 1 ⟹ a1 = b1 and a2 = b2, with same c. Lines coincident — infinitely many solutions. Sufficient.", "II alone: a1/a2 = b1/b2 means lines could be coincident or parallel — cannot decide. III gives partial info but not sufficient."],
-    finalAnswer: "(b) I and IV",
-    ncertRef: "APQ PQ2 Q16", isCompetencyBased: true },
+    answer: "IV only",
+    solutionSteps: ["IV alone: a1/a2 ≠ b1/b2 ⟹ the lines intersect, so a unique solution exists. Sufficient.", "I alone: a1 = b1 and a2 = b2, so the equations are a1(x + y) + c = 0 and a2(x + y) + c = 0. If c ≠ 0 these are coincident when a1 = a2 but parallel (no solution) when a1 ≠ a2 — cannot decide. Not sufficient.", "II alone: a1/a2 = b1/b2 while c1/c2 = 1, so the lines are coincident if a1/a2 = 1 and parallel otherwise — cannot decide. III: a1/a2 = a1/b1 ≠ 1 only gives b1 = a2, which says nothing about b2 — not sufficient. Hence IV only."],
+    finalAnswer: "(a) IV only",
+    ncertRef: "APQ PQ2 Q16", isCompetencyBased: true,
+    sourceOverride: "others" },
 
   // PQ1 Q22 (Section B, Short, 2 marks)
   { id: "APQ-M-PLE-004", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problem — Two Variables", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

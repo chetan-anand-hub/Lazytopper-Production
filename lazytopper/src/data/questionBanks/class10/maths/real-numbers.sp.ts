@@ -19,15 +19,16 @@ export const RN_SP: CanonicalQuestion[] = [
     "options": [
       "(a) odd number.",
       "(b) even number.",
-      "(c) composite number.",
-      "(d) neither composite nor odd."
+      "(c) prime number.",
+      "(d) odd prime number."
     ],
-    "answer": "(c) composite number.",
+    "answer": "(b) even number.",
     "solutionSteps": [
-      "[1 mark] a² − b² = (a − b)(a + b). For two distinct odd primes, both factors are even (>1), so the product is divisible by more than 1 and itself — hence a composite number. Answer: (c)."
+      "[1 mark] a² − b² = (a − b)(a + b). a and b are odd, so a − b and a + b are both even; hence a² − b² is always even (it is 0 if a = b). It is never odd, and being divisible by 4 (or 0) it is never prime. Answer: (b)."
     ],
-    "finalAnswer": "(c) composite number.",
-    "isCompetencyBased": false
+    "finalAnswer": "(b) even number.",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "SP-M-2022-RN-A-002",

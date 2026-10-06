@@ -167,8 +167,12 @@ export const questionMatchesFilters = (
   if (source !== "all") {
     const qid = String((q as { id?: unknown }).id ?? "").toLowerCase();
     const pyqYear = (q as { pyqYear?: unknown }).pyqYear;
-    const isPYQ = Boolean(pyqYear) ||
-      Boolean((q as { isPYQ?: unknown }).isPYQ);
+    // BANK-FIX-1 ruling 2: a corrected / unconfirmed row is filed under "Others"
+    // only — never PYQ, never NCERT — whatever its id or year fields say.
+    const sourceOverridden = (q as { sourceOverride?: unknown }).sourceOverride === "others";
+    if (sourceOverridden && source !== "others") return false;
+    const isPYQ = !sourceOverridden && (Boolean(pyqYear) ||
+      Boolean((q as { isPYQ?: unknown }).isPYQ));
 
     if (source === "pyq" && !isPYQ) return false;
 
@@ -188,7 +192,7 @@ export const questionMatchesFilters = (
       // caught by the NCERT prefix regex above — without this they would
       // appear in BOTH the NCERT and Others filters.
       const isNcertSource = /ncert|exemplar|-exmplr-|-ncert-|-exem-/.test(qid);
-      if (isNcertSource) return false;
+      if (isNcertSource && !sourceOverridden) return false;
     }
   }
 

@@ -11,24 +11,23 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "The angle of incidence is equal to the angle of reflection. This statement refers to which law of reflection?",
+    "questionText": "\"The angle of incidence is equal to the angle of reflection.\" This statement is:",
     "options": [
-      "First law of reflection",
-      "Second law of reflection",
-      "Third law of reflection",
-      "Law of refraction"
+      "A law of reflection",
+      "A law of refraction (Snell's law)",
+      "The mirror formula",
+      "The definition of magnification"
     ],
-    "answer": "Second law of reflection",
+    "answer": "A law of reflection",
     "solutionSteps": [
-      "The second law of reflection states that the angle of incidence equals the angle of reflection",
-      "Both angles are measured from the normal to the surface"
+      "The statement 'angle of incidence = angle of reflection' is one of the two laws of reflection (NCERT); both angles are measured from the normal",
+      "It is not Snell's law (refraction), the mirror formula (1/v + 1/u = 1/f) or the definition of magnification (h′/h)"
     ],
-    "finalAnswer": "Second law of reflection",
-    "explanation": "The second law of reflection states that the angle of incidence equals the angle of reflection. Both angles are measured from the normal to the surface. Therefore, the correct answer is Second law of reflection.",
+    "finalAnswer": "A law of reflection",
+    "explanation": "NCERT lists two laws of reflection: the angle of incidence is equal to the angle of reflection, and the incident ray, the normal and the reflected ray lie in the same plane. Snell's law relates sin i / sin r for refraction, the mirror formula is 1/v + 1/u = 1/f, and magnification is h′/h. Therefore, the correct answer is A law of reflection.",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch10 InText Q1"
+    "ncertRef": "NCERT Ch10 InText Q1",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-002",
@@ -70,24 +69,23 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): The incident ray, reflected ray, and normal all lie in the same plane. Reason (R): This is the first law of reflection.",
+    "questionText": "Assertion (A): The incident ray, the reflected ray and the normal at the point of incidence all lie in the same plane. Reason (R): The laws of reflection hold only for plane mirrors and not for spherical mirrors.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "answer": "A is true, R is false.",
     "solutionSteps": [
-      "The first law of reflection states that incident ray, reflected ray, and normal lie in the same plane",
-      "This is indeed the first law, and it explains why the assertion is true"
+      "Assertion is true: the incident ray, the reflected ray and the normal at the point of incidence always lie in the same plane (a law of reflection).",
+      "Reason is false: the laws of reflection apply to all reflecting surfaces, plane or spherical (NCERT). Hence A is true, R is false."
     ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "finalAnswer": "A is true, R is false.",
+    "explanation": "A is a correct statement of a law of reflection. R is false: NCERT states that the laws of reflection are applicable to all types of reflecting surfaces, including spherical surfaces. Hence A is true, R is false.",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "Delhi",
-    "ncertRef": "NCERT Ch10 InText"
+    "ncertRef": "NCERT Ch10 InText",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-004",
@@ -392,18 +390,17 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "f = u + v",
       "f² = u² + v²"
     ],
-    "answer": "1/f = 1/u + 1/v",
+    "answer": "1/f = 1/v - 1/u",
     "solutionSteps": [
-      "The lens formula is identical in form to mirror formula",
-      "1/f = 1/u + 1/v",
-      "where f is focal length, u is object distance, v is image distance"
+      "The lens formula (New Cartesian sign convention) is",
+      "1/f = 1/v - 1/u",
+      "where f is focal length, u is object distance, v is image distance; 1/f = 1/u + 1/v is the mirror formula"
     ],
-    "finalAnswer": "1/f = 1/u + 1/v",
-    "explanation": "The lens formula is identical in form to mirror formula. 1/f = 1/u + 1/v. where f is focal length, u is object distance, v is image distance. Therefore, the correct answer is 1/f = 1/u + 1/v.",
+    "finalAnswer": "1/f = 1/v - 1/u",
+    "explanation": "The lens formula in the New Cartesian sign convention is 1/v - 1/u = 1/f, where f is focal length, u is object distance and v is image distance. 1/f = 1/u + 1/v is the mirror formula, not the lens formula. Therefore, the correct answer is 1/f = 1/v - 1/u.",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch10 InText Q6"
+    "ncertRef": "NCERT Ch10 InText Q6",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-015",
@@ -415,26 +412,25 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "For a convex lens, which combination of object and image distances results in magnification m = 1?",
+    "questionText": "For a convex lens, at which object and image distances (magnitudes) is a real, inverted image of the same size formed, i.e. magnification m = −1?",
     "options": [
       "u = v = f",
       "u = v = 2f",
       "u = f, v = ∞",
-      "u = 2f, v = 2f"
+      "u = 2f, v = f"
     ],
     "answer": "u = v = 2f",
     "solutionSteps": [
-      "Magnification m = -v/u",
-      "For m = -1 (same-sized image), u = v",
-      "Using lens formula: 1/f = 1/u + 1/u = 2/u",
-      "Therefore u = 2f and v = 2f"
+      "For a lens, magnification m = v/u",
+      "For m = -1 (same-sized, inverted image), v = -u",
+      "Using lens formula 1/v - 1/u = 1/f: 1/(-u) - 1/u = -2/u = 1/f, so u = -2f",
+      "Therefore v = +2f: object at 2F1 and image at 2F2, i.e. u = v = 2f in magnitude"
     ],
     "finalAnswer": "u = v = 2f",
-    "explanation": "Magnification m = -v/u. For m = -1 (same-sized image), u = v. Using lens formula: 1/f = 1/u + 1/u = 2/u. Therefore u = 2f and v = 2f. Therefore, the correct answer is u = v = 2f.",
+    "explanation": "For a lens m = v/u. For a real same-sized image m = -1, so v = -u. Lens formula 1/v - 1/u = 1/f gives -2/u = 1/f, so u = -2f and v = +2f. In magnitude the object and image distances are both 2f. Therefore, the correct answer is u = v = 2f.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch10 Exercise Q9"
+    "ncertRef": "NCERT Ch10 Exercise Q9",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-016",
@@ -564,19 +560,18 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Virtual image (b) m = 5 (magnified) (c) Provides magnified erect image for dental examination",
     "solutionSteps": [
-      "f = 1.5 cm, u = 1.2 cm",
-      "Using lens formula: 1/f = 1/u + 1/v",
-      "1/1.5 = 1/1.2 + 1/v",
-      "1/v = 1/1.5 - 1/1.2 = (2/3 - 5/6) = (4-5)/6 = -1/6",
-      "v = -6 cm (negative, so virtual image)",
-      "m = -v/u = 6/1.2 = 5 (magnified, erect)",
-      "Concave mirrors magnify and provide erect virtual images for close examination"
+      "Concave mirror (New Cartesian convention): f = -1.5 cm, u = -1.2 cm",
+      "Using mirror formula: 1/v + 1/u = 1/f",
+      "1/v = 1/f - 1/u = -1/1.5 + 1/1.2",
+      "1/v = -2/3 + 5/6 = (-4 + 5)/6 = 1/6",
+      "v = +6 cm (positive: image behind the mirror, so virtual)",
+      "m = -v/u = -6/(-1.2) = +5 (magnified, erect)",
+      "Concave mirrors with the object within the focal length give a magnified, erect, virtual image, useful for close examination of teeth"
     ],
     "finalAnswer": "(a) Virtual image (b) m = 5 (magnified) (c) Provides magnified erect image for dental examination",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "All India",
-    "ncertRef": "NCERT Ch10 Exercise Q11"
+    "ncertRef": "NCERT Ch10 Exercise Q11",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-021",
@@ -1047,23 +1042,22 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Remembering",
     "questionText": "The lens formula is used to find the relationship between object distance, image distance, and focal length. Which equation represents the lens formula?",
     "options": [
-      "1/f = 1/u - 1/v",
+      "1/f = 1/v - 1/u",
       "1/f = 1/u + 1/v",
       "f = u + v",
       "f = u/v"
     ],
-    "answer": "1/f = 1/u + 1/v",
+    "answer": "1/f = 1/v - 1/u",
     "solutionSteps": [
-      "The lens formula is: 1/f = 1/u + 1/v",
+      "The lens formula (New Cartesian sign convention) is: 1/v - 1/u = 1/f",
       "where f = focal length, u = object distance, v = image distance",
-      "This applies to both converging and diverging lenses"
+      "This applies to both converging and diverging lenses; 1/f = 1/u + 1/v is the mirror formula"
     ],
-    "finalAnswer": "1/f = 1/u + 1/v",
-    "explanation": "The lens formula is: 1/f = 1/u + 1/v. where f = focal length, u = object distance, v = image distance. This applies to both converging and diverging lenses. Therefore, the correct answer is 1/f = 1/u + 1/v.",
+    "finalAnswer": "1/f = 1/v - 1/u",
+    "explanation": "The lens formula is 1/v - 1/u = 1/f, where f = focal length, u = object distance, v = image distance, with distances taken in the New Cartesian sign convention. It applies to both converging and diverging lenses. 1/f = 1/u + 1/v is the mirror formula. Therefore, the correct answer is 1/f = 1/v - 1/u.",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch10 Exercise"
+    "ncertRef": "NCERT Ch10 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-037",
@@ -1084,18 +1078,17 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "60 cm",
     "solutionSteps": [
-      "Using lens formula: 1/f = 1/u + 1/v",
-      "Given: f = 20 cm, u = 30 cm",
-      "1/20 = 1/30 + 1/v",
+      "Using lens formula: 1/v - 1/u = 1/f",
+      "Given: f = +20 cm, u = -30 cm (object in front of lens)",
+      "1/v = 1/f + 1/u = 1/20 + 1/(-30)",
       "1/v = 1/20 - 1/30 = (3-2)/60 = 1/60",
-      "v = 60 cm (positive, real image)"
+      "v = +60 cm (positive, real image on the other side of the lens)"
     ],
     "finalAnswer": "60 cm",
-    "explanation": "Using lens formula: 1/f = 1/u + 1/v. Given: f = 20 cm, u = 30 cm. 1/20 = 1/30 + 1/v. 1/v = 1/20 - 1/30 = (3-2)/60 = 1/60. v = 60 cm (positive, real image). Therefore, the correct answer is 60 cm.",
+    "explanation": "Using lens formula: 1/v - 1/u = 1/f. Given: f = +20 cm, u = -30 cm (object in front of lens). 1/v = 1/f + 1/u = 1/20 + 1/(-30). 1/v = 1/20 - 1/30 = (3-2)/60 = 1/60. v = +60 cm (positive, real image on the other side of the lens). Therefore, the correct answer is 60 cm.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "Set 1",
-    "ncertRef": "NCERT Ch10 Exercise"
+    "ncertRef": "NCERT Ch10 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-038",
@@ -1206,22 +1199,21 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "30 cm and 6 cm",
     "solutionSteps": [
-      "Using lens formula: 1/f = 1/u + 1/v",
-      "Given: f = 10 cm, v = 15 cm",
-      "1/10 = 1/u + 1/15",
-      "1/u = 1/10 - 1/15 = (3-2)/30 = 1/30",
-      "u = 30 cm (object beyond 2f, real image)",
-      "If v = -15 cm (virtual image on same side)",
-      "1/10 = 1/u - 1/15",
-      "1/u = 1/10 + 1/15 = (3+2)/30 = 1/6",
-      "u = 6 cm (object between f and 2f)"
+      "Using lens formula: 1/v - 1/u = 1/f, so 1/u = 1/v - 1/f",
+      "Given: f = +10 cm",
+      "Case 1 (real image): v = +15 cm",
+      "1/u = 1/15 - 1/10 = (2-3)/30 = -1/30",
+      "u = -30 cm (object 30 cm in front, beyond 2F, real image)",
+      "Case 2 (virtual image on the same side): v = -15 cm",
+      "1/u = -1/15 - 1/10 = (-2-3)/30 = -1/6",
+      "u = -6 cm (object 6 cm in front, between optical centre and F, virtual erect image)",
+      "Object distances: 30 cm or 6 cm"
     ],
     "finalAnswer": "30 cm and 6 cm",
-    "explanation": "Using lens formula: 1/f = 1/u + 1/v. Given: f = 10 cm, v = 15 cm. 1/10 = 1/u + 1/15. 1/u = 1/10 - 1/15 = (3-2)/30 = 1/30. u = 30 cm (object beyond 2f, real image). If v = -15 cm (virtual image on same side). 1/10 = 1/u - 1/15. 1/u = 1/10 + 1/15 = (3+2)/30 = 1/6. u = 6 cm (object between f and 2f). Therefore, the correct answer is 30 cm and 6 cm.",
+    "explanation": "Using lens formula: 1/v - 1/u = 1/f, so 1/u = 1/v - 1/f. Given: f = +10 cm. Case 1 (real image): v = +15 cm. 1/u = 1/15 - 1/10 = (2-3)/30 = -1/30. u = -30 cm (object 30 cm in front, beyond 2F, real image). Case 2 (virtual image on the same side): v = -15 cm. 1/u = -1/15 - 1/10 = (-2-3)/30 = -1/6. u = -6 cm (object 6 cm in front, between optical centre and F, virtual erect image). Object distances: 30 cm or 6 cm. Therefore, the correct answer is 30 cm and 6 cm.",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "Set 2",
-    "ncertRef": "NCERT Ch10 Exercise"
+    "ncertRef": "NCERT Ch10 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-042",
@@ -1260,23 +1252,22 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "An object of height 10 cm is placed at different positions in front of a concave mirror of focal length 20 cm. For each position, determine: (a) Image position, (b) Image height, (c) Nature of image (real/virtual, inverted/erect, magnified/diminished). Consider object positions at: (i) 60 cm, (ii) 40 cm, (iii) 20 cm. Also explain the practical applications of such mirrors.",
     "options": [],
-    "answer": "(i) u=60cm: v=30cm, h=5cm, real inverted diminished; (ii) u=40cm: v=40cm, h=10cm, real inverted same size; (iii) u=20cm: v=∞, h=∞, image at infinity",
+    "answer": "(i) u = −60 cm: v = −30 cm, h′ = −5 cm, real inverted diminished; (ii) u = −40 cm: v = −40 cm, h′ = −10 cm, real inverted same size; (iii) u = −20 cm (at F): v = ∞, image at infinity, highly magnified",
     "solutionSteps": [
-      "(i) u = 60 cm: 1/20 = 1/60 + 1/v → 1/v = 1/20 - 1/60 = 1/30 → v = 30 cm",
-      "Magnification m = -v/u = -30/60 = -0.5 → Image height = 10 × 0.5 = 5 cm",
-      "Nature: Real (v positive), inverted (m negative), diminished (|m| < 1)",
-      "(ii) u = 40 cm: 1/20 = 1/40 + 1/v → 1/v = 1/20 - 1/40 = 1/40 → v = 40 cm",
-      "m = -40/40 = -1 → Image height = 10 × 1 = 10 cm",
+      "New Cartesian convention: f = −20 cm, h = +10 cm. (i) u = −60 cm: 1/v = 1/f − 1/u = −1/20 + 1/60 = −1/30 → v = −30 cm",
+      "Magnification m = −v/u = −(−30)/(−60) = −0.5 → Image height h′ = −0.5 × 10 = −5 cm",
+      "Nature: Real (v negative, in front of mirror), inverted (m negative), diminished (|m| < 1)",
+      "(ii) u = −40 cm (at C): 1/v = −1/20 + 1/40 = −1/40 → v = −40 cm",
+      "m = −(−40)/(−40) = −1 → Image height h′ = −10 cm",
       "Nature: Real, inverted, same size",
-      "(iii) u = 20 cm (at focal point): 1/20 = 1/20 + 1/v → 1/v = 0 → v = ∞",
-      "Image at infinity with infinite height; rays emerge parallel",
-      "Applications: Searchlights use this principle for parallel beam; shaving mirrors use position (i) for magnification"
+      "(iii) u = −20 cm (at F): 1/v = −1/20 + 1/20 = 0 → v = ∞",
+      "Image at infinity, highly magnified; reflected rays emerge parallel",
+      "Applications: Searchlights and vehicle headlights place the source at F (position iii) to get a parallel beam; shaving mirrors and dentists' mirrors use an object between pole and focus to get an erect, magnified, virtual image"
     ],
-    "finalAnswer": "(i) u=60cm: v=30cm, h=5cm, real inverted diminished; (ii) u=40cm: v=40cm, h=10cm, real inverted same size; (iii) u=20cm: v=∞, h=∞, image at infinity",
+    "finalAnswer": "(i) u = −60 cm: v = −30 cm, h′ = −5 cm, real inverted diminished; (ii) u = −40 cm: v = −40 cm, h′ = −10 cm, real inverted same size; (iii) u = −20 cm (at F): v = ∞, image at infinity, highly magnified",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "Set 1",
-    "ncertRef": "NCERT Ch10 Exercise"
+    "ncertRef": "NCERT Ch10 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-044",
@@ -1350,21 +1341,20 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A glass block with refractive index 1.6 is placed on a table. A light ray is incident at the top surface with an angle of incidence of 60°. Calculate the angle of refraction at the air-glass interface and explain the phenomenon.",
     "options": [],
-    "answer": "Angle of refraction ≈ 33.7°; Light bends towards normal",
+    "answer": "Angle of refraction ≈ 32.8°; Light bends towards normal",
     "solutionSteps": [
       "Using Snell's law: n₁sinθ₁ = n₂sinθ₂",
       "n₁ = 1 (air), θ₁ = 60°, n₂ = 1.6 (glass)",
       "1 × sin(60°) = 1.6 × sin(θ₂)",
       "0.866 = 1.6 × sin(θ₂)",
-      "sin(θ₂) = 0.541",
-      "θ₂ = 32.8° ≈ 33.7°",
+      "sin(θ₂) = 0.866/1.6 ≈ 0.541",
+      "θ₂ ≈ 32.8°",
       "Phenomenon: Light bends towards normal because glass is optically denser than air, reducing light speed"
     ],
-    "finalAnswer": "Angle of refraction ≈ 33.7°; Light bends towards normal",
+    "finalAnswer": "Angle of refraction ≈ 32.8°; Light bends towards normal",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch10 Exercise"
+    "ncertRef": "NCERT Ch10 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-047",
@@ -1520,16 +1510,15 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "The power of a lens with focal length 50 cm is:",
-    "options": ["2 D","0.5 D","-2 D","+2 D"],
+    "questionText": "The power of a convex lens of focal length 50 cm is:",
+    "options": ["0.02 D", "0.5 D", "-2 D", "+2 D"],
     "answer": "+2 D",
-    "solutionSteps": ["P = 1/f(m) = 1/0.5 = 2 D; positive for converging (convex) lens"],
+    "solutionSteps": ["Convex lens: f = +50 cm = +0.5 m; P = 1/f(m) = 1/0.5 = +2 D"],
     "finalAnswer": "+2 D",
-    "explanation": "P = 1/0.5 = +2 D (convex lens has positive power).",
+    "explanation": "For a convex lens f = +50 cm = +0.5 m, so P = 1/f = 1/0.5 = +2 D (convex lens has positive power).",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch10"
+    "ncertRef": "NCERT Ch10",
+    sourceOverride: "others",
   },
   {
     "id": "LT2-054",

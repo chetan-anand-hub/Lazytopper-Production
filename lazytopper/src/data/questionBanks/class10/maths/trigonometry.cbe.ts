@@ -50,12 +50,13 @@ export const TRIG_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "If sin (A − B) = ½ and cos (A + B) = ½, where (A + B) ≤ 90° and A > B, find the value of tan 2A.",
     "options": [],
-    "answer": "tan 2A = 1/√3 (per official mark scheme)",
+    "answer": "tan 2A is not defined (A = 45°, so 2A = 90°)",
     "solutionSteps": [
-      "[1 mark] From sin(A−B)=½ → A−B=30° and cos(A+B)=½ → A+B=60°, giving A=45° and B=15°. The official mark scheme states tan 2A = tan 30° = 1/√3 (see DEFECTS note: with A=45°, 2A=90°, so this value is taken directly from the source scheme)."
+      "[1 mark] sin(A−B) = ½ ⇒ A−B = 30°; cos(A+B) = ½ ⇒ A+B = 60°. Adding: 2A = 90° ⇒ A = 45°, B = 15°. Hence tan 2A = tan 90°, which is not defined."
     ],
-    "finalAnswer": "tan 2A = 1/√3 (per official mark scheme)",
-    "isCompetencyBased": false
+    "finalAnswer": "tan 2A is not defined (A = 45°, so 2A = 90°)",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRIG-A-003",

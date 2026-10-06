@@ -45,22 +45,21 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "options": [
       "Ductility",
       "Malleability",
-      "Hardness",
+      "Softness",
       "Brittleness"
     ],
-    "answer": "Malleability",
+    "answer": "Softness",
     "solutionSteps": [
-      "The ability to be cut into pieces or shaped easily is malleability",
+      "Sodium is so soft that it can be cut with a knife — this property is softness",
       "Ductility is the ability to be drawn into wires",
-      "Hardness is resistance to scratching",
+      "Malleability is the ability to be beaten into thin sheets",
       "Brittleness is the tendency to break easily"
     ],
-    "finalAnswer": "Malleability",
-    "explanation": "The ability to be cut into pieces or shaped easily is malleability. Ductility is the ability to be drawn into wires. Hardness is resistance to scratching. Brittleness is the tendency to break easily. Therefore, the correct answer is Malleability.",
+    "finalAnswer": "Softness",
+    "explanation": "Sodium is so soft that it can be cut with a knife — this property is softness. Ductility is the ability to be drawn into wires. Malleability is the ability to be beaten into thin sheets. Brittleness is the tendency to break easily. Therefore, the correct answer is Softness.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch3 InText"
+    "ncertRef": "NCERT Ch3 InText",
+    sourceOverride: "others",
   },
   {
     "id": "MNM2-003",
@@ -982,23 +981,22 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "The process of extracting a metal from its ore is called:",
     "options": [
-      "Purification",
-      "Smelting",
+      "Metallurgy",
+      "Corrosion",
       "Refining",
       "Calcination"
     ],
-    "answer": "Smelting",
+    "answer": "Metallurgy",
     "solutionSteps": [
-      "Smelting is the process of heating an ore with a reducing agent.",
-      "It produces the metal from its oxide or other compound.",
-      "Examples include extraction of iron from iron oxide using coke."
+      "Metallurgy is the sum of all processes for extracting a metal from its ore and refining it for use.",
+      "Refining is only the final purification step; calcination is only a step that converts carbonate ore to oxide.",
+      "Corrosion is the slow eating away of a metal, not its extraction."
     ],
-    "finalAnswer": "Smelting",
-    "explanation": "Smelting is the process of heating an ore with a reducing agent. It produces the metal from its oxide or other compound. Examples include extraction of iron from iron oxide using coke. Therefore, the correct answer is Smelting.",
+    "finalAnswer": "Metallurgy",
+    "explanation": "Metallurgy is the sum of all processes for extracting a metal from its ore and refining it for use. Refining is only the final purification step; calcination is only a step that converts carbonate ore to oxide. Corrosion is the slow eating away of a metal, not its extraction. Therefore, the correct answer is Metallurgy.",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch3 InText"
+    "ncertRef": "NCERT Ch3 InText",
+    sourceOverride: "others",
   },
   {
     "id": "MNM2-036",
@@ -1010,7 +1008,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Which metal is extracted by electrolysis of its molten chloride?",
+    "questionText": "Which metal is extracted by electrolysis of its molten oxide?",
     "options": [
       "Iron",
       "Copper",
@@ -1026,9 +1024,8 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "Aluminum",
     "explanation": "Aluminum is a highly reactive metal extracted through electrolysis. 2Al₂O₃ → 4Al + 3O₂ (electrolysis of molten alumina). Electrolysis is used because Al cannot be reduced using carbon. Therefore, the correct answer is Aluminum.",
     "isCompetencyBased": true,
-    "pyqYear": "2019",
-    "pyqSet": "SET-B",
-    "ncertRef": "NCERT Ch3 Exercise"
+    "ncertRef": "NCERT Ch3 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "MNM2-037",
@@ -1063,25 +1060,24 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Why is copper not extracted using carbon as a reducing agent?",
+    "questionText": "Copper oxide can be reduced to copper by heating it with carbon. This is possible because:",
     "options": [
       "Copper is not a metal",
       "Carbon is more reactive than copper",
       "Copper is more reactive than carbon",
-      "Copper forms unstable oxide"
+      "Carbon acts as an oxidising agent"
     ],
-    "answer": "Copper is more reactive than carbon",
+    "answer": "Carbon is more reactive than copper",
     "solutionSteps": [
-      "In the reactivity series, carbon lies between Zn and Fe.",
-      "Copper is less reactive than carbon, so carbon cannot displace it.",
-      "Copper is extracted by roasting its sulfide ore to produce oxide, then reducing with carbon."
+      "Carbon is more reactive than copper (copper is low in the reactivity series).",
+      "So carbon can remove oxygen from copper oxide: 2CuO + C → 2Cu + CO₂ (carbon acts as the reducing agent).",
+      "Carbon is a reducing agent, not an oxidising agent, and copper is a metal less reactive than carbon."
     ],
-    "finalAnswer": "Copper is more reactive than carbon",
-    "explanation": "In the reactivity series, carbon lies between Zn and Fe. Copper is less reactive than carbon, so carbon cannot displace it. Copper is extracted by roasting its sulfide ore to produce oxide, then reducing with carbon. Therefore, the correct answer is Copper is more reactive than carbon.",
+    "finalAnswer": "Carbon is more reactive than copper",
+    "explanation": "Carbon is more reactive than copper (copper is low in the reactivity series). So carbon can remove oxygen from copper oxide: 2CuO + C → 2Cu + CO₂ (carbon acts as the reducing agent). Carbon is a reducing agent, not an oxidising agent, and copper is a metal less reactive than carbon. Therefore, the correct answer is Carbon is more reactive than copper.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch3 InText"
+    "ncertRef": "NCERT Ch3 InText",
+    sourceOverride: "others",
   },
   {
     "id": "MNM2-039",

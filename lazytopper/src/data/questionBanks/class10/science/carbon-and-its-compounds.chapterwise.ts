@@ -187,9 +187,10 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq04 Q5 (Section A, 1mk)
   { id: "SCQ-S-CARB-024", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Write the formula of first two members of homologous series whose functional group is —CHO.",
-    answer: "1. Methanal",
-    solutionSteps: ["1. Methanal"],
-    ncertRef: "cbjesccq04 Q5", isCompetencyBased: false },
+    answer: "Functional group —CHO (aldehyde). 1. Methanal, HCHO 2. Ethanal, CH3CHO",
+    solutionSteps: ["[1 mark] First member: methanal (formaldehyde), HCHO", "[1 mark] Second member: ethanal (acetaldehyde), CH3CHO"],
+    ncertRef: "cbjesccq04 Q5", isCompetencyBased: false,
+    sourceOverride: "others" },
   // cbjesccq04 Q2 (Section A, 1mk)
   { id: "SCQ-S-CARB-025", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Ethanal 6. Write the formula of first two members of homologous series whose functional group is .",

@@ -929,21 +929,19 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "A) Only salt",
       "B) Salt and water",
       "C) Only water",
-      "D) Salt, water, and heat"
+      "D) Salt and hydrogen gas"
     ],
-    "answer": "D) Salt, water, and heat",
+    "answer": "B) Salt and water",
     "solutionSteps": [
-      "Neutralization is an exothermic reaction.",
-      "Acid + Base → Salt + Water + Heat energy",
-      "All four products are formed in a neutralization reaction.",
-      "The reaction releases heat, making it exothermic."
+      "Neutralisation: Acid + Base → Salt + Water (e.g. NaOH + HCl → NaCl + H₂O).",
+      "The reaction is exothermic, so heat is released, but heat is energy, not a chemical product.",
+      "Therefore the products of neutralisation are salt and water."
     ],
-    "finalAnswer": "D) Salt, water, and heat",
-    "explanation": "Neutralization is an exothermic reaction. Acid + Base → Salt + Water + Heat energy. All four products are formed in a neutralization reaction. The reaction releases heat, making it exothermic. Therefore, the correct answer is D) Salt, water, and heat.",
+    "finalAnswer": "B) Salt and water",
+    "explanation": "In neutralisation, Acid + Base → Salt + Water, e.g. NaOH + HCl → NaCl + H₂O. No hydrogen gas is formed (hydrogen is evolved when an acid reacts with a metal, not with a base). Therefore, the correct answer is B) Salt and water.",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch2 InText"
+    "ncertRef": "NCERT Ch2 InText",
+    sourceOverride: "others",
   },
   {
     "id": "ABS2-032",
@@ -955,26 +953,24 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): All salts are ionic compounds.\nReason (R): Salts are formed by neutralization of acids and bases, which are ionic in nature.",
+    "questionText": "Assertion (A): Salts such as NaCl and Na₂SO₄ are ionic compounds.\nReason (R): Acids such as HCl are ionic compounds even in the pure gaseous state.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "answer": "A is true, R is false.",
     "solutionSteps": [
-      "Assertion: Salts are ionic compounds formed between cations and anions.",
-      "Reason: Acids and bases undergo neutralization to form salts.",
-      "Most salts are indeed ionic in nature.",
-      "The reason correctly explains why salts are ionic."
+      "Assertion: NaCl and Na₂SO₄ are made of positive ions (Na⁺, from the base) and negative ions (Cl⁻, SO₄²⁻, from the acid), so they are ionic compounds — A is true.",
+      "Reason: Pure HCl gas is a covalent molecule; it forms H⁺ ions only when dissolved in water (dry HCl gas does not change the colour of dry blue litmus). So R is false.",
+      "Hence A is true but R is false."
     ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "finalAnswer": "A is true, R is false.",
+    "explanation": "NaCl and Na₂SO₄ consist of positive and negative ions, so A is true. R is false: dry HCl gas is covalent and gives H⁺ ions only in aqueous solution (it does not turn dry blue litmus red). Hence A is true, R is false.",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch2 Exercise"
+    "ncertRef": "NCERT Ch2 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "ABS2-033",
@@ -1210,7 +1206,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): When HCl is neutralized by NaOH, the resulting solution is always neutral.\nReason (R): The neutralization of a strong acid by a strong base produces a salt that does not undergo hydrolysis.",
+    "questionText": "Assertion (A): When equivalent amounts of HCl and NaOH react completely, the resulting solution is neutral (pH 7).\nReason (R): The products are water and sodium chloride, a salt of a strong acid and a strong base, whose solution in water is neutral.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -1219,18 +1215,16 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "HCl (strong acid) + NaOH (strong base) → NaCl (salt) + H₂O",
-      "NaCl is a salt of strong acid and strong base.",
-      "Neither Na⁺ nor Cl⁻ undergoes hydrolysis.",
-      "The solution remains neutral (pH = 7).",
-      "The reason correctly explains this phenomenon."
+      "HCl (strong acid) + NaOH (strong base) → NaCl + H₂O.",
+      "A: With equivalent amounts, neither acid nor base is left in excess, so the solution is neutral (pH 7) — true.",
+      "R: NaCl is a salt of a strong acid and a strong base; such salts are neutral with pH 7 (NCERT) — true.",
+      "Since the only products are water and a neutral salt, R correctly explains A. Hence both A and R are true and R is the correct explanation of A."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "explanation": "Both are true. HCl + NaOH → NaCl + H₂O. With equivalent amounts nothing is left over, and NaCl, being a salt of a strong acid and a strong base, gives a neutral solution (pH 7). So R is the correct explanation of A.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch2 Exercise"
+    "ncertRef": "NCERT Ch2 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "ABS2-042",

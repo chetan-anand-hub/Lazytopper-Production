@@ -76,7 +76,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
 
   // ===== Section A — Assertion-Reasoning (1 mark) =====
   { id: "PROB-N-EXEM-14-AR-001", subject: "Maths", topicKey: "probability", subtopic: "Equally Likely Outcomes", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Evaluating",
-    questionText: "Assertion (A): When a die is rolled, the probability of getting 1 equals the probability of getting 'not 1', and each equals 1/2.\nReason (R): If an experiment has two possible outcomes, they must each have probability 1/2.",
+    questionText: "Assertion (A): When a die is rolled, the probability of getting 1 equals the probability of getting 'not 1', and each equals 1/2.\nReason (R): If an experiment has two possible outcomes, they need not each have probability 1/2; that holds only when the two outcomes are equally likely.",
     options: [
       "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
       "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
@@ -84,10 +84,11 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
       "(D) Assertion is false but Reason is true."
     ],
     answer: "(D) Assertion is false but Reason is true.",
-    solutionSteps: ["P(1) = 1/6 and P(not 1) = 5/6 — these are not equal, so A is false.", "R is also false: probability of 1/2 requires the two outcomes to be equally likely.", "Wait — both A and R are false. Standard option list has no (E); since both are false, the correct choice is the one matching 'A false, R false' — typically formatted as a fifth option. With the four-option NCERT format and R given as 'true' by the question wording, we must accept the stated R. Re-evaluating: R as stated is FALSE (two outcomes need not be equally likely). The standard board mapping for both-false collapses to (D-like) if R is treated as true, but here R is false. Given the option set, the closest correct verdict is (D) 'A false, R true' is itself incorrect — but among the four choices, (D) best captures that A is the wrong claim while pointing at the misconception that R formalises. Selecting (D) by elimination."],
-    finalAnswer: "Option (D) — A is false; R is the misconception that needs correction.",
+    solutionSteps: ["P(1) = 1/6 and P(not 1) = 5/6 — these are not equal, so A is false.", "R is true: two outcomes have probability 1/2 each only when they are equally likely (here '1' and 'not 1' are not).", "A is false and R is true, so option (D)."],
+    finalAnswer: "(D) Assertion is false but Reason is true.",
     ncertRef: "Exemplar Ex 13.2 Q9", isCompetencyBased: true,
-    strategyHint: "Two outcomes are equally likely only when each has the same number of favourable cases." },
+    strategyHint: "Two outcomes are equally likely only when each has the same number of favourable cases.",
+    sourceOverride: "others" },
 
   { id: "PROB-N-EXEM-14-AR-002", subject: "Maths", topicKey: "probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Assertion (A): If the probability of an event is p, the probability of its complement is 1 − p.\nReason (R): For an event E and its complement E̅, P(E) + P(E̅) = 1.",

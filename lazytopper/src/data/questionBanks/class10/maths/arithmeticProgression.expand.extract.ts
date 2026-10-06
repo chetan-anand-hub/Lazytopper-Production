@@ -10,11 +10,12 @@ export const AP_EXPAND_EXTRACT: CanonicalQuestion[] = [
   // ===== Section A — MCQ / Assertion-Reasoning (1 mark) =====
   { id: "BX-AP-EX-A-001", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term of AP", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "If a, b, c, d, e, f are in AP, then e − c is equal to",
-    options: ["2(d − c)", "2(c − a)", "(d − c)", "2(f − d)"],
+    options: ["2(d − c)", "3(d − c)", "(d − c)", "(f − a)/2"],
     answer: "2(d − c)",
     solutionSteps: ["[1 mark] Consecutive terms differ by the common difference, so d − c = one common difference; e and c are two positions apart, hence e − c = 2(d − c)."],
     finalAnswer: "2(d − c).",
-    isCompetencyBased: true },
+    isCompetencyBased: true,
+    sourceOverride: "others" },
 
   { id: "BX-AP-EX-A-002", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term of AP", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The first term of an AP is p and its common difference is q. Its 10th term is",

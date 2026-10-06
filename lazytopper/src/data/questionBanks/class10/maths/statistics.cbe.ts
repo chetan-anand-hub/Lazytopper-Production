@@ -90,14 +90,15 @@ export const STAT_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Rosy, a farmer, grew fifty baby corn by developing the method of organic farming in her field. On harvesting, she measured the lengths of the baby corns (to the nearest mm) and grouped the results as tabulated below.\nLength (in mm) : Number of baby corns\n30–39 : 5\n40–49 : 2\n50–59 : 6\n60–69 : 8\n70–79 : 9\n80–89 : 11\n90–99 : 6\n100–109 : 3\nFind the average length of baby corns using the direct method.",
     "options": [],
-    "answer": "72.06 mm",
+    "answer": "71.7 mm",
     "solutionSteps": [
-      "[1 mark] Find the class marks xi (34.5, 44.5, 54.5, 64.5, 74.5, 84.5, 94.5, 104.5) and compute xi·fi for each class (172.5, 89, 327, 516, 670.5, 929.5, 576, 313.5).",
-      "[1 mark] Apply the direct-method formula: mean (x̄) = Σ(xi·fi) / Σfi = 3603 / 50.",
-      "[1 mark] mean = 72.06 mm."
+      "[1 mark] Find the class marks xi (34.5, 44.5, 54.5, 64.5, 74.5, 84.5, 94.5, 104.5) and compute xi·fi for each class (172.5, 89, 327, 516, 670.5, 929.5, 567, 313.5).",
+      "[1 mark] Apply the direct-method formula: mean (x̄) = Σ(xi·fi) / Σfi = 3585 / 50.",
+      "[1 mark] mean = 71.7 mm."
     ],
-    "finalAnswer": "72.06 mm",
-    "isCompetencyBased": true
+    "finalAnswer": "71.7 mm",
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-STAT-C-003",
@@ -153,13 +154,14 @@ export const STAT_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Given below is a table of marks obtained by 85 students in a class in a Mathematics assessment.\nMarks obtained by a student : Number of students\nBelow 10 : 5\nBelow 20 : 9\nBelow 30 : 17\nBelow 40 : 29\nBelow 50 : 45\nBelow 60 : 60\nBelow 70 : 70\nBelow 80 : 78\nBelow 90 : 83\nBelow 100 : 85\nFind the median marks.",
     "options": [],
-    "answer": "48.75",
+    "answer": "48.44",
     "solutionSteps": [
-      "[1 mark] Using the cumulative frequencies, (N+1)/2 = 86/2 = 43, so the median class is 40–50; here l = 40, cf = 29, f = 16, h = 10.",
-      "[1 mark] Median = 40 + ((43 − 29) / 16) × 10 = 40 + 8.75 = 48.75."
+      "[1 mark] N = 85, so N/2 = 42.5. Cumulative frequencies give the median class 40–50 (cf 45 is the first greater than 42.5); l = 40, cf = 29, f = 45 − 29 = 16, h = 10.",
+      "[1 mark] Median = 40 + ((42.5 − 29) / 16) × 10 = 40 + 8.44 = 48.44 (approx.)."
     ],
-    "finalAnswer": "48.75",
-    "isCompetencyBased": true
+    "finalAnswer": "48.44",
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-STAT-C-006",

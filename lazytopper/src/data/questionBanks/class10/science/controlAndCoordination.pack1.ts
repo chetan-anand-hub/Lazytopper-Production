@@ -69,12 +69,13 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
       "Therefore, the pituitary gland secretes growth hormone.",
     ],
   },
-  { id: "CC-E11", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Abscisic acid inhibits growth.\nReason (R): It promotes wilting and falling of leaves.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "CC-E11", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Abscisic acid inhibits growth.\nReason (R): Abscisic acid promotes cell division in plants.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "A is true, R is false.", explanation: "A is true: abscisic acid is a growth-inhibiting plant hormone (its effects include wilting of leaves). R is false: cell division is promoted by cytokinins, not abscisic acid. Hence A is true, R is false.", finalAnswer: "A is true, R is false.", isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): Abscisic acid is also known as the stress hormone in plants.",
-      "Reason (R): It promotes the closure of stomata and induces dormancy in seeds and buds under unfavorable conditions.",
-      "Both Assertion (A) and Reason (R) are true, and Reason (R) is the correct explanation of Assertion (A).",
+      "Assertion (A): Abscisic acid is a plant hormone that inhibits growth — true (NCERT).",
+      "Reason (R): Cell division is promoted by cytokinins; abscisic acid inhibits growth, it does not promote cell division — false.",
+      "Hence A is true but R is false."
     ],
+    sourceOverride: "others",
   },
   { id: "CC-E12", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The gap between two neurons is called:", options: ["Dendrite", "Axon", "Synapse", "Myelin sheath"], answer: "Synapse", explanation: "The correct answer is Synapse. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Synapse" , isCompetencyBased: false,
     solutionSteps: [

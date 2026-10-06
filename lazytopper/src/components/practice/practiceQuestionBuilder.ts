@@ -271,6 +271,8 @@ export function buildPracticeQuestionsFromEngine(args: {
       // because CanonicalQuestion type does not yet include it (K2H-8f-c follow-up).
       pyqYear: q.pyqYear as string | undefined,
       pyqSet: q.pyqSet as string | undefined,
+      // BANK-FIX-1: carry the source override so the Practice source filter honours it.
+      sourceOverride: (q as { sourceOverride?: "others" }).sourceOverride,
       isCompetencyBased: (q as { isCompetencyBased?: boolean }).isCompetencyBased,
     } as PracticeQuestion;
   });
@@ -286,6 +288,13 @@ function normaliseKey(raw: string): string {
     .replace(/_+/g, "_")
     .replace(/^_+|_+$/g, "");
 }
+
+// Canonical chapter keys whose Prompt-D pack is filed under a shorter name (BANK-FIX-1:
+// Human Eye's fallback was unreachable). Pinned by promptDFallback.guard.test.ts.
+const PRACTICE_PACK_KEY_ALIASES: Readonly<Record<string, string>> = {
+  human_eye_and_colourful_world: "human_eye_colourful_world",
+  pair_of_linear_equations_in_two_variables: "pair_of_linear_equations",
+};
 
 export function resolvePracticePackKey(args: {
   subjectKey: SubjectKey;
@@ -309,6 +318,8 @@ export function resolvePracticePackKey(args: {
 
   const packKey = toPracticePackKey(canonical);
   if (packsForSubject?.[packKey]) return packKey;
+  const aliased = PRACTICE_PACK_KEY_ALIASES[packKey];
+  if (aliased && packsForSubject?.[aliased]) return aliased;
 
   if (packsForSubject) {
     const target = normaliseKey(args.topicParam);
@@ -370,7 +381,9 @@ export function mapUnifiedQuestionToPractice(question: RawQuestion | Record<stri
     difficulty: (question?.difficulty ?? "Medium") as PracticeQuestion["difficulty"],
     section: String(question?.section ?? ""),
     bloomSkill: String(question?.bloomSkill ?? ""),
-    questionText: String(question?.questionText ?? "").trim(),
+    // Prompt-D pack rows keep their stem in `text` (BANK-FIX-1: read only `questionText`, every
+    // fallback question was served blank). Bank rows carry `questionText`, which still wins.
+    questionText: String(question?.questionText ?? (question as { text?: unknown })?.text ?? "").trim(),
     solutionSteps: Array.isArray(question?.solutionSteps) ? question.solutionSteps : [],
     explanation: String(question?.explanation ?? ""),
     answer: String(question?.answer ?? ""),

@@ -871,7 +871,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "An old person needs spectacles with power +2.5 D. What is the focal length of the lens?",
     "options": [
-      "+0.4 m",
+      "+2.5 m",
       "+40 cm",
       "+4 cm",
       "-40 cm"
@@ -886,9 +886,8 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "+40 cm",
     "explanation": "Power P = 1/f, where f is in meters. 2.5 = 1/f. f = 1/2.5 = 0.4 m = 40 cm. Positive power indicates a convex lens. Therefore, the correct answer is +40 cm.",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "All India",
-    "ncertRef": "NCERT Ch11 Exercise"
+    "ncertRef": "NCERT Ch11 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "HEC2-032",
@@ -1030,16 +1029,15 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Light from the sun undergoes refraction in Earth's atmosphere",
       "The atmosphere is denser near Earth's surface",
-      "Light bends away from the normal as it enters less dense regions",
+      "Light passes from rarer upper layers into denser lower layers and bends towards the normal",
       "This causes the sun to appear higher in the sky than it actually is",
       "The same effect makes the sun appear higher at sunset"
     ],
     "finalAnswer": "Refraction through layers of atmosphere",
-    "explanation": "Light from the sun undergoes refraction in Earth's atmosphere. The atmosphere is denser near Earth's surface. Light bends away from the normal as it enters less dense regions. This causes the sun to appear higher in the sky than it actually is. The same effect makes the sun appear higher at sunset. Therefore, the correct answer is Refraction through layers of atmosphere.",
+    "explanation": "Light from the sun undergoes refraction in Earth's atmosphere. The atmosphere is denser near Earth's surface. Light passes from rarer upper layers into denser lower layers and bends towards the normal. This causes the sun to appear higher in the sky than it actually is. The same effect makes the sun appear higher at sunset. Therefore, the correct answer is Refraction through layers of atmosphere.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch11 Exercise"
+    "ncertRef": "NCERT Ch11 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "HEC2-037",
@@ -1087,7 +1085,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "VIBGYOR (inside to outside)",
       "ROYGBIV (inside to outside)",
       "VIBGYOR (outside to inside)",
-      "ROYGBIV (outside to inside)"
+      "Colours in random order (no fixed sequence)"
     ],
     "answer": "VIBGYOR (inside to outside)",
     "solutionSteps": [
@@ -1099,9 +1097,8 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "VIBGYOR (inside to outside)",
     "explanation": "In a primary rainbow, violet appears on the inner arc. Red appears on the outer arc. This is due to the different angles of refraction. Violet (shortest wavelength) is refracted most, so it appears innermost. Therefore, the correct answer is VIBGYOR (inside to outside).",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "All India",
-    "ncertRef": "NCERT Ch11 Exercise"
+    "ncertRef": "NCERT Ch11 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "HEC2-039",
@@ -1241,19 +1238,17 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "Both A and R are true, but R is not the correct explanation of A.",
+    "answer": "A is true, R is false.",
     "solutionSteps": [
-      "The cornea does provide most refraction due to its curved surface and the air-cornea interface",
-      "However, it's not because cornea has higher refractive index than lens",
-      "The cornea's role is due to the large refractive index difference at the air-cornea boundary",
-      "The lens provides fine-tuning through accommodation"
+      "The cornea does provide most of the refraction, due to its curved surface and the large refractive-index change at the air-cornea boundary, so A is true",
+      "The cornea's refractive index (about 1.38) is lower than that of the eye lens (about 1.40), so R is false",
+      "Hence A is true and R is false"
     ],
-    "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
-    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
+    "finalAnswer": "A is true, R is false.",
+    "explanation": "A is true: most refraction occurs at the cornea because of the large refractive-index change at the air-cornea surface. R is false: the cornea's refractive index (~1.38) is lower than the lens's (~1.40). So A is true, R is false.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "All India",
-    "ncertRef": "NCERT Ch11 InText"
+    "ncertRef": "NCERT Ch11 InText",
+    sourceOverride: "others",
   },
   {
     "id": "HEC2-044",

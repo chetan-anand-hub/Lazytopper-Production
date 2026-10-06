@@ -118,18 +118,18 @@ export const CIRC_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In the given figure, PQ is a chord of a circle with centre O, and PT is a tangent. If ∠QPT = 60°, find ∠PRQ.",
+    "questionText": "In the given figure, PQ is a chord of a circle with centre O, and PT is a tangent at P. R is a point on the minor arc PQ. If ∠QPT = 60°, find ∠PRQ.",
     "options": [],
     "answer": "∠PRQ = 120°",
     "solutionSteps": [
-      "[1 mark] ∠OPT = 90° (tangent at any point of a circle is perpendicular to the radius). Given ∠QPT = 60°, so ∠OPQ = 90° − 60° = 30°.",
-      "[1 mark] In △OPQ, OP = OQ (radii) so ∠OQP = ∠OPQ = 30°, giving ∠POQ = 180° − 30° − 30° = 120° (angle sum property). Hence the reflex/subtended angle ∠PRQ = 120°."
+      "[1 mark] ∠OPT = 90° (tangent is perpendicular to the radius at the point of contact), so ∠OPQ = 90° − 60° = 30°. In △OPQ, OP = OQ (radii), so ∠OQP = 30° and ∠POQ = 180° − 30° − 30° = 120°.",
+      "[1 mark] Reflex ∠POQ = 360° − 120° = 240°. Since R lies on the minor arc, ∠PRQ is subtended by the major arc PQ, so ∠PRQ = ½ × reflex ∠POQ = ½ × 240° = 120°."
     ],
     "finalAnswer": "∠PRQ = 120°",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "A circle with centre O. PQ is a chord. PT is a tangent to the circle at P, with ∠QPT = 60°. R is a point on the circle so that ∠PRQ is the angle subtended by chord PQ. Radii OP and OQ are drawn; OP is perpendicular to tangent PT. Diagram not drawn to scale."
-  },
+    "diagramDescription": "A circle with centre O. PQ is a chord. PT is a tangent to the circle at P, with ∠QPT = 60°. R is a point on the minor arc PQ, joined to P and Q. Radii OP and OQ are drawn; OP is perpendicular to tangent PT. Diagram not drawn to scale.",
+    sourceOverride: "others",},
   {
     "id": "CBE-M-CIRC-C-001",
     "subject": "Maths",

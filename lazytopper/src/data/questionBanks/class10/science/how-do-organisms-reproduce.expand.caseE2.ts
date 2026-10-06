@@ -539,17 +539,18 @@ export const REPRODUCE_EXPAND_CASE_E2: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A teacher explains to Class 10 girls the importance of good menstrual hygiene, such as using clean sanitary materials and changing them regularly.\n(i) State one reason why keeping clean during menstruation is important.\n(ii) State one healthy practice a girl should follow during menstruation.\n(iii) Why should girls not feel shy about asking for correct information on this topic?",
+    "questionText": "A teacher explains to Class 10 girls the importance of good menstrual hygiene, such as using clean sanitary materials and changing them regularly.\n(i) State one reason why keeping clean during menstruation is important.\n(ii) State two healthy practices a girl should follow during menstruation.\n(iii) Why should girls not feel shy about asking for correct information on this topic?",
     "options": [],
-    "answer": "Good menstrual hygiene prevents infections; a healthy practice is to use clean sanitary materials and change them regularly; girls should not feel shy because menstruation is a normal process and correct information helps them stay healthy.",
+    "answer": "Good menstrual hygiene prevents infections; healthy practices are using clean sanitary materials and changing them regularly, and washing regularly and disposing of used materials safely; girls should not feel shy because menstruation is a normal process and correct information helps them stay healthy.",
     "solutionSteps": [
       "[1 mark] (i) Keeping clean during menstruation is important because it prevents infections of the reproductive organs.",
-      "[1 mark] (ii) A healthy practice is to use clean sanitary materials (such as sanitary pads) and change them regularly.",
-      "[1 mark] Washing regularly and disposing of used materials safely are also good practices.",
+      "[1 mark] (ii) First practice: use clean sanitary materials (such as sanitary pads) and change them regularly.",
+      "[1 mark] (ii) Second practice: wash the genital area regularly and dispose of used materials safely (wrapped, in a dustbin).",
       "[1 mark] (iii) Menstruation is a normal, natural process, so girls should not feel shy; getting correct information helps them protect their health."
     ],
     "finalAnswer": "Menstrual hygiene prevents infection; use and change clean sanitary materials; it is normal, so seek correct information without shyness.",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E2-028",
@@ -605,17 +606,18 @@ export const REPRODUCE_EXPAND_CASE_E2: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "A pregnant woman is told that her baby will develop inside her for about nine months before birth. She asks where the baby grows and how it is kept safe and fed during this time.\n(i) In which organ of the mother does the baby develop before birth?\n(ii) Name the structure through which the baby is fed and receives oxygen during this period.\n(iii) State the approximate length of time for which a human baby develops inside the mother before birth.",
+    "questionText": "A pregnant woman is told that her baby will develop inside her for about nine months before birth. She asks where the baby grows and how it is kept safe and fed during this time.\n(i) In which organ of the mother does the baby develop before birth?\n(ii) Name the structure through which the baby is fed and receives oxygen during this period, and state what is exchanged through it.\n(iii) State the approximate length of time for which a human baby develops inside the mother before birth.",
     "options": [],
-    "answer": "The baby develops in the uterus; it is fed and receives oxygen through the placenta; a human baby develops inside the mother for about nine months.",
+    "answer": "The baby develops in the uterus; it is fed and receives oxygen through the placenta, across which glucose and oxygen pass from the mother to the embryo and wastes pass from the embryo to the mother; a human baby develops inside the mother for about nine months.",
     "solutionSteps": [
       "[1 mark] (i) The baby develops inside the mother's uterus (womb).",
       "[1 mark] (ii) The baby is fed and receives oxygen through the placenta, which connects it to the mother.",
-      "[1 mark] The uterus protects the developing baby while the placenta carries out the exchange of food, oxygen and wastes.",
+      "[1 mark] (ii) Through the placenta, glucose and oxygen pass from the mother's blood to the embryo, and wastes produced by the embryo pass into the mother's blood for removal.",
       "[1 mark] (iii) A human baby develops inside the mother for about nine months before birth."
     ],
     "finalAnswer": "The baby develops in the uterus, fed and oxygenated via the placenta, over a gestation of about nine months.",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E2-031",
