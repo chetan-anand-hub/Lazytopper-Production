@@ -191,36 +191,89 @@ function applyUnitRuling(steps, q) {
   return { charged, restored };
 }
 
-// Owner rule: an answer is never marked down for the LANGUAGE it is written in — Hinglish or Hindi
-// is fine; the science is what is marked (live 2026-10-06, owner paper 02 Q18: a correct answer
-// lost ½ "written informally in Hinglish" in 5 of 9 grades, typed presentation).
-// A17 ruling 3 widened it: colloquial / casual wording, mixed or code-mixed language, "not in
-// English", non-English, grammar and sentence construction.
-const LANGUAGE_LOSS = /\b(?:hinglish|hindi|vernacular|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english|tone|style)|(?:written|worded|expressed|phrased)\s+(?:informally|colloquially|casually)|colloquial(?:ly)?\s+(?:written|worded|language|wording|english|style|tone|expression)|casual\s+(?:language|wording|english|tone|style)|(?:standard|formal|proper|correct)\s+english|english\s+language|mixed[- ](?:language|hindi|english)|code[- ]?mix(?:ed|ing)?|not\s+(?:written\s+)?in\s+(?:proper\s+|standard\s+|formal\s+)?english|non[- ]english|grammar|grammatical(?:ly)?|sentence\s+(?:construction|structure)|language\s+(?:used|is|was)\s+(?:informal|casual|colloquial|not\s+standard|non[- ]standard))\b/i;
+/* ── A17 owner ruling 3, AS CHANGED BY THE OWNER 2026-10-06 (supersedes "Hinglish never
+   deducted") · THE MEDIUM OF AN ANSWER ─────────────────────────────────────────────
+   CBSE answers are written in English, or in Hindi in Devanagari. An answer written in HINGLISH
+   (Roman-script Hindi mixed with English) keeps every content mark but loses EXACTLY ½ ONCE per
+   answer, typed "presentation" (exam technique), with one fixed comment. English with technical
+   terms is not Hinglish; Hindi in Devanagari is never penalised; NO OTHER language deduction
+   (grammar, spelling, informal English) stands. The units ½ (ruling 1) is independent.
+   Deterministic, from the student's OWN words (the typed answer, else the model's verbatim quotes):
+     • mediumOf() decides the medium — the model's opinion never does (a false "Hinglish" on an
+       English answer is given back; a missed one is applied);
+     • a Hinglish answer: the model's own medium/language deduction is held to exactly ½ (one step,
+       the fixed comment; any further language deduction given back); with none, ½ is taken from
+       its last credited untyped step — never below 0;
+     • any other answer: every language deduction is given back (as before A17).
+   Terminology deductions (the exact CBSE term, CLAUDE.md §13) are never touched. */
+const LANGUAGE_LOSS = /\b(?:hinglish|hindi|vernacular|medium|roman[- ]script|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english|tone|style)|(?:written|worded|expressed|phrased)\s+(?:informally|colloquially|casually)|colloquial(?:ly)?\s+(?:written|worded|language|wording|english|style|tone|expression)|casual\s+(?:language|wording|english|tone|style)|(?:standard|formal|proper|correct)\s+english|english\s+language|mixed[- ](?:language|hindi|english)|code[- ]?mix(?:ed|ing)?|not\s+(?:written\s+)?in\s+(?:proper\s+|standard\s+|formal\s+)?english|non[- ]english|grammar|grammatical(?:ly)?|spelling|sentence\s+(?:construction|structure)|language\s+(?:used|is|was)\s+(?:informal|casual|colloquial|not\s+standard|non[- ]standard))\b/i;
 const LANGUAGE_ADVICE = LANGUAGE_LOSS;
 // A deduction for the TERM used is not a language deduction: CBSE marks the exact technical term
 // (live 2026-10-06, OA-02 Q19: "½ Scientific terminology 'oesophagus' preferred over colloquial 'food pipe'").
 const TERMINOLOGY_LOSS = /\b(?:terminolog\w*|(?:technical|scientific|exact|correct|proper|key)\s+(?:term|terms|word|words|name|names)|keywords?)\b/i;
+// Roman-script Hindi FUNCTION words — never ordinary English words (no "to", "me", "do", "so").
+const ROMAN_HINDI = new Set(('hai hain ka ki ke ko se mein aur nahi nahin nhi kyunki kyonki kyuki isliye islie iska iski iske uska uski uske yeh woh wo ' +
+  'kar karta karte karti karna karo kiya hota hoti hote hoga hogi gaya gayi gaye liye jab tab agar lekin bhi sakta sakti sakte rehta rehti ' +
+  'wala wale wali kya kaise matlab yani yaani raha rahi rahe hua hui hue diya liya jata jati jaata jaati paas sahi galat toh phir pehle ' +
+  'baad sirf bahut zyada ek teen chaar bana banta banti milta milti chahiye humein hume hum aap tum unka unki inka inki iss uss ab yahan wahan').split(' '));
+const DEVANAGARI = /[ऀ-ॿ]/g;
+/** 'devanagari' | 'hinglish' | 'english' — the medium of the student's own words. */
+function mediumOf(text) {
+  const t = String(text || '');
+  if ((t.match(DEVANAGARI) || []).length >= 10) return 'devanagari';
+  const words = t.toLowerCase().match(/[a-z]+/g) || [];
+  const hits = words.filter((w) => ROMAN_HINDI.has(w));
+  return hits.length >= 3 && new Set(hits).size >= 2 ? 'hinglish' : 'english';
+}
+const languageWhy = (s) => [s.teacherAnnotation, s.correctedWorking, s.description].join(' . ');
+const isLanguageLoss = (s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && (s.mistakeType === 'presentation' || s.mistakeType === null)
+  && s.marksDeducted > 0 && LANGUAGE_LOSS.test(languageWhy(s)) && !TERMINOLOGY_LOSS.test(languageWhy(s));
 /**
- * A step typed "presentation" whose deduction is for the language of the answer gets that
- * deduction back (at most ½ per step — a step that ALSO lost marks for missing science keeps the
- * rest), loses its type when nothing remains, and says why. Returns how many steps changed.
+ * A17 ruling 3 (medium), deterministic — see the block comment above. Runs on a SUBJECTIVE
+ * question. Returns { medium, charged, restored }.
  */
-function restoreLanguageDeductions(steps) {
-  let n = 0;
+function applyMediumRuling(steps, q, raw) {
+  const typed = String((q && q.textAnswer) || '').trim();
+  const own = typed || steps.map((s) => s.studentWork).concat([String((raw && raw.studentFinalAnswer) || '')]).join('\n');
+  const medium = mediumOf(own);
+  let charged = 0;
+  let restored = 0;
   for (const s of steps) {
-    if (s.status === 'withdrawn' || s.status === 'unattempted' || s.mistakeType !== 'presentation' || !(s.marksDeducted > 0)) continue;
-    const why = [s.teacherAnnotation, s.correctedWorking, s.description].join(' . ');
-    if (!LANGUAGE_LOSS.test(why) || TERMINOLOGY_LOSS.test(why)) continue;
-    const back = Math.min(0.5, s.marksDeducted, Math.max(0, (s._available || 0) - s.marksAwarded));
+    if (!isLanguageLoss(s)) continue;
+    const lostHere = half(Math.max(0, (s._available || 0) - s.marksAwarded));
+    if (medium === 'hinglish' && charged === 0) {
+      // the ONE medium charge of this answer: exactly ½
+      if (lostHere > 0.5) giveBack(s, lostHere - 0.5);
+      s.mistakeType = 'presentation';
+      if (s.status === 'correct') s.status = s.marksAwarded > 0 ? 'partial' : 'incorrect';
+      s.teacherAnnotation = R.MEDIUM_COMMENT;
+      s._mediumCharged = true;
+      charged += 1;
+      continue;
+    }
+    const back = Math.min(0.5, s.marksDeducted, lostHere);
     if (!(back > 0)) continue;
-    s.marksAwarded = half(s.marksAwarded + back);
-    s.marksDeducted = half(s.marksDeducted - back);
-    if (!(s.marksDeducted > 0)) { s.mistakeType = null; s.correctedWorking = null; if (s.marksAwarded >= s._available) s.status = 'correct'; }
-    s.teacherAnnotation = R.LANGUAGE_NOT_MARKED_ANNOTATION;
-    n += 1;
+    giveBack(s, back);
+    if (!(s.marksDeducted > 0)) { s.mistakeType = null; s.correctedWorking = null; }
+    s.teacherAnnotation = (s.status === 'correct' ? '✓ ' : '') + R.LANGUAGE_NOT_MARKED_ANNOTATION;
+    restored += 1;
   }
-  return n;
+  if (medium === 'hinglish' && charged === 0) {
+    // the model did not charge the medium: ½ from the last credited, untyped step (never below 0)
+    const target = [...steps].reverse().find((s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && !s.mistakeType && !s._unitCharged && s.marksAwarded >= 0.5)
+      || [...steps].reverse().find((s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && !s._unitCharged && s.mistakeType === 'presentation' && s.marksAwarded >= 0.5);
+    if (target && target.mistakeType !== 'presentation') {
+      target.marksAwarded = half(target.marksAwarded - 0.5);
+      target.marksDeducted = half(target.marksDeducted + 0.5);
+      target.mistakeType = 'presentation';
+      target.status = target.marksAwarded > 0 ? 'partial' : 'incorrect';
+      target.correctedWorking = null;
+      target.teacherAnnotation = R.MEDIUM_COMMENT;
+      target._mediumCharged = true;
+      charged += 1;
+    }
+  }
+  return { medium, charged, restored };
 }
 
 function scrubSentences(text, pattern) {
@@ -799,8 +852,10 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // A17 ruling 1, deterministic: a missing/wrong unit costs exactly ½ once per question, in Maths
   // AND Science, never on a pure number, and says so in one fixed comment (applyUnitRuling).
   const unitRuling = questionIsObjective ? { charged: 0, restored: 0 } : applyUnitRuling(steps, q);
-  // Owner rule (PR-3): never a deduction for the language an answer is written in.
-  const languageRestored = restoreLanguageDeductions(steps);
+  // A17 ruling 3 (owner change 2026-10-06): Hinglish loses exactly ½ once, typed presentation, with
+  // one fixed comment; no other language deduction stands (applyMediumRuling).
+  const mediumRuling = questionIsObjective ? { medium: null, charged: 0, restored: 0 } : applyMediumRuling(steps, q, raw);
+  const languageRestored = mediumRuling.restored;
 
   // 6 · SUBJECTIVE marks
   let departures = [];
@@ -1240,5 +1295,7 @@ module.exports = {
   zeroLost,
   applyUnitRuling,
   unitNamed,
+  applyMediumRuling,
+  mediumOf,
   UNIT_LOSS,
 };

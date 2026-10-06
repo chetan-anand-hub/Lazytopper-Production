@@ -1729,13 +1729,23 @@ test('§FIX.5 ★ a CHUNK of a one-document paper: a question LISTED with a firs
   assert.equal(d.results[N - 1].teacherNote, grading.NO_ANSWER_ON_PAGE_NOTE);
 });
 
-test('§FIX.6 ★ never a deduction for the LANGUAGE of an answer (owner paper 02 Q18: "written informally in Hinglish" on a correct answer): the ½ comes back and the note keeps no "write in formal English"; another presentation deduction stays', async () => {
+test('§FIX.6 ★ the MEDIUM of an answer (A17 ruling 3 as changed 2026-10-06: Hinglish loses ½ once; any other language deduction comes back) (owner paper 02 Q18: "written informally in Hinglish" on a correct answer): the ½ comes back and the note keeps no "write in formal English"; another presentation deduction stays', async () => {
   const steps = [S({ studentWork: 'Carbon ke 4 valence electrons hote hain', marksAwarded: 1 }),
     S({ studentWork: 'isliye woh electrons share karta hai', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct idea of sharing electrons, but written informally in Hinglish.' })];
   const r = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true, teacherNote: 'Good understanding of covalent bonding. Please write examinations in standard formal English.' }))] })
     .single(single({ marks: 2, subject: 'Science', question: 'Why does carbon form compounds mainly by covalent bonding?', textAnswer: 'Carbon ke 4 valence electrons hote hain, isliye woh electrons share karta hai' }))).body;
-  assert.deepEqual([r.marksAwarded, r.annotatedSteps[1].status, r.annotatedSteps[1].mistakeType, r.annotatedSteps[1].teacherAnnotation], [2, 'correct', null, grading.LANGUAGE_NOT_MARKED_ANNOTATION]);
-  assert.ok(!/english/i.test(r.teacherNote) && /covalent bonding/.test(r.teacherNote), 'the language advice goes; the rest of the note stays');
+  // ⚠ A17 OWNER RULING 3 AS CHANGED 2026-10-06 (supersedes "Hinglish never deducted"): this answer IS
+  // Hinglish (Roman-script Hindi + English), so it keeps its content marks and loses EXACTLY ½ for the
+  // medium, typed presentation, with the one fixed comment. (Before the change: 2, the ½ given back.)
+  assert.deepEqual([r.marksAwarded, r.annotatedSteps[1].status, r.annotatedSteps[1].mistakeType, r.annotatedSteps[1].teacherAnnotation], [1.5, 'partial', 'presentation', grading.MEDIUM_COMMENT]);
+  // CONTROL (A17 ruling 3): the SAME deduction on an ENGLISH answer is a language deduction and comes
+  // back; the note keeps no "write in formal English".
+  const eng = [S({ studentWork: 'Carbon has 4 valence electrons', marksAwarded: 1 }),
+    S({ studentWork: 'so it shares electrons', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct idea of sharing electrons, but written informally.' })];
+  const e = (await harness({ replies: [REPLY(R(1, eng, { finalAnswerCorrect: true, teacherNote: 'Good understanding of covalent bonding. Please write examinations in standard formal English.' }))] })
+    .single(single({ marks: 2, subject: 'Science', question: 'Why does carbon form compounds mainly by covalent bonding?', textAnswer: 'Carbon has 4 valence electrons, so it shares electrons' }))).body;
+  assert.deepEqual([e.marksAwarded, e.annotatedSteps[1].status, e.annotatedSteps[1].mistakeType, e.annotatedSteps[1].teacherAnnotation], [2, 'correct', null, '✓ ' + grading.LANGUAGE_NOT_MARKED_ANNOTATION]);
+  assert.ok(!/english/i.test(e.teacherNote) && /covalent bonding/.test(e.teacherNote), 'the language advice goes; the rest of the note stays');
   // CONTROL: a deduction for the TERM used stays — the live OA-02 Q19 annotation, which also says
   // "colloquial" (CBSE marks the exact technical term)
   const keep = [S({ marksAwarded: 1 }), S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: "½ Scientific terminology 'oesophagus' preferred over colloquial 'food pipe'" })];
@@ -1745,7 +1755,10 @@ test('§FIX.6 ★ never a deduction for the LANGUAGE of an answer (owner paper 0
   // term (live OA-02 Q18 run 1) — the term is marked, so the deduction stays
   const term = [S({ marksAwarded: 1 }), S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Mentioned 4 valence electrons and sharing, but use standard English/Hindi scientific terminology (noble gas configuration).' })];
   const m = (await harness({ replies: [REPLY(R(1, term, { finalAnswerCorrect: false }))] }).single(single({ marks: 2, subject: 'Science', question: 'Why does carbon form compounds mainly by covalent bonding?', textAnswer: 'Carbon ke 4 valence electrons hote hain' }))).body;
-  assert.deepEqual([m.marksAwarded, m.annotatedSteps[1].mistakeType, m.annotatedSteps[1].teacherAnnotation === grading.LANGUAGE_NOT_MARKED_ANNOTATION], [1.5, 'presentation', false]);
+  // A17 ruling 3 (owner change 2026-10-06): this typed answer is Hinglish, so ALSO ½ for the medium —
+  // the term's ½ and the medium's ½ are separate (was 1.5 before the change).
+  assert.deepEqual([m.marksAwarded, m.annotatedSteps[1].mistakeType, m.annotatedSteps[1].teacherAnnotation === grading.LANGUAGE_NOT_MARKED_ANNOTATION], [1, 'presentation', false]);
+  assert.equal(m.annotatedSteps[0].teacherAnnotation, grading.MEDIUM_COMMENT);
   // CONTROL: "colloquial" alone is about the WORD chosen, not the language ("food pipe" for oesophagus)
   const word = [S({ marksAwarded: 1 }), S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: "½ 'Food pipe' is colloquial — write oesophagus." })];
   const w = (await harness({ replies: [REPLY(R(1, word, { finalAnswerCorrect: false }))] }).single(single({ marks: 2, subject: 'Science', question: 'Name the tube that carries food from the mouth to the stomach.', textAnswer: 'food pipe' }))).body;

@@ -130,15 +130,30 @@ const dontKnowSteps = (marks) => [
   // the model's typical wrong report of a "Don't know": an incorrect, TYPED step
   { description: 'Answer', studentWork: "Don't know", status: 'incorrect', marksAwarded: 0, marksDeducted: marks, teacherAnnotation: '× No method shown.', mistakeType: 'conceptual' },
 ];
-const hinglishSteps = (marks) => [
-  { description: 'Working', studentWork: 'Ye answer sahi hai kyunki ...', status: 'correct', marksAwarded: marks - 1, marksDeducted: 0, teacherAnnotation: '✓ Correct.', mistakeType: null },
-  { description: 'Conclusion', studentWork: 'isliye answer yahi hai', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation',
-    teacherAnnotation: '½ Correct content, but the answer is code-mixed and colloquially written.' },
+// A17 ruling 3 AS CHANGED BY THE OWNER 2026-10-06 (the MEDIUM): fixtures in each medium. A typed
+// surface sends the same words as its textAnswer (setText), so the server judges the student's own text.
+const HINGLISH = 'Carbon ke paas 4 valence electrons hain, isliye woh electrons share karta hai aur covalent bonds banata hai.';
+const ENGLISH_TECH = 'Carbon has 4 valence electrons, so it shares electrons and forms covalent bonds (catenation, tetravalency).';
+const DEVANAGARI_HINDI = 'कार्बन के पास 4 valence electrons होते हैं, इसलिए यह electrons share करके covalent bond बनाता है।';
+const setText = (t) => (q) => { q.textAnswer = t; noKey(q); };
+const workSteps = (text, last) => (marks) => [
+  { description: 'Reason', studentWork: text, status: 'correct', marksAwarded: marks - 1, marksDeducted: 0, teacherAnnotation: '✓ Correct.', mistakeType: null },
+  { description: 'Conclusion', studentWork: text, ...last },
 ];
+// the model charged the medium, and too much (a whole mark): held to exactly ½
+const hinglishCharged = workSteps(HINGLISH, { status: 'incorrect', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, mistakeType: 'presentation', teacherAnnotation: '× Correct content, but written in Hinglish; write in proper English.' });
+// the model charged nothing: the server applies the ½
+const hinglishUncharged = workSteps(HINGLISH, { status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓ Correct.' });
+// false positives the model might commit: English with technical terms, Hindi in Devanagari
+const englishCharged = workSteps(ENGLISH_TECH, { status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct, but informal English with grammar errors.' });
+const devanagariCharged = workSteps(DEVANAGARI_HINDI, { status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct, but written in Hindi instead of English.' });
 const termSteps = (marks) => [
   { description: 'Working', studentWork: 'Food goes down the food pipe by peristalsis', status: 'partial', marksAvailable: marks, marksAwarded: marks - 0.5, marksDeducted: 0.5, mistakeType: 'presentation',
-    teacherAnnotation: '½ Correct idea, but the exact technical term is oesophagus, not food pipe (written in Hinglish).' },
+    teacherAnnotation: '½ Correct idea, but the exact technical term is oesophagus, not food pipe.' },
 ];
+// a Hinglish answer that ALSO omits its unit: the two ½ are independent (controller C-D17)
+const HINGLISH_VOL = 'V = (2/3)πr³ + (1/3)πr²h, isliye volume yeh hota hai aur answer ye hai';
+const hinglishUnitSteps = (marks) => { const st = unitSteps(marks); st[0] = { ...st[0], studentWork: HINGLISH_VOL }; return st; };
 
 for (const s of SURFACES) {
   test('A17 ruling 1 (units) — ' + s.id + ': a missing unit on the final answer costs EXACTLY ½, typed presentation, with the one fixed comment', async () => {
@@ -187,15 +202,40 @@ for (const s of SURFACES) {
     assert.equal(all.writes.length, 0, s.id + ': nothing metered');
   });
 
-  test('A17 ruling 3 (language) — ' + s.id + ': a mixed-language / colloquial deduction is given back; a TERMINOLOGY deduction stands', async () => {
-    const r = await drive(s, { targetSteps: hinglishSteps });
-    assert.equal(r.result.marksAwarded, r.targetMarks, s.id + ': no mark for the language');
-    assert.equal(r.result.annotatedSteps[1].teacherAnnotation.endsWith(R.LANGUAGE_NOT_MARKED_ANNOTATION), true);
+  test('A17 ruling 3 (medium) — ' + s.id + ': a HINGLISH answer keeps its content marks and loses EXACTLY ½ once, typed presentation, with the one fixed comment — whether or not the model charged it', async () => {
+    for (const [label, steps] of [['model over-charged', hinglishCharged], ['model charged nothing', hinglishUncharged]]) {
+      for (const acceptsV2 of [false, true]) {
+        const r = await drive(s, { mutateTarget: setText(HINGLISH + '\n' + HINGLISH), targetSteps: steps, acceptsV2 });
+        const out = r.result;
+        assert.equal(out.marksAwarded, r.targetMarks - 0.5, s.id + ' ' + label);
+        const m = out.annotatedSteps.filter((st) => st.teacherAnnotation === R.MEDIUM_COMMENT);
+        assert.equal(m.length, 1, s.id + ' ' + label + ': one medium step');
+        assert.equal(R.MEDIUM_COMMENT, 'Write in English (or Hindi in Devanagari): board examiners expect one medium.');
+        assert.deepEqual([m[0].marksDeducted, m[0].mistakeType], [0.5, 'presentation'], s.id + ' ' + label);
+        if (acceptsV2) assert.equal(out.marksLostByType.presentation, 0.5);
+      }
+    }
+    const p = (await drive(s, { targetSteps: hinglishCharged })).calls[0].prompt;
+    assert.ok(p.includes('MEDIUM OF THE ANSWER') && p.includes(R.MEDIUM_COMMENT) && p.includes('TERMINOLOGY STILL COUNTS'), s.id + ': the medium rule reaches the prompt');
+    assert.ok(!p.includes('NCERT-standard language') && !p.includes('LANGUAGE IS NEVER MARKED'), s.id + ': the superseded wording is gone');
+  });
+
+  test('A17 ruling 3 (medium) — ' + s.id + ': FALSE-POSITIVE GUARD — English with technical terms and Hindi in Devanagari never lose the ½ (a model deduction for language is given back)', async () => {
+    for (const [label, text, steps] of [['English + technical terms', ENGLISH_TECH, englishCharged], ['Hindi in Devanagari', DEVANAGARI_HINDI, devanagariCharged]]) {
+      const r = await drive(s, { mutateTarget: setText(text + '\n' + text), targetSteps: steps });
+      assert.equal(r.result.marksAwarded, r.targetMarks, s.id + ' ' + label);
+      assert.ok(!r.result.annotatedSteps.some((st) => st.teacherAnnotation === R.MEDIUM_COMMENT), s.id + ' ' + label + ': no medium comment');
+      assert.ok(r.result.annotatedSteps.every((st) => st.mistakeType === null), s.id + ' ' + label + ': no type');
+    }
+  });
+
+  test('A17 ruling 3 (medium) — ' + s.id + ': the medium ½ and the units ½ are independent; a TERMINOLOGY deduction stands', async () => {
+    const r = await drive(s, { mutateTarget: (q) => { q.questionText = VOL_Q; noKey(q); q.textAnswer = HINGLISH_VOL + '\n= 243.83'; }, targetSteps: hinglishUnitSteps });
+    assert.equal(r.result.marksAwarded, r.targetMarks - 1, s.id + ': ½ for the medium + ½ for the unit');
+    assert.ok(r.result.annotatedSteps.some((st) => st.teacherAnnotation === R.MEDIUM_COMMENT));
+    assert.ok(r.result.annotatedSteps.some((st) => st.teacherAnnotation === R.unitComment('cm³')));
     const t = await drive(s, { targetSteps: termSteps });
     assert.equal(t.result.marksAwarded, t.targetMarks - 0.5, s.id + ': the exact CBSE term is still marked (CLAUDE.md §13)');
-    const p = r.calls[0].prompt;
-    assert.ok(p.includes('LANGUAGE IS NEVER MARKED') && p.includes('TERMINOLOGY STILL COUNTS'), s.id + ': the language rule reaches the prompt');
-    assert.ok(!p.includes('NCERT-standard language'), s.id + ': the checklist never asks for "NCERT-standard language"');
   });
 
   test('A17 ruling 4 (immaterial miscopy) — ' + s.id + ': the "silly" definition itself carries the immaterial-miscopy exception in this surface\'s prompt', async () => {

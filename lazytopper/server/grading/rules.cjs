@@ -25,7 +25,10 @@
 //       step says "−½: write the unit (<unit>) with your final answer." (postprocess.cjs
 //       applyUnitRuling enforces the cap, the type, the comment and the pure-number exemption).
 //   (A17-2) "Don't know" / blank on ANY question = not attempted: 0, never charged, never a mistake.
-//   (A17-3) Hinglish / mixed language is never deducted; the exact CBSE TERM still is.
+//   (A17-3) MEDIUM (owner change 2026-10-06, supersedes "Hinglish never deducted"): answers are in
+//       English or in Hindi in Devanagari; a Hinglish answer keeps its content marks and loses exactly
+//       ½ once, typed presentation, with one fixed comment (postprocess.cjs applyMediumRuling). No
+//       other language deduction; the exact CBSE TERM is still marked.
 //   (A17-4) an immaterial miscopy is not penalised — in the "silly" definition too.
 // Standing: an MCQ is 0 or full on the answer alone; unattempted is a fourth state; the
 // authority is CBSE's published marking schemes ("the way a CBSE examiner marks").
@@ -92,13 +95,15 @@ function unitComment(unit) {
   return '\u2212\u00BD: write the unit (' + String(unit) + ') with your final answer.';
 }
 const UNIT_COMMENT_EXAMPLE = unitComment('cm\u00B3');
+/** A17 ruling 3 (owner change 2026-10-06): the ONE comment a Hinglish answer's ½ carries. */
+const MEDIUM_COMMENT = 'Write in English (or Hindi in Devanagari): board examiners expect one medium.';
 
 /** Ruling (5) and A17 ruling 1 (units) plus the CBSE format marks the golden set shows are never deducted today. */
 const PRESENTATION_PROMPT =
   'PRESENTATION — DEDUCT ONLY WHERE THE CBSE SCHEME AWARDS THAT MARK (a missing unit: ALWAYS — see UNITS), and then DO deduct it:\n' +
   '   - a required conclusion / "hence proved" / "verified" line absent; a required labelled figure absent (that loses the figure mark); arrows missing on a ray diagram; a required formula statement absent; the contextual rejection of a root missing in a word problem (½).\n' +
   '   - UNITS. A CORRECT answer written WITHOUT ITS UNIT — "r = 7" where the answer is 7 cm — or with a WRONG unit is "presentation", in MATHS AND IN SCIENCE ALIKE, whether or not the question or its scheme mentions the unit: the FINAL answer of a QUANTITY-VALUED answer (a length, area, volume, mass, time, speed, money, current, resistance, power, energy …) loses EXACTLY ½ — ONCE per question, however many answers in it lack the unit. Write that step\'s "teacherAnnotation" EXACTLY as: ' + UNIT_COMMENT_EXAMPLE + ' (with the unit the answer needs in the brackets). Only the FINAL answer is checked, never an intermediate line. ⚠ NEVER for a PURE NUMBER — a probability, a ratio, a count, a trigonometric ratio, a root or zero of a polynomial, or any answer that has no unit: no deduction and no comment about units. ⚠⚠ IT IS NEVER "conceptual" AND NEVER "calculation": THE STUDENT DID THE MATHEMATICS. A missing unit does not change whether the mathematics is right; deduct ½ and no more.\n' +
-  '   - LANGUAGE IS NEVER MARKED. An answer written in Hinglish, Hindi, mixed Hindi–English or informal English earns exactly what its content earns: never deduct for, and never name as a fault, the language, grammar, spelling or style it is written in. ⚠ TERMINOLOGY STILL COUNTS: where the CBSE scheme pays the EXACT technical term ("oesophagus", not "food pipe"), that ½ is lost as before ("presentation"), whatever language surrounds it.\n' +
+  '   - MEDIUM OF THE ANSWER. CBSE answers are written in ENGLISH, or in HINDI IN DEVANAGARI script. An answer written in HINGLISH — Hindi words in Roman script mixed with English ("Carbon ke paas 4 valence electrons hain, isliye ...") — is marked on its content exactly as if it were in English, and then loses EXACTLY ½ ONCE for the medium, typed "presentation", with that step\'s "teacherAnnotation" EXACTLY: ' + MEDIUM_COMMENT + ' ⚠ English that uses technical terms is NOT Hinglish, and Hindi written in Devanagari is NEVER penalised. NEVER deduct for grammar, spelling, informal English or style. ⚠ TERMINOLOGY STILL COUNTS: where the CBSE scheme pays the EXACT technical term ("oesophagus", not "food pipe"), that ½ is lost as before ("presentation"), whatever medium surrounds it.\n' +
   '   - STATE SYMBOLS (s/l/g/aq): NEVER deduct for their absence and never mention it as a fault.\n' +
   '   - PRESENTATION vs MISSING: fold a short format element INTO the attempted step it belongs to (status "partial", mistakeType "presentation"); do not split it off as a separate "missing" step. Right answer with weak or no justification → presentation, not conceptual.';
 
@@ -223,10 +228,10 @@ const SCIENCE_CASE_LAW_PROMPT =
 const SCHEME_CORROBORATION_PROMPT =
   'THE STORED MARKING SCHEME CORROBORATES; IT IS NEVER AUTHORITY ON METHOD. Derive the value points from the QUESTION and its MARK VALUE first, always. Where a stored scheme is supplied it CORROBORATES THE MARK DISTRIBUTION — how many marks sit at each stage. A stored scheme must NEVER be the reason a correct alternative method loses marks. WHERE YOUR DERIVATION AND THE STORED SCHEME DISAGREE, your derivation from the question governs the METHOD — and you never mention the scheme or the disagreement to the student. ⚠ A STORED SCHEME MAY NEVER BE THE REASON A REQUIRED ELEMENT GOES UNCHECKED: if the question requires a figure, a unit, a balanced equation or a conclusion and the stored scheme is silent about it, the derived rubric STILL EXPECTS IT.';
 
-const SUBJECT_CHECKLIST_MATHS = 'formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, the unit on a quantity-valued final answer (never on a pure number)';
-// A17 ruling 3: "NCERT-standard language" invited a deduction for the LANGUAGE of an answer; the
-// check is the NCERT TERM, never the language around it.
-const SUBJECT_CHECKLIST_SCIENCE = 'terminology, balanced equations (check the species first; state symbols are not required), NCERT terminology (the exact technical term — the language the answer is written in is never marked), diagrams labelled, SI units on numerical answers';
+const SUBJECT_CHECKLIST_MATHS = 'formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, the unit on a quantity-valued final answer (never on a pure number), the medium (English, or Hindi in Devanagari)';
+// A17 ruling 3 (owner change 2026-10-06): "NCERT-standard language" invited ANY language deduction;
+// the checks are the MEDIUM (English, or Hindi in Devanagari) and the NCERT TERM — nothing else.
+const SUBJECT_CHECKLIST_SCIENCE = 'terminology, balanced equations (check the species first; state symbols are not required), the medium (English, or Hindi in Devanagari — a Hinglish answer loses ½ once) and NCERT terminology (the exact technical term; grammar, spelling and style are never marked), diagrams labelled, SI units on numerical answers';
 
 function subjectChecklistBody(mode) {
   if (mode === 'maths') return 'For Maths: check ' + SUBJECT_CHECKLIST_MATHS + '.';
@@ -276,6 +281,7 @@ const UNIT_NOT_OWED_ANNOTATION = 'No mark is lost for a unit here: this answer i
 // A17 ruling 1: the unit is charged ONCE per question; a second unit deduction is given back.
 const UNIT_ALREADY_CHARGED_ANNOTATION = 'The unit was already charged once in this question, so no further mark is lost here.';
 // Owner rule (never deduct for the language of an answer — Hinglish or Hindi is fine), applied after the model.
+// A17 ruling 3: an answer in English or Devanagari Hindi loses nothing for its language (grammar, spelling, style).
 const LANGUAGE_NOT_MARKED_ANNOTATION = 'No mark is lost for the language this is written in — the science in it is what is marked.';
 const NOT_GRADED_TIMEOUT_NOTE = "We couldn't finish marking this question in time, so it has not been marked — please check it again.";
 const NOT_GRADED_ERROR_NOTE = "We couldn't mark this question this time, so it has not been marked — please check it again.";
@@ -333,6 +339,7 @@ module.exports = {
   NOT_GRADED_TIMEOUT_NOTE,
   NOT_FOUND_ON_PAGE_NOTE,
   UNIT_NOT_OWED_ANNOTATION,
+  MEDIUM_COMMENT,
   UNIT_ALREADY_CHARGED_ANNOTATION,
   unitComment,
   LANGUAGE_NOT_MARKED_ANNOTATION,

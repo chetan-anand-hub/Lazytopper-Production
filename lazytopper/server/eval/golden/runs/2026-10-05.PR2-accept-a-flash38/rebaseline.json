@@ -43,8 +43,8 @@
   },
   "run1:V2.W.MM.GS-MM-05": {
    "from": "7ac75445d91259c899d1b3c29f65b7ff5511ed02264d2ca4c02443f109f77a2a",
-   "to": "466fde17a7f0ca31aa14f20206acb09683bf5a457c2be172460dd8cc1ffb7fb2",
-   "class": "v2-notGraded-field"
+   "to": "0a00f9585f57ac004071584faf1635f179b5555ac4fdc66d69bf283fc8e755cc",
+   "class": "v2-notGraded-field+a17-r3-medium"
   },
   "run1:V2.W.MM.GS-MM-02": {
    "from": "0766900cb2bb57203a565f59319af265b7e78825114fd6c7c8c97ba74032b9c9",
@@ -133,8 +133,8 @@
   },
   "run2:V2.W.MM.GS-MM-05": {
    "from": "8d77f48538a1e06a52ee20caf317bd72f129290947145a5435ca333db4d468a4",
-   "to": "e78c60b1bb7e7585e166422f0306536a49f35f50177377e6334eed80bbcebc8a",
-   "class": "v2-notGraded-field"
+   "to": "1d8c17b957380c8b67417354868a3c3c95d07b5b32b7f7a5434070bc74c257ec",
+   "class": "v2-notGraded-field+a17-r3-medium"
   },
   "run2:V2.W.MM.GS-MM-01": {
    "from": "c948283a24b2b810ee3b12171efce2d5fad682ca2ee3793a03dea0f4b5583822",
@@ -203,8 +203,8 @@
   },
   "run3:V2.W.MM.GS-MM-05": {
    "from": "607619d6625577691e43b7069cd98aa377a7b846dd2feea34957eac085cef7ae",
-   "to": "e606606b3dbc312ab4d00e51048534b9ce19c16163d0071eb8d4f01d712e4820",
-   "class": "v2-notGraded-field"
+   "to": "41fb344f979b6c29a0b0382332a1818bf581041ab5cfcb3a08cf38fedec5ce71",
+   "class": "v2-notGraded-field+a17-r3-medium"
   },
   "run3:V2.W.MM.GS-MM-06": {
    "from": "d578111c40576a91047fb1e39b6e8a8f96b894d8202f57ad9d10f94a4933d090",
@@ -306,6 +306,11 @@
    "to": "1efa6e641b8e511b156e1577600a56c01fe213e55bf3f16bb26cafdadead323b",
    "class": "detect-symbols-restored"
   },
+  "run1:S.CI.GS-M06-a": {
+   "from": "3569308bf5704b2a7ff219d38d78d3d99cfabd9c8e53f0debb858127452513c3",
+   "to": "e02e64e7f0162d14f5037d3a028b87a42f3335d1f30ac67f40b0328afb88685f",
+   "class": "a17-r3-medium"
+  },
   "run1:S.CI.GS-M24-a": {
    "from": "16e4dc980637d91d7dc3034832aa8655a5924c666383483a1119da10910d78d7",
    "to": "866b653f3730889dd00506789ebf2b0d16af162124d1d3abf694fc82ac854452",
@@ -320,6 +325,11 @@
    "from": "80479f70bcdd938cbfd32569ae291a22d3415240d290dcf6b11d6332026a08ef",
    "to": "488147c4647337cce51d9f731f9a85109cafab447603712c0057b5ae9b56b676",
    "class": "a17-r2-not-attempted"
+  },
+  "run1:W.PAR.PARM3": {
+   "from": "67727250fa3c3f89fb3ebd40499c5d10430f071036bb2bf5c9007f25323c92e7",
+   "to": "aaa6783bad225673100751e69257f1c90c9cd322ac78f6b5ba6459866cf5b7fc",
+   "class": "a17-r3-medium"
   },
   "run1:S.HPQ.GS-S08-a": {
    "from": "ebb141d503ba05e4aeaeb68697631fd08511d74400109eec5677bfec0994a2ba",
@@ -336,6 +346,11 @@
    "to": "9d7e2a75e06e16563b1a27414940f6d97763b69a0489343b870b0ca926ff2603",
    "class": "a17-r1-units"
   },
+  "run1:W.MM.GS-MM-05": {
+   "from": "8add86f540f4d7a95cf0aef7127cbfba10cf8edcc3faffddcc69e7f93638665d",
+   "to": "eebbf969d469cca4cd0193b85806ae83243ab810520d54eb089821c2e19e8d2c",
+   "class": "a17-r3-medium"
+  },
   "run1:V2.S.CI.GS-M24-a": {
    "from": "aef6d977e51a1446786c0b7f3b350777f32ef53578d259efacfbf2c5991cea88",
    "to": "99c644a035c8628038abb6014d082f6c43dff56c7faaf08112ea4c75be118218",
@@ -345,6 +360,11 @@
    "from": "9a3f3fe9faa24d7560219b3cf0ab2f75af47e48e540aea8d044344fce7788603",
    "to": "7fb28e8ca01d63225e0fe55108a071aa8d310f1eb99ef80119c0ed498bad0538",
    "class": "a17-r1-units"
+  },
+  "run2:S.CI.GS-M06-a": {
+   "from": "0c4b96fe7adbfc9e30e539696f93ac95ae6d1e4300d0b6e34806fab59d922cc0",
+   "to": "94efa97267d844cdea448de0ebda9b214c269d3616f879c4cd388d868f14c9b6",
+   "class": "a17-r3-medium"
   },
   "run2:S.CI.GS-S08-a": {
    "from": "d280fe60c444ded2f0129cf99b2854eff65709b35ab45e8a64bee4651d584264",
@@ -361,10 +381,20 @@
    "to": "611eb7fbb896ea120e5455360c1dad257bcda158db73de776821383190ac4711",
    "class": "a17-r1-units"
   },
+  "run2:W.MM.GS-MM-05": {
+   "from": "019279d45ac3818403205383fded0bdcaa5bcf685985a24158c6dba8a909786e",
+   "to": "019095f7a2f1651e4e725f46a7ff84db5ef7afaff247c39a129a3a86a19c9371",
+   "class": "a17-r3-medium"
+  },
   "run2:W.PAR.PARS3": {
    "from": "c2b4e6bd88495d3aff2adb9c38ce3b0861d2b4ec6d486f0ba832d93bd04047e0",
    "to": "d095be1fba18560af2ad0840ed18a4ba0d3d77c580a8f8bf5574343c6a96f100",
    "class": "a17-r1-units"
+  },
+  "run2:W.PAR.PARM3": {
+   "from": "65f5af935aaed9618ddc47d9fe4d1da458fab5c4ae69a1128346ea59c0834e91",
+   "to": "e3aaef847a2eb38dcb23ced289ed89cfa8aea38091537cbe469e43b41d66ffb3",
+   "class": "a17-r3-medium"
   },
   "run2:S.CI.GS-M24-a": {
    "from": "da9389b33a17805e244e3d9b6baf821e9710efd0a7e3e043e71842fab1f26ef5",
@@ -385,6 +415,11 @@
    "from": "a31a36903d63c7b22cc8ffff2e3bd02ac7c67be361512123480b4b097b03cb9c",
    "to": "4d0527ff5aa11c7fb4da507302202cf71fb795f78ba050c625e7ae1cd12a4801",
    "class": "a17-r1-units"
+  },
+  "run3:S.CI.GS-M06-a": {
+   "from": "9ef54d255f15add0e86f5cb8f35f97978b8408d86bc77b977c5b81eec25ce8e3",
+   "to": "7b5d432a4ae799943bd3414f72a17e883b9bb73f0f12c848714dbfb704b77af8",
+   "class": "a17-r3-medium"
   },
   "run3:S.CI.GS-S08-a": {
    "from": "85f0785ca7542b5888ae6b17ae7550ab1af192c1790f90350c3534e5f3a76e69",
@@ -411,10 +446,20 @@
    "to": "9ba6b384797b3d2fdb2e842c8d75c2f33bc992dea4c6905daaf5478e859acea2",
    "class": "a17-r1-units"
   },
+  "run3:W.PAR.PARM3": {
+   "from": "79019ffc0711f8570eec9047a11bf6e79b965d8197887b1e1a8a01692dac5d9b",
+   "to": "6d1cf18a1a21f67cf9ad8c8de7124fe2b7d2be1b163e4076130fcf00eafef901",
+   "class": "a17-r3-medium"
+  },
   "run3:S.CP.CP01-Q04-a": {
    "from": "ec1f5a8332d8feadab75a00cb40bbd678f1a8dcf6a15d7973ee54d5f1f710058",
    "to": "3e9f8fe98285ae26f385ece018032c6914957049f6f104227fd5699a0742fdea",
    "class": "a17-r1-units"
+  },
+  "run3:W.MM.GS-MM-05": {
+   "from": "373d7357c40d03e3b90d416846fd75f00c2924410ffdf558bb91fb8466c59680",
+   "to": "7a4b2ab51d12c5feddc4358cc58ba5e359322fd330be48731cbb022aadb77f1e",
+   "class": "a17-r3-medium"
   },
   "run3:V2.S.CI.GS-M24-a": {
    "from": "e67f1c2016aeb81d5166f85bfd836281a7442263b928980fec20257debd2fce9",
@@ -431,9 +476,10 @@
   "pr": "A17 GRADING-RULINGS J0 (GRADING-JOBS-1)",
   "base": "6259187b (trunk)",
   "counts": {
+   "a17-r3-medium": 12,
    "a17-r2-not-attempted": 9,
    "a17-r1-units": 24
   },
-  "about": "A17 owner rulings change bodies ON PURPOSE: \"a17-r1-units\" = a unit deduction now carries the one fixed comment \"−½: write the unit (<unit>) with your final answer.\" (or is given back once already charged / on a pure number), \"a17-r2-not-attempted\" = a subjective question with no attempt (blank / \"Don't know\") is now NOT ATTEMPTED (0, no type, not charged) instead of a graded 0. Entries that PR-3 had re-baselined keep their `from` and append the A17 class. Generated by replaying every record at the trunk base and at the A17 head; any other difference aborts generation."
+  "about": "A17 owner rulings change bodies ON PURPOSE: \"a17-r1-units\" = a unit deduction now carries the one fixed comment \"−½: write the unit (<unit>) with your final answer.\" (or is given back once already charged / on a pure number), \"a17-r3-medium\" = the medium of an answer (owner change 2026-10-06): a Hinglish answer loses exactly 1/2 once with the fixed comment, any other language deduction is given back; \"a17-r2-not-attempted\" = a subjective question with no attempt (blank / \"Don't know\") is now NOT ATTEMPTED (0, no type, not charged) instead of a graded 0. Entries that PR-3 had re-baselined keep their `from` and append the A17 class. Generated by replaying every record at the trunk base and at the A17 head; any other difference aborts generation."
  }
 }

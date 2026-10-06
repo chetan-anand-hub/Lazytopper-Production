@@ -7,7 +7,8 @@
     "5": "No deduction for missing state symbols.",
     "6": "Maths units follow the question's scheme; a silent scheme means no deduction. Science keeps unit deductions.",
     "7": "Mistake type: copied wrongly = silly, performed wrongly = calculation, method misunderstood = conceptual, CBSE format only = presentation, unattempted = no type.",
-    "A17-1": "A17 owner ruling (GRADING-JOBS-1, 2026-10-06): a missing or wrong unit on the FINAL answer of a quantity-valued answer costs exactly ½ in Maths AND Science, at most ½ per question, typed presentation; never on a pure number. SUPERSEDES ruling 6's Maths half."
+    "A17-1": "A17 owner ruling (GRADING-JOBS-1, 2026-10-06): a missing or wrong unit on the FINAL answer of a quantity-valued answer costs exactly ½ in Maths AND Science, at most ½ per question, typed presentation; never on a pure number. SUPERSEDES ruling 6's Maths half.",
+    "A17-3": "A17 owner ruling 3 AS CHANGED BY THE OWNER 2026-10-06 (supersedes the spec text \"Hinglish never deducted\"): CBSE answers are in English or in Hindi in Devanagari; an answer written in Hinglish (Roman-script Hindi mixed with English) keeps its content marks and loses exactly 1/2 once per answer, typed presentation (exam technique), comment \"Write in English (or Hindi in Devanagari): board examiners expect one medium.\" English with technical terms and Devanagari Hindi are never penalised; no other language deduction."
   },
   "repins": [
     {
@@ -253,6 +254,51 @@
       "new": "presentation",
       "ruling": "A17-1",
       "basis": "The ½ for the unit is typed exam technique (presentation), per A17 ruling 1."
+    },
+    {
+      "caseId": "GS-M06-a",
+      "kind": "changed",
+      "field": "totalMarks",
+      "old": 2,
+      "new": 1.5,
+      "ruling": "A17-3",
+      "basis": "Correct content written in HINGLISH (Roman-script Hindi mixed with English). A17 ruling 3 (owner change 2026-10-06): the content keeps its marks and the medium costs exactly 1/2, typed presentation."
+    },
+    {
+      "caseId": "GS-M06-a",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": null,
+      "new": "presentation",
+      "ruling": "A17-3",
+      "basis": "The 1/2 for the medium is typed exam technique (presentation), per A17 ruling 3."
+    },
+    {
+      "caseId": "GS-M06-a",
+      "kind": "changed",
+      "field": "perStep.2.awarded",
+      "old": 0.5,
+      "new": 0,
+      "ruling": "A17-3",
+      "basis": "The medium 1/2 is taken on the final step (the step ledger sums to the re-pinned 1.5)."
+    },
+    {
+      "caseId": "OA2-Q18",
+      "kind": "changed",
+      "field": "totalMarks",
+      "old": 2,
+      "new": 1.5,
+      "ruling": "A17-3",
+      "basis": "Correct content written in HINGLISH (Roman-script Hindi mixed with English). A17 ruling 3 (owner change 2026-10-06): the content keeps its marks and the medium costs exactly 1/2, typed presentation. Owner key before the change: 2 (\"mixed language accepted\")."
+    },
+    {
+      "caseId": "OA2-Q18",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": null,
+      "new": "presentation",
+      "ruling": "A17-3",
+      "basis": "The 1/2 for the medium is typed exam technique (presentation), per A17 ruling 3."
     }
   ],
   "unsettled": [

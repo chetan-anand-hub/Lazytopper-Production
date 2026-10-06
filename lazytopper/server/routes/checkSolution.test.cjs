@@ -905,9 +905,12 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // missing/wrong unit on a quantity-valued final answer costs ½ in Maths AND Science, once per
 // question, never on a pure number, with one fixed comment), ruling 3 (language is never marked; the
 // Science checklist's "NCERT-standard language" became "NCERT terminology") and ruling 4 (an
-// immaterial miscopy is not "silly"). Rule TEXT only; every transport moved together.
-//   PREVIOUS 5cab8ba315d6a589e3293d24a59810dff70b7562cfd9b2247420f265b9abe862
-const NO_UPLOADS_CONTENTS_SHA256 = 'b8a62dc00c0d82763cb556688281520a76fe4f1a98961beab3d011a8ad73847b';
+// immaterial miscopy is not "silly"). Rule TEXT only; every transport moved together. Then ruling 3 AS
+// CHANGED BY THE OWNER 2026-10-06 (b8a62dc0… → below): the MEDIUM rule (a Hinglish answer loses ½ once,
+// with one fixed comment; English and Devanagari Hindi never) replaces "language is never marked", and
+// both subject checklists name the medium.
+//   PREVIOUS 5cab8ba315d6a589e3293d24a59810dff70b7562cfd9b2247420f265b9abe862, then b8a62dc00c0d82763cb556688281520a76fe4f1a98961beab3d011a8ad73847b
+const NO_UPLOADS_CONTENTS_SHA256 = 'bba8045764c14b359a0d4186578a1e826bd6b910ba2c965f8bbb620b1cea447c';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

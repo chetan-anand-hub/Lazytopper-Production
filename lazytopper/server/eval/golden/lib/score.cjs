@@ -250,6 +250,8 @@ function makeRow(item, caseId, result, ctx) {
       if (row.typePass !== true) fails.push('type ' + row.primaryType + ' != ' + e.mistakeType);
       if (e.unit && !steps.some((s) => s.teacherAnnotation === R.unitComment(e.unit) && s.mistakeType === 'presentation')) fails.push('no unit comment for ' + e.unit);
       if (!e.unit && steps.some((s) => /write the unit/.test(String(s.teacherAnnotation || '')))) fails.push('a unit comment on a question that owes none');
+      if (e.medium === true && !steps.some((s) => s.teacherAnnotation === R.MEDIUM_COMMENT && s.mistakeType === 'presentation')) fails.push('no medium comment');
+      if (e.medium === false && steps.some((s) => s.teacherAnnotation === R.MEDIUM_COMMENT)) fails.push('a medium charge on an English / Devanagari answer');
       if (e.notAttempted && !(result.teacherNote === R.NOT_ATTEMPTED_NOTE && steps.every((s) => !s.mistakeType) && (!row.v2 || steps.every((s) => s.status === 'unattempted')))) fails.push('not the not-attempted state');
     }
     const charged = item.rep.charged;

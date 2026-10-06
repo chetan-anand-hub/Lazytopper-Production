@@ -4,65 +4,205 @@
   "rulings": {
     "1": "A missing or wrong unit on the FINAL answer of a quantity-valued answer costs exactly ½, in Maths AND Science, at most ½ per question, typed presentation (exam technique), never on a pure number. The step comment reads exactly: −½: write the unit (<unit>) with your final answer.",
     "2": "'Don't know' / blank on ANY question = not attempted: 0 marks, never charged, never a mistake.",
-    "3": "Hinglish / mixed language: correct content earns full marks; language is never deducted (the exact CBSE term still is).",
+    "3": "MEDIUM (owner change 2026-10-06, supersedes \"Hinglish never deducted\"): answers are in English or in Hindi in Devanagari. A Hinglish answer (Roman-script Hindi mixed with English) keeps its content marks and loses exactly 1/2 once, typed presentation, comment: Write in English (or Hindi in Devanagari): board examiners expect one medium. English with technical terms and Devanagari Hindi are never penalised; no other language deduction.",
     "4": "An immaterial miscopy (it changes no value used in the working) is not penalised.",
     "5": "The premium usage meter counts only graded questions."
   },
   "cases": [
     {
-      "caseId": "A17-R1-M", "ruling": "1",
-      "question": { "fromItem": "GS-M07" },
-      "answer": { "text": "Since ΔABC ~ ΔPQR, AB/PQ = BC/QR = AC/PR\n6/PQ = 4/QR = 8/6\nPQ = (6 × 6)/8 = 36/8 = 4.5 cm\nQR = (4 × 6)/8 = 24/8 = 3 cm\nPQ + QR = 4.5 + 3 = 7.5" },
-      "entries": ["single", "set"],
-      "expected": { "totalMarks": 1.5, "mistakeType": "presentation", "unit": "cm", "charged": true, "meteredShare": 1 },
+      "caseId": "A17-R1-M",
+      "ruling": "1",
+      "question": {
+        "fromItem": "GS-M07"
+      },
+      "answer": {
+        "text": "Since ΔABC ~ ΔPQR, AB/PQ = BC/QR = AC/PR\n6/PQ = 4/QR = 8/6\nPQ = (6 × 6)/8 = 36/8 = 4.5 cm\nQR = (4 × 6)/8 = 24/8 = 3 cm\nPQ + QR = 4.5 + 3 = 7.5"
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 1.5,
+        "mistakeType": "presentation",
+        "unit": "cm",
+        "charged": true,
+        "meteredShare": 1
+      },
       "why": "Fully correct, but the FINAL answer 7.5 has no unit (cm). Maths: before A17 no deduction (ruling 6); A17 ruling 1: −½, presentation."
     },
     {
-      "caseId": "A17-R1-S", "ruling": "1",
-      "question": { "fromItem": "GS-S07" },
-      "answer": { "text": "u = −60 cm, f = −30 cm\nLens formula: 1/f = 1/v − 1/u\n1/(−30) = 1/v − 1/(−60)\n1/v = −1/30 − 1/60 = (−2 − 1)/60 = −3/60 = −1/20\nv = −20\nThe image is formed on the same side of the lens as the object." },
-      "entries": ["single", "set"],
-      "expected": { "totalMarks": 1.5, "mistakeType": "presentation", "unit": "cm", "charged": true, "meteredShare": 1 },
+      "caseId": "A17-R1-S",
+      "ruling": "1",
+      "question": {
+        "fromItem": "GS-S07"
+      },
+      "answer": {
+        "text": "u = −60 cm, f = −30 cm\nLens formula: 1/f = 1/v − 1/u\n1/(−30) = 1/v − 1/(−60)\n1/v = −1/30 − 1/60 = (−2 − 1)/60 = −3/60 = −1/20\nv = −20\nThe image is formed on the same side of the lens as the object."
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 1.5,
+        "mistakeType": "presentation",
+        "unit": "cm",
+        "charged": true,
+        "meteredShare": 1
+      },
       "why": "Fully correct physics, final v = −20 written without its unit (cm): Science, −½ presentation (CBSE's own rule, now with the one fixed comment)."
     },
     {
-      "caseId": "A17-R1-P", "ruling": "1",
-      "question": { "fromItem": "GS-M04" },
-      "answer": { "fromCase": "GS-M04-a" },
-      "entries": ["single", "set"],
-      "expected": { "totalMarks": 2, "mistakeType": null, "charged": true, "meteredShare": 1 },
+      "caseId": "A17-R1-P",
+      "ruling": "1",
+      "question": {
+        "fromItem": "GS-M04"
+      },
+      "answer": {
+        "fromCase": "GS-M04-a"
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 2,
+        "mistakeType": null,
+        "charged": true,
+        "meteredShare": 1
+      },
       "why": "The zeroes of a polynomial are PURE NUMBERS: no unit is owed and nothing may be deducted for one."
     },
     {
-      "caseId": "A17-R2-M", "ruling": "2",
-      "question": { "fromItem": "GS-M09" },
-      "answer": { "text": "Don't know" },
-      "entries": ["single", "set"],
-      "expected": { "totalMarks": 0, "mistakeType": null, "notAttempted": true, "charged": false, "meteredShare": 0 },
+      "caseId": "A17-R2-M",
+      "ruling": "2",
+      "question": {
+        "fromItem": "GS-M09"
+      },
+      "answer": {
+        "text": "Don't know"
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 0,
+        "mistakeType": null,
+        "notAttempted": true,
+        "charged": false,
+        "meteredShare": 0
+      },
       "why": "A SUBJECTIVE 'Don't know' (a 3-mark proof): not attempted — 0, no mistake type, never charged, never metered (before A17 only an objective question was treated so)."
     },
     {
-      "caseId": "A17-R2-S", "ruling": "2",
-      "question": { "fromItem": "GS-S09" },
-      "answer": { "text": "I don't know" },
-      "entries": ["single", "set"],
-      "expected": { "totalMarks": 0, "mistakeType": null, "notAttempted": true, "charged": false, "meteredShare": 0 },
+      "caseId": "A17-R2-S",
+      "ruling": "2",
+      "question": {
+        "fromItem": "GS-S09"
+      },
+      "answer": {
+        "text": "I don't know"
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 0,
+        "mistakeType": null,
+        "notAttempted": true,
+        "charged": false,
+        "meteredShare": 0
+      },
       "why": "A Science numerical answered 'I don't know': not attempted, never charged, never metered."
     },
     {
-      "caseId": "A17-R3-S", "ruling": "3",
-      "question": { "fromItem": "GS-S19" },
-      "answer": { "text": "A. Snell ka law: light ke ek given colour aur given pair of media ke liye, angle of incidence ke sine aur angle of refraction ke sine ka ratio constant rehta hai: sin i / sin r = constant.\nB. Medium 2 ka refractive index medium 1 ke respect mein = medium 1 mein speed of light / medium 2 mein speed of light: n₂₁ = v₁/v₂." },
-      "entries": ["single", "set"],
-      "expected": { "totalMarks": 2, "mistakeType": null, "charged": true, "meteredShare": 1 },
-      "why": "A correct answer written in Hinglish, every technical term exact (angle of incidence, angle of refraction, refractive index, speed of light): full marks; language is never deducted."
+      "caseId": "A17-R3-S",
+      "ruling": "3",
+      "question": {
+        "fromItem": "GS-S19"
+      },
+      "answer": {
+        "text": "A. Snell ka law: light ke ek given colour aur given pair of media ke liye, angle of incidence ke sine aur angle of refraction ke sine ka ratio constant rehta hai: sin i / sin r = constant.\nB. Medium 2 ka refractive index medium 1 ke respect mein = medium 1 mein speed of light / medium 2 mein speed of light: n₂₁ = v₁/v₂."
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 1.5,
+        "mistakeType": "presentation",
+        "medium": true,
+        "charged": true,
+        "meteredShare": 1
+      },
+      "why": "A correct answer written in HINGLISH (Roman-script Hindi + English), every technical term exact: content marks kept (2), minus exactly 1/2 for the medium, typed presentation, with the fixed comment (ruling 3 as changed 2026-10-06)."
     },
     {
-      "caseId": "A17-R4-M", "ruling": "4",
-      "question": { "fromItem": "GS-M04" },
-      "answer": { "text": "p(y) = x² + (4/3)x − 4/3. For the zeroes put p(x) = 0.\nMultiplying by 3: 3x² + 4x − 4 = 0\n3x² + 6x − 2x − 4 = 0\n3x(x + 2) − 2(x + 2) = 0\n(3x − 2)(x + 2) = 0\n∴ x = 2/3 or x = −2\nZeroes are 2/3 and −2." },
-      "entries": ["single", "set"],
-      "expected": { "totalMarks": 2, "mistakeType": null, "charged": true, "meteredShare": 1 },
+      "caseId": "A17-R3-D",
+      "ruling": "3",
+      "question": {
+        "fromItem": "GS-S19"
+      },
+      "answer": {
+        "text": "A. स्नेल का नियम: प्रकाश के किसी दिए गए रंग और माध्यमों के दिए गए युग्म के लिए आपतन कोण की ज्या और अपवर्तन कोण की ज्या का अनुपात स्थिर रहता है: sin i / sin r = नियतांक।\nB. माध्यम 1 के सापेक्ष माध्यम 2 का अपवर्तनांक = माध्यम 1 में प्रकाश की चाल / माध्यम 2 में प्रकाश की चाल: n₂₁ = v₁/v₂।"
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 2,
+        "mistakeType": null,
+        "medium": false,
+        "charged": true,
+        "meteredShare": 1
+      },
+      "why": "The same correct answer in HINDI WRITTEN IN DEVANAGARI: never penalised (full marks, no medium comment)."
+    },
+    {
+      "caseId": "A17-R3-E",
+      "ruling": "3",
+      "question": {
+        "fromItem": "GS-S19"
+      },
+      "answer": {
+        "fromCase": "GS-S19-a"
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 2,
+        "mistakeType": null,
+        "medium": false,
+        "charged": true,
+        "meteredShare": 1
+      },
+      "why": "The verified ENGLISH answer, full of technical terms (angle of incidence, refractive index): never Hinglish, never penalised."
+    },
+    {
+      "caseId": "A17-R4-M",
+      "ruling": "4",
+      "question": {
+        "fromItem": "GS-M04"
+      },
+      "answer": {
+        "text": "p(y) = x² + (4/3)x − 4/3. For the zeroes put p(x) = 0.\nMultiplying by 3: 3x² + 4x − 4 = 0\n3x² + 6x − 2x − 4 = 0\n3x(x + 2) − 2(x + 2) = 0\n(3x − 2)(x + 2) = 0\n∴ x = 2/3 or x = −2\nZeroes are 2/3 and −2."
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 2,
+        "mistakeType": null,
+        "charged": true,
+        "meteredShare": 1
+      },
       "why": "The question's p(x) copied as p(y) on the first line — IMMATERIAL: no value used in the working changes and every step is right. Not silly, no deduction."
     }
   ]
