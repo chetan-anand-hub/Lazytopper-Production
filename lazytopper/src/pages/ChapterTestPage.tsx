@@ -45,6 +45,7 @@ import {
   subjectiveQuestions,
   type DrawnChapterTest,
 } from "../components/chaptertest/chapterTestBlueprint";
+import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import {
   scoreObjectiveSection,
   buildChapterTestResponse,
@@ -576,6 +577,17 @@ export default function ChapterTestPage() {
                         </div>
                       ))}
                     </div>
+
+                    {/* CBQ-1 PR-2: the paper's REAL CBQ share (target ≥ 50%; CBSE pattern 50% competency); an honest note when short. */}
+                    <CbqShareNote
+                      cbqMarks={draw.cbqMarks}
+                      totalMarks={draw.totalMarks}
+                      cbqShortfall={draw.cbqShortfall}
+                      plainMcqMarks={draw.plainMcqMarks}
+                      constructedMarks={draw.constructedMarks}
+                      scope="chapter"
+                      scopeName={topicName}
+                    />
 
                     <div className="lt-ct__toggle">
                       <div className="lt-ct__toggle-lab">
