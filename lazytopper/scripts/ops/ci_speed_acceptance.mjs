@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
- * CI-SPEED-1 acceptance (HARDEN-1 §2 PR-3). Pins both halves of the lane:
+ * CI-SPEED-1 acceptance (owner spec CI-SPEED-1). Pins:
  *   (a) the Vercel Ignored Build Step - docs-only production merges skip, anything that ships builds,
  *       replayed over REAL trunk commits (needs full history: quality-gate.yml checks out depth 0);
- *   (b) the clock-run selection - the guard catches an unlisted date-dependent test, and the
- *       workflow runs the selection on PRs/pushes and the FULL set on the nightly schedule.
+ *   (b) the date-sensitive manifest - static guard + the runtime recorder's call-site filter;
+ *   (c) the aggregate behind the REQUIRED `quality-gate` check - fails closed on any failed,
+ *       skipped or cancelled job and on shards that do not cover every test file;
+ *   (d) the workflow wiring - shards, clock jobs, nightly full run, concurrency.
  *
- * Run by quality-gate.yml's "Date-sensitive clock selection guard + CI-speed acceptance" step.
- *   node scripts/ops/ci_speed_acceptance.mjs
+ * Run by quality-gate.yml (build-ops job).   node scripts/ops/ci_speed_acceptance.mjs
  */
 
 import fs from "node:fs";
@@ -16,6 +17,8 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { decide, isDeployInertPath, verdictForFiles } from "./vercel_ignore_build.mjs";
 import { guard, dateSignalsIn, readList, scan } from "../testClock/dateSensitive.mjs";
+import { isRepoFrame } from "../testClock/clockRecorderFrames.mjs";
+import { evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ANCHOR = path.resolve(HERE, "..", "..");
@@ -129,60 +132,94 @@ export const REAL_COMMITS = [
     `no-prev: ${noPrev.reason} | bad-prev: ${badPrev.reason} | same-sha: ${sameSha.reason}`);
 }
 
-// ---- (b) clock-run selection ------------------------------------------------------------------
+// ---- (b) date-sensitive manifest + guards -----------------------------------------------------
 
 {
   const s = scan();
   const list = readList();
   const g = guard(s, list);
-  check("c1_guard_passes_on_the_committed_list", g.ok,
-    g.ok ? `${list.vitest.length}/${s.totals.vitest} vitest files, ${list.ops.length}/${s.totals.ops} ops entries listed`
+  check("c1_static_guard_passes_on_the_committed_manifest", g.ok,
+    g.ok ? `${list.vitest.length}/${s.totals.vitest} vitest files in the manifest (${Object.keys(list.manual.vitest || {}).length} from the runtime recorder/manual)`
          : `unlisted: ${g.missing.map((m) => m.id).join(", ")} stale: ${g.stale.map((m) => m.id).join(", ")}`);
-  // Synthetic: one more date-dependent file the list does not name -> the guard must go red.
+  // Synthetic: one more statically date-dependent file the manifest does not name -> RED.
   const planted = { ...s, vitest: [...s.vitest, { file: "src/__planted__/clock.test.ts", signals: ["reads-now"] }],
     vitestAll: [...s.vitestAll, "src/__planted__/clock.test.ts"] };
   const gp = guard(planted, list);
-  check("c2_guard_fails_on_an_unlisted_date_dependent_test", !gp.ok && gp.missing.some((m) => m.id === "src/__planted__/clock.test.ts"));
+  check("c2_static_guard_fails_on_an_unlisted_date_dependent_test", !gp.ok && gp.missing.some((m) => m.id === "src/__planted__/clock.test.ts"));
   const gs = guard(s, { ...list, vitest: [...list.vitest, "src/gone.test.ts"] });
-  check("c3_guard_fails_on_a_stale_list_entry", !gs.ok && gs.stale.some((m) => m.id === "src/gone.test.ts"));
-  check("c4_signals_are_mechanical",
+  check("c3_static_guard_fails_on_a_stale_manifest_entry", !gs.ok && gs.stale.some((m) => m.id === "src/gone.test.ts"));
+  check("c4_static_signals_are_mechanical",
     dateSignalsIn("const t = Date.now();").includes("reads-now") &&
       dateSignalsIn("vi.useFakeTimers({ now })").includes("pins-clock") &&
       dateSignalsIn('const d = "2026-09-29";').includes("date-literal") &&
       dateSignalsIn("// OWNER RULING (2026-10-03)\nexpect(1).toBe(1);").length === 0 &&
       dateSignalsIn("expect(sum([1, 2])).toBe(3);").length === 0);
+  check("c5_runtime_recorder_is_a_vitest_setup_file_and_filters_by_repo_call_site",
+    /setupFiles:\s*\[[^\]]*"\.\/scripts\/testClock\/clockRecorder\.setup\.mjs"/.test(read(path.join(ANCHOR, "vitest.config.ts"))) &&
+      isRepoFrame("at daysLeft (/home/runner/work/Lazytopper-Production/Lazytopper-Production/lazytopper/src/lib/boardDate.ts:12:9)") &&
+      isRepoFrame("at C:\\Projects\\x\\lazytopper\\src\\pages\\Welcome.test.tsx:4:2") &&
+      !isRepoFrame("at getCurrentTime (/home/runner/work/x/x/node_modules/.pnpm/scheduler@0.27.0/node_modules/scheduler/cjs/scheduler.development.js:40:3)") &&
+      !isRepoFrame("at /home/runner/work/x/x/lazytopper/src/test/setup.ts:9:1"),
+    "a read is the file's only when the IMMEDIATE caller of Date is repo source; React/jsdom/vitest reads are ignored");
 }
 
+// ---- (c) aggregate (the required `quality-gate` check) --------------------------------------
+{
+  const ok = { result: "success" };
+  const skip = { result: "skipped" };
+  const fullNeeds = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, vitest: ok, clock: ok };
+  const shards = [1, 2, 3, 4].map((i) => ({ shard: `${i}/4`, files: 10, tests: 100, passed: 100, failed: 0, skipped: 0, todo: 0 }));
+  const green = evaluate({ needs: fullNeeds, docsOnly: "false", shards, expectedShards: 4, filesOnDisk: 40 });
+  check("g1_full_bar_all_green_passes", green.ok && green.totals.files === 40 && green.totals.tests === 400, green.problems.join("; "));
+  const oneFailed = evaluate({ needs: { ...fullNeeds, vitest: { result: "failure" } }, docsOnly: "false", shards, filesOnDisk: 40 });
+  const oneSkipped = evaluate({ needs: { ...fullNeeds, clock: skip }, docsOnly: "false", shards, filesOnDisk: 40 });
+  const oneCancelled = evaluate({ needs: { ...fullNeeds, static: { result: "cancelled" } }, docsOnly: "false", shards, filesOnDisk: 40 });
+  check("g2_a_failed_skipped_or_cancelled_upstream_job_fails_the_aggregate", !oneFailed.ok && !oneSkipped.ok && !oneCancelled.ok);
+  const missingShard = evaluate({ needs: fullNeeds, docsOnly: "false", shards: shards.slice(0, 3), filesOnDisk: 30 });
+  const droppedFile = evaluate({ needs: fullNeeds, docsOnly: "false", shards, filesOnDisk: 41 });
+  const skippedTest = evaluate({ needs: fullNeeds, docsOnly: "false", shards: [...shards.slice(0, 3), { ...shards[3], skipped: 1 }], filesOnDisk: 40 });
+  check("g3_shards_must_all_report_cover_every_file_and_skip_nothing", !missingShard.ok && !droppedFile.ok && !skippedTest.ok);
+  const docsNeeds = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, vitest: skip, clock: skip };
+  const docsGreen = evaluate({ needs: docsNeeds, docsOnly: "true" });
+  const docsMojibakeRed = evaluate({ needs: { ...docsNeeds, "docs-lane": { result: "failure" } }, docsOnly: "true" });
+  const fullButSkipped = evaluate({ needs: docsNeeds, docsOnly: "false", shards, filesOnDisk: 40 });
+  check("g4_docs_path_skips_are_by_design_only", docsGreen.ok && !docsMojibakeRed.ok && !fullButSkipped.ok);
+  const s = summariseVitestJson({ numTotalTests: 5, numPassedTests: 4, numFailedTests: 0, numPendingTests: 0, numTodoTests: 1, testResults: [{}, {}] }, "2/4");
+  check("g5_shard_summary_reads_the_vitest_json_reporter", s.files === 2 && s.tests === 5 && s.todo === 1 && s.shard === "2/4");
+}
+
+// ---- (d) workflow wiring --------------------------------------------------------------------
 {
   const wf = read(WORKFLOW);
-  const stepBlock = (name) => {
-    const i = wf.indexOf(`- name: ${name}`);
-    if (i === -1) return "";
-    const j = wf.indexOf("\n      - name:", i + 1);
-    return wf.slice(i, j === -1 ? undefined : j);
+  const jobBlock = (id) => {
+    const m = wf.match(new RegExp(`\\n  ${id.replace(/[-]/g, "\\-")}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z][\\w-]*:\\n|$)`));
+    return m ? m[1] : "";
   };
-  check("w1_nightly_schedule_trigger_exists", /\n  schedule:\s*\n\s*- cron:\s*'[^']+'/.test(wf));
-  check("w2_concurrency_separates_schedule_from_push",
+  check("w1_nightly_schedule_and_dispatch_triggers", /\n  schedule:\s*\n\s*- cron:\s*'[^']+'/.test(wf) && /\n  workflow_dispatch:\s*\n/.test(wf));
+  check("w2_concurrency_separates_events",
     /group:\s*quality-gate-\$\{\{\s*github\.event_name\s*\}\}-\$\{\{\s*github\.ref\s*\}\}/.test(wf),
-    "a nightly run must never cancel (or be cancelled by) a trunk push run");
-  const clockSteps = ["Test clock at 2030 (vitest + ops matrix, LT_TEST_CLOCK)", "Test clock at IST midnight, board season"];
-  const bad = clockSteps.filter((n) => {
-    const b = stepBlock(n);
-    return !(b &&
-      /CLOCK_SCOPE:\s*\$\{\{\s*github\.event_name == 'schedule' && 'full' \|\| 'date-sensitive'\s*\}\}/.test(b) &&
-      /if \[ "\$CLOCK_SCOPE" = "full" \]; then[\s\S]*pnpm --filter lazytopper exec vitest run\n[\s\S]*pnpm --filter lazytopper run test:matrix:all[\s\S]*else[\s\S]*dateSensitive\.mjs --print=vitest[\s\S]*vitest run \$FILES[\s\S]*dateSensitive\.mjs --run-ops[\s\S]*fi/.test(b) &&
-      /selfCheck\.mjs/.test(b));
-  });
-  check("w3_clock_steps_run_selection_on_pr_and_push_full_on_schedule", bad.length === 0,
-    bad.length ? `not wired: ${bad.join(" | ")}` : "both clock steps");
-  const guardStep = stepBlock("Date-sensitive clock selection guard + CI-speed acceptance");
-  check("w4_the_guard_step_runs_on_the_full_bar",
-    /dateSensitive\.mjs --guard/.test(guardStep) && /ci_speed_acceptance\.mjs/.test(guardStep) &&
-      guardStep.includes("steps.classify.outputs.docs_only != 'true'"));
-  const vitestStep = stepBlock("Vitest suites (lazytopper)");
-  check("w5_default_vitest_step_still_runs_everything",
-    /run: pnpm --filter lazytopper exec vitest run\s*\n/.test(vitestStep),
-    "no test leaves the default run");
+    "a nightly/dispatched run must never cancel (or be cancelled by) a trunk push run");
+  const clock = jobBlock("clock");
+  check("w3_clock_jobs_run_the_manifest_and_the_whole_ops_matrix",
+    /dateSensitive\.mjs --print=vitest/.test(clock) && clock.includes("vitest run --shard ${{ matrix.part }}/2 $FILES") && /part: 2/.test(clock) &&
+      /pnpm --filter lazytopper run test:matrix:all/.test(clock) && /selfCheck\.mjs/.test(clock) &&
+      /2030-06-15T06:30:00\.000Z/.test(clock) && /2030-02-14T18:45:00\.000Z/.test(clock));
+  const nightly = jobBlock("nightly-full-clock");
+  check("w4_nightly_job_runs_the_full_suites_under_both_clocks_and_opens_an_issue",
+    /if: github\.event_name == 'schedule' \|\| github\.event_name == 'workflow_dispatch'/.test(nightly) &&
+      /pnpm --filter lazytopper exec vitest run\n/.test(nightly) && /pnpm --filter lazytopper run test:matrix:all/.test(nightly) &&
+      /issues: write/.test(nightly) && /gh issue create/.test(nightly) &&
+      /2030-06-15T06:30:00\.000Z/.test(nightly) && /2030-02-14T18:45:00\.000Z/.test(nightly) &&
+      !/issues: write/.test(wf.replace(nightly, "")));
+  const vitest = jobBlock("vitest");
+  check("w5_default_vitest_runs_every_file_once_via_4_shards",
+    /shard: \[1, 2, 3, 4\]/.test(vitest) && /pnpm --filter lazytopper exec vitest run --shard \$\{\{ matrix\.shard \}\}\/4/.test(vitest) &&
+      !/--exclude/.test(vitest) && /EXPECTED_SHARDS: '4'/.test(wf),
+    "no test leaves the default run; the aggregate checks the shards cover every file");
+  const buildOps = jobBlock("build-ops");
+  check("w6_static_guard_and_this_suite_run_on_the_full_bar",
+    /dateSensitive\.mjs --guard/.test(buildOps) && /ci_speed_acceptance\.mjs/.test(buildOps) &&
+      /if: needs\.classify\.outputs\.docs_only != 'true'/.test(buildOps));
 }
 
 // ---- report -----------------------------------------------------------------------------------

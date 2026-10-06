@@ -3,28 +3,38 @@ name: Quality Gate
 # Workflows are only registered when they live in the REPO ROOT .github/workflows/.
 # (The predecessor lived in lazytopper/.github/workflows/ and therefore never ran.)
 #
-# Gates the full integration bar on a linux runner — the platform the build is
-# pinned to (pnpm-workspace.yaml strips all non-linux-x64 binaries). Mirrors the
-# local gates documented in CLAUDE.md section 6.
+# Gates the full integration bar on linux runners — the platform the build is pinned to
+# (pnpm-workspace.yaml strips all non-linux-x64 binaries). Mirrors the local gates documented
+# in CLAUDE.md section 6.
 #
-# ★★ TWO PATHS, ONE JOB. A pull request whose every changed path is documentation takes a
-# short path; everything else takes the full bar unchanged. NOTHING WAS REMOVED FROM THE FULL
-# BAR — the fast path is a DIFFERENT path, not a shorter version of the same one.
+# ★★ CI-SPEED-1 — SAME COVERAGE, RUN IN PARALLEL. Until CI-SPEED-1 this was ONE job doing
+# everything in sequence on one 4-vCPU runner (~20-26 min; the vitest suite ran three times,
+# ~6.4 min each, and the ops matrix three times). It is now parallel jobs:
+#   classify      decides docs-only fast path vs the full bar (the module below)
+#   docs-lane     mojibake (EVERY path) + the classifier's own acceptance + root guard matrix (docs path)
+#   static        Firestore rules, root guard matrix, root typecheck, edge security tests, test typecheck
+#   build-ops     build + the lazytopper ops matrix
+#   vitest        the WHOLE vitest suite, sharded 1/4..4/4 (every file runs exactly once)
+#   clock         the date-sensitive manifest + the whole ops matrix, at 2030 and at IST midnight
+#   quality-gate  the AGGREGATE. Its name is the REQUIRED status check in the trunk ruleset; it
+#                 fails unless every job above passed (or, on the docs path, was skipped BY DESIGN),
+#                 and unless the vitest shards together ran every test file on disk.
+#   nightly-full-clock  schedule/dispatch only: the FULL vitest suite + ops matrix under both clocks.
+# NOTHING WAS REMOVED FROM THE FULL BAR. Every test the old single job ran still runs on every
+# full-bar run; only the two clock re-runs of vitest are narrowed to the manifest (the full set
+# runs nightly), and lazytopper/scripts/testClock/clockRecorder.setup.mjs fails the normal run if
+# a test that reads the clock is missing from that manifest.
 #
-# ★★ AND THE FULL BAR IS THIS PROJECT'S ONLY INTEGRATION CHECK, so the classifier is biased
-# hard towards running it. A product PR's CI runs against ITS OWN base, so lanes built in
-# parallel are never compiled and tested together until something merges both — measured in
-# Wave 5A, where three lane runs collected 94/95/96 test files and the wave-closing handoff
-# collected 97. #574 and #575, two P0 live-user fixes, reached production having never been
-# tested together. An unnecessary full run costs about five minutes. A skipped one cost that.
+# ★★ THE FULL BAR IS STILL THIS PROJECT'S ONLY PRE-MERGE INTEGRATION CHECK, so the classifier is
+# biased towards running it: a push to this branch ALWAYS runs everything (every merge produces
+# one), and anything the classifier cannot confidently classify runs everything. A docs-only PR
+# (wave-closing handoffs included since CI-SPEED-1) takes the fast path; add `[ci-full]` to its
+# title to force the full bar.
 #
-# So: a push to this branch ALWAYS runs everything (every merge produces one, so the
-# integration check cannot be forgotten); a wave-closing handoff ALWAYS runs everything; and
-# anything the classifier cannot confidently classify runs everything.
-#
-# ★ THE CLASSIFICATION HAPPENS INSIDE THE JOB, DELIBERATELY — never as a workflow-level
+# ★ THE CLASSIFICATION HAPPENS INSIDE THE WORKFLOW, DELIBERATELY — never as a workflow-level
 # `paths-ignore`. `quality-gate` is a REQUIRED status check, and a required check that never
-# runs leaves the PR stuck on "expected — waiting for status": unmergeable, with no error.
+# runs leaves the PR stuck on "expected — waiting for status": unmergeable, with no error. The
+# aggregate job always runs and always reports.
 #
 # ★ The rules live in lazytopper/scripts/ops/ci_docs_lane_acceptance.mjs, which is also the
 # acceptance suite that pins them. One file on purpose: a second copy of a classifier drifts,
@@ -35,81 +45,42 @@ on:
     branches: [base/approved-thru-437]
   push:
     branches: [base/approved-thru-437]
-  # ★ CI-SPEED-1: the NIGHTLY FULL CLOCK RUN. On PRs and pushes the two clock steps run only the
-  # date-sensitive tests (lazytopper/scripts/testClock/date-sensitive-tests.json, guarded); this
-  # run executes the WHOLE vitest suite and the WHOLE ops matrix under both clocks, every night,
-  # on the default branch. It is the backstop for a test whose date-dependence no text scan sees.
-  # 20:30 UTC = 02:00 IST. A red nightly blocks nothing - read it in the Actions tab.
+  # The NIGHTLY FULL CLOCK RUN (job nightly-full-clock). 20:30 UTC = 02:00 IST. Runs on the
+  # default branch; a failure opens an issue. workflow_dispatch lets the owner run it any time.
   schedule:
     - cron: '30 20 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 # A newer push to the same PR/branch supersedes an in-flight run. The EVENT is part of the
-# group so the nightly schedule run and a trunk push run (same ref) never cancel each other.
+# group so a nightly/dispatched run and a trunk push run (same ref) never cancel each other.
 concurrency:
   group: quality-gate-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  quality-gate:
+  # ★★ THE DECISION. Delegated to the module that is ALSO its own acceptance suite. It derives the
+  # changed-file list from `git merge-base origin/<base> HEAD` recomputed HERE, at run time — this
+  # repo SQUASH-merges, and a squash diffs against the base AT MERGE TIME (#566 landed 13 files
+  # while reporting 4). That is why `fetch-depth: 0` and the base fetch are load-bearing: without
+  # them merge-base fails, which reports "unresolved", which runs the FULL bar. It never exits
+  # non-zero, and the `!= 'true'` polarity below means even a MISSING output runs everything.
+  classify:
     runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.classify.outputs.docs_only }}
+      verdict: ${{ steps.classify.outputs.verdict }}
+      inspected: ${{ steps.classify.outputs.inspected }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          # fetch-depth: 0 = FULL history. Required, and it closes a silent hole: the
-          # C&I convergence acceptance gate anchors its MISTAKE-INTELLIGENCE moat check
-          # to a FIXED commit (e8f75af — the convergence's PR-1 base). A depth-1 checkout
-          # did not contain that commit, so the gate's hardest checks SILENTLY SKIPPED on
-          # every run, including "fully green" ones. The anchor is a permanent SHA and
-          # recedes as trunk advances, so no fixed shallow depth reaches it durably —
-          # only full history does. Cost: this repo is ~1,400 commits / ~170 MB; the
-          # extra fetch is a few seconds on the linux runner, paid once per run.
           fetch-depth: 0
-
-      # On a pull_request the merge ref is checked out but the TARGET branch is not a
-      # named remote-tracking ref. The convergence gate scopes its forbidden-path diff
-      # to the PR's own changes (merge-base with the target), so make that ref exist.
-      # Skipped on push-to-trunk, where github.base_ref is empty and the gate correctly
-      # reports the forbidden diff as N/A (there is no PR to scope against).
-      - name: Fetch PR base branch (for the convergence gate's PR-scoped diff)
+      - name: Fetch PR base branch (for the merge-base diff)
         if: github.event_name == 'pull_request'
         run: git fetch --no-tags origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
-
-      - name: Enable pnpm (corepack)
-        # Repo is a pnpm workspace (lockfileVersion 9.0); npm install is blocked
-        # by a root preinstall guard and scripts/ uses pnpm `catalog:` refs.
-        run: |
-          corepack enable
-          # Pin pnpm to the version the lockfile was regenerated + frozen-verified with on
-          # linux (#201). The root preinstall guard is `case "$npm_config_user_agent" in pnpm/*)`,
-          # and pnpm 11 leaves npm_config_user_agent EMPTY for the workspace-root lifecycle
-          # script on linux -> the guard prints "Use pnpm instead" and exits 1. pnpm 10.32.1
-          # sets it correctly AND matches the lockfile's overrides serialization.
-          # (Follow-up: add "packageManager":"pnpm@10.32.1" to root package.json so Corepack
-          #  enforces one version everywhere; and fix the guard before any move to pnpm 11.)
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
-
-      - name: Use Node.js 22
-        uses: actions/setup-node@v7
-        with:
-          node-version: '22'
-          cache: pnpm
-
-      # ★★ THE DECISION. Delegated to the module that is ALSO its own acceptance suite, so the
-      # thing CI runs and the thing the tests pin are literally the same code.
-      #
-      # It derives the changed-file list from `git merge-base origin/<base> HEAD` recomputed HERE,
-      # at run time — not from a working tree, not from the PR's declared file list, and not from
-      # the branch point. This repo SQUASH-merges, and a squash diffs against the base AT MERGE
-      # TIME, so a rebased branch can silently re-carry files: #566 landed 13 files while reporting
-      # 4 and no gate saw it. That is exactly why `fetch-depth: 0` and the base fetch above are
-      # load-bearing for this step too — without them merge-base fails, and a failed merge-base
-      # reports "unresolved", which runs the FULL bar.
-      #
-      # It never exits non-zero. A crashing classifier must fall back to running everything, not
-      # fail the job — and the `!= 'true'` polarity below means even a MISSING output runs
-      # everything. There is no input to this step that can turn a gate off by accident.
       - name: Classify the change set (docs-only fast path, or the full bar)
         id: classify
         env:
@@ -117,276 +88,361 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: node lazytopper/scripts/ops/ci_docs_lane_acceptance.mjs --classify
-
-      # The Firestore emulator is a Java process, and the rules gate below cannot run
-      # without it. ubuntu-latest currently ships a JDK, but that is an image detail
-      # which has changed before — pin it rather than inherit it, or the security gate
-      # silently stops running one day and still reports green.
-      - name: Set up Java (runtime for the Firestore emulator)
-        if: steps.classify.outputs.docs_only != 'true'
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      # The lazytopper ops-matrix acceptance scripts (llm_path_audit, bsre_spike, etc.)
-      # shell out to `rg` (ripgrep) and have no fallback — ubuntu-latest does not ship it.
-      # Install it so those audits behave as they do locally / in the Codespace.
-      # (git/node/npm are already present; no other non-standard tool is on the gate path.)
-      - name: Install ripgrep (required by ops-matrix audits)
-        if: steps.classify.outputs.docs_only != 'true'
-        run: sudo apt-get update && sudo apt-get install -y ripgrep
-
-      # ★ UNGATED ON PURPOSE. It is the cheapest step on the board with a warm cache, and both
-      # fast-path gates below are invoked through pnpm. Making the fast path depend on pnpm
-      # resolving a workspace script with no install would buy a few seconds and cost the one
-      # property that matters here: that the fast path runs the SAME commands the full bar runs.
-      - name: Install workspace (frozen lockfile)
-        run: pnpm install --frozen-lockfile
-
-      # ★ THE FAST PATH'S OWN GATE. On the full bar this same suite runs inside the lazytopper
-      # ops matrix, so it is never skipped — it just runs earlier, and alone, when the matrix
-      # does not. It asserts the classifier's rules AND this workflow's wiring: that mojibake is
-      # ungated, that every full-bar step carries the same condition, that there is no
-      # workflow-level paths filter, and that every server .test.cjs on disk is in the matrix
-      # chain. A condition that is wrong is invisible until the day it matters.
-      - name: Docs-lane classifier acceptance (fast path)
-        if: steps.classify.outputs.docs_only == 'true'
-        run: pnpm --filter lazytopper run test:ci:docs-lane
-
-      # --- firestore.rules: the premium self-grant gate ---
-      # Runs the REAL Firestore emulator against the REAL firestore.rules via
-      # @firebase/rules-unit-testing. Nothing else in the product enforces entitlement
-      # server-side, so `subscriptions/{uid}` is the whole paywall: before this gate the
-      # rule was `allow read, write: if isOwner(uid)` and any signed-in student could
-      # write tier:"premium" into their own document from devtools.
-      #
-      # ★ DELIBERATELY A DEDICATED STEP, not chained into the scripts/ guard matrix —
-      # that would couple a Java/emulator dependency into the content-guard suite.
-      #
-      # ★ MERGING THIS DOES NOT DEPLOY IT. firestore.rules ships only via
-      # `firebase deploy --only firestore:rules` (root script: deploy:firestore-rules),
-      # an owner action outside CI. A green tick here means the rules file is correct,
-      # NOT that production is protected.
-      - name: Firestore rules tests (subscriptions premium self-grant)
-        if: steps.classify.outputs.docs_only != 'true'
-        timeout-minutes: 10
-        run: pnpm run test:firestore-rules
-
-      # --- Root guard matrix ---
-      # ★ NO COUNT IS WRITTEN HERE, ON PURPOSE. Read the totals from this step's own log — the
-      # suite prints them on the run you are actually looking at. The matrix GROWS with every guard
-      # added, so a figure recorded in a comment is a derived value with nothing re-checking it: it
-      # goes stale in silence and is then quoted as fact. This very line did exactly that, carrying
-      # a suite total and a pass ratio that had both moved on several waves earlier — and three
-      # separate lanes went on to accuse CLAUDE.md of the same fault while remembering rather than
-      # looking. CLAUDE.md section 6 already says it: verify what the suite reports NOW.
-      # The docs-lane acceptance suite now asserts this block states no count at all, so the fix
-      # cannot quietly reverse itself. [FU-CI-WORKFLOW-STALE-MATRIX-COUNT]
-      - name: Root guard matrix (scripts/ test:matrix:all)
-        if: steps.classify.outputs.docs_only != 'true'
-        run: pnpm --filter @workspace/scripts run test:matrix:all
-
-      # --- artifacts/api-server: typecheck + edge security tests ---
-      # NEITHER existed before this step. CI ran no gate of any kind over
-      # artifacts/api-server, even though railway.json starts it and vercel.json
-      # rewrites /api/* AND /shared-api/* to it — it is the production FRONT DOOR.
-      # The only thing catching a type error there was the Railway build, i.e. the
-      # deploy itself.
-      #
-      # The ROOT typecheck script is the one to run: it builds the lib/* project
-      # references first (`tsc --build`) and then checks api-server and scripts.
-      # api-server's own typecheck alone fails TS6305, because the referenced
-      # projects have not been emitted yet.
-      - name: Typecheck (root — libs, api-server, scripts)
-        if: steps.classify.outputs.docs_only != 'true'
-        run: pnpm run typecheck
-
-      # Behavioural CORS/helmet tests against a real listening Express app. Fast
-      # (~2 s) and heap-trivial, so the vitest worker cap does not apply.
-      # ★ Asserts OBSERVED RESPONSE HEADERS, never config keys — helmet silently
-      # ignores an option name it does not recognise, so a key alone proves
-      # nothing. The suite exists for the one failure no static gate can catch:
-      # refusing a request that arrives with NO Origin header, which the
-      # server-side Vercel rewrite makes the MAIN production path.
-      - name: Edge security tests (api-server CORS allowlist + helmet)
-        if: steps.classify.outputs.docs_only != 'true'
-        run: pnpm --filter @workspace/api-server run test
-
-      # --- lazytopper gates ---
-      # ★★ UNGATED, ON EVERY PATH, DELIBERATELY. This is the ONE step in the whole workflow that
-      # has anything to say about a markdown-only change, so it is the one gate a docs PR can
-      # actually fail. It also must keep its exact split: ENFORCED on the tracked tree, REPORT-ONLY
-      # on handoff/, which holds deliberate mojibake specimens quoted inside lessons about
-      # mojibake. Read `enforced_hits` / `report_only_hits` from this step's log — the log printing
-      # a non-zero report-only figure is the whole difference between monitoring and exemption.
-      # DO NOT PUT AN `if:` ON THIS STEP.
-      - name: Mojibake check (lazytopper)
-        run: pnpm --filter lazytopper run check:mojibake
-
-      # ★ FRICTION-FIX-1 · C1 (FU-QG-BUILD-MASKS-VITEST). A red Build used to SKIP every step
-      # below it (the default `success()` condition), so a broken build hid the vitest result
-      # (wave B-9: a partial prerender artifact broke Build and masked vitest). None of the
-      # steps below reads Build's output — dist/ (the vite outDir), the static heads, the
-      # applied prerendered fragments or version.json; `prerendered/` and `notes/assets/` are
-      # committed source, not build output — so each runs after a failed Build too:
-      # `!cancelled() && <its existing condition>`. The JOB STILL FAILS when Build fails: a
-      # failed step fails the job whatever runs after it. A step that ever needs Build's
-      # output must keep the plain condition (skipped when Build failed).
-      - name: Build (lazytopper)
-        if: steps.classify.outputs.docs_only != 'true'
-        run: pnpm --filter lazytopper run build
-
-      - name: Ops matrix (lazytopper test:matrix:all)
-        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
-        run: pnpm --filter lazytopper run test:matrix:all
-
-      # --- Typecheck of the TEST files ---
-      # tsconfig.app.json EXCLUDES `src/**/*.test.ts(x)` and `src/test/**`, so the
-      # `tsc -b` inside `build` (above) has never typechecked a single test file.
-      # That is the root reason four suites could rot silently: they broke at the
-      # TYPE level long before anyone ran them. tsconfig.test.json extends the app
-      # config and covers the tests; see that file for why it is a separate project
-      # and how the untyped server `.cjs` imports are handled. Unlike vitest this
-      # step also runs on Windows dev boxes (no rollup binary involved).
-      - name: Typecheck test files (lazytopper)
-        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
-        run: pnpm --filter lazytopper run typecheck:test
-
-      # --- Vitest render/unit suites (the .test.tsx / .test.ts files) ---
-      # Runs ONLY here on linux: pnpm-workspace.yaml strips the non-linux rollup
-      # binary, so Windows dev boxes cannot run vitest at all (CLAUDE.md section 6).
-      # These suites were NEVER gated in CI before — the root cause behind this
-      # repo's green-but-broken builds (#484, #490): the tests that would have caught
-      # them never executed. Required gate now — a red vitest fails CI.
-      # Resolves [FU-CI-GATE-VITEST].
-      #
-      # ★ HOW MANY SUITES, AND HOW MANY TESTS? READ THEM FROM THIS STEP'S LOG — vitest prints
-      # "Test Files ..." and "Tests ..." on the run you are looking at. No figure is written here
-      # on purpose. This comment used to open with a suite count, and that number went on being
-      # quoted long after it had stopped being true; the total rises with every lane that adds a
-      # test. A count in a comment is a derived value with nothing re-checking it.
-      # [FU-CI-WORKFLOW-STALE-MATRIX-COUNT]
-      #
-      # TRACKED DEBT — CLEARED. Four suites were RED on trunk (57ea912) when this gate
-      # landed and were EXCLUDED so it could be introduced without blocking every PR on
-      # pre-existing failures. All four have since been repaired and re-included, so the
-      # step now runs the WHOLE suite with no exclusions:
-      #   [FU-CONCEPTSPINE-TEST-STALE]      ConceptSpine.test.tsx       — stale expectation
-      #     (the trigonometry note is now SEEDED, so Notes opens the real NoteModal instead
-      #      of the "coming soon" placeholder); both branches are asserted now.
-      #   [FU-OBJSCORING-PARITY-TEST-RED]   objectiveScoring.parity     — wrong relative
-      #     import path (`../../lib/...` from src/services/); born broken in #348.
-      #   [FU-PRACTICEINSIGHTS-DURABLE-RED] practiceInsights.durable    — stale expectation
-      #     (`mode` was deliberately dropped from the attempt dedup key / doc id in #445).
-      #   [FU-WORKSHEET-PDFEXPORT-TEST-RED] worksheetPdfExport.test.ts  — test-harness bugs
-      #     (asserted the capture host AFTER the exporter had torn it down; and a
-      #      `vi.fn().mockImplementation` jsPDF constructor loses its implementation to
-      #      `vi.restoreAllMocks()`, so every test after the first got a bare `{}`).
-      # NEVER add a new --exclude here: a red vitest suite fails CI, which is the point.
-      # HEAP: the suite OOM'd the runner — "Ineffective mark-compacts near heap
-      # limit" — on PR #542, which added only 17 tests. The weight is src/data:
-      # 10.7 MB across 480 files, and vitest gives every worker its own module
-      # registry, so whichever suites import the question bank duplicate that graph
-      # per worker. #542 was the straw, not the weight.
-      #
-      # This is a RUNWAY EXTENSION, not a fix — the bank grows with every content
-      # lane, and phase 2 adds state boards and Class 12. [FU-VITEST-CI-HEAP-CEILING]
-      #
-      # ★ This bump is only safe alongside a REAL worker cap (maxWorkers: 2 in
-      # vitest.config.ts). The ubuntu runner has 16 GB and 4 vCPU, so vitest would
-      # default to 4 workers; 4 × 6144 = 24 GB would OOM the RUNNER rather than a
-      # worker. Capped at 2 the worst case is 12 GB. Do not raise one without the
-      # other — and note the first attempt's cap was a silent no-op (it used the
-      # threads key while vitest 3 defaults to the forks pool), which produced
-      # precisely the 24 GB case. See vitest.config.ts.
-      #
-      # is DIAGNOSTIC, for one cycle. It prints per-file heap, which
-      # names the suites actually loading the 10.7 MB bank — replacing three cycles
-      # of inference and feeding the durable fix in [FU-VITEST-CI-HEAP-CEILING].
-      # Remove it once those suites are identified.
-      - name: Vitest suites (lazytopper)
-        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
-        timeout-minutes: 20
-        run: pnpm --filter lazytopper exec vitest run
-        env:
-          NODE_OPTIONS: --max-old-space-size=2048
-
-      # ★ NO TEST MAY DEPEND ON TODAY'S DATE (TEST-CLOCK-SWEEP). The same vitest suites AND the
-      # lazytopper ops matrix, re-run with "now" moved to a fixed day in 2030. A test with a
-      # hard-coded "tomorrow" (the fair-use fixture that turned every PR red at 00:00 IST on
-      # 29 Sep 2026, fixed by #875) fails HERE, on the PR that adds it - not months later.
-      # How the clock moves: lazytopper/scripts/testClock/ (vitest via src/test/setup.ts; node
-      # suites via the --import preload in NODE_OPTIONS, which every child process inherits).
-      # The self-check runs FIRST and exits 1 if the switch is set but not in effect - without
-      # it, a missing preload would "pass at 2030" by never being at 2030. Read the effective
-      # now from this step's log: "[test-clock] SELF-CHECK OK ... effective now=2030-..." and
-      # "[test-clock] vitest ... effective now=2030-...". A test fixed here pins its own clock
-      # (vi.useFakeTimers({ now, toFake: ["Date"] })) or derives its fixtures from its own NOW.
-      #
-      # ★ CI-SPEED-1 — WHAT THE CLOCK STEPS RUN. On a PR or a push: ONLY the date-sensitive tests
-      # (CLOCK_SCOPE=date-sensitive) - the committed list lazytopper/scripts/testClock/
-      # date-sensitive-tests.json, whose guard (the step just below) fails CI when a date-dependent
-      # test exists outside it. On the nightly schedule: the FULL vitest suite and the FULL ops
-      # matrix (CLOCK_SCOPE=full), byte-for-byte the commands these steps ran before. The default
-      # "Vitest suites" and "Ops matrix" steps above are unchanged: no test left the normal run.
-      # Read the scope and the totals from this step's log: "CLOCK_SCOPE: ...", vitest's
-      # "Test Files" / "Tests" lines and "CLOCK_SELECT_OPS: ran=N listed=N failed=0".
-      - name: Date-sensitive clock selection guard + CI-speed acceptance
-        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
-        run: |
-          set -euo pipefail
-          node lazytopper/scripts/testClock/dateSensitive.mjs --guard
-          node lazytopper/scripts/ops/ci_speed_acceptance.mjs
-
-      - name: Test clock at 2030 (vitest + ops matrix, LT_TEST_CLOCK)
-        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
-        timeout-minutes: 35
-        env:
-          LT_TEST_CLOCK: "2030-06-15T06:30:00.000Z"
-          CLOCK_SCOPE: ${{ github.event_name == 'schedule' && 'full' || 'date-sensitive' }}
-        run: |
-          set -euo pipefail
-          PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
-          NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
-          echo "CLOCK_SCOPE: $CLOCK_SCOPE"
-          if [ "$CLOCK_SCOPE" = "full" ]; then
-            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
-            NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
-          else
-            FILES="$(node lazytopper/scripts/testClock/dateSensitive.mjs --print=vitest)"
-            echo "CLOCK_SELECT_VITEST_FILES: $(printf '%s\n' "$FILES" | wc -l)"
-            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run $FILES
-            NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/dateSensitive.mjs --run-ops
-          fi
-
-      - name: Test clock at IST midnight, board season
-        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
-        timeout-minutes: 35
-        env:
-          LT_TEST_CLOCK: "2030-02-14T18:45:00.000Z"
-          CLOCK_SCOPE: ${{ github.event_name == 'schedule' && 'full' || 'date-sensitive' }}
-        run: |
-          set -euo pipefail
-          PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
-          NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
-          echo "CLOCK_SCOPE: $CLOCK_SCOPE"
-          if [ "$CLOCK_SCOPE" = "full" ]; then
-            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
-            NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
-          else
-            FILES="$(node lazytopper/scripts/testClock/dateSensitive.mjs --print=vitest)"
-            echo "CLOCK_SELECT_VITEST_FILES: $(printf '%s\n' "$FILES" | wc -l)"
-            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run $FILES
-            NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/dateSensitive.mjs --run-ops
-          fi
-
-      # ★ SAY WHICH PATH THIS RUN TOOK, IN THE RUN. Without this, "CI was green" is ambiguous
-      # between "everything passed" and "almost nothing ran" — and those are the two outcomes a
-      # reader most needs to tell apart. Ungated, so it is present on both paths.
+      # ★ SAY WHICH PATH THIS RUN TOOK, IN THE RUN.
       - name: Which path did this run take
         if: always()
         run: |
           echo "CI_DOCS_LANE_PATH_TAKEN: ${{ steps.classify.outputs.verdict || 'unclassified (full bar)' }}"
           echo "CI_DOCS_LANE_PATH_INSPECTED_FILES: ${{ steps.classify.outputs.inspected || 'n/a' }}"
           echo "CI_DOCS_LANE_PATH_FULL_BAR_RAN: ${{ steps.classify.outputs.docs_only != 'true' }}"
+
+  # Runs on EVERY path. The mojibake step is the one gate a markdown-only change can fail.
+  docs-lane:
+    needs: classify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Enable pnpm (corepack)
+        run: |
+          corepack enable
+          # pnpm 10.32.1: matches the lockfile and sets npm_config_user_agent for the root
+          # preinstall guard (pnpm 11 leaves it empty on linux -> "Use pnpm instead").
+          corepack prepare pnpm@10.32.1 --activate
+          pnpm --version
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      # ★★ UNGATED, ON EVERY PATH, DELIBERATELY. ENFORCED on the tracked tree, REPORT-ONLY on
+      # handoff/ (deliberate mojibake specimens). Read `enforced_hits` / `report_only_hits` from
+      # this step's log. DO NOT PUT AN `if:` ON THIS STEP.
+      - name: Mojibake check (lazytopper)
+        run: pnpm --filter lazytopper run check:mojibake
+      # ★ THE FAST PATH'S OWN GATES. On the full bar the docs-lane suite runs inside the ops matrix
+      # and the root guard matrix inside `static`; on the docs path they run here, alone. The root
+      # guard matrix reads handoff/ and ops/ markdown (premise ledger, lane overlap), which is
+      # exactly what a docs PR changes.
+      - name: Docs-lane classifier acceptance (fast path)
+        if: needs.classify.outputs.docs_only == 'true'
+        run: pnpm --filter lazytopper run test:ci:docs-lane
+      - name: Root guard matrix on the docs path (scripts/ test:matrix:all)
+        if: needs.classify.outputs.docs_only == 'true'
+        run: pnpm --filter @workspace/scripts run test:matrix:all
+
+  static:
+    needs: classify
+    if: needs.classify.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Enable pnpm (corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.32.1 --activate
+          pnpm --version
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: pnpm
+      # The Firestore emulator is a Java process. Pinned rather than inherited from the image,
+      # or the security gate silently stops running one day and still reports green.
+      - name: Set up Java (runtime for the Firestore emulator)
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      # The REAL Firestore emulator against the REAL firestore.rules. MERGING THIS DOES NOT DEPLOY
+      # IT: firestore.rules ships only via `deploy:firestore-rules`, an owner action outside CI.
+      - name: Firestore rules tests (subscriptions premium self-grant)
+        timeout-minutes: 10
+        run: pnpm run test:firestore-rules
+      # --- Root guard matrix ---
+      # ★ NO TOTAL IS WRITTEN HERE, ON PURPOSE. Read the totals from this step's own log — the
+      # suite prints them on the run you are actually looking at, and the matrix grows with every
+      # guard added. [FU-CI-WORKFLOW-STALE-MATRIX-COUNT]
+      - name: Root guard matrix (scripts/ test:matrix:all)
+        if: ${{ !cancelled() }}
+        run: pnpm --filter @workspace/scripts run test:matrix:all
+      # The ROOT typecheck builds the lib/* project references first, then checks api-server and
+      # scripts (api-server alone fails TS6305). artifacts/api-server is the production front door.
+      - name: Typecheck (root — libs, api-server, scripts)
+        if: ${{ !cancelled() }}
+        run: pnpm run typecheck
+      # Behavioural CORS/helmet tests against a real listening Express app; asserts OBSERVED
+      # response headers, never config keys.
+      - name: Edge security tests (api-server CORS allowlist + helmet)
+        if: ${{ !cancelled() }}
+        run: pnpm --filter @workspace/api-server run test
+      # tsconfig.app.json EXCLUDES the test files; tsconfig.test.json covers them.
+      - name: Typecheck test files (lazytopper)
+        if: ${{ !cancelled() }}
+        run: pnpm --filter lazytopper run typecheck:test
+
+  build-ops:
+    needs: classify
+    if: needs.classify.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          # FULL history: the C&I convergence gate (in the ops matrix) anchors its moat check to a
+          # FIXED commit; a shallow checkout silently skipped its hardest checks.
+          fetch-depth: 0
+      - name: Fetch PR base branch (for the convergence gate's PR-scoped diff)
+        if: github.event_name == 'pull_request'
+        run: git fetch --no-tags origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+      - name: Enable pnpm (corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.32.1 --activate
+          pnpm --version
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: pnpm
+      # The ops-matrix audits shell out to `rg`; ubuntu-latest does not ship it.
+      - name: Install ripgrep (required by ops-matrix audits)
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      # None of the steps below reads Build's output, so each runs after a failed Build too
+      # (`!cancelled()`); the JOB STILL FAILS when Build fails. (FU-QG-BUILD-MASKS-VITEST)
+      - name: Build (lazytopper)
+        run: pnpm --filter lazytopper run build
+      - name: Ops matrix (lazytopper test:matrix:all)
+        if: ${{ !cancelled() }}
+        run: pnpm --filter lazytopper run test:matrix:all
+      # Date-sensitive manifest: static guard + CI-speed acceptance (Vercel ignore step replay,
+      # aggregate rules, workflow wiring). The runtime guard lives in every vitest shard.
+      - name: Date-sensitive clock selection guard + CI-speed acceptance
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          node lazytopper/scripts/testClock/dateSensitive.mjs --guard
+          node lazytopper/scripts/ops/ci_speed_acceptance.mjs
+
+  # --- Vitest render/unit suites, SHARDED ---
+  # ★ HOW MANY FILES AND TESTS? READ THEM FROM THE LOG — each shard prints vitest's "Test Files" /
+  # "Tests" lines and a VITEST_SHARD_SUMMARY line, and the quality-gate job prints VITEST_TOTAL
+  # (the shards summed) and fails unless that sum equals the test files on disk. No figure is
+  # written here on purpose. [FU-CI-WORKFLOW-STALE-MATRIX-COUNT]
+  # NEVER add a new --exclude here: a red vitest suite fails CI, which is the point.
+  # HEAP: maxWorkers 2 (vitest.config.ts) x 2048 MB per runner. [FU-VITEST-CI-HEAP-CEILING]
+  # SHARD COUNT 4 is MEASURED (CI-SPEED-1 report): the unsharded pass took 4.9-6.6 min over the
+  # last 10 runs and the slowest file ~40 s; 4 shards put each near 1.5-2 min of tests.
+  vitest:
+    needs: classify
+    if: needs.classify.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    name: vitest (${{ matrix.shard }}/4)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Enable pnpm (corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.32.1 --activate
+          pnpm --version
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      # Read this shard's totals from this step's own log (vitest's "Test Files" / "Tests" lines);
+      # the quality-gate job's log carries VITEST_TOTAL for all shards together.
+      - name: Vitest suites (lazytopper)
+        timeout-minutes: 20
+        run: pnpm --filter lazytopper exec vitest run --shard ${{ matrix.shard }}/4 --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-shard.json"
+        env:
+          NODE_OPTIONS: --max-old-space-size=2048
+      - name: Shard summary (files and tests this shard ran)
+        if: ${{ !cancelled() }}
+        run: node lazytopper/scripts/ops/ci_aggregate.mjs --shard-summary "$RUNNER_TEMP/vitest-shard.json" "$RUNNER_TEMP/summary/vitest-shard-${{ matrix.shard }}.json" --shard=${{ matrix.shard }}/4
+      - name: Upload shard summary
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/summary/vitest-shard-${{ matrix.shard }}.json
+          retention-days: 7
+
+  # ★ NO TEST MAY DEPEND ON TODAY'S DATE (TEST-CLOCK-SWEEP). "now" moved to a fixed day in 2030
+  # and to IST midnight in board season. How the clock moves: lazytopper/scripts/testClock/
+  # (vitest via src/test/setup.ts; node suites via the --import preload in NODE_OPTIONS). The
+  # self-check runs FIRST and exits 1 if the switch is set but not in effect. Read the effective
+  # now from the log: "[test-clock] SELF-CHECK OK ... effective now=2030-...".
+  # ★ CI-SPEED-1: vitest here runs ONLY the date-sensitive manifest (date-sensitive-tests.json);
+  # the whole ops matrix still runs. The nightly-full-clock job runs the FULL vitest suite.
+  clock:
+    needs: classify
+    if: needs.classify.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # Each clock is split in two halves of the manifest (vitest --shard x/2); the ops matrix
+      # runs once per clock, in part 1. The manifest is ~70% of the suite's test time (the runtime
+      # recorder found product code reading the clock in about half the files), so one job per
+      # clock would be the slowest job of the run.
+      matrix:
+        include:
+          - name: '2030'
+            at: '2030-06-15T06:30:00.000Z'
+            part: 1
+          - name: '2030'
+            at: '2030-06-15T06:30:00.000Z'
+            part: 2
+          - name: ist-midnight
+            at: '2030-02-14T18:45:00.000Z'
+            part: 1
+          - name: ist-midnight
+            at: '2030-02-14T18:45:00.000Z'
+            part: 2
+    name: clock (${{ matrix.name }} ${{ matrix.part }}/2)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Fetch PR base branch (for the convergence gate's PR-scoped diff)
+        if: github.event_name == 'pull_request'
+        run: git fetch --no-tags origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+      - name: Enable pnpm (corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.32.1 --activate
+          pnpm --version
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install ripgrep (required by ops-matrix audits)
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      - name: Test clock (date-sensitive manifest + ops matrix, LT_TEST_CLOCK)
+        timeout-minutes: 30
+        env:
+          LT_TEST_CLOCK: ${{ matrix.at }}
+        run: |
+          set -euo pipefail
+          PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
+          NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
+          FILES="$(node lazytopper/scripts/testClock/dateSensitive.mjs --print=vitest)"
+          echo "CLOCK_MANIFEST_FILES: $(printf '%s\n' "$FILES" | wc -l)"
+          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run --shard ${{ matrix.part }}/2 $FILES
+          if [ "${{ matrix.part }}" = "1" ]; then
+            NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+          fi
+
+  # ★ THE REQUIRED CHECK. The trunk ruleset requires a check named exactly `quality-gate`; this
+  # job carries that name. `if: always()` so it reports even when an upstream job failed, was
+  # cancelled or was skipped; lazytopper/scripts/ops/ci_aggregate.mjs then FAILS unless every
+  # upstream job succeeded — or, on the docs path only, the full-bar jobs were skipped — and,
+  # on the full bar, unless all 4 vitest shards reported and together ran every test file.
+  quality-gate:
+    needs: [classify, docs-lane, static, build-ops, vitest, clock]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the aggregate script
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            lazytopper/scripts/ops
+            lazytopper/src
+          fetch-depth: 1
+      - name: Download vitest shard summaries
+        if: needs.classify.outputs.docs_only != 'true'
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: vitest-shard-*
+          path: ${{ runner.temp }}/summary
+          merge-multiple: true
+      - name: Every upstream job passed (or was skipped by the docs fast path)
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+          DOCS_ONLY: ${{ needs.classify.outputs.docs_only }}
+          SHARD_DIR: ${{ runner.temp }}/summary
+          EXPECTED_SHARDS: '4'
+        run: node lazytopper/scripts/ops/ci_aggregate.mjs --aggregate
+
+  # The FULL vitest suite and the FULL ops matrix under BOTH clocks — what every PR ran before
+  # CI-SPEED-1 narrowed the clock jobs to the manifest. Nightly on the default branch, and on
+  # demand (Actions -> Quality Gate -> Run workflow). A scheduled failure opens an issue.
+  nightly-full-clock:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: '2030'
+            at: '2030-06-15T06:30:00.000Z'
+          - name: ist-midnight
+            at: '2030-02-14T18:45:00.000Z'
+    name: nightly-full-clock (${{ matrix.name }})
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Enable pnpm (corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.32.1 --activate
+          pnpm --version
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install ripgrep (required by ops-matrix audits)
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      - name: Full suites under the test clock (LT_TEST_CLOCK)
+        timeout-minutes: 40
+        env:
+          LT_TEST_CLOCK: ${{ matrix.at }}
+        run: |
+          set -euo pipefail
+          PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
+          NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
+          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
+          NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+      - name: Open an issue (scheduled run failed)
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue create --repo "${{ github.repository }}" \
+            --title "Nightly full clock run failed (${{ matrix.name }}) on ${GITHUB_SHA::8}" \
+            --body "The nightly FULL vitest suite + ops matrix under LT_TEST_CLOCK=${{ matrix.at }} failed on ${GITHUB_SHA}. Run: ${RUN_URL}. A test that depends on the date is either missing from lazytopper/scripts/testClock/date-sensitive-tests.json or broken at this clock."

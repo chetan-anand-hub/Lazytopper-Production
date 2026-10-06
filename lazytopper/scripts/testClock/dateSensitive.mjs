@@ -1,46 +1,41 @@
 #!/usr/bin/env node
-// DATE-SENSITIVE TEST SELECTION (CI-SPEED-1, HARDEN-1 §2 PR-3 (b)).
+// DATE-SENSITIVE TEST MANIFEST (CI-SPEED-1, decisions D39/D40).
 //
-// The two CI clock runs ("Test clock at 2030" and "Test clock at IST midnight") used to re-run
-// the WHOLE vitest suite and the WHOLE lazytopper ops matrix, twice, with "now" moved. That was
-// ~60% of every full-bar job. They now run only the tests that can depend on the date - the
-// committed list in `date-sensitive-tests.json` next to this file - and a nightly `schedule:`
-// run of quality-gate.yml still runs the full set under both clocks. The DEFAULT vitest and ops
-// matrix steps are untouched: no test leaves the normal run.
+// The CI clock jobs ("clock (2030)" and "clock (ist-midnight)") used to re-run the WHOLE vitest
+// suite twice with "now" moved - two of the three full vitest passes in every run. They now run
+// only the vitest files listed in `date-sensitive-tests.json` (the manifest), plus the whole
+// lazytopper ops matrix (cheap: ~1.1 min). The nightly `schedule:` job runs the FULL vitest suite
+// and the full ops matrix under both clocks. The default (sharded) vitest run is untouched: no
+// test leaves the normal run.
 //
-// ★ "DATE-DEPENDENT" IS MECHANICAL, NOT A JUDGEMENT. A test file is date-dependent when its own
-//   text, or the text of a test fixture/helper it imports by relative path (anything under a
-//   `__fixtures__/` or `src/test/` directory), matches ANY of DATE_SIGNALS below: it reads the
-//   clock (Date.now, new Date, Date.parse/UTC), pins or moves it (fake timers' system time,
-//   LT_TEST_CLOCK, the test-clock helper), formats or decomposes a date (getFullYear,
-//   toISOString, Intl.DateTimeFormat ...), or carries a calendar date literal (YYYY-MM-DD) that
-//   product code may compare against "now". Over-inclusion only costs clock-run time;
-//   under-inclusion is what the guard exists to stop.
+// TWO GUARDS keep the manifest honest, and they catch different things:
 //
-// ★ THE GUARD (`--guard`) FAILS CI when a date-dependent test exists outside the list, or when
-//   the list names a test that no longer exists. Humans may ADD entries the scanner cannot see
-//   (a test whose date-dependence is purely transitive); the guard never removes them.
+// 1. RUNTIME (clockRecorder.setup.mjs, in every normal vitest run). A test file during which REPO
+//    code (the test itself, or product code it calls) read the clock - Date.now(), new Date(),
+//    Date() - fails if it is not in the manifest. This is the one that catches TRANSITIVE use: a
+//    countdown component's test never mentions Date. Seeded from a full recorded run
+//    (`--write --recorded=<file>`); recorded entries are kept under `manual.vitest` with their
+//    first call site as the reason.
 //
-// ★ RESIDUAL RISK, STATED: a test whose file has no date signal at all but whose product code
-//   reads the clock and whose assertion changes with the date is invisible to any text scan. The
-//   nightly full clock run is the backstop for exactly that case (caught within ~24 h, not at PR
-//   time). Add such a test to the list by hand when one is found.
+// 2. STATIC (`--guard`, here). A test file whose own text - or a fixture/helper it imports from
+//    `__fixtures__/` or `src/test/` - carries a date signal (DATE_SIGNALS below) must be listed.
+//    This catches what the recorder cannot: a test that PINS its own fake clock (its reads hit the
+//    fake Date, which the recorder deliberately leaves alone), and a calendar date literal in a
+//    fixture that product code compares with "now" (the #875 "tomorrow" fixture shape).
+//    Whole-line comments are ignored: prose cannot make a test date-dependent.
 //
 // MODES
-//   node scripts/testClock/dateSensitive.mjs --guard          # exit 1 on a violation
-//   node scripts/testClock/dateSensitive.mjs --print=vitest   # the listed vitest files, one per line
-//   node scripts/testClock/dateSensitive.mjs --run-ops        # run the listed ops-matrix entries
-//   node scripts/testClock/dateSensitive.mjs --write          # regenerate the list (scanner ∪ manual)
+//   node scripts/testClock/dateSensitive.mjs --guard                    # static guard; exit 1 on a violation
+//   node scripts/testClock/dateSensitive.mjs --print=vitest             # the manifest, one path per line
+//   node scripts/testClock/dateSensitive.mjs --write [--recorded=<f>]   # regenerate: static ∪ manual ∪ recorded
 
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const ANCHOR = path.resolve(HERE, "..", ".."); // lazytopper/
 export const LIST_PATH = path.join(HERE, "date-sensitive-tests.json");
-const MATRIX_SCRIPT = "test:matrix:all";
 
 /** Each signal has a name so a guard failure can say WHY a file counts as date-dependent. */
 export const DATE_SIGNALS = Object.freeze([
@@ -61,16 +56,15 @@ function readText(abs) {
 
 /**
  * Drop whole-line comments (lines whose first non-blank characters are `//`, `/*` or `*`).
- * Prose cannot make a test date-dependent, and comments in this repo carry dates ("OWNER RULING
- * (2026-10-03)") on almost every guard. Trailing `// ...` comments are deliberately KEPT: a
- * naive strip would also eat code after a `//` inside a string ("https://..."), and a missed
- * signal is the expensive direction.
+ * Comments in this repo carry dates ("OWNER RULING (2026-10-03)") on almost every guard.
+ * Trailing `// ...` comments are deliberately KEPT: a naive strip would also eat code after a
+ * `//` inside a string ("https://..."), and a missed signal is the expensive direction.
  */
 export function stripLineComments(text) {
   return String(text).split(/\r?\n/).filter((line) => !/^\s*(?:\/\/|\/\*|\*)/.test(line)).join("\n");
 }
 
-/** The names of the signals a text matches (empty = not date-dependent). */
+/** The names of the signals a text matches (empty = no static signal). */
 export function dateSignalsIn(text) {
   if (!text) return [];
   const code = stripLineComments(text);
@@ -83,8 +77,7 @@ function helperImports(absFile, text) {
   const re = /(?:from\s+|import\s*\(\s*|require\s*\(\s*)["'](\.{1,2}\/[^"']+)["']/g;
   let m;
   while ((m = re.exec(text))) {
-    const spec = m[1];
-    const base = path.resolve(path.dirname(absFile), spec);
+    const base = path.resolve(path.dirname(absFile), m[1]);
     const rel = toPosix(path.relative(ANCHOR, base));
     if (!/(^|\/)__fixtures__\//.test(rel) && !/^src\/test\//.test(rel)) continue;
     // The global vitest setup file loads for EVERY test; importing it again is not a signal.
@@ -96,7 +89,7 @@ function helperImports(absFile, text) {
   return out;
 }
 
-/** Signals for one test file, including its fixture/helper imports. */
+/** Static signals for one test file, including its fixture/helper imports. */
 export function fileSignals(absFile) {
   const text = readText(absFile);
   if (text === null) return null;
@@ -123,22 +116,7 @@ export function enumerateVitestFiles(anchor = ANCHOR) {
   return found.sort();
 }
 
-/** The ops-matrix chain, in order: [{ name, command, files }]. */
-export function enumerateOpsEntries(anchor = ANCHOR) {
-  const pkg = JSON.parse(readText(path.join(anchor, "package.json")) || "{}");
-  const scripts = pkg.scripts || {};
-  const chain = String(scripts[MATRIX_SCRIPT] || "");
-  const names = [...chain.matchAll(/npm run ([\w:.-]+)/g)].map((m) => m[1]);
-  return names.map((name) => {
-    const command = String(scripts[name] || "");
-    const files = command.split(/\s+/)
-      .filter((t) => /\.(?:mjs|cjs|js|ts)$/.test(t))
-      .filter((t) => fs.existsSync(path.join(anchor, t)));
-    return { name, command, files };
-  });
-}
-
-/** Scan both suites. Returns { vitest: [{file, signals}], ops: [{name, signals}], totals }. */
+/** Static scan. Returns { vitest: [{file, signals}], vitestAll, totals }. */
 export function scan(anchor = ANCHOR) {
   const vitestAll = enumerateVitestFiles(anchor);
   const vitest = [];
@@ -146,40 +124,25 @@ export function scan(anchor = ANCHOR) {
     const signals = fileSignals(path.join(anchor, rel)) || [];
     if (signals.length) vitest.push({ file: rel, signals });
   }
-  const opsAll = enumerateOpsEntries(anchor);
-  const ops = [];
-  for (const entry of opsAll) {
-    const signals = new Set();
-    for (const f of entry.files) for (const s of fileSignals(path.join(anchor, f)) || []) signals.add(`${s} [${f}]`);
-    if (signals.size) ops.push({ name: entry.name, signals: [...signals] });
-  }
-  return { vitest, ops, totals: { vitest: vitestAll.length, ops: opsAll.length }, vitestAll, opsAll };
+  return { vitest, vitestAll, totals: { vitest: vitestAll.length } };
 }
 
 export function readList(listPath = LIST_PATH) {
   const raw = readText(listPath);
-  if (raw === null) throw new Error(`date-sensitive list missing: ${listPath}`);
+  if (raw === null) throw new Error(`date-sensitive manifest missing: ${listPath}`);
   const json = JSON.parse(raw);
-  return { vitest: [...(json.vitest || [])], ops: [...(json.ops || [])], manual: json.manual || {} };
+  return { vitest: [...(json.vitest || [])], manual: json.manual || {} };
 }
 
 /**
- * The guard as a pure function. `missing` = date-dependent but NOT listed (the failure this
- * exists for). `stale` = listed but no longer exists (a selection that silently runs nothing).
+ * The static guard as a pure function. `missing` = a static date signal but NOT listed.
+ * `stale` = listed but no longer exists (a selection that silently runs nothing).
  */
 export function guard(scanResult, list) {
-  const listedV = new Set(list.vitest);
-  const listedO = new Set(list.ops);
-  const missing = [
-    ...scanResult.vitest.filter((x) => !listedV.has(x.file)).map((x) => ({ kind: "vitest", id: x.file, signals: x.signals })),
-    ...scanResult.ops.filter((x) => !listedO.has(x.name)).map((x) => ({ kind: "ops", id: x.name, signals: x.signals })),
-  ];
-  const existingV = new Set(scanResult.vitestAll);
-  const existingO = new Set(scanResult.opsAll.map((e) => e.name));
-  const stale = [
-    ...list.vitest.filter((f) => !existingV.has(f)).map((id) => ({ kind: "vitest", id })),
-    ...list.ops.filter((n) => !existingO.has(n)).map((id) => ({ kind: "ops", id })),
-  ];
+  const listed = new Set(list.vitest);
+  const missing = scanResult.vitest.filter((x) => !listed.has(x.file)).map((x) => ({ id: x.file, signals: x.signals }));
+  const existing = new Set(scanResult.vitestAll);
+  const stale = list.vitest.filter((f) => !existing.has(f)).map((id) => ({ id }));
   return { ok: missing.length === 0 && stale.length === 0, missing, stale };
 }
 
@@ -188,59 +151,54 @@ function runGuard() {
   const list = readList();
   const g = guard(s, list);
   console.log(
-    `DATE_SENSITIVE_SCOPE: vitest_files=${s.totals.vitest} vitest_date_dependent=${s.vitest.length} vitest_listed=${list.vitest.length} ` +
-      `ops_entries=${s.totals.ops} ops_date_dependent=${s.ops.length} ops_listed=${list.ops.length}`,
+    `DATE_SENSITIVE_SCOPE: vitest_files=${s.totals.vitest} static_signal=${s.vitest.length} ` +
+      `manual_or_recorded=${Object.keys(list.manual.vitest || {}).length} manifest=${list.vitest.length}`,
   );
-  for (const m of g.missing) {
-    console.error(`DATE_SENSITIVE_UNLISTED: ${m.kind} ${m.id} — signals: ${m.signals.join(", ")}`);
-  }
-  for (const m of g.stale) console.error(`DATE_SENSITIVE_STALE: ${m.kind} ${m.id} is listed but does not exist`);
+  for (const m of g.missing) console.error(`DATE_SENSITIVE_UNLISTED: ${m.id} — signals: ${m.signals.join(", ")}`);
+  for (const m of g.stale) console.error(`DATE_SENSITIVE_STALE: ${m.id} is listed but does not exist`);
   if (!g.ok) {
     console.error(
-      `\nDATE_SENSITIVE_GUARD: FAIL — ${g.missing.length} date-dependent test(s) outside the list, ${g.stale.length} stale entr(y/ies). ` +
-        "The CI clock runs execute ONLY the listed tests, so an unlisted date-dependent test would never run at 2030 / IST midnight on a PR. " +
+      `\nDATE_SENSITIVE_GUARD: FAIL — ${g.missing.length} date-dependent test(s) outside the manifest, ${g.stale.length} stale entr(y/ies). ` +
+        "The CI clock jobs run ONLY the manifest, so an unlisted date-dependent test would never run at 2030 / IST midnight on a PR. " +
         "Fix: `node lazytopper/scripts/testClock/dateSensitive.mjs --write` and commit lazytopper/scripts/testClock/date-sensitive-tests.json.",
     );
     process.exitCode = 1;
     return;
   }
-  console.log("DATE_SENSITIVE_GUARD: PASS — every date-dependent test is in the clock-run list.");
+  console.log("DATE_SENSITIVE_GUARD: PASS — every statically date-dependent test is in the manifest.");
 }
 
-function runWrite() {
+function runWrite(recordedPath) {
   const s = scan();
   let manual = {};
-  let prev = { vitest: [], ops: [] };
-  try { prev = readList(); manual = prev.manual || {}; } catch { /* first write */ }
-  const manualV = Object.keys(manual.vitest || {});
-  const manualO = Object.keys(manual.ops || {});
-  const vitest = [...new Set([...s.vitest.map((x) => x.file), ...manualV])].sort();
-  const ops = s.opsAll.map((e) => e.name).filter((n) => s.ops.some((x) => x.name === n) || manualO.includes(n));
+  try { manual = readList().manual || {}; } catch { /* first write */ }
+  const manualV = { ...(manual.vitest || {}) };
+  if (recordedPath) {
+    const lines = (readText(recordedPath) || "").split(/\r?\n/).filter(Boolean);
+    for (const line of lines) {
+      const [file, site] = line.split("\t");
+      if (!file || !fs.existsSync(path.join(ANCHOR, file))) continue;
+      if (!manualV[file]) manualV[file] = `runtime recorder: repo code read the clock at ${String(site || "").slice(0, 160)}`;
+    }
+  }
+  // A manual entry whose file is gone is dropped here (and would be "stale" in the guard otherwise).
+  for (const f of Object.keys(manualV)) if (!fs.existsSync(path.join(ANCHOR, f))) delete manualV[f];
+  const vitest = [...new Set([...s.vitest.map((x) => x.file), ...Object.keys(manualV)])].sort();
+  const sortedManual = Object.fromEntries(Object.entries(manualV).sort(([a], [b]) => a.localeCompare(b)));
   const body = {
     _comment:
-      "Tests the CI clock runs execute on every PR/push (CI-SPEED-1). Generated by `node lazytopper/scripts/testClock/dateSensitive.mjs --write`; " +
-      "the guard fails CI if a date-dependent test is missing here. `manual` holds hand-added entries (id -> reason) the scanner cannot see; --write keeps them. " +
-      "The nightly schedule run executes the FULL suites under both clocks.",
-    manual: { vitest: manual.vitest || {}, ops: manual.ops || {} },
+      "CI-SPEED-1 date-sensitive manifest: the vitest files the CI clock jobs run on every PR/push. Generated by " +
+      "`node lazytopper/scripts/testClock/dateSensitive.mjs --write [--recorded=<file>]` = static date signals ∪ manual. " +
+      "`manual.vitest` (path -> reason) holds entries the static scan cannot see - mostly the runtime recorder's finds " +
+      "(product code read the clock during the test); --write keeps them. The nightly job runs the FULL suites under both clocks.",
+    manual: { vitest: sortedManual },
     vitest,
-    ops,
   };
   fs.writeFileSync(LIST_PATH, JSON.stringify(body, null, 2) + "\n");
-  console.log(`wrote ${toPosix(path.relative(process.cwd(), LIST_PATH))}: vitest ${vitest.length}/${s.totals.vitest}, ops ${ops.length}/${s.totals.ops}`);
-}
-
-/** Run the listed ops-matrix entries in chain order, ALL of them, then fail if any failed. */
-function runOps() {
-  const list = readList();
-  const order = enumerateOpsEntries().map((e) => e.name).filter((n) => list.ops.includes(n));
-  const failed = [];
-  for (const name of order) {
-    console.log(`\n[clock-select] npm run ${name}`);
-    const r = spawnSync("npm", ["run", name], { cwd: ANCHOR, stdio: "inherit", shell: process.platform === "win32" });
-    if (r.status !== 0) failed.push(`${name} (exit ${r.status})`);
-  }
-  console.log(`\nCLOCK_SELECT_OPS: ran=${order.length} listed=${list.ops.length} failed=${failed.length}${failed.length ? ` — ${failed.join(", ")}` : ""}`);
-  if (order.length !== list.ops.length || failed.length) process.exitCode = 1;
+  console.log(
+    `wrote ${toPosix(path.relative(process.cwd(), LIST_PATH))}: manifest ${vitest.length}/${s.totals.vitest} ` +
+      `(static ${s.vitest.length}, manual/recorded ${Object.keys(sortedManual).length})`,
+  );
 }
 
 const invokedDirectly =
@@ -249,14 +207,15 @@ const invokedDirectly =
 if (invokedDirectly) {
   const argv = process.argv.slice(2);
   if (argv.includes("--guard")) runGuard();
-  else if (argv.includes("--write")) runWrite();
-  else if (argv.includes("--run-ops")) runOps();
-  else if (argv.includes("--print=vitest")) {
+  else if (argv.includes("--write")) {
+    const rec = argv.find((a) => a.startsWith("--recorded="));
+    runWrite(rec ? rec.slice("--recorded=".length) : "");
+  } else if (argv.includes("--print=vitest")) {
     const list = readList();
-    if (!list.vitest.length) { console.error("date-sensitive list has no vitest entries"); process.exitCode = 1; }
+    if (!list.vitest.length) { console.error("date-sensitive manifest has no vitest entries"); process.exitCode = 1; }
     else process.stdout.write(list.vitest.join("\n") + "\n");
   } else {
-    console.error("usage: dateSensitive.mjs --guard | --print=vitest | --run-ops | --write");
+    console.error("usage: dateSensitive.mjs --guard | --print=vitest | --write [--recorded=<file>]");
     process.exitCode = 2;
   }
 }
