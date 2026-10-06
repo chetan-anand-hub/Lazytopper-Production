@@ -4,7 +4,8 @@
 //
 // Me/Progress reads its numbers HERE; the sidebar Mistake Intelligence widget joins as soon as
 // its CI ops-gate lines may be amended ([FU-ME1-WIDGET-GATE] — `computeMiCardSummary` over this
-// model; the gate pins the card's old data source), and the Tutor brief joins in ME-ENGINE-1 PR-2.
+// model; the gate pins the card's old data source), and the Tutor brief reads it since ME-ENGINE-1
+// PR-2 (`pages/tutor/tutorContextBrief.ts`), which also added the activity counts (`activity`).
 // For the same student, window, subject and chapter every surface then shows the SAME figure. It is not a second aggregation: its core is
 // `progressStore.getWindowedProgress` (extended in this PR with the IST `today` window, the
 // ungated window total and graded-only test counts) plus the mistake HISTORY read from
@@ -52,6 +53,7 @@ import {
   type MistakeLogEntry,
 } from "./mistakeLogService";
 import { isSafeEntry } from "./mistakeInsightsService";
+import { getTutorTurnsFromCloud, tutorSessionCount, type TutorTurnEvent } from "./tutorSessionStore";
 import { entryMarksLost, groupMarks, mistakeGroupOf, type MistakeGroupKey } from "../lib/mistakeDisplay";
 
 export { boardChapterKey };
@@ -70,8 +72,32 @@ export interface StudyReadQuery {
   topicKey?: string;
   /** Read the mistake history too (default true). The progress rungs never need it. */
   mistakes?: boolean;
+  /** Read the Tutor doubt events too (default true) — they feed `activity.tutor` only. */
+  tutor?: boolean;
   /** Testability seam — NOT a product parameter. */
   nowMs?: number;
+}
+
+/**
+ * ME-ENGINE-1 PR-2 (T3) — WHAT THE STUDENT DID in the window, per kind, from synced records only.
+ * Counts are honest at any n (no gate); each is the count of a real record, never an estimate.
+ */
+export interface StudyActivity {
+  /** Practice answers recorded (every attempt — graded answers and MCQ clicks). */
+  practice: number;
+  /** Of `practice`, answers CHECKED by the grader (`mode: "graded"`). */
+  answersChecked: number;
+  /** Tests TAKEN — graded records only (a pending-upload / partial test is not taken, G10). */
+  tests: { worksheets: number; chapterTests: number; fullMocks: number; total: number };
+  /** Check & Improve checks graded. */
+  checks: number;
+  /** The Tutor: doubts the student sent, and sessions (one chapter on one IST day). */
+  tutor: {
+    doubts: number;
+    sessions: number;
+    /** False when the Tutor read failed or hit its bound: the Tutor counts may be partial. */
+    complete: boolean;
+  };
 }
 
 /** Marks lost per owner group over a set of mistake entries — THE one split rule. */
@@ -130,6 +156,8 @@ export interface StudyReadModel {
   /** The progress rungs (gated trends), the ungated `totals`, graded-only activity counts. */
   progress: WindowedProgress;
   mistakes: MistakeView;
+  /** ME-ENGINE-1 PR-2 (T3) — activity counts per kind for the window and scope. */
+  activity: StudyActivity;
 }
 
 /* ───────────────────────────── pure rules (shared) ───────────────────────────── */
@@ -276,15 +304,51 @@ export function buildMistakeView(
   };
 }
 
+/**
+ * The activity of a window — pure. The progress counts come from the same windowed read as every
+ * other figure; the Tutor counts from the synced doubt events, scoped by the SAME subject split
+ * and the SAME canonicaliser (`boardChapterKey`) as everything else.
+ */
+export function buildStudyActivity(
+  progress: WindowedProgress,
+  tutorEvents: readonly TutorTurnEvent[],
+  scope: { start: number; end: number; subject?: ReadSubject | null; topicKey?: string | null },
+  tutorComplete: boolean,
+): StudyActivity {
+  const a = progress.activity;
+  const tests = {
+    worksheets: a.worksheets,
+    chapterTests: a.chapterTests,
+    fullMocks: a.fullMocks,
+    total: a.worksheets + a.chapterTests + a.fullMocks,
+  };
+  const doubts = tutorEvents.filter(
+    (e) =>
+      e.at >= scope.start &&
+      e.at <= scope.end &&
+      (!scope.subject || e.subject === scope.subject) &&
+      (!scope.topicKey || boardChapterKey(e.topicKey) === scope.topicKey),
+  );
+  return {
+    practice: a.practiceAttempts,
+    answersChecked: a.gradedAnswers ?? 0,
+    tests,
+    checks: a.checks ?? 0,
+    tutor: { doubts: doubts.length, sessions: tutorSessionCount(doubts), complete: tutorComplete },
+  };
+}
+
 function emptyModel(query: StudyReadQuery, now: number): StudyReadModel {
   const range = windowRange(query.window, now);
+  const progress = emptyWindowed(query.window);
   return {
     window: query.window,
     subject: query.subject ?? null,
     topicKey: null,
     range,
-    progress: emptyWindowed(query.window),
+    progress,
     mistakes: buildMistakeView([], { ...range }, true),
+    activity: buildStudyActivity(progress, [], range, true),
   };
 }
 
@@ -315,7 +379,7 @@ export async function readStudyModel(
     ...(query.subject ? { subject: query.subject } : {}),
     ...(topicKey ? { topicKey } : {}),
   };
-  const [progress, history] = await Promise.all([
+  const [progress, history, tutor] = await Promise.all([
     getWindowedProgress(realUid, query.window, scope, now),
     query.mistakes === false
       ? Promise.resolve({ entries: [] as MistakeLogEntry[], complete: true })
@@ -323,7 +387,14 @@ export async function readStudyModel(
           entries: [] as MistakeLogEntry[],
           complete: false,
         })),
+    query.tutor === false
+      ? Promise.resolve({ events: [] as TutorTurnEvent[], complete: true })
+      : getTutorTurnsFromCloud(realUid, range.start).catch(() => ({
+          events: [] as TutorTurnEvent[],
+          complete: false,
+        })),
   ]);
+  const fullScope = { start: range.start, end: range.end, subject: query.subject ?? null, topicKey };
 
   return {
     window: query.window,
@@ -331,10 +402,7 @@ export async function readStudyModel(
     topicKey,
     range,
     progress,
-    mistakes: buildMistakeView(
-      history.entries,
-      { start: range.start, end: range.end, subject: query.subject ?? null, topicKey },
-      history.complete,
-    ),
+    mistakes: buildMistakeView(history.entries, fullScope, history.complete),
+    activity: buildStudyActivity(progress, tutor.events, fullScope, tutor.complete),
   };
 }

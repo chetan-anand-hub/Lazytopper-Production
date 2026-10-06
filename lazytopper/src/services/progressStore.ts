@@ -98,6 +98,9 @@ export interface ActivitySummary {
    *  MCQ-click (`mode: "mcq"`) and binary rows. The sidebar MI widget's "checked answers"
    *  (SCORECARD-MI-1 H3) is exactly this rule. Optional: the device-local summary leaves it out. */
   gradedAnswers?: number;
+  /** ME-ENGINE-1 PR-2 (T3) — Check & Improve checks GRADED in the window (one per C&I session
+   *  record, `isTestTaken`). Optional: the device-local summary leaves it out. */
+  checks?: number;
   /** Raw graded-attempt count — the honest per-question figure the Me PR can phrase,
    *  never a fabricated set count.
    *  §1a as amended: QP now DOES write a (non-counting) record, so a practice-SET count
@@ -583,7 +586,7 @@ export function emptyWindowed(window: ReadWindow): WindowedProgress {
     concepts: [],
     sections: [],
     mistakeTypes: [],
-    activity: { worksheets: 0, chapterTests: 0, fullMocks: 0, practiceAttempts: 0, gradedAnswers: 0 },
+    activity: { worksheets: 0, chapterTests: 0, fullMocks: 0, checks: 0, practiceAttempts: 0, gradedAnswers: 0 },
     activitySpanDays: null,
     mistakeLog: { loggedInWindow: 0 },
   };
@@ -1104,6 +1107,7 @@ export async function getWindowedProgress(
       worksheets: takenRecords.filter((r) => r.surface === "worksheet").length,
       chapterTests: takenRecords.filter((r) => r.surface === "chapter-test").length,
       fullMocks: takenRecords.filter((r) => r.surface === "full-mock").length,
+      checks: takenRecords.filter((r) => r.surface === "check-improve").length,
       practiceAttempts: winAttempts.length,
       gradedAnswers: winAttempts.filter((a) => a.mode === "graded").length,
     },

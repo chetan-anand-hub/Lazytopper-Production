@@ -9,13 +9,15 @@
  * Only the CLOUD streams are mocked (attempts, session records, the synced mistake history);
  * `getWindowedProgress`, the read model and Me's derivations are REAL.
  *
- * ★ TWO NAMED SLOTS at the end (`it.todo`): the sidebar MI widget (its switch is HELD — the CI ops
- *   gate `check_improve_convergence_acceptance.mjs` MIC (H3) pins the card's OLD data source and
- *   may only be amended with the owner's words; the ready patch is recorded in the PR) and the
- *   Tutor brief (ME-ENGINE-1 PR-2).
+ * ★ The Tutor brief JOINED in ME-ENGINE-1 PR-2: for every window × paper and every chapter, the
+ *   brief == Me's numbers == the model (`briefFromModel`), and a Tutor doubt is counted.
+ * ★ ONE NAMED SLOT is left at the end (`it.todo`): the sidebar MI widget (its switch is HELD — the
+ *   CI ops gate `check_improve_convergence_acceptance.mjs` MIC (H3) pins the card's OLD data source
+ *   and may only be amended with the owner's words; the ready patch is recorded in PR-1).
  *
- * Mutation this file turns RED: M3 — a reader with its own canonicaliser (Me's chapter list
- * grouping mistakes by `normalizeTopicKey` again, the topicAliasMap vocabulary).
+ * Mutations this file turns RED: M3 — a reader with its own canonicaliser (Me's chapter list
+ * grouping mistakes by `normalizeTopicKey` again, the topicAliasMap vocabulary); PR-2 W — the
+ * brief reading a different window than the one it is asked for (e.g. its old fixed 120 days).
  */
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
@@ -24,6 +26,7 @@ import { MemoryRouter } from "react-router-dom";
 import type { PracticeAttempt } from "./practiceInsights";
 import type { SessionRecord } from "./sessionRecords";
 import type { MistakeLogEntry } from "./mistakeLogService";
+import type { TutorTurnEvent } from "./tutorSessionStore";
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
@@ -34,6 +37,7 @@ const H = vi.hoisted(() => ({
   attempts: [] as PracticeAttempt[],
   records: [] as SessionRecord[],
   mistakes: [] as MistakeLogEntry[],
+  turns: [] as TutorTurnEvent[],
 }));
 
 vi.mock("./practiceInsights", async (importOriginal) => ({
@@ -56,6 +60,13 @@ vi.mock("./mistakeLogService", async (importOriginal) => ({
     complete: true,
   }),
 }));
+vi.mock("./tutorSessionStore", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./tutorSessionStore")>()),
+  getTutorTurnsFromCloud: async (_uid: string, startMs: number) => ({
+    events: H.turns.filter((e) => e.at >= startMs),
+    complete: true,
+  }),
+}));
 vi.mock("./progressBankIndex", () => ({ conceptForQuestionId: () => null }));
 vi.mock("../components/subscription/UpgradeSheet", () => ({ UpgradeSheet: () => null }));
 vi.mock("../hooks/useIsDesktop", () => ({ useIsDesktop: () => true }));
@@ -72,6 +83,8 @@ import {
   type StudyReadModel,
 } from "./progressReadModel";
 import MeProgressPage, { buildChapters, splitPaperMarks } from "../pages/MeProgressPage";
+import { assembleTutorBrief, briefFromModel } from "../pages/tutor/tutorContextBrief";
+import { mistakeGroupByKey } from "../lib/mistakeDisplay";
 import { zeroMarksLost } from "../lib/mistakeDisplay";
 
 const UID = "u-g3";
@@ -128,16 +141,29 @@ beforeAll(() => {
   H.records = [];
   H.mistakes = [
     // Maths — "Mathematics" is the same paper (one subject split)
-    mistake("quick-practice::M1::q1", at(0.2), { subject: "Mathematics", marksLost: 2, ...v2({ conceptual: 1, calculation: 0.5, untyped: 0.5 }) }),
+    mistake("quick-practice::M1::q1", at(0.2), { subject: "Mathematics", marksLost: 2, concept: "Euclid's division lemma", ...v2({ conceptual: 1, calculation: 0.5, untyped: 0.5 }) }),
     mistake("1727000000000-legacy1", at(20), { marksLost: 2, mistakeCounts: { conceptual: 0, calculation: 0, silly: 1, presentation: 0 }, stepDetails: [{ stepNumber: 1, mistakeType: "silly", marksDeducted: 1 }] }),
     mistake("quick-practice::M2::q8", at(130), { topic: "Polynomials", marksLost: 3, ...v2({ presentation: 1, conceptual: 2 }) }),
     // re-graded away — history only, never a live number
     mistake("quick-practice::M3::q4", at(30), { marksLost: 3, ...v2({ conceptual: 3 }), resolvedAt: new Date(NOW - at(29)).toISOString(), resolvedBy: "re-grade" }),
     // Science — the topic LABELS are the spellings a second canonicaliser splits differently
-    mistake("quick-practice::S1::q13", at(0.3), { subject: "Science", topic: "Heredity and Evolution", marksLost: 2, ...v2({ conceptual: 2 }) }),
+    mistake("quick-practice::S1::q13", at(0.3), { subject: "Science", topic: "Heredity and Evolution", marksLost: 2, concept: "Mendel's contribution", ...v2({ conceptual: 2 }) }),
     mistake("1727000000000-legacy2", at(10), { subject: "Science", topic: "How do Organisms Reproduce", marksLost: 1, mistakeCounts: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 }, stepDetails: [{ stepNumber: 1, mistakeType: "conceptual", marksDeducted: 1 }] }),
     // won back later — still a live mistake where it happened, and counted as won back
     mistake("quick-practice::S2::q14", at(25), { subject: "Science", topic: "Heredity", marksLost: 2, ...v2({ calculation: 2 }), resolvedAt: new Date(NOW - at(2)).toISOString(), resolvedBy: "later-correct-attempt" }),
+  ];
+  // Tutor doubts: two today on Real Numbers (ONE session), one 3 days ago on Heredity, one
+  // 50 days ago on Polynomials.
+  const turn = (agoMs: number, topicKey: string, subject: "maths" | "science"): TutorTurnEvent => ({
+    at: NOW - agoMs,
+    topicKey,
+    subject,
+  });
+  H.turns = [
+    turn(at(0.1), "real-numbers", "maths"),
+    turn(at(0.15), "real-numbers", "maths"),
+    turn(3 * DAY, "heredity", "science"),
+    turn(50 * DAY, "polynomials", "maths"),
   ];
 });
 
@@ -243,17 +269,88 @@ describe("G3 — the rendered surfaces print the model's numbers", () => {
   });
 });
 
-/* ───────────────────────────── the Tutor slot (PR-2) ───────────────────────────── */
+/* ───────────────────────────── the Tutor brief (PR-2) ───────────────────────────── */
 
-describe("G3 — the surfaces that join this pin next", () => {
+const CHAPTERS = ["real-numbers", "polynomials", "heredity", "how-do-organisms-reproduce", "electricity"];
+
+describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every window × paper × chapter", () => {
+  for (const window of READ_WINDOWS) {
+    for (const subject of ["maths", "science"] as const) {
+      it(`${window} · ${subject}`, async () => {
+        const m = await model(window, subject);
+        // Me's numbers for the paper, from Me's own (exported) derivations.
+        const both = await model(window, null);
+        const split = splitPaperMarks(subjectRungOf(both.progress, subject), m.mistakes.entries);
+        for (const chapter of CHAPTERS) {
+          const brief = await assembleTutorBrief({ uid: UID, topicKey: chapter, subject, window, nowMs: NOW });
+          // The read-model API, the same read: the brief IS the model's figures.
+          expect(brief).toEqual(briefFromModel(m, chapter));
+          // == Me: "marks on the table" and the hero's biggest group, or nothing below Me's gate.
+          if (split) {
+            expect(brief.mistakes.marksLostRecent).toBe(split.lost);
+            const groups = (["knowledge", "technique", "careless"] as const).filter((g) => split[g] > 0);
+            const top = groups.reduce<(typeof groups)[number] | null>((best, g) => (best && split[best] >= split[g] ? best : g), null);
+            expect(brief.mistakes.topType ?? null).toBe(top ? mistakeGroupByKey(top).label.toLowerCase() : null);
+          } else {
+            expect(brief.mistakes).toEqual({});
+          }
+          // == Me's chapter list: the trend only where the model has the chapter's rung (the rung
+          // Me's chapter list is built from); named concepts only from the chapter's live mistakes.
+          const rung = m.progress.topics.find((r) => r.key === chapter);
+          expect(Boolean(brief.topic.trend)).toBe(Boolean(rung));
+          if (brief.topic.weakConcepts) {
+            const live = new Set((m.mistakes.byChapter[chapter] ?? []).map((e) => e.concept));
+            for (const c of brief.topic.weakConcepts) expect(live.has(c)).toBe(true);
+            const meChapter = buildChapters(m.progress.topics, PAPER_LABEL[subject], m.mistakes.byChapter).find((c) => c.key === chapter);
+            if (meChapter) expect(meChapter.retryEntry).not.toBeNull();
+          }
+        }
+      });
+    }
+  }
+
+  it("★ PRECONDITIONS — the brief carries real figures in the week (the pin is not vacuous)", async () => {
+    const maths = await assembleTutorBrief({ uid: UID, topicKey: "real-numbers", subject: "maths", window: "week", nowMs: NOW });
+    expect(maths.mistakes.marksLostRecent).toBeGreaterThan(0);
+    expect(maths.mistakes.topType).toBeTruthy();
+    expect(maths.topic.trend).toBeTruthy();
+    expect(maths.topic.weakConcepts).toEqual(["Euclid's division lemma"]);
+    const science = await assembleTutorBrief({ uid: UID, topicKey: "Heredity and Evolution", subject: "science", window: "week", nowMs: NOW });
+    expect(science.topic.weakConcepts).toEqual(["Mendel's contribution"]);
+    // The window is honoured: today has no gated rung, so no trend and no hero figure.
+    const today = await assembleTutorBrief({ uid: UID, topicKey: "real-numbers", subject: "maths", window: "today", nowMs: NOW });
+    expect(today.topic.trend).toBeUndefined();
+    expect(today.mistakes).toEqual({});
+  });
+});
+
+describe("G3 — activity: a Tutor doubt is counted in every window, by the model's one read", () => {
+  const expected: Record<(typeof READ_WINDOWS)[number], { doubts: number; sessions: number }> = {
+    today: { doubts: 2, sessions: 1 },
+    week: { doubts: 3, sessions: 2 },
+    "2wk": { doubts: 3, sessions: 2 },
+    month: { doubts: 3, sessions: 2 },
+    "4mo": { doubts: 4, sessions: 3 },
+  };
+  for (const window of READ_WINDOWS) {
+    it(`${window} — doubts and sessions, both papers and per paper`, async () => {
+      const all = await model(window, null);
+      expect(all.activity.tutor).toEqual({ ...expected[window], complete: true });
+      const maths = await model(window, "maths");
+      const science = await model(window, "science");
+      expect(maths.activity.tutor.doubts + science.activity.tutor.doubts).toBe(all.activity.tutor.doubts);
+      // The other activity counts are the progress read's own, one rule.
+      expect(all.activity.practice).toBe(all.progress.activity.practiceAttempts);
+      expect(all.activity.answersChecked).toBe(all.progress.activity.gradedAnswers);
+    });
+  }
+});
+
+describe("G3 — the surface that joins this pin next", () => {
   // ★ NAMED SLOT — the sidebar MI widget. HELD: `scripts/ops/check_improve_convergence_acceptance.mjs`
   // MIC (H3) pins `getAttemptsFromCloud(` / `a.mode === "graded"` / `aggregateEntryMarks(entries)` /
   // `groupMarks(marks)` in MistakeIntelCard.tsx, so the card cannot read this model until the owner
   // approves amending those gate lines. Then: `computeMiCardSummary(readStudyModel(uid, { window:
   // "week" }))` and assert checkedCount / marks lost / biggest loss == the model, every window and scope.
   it.todo("[FU-ME1-WIDGET-GATE] · the sidebar MI widget reads readStudyModel and joins this pin");
-  // ★ NAMED HOOK for ME-ENGINE-1 PR-2: switch `assembleTutorBrief` to `readStudyModel(uid,
-  // { window, subject, topicKey })` and assert, for the same fixture, window and subject, that the
-  // brief's figures equal the model's (and so Me's).
-  it.todo("ME-ENGINE-1 PR-2 · the Tutor brief reads readStudyModel and joins this pin");
 });

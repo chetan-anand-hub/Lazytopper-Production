@@ -1,69 +1,114 @@
 /**
- * SCORECARD-MI-1 PR-2 (B7) — the tutor brief's top type is the insight's, which is now the
- * biggest loss in MARKS whenever v2 entries exist, so the tutor coaches the real biggest loss.
- * The REAL mistakeInsightsService runs here; only the log READ (and the unrelated reads) are
- * mocked, so this proves the wiring end to end, not a retyped string.
+ * SCORECARD-MI-1 PR-2 (B7), as re-wired by ME-ENGINE-1 PR-2 — the tutor brief names the biggest
+ * loss in MARKS, and it is the SAME split Me/Progress's hero shows: the shared read model's ONE
+ * group split (`mistakeLossByGroup`) over the paper's live synced mistakes in Me's window. v2
+ * entries count by their own marks; legacy count-only entries by the step deductions the grader
+ * wrote, as stored. `marksLostRecent` is Me's "marks on the table" (the model's ungated total).
+ *
+ * The REAL read model runs; only the cloud streams are mocked.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { MistakeLogEntry } from "../../services/mistakeLogService";
+import type { PracticeAttempt } from "../../services/practiceInsights";
 
-const h = vi.hoisted(() => ({ entries: [] as unknown[] }));
-vi.mock("../../services/mistakeLogService", () => ({ getMistakeLogs: vi.fn(async () => h.entries) }));
-vi.mock("../../services/weakAreaAggregator", () => ({ getWeakAreas: () => ({ weakAreas: [] }) }));
-vi.mock("../../services/progressStore", () => ({ getTopicTrendFromCloud: vi.fn(async () => null) }));
-vi.mock("../../data/syllabus/canonicalTopicSlug", () => ({ resolveCanonicalSlug: (k: string) => k }));
+const NOW = Date.UTC(2026, 9, 6, 6, 0); // 11:30 IST
+const HOUR = 60 * 60 * 1000;
 
-import { assembleTutorBrief, describeBriefTopType, describeTopMistakeType, MARKS_BASIS_SUFFIX } from "./tutorContextBrief";
+const h = vi.hoisted(() => ({ entries: [] as unknown[], attempts: [] as unknown[] }));
+vi.mock("../../services/practiceInsights", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../services/practiceInsights")>()),
+  getAttemptsFromCloud: async () => h.attempts,
+}));
+vi.mock("../../services/sessionRecords", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../services/sessionRecords")>()),
+  getSessionRecordsFromCloud: async () => [],
+  getAllSessionPerQuestionFromCloud: async () => [],
+}));
+vi.mock("../../services/mistakeLogService", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../services/mistakeLogService")>()),
+  getMistakeLogs: async () => [],
+  getMistakeLogHistoryFromCloud: async () => ({ entries: h.entries, complete: true }),
+}));
+vi.mock("../../services/progressBankIndex", () => ({ conceptForQuestionId: () => null }));
+
+import { assembleTutorBrief, describeBriefTopType, describeTopMistakeType } from "./tutorContextBrief";
+import { readStudyModel } from "../../services/progressReadModel";
 import { zeroMarksLost } from "../../lib/mistakeDisplay";
 
 let seq = 0;
-function entry(counts: Partial<MistakeLogEntry["mistakeCounts"]>, marks?: Partial<ReturnType<typeof zeroMarksLost>>): MistakeLogEntry {
+function entry(counts: Partial<MistakeLogEntry["mistakeCounts"]>, marks?: Partial<ReturnType<typeof zeroMarksLost>>, steps?: MistakeLogEntry["stepDetails"]): MistakeLogEntry {
   seq += 1;
   const base: MistakeLogEntry = {
-    id: `e-${seq}`,
-    timestamp: new Date(Date.UTC(2026, 9, 1, 9, seq)).toISOString(),
+    id: `quick-practice::S::q${seq}`,
+    timestamp: new Date(NOW - seq * HOUR).toISOString(),
     questionText: "q",
     topic: "Real Numbers",
     subject: "maths",
     totalMarks: 3,
     marksLost: 1,
     mistakeCounts: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, ...counts },
-    stepDetails: [],
+    stepDetails: steps ?? [],
   };
   return marks ? { ...base, marksLostByType: { ...zeroMarksLost(), ...marks }, marksLostByTypeVersion: 1 } : base;
 }
 
-const ARGS = { uid: "u-1", topicKey: "real-numbers", subject: "maths" as const };
+/** Eight graded Maths answers this week → Me's Maths hero is shown (the gate is met). */
+function gatedAttempts(): PracticeAttempt[] {
+  return [1, 3, 6, 10, 15, 22, 30, 40].map(
+    (agoH, i) =>
+      ({
+        id: `a${i}`,
+        timestamp: NOW - agoH * HOUR,
+        subject: "maths",
+        topicKey: "real-numbers",
+        topicName: "Real Numbers",
+        questionId: `b${i}`,
+        marksScored: 1,
+        marksAvailable: 3,
+        mode: "graded",
+      }) as unknown as PracticeAttempt,
+  );
+}
+
+const ARGS = { uid: "u-1", topicKey: "real-numbers", subject: "maths" as const, window: "week" as const, nowMs: NOW };
 
 beforeEach(() => {
   h.entries = [];
+  h.attempts = gatedAttempts();
   seq = 0;
 });
 
-describe("B7 — the brief names the biggest loss in MARKS when the insight decided on marks", () => {
+describe("B7 — the brief names Me's biggest loss in MARKS (the model's one group split)", () => {
   it("★ a 3-mark concept gap vs two ½-mark silly slips → the tutor hears the knowledge gap", async () => {
-    h.entries = [
-      entry({ conceptual: 1 }, { conceptual: 3 }),
-      entry({ silly: 1 }, { silly: 0.5 }),
-      entry({ silly: 1 }, { silly: 0.5 }),
-    ];
+    h.entries = [entry({ conceptual: 1 }, { conceptual: 3 }), entry({ silly: 1 }, { silly: 0.5 }), entry({ silly: 1 }, { silly: 0.5 })];
     const brief = await assembleTutorBrief(ARGS);
-    expect(brief.mistakes.topType).toBe(`knowledge gap (concept gap)${MARKS_BASIS_SUFFIX}`);
-    expect(brief.mistakes.topType).toBe("knowledge gap (concept gap)");
+    expect(brief.mistakes.topType).toBe("knowledge gap");
     expect(brief.hasData).toBe(true);
   });
 
-  it("CONTROL — count-only entries: the same counts read exactly as before (no marks claim)", async () => {
-    h.entries = [entry({ conceptual: 1 }), entry({ silly: 1 }), entry({ silly: 1 })];
-    const brief = await assembleTutorBrief(ARGS);
-    expect(brief.mistakes.topType).toBe("careless (silly slip)");
-    expect(brief.mistakes.topType).not.toContain("marks");
+  it("legacy count-only entries: split by the step deductions as stored (Me's rule), never by counts", async () => {
+    // Two careless COUNTS, but the grader's deductions put more marks on the concept gap.
+    h.entries = [
+      entry({ conceptual: 1 }, undefined, [{ stepNumber: 1, mistakeType: "conceptual", marksDeducted: 2 }]),
+      entry({ silly: 1 }, undefined, [{ stepNumber: 1, mistakeType: "silly", marksDeducted: 0.5 }]),
+      entry({ silly: 1 }, undefined, [{ stepNumber: 1, mistakeType: "silly", marksDeducted: 0.5 }]),
+    ];
+    expect((await assembleTutorBrief(ARGS)).mistakes.topType).toBe("knowledge gap");
   });
 
-  it("marksLostRecent stays the sum of the entries' own marksLost (already marks)", async () => {
-    h.entries = [entry({ silly: 1 }), entry({ silly: 1 }), entry({ conceptual: 1 })];
+  it("marksLostRecent is Me's \"marks on the table\" — the model's ungated total for the paper", async () => {
+    h.entries = [entry({ silly: 1 }, { silly: 1 })];
     const brief = await assembleTutorBrief(ARGS);
-    expect(brief.mistakes.marksLostRecent).toBe(3);
+    const model = await readStudyModel("u-1", { window: "week", subject: "maths", nowMs: NOW });
+    expect(brief.mistakes.marksLostRecent).toBe(model.progress.totals!.marksLost);
+    expect(brief.mistakes.marksLostRecent).toBe(16); // 8 answers × (3 − 1)
+  });
+
+  it("below Me's gate (fewer than 6 graded answers) → no top type and no marks figure", async () => {
+    h.attempts = gatedAttempts().slice(0, 3);
+    h.entries = [entry({ conceptual: 1 }, { conceptual: 3 })];
+    const brief = await assembleTutorBrief(ARGS);
+    expect(brief.mistakes).toEqual({});
   });
 });
 
