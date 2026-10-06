@@ -33,6 +33,7 @@ import {
   LT_GENERATED_QUESTION_IDS,
 } from "./canonicalQuestionBank";
 import type { CanonicalQuestion } from "./predictionTypes";
+import { resolveCanonicalSlug } from "./syllabus/canonicalTopicSlug";
 import { PredictionCore } from "./predictionCore";
 import { generatePracticeSet } from "./practiceSetGenerator";
 import { predictedQuestions } from "./predictedQuestions";
@@ -61,6 +62,18 @@ const THIN_CONCEPTS = [
 /** Owner target (GEN-THIN-1 §2): every thin concept serves ≥ 10 questions. */
 const THIN_FLOOR = 10;
 
+/** Chapter codes that bank ids carry (e.g. PYQ-S-2025-ACID-008, CIRC-N-NCERT-10-…, CBE-S-MAGN-…). */
+const CHAPTER_ID_CODES: Record<string, string> = {
+  RN: "real-numbers", POLY: "polynomials", PLE: "pair-of-linear-equations", QE: "quadratic-equations",
+  AP: "arithmetic-progression", TRI: "triangles", CG: "coordinate-geometry", TRIG: "trigonometry",
+  CIRC: "circles", ARC: "areas-related-to-circles", SAV: "surface-areas-and-volumes", STAT: "statistics",
+  PROB: "probability", CHEMRXN: "chemical-reactions-and-equations", ACID: "acids-bases-and-salts",
+  METAL: "metals-and-non-metals", CARB: "carbon-and-its-compounds", LIFE: "life-processes",
+  CTRL: "control-and-coordination", REPR: "how-do-organisms-reproduce", HERED: "heredity",
+  LIGHT: "light-reflection-and-refraction", LGHT: "light-reflection-and-refraction",
+  EYE: "human-eye-and-colourful-world", ELEC: "electricity", MAG: "magnetic-effects-of-electric-current",
+  MAGN: "magnetic-effects-of-electric-current", ENV: "our-environment",
+};
 const NCERT_ID = /^(rn-n-|poly-n-|ple-n-|qe-n-|ap-n-|tri-n-|cg-n-|trig-n-|circ-n-|arc-n-|sav-n-|stat-n-|prob-n-)|ncert|exemplar|-exmplr-|-ncert-|-exem-/i;
 const SECTION_FOR_MARKS: Record<number, string> = { 1: "A", 2: "B", 3: "C", 5: "D", 4: "E" };
 const STEP = /^\[(\d+(?:\.5)?|½) marks?\]\s/;
@@ -90,6 +103,25 @@ describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped"
       expect(String(q.modelledOn ?? "").trim().length, `${q.id} modelledOn`).toBeGreaterThanOrEqual(12);
       expect(AI_GENERATED_QUESTION_IDS.has(q.id)).toBe(false);
     }
+  });
+
+  it("every template is a SAME-SUBJECT, SAME-CHAPTER row whose id names no other chapter (owner, sample review 2026-10-06)", () => {
+    // The owner caught LTG-S-MAG rows citing `PYQ-S-2026-ACID-018` — really the 2026 Magnetic
+    // Effects board question (31/5/2 Q39), filed under an Acids-looking id. A citation must be
+    // unambiguous to an auditor, so the template must share subject and chapter AND its id must
+    // carry no chapter code of a different chapter.
+    for (const q of GEN) {
+      const tpl = BANK_BY_ID.get(String(q.shapedFrom))!;
+      expect(tpl.subject, `${q.id} -> ${tpl.id} subject`).toBe(q.subject);
+      expect(resolveCanonicalSlug(tpl.topicKey), `${q.id} -> ${tpl.id} chapter`).toBe(resolveCanonicalSlug(q.topicKey));
+      const named = String(tpl.id).toUpperCase().split(/[-_]/).map((t) => CHAPTER_ID_CODES[t]).filter(Boolean);
+      for (const ch of named) expect(ch, `${q.id} -> ${tpl.id} names chapter ${ch}`).toBe(resolveCanonicalSlug(q.topicKey));
+    }
+  });
+
+  it("CONTROL — the chapter-code check fires on the Acids-looking id it was written for", () => {
+    const named = "PYQ-S-2026-ACID-018".split("-").map((t) => CHAPTER_ID_CODES[t]).filter(Boolean);
+    expect(named).toEqual(["acids-bases-and-salts"]);
   });
 
   it("no row carries a field that would make it read as a past-year / NCERT question, and no id looks like one", () => {

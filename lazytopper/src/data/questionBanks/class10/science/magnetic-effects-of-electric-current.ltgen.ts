@@ -107,9 +107,9 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "finalAnswer": "It reverses its direction periodically, with a frequency of 50 Hz.",
     "isCompetencyBased": false,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-S-2026-ACID-018",
+    "shapedFrom": "MAG-EXMPLR-12-SA-011",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 31/5/2 Q39"
+    "modelledOn": "NCERT Exemplar Science Class X Ch 12 Q23"
   },
   {
     "id": "LTG-S-MAG-005",
@@ -183,9 +183,9 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "finalAnswer": "DC: one direction, from a cell/battery. AC: reverses direction periodically (50 Hz in India), supplied by power stations.",
     "isCompetencyBased": false,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-S-2026-ACID-018",
+    "shapedFrom": "MAG-EXMPLR-12-SA-011",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 31/5/2 Q39"
+    "modelledOn": "NCERT Exemplar Science Class X Ch 12 Q23"
   },
   {
     "id": "LTG-S-MAG-008",
@@ -257,9 +257,9 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "finalAnswer": "(a) Riya; (b) 50 cycles/s × 2 reversals per cycle = 100; (c) 0.01 s.",
     "isCompetencyBased": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-S-2026-ACID-018",
+    "shapedFrom": "MAG-EXMPLR-12-SA-011",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 31/5/2 Q39"
+    "modelledOn": "NCERT Exemplar Science Class X Ch 12 Q23"
   },
   // ── Advantage of AC over DC ─────────────────────────────────────────────────
   {
@@ -342,9 +342,9 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "finalAnswer": "AC, because it can be sent over long distances with much less loss of energy",
     "isCompetencyBased": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-S-2026-ACID-018",
+    "shapedFrom": "CBE-S-MAGN-B-006",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 31/5/2 Q39"
+    "modelledOn": "CBSE Science Item Bank Class X (2021) Magnetic Effects B-006"
   },
   {
     "id": "LTG-S-MAG-014",
@@ -442,9 +442,9 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "finalAnswer": "(a) DC; (b) AC; AC can be transmitted over long distances with little loss of energy.",
     "isCompetencyBased": false,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-S-2026-ACID-018",
+    "shapedFrom": "CBE-S-MAGN-B-006",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 31/5/2 Q39"
+    "modelledOn": "CBSE Science Item Bank Class X (2021) Magnetic Effects B-006"
   },
   {
     "id": "LTG-S-MAG-018",
@@ -492,9 +492,9 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "finalAnswer": "(a) DC one-way, AC periodically reversing; (b) long-distance transmission with little loss; (c) cell/battery and power station.",
     "isCompetencyBased": false,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-S-2026-ACID-018",
+    "shapedFrom": "MAG-EXMPLR-12-SA-011",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 31/5/2 Q39"
+    "modelledOn": "NCERT Exemplar Science Class X Ch 12 Q23"
   },
   {
     "id": "LTG-S-MAG-020",
@@ -519,8 +519,8 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "finalAnswer": "(b) 50 Hz, 100 reversals per second; (d) 5 A — the 4 A fuse is not suitable (it will blow).",
     "isCompetencyBased": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-S-2026-ACID-018",
+    "shapedFrom": "SCQ-S-MAG-039",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 31/5/2 Q39"
+    "modelledOn": "CBSE chapter-wise board practice (Magnetic Effects) Q98"
   }
 ];
