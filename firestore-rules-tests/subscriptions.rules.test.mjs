@@ -31,7 +31,7 @@ import {
   assertFails,
   assertSucceeds,
 } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const RULES_PATH = path.resolve(HERE, "..", "firestore.rules");
@@ -707,4 +707,55 @@ test("17b ME-ENGINE-1 — ANOTHER student can neither resolve nor read it", asyn
 test("17c ME-ENGINE-1 — a signed-out visitor can neither resolve nor read it", async () => {
   await assertFails(updateDoc(miDoc(asSignedOut(), STUDENT), RESOLUTION));
   await assertFails(getDoc(miDoc(asSignedOut(), STUDENT)));
+});
+
+// ===========================================================================
+// 18 — ME-ENGINE-1 PR-2 (G8): the TUTOR DOUBT TIMES. Every doubt a student sends to the
+//      Tutor adds its send time to `doubtsAt` on her `tutorSessions/{uid}` container (a merged
+//      map write with arrayUnion — when, which chapter, which paper; no text, no grade).
+//      firestore.rules is UNCHANGED (that document is owner-only). These pin that the owner can
+//      write and read it, and NO ONE else can.
+// 19 — ME-ENGINE-1 PR-2 (G11): the SYNCED WRONG-ANSWER LOG, the `wrongAnswerLog` field of
+//      `learnerProfiles/{uid}` (owner-only), written with `mergeFields` (replaced whole).
+// ===========================================================================
+const tutorDoc = (db, uid) => doc(db, "tutorSessions", uid);
+const DOUBT_AT = 1791301207375;
+
+test("18 ME-ENGINE-1 PR-2 — the OWNER records her Tutor doubt time and reads it back", async () => {
+  await assertSucceeds(setDoc(tutorDoc(asStudent(STUDENT), STUDENT), { doubtsAt: { "maths:triangles": arrayUnion(DOUBT_AT) } }, { merge: true }));
+  await assertSucceeds(setDoc(tutorDoc(asStudent(STUDENT), STUDENT), { doubtsAt: { "maths:triangles": arrayUnion(DOUBT_AT + 1) } }, { merge: true }));
+  const snap = await assertSucceeds(getDoc(tutorDoc(asStudent(STUDENT), STUDENT)));
+  assert.deepEqual(snap.data().doubtsAt, { "maths:triangles": [DOUBT_AT, DOUBT_AT + 1] }, "the doubt times were not stored");
+});
+
+test("18b ME-ENGINE-1 PR-2 — ANOTHER student can neither write nor read a student's Tutor doubts", async () => {
+  await assertFails(setDoc(tutorDoc(asStudent(OTHER), STUDENT), { doubtsAt: { "maths:triangles": arrayUnion(DOUBT_AT) } }, { merge: true }));
+  await assertFails(getDoc(tutorDoc(asStudent(OTHER), STUDENT)));
+});
+
+test("18c ME-ENGINE-1 PR-2 — a signed-out visitor can neither write nor read a Tutor doubt", async () => {
+  await assertFails(setDoc(tutorDoc(asSignedOut(), STUDENT), { doubtsAt: { "maths:triangles": arrayUnion(DOUBT_AT) } }, { merge: true }));
+  await assertFails(getDoc(tutorDoc(asSignedOut(), STUDENT)));
+});
+
+const profileDoc = (db, uid) => doc(db, "learnerProfiles", uid);
+const WAL = {
+  version: 1,
+  updatedAt: 1791301207375,
+  entries: { "triangles::Similarity criteria": { questionId: "q-1", topicKey: "triangles", conceptKey: "Similarity criteria", difficulty: "Medium", timestamp: 1791301207375, count: 2 } },
+};
+
+test("19 ME-ENGINE-1 PR-2 — the OWNER syncs her wrong-answer log (mergeFields) and reads it back whole", async () => {
+  await assertSucceeds(setDoc(profileDoc(asStudent(STUDENT), STUDENT), { goal: "board exam" }, { merge: true }));
+  await assertSucceeds(setDoc(profileDoc(asStudent(STUDENT), STUDENT), { wrongAnswerLog: WAL }, { mergeFields: ["wrongAnswerLog"] }));
+  const snap = await assertSucceeds(getDoc(profileDoc(asStudent(STUDENT), STUDENT)));
+  assert.deepEqual(snap.data().wrongAnswerLog, WAL, "the wrong-answer log was not stored whole");
+  assert.equal(snap.data().goal, "board exam", "the other profile fields must be untouched");
+});
+
+test("19b ME-ENGINE-1 PR-2 — another student or a signed-out visitor can neither write nor read it", async () => {
+  await assertFails(setDoc(profileDoc(asStudent(OTHER), STUDENT), { wrongAnswerLog: WAL }, { mergeFields: ["wrongAnswerLog"] }));
+  await assertFails(getDoc(profileDoc(asStudent(OTHER), STUDENT)));
+  await assertFails(setDoc(profileDoc(asSignedOut(), STUDENT), { wrongAnswerLog: WAL }, { mergeFields: ["wrongAnswerLog"] }));
+  await assertFails(getDoc(profileDoc(asSignedOut(), STUDENT)));
 });

@@ -5,17 +5,26 @@
 // The server stays stateless, so the honesty guard (D-TUT-8) is structural — the
 // tutor cannot write a grade/score.
 //
-// CANONICAL KEYS (D-TUT-14, the progress-saga lesson): every topic key is normalized
-// through resolveCanonicalSlug — the SINGLE authority. We deliberately do NOT touch
-// the rival resolveCanonicalTopicKey (topicAliasMap) the old tutor used; mixing the
-// two is the "two canonicalizers -> silent miss" trap.
+// ME-ENGINE-1 PR-2 (G2) — THE BRIEF READS THE SHARED MODEL. Every figure comes from ONE
+// `readStudyModel` read (services/progressReadModel) — the read Me/Progress makes — for the SAME
+// window (Me's default, `TUTOR_BRIEF_WINDOW`) and the SAME paper, through the model's ONE
+// canonicaliser (`boardChapterKey`, the 26 board chapters) and its honesty gates. So the Tutor
+// and Me can no longer disagree. Gone: the DEVICE-LOCAL weak areas (`getWeakAreas`, which also
+// WROTE two Firestore docs on every build), the 120-day trend read, and the 14-day both-papers
+// MI insight. No mastery or per-concept percentage is sent (A-17 ruling 6): a real per-concept
+// STATE needs the concept mapping (ME-ENGINE-1 PR-3); until then the brief names only the
+// concepts of the chapter's real, synced mistakes, or nothing.
 
-import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
-import { getMistakeInsights } from "../../services/mistakeInsightsService";
-import { getWeakAreas } from "../../services/weakAreaAggregator";
-import { getTopicTrendFromCloud } from "../../services/progressStore";
+import {
+  boardChapterKey,
+  readStudyModel,
+  subjectRungOf,
+  topLossGroup,
+  type ReadWindow,
+  type StudyReadModel,
+} from "../../services/progressReadModel";
 import type { TutorBrief } from "../../ai/tutorClient";
-import { mistakeGroupOf, mistakeTypeLabel } from "../../lib/mistakeDisplay";
+import { mistakeGroupByKey, mistakeGroupOf, mistakeTypeLabel } from "../../lib/mistakeDisplay";
 
 /**
  * SCORECARD-MI-1 (B3) — the top type as the tutor should hear it: by its owner GROUP, so a
@@ -46,79 +55,94 @@ export function describeBriefTopType(type: unknown, basis: "marks" | "counts" | 
   return basis === "marks" && described ? `${described}${MARKS_BASIS_SUFFIX}` : described;
 }
 
-const MI_WINDOW_DAYS = 14;
+/**
+ * The window the brief reads: Me/Progress's default window (`MeProgressPage` opens on "month").
+ * The Tutor has no window picker, so it speaks for the window a student sees first on Me.
+ */
+export const TUTOR_BRIEF_WINDOW: ReadWindow = "month";
 const TREND_EPSILON = 2; // pct-points that count as real movement (else "stable")
+/** At most this many weak concepts are named. */
+const MAX_WEAK_CONCEPTS = 3;
 
 export interface AssembleBriefArgs {
   uid: string | null;
-  /** Topic slug as it arrives from the route — canonicalized inside. */
+  /** Topic slug as it arrives from the route — canonicalized inside (boardChapterKey). */
   topicKey: string;
   subject: "maths" | "science" | "";
+  /** The read window — Me's default unless a caller (the G3 pin) names another. */
+  window?: ReadWindow;
+  /** Testability seam — NOT a product parameter. */
+  nowMs?: number;
 }
 
 /**
- * Distill a compact, honest brief. Every read is wrapped so a single failure never
- * breaks the tutor — a thin/absent signal simply yields hasData:false, and the
- * server is then told to reference no performance and invent nothing.
+ * The brief, from ONE model read — pure, so the G3 pin can hold it against Me and the model.
+ * Every field mirrors what Me shows for the same paper and window:
+ *   - `mistakes.marksLostRecent` = Me's "marks on the table" (the ungated total), and
+ *     `mistakes.topType` = the group that cost the most marks in Me's hero split — BOTH only when
+ *     Me shows its hero (the paper's gated subject rung exists); below that gate, nothing;
+ *   - `topic.trend` = the direction of the chapter's gated rung (±2 points dead-band), the rung
+ *     Me's chapter list prints; no rung → no trend;
+ *   - `topic.weakConcepts` = the recorded concepts of the chapter's LIVE synced mistakes, by
+ *     marks lost (≤ 3). Only labels the grading wrote; never a percentage, never invented.
+ */
+export function briefFromModel(model: StudyReadModel, chapterKey: string): TutorBrief {
+  const brief: TutorBrief = { hasData: false, topic: {}, mistakes: {} };
+
+  const rung = chapterKey ? model.progress.topics.find((r) => r.key === chapterKey) : undefined;
+  if (rung) {
+    const d = rung.delta;
+    brief.topic.trend = d > TREND_EPSILON ? "improving" : d < -TREND_EPSILON ? "worsening" : "stable";
+  }
+
+  const chapterMistakes = chapterKey ? model.mistakes.byChapter[chapterKey] ?? [] : [];
+  const byConcept = new Map<string, number>();
+  for (const e of chapterMistakes) {
+    const c = typeof e.concept === "string" ? e.concept.trim() : "";
+    if (!c) continue;
+    byConcept.set(c, (byConcept.get(c) ?? 0) + Math.max(0, Number(e.marksLost) || 0));
+  }
+  const weak = [...byConcept.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, MAX_WEAK_CONCEPTS)
+    .map(([c]) => c);
+  if (weak.length) brief.topic.weakConcepts = weak;
+
+  const subjectRung = model.subject ? subjectRungOf(model.progress, model.subject) : null;
+  if (subjectRung && model.progress.totals) {
+    brief.mistakes.marksLostRecent = model.progress.totals.marksLost;
+    const top = topLossGroup(model.mistakes.byGroup);
+    if (top) brief.mistakes.topType = mistakeGroupByKey(top).label.toLowerCase();
+  }
+
+  brief.hasData = Boolean(brief.topic.trend || (brief.topic.weakConcepts && brief.topic.weakConcepts.length) || brief.mistakes.topType);
+  return brief;
+}
+
+/**
+ * Distill a compact, honest brief from the shared model. A failed read never breaks the tutor —
+ * it yields hasData:false, and the server is then told to reference no performance and invent
+ * nothing. Read-only: nothing here writes.
  */
 export async function assembleTutorBrief({
   uid,
   topicKey,
   subject,
+  window = TUTOR_BRIEF_WINDOW,
+  nowMs,
 }: AssembleBriefArgs): Promise<TutorBrief> {
-  const brief: TutorBrief = { hasData: false, topic: {}, mistakes: {} };
-  if (!uid) return brief;
-
-  const canonical = resolveCanonicalSlug(topicKey) || topicKey;
-  const waSubject = subject === "science" ? "Science" : subject === "maths" ? "Maths" : undefined;
-
-  // Weak areas (sync, device-local) — weak sub-topics for THIS topic.
-  // A17 owner ruling 6 (GRADING-JOBS-1): NO MASTERY FIGURE is sent. The weak-area mastery
-  // value is not a real mastery measure (a topic with no graded work reads "0%"), so the tutor
-  // was told an invented "0% mastery". `masteryPercent` / `masteryState` stay unset until a
-  // real mastery signal exists (ME-ENGINE-1), and nothing here counts towards `hasData` unless
-  // it is real (weak concepts named by graded work, a trend, a mistake type).
+  const empty: TutorBrief = { hasData: false, topic: {}, mistakes: {} };
+  if (!uid) return empty;
+  const chapterKey = boardChapterKey(topicKey);
   try {
-    const summary = getWeakAreas(waSubject ? { subject: waSubject } : undefined);
-    const match = summary.weakAreas.find(
-      (w) => (resolveCanonicalSlug(w.topicKey) || w.topicKey) === canonical,
-    );
-    if (match) {
-      if (Array.isArray(match.weakConcepts) && match.weakConcepts.length) {
-        brief.topic.weakConcepts = match.weakConcepts.slice(0, 3);
-      }
-    }
+    const model = await readStudyModel(uid, {
+      window,
+      ...(subject ? { subject } : {}),
+      tutor: false,
+      ...(typeof nowMs === "number" ? { nowMs } : {}),
+    });
+    return briefFromModel(model, chapterKey);
   } catch {
-    /* honest-or-silent: no weak-area signal */
+    return empty; /* honest-or-silent */
   }
-
-  // Per-topic trajectory (cross-device) — improving / worsening / stable.
-  try {
-    const cloud = await getTopicTrendFromCloud(canonical, "4mo", uid);
-    if (cloud && cloud.trend) {
-      const d = cloud.trend.delta;
-      brief.topic.trend = d > TREND_EPSILON ? "improving" : d < -TREND_EPSILON ? "worsening" : "stable";
-    }
-  } catch {
-    /* honest-or-silent: no trend */
-  }
-
-  // Mistake Intelligence (cross-device, subject-level) — the biggest recent loss: by MARKS
-  // when the window holds v2 entries, else by count (the insight decides; we only describe).
-  try {
-    const mi = await getMistakeInsights(uid, MI_WINDOW_DAYS);
-    if (mi && mi.hasEnoughData) {
-      if (mi.topMistakeType) brief.mistakes.topType = describeBriefTopType(mi.topMistakeType, mi.topMistakeBasis);
-      if (typeof mi.totalMarksLost === "number") brief.mistakes.marksLostRecent = mi.totalMarksLost;
-    }
-  } catch {
-    /* honest-or-silent: no MI */
-  }
-
-  brief.hasData = Boolean(
-    brief.topic.trend ||
-      (brief.topic.weakConcepts && brief.topic.weakConcepts.length) ||
-      brief.mistakes.topType,
-  );
-  return brief;
 }
