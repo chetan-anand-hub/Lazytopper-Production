@@ -11,12 +11,369 @@
 //     (never a recited scorecard, never front-loaded), honesty guard (clarifier,
 //     never a grader).
 //
-// SYLLABUS GATE: written BEHAVIOURALLY on purpose — we do NOT reproduce the exact
-// banned phrase strings from scripts/src/syllabusGuard.ts here (that guard runs a
-// whole-phrase SURFACE scan over tutor files; echoing a banned phrase would trip
-// it). The authority for what is out-of-syllabus remains syllabusGuard.ts.
+// SYLLABUS GATE (SYLLABUS-FIX-CODE F5): the tutor gets the EXPLICIT 2026-27 lists — OUT,
+// FORMATIVE-only and LIMITS, plus the owner rulings that keep things IN — from the ONE
+// reference, lazytopper/src/config/syllabus2026-27.ts (built from CBSE's 2026-27 Class X
+// curriculum PDFs; every row carries its PDF page). This file is CommonJS and cannot
+// import that TypeScript module, so the lists are EMBEDDED below between the GENERATED
+// markers. src/pages/tutor/tutorSystemPrompt.syllabus.test.ts derives the same object from
+// the TS module and requires deep equality (the drift test) — never hand-edit the block;
+// regenerate it with LT_WRITE_TUTOR_SYLLABUS=1 (see that test).
+// (The old note here said the syllabus guard surface-scans tutor files, so OUT phrases
+// could not be written down. That was stale: scripts/src/syllabusGuard.ts
+// BOARD_PREP_SURFACES lists only lazytopper/src files; server/ is not scanned.)
 
 'use strict';
+
+// BEGIN GENERATED TUTOR_SYLLABUS_2026_27
+const TUTOR_SYLLABUS_2026_27 = {
+  "sourceSha256": "a757f2ed8bbb927391e9fb718a3b168ee4ff255018a66d69ddafc24075169213",
+  "pdfs": [
+    {
+      "subject": "Mathematics (041 Standard & 241 Basic — one content list)",
+      "url": "https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Maths_SecP1X_2026-27.pdf"
+    },
+    {
+      "subject": "Science (086)",
+      "url": "https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Science_SecP1_2026-27.pdf"
+    }
+  ],
+  "out": {
+    "maths": [
+      {
+        "chapter": "real-numbers",
+        "item": "Euclid's division lemma / division algorithm (HCF by repeated division)",
+        "page": 3
+      },
+      {
+        "chapter": "real-numbers",
+        "item": "Decimal expansions of rational numbers (terminating / non-terminating repeating; 2^m5^n denominator test)",
+        "page": 3
+      },
+      {
+        "chapter": "polynomials",
+        "item": "Zero–coefficient relationship for CUBIC polynomials (α+β+γ, αβ+βγ+γα, αβγ)",
+        "page": 3
+      },
+      {
+        "chapter": "polynomials",
+        "item": "Division algorithm for polynomials (long division, finding remaining zeros by division)",
+        "page": 3
+      },
+      {
+        "chapter": "pair-of-linear-equations",
+        "item": "Cross-multiplication method",
+        "page": 4
+      },
+      {
+        "chapter": "pair-of-linear-equations",
+        "item": "Equations reducible to a pair of linear equations (1/x, 1/y substitution etc.)",
+        "page": 4
+      },
+      {
+        "chapter": "quadratic-equations",
+        "item": "Solving by completing the square (as a method)",
+        "page": 4
+      },
+      {
+        "chapter": "quadratic-equations",
+        "item": "Finding complex/non-real roots",
+        "page": 4
+      },
+      {
+        "chapter": "coordinate-geometry",
+        "item": "Area of a triangle from coordinates (and collinearity via zero area)",
+        "page": 5
+      },
+      {
+        "chapter": "coordinate-geometry",
+        "item": "Section formula — external division",
+        "page": 5
+      },
+      {
+        "chapter": "triangles",
+        "item": "Ratio of areas of similar triangles (area theorem) and problems using it",
+        "page": 5
+      },
+      {
+        "chapter": "triangles",
+        "item": "Pythagoras theorem and its converse (as Triangles content / proofs)",
+        "page": 5
+      },
+      {
+        "chapter": "triangles",
+        "item": "PROOFS of the converse of BPT, AAA, SSS, SAS criteria",
+        "page": 5
+      },
+      {
+        "chapter": "circles",
+        "item": "Constructions (division of a line segment, tangents to a circle, similar triangles) — the entire Constructions chapter",
+        "page": 3
+      },
+      {
+        "chapter": "trigonometry",
+        "item": "Trigonometric ratios of complementary angles (sin(90°−A) = cos A etc.) as a topic",
+        "page": 6
+      },
+      {
+        "chapter": "surface-areas-and-volumes",
+        "item": "Frustum of a cone",
+        "page": 7
+      },
+      {
+        "chapter": "surface-areas-and-volumes",
+        "item": "Conversion of one solid into another (melting/recasting) as a topic",
+        "page": 7
+      },
+      {
+        "chapter": "statistics",
+        "item": "Graphical representation of cumulative frequency (ogive; median from ogive)",
+        "page": 7
+      }
+    ],
+    "science": [
+      {
+        "chapter": "acids-bases-and-salts",
+        "item": "pH defined via logarithm (pH = −log[H+]) and log-based pH computations",
+        "page": 4
+      },
+      {
+        "chapter": "light-reflection-and-refraction",
+        "item": "Derivation of the mirror formula or lens formula",
+        "page": 5
+      },
+      {
+        "chapter": "light-reflection-and-refraction",
+        "item": "Beyond-Class-X optics: critical angle/TIR, lens-maker's formula, prism formula/minimum deviation, refraction at a single spherical surface, two-lens / mirror IMAGING systems (image of one element as the object of the next), inclined-mirror image counts, apparent depth computations",
+        "page": 5
+      },
+      {
+        "chapter": "human-eye-and-colourful-world",
+        "item": "Colour of the Sun at sunrise and sunset (reddening explained by scattering)",
+        "page": 6
+      },
+      {
+        "chapter": "sources-of-energy",
+        "item": "WHOLE CHAPTER: sources-of-energy",
+        "page": 4
+      },
+      {
+        "chapter": "management-of-natural-resources",
+        "item": "WHOLE CHAPTER: management-of-natural-resources",
+        "page": 4
+      },
+      {
+        "chapter": "*",
+        "item": "Content from NCERT 'boxes'",
+        "page": 6
+      }
+    ]
+  },
+  "formativeTopics": [
+    {
+      "name": "Periodic Classification of Elements",
+      "chapter": "periodic-classification-of-elements",
+      "page": 4
+    },
+    {
+      "name": "Evolution",
+      "chapter": "heredity",
+      "page": 5
+    },
+    {
+      "name": "Electric Motor",
+      "chapter": "magnetic-effects-of-electric-current",
+      "page": 6
+    },
+    {
+      "name": "Electromagnetic Induction",
+      "chapter": "magnetic-effects-of-electric-current",
+      "page": 6
+    },
+    {
+      "name": "Electric Generator",
+      "chapter": "magnetic-effects-of-electric-current",
+      "page": 6
+    }
+  ],
+  "formativeDetail": {
+    "maths": [],
+    "science": [
+      {
+        "chapter": "periodic-classification-of-elements",
+        "item": "Döbereiner's Triads, Newlands' Law of Octaves, Mendeléev's Periodic Table, Modern Periodic Table, trends (metallic/non-metallic properties)",
+        "page": 4
+      },
+      {
+        "chapter": "heredity",
+        "item": "Evolution: acquired and inherited traits, speciation, evolution and classification, tracing evolutionary relationships, fossils, evolution by stages, human evolution",
+        "page": 5
+      },
+      {
+        "chapter": "magnetic-effects-of-electric-current",
+        "item": "Electric motor; electromagnetic induction (incl. Fleming's right-hand rule, galvanometer deflection by a moving magnet); electric generator",
+        "page": 6
+      },
+      {
+        "chapter": "periodic-classification-of-elements",
+        "item": "WHOLE CHAPTER: periodic-classification-of-elements",
+        "page": 4
+      }
+    ]
+  },
+  "limits": {
+    "maths": [
+      {
+        "chapter": "polynomials",
+        "item": "Zero–coefficient relationship: quadratic only",
+        "page": 3
+      },
+      {
+        "chapter": "pair-of-linear-equations",
+        "item": "Algebraic methods: substitution and elimination only; situational problems 'simple'",
+        "page": 4
+      },
+      {
+        "chapter": "quadratic-equations",
+        "item": "Solution methods: factorisation and quadratic formula only; real roots only",
+        "page": 4
+      },
+      {
+        "chapter": "coordinate-geometry",
+        "item": "Section formula: internal division only",
+        "page": 5
+      },
+      {
+        "chapter": "triangles",
+        "item": "Only BPT is proved; converse BPT, AAA, SSS, SAS are stated without proof",
+        "page": 5
+      },
+      {
+        "chapter": "trigonometry",
+        "item": "Identities: 'only simple identities to be given'",
+        "page": 6
+      },
+      {
+        "chapter": "trigonometry",
+        "item": "Heights & distances: at most TWO right triangles",
+        "page": 6
+      },
+      {
+        "chapter": "trigonometry",
+        "item": "Heights & distances: angles of elevation/depression ONLY 30°, 45°, 60°",
+        "page": 6
+      },
+      {
+        "chapter": "areas-related-to-circles",
+        "item": "SEGMENT area: central angle 60°, 90°, 120° ONLY (sector area has no angle limit)",
+        "page": 7
+      },
+      {
+        "chapter": "surface-areas-and-volumes",
+        "item": "Combinations of at most TWO solids",
+        "page": 7
+      },
+      {
+        "chapter": "statistics",
+        "item": "Bimodal situations to be avoided",
+        "page": 7
+      },
+      {
+        "chapter": "probability",
+        "item": "'Simple problems' only",
+        "page": 7
+      }
+    ],
+    "science": [
+      {
+        "chapter": "acids-bases-and-salts",
+        "item": "pH: no logarithmic definition",
+        "page": 4
+      },
+      {
+        "chapter": "carbon-and-its-compounds",
+        "item": "Ethanol and ethanoic acid: only properties and uses",
+        "page": 5
+      },
+      {
+        "chapter": "heredity",
+        "item": "Sex determination: brief introduction",
+        "page": 5
+      },
+      {
+        "chapter": "light-reflection-and-refraction",
+        "item": "Mirror and lens formula: use, no derivation",
+        "page": 5
+      },
+      {
+        "chapter": "human-eye-and-colourful-world",
+        "item": "Scattering applications exclude the colour of the Sun at sunrise/sunset",
+        "page": 6
+      }
+    ]
+  },
+  "keepIn": [
+    {
+      "subject": "maths",
+      "chapter": "triangles",
+      "item": "Using a²+b²=c² as a numeric TOOL (e.g. tangent length, heights and distances) — not as a Class-X theorem",
+      "page": 5
+    },
+    {
+      "subject": "science",
+      "chapter": "heredity",
+      "item": "Heredity; Mendel's contribution — laws for inheritance of traits; sex determination (brief introduction)",
+      "page": 5
+    },
+    {
+      "subject": "science",
+      "chapter": "light-reflection-and-refraction",
+      "item": "Net power of lenses in contact, P = P1 + P2 (under 'Power of a lens')",
+      "page": 5
+    }
+  ]
+};
+// END GENERATED TUTOR_SYLLABUS_2026_27
+
+const chapterName = (key) => (key === '*' ? 'all chapters' : String(key).replace(/-/g, ' '));
+const listRows = (rows) =>
+  rows.map((r) => `  - [${chapterName(r.chapter)}] ${r.item} (p${r.page})`).join('\n');
+
+/**
+ * The explicit syllabus block, rendered from TUTOR_SYLLABUS_2026_27 (generated from the one
+ * reference). Both subjects are listed whatever the topic: a student on any chapter can ask
+ * about any other, and the cost of a few hundred tokens is far below a confidently taught
+ * OUT topic.
+ */
+function syllabusBlock() {
+  const s = TUTOR_SYLLABUS_2026_27;
+  const formativeNames = s.formativeTopics
+    .map((t) => `  - ${t.name} (${chapterName(t.chapter)}, p${t.page})`)
+    .join('\n');
+  return (
+    `\nCBSE 2026-27 SYLLABUS — WHAT IS NOT ON THE 2027 BOARD EXAM (from CBSE's own 2026-27 Class X ` +
+    `curriculum PDFs; "p" = the PDF page)\n` +
+    `OUT OF THE SYLLABUS — never teach these as exam content. If the student asks about one, decline politely ` +
+    `in one or two short lines: say it is not in CBSE's 2026-27 Class 10 syllabus, so it will not be on their 2027 ` +
+    `board exam, then steer back to a related topic that IS. Do not solve, prove or explain it.\n` +
+    `Maths:\n${listRows(s.out.maths)}\n` +
+    `Science:\n${listRows(s.out.science)}\n` +
+    `FORMATIVE-ONLY — CBSE assesses these only in school (formative assessment); they are NOT in the 2027 board ` +
+    `exam:\n${formativeNames}\n` +
+    `  What the PDF puts under them:\n${listRows([...s.formativeDetail.maths, ...s.formativeDetail.science])}\n` +
+    `If the student asks about a formative-only topic, say this plainly FIRST, naming it — e.g. "Electromagnetic ` +
+    `induction is assessed only in school this year — it is NOT in your 2027 board exam." Only if they still want ` +
+    `it for school, give a short explanation; never present it as board-exam content and never offer board-style ` +
+    `practice on it.\n` +
+    `LIMITS — these are IN only within the limit; anything beyond the limit is OUT (treat it like the OUT list):\n` +
+    `Maths:\n${listRows(s.limits.maths)}\n` +
+    `Science:\n${listRows(s.limits.science)}\n` +
+    `STILL IN — owner rulings; do NOT refuse these:\n` +
+    s.keepIn.map((r) => `  - [${chapterName(r.chapter)}] ${r.item} (p${r.page})`).join('\n') +
+    `\nEverything else in the NCERT Class 10 chapters is IN — do not refuse it. If you are genuinely unsure ` +
+    `whether something is in scope, say so honestly and point the student to their current NCERT rather than guessing.`
+  );
+}
 
 /**
  * @param {object} args
@@ -138,12 +495,15 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
 
   lines.push(figurePanelBlock(figures));
 
+  lines.push(syllabusBlock());
+
   lines.push(
     `\nWHAT YOU WILL NOT DO\n` +
-    `- Syllabus gate: politely decline anything outside the CBSE Class-10 2026-27 syllabus — sections the ` +
-    `board removed for 2026-27, and any Class 11/12 material. Do not teach it; tell the student it will not ` +
-    `be on their board exam and steer back to what is. When unsure whether a specific sub-topic is still in ` +
-    `scope, say so honestly and point them to their current NCERT rather than guessing.\n` +
+    `- Syllabus gate: politely decline anything on the OUT list above, anything beyond a LIMIT, and any ` +
+    `Class 11/12 material. Do not teach it; tell the student it will not be on their 2027 board exam and steer ` +
+    `back to what is. For a FORMATIVE-ONLY topic, say plainly that it is not in the 2027 board exam (see above). ` +
+    `When unsure whether a specific sub-topic is still in scope, say so honestly and point them to their current ` +
+    `NCERT rather than guessing.\n` +
     `- Off-topic asks (e.g. "why can't an elephant fly") get a friendly one-line redirect back to Class-10 ${subj}.\n` +
     `- You are a doubt-clarifier, NOT a grader. Never put a mark or score on the student's OWN attempt — ` +
     `graded marks come only from Check & Improve and Practice. You may explain HOW an answer would be marked; ` +
@@ -160,7 +520,11 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
   );
 
   if (concept && String(concept).trim()) {
-    lines.push(`\nThe student opened on the sub-topic "${String(concept).trim()}". Start there unless they steer elsewhere.`);
+    lines.push(
+      `\nThe student opened on the sub-topic "${String(concept).trim()}". Start there unless they steer elsewhere — ` +
+      `but if it is on the OUT list above (or beyond a LIMIT), apply the syllabus gate instead of teaching it, and if ` +
+      `it is formative-only, say so first.`
+    );
   }
 
   lines.push(briefBlock(brief));
@@ -408,4 +772,4 @@ function returnedWorkBlock(returnedWork) {
   return parts.join('\n');
 }
 
-module.exports = { buildTutorSystemPrompt };
+module.exports = { buildTutorSystemPrompt, TUTOR_SYLLABUS_2026_27 };

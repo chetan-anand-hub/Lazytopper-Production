@@ -27,6 +27,8 @@
  * the manifest is unreachable. The page still states only a date, never a frequency.
  */
 
+import { UNIT_MARKS } from "../config/syllabus2026-27";
+
 /** What a source link actually serves, so the page can label it honestly. */
 export type CbseSourceKind = "pdf" | "zip";
 
@@ -135,13 +137,14 @@ export const CBSE_SUBJECTS: readonly CbseSubject[] = [
         kind: "pdf",
       },
     ],
-    // Official 2026-27: I 25, II 25, III 12, IV 13, V 05 → 80.
+    // Official 2026-27: I 25, II 25, III 12, IV 13, V 05 → 80 — READ from the one
+    // reference (src/config/syllabus2026-27.ts UNIT_MARKS, Science PDF p4), not restated.
     units: [
-      { unit: "Chemical Substances", marks: 25, tone: "c1" },
-      { unit: "World of Living", marks: 25, tone: "c2" },
-      { unit: "Effects of Current", marks: 13, tone: "c3" },
-      { unit: "Natural Phenomena", marks: 12, tone: "c4" },
-      { unit: "Natural Resources", marks: 5, tone: "mute" },
+      { unit: "Chemical Substances", marks: UNIT_MARKS.science.I, tone: "c1" },
+      { unit: "World of Living", marks: UNIT_MARKS.science.II, tone: "c2" },
+      { unit: "Effects of Current", marks: UNIT_MARKS.science.IV, tone: "c3" },
+      { unit: "Natural Phenomena", marks: UNIT_MARKS.science.III, tone: "c4" },
+      { unit: "Natural Resources", marks: UNIT_MARKS.science.V, tone: "mute" },
     ],
   },
   {
@@ -200,20 +203,21 @@ export const CBSE_SUBJECTS: readonly CbseSubject[] = [
       {
         id: "maths-syllabus",
         title: "Syllabus 2026-27",
-        blurb: "Unit-wise marks are on page 1",
+        blurb: "Unit-wise marks are on page 3",
         href: "https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Maths_SecP1X_2026-27.pdf",
         kind: "pdf",
       },
     ],
-    // Official 2026-27: I 06, II 20, III 06, IV 15, V 12, VI 10, VII 11 → 80.
+    // Official 2026-27: I 06, II 20, III 06, IV 15, V 12, VI 10, VII 11 → 80 — READ from
+    // UNIT_MARKS (Maths PDF p3; this is the page the syllabus link's blurb cites).
     units: [
-      { unit: "Algebra", marks: 20, tone: "c3" },
-      { unit: "Geometry", marks: 15, tone: "c1" },
-      { unit: "Trigonometry", marks: 12, tone: "c2" },
-      { unit: "Statistics & Probability", marks: 11, tone: "c4" },
-      { unit: "Mensuration", marks: 10, tone: "am" },
-      { unit: "Number Systems", marks: 6, tone: "mute" },
-      { unit: "Coordinate Geometry", marks: 6, tone: "mute" },
+      { unit: "Algebra", marks: UNIT_MARKS.maths.II, tone: "c3" },
+      { unit: "Geometry", marks: UNIT_MARKS.maths.IV, tone: "c1" },
+      { unit: "Trigonometry", marks: UNIT_MARKS.maths.V, tone: "c2" },
+      { unit: "Statistics & Probability", marks: UNIT_MARKS.maths.VII, tone: "c4" },
+      { unit: "Mensuration", marks: UNIT_MARKS.maths.VI, tone: "am" },
+      { unit: "Number Systems", marks: UNIT_MARKS.maths.I, tone: "mute" },
+      { unit: "Coordinate Geometry", marks: UNIT_MARKS.maths.III, tone: "mute" },
     ],
   },
 ];

@@ -18,6 +18,7 @@ import { Link, useLocation, useParams, useSearchParams } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
+import { FORMATIVE_ONLY_TOPICS, isBoardChapterKey } from "../../config/syllabus2026-27";
 import { MathText } from "../../components/question/MathText";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
 import "../../components/question/katexEager";
@@ -55,7 +56,51 @@ function prettify(slug: string): string {
     .join(" ");
 }
 
+/**
+ * SYLLABUS-FIX-CODE F5 — the tutor only opens on one of the 26 board chapters of CBSE's
+ * 2026-27 syllabus (the one reference, src/config/syllabus2026-27.ts). A topic key that
+ * resolves to anything else — a whole chapter CBSE dropped or made formative-only, an old
+ * slug, a typo — gets an honest screen instead of a tutor session that would teach it.
+ * The cold entry `/tutor/:grade/:subject` (no topic key) is unchanged. The SERVER does not
+ * check the key yet [FU-A16-TUTOR-SERVER-KEYCHECK]; the prompt's syllabus gate still applies.
+ */
+export function isTutorTopicKeyAllowed(topicKeyRaw: string): boolean {
+  if (!topicKeyRaw) return true;
+  return isBoardChapterKey(resolveCanonicalSlug(topicKeyRaw) || topicKeyRaw);
+}
+
 export default function TutorPage() {
+  const params = useParams<{ grade?: string; subject?: string; topicKey?: string }>();
+  const topicKeyRaw = params.topicKey || "";
+  if (!isTutorTopicKeyAllowed(topicKeyRaw)) {
+    return <TutorTopicNotInSyllabus topicKeyRaw={topicKeyRaw} />;
+  }
+  return <TutorSession />;
+}
+
+function TutorTopicNotInSyllabus({ topicKeyRaw }: { topicKeyRaw: string }) {
+  const resolved = resolveCanonicalSlug(topicKeyRaw) || topicKeyRaw;
+  const formative = FORMATIVE_ONLY_TOPICS.find((t) => t.parentKey === null && t.slug === resolved);
+  const name = formative?.name || prettify(topicKeyRaw);
+  return (
+    <div className="lt-tutor">
+      <style>{TUTOR_CSS}</style>
+      <div className="lt-tutor__notin" role="alert">
+        <h1 className="lt-tutor__notin-h">This topic isn&rsquo;t in your 2027 board exam</h1>
+        <p className="lt-tutor__notin-p">
+          {formative
+            ? `${name} is assessed only in school this year (CBSE 2026-27 syllabus) — it is not in your 2027 board exam.`
+            : `The tutor covers the 26 chapters of CBSE's 2026-27 Class 10 syllabus. "${name}" isn't one of them.`}
+        </p>
+        <Link to="/topic-hub" className="lt-tutor__action">
+          Pick a chapter
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function TutorSession() {
   const params = useParams<{ grade?: string; subject?: string; topicKey?: string }>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -614,6 +659,23 @@ const TUTOR_CSS = `
 @keyframes lt-tutor-bounce {
   0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
   30% { transform: translateY(-4px); opacity: 1; }
+}
+.lt-tutor__notin {
+  margin: auto;
+  max-width: 520px;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+.lt-tutor__notin-h {
+  font-size: 1.25rem;
+  margin: 0;
+}
+.lt-tutor__notin-p {
+  margin: 0;
+  line-height: 1.5;
 }
 .lt-tutor__err {
   display: flex;

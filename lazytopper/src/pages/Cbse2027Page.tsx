@@ -625,7 +625,7 @@ export default function Cbse2027Page() {
             </li>
             <li>
               <Link to="/practice-hub">Practise competency questions</Link>
-              <span>The 40 marks students lose most of</span>
+              <span>Case-based and application questions, step-marked</span>
             </li>
             <li>
               <Link to="/topic-hub">Open a chapter and start</Link>

@@ -22,17 +22,10 @@ export const GUARANTEED_MATHS_ARCHETYPES: GuaranteedArchetype[] = [
     appearsEveryYear: true,
     historicalRate: 1.0,
   },
-  {
-    subject: "Maths",
-    topic: "Triangles",
-    subtopic: "Pythagoras/Converse",
-    description: "Pythagoras theorem application or proof",
-    minMarks: 3,
-    maxMarks: 5,
-    typicalFormats: ["Short", "Long", "Case-Based"],
-    appearsEveryYear: true,
-    historicalRate: 0.89,
-  },
+  // SYLLABUS-FIX-CODE F6: the "Pythagoras/Converse" archetype was removed here. The
+  // theorem and its converse are OUT of CBSE's 2026-27 Triangles content (F1
+  // SYLLABUS_OUT.maths, p5); using a² + b² = c² as a numeric tool stays IN (owner
+  // ruling 1) but is not a guaranteed Triangles archetype of its own.
   {
     subject: "Maths",
     topic: "Trigonometry",

@@ -35,8 +35,9 @@ export const TRIG_SUBTOPIC_APPLICATIONS = "Application/Heights & Distances";
 // Triangles
 export const TRI_SUBTOPIC_SIMILARITY = "Similarity Criteria";
 export const TRI_SUBTOPIC_BPT = "BPT (Basic Proportionality Theorem)";
-export const TRI_SUBTOPIC_AREA_RATIO = "Area Ratio in Similar Triangles";
-export const TRI_SUBTOPIC_PYTH = "Pythagoras/Converse";
+// SYLLABUS-FIX-CODE F6: the area-ratio and theorem-of-the-right-triangle concepts were
+// removed from this list — both are outside CBSE's 2026-27 Triangles content (the one
+// reference, src/config/syllabus2026-27.ts, SYLLABUS_OUT.maths, p5).
 
 export const class10MathTopicTrends = {
   difficultyDistributionPercent: {
@@ -119,12 +120,10 @@ export const class10MathTopicTrends = {
       weightagePercent: 11.54,
       tier: "must-crack" as TopicTier,
       summary:
-        "Similarity/BPT/area ratio + Pythagoras—often proof + application, frequently appears every paper.",
+        "Similarity criteria + BPT (the one proof CBSE asks for)—proof + application, frequently appears every paper.",
       conceptWeightage: {
-        [TRI_SUBTOPIC_SIMILARITY]: 35,
-        [TRI_SUBTOPIC_BPT]: 30,
-        [TRI_SUBTOPIC_AREA_RATIO]: 20,
-        [TRI_SUBTOPIC_PYTH]: 15,
+        [TRI_SUBTOPIC_SIMILARITY]: 54,
+        [TRI_SUBTOPIC_BPT]: 46,
       },
     },
 
@@ -181,7 +180,9 @@ export const class10MathTopicTrends = {
         "Standard solids + combination problems + unit conversions—often one medium/long calculation.",
       conceptWeightage: {
         "Cylinder/Cone/Sphere": 65,
-        "Combination/Transformation": 35,
+        // F6: was "Combination/Transformation" — melting/recasting is OUT for 2026-27
+        // (owner ruling 2); combinations of at most two solids stay IN.
+        "Combination of Solids": 35,
       },
     },
 

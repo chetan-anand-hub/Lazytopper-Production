@@ -27,21 +27,25 @@ import ExamTrendsRanked from "./ExamTrendsRanked";
 
 afterEach(cleanup);
 
-/** Frozen from a TRUNK render (45ab803) — see header. Order is significant. */
+/** Frozen from a TRUNK render (45ab803) — see header. Order is significant.
+ *  SYLLABUS-FIX-CODE F2 re-froze the Maths ORDER only (membership unchanged): within a
+ *  band, cards sort by `topic.weight`, which is now derived from CBSE's unit marks
+ *  (Triangles 8, Circles 7, Surface Areas 6, Polynomials 5, Quadratic Equations 5 —
+ *  was 7/6/7/6/6). Science's order is unchanged. */
 const EXPECTED_BANDS: Record<string, Record<string, string[]>> = {
   Maths: {
     "must-crack": [
       "Trigonometry",
       "Triangles",
+      "Circles",
       "Surface Areas and Volumes",
       "Polynomials",
-      "Circles",
     ],
     "high-roi": [
       "Real Numbers",
-      "Quadratic Equations",
       "Coordinate Geometry",
       "Statistics",
+      "Quadratic Equations",
       "Probability",
     ],
     "good-to-do": [

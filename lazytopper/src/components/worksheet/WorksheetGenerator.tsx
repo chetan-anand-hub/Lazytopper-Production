@@ -1147,10 +1147,13 @@ function WorksheetGeneratorInner() {
               </>
             )}
 
-            {/* Topic distribution (multi / full scope) — reuses the honest allocation. */}
+            {/* Topic distribution (multi / full scope) — reuses the honest allocation.
+                SYLLABUS-FIX-CODE F3: the full-subject split comes from LazyTopper's own
+                per-chapter estimate (worksheetModel.weightFor), NOT CBSE's unit marks, so it
+                is labelled as an estimate — never "board weightage" [FU-A16-WORKSHEET-WEIGHTS]. */}
             {plan && plan.rows.length > 1 && (
               <div className="lt-ws__pvbreak">
-                <div className="lt-ws__bh">Topic mix ({scope === "full-subject" ? "board weightage" : "even"}{enrichActive ? " · MI-weighted" : ""})</div>
+                <div className="lt-ws__bh">Topic mix ({scope === "full-subject" ? "estimated chapter weighting" : "even"}{enrichActive ? " · MI-weighted" : ""})</div>
                 {plan.rows.filter((r) => r.allocated > 0).map((r) => (
                   <div key={r.key} className="lt-ws__dist">
                     <span className="lt-ws__distnm">{r.label}</span>
