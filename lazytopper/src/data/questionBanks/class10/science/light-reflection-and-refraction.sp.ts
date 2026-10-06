@@ -116,6 +116,7 @@ export const LGHT_SP: CanonicalQuestion[] = [
   },
   {
     "id": "SP-S-2023-LGHT-B-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refractive Index",

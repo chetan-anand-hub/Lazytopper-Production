@@ -117,11 +117,11 @@ export interface CanonicalQuestion {
   /** For an "lt-generated" row: the real question it was modelled on ("<paper> Q<n>"). */
   modelledOn?: string;
   /**
-   * GEN-THIN-1 PR-2 (owner, 2026-10-06): a RELIABLE competency flag, set deliberately and
-   * ONLY on LazyTopper-generated competency items of every mark value whose answer and step
-   * marks an independent solver reproduced. The bank's legacy `isCompetencyBased` is NOT
-   * reliable (every chapter reads >= 72) and must be re-validated first (BANK-FIX-1).
-   * Read by no surface today — FU-CBQ-CHOOSER-ALL-MARKS proposes the chooser read it.
+   * CBQ-1 (owner, 2026-10-07): THE single CBQ flag — a question is a CBQ iff this is true. Set
+   * only where an independent blind solver reproduced the answer and step marks: (a) generated
+   * competency rows (always with `isCompetencyBased`, GEN-THIN-1); (b) OFFICIAL CBSE-origin rows
+   * that pass ruling 1, pinned per subject in `src/data/cbq/officialCbqTags.<subject>.ts`. The
+   * legacy `isCompetencyBased` is NOT reliable and is not read for CBQ purposes.
    */
   competencyVerified?: true;
   /**
