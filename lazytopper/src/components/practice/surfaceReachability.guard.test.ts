@@ -271,7 +271,8 @@ describe("surface reachability — every served human row can be drawn on a test
     // FLOOR on the freed rows (a content lane may add 1-mark VSAs; the band must keep
     // taking them), CEILING on the residual (shrink-only, CLEAN-1).
     // 146 -> 144 at CLEAN-1 (2026-09-11): sci-chem-chemreactions-1m-2023-01 and 2026-MNM-01 re-shaped into real MCQs, so they left the 1-mark-written set
-    expect(freed.length).toBeGreaterThanOrEqual(144);
+    // 144 -> 143 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): CBE-S-MAGN-A-002 (electromagnetic induction, formative-only) withheld; no other freed row moved
+    expect(freed.length).toBeGreaterThanOrEqual(143);
     expect(gapABar.length).toBe(gapBefore.length + newlyLost.length);
     expect(gapAfter.length).toBeLessThanOrEqual(GAP_CEILING);
   });

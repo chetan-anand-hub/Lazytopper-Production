@@ -26,7 +26,7 @@ export const CG_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Example 2", isCompetencyBased: false,
     strategyHint: "A quadrilateral with all four sides equal AND both diagonals equal is a square." },
 
-  { id: "CG-N-NCERT-7-EX-003", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Collinearity", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "CG-N-NCERT-7-EX-003", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula (collinearity check)", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In a classroom, Ashima, Bharti and Camella are seated at A(3, 1), B(6, 4) and C(8, 6) respectively. (i) Find AB, BC and AC. (ii) Are A, B, C seated in a straight line? Justify using the distance formula.",
     answer: "(i) AB = √[(6−3)² + (4−1)²] = √(9+9) = √18 = 3√2. BC = √[(8−6)² + (6−4)²] = √(4+4) = √8 = 2√2. AC = √[(8−3)² + (6−1)²] = √(25+25) = √50 = 5√2. (ii) Check: AB + BC = 3√2 + 2√2 = 5√2 = AC. Since AB + BC = AC exactly, B lies between A and C and the three points are collinear — they ARE seated in a straight line.",
     solutionSteps: ["AB = √[(6−3)² + (4−1)²] = √(9+9) = √18 = 3√2.", "BC = √[(8−6)² + (6−4)²] = √(4+4) = √8 = 2√2.", "AC = √[(8−3)² + (6−1)²] = √(25+25) = √50 = 5√2.", "Sum AB + BC = 3√2 + 2√2 = 5√2 = AC.", "When the sum of two distances equals the third, the three points are collinear → A, B, C are in a straight line."],
@@ -120,7 +120,7 @@ export const CG_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 7.1 Q2", isCompetencyBased: true,
     strategyHint: "Recognise (15, 36, 39) as a Pythagorean triple — saves time." },
 
-  { id: "CG-N-NCERT-7-EX-015", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Collinearity", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "CG-N-NCERT-7-EX-015", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula (collinearity check)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Determine if the points (1, 5), (2, 3) and (−2, −11) are collinear.",
     answer: "Let A(1, 5), B(2, 3), C(−2, −11). AB = √[(2−1)² + (3−5)²] = √(1+4) = √5. BC = √[(−2−2)² + (−11−3)²] = √(16+196) = √212. AC = √[(−2−1)² + (−11−5)²] = √(9+256) = √265. For collinearity we need AB + BC = AC. √5 + √212 ≈ 2.236 + 14.560 = 16.796, but √265 ≈ 16.279. Since AB + BC ≠ AC (and no other sum-pair equals the third), the points are NOT collinear.",
     solutionSteps: ["AB = √[(2−1)² + (3−5)²] = √(1+4) = √5 ≈ 2.236.", "BC = √[(−2−2)² + (−11−3)²] = √(16+196) = √212 ≈ 14.560.", "AC = √[(−2−1)² + (−11−5)²] = √(9+256) = √265 ≈ 16.279.", "Check AB + BC = √5 + √212 ≈ 16.796 ≠ AC ≈ 16.279.", "No sum of two sides equals the third → points are NOT collinear."],

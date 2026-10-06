@@ -1229,35 +1229,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     finalAnswer: "The speed of light in air is 1.5 times that in glass",
   },
 
-  {
-    id: "2026-LIGHT-MCQ-10",
-    topicKey: "Light",
-    subtopic: "Total Internal Reflection & Critical Angle",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Hard",
-    bloomSkill: "Applying",
-    questionText:
-      "Total internal reflection occurs when light travels:",
-    options: [
-      "From rarer medium to denser medium and angle of incidence > critical angle",
-      "From denser medium to rarer medium and angle of incidence > critical angle",
-      "From denser medium to rarer medium and angle of incidence = 0°",
-      "From rarer medium to denser medium and angle of incidence < critical angle",
-    ],
-    answer:
-      "From denser medium to rarer medium and angle of incidence > critical angle",
-    explanation:
-      "Total internal reflection takes place only when light travels from denser to rarer medium and angle of incidence exceeds the critical angle.",
-    policyTag: "TIR condition MCQ",
-    solutionSteps: [
-      "Total internal reflection (TIR) occurs when light travels from an optically denser medium to an optically rarer medium.",
-      "Additionally, the angle of incidence in the denser medium must be greater than the critical angle for the interface between the two media.",
-      "Both conditions are necessary for total internal reflection to take place.",
-    ],
-    finalAnswer: "From denser medium to rarer medium and angle of incidence > critical angle",
-  },
 
   {
     id: "2026-LIGHT-SA-08",
@@ -1455,30 +1426,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     finalAnswer: "Due to atmospheric refraction, light from the Sun bends as it passes through layers of air of varying densities. This bending makes the Sun appear higher than its actual position, so we can see it a little before it rises and after it sets.",
   },
 
-  {
-    id: "2026-HECW-CASE-04",
-    topicKey: "HumanEyeAndColourfulWorld",
-    subtopic: "Scattering of Light",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "On a clear day, the sky appears blue, while at sunrise and sunset it appears reddish.\n(i) Why does the sky appear blue during the day?\n(ii) Why does it appear red near the horizon at sunrise and sunset?\n(iii) Name the phenomenon responsible.\n(iv) State one application of scattering of light in daily life.",
-    answer:
-      "(i) Shorter wavelengths (blue light) are scattered more by air molecules, so we see the sky as blue.\n(ii) At sunrise and sunset, light travels a longer path through the atmosphere; shorter wavelengths are scattered away and longer (red) wavelengths reach the eye.\n(iii) Scattering of light.\n(iv) Use of fog lamps with yellow light, Tyndall effect demonstrations, etc.",
-    explanation:
-      "Scattering is wavelength-dependent; blue light is scattered more than red, explaining sky colour and reddish appearance at sunrise/sunset.",
-    policyTag: "Scattering case-study",
-    solutionSteps: [
-      "(i) Air molecules are very small and scatter shorter wavelengths (blue light) much more effectively than longer wavelengths.; (i) During the day, blue light from the sun is scattered in all directions by the atmosphere, making the sky appear blue. [1]",
-      "(ii) At sunrise and sunset, sunlight travels a much longer path through the atmosphere to reach our eyes.; (ii) Most of the shorter wavelength blue light is scattered away along this longer path. [1]",
-      "(ii) The longer wavelength red and orange light, which is scattered least, reaches our eyes, making the Sun appear reddish. [1]",
-      "(iii) The phenomenon responsible for these observations is Scattering of light. [1]",
-    ],
-    finalAnswer: "(i) Shorter wavelengths (blue light) are scattered more by air molecules, so we see the sky as blue.\n(ii) At sunrise and sunset, light travels a longer path through the atmosphere; shorter wavelengths are scattered away and longer (red) wavelengths reach the eye.\n(iii) Scattering of light.\n(iv) Use ",
-  },
 
   // ================================================================
   // ELECTRICITY
@@ -1990,35 +1937,6 @@ The phenomenon responsible is atmospheric refraction.`,
     finalAnswer: "Stars are point sources; atmospheric refraction causes random shifts in apparent position and brightness — twinkling. Planets are extended sources, so variations average out. Phenomenon: atmospheric refraction.",
   },
 
-  {
-    id: "2026-HE-CS-01",
-    topicKey: "HumanEyeAndColourfulWorld",
-    subtopic: "Applications of Dispersion & Scattering",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      `During a science exhibition, students explain that the sky appears blue at noon but reddish at sunrise and sunset.
-(a) Name the phenomenon responsible for the blue colour of the sky.
-(b) Why does the Sun appear reddish at sunrise and sunset?
-(c) State one application of this phenomenon other than the colour of the sky.`,
-    answer:
-      `(a) Scattering of sunlight by molecules and fine dust particles.
-(b) During sunrise and sunset, sunlight travels a longer path through the atmosphere; blue light is scattered away and red light (least scattered) reaches the observer, so the Sun appears reddish.
-(c) Example: bluish colour of smoke, danger signals painted red (any one linked with scattering).`,
-    explanation:
-      "Connects scattering with colour of the sky and reddish appearance of the Sun, then asks for one more application.",
-    policyTag: "Human eye – scattering of light, colour of sky and Sun",
-    solutionSteps: [
-      "The Earth's atmosphere contains air molecules and fine dust particles.; Sunlight, which is a mixture of different colours (VIBGYOR), enters the atmosphere. [1]",
-      "Rayleigh scattering occurs, where shorter wavelengths (like blue light) are scattered more effectively than longer wavelengths (like red light).; For the blue sky: During the day, blue light is scattered in all directions by atmospheric particles, making the sky appear blue. [1]",
-      "For the red sun at sunrise/sunset: Sunlight travels a much longer distance through the atmosphere. [1]",
-      "Most of the blue light is scattered away, allowing the longer wavelengths (red and orange) to reach the observer directly, making the sun appear reddish. [1]",
-    ],
-    finalAnswer: "(a) Scattering of sunlight by molecules and fine dust particles.\n(b) During sunrise and sunset, sunlight travels a longer path through the atmosphere; blue light is scattered away and red light (least scattered) reaches the observer, so the Sun appears reddish.\n(c) Example: bluish colour of smoke, danger signals painted red (any one linked with scattering).",
-  },
 
   // ------------------------ LIFE PROCESSES ------------------------
 

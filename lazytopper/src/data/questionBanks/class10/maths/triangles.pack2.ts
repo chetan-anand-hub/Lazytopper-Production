@@ -16,7 +16,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Calculate angle C: 130 + angle C = 180 => angle C = 180 - 130 = 50 degrees.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-E03", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a right triangle with legs 6 cm and 8 cm, the hypotenuse is:", options: ["10 cm", "12 cm", "14 cm", "7 cm"], answer: "10 cm", explanation: "The correct answer is 10 cm. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "10 cm",
+  { id: "TRI2-E03", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a right triangle with legs 6 cm and 8 cm, the hypotenuse is:", options: ["10 cm", "12 cm", "14 cm", "7 cm"], answer: "10 cm", explanation: "The correct answer is 10 cm. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "10 cm",
     solutionSteps: [
       "The ladder, wall, and ground form a right-angled triangle. The ladder is the hypotenuse.",
       "Let the distance of the foot of the ladder from the wall be x. By Pythagoras Theorem: (distance from wall)^2 + (height of window)^2 = (length of ladder)^2.",
@@ -43,7 +43,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "DB = AB − AD = 12 − 4 = 8 cm [1]",
       "AD:DB = 4:8 = 1:2 [1]",
     ], finalAnswer: "DB = 8 cm, AD:DB = 1:2" , isCompetencyBased: false},
-  { id: "TRI2-E07", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "A ladder 13 m long is placed against a wall. The foot of the ladder is 5 m from the wall. Find the height reached by the ladder on the wall.", solutionSteps: [
+  { id: "TRI2-E07", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "A ladder 13 m long is placed against a wall. The foot of the ladder is 5 m from the wall. Find the height reached by the ladder on the wall.", solutionSteps: [
       "By Pythagoras: h² + 5² = 13² [½]",
       "h² = 169 − 25 = 144 [½]",
       "h = 12 m [1]",
@@ -117,7 +117,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "AB/DE = BC/EF → 5/10 = BC/EF [½]",
       "BC/EF = 1/2 [1]",
     ], finalAnswer: "BC/EF = 1/2" , isCompetencyBased: false},
-  { id: "TRI2-M05", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, ∠B = 90°, BD ⊥ AC. If AD = 4 cm and CD = 9 cm, find BD.", solutionSteps: [
+  { id: "TRI2-M05", subject: "Maths", topicKey: "triangles", subtopic: "Similarity in Right Triangles", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, ∠B = 90°, BD ⊥ AC. If AD = 4 cm and CD = 9 cm, find BD.", solutionSteps: [
       "In a right triangle, the altitude to the hypotenuse creates similar triangles [1]",
       "BD² = AD × CD = 4 × 9 = 36 [1]",
       "BD = 6 cm [1]",
@@ -158,12 +158,12 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Comparing this condition with the given options, option (c) is the correct statement.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-M07", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In an equilateral triangle ABC with side 2a, prove that the altitude AD = a√3.", solutionSteps: [
+  { id: "TRI2-M07", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In an equilateral triangle ABC with side 2a, prove that the altitude AD = a√3.", solutionSteps: [
       "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.; D is the midpoint of BC, so BD = a [1]",
       "In right △ABD: AB² = AD² + BD²; 4a² = AD² + a² → AD² = 3a² [1]",
       "AD = a√3 [1]",
     ], finalAnswer: "AD = a√3 (proved)", visualExplainerId: "maths-triangles-similar-triangles-and-criteria" , isCompetencyBased: false},
-  { id: "TRI2-M08", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two poles of heights 6 m and 11 m stand on a plane ground. If the distance between the feet is 12 m, find the distance between their tops.", solutionSteps: [
+  { id: "TRI2-M08", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two poles of heights 6 m and 11 m stand on a plane ground. If the distance between the feet is 12 m, find the distance between their tops.", solutionSteps: [
       "Draw a diagram. Form a right-angled triangle with sides: difference in heights (11-6)m and distance between feet 12m. [1]",
       "Difference in heights = 11 - 6 = 5 m. Let 'd' be the distance between tops. By Pythagoras theorem, d^2 = 5^2 + 12^2. [1]",
       "d^2 = 25 + 144 = 169. So, d = sqrt(169) = 13 m. [1]",
@@ -185,7 +185,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Ratio of areas = (4/9)^2 = 16/81. [1]",
       "For similar triangles, the ratio of altitudes is the same as the ratio of their sides = 4:9. [1]",
     ], finalAnswer: "Areas = 16:81, Altitudes = 4:9" , isCompetencyBased: false},
-  { id: "TRI2-H07", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠ABC = 90° and BD ⊥ AC. Prove that (i) △ADB ~ △ABC (ii) △BDC ~ △ABC (iii) BD² = AD × DC.", solutionSteps: [
+  { id: "TRI2-H07", subject: "Maths", topicKey: "triangles", subtopic: "Similarity in Right Triangles", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠ABC = 90° and BD ⊥ AC. Prove that (i) △ADB ~ △ABC (ii) △BDC ~ △ABC (iii) BD² = AD × DC.", solutionSteps: [
       "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices. [1]",
       "(i) In △ADB and △ABC: ∠A is common, ∠ADB = ∠ABC = 90° → △ADB ~ △ABC (AA) [1]",
       "(ii) In △BDC and △ABC: ∠C is common, ∠BDC = ∠ABC = 90° → △BDC ~ △ABC (AA) [1]",
@@ -198,7 +198,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "(iii) Ratio of areas = (2/5)² = 4/25 [1]",
       "(iv) Area of △ADE = (4/25) × 250 = 40 m² [1]",
     ], finalAnswer: "(i) 4.5 cm (ii) 2:5 (iii) 4:25 (iv) 40 m²" , isCompetencyBased: true},
-  { id: "TRI2-CB02", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A 10 m long ladder is placed against a building. The foot of the ladder is 6 m from the building.\n(i) How high does the ladder reach on the building?\n(ii) If the foot is moved 2 m closer, how high will it reach now?\n(iii) In case (ii), by how much did the height increase?\n(iv) Can the ladder reach a window 11 m high? Justify.", solutionSteps: [
+  { id: "TRI2-CB02", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A 10 m long ladder is placed against a building. The foot of the ladder is 6 m from the building.\n(i) How high does the ladder reach on the building?\n(ii) If the foot is moved 2 m closer, how high will it reach now?\n(iii) In case (ii), by how much did the height increase?\n(iv) Can the ladder reach a window 11 m high? Justify.", solutionSteps: [
       "Construction: Draw a right-angled triangle with hypotenuse = 10 m (ladder), base = 6 m (ground distance), and vertical height h (wall). Label all sides clearly.; (i) h² = 10² − 6² = 100 − 36 = 64 → h = 8 m [1]",
       "(ii) Distance = 4 m, h² = 100 − 16 = 84 → h = √84 = 2√21 ≈ 9.17 m [1]",
       "(iii) Increase = 9.17 − 8 = 1.17 m [1]",
@@ -224,7 +224,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Question text and answer are missing. Cannot generate solution steps or final answer.",
     ],
   },
-  { id: "TRI2-E16", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a right triangle, if one leg is 8 cm and hypotenuse is 17 cm, the other leg is:", options: ["15 cm","9 cm","12 cm","√(17²+8²) cm"], answer: "15 cm", explanation: "The correct answer is 15 cm. By Pythagoras: leg² = 17²−8² = 289−64 = 225. Leg = 15 cm.", finalAnswer: "By Pythagoras: leg² = 17²−8² = 289−64 = 225. Leg = 15 cm.", isCompetencyBased: false,
+  { id: "TRI2-E16", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a right triangle, if one leg is 8 cm and hypotenuse is 17 cm, the other leg is:", options: ["15 cm","9 cm","12 cm","√(17²+8²) cm"], answer: "15 cm", explanation: "The correct answer is 15 cm. By Pythagoras: leg² = 17²−8² = 289−64 = 225. Leg = 15 cm.", finalAnswer: "By Pythagoras: leg² = 17²−8² = 289−64 = 225. Leg = 15 cm.", isCompetencyBased: false,
     solutionSteps: [
       "Let the legs of the right triangle be 'a' and 'b', and the hypotenuse be 'c'.",
       "According to Pythagoras theorem, a^2 + b^2 = c^2.",
@@ -245,11 +245,9 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "This specific statement is known as the Converse of the Basic Proportionality Theorem (BPT).",
     ],
   },
-  { id: "TRI2-E19", subject: "Maths", topicKey: "triangles", subtopic: "Area Ratio", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two similar triangles have corresponding sides in ratio 3:4. The ratio of their altitudes is:", options: ["3:4","9:16","4:3","√3:2"], answer: "3:4", explanation: "The correct answer is 3:4. In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", finalAnswer: "In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", isCompetencyBased: false,
+  { id: "TRI2-E19", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two similar triangles have corresponding sides in ratio 3:4. The ratio of their altitudes is:", options: ["3:4","9:16","4:3","√3:2"], answer: "3:4", explanation: "The correct answer is 3:4. In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", finalAnswer: "In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", isCompetencyBased: false,
     solutionSteps: [
-      "Recall the theorem: The ratio of the areas of two similar triangles is equal to the square of the ratio of their corresponding sides.",
-      "Apply the theorem: If the ratio of corresponding sides is a:b, then the ratio of their areas is a^2:b^2.",
-      "Calculate the ratio: For example, if side ratio is 3:5, then area ratio = (3/5)^2 = 9/25.",
+      "[1 mark] In similar triangles, corresponding altitudes are in the same ratio as corresponding sides (the two right triangles cut off by an altitude are similar by AA). Ratio of altitudes = 3 : 4.",
     ],
   },
   { id: "TRI2-E20", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In a right triangle with legs a and b and hypotenuse c, a² + b² = c².\nReason (R): This relationship is called the Pythagoras Theorem and holds for any right-angled triangle.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "R names and states the Pythagoras Theorem, which is exactly the relationship expressed in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,

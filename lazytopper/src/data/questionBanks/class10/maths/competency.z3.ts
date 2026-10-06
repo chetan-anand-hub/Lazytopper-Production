@@ -372,7 +372,7 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     ],
     finalAnswer: "Height of the tree = 18.08 feet",
     isCompetencyBased: true, visualExplainerId: "maths-triangles-fig-z3-tr-002", requiresDiagram: false },
-  { id: "Z3-TR-003", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem (Applications)",
+  { id: "Z3-TR-003", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A painter sets a ladder up to reach the bottom of a second-story window 16 feet above the ground. The base of the ladder is 12 feet from the house. While the painter mixes paint, a dog bumps the ladder, moving the base 2 feet farther from the house. How far up the side of the house does the ladder now reach?",
     solutionSteps: [
@@ -382,7 +382,7 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     ],
     finalAnswer: "The ladder reaches about 14.3 feet up the house",
     isCompetencyBased: true, visualExplainerId: "maths-triangles-fig-z3-tr-003", requiresDiagram: false },
-  { id: "Z3-TR-004", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem (Applications)",
+  { id: "Z3-TR-004", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Anil is constructing an 8 m tall windmill supported by two wires. One wire must be 10 m long and the distance between the feet of the two wires must be 21 m. The two wires run from the top of the windmill to the ground on opposite sides. What length should Anil cut for the other wire?",
     solutionSteps: [
@@ -402,7 +402,7 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     ],
     finalAnswer: "Altitude of the helicopter = 240 m",
     isCompetencyBased: true, visualExplainerId: "maths-triangles-fig-z3-tr-005", requiresDiagram: false },
-  { id: "Z3-TR-006", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem (Applications)",
+  { id: "Z3-TR-006", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The boxes used to ship some washing machines are perfect cubes with edge a. Find the length of the diagonal d of one face, and the length of the interior (space) diagonal D through the middle of the box.",
     solutionSteps: [
@@ -424,7 +424,7 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     finalAnswer: "He enters the water x = 40 m east of his starting position",
     isCompetencyBased: true, visualExplainerId: "maths-triangles-fig-z3-tr-007", requiresDiagram: true,
     diagramDescription: "Lifeguard at top on land; a vertical 20 m segment down to the shoreline. Along the shore a horizontal distance of 100 m is split into x (lifeguard side to entry point) and 100 - x. From the shoreline a 30 m segment continues to the swimmer in the water. A straight line runs from the lifeguard through the entry point to the swimmer." },
-  { id: "Z3-TR-008", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem (Applications)",
+  { id: "Z3-TR-008", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Two ships are cruising together on the open ocean at 6 nautical miles per hour. One of them turns to make a 90 degree angle with the first and increases speed, heading for port. Assuming the first ship continues at 6 knots, find the speed of the other ship if they are 10 nautical miles apart after 1 hour.",
     solutionSteps: [

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "surface-areas-and-volumes" (Maths): 197 served rows from 16 source arrays, 0 withheld.
+// Chapter "surface-areas-and-volumes" (Maths): 176 served rows from 16 source arrays, 21 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -41,4 +41,25 @@ export default defineChapter("surface-areas-and-volumes", [
   [356, SURFACE_AREAS_AND_VOLUMES_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
 ], [
+  "SAV-E09",
+  "SAV-E20",
+  "SAV-M03",
+  "SAV-M09",
+  "SAV-M11",
+  "SAV-M19",
+  "SAV-H04",
+  "SAV-H13",
+  "SAV2P1-R01",
+  "SAV2-R01",
+  "SAV2-R07",
+  "SAV2-R08",
+  "SAV2-R09",
+  "SAV2-R10",
+  "SAV2-R13",
+  "SAV2-R14",
+  "SAV2-R17",
+  "SAV-N-EXMPLR-12-MCQ-005",
+  "SAV-N-EXMPLR-12-CB-001",
+  "SAV-N-EXEM2-12-LA-008",
+  "CBE-M-SAV-D-001",
 ]);
