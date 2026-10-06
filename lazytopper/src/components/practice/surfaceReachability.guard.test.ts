@@ -77,6 +77,8 @@ import {
   type FMSection,
 } from "../fullmock/fullMockBlueprint";
 import { isAutoGradeableObjective, isMcqShaped } from "./autoGradeableObjective";
+import { questionMatchesFilters } from "../../pages/PracticePage";
+import type { PracticeQuestion } from "../../data/predictionDataService";
 
 /** The unified bank builds on first use (PERF-1 made it lazy) — explicit budget on
  *  EVERY test, controls included (a control that times out reads as a red). */
@@ -370,5 +372,76 @@ describe("surface reachability — positive controls (synthetic, the predicates 
     expect(isEligibleForChapterTest(orphan)).toBe(false); // …the topic bar does not.
     expect(fullMockEligible(orphan)).toBe(false);
     expect(worksheetsEligible(orphan)).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// GEN-THIN-1 — every LazyTopper-generated row reaches every surface its shape fits
+// ---------------------------------------------------------------------------
+//
+// Owner rule 3 (2026-10-06): generated rows "must actually surface" — proven per surface,
+// by the SAME predicates the surfaces use (imported where exported, restated above where
+// not), against the ASSEMBLED bank. The population is selected by the internal tag only.
+//   Practice (topic/section/marks)  practiceEligible (restated, header)
+//   Practice source filter          questionMatchesFilters (imported, PracticePage.tsx)
+//   Worksheets                      worksheetsEligible (imported getTopics)
+//   Chapter Test                    isEligibleForChapterTest (imported)
+//   Full Mock                       sectionPool via fullMockSectionFor (imported)
+//   CBQ chooser / Competency preset questionMatchesFilters(q, "4", "case", …) — the exact
+//                                   call cbqAvailability.ts / PracticePage make
+// The engine draw (PredictionCore / generatePracticeSet) and Topic Hub concept practice are
+// pinned in src/data/ltGenerated.guard.test.ts, which preloads the bank chapters.
+
+const GEN: CanonicalQuestion[] = canonicalQuestionBank.filter((q) => q.origin === "lt-generated");
+/** FLOOR — 50 at GEN-THIN-1 PR-1 (5 thin concepts × 10). A content lane only raises it. */
+const GEN_FLOOR = 50;
+const asPQ = (q: CanonicalQuestion) => q as unknown as PracticeQuestion;
+const isCbqShape = (q: CanonicalQuestion) => q.section === "E" && q.marks === 4 && q.format === "Case-Based";
+
+describe("surface reachability — GEN-THIN-1 generated rows reach every surface", () => {
+  it("the generated population is real (floor) and is human-tier, not the retired AI pack", T, () => {
+    expect(GEN.length).toBeGreaterThanOrEqual(GEN_FLOOR);
+    for (const q of GEN) expect(AI.has(q.id), `${q.id} is in the AI pack`).toBe(false);
+  });
+
+  it("PRACTICE + WORKSHEETS — every generated row (section A–E, marks 1..5, topic offered)", T, () => {
+    expect(ids(GEN.filter((q) => !practiceEligible(q)))).toEqual([]);
+    expect(ids(GEN.filter((q) => !worksheetsEligible(q)))).toEqual([]);
+  });
+
+  it("PRACTICE SOURCE FILTER — under All and Others, never under PYQ or NCERT", T, () => {
+    const under = (src: string) => GEN.filter((q) => questionMatchesFilters(asPQ(q), "all", "all", src, "all", null));
+    expect(under("all").length).toBe(GEN.length);
+    expect(under("others").length).toBe(GEN.length);
+    expect(ids(under("pyq")), "generated rows under the PYQ filter").toEqual([]);
+    expect(ids(under("ncert")), "generated rows under the NCERT filter").toEqual([]);
+  });
+
+  it("CHAPTER TEST — every generated row is drawable", T, () => {
+    expect(ids(GEN.filter((q) => !chapterTestEligible(q)))).toEqual([]);
+  });
+
+  it("FULL MOCK — every generated row is drawable (none is a 1-mark written row)", T, () => {
+    expect(ids(GEN.filter((q) => !fullMockEligible(q)))).toEqual([]);
+    // Each lands in the section its marks name — the slot it is authored for.
+    const slot: Record<number, FMSection> = { 1: "A", 2: "B", 3: "C", 5: "D", 4: "E" };
+    for (const q of GEN) expect(fullMockSectionFor(q), q.id).toBe(slot[q.marks]);
+  });
+
+  it("CBQ CHOOSER + COMPETENCY PRESET — every generated case study passes the chooser's own filter; no other row is mistaken for one", T, () => {
+    for (const q of GEN) {
+      expect(questionMatchesFilters(asPQ(q), "4", "case", "all", "all", null), q.id).toBe(isCbqShape(q));
+    }
+  });
+
+  it("CONTROL — a generated-shaped row tagged as a PYQ leaves Others and enters PYQ (the filter assertions can fail)", T, () => {
+    const g = GEN[0];
+    if (!g) throw new Error("no generated rows — control cannot run");
+    const pyq = asPQ({ ...g, pyqYear: "2024" });
+    expect(questionMatchesFilters(pyq, "all", "all", "pyq", "all", null)).toBe(true);
+    expect(questionMatchesFilters(pyq, "all", "all", "others", "all", null)).toBe(false);
+    const ncertId = asPQ({ ...g, id: "AP-N-NCERT-5-SA-999" });
+    expect(questionMatchesFilters(ncertId, "all", "all", "ncert", "all", null)).toBe(true);
+    expect(questionMatchesFilters(ncertId, "all", "all", "others", "all", null)).toBe(false);
   });
 });

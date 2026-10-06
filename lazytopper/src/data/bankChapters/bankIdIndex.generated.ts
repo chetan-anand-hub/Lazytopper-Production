@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Served bank id -> {topicKey, subtopic, section} for 8052 rows, in aggregator order.
+// Served bank id -> {topicKey, subtopic, section} for 8102 rows, in aggregator order.
 // Ids and tags only, never question content. Read through ./bankIdIndex.ts.
 
 export const BANK_ID_INDEX_TOPIC_KEYS: readonly string[] = [
@@ -1960,6 +1960,9 @@ export const BANK_ID_INDEX_SUBTOPICS: readonly string[] = [
   "Magnetic Effects of Electric Current",
   "Metals and Non-Metals",
   "Our Environment",
+  "Derivation of nth Term and Sum of n Terms",
+  "Similar Figures — Definitions and Counter-examples",
+  "AC Frequency",
 ];
 
 export const BANK_ID_INDEX_SECTIONS: readonly string[] = [
@@ -10024,4 +10027,54 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["2026-MNM-01", 15, 1923, 0],
   ["sci-chem-mnm-3m-2026-02", 15, 1923, 2],
   ["sci-env-3m-2026-01", 25, 1924, 2],
+  ["LTG-M-AP-001", 6, 1925, 0],
+  ["LTG-M-AP-002", 6, 1925, 0],
+  ["LTG-M-AP-003", 6, 1925, 0],
+  ["LTG-M-AP-004", 6, 1925, 1],
+  ["LTG-M-AP-005", 6, 1925, 1],
+  ["LTG-M-AP-006", 6, 1925, 2],
+  ["LTG-M-AP-007", 6, 1925, 2],
+  ["LTG-M-AP-008", 6, 1925, 2],
+  ["LTG-M-AP-009", 6, 1925, 3],
+  ["LTG-M-AP-010", 6, 1925, 3],
+  ["LTG-M-TRI-001", 0, 1926, 0],
+  ["LTG-M-TRI-002", 0, 1926, 0],
+  ["LTG-M-TRI-003", 0, 1926, 0],
+  ["LTG-M-TRI-004", 0, 1926, 0],
+  ["LTG-M-TRI-005", 0, 1926, 0],
+  ["LTG-M-TRI-006", 0, 1926, 0],
+  ["LTG-M-TRI-007", 0, 1926, 1],
+  ["LTG-M-TRI-008", 0, 1926, 1],
+  ["LTG-M-TRI-009", 0, 1926, 1],
+  ["LTG-M-TRI-010", 0, 1926, 2],
+  ["LTG-M-CIRC-001", 8, 1219, 0],
+  ["LTG-M-CIRC-002", 8, 1219, 0],
+  ["LTG-M-CIRC-003", 8, 1219, 1],
+  ["LTG-M-CIRC-004", 8, 1219, 1],
+  ["LTG-M-CIRC-005", 8, 1219, 1],
+  ["LTG-M-CIRC-006", 8, 1219, 2],
+  ["LTG-M-CIRC-007", 8, 1219, 2],
+  ["LTG-M-CIRC-008", 8, 1219, 2],
+  ["LTG-M-CIRC-009", 8, 1219, 3],
+  ["LTG-M-CIRC-010", 8, 1219, 3],
+  ["LTG-S-MAG-001", 24, 1927, 0],
+  ["LTG-S-MAG-002", 24, 1927, 0],
+  ["LTG-S-MAG-003", 24, 1927, 0],
+  ["LTG-S-MAG-004", 24, 1927, 0],
+  ["LTG-S-MAG-005", 24, 1927, 0],
+  ["LTG-S-MAG-006", 24, 1927, 1],
+  ["LTG-S-MAG-007", 24, 1927, 1],
+  ["LTG-S-MAG-008", 24, 1927, 1],
+  ["LTG-S-MAG-009", 24, 1927, 2],
+  ["LTG-S-MAG-010", 24, 1927, 2],
+  ["LTG-S-MAG-011", 24, 1388, 0],
+  ["LTG-S-MAG-012", 24, 1388, 0],
+  ["LTG-S-MAG-013", 24, 1388, 0],
+  ["LTG-S-MAG-014", 24, 1388, 0],
+  ["LTG-S-MAG-015", 24, 1388, 1],
+  ["LTG-S-MAG-016", 24, 1388, 1],
+  ["LTG-S-MAG-017", 24, 1388, 1],
+  ["LTG-S-MAG-018", 24, 1388, 1],
+  ["LTG-S-MAG-019", 24, 1388, 2],
+  ["LTG-S-MAG-020", 24, 1388, 3],
 ];
