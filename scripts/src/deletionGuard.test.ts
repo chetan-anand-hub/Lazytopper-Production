@@ -115,7 +115,9 @@ describe("isMathsDeletedFor2026_27 — current 2026-27 state (subtopic-level del
   // OUT row (lazytopper/src/config/syllabus2026-27.ts SYLLABUS_OUT.maths) — 18 rows, one or
   // more fragments each — not the 6 hand-picked keywords this pinned before.
   test("every F1 Maths OUT row contributes fragments; the pre-F6 six are still present", () => {
-    assert.equal(SYLLABUS_OUT.maths.length, 18, "F1 lists 18 Maths OUT rows");
+    // 18 -> 21 at QUICK-FIXES-1 PR-2 (owner rulings R1-R3, 2026-10-06): general-prime irrationality, centroid,
+    // combinations of plane figures.
+    assert.equal(SYLLABUS_OUT.maths.length, 21, "F1 lists 21 Maths OUT rows");
     for (const row of SYLLABUS_OUT.maths) {
       const frags = MATHS_OUT_SUBTOPIC_FRAGMENTS[row.item] ?? [];
       assert.ok(frags.length > 0, `no fragment for F1 OUT row: ${row.item}`);
@@ -126,7 +128,20 @@ describe("isMathsDeletedFor2026_27 — current 2026-27 state (subtopic-level del
     for (const kw of ["constructions", "division of a line segment", "construction of tangents", "frustum", "ogive", "graph ogive"]) {
       assert.ok(MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.includes(kw), `pre-F6 keyword dropped: ${kw}`);
     }
-    assert.equal(MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.length, 43);
+    // 43 -> 52 at QUICK-FIXES-1 PR-2: +3 general-prime, +1 centroid, +5 combinations/annulus fragments.
+    assert.equal(MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.length, 52);
+  });
+
+  test("QUICK-FIXES-1 PR-2: the R1-R3 OUT labels are excluded; their IN neighbours are not", () => {
+    assert.equal(isMathsDeletedFor2026_27("Coordinate Geometry", "Centroid of a Triangle"), true);
+    assert.equal(isMathsDeletedFor2026_27("Areas Related to Circles", "Area of a Ring"), true);
+    assert.equal(isMathsDeletedFor2026_27("Areas Related to Circles", "Areas of Combinations of Plane Figures"), true);
+    assert.equal(isMathsDeletedFor2026_27("Real Numbers", "Square root of every prime is irrational"), true);
+    // IN: same-method proofs, the official vertex-sector row's label, sector/segment areas, the section formula
+    assert.equal(isMathsDeletedFor2026_27("Real Numbers", "Irrationality Proofs"), false);
+    assert.equal(isMathsDeletedFor2026_27("Areas Related to Circles", "Combinations of Plane Figures"), false);
+    assert.equal(isMathsDeletedFor2026_27("Areas Related to Circles", "Area of Sector and Segment"), false);
+    assert.equal(isMathsDeletedFor2026_27("Coordinate Geometry", "Section Formula"), false);
   });
 
   test("the real Maths OUT items are excluded (area theorem, the theorem of the right triangle, coordinate area, melting/recasting)", () => {
