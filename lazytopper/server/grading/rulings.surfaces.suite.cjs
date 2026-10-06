@@ -169,7 +169,8 @@ const hinglishUnitSteps = (marks) => { const st = unitSteps(marks); st[0] = { ..
 const STRAY = {
   'Science, one stray word': 'Carbon has 4 valence electrons, so it shares electrons and forms covalent bonds. Sahi.',
   'Maths, one stray word': 'x² − 2x − 8 = 0 factorises as (x − 4)(x + 2) = 0, matlab the roots are x = 4 and x = −2.',
-  'one word in several sentences': 'The answer is sahi. Ek more check: the working is bahut clear.',
+  // three DIFFERENT strays, one per sentence: a bare count (3 hits, 2+ distinct) would call this Hinglish
+  'one word in several sentences': 'The answer is sahi. The working is bahut clear. The final value is ek hundred.',
   'one word repeated': 'Yeh: the current is 2 A. Yeh: the resistance is 5 Ω. Yeh: the voltage is 10 V.',
 };
 const HINDI_CLAUSE = 'Ohm law ke hisaab se current resistance se inversely proportional hota hai, so I = V/R.';
