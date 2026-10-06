@@ -378,15 +378,165 @@ export function preloadHrefsFor(
   return hrefs;
 }
 
-/** Insert the preload links immediately before `</head>`, which must occur exactly once. */
+/**
+ * Insert the preload links at the END OF THE BODY, immediately before `</body>`.
+ *
+ * ★ LOW-END-3 PR-1 (c): FIRST PAINT NEVER WAITS FOR BIG JS. In the head, these links were
+ * found by the preload scanner while the HTML itself was still arriving, so up to ~455 KB of
+ * route JS shared the pipe with the document and the stylesheet (#963 §4: FCP came after the
+ * CSS in 42/42 runs). After the prerendered body, they start once the document's own bytes are
+ * in. They still start long before the entry module (in the head, ~352 KB) has downloaded and
+ * runs, so the route import still finds them in flight. And while a route chunk loads, the
+ * Suspense fallback re-inserts the prerendered body (`App.tsx` `PrerenderedRouteBody`), so
+ * there is no Loading swap either way.
+ *
+ * `</head>` and `</body>` must each occur exactly once (a second one means the shell changed
+ * shape, or a fragment carries one), or this throws.
+ */
 export function withPreloads(html: string, hrefs: readonly string[]): string {
   if (hrefs.length === 0) return html;
   const closes = html.split("</head>").length - 1;
   if (closes !== 1) {
     throw new Error(`applyPrerendered: expected exactly one </head> to insert modulepreload links, found ${closes}`);
   }
+  const bodyCloses = html.split("</body>").length - 1;
+  if (bodyCloses !== 1) {
+    throw new Error(`applyPrerendered: expected exactly one </body> to insert modulepreload links, found ${bodyCloses}`);
+  }
   const links = hrefs.map((href) => `<link rel="modulepreload" crossorigin href="${href}">`).join("");
-  return html.replace("</head>", `${links}</head>`);
+  return html.replace("</body>", () => `${links}</body>`);
+}
+
+/**
+ * LOW-END-3 PR-1 (c): the shell's ONE render-blocking stylesheet, the entry CSS Vite links
+ * (`<link rel="stylesheet" crossorigin href="/assets/index-X.css">`). `null` when the shell has
+ * none (synthetic builds). More than one throws: which one to inline would be a guess.
+ */
+export function entryStylesheetOf(shellHtml: string): { tag: string; file: string } | null {
+  const tags = stylesheetLinksIn(shellHtml);
+  if (tags.length === 0) return null;
+  const local = tags.filter((tag) => /\bhref="[^"]*assets\/[^"/]+\.css"/.test(tag));
+  if (tags.length !== 1 || local.length !== 1) {
+    throw new Error(
+      `applyPrerendered: expected exactly ONE <link rel="stylesheet"> (the entry CSS) in the built shell, ` +
+        `found ${tags.length} (${local.length} under assets/). Which one to inline would be a guess.`,
+    );
+  }
+  const file = (local[0].match(/\bhref="[^"]*assets\/([^"/]+\.css)"/) as RegExpMatchArray)[1];
+  return { tag: local[0], file };
+}
+
+/**
+ * LOW-END-3 PR-1 (d): the CSS files Vite injects when the entry dynamically imports
+ * `chunkFile`, read from the entry's own `__vite__mapDeps` table:
+ * `import("./X-hash.js"),__vite__mapDeps([i,j])` with `m.f=["assets/X-hash.js","assets/X-h2.css",…]`.
+ *
+ * ★ WHY. A lazy route's stylesheet (e.g. `CheckYourAnswerPage-*.css`) arrives only with its
+ * chunk, AFTER the prerendered body has painted without it, so the page re-lays out when it
+ * lands. That is the /check-your-answer shift (#963 §4.5: hero 106 → 271 px at 1440, CLS 0.898).
+ * Inlined, the first paint already has the route's styles and nothing moves.
+ *
+ * No `__vite__mapDeps` call for the chunk means no CSS (Vite emits the call only when the
+ * import has deps). A table that is present but cannot be read throws.
+ */
+export function dynamicImportCssOf(entryCode: string, chunkFile: string): string[] {
+  const escaped = chunkFile.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const call = entryCode.match(new RegExp(`import\\("\\./${escaped}"\\),__vite__mapDeps\\(\\[([0-9,]*)\\]`));
+  if (!call) return [];
+  const table = entryCode.match(/m\.f=\[([^\]]*)\]/);
+  if (!table) {
+    throw new Error(
+      `applyPrerendered: the entry imports ${chunkFile} through __vite__mapDeps but its dependency ` +
+        `table (m.f=[…]) could not be read. The Vite output changed shape.`,
+    );
+  }
+  const files = [...table[1].matchAll(/"([^"]*)"/g)].map((m) => m[1]);
+  const css: string[] = [];
+  for (const index of call[1].split(",").filter(Boolean).map(Number)) {
+    const dep = files[index];
+    if (dep === undefined) {
+      throw new Error(`applyPrerendered: __vite__mapDeps index ${index} for ${chunkFile} is outside the table`);
+    }
+    if (dep.endsWith(".css")) css.push(dep.replace(/^.*assets\//, ""));
+  }
+  return css;
+}
+
+/** The CSS files (entry CSS excluded) that the route chunk(s) of `path` inject, in order. */
+export function routeCssFor(
+  path: string,
+  assetsDir: string,
+  shellHtml: string,
+  assetFiles: readonly string[],
+): string[] {
+  const { entry } = entryScriptOf(shellHtml);
+  const entryCode = readFileSync(join(assetsDir, entry), "utf8");
+  const css: string[] = [];
+  for (const moduleName of routeChunkModulesFor(path)) {
+    for (const file of dynamicImportCssOf(entryCode, resolveRouteChunk(moduleName, assetFiles))) {
+      if (!css.includes(file)) css.push(file);
+    }
+  }
+  return css;
+}
+
+/**
+ * A stylesheet's text, checked safe to inline: it must not close the `<style>` element, and
+ * every `url()` must be absolute (a relative one resolved against `/assets/` in the file, but
+ * would resolve against the PAGE once inlined).
+ */
+export function inlinableCss(file: string, css: string): string {
+  if (/<\/style/i.test(css)) throw new Error(`applyPrerendered: ${file} contains "</style" and cannot be inlined`);
+  for (const match of css.matchAll(/url\(\s*(['"]?)([^'")]*)\1\s*\)/g)) {
+    if (!/^(?:\/|data:|https?:|#)/.test(match[2])) {
+      throw new Error(`applyPrerendered: ${file} has a relative url(${match[2]}) that would break once inlined`);
+    }
+  }
+  return css;
+}
+
+/**
+ * Replace the render-blocking entry stylesheet link with `<style data-lt-inline="file">`
+ * blocks: the entry CSS first, then the route CSS (the order Vite's own links would give).
+ */
+export function withInlineStyles(
+  html: string,
+  linkTag: string,
+  blocks: ReadonlyArray<{ file: string; css: string }>,
+): string {
+  const count = html.split(linkTag).length - 1;
+  if (count !== 1) {
+    throw new Error(`applyPrerendered: expected the entry stylesheet link exactly once to inline it, found ${count}`);
+  }
+  const styles = blocks.map(({ file, css }) => `<style data-lt-inline="${file}">${css}</style>`).join("");
+  return html.replace(linkTag, () => styles);
+}
+
+/** Every `<link rel="stylesheet">` in a built page. */
+export function stylesheetLinksIn(html: string): string[] {
+  return html.match(/<link\b[^>]*\brel="stylesheet"[^>]*>/g) ?? [];
+}
+
+/** Every `data-lt-inline` file name in a built page. */
+export function inlinedStylesIn(html: string): string[] {
+  return [...html.matchAll(/<style data-lt-inline="([^"]+)">/g)].map((m) => m[1]);
+}
+
+/**
+ * LOW-END-3 PR-1 (a): every absolute URL on this site that a built page emits (canonical,
+ * og:url, og:image, JSON-LD, links) must be the final `https://www.lazytopper.com/…`, and no
+ * href/src may point under the retired `/app` base. Each of those costs the reader a redirect
+ * hop (#963 §2d: +160–410 ms measured, ~0.9 s per new connection at a 300 ms RTT).
+ */
+export function hopUrlsIn(html: string): string[] {
+  const bad = new Set<string>();
+  for (const match of html.matchAll(/(?:https?:)?\/\/(?:[a-z0-9-]+\.)*lazytopper\.com[^\s"'<>)]*/gi)) {
+    const url = match[0];
+    if (!/^https:\/\/www\.lazytopper\.com(?:[/?#]|$)/.test(url)) bad.add(url);
+    else if (/^https:\/\/www\.lazytopper\.com\/app(?:[/?#]|$)/.test(url)) bad.add(url);
+  }
+  for (const match of html.matchAll(/\b(?:href|src|action)="(\/app(?:[/?#][^"]*)?)"/g)) bad.add(match[1]);
+  return [...bad];
 }
 
 /** Every `<link rel="modulepreload" href>` in a built page. */
@@ -416,6 +566,9 @@ export function verifyBuiltPages(
   let mobileFiles = 0;
   let desktopFiles = 0;
   let preloadLinks = 0;
+  // The entry CSS every page must inline, as named by the clean shell (which keeps its link).
+  const shellFile = join(outDir, SPA_SHELL);
+  const entryCss = existsSync(shellFile) ? (entryStylesheetOf(readFileSync(shellFile, "utf8"))?.file ?? null) : null;
   for (const path of expected) {
     const relative = path.replace(/^\//, "");
     const mobile = path === "/" ? ["index.html"] : [`${relative}.html`, join(relative, "index.html")];
@@ -440,6 +593,21 @@ export function verifyBuiltPages(
         if (!/\/assets\/[^/]+\.js$/.test(href) || !existsSync(target) || !statSync(target).isFile()) {
           failures.push(`${path}: the ${variant} file ${file} preloads ${href}, which this build did not emit`);
         }
+      }
+      // LOW-END-3 PR-1 (c): no render-blocking stylesheet; the entry CSS is inlined, once.
+      for (const link of stylesheetLinksIn(html)) {
+        failures.push(`${path}: the ${variant} file ${file} still carries a render-blocking ${link}`);
+      }
+      if (entryCss !== null && inlinedStylesIn(html).filter((name) => name === entryCss).length !== 1) {
+        failures.push(`${path}: the ${variant} file ${file} does not inline the entry CSS ${entryCss} exactly once`);
+      }
+      // LOW-END-3 PR-1 (c): the route preloads sit after the body content, never in the head.
+      if (modulepreloadHrefsIn(html.slice(0, html.indexOf("</head>"))).length > 0) {
+        failures.push(`${path}: the ${variant} file ${file} carries modulepreload links in its HEAD`);
+      }
+      // LOW-END-3 PR-1 (a): no URL that costs the reader a redirect hop.
+      for (const url of hopUrlsIn(html)) {
+        failures.push(`${path}: the ${variant} file ${file} emits ${url}, which redirects (not the final www URL)`);
       }
       preloadLinks += hrefs.length;
       if (variant === "mobile") mobileFiles += 1;
@@ -596,6 +764,29 @@ export function applyArtifact(
     for (const path of expected) preloads.set(path, preloadHrefsFor(path, assetsDir, cleanShell, assetFiles));
   }
 
+  // LOW-END-3 PR-1 (c)+(d): inline the entry CSS and each page's route CSS in place of the one
+  // render-blocking link, resolved and checked before anything is written. `__shell.html`
+  // (written above) keeps the link: it has no prerendered body to paint early.
+  const entryStylesheet = entryStylesheetOf(cleanShell);
+  const styleBlocks = new Map<string, Array<{ file: string; css: string }>>();
+  if (entryStylesheet !== null) {
+    const readCss = (file: string): { file: string; css: string } => ({
+      file,
+      css: inlinableCss(file, readFileSync(join(assetsDir, file), "utf8")),
+    });
+    const entryBlock = readCss(entryStylesheet.file);
+    const assetFiles = options.preloads !== false ? readdirSync(assetsDir) : [];
+    for (const path of expected) {
+      const routeCss = options.preloads !== false ? routeCssFor(path, assetsDir, cleanShell, assetFiles) : [];
+      styleBlocks.set(path, [entryBlock, ...routeCss.map(readCss)]);
+    }
+  }
+  const finish = (path: string, html: string, hrefs: readonly string[]): string => {
+    const blocks = styleBlocks.get(path);
+    const styled = entryStylesheet !== null && blocks ? withInlineStyles(html, entryStylesheet.tag, blocks) : html;
+    return withPreloads(styled, hrefs);
+  };
+
   let filesWritten = 0;
   let desktopFilesWritten = 0;
   let bodyBytes = 0;
@@ -617,7 +808,7 @@ export function applyArtifact(
             `shape, or this step ran twice.`,
         );
       }
-      writeFileSync(file, withPreloads(shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), hrefs), "utf8");
+      writeFileSync(file, finish(path, shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), hrefs), "utf8");
       filesWritten += 1;
     }
     const desktopFile = join(outDir, desktopVariantFile(path));
@@ -625,7 +816,7 @@ export function applyArtifact(
     const desktopFragment = desktopFragments.get(path) as string;
     writeFileSync(
       desktopFile,
-      withPreloads(stamped.replace(EMPTY_ROOT, `<div id="root">${desktopFragment}</div>`), hrefs),
+      finish(path, stamped.replace(EMPTY_ROOT, `<div id="root">${desktopFragment}</div>`), hrefs),
       "utf8",
     );
     desktopFilesWritten += 1;
