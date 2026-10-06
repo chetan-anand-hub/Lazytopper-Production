@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-07 — CI: **WAVE CI1 — CI-SPEED-1 NIGHTLY RESTORE** (`#981`, `[FU-CI1-NIGHTLY-RESTORE]`) — trunk `63e94564` — ✅ COMPLETE (verifier PASS; post-merge PASS; owner-owed: merge-queue option, Railway `watchPatterns`)
+
+- ✅ **Nightly full suite under both clocks restored:** `schedule: '30 20 * * *'` (02:00 IST), first scheduled run 2026-10-07T20:30Z; a scheduled failure opens an issue. Hand-run `37539342806` green: 330/330 files, 4,755 tests, both clocks.
+- ✅ **Three gates (C&I convergence, C&I overlay, QP overlay) treat push / schedule / workflow_dispatch / merge_group as N/A**, pinned; pull_request with an unresolvable base still hard-fails.
+- ✅ **`merge_group` triggers on both required workflows;** lane-overlap passes through on merge_group. Inert until a queue is enabled.
+- ✅ **Nightly asserts files == files on disk.**
+- ✅ This closes the CI-SPEED-1 block's open ⬜ `[FU-CI1-NIGHTLY-RESTORE]` item below (not edited in place).
+- ⬜ **Owner:** merge-queue option (A recommended), `[FU-CI1-RAILWAY-WATCHPATTERNS]`.
+
 ## 2026-10-07 — CI: **WAVE CI1 — CI-SPEED-1** (`#969`) — trunk `c6068552` — ✅ COMPLETE (supersedes HARDEN-1 §2 PR-3; cofounder PASS; owner-owed: merge-queue option, Railway `watchPatterns`; nightly restore pending `#970`)
 
 - ✅ **Quality Gate as parallel jobs, required name `quality-gate` kept** (`#969`): ~23 min (median of 12 runs) → 5.8 min on the final head (`37517913640`), 4.6 min on the trunk push (`37519890478`); `VITEST_TOTAL files=320 tests=4709 skipped=0` = the pre-`#969` run's 4705 (`37517716467`) + 4 new guard tests.

@@ -1,5 +1,8 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-07 — WAVE CI1 (CI, CONTROLLER C): FU-CI1-NIGHTLY-RESTORE (`#981` `63e94564`); trunk `63e94564`. NO SURFACE MOVES.**
+> `#981` changed two CI workflows (`quality-gate.yml`, `lane-overlap.yml`) and four ops scripts (`ci_speed_acceptance.mjs` and three acceptance gates); **zero product files**. No product surface moved, no cell flips, and no scope was discovered on any surface. Recorded explicitly per `CLAUDE.md` §10 — a silent tracker is indistinguishable from an unchecked one.
+
 > **2026-10-07 — WAVE CI1 (CI, CONTROLLER C): CI-SPEED-1 (`#969` `c6068552`); trunk `c6068552`. NO SURFACE MOVES.**
 > `#969` changed CI workflows, CI scripts, `vercel.json` (`ignoreCommand` line only), the vitest config and one guard test; **zero product files**. No product surface moved, no cell flips, and no scope was discovered on any surface. Recorded explicitly per `CLAUDE.md` §10 — a silent tracker is indistinguishable from an unchecked one.
 

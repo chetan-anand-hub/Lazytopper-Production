@@ -396,6 +396,12 @@ export function useTutorSession({
           // session. The server rebuilds it at the trust boundary before it reaches the prompt.
           returnedWork: returnedWorkRef.current,
         });
+        // ME-ENGINE-1 PR-2 (G8) — the doubt counts as Tutor ACTIVITY only once the Tutor has
+        // ANSWERED it: one synced, timestamped event (metadata only — the text stays in the
+        // thread). A failed reply (5xx, premium, network) throws above and records nothing; a
+        // successful retry of that doubt records it then, once. Recorded even if the page has
+        // unmounted meanwhile — the doubt was answered. Honest-gated like `persist`.
+        recordTutorTurn(user, { topicKey, subject });
         if (!mountedRef.current) return;
         setMessages((prev) => {
           const next: TutorTurn[] = [
@@ -422,7 +428,7 @@ export function useTutorSession({
         sendingRef.current = false;
       }
     },
-    [uid, topicKey, topicLabel, subject, concept, language, persist, figures],
+    [uid, user, topicKey, topicLabel, subject, concept, language, persist, figures],
   );
 
   const send = useCallback(
@@ -440,12 +446,10 @@ export function useTutorSession({
       const next: TutorTurn[] = [...messages, { role: "user", content: clean }];
       setMessages(next);
       persist(next, null);
-      // ME-ENGINE-1 PR-2 (G8) — the doubt counts as Tutor ACTIVITY: one synced, timestamped
-      // event (metadata only — the text stays in the thread). Honest-gated like `persist`.
-      recordTutorTurn(user, { topicKey, subject });
+      // The doubt is recorded as Tutor activity in runModel, only after a successful reply.
       void runModel(next);
     },
-    [messages, runModel, concept, persist, updatePending, user, topicKey, subject],
+    [messages, runModel, concept, persist, updatePending],
   );
 
   const retry = useCallback(() => {
