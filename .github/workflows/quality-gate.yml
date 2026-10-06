@@ -273,13 +273,12 @@ jobs:
       # Read this shard's totals from this step's own log (vitest's "Test Files" / "Tests" lines);
       # the quality-gate job's log carries VITEST_TOTAL for all shards together.
       - name: Vitest suites (lazytopper)
-        if: matrix.shard != 4  # CI-SPEED-1 MUTATION B (reverted): shard 4 silently runs nothing
         timeout-minutes: 20
         run: pnpm --filter lazytopper exec vitest run --shard ${{ matrix.shard }}/4 --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-shard.json"
         env:
           NODE_OPTIONS: --max-old-space-size=2048
       - name: Shard summary (files and tests this shard ran)
-        if: ${{ !cancelled() && matrix.shard != 4 }}
+        if: ${{ !cancelled() }}
         run: node lazytopper/scripts/ops/ci_aggregate.mjs --shard-summary "$RUNNER_TEMP/vitest-shard.json" "$RUNNER_TEMP/summary/vitest-shard-${{ matrix.shard }}.json" --shard=${{ matrix.shard }}/4
       - name: Upload shard summary
         if: ${{ !cancelled() }}
