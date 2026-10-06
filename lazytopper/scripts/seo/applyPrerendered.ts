@@ -378,112 +378,15 @@ export function preloadHrefsFor(
   return hrefs;
 }
 
-/**
- * Insert the preload links at the END OF THE BODY, immediately before `</body>`.
- *
- * ★ LOW-END-3 PR-1 (c): FIRST PAINT NEVER WAITS FOR BIG JS. In the head, these links were
- * found by the preload scanner while the HTML itself was still arriving, so up to ~455 KB of
- * route JS shared the pipe with the document and the stylesheet (#963 §4: FCP came after the
- * CSS in 42/42 runs). After the prerendered body, they start once the document's own bytes are
- * in. They still start long before the entry module (in the head, ~352 KB) has downloaded and
- * runs, so the route import still finds them in flight. And while a route chunk loads, the
- * Suspense fallback re-inserts the prerendered body (`App.tsx` `PrerenderedRouteBody`), so
- * there is no Loading swap either way.
- *
- * `</head>` and `</body>` must each occur exactly once (a second one means the shell changed
- * shape, or a fragment carries one), or this throws.
- */
+/** Insert the preload links immediately before `</head>`, which must occur exactly once. */
 export function withPreloads(html: string, hrefs: readonly string[]): string {
   if (hrefs.length === 0) return html;
   const closes = html.split("</head>").length - 1;
   if (closes !== 1) {
     throw new Error(`applyPrerendered: expected exactly one </head> to insert modulepreload links, found ${closes}`);
   }
-  const bodyCloses = html.split("</body>").length - 1;
-  if (bodyCloses !== 1) {
-    throw new Error(`applyPrerendered: expected exactly one </body> to insert modulepreload links, found ${bodyCloses}`);
-  }
   const links = hrefs.map((href) => `<link rel="modulepreload" crossorigin href="${href}">`).join("");
-  return html.replace("</body>", () => `${links}</body>`);
-}
-
-/** The id of the deferred boot script on a prerendered page. */
-export const BOOT_SCRIPT_ID = "lt-boot";
-
-/**
- * The deferred boot loader. Classic inline script, ES5, no dependencies. It waits for the
- * first frame after the prerendered body is parsed (requestAnimationFrame, then a task), then
- * adds the route `modulepreload` links and imports the entry module. A hidden tab never runs
- * requestAnimationFrame, so a 200 ms timer starts the app regardless; whichever fires first wins.
- */
-const BOOT_LOADER =
-  "(function(s){var d=0;function go(){if(d)return;d=1;" +
-  'var p=(s.getAttribute("data-preload")||"").split(" ");' +
-  'for(var i=0;i<p.length;i++){if(!p[i])continue;var l=document.createElement("link");' +
-  'l.rel="modulepreload";l.crossOrigin="anonymous";l.href=p[i];document.head.appendChild(l);}' +
-  'import(s.getAttribute("data-entry"));}' +
-  "if(window.requestAnimationFrame)requestAnimationFrame(function(){setTimeout(go,0);});" +
-  "setTimeout(go,200);})(document.currentScript);";
-
-/**
- * ★ LOW-END-3 PR-1 (c): FIRST PAINT NEVER WAITS FOR BIG JS, made literal.
- *
- * A `<script type="module" src>` in the head and `<link rel="modulepreload">`s anywhere in the
- * document are fetched at once by the preload scanner, so ~355–500 KB of JS (br) shares the pipe
- * with the document while it is still arriving. On a fast link that JS also finishes and RUNS
- * before Chrome's first frame, so the first paint follows the JS (which is what Lighthouse's
- * simulation then charges every slow profile for). Here the entry `<script>` leaves the head
- * and the route preloads leave the markup: one inline boot script at the end of the body
- * starts both after the first frame. The prerendered body is complete without JS, and while a
- * route chunk loads the Suspense fallback re-inserts it (`App.tsx` `PrerenderedRouteBody`), so
- * nothing on screen changes until React's own render: no Loading swap (D27).
- *
- * `__shell.html` (no prerendered body) keeps the ordinary module script.
- */
-export function withDeferredBoot(html: string, entryTag: string, entrySrc: string, hrefs: readonly string[]): string {
-  const tags = html.split(entryTag).length - 1;
-  if (tags !== 1) {
-    throw new Error(`applyPrerendered: expected the entry <script type="module"> exactly once to defer it, found ${tags}`);
-  }
-  const bodyCloses = html.split("</body>").length - 1;
-  if (bodyCloses !== 1) {
-    throw new Error(`applyPrerendered: expected exactly one </body> to insert the boot script, found ${bodyCloses}`);
-  }
-  const boot =
-    `<script id="${BOOT_SCRIPT_ID}" data-entry="${entrySrc}" data-preload="${hrefs.join(" ")}">` +
-    `${BOOT_LOADER}</script>`;
-  return html.replace(entryTag, () => "").replace("</body>", () => `${boot}</body>`);
-}
-
-/** The shell's entry module tag, exactly as Vite wrote it (null when absent). */
-export function entryScriptTagOf(shellHtml: string): { tag: string; src: string } | null {
-  const match = shellHtml.match(/<script\b[^>]*\btype="module"[^>]*\bsrc="([^"]*assets\/[^"/]+\.js)"[^>]*><\/script>/);
-  return match ? { tag: match[0], src: match[1] } : null;
-}
-
-/** The entry src a page's deferred boot script imports (null when the page has none). */
-export function bootEntryIn(html: string): string | null {
-  const match = html.match(new RegExp(`<script id="${BOOT_SCRIPT_ID}" data-entry="([^"]+)"`));
-  return match ? match[1] : null;
-}
-
-/**
- * LOW-END-3 PR-1 (c): the shell's ONE render-blocking stylesheet, the entry CSS Vite links
- * (`<link rel="stylesheet" crossorigin href="/assets/index-X.css">`). `null` when the shell has
- * none (synthetic builds). More than one throws: which one to inline would be a guess.
- */
-export function entryStylesheetOf(shellHtml: string): { tag: string; file: string } | null {
-  const tags = stylesheetLinksIn(shellHtml);
-  if (tags.length === 0) return null;
-  const local = tags.filter((tag) => /\bhref="[^"]*assets\/[^"/]+\.css"/.test(tag));
-  if (tags.length !== 1 || local.length !== 1) {
-    throw new Error(
-      `applyPrerendered: expected exactly ONE <link rel="stylesheet"> (the entry CSS) in the built shell, ` +
-        `found ${tags.length} (${local.length} under assets/). Which one to inline would be a guess.`,
-    );
-  }
-  const file = (local[0].match(/\bhref="[^"]*assets\/([^"/]+\.css)"/) as RegExpMatchArray)[1];
-  return { tag: local[0], file };
+  return html.replace("</head>", `${links}</head>`);
 }
 
 /**
@@ -494,7 +397,8 @@ export function entryStylesheetOf(shellHtml: string): { tag: string; file: strin
  * ★ WHY. A lazy route's stylesheet (e.g. `CheckYourAnswerPage-*.css`) arrives only with its
  * chunk, AFTER the prerendered body has painted without it, so the page re-lays out when it
  * lands. That is the /check-your-answer shift (#963 §4.5: hero 106 → 271 px at 1440, CLS 0.898).
- * Inlined, the first paint already has the route's styles and nothing moves.
+ * Inlined into the page's head, the first paint already has the route's styles and nothing moves.
+ * When the chunk later loads, Vite appends the same rules as a <link>: identical values, no shift.
  *
  * No `__vite__mapDeps` call for the chunk means no CSS (Vite emits the call only when the
  * import has deps). A table that is present but cannot be read throws.
@@ -522,7 +426,7 @@ export function dynamicImportCssOf(entryCode: string, chunkFile: string): string
   return css;
 }
 
-/** The CSS files (entry CSS excluded) that the route chunk(s) of `path` inject, in order. */
+/** The CSS files that the route chunk(s) of `path` inject, in order. */
 export function routeCssFor(
   path: string,
   assetsDir: string,
@@ -556,25 +460,18 @@ export function inlinableCss(file: string, css: string): string {
 }
 
 /**
- * Replace the render-blocking entry stylesheet link with `<style data-lt-inline="file">`
- * blocks: the entry CSS first, then the route CSS (the order Vite's own links would give).
+ * Add `<style data-lt-inline="file">` blocks for a page's route CSS immediately before `</head>`
+ * (after the entry stylesheet link, the order Vite's own links would give). The entry stylesheet
+ * link itself is left as it is.
  */
-export function withInlineStyles(
-  html: string,
-  linkTag: string,
-  blocks: ReadonlyArray<{ file: string; css: string }>,
-): string {
-  const count = html.split(linkTag).length - 1;
-  if (count !== 1) {
-    throw new Error(`applyPrerendered: expected the entry stylesheet link exactly once to inline it, found ${count}`);
+export function withRouteStyles(html: string, blocks: ReadonlyArray<{ file: string; css: string }>): string {
+  if (blocks.length === 0) return html;
+  const closes = html.split("</head>").length - 1;
+  if (closes !== 1) {
+    throw new Error(`applyPrerendered: expected exactly one </head> to inline route CSS, found ${closes}`);
   }
   const styles = blocks.map(({ file, css }) => `<style data-lt-inline="${file}">${css}</style>`).join("");
-  return html.replace(linkTag, () => styles);
-}
-
-/** Every `<link rel="stylesheet">` in a built page. */
-export function stylesheetLinksIn(html: string): string[] {
-  return html.match(/<link\b[^>]*\brel="stylesheet"[^>]*>/g) ?? [];
+  return html.replace("</head>", () => `${styles}</head>`);
 }
 
 /** Every `data-lt-inline` file name in a built page. */
@@ -599,18 +496,13 @@ export function hopUrlsIn(html: string): string[] {
   return [...bad];
 }
 
-/**
- * Every modulepreload href in a built page: `<link rel="modulepreload" href>` tags, then the
- * hrefs the deferred boot script (`data-preload`) adds after the first frame.
- */
+/** Every `<link rel="modulepreload" href>` in a built page. */
 export function modulepreloadHrefsIn(html: string): string[] {
   const hrefs: string[] = [];
   for (const tag of html.match(/<link\b[^>]*\brel="modulepreload"[^>]*>/g) ?? []) {
     const href = tag.match(/\bhref="([^"]+)"/);
     if (href) hrefs.push(href[1]);
   }
-  const boot = html.match(new RegExp(`<script id="${BOOT_SCRIPT_ID}"[^>]*\\bdata-preload="([^"]*)"`));
-  if (boot) hrefs.push(...boot[1].split(" ").filter(Boolean));
   return hrefs;
 }
 
@@ -631,11 +523,6 @@ export function verifyBuiltPages(
   let mobileFiles = 0;
   let desktopFiles = 0;
   let preloadLinks = 0;
-  // The entry CSS every page must inline, as named by the clean shell (which keeps its link).
-  const shellFile = join(outDir, SPA_SHELL);
-  const shellHtml = existsSync(shellFile) ? readFileSync(shellFile, "utf8") : null;
-  const entryCss = shellHtml !== null ? (entryStylesheetOf(shellHtml)?.file ?? null) : null;
-  const entrySrc = shellHtml !== null ? (entryScriptTagOf(shellHtml)?.src ?? null) : null;
   for (const path of expected) {
     const relative = path.replace(/^\//, "");
     const mobile = path === "/" ? ["index.html"] : [`${relative}.html`, join(relative, "index.html")];
@@ -660,24 +547,6 @@ export function verifyBuiltPages(
         if (!/\/assets\/[^/]+\.js$/.test(href) || !existsSync(target) || !statSync(target).isFile()) {
           failures.push(`${path}: the ${variant} file ${file} preloads ${href}, which this build did not emit`);
         }
-      }
-      // LOW-END-3 PR-1 (c): no render-blocking stylesheet; the entry CSS is inlined, once.
-      for (const link of stylesheetLinksIn(html)) {
-        failures.push(`${path}: the ${variant} file ${file} still carries a render-blocking ${link}`);
-      }
-      if (entryCss !== null && inlinedStylesIn(html).filter((name) => name === entryCss).length !== 1) {
-        failures.push(`${path}: the ${variant} file ${file} does not inline the entry CSS ${entryCss} exactly once`);
-      }
-      // LOW-END-3 PR-1 (c): no JS fetched before the first frame: no modulepreload link and no
-      // module script in the markup; the boot script imports the shell's own entry, once.
-      if (html.match(/<link\b[^>]*\brel="modulepreload"[^>]*>/g)) {
-        failures.push(`${path}: the ${variant} file ${file} carries modulepreload links in its markup`);
-      }
-      if (/<script\b[^>]*\btype="module"[^>]*\bsrc=/.test(html)) {
-        failures.push(`${path}: the ${variant} file ${file} still loads a module script before the first frame`);
-      }
-      if (entrySrc !== null && (bootEntryIn(html) !== entrySrc || html.split(`id="${BOOT_SCRIPT_ID}"`).length !== 2)) {
-        failures.push(`${path}: the ${variant} file ${file} does not boot the entry ${entrySrc} exactly once`);
       }
       // LOW-END-3 PR-1 (a): no URL that costs the reader a redirect hop.
       for (const url of hopUrlsIn(html)) {
@@ -838,32 +707,22 @@ export function applyArtifact(
     for (const path of expected) preloads.set(path, preloadHrefsFor(path, assetsDir, cleanShell, assetFiles));
   }
 
-  // LOW-END-3 PR-1 (c)+(d): inline the entry CSS and each page's route CSS in place of the one
-  // render-blocking link, resolved and checked before anything is written. `__shell.html`
-  // (written above) keeps the link: it has no prerendered body to paint early.
-  const entryStylesheet = entryStylesheetOf(cleanShell);
-  // LOW-END-3 PR-1 (c): the entry module and route preloads start after the first frame.
-  const entryScript = entryScriptTagOf(cleanShell);
-  const styleBlocks = new Map<string, Array<{ file: string; css: string }>>();
-  if (entryStylesheet !== null) {
-    const readCss = (file: string): { file: string; css: string } => ({
-      file,
-      css: inlinableCss(file, readFileSync(join(assetsDir, file), "utf8")),
-    });
-    const entryBlock = readCss(entryStylesheet.file);
-    const assetFiles = options.preloads !== false ? readdirSync(assetsDir) : [];
+  // LOW-END-3 PR-1 (d): each page's route CSS, resolved and checked before anything is written.
+  const routeStyles = new Map<string, Array<{ file: string; css: string }>>();
+  if (options.preloads !== false) {
+    const assetFiles = readdirSync(assetsDir);
     for (const path of expected) {
-      const routeCss = options.preloads !== false ? routeCssFor(path, assetsDir, cleanShell, assetFiles) : [];
-      styleBlocks.set(path, [entryBlock, ...routeCss.map(readCss)]);
+      routeStyles.set(
+        path,
+        routeCssFor(path, assetsDir, cleanShell, assetFiles).map((file) => ({
+          file,
+          css: inlinableCss(file, readFileSync(join(assetsDir, file), "utf8")),
+        })),
+      );
     }
   }
-  const finish = (path: string, html: string, hrefs: readonly string[]): string => {
-    const blocks = styleBlocks.get(path);
-    const styled = entryStylesheet !== null && blocks ? withInlineStyles(html, entryStylesheet.tag, blocks) : html;
-    return entryScript !== null
-      ? withDeferredBoot(styled, entryScript.tag, entryScript.src, hrefs)
-      : withPreloads(styled, hrefs);
-  };
+  const finish = (path: string, html: string, hrefs: readonly string[]): string =>
+    withPreloads(withRouteStyles(html, routeStyles.get(path) ?? []), hrefs);
 
   let filesWritten = 0;
   let desktopFilesWritten = 0;

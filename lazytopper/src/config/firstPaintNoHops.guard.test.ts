@@ -15,35 +15,30 @@ import { join, dirname, resolve } from "node:path";
 import {
   PRERENDERED_DIR,
   applyArtifact,
-  bootEntryIn,
   desktopFragmentPathFor,
   dynamicImportCssOf,
-  entryStylesheetOf,
   fragmentPathFor,
   hopUrlsIn,
   inlinableCss,
   inlinedStylesIn,
   modulepreloadHrefsIn,
-  stylesheetLinksIn,
   verifyBuiltPages,
-  withDeferredBoot,
-  withPreloads,
+  withRouteStyles,
 } from "../../scripts/seo/applyPrerendered";
 
 /**
- * GUARD: LOW-END-3 PR-1, items (a), (c) and (d), on the post-build apply step.
+ * GUARD: LOW-END-3 PR-1, items (a) and (d), on the post-build apply step.
  *
  * (a) NO REDIRECT HOPS. Every absolute URL a built page emits is the final
- *     `https://www.lazytopper.com/...`; nothing points under the retired `/app` base. The same
- *     rule runs over the committed sources the build copies verbatim (sitemap, llms.txt,
- *     robots.txt, every prerendered fragment), and over every built page in `verifyBuiltPages`.
- * (c) FIRST PAINT NEVER WAITS FOR BIG JS. The one render-blocking stylesheet is inlined, and the
- *     route `modulepreload`s move from the head to the end of the body.
+ *     `https://www.lazytopper.com/...`; nothing points under the retired base. The same rule
+ *     runs over the committed sources the build copies verbatim (sitemap, llms.txt, robots.txt,
+ *     index.html, every prerendered fragment), and over every built page in `verifyBuiltPages`.
  * (d) /check-your-answer RESERVES ITS LAYOUT. A lazy route's own CSS (read from Vite's
- *     `__vite__mapDeps` table) is inlined too, so the prerendered body paints with the styles the
- *     route will have: the shift measured in #963 §4.5 came from that CSS arriving with the chunk.
+ *     `__vite__mapDeps` table) is inlined into the page's head, so the prerendered body paints
+ *     with the styles the route will have. The shift in #963 §4.5 came from that CSS arriving
+ *     with the chunk. The entry stylesheet link and the head modulepreloads are left unchanged.
  *
- * Each rule is shown RED on a broken synthetic case (a guard that cannot fail is not a guard).
+ * Each rule is shown RED on a broken synthetic case.
  */
 
 /** The retired base, assembled so noAppPrefix.guard (which bans the literal) stays clean. */
@@ -51,14 +46,14 @@ const OLD = "/" + "app";
 
 const LAZYTOPPER_ROOT = resolve(__dirname, "../..");
 
-const ENTRY_CSS =
-  ".lt-a{color:red}@font-face{font-family:F;src:url(/fonts/f.woff2)}";
 const ROUTE_CSS = ".lt-cya__hero{padding:28px 0 26px}";
+const ENTRY_LINK =
+  '<link rel="stylesheet" crossorigin href="/assets/index-SSSSSSSS.css">';
 const SHELL =
   '<!doctype html><html><head><title>t</title><meta name="robots" content="index,follow" />' +
   '<link rel="canonical" href="https://www.lazytopper.com/" />' +
   '<script type="module" crossorigin src="/assets/index-AAAAAAAA.js"></script>' +
-  '<link rel="stylesheet" crossorigin href="/assets/index-SSSSSSSS.css">' +
+  ENTRY_LINK +
   '</head><body><div id="root"></div></body></html>';
 const PATHS = ["/", "/check-your-answer", "/notes/electricity"];
 const ASSETS: Record<string, string> = {
@@ -70,7 +65,7 @@ const ASSETS: Record<string, string> = {
     'const b=()=>import("./DesktopNotesPage-FFFFFFFF.js");',
   "CheckYourAnswerPage-CCCCCCCC.js": "export default 1;",
   "DesktopNotesPage-FFFFFFFF.js": "export default 2;",
-  "index-SSSSSSSS.css": ENTRY_CSS,
+  "index-SSSSSSSS.css": ".lt-a{color:red}",
   "CheckYourAnswerPage-RRRRRRRR.css": ROUTE_CSS,
 };
 
@@ -120,8 +115,8 @@ function build(): { out: string; art: string; cleanup: () => void } {
 const read = (out: string, file: string): string =>
   readFileSync(join(out, file), "utf8");
 
-describe("LOW-END-3 (c)+(d): the stylesheet is inlined, route CSS with it, preloads after the body", () => {
-  it("inlines the entry CSS (and the route's CSS) in place of the render-blocking link, on every variant", () => {
+describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page", () => {
+  it("inlines the CYA route CSS in the head of every variant; the entry link and head preloads stay", () => {
     const { out, art, cleanup } = build();
     try {
       applyArtifact(out, art, PATHS);
@@ -131,170 +126,31 @@ describe("LOW-END-3 (c)+(d): the stylesheet is inlined, route CSS with it, prelo
         "__desktop/check-your-answer.html",
       ]) {
         const html = read(out, file);
-        expect(stylesheetLinksIn(html), file).toEqual([]);
         expect(inlinedStylesIn(html), file).toEqual([
-          "index-SSSSSSSS.css",
           "CheckYourAnswerPage-RRRRRRRR.css",
         ]);
         expect(html, file).toContain(
           `<style data-lt-inline="CheckYourAnswerPage-RRRRRRRR.css">${ROUTE_CSS}</style>`,
         );
-        // The styles sit in the head, before the body paints.
+        // In the head, after the entry stylesheet (Vite's own order), before the body paints.
+        expect(html.indexOf(ROUTE_CSS), file).toBeGreaterThan(
+          html.indexOf(ENTRY_LINK),
+        );
         expect(html.indexOf(ROUTE_CSS), file).toBeLessThan(
           html.indexOf("</head>"),
         );
+        // Unchanged: the entry link and the route modulepreload in the head.
+        expect(html, file).toContain(ENTRY_LINK);
+        expect(
+          modulepreloadHrefsIn(html.slice(0, html.indexOf("</head>"))),
+          file,
+        ).toEqual(["/assets/CheckYourAnswerPage-CCCCCCCC.js"]);
       }
-      // A route with no CSS of its own gets the entry CSS only; so does the root.
-      expect(inlinedStylesIn(read(out, "notes/electricity.html"))).toEqual([
-        "index-SSSSSSSS.css",
-      ]);
-      expect(inlinedStylesIn(read(out, "index.html"))).toEqual([
-        "index-SSSSSSSS.css",
-      ]);
-      // ★ CONTROL: the SPA shell has no prerendered body, so it keeps the cacheable link.
-      expect(stylesheetLinksIn(read(out, "__shell.html"))).toHaveLength(1);
+      // ★ CONTROL: a route with no CSS of its own, the root and the SPA shell get nothing inlined.
+      expect(inlinedStylesIn(read(out, "notes/electricity.html"))).toEqual([]);
+      expect(inlinedStylesIn(read(out, "index.html"))).toEqual([]);
       expect(inlinedStylesIn(read(out, "__shell.html"))).toEqual([]);
-    } finally {
-      cleanup();
-    }
-  });
-
-  it("starts no JS before the first frame: entry script and route preloads move into one boot script", () => {
-    const { out, art, cleanup } = build();
-    try {
-      applyArtifact(out, art, PATHS);
-      for (const file of [
-        "check-your-answer.html",
-        "__desktop/check-your-answer.html",
-        "index.html",
-      ]) {
-        const html = read(out, file);
-        // Nothing the preload scanner would fetch early: no module script, no modulepreload link.
-        expect(html, file).not.toMatch(/<scriptb[^>]*type="module"/);
-        expect(html, file).not.toMatch(/<linkb[^>]*rel="modulepreload"/);
-        // One boot script, after the prerendered body, importing the shell's own entry.
-        expect(bootEntryIn(html), file).toBe("/assets/index-AAAAAAAA.js");
-        expect(html.indexOf('id="lt-boot"'), file).toBeGreaterThan(
-          html.indexOf("</main>"),
-        );
-        expect(html.indexOf('id="lt-boot"'), file).toBeLessThan(
-          html.indexOf("</body>"),
-        );
-      }
-      expect(modulepreloadHrefsIn(read(out, "check-your-answer.html"))).toEqual(
-        ["/assets/CheckYourAnswerPage-CCCCCCCC.js"],
-      );
-      // ★ CONTROL: the SPA shell keeps Vite's ordinary module script and no boot script.
-      expect(read(out, "__shell.html")).toContain(
-        '<script type="module" crossorigin src="/assets/index-AAAAAAAA.js"></script>',
-      );
-      expect(bootEntryIn(read(out, "__shell.html"))).toBeNull();
       expect(verifyBuiltPages(out, PATHS).failures).toEqual([]);
-    } finally {
-      cleanup();
-    }
-  });
-
-  it("the boot script runs: after the first frame it adds the preloads and imports the entry, once", () => {
-    const { out, art, cleanup } = build();
-    try {
-      applyArtifact(out, art, PATHS);
-      const html = read(out, "check-your-answer.html");
-      const script = (
-        html.match(
-          /<script id="lt-boot"[^>]*>([\s\S]*?)<\/script>/,
-        ) as RegExpMatchArray
-      )[1];
-      const appended: Array<{
-        rel: string;
-        href: string;
-        crossOrigin: string;
-      }> = [];
-      const imports: string[] = [];
-      const frames: Array<() => void> = [];
-      const timers: Array<() => void> = [];
-      const attrs: Record<string, string> = {
-        "data-entry": bootEntryIn(html) as string,
-        "data-preload": modulepreloadHrefsIn(html).join(" "),
-      };
-      const run = new Function(
-        "document",
-        "window",
-        "requestAnimationFrame",
-        "setTimeout",
-        "__import",
-        script.replace("import(", "__import("),
-      );
-      run(
-        {
-          currentScript: {
-            getAttribute: (name: string) => attrs[name] ?? null,
-          },
-          createElement: () => ({ rel: "", href: "", crossOrigin: "" }),
-          head: {
-            appendChild: (el: {
-              rel: string;
-              href: string;
-              crossOrigin: string;
-            }) => appended.push(el),
-          },
-        },
-        { requestAnimationFrame: true },
-        (cb: () => void) => frames.push(cb),
-        (cb: () => void) => timers.push(cb),
-        (src: string) => imports.push(src),
-      );
-      // Nothing starts while the document is still being parsed and painted.
-      expect(imports).toEqual([]);
-      expect(appended).toEqual([]);
-      frames.forEach((cb) => cb()); // first frame
-      timers.forEach((cb) => cb()); // the task after it, and the 200 ms safety timer
-      timers.slice(1).forEach((cb) => cb());
-      expect(imports).toEqual(["/assets/index-AAAAAAAA.js"]);
-      expect(appended).toEqual([
-        {
-          rel: "modulepreload",
-          href: "/assets/CheckYourAnswerPage-CCCCCCCC.js",
-          crossOrigin: "anonymous",
-        },
-      ]);
-    } finally {
-      cleanup();
-    }
-  });
-
-  it("RED: verifyBuiltPages names a stylesheet link, a preload link, a module script, a missing boot", () => {
-    const { out, art, cleanup } = build();
-    try {
-      applyArtifact(out, art, PATHS);
-      const file = join(out, "__desktop", "check-your-answer.html");
-      const html = readFileSync(file, "utf8")
-        .replace(
-          /<style data-lt-inline="index-SSSSSSSS\.css">[^<]*<\/style>/,
-          '<link rel="stylesheet" crossorigin href="/assets/index-SSSSSSSS.css">',
-        )
-        .replace(/<script id="lt-boot"[\s\S]*?<\/script>/, "")
-        .replace(
-          "</head>",
-          '<script type="module" crossorigin src="/assets/index-AAAAAAAA.js"></script><link rel="modulepreload" crossorigin href="/assets/CheckYourAnswerPage-CCCCCCCC.js"></head>',
-        );
-      writeFileSync(file, html, "utf8");
-      const failures = verifyBuiltPages(out, PATHS).failures.join("\n");
-      expect(failures).toContain(
-        "__desktop/check-your-answer.html still carries a render-blocking",
-      );
-      expect(failures).toContain(
-        "__desktop/check-your-answer.html does not inline the entry CSS index-SSSSSSSS.css",
-      );
-      expect(failures).toContain(
-        "__desktop/check-your-answer.html carries modulepreload links in its markup",
-      );
-      expect(failures).toContain(
-        "__desktop/check-your-answer.html still loads a module script before the first frame",
-      );
-      expect(failures).toContain(
-        "__desktop/check-your-answer.html does not boot the entry /assets/index-AAAAAAAA.js exactly once",
-      );
     } finally {
       cleanup();
     }
@@ -308,7 +164,7 @@ describe("LOW-END-3 (c)+(d): the stylesheet is inlined, route CSS with it, prelo
     expect(dynamicImportCssOf(entry, "DesktopNotesPage-FFFFFFFF.js")).toEqual(
       [],
     );
-    // A table that is referenced but unreadable fails the build, it does not inline nothing.
+    // A table that is referenced but unreadable fails the build; it does not inline nothing.
     expect(() =>
       dynamicImportCssOf(
         'import("./X-12345678.js"),__vite__mapDeps([0])',
@@ -318,10 +174,10 @@ describe("LOW-END-3 (c)+(d): the stylesheet is inlined, route CSS with it, prelo
   });
 
   it("refuses a stylesheet that cannot be inlined as-is", () => {
-    expect(inlinableCss("a.css", ENTRY_CSS)).toBe(ENTRY_CSS);
+    expect(inlinableCss("a.css", ROUTE_CSS)).toBe(ROUTE_CSS);
     expect(
-      inlinableCss("a.css", ".a{background:url(data:image/png;base64,AA)}"),
-    ).toContain("data:");
+      inlinableCss("a.css", ".a{background:url(/fonts/f.woff2)}"),
+    ).toContain("/fonts/");
     expect(() =>
       inlinableCss("a.css", ".a{background:url(img/x.png)}"),
     ).toThrow(/relative url/);
@@ -330,33 +186,16 @@ describe("LOW-END-3 (c)+(d): the stylesheet is inlined, route CSS with it, prelo
     );
   });
 
-  it("entryStylesheetOf: exactly one entry stylesheet, or none", () => {
-    expect(entryStylesheetOf(SHELL)?.file).toBe("index-SSSSSSSS.css");
-    expect(
-      entryStylesheetOf(SHELL.replace(/<link rel="stylesheet"[^>]*>/, "")),
-    ).toBeNull();
+  it("withRouteStyles keeps an exactly-once </head> check", () => {
     expect(() =>
-      entryStylesheetOf(
-        SHELL.replace(
-          "</head>",
-          '<link rel="stylesheet" href="/assets/other-TTTTTTTT.css"></head>',
-        ),
-      ),
-    ).toThrow(/exactly ONE/);
-  });
-
-  it("withPreloads keeps the exactly-once </head> check and adds one for </body>", () => {
-    expect(() =>
-      withPreloads("<head></head><body></body></head>", ["/assets/a.js"]),
+      withRouteStyles("<head></head></head>", [{ file: "a.css", css: "" }]),
     ).toThrow(/exactly one <\/head>/);
-    expect(() =>
-      withPreloads("<head></head><body></body></body>", ["/assets/a.js"]),
-    ).toThrow(/exactly one <\/body>/);
+    expect(withRouteStyles("<head></head>", [])).toBe("<head></head>");
   });
 });
 
 describe("LOW-END-3 (a): no URL the site emits costs a redirect hop", () => {
-  it("hopUrlsIn flags the apex, http, protocol-relative and the retired /app base; passes the final URL", () => {
+  it("hopUrlsIn flags the apex, http, protocol-relative and the retired base; passes the final URL", () => {
     expect(
       hopUrlsIn(
         '<link rel="canonical" href="https://www.lazytopper.com/notes/x" />',
@@ -426,15 +265,13 @@ describe("LOW-END-3 (a): no URL the site emits costs a redirect hop", () => {
     };
     walk(PRERENDERED_DIR);
     const hops: string[] = [];
-    let checked = 0;
     for (const file of files) {
       expect(existsSync(file), file).toBe(true);
-      checked += 1;
       for (const url of hopUrlsIn(readFileSync(file, "utf8")))
         hops.push(`${file}: ${url}`);
     }
     // 4 sources + 2 x 63 fragments at the time of writing; a shrinking set would be a vacuous pass.
-    expect(checked).toBeGreaterThan(100);
+    expect(files.length).toBeGreaterThan(100);
     expect(hops).toEqual([]);
   });
 });
