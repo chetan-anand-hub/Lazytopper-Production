@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "how-do-organisms-reproduce" (Science): 432 served rows from 20 source arrays, 5 withheld.
+// Chapter "how-do-organisms-reproduce" (Science): 527 served rows from 21 source arrays, 5 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -26,6 +26,7 @@ import { howOrganismsReproducePYQ2024 } from "../questionBanks/class10/science/h
 import { REPR_CFPQ } from "../questionBanks/class10/science/how-do-organisms-reproduce.cfpq";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 import { REPRODUCTION_CBQ_LT_GENERATED } from "../questionBanks/class10/science/how-do-organisms-reproduce.cbq.ltgen";
+import { REPRODUCTION_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/how-do-organisms-reproduce.b1.cbq.ltgen";
 
 export default defineChapter("how-do-organisms-reproduce", [
   [40, REPRODUCTION_PACK1, true],
@@ -48,6 +49,7 @@ export default defineChapter("how-do-organisms-reproduce", [
   [403, REPR_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [421, REPRODUCTION_CBQ_LT_GENERATED, false],
+  [438, REPRODUCTION_CBQ_B1_LT_GENERATED, false],
 ], [
   "REP-H10",
   "REP2-022",

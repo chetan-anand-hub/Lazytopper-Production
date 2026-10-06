@@ -119,8 +119,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 427,
-   "sha256": "4af2d6cfce6e9a37fe284261d313c7ac9465b3c4b11a0f632858703953a791e7",
+   "n": 522,
+   "sha256": "e4be55acdf1cd13509d9b3fb3c04fbc06ba3edbbe98ea7743d8d636c4a47e1fe",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -200,21 +200,21 @@
    ]
   },
   "control-and-coordination": {
-   "n": 297,
-   "sha256": "dfed186e882589e55d51e00bb8eb659283a6e7cbb9a26bbc71d000bdd2c1c01d",
+   "n": 392,
+   "sha256": "c5b1d6fc67ef9a6ae181122d82393a4b4247671b7ede126915d8439975cdf8d4",
    "head": [
-    "LTG-S-CTRL-107",
-    "LTG-S-CTRL-101",
-    "LTG-S-CTRL-102"
+    "LTG-S-CTRL-213",
+    "LTG-S-CTRL-255",
+    "LTG-S-CTRL-214"
    ]
   },
   "how-do-organisms-reproduce": {
-   "n": 438,
-   "sha256": "93a1a64be8f2a790ddfd1767ce3cf98461f28dc1facab0f2c7822be9b357fa2f",
+   "n": 533,
+   "sha256": "854fe601b1a9b735cd01514eb909f0653385b80b2825d3c8f8df0a9df0a8c4c9",
    "head": [
-    "LTG-S-REPR-101",
-    "BX-REP-EX-A-017",
-    "REPR-EXMPLR-7-MCQ-018"
+    "LTG-S-REPR-254",
+    "LTG-S-REPR-256",
+    "LTG-S-REPR-101"
    ]
   },
   "heredity": {
@@ -355,12 +355,12 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 68,
-   "sha256": "269c4eeb31f87df38fd6ef109abeebe0b9b338a389d8bef71047ab120d013fd0",
+   "n": 74,
+   "sha256": "f2cef6c1f0954095929befd9705252930f42a500078c0e7e4a8430c2ef7e6b42",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
-    "Balanced Chemical Equations\tCFPQ-S-CHEM-003"
+    "Balanced Chemical Equations\tLTG-S-CHEMRXN-277,LTG-S-CHEMRXN-274,LTG-S-CHEMRXN-266,CFPQ-S-CHEM-003,LTG-S-CHEMRXN-264,LTG-S-CHEMRXN-263,LTG-S-CHEMRXN-267,LTG-S-CHEMRXN-270,LTG-S-CHEMRXN-279,LTG-S-CHEMRXN-272"
    ]
   },
   "acids-bases-and-salts": {
@@ -436,21 +436,21 @@
    ]
   },
   "control-and-coordination": {
-   "n": 101,
-   "sha256": "39e3ee5726cd10a776af6235fd020315f73b30d3ddb1097f9812965fa8bd94ec",
+   "n": 106,
+   "sha256": "4f57bce50b677d03a464d71a9607bd989af16a87353912fbbdcee564da2024a0",
    "head": [
     "Abscisic Acid\tCFPQ-S-CTRL-006,CTRL-EXMPLR-6-MCQ-011,CTRL-EXMPLR-6-MCQ-020,CFPQ-S-CTRL-011",
     "Adrenaline\tCBE-S-CTRL-A-008,CFPQ-S-CTRL-010,CTRL-NCERT-6-SA-009,APQ-S-CTRL-005",
-    "Animal Hormonal Coordination\tCTRL-EXMPLR-6-LA-008"
+    "Animal Hormonal Coordination\tLTG-S-CTRL-295,LTG-S-CTRL-283,LTG-S-CTRL-289,LTG-S-CTRL-299,CTRL-EXMPLR-6-LA-008"
    ]
   },
   "how-do-organisms-reproduce": {
-   "n": 146,
-   "sha256": "21a8476d80b178249f0a9f501abc3eb26e23a77c220a431ad095ffc6dfb209ff",
+   "n": 150,
+   "sha256": "f9ba5c62c2612d71dc7aea45309d0db428bd14d5881ddb61c7ab172bed8531f8",
    "head": [
-    "Artificial Vegetative Propagation\tLTG-S-REPR-102,PYQ-S-2025-REPR-002,PYQ-S-2024-REPR-001,LTG-S-REPR-107,BX-REP-EX-A-005,CFPQ-S-REPR-008,REPR-EXMPLR-7-MCQ-013,CFPQ-S-REPR-009,BX-REP-EX-A-004,PYQ-S-REPR-004,BX-REP-EX-B-013,BX-REP-EX-C-009,BX-REP-EX-B-001,REPR-NCERT-7-SA-006,BX-REP-D-023,BX-REP-D-002",
+    "Artificial Vegetative Propagation\tLTG-S-REPR-102,LTG-S-REPR-233,LTG-S-REPR-235,LTG-S-REPR-236,LTG-S-REPR-225,LTG-S-REPR-222,PYQ-S-2025-REPR-002,PYQ-S-2024-REPR-001,LTG-S-REPR-107,LTG-S-REPR-221,LTG-S-REPR-224,LTG-S-REPR-239,BX-REP-EX-A-005,CFPQ-S-REPR-008,REPR-EXMPLR-7-MCQ-013,LTG-S-REPR-229,LTG-S-REPR-231,LTG-S-REPR-232,LTG-S-REPR-230,CFPQ-S-REPR-009,LTG-S-REPR-227,LTG-S-REPR-228,LTG-S-REPR-238,BX-REP-EX-A-004,PYQ-S-REPR-004,BX-REP-EX-B-013,BX-REP-EX-C-009,BX-REP-EX-B-001,REPR-NCERT-7-SA-006,BX-REP-D-023,BX-REP-D-002",
     "Asexual Modes\tREPR-EXMPLR-7-LA-001,REPR-EXMPLR-7-MCQ-001",
-    "Asexual Reproduction\tLTG-S-REPR-101,BX-REP-EX-A-029,BX-REP-EX-A-019,BX-REP-EX-A-001,REPR-EXMPLR-7-MCQ-007,SP-S-2023-REPR-A-001,APQ-S-REPR-003,CFPQ-S-REPR-010,2026-REP-MCQ-01,CBE-S-REPR-C-001,APQ-S-REPR-004,2026-REP-SA-02,REP-M11,REP-AR05,REP2-051,REP-H04,BX-REP-E1-014,BX-REP-E1-003,BX-REP-E1-004,BX-REP-E1-029,BX-REP-E1-001,REP-E11,BX-REP-E1-025,BX-REP-E1-005,BX-REP-E1-006,REP-M07,REP-M15,REP2-003,REP-E01,REP-E02,REP-E05,REP-E08,REP-E14,REP2-001,REP2-002,REP2-027,REP2-049,REP2-050,REP2-053,REP-M03,REP-H07,REP2-045,BX-REP-D-013,BX-REP-D-004,BX-REP-D-014,BX-REP-D-005,REP2-023,REP-B05,REP2-004,REP2-028,BX-REP-D-022"
+    "Asexual Reproduction\tLTG-S-REPR-101,LTG-S-REPR-213,LTG-S-REPR-214,BX-REP-EX-A-029,BX-REP-EX-A-019,LTG-S-REPR-201,LTG-S-REPR-202,BX-REP-EX-A-001,REPR-EXMPLR-7-MCQ-007,LTG-S-REPR-218,LTG-S-REPR-207,LTG-S-REPR-212,SP-S-2023-REPR-A-001,LTG-S-REPR-209,APQ-S-REPR-003,CFPQ-S-REPR-010,2026-REP-MCQ-01,CBE-S-REPR-C-001,APQ-S-REPR-004,2026-REP-SA-02,REP-M11,REP-AR05,REP2-051,REP-H04,BX-REP-E1-014,BX-REP-E1-003,BX-REP-E1-004,BX-REP-E1-029,BX-REP-E1-001,REP-E11,BX-REP-E1-025,BX-REP-E1-005,BX-REP-E1-006,REP-M07,REP-M15,REP2-003,REP-E01,REP-E02,REP-E05,REP-E08,REP-E14,REP2-001,REP2-002,REP2-027,REP2-049,REP2-050,REP2-053,REP-M03,REP-H07,REP2-045,BX-REP-D-013,BX-REP-D-004,BX-REP-D-014,BX-REP-D-005,REP2-023,REP-B05,REP2-004,REP2-028,BX-REP-D-022"
    ]
   },
   "heredity": {
@@ -826,25 +826,25 @@
   },
   "chemical-reactions-and-equations::seed1": {
    "n": 10,
-   "sha256": "fe1c0a00bf26dfed3dd278f6e8ccf558907ebbcd68ebe4d5cbf42b85c8efa858",
+   "sha256": "303b9b6204d925a4f7cf349f2b21e3800ad33a768a94b08e77fb9d14bc72955f",
    "head": [
-    "CHEM-EXMPLR-1-MCQ-002",
+    "LTG-S-CHEMRXN-297",
     "BX-CHEM-E-056",
-    "BX-CHEM-E-028"
+    "BX-CHEM-E-008"
    ]
   },
   "chemical-reactions-and-equations::seed2": {
    "n": 10,
-   "sha256": "716375ca9cab6589727bec64c2e4ba42f20bc7b98a359fe87fb9038db0331c76",
+   "sha256": "ca7c179bc475d5c357e534c216eb3d010858de078b6eda0c44a7536aa85f1f48",
    "head": [
-    "BX-CHEM-E-052",
+    "LTG-S-CHEMRXN-286",
     "BX-CHEM-E-061",
     "BX-CHEM-E-063"
    ]
   },
   "chemical-reactions-and-equations::seed3": {
    "n": 10,
-   "sha256": "928d121dd96ac7b9f7c24edd5cb958c177ad710fce109afbcc249faacaf5ce53",
+   "sha256": "04ee47ad651ae17c210daeb858a2b1e49b25bef487fcb2741009bdd1bb176125",
    "head": [
     "BX-CHEM-E-061",
     "BX-CHEM-E-041",
@@ -1069,56 +1069,56 @@
   },
   "control-and-coordination::seed1": {
    "n": 10,
-   "sha256": "15c892cb6be6e7c4f9e9836fccd3e6039b6b749a1df87fb3703a4ace8674a967",
+   "sha256": "a35d98f6bacd752cd02c6b61fa60f7f914f26bac224e3a0aeb1f830b734aa63c",
    "head": [
-    "LTG-S-CTRL-103",
-    "CBE-S-CTRL-E-001",
-    "CTRL-NCERT-6-MCQ-003"
+    "LTG-S-CTRL-236",
+    "LTG-S-CTRL-214",
+    "LTG-S-CTRL-201"
    ]
   },
   "control-and-coordination::seed2": {
    "n": 10,
-   "sha256": "069367a19f4bad746fcc5b6723147f26fc88f2373d2cc5e116d35cef1ab03693",
+   "sha256": "e326e23ab27660b676f4590d75374faf1a33f6db494941104d3c44731c4198f3",
    "head": [
-    "CTRL-EXMPLR-6-MCQ-012",
-    "PYQ-S-2026-CTRL-010",
-    "LTG-S-CTRL-107"
+    "LTG-S-CTRL-273",
+    "LTG-S-CTRL-235",
+    "LTG-S-CTRL-213"
    ]
   },
   "control-and-coordination::seed3": {
    "n": 10,
-   "sha256": "8f7c1b52b1566c79868bac20ea0831d63fcf2667147d4f8eb59735c6e566ca4f",
+   "sha256": "a40cadbd95957b7d8ba1930c81eaa1640c85c4b33bd404aa3850627091137f68",
    "head": [
-    "PYQ-S-2026-CTRL-010",
-    "LTG-S-CTRL-101",
-    "LTG-S-CTRL-102"
+    "LTG-S-CTRL-235",
+    "LTG-S-CTRL-255",
+    "LTG-S-CTRL-215"
    ]
   },
   "how-do-organisms-reproduce::seed1": {
    "n": 10,
-   "sha256": "fe4fe07aea1520587869e0e899b5dc3752d4aa811c75a79e6dd67ec83cc3ba2b",
+   "sha256": "cd3cee7384fba206fda090accf49a3acdc02b1d35a9aee359577ef5110723675",
    "head": [
-    "LTG-S-REPR-103",
-    "PYQ-S-2024-REPR-007",
-    "SP-S-2023-REPR-A-001"
+    "LTG-S-REPR-213",
+    "LTG-S-REPR-242",
+    "BX-REP-EX-A-031"
    ]
   },
   "how-do-organisms-reproduce::seed2": {
    "n": 10,
-   "sha256": "17bbdb3fdd65195bf0e0c79abf11102009c74e3d23ea2a14e0f2aadab5c7f5f6",
+   "sha256": "455cf4883a70cee2a7d76694611cf261bc1d7056af6aab400495c4caf55182d9",
    "head": [
-    "BX-REP-EX-A-001",
-    "PYQ-S-REPR-006",
-    "LTG-S-REPR-101"
+    "LTG-S-REPR-244",
+    "LTG-S-REPR-215",
+    "LTG-S-REPR-254"
    ]
   },
   "how-do-organisms-reproduce::seed3": {
    "n": 10,
-   "sha256": "35d60151071beecc7c25f7e2904fff53b88a05093d080a3e25d4c95657b7096c",
+   "sha256": "bafdcbab839ac67d71c589a9bddd5ca87eac8ffa15d314fe2e3c91607779f2b0",
    "head": [
-    "PYQ-S-REPR-006",
-    "BX-REP-EX-A-017",
-    "REPR-EXMPLR-7-MCQ-018"
+    "LTG-S-REPR-215",
+    "LTG-S-REPR-256",
+    "LTG-S-REPR-101"
    ]
   },
   "heredity::seed1": {
