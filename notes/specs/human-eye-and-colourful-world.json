@@ -12,10 +12,10 @@
     },
     "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 10"
   },
-  "board_asks": "the defect-to-lens question (myopia to concave, hypermetropia to convex, presbyopia to bi-focal) with its corrective ray diagram, power/focal-length numericals for a corrective lens, and 'explain why' reasoning on the twinkling of stars, advance sunrise, the blue of the sky and the red Sun at sunrise and sunset. This chapter is almost entirely reasoning plus one short numerical.",
+  "board_asks": "the defect-to-lens question (myopia to concave, hypermetropia to convex, presbyopia to bi-focal) with its corrective ray diagram, power/focal-length numericals for a corrective lens, and 'explain why' reasoning on the twinkling of stars, advance sunrise, the blue of the sky and the red of danger signals. This chapter is almost entirely reasoning plus one short numerical.",
   "big_idea": {
     "tagline": "One lens focuses your world; the sky paints it.",
-    "body": "The eye lens focuses light onto the retina, and by changing its focal length (accommodation) it lets you see both near and far. When that adjustment fails you get myopia, hypermetropia or presbyopia, each corrected by a specific spectacle lens. The 'colourful world' half is pure refraction of sunlight: a prism splits white light into VIBGYOR (dispersion), the atmosphere bends starlight and sunlight (so stars twinkle and the Sun is seen about two minutes early at sunrise), and tiny particles scatter short-wavelength light more (so the clear sky looks blue and the Sun looks red at sunrise and sunset)."
+    "body": "The eye lens focuses light onto the retina, and by changing its focal length (accommodation) it lets you see both near and far. When that adjustment fails you get myopia, hypermetropia or presbyopia, each corrected by a specific spectacle lens. The 'colourful world' half is pure refraction of sunlight: a prism splits white light into VIBGYOR (dispersion), the atmosphere bends starlight and sunlight (so stars twinkle and the Sun is seen about two minutes early at sunrise), and tiny particles scatter short-wavelength light more (so the clear sky looks blue, while red — the colour scattered least — is chosen for danger signals)."
   },
   "definitions": [
     {
@@ -207,8 +207,8 @@
     {
       "id": "c5",
       "title": "Atmospheric refraction and scattering of light",
-      "body": "Atmospheric refraction (light bending through air of changing density) explains why stars twinkle but planets do not, and why the Sun is seen about 2 minutes before actual sunrise and 2 minutes after actual sunset. Scattering explains colour: fine particles scatter shorter (blue) wavelengths more, so the clear sky is blue, while near the horizon the long path scatters away the blue and the Sun looks red at sunrise and sunset.",
-      "tested": "2-3 mark 'why do stars twinkle / why is the sky blue / why is the Sun red at sunrise' reasoning",
+      "body": "Atmospheric refraction (light bending through air of changing density) explains why stars twinkle but planets do not, and why the Sun is seen about 2 minutes before actual sunrise and 2 minutes after actual sunset. Scattering explains colour: fine particles scatter shorter (blue) wavelengths more, so the clear sky is blue; red is scattered least by fog or smoke, which is why danger signals are red and are seen in the same colour from a distance.",
+      "tested": "2-3 mark 'why do stars twinkle / why is the sky blue / why are danger signals red' reasoning",
       "figure_ref": null
     }
   ],
@@ -298,8 +298,8 @@
       "text": "Myopia: object at infinity, image at the far point, f = -(far point in metres). Hypermetropia: object at 25 cm, image at the eye's near point. Then P = 1/f with f in metres."
     },
     {
-      "cue": "Why does the sky look blue / Sun red?",
-      "text": "Both are scattering. Fine particles scatter short (blue) wavelengths most, so the sky is blue; at sunrise/sunset the long air path scatters the blue away and mostly red reaches you."
+      "cue": "Why does the sky look blue / danger signals red?",
+      "text": "Both are scattering. Fine particles scatter short (blue) wavelengths most, so the sky is blue; red is scattered least by fog or smoke, so a red signal keeps its colour over a long distance."
     },
     {
       "cue": "Why do stars twinkle but planets do not?",
@@ -505,7 +505,7 @@
         "children": [
           "Tyndall effect (colloidal particles)",
           "Blue sky = short wavelengths scattered",
-          "Red Sun at sunrise/sunset",
+          "Fine particles scatter blue; larger ones longer wavelengths",
           "Danger signals red (least scattered)"
         ]
       }

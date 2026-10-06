@@ -112,20 +112,6 @@
         "chapter": 3,
         "note": "Summary point 3 — the only two algebraic methods in the rationalised 2026-27 chapter"
       }
-    },
-    {
-      "id": "kt_reducible",
-      "tier": "key-term",
-      "term": "Reducible to a linear pair",
-      "verbatim": "There are several situations which can be mathematically represented by two equations that are not linear to start with. But we alter them so that they are reduced to a pair of linear equations.",
-      "plain": null,
-      "memorise": true,
-      "source": {
-        "ncert_page": 37,
-        "edition": "2026-27",
-        "chapter": 3,
-        "note": "Summary point 5"
-      }
     }
   ],
   "concepts": [
@@ -160,7 +146,7 @@
     {
       "id": "c5",
       "title": "Word problems → a pair of equations",
-      "body": "Translate the situation (ages, digits, fractions, incomes, fixed-plus-variable charges) into TWO equations in two unknowns, solve by substitution or elimination, and check the answer against the story. Some non-linear situations are first <b>reduced</b> to a linear pair before solving.",
+      "body": "Translate the situation (ages, digits, fractions, incomes, fixed-plus-variable charges) into TWO equations in two unknowns, solve by substitution or elimination, and check the answer against the story.",
       "tested": "Applied problem — a fixture of Sections C/D, 3–5 marks",
       "figure_ref": null
     }
@@ -412,7 +398,6 @@
         "children": [
           "Two variables → two equations",
           "Solve by substitution / elimination",
-          "Reduce non-linear situations first",
           "Verify against the story"
         ]
       },
@@ -551,11 +536,6 @@
       "item": "Algebraic methods",
       "type": "verbatim",
       "source": "NCERT 2026-27 Ch3 p.37 (Summary 3)"
-    },
-    {
-      "item": "Reducible to a linear pair",
-      "type": "verbatim",
-      "source": "NCERT 2026-27 Ch3 p.37 (Summary 5)"
     },
     {
       "item": "Graphical consistency check · NCERT Example 1",

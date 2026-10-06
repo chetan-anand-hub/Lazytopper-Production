@@ -244,9 +244,11 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward labelled triangles, identity-driven proofs and clean two-step heights & distances workings.",
     },
     boardEssentials: [
+      { name: "Trigonometric ratios of an acute angle (sin, cos, tan and their reciprocals)", oneLineUse: "Define each ratio from the labelled right triangle and find all six from one — well defined because the triangle's size cancels.", marks: "2–3" },
+      { name: "Relationships between the ratios (cosec = 1/sin, sec = 1/cos, cot = 1/tan = cos/sin)", oneLineUse: "Swap a ratio for its reciprocal or quotient form before evaluating or simplifying.", marks: "1–2" },
       { name: "Ratios at standard angles (0°, 30°, 45°, 60°, 90°)", oneLineUse: "Plug straight into evaluation and 1-mark MCQs.", marks: "1–2" },
       { name: "Pythagorean identities (sin²θ+cos²θ=1, 1+tan²θ=sec²θ)", oneLineUse: "Replace one ratio with another to simplify or prove.", marks: "2–3" },
-      { name: "Heights & distances setup (angle of elevation / depression)", oneLineUse: "Translate the picture into a tan or sin equation in one step.", marks: "3–5" },
+      { name: "Heights & distances setup (angle of elevation / depression)", oneLineUse: "Translate the picture into a tan or sin equation in one step — only 30°, 45°, 60°; at most two right triangles.", marks: "3–5" },
     ],
     formulaUsePreview: {
       kind: "identity",
@@ -293,6 +295,7 @@ const SEEDED: Record<string, ActionableSeed> = {
     },
     boardEssentials: [
       { name: "Ohm's law V = IR", oneLineUse: "Bridge any two of V, I, R when the third is known.", marks: "1–3" },
+      { name: "Resistivity ρ and the factors resistance depends on (R = ρl/A)", oneLineUse: "Scale R with length, cross-section area and material, and compute ρ with its unit Ω m.", marks: "2–3" },
       { name: "Resistors in series (R = R₁ + R₂ + …)", oneLineUse: "Collapse a chain into one equivalent resistor before applying Ohm's law.", marks: "2–3" },
       { name: "Resistors in parallel (1/R = 1/R₁ + 1/R₂ + …)", oneLineUse: "Find equivalent resistance and branch currents.", marks: "3–5" },
       { name: "Electrical power (P = VI = I²R = V²/R)", oneLineUse: "Pick the form that matches the two known quantities.", marks: "2–3" },
@@ -357,6 +360,8 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Transportation (heart chambers + double circulation)", oneLineUse: "Label the four chambers and trace blood flow with arrows.", marks: "3–5" },
       { name: "Excretion (nephron + filtration → reabsorption → urine)", oneLineUse: "Describe each step and name the structure responsible.", marks: "3–5" },
       { name: "Transport in plants (xylem vs phloem)", oneLineUse: "State what each transports and the driving force.", marks: "1–2" },
+      { name: "Photosynthesis — autotrophic nutrition in plants", oneLineUse: "Write CO₂ + H₂O → glucose + O₂ (sunlight, chlorophyll) and explain the role of stomata and guard cells.", marks: "2–3" },
+      { name: "Excretion in plants", oneLineUse: "List how plants shed waste: O₂ from photosynthesis, excess water by transpiration, wastes stored in leaves that fall or as resins and gums, or released into the soil.", marks: "1–2" },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -400,10 +405,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Long-answer marks come from stating the criterion explicitly before using it.",
     },
     boardEssentials: [
+      { name: "Similar triangles — definition, examples and counter-examples", oneLineUse: "Check BOTH conditions (equal corresponding angles AND proportional sides) before calling two triangles similar; congruent figures are similar, not the converse.", marks: "1–2" },
       { name: "Similarity criteria (AA, SAS, SSS)", oneLineUse: "Pick the right criterion to prove two triangles similar in one line.", marks: "2–3" },
       { name: "Basic Proportionality Theorem (BPT)", oneLineUse: "Apply when a line is parallel to one side of a triangle.", marks: "3–5" },
-      { name: "Areas of similar triangles ∝ (sides)²", oneLineUse: "Convert a side ratio into an area ratio in one step.", marks: "2–3" },
-      { name: "Pythagoras theorem (a² + b² = c²)", oneLineUse: "Confirm a right triangle and find the missing side.", marks: "2–3" },
+      { name: "Converse of BPT (stated without proof)", oneLineUse: "A line dividing two sides of a triangle in the same ratio is parallel to the third side — use it to prove DE ∥ BC.", marks: "2–3" },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -419,12 +424,12 @@ const SEEDED: Record<string, ActionableSeed> = {
     fullFormulaUseMap: [
       {
         kind: "formula",
-        title: "Areas of similar triangles ∝ (corresponding sides)²",
+        title: "Converse of BPT: AD/DB = AE/EC ⇒ DE ∥ BC",
         whenToUse: [
-          "When a side ratio is given and an area ratio is asked",
-          "Reverse direction: area ratio is given and a side ratio is asked",
+          "When the segment lengths on two sides are given and you must prove a line is parallel to the third side",
+          "To establish that a drawn line is parallel before applying BPT in the next step",
         ],
-        commonTrap: "Forgetting to square (or take the square root of) the ratio.",
+        commonTrap: "Comparing the wrong segments — the ratio is AD : DB against AE : EC (the parts cut on the two sides), not whole sides.",
       },
     ],
     commonMistake: "Writing similarity statements with the vertices in the wrong order, breaking the corresponding-sides ratio.",
@@ -471,14 +476,13 @@ const SEEDED: Record<string, ActionableSeed> = {
 
   "coordinate-geometry": {
     topicSnapshot: {
-      likelySection: "Sections B/C — distance formula, section formula and area-from-coordinates.",
+      likelySection: "Sections B/C — distance formula and section formula (internal division), including mid-point and trisection points.",
       examinerNotes: "Most questions are 2- or 3-mark substitution problems with one careful sign step.",
     },
     boardEssentials: [
       { name: "Distance formula √[(x₂−x₁)² + (y₂−y₁)²]", oneLineUse: "Find the length between two coordinate points.", marks: "2–3" },
       { name: "Section formula (internal division)", oneLineUse: "Find the point that divides a segment in a given ratio.", marks: "2–3" },
       { name: "Midpoint formula", oneLineUse: "Special case of section formula with ratio 1:1.", marks: "1–2" },
-      { name: "Area of a triangle from coordinates", oneLineUse: "Verify collinearity (area = 0) or compute area directly.", marks: "2–3" },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -493,17 +497,17 @@ const SEEDED: Record<string, ActionableSeed> = {
     fullFormulaUseMap: [
       {
         kind: "formula",
-        title: "Area of triangle from coordinates",
+        title: "Mid-point (section formula with ratio 1:1)",
         whenToUse: [
-          "When three coordinate points are given and area is asked",
-          "When you need to test collinearity of three points",
+          "When three vertices of a parallelogram are given and the fourth is asked (the diagonals bisect each other)",
+          "When the mid-point or the points of trisection of a segment are asked",
         ],
-        directUse: "Area = ½ |x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)|.",
-        commonTrap: "Dropping the absolute value and ending with a negative area.",
+        directUse: "M = ((x₁ + x₂)/2, (y₁ + y₂)/2).",
+        commonTrap: "Mixing the m:n labels when the ratio is not 1:1 — write the full section formula before substituting.",
       },
     ],
     commonMistake: "Sign errors when subtracting coordinates — particularly when one coordinate is negative.",
-    examinerWarning: "Always state the unit (units²) for area and (units) for length — boards mark this explicitly.",
+    examinerWarning: "Always state the unit (units) for length — boards mark this explicitly.",
   },
 
   "surface-areas-and-volumes": {
@@ -540,6 +544,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Lens formula 1/v − 1/u = 1/f and m = v/u", oneLineUse: "Solve image-position numericals for thin lenses.", marks: "2–3" },
       { name: "Sign convention (New Cartesian)", oneLineUse: "Decide signs of u, v, f, h before substituting.", marks: "1–2" },
       { name: "Ray diagrams (concave/convex mirror & lens)", oneLineUse: "Use two of the standard rays through F or C / 2F to locate the image.", marks: "3–5" },
+      { name: "Refraction of light and the laws of refraction (Snell's law: sin i / sin r = constant)", oneLineUse: "State the two laws and predict the bend — towards the normal into a denser medium, away from it into a rarer one.", marks: "2–3" },
+      { name: "Refractive index n = c/v (absolute) and n₂₁ = v₁/v₂ (relative)", oneLineUse: "Compare optical densities and compute the speed of light in a medium.", marks: "1–3" },
+      { name: "Power of a lens P = 1/f (dioptre); lenses in contact P = P₁ + P₂", oneLineUse: "Convert f in metres to dioptres with the right sign, and add powers for lenses in contact.", marks: "1–2" },
+      { name: "Applications of spherical mirrors and lenses (headlights, solar furnace — concave; rear-view mirror — convex; magnifier and spectacle lenses)", oneLineUse: "Name the mirror or lens used in a situation and give the one-line reason.", marks: "1–2" },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -578,13 +586,15 @@ const SEEDED: Record<string, ActionableSeed> = {
 
   "magnetic-effects-of-electric-current": {
     topicSnapshot: {
-      likelySection: "Sections C/D — right-hand rules and solenoid diagrams.",
+      likelySection: "Sections B/C/D — right-hand rules and solenoid diagrams, plus short-answer items on domestic circuits and AC vs DC.",
       examinerNotes: "Direction questions are marked strictly — name the rule before applying it.",
     },
     boardEssentials: [
       { name: "Right-hand thumb rule (field around a straight conductor)", oneLineUse: "Find direction of magnetic field from current direction.", marks: "1–2" },
       { name: "Solenoid as a bar magnet", oneLineUse: "Use the right-hand grip rule to identify N and S poles of a current-carrying solenoid.", marks: "2–3" },
       { name: "Force on a current-carrying conductor (Fleming's left-hand rule)", oneLineUse: "Find direction of force on a conductor in a magnetic field.", marks: "2–3" },
+      { name: "Direct current vs alternating current (AC frequency in India 50 Hz; advantage of AC over DC)", oneLineUse: "Contrast one-way DC with periodically reversing AC and state why AC is transmitted over long distances.", marks: "1–2" },
+      { name: "Domestic electric circuits (live / neutral / earth wires, fuse, earthing, overloading and short-circuit)", oneLineUse: "Name each wire by colour and job, and explain the two safety devices — earthing and the fuse.", marks: "2–3" },
     ],
     formulaUsePreview: {
       kind: "law",
@@ -609,6 +619,7 @@ const SEEDED: Record<string, ActionableSeed> = {
     boardEssentials: [
       { name: "Balancing chemical equations", oneLineUse: "Balance atoms one element at a time, then check overall.", marks: "1–2" },
       { name: "Types of reactions (combination, decomposition, displacement, double displacement)", oneLineUse: "Identify the type from the form of reactants and products.", marks: "1–2" },
+      { name: "Exothermic and endothermic reactions", oneLineUse: "Say whether heat is released (burning, respiration, quicklime + water) or absorbed (decomposition by heat, light or electricity).", marks: "1–2" },
       { name: "Oxidation and reduction (redox)", oneLineUse: "Mark which species gains/loses oxygen or hydrogen.", marks: "2–3" },
       { name: "Effects of oxidation in daily life (rancidity, corrosion)", oneLineUse: "Quick recall question — name the effect and a prevention method.", marks: "1–2" },
     ],
@@ -647,6 +658,8 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "pH scale (0–14)", oneLineUse: "Interpret a given pH value as acidic / neutral / basic with strength.", marks: "1–2" },
       { name: "Acid + base → salt + water (neutralisation)", oneLineUse: "Write the balanced equation and identify products.", marks: "2–3" },
       { name: "Common salts (NaCl, NaOH, NaHCO₃, Na₂CO₃, bleaching powder, plaster of Paris)", oneLineUse: "Recall preparation and one industrial use of each.", marks: "2–3" },
+      { name: "Indicators (litmus, turmeric, phenolphthalein, methyl orange; olfactory indicators)", oneLineUse: "Name the indicator and its colour change in an acid and in a base.", marks: "1–2" },
+      { name: "Importance of pH in everyday life (digestion and antacids, tooth decay, soil pH, acid rain)", oneLineUse: "Link a pH value to the everyday situation and its remedy (e.g. a mild base neutralises excess stomach acid).", marks: "2–3" },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -679,6 +692,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Naming and structural formula questions reward exact spelling and correct bond count.",
     },
     boardEssentials: [
+      { name: "Covalent bonds — formation and properties of covalent compounds", oneLineUse: "Show electron sharing (single, double, triple bonds) and explain the low melting points and poor conductivity.", marks: "2–3" },
       { name: "Tetravalency and catenation of carbon", oneLineUse: "Explain why carbon forms so many compounds.", marks: "1–2" },
       { name: "Homologous series (general formula, e.g. CₙH₂ₙ₊₂)", oneLineUse: "Predict the next member's formula and properties trend.", marks: "2–3" },
       { name: "Functional groups (–OH, –CHO, –COOH, >C=O, –Cl, –Br)", oneLineUse: "Identify and name the group; predict typical reactions.", marks: "2–3" },
@@ -756,6 +770,8 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Structure of a neuron (dendrite, cell body, axon, synapse)", oneLineUse: "Label the parts and state the direction of impulse flow.", marks: "2–3" },
       { name: "Human endocrine glands and their hormones", oneLineUse: "Match gland → hormone → one function for each major gland.", marks: "2–3" },
       { name: "Tropisms in plants (phototropism, geotropism, hydrotropism, chemotropism)", oneLineUse: "Identify the stimulus and the direction of growth.", marks: "1–2" },
+      { name: "Plant hormones (auxin, gibberellin, cytokinin, abscisic acid) and their roles", oneLineUse: "Match each hormone to growth, cell division or inhibition, and explain how auxin bends a shoot towards light.", marks: "2–3" },
+      { name: "Voluntary, involuntary and reflex actions", oneLineUse: "State which part of the nervous system controls each and why a reflex bypasses the brain.", marks: "2–3" },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -1178,6 +1194,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward balanced equations with state symbols, a correctly ordered reactivity series, and a clean roasting-vs-calcination distinction; marks are lost for unbalanced equations and missing conditions (heat, catalyst, state symbols).",
     },
     boardEssentials: [
+      { name: "Physical properties of metals vs non-metals (lustre, malleability, ductility, conduction — with the exceptions)", oneLineUse: "Differentiate the two classes and quote an exception (mercury is liquid, iodine is lustrous, graphite conducts).", marks: "1–2" },
       { name: "Reactivity series (K > Na > Ca > Mg > Al > Zn > Fe > Pb > H > Cu > Ag > Au)", oneLineUse: "Predict displacement and decide reaction with water/acids and extraction route.", marks: "1–3" },
       { name: "Reactions of metals — with O₂, water, acids & salt solutions (displacement)", oneLineUse: "Write balanced equations and predict products in reaction-based questions.", marks: "2–3" },
       { name: "Ionic (electrovalent) bond & properties of ionic compounds (e.g. Na → Na⁺ + e⁻)", oneLineUse: "Explain electron transfer and justify high melting point / conductivity in molten state.", marks: "2–3" },
@@ -1227,7 +1244,7 @@ const SEEDED: Record<string, ActionableSeed> = {
   "human-eye-and-colourful-world": {
     topicSnapshot: {
       likelySection: "Sections C/D — one defect-correction numerical plus reason-based questions on dispersion, scattering and atmospheric refraction.",
-      examinerNotes: "Boards reward the correct lens type stated WITH the sign of its power, labelled ray diagrams, and cause-based reasoning (why the sky is blue, why the sun looks red) rather than one-word answers.",
+      examinerNotes: "Boards reward the correct lens type stated WITH the sign of its power, labelled ray diagrams, and cause-based reasoning (why the sky is blue, why danger signals are red) rather than one-word answers.",
     },
     boardEssentials: [
       { name: "Power of accommodation (ciliary muscles vary focal length; near point 25 cm, far point ∞)", oneLineUse: "Explain how a normal eye focuses near and distant objects on the retina.", marks: "1–3" },
@@ -1235,7 +1252,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Lens power P = 1/f (dioptre) for the corrective lens", oneLineUse: "Compute the lens needed once the required focal length is fixed.", marks: "2–3" },
       { name: "Refraction through a prism and dispersion of white light (VIBGYOR spectrum)", oneLineUse: "Explain the spectrum and angle of deviation on a prism diagram.", marks: "2–3" },
       { name: "Atmospheric refraction (twinkling of stars, advance sunrise, delayed sunset)", oneLineUse: "Give the refraction-based cause for everyday sky phenomena.", marks: "2–3" },
-      { name: "Scattering of light (Tyndall effect, blue sky, reddening of the sun)", oneLineUse: "Use wavelength-dependent scattering to explain sky and sun colours.", marks: "2–3" },
+      { name: "Scattering of light (Tyndall effect, blue sky, red danger signals)", oneLineUse: "Use wavelength-dependent scattering to explain the sky's colour and why red signals carry far.", marks: "2–3" },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -1267,10 +1284,10 @@ const SEEDED: Record<string, ActionableSeed> = {
         title: "Wavelength-dependent scattering (shorter wavelengths scatter more)",
         whenToUse: [
           "Explaining the blue colour of the clear sky",
-          "Explaining why the sun looks red at sunrise and sunset",
+          "Explaining why danger signal lights are red",
         ],
         directUse: "Blue light (shorter λ) scatters far more than red by fine air molecules, so the scattered sky looks blue.",
-        hiddenUse: "At sunrise/sunset light travels a longer air path, so most blue is scattered away and mainly red reaches the eye — the same law explains both facts.",
+        hiddenUse: "Red is scattered least by fog or smoke, so a red signal keeps its colour over a long distance — the same law explains both facts.",
         commonTrap: "Saying the sky is blue because it reflects the sea, or that large dust particles (not molecular scattering) cause the blue colour.",
       },
     ],
