@@ -23,6 +23,98 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-06 — WAVE B-16 (CONTROLLER B): SYLLABUS-FIX-CONTENT PR-1 (`#948` `bb57057f`), PR-2 (`#949` `8c3f3c28`), PR-3 (`#951` `9004f753`) — and Controller A-16's SYLLABUS-FIX-CODE PR-1 (`#950` `096f921a`) — B: 15 new open, 6 closed; A-16: 2 new open, 1 closed in-PR; LIVE
+
+Sources: `Desktop/diff/WAVE_STATE_B16.md` (FU ENTRIES, DECISIONS), `report-syllabus-content-1-pr1-2026-10-06.md` §11 + "New FUs (from the review)", `report-syllabus-content-1-pr2-2026-10-06.md` FUs, `report-syllabus-guard-2-pr3-2026-10-06.md` FU, `live-after-pr1-syllabus-fix-content-2026-10-06.md`, `b16-in-thin-extraction-list.md`, and Controller A-16's `closeout-a16-pr950-for-b16-docs.md` (A-AUTHORED). **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3). Every FU id named here has its own heading (standing rule 1).
+
+### B-16 — new, open
+
+### `[FU-B16-NOTES-FIGURES]` — OPEN · OWNER-APPROVED follow-up
+The new notes sections were written without figures (`notes/assets` was out of PR-2's scope). The owner approved, as a follow-up: NCERT **Fig 9.2/9.3** (angles of elevation / depression), **Fig 12.15** (domestic circuit), **Fig 10.5** (Theorem 10.1). Alias in the PR-2 report: `FU-B16-FIGURES` (recorded once, here).
+
+### `[FU-B16-IN-THIN-EXTRACTION]` — OPEN · OWNER (extraction task)
+After PR-1, 5 IN concepts have fewer than 10 served rows (served pool = bank after `WITHHELD_QUESTION_IDS` + the predicted layer; regex recogniser, about ±20% on broad items). **Do not author questions to fill these — real PYQ / SQP / NCERT / exemplar / CBE only.**
+| Chapter | IN concept | Before | After | PDF cite |
+|---|---|---|---|---|
+| arithmetic-progression | Derivation of the nth term and of the sum of the first n terms | 3 | 3 | Maths p4 |
+| triangles | Definitions, examples, counter-examples of similar triangles | 10 | 9 | Maths p5 |
+| circles | (Prove) tangents drawn from an external point are equal | 8 | 8 | Maths p6 |
+| magnetic-effects-of-electric-current | Alternating current: frequency of AC | 9 | 6 | Sci p6 |
+| magnetic-effects-of-electric-current | Advantage of AC over DC | 4 | 3 | Sci p6 |
+Close to the line (10–15): BPT proof 11 → 10; SSS criterion 15 → 13; DC vs AC 32 → 14. Full list: `Desktop/diff/b16-in-thin-extraction-list.md`.
+
+### `[FU-B16-FULLSUBJECT-QP-ONE-CHAPTER]` — OPEN · UNVERIFIED whether pre-existing
+OR-LIVE AFTER-PR1: a hub's "Full subject" → "Start quick practice" draws only Real Numbers although it is labelled mixed. The agent judged it not a regression; the controller records it as **UNVERIFIED whether it pre-existed** PR-1. Owner / next lane: reproduce on a pre-`#948` build or by reading the preset path.
+
+### `[FU-B16-TRIG-MINDMAP-ROOT-TITLE]` — OPEN · LOW (owner wording)
+The trig note was retitled "Trigonometry: ratios, identities and heights & distances" (`#949`), but its mind-map root (`notes/specs/trigonometry.json`, spec :509) is a separate field and still reads "Introduction to Trigonometry". Not in the owner's retitle; needs the owner's word.
+
+### `[FU-SCOPEGUARD-NO-PRODUCT-DOCS-MODE]` — OPEN · LOW (tooling)
+`scope:guard` has no mode for product + `notes/` (docs lane) together; PR-2 (product files + `notes/specs/*.json`) failed `--mode mixed` on the known gap. Accepted for PR-2 by D8(iii): run it, quote the classification, prove the file set by `git status`; no policy edit.
+
+### `[FU-B16-GUARD-CHAPTER-VOCAB]` — OPEN · LOW (guard)
+HPQ, predicted and promptD carry non-slug chapter names ("Light", "MagneticEffects", `magnetic_effects`), so the guard's `chapterScoped` items match strictly there. A shared chapter-key map would let scoping apply on every surface.
+
+### `[FU-B16-GUARD-LIMITS]` — OPEN · LOW (guard)
+LIMIT rows (segment angles, heights-and-distances angles, at most two solids, …) and the cross-cutting "NCERT boxes" item cannot be checked by label / phrase; Mode 3 does not cover them.
+
+### `[FU-B16-BOARDQ-RULE-STRING]` — OPEN · LOW
+`scripts/generateBoardQuestions.ts`'s `_rule` text does not mention the syllabus filter (not edited; the generator was outside PR-1's scope).
+
+### `[FU-B16-PHRASE-RECOGNISER]` — OPEN · LOW
+The notes filter recognises OUT items by phrase (subtopic / text) scoped to the chapter; on its own it catches 252 of the 389 rows withheld at checkpoint 1. PR-3's guard owns the full served-set scan; the filter's recogniser stays narrower.
+
+### `[FU-B16-THEOREM-6-7-STEPS]` — OPEN · LOW (content)
+3 rows cite the deleted "Theorem 6.7" in their solution steps (Fable review).
+
+### `[FU-B16-RECHAPTER]` — OPEN · LOW (content)
+TR3-015 is a trigonometry row and CBE-M-TRI-B-004 is a circles row; both sit under triangles (Fable review).
+
+### `[FU-B16-AI-PYQ-PROVENANCE]` — OPEN · MEDIUM (content honesty)
+AI-authored rows that carry PYQ claims (Fable review). Provenance must match the source.
+
+### `[FU-B16-ROW-QUALITY]` — OPEN · LOW (content)
+TRI2-E03, TR3-028 step 9, QE2-036 step 6 (Fable review).
+
+### `[FU-B16-PYTHAGORAS-TOOL-USE-RULINGS]` — OPEN · OWNER (override window) · id named by this docs PR (D32 had no FU id)
+D32, controller rulings under fixed owner ruling 1 (tool use IN; prove / state OUT): (1) `coordinate-geometry.json` examples[0] step 3 "by the converse of the Pythagoras theorem ∠P=90°" (NCERT Example 1) = tool use → IN, kept; (2) promptD M-TRI-6 "…find AC and verify Pythagoras theorem" = numeric verification → IN, kept. The owner may override either.
+
+### `[FU-B16-SYLLABUS-AMBIGUOUS-7]` — OPEN · OWNER · id named by this docs PR (A-16 gave the items no FU id)
+Controller A-16 left 8 items that no ruling covers AMBIGUOUS (A-16's close-out): √7-type surds, centroid, combinations of figures, the empirical median-mode-mean relation, rancidity, carboxylic-acid nomenclature, atmospheric refraction, and the p6 note "Electric Effects of Electric Current". **Atmospheric refraction is resolved: the owner ruled it IN** in the PR-2 message ("kept, since it isn't the excluded 'colour of the Sun at sunrise/sunset'"). **7 remain.** Do not duplicate: if A-16's docs PR records these, it cites this entry.
+
+### A-16 — new, open (A-AUTHORED — A-16's close-out wording)
+
+### `[FU-A16-CANONICAL-25]` — OPEN (Controller A-16)
+src/data/syllabus/cbse10Canonical.ts, 25 chapters with no Human Eye, is still read by /teacher TeacherDashboardPage, guidedJourneyService and topicResolver.
+
+### `[FU-A16-MASTERYKEY-CONTROL]` — OPEN (Controller A-16)
+Note: the derived masteryKey for control-and-coordination changed spelling; the mastery store has no live writer.
+
+### B-16 — closed
+
+### `[FU-B16-SYLLABUS-FIXTURE-SWITCH]` — CLOSED by `#951`
+PR-1 used a transitional copy of the scout JSON (`syllabus2026-27.scoutFixture.ts`) because A-16's module was not on trunk (D4). `#951` switched `selectionRule.ts` to `src/config/syllabus2026-27.ts` and deleted the fixture after proving it deep-equals the module (46/46).
+
+### `[FU-B16-PIN-COUNTS]` — CLOSED by `#948`
+The 11 red count / set pins went to the owner (D10); owner: "Yes, all of it (Recommended)". Each delta reconciled to the withheld / removed set with 0 other drift (HPQ 140→129, human floor 5569→5378, ceilings 5409→5364 / 4985→4963, freed 144→143, Z3 102→101, figure batches, order-parity baseline).
+
+### `[FU-B16-SCQ-S-MAG-039-STEM-BLEED]` — CLOSED by `#948`
+The stem "Write one Chap 13 : Magnetice Effect of Electric Current important advantage" → "Write one important advantage" (owner-authorised). OR-LIVE AFTER-PR3: clean live.
+
+### `[FU-B16-HUB-TRIG-LIMIT-SUFFIX]` — CLOSED by `#949`
+The trig hub row kept its trunk NAME (D8(i), for the catalogue label); its LIMIT words moved into the row's one-line description ("only 30°, 45°, 60°; at most two right triangles") — owner-accepted.
+
+### `[FU-B16-TRIG-RETITLE-NEEDS-SEO-BLURB]` — CLOSED by `#949`
+The retitle needed `writeStaticHeads.ts:295` (2nd ask, granted) and a deletion-only blurb (3rd ask): "Trigonometric ratios and identities with heights and distances applications." (description 149 ≤ 155).
+
+### `[FU-B16-CATALOGUE-LABEL-309]` — CLOSED by `#949` (D8(i))
+Catalogue :309 drifted only because of PR-2's trig row rename; reverting the row NAME to its trunk string removed the drift.
+
+### A-16 — closed in-PR (A-AUTHORED)
+
+### `[FU-A16-PR1-ORPHAN-GATE]` — CLOSED in `#950` (Controller A-16)
+The un-imported module failed noOrphans G1 in CI; F7 (`weakAreaAggregator.ts`) was pulled into PR-1 as the live importer.
+
 ## 2026-10-06 — WAVE A-15 CLOSE (CONTROLLER A): GRADER-CORE-1 PR-3 (`#942` `76447a63`) + PR-2b (`#944` `28ae0354`); HOTFIX-2 (`#945` `b5ff8cdc`) rolled back by `#946` `e2c5bb46` — 26 new open (one an alias), 2 carried restated, 10 closed, 1 not opened (owner ruling); 8 older FUs re-checked; LIVE
 
 Sources: `Desktop/diff/WAVE_STATE_A15.md` (EVENTS, CHECKPOINT, the controller's final fill), `report-a15-pr3-grader-speed-2026-10-06.md` §10, `report-a15-pr2t-targeted-2026-10-05.md` §12, `live-final-orlive-grader-core-1-2026-10-06.md`, `live-final-owner-papers-2026-10-06.md`, `a15/CHUNK_TIMING_OA2.md`, `a15/PROPOSAL_GRADING_JOBS.md`. **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3); status changes to older entries are recorded in this section. Every FU id named here has its own heading (standing rule 1). The A-15 FUs recorded in the WAVE B-15 section below and not named here stay open as written.
