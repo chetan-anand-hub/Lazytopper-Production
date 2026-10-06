@@ -10,10 +10,17 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [base/approved-thru-437]
+  # ★ READY FOR A FUTURE MERGE QUEUE (FU-CI1-NIGHTLY-RESTORE, controller decision D3). `lane-overlap`
+  # is a REQUIRED check, so a queue would wait forever for it unless it reports on merge_group too.
+  # On merge_group it is a PASS-THROUGH: every queued PR already passed lane-overlap on its own
+  # pull_request run, and a merge group has no single PR whose files to compare.
+  merge_group:
+    types: [checks_requested]
+    branches: [base/approved-thru-437]
 
-# A newer push to the same PR supersedes an in-flight run.
+# A newer push to the same PR supersedes an in-flight run (merge_group runs group by their ref).
 concurrency:
-  group: lane-overlap-${{ github.event.pull_request.number }}
+  group: lane-overlap-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -24,17 +31,27 @@ jobs:
   lane-overlap:
     runs-on: ubuntu-latest
     steps:
+      # merge_group ONLY — never on pull_request (pinned by ci_speed_acceptance.mjs).
+      - name: Lane-overlap pass-through (merge_group)
+        if: github.event_name == 'merge_group'
+        run: |
+          echo "LANE_OVERLAP: N/A on merge_group — every queued PR passed lane-overlap on its own PR run"
+          exit 0
+
       - name: Checkout repository
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Use Node.js 22
+        if: github.event_name == 'pull_request'
         uses: actions/setup-node@v7
         with:
           node-version: '22'
 
       - name: Lane-overlap check
+        if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
