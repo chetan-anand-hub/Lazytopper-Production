@@ -139,6 +139,20 @@ function bindRequestUid(verifiedUid, reqPath, opts = {}) {
   return uid;
 }
 
+/**
+ * GRADING-JOBS-1 J1 (D12) — carry THIS request's context into work that outlives the request. A
+ * grading job answers 202 and keeps grading; a job that had to QUEUE starts later, from whichever
+ * job freed its slot — i.e. inside ANOTHER request's async chain, whose store names another student.
+ * The job therefore captures its own store at submit and runs inside it, so the premium meter (meter
+ * groups included) charges the student who submitted it, and nobody else. Returns a runner; with no
+ * store (outside a request) the runner just calls `fn` — exactly what a call outside a request does.
+ */
+function captureRequestContext() {
+  const store = requestContext.getStore();
+  if (!store) return (fn) => fn();
+  return (fn) => requestContext.run(store, fn);
+}
+
 /** The uid bound to the current async chain, or '' outside a bound request. */
 function currentUid() {
   const store = requestContext.getStore();
@@ -454,6 +468,7 @@ module.exports = {
   runWithRequestContext,
   bindRequestUid,
   currentUid,
+  captureRequestContext,
   createMeterGroup,
   runInMeterGroup,
   settleMeterGroup,
