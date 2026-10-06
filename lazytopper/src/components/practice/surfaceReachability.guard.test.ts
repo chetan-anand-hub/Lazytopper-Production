@@ -77,6 +77,7 @@ import {
   type FMSection,
 } from "../fullmock/fullMockBlueprint";
 import { isAutoGradeableObjective, isMcqShaped } from "./autoGradeableObjective";
+import { isCbq } from "../../lib/cbq/cbqClassification";
 import { questionMatchesFilters } from "../../pages/PracticePage";
 import type { PracticeQuestion } from "../../data/predictionDataService";
 
@@ -387,8 +388,9 @@ describe("surface reachability — positive controls (synthetic, the predicates 
 //   Worksheets                      worksheetsEligible (imported getTopics)
 //   Chapter Test                    isEligibleForChapterTest (imported)
 //   Full Mock                       sectionPool via fullMockSectionFor (imported)
-//   CBQ chooser / Competency preset questionMatchesFilters(q, "4", "case", …) — the exact
-//                                   call cbqAvailability.ts / PracticePage make
+//   CBQ chooser / Competency preset questionMatchesFilters(q, "all", "cbq", …) — the CBQ
+//   / CBQ filter                    filter (isCbq, every mark value; CBQ-1 PR-1). The chooser
+//                                   counts the same isCbq pool (cbqAvailability.test.ts)
 // The engine draw (PredictionCore / generatePracticeSet) and Topic Hub concept practice are
 // pinned in src/data/ltGenerated.guard.test.ts, which preloads the bank chapters.
 
@@ -396,7 +398,6 @@ const GEN: CanonicalQuestion[] = canonicalQuestionBank.filter((q) => q.origin ==
 /** FLOOR — 50 at GEN-THIN-1 PR-1 (5 thin concepts × 10) + 94 at PR-2 (CBQs). A content lane only raises it. */
 const GEN_FLOOR = 144;
 const asPQ = (q: CanonicalQuestion) => q as unknown as PracticeQuestion;
-const isCbqShape = (q: CanonicalQuestion) => q.section === "E" && q.marks === 4 && q.format === "Case-Based";
 
 describe("surface reachability — GEN-THIN-1 generated rows reach every surface", () => {
   it("the generated population is real (floor) and is human-tier, not the retired AI pack", T, () => {
@@ -428,10 +429,14 @@ describe("surface reachability — GEN-THIN-1 generated rows reach every surface
     for (const q of GEN) expect(fullMockSectionFor(q), q.id).toBe(slot[q.marks]);
   });
 
-  it("CBQ CHOOSER + COMPETENCY PRESET — every generated case study passes the chooser's own filter; no other row is mistaken for one", T, () => {
+  it("CBQ FILTER + CHOOSER + COMPETENCY PRESET (CBQ-1 PR-1) — every verified CBQ of EVERY mark value passes; no other row is mistaken for one", T, () => {
     for (const q of GEN) {
-      expect(questionMatchesFilters(asPQ(q), "4", "case", "all", "all", null), q.id).toBe(isCbqShape(q));
+      expect(questionMatchesFilters(asPQ(q), "all", "cbq", "all", "all", null), q.id).toBe(isCbq(q));
     }
+    // Derived precondition: the generated CBQs span more than one mark value, so the
+    // assertion above proves "every mark value" rather than the old 4-mark-only rule.
+    const marks = new Set(GEN.filter((q) => isCbq(q)).map((q) => q.marks));
+    expect(marks.size).toBeGreaterThan(1);
   });
 
   it("CONTROL — a generated-shaped row tagged as a PYQ leaves Others and enters PYQ (the filter assertions can fail)", T, () => {

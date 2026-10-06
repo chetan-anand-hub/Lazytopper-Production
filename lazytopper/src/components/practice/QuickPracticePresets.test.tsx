@@ -230,11 +230,11 @@ describe("back-nav wiring — the built entry is a real, poppable history step",
 // Mirrors of the compat matrices in PracticeControls.tsx (kept in sync by this test):
 // an invalid marks+style combo would be silently reset by PracticeControls' auto-reset.
 const STYLE_COMPAT: Record<string, string[]> = {
-  all: ["all", "proof", "ar", "hots", "case"],
-  "1": ["all", "ar"],
-  "23": ["all", "proof", "hots"],
-  "5": ["all", "proof", "hots"],
-  "4": ["all", "case"],
+  all: ["all", "proof", "ar", "hots", "case", "cbq"],
+  "1": ["all", "ar", "cbq"],
+  "23": ["all", "proof", "hots", "cbq"],
+  "5": ["all", "proof", "hots", "cbq"],
+  "4": ["all", "case", "cbq"],
 };
 const MARKS_COMPAT_BY_STYLE: Record<string, string[]> = {
   all: ["all", "1", "23", "5", "4"],
@@ -242,9 +242,10 @@ const MARKS_COMPAT_BY_STYLE: Record<string, string[]> = {
   ar: ["all", "1"],
   hots: ["all", "23", "5"],
   case: ["all", "4"],
+  cbq: ["all", "1", "23", "5", "4"],
 };
 const VALID_MARKS = new Set(["all", "1", "23", "5", "4"]);
-const VALID_STYLE = new Set(["all", "proof", "ar", "hots", "case"]);
+const VALID_STYLE = new Set(["all", "proof", "ar", "hots", "case", "cbq"]);
 const VALID_SOURCE = new Set(["all", "pyq", "ncert", "others"]);
 
 describe("preset → setter bundle uses real values and cannot be auto-reset", () => {
@@ -276,8 +277,18 @@ describe("preset → setter bundle uses real values and cannot be auto-reset", (
     const byKey = Object.fromEntries(live.map((p) => [p.key, p.filters!]));
     expect(byKey.quick).toMatchObject({ marks: "1", style: "all", count: 5 });
     expect(byKey.board).toMatchObject({ marks: "all", style: "all", count: 8 });
-    expect(byKey.comp).toMatchObject({ marks: "4", style: "case", count: 5 });   // case-based (not AR)
+    // CBQ-1 PR-1: CBQs of EVERY mark value (style "cbq" = isCbq), not 4-mark case studies.
+    expect(byKey.comp).toMatchObject({ marks: "all", style: "cbq", count: 5 });
     expect(byKey.high).toMatchObject({ marks: "23,5", style: "all", count: 4 }); // comma SET
+  });
+
+  it("CBQ-1 PR-1 — the Competency card's copy claims every mark value, never '4 marks'", () => {
+    const comp = live.find((p) => p.key === "comp")!;
+    const chips = comp.chips.map((c) => c.text);
+    expect(chips).toContain("All marks");
+    expect(chips.some((t) => /4 marks?/i.test(t))).toBe(false);
+    expect(comp.startNote).toMatch(/mixed marks/i);
+    expect(comp.filters!.style).toBe("cbq");
   });
 
   it("every preset's marks+style is compat-VALID (never auto-wiped by PracticeControls)", () => {
