@@ -571,7 +571,7 @@ describe("SEO-4 S2 — every notes page title and description names its NCERT ch
   it("CONTROL — a wrong chapter number is caught", () => {
     const head = headForPath("/notes/trigonometry");
     expect(head?.title.startsWith("NCERT Ch. 9 · ")).toBe(false);
-    expect(head?.title.startsWith("NCERT Ch. 8 · Introduction to Trigonometry — ")).toBe(true);
+    expect(head?.title.startsWith("NCERT Ch. 8 · Trigonometry: ratios, identities and heights & distances — ")).toBe(true);
   });
 
   it("ncertLabel throws for a slug with no spec, rather than dropping the chapter", () => {

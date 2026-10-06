@@ -90,31 +90,6 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     scopeCaveat: "No STATIC figure depicts the BPT DE||BC configuration (notes Fig 6.10 was not extracted; bank TR items are applications, not BPT). Interactive-only. Candidate for AI gap-fill.",
     ncertPage: { subject: "maths", chapter: 6, page: 80 },
   },
-  {
-    conceptKey: "areas-of-similar-triangles",
-    topicKey: "triangles",
-    subject: "maths",
-    conceptLabel: "Areas of similar triangles ∝ (sides)²",
-    best: { kind: "interactive", ref: "maths-triangles-areas-of-similar-triangles", why: "Exact-match interactive for the area-ratio relationship." },
-    alternates: [],
-    gap: false,
-    vocabSource: "boardEssentials",
-    scopeCaveat: "notes/specs/triangles.json board_asks states the 2026-27 chapter STOPS at SAS — areas of similar triangles is outside current chapter scope (bank still carries application items under this topicKey). No static figure exists.",
-  },
-  {
-    conceptKey: "pythagoras-theorem",
-    topicKey: "triangles",
-    subject: "maths",
-    conceptLabel: "Pythagoras theorem (a² + b² = c²)",
-    best: { kind: "interactive", ref: "maths-triangles-pythagoras-theorem-visual-proof", why: "The theorem itself as a visual proof." },
-    alternates: [
-      { kind: "bank-figure", ref: "Z3-TR-004", why: "Windmill + two guy wires — cleanest pure a²+b²=c² application picture." },
-      { kind: "bank-figure", ref: "Z3-TR-003", why: "Ladder against a wall — the classic right-triangle Pythagoras setup." },
-    ],
-    gap: false,
-    vocabSource: "boardEssentials",
-    scopeCaveat: "notes/specs/triangles.json board_asks marks Pythagoras proofs as no longer in this chapter (application items remain). Treat as application-level.",
-  },
 
   // --- circles ---
   {
@@ -363,19 +338,6 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     vocabSource: "boardEssentials",
     ncertPage: { subject: "maths", chapter: 7, page: 107 },
   },
-  {
-    conceptKey: "area-of-a-triangle-from-coordinates",
-    topicKey: "coordinate-geometry",
-    subject: "maths",
-    conceptLabel: "Area of a triangle from coordinates",
-    best: { kind: "interactive", ref: "maths-coordinate-geometry-collinearity-condition", why: "Directly the collinearity (area = 0) test the row's oneLineUse names." },
-    alternates: [
-      { kind: "bank-figure", ref: "Z3-CG-010", why: "Garden grid with a shaded triangle P-R-Q inside — an area-from-coordinates scene." },
-    ],
-    gap: false,
-    vocabSource: "boardEssentials",
-    scopeCaveat: "notes board_asks states area-of-a-triangle was REMOVED from the 2026-27 syllabus, yet boardEssentials/topics.ts still cite it. Flag for owner — this row may be retired.",
-  },
 
   // ===========================================================================
   // SCIENCE — visual-heavy topics
@@ -514,7 +476,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     conceptKey: "scattering-of-light",
     topicKey: "human-eye-and-colourful-world",
     subject: "science",
-    conceptLabel: "Scattering of light (Tyndall effect, blue sky, reddening of the sun)",
+    conceptLabel: "Scattering of light (Tyndall effect, blue sky, red danger signals)",
     // Gap-filled 2026-07-16 (owner-approved). ORIGINAL diagram — NCERT ch.10 §10.6 (p169) has
     // NO scattering figure (the chapter's last figure is 10.10). It draws only NCERT's own
     // sentence: "Very fine particles scatter mainly blue light while particles of larger size

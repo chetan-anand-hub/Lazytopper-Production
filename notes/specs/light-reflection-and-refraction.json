@@ -12,7 +12,7 @@
     },
     "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 9"
   },
-  "board_asks": "ray diagrams for mirrors &amp; lenses, the mirror/lens formula numericals (with sign convention), refractive index, and power of a lens — these carry almost every mark here.",
+  "board_asks": "ray diagrams for mirrors &amp; lenses, the mirror/lens formula numericals (with sign convention), refractive index, power of a lens, and the uses of concave / convex mirrors — the first four carry almost every mark here.",
   "big_idea": {
     "tagline": null,
     "body": null
@@ -225,9 +225,9 @@
     },
     {
       "id": "c4",
-      "title": "Apparent depth &amp; everyday refraction",
-      "body": "Because light bends when leaving a denser medium, objects in water look shallower / raised and a pencil looks bent. The relation: $\\;n = \\dfrac{\\text{real depth}}{\\text{apparent depth}}$. Real depth is always greater than apparent depth.",
-      "tested": "2-mark \"explain why\" · everyday-phenomenon",
+      "title": "Refraction through a glass slab &amp; everyday refraction",
+      "body": "Light bends when it crosses from one transparent medium into another because its speed changes — towards the normal going air → glass (rarer → denser), away from the normal going glass → air. In a rectangular slab the two bends are equal and opposite, so the emergent ray is parallel to the incident ray but shifted sideways. The same bending is why the bottom of a pond appears raised, a pencil partly in water looks displaced at the surface, and letters under a thick slab seem to rise — explain these qualitatively.",
+      "tested": "2-mark \"explain why\" · everyday-phenomenon; the glass-slab ray diagram (CBSE practical 11)",
       "figure_ref": "fig_910"
     },
     {
@@ -236,6 +236,19 @@
       "body": "$\\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{f}$, $\\;m = \\dfrac{v}{u}$, and power $P = \\dfrac{1}{f\\,(\\text{metres})}$ in dioptres (D).",
       "tested": "3-mark numerical · power 1-mark",
       "figure_ref": null
+    },
+    {
+      "id": "c6",
+      "title": "Applications of spherical mirrors and lenses",
+      "body": "<b>Concave mirrors</b> give a powerful parallel beam when the source sits at the focus — torches, search-lights and vehicle headlights — and a large erect image when the object is within the focus, which is why they serve as shaving mirrors and dentists' mirrors; large ones concentrate sunlight to produce heat in solar furnaces. <b>Convex mirrors</b> are the rear-view (wing) mirrors of vehicles: the image is always erect (though diminished) and the outward curve gives a much wider field of view than a plane mirror. <b>Lenses</b>: a convex lens as a magnifying glass (watchmakers), spectacle lenses that correct defects of vision (concave for myopia, convex for hypermetropia — Ch 10), and lens combinations in cameras, microscopes and telescopes.",
+      "tested": "1–2 mark \"name the type of mirror used in … and give a reason\" (NCERT Exercise Q8: headlights, rear-view mirror, solar furnace)",
+      "figure_ref": null,
+      "source": {
+        "ncert_page": 140,
+        "edition": "2026-27",
+        "chapter": 9,
+        "note": "uses of concave mirrors p.140; uses of convex mirrors p.142; magnifying glass and spectacle lenses p.150; lens combinations in cameras, microscopes and telescopes p.158"
+      }
     }
   ],
   "examples": [
@@ -372,12 +385,8 @@
       "math": "$n = \\dfrac{c}{v} = \\dfrac{\\sin i}{\\sin r}$"
     },
     {
-      "label": "Apparent depth",
-      "math": "$n = \\dfrac{\\text{real depth}}{\\text{apparent depth}}$"
-    },
-    {
       "label": "Power of lens",
-      "math": "$P = \\dfrac{1}{f\\,(\\text{m})}$ &nbsp;(dioptre, D)"
+      "math": "$P = \\dfrac{1}{f\\,(\\text{m})}$ &nbsp;(dioptre, D) · lenses in contact: $P = P_1 + P_2 + \\dots$"
     },
     {
       "label": "Mirror relation",
@@ -498,7 +507,8 @@
           "Laws of reflection (∠i = ∠r)",
           "Concave / convex mirrors",
           "Image formation — ray diagrams",
-          "R = 2f"
+          "R = 2f",
+          "Uses — concave: headlights, shaving / dentist mirror, solar furnace · convex: rear-view mirror"
         ]
       },
       {
@@ -514,7 +524,8 @@
         "children": [
           "Bends toward normal (denser)",
           "Snell: sin i / sin r = n",
-          "n = c / v"
+          "n = c / v",
+          "Glass slab: emergent ray parallel, shifted sideways"
         ]
       },
       {
@@ -523,7 +534,8 @@
           "Convex / concave lens",
           "1/v − 1/u = 1/f",
           "m = +v/u",
-          "Power P = 1/f(m), dioptre"
+          "Power P = 1/f(m), dioptre",
+          "Uses: magnifying glass, spectacles, camera / microscope / telescope"
         ]
       },
       {
