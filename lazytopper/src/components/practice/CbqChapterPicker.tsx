@@ -8,7 +8,9 @@
 // what "go" does: open the chapter on Practice with the Competency preset (E3).
 //
 // P6: while open it checks, for the subject on screen, which chapters have real CBQs
-// (cbqAvailability, loaded with import() so the hub stays bank-free). A chapter without
+// (cbqAvailability, loaded with import() so the hub stays bank-free). CBQ-1 PR-1: a CBQ
+// is `isCbq` (src/lib/cbq/cbqClassification.ts) — every mark value 1-5, and the landing
+// serves them mixed-marks (no longer the 4-mark Section-E case studies only). A chapter without
 // any is listed "coming soon" and cannot be chosen. Until the check lands nothing is
 // marked — the landing (PracticePage, `preset=comp`) gates on the same check itself, so
 // an unchecked choice still never reaches an empty set.
