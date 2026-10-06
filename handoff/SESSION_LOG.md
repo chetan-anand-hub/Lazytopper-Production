@@ -20,7 +20,7 @@
 - PR-3 (owner figure follow-up) pushed after `#956`; controller rulings R-FIT and R-T3.
 - **11:58:55Z `#958` merged** (PR-3). Vercel success 12:00:11Z. OR-LIVE-3 PASS (5 / 5 cold at 12:04:29Z). No rollback.
 
-**Owner-owed:** the list in `NEXT_ACTION.md` (4 figure screenshots; optional R3(a) narrowing; A-17's J2 contract to the next B controller; the carried A-16 / A-15 items incl. Rolling Releases). **Next:** GEN-THIN-1 v1.1.
+**Owner-owed:** the list in `NEXT_ACTION.md` (4 figure screenshots; optional R3(a) narrowing; A-17's J2 contract to the next B controller; the scout-reported, UNVERIFIED ~364 AI-pack rows under the PYQ filter; the carried A-16 / A-15 items incl. Rolling Releases). **Next:** GEN-THIN-1 runs in a separate cloud session (owner); Controller B's next lane is J2, the background-grading client, once A-17 publishes its client contract.
 
 ## 2026-10-06 — WAVE A-16 CLOSE (SYLLABUS, CONTROLLER A) — **EVERY NUMBER, FILTER AND THE TUTOR FOLLOW THE 2026-27 SYLLABUS: CHIPS SUM 80 FROM CBSE UNIT MARKS, FULL MOCK BY UNIT MARKS, TUTOR OUT / FORMATIVE GATE, PREDICTIONS DROP OUT CONCEPTS, HUMAN EYE IN WEAK AREAS (LIVE), ATMOSPHERIC REFRACTION IN** — `#953` MERGED (`#950` recorded by `#952`) — trunk `decac82a` — LIVE
 

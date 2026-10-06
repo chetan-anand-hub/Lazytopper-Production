@@ -49,7 +49,7 @@ All 7 items were ruled by the owner (spec WHY + Round 1 + Round 2) and encoded w
 
 ### B-17 — kept open
 
-- `[FU-B16-IN-THIN-EXTRACTION]` — **KEPT OPEN, superseded in practice by GEN-THIN-1** (the next lane, Controller B, wave B-17): the owner ruled generated CBSE-shaped questions for the 5 thin concepts (no student-facing tag; provenance internal). Neither QF PR made a concept newly thin (`b17-thin-concepts-after-qf1.md`). Close it when GEN-THIN-1 lands.
+- `[FU-B16-IN-THIN-EXTRACTION]` — **KEPT OPEN, handed to the GEN-THIN-1 cloud session** (GEN-THIN-1 — running in a separate cloud session (owner, 2026-10-06); read-only prep handed over in `Desktop/diff/HANDOVER_B17_GEN-THIN-1_PREP.md`). The owner ruled generated CBSE-shaped questions for the 5 thin concepts (no student-facing tag; provenance internal). B-17 does not continue it. Neither QF PR made a concept newly thin (`b17-thin-concepts-after-qf1.md`). Close it when GEN-THIN-1 lands.
 - `[FU-SCOPEGUARD-NO-PRODUCT-DOCS-MODE]` — still open; hit by all three QF PRs (product files + `notes/specs/*.json` / `notes/assets/*`); each proved its file set by `git status` / `git diff --name-only`.
 - `[FU-B16-PYTHAGORAS-TOOL-USE-RULINGS]` — **item (2) resolved by the owner** (spec ruling 1: M-TRI-6 withheld, `#955`); item (1) (`coordinate-geometry.json` converse-of-Pythagoras step = tool use, kept) stands in the override window.
 

@@ -38,7 +38,7 @@
   > on phones, figures fit the screen width (scale down, never cut off; tap to enlarge if available).
   >
   > Send the 4 figure screenshots in your end-of-lane message for my final look. Push PR-2.
-- **Wave dispatch rulings (fixed, `WAVE_STATE_B17.md`):** two lanes in order (QUICK-FIXES-1, then GEN-THIN-1 v1.1); GEN-THIN-1 carries no student-facing tag and must be proven reachable everywhere; owner contact limited to the figure screenshots, the GEN-THIN-1 15-question sample and one end-of-lane message per lane.
+- **Wave dispatch rulings (fixed, `WAVE_STATE_B17.md`):** two lanes in order (QUICK-FIXES-1, then GEN-THIN-1 v1.1) — **later the same day the owner moved GEN-THIN-1 to a separate cloud session; B-17 does not run it**; GEN-THIN-1 carries no student-facing tag and must be proven reachable everywhere; owner contact limited to the figure screenshots, the GEN-THIN-1 15-question sample and one end-of-lane message per lane.
 - **Owner contact this lane:** two asks, both at sanctioned points — (1) the figure screenshots, which carried the `server/**` grant ask; (2) the PR-2 LOCAL-READY ask (6 items). Round 1 arrived without an ask.
 
 ### Controller decisions (B-17), with the reason

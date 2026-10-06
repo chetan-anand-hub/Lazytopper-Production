@@ -13,7 +13,8 @@
 - ✅ **Decisions + FUs recorded** (`DECISION_LOG.md`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, wave B-17).
 - ✅ **Docs:** this handoff (after A-16's `#954`, OR-16).
 - ⬜ **Controller B-17:** tell A-17 this docs PR merged; one final audit request; the end-of-lane owner message; remove own worktrees.
-- ⬜ **Next lane: GEN-THIN-1 v1.1** (Controller B, wave B-17) — owner-ruled generated CBSE-shaped questions for the 5 thin concepts + CBQs of every mark; no student-facing tag; reachable on every surface.
+- ⬜ **GEN-THIN-1 — running in a separate cloud session (owner, 2026-10-06); read-only prep handed over in `Desktop/diff/HANDOVER_B17_GEN-THIN-1_PREP.md`** — not run by B-17.
+- ⬜ **Next lane (Controller B): J2, the background-grading client** — starts once Controller A-17 publishes its client contract (draft v0.1 at `Desktop/diff/a17/J2_CLIENT_CONTRACT.md`, v1.0 after A-17's J1 merges); the owner sends the spec then.
 - ⬜ **Owner:** the owner-owed list in `NEXT_ACTION.md`.
 
 ## 2026-10-06 — SYLLABUS: **WAVE A-16 CLOSE — SYLLABUS-FIX-CODE PR-2** (`#953`; PR-1 `#950` recorded under B-16 below) — trunk `decac82a` — ✅ COMPLETE (OR-LIVE PASS 13 / 13, no rollback; owner-owed: 7 AMBIGUOUS items, the delete-account confirmation FU, Google sign-in; B-16's and A-15's carried items stand)
