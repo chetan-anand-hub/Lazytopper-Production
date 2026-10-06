@@ -36,7 +36,9 @@ describe("G3 consistency pin across an IST midnight", () => {
   it(
     "★ the consistency file passes at every instant, with nothing skipped",
     async () => {
-      const results = await Promise.all(INSTANTS.map(async (t) => ({ t, ...(await runAt(t)) })));
+      // One child at a time: parallel children load the runner and make UI waits flaky.
+      const results: Array<{ t: string; code: number; out: string }> = [];
+      for (const t of INSTANTS) results.push({ t, ...(await runAt(t)) });
       for (const r of results) {
         const tests = r.out.match(/Tests\s+(\d+) passed \((\d+)\)/);
         expect({ instant: r.t, code: r.code, summary: tests?.[0] ?? r.out.slice(-1500) }).toEqual({

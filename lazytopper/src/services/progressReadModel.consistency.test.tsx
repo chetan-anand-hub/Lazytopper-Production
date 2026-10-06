@@ -267,19 +267,22 @@ describe("G3 — the rendered surfaces print the model's numbers", () => {
         const hit = t.match(/(\d+(?:\.\d+)?) marks? on the table/);
         expect(hit).toBeTruthy();
         v = Number(hit![1]);
-      });
+      }, { timeout: 8000 });
       return v;
     };
+    // The expected figure is read ONCE per step (not inside every waitFor poll) and the wait is
+    // given room: under a loaded runner (the IST-midnight pin runs this file in child processes)
+    // the old per-poll model read made the default 1 s wait time out — a flake, not a mismatch.
+    const WAIT = { timeout: 8000 };
     await user.click(await screen.findByTestId("me-paper-maths"));
-    expect(await heroLost()).toBe((await readStudyModel(UID, { window: "month", subject: "maths" })).progress.totals!.marksLost);
+    const monthMaths = (await readStudyModel(UID, { window: "month", subject: "maths" })).progress.totals!.marksLost;
+    expect(await heroLost()).toBe(monthMaths);
     await user.click(screen.getByRole("button", { name: "Week" }));
-    await waitFor(async () =>
-      expect(await heroLost()).toBe((await readStudyModel(UID, { window: "week", subject: "maths" })).progress.totals!.marksLost),
-    );
+    const weekMaths = (await readStudyModel(UID, { window: "week", subject: "maths" })).progress.totals!.marksLost;
+    await waitFor(async () => expect(await heroLost()).toBe(weekMaths), WAIT);
     await user.click(screen.getByTestId("me-paper-science"));
-    await waitFor(async () =>
-      expect(await heroLost()).toBe((await readStudyModel(UID, { window: "week", subject: "science" })).progress.totals!.marksLost),
-    );
+    const weekScience = (await readStudyModel(UID, { window: "week", subject: "science" })).progress.totals!.marksLost;
+    await waitFor(async () => expect(await heroLost()).toBe(weekScience), WAIT);
     cleanup();
   });
 });
