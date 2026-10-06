@@ -1,5 +1,43 @@
 # LazyTopper — Current State
 
+## [CURRENT · CI] WAVE CI1 — FU-CI1-NIGHTLY-RESTORE — **THE FULL SUITE UNDER BOTH CLOCKS RUNS NIGHTLY AGAIN (`schedule: '30 20 * * *'` = 02:00 IST; HAND-RUN `37539342806` GREEN, 330/330 FILES, 4,755 TESTS, BOTH CLOCKS); THE C&I CONVERGENCE, C&I OVERLAY AND QP OVERLAY GATES TREAT PUSH / SCHEDULE / WORKFLOW_DISPATCH / MERGE_GROUP AS N/A, NOT A PASS, AND A PULL_REQUEST WITH AN UNRESOLVABLE BASE STILL HARD-FAILS; `merge_group` TRIGGERS ARE ON BOTH REQUIRED WORKFLOWS; THE NIGHTLY FAILS UNLESS IT RAN EVERY TEST FILE ON DISK** — `#981` MERGED — trunk `63e94564` — CI ONLY, NO PRODUCT CODE
+*(Supersedes the WAVE CI1 CI-SPEED-1 block directly below on trunk SHA and on the nightly / merge-queue lines only. That block is demoted to previous on trunk SHA; everything else in it stands as written. The owner items of every block below stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **ORDER (handoff lock; Controller C holds it, CLAIM on `Desktop/diff/COORD/BOARD.md` 2026-10-06T22:51Z).** C's docs PR `#974` (`668345f5`) was the last handoff PR. **This block describes `#981` ONLY.** `git log --oneline 668345f5..origin/base/approved-thru-437` when this PR was cut lists nine commits; the other eight are other lanes' PRs (`88c9c703` `#976`, `d1a8e88f` `#970`, `983c9d1e` `#978`, `34f41373` `#977`, `6cb4d0ae` `#982`, `a19d79c5` `#975`, `7187b3fe` `#984`, and `984bd663` `#983`, merged after `#981`) and are **not described here**; their controllers' docs PRs record them *(docs-builder-verified with `git log`)*. Trunk when this PR was cut: `984bd663` (`#983`, B-18's ME-ENGINE-1 PR-2 follow-up, merged after `#981`; five product files, no `handoff/` file; not described here). Open PRs then: `#987`, `#985`, `#979`, `#972`, `#963`, `#960`; none touches `handoff/` *(docs-builder-verified with `gh pr view --json files`)*.
+
+★ **PROVENANCE.**
+- Controller C (also CI-1, the owner-appointed coordinator), wave CI1, lane CI-SPEED-1 follow-up. Owner mandate 2026-10-07: right after B-18's `#970`, the N/A extension for non-PR events + a pin + `schedule:` restored + one green hand-run quoted.
+- Sources (all `Desktop/diff/`): `WAVE_STATE_CI1.md` (checkpoints 20:12Z, 22:53Z; D6, D7), `COORDINATOR_LOG.md`, `ci1/report-fu-ci1-nightly-restore-2026-10-07.md`, `CI1_MERGE_QUEUE_STEPS.md`, and `#981`'s description.
+- Tags as in the block below: *(builder-reported)*, *(controller-verified)*, *(docs-builder-verified)* = re-checked by this docs builder with `gh` / `git`.
+- **Docs-builder-verified:** `gh pr view 981` → merged 2026-10-06T22:48:46Z, merge commit `63e94564bb02db5f9155d29e283e3f218ff8ee13`, head `b2dce25f`. Commits on the branch: `785b7c7c` (round 1), `8c1f20f6` (round 2, D6 + D7), then four merges of trunk (`b1b04f2d`, `ac30136a`, `48d13c09`, `b2dce25f`).
+
+### What changed (trunk `63e94564` = `#981`; no product code)
+- **Three gates, one rule.** `check_improve_convergence_acceptance.mjs` (l.1166), `check_improve_overlay_additive_acceptance.mjs` (l.742) and `quick_practice_overlay_additive_acceptance.mjs` (l.840) now read `['push', 'schedule', 'workflow_dispatch', 'merge_group'].includes(EVENT)` → **N/A that names the event, not a pass** (log: `--  N/A: <event> run — no PR to scope a forbidden-path diff to.`). **`pull_request` is unchanged: a missing or unresolvable base ref still HARD-FAILS.** Each gate gains 4 `FORBIDDEN-PIN` checks (pull_request never in the N/A set; the set covers all four events; the IN_CI hard-fail branch still follows it) *(docs-builder-verified on trunk; pins builder-reported, mutations M1–M8 each RED)*.
+- **`schedule:` restored:** `cron: '30 20 * * *'` (20:30 UTC = 02:00 IST) in `.github/workflows/quality-gate.yml`, beside `workflow_dispatch`. `nightly-full-clock` runs only on `schedule` / `workflow_dispatch`. **First scheduled run: 2026-10-07T20:30Z.** The "Open an issue" step runs only on `failure() && github.event_name == 'schedule'` *(docs-builder-verified on trunk)*.
+- ★ **A FAILING SCHEDULED `nightly-full-clock` OPENS A GITHUB ISSUE — TRIAGE IT LIKE A RED TRUNK RUN.**
+- **`merge_group:` triggers** on both required workflows (`quality-gate.yml`, `lane-overlap.yml`). A merge_group run of quality-gate takes the FULL bar (the classifier fails closed); `lane-overlap` passes through on merge_group only (`LANE_OVERLAP: N/A on merge_group …`), its real steps are gated on `pull_request`, and its job id is unchanged. **Inert until the owner enables a queue; never tested live** (`[FU-CI1-MERGE-QUEUE-UNAVAILABLE]`).
+- **Files-on-disk assertion in the nightly** (D7): step "Every test file on disk ran (files = files on disk)" fails unless the nightly's vitest JSON shows `files === countTestFilesOnDisk()` with 0 failed and 0 skipped; it reuses `ci_aggregate.mjs`'s counter. `ci_speed_acceptance.mjs` 31 → 36 checks (w7–w11) *(builder-reported; step docs-builder-verified on trunk)*.
+
+### The numbers (real runs, docs-builder-verified from the logs)
+| | run | head | event | result |
+|---|---|---|---|---|
+| Round-1 hand-run (before D6) | `37536071043` | `785b7c7c` | workflow_dispatch | **failure** — the convergence N/A worked; the C&I overlay gate hard-failed the same way (→ D6) |
+| Hand-run of the nightly | **`37539342806`** | `b1b04f2d` | workflow_dispatch | **success**, 22:14:50Z → 22:23:33Z. Both `nightly-full-clock` jobs (2030, ist-midnight): `NIGHTLY_VITEST_TOTAL: files=330 (on disk 330) tests=4755 passed=4755 failed=0 skipped=0 todo=0` · `NIGHTLY_VITEST_COVERAGE: PASS`; the three gates print `N/A: workflow_dispatch run` |
+| PR CI | `37541178350` | `48d13c09` | pull_request | success, 9.0 min; `VITEST_TOTAL: shards=4/4 files=330 (on disk 330) tests=4755 passed=4755 failed=0 skipped=0 todo=0` · `CI_AGGREGATE_VERDICT: PASS` |
+| PR CI, merged head | `37542218299` | `b2dce25f` | pull_request | success, 22:41:56Z → 22:48:14Z (6.3 min); `VITEST_TOTAL: shards=4/4 files=331 (on disk 331) tests=4760 passed=4760 failed=0 skipped=0 todo=0` · `CI_AGGREGATE_VERDICT: PASS` (+1 file / +5 tests = `#984`'s batch test, merged in) |
+| Trunk push | `37542924022` | `63e94564` | push | success, 22:48:48Z → 22:54:53Z (6.1 min); `VITEST_TOTAL … files=331 (on disk 331) tests=4760 …` · the gates print `N/A: push run` · `CI_AGGREGATE_PATH: full bar` · `CI_AGGREGATE_VERDICT: PASS` |
+
+### After the merge
+- Independent verifier sub-agent: PASS (before merge). Merged by the controller's guarded loop on its first attempt (`--squash --match-head-commit b2dce25f`; lane files byte-identical to the verifier-passed head) *(controller-verified)*.
+- Post-merge *(controller-verified)*: version.json 5/5 cold reads = `63e94564`; real-browser smoke of Home / Practice Hub / Check & Improve PASS; Vercel deployed (status on `63e94564`: `Vercel success "Deployment has completed"`, docs-builder-verified). Board claims on the 6 CI files RELEASED 22:50Z.
+- `Desktop/diff/CI1_MERGE_QUEUE_STEPS.md` §0 updated: triggers on trunk.
+
+### The docs fast path — first live proof (from `#974`, recorded here as `#974`'s NEXT asked)
+`#974` (`668345f5`, merged 2026-10-06T20:04:39Z): PR run `37522969752` `CI_AGGREGATE_PATH: docs-only fast path` · `CI_AGGREGATE_VERDICT: PASS` (19:58:59Z → 20:00:38Z); Vercel on `668345f5`: **success "Canceled by Ignored Build Step"**; search-ping run `37523698931` success in 64 s with `SEARCH_PING_PATH: skip (deploy-inert, no wait, no ping)` *(docs-builder-verified)*.
+
+### Open (this lane)
+`[FU-CI1-MERGE-QUEUE-UNAVAILABLE]` (owner; triggers now on trunk) · `[FU-CI1-RAILWAY-WATCHPATTERNS]` (owner) · `[FU-CI1-RECORDER-INTERMITTENT]` (new) · `[FU-CI-FLAKE-CI-PDF-6MB]` (new; 3 sightings — see its body) · `[FU-CI1-SEARCHPING-DOCS-DURING-ROLLOUT]` (low). `[FU-CI1-NIGHTLY-RESTORE]` CLOSED. Bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## [CURRENT · CI] WAVE CI1 — CI-SPEED-1 — **THE REQUIRED QUALITY GATE IS NOW PARALLEL JOBS: ABOUT 23 MIN (MEDIAN OF 12 RUNS) → ABOUT 5 MIN, WITH THE SAME TESTS AND NOTHING SKIPPED (320 FILES / 4,709 TESTS = THE OLD SINGLE RUN'S 4,705 + 4 NEW GUARD TESTS, RUNS `37517716467` / `37517913640`); DOCS-ONLY PRs (WAVE-CLOSERS INCLUDED) TAKE THE FAST PATH; VERCEL SKIPS PRODUCTION BUILDS FOR DEPLOY-INERT DOCS MERGES AND SEARCH-PING EXITS GREEN ON THAT SKIP; THE NIGHTLY FULL-CLOCK RUN IS MANUAL-ONLY UNTIL `[FU-CI1-NIGHTLY-RESTORE]`** — `#969` MERGED — trunk `c6068552` — CI / PLATFORM ONLY, NO PRODUCT CODE
 *(Supersedes the WAVE B-17 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 
