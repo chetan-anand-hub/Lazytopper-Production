@@ -1,3 +1,24 @@
+## 2026-10-06 — WAVE A-16 CLOSE (SYLLABUS, CONTROLLER A) — **EVERY NUMBER, FILTER AND THE TUTOR FOLLOW THE 2026-27 SYLLABUS: CHIPS SUM 80 FROM CBSE UNIT MARKS, FULL MOCK BY UNIT MARKS, TUTOR OUT / FORMATIVE GATE, PREDICTIONS DROP OUT CONCEPTS, HUMAN EYE IN WEAK AREAS (LIVE), ATMOSPHERIC REFRACTION IN** — `#953` MERGED (`#950` recorded by `#952`) — trunk `decac82a` — LIVE
+
+★ **PROVENANCE.** Controller A, wave A-16, lane SYLLABUS-FIX-CODE (spec `99E062719434`). PR-2 builder `claude-opus-5-5` (high for the Full Mock and the tutor, medium otherwise); a read-only P7 scout; a read-only OR-LIVE agent (one throwaway account, deleted with proof). PR-1 `#950` was recorded by B-16's docs `#952` and is not re-described. Written by a separate docs builder in `C:/Projects/LT-worktrees/a16-docs` from `WAVE_STATE_A16.md` and the lane / live reports.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| PR-1 | `#950` `096f921a` | recorded by `#952` | — |
+| PR-2 | `#953` `decac82a` | chips from unit marks (sum 80); Full Mock by unit marks; PDF-typology copy; generated tutor OUT / FORMATIVE / LIMIT block + key check; prediction + Exam Trends drop OUT, `formativeOnlyTopics` read; atmospheric refraction IN; CI `37424795414` `Tests 4527 passed (4527)` | "No topics are deleted for 2026-27"; `formativeOnlyTopics` had no reader; chips summed 82 / 79 |
+
+**Timeline (UTC, 6 Oct).**
+- Wave start at trunk `baa034f1`; no open PRs. Two PRs planned; P7 scout dispatched in parallel (P1–P6 unmoved, 24 apply, 1 fixed by `#948`).
+- **04:40:22Z `#950` merged** (PR-1; recorded by `#952`). B's `#949` (`8c3f3c28`) handled the 4 catalogue rows; PR-2's brief updated. B's `#951` (`9004f753`) switched to the module.
+- PR-2 built on `096f921a`, rebased on `9004f753`; owner ruling (atmospheric refraction IN) encoded; `ExamTrendsRanked.test.tsx` order re-freeze ratified. First CI: the capture check failed on a stale prerender → the PR's own artifact (run `37422240042`, 58 files) applied, not a fix round.
+- **06:15:48Z B-16 docs `#952` merged** → `gh pr update-branch` → head `18ac5dc1`, lane code byte-identical.
+- **07:01:21Z `#953` merged** (CI `37424795414` green). Builder rollout 5 / 5 at 07:02Z. B-17 sent the SHA + the tutor generator path.
+- **07:18:31Z OR-LIVE gate held; PASS 13 / 13** (chips, Full Mock per-unit marks, tutor decline + school-only, Human Eye weak area, tutor picker 13 + 13, standing pages, health). No rollback.
+
+**Owner-owed:** the list in `NEXT_ACTION.md` (7 AMBIGUOUS items; delete-account confirmation FU; Google sign-in; next syllabus lanes; the carried B-16 / A-15 items incl. Rolling Releases).
+
 ## 2026-10-06 — WAVE B-16 (SYLLABUS, CONTROLLER B) + CONTROLLER A-16's `#950` — **STUDENTS ARE SERVED ONLY 2026-27 SYLLABUS CONTENT: OUT QUESTIONS WITHHELD / REPAIRED / RELABELLED / REMOVED (PR-1); OUT TEACHING REMOVED AND THE MISSING IN TOPICS WRITTEN (PR-2); THE GUARD CHECKS WHAT IS SERVED (PR-3); ONE 2026-27 REFERENCE MODULE, WEAK AREAS OVER 26 CHAPTERS (A-16)** — `#948` + `#949` + `#951` (B), `#950` (A-16) MERGED — trunk `9004f753` — LIVE
 
 ★ **PROVENANCE.** Controller B, wave B-16, lane SYLLABUS-FIX-CONTENT (spec `B68BC70AD1EE`, OWNER-AUTHORED; scout inputs not owner-authored). Builders: PR-1 / PR-3 `claude-opus-5-5` medium; PR-2 authored by `claude-fable-5-1` high, integrated by Opus medium; a Fable reviewer for PR-1's repairs; read-only live agents after each merge. Controller A-16's `#950` from A-16's close-out (A-AUTHORED); A-16's PR-2 and its OR-LIVE are A-16's docs PR. Written by a separate docs builder in `C:/Projects/LT-worktrees/b16-docs` from `WAVE_STATE_B16.md`, `OWNER_ASK_B16_SYLLABUS-FIX-CONTENT.md` and the lane / live reports.

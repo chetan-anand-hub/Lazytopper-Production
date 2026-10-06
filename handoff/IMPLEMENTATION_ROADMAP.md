@@ -1,5 +1,20 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-06 — SYLLABUS: **WAVE A-16 CLOSE — SYLLABUS-FIX-CODE PR-2** (`#953`; PR-1 `#950` recorded under B-16 below) — trunk `decac82a` — ✅ COMPLETE (OR-LIVE PASS 13 / 13, no rollback; owner-owed: 7 AMBIGUOUS items, the delete-account confirmation FU, Google sign-in; B-16's and A-15's carried items stand)
+
+- ✅ **Exam Trends chips derived from CBSE unit marks, sum 80 per subject** (`#953`, F2, LIVE).
+- ✅ **Full Mock allocates by CBSE unit marks** (`#953`, F3, LIVE): Maths 6 / 20 / 6 / 15 / 12 / 10 / 11, Science 25 / 25 / 12 / 13 / 5 measured on drawn papers.
+- ✅ **Competency copy cites the PDF typology; `/cbse/class-10` sources p3** (`#953`, F4, LIVE).
+- ✅ **Tutor declines OUT, names formative-only, rejects non-board keys** (`#953`, F5, LIVE) — server-side key check is `[FU-A16-TUTOR-SERVER-KEYCHECK]`.
+- ✅ **Predictions + Exam Trends drop OUT concepts; `formativeOnlyTopics` read** (`#953`, F6).
+- ✅ **Weak areas show Human Eye** (`#950` F7, live-verified in this wave's OR-LIVE).
+- ✅ **Atmospheric refraction IN** (owner ruling, encoded in `#953`).
+- ✅ **Decisions + FUs recorded** (`DECISION_LOG.md`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, wave A-16).
+- ✅ **Docs:** this handoff (after B-16's `#952`, OR-16).
+- ⬜ **Controller A-16:** tell B-17 this docs PR merged; one final audit request; the end-of-lane owner message; STOP.
+- ⬜ **Next lanes (candidates):** `[FU-A16-WORKSHEET-WEIGHTS]`, `[FU-A16-EXAMSIM-UNIT-MARKS]`, `[FU-A16-CANONICAL-25]`, `[FU-A16-TUTOR-SERVER-KEYCHECK]`, `[FU-A16-EXAMTRENDS-CHIP-LABEL]`.
+- ⬜ **Owner:** the owner-owed list in `NEXT_ACTION.md`.
+
 ## 2026-10-06 — SYLLABUS: **WAVE B-16 — SYLLABUS-FIX-CONTENT PR-1 + PR-2 + PR-3** (`#948` + `#949` + `#951`) **and Controller A-16's SYLLABUS-FIX-CODE PR-1** (`#950`) — trunk `9004f753` — ✅ COMPLETE for B (OR-LIVE AFTER-PR1 PASS 9 / 9, AFTER-PR2 PASS 7 / 7, AFTER-PR3 PASS 4 / 4, no rollback; owner-owed: IN-thin extraction, figures FU, D32 override window, trig mind-map root title, Full-subject quick-practice check, A-16's 7 AMBIGUOUS items, Google sign-in, Rolling Releases back on); A-16's PR-2 in A-16's docs
 
 - ✅ **Out-of-syllabus questions no longer served** (`#948`, LIVE): 391 withheld, 18 repaired, 77 relabelled, 70 HPQ / predicted / promptD removed; served bank 8,515 → 8,124; 0 of 281 live-drawn ids in the withheld set.

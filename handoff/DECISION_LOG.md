@@ -1,3 +1,28 @@
+## 2026-10-06 — WAVE A-16 CLOSE (SYLLABUS, CONTROLLER A): SYLLABUS-FIX-CODE PR-2 — PR `#953` `decac82a` merged (PR-1 `#950` `096f921a` recorded in the B-16 section below) — trunk `decac82a` — LIVE
+
+> ⚠ **SCOPE.** Decisions are Controller A-16's, from `Desktop/diff/WAVE_STATE_A16.md` (DECISIONS). The PR-1-era decisions (two PRs, F7 pulled into PR-1 on the G1 failure, the 8 AMBIGUOUS items) were recorded A-AUTHORED in the B-16 section below and are only referenced here.
+
+### OWNER rulings and grants (A-16)
+- **Atmospheric refraction is IN** — verbatim, from the owner's PR-2 message to Controller B (`Desktop/diff/OWNER_ASK_B16_SYLLABUS-FIX-CONTENT.md:34`, controller-verified, re-checked by this docs builder): *"atmospheric refraction (twinkling, advance sunrise) kept, since it isn't the excluded "colour of the Sun at sunrise/sunset"."* **Encoded by `#953`** in the typed reference only: human-eye atmospheric refraction AMBIGUOUS → IN with a ruling note and a `resolved` entry; "Colour of the Sun at sunrise and sunset" stays OUT; `SYLLABUS_2026_27_SOURCE` is untouched; the tutor block regenerated; pinned in `syllabus2026-27.test.ts` and the tutor test. 7 AMBIGUOUS items remain (`[FU-B16-SYLLABUS-AMBIGUOUS-7]`).
+- **Owner grant:** `src/data/class10MathTopicTrends.ts` — concept lists + weights only (otherwise globally forbidden under `src/data/`). Used by F6 (area-ratio and Pythagoras concepts removed; "Combination/Transformation" → "Combination of Solids").
+- **Owner standing word, carried:** do NOT touch B-16's tutor catalogue rows (`conceptVisualCatalogue.data.ts` :97 :108 :370 :517) — B's `#949` handled them.
+
+### Controller decisions (A-16), with the reason
+- **Two PRs; the reference merged first** (spec allows one or two). **Why:** B's filter and guard depended on the module (recorded in full in the B-16 section, `#950`).
+- **A read-only P7 scout in parallel with PR-1.** **Why:** the scout's Lane A list was written at `834fea7c`; confirm it still matched trunk before PR-2's brief cited it. Result: P1–P6 unmoved, 24 apply, 1 fixed by `#948`.
+- **Out-of-§1 P7 items → FU, not edits:** Science trends, `worksheetModel`, `unlimitedPaperEngine`, `predictionCore` + its fixture, `cbse10Canonical`, `server/routes/tutor.cjs` are not in spec §1 → follow-ups (`[FU-A16-WORKSHEET-WEIGHTS]`, `[FU-A16-EXAMSIM-UNIT-MARKS]`, `[FU-A16-CANONICAL-25]`, `[FU-A16-TUTOR-SERVER-KEYCHECK]`). `scripts/src/deletionGuard.test.ts` is IN scope as one of "their tests". **Why:** §1 is the allowlist; the spec's default is stop-the-item + FU.
+- **★ RATIFIED — `src/pages/ExamTrendsRanked.test.tsx`.** PR-2 re-froze the Maths card ORDER (membership unchanged; Science unchanged). **Why:** it is a test of `topics.ts` output (it imports `allDesktopTopics` and sorts by `topic.weight`), so it is one of "their tests" under §1; F2 cannot land without the weight change. The builder flagged it as a judgement call; the controller ratified it.
+- **`FU-A16-PREDICTIONCORE-DELETION` NOT filed.** **Why:** F6 needed neither `predictionCore` nor the order-parity fixture — the formative exclusion sits inside `isScienceDeletedFor2026_27`, so the memo-key mirror stays correct; the fixture is unchanged and green.
+- **The tutor's syllabus lists = an embedded GENERATED block in `tutorSystemPrompt.cjs`,** with the generator and drift test in `src/pages/tutor/tutorSystemPrompt.syllabus.test.ts` (`LT_WRITE_TUTOR_SYLLABUS=1`). **Why:** the server deploys `server/` alone, so a runtime read of the TS module could fail; embedding adds no file outside the allowlist; the drift test (deep-equal + byte-equal) stops a hand edit.
+- **Full Mock thin-pool fallback kept honest, not percent-based:** if no unit split fits the pool, draw the uncapped split, top up from the real pool, and REPORT `unitMarksExact=false` with "N of M marks". **Why:** no fake allocation; it fired 0 / 600 probe seeds *(builder-reported)*.
+- **B-16's catalogue rows left to B; `#949` (`8c3f3c28`) dropped / retargeted them; PR-2's brief updated.** **Why:** owner word. SUBAGENT-REPORTED at wave start (controller-UNVERIFIED then): the rows were still on trunk at `baa034f1`.
+- **The OR-16 handoff lock.** A-16's docs PR waited for B-16's `#952` to MERGE, then goes on top; B-17 (lane QUICK-FIXES-1) was given the `#953` SHA and the tutor generator path and told before this docs PR opened. **Why:** one handoff PR at a time.
+- **The F7 live check folded into the PR-2 OR-LIVE run** (throwaway student, Human Eye mistakes → Human Eye weak area). **Why:** one account, one run. Result: PASS.
+
+### Scope discovered (§10, `SURFACE_TRACKER.md` §2a)
+- **Exam Trends (Scope = Settling):** the chips' numbers come from `topics.ts` (in §1) but the chip LABEL renders in `ExamTrendsRanked.tsx` (outside §1, still "~") and its frozen-order test sorts by `topic.weight` — a weight change is an Exam Trends test change. Neither was listed in the spec.
+- **Worksheet (Scope = Settling):** the worksheet allocation lives in `worksheetModel.weightFor` (outside §1); `WorksheetGenerator` has no hook, so PR-2 could change only the label.
+
 ## 2026-10-06 — WAVE B-16 (SYLLABUS, CONTROLLER B): SYLLABUS-FIX-CONTENT — PRs `#948` `bb57057f`, `#949` `8c3f3c28`, `#951` `9004f753` merged — and Controller A-16's SYLLABUS-FIX-CODE PR-1 `#950` `096f921a` — trunk `9004f753` — LIVE
 
 > ⚠ **NUMBERING.** This section uses Controller B's wave B-16 decision numbers (`D0`…`D35`) as recorded in `Desktop/diff/WAVE_STATE_B16.md`. The owner's PR-2 message uses its own labels D1–D5 (the PR-2 author's questions); they are quoted as "owner D1" etc. and are not controller decisions.

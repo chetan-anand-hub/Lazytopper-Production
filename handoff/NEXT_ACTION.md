@@ -1,3 +1,25 @@
+## ★★★ 2026-10-06 — WAVE A-16 CLOSE (SYLLABUS, CONTROLLER A) — SYLLABUS-FIX-CODE COMPLETE: PR-2 `#953` LIVE, OR-LIVE PASS 13 / 13 (PR-1 `#950` recorded by B-16's `#952`) (docs) — THIS BLOCK SUPERSEDES THE WAVE B-16 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-16, A-15 CLOSE, B-15, B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `decac82a016d5b523378819c0741b0ad51b32627`** when this docs PR was cut (`git ls-remote origin base/approved-thru-437`):
+- `decac82a` = `#953` (A-16 SYLLABUS-FIX-CODE PR-2: chips sum 80 from CBSE unit marks; Full Mock by unit marks; tutor OUT / FORMATIVE / LIMIT gate; predictions + Exam Trends drop OUT concepts; atmospheric refraction IN) — merged 2026-10-06T07:01:21Z.
+- `7d011734` = `#952` (docs: wave B-16 + A-16's `#950`) — merged 06:15:48Z.
+*(merge times from `gh pr view`, docs-builder-verified.)* Nothing else merged since `#952`: no B-17 PR, no other lane.
+
+No other PR was open when this docs PR was opened; this is the only docs PR (OR-16). **Trunk is live** (3 / 3 cold `/version.json` reads = `decac82a`, docs-builder-verified; OR-LIVE PASS 13 / 13, gate 07:18:31Z, agent-reported). The results and open rows are in `CURRENT_STATE.md`.
+
+### NEXT — CONTROLLER A-16 (after this docs PR merges)
+1. **Tell Controller B-17 (lane QUICK-FIXES-1) this docs PR is MERGED** — the OR-16 handoff lock passes to B-17, whose docs PR prepends on top of this one and demotes this `[CURRENT]`.
+2. **ONE final audit request** — `#953` with its merge SHA and CI run, the OR-LIVE result, every A-16 decision with its reason, the owner ruling.
+3. **The single end-of-lane owner message** carrying the owner-owed list below. Then **STOP**.
+
+### NEXT — OWNER
+1. **The 7 remaining AMBIGUOUS syllabus items** — √7-type surds, centroid, combinations of figures, the empirical median-mode-mean relation, rancidity, carboxylic-acid nomenclature, the p6 note "Electric Effects of Electric Current" (`[FU-B16-SYLLABUS-AMBIGUOUS-7]`). B-17 reports it is encoding your rulings on these *(B-17-reported, not verified here)*.
+2. **Delete-account confirmation** — after typing DELETE the page stayed on /me showing the trial and name; decide whether to schedule `[FU-A16-DELETE-ACCOUNT-NO-CONFIRM]`.
+3. **Google sign-in** — not attempted by any agent this wave.
+4. **Pick the next syllabus lanes** — `[FU-A16-WORKSHEET-WEIGHTS]`, `[FU-A16-EXAMSIM-UNIT-MARKS]`, `[FU-A16-CANONICAL-25]`, `[FU-A16-TUTOR-SERVER-KEYCHECK]`, `[FU-A16-EXAMTRENDS-CHIP-LABEL]`; Lane B content: `[FU-A16-B-SAV-MELTING-ROWS]` (UNVERIFIED), `[FU-A16-BANK-PDF-JUNK-OPTIONS]`.
+5. **Carried from the B-16 block, restated:** the IN-thin extraction; the figures follow-up; the D32 override window; the trig mind-map root title; the Full-subject quick-practice check; the carried A-15 items — a signed-out free check by hand; delete Railway `GEMINI_TIMEOUT_MS` (safe); rotate the eval key; the D26 ECF rulings; `[FU-GRADER-2027-PRICE]` due 2026-12-15; `[FU-ADMIN-TELEMETRY-UI]`; **turn Vercel Rolling Releases back on — your call** (until then the rollout check stays cold `/version.json` reads with no `_vcrr`); read `grading.model_fallback` once.
+
 ## ★★★ 2026-10-06 — WAVE B-16 (SYLLABUS, CONTROLLER B) + CONTROLLER A-16's `#950` — SYLLABUS-FIX-CONTENT CLOSED: PR-1 `#948` + PR-2 `#949` + PR-3 `#951` LIVE; A-16's reference module `#950` LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE A-15 CLOSE BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-15 CLOSE, B-15, B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 
