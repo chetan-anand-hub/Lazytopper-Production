@@ -1,3 +1,31 @@
+## ★★★ 2026-10-06 — WAVE B-16 (SYLLABUS, CONTROLLER B) + CONTROLLER A-16's `#950` — SYLLABUS-FIX-CONTENT CLOSED: PR-1 `#948` + PR-2 `#949` + PR-3 `#951` LIVE; A-16's reference module `#950` LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE A-15 CLOSE BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-15 CLOSE, B-15, B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `9004f75383e387a3f4a3559a5e2a00b119ed451e`** when this docs PR was cut (`git ls-remote origin base/approved-thru-437`):
+- `9004f753` = `#951` (SYLLABUS-FIX-CONTENT PR-3: the guard checks the served set against the module; scout fixture deleted) — merged 2026-10-06T05:34:03Z.
+- `096f921a` = `#950` (Controller A-16, SYLLABUS-FIX-CODE PR-1: one 2026-27 syllabus reference module; weak areas over 26 board chapters) — merged 04:40:22Z.
+- `8c3f3c28` = `#949` (PR-2: OUT teaching removed, missing IN topics written, trig retitle, 4 catalogue labels) — merged 03:49:23Z.
+- `baa034f1` = `#947` (docs: wave A-15 close) — merged 02:40:45Z.
+- `bb57057f` = `#948` (PR-1: 391 withheld, 18 repaired, 77 relabelled, 70 removed; notes tab filtered) — merged 02:06:28Z.
+*(merge times from `gh pr view`, docs-builder-verified)*
+
+No other PR was open when this docs PR was opened; this is the only docs PR (OR-16). **Trunk is live** (5 / 5 cold `/version.json` reads = `9004f753` at 05:41Z, docs-builder-verified; OR-LIVE AFTER-PR3 PASS 4 / 4 at 05:36:20Z, agent-reported). The results and open rows are in `CURRENT_STATE.md`.
+
+### NEXT — CONTROLLER B (after this docs PR merges)
+1. **Tell Controller A-16 (session `lazytopper-production-74`) this docs PR is MERGED** — the OR-16 handoff lock passes to A-16, whose docs PR (its PR-2 + OR-LIVE, incl. the Human Eye weak-area live check) prepends on top of this one and demotes this `[CURRENT]`.
+2. **ONE final audit request** — `Desktop/diff/audit-request-syllabus-fix-content-final-2026-10-06.md`: each PR with its merge SHA and CI run, the three OR-LIVE results, every controller decision D0–D35 with its reason, the three owner asks.
+3. **The single end-of-lane owner message**, which must carry the owner-owed list below (incl. the D32 override window). Then **STOP**.
+
+### NEXT — OWNER
+1. **The IN-thin extraction (5 rows)** — `Desktop/diff/b16-in-thin-extraction-list.md`, real PYQ / SQP / NCERT / exemplar / CBE sources only (`[FU-B16-IN-THIN-EXTRACTION]`).
+2. **The figures follow-up — approved by you** — NCERT Fig 9.2/9.3, 12.15, 10.5 (`[FU-B16-NOTES-FIGURES]`); pick when it runs.
+3. **D32 override window** — two Pythagoras tool-use rows kept IN by the controller under your ruling 1: coordinate-geometry notes example 1 ("by the converse of the Pythagoras theorem ∠P = 90°") and promptD M-TRI-6 ("…find AC and verify Pythagoras theorem"). Say if either should go.
+4. **The trig mind-map root title** — still "Introduction to Trigonometry" (not in your retitle) (`[FU-B16-TRIG-MINDMAP-ROOT-TITLE]`).
+5. **Verify the Full-subject quick-practice one-chapter finding** — "Start quick practice" from a hub's "Full subject" drew only Real Numbers; UNVERIFIED whether it pre-existed (`[FU-B16-FULLSUBJECT-QP-ONE-CHAPTER]`).
+6. **A-16's 7 remaining AMBIGUOUS syllabus items** — √7-type surds, centroid, combinations of figures, the empirical median-mode-mean relation, rancidity, carboxylic-acid nomenclature, the p6 note "Electric Effects of Electric Current" (atmospheric refraction: resolved IN by you) (`[FU-B16-SYLLABUS-AMBIGUOUS-7]`).
+7. **Google sign-in** — not attempted by any agent this wave.
+8. **Carried from the A-15 close block, restated:** a signed-out free check by hand; delete Railway `GEMINI_TIMEOUT_MS` (safe); rotate the eval key; confirm or overrule the D26 ECF rulings; `[FU-GRADER-2027-PRICE]` due 2026-12-15; `[FU-ADMIN-TELEMETRY-UI]`; **turn Vercel Rolling Releases back on — your call** (until you say so, the rollout check stays cold `/version.json` reads with no `_vcrr`); read `grading.model_fallback` once; pick the next lanes (background grading jobs `[FU-GRADING-JOBS]`; `[FU-B15-FREECHECK-V2]`).
+
 ## ★★★ 2026-10-06 — WAVE A-15 CLOSE (GRADER, CONTROLLER A) — GRADER-CORE-1 COMPLETE: PR-3 `#942` + PR-2b `#944` LIVE; HOTFIX-2 `#945` ROLLED BACK by `#946` (docs) — THIS BLOCK SUPERSEDES THE WAVE B-15 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-15, B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except the two B-15 items this block names as resolved.)*
 

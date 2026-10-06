@@ -1,3 +1,29 @@
+## 2026-10-06 — WAVE B-16 (SYLLABUS, CONTROLLER B) + CONTROLLER A-16's `#950` — **STUDENTS ARE SERVED ONLY 2026-27 SYLLABUS CONTENT: OUT QUESTIONS WITHHELD / REPAIRED / RELABELLED / REMOVED (PR-1); OUT TEACHING REMOVED AND THE MISSING IN TOPICS WRITTEN (PR-2); THE GUARD CHECKS WHAT IS SERVED (PR-3); ONE 2026-27 REFERENCE MODULE, WEAK AREAS OVER 26 CHAPTERS (A-16)** — `#948` + `#949` + `#951` (B), `#950` (A-16) MERGED — trunk `9004f753` — LIVE
+
+★ **PROVENANCE.** Controller B, wave B-16, lane SYLLABUS-FIX-CONTENT (spec `B68BC70AD1EE`, OWNER-AUTHORED; scout inputs not owner-authored). Builders: PR-1 / PR-3 `claude-opus-5-5` medium; PR-2 authored by `claude-fable-5-1` high, integrated by Opus medium; a Fable reviewer for PR-1's repairs; read-only live agents after each merge. Controller A-16's `#950` from A-16's close-out (A-AUTHORED); A-16's PR-2 and its OR-LIVE are A-16's docs PR. Written by a separate docs builder in `C:/Projects/LT-worktrees/b16-docs` from `WAVE_STATE_B16.md`, `OWNER_ASK_B16_SYLLABUS-FIX-CONTENT.md` and the lane / live reports.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| PR-1 | `#948` `bb57057f` | 391 withheld, 18 repaired, 77 relabelled, 70 removed (HPQ 11 / predicted 30 / promptD 29); served bank 8,515 → 8,124; notes tab filtered; pins re-pinned with owner words; CI `37400331880` `Tests 4438 passed (4438)` | "22 repairable area-ratio rows" (11 were); "the notes filter ignores the withheld list" (it honoured it) |
+| PR-2 | `#949` `8c3f3c28` | 22 OUT teaching passages removed; 28 notes sections + 20 Topic Hub rows authored; trig retitle; 4 catalogue labels; CI `37408869012` `Tests 4453 passed (4453)` | "PR-2 is self-contained in topicHubContent.ts" (a CI gate couples hub names to the tutor catalogue) |
+| A-16 SYLLABUS-FIX-CODE PR-1 | `#950` `096f921a` | `src/config/syllabus2026-27.ts`; weak areas read 26 board chapters; CI `37412831200` (304 files / 4474 tests) *(A-16-reported)* | "land the pure data module alone first" (noOrphans G1, CI only); Human Eye was never evaluated *(A-16's wording)* |
+| PR-3 | `#951` `9004f753` | guard Mode 3 over 7 served surfaces, 0 hits; controls fire; fixture deleted; CI `37417173155` `Tests 4474 passed (4474)`, root `# pass 362 # fail 0` | "the existing guard protects the syllabus" (exact strings only) |
+
+**Timeline (UTC, 6 Oct).**
+- Wave start `76447a63`; no open PRs. D1: PR-2 authored in parallel with PR-1, local only until PR-1 merged (lane-overlap counts drafts; both regenerate `prerendered/**`).
+- PR-1 checkpoint: 11 vitest count / set pins red → owner (D10); Fable review: 17/17 repairs accepted, 0/25 false positives in a withheld spot-check.
+- **D14 the single owner ask** (PR-2 text + catalogue choice + PR-1 pins / figures / baseline / stem + SAV-M10 + the Pythagoras label) → all four answered "Recommended"; then the owner's PR-2 message (D1 retitle, D5 Light, D3 owner_verified, D4 figures FU).
+- **02:06:28Z `#948` merged.** 02:40:45Z A-15's docs `#947` merged (lock free). 02:58:36Z OR-LIVE AFTER-PR1 PASS 9 / 9.
+- **2nd owner ask** — the retitle pushed the SEO description over the 155 cap (grant of `writeStaticHeads.ts:295` + pin). **3rd owner ask** — the owner's blurb added words; `staticHeads.guard.test.ts:464-468` allows only deletion → deletion-only blurb.
+- D25 disk 43 MB: the controller removed only its own merged worktrees; it also ran `git worktree prune` (repo-wide; failed on other lanes' metadata, changed nothing — do not repeat).
+- **03:49:23Z `#949` merged.** 04:00:31Z OR-LIVE AFTER-PR2 PASS 7 / 7.
+- **04:40:22Z A-16's `#950` merged** (red on first CI — noOrphans G1 — fixed by wiring F7). D31: PR-3 dispatched on a junctioned read-only `node_modules` (679 MB free).
+- **05:34:03Z `#951` merged.** 05:36:20Z OR-LIVE AFTER-PR3 PASS 4 / 4. No rollbacks this wave.
+
+**Owner-owed:** the list in `NEXT_ACTION.md` (IN-thin extraction; figures FU; the D32 override window; trig mind-map root title; the Full-subject quick-practice check; A-16's 7 AMBIGUOUS items; Google sign-in; the carried A-15 items incl. Rolling Releases).
+
 ## 2026-10-06 — WAVE A-15 CLOSE (GRADER, CONTROLLER A) — **GRADER-CORE-1 COMPLETE: CHARGED ONLY FOR GRADED QUESTIONS, ONE 80 s DEADLINE, ≤ 10-QUESTION PAPERS IN ONE CALL AND LARGER ONES CHUNKED, DETECTION KEEPS MINUS SIGNS, ABSENT = NOT GRADED (PR-3); TRUTHFUL COMMENTS, SIGN-SAFE QUOTES, NO ECF THROUGH FUDGED STEPS, SCHEME HALF-MARKS (PR-2b); HOTFIX-2 SHIPPED AND ROLLED BACK** — `#942` + `#944` MERGED, `#945` REVERTED by `#946` — trunk `e2c5bb46` — LIVE
 
 ★ **PROVENANCE.** Controller A, wave A-15, lane GRADER-CORE-1 (spec `D5F92ED16284`). Builders `claude-opus-5-5`, one worktree per PR; read-only live agents after each merge (throwaway accounts erased; the owner's account for the owner papers, 3 / 3 checks used). Controller B's `#943` recorded A's `#936` / `#937` / `#941` first (OR-16); this entry covers what landed after it. Written by a separate docs builder in `C:/Projects/LT-worktrees/a15-docs` from `WAVE_STATE_A15.md` and the lane / live reports.
