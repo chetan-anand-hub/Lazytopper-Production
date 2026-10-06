@@ -393,8 +393,8 @@ describe("surface reachability — positive controls (synthetic, the predicates 
 // pinned in src/data/ltGenerated.guard.test.ts, which preloads the bank chapters.
 
 const GEN: CanonicalQuestion[] = canonicalQuestionBank.filter((q) => q.origin === "lt-generated");
-/** FLOOR — 50 at GEN-THIN-1 PR-1 (5 thin concepts × 10). A content lane only raises it. */
-const GEN_FLOOR = 50;
+/** FLOOR — 50 at GEN-THIN-1 PR-1 (5 thin concepts × 10) + 94 at PR-2 (CBQs). A content lane only raises it. */
+const GEN_FLOOR = 144;
 const asPQ = (q: CanonicalQuestion) => q as unknown as PracticeQuestion;
 const isCbqShape = (q: CanonicalQuestion) => q.section === "E" && q.marks === 4 && q.format === "Case-Based";
 

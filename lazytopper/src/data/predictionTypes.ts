@@ -117,6 +117,14 @@ export interface CanonicalQuestion {
   /** For an "lt-generated" row: the real question it was modelled on ("<paper> Q<n>"). */
   modelledOn?: string;
   /**
+   * GEN-THIN-1 PR-2 (owner, 2026-10-06): a RELIABLE competency flag, set deliberately and
+   * ONLY on LazyTopper-generated competency items of every mark value whose answer and step
+   * marks an independent solver reproduced. The bank's legacy `isCompetencyBased` is NOT
+   * reliable (every chapter reads >= 72) and must be re-validated first (BANK-FIX-1).
+   * Read by no surface today — FU-CBQ-CHOOSER-ALL-MARKS proposes the chooser read it.
+   */
+  competencyVerified?: true;
+  /**
    * Source override (BANK-FIX-1, owner ruling 2, 2026-10-06). Optional, additive.
    *   "others" — the row's content was corrected by LazyTopper, or its claimed
    *              source (PYQ / board paper / NCERT / exemplar) could not be
