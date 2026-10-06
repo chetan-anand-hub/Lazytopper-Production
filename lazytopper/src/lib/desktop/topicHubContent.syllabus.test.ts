@@ -135,3 +135,48 @@ describe("T3 — the missing 2026-27 IN topics are written", () => {
     expect(third.steps.some((s) => /Theorem 10\.1/.test(s.claim))).toBe(true);
   });
 });
+
+// ── T4 (owner rulings on PR-2) ───────────────────────────────────────────
+import { conceptFigureCatalogue } from "../../pages/tutor/conceptVisualCatalogue.data";
+
+describe("T4 — owner rulings: catalogue carries no OUT concept; applications row sits under Light", () => {
+  const OUT_LABEL = new RegExp(
+    [AREA_RATIO.source, PYTHAGORAS_THEOREM.source, AREA_OF_TRIANGLE.source, SUN_REDDENING.source].join("|"),
+    "i",
+  );
+
+  it("CONTROL: the combined matcher fires on each label the catalogue used to carry", () => {
+    for (const l of [
+      "Areas of similar triangles ∝ (sides)²",
+      "Pythagoras theorem (a² + b² = c²)",
+      "Area of a triangle from coordinates",
+      "Scattering of light (Tyndall effect, blue sky, reddening of the sun)",
+    ]) expect(OUT_LABEL.test(l), l).toBe(true);
+  });
+
+  it("no tutor-catalogue row is labelled with an OUT concept", () => {
+    expect(conceptFigureCatalogue.length).toBeGreaterThan(0);
+    // Scoped to the chapters the OUT topics belong to: "area of triangle" inside a circle SEGMENT
+    // (areas-related-to-circles) is IN and must not trip the guard.
+    const SCOPE = new Set(["triangles", "coordinate-geometry", "human-eye-and-colourful-world"]);
+    const bad = conceptFigureCatalogue
+      .filter((r) => SCOPE.has(r.topicKey) && OUT_LABEL.test(r.conceptLabel))
+      .map((r) => r.conceptLabel);
+    expect(bad).toEqual([]);
+  });
+
+  it("'Applications of spherical mirrors and lenses' is a Light row, not a Human Eye row", () => {
+    expect(rowNames("light-reflection-and-refraction").some((n) => /^Applications of spherical mirrors and lenses/.test(n))).toBe(true);
+    expect(rowNames("human-eye-and-colourful-world").some((n) => /Applications of spherical mirrors/.test(n))).toBe(false);
+  });
+
+  it("the trig hub row keeps the trunk name and carries the LIMIT words in its description", () => {
+    const row = hub("trigonometry").boardEssentials.find((r) => r.name === "Heights & distances setup (angle of elevation / depression)");
+    expect(row).toBeDefined();
+    expect(row!.oneLineUse).toMatch(/only 30°, 45°, 60°; at most two right triangles/);
+  });
+
+  it("the coordinate-geometry examiner warning no longer mentions area", () => {
+    expect(hub("coordinate-geometry").examinerWarning).not.toMatch(/area|units²/i);
+  });
+});

@@ -248,7 +248,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Relationships between the ratios (cosec = 1/sin, sec = 1/cos, cot = 1/tan = cos/sin)", oneLineUse: "Swap a ratio for its reciprocal or quotient form before evaluating or simplifying.", marks: "1–2" },
       { name: "Ratios at standard angles (0°, 30°, 45°, 60°, 90°)", oneLineUse: "Plug straight into evaluation and 1-mark MCQs.", marks: "1–2" },
       { name: "Pythagorean identities (sin²θ+cos²θ=1, 1+tan²θ=sec²θ)", oneLineUse: "Replace one ratio with another to simplify or prove.", marks: "2–3" },
-      { name: "Heights & distances setup (angle of elevation / depression)", oneLineUse: "Translate the picture into a tan or sin equation in one step.", marks: "3–5" },
+      { name: "Heights & distances setup (angle of elevation / depression)", oneLineUse: "Translate the picture into a tan or sin equation in one step — only 30°, 45°, 60°; at most two right triangles.", marks: "3–5" },
     ],
     formulaUsePreview: {
       kind: "identity",
@@ -507,7 +507,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       },
     ],
     commonMistake: "Sign errors when subtracting coordinates — particularly when one coordinate is negative.",
-    examinerWarning: "Always state the unit (units²) for area and (units) for length — boards mark this explicitly.",
+    examinerWarning: "Always state the unit (units) for length — boards mark this explicitly.",
   },
 
   "surface-areas-and-volumes": {
@@ -547,6 +547,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Refraction of light and the laws of refraction (Snell's law: sin i / sin r = constant)", oneLineUse: "State the two laws and predict the bend — towards the normal into a denser medium, away from it into a rarer one.", marks: "2–3" },
       { name: "Refractive index n = c/v (absolute) and n₂₁ = v₁/v₂ (relative)", oneLineUse: "Compare optical densities and compute the speed of light in a medium.", marks: "1–3" },
       { name: "Power of a lens P = 1/f (dioptre); lenses in contact P = P₁ + P₂", oneLineUse: "Convert f in metres to dioptres with the right sign, and add powers for lenses in contact.", marks: "1–2" },
+      { name: "Applications of spherical mirrors and lenses (headlights, solar furnace — concave; rear-view mirror — convex; magnifier and spectacle lenses)", oneLineUse: "Name the mirror or lens used in a situation and give the one-line reason.", marks: "1–2" },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -1252,7 +1253,6 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Refraction through a prism and dispersion of white light (VIBGYOR spectrum)", oneLineUse: "Explain the spectrum and angle of deviation on a prism diagram.", marks: "2–3" },
       { name: "Atmospheric refraction (twinkling of stars, advance sunrise, delayed sunset)", oneLineUse: "Give the refraction-based cause for everyday sky phenomena.", marks: "2–3" },
       { name: "Scattering of light (Tyndall effect, blue sky, red danger signals)", oneLineUse: "Use wavelength-dependent scattering to explain the sky's colour and why red signals carry far.", marks: "2–3" },
-      { name: "Applications of spherical mirrors and lenses (headlights, solar furnace — concave; rear-view mirror — convex; magnifier and spectacle lenses)", oneLineUse: "Name the mirror or lens used in a situation and give the one-line reason.", marks: "1–2" },
     ],
     formulaUsePreview: {
       kind: "formula",
