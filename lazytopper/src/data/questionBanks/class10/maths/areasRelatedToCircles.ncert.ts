@@ -118,9 +118,10 @@ export const ARC_NCERT: CanonicalQuestion[] = [
 
   { id: "ARC-N-NCERT-11-SA-005", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Real-World Sector", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A car has two wipers (non-overlapping). Each wiper has a blade of length 25 cm sweeping through an angle of 115°. Find the total area cleaned in one sweep.",
-    solutionSteps: ["Each wiper sweeps a sector of radius 25 cm and angle 115°.", "Area of one sector = (115/360) × (22/7) × 625.", "= (115 × 22 × 625)/(360 × 7) = 1581250/2520 ≈ 627.48 cm².", "Total area for two wipers = 2 × 627.48 = 1254.96 ≈ 1254.96 cm² (commonly written 23 × 625 × 22 × 2 / (72 × 7) = 158125 × 2/2520 = 158125 / 1260 ≈ 1254.96 cm²)."],
+    solutionSteps: ["Each wiper sweeps a sector of radius 25 cm and angle 115°.", "Area of one sector = (115/360) × (22/7) × 625.", "= (115 × 22 × 625)/(360 × 7) = 1581250/2520 ≈ 627.48 cm².", "Total area for two wipers = 2 × 627.48 ≈ 1254.96 cm² (equivalently 2 × (23 × 625 × 22)/(72 × 7) = 632500/504 ≈ 1254.96 cm²)."],
     finalAnswer: "Total area cleaned ≈ 1254.96 cm².",
-    ncertRef: "NCERT Ex 12.2 Q11", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 12.2 Q11", isCompetencyBased: true,
+    sourceOverride: "others" },
 
   // ===== Section D — Long Answer (5 marks) =====
   { id: "ARC-N-NCERT-11-LA-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Combinations of Plane Figures", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",

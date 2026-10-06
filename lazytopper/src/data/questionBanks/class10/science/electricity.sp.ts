@@ -90,16 +90,17 @@ export const ELEC_SP: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A wire made up of copper metal has a diameter of 0.5 mm and resistivity of 1.6 × 10^-8 Ω m. Calculate the length of the wire to make resistance of 100 Ω. How much does the resistance change if the diameter of the wire is doubled without changing its length?",
     "options": [],
-    "answer": "Length of the wire ≈ 1200 m; if the diameter is doubled (length unchanged), the new resistance becomes one-fourth, i.e. 25 Ω.",
+    "answer": "Length of the wire ≈ 1227 m (≈ 1.23 km); if the diameter is doubled (length unchanged), the new resistance becomes one-fourth, i.e. 25 Ω.",
     "solutionSteps": [
       "[1 mark] Given: ρ = 1.6 × 10^-8 Ω m, d = 0.5 mm, R = 100 Ω. Radius r = d/2 = 0.25 mm = 2.5 × 10^-4 m.",
-      "[1 mark] Area of cross-section A = πr² = 3.14 × (2.5 × 10^-4)² ≈ 1.9 × 10^-7 m².",
-      "[1 mark] Using R = ρl/A → l = RA/ρ = (100 × 1.9 × 10^-7)/(1.6 × 10^-8) ≈ 1200 m.",
+      "[1 mark] Area of cross-section A = πr² = 3.14 × (2.5 × 10^-4)² ≈ 1.963 × 10^-7 m².",
+      "[1 mark] Using R = ρl/A → l = RA/ρ = (100 × 1.963 × 10^-7)/(1.6 × 10^-8) ≈ 1227 m (≈ 1.23 km).",
       "[1 mark] If diameter is doubled (d' = 2d), new area A' = π(d'/2)² = π(d)² = 4A (four times the original area).",
       "[1 mark] Since R ∝ 1/A at constant length, the resistance decreases four times: R' = R/4 = 100/4 = 25 Ω."
     ],
-    "finalAnswer": "Length ≈ 1200 m; doubling the diameter (same length) reduces resistance to one-fourth, i.e. 25 Ω.",
-    "isCompetencyBased": false
+    "finalAnswer": "Length ≈ 1227 m (≈ 1.23 km); doubling the diameter (same length) reduces resistance to one-fourth, i.e. 25 Ω.",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "SP-S-2023-ELEC-B-001",

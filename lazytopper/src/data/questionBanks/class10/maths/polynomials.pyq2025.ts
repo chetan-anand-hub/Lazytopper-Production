@@ -9,12 +9,13 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const POLYNOMIALS_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-POLY-001", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes of Polynomial", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Find the zeroes of the polynomial p(x) = x2 + x .",
-    answer: "1 3 (3x2 + 4x – 4) = 1 3 (3x2 + 6x – 2x – 4) = 1 3 (3x – 2)(x + 2) Zeroes are 2 3 , – 2",
-    solutionSteps: ["1 3 (3x2 + 4x – 4) = 1 3 (3x2 + 6x – 2x – 4) = 1 3 (3x – 2)(x + 2) Zeroes are 2 3 , – 2"],
-    finalAnswer: "1 3 (3x2 + 4x – 4) = 1 3 (3x2 + 6x – 2x – 4) = 1 3 (3x – 2)(x + 2) Zeroes are 2 3 , – 2",
+    questionText: "Find the zeroes of the polynomial p(x) = x² + (4/3)x − 4/3.",
+    answer: "p(x) = (1/3)(3x² + 4x − 4) = (1/3)(3x² + 6x − 2x − 4) = (1/3)(3x − 2)(x + 2). Zeroes are 2/3 and −2.",
+    solutionSteps: ["p(x) = (1/3)(3x² + 4x − 4) = (1/3)(3x² + 6x − 2x − 4) = (1/3)[3x(x + 2) − 2(x + 2)] = (1/3)(3x − 2)(x + 2).", "p(x) = 0 ⇒ 3x − 2 = 0 or x + 2 = 0 ⇒ zeroes are 2/3 and −2."],
+    finalAnswer: "Zeroes are 2/3 and −2.",
     ncertRef: "PYQ 30/1/1 Q22", isCompetencyBased: true,
-    pyqYear: "2025", pyqSet: "1" },
+    sourceOverride: "others",
+    },
   { id: "PYQ-M-2025-POLY-002", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes of Polynomial", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "If the zeroes of the polynomial x2 + ax + b are in the ratio 3 : 4, then prove that 12a2 = 49b.",
     answer: "7𝛼= −a Also, 12𝛼2 = b 𝐿𝐻𝑆= 12a2 = 12 (−7𝛼)2 = 49 × 12(𝛼)2 = 49b = RHS",

@@ -59,11 +59,12 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjescco10 Q11
   { id: "SCO-S-LIGHT-007", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "The radius of curvature of concave mirror is 12 cm. Then, the focal length will be",
-    options: ["12 cm", "6 cm", "−24 cm", "−6 cm"],
+    options: ["12 cm", "−12 cm", "−24 cm", "−6 cm"],
     answer: "−6 cm",
     solutionSteps: ["[1 mark] (d) −6 cm — f = R/2 = 12/2 = 6 cm in magnitude, and for a concave mirror the focus lies in front of the mirror, so f = −6 cm in the New Cartesian convention."],
     finalAnswer: "(d) −6 cm",
-    ncertRef: "cbjescco10 Q11", isCompetencyBased: true },
+    ncertRef: "cbjescco10 Q11", isCompetencyBased: true,
+    sourceOverride: "others" },
   // cbjescco10 Q12
   { id: "SCO-S-LIGHT-008", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "A man is 6.0 ft tall. What is the smallest size plane mirror he can use to see his entire image",

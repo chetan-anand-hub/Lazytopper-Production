@@ -1806,6 +1806,12 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // magnetic-effects-of-electric-current — residual motor/EMI/generator
   "MAG-EXMPLR-12-MCQ-008",      // formative-only: Motor / electromagnetic induction / generator (owner ruling R7, 2026-10-06; Sci p6)
   "ME2-016",                    // formative-only: Motor / electromagnetic induction / generator (owner ruling R7, 2026-10-06; Sci p6)
+  // ---- BANK-FIX-1 PR-1 (2026-10-06): wrong answers that cannot be corrected without a different question ----
+  "APQ-M-TRIG-010",             // figure: every part needs the source figure; the OR part uses a height absent from the stem
+  "APQ-M-POLY-004",             // figure: part (ii) depends on the walker's position, given only in the missing figure
+  "CG2-046",                    // answer-mismatch: diagonals cannot be found from two side mid-points; key was "insufficient information"
+  "LP2-043",                    // out-of-syllabus: clinical pathology (BP vs pulse) not derivable from NCERT Class 10
+  "OEX-A-005",                  // answer-mismatch: "most stable ecosystem" has no NCERT basis; the key is not provable
 ]);
 
 /**

@@ -212,16 +212,17 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
   { id: "SAV-N-EXMPLR-12-SA-006", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Volume of Combined Solids", section: "C", marks: 3, format: "Short",
     difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "An ice cream cone full of ice cream has radius 5 cm and height 10 cm. Calculate the volume of ice cream, given that its (1/6)th part is left unfilled with ice cream. (Use π = 22/7)",
+    questionText: "An ice cream cone full of ice cream has radius 5 cm and height 10 cm, with the ice cream forming a hemisphere of the same radius on top of the cone. Calculate the volume of ice cream, given that its (1/6)th part is left unfilled with ice cream. (Use π = 22/7)",
     solutionSteps: [
-      "Assume the ice-cream forms a cone + a hemispherical scoop on top, both of radius 5 cm. Cone height = 10 cm.",
+      "The ice-cream fills a cone and forms a hemispherical scoop on top, both of radius 5 cm. Cone height = 10 cm.",
       "V(cone) = (1/3)π(5)²(10) = (250/3)π cm³.  V(hemisphere) = (2/3)π(5)³ = (250/3)π cm³.",
-      "Total apparent volume = (250/3)π + (250/3)π = (500/3)π cm³.",
+      "Total volume = (250/3)π + (250/3)π = (500/3)π cm³.",
       "Ice cream actually present = (5/6) × (500/3)π = (2500/18)π = (1250/9)π = (1250/9)(22/7) ≈ 436.51 cm³."
     ],
     finalAnswer: "≈ 436.51 cm³ of ice cream.",
     ncertRef: "Exemplar Ex 12.3 Q9", isCompetencyBased: true,
-    strategyHint: "Cone + scoop, then take 5/6 of that volume." },
+    strategyHint: "Cone + scoop, then take 5/6 of that volume.",
+    sourceOverride: "others" },
 
   // ===== Long Answer (Exercise 12.4, in-syllabus only — frustum items skipped) =====
   { id: "SAV-N-EXMPLR-12-LA-004", subject: "Maths", topicKey: "surface-areas-and-volumes",

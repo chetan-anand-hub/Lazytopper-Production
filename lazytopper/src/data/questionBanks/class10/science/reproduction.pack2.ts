@@ -1269,21 +1269,18 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "B. Both A and R are true, but R is not the correct explanation of A.",
+    "answer": "D. A is false, R is true.",
     "solutionSteps": [
-      "Both statements are true.",
-      "The umbilical cord does connect the fetus to placental circulation.",
-      "However, fetal and maternal blood do NOT directly mix.",
-      "The placenta acts as a barrier; exchange occurs through the placental membrane.",
-      "The reason is true but doesn't fully explain why the assertion is misleading.",
-      "A is slightly imprecise (not 'direct' blood vessels but through placenta), R is true but independent."
+      "The umbilical cord connects the fetus to the placenta, not directly to the mother's blood vessels — A is false.",
+      "Fetal and maternal blood do NOT directly mix; the placenta acts as a barrier and exchange occurs across the placental membrane.",
+      "The umbilical cord contains blood vessels (umbilical arteries and vein) that carry nutrients, oxygen and wastes between the fetus and the placenta — R is true.",
+      "Hence A is false, R is true."
     ],
-    "finalAnswer": "B. Both A and R are true, but R is not the correct explanation of A.",
-    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
+    "finalAnswer": "D. A is false, R is true.",
+    "explanation": "The Assertion is false: the umbilical cord connects the fetus to the placenta, and fetal blood never joins the mother's blood vessels directly — exchange takes place across the placental membrane. The Reason is true: the umbilical cord contains blood vessels that carry nutrients, oxygen and wastes between the fetus and the placenta. Hence A is false, R is true.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "All India",
-    "ncertRef": "NCERT Ch8 InText"
+    "ncertRef": "NCERT Ch8 InText",
+    sourceOverride: "others",
   },
   {
     "id": "REP2-044",

@@ -114,12 +114,13 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjescco09 Q20", isCompetencyBased: true },
   // cbjescco09 Q21
   { id: "SCO-S-HERED-014", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "Which amongst the listed tools was used to study the law of inheritance in pea plant by Gregor J Mendel?",
+    questionText: "Which amongst the listed tools is used to work out the results of Mendel's crosses on the inheritance of traits in pea plants?",
     options: ["Family tree", "Pedigree chart", "Punnett square", "Herbarium sheet"],
     answer: "Punnett square",
-    solutionSteps: ["Correct option is (c) Punnett square.", "Punnett square was used by GJ Mendel to determine the law of inheritance in his experiments with pea plants."],
+    solutionSteps: ["Correct option is (c) Punnett square.", "A Punnett square arranges the gametes of the two parents in a grid to predict the genotypes and phenotypes of the offspring, so it is used to work out the results of Mendel's pea crosses. (It was devised later by R.C. Punnett; family trees/pedigree charts trace human inheritance, and a herbarium sheet stores pressed plant specimens.)"],
     finalAnswer: "(c) Punnett square",
-    ncertRef: "cbjescco09 Q21", isCompetencyBased: true },
+    ncertRef: "cbjescco09 Q21", isCompetencyBased: true,
+    sourceOverride: "others" },
   // cbjescco09 Q24
   { id: "SCO-S-HERED-015", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Which statement is true for a dominant allele?",

@@ -70,15 +70,16 @@ export const CG_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Seema and Aditya plan to meet at a location situated at a point D which is at the mid-point of the line joining the points representing Town A(1, 7) and Town B(4, 2). Find the coordinates of D.",
     "options": [],
-    "answer": "D = (2.5, 5.5)",
+    "answer": "D = (2.5, 4.5)",
     "solutionSteps": [
       "[1 mark] D is the mid-point of AB, so D = ((x₁ + x₂)/2, (y₁ + y₂)/2) = ((1 + 4)/2, (7 + 2)/2).",
-      "[1 mark] D = (5/2, 9/2) = (2.5, 5.5)."
+      "[1 mark] D = (5/2, 9/2) = (2.5, 4.5)."
     ],
-    "finalAnswer": "D = (2.5, 5.5)",
+    "finalAnswer": "D = (2.5, 4.5)",
     "isCompetencyBased": true,
     "requiresDiagram": true,
-    "diagramDescription": "Coordinate grid showing Town A(1, 7) and Town B(4, 2) with point D marked at the midpoint of segment AB."
+    "diagramDescription": "Coordinate grid showing Town A(1, 7) and Town B(4, 2) with point D marked at the midpoint of segment AB.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-CG-B-002",

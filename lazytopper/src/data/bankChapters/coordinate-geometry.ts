@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "coordinate-geometry" (Maths): 266 served rows from 19 source arrays, 34 withheld.
+// Chapter "coordinate-geometry" (Maths): 265 served rows from 19 source arrays, 35 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -53,6 +53,7 @@ export default defineChapter("coordinate-geometry", [
   "CG-N05",
   "CG-ND02",
   "CG2-044",
+  "CG2-046",
   "CG2-048",
   "CG2-052",
   "CG2-057",

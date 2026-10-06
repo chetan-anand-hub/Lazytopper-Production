@@ -640,7 +640,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A sector of angle θ is cut from a circle of radius 12 cm. If the ratio of arc length to the perimeter of the sector is 2:5, find θ and the area of the sector.",
     "options": [],
-    "answer": "θ ≈ 76.4°; Area ≈ 95.9 cm²",
+    "answer": "θ = 240/π ≈ 76.4°; Area = 96 cm²",
     "solutionSteps": [
       "Arc length = (θ/360°) × 2πr = (θ/360°) × 24π",
       "Perimeter of sector = Arc + 2r = (θ/360°) × 24π + 24",
@@ -648,13 +648,12 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "5 × Arc = 2 × (Arc + 24), so 3 × Arc = 48, Arc = 16 cm",
       "(θ/360°) × 24π = 16, so θ = (16 × 360)/(24π) = 240/π",
       "Using π = 22/7: θ = 240 × 7/22 = 1680/22 ≈ 76.4°",
-      "Area = (θ/360°) × πr² = (76.4/360) × 3.14 × 144 ≈ 95.9 cm²"
+      "Area of sector = (1/2) × arc × r = (1/2) × 16 × 12 = 96 cm²"
     ],
-    "finalAnswer": "θ ≈ 76.4°; Area ≈ 95.9 cm²",
+    "finalAnswer": "θ = 240/π ≈ 76.4°; Area = 96 cm²",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 11.1"
+    "ncertRef": "Ex 11.1",
+    sourceOverride: "others",
   },
   {
     "id": "ARC2-026",

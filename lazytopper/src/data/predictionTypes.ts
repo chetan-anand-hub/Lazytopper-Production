@@ -105,6 +105,18 @@ export interface CanonicalQuestion {
    * the bank. Optional on other rows; when present it is held to the same shape.
    */
   shapedFrom?: string;
+  /**
+   * Source override (BANK-FIX-1, owner ruling 2, 2026-10-06). Optional, additive.
+   *   "others" — the row's content was corrected by LazyTopper, or its claimed
+   *              source (PYQ / board paper / NCERT / exemplar) could not be
+   *              confirmed. It is then NEVER classified as PYQ or NCERT and never
+   *              shown with a year (the Practice source filter files it under
+   *              "Others"), but it is still served. The row id is unchanged, so
+   *              Mistake Intelligence history keyed on it stays valid.
+   * Rows carrying it have no `pyqYear` / `pyqSet`; the original provenance is
+   * kept in `data/bankFix/bankFix1Ledger.ts`. Pinned by `sourceOverride.test.ts`.
+   */
+  sourceOverride?: "others";
 }
 
 // -----------------------------------------------------------------------------

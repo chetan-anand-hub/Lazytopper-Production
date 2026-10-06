@@ -54,12 +54,13 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
       "In ionic bond formation, sodium loses an electron to form Na+ ion, and chlorine gains that electron to form Cl- ion.",
     ],
   },
-  { id: "MNM-E09", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Physical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Which of the following is a non-metal that is lustrous?", options: ["Sulphur", "Carbon", "Iodine", "Phosphorus"], answer: "Iodine", explanation: "The correct answer is Iodine. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Iodine" , isCompetencyBased: false,
+  { id: "MNM-E09", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Physical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Which of the following is a non-metal that is lustrous?", options: ["Sulphur", "Bromine", "Iodine", "Phosphorus"], answer: "Iodine", explanation: "Iodine is a non-metal but it is lustrous (NCERT exception). Sulphur, phosphorus and bromine are not lustrous. Therefore, the correct answer is Iodine.", finalAnswer: "Iodine" , isCompetencyBased: false,
     solutionSteps: [
-      "Metals are generally malleable (can be hammered into sheets) and ductile (can be drawn into wires).",
-      "Metals are also sonorous (produce a ringing sound when struck).",
-      "Brittleness, the property of breaking easily, is characteristic of non-metals, not metals.",
+      "NCERT notes iodine as an exception: it is a non-metal but it is lustrous.",
+      "Sulphur and phosphorus are dull non-metal solids; bromine is a non-metal that is a liquid and not lustrous.",
+      "Hence the lustrous non-metal is iodine."
     ],
+    sourceOverride: "others",
   },
   { id: "MNM-E10", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Extraction/Metallurgy", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The process of extracting metal from its ore is called:", options: ["Corrosion", "Metallurgy", "Alloy making", "Galvanisation"], answer: "Metallurgy", explanation: "The correct answer is Metallurgy. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Metallurgy" , isCompetencyBased: false,
     solutionSteps: [
@@ -227,8 +228,9 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
       "Equation for Roasting: 2ZnS + 3O₂ → 2ZnO + 2SO₂ [1]",
       "Calcination: Heating carbonate/hydroxide ore strongly in limited air below its melting point. [1]",
       "Equation for Calcination: ZnCO₃ → ZnO + CO₂ [1]",
-      "Electrolytic Reduction: Used for highly reactive metals (Na, K, Al). Molten oxide is reduced by electricity. Eg: 2Al₂O₃ → 4Al + 3O₂ [1]",
-    ], finalAnswer: "Roasting (sulphide), Calcination (carbonate), Electrolysis (reactive metals)" , isCompetencyBased: true },
+      "Electrolytic Reduction: Used for highly reactive metals — Na, K, Ca, Mg from their molten chlorides, Al from molten oxide. Eg: 2NaCl(l) → 2Na + Cl₂ (cathode: Na⁺ + e⁻ → Na) [1]"
+    ], finalAnswer: "Roasting (sulphide ores), Calcination (carbonate ores), Electrolytic reduction (molten chlorides/oxides of highly reactive metals)", isCompetencyBased: true,
+      sourceOverride: "others" },
   { id: "MNM-H09", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A student placed iron nails in four test tubes: (A) with water + air, (B) with boiled water sealed with oil, (C) with dry air (CaCl₂ desiccant), (D) with salt water.\n(i) In which tube(s) will rusting occur? Why?\n(ii) Which tube acts as the control showing both factors are needed?\n(iii) What is the role of oil in tube B?\n(iv) Why is rusting faster in D than A?", solutionSteps: [
       "(i) A and D — both have water AND air (both needed for rusting) [1]",
       "(ii) B (no air — oil seals) and C (no water — desiccant) show individual factors are not sufficient [1]",

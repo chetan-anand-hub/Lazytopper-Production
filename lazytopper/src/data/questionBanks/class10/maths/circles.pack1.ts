@@ -17,12 +17,13 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "CIR-E04", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If tangents PA and PB from a point P to a circle with centre O are inclined to each other at 80°, then ∠POA =", options: ["50°", "60°", "70°", "80°"], answer: "50°", explanation: "∠APB = 80°, ∠OAP = 90°. In quad OAPB: ∠AOB = 360° − 90° − 90° − 80° = 100°. ∠POA = 100°/2 = 50°. Therefore, the correct answer is 50°.", solutionSteps: ["∠APB = 80°, ∠OAP = 90°", "In quad OAPB: ∠AOB = 360° − 90° − 90° − 80° = 100°", "∠POA = 100°/2 = 50°"], finalAnswer: "50°" , isCompetencyBased: false },
-  { id: "CIR-E05", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The tangent at any point of a circle is perpendicular to the radius through the point of contact.\nReason (R): This is a theorem of circles.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "CIR-E05", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The tangent at any point of a circle is perpendicular to the radius through the point of contact.\nReason (R): Of all the line segments joining the centre O to points on the tangent, the radius OP to the point of contact P is the shortest, and the shortest segment from a point to a line is perpendicular to it.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "A is true (Theorem 10.1). R is true: every point of the tangent other than P lies outside the circle, so OP is the shortest distance from O to the tangent, and the shortest segment from a point to a line is the perpendicular. This is exactly the NCERT proof of A, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "The Assertion and Reason statements for this problem are missing.",
-      "Without these statements, their truthfulness cannot be assessed.",
-      "The expected final answer is also not provided in the input.",
+      "A is true: the tangent at any point of a circle is perpendicular to the radius through the point of contact (Theorem 10.1).",
+      "R is true: every point Q ≠ P on the tangent lies outside the circle, so OQ > OP; hence OP is the shortest segment from O to the tangent, and the shortest segment is the perpendicular.",
+      "R is the reasoning used to prove A, so both are true and R is the correct explanation of A — option (a)."
     ],
+    sourceOverride: "others",
   },
   { id: "CIR-E06", subject: "Maths", topicKey: "circles", subtopic: "Tangent Theorems & Proofs", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The lengths of tangents drawn from an external point to a circle are:", options: ["Equal", "Unequal", "Cannot be determined", "Always zero"], answer: "Equal", explanation: "The correct answer is Equal. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Equal" , isCompetencyBased: false,
     solutionSteps: [
@@ -104,11 +105,12 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
       "In △OAP and △OBP:; OA = OB (radii), OP = OP (common), ∠OAP = ∠OBP = 90° [1]",
       "By RHS congruence: △OAP ≅ △OBP; ∴ PA = PB [1]",
     ], finalAnswer: "PA = PB (proved by RHS congruence)" , visualExplainerId: "maths-circles-number-of-tangents-from-external-point", isCompetencyBased: true },
-  { id: "CIR-M02", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A circle is inscribed in a △ABC with sides AB = 12 cm, BC = 8 cm and AC = 10 cm. Find the lengths of AD, BE and CF, where D, E, F are points of contact on sides BC, CA and AB.", solutionSteps: [
-      "Let AF = AD = x, BF = BE = y, CD = CE = z; x + y = 12 (AB), y + z = 8 (BC), x + z = 10 (AC) [1]",
+  { id: "CIR-M02", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A circle is inscribed in a △ABC with sides AB = 12 cm, BC = 8 cm and AC = 10 cm. It touches sides BC, CA and AB at D, E and F respectively. Find the lengths of the tangent segments AF, BD and CE.", solutionSteps: [
+      "Let AF = AE = x, BF = BD = y, CD = CE = z (tangents from an external point are equal); x + y = 12 (AB), y + z = 8 (BC), x + z = 10 (AC) [1]",
       "Adding: 2(x+y+z) = 30 → x+y+z = 15 [1]",
-      "x = 15 − 8 = 7, y = 15 − 10 = 5, z = 15 − 12 = 3 [1]",
-    ], finalAnswer: "AD = 7 cm, BE = 5 cm, CF = 3 cm" , isCompetencyBased: true },
+      "x = 15 − 8 = 7, y = 15 − 10 = 5, z = 15 − 12 = 3 [1]"
+    ], finalAnswer: "AF = 7 cm, BD = 5 cm, CE = 3 cm", isCompetencyBased: true,
+      sourceOverride: "others" },
   { id: "CIR-M03", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Prove that the parallelogram circumscribing a circle is a rhombus.", solutionSteps: [
       "Construction: Draw a circle with centre O and mark the point of tangency. Draw the tangent line at that point.; Let ABCD be a parallelogram circumscribing the circle; AP = AS, BP = BQ, CR = CQ, DR = DS (tangent lengths) [1]",
       "AB = AP + PB, CD = CR + RD; BC = BQ + QC, AD = AS + SD; AB + CD = AP + PB + CR + RD [1]",

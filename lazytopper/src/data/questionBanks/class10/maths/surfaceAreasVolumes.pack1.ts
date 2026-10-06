@@ -140,10 +140,11 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
       "(iv) Syrup = 45 × 25.05 × 0.3 = 338.18 cm³ [1]",
     ], finalAnswer: "(i) ≈5.75 (ii) ≈13.55 (iii) ≈25.05 (iv) ≈338.18 cm³" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
   { id: "SAV-M14", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A hemispherical depression is cut from one face of a cubical wooden block of edge 7 cm, and the diameter of the hemisphere equals the edge. Find the surface area of the remaining solid.", solutionSteps: [
-      "SA = 5 faces of cube + curved SA of hemisphere − circular opening; = 5(49) + 2π(3.5)² − π(3.5)² [½]",
-      "= 245 + 2(22/7)(12.25) − (22/7)(12.25) [½]",
-      "= 245 + 77 − 38.5 = 283.5 cm² [1]",
-    ], finalAnswer: "283.5 cm²" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
+      "SA = 6 faces of cube − circular opening + curved SA of hemisphere; = 6(49) − π(3.5)² + 2π(3.5)² [½]",
+      "= 294 − (22/7)(12.25) + 2(22/7)(12.25) [½]",
+      "= 294 − 38.5 + 77 = 332.5 cm² [1]"
+    ], finalAnswer: "332.5 cm²", visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true,
+      sourceOverride: "others" },
   { id: "SAV-M15", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination/Transformation", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "A solid cylinder of radius r is surmounted by a cone of same radius. If their heights are equal to h, the total surface area of the solid is:", options: ["πr(2h + l + r)", "πr(h + l + r)", "πr(2h + r)", "2πr(h + l)"], answer: "πr(2h + l + r)", explanation: "CSA cylinder + CSA cone + base circle = 2πrh + πrl + πr². Therefore, the correct answer is πr(2h + l + r).", solutionSteps: ["CSA cylinder + CSA cone + base circle = 2πrh + πrl + πr²"], finalAnswer: "πr(2h + l + r)" , isCompetencyBased: true },
   { id: "SAV-M16", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Water in a canal, 6 m wide and 1.5 m deep, is flowing with a speed of 10 km/h. How much area will it irrigate in 30 minutes if 8 cm of standing water is needed?", solutionSteps: [
       "Volume of water in 30 min = 6 × 1.5 × 5000 = 45000 m³; (Speed = 10 km/h, in 30 min = 5 km = 5000 m) [1]",
