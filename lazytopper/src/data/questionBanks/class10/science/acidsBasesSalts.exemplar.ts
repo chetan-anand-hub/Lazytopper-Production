@@ -54,7 +54,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "ACID-EXMPLR-2-MCQ-003",
+    id: "ACID-EXMPLR-2-MCQ-003", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Preparation of HCl Gas",
@@ -188,7 +188,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "ACID-EXMPLR-2-MCQ-009",
+    id: "ACID-EXMPLR-2-MCQ-009", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Safety",
@@ -825,7 +825,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "ACID-EXMPLR-2-SA-007",
+    id: "ACID-EXMPLR-2-SA-007", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Salt Reactions",

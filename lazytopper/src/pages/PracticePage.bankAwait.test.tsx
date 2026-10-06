@@ -30,7 +30,8 @@ vi.mock("../services/practiceInsights", () => ({
 }));
 
 import PracticePage from "./PracticePage";
-import { __resetBankChaptersForTest, isBankChapterLoaded } from "../data/bankChapters/loader";
+import { __resetBankChaptersForTest, getBankRows, isBankChapterLoaded } from "../data/bankChapters/loader";
+import { isCbq } from "../lib/cbq/cbqClassification";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -84,12 +85,14 @@ describe("L4 loading state — Practice shows no count or gated state while its 
     expect(screen.queryByText(/\d+ available/)).toBeNull();
     expect(screen.queryByRole("button", { name: /Customise/ })).toBeNull();
 
-    // Loaded: the real preset picker, Competency live (triangles has case-based rows),
+    // Loaded: the real preset picker — Competency live iff the chapter holds CBQs
+    // (CBQ-1 PR-1: `isCbq`, DERIVED from the bank, never a hardcoded chapter fact) —
     // and the real, non-zero "N available" in the custom drawer.
     const customise = await screen.findByRole("button", { name: /Customise/ }, { timeout: 60000 });
     expect(isBankChapterLoaded("triangles")).toBe(true);
     expect(screen.queryByText("Preparing your questions...")).toBeNull();
-    expect(screen.queryByText(/coming soon for this chapter/)).toBeNull();
+    const trianglesHasCbqs = getBankRows(["triangles"]).some((q) => isCbq(q));
+    expect(screen.queryByText(/coming soon for this chapter/) === null).toBe(trianglesHasCbqs);
     fireEvent.click(customise);
     await waitFor(() => expect(screen.getByText(/\d+ available/)).toBeInTheDocument());
     const n = Number(/(\d+) available/.exec(screen.getByText(/\d+ available/).textContent || "")?.[1]);

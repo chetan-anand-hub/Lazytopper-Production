@@ -31,6 +31,7 @@ export const LIFE_SP: CanonicalQuestion[] = [
   },
   {
     "id": "SQP-S-2023-LIFE-A-002",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "life-processes",
     "subtopic": "Digestion — enzymes in the stomach",

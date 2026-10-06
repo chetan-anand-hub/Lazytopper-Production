@@ -46,7 +46,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const CARB_CFPQ: CanonicalQuestion[] = [
   // pdf-page 28 (folio 27) — Q1. Key: pdf-page 33, option 4.
   {
-    id: "CFPQ-S-CARB-001",
+    id: "CFPQ-S-CARB-001", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Combustion of Carbon Compounds",
@@ -94,7 +94,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 28 (folio 27) — Q3. Key: pdf-page 33, option 2.
   {
-    id: "CFPQ-S-CARB-003",
+    id: "CFPQ-S-CARB-003", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Addition Reactions of Unsaturated Hydrocarbons",
@@ -117,7 +117,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 28 (folio 27) — Q4. Key: pdf-page 33, option 1.
   {
-    id: "CFPQ-S-CARB-004",
+    id: "CFPQ-S-CARB-004", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Saturated and Unsaturated Carbon Compounds",
@@ -145,7 +145,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 29 (folio 28) — Q5 [3]. Rubric: pdf-page 34.
   {
-    id: "CFPQ-S-CARB-005",
+    id: "CFPQ-S-CARB-005", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Saturated and Unsaturated Carbon Compounds",
@@ -170,7 +170,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 29 (folio 28) — Q6 [1]. Rubric: pdf-page 34.
   {
-    id: "CFPQ-S-CARB-006",
+    id: "CFPQ-S-CARB-006", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Test for Unsaturation",
@@ -193,7 +193,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 29 (folio 28) — Q7 [3]. Rubric: pdf-page 34.
   {
-    id: "CFPQ-S-CARB-007",
+    id: "CFPQ-S-CARB-007", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Structural Isomerism",
@@ -219,7 +219,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 29 (folio 28) — Q8 [3]. Rubric: pdf-pages 34-35.
   {
-    id: "CFPQ-S-CARB-008",
+    id: "CFPQ-S-CARB-008", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Esterification",
@@ -267,7 +267,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 30 (folio 29) — Q10 [3]. Rubric: pdf-page 35.
   {
-    id: "CFPQ-S-CARB-010",
+    id: "CFPQ-S-CARB-010", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Saturated and Unsaturated Carbon Compounds",
@@ -290,7 +290,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 30 (folio 29) — Q11 [3]. Rubric: pdf-page 35.
   {
-    id: "CFPQ-S-CARB-011",
+    id: "CFPQ-S-CARB-011", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Functional Groups in Carbon Compounds",
@@ -317,7 +317,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 30 (folio 29) — Q12 [2]. Rubric: pdf-page 35.
   {
-    id: "CFPQ-S-CARB-012",
+    id: "CFPQ-S-CARB-012", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Dehydration of Alcohols",
@@ -415,7 +415,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 31 (folio 30) — Q16 [2]. Rubric: pdf-page 36.
   {
-    id: "CFPQ-S-CARB-016",
+    id: "CFPQ-S-CARB-016", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Structural Isomerism",
@@ -439,7 +439,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 32 (folio 31) — Q17 [4]. Rubric: pdf-page 36.
   {
-    id: "CFPQ-S-CARB-017",
+    id: "CFPQ-S-CARB-017", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Oxidation of Alcohols",
@@ -465,7 +465,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 32 (folio 31) — Q18 [1]. Rubric: pdf-page 36.
   {
-    id: "CFPQ-S-CARB-018",
+    id: "CFPQ-S-CARB-018", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Catenation",
@@ -487,7 +487,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 32 (folio 31) — Q19 [3]. Rubric: pdf-page 37.
   {
-    id: "CFPQ-S-CARB-019",
+    id: "CFPQ-S-CARB-019", competencyVerified: true,
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Ethanol and Its Properties",

@@ -16,9 +16,11 @@ import type { MistakeLogEntry } from "../services/mistakeLogService";
 // one the sidebar Mistake Intelligence widget joins next, [FU-ME1-WIDGET-GATE]), with its one topic canonicaliser
 // and its one mistake group split.
 import {
+  ME_DEFAULT_WINDOW,
   boardChapterKey,
   mistakeLossByGroup,
   readStudyModel,
+  rungNamesWeakness,
   type MistakeView,
 } from "../services/progressReadModel";
 import { summarizeCareless } from "../services/mistakeInsightsService";
@@ -298,11 +300,11 @@ export function splitPaperMarks(
   rung: RungTrend | null | undefined,
   logs: MistakeLogEntry[],
 ): PaperSplit | null {
-  if (!rung) return null;
+  // ME-ENGINE-1 PR-2b — Me's gate for naming a weakness is the read model's ONE predicate, which
+  // the Tutor brief also asks (imported by both, never copied).
+  if (!rungNamesWeakness(rung)) return null;
   const available = rung.marksAvailable;
   const secured = rung.marksScored;
-  if (typeof available !== "number" || typeof secured !== "number") return null;
-  if (!Number.isFinite(available) || !Number.isFinite(secured) || available <= 0) return null;
 
   const lost = Math.max(0, round1(available - secured));
   // ME-ENGINE-1 PR-1 — THE one group split (services/progressReadModel), the same function the
@@ -642,7 +644,7 @@ export default function MeProgressPage() {
   // server-side progress, and we say so rather than inventing one.
   const realUid = user && !user.isLocalSession ? user.uid : null;
 
-  const [windowSel, setWindowSel] = useState<ProgressWindow>("month");
+  const [windowSel, setWindowSel] = useState<ProgressWindow>(ME_DEFAULT_WINDOW);
   const [paper, setPaper] = useState<DesktopSubject>("Maths");
   const [paperTouched, setPaperTouched] = useState(false);
   const [slicer, setSlicer] = useState<"concepts" | "chapters" | "sections">("concepts");

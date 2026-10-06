@@ -269,7 +269,7 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "ACID-NCERT-2-VSA-010",
+    id: "ACID-NCERT-2-VSA-010", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "pH in Everyday Life",
@@ -596,7 +596,7 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "ACID-NCERT-2-VSA-017",
+    id: "ACID-NCERT-2-VSA-017", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Strong vs Weak Acids",

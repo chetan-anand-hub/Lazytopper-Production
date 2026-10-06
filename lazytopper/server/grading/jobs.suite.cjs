@@ -122,7 +122,7 @@ function pipeRes() {
 }
 
 /* ── The stubbed model: per-question grades; any call can be HELD until released ── */
-function stubModel({ marksOf, verdictOf, inventoryOf } = {}) {
+function stubModel({ marksOf, verdictOf, inventoryOf, onCall } = {}) {
   const calls = [];
   const holds = [];
   let holdNext = null;
@@ -131,6 +131,7 @@ function stubModel({ marksOf, verdictOf, inventoryOf } = {}) {
     const ids = String((cfg && cfg.chunkKey) || '').split('+').filter(Boolean).map((k) => Number(k.slice(1)));
     calls.push({ ids, cfg: { timeoutMs: cfg.timeoutMs, attempt: cfg.attempt, chunkKey: cfg.chunkKey } });
     ctxUids.push(ledgerLib.currentUid());
+    if (onCall) onCall(model); // J1b: what geminiClient does after a successful call (usageLedger.recordUsage)
     if (holdNext && holdNext(ids)) {
       await new Promise((resolve) => holds.push({ ids, resolve }));
     }
@@ -543,6 +544,47 @@ test('J1 D12 · a queued job runs in ITS submitter\'s request context (the premi
   assert.deepEqual(h.model.ctxUids, ['stu-A', 'stu-B'], 'each job\'s model call is metered to its own student');
   assert.equal(h.recordOf('stu-A', a.jobId).job.state, 'done');
   assert.deepEqual(h.recordOf('stu-A', a.jobId).job.deferred, { uid: 'stu-A', tier: 'premium', surface: 'check-improve', commit: null });
+});
+
+/* ════════════════ A-17 J1b METER-PRICE-1 · a background job is metered exactly like the sync path ════════════════ */
+// MUTATION J1b-M5: run the job without its captured request context (jobs.cjs `inContext`) -> RED (async meters 0).
+test('J1b (d) · a BACKGROUND job records the same meter cost and the same real spend as the synchronous grade, at the real gemini-3.8-flash price', async () => {
+  // The suite clock T0 is 2027-01-15: the doubled 2027 list price applies ($1.50 / $7.50 per 1M).
+  // One call: (1000 * 1.50 + (200 + 800) * 7.50) / 1M * 88 = Rs 0.792.
+  const CALL = { model: 'gemini-3.8-flash', promptTokenCount: 1000, candidatesTokenCount: 200, thoughtsTokenCount: 800 };
+  assert.ok(T0 >= require('../services/modelPrices.cjs').IST_2027_01_01_MS, 'precondition: the suite clock is in 2027');
+  async function meterOf(prefer, key) {
+    const writes = [];
+    const ledger = ledgerLib.createUsageLedger({
+      resolveFirestore: () => ({ db: { collection: () => ({ doc: () => ({ collection: () => ({ doc: () => ({ set: (d) => { writes.push(d); return Promise.resolve(); } }) }) }) }) }, FieldValue: { increment: (n) => n } }),
+      telemetry: { increment() {} }, env: {}, now: () => T0,
+    });
+    const model = stubModel({ onCall: (m) => ledger.recordUsage({ ...CALL, model: m === 'test-model' ? CALL.model : m }) });
+    const h = harness({ tier: 'premium', model });
+    const res = await h.submit({ key: KEY(key), uid: 'stu-meter', payload: typedPaper(3), prefer });
+    if (prefer) {
+      assert.equal(res.statusCode, 202, 'the async path was taken');
+      const { jobId } = JSON.parse(res.body);
+      await until(() => h.recordOf('stu-meter', jobId) && h.recordOf('stu-meter', jobId).job.state === 'done', 'job done', 2000);
+    } else {
+      assert.equal(res.statusCode, 200, 'the synchronous path was taken');
+    }
+    await settle();
+    const meter = writes.filter((w) => 'costMicroInr' in w);
+    return {
+      calls: model.calls.length,
+      cost: meter.reduce((a, w) => a + (Number(w.costMicroInr) || 0), 0),
+      spend: writes.reduce((a, w) => a + (Number(w[ledgerLib.LEDGER_SPEND_FIELD]) || 0), 0),
+    };
+  }
+  const sync = await meterOf(false, 40);
+  const job = await meterOf(true, 41);
+  assert.equal(sync.calls, 1);
+  assert.equal(job.calls, sync.calls, 'same number of model calls');
+  assert.equal(sync.cost, 792000, 'sync: every question graded -> the full real cost on the premium meter');
+  assert.equal(sync.spend, 792000, 'sync: the real spend');
+  assert.equal(job.cost, sync.cost, 'background job: the SAME meter cost as the sync grade');
+  assert.equal(job.spend, sync.spend, 'background job: the SAME real spend as the sync grade');
 });
 
 /* ════════════════════════ D14 · job timing (the synchronous timing unchanged) ════════════════════════ */

@@ -23,6 +23,34 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-07 — WAVE CI1 (CONTROLLER C): CI-SPEED-1 (`#969` `c6068552`) — 5 new open, 0 closed, 2 older ids checked and kept open
+
+Sources: `Desktop/diff/WAVE_STATE_CI1.md`, `ci1/PR969_BODY.md` (Follow-ups), `ci1/OWNER_MERGE_QUEUE_STEPS.md`, `ci1/report-ci1-searchping-2026-10-07.md` (Not proven), `a17/report-ci-speed-1-STOPPED-2026-10-07.md`. **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3). Every FU id named here has its own heading (standing rule 1).
+
+### CI1 — closed: none
+`grep` of `handoff/` at `d0cbdd3f` for "HARDEN-1", "PR-3", "CI-SPEED", "quality gate" and "25 min" *(docs-builder-verified)* found **no existing FU that `#969` resolves**: no HARDEN-1 or CI-SPEED entry exists on this board, and the "PR-3" / "quality gate" hits are unrelated (GRADER-SPEED-1 PR-3, C&I PR-3's cache "quality gate"). HARDEN-1 §2 PR-3 is superseded by `#969` in `IMPLEMENTATION_ROADMAP.md`; it never had a board entry.
+
+### CI1 — older ids checked, kept open
+- **`[FU-VERCEL-MISSED-TRUNK-BUILD]` — STAYS OPEN, related.** It is a trunk commit with NO Vercel status and NO deployment (`c29c81cb`). `#969` adds a DIFFERENT, by-design case: on a deploy-inert docs merge the status is success "Canceled by Ignored Build Step". Read that status as skipped by design, never as this defect; a push with no Vercel status at all is still this FU.
+- **`[FU-SEARCHPING-SKIPPED-DEPLOY-GAP]` — STAYS OPEN, related.** `#969` makes search-ping exit green when Vercel skips a deploy-inert range. Those skipped commits are markdown only, so they restamp no page. A build that Vercel misses for any other reason (the `c29c81cb` case) is still not pinged; the diff is still against the parent, not the last pinged SHA.
+
+### CI1 — new, open
+
+### `[FU-CI1-NIGHTLY-RESTORE]` — OPEN · OWNER-MANDATED · blocked on B-18's `#970`
+`#969` shipped `nightly-full-clock` with `schedule:` OFF and `workflow_dispatch` kept (owner, 2026-10-07). Cause: dispatch run `37514040888` on `6c0ee398` went RED; `build-ops` and both `clock 1/2` jobs failed "FORBIDDEN: the PR base ref is reachable in CI", because `lazytopper/scripts/ops/check_improve_convergence_acceptance.mjs` (~l.1156, `else if (EVENT === 'push')`) treats only `push` as "no PR → N/A" *(controller-verified; run conclusion docs-builder-verified)*. That file is in B-18's open `#970`, which keeps out of the forbidden-diff block (~l.1138–1170). **Fix, right after `#970` merges, as one small PR:** the one-line N/A extension for every non-PR event; a pinning check; `schedule:` restored in `.github/workflows/quality-gate.yml`; and ONE green `workflow_dispatch` nightly run quoted in its description. Until then the full suite under both clocks runs only by hand; PR clock runs cover the 165 manifest files.
+
+### `[FU-ME-PROGRESS-CONSISTENCY-IST-MIDNIGHT]` — OPEN · owned by B-18 (ME-ENGINE-1 PR-2b)
+`lazytopper/src/services/progressReadModel.consistency.test.tsx` (from `#968`) fails for clock instants between about 18:30 and 18:38Z, just after IST midnight; reproduced with `LT_TEST_CLOCK`. The IST-midnight clock pin (18:45Z) misses it. It made run `37511874101` attempt 1 red at 18:35Z; CI-SPEED-1 did not cause it *(builder-reported, A-17; controller-verified)*. Owner of the fix: B-18's ME-ENGINE-1 PR-2b. Do not duplicate in another lane (standing rule 2).
+
+### `[FU-CI1-RAILWAY-WATCHPATTERNS]` — OPEN · owner decision · report only
+Every trunk merge redeploys Railway, docs merges included, and a redeploy kills in-flight grading. `railway.json` has no `watchPatterns`, and the Dockerfile does `COPY . .`. Proposed `build.watchPatterns`: `["**", "!/handoff/**/*.md", "!/ops/**/*.md", "!/docs/**/*.md", "!/notes/*.md", "!/*.md"]` (`Desktop/diff/ci1/OWNER_MERGE_QUEUE_STEPS.md`). Negated-pattern support comes from Railway's documentation and is untested on this account; check it with one docs merge after the change. Nothing was changed *(builder-reported, A-17; controller-written)*.
+
+### `[FU-CI1-SEARCHPING-DOCS-DURING-ROLLOUT]` — OPEN · LOW
+If a docs push lands while an earlier CODE push is still rolling out, the live SHA is the older one, so code is in the `live..pushed` range; search-ping takes the normal wait and can still time out red, exactly as before `#969`. Not worse than before *(builder-reported, `report-ci1-searchping-2026-10-07.md` "Not proven")*.
+
+### `[FU-CI1-MERGE-QUEUE-UNAVAILABLE]` — OPEN · owner decision
+GitHub's merge queue needs an organization-owned repo; this one is user-owned (GraphQL `isInOrganization=false`, owner `__typename` `User`, `mergeQueue(branch: "base/approved-thru-437")` = `null`, checked read-only 2026-10-07) *(controller-verified)*. PR waits come from ruleset `trunk-protection` (18803299) with strict "require branches to be up to date" ON, now one ~5-min re-run per merge instead of ~23. Options (`Desktop/diff/ci1/OWNER_MERGE_QUEUE_STEPS.md`): **A** change nothing (recommended); **B** untick "require up to date" (failures surface after merge); **C** move to a free organization, merge a CI-SPEED-2 `merge_group:` PR first (quality-gate + lane-overlap), then enable the queue. No `merge_group` trigger was added in `#969`.
+
 ## 2026-10-06 — WAVE B-17 (CONTROLLER B): QUICK-FIXES-1 PR-1 (`#955` `6259187b`), PR-2 (`#956` `5cd9d97e`), PR-3 (`#958` `613d8996`) — 19 new open + 1 raised and resolved in-lane, 6 closed, 3 kept open; LIVE
 
 Sources: `Desktop/diff/WAVE_STATE_B17.md` (FU, DECISIONS), `report-quick-fixes-1-pr1/-pr2/-pr3-2026-10-06.md` (FU lists, findings), `live-after-quick-fixes-1-pr1/-pr2/-pr3-2026-10-06.md` (findings), `b17-qf-pr2-evidence.md`, `b17-qf-pr2-decisions.csv`, `audit-request-quick-fixes-1-final-2026-10-06.md` §5 (the controller's FU list). **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3) — closures of older ids are recorded HERE. Every FU id named here has its own heading (standing rule 1).

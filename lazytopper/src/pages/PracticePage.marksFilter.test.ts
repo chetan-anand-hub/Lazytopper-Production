@@ -275,3 +275,39 @@ describe("selectInRangeFromPool — unique sets (unseen-preference + exhaustion)
     expect(displayed.length).toBe(4);
   });
 });
+
+// ── CBQ-1 PR-1 — the CBQ filter (style "cbq") ─────────────────────────────────
+// A CBQ-filtered set contains ONLY rows the one classifier (isCbq) calls CBQs, of MIXED
+// marks. Synthetic rows: the legacy isCompetencyBased / Section-E rows are the CONTROL.
+describe("CBQ-1 PR-1 — style 'cbq' keeps ONLY isCbq rows, every mark value", () => {
+  const mk = (id: string, marks: number, section: string, extra: Record<string, unknown> = {}) =>
+    ({ id, marks, section, questionText: id, ...extra } as unknown as PracticeQuestion);
+  const pool = [
+    mk("cbq1", 1, "A", { competencyVerified: true }),
+    mk("cbq2", 2, "B", { competencyVerified: true }),
+    mk("cbq3", 3, "C", { competencyVerified: true }),
+    mk("cbq4", 4, "E", { competencyVerified: true, format: "case-based" }),
+    mk("cbq5", 5, "D", { competencyVerified: true }),
+    mk("legacy4", 4, "E", { isCompetencyBased: true, format: "case-based" }),
+    mk("legacy1", 1, "A", { isCompetencyBased: true }),
+    mk("plain3", 3, "C"),
+  ];
+
+  it("★ marks 'all' + style 'cbq' → only the verified CBQs, of all five mark values", () => {
+    const { available, displayed } = selectInRangeFromPool(pool, "all", "cbq", "all", "all", null, 10);
+    expect(displayed.map((q) => q.id)).toEqual(["cbq1", "cbq2", "cbq3", "cbq4", "cbq5"]);
+    expect(available).toBe(5);
+    expect(new Set(displayed.map((q) => q.marks)).size).toBe(5); // mixed marks
+  });
+
+  it("CONTROL — the legacy flag and Section E do NOT pass the CBQ filter (but do pass 'case')", () => {
+    expect(questionMatchesFilters(pool[5], "all", "cbq", "all", "all", null)).toBe(false);
+    expect(questionMatchesFilters(pool[6], "all", "cbq", "all", "all", null)).toBe(false);
+    expect(questionMatchesFilters(pool[5], "all", "case", "all", "all", null)).toBe(true);
+  });
+
+  it("a marks bucket still narrows a CBQ set (CBQ + 2-3 marks)", () => {
+    const { displayed } = selectInRangeFromPool(pool, "23", "cbq", "all", "all", null, 10);
+    expect(displayed.map((q) => q.id)).toEqual(["cbq2", "cbq3"]);
+  });
+});

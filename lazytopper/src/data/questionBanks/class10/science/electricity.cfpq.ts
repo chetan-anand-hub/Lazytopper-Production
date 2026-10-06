@@ -114,7 +114,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 100 (folio 99) — Q3. Key: pdf-page 106, option 2.
   {
-    id: "CFPQ-S-ELEC-003",
+    id: "CFPQ-S-ELEC-003", competencyVerified: true,
     subject: "Science",
     topicKey: "electricity",
     subtopic: "Potential Difference in a Series Circuit",
@@ -168,7 +168,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 101 (folio 100) — Q5. Key: pdf-page 106, option 1.
   {
-    id: "CFPQ-S-ELEC-005",
+    id: "CFPQ-S-ELEC-005", competencyVerified: true,
     subject: "Science",
     topicKey: "electricity",
     subtopic: "Electric Power",
@@ -294,7 +294,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 103 (folio 102) — Q10 [2]. Rubric row 10: pdf-page 108.
   {
-    id: "CFPQ-S-ELEC-010",
+    id: "CFPQ-S-ELEC-010", competencyVerified: true,
     subject: "Science",
     topicKey: "electricity",
     subtopic: "Resistivity and Factors Affecting Resistance",
@@ -368,7 +368,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 104 (folio 103) — Q14 [2]. Rubric row 14: pdf-page 109.
   {
-    id: "CFPQ-S-ELEC-014",
+    id: "CFPQ-S-ELEC-014", competencyVerified: true,
     subject: "Science",
     topicKey: "electricity",
     subtopic: "Heating Effect of Electric Current",

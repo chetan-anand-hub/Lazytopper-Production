@@ -17,6 +17,8 @@ const STYLE_OPTIONS = [
   { value: "ar", label: "Assertion-Reason" },
   { value: "hots", label: "HOTS" },
   { value: "case", label: "Case-based" },
+  // CBQ-1 PR-1 — competency-based questions of EVERY mark value (the one classifier, isCbq).
+  { value: "cbq", label: "CBQ (competency)" },
 ];
 
 const SOURCE_OPTIONS = [
@@ -43,12 +45,13 @@ const SOURCE_NOTES: Record<string, string> = {
     "Practice questions from AI generation and reference books (RD Sharma, PW etc.) - useful when PYQ and NCERT run short.",
 };
 
+// "cbq" is compatible with EVERY marks bucket: a CBQ can be 1, 2, 3, 4 or 5 marks.
 const STYLE_COMPAT: Record<string, Set<string>> = {
-  all: new Set(["all", "proof", "ar", "hots", "case"]),
-  "1": new Set(["all", "ar"]),
-  "23": new Set(["all", "proof", "hots"]),
-  "5": new Set(["all", "proof", "hots"]),
-  "4": new Set(["all", "case"]),
+  all: new Set(["all", "proof", "ar", "hots", "case", "cbq"]),
+  "1": new Set(["all", "ar", "cbq"]),
+  "23": new Set(["all", "proof", "hots", "cbq"]),
+  "5": new Set(["all", "proof", "hots", "cbq"]),
+  "4": new Set(["all", "case", "cbq"]),
 };
 // Reverse direction: given a Style selection, which Marks chips are compatible?
 // Mirrors STYLE_COMPAT so chips grey out symmetrically in both directions.
@@ -58,6 +61,7 @@ const MARKS_COMPAT_BY_STYLE: Record<string, Set<string>> = {
   ar: new Set(["all", "1"]),
   hots: new Set(["all", "23", "5"]),
   case: new Set(["all", "4"]),
+  cbq: new Set(["all", "1", "23", "5", "4"]),
 };
 const DIFF_COMPAT_BY_MARKS: Record<string, Set<string>> = {
   all: new Set(["all", "Easy", "Medium", "Hard"]),

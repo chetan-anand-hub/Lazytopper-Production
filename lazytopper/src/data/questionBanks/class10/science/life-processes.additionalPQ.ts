@@ -31,7 +31,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
     strategyHint: "REQUIRES-FIGURE: four graphs P, Q, R, S of saturation vs altitude." },
 
   // Science-PQ Q12 (Section A, MCQ, 1 mark)
-  { id: "APQ-S-LIFE-003", subject: "Science", topicKey: "life-processes", subtopic: "Digestion — Pancreas Function", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "APQ-S-LIFE-003", competencyVerified: true, subject: "Science", topicKey: "life-processes", subtopic: "Digestion — Pancreas Function", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Patient X was suffering from a pancreatic condition due to which the pancreas was not functioning adequately. Which of the following is a doctor likely to suggest to such an individual?",
     options: [
       "including a large amount of protein in the diet",
@@ -45,7 +45,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
     ncertRef: "APQ Science-PQ Q12", isCompetencyBased: true },
 
   // Science-PQ Q23 first variant (Section B, Short, 2 marks)
-  { id: "APQ-S-LIFE-004", subject: "Science", topicKey: "life-processes", subtopic: "Photosynthesis and Respiration Coupling", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "APQ-S-LIFE-004", competencyVerified: true, subject: "Science", topicKey: "life-processes", subtopic: "Photosynthesis and Respiration Coupling", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "A plant X was enclosed in a glass jar with some lizards. A similar plant Y was enclosed in another glass jar but without lizards. Both jars are kept under the same light conditions for a few hours. Which plant is likely to photosynthesize more and why?",
     answer: "Plant X (with lizards) photosynthesises more.",
     solutionSteps: ["[1 mark] Lizards respire and release CO2 inside the jar, increasing CO2 concentration around plant X.", "[1 mark] Higher CO2 availability + adequate light ⟹ higher rate of photosynthesis in X compared to Y (which has limited CO2 in the closed jar)."],
@@ -109,7 +109,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
     ncertRef: "APQ Science-PQ2 Q18", isCompetencyBased: true },
 
   // Science-PQ2 Q23 first variant (Section B, Short, 2 marks)
-  { id: "APQ-S-LIFE-010", subject: "Science", topicKey: "life-processes", subtopic: "Excretion — Water Reabsorption in Summer", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "APQ-S-LIFE-010", competencyVerified: true, subject: "Science", topicKey: "life-processes", subtopic: "Excretion — Water Reabsorption in Summer", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Amount of urine produced generally decreases in summers as compared to other seasons if we don't keep ourselves sufficiently hydrated. Justify.",
     answer: "More reabsorption of water in summer due to sweating loss ⟹ less urine.",
     solutionSteps: ["[1 mark] The amount of urine is regulated by SELECTIVE REABSORPTION in the renal tubule of the nephron, depending on water status of the body.", "[1 mark] In summers, more water is lost through sweating. To maintain osmotic balance, the kidneys reabsorb MORE water from the filtrate, resulting in a smaller volume of more concentrated urine."],
