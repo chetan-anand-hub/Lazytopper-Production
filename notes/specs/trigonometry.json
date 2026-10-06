@@ -198,10 +198,23 @@
     },
     {
       "id": "c5",
-      "title": "Heights and distances - angle of elevation / depression",
-      "body": "Turn the scene into a right triangle: the vertical height, the horizontal distance and the line of sight. Mark the angle of <b>elevation</b> at the observer's eye when the object is above the horizontal, the angle of <b>depression</b> when it is below (alternate angles carry it down to the far end of the triangle). Then pick the one ratio that links the known side and the wanted side - usually $\\tan\\theta = \\dfrac{\\text{height}}{\\text{distance}}$, or $\\sin\\theta$ when the hypotenuse (a ladder, a string, a rope) is involved - and read its value from Table 8.1. Board problems use only $30°$, $45°$ and $60°$, and at most two right triangles (a flagstaff on a building, two ships from a lighthouse, a shadow at two altitudes); add the observer's height at the end if the eye is above the ground.",
-      "tested": "2-mark one-triangle problem (Exercise 9.1 Q1, Q4) · 3-mark two-triangle problem (Exercise 9.1 Q7, Q13)",
-      "figure_ref": "fig_elevation_depression_92_93",
+      "title": "Heights and distances - angle of elevation",
+      "body": "Turn the scene into a right triangle: the vertical height, the horizontal distance and the line of sight. Mark the angle of <b>elevation</b> at the observer's eye when the object is above the horizontal. Then pick the one ratio that links the known side and the wanted side - usually $\\tan\\theta = \\dfrac{\\text{height}}{\\text{distance}}$, or $\\sin\\theta$ when the hypotenuse (a ladder, a string, a rope) is involved - and read its value from Table 8.1.",
+      "tested": "2-mark one-triangle problem (Exercise 9.1 Q1, Q4) · 3-mark two-triangle problem (Exercise 9.1 Q7)",
+      "figure_ref": "fig_angle_of_elevation_92",
+      "source": {
+        "ncert_page": 135,
+        "edition": "2026-27",
+        "chapter": 9,
+        "note": "method on p.135 (choose tan A or cot A); the 30°/45°/60° and two-right-triangle limits are the CBSE 2026-27 syllabus's own restriction (Maths p.6)"
+      }
+    },
+    {
+      "id": "c6",
+      "title": "Heights and distances - angle of depression",
+      "body": "Mark the angle of <b>depression</b> at the observer's eye when the object is below the horizontal (alternate angles carry it down to the far end of the triangle). Board problems use only $30°$, $45°$ and $60°$, and at most two right triangles (a flagstaff on a building, two ships from a lighthouse, a shadow at two altitudes); add the observer's height at the end if the eye is above the ground.",
+      "tested": "3-mark two-triangle problem (Exercise 9.1 Q13)",
+      "figure_ref": "fig_angle_of_depression_93",
       "source": {
         "ncert_page": 135,
         "edition": "2026-27",
@@ -615,15 +628,15 @@
       },
       "asset": "trigonometry/fig_ratio_triangle_84.webp"
     },
-    "fig_elevation_depression_92_93": {
+    "fig_angle_of_elevation_92": {
       "bucket": "ncert",
-      "tag": "NCERT Fig. 9.2 / 9.3 (redrawn)",
-      "caption": "(a) Angle of elevation — the object is above the horizontal level, so the line of sight rises from the eye; (b) angle of depression — the object is below it, so the line of sight falls. Both angles are measured at the observer's eye, between the horizontal level and the line of sight.",
-      "legend": "The dashed ray is the horizontal level through the eye; the green arrow is the line of sight; the green arc is the angle to name. Elevation: head raised. Depression: head lowered — and alternate angles carry it to the far end of the right triangle.",
+      "tag": "NCERT Fig. 9.2 (redrawn)",
+      "caption": "Fig 9.2 — Angle of elevation: the object is above the horizontal level, so the line of sight rises from the eye. The angle is measured at the observer's eye, between the horizontal level and the line of sight.",
+      "legend": "The dashed ray is the horizontal level through the eye; the green arrow is the line of sight; the green arc is the angle to name. Elevation: head raised.",
       "source": {
         "pdf": "jemh109",
         "edition": "2026-27",
-        "ncert_fig": "9.2 and 9.3",
+        "ncert_fig": "9.2",
         "page_printed": 134,
         "page_pdf_index": 1,
         "crop": null,
@@ -631,9 +644,29 @@
         "render_matrix": null,
         "clean": "none",
         "refill": null,
-        "note": "NOT a crop: redrawn as a labelled SVG (QUICK-FIXES-1 Q4) from NCERT Reprint 2026-27 jemh109.pdf, pdf index 1 (printed p.134), Fig. 9.2 'angle of elevation' and Fig. 9.3 'angle of depression', both confirmed on the page: observer, dashed horizontal level, line of sight with an arrowhead to the object, the angle arc at the eye, labels as NCERT's. Two panels in one asset because a concept carries exactly one figure_ref (precedent: human-eye-and-colourful-world/fig_atmospheric_refraction.svg). Eye-confirmed at 390 px and 1440 px."
+        "note": "NOT a crop: redrawn as a labelled single-panel SVG (QUICK-FIXES-1 owner follow-up: one image each for elevation and depression, as NCERT presents them) from NCERT Reprint 2026-27 jemh109.pdf, pdf index 1 (printed p.134), Fig. 9.2 'angle of elevation', confirmed on the page: observer on the ground, dashed horizontal level, line of sight with an arrowhead to the object, the angle arc at the eye, labels as NCERT's. Eye-confirmed at 350 px and 777 px."
       },
-      "asset": "trigonometry/fig_elevation_depression_92_93.svg"
+      "asset": "trigonometry/fig_angle_of_elevation_92.svg"
+    },
+    "fig_angle_of_depression_93": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig. 9.3 (redrawn)",
+      "caption": "Fig 9.3 — Angle of depression: the object is below the horizontal level, so the line of sight falls from the eye. The angle is measured at the observer's eye, between the horizontal level and the line of sight.",
+      "legend": "The dashed ray is the horizontal level through the eye; the green arrow is the line of sight; the green arc is the angle to name. Depression: head lowered — and alternate angles carry it to the far end of the right triangle.",
+      "source": {
+        "pdf": "jemh109",
+        "edition": "2026-27",
+        "ncert_fig": "9.3",
+        "page_printed": 134,
+        "page_pdf_index": 1,
+        "crop": null,
+        "crop_units": null,
+        "render_matrix": null,
+        "clean": "none",
+        "refill": null,
+        "note": "NOT a crop: redrawn as a labelled single-panel SVG (QUICK-FIXES-1 owner follow-up: one image each for elevation and depression, as NCERT presents them) from NCERT Reprint 2026-27 jemh109.pdf, pdf index 1 (printed p.134), Fig. 9.3 'angle of depression', confirmed on the page: observer on a balcony, dashed horizontal level, line of sight with an arrowhead to the object, the angle arc at the eye, labels as NCERT's. Eye-confirmed at 350 px and 777 px."
+      },
+      "asset": "trigonometry/fig_angle_of_depression_93.svg"
     }
   },
   "source_ledger": [
@@ -728,9 +761,14 @@
       "source": "NCERT 2026-27 Ch8 Fig. 8.4 p.114"
     },
     {
-      "item": "fig_elevation_depression_92_93",
+      "item": "fig_angle_of_elevation_92",
       "type": "figure",
-      "source": "NCERT 2026-27 Ch9 Fig. 9.2 and 9.3 p.134"
+      "source": "NCERT 2026-27 Ch9 Fig. 9.2 p.134"
+    },
+    {
+      "item": "fig_angle_of_depression_93",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch9 Fig. 9.3 p.134"
     }
   ]
 }
