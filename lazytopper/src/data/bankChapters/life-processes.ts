@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "life-processes" (Science): 492 served rows from 20 source arrays, 18 withheld.
+// Chapter "life-processes" (Science): 482 served rows from 21 source arrays, 26 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -21,6 +21,7 @@ import { LIFE_SP } from "../questionBanks/class10/science/life-processes.sp";
 import { LIFE_PROCESSES_APQ } from "../questionBanks/class10/science/life-processes.additionalPQ";
 import { LIFE_PROCESSES_CHAPTERWISE } from "../questionBanks/class10/science/life-processes.chapterwise";
 import { LIFE_PROCESSES_PYQ } from "../questionBanks/class10/science/life-processes.pyq";
+import { chemicalReactionsPYQ2026 } from "../questionBanks/class10/science/chemicalReactions.pyq2026";
 import { lifeProcessesPYQ2026 } from "../questionBanks/class10/science/lifeProcesses.pyq2026";
 import { lifeProcessesPYQ2025 } from "../questionBanks/class10/science/lifeProcesses.pyq2025";
 import { lifeProcessesPYQ2024 } from "../questionBanks/class10/science/lifeProcesses.pyq2024";
@@ -43,6 +44,7 @@ export default defineChapter("life-processes", [
   [273, LIFE_PROCESSES_APQ, false],
   [286, LIFE_PROCESSES_CHAPTERWISE, false],
   [299, LIFE_PROCESSES_PYQ, false],
+  [359, chemicalReactionsPYQ2026, false],
   [363, lifeProcessesPYQ2026, false],
   [376, lifeProcessesPYQ2025, false],
   [389, lifeProcessesPYQ2024, false],
@@ -52,8 +54,16 @@ export default defineChapter("life-processes", [
   "LP2-007",
   "LP2-014",
   "LP2-025",
+  "LP2-054",
   "LP2-043",
+  "LIFE-EXMPLR-5-MCQ-034",
   "LPX-A-035",
+  "LPX-A-063",
+  "APQ-S-LIFE-002",
+  "APQ-S-LIFE-012",
+  "SCO-S-LIFE-003",
+  "SCO-S-LIFE-020",
+  "PYQ-S-LIFE-002",
   "PYQ-S-LIFE-010",
   "PYQ-S-LIFE-012",
   "PYQ-S-LIFE-014",

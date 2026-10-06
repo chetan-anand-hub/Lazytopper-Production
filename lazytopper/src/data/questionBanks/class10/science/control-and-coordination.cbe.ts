@@ -105,12 +105,13 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "options": [],
     "answer": "Light",
     "solutionSteps": [
-      "[1 mark] The stimulus causing the shoot to grow upward (towards light) is light."
+      "[1 mark] The shoot grows upwards, away from the root. The stimulus is light (positive phototropism); gravity (negative geotropism of the shoot) is also accepted."
     ],
-    "finalAnswer": "Light",
+    "finalAnswer": "Light (gravity also accepted)",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1.1 — seed with shoot growing upward (towards light)."
+    "diagramDescription": "Fig. 1.1 — seed with shoot growing upward (towards light).",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-006",
@@ -184,23 +185,23 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "control-and-coordination",
     "subtopic": "Mechanism of Auxin in Phototropism",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
-    "difficulty": "Hard",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "With reference to Fig. 1.1, explain how the plant hormone controls the growth response of the shoot.",
+    "questionText": "A potted plant is kept near a window. After a few days its shoot is seen bending towards the light coming in through the window. Explain how the plant hormone controls this growth response of the shoot.",
     "options": [],
     "answer": "Auxin is produced at the shoot tip, moves and collects on the side away from light, and causes the cells there to elongate, bending the shoot towards the light.",
     "solutionSteps": [
-      "[1 mark] The hormone (auxin) is produced/made at the shoot tip.",
-      "[1 mark] The hormone moves / diffuses / passes / spreads down the shoot.",
-      "[1 mark] It collects on the side away from the light (the shaded side).",
-      "[1 mark] The hormone causes cell elongation on the shaded side (e.g. by stretching of cell walls / osmosis of water), so the shoot bends towards the light."
+      "[1 mark] The hormone auxin is synthesised at the shoot tip and diffuses down the shoot.",
+      "[1 mark] When light falls from one side, auxin collects on the side of the shoot away from the light (the shaded side).",
+      "[1 mark] Auxin causes the cells on the shaded side to elongate more, so that side grows faster and the shoot bends towards the light (phototropism)."
     ],
     "finalAnswer": "Auxin made at the tip diffuses to the shaded side and causes those cells to elongate, bending the shoot towards light.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
-    "diagramDescription": "Fig. 1.1 — shoot bending towards a light source as auxin accumulates on the shaded side."
+    "requiresDiagram": false,
+    "diagramDescription": "Fig. 1.1 — shoot bending towards a light source as auxin accumulates on the shaded side.",
+    sourceOverride: "others",
   }
 ];

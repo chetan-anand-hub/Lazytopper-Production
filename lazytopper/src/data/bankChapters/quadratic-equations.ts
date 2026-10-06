@@ -2,10 +2,11 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "quadratic-equations" (Maths): 322 served rows from 19 source arrays, 13 withheld.
+// Chapter "quadratic-equations" (Maths): 315 served rows from 21 source arrays, 17 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
+import { PAIR_LINEAR_EQUATIONS_PACK1 } from "../questionBanks/class10/maths/pairOfLinearEquations.pack1";
 import { QUADRATIC_EQUATIONS_PACK1 } from "../questionBanks/class10/maths/quadraticEquations.pack1";
 import { QE2_PACK2 } from "../questionBanks/class10/maths/quadraticEquations.pack2";
 import { QUADRATIC_EQUATIONS_EXPAND_EXTRACT } from "../questionBanks/class10/maths/quadraticEquations.expand.extract";
@@ -13,6 +14,7 @@ import { QUADRATIC_EQUATIONS_EXPAND_LONG_D } from "../questionBanks/class10/math
 import { QUADRATIC_EQUATIONS_EXPAND_CASE_E } from "../questionBanks/class10/maths/quadraticEquations.expand.caseE";
 import { QE_NCERT } from "../questionBanks/class10/maths/quadraticEquations.ncert";
 import { QE_EXEMPLAR } from "../questionBanks/class10/maths/quadraticEquations.exemplar";
+import { TRI_EXEMPLAR } from "../questionBanks/class10/maths/triangles.exemplar";
 import { Z3_COMPETENCY_QUESTIONS } from "../questionBanks/class10/maths/competency.z3";
 import { MATHS_CASE_BASED_QUESTIONS } from "../questionBanks/class10/maths/maths.caseBased";
 import { QUADRATIC_EQUATIONS_SQP } from "../questionBanks/class10/maths/quadratic-equations.sqp";
@@ -27,6 +29,7 @@ import { QUADRATIC_EQUATIONS_PYQ_2025 } from "../questionBanks/class10/maths/qua
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 
 export default defineChapter("quadratic-equations", [
+  [10, PAIR_LINEAR_EQUATIONS_PACK1, true],
   [12, QUADRATIC_EQUATIONS_PACK1, true],
   [13, QE2_PACK2, true],
   [68, QUADRATIC_EQUATIONS_EXPAND_EXTRACT, false],
@@ -34,6 +37,7 @@ export default defineChapter("quadratic-equations", [
   [70, QUADRATIC_EQUATIONS_EXPAND_CASE_E, false],
   [120, QE_NCERT, false],
   [121, QE_EXEMPLAR, false],
+  [123, TRI_EXEMPLAR, false],
   [153, Z3_COMPETENCY_QUESTIONS, false],
   [163, MATHS_CASE_BASED_QUESTIONS, false],
   [169, QUADRATIC_EQUATIONS_SQP, false],
@@ -48,7 +52,9 @@ export default defineChapter("quadratic-equations", [
   [415, CURATED_INLINE_QUESTIONS, false],
 ], [
   "QE-E13",
+  "QE-M06",
   "QE-M12",
+  "QE-M13",
   "QE-M16",
   "QE2-004",
   "QE2-005",
@@ -56,7 +62,9 @@ export default defineChapter("quadratic-equations", [
   "QE2-033",
   "QE2-043",
   "QE-N-NCERT-4-SH-003",
+  "QE-N-EXMPLR-4-MCQ-005",
   "QE-N-EXMPLR-4-MCQ-007",
+  "Z3-QE-003",
   "PYQ-M-QE-001",
   "PYQ-M-QE-007",
   "PYQ-M-2025-QE-001",

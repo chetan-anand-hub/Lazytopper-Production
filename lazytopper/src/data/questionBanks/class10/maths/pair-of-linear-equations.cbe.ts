@@ -174,8 +174,8 @@ export const PLE_CBE: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "pair-of-linear-equations",
     "subtopic": "Real-Life Problems on Linear Equations",
-    "section": "A",
-    "marks": 1,
+    "section": "B",
+    "marks": 2,
     "format": "VSA",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
@@ -183,10 +183,12 @@ export const PLE_CBE: CanonicalQuestion[] = [
     "options": [],
     "answer": "Fixed charge Rs 5, charge per km Rs 10",
     "solutionSteps": [
-      "[1 mark] Let the fixed charge be x and the charge per km be y. Then x + 10y = 105 and x + 15y = 155. Solving gives y = 10 and, on substitution, x = 5. So the fixed charge is Rs 5 and the charge per km is Rs 10."
+      "[1 mark] Let the fixed charge be Rs x and the charge per km be Rs y. Then x + 10y = 105 and x + 15y = 155.",
+      "[1 mark] Subtracting, 5y = 50, so y = 10; substituting, x = 105 − 100 = 5. Fixed charge = Rs 5, charge per km = Rs 10."
     ],
     "finalAnswer": "Fixed charge Rs 5, charge per km Rs 10",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-PLE-A-005",

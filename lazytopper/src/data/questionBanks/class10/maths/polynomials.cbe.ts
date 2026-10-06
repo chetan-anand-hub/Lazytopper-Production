@@ -116,14 +116,15 @@ export const POLY_CBE: CanonicalQuestion[] = [
       "A. 3x² − 3√2·x + 1",
       "B. 3x² + 3√2·x + 1",
       "C. 2x² + 3√2·x − 1",
-      "D. 2x² + 3√2·x − 1"
+      "D. 3x² − 3√2·x − 1"
     ],
     "answer": "A. 3x² − 3√2·x + 1",
     "solutionSteps": [
       "[1 mark] Polynomial with sum √2 and product ⅓ is k[x²−√2x+⅓]; taking k=3 gives 3x²−3√2x+1. Answer: A."
     ],
     "finalAnswer": "A. 3x² − 3√2·x + 1",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-POLY-B-001",

@@ -74,8 +74,16 @@ describe("BANK-FIX-1 PR-1 · withheld rows are withheld", () => {
   });
 });
 
+// BANK-FIX-1 PR-2 (2026-10-07) re-fixed two PR-1 rows into different questions, so their PR-1 key
+// pins no longer apply: CC2-017 (branched-chain locant naming is beyond Class 10; now straight-chain
+// functional-group naming) and PR2-019 (two-ticket compound probability is beyond "simple problems";
+// now single-draw events). Their new keys go through the PR-2 independent re-solve and PR-2's own pins.
+const SUPERSEDED_BY_PR2: ReadonlySet<string> = new Set(["CC2-017", "PR2-019"]);
+
 describe("BANK-FIX-1 PR-1 · objective keys resolve to the agreed option", () => {
-  const objective = BANK_FIX_1_PR1.filter((e) => e.verdict === "fixed" && e.keyOptionIndex !== undefined);
+  const objective = BANK_FIX_1_PR1.filter(
+    (e) => e.verdict === "fixed" && e.keyOptionIndex !== undefined && !SUPERSEDED_BY_PR2.has(e.id),
+  );
   it("has objective pins (non-vacuous)", () => expect(objective.length).toBeGreaterThan(50));
   it("each key resolves to exactly the pinned option; options are distinct", () => {
     const bad: string[] = [];
@@ -92,7 +100,9 @@ describe("BANK-FIX-1 PR-1 · objective keys resolve to the agreed option", () =>
 });
 
 describe("BANK-FIX-1 PR-1 · written answers carry the corrected values", () => {
-  const written = BANK_FIX_1_PR1.filter((e) => e.verdict === "fixed" && (e.keyMustContain?.length ?? 0) > 0);
+  const written = BANK_FIX_1_PR1.filter(
+    (e) => e.verdict === "fixed" && (e.keyMustContain?.length ?? 0) > 0 && !SUPERSEDED_BY_PR2.has(e.id),
+  );
   it("has written pins (non-vacuous)", () => expect(written.length).toBeGreaterThan(30));
   it("each pinned value appears in answer / finalAnswer", () => {
     const squash = (s: string) => s.replace(/[\s,]/g, "").replace(/−/g, "-");

@@ -20,11 +20,13 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Applying",
         question:
-          "A school is planning to distribute prizes. They have 240 pens and 168 notebooks. They want to distribute them in equal groups such that each group has the same number of pens and notebooks.\n(a) Find the HCF of 240 and 168 using prime factorisation.\n(b) How many groups can be formed?\n(c) How many pens and notebooks will each group receive?",
+          "A school is planning to distribute prizes. It has 240 pens and 168 notebooks. They are to be packed into the greatest possible number of identical groups, so that every group gets the same number of pens and the same number of notebooks, with nothing left over.\n(i) Find the HCF of 240 and 168 using prime factorisation.\n(ii) What is the greatest number of groups that can be formed?\n(iii) How many pens and how many notebooks will each group receive?",
         answer:
-          "(a) 240 = 2⁴ × 3 × 5, 168 = 2³ × 3 × 7. HCF = 2³ × 3 = 24. (b) 24 groups. (c) 10 pens and 7 notebooks per group.",
+          "(i) 240 = 2⁴ × 3 × 5, 168 = 2³ × 3 × 7, HCF = 2³ × 3 = 24 (ii) 24 groups (iii) 10 pens and 7 notebooks per group",
         explanation:
           "Case-based application of FTA to real-life HCF problems.",
+        finalAnswer: "(i) HCF = 24 (ii) 24 groups (iii) 10 pens and 7 notebooks",
+        solutionSteps: ["[1 mark] 240 = 2⁴ × 3 × 5 and 168 = 2³ × 3 × 7.", "[1 mark] HCF = 2³ × 3 = 24.", "[1 mark] Greatest number of identical groups = HCF = 24.", "[1 mark] Each group gets 240 ÷ 24 = 10 pens and 168 ÷ 24 = 7 notebooks."],
       },
     ],
   },
@@ -82,6 +84,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) 6x² + 11x − 10 = 6x² + 15x − 4x − 10 = (3x − 2)(2x + 5), so the zeros are x = 2/3 and x = −5/2. (b) x = 2/3 is valid since a length must be positive. (c) Sum of zeros = 2/3 + (−5/2) = −11/6 = −b/a; Product = (2/3)(−5/2) = −5/3 = −10/6 = c/a. ✓",
         explanation:
           "Applies polynomial concepts to a real-world geometry context.",
+        solutionSteps: ["(a) Split the middle term: 6x² + 11x − 10 = 6x² + 15x − 4x − 10 = 3x(2x + 5) − 2(2x + 5) = (3x − 2)(2x + 5). [1]", "Zeros: x = 2/3 and x = −5/2. [1]", "(b) A length must be positive, so x = 2/3 m is the valid zero; −5/2 is rejected. [1]", "(c) Sum = 2/3 − 5/2 = −11/6 = −b/a; Product = (2/3)(−5/2) = −5/3 = −10/6 = c/a. Relationship verified. [1]"],
+        finalAnswer: "(a) Zeros 2/3 and −5/2; (b) x = 2/3 (length must be positive); (c) sum −11/6 = −b/a, product −5/3 = c/a — verified.",
       },
     ],
   },
@@ -134,11 +138,13 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Applying",
         question:
-          "Riya saves ₹50 in the first week, ₹55 in the second week, ₹60 in the third week, and so on.\n(a) Is this an AP? If yes, find the common difference.\n(b) How much will she save in the 15th week?\n(c) Find her total savings after 20 weeks.",
+          "Riya saves ₹50 in the first week, ₹55 in the second week, ₹60 in the third week, and so on.\n(i) Is this an AP? If yes, find the common difference.\n(ii) How much will she save in the 15th week?\n(iii) Find her total savings after 20 weeks.",
         answer:
-          "(a) Yes, d = 5. (b) a₁₅ = 50 + 14 × 5 = ₹120. (c) S₂₀ = 20/2 [2(50) + 19(5)] = 10 × 195 = ₹1950.",
+          "(i) Yes, d = ₹5. (ii) a₁₅ = 50 + 14 × 5 = ₹120. (iii) S₂₀ = 20/2 [2(50) + 19(5)] = 10 × 195 = ₹1950.",
         explanation:
           "Classic CBSE case-based AP problem using real-life savings context.",
+        finalAnswer: "(i) Yes, d = ₹5 (ii) ₹120 (iii) ₹1950",
+        solutionSteps: ["[1 mark] (i) 55 − 50 = 60 − 55 = 5 (constant), so it is an AP with d = ₹5.", "[1 mark] (ii) a₁₅ = a + 14d = 50 + 14 × 5 = ₹120.", "[1 mark] (iii) S₂₀ = (20/2)[2 × 50 + 19 × 5] = 10 × [100 + 95].", "[1 mark] S₂₀ = 10 × 195 = ₹1950."],
       },
     ],
   },
@@ -161,11 +167,13 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Applying",
         question:
-          "On a city map, three bus stops are located at A(2, 3), B(8, 7) and C(14, 11). A new bus stop D is to be built at the midpoint of A and C.\n(a) Find the coordinates of D.\n(b) Show that B divides AC in the ratio 1:1.\n(c) Find the distance between A and C.",
+          "On a city map, three bus stops are located at A(2, 3), B(8, 7) and C(14, 11). A new bus stop D is to be built at the midpoint of A and C.\nBased on the above, answer the following:\n(i) Find the coordinates of D. [1 mark]\n(ii) Show that B divides AC in the ratio 1 : 1. [1 mark]\n(iii) Find the distance between A and C. [2 marks]",
         answer:
-          "(a) D = ((2+14)/2, (3+11)/2) = (8, 7). (b) B = (8, 7) = D, so B is the midpoint, dividing AC in 1:1. (c) AC = √[(14−2)² + (11−3)²] = √(144+64) = √208 = 4√13 ≈ 14.42 units.",
+          "(i) D = (8, 7). (ii) B = (8, 7) = D, the midpoint of AC, so B divides AC in the ratio 1 : 1. (iii) AC = √208 = 4√13 ≈ 14.42 units.",
         explanation:
           "Applies coordinate geometry to a real-world map scenario.",
+        finalAnswer: "(i) D(8, 7); (ii) B is the midpoint of AC, ratio 1 : 1; (iii) AC = 4√13 units.",
+        solutionSteps: ["[1 mark] (i) D = ((2 + 14)/2, (3 + 11)/2) = (8, 7).", "[1 mark] (ii) B = (8, 7) coincides with D, the midpoint of AC, so B divides AC in the ratio 1 : 1.", "[1 mark] (iii) AC = √[(14 − 2)² + (11 − 3)²] = √(144 + 64).", "[1 mark] AC = √208 = 4√13 ≈ 14.42 units."],
       },
     ],
   },
@@ -225,11 +233,13 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         tier: "good-to-do",
         bloomSkill: "Applying",
         question:
-          "A designer creates a table mat in the shape of a sector of a circle with radius 28 cm and angle 90°.\n(a) Find the area of the sector.\n(b) Find the length of the arc of the sector.\n(c) If the mat is further cut into two equal parts, what will be the area of each part?",
+          "A designer creates a table mat in the shape of a sector of a circle with radius 28 cm and central angle 90°. (Use π = 22/7.)\n(i) Find the area of the sector.\n(ii) Find the length of the arc of the sector.\n(iii) The mat is further cut along the radius bisecting its angle into two equal parts. Find the central angle and the area of each part.",
         answer:
-          "(a) Area = (90/360) × π × 28² = (1/4) × 22/7 × 784 = 616 cm². (b) Arc length = (90/360) × 2π × 28 = 44 cm. (c) Each part = 616/2 = 308 cm².",
+          "(i) 616 cm² (ii) 44 cm (iii) Each part is a sector of angle 45°, area 308 cm².",
         explanation:
           "Case-based application of sector area and arc length formulas.",
+        finalAnswer: "(i) 616 cm² (ii) 44 cm (iii) 45°, 308 cm² each",
+        solutionSteps: ["[1 mark] (i) Area of sector = (θ/360°) × πr² = (90/360) × (22/7) × 28² = (1/4) × (22/7) × 784 = 616 cm².", "[1 mark] (ii) Arc length = (θ/360°) × 2πr = (90/360) × 2 × (22/7) × 28 = (1/4) × 176 = 44 cm.", "[1 mark] (iii) Cutting along the bisecting radius gives two sectors, each of central angle 90°/2 = 45°.", "[1 mark] Area of each part = (45/360) × (22/7) × 784 = (1/8) × 2464 = 308 cm² (= 616/2)."],
       },
     ],
   },
@@ -266,6 +276,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) Zn + CuSO₄ → ZnSO₄ + Cu; 2FeSO₄ → Fe₂O₃ + SO₂ + SO₃. (b) Experiment 1: Displacement; Experiment 2: Decomposition. (c) Blue to colourless — Zn displaces Cu from solution.",
         explanation:
           "Combines displacement and decomposition in a lab-based case study.",
+        solutionSteps: ["[1 mark] (a) Experiment 1: Zn(s) + CuSO4(aq) → ZnSO4(aq) + Cu(s).", "[1 mark] (a) Experiment 2: 2FeSO4(s) →(heat) Fe2O3(s) + SO2(g) + SO3(g) (green crystals first lose water of crystallisation).", "[1 mark] (b) Experiment 1 is a displacement reaction; Experiment 2 is a (thermal) decomposition reaction.", "[1 mark] (c) The blue colour of the copper sulphate solution fades to colourless because the more reactive zinc displaces copper, forming colourless zinc sulphate; reddish-brown copper deposits on the zinc."],
+        finalAnswer: "(a) Zn + CuSO₄ → ZnSO₄ + Cu; 2FeSO₄ → Fe₂O₃ + SO₂ + SO₃ (b) Displacement; Decomposition (c) Blue → colourless, as Zn displaces Cu",
       },
     ],
   },
@@ -294,7 +306,9 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer:
           "(a) P (pH 2) is strongly acidic; S (pH 13) is strongly basic. (b) Q (pH 7) is neutral. (c) Neutralisation reaction occurs. Products: salt and water.",
         explanation:
-          "Classic CBSE case-based pH and neutralisation problem.",
+          "pH < 7 is acidic (the lower, the stronger), pH 7 is neutral and pH > 7 is basic (the higher, the stronger). An acid and a base react to form salt and water (neutralisation).",
+        solutionSteps: ["[1 mark] (a) P (pH 2) is strongly acidic and S (pH 13) is strongly basic — lower pH means more H+ ions, higher pH more OH− ions.", "[1 mark] (b) Q (pH 7) is neutral.", "[1 mark] (c) Mixing the strong acid P with the strong base S causes a neutralisation reaction.", "[1 mark] (c) Products are a salt and water, e.g. HCl + NaOH → NaCl + H2O."],
+        finalAnswer: "(a) P strongly acidic, S strongly basic; (b) Q neutral; (c) neutralisation — salt + water.",
       },
     ],
   },
@@ -363,6 +377,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) Yes, they differ by CH₂ and have similar chemical properties. (b) CₙH₂ₙ₊₂. (c) Propane; H₃C—CH₂—CH₃. (d) C₄H₁₀ (Butane).",
         explanation:
           "Tests understanding of homologous series through a structured case study.",
+        solutionSteps: ["[1 mark] (a) Yes. Successive members differ by a –CH₂– unit (14 u) and have similar chemical properties, so they form a homologous series.", "[1 mark] (b) General formula: CₙH₂ₙ₊₂ (alkanes).", "[1 mark] (c) C₃H₈ is propane; structural formula CH₃–CH₂–CH₃ (each C forms 4 single bonds, 8 C–H bonds in total).", "[1 mark] (d) Next member (n = 4): C₄H₁₀, butane."],
       },
     ],
   },
@@ -392,6 +407,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) Reflex action; reflex arc is the pathway. (b) Receptor (skin) → Sensory nerve → Spinal cord → Motor nerve → Effector (muscles). (c) Because the signal doesn't travel to the brain; it is processed in the spinal cord. (d) Spinal cord.",
         explanation:
           "Case-based question on reflex arc using everyday scenario.",
+        solutionSteps: ["[1 mark] (a) It is a reflex action; the pathway involved is the reflex arc.", "[1 mark] (b) Stimulus (heat) → Receptor (skin) → Sensory neurone → Spinal cord (relay neurone) → Motor neurone → Effector (arm muscles) → hand is withdrawn.", "[1 mark] (c) It is faster because the impulse is processed in the spinal cord and does not have to travel to the brain for thinking/decision.", "[1 mark] (d) The response is coordinated by the spinal cord (central nervous system)."],
+        finalAnswer: "(a) Reflex action via reflex arc; (b) Receptor → Sensory neurone → Spinal cord → Motor neurone → Effector; (c) processed in spinal cord, no brain involvement; (d) Spinal cord.",
       },
       {
         id: "sci-cc-bio-comp-02",
@@ -452,6 +469,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) Genotype: Tt (all heterozygous); Phenotype: all tall. (b) TT : Tt : Tt : tt. (c) 3 tall : 1 dwarf. (d) Law of Dominance and Law of Segregation.",
         explanation:
           "Standard CBSE case-based Mendelian genetics problem.",
+        solutionSteps: ["(a) [1 mark] TT × tt: gametes T and t → F₁ all Tt (heterozygous); phenotype: all tall.", "(b) [1 mark] Tt × Tt: gametes T, t from each parent → Punnett square gives TT, Tt, Tt, tt.", "(c) [1 mark] Phenotypic ratio in F₂ = 3 tall : 1 dwarf (genotypic 1 TT : 2 Tt : 1 tt).", "(d) [1 mark] Law of Dominance (tall masks dwarf in F₁) and Law of Segregation (T and t separate in gametes and reappear in F₂)."],
       },
     ],
   },
@@ -481,6 +499,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) Using 1/v − 1/u = 1/f: 1/v − 1/(−30) = 1/20 ⇒ 1/v = 1/20 − 1/30 = 1/60 ⇒ v = 60 cm. (b) m = v/u = 60/(−30) = −2 (magnification is 2×). (c) Real, inverted, magnified (since |m| > 1). (d) At 15 cm, object is between F and optical centre. Using 1/v − 1/(−15) = 1/20 ⇒ 1/v = 1/20 − 1/15 = −1/60 ⇒ v = −60 cm. Image is virtual, erect, and magnified.",
         explanation:
           "Case-based optics problem testing lens formula application with different object positions.",
+        solutionSteps: ["[1 mark] (a) u = −30 cm, f = +20 cm; 1/v − 1/u = 1/f ⇒ 1/v = 1/20 − 1/30 = 1/60 ⇒ v = +60 cm (60 cm behind the lens).", "[1 mark] (b) m = v/u = 60/(−30) = −2.", "[1 mark] (c) Real (v positive), inverted (m negative), magnified (|m| = 2 > 1).", "[1 mark] (d) u = −15 cm: 1/v = 1/20 − 1/15 = −1/60 ⇒ v = −60 cm, m = (−60)/(−15) = +4; image becomes virtual, erect, magnified, on the same side as the object."],
+        finalAnswer: "(a) v = +60 cm (b) m = −2 (c) Real, inverted, magnified (d) v = −60 cm, m = +4: virtual, erect, magnified",
       },
       {
         id: "sci-lrr-comp-02",
@@ -525,7 +545,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         id: "sci-eye-comp-01",
         subject: "Science",
         stream: "Physics",
-        topic: "The Human Eye & the Colourful World",
+        topic: "Human Eye & Colourful World",
         subtopic: "Structure & Defects of Vision",
         concept: "Case-based eye defects",
         section: "E",
@@ -541,6 +561,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) Hypermetropia (far-sightedness). (b) The eyeball becomes too short or the eye lens becomes too flat, causing the image to form behind the retina. (c) f = 1/P = 1/2.5 = 0.4 m = 40 cm. (d) Convex lens converges light rays before they enter the eye, shifting the image to the retina.",
         explanation:
           "Real-life case study on eye defects with numerical calculation.",
+        solutionSteps: ["[1 mark] (a) She cannot see nearby objects clearly and needs convex lenses → hypermetropia (long-sightedness); in old age this is commonly presbyopia.", "[1 mark] (b) The focal length of the eye lens becomes too long (lens too flat / weak ciliary muscles) or the eyeball becomes too short, so the image of a near object forms behind the retina.", "[1 mark] (c) f = 1/P = 1/(+2.5 D) = +0.4 m = +40 cm.", "[1 mark] (d) Diagram: rays from a near object pass through a convex lens, which converges them so that the eye forms the image on the retina instead of behind it."],
       },
     ],
   },
@@ -570,6 +591,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) 1/R = 1/6 + 1/12 = 3/12 ⇒ R = 4 Ω. (b) I = V/R = 12/4 = 3 A. (c) I₁ = 12/6 = 2 A; I₂ = 12/12 = 1 A. (d) I = 12/12 = 1 A.",
         explanation:
           "Parallel circuit case study testing Ohm's law and equivalent resistance calculations.",
+        solutionSteps: ["[1 mark] (a) 1/R = 1/6 + 1/12 = 3/12 = 1/4 ⇒ R = 4 Ω.", "[1 mark] (b) I = V/R = 12 V / 4 Ω = 3 A.", "[1 mark] (c) Same 12 V across each: I₁ = 12/6 = 2 A; I₂ = 12/12 = 1 A (check: 2 + 1 = 3 A).", "[1 mark] (d) Only the 12 Ω resistor remains: I = 12 V / 12 Ω = 1 A."],
       },
     ],
   },
@@ -596,9 +618,11 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         question:
           "A student examines the longitudinal section of a flower.\n(a) Name the male and female reproductive parts of the flower.\n(b) What is pollination? Differentiate between self-pollination and cross-pollination.\n(c) What happens after fertilisation in a flower? Name the parts that develop into fruit and seed.\n(d) How is the process of reproduction in humans different from plants?",
         answer:
-          "(a) Male: stamen (anther + filament); Female: pistil (stigma + style + ovary). (b) Transfer of pollen from anther to stigma. Self: within same flower; Cross: between different flowers. (c) Ovary → fruit, ovule → seed. (d) Humans have internal fertilisation with specialised organs; plants can reproduce both sexually and asexually.",
+          "(a) Male part: stamen (anther + filament); female part: pistil/carpel (stigma + style + ovary). (b) Pollination is the transfer of pollen grains from the anther to the stigma; self-pollination is transfer within the same flower (or another flower of the same plant), cross-pollination is transfer to the stigma of a flower on a different plant. (c) After fertilisation the zygote forms the embryo; the ovule develops into the seed and the ovary into the fruit, while petals, sepals, stamens, style and stigma wither. (d) Humans are unisexual with separate male and female individuals, have internal fertilisation in the oviduct and the embryo develops in the uterus nourished through the placenta; flowering plants are often bisexual, need pollination before fertilisation, and the embryo develops inside the seed.",
         explanation:
           "Comprehensive case-based reproduction question covering plant and human reproduction.",
+        solutionSteps: ["[1 mark] (a) Male reproductive part: stamen (anther + filament); female reproductive part: pistil/carpel (stigma + style + ovary).", "[1 mark] (b) Pollination: transfer of pollen grains from the anther to the stigma. Self-pollination – pollen reaches the stigma of the same flower (or another flower of the same plant); cross-pollination – pollen reaches the stigma of a flower on a different plant.", "[1 mark] (c) After fertilisation the zygote divides to form the embryo; the ovule develops into the seed and the ovary ripens into the fruit; petals, sepals, stamens, style and stigma wither and fall off.", "[1 mark] (d) Humans: separate sexes, internal fertilisation in the oviduct, embryo develops in the uterus and is nourished through the placenta. Flowering plants: flowers are often bisexual, pollination is needed to bring pollen to the stigma, and the embryo develops and is stored inside the seed."],
+        finalAnswer: "(a) Stamen; pistil. (b) Pollen transfer anther→stigma; self = same flower/plant, cross = different plant. (c) Ovule→seed, ovary→fruit. (d) Humans: separate sexes, internal fertilisation, placenta; plants: often bisexual, pollination needed, embryo in seed.",
       },
     ],
   },
@@ -667,6 +691,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) Producer: Grass; Top consumer: Eagle. (b) Third trophic level. (c) Frog population will decrease due to lack of food. (d) Eagle gets 10000 × 0.1⁴ = 1 J.",
         explanation:
           "Case study applying 10% energy transfer law in a food chain.",
+        solutionSteps: ["[1 mark] (a) Producer: Grass; top consumer: Eagle.", "[1 mark] (b) Grass is T1, grasshopper T2, so the frog is at the third trophic level (secondary consumer).", "[1 mark] (c) Grasshoppers are the frogs' food; removing them leaves frogs without food, so the frog population decreases.", "[1 mark] (d) Eagle is at T5: energy = 10000 J × 0.1 × 0.1 × 0.1 × 0.1 = 10000 × 0.1⁴ = 1 J."],
+        finalAnswer: "(a) Grass; Eagle (b) Third trophic level (c) Frog population decreases (d) 1 J",
       },
     ],
   },
@@ -727,6 +753,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer:
           "(a) Mean = 28.4 marks. (b) n/2 = 25; cumulative frequencies 5, 13, 25, 40, 50, so the median class is 30-40 (first cf greater than 25) and the median = 30 + ((25 − 25)/15) × 10 = 30. (c) Modal class = 30-40; Mode = 30 + ((15 − 12)/(2×15 − 12 − 10)) × 10 = 33.75 marks.",
         explanation: "Mean: Σfx = 25 + 120 + 300 + 525 + 450 = 1420, Σf = 50, mean = 28.4. Median: n/2 = 25 coincides with the cf up to 30, so the median is 30 (median class 30-40 by the NCERT 'greater than n/2' rule). Mode: l = 30, f₁ = 15, f₀ = 12, f₂ = 10, h = 10 → 30 + (3/8) × 10 = 33.75.",
+        solutionSteps: ["[1 mark] (a) Class marks 5, 15, 25, 35, 45; fx = 25, 120, 300, 525, 450; Σfx = 1420, Σf = 50; Mean = 1420/50 = 28.4 marks.", "[1 mark] (b) n/2 = 25; cumulative frequencies 5, 13, 25, 40, 50; the first cf greater than 25 is 40, so the median class is 30-40 (median = 30 + ((25 − 25)/15) × 10 = 30).", "[1 mark] (c) Modal class = 30-40 (highest frequency 15): l = 30, f₁ = 15, f₀ = 12, f₂ = 10, h = 10.", "[1 mark] (c) Mode = 30 + ((15 − 12)/(2×15 − 12 − 10)) × 10 = 30 + (3/8) × 10 = 33.75 marks."],
+        finalAnswer: "(a) Mean = 28.4 marks (b) Median class 30-40 (c) Mode = 33.75 marks",
       },
     ],
   },
@@ -752,7 +780,9 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "A box contains 5 red, 4 green, and 3 blue balls.\n(a) A ball is drawn at random. Find the probability that it is red.\n(b) Find the probability that the ball drawn is not blue.\n(c) Find the probability that the ball is either green or blue.\n(d) If 2 more red balls are added, what is the new probability of drawing a red ball?",
         answer:
           "(a) 5/12. (b) 9/12 = 3/4. (c) 7/12. (d) 7/14 = 1/2.",
-        explanation: "Step-by-step probability from a real-life scenario.",
+        explanation: "Total balls = 12. P(red) = 5/12; P(not blue) = 1 − 3/12 = 3/4; P(green or blue) = 7/12. After adding 2 red balls, total = 14 and red = 7, so P(red) = 1/2.",
+        solutionSteps: ["[1 mark] (a) Total balls = 5 + 4 + 3 = 12. P(red) = 5/12.", "[1 mark] (b) Balls that are not blue = 12 − 3 = 9. P(not blue) = 9/12 = 3/4.", "[1 mark] (c) Green or blue = 4 + 3 = 7. P(green or blue) = 7/12.", "[1 mark] (d) New total = 14, red = 7. P(red) = 7/14 = 1/2."],
+        finalAnswer: "(a) 5/12 (b) 3/4 (c) 7/12 (d) 1/2",
       },
       {
         id: "prob-comp-02",
@@ -802,10 +832,12 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Applying",
         question:
-          "A ball is thrown upwards and its height h (in metres) after t seconds is given by h = -5t² + 20t.\n(a) When does the ball reach maximum height?\n(b) What is the maximum height?\n(c) After how many seconds does the ball hit the ground?\n(d) For what value of k will -5t² + 20t = k have equal roots?",
+          "A ball is thrown upwards and its height h (in metres) after t seconds is given by h = −5t² + 20t.\n(i) After how many seconds does the ball hit the ground?\n(ii) At what times is the ball at a height of 15 m?\n(iii) For what value of k will −5t² + 20t = k have equal roots? Hence find the greatest height reached by the ball and the time at which it is reached.",
         answer:
-          "(a) t = 2 s. (b) h = 20 m. (c) t = 4 s. (d) k = 20 (discriminant = 0).",
-        explanation: "Quadratic equations applied to projectile motion — classic board pattern.",
+          "(i) t = 4 s. (ii) t = 1 s and t = 3 s. (iii) k = 20; greatest height 20 m, reached at t = 2 s.",
+        explanation: "Each part is solved as a quadratic equation: h = 0 for landing, h = 15 for the given height, and equal roots (D = 0) for the single highest point.",
+        solutionSteps: ["[1 mark] (i) h = 0 ⟹ −5t² + 20t = 0 ⟹ 5t(4 − t) = 0 ⟹ t = 0 (launch) or t = 4. The ball hits the ground after 4 s.", "[1 mark] (ii) −5t² + 20t = 15 ⟹ t² − 4t + 3 = 0 ⟹ (t − 1)(t − 3) = 0 ⟹ t = 1 s (going up) and t = 3 s (coming down).", "[1 mark] (iii) 5t² − 20t + k = 0 has equal roots when D = (−20)² − 4(5)(k) = 400 − 20k = 0 ⟹ k = 20.", "[1 mark] (iii) With k = 20 the ball reaches that height only once, so it is the greatest height, 20 m; the equal root t = 20/(2 × 5) = 2 s."],
+        finalAnswer: "(i) 4 s; (ii) 1 s and 3 s; (iii) k = 20; greatest height 20 m at t = 2 s.",
       },
     ],
   },
@@ -828,10 +860,12 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Applying",
         question:
-          "Aman bought 3 pens and 2 pencils for Rs 60. Beena bought 2 pens and 5 pencils for Rs 65.\n(a) Form a pair of linear equations.\n(b) Solve for the cost of a pen and a pencil.\n(c) What is the cost of 4 pens and 4 pencils?",
+          "Aman bought 3 pens and 2 pencils for Rs 60. Beena bought 2 pens and 5 pencils for Rs 62.\n(i) Form a pair of linear equations for the given situation.\n(ii) Solve the equations to find the cost of one pen and one pencil.\n(iii) What is the cost of 4 pens and 4 pencils?",
         answer:
-          "(a) Let cost of pen = x, pencil = y. Equations: 3x + 2y = 60 and 2x + 5y = 65. (b) Multiply eq1 by 5 and eq2 by 2: 15x + 10y = 300, 4x + 10y = 130. Subtracting: 11x = 170 ⇒ x = 170/11 ≈ Rs 15.45. Substituting: y = (60 − 3×170/11)/2 = (660 − 510)/(22) = 150/22 ≈ Rs 6.82. (c) Cost of 4 pens + 4 pencils = 4(15.45 + 6.82) ≈ Rs 89.09.",
-        explanation: "Case-based word problem on pair of linear equations.",
+          "(i) 3x + 2y = 60 and 2x + 5y = 62, where x = cost of a pen and y = cost of a pencil (in Rs). (ii) Pen = Rs 16, pencil = Rs 6. (iii) 4 pens + 4 pencils = 4(16 + 6) = Rs 88.",
+        explanation: "Form two linear equations from the two purchases and solve by elimination (multiply to equalise the y-coefficients, then subtract). Here x = 16, y = 6, so 4(x + y) = 88.",
+        solutionSteps: ["[1 mark] (i) Let cost of a pen = Rs x and a pencil = Rs y: 3x + 2y = 60 …(1) and 2x + 5y = 62 …(2).", "[1 mark] (ii) (1)×5: 15x + 10y = 300; (2)×2: 4x + 10y = 124; subtracting: 11x = 176 ⇒ x = 16.", "[1 mark] From (1): 48 + 2y = 60 ⇒ y = 6. Pen = Rs 16, pencil = Rs 6 (check (2): 32 + 30 = 62 ✓).", "[1 mark] (iii) Cost of 4 pens and 4 pencils = 4(x + y) = 4(16 + 6) = Rs 88."],
+        finalAnswer: "Pen = Rs 16, pencil = Rs 6; 4 pens + 4 pencils = Rs 88",
       },
       {
         id: "le-comp-02",
@@ -923,6 +957,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer:
           "(a) All Tt (heterozygous tall). (b) 3:1 (tall:dwarf). (c) Tall is dominant, dwarf is recessive. (d) 25% (TT).",
         explanation: "Classic monohybrid cross — frequently asked as case-based in boards.",
+        solutionSteps: ["(a) [1 mark] TT × tt → all F₁ are Tt; phenotype: all tall (heterozygous tall).", "(b) [1 mark] Tt × Tt → TT : Tt : tt = 1 : 2 : 1; phenotypic ratio 3 tall : 1 dwarf.", "(c) [1 mark] Tall is dominant (expressed in F₁); dwarf is recessive (masked in F₁, reappears in F₂).", "(d) [1 mark] Homozygous tall (TT) = 1 of 4 F₂ plants = 25%."],
       },
     ],
   },
@@ -951,6 +986,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer:
           "(a) 1/R = 1/2 + 1/3 + 1/6 = 1, so R = 1Ω. (b) I = 12/1 = 12A. (c) I₃ = 12/3 = 4A. (d) P = V²/R = 144/6 = 24W.",
         explanation: "Parallel circuit analysis — extremely common case-based format.",
+        solutionSteps: ["[1 mark] (a) 1/R = 1/2 + 1/3 + 1/6 = (3 + 2 + 1)/6 = 1 ⇒ R = 1 Ω.", "[1 mark] (b) I = V/R = 12 V / 1 Ω = 12 A.", "[1 mark] (c) Full 12 V across the 3 Ω resistor: I = 12/3 = 4 A.", "[1 mark] (d) P = V²/R = 12²/6 = 144/6 = 24 W."],
       },
     ],
   },
@@ -979,6 +1015,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer:
           "(a) Solution A (pH 2). (b) Solution C (pH 12). (c) Solution B (pH 7). (d) C < E < B < D < A.",
         explanation: "Case study on pH scale interpretation and hydrogen ion concentration.",
+        solutionSteps: ["[1 mark] (a) Lower pH means more acidic; the lowest pH is 2, so solution A is the most acidic.", "[1 mark] (b) Higher pH means more basic; the highest pH is 12, so solution C is the most basic.", "[1 mark] (c) pH 7 is neutral, so solution B is neutral.", "[1 mark] (d) Hydrogen ion concentration increases as pH decreases: C (12) < E (9) < B (7) < D (5) < A (2)."],
+        finalAnswer: "(a) A (b) C (c) B (d) C < E < B < D < A",
       },
     ],
   },
@@ -1005,6 +1043,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer:
           "(a) Diagram with lighthouse AB = 45 m, ships C and D. (b) tan 60° = 45/BC ⇒ BC = 45/√3 = 15√3 m. (c) tan 30° = 45/BD ⇒ BD = 45√3 m. Distance CD = 45√3 − 15√3 = 30√3 m ≈ 51.96 m.",
         explanation: "Heights and distances — classic case-based board format.",
+        solutionSteps: ["[1 mark] (a) Figure: lighthouse AB = 45 m with top A and foot B; ships C (nearer) and D (farther) on the same side on the line through B; angles of depression from A are 60° to C and 30° to D, so ∠ACB = 60° and ∠ADB = 30°.", "[1 mark] (b) In right △ABC: tan 60° = AB/BC ⇒ √3 = 45/BC ⇒ BC = 45/√3 = 15√3 m ≈ 25.98 m.", "[1 mark] (c) In right △ABD: tan 30° = AB/BD ⇒ 1/√3 = 45/BD ⇒ BD = 45√3 m.", "[1 mark] CD = BD − BC = 45√3 − 15√3 = 30√3 m ≈ 51.96 m."],
+        finalAnswer: "(b) 15√3 m ≈ 25.98 m; (c) 30√3 m ≈ 51.96 m",
       },
       {
         id: "trig-comp-02",
@@ -1045,7 +1085,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         subject: "Maths",
         topic: "Surface Areas and Volumes",
         subtopic: "Combination of Solids",
-        concept: "Case-based volume calculation",
+        concept: "Case-based surface area of combined solid",
         section: "E",
         type: "CaseBased",
         difficulty: "Medium",
@@ -1056,8 +1096,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         question:
           "A toy is in the shape of a cone mounted on a hemisphere. The radius of the hemisphere is 7 cm and the total height of the toy is 17 cm.\n(a) Find the height of the cone.\n(b) Find the slant height of the cone.\n(c) Find the total surface area of the toy.",
         answer:
-          "(a) Height of cone = 17 − 7 = 10 cm. (b) Slant height = √(7² + 10²) = √149 ≈ 12.21 cm. (c) TSA = CSA of cone + CSA of hemisphere = πrl + 2πr² = π(7)(12.21) + 2π(49) = 268.47 + 307.88 ≈ 576.35 cm².",
+          "(a) Height of cone = 17 − 7 = 10 cm. (b) Slant height l = √(7² + 10²) = √149 ≈ 12.21 cm. (c) TSA = CSA of cone + CSA of hemisphere = πrl + 2πr² = πr(l + 2r) = 7π(√149 + 14) ≈ 7 × 3.1416 × 26.21 ≈ 576.3 cm².",
         explanation: "Combination of solids — frequently asked as case-based in boards.",
+        solutionSteps: ["[1 mark] (a) Height of cone = total height − radius of hemisphere = 17 − 7 = 10 cm.", "[1 mark] (b) Slant height l = √(r² + h²) = √(7² + 10²) = √149 ≈ 12.21 cm.", "[1 mark] (c) TSA of toy = CSA of cone + CSA of hemisphere = πrl + 2πr² = πr(l + 2r).", "[1 mark] = 7π(√149 + 14) ≈ 7 × 3.1416 × 26.21 ≈ 576.3 cm²."],
+        finalAnswer: "(a) 10 cm; (b) √149 ≈ 12.21 cm; (c) ≈ 576.3 cm²",
       },
     ],
   },
@@ -1296,6 +1338,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer:
           "(a) To destarch the leaves — ensure no pre-existing starch. (b) KOH absorbs CO₂, making the flask CO₂-free. (c) The leaf would not turn blue-black, indicating no starch was produced. (d) 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (in presence of sunlight and chlorophyll).",
         explanation: "Classic photosynthesis experiment — frequently asked as case-based.",
+        solutionSteps: ["[1 mark] (a) The plant is kept in the dark for 48 hours to destarch the leaves, so any starch found later must have been made during the experiment.", "[1 mark] (b) KOH absorbs carbon dioxide, so the air around the enclosed leaf has no CO2.", "[1 mark] (c) The enclosed leaf does not turn blue-black with iodine (stays brown), showing no starch was made without CO2.", "[1 mark] (d) 6CO2 + 6H2O --(sunlight, chlorophyll)--> C6H12O6 + 6O2"],
+        finalAnswer: "(a) To destarch the leaves; (b) KOH absorbs CO2; (c) no blue-black colour — no starch formed; (d) 6CO2 + 6H2O → C6H12O6 + 6O2 (sunlight, chlorophyll).",
       },
     ],
   },

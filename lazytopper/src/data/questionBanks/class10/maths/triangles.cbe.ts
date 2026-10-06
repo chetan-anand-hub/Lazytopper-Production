@@ -181,7 +181,7 @@ export const TRI_CBE: CanonicalQuestion[] = [
   {
     "id": "CBE-M-TRI-B-004",
     "subject": "Maths",
-    "topicKey": "triangles",
+    "topicKey": "circles",
     "subtopic": "Tangent Perpendicular to Radius",
     "section": "B",
     "marks": 2,
@@ -299,7 +299,7 @@ export const TRI_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In the figure, BA, FE and CD are parallel lines. Given that EG = 5 cm, GC = 10 cm, AB = 15 cm and DC = 18 cm, calculate EF.",
+    "questionText": "BA, FE and CD are parallel lines. Line segments EC and FD intersect at G. Given that EG = 5 cm, GC = 10 cm, AB = 15 cm and DC = 18 cm, calculate EF.",
     "options": [],
     "answer": "EF = 9 cm",
     "solutionSteps": [
@@ -309,8 +309,9 @@ export const TRI_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "EF = 9 cm",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
-    "diagramDescription": "Three parallel lines BA ∥ FE ∥ CD. Segments AB and DC act as the parallel sides; E, F, G, C, D are configured so that EF and CD are corresponding sides of similar triangles △EFG and △CDG meeting at G. Marked: EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm. Diagram not to scale."
+    "requiresDiagram": false,
+    "diagramDescription": "Three parallel lines BA ∥ FE ∥ CD. Segments AB and DC act as the parallel sides; E, F, G, C, D are configured so that EF and CD are corresponding sides of similar triangles △EFG and △CDG meeting at G. Marked: EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm. Diagram not to scale.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRI-C-005",
@@ -322,7 +323,7 @@ export const TRI_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In the figure, BA, FE and CD are parallel lines. Given that EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm and EF = 9 cm, calculate AC.",
+    "questionText": "In ΔABC, E is a point on side AC and F is a point on side BC such that EF ∥ AB. G is a point on EC such that EG = 5 cm and GC = 10 cm. If AB = 15 cm and EF = 9 cm, calculate AC.",
     "options": [],
     "answer": "AC = 25 cm",
     "solutionSteps": [
@@ -332,8 +333,9 @@ export const TRI_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "AC = 25 cm",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
-    "diagramDescription": "Three parallel lines BA ∥ FE ∥ CD (same figure as the previous part). Triangles △CAB and △CEF share vertex C with AB ∥ EF. Marked: EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm, EF = 9 cm (from part a), CE = 15 cm. Diagram not to scale."
+    "requiresDiagram": false,
+    "diagramDescription": "Three parallel lines BA ∥ FE ∥ CD (same figure as the previous part). Triangles △CAB and △CEF share vertex C with AB ∥ EF. Marked: EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm, EF = 9 cm (from part a), CE = 15 cm. Diagram not to scale.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRI-C-006",

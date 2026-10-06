@@ -248,16 +248,17 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
     bloomSkill: "Creating",
     questionText:
       "Write a quadratic polynomial whose sum of zeros is less than that of the polynomial shown in the graph above.",
-    answer: "Any quadratic whose zeroes sum to less than 1 — for example x² + 3x - 5.",
+    answer: "Any quadratic whose zeroes sum to 1 or less — for example x² + 3x − 5.",
     solutionSteps: [
-      "[1 mark] Identifies the sum of the zeroes of the given polynomial as 3 - 2 = 1, reading the two x-intercepts off the graph.",
-      "[1 mark] Writes a quadratic polynomial whose sum of zeroes is less than 1. For example, x² + 3x - 5 = 0.",
+      "[1 mark] Reads the x-intercepts off the graph: one zero lies between −2 and −1 and the other between 3 and 4, so the sum of the zeroes of the given polynomial is more than 1.",
+      "[1 mark] Writes a quadratic polynomial whose sum of zeroes is less than this. For example, x² + 3x − 5, whose zeroes sum to −3."
     ],
-    finalAnswer: "For example x² + 3x - 5, whose zeroes sum to -3, which is less than 1.",
+    finalAnswer: "For example x² + 3x − 5, whose zeroes sum to −3, which is less than the sum of the zeroes of the polynomial in the graph (more than 1).",
     isCompetencyBased: true,
     ncertRef: POLY_CFPQ_REF,
     requiresDiagram: true,
     diagramDescription: GRID_PARABOLA_DESC,
+    sourceOverride: "others",
   },
   // pdf-page 15 (folio 14) — Q4, margin [2]. Rubric: pdf-page 21 (folio 20), 1 + 1.
   {

@@ -476,7 +476,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Peacock",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-021",
@@ -522,7 +522,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Bacteria and fungi",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-023",
@@ -543,7 +543,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Aquarium and crop field (garden)",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-024",
@@ -564,7 +564,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Micro-organisms lack the enzymes required to decompose plastics.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-025",
@@ -585,7 +585,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Grass → Deer → Tiger",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-026",
@@ -606,7 +606,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Producers and primary consumers",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-028",
@@ -924,7 +924,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Wash produce well; prefer organically grown food to cut pesticide use.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-004",
@@ -946,7 +946,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Alternative feeding pathways in a food web prevent collapse, giving stability.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-005",
@@ -968,7 +968,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "First level: autotroph producers; second level: herbivore primary consumers.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-006",
@@ -990,7 +990,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Recycle non-biodegradable waste; reduce its use (e.g. cloth bags for plastic).",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-007",
@@ -1012,7 +1012,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Interconnected food chains; they maintain ecological balance and stability.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-008",
@@ -1057,7 +1057,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Unidirectional (producer to top carnivore); it cannot return, as energy is lost as heat.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2013"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-012",
@@ -1079,7 +1079,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "O3 (three oxygen atoms); formed by UV splitting O2, then O combining with O2.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-013",
@@ -1147,7 +1147,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Second level: rabbit; third level: frog (or fox).",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-C-001",
@@ -1170,7 +1170,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Phytoplankton → zooplankton → small fish → large fish; pesticide maximum at the top (tertiary) level due to biomagnification.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2010"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-C-002",
@@ -1193,7 +1193,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Grouped by mode of nutrition — producers make food, consumers eat others, decomposers recycle dead matter.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2016"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-C-003",

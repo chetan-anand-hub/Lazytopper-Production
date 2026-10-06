@@ -55,9 +55,8 @@ export const SCIENCE_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "Part (i): Parallel ensures full voltage to each appliance and independent operation. Part (ii): Rₚ = 800/7 ≈ 114.3 Ω Part (iii): Fan 121 W, Bulb 242 W, TV 60.5 W. Bulb uses most. Total 423.5 W.",
     "explanation": "Part (i): Parallel connection: full voltage to each branch, independent switching, failure of one doesn't affect others. Part (ii): 1/Rₚ = 1/400 + 1/200 + 1/800 = 7/800. Rₚ = 800/7 ≈ 114.3 Ω. Part (iii): P = V²/R. Fan: 220²/400 = 121 W. Bulb: 220²/200 = 242 W. TV: 220²/800 = 60.5 W. Total = 423.5 W.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch12 Ex 12.5"
+    "ncertRef": "NCERT Ch12 Ex 12.5",
+    sourceOverride: "others",
   },
   {
     "id": "CASE-SCI-EL-002",
@@ -130,9 +129,8 @@ export const SCIENCE_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "Part (i): Mouth (buccal cavity) — salivary amylase breaks starch into maltose. Part (ii): Produced in liver, acts in small intestine. Emulsifies fats (increases surface area for lipase). Part (iii): Two circuits: pulmonary (lungs) + systemic (body). Necessary for high-pressure delivery and separation of oxygenated/deoxygenated blood.",
     "explanation": "Part (i): Salivary amylase in saliva starts carbohydrate digestion in the mouth by converting starch to maltose. Part (ii): Liver produces bile → stored in gall bladder → acts in duodenum. Bile emulsifies large fat droplets into smaller ones for lipase enzyme action. Part (iii): Pulmonary circuit: heart→lungs→heart. Systemic: heart→body→heart. Necessity: maintains pressure for efficient delivery, prevents blood mixing.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch6 Nutrition section"
+    "ncertRef": "NCERT Ch6 Nutrition section",
+    sourceOverride: "others",
   },
   {
     "id": "CASE-SCI-LP-002",
@@ -182,15 +180,14 @@ export const SCIENCE_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "Part (i): Only green parts turn blue-black. White parts lack chlorophyll so no photosynthesis occurs, hence no starch. Part (ii): 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (sunlight + chlorophyll) Part (iii): Stoma = pore + 2 guard cells. Opens when guard cells turgid (water in), closes when flaccid (water out). Role: CO₂ in, O₂ out.",
     "explanation": "Part (i): Green parts have chlorophyll → photosynthesis → starch → blue-black with iodine. White parts: no chlorophyll → no photosynthesis → no starch. Part (ii): Photosynthesis: 6CO₂ + 6H₂O + sunlight → C₆H₁₂O₆ + 6O₂. CO₂ from air, H₂O from soil, glucose stored, O₂ released. Part (iii): Guard cell turgidity controls stomata. Turgid → open (CO₂ enters for photosynthesis). Flaccid → closed. Critical for gas exchange.",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch6 Photosynthesis section"
+    "ncertRef": "NCERT Ch6 Photosynthesis section",
+    sourceOverride: "others",
   },
   {
     "id": "CASE-SCI-LIGHT-001",
     "subject": "Science",
-    "topicKey": "light-reflection-and-refraction",
-    "subtopic": "Refraction — Lenses",
+    "topicKey": "human-eye-and-colourful-world",
+    "subtopic": "Defects of Vision — Corrective Lens Power",
     "section": "E",
     "marks": 4,
     "format": "Case-Based",
@@ -233,8 +230,7 @@ export const SCIENCE_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "Part (i): Concave lens. Negative sign = concave (diverging) lens, f = −40 cm. Part (ii): f = 66.7 cm; Convex lens converges light to correct hypermetropia. Part (iii): P = −1.0 D (concave, corrects mild myopia). Lens formula: 1/v − 1/u = 1/f.",
     "explanation": "Part (i): Myopia corrected by concave lens. Negative power means concave lens. f = 1/P = 1/(−2.5) = −40 cm. Part (ii): f = 1/1.5 = 0.667 m = 66.7 cm. Convex (positive power) lens converges light, correcting hypermetropia where image forms behind retina. Part (iii): P = −2.5 + 1.5 = −1.0 D. Combined lens is concave, corrects mild myopia. Lens formula: 1/v − 1/u = 1/f.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch10 Human Eye section"
+    "ncertRef": "NCERT Ch10 Human Eye section",
+    sourceOverride: "others",
   }
 ];

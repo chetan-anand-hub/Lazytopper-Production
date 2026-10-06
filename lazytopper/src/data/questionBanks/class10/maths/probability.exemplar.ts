@@ -163,11 +163,12 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 13.3 Q41", isCompetencyBased: true },
 
   // ===== Section E — Case-Based (4 marks) =====
-  { id: "PROB-N-EXEM-14-CB-001", subject: "Maths", topicKey: "probability", subtopic: "Defective Items", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A carton has 24 bulbs of which 6 are defective. One bulb is drawn at random; this bulb is NOT replaced. Then a second bulb is drawn at random from the remainder.\n(i) What is the probability that the FIRST bulb drawn is NOT defective?\n(ii) Given that the first bulb is defective, what is the probability that the second bulb is also defective?\n(iii) Given that the first bulb is defective, how many bulbs remain and how many are defective?\n(iv) Why is the second probability conditional on the first event?",
-    solutionSteps: ["(i) Good bulbs = 24 − 6 = 18. P(first bulb good) = 18/24 = 3/4.", "(ii) After removing one defective, 23 bulbs remain with 5 defective. P(second defective) = 5/23.", "(iii) Remaining bulbs = 23; defective bulbs remaining = 5.", "(iv) Because the first bulb is NOT replaced, the sample space for the second draw depends on what happened in the first draw — that's the definition of conditional probability."],
-    finalAnswer: "(i) 3/4; (ii) 5/23; (iii) 23 bulbs, 5 defective; (iv) Because the first bulb is not replaced.",
-    ncertRef: "Exemplar Ex 13.3 Q36", isCompetencyBased: true },
+  { id: "PROB-N-EXEM-14-CB-001", subject: "Maths", topicKey: "probability", subtopic: "Simple Events — Drawing Items", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A carton has 24 bulbs, of which 6 are defective. One bulb is drawn at random.\n(i) What is the probability that the bulb drawn is NOT defective? (1 mark)\n(ii) Suppose the bulb drawn is defective and it is not put back. How many bulbs are now left in the carton, and how many of them are defective? (1 mark)\n(iii) A second bulb is now drawn at random from the bulbs left in the carton (as in part (ii)). What is the probability that this second bulb is defective? (2 marks)",
+    solutionSteps: ["(i) Non-defective bulbs = 24 − 6 = 18. P(not defective) = 18/24 = 3/4.", "(ii) One defective bulb is removed: bulbs left = 24 − 1 = 23; defective bulbs left = 6 − 1 = 5.", "(iii) Total possible outcomes for the second draw = 23 (all equally likely); favourable outcomes (defective) = 5.", "(iii) P(second bulb defective) = 5/23."],
+    finalAnswer: "(i) 3/4; (ii) 23 bulbs left, of which 5 are defective; (iii) 5/23",
+    ncertRef: "Exemplar Ex 13.3 Q36", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // ===== Creating-level question =====
   { id: "PROB-N-EXEM-14-CRE-001", subject: "Maths", topicKey: "probability", subtopic: "Word Problem", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",

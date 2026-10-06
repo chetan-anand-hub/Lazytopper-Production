@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "light-reflection-and-refraction" (Science): 788 served rows from 22 source arrays, 72 withheld.
+// Chapter "light-reflection-and-refraction" (Science): 779 served rows from 21 source arrays, 75 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -10,7 +10,6 @@ import { LIGHT_PACK1 } from "../questionBanks/class10/science/light.pack1";
 import { LT2_PACK2 } from "../questionBanks/class10/science/light.pack2";
 import { LIGHT_NCERT } from "../questionBanks/class10/science/light.ncert";
 import { LIGHT_EXEMPLAR } from "../questionBanks/class10/science/light.exemplar";
-import { SCIENCE_CASE_BASED_QUESTIONS } from "../questionBanks/class10/science/science.caseBased";
 import { LIGHT_REFLECTION_SQP } from "../questionBanks/class10/science/light-reflection-and-refraction.sqp";
 import { LGHT_CBE } from "../questionBanks/class10/science/light-reflection-and-refraction.cbe";
 import { LGHT_SP } from "../questionBanks/class10/science/light-reflection-and-refraction.sp";
@@ -32,7 +31,6 @@ export default defineChapter("light-reflection-and-refraction", [
   [45, LT2_PACK2, true],
   [99, LIGHT_NCERT, false],
   [100, LIGHT_EXEMPLAR, false],
-  [164, SCIENCE_CASE_BASED_QUESTIONS, false],
   [187, LIGHT_REFLECTION_SQP, false],
   [212, LGHT_CBE, false],
   [238, LGHT_SP, false],
@@ -63,6 +61,7 @@ export default defineChapter("light-reflection-and-refraction", [
   "SCO-S-LIGHT-011",
   "SCO-S-LIGHT-017",
   "SCO-S-LIGHT-018",
+  "SCO-S-LIGHT-020",
   "SCQ-S-LIGHT-022",
   "SCQ-S-LIGHT-034",
   "SCQ-S-LIGHT-036",
@@ -75,6 +74,7 @@ export default defineChapter("light-reflection-and-refraction", [
   "PYQ-S-LIGHT-015",
   "PYQ-S-2026-LIGHT-008",
   "PYQ-S-2026-LIGHT-014",
+  "PYQ-S-2025-LIGHT-005",
   "PYQ-S-2025-LIGHT-007",
   "PYQ-S-2025-LIGHT-009",
   "PYQ-S-2025-LIGHT-012",
@@ -121,6 +121,7 @@ export default defineChapter("light-reflection-and-refraction", [
   "FND-L-WS4-207",
   "FND-L-WSF-17",
   "FND-L-WSF-18",
+  "GDR-L-EQ-13",
   "GDR-L-NUM-022",
   "GDR-L-NUM-095",
 ]);

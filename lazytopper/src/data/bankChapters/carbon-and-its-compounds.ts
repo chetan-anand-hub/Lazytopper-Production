@@ -2,12 +2,13 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "carbon-and-its-compounds" (Science): 291 served rows from 16 source arrays, 10 withheld.
+// Chapter "carbon-and-its-compounds" (Science): 280 served rows from 18 source arrays, 22 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
 import { CARBON_COMPOUNDS_PACK1 } from "../questionBanks/class10/science/carbonCompounds.pack1";
 import { CC2_PACK2 } from "../questionBanks/class10/science/carbonCompounds.pack2";
+import { CHEM_REACTIONS_EXPAND_EXTRACT } from "../questionBanks/class10/science/chemicalReactions.expand.extract";
 import { CARBON_COMPOUNDS_NCERT } from "../questionBanks/class10/science/carbonCompounds.ncert";
 import { CARBON_COMPOUNDS_EXEMPLAR } from "../questionBanks/class10/science/carbonCompounds.exemplar";
 import { CARBON_COMPOUNDS_SQP } from "../questionBanks/class10/science/carbon-and-its-compounds.sqp";
@@ -15,6 +16,7 @@ import { CARB_CBE } from "../questionBanks/class10/science/carbon-and-its-compou
 import { CARB_SP } from "../questionBanks/class10/science/carbon-and-its-compounds.sp";
 import { CARBON_COMPOUNDS_APQ } from "../questionBanks/class10/science/carbon-and-its-compounds.additionalPQ";
 import { CARBON_COMPOUNDS_CHAPTERWISE } from "../questionBanks/class10/science/carbon-and-its-compounds.chapterwise";
+import { CHEMICAL_REACTIONS_PYQ } from "../questionBanks/class10/science/chemical-reactions-and-equations.pyq";
 import { CARBON_COMPOUNDS_PYQ } from "../questionBanks/class10/science/carbon-and-its-compounds.pyq";
 import { carbonCompoundsPYQ2026 } from "../questionBanks/class10/science/carbonCompounds.pyq2026";
 import { carbonCompoundsPYQ2025 } from "../questionBanks/class10/science/carbonCompounds.pyq2025";
@@ -26,6 +28,7 @@ import { CARBON_CBQ_LT_GENERATED } from "../questionBanks/class10/science/carbon
 export default defineChapter("carbon-and-its-compounds", [
   [34, CARBON_COMPOUNDS_PACK1, true],
   [35, CC2_PACK2, true],
+  [65, CHEM_REACTIONS_EXPAND_EXTRACT, false],
   [86, CARBON_COMPOUNDS_NCERT, false],
   [87, CARBON_COMPOUNDS_EXEMPLAR, false],
   [182, CARBON_COMPOUNDS_SQP, false],
@@ -33,6 +36,7 @@ export default defineChapter("carbon-and-its-compounds", [
   [233, CARB_SP, false],
   [272, CARBON_COMPOUNDS_APQ, false],
   [285, CARBON_COMPOUNDS_CHAPTERWISE, false],
+  [295, CHEMICAL_REACTIONS_PYQ, false],
   [298, CARBON_COMPOUNDS_PYQ, false],
   [362, carbonCompoundsPYQ2026, false],
   [375, carbonCompoundsPYQ2025, false],
@@ -41,14 +45,26 @@ export default defineChapter("carbon-and-its-compounds", [
   [415, CURATED_INLINE_QUESTIONS, false],
   [424, CARBON_CBQ_LT_GENERATED, false],
 ], [
+  "CARB-M10",
+  "CC2-023",
   "CC2-034",
+  "CARB-EXMPLR-4-MCQ-005",
+  "CARB-EXMPLR-4-MCQ-010",
+  "CARB-EXMPLR-4-MCQ-011",
+  "CARB-EXMPLR-4-MCQ-016",
   "CARB-EXMPLR-4-MCQ-018",
+  "CARB-EXMPLR-4-MCQ-022",
+  "CARB-EXMPLR-4-MCQ-023",
+  "CARB-EXMPLR-4-MCQ-024",
   "CARB-EXMPLR-4-SA-002",
   "CARB-EXMPLR-4-LONG-008",
   "SQP-S-CC-002",
   "SQP-S-2023-CARB-B-001",
+  "APQ-S-CARB-005",
   "SCO-S-CARB-004",
   "SCO-S-CARB-005",
+  "SCO-S-CARB-010",
   "SCO-S-CARB-018",
   "CFPQ-S-CARB-013",
+  "CFPQ-S-CARB-015",
 ]);

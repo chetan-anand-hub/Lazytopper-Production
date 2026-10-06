@@ -61,14 +61,15 @@ export const MNM_CBE: CanonicalQuestion[] = [
     "format": "VSA",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Using the observations in Table 1, write the metals A, B, C and D in order of least reactive to most reactive.",
+    "questionText": "Using the observations in the given table (Table 1), write the metals A, B, C and D in order of least reactive to most reactive.",
     "options": [],
     "answer": "D, C, A, B",
     "solutionSteps": [
-      "[1 mark] From the displacement results, the order from least reactive to most reactive is D, C, A, B."
+      "[1 mark] D displaces nothing (least reactive); C displaces only silver (between Ag and Cu); A displaces copper but not iron (between Cu and Fe); B displaces iron but not aluminium (between Fe and Al). Order, least to most reactive: D, C, A, B."
     ],
     "finalAnswer": "D, C, A, B (least to most reactive)",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-MNM-A-004",

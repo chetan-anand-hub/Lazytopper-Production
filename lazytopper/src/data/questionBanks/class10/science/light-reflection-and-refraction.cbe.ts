@@ -472,24 +472,23 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "id": "CBE-S-LGHT-E-001",
     "subject": "Science",
     "topicKey": "light-reflection-and-refraction",
-    "subtopic": "Convex Lens Ray Diagram",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
+    "subtopic": "Convex Lens — Ray Diagram (Parallel Beam)",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Complete the ray diagram in Fig. 2 to show how light is focussed by a convex lens.",
+    "questionText": "Draw a labelled ray diagram to show how a beam of light travelling parallel to the principal axis is focussed by a convex lens.",
     "options": [],
-    "answer": "Show parallel rays refracting through the convex lens and meeting at the focal point F.",
+    "answer": "Parallel rays refract through the convex lens and converge at the principal focus F on the other side.",
     "solutionSteps": [
-      "[1 mark] Diagram: draw the convex (converging) lens.",
-      "[1 mark] Show correct refraction of the rays at the lens.",
-      "[1 mark] The refracted rays meet (converge) at a point.",
-      "[1 mark] Label the meeting point F / the focal point."
+      "[1 mark] Diagram: convex lens drawn with a beam of rays parallel to the principal axis, each refracting at the lens and converging to a single point on the other side.",
+      "[1 mark] Labels: principal axis, optical centre O and the convergence point marked as principal focus F (with arrows on rays)."
     ],
-    "finalAnswer": "Parallel rays refract through the convex lens and converge at the focal point F.",
+    "finalAnswer": "Parallel rays converge at the principal focus F after refraction through the convex lens.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
-    "diagramDescription": "Fig. 2 — a convex lens with parallel incident rays to be completed showing refraction and convergence at the focal point F."
+    "requiresDiagram": false,
+    "diagramDescription": "Fig. 2 — a convex lens with parallel incident rays to be completed showing refraction and convergence at the focal point F.",
+    sourceOverride: "others",
   }
 ];

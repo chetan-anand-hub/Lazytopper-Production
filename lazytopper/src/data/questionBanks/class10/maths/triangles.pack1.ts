@@ -373,12 +373,14 @@ const sectionAQuestions = [
         questionText:
           "Assertion (A): If two sides of one triangle are proportional to two sides of another triangle, the triangles are similar.\nReason (R): SAS similarity needs the included angles to be equal along with proportional corresponding sides.",
         answer:
-          "Assertion is false but Reason is true.",
+          "A is false, R is true.",
         working: [
           "Proportional sides alone are not enough for SAS similarity.",
           "The included angles must also be equal.",
         ],
         formatOverride: "Assertion-Reasoning",
+        options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+        finalAnswer: "A is false, R is true.",
       },
       {
         questionId: "2026-TRI-P1-A-012",
@@ -401,12 +403,14 @@ const sectionAQuestions = [
         questionText:
           "Assertion (A): If DE is parallel to BC in Delta ABC, then AD/AB = AE/AC.\nReason (R): Triangles ADE and ABC are similar by AA similarity.",
         answer:
-          "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+          "Both A and R are true, and R is the correct explanation of A.",
         working: [
           "Parallel lines create equal corresponding angles.",
           "That proves Delta ADE is similar to Delta ABC, which gives the proportional side relation.",
         ],
         formatOverride: "Assertion-Reasoning",
+        options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+        finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
       },
       {
         questionId: "2026-TRI-P1-A-015",
@@ -462,6 +466,7 @@ const sectionAQuestions = [
           "By AA, the triangles are similar, so their sides are proportional, proving the diagonals divide each other in the same ratio.",
         ],
         formatOverride: "Assertion-Reasoning",
+        options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
       },
     ]
   ),

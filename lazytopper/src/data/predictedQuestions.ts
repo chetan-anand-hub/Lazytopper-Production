@@ -245,10 +245,10 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     id: "2026-QE-LA-02",
     topicKey: "Quadratic Equations",
     subtopic: "Word/Application Problems",
-    kind: "Long",
-    section: "D",
-    marks: 5,
-    difficulty: "Medium",
+    kind: "Short",
+    section: "B",
+    marks: 2,
+    difficulty: "Easy",
     bloomSkill: "Applying",
     questionText:
       "The product of two consecutive positive integers is 156. Form a quadratic equation and find the integers.",
@@ -257,11 +257,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     explanation:
       "Let smaller integer be n. Then n(n + 1) = 156 ⇒ n² + n − 156 = 0. Factorise as (n + 13)(n − 12) = 0. Take n = 12 (positive).",
     solutionSteps: [
-      "Let the smaller integer be n; next is n + 1.; Write n(n + 1) = 156. [1]",
-      "Bring all terms to one side to form a quadratic equation. [1]",
-      "Factorise or use the quadratic formula. [1]",
-      "Reject negative solution and keep the positive n. [1]",
-      "State the two consecutive integers. [1]",
+      "Let the smaller integer be n; the next is n + 1. Then n(n + 1) = 156 ⇒ n² + n − 156 = 0. [1]",
+      "(n + 13)(n − 12) = 0 ⇒ n = 12 (reject n = −13 as the integers are positive). The integers are 12 and 13. [1]"
     ],
     strategyHint:
       "Translate product of consecutive integers directly into n(n + 1).",
@@ -513,16 +510,16 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "A boy is standing at a point A on level ground such that the angle of elevation of the top of a school building is 45°. When he walks 20 m closer to the building to a point B, the angle of elevation becomes 60°. Draw a rough figure and find the height of the building, correct to one decimal place.",
-    answer: "Height of the building = 10(3 + √3) ≈ 47.3 m.",
-    finalAnswer: "Height of the building = 10(3 + √3) ≈ 47.3 m.",
+      "A boy is standing at a point A on level ground such that the angle of elevation of the top of a school building is 45°. When he walks 20 m closer to the building to a point B, the angle of elevation becomes 60°. Let the height of the building be h m and the distance of A from the foot of the building be x m.\n(i) Using the observation from A, express h in terms of x. [1 mark]\n(ii) Using the observation from B, form an equation in x. [1 mark]\n(iii) Find the height of the building, correct to one decimal place. (Use √3 = 1.732) [2 marks]",
+    answer: "(i) h = x; (ii) √3(x − 20) = x; (iii) h = 10(3 + √3) ≈ 47.3 m.",
+    finalAnswer: "(i) h = x; (ii) √3(x − 20) = x; (iii) Height of the building = 10(3 + √3) ≈ 47.3 m.",
     explanation:
       "Let height be h and initial distance x. From tan 45° = h/x, h = x. From B, tan 60° = h/(x − 20) gives √3 = x/(x − 20) ⇒ x(√3 − 1) = 20√3 ⇒ x = 20√3/(√3 − 1) = 10(3 + √3). Hence h = 10(3 + √3) ≈ 47.3 m.",
     solutionSteps: [
-      "Draw two positions A and B and the vertical building.; Let AB = 20 m and initial distance from building be x. [1]",
-      "Use tan 45° = h/x to get h = x.; Use tan 60° = h/(x − 20) and substitute h = x: √3(x − 20) = x. [1]",
-      "Solve: x(√3 − 1) = 20√3 ⇒ x = 20√3/(√3 − 1) = 10(3 + √3), so h = 10(3 + √3) m. [1]",
-      "h = 10(3 + 1.732) = 47.32 ≈ 47.3 m. [1]"
+      "(i) At A: tan 45° = h/x ⇒ 1 = h/x ⇒ h = x. [1]",
+      "(ii) At B the distance is (x − 20): tan 60° = h/(x − 20) ⇒ √3 = x/(x − 20) ⇒ √3(x − 20) = x. [1]",
+      "(iii) x(√3 − 1) = 20√3 ⇒ x = 20√3/(√3 − 1) = 20√3(√3 + 1)/2 = 10(3 + √3). [1]",
+      "h = x = 10(3 + 1.732) = 47.32 ≈ 47.3 m. [1]"
     ],
     strategyHint:
       "Most two-position problems reduce to solving two tan equations in two unknowns.",
@@ -646,19 +643,19 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     kind: "Case-Based",
     section: "E",
     marks: 4,
-    difficulty: "Medium",
+    difficulty: "Easy",
     bloomSkill: "Analysing",
     questionText:
-      "A teacher collects weekly test scores for five students: 18, 20, 15, 22, 15. Find the mode, median, and mean of the data.",
-    answer: "Mode = 15, Median = 18, Mean = 18.",
-    finalAnswer: "Mode = 15, Median = 18, Mean = 18.",
+      "A teacher records the weekly test scores (out of 25) of five students in her class: 18, 20, 15, 22, 15. Based on this information, answer the following questions:\n(i) What is the mode of the scores? (1 mark)\n(ii) Find the median score. (1 mark)\n(iii) Find the mean score and state whether it is greater than, less than or equal to the median. (2 marks)",
+    answer: "(i) Mode = 15 (ii) Median = 18 (iii) Mean = 18; the mean is equal to the median.",
+    finalAnswer: "(i) 15 (ii) 18 (iii) Mean = 18, equal to the median.",
     explanation:
-      "Arrange in ascending order: 15, 15, 18, 20, 22. Mode is 15, median is 18, and mean is 90/5 = 18.",
+      "Arrange in ascending order: 15, 15, 18, 20, 22. 15 occurs twice, so the mode is 15. The middle (3rd) value is 18, so the median is 18. Sum = 90, so the mean is 90/5 = 18, which equals the median.",
     solutionSteps: [
-      "List the data and arrange in ascending order. [1]",
-      "Identify the most frequent value as the mode. [1]",
-      "Take the middle value as the median. [1]",
-      "Compute the sum of all values and divide by 5 for the mean. [1]",
+      "(i) Arrange in ascending order: 15, 15, 18, 20, 22; 15 occurs most often, so mode = 15. [1]",
+      "(ii) n = 5 (odd), so the median is the 3rd value = 18. [1]",
+      "(iii) Sum = 18 + 20 + 15 + 22 + 15 = 90; mean = 90/5 = 18. [1]",
+      "(iii) Mean = 18 = median, so the mean is equal to the median. [1]"
     ],
     strategyHint:
       "For small data sets, order the numbers first; it makes all three measures easy to see.",
@@ -748,8 +745,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Polynomials",
     subtopic: "Zeros & Graph Behaviour",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
@@ -765,6 +762,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Reason (R) correctly explains why Assertion (A) is true, as the given polynomial has two distinct real zeroes. [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== MORE: PAIR OF LINEAR EQUATIONS =====
@@ -773,8 +771,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Pair of Linear Equations",
     subtopic: "Consistency & Graphical Meaning",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
@@ -790,6 +788,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Reason (R) provides the correct mathematical criterion that explains why Assertion (A) is true. [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
   {
     id: "2026-PLE-CASE-06",
@@ -822,23 +821,23 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Quadratic Equations",
     subtopic: "Nature of Roots",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
+    section: "A",
+    marks: 1,
+    difficulty: "Easy",
     bloomSkill: "Analysing",
     questionText:
-      "Assertion (A): The equation x²−6x+11=0 has no real roots. Reason (R): If D=b²−4ac<0, the quadratic has complex (non-real) roots.",
+      "Assertion (A): The equation x² − 6x + 11 = 0 has no real roots. Reason (R): If D = b² − 4ac < 0, the quadratic equation has no real roots.",
     answer:
       "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "D=36−44=−8<0 ⇒ no real roots.",
     policyTag: "AR/Discriminant test",
     solutionSteps: [
-      "For Assertion (A): The given equation is x²−6x+11=0. Here a=1, b=−6, c=11.; Calculate the discriminant D = b²−4ac = (−6)² − 4(1)(11) = 36 − 44 = −8. [½]",
-      "Since D = −8 < 0, the equation has no real roots. So, A is true.; For Reason (R): The statement that if D=b²−4ac<0, the quadratic has complex (non-real) roots is a fundamental property of quadratic equations. So, R is true. [½]",
-      "Reason (R) correctly explains why Assertion (A) is true, as the discriminant is negative. [1]",
+      "For A: a = 1, b = −6, c = 11; D = (−6)² − 4(1)(11) = 36 − 44 = −8 < 0, so the equation has no real roots. A is true. [½]",
+      "R is a true property (D < 0 ⟹ no real roots), and it is exactly why A holds. So both are true and R correctly explains A. [½]"
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
   {
     id: "2026-QE-SA-06",
@@ -870,8 +869,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Arithmetic Progression",
     subtopic: "nth Term & Sum",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
@@ -887,6 +886,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "10d = 20 => d = 2. So, Assertion (A) is true.; Reason (R) provides the fundamental formula used to derive the common difference in Assertion (A), thus it is the correct explanation. [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
   {
     id: "2026-AP-CASE-04",
@@ -898,19 +898,19 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "A staircase has steps whose heights (in cm) form an AP: 14, 15, 16, ... If the top step is 20 cm high, how many steps are there? What is the total height climbed?",
+      "A staircase is built so that the heights of its steps (in cm), from the bottom, form an AP: 14, 15, 16, … The top step is 20 cm high.\n(i) Find the common difference of the AP.\n(ii) How many steps are there in the staircase?\n(iii) Find the total height climbed from the bottom to the top of the staircase.",
     answer:
-      "d=1, last term=20 ⇒ n such that a+(n−1)d=20 ⇒ 14+(n−1)=20 ⇒ n=7. Total height Sₙ = n/2(2a+(n−1)d)=7/2(28+6)=7/2·34=119 cm.",
+      "(i) d = 1 cm (ii) 7 steps (iii) 119 cm",
     explanation:
-      "Use nth term for count; then AP sum for total height.",
+      "Common difference from consecutive terms; nth term formula for the number of steps; sum of AP for total height.",
     policyTag: "Practical AP modelling",
     solutionSteps: [
-      "Identify the first term a = 14 cm and common difference d = 1 cm for the AP of step heights.; The height of the top step is the nth term, an = 20 cm. Use the formula an = a + (n-1)d. [1]",
-      "Substitute the values: 20 = 14 + (n-1)1, which simplifies to 6 = n-1, so n = 7.; State the formula for the sum of an AP: Sn = n/2 * (a + an) or Sn = n/2 * (2a + (n-1)d). [1]",
-      "Substitute the values: S7 = 7/2 * (14 + 20) or S7 = 7/2 * (2*14 + (7-1)*1). [1]",
-      "Calculate the total height: S7 = 7/2 * 34 = 7 * 17 = 119 cm. [1]",
+      "(i) d = 15 − 14 = 1 cm. [1]",
+      "(ii) aₙ = a + (n − 1)d ⇒ 20 = 14 + (n − 1)(1) ⇒ n = 7 steps. [1]",
+      "(iii) Sₙ = (n/2)(a + l) ⇒ S₇ = (7/2)(14 + 20). [1]",
+      "S₇ = (7/2) × 34 = 119 cm. [1]"
     ],
-    finalAnswer: "d=1, last term=20 ⇒ n such that a+(n−1)d=20 ⇒ 14+(n−1)=20 ⇒ n=7. Total height Sₙ = n/2(2a+(n−1)d)=7/2(28+6)=7/2·34=119 cm.",
+    finalAnswer: "(i) 1 cm (ii) 7 steps (iii) 119 cm",
   },
 
   // ===== MORE: TRIANGLES =====
@@ -944,8 +944,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Circles",
     subtopic: "Tangent Properties",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
@@ -961,6 +961,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "By RHS congruence criterion, ΔOPT1 ≅ ΔOPT2. This means R is true and explains why PT1 = PT2 (CPCTC). [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== MORE: AREAS RELATED TO CIRCLES =====
@@ -1019,8 +1020,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Statistics",
     subtopic: "Mode (Grouped Data)",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
@@ -1036,6 +1037,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "R presupposes the modal class (it needs L and f₁ from it); it does not explain why the modal class is chosen as the class of highest frequency. Hence both are true but R is not the correct explanation of A. [1]"
     ],
     finalAnswer: "Both A and R are true, but R is not the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== MORE: PROBABILITY =====
@@ -1097,19 +1099,19 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "From the top of a lighthouse, the angles of depression of two boats on the same straight line with the base are 30° and 45°. If the lighthouse is 40 m high, find the distance between the boats.",
+      "From the top of a lighthouse 40 m high, a coast guard observes two boats on the same straight line with the base of the lighthouse, on the same side of it. The angles of depression of the boats are 45° and 30°.\n(i) Find the distance of the nearer boat (angle of depression 45°) from the base of the lighthouse. [1 mark]\n(ii) Find the distance of the farther boat (angle of depression 30°) from the base of the lighthouse. [1 mark]\n(iii) Find the distance between the two boats. (Use √3 = 1.732) [2 marks]",
     answer:
-      "Let distances from foot be x (for 30°) and y (for 45°). x=40/ tan30°=40√3; y=40/ tan45°=40. Distance = 40(√3 − 1) m.",
+      "(i) 40 m; (ii) 40√3 m ≈ 69.28 m; (iii) 40(√3 − 1) m ≈ 29.28 m.",
     explanation:
-      "Use tan for depression angles w.r.t. horizontal, distances on same line.",
+      "The angle of depression from the top equals the angle of elevation from the boat (alternate angles). Use tan in each right triangle with the 40 m height, then subtract the two distances.",
     policyTag: "Depression pair",
     solutionSteps: [
-      "Draw a diagram. Let the height of the lighthouse be H = 40 m.; Let the distances of the two boats from the base of the lighthouse be x (for 45°) and y (for 30°). [1]",
-      "For the closer boat (angle of depression 45°, so angle of elevation 45°): tan 45° = H/x.; Substitute values: 1 = 40/x => x = 40 m. [1]",
-      "For the further boat (angle of depression 30°, so angle of elevation 30°): tan 30° = H/y. [1]",
-      "Substitute values: 1/√3 = 40/y => y = 40√3 m. The distance between the boats is y - x = 40√3 - 40 = 40(√3 - 1) m. [1]",
+      "(i) Angle of elevation from nearer boat = 45°: tan 45° = 40/x ⇒ x = 40 m. [1]",
+      "(ii) Angle of elevation from farther boat = 30°: tan 30° = 40/y ⇒ 1/√3 = 40/y ⇒ y = 40√3 m ≈ 69.28 m. [1]",
+      "(iii) Boats are on the same side, so distance between them = y − x = 40√3 − 40. [1]",
+      "= 40(√3 − 1) = 40 × 0.732 ≈ 29.28 m. [1]"
     ],
-    finalAnswer: "Let distances from foot be x (for 30°) and y (for 45°). x=40/ tan30°=40√3; y=40/ tan45°=40. Distance = 40(√3 − 1) m.",
+    finalAnswer: "(i) 40 m; (ii) 40√3 m ≈ 69.28 m; (iii) 40(√3 − 1) m ≈ 29.28 m.",
   },
 
   // ===== COORDINATE GEOMETRY (Richer sets) =====
@@ -1219,8 +1221,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Polynomials",
     subtopic: "Zeroes & Graph link",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText:
@@ -1236,6 +1238,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "A quadratic equation has exactly one real root (a repeated root) when its discriminant D=0. Geometrically, this means the parabola is tangent to the x-axis at that single root. Thus, Reason (R) is true and correctly explains A. [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== PAIR OF LINEAR EQUATIONS (coverage extension) =====
@@ -1244,8 +1247,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Pair of Linear Equations",
     subtopic: "Consistency/Graph",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
@@ -1261,6 +1264,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "For a pair of linear equations a1x+b1y+c1=0 and a2x+b2y+c2=0, the condition for parallel distinct lines is a1/a2 = b1/b2 ≠ c1/c2. This condition directly implies no common solution. Thus, Reason (R) is true and correctly explains A. [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
   {
     id: "2026-PLE-CASE-06X",
@@ -1290,8 +1294,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   // ===== QUADRATIC EQUATIONS (extra practice) =====
   {
     id: "2026-QE-SA-05",
-    topicKey: "Quadratic Equations",
-    subtopic: "Roots sum & product",
+    topicKey: "Polynomials",
+    subtopic: "Relationship between Zeroes and Coefficients",
     kind: "Short",
     section: "B",
     marks: 2,
@@ -1305,9 +1309,9 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Use sum/product of roots identities; expand and substitute.",
     policyTag: "Roots identities",
     solutionSteps: [
-      "For the quadratic equation x² − 7x + 12 = 0, compare with ax²+bx+c=0, so a=1, b=-7, c=12.; The sum of roots (i) α+β = -b/a = -(-7)/1 = 7. [½]",
-      "The product of roots (ii) αβ = c/a = 12/1 = 12. [½]",
-      "To evaluate α²+β², use the identity α²+β² = (α+β)² - 2αβ = (7)² - 2(12) = 49 - 24 = 25. [1]",
+      "Compare x² − 7x + 12 = 0 with ax² + bx + c = 0: a = 1, b = −7, c = 12. (i) α + β = −b/a = −(−7)/1 = 7. [½]",
+      "(ii) αβ = c/a = 12/1 = 12. [½]",
+      "α² + β² = (α + β)² − 2αβ = 7² − 2(12) = 49 − 24 = 25. [1]"
     ],
     finalAnswer: "α+β=7, αβ=12; α²+β²=(α+β)²−2αβ=49−24=25.",
   },
@@ -1318,8 +1322,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Arithmetic Progression",
     subtopic: "nth term vs sum",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText:
@@ -1335,6 +1339,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Reason (R) correctly explains why Sₙ is linear only when d=0, by showing the general quadratic form of Sₙ. Therefore, R is the correct explanation for A. [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
   {
     id: "2026-AP-CASE-04X",
@@ -1367,14 +1372,14 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Triangles",
     subtopic: "Similarity criteria",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
       "Assertion (A): If two angles of one triangle are equal to two angles of another triangle, the triangles are similar. Reason (R): In triangles, the sum of interior angles is 180°.",
     answer:
-      "A is true; R is true; and R is the correct explanation of A.",
+      "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "AA-criterion holds because third angle also equals; 180° sum ensures it.",
     policyTag: "AA-similarity",
@@ -1383,7 +1388,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Reason (R): The sum of interior angles in any triangle is always 180 degrees. This is a fundamental property of triangles, so R is true. [½]",
       "Explanation: If two angles of two triangles are equal, then by Reason (R), their third angles must also be equal. This implies that all three corresponding angles are equal, which is the condition for similarity (AAA criterion). Thus, R correctly explains A. [1]",
     ],
-    finalAnswer: "A is true; R is true; and R is the correct explanation of A.",
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== COORDINATE GEOMETRY (finishing touches) =====
@@ -1394,8 +1400,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Trigonometry",
     subtopic: "Identities",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
@@ -1411,6 +1417,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "This simplifies to tan²θ + 1 = sec²θ, which is exactly the assertion. Thus, R correctly explains A. [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== CIRCLES (quick MCQ + tangent-secant) =====
@@ -1421,8 +1428,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     topicKey: "Areas Related to Circles",
     subtopic: "Sector/segment logic",
     kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
+    section: "A",
+    marks: 1,
     difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText:
@@ -1438,6 +1445,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Thus, the area of a sector is directly proportional to its central angle, and Reason R provides the fundamental facts that explain this proportionality. [1]",
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== SURFACE AREAS & VOLUMES (case study) =====
@@ -1479,7 +1487,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     questionText:
       "Find the median of the following grouped data using the median formula: Classes: 0–10,10–20,20–30,30–40,40–50 with frequencies 5, 7, 12, 9, 7.",
     answer:
-      "Compute cumulative frequencies, locate median class (N/2), then use median formula: L + [(N/2 − cf)/f]×h.",
+      "Median = 20 + [(20 − 12)/12] × 10 = 80/3 ≈ 26.67",
     explanation:
       "Standard median-of-grouped-data procedure.",
     policyTag: "Grouped median",
@@ -1488,7 +1496,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Identify the median class: The class whose cumulative frequency is just greater than or equal to N/2 (20). This is the 20-30 class (cf=24).; From the median class (20-30): Lower limit (L) = 20, Frequency (f) = 12, Class size (h) = 10. Cumulative frequency of the preceding class (cf) = 12. [1]",
       "Apply the median formula: Median = L + [(N/2 - cf)/f] × h = 20 + [(20 - 12)/12] × 10.; Median = 20 + (8/12) × 10 = 20 + (2/3) × 10 = 20 + 20/3 = 20 + 6.67 = 26.67. [1]",
     ],
-    finalAnswer: "Compute cumulative frequencies, locate median class (N/2), then use median formula: L + [(N/2 − cf)/f]×h.",
+    finalAnswer: "Median ≈ 26.67",
   },
   {
     id: "2026-STAT-SA-06",
@@ -1624,7 +1632,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     questionText:
       "Assertion (A): The pair of equations 3x − 2y + 4 = 0 and 9x − 6y + 12 = 0 has infinitely many solutions.\nReason (R): For two linear equations a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0, the condition for infinitely many solutions is \\((\\frac{a₁}{a₂} = \\frac{b₁}{b₂} = \\frac{c₁}{c₂})\\).",
     answer:
-      "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+      "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "The second equation is a multiple of the first, so both represent the same line, giving infinitely many solutions. The stated condition correctly identifies coincident lines.",
     solutionSteps: [
@@ -1633,7 +1641,8 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Since a₁/a₂ = b₁/b₂ = c₁/c₂ (1/3 = 1/3 = 1/3), the system has infinitely many solutions.",
       "Both Assertion and Reason are true, and Reason correctly explains the Assertion.",
     ],
-    finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== Quadratic Equations (must‑crack) =====
@@ -1667,8 +1676,8 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
   },
   {
     id: "2026-QE-MCQ-08",
-    topicKey: "Quadratic Equations",
-    subtopic: "Coefficient–root Relations",
+    topicKey: "Polynomials",
+    subtopic: "Relationship between Zeroes and Coefficients",
     kind: "MCQ",
     section: "A",
     marks: 1,
@@ -1745,7 +1754,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     questionText:
       "Assertion (A): The quadratic equation x² + 4x + 5 = 0 has no real roots.\nReason (R): A quadratic equation ax² + bx + c = 0 has real roots only when the discriminant b² − 4ac is non‑negative.",
     answer:
-      "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+      "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "For x² + 4x + 5, D = 16 − 20 = −4 < 0, so there are no real roots. The discriminant test exactly determines whether roots are real.",
     solutionSteps: [
@@ -1753,7 +1762,8 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Calculate the discriminant D = b² - 4ac = 4² - 4(1)(5) = 16 - 20 = -4.",
       "Since D < 0, the equation has no real roots, so Assertion is true. Reason correctly states the condition for real roots.",
     ],
-    finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
   {
     id: "2026-QE-CASE-12",
@@ -1792,7 +1802,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     difficulty: "Easy",
     bloomSkill: "Understanding",
     questionText:
-      "If ΔABC ∼ ΔDEF with \\(\\\\frac{AB}{DE} = \\\\frac{AC}{DF})\\, which of the following is true?",
+      "If ΔABC ∼ ΔDEF with AB/DE = AC/DF, which of the following is true?",
     options: ["∠A = ∠D", "∠A = ∠E", "∠A = ∠F", "No relation"],
     answer: "∠A = ∠D",
     explanation:
@@ -1820,8 +1830,8 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "By BPT, AD/DB = AE/EC. Let AE = x. Then EC = 10 − x. So 3/2 = x/(10 − x) ⇒ 30 − 3x = 2x ⇒ x = 6 cm.",
     solutionSteps: [
       "Let AE = x ⇒ EC = 10 − x. [1]",
-      "Apply BPT: 3/2 = x/(10 − x). [1]",
-      "Cross‑multiply and solve for x. [1]",
+      "Since DE ∥ BC, by BPT AD/DB = AE/EC ⇒ 3/2 = x/(10 − x). [1]",
+      "3(10 − x) = 2x ⇒ 30 = 5x ⇒ x = 6, so AE = 6 cm. [1]"
     ],
     strategyHint: "Relate the segments using the Basic Proportionality Theorem.",
     finalAnswer: "AE = 6 cm.",
@@ -1838,7 +1848,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     questionText:
       "Assertion (A): If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, the triangles are similar.\nReason (R): By the SAS similarity criterion, two triangles are similar when the ratio of two pairs of corresponding sides is equal and the included angles are equal.",
     answer:
-      "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+      "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "The statement describes exactly the SAS criterion: two sides in proportion and the included angle equal implies similarity.",
     solutionSteps: [
@@ -1846,7 +1856,8 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Reason (R) states the definition of the SAS similarity criterion.",
       "Since the assertion is a direct statement of the SAS criterion and the reason defines it, both are true and R explains A.",
     ],
-    finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
   // ===== Trigonometry (must‑crack) =====
   {
@@ -1903,7 +1914,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "From the top of a 15 m high tower, the angle of depression of a car on the road is 30°. Find the distance of the car from the foot of the tower. (Take \\(\\\\sqrt{3} = 1.732\\).",
+      "From the top of a 15 m high tower, the angle of depression of a car on the road is 30°. Find the distance of the car from the foot of the tower. (Take √3 = 1.732.)",
     answer: "Approximately 25.98 m.",
     explanation:
       "Let the horizontal distance be d. tan 30° = 15/d ⇒ 1/√3 = 15/d ⇒ d = 15√3 ≈ 25.98 m.",
@@ -1926,7 +1937,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "A vertical pole 12 m high casts a shadow 4√3 m long on level ground. At the same time, a nearby tower casts a shadow 12√3 m long.\n(a) Find the angle of elevation of the Sun.\n(b) Calculate the height of the tower. (Take \\(\\\\sqrt{3} = 1.732\\).",
+      "A vertical pole 12 m high casts a shadow 4√3 m long on level ground. At the same time, a nearby tower casts a shadow 12√3 m long.\n(a) Find the angle of elevation of the Sun.\n(b) Calculate the height of the tower.",
     answer:
       "Angle of elevation of the Sun = 60°; height of the tower = 36 m.",
     explanation:
@@ -2036,7 +2047,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
   {
     id: "2026-STAT-AR-11",
     topicKey: "Statistics",
-    subtopic: "Mean (Step Deviation)",
+    subtopic: "Mode (Grouped Data)",
     kind: "Assertion-Reasoning",
     section: "A",
     marks: 1,
@@ -2045,7 +2056,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     questionText:
       "Assertion (A): In any dataset, the mode is the value with the highest frequency.\nReason (R): For a grouped frequency distribution, the class interval with the greatest frequency is called the modal class.",
     answer:
-      "Both Assertion and Reason are true but Reason is not the correct explanation of Assertion.",
+      "Both A and R are true, but R is not the correct explanation of A.",
     explanation:
       "Mode is the most frequent observation, which is true by definition. The Reason defines the modal class for grouped data; it is true, but a definition about grouped data does not explain why the mode of a dataset is its most frequent value.",
     solutionSteps: [
@@ -2053,7 +2064,8 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Reason (R) is true: in a grouped frequency distribution, the class with the greatest frequency is called the modal class.",
       "R only names the class in which the mode of grouped data lies; it does not explain the definition in A. Hence both are true but R is not the correct explanation of A."
     ],
-    finalAnswer: "Both Assertion and Reason are true but Reason is not the correct explanation of Assertion.",
+    finalAnswer: "Both A and R are true, but R is not the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
   {
     id: "2026-STAT-CASE-12",
@@ -2184,7 +2196,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     questionText:
       "Assertion (A): The probability of an event always lies between 0 and 1.\nReason (R): The number of favourable outcomes for an event cannot exceed the total number of equally likely outcomes.",
     answer:
-      "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+      "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "An event's probability is a ratio of non-negative counts to total outcomes and therefore cannot exceed 1. The reason explains why the ratio is bounded.",
     solutionSteps: [
@@ -2192,7 +2204,8 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Reason (R) states that favourable outcomes cannot exceed total outcomes, which is true by definition of an event.",
       "Since P(E) = (favourable outcomes) / (total outcomes), and favourable outcomes <= total outcomes, it implies 0 <= P(E) <= 1. Thus, R correctly explains A.",
     ],
-    finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== Real Numbers (high-roi) =====
@@ -2230,20 +2243,20 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "The polynomial f(x) = x³ − 6x² + 11x − 6 models the profit (in lakh ₹, a negative value meaning a loss) of a small start-up x years after it opened.\n(a) Factorise f(x) completely.\n(b) Find the times at which the profit becomes zero (break-even).\n(c) Discuss which of these times are meaningful.",
+      "The polynomial P(x) = x² − 3x − 4 models the profit (in lakh ₹, a negative value meaning a loss) of a small start-up x years after it opened.\n(a) Factorise P(x) by splitting the middle term.\n(b) Find the zeroes of P(x).\n(c) Which zero gives a meaningful break-even time (profit zero)? Also verify the relationship between the zeroes and the coefficients of P(x).",
     answer:
-      "(a) f(x) = (x − 1)(x − 2)(x − 3). (b) The profit is zero at x = 1, 2 and 3 years. (c) All three zeros are positive, so all three are meaningful break-even times (a profit, unlike a population, may be negative in between).",
+      "(a) P(x) = (x − 4)(x + 1). (b) Zeroes: 4 and −1. (c) Only x = 4 is meaningful (time cannot be negative), so break-even is after 4 years. Sum = 3 = −(−3)/1, product = −4 = −4/1 — verified.",
     explanation:
-      "By testing small integers, f(1) = f(2) = f(3) = 0. Grouping gives f(x) = (x − 1)(x² − 5x + 6) = (x − 1)(x − 2)(x − 3). The zeros are the break-even times; since they are all positive (x ≥ 0 is the valid domain), all three are meaningful. Negative times would not be meaningful.",
+      "Split −3x as −4x + x: x² − 4x + x − 4 = x(x − 4) + 1(x − 4) = (x − 4)(x + 1). The zeroes are 4 and −1. Time x ≥ 0, so x = −1 is rejected and the start-up breaks even after 4 years. Sum of zeroes 3 = −b/a and product −4 = c/a.",
     solutionSteps: [
-      "By trial, f(1) = 1 − 6 + 11 − 6 = 0. So (x − 1) is a factor. [1]",
-      "Group: f(x) = x²(x − 1) − 5x(x − 1) + 6(x − 1) = (x − 1)(x² − 5x + 6). [1]",
-      "Factorise x² − 5x + 6 = (x − 2)(x − 3). So f(x) = (x − 1)(x − 2)(x − 3). [1]",
-      "Profit is zero at x = 1, 2, 3 years. All are positive times, hence all are meaningful break-even points. [1]"
+      "(a) x² − 3x − 4 = x² − 4x + x − 4 = x(x − 4) + 1(x − 4) = (x − 4)(x + 1). [1]",
+      "(b) P(x) = 0 ⇒ x = 4 or x = −1. [1]",
+      "(c) Time cannot be negative, so x = −1 is rejected; break-even occurs at x = 4 years. [1]",
+      "Sum = 4 + (−1) = 3 = −(−3)/1 = −b/a; Product = (4)(−1) = −4 = c/a. Verified. [1]"
     ],
     strategyHint:
-      "Test small integer values to identify factors and relate roots to real‑world contexts.",
-    finalAnswer: "(a) f(x) = (x − 1)(x − 2)(x − 3). (b) x = 1, 2 and 3 years. (c) All three are positive, so all three are meaningful break-even times.",
+      "Split the middle term to factorise, then reject zeroes that make no sense in the real-world context.",
+    finalAnswer: "(a) (x − 4)(x + 1). (b) 4 and −1. (c) x = 4 years is the only meaningful break-even time; sum 3 = −b/a, product −4 = c/a.",
   },
 
   // ===== Arithmetic Progression (high‑roi) =====
@@ -2328,7 +2341,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     questionText:
       "Assertion (A): In any arithmetic progression, the sum of terms equidistant from the beginning and the end is the same.\nReason (R): For an arithmetic progression, each pair of equidistant terms adds up to the sum of the first and last terms.",
     answer:
-      "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+      "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "In an AP, the k‑th term from the beginning and the k‑th term from the end are a + (k − 1)d and l − (k − 1)d. Their sum is a + l, independent of k.",
     solutionSteps: [
@@ -2337,7 +2350,8 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Since the sum of any such pair is constant and equal to a_1 + a_n, the Reason correctly explains why the Assertion is true.",
       "Therefore, both Assertion and Reason are true, and Reason is the correct explanation of Assertion.",
     ],
-    finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
   },
 
   // ===== Coordinate Geometry (high‑roi) =====
@@ -2491,27 +2505,27 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
   {
     id: "2026-CIRC-CASE-11",
     topicKey: "Circles",
-    subtopic: "Number/Type of Tangents",
+    subtopic: "Tangents from an External Point",
     kind: "Case-Based",
     section: "E",
     marks: 4,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "A circle has radius 5 cm. Two chords are drawn at distances of 4 cm and 3 cm from the centre.\n(a) Find the length of each chord.\n(b) Which chord is longer and why?",
+      "A circular fountain in a park has centre O and radius 5 m. A lamp post stands at point P, 13 m from O. Two straight paths PA and PB run from the lamp post and just touch the fountain's boundary at A and B.\n(i) Find the length of path PA. [1]\n(ii) What is the measure of ∠OAP? Give a reason. [1]\n(iii) Find the area of the quadrilateral OAPB enclosed by the two paths and the radii OA and OB. [2]",
     answer:
-      "(a) The chord at 4 cm from the centre is 6 cm; the chord at 3 cm is 8 cm. (b) The chord closer to the centre (3 cm away) is longer.",
+      "(i) PA = 12 m (ii) ∠OAP = 90°, since the tangent at a point is perpendicular to the radius through it (iii) 60 m²",
     explanation:
-      "Chord length = 2√(r² − d²). For d = 4: 2√(25 − 16) = 6 cm. For d = 3: 2√(25 − 9) = 8 cm. The closer chord subtends a larger arc and is longer.",
+      "PA is a tangent, so OA ⊥ PA and PA = √(OP² − OA²) = √(169 − 25) = 12 m. PA = PB (tangents from an external point), so △OAP ≅ △OBP and area OAPB = 2 × ½ × 5 × 12 = 60 m².",
     solutionSteps: [
-      "For chord at 4 cm: (half length)² = 5² - 4² = 9. Half length = 3 cm. [1]",
-      "Length of chord at 4 cm is 2 * 3 = 6 cm. [1]",
-      "For chord at 3 cm: (half length)² = 5² - 3² = 16. Half length = 4 cm. Length = 8 cm. [1]",
-      "The chord at 3 cm (8 cm) is longer than the chord at 4 cm (6 cm) as it is closer to the centre. [1]",
+      "(i) OA ⊥ PA ⇒ PA = √(13² − 5²) = √144 = 12 m. [1]",
+      "(ii) ∠OAP = 90°, because the tangent at any point of a circle is perpendicular to the radius through the point of contact. [1]",
+      "(iii) PA = PB = 12 m and OA = OB, so △OAP ≅ △OBP; area △OAP = ½ × OA × PA = ½ × 5 × 12 = 30 m². [1]",
+      "Area of OAPB = 2 × 30 = 60 m². [1]"
     ],
     strategyHint:
-      "Remember the relationship between distance from the centre and chord length.",
-    finalAnswer: "(a) The chord at 4 cm from the centre is 6 cm; the chord at 3 cm is 8 cm. (b) The chord closer to the centre (3 cm away) is longer.",
+      "Tangent ⊥ radius gives a right triangle; tangents from one external point are equal.",
+    finalAnswer: "(i) 12 m (ii) 90° (tangent ⊥ radius) (iii) 60 m²",
   },
 
   // ===== Surface Areas and Volumes (high‑roi) =====

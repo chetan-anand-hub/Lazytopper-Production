@@ -36,7 +36,7 @@ export const HEYE_SP: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "When white light is incident on one of the refracting surfaces of a prism, the light diverges into its constituent colours violet, indigo, blue, green, yellow, orange and red. This splitting of white light into its seven constituent colours is called dispersion, and the band of colours obtained on a screen is the spectrum. Red colour bends the least and violet bends the most on passing through the prism. Answer: a. What will happen when a red-coloured light is passed through a prism? b. Which type of spectrum is produced by white light when it is passed through a glass prism? c. Why does red light bend the least while violet light bends the most during dispersion? [OR] c. Explain the cause of dispersion of white light through a prism.",
+    "questionText": "When white light is incident on one of the refracting surfaces of a prism, the light diverges into its constituent colours violet, indigo, blue, green, yellow, orange and red. This splitting of white light into its seven constituent colours is called dispersion, and the band of colours obtained on a screen is the spectrum. Red colour bends the least and violet bends the most on passing through the prism.\nAnswer the following questions:\na. What will happen when a red-coloured light is passed through a prism? (1)\nb. Which type of spectrum is produced by white light when it is passed through a glass prism? (1)\nc. Why does red light bend the least while violet light bends the most during dispersion? (2)\n[OR]\nc. Explain the cause of dispersion of white light through a prism. (2)",
     "options": [],
     "answer": "a. Red light does not split into any constituent colours on passing through the prism. b. White light through a glass prism gives an impure spectrum (overlapping colours). c. Violet has the slowest speed in glass and red the fastest; lower speed means greater bending, so violet bends most and red least. [OR c. Dispersion occurs because different colours travel at different speeds in the same medium, so they have different refrangibility and separate out.]",
     "solutionSteps": [
@@ -48,6 +48,7 @@ export const HEYE_SP: CanonicalQuestion[] = [
     "finalAnswer": "a. Red light does not split. b. Impure spectrum. c. Violet (slowest) bends most, red (fastest) bends least (OR dispersion is due to different speeds/refrangibility of colours in the medium).",
     "isCompetencyBased": true,
     "requiresDiagram": true,
-    "diagramDescription": "A glass prism with white light from a sheet with a pinhole incident on one refracting face; the emerging light is dispersed into a band of seven colours labelled R, O, Y, G, B, I, V on a screen, showing red deviating least and violet most."
+    "diagramDescription": "A glass prism with white light from a sheet with a pinhole incident on one refracting face; the emerging light is dispersed into a band of seven colours labelled R, O, Y, G, B, I, V on a screen, showing red deviating least and violet most.",
+    sourceOverride: "others",
   }
 ];

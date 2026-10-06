@@ -203,16 +203,17 @@ export const HERD_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Draw a Punnett square to show how individuals from the F1 generation produce a generation, F2, with white fur and brown fur. Identify the genotypes in the F2 generation and calculate the proportion of individuals with brown fur.",
+    "questionText": "In an animal, the allele for white fur (W) is dominant over the allele for brown fur (b). A pure-breeding white-furred animal (WW) is crossed with a brown-furred animal (bb); all the F1 offspring (Wb) have white fur. Draw a Punnett square to show how individuals from the F1 generation produce a generation, F2, with white fur and brown fur. Identify the genotypes in the F2 generation and calculate the proportion of individuals with brown fur.",
     "options": [],
     "answer": "Wb × Wb gives WW, Wb, Wb, bb. Genotypes: WW, Wb, bb. Proportion brown (bb) = ¼ / 25%.",
     "solutionSteps": [
-      "[1 mark] Cross the F1 individuals Wb × Wb to give offspring WW, Wb, Wb, bb.",
-      "[1 mark] The F2 genotypes are WW, Wb and bb.",
-      "[1 mark] Brown fur is bb, so the proportion with brown fur = ¼ / 25%."
+      "[1 mark] Punnett square for F1 × F1 (Wb × Wb): gametes W and b from each parent give offspring WW, Wb, Wb, bb.",
+      "[1 mark] The F2 genotypes are WW, Wb and bb (ratio 1 : 2 : 1); WW and Wb are white, bb is brown.",
+      "[1 mark] Brown fur is bb, so the proportion with brown fur = 1/4 (25%)."
     ],
     "finalAnswer": "Genotypes WW, Wb, bb; proportion with brown fur = ¼ (25%).",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-HERD-D-001",

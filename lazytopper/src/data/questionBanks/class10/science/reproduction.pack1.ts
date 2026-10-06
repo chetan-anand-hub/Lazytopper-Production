@@ -43,12 +43,11 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
       "Since Assertion (A) is false and Reason (R) is true, the correct option is D.",
     ],
   },
-  { id: "REP-E07", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Humans", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sex of a child is determined by the:", options: ["Mother's chromosomes", "Father's chromosomes", "Both parents equally", "Environmental factors"], answer: "Father's chromosomes", explanation: "The correct answer is Father's chromosomes. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Father's chromosomes" , isCompetencyBased: false,
+  { id: "REP-E07", subject: "Science", topicKey: "heredity", subtopic: "Sex Determination", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sex of a child is determined by the:", options: ["Mother's chromosomes", "Father's chromosomes", "Both parents equally", "Environmental factors"], answer: "Father's chromosomes", explanation: "The correct answer is Father's chromosomes. The mother contributes only an X chromosome, while the father's sperm carries either X or Y; an X-sperm gives a girl (XX) and a Y-sperm gives a boy (XY), so the father's chromosome decides the sex of the child.", finalAnswer: "Father's chromosomes" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify the process of fertilization as the fusion of male and female gametes.",
-      "Recall that in humans, the fusion of sperm and egg typically occurs in the oviduct.",
-      "Conclude that the Fallopian tube is the site of fertilization.",
+      "Every egg from the mother carries an X chromosome, while half the sperms carry X and half carry Y; a Y-bearing sperm gives XY (boy) and an X-bearing sperm gives XX (girl), so the sex of the child is decided by the father's chromosome."
     ],
+    sourceOverride: "others",
   },
   { id: "REP-E08", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Regeneration is the ability shown by:", options: ["Humans", "Planaria", "Dogs", "Frogs"], answer: "Planaria", explanation: "The correct answer is Planaria. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Planaria" , isCompetencyBased: false,
     solutionSteps: [

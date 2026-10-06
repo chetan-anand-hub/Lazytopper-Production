@@ -100,9 +100,8 @@ export const TRIGONOMETRY_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(D)",
     "explanation": "A is false — sinθ ≤ 1 always since hypotenuse ≥ perpendicular. R is true and actually disproves A by explaining why sinθ cannot exceed 1.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/2/1",
-    "ncertRef": "Ex 8.1"
+    "ncertRef": "Ex 8.1",
+    sourceOverride: "others",
   },
 
 {
@@ -132,9 +131,8 @@ export const TRIGONOMETRY_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Dividing the fundamental identity sin²θ + cos²θ = 1 by cos²θ gives sec²θ − tan²θ = 1. R is the exact derivation of A.",
     "isCompetencyBased": false,
-    "pyqYear": "2022",
-    "pyqSet": "30/1/1",
-    "ncertRef": "Ex 8.4"
+    "ncertRef": "Ex 8.4",
+    sourceOverride: "others",
   },
 
 {
@@ -179,7 +177,7 @@ export const TRIGONOMETRY_AR_QUESTIONS: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Assertion (A): The angle of elevation of the sun decreases as the height of the shadow increases.\nReason (R): As the angle of elevation θ decreases, tanθ decreases, so for the same object height, the shadow length (base) increases.",
+    "questionText": "Assertion (A): The angle of elevation of the sun decreases as the length of the shadow of an object increases.\nReason (R): As the angle of elevation θ decreases, tanθ decreases, so for the same object height, the shadow length (base) increases.",
     "options": [
       "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
       "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
@@ -196,9 +194,8 @@ export const TRIGONOMETRY_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. tanθ = height/shadow. Smaller θ → smaller tanθ → longer shadow. R correctly explains why the sun's lower angle of elevation gives longer shadows.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 9.1"
+    "ncertRef": "Ex 9.1",
+    sourceOverride: "others",
   },
 
 {
@@ -228,9 +225,8 @@ export const TRIGONOMETRY_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Expanding (sinθ+cosθ)² using (a+b)² formula and substituting sin²θ+cos²θ = 1 gives 1+2sinθcosθ. R contains exactly these two tools.",
     "isCompetencyBased": false,
-    "pyqYear": "2025",
-    "pyqSet": "30/1/1",
-    "ncertRef": "Ex 8.4"
+    "ncertRef": "Ex 8.4",
+    sourceOverride: "others",
   },
 
 {
@@ -260,9 +256,8 @@ export const TRIGONOMETRY_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(D)",
     "explanation": "A is false — cos 0° = 1, not 0. R is true — at θ = 0°, base = hypotenuse so cosθ = 1. This is a classic trap question testing knowledge of standard values.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/3/1",
-    "ncertRef": "Ex 8.2"
+    "ncertRef": "Ex 8.2",
+    sourceOverride: "others",
   },
 
 {
@@ -327,8 +322,7 @@ export const TRIGONOMETRY_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. From cosec²θ − cot²θ = 1, factoring as (cosecθ+cotθ)(cosecθ−cotθ) = 1 gives cosecθ+cotθ = 1/(cosecθ−cotθ). R is the direct proof of A.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/2/1",
-    "ncertRef": "Ex 8.4"
+    "ncertRef": "Ex 8.4",
+    sourceOverride: "others",
   }
 ];

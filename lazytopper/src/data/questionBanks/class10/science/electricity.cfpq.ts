@@ -65,7 +65,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
-    questionText: LED_STIM + "Which of the following describes how the LEDs are connected in the circuit diagram?",
+    questionText: "Suresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The packet of LEDs had the following printed on a label:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nTo understand how he should connect the LEDs, he referred to the circuit diagram from a website shown in the given figure.\n\nWhich of the following describes how the LEDs are connected in the circuit diagram?",
     options: [
       "all in series",
       "all in parallel",
@@ -81,6 +81,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     ncertRef: "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
     requiresDiagram: true,
     diagramDescription: LED_DESC,
+    sourceOverride: "others",
   },
   // pdf-page 100 (folio 99) — Q2. Key: pdf-page 106, option 3.
   {
@@ -94,8 +95,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      LED_STIM +
-      "If the LED marked 'LED 2' in the diagram stops working, which other LEDs will also stop working?\n(Note: When an LED stops working, current cannot flow across it.)",
+      "Suresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The packet of LEDs had the following printed on a label:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nTo understand how he should connect the LEDs, he referred to the circuit diagram from a website shown in the given figure.\n\nIf the LED marked 'LED 2' in the diagram stops working, which other LEDs will also stop working?\n(Note: When an LED stops working, current cannot flow across it.)",
     options: [
       "only LED 3 to LED 8",
       "only LED 3 to LED 8 and LED 1",
@@ -111,6 +111,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     ncertRef: "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
     requiresDiagram: true,
     diagramDescription: LED_DESC,
+    sourceOverride: "others",
   },
   // pdf-page 100 (folio 99) — Q3. Key: pdf-page 106, option 2.
   {
@@ -149,22 +150,23 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      LED_STIM + "What will happen if he connects 100 LEDs, all in a parallel combination, to the 240 V mains supply?",
+      "Suresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The packet of LEDs had the following printed on a label:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nWhat will happen if he connects all 100 LEDs in a parallel combination to the 240 V mains supply?",
     options: [
       "Each LED will work as expected since the available voltage is more than 3 V.",
-      "Each LED will have a potential difference of 220 V and therefore they will get damaged.",
+      "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
       "Each LED will glow but the ones closer in the circuit to the main supply will glow brighter.",
-      "Each LED will have a potential difference of 2.4 V across it and therefore will glow dimmer than normal.",
+      "Each LED will have a potential difference of 2.4 V across it and therefore will glow dimmer than normal."
     ],
-    answer: "Each LED will have a potential difference of 220 V and therefore they will get damaged.",
+    answer: "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
     solutionSteps: [
-      "[1 mark] Correct option: (2). In a parallel combination every branch carries the full supply voltage, so each LED - rated for only 3 V - is subjected to the whole mains voltage and is destroyed. (The option as printed says 220 V while the stem specifies 240 V; that inconsistency is in the source and the option is reproduced verbatim.)",
+      "[1 mark] Correct option: (2). In a parallel combination every branch has the full supply voltage across it, so each LED - rated for only 3 V - gets 240 V across it and is damaged."
     ],
-    finalAnswer: "Each LED will have a potential difference of 220 V and therefore they will get damaged.",
+    finalAnswer: "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
-    requiresDiagram: true,
+    requiresDiagram: false,
     diagramDescription: LED_DESC,
+    sourceOverride: "others",
   },
   // pdf-page 101 (folio 100) — Q5. Key: pdf-page 106, option 1.
   {
@@ -329,20 +331,21 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     difficulty: "Hard",
     bloomSkill: "Applying",
     questionText:
-      "Three resistors in a circuit are attached as shown here. The resistance of F and G are 10 ohm and 5 ohm respectively. The resistance of E is unknown. These resistors are connected to a battery with potential difference 6 V.\n\n(a) What is the term used to describe such an arrangement of resistors?\n(b) What is the resistance of E if 0.3 A current flows through it?\n(c) What is the total current flowing in the circuit?",
+      "Three resistors in a circuit are connected as shown in the given figure. The resistances of F and G are 10 Ω and 5 Ω respectively. The resistance of E is unknown. These resistors are connected to a battery of potential difference 6 V.\n\n(a) What is the term used to describe such an arrangement of resistors?\n(b) What is the resistance of E if 0.3 A current flows through it?\n(c) What is the total current flowing in the circuit?",
     answer:
-      "(a) Resistors are attached in parallel. (b) R₁ = 6/0.3 = 20 ohm. (c) Total current = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A",
+      "(a) The resistors are connected in parallel. (b) R_E = V/I = 6/0.3 = 20 Ω. (c) Total current = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A",
     solutionSteps: [
-      "[1 mark] (a) Resistors are attached in parallel",
-      "[2 marks] (b) Resistance of E = R₁; I = V/R; 0.3 = 6/R; R₁ = 6/0.3; R₁ = 20 ohm. [1.5 marks for the steps to calculate R₁ and 0.5 marks for final answer]",
-      "[2 marks] (c) Total current (I) = V/R₁ + V/R₂ + V/R₃ = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A. [1.5 marks for the steps and 0.5 marks for final answer]",
+      "[1 mark] (a) The resistors are connected in parallel.",
+      "[2 marks] (b) Each branch has the full 6 V across it. I = V/R ⇒ R_E = V/I = 6/0.3 = 20 Ω. [1.5 marks for the steps, 0.5 mark for final answer with unit]",
+      "[2 marks] (c) Total current I = V/R_E + V/R_F + V/R_G = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A. [1.5 marks for the steps, 0.5 mark for final answer with unit]"
     ],
-    finalAnswer: "(a) parallel; (b) 20 ohm; (c) 2.1 A",
+    finalAnswer: "(a) parallel; (b) 20 Ω; (c) 2.1 A",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
     requiresDiagram: true,
     diagramDescription:
       "Three resistors drawn as zig-zags on three separate branches between two junction points labelled X (left) and Y (right): E on the top branch, F in the middle and G below. From Y the wire runs down through an ammeter A to a 6 V battery at the bottom and back to X.",
+    sourceOverride: "others",
   },
   // pdf-page 104 (folio 103) — Q13 [1]. Rubric row 13: pdf-page 109.
   {
@@ -358,13 +361,14 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     questionText:
       "Observe the circuit shown below. All the three switches are open.\n\nIdentify the switch/switches that on being closed will cause the fuse to blow.",
     answer: "Switch 1 and Switch 2",
-    solutionSteps: ["[1 mark] For identifying both, Switch 1 and Switch 2"],
+    solutionSteps: ["[1 mark] Switch 1 and Switch 2. Closing Switch 1 completes the circuit through the fuse and the bulb. Switch 2 is connected across the bulb, so closing it as well short-circuits the bulb: the resistance becomes almost zero, a very large current flows through the fuse and it blows. Switch 3 has both its terminals on the same return wire, so closing it changes nothing."],
     finalAnswer: "Switch 1 and Switch 2 together.",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
     requiresDiagram: true,
     diagramDescription:
-      "A circuit with a battery on the left and a fuse in the top wire. Switch 1 is in the top wire after the fuse. A lower branch contains Switch 2 in series with a bulb on the right, and a third branch on the left contains Switch 3 across the battery. All three switches are drawn open.",
+      "A battery on the left; its upper terminal connects through a fuse and then Switch 1 along the top wire to the right-hand side, which runs down through a bulb to the bottom return wire back to the battery. Switch 2 is connected between the wire just above the bulb and the bottom wire, i.e. across the bulb. Switch 3 is connected between two points of the battery's lower (return) wire. All three switches are drawn open.",
+    sourceOverride: "others",
   },
   // pdf-page 104 (folio 103) — Q14 [2]. Rubric row 14: pdf-page 109.
   {

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "control-and-coordination" (Science): 290 served rows from 16 source arrays, 3 withheld.
+// Chapter "control-and-coordination" (Science): 283 served rows from 18 source arrays, 11 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -15,9 +15,11 @@ import { CTRL_CBE } from "../questionBanks/class10/science/control-and-coordinat
 import { CTRL_SP } from "../questionBanks/class10/science/control-and-coordination.sp";
 import { CONTROL_COORDINATION_APQ } from "../questionBanks/class10/science/control-and-coordination.additionalPQ";
 import { CONTROL_COORDINATION_CHAPTERWISE } from "../questionBanks/class10/science/control-and-coordination.chapterwise";
+import { LIFE_PROCESSES_PYQ } from "../questionBanks/class10/science/life-processes.pyq";
 import { CONTROL_COORDINATION_PYQ } from "../questionBanks/class10/science/control-and-coordination.pyq";
 import { controlCoordinationPYQ2026 } from "../questionBanks/class10/science/controlCoordination.pyq2026";
 import { controlCoordinationPYQ2025 } from "../questionBanks/class10/science/controlCoordination.pyq2025";
+import { lifeProcessesPYQ2024 } from "../questionBanks/class10/science/lifeProcesses.pyq2024";
 import { controlCoordinationPYQ2024 } from "../questionBanks/class10/science/controlCoordination.pyq2024";
 import { CTRL_CFPQ } from "../questionBanks/class10/science/control-and-coordination.cfpq";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
@@ -33,15 +35,25 @@ export default defineChapter("control-and-coordination", [
   [235, CTRL_SP, false],
   [274, CONTROL_COORDINATION_APQ, false],
   [287, CONTROL_COORDINATION_CHAPTERWISE, false],
+  [299, LIFE_PROCESSES_PYQ, false],
   [300, CONTROL_COORDINATION_PYQ, false],
   [364, controlCoordinationPYQ2026, false],
   [377, controlCoordinationPYQ2025, false],
+  [389, lifeProcessesPYQ2024, false],
   [390, controlCoordinationPYQ2024, false],
   [402, CTRL_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [422, CONTROL_COORDINATION_CBQ_LT_GENERATED, false],
 ], [
+  "CTRL-NCERT-6-SA-007",
+  "CTRL-NCERT-6-LA-002",
   "CTRL-EXMPLR-6-MCQ-025",
+  "CTRL-EXMPLR-6-SA-003",
+  "CTRL-EXMPLR-6-SA-009",
+  "SCO-S-CTRL-001",
+  "SCO-S-CTRL-002",
+  "SCO-S-CTRL-012",
+  "SCO-S-CTRL-013",
   "PYQ-S-CTRL-003",
   "PYQ-S-2025-CTRL-008",
 ]);

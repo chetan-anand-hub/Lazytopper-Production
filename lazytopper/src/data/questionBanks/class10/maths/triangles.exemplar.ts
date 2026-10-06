@@ -169,12 +169,13 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     strategyHint: "Re-express PN · NR = QN² as a ratio QN/NR = PN/QN to spot the SAS similarity at vertex N." },
 
   { id: "TRI-N-EXMPLR-6-SA-011", subject: "Maths", topicKey: "triangles", subtopic: "Similarity Proofs", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "If ∠ACB = ∠CDA in a figure with C on segment BD (or with the standard NCERT/Exemplar configuration), AC = 8 cm and AD = 3 cm, find BD.",
+    questionText: "In △ABC, D is a point on side AB such that ∠ACB = ∠CDA. If AC = 8 cm and AD = 3 cm, find BD.",
     answer: "In △ACB and △ADC: ∠ACB = ∠ADC (given) and ∠A is common (∠BAC = ∠CAD as the same angle at A). By AA similarity, △ACB ~ △ADC. Hence AC/AD = AB/AC. So AC² = AD · AB ⇒ 8² = 3 · AB ⇒ AB = 64/3 cm. Therefore BD = AB − AD = 64/3 − 3 = 64/3 − 9/3 = 55/3 cm.",
     solutionSteps: ["∠ACB = ∠CDA (given); ∠A common to △ACB and △ADC ⇒ AA similarity, △ACB ~ △ADC.", "Correspondence: A↔A, C↔D, B↔C ⇒ AC/AD = AB/AC.", "AC² = AD · AB ⇒ 64 = 3 · AB ⇒ AB = 64/3 cm.", "BD = AB − AD = 64/3 − 9/3 = 55/3 cm."],
     finalAnswer: "BD = 55/3 cm.",
     ncertRef: "Exemplar Ex 6.3 Q13", isCompetencyBased: true,
-    strategyHint: "Common angle + given equal angle ⇒ AA similarity; then form AC² = AD · AB." },
+    strategyHint: "Common angle + given equal angle ⇒ AA similarity; then form AC² = AD · AB.",
+    sourceOverride: "others", },
 
   { id: "TRI-N-EXMPLR-6-SA-012", subject: "Maths", topicKey: "triangles", subtopic: "Criteria for Similarity", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "A 15 m high tower casts a shadow 24 m long at a certain time, and at the same time a telephone pole casts a shadow 16 m long. Find the height of the telephone pole.",
@@ -193,13 +194,14 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     strategyHint: "Ladder = hypotenuse; wall-height and foot-distance are the legs." },
 
   // ===== Exercise 6.4 — Long Answer =====
-  { id: "TRI-N-EXMPLR-6-LA-002", subject: "Maths", topicKey: "triangles", subtopic: "Criteria for Similarity", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "If ∠A = ∠C, AB = 6 cm, BP = 15 cm, AP = 12 cm and CP = 4 cm in a figure where AB and CD are two chords (or two segments) intersecting at point P with ∠A = ∠C and ∠APB = ∠CPD vertically opposite, then find the lengths of PD and CD.",
+  { id: "TRI-N-EXMPLR-6-LA-002", subject: "Maths", topicKey: "triangles", subtopic: "Criteria for Similarity", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Two line segments intersect at a point P, forming △APB and △CPD in which ∠APB and ∠CPD are vertically opposite angles. If ∠A = ∠C, AB = 6 cm, BP = 15 cm, AP = 12 cm and CP = 4 cm, find the lengths of PD and CD.",
     answer: "In △APB and △CPD: ∠A = ∠C (given) and ∠APB = ∠CPD (vertically opposite angles). By AA similarity, △APB ~ △CPD. Hence AP/CP = AB/CD = BP/DP. From AP/CP = BP/DP: 12/4 = 15/DP ⇒ DP = 15 × 4/12 = 5 cm. From AP/CP = AB/CD: 12/4 = 6/CD ⇒ CD = 6 × 4/12 = 2 cm.",
     solutionSteps: ["Given: ∠A = ∠C; AB = 6, BP = 15, AP = 12, CP = 4.", "In △APB and △CPD: ∠A = ∠C (given); ∠APB = ∠CPD (vertically opposite at P).", "By AA similarity, △APB ~ △CPD.", "Correspondence A↔C, P↔P, B↔D ⇒ AP/CP = AB/CD = BP/DP.", "12/4 = 15/DP ⇒ DP = 60/12 = 5 cm.", "12/4 = 6/CD ⇒ CD = 24/12 = 2 cm."],
     finalAnswer: "PD = 5 cm; CD = 2 cm.",
     ncertRef: "Exemplar Ex 6.4 Q1", isCompetencyBased: true,
-    strategyHint: "Vertically opposite angles + given equal angle ⇒ AA similarity at the intersection point." },
+    strategyHint: "Vertically opposite angles + given equal angle ⇒ AA similarity at the intersection point.",
+    sourceOverride: "others", },
 
   { id: "TRI-N-EXMPLR-6-LA-003", subject: "Maths", topicKey: "triangles", subtopic: "Criteria for Similarity", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "△ABC ~ △EDF with AB = 5 cm, AC = 7 cm, DF = 15 cm and DE = 12 cm. Find the lengths of the remaining sides of the triangles.",
@@ -243,15 +245,16 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
 
   // ===== Case-Based =====
   { id: "TRI-N-EXMPLR-6-CB-001", subject: "Maths", topicKey: "triangles", subtopic: "Similarity Proofs", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Case study: A right triangle ABC is right-angled at B. The largest square BRSP is inscribed in the triangle with one side along BC, one along BA and the opposite vertex S lying on the hypotenuse AC. Let AB = 16 cm and BC = 8 cm. Answer:\n(i) Which similarity criterion relates △APS and △ABC, where P is on AB and S is on AC?\n(ii) Set up the equation for the side x of the inscribed square BRSP using the similarity.\n(iii) Solve for x.\n(iv) State the side length of the largest inscribed square.",
+    questionText: "Case study: A right triangle ABC is right-angled at B. The largest square BRSP is inscribed in the triangle with one side along BC, one along BA and the opposite vertex S lying on the hypotenuse AC. Let AB = 16 cm and BC = 8 cm. Answer the following:\n(i) Which similarity criterion relates △APS and △ABC, where P is on AB and S is on AC?\n(ii) Set up the equation for the side x of the inscribed square BRSP using the similarity.\n(iii) Solve for x.\n(iv) State the side length of the largest inscribed square.",
     answer: "(i) AA similarity: △APS and △ABC share ∠A, and ∠APS = ∠ABC = 90° (since PS is parallel to BC, being a side of the square). So △APS ~ △ABC by AA. (ii) Let the square's side be x cm. Then PB = x (a side of the square), so AP = AB − PB = 16 − x. Also PS = x. From △APS ~ △ABC: AP/AB = PS/BC, i.e., (16 − x)/16 = x/8. (iii) Cross-multiply: 8(16 − x) = 16x ⇒ 128 − 8x = 16x ⇒ 128 = 24x ⇒ x = 128/24 = 16/3 cm. (iv) Side of the largest inscribed square = 16/3 cm.",
     solutionSteps: ["(i) △APS and △ABC: ∠A is common; PS is a side of the square parallel to BC, so ∠APS = ∠ABC = 90°. By AA similarity, △APS ~ △ABC.", "(ii) Let square side = x. PB = x (square side along BA), so AP = 16 − x. PS = x (square side opposite). Similarity ratio AP/AB = PS/BC gives (16 − x)/16 = x/8.", "(iii) 8(16 − x) = 16x ⇒ 128 − 8x = 16x ⇒ 24x = 128 ⇒ x = 16/3 cm.", "(iv) Side length of the largest inscribed square = 16/3 cm."],
     finalAnswer: "(i) AA similarity. (ii) (16 − x)/16 = x/8. (iii) x = 16/3 cm. (iv) Side = 16/3 cm.",
     ncertRef: "Exemplar Sample Question 1 (Ex 6.3)", isCompetencyBased: true,
-    strategyHint: "Inscribed square shares a corner with the right angle; the opposite corner on the hypotenuse gives the similar smaller triangle." },
+    strategyHint: "Inscribed square shares a corner with the right angle; the opposite corner on the hypotenuse gives the similar smaller triangle.",
+    sourceOverride: "others", },
 
-  { id: "TRI-N-EXMPLR-6-CB-002", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Case study: The hypotenuse of a right triangle is 25 cm, and out of the two legs, one is longer than the other by 5 cm. Answer:\n(i) Form a quadratic equation in the shorter leg x.\n(ii) Solve the quadratic equation.\n(iii) Reject the inadmissible root and state both legs.\n(iv) Verify by computing x² + (x + 5)² and comparing with 25².",
+  { id: "TRI-N-EXMPLR-6-CB-002", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems (Factorisation)", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "Case study: The hypotenuse of a right triangle is 25 cm, and out of the two legs, one is longer than the other by 5 cm. Answer the following:\n(i) Form a quadratic equation in the shorter leg x.\n(ii) Solve the quadratic equation.\n(iii) Reject the inadmissible root and state both legs.\n(iv) Verify by computing x² + (x + 5)² and comparing with 25².",
     answer: "(i) Let the shorter leg be x cm. Then the longer leg is (x + 5) cm. By Pythagoras: x² + (x + 5)² = 25² ⇒ x² + x² + 10x + 25 = 625 ⇒ 2x² + 10x − 600 = 0 ⇒ x² + 5x − 300 = 0. (ii) Solve x² + 5x − 300 = 0: split 5x = 20x − 15x (since 20 × (−15) = −300 and 20 + (−15) = 5), so x² + 20x − 15x − 300 = 0 ⇒ (x − 15)(x + 20) = 0. So x = 15 or x = −20. (iii) Length cannot be negative, so reject x = −20. Hence the shorter leg = 15 cm and the longer leg = 15 + 5 = 20 cm. (iv) Verification: x² + (x + 5)² = 15² + 20² = 225 + 400 = 625 = 25² ✓.",
     solutionSteps: ["(i) Shorter leg = x; longer leg = x + 5; hypotenuse = 25. Pythagoras: x² + (x + 5)² = 25².", "Expand: x² + x² + 10x + 25 = 625 ⇒ 2x² + 10x − 600 = 0 ⇒ x² + 5x − 300 = 0.", "(ii) Factor: (x − 15)(x + 20) = 0 ⇒ x = 15 or x = −20.", "(iii) Length > 0 ⇒ reject x = −20. Take x = 15 cm. Other leg = 15 + 5 = 20 cm.", "(iv) Verify: 15² + 20² = 225 + 400 = 625 = 25². ✓"],
     finalAnswer: "Legs = 15 cm and 20 cm; verified 15² + 20² = 625 = 25².",

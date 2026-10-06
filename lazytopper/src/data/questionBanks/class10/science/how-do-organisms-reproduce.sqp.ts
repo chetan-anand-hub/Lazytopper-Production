@@ -64,18 +64,18 @@ export const HOW_DO_ORGANISMS_REPRODUCE_SQP: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Given below are certain situations. Analyse and describe its possible impact on a person:\n(a) Testes of a male boy are not able to descend into scrotum during his embryonic development.\n(b) Vas deferens of a man is plugged.\n(c) Prostate and seminal vesicles are not functional.\n(d) Egg is not fertilised in a human female.\n(e) Placenta does not attach to the uterus optimally.\n\n[OR]\n\n(a) A doctor has advised Sameer to reduce sugar intake in his diet and do regular exercise after checking his blood test reports. Which disease do you think Sameer is suffering from? Name the hormone responsible for this disease and the organ producing the hormone.\n(b) Which hormone is present in the areas of rapid cell division in a plant and which hormone inhibits the growth?",
+    "questionText": "Given below are certain situations. Analyse and describe its possible impact on a person:\n(a) Testes of a male boy are not able to descend into scrotum during his embryonic development.\n(b) Vas deferens of a man is plugged.\n(c) Prostate and seminal vesicles are not functional.\n(d) Egg is not fertilised in a human female.\n(e) Placenta does not attach to the uterus optimally.",
     "options": [],
-    "answer": "Main: anatomy/physiology impacts (a–e listed). OR Alt: (a) Diabetes; Insulin; Pancreas. (b) Cytokinins promote cell division; Abscisic acid inhibits growth.",
+    "answer": "(a) Sperm formation is impaired as testes need a lower-than-body temperature. (b) Sperms cannot be transferred – infertility. (c) Sperms lack nourishment and fluid medium for transport. (d) Egg survives about a day; uterine lining breaks down – menstruation. (e) Embryo gets inadequate nutrition and oxygen – growth affected.",
     "solutionSteps": [
       "(a) Sperm formation will be adversely affected because spermatogenesis requires a temperature lower than core body temperature (the scrotum keeps testes ~2 °C cooler). Undescended testes → reduced or absent sperm production.",
       "(b) Vas deferens is the passage for sperm transfer from testis to urethra. If plugged, sperms cannot be transferred further — leading to infertility despite normal sperm production.",
       "(c) Prostate gland and seminal vesicles produce secretions that nourish sperm and form the medium (semen) for sperm transport. If non-functional, sperms lack nourishment and proper transport medium.",
       "(d) If the egg is not fertilised, it lives for about one day. Then the thickened lining of the uterus breaks, leading to discharge of blood and mucus along with the unfertilised egg — this is called menstruation.",
-      "(e) Placenta provides nutrition and oxygen to the growing embryo. Sub-optimal attachment will impair nutrition and oxygen supply, affecting embryo growth and possibly causing serious complications.",
-      "OR (alternative): (a) Diabetes; hormone = Insulin; organ = Pancreas. (b) Cytokinins are present in regions of rapid cell division and promote it; Abscisic acid inhibits growth."
+      "(e) Placenta provides nutrition and oxygen to the growing embryo. Sub-optimal attachment will impair nutrition and oxygen supply, affecting embryo growth and possibly causing serious complications."
     ],
-    "finalAnswer": "Main: (a)–(e) impacts described. OR Alt: Diabetes/Insulin/Pancreas; Cytokinins/Abscisic acid.",
-    "isCompetencyBased": true
+    "finalAnswer": "(a) Sperm formation impaired; (b) sperm transfer blocked – infertility; (c) sperms lack nourishment/transport medium; (d) menstruation follows; (e) embryo's nutrition and oxygen supply impaired.",
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   }
 ];

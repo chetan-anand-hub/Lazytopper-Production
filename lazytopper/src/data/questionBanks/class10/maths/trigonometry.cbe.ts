@@ -135,17 +135,18 @@ export const TRIG_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The rod of a TV disc antenna is fixed at right angles to wall AB and a rod CD supports the disc, as shown in the figure. AC = 1.5 m and CD = 3 m. Compute the value of sec θ + cosec θ.",
+    "questionText": "The rod AC of a TV disc antenna is fixed at right angles to the wall AB, and a rod CD supports the disc, as shown in the given figure. AC = 1.5 m and CD = 3 m. If θ = ∠ADC, compute the value of sec θ + cosec θ.",
     "options": [],
-    "answer": "41/13",
+    "answer": "2 + 2/√3 = (6 + 2√3)/3 ≈ 3.15",
     "solutionSteps": [
-      "[1 mark] sec θ = CD/AD = 3/2.6 and cosec θ = CD/AC = 3/1.5 (using AD = 2.6 m from Pythagoras).",
-      "[1 mark] sec θ + cosec θ = 3/2.6 + 3/1.5 = 41/13."
+      "[1 mark] In right ΔCAD (right angle at A), AD = √(CD² − AC²) = √(9 − 2.25) = (3√3)/2 m. So sec θ = CD/AD = 3 ÷ (3√3/2) = 2/√3 and cosec θ = CD/AC = 3/1.5 = 2.",
+      "[1 mark] sec θ + cosec θ = 2/√3 + 2 = (6 + 2√3)/3 ≈ 3.15."
     ],
-    "finalAnswer": "41/13",
+    "finalAnswer": "sec θ + cosec θ = 2 + 2/√3 = (6 + 2√3)/3 ≈ 3.15",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Right-angled triangle ACD representing a TV disc antenna. Rod AB is the vertical wall; the rod is fixed at right angles to wall AB. AC = 1.5 m is one leg, CD = 3 m is the hypotenuse (rod supporting the disc), and AD is the third side. Angle θ is the acute angle at D between CD and AD."
+    "diagramDescription": "Right-angled triangle ACD representing a TV disc antenna. Rod AB is the vertical wall; the rod is fixed at right angles to wall AB. AC = 1.5 m is one leg, CD = 3 m is the hypotenuse (rod supporting the disc), and AD is the third side. Angle θ is the acute angle at D between CD and AD.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRIG-B-002",

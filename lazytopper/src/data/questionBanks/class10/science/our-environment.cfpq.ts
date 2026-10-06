@@ -160,8 +160,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     difficulty: "Hard",
     bloomSkill: "Applying",
     questionText:
-      VISION_STIM +
-      "Observe the following food web. Classify the animals into two groups - one that would need to have vision as Animal 1 and another as Animal 2 in the diagram above.",
+      "Two different animals differ in how far they can see in either direction without turning their heads. In Animal 1, the eyes are placed towards the front of the head: its total field of view is narrower, but a large central part of it is seen by both eyes at a time. In Animal 2, the eyes are placed on either side of the head: its total field of view is much wider, but only a narrow central part is seen by both eyes at a time.\n\nAnimal 2 can see a broader area at any time compared to Animal 1. Animal 1 can judge depth (distance) better than Animal 2.\n\nObserve the food web in the given figure. Classify its animals into two groups — those that would need vision like Animal 1 and those that would need vision like Animal 2.",
     answer: "Animal 1: lion, jackal, kite, wild cat and owl. Animal 2: mouse, goat, rabbit.",
     solutionSteps: [
       "[1 mark] Animal 1: lion, jackal, kite, wild cat and owl. Animal 2: mouse, goat, rabbit.",
@@ -174,6 +173,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     diagramDescription:
       VISION_DESC +
       " A second figure shows a food web drawn with pictures joined by arrows: a green plant (producer) at the left feeds a goat, a rabbit and a mouse; the goat and rabbit are eaten by a jackal and a wild cat; the mouse is eaten by an owl and a wild cat; the jackal and wild cat are eaten by a lion; and the mouse also leads to a kite. Labels read Green Plant producer, Goat, Rabbit, Mouse, Jackal, Wild cat, Owl, Kite and Lion.",
+    sourceOverride: "others",
   },
   // pdf-page 134 (folio 133) — Q6 [1]. Rubric row 6: pdf-page 137.
   {

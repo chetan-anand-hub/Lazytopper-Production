@@ -36,6 +36,8 @@ type TrigQuestionSpec = {
   bloomSkill?: BloomLevel;
   strategyHint?: string;
   options?: readonly string[];
+  /** BANK-FIX-1 PR-2: content-changed rows are filed under "Others" (owner ruling 2). */
+  sourceOverride?: "others";
 };
 
 type GroupDefaults = Pick<
@@ -50,7 +52,9 @@ type GroupSpec = Omit<
   Partial<
     Pick<
       TrigQuestionSpec,
-      "loIds" | "difficulty" | "subtopic" | "bloomSkill" | "strategyHint"
+      // BANK-FIX-1 PR-2: a row re-marked by the bank audit carries its own cbseFormat
+      // (marks and section derive from it) and, if re-filed, its own skillFamily.
+      "cbseFormat" | "skillFamily" | "loIds" | "difficulty" | "subtopic" | "bloomSkill" | "strategyHint"
     >
   >;
 
@@ -170,7 +174,8 @@ function makeTrigQuestion(spec: TrigQuestionSpec): TrigPackQuestion {
     section: spec.cbseFormat,
     cbseFormat: spec.cbseFormat,
     marks: MARKS_BY_SECTION[spec.cbseFormat],
-    format: FORMAT_BY_SECTION[spec.cbseFormat],
+    // BANK-FIX-1 PR-2: a Section A row with no options is a very-short written answer, not an MCQ.
+    format: spec.cbseFormat === "A" && !spec.options ? "VSA" : FORMAT_BY_SECTION[spec.cbseFormat],
     difficulty: spec.difficulty,
     bloomSkill: spec.bloomSkill ?? defaultBloom(spec.skillFamily),
     questionText: spec.questionText,
@@ -193,6 +198,7 @@ function makeTrigQuestion(spec: TrigQuestionSpec): TrigPackQuestion {
     skillFamily: spec.skillFamily,
     loIds: [...spec.loIds],
     visualExplainerId: spec.cbseFormat !== "A" ? defaultVisualId(spec.skillFamily) : undefined,
+    ...(spec.sourceOverride ? { sourceOverride: spec.sourceOverride } : {}),
   };
 }
 
@@ -201,6 +207,8 @@ function buildGroup(defaults: GroupDefaults, specs: readonly GroupSpec[]): TrigP
     makeTrigQuestion({
       ...defaults,
       ...spec,
+      cbseFormat: spec.cbseFormat ?? defaults.cbseFormat,
+      skillFamily: spec.skillFamily ?? defaults.skillFamily,
       loIds: spec.loIds ?? defaults.loIds,
       difficulty: spec.difficulty ?? defaults.difficulty,
     })
@@ -497,8 +505,8 @@ const sectionCQuestions = [
       difficulty: "Medium",
     },
     [
-      { questionId: "2026-TRIG-P1-C-009", questionText: "Solve 2 sin theta = 1 for acute theta.", answer: "theta = 30 deg.", working: ["The equation gives sin theta = 1/2.", "Using the standard value table, theta = 30 deg.", "State the acute-angle solution clearly."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
-      { questionId: "2026-TRIG-P1-C-010", questionText: "Solve cos theta = 1/sqrt(2) for acute theta.", answer: "theta = 45 deg.", working: ["1/sqrt(2) is the standard value of cos 45 deg.", "Hence theta = 45 deg.", "Write the acute-angle answer in the final line."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
+      { questionId: "2026-TRIG-P1-C-009", questionText: "Solve 2 sin theta = 1 for acute theta.", answer: "theta = 30 deg.", working: ["2 sin θ = 1 ⇒ sin θ = 1/2.", "Since sin 30° = 1/2 and θ is acute, θ = 30°."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], cbseFormat: "B", difficulty: "Easy", sourceOverride: "others" },
+      { questionId: "2026-TRIG-P1-C-010", questionText: "Solve cos theta = 1/sqrt(2) for acute theta.", answer: "theta = 45 deg.", working: ["cos θ = 1/√2, and cos 45° = 1/√2 (standard value).", "Since θ is acute, θ = 45°."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], cbseFormat: "B", difficulty: "Easy", sourceOverride: "others" },
       { questionId: "2026-TRIG-P1-C-011", questionText: "Solve tan^2 theta = 3 for acute theta.", answer: "theta = 60 deg.", working: ["tan^2 theta = 3 implies tan theta = sqrt(3) for acute theta.", "Using the standard value table, theta = 60 deg.", "Write the final acute-angle answer."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
       { questionId: "2026-TRIG-P1-C-012", questionText: "Solve sec theta = cosec theta for acute theta.", answer: "theta = 45 deg.", working: ["sec theta = cosec theta gives 1/cos theta = 1/sin theta.", "So sin theta = cos theta.", "Hence theta = 45 deg."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_04_TRANSFORM_SIMPLIFY"] },
       { questionId: "2026-TRIG-P1-C-013", questionText: "Solve 2 cos^2 theta = 1 for acute theta.", answer: "theta = 45 deg.", working: ["The equation gives cos^2 theta = 1/2.", "So cos theta = 1/sqrt(2) for acute theta.", "Hence theta = 45 deg."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_03_IDENTITY_PYTHAG"] },
@@ -518,7 +526,7 @@ const sectionCQuestions = [
       { questionId: "2026-TRIG-P1-C-017", questionText: "From the top of a 24 m building, the angle of depression of a car is 30 deg. Find the distance of the car from the foot of the building.", answer: "24sqrt(3) m.", working: ["Angle of elevation from the car is also 30 deg.", "Use tan 30 deg = 24 / distance.", "So distance = 24sqrt(3) m."] },
       { questionId: "2026-TRIG-P1-C-018", questionText: "A kite string 50 m long makes an angle of 60 deg with the ground. Find the height of the kite and the horizontal distance of the flyer from the point vertically below the kite.", answer: "Height = 25sqrt(3) m and horizontal distance = 25 m.", working: ["Use sin 60 deg = height / 50 to get height = 25sqrt(3) m.", "Use cos 60 deg = horizontal distance / 50 to get horizontal distance = 25 m.", "Write both required values clearly."], loIds: ["LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE", "LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES"] },
       { questionId: "2026-TRIG-P1-C-019", questionText: "A vertical pole 8 m high casts a shadow 8/sqrt(3) m long. Find the angle of elevation of the sun.", answer: "60 deg.", working: ["Use tan theta = 8 / (8/sqrt(3)).", "This gives tan theta = sqrt(3).", "Hence theta = 60 deg."] },
-      { questionId: "2026-TRIG-P1-C-020", questionText: "From a point on level ground, the angle of elevation of the top of a tower is 45 deg. If the height of the tower is 14 m, find the distance of the point from the tower.", answer: "14 m.", working: ["Let the distance from the tower be x m.", "Using tan 45 deg = 14 / x = 1, we get x = 14 m.", "Hence the required distance is 14 m."] },
+      { questionId: "2026-TRIG-P1-C-020", questionText: "From a point on level ground, the angle of elevation of the top of a tower is 45 deg. If the height of the tower is 14 m, find the distance of the point from the tower.", answer: "14 m.", working: ["Let the distance of the point from the foot of the tower be x m. tan 45° = 14/x.", "1 = 14/x ⇒ x = 14 m."], cbseFormat: "B", difficulty: "Easy", sourceOverride: "others" },
     ]
   ),
   ...buildGroup(
@@ -533,7 +541,7 @@ const sectionCQuestions = [
       { questionId: "2026-TRIG-P1-C-022", questionText: "Prove that (sec A - cos A) / tan A = sin A.", answer: "LHS = sin A.", working: ["Write sec A as 1/cos A and tan A as sin A/cos A.", "Then the numerator becomes (1 - cos^2 A)/cos A = sin^2 A/cos A.", "Dividing by sin A/cos A leaves sin A."] },
       { questionId: "2026-TRIG-P1-C-023", questionText: "Show that (1 + tan^2 A) sin^2 A = tan^2 A.", answer: "LHS = tan^2 A.", working: ["Use 1 + tan^2 A = sec^2 A.", "Then sec^2 A sin^2 A = (sin^2 A)/(cos^2 A).", "This is tan^2 A."] },
       { questionId: "2026-TRIG-P1-C-024", questionText: "If (sin A + cos A)^2 = 2 and A is acute, find A.", answer: "A = 45 deg.", working: ["Expand to get sin^2 A + cos^2 A + 2 sin A cos A = 2.", "Using sin^2 A + cos^2 A = 1, we get 2 sin A cos A = 1.", "So sin 2A = 1 and for acute A, A = 45 deg."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_05_SOLVE_EQUATIONS_STANDARD"] },
-      { questionId: "2026-TRIG-P1-C-025", questionText: "A boy observes the top of a tree at an angle of elevation of 45 deg. If the tree is 14 m high, find the distance of the boy from the tree.", answer: "14 m.", working: ["Let the distance from the tree be x m.", "Using tan 45 deg = 14 / x = 1, we get x = 14 m.", "Hence the boy is 14 m away from the tree."], loIds: ["LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE", "LO_TRIG_10_ERROR_CHECK_REVIEW"] },
+      { questionId: "2026-TRIG-P1-C-025", questionText: "A boy observes the top of a tree at an angle of elevation of 45 deg. If the tree is 14 m high, find the distance of the boy from the tree.", answer: "14 m.", working: ["Let the distance of the boy from the foot of the tree be x m. tan 45° = 14/x.", "1 = 14/x ⇒ x = 14 m."], loIds: ["LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE", "LO_TRIG_10_ERROR_CHECK_REVIEW"], cbseFormat: "B", skillFamily: "Heights_Distances", difficulty: "Easy", subtopic: "Heights and distances", sourceOverride: "others" },
     ]
   ),
 ] satisfies readonly TrigPackQuestion[];
@@ -546,7 +554,7 @@ const sectionDQuestions = [
       difficulty: "Hard",
     },
     [
-      { questionId: "2026-TRIG-P1-D-001", questionText: "Prove that (1 - sin A)(1 + sin A) = cos^2 A.", answer: "LHS = cos^2 A.", working: ["Start with the LHS: (1 - sin A)(1 + sin A).", "Use the identity (x - y)(x + y) = x^2 - y^2 to get 1 - sin^2 A.", "Apply the identity 1 - sin^2 A = cos^2 A.", "Thus the LHS equals cos^2 A."] },
+      { questionId: "2026-TRIG-P1-D-001", questionText: "Prove that (1 - sin A)(1 + sin A) = cos^2 A.", answer: "LHS = cos^2 A.", working: ["LHS = (1 − sin A)(1 + sin A) = 1 − sin²A  [(a − b)(a + b) = a² − b²].", "Since sin²A + cos²A = 1, 1 − sin²A = cos²A = RHS. Hence proved."], cbseFormat: "B", difficulty: "Easy", subtopic: "Trigonometric identities", sourceOverride: "others" },
       { questionId: "2026-TRIG-P1-D-002", questionText: "Prove that (sec A + tan A)(1 - sin A) = cos A.", answer: "LHS = cos A.", working: ["Start with the LHS and write sec A = 1/cos A and tan A = sin A/cos A.", "Then sec A + tan A = (1 + sin A)/cos A.", "Multiply by (1 - sin A) to get (1 - sin^2 A)/cos A.", "Use 1 - sin^2 A = cos^2 A and simplify to cos A."] },
       { questionId: "2026-TRIG-P1-D-003", questionText: "Prove that (1 - cos A)/sin A = sin A/(1 + cos A).", answer: "LHS = RHS.", working: ["Start with the LHS and multiply numerator and denominator by (1 + cos A).", "The numerator becomes 1 - cos^2 A.", "Replace 1 - cos^2 A by sin^2 A.", "Simplify to get sin A/(1 + cos A), which is the RHS."] },
       { questionId: "2026-TRIG-P1-D-004", questionText: "Prove that (sec A - tan A)^2 = (1 - sin A)/(1 + sin A).", answer: "LHS = RHS.", working: ["Start with the LHS and write sec A - tan A = (1 - sin A)/cos A.", "Square both numerator and denominator to get (1 - sin A)^2/cos^2 A.", "Replace cos^2 A by 1 - sin^2 A = (1 - sin A)(1 + sin A).", "Cancel the common factor (1 - sin A) to get (1 - sin A)/(1 + sin A)."] },
@@ -564,8 +572,8 @@ const sectionDQuestions = [
       difficulty: "Hard",
     },
     [
-      { questionId: "2026-TRIG-P1-D-009", questionText: "From the top of a 20 m high building, the angle of depression of a car on the road is 30 deg. Find the distance of the car from the foot of the building and the line of sight.", answer: "Distance = 20sqrt(3) m and line of sight = 40 m.", working: ["Let the distance of the car from the foot of the building be x m.", "Angle of elevation from the car is 30 deg, so tan 30 deg = 20/x.", "This gives x = 20sqrt(3) m.", "Using sin 30 deg = 20/line of sight, the line of sight is 40 m."] },
-      { questionId: "2026-TRIG-P1-D-010", questionText: "From a point on the ground 15 m from the foot of a tower, the angle of elevation of the top is 60 deg. Find the height of the tower and the line joining the point to the top.", answer: "Height = 15sqrt(3) m and line joining point to top = 30 m.", working: ["Let the height of the tower be h m.", "Using tan 60 deg = h/15, we get h = 15sqrt(3) m.", "Now use cos 60 deg = 15/line joining point to top.", "So the required slant line is 30 m."] },
+      { questionId: "2026-TRIG-P1-D-009", questionText: "From the top of a 20 m high building, the angle of depression of a car on the road is 30 deg. Find the distance of the car from the foot of the building and the line of sight.", answer: "Distance = 20sqrt(3) m and line of sight = 40 m.", working: ["Let the building be AB = 20 m and the car be at C, BC = x m. Angle of depression 30° ⇒ ∠ACB = 30° (alternate angles).", "tan 30° = AB/BC ⇒ 1/√3 = 20/x ⇒ x = 20√3 m.", "sin 30° = AB/AC ⇒ 1/2 = 20/AC ⇒ line of sight AC = 40 m."], cbseFormat: "C", difficulty: "Medium", sourceOverride: "others" },
+      { questionId: "2026-TRIG-P1-D-010", questionText: "From a point on the ground 15 m from the foot of a tower, the angle of elevation of the top is 60 deg. Find the height of the tower and the line joining the point to the top.", answer: "Height = 15sqrt(3) m and line joining point to top = 30 m.", working: ["Let the tower be AB = h m and the point be C with BC = 15 m; ∠ACB = 60°.", "tan 60° = h/15 ⇒ h = 15√3 m.", "cos 60° = 15/AC ⇒ 1/2 = 15/AC ⇒ AC = 30 m."], cbseFormat: "C", difficulty: "Medium", sourceOverride: "others" },
       { questionId: "2026-TRIG-P1-D-011", questionText: "From the top of a 30 m building, the angles of depression of the top and the foot of a pole are 30 deg and 60 deg respectively. Find the height of the pole and the distance between the building and the pole.", answer: "Height of pole = 20 m and distance = 10sqrt(3) m.", working: ["Let the horizontal distance between the building and the pole be x m and the pole height be h m.", "Using the angle of depression to the foot, tan 60 deg = 30/x, so x = 10sqrt(3) m.", "Using the angle of depression to the top, tan 30 deg = (30 - h)/x.", "Substitute x = 10sqrt(3) to get 1/sqrt(3) = (30 - h)/(10sqrt(3)), hence h = 20 m."], loIds: ["LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES", "LO_TRIG_10_ERROR_CHECK_REVIEW"] },
       { questionId: "2026-TRIG-P1-D-012", questionText: "Two poles of heights 8 m and 20 m stand on the same level ground. From a point between them, the angles of elevation of their tops are 45 deg and 60 deg respectively. Find the distances of the point from the two poles.", answer: "Distance from 8 m pole = 8 m and distance from 20 m pole = 20/sqrt(3) m.", working: ["Let the distances from the point to the 8 m pole and 20 m pole be x and y respectively.", "Using tan 45 deg = 8/x, we get x = 8 m.", "Using tan 60 deg = 20/y, we get y = 20/sqrt(3) m.", "Hence the required distances are obtained."], loIds: ["LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES", "LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE"] },
       { questionId: "2026-TRIG-P1-D-013", questionText: "From a point on the ground, the angle of elevation of the top of a tower is 30 deg. After moving 50 m towards the tower, the angle becomes 60 deg. Find the height of the tower and the original distance from the tower.", answer: "Height = 25sqrt(3) m and original distance = 75 m.", working: ["Let the distance after moving closer be x m and the tower height be h m.", "From the closer point, tan 60 deg = h/x, so h = xsqrt(3).", "From the original point, tan 30 deg = h/(x + 50).", "Substitute h = xsqrt(3) to get 1/sqrt(3) = xsqrt(3)/(x + 50), so 3x = x + 50 and x = 25.", "Hence h = 25sqrt(3) m and the original distance is x + 50 = 75 m."], loIds: ["LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES", "LO_TRIG_10_ERROR_CHECK_REVIEW"] },

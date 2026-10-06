@@ -399,23 +399,23 @@ export const ELEC_CBE: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "electricity",
     "subtopic": "Heating Effect of Electric Current",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Fig. 1 shows the filament in a lamp. The filament is made from a very thin piece of metal. When there is a current in the filament it glows brightly and becomes very hot. Explain how the current causes the filament to become hot.",
+    "questionText": "The given figure shows the filament in a lamp. The filament is made from a very thin piece of metal. When there is a current in the filament it glows brightly and becomes very hot. Explain how the current causes the filament to become hot.",
     "options": [],
-    "answer": "The filament metal has resistance; work is done against the resistance by the moving electrons; this releases heat energy; electrical energy is transferred to thermal/heat energy.",
+    "answer": "The filament has resistance which opposes the flow of charge; the moving electrons do work against this resistance (colliding with the metal ions), so electrical energy is converted into heat energy (H = I²Rt), and the very thin filament becomes hot enough to glow.",
     "solutionSteps": [
-      "[1 mark] The filament metal has resistance which opposes the flow of charge.",
-      "[1 mark] Work is done against this resistance by the electrons as they move through the wire.",
-      "[1 mark] As the electrons collide with the ions of the metal lattice, heat energy is released.",
-      "[1 mark] Electrical energy is thereby transferred to thermal (heat) energy, so the filament becomes very hot and glows."
+      "[1 mark] The metal of the filament has resistance, which opposes the flow of charge (electrons).",
+      "[1 mark] The moving electrons do work against this resistance — they collide with the ions of the metal, transferring energy to them.",
+      "[1 mark] So electrical energy is converted into heat (thermal) energy (Joule heating, H = I²Rt); the thin filament gets very hot and glows."
     ],
-    "finalAnswer": "Electrical energy is converted to heat energy because work is done by the moving electrons against the filament's resistance, raising its temperature.",
+    "finalAnswer": "The filament has resistance which opposes the flow of charge; the moving electrons do work against this resistance (colliding with the metal ions), so electrical energy is converted into heat energy (H = I²Rt), and the very thin filament becomes hot enough to glow.",
     "isCompetencyBased": true,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1 shows a lamp with a thin metal filament coil inside the glass bulb, connected across the supply terminals."
+    "diagramDescription": "Fig. 1 shows a lamp with a thin metal filament coil inside the glass bulb, connected across the supply terminals.",
+    sourceOverride: "others",
   }
 ];

@@ -105,17 +105,18 @@ export const AP_CBE: CanonicalQuestion[] = [
     "subtopic": "nth Term of an AP (Real-Life Application)",
     "section": "A",
     "marks": 1,
-    "format": "Case-Based",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "My friend wants to buy a car and plans to take a loan from a bank for his car. He repays his loan starting with the first installment of Rs. 1000. If he increases his installment by Rs. 200 every month, then answer the following:\n\n(c) If there are 40 installments in total, then what is the amount paid in the last installment?",
-    "options": [],
+    "questionText": "A person repays a car loan in monthly installments, starting with a first installment of Rs. 1000 and increasing the installment by Rs. 200 every month. If there are 40 installments in total, the amount paid in the last installment is:",
+    "options": ["Rs. 8600", "Rs. 8800", "Rs. 9000", "Rs. 7800"],
     "answer": "Rs. 8800",
     "solutionSteps": [
       "[1 mark] a₄₀ = 1000 + (40−1)(200) = 1000 + 39 × 200 = 8800."
     ],
     "finalAnswer": "Rs. 8800",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-AP-A-006",

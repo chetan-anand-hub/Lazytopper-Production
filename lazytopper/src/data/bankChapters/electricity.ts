@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "electricity" (Science): 399 served rows from 18 source arrays, 16 withheld.
+// Chapter "electricity" (Science): 396 served rows from 19 source arrays, 19 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -19,6 +19,7 @@ import { ELECTRICITY_APQ } from "../questionBanks/class10/science/electricity.ad
 import { ELECTRICITY_CHAPTERWISE } from "../questionBanks/class10/science/electricity.chapterwise";
 import { ELECTRICITY_PYQ } from "../questionBanks/class10/science/electricity.pyq";
 import { electricityPYQ2026 } from "../questionBanks/class10/science/electricity.pyq2026";
+import { metalsNonMetalsPYQ2025 } from "../questionBanks/class10/science/metalsNonMetals.pyq2025";
 import { electricityPYQ2025 } from "../questionBanks/class10/science/electricity.pyq2025";
 import { ELEC_CFPQ } from "../questionBanks/class10/science/electricity.cfpq";
 import { electricityPYQ2024 } from "../questionBanks/class10/science/electricity.pyq2024";
@@ -39,6 +40,7 @@ export default defineChapter("electricity", [
   [292, ELECTRICITY_CHAPTERWISE, false],
   [305, ELECTRICITY_PYQ, false],
   [369, electricityPYQ2026, false],
+  [374, metalsNonMetalsPYQ2025, false],
   [382, electricityPYQ2025, false],
   [405, ELEC_CFPQ, false],
   [412, electricityPYQ2024, false],
@@ -49,11 +51,14 @@ export default defineChapter("electricity", [
   "CBE-S-ELEC-A-003",
   "APQ-S-ELEC-001",
   "SCO-S-ELEC-003",
+  "SCO-S-ELEC-011",
   "SCO-S-ELEC-014",
   "SCQ-S-ELEC-034",
   "SCQ-S-ELEC-036",
   "SCQ-S-ELEC-037",
   "SCQ-S-ELEC-038",
+  "PYQ-S-ELEC-001",
+  "PYQ-S-ELEC-003",
   "PYQ-S-ELEC-004",
   "PYQ-S-ELEC-005",
   "PYQ-S-ELEC-007",

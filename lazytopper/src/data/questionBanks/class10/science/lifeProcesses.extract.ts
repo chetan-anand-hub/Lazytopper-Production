@@ -101,7 +101,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "id": "LPX-A-008",
     "subject": "Science",
     "topicKey": "life-processes",
-    "subtopic": "Transportation",
+    "subtopic": "Excretion",
     "section": "A",
     "marks": 1,
     "format": "MCQ",
@@ -1074,7 +1074,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Transport of food from leaves to other plant parts through phloem.",
     "isCompetencyBased": false,
-    "pyqYear": "2008"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-A-054",
@@ -1094,7 +1094,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Rhythmic muscular contractions that push food along the gut.",
     "isCompetencyBased": false,
-    "pyqYear": "2011"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-A-055",
@@ -1114,7 +1114,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "It releases energy on oxidation of glucose.",
     "isCompetencyBased": false,
-    "pyqYear": "2008"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-A-056",
@@ -1134,7 +1134,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Starch (plants); glycogen (animals).",
     "isCompetencyBased": false,
-    "pyqYear": "2009"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-A-057",
@@ -1299,7 +1299,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Anaerobic respiration in oxygen-starved muscles forms lactic acid, whose build-up causes cramps.",
     "isCompetencyBased": false,
-    "pyqYear": "2017"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-B-005",
@@ -1320,7 +1320,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Bile juice; its bile salts emulsify fats so lipase can act on them.",
     "isCompetencyBased": false,
-    "pyqYear": "2016"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-B-006",
@@ -1341,7 +1341,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Auricles: thin-walled, receive blood, pass to ventricles. Ventricles: thick-walled, pump blood into arteries.",
     "isCompetencyBased": false,
-    "pyqYear": "2016"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-B-007",
@@ -1362,7 +1362,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "To withstand the high pressure of blood pumped from the heart.",
     "isCompetencyBased": false,
-    "pyqYear": "2015"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-B-008",
@@ -1383,7 +1383,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Respiration: biochemical, releases energy. Breathing: physical, only exchanges gases.",
     "isCompetencyBased": false,
-    "pyqYear": "2015"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-B-009",
@@ -1404,7 +1404,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Vena cava: deoxygenated blood, body → right atrium. Pulmonary vein: oxygenated blood, lungs → left atrium.",
     "isCompetencyBased": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-B-010",
@@ -1425,7 +1425,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "The nose filters, warms and moistens the air before it reaches the lungs.",
     "isCompetencyBased": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-B-011",
@@ -1446,7 +1446,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Air left in lungs after forceful exhalation; it allows continuous gas exchange.",
     "isCompetencyBased": false,
-    "pyqYear": "2011"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-B-015",
@@ -1467,7 +1467,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Xylem: dead vessels/tracheids, water upward. Phloem: living sieve tubes/companion cells, food both ways.",
     "isCompetencyBased": false,
-    "pyqYear": "2009"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-B-021",
@@ -1509,7 +1509,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Excretion removes metabolic wastes; lungs (CO2), skin (sweat), liver (urea/bile pigments) also excrete.",
     "isCompetencyBased": false,
-    "pyqYear": "2016"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-C-003",
@@ -1531,7 +1531,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Amoeba: pseudopodia engulf food anywhere; Paramecium: cilia sweep food to a fixed oral groove.",
     "isCompetencyBased": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-C-005",
@@ -1553,7 +1553,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Bile emulsifies fats; pancreatic and intestinal enzymes complete digestion; villi absorb the products.",
     "isCompetencyBased": false,
-    "pyqYear": "2011"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-C-007",
@@ -1575,7 +1575,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Aerobic: needs O2, complete oxidation, much energy. Anaerobic: no O2, partial oxidation, little energy. Yeast is anaerobic.",
     "isCompetencyBased": false,
-    "pyqYear": "2008"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-C-008",
@@ -1597,7 +1597,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Transpiration is water loss as vapour via stomata; its pull draws water up the xylem from roots to leaves.",
     "isCompetencyBased": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-C-009",
@@ -1619,7 +1619,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Food is translocated through phloem sieve tubes in both directions using ATP energy.",
     "isCompetencyBased": false,
-    "pyqYear": "2011"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-C-011",
@@ -1641,7 +1641,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Diaphragm and rib muscles contract, chest volume rises, lung pressure falls, and air rushes in.",
     "isCompetencyBased": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "LPX-C-012",

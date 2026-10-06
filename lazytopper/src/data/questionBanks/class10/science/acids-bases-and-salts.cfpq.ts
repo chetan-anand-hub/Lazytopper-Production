@@ -313,12 +313,12 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
-      "pH is measured using a pH meter, which comprises a detecting unit consisting of a pH sensitive glass electrode and an indicating unit which indicates the pH as shown below.\n\nTo measure the pH of a solution, the glass electrode is dipped into the solution and the pH is displayed on the screen of the indicating unit. Before measuring the pH of another solution, the glass electrode is rinsed with distilled water and dried carefully with tissue paper.\n\nHow is the pH reading of the second solution likely to be affected if the glass electrode is not dried with tissue paper in the following cases?\n(i) if the second solution being measured is acidic in nature\n(ii) if the second solution being measured is basic in nature",
+      "pH is measured using a pH meter, which comprises a detecting unit consisting of a pH sensitive glass electrode and an indicating unit which displays the pH reading on a screen.\n\nTo measure the pH of a solution, the glass electrode is dipped into the solution and the pH is displayed on the screen of the indicating unit. Before measuring the pH of another solution, the glass electrode is rinsed with distilled water and dried carefully with tissue paper.\n\nHow is the pH reading of the second solution likely to be affected if the glass electrode is not dried with tissue paper in the following cases?\n(i) if the second solution being measured is acidic in nature\n(ii) if the second solution being measured is basic in nature",
     answer:
       "(i) The pH meter will indicate a slightly higher pH reading than the actual pH of the solution. (ii) The pH meter will indicate a slightly lower pH reading than the actual pH of the solution.",
     solutionSteps: [
-      "[1 mark] (i) The pH meter will indicate a slightly higher pH reading than the actual pH of the solution if the second solution is acidic.",
-      "[1 mark] (ii) The pH meter will indicate a slightly lower pH reading than the actual pH of the solution if the second solution is basic.",
+      "[1 mark] (i) Water left on the electrode dilutes the acidic solution, lowering its H+ ion concentration, so the meter shows a slightly higher pH than the actual value.",
+      "[1 mark] (ii) Water left on the electrode dilutes the basic solution, lowering its OH− ion concentration, so the meter shows a slightly lower pH than the actual value."
     ],
     finalAnswer: "(i) slightly higher than actual; (ii) slightly lower than actual.",
     isCompetencyBased: true,
@@ -326,6 +326,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     requiresDiagram: false,
     diagramDescription:
       "A labelled photograph of a benchtop pH meter. The indicating unit is a handheld meter with an LCD showing a pH reading of 7.30 and a second value 2.28; a cable runs from it to a cylindrical glass electrode dipped into a beaker of solution. Callout labels read 'pH reading', 'Indicating unit', 'Glass electrode' and 'Solution', with the caption 'pH meter'. A separate enlarged view of the glass electrode is shown alongside.",
+    sourceOverride: "others",
   },
   // pdf-page 15 (folio 14) — Q14 [2]. Rubric: pdf-page 18.
   {

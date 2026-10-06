@@ -80,17 +80,18 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     bloomSkill: "Applying",
     questionText:
       "A compound with which of the following functional groups is MOST LIKELY to cause the decomposition of baking soda to produce carbon dioxide?",
-    options: ["P", "Q", "R", "S"],
-    answer: "S",
+    options: ["Hydroxyl group (—OH)", "Aldehyde group (—CHO)", "Ketone group (—CO—)", "Carboxyl group (—COOH)"],
+    answer: "Carboxyl group (—COOH)",
     solutionSteps: [
-      "[1 mark] Correct option: (4) S, the carboxyl group (—COOH). Baking soda is sodium hydrogencarbonate and reacts with an acid to release carbon dioxide; of the four groups shown only the carboxyl group is acidic. P is a hydroxyl group, Q an aldehyde group and R a ketone group.",
+      "[1 mark] Correct option: (d) Carboxyl group (—COOH). Baking soda (sodium hydrogencarbonate) reacts with an acid to release carbon dioxide; of the four groups only the carboxyl group is acidic — hydroxyl, aldehyde and ketone groups are not."
     ],
-    finalAnswer: "S",
+    finalAnswer: "Carboxyl group (—COOH)",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.4 — CFPQ_Science10.pdf, questions pdf pp.28–32 (printed folios 27–31)",
-    requiresDiagram: true,
+    requiresDiagram: false,
     diagramDescription:
       "Four drawn functional groups in a row, each labelled beneath. P: a bond to —OH. Q: a carbon bonded to H above and double-bonded to O below (an aldehyde group, —CHO). R: a carbon with bonds on both sides and a double bond down to O (a ketone group, —CO—). S: a carbon double-bonded up to O and single-bonded to —OH (a carboxyl group, —COOH).",
+    sourceOverride: "others",
   },
   // pdf-page 28 (folio 27) — Q3. Key: pdf-page 33, option 2.
   {
@@ -445,7 +446,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     subtopic: "Oxidation of Alcohols",
     section: "E",
     marks: 4,
-    format: "Short",
+    format: "Case-Based",
     difficulty: "Hard",
     bloomSkill: "Applying",
     questionText:

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "acids-bases-and-salts" (Science): 467 served rows from 18 source arrays, 14 withheld.
+// Chapter "acids-bases-and-salts" (Science): 464 served rows from 21 source arrays, 18 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -17,11 +17,14 @@ import { ACIDS_BASES_SALTS_SQP } from "../questionBanks/class10/science/acids-ba
 import { ACID_CBE } from "../questionBanks/class10/science/acids-bases-and-salts.cbe";
 import { ACID_SP } from "../questionBanks/class10/science/acids-bases-and-salts.sp";
 import { ACIDS_BASES_SALTS_APQ } from "../questionBanks/class10/science/acids-bases-and-salts.additionalPQ";
+import { CHEMICAL_REACTIONS_CHAPTERWISE } from "../questionBanks/class10/science/chemical-reactions-and-equations.chapterwise";
 import { ACIDS_BASES_SALTS_CHAPTERWISE } from "../questionBanks/class10/science/acids-bases-and-salts.chapterwise";
 import { ACIDS_BASES_SALTS_PYQ } from "../questionBanks/class10/science/acids-bases-and-salts.pyq";
+import { CARBON_COMPOUNDS_PYQ } from "../questionBanks/class10/science/carbon-and-its-compounds.pyq";
 import { acidsBasesSaltsPYQ2026 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2026";
 import { acidsBasesSaltsPYQ2025 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2025";
 import { acidsBasesSaltsPYQ2024 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2024";
+import { lifeProcessesPYQ2024 } from "../questionBanks/class10/science/lifeProcesses.pyq2024";
 import { ABS_CFPQ } from "../questionBanks/class10/science/acids-bases-and-salts.cfpq";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 
@@ -37,23 +40,30 @@ export default defineChapter("acids-bases-and-salts", [
   [205, ACID_CBE, false],
   [231, ACID_SP, false],
   [270, ACIDS_BASES_SALTS_APQ, false],
+  [282, CHEMICAL_REACTIONS_CHAPTERWISE, false],
   [283, ACIDS_BASES_SALTS_CHAPTERWISE, false],
   [296, ACIDS_BASES_SALTS_PYQ, false],
+  [298, CARBON_COMPOUNDS_PYQ, false],
   [360, acidsBasesSaltsPYQ2026, false],
   [373, acidsBasesSaltsPYQ2025, false],
   [386, acidsBasesSaltsPYQ2024, false],
+  [389, lifeProcessesPYQ2024, false],
   [398, ABS_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
 ], [
+  "ABS-E04",
   "ACID-EXMPLR-2-MCQ-015",
   "SCO-S-ACID-005",
   "SCO-S-ACID-014",
   "SCO-S-ACID-015",
+  "SCO-S-ACID-018",
   "SCO-S-ACID-019",
   "SCQ-S-ACID-034",
   "SCQ-S-ACID-044",
+  "PYQ-S-ACID-001",
   "PYQ-S-ACID-011",
   "PYQ-S-ACID-013",
+  "PYQ-S-2026-ACID-012",
   "PYQ-S-2025-ACID-006",
   "PYQ-S-2025-ACID-008",
   "PYQ-S-2025-ACID-009",

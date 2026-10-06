@@ -39,12 +39,13 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     id: "RN-E05", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Which of the following is an irrational number?",
-    options: ["√4", "√9/√16", "√5", "0.¯3"],
+    options: ["√4", "√9/√16", "√5", "0.3̄"],
     answer: "√5",
-    explanation: "√5 is irrational because 5 is a prime number and the square root of any prime is irrational. By contrast: √4 = 2 (whole number), √9/√16 = 3/4 (fraction), and 0.3̄ = 1/3 (fraction) — all three are rational.",
-    solutionSteps: ["√4 = 2, rational", "√9/√16 = 3/4, rational", "√5 is irrational (5 is not a perfect square)", "0.¯3 = 1/3, rational"],
+    explanation: "√5 is irrational because 5 is not a perfect square (√5 is a standard irrational number). By contrast: √4 = 2 (whole number), √9/√16 = 3/4 (fraction), and 0.3̄ = 1/3 (fraction) — all three are rational.",
+    solutionSteps: ["[1 mark] √4 = 2, √9/√16 = 3/4 and 0.3̄ = 1/3 are rational; √5 is irrational (5 is not a perfect square). Correct option: (c) √5."],
     finalAnswer: "√5",
     isCompetencyBased: true,
+    sourceOverride: "others",
   },
   {
     id: "RN-E07", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
@@ -310,17 +311,16 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
   {
       id: "RN-M12", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
       section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
-      questionText: "Assertion (A): √3 + √5 is irrational.\nReason (R): The sum of two irrational numbers is always irrational.",
+      questionText: "Assertion (A): 5 + 2√3 is irrational.\nReason (R): The sum of two irrational numbers is always irrational.",
       options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
       answer: "A is true, R is false.",
-      explanation: "√3 + √5 is indeed irrational, but the reason is incorrect — for example, √2 + (−√2) = 0 is rational. R is a false generalisation.",
+      explanation: "5 + 2√3 is irrational (it would otherwise make √3 rational), but the reason is false — for example, √2 + (−√2) = 0 is rational.",
       solutionSteps: [
-        "Assertion (A): Assume √3 + √5 = r (rational). Then √5 = r − √3. Squaring: 5 = r² − 2r√3 + 3, so 2r√3 = r² − 2, giving √3 = (r²−2)/(2r), which is rational — contradiction. So √3 + √5 is irrational. A is TRUE.",
-        "Reason (R): The sum of two irrational numbers is NOT always irrational. Counter-example: √2 + (−√2) = 0, which is rational. So R is FALSE.",
-        "Since A is true and R is false, the correct option is: A is true, R is false.",
+        "[1 mark] A: if 5 + 2√3 = r (rational), then √3 = (r − 5)/2 would be rational — contradiction, as √3 is irrational; so A is true. R: √2 + (−√2) = 0 is rational, so R is false. Correct option: (c) A is true, R is false."
       ],
       finalAnswer: "A is true, R is false.",
       isCompetencyBased: true,
+      sourceOverride: "others",
     },
   {
     id: "RN-M13", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
@@ -337,17 +337,16 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
   {
     id: "RN-M15", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "Assertion (A): √2 + √3 is irrational.\nReason (R): Sum of two irrational numbers is always irrational.",
+    questionText: "Assertion (A): 3 + 2√5 is irrational.\nReason (R): Sum of two irrational numbers is always irrational.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "A is true, R is false.",
-    explanation: "√2 + √3 is indeed irrational, but the reason is false because √2 + (−√2) = 0 (rational).",
+    explanation: "3 + 2√5 is irrational (it would otherwise make √5 rational), but the reason is false because √2 + (−√2) = 0 (rational).",
     finalAnswer: "A is true, R is false.",
     isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): Assume √2 + √3 = r, where r is rational. Then √3 = r - √2. Squaring both sides gives 3 = r^2 - 2r√2 + 2.",
-      "Rearranging, 2r√2 = r^2 - 1. So, √2 = (r^2 - 1) / (2r). Since r is rational, (r^2 - 1) / (2r) is rational. This contradicts that √2 is irrational. Thus, A is true.",
-      "Reason (R): Consider two irrational numbers, √2 and -√2. Their sum is √2 + (-√2) = 0, which is a rational number. Thus, R is false.",
+      "[1 mark] A: if 3 + 2√5 = r (rational), then √5 = (r − 3)/2 would be rational — contradiction, as √5 is irrational; so A is true. R: √2 + (−√2) = 0 is rational, so R is false. Correct option: (c) A is true, R is false."
     ],
+    sourceOverride: "others",
   },
   {
     id: "RN-M16", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
