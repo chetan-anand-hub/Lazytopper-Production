@@ -538,6 +538,8 @@ import { LIGHT_CBQ_LT_GENERATED } from './questionBanks/class10/science/light-re
 import { MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/magnetic-effects-of-electric-current.b1.cbq.ltgen';
 import { LIGHT_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/light-reflection-and-refraction.b1.cbq.ltgen';
 import { ELECTRICITY_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/electricity.b1.cbq.ltgen';
+import { TRIGONOMETRY_CBQ_LT_GENERATED } from './questionBanks/class10/maths/trigonometry.cbq.ltgen';
+import { TRIANGLES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/triangles.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1040,6 +1042,8 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED,
   ...LIGHT_CBQ_B1_LT_GENERATED,
   ...ELECTRICITY_CBQ_B1_LT_GENERATED,
+  ...TRIGONOMETRY_CBQ_LT_GENERATED,
+  ...TRIANGLES_CBQ_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------
