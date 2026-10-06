@@ -1,5 +1,48 @@
 # LazyTopper — Current State
 
+## [CURRENT · CI] WAVE CI1 — CI-SPEED-1 — **THE REQUIRED QUALITY GATE IS NOW PARALLEL JOBS: ABOUT 23 MIN (MEDIAN OF 12 RUNS) → ABOUT 5 MIN, WITH THE SAME TESTS AND NOTHING SKIPPED (320 FILES / 4,709 TESTS = THE OLD SINGLE RUN'S 4,705 + 4 NEW GUARD TESTS, RUNS `37517716467` / `37517913640`); DOCS-ONLY PRs (WAVE-CLOSERS INCLUDED) TAKE THE FAST PATH; VERCEL SKIPS PRODUCTION BUILDS FOR DEPLOY-INERT DOCS MERGES AND SEARCH-PING EXITS GREEN ON THAT SKIP; THE NIGHTLY FULL-CLOCK RUN IS MANUAL-ONLY UNTIL `[FU-CI1-NIGHTLY-RESTORE]`** — `#969` MERGED — trunk `c6068552` — CI / PLATFORM ONLY, NO PRODUCT CODE
+*(Supersedes the WAVE B-17 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **ORDER (three-way handoff lock; Controller C holds it).** B-17's docs PR `#959` (`b52d46c5`) was the last handoff PR. **This block describes `#969` ONLY.** `git log --oneline b52d46c5..origin/base/approved-thru-437` when this PR was cut lists nine commits; the other eight are other lanes' PRs (`a21457d2` `#957`, `23062467` `#961`, `dfb83379` `#964`, `1e489130` `#966`, `bab5ad0d` `#968`, `2ce40687` `#967`, `8ed0e587` `#965`, and `d0cbdd3f` `#971`, merged after `#969`) and are **not described here**; their controllers' docs PRs record them *(docs-builder-verified with `git log`)*. Trunk when this PR was cut: `d0cbdd3f` (`#971`, GRADING-JOBS-1 J1b), whose diff since `c6068552` touches no `handoff/` file. Open PRs then: `#972`, `#970`, `#963`, `#960`; none touches `handoff/` *(docs-builder-verified with `gh pr view --json files`)*.
+
+★ **PROVENANCE.**
+- Controller C, wave CI1, lane CI-SPEED-1. Spec `ops/.specs/CI-SPEED-1.md` (sha256 prefix `794EFA16E871`); pre-flight `premise_ledger_check --strict-anchor` PASS (3/3; P4 open by design, then measured). Owner grant: `.github/**`.
+- **Handover from Controller A-17.** A-17's builder started the lane; the owner moved it to Controller C on 2026-10-07. C adopted `#969` as-is (branch `lane/ci-speed-1`, head `6c0ee398`) and verified each piece against the run logs; the builder work was reused, not redone. A-17's stop report: `Desktop/diff/a17/report-ci-speed-1-STOPPED-2026-10-07.md`.
+- Sources (all `Desktop/diff/`): `WAVE_STATE_CI1.md`, `ci1/PR969_BODY.md` (also live as `#969`'s description), `ci1/OWNER_MERGE_QUEUE_STEPS.md`, `ci1/report-ci1-searchping-2026-10-07.md`, `a17/report-ci-speed-1-STOPPED-2026-10-07.md`.
+- Tags: *(builder-reported)*, *(controller-verified)* = `WAVE_STATE_CI1.md`, *(docs-builder-verified)* = re-checked by this docs builder with `gh` / `git`.
+- **Docs-builder-verified:** `gh pr view 969` → merged 2026-10-06T19:33:39Z, merge commit `c6068552e925bb2e56b274527df60d9cf01010d0`, head `c9394034`. Runs: `37517716467` (push, `8ed0e587`, success, 19:16:26Z → 19:32:13Z = 15.8 min); `37517913640` (pull_request, `c9394034`, success; jobs 19:18:28Z → 19:24:19Z = 5.8 min); `37519890478` (push, `c6068552`, success; jobs 19:33:43Z → 19:38:14Z = 4.6 min); `37514040888` (workflow_dispatch, `6c0ee398`, **failure**). Baseline: the `quality-gate` job of the 12 runs listed in `#969`'s body took 17.13 / 19.75 / 19.98 / 20.17 / 21.47 / 22.47 / 24.30 / 25.00 / 25.03 / 25.07 / 25.48 / 25.72 min → range 17.1–25.7, **median 23.4**.
+
+### What changed (trunk `c6068552` = `#969`; no product code)
+- **Quality Gate is parallel jobs:** `classify` · `docs-lane` · `static` · `build-ops` · `vitest (1/4…4/4)` (the WHOLE suite, each file exactly once) · `clock` ×4 (2 clocks — 2030 and IST-midnight — × 2 halves of the date-sensitive manifest) · the aggregate, which keeps the **exact required-check name `quality-gate`** (ruleset `trunk-protection` 18803299 requires `quality-gate` + `lane-overlap`). The aggregate fails closed: RED if any upstream job failed, was skipped or was cancelled on the full bar, or if the 4 shards together did not run every test file on disk (probe run `37511021846` RED: "shards ran 240 file(s) but 320 test file(s) exist") *(controller-verified)*.
+- **`nightly-full-clock`** (the FULL vitest suite + ops matrix under both clocks) runs on **`workflow_dispatch` only; `schedule:` is OFF** until `[FU-CI1-NIGHTLY-RESTORE]` (owner, 2026-10-07). Its dispatch run `37514040888` went RED because `check_improve_convergence_acceptance.mjs` (l.1156) treats only `push` as "no PR → N/A".
+- **Clock guard.** A runtime recorder (`lazytopper/scripts/testClock/clockRecorder.setup.mjs`) runs in every normal shard and fails any test file that reaches `Date` — directly or through product code — and is not in `date-sensitive-tests.json` (165/320 files). Probe run `37510230817` RED: the runtime guard caught both the direct and the transitive test; the static scan caught only the direct one *(controller-verified)*.
+- **Docs fast path, wave-closers included.** Docs-only PRs (`handoff/`, plus `ops/`, `docs/` and top-level `notes/` `.md`) run the classifier, the docs-lane acceptance and mojibake; no vitest, no build. **`[ci-full]` in a PR title still forces the full bar.** Every trunk push still runs the full bar.
+- **Vercel `ignoreCommand`** (`vercel.json`, that line only). A **production** build is skipped only when every file since the last deployed SHA is deploy-inert markdown; previews always build.
+- ★ **A SKIPPED VERCEL BUILD IS NOT A MISSING ONE.** On a deploy-inert docs merge the GitHub `Vercel` status is **success, "Canceled by Ignored Build Step"** — the build was skipped BY DESIGN *(A-17 builder probe; controller-verified)*. The standing "no Vercel status within 15 minutes of a merge → ask the owner to redeploy" rule (wave A-13 block below; `NEXT_ACTION.md`; `[FU-VERCEL-MISSED-TRUNK-BUILD]`) **does not fire on that status**: a docs-only merge showing "Canceled by Ignored Build Step" needs no redeploy. A trunk push with NO Vercel status at all, or a CODE merge showing that status, still goes to the owner.
+- **search-ping exits green on that skip** (owner ruling 2026-10-07, "Amend guard in #969"). It skips only when the live commit is an ANCESTOR of the pushed one and the whole `live..pushed` range is deploy-inert by the same classifier, on 3 consecutive reads; in every other case it waits exactly as before. Log lines: `SEARCH_PING: deploy skipped by ignoreCommand: nothing new to ping` + `SEARCH_PING_PATH: skip`. `searchPing.guard.test.ts` 35 → 39 `it(`; mutations M1–M4 each RED *(builder-reported)*.
+
+### The numbers (real runs)
+| | run | head | wall-clock | vitest |
+|---|---|---|---|---|
+| BEFORE, last pre-`#969` trunk run (single job) | `37517716467` | `8ed0e587` | **15.8 min** | 320 files / **4705** (4704 passed + 1 todo) |
+| BEFORE, 12 full-bar runs on 6 Oct | ids in `#969`'s body | — | **17.1–25.7, median 23.4** | — |
+| AFTER, `#969` final head | `37517913640` | `c9394034` | **5.8 min** | `VITEST_TOTAL: shards=4/4 files=320 (on disk 320) tests=4709 passed=4708 failed=0 skipped=0 todo=1` |
+| AFTER, trunk push (full bar) | `37519890478` | `c6068552` | **4.6 min** | the same `VITEST_TOTAL` line; `CI_AGGREGATE_VERDICT: PASS` |
+
+**4709 (run `37517913640`) = the pre-`#969` single run's 4705 (run `37517716467`) + 4 new search-ping guard tests** *(the totals quoted from the run logs, docs-builder-verified)*. The 1 todo is pre-existing. Runner-minutes per run ≈ 25–26 vs ≈ 23 (free on a public repo) *(controller-verified)*.
+
+### After the merge
+- Vercel built and deployed the code merge (`c6068552` statuses: `Vercel success "Deployment has completed"`); search-ping push run `37519890614` success *(docs-builder-verified)*.
+- Cofounder verdict on `#969`: **PASS** (owner relayed, 2026-10-07).
+- A-17 was sent the merge SHA and acked; its `#972` rebases its `vercel.json` hunks (`#969` opened first, 6 Oct 17:01Z).
+- **This docs PR is the first live proof of the docs fast path**; its own CI path line is quoted in its PR description. The Vercel skip and the search-ping skip path on a REAL docs-only trunk merge are proven only when this PR merges; the controller records them.
+
+### Merge queue — NOT AVAILABLE
+The repo is user-owned (GraphQL `isInOrganization=false`, `mergeQueue=null`). PR waits come from the ruleset's strict "require branches to be up to date before merging", which now costs one ~5-min re-run per merge instead of ~23. Owner options: `Desktop/diff/ci1/OWNER_MERGE_QUEUE_STEPS.md` (`[FU-CI1-MERGE-QUEUE-UNAVAILABLE]`).
+
+### Open (this lane)
+`[FU-CI1-NIGHTLY-RESTORE]` (owner-mandated, blocked on B-18's `#970`) · `[FU-ME-PROGRESS-CONSISTENCY-IST-MIDNIGHT]` (B-18) · `[FU-CI1-RAILWAY-WATCHPATTERNS]` (owner) · `[FU-CI1-SEARCHPING-DOCS-DURING-ROLLOUT]` (low) · `[FU-CI1-MERGE-QUEUE-UNAVAILABLE]` (owner). Bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## [CURRENT · SYLLABUS] WAVE B-17 QUICK-FIXES-1 — **"FULL SUBJECT" QUICK PRACTICE NOW MIXES EVERY CHAPTER (IT HAD DRAWN ONE CHAPTER SINCE APRIL); THE OWNER'S SEVEN 2026-27 SYLLABUS RULINGS ARE ENCODED IN THE ONE REFERENCE MODULE AND WHAT THEY RULE OUT IS NO LONGER SERVED (BANK 8,124 → 8,052); LEGACY TOPIC HUB TEXT CLEANED AND NOW SCANNED BY THE GUARD; THE TUTOR'S SYLLABUS BLOCK REGENERATED; THE NEW NOTES SECTIONS HAVE THEIR NCERT FIGURES, WHICH FIT THE CARD ON PHONES AND OPEN FULL-SIZE ON TAP** — `#955` + `#956` + `#958` MERGED — trunk `613d8996` — LIVE, OR-LIVE PASS ×3
 *(Supersedes the WAVE A-16 (CLOSE) block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written, except where this block names an item as resolved. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 
