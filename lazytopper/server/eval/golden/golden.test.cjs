@@ -430,7 +430,7 @@ test('§12 replay of a PR-3 live run is faithful: a call still in flight at the 
 // path AND the synchronous path (goldenJobs.cjs, network hard-blocked): every job's final body is
 // byte-identical to the synchronous 200, and every row a job published as final while it ran equals
 // its final entry.
-test('§J1 GOLDEN JOB CASE — job final body == sync body for every stored paper, and every final:true row == its final row', () => {
+test('§J1 GOLDEN JOB CASE — job final body == sync body for every stored paper (single-call AND multi-chunk), every final:true row == its final row, and a real flip stays provisional', () => {
   const r = node([path.join(GOLDEN, 'goldenJobs.cjs')]);
   const line = (r.stdout.split('\n').find((l) => l.startsWith('GOLDEN-JOBS: ')) || '');
   assert.ok(line, 'no GOLDEN-JOBS line; stdout: ' + r.stdout.slice(0, 500) + ' stderr: ' + String(r.stderr).slice(0, 500));
@@ -441,6 +441,10 @@ test('§J1 GOLDEN JOB CASE — job final body == sync body for every stored pape
   const jobs = Number((line.match(/ jobs=(\d+)/) || [])[1]);
   const finals = Number((line.match(/ finalRows=(\d+)/) || [])[1]);
   assert.ok(jobs >= 100 && finals > 0, 'the case must actually compare papers and rows: ' + line);
+  // J1 FIXUP (audit Q5): the case must contain the multi-chunk union, in stored data AND in a real flip.
+  const n = (k) => Number((line.match(new RegExp(' ' + k + '=(\\d+)')) || [])[1]);
+  assert.ok(n('multiChunkOneDocument') >= 1, 'stored replies must include a multi-chunk one-document paper: ' + line);
+  assert.ok(n('flipParts') > 1 && n('flipProvisionalChanged') >= 1, 'the synthetic flip must be multi-chunk and really flip: ' + line);
   assert.match(line, / verdict=PASS$/, line);
   assert.strictEqual(r.status, 0);
 });

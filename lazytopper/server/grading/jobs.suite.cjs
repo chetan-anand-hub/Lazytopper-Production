@@ -565,4 +565,33 @@ test('J1 D14 · a job grades in chunks of 8 with the 120 s per-call cap; the syn
   assert.equal(timingLib.normaliseTiming({}).deadlineMs, 80000, 'the sync request deadline is unchanged');
 });
 
+/* ═══════════ CORS · the opt-in header is allowed; the poll route is live with the switch OFF ═══════════ */
+test('J1 CORS · the REAL server (switch unset) preflights `Prefer` on the submit and the poll, and the poll answers 401 without a token', async () => {
+  const path = require('path');
+  const { spawn } = require('child_process');
+  const port = 39000 + (process.pid % 900);
+  const env = { ...process.env, PORT: String(port), API_KEY: '', AI_PROVIDER: '', GEMINI_API_KEY: '', GRADING_JOBS: '' };
+  delete env.GRADING_JOBS;
+  const child = spawn(process.execPath, [path.join(__dirname, '..', 'index.cjs')], { env, stdio: 'ignore' });
+  try {
+    const base = 'http://127.0.0.1:' + port;
+    let up = false;
+    for (let i = 0; i < 150 && !up; i += 1) {
+      try { up = (await fetch(base + '/health')).status === 200; } catch { await new Promise((r) => setTimeout(r, 100)); }
+    }
+    assert.ok(up, 'the server booted');
+    const allowed = async (p) => {
+      const r = await fetch(base + p, { method: 'OPTIONS', headers: { Origin: 'https://example.test', 'Access-Control-Request-Method': p.includes('/jobs/') ? 'GET' : 'POST', 'Access-Control-Request-Headers': 'authorization,idempotency-key,prefer' } });
+      assert.equal(r.status, 204, p);
+      return String(r.headers.get('access-control-allow-headers') || '').split(',').map((h) => h.trim().toLowerCase());
+    };
+    assert.ok((await allowed('/api/grade-worksheet')).includes('prefer'), 'the submit preflight allows Prefer');
+    assert.ok((await allowed('/api/grade-worksheet/jobs/' + '0'.repeat(40))).includes('prefer'), 'and the poll preflight');
+    const poll = await fetch(base + '/api/grade-worksheet/jobs/' + '0'.repeat(40));
+    assert.equal(poll.status, 401, 'the poll route is mounted with the switch off (and self-gating)');
+  } finally {
+    child.kill();
+  }
+});
+
 module.exports = { jobsFirestore, pipeRes, stubModel, typedPaper, harness };

@@ -432,10 +432,13 @@ async function handleRequest(req, res) {
       /^\/api\/session\/[^/]+\/submit$/.test(reqPath)
     )
   ) {
+    // GRADING-JOBS-1 J1: `Prefer` (the background-job opt-in, RFC 7240) is not a CORS-safelisted
+    // header, so a cross-origin submit carrying it is preflighted and must be allowed here — else the
+    // browser drops the request instead of getting the synchronous 200 fallback.
     res.writeHead(204, {
       'Access-Control-Allow-Origin': config.CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check, X-Lazytopper-Surface, X-Lazytopper-Paper, Idempotency-Key',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check, X-Lazytopper-Surface, X-Lazytopper-Paper, Idempotency-Key, Prefer',
       'Access-Control-Max-Age': '86400',
     });
     return res.end();

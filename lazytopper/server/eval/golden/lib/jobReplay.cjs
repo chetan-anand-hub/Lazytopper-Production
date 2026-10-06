@@ -106,22 +106,26 @@ function driverFor(cfg, record, callGemini, detectModel) {
     : createDriver({ callGemini, model: record.model });
 }
 
-/** One stored grade-worksheet record → { bodyEqual, finalRows, provisionalRows, finalRowDiffs } or { error }. */
-async function replayAsJob(planJob, record, R) {
-  const cfg = R.manifest && R.manifest.config;
-  const detectModel = R.manifest && R.manifest.detectModel;
-  const request = { ...JSON.parse(JSON.stringify(planJob.request)), acceptsV2: true };
-  // SYNC — the real handler, as G1 runs it.
-  const sync = await driverFor(cfg, record, replayCallGemini(record), detectModel).run({ ...planJob, request });
+/**
+ * THE COMPARISON. The same request through the synchronous handler and through the job path, each
+ * with its OWN copy of the same reply source (makeDriver() is called once per path). Returns
+ *   { bodyEqual, finalRows, provisionalRows, provisionalChanged, finalRowDiffs, parts, oneDocument }
+ * or { skipped } (the synchronous replay is not a 200: a job has no 500 to compare) or { error }.
+ * `parts` = distinct chunks the JOB graded (first attempts); > 1 = a MULTI-CHUNK paper, where a row's
+ * own inventory is NOT the paper's union and the stable rule (postprocess inventoryStable) decides.
+ * `provisionalChanged` = provisional rows that did change at done (a real verdict flip).
+ */
+async function compareJobToSync({ label, request, makeDriver }) {
+  const sync = await makeDriver(null).run({ handler: 'handleGradeWorksheet', request });
   if (sync.httpStatus !== 200) return { skipped: true };
   const syncBytes = JSON.stringify(sync.body);
-  // JOB — the same handler, on the job path.
+  const firstAttemptChunks = new Set();
+  const d = makeDriver((cfg) => { if (cfg && cfg.chunkKey && (cfg.attempt || 1) === 1) firstAttemptChunks.add(cfg.chunkKey); });
   const fs = memoryFirestore();
   const jobs = jobsLib.createGradingJobs({ resolveFirestore: () => ({ db: fs.db }), commitDeferred: () => null });
-  const d = driverFor(cfg, record, replayCallGemini(record), detectModel);
   const route = createCheckSolutionRoute({ ...d.deps, GRADING_JOBS: true, gradingJobs: jobs, jobTimingFor: syncPlanAsJob });
   const uid = 'golden-eval';
-  const key = 'golden-job-' + String(record.jobKey).replace(/[^A-Za-z0-9-]/g, '-').slice(0, 40);
+  const key = 'golden-job-' + String(label).replace(/[^A-Za-z0-9-]/g, '-').slice(0, 40);
   const attemptId = idempotencyAttemptId('/api/grade-worksheet', key);
   const claimId = 'claim-' + attemptId.slice(0, 8);
   const recPath = 'gradingResults/' + uid + '/attempts/' + attemptId;
@@ -138,21 +142,99 @@ async function replayAsJob(planJob, record, R) {
   const final = JSON.parse(job.final);
   let finalRows = 0;
   let provisionalRows = 0;
+  let provisionalChanged = 0;
   const finalRowDiffs = [];
   for (const [k, row] of Object.entries(job.rows || {})) {
-    if (row.final !== true) { provisionalRows += 1; continue; }
-    finalRows += 1;
     const i = Number(k.slice(1));
     const want = final.ok && Array.isArray(final.results) ? JSON.stringify(final.results[i]) : null;
-    if (row.json !== want) finalRowDiffs.push(record.jobKey + '#Q' + (i + 1));
+    if (row.final !== true) {
+      provisionalRows += 1;
+      if (row.json !== want) provisionalChanged += 1;
+      continue;
+    }
+    finalRows += 1;
+    if (row.json !== want) finalRowDiffs.push(label + '#Q' + (i + 1));
   }
-  return { bodyEqual: job.final === syncBytes, finalRows, provisionalRows, finalRowDiffs };
+  return {
+    bodyEqual: job.final === syncBytes, finalRows, provisionalRows, provisionalChanged, finalRowDiffs,
+    parts: firstAttemptChunks.size, oneDocument: Boolean(String(request.imageBase64 || '').trim()),
+  };
 }
 
-/** Every stored grade-worksheet record of the given runs. */
-async function replayRunsAsJobs(runDirs) {
+/** One stored grade-worksheet record, replayed from its stored model replies. */
+async function replayAsJob(planJob, record, R) {
+  const cfg = R.manifest && R.manifest.config;
+  const detectModel = R.manifest && R.manifest.detectModel;
+  const request = { ...JSON.parse(JSON.stringify(planJob.request)), acceptsV2: true };
+  const makeDriver = (spy) => {
+    const replay = replayCallGemini(record);
+    const callGemini = spy ? (m, c, cfgCall) => { spy(cfgCall); return replay(m, c, cfgCall); } : replay;
+    return driverFor(cfg, record, callGemini, detectModel);
+  };
+  return compareJobToSync({ label: record.jobKey, request, makeDriver });
+}
+
+/**
+ * SYNTHETIC FLIP. No stored paper has a real verdict flip (J1 audit Q5), so this one is built: a
+ * 12-question one-document paper, graded in four parts of 3 (the synchronous plan for > 10
+ * questions). Every part's reply lists its own questions in its page inventory with their first
+ * lines, EXCEPT question 2: its own part (questions 1-3) leaves it out and the next part (questions
+ * 4-6) lists it. So question 2 is "not found" on its own part's inventory but graded on the paper's
+ * union: its row MUST be provisional and MUST change at done. A fixed replier, not a model:
+ * deterministic, zero network.
+ */
+const FLIP_N = 12;
+function syntheticFlipRequest() {
+  return {
+    worksheetId: 'golden-synthetic-flip', subject: 'Maths', acceptsV2: true,
+    imageBase64: 'JVBERi0xLjQK', imageMimeType: 'application/pdf',
+    questions: Array.from({ length: FLIP_N }, (_, i) => ({ qNumber: i + 1, marks: 2, questionText: 'Question ' + (i + 1) + ': solve x + ' + i + ' = 10 and show the working.' })),
+  };
+}
+function syntheticFlipCallGemini() {
+  return async (_model, _contents, cfg) => {
+    const ids = String((cfg && cfg.chunkKey) || '').split('+').filter(Boolean).map((k) => Number(k.slice(1)));
+    const work = (id) => 'Answer ' + (id + 1) + ': x = ' + (10 - id) + ', working shown step by step';
+    const results = ids.map((id) => ({
+      qNumber: id + 1, couldNotRead: false, addressesQuestion: 'yes', finalAnswerCorrect: true, teacherNote: 'Good.',
+      annotatedSteps: [{ description: 'Answer', studentWork: work(id), status: 'correct', marksAwarded: 2, marksDeducted: 0, teacherAnnotation: 'Correct.', mistakeType: null }],
+    }));
+    const seen = ids.filter((id) => id !== 1).map((id) => ({ qNumber: id + 1, firstLine: work(id) }));
+    if (ids.includes(3)) seen.push({ qNumber: 2, firstLine: work(1) });
+    return { text: JSON.stringify({ pageInventory: [{ page: 1, questionsSeen: seen }], results, summary: 'Synthetic paper.' }), raw: { candidates: [{ finishReason: 'STOP' }] } };
+  };
+}
+async function syntheticFlipCase() {
+  const makeDriver = (spy) => {
+    const reply = syntheticFlipCallGemini();
+    const callGemini = spy ? (m, c, cfg) => { spy(cfg); return reply(m, c, cfg); } : reply;
+    return createDriver({ callGemini, model: 'gemini-2.5-flash', gradingModel: 'gemini-3.8-flash', gradingMode: 'single', makeFenceNonce: () => 'goldenflipnonce' });
+  };
+  return compareJobToSync({ label: 'SYNTHETIC.FLIP', request: syntheticFlipRequest(), makeDriver });
+}
+
+/** Every stored grade-worksheet record of the given runs, plus (opt-in) the synthetic flip paper. */
+async function replayRunsAsJobs(runDirs, opts = {}) {
   const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
-  const out = { jobs: 0, skipped: 0, bodyDiffs: [], finalRows: 0, provisionalRows: 0, finalRowDiffs: [], errors: [] };
+  const out = {
+    jobs: 0, skipped: 0, bodyDiffs: [], finalRows: 0, provisionalRows: 0, provisionalChanged: 0, finalRowDiffs: [], errors: [],
+    multiChunkPapers: 0, multiChunkOneDocument: 0, multiChunkFinalRows: 0, syntheticFlip: null,
+  };
+  const add = (label, r) => {
+    if (r.skipped) { out.skipped += 1; return; }
+    out.jobs += 1;
+    if (r.error) { out.errors.push(label + ': ' + r.error); return; }
+    if (!r.bodyEqual) out.bodyDiffs.push(label);
+    out.finalRows += r.finalRows;
+    out.provisionalRows += r.provisionalRows;
+    out.provisionalChanged += r.provisionalChanged;
+    out.finalRowDiffs.push(...r.finalRowDiffs);
+    if (r.parts > 1) {
+      out.multiChunkPapers += 1;
+      out.multiChunkFinalRows += r.finalRows;
+      if (r.oneDocument) out.multiChunkOneDocument += 1;
+    }
+  };
   for (const runDir of runDirs) {
     const R = loadRun(runDir);
     for (const run of Object.keys(R.runs).map(Number).sort((a, b) => a - b)) {
@@ -161,17 +243,21 @@ async function replayRunsAsJobs(runDirs) {
         if (!planJob || planJob.handler !== 'handleGradeWorksheet') continue;
         let r;
         try { r = await replayAsJob(planJob, record, R); } catch (e) { r = { error: (e && e.message) || String(e) }; }
-        if (r.skipped) { out.skipped += 1; continue; }
-        out.jobs += 1;
-        if (r.error) { out.errors.push(record.jobKey + '#' + run + ': ' + r.error); continue; }
-        if (!r.bodyEqual) out.bodyDiffs.push(record.jobKey + '#' + run);
-        out.finalRows += r.finalRows;
-        out.provisionalRows += r.provisionalRows;
-        out.finalRowDiffs.push(...r.finalRowDiffs.map((x) => x + '#' + run));
+        add(record.jobKey + '#' + run, r);
       }
     }
+  }
+  // What the STORED replies alone contain (the synthetic paper is counted separately).
+  out.storedMultiChunkPapers = out.multiChunkPapers;
+  out.storedMultiChunkOneDocument = out.multiChunkOneDocument;
+  out.storedMultiChunkFinalRows = out.multiChunkFinalRows;
+  if (opts.syntheticFlip) {
+    let r;
+    try { r = await syntheticFlipCase(); } catch (e) { r = { error: (e && e.message) || String(e) }; }
+    add('SYNTHETIC.FLIP', r);
+    out.syntheticFlip = r.error ? { error: r.error } : { parts: r.parts, provisionalRows: r.provisionalRows, provisionalChanged: r.provisionalChanged, finalRows: r.finalRows, bodyEqual: r.bodyEqual };
   }
   return out;
 }
 
-module.exports = { replayRunsAsJobs, replayAsJob, syncPlanAsJob, memoryFirestore };
+module.exports = { replayRunsAsJobs, replayAsJob, compareJobToSync, syntheticFlipCase, syncPlanAsJob, memoryFirestore };
