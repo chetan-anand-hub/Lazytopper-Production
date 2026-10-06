@@ -105,11 +105,14 @@ type Concept = { id: string; title: string; body: string };
 const concepts = (slug: string): Concept[] => (readSpec(slug).concepts as Concept[]) ?? [];
 
 describe("T3 — the missing 2026-27 IN topics are written", () => {
-  it("trigonometry note: a Heights and Distances concept exists with elevation/depression", () => {
-    const c = concepts("trigonometry").find((x) => /heights and distances/i.test(x.title));
-    expect(c, "Heights and Distances concept").toBeDefined();
-    expect(c!.body).toMatch(/elevation/i);
-    expect(c!.body).toMatch(/depression/i);
+  it("trigonometry note: Heights and Distances concepts teach elevation and depression", () => {
+    // QUICK-FIXES-1 owner follow-up: elevation and depression are two concepts now (one NCERT
+    // figure each — Fig 9.2 / Fig 9.3), so the guard reads every Heights and Distances concept.
+    const hd = concepts("trigonometry").filter((x) => /heights and distances/i.test(x.title));
+    expect(hd.length, "Heights and Distances concept").toBeGreaterThan(0);
+    const body = hd.map((c) => c.body).join(" ");
+    expect(body).toMatch(/elevation/i);
+    expect(body).toMatch(/depression/i);
   });
 
   it("trigonometry hub: the Heights & distances row exists", () => {

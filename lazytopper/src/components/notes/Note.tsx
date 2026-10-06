@@ -16,6 +16,7 @@ import { NoteRichText } from "./NoteRichText";
 import { NoteMindmapTree } from "./NoteMindmapTree";
 import { NoteGeneratedFigure, hasGeneratedRenderer } from "./NoteGeneratedFigure";
 import NcertPageModal, { type NcertPageRef } from "./NcertPageModal";
+import { NoteFigureLightbox } from "./NoteFigureLightbox";
 import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
 
 /**
@@ -236,6 +237,18 @@ const NOTE_CSS = `
   color: var(--lt-note-green-deep); margin-right: 6px;
 }
 .lt-note__fimg { display: block; width: 100%; height: auto; background: #fff; }
+/* tap-to-enlarge: the image is the button (QUICK-FIXES-1 owner follow-up) */
+.lt-note__fzoom {
+  position: relative; display: block; width: 100%; padding: 0; margin: 0;
+  border: 0; background: #fff; cursor: zoom-in; font: inherit; line-height: 0;
+}
+.lt-note__fzoom:focus-visible { outline: 3px solid var(--lt-note-green); outline-offset: -3px; }
+/* the hint sits UNDER the image, never over it (an overlay hid figure labels) */
+.lt-note__fzoom-badge {
+  display: block; text-align: right; line-height: 1.2;
+  font-size: 11px; font-weight: 600; color: var(--lt-note-green-deep);
+  padding: 2px 12px 7px;
+}
 .lt-note__flegend {
   padding: 9px 14px; border-top: 1px solid var(--lt-note-line);
   font-size: 12.5px; color: var(--lt-note-ink-soft);
@@ -410,6 +423,17 @@ const NOTE_CSS = `
 
 @media (max-width: 560px) {
   .lt-note__frow, .lt-note__signtable { grid-template-columns: 1fr; }
+  /* Phones: a figure fits the SCREEN width, not the deeply nested card column
+     (page + note + block + concept paddings left it 183 px wide at 390). It is
+     sized to the viewport less a 16 px gutter each side and centred on the
+     viewport: every note container is symmetric except a concept row, whose
+     number column + gap (28 + 13 px) shifts the column right by 20.5 px.
+     Aspect ratio is kept (img height: auto); nothing is cropped. */
+  .lt-note__figure {
+    width: calc(100vw - 32px); max-width: none;
+    margin-left: calc(50% - 50vw + 16px - var(--lt-note-fig-shift, 0px));
+  }
+  .lt-note__concept .lt-note__figure { --lt-note-fig-shift: 20.5px; }
   .lt-note__keyterms dl { grid-template-columns: 1fr; }
   .lt-note__block { padding: 16px 14px; }
 }
@@ -560,7 +584,7 @@ button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a
     max-width: none !important; margin: 0 !important; padding: 0 !important;
     box-shadow: none !important; border: none !important;
   }
-  .lt-note__tabbar, .lt-note__pdf-btn { display: none !important; }
+  .lt-note__tabbar, .lt-note__pdf-btn, .lt-note__fzoom-badge { display: none !important; }
   .lt-note__panel { display: block !important; }
   .lt-note__mm-scroll { overflow: visible !important; max-height: none !important; }
   .lt-note__mm-kids--collapsed { display: grid !important; }
@@ -700,6 +724,8 @@ function LedgerSource({
 function FigureCard({ figure }: { figure: NoteFigure }) {
   const assetUrl = getNoteAssetUrl(figure.asset);
   const generated = hasGeneratedRenderer(figure);
+  const [enlarged, setEnlarged] = useState(false);
+  const alt = figure.caption || figure.tag || "Note figure";
   return (
     <figure className="lt-note__figure">
       {(figure.tag || figure.caption) && (
@@ -713,11 +739,15 @@ function FigureCard({ figure }: { figure: NoteFigure }) {
           <NoteGeneratedFigure figure={figure} />
         </div>
       ) : assetUrl ? (
-        <img
-          className="lt-note__fimg"
-          src={assetUrl}
-          alt={figure.caption || figure.tag || "Note figure"}
-        />
+        <button
+          type="button"
+          className="lt-note__fzoom"
+          aria-label={`Enlarge figure: ${figure.tag || alt}`}
+          onClick={() => setEnlarged(true)}
+        >
+          <img className="lt-note__fimg" src={assetUrl} alt={alt} />
+          <span className="lt-note__fzoom-badge" aria-hidden="true">Tap to enlarge</span>
+        </button>
       ) : (
         <div className="lt-note__fpending">
           <span className="lt-note__fpending-ic" aria-hidden="true">◫</span>
@@ -731,6 +761,14 @@ function FigureCard({ figure }: { figure: NoteFigure }) {
         <div className="lt-note__flegend">
           <NoteRichText text={figure.legend} />
         </div>
+      )}
+      {enlarged && assetUrl && (
+        <NoteFigureLightbox
+          src={assetUrl}
+          alt={alt}
+          label={figure.tag || alt}
+          onClose={() => setEnlarged(false)}
+        />
       )}
     </figure>
   );
