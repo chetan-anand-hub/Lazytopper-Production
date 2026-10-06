@@ -244,7 +244,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 30 (folio 29) — Q9 [3]. Rubric: pdf-page 35.
   {
-    id: "CFPQ-S-CARB-009", competencyVerified: true,
+    id: "CFPQ-S-CARB-009",
     subject: "Science",
     topicKey: "carbon-and-its-compounds",
     subtopic: "Structural Isomerism",

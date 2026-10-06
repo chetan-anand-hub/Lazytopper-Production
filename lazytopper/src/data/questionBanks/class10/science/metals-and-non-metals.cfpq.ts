@@ -132,7 +132,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 21 (folio 20) — Q4. Key: pdf-page 24, option 3.
   {
-    id: "CFPQ-S-MNM-004", competencyVerified: true,
+    id: "CFPQ-S-MNM-004",
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Electrolytic Refining of Copper",
@@ -161,7 +161,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 21 (folio 20) — Q5. Key: pdf-page 24, option 1.
   {
-    id: "CFPQ-S-MNM-005", competencyVerified: true,
+    id: "CFPQ-S-MNM-005",
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Electrolytic Refining of Copper",
