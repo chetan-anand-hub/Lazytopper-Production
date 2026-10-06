@@ -48,5 +48,18 @@
    "measured": 99
   }
  },
- "generatedAt": "2026-10-05T14:17:16.105Z"
+ "generatedAt": "2026-10-05T14:17:16.105Z",
+ "extraRuns": [
+  {
+   "label": "a17",
+   "runId": "2026-10-06.A17-J0-rulings",
+   "keys": [
+    "a17_rulings"
+   ],
+   "metrics": {
+    "a17_rulings": 100
+   },
+   "about": "A17 owner rulings 1-5 (GRADING-JOBS-1 J0): every A17 golden case passes every stated expectation (marks, type, unit / medium comment, not-attempted state, charged, metered share). Floor = the measured value."
+  }
+ ]
 }

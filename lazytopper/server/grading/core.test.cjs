@@ -1782,4 +1782,4 @@ test('§D43.1 ★ a chunked paper\'s page inventory is the UNION of every chunk\
 /* ══ A17 OWNER RULINGS 1-5 ON EVERY GRADING SURFACE (GRADING-JOBS-1 J0) ══════════════
    The per-surface proofs live beside this file; loading them here runs them in CI under
    test:server:grading-core (package.json is outside the J0 lane). */
-require('./rulings.surfaces.test.cjs');
+require('./rulings.surfaces.suite.cjs');

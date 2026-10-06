@@ -1,5 +1,5 @@
 'use strict';
-// server/grading/rulings.surfaces.test.cjs — A17 OWNER RULINGS 1-5 (GRADING-JOBS-1 J0), proven on
+// server/grading/rulings.surfaces.suite.cjs — A17 OWNER RULINGS 1-5 (GRADING-JOBS-1 J0), proven on
 // EVERY grading surface (the spec's product-wide rule).
 //
 // THE SURFACES. On the server every grading surface is one of two handlers; what differs is the
@@ -18,8 +18,10 @@
 // stubbed model answers every question; the target carries the scenario under test, every other
 // question a plain correct grade.
 //
-// Run: node --test server/grading/rulings.surfaces.test.cjs (also loaded by core.test.cjs, so it
-// runs in CI under test:server:grading-core).
+// Run: node --test server/grading/rulings.surfaces.suite.cjs. Named *.suite.cjs, NOT *.test.cjs: it is
+// a part of core.test.cjs (which requires it), so it runs in CI under test:server:grading-core — the
+// matrix-wiring guard (a15) enumerates *.test.cjs files that need their own package.json script, and
+// package.json is outside the J0 lane.
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
