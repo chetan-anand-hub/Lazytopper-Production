@@ -1,4 +1,5 @@
 {
+  "ignoreCommand": "node lazytopper/scripts/ops/vercel_ignore_build.mjs",
   "redirects": [
     {
       "source": "/app",
