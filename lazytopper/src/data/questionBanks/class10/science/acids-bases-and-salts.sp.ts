@@ -7,6 +7,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const ACID_SP: CanonicalQuestion[] = [
   {
     "id": "SQP-S-2023-ACID-A-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "acids-bases-and-salts",
     "subtopic": "Electrical conductivity of bases",
@@ -33,6 +34,7 @@ export const ACID_SP: CanonicalQuestion[] = [
   },
   {
     "id": "SQP-S-2023-ACID-A-002",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "acids-bases-and-salts",
     "subtopic": "Reaction of CO2 with limewater",
@@ -57,6 +59,7 @@ export const ACID_SP: CanonicalQuestion[] = [
   },
   {
     "id": "SQP-S-2023-ACID-A-003",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "acids-bases-and-salts",
     "subtopic": "Acids, bases and indicators",

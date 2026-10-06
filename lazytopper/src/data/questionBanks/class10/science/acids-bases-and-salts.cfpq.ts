@@ -56,7 +56,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const ABS_CFPQ: CanonicalQuestion[] = [
   // pdf-page 12 (folio 11) — Q1. Key: pdf-page 16, option 3.
   {
-    id: "CFPQ-S-ABS-001",
+    id: "CFPQ-S-ABS-001", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Reactions of Acids with Metal Carbonates",
@@ -79,7 +79,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 12 (folio 11) — Q3 [1]. Rubric: pdf-page 17.
   {
-    id: "CFPQ-S-ABS-003",
+    id: "CFPQ-S-ABS-003", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "pH Scale and Dilution",
@@ -102,7 +102,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 12 (folio 11) — Q4 [3]. Rubric: pdf-page 17.
   {
-    id: "CFPQ-S-ABS-004",
+    id: "CFPQ-S-ABS-004", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "pH Scale and Properties of Acids and Bases",
@@ -152,7 +152,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 13 (folio 12) — Q6 [3]. Rubric: pdf-page 17.
   {
-    id: "CFPQ-S-ABS-006",
+    id: "CFPQ-S-ABS-006", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Reactions of Acids with Carbonates and Hydrogencarbonates",
@@ -178,7 +178,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 13 (folio 12) — Q7 [2]. Rubric: pdf-page 18.
   {
-    id: "CFPQ-S-ABS-007",
+    id: "CFPQ-S-ABS-007", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Dilution and Acidity",
@@ -198,7 +198,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 13 (folio 12) — Q8 [1], shared "Rajesh" stimulus. Rubric: pdf-page 18.
   {
-    id: "CFPQ-S-ABS-008",
+    id: "CFPQ-S-ABS-008", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Sodium Hydrogencarbonate - Identification",
@@ -218,7 +218,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 13 (folio 12) — Q9 [1], shared "Rajesh" stimulus. Rubric: pdf-page 18.
   {
-    id: "CFPQ-S-ABS-009",
+    id: "CFPQ-S-ABS-009", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Uses of Sodium Hydrogencarbonate",
@@ -240,7 +240,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 13 (folio 12) — Q10 [1], shared "Rajesh" stimulus. Rubric: pdf-page 18.
   {
-    id: "CFPQ-S-ABS-010",
+    id: "CFPQ-S-ABS-010", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Sodium Carbonate and Washing Soda",
@@ -260,7 +260,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 14 (folio 13) — Q11 [1]. Rubric: pdf-page 18.
   {
-    id: "CFPQ-S-ABS-011",
+    id: "CFPQ-S-ABS-011", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Neutralisation Reaction",
@@ -280,7 +280,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 14 (folio 13) — Q12 [1]. Rubric: pdf-page 18.
   {
-    id: "CFPQ-S-ABS-012",
+    id: "CFPQ-S-ABS-012", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "pH Scale and Hydrogen Ion Concentration",
@@ -329,7 +329,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 15 (folio 14) — Q14 [2]. Rubric: pdf-page 18.
   {
-    id: "CFPQ-S-ABS-014",
+    id: "CFPQ-S-ABS-014", competencyVerified: true,
     subject: "Science",
     topicKey: "acids-bases-and-salts",
     subtopic: "Identification of Acids and Bases",

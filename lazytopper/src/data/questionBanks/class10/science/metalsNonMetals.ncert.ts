@@ -569,7 +569,7 @@ export const METALS_NON_METALS_NCERT: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "METAL-NCERT-3-VSA-014",
+    id: "METAL-NCERT-3-VSA-014", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Acids with Carbonates",
@@ -612,7 +612,7 @@ export const METALS_NON_METALS_NCERT: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "METAL-NCERT-3-SA-008",
+    id: "METAL-NCERT-3-SA-008", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Aqua Regia",
@@ -635,7 +635,7 @@ export const METALS_NON_METALS_NCERT: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "METAL-NCERT-3-VSA-015",
+    id: "METAL-NCERT-3-VSA-015", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Corrosion",

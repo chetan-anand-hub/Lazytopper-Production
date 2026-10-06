@@ -86,6 +86,7 @@ export const HERD_CBE: CanonicalQuestion[] = [
   },
   {
     "id": "CBE-S-HERD-B-003",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "heredity",
     "subtopic": "Punnett Square — Monohybrid Cross",

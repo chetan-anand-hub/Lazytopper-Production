@@ -8,7 +8,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Coverage: 9 text-extractable QPs (31/1/x, 31/2/x, 31/3/x); 9 scanned QPs (31/4/x, 31/5/x, 31/6/x) skipped — require OCR
 
 export const lightReflectionPYQ2025: CanonicalQuestion[] = [
-  { id: "PYQ-S-2025-LIGHT-001", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2025-LIGHT-001", competencyVerified: true, subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Mirror 'X' is used to concentrate sunlight in solar furnace and Mirror 'Y' is fitted on the side of the vehicle to see the traffic behind the driver. Which of the following statements are true for the two mirrors ? (i) The image formed by mirror 'X' is real, diminished and at its focus. (ii) The image formed by mirror 'Y' is virtual, diminished and erect. (iii) The image formed by mirror 'X' is virtual, diminished and erect. (iv) The image formed by mirror 'Y' is real, diminished and at its focus.",
     options: ["(i) and (ii)", "(ii) and (iii)", "(iii) and (iv)", "(i) and (iv)"],
     answer: "(i) and (ii)",
