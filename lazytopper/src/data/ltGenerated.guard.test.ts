@@ -189,10 +189,18 @@ describe("GEN-THIN-1 · no rendered tag and no PYQ / Predicted / trend presence"
       "lib/boardQuestions/selectionRule.ts",
     ]);
     const readers = files
-      .filter((f) => /lt-generated|modelledOn|LT_GENERATED_QUESTION_IDS|shapedFrom|questionProvenance|competencyVerified/.test(readFileSync(f, "utf8")))
+      .filter((f) => /lt-generated|modelledOn|LT_GENERATED_QUESTION_IDS|shapedFrom|questionProvenance/.test(readFileSync(f, "utf8")))
       .map((f) => relative(SRC, f).split("\\").join("/"))
       .filter((f) => !f.endsWith(".ltgen.ts") && !ALLOWED.has(f));
     expect(readers).toEqual([]);
+    // CBQ-1 (owner, 2026-10-07): `competencyVerified` is no longer internal provenance — it is THE
+    // CBQ flag, set on bank rows (generated and official) and read ONLY through the CBQ
+    // classification module. Bank data, the official-tag pins and lib/cbq/** may name it.
+    const cbqReaders = files
+      .filter((f) => /competencyVerified/.test(readFileSync(f, "utf8")))
+      .map((f) => relative(SRC, f).split("\\").join("/"))
+      .filter((f) => !f.endsWith(".ltgen.ts") && !ALLOWED.has(f) && !/^data\/(questionBanks|cbq)\//.test(f) && !/^lib\/cbq\//.test(f));
+    expect(cbqReaders).toEqual([]);
     // No .tsx file mentions them at all.
     expect(files.filter((f) => f.endsWith(".tsx") && /lt-generated|modelledOn|shapedFrom|questionProvenance/.test(readFileSync(f, "utf8")))).toEqual([]);
   });
@@ -354,11 +362,19 @@ describe("GEN-THIN-1 PR-2 · CBQs of every mark", () => {
     }
   });
 
-  it("competencyVerified is set ONLY on generated rows, always with isCompetencyBased, and on every PR-2 row", () => {
+  // CBQ-1 (owner, 2026-10-07): official CBSE-origin rows may carry the flag too, once they pass
+  // ruling 1 and a blind re-solve — pinned per subject in src/data/cbq/officialCbqTags.*.ts
+  // (officialCbqTags.science.test.ts proves the tagged Science set equals that list exactly).
+  it("competencyVerified is set ONLY on generated rows (always with isCompetencyBased) or official CBSE-origin rows, and on every PR-2 row", () => {
     for (const q of canonicalQuestionBank.filter((r) => r.competencyVerified !== undefined)) {
-      expect(q.origin, `${q.id} carries competencyVerified but is not generated`).toBe("lt-generated");
       expect(q.competencyVerified, q.id).toBe(true);
-      expect(q.isCompetencyBased, q.id).toBe(true);
+      if (q.origin === "lt-generated") {
+        expect(q.isCompetencyBased, q.id).toBe(true);
+      } else {
+        expect(q.origin, q.id).toBeUndefined();
+        expect(isOfficialRow(q) || NCERT_ID.test(q.id), `${q.id} carries competencyVerified but is neither generated nor official`).toBe(true);
+        expect(AI_GENERATED_QUESTION_IDS.has(q.id), `${q.id} is an AI-pack row`).toBe(false);
+      }
     }
     const pr2 = GEN.filter((q) => /-1\d\d$/.test(q.id));
     expect(pr2.length).toBe(94);
