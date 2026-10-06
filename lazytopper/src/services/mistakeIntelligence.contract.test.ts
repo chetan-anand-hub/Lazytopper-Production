@@ -57,9 +57,11 @@ const recordWrongAnswerMock = vi.fn();
 
 vi.mock("./mistakeLogService", () => ({
   logMistakes: (...a: unknown[]) => logMistakesMock(...a),
-  // SCORECARD-MI-1 W1: a clean re-grade asks the store to remove a stable entry. This suite
-  // never asserts on it; the store answers "nothing removed".
-  removeStableMistakeLog: async () => false,
+  // SCORECARD-MI-1 W1 (ME-ENGINE-1 PR-1: RESOLVE, not remove): a clean re-grade asks the store
+  // to resolve a stable entry. This suite never asserts on it; the store answers "nothing resolved".
+  resolveStableMistakeLog: async () => false,
+  isJoinableQuestionId: (id: unknown) => !!id && !String(id).includes(":"),
+  resolveEarlierMistakesForQuestion: async () => 0,
 }));
 vi.mock("./mistakeInsightsService", () => ({
   // The real predicate only checks `timestamp` is a string and `mistakeCounts` is an
@@ -761,8 +763,11 @@ describe("T6 · intake predicate — type admits, deduction does not gate", () =
 
        · pages/desktop/DesktopPracticePage.tsx  `marksLostForBucket`
            `if (type.includes(bucket) && Number.isFinite(marks) && marks > 0) total += marks;`
-       · pages/MeProgressPage.tsx  (paper split, and the chapter gap type)
-           `if (!Number.isFinite(marks) || marks <= 0) continue;`   x2
+       · pages/MeProgressPage.tsx  (the chapter gap type)
+           `if (!Number.isFinite(marks) || marks <= 0) continue;`
+       · services/progressReadModel.ts  `mistakeLossByGroup` (ME-ENGINE-1 PR-1 — Me's paper
+           split, moved verbatim so the MI widget reads the same split)
+           `if (!Number.isFinite(marks) || marks <= 0) continue;`
        · services/mistakeInsightsService.ts  `summarizeCareless`
            `marksLost += Number(s.marksDeducted) || 0;`  — no guard needed: adding
            zero is an arithmetic no-op.
@@ -784,8 +789,12 @@ describe("T6 · intake predicate — type admits, deduction does not gate", () =
         "pages/desktop/DesktopCheckImprovePage.tsx",
         // consumer — sums, guarded `marks > 0`
         "pages/desktop/DesktopPracticePage.tsx",
-        // consumer x2 — sums, guarded `marks <= 0 continue`
+        // consumer — the chapter gap type, guarded `marks <= 0 continue` (its paper split
+        // moved to services/progressReadModel.ts in ME-ENGINE-1 PR-1)
         "pages/MeProgressPage.tsx",
+        // consumer — ME-ENGINE-1 PR-1 `mistakeLossByGroup` (the ONE group split Me's hero and the
+        // MI widget read): Me's paper-split loop MOVED here verbatim, guarded `marks <= 0 continue`
+        "services/progressReadModel.ts",
         // consumer — sums, `|| 0` no-op on zero
         "services/mistakeInsightsService.ts",
         // the producer this lane changed
