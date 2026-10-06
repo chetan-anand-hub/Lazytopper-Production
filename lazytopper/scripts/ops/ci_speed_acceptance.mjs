@@ -218,10 +218,20 @@ export const REAL_COMMITS = [
   const nightly = jobBlock("nightly-full-clock");
   check("w4_nightly_job_runs_the_full_suites_under_both_clocks_and_opens_an_issue",
     /if: github\.event_name == 'schedule' \|\| github\.event_name == 'workflow_dispatch'/.test(nightly) &&
-      /pnpm --filter lazytopper exec vitest run\n/.test(nightly) && /pnpm --filter lazytopper run test:matrix:all/.test(nightly) &&
+      // The WHOLE suite: no --shard, no file filter — only the reporters D7's coverage step reads.
+      /pnpm --filter lazytopper exec vitest run --reporter=default --reporter=json --outputFile="\$RUNNER_TEMP\/vitest-nightly\.json"\n/.test(nightly) &&
+      /pnpm --filter lazytopper run test:matrix:all/.test(nightly) &&
       /issues: write/.test(nightly) && /gh issue create/.test(nightly) &&
       /2030-06-15T06:30:00\.000Z/.test(nightly) && /2030-02-14T18:45:00\.000Z/.test(nightly) &&
       !/issues: write/.test(wf.replace(nightly, "")));
+  // ★ D7 — the nightly's unsharded run must collect EVERY test file on disk, counted by ci_aggregate's
+  //   own functions (the PR shards' rule), and the step must run even after a failed suite step.
+  check("w11_nightly_asserts_files_equal_files_on_disk",
+    /- name: Every test file on disk ran \(files = files on disk\)\n\s*if: \$\{\{ !cancelled\(\) \}\}\n/.test(nightly) &&
+      /VITEST_JSON: \$\{\{ runner\.temp \}\}\/vitest-nightly\.json/.test(nightly) &&
+      /import \{ countTestFilesOnDisk, summariseVitestJson \} from "\.\/lazytopper\/scripts\/ops\/ci_aggregate\.mjs"/.test(nightly) &&
+      /s\.files === onDisk/.test(nightly) && /if \(!ok\) process\.exit\(1\)/.test(nightly),
+    "a nightly that silently drops a test file must fail — the files-on-disk assertion is missing or weakened");
   // The issue-on-failure step stays SCHEDULE-only: a hand-run dispatch reports in its own run page.
   check("w7_issue_on_failure_is_schedule_only",
     /- name: Open an issue \(scheduled run failed\)\n\s*if: failure\(\) && github\.event_name == 'schedule'\n/.test(nightly));

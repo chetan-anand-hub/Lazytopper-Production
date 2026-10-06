@@ -449,8 +449,29 @@ jobs:
           set -euo pipefail
           PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
           NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
-          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
+          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-nightly.json"
           NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+      # ★ D7 (FU-CI1-NIGHTLY-RESTORE): the unsharded run must collect EVERY test file on disk — the
+      # same files-on-disk rule the PR's quality-gate aggregate applies to the 4 shards, counted by
+      # ci_aggregate.mjs's own functions (one counter, never a second copy). It also refuses a run
+      # that failed or skipped a test. Read NIGHTLY_VITEST_TOTAL / NIGHTLY_VITEST_COVERAGE here.
+      - name: Every test file on disk ran (files = files on disk)
+        if: ${{ !cancelled() }}
+        env:
+          VITEST_JSON: ${{ runner.temp }}/vitest-nightly.json
+        run: |
+          node --input-type=module -e '
+          import fs from "node:fs";
+          import { countTestFilesOnDisk, summariseVitestJson } from "./lazytopper/scripts/ops/ci_aggregate.mjs";
+          let json = {};
+          try { json = JSON.parse(fs.readFileSync(process.env.VITEST_JSON, "utf8")); } catch (e) { console.error(`no vitest JSON: ${e.message}`); }
+          const s = summariseVitestJson(json, "1/1");
+          const onDisk = countTestFilesOnDisk();
+          console.log(`NIGHTLY_VITEST_TOTAL: files=${s.files} (on disk ${onDisk}) tests=${s.tests} passed=${s.passed} failed=${s.failed} skipped=${s.skipped} todo=${s.todo}`);
+          const ok = s.files > 0 && s.files === onDisk && s.failed === 0 && s.skipped === 0;
+          console.log(`NIGHTLY_VITEST_COVERAGE: ${ok ? "PASS" : "FAIL"}`);
+          if (!ok) process.exit(1);
+          '
       - name: Open an issue (scheduled run failed)
         if: failure() && github.event_name == 'schedule'
         env:
