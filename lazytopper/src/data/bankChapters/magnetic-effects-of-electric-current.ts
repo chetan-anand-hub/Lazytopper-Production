@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "magnetic-effects-of-electric-current" (Science): 157 served rows from 18 source arrays, 66 withheld.
+// Chapter "magnetic-effects-of-electric-current" (Science): 177 served rows from 19 source arrays, 66 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -24,6 +24,7 @@ import { magneticEffectsPYQ2025 } from "../questionBanks/class10/science/magneti
 import { metalsNonMetalsPYQ2024 } from "../questionBanks/class10/science/metalsNonMetals.pyq2024";
 import { magneticEffectsPYQ2024 } from "../questionBanks/class10/science/magneticEffects.pyq2024";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
+import { MAGNETIC_EFFECTS_LT_GENERATED } from "../questionBanks/class10/science/magnetic-effects-of-electric-current.ltgen";
 
 export default defineChapter("magnetic-effects-of-electric-current", [
   [50, MAGNETIC_EFFECTS_PACK1, true],
@@ -44,6 +45,7 @@ export default defineChapter("magnetic-effects-of-electric-current", [
   [387, metalsNonMetalsPYQ2024, false],
   [413, magneticEffectsPYQ2024, false],
   [415, CURATED_INLINE_QUESTIONS, false],
+  [419, MAGNETIC_EFFECTS_LT_GENERATED, false],
 ], [
   "ME-M01",
   "ME-M02",

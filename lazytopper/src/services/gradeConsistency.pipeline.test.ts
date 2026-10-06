@@ -165,7 +165,7 @@ import { setActiveProgressUser } from "./studentProgressStore";
 import { aggregateFourType } from "../components/results/scorecardVariants";
 import { WorksheetGradedPrintDoc } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { hashAttemptString } from "./attemptDedupKey";
-import { removeStableMistakeLog } from "./mistakeLogService";
+import { isSupersededByRegrade, resolveStableMistakeLog } from "./mistakeLogService";
 import { desktopTopicBySlug } from "../lib/desktop/topics";
 import { marksLostToWork } from "../lib/mistakeDisplay";
 import { recordAttempt } from "./practiceInsights";
@@ -277,7 +277,11 @@ function marksBaseline(surface: string, fs: Facts[], shownCounts: Record<string,
 /* ── store read-outs ───────────────────────────────────────────────────────── */
 const docsUnder = (prefix: string) =>
   [...H.store.entries()].filter(([p]) => p.startsWith(prefix) && !p.slice(prefix.length).includes("/")).map(([p, d]) => ({ path: p, ...(d as Any) }));
-const miEntries = () => docsUnder(`learnerProfiles/${UID}/mistakeLogs/`);
+// ME-ENGINE-1 PR-1 (G7) — a re-grade RESOLVES an entry instead of deleting it. `miEntries` is the
+// LIVE mistakes (what every aggregation counts — exactly the set the old delete left behind);
+// `miHistory` is everything in the store, resolved entries included.
+const miHistory = () => docsUnder(`learnerProfiles/${UID}/mistakeLogs/`);
+const miEntries = () => miHistory().filter((e) => !isSupersededByRegrade(e));
 const records = () => docsUnder(`sessionRecords/${UID}/records/`);
 // H1 — one durable attempt doc per SUBMISSION (its id is the submission identity).
 const attempts = () => docsUnder(`practiceInsights/${UID}/attempts/`);
@@ -537,6 +541,13 @@ describe("G3 · Check & Improve, single question (rendered)", () => {
       await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(3));
       await waitFor(() => expect(miEntries()).toHaveLength(0));
       check(S, "flip.clean.entryRemoved", miEntries().length === 0, `${miEntries().length} entries`);
+      // ME-ENGINE-1 PR-1 (G7) — resolved, NOT deleted: the entry is still in the store, dated.
+      check(
+        S,
+        "flip.clean.entryResolvedNotDeleted",
+        miHistory().length === 1 && miHistory()[0].resolvedBy === "re-grade" && typeof miHistory()[0].resolvedAt === "string",
+        JSON.stringify(miHistory().map((e) => [e.resolvedBy, e.resolvedAt])),
+      );
       H.checkSolutionImage.mockResolvedValue(clone(fx.body));
       fireEvent.click(screen.getAllByRole("button", { name: "Back" })[0]);
       await pressGrade();
@@ -675,7 +686,8 @@ describe("G3 · Worksheet and Chapter Test (real grade services)", () => {
     H.store.set(legacyPath, clone(legacy));
     window.localStorage.setItem(`lazytopper.mistakeLogs.v1:${UID}`, JSON.stringify([legacy]));
     const stable = () => miEntries().filter((e) => e.path !== legacyPath);
-    const deviceIds = () => (JSON.parse(window.localStorage.getItem(`lazytopper.mistakeLogs.v1:${UID}`) || "[]") as Array<{ id: string }>).map((e) => e.id);
+    const deviceEntries = () => JSON.parse(window.localStorage.getItem(`lazytopper.mistakeLogs.v1:${UID}`) || "[]") as Array<{ id: string; resolvedAt?: string; resolvedBy?: string }>;
+    const deviceIds = () => deviceEntries().map((e) => e.id);
 
     H.gradeWorksheet.mockResolvedValue(clone(fx.body));
     await gradeWorksheetAndRecord(USER as never, ws, upload);
@@ -693,7 +705,10 @@ describe("G3 · Worksheet and Chapter Test (real grade services)", () => {
     const afterClean = stable().map((e) => e.path).sort();
     const removed = firstPaths.filter((p) => !afterClean.includes(p));
     check(S, "flip.clean.entryRemoved", afterClean.length === want - 1 && removed.length === 1, `${afterClean.length} vs ${want - 1}`);
-    check(S, "flip.clean.deviceCopyRemoved", !deviceIds().includes(removed[0]?.split("/").pop() ?? "?"), JSON.stringify(deviceIds()).slice(0, 120));
+    // ME-ENGINE-1 PR-1 (G7) — the device copy is RESOLVED too (kept, dated), never deleted.
+    const deviceCopy = deviceEntries().find((e) => e.id === (removed[0]?.split("/").pop() ?? "?"));
+    check(S, "flip.clean.deviceCopyResolved", deviceCopy?.resolvedBy === "re-grade" && !!deviceCopy?.resolvedAt, JSON.stringify(deviceCopy ?? null).slice(0, 160));
+    check(S, "flip.clean.cloudCopyResolvedNotDeleted", miHistory().some((e) => e.path === removed[0] && e.resolvedBy === "re-grade"), "");
     check(S, "flip.clean.legacyUntouched", H.store.has(legacyPath) && deviceIds().includes(LEGACY_ID), "");
 
     // RE-UPLOAD again: the mistake is back → the SAME entry is written again.
@@ -706,19 +721,22 @@ describe("G3 · Worksheet and Chapter Test (real grade services)", () => {
     check(S, "flip.end.legacyUntouched", H.store.has(legacyPath), "");
   });
 
-  it("W1 — the store refuses to remove a LEGACY random-id entry, even when told it is known", async () => {
+  it("W1 — the store refuses to resolve a LEGACY random-id entry, even when told it is known (legacy is never converted)", async () => {
     const LEGACY_ID = "1727000000001-zz9zz9";
     const legacyPath = `learnerProfiles/${UID}/mistakeLogs/${LEGACY_ID}`;
     H.store.set(legacyPath, { id: LEGACY_ID, timestamp: "2026-09-01T00:00:00.000Z" });
     window.localStorage.setItem(`lazytopper.mistakeLogs.v1:${UID}`, JSON.stringify([{ id: LEGACY_ID, timestamp: "2026-09-01T00:00:00.000Z" }]));
-    expect(await removeStableMistakeLog(UID, LEGACY_ID, { known: true })).toBe(false);
-    expect(H.store.has(legacyPath)).toBe(true);
+    const RES = { resolvedBy: "re-grade" as const, resolvedAt: "2026-09-02T00:00:00.000Z" };
+    expect(await resolveStableMistakeLog(UID, LEGACY_ID, RES, { known: true })).toBe(false);
+    // Read unchanged: the very same document, no resolution field added.
+    expect(H.store.get(legacyPath)).toEqual({ id: LEGACY_ID, timestamp: "2026-09-01T00:00:00.000Z" });
     expect(window.localStorage.getItem(`lazytopper.mistakeLogs.v1:${UID}`)).toContain(LEGACY_ID);
-    // CONTROL — a stable identity id IS removed.
+    expect(window.localStorage.getItem(`lazytopper.mistakeLogs.v1:${UID}`)).not.toContain("resolvedAt");
+    // CONTROL — a stable identity id IS resolved (kept, dated — never deleted).
     const STABLE_ID = "worksheet::ws-x::g3-nonbank-1";
     H.store.set(`learnerProfiles/${UID}/mistakeLogs/${STABLE_ID}`, { id: STABLE_ID });
-    expect(await removeStableMistakeLog(UID, STABLE_ID, { known: true })).toBe(true);
-    expect(H.store.has(`learnerProfiles/${UID}/mistakeLogs/${STABLE_ID}`)).toBe(false);
+    expect(await resolveStableMistakeLog(UID, STABLE_ID, RES, { known: true })).toBe(true);
+    expect(H.store.get(`learnerProfiles/${UID}/mistakeLogs/${STABLE_ID}`)).toEqual({ id: STABLE_ID, ...RES });
   });
 
   it("chapter test re-upload REPLACES each question's MI entry", async () => {

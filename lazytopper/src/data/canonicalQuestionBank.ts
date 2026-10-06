@@ -513,6 +513,15 @@ import { POLYNOMIALS_CFPQ, POLY_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBan
 // gdrive high-marks extraction (2026-07-04): essay/numericals/guide/worksheet sources, 2-5 mark only
 import { LGHT_GDR, LGHT_GDR_BEYOND_BOARD, LGHT_GDR_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.gdr';
 import { CURATED_INLINE_QUESTIONS } from './questionBanks/class10/curatedInline';
+// GEN-THIN-1 (owner ruling 2026-10-06): LazyTopper-generated CBSE-shaped practice, each row
+// modelled on a cited real question. Provenance is internal only (`origin: "lt-generated"`,
+// `modelledOn`, `questionProvenance: "authored"`, `shapedFrom`) — never rendered. NOT AI-pack
+// rows (`*.ltgen.ts`, never `*.packN.ts`): they are authored rows held to the TIERMAP-1
+// provenance guard and pinned per surface by `surfaceReachability.guard.test.ts`.
+import { AP_LT_GENERATED } from './questionBanks/class10/maths/arithmetic-progression.ltgen';
+import { TRIANGLES_LT_GENERATED } from './questionBanks/class10/maths/triangles.ltgen';
+import { CIRCLES_LT_GENERATED } from './questionBanks/class10/maths/circles.ltgen';
+import { MAGNETIC_EFFECTS_LT_GENERATED } from './questionBanks/class10/science/magnetic-effects-of-electric-current.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -995,6 +1004,11 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...magneticEffectsPYQ2024,
   ...ourEnvironmentPYQ2024,
   ...CURATED_INLINE_QUESTIONS,
+  // GEN-THIN-1 PR-1 — LazyTopper-generated rows (internal provenance only; see the imports).
+  ...AP_LT_GENERATED,
+  ...TRIANGLES_LT_GENERATED,
+  ...CIRCLES_LT_GENERATED,
+  ...MAGNETIC_EFFECTS_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------
@@ -1815,6 +1829,14 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
  */
 export const canonicalQuestionBank: CanonicalQuestion[] =
   RAW_CANONICAL_QUESTION_BANK.filter((q) => !WITHHELD_QUESTION_IDS.has(q.id));
+
+/**
+ * Ids of every LazyTopper-generated row (GEN-THIN-1, `origin: "lt-generated"`). For audits,
+ * guards and source filters ONLY — no surface may render a tag from it.
+ */
+export const LT_GENERATED_QUESTION_IDS: ReadonlySet<string> = new Set(
+  RAW_CANONICAL_QUESTION_BANK.filter((q) => q.origin === "lt-generated").map((q) => q.id),
+);
 
 // ---------------------------------------------------------------------------
 // AI-tier source provenance (AI-tier PR2a)

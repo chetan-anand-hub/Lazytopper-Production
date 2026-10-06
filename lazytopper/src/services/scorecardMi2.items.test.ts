@@ -75,7 +75,7 @@ vi.mock("./mistakeLogService", async (importOriginal) => {
   return {
     ...actual,
     logMistakes: (...a: unknown[]) => H.logMistakes(...a),
-    removeStableMistakeLog: (...a: unknown[]) => H.removeStable(...a),
+    resolveStableMistakeLog: (...a: unknown[]) => H.removeStable(...a),
   };
 });
 // Concept resolution reads the question bank; L3 is not about concepts.

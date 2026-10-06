@@ -33,7 +33,13 @@
 
 import type { CheckSolutionResponse } from "../ai/aiClient";
 import type { AuthUser } from "../context/AuthContext";
-import { logMistakes, removeStableMistakeLog, type MistakeLogEntry } from "./mistakeLogService";
+import {
+  isJoinableQuestionId,
+  logMistakes,
+  resolveEarlierMistakesForQuestion,
+  resolveStableMistakeLog,
+  type MistakeLogEntry,
+} from "./mistakeLogService";
 import { isSafeEntry } from "./mistakeInsightsService";
 import { recordWrongAnswer } from "./adaptivePracticeEngine";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
@@ -115,9 +121,13 @@ export interface RecordMistakeResult {
   outcome: RecordMistakeOutcome;
   /** Whether a weak-area (Stream 3) signal was written for this check. */
   bridged: boolean;
-  /** SCORECARD-MI-1 (W1): a clean / not-attempted re-grade removed this submission's earlier
-   *  entry. Present only when it did. */
+  /** SCORECARD-MI-1 (W1): a clean / not-attempted re-grade took this submission's earlier entry
+   *  out of the live mistakes — since ME-ENGINE-1 PR-1 by RESOLVING it (`resolvedAt`), never by
+   *  deleting it. Present only when it did. */
   cleared?: true;
+  /** ME-ENGINE-1 PR-1 (G7): how many EARLIER mistakes on this same question this full-mark grade
+   *  resolved as won back (`later-correct-attempt`). Present only when > 0. */
+  wonBack?: number;
 }
 
 type ReconciledCounts = MistakeTypeCounts;
@@ -330,17 +340,28 @@ function identityContextOf(context: RecordMistakeContext) {
   };
 }
 
+/** The ISO time a grade happened (the context's `gradedAt`, else now) — the date a resolution
+ *  carries, so a replayed free check resolves on the day it was graded (GA-41). */
+function gradedAtIso(context: RecordMistakeContext): string {
+  const at = context.gradedAt != null ? new Date(context.gradedAt) : new Date();
+  return Number.isFinite(at.getTime()) ? at.toISOString() : new Date().toISOString();
+}
+
 /**
- * SCORECARD-MI-1 (W1) — a re-grade of the same submission came back with no mistake: remove
- * that submission's stable-identity entry, so MI never keeps a mistake the scorecard no longer
- * shows. The evidence that an entry exists is this module's own dedup ring (its latest outcome
- * for the identity was a logged one) or a copy on the device. A clean marker then goes into the
- * ring, so mistake → clean → mistake writes the entry again, and the bridge still fires once.
+ * SCORECARD-MI-1 (W1), amended by ME-ENGINE-1 PR-1 (G7) — a re-grade of the same submission
+ * came back with no mistake: that submission's stable-identity entry is RESOLVED (dated, with
+ * how), NOT deleted. MI still never counts a mistake the scorecard no longer shows (a re-grade-
+ * resolved entry is left out of every aggregation, as the deleted one was), and the history now
+ * survives for "won back". The evidence that an entry exists is this module's own dedup ring (its
+ * latest outcome for the identity was a logged one) or a live copy on the device. A clean marker
+ * then goes into the ring, so mistake → clean → mistake writes the entry again (live once more),
+ * and the bridge still fires once.
  */
 async function clearSupersededEntry(
   uid: string,
   context: RecordMistakeContext,
   result: CheckSolutionResponse,
+  notAttempted: boolean,
 ): Promise<boolean> {
   const identityCtx = identityContextOf(context);
   const identity = gradeIdentityKey(uid, identityCtx);
@@ -349,7 +370,12 @@ async function clearSupersededEntry(
   const known = latest !== undefined && !latest.endsWith(`::${CLEAN_OUTCOME}`);
   let cleared = false;
   try {
-    cleared = await removeStableMistakeLog(uid, gradeIdentityDocId(uid, identityCtx), { known });
+    cleared = await resolveStableMistakeLog(
+      uid,
+      gradeIdentityDocId(uid, identityCtx),
+      { resolvedBy: notAttempted ? "re-grade-not-attempted" : "re-grade", resolvedAt: gradedAtIso(context) },
+      { known },
+    );
   } catch {
     cleared = false;
   }
@@ -358,6 +384,50 @@ async function clearSupersededEntry(
     writeDedup([marker, ...seen.filter((k) => k !== marker)]);
   }
   return cleared;
+}
+
+/**
+ * ME-ENGINE-1 PR-1 (G7) — "won back". A grade with FULL marks on a question that carries a real
+ * question id (`isJoinableQuestionId` — the bank id, never a `ws:`/`ct:`/`fm:`/`ci:` slot)
+ * resolves every EARLIER live mistake on that same question as `later-correct-attempt`, dated
+ * this grade. Its own submission's entry is excluded (a re-grade is `clearSupersededEntry`'s).
+ * Best effort and never fatal: a failed read leaves the earlier mistakes live, which is honest.
+ */
+async function resolveEarlierOnFullMarks(
+  uid: string,
+  context: RecordMistakeContext,
+  result: CheckSolutionResponse,
+): Promise<number> {
+  const total = Number(result.totalMarks) || 0;
+  if (!(total > 0) || (Number(result.marksAwarded) || 0) < total) return 0;
+  const questionId = entryQuestionId(context);
+  if (!questionId || !isJoinableQuestionId(questionId)) return 0;
+  const identityCtx = identityContextOf(context);
+  const identity = gradeIdentityKey(uid, identityCtx);
+  const marker = cleanRingKey(identity, result);
+  const resolvedAt = gradedAtIso(context);
+  try {
+    const n = await resolveEarlierMistakesForQuestion(uid, questionId, {
+      exceptId: gradeIdentityDocId(uid, identityCtx),
+      beforeMs: Date.parse(resolvedAt),
+      resolvedAt,
+    });
+    const seen = readDedup();
+    writeDedup([marker, ...seen.filter((k) => k !== marker)]);
+    return n;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * A cache-restore of the SAME full-mark result (SolutionChecker re-mounts with its cached grade)
+ * has already been joined on this device: the ring's latest outcome for this identity is this
+ * very clean marker. Then no second Firestore read is spent on it.
+ */
+function alreadyJoinedOnThisDevice(uid: string, context: RecordMistakeContext, result: CheckSolutionResponse): boolean {
+  const identity = gradeIdentityKey(uid, identityContextOf(context));
+  return latestRingKeyFor(readDedup(), identity) === cleanRingKey(identity, result);
 }
 
 /**
@@ -385,11 +455,16 @@ export async function recordMistake(
   // attempt can never disagree about the same question.
   const notAttempted = isLossOnlyNotAttempted(gradeResult);
   if (notAttempted || !hasMistakeSignal(gradeResult)) {
-    const cleared = await clearSupersededEntry(user.uid, context, gradeResult);
+    // Read BEFORE the re-grade resolve below writes its own clean marker into the ring.
+    const joinedBefore = alreadyJoinedOnThisDevice(user.uid, context, gradeResult);
+    const cleared = await clearSupersededEntry(user.uid, context, gradeResult, notAttempted);
+    const wonBack =
+      notAttempted || joinedBefore ? 0 : await resolveEarlierOnFullMarks(user.uid, context, gradeResult);
     return {
       outcome: notAttempted ? "skipped-not-attempted" : "skipped-clean",
       bridged: false,
       ...(cleared ? { cleared: true as const } : {}),
+      ...(wonBack > 0 ? { wonBack } : {}),
     };
   }
 

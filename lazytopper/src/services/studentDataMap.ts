@@ -175,9 +175,21 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     path: "learnerProfiles/{uid}/mistakeLogs/{logId}",
     holds:
       "★ Every mistake the child made, classified by type — the Mistake Intelligence " +
-      "store. The most detailed record of a named child's academic weaknesses.",
+      "store. The most detailed record of a named child's academic weaknesses. Since " +
+      "ME-ENGINE-1 PR-1 an entry is never deleted when the mistake is fixed: it keeps " +
+      "`resolvedAt` (when) and `resolvedBy` (a re-grade, or a later correct attempt) — the " +
+      "child's history of marks won back.",
     mechanism: "browser-sdk",
     exportable: true,
+    notes:
+      "★ ME-ENGINE-1 PR-1 added two FIELDS to this existing document, no new location: " +
+      "`resolvedAt` (ISO date) and `resolvedBy` (\"re-grade\" | \"re-grade-not-attempted\" | " +
+      "\"later-correct-attempt\"). Export and erasure walk this path document-by-document " +
+      "(server/services/accountExport.cjs, accountErasure.cjs iterate STUDENT_DATA_MAP), so the " +
+      "fields are exported and erased with the entry they sit on. ★ Resolution means the " +
+      "erasure has MORE to delete than before (entries are kept, not removed), never less. " +
+      "Rules: `learnerProfiles/{uid}/mistakeLogs/{logId}` is owner-only read/write " +
+      "(firestore.rules), pinned by the root Firestore rules suite (`test:firestore-rules`, cases 17-17c).",
   },
   {
     id: "learnerProfiles.savedWorksheets",

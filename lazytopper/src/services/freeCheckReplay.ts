@@ -63,7 +63,7 @@ import {
   isMixedPaper,
   perQuestionFiling,
 } from "../utils/checkImproveDetection";
-import { withEffectiveCounts } from "../lib/mistakeDisplay";
+import { isGradedQuestion, v2GradeFields, withEffectiveCounts } from "../lib/mistakeDisplay";
 import type { DesktopSubject } from "../lib/desktop/navigation";
 
 export type FreeCheckReplayOutcome =
@@ -97,7 +97,11 @@ export function isReplayReady(user: AuthUser | null | undefined): boolean {
   return getActiveProgressUser() === user.uid;
 }
 
-/** The page's `multiQuestionToCsr`, mirrored: one legible per-question grade → the MI shape. */
+/** The page's `multiQuestionToCsr`, mirrored: one legible per-question grade → the MI shape.
+ *  ME-ENGINE-1 PR-1 (G12) — mirrored IN FULL: the page's adapter carries the v2 grade fields
+ *  (`v2GradeFields`: marks per type, could-not-read / answer-mismatch / not-graded state) and
+ *  this copy did not, so a replayed paper wrote the OLD count-only shape and lost the very
+ *  state `isGradedQuestion` reads. Whatever the parked grade carries now travels. */
 function toCsr(g: WorksheetQuestionGrade): CheckSolutionResponse {
   return {
     ok: true,
@@ -107,10 +111,19 @@ function toCsr(g: WorksheetQuestionGrade): CheckSolutionResponse {
     annotatedSteps: g.annotatedSteps ?? [],
     mistakeSummary: g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
     teacherNote: g.teacherNote ?? "",
+    ...v2GradeFields(g),
   };
 }
 
-async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<string> {
+/** Returns the minted session code, or null when the parked result held NOTHING gradable to
+ *  save (ME-ENGINE-1 PR-1, G12 — a single answer that was not graded). */
+async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<string | null> {
+  // G12 — the live page parks the free result BEFORE its graded check
+  // (DesktopCheckImprovePage: `recordFreeCheckSuccess` precedes `isGradedQuestion`), so the
+  // replay must apply that check itself, exactly where the page does: a single answer that was
+  // NOT graded (could not be read, option unread, answer does not match the question) records
+  // NOTHING — no MI entry, no attempt, no session record — and no session code is minted for it.
+  if (pending.kind === "single" && !isGradedQuestion(pending.graded)) return null;
   const sessionSubject = toSessionSubject(pending.subject);
   // Hazard 3: minted NOW, signed in — never the signed-out code.
   const nomen = await ensureCheckImproveSessionCode(
@@ -182,7 +195,9 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
   });
   const questionIds = ciQuestionIds(nomen.code, response.results);
   for (const [gi, g] of response.results.entries()) {
-    if (g.couldNotRead) continue; // pending is never a 0 and never a fabricated entry
+    // G12 — every NOT-GRADED state (could not be read, option unread, answer does not match,
+    // the server's notGraded), not only couldNotRead: such a row is never a 0 and never an entry.
+    if (!isGradedQuestion(g)) continue;
     const csr = toCsr(g);
     const questionId = questionIds[gi];
     const qText =
@@ -245,6 +260,8 @@ export async function replayPendingFreeCheck(
     const code = await writePending(user, pending);
     // R10 — a count, no identifier. Fired here, once per replay, not per render.
     trackNamedEvent("free_check_signup");
+    // G12 — nothing gradable was waiting: nothing was saved, and the page must not say it was.
+    if (code === null) return { kind: "none" };
     return { kind: "saved", code };
   } catch (error) {
     console.warn("[freeCheckReplay] replay failed; the result stays on the device", error);

@@ -18,7 +18,7 @@
  *   mock would assert that this file can retype a string.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import type { WindowedProgress, RungTrend } from "../services/progressStore";
@@ -30,9 +30,10 @@ import { canonicalQuestionBank } from "../data/canonicalQuestionBank";
 const mockGetWindowedProgress = vi.fn();
 const mockGetMistakeLogs = vi.fn();
 
-vi.mock("../services/progressStore", () => ({
-  // SCORECARD-MI-1 (GA-19) — Me reads the mistake log for the SAME window as the hero.
-  WINDOW_DAYS: { week: 7, "2wk": 14, month: 30, "4mo": 120 },
+vi.mock("../services/progressStore", async (importOriginal) => ({
+  // ME-ENGINE-1 PR-1 — the page reads the REAL shared read model (services/progressReadModel),
+  // which uses the REAL window / canonicaliser helpers; only the cloud aggregation is mocked.
+  ...(await importOriginal<typeof import("../services/progressStore")>()),
   getWindowedProgress: (...a: unknown[]) => mockGetWindowedProgress(...a),
   getRecentSessions: () => [],
   getActivitySummary: () => ({
@@ -45,8 +46,18 @@ vi.mock("../services/progressStore", () => ({
   isShortSpan: () => false,
 }));
 
-vi.mock("../services/mistakeLogService", () => ({
-  getMistakeLogs: (...a: unknown[]) => mockGetMistakeLogs(...a),
+// ME-ENGINE-1 PR-1 — the page reads the SYNCED mistake history (getMistakeLogHistoryFromCloud,
+// through the shared read model), never the device-merged getMistakeLogs. `mockGetMistakeLogs`
+// receives (uid, windowStartMs).
+vi.mock("../services/mistakeLogService", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../services/mistakeLogService")>()),
+  getMistakeLogs: async () => {
+    throw new Error("Me must not read the device-merged mistake log");
+  },
+  getMistakeLogHistoryFromCloud: async (uid: string, startMs: number) => ({
+    entries: (await mockGetMistakeLogs(uid, startMs)) ?? [],
+    complete: true,
+  }),
 }));
 
 vi.mock("../components/subscription/UpgradeSheet", () => ({
@@ -111,7 +122,8 @@ function windowed(over: Partial<WindowedProgress> = {}): WindowedProgress {
 
 const logEntry = (over: Partial<MistakeLogEntry> = {}): MistakeLogEntry => ({
   id: "m-1",
-  timestamp: new Date("2026-08-01T10:00:00Z").toISOString(),
+  // Two days ago — inside every window the page offers (the read model keeps a window's entries only).
+  timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
   questionText: "q",
   topic: "Real Numbers",
   subject: "maths",
@@ -281,11 +293,18 @@ describe("A · the hero is the owner's groups, and unclassified is honest", () =
     const user = userEvent.setup();
     renderPage();
     await screen.findByTestId("me-hero-bar");
-    expect(mockGetMistakeLogs).toHaveBeenLastCalledWith("u-1", 30); // month, the default
+    // ME-ENGINE-1 PR-1 — the history is read from the window's START (ms); in days that is the
+    // same window as the hero.
+    const lastDays = () => {
+      const start = Number(mockGetMistakeLogs.mock.calls[mockGetMistakeLogs.mock.calls.length - 1]?.[1]);
+      return Math.round((Date.now() - start) / (24 * 60 * 60 * 1000));
+    };
+    expect(mockGetMistakeLogs).toHaveBeenLastCalledWith("u-1", expect.any(Number));
+    expect(lastDays()).toBe(30); // month, the default
     await user.click(screen.getByRole("button", { name: "Week" }));
-    expect(mockGetMistakeLogs).toHaveBeenLastCalledWith("u-1", 7);
+    await waitFor(() => expect(lastDays()).toBe(7));
     await user.click(screen.getByRole("button", { name: "4 months" }));
-    expect(mockGetMistakeLogs).toHaveBeenLastCalledWith("u-1", 120);
+    await waitFor(() => expect(lastDays()).toBe(120));
   });
 
   it("★ P8 — the unclassified reason says only what is true (no one-mark claim)", async () => {
