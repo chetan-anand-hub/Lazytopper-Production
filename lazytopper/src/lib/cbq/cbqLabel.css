@@ -1,0 +1,18 @@
+/* CBQ-1 PR-1 — the visible "CBQ" label on the shared question card.
+   Visual grammar: deep navy chip, soft-white text, green accent edge. */
+.lt-cbq-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  white-space: nowrap;
+  background-color: hsl(222, 47%, 16%);
+  color: hsl(210, 40%, 98%);
+  border: 1px solid hsl(152, 55%, 45%);
+  box-shadow: inset 3px 0 0 hsl(152, 55%, 45%);
+}
