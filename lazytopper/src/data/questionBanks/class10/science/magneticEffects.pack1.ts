@@ -52,7 +52,7 @@ export const MAGNETIC_EFFECTS_PACK1: CanonicalQuestion[] = [
       "Electromagnet: temporary magnet made by passing current through a solenoid with iron core; strength can be changed [1]",
       "Permanent magnet: always magnetic; cannot be switched on/off; made of steel/hard magnetic material [1]",
     ], finalAnswer: "Electromagnet: temporary, controllable; Permanent: always on, fixed strength" , isCompetencyBased: false },
-  { id: "ME-M14", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Electric Motor", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "State Fleming's left-hand rule. Where is it applied?", solutionSteps: [
+  { id: "ME-M14", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Fleming's Left-Hand Rule and Force on Conductor", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "State Fleming's left-hand rule. Where is it applied?", solutionSteps: [
       "Stretch thumb, forefinger, and middle finger of left hand mutually perpendicular; Forefinger → direction of magnetic field (B) [½]",
       "Middle finger → direction of current (I); Thumb → direction of force/motion (F) [½]",
       "Applied to find force on current-carrying conductor in a magnetic field (electric motor) [1]",

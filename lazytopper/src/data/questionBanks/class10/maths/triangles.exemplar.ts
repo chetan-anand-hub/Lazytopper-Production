@@ -9,7 +9,7 @@ import type { CanonicalQuestion } from '../../../predictionTypes';
 
 export const TRI_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Exercise 6.1 — MCQs =====
-  { id: "TRI-N-EXMPLR-6-MCQ-001", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "TRI-N-EXMPLR-6-MCQ-001", subject: "Maths", topicKey: "triangles", subtopic: "Similarity in Right Triangles", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In △ABC, ∠BAC = 90° and AD ⊥ BC. Then:",
     options: ["BD · CD = BC²", "AB · AC = BC²", "BD · CD = AD²", "AB · AC = AD²"],
     answer: "BD · CD = AD²",
@@ -18,7 +18,7 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 6.1 Q1", isCompetencyBased: true,
     strategyHint: "Altitude from the right-angle vertex to the hypotenuse: AD² = BD · CD (the geometric-mean relation)." },
 
-  { id: "TRI-N-EXMPLR-6-MCQ-002", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "TRI-N-EXMPLR-6-MCQ-002", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The lengths of the diagonals of a rhombus are 16 cm and 12 cm. Then, the length of the side of the rhombus is:",
     options: ["9 cm", "10 cm", "8 cm", "20 cm"],
     answer: "10 cm",
@@ -137,7 +137,7 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 6.3 Q1", isCompetencyBased: true,
     strategyHint: "Recognise the rearranged Pythagorean relation, apply converse to locate the right angle, then use Theorem 6.7." },
 
-  { id: "TRI-N-EXMPLR-6-SA-007", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+  { id: "TRI-N-EXMPLR-6-SA-007", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the altitude of an equilateral triangle of side 8 cm.",
     answer: "Drop an altitude from one vertex to the opposite side. The altitude bisects the side, so half-base = 4 cm. The altitude, the half-base and the side form a right triangle with hypotenuse 8 cm. By Pythagoras: h² = 8² − 4² = 64 − 16 = 48, so h = √48 = 4√3 cm.",
     solutionSteps: ["In an equilateral triangle, the altitude bisects the opposite side ⇒ half-base = 8/2 = 4 cm.", "The altitude h, the half-base 4, and the side 8 form a right triangle (altitude ⊥ base).", "Apply Pythagoras: h² + 4² = 8² ⇒ h² = 64 − 16 = 48.", "h = √48 = √(16 · 3) = 4√3 cm."],
@@ -184,7 +184,7 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 6.3 Q14", isCompetencyBased: true,
     strategyHint: "Same time of day ⇒ equal sun-angle ⇒ similar right triangles; set up the proportion." },
 
-  { id: "TRI-N-EXMPLR-6-SA-013", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+  { id: "TRI-N-EXMPLR-6-SA-013", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "The foot of a 10 m long ladder leaning against a vertical wall is 6 m away from the base of the wall. Find the height of the point on the wall where the top of the ladder reaches.",
     answer: "The ladder, the wall, and the ground form a right triangle with the ladder as hypotenuse. By Pythagoras: h² + 6² = 10² ⇒ h² = 100 − 36 = 64 ⇒ h = 8 m. The ladder reaches 8 m up the wall.",
     solutionSteps: ["Right triangle: wall (height h, vertical), ground (6 m, horizontal), ladder (10 m, hypotenuse).", "Apply Pythagoras: h² + 6² = 10².", "h² = 100 − 36 = 64 ⇒ h = 8 m."],
@@ -217,7 +217,7 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 6.4 Q3 (Theorem 6.1)", isCompetencyBased: false,
     strategyHint: "Use the area-ratio formulation: same-altitude triangles have areas in the ratio of their bases; △BDE = △DEC since they sit between parallels DE and BC." },
 
-  { id: "TRI-N-EXMPLR-6-LA-005", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "TRI-N-EXMPLR-6-LA-005", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A 5 m long ladder is placed leaning towards a vertical wall such that it reaches the wall at a point 4 m high. If the foot of the ladder is moved 1.6 m towards the wall, find the distance by which the top of the ladder slides upwards on the wall.",
     answer: "Initial: ladder 5 m, height on wall 4 m. Foot-to-wall distance d1: by Pythagoras d1² = 5² − 4² = 25 − 16 = 9 ⇒ d1 = 3 m. After moving 1.6 m towards the wall, new foot-to-wall distance d2 = 3 − 1.6 = 1.4 m. New height h2: h2² = 5² − 1.4² = 25 − 1.96 = 23.04 ⇒ h2 = √23.04 = 4.8 m. The top slides upwards by h2 − 4 = 4.8 − 4 = 0.8 m.",
     solutionSteps: ["Initial right triangle: ladder = 5 (hypotenuse), height on wall = 4. By Pythagoras, foot-distance d1 = √(25 − 16) = √9 = 3 m.", "Foot is moved 1.6 m towards the wall ⇒ new foot-distance d2 = 3 − 1.6 = 1.4 m.", "New height h2 satisfies h2² + 1.4² = 5² ⇒ h2² = 25 − 1.96 = 23.04.", "h2 = √23.04 = 4.8 m.", "Upward slide of the top = h2 − 4 = 4.8 − 4 = 0.8 m."],
@@ -225,7 +225,7 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 6.4 Q5", isCompetencyBased: true,
     strategyHint: "Pythagoras twice: first to get the original foot-distance, then with the new (reduced) foot-distance." },
 
-  { id: "TRI-N-EXMPLR-6-LA-006", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "TRI-N-EXMPLR-6-LA-006", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "For going from city A to city B, there is a route via city C such that AC ⊥ CB, AC = 2x km and CB = 2(x + 7) km. It is proposed to construct a 26 km highway directly connecting A and B. Find how much distance is saved in reaching B from A after the construction of the highway.",
     answer: "AC ⊥ CB ⇒ △ACB is right-angled at C. By Pythagoras, AB² = AC² + CB². Given AB = 26, so 26² = (2x)² + (2(x+7))² ⇒ 676 = 4x² + 4(x+7)² = 4x² + 4(x² + 14x + 49) = 8x² + 56x + 196. Divide by 4: 169 = 2x² + 14x + 49 ⇒ 2x² + 14x − 120 = 0 ⇒ x² + 7x − 60 = 0. Solve: x = (−7 + √(49 + 240))/2 = (−7 + 17)/2 = 5 (rejecting the negative root). So AC = 10 km, CB = 24 km, AC + CB = 34 km. Distance saved = 34 − 26 = 8 km.",
     solutionSteps: ["Right triangle: AC ⊥ CB ⇒ apply Pythagoras with hypotenuse AB.", "AB² = AC² + CB² ⇒ 26² = (2x)² + (2(x+7))² = 4x² + 4(x+7)².", "676 = 4x² + 4x² + 56x + 196 = 8x² + 56x + 196.", "Divide by 4: 169 = 2x² + 14x + 49 ⇒ 2x² + 14x − 120 = 0 ⇒ x² + 7x − 60 = 0.", "Solve: x = (−7 ± √(49 + 240))/2 = (−7 ± 17)/2. Take x = 5 (positive).", "AC = 2x = 10 km; CB = 2(x+7) = 24 km. Old route = 10 + 24 = 34 km. New highway = 26 km.", "Distance saved = 34 − 26 = 8 km."],
@@ -233,7 +233,7 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 6.4 Q6", isCompetencyBased: true,
     strategyHint: "Pythagoras gives a quadratic in x; pick the positive root, then compute old vs new route." },
 
-  { id: "TRI-N-EXMPLR-6-LA-007", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "TRI-N-EXMPLR-6-LA-007", subject: "Maths", topicKey: "triangles", subtopic: "Similarity in Right Triangles", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "△ABC is right-angled at B and BD ⊥ AC. If AD = 4 cm and CD = 5 cm, find BD and AB.",
     answer: "By Theorem 6.7 applied to right △ABC with altitude BD from the right angle to the hypotenuse: BD² = AD · CD and AB² = AD · AC. Compute: BD² = 4 · 5 = 20 ⇒ BD = √20 = 2√5 cm. AC = AD + CD = 4 + 5 = 9 cm. AB² = AD · AC = 4 · 9 = 36 ⇒ AB = 6 cm.",
     solutionSteps: ["Right triangle ABC at B with altitude BD on hypotenuse AC (D on AC).", "By Theorem 6.7, BD² = AD · CD (geometric-mean relation for the altitude).", "BD² = 4 · 5 = 20 ⇒ BD = 2√5 cm.", "AC = AD + CD = 4 + 5 = 9 cm.", "Also AB² = AD · AC = 4 · 9 = 36 ⇒ AB = 6 cm."],
@@ -250,7 +250,7 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Sample Question 1 (Ex 6.3)", isCompetencyBased: true,
     strategyHint: "Inscribed square shares a corner with the right angle; the opposite corner on the hypotenuse gives the similar smaller triangle." },
 
-  { id: "TRI-N-EXMPLR-6-CB-002", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
+  { id: "TRI-N-EXMPLR-6-CB-002", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Case study: The hypotenuse of a right triangle is 25 cm, and out of the two legs, one is longer than the other by 5 cm. Answer:\n(i) Form a quadratic equation in the shorter leg x.\n(ii) Solve the quadratic equation.\n(iii) Reject the inadmissible root and state both legs.\n(iv) Verify by computing x² + (x + 5)² and comparing with 25².",
     answer: "(i) Let the shorter leg be x cm. Then the longer leg is (x + 5) cm. By Pythagoras: x² + (x + 5)² = 25² ⇒ x² + x² + 10x + 25 = 625 ⇒ 2x² + 10x − 600 = 0 ⇒ x² + 5x − 300 = 0. (ii) Solve x² + 5x − 300 = 0: factorise as (x − 15)(x + 20) = 0 (since 15 × (−20) = −300 and 15 + (−20) = −5? Check: 15 − 20 = −5 ✓). So x = 15 or x = −20. (iii) Length cannot be negative, so reject x = −20. Hence the shorter leg = 15 cm and the longer leg = 15 + 5 = 20 cm. (iv) Verification: x² + (x + 5)² = 15² + 20² = 225 + 400 = 625 = 25² ✓.",
     solutionSteps: ["(i) Shorter leg = x; longer leg = x + 5; hypotenuse = 25. Pythagoras: x² + (x + 5)² = 25².", "Expand: x² + x² + 10x + 25 = 625 ⇒ 2x² + 10x − 600 = 0 ⇒ x² + 5x − 300 = 0.", "(ii) Factor: (x − 15)(x + 20) = 0 ⇒ x = 15 or x = −20.", "(iii) Length > 0 ⇒ reject x = −20. Take x = 15 cm. Other leg = 15 + 5 = 20 cm.", "(iv) Verify: 15² + 20² = 225 + 400 = 625 = 25². ✓"],

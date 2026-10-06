@@ -151,7 +151,10 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // 5,593 -> 5,569: -24. BANK-SPLIT-1 PR-1 (2026-10-03) withheld 30 true duplicate rows within one
     // chapter (24 authentic + 6 AI; the AI rows do not count here) — see the "BANK-SPLIT-1" block of
     // WITHHELD_QUESTION_IDS. Each keeps one copy: pyqYear row, else non-AI, else the oldest id.
-    expect(human.length).toBeGreaterThanOrEqual(5569);
+    // 5,569 -> 5,378: -191. SYLLABUS-FIX-CONTENT PR-1 (2026-10-06, owner: "Yes, all of it") withheld 391
+    // out-of-syllabus / formative-only rows (CBSE 2026-27); 191 of them are human rows — exactly the 191 that
+    // left this set (0 other drift). See the "SYLLABUS-FIX-CONTENT PR-1" block of WITHHELD_QUESTION_IDS.
+    expect(human.length).toBeGreaterThanOrEqual(5378);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.
@@ -954,10 +957,13 @@ describe("the achievable ceiling — ruling 5", () => {
     // under two readings of "annotatable". The partition of the bank is its own block below.
     const naiveCeiling = publishable + addressable.length - held;
     const achievableCeiling = publishable + addressable.length - excluded;
-    expect(naiveCeiling).toBeGreaterThanOrEqual(5409);
+    // 5,409 -> 5,364 and 4,985 -> 4,963 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): measured 5,554 -> 5,364
+    // (-190) and 5,122 -> 4,963 (-159); every row that left either ceiling is a PR-1 withheld row and
+    // none entered. Withholding removes rows — the "only a lost row lowers them" case above.
+    expect(naiveCeiling).toBeGreaterThanOrEqual(5364);
 
     // ★ THE AUTHORITATIVE ACHIEVABLE FIGURE.
-    expect(achievableCeiling).toBeGreaterThanOrEqual(4985);
+    expect(achievableCeiling).toBeGreaterThanOrEqual(4963);
 
     // IDENTITIES, literal-free. The achievable ceiling never exceeds the naive one, is
     // never below what already publishes, and the two differ by exactly the cannot-sum

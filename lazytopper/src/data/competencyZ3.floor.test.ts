@@ -18,6 +18,9 @@ import { canonicalQuestionBank } from "./canonicalQuestionBank";
 import { Z3_COMPETENCY_QUESTIONS } from "./questionBanks/class10/maths/competency.z3";
 
 const Z3_EXPECTED_COUNT = 102;
+// SYLLABUS-FIX-CONTENT PR-1 (2026-10-06, owner: "Yes, all of it"): Z3-TG-110 (symbolic elevation angles;
+// CBSE 2026-27 allows only 30/45/60) is withheld. It stays in the source array; it is not served.
+const Z3_SYLLABUS_WITHHELD = ["Z3-TG-110"];
 // Conservative absolute floor: the bank serves several thousand questions, so
 // this only fires on a catastrophic collapse. Kept well below the true count so
 // it never false-fails as the bank grows.
@@ -28,10 +31,10 @@ describe("Z3 Competency — bank floor / silent-zero spread guard", () => {
     expect(Z3_COMPETENCY_QUESTIONS.length).toBe(Z3_EXPECTED_COUNT);
   });
 
-  it("every Z3 question reaches the served bank (spread wired, none withheld)", () => {
+  it("every Z3 question reaches the served bank (spread wired, only the syllabus-withheld row missing)", () => {
     const servedIds = new Set(canonicalQuestionBank.map((q) => q.id));
     const missing = Z3_COMPETENCY_QUESTIONS.filter((q) => !servedIds.has(q.id));
-    expect(missing.map((q) => q.id)).toEqual([]);
+    expect(missing.map((q) => q.id)).toEqual(Z3_SYLLABUS_WITHHELD);
   });
 
   it("Z3 contributes exactly its count and the bank does not silently collapse", () => {
@@ -40,7 +43,7 @@ describe("Z3 Competency — bank floor / silent-zero spread guard", () => {
     const nonZ3Served = canonicalQuestionBank.length - z3Served;
 
     // Exact Z3 contribution (silent-zero would make this 0).
-    expect(z3Served).toBe(Z3_EXPECTED_COUNT);
+    expect(z3Served).toBe(Z3_EXPECTED_COUNT - Z3_SYLLABUS_WITHHELD.length);
     // Whole-bank floor.
     expect(nonZ3Served).toBeGreaterThanOrEqual(BANK_ABSOLUTE_FLOOR);
 

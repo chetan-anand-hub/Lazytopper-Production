@@ -356,7 +356,6 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "answer": "B) pH increases (becomes less acidic/neutral)",
     "solutionSteps": [
       "Dilution decreases concentration of H⁺ ions",
-      "pH = -log[H⁺]",
       "Lower [H⁺] means higher pH value",
       "The solution becomes less acidic (closer to neutral)"
     ],
@@ -609,7 +608,6 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "answer": "pH measures [H⁺] on 0-14 scale; acidic <7 (sour, H⁺ rich); neutral =7; basic >7 (bitter, OH⁻ rich); affects digestion, health, food preservation, environment; foods vary in pH affecting dental/bone health",
     "solutionSteps": [
       "PART 1: pH Concept",
-      "- pH = -log[H⁺] ion concentration",
       "- Scale from 0 to 14",
       "- Measures acidity/basicity of solution",
       "",
@@ -1271,16 +1269,15 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Explain the concept of pH and how it is related to the concentration of hydrogen ions (H⁺) in a solution. Give examples of solutions with different pH values and explain the nature of each.",
     "options": [],
-    "answer": "pH measures hydrogen ion concentration using pH = -log[H⁺]. The scale ranges from 0-14: pH < 7 is acidic (high [H⁺]), pH = 7 is neutral ([H⁺] = [OH⁻]), and pH > 7 is basic (low [H⁺]). Examples: HCl (strongly acidic), water (neutral), NaOH (strongly basic).",
+    "answer": "pH is a scale from 0 to 14 that indicates the hydrogen ion concentration of a solution: the higher the [H⁺], the lower the pH. pH < 7 is acidic (high [H⁺]), pH = 7 is neutral ([H⁺] = [OH⁻]), pH > 7 is basic (low [H⁺], high [OH⁻]). Examples: dilute HCl (pH ≈ 0–1, strongly acidic), lemon juice (pH ≈ 2, acidic), milk (pH ≈ 6.5, weakly acidic), pure water (pH 7, neutral), baking soda solution (pH ≈ 8.3, weakly basic), ammonia solution (pH ≈ 11, basic), NaOH solution (pH ≈ 13–14, strongly basic).",
     "solutionSteps": [
-      "pH is defined as the negative logarithm of hydrogen ion concentration: pH = -log[H⁺]",
-      "As [H⁺] increases, pH decreases (inverse relationship).",
-      "When [H⁺] = 10⁻¹ M, pH = 1 (strongly acidic)",
-      "When [H⁺] = 10⁻⁷ M, pH = 7 (neutral)",
-      "When [H⁺] = 10⁻¹³ M, pH = 13 (strongly basic)",
-      "Examples: HCl (pH 0-1), lemon juice (pH 2), milk (pH 6.5), water (pH 7), baking soda (pH 8.3), ammonia (pH 11), NaOH (pH 13-14)"
+      "[1 mark] pH is a number on a scale from 0 to 14 that indicates the hydrogen ion concentration [H⁺] of a solution (the 'p' stands for 'potenz', meaning power).",
+      "[1 mark] The higher the hydrogen ion concentration, the lower the pH; the lower the [H⁺], the higher the pH.",
+      "[1 mark] pH < 7: acidic (higher [H⁺]); pH = 7: neutral ([H⁺] = [OH⁻]); pH > 7: basic (lower [H⁺], higher [OH⁻]). The further the pH is from 7, the stronger the acid or base.",
+      "[1 mark] Acidic examples: dilute HCl (pH ≈ 0–1, strongly acidic), lemon juice (pH ≈ 2, acidic), milk (pH ≈ 6.5, weakly acidic).",
+      "[1 mark] Neutral/basic examples: pure water (pH 7, neutral), baking soda solution (pH ≈ 8.3, weakly basic), ammonia solution (pH ≈ 11, basic), NaOH solution (pH ≈ 13–14, strongly basic).",
     ],
-    "finalAnswer": "pH measures hydrogen ion concentration using pH = -log[H⁺]. The scale ranges from 0-14: pH < 7 is acidic (high [H⁺]), pH = 7 is neutral ([H⁺] = [OH⁻]), and pH > 7 is basic (low [H⁺]). Examples: HCl (strongly acidic), water (neutral), NaOH (strongly basic).",
+    "finalAnswer": "pH is a scale from 0 to 14 that indicates the hydrogen ion concentration of a solution: the higher the [H⁺], the lower the pH. pH < 7 is acidic (high [H⁺]), pH = 7 is neutral ([H⁺] = [OH⁻]), pH > 7 is basic (low [H⁺], high [OH⁻]). Examples: dilute HCl (pH ≈ 0–1, strongly acidic), lemon juice (pH ≈ 2, acidic), milk (pH ≈ 6.5, weakly acidic), pure water (pH 7, neutral), baking soda solution (pH ≈ 8.3, weakly basic), ammonia solution (pH ≈ 11, basic), NaOH solution (pH ≈ 13–14, strongly basic).",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,

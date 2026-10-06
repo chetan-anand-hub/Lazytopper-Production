@@ -56,7 +56,6 @@ const FROZEN_HPQ_RANKING: string[] = [
   "ap-comp-02|0.5888888889|0.5966666667",
   "ap-comp-03|0.8555555556|0.8666666667",
   "arc-comp-01|0.9111111111|0.6858333333",
-  "cg-comp-01|0.9111111111|0.8858333333",
   "cg-comp-02|0.8555555556|0.6766666667",
   "cg-comp-03|0.8555555556|0.6666666667",
   "circ-comp-01|0.7000000000|0.6225000000",
@@ -74,7 +73,6 @@ const FROZEN_HPQ_RANKING: string[] = [
   "math-real-hpq-3|0.9111111111|0.8533333333",
   "math-tri-hpq-1|0.9111111111|0.6283333333",
   "math-tri-hpq-2|0.9111111111|0.8633333333",
-  "math-tri-hpq-3|0.5888888889|0.5616666667",
   "mnm-hpq-101|0.9111111111|0.7533333333",
   "mnm-hpq-102|0.9111111111|0.6383333333",
   "mnm-hpq-103|0.3222222222|0.5216666667",
@@ -96,7 +94,6 @@ const FROZEN_HPQ_RANKING: string[] = [
   "prob-hpq-102|0.9111111111|0.8633333333",
   "prob-hpq-103|0.3222222222|0.5216666667",
   "prob-hpq-104|0.3222222222|0.4916666667",
-  "prob-hpq-105|0.3222222222|0.5291666667",
   "qe-comp-01|0.9111111111|0.9008333333",
   "qe-hpq-101|0.9111111111|0.9533333333",
   "qe-hpq-102|0.9111111111|0.6583333333",
@@ -107,11 +104,7 @@ const FROZEN_HPQ_RANKING: string[] = [
   "rn-comp-01|0.9111111111|0.9008333333",
   "rn-comp-02|0.3222222222|0.5116666667",
   "rn-hpq-2|0.9111111111|0.8633333333",
-  "rn-hpq-3|0.3222222222|0.4916666667",
   "rn-hpq-4|0.3222222222|0.4916666667",
-  "rn-hpq-5|0.3222222222|0.5291666667",
-  "sav-comp-01|0.8555555556|0.6766666667",
-  "sav-comp-02|0.9111111111|0.8858333333",
   "sav-comp-03|0.3222222222|0.5291666667",
   "sci-abs-comp-01|0.9111111111|0.9008333333",
   "sci-abs-comp-02|0.3222222222|0.5291666667",
@@ -145,7 +138,6 @@ const FROZEN_HPQ_RANKING: string[] = [
   "sci-eye-comp-01|0.9111111111|0.6933333333",
   "sci-eye-hpq-1|0.3222222222|0.4741666667",
   "sci-eye-hpq-2|0.3222222222|0.4841666667",
-  "sci-eye-hpq-3|0.3222222222|0.5216666667",
   "sci-hdor-hpq-1|0.9111111111|0.7458333333",
   "sci-hdor-hpq-2|0.3222222222|0.4841666667",
   "sci-he-comp-01|0.9111111111|0.8933333333",
@@ -174,11 +166,8 @@ const FROZEN_HPQ_RANKING: string[] = [
   "stat-hpq-104|0.7555555556|0.6216666667",
   "stat-hpq-105|0.8555555556|0.6841666667",
   "stats-comp-01|0.3222222222|0.5291666667",
-  "tri-comp-01|0.5888888889|0.6091666667",
   "tri-comp-02|0.5888888889|0.5916666667",
   "tri-hpq-101|0.9111111111|0.6283333333",
-  "tri-hpq-102|0.9111111111|0.8633333333",
-  "tri-hpq-105|0.9111111111|0.6758333333",
   "trig-comp-01|0.3222222222|0.5291666667",
   "trig-comp-02|0.3222222222|0.5116666667",
   "trig-hpq-101|0.9111111111|0.7533333333",
@@ -199,8 +188,10 @@ describe("HPQ ranking pin", () => {
     // snapshot itself is non-trivial. Assert the corpus is actually populated —
     // an empty ranking compared against an empty frozen list is a green test
     // that asserts nothing.
-    expect(FROZEN_HPQ_RANKING.length).toBe(140);
-    expect(currentRanking().length).toBe(140);
+    // 140 -> 129 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06, owner: "Yes, all of it"): the 11 out-of-syllabus HPQ rows
+    // removed (cg-comp-01, math-tri-hpq-3, prob-hpq-105, rn-hpq-3, rn-hpq-5, sav-comp-01, sav-comp-02, sci-eye-hpq-3, tri-comp-01, tri-hpq-102, tri-hpq-105); their frozen lines deleted, every other line unchanged.
+    expect(FROZEN_HPQ_RANKING.length).toBe(129);
+    expect(currentRanking().length).toBe(129);
   });
 
   it("CONTROL: the frozen snapshot is discriminating, not uniform", () => {

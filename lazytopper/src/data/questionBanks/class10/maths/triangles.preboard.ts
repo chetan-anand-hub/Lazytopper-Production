@@ -128,7 +128,7 @@ export const TRI_PREBOARD: CanonicalQuestion[] = [
     "id": "PB-M-2-TRI-B-002",
     "subject": "Maths",
     "topicKey": "triangles",
-    "subtopic": "Pythagoras Theorem (Application)",
+    "subtopic": "Right-Triangle Lengths (a² + b² = c² as a tool)",
     "section": "B",
     "marks": 2,
     "format": "Short",

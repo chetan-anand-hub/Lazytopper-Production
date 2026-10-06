@@ -581,18 +581,6 @@
       "subject": "science",
       "questions": [
         {
-          "id": "CBE-S-MAGN-E-001",
-          "questionText": "Two solenoids are coiled around the same non-conducting rod, one connected to a battery through a switch and the other to a voltmeter. The switch is closed. Explain why the reading on the voltmeter first increases and then returns to zero.",
-          "marks": 4,
-          "section": "E",
-          "solutionSteps": [
-            "[1 mark] Closing the switch starts a current in the primary solenoid, which produces a magnetic field through both coils.",
-            "[1 mark] While the current is rising the magnetic field is changing (increasing).",
-            "[1 mark] A changing magnetic field through the second coil induces an emf/voltage, so the voltmeter reading increases.",
-            "[1 mark] When the current and magnetic field become steady (stop changing), no emf is induced, so the voltmeter reading returns to zero."
-          ]
-        },
-        {
           "id": "PYQ-S-2024-METAL-002",
           "questionText": "A student fixes a sheet of white paper on a drawing board. He places a bar magnet in the centre of it. He sprinkles some iron filings uniformly around the bar magnet. Then he taps the drawing board gently and observes that the iron filings arrange themselves in a particular pattern. (a) Why do iron filings arrange in a particular pattern ? (b) What does the crowding of iron filings at the ends of the magnet indicate ? (c) What do the lines, along which the iron filings align, represent ? (d) If the student places a cardboard horizontally in a current carrying solenoid and repeats the above activity, in what pattern would the iron filings arrange ? State the conclusion drawn about the magnetic field based on the observed pattern of the lines.",
           "marks": 3,
@@ -619,6 +607,19 @@
             "[1 mark] (iii) • A piece of wire made of a metal or an alloy. • appropriate (low) melting point."
           ],
           "pyqYear": "2026"
+        },
+        {
+          "id": "SCQ-S-MAG-039",
+          "questionText": "(a) Explain what is the difference between direct current and alternating current? Write one important advantage of using alternating current. (b) An air conditioner of 2 kW is used in an electric circuit having a fuse of 10 A rating. If the potential difference of the supply is 220 V, will the fuse be able to withstand, when the air conditioner is switched on? Justify your answer.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (a) Direct current (DC) is a unidirectional current of constant magnitude — it always flows in the same direction.",
+            "[1 mark] Alternating current (AC) is a current which changes its magnitude and reverses its direction periodically after fixed intervals of time.",
+            "[1 mark] One important advantage of AC: it can be transmitted over long distances with much less loss of electrical power (its voltage can be stepped up or down easily).",
+            "[1 mark] (b) Given P = 2 kW = 2000 W, V = 220 V. Current drawn, I = P/V = 2000/220 ≈ 9.09 A.",
+            "[1 mark] The fuse rating is 10 A, which is greater than the 9.09 A drawn by the air conditioner, so the fuse will withstand it — it will not blow when the air conditioner is switched on."
+          ]
         }
       ]
     },
