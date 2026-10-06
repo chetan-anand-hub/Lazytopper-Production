@@ -28,9 +28,10 @@ const mockGetRecentSessions = vi.fn();
 const mockGetActivitySummary = vi.fn();
 const mockGetTopicTrendFromCloud = vi.fn();
 
-vi.mock("../services/progressStore", () => ({
-  // SCORECARD-MI-1 (GA-19) — Me reads the mistake log for the SAME window as the hero.
-  WINDOW_DAYS: { week: 7, "2wk": 14, month: 30, "4mo": 120 },
+vi.mock("../services/progressStore", async (importOriginal) => ({
+  // ME-ENGINE-1 PR-1 — the page reads the REAL shared read model (services/progressReadModel),
+  // which uses the REAL window / canonicaliser helpers; only the cloud aggregation is mocked.
+  ...(await importOriginal<typeof import("../services/progressStore")>()),
   getWindowedProgress: (...a: unknown[]) => mockGetWindowedProgress(...a),
   getRecentSessions: (...a: unknown[]) => mockGetRecentSessions(...a),
   getActivitySummary: (...a: unknown[]) => mockGetActivitySummary(...a),
@@ -38,11 +39,13 @@ vi.mock("../services/progressStore", () => ({
   isShortSpan: () => false,
 }));
 
-vi.mock("../services/mistakeLogService", () => ({
-  getMistakeLogs: vi.fn(async () => []),
+vi.mock("../services/mistakeLogService", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../services/mistakeLogService")>()),
+  getMistakeLogHistoryFromCloud: vi.fn(async () => ({ entries: [], complete: true })),
 }));
 
-vi.mock("../services/mistakeInsightsService", () => ({
+vi.mock("../services/mistakeInsightsService", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../services/mistakeInsightsService")>()),
   summarizeCareless: () => ({
     calculationCount: 0,
     sillyCount: 0,

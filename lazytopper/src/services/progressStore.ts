@@ -56,6 +56,7 @@ import { getActiveProgressUser } from "./studentProgressStore";
 // the question bank on first load. Every number is unchanged: the same function runs.
 import { isChapterEchoSubtopic, normalizeSection, type BankConcept } from "./progressBankShape";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
+import { isBoardChapterKey } from "../config/syllabus2026-27";
 import { MISTAKE_TYPE_LABEL, isGradedQuestion, isLossOnlyNotAttempted } from "../lib/mistakeDisplay";
 
 // ── Per-surface history (§3a) ────────────────────────────────────────────────
@@ -92,6 +93,11 @@ export interface ActivitySummary {
   worksheets: number;
   chapterTests: number;
   fullMocks: number;
+  /** ME-ENGINE-1 PR-1 — answers CHECKED by the grader in the window: attempts with
+   *  `mode: "graded"` (one per submission). Unlike `practiceAttempts` it excludes the QP
+   *  MCQ-click (`mode: "mcq"`) and binary rows. The sidebar MI widget's "checked answers"
+   *  (SCORECARD-MI-1 H3) is exactly this rule. Optional: the device-local summary leaves it out. */
+  gradedAnswers?: number;
   /** Raw graded-attempt count — the honest per-question figure the Me PR can phrase,
    *  never a fabricated set count.
    *  §1a as amended: QP now DOES write a (non-counting) record, so a practice-SET count
@@ -110,7 +116,9 @@ export interface ActivitySummary {
  *  by construction, so this summary's numbers are unchanged by §1a's amendment. */
 export function getActivitySummary(uid?: string | null, sinceDays?: number): ActivitySummary {
   const cutoff = sinceDays ? Date.now() - sinceDays * DAY_MS : 0;
-  const records = loadLocalSessionRecords(uid).filter((r) => r.gradedAt >= cutoff);
+  // ME-ENGINE-1 PR-1 (G10) — a test is TAKEN once it is graded: a pending-upload or partial
+  // record is a test still waiting for its answer sheet, never a completed one.
+  const records = loadLocalSessionRecords(uid).filter((r) => r.gradedAt >= cutoff && isTestTaken(r));
   const summary: ActivitySummary = { worksheets: 0, chapterTests: 0, fullMocks: 0, practiceAttempts: 0 };
   for (const r of records) {
     if (r.surface === "worksheet") summary.worksheets += 1;
@@ -119,6 +127,15 @@ export function getActivitySummary(uid?: string | null, sinceDays?: number): Act
   }
   summary.practiceAttempts = getAttempts(cutoff ? { start: cutoff } : {}).length;
   return summary;
+}
+
+/**
+ * ME-ENGINE-1 PR-1 (G10) — the ONE rule for "a test was taken": its record is fully graded.
+ * `pending-upload` (submitted, no answer sheet yet) and `partial` (only some of it graded) are
+ * tests still in progress — counting them inflated "tests taken" with work that has no result.
+ */
+export function isTestTaken(r: Pick<SessionRecord, "status">): boolean {
+  return r.status === "graded";
 }
 
 // ── Home ungraded nudge (§3c) ────────────────────────────────────────────────
@@ -146,12 +163,37 @@ export type ProgressWindow = "week" | "2wk" | "month" | "4mo";
 /** Exported for SCORECARD-MI-1 (GA-19): Me reads the mistake log for the SAME window. */
 export const WINDOW_DAYS: Record<ProgressWindow, number> = { week: 7, "2wk": 14, month: 30, "4mo": 120 };
 
+/**
+ * ME-ENGINE-1 PR-1 (G3 "today") — every window the shared read model serves. `today` is the
+ * CALENDAR DAY IN IST (Asia/Kolkata, UTC+05:30, no daylight saving): it starts at the last IST
+ * midnight, not 24 hours ago, and so is never a rolling window. The four rolling windows are
+ * unchanged. `ProgressWindow` itself is NOT widened: the Topic Hub and Me's chips key records on
+ * it, and a `today` they cannot render must not appear in their types.
+ */
+export type ReadWindow = "today" | ProgressWindow;
+/** Days each window spans — `today` counts as ONE day for span labels only (see windowRange). */
+export const READ_WINDOW_DAYS: Record<ReadWindow, number> = { today: 1, ...WINDOW_DAYS };
+
+/** IST is a fixed UTC+05:30 — India observes no daylight saving. */
+const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
+
+/** The epoch ms of the IST midnight that starts the IST calendar day containing `ms`. */
+export function istDayStartMs(ms: number): number {
+  return Math.floor((ms + IST_OFFSET_MS) / DAY_MS) * DAY_MS - IST_OFFSET_MS;
+}
+
+/** The [start, end] epoch-ms range a window covers at `nowMs` (end = now, inclusive). */
+export function windowRange(window: ReadWindow, nowMs: number): { start: number; end: number } {
+  if (window === "today") return { start: istDayStartMs(nowMs), end: nowMs };
+  return { start: nowMs - WINDOW_DAYS[window] * DAY_MS, end: nowMs };
+}
+
 /** True when a trend's activity span covers less than half its selected window —
  *  the consumer must show the honest "your practice here is recent — this is your
  *  short-term trend" label instead of claiming the full window ([FU-PROG-WINDOW-MODEL]
  *  honesty guard; shared so the Me arc and the Topic Hub phrase it consistently). */
-export function isShortSpan(window: ProgressWindow, spanDays: number | null | undefined): boolean {
-  return typeof spanDays === "number" && spanDays > 0 && spanDays < WINDOW_DAYS[window] / 2;
+export function isShortSpan(window: ReadWindow, spanDays: number | null | undefined): boolean {
+  return typeof spanDays === "number" && spanDays > 0 && spanDays < READ_WINDOW_DAYS[window] / 2;
 }
 
 export interface ProgressTrend {
@@ -194,10 +236,28 @@ function canonicalKey(raw: string | null | undefined): string {
   if (!input) return "";
   let out = topicKeyMemo.get(input);
   if (out === undefined) {
-    out = String(resolveCanonicalSlug(input) || "").trim().toLowerCase();
+    const slug = String(resolveCanonicalSlug(input) || "").trim().toLowerCase();
+    // ME-ENGINE-1 PR-1 — the topic key set IS the 26 board chapters of 2026-27
+    // (config/syllabus2026-27). Anything else ("" or a non-board slug) is no chapter: its
+    // marks stay on the subject rung and it is honestly silent on every chapter view.
+    out = isBoardChapterKey(slug) ? slug : "";
     topicKeyMemo.set(input, out);
   }
   return out;
+}
+
+/**
+ * ME-ENGINE-1 PR-1 — THE ONE topic canonicaliser every progress / Mistake Intelligence reader
+ * uses (Me/Progress, the Topic Hub trend, and next the sidebar MI widget and — PR-2 — the Tutor brief).
+ * Any spelling (slug, label, legacy alias, URL param, stored MI `topic` label) resolves through
+ * `resolveCanonicalSlug` and is kept ONLY if it is one of the 26 board chapter keys
+ * (`BOARD_CHAPTER_KEYS`); otherwise "". A reader that groups by any other function
+ * (`normalizeTopicKey`, `resolveCanonicalTopicKey`) lands in a different vocabulary
+ * ("reproduction", "heredity-and-evolution") and silently misses — the G3 consistency pin
+ * catches exactly that.
+ */
+export function boardChapterKey(raw: string | null | undefined): string {
+  return canonicalKey(raw);
 }
 
 interface MarkPoint {
@@ -453,10 +513,34 @@ export interface MistakeLogEnrichment {
   loggedInWindow: number;
 }
 
+/**
+ * ME-ENGINE-1 PR-1 (G4) — the UNGATED window total: every measurable graded answer in the
+ * window, summed, with its count. It sits BESIDE the gated trend, never instead of it:
+ * a trend (before→now) still needs ≥ MIN_HALF_SAMPLE points per half, but a total is a plain
+ * sum and is honest at any n — so it always carries `answers` (n) for the reader to print.
+ * When the gated subject rung exists, its marksScored/marksAvailable equal this total for the
+ * same scope BY CONSTRUCTION (the split sums both halves of the same point set).
+ */
+export interface WindowTotal {
+  marksScored: number;
+  marksAvailable: number;
+  /** available − scored (≥ 0), rounded to 0.1. */
+  marksLost: number;
+  /** Of `marksLost`, marks lost ONLY to work not attempted (H11) — 0 when none recorded. */
+  marksNotAttempted: number;
+  /** n — measurable graded answers (POINTS, not marks) the total is over. */
+  answers: number;
+}
+
 /** The ONE cross-device windowed aggregation, read at altitudes. Every array is
  *  honest-or-silent: empty when the window is too thin for a data-backed trend. */
 export interface WindowedProgress {
-  window: ProgressWindow;
+  window: ReadWindow;
+  /** ME-ENGINE-1 PR-1 (G4) — the ungated total for the read's scope (subject / topic), or
+   *  null when the window holds no measurable graded answer. */
+  totals: WindowTotal | null;
+  /** The same ungated totals per subject (the unscoped read fills both papers). */
+  subjectTotals: Partial<Record<"maths" | "science", WindowTotal>>;
   /** Rolled-up per-subject marks before→now (Me). */
   subjects: RungTrend[];
   /** Per-topic marks before→now (Topic Hub). */
@@ -488,15 +572,18 @@ function progressReadUid(uid?: string | null): string | null {
   return resolved && resolved !== "anonymous" ? resolved : null;
 }
 
-function emptyWindowed(window: ProgressWindow): WindowedProgress {
+/** The honest empty read (signed out, no data, or a chapter outside the 26). */
+export function emptyWindowed(window: ReadWindow): WindowedProgress {
   return {
     window,
+    totals: null,
+    subjectTotals: {},
     subjects: [],
     topics: [],
     concepts: [],
     sections: [],
     mistakeTypes: [],
-    activity: { worksheets: 0, chapterTests: 0, fullMocks: 0, practiceAttempts: 0 },
+    activity: { worksheets: 0, chapterTests: 0, fullMocks: 0, practiceAttempts: 0, gradedAnswers: 0 },
     activitySpanDays: null,
     mistakeLog: { loggedInWindow: 0 },
   };
@@ -898,6 +985,20 @@ function dedupMistakeLogCount(mistakes: MistakeLogEntry[], start: number, end: n
   return count;
 }
 
+/** G4 — the ungated total over a set of graded points (null when none is measurable). The
+ *  SAME `marksPercentOf` the gated split uses, so the two can never disagree on a sum. */
+function windowTotalOf(points: GradedPoint[]): WindowTotal | null {
+  const m = marksPercentOf(points);
+  if (!m) return null;
+  return {
+    marksScored: Math.round(m.scored * 100) / 100,
+    marksAvailable: Math.round(m.available * 100) / 100,
+    marksLost: Math.max(0, Math.round((m.available - m.scored) * 10) / 10),
+    marksNotAttempted: Math.round(m.notAttempted * 100) / 100,
+    answers: m.sample,
+  };
+}
+
 /** Span (whole days, ≥1) between the first and last MEASURABLE point; null under 2
  *  points. Powers the arc's honest short-term-trend label (see isShortSpan). */
 function activitySpanOf(points: GradedPoint[]): number | null {
@@ -926,26 +1027,32 @@ function activitySpanOf(points: GradedPoint[]): number | null {
  */
 export async function getWindowedProgress(
   uid?: string | null,
-  window: ProgressWindow = "month",
+  window: ReadWindow = "month",
   scope?: WindowedProgressScope,
   nowMs?: number,
 ): Promise<WindowedProgress> {
   const id = progressReadUid(uid);
   if (!id) return emptyWindowed(window);
 
-  const days = WINDOW_DAYS[window];
   const now = typeof nowMs === "number" ? nowMs : Date.now();
-  const start = now - days * DAY_MS;
+  // ME-ENGINE-1 PR-1 — `today` is the IST calendar day (windowRange), the rest are rolling.
+  const { start } = windowRange(window, now);
+  // The mistake-log enrichment read is day-granular; ceil so `today` reads at least its day.
+  const logDays = Math.max(1, Math.ceil((now - start) / DAY_MS));
+
+  // A topic scope that is not one of the 26 board chapters scopes to NOTHING — it must never
+  // silently widen into an unscoped read (the old `"" → undefined` fall-through).
+  const topicFilter = scope?.topicKey ? canonicalKey(scope.topicKey) : undefined;
+  if (scope?.topicKey && !topicFilter) return emptyWindowed(window);
 
   const [attempts, records, payloads, mistakes] = await Promise.all([
     getAttemptsFromCloud(id, { start }).catch(() => [] as PracticeAttempt[]),
     getSessionRecordsFromCloud(id).catch(() => [] as SessionRecord[]),
     getAllSessionPerQuestionFromCloud(id).catch(() => [] as SessionPerQuestionPayload[]),
-    getMistakeLogs(id, days).catch(() => [] as MistakeLogEntry[]),
+    getMistakeLogs(id, logDays).catch(() => [] as MistakeLogEntry[]),
   ]);
 
   const subjFilter = scope?.subject;
-  const topicFilter = scope?.topicKey ? canonicalKey(scope.topicKey) : undefined;
 
   const winAttempts = attempts.filter(
     (a) =>
@@ -976,18 +1083,29 @@ export async function getWindowedProgress(
     topicFilter,
   );
 
+  const subjectTotals: WindowedProgress["subjectTotals"] = {};
+  for (const s of ["maths", "science"] as const) {
+    const t = windowTotalOf(unified.filter((p) => p.subject === s));
+    if (t) subjectTotals[s] = t;
+  }
+  // G10 — "tests taken" counts a test once it is GRADED (isTestTaken), never pending/partial.
+  const takenRecords = winRecords.filter(isTestTaken);
+
   return {
     window,
+    totals: windowTotalOf(unified),
+    subjectTotals,
     subjects: buildSubjectRung(unified),
     topics: buildTopicRung(unified),
     concepts,
     sections,
     mistakeTypes: buildMistakeTypeRung(winRecords),
     activity: {
-      worksheets: winRecords.filter((r) => r.surface === "worksheet").length,
-      chapterTests: winRecords.filter((r) => r.surface === "chapter-test").length,
-      fullMocks: winRecords.filter((r) => r.surface === "full-mock").length,
+      worksheets: takenRecords.filter((r) => r.surface === "worksheet").length,
+      chapterTests: takenRecords.filter((r) => r.surface === "chapter-test").length,
+      fullMocks: takenRecords.filter((r) => r.surface === "full-mock").length,
       practiceAttempts: winAttempts.length,
+      gradedAnswers: winAttempts.filter((a) => a.mode === "graded").length,
     },
     activitySpanDays: activitySpanOf(unified),
     mistakeLog: { loggedInWindow: dedupMistakeLogCount(mistakes, start, now) },

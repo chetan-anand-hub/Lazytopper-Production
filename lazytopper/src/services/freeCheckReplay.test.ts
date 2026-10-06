@@ -349,3 +349,81 @@ describe("OR-18 — replay only with the sign-in marker", () => {
     expect(H.recordAttempt).toHaveBeenCalledTimes(1);
   });
 });
+
+/* ── ME-ENGINE-1 PR-1 (G12) — the replay applies `isGradedQuestion` itself, and writes the
+      CURRENT (v2) shape. The live page parks the free result BEFORE its graded check, so the
+      replay is the last place a not-graded answer can be stopped. Mutation M6 (the replay
+      without `isGradedQuestion`) turns these RED. ── */
+describe("G12 — a not-graded answer is never replayed into the record", () => {
+  it("★ a single answer whose answer does not match the question: NO attempt, NO session record, NO code minted — and nothing is claimed saved", async () => {
+    const mismatch: PendingSingleFreeCheck = {
+      ...SINGLE,
+      graded: { ...SINGLE.graded, answerMismatch: true },
+    };
+    waitingWithIntent(mismatch);
+    H.activeUid = USER.uid;
+    const out = await replayPendingFreeCheck(USER);
+    expect(out).toEqual({ kind: "none" });
+    expect(H.recordAttempt).not.toHaveBeenCalled();
+    expect(H.persist).not.toHaveBeenCalled();
+    expect(H.recordMistake).not.toHaveBeenCalled();
+    expect(H.ensureCode).not.toHaveBeenCalled();
+    // The waiting result was claimed (it holds nothing to save) — it does not come back.
+    expect(hasPendingFreeCheck()).toBe(false);
+  });
+
+  it("★ a single answer the server did not grade (notGraded) is skipped the same way", async () => {
+    waitingWithIntent({ ...SINGLE, graded: { ...SINGLE.graded, notGraded: "timeout" } } as PendingSingleFreeCheck);
+    H.activeUid = USER.uid;
+    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "none" });
+    expect(H.recordAttempt).not.toHaveBeenCalled();
+    expect(H.persist).not.toHaveBeenCalled();
+  });
+
+  it("CONTROL — a GRADED single is still replayed (the gate stops only not-graded answers)", async () => {
+    waitingWithIntent(SINGLE);
+    H.activeUid = USER.uid;
+    expect((await replayPendingFreeCheck(USER)).kind).toBe("saved");
+    expect(H.recordAttempt).toHaveBeenCalledTimes(1);
+    expect(H.persist).toHaveBeenCalledTimes(1);
+  });
+
+  it("★ a paper row that is answer-mismatch or option-unread is skipped like an unreadable one", async () => {
+    const paper: PendingMultiFreeCheck = {
+      ...MULTI,
+      response: {
+        ...MULTI.response,
+        results: [
+          MULTI.response.results[0],
+          MULTI.response.results[1],
+          { ...MULTI.response.results[2], answerMismatch: true },
+          { qNumber: 4, couldNotRead: false, totalMarks: 1, ok: true, marksAwarded: 0, percentage: 0, objectiveResolved: false, annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "" },
+        ],
+      },
+    } as PendingMultiFreeCheck;
+    H.ensureCode.mockResolvedValue({ code: "CI-S-MIX-02", name: "Uploaded paper · #2", sequence: 2 });
+    waitingWithIntent(paper);
+    H.activeUid = USER.uid;
+    await replayPendingFreeCheck(USER);
+    // Only Q1 was graded: Q2 unreadable, Q3 answer-mismatch, Q4 its option unread.
+    expect(H.recordAttempt.mock.calls.map((c) => c[1].questionId)).toEqual(["ci:CI-S-MIX-02:q1"]);
+    expect(H.recordMistake.mock.calls.map((c) => c[2].questionId)).toEqual(["ci:CI-S-MIX-02:q1"]);
+  });
+
+  it("★ a paper row carrying v2 marks per type reaches the front doors IN THE CURRENT FORMAT (v2 fields kept)", async () => {
+    const byType = { conceptual: 0, calculation: 1, silly: 0, presentation: 0, unattempted: 0, untyped: 0 };
+    const paper = {
+      ...MULTI,
+      response: {
+        ...MULTI.response,
+        results: [{ ...MULTI.response.results[0], marksLostByType: byType }],
+      },
+    } as PendingMultiFreeCheck;
+    H.ensureCode.mockResolvedValue({ code: "CI-S-MIX-02", name: "Uploaded paper · #2", sequence: 2 });
+    waitingWithIntent(paper);
+    H.activeUid = USER.uid;
+    await replayPendingFreeCheck(USER);
+    expect(H.recordMistake.mock.calls[0][1].marksLostByType).toEqual(byType);
+    expect(H.recordAttempt.mock.calls[0][1].grade.marksLostByType).toEqual(byType);
+  });
+});
