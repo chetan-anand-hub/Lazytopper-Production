@@ -315,6 +315,8 @@ const FULL_BAR_STEPS = [
   "Ops matrix",
   "Typecheck test files",
   "Vitest suites",
+  // CI-SPEED-1: the date-sensitive selection guard is full-bar work like every step above.
+  "Date-sensitive clock selection guard",
 ];
 
 const GATE_EXPR = "steps.classify.outputs.docs_only != 'true'";

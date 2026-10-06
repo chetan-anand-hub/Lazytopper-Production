@@ -35,10 +35,18 @@ on:
     branches: [base/approved-thru-437]
   push:
     branches: [base/approved-thru-437]
+  # ★ CI-SPEED-1: the NIGHTLY FULL CLOCK RUN. On PRs and pushes the two clock steps run only the
+  # date-sensitive tests (lazytopper/scripts/testClock/date-sensitive-tests.json, guarded); this
+  # run executes the WHOLE vitest suite and the WHOLE ops matrix under both clocks, every night,
+  # on the default branch. It is the backstop for a test whose date-dependence no text scan sees.
+  # 20:30 UTC = 02:00 IST. A red nightly blocks nothing - read it in the Actions tab.
+  schedule:
+    - cron: '30 20 * * *'
 
-# A newer push to the same PR/branch supersedes an in-flight run.
+# A newer push to the same PR/branch supersedes an in-flight run. The EVENT is part of the
+# group so the nightly schedule run and a trunk push run (same ref) never cancel each other.
 concurrency:
-  group: quality-gate-${{ github.ref }}
+  group: quality-gate-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -315,29 +323,63 @@ jobs:
       # now from this step's log: "[test-clock] SELF-CHECK OK ... effective now=2030-..." and
       # "[test-clock] vitest ... effective now=2030-...". A test fixed here pins its own clock
       # (vi.useFakeTimers({ now, toFake: ["Date"] })) or derives its fixtures from its own NOW.
+      #
+      # ★ CI-SPEED-1 — WHAT THE CLOCK STEPS RUN. On a PR or a push: ONLY the date-sensitive tests
+      # (CLOCK_SCOPE=date-sensitive) - the committed list lazytopper/scripts/testClock/
+      # date-sensitive-tests.json, whose guard (the step just below) fails CI when a date-dependent
+      # test exists outside it. On the nightly schedule: the FULL vitest suite and the FULL ops
+      # matrix (CLOCK_SCOPE=full), byte-for-byte the commands these steps ran before. The default
+      # "Vitest suites" and "Ops matrix" steps above are unchanged: no test left the normal run.
+      # Read the scope and the totals from this step's log: "CLOCK_SCOPE: ...", vitest's
+      # "Test Files" / "Tests" lines and "CLOCK_SELECT_OPS: ran=N listed=N failed=0".
+      - name: Date-sensitive clock selection guard + CI-speed acceptance
+        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
+        run: |
+          set -euo pipefail
+          node lazytopper/scripts/testClock/dateSensitive.mjs --guard
+          node lazytopper/scripts/ops/ci_speed_acceptance.mjs
+
       - name: Test clock at 2030 (vitest + ops matrix, LT_TEST_CLOCK)
         if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
         timeout-minutes: 35
         env:
           LT_TEST_CLOCK: "2030-06-15T06:30:00.000Z"
+          CLOCK_SCOPE: ${{ github.event_name == 'schedule' && 'full' || 'date-sensitive' }}
         run: |
           set -euo pipefail
           PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
           NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
-          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
-          NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+          echo "CLOCK_SCOPE: $CLOCK_SCOPE"
+          if [ "$CLOCK_SCOPE" = "full" ]; then
+            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
+            NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+          else
+            FILES="$(node lazytopper/scripts/testClock/dateSensitive.mjs --print=vitest)"
+            echo "CLOCK_SELECT_VITEST_FILES: $(printf '%s\n' "$FILES" | wc -l)"
+            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run $FILES
+            NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/dateSensitive.mjs --run-ops
+          fi
 
       - name: Test clock at IST midnight, board season
         if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
         timeout-minutes: 35
         env:
           LT_TEST_CLOCK: "2030-02-14T18:45:00.000Z"
+          CLOCK_SCOPE: ${{ github.event_name == 'schedule' && 'full' || 'date-sensitive' }}
         run: |
           set -euo pipefail
           PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
           NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
-          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
-          NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+          echo "CLOCK_SCOPE: $CLOCK_SCOPE"
+          if [ "$CLOCK_SCOPE" = "full" ]; then
+            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
+            NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+          else
+            FILES="$(node lazytopper/scripts/testClock/dateSensitive.mjs --print=vitest)"
+            echo "CLOCK_SELECT_VITEST_FILES: $(printf '%s\n' "$FILES" | wc -l)"
+            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run $FILES
+            NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/dateSensitive.mjs --run-ops
+          fi
 
       # ★ SAY WHICH PATH THIS RUN TOOK, IN THE RUN. Without this, "CI was green" is ambiguous
       # between "everything passed" and "almost nothing ran" — and those are the two outcomes a
