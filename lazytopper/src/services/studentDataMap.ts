@@ -189,7 +189,7 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "fields are exported and erased with the entry they sit on. ★ Resolution means the " +
       "erasure has MORE to delete than before (entries are kept, not removed), never less. " +
       "Rules: `learnerProfiles/{uid}/mistakeLogs/{logId}` is owner-only read/write " +
-      "(firestore.rules), pinned by firestore-rules-tests/subscriptions.rules.test.mjs.",
+      "(firestore.rules), pinned by the root Firestore rules suite (`test:firestore-rules`, cases 17-17c).",
   },
   {
     id: "learnerProfiles.savedWorksheets",
