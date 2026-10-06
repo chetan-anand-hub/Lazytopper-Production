@@ -578,7 +578,7 @@ export default function ChapterTestPage() {
                       ))}
                     </div>
 
-                    {/* CBQ-1 PR-2: the paper's REAL CBQ share (CBSE ≥ 50%); an honest note when short. */}
+                    {/* CBQ-1 PR-2: the paper's REAL CBQ share (target ≥ 50%; CBSE pattern 50% competency); an honest note when short. */}
                     <CbqShareNote
                       cbqMarks={draw.cbqMarks}
                       totalMarks={draw.totalMarks}

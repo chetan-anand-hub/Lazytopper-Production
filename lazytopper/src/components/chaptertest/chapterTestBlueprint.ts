@@ -149,7 +149,7 @@ export interface DrawnChapterTest {
   totalMarks: number;
   /** Honest gate — false → the setup shows an empty state, not a thin/faked test. */
   enoughQuestions: boolean;
-  /** CBQ-1 PR-2 — the paper's REAL CBQ share (CBSE: >= 50% of marks). `cbqShortfall` > 0
+  /** CBQ-1 PR-2 — the paper's REAL CBQ share (target >= 50% of marks; CBSE pattern: 50%). `cbqShortfall` > 0
    *  only when this chapter's pool has no more CBQs to place (shown honestly on the page). */
   cbqMarks: number;
   cbqTarget: number;

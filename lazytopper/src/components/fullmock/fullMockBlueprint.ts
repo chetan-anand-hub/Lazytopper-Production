@@ -140,7 +140,7 @@ export interface DrawnFullMock {
   pyqCount: number;
   freshCount: number;
   enoughQuestions: boolean;
-  /** CBQ-1 PR-2 — the paper's REAL CBQ share (CBSE: >= 40 of 80 marks). `cbqShortfall` > 0
+  /** CBQ-1 PR-2 — the paper's REAL CBQ share (target >= 40 of 80 marks; CBSE pattern: 50%). `cbqShortfall` > 0
    *  only when the subject's pool has no more CBQs to place (shown honestly on the page). */
   cbqMarks: number;
   cbqTarget: number;

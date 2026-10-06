@@ -971,7 +971,7 @@ export default function FullMockPage() {
                       LazyTopper bank.
                     </div>
 
-                    {/* CBQ-1 PR-2: the paper's REAL CBQ share (CBSE ≥ 40 of 80); an honest note when short. */}
+                    {/* CBQ-1 PR-2: the paper's REAL CBQ share (target ≥ 40 of 80; CBSE pattern 50% competency); an honest note when short. */}
                     <CbqShareNote
                       cbqMarks={draw.cbqMarks}
                       totalMarks={draw.totalMarks}
