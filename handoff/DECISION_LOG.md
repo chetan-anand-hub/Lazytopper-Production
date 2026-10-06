@@ -1,3 +1,66 @@
+## 2026-10-06 — WAVE B-17 (SYLLABUS, CONTROLLER B): QUICK-FIXES-1 — PRs `#955` `6259187b`, `#956` `5cd9d97e`, `#958` `613d8996` merged — trunk `613d8996` — LIVE
+
+> ⚠ **SCOPE.** Decisions are Controller B-17's, from `Desktop/diff/WAVE_STATE_B17.md` (DECISIONS D0–D8) and the controller's addenda in `BRIEF_B17_QF_PR2.md` (ADDENDUM 1, 3) and `BRIEF_B17_QF_PR3.md` (ADDENDUM 1). **The state file numbers decisions D0–D8 only; it has no D9–D17 entries at docs time.** The later decisions below are recorded unnumbered from the addenda, never renumbered by this docs builder. Owner words are quoted verbatim from `OWNER_RULINGS_B17_QF.md`, `BRIEF_B17_QF_PR2.md` ADDENDUM 2 and the spec's WHY.
+
+### OWNER rulings and grants (B-17) — verbatim
+- **The spec's 7 rulings (fixed; `SPEC_QUICK-FIXES-1_12ADECD863BB.md` WHY):**
+  1. *"Irrationality proofs: only √2, √3, √5 and expressions built from them (e.g. 5 − 2√3); proofs for √7, √11 etc. → OUT."*
+  2. *"Centroid formula → OUT (coordinate geometry = distance + section formula only)."*
+  3. *"Areas of combinations of plane figures → OUT, except shaded regions made only of a sector/segment with the triangle or square that defines it → IN."*
+  4. *"Empirical relation 3 Median = Mode + 2 Mean → IN (as a tool, NCERT-retained remark)."*
+  5. *"Rancidity → OUT (not in the Chemical Reactions content list). Corrosion and its prevention stays IN under Metals."*
+  6. *"Nomenclature of carboxylic acids → OUT, except ethanoic acid (its properties are IN)."*
+  7. *"The p6 note "Electric Effects of Electric Current" is read as Magnetic Effects: Motor, EMI, Generator → FORMATIVE only (as already applied)."*
+  Also in the WHY: promptD M-TRI-6 *"owner: withhold (ruling 1: state/prove/verify the theorem = OUT; tool use stays)"*.
+- **Round 1** (`BRIEF_B17_QF_PR2.md` ADDENDUM 2; supersedes the spec's R1–R3 and R6 wording and controller rulings C1, C3, C4, C5, C6 (explainer part), C8 wherever they differ):
+  > Evidence rule: a topic or question shape is IN if CBSE asked it in a 2024–2026 board paper or the 2025-26/2026-27 SQP. Fable checks the evidence and cites paper and question number.
+  > R1: same-method √p proofs and expressions (incl. PYQ-M-RN-005, 6 − √7) are IN; √6 and general √p statements follow the evidence rule.
+  > R2 (centroid) and the R3 boundary classes (a)–(d): by the evidence rule.
+  > R4: IN; encode only.
+  > R5: relabel the 9 corrosion rows; rancidity is OUT.
+  > R6: naming carboxylic acids is OUT; identifying −COOH and natural acids is IN.
+  > R7: withhold MAG-EXMPLR-12-MCQ-008 and ME2-016; remove the motor/generator entry from visualConceptRegistry.ts.
+  > Update A-16's module so its workingReadings match these rulings (cite them); no contradictions left.
+  > Scope widened: src/data/questionBanks/** and pages/tutor/conceptVisualCatalogue.data.ts, for LazyTopper-authored rows only (repair/remove). Official rows are withheld only, never edited.
+- **Round 2** (`OWNER_RULINGS_B17_QF.md`, answers to the PR-2 LOCAL-READY ask + figures):
+  > Owner: agree to all leans, 1–6.
+  >
+  > Push the regenerated tutor syllabus block in server/prompts/tutorSystemPrompt.cjs (only that block). Note: Controller A-17's J0 also edits this file (it removes the fake mastery line). Tell A-17 your merge SHA, so it rebases onto your block rather than overwriting it.
+  > Maths Basic board papers count for the evidence rule: same syllabus, real board papers.
+  > Keep the three official rows withheld whole (their OR alternatives are OUT; official text is never edited).
+  > All five out-of-grant file groups approved (topics.ts blurb, cbseHistoricalArchetypes.ts entries, figure-file unlinks, regenerated data, Predicted/HPQ rows), as direct knock-ons of the rulings.
+  > Relabel only our topic tag on CHEM-NCERT-1-VSA-007 and CHEM-EXMPLR-1-SA-021 ("Corrosion"); the question text stays.
+  > Grant data/topicHubContent.ts, data/topicHubV2Full.ts and the "Corrosion and Rancidity" visual concept; remove the rancidity and annulus teaching. Also extend the guard to scan these two files, so older content can't hide again.
+  >
+  > Figures:
+  > two separate images for elevation and depression (clearer, and how NCERT presents them);
+  > keep the "R" label and the 90° mark on Fig 10.5 (they match the proof's steps);
+  > on phones, figures fit the screen width (scale down, never cut off; tap to enlarge if available).
+  >
+  > Send the 4 figure screenshots in your end-of-lane message for my final look. Push PR-2.
+- **Wave dispatch rulings (fixed, `WAVE_STATE_B17.md`):** two lanes in order (QUICK-FIXES-1, then GEN-THIN-1 v1.1) — **later the same day the owner moved GEN-THIN-1 to a separate cloud session; B-17 does not run it**; GEN-THIN-1 carries no student-facing tag and must be proven reachable everywhere; owner contact limited to the figure screenshots, the GEN-THIN-1 15-question sample and one end-of-lane message per lane.
+- **Owner contact this lane:** two asks, both at sanctioned points — (1) the figure screenshots, which carried the `server/**` grant ask; (2) the PR-2 LOCAL-READY ask (6 items). Round 1 arrived without an ask.
+
+### Controller decisions (B-17), with the reason
+- **D0 — both spec hashes verified at receipt; durable copies written.** **Why:** the spec is the owner's words; a drifted copy is not.
+- **D1 — handoff lock with A-16:** A-16's docs PR first; mutual before-open + on-merge messages; PR-1 pushes only after `#953`, rebased onto it, never reverting it. **Why:** one handoff PR at a time; `#953` edited files PR-2 needed.
+- **D2 — parallel dispatch:** QF-FIG (Fable high) + QF-PR1 (local-ready until `#953`) + QF-P5 scout (read-only, input for PR-2). **Why:** OR-AUTO wall clock; the three are disjoint (the scout writes nothing; the figure author works on its own branch, cherry-picked by PR-1).
+- **D3 — `#953` merged; the A-16-reported melting-rows finding sent to PR-2 to check against the module.** Result: already withheld on trunk (`[FU-A16-B-SAV-MELTING-ROWS]` closed).
+- **D4 — `server/**` conflict → owner, not the controller.** The spec FORBIDS `server/**`, but encoding the rulings fires the tutor-prompt drift test. PR-2 regenerated into a SEPARATE unpushed commit and returned LOCAL-READY; the grant was asked in the figure-screenshot message. **Why:** `CLAUDE.md` §4 stop-and-report on a forbidden file; a controller cannot widen an owner allowlist (B-15). **Outcome:** granted in Round 2, generated block only.
+- **D5 — push order:** PR-2 pushes after PR-1 merges (both regenerate prerender / lastmod / sitemap; lane-overlap counts drafts).
+- **D6 — controller rulings C1–C9 on the scout's questions** (ADDENDUM 1, OR-AUTO, surfaced for override). **Status after the owner's rounds:** **C1 SUPERSEDED** (LazyTopper rows may be repaired again, Round 1 scope widening); **C2 STANDS, now owner-ordered** (workingReadings match the rulings, cited); **C3 SUPERSEDED** (same-method √p proofs and 6 − √7 IN; √6 / general √p by evidence); **C4 SUPERSEDED** (R3 classes by evidence; Basic papers count, Round 2 → rings / annular sectors IN); **C5 CONFIRMED** (−COOH identification + natural acids IN); **C6 PARTLY SUPERSEDED** (residual withholds stand; the explainer part replaced by "remove the motor / generator registry entry"); **C7 STANDS** (R4 encode only); **C8 SUPERSEDED** (the catalogue row handled under the Round 1 widening; the `server/**` grant came in Round 2); **C9 STANDS** (melting per the module). **Why:** each was the literal reading of a fixed owner ruling, kept open for override; the owner's words win where given.
+- **D7 — PR-2 dispatched** (Opus medium + a Fable reviewer for uncertain rows).
+- **D8 — owner Round 1 applied as received;** the `server/**` grant still owed at that point.
+- **(unnumbered, ADDENDUM 3) — owner Round 2 relayed as six instructions** (generated block only; Fable re-check with Basic papers and un-withhold what is now IN; the three OR-alternative rows withheld whole; the five file groups ratified; two official topic tags only; legacy hubs + guard scan with a CONTROL and a mutation). Figures routed to a separate PR-3 that pushes after PR-2 merges. **Why:** one owner answer, one builder; the figure work touches the notes renderer, which PR-2 does not own.
+- **(unnumbered) — A-17 coordination:** on `#956` merge, A-17 was told the SHA; A-17's J0 (`#957`) leaves the generated block byte-identical and rebases onto it. **Why:** the owner's Round 2 instruction.
+- **R-FIT (PR-3 ADDENDUM 1):** the "≥ 340 px at 390" target was the **controller's own number**, not the owner's; the owner's words are "fit the screen width (scale down, never cut off)". A figure breaking out of its card is not acceptable → fill the card's content width, never overflow, tap to enlarge for full screen. **Result:** 256 px (card inner width; 286 in a third-tab block) is the honest limit — the controller's working "≈ 318" is the whole note column, reachable only by crossing two card borders. **Why:** the owner's words are the spec.
+- **R-T3 (PR-3 ADDENDUM 1):** the out-of-allowlist amendment to `lazytopper/src/lib/desktop/topicHubContent.syllabus.test.ts` (T3) accepted as a knock-on of the owner-ordered split, **on condition** the test still fails if either "angle of elevation" or "angle of depression" stops being taught across the Heights & Distances concepts; mutation-proven (drop the depression concept → RED). **Why:** the split moved the two terms into two concepts; the guarantee, not the test's shape, is what matters.
+- **Dark theme (PR-3 ADDENDUM 1):** recorded, no action — notes force light (`ThemeContext` sets `data-theme="light"`).
+
+### Scope discovered (§10, `SURFACE_TRACKER.md` §2a)
+- **Tutor syllabus block (Scope = Settling):** the tutor prompt's syllabus block is generated into `lazytopper/server/prompts/tutorSystemPrompt.cjs` from `src/config/syllabus2026-27.ts`. A syllabus-module change is therefore a `server/**` change — a cross-lane coupling (A-17's J0 shares the file) that the spec's FORBIDDEN list could not see.
+- **Topic Hub legacy data (Scope = Settling):** `lazytopper/src/data/topicHubContent.ts` and `topicHubV2Full.ts` were live and unscanned; they taught rancidity, annulus, electric motor, melting / recasting and other OUT items. Now cleaned and in the guard's scan set.
+
 ## 2026-10-06 — WAVE A-16 CLOSE (SYLLABUS, CONTROLLER A): SYLLABUS-FIX-CODE PR-2 — PR `#953` `decac82a` merged (PR-1 `#950` `096f921a` recorded in the B-16 section below) — trunk `decac82a` — LIVE
 
 > ⚠ **SCOPE.** Decisions are Controller A-16's, from `Desktop/diff/WAVE_STATE_A16.md` (DECISIONS). The PR-1-era decisions (two PRs, F7 pulled into PR-1 on the G1 failure, the 8 AMBIGUOUS items) were recorded A-AUTHORED in the B-16 section below and are only referenced here.

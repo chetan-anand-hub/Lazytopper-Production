@@ -1,5 +1,37 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-06 — WAVE B-17 (SYLLABUS, CONTROLLER B): QUICK-FIXES-1 PR-1 (`#955` `6259187b`), PR-2 (`#956` `5cd9d97e`), PR-3 (`#958` `613d8996`); trunk `613d8996`. LIVE on deploy (no flag); rollouts and OR-LIVE recorded in `CURRENT_STATE.md`.**
+> ★ **PRACTICE "FULL SUBJECT" WORKS FOR THE FIRST TIME SINCE APRIL; EVERY SURFACE THAT SERVES OR TEACHES CBSE CONTENT FOLLOWS THE OWNER'S SEVEN RULINGS; THE NOTES GAIN NCERT FIGURES THAT FIT THE PHONE.** **No matrix cell value changes:** every moved surface's completion cells already read ✅ (or keep their recorded reasons); this wave changes what they serve and how a figure is sized, not their recorded build / redesign / verify status. Full Mock `Verified` ⬜ stays ⬜ (agent-driven only).
+
+### ✅ Practice — quick practice, "Full subject" scope — **ONE CHAPTER (REAL NUMBERS / CHEMICAL REACTIONS) SINCE `2888129b` (2026-04-11) → EVERY IN BOARD CHAPTER, ≤ 30% EACH, SEEDED — LIVE (`#955`)**
+- Live: 8 chapters per set, Maths + Science, max share 13% *(agent-reported)*. Open: `[FU-PRACTICE-NO-TOPIC-DEFAULT-CHAPTER]`, `[FU-HUB-FULLSUBJECT-COPY]`, `[FU-B17-QP-HEADER-COUNT-MISMATCH]`.
+
+### ✅ Practice / Worksheets / Chapter Test / Full Mock — question pools — **8,124 SERVED ROWS INCL. ROWS THE OWNER'S 7 RULINGS PUT OUT → 8,052 (OFFICIAL WITHHELD, LAZYTOPPER REMOVED / REPAIRED; 9 CORROSION RELABELS) — LIVE (`#956`)**
+- Live: 176 + 169 unique ids drawn, 0 withheld / ruled out *(agent-reported)*. Open: `[FU-B17-GUARD-BANK-TEXT]`, `[FU-B17-ROW-QUALITY]`.
+
+### ✅ HPQ pages, the Predicted layer, the promptD fallback — **M-TRI-6 + RULED-OUT ROWS SERVED → REMOVED (PROMPTD 288 → 285, HPQ 129 → 128) — LIVE (`#955`, `#956`)**
+- Open: `[FU-B17-PREDICTED-CHAPTER-MAP]`.
+
+### ✅ Notes pages + figures + the CBQ / Questions tab — **NO FIGURES FOR THE NEW SECTIONS, 183 px AT 390, RANCIDITY / √p TEXT → NCERT FIG 9.2, 9.3, 10.5, 12.15; FIGURES FILL THE CARD (256 px) AND OPEN FULL-SIZE ON TAP; RULED-OUT TEXT REMOVED; TRIG MIND-MAP ROOT = TITLE — LIVE (`#955`, `#956`, `#958`)**
+- Live: 13 figures inside cards at 390, 1440 unchanged, enlarge ✕ / Esc / Back, CBQ tabs clean *(agent-reported)*. Open: `[FU-NOTES-FIGURE-TABLET-NARROW]`, `[FU-NOTE-MODAL-FOCUS-TRAP]`. No dark theme exists for notes (recorded, not a defect of this wave).
+
+### ✅ Topic Hub (incl. the legacy hub data) — **ARC COMBINATIONS ROW + RANCIDITY / ANNULUS TEACHING, AND LIVE UNSCANNED LEGACY `data/topicHubContent.ts` + `topicHubV2Full.ts` → REMOVED / REPAIRED, LEGACY FILES CLEANED AND SCANNED BY THE GUARD — LIVE (`#956`)**
+- Live: hub pages + prerender clean *(agent-reported)*. Scope discovered → §2a.
+
+### ✅ Tutor — syllabus block + concept-visual catalogue — **BLOCK WITHOUT THE OWNER'S RULINGS; AN "AREA OF COMBINATIONS" CATALOGUE ROW → BLOCK REGENERATED (OWNER `server/**` GRANT, GENERATED BLOCK ONLY); ROW REMOVED; MOTOR / GENERATOR + RANCIDITY CONCEPTS REMOVED — LIVE (`#956`)**
+- Live tutor check SKIPPED (no non-student account path) → `[FU-B17-TUTOR-OUT-LIVE-CHECK]`. Scope discovered → §2a.
+
+### ✅ Syllabus guard (CI, no user surface) — **SERVED-SET SCAN OF 7 SURFACES, NO RULING VARIANTS, LEGACY HUBS UNREAD → R1–R7 LABEL VARIANTS + FREE-TEXT, LEGACY HUBS SCANNED; 12 CONTROLS FAIL, 21 NEGATIVES PASS, 0 HITS — CI (`#956`)**
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- No grading, auth, pricing, Login, Landing or Check & Improve file changed this wave (Check & Improve's full-subject practice CTA routes through the fixed hub path; no C&I file changed).
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, 2026-10-06, wave B-17, per `CLAUDE.md` §10)*
+- **Tutor syllabus block (Scope = Settling):** the tutor prompt's syllabus block is GENERATED into `lazytopper/server/prompts/tutorSystemPrompt.cjs` from `src/config/syllabus2026-27.ts`, so any syllabus-module change is a `server/**` change (forbidden in the spec) and couples to any other lane editing that file (A-17's J0 shares it).
+- **Topic Hub legacy data (Scope = Settling):** `lazytopper/src/data/topicHubContent.ts` and `topicHubV2Full.ts` were live and unscanned by the guard; they are now in its scan set.
+
+### 📋 Scope discovered? — **YES** — the tutor block's `server/**` coupling and the live legacy hub data. Logged in `DECISION_LOG.md` (2026-10-06, wave B-17) and in §2a above; Scope = Settling.
+
 > **2026-10-06 — WAVE A-16 CLOSE (SYLLABUS, CONTROLLER A): SYLLABUS-FIX-CODE PR-2 (`#953` `decac82a`); PR-1 (`#950` `096f921a`) recorded under B-16 below; trunk `decac82a`. LIVE on deploy (no flag); rollout and OR-LIVE recorded in `CURRENT_STATE.md`.**
 > ★ **THE NUMBERS AND RULES BEHIND SEVEN SURFACES NOW FOLLOW CBSE'S 2026-27 SYLLABUS: EXAM TRENDS CHIPS (SUM 80), FULL MOCK (BY UNIT MARKS), WORKSHEET (LABEL ONLY), TUTOR (OUT / FORMATIVE GATE), PREDICTION / HPQ PREDICTED LAYER + EXAM TRENDS CONCEPTS (OUT DROPPED), WEAK AREAS (HUMAN EYE, LIVE-VERIFIED), `/cbse/class-10` (PDF CITES); PLUS QUICK PRACTICE'S COMPETENCY LINE.** **No matrix cell value changes:** every moved surface's completion cells already read ✅ (or keep their recorded reasons); this wave changes the numbers and rules they use, not their recorded build / redesign / verify status. Full Mock `Verified` ⬜ stays ⬜ (agent-driven only).
 
