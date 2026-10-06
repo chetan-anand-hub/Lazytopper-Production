@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-07 — CI: **WAVE CI1 — CI-SPEED-1** (`#969`) — trunk `c6068552` — ✅ COMPLETE (supersedes HARDEN-1 §2 PR-3; cofounder PASS; owner-owed: merge-queue option, Railway `watchPatterns`; nightly restore pending `#970`)
+
+- ✅ **Quality Gate as parallel jobs, required name `quality-gate` kept** (`#969`): ~23 min (median of 12 runs) → 5.8 min on the final head (`37517913640`), 4.6 min on the trunk push (`37519890478`); `VITEST_TOTAL files=320 tests=4709 skipped=0` = the pre-`#969` run's 4705 (`37517716467`) + 4 new guard tests.
+- ✅ **Clock guard:** runtime recorder + 165-file date-sensitive manifest; clocks run the manifest on PRs.
+- ✅ **Docs fast path for wave-closers;** `[ci-full]` still forces the full bar.
+- ✅ **Vercel skips production builds for deploy-inert docs merges** (status success "Canceled by Ignored Build Step" = skipped by design).
+- ✅ **search-ping exits green on that skip** (owner ruling 2026-10-07, guard amended).
+- ✅ **Merge queue checked: not available** on a user-owned repo; owner options A / B / C written.
+- ✅ **Docs:** this handoff (Controller C, three-way lock) — the first live docs fast-path PR.
+- ⬜ **`[FU-CI1-NIGHTLY-RESTORE]`** — right after B-18's `#970`: the non-PR-event N/A fix + pinning check + `schedule:` restored + one green dispatch run quoted. PENDING.
+- ⬜ **Owner:** merge-queue option (A recommended), `[FU-CI1-RAILWAY-WATCHPATTERNS]`.
+
 ## 2026-10-06 — SYLLABUS: **WAVE B-17 — QUICK-FIXES-1 PR-1 + PR-2 + PR-3** (`#955` + `#956` + `#958`) — trunk `613d8996` — ✅ COMPLETE (OR-LIVE after each merge PASS, no rollback; owner-owed: final look at the 4 figure screenshots, optional R3(a) narrowing, A-17's J2 contract to the next B controller; A-16's and A-15's carried items stand)
 
 - ✅ **Full-subject quick practice draws from every IN chapter** (`#955`, Q1, LIVE: 8 chapters per set, max share 13%) — cause `2888129b` (2026-04-11) fixed, not the symptom.
