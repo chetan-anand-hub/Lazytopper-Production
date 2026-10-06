@@ -43,6 +43,8 @@ import { parseMarkBandRange } from "../lib/desktop/navigation";
 import { questionMatchesFilters } from "../pages/PracticePage";
 import type { PracticeQuestion } from "./predictionDataService";
 import { drawChapterTest } from "../components/chaptertest/chapterTestBlueprint";
+import { buildPracticeQuestionsFromEngine } from "../components/practice/practiceQuestionBuilder";
+import { chapterHasCbqs, practiceTopicLabel } from "../components/practice/cbqAvailability";
 import { buildUnionPool, drawFullMock, fullMockChapterWeights } from "../components/fullmock/fullMockBlueprint";
 
 const T = { timeout: 120_000 };
@@ -74,6 +76,8 @@ const CHAPTER_ID_CODES: Record<string, string> = {
   EYE: "human-eye-and-colourful-world", ELEC: "electricity", MAG: "magnetic-effects-of-electric-current",
   MAGN: "magnetic-effects-of-electric-current", ENV: "our-environment",
 };
+/** An official CBSE-origin row: a board PYQ (pyqYear) or an SQP / sample-paper / item-bank / APQ / CFPQ / pre-board id. */
+const isOfficialRow = (q: CanonicalQuestion) => Boolean(q.pyqYear) || /^(SQP|SP-|CBE|APQ|PYQ|CFPQ|PB-)/.test(q.id);
 const NCERT_ID = /^(rn-n-|poly-n-|ple-n-|qe-n-|ap-n-|tri-n-|cg-n-|trig-n-|circ-n-|arc-n-|sav-n-|stat-n-|prob-n-)|ncert|exemplar|-exmplr-|-ncert-|-exem-/i;
 const SECTION_FOR_MARKS: Record<number, string> = { 1: "A", 2: "B", 3: "C", 5: "D", 4: "E" };
 const STEP = /^\[(\d+(?:\.5)?|½) marks?\]\s/;
@@ -85,7 +89,7 @@ const asPQ = (q: CanonicalQuestion) => q as unknown as PracticeQuestion;
 
 describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped", () => {
   it("the population is real and the id-set matches the tag (served = raw: none withheld)", () => {
-    expect(GEN.length).toBeGreaterThanOrEqual(50);
+    expect(GEN.length).toBeGreaterThanOrEqual(144); // 50 (PR-1) + 94 (PR-2)
     expect([...LT_GENERATED_QUESTION_IDS].sort()).toEqual(GEN.map((q) => q.id).sort());
     // P1: a generated id never collides with the withhold list.
     for (const q of GEN) expect(WITHHELD_QUESTION_IDS.has(q.id), q.id).toBe(false);
@@ -105,17 +109,24 @@ describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped"
     }
   });
 
-  it("every template is a SAME-SUBJECT, SAME-CHAPTER row whose id names no other chapter (owner, sample review 2026-10-06)", () => {
+  it("every template is a SAME-SUBJECT official row whose id names only its own chapter; cross-chapter only when the row's chapter has no same-shape official row (owner, sample review 2026-10-06)", () => {
     // The owner caught LTG-S-MAG rows citing `PYQ-S-2026-ACID-018` — really the 2026 Magnetic
-    // Effects board question (31/5/2 Q39), filed under an Acids-looking id. A citation must be
-    // unambiguous to an auditor, so the template must share subject and chapter AND its id must
-    // carry no chapter code of a different chapter.
+    // Effects board question (31/5/2 Q39), filed under an Acids-looking id. Owner rule: cite a
+    // same-chapter row, or the nearest same-shape row of the same subject, and pin same-subject.
     for (const q of GEN) {
       const tpl = BANK_BY_ID.get(String(q.shapedFrom))!;
       expect(tpl.subject, `${q.id} -> ${tpl.id} subject`).toBe(q.subject);
-      expect(resolveCanonicalSlug(tpl.topicKey), `${q.id} -> ${tpl.id} chapter`).toBe(resolveCanonicalSlug(q.topicKey));
+      const tplChapter = resolveCanonicalSlug(tpl.topicKey);
       const named = String(tpl.id).toUpperCase().split(/[-_]/).map((t) => CHAPTER_ID_CODES[t]).filter(Boolean);
-      for (const ch of named) expect(ch, `${q.id} -> ${tpl.id} names chapter ${ch}`).toBe(resolveCanonicalSlug(q.topicKey));
+      for (const ch of named) expect(ch, `${q.id} -> ${tpl.id} names chapter ${ch} but sits in ${tplChapter}`).toBe(tplChapter);
+      if (tplChapter !== resolveCanonicalSlug(q.topicKey)) {
+        const sameShapeInChapter = canonicalQuestionBank.some(
+          (r) => resolveCanonicalSlug(r.topicKey) === resolveCanonicalSlug(q.topicKey) && isOfficialRow(r) &&
+            !AI_GENERATED_QUESTION_IDS.has(r.id) && r.marks === q.marks && r.format === q.format,
+        );
+        expect(sameShapeInChapter, `${q.id} cites ${tpl.id} from another chapter although its own chapter has an official ${q.marks}-mark ${q.format} row`).toBe(false);
+        expect(isOfficialRow(tpl), `${q.id} cross-chapter template ${tpl.id} must be an official row`).toBe(true);
+      }
     }
   });
 
@@ -178,7 +189,7 @@ describe("GEN-THIN-1 · no rendered tag and no PYQ / Predicted / trend presence"
       "lib/boardQuestions/selectionRule.ts",
     ]);
     const readers = files
-      .filter((f) => /lt-generated|modelledOn|LT_GENERATED_QUESTION_IDS|shapedFrom|questionProvenance/.test(readFileSync(f, "utf8")))
+      .filter((f) => /lt-generated|modelledOn|LT_GENERATED_QUESTION_IDS|shapedFrom|questionProvenance|competencyVerified/.test(readFileSync(f, "utf8")))
       .map((f) => relative(SRC, f).split("\\").join("/"))
       .filter((f) => !f.endsWith(".ltgen.ts") && !ALLOWED.has(f));
     expect(readers).toEqual([]);
@@ -275,5 +286,82 @@ describe("GEN-THIN-1 · thin concepts reach ≥ 10 and the surfaces really draw 
       }
       expect(hits, `${subject}: a Full Mock draw containing a generated row`).toBeGreaterThan(0);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// GEN-THIN-1 PR-2 — competency-based questions of every mark
+// ---------------------------------------------------------------------------
+// Owner ruling (2026-10-06, P3): the chapters whose CBQ chooser showed fewer than 8 served
+// (human-tier) case studies are brought to ≥ 8, Magnetic Effects first (it had 0), each with
+// ≥ 2 one-mark, ≥ 2 two/three-mark and a five-mark where the chapter's papers carry one.
+// Every PR-2 row carries a deliberately-set `competencyVerified: true` (FU-CBQ-CHOOSER-ALL-MARKS:
+// the chooser does NOT read it yet — that waits on BANK-FIX-1 re-validating isCompetencyBased).
+
+const CBQ_CHAPTERS = [
+  { subject: "Science", slug: "magnetic-effects-of-electric-current", fiveMark: true },
+  { subject: "Science", slug: "how-do-organisms-reproduce", fiveMark: true },
+  { subject: "Science", slug: "control-and-coordination", fiveMark: true },
+  { subject: "Maths", slug: "circles", fiveMark: true },
+  { subject: "Science", slug: "carbon-and-its-compounds", fiveMark: true },
+  { subject: "Science", slug: "heredity", fiveMark: true },
+  { subject: "Science", slug: "human-eye-and-colourful-world", fiveMark: true },
+  { subject: "Science", slug: "our-environment", fiveMark: true },
+  { subject: "Maths", slug: "real-numbers", fiveMark: false }, // no official five-mark row in the chapter
+  { subject: "Science", slug: "light-reflection-and-refraction", fiveMark: true },
+] as const;
+const CBQ_FLOOR = 8;
+
+/** The chooser's own draw (cbqAvailability.chapterHasCbqs), counted instead of `.some`. */
+const chooserCaseStudies = (subject: "Maths" | "Science", slug: string) =>
+  buildPracticeQuestionsFromEngine({
+    subjectKey: subject,
+    topicKey: practiceTopicLabel(subject, slug),
+    count: 200,
+    difficulty: "All",
+    boardPattern: "E",
+  }).filter((q) => questionMatchesFilters(q, "4", "case", "all", "all", null));
+
+describe("GEN-THIN-1 PR-2 · CBQs of every mark", () => {
+  it("CBQ CHOOSER — each of the 10 chapters shows ≥ 8 distinct human-tier case studies through the chooser's own draw", T, () => {
+    for (const c of CBQ_CHAPTERS) {
+      const drawn = chooserCaseStudies(c.subject, c.slug).filter((q) => !AI_GENERATED_QUESTION_IDS.has(q.id));
+      expect(new Set(drawn.map((q) => q.id)).size, `${c.slug}: chooser case studies`).toBeGreaterThanOrEqual(CBQ_FLOOR);
+      expect(chapterHasCbqs(c.subject, c.slug), `${c.slug}: chooser offers the chapter`).toBe(true);
+    }
+  });
+
+  it("every generated case study is in its chapter's chooser draw (reachable, not merely eligible)", T, () => {
+    for (const c of CBQ_CHAPTERS) {
+      const drawn = new Set(chooserCaseStudies(c.subject, c.slug).map((q) => q.id));
+      for (const q of GEN.filter((g) => g.topicKey === c.slug && g.format === "Case-Based")) expect(drawn.has(q.id), q.id).toBe(true);
+    }
+  });
+
+  it("per chapter: ≥ 2 one-mark, ≥ 2 two/three-mark, ≥ 2 four-mark case studies (1+1+2), ≥ 1 five-mark where the papers have one", () => {
+    for (const c of CBQ_CHAPTERS) {
+      const rows = GEN.filter((q) => q.topicKey === c.slug && q.competencyVerified === true);
+      const n = (f: (q: CanonicalQuestion) => boolean) => rows.filter(f).length;
+      expect(n((q) => q.marks === 1), `${c.slug} 1-mark`).toBeGreaterThanOrEqual(2);
+      expect(n((q) => q.marks === 2 || q.marks === 3), `${c.slug} 2/3-mark`).toBeGreaterThanOrEqual(2);
+      expect(n((q) => q.format === "Case-Based"), `${c.slug} case`).toBeGreaterThanOrEqual(2);
+      if (c.fiveMark) expect(n((q) => q.marks === 5), `${c.slug} 5-mark`).toBeGreaterThanOrEqual(1);
+      for (const q of rows.filter((r) => r.format === "Case-Based")) {
+        const marks = (q.solutionSteps ?? []).map(stepValue);
+        expect(marks, `${q.id} case split`).toEqual([1, 1, 1, 1]);
+        for (const part of ["(i)", "(ii)", "(iii)"]) expect(q.questionText.includes(part), `${q.id} ${part}`).toBe(true);
+      }
+    }
+  });
+
+  it("competencyVerified is set ONLY on generated rows, always with isCompetencyBased, and on every PR-2 row", () => {
+    for (const q of canonicalQuestionBank.filter((r) => r.competencyVerified !== undefined)) {
+      expect(q.origin, `${q.id} carries competencyVerified but is not generated`).toBe("lt-generated");
+      expect(q.competencyVerified, q.id).toBe(true);
+      expect(q.isCompetencyBased, q.id).toBe(true);
+    }
+    const pr2 = GEN.filter((q) => /-1\d\d$/.test(q.id));
+    expect(pr2.length).toBe(94);
+    for (const q of pr2) expect(q.competencyVerified, q.id).toBe(true);
   });
 });
