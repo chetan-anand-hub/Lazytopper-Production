@@ -121,6 +121,12 @@ describe("F5 — tutor syllabus lists (drift + coverage)", () => {
     expect(keepIn.length).toBeGreaterThanOrEqual(3);
     for (const r of keepIn) expect(prompt).toContain(r.item);
     expect(prompt).toMatch(/STILL IN/);
+    // Owner ruling 2026-10-06: atmospheric refraction is kept IN; the Sun's colour stays OUT.
+    const stillIn = prompt.slice(prompt.indexOf("STILL IN"));
+    expect(stillIn).toMatch(/Atmospheric refraction \(twinkling of stars, advance sunrise/);
+    const outBlock = prompt.slice(prompt.indexOf("OUT OF THE SYLLABUS"), prompt.indexOf("FORMATIVE-ONLY"));
+    expect(outBlock).toContain("Colour of the Sun at sunrise and sunset");
+    expect(outBlock).not.toMatch(/Atmospheric refraction/i);
   });
 
   it("an OUT sub-topic the student opened on is NOT simply 'started on'", () => {

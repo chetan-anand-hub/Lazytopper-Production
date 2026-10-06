@@ -330,6 +330,12 @@ const TUTOR_SYLLABUS_2026_27 = {
       "chapter": "light-reflection-and-refraction",
       "item": "Net power of lenses in contact, P = P1 + P2 (under 'Power of a lens')",
       "page": 5
+    },
+    {
+      "subject": "science",
+      "chapter": "human-eye-and-colourful-world",
+      "item": "Atmospheric refraction (twinkling of stars, advance sunrise/delayed sunset) — kept; NOT the excluded colour of the Sun at sunrise/sunset",
+      "page": 6
     }
   ]
 };
