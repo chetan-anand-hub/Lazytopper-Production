@@ -24,7 +24,7 @@ export const ELECTRICITY_APQ: CanonicalQuestion[] = [
     ncertRef: "APQ Science-PQ Q32", isCompetencyBased: true },
 
   // Science-PQ Q33 (Section C, Short, 3 marks)
-  { id: "APQ-S-ELEC-003", competencyVerified: true, subject: "Science", topicKey: "electricity", subtopic: "Short Circuit and Combined Resistance", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+  { id: "APQ-S-ELEC-003", subject: "Science", topicKey: "electricity", subtopic: "Short Circuit and Combined Resistance", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "(a) Vijaya connects three bulbs P, Q, R in series with a battery in two ways. In case I all three glow; in case II only P and R glow. What could be the reason for Q not glowing in case II? (b) Two resistances when connected in parallel give 10/3 Ω. When connected in series, they give 15 Ω. Calculate the individual resistances.",
     answer: "(a) Short circuit (low-resistance wire) bypassing Q. (b) 5 Ω and 10 Ω.",
     solutionSteps: ["[1 mark] (a) In case II, the connecting wire between points across Q offers a much lower resistance path than bulb Q itself. Current bypasses Q through this short circuit ⟹ Q doesn't glow.", "[1 mark] (b) Let resistances be R1, R2. Series: R1 + R2 = 15. Parallel: (R1·R2)/(R1+R2) = 10/3 ⟹ R1·R2 = 50.", "[1 mark] From these: R1 and R2 are roots of x^2 − 15x + 50 = 0 ⟹ (x − 5)(x − 10) = 0 ⟹ R1 = 5 Ω, R2 = 10 Ω."],
@@ -53,7 +53,7 @@ export const ELECTRICITY_APQ: CanonicalQuestion[] = [
     strategyHint: "REQUIRES-FIGURE: V-I straight-line graph through origin." },
 
   // Science-PQ2 Q39 first variant (Section E, Case-Based, 4 marks)
-  { id: "APQ-S-ELEC-006", competencyVerified: true, subject: "Science", topicKey: "electricity", subtopic: "Resistance and Length — Parallel Resistors and Ammeters", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
+  { id: "APQ-S-ELEC-006", subject: "Science", topicKey: "electricity", subtopic: "Resistance and Length — Parallel Resistors and Ammeters", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Rahima built a circuit with two resistors A and B (same metal, same thickness) in parallel; A is twice as long as B. The total current is 6 A and the battery voltage is 12 V. (a) What will be the resistance in the circuit? (b) Determine the values of 'RA' and 'RB'. (c) Determine the current in both the ammeters A1 and A2. Will they be the same? Justify.",
     answer: "(a) R = 2 Ω. (b) RA = 6 Ω, RB = 3 Ω. (c) IA = 2 A, IB = 4 A — NOT same (length ratio 2:1 ⟹ current ratio 1:2).",
     solutionSteps: ["[1 mark] (a) Net resistance from V = IR: R = V/I = 12 / 6 = 2 Ω.", "[1 mark] (b) For two resistors of the same material and thickness, R ∝ length. So RA = 2 × RB. In parallel: 1/R = 1/RA + 1/RB ⟹ 1/2 = 1/(2RB) + 1/RB = 3/(2 RB) ⟹ RB = 3 Ω, RA = 6 Ω. (Check via V/I: RA = 12/2 = 6, RB = 12/4 = 3.)", "[1 mark] (c) Current through A (RA = 6 Ω): IA = V/RA = 12/6 = 2 A. Current through B (RB = 3 Ω): IB = V/RB = 12/3 = 4 A.", "[1 mark] (c) The currents are NOT the same — current is inversely proportional to resistance (V common in parallel). Length-ratio 2:1 produces resistance-ratio 2:1, hence current-ratio 1:2 (IA : IB = 1 : 2)."],

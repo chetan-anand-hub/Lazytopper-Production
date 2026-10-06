@@ -112,7 +112,7 @@ export const acidsBasesSaltsPYQ2026: CanonicalQuestion[] = [
     finalAnswer: "(d) magnesium and aluminium { } of 32",
     ncertRef: "PYQ 31/5/2 Q23", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "2" },
-  { id: "PYQ-S-2026-ACID-014", competencyVerified: true, subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Indicators", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2026-ACID-014", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Indicators", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Magnesium ribbon burns with a dazzling white flame and changes into a white powder as shown in the diagram given below : 1 The powder is dissolved in water. Identify the chemical formula of the white powder and the correct change observed when the solution is tested with litmus paper.",
     options: ["MgO, turns blue litmus into red.", "MgO, turns red litmus blue.", "MgO2, turns red litmus blue.", "Mg2O, turns blue litmus red."],
     answer: "MgO, turns red litmus blue.",

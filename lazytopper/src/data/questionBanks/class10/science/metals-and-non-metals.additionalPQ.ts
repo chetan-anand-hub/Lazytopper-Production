@@ -62,7 +62,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     ncertRef: "APQ Science-PQ Q21", isCompetencyBased: true },
 
   // Science-PQ Q27 (Section C, Short, 3 marks)
-  { id: "APQ-S-METAL-006", competencyVerified: true, subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Corrosion — Iron vs Aluminium", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "APQ-S-METAL-006", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Corrosion — Iron vs Aluminium", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Equal sized bars of aluminium and iron are exposed to the environment. Which of them is likely to corrode till the level marked by the line FIRST? Justify your answer.",
     answer: "Iron corrodes first.",
     solutionSteps: ["[1 mark] Iron oxidises on exposure to air and moisture, forming rust (Fe2O3·xH2O). The rust layer is porous and allows air/moisture to penetrate to fresh metal beneath, so corrosion continues progressively.", "[1 mark] Aluminium also oxidises but forms a thin, IMPERMEABLE Al2O3 layer on the surface that PROTECTS the metal beneath. Further corrosion is blocked.", "[1 mark] Hence iron corrodes till the marked level FIRST while aluminium remains intact."],

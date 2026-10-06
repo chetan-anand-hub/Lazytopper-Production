@@ -270,7 +270,6 @@ export const CARB_CBE: CanonicalQuestion[] = [
   },
   {
     "id": "CBE-S-CARB-C-005",
-    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "carbon-and-its-compounds",
     "subtopic": "Action of Soap in Hard Water",
