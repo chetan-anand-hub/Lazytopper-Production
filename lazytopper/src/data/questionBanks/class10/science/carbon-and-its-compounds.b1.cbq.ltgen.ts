@@ -619,18 +619,18 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "In a school laboratory in Amritsar, Gurleen tests an unlabelled liquid that is known to have four carbon atoms in each molecule. When a few drops are added to sodium hydrogencarbonate solution, there is brisk effervescence of a gas that turns lime water milky. Which IUPAC name fits this liquid?",
+    "questionText": "In a school laboratory in Amritsar, Gurleen tests an unlabelled colourless liquid made of carbon, hydrogen and oxygen. When a few drops are added to sodium hydrogencarbonate solution, there is brisk effervescence of a gas that turns lime water milky. Which functional group must the liquid contain?",
     "options": [
-      "Butanol",
-      "Butanal",
-      "Butanone",
-      "Butanoic acid"
+      "Alcohol group (–OH)",
+      "Aldehyde group (–CHO)",
+      "Ketone group (>C=O)",
+      "Carboxylic acid group (–COOH)"
     ],
-    "answer": "Butanoic acid",
+    "answer": "Carboxylic acid group (–COOH)",
     "solutionSteps": [
-      "[1 mark] Effervescence of carbon dioxide with sodium hydrogencarbonate shows the liquid is an acid, so it has the carboxylic acid group (–COOH), named with the suffix '-oic acid': butanoic acid. Butanol (an alcohol) is neutral and, like butanal and butanone, does not release carbon dioxide from sodium hydrogencarbonate."
+      "[1 mark] Carboxylic acid group (–COOH): only an acid releases carbon dioxide (which turns lime water milky) from sodium hydrogencarbonate. The alcohol group (–OH) is the tempting choice because it also contains –OH, but alcohols are neutral, and aldehydes and ketones also give no effervescence."
     ],
-    "finalAnswer": "Butanoic acid",
+    "finalAnswer": "Carboxylic acid group (–COOH)",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
@@ -809,15 +809,15 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Anjali, a laboratory assistant in Mangaluru, has three bottles, each containing a compound with an unbranched chain of three carbon atoms. Her test record reads:\nBottle X (C3H8O): neutral to litmus; gives a gas that burns with a pop sound when a small piece of sodium is added; its oxygen atom is attached to an end carbon atom.\nBottle Y (C3H6O2): turns blue litmus red; gives brisk effervescence with sodium hydrogencarbonate.\nBottle Z (C3H6O): neutral to litmus; no reaction with sodium or with sodium hydrogencarbonate; its oxygen atom is joined by a double bond to the middle carbon atom.\nFor each bottle, name the functional group present and write the IUPAC name of the compound.",
+    "questionText": "Anjali, a laboratory assistant in Mangaluru, has three bottles, each containing a compound with an unbranched chain of three carbon atoms. Her test record reads:\nBottle X (C3H8O): neutral to litmus; gives a gas that burns with a pop sound when a small piece of sodium is added; its oxygen atom is attached to an end carbon atom.\nBottle Y (C3H6O2): turns blue litmus red; gives brisk effervescence with sodium hydrogencarbonate.\nBottle Z (C3H6O): neutral to litmus; no reaction with sodium or with sodium hydrogencarbonate; its oxygen atom is joined by a double bond to the middle carbon atom.\nFor each bottle, name the functional group present. Write the IUPAC names of the compounds in X and Z, and for Y state which observation shows that its group is not an alcohol group.",
     "options": [],
-    "answer": "X: alcohol (–OH), propanol; Y: carboxylic acid (–COOH), propanoic acid; Z: ketone (>C=O), propanone.",
+    "answer": "X: alcohol (–OH), propanol; Y: carboxylic acid (–COOH) — it turns blue litmus red and releases carbon dioxide from sodium hydrogencarbonate, which a neutral alcohol does not; Z: ketone (>C=O), propanone.",
     "solutionSteps": [
       "[1 mark] X: hydrogen gas (pop sound) with sodium while neutral to litmus shows an alcohol group, –OH; IUPAC name propanol (propan-1-ol).",
-      "[1 mark] Y: acidic to litmus and releases carbon dioxide from sodium hydrogencarbonate, so it has the carboxylic acid group, –COOH; IUPAC name propanoic acid.",
+      "[1 mark] Y: acidic to litmus and releases carbon dioxide from sodium hydrogencarbonate, so it has the carboxylic acid group, –COOH; an alcohol group is neutral to litmus and gives no effervescence with sodium hydrogencarbonate.",
       "[1 mark] Z: a C=O group on the middle carbon (bonded to two carbon atoms) is a ketone group, >C=O; IUPAC name propanone."
     ],
-    "finalAnswer": "X: alcohol (–OH), propanol; Y: carboxylic acid (–COOH), propanoic acid; Z: ketone (>C=O), propanone.",
+    "finalAnswer": "X: alcohol (–OH), propanol; Y: carboxylic acid (–COOH) — it turns blue litmus red and releases carbon dioxide from sodium hydrogencarbonate, which a neutral alcohol does not; Z: ketone (>C=O), propanone.",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
@@ -945,16 +945,16 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "During a stock check in a college laboratory in Raipur, technician Farida found four bottles whose printed labels had faded. Only the condensed formulae, written by hand on the caps, could still be read:\nBottle P: CH3–CH2–CH2–CHO\nBottle Q: CH3–CO–CH2–CH3\nBottle R: CH3–CH2–COOH\nBottle S: CH3–CH2–CH2–Br\nShe had to print new labels carrying the IUPAC name of each compound. She recalled that the number of carbon atoms in the chain gives the stem of the name (meth-, eth-, prop-, but-), and that the functional group is shown as a prefix or a suffix, such as '-ol', '-al', '-one', '-oic acid', 'chloro-' or 'bromo-'. Bottle R also had to be stored in the cupboard for acids, away from the sodium hydrogencarbonate.\n(i) Which two bottles contain compounds that are isomers of each other?\n(ii) Name the functional group present in the compound of bottle R and write its IUPAC name.\n(iii) Write the IUPAC names to be printed on the labels of bottles P and S. [2 marks]",
+    "questionText": "During a stock check in a college laboratory in Raipur, technician Farida found four bottles whose printed labels had faded. Only the condensed formulae, written by hand on the caps, could still be read:\nBottle P: CH3–CH2–CH2–CHO\nBottle Q: CH3–CO–CH2–CH3\nBottle R: CH3–CH2–COOH\nBottle S: CH3–CH2–CH2–Br\nShe had to print new labels carrying the IUPAC name of each compound. She recalled that the number of carbon atoms in the chain gives the stem of the name (meth-, eth-, prop-, but-), and that the functional group is shown as a prefix or a suffix, such as '-ol', '-al', '-one', 'chloro-' or 'bromo-'. Bottle R also had to be stored in the cupboard for acids, away from the sodium hydrogencarbonate.\n(i) Which two bottles contain compounds that are isomers of each other? [1 mark]\n(ii) Name the functional group present in the compound of bottle R and state one test, with its observation, that would confirm it. [1 mark]\n(iii) Write the IUPAC names to be printed on the labels of bottles P and S. [2 marks]",
     "options": [],
-    "answer": "(i) P and Q (both C4H8O). (ii) Carboxylic acid group (–COOH); propanoic acid. (iii) P: butanal; S: bromopropane (1-bromopropane).",
+    "answer": "(i) P and Q (both C4H8O). (ii) Carboxylic acid group (–COOH); adding sodium hydrogencarbonate gives brisk effervescence of a gas that turns lime water milky (CO2). (iii) P: butanal; S: bromopropane (1-bromopropane).",
     "solutionSteps": [
       "[1 mark] (i) P and Q: both have the molecular formula C4H8O but different structures (aldehyde and ketone), so they are structural isomers.",
-      "[1 mark] (ii) R contains the carboxylic acid group, –COOH; with three carbon atoms its IUPAC name is propanoic acid.",
+      "[1 mark] (ii) R contains the carboxylic acid group, –COOH. Test: add a pinch of sodium hydrogencarbonate; brisk effervescence of carbon dioxide is seen, and the gas turns lime water milky.",
       "[1 mark] (iii) P has four carbon atoms with a –CHO (aldehyde) group at the end of the chain: butanal.",
       "[1 mark] (iii) S has three carbon atoms with a –Br group, shown by the prefix 'bromo-': bromopropane (1-bromopropane)."
     ],
-    "finalAnswer": "(i) P and Q (both C4H8O). (ii) Carboxylic acid group (–COOH); propanoic acid. (iii) P: butanal; S: bromopropane (1-bromopropane).",
+    "finalAnswer": "(i) P and Q (both C4H8O). (ii) Carboxylic acid group (–COOH); adding sodium hydrogencarbonate gives brisk effervescence of a gas that turns lime water milky (CO2). (iii) P: butanal; S: bromopropane (1-bromopropane).",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
