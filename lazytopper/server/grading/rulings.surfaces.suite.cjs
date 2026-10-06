@@ -47,8 +47,14 @@ const SURFACES = [
   { id: 'free-check-paper', job: 'W.CIM.CMM' },
 ];
 const VOL_Q = 'A solid toy is a hemisphere of radius 3.5 cm surmounted by a cone of height 12 cm. Find the volume of the toy.';
-const CALL_USAGE = { model: 'gemini-2.5-flash', promptTokenCount: 1000, candidatesTokenCount: 200, thoughtsTokenCount: 800 };
-const CALL_COST = ledgerLib.buildLedgerIncrement(CALL_USAGE, { env: {} }).increment.costMicroInr;
+// A-17 J1b METER-PRICE-1: the model production GRADES with (modelConfig DEFAULT_GRADING_MODEL), priced
+// since J1b. Before J1b this suite metered a gemini-2.5-flash call, so it could not see that the real
+// grading model recorded 0. The ledger clock is fixed (METER_NOW) so the price is the 2026 one on any run date.
+const CALL_USAGE = { model: 'gemini-3.8-flash', promptTokenCount: 1000, candidatesTokenCount: 200, thoughtsTokenCount: 800 };
+const METER_NOW = Date.UTC(2026, 9, 7, 6, 0, 0);
+const CALL_COST = ledgerLib.buildLedgerIncrement(CALL_USAGE, { env: {}, nowMs: METER_NOW }).increment.costMicroInr;
+// (1000 * $0.75 + 1000 * $3.75) / 1M * 88 = Rs 0.396. MUTATION J1b-M1 (no 3.8 row) -> 0 -> RED here.
+const CALL_COST_REAL = 396000;
 
 function lenientExtract(text) { try { return JSON.parse(text); } catch { return null; } }
 
@@ -80,6 +86,7 @@ async function drive(s, { mutateTarget, targetSteps, otherSteps, acceptsV2 = fal
     }),
     telemetry: { increment() {} },
     env: {},
+    now: () => METER_NOW,
   });
   const calls = [];
   const resultFor = (n, marks) => {
@@ -236,6 +243,9 @@ for (const s of SURFACES) {
     assert.equal(chargeableCountOf(all.res), 0, s.id + ': nothing charged');
     assert.equal(all.writes.length, 0, s.id + ': nothing metered');
     // J0-FIXUP (FU-A17-METER-SPEND-VISIBILITY): the REAL provider spend is still recorded, apart from the meter
+    // (J1b: at gemini-3.8-flash's real price — before J1b this was 0 on the production model).
+    assert.equal(CALL_COST, CALL_COST_REAL, 'J1b: a gemini-3.8-flash grading call costs its real price');
+    assert.ok(all.spendWritten > 0, s.id + ': real spend is not 0');
     assert.equal(all.spendWritten, CALL_COST * all.calls.length, s.id + ': real spend recorded in providerSpendMicroInr');
   });
 
@@ -321,6 +331,7 @@ for (const s of SURFACES) {
     // all graded: every call metered in full
     const full = await drive(s, { targetSteps: (m) => [{ description: 'Answer', studentWork: 'right', status: 'correct', marksAwarded: m, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null }] });
     assert.equal(full.writes.length, full.calls.length, s.id + ': one write per call');
+    assert.equal(CALL_COST, CALL_COST_REAL, 'J1b: the meter is fed the real gemini-3.8-flash price');
     assert.equal(full.costWritten, CALL_COST * full.calls.length, s.id + ': full cost');
     // the target "Don't know": its call is metered at (graded questions in that call) / (questions in that call)
     const dk = await drive(s, { mutateTarget: (q) => { q.textAnswer = "Don't know"; }, targetSteps: dontKnowSteps });
@@ -340,7 +351,7 @@ test('A17 ruling 5 — a chunk RETRY and a scheme-cache GENERATION follow the sa
   const writes = [];
   const ledger = ledgerLib.createUsageLedger({
     resolveFirestore: () => ({ db: { collection: () => ({ doc: () => ({ collection: () => ({ doc: () => ({ set: (d) => { writes.push(d); return Promise.resolve(); } }) }) }) }) }, FieldValue: { increment: (n) => n } }),
-    telemetry: { increment() {} }, env: {},
+    telemetry: { increment() {} }, env: {}, now: () => METER_NOW,
   });
   let n = 0;
   const reply = (steps) => JSON.stringify({ results: [{ qNumber: 1, couldNotRead: false, addressesQuestion: 'yes', annotatedSteps: steps, teacherNote: 'N.' }] });
