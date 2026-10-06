@@ -23,9 +23,10 @@
  */
 
 import { isPublishable } from "../../../scripts/seo/publishability";
-// FU-B16-SYLLABUS-FIXTURE-SWITCH: transitional copy of the scout reference; switch to
-// `src/config/syllabus2026-27.ts` once that module is on trunk, then delete the fixture.
-import { SYLLABUS_2026_27_SCOUT_FIXTURE } from "./syllabus2026-27.scoutFixture";
+// The ONE syllabus reference (owner ruling 6). `SYLLABUS_2026_27_SOURCE` is the scout JSON
+// verbatim, deep-equal to the transitional fixture it replaces (FU-B16-SYLLABUS-FIXTURE-SWITCH,
+// closed in SYLLABUS-FIX-CONTENT PR-3), so the item-index phrase table resolves identically.
+import { SYLLABUS_2026_27_SOURCE as SYLLABUS_2026_27_SCOUT_FIXTURE } from "../../config/syllabus2026-27";
 
 /** Questions published per topic. Owner ruling (a): N = 3, across all 26 topics. */
 export const BOARD_QUESTION_COUNT = 3;
@@ -109,7 +110,7 @@ export const toPracticeSubject = (bankSubject: string): PracticeSubject =>
 // ---------------------------------------------------------------------------
 // The notes "Questions" tab must never publish a question on content the 2026-27
 // curriculum PDFs mark OUT (absent / beyond a limit) or FORMATIVE (assessed only
-// formatively). Two layers, both read from the ONE reference (the scout fixture):
+// formatively). Two layers, both read from the ONE reference (`src/config/syllabus2026-27.ts`):
 //   1. whole chapters whose reference status is OUT or FORMATIVE;
 //   2. per-chapter OUT / FORMATIVE items, each recognised by the phrases below.
 // Every phrase entry names the reference item it implements (`slug`, `kind`,
