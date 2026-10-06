@@ -98,11 +98,12 @@ export interface MistakeLogEntry {
 /**
  * How a mistake was resolved (ME-ENGINE-1 PR-1, G7):
  *  - `re-grade`              a re-grade of the SAME submission came back with no mistake —
- *                            the case that used to DELETE the entry. Marks won back.
+ *                            the case that used to DELETE the entry. NOT won back (the
+ *                            student did nothing new — the grade was re-read).
  *  - `re-grade-not-attempted` a re-grade of the same submission found the work NOT ATTEMPTED.
  *                            The entry is no longer a mistake, but nothing was won back.
  *  - `later-correct-attempt` a LATER submission of the same question (joined by its bank id)
- *                            scored full marks. Marks won back.
+ *                            scored full marks. The ONLY resolution that is "won back".
  * A re-grade REPLACES its submission's grade everywhere (the attempt, the session record), so
  * an entry resolved by a re-grade is no longer a live mistake on any aggregation — exactly as
  * when it was deleted. A later correct attempt does NOT erase the earlier loss (that attempt
@@ -116,12 +117,15 @@ export function isSupersededByRegrade(e: Pick<MistakeLogEntry, "resolvedBy"> | n
   return e?.resolvedBy === "re-grade" || e?.resolvedBy === "re-grade-not-attempted";
 }
 
-/** Did resolving this entry win marks back? (Not for a re-grade that found nothing attempted.) */
+/**
+ * Did resolving this entry win marks back? OWNER RULING (2026-10-06, verbatim): "confirm, and pin
+ * with a test, that "marks won back" counts ONLY later-correct-attempt (a new attempt by the
+ * student). Mistakes resolved by re-grade or re-grade-not-attempted leave the live counts (as
+ * now), but never count as won back and never show as improvement."
+ * Pinned by progressReadModel.wonBackRule.test.ts.
+ */
 export function isWonBack(e: Pick<MistakeLogEntry, "resolvedBy" | "resolvedAt"> | null | undefined): boolean {
-  return (
-    typeof e?.resolvedAt === "string" &&
-    (e.resolvedBy === "re-grade" || e.resolvedBy === "later-correct-attempt")
-  );
+  return typeof e?.resolvedAt === "string" && e.resolvedBy === "later-correct-attempt";
 }
 
 /** SCORECARD-MI-1 (D5) — how an entry is written. With `id` (the stable grade identity from

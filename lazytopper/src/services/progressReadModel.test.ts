@@ -225,14 +225,9 @@ describe("G7 — mistakes are resolved, never deleted; won back is counted per w
     expect(m.mistakes.marksLost).toBe(3.5);
   });
 
-  it("★ marks won back per window — by re-grade and by a later attempt, never a not-attempted re-grade", async () => {
+  it("★ marks won back per window — ONLY later correct attempts (owner ruling), never a re-grade", async () => {
     const week = await readStudyModel(UID, { window: "week", nowMs: NOW });
-    expect(week.mistakes.wonBack).toEqual({
-      count: 3,
-      marks: 6.5,
-      byRegrade: { count: 1, marks: 1 },
-      byLaterAttempt: { count: 2, marks: 5.5 },
-    });
+    expect(week.mistakes.wonBack).toEqual({ count: 2, marks: 5.5 });
     // TODAY (IST day of 12:00Z = 17:30 IST): only the two resolved an hour ago.
     const today = await readStudyModel(UID, { window: "today", nowMs: NOW });
     expect(today.mistakes.wonBack).toMatchObject({ count: 2, marks: 5.5 });

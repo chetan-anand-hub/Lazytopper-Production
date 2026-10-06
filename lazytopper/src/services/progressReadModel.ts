@@ -28,7 +28,8 @@
 //     any n because it always carries its n (`answers`).
 //   · MISTAKE HISTORY (G7). A mistake is RESOLVED, never deleted: a re-grade of the same
 //     submission, or a later full-mark attempt on the same question. "Marks won back" per window
-//     come from `resolvedAt`. Old count-only entries are LEGACY: read exactly as stored, never
+//     come from `resolvedAt` and count ONLY a later correct attempt (owner ruling 2026-10-06): a
+//     re-grade resolution leaves the live numbers and is never won back, never improvement. Old count-only entries are LEGACY: read exactly as stored, never
 //     converted, never given invented marks.
 //
 // Read-only: no writes, ever. Honest-or-silent: signed out / no data / a failed read → empty,
@@ -88,15 +89,14 @@ export interface MistakeLossByGroup {
   legacyEntries: number;
 }
 
+/** Marks WON BACK in a window — OWNER RULING (2026-10-06): ONLY mistakes resolved by a
+ *  `later-correct-attempt` (a new attempt by the student). A re-grade or re-grade-not-attempted
+ *  resolution contributes 0 here and to every improvement figure. */
 export interface WonBack {
-  /** Mistakes resolved as won back inside the window. */
+  /** Mistakes won back inside the window (later correct attempts only). */
   count: number;
   /** The marks those mistakes had cost (each entry's own `marksLost`, as stored). */
   marks: number;
-  /** …of which a re-grade of the same submission took back. */
-  byRegrade: { count: number; marks: number };
-  /** …of which a later full-mark attempt on the same question won back. */
-  byLaterAttempt: { count: number; marks: number };
 }
 
 export interface MistakeView {
@@ -226,7 +226,7 @@ function inRange(iso: unknown, start: number, end: number): boolean {
 }
 
 function emptyWonBack(): WonBack {
-  return { count: 0, marks: 0, byRegrade: { count: 0, marks: 0 }, byLaterAttempt: { count: 0, marks: 0 } };
+  return { count: 0, marks: 0 };
 }
 
 /**
@@ -262,13 +262,8 @@ export function buildMistakeView(
     const marks = Math.max(0, Number(e.marksLost) || 0);
     wonBack.count += 1;
     wonBack.marks += marks;
-    const bucket = e.resolvedBy === "re-grade" ? wonBack.byRegrade : wonBack.byLaterAttempt;
-    bucket.count += 1;
-    bucket.marks += marks;
   }
   wonBack.marks = round1(wonBack.marks);
-  wonBack.byRegrade.marks = round1(wonBack.byRegrade.marks);
-  wonBack.byLaterAttempt.marks = round1(wonBack.byLaterAttempt.marks);
 
   return {
     entries,
