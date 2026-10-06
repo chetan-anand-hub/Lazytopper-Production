@@ -1,3 +1,27 @@
+## 2026-10-06 — WAVE B-17 (SYLLABUS, CONTROLLER B) — **QUICK-FIXES-1: FULL-SUBJECT QUICK PRACTICE MIXES EVERY CHAPTER (BROKEN SINCE APRIL), THE OWNER'S SEVEN SYLLABUS RULINGS ENCODED AND WHAT THEY RULE OUT NO LONGER SERVED (8,124 → 8,052), LEGACY HUB TEXT GUARDED, NCERT FIGURES IN THE NOTES THAT FIT THE PHONE AND OPEN ON TAP** — `#955` + `#956` + `#958` MERGED — trunk `613d8996` — LIVE
+
+★ **PROVENANCE.** Controller B, wave B-17, lane QUICK-FIXES-1 (spec `12ADECD863BB`, owner-authored). Builders `claude-opus-5-5` medium; figures and evidence / row rulings `claude-fable-5-1` high; a read-only P5 scout; read-only OR-LIVE agents. Written by a separate docs builder in `C:/Projects/LT-worktrees/b17-qf-docs` from `WAVE_STATE_B17.md`, the owner-rulings files and the lane / live reports.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| QF PR-3 | `#958` `613d8996` | Fig 9.2 / 9.3 separate (c5 / c6); figures fill the card on phones (183 → 256 px at 390), tap to enlarge (✕ / Esc / Back); CI `37457097012` `Tests 4552 passed (4552)` | "a notes figure can be screen-width on phones" — the card's inner width is the honest limit |
+| QF PR-2 | `#956` `5cd9d97e` | 7 rulings in the module; 72 net rows stop being served; 9 corrosion relabels (2 official topic tags, owner); legacy hubs cleaned + guarded; tutor block regenerated (owner grant); CI `37451757505` `Tests 4547 passed (4547)` | melting rows still served (already withheld); the scout's list was complete (it missed 6); R4 needs restores (none) |
+| QF PR-1 | `#955` `6259187b` | full-subject draws every IN chapter (≤ 30%); M-TRI-6 withdrawn; trig mind-map title; NCERT figures; CI `37432781683` `Tests 4540 passed (4540)` | the full-subject defect came with B-16 — it predates B-16 by six months (`2888129b`) |
+
+**Timeline (UTC, 6 Oct).**
+- Wave start at trunk `7d011734`; A-16's `#953` open. Spec hashes verified (D0). Parallel dispatch: QF-FIG (Fable), PR-1 (local-ready until `#953`), P5 scout (D2).
+- **07:01:21Z `#953` merged** (A-16). PR-1 rebased; PR-2 started on the scout's list with controller rulings C1–C9 (D6).
+- **08:21:37Z `#955` merged** (PR-1). OR-LIVE-1 PASS 08:25:48–08:29:51Z.
+- Owner Round 1 arrived (evidence rule; supersedes C1, C3, C4, C8). PR-2 returned LOCAL-READY: the tutor drift test fired on the module change and `server/**` was forbidden (D4) → the owner was asked once, with the figure screenshots.
+- Owner Round 2: `server/**` grant (generated block only), Basic papers count, legacy hubs granted, figures ruled. PR-2 re-ran the evidence check with Basic papers (9 rows un-withheld, M-ARC-4 restored).
+- **11:06:28Z `#956` merged** (PR-2). A-17 told the SHA (J0 rebases onto the block). OR-LIVE-2 PASS 11:11:23–11:15:26Z (tutor check skipped).
+- PR-3 (owner figure follow-up) pushed after `#956`; controller rulings R-FIT and R-T3.
+- **11:58:55Z `#958` merged** (PR-3). Vercel success 12:00:11Z. OR-LIVE-3 PASS (5 / 5 cold at 12:04:29Z). No rollback.
+
+**Owner-owed:** the list in `NEXT_ACTION.md` (4 figure screenshots; optional R3(a) narrowing; A-17's J2 contract to the next B controller; the scout-reported, UNVERIFIED ~364 AI-pack rows under the PYQ filter; the carried A-16 / A-15 items incl. Rolling Releases). **Next:** GEN-THIN-1 runs in a separate cloud session (owner); Controller B's next lane is J2, the background-grading client, once A-17 publishes its client contract.
+
 ## 2026-10-06 — WAVE A-16 CLOSE (SYLLABUS, CONTROLLER A) — **EVERY NUMBER, FILTER AND THE TUTOR FOLLOW THE 2026-27 SYLLABUS: CHIPS SUM 80 FROM CBSE UNIT MARKS, FULL MOCK BY UNIT MARKS, TUTOR OUT / FORMATIVE GATE, PREDICTIONS DROP OUT CONCEPTS, HUMAN EYE IN WEAK AREAS (LIVE), ATMOSPHERIC REFRACTION IN** — `#953` MERGED (`#950` recorded by `#952`) — trunk `decac82a` — LIVE
 
 ★ **PROVENANCE.** Controller A, wave A-16, lane SYLLABUS-FIX-CODE (spec `99E062719434`). PR-2 builder `claude-opus-5-5` (high for the Full Mock and the tutor, medium otherwise); a read-only P7 scout; a read-only OR-LIVE agent (one throwaway account, deleted with proof). PR-1 `#950` was recorded by B-16's docs `#952` and is not re-described. Written by a separate docs builder in `C:/Projects/LT-worktrees/a16-docs` from `WAVE_STATE_A16.md` and the lane / live reports.
