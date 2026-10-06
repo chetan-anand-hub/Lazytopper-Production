@@ -346,7 +346,8 @@ const qrUploadRoutes = createQrUploadRoutes({ ...routeDeps, qrUploadChannel });
 const tutorRoute = createTutorRoute(routeDeps);
 const rateLimiter = createRateLimiter({ telemetry });
 const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
-const entitlementGate = createEntitlementGate({ adminFirestore, telemetry, sendJson });
+// AUTHGATE-2: firebaseAdmin is passed for appCheck() only (requireVerifiedCallerOrAppCheck).
+const entitlementGate = createEntitlementGate({ adminFirestore, firebaseAdmin, telemetry, sendJson });
 const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
 // LOW-END-1 R4: a retried grade (same verified uid + Idempotency-Key, 24 h) is answered
 // from its stored result — never graded or charged twice. See fairUse.cjs.
@@ -472,6 +473,17 @@ async function handleRequest(req, res) {
     // refreshes its token and retries once. Other paid routes carry on, keyed on IP.
     if (entitlementGate.rejectUnverifiedToken(req, res, reqPath, verification)) return;
 
+    // ── A verified caller, or App Check (AUTHGATE-2, HARDEN-1 PR-1) ─────────────
+    // detect-question, more-like-this, generate-visual, generate-diagram: a token that
+    // did not verify is 401, and a signed-out caller needs a valid App Check token
+    // (401 missing / 403 invalid). Refused HERE, before idempotency, the free check,
+    // the limiter and dispatch, so a refused call reaches no model and spends nothing.
+    // A marked free check is left to freeCheckGate below, exactly as before.
+    const aiCaller = await entitlementGate.requireVerifiedCallerOrAppCheck(req, res, reqPath, verification, {
+      freeCheckRequest: freeCheckGate.isFreeCheckRequest(req, reqPath, verifiedUid),
+    });
+    if (aiCaller.refused) return;
+
     // ── Idempotent grading (LOW-END-1 R4) ─────────────────────────────────────
     // FIRST, before the free check, the limiter, entitlement and fair use: a retry of a
     // grade that already happened is answered from its stored result, so it can neither
@@ -505,7 +517,7 @@ async function handleRequest(req, res) {
       ? rateLimiter.check(req, reqPath, verifiedUid, { freeCheck: true })
       : premiumShedExempt
         ? rateLimiter.check(req, reqPath, verifiedUid, { premium: true })
-        : rateLimiter.check(req, reqPath, verifiedUid, { tokenRejected });
+        : rateLimiter.check(req, reqPath, verifiedUid, { tokenRejected, signedOut: aiCaller.signedOut });
     if (!verdict.allowed) {
       return sendJson(res, verdict.status, verdict.body);
     }
