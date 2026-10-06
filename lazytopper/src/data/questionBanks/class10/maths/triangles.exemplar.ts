@@ -252,9 +252,10 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
 
   { id: "TRI-N-EXMPLR-6-CB-002", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Case study: The hypotenuse of a right triangle is 25 cm, and out of the two legs, one is longer than the other by 5 cm. Answer:\n(i) Form a quadratic equation in the shorter leg x.\n(ii) Solve the quadratic equation.\n(iii) Reject the inadmissible root and state both legs.\n(iv) Verify by computing x² + (x + 5)² and comparing with 25².",
-    answer: "(i) Let the shorter leg be x cm. Then the longer leg is (x + 5) cm. By Pythagoras: x² + (x + 5)² = 25² ⇒ x² + x² + 10x + 25 = 625 ⇒ 2x² + 10x − 600 = 0 ⇒ x² + 5x − 300 = 0. (ii) Solve x² + 5x − 300 = 0: factorise as (x − 15)(x + 20) = 0 (since 15 × (−20) = −300 and 15 + (−20) = −5? Check: 15 − 20 = −5 ✓). So x = 15 or x = −20. (iii) Length cannot be negative, so reject x = −20. Hence the shorter leg = 15 cm and the longer leg = 15 + 5 = 20 cm. (iv) Verification: x² + (x + 5)² = 15² + 20² = 225 + 400 = 625 = 25² ✓.",
+    answer: "(i) Let the shorter leg be x cm. Then the longer leg is (x + 5) cm. By Pythagoras: x² + (x + 5)² = 25² ⇒ x² + x² + 10x + 25 = 625 ⇒ 2x² + 10x − 600 = 0 ⇒ x² + 5x − 300 = 0. (ii) Solve x² + 5x − 300 = 0: split 5x = 20x − 15x (since 20 × (−15) = −300 and 20 + (−15) = 5), so x² + 20x − 15x − 300 = 0 ⇒ (x − 15)(x + 20) = 0. So x = 15 or x = −20. (iii) Length cannot be negative, so reject x = −20. Hence the shorter leg = 15 cm and the longer leg = 15 + 5 = 20 cm. (iv) Verification: x² + (x + 5)² = 15² + 20² = 225 + 400 = 625 = 25² ✓.",
     solutionSteps: ["(i) Shorter leg = x; longer leg = x + 5; hypotenuse = 25. Pythagoras: x² + (x + 5)² = 25².", "Expand: x² + x² + 10x + 25 = 625 ⇒ 2x² + 10x − 600 = 0 ⇒ x² + 5x − 300 = 0.", "(ii) Factor: (x − 15)(x + 20) = 0 ⇒ x = 15 or x = −20.", "(iii) Length > 0 ⇒ reject x = −20. Take x = 15 cm. Other leg = 15 + 5 = 20 cm.", "(iv) Verify: 15² + 20² = 225 + 400 = 625 = 25². ✓"],
     finalAnswer: "Legs = 15 cm and 20 cm; verified 15² + 20² = 625 = 25².",
     ncertRef: "Exemplar Sample Question 2 (Ex 6.3)", isCompetencyBased: true,
-    strategyHint: "Set up Pythagoras → quadratic in the shorter leg → factorise → reject negative root → verify." },
+    strategyHint: "Set up Pythagoras → quadratic in the shorter leg → factorise → reject negative root → verify.",
+    sourceOverride: "others" },
 ];

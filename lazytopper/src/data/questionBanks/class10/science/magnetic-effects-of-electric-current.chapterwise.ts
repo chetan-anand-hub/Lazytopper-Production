@@ -75,11 +75,12 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjescco13 Q10
   { id: "SCO-S-MAG-009", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Which of the following statement is not correct about two parallel conductors carrying equal currents in the same direction?",
-    options: ["Each of the conductors will repel each other.", "The two conductors will repel each other.", "The are concentric lines of force around each conductor", "Each of the conductors will move if not prevented from doing so"],
+    options: ["Each conductor exerts a force on the other.", "The two conductors will repel each other.", "There are concentric lines of force around each conductor.", "Each of the conductors will move if not prevented from doing so."],
     answer: "The two conductors will repel each other.",
-    solutionSteps: ["Correct option is (b) The two conductors will repel each other.."],
+    solutionSteps: ["Parallel conductors carrying currents in the same direction attract each other (each lies in the other's magnetic field and experiences a force); there are concentric field lines around each, and each will move if free. So the statement that is NOT correct is (b) 'The two conductors will repel each other'."],
     finalAnswer: "(b) The two conductors will repel each other.",
-    ncertRef: "cbjescco13 Q10", isCompetencyBased: true },
+    ncertRef: "cbjescco13 Q10", isCompetencyBased: true,
+    sourceOverride: "others" },
   // cbjescco13 Q1
   { id: "SCO-S-MAG-010", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "direction of current 2. direction of magnetic field Force on the conductor is maximum when the direction of current is at right angle to the direction of magnetic field. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education 12. Which of the following processes will not produce new magnetic poles?",

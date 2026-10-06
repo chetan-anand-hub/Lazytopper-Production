@@ -691,7 +691,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): Tubular reabsorption is selective and not passive. Reason (R): Useful substances like glucose and amino acids are reabsorbed actively in the proximal convoluted tubule.",
+    "questionText": "Assertion (A): The urine excreted by a healthy person normally contains no glucose. Reason (R): Useful substances in the initial filtrate, such as glucose, amino acids, salts and a major amount of water, are selectively reabsorbed as the filtrate flows along the tubule of the nephron.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -700,17 +700,16 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "Tubular reabsorption is selective (only useful substances are reabsorbed)",
-      "Glucose, amino acids, ions are reabsorbed by active transport (uses energy)",
-      "Water is reabsorbed by osmosis (passive)",
-      "R correctly explains that selective reabsorption involves active transport of useful substances"
+      "Assertion: Normal urine of a healthy person contains no glucose — true.",
+      "Reason: As the filtrate flows along the tubule, useful substances such as glucose, amino acids, salts and a major amount of water are selectively reabsorbed (NCERT) — true.",
+      "Since all the filtered glucose is reabsorbed, none appears in the urine; R directly explains A.",
+      "Hence both A and R are true and R is the correct explanation of A."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "explanation": "Both are true. Glucose is filtered in Bowman's capsule, but it is selectively reabsorbed into the blood as the filtrate passes along the tubule, so none is left in normal urine. Hence R is the correct explanation of A.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch6 InText"
+    "ncertRef": "NCERT Ch6 InText",
+    sourceOverride: "others",
   },
   {
     "id": "LP2-025",
@@ -950,18 +949,17 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Both photosynthesis and transpiration",
       "Respiration only"
     ],
-    "answer": "Both photosynthesis and transpiration",
+    "answer": "Transpiration only",
     "solutionSteps": [
-      "Transpiration is the loss of water vapour from plants.",
-      "Water droplets on glass walls indicate water vapour released by plants.",
-      "Photosynthesis occurs during day, transpiration occurs continuously.",
-      "Both processes work together in plants."
+      "Transpiration is the loss of water in the form of vapour from the aerial parts of the plant.",
+      "In a sealed container this water vapour condenses on the cooler inner walls as droplets.",
+      "Photosynthesis uses water and gives off oxygen; it does not produce the water droplets, so it is not demonstrated here.",
+      "Hence the droplets demonstrate transpiration only."
     ],
-    "finalAnswer": "Both photosynthesis and transpiration",
+    "finalAnswer": "Transpiration only",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "Delhi",
-    "ncertRef": "NCERT Ch6 Exercise"
+    "ncertRef": "NCERT Ch6 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "LP2-033",

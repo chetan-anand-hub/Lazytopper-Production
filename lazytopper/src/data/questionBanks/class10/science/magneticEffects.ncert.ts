@@ -45,12 +45,13 @@ export const MAG_NCERT: CanonicalQuestion[] = [
 
   // ===== §12.3 In-text Questions (after Fleming's left-hand rule) =====
   { id: "MAG-NCERT-12-MCQ-002", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Force on Moving Charge", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "Which of the following property of a proton can change while it moves freely in a magnetic field? (There may be more than one correct answer.)",
-    options: ["mass", "speed", "velocity", "momentum"],
+    questionText: "Which of the following properties of a proton can change while it moves freely in a magnetic field?",
+    options: ["mass", "speed", "velocity", "kinetic energy"],
     answer: "velocity",
-    solutionSteps: ["The magnetic force on a moving charge is always perpendicular to its velocity, so it does no work on the proton — the kinetic energy and the SPEED stay constant.", "The mass of a proton is a fundamental property and does not change.", "However, the direction of motion changes continuously because of the perpendicular force → the velocity vector changes.", "Since velocity changes, momentum (a vector, p = m v) also changes in direction.", "Correct properties that can change: velocity and momentum (both vectors)."],
-    finalAnswer: "Velocity and momentum can change (both are vectors); mass and speed do not change.",
-    ncertRef: "In-text Q1 §12.3", isCompetencyBased: true },
+    solutionSteps: ["The magnetic force on a moving proton is perpendicular to its velocity, so it does no work: speed and kinetic energy stay constant and mass never changes; only the direction of motion changes, so the velocity (a vector) changes → velocity."],
+    finalAnswer: "Velocity can change (its direction changes); mass, speed and kinetic energy do not change.",
+    ncertRef: "In-text Q1 §12.3", isCompetencyBased: true,
+    sourceOverride: "others" },
 
   { id: "MAG-NCERT-12-SA-004", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Force on Current-carrying Conductor", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In Activity 12.7 (a current-carrying aluminium rod suspended in a horse-shoe magnet's field), how do we think the displacement of rod AB will be affected if (i) current in rod AB is increased; (ii) a stronger horse-shoe magnet is used; and (iii) length of the rod AB is increased?",

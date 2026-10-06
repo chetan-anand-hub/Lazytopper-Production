@@ -19,13 +19,14 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
 
   // REQUIRES-FIGURE: bar magnet with horizontal plane ABCD passing through it (Figure 13.1)
   { id: "MAG-EXMPLR-12-MCQ-002", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field Lines", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "If the key in the arrangement (Figure 13.1) is taken out (the circuit is made open) and magnetic field lines are drawn over the horizontal plane ABCD, the lines are",
+    questionText: "A straight vertical copper wire passes through the centre O of a horizontal cardboard ABCD and is connected to a battery through a plug key (NCERT Exemplar Figure 13.1). If the key is taken out (the circuit is made open) and magnetic field lines are drawn over the horizontal plane ABCD, the lines are",
     options: ["concentric circles", "elliptical in shape", "straight lines parallel to each other", "concentric circles near the point O but of elliptical shapes as we go away from it"],
-    answer: "concentric circles near the point O but of elliptical shapes as we go away from it",
-    solutionSteps: ["With the key open, there is no current — only the bar magnet's field exists.", "Close to the magnet's axis (near point O) the field lines look approximately circular.", "Away from the magnet the lines bulge out because they must emerge from N and enter S — they become elliptical.", "Option (d) captures both behaviours correctly."],
-    finalAnswer: "Option (d).",
+    answer: "straight lines parallel to each other",
+    solutionSteps: ["With the key open no current flows in the wire, so the wire produces no magnetic field; only the Earth's (nearly uniform) magnetic field acts on the plane ABCD, whose field lines are straight lines parallel to each other → option (c)."],
+    finalAnswer: "Option (c).",
     ncertRef: "Exemplar MCQ Q2", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: bar magnet with plane ABCD; field is only from the magnet (key open)." },
+    strategyHint: "Figure 13.1 is a straight vertical current-carrying wire through cardboard ABCD (no bar magnet); with the key open only the Earth's uniform field remains.",
+    sourceOverride: "others",},
 
   // REQUIRES-FIGURE: circular loop perpendicular to plane of paper, current as seen from A anti-clockwise, from B clockwise
   { id: "MAG-EXMPLR-12-MCQ-003", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field due to Circular Loop", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Applying",

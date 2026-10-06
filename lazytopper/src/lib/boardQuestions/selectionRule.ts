@@ -70,6 +70,7 @@ export interface SelectableQuestion {
   answer?: string;
   /** GEN-THIN-1: internal provenance — "lt-generated" rows are never published as board questions. */
   origin?: string;
+  sourceOverride?: "others";
 }
 
 /** One published question, exactly as the note renders it. */
@@ -285,7 +286,8 @@ export function selectBoardQuestions(
           section: q.section,
           solutionSteps: [...(q.solutionSteps ?? [])],
         };
-        if (q.pyqYear) row.pyqYear = q.pyqYear;
+        // BANK-FIX-1 ruling 2: an overridden row is never shown with a year.
+        if (q.pyqYear && q.sourceOverride !== "others") row.pyqYear = q.pyqYear;
         return row;
       }),
     };

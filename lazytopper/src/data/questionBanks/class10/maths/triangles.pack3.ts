@@ -606,26 +606,25 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): If two angles of △ABC are equal to two angles of △PQR, then △ABC ~ △PQR.\nReasoning (R): By AAA criterion, if all three angles are equal, triangles are similar.",
+    "questionText": "Assertion (A): If two angles of △ABC are equal to two angles of △PQR, then △ABC ~ △PQR.\nReasoning (R): If two angles of one triangle are equal to two angles of another, the third angles are also equal (angle sum property), and equiangular triangles are similar (AAA criterion).",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "Both A and R are true, but R is not the correct explanation of A.",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "Assertion A is true: By AA criterion (two angles equal), the third angle is automatically equal, so triangles are similar.",
-      "Reasoning R is true: AAA criterion does establish similarity.",
-      "However, R is not the correct explanation of A because A uses AA criterion, not AAA.",
-      "AA criterion is sufficient for similarity; we don't need to prove all three angles."
+      "Assertion A is true: if two angles of △ABC equal two angles of △PQR, the third angles are also equal (angle sum = 180°).",
+      "So all three corresponding angles are equal.",
+      "Reason R is true: by the AAA criterion, equiangular triangles are similar.",
+      "R, together with the angle-sum property, is exactly why A holds (NCERT states AA as a consequence of AAA). So R correctly explains A — option (a)."
     ],
-    "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
-    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
+    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both statements are true. Two equal angles force the third to be equal (angle-sum property), so the triangles are equiangular and the AAA criterion in R gives the similarity in A. NCERT derives the AA criterion from AAA in exactly this way, so R is the correct explanation of A.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 6.3"
+    "ncertRef": "Ex 6.3",
+    sourceOverride: "others",
   },
   {
     "id": "TR3-024",
@@ -818,19 +817,19 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "options": [
       "AB = PQ",
       "∠A = ∠P",
-      "AB/BC = PQ/QR",
+      "AB/PQ = BC/PR",
       "All of the above"
     ],
-    "answer": "All of the above",
+    "answer": "∠A = ∠P",
     "solutionSteps": [
-      "When two triangles are similar, their corresponding angles are equal and their corresponding sides are proportional."
+      "When ΔABC ~ ΔPQR, corresponding angles are equal (∠A = ∠P) and corresponding sides are proportional: AB/PQ = BC/QR = CA/RP.",
+      "AB = PQ holds only if the triangles are congruent; AB/PQ = BC/PR pairs non-corresponding sides, so it is not true in general. Hence only ∠A = ∠P is true."
     ],
-    "finalAnswer": "All of the above",
-    "explanation": "When two triangles are similar, their corresponding angles are equal and their corresponding sides are proportional. Therefore, the correct answer is All of the above.",
+    "finalAnswer": "∠A = ∠P",
+    "explanation": "For ΔABC ~ ΔPQR, corresponding angles are equal, so ∠A = ∠P. AB = PQ need not hold, because similar triangles need not be congruent. AB/PQ = BC/PR uses non-corresponding sides (it should be BC/QR). So 'All of the above' is false. Therefore, the correct answer is ∠A = ∠P.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 6.3"
+    "ncertRef": "Ex 6.3",
+    sourceOverride: "others",
   },
   {
     "id": "TR3-036",

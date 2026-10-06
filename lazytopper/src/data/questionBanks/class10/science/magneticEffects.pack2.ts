@@ -660,20 +660,16 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "Both A and R are true, but R is not the correct explanation of A.",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "Soft iron is preferred because it has LOW retentivity (demagnetizes easily).",
-      "Steel has HIGH retentivity (retains magnetism).",
-      "For electromagnet, we want it ON with current and OFF without current.",
-      "So soft iron's low retentivity is the advantage, not disadvantage.",
-      "Reason is true but explains why steel is NOT preferred."
+      "Assertion is true: soft iron is used as the core of electromagnets instead of steel.",
+      "Reason is true: steel has high retentivity (retains magnetism), soft iron has low retentivity — an electromagnet must lose its magnetism as soon as the current is switched off, which soft iron does and steel does not. So R correctly explains A."
     ],
-    "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
-    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
+    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both statements are true. An electromagnet must be magnetised only while current flows; because steel has higher retentivity, it stays magnetised after the current is switched off, whereas soft iron loses its magnetism. This is exactly why soft iron is preferred, so R is the correct explanation of A.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch13 Exercise"
+    "ncertRef": "NCERT Ch13 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "ME2-024",
@@ -1210,18 +1206,17 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student designed an electromagnet using a soft iron core, insulated copper wire wound in 500 turns, connected to a 12V DC source with 2A current. Later, she wanted to lift heavier objects, so she made the following changes:\n(i) Increased the number of turns to 1000\n(ii) Used thicker wire to reduce resistance\n(iii) Increased voltage to 24V\n(iv) Added an air gap in the core\n\nBased on electromagnet principles:\n(a) Which changes would increase the strength of electromagnet?\n(b) Which change would be counterproductive and why?\n(c) If the current is kept at 2A, which change (ii or iii) is better for electromagnet strength?",
     "options": [],
-    "answer": "(a) Changes (i), (ii), and (iii) increase electromagnet strength because: (i) more turns increase coil ampere-turns, (ii) reduced resistance allows higher current, (iii) higher voltage drives more current. (b) Change (iv) is counterproductive as air gap introduces reluctance and breaks the magnetic circuit, significantly weakening the field. (c) Change (iii) is better because increased voltage with thicker wire allows greater current, directly increasing electromagnetic force; Change (ii) alone doesn't help if current remains 2A.",
+    "answer": "(a) Changes (i), (ii) and (iii) increase electromagnet strength because: (i) more turns increase the ampere-turns, (ii) reduced resistance allows a higher current, (iii) higher voltage drives more current. (b) Change (iv) is counterproductive as an air gap introduces reluctance and breaks the magnetic circuit, significantly weakening the field. (c) Neither — if the current is kept at 2 A, the strength depends only on the current, number of turns and core, so neither thicker wire (ii) nor higher voltage (iii) changes it; both give the same strength.",
     "solutionSteps": [
       "[1 mark] (a) Change (i) increases strength: doubling the turns (500 → 1000) increases the ampere-turns, so the magnetic field of the electromagnet becomes stronger.",
       "[1 mark] (a) Changes (ii) and (iii) also increase strength: thicker wire reduces resistance so a larger current can flow, and a higher voltage (24 V) drives a larger current — in both cases more current → stronger magnetic field.",
       "[1 mark] (b) Change (iv) is counterproductive: an air gap in the soft iron core weakens the magnetic field, because air has a far lower magnetic permeability than soft iron (it increases the reluctance of the magnetic circuit).",
-      "[1 mark] (c) If the current is fixed at 2 A, change (ii) (thicker wire) by itself gives no gain — field strength depends on current and turns, and the current is unchanged; change (iii) (higher voltage) is better since it can actually drive a larger current and so a stronger field."
+      "[1 mark] (c) If the current is fixed at 2 A, neither change is better: the strength of an electromagnet depends on the current, the number of turns and the core, not directly on wire thickness or supply voltage; with the current unchanged, (ii) and (iii) give the same strength."
     ],
-    "finalAnswer": "(a) Changes (i), (ii), and (iii) increase electromagnet strength because: (i) more turns increase coil ampere-turns, (ii) reduced resistance allows higher current, (iii) higher voltage drives more current. (b) Change (iv) is counterproductive as air gap introduces reluctance and breaks the magnetic circuit, significantly weakening the field. (c) Change (iii) is better because increased voltage with thicker wire allows greater current, directly increasing electromagnetic force; Change (ii) alone doesn't help if current remains 2A.",
+    "finalAnswer": "(a) Changes (i), (ii) and (iii) increase electromagnet strength because: (i) more turns increase the ampere-turns, (ii) reduced resistance allows a higher current, (iii) higher voltage drives more current. (b) Change (iv) is counterproductive as an air gap introduces reluctance and breaks the magnetic circuit, significantly weakening the field. (c) Neither — if the current is kept at 2 A, the strength depends only on the current, number of turns and core, so neither thicker wire (ii) nor higher voltage (iii) changes it; both give the same strength.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "CBSE",
-    "ncertRef": "NCERT Ch13 InText Q4"
+    "ncertRef": "NCERT Ch13 InText Q4",
+    sourceOverride: "others",
   },
   {
     "id": "ME2-044",
@@ -1352,7 +1347,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): DC current flows in a constant direction and has constant magnitude. Reason (R): DC is generated by a battery where one terminal is always positive and other is always negative.",
+    "questionText": "Assertion (A): The current drawn from an electric cell does not change its direction with time. Reason (R): An electric cell has fixed polarity — one terminal is always positive and the other always negative.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -1361,16 +1356,14 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "DC has constant direction (unidirectional) and constant magnitude",
-      "Battery's fixed polarity ensures electrons always flow from negative to positive terminal",
-      "This explains why DC is constant"
+      "Assertion is true: a cell gives direct current, which does not change its direction with time.",
+      "Reason is true and explains A: the cell's polarity is fixed (one terminal always positive, the other always negative), so the current in the external circuit always flows in the same direction."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "explanation": "Both statements are true. Because a cell's terminals never swap polarity, the current it drives in a circuit always flows in the same direction (direct current). So R is the correct explanation of A.",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch13 InText Q12"
+    "ncertRef": "NCERT Ch13 InText Q12",
+    sourceOverride: "others",
   },
   {
     "id": "ME2-049",
@@ -1474,15 +1467,14 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
     "questionText": "Fuses and circuit breakers in household circuits protect against:",
-    "options": ["Increased current","Decreased voltage","Overloading and short circuits","Improved power factor"],
+    "options": ["Electric shock on touching a live wire", "Decreased voltage", "Overloading and short circuits", "Improved power factor"],
     "answer": "Overloading and short circuits",
     "solutionSteps": ["Fuses and MCBs break the circuit when current exceeds safe limit, preventing fire and damage"],
     "finalAnswer": "Overloading and short circuits",
     "explanation": "Fuse/MCB protect against overload and short circuit.",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch13"
+    "ncertRef": "NCERT Ch13",
+    sourceOverride: "others",
   },
   {
     "id": "ME2-054",

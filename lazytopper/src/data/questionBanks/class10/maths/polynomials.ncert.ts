@@ -111,10 +111,11 @@ export const POLY_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 2.2 Q1(iii)", isCompetencyBased: true },
 
   { id: "POLY-N-NCERT-2-SA-003", subject: "Maths", topicKey: "polynomials", subtopic: "Constructing a Polynomial", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Find a quadratic polynomial whose zeroes are 1/4 and −1 respectively (sum = 1/4 and product = −1).",
-    solutionSteps: ["A quadratic with given sum s and product p of zeroes is x² – sx + p.", "Wait — the question says zeroes 'are 1/4 and −1'. Let's verify both readings: if zeroes are 1/4 and −1, sum = 1/4 + (−1) = −3/4 and product = −1/4.", "Standard NCERT Ex 2.2 Q2(i) gives sum = 1/4, product = −1 directly. So polynomial is x² − (1/4)x + (−1) = (4x² − x − 4)/4. Taking k = 4: 4x² − x − 4."],
+    questionText: "Find a quadratic polynomial, the sum and product of whose zeroes are 1/4 and −1 respectively.",
+    solutionSteps: ["A quadratic whose zeroes have sum s and product p is k[x² − sx + p], k ≠ 0.", "Here s = 1/4 and p = −1, so the polynomial is k[x² − (1/4)x − 1].", "Taking k = 4: 4x² − x − 4. (Check: sum = −(−1)/4 = 1/4, product = −4/4 = −1 ✓)"],
     finalAnswer: "One valid polynomial: 4x² – x – 4.",
-    ncertRef: "NCERT Ex 2.2 Q2(i)", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 2.2 Q2(i)", isCompetencyBased: true,
+    sourceOverride: "others" },
 
   { id: "POLY-N-NCERT-2-SA-004", subject: "Maths", topicKey: "polynomials", subtopic: "Constructing a Polynomial", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial whose sum of zeroes is √2 and product of zeroes is 1/3.",

@@ -15,7 +15,9 @@
 // both avoids the format-mismatch failure described in K2H-8f Cause A.
 export function isPYQQuestion(q: unknown): boolean {
   if (!q || typeof q !== "object") return false;
-  const cast = q as { isPYQ?: unknown; pyqYear?: unknown };
+  const cast = q as { isPYQ?: unknown; pyqYear?: unknown; sourceOverride?: unknown };
+  // BANK-FIX-1 ruling 2: a corrected / unconfirmed row is "Others", never PYQ.
+  if (cast.sourceOverride === "others") return false;
   if (cast.isPYQ === true) return true;
   const year = cast.pyqYear;
   if (typeof year === "string" && year.trim().length > 0) return true;

@@ -121,16 +121,16 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     difficulty: "Easy",
     bloomSkill: "Applying",
     questionText:
-      "If 2x + 3y = 11 and 3x − 2y = 4, then the value of y − x is:",
+      "If 2x + 3y = 11 and 3x − 2y = −3, then the value of y − x is:",
     options: ["1", "2", "3", "4"],
     answer: "2",
-    explanation: "Solving gives x = 2, y = 4, so y − x = 4 − 2 = 2.",
+    explanation: "Multiply the first equation by 2 and the second by 3: 4x + 6y = 22 and 9x − 6y = −9. Adding, 13x = 13, so x = 1 and y = 3. Hence y − x = 3 − 1 = 2.",
     solutionSteps: [
-      "Write the system: 2x + 3y = 11 and 3x − 2y = 4.",
-      "Use elimination to remove one variable.",
-      "Solve for the remaining variable.",
-      "Back-substitute to find the second variable.",
-      "Compute y − x.",
+      "Write the system: 2x + 3y = 11 and 3x − 2y = −3.",
+      "Multiply the first by 2 and the second by 3: 4x + 6y = 22 and 9x − 6y = −9.",
+      "Add to eliminate y: 13x = 13, so x = 1.",
+      "Back-substitute: 2(1) + 3y = 11, so y = 3.",
+      "Compute y − x = 3 − 1 = 2."
     ],
     strategyHint: "Eliminate x or y by multiplying equations suitably.",
     policyTag: "NEP-2020/MCQ emphasis/Must-crack",
@@ -196,17 +196,17 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "The sum of the numerator and denominator of a fraction is 11. If 2 is added to the numerator and 3 is added to the denominator, the new fraction becomes 3/4. Find the original fraction.",
+      "The sum of the numerator and denominator of a fraction is 11. If 1 is added to the numerator and 2 is added to the denominator, the new fraction becomes 3/4. Find the original fraction.",
     answer: "The original fraction is 5/6.",
     finalAnswer: "Original fraction = 5/6.",
     explanation:
-      "Let fraction be x/y. x + y = 11 and (x + 2)/(y + 3) = 3/4. Cross-multiply and solve the linear pair to get x = 5, y = 6.",
+      "Let the fraction be x/y. x + y = 11 and (x + 1)/(y + 2) = 3/4, i.e. 4x − 3y = 2. Solving the pair gives x = 5, y = 6, so the fraction is 5/6. Check: 6/8 = 3/4.",
     solutionSteps: [
-      "Let the fraction be x/y and form x + y = 11. [1]",
-      "Use (x + 2)/(y + 3) = 3/4 and cross-multiply. [1]",
-      "Simplify to obtain a second linear equation. [1]",
-      "Solve the pair of equations. [1]",
-      "Identify x and y as numerator and denominator. [1]",
+      "Let the fraction be x/y and form x + y = 11 ... (1) [1]",
+      "Use (x + 1)/(y + 2) = 3/4 and cross-multiply: 4(x + 1) = 3(y + 2). [1]",
+      "Simplify: 4x + 4 = 3y + 6, so 4x − 3y = 2 ... (2) [1]",
+      "From (1), y = 11 − x; substitute in (2): 4x − 33 + 3x = 2, so 7x = 35, x = 5 and y = 6. [1]",
+      "Original fraction = 5/6. Check: 5 + 6 = 11 and (5 + 1)/(6 + 2) = 6/8 = 3/4. [1]"
     ],
     strategyHint:
       "Translate the fraction condition into two equations and solve by substitution or elimination.",
@@ -304,11 +304,11 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     questionText:
       "A teacher gives students the quadratic equation ax² + 5x + 6 = 0 and asks them to find the values of a for which the equation has (i) real and distinct roots, (ii) real and equal roots, and (iii) no real roots. Answer all three parts.",
     answer:
-      "(i) a < 25/24 for real and distinct roots, (ii) a = 25/24 for real and equal roots, (iii) a > 25/24 for no real roots.",
+      "(i) a < 25/24 and a ≠ 0 for real and distinct roots, (ii) a = 25/24 for real and equal roots, (iii) a > 25/24 for no real roots.",
     finalAnswer:
-      "a < 25/24 ⇒ distinct roots; a = 25/24 ⇒ equal roots; a > 25/24 ⇒ no real roots.",
+      "a < 25/24 (a ≠ 0) ⇒ distinct roots; a = 25/24 ⇒ equal roots; a > 25/24 ⇒ no real roots.",
     explanation:
-      "D = 5² − 4·a·6 = 25 − 24a. For D > 0, a < 25/24; for D = 0, a = 25/24; for D < 0, a > 25/24.",
+      "For the equation to be quadratic, a ≠ 0. D = 5² − 4·a·6 = 25 − 24a. For D > 0, a < 25/24 (with a ≠ 0); for D = 0, a = 25/24; for D < 0, a > 25/24.",
     solutionSteps: [
       "Compute D = 25 − 24a.; Use D > 0 to get inequality for distinct roots. [1]",
       "Use D = 0 for equal roots. [1]",
@@ -411,14 +411,14 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     bloomSkill: "Applying",
     questionText:
       "Find the coordinates of the point which divides the line segment joining (2, −3) and (8, 9) in the ratio 1 : 2 internally.",
-    answer: "(6, 5)",
-    finalAnswer: "The required point is (6, 5).",
+    answer: "(4, 1)",
+    finalAnswer: "The required point is (4, 1).",
     explanation:
-      "Use internal section formula: ( (m₂x₁ + m₁x₂)/(m₁ + m₂), (m₂y₁ + m₁y₂)/(m₁ + m₂) ). With m₁:m₂ = 1:2, we get (6, 5).",
+      "Use internal section formula: ( (m₂x₁ + m₁x₂)/(m₁ + m₂), (m₂y₁ + m₁y₂)/(m₁ + m₂) ). With m₁:m₂ = 1:2, x = (2×2 + 1×8)/3 = 4 and y = (2×(−3) + 1×9)/3 = 1, so the point is (4, 1).",
     solutionSteps: [
-      "Let A(2, −3), B(8, 9) and point P divide AB in ratio 1:2.; Use section formula for internal division. [½]",
-      "Compute x-coordinate of P.; Compute y-coordinate of P. [½]",
-      "Write final coordinates. [1]",
+      "Let A(2, −3), B(8, 9) and point P divide AB in ratio 1:2.; Use section formula for internal division: P = ((1×8 + 2×2)/3, (1×9 + 2×(−3))/3). [½]",
+      "x = (8 + 4)/3 = 12/3 = 4; y = (9 − 6)/3 = 3/3 = 1. [½]",
+      "The required point is P(4, 1). [1]"
     ],
     strategyHint:
       "Keep the ratio order consistent with which point you assign m₁ and m₂.",
@@ -514,15 +514,15 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     bloomSkill: "Analysing",
     questionText:
       "A boy is standing at a point A on level ground such that the angle of elevation of the top of a school building is 45°. When he walks 20 m closer to the building to a point B, the angle of elevation becomes 60°. Draw a rough figure and find the height of the building, correct to one decimal place.",
-    answer: "Height of the building ≈ 27.3 m.",
-    finalAnswer: "Height of the building ≈ 27.3 m.",
+    answer: "Height of the building = 10(3 + √3) ≈ 47.3 m.",
+    finalAnswer: "Height of the building = 10(3 + √3) ≈ 47.3 m.",
     explanation:
-      "Let height be h and initial distance x. From tan 45° = h/x, h = x. From B, tan 60° = h/(x − 20) gives √3 = x/(x − 20). Solve for x and then h.",
+      "Let height be h and initial distance x. From tan 45° = h/x, h = x. From B, tan 60° = h/(x − 20) gives √3 = x/(x − 20) ⇒ x(√3 − 1) = 20√3 ⇒ x = 20√3/(√3 − 1) = 10(3 + √3). Hence h = 10(3 + √3) ≈ 47.3 m.",
     solutionSteps: [
       "Draw two positions A and B and the vertical building.; Let AB = 20 m and initial distance from building be x. [1]",
-      "Use tan 45° = h/x to get h = x.; Use tan 60° = h/(x − 20) and substitute h = x. [1]",
-      "Solve for x and thus for h. [1]",
-      "Round the height to one decimal place. [1]",
+      "Use tan 45° = h/x to get h = x.; Use tan 60° = h/(x − 20) and substitute h = x: √3(x − 20) = x. [1]",
+      "Solve: x(√3 − 1) = 20√3 ⇒ x = 20√3/(√3 − 1) = 10(3 + √3), so h = 10(3 + √3) m. [1]",
+      "h = 10(3 + 1.732) = 47.32 ≈ 47.3 m. [1]"
     ],
     strategyHint:
       "Most two-position problems reduce to solving two tan equations in two unknowns.",
@@ -598,14 +598,14 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     bloomSkill: "Applying",
     questionText:
       "A solid toy is in the form of a hemisphere of radius 3.5 cm mounted on a right circular cone of height 4 cm and same base radius. Find the total surface area of the toy. (Use π = 22/7.)",
-    answer: "Total surface area ≈ 131.9 cm².",
-    finalAnswer: "Total surface area of the toy ≈ 131.9 cm².",
+    answer: "Total surface area ≈ 135.47 cm².",
+    finalAnswer: "Total surface area of the toy ≈ 135.47 cm².",
     explanation:
       "Total surface area = curved surface area of cone + curved surface area of hemisphere. Compute slant height of cone using √(r² + h²), then add both areas.",
     solutionSteps: [
-      "Identify radius r = 3.5 cm and height of cone h = 4 cm.; Compute slant height l = √(r² + h²). [1]",
-      "Find curved surface area of cone: πrl.; Find curved surface area of hemisphere: 2πr². [1]",
-      "Add both to get total surface area. [1]",
+      "r = 3.5 cm, h = 4 cm; slant height l = √(r² + h²) = √(12.25 + 16) = √28.25 ≈ 5.315 cm. [1]",
+      "CSA of cone = πrl = (22/7) × 3.5 × 5.315 ≈ 58.47 cm²; CSA of hemisphere = 2πr² = 2 × (22/7) × 12.25 = 77 cm². [1]",
+      "Total surface area = 58.47 + 77 ≈ 135.47 cm². [1]"
     ],
     strategyHint:
       "Do not include base area of cone; hemisphere covers it.",
@@ -625,14 +625,14 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     bloomSkill: "Applying",
     questionText:
       "The following table shows the marks obtained by 40 students in a test. Using the assumed mean method, find the mean marks.\n\nClass: 0–10, 10–20, 20–30, 30–40, 40–50\nFrequency: 4, 6, 14, 10, 6",
-    answer: "Mean marks = 28.5.",
-    finalAnswer: "Mean marks ≈ 28.5.",
+    answer: "Mean marks = 27.",
+    finalAnswer: "Mean marks = 27.",
     explanation:
-      "Find midpoints, take assumed mean 25 or 30, compute deviations and f·d, then use mean formula for assumed mean method.",
+      "Class marks 5, 15, 25, 35, 45; take A = 25, h = 10, so d = −2, −1, 0, 1, 2 and Σfd = 8. Mean = 25 + (8/40) × 10 = 27.",
     solutionSteps: [
-      "Write class intervals and find class marks (midpoints).; Choose a convenient assumed mean A (e.g., 25 or 30). [1]",
-      "Compute deviation d = (xᵢ − A)/h and fᵢdᵢ.; Use mean formula: x̄ = A + (Σfᵢdᵢ / Σfᵢ) × h. [1]",
-      "Substitute values and compute x̄. [1]",
+      "Class marks xᵢ: 5, 15, 25, 35, 45. Take assumed mean A = 25, h = 10. [1]",
+      "dᵢ = (xᵢ − 25)/10: −2, −1, 0, 1, 2; fᵢdᵢ: −8, −6, 0, 10, 12; Σfᵢdᵢ = 8, Σfᵢ = 40. [1]",
+      "x̄ = A + (Σfᵢdᵢ/Σfᵢ) × h = 25 + (8/40) × 10 = 25 + 2 = 27 marks. [1]"
     ],
     strategyHint:
       "Assumed mean method reduces calculations by shifting origin and scale.",
@@ -1024,18 +1024,18 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "Assertion (A): For grouped data, the modal class is the class with highest frequency. Reason (R): The mode of grouped data is given by the empirical formula Mode ≈ L + [(f₁−f₀)/(2f₁−f₀−f₂)]·h.",
+      "Assertion (A): For grouped data, the modal class is the class with highest frequency. Reason (R): The mode of grouped data is given by the formula Mode = L + [(f₁−f₀)/(2f₁−f₀−f₂)]·h.",
     answer:
-      "Both A and R are true, and R is the correct explanation of A.",
+      "Both A and R are true, but R is not the correct explanation of A.",
     explanation:
-      "Highest frequency decides modal class; formula estimates the mode within that class.",
+      "A is the definition of the modal class. R gives the formula that estimates the mode once the modal class is known; it uses A but does not explain why the modal class is the highest-frequency class.",
     policyTag: "AR/Mode estimation",
     solutionSteps: [
-      "Assertion (A) is true: The modal class for grouped data is indeed the class interval with the highest frequency, as the mode is expected to lie within this class.; Reason (R) is true: The formula Mode = L + [(f₁−f₀)/(2f₁−f₀−f₂)]·h is the correct empirical formula used to calculate the mode of grouped data. [½]",
-      "The formula for mode (R) utilizes the frequency of the modal class (f₁) and its adjacent classes (f₀, f₂), which is identified based on the highest frequency (A). [½]",
-      "Thus, the formula (R) provides the method to determine the mode, which is inherently linked to the modal class (A), making R a correct explanation of A. [1]",
+      "Assertion (A) is true: by definition, the modal class of grouped data is the class interval with the highest frequency. [½]",
+      "Reason (R) is true: Mode = L + [(f₁−f₀)/(2f₁−f₀−f₂)]·h is the NCERT formula for the mode of grouped data, where L is the lower limit of the modal class. [½]",
+      "R presupposes the modal class (it needs L and f₁ from it); it does not explain why the modal class is chosen as the class of highest frequency. Hence both are true but R is not the correct explanation of A. [1]"
     ],
-    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    finalAnswer: "Both A and R are true, but R is not the correct explanation of A.",
   },
 
   // ===== MORE: PROBABILITY =====
@@ -1076,16 +1076,16 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     bloomSkill: "Applying",
     questionText:
       "From a point A on the ground, the angle of elevation of the top of a vertical tower is 45°. On walking 14 m towards the tower to a point B, the angle becomes 60°. Find the height of the tower (√3 ≈ 1.732).",
-    answer: "≈ 24.2 m",
+    answer: "h = 7(3 + √3) ≈ 33.1 m",
     explanation:
-      "Let height = h, initial distance = x. tan45° ⇒ h=x. tan60° ⇒ h/(x−14)=√3. Substitute h=x to get x/(x−14)=√3 ⇒ x≈24.2 ⇒ h≈24.2.",
+      "Let height = h, initial distance from A = x. tan45° ⇒ h = x. tan60° ⇒ h/(x − 14) = √3. Substitute h = x: x = √3(x − 14) ⇒ x(√3 − 1) = 14√3 ⇒ x = 14√3/(√3 − 1) = 7(3 + √3) ≈ 33.1 ⇒ h ≈ 33.1 m.",
     policyTag: "Two-position standard",
     solutionSteps: [
       "Let the height of the tower be h and the distance from point B to the base of the tower be x.; In the right triangle formed with angle 60°: tan 60° = h/x => x = h/√3. [1]",
       "In the right triangle formed with angle 45°: tan 45° = h/(x+14) => 1 = h/(x+14) => h = x+14.; Substitute x from the first equation into the second: h = h/√3 + 14 => h(1 - 1/√3) = 14. [1]",
       "Solve for h: h = 14√3 / (√3 - 1) = 14√3(√3+1) / ((√3-1)(√3+1)) = 14(3+√3)/2 = 7(3+√3).; Substitute √3 ≈ 1.732: h = 7(3 + 1.732) = 7(4.732) = 33.124 m. [1]",
     ],
-    finalAnswer: "≈ 24.2 m",
+    finalAnswer: "h = 7(3 + √3) ≈ 33.1 m",
   },
   {
     id: "2026-TRIG-APP-CASE-08",
@@ -1453,7 +1453,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     questionText:
       "A wooden toy is made by joining a hemisphere of radius 3.5 cm on top of a cylinder of radius 3.5 cm and height 10 cm. (i) Find the total height of the toy. (ii) Find the curved surface area of the cylindrical part. (iii) Find the surface area of the hemispherical part. (iv) Find the total volume. (Use π = 22/7.)",
     answer:
-      "(i) 13.5 cm. (ii) CSA cylinder = 2πrh = 220 cm². (iii) CSA hemisphere = 2πr² = 77 cm². (iv) V = πr²h + (2/3)πr³ = 385 + 179.67 ≈ 564.67 cm³.",
+      "(i) 13.5 cm. (ii) CSA cylinder = 2πrh = 220 cm². (iii) CSA hemisphere = 2πr² = 77 cm². (iv) V = πr²h + (2/3)πr³ = 385 + 89.83 ≈ 474.83 cm³.",
     explanation:
       "Cylinder + Hemisphere combination. TSA excludes the joining circle.",
     policyTag: "Combination solid (cylinder + hemisphere)",
@@ -1463,7 +1463,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "(iv) Volume of cylinder = πr²h = (22/7) × (3.5)² × 10 = (22/7) × 12.25 × 10 = 22 × 1.75 × 10 = 385 cm³.; Volume of hemisphere = (2/3)πr³ = (2/3) × (22/7) × (3.5)³ = (2/3) × (22/7) × 42.875 = (2/3) × 22 × 6.125 = 269.5 / 3 ≈ 89.83 cm³. [1]",
       "Total volume = Volume of cylinder + Volume of hemisphere = 385 + 89.83 = 474.83 cm³. [1]",
     ],
-    finalAnswer: "(i) 13.5 cm. (ii) CSA cylinder = 2πrh = 220 cm². (iii) CSA hemisphere = 2πr² = 77 cm². (iv) V = πr²h + (2/3)πr³ = 385 + 179.67 ≈ 564.67 cm³.",
+    finalAnswer: "(i) 13.5 cm. (ii) CSA cylinder = 2πrh = 220 cm². (iii) CSA hemisphere = 2πr² = 77 cm². (iv) V = πr²h + (2/3)πr³ = 385 + 89.83 ≈ 474.83 cm³.",
   },
 
   // ===== STATISTICS (grouped median/mode) =====
@@ -1975,15 +1975,15 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     difficulty: "Easy",
     bloomSkill: "Understanding",
     questionText:
-      "For the same distribution (0–10: 5, 10–20: 10, 20–30: 15), the median class is:",
+      "For the distribution (0–10: 5, 10–20: 12, 20–30: 13), the median class is:",
     options: ["0–10", "10–20", "20–30", "Cannot be determined"],
     answer: "10–20",
     explanation:
-      "Total frequency is 30. The median (15th observation) lies in the class whose cumulative frequency reaches at least 15: the class 10–20.",
+      "Total frequency is 30, so n/2 = 15. Cumulative frequencies are 5, 17, 30. The first cumulative frequency greater than 15 is 17, so the median class is 10–20.",
     solutionSteps: [
-      "Calculate cumulative frequencies: 0-10 (5), 10-20 (5+10=15), 20-30 (15+15=30).",
-      "Total frequency N = 30. The median position is N/2 = 30/2 = 15.",
-      "The class interval containing the 15th observation is 10-20, as its cumulative frequency is 15.",
+      "Cumulative frequencies: 0–10 → 5, 10–20 → 5 + 12 = 17, 20–30 → 17 + 13 = 30.",
+      "n = 30, so n/2 = 15.",
+      "The class whose cumulative frequency (17) is greater than and nearest to 15 is 10–20, so the median class is 10–20."
     ],
     finalAnswer: "10–20",
   },
@@ -2045,15 +2045,15 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     questionText:
       "Assertion (A): In any dataset, the mode is the value with the highest frequency.\nReason (R): For a grouped frequency distribution, the class interval with the greatest frequency is called the modal class.",
     answer:
-      "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+      "Both Assertion and Reason are true but Reason is not the correct explanation of Assertion.",
     explanation:
-      "Mode represents the most frequent observation. In grouped data, the class with highest frequency is termed the modal class.",
+      "Mode is the most frequent observation, which is true by definition. The Reason defines the modal class for grouped data; it is true, but a definition about grouped data does not explain why the mode of a dataset is its most frequent value.",
     solutionSteps: [
-      "Assertion (A) correctly defines mode for ungrouped data as the value with the highest frequency.",
-      "Reason (R) correctly defines modal class for grouped data as the class with the greatest frequency.",
-      "Reason (R) explains how the concept of mode (highest frequency) is extended to grouped data, thus explaining Assertion (A).",
+      "Assertion (A) is true: by definition, the mode is the observation that occurs most often (highest frequency).",
+      "Reason (R) is true: in a grouped frequency distribution, the class with the greatest frequency is called the modal class.",
+      "R only names the class in which the mode of grouped data lies; it does not explain the definition in A. Hence both are true but R is not the correct explanation of A."
     ],
-    finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+    finalAnswer: "Both Assertion and Reason are true but Reason is not the correct explanation of Assertion.",
   },
   {
     id: "2026-STAT-CASE-12",
@@ -2230,20 +2230,20 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "The polynomial f(x) = x³ − 6x² + 11x − 6 models the number of organisms in a culture dish (in millions) after x hours.\n(a) Factorise f(x) completely.\n(b) Find the times at which the population becomes zero.\n(c) Discuss which of these times are meaningful.",
+      "The polynomial f(x) = x³ − 6x² + 11x − 6 models the profit (in lakh ₹, a negative value meaning a loss) of a small start-up x years after it opened.\n(a) Factorise f(x) completely.\n(b) Find the times at which the profit becomes zero (break-even).\n(c) Discuss which of these times are meaningful.",
     answer:
-      "(a) f(x) = (x − 1)(x − 2)(x − 3). (b) The roots are x = 1, 2 and 3 hours. (c) All three roots are positive and correspond to possible times when the population could become zero.",
+      "(a) f(x) = (x − 1)(x − 2)(x − 3). (b) The profit is zero at x = 1, 2 and 3 years. (c) All three zeros are positive, so all three are meaningful break-even times (a profit, unlike a population, may be negative in between).",
     explanation:
-      "By testing small integers, f(1) = f(2) = f(3) = 0. Factorising gives (x − 1)(x − 2)(x − 3). The positive roots represent times at which the population would be zero; negative times are not meaningful.",
+      "By testing small integers, f(1) = f(2) = f(3) = 0. Grouping gives f(x) = (x − 1)(x² − 5x + 6) = (x − 1)(x − 2)(x − 3). The zeros are the break-even times; since they are all positive (x ≥ 0 is the valid domain), all three are meaningful. Negative times would not be meaningful.",
     solutionSteps: [
-      "By trial, f(1) = 1 - 6 + 11 - 6 = 0. So (x-1) is a factor. [1]",
-      "Divide f(x) by (x-1) to get x² - 5x + 6. [1]",
-      "Factorise x² - 5x + 6 = (x-2)(x-3). So f(x) = (x-1)(x-2)(x-3). [1]",
-      "Population is zero at x=1, 2, 3 hours. All are positive, hence meaningful. [1]",
+      "By trial, f(1) = 1 − 6 + 11 − 6 = 0. So (x − 1) is a factor. [1]",
+      "Group: f(x) = x²(x − 1) − 5x(x − 1) + 6(x − 1) = (x − 1)(x² − 5x + 6). [1]",
+      "Factorise x² − 5x + 6 = (x − 2)(x − 3). So f(x) = (x − 1)(x − 2)(x − 3). [1]",
+      "Profit is zero at x = 1, 2, 3 years. All are positive times, hence all are meaningful break-even points. [1]"
     ],
     strategyHint:
       "Test small integer values to identify factors and relate roots to real‑world contexts.",
-    finalAnswer: "(a) f(x) = (x − 1)(x − 2)(x − 3). (b) The roots are x = 1, 2 and 3 hours. (c) All three roots are positive and correspond to possible times when the population could become zero.",
+    finalAnswer: "(a) f(x) = (x − 1)(x − 2)(x − 3). (b) x = 1, 2 and 3 years. (c) All three are positive, so all three are meaningful break-even times.",
   },
 
   // ===== Arithmetic Progression (high‑roi) =====
@@ -2527,14 +2527,14 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     questionText:
       "What is the volume of a sphere of radius 3 cm? (Take π = 22/7)",
     options: [
-      "36π cm³",
-      "72π cm³",
-      "113 1/7 cm³",
-      "452/7 cm³",
+      "27π cm³",
+      "72π cm³",
+      "113 1/7 cm³",
+      "452/7 cm³"
     ],
     answer: "113 1/7 cm³",
     explanation:
-      "Volume = \\((4/3)πr³ = (4/3) × (22/7) × 27 = 792/7 ≈ 113\\\\frac{1}{7}\\\\).",
+      "Volume = (4/3)πr³ = (4/3) × (22/7) × 27 = 792/7 = 113 1/7 cm³.",
     solutionSteps: [
       "Write down the formula for the volume of a sphere: V = (4/3)πr^3.",
       "Given radius r = 3 cm and π = 22/7.",

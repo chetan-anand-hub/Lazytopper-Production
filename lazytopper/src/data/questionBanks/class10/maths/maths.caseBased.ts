@@ -158,7 +158,7 @@ export const MATHS_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Case Study: Priya starts saving money for her college fund. In January she saves ₹500, in February ₹700, in March ₹900, and so on — increasing her savings by ₹200 each month.\n\nPart (i) [1 mark]: How much will Priya save in the 12th month?\n\nPart (ii) [1 mark]: What is Priya's total savings at the end of 12 months?\n\nPart (iii) [2 marks]: In which month will Priya's monthly savings first exceed ₹3,000? Also find her total savings up to that month.",
     "options": [],
-    "answer": "Part (i): ₹2,700 Part (ii): ₹19,200 Part (iii): Month 14; Total savings = ₹27,300",
+    "answer": "Part (i): ₹2,700 Part (ii): ₹19,200 Part (iii): Month 14; Total savings = ₹25,200",
     "solutionSteps": [
       "Part (i):",
       "AP: a = 500, d = 200",
@@ -183,13 +183,13 @@ export const MATHS_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
       "S₁₄ = 14/2 × [2×500 + 13×200]",
       "= 7 × [1000 + 2600]",
       "= 7 × 3600 = ₹25,200",
-      "Wait — recalculating: S₁₄ = 7 × 3600 = ₹25,200",
       "Therefore in month 14 savings exceed ₹3,000; total up to month 14 = ₹25,200"
     ],
     "finalAnswer": "Part (i): ₹2,700 Part (ii): ₹19,200 Part (iii): Month 14 (savings = ₹3,100); Total = ₹25,200",
     "explanation": "Part (i): AP with a = 500, d = 200. a₁₂ = 500 + 11 × 200 = ₹2,700. Part (ii): S₁₂ = 6 × [1000 + 2200] = 6 × 3200 = ₹19,200. Part (iii): aₙ > 3000 gives n > 13.5, so n = 14. a₁₄ = ₹3,100. S₁₄ = 7 × 3600 = ₹25,200.",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 5.2"
+    "ncertRef": "Ex 5.2",
+    sourceOverride: "others",
   },
   {
     "id": "CASE-MATHS-QE-001",

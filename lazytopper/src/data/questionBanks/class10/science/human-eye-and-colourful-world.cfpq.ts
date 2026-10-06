@@ -319,12 +319,13 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     bloomSkill: "Applying",
     questionText:
       "Mars's atmosphere is composed mainly of carbon dioxide, nitrogen and argon and negligible amounts of oxygen, water vapour and methane.\n\nUsing the information given in the sentence above and knowledge about how rainbows are formed on Earth, explain why rainbow formation is impossible on Mars.",
-    answer: "There is not enough water vapour in the atmosphere to cause scattering of light.",
-    solutionSteps: ["[1 mark] There is not enough water vapour in the atmosphere to cause scattering of light."],
+    answer: "There is negligible water vapour in Mars's atmosphere, so there are no water droplets to refract, disperse and internally reflect sunlight; hence no rainbow can form.",
+    solutionSteps: ["[1 mark] There is negligible water vapour in Mars's atmosphere, so there are no water droplets to refract, disperse and internally reflect sunlight; hence no rainbow can form."],
     finalAnswer: "Mars has negligible water vapour, and water droplets are what disperse sunlight into a rainbow.",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.11 — CFPQ_Science10.pdf, questions pdf pp.93–96 (printed folios 92–95)",
     requiresDiagram: false,
+    sourceOverride: "others",
   },
   // pdf-page 96 (folio 95) — Q12 [2]. Rubric row 12: pdf-page 98.
   {

@@ -42,7 +42,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_SQP: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The sum of a two digit number and the number obtained by reversing the digits is 66. If the digits of the number differ by 2, find the number. How many such numbers are there?\n\n[OR]\n\nSolve: 2/√x − 3/√y = 2 ; 4/√x − 9/√y = −1, x, y > 0.",
+    "questionText": "The sum of a two digit number and the number obtained by reversing the digits is 66. If the digits of the number differ by 2, find the number. How many such numbers are there?\n\n[OR]\n\nSolve: 2/√x + 3/√y = 2 ; 4/√x − 9/√y = −1, x, y > 0.",
     "options": [],
     "answer": "Main: The numbers are 42 and 24 (two such numbers). OR Alt: x = 4, y = 9.",
     "solutionSteps": [
@@ -53,6 +53,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_SQP: CanonicalQuestion[] = [
       "Back-substitute: 1/√x = 1/2 ⇒ √x = 2 ⇒ x = 4; 1/√y = 1/3 ⇒ √y = 3 ⇒ y = 9."
     ],
     "finalAnswer": "Main: 42 and 24 (two numbers). OR Alt: x = 4, y = 9.",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   }
 ];

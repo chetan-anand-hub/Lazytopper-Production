@@ -591,25 +591,24 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "How many zeroes does the polynomial p(x) = (x - 2)²(x + 1) have?",
+    "questionText": "How many distinct zeroes does the polynomial p(x) = (x - 2)²(x + 1) have?",
     "options": [
       "1",
       "2",
       "3",
       "4"
     ],
-    "answer": "3",
+    "answer": "2",
     "solutionSteps": [
-      "The polynomial has factors (x-2) twice and (x+1) once",
-      "Zeroes: x = 2 (multiplicity 2) and x = -1 (multiplicity 1)",
-      "Total zeroes = 3"
+      "p(x) = 0 when (x - 2)² = 0 or (x + 1) = 0",
+      "So x = 2 (repeated factor) or x = -1",
+      "Distinct zeroes are 2 and -1, so the number of distinct zeroes = 2 (the graph meets the x-axis at 2 points)"
     ],
-    "finalAnswer": "3",
-    "explanation": "The polynomial has factors (x-2) twice and (x+1) once. Zeroes: x = 2 (multiplicity 2) and x = -1 (multiplicity 1). Total zeroes = 3. Therefore, the correct answer is 3.",
+    "finalAnswer": "2",
+    "explanation": "p(x) = 0 gives x = 2 (from the repeated factor (x - 2)²) or x = -1. The graph meets the x-axis at exactly two points, x = 2 and x = -1. Therefore, the number of distinct zeroes is 2.",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.1"
+    "ncertRef": "Ex 2.1",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-031",
@@ -653,18 +652,17 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "If x = 2 is a zero of p(x) = x³ - x² + ax + b and x = -1 is also a zero, find a and b.",
     "options": [],
-    "answer": "a = -2, b = -6",
+    "answer": "a = -2, b = 0",
     "solutionSteps": [
       "p(2) = 0: 8 - 4 + 2a + b = 0 → 2a + b = -4",
       "p(-1) = 0: -1 - 1 - a + b = 0 → -a + b = 2",
-      "Solving: a = -2, b = -6"
+      "Subtracting: 3a = -6 → a = -2; then b = 2 + a = 0. (Check: x³ - x² - 2x = x(x - 2)(x + 1) ✓)"
     ],
-    "finalAnswer": "a = -2, b = -6",
+    "finalAnswer": "a = -2, b = 0",
     "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.1"
+    "ncertRef": "Ex 2.1",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-034",
@@ -1156,12 +1154,13 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "This ensures that the division process terminates when the remainder's degree is too small to be further divided by G(x).",
     ],
   },
-  { id: "PL2-R19", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of zeros of the polynomial (x−1)²(x+2) is:", options: ["3","2","1","0"], answer: "3", explanation: "The correct answer is 3. Zeros: x=1 (multiplicity 2) and x=−2. Total 3 zeros counting multiplicity.", finalAnswer: "Zeros: x=1 (multiplicity 2) and x=−2. Total 3 zeros counting multiplicity.", isCompetencyBased: false,
+  { id: "PL2-R19", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of distinct zeros of the polynomial (x−1)²(x+2) is:", options: ["3","2","1","0"], answer: "2", explanation: "The correct answer is 2. Zeros: x = 1 (from the repeated factor) and x = −2, so the graph meets the x-axis at 2 points — 2 distinct zeros.", finalAnswer: "Distinct zeros: x = 1 and x = −2. Number of distinct zeros = 2.", isCompetencyBased: false,
     solutionSteps: [
-      "To find the zeros of the polynomial, set the expression (x-1)²(x+2) equal to zero.",
-      "This implies (x-1)² = 0 or (x+2) = 0. From (x-1)² = 0, we get x=1 (a zero with multiplicity 2).",
-      "From (x+2) = 0, we get x=-2 (a zero with multiplicity 1). The zeros are 1, 1, and -2. Thus, the total number of zeros is 3.",
+      "To find the zeros of the polynomial, set the expression (x−1)²(x+2) equal to zero.",
+      "This implies (x−1)² = 0 or (x+2) = 0. From (x−1)² = 0, we get x = 1 (repeated factor).",
+      "From (x+2) = 0, we get x = −2. The distinct zeros are 1 and −2, so the number of distinct zeros is 2."
     ],
+    sourceOverride: "others",
   },
   { id: "PL2-R20", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If the product of zeros of x² + kx + 8 is −4, then k² − 32 = 0.\nReason (R): For ax² + bx + c, the product of zeros is c/a.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "A is false, R is true.", explanation: "Product = 8/1 = 8 (from the polynomial), not −4. So k²−32=0 is not implied. But R (product = c/a) is a true statement. A is false, R is true.", finalAnswer: "A is false, R is true.", isCompetencyBased: true,
     solutionSteps: [

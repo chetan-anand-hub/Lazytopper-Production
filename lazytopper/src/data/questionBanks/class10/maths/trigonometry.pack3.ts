@@ -1022,17 +1022,16 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Evaluate: 2 sin 30° + 3 cos 60°",
     "options": [],
-    "answer": "2",
+    "answer": "5/2",
     "solutionSteps": [
       "sin 30° = 1/2, cos 60° = 1/2",
       "2 sin 30° + 3 cos 60° = 2(1/2) + 3(1/2)",
-      "= 1 + 3/2 = 2"
+      "= 1 + 3/2 = 5/2"
     ],
-    "finalAnswer": "2",
+    "finalAnswer": "5/2",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.2"
+    "ncertRef": "Ex 8.2",
+    sourceOverride: "others",
   },
   {
     "id": "TG3-040",
@@ -1158,12 +1157,12 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Prove that: sec² θ - tan² θ = 1. Which identity is used as a starting point?",
+    "questionText": "Prove that: sec² θ - tan² θ = 1. This result is obtained directly by rearranging which identity?",
     "options": [
       "sin² θ + cos² θ = 1",
       "1 + cot² θ = cosec² θ",
       "tan² θ + 1 = sec² θ",
-      "All are equivalent"
+      "sin² θ - cos² θ = 1"
     ],
     "answer": "tan² θ + 1 = sec² θ",
     "solutionSteps": [
@@ -1175,9 +1174,8 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "explanation": "From tan² θ + 1 = sec² θ. Rearranging: sec² θ - tan² θ = 1. Therefore, the correct answer is tan² θ + 1 = sec² θ.",
     "visualExplainerId": "maths-trigonometry-trigonometric-identities",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.3"
+    "ncertRef": "Ex 8.3",
+    sourceOverride: "others",
   },
   {
     "id": "TG3-045",
@@ -1326,7 +1324,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Assertion: For any angle θ, sin θ can never be greater than 1. Reason: The sine ratio is the ratio of opposite side to hypotenuse in a right-angled triangle.",
+    "questionText": "Assertion: For any angle θ, sin θ can never be greater than 1. Reason: The sine ratio is the ratio of opposite side to hypotenuse in a right-angled triangle, and the hypotenuse is the longest side.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -1343,9 +1341,8 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.1"
+    "ncertRef": "Ex 8.1",
+    sourceOverride: "others",
   },
   {
     "id": "TG3-052",
@@ -1539,8 +1536,8 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [
       "1",
       "sin² θ - cos² θ",
-      "2sin² θ - 1",
-      "1 - 2cos² θ"
+      "1 - 2sin² θ",
+      "(sin θ - cos θ)²"
     ],
     "answer": "sin² θ - cos² θ",
     "solutionSteps": [
@@ -1552,9 +1549,8 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "finalAnswer": "sin² θ - cos² θ",
     "explanation": "sin⁴ θ - cos⁴ θ = (sin² θ)² - (cos² θ)². = (sin² θ - cos² θ)(sin² θ + cos² θ). = (sin² θ - cos² θ)(1). = sin² θ - cos² θ. Therefore, the correct answer is sin² θ - cos² θ.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.3"
+    "ncertRef": "Ex 8.3",
+    sourceOverride: "others",
   },
   {
     "id": "TG3-059",

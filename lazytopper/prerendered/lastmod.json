@@ -9,31 +9,31 @@
   },
   "/check-your-answer": {
     "sha256": "3981e3ab5bd02ff381dba6c4b59b6642a300ed757ef0aa440d43c137ae91b376",
-    "lastmod": "2026-10-04"
+    "lastmod": "2026-10-06"
   },
   "/exam-trends": {
     "sha256": "ea9c3e4de10b9cdecfc2d7de58064e50905ac589da4f07dd67332f8ace01fbd6",
     "lastmod": "2026-10-06"
   },
   "/highly-probable/10/Maths": {
-    "sha256": "5cc1753bdd9ab8e72f6e0ae306f1fb471583d8b86262922203f17651cb002d7b",
+    "sha256": "a26e2f6d5d9fc45375c708f203afc4bf259faf9b129d81e0b9fcf25b0f2497c3",
     "lastmod": "2026-10-06"
   },
   "/highly-probable/10/Science": {
-    "sha256": "45018e422743abd90a7e4748e04228aa709a0a0c13baa62fee2a0c1fa2735694",
+    "sha256": "a93e27438b19cb76a399750374a5c0729a03d23e9939a41e146ccaea2f561813",
     "lastmod": "2026-10-06"
   },
   "/legal/privacy": {
     "sha256": "b235838982fc17b26bd861e418eb0d8f5eb815400c18bb32541e343ef13c060c",
-    "lastmod": "2026-10-04"
+    "lastmod": "2026-10-06"
   },
   "/legal/refund": {
     "sha256": "4fbcc45430c77f40cb00694b3b147e5271eb0443a6faf3aca2f9f0adf417c76e",
-    "lastmod": "2026-10-04"
+    "lastmod": "2026-10-06"
   },
   "/legal/terms": {
     "sha256": "9139ef1eb615c2b0569c4f1d2665f3e499c100bb48d863f1a3d5bc9c6c3992ef",
-    "lastmod": "2026-10-04"
+    "lastmod": "2026-10-06"
   },
   "/notes/acids-bases-and-salts": {
     "sha256": "b08094607517d7e7e43fcef876c3041a7c534fe99bf857e2e8fe59c8981e3eee",
@@ -108,7 +108,7 @@
     "lastmod": "2026-10-06"
   },
   "/notes/polynomials": {
-    "sha256": "dab81f2076a127327a2a91f66e1844df35cdec14fb8cbc1334f0717898a3e37a",
+    "sha256": "19ffda554f7b740a38c7745e226ab41fc9630f9810c21f8fd79102ef22c1215c",
     "lastmod": "2026-10-06"
   },
   "/notes/probability": {
@@ -141,7 +141,7 @@
   },
   "/practice-hub": {
     "sha256": "9a5da1ffa170c8eed338d6ef2662f1a8247b11bf5311caa4cc4b2c96d4898a56",
-    "lastmod": "2026-10-05"
+    "lastmod": "2026-10-06"
   },
   "/pricing": {
     "sha256": "6aa62c2dc92195f9ce22b824cee31d38ae0c366ebb2c7a5ba6fc5e872c82be07",

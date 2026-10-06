@@ -162,16 +162,17 @@ export const SAV_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A jackfruit is in the shape of a cylinder with two hemispherical ends. The total length of the jackfruit is 60 cm and its diameter is 25 cm. Find the volume of the jackfruit (take π = 3.14).",
     "options": [],
-    "answer": "21,260.42 cm³ (any value between 21260 and 21261 acceptable)",
+    "answer": "25,348.96 cm³ (any value between 25348 and 25350 acceptable)",
     "solutionSteps": [
-      "[1 mark] Radius r = 25/2 = 12.5 cm; the two hemispherical ends form one sphere, and cylinder length h = 60 − 25 = 35 cm. Volume = πr²h + (4/3)πr³ = πr²(h + (2/3)r).",
-      "[1 mark] Substitute: = 3.14 × 12.5 × 12.5 × (35 + (2/3) × 12.5).",
-      "[1 mark] = 21,260.42 cm³."
+      "[1 mark] Radius r = 25/2 = 12.5 cm; the two hemispherical ends form one sphere, and cylinder length h = 60 − 25 = 35 cm. Volume = πr²h + (4/3)πr³ = πr²(h + (4/3)r).",
+      "[1 mark] Substitute: = 3.14 × 12.5 × 12.5 × (35 + (4/3) × 12.5) = 490.625 × (35 + 16.67).",
+      "[1 mark] = 17,171.88 + 8,177.08 = 25,348.96 cm³."
     ],
-    "finalAnswer": "21,260.42 cm³",
+    "finalAnswer": "25,348.96 cm³",
     "isCompetencyBased": true,
     "requiresDiagram": true,
-    "diagramDescription": "A jackfruit modelled as a right circular cylinder with a hemisphere attached at each end; total length 60 cm and diameter 25 cm marked on the figure (not to scale)."
+    "diagramDescription": "A jackfruit modelled as a right circular cylinder with a hemisphere attached at each end; total length 60 cm and diameter 25 cm marked on the figure (not to scale).",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-SAV-C-003",

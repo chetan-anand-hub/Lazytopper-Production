@@ -139,10 +139,11 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
 
   // ===== Section E — Case-Based (4 marks) =====
   { id: "CIRC-N-NCERT-10-CB-001", subject: "Maths", topicKey: "circles", subtopic: "Tangent Length Application", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A circular pulley of radius 5 cm is fitted in a frame. A rope is wound on the pulley and a person holds the rope at a point T such that the distance OT from the centre of the pulley equals 13 cm. The rope is taut and acts as a tangent from T to the circle, touching at point P.\n(i) What angle does OP make with TP?\n(ii) Find the length TP of the rope from T to the point of contact.\n(iii) If a second rope from T touches the pulley at Q, what is TQ?\n(iv) Find ∠PTQ if ∠POQ = 110° using the angle-sum property of OPTQ.",
-    solutionSteps: ["(i) OP ⊥ TP by Theorem 10.1 ⇒ ∠OPT = 90°.", "(ii) In right ∆OPT: TP² = OT² − OP² = 169 − 25 = 144 ⇒ TP = 12 cm.", "(iii) TQ = TP = 12 cm (equal tangents from external point — Theorem 10.2).", "(iv) Quadrilateral OPTQ has angles 90° at P, 90° at Q. Sum 360°: ∠PTQ = 360° − 90° − 90° − 110° = 70°."],
+    questionText: "A circular pulley of radius 5 cm is fitted in a frame. A rope is wound on the pulley and a person holds the rope at a point T such that the distance OT from the centre of the pulley equals 13 cm. The rope is taut and acts as a tangent from T to the circle, touching at point P.\n(i) What angle does OP make with TP?\n(ii) Find the length TP of the rope from T to the point of contact.\n(iii) If a second rope from T touches the pulley at Q, what is TQ?\n(iv) On a different pulley with centre O′, two taut ropes from an external point S touch it at A and B. If ∠AO′B = 110°, find ∠ASB using the angle-sum property of quadrilateral O′ASB.",
+    solutionSteps: ["(i) OP ⊥ TP by Theorem 10.1 ⇒ ∠OPT = 90°.", "(ii) In right ∆OPT: TP² = OT² − OP² = 169 − 25 = 144 ⇒ TP = 12 cm.", "(iii) TQ = TP = 12 cm (equal tangents from external point — Theorem 10.2).", "(iv) In quadrilateral O′ASB, ∠O′AS = ∠O′BS = 90° (radius ⊥ tangent). Sum 360°: ∠ASB = 360° − 90° − 90° − 110° = 70°."],
     finalAnswer: "(i) 90°; (ii) 12 cm; (iii) 12 cm; (iv) 70°.",
-    ncertRef: "NCERT Theorems 10.1, 10.2 applied", isCompetencyBased: true },
+    ncertRef: "NCERT Theorems 10.1, 10.2 applied", isCompetencyBased: true,
+    sourceOverride: "others" },
 
   // ===== Creating-level question =====
   { id: "CIRC-N-NCERT-10-CRE-001", subject: "Maths", topicKey: "circles", subtopic: "Tangent Length Application", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",

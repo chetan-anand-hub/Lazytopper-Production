@@ -189,7 +189,7 @@ export const POLYNOMIALS_EXPAND_CASE_E: CanonicalQuestion[] = [
 
   // 016 — expand a product-form area, zeros, positivity, relationship
   { id: "BX-POLY-E-016", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes of Polynomial", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A rectangular pen is built against a wall using 20 m of fencing for the three open sides. If one side is x metres, the enclosed area is A(x) = x(20 − x).\n(i) Expand A(x) into standard quadratic form.\n(ii) Find the zeros of A(x).\n(iii) For which values of x is the area positive (a real pen)?\n(iv) Verify the sum-of-zeros relationship for A(x).",
+    questionText: "A rectangular pen is fenced on all four sides using 40 m of fencing (perimeter 40 m). If one side is x metres, the other side is (20 − x) metres and the enclosed area is A(x) = x(20 − x).\n(i) Expand A(x) into standard quadratic form.\n(ii) Find the zeros of A(x).\n(iii) For which values of x is the area positive (a real pen)?\n(iv) Verify the sum-of-zeros relationship for A(x).",
     solutionSteps: [
       "[1 mark] (i) A(x) = x(20 − x) = 20x − x² = −x² + 20x.",
       "[1 mark] (ii) −x² + 20x = −x(x − 20) = 0 ⇒ x = 0 and x = 20.",
@@ -197,7 +197,8 @@ export const POLYNOMIALS_EXPAND_CASE_E: CanonicalQuestion[] = [
       "[1 mark] (iv) −b/a = −20/(−1) = 20 = sum of zeros (0 + 20) ✓.",
     ],
     finalAnswer: "(i) −x² + 20x; (ii) x = 0, 20; (iii) 0 < x < 20; (iv) sum = 20 = −b/a ✓.",
-    ncertRef: "CBSE 2026-27 case-based (application)", isCompetencyBased: true },
+    ncertRef: "CBSE 2026-27 case-based (application)", isCompetencyBased: true,
+    sourceOverride: "others" },
 
   // 017 — symmetric function alpha^3 + beta^3
   { id: "BX-POLY-E-017", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
