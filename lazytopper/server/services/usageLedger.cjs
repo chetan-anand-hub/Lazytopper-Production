@@ -134,6 +134,47 @@ function currentUid() {
   return store && typeof store.uid === 'string' ? store.uid : '';
 }
 
+/* ── A17 owner ruling 5 · GRADED-ONLY METERING (GRADING-JOBS-1 J0) ────────────
+ * The premium meter counts ONLY questions that were graded. A grading model call does not know,
+ * when it returns, whether the questions it graded will turn out graded, not attempted, unread, a
+ * mismatch or "not graded". So the grading core (server/grading/core.cjs) runs each call — every
+ * chunk attempt, every chunk retry, every scheme-cache generation — inside a METER GROUP:
+ *   • recordUsage, called by geminiClient as before, HOLDS the call's record in the group instead
+ *     of writing it (no new hook in geminiClient: the meter decides here);
+ *   • once the request's results are known, the core SETTLES each group with the CHARGEABLE SHARE
+ *     of the questions that call graded (chargeable / questions, grading/charge.cjs isChargeable);
+ *   • every held record is then written with its cost and tokens scaled by that share — a share of
+ *     0 (all notGraded / couldNotRead / mismatch / not attempted) writes NOTHING;
+ *   • a record that arrives AFTER its group settled (a call still finishing in the background) is
+ *     written at the settled share; a group that is never settled (the request failed outright —
+ *     nothing was graded) writes nothing.
+ * Outside a group (every non-grading call: tutor, detect, step solution …) nothing changes. */
+
+/** A new, unsettled meter group. */
+function createMeterGroup() {
+  return { settled: false, fraction: null, held: [] };
+}
+
+/** Run `fn` with `group` as the meter group of every model call it makes (the uid is kept). */
+function runInMeterGroup(group, fn) {
+  const store = requestContext.getStore();
+  if (!store || !group) return fn();
+  return requestContext.run({ ...store, meter: group }, fn);
+}
+
+/** Settle a group: write its held records scaled by `fraction` (clamped to [0, 1]). Once only. */
+function settleMeterGroup(group, fraction) {
+  if (!group || group.settled) return;
+  const f = Number(fraction);
+  group.fraction = Number.isFinite(f) ? Math.min(1, Math.max(0, f)) : 0;
+  group.settled = true;
+  const held = group.held;
+  group.held = [];
+  for (const write of held) {
+    try { write(group.fraction); } catch { /* a counter must never fail anything */ }
+  }
+}
+
 /* ── Cost ────────────────────────────────────────────────────────────────── */
 
 function toCount(value) {
@@ -233,8 +274,30 @@ function createUsageLedger(deps = {}) {
     try {
       const uid = currentUid();
       if (!uid) return null;
+      // A17 ruling 5: a grading call inside a meter group is held until its share is known.
+      const store = requestContext.getStore();
+      const meter = store && store.meter;
+      if (meter) {
+        if (!meter.settled) {
+          meter.held.push((fraction) => writeUsage(uid, record, fraction));
+          return null;
+        }
+        return writeUsage(uid, record, meter.fraction);
+      }
+      return writeUsage(uid, record, 1);
+    } catch {
+      count(TELEMETRY.ERROR);
+      return null;
+    }
+  }
 
-      const { increment, priced } = buildLedgerIncrement(record, { env });
+  /** Write one call's usage for `uid`, its cost and tokens scaled by `fraction` (0 writes nothing). */
+  function writeUsage(uid, record, fraction) {
+    try {
+      if (!(fraction > 0)) return null;
+      const built = buildLedgerIncrement(record, { env });
+      const { priced } = built;
+      const increment = fraction >= 1 ? built.increment : scaleIncrement(built.increment, fraction);
       if (!priced) count(TELEMETRY.UNPRICED_MODEL);
 
       const fs = resolveFirestore();
@@ -272,6 +335,16 @@ function createUsageLedger(deps = {}) {
       count(TELEMETRY.ERROR);
       return null;
     }
+  }
+
+  function scaleIncrement(inc, fraction) {
+    return {
+      calls: inc.calls,
+      promptTokens: Math.round(inc.promptTokens * fraction),
+      outputTokens: Math.round(inc.outputTokens * fraction),
+      thoughtsTokens: Math.round(inc.thoughtsTokens * fraction),
+      costMicroInr: Math.round(inc.costMicroInr * fraction),
+    };
   }
 
   function dayRef(db, uid, dayKey) {
@@ -352,6 +425,9 @@ module.exports = {
   runWithRequestContext,
   bindRequestUid,
   currentUid,
+  createMeterGroup,
+  runInMeterGroup,
+  settleMeterGroup,
   USAGE_LEDGER_COLLECTION,
   LEDGER_SEGMENTS,
   LEDGER_FIELDS,

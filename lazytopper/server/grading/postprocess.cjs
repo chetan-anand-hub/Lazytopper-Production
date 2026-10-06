@@ -83,37 +83,121 @@ const LEAK_SENTENCE = /marking scheme (?:had|has|contained|contains|is|was) (?:a
 // marks"), never a negated sentence: "Full marks…", "you got / full marks are awarded" (not "for
 // part …"), or "the calculations / working / steps / answer … are completely correct/accurate".
 const FULL_MARKS_CLAIM = /^(?!.*\b(?:not|n['’]t|never|no longer|lost|loses|missing|except|but|however|although|though|to secure|to get|to earn|for part|for (?:this|that|each) (?:step|part))\b)(?:\s*(?:excellent|well done|great)?[,!.\s]*full marks\b(?![^.]*\bfor\b)|.*\b(?:you (?:have )?(?:get|got|earn(?:ed)?|score(?:d)?|secure(?:d)?|achieve(?:d)?) full marks|full marks (?:are |were |is |have been )?(?:awarded|given|earned|scored|secured))\b(?![^.]*\bfor\b)|\s*(?:the|your|all(?: the| your)?)\s+(?:calculations|working|steps|answer|solution|work|everything)\b(?!\s+(?:of|to|for|in|on|from)\b)[^.]*\b(?:are|is|were|was)\s+(?:all\s+)?(?:completely|fully|entirely|perfectly|totally)\s+(?:correct|accurate|right|flawless)\b)/i;
-const UNIT_LOSS = /\b(?:si\s+)?units?\b[^.;]*\b(?:missing|omitted|absent|not (?:written|stated|given|included|mentioned|shown))\b|\b(?:missing|no|without|omitted|forgot(?:ten)?(?: to (?:write|give|state))?)\s+(?:the\s+|an?\s+|any\s+)?(?:si\s+)?units?\b|\b(?:cm|m|km|mm)\s*(?:\^?[23]|²|³)[^.;]*\b(?:missing|omitted|not written)\b/i;
-const QUESTION_ASKS_UNIT = /\bunits?\b|\bexpress (?:your|the) answer in\b|\bin (?:cm|m|km|mm|kg|g|s|°|degrees?)(?:\s|\.|,|$)/i;
-/**
- * Ruling 6 (Maths units follow the question's scheme; silent → no deduction), deterministic: on a
- * Maths question whose text and stored scheme never ask for a unit, a step typed "presentation"
- * whose deduction is for a missing unit gets that deduction back (at most ½ per step, within
- * what the step could earn), loses its type, and says why.
- */
-function restoreMathsUnitDeductions(steps, q) {
-  if (QUESTION_ASKS_UNIT.test(String((q && q.questionText) || ''))) return 0;
-  if ((Array.isArray(q && q.solutionSteps) ? q.solutionSteps : []).some((t) => /\bunits?\b/i.test(String(t)))) return 0;
-  let n = 0;
-  for (const s of steps) {
-    if (s.status === 'withdrawn' || s.status === 'unattempted' || s.mistakeType !== 'presentation' || !(s.marksDeducted > 0)) continue;
-    if (!UNIT_LOSS.test([s.teacherAnnotation, s.correctedWorking, s.description].join(' . '))) continue;
-    const back = Math.min(0.5, s.marksDeducted, Math.max(0, (s._available || 0) - s.marksAwarded));
-    if (!(back > 0)) continue;
-    s.marksAwarded = half(s.marksAwarded + back);
-    s.marksDeducted = half(s.marksDeducted - back);
-    if (!(s.marksDeducted > 0)) { s.mistakeType = null; s.correctedWorking = null; if (s.marksAwarded >= s._available) s.status = 'correct'; }
-    s.teacherAnnotation = R.MATHS_UNIT_NOT_REQUIRED_ANNOTATION;
-    n += 1;
+/* ── A17 owner ruling 1 (GRADING-JOBS-1) · UNITS, deterministic ─────────────────────
+   A missing or wrong unit on the FINAL answer of a quantity-valued answer costs EXACTLY ½, in
+   Maths AND Science, at most ½ per question, typed "presentation" (exam technique), and never on
+   a pure number. The model is told this (rules.cjs PRESENTATION_PROMPT); the code holds it to it:
+     • a unit deduction is recognised from the model's own words (annotation / corrected working /
+       description) — wider than before (review §6A gap 4: "omitted", "lacks", "not specified",
+       "wrong unit", and "missing cubic units (cm³)", the stored owner-paper-02 Q12 reply that the
+       old pattern missed), never "units digit" / "units place" (gap 3);
+     • the unit is NAMED from the model's comment, its corrected working or the stored final
+       answer. A deduction whose unit cannot be named, or on a question whose answer is a pure
+       number, is GIVEN BACK — a student is never charged for a unit nobody can name;
+     • the FIRST unit deduction in a question is held to ½ (any excess given back), typed
+       "presentation", and its comment reads exactly "−½: write the unit (<unit>) with your final
+       answer."; every LATER one in the same question is given back (½ once per question).
+   Subject no longer gates any of this (both subjects follow one rule), so the paper-subject gaps
+   of review §6A (gaps 1 and 2) cannot change a unit grade any more. */
+const UNIT_LOSS = /\b(?:si\s+)?units?\b(?!\s+(?:digit|place)s?\b)[^.;]*\b(?:missing|omitted|absent|lacking|left out|forgotten|wrong|incorrect|not (?:written|stated|given|included|mentioned|shown|specified|provided|added))\b|\b(?:missing|no|without|omitted|omits|omitting|lacks?|lacking|forgot(?:ten)?(?: to (?:write|give|state|include|add))?|wrong|incorrect|improper)\s+(?:the\s+|an?\s+|any\s+|its\s+|their\s+)?(?:(?:si|correct|proper|appropriate|cubic|square|sq\.?)\s+)*units?\b(?!\s+(?:digit|place)s?\b)|\b(?:cm|m|km|mm)\s*(?:\^?[23]|²|³)[^.;]*\b(?:missing|omitted|not written)\b/i;
+// A unit, as written after a number or named in a comment. Single letters only where context says
+// a unit is meant (after a number at the END of a corrected answer, in brackets, or after "unit").
+const UNIT_TOKEN_SRC = '(?:(?:sq\\.?|square|cubic)\\s*(?:cm|mm|m|km|units?)|k?m\\s*/\\s*h(?:r|our)?|m\\s*/\\s*s(?:\\^?2|²)?|cm\\s*/\\s*s|kWh|kJ|kW|mA|[ckm]?m(?:\\^?[23]|²|³)?|kg|mg|g|sec|s|min|hrs?|h|hours?|days?|years?|J|W|A|V|Ω(?:\\s*m)?|ohms?|N|Pa|Hz|dioptres?|D|°C|°|K|mL|ml|L|litres?|liters?|Rs\\.?|₹|rupees|C)';
+const UNIT_TOKEN_ONLY = new RegExp('^' + UNIT_TOKEN_SRC + '$');
+const UNIT_AT_END = new RegExp('(?:\\d|\\))\\s*(' + UNIT_TOKEN_SRC + ')\\s*\\.?\\s*$');
+const UNIT_AFTER_WORD = new RegExp('\\bunits?\\s+(?:of\\s+[a-z]+\\s+)?(?:is\\s+|was\\s+|:\\s*)?[\'"‘“]?(' + UNIT_TOKEN_SRC + ')(?![A-Za-z0-9])');
+const UNIT_SHOULD_BE = new RegExp('\\b(?:should (?:be|have been)|must be|needs to be|expressed|written|given)\\s+(?:in\\s+)?(' + UNIT_TOKEN_SRC + ')(?![A-Za-z0-9])');
+const UNIT_NAMES = [
+  [/\bkilowatt[- ]hours?\b/i, 'kWh'], [/\bcubic (?:centimet(?:re|er)s?|cm)\b/i, 'cm³'], [/\bsquare (?:centimet(?:re|er)s?|cm)\b/i, 'cm²'],
+  [/\bcubic met(?:re|er)s?\b/i, 'm³'], [/\bsquare met(?:re|er)s?\b/i, 'm²'], [/\bwatts?\b/i, 'W'], [/\bvolts?\b/i, 'V'],
+  [/\bamp(?:ere)?s?\b/i, 'A'], [/\bohms?\b/i, 'Ω'], [/\bjoules?\b/i, 'J'], [/\bnewtons?\b/i, 'N'], [/\bhertz\b/i, 'Hz'],
+  [/\bdioptres?\b/i, 'D'], [/\bcoulombs?\b/i, 'C'], [/\bcentimet(?:re|er)s?\b/i, 'cm'], [/\bkilomet(?:re|er)s?\b/i, 'km'],
+  [/\bmillimet(?:re|er)s?\b/i, 'mm'], [/\bmet(?:re|er)s?\b/i, 'm'], [/\bkilograms?\b/i, 'kg'], [/\bseconds?\b/i, 's'],
+];
+// A question whose answer is a PURE NUMBER (owner: "never on pure numbers").
+const PURE_NUMBER_Q = /\bprobabilit(?:y|ies)\b|\bratios?\b|\bhow many\b|\bnumber of\b|\bodds\b|\bzeroe?s\b|\bHCF\b|\bLCM\b/i;
+// A unit-loss comment that ALSO names another format fault: only the unit's ½ is touched there.
+const OTHER_FORMAT_FAULT = /\b(?:conclusion|hence proved|arrows?|labels?|labelled|diagram|figure|formula|reason(?:ing)?|justification|terminology|technical term|keywords?|rejection|explanation)\b/i;
+
+/** The unit a unit-loss step is about, or '' when it cannot be named. */
+function unitNamed(step, q) {
+  const ann = String(step.teacherAnnotation || '');
+  const canon = ann.match(/write the unit \(([^()]{1,24})\)/i);
+  if (canon && canon[1].trim()) return canon[1].trim();
+  for (const m of ann.matchAll(/\(([^()]{1,24})\)/g)) {
+    for (const part of m[1].split(/[,;/]|\s+or\s+/)) {
+      const t = part.trim();
+      if (t && UNIT_TOKEN_ONLY.test(t)) return t;
+    }
   }
-  return n;
+  const after = ann.match(UNIT_AFTER_WORD);
+  if (after && !/^units?$/i.test(after[1])) return after[1].trim();
+  const should = ann.match(UNIT_SHOULD_BE);
+  if (should && !/^units?$/i.test(should[1])) return should[1].trim();
+  for (const [re, unit] of UNIT_NAMES) if (re.test(ann)) return unit;
+  for (const src of [step.correctedWorking, q && q.finalAnswer]) {
+    const m = String(src || '').trim().match(UNIT_AT_END);
+    if (m && !/^units?$/i.test(m[1])) return m[1].trim();
+  }
+  return '';
+}
+
+/** Gives "amount" back to a step's marks (never beyond what it could earn). */
+function giveBack(step, amount) {
+  const back = Math.min(half(amount), Math.max(0, half((step._available || 0) - step.marksAwarded)));
+  if (!(back > 0)) return 0;
+  step.marksAwarded = half(step.marksAwarded + back);
+  step.marksDeducted = half(Math.max(0, step.marksDeducted - back));
+  if (!(step.marksDeducted > 0) && step.marksAwarded >= step._available) {
+    step.mistakeType = null; step.correctedWorking = null; step.status = 'correct';
+  }
+  return back;
+}
+
+/**
+ * A17 ruling 1, deterministic (see the block comment above). Runs on a SUBJECTIVE question's
+ * steps, any subject. Returns { charged, restored }.
+ */
+function applyUnitRuling(steps, q) {
+  const pure = PURE_NUMBER_Q.test(String((q && q.questionText) || ''));
+  let charged = 0;
+  let restored = 0;
+  for (const s of steps) {
+    if (s.status === 'withdrawn' || s.status === 'unattempted') continue;
+    if (s.mistakeType && s.mistakeType !== 'presentation') continue;
+    const lostHere = half(Math.max(0, (s._available || 0) - s.marksAwarded));
+    if (!(lostHere > 0) || !(s.marksDeducted > 0 || s.status !== 'correct')) continue;
+    const why = [s.teacherAnnotation, s.correctedWorking, s.description].join(' . ');
+    if (!UNIT_LOSS.test(why)) continue;
+    const mixed = OTHER_FORMAT_FAULT.test(why);
+    const unitShare = mixed ? Math.min(0.5, lostHere) : lostHere;
+    const unit = pure ? '' : unitNamed(s, q);
+    const rest = scrubSentences(String(s.teacherAnnotation || '').replace(/^\s*(?:✓|✔|×|✗|✘|½)\s*/, ''), UNIT_LOSS);
+    if (!unit || charged > 0) {
+      giveBack(s, unitShare);
+      s.teacherAnnotation = (s.status === 'correct' ? '✓ ' : '') + (!unit ? R.UNIT_NOT_OWED_ANNOTATION : R.UNIT_ALREADY_CHARGED_ANNOTATION) + (mixed && rest ? ' ' + rest : '');
+      if (charged > 0) s._restoredFormat = FORMAT_ONCE_UNIT;
+      restored += 1;
+      continue;
+    }
+    // the ONE unit charge of this question: exactly ½ (an over-deduction is given back)
+    if (unitShare > 0.5) giveBack(s, unitShare - 0.5);
+    s.mistakeType = 'presentation';
+    if (s.status === 'correct') s.status = s.marksAwarded > 0 ? 'partial' : 'incorrect';
+    s.teacherAnnotation = R.unitComment(unit) + (mixed && rest ? ' ' + rest : '');
+    s._unitCharged = true;
+    charged += 1;
+  }
+  return { charged, restored };
 }
 
 // Owner rule: an answer is never marked down for the LANGUAGE it is written in — Hinglish or Hindi
 // is fine; the science is what is marked (live 2026-10-06, owner paper 02 Q18: a correct answer
 // lost ½ "written informally in Hinglish" in 5 of 9 grades, typed presentation).
-const LANGUAGE_LOSS = /\b(?:hinglish|hindi|vernacular|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english)|(?:written|worded|expressed)\s+(?:informally|colloquially)|(?:standard|formal|proper|correct)\s+english|english\s+language)\b/i;
-const LANGUAGE_ADVICE = /\b(?:hinglish|hindi|vernacular|(?:standard|formal|proper|correct)\s+english|english\s+language|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english))\b/i;
+// A17 ruling 3 widened it: colloquial / casual wording, mixed or code-mixed language, "not in
+// English", non-English, grammar and sentence construction.
+const LANGUAGE_LOSS = /\b(?:hinglish|hindi|vernacular|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english|tone|style)|(?:written|worded|expressed|phrased)\s+(?:informally|colloquially|casually)|colloquial(?:ly)?\s+(?:written|worded|language|wording|english|style|tone|expression)|casual\s+(?:language|wording|english|tone|style)|(?:standard|formal|proper|correct)\s+english|english\s+language|mixed[- ](?:language|hindi|english)|code[- ]?mix(?:ed|ing)?|not\s+(?:written\s+)?in\s+(?:proper\s+|standard\s+|formal\s+)?english|non[- ]english|grammar|grammatical(?:ly)?|sentence\s+(?:construction|structure)|language\s+(?:used|is|was)\s+(?:informal|casual|colloquial|not\s+standard|non[- ]standard))\b/i;
+const LANGUAGE_ADVICE = LANGUAGE_LOSS;
 // A deduction for the TERM used is not a language deduction: CBSE marks the exact technical term
 // (live 2026-10-06, OA-02 Q19: "½ Scientific terminology 'oesophagus' preferred over colloquial 'food pipe'").
 const TERMINOLOGY_LOSS = /\b(?:terminolog\w*|(?:technical|scientific|exact|correct|proper|key)\s+(?:term|terms|word|words|name|names)|keywords?)\b/i;
@@ -510,6 +594,7 @@ const FORMAT_ONCE = Object.freeze([
   { id: 'arrow', re: /\barrow(?:s|heads?)?\b[^.;]*\b(?:missing|absent|omitted|not (?:drawn|shown|marked|given))\b|\b(?:missing|no|without)\s+(?:the\s+|any\s+)?(?:direction(?:al)?\s+)?arrow(?:s|heads?)?\b/i,
     noteClaim: /^(?=.*\barrow)(?=.*(?:\b(?:per|each|every)\s+(?:diagram|figure|ray)s?\b|\bboth\b|\btwice\b)).*$/i },
 ]);
+const FORMAT_ONCE_UNIT = FORMAT_ONCE[0];
 const FORMAT_ONCE_ANNOTATION = 'This was already charged once in this question, so no further mark is lost here.';
 const FUDGED_LATER_ANNOTATION = 'This follows from a factorisation that does not multiply out to your own equation, so it cannot earn marks.';
 const FUDGED_NOTE = 'Your factorisation does not multiply out to your own quadratic (which has no real roots), so the roots and the answer that follow from it cannot earn marks, even though the final number looks right. Check a factorisation by expanding it.';
@@ -674,12 +759,22 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // 4 · withdrawn work is not assessed: it never enters marks, ECF, types or counts.
   const steps = all.filter((s) => s.status !== 'withdrawn');
 
+  // 4b · A17 owner ruling 2 (GRADING-JOBS-1): a question the student did not attempt AT ALL —
+  // blank, "Don't know", struck out with nothing in its place — is NOT ATTEMPTED on EVERY
+  // question, objective AND subjective, single AND paper: 0 marks, no mistake type, and never
+  // charged (charge.cjs keys on `_reason === 'graded'`; this is 'notAttempted'). Before A17 this
+  // check sat inside the objective branch, so a subjective "Don't know" fell through to a graded,
+  // charged 0 (FU-GRADER-UNATTEMPTED-SINGLE-CHARGED). A question with ANY attempted part is graded.
+  if (steps.length > 0 && steps.every((s) => s.status === 'unattempted')) {
+    const out = unattempted(R.NOT_ATTEMPTED_NOTE, 'notAttempted');
+    // v2: the mismatch verdict computed above stands (a non-attempt is never a mismatch: false).
+    if (v2 && answerMismatch !== null) out.answerMismatch = answerMismatch;
+    return out;
+  }
+
   // 5 · OBJECTIVE: 0 or full on the option alone.
   let objectiveVerdict = null;
   if (questionIsObjective) {
-    // An objective question the student did not attempt ("Don't know", blank) is UNATTEMPTED —
-    // the fourth state — never an "unread option" (D29).
-    if (steps.length > 0 && steps.every((s) => s.status === 'unattempted')) return unattempted(R.NOT_ATTEMPTED_NOTE, 'notAttempted');
     objectiveVerdict = clampObjectiveResult(q, steps, totalMarks, raw.finalAnswerCorrect);
     if (!objectiveVerdict.resolved && v2) {
       // An unread pick is honest-UNGRADED, never a 0 (owner ruling ②) — said to a client
@@ -701,12 +796,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     }
   }
   applyObjectiveMistakeGuard(steps, { objective: questionIsObjective, options: q.options });
-  // Ruling 6, deterministic (PR-3): a Maths question that does not ask for a unit loses nothing
-  // for a missing one, whatever the model deducted.
-  {
-    const subj = String(ctx.subjectHint || '').trim() || String((raw && raw.subject) || '').trim();
-    if (!questionIsObjective && subj && /math/i.test(subj)) restoreMathsUnitDeductions(steps, q);
-  }
+  // A17 ruling 1, deterministic: a missing/wrong unit costs exactly ½ once per question, in Maths
+  // AND Science, never on a pure number, and says so in one fixed comment (applyUnitRuling).
+  const unitRuling = questionIsObjective ? { charged: 0, restored: 0 } : applyUnitRuling(steps, q);
   // Owner rule (PR-3): never a deduction for the language an answer is written in.
   const languageRestored = restoreLanguageDeductions(steps);
 
@@ -1000,6 +1092,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // beside 2/3). Such sentences go; a negated one ("not full marks") stays.
   if (marksAwarded < totalMarks) note = scrubSentences(note, FULL_MARKS_CLAIM);
   if (languageRestored > 0) note = scrubSentences(note, LANGUAGE_ADVICE);
+  // A17 ruling 1: a unit deduction given back in full (a pure number / an unnamed unit) leaves no
+  // note sentence claiming it.
+  if (unitRuling.charged === 0 && unitRuling.restored > 0) note = scrubSentences(note, UNIT_LOSS);
   let rubric = validRubric(raw.rubric, totalMarks);
   if (rubric && arithmeticWrong.some((b) => rubric.some((it) => rubricStatesValue(it.point, b.right)))) rubric = null;
   if (primaryDeparture) {
@@ -1143,4 +1238,7 @@ module.exports = {
   TYPED_PENDING_NOTE,
   PHOTO_PENDING_NOTE,
   zeroLost,
+  applyUnitRuling,
+  unitNamed,
+  UNIT_LOSS,
 };

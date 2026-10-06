@@ -6,7 +6,8 @@
     "4": "Crossed-out / withdrawn work is not assessed.",
     "5": "No deduction for missing state symbols.",
     "6": "Maths units follow the question's scheme; a silent scheme means no deduction. Science keeps unit deductions.",
-    "7": "Mistake type: copied wrongly = silly, performed wrongly = calculation, method misunderstood = conceptual, CBSE format only = presentation, unattempted = no type."
+    "7": "Mistake type: copied wrongly = silly, performed wrongly = calculation, method misunderstood = conceptual, CBSE format only = presentation, unattempted = no type.",
+    "A17-1": "A17 owner ruling (GRADING-JOBS-1, 2026-10-06): a missing or wrong unit on the FINAL answer of a quantity-valued answer costs exactly ½ in Maths AND Science, at most ½ per question, typed presentation; never on a pure number. SUPERSEDES ruling 6's Maths half."
   },
   "repins": [
     {
@@ -234,6 +235,24 @@
       ],
       "ruling": "spec-3",
       "basis": "GRADER-CORE-1 spec section 3: GS-M13-a (a truly illegible page) must be DECLINED by both graders (couldNotRead / honest decline), never a fabricated 0. Scored as m13_declined over every run of every surface."
+    },
+    {
+      "caseId": "OA2-Q12",
+      "kind": "changed",
+      "field": "totalMarks",
+      "old": 5,
+      "new": 4.5,
+      "ruling": "A17-1",
+      "basis": "Fully correct volume 243.83 written WITHOUT its unit (cm³). Under ruling 6 a Maths answer lost nothing for it (owner key: 5); A17 ruling 1 (owner, 2026-10-06) costs a missing unit ½ in Maths too."
+    },
+    {
+      "caseId": "OA2-Q12",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": null,
+      "new": "presentation",
+      "ruling": "A17-1",
+      "basis": "The ½ for the unit is typed exam technique (presentation), per A17 ruling 1."
     }
   ],
   "unsettled": [
@@ -256,5 +275,5 @@
       "why": "Not contested on marks: the official MS 2025 Q35 erratum (class width 3 vs 2) has no defensible alternative; the golden set follows the correct mathematics."
     }
   ],
-  "noMathsUnitCase": "No golden Maths case omits a unit, so ruling 6's Maths half has no golden case yet (recorded, not invented)."
+  "noMathsUnitCase": "Superseded by A17 ruling 1: OA2-Q12 (owner-anomaly-02, a Maths volume with no unit) is re-pinned to 4.5 / presentation, and truth/rulings-a17.json adds A17-R1-M (Maths) and A17-R1-P (a pure number, nothing owed)."
 }

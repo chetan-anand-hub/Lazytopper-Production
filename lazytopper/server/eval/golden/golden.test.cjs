@@ -301,11 +301,14 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     const runDir = path.join(GOLDEN, 'runs', floor.runId);
     const rb = JSON.parse(original);
     const keys = Object.keys(rb.entries);
-    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted'];
+    // A17 owner rulings 1 and 2 (GRADING-JOBS-1 J0) add two declared classes: the one fixed unit comment,
+    // and a subjective non-attempt that is now NOT ATTEMPTED instead of a graded 0.
+    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted'];
     assert.ok(keys.length > 0 && keys.every((k) => rb.entries[k].class.split('+').every((c) => DECLARED.includes(c))), 'only the declared classes');
     // A LEGACY grading body may change only by controller decision D38 (not found → pending; a blank
-    // slot → unattempted); the v2 field and the detect restore never touch one.
-    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => /^d38-/.test(rb.entries[k].class)), 'a legacy body changes only under D38');
+    // slot → unattempted) or an A17 owner ruling (1: the unit comment; 2: not attempted); the v2 field
+    // and the detect restore never touch one.
+    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => rb.entries[k].class.split('+').every((c) => /^(?:d38-|a17-)/.test(c))), 'a legacy body changes only under D38 or an A17 ruling');
     const ok = await evaluateRun(runDir);
     assert.deepStrictEqual([ok.integrity.changed, ok.integrity.rebaselined, ok.integrity.rebaselineStale.length], [0, keys.length, 0]);
     // CONTROL 1: one tampered `to` → that body counts as changed again.

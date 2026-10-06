@@ -58,13 +58,13 @@
   },
   "run1:W.CIM.OA-01": {
    "from": "ce46c9b078b7b96008735e51d24ecd142b216cb6c1566a762f7cdef7433278d5",
-   "to": "619577efd8c2f8945e4639895dfba9e6cf1082ec13a3b44c87e900de9004afe3",
-   "class": "d38-blank-slot-unattempted"
+   "to": "f7ed6bf3003d80e0924e2ae7b57b9f8ac95a07e012f65138fe599847339bea6f",
+   "class": "d38-blank-slot-unattempted+a17-r1-units"
   },
   "run1:V2.W.CIM.OA-01": {
    "from": "6377c733ab2fe559c9885fcea61541741eec4f4061c9ed783254096f360ed9d4",
-   "to": "78fc549ec82ade7e893c8fc0af9779500fb3b17eb6fe7af1b49e3509ff75efa5",
-   "class": "v2-notGraded-field+d38-blank-slot-unattempted"
+   "to": "35cc90615c73dd01c79c6674b55a715bc202f49bd6a864aba83cb3c4f97c1426",
+   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units"
   },
   "run1:V2.W.CP.paper-03": {
    "from": "7050f81d34b529ef5ef553468e7b052b5689b3f1a55ef192d0e58651270370fb",
@@ -83,8 +83,8 @@
   },
   "run1:V2.W.CP.paper-01": {
    "from": "5760bc68ebdf6ca2ebc5bc1916c294ff5c14bb73041896c60b5ead47e6740c8a",
-   "to": "638170fbb79741f8dc2c75b90ff5e1d03b0aeaa0f57964a45cebfa3c88ef0e9f",
-   "class": "v2-notGraded-field"
+   "to": "63482cc61908eb8b68a9d3b6361a6fcbc9853120bb7fdf83127d593cc9ba3b81",
+   "class": "v2-notGraded-field+a17-r1-units"
   },
   "run2:W.CT.P0-01": {
    "from": "8fa9c0e98f69fc897f09a29ba17e5f64c984da0ad0ac8adaf0cf55134e5938e1",
@@ -98,8 +98,8 @@
   },
   "run2:W.CIM.OA-01": {
    "from": "60ba9e4b8b0f3666806bd86c1871b4762fd8aa53c2ba636d4a0c8177f8aacee5",
-   "to": "392d7e33d9660dccd961092f7cb2b89212dfcaae707955791dbcad8f862bc910",
-   "class": "d38-blank-slot-unattempted"
+   "to": "a53c0ab012aa3cc07a330a386b6bf81e6c6a0ac2df71efcaaa54f72f5665ee9e",
+   "class": "d38-blank-slot-unattempted+a17-r1-units"
   },
   "run2:V2.W.MM.GS-MM-06": {
    "from": "8346f989e2486c2493a2fc309ee3bfd2a18f089cb6d798934285fda0206b1785",
@@ -128,8 +128,8 @@
   },
   "run2:V2.W.CIM.OA-01": {
    "from": "03c1b72dffee0af39ddfbbfce5ad3b85221562397d4810a1813eeb62e1b1bb8c",
-   "to": "f911114b020f4bd4b97a821cfc730363794fc6ef2067361ea9227aee4bf1c43a",
-   "class": "v2-notGraded-field+d38-blank-slot-unattempted"
+   "to": "1ce03d67844aa75a228ca5a87ec6d17e1e256338cab94dc0e33685c1d02f972d",
+   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units"
   },
   "run2:V2.W.MM.GS-MM-05": {
    "from": "8d77f48538a1e06a52ee20caf317bd72f129290947145a5435ca333db4d468a4",
@@ -158,8 +158,8 @@
   },
   "run2:V2.W.CP.paper-01": {
    "from": "8c9f2ccd955c58fe3363827149ca5881016dccc86ee38fa63570a9b8b721a96a",
-   "to": "184e244b3418973f0e11dbeaed63c844fd8b95b4503f21e3b462ddadb263eb34",
-   "class": "v2-notGraded-field"
+   "to": "1fcd1a06a3378ca59d6abb562d1fdd226fec0fd9923130df18bf97e53ea918b2",
+   "class": "v2-notGraded-field+a17-r1-units"
   },
   "run3:W.CIM.CMM": {
    "from": "2addae24666471497ad4f37181052501138f13f09beef943f71a81a53e7c8474",
@@ -173,8 +173,8 @@
   },
   "run3:W.CIM.OA-01": {
    "from": "e50f69f05135253701499d272d45afb4097fad1a09fd012c425b3745d870e883",
-   "to": "e49095d4f6b4959186e149ad9fe56e5f18856096e3160fb569ecd00c8a3540d8",
-   "class": "d38-blank-slot-unattempted"
+   "to": "e966b88c4d8c88384669eab12663f8705b1ba721b3a69edf07eedb0c57c216c0",
+   "class": "d38-blank-slot-unattempted+a17-r1-units"
   },
   "run3:V2.W.MM.GS-MM-01": {
    "from": "161334e6e254882468c88dc418f0a5a7c0fb18ea602a831489515ab46e2b298a",
@@ -213,8 +213,8 @@
   },
   "run3:V2.W.CIM.OA-01": {
    "from": "ccefba4ac9e8618a57b1fc2bfd7790be7b6775a9bb7a7c50b1fd3958113b9894",
-   "to": "38723842823ee7cb1a91f08bf701120478946f6f5a1c2510f1ff05f13d6a59d4",
-   "class": "v2-notGraded-field+d38-blank-slot-unattempted"
+   "to": "fcd51490f5bb09fea33063ac7aa78f53e993d5a51d38bd20e59b9f044f7652c1",
+   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units"
   },
   "run3:V2.W.CP.paper-02": {
    "from": "d01ea5bfbe0c0481a5eadfd6712110e98c0cb89c704ad84741e8658c3a7ffee4",
@@ -233,8 +233,8 @@
   },
   "run3:V2.W.CP.paper-01": {
    "from": "690d69d813a78a641c225c1ac7f1b647120476d7516a0c2e1531160e4df00855",
-   "to": "bccedab13452ff4b5bc7e260e87c4be4a7c15d89d844e7a33cd19fbc7a3ce0b9",
-   "class": "v2-notGraded-field"
+   "to": "003227537adcaac166c729a7d9c3b884f03dd2f2b1e200a496c10d913492c6bc",
+   "class": "v2-notGraded-field+a17-r1-units"
   },
   "detect:D.ITEM.GS-M03": {
    "from": "630a443a68abbbd0d98c20fa7ec710248e8347168c29558111034a46c4604c20",
@@ -305,6 +305,135 @@
    "from": "c29c8f945e88d09daecb569d852cb25aabbb36526fd5f626be161f1d4efa1d26",
    "to": "1efa6e641b8e511b156e1577600a56c01fe213e55bf3f16bb26cafdadead323b",
    "class": "detect-symbols-restored"
+  },
+  "run1:S.CI.GS-M24-a": {
+   "from": "16e4dc980637d91d7dc3034832aa8655a5924c666383483a1119da10910d78d7",
+   "to": "866b653f3730889dd00506789ebf2b0d16af162124d1d3abf694fc82ac854452",
+   "class": "a17-r2-not-attempted"
+  },
+  "run1:S.CI.GS-S08-a": {
+   "from": "764f06ab8bfc2bde5b5dcfea7b41748aee01c35894d7a3636598003348c86245",
+   "to": "4d3251e4d4e25bd533bf78adcc9f30b03d255ded724f76f1d7d2966844f9023c",
+   "class": "a17-r1-units"
+  },
+  "run1:W.PAR.PARM7": {
+   "from": "80479f70bcdd938cbfd32569ae291a22d3415240d290dcf6b11d6332026a08ef",
+   "to": "488147c4647337cce51d9f731f9a85109cafab447603712c0057b5ae9b56b676",
+   "class": "a17-r2-not-attempted"
+  },
+  "run1:S.HPQ.GS-S08-a": {
+   "from": "ebb141d503ba05e4aeaeb68697631fd08511d74400109eec5677bfec0994a2ba",
+   "to": "72a56c8d9d1f711acdbdb06189c450569442d7857aa2549a638c6d52274a5a57",
+   "class": "a17-r1-units"
+  },
+  "run1:W.PAR.PARS3": {
+   "from": "3c5db75b0b33d392244b117257a57ab67c3a97da2a57bb98bcc37fc048c8c395",
+   "to": "82c289bb8973ad11b06cd36db80425431c9af307cab0bf0068821a5d322f5292",
+   "class": "a17-r1-units"
+  },
+  "run1:S.CP.CP01-Q04-a": {
+   "from": "449273423c3a63c2ece6e680a2f5f5a70a8786ef22867631a5cdf2bad1c89d24",
+   "to": "9d7e2a75e06e16563b1a27414940f6d97763b69a0489343b870b0ca926ff2603",
+   "class": "a17-r1-units"
+  },
+  "run1:V2.S.CI.GS-M24-a": {
+   "from": "aef6d977e51a1446786c0b7f3b350777f32ef53578d259efacfbf2c5991cea88",
+   "to": "99c644a035c8628038abb6014d082f6c43dff56c7faaf08112ea4c75be118218",
+   "class": "a17-r2-not-attempted"
+  },
+  "run1:W.CP.paper-01": {
+   "from": "9a3f3fe9faa24d7560219b3cf0ab2f75af47e48e540aea8d044344fce7788603",
+   "to": "7fb28e8ca01d63225e0fe55108a071aa8d310f1eb99ef80119c0ed498bad0538",
+   "class": "a17-r1-units"
+  },
+  "run2:S.CI.GS-S08-a": {
+   "from": "d280fe60c444ded2f0129cf99b2854eff65709b35ab45e8a64bee4651d584264",
+   "to": "20e3f758f2eca301f9d9ce38976fb0780fc04b20691c15955661dc8dd4f6d9c4",
+   "class": "a17-r1-units"
+  },
+  "run2:S.HPQ.GS-S08-a": {
+   "from": "fea4213d4d7198581866a731e0d54bb62c682f58ed6ab9fc6e1eebb117b1c918",
+   "to": "23d17fbc02073ba6a4fa7b6c3f139287fc0b907e15db64abc02e51a5393ba252",
+   "class": "a17-r1-units"
+  },
+  "run2:S.CP.CP01-Q04-a": {
+   "from": "dd2297e8b3719787a0336137c11bb4bd0ba20c511188064cd5b86eb7947fdd62",
+   "to": "611eb7fbb896ea120e5455360c1dad257bcda158db73de776821383190ac4711",
+   "class": "a17-r1-units"
+  },
+  "run2:W.PAR.PARS3": {
+   "from": "c2b4e6bd88495d3aff2adb9c38ce3b0861d2b4ec6d486f0ba832d93bd04047e0",
+   "to": "d095be1fba18560af2ad0840ed18a4ba0d3d77c580a8f8bf5574343c6a96f100",
+   "class": "a17-r1-units"
+  },
+  "run2:S.CI.GS-M24-a": {
+   "from": "da9389b33a17805e244e3d9b6baf821e9710efd0a7e3e043e71842fab1f26ef5",
+   "to": "866b653f3730889dd00506789ebf2b0d16af162124d1d3abf694fc82ac854452",
+   "class": "a17-r2-not-attempted"
+  },
+  "run2:W.PAR.PARM7": {
+   "from": "8cc50e7464d6aee43be8513545d8b406717588a3dae53aa6865a39965e629a0b",
+   "to": "0f57e67c49bee68cdca9722b8942c08521b60b093d421613e42f0d385d5eeda8",
+   "class": "a17-r2-not-attempted"
+  },
+  "run2:V2.S.CI.GS-M24-a": {
+   "from": "1e3711b58fe3062bab87c60d76fdec7660932d4e555eca8e47da61f7ca4fbdb2",
+   "to": "99c644a035c8628038abb6014d082f6c43dff56c7faaf08112ea4c75be118218",
+   "class": "a17-r2-not-attempted"
+  },
+  "run2:W.CP.paper-01": {
+   "from": "a31a36903d63c7b22cc8ffff2e3bd02ac7c67be361512123480b4b097b03cb9c",
+   "to": "4d0527ff5aa11c7fb4da507302202cf71fb795f78ba050c625e7ae1cd12a4801",
+   "class": "a17-r1-units"
+  },
+  "run3:S.CI.GS-S08-a": {
+   "from": "85f0785ca7542b5888ae6b17ae7550ab1af192c1790f90350c3534e5f3a76e69",
+   "to": "dced0426407dba8c228012b7f9c5ffe7bfc1117e0f25251b298788cf28325ef6",
+   "class": "a17-r1-units"
+  },
+  "run3:S.CI.GS-M24-a": {
+   "from": "9ad6b17fb6ae62362b08fc15b9d93e173bae18dc35f4d855a6534b5cf9d1b717",
+   "to": "866b653f3730889dd00506789ebf2b0d16af162124d1d3abf694fc82ac854452",
+   "class": "a17-r2-not-attempted"
+  },
+  "run3:W.PAR.PARM7": {
+   "from": "c7b291b3d080c7d676966232bd61a27c2cf313c3c2afa352db9b17fa5bc3e510",
+   "to": "f2c84c7ebe1bbadc3a989715e416721d77d76f8544253f67c4aaae3f5c7e3a28",
+   "class": "a17-r2-not-attempted"
+  },
+  "run3:W.PAR.PARS3": {
+   "from": "76aff266317972b0f2ecad68a3b9c282d6219ed685f67da2cc71d888f7502053",
+   "to": "0ed7655b7be3a4f3e591109add75cb6b01d79eaa6285d6d016e2579dabc3ad17",
+   "class": "a17-r1-units"
+  },
+  "run3:S.HPQ.GS-S08-a": {
+   "from": "1d1e5301d39102f9cf715f434a8547ffb083b607201e489bb3fd2619139746a7",
+   "to": "9ba6b384797b3d2fdb2e842c8d75c2f33bc992dea4c6905daaf5478e859acea2",
+   "class": "a17-r1-units"
+  },
+  "run3:S.CP.CP01-Q04-a": {
+   "from": "ec1f5a8332d8feadab75a00cb40bbd678f1a8dcf6a15d7973ee54d5f1f710058",
+   "to": "3e9f8fe98285ae26f385ece018032c6914957049f6f104227fd5699a0742fdea",
+   "class": "a17-r1-units"
+  },
+  "run3:V2.S.CI.GS-M24-a": {
+   "from": "e67f1c2016aeb81d5166f85bfd836281a7442263b928980fec20257debd2fce9",
+   "to": "99c644a035c8628038abb6014d082f6c43dff56c7faaf08112ea4c75be118218",
+   "class": "a17-r2-not-attempted"
+  },
+  "run3:W.CP.paper-01": {
+   "from": "b75c58cdea5cbb70c8b56476d4618841532aced6346d4261a6a2024e63a5bb6c",
+   "to": "a2056f22ab70c3f8a902e90118bd040d896d6dbbcb84387e16957a26474dc866",
+   "class": "a17-r1-units"
   }
+ },
+ "a17": {
+  "pr": "A17 GRADING-RULINGS J0 (GRADING-JOBS-1)",
+  "base": "6259187b (trunk)",
+  "counts": {
+   "a17-r2-not-attempted": 9,
+   "a17-r1-units": 24
+  },
+  "about": "A17 owner rulings change bodies ON PURPOSE: \"a17-r1-units\" = a unit deduction now carries the one fixed comment \"−½: write the unit (<unit>) with your final answer.\" (or is given back once already charged / on a pure number), \"a17-r2-not-attempted\" = a subjective question with no attempt (blank / \"Don't know\") is now NOT ATTEMPTED (0, no type, not charged) instead of a graded 0. Entries that PR-3 had re-baselined keep their `from` and append the A17 class. Generated by replaying every record at the trunk base and at the A17 head; any other difference aborts generation."
  }
 }
