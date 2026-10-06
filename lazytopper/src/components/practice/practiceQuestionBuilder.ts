@@ -271,6 +271,8 @@ export function buildPracticeQuestionsFromEngine(args: {
       // because CanonicalQuestion type does not yet include it (K2H-8f-c follow-up).
       pyqYear: q.pyqYear as string | undefined,
       pyqSet: q.pyqSet as string | undefined,
+      // BANK-FIX-1: carry the source override so the Practice source filter honours it.
+      sourceOverride: (q as { sourceOverride?: "others" }).sourceOverride,
       isCompetencyBased: (q as { isCompetencyBased?: boolean }).isCompetencyBased,
     } as PracticeQuestion;
   });

@@ -38,11 +38,12 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "f₀=10, f₂=8, l=20, h=10 [½]",
       "Mode = 20 + (12−10)/(24−10−8) × 10 = 20 + 20/6 = 23.33 [1]",
     ], finalAnswer: "23.33" , visualExplainerId: "maths-statistics-mode-of-grouped-data", isCompetencyBased: true },
-  { id: "STAT-E11", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The empirical relationship between mean, median and mode is:", options: ["3 Median = Mode + 2 Mean", "Mode = 3 Median − 2 Mean", "Mean = 3 Median − 2 Mode", "Median = 3 Mean − 2 Mode"], answer: "Mode = 3 Median − 2 Mean", explanation: "The correct answer is Mode = 3 Median − 2 Mean. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Mode = 3 Median − 2 Mean" , isCompetencyBased: false,
+  { id: "STAT-E11", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The empirical relationship between mean, median and mode is:", options: ["Mode = 3 Mean − 2 Median", "Mode = 3 Median − 2 Mean", "Mean = 3 Median − 2 Mode", "Median = 3 Mean − 2 Mode"], answer: "Mode = 3 Median − 2 Mean", explanation: "The correct answer is Mode = 3 Median − 2 Mean. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Mode = 3 Median − 2 Mean" , isCompetencyBased: false,
     solutionSteps: [
       "The empirical relationship connects the three measures of central tendency: mean, median, and mode.",
       "This relationship is given by the formula: Mode = 3 Median − 2 Mean.",
     ],
+    sourceOverride: "others",
   },
   { id: "STAT-E12", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "If the mean of the following data is 20, find k: Class: 0–10, 10–20, 20–30, 30–40; Frequency: 5, k, 10, 5.", solutionSteps: [
       "Σfx = 5(5)+k(15)+10(25)+5(35) = 25+15k+250+175 = 450+15k; Σf = 20+k [½]",
@@ -114,11 +115,12 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "f₀=8, f₂=5, l=5, h=2 [1]",
       "Mode = 5 + (15−8)/(30−8−5) × 2 = 5 + 14/17 = 5.82 [1]",
     ], finalAnswer: "5.82" , visualExplainerId: "maths-statistics-mode-of-grouped-data", isCompetencyBased: true },
-  { id: "STAT-M09", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the median of the following distribution is 46, find the missing frequencies:\nClass: 10–20, 20–30, 30–40, 40–50, 50–60, 60–70, 70–80\nFreq: 12, 30, f₁, 65, f₂, 25, 18\nTotal = 229", solutionSteps: [
-      "12+30+f₁+65+f₂+25+18 = 229 → f₁+f₂ = 79; n/2 = 114.5. Median class: 40–50 [1]",
-      "cf before median class = 42+f₁; 46 = 40 + (114.5−42−f₁)/65 × 10 [1]",
-      "6 = (72.5−f₁)/6.5 → 39 = 72.5−f₁ → f₁ = 33.5 ≈ 34; f₂ = 79−34 = 45 [1]",
-    ], finalAnswer: "f₁ = 34, f₂ = 45 (approximately)" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
+  { id: "STAT-M09", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the median of the following distribution is 46, find the missing frequencies:\nClass: 10–20, 20–30, 30–40, 40–50, 50–60, 60–70, 70–80\nFreq: 12, 30, f₁, 65, f₂, 25, 18\nTotal = 230", solutionSteps: [
+      "12+30+f₁+65+f₂+25+18 = 230 → f₁+f₂ = 80; n/2 = 115. Median 46 lies in 40–50, so median class: 40–50 [1]",
+      "cf before median class = 42+f₁; 46 = 40 + (115−42−f₁)/65 × 10 [1]",
+      "6 = (73−f₁)/6.5 → 39 = 73−f₁ → f₁ = 34; f₂ = 80−34 = 46 [1]"
+    ], finalAnswer: "f₁ = 34, f₂ = 46", visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true,
+      sourceOverride: "others" },
   { id: "STAT-M10", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The mean of a grouped data can never be less than the smallest class mark or greater than the largest class mark.\nReason (R): Mean is a weighted average of class marks.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "The question text for STAT-M10 is missing, so a specific solution cannot be provided.",
@@ -171,11 +173,12 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "(iii) Mode = 100 + (14−8)/(28−8−8)×50 = 100+300/12 = 125 [1]",
       "(iv) Days with > 150: 8+4 = 12 days [1]",
     ], finalAnswer: "(i) ≈₹130.56 (ii) 100–150 (iii) 125 (iv) 12 days" , visualExplainerId: "maths-statistics-mode-of-grouped-data", isCompetencyBased: true },
-  { id: "STAT-H01", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "The mean of the following distribution is 57.6 and the sum of observations is 40. Find f₁ and f₂:\nClass: 0–20, 20–40, 40–60, 60–80, 80–100, 100–120\nFreq: 7, f₁, 12, f₂, 8, 5", solutionSteps: [
-      "7+f₁+12+f₂+8+5 = 40 → f₁+f₂ = 8; Σfx = 70+30f₁+600+70f₂+720+550 = 1940+30f₁+70f₂; (1940+30f₁+70f₂)/40 = 57.6 [1]",
-      "1940+30f₁+70f₂ = 2304; 30f₁+70f₂ = 364 → 3f₁+7f₂ = 36.4 [1]",
-      "From f₁+f₂=8: f₁=8−f₂, 3(8−f₂)+7f₂=36.4 → 24+4f₂=36.4 → f₂=3.1≈3; f₁=5 (adjusting for integers) [1]",
-    ], finalAnswer: "f₁ = 5, f₂ = 3" , visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true },
+  { id: "STAT-H01", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "The mean of the following distribution is 57.6 and the sum of frequencies is 50. Find f₁ and f₂:\nClass: 0–20, 20–40, 40–60, 60–80, 80–100, 100–120\nFreq: 7, f₁, 12, f₂, 8, 5", solutionSteps: [
+      "7+f₁+12+f₂+8+5 = 50 → f₁+f₂ = 18; class marks 10, 30, 50, 70, 90, 110; Σfx = 70+30f₁+600+70f₂+720+550 = 1940+30f₁+70f₂ [1]",
+      "Mean = Σfx/Σf: (1940+30f₁+70f₂)/50 = 57.6 → 1940+30f₁+70f₂ = 2880 → 30f₁+70f₂ = 940 → 3f₁+7f₂ = 94 [1]",
+      "From f₁ = 18−f₂: 3(18−f₂)+7f₂ = 94 → 54+4f₂ = 94 → f₂ = 10, f₁ = 8 [1]"
+    ], finalAnswer: "f₁ = 8, f₂ = 10", visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true,
+      sourceOverride: "others" },
   { id: "STAT-H02", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "100 surnames were randomly picked and the frequency distribution of the number of letters in English alphabets in the surnames was obtained as follows:\nLetters: 1–4, 4–7, 7–10, 10–13, 13–16, 16–19\nFreq: 6, 30, 40, 16, 4, 4\nFind the median and mean of the data.", solutionSteps: [
       "n=100, n/2=50; CF: 6, 36, 76, 92, 96, 100 [1]",
       "Median class: 7–10 (cf 76 ≥ 50); Median = 7 + (50−36)/40 × 3 = 7 + 1.05 = 8.05 [1]",
@@ -210,9 +213,10 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
   { id: "STAT-H08", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The monthly income of 100 families is given below:\nIncome (₹000): 0–5, 5–10, 10–15, 15–20, 20–25\nFamilies: 8, 26, 41, 16, 9\n(i) Find the mean income using step deviation.\n(ii) Find the median income.\n(iii) How many families earn less than ₹10,000?\n(iv) What percentage earn ₹15,000 or more?", solutionSteps: [
       "(i) a=12.5, h=5. dᵢ: −2,−1,0,1,2; Σfᵢdᵢ = −16−26+0+16+18 = −8 [1]",
       "Mean = 12.5 + (−8/100)×5 = 12.5−0.4 = 12.1 (thousand) = ₹12,100; (ii) n/2=50, CF: 8,34,75. Median class: 10–15 [1]",
-      "Median = 10 + (50−34)/41 × 5 = 10+3.90 = 13.90 (thousand) = ₹13,900; (iii) Less than 10: 8+26 = 34 families [1]",
-      "(iv) ₹15K or more: 16+9 = 25, i.e. 25% [1]",
-    ], finalAnswer: "(i) ₹12,100 (ii) ₹13,900 (iii) 34 (iv) 25%" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
+      "Median = 10 + (50−34)/41 × 5 = 10+1.95 = 11.95 (thousand) ≈ ₹11,951; (iii) Less than 10: 8+26 = 34 families [1]",
+      "(iv) ₹15K or more: 16+9 = 25, i.e. 25% [1]"
+    ], finalAnswer: "(i) ₹12,100 (ii) ≈ ₹11,951 (iii) 34 (iv) 25%", visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true,
+      sourceOverride: "others" },
   { id: "STAT-H10", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In a frequency distribution, if the mean is 15, mode is 18, find the median and comment on the skewness.", solutionSteps: [
       "Mode = 3 Median − 2 Mean [1]",
       "18 = 3M − 30 → M = 16 [1]",

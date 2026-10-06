@@ -881,14 +881,14 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In one of the industrial processes used for manufacture of sodium hydroxide, a gas X is formed as by product. The gas X reacts with lime water to give a compound Y which is used as a bleaching agent in chemical industry. Identify X and Y giving the chemical equation of the reactions involved.",
     answer: "Industrial process: chlor-alkali process (electrolysis of brine).\nGas X = chlorine gas, Cl₂ (formed at anode along with H₂ at cathode).\nCompound Y = bleaching powder, CaOCl₂.\nReactions: (i) Chlor-alkali: 2NaCl(aq) + 2H₂O(l) → 2NaOH(aq) + Cl₂(g) + H₂(g).\n(ii) Cl₂ + Ca(OH)₂ → CaOCl₂ + H₂O.",
     solutionSteps: [
-      "[1 mark] NaOH is manufactured industrially by the chlor-alkali process: electrolysis of brine (aq NaCl).",
-      "[0.5 mark] By-products: Cl₂ at anode, H₂ at cathode. So gas X = Cl₂.",
-      "[0.5 mark] Cl₂ + dry slaked lime gives bleaching powder: Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O. So Y = CaOCl₂.",
-      "[1 mark] Bleaching powder is used for bleaching cloth, paper, and disinfecting water.",
+      "[1 mark] NaOH is manufactured by the chlor-alkali process (electrolysis of brine); Cl₂ is formed at the anode (H₂ at the cathode), so gas X = chlorine, Cl₂.",
+      "[1 mark] 2NaCl(aq) + 2H₂O(l) → 2NaOH(aq) + Cl₂(g) + H₂(g).",
+      "[1 mark] Cl₂ reacts with dry slaked lime to give bleaching powder: Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O, so Y = CaOCl₂ (bleaching powder)."
     ],
     finalAnswer: "X = Cl₂ (from chlor-alkali process); Y = CaOCl₂ (bleaching powder). Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O.",
     ncertRef: "Exemplar Ex 2.2 Q39 (SA)",
     isCompetencyBased: true,
+    sourceOverride: "others",
   },
   {
     id: "ACID-EXMPLR-2-SA-010",

@@ -79,7 +79,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         question:
           "A rectangular garden has its area represented by the polynomial p(x) = 6x² + 11x − 10.\n(a) Find the zeros of p(x).\n(b) If x represents a length in metres, which zero is valid? Why?\n(c) Verify the relationship between zeros and coefficients.",
         answer:
-          "(a) Zeros are x = 1/2 and x = −10/3. (b) x = 1/2 is valid since length must be positive. (c) Sum of zeros = −11/6 = −b/a, Product = −10/6 = c/a. ✓",
+          "(a) 6x² + 11x − 10 = 6x² + 15x − 4x − 10 = (3x − 2)(2x + 5), so the zeros are x = 2/3 and x = −5/2. (b) x = 2/3 is valid since a length must be positive. (c) Sum of zeros = 2/3 + (−5/2) = −11/6 = −b/a; Product = (2/3)(−5/2) = −5/3 = −10/6 = c/a. ✓",
         explanation:
           "Applies polynomial concepts to a real-world geometry context.",
       },
@@ -192,7 +192,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         assertion:
           "The lengths of tangents drawn from an external point to a circle are equal.",
         reason:
-          "The tangent at any point of a circle is perpendicular to the radius through the point of contact.",
+          "A tangent to a circle intersects the circle at exactly one point.",
         aROptions: [
           { label: "A", text: "Both Assertion and Reason are true and Reason is the correct explanation." },
           { label: "B", text: "Both Assertion and Reason are true but Reason is not the correct explanation." },
@@ -202,7 +202,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "B",
         answer: "B",
         explanation:
-          "Both statements are true. The equal tangent lengths follow from congruent right triangles (RHS), not directly from the perpendicularity property alone.",
+          "Both statements are true. The equal tangent lengths are proved using OA = OB (radii), the common hypotenuse OP and the right angles at the points of contact (RHS congruence); the fact that a tangent meets the circle at only one point does not explain why the two tangent lengths are equal. So R is not the correct explanation of A.",
       },
     ],
   },
@@ -725,8 +725,8 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         question:
           "The following table shows the marks distribution of 50 students:\nMarks: 0-10(5), 10-20(8), 20-30(12), 30-40(15), 40-50(10)\n(a) Find the mean marks using the direct method.\n(b) Find the median class.\n(c) Calculate the mode of the data.",
         answer:
-          "(a) Mean = 27 marks. (b) Median class = 20-30. (c) Mode = 30-40 class; Mode = 33.33.",
-        explanation: "Case study on applying mean, median, and mode formulae for grouped data.",
+          "(a) Mean = 28.4 marks. (b) n/2 = 25; cumulative frequencies 5, 13, 25, 40, 50, so the median class is 30-40 (first cf greater than 25) and the median = 30 + ((25 − 25)/15) × 10 = 30. (c) Modal class = 30-40; Mode = 30 + ((15 − 12)/(2×15 − 12 − 10)) × 10 = 33.75 marks.",
+        explanation: "Mean: Σfx = 25 + 120 + 300 + 525 + 450 = 1420, Σf = 50, mean = 28.4. Median: n/2 = 25 coincides with the cf up to 30, so the median is 30 (median class 30-40 by the NCERT 'greater than n/2' rule). Mode: l = 30, f₁ = 15, f₀ = 12, f₂ = 10, h = 10 → 30 + (3/8) × 10 = 33.75.",
       },
     ],
   },

@@ -155,16 +155,17 @@ export const CARB_SP: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "An organic compound A is widely used as a preservative in pickles and has a molecular formula C2H4O2. This compound reacts with ethanol to form a sweet-smelling compound B. (a) Identify the compound A. (b) Write the chemical equation for its reaction with ethanol to form the compound B. (c) How can you get back compound A from compound B? (d) Name the process and write the corresponding chemical equation. (e) Which gas is produced when compound A reacts with washing soda?",
     "options": [],
-    "answer": "(a) A is ethanoic acid, CH3COOH. (b) CH3COOH + C2H5OH -> CH3COOC2H5 + H2O (B is ethyl ethanoate). (c) By hydrolysis of the ester with a base (saponification) followed by acidification. (d) Saponification: CH3COOC2H5 + NaOH -> C2H5OH + CH3COONa, then CH3COONa + H2O -> CH3COOH + NaOH. (e) Carbon dioxide (CO2).",
+    "answer": "(a) A is ethanoic acid, CH3COOH. (b) CH3COOH + C2H5OH -> CH3COOC2H5 + H2O in presence of conc. H2SO4 (B is ethyl ethanoate). (c) By hydrolysis of the ester with a base (saponification) followed by acidification with a dilute mineral acid. (d) Saponification: CH3COOC2H5 + NaOH -> C2H5OH + CH3COONa, then CH3COONa + HCl -> CH3COOH + NaCl. (e) Carbon dioxide (CO2).",
     "solutionSteps": [
-      "[1 mark] (a) Compound A is ethanoic acid, CH3COOH (acetic acid), which is used as a preservative in pickles.",
-      "[1 mark] (b) Reaction with ethanol (esterification): CH3COOH + C2H5OH -> CH3COOC2H5 + H2O; compound B is ethyl ethanoate, a sweet-smelling ester.",
-      "[1 mark] (c) Compound A can be recovered from B by hydrolysis of the ester in the presence of a base, which gives the alcohol and the sodium salt of the carboxylic acid; the sodium ethanoate on reaction (acidification) gives back ethanoic acid.",
-      "[1 mark] (d) The process is saponification: CH3COOC2H5 + NaOH -> C2H5OH + CH3COONa, and then CH3COONa + H2O -> CH3COOH + NaOH.",
+      "[1 mark] (a) Compound A is ethanoic acid, CH3COOH (acetic acid); its dilute solution (vinegar) is used as a preservative in pickles.",
+      "[1 mark] (b) Reaction with ethanol (esterification, in presence of conc. H2SO4): CH3COOH + C2H5OH -> CH3COOC2H5 + H2O; compound B is ethyl ethanoate, a sweet-smelling ester.",
+      "[1 mark] (c) Compound A can be recovered from B by hydrolysis of the ester in the presence of a base (NaOH), which gives the alcohol and the sodium salt of the carboxylic acid; acidifying the sodium ethanoate with a dilute mineral acid (e.g. HCl) gives back ethanoic acid.",
+      "[1 mark] (d) The process is saponification: CH3COOC2H5 + NaOH -> C2H5OH + CH3COONa, and then CH3COONa + HCl -> CH3COOH + NaCl.",
       "[1 mark] (e) Carbon dioxide gas is produced when ethanoic acid reacts with washing soda (Na2CO3): 2CH3COOH + Na2CO3 -> 2CH3COONa + H2O + CO2 (up arrow)."
     ],
-    "finalAnswer": "A = CH3COOH (ethanoic acid); B = CH3COOC2H5 (ethyl ethanoate); recovered by saponification; gas with washing soda = CO2.",
-    "isCompetencyBased": false
+    "finalAnswer": "A = CH3COOH (ethanoic acid); B = CH3COOC2H5 (ethyl ethanoate); recovered by saponification (NaOH) then acidification (HCl); gas with washing soda = CO2.",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "SP-S-2023-CARB-E-001",

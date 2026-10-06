@@ -10,12 +10,13 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const OUR_ENVIRONMENT_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjescco15 Q2
   { id: "SCO-S-ENV-001", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "Which of the following is not a functional component of an ecosystem?",
+    questionText: "Which of the following is not a structural component of an ecosystem?",
     options: ["Communities", "Decomposers", "Sunlight", "Energy flow"],
     answer: "Energy flow",
-    solutionSteps: ["Correct option is (d) Energy flow.", "The flow of energy is not a functional component of an ecosystem."],
+    solutionSteps: ["Correct option is (d) Energy flow.", "Communities and decomposers (biotic) and sunlight (abiotic) are structural components of an ecosystem; the flow of energy is a function/process of the ecosystem, not a structural component."],
     finalAnswer: "(d) Energy flow",
-    ncertRef: "cbjescco15 Q2", isCompetencyBased: true },
+    ncertRef: "cbjescco15 Q2", isCompetencyBased: true,
+    sourceOverride: "others" },
   // cbjescco15 Q3
   { id: "SCO-S-ENV-002", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Free services provided to humans by ecosystems include",
@@ -195,9 +196,10 @@ export const OUR_ENVIRONMENT_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq15 Q5 (Section A, 1mk)
   { id: "SCQ-S-ENV-025", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "In a food chain of rabbit, grass and fox, assign trophic level to rabbit. [Delhi 2016]",
-    answer: "Grass $ rabbit $ fox Rabbit is a primary consumer or a herbivore or 1st trophic level.",
-    solutionSteps: ["Grass $ rabbit $ fox Rabbit is a primary consumer or a herbivore or 1st trophic level."],
-    ncertRef: "cbjesccq15 Q5", isCompetencyBased: false },
+    answer: "Grass → Rabbit → Fox. Rabbit is a primary consumer (herbivore) and occupies the second trophic level.",
+    solutionSteps: ["[1 mark] Food chain: Grass → Rabbit → Fox (grass is the producer at the first trophic level).", "[1 mark] Rabbit is a primary consumer (herbivore) and occupies the second trophic level."],
+    ncertRef: "cbjesccq15 Q5", isCompetencyBased: false,
+    sourceOverride: "others" },
   // cbjesccq15 Q62 (Section B, 2mk)
   { id: "SCQ-S-ENV-028", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What are ozone holes? How do they form?",

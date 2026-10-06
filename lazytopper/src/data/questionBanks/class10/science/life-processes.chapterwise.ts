@@ -11,11 +11,12 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjescco06 Q2
   { id: "SCO-S-LIFE-001", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What is the mode of nutrition in fungi?",
-    options: ["Autotrophic", "Heterotrophic", "Saprophytic", "Parasitic"],
+    options: ["Autotrophic", "Holozoic", "Saprophytic", "Parasitic"],
     answer: "Saprophytic",
     solutionSteps: ["[0.5 mark] Correct option is (c) Saprophytic.", "[0.5 mark] Fungal organisms feed on dead matter. They release chemicals to break complex organic matter into simple forms and absorb them. This is called saprophytic mode of nutrition."],
     finalAnswer: "(c) Saprophytic",
-    ncertRef: "cbjescco06 Q2", isCompetencyBased: true },
+    ncertRef: "cbjescco06 Q2", isCompetencyBased: true,
+    sourceOverride: "others" },
   // cbjescco06 Q3
   { id: "SCO-S-LIFE-002", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "How many pairs of salivary glands are found in humans?",

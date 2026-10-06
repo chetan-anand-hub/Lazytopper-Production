@@ -66,16 +66,17 @@ export const ARITHMETIC_PROGRESSION_SQP: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Manpreet Kaur is the national record holder for women in the shot-put discipline. Her throw of 18.86 m at the Asian Grand Prix in 2017 is the maximum distance for an Indian female athlete. Keeping her as a role model, Sanjitha is determined to earn gold in Olympics one day.\nInitially her throw reached 7.56 m only. Being an athlete in school, she regularly practiced both in the mornings and in the evenings and was able to improve the distance by 9 cm every week. During the special camp for 15 days, she started with 40 throws and every day kept increasing the number of throws by 12 to achieve this remarkable progress.\n\nPart (i) [1 mark]: How many throws did Sanjitha practise on the 11th day of the camp?\n\nPart (ii) [2 marks]: What would be Sanjitha's throw distance at the end of 6 weeks? OR When will she be able to achieve a throw of 11.16 m?\n\nPart (iii) [1 mark]: How many throws did she do during the entire camp of 15 days?",
+    "questionText": "Manpreet Kaur is the national record holder for women in the shot-put discipline. Her throw of 18.86 m at the Asian Grand Prix in 2017 is the maximum distance for an Indian female athlete. Keeping her as a role model, Sanjitha is determined to earn gold in Olympics one day.\nIn week 1 her throw reached 7.56 m only. Being an athlete in school, she regularly practiced both in the mornings and in the evenings and was able to improve the distance by 9 cm every week. During the special camp for 15 days, she started with 40 throws and every day kept increasing the number of throws by 12 to achieve this remarkable progress.\n\nPart (i) [1 mark]: How many throws did Sanjitha practise on the 11th day of the camp?\n\nPart (ii) [2 marks]: What would be Sanjitha's throw distance in the 6th week? OR In which week will she be able to achieve a throw of 11.16 m?\n\nPart (iii) [1 mark]: How many throws did she do during the entire camp of 15 days?",
     "options": [],
-    "answer": "(i) 160 throws on Day 11. (ii) 8.1 m after 6 weeks; OR she will throw 11.16 m in the 41st week. (iii) 1860 throws over 15 days.",
+    "answer": "(i) 160 throws on Day 11. (ii) 8.01 m in the 6th week; OR she will throw 11.16 m in the 41st week. (iii) 1860 throws over 15 days.",
     "solutionSteps": [
       "Part (i): Throws per day form an AP with a = 40 and d = 12. tₙ = a + (n − 1)d. t₁₁ = 40 + 10·12 = 40 + 120 = 160. Sanjitha practised 160 throws on the 11th day.",
-      "Part (ii): Throw distance grows in AP with a = 7.56 m and d = 0.09 m (9 cm). Week 6 distance t₆ = a + (6 − 1)d = 7.56 + 5(0.09) = 7.56 + 0.45 = 8.01 m. (Per MS: at end of 6 weeks tₙ for n=6 with formula 7.56 + 6·0.09 = 8.1 m using end-of-6th-week convention.) Final: 8.1 m. OR alternative: solve 11.16 = 7.56 + (n − 1)(0.09) ⇒ 3.6 = (n − 1)(0.09) ⇒ n − 1 = 40 ⇒ n = 41. Achieved in 41 weeks.",
-      "Part (iii): Total throws over n=15 days using Sₙ = (n/2)·(2a + (n − 1)d). S₁₅ = (15/2)·(2·40 + 14·12) = (15/2)·(80 + 168) = (15/2)·248 = 1860.",
-      "Final answers: Day 11 throws = 160; week-6 distance = 8.1 m (or week n=41 for 11.16 m); total camp throws = 1860."
+      "Part (ii): Throw distance grows in AP with a = 7.56 m (week 1) and d = 0.09 m (9 cm). Week 6 distance t₆ = a + (6 − 1)d = 7.56 + 5(0.09) = 7.56 + 0.45 = 8.01 m. OR: solve 11.16 = 7.56 + (n − 1)(0.09) ⇒ 3.6 = (n − 1)(0.09) ⇒ n − 1 = 40 ⇒ n = 41. She achieves 11.16 m in the 41st week.",
+      "Part (iii): Total throws over n = 15 days using Sₙ = (n/2)·(2a + (n − 1)d). S₁₅ = (15/2)·(2·40 + 14·12) = (15/2)·(80 + 168) = (15/2)·248 = 1860.",
+      "Final answers: Day 11 throws = 160; week-6 distance = 8.01 m (or 41st week for 11.16 m); total camp throws = 1860."
     ],
-    "finalAnswer": "(i) 160 throws; (ii) 8.1 m OR 41 weeks; (iii) 1860 throws.",
-    "isCompetencyBased": true
+    "finalAnswer": "(i) 160 throws; (ii) 8.01 m OR 41st week; (iii) 1860 throws.",
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   }
 ];

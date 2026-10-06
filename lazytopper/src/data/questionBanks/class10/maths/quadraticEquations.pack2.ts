@@ -638,22 +638,21 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Solve: (x-1)/(x-2) + (x-3)/(x-4) = 10/3",
     "options": [],
-    "answer": "x = 0, 6",
+    "answer": "x = 5, 5/2",
     "solutionSteps": [
-      "Cross multiply and simplify",
+      "Take LCM (x ≠ 2, 4) and cross multiply",
       "3[(x-1)(x-4) + (x-3)(x-2)] = 10(x-2)(x-4)",
       "3[x² - 5x + 4 + x² - 5x + 6] = 10[x² - 6x + 8]",
       "3[2x² - 10x + 10] = 10x² - 60x + 80",
       "6x² - 30x + 30 = 10x² - 60x + 80",
       "4x² - 30x + 50 = 0",
       "2x² - 15x + 25 = 0",
-      "(2x - 5)(x - 5) = 0 or using formula gives x = 0, 6"
+      "2x² - 10x - 5x + 25 = 0 ⇒ (2x - 5)(x - 5) = 0 ⇒ x = 5/2 or x = 5 (both allowed since x ≠ 2, 4)"
     ],
-    "finalAnswer": "x = 0, 6",
+    "finalAnswer": "x = 5, 5/2",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 4.2"
+    "ncertRef": "Ex 4.2",
+    sourceOverride: "others",
   },
   {
     "id": "QE2-024",
@@ -726,25 +725,24 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): If discriminant < 0, roots are imaginary. Reason (R): For x² + x + 1 = 0, Δ = -3.",
+    "questionText": "Assertion (A): If the discriminant of a quadratic equation is negative, the equation has no real roots. Reason (R): For x² + x + 1 = 0, Δ = -3.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "answer": "Both A and R are true, but R is not the correct explanation of A.",
     "solutionSteps": [
-      "For x² + x + 1 = 0: Δ = 1 - 4 = -3",
-      "When Δ < 0, roots are imaginary/complex",
-      "A is true and R correctly exemplifies A"
+      "A is true: if Δ < 0, √Δ is not a real number, so the quadratic has no real roots.",
+      "R is true: for x² + x + 1 = 0, Δ = 1² − 4(1)(1) = -3.",
+      "R is only a particular example; it does not explain why Δ < 0 gives no real roots. So R is not the correct explanation of A."
     ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are true, but the Reason is just one example of an equation with negative discriminant; it does not explain the general result in the Assertion. Hence option (b).",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 4.4"
+    "ncertRef": "Ex 4.4",
+    sourceOverride: "others",
   },
   {
     "id": "QE2-027",
@@ -787,7 +785,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Assertion (A): Every quadratic equation has at least one real root. Reason (R): The discriminant can never be negative.",
+    "questionText": "Assertion (A): Every quadratic equation has at least one real root. Reason (R): The discriminant of a quadratic equation can be negative.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -803,9 +801,8 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 4.4"
+    "ncertRef": "Ex 4.4",
+    sourceOverride: "others",
   },
   {
     "id": "QE2-029",
@@ -960,26 +957,25 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A garden is in the shape of a rectangle with dimensions 20m × 15m. To make a uniform walking path around the garden, the area is increased by 140 m². (i) Form the quadratic equation for the width of the path (ii) Find the width of the path (iii) Find the new dimensions",
+    "questionText": "A garden is in the shape of a rectangle with dimensions 20m × 15m. To make a uniform walking path around the garden, the area is increased by 294 m². (i) Form the quadratic equation for the width of the path (ii) Find the width of the path (iii) Find the new dimensions",
     "options": [],
-    "answer": "(i) x² + 35x - 140 = 0 or 4x² + 70x - 140 = 0 (ii) 3.5m (iii) 27m × 22m",
+    "answer": "(i) 4x² + 70x - 294 = 0, i.e. 2x² + 35x - 147 = 0 (ii) 3.5m (iii) 27m × 22m",
     "solutionSteps": [
       "Original area = 20 × 15 = 300 m²",
-      "New area = 300 + 140 = 440 m²",
-      "Let path width = x",
+      "New area = 300 + 294 = 594 m²",
+      "Let path width = x m",
       "New dimensions: (20 + 2x) × (15 + 2x)",
-      "(20 + 2x)(15 + 2x) = 440",
-      "300 + 40x + 30x + 4x² = 440",
-      "4x² + 70x - 140 = 0",
-      "x² + 17.5x - 35 = 0 or x² + 35x - 140 = 0 (if considering different formulation)",
-      "Using formula: x = [-17.5 ± √(306.25 + 140)]/2 ≈ 3.5m",
-      "New dimensions: 27m × 22m"
+      "(20 + 2x)(15 + 2x) = 594",
+      "300 + 40x + 30x + 4x² = 594",
+      "4x² + 70x - 294 = 0 ⇒ 2x² + 35x - 147 = 0",
+      "2x² + 42x - 7x - 147 = 0 ⇒ (2x - 7)(x + 21) = 0 ⇒ x = 3.5 or x = -21",
+      "Width cannot be negative, so x = 3.5 m",
+      "New dimensions: (20 + 7) m × (15 + 7) m = 27m × 22m"
     ],
-    "finalAnswer": "(i) x² + 35x - 140 = 0 or 4x² + 70x - 140 = 0 (ii) 3.5m (iii) 27m × 22m",
+    "finalAnswer": "(i) 2x² + 35x - 147 = 0 (ii) 3.5m (iii) 27m × 22m",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "Set-1",
-    "ncertRef": "Ex 4.1"
+    "ncertRef": "Ex 4.1",
+    sourceOverride: "others",
   },
   {
     "id": "QE2-035",
@@ -1112,7 +1108,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "options": [
       "0, 0",
       "1, 0",
-      "0",
+      "−1, 1",
       "No real roots"
     ],
     "answer": "0, 0",
@@ -1124,9 +1120,8 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "0, 0",
     "explanation": "x² = 0. This is a double root at x = 0. Roots are 0 and 0 (or x = 0 with multiplicity 2). Therefore, the correct answer is 0, 0.",
     "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 4.2"
+    "ncertRef": "Ex 4.2",
+    sourceOverride: "others",
   },
   {
     "id": "QE2-040",
@@ -1169,21 +1164,19 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "For the equation x² - 2(p+1)x + p² = 0, if sum of roots equals product of roots, find p.",
     "options": [],
-    "answer": "p = 1 + √3 or p = 1 - √3",
+    "answer": "p = 1 + √3",
     "solutionSteps": [
-      "Sum of roots = 2(p+1)",
-      "Product of roots = p²",
-      "Given: Sum = Product",
-      "2(p + 1) = p²",
-      "p² - 2p - 2 = 0",
+      "Sum of roots = 2(p+1); Product of roots = p²",
+      "Given: Sum = Product ⇒ 2(p + 1) = p² ⇒ p² - 2p - 2 = 0",
       "p = [2 ± √(4 + 8)]/2 = [2 ± 2√3]/2 = 1 ± √3",
-      "Or if different interpretation: 2p + 2 = p² ⟹ p² - 2p - 2 = 0"
+      "For real roots, D = 4(p+1)² - 4p² = 4(2p + 1) ≥ 0 ⇒ p ≥ -1/2",
+      "p = 1 - √3 ≈ -0.73 < -1/2 gives no real roots, so it is rejected",
+      "Hence p = 1 + √3"
     ],
-    "finalAnswer": "p = 1 + √3 or p = 1 - √3",
+    "finalAnswer": "p = 1 + √3",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 4.4"
+    "ncertRef": "Ex 4.4",
+    sourceOverride: "others",
   },
   {
     "id": "QE2-042",
@@ -1313,12 +1306,13 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Setting each factor to zero, we get x - 2 = 0 or x - 3 = 0. Thus, x = 2 or x = 3. The roots are 2 and 3.",
     ],
   },
-  { id: "QE2-047", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The discriminant of 3x² − 5x + 2 = 0 is:", options: ["1","−1","25−24=1","0"], answer: "1", explanation: "The correct answer is 1. D = b²−4ac = 25−24 = 1. Since D > 0, two distinct real roots.", finalAnswer: "D = b²−4ac = 25−24 = 1. Since D > 0, two distinct real roots.", isCompetencyBased: false,
+  { id: "QE2-047", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The discriminant of 3x² − 5x + 2 = 0 is:", options: ["1", "−1", "49", "0"], answer: "1", explanation: "The correct answer is 1. D = b²−4ac = 25−24 = 1. Since D > 0, two distinct real roots.", finalAnswer: "1", isCompetencyBased: false,
     solutionSteps: [
-      "The given quadratic equation is 3x^2 - 7x + 2 = 0. Comparing with ax^2 + bx + c = 0, we have a = 3, b = -7, c = 2.",
-      "The discriminant D is given by the formula D = b^2 - 4ac.",
-      "Substitute the values: D = (-7)^2 - 4(3)(2) = 49 - 24 = 25. The discriminant is 25.",
+      "The given quadratic equation is 3x² − 5x + 2 = 0. Comparing with ax² + bx + c = 0, a = 3, b = −5, c = 2.",
+      "The discriminant D is given by D = b² − 4ac.",
+      "Substitute: D = (−5)² − 4(3)(2) = 25 − 24 = 1. The discriminant is 1."
     ],
+    sourceOverride: "others",
   },
   { id: "QE2-048", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation x² + 4x + 4 = 0, the nature of roots is:", options: ["Two equal real roots","Two distinct real roots","No real roots","Complex roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 16−16 = 0 → two equal roots: x = −2.", finalAnswer: "D = 16−16 = 0 → two equal roots: x = −2.", isCompetencyBased: false,
     solutionSteps: [
@@ -1356,12 +1350,13 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Setting each factor to zero gives roots x = 2 and x = 3. This matches option (A).",
     ],
   },
-  { id: "QE2-053", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Sum and Product of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If one root of 3x² − 10x + k = 0 is 1/3, find k.", options: ["1","−1","3","−3"], answer: "1", explanation: "The correct answer is 1. If x = 1/3: 3(1/9)−10(1/3)+k = 0 → 1/3−10/3+k = 0 → −9/3+k = 0 → k = 3. Wait: 3/9−10/3+k=0 → 1/3−10/3+k=0 → −3+k=0 → k=3. Answer is 3.", finalAnswer: "If x = 1/3: 3(1/9)−10(1/3)+k = 0 → 1/3−10/3+k = 0 → −9/3+k = 0 → k = 3. Wait: 3/9−10/3+k=0 → 1/3−10/3+k=0 → −3+k=0 → k=3. Answer is 3.", isCompetencyBased: false,
+  { id: "QE2-053", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Sum and Product of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If one root of 3x² − 10x + k = 0 is 1/3, find k.", options: ["1","−1","3","−3"], answer: "3", explanation: "The correct answer is 3. Since x = 1/3 is a root: 3(1/3)² − 10(1/3) + k = 0 → 1/3 − 10/3 + k = 0 → −3 + k = 0 → k = 3.", finalAnswer: "3", isCompetencyBased: false,
     solutionSteps: [
-      "For the quadratic equation 2x^2 - 7x + 3 = 0, identify a=2, b=-7, c=3.",
-      "The sum of the roots is given by the formula -b/a.",
-      "Substitute the values: Sum = -(-7)/2 = 7/2. This matches option (A).",
+      "Since x = 1/3 is a root, it satisfies 3x² − 10x + k = 0.",
+      "Substitute: 3(1/9) − 10(1/3) + k = 0 → 1/3 − 10/3 + k = 0.",
+      "−9/3 + k = 0 → −3 + k = 0 → k = 3."
     ],
+    sourceOverride: "others",
   },
   { id: "QE2-054", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of x² + x + 1 = 0 are:", options: ["Not real","1 and 1","0 and −1","−1 and −1"], answer: "Not real", explanation: "The correct answer is Not real. D = 1−4 = −3 < 0. No real roots exist.", finalAnswer: "D = 1−4 = −3 < 0. No real roots exist.", isCompetencyBased: false,
     solutionSteps: [

@@ -524,21 +524,20 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A school is organizing a raffle draw where 100 tickets are sold. There are 5 winning tickets. Ramesh buys 2 tickets. (i) What is the probability that neither of Ramesh's tickets wins? (ii) What is the probability that at least one ticket wins?",
     "options": [],
-    "answer": "(i) ≈ 0.905 (ii) ≈ 0.095",
+    "answer": "(i) 893/990 ≈ 0.902 (ii) 97/990 ≈ 0.098",
     "solutionSteps": [
-      "Total tickets = 100, Winning = 5",
-      "(i) P(1st not winning) = 95/100",
-      "P(2nd not winning | 1st not winning) = 94/99",
-      "P(both not winning) = (95/100) × (94/99) = 8930/9900 ≈ 0.905",
-      "(ii) P(at least one wins) = 1 - P(none wins)",
-      "= 1 - 8930/9900 ≈ 0.095"
+      "Total tickets = 100, Winning = 5, Non-winning = 95",
+      "(i) Ramesh's 2 tickets drawn one after another: total ordered outcomes = 100 × 99 = 9900",
+      "Outcomes in which both tickets are non-winning = 95 × 94 = 8930",
+      "P(neither wins) = 8930/9900 = 893/990 ≈ 0.902",
+      "(ii) P(at least one wins) = 1 − P(neither wins)",
+      "= 1 − 893/990 = 97/990 ≈ 0.098"
     ],
-    "finalAnswer": "(i) ≈ 0.905 (ii) ≈ 0.095",
+    "finalAnswer": "(i) 893/990 ≈ 0.902 (ii) 97/990 ≈ 0.098",
     "visualExplainerId": "maths-probability-complementary-events",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "All India",
-    "ncertRef": "Ex 15.2"
+    "ncertRef": "Ex 15.2",
+    sourceOverride: "others",
   },
   {
     "id": "PR2-020",
@@ -853,7 +852,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Two fair dice are rolled. What is the probability of getting a sum of 7?",
     "options": [
-      "1/6",
+      "5/36",
       "6/36",
       "7/36",
       "1/12"
@@ -868,9 +867,8 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "explanation": "Total outcomes when rolling two dice = 6 × 6 = 36. Favorable outcomes for sum = 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6. P(sum = 7) = 6/36 = 1/6. Therefore, the correct answer is 6/36.",
     "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
     "isCompetencyBased": true,
-    "pyqYear": "2019",
-    "pyqSet": "I",
-    "ncertRef": "Ex 15.1"
+    "ncertRef": "Ex 15.1",
+    sourceOverride: "others",
   },
   {
     "id": "PR2-032",
@@ -1056,8 +1054,8 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "options": [
       "3/5",
       "2/5",
-      "24/40",
-      "16/40"
+      "2/3",
+      "3/8"
     ],
     "answer": "2/5",
     "solutionSteps": [
@@ -1070,9 +1068,8 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "explanation": "Total students = 40. Students who like math = 24. Students who don't like math = 40 - 24 = 16. P(not like math) = 16/40 = 2/5. Therefore, the correct answer is 2/5.",
     "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "I",
-    "ncertRef": "Ex 15.2"
+    "ncertRef": "Ex 15.2",
+    sourceOverride: "others",
   },
   {
     "id": "PR2-039",
@@ -1109,7 +1106,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Assertion (A): Probability values always lie between 0 and 1 (inclusive). Reason (R): 0 represents an impossible event and 1 represents a sure event.",
+    "questionText": "Assertion (A): Probability values always lie between 0 and 1 (inclusive). Reason (R): For any event E, the number of outcomes favourable to E is at least 0 and at most the total number of possible outcomes.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -1118,18 +1115,17 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "Probability range is 0 ≤ P(E) ≤ 1 - A is true",
-      "P(E) = 0 for impossible events - correct",
-      "P(E) = 1 for sure events - correct",
-      "R explains why probabilities must be between 0 and 1"
+      "P(E) = (number of favourable outcomes)/(total number of outcomes)",
+      "0 ≤ favourable outcomes ≤ total outcomes, so R is true",
+      "Dividing by the total gives 0 ≤ P(E) ≤ 1, so A is true",
+      "R directly gives the bound in A, so R is the correct explanation of A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "explanation": "Both A and R are true. Since P(E) = favourable/total and 0 ≤ favourable ≤ total, dividing by the total gives 0 ≤ P(E) ≤ 1. So R is the correct explanation of A.",
     "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 15.1"
+    "ncertRef": "Ex 15.1",
+    sourceOverride: "others",
   },
   {
     "id": "PR2-042",
@@ -1288,11 +1284,12 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "The final answer is copied verbatim from the input, which is an empty string.",
     ],
   },
-  { id: "PR2-050", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A bag contains 3 red, 5 blue, and 2 green balls. The probability of drawing a blue ball is:", options: ["1/2","1/5","5/10","3/10"], answer: "1/2", explanation: "The correct answer is 1/2. P = 5/10 = 1/2.", finalAnswer: "P = 5/10 = 1/2.", isCompetencyBased: false,
+  { id: "PR2-050", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A bag contains 3 red, 5 blue, and 2 green balls. The probability of drawing a blue ball is:", options: ["1/2", "1/5", "2/5", "3/10"], answer: "1/2", explanation: "The correct answer is 1/2. P = 5/10 = 1/2.", finalAnswer: "P = 5/10 = 1/2.", isCompetencyBased: false,
     solutionSteps: [
-      "The question text is missing, so a specific solution cannot be generated.",
-      "The final answer is copied verbatim from the input, which is an empty string.",
+      "Total balls = 3 + 5 + 2 = 10; blue balls = 5",
+      "P(blue) = 5/10 = 1/2"
     ],
+    sourceOverride: "others",
   },
   { id: "PR2-051", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A letter is selected at random from the word \"MATHEMATICS\". The probability of selecting a vowel is:", options: ["4/11","5/11","3/11","7/11"], answer: "4/11", explanation: "The correct answer is 4/11. MATHEMATICS has 11 letters. Vowels: A, E, A, I = 4 vowels. P = 4/11.", finalAnswer: "MATHEMATICS has 11 letters. Vowels: A, E, A, I = 4 vowels. P = 4/11.", isCompetencyBased: false,
     solutionSteps: [

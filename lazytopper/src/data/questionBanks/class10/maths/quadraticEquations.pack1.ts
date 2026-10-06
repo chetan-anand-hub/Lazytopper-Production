@@ -16,11 +16,12 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "The formula for the discriminant is D = b² − 4ac.",
     ],
   },
-  { id: "QE-E04", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If the discriminant of a quadratic equation is zero, the roots are:", options: ["Real and unequal", "Real and equal", "Not real", "Rational"], answer: "Real and equal", explanation: "The correct answer is Real and equal. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Real and equal" , isCompetencyBased: false,
+  { id: "QE-E04", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If the discriminant of a quadratic equation is zero, the roots are:", options: ["Real and unequal", "Real and equal", "Not real", "Equal in magnitude but opposite in sign"], answer: "Real and equal", explanation: "The correct answer is Real and equal. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Real and equal" , isCompetencyBased: false,
     solutionSteps: [
       "For a quadratic equation ax² + bx + c = 0, the nature of its roots is determined by the discriminant D = b² − 4ac.",
       "If the discriminant D = 0, it indicates that the quadratic equation has two real roots that are equal to each other.",
     ],
+    sourceOverride: "others",
   },
   { id: "QE-E05", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: x² − 9 = 0", options: ["±3", "3 only", "−3 only", "±9"], answer: "±3", explanation: "The correct answer is ±3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "±3" , isCompetencyBased: true,
     solutionSteps: [

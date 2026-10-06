@@ -174,7 +174,8 @@ function fromCanonical(q: CanonicalQuestion): FMPoolQuestion {
     answer: q.answer,
     solutionSteps: q.solutionSteps,
     finalAnswer: q.finalAnswer,
-    pyqYear: q.pyqYear,
+    // BANK-FIX-1 ruling 2: an overridden row is never PYQ (isPYQQuestion, keeper).
+    pyqYear: q.sourceOverride === "others" ? undefined : q.pyqYear,
     source: "canonical",
   };
 }

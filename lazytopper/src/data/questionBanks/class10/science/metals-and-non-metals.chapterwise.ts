@@ -177,9 +177,10 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq03 Q2 (Section A, 1mk)
   { id: "SCQ-S-METAL-022", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Write the chemical equation for the reaction taking place when steam is passed over hot Aluminium?",
-    answer: "2Al(s) + 3H2O(aq) Heat Al2O3(S) + 3H2(g)",
-    solutionSteps: ["[2 marks] 2Al(s) + 3H2O(aq) Heat Al2O3(S) + 3H2(g)"],
-    ncertRef: "cbjesccq03 Q2", isCompetencyBased: false },
+    answer: "2Al(s) + 3H₂O(g) → Al₂O₃(s) + 3H₂(g)",
+    solutionSteps: ["[2 marks] 2Al(s) + 3H₂O(g) → Al₂O₃(s) + 3H₂(g)"],
+    ncertRef: "cbjesccq03 Q2", isCompetencyBased: false,
+    sourceOverride: "others" },
   // cbjesccq03 Q3 (Section A, 1mk)
   { id: "SCQ-S-METAL-023", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What happens when carbon dioxide is compressed in water at high pressure?",

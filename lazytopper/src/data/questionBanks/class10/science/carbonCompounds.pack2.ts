@@ -526,14 +526,13 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Identify longest carbon chain: 4 carbons = butane",
       "Methyl group attached to C2",
       "Position from nearer end: position 2",
-      "Name: 2-Methylbutane (common: isobutane, but IUPAC: 2-methylbutane)"
+      "Name: 2-Methylbutane (common name: isopentane; IUPAC name: 2-methylbutane)"
     ],
     "finalAnswer": "2-Methylbutane",
-    "explanation": "Structure: CH3-CH(CH3)-CH2-CH3. Identify longest carbon chain: 4 carbons = butane. Methyl group attached to C2. Position from nearer end: position 2. Name: 2-Methylbutane (common: isobutane, but IUPAC: 2-methylbutane). Therefore, the correct answer is 2-Methylbutane.",
+    "explanation": "Structure: CH3-CH(CH3)-CH2-CH3. Identify longest carbon chain: 4 carbons = butane. Methyl group attached to C2. Position from nearer end: position 2. Name: 2-Methylbutane (common name: isopentane; IUPAC name: 2-methylbutane). Therefore, the correct answer is 2-Methylbutane.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "Set-2",
-    "ncertRef": "NCERT Ch4 Exercise"
+    "ncertRef": "NCERT Ch4 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "CC2-018",
@@ -954,21 +953,19 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "options": [
       "Same functional group",
       "Differ by CH₂",
-      "Same chemical properties",
-      "Different physical properties"
+      "Same molecular mass",
+      "Gradation in physical properties"
     ],
-    "answer": "Different physical properties",
+    "answer": "Same molecular mass",
     "solutionSteps": [
-      "Homologous series have: same general formula, differ by CH₂, same functional group, similar chemical properties",
-      "Physical properties (bp, mp, density) vary gradually, not in the same manner",
-      "This helps distinguish homologs"
+      "Homologous series have: same general formula, same functional group, successive members differ by CH₂, similar chemical properties and a gradation in physical properties",
+      "Because successive members differ by CH₂ (14 u), their molecular masses are different, so 'Same molecular mass' is NOT a characteristic"
     ],
-    "finalAnswer": "Different physical properties",
-    "explanation": "Homologous series have: same general formula, differ by CH₂, same functional group, similar chemical properties. Physical properties (bp, mp, density) vary gradually, not in the same manner. This helps distinguish homologs. Therefore, the correct answer is Different physical properties.",
+    "finalAnswer": "Same molecular mass",
+    "explanation": "Members of a homologous series have the same functional group, successive members differ by CH₂ (14 u), they have similar chemical properties and show a gradation in physical properties. Since successive members differ by 14 u, they cannot have the same molecular mass. Therefore, the correct answer is Same molecular mass.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch4 InText"
+    "ncertRef": "NCERT Ch4 InText",
+    sourceOverride: "others",
   },
   {
     "id": "CC2-032",
@@ -1382,26 +1379,24 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): All members of alkane series have similar chemical properties. Reason (R): All alkanes have the same functional group.",
+    "questionText": "Assertion (A): All members of alkane series have similar chemical properties. Reason (R): All members of the alkane series have the same molecular mass.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "answer": "A is true, R is false.",
     "solutionSteps": [
-      "A: Similar chemical properties in homologous series - TRUE",
-      "R: Same functional group - TRUE",
-      "Alkanes have only C-C and C-H bonds (no distinct functional group, but all have same structure)",
-      "R explains A"
+      "A: All alkanes belong to one homologous series, so they show similar chemical properties - TRUE",
+      "R: Successive members differ by -CH2- (14 u), so molecular masses increase along the series - R is FALSE",
+      "Hence A is true, R is false"
     ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "finalAnswer": "A is true, R is false.",
+    "explanation": "The Assertion is true: members of the alkane homologous series show similar chemical properties. The Reason is false: successive alkanes differ by a –CH₂– unit, i.e. by 14 u in molecular mass, so their molecular masses are different. Hence A is true, R is false.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "All India",
-    "ncertRef": "NCERT Ch4 Exercise"
+    "ncertRef": "NCERT Ch4 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "CC2-046",

@@ -100,12 +100,13 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "Both equations are identical → infinitely many solutions [1]",
     ], finalAnswer: "Infinitely many solutions" , visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true },
   { id: "PLE-E19", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word & Application Problems", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "A fraction becomes 9/11 if 2 is added to both numerator and denominator. If 3 is added to both, it becomes 5/6. The fraction is:", options: ["7/9", "5/7", "3/5", "4/7"], answer: "7/9", explanation: "(x+2)/(y+2) = 9/11 → 11x − 9y = −4. (x+3)/(y+3) = 5/6 → 6x − 5y = −3. Solve: x = 7, y = 9. Therefore, the correct answer is 7/9.", solutionSteps: ["(x+2)/(y+2) = 9/11 → 11x − 9y = −4", "(x+3)/(y+3) = 5/6 → 6x − 5y = −3", "Solve: x = 7, y = 9"], finalAnswer: "7/9" , isCompetencyBased: false },
-  { id: "PLE-E20", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Algebraic Solution Methods", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The pair x = 0 and y = −5 is the solution of:", options: ["x + y = 5, x − y = 5", "2x + y = −5, x − y = 5", "x + y = 5, 2x − y = 5", "x + 2y = −10, 3x − y = 5"], answer: "2x + y = −5, x − y = 5", explanation: "The correct answer is 2x + y = −5, x − y = 5. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "2x + y = −5, x − y = 5" , isCompetencyBased: true,
+  { id: "PLE-E20", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Algebraic Solution Methods", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The pair x = 0 and y = −5 is the solution of:", options: ["x + y = 5, x − y = 5", "2x + y = −5, x − y = 5", "x + y = 5, 2x − y = 5", "x + 2y = 10, 3x − y = 5"], answer: "2x + y = −5, x − y = 5", explanation: "Substitute x = 0, y = −5: 2x + y = −5 ✓ and x − y = 5 ✓. In every other option at least one equation fails (e.g. x + y = −5 ≠ 5; x + 2y = −10 ≠ 10).", finalAnswer: "2x + y = −5, x − y = 5" , isCompetencyBased: true,
     solutionSteps: [
       "Substitute x = 0 and y = -5 into the first equation: 2x + y = 2(0) + (-5) = -5. This satisfies the equation.",
       "Substitute x = 0 and y = -5 into the second equation: x - y = (0) - (-5) = 5. This satisfies the equation.",
       "Since both equations are satisfied by x=0 and y=-5, this pair is the correct solution.",
     ],
+    sourceOverride: "others",
   },
   { id: "PLE-M01", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Algebraic Solution Methods", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve the following by elimination method:\n2x + 3y = 46\n3x + 5y = 74", solutionSteps: [
       "Multiply eq1 by 5, eq2 by 3: 10x+15y=230, 9x+15y=222 [1]",
@@ -166,12 +167,13 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "7x − 3y = 2000 …(2); Multiply (1) by 3, (2) by 4: 27x−12y=6000, 28x−12y=8000 [1]",
       "Subtract: −x = −2000 → x = 2000; Incomes: 9(2000) = ₹18000, 7(2000) = ₹14000 [1]",
     ], finalAnswer: "₹18,000 and ₹14,000" , visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true },
-  { id: "PLE-M13", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Algebraic Solution Methods", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The pair 2x − y = 5, 3x + 2y = 11 has the solution x = 3, y = 1.\nReason (R): The solution is found by substituting into both equations.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "PLE-M13", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Algebraic Solution Methods", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The pair 2x − y = 5, 3x + 2y = 11 has the solution x = 3, y = 1.\nReason (R): An ordered pair (x, y) is a solution of a pair of linear equations if it satisfies both the equations.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "A is true: 2(3) − 1 = 5 and 3(3) + 2(1) = 11. R is true: a solution of a pair of linear equations is a pair of values satisfying both equations — this is exactly why (3, 1) is the solution, so R correctly explains A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Substitute x=3, y=1 into the first equation 2x - y = 5: 2(3) - 1 = 6 - 1 = 5. The equation is satisfied.",
       "Substitute x=3, y=1 into the second equation 3x + 2y = 11: 3(3) + 2(1) = 9 + 2 = 11. The equation is satisfied.",
-      "Since both equations are satisfied, Assertion (A) is true. Reason (R) is also true as substitution is the method to verify a solution.",
+      "Since (3, 1) satisfies both equations, Assertion (A) is true. Reason (R) states the definition of a solution of a pair of equations, which is exactly what makes (3, 1) the solution, so R is true and correctly explains A."
     ],
+    sourceOverride: "others",
   },
   { id: "PLE-M14", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word & Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "8 men and 12 boys can finish a piece of work in 10 days while 6 men and 8 boys can finish it in 14 days. Find the time taken by one man alone and by one boy alone.", solutionSteps: [
       "Let man's 1 day work = 1/x, boy's = 1/y; 8/x + 12/y = 1/10 …(1); 6/x + 8/y = 1/14 …(2) [1]",
@@ -287,10 +289,11 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "x = 12000, y = 10000 [1]",
     ], finalAnswer: "₹12,000 in A, ₹10,000 in B" , visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true },
   { id: "PLE-H14", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Solutions/Nature", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "For what value of k does the pair (k + 1)x + (2k − 1)y = 7k − 1 and (k − 1)x + (2k + 1)y = 3k + 1 represent parallel lines?", solutionSteps: [
-      "Parallel: (k+1)/(k−1) = (2k−1)/(2k+1) ≠ (7k−1)/(3k+1); (k+1)(2k+1) = (2k−1)(k−1) [1]",
-      "2k²+3k+1 = 2k²−3k+1; 6k = 0 → k = 0 [1]",
-      "Check: 1/(−1) = −1/(1) = −1 ✓, (−1)/(1) = −1 ≠ 0. Parallel ✓ [1]",
-    ], finalAnswer: "k = 0" , visualExplainerId: "maths-linear-equations-consistency-of-equations", isCompetencyBased: true },
+      "Parallel needs (k+1)/(k−1) = (2k−1)/(2k+1) ≠ (7k−1)/(3k+1). From the equality: (k+1)(2k+1) = (2k−1)(k−1) [1]",
+      "2k² + 3k + 1 = 2k² − 3k + 1; 6k = 0 → k = 0 [1]",
+      "Check k = 0: equations become x − y = −1 and −x + y = 1. Ratios: 1/(−1) = −1, (−1)/1 = −1, (−1)/1 = −1 — all equal, so the lines are coincident, not parallel. (k = 1, −1, −1/2 give intersecting lines.) Hence no value of k makes the lines parallel. [1]"
+    ], finalAnswer: "No value of k (at k = 0 the lines are coincident, not parallel)", visualExplainerId: "maths-linear-equations-consistency-of-equations", isCompetencyBased: true,
+      sourceOverride: "others" },
   { id: "PLE-H15", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word & Application Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A shopkeeper sells pens at ₹5 each and pencils at ₹3 each. On Monday he sold 50 items and earned ₹180. On Tuesday he sold the same total items but earned ₹10 more by selling 5 extra pens.\n(i) If pens = x, pencils = y on Monday, form the equations.\n(ii) Solve for x and y on Monday.\n(iii) Find pens and pencils sold on Tuesday.\n(iv) Verify Tuesday's revenue.", solutionSteps: [
       "(i) x + y = 50 …(1), 5x + 3y = 180 …(2) [1]",
       "(ii) From (1): y = 50 − x. Sub in (2): 5x + 150 − 3x = 180 → 2x = 30 → x = 15, y = 35 [1]",

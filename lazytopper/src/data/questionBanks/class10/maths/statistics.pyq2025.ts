@@ -9,12 +9,13 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const STATISTICS_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-STAT-001", subject: "Maths", topicKey: "statistics", subtopic: "Mode", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "in the following table, if the mean of the given data is 18. Hence find the mode. Daily Allowance Number of Children 11 13 7 13 15 6 15 17 9 17 19 13 19 21 f 21 23 5 23 25 4 3 4 3 4=12",
-    answer: "f = 20 modal class is 19 – 21 mode = 19 + 20−13 40−13−5 × 3 = 19.95 approx.",
-    solutionSteps: ["[2 marks] Correct table — Daily Allowance | xi | fi | fixi: 11–13 | 12 | 7 | 84; 13–15 | 14 | 6 | 84; 15–17 | 16 | 9 | 144; 17–19 | 18 | 13 | 234; 19–21 | 20 | f | 20f; 21–23 | 22 | 5 | 110; 23–25 | 24 | 4 | 96; Total: Σfi = 44 + f, Σfixi = 752 + 20f.", "[1 mark] Mean = Σfixi/Σfi ⟹ 18 = (752 + 20f)/(44 + f) ⟹ 792 + 18f = 752 + 20f ⟹ f = 20.", "[0.5 mark] Modal class is 19–21 (highest frequency f = 20).", "[1 mark] Mode = 19 + ((20 − 13)/(2×20 − 13 − 5)) × 3 = 19 + (7/22) × 3.", "[0.5 mark] Mode = 19.95 (approx.)."],
-    finalAnswer: "f = 20 modal class is 19 – 21 mode = 19 + 20−13 40−13−5 × 3 = 19.95 approx.",
+    questionText: "In the following table, the mean of the given data is 18. Find the missing frequency f. Hence find the mode.\nDaily Allowance (in ₹) : Number of Children\n11–13 : 7\n13–15 : 6\n15–17 : 9\n17–19 : 13\n19–21 : f\n21–23 : 5\n23–25 : 4",
+    answer: "f = 20; modal class 19–21; Mode = 19 + ((20 − 13)/(40 − 13 − 5)) × 2 = 19.64 (approx.)",
+    solutionSteps: ["[2 marks] Correct table — Daily Allowance | xi | fi | fixi: 11–13 | 12 | 7 | 84; 13–15 | 14 | 6 | 84; 15–17 | 16 | 9 | 144; 17–19 | 18 | 13 | 234; 19–21 | 20 | f | 20f; 21–23 | 22 | 5 | 110; 23–25 | 24 | 4 | 96; Total: Σfi = 44 + f, Σfixi = 752 + 20f.", "[1 mark] Mean = Σfixi/Σfi ⟹ 18 = (752 + 20f)/(44 + f) ⟹ 792 + 18f = 752 + 20f ⟹ f = 20.", "[0.5 mark] Modal class is 19–21 (highest frequency f = 20); l = 19, f₁ = 20, f₀ = 13, f₂ = 5, h = 2.", "[1 mark] Mode = 19 + ((20 − 13)/(2×20 − 13 − 5)) × 2 = 19 + (7/22) × 2.", "[0.5 mark] Mode = 19 + 0.64 = 19.64 (approx.)."],
+    finalAnswer: "f = 20; modal class 19–21; Mode = 19 + ((20 − 13)/(40 − 13 − 5)) × 2 = 19.64 (approx.)",
     ncertRef: "PYQ 30/1/1 Q35", isCompetencyBased: true,
-    pyqYear: "2025", pyqSet: "1" },
+    sourceOverride: "others",
+    },
   { id: "PYQ-M-2025-STAT-002", subject: "Maths", topicKey: "statistics", subtopic: "Mode", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "The following frequency distribution gives the monthly consumption of electricity of 68 consumers of a locality. Find the mean and mode of the data : Monthly Consumption (in units) Number of Consumers 65 85 4 85 105 5 105 125 13 125 145 20 145 165 14 165 185 8 185 205",
     answer: "Mean = 137.06 units and Mode = 135.77 units 1",

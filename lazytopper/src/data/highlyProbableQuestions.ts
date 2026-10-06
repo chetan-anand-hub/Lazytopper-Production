@@ -92,9 +92,9 @@ const hpqAdditions: HPQTopicBucket[] = [
         explanation:
           "Coefficients of x and y are proportional (3/6 = 4/8), but the constants are not (12/25 ≠ 1/2), so the lines are parallel with no common solution.",
         solutionSteps: [
-          "Assuming Assertion (A): The system 2x+3y=7 and 4x+6y=14 has infinitely many solutions. For this, a1/a2=2/4=1/2, b1/b2=3/6=1/2, c1/c2=7/14=1/2. Thus, A is true.",
-          "Assuming Reason (R): If a1/a2 = b1/b2 = c1/c2, then the lines are coincident and have infinitely many solutions. This statement is true.",
-          "Reason (R) correctly explains Assertion (A). Therefore, option A is the correct answer.",
+          "Assertion (A): For 3x + 4y = 12 and 6x + 8y = 25, a1/a2 = 3/6 = 1/2, b1/b2 = 4/8 = 1/2, c1/c2 = 12/25. Since 1/2 = 1/2 ≠ 12/25, the lines are parallel, so the pair has no solution. A is true.",
+          "Reason (R): The condition for no solution (inconsistent pair, parallel lines) is a1/a2 = b1/b2 ≠ c1/c2. This statement is true.",
+          "A follows directly from applying the condition in R, so R is the correct explanation of A. Therefore, option A is the correct answer."
         ],
         finalAnswer: "A",
       },
@@ -137,15 +137,15 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Applying",
         question:
-          "A shop sells pencils at ₹5 each and pens at ₹10 each. On a certain day, 50 items were sold for a total of ₹340. (a) If the number of pens sold is three more than the number of pencils sold, form the equations. (b) Find the number of pencils and pens sold.",
+          "A shop sells pencils at ₹5 each and pens at ₹10 each. On a certain day, 50 items were sold for a total of ₹400. (a) If the number of pens sold is ten more than the number of pencils sold, form the equations. (b) Find the number of pencils and pens sold.",
         answer: "20 pencils and 30 pens.",
         explanation:
-          "Let pencils be x and pens be y. Then x + y = 50 and 5x + 10y = 340; also y = x + 3. Solving gives x = 20 and y = 30.",
+          "Let pencils be x and pens be y. Then x + y = 50 and 5x + 10y = 400; also y = x + 10. Solving x + y = 50 with y = x + 10 gives x = 20 and y = 30, which also satisfies 5(20) + 10(30) = 400.",
         solutionSteps: [
-          "Let the number of pencils be x and the number of pens be y.; (a) Based on the given conditions, the equations are: x + y = 50 (total items), 5x + 10y = 340 (total cost), and y = x + 3 (pens are three more than pencils). [1]",
-          "(b) To find the number of pencils and pens, we use the total items equation: x + y = 50.; And the condition that leads to the given answer: y = x + 10 (number of pens is ten more than pencils). [1]",
-          "Substitute y = x + 10 into x + y = 50: x + (x + 10) = 50 => 2x + 10 = 50 => 2x = 40. [1]",
-          "Solve for x and y: x = 20. Then y = 20 + 10 = 30. Thus, 20 pencils and 30 pens were sold. [1]",
+          "(a) Let the number of pencils be x and pens be y. Equations: x + y = 50 (total items), 5x + 10y = 400 (total cost), y = x + 10 (pens ten more than pencils). [1]",
+          "(b) Substitute y = x + 10 into x + y = 50: 2x + 10 = 50, so 2x = 40. [1]",
+          "x = 20 and y = 20 + 10 = 30. [1]",
+          "Check with cost: 5(20) + 10(30) = 100 + 300 = ₹400 ✓. So 20 pencils and 30 pens were sold. [1]"
         ],
         finalAnswer: "20 pencils and 30 pens.",
       },
@@ -282,16 +282,16 @@ const hpqAdditions: HPQTopicBucket[] = [
         question:
           "A rectangular board has an area of 96 cm². Its length is 2 cm more than three times its breadth.\n(a) Set up a quadratic equation to represent the situation.\n(b) Find the length and breadth of the board.",
         answer:
-          "(a) 3b² + 2b − 96 = 0, where b is the breadth. (b) Breadth = 4 cm; length = 14 cm.",
+          "(a) 3b² + 2b − 96 = 0, where b is the breadth. (b) Breadth = 16/3 cm; length = 18 cm.",
         explanation:
-          "Let breadth be b. Then length = 3b + 2. Area = b(3b + 2) = 96 ⇒ 3b² + 2b − 96 = 0. Solving yields b = 4 (discarding negative root) and length = 3×4 + 2 = 14 cm.",
+          "Let breadth be b. Then length = 3b + 2. Area = b(3b + 2) = 96 ⇒ 3b² + 2b − 96 = 0 ⇒ (3b − 16)(b + 6) = 0. Discarding the negative root, b = 16/3 cm and length = 3 × 16/3 + 2 = 18 cm. Check: 18 × 16/3 = 96 ✓.",
         solutionSteps: [
           "Let the breadth of the rectangular board be 'b' cm.; According to the problem, the length 'l' is 2 cm more than three times its breadth, so l = (3b + 2) cm.; The area of the board is given as 96 cm². Area = length × breadth. [1]",
           "Substitute the expressions: b(3b + 2) = 96.; Expand and rearrange to form the quadratic equation: 3b² + 2b - 96 = 0.; To find the breadth, solve the quadratic equation 3b² + 2b - 96 = 0. [1]",
           "Using factorization: 3b² + 18b - 16b - 96 = 0.; Factor out common terms: 3b(b + 6) - 16(b + 6) = 0.; This gives (3b - 16)(b + 6) = 0. [1]",
           "Possible values for b are 3b - 16 = 0 => b = 16/3, or b + 6 = 0 => b = -6.; Since breadth cannot be negative, b = 16/3 cm.; Calculate length: l = 3(16/3) + 2 = 16 + 2 = 18 cm. [1]",
         ],
-        finalAnswer: "(a) 3b² + 2b − 96 = 0, where b is the breadth. (b) Breadth = 4 cm; length = 14 cm.",
+        finalAnswer: "(a) 3b² + 2b − 96 = 0, where b is the breadth. (b) Breadth = 16/3 cm; length = 18 cm.",
       },
     ],
   },
@@ -460,16 +460,16 @@ const hpqAdditions: HPQTopicBucket[] = [
         question:
           "A kite is flying at a height of 30 m above the ground. The string makes an angle of 60° with the horizontal. The person’s hand is 1.5 m above the ground.\n(a) Find the length of the string between the person’s hand and the kite.\n(b) Find the horizontal distance of the kite from the person.",
         answer:
-          "(a) Approximately 32.91 m (b) Approximately 16.44 m.",
+          "(a) Approximately 32.91 m (b) Approximately 16.45 m.",
         explanation:
-          "Effective vertical height = 30 − 1.5 = 28.5 m. sin 60° = 28.5/L ⇒ L = 28.5/sin 60° ≈ 32.91 m. Horizontal distance d = 28.5/ tan 60° = 28.5/√3 ≈ 16.44 m.",
+          "Effective vertical height = 30 − 1.5 = 28.5 m. sin 60° = 28.5/L ⇒ L = 28.5/sin 60° = 19√3 ≈ 32.91 m. Horizontal distance d = 28.5/ tan 60° = 28.5/√3 = 9.5√3 ≈ 16.45 m.",
         solutionSteps: [
           "Draw a right-angled triangle. The effective height of the kite from the person's hand level is 30 m - 1.5 m = 28.5 m.; Let 'L' be the length of the string and 'x' be the horizontal distance. The angle of elevation is 60°. [1]",
           "For (a), use sin(60°) = (effective height) / L. So, L = 28.5 / sin(60°).; Calculate L = 28.5 / (sqrt(3)/2) = 57 / sqrt(3) = 19 * sqrt(3) = 19 * 1.732 = 32.908 m. [1]",
           "For (b), use tan(60°) = (effective height) / x. So, x = 28.5 / tan(60°). [1]",
           "Calculate x = 28.5 / sqrt(3) = 28.5 * sqrt(3) / 3 = 9.5 * 1.732 = 16.454 m. [1]",
         ],
-        finalAnswer: "(a) Approximately 32.91 m (b) Approximately 16.44 m.",
+        finalAnswer: "(a) Approximately 32.91 m (b) Approximately 16.45 m.",
       },
     ],
   },
@@ -558,9 +558,9 @@ const hpqAdditions: HPQTopicBucket[] = [
         explanation:
           "Because the mean divides the sum of all observations by their number, very large or very small values influence it greatly.",
         solutionSteps: [
-          "Assume Assertion (A): The mean of the first five natural numbers is 3. (1+2+3+4+5)/5 = 15/5 = 3. So, A is true.",
-          "Assume Reason (R): The mean is the sum of observations divided by the total number of observations. This is the correct definition of mean. So, R is true.",
-          "Reason (R) correctly explains how the mean is calculated, which leads to the value stated in Assertion (A). Therefore, R is the correct explanation for A.",
+          "Assertion (A): The mean is sensitive to extreme values — e.g. the mean of 2, 3, 4 is 3, but replacing 4 by 40 makes the mean (2+3+40)/3 = 15. So A is true.",
+          "Reason (R): Mean = (sum of all observations)/(number of observations), so every observation, including any extreme one, enters the calculation. R is true.",
+          "Because every value (including an extreme one) enters the sum, a very large or very small value shifts the mean. So R is the correct explanation of A."
         ],
         finalAnswer: "A",
       },
@@ -703,9 +703,9 @@ const hpqAdditions: HPQTopicBucket[] = [
         explanation:
           "The probability of an event and its complement sum to 1 because together they exhaust the sample space.",
         solutionSteps: [
-          "Assertion: The probability of an event E is always between 0 and 1, inclusive. This statement is true.",
-          "Reason: The sum of probabilities of all elementary events of an experiment is 1. This statement is also true.",
-          "The reason correctly explains a fundamental property of probability, which implies that the probability of any single event must lie between 0 and 1. Thus, Reason is the correct explanation for Assertion.",
+          "Assertion: E and 'not E' are complementary, so P(E) + P(not E) = 1. This statement is true.",
+          "Reason: Every outcome of the experiment is either in E or in 'not E' (and not both), so together they cover all possible outcomes. This statement is true.",
+          "Since E and 'not E' are mutually exclusive and together exhaust the sample space, their probabilities add to 1 — R is the correct explanation of A. Option A."
         ],
         finalAnswer: "A",
       },
@@ -965,26 +965,25 @@ const hpqAdditions: HPQTopicBucket[] = [
         kind: "assertion-reason",
         question: "Assertion–Reason: refer to assertion and reason below.",
         assertion:
-          "Blood in veins always travels towards the heart at low pressure.",
+          "Veins carry blood from the different organs back to the heart.",
         reason:
-          "Veins contain valves that prevent the backflow of blood.",
+          "Veins have thick, elastic walls because the blood in them flows under high pressure.",
         aROptions: [
           { label: "A", text: "Both Assertion and Reason are true and Reason is the correct explanation." },
           { label: "B", text: "Both Assertion and Reason are true but Reason is not the correct explanation." },
           { label: "C", text: "Assertion is true but Reason is false." },
           { label: "D", text: "Assertion is false but Reason is true." },
         ],
-        correctOption: "A",
-        answer: "A",
+        correctOption: "C",
+        answer: "C",
         explanation:
-          "Veins carry blood to the heart under lower pressure and rely on valves to maintain one‑way flow.",
+          "A is true: veins collect blood from different organs and bring it back to the heart. R is false: blood in veins is no longer under pressure, so veins have thin walls (with valves to keep flow one-way); thick, elastic walls belong to arteries, which carry blood under high pressure. Hence A is true, R is false.",
         solutionSteps: [
-          "First, evaluate the truthfulness of the Assertion statement regarding circulation.",
-          "Next, evaluate the truthfulness of the Reason statement regarding circulation.",
-          "If both Assertion and Reason are true, then determine if the Reason correctly explains the Assertion.",
-          "Option A is chosen when both Assertion and Reason are true, and Reason is the correct explanation for Assertion.",
+          "Assertion: Veins collect blood from the different organs and bring it back to the heart — true.",
+          "Reason: Thick, elastic walls are a feature of arteries (blood under high pressure). Veins carry blood that is not under pressure, so they have thin walls and valves — R is false.",
+          "Hence A is true but R is false — Option C."
         ],
-        finalAnswer: "A",
+        finalAnswer: "C",
       },
       {
         id: "lp-hpq-104",
@@ -1330,13 +1329,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         bloomSkill: "Applying",
         question:
           "Solve the quadratic equation 2x² − 3x − 5 = 0 using the quadratic formula.",
-        answer: "x = (3 ± √49)/4, i.e. x = 2 or x = −5/2",
+        answer: "x = (3 ± √49)/4, i.e. x = 5/2 or x = −1",
         solutionSteps: [
           "Identify a = 2, b = −3, c = −5.; Write the quadratic formula: x = [−b ± √(b² − 4ac)] / (2a). [1]",
           "Compute the discriminant: Δ = b² − 4ac = (−3)² − 4·2·(−5) = 9 + 40 = 49. [1]",
-          "Substitute into the formula and simplify. [1]",
+          "Substitute: x = (3 ± 7)/4 ⇒ x = 10/4 = 5/2 or x = −4/4 = −1. [1]"
         ],
-        finalAnswer: "x = 2 or x = −5/2",
+        finalAnswer: "x = 5/2 or x = −1",
         explanation:
           "Basic but compulsory pattern: direct use of the quadratic formula on a board-style equation.",
       },
@@ -2446,7 +2445,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         bloomSkill: "Applying",
         question:
           "The 4th term of an AP is 11 and the 9th term is 26. Find the first term and common difference.",
-        answer: "First term a = 3, common difference d = 2",
+        answer: "First term a = 2, common difference d = 3",
         solutionSteps: [
           "Use formula: aₙ = a + (n − 1)d.; For n = 4: a + 3d = 11. For n = 9: a + 8d = 26. [½]",
           "Subtract: (a + 8d) − (a + 3d) = 26 − 11 ⇒ 5d = 15 ⇒ d = 3. [½]",
@@ -2470,7 +2469,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Applying",
         question: "Find the sum of first 30 terms of the AP 7, 10, 13, ...",
-        answer: "S₃₀ = 1740",
+        answer: "S₃₀ = 1515",
         solutionSteps: [
           "Here a = 7, d = 3, n = 30. [1]",
           "Use Sₙ = n/2 [2a + (n − 1)d]. [1]",
