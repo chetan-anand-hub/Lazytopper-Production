@@ -860,6 +860,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-B-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Food chains and trophic levels",
@@ -882,6 +883,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-B-002",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Waste — effects on the environment",
@@ -1014,6 +1016,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-B-008",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Food chains and trophic levels",
@@ -1080,6 +1083,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-B-013",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Ecosystem — producers, consumers, decomposers",
@@ -1102,6 +1106,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-B-014",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Food chains and trophic levels",
@@ -1192,6 +1197,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-C-003",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Ecosystem — producers, consumers, decomposers",

@@ -127,7 +127,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 94 (folio 93) — Q4. Key: pdf-page 97, option 2.
   {
-    id: "CFPQ-S-EYE-004",
+    id: "CFPQ-S-EYE-004", competencyVerified: true,
     subject: "Science",
     topicKey: "human-eye-and-colourful-world",
     subtopic: "Defects of Vision",
@@ -154,7 +154,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 94 (folio 93) — Q5. Key: pdf-page 97, option 2.
   {
-    id: "CFPQ-S-EYE-005",
+    id: "CFPQ-S-EYE-005", competencyVerified: true,
     subject: "Science",
     topicKey: "human-eye-and-colourful-world",
     subtopic: "Structure and Function of the Human Eye",
@@ -183,7 +183,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 95 (folio 94) — Q6. Key: pdf-page 97, option 4.
   {
-    id: "CFPQ-S-EYE-006",
+    id: "CFPQ-S-EYE-006", competencyVerified: true,
     subject: "Science",
     topicKey: "human-eye-and-colourful-world",
     subtopic: "Tyndall Effect",
@@ -206,7 +206,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 95 (folio 94) — Q7. Key: pdf-page 97, option 4.
   {
-    id: "CFPQ-S-EYE-007",
+    id: "CFPQ-S-EYE-007", competencyVerified: true,
     subject: "Science",
     topicKey: "human-eye-and-colourful-world",
     subtopic: "Dispersion of Light",
@@ -259,7 +259,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 95 (folio 94) — Q9. Key: pdf-page 97, option 3.
   {
-    id: "CFPQ-S-EYE-009",
+    id: "CFPQ-S-EYE-009", competencyVerified: true,
     subject: "Science",
     topicKey: "human-eye-and-colourful-world",
     subtopic: "Defects of Vision",
@@ -308,7 +308,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 96 (folio 95) — Q11 [1]. Rubric row 11: pdf-page 98.
   {
-    id: "CFPQ-S-EYE-011",
+    id: "CFPQ-S-EYE-011", competencyVerified: true,
     subject: "Science",
     topicKey: "human-eye-and-colourful-world",
     subtopic: "Rainbow Formation",
@@ -329,7 +329,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 96 (folio 95) — Q12 [2]. Rubric row 12: pdf-page 98.
   {
-    id: "CFPQ-S-EYE-012",
+    id: "CFPQ-S-EYE-012", competencyVerified: true,
     subject: "Science",
     topicKey: "human-eye-and-colourful-world",
     subtopic: "Scattering of Light",

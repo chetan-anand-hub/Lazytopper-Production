@@ -87,7 +87,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
   },
   // CFPQ_Science10.pdf pdf-page 5 (folio 4) — Q2. Key: pdf-page 8, option 4.
   {
-    id: "CFPQ-S-CHEM-002",
+    id: "CFPQ-S-CHEM-002", competencyVerified: true,
     subject: "Science",
     topicKey: "chemical-reactions-and-equations",
     subtopic: "Chemical Reactions - Necessary Conditions",
@@ -213,7 +213,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
   },
   // CFPQ_Science10.pdf pdf-page 7 (folio 6) — Q8 [1]. Rubric: pdf-page 9.
   {
-    id: "CFPQ-S-CHEM-008",
+    id: "CFPQ-S-CHEM-008", competencyVerified: true,
     subject: "Science",
     topicKey: "chemical-reactions-and-equations",
     subtopic: "Combination and Decomposition Reactions",
@@ -233,7 +233,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
   },
   // CFPQ_Science10.pdf pdf-page 7 (folio 6) — Q9 [1]. Rubric: pdf-page 9.
   {
-    id: "CFPQ-S-CHEM-009",
+    id: "CFPQ-S-CHEM-009", competencyVerified: true,
     subject: "Science",
     topicKey: "chemical-reactions-and-equations",
     subtopic: "Classification of Chemical Reactions",
@@ -255,7 +255,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
   },
   // CFPQ_Science10.pdf pdf-page 7 (folio 6) — Q10 [3]. Rubric: pdf-pages 9-10.
   {
-    id: "CFPQ-S-CHEM-010",
+    id: "CFPQ-S-CHEM-010", competencyVerified: true,
     subject: "Science",
     topicKey: "chemical-reactions-and-equations",
     subtopic: "Types of Chemical Reactions - Decomposition",

@@ -17,7 +17,7 @@ export const acidsBasesSaltsPYQ2024: CanonicalQuestion[] = [
     finalAnswer: "(d) HCl and NH4OH",
     ncertRef: "PYQ 31/4/1 Q2", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
-  { id: "PYQ-S-2024-ACID-002", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2024-ACID-002", competencyVerified: true, subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Four solutions, namely glucose, alcohol, hydrochloric acid and sulphuric acid filled in four separate beakers are connected one by one in an electric circuit with a bulb. The solutions in which the bulb will glow when current is passed are :",
     options: ["Glucose and alcohol", "Alcohol and hydrochloric acid", "Glucose and sulphuric acid", "Hydrochloric acid and sulphuric acid"],
     answer: "Hydrochloric acid and sulphuric acid",

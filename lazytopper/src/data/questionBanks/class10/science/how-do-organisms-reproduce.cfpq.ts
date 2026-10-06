@@ -65,7 +65,7 @@ const VENN_DESC =
 export const REPR_CFPQ: CanonicalQuestion[] = [
   // pdf-page 65 (folio 64) — Q1. Key: pdf-page 68, option 1.
   {
-    id: "CFPQ-S-REPR-001",
+    id: "CFPQ-S-REPR-001", competencyVerified: true,
     subject: "Science",
     topicKey: "how-do-organisms-reproduce",
     subtopic: "Reproductive Health and Contraception",
@@ -118,7 +118,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 65 (folio 64) — Q3 [1]. Rubric row 4: pdf-page 69.
   {
-    id: "CFPQ-S-REPR-003",
+    id: "CFPQ-S-REPR-003", competencyVerified: true,
     subject: "Science",
     topicKey: "how-do-organisms-reproduce",
     subtopic: "Sex Determination in Humans",
@@ -213,7 +213,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 67 (folio 66) — Q7 [1]. Rubric row 8: pdf-page 69.
   {
-    id: "CFPQ-S-REPR-007",
+    id: "CFPQ-S-REPR-007", competencyVerified: true,
     subject: "Science",
     topicKey: "how-do-organisms-reproduce",
     subtopic: "Sexual Reproduction in Flowering Plants",
@@ -233,7 +233,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 67 (folio 66) — Q8 [1]. Rubric row 9: pdf-page 69.
   {
-    id: "CFPQ-S-REPR-008",
+    id: "CFPQ-S-REPR-008", competencyVerified: true,
     subject: "Science",
     topicKey: "how-do-organisms-reproduce",
     subtopic: "Vegetative Propagation",
@@ -257,7 +257,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 67 (folio 66) — Q9 [2]. Rubric row 10: pdf-page 69.
   {
-    id: "CFPQ-S-REPR-009",
+    id: "CFPQ-S-REPR-009", competencyVerified: true,
     subject: "Science",
     topicKey: "how-do-organisms-reproduce",
     subtopic: "Vegetative Propagation",
@@ -307,7 +307,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 67 (folio 66) — Q11 [3]. Rubric row 12: pdf-page 69.
   {
-    id: "CFPQ-S-REPR-011",
+    id: "CFPQ-S-REPR-011", competencyVerified: true,
     subject: "Science",
     topicKey: "how-do-organisms-reproduce",
     subtopic: "Regeneration",

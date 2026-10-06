@@ -1196,7 +1196,7 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "CHEM-EXMPLR-1-LONG-006",
+    id: "CHEM-EXMPLR-1-LONG-006", competencyVerified: true,
     subject: "Science",
     topicKey: "chemical-reactions-and-equations",
     subtopic: "Reactivity Series",

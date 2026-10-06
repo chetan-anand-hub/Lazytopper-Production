@@ -35,7 +35,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const CTRL_CFPQ: CanonicalQuestion[] = [
   // pdf-page 59 (folio 58) — Q1. Key: pdf-page 62, option 2.
   {
-    id: "CFPQ-S-CTRL-001",
+    id: "CFPQ-S-CTRL-001", competencyVerified: true,
     subject: "Science",
     topicKey: "control-and-coordination",
     subtopic: "Hormones in Animals - Insulin",
@@ -63,7 +63,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 59 (folio 58) — Q2. Key: pdf-page 62, option 3.
   {
-    id: "CFPQ-S-CTRL-002",
+    id: "CFPQ-S-CTRL-002", competencyVerified: true,
     subject: "Science",
     topicKey: "control-and-coordination",
     subtopic: "Plant Hormones - Auxin",
@@ -121,7 +121,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 60 (folio 59) — Q4. Key: pdf-page 62, option 2.
   {
-    id: "CFPQ-S-CTRL-004",
+    id: "CFPQ-S-CTRL-004", competencyVerified: true,
     subject: "Science",
     topicKey: "control-and-coordination",
     subtopic: "Tropic Movements in Plants",
@@ -144,7 +144,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 60 (folio 59) — Q5 [2]. Rubric: pdf-page 63.
   {
-    id: "CFPQ-S-CTRL-005",
+    id: "CFPQ-S-CTRL-005", competencyVerified: true,
     subject: "Science",
     topicKey: "control-and-coordination",
     subtopic: "Hormones and Development",
@@ -172,7 +172,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 61 (folio 60) — Q6 [2]. Rubric: pdf-page 63.
   {
-    id: "CFPQ-S-CTRL-006",
+    id: "CFPQ-S-CTRL-006", competencyVerified: true,
     subject: "Science",
     topicKey: "control-and-coordination",
     subtopic: "Plant Hormones - Abscisic Acid",
@@ -217,7 +217,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 61 (folio 60) — Q8 [1]. Rubric: pdf-page 63.
   {
-    id: "CFPQ-S-CTRL-008",
+    id: "CFPQ-S-CTRL-008", competencyVerified: true,
     subject: "Science",
     topicKey: "control-and-coordination",
     subtopic: "Reflex Action and Voluntary Action",
@@ -241,7 +241,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 61 (folio 60) — Q9 [2]. Rubric: pdf-page 63.
   {
-    id: "CFPQ-S-CTRL-009",
+    id: "CFPQ-S-CTRL-009", competencyVerified: true,
     subject: "Science",
     topicKey: "control-and-coordination",
     subtopic: "Plant Hormones - Ethylene",
@@ -266,7 +266,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 61 (folio 60) — Q10 [1]. Rubric: pdf-page 63.
   {
-    id: "CFPQ-S-CTRL-010",
+    id: "CFPQ-S-CTRL-010", competencyVerified: true,
     subject: "Science",
     topicKey: "control-and-coordination",
     subtopic: "Hormones in Animals - Adrenaline",
