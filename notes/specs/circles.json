@@ -136,7 +136,7 @@
       "title": "Tangent ⊥ radius (Theorem 10.1)",
       "body": "At the point of contact, the tangent is perpendicular to the radius. Proof idea: any other point Q of the tangent lies outside the circle, so $OQ > OP$; the radius to the point of contact is therefore the shortest distance from the centre to the tangent, hence perpendicular to it (full proof in the Proof tab). Two consequences NCERT flags in the Remarks: there is <b>one and only one</b> tangent at a point of a circle, and the line along that radius is called the <b>normal</b> at the point.",
       "tested": "the proof itself (the syllabus marks Theorem 10.1 “(Prove)”) and, cited by name, inside almost every circle proof — the $90°$ carries the mark",
-      "figure_ref": null
+      "figure_ref": "fig_tangent_radius_105"
     },
     {
       "id": "c3",
@@ -523,6 +523,25 @@
         "refill": null
       },
       "asset": "circles/fig_equal_tangents_107.webp"
+    },
+    "fig_tangent_radius_105": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig. 10.5 (redrawn)",
+      "caption": "Theorem 10.1 set-up: tangent XY touches the circle at P and OP is the radius through the point of contact. Any other point Q of XY lies outside the circle, and OQ crosses the circle at R — so OQ = OR + RQ > OR = OP.",
+      "legend": "Solid green OP is the radius to the point of contact; dashed OQ is the construction. OP is the shortest segment from O to XY, so OP ⟂ XY — the 90° at P is the theorem's conclusion, not a given. NCERT's figure labels O, P, Q, X, Y; R is added here to name where OQ meets the circle.",
+      "source": {
+        "pdf": "jemh110",
+        "edition": "2026-27",
+        "ncert_fig": "10.5",
+        "page_pdf": 3,
+        "page_printed": 147,
+        "clip_pts": null,
+        "render_matrix": null,
+        "clean": "none",
+        "refill": null,
+        "note": "NOT a crop: redrawn as a labelled SVG (QUICK-FIXES-1 Q4) from NCERT Reprint 2026-27 jemh110.pdf, page_pdf 3 (0-indexed, as the other figures here), printed p.147, Fig. 10.5 — confirmed on the page: circle centre O, tangent XY (Y left, X right, arrowheads both ends), P at the point of contact, solid OP, Q on XY to the right of P, dotted OQ. NCERT's figure carries no R and no right-angle mark; both are added, labelled as the proof's reading aid. Eye-confirmed at 390 px and 1440 px."
+      },
+      "asset": "circles/fig_tangent_radius_105.svg"
     }
   },
   "source_ledger": [
@@ -600,6 +619,11 @@
       "item": "NCERT Fig. 10.7 — Theorem 10.2 set-up",
       "type": "figure",
       "source": "NCERT 2026-27 Ch10 Fig. 10.7 p.149"
+    },
+    {
+      "item": "NCERT Fig. 10.5 — Theorem 10.1 set-up",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch10 Fig. 10.5 p.147"
     }
   ]
 }

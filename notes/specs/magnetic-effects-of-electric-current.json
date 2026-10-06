@@ -321,7 +321,7 @@
       "title": "Domestic electric circuits — live, neutral, earth, fuse",
       "body": "Mains power enters through a main fuse and the meter, then splits into separate circuits — a 15 A circuit for high-power appliances (geysers, air coolers) and a 5 A circuit for bulbs and fans. Each appliance sits in <b>parallel</b> across the live (red) and neutral (black) wires, so every one gets the full 220 V and has its own switch. The green <b>earth wire</b> ties metal bodies to the earth so a leak cannot shock the user. A <b>fuse</b> melts by Joule heating when the current rises too high — through <b>short-circuiting</b> (live touching neutral), a voltage surge, or too many appliances on one socket (<b>overloading</b>).",
       "tested": "2–3 mark 'function of the earth wire / why are appliances connected in parallel / when does a short circuit occur' (NCERT Exercise Q8, Q9) · 1-mark true/false on wire colours (Exercise Q6)",
-      "figure_ref": null,
+      "figure_ref": "fig_domestic_circuit_1215",
       "source": {
         "ncert_page": 204,
         "edition": "2026-27",
@@ -660,6 +660,24 @@
         "note": "rasterize@200dpi -> crop -> saturation-clean via kit; cropped above the body text so no deleted-topic sentence bleeds in; eye-confirmed"
       },
       "asset": "magnetic-effects-of-electric-current/fig_flemings_left_hand_1213.webp"
+    },
+    "fig_domestic_circuit_1215": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 12.15 (redrawn)",
+      "caption": "A common domestic circuit — live (red) and neutral (black) come from the mains through the Electricity Board's fuse, the electricity meter and the distribution box (main switch plus a fuse for each circuit); every socket sits across the 220 V live–neutral pair, in parallel; the earth wire (green) runs to the earth pin of each socket.",
+      "legend": "Follow the red wire left to right: fuse → meter → distribution box → top rail. Each socket hangs between the red and black rails (parallel, so each gets the full 220 V and its own switch); the green wire crosses the live rail without joining it (the small jump) and ends on the socket's earth pin.",
+      "source": {
+        "pdf": "jesc112",
+        "edition": "2026-27",
+        "ncert_fig": "12.15",
+        "page_pdf": 11,
+        "printed_page": 205,
+        "crop": null,
+        "clean": "none",
+        "dpi": null,
+        "note": "NOT a crop: redrawn as a labelled SVG (QUICK-FIXES-1 Q4) from NCERT Reprint 2026-27 jesc112.pdf, printed p.205 (page_pdf 11, the same 1-indexed convention as the other figures here): Figure 12.15 'A schematic diagram of one of the common domestic circuits' — the figure number was confirmed on the page of the 2026-27 reprint. Topology and labels as NCERT's (earth wire along the top to each socket with jump-arcs over the live rail; Electricity Board's fuse, electricity meter, distribution box containing main switch and fuses for each circuit, 220 V, three sockets in parallel); wire colours as the text states them on p.204. Eye-confirmed at 390 px and 1440 px."
+      },
+      "asset": "magnetic-effects-of-electric-current/fig_domestic_circuit_1215.svg"
     }
   },
   "mindmap": {
@@ -839,6 +857,11 @@
       "item": "NCERT Fig 12.13",
       "type": "figure",
       "source": "NCERT 2026-27 Ch12 Fig 12.13 p.203"
+    },
+    {
+      "item": "NCERT Fig 12.15",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch12 Fig 12.15 p.205"
     }
   ]
 }
