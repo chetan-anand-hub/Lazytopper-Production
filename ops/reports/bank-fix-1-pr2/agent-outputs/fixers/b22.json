@@ -1,0 +1,238 @@
+[
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nutrition"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Absorption of digested food (small intestine) is human nutrition, not enzymes. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nutrition"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Mucus protecting stomach lining from HCl is human digestion; 'Bile' is a distractor, not the topic. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Transportation"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Fish heart/blood circulation item is transportation, not anaerobic respiration. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Respiration"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Sequence of air passage during inhalation is human respiratory system. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Respiration"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Alveolar gas exchange is respiration, not excretion. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-012",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nutrition"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Steps of nutrition in Amoeba (holozoic) is nutrition, not plant transport. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-013",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Stomata"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stomatal opening/closing via guard-cell water is about stomata/gaseous exchange, not photosynthesis process. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-014",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Excretion"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Path of urine is human excretion, not plant nutrition. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-015",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Respiration"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Glucose as instant energy source relates to cellular respiration/energy release. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-016",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Photosynthesis"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Starch as plant energy reserve is the product/storage of photosynthesis, not heart. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-018",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Photosynthesis"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Events of photosynthesis item; not excretion in plants. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-022",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Transportation"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Arteries structure/function is human transportation (blood vessels), not phloem. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-025",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Transportation"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Components of blood is transportation, not respiration. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-026",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Excretion"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Nephron function is excretion, not heart. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-029",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Transportation"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Haemoglobin (O2-carrying pigment in blood) is transportation, not plant hormones. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-030",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nutrition"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Path of food in alimentary canal is human nutrition, not plant transport. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-031",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nutrition"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Bile salts emulsifying fats is human digestion/nutrition, not plant nutrition. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-032",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nutrition"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Large intestine water absorption is part of the alimentary canal/nutrition, not excretion. Stem/options/answer verified correct; only subtopic retagged."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-034",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "duplicate",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Same item as LIFE-EXMPLR-5-MCQ-014 (path of urine, identical four options reordered, same answer). Keep MCQ-014 (now correctly tagged Excretion); withhold this later copy."
+ },
+ {
+  "id": "LP2-054",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "duplicate",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Exact duplicate stem/options of LP2-001. Also weaker: 'Bacteria' distractor is arguable (some bacteria are autotrophic). Withhold this later copy, keep LP2-001."
+ }
+]

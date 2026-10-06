@@ -1,0 +1,285 @@
+[
+ {
+  "id": "BX-REP-E1-029",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Under a microscope, Amoeba is seen to split into two in any direction, whereas Leishmania (a parasite causing kala-azar, having a whip-like flagellum at one end) always splits along one definite direction with respect to its flagellum. Answer the following: (i) Name the mode of reproduction common to both. (ii) State the difference highlighted between the two organisms. (iii) Explain why Leishmania divides in a definite orientation."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored case stem: 'Answer:' means 'answer the following'; rewritten as 'Answer the following:'. Content, tagging and 1+1+1+1 steps are correct."
+ },
+ {
+  "id": "BX-REP-E1-030",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A rare ornamental orchid grows very slowly and unreliably from its tiny seeds. A commercial lab instead multiplies it into thousands of identical saleable plants within a year from small pieces of its tissue. Answer the following: (i) Which technique does the lab use? (ii) Why is this preferred to growing orchids from seed? (iii) State two commercial advantages of the technique."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored case stem: 'Answer:' means 'answer the following'; rewritten as 'Answer the following:'. Content, tagging and 1+1+1+1 steps are correct."
+ },
+ {
+  "id": "BX-REP-E1-031",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A nursery worker dips the cut base of rose stems in a rooting powder and plants them in moist soil; roots soon appear at the buried nodes and each stem grows into a rose plant with the same flower colour as the parent. Answer the following: (i) Name this method of propagation. (ii) From where on the cutting do the new roots arise? (iii) Explain why the new plants have the same flower colour and why rooting powder is applied."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored case stem: 'Answer:' means 'answer the following'; rewritten as 'Answer the following:'. Content, tagging and 1+1+1+1 steps are correct."
+ },
+ {
+  "id": "BX-REP-E1-032",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In a pond, an aquatic plant releases its pollen onto the water, where it floats and drifts until it reaches the stigmas of female flowers at the water surface. Answer the following: (i) Name the pollinating agent in this case. (ii) What is the special term for pollination by this agent? (iii) State two features of the plant that suit this kind of pollination."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored case stem: 'Answer:' means 'answer the following'; rewritten as 'Answer the following:'. Content, tagging and 1+1+1+1 steps are correct."
+ },
+ {
+  "id": "BX-REP-E1-033",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "On a hot afternoon a student hears sudden snapping sounds in a balsam plant and sees its ripe pods burst open, flinging the seeds a short distance away. Answer the following: (i) Name this mode of seed dispersal. (ii) Explain the mechanism by which the seeds are thrown out. (iii) State one advantage the plant gains by throwing its seeds away from itself."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored case stem: 'Answer:' means 'answer the following'; rewritten as 'Answer the following:'. Content, tagging and 1+1+1+1 steps are correct."
+ },
+ {
+  "id": "BX-REP-E1-034",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "After a walk, a student finds spiny burrs of Xanthium stuck to her socks. Nearby, a bird eats a juicy guava and later drops the hard seeds far away. Answer the following: (i) Name the common dispersal agent for both cases. (ii) State the feature of the burr and of the guava that helps each disperse. (iii) Explain how eating the fruit leads to the seeds being spread."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored case stem: 'Answer:' means 'answer the following'; rewritten as 'Answer the following:'. Content, tagging and 1+1+1+1 steps are correct."
+ },
+ {
+  "id": "BX-REP-E1-035",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "An agricultural advisor tells a farmer that an orchard raised by vegetative propagation will flower early and be uniform, but warns that a single disease could wipe out the whole orchard. Answer the following: (i) State two advantages of vegetative propagation. (ii) Explain the disease-risk the advisor warns about. (iii) Name one method that can supply disease-free planting stock."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored case stem: 'Answer:' means 'answer the following'; rewritten as 'Answer the following:'. Content, tagging and 1+1+1+1 steps are correct."
+ },
+ {
+  "id": "sci-repr-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(a) Male part: stamen (anther + filament); female part: pistil/carpel (stigma + style + ovary). (b) Pollination is the transfer of pollen grains from the anther to the stigma; self-pollination is transfer within the same flower (or another flower of the same plant), cross-pollination is transfer to the stigma of a flower on a different plant. (c) After fertilisation the zygote forms the embryo; the ovule develops into the seed and the ovary into the fruit, while petals, sepals, stamens, style and stigma wither. (d) Humans are unisexual with separate male and female individuals, have internal fertilisation in the oviduct and the embryo develops in the uterus nourished through the placenta; flowering plants are often bisexual, need pollination before fertilisation, and the embryo develops inside the seed.",
+   "solutionSteps": [
+    "[1 mark] (a) Male reproductive part: stamen (anther + filament); female reproductive part: pistil/carpel (stigma + style + ovary).",
+    "[1 mark] (b) Pollination: transfer of pollen grains from the anther to the stigma. Self-pollination – pollen reaches the stigma of the same flower (or another flower of the same plant); cross-pollination – pollen reaches the stigma of a flower on a different plant.",
+    "[1 mark] (c) After fertilisation the zygote divides to form the embryo; the ovule develops into the seed and the ovary ripens into the fruit; petals, sepals, stamens, style and stigma wither and fall off.",
+    "[1 mark] (d) Humans: separate sexes, internal fertilisation in the oviduct, embryo develops in the uterus and is nourished through the placenta. Flowering plants: flowers are often bisexual, pollination is needed to bring pollen to the stigma, and the embryo develops and is stored inside the seed."
+   ],
+   "finalAnswer": "(a) Stamen; pistil. (b) Pollen transfer anther→stigma; self = same flower/plant, cross = different plant. (c) Ovule→seed, ovary→fruit. (d) Humans: separate sexes, internal fertilisation, placenta; plants: often bisexual, pollination needed, embryo in seed."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Added the missing 4-step (1 mark each) marking scheme; sharpened answer (d), which previously gave a vague asexual-vs-sexual point, and expanded (c) to state ovule→seed, ovary→fruit."
+ },
+ {
+  "id": "PYQ-S-REPR-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "All the reproductive methods of living organisms are broadly categorized into two types: 1. Asexual reproduction, and 2. Sexual reproduction. Asexual reproduction involves the participation of a single parent without the formation of gametes, fertilisation and transfer of genetic material. This method is a common means of rapidly increasing offspring under favourable conditions.\n(a) Name the type of fission that occurs in Leishmania and Plasmodium. (1)\n(b) Write one advantage of sexual mode of reproduction over asexual reproduction. (1)\n(c) Give reasons why: (i) Colonies of yeast fail to multiply in water but multiply in sugar solution. (ii) Rhizopus individuals do not grow on a dry slice of bread. (2)\nOR\n(c) Name the filamentous structures a student could identify when he collected water from a pond that appeared dark green. How do these organisms multiply? Explain. (2)",
+   "subtopic": "Asexual Reproduction - Modes",
+   "answer": "(a) Leishmania – binary fission; Plasmodium – multiple fission. (b) Sexual reproduction produces variations that help the species survive. (c)(i) Sugar solution provides nutrients for growth and multiplication, water does not. (ii) Rhizopus needs moisture to grow. OR (c) Spirogyra; it multiplies by fragmentation – the mature filament breaks into pieces and each piece grows into a new individual.",
+   "solutionSteps": [
+    "[½ + ½ mark] (a) Leishmania – binary fission; Plasmodium – multiple fission.",
+    "[1 mark] (b) Sexual reproduction leads to more variations, which are useful for ensuring the survival of a species.",
+    "[1 mark] (c)(i) Sugar solution provides nutrients (food) for growth and multiplication of yeast, whereas water does not.",
+    "[1 mark] (c)(ii) Moisture is required for the growth of Rhizopus; a dry slice of bread lacks it.",
+    "OR (c) [½ mark] The filaments are Spirogyra. [½ mark] They multiply by fragmentation. [1 mark] On maturing, the filament simply breaks up into smaller pieces and each piece grows into a new individual."
+   ],
+   "finalAnswer": "(a) Leishmania – binary fission; Plasmodium – multiple fission. (b) Variation aids survival of the species. (c)(i) Sugar gives nutrients, water does not; (ii) Rhizopus needs moisture. OR (c) Spirogyra – fragmentation; each broken piece grows into a new individual."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed Wingdings glyphs (U+F09F), stray mark residues in stem and the '½, ½ 1 1 1' scheme junk in answer/finalAnswer; rebuilt answer from the official scheme; subtopic was 'Fertilisation' but item is asexual modes."
+ },
+ {
+  "id": "PYQ-S-2026-REPR-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity",
+   "subtopic": "Sex Determination"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Zygote chromosome combination after fertilisation by a Y-bearing sperm is sex determination, taught in the Heredity chapter (retained for 2026-27). Retagged; question and answer 44+XY correct."
+ },
+ {
+  "id": "REP-E07",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity",
+   "subtopic": "Sex Determination",
+   "explanation": "The correct answer is Father's chromosomes. The mother contributes only an X chromosome, while the father's sperm carries either X or Y; an X-sperm gives a girl (XX) and a Y-sperm gives a boy (XY), so the father's chromosome decides the sex of the child.",
+   "solutionSteps": [
+    "Every egg from the mother carries an X chromosome, while half the sperms carry X and half carry Y; a Y-bearing sperm gives XY (boy) and an X-bearing sperm gives XX (girl), so the sex of the child is decided by the father's chromosome."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Sex determination belongs to Heredity; retagged. Also replaced solutionSteps/explanation, which wrongly described the site of fertilisation (Fallopian tube) instead of explaining sex determination. Answer unchanged."
+ },
+ {
+  "id": "SQP-S-REPR-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Given below are certain situations. Analyse and describe its possible impact on a person:\n(a) Testes of a male boy are not able to descend into scrotum during his embryonic development.\n(b) Vas deferens of a man is plugged.\n(c) Prostate and seminal vesicles are not functional.\n(d) Egg is not fertilised in a human female.\n(e) Placenta does not attach to the uterus optimally.",
+   "answer": "(a) Sperm formation is impaired as testes need a lower-than-body temperature. (b) Sperms cannot be transferred – infertility. (c) Sperms lack nourishment and fluid medium for transport. (d) Egg survives about a day; uterine lining breaks down – menstruation. (e) Embryo gets inadequate nutrition and oxygen – growth affected.",
+   "solutionSteps": [
+    "(a) Sperm formation will be adversely affected because spermatogenesis requires a temperature lower than core body temperature (the scrotum keeps testes ~2 °C cooler). Undescended testes → reduced or absent sperm production.",
+    "(b) Vas deferens is the passage for sperm transfer from testis to urethra. If plugged, sperms cannot be transferred further — leading to infertility despite normal sperm production.",
+    "(c) Prostate gland and seminal vesicles produce secretions that nourish sperm and form the medium (semen) for sperm transport. If non-functional, sperms lack nourishment and proper transport medium.",
+    "(d) If the egg is not fertilised, it lives for about one day. Then the thickened lining of the uterus breaks, leading to discharge of blood and mucus along with the unfertilised egg — this is called menstruation.",
+    "(e) Placenta provides nutrition and oxygen to the growing embryo. Sub-optimal attachment will impair nutrition and oxygen supply, affecting embryo growth and possibly causing serious complications."
+   ],
+   "finalAnswer": "(a) Sperm formation impaired; (b) sperm transfer blocked – infertility; (c) sperms lack nourishment/transport medium; (d) menstruation follows; (e) embryo's nutrition and oxygen supply impaired."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Dropped the OR alternative (diabetes/insulin; cytokinin/abscisic acid), which is Control and Coordination content; main 5-part reproduction question kept with its 5 one-mark steps."
+ },
+ {
+  "id": "REP2-014",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Assertion-Reason is a 1-mark Section A objective format under CBSE 2026-27; retagged marks/section. A and R evaluation and answer verified correct."
+ },
+ {
+  "id": "REP2-018",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Assertion-Reason is a 1-mark Section A objective format under CBSE 2026-27; retagged marks/section. A and R evaluation and answer verified correct."
+ },
+ {
+  "id": "REP2-019",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Assertion-Reason is a 1-mark Section A objective format under CBSE 2026-27; retagged marks/section. A and R evaluation and answer verified correct."
+ },
+ {
+  "id": "REP2-042",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Assertion-Reason is a 1-mark Section A objective format under CBSE 2026-27; retagged marks/section. A and R evaluation and answer verified correct."
+ },
+ {
+  "id": "REP2-043",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Assertion-Reason is a 1-mark Section A objective format under CBSE 2026-27; retagged marks/section. A and R evaluation and answer verified correct."
+ },
+ {
+  "id": "REP2-045",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "answer": "Asexual reproduction involves one parent and produces genetically identical offspring (clones) with little or no variation, so the population is less adaptable and may be wiped out by a change in the environment or a disease. Sexual reproduction combines genetic material from two parents, producing variation among offspring; some variants may survive a changed environment, so the species is more adaptable and its survival is ensured.",
+   "solutionSteps": [
+    "Asexual reproduction: one parent, no fusion of gametes, so offspring are clones (genetically identical) with little or no variation (only minor variation from DNA copying errors).",
+    "Sexual reproduction: two parents; fusion of gametes combines DNA from both, so offspring show considerable variation.",
+    "Adaptability: with no variation, all asexually produced individuals may be destroyed by the same environmental change or disease; variation from sexual reproduction means some individuals may survive the change, ensuring survival of the species."
+   ],
+   "finalAnswer": "Asexual: one parent, clones, little variation – less adaptable. Sexual: two parents, gamete fusion, variation – some offspring survive environmental change, so the species is more adaptable."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Multi-point comparison is a 3-mark Section C answer, not 1 mark; retagged and rewritten steps as 3 one-mark points; removed the out-of-syllabus 'evolution' remark from the answer."
+ },
+ {
+  "id": "CFPQ-S-EYE-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The near point and the far point refer to the visibility of objects close by and far away from the human eye respectively. These are the minimum and maximum distances at which an object is clearly visible to a person.\n\nThe near point and the far point are determined with regards to the function of which part of the eye?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem had near/far point and min/max distances reversed; corrected the definitions. Answer (ciliary muscles, via accommodation) unchanged and correct."
+ },
+ {
+  "id": "EYE-EXMPLR-10-MCQ-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options (i)-(iv) are prism orientations shown only in Exemplar Figure 11.1, which is not in the text; unanswerable without the figure."
+ }
+]

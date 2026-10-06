@@ -1,0 +1,330 @@
+[
+ {
+  "id": "APQ-M-ARC-008",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Shaded sector is defined only by the Fibonacci-grid figure, which is missing (strategyHint says REQUIRES-FIGURE). The stem cannot identify which sector or radius is meant."
+ },
+ {
+  "id": "APQ-M-ARC-010",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "The shaded segment and angle MON = 90 deg come only from the missing figure. The stem does not define the region. APQ source, not authored."
+ },
+ {
+  "id": "ARC-H04",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "OACB is a quadrant of a circle with centre O and radius 3.5 cm, where OA and OB are perpendicular radii. D is a point on the radius OA such that OD = 2 cm. The region of the quadrant lying outside triangle OBD is shaded. Find the area of (i) the quadrant OACB (ii) the shaded region. (Use π = 22/7)",
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] (i) Area of quadrant OACB = (1/4)πr² = (1/4) × (22/7) × (3.5)² = 77/8 = 9.625 cm².",
+    "[1 mark] (ii) Since OB ⊥ OA, △OBD is right-angled at O: area = (1/2) × OB × OD = (1/2) × 3.5 × 2 = 3.5 cm².",
+    "[1 mark] Shaded area = area of quadrant − area of △OBD = 9.625 − 3.5 = 6.125 cm²."
+   ],
+   "finalAnswer": "(i) 9.625 cm² (ii) 6.125 cm²"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored row. The stem now defines D on OA and the shaded region (quadrant minus triangle OBD), so no figure is needed. Retagged C/3/Short/Medium because the work is 3-mark level. Answers unchanged."
+ },
+ {
+  "id": "ARC-M02",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A round table cover of radius 28 cm has six equal designs. Each design is a minor segment of the circle cut off by a chord that subtends an angle of 60° at the centre (the six chords form a regular hexagon inscribed in the circle). Find the cost of making the designs at the rate of ₹0.35 per cm². (Use π = 22/7 and √3 = 1.7)",
+   "solutionSteps": [
+    "[1 mark] Area of each sector of angle 60° = (60/360) × (22/7) × 28² = 1232/3 ≈ 410.67 cm².",
+    "[1 mark] Each chord forms an equilateral triangle with the radii: area = (√3/4) × 28² = (1.7/4) × 784 = 333.2 cm². Area of each design (segment) = 410.67 − 333.2 = 77.47 cm².",
+    "[1 mark] Total area of 6 designs = 6 × 77.47 ≈ 464.8 cm²; Cost = 464.8 × 0.35 ≈ ₹162.68."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "The stem now states each design is a 60° segment (inscribed hexagon), so no figure is needed. Steps now use the [1 mark] prefix. Answer ₹162.68 is unchanged (NCERT)."
+ },
+ {
+  "id": "ARC-M06",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "duplicate",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Near-verbatim duplicate of ARC-M02 (same table cover, r = 28, ₹0.35). ARC-M02 is repaired and kept; this copy also depends on the missing figure."
+ },
+ {
+  "id": "PYQ-M-2024-ARC-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If the area of a sector is one-twelfth that of a complete circle, then the angle of the sector is :",
+   "solutionSteps": [
+    "θ/360° = 1/12 ⇒ θ = 360°/12 = 30°. Correct option: (b) 30°."
+   ],
+   "finalAnswer": "(b) 30°"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Split 'onetwelfth' into 'one-twelfth' and fixed finalAnswer '(b) 30 1' to '(b) 30°'. Key 30° checked: 360/12 = 30."
+ },
+ {
+  "id": "PYQ-M-2024-ARC-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The area of the sector of a circle of radius 12 cm is 60π cm². The central angle of this sector is :",
+   "solutionSteps": [
+    "(θ/360°) × π × 12² = 60π ⇒ θ = 60 × 360/144 = 150°. Correct option: (d) 150°."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored π and cm² ('60p cm2'). Checked: θ = 60·360/144 = 150°, matching the key."
+ },
+ {
+  "id": "PYQ-M-2024-ARC-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "22 cm",
+    "43 cm",
+    "64 cm",
+    "462 cm"
+   ],
+   "solutionSteps": [
+    "Arc length = (60/360) × 2 × (22/7) × 21 = 22 cm; perimeter = 2r + arc = 42 + 22 = 64 cm. Correct option: (c) 64 cm."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed footer residue '1530/5/1' from option D. Checked: perimeter = 42 + 22 = 64 cm, matching the key."
+ },
+ {
+  "id": "PYQ-M-2024-ARC-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The length of an arc of a circle with radius 12 cm is 10π cm. The angle subtended by the arc at the centre of the circle, is :",
+   "solutionSteps": [
+    "(θ/360°) × 2π × 12 = 10π ⇒ θ = 10 × 360/24 = 150°. Correct option: (d) 150°."
+   ],
+   "finalAnswer": "(d) 150°"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored π ('10p') and fixed finalAnswer '1500' to 150°. Checked: θ = 3600/24 = 150°."
+ },
+ {
+  "id": "PYQ-M-2024-ARC-006b",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Length of arc = (60/360) × 2 × (22/7) × 42 = 44 cm",
+   "solutionSteps": [
+    "[1 mark] Length of arc = (θ/360°) × 2πr = (60/360) × 2 × (22/7) × 42.",
+    "[1 mark] = (1/6) × 264 = 44 cm."
+   ],
+   "finalAnswer": "44 cm"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Rebuilt the flattened fractions '22 7', '60 360'. Value checked: 2·22/7·42 = 264, and 264/6 = 44 cm. Two step-marked steps."
+ },
+ {
+  "id": "PYQ-M-2024-ARC-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "An arc of a circle of radius 10 cm subtends a right angle at the centre of the circle. Find the area of the corresponding major sector. (Use π = 3.14)",
+   "answer": "Area of major sector = 314 − 78.5 = 235.5 cm²",
+   "solutionSteps": [
+    "[1 mark] Area of circle = 3.14 × 10 × 10 = 314 cm².",
+    "[1 mark] Area of minor sector = (90/360) × 3.14 × 10 × 10 = 157/2 = 78.5 cm².",
+    "[1 mark] Area of major sector = 314 − 78.5 = 235.5 cm²."
+   ],
+   "finalAnswer": "235.5 cm²"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored π ('p = 3·14') in the stem and rebuilt the flattened fractions ('157 2' to 78.5). Three steps. Value 235.5 cm² checked."
+ },
+ {
+  "id": "PYQ-M-2025-ARC-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If a sector of a circle has an area of 40π sq. units and a central angle of 72°, the radius of the circle is :",
+   "options": [
+    "200 units",
+    "100 units",
+    "20 units",
+    "10√2 units"
+   ],
+   "answer": "10√2 units",
+   "solutionSteps": [
+    "(72/360) × πr² = 40π ⇒ r²/5 = 40 ⇒ r² = 200 ⇒ r = 10√2 units. Correct option: (d) 10√2 units."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored π in the stem and √ in option (d). Checked: r² = 200, so r = 10√2. The key string now matches the corrected option."
+ },
+ {
+  "id": "PYQ-M-2025-ARC-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "2π cm",
+    "4π cm",
+    "5π cm",
+    "6π cm"
+   ],
+   "answer": "4π cm",
+   "solutionSteps": [
+    "r = 5 cm; arc length = (144/360) × 2π × 5 = 4π cm. Correct option: (b) 4π cm."
+   ],
+   "finalAnswer": "(b) 4π cm"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Restored π in the options, which the finalAnswer '4π cm' confirms. Checked: (144/360)·10π = 4π."
+ },
+ {
+  "id": "PYQ-M-2025-ARC-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If the area of a sector of circle of radius 36 cm is 54π cm², then the length of the corresponding arc of the sector is :",
+   "options": [
+    "8π cm",
+    "6π cm",
+    "4π cm",
+    "3π cm"
+   ],
+   "answer": "3π cm",
+   "solutionSteps": [
+    "Area of sector = (1/2) × l × r ⇒ 54π = (1/2) × l × 36 ⇒ l = 3π cm. Correct option: (d) 3π cm."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored π in the stem and options, which the finalAnswer '3π cm' confirms. Checked: l = 108π/36 = 3π."
+ },
+ {
+  "id": "PYQ-M-2025-ARC-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A brooch is a decorative piece often worn on clothing like jackets, blouses or dresses to add elegance. Made from precious metals and decorated with gemstones, brooches come in many shapes and designs. One such brooch is made with silver wire in the form of a circle with diameter 35 mm. The wire is also used in making 5 diameters which divide the circle into 10 equal sectors. ACB is the arc of one of these sectors. Based on the above given information, answer the following questions : (i) Find the central angle of each sector. (ii) Find the length of the arc ACB. (iii) (a) Find the area of each sector of the brooch. OR (iii) (b) Find the total length of the silver wire used. (Use π = 22/7)",
+   "answer": "(i) 36° (ii) arc ACB = 11 mm (iii)(a) area of each sector = 385/4 = 96.25 mm² OR (iii)(b) total silver wire = 110 + 175 = 285 mm"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed inline mark residues and 'as shown in the figure'. The stem now says ACB is the arc of one sector. Rebuilt the flattened answer. Values 36°, 11 mm, 96.25 mm², 285 mm checked."
+ },
+ {
+  "id": "PYQ-M-2026-ARC-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A) : In a circle of radius 21 cm, an arc of length 22 cm subtends an angle of 60° at the centre. Reason (R) : The length of arc of a sector of a circle of radius r and central angle θ is (θ/360°) × 2πr.",
+   "solutionSteps": [
+    "By R, arc = (60/360) × 2 × (22/7) × 21 = 22 cm, so A is true. R is the standard formula and it explains A. Correct option: (a)."
+   ],
+   "finalAnswer": "(a) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A)."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored θ, π and ° in the Reason formula and the 60° in A. Checked: (1/6)·132 = 22 cm, so key (a) holds."
+ },
+ {
+  "id": "PYQ-M-ARC-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "What is the length of the arc of the sector of a circle with radius 14 cm and of central angle 90°?",
+   "solutionSteps": [
+    "Arc = (90/360) × 2 × (22/7) × 14 = 22 cm. Correct option: (a) 22 cm."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored the degree sign. Checked: (1/4)·88 = 22 cm, matching the key."
+ },
+ {
+  "id": "PYQ-M-ARC-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Total area cleaned = 2 × 462 = 924 cm²",
+   "solutionSteps": [
+    "[1 mark] Each blade sweeps a sector of radius 21 cm and angle 120°: area = (120/360) × πr².",
+    "[1 mark] = (1/3) × (22/7) × 21 × 21 = 462 cm².",
+    "[1 mark] The wipers do not overlap, so total area cleaned = 2 × 462 = 924 cm²."
+   ],
+   "finalAnswer": "924 cm²"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Rebuilt the flattened answer ('7 22 ... ο ο 360 120'). Value checked: (1/3)·1386 = 462, and 2 × 462 = 924 cm²."
+ },
+ {
+  "id": "PYQ-M-ARC-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Area of minor segment = 102.57 − 84.77 = 17.8 cm²",
+   "solutionSteps": [
+    "[1 mark] Area of minor sector = (60/360) × 3.14 × 14² = (3.14 × 196)/6 ≈ 102.57 cm².",
+    "[1 mark] The chord with the two radii forms an equilateral triangle AOB: area = (√3/4) × 14² = (1.73/4) × 196 = 84.77 cm².",
+    "[1 mark] Area of minor segment = 102.57 − 84.77 = 17.8 cm²."
+   ],
+   "finalAnswer": "17.8 cm²"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Rebuilt the flattened fractions '(14)2 6' and '1.73 4'. Values checked: 615.44/6 = 102.57, 1.73·49 = 84.77, segment = 17.8 cm²."
+ },
+ {
+  "id": "Z3-ARC-004",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "requiresDiagram row. As written it is a plain rectangle (no circle content). The '2912' note equals 2954 − 4(49 − 38.5), so the figure probably has quarter-circle corners of r = 7. That cannot be confirmed without the figure."
+ }
+]

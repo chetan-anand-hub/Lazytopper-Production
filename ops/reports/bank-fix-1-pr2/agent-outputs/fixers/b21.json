@@ -1,0 +1,319 @@
+[
+ {
+  "id": "SCO-S-LIFE-009",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer depends on which leaf regions Q and R are covered/in the KOH flask, shown only in the missing diagram; stem ends with stray \"Q R\" header. Cannot describe figure without inventing it."
+ },
+ {
+  "id": "SCO-S-LIFE-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The inner lining of the small intestine has numerous finger-like projections called villi. What is the role of these projections?",
+   "solutionSteps": [
+    "[0.5 mark] Correct option is (b) They make a large surface area for absorption.",
+    "[0.5 mark] The villi (and the microvilli on their cells) greatly increase the surface area of the small intestine, so digested food such as glucose and amino acids is absorbed efficiently into the blood."
+   ],
+   "strategyHint": ""
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Structure X recoverable from the row's own explanation (villi/microvilli of small intestine); stem rewritten to name the structure so no diagram is needed. Answer unchanged (b)."
+ },
+ {
+  "id": "SCO-S-LIFE-014",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "When a person eats some egg white, proteins and water enter the stomach. Which substances are found (first) leaving the stomach and (second) leaving the small intestine?",
+   "options": [
+    "Leaving stomach: amino acids and water; leaving small intestine: amino acids and water",
+    "Leaving stomach: fatty acids, glycerol and water; leaving small intestine: fatty acids, glycerol and water",
+    "Leaving stomach: protein and water; leaving small intestine: fatty acids and glycerol",
+    "Leaving stomach: protein, amino acids and water; leaving small intestine: water"
+   ],
+   "answer": "Leaving stomach: protein, amino acids and water; leaving small intestine: water",
+   "finalAnswer": "(d) Leaving stomach: protein, amino acids and water; leaving small intestine: water",
+   "solutionSteps": [
+    "[0.5 mark] Correct option is (d): protein, amino acids and water leave the stomach; water leaves the small intestine.",
+    "[0.5 mark] Pepsin in the stomach only partly digests the egg-white protein, so protein and some breakdown products leave with water. In the small intestine digestion of protein is completed and the amino acids are absorbed into the blood through the villi, so mainly water passes on."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Flattened table headers removed; option columns relabelled explicitly. Same correct option (d); explanation cleaned (stray chapter header removed)."
+ },
+ {
+  "id": "SCO-S-LIFE-015",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In photosynthesis, which substance is used up, which is produced, and which is necessary but remains unchanged after the reaction?",
+   "options": [
+    "Used up: carbon dioxide; produced: water; unchanged: oxygen",
+    "Used up: chlorophyll; produced: carbon dioxide; unchanged: water",
+    "Used up: oxygen; produced: starch; unchanged: cellulose",
+    "Used up: water; produced: oxygen; unchanged: chlorophyll"
+   ],
+   "answer": "Used up: water; produced: oxygen; unchanged: chlorophyll",
+   "finalAnswer": "(d) Used up: water; produced: oxygen; unchanged: chlorophyll",
+   "solutionSteps": [
+    "[1 mark] Correct option is (d): water (with CO2) is a raw material used up, oxygen is produced, and chlorophyll is needed to absorb light energy but is not used up."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Flattened table headers removed; options relabelled by column. Same correct option (d)."
+ },
+ {
+  "id": "SCO-S-LIFE-020",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Labels W, X, Y, Z exist only in the missing diagram of the gas-exchange system; stem is also garbled. Cannot be answered without inventing the figure."
+ },
+ {
+  "id": "SCQ-S-LIFE-032",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(a) Oxygen (from photosynthesis), carbon dioxide and excess water are removed through stomata (transpiration). (b) Some wastes are stored in cell vacuoles or in leaves and bark, which fall off. (c) Wastes like gums and resins are stored in old xylem. (d) Some wastes are excreted into the soil through roots.",
+   "solutionSteps": [
+    "[1 mark] Gaseous wastes (oxygen, carbon dioxide) and excess water are removed through stomata; some wastes are stored in vacuoles.",
+    "[1 mark] Other wastes are stored in leaves and bark that are shed, as gums and resins in old xylem, or excreted into the surrounding soil through roots."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed \"[All India 2017]\" source tag from answer/step; split single 2-mark step into two 1-mark steps. Content unchanged in substance."
+ },
+ {
+  "id": "SCQ-S-LIFE-035",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "What is the composition of urine? Are glucose and proteins normally present in urine? Why? How is the volume of urine regulated?",
+   "answer": "Urine contains mainly water, urea, uric acid and various salts. Glucose and proteins are normally absent: glucose is reabsorbed in the tubules of the nephron, and proteins are too large to be filtered from the blood in the glomerulus of a healthy kidney. The volume of urine depends on (a) the amount of excess water in the body and (b) the amount of dissolved wastes to be excreted.",
+   "solutionSteps": [
+    "[1 mark] Composition: mainly water, urea, uric acid and salts.",
+    "[1 mark] Glucose and proteins are normally absent: glucose is selectively reabsorbed in the nephron tubule; proteins (large molecules) are not filtered in the glomerulus of a healthy kidney.",
+    "[1 mark] Volume of urine is regulated by the amount of excess water in the body and the amount of dissolved wastes to be excreted (by varying reabsorption of water in the tubule)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed \"[All India 2017]\" from stem; completed truncated answer using the row's own step; split into three 1-mark steps."
+ },
+ {
+  "id": "CBE-S-LIFE-E-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "questionText": "Plants continuously lose water by transpiration and must replace it. (a) Where is this water absorbed? (b) Through which tissue is it transported to the leaves? (c) By which process does it enter the cells of the leaves?",
+   "answer": "(a) By the root hair cells of the roots. (b) Through the xylem. (c) By osmosis.",
+   "solutionSteps": [
+    "[1 mark] (a) Water is absorbed from the soil by the root hair cells.",
+    "[1 mark] (b) It is transported upward to the leaves through the xylem (vessels and tracheids), pulled by transpiration.",
+    "[1 mark] (c) It moves from the xylem into the leaf cells by osmosis."
+   ],
+   "finalAnswer": "(a) Root hair cells; (b) xylem; (c) osmosis.",
+   "difficulty": "Easy"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Not a case (no scenario/sub-parts) and item-bank origin, so re-tagged to Section C 3-mark Short. Stem error fixed (water is not a respiration product to replace; \"active transport\" for water is wrong)."
+ },
+ {
+  "id": "CBE-S-LIFE-E-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "questionText": "Explain how the processes of photosynthesis and respiration together sustain life on Earth.",
+   "solutionSteps": [
+    "[1 mark] Photosynthesis: green plants use light energy to make food (glucose/starch) from carbon dioxide and water and release oxygen; this food is the energy source for all food chains (consumers eat plants).",
+    "[1 mark] Respiration: living organisms break down food to release energy (ATP) needed for growth, movement, maintaining body temperature and other life processes.",
+    "[1 mark] Link: respiration uses the oxygen released by photosynthesis and releases carbon dioxide and water, which are the raw materials of photosynthesis, so the two processes keep each other going."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Item-bank row tagged Case-Based with no case or sub-parts; re-tagged to Section C 3-mark Short with three 1-mark steps. Answer substance unchanged."
+ },
+ {
+  "id": "LPSD-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Question only asks to describe the air pathway and alveolar adaptations; it never refers to or needs a displayed figure. Answerable as text; clear requiresDiagram so it is not blocked/flagged."
+ },
+ {
+  "id": "LPSD-018",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "requiresDiagram": false,
+   "solutionSteps": [
+    "[1 mark] Diagram: neat vertical section of the heart labelling the four chambers (right/left atrium, right/left ventricle), septum, vena cava, pulmonary artery, pulmonary vein, aorta and valves.",
+    "[1 mark] Structure: a muscular four-chambered organ — two upper thin-walled atria and two lower thick-walled ventricles; the septum keeps oxygenated and deoxygenated blood from mixing.",
+    "[1 mark] Vessels: right atrium receives deoxygenated blood from the body by the vena cava, right ventricle pumps it to the lungs by the pulmonary artery; left atrium receives oxygenated blood by the pulmonary vein, left ventricle pumps it to the body through the aorta.",
+    "[1 mark] Valves between atria and ventricles and at the bases of the aorta and pulmonary artery allow blood to flow in one direction only and prevent backflow when chambers contract.",
+    "[1 mark] The left ventricle wall is thicker because it pumps blood at high pressure to the whole body, whereas the right ventricle pumps only to the nearby lungs."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Student is asked to DRAW the heart; no displayed figure is needed. Cleared requiresDiagram and added a diagram step (CBSE awards it) by merging the two vessel steps; still 5 x 1 mark."
+ },
+ {
+  "id": "SCQ-S-LIFE-025",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "How is nutrition in a fungus different from that in a tapeworm?",
+   "answer": "A fungus usually shows saprophytic nutrition: it secretes digestive enzymes onto dead and decaying matter, digests it outside its body and absorbs the products (some fungi are parasitic). A tapeworm is a parasite: it lives in the intestine of its host and absorbs the host's already-digested food through its body surface.",
+   "solutionSteps": [
+    "[1 mark] Fungus: saprophytic (or parasitic) nutrition — breaks down food outside the body using enzymes and absorbs it.",
+    "[1 mark] Tapeworm: only parasitic nutrition — absorbs digested food from the host's intestine through its body surface."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed \"[CBSE 2011 C]\" tag and fixed grammar (\"different\"->\"is ... different\"); expanded answer and split into two 1-mark steps."
+ },
+ {
+  "id": "SCQ-S-LIFE-037",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(a) How are oxygen and carbon dioxide exchanged between blood and tissues? How are these gases transported in human beings? (b) What is haemoglobin?",
+   "answer": "(a) Exchange between blood and tissues occurs by diffusion along concentration gradients. Oxygen is carried from the lungs as oxyhaemoglobin; in the tissues it dissociates and diffuses into the cells, while carbon dioxide diffuses from the cells into the blood. Carbon dioxide is transported mostly dissolved in the plasma to the lungs, where it diffuses into the alveoli. (b) Haemoglobin is the red, iron-containing respiratory pigment in red blood cells that has a high affinity for oxygen.",
+   "solutionSteps": [
+    "[1 mark] Exchange in tissues is by diffusion: oxygen diffuses from blood into cells; carbon dioxide diffuses from cells into blood.",
+    "[1 mark] Transport: oxygen is carried by haemoglobin in RBCs as oxyhaemoglobin; carbon dioxide is carried mostly dissolved in plasma to the lungs.",
+    "[1 mark] (b) Haemoglobin is the respiratory pigment (red, iron-containing protein) in red blood cells with high affinity for oxygen."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed \"[CBSE 2016-17]\" tag; completed truncated answer (ended \"b\") from the row's own step; split into three 1-mark steps."
+ },
+ {
+  "id": "SCQ-S-LIFE-040",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "How are oxygen and carbon dioxide transported in human beings? Explain clearly how air is inhaled and exhaled during breathing in humans.",
+   "answer": "Oxygen diffuses from the alveoli into blood and is carried by haemoglobin as oxyhaemoglobin to the tissues, where it diffuses into cells; carbon dioxide diffuses from tissues into blood and is carried mostly dissolved in plasma to the lungs, where it diffuses into the alveoli and is breathed out. Inhalation: diaphragm and rib muscles contract, the chest cavity enlarges, pressure falls and air rushes in. Exhalation: these muscles relax, the chest cavity becomes smaller and air is pushed out."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem had a whole previous answer (xylem/transpiration) and two source tags glued in; restored the intended question that the existing 5 steps answer. Answer de-tagged and completed."
+ },
+ {
+  "id": "sci-lp-comp-03",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) The plant is kept in the dark for 48 hours to destarch the leaves, so any starch found later must have been made during the experiment.",
+    "[1 mark] (b) KOH absorbs carbon dioxide, so the air around the enclosed leaf has no CO2.",
+    "[1 mark] (c) The enclosed leaf does not turn blue-black with iodine (stays brown), showing no starch was made without CO2.",
+    "[1 mark] (d) 6CO2 + 6H2O --(sunlight, chlorophyll)--> C6H12O6 + 6O2"
+   ],
+   "finalAnswer": "(a) To destarch the leaves; (b) KOH absorbs CO2; (c) no blue-black colour — no starch formed; (d) 6CO2 + 6H2O → C6H12O6 + 6O2 (sunlight, chlorophyll)."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added the missing 4 x 1-mark solutionSteps matching the existing correct answer; question and answer unchanged."
+ },
+ {
+  "id": "LPX-A-063",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Plasmolysis/exosmosis in hypertonic solution is Class 9 (Fundamental Unit of Life), not in the Class 10 2026-27 syllabus. Extracted (not authored) row; withhold."
+ },
+ {
+  "id": "PYQ-S-2024-LIFEP-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "acids-bases-and-salts",
+   "subtopic": "pH in Everyday Life — Antacids"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "NCERT treats stomach HCl and antacids (milk of magnesia, Mg(OH)2) under \"importance of pH in everyday life\" in Acids, Bases and Salts; the item tests the antacid base. Retagged; content correct."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nutrition — Saprophytic Nutrition"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Item is about saprophytes digesting food outside the body, not photosynthesis; subtopic relabelled."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nutrition — Human Alimentary Canal"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Item is about the sequence of the human alimentary canal, not photosynthesis; subtopic relabelled."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-MCQ-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nutrition — Digestive Glands"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Item asks the largest gland (liver), a digestion topic, not stomata; subtopic relabelled."
+ }
+]

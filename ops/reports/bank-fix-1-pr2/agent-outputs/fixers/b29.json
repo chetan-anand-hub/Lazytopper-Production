@@ -1,0 +1,312 @@
+[
+ {
+  "id": "SCO-S-ENV-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "Carbon",
+    "Water",
+    "Sunlight",
+    "Nitrogen"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed watermark/contact-number residue from option (d), restoring 'Nitrogen'. Key Sunlight unchanged."
+ },
+ {
+  "id": "SCO-S-ENV-015",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Needs the river/sewage diagram and graph locating points A-D; row carries no description of where A-D are, so the answer cannot be determined."
+ },
+ {
+  "id": "SCO-S-ENV-017",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Needs the numbered energy-flow arrow diagram; row does not say which arrow is which, so options '4 3', '2 1' etc. are unanswerable."
+ },
+ {
+  "id": "SCQ-S-ENV-023",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If in the following food chain, 100 J of energy is available to the lion, how much energy was available to the producer? Plants → Deer → Lion",
+   "answer": "10,000 J",
+   "solutionSteps": [
+    "By the ten per cent law, only about 10% of energy passes to the next trophic level, so energy at the deer level = 100 J × 10 = 1,000 J.",
+    "Energy available to the producer (plants) = 1,000 J × 10 = 10,000 J."
+   ],
+   "finalAnswer": "10,000 J"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored missing arrow in stem; stripped '[All India 2017]' tag from answer; added 10%-law working. Value 10,000 J unchanged (100→1,000→10,000)."
+ },
+ {
+  "id": "SCQ-S-ENV-031",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Soil: Pesticides sprayed on crops to protect them from insects settle on the soil particles. Groundwater: Through irrigation and rain water, the pesticides present in the soil seep into the lower layers of soil and reach the groundwater. Water bodies: When waste water or agricultural run-off is drained into water bodies like rivers, canals and ponds, the pesticides reach these water bodies.",
+   "solutionSteps": [
+    "Soil: Pesticides sprayed on crops to protect them from insects settle on the soil particles.",
+    "Groundwater: Through irrigation and rain water, pesticides in the soil seep into lower layers and reach the groundwater.",
+    "Water bodies: Waste water and agricultural run-off carrying pesticides are drained into rivers, canals and ponds, so the pesticides reach these water bodies."
+   ],
+   "finalAnswer": "Pesticides settle on soil, seep down to groundwater with irrigation/rain water, and reach rivers, canals and ponds with waste water and agricultural run-off."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer was truncated mid-word and carried '[CBSE 2016]'; completed it from the row's own full step text and split into steps."
+ },
+ {
+  "id": "SCQ-S-ENV-038",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Autotrophs are organisms that make their own food from carbon dioxide and water in the presence of sunlight and chlorophyll, e.g. green plants. Heterotrophs cannot make their own food by photosynthesis and depend on other organisms for food, e.g. animals. Decomposers break down the complex organic molecules in the dead remains of plants and animals into simpler substances, e.g. bacteria and fungi.",
+   "solutionSteps": [
+    "Autotrophs: organisms that make their own food from carbon dioxide and water in the presence of sunlight and chlorophyll. Example: green plants.",
+    "Heterotrophs: organisms that cannot make their own food by photosynthesis and depend on other organisms for food. Example: animals (e.g. goat, lion).",
+    "Decomposers: organisms that break down complex organic molecules in the dead remains of plants and animals into simpler substances. Example: bacteria, fungi."
+   ],
+   "finalAnswer": "Autotrophs make their own food (green plants); heterotrophs depend on others for food (animals); decomposers break down dead remains into simple substances (bacteria, fungi)."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Removed '[CBSE 2016]' tag and 'Chap 15 : Our Enviorment' page header; completed truncated answer from the row's step text; one step per category (3 marks)."
+ },
+ {
+  "id": "SP-S-2023-ENVI-A-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): Ozone hole indicates a region of ozone layer that has become thinner. Reason (R): Destruction of ozone layer is mainly due to fluorine atoms present in chlorofluorocarbons."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed duplicated A-R option list from the stem; options array already carries them. Key (c) correct: CFC damage is due to chlorine, not fluorine."
+ },
+ {
+  "id": "CBE-S-ENVI-E-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "solutionSteps": [
+    "[1 mark] An ecosystem consists of all the living organisms (plants, animals, microorganisms) living together in an area/habitat.",
+    "[1 mark] These organisms interact with one another (biotic interactions).",
+    "[1 mark] They also interact with their non-living surroundings (abiotic factors such as water, light, temperature, soil)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single 'explain' question with no case sub-parts; not LazyTopper-authored, so re-tagged from Case-Based E/4 to Short C/3 and steps re-weighted to 3. Answer unchanged."
+ },
+ {
+  "id": "CBE-S-ENVI-E-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "solutionSteps": [
+    "[1 mark] Killing most caterpillars leaves less food for the blackbirds, so blackbird numbers fall.",
+    "[1 mark] With fewer blackbirds there is less food for the eagles, so eagle numbers also fall.",
+    "[1 mark] Pesticide in the surviving caterpillars passes to blackbirds and then eagles when eaten and accumulates (biological magnification), reaching the highest concentration in the eagles and harming them."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "No case sub-parts; non-authored row re-tagged from Case-Based E/4 to its true form, Short C/3, steps re-weighted to 3. Answer unchanged."
+ },
+ {
+  "id": "CBE-S-ENVI-E-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "solutionSteps": [
+    "[1 mark] Detergents contain phosphates, which act as a fertiliser in the lake and cause excessive growth of algae (algal bloom).",
+    "[1 mark] When the algae die, microbes decomposing them use up the dissolved oxygen (eutrophication / oxygen depletion).",
+    "[1 mark] The lack of oxygen kills fish and other aquatic organisms, disturbing the lake ecosystem."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "No case sub-parts; non-authored row re-tagged from Case-Based E/4 to Short C/3 with a 3-step scheme. Answer unchanged."
+ },
+ {
+  "id": "OESD-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "requiresDiagram": false,
+   "diagramDescription": null
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem never refers to a figure; it asks students to give examples and explain the 10% law, fully answerable in words. Cleared the spurious requiresDiagram flag so it is not treated as figure-missing."
+ },
+ {
+  "id": "OESD-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "requiresDiagram": false,
+   "diagramDescription": null
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Food chain and energy value are stated in the stem; no figure is needed to answer. Cleared spurious requiresDiagram flag. Values 1,00,000/10,000/1,000/100/10 J verified."
+ },
+ {
+  "id": "PYQ-S-ENV-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Write one difference between biodegradable and non-biodegradable wastes. List two impacts of each type of the accumulated waste on environment if not disposed off properly.",
+   "answer": "Biodegradable wastes can be broken down by biological processes (by micro-organisms such as bacteria and fungi), whereas non-biodegradable wastes cannot be broken down by biological processes. Impacts of accumulated biodegradable waste: (i) foul smell; (ii) breeding place for disease-carrying organisms such as flies and mosquitoes. Impacts of accumulated non-biodegradable waste: (i) biological magnification of harmful chemicals; (ii) loss of soil fertility.",
+   "solutionSteps": [
+    "Difference (1 mark): Biodegradable wastes can be broken down by biological processes (micro-organisms); non-biodegradable wastes cannot be broken down by biological processes.",
+    "Impacts of accumulated biodegradable waste (½ + ½ mark): (i) foul smell; (ii) breeding place for carriers of diseases (flies, mosquitoes). (Or any other valid impact.)",
+    "Impacts of accumulated non-biodegradable waste (½ + ½ mark): (i) biological magnification; (ii) loss of soil fertility. (Or any other valid impact.)"
+   ],
+   "finalAnswer": "Biodegradable waste is broken down by micro-organisms, non-biodegradable is not. Biodegradable: foul smell, breeding of disease carriers. Non-biodegradable: biological magnification, loss of soil fertility."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed '3 SECTION – D (Long Answer Questions)' residue from stem; answer/finalAnswer were only marking-scheme residue — rebuilt from the row's own step content per the 1+½×4 scheme."
+ },
+ {
+  "id": "SCQ-S-ENV-021",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "What is an ecosystem?",
+   "solutionSteps": [
+    "An ecosystem consists of all the living organisms (biotic components) in an area together with the non-living (abiotic) components such as temperature, rainfall, wind, soil and minerals.",
+    "These biotic and abiotic components interact with one another, e.g. a pond, forest or garden."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed '[Delhi 2017, CBSE 2014]' source tag from stem; expanded single step to a 2-step answer for the 2-mark scheme. Answer unchanged."
+ },
+ {
+  "id": "SCQ-S-ENV-030",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Compare the advantages of cloth bags over polythene bags."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed '[CBSE 2016]' source tag from stem. Answer unchanged and correct."
+ },
+ {
+  "id": "sci-env-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) Producer: Grass; top consumer: Eagle.",
+    "[1 mark] (b) Grass is T1, grasshopper T2, so the frog is at the third trophic level (secondary consumer).",
+    "[1 mark] (c) Grasshoppers are the frogs' food; removing them leaves frogs without food, so the frog population decreases.",
+    "[1 mark] (d) Eagle is at T5: energy = 10000 J × 0.1 × 0.1 × 0.1 × 0.1 = 10000 × 0.1⁴ = 1 J."
+   ],
+   "finalAnswer": "(a) Grass; Eagle (b) Third trophic level (c) Frog population decreases (d) 1 J"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added a 4-step marking scheme (1 mark per sub-part, sums to 4) matching the existing answer; all answers verified (10000×0.1⁴ = 1 J)."
+ },
+ {
+  "id": "PYQ-S-ENV-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(a) Each step or level of a food chain at which transfer of energy takes place forms a trophic level. (b) About 10%; organisms of the second trophic level are primary consumers (herbivores).",
+   "solutionSteps": [
+    "(a) Each step or level of the food chain forms a trophic level.",
+    "(b) On average about 10% of energy is transferred from the first to the second trophic level; organisms of the second trophic level are primary consumers / herbivores."
+   ],
+   "finalAnswer": "(a) A step/level of a food chain; (b) 10%; primary consumers (herbivores)."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Removed Wingdings glyph U+F09F from answer/step/finalAnswer and gave a complete answer for both parts. Content unchanged (10%, herbivores)."
+ },
+ {
+  "id": "PYQ-S-ENV-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Explain how some harmful chemicals enter our bodies through the food chain. Why is the concentration of these harmful chemicals found to be maximum in human beings?",
+   "answer": "Harmful chemicals such as pesticides used to protect crops are washed into the soil and water bodies, absorbed by plants along with water and minerals, and taken up by animals; when we eat these plants and animals, the chemicals enter our bodies. Since these chemicals are non-biodegradable, they accumulate at each trophic level (biological magnification); as human beings occupy the top level in the food chain, the maximum concentration accumulates in them.",
+   "solutionSteps": [
+    "Some harmful substances like pesticides are used to protect crops; they are washed down into the soil or water bodies.",
+    "They are absorbed by plants along with water and minerals and by animals from water; when we consume these food items, the pesticides enter our body.",
+    "Being non-biodegradable, they accumulate progressively at each trophic level (biological magnification); as human beings occupy the top level in the food chain, the maximum concentration accumulates in them."
+   ],
+   "finalAnswer": "Pesticides pass from soil/water into plants and animals and then into us through food; being non-biodegradable they accumulate at each trophic level, so humans at the top have the maximum concentration."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed '3 SECTION D' residue from stem, U+F09F glyphs and the examiner note from answer/steps; consolidated into 3 one-mark steps. Content unchanged."
+ },
+ {
+  "id": "SCO-S-ENV-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "chemical-reactions-and-equations",
+   "subtopic": "Corrosion"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Corrosion of metals belongs to Chemical Reactions and Equations (effects of oxidation: corrosion and rancidity), not Our Environment. Key 'All of the above' correct."
+ },
+ {
+  "id": "SCO-S-ENV-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Ecosystem services is not part of the 2026-27 Class 10 Our Environment syllabus (ecosystem components, food chains/webs, ozone, waste management); non-authored source row, cannot be naturally retagged."
+ }
+]

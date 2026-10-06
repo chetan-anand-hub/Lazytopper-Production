@@ -1,0 +1,360 @@
+[
+ {
+  "id": "SCO-S-CARB-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "C and H2O",
+    "CO and H2O",
+    "CO2 and H2",
+    "CO2 and H2O"
+   ],
+   "answer": "CO2 and H2O",
+   "solutionSteps": [
+    "Correct option is (d) CO2 and H2O. In excess air methane burns completely: CH4 + 2O2 → CO2 + 2H2O."
+   ],
+   "finalAnswer": "(d) CO2 and H2O"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Restored garbled 'H O 2' to H2O in options/answer; added complete-combustion equation. Same option, now readable."
+ },
+ {
+  "id": "SCO-S-CARB-010",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem relies on 'structures of three hydrocarbons given below' which are absent; the answer cannot be determined without them."
+ },
+ {
+  "id": "SCO-S-CARB-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Ethyl propanoate is an ester with the condensed structural formula CH3CH2COOCH2CH3 (molecular formula C5H10O2). How many bonding pairs of electrons (shared pairs) are there in one molecule of ethyl propanoate?",
+   "solutionSteps": [
+    "Correct option is (c) 17. Count bonds in CH3CH2–CO–O–CH2CH3: 10 C–H bonds (10 pairs); 3 C–C single bonds (3 pairs); 2 C–O single bonds (2 pairs); 1 C=O double bond (2 pairs). Total = 10 + 3 + 2 + 2 = 17 shared pairs."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Replaced missing diagram with the structural formula (answer 17 verified by bond count); removed leaked header 'Chap 4 : Carbon and Its Compound'."
+ },
+ {
+  "id": "SCO-S-CARB-016",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "C and H2O",
+    "CO and H2O",
+    "CO2 and H2",
+    "CO2 and H2O"
+   ],
+   "answer": "CO2 and H2O",
+   "solutionSteps": [
+    "Correct option is (d) CO2 and H2O.",
+    "In excess air ethane burns completely: 2C2H6 + 7O2 → 4CO2 + 6H2O."
+   ],
+   "finalAnswer": "(d) CO2 and H2O"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Restored garbled 'H O 2' to H2O; replaced fragment '2 CO2 and H O 2' with the balanced equation."
+ },
+ {
+  "id": "SCO-S-CARB-019",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Pentane has the molecular formula C5H12. It has",
+   "solutionSteps": [
+    "Correct option is (c) 16 covalent bonds.",
+    "Pentane (CH3CH2CH2CH2CH3) has 12 C–H bonds and 4 C–C bonds = 16 covalent bonds."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored 'C H 5 12' to C5H12; 16 bonds verified (12 C–H + 4 C–C)."
+ },
+ {
+  "id": "CC2-049",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A student tried to wash a greasy plate using soap in hard water. The soap did not work effectively and a white, curdy precipitate (scum) formed. Later, the student used a detergent in the same water and the plate was cleaned effectively without any precipitate.\n\n(i) Why did the soap fail to clean the plate in hard water? (1 mark)\n(ii) What is the white precipitate formed? (1 mark)\n(iii) Why does a detergent work well in hard water? Also state one advantage and one disadvantage of detergents compared with soaps. (2 marks)",
+   "answer": "(i) Ca²⁺/Mg²⁺ ions of hard water react with soap to form an insoluble precipitate, so soap is wasted and little lather forms. (ii) Insoluble calcium/magnesium salt of the fatty acid (e.g. calcium stearate) — scum. (iii) The charged (sulphonate/sulphate) ends of detergents do not form insoluble precipitates with Ca²⁺/Mg²⁺; advantage: effective in hard water; disadvantage: many detergents are non-biodegradable.",
+   "solutionSteps": [
+    "[1 mark] (i) Hard water contains Ca²⁺ and Mg²⁺ ions which react with soap (RCOONa) to form an insoluble precipitate (RCOO)₂Ca, so the soap is used up and does not form lather or clean.",
+    "[1 mark] (ii) The white precipitate (scum) is the insoluble calcium/magnesium salt of the fatty acid, e.g. calcium stearate.",
+    "[1 mark] (iii) Detergents are sodium salts of sulphonic acids / ammonium salts; their charged ends do not form insoluble precipitates with Ca²⁺/Mg²⁺ ions, so they remain effective in hard water.",
+    "[1 mark] (iii) Advantage: works well in hard water (no scum). Disadvantage: many detergents are non-biodegradable and cause water pollution."
+   ],
+   "finalAnswer": "(i) Ca²⁺/Mg²⁺ ions form insoluble salts with soap; (ii) calcium/magnesium salt of fatty acid (e.g. calcium stearate) — scum; (iii) charged ends of detergents do not precipitate with Ca²⁺/Mg²⁺; advantage — works in hard water; disadvantage — non-biodegradable"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: restructured A–D into proper case sub-parts (i)(ii)(iii) = 1+1+2 marks with step marking summing to 4; content unchanged in substance."
+ },
+ {
+  "id": "sci-cc-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) Yes. Successive members differ by a –CH₂– unit (14 u) and have similar chemical properties, so they form a homologous series.",
+    "[1 mark] (b) General formula: CₙH₂ₙ₊₂ (alkanes).",
+    "[1 mark] (c) C₃H₈ is propane; structural formula CH₃–CH₂–CH₃ (each C forms 4 single bonds, 8 C–H bonds in total).",
+    "[1 mark] (d) Next member (n = 4): C₄H₁₀, butane."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added the missing 4-step marking scheme (1 mark per part, sum 4) consistent with the existing answer."
+ },
+ {
+  "id": "CFPQ-S-CARB-019",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Flags are parser errors: all 3 steps carry prefixes ([½ mark],[½ mark],[2 marks]) summing to ½+½+2 = 3 = marks. Content correct: C2H5OH + 3O2 → 2CO2 + 3H2O balanced; CO2 is the fermentation by-product."
+ },
+ {
+  "id": "CC2-017",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Easy",
+   "questionText": "The IUPAC name of the compound CH3CH2CH2CHO is:",
+   "options": [
+    "Butanal",
+    "Propanal",
+    "Butanone",
+    "Butanol"
+   ],
+   "answer": "Butanal",
+   "solutionSteps": [
+    "Correct option: Butanal. The chain has 4 carbon atoms (but-), including the –CHO carbon, and the aldehyde functional group gives the suffix '-al'. So CH3CH2CH2CHO is butanal."
+   ],
+   "finalAnswer": "Butanal",
+   "explanation": "Count the carbon atoms including the –CHO carbon: 4, so the stem is 'butane'. The aldehyde group (–CHO) is shown by replacing the final 'e' with '-al'. Butanone would have a C=O inside the chain (ketone) and butanol an –OH group. Therefore, the correct answer is Butanal."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: branched-chain locant naming (2-methylbutane) is beyond Class 10; repaired to straight-chain functional-group naming. Also retagged 3-mark C MCQ to 1-mark Section A MCQ."
+ },
+ {
+  "id": "CC2-050",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "questionText": "Carbon shows two unique properties, catenation and tetravalency. Explain how each of these properties helps carbon form an enormous variety of compounds, and how together they lead to structural diversity among carbon compounds.",
+   "answer": "Catenation: carbon forms strong C–C bonds and links with other carbon atoms to give long straight chains, branched chains and rings. Tetravalency: carbon (valency 4) bonds with four other atoms — C, H, O, N, S, halogens — giving compounds with different functional groups. Together, the same molecular formula can have different arrangements (structural isomers, e.g. two isomers of butane C4H10), so a huge variety of compounds forms.",
+   "solutionSteps": [
+    "[1 mark] Catenation: carbon atoms form strong, stable C–C covalent bonds, so they link into long straight chains, branched chains and closed rings.",
+    "[1 mark] Tetravalency: with valency 4, a carbon atom can bond with four other atoms of carbon or of other elements (H, O, N, S, Cl), giving compounds with different functional groups (e.g. –OH, –CHO, –COOH).",
+    "[1 mark] Structural diversity: chains/rings plus different attached atoms allow the same molecular formula to have different structures (structural isomers, e.g. n-butane and its branched isomer for C4H10), so millions of carbon compounds exist."
+   ],
+   "finalAnswer": "Catenation gives chains, branches and rings; tetravalency lets carbon bond with four atoms of many elements/functional groups; together they allow different structures (isomers) for the same formula, giving an enormous variety of compounds."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: retagged 1-mark Section A 'Long' to 3-mark Section C Short; trimmed beyond-syllabus chain/position/functional isomerism and neopentane to catenation+tetravalency+butane isomers; 3 step marks."
+ },
+ {
+  "id": "PYQ-S-CARB-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "acids-bases-and-salts",
+   "subtopic": "Acids in Natural Sources",
+   "questionText": "Select the correct option(s) from the following table of natural sources and the acids present in them:\n(i) Tamarind — Tartaric acid\n(ii) Tomato — Acetic acid\n(iii) Ant sting — Oxalic acid\n(iv) Nettle sting — Methanoic acid",
+   "solutionSteps": [
+    "Correct option: (c) (i) and (iv). Tamarind contains tartaric acid and nettle sting contains methanoic acid. Tomato contains oxalic acid (not acetic acid) and ant sting contains methanoic acid (not oxalic acid), so (ii) and (iii) are wrong."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Natural sources of acids is the NCERT Acids, Bases and Salts table, not Carbon Compounds; moved chapter. Flattened table laid out as rows; added reasoning. Answer unchanged."
+ },
+ {
+  "id": "CC2-023",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Bond angle 109.5°, tetrahedral geometry and sp3 hybridisation are Class 11 content; no natural in-limit repair keeps this question (it would be a different question)."
+ },
+ {
+  "id": "CFPQ-S-CARB-015",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Not authored (CBSE CFPQ). Judging the list requires recognising 'methanoic acid' as a correct name — carboxylic-acid nomenclature is out of the 2026-27 syllabus (ruling R6); cannot be edited."
+ },
+ {
+  "id": "APQ-S-CHEM-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Some types of chemical reactions: decomposition, combination, displacement, double displacement. Which two of the following reactions are of the SAME type? P) AgNO3 + NaCl → AgCl + NaNO3; Q) Mg + 2 HCl → MgCl2 + H2; R) CH4 + 2 O2 → CO2 + 2 H2O; S) 2 KOH + H2SO4 → K2SO4 + 2 H2O",
+   "solutionSteps": [
+    "P (AgNO3 + NaCl → AgCl + NaNO3): two compounds exchange ions ⟹ double displacement.",
+    "Q: displacement (Mg displaces hydrogen from HCl). R: combustion (oxidation of methane) — two reactants give two products, so it is not a combination reaction. S: 2KOH + H2SO4 → K2SO4 + 2H2O is acid–base neutralisation, in which ions are exchanged ⟹ double displacement.",
+    "P and S are both double-displacement reactions."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Balanced S (2H2O); corrected step that wrongly called combustion R a combination reaction. Answer P and S unchanged."
+ },
+ {
+  "id": "CR2-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "A) 2Na + Cl₂ → 2NaCl",
+    "B) AgNO₃ + NaCl → AgCl↓ + NaNO₃",
+    "C) CaCO₃ → CaO + CO₂",
+    "D) Zn + Cu²⁺ → Zn²⁺ + Cu"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Balanced distractor A (2Na + Cl₂ → 2NaCl); it remains a combination reaction, so B is still the only double displacement."
+ },
+ {
+  "id": "PYQ-S-2024-CHEMRXN-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "To balance the following chemical equation, the values of the coefficients x, y and z must be respectively :\nx Zn(NO3)2 → y ZnO + z NO2 + O2",
+   "solutionSteps": [
+    "[1 mark] Correct option: (c) 2, 2, 4. 2Zn(NO3)2 → 2ZnO + 4NO2 + O2 — Zn: 2 = 2; N: 4 = 4; O: 12 = 2 + 8 + 2."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored lost reaction arrow; added atom check confirming 2, 2, 4."
+ },
+ {
+  "id": "PYQ-S-2024-CHEMRXN-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "C + O2 → CO2",
+    "2 H2 + O2 → 2 H2O",
+    "2 Mg + O2 → 2 MgO",
+    "Fe2O3 + 3 CO → 2 Fe + 3 CO2"
+   ],
+   "answer": "Fe2O3 + 3 CO → 2 Fe + 3 CO2",
+   "solutionSteps": [
+    "[1 mark] Correct option: (d) Fe2O3 + 3 CO → 2 Fe + 3 CO2. Fe2O3 is reduced (loses oxygen) and CO is oxidised (gains oxygen), so it is redox; it gives two products, so it is not a combination. (a), (b), (c) are each combination reactions."
+   ],
+   "finalAnswer": "(d) Fe2O3 + 3 CO → 2 Fe + 3 CO2"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Restored lost arrows in all options/answer (same option d); added reasoning."
+ },
+ {
+  "id": "PYQ-S-2024-CHEMRXN-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "2 FeSO4 → Fe2O3 + SO2 + SO3",
+    "CaCO3 → CaO + CO2",
+    "2 AgCl → 2 Ag + Cl2",
+    "2 Pb(NO3)2 → 2 PbO + 4 NO2 + O2"
+   ],
+   "answer": "2 AgCl → 2 Ag + Cl2",
+   "solutionSteps": [
+    "[1 mark] Correct option: (c) 2 AgCl → 2 Ag + Cl2. Silver chloride decomposes in the presence of sunlight (photolytic decomposition), whereas FeSO4, CaCO3 and Pb(NO3)2 decompose on heating (thermal decomposition)."
+   ],
+   "finalAnswer": "(c) 2 AgCl → 2 Ag + Cl2"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Restored lost arrows and the missing coefficient 2 in option (d) (2Pb(NO3)2 → 2PbO + 4NO2 + O2, balanced). Same option (c)."
+ },
+ {
+  "id": "PYQ-S-2026-CHEMRXN-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Corrosion and Its Prevention",
+   "questionText": "Galvanization is a process of coating iron articles with a thin layer of zinc to prevent iron from rusting. The iron is protected even if the zinc coating is scratched and iron is exposed. Which of the following is/are true about how zinc prevents the rusting of iron?\n(P) A galvanised iron article does not undergo oxidation.\n(Q) The zinc coating prevents contact of iron with air.\n(R) Zinc provides continuous protection to iron from rusting.",
+   "options": [
+    "Only (P)",
+    "Only (Q)",
+    "(Q) and (R)",
+    "(P) and (Q)"
+   ],
+   "solutionSteps": [
+    "[1 mark] Correct option: (c) (Q) and (R). The zinc layer keeps air and moisture away from iron, and even when scratched, zinc (more reactive) gets oxidised in preference to iron, giving continuous protection. (P) is false because zinc itself is oxidised."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed page residue '1' from stem and '{ } of 32' from option (d); set accurate subtopic; added reasoning. Answer unchanged."
+ },
+ {
+  "id": "PYQ-S-CHEM-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "KI + PbNO3 → PbI + KNO3",
+    "2KI + Pb(NO3)2 → PbI2 + 2KNO3",
+    "KI + Pb(NO3)2 → PbI + KNO3",
+    "KI + PbNO3 → PbI2 + KNO3"
+   ],
+   "answer": "2KI + Pb(NO3)2 → PbI2 + 2KNO3",
+   "solutionSteps": [
+    "[1 mark] Correct option: (b) 2KI + Pb(NO3)2 → PbI2 + 2KNO3. Lead nitrate is Pb(NO3)2 and lead iodide is PbI2 (yellow precipitate); the equation is balanced (double displacement)."
+   ],
+   "finalAnswer": "(b) 2KI + Pb(NO3)2 → PbI2 + 2KNO3"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Restored lost reaction arrows in options/answer (distractor formulas kept as in the paper); same option (b)."
+ }
+]

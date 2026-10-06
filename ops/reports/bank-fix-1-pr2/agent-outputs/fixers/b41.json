@@ -1,0 +1,267 @@
+[
+ {
+  "id": "PYQ-M-TRI-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "coordinate-geometry",
+   "subtopic": "Section Formula and Distance Formula",
+   "questionText": "Jagdish has a field in the shape of a right-angled triangle AQC, right-angled at Q. He wants to leave a space in the form of a square PQRS inside the field for growing wheat and use the remaining part for growing vegetables. Side PQ of the square lies along QC, vertex S lies on the hypotenuse CA, and the square lies on the same side of QC as A. In the field there is a pole marked O on line QC. Taking O as the origin and line QC as the x-axis, the coordinates of P are (–200, 0), of Q are (200, 0), of C are (–600, 0) and of A are (200, 800). Based on the above information, answer the following questions:\n(i) PQRS being a square, what are the coordinates of R and S?\n(ii) (a) What is the area of square PQRS?\nOR\n(b) What is the length of diagonal PR of square PQRS?\n(iii) If S divides CA in the ratio k : 1, what is the value of k?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed mark/page residues; replaced 'as shown in the figure' with the configuration carried by the row's own steps (C(−600,0), A(200,800), S on CA). Coordinate-geometry content, retagged. Answer unchanged (k=1 verified)."
+ },
+ {
+  "id": "SP-M-2022-TRI-A-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In △PQR, S is a point on side PQ and T is a point on side PR such that ST ∥ QR. If PS = x, SQ = x + 3, PT = x + 1 and TR = x + 5, then x is"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem had no data; segment lengths taken from the row's own diagramDescription. BPT: x(x+5)=(x+1)(x+3) ⇒ x=3, option (b) unchanged."
+ },
+ {
+  "id": "TRI-N-EXMPLR-6-LA-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Two line segments intersect at a point P, forming △APB and △CPD in which ∠APB and ∠CPD are vertically opposite angles. If ∠A = ∠C, AB = 6 cm, BP = 15 cm, AP = 12 cm and CP = 4 cm, find the lengths of PD and CD.",
+   "section": "C",
+   "marks": 3,
+   "format": "Short"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed contradictory 'AB and CD are chords intersecting at P'; configuration stated neutrally. AA similarity gives PD=5, CD=2 (unchanged). A two-ratio AA problem is a 3-mark Section C item, not 5-mark Long."
+ },
+ {
+  "id": "TRI-N-EXMPLR-6-SA-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In △ABC, D is a point on side AB such that ∠ACB = ∠CDA. If AC = 8 cm and AD = 3 cm, find BD."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem contradicted working and hedged; configuration (D on AB, BD = AB − AD) taken from the row's own solution. △ACB ~ △ADC ⇒ AB=64/3, BD=55/3 cm unchanged."
+ },
+ {
+  "id": "SQP-M-TRI-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Part (b) depends on an unprovided figure (positions of A,B,D,E,F,C); no diagramDescription and the steps do not fix the configuration reliably."
+ },
+ {
+  "id": "TRI-N-EXMPLR-6-CB-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Case study: A right triangle ABC is right-angled at B. The largest square BRSP is inscribed in the triangle with one side along BC, one along BA and the opposite vertex S lying on the hypotenuse AC. Let AB = 16 cm and BC = 8 cm. Answer the following:\n(i) Which similarity criterion relates △APS and △ABC, where P is on AB and S is on AC?\n(ii) Set up the equation for the side x of the inscribed square BRSP using the similarity.\n(iii) Solve for x.\n(iv) State the side length of the largest inscribed square."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray 'Answer:' rewritten as 'Answer the following:'. Rest correct ((16−x)/16=x/8 ⇒ x=16/3)."
+ },
+ {
+  "id": "TRI-N-EXMPLR-6-CB-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "quadratic-equations",
+   "subtopic": "Word Problems (Factorisation)",
+   "questionText": "Case study: The hypotenuse of a right triangle is 25 cm, and out of the two legs, one is longer than the other by 5 cm. Answer the following:\n(i) Form a quadratic equation in the shorter leg x.\n(ii) Solve the quadratic equation.\n(iii) Reject the inadmissible root and state both legs.\n(iv) Verify by computing x² + (x + 5)² and comparing with 25²."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "'Answer:' fixed. Content is forming/factorising x²+5x−300=0 (Pythagoras only as a tool) — a Quadratic Equations item; retagged. Answer 15, 20 cm verified."
+ },
+ {
+  "id": "TRI-N-NCERT-6-CB-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Built on NCERT Ex 6.5 Q10 (Pythagoras theorem section, deleted from 2026-27 Triangles); every part is pure Pythagoras with no Class 10 chapter home. Not LazyTopper-authored."
+ },
+ {
+  "id": "TR3-059",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "trigonometry",
+   "subtopic": "Heights and Distances",
+   "questionText": "A photographer stands on level ground 50 m away from the base of a building. From her position, the angle of elevation of the top of the building is 60°. She also uses a small scale model, a right triangle ABC with base 2 m, height 2√3 m and angle 60° at the base. (Treat the observation point as being at ground level.)\n(a) What is the height of the building?\n(b) Is the triangle formed by the photographer, the base and the top of the building similar to the model triangle ABC? Why?\n(c) She walks straight back, away from the building, until the angle of elevation of the top becomes 30°. How far is she now from the base of the building, and how far did she walk?",
+   "answer": "(a) 50√3 m (b) Yes, by AA similarity (right angle and 60° angle in both) (c) 150 m from the base; she walked 100 m",
+   "solutionSteps": [
+    "(a) Model: tan 60° = 2√3/2 = √3. For the building, tan 60° = h/50 ⇒ h = 50√3 m. [1 mark]",
+    "(b) Both triangles have a right angle and a 60° angle at the base, so they are similar by AA criterion. [1 mark]",
+    "(c) Let new distance be d. tan 30° = 50√3/d ⇒ 1/√3 = 50√3/d. [1 mark]",
+    "d = 50√3 × √3 = 150 m; distance walked = 150 − 50 = 100 m. [1 mark]"
+   ],
+   "finalAnswer": "(a) 50√3 m (b) Yes, AA similarity (c) 150 m from the base; walked 100 m"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: part (c) needed a non-standard ≈41° angle (LIMIT). Replaced with a 30° elevation part (d=150 m, walked 100 m). Heights & distances content, retagged to trigonometry; steps 1+1+2."
+ },
+ {
+  "id": "AR-TRI-009",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Assertion–Reason on RHS congruence of right triangles is Class 9 congruence content, not in Class 10 2026-27 syllabus; no natural repair within Triangles (similarity/BPT) without a full rewrite."
+ },
+ {
+  "id": "CBE-M-TRI-B-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "circles"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Tangent ⊥ radius, OA=√(100−64)=6, diameter 12 cm — Circles chapter content; retagged. Answer correct."
+ },
+ {
+  "id": "PB-M-2-TRI-A-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Triangle-inequality / construction feasibility is Class 7/9 content with no home in the 2026-27 Class 10 syllabus; preboard row, not authored."
+ },
+ {
+  "id": "PYQ-M-2024-TRI-003b",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "coordinate-geometry",
+   "subtopic": "Section Formula and Distance Formula"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Median via midpoint + distance formula is Coordinate Geometry. E(1,3/2), BE=√(125/4)=5√5/2 verified."
+ },
+ {
+  "id": "PYQ-M-2024-TRI-004a",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "circles",
+   "subtopic": "Tangents from an External Point",
+   "questionText": "A circle is inscribed in a right-angled triangle ABC, right-angled at B. If BC = 7 cm and AB = 24 cm, find the radius of the circle.",
+   "answer": "Radius of the circle = 3 cm.",
+   "solutionSteps": [
+    "[1 mark] AC = √(24² + 7²) = √625 = 25 cm. Let the radius be r cm.",
+    "[1 mark] Tangents from B are equal and the radii to the points of contact on AB and BC form a square with B, so the tangent lengths from B are r; tangent lengths from A = 24 − r and from C = 7 − r.",
+    "[1 mark] AC = (24 − r) + (7 − r) = 25 ⇒ 31 − 2r = 25 ⇒ r = 3 cm."
+   ],
+   "finalAnswer": "r = 3 cm"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Incircle radius via tangent lengths is Circles content; retagged. Garbled steps ('√242 + 72', '1 2 ×') rewritten cleanly; r = 3 cm verified. Stem typo 'rightangled' fixed."
+ },
+ {
+  "id": "TR3-015",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "trigonometry",
+   "subtopic": "Heights and Distances",
+   "difficulty": "Easy"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Ladder at 60°, h = 13 sin 60° = 13√3/2 m — heights & distances, retagged to trigonometry; single-ratio item is Easy. Answer correct."
+ },
+ {
+  "id": "TR3-026",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A teacher sets up a geometry problem: In △ABC, points D and E are marked on sides AB and AC respectively. It is given that DE ∥ BC. The teacher asks students to find relationships between the segments.\n(i) If AD = 2 cm, DB = 3 cm and AE = 1.5 cm, find EC.\n(ii) Are △ADE and △ABC similar? Justify using an appropriate criterion.\n(iii) If, further, BC = 5 cm, find the length of DE.",
+   "answer": "(i) 2.25 cm (ii) Yes, by AA criterion (corresponding angles equal) (iii) DE = 2 cm",
+   "solutionSteps": [
+    "(i) Since DE ∥ BC, by BPT: AD/DB = AE/EC ⇒ 2/3 = 1.5/EC ⇒ EC = 4.5/2 = 2.25 cm. [1 mark]",
+    "(ii) DE ∥ BC ⇒ ∠ADE = ∠ABC and ∠AED = ∠ACB (corresponding angles); hence △ADE ~ △ABC by AA criterion. [1 mark]",
+    "(iii) AB = AD + DB = 5 cm; from △ADE ~ △ABC, DE/BC = AD/AB = 2/5. [1 mark]",
+    "DE = (2/5) × 5 = 2 cm. [1 mark]"
+   ],
+   "finalAnswer": "(i) 2.25 cm (ii) Yes, by AA criterion (iii) DE = 2 cm"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored 4-mark case had only two parts; added part (iii) (DE = 2 cm via similarity) to give a 1+1+2 case structure. Existing answers verified."
+ },
+ {
+  "id": "2026-TRIG-CASE-14",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A vertical pole 12 m high casts a shadow 4√3 m long on level ground. At the same time, a nearby tower casts a shadow 12√3 m long.\n(a) Find the angle of elevation of the Sun.\n(b) Calculate the height of the tower."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Broken LaTeX '(Take \\(\\\\sqrt{3}…' removed; the √3 value is never used (answers exact: 60°, 36 m, verified)."
+ },
+ {
+  "id": "2026-TRIG-SA-12",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "From the top of a 15 m high tower, the angle of depression of a car on the road is 30°. Find the distance of the car from the foot of the tower. (Take √3 = 1.732.)"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Broken LaTeX with unbalanced bracket replaced by plain '(Take √3 = 1.732.)'. d = 15√3 ≈ 25.98 m verified."
+ },
+ {
+  "id": "APQ-M-TRIG-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Side lengths of △SPT exist only in an unprovided figure; the row carries no diagramDescription or data; unsolvable as served."
+ },
+ {
+  "id": "APQ-M-TRIG-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "The 'solved problem shown below' (its steps) is not included in the row; question cannot be answered."
+ }
+]

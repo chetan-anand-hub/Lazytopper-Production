@@ -1,0 +1,326 @@
+[
+ {
+  "group": "EX1",
+  "id_a": "TRIG2-E09",
+  "id_b": "TRIG-N-NCERT-8-SA-007",
+  "verdict": "duplicate",
+  "withhold": "TRIG2-E09",
+  "keep": "TRIG-N-NCERT-8-SA-007",
+  "rationale": "Same expression to evaluate; keep official NCERT Ex 8.2 Q1(ii) over LT-authored copy."
+ },
+ {
+  "group": "EX2",
+  "id_a": "TRIG2-M01",
+  "id_b": "TRIG-PRF-C-001",
+  "verdict": "duplicate",
+  "withhold": "TRIG2-M01",
+  "keep": "TRIG-PRF-C-001",
+  "rationale": "Same identity proof; both LT-authored. TRIG2-M01 has a spurious triangle-construction step; TRIG-PRF-C-001 is cleaner and complete."
+ },
+ {
+  "group": "EX3",
+  "id_a": "TRIG2-M05",
+  "id_b": "TRIG-N-NCERT-9-SA-004",
+  "verdict": "duplicate",
+  "withhold": "TRIG2-M05",
+  "keep": "TRIG-N-NCERT-9-SA-004",
+  "rationale": "Same tower/30 m/30° problem, same answer 10√3 m; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX4",
+  "id_a": "TRIG2-M07",
+  "id_b": "TG3-020",
+  "verdict": "duplicate",
+  "withhold": "TRIG2-M07",
+  "keep": "TG3-020",
+  "rationale": "Same identity proof; both LT-authored with a spurious construction line. TG3-020 has the fuller step-by-step working; TRIG2-M07 crams steps."
+ },
+ {
+  "group": "EX9",
+  "id_a": "RN-M03",
+  "id_b": "RN2-010",
+  "verdict": "duplicate",
+  "withhold": "RN2-010",
+  "keep": "RN-M03",
+  "rationale": "Same √3 proof, both LT-authored. RN-M03 is correctly 3-mark with step marks; RN2-010 is mislabelled 2-mark. (RN-M03 itself loses to NCERT LA-002.)"
+ },
+ {
+  "group": "EX9",
+  "id_a": "RN-M03",
+  "id_b": "RN-N-NCERT-1-LA-002",
+  "verdict": "duplicate",
+  "withhold": "RN-M03",
+  "keep": "RN-N-NCERT-1-LA-002",
+  "rationale": "Same √3 irrationality proof; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX10",
+  "id_a": "RN-M07",
+  "id_b": "RN2-013",
+  "verdict": "duplicate",
+  "withhold": "RN2-013",
+  "keep": "RN-M07",
+  "rationale": "Same 3+2√5 proof, both LT-authored. RN-M07 is properly 3-mark with p/q form; RN2-013 is mislabelled 2-mark and looser."
+ },
+ {
+  "group": "EX11",
+  "id_a": "RN-M11",
+  "id_b": "RN2-034",
+  "verdict": "duplicate",
+  "withhold": "RN2-034",
+  "keep": "RN-M11",
+  "rationale": "Same √2 proof, both LT-authored. RN2-034 has non-answer finalAnswer 'Proof by contradiction' and 2-mark label; RN-M11 cleaner. (RN-M11 loses to NCERT.)"
+ },
+ {
+  "group": "EX11",
+  "id_a": "RN-M11",
+  "id_b": "RN2-050",
+  "verdict": "duplicate",
+  "withhold": "RN-M11",
+  "keep": "RN2-050",
+  "rationale": "Same √2 proof, both LT-authored. RN2-050 is fuller and cites prime lemma; RN-M11 also withheld vs NCERT LA-001. RN2-050 vs NCERT not in this file."
+ },
+ {
+  "group": "EX11",
+  "id_a": "RN-M11",
+  "id_b": "RN-N-NCERT-1-LA-001",
+  "verdict": "duplicate",
+  "withhold": "RN-M11",
+  "keep": "RN-N-NCERT-1-LA-001",
+  "rationale": "Same √2 irrationality proof; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX12",
+  "id_a": "RN-M19",
+  "id_b": "RN2-011",
+  "verdict": "duplicate",
+  "withhold": "RN2-011",
+  "keep": "RN-M19",
+  "rationale": "Same √5 proof, both LT-authored. RN-M19 properly 3-mark with step marks; RN2-011 mislabelled 2-mark. (RN-M19 loses to NCERT.)"
+ },
+ {
+  "group": "EX12",
+  "id_a": "RN-M19",
+  "id_b": "RN-N-NCERT-1-LA-003",
+  "verdict": "duplicate",
+  "withhold": "RN-M19",
+  "keep": "RN-N-NCERT-1-LA-003",
+  "rationale": "Same √5 irrationality proof; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX12",
+  "id_a": "RN-M19",
+  "id_b": "2026-RN-SA-09",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Same √5 proof, but partner is a predicted-surface row; bank row would win and only bank rows can be withheld, so keep both."
+ },
+ {
+  "group": "EX12",
+  "id_a": "RN-M19",
+  "id_b": "math-real-hpq-3",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Same √5 proof, but partner is an HPQ-surface row; bank row would win and only bank rows can be withheld, so keep both."
+ },
+ {
+  "group": "EX17",
+  "id_a": "QE-M06",
+  "id_b": "QE-N-NCERT-4-LA-002",
+  "verdict": "duplicate",
+  "withhold": "QE-M06",
+  "keep": "QE-N-NCERT-4-LA-002",
+  "rationale": "Same 360 km train problem, answer 40 km/h; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX18",
+  "id_a": "QE-M13",
+  "id_b": "QE-N-EXMPLR-4-SA-008",
+  "verdict": "duplicate",
+  "withhold": "QE-M13",
+  "keep": "QE-N-EXMPLR-4-SA-008",
+  "rationale": "Same 'increased by 12 = 160× reciprocal' problem, answer 8; keep official exemplar over LT-authored."
+ },
+ {
+  "group": "EX20",
+  "id_a": "QE2-058",
+  "id_b": "2026-QE-LA-05",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Same 360 km train problem, but partner is a predicted-surface row; bank row would win, non-bank cannot be withheld here."
+ },
+ {
+  "group": "EX21",
+  "id_a": "AP-M09",
+  "id_b": "AP-N-NCERT-5-SA-001",
+  "verdict": "duplicate",
+  "withhold": "AP-M09",
+  "keep": "AP-N-NCERT-5-SA-001",
+  "rationale": "Same AP (a3=5, a7=9) problem; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX23",
+  "id_a": "CG-E16",
+  "id_b": "CG-N-NCERT-7-EX-016",
+  "verdict": "duplicate",
+  "withhold": "CG-E16",
+  "keep": "CG-N-NCERT-7-EX-016",
+  "rationale": "Same isosceles check for (5,−2),(6,4),(7,−2); keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX24",
+  "id_a": "CG-E19",
+  "id_b": "CG-N-NCERT-7-EX-020",
+  "verdict": "duplicate",
+  "withhold": "CG-E19",
+  "keep": "CG-N-NCERT-7-EX-020",
+  "rationale": "Same section-formula problem, ratio 2:3, answer (1,3); keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX25",
+  "id_a": "CG-M11",
+  "id_b": "CG-N-NCERT-7-EX-021",
+  "verdict": "duplicate",
+  "withhold": "CG-M11",
+  "keep": "CG-N-NCERT-7-EX-021",
+  "rationale": "Same trisection of (4,−1),(−2,−3); keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX27",
+  "id_a": "CIR-M03",
+  "id_b": "CIRC-N-NCERT-10-LA-002",
+  "verdict": "duplicate",
+  "withhold": "CIR-M03",
+  "keep": "CIRC-N-NCERT-10-LA-002",
+  "rationale": "Same parallelogram-is-rhombus proof; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX27",
+  "id_a": "CIR-M03",
+  "id_b": "CIR-PRF-C-005",
+  "verdict": "duplicate",
+  "withhold": "CIR-M03",
+  "keep": "CIR-PRF-C-005",
+  "rationale": "Same rhombus proof, both LT-authored. CIR-M03 has a spurious construction line and '...' hand-wave; CIR-PRF-C-005 is complete."
+ },
+ {
+  "group": "EX28",
+  "id_a": "CIR-M08",
+  "id_b": "CIRC-N-NCERT-10-SA-004",
+  "verdict": "duplicate",
+  "withhold": "CIR-M08",
+  "keep": "CIRC-N-NCERT-10-SA-004",
+  "rationale": "Same AB+CD=AD+BC proof; keep official NCERT over LT-authored (pending fix is a step edit, not a withhold)."
+ },
+ {
+  "group": "EX28",
+  "id_a": "CIR-M08",
+  "id_b": "CIR-PRF-D-003",
+  "verdict": "duplicate",
+  "withhold": "CIR-M08",
+  "keep": "CIR-PRF-D-003",
+  "rationale": "Same AB+CD=AD+BC proof, both LT-authored; CIR-PRF-D-003 is fuller even vs CIR-M08's fixed steps. CIR-M08 also withheld vs NCERT."
+ },
+ {
+  "group": "EX29",
+  "id_a": "CIR-M10",
+  "id_b": "CIRC-N-NCERT-10-SA-005",
+  "verdict": "duplicate",
+  "withhold": "CIR-M10",
+  "keep": "CIRC-N-NCERT-10-SA-005",
+  "rationale": "Same ∠PTQ=2∠OPQ proof; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX29",
+  "id_a": "CIR-M10",
+  "id_b": "CIR-PRF-D-004",
+  "verdict": "duplicate",
+  "withhold": "CIR-M10",
+  "keep": "CIR-PRF-D-004",
+  "rationale": "Same ∠PTQ=2∠OPQ proof, both LT-authored; CIR-M10 construction mislabels points (P/A/B). CIR-M10 also withheld vs NCERT."
+ },
+ {
+  "group": "EX29",
+  "id_a": "CIR-M10",
+  "id_b": "APQ-M-CIRC-006",
+  "verdict": "duplicate",
+  "withhold": "CIR-M10",
+  "keep": "APQ-M-CIRC-006",
+  "rationale": "Same ∠PTQ=2∠OPQ proof; keep official additional-practice row over LT-authored."
+ },
+ {
+  "group": "EX30",
+  "id_a": "CIR-M19",
+  "id_b": "CIRC-N-NCERT-10-LA-001",
+  "verdict": "duplicate",
+  "withhold": "CIR-M19",
+  "keep": "CIRC-N-NCERT-10-LA-001",
+  "rationale": "Same circumscribed-triangle problem (BD=8, DC=6, r=4), AB=15, AC=13; keep official NCERT."
+ },
+ {
+  "group": "EX31",
+  "id_a": "CIR-H01",
+  "id_b": "2026-CIRC-SA-01b",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Same tangent⊥radius theorem, but partner is a predicted-surface row; bank row would win, non-bank cannot be withheld here."
+ },
+ {
+  "group": "EX34",
+  "id_a": "PROB-E06",
+  "id_b": "PR2-006",
+  "verdict": "duplicate",
+  "withhold": "PROB-E06",
+  "keep": "PR2-006",
+  "rationale": "Same two-coins at-least-one-head question, both LT-authored; PR2-006 is slightly fuller (explicit counts, P formula) and is the smaller id."
+ },
+ {
+  "group": "EX35",
+  "id_a": "CR-E06",
+  "id_b": "S-CHEM-3",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Same Fe + H₂O balancing task, but partner is a promptD-surface row; bank row would win, non-bank cannot be withheld here."
+ },
+ {
+  "group": "EX36",
+  "id_a": "CR-E10",
+  "id_b": "CHEM-NCERT-1-VSA-007",
+  "verdict": "duplicate",
+  "withhold": "CR-E10",
+  "keep": "CHEM-NCERT-1-VSA-007",
+  "rationale": "Same 'why paint iron articles' question; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX38",
+  "id_a": "ABS-E04",
+  "id_b": "ABS2-053",
+  "verdict": "duplicate",
+  "withhold": "ABS-E04",
+  "keep": "ABS2-053",
+  "rationale": "Identical MCQ and options, both LT-authored. ABS2-053 has the 1-step Section A form; ABS-E04 has boilerplate explanation."
+ },
+ {
+  "group": "EX39",
+  "id_a": "CARB-M10",
+  "id_b": "CARB-NCERT-4-VSA-015",
+  "verdict": "duplicate",
+  "withhold": "CARB-M10",
+  "keep": "CARB-NCERT-4-VSA-015",
+  "rationale": "Same hydrogenation question; keep official NCERT over LT-authored."
+ },
+ {
+  "group": "EX53",
+  "id_a": "CTRL-NCERT-6-SA-002",
+  "id_b": "CTRL-EXMPLR-6-SA-009",
+  "verdict": "duplicate",
+  "withhold": "CTRL-EXMPLR-6-SA-009",
+  "keep": "CTRL-NCERT-6-SA-002",
+  "rationale": "Same synapse question, both official (NCERT in-text vs exemplar, equal tier). NCERT row slightly fuller (receptors, post-synaptic neuron)."
+ }
+]

@@ -1,0 +1,488 @@
+[
+ {
+  "group": "EX54",
+  "id_a": "CTRL-NCERT-6-SA-007",
+  "id_b": "CTRL-EXMPLR-6-LA-008",
+  "verdict": "duplicate",
+  "withhold": "CTRL-NCERT-6-SA-007",
+  "keep": "CTRL-EXMPLR-6-LA-008",
+  "rationale": "Identical question text; NCERT and exemplar are equal official tier; exemplar row is more complete (examples, feedback, 6 steps)."
+ },
+ {
+  "group": "EX55",
+  "id_a": "CTRL-NCERT-6-LA-002",
+  "id_b": "CTRL-EXMPLR-6-LA-001",
+  "verdict": "duplicate",
+  "withhold": "CTRL-NCERT-6-LA-002",
+  "keep": "CTRL-EXMPLR-6-LA-001",
+  "rationale": "Identical 5-mark question; equal official tier; exemplar row slightly more complete (myelin sheath, diagram hint)."
+ },
+ {
+  "group": "EX57",
+  "id_a": "RN-N-NCERT-1-LA-004",
+  "id_b": "M-REAL-2",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Same proof question, but the loser would be the promptD row M-REAL-2; only bank rows can be withheld, so keep both."
+ },
+ {
+  "group": "EX61",
+  "id_a": "CIRC-N-NCERT-10-SA-001",
+  "id_b": "PYQ-M-CIRC-015",
+  "verdict": "duplicate",
+  "withhold": "CIRC-N-NCERT-10-SA-001",
+  "keep": "PYQ-M-CIRC-015",
+  "rationale": "Identical question; PYQ outranks NCERT and has a pending fix with clean steps; NCERT row has no answer."
+ },
+ {
+  "group": "EX62",
+  "id_a": "CIRC-N-NCERT-10-SA-002",
+  "id_b": "PYQ-M-CIRC-012",
+  "verdict": "duplicate",
+  "withhold": "CIRC-N-NCERT-10-SA-002",
+  "keep": "PYQ-M-CIRC-012",
+  "rationale": "Identical question text; PYQ outranks NCERT and the NCERT row has no answer."
+ },
+ {
+  "group": "EX62",
+  "id_a": "CIRC-N-NCERT-10-SA-002",
+  "id_b": "PYQ-M-2024-CIRC-008b",
+  "verdict": "duplicate",
+  "withhold": "CIRC-N-NCERT-10-SA-002",
+  "keep": "PYQ-M-2024-CIRC-008b",
+  "rationale": "Identical question text; PYQ outranks NCERT and the NCERT row has no answer."
+ },
+ {
+  "group": "EX62",
+  "id_a": "CIRC-N-NCERT-10-SA-002",
+  "id_b": "PYQ-M-2025-CIRC-004",
+  "verdict": "duplicate",
+  "withhold": "CIRC-N-NCERT-10-SA-002",
+  "keep": "PYQ-M-2025-CIRC-004",
+  "rationale": "Identical question text; PYQ outranks NCERT and the NCERT row has no answer."
+ },
+ {
+  "group": "EX64",
+  "id_a": "SQP-M-RN-002",
+  "id_b": "rn-hpq-4",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Same proof of irrationality of root 2, but the partner is an hpq row; only bank rows can be withheld here, so keep both."
+ },
+ {
+  "group": "EX65",
+  "id_a": "CBE-S-CHEM-C-003",
+  "id_b": "CBE-S-CARB-C-003",
+  "verdict": "duplicate",
+  "withhold": "CBE-S-CHEM-C-003",
+  "keep": "CBE-S-CARB-C-003",
+  "rationale": "Identical CBE item; equal tier; CARB row is cleaner (no redundant up-arrow with (g)) and is filed under the right chapter."
+ },
+ {
+  "group": "EX66",
+  "id_a": "PYQ-M-2024-REALNUM-003",
+  "id_b": "M-REAL-7",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Same proof of irrationality of root 3, but the loser would be the promptD row M-REAL-7; only bank rows can be withheld here."
+ },
+ {
+  "group": "EX70",
+  "id_a": "2026-REP-SA-02",
+  "id_b": "S-REP-2",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Predicted vs promptD with the same text; neither is a bank row, so neither can be withheld here."
+ },
+ {
+  "group": "EX72",
+  "id_a": "M-TRIG-1",
+  "id_b": "M-TRIG-1",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX73",
+  "id_a": "M-TRIG-2",
+  "id_b": "M-TRIG-2",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX74",
+  "id_a": "M-TRIG-3",
+  "id_b": "M-TRIG-3",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX75",
+  "id_a": "M-TRIG-4",
+  "id_b": "M-TRIG-4",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX76",
+  "id_a": "M-TRIG-5",
+  "id_b": "M-TRIG-5",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX77",
+  "id_a": "M-TRIG-6",
+  "id_b": "M-TRIG-6",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX78",
+  "id_a": "M-TRIG-8",
+  "id_b": "M-TRIG-8",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX79",
+  "id_a": "M-TRIG-9",
+  "id_b": "M-TRIG-9",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX80",
+  "id_a": "M-TRIG-10",
+  "id_b": "M-TRIG-10",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX81",
+  "id_a": "M-APPTRIG-1",
+  "id_b": "M-APPTRIG-1",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX82",
+  "id_a": "M-APPTRIG-2",
+  "id_b": "M-APPTRIG-2",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX83",
+  "id_a": "M-APPTRIG-3",
+  "id_b": "M-APPTRIG-3",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX84",
+  "id_a": "M-APPTRIG-4",
+  "id_b": "M-APPTRIG-4",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX85",
+  "id_a": "M-APPTRIG-5",
+  "id_b": "M-APPTRIG-5",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX86",
+  "id_a": "M-APPTRIG-6",
+  "id_b": "M-APPTRIG-6",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX87",
+  "id_a": "M-APPTRIG-7",
+  "id_b": "M-APPTRIG-7",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX88",
+  "id_a": "M-APPTRIG-8",
+  "id_b": "M-APPTRIG-8",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX89",
+  "id_a": "M-APPTRIG-9",
+  "id_b": "M-APPTRIG-9",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "EX90",
+  "id_a": "M-APPTRIG-10",
+  "id_b": "M-APPTRIG-10",
+  "verdict": "distinct-surface",
+  "withhold": null,
+  "keep": null,
+  "rationale": "The same promptD row (same id) is listed twice; not a bank row, so it cannot be withheld here. Probably a double registration in the pack."
+ },
+ {
+  "group": "NR29",
+  "id_a": "RN-E09",
+  "id_b": "RN-E20",
+  "verdict": "duplicate",
+  "withhold": "RN-E09",
+  "keep": "RN-E20",
+  "rationale": "Same concept MCQ (non-zero rational times irrational); both LT-authored; E20 has stronger distractors and fuller explanation."
+ },
+ {
+  "group": "NR30",
+  "id_a": "PLE-M02",
+  "id_b": "PLE-N-NCERT-3-LA-002",
+  "verdict": "duplicate",
+  "withhold": "PLE-M02",
+  "keep": "PLE-N-NCERT-3-LA-002",
+  "rationale": "Same digits problem (sum 66, difference 2); NCERT adds 'how many', which the full answer covers anyway; official wins over LT-authored."
+ },
+ {
+  "group": "NR31",
+  "id_a": "QE-E20",
+  "id_b": "QE-N-NCERT-4-SH-006",
+  "verdict": "distinct",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Different data: sum of squares 61 vs 365 (answers 5,6 vs 13,14)."
+ },
+ {
+  "group": "NR32",
+  "id_a": "SQP-M-AP-001",
+  "id_b": "APQ-M-AP-002",
+  "verdict": "duplicate",
+  "withhold": "APQ-M-AP-002",
+  "keep": "SQP-M-AP-001",
+  "rationale": "Same AP MCQ; SQP outranks additional-practice official; SQP options are the official ones."
+ },
+ {
+  "group": "NR33",
+  "id_a": "CG-M01",
+  "id_b": "CG-N-NCERT-7-EX-005",
+  "verdict": "duplicate",
+  "withhold": "CG-M01",
+  "keep": "CG-N-NCERT-7-EX-005",
+  "rationale": "Same y-axis equidistant point question; official NCERT wins over LT-authored; NCERT row has a full solution."
+ },
+ {
+  "group": "NR34",
+  "id_a": "CG-H11",
+  "id_b": "CG-N-NCERT-7-EX-010",
+  "verdict": "duplicate",
+  "withhold": "CG-H11",
+  "keep": "CG-N-NCERT-7-EX-010",
+  "rationale": "Same parallelogram find-p question; official NCERT wins over LT-authored."
+ },
+ {
+  "group": "NR35",
+  "id_a": "CIR-H06",
+  "id_b": "PYQ-M-CIRC-014",
+  "verdict": "duplicate",
+  "withhold": "CIR-H06",
+  "keep": "PYQ-M-CIRC-014",
+  "rationale": "Same tangent supplementary-angle theorem; PYQ outranks LT-authored (the PYQ text has trailing ' 3 10' noise that needs cleanup)."
+ },
+ {
+  "group": "NR36",
+  "id_a": "SP-M-2022-CIRC-C-001",
+  "id_b": "APQ-M-CIRC-004",
+  "verdict": "duplicate",
+  "withhold": "APQ-M-CIRC-004",
+  "keep": "SP-M-2022-CIRC-C-001",
+  "rationale": "Same inscribed-circle radius question (r = 11 cm); sample paper outranks additional-practice official."
+ },
+ {
+  "group": "NR37",
+  "id_a": "PYQ-M-2024-CIRC-010a",
+  "id_b": "PYQ-M-2024-CIRC-011a",
+  "verdict": "partner-already-withheld",
+  "withhold": null,
+  "keep": "PYQ-M-2024-CIRC-010a",
+  "rationale": "Partner PYQ-M-2024-CIRC-011a already has a pending withhold."
+ },
+ {
+  "group": "NR38",
+  "id_a": "ARC-M02",
+  "id_b": "ARC-M06",
+  "verdict": "partner-already-withheld",
+  "withhold": null,
+  "keep": "ARC-M02",
+  "rationale": "Partner ARC-M06 already has a pending withhold."
+ },
+ {
+  "group": "NR39",
+  "id_a": "SAV-H05",
+  "id_b": "SAV-N-EXEM2-12-LA-006",
+  "verdict": "duplicate",
+  "withhold": "SAV-H05",
+  "keep": "SAV-N-EXEM2-12-LA-006",
+  "rationale": "Same pipe-and-pond question (same data); official exemplar wins over LT-authored."
+ },
+ {
+  "group": "NR40",
+  "id_a": "SAV2-R02",
+  "id_b": "SAV-N-NCERT-12-SA-005",
+  "verdict": "duplicate",
+  "withhold": "SAV2-R02",
+  "keep": "SAV-N-NCERT-12-SA-005",
+  "rationale": "Same hemisphere-and-cylinder vessel question; official NCERT wins over LT-authored."
+ },
+ {
+  "group": "NR41",
+  "id_a": "CBE-M-STAT-C-002",
+  "id_b": "CBE-M-STAT-C-003",
+  "verdict": "distinct",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Same data but different asks: mean (direct method) vs mode."
+ },
+ {
+  "group": "NR42",
+  "id_a": "PROB-M04",
+  "id_b": "PROB-N-NCERT-14-SA-004",
+  "verdict": "duplicate",
+  "withhold": "PROB-M04",
+  "keep": "PROB-N-NCERT-14-SA-004",
+  "rationale": "Same 90-discs probability question; official NCERT wins over LT-authored."
+ },
+ {
+  "group": "NR43",
+  "id_a": "CHEM-EXMPLR-1-MCQ-018",
+  "id_b": "PYQ-S-2026-CHEMRXN-002",
+  "verdict": "duplicate",
+  "withhold": "CHEM-EXMPLR-1-MCQ-018",
+  "keep": "PYQ-S-2026-CHEMRXN-002",
+  "rationale": "Same combination-reaction MCQ with the same options; PYQ outranks exemplar (the PYQ text has arrow glyph noise)."
+ },
+ {
+  "group": "NR44",
+  "id_a": "CBE-S-CHEM-A-006",
+  "id_b": "CBE-S-CHEM-A-007",
+  "verdict": "distinct",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Different asks: why oxidation vs why exothermic."
+ },
+ {
+  "group": "NR45",
+  "id_a": "METAL-NCERT-3-MCQ-003",
+  "id_b": "SCO-S-METAL-003",
+  "verdict": "duplicate",
+  "withhold": "SCO-S-METAL-003",
+  "keep": "METAL-NCERT-3-MCQ-003",
+  "rationale": "Same MCQ with the same options; official NCERT wins over transcribed third-party."
+ },
+ {
+  "group": "NR46",
+  "id_a": "SCQ-S-CARB-020",
+  "id_b": "SCQ-S-CARB-021",
+  "verdict": "distinct",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Different functional groups (-Cl vs -Br) with different answers."
+ },
+ {
+  "group": "NR47",
+  "id_a": "SCQ-S-CARB-020",
+  "id_b": "SCQ-S-CARB-022",
+  "verdict": "distinct",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Different functional groups (-Cl vs -OH) with different answers."
+ },
+ {
+  "group": "NR48",
+  "id_a": "SCQ-S-CARB-021",
+  "id_b": "SCQ-S-CARB-022",
+  "verdict": "distinct",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Different functional groups (-Br vs -OH) with different answers."
+ },
+ {
+  "group": "NR49",
+  "id_a": "SCQ-S-CARB-024",
+  "id_b": "SCQ-S-CARB-025",
+  "verdict": "distinct",
+  "withhold": null,
+  "keep": null,
+  "rationale": "-CHO (aldehyde) vs ketone ask; note CARB-025 is garbled (stray 'Ethanal 6.', missing group) and needs a separate fix."
+ },
+ {
+  "group": "NR50",
+  "id_a": "REP-E13",
+  "id_b": "REPR-NCERT-7-SA-010",
+  "verdict": "duplicate",
+  "withhold": "REP-E13",
+  "keep": "REPR-NCERT-7-SA-010",
+  "rationale": "Same puberty-changes-in-girls question; official NCERT wins over LT-authored."
+ },
+ {
+  "group": "NR51",
+  "id_a": "GDR-L-EQ-13",
+  "id_b": "GDR-L-CBJ-028",
+  "verdict": "duplicate",
+  "withhold": "GDR-L-EQ-13",
+  "keep": "GDR-L-CBJ-028",
+  "rationale": "Same five-part ray-diagram question; equal tier; CBJ-028 has cleaner wording and a diagram description."
+ },
+ {
+  "group": "NR52",
+  "id_a": "GDR-L-NUM-017",
+  "id_b": "GDR-L-NUM-018",
+  "verdict": "distinct",
+  "withhold": null,
+  "keep": null,
+  "rationale": "Different magnification (+3 vs -0.5), so the image nature is different."
+ }
+]

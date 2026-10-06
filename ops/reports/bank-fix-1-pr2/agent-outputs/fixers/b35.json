@@ -1,0 +1,286 @@
+[
+ {
+  "id": "S-MNM-5",
+  "surface": "promptD",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Flag concerns the pack-level topicKey spelling ('metals_nonmetals'), which is not a promptD row field. Row text is clean, in the 2026-27 Metals and Non-metals syllabus, and marks/questionType fit the task."
+ },
+ {
+  "id": "S-MNM-6",
+  "surface": "promptD",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Flag concerns the pack-level topicKey spelling ('metals_nonmetals'), which is not a promptD row field. Row text is clean, in the 2026-27 Metals and Non-metals syllabus, and marks/questionType fit the task."
+ },
+ {
+  "id": "S-MNM-7",
+  "surface": "promptD",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Flag concerns the pack-level topicKey spelling ('metals_nonmetals'), which is not a promptD row field. Row text is clean, in the 2026-27 Metals and Non-metals syllabus, and marks/questionType fit the task."
+ },
+ {
+  "id": "S-MNM-8",
+  "surface": "promptD",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Flag concerns the pack-level topicKey spelling ('metals_nonmetals'), which is not a promptD row field. Row text is clean, in the 2026-27 Metals and Non-metals syllabus, and marks/questionType fit the task."
+ },
+ {
+  "id": "S-MNM-9",
+  "surface": "promptD",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Flag concerns the pack-level topicKey spelling ('metals_nonmetals'), which is not a promptD row field. Row text is clean, in the 2026-27 Metals and Non-metals syllabus, and marks/questionType fit the task."
+ },
+ {
+  "id": "APQ-M-QE-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Manu and Aiza are competing in a 60 km cycling race. Aiza's average speed is 10 km/hr greater than Manu's average speed and she finished the race in 1/2 hour less than Manu. Find the time taken by Manu to finish the race.",
+   "answer": "Manu took 2 hours.",
+   "solutionSteps": [
+    "Let Manu's time = t hours, so Manu's speed = 60/t km/hr. Aiza's speed = 60/t + 10 and Aiza's time = t − 1/2.",
+    "Equation: (60/t + 10)(t − 1/2) = 60. Expand: 60 − 30/t + 10t − 5 = 60 ⟹ 10t − 30/t − 5 = 0.",
+    "Multiply by t: 10t^2 − 5t − 30 = 0 ⟹ 2t^2 − t − 6 = 0.",
+    "Factorise: (t − 2)(2t + 3) = 0 ⟹ t = 2 (reject t = −3/2).",
+    "Manu took 2 hours."
+   ],
+   "finalAnswer": "Manu took 2 hours.",
+   "strategyHint": "Write each rider's time as distance ÷ speed (or speed as distance ÷ time) and use the 1/2-hour difference to form the quadratic."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "OR variant needs the cuboid figure (its 5 cm side and h−4 water level are not in the text). Dropped the OR part; main cycling problem (t = 2 h) is self-contained and verified."
+ },
+ {
+  "id": "CBE-M-QE-A-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] Discriminant b² − 4ac = (−3)² − 4(1)(11) = 9 − 44 = −35 < 0, so there are no real roots. Answer: B."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Corrected arithmetic 9 − 44 = −35 (was −44). Conclusion D < 0, option B, unchanged."
+ },
+ {
+  "id": "PYQ-M-2024-QE-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If the quadratic equation ax² + bx + c = 0 has real and equal roots, then the value of c is :",
+   "options": [
+    "b/(2a)",
+    "−b/(2a)",
+    "b²/(4a)",
+    "−b²/(4a)"
+   ],
+   "answer": "b²/(4a)",
+   "solutionSteps": [
+    "Real and equal roots ⟹ D = b² − 4ac = 0 ⟹ 4ac = b² ⟹ c = b²/(4a). Correct option: (c)."
+   ],
+   "finalAnswer": "(c) b²/(4a)"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Rebuilt PDF-flattened fractions: 'a 2 b' = b/2a, 'a 4 b2' = b²/4a (key '(c) b2 4a' confirms b²/4a); stripped footer '1530/5/2'. D = 0 gives c = b²/4a."
+ },
+ {
+  "id": "PYQ-M-2025-QE-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A garden designer is planning a rectangular lawn that is to be surrounded by a uniform walkway. The total area of the lawn and the walkway is 360 square metres. The width of the walkway is same on all sides. The dimensions of the lawn itself are 12 metres by 10 metres. Based on the information given above, answer the following questions:\n(i) Formulate the quadratic equation representing the total area of the lawn and the walkway, taking width of walkway = x m.\n(ii) (a) Solve the quadratic equation to find the width of the walkway.\nOR\n(b) If the cost of paving the walkway at the rate of ₹50 per square metre is ₹12,000, calculate the area of the walkway.\n(iii) Find the perimeter of the lawn."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed leaked mark numbers (1, 2, 2, 1), restored truncated '(ii)(a) ... width of the walkway', added ₹ signs and line breaks. Answer verified: (12+2x)(10+2x)=360 ⟹ x=4; 240 m²; 44 m."
+ },
+ {
+  "id": "PYQ-M-QE-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The roots of the equation x² + 3x − 10 = 0 are :",
+   "options": [
+    "2, −5",
+    "−2, 5",
+    "2, 5",
+    "−2, −5"
+   ],
+   "answer": "2, −5",
+   "solutionSteps": [
+    "x² + 3x − 10 = x² + 5x − 2x − 10 = (x + 5)(x − 2) = 0 ⟹ x = 2 or x = −5. Correct option: (a) 2, −5."
+   ],
+   "finalAnswer": "(a) 2, −5"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Truncated distractors restored from the option pattern (sign pairs of 2 and 5: a and d already hold 2,−5 and −2,−5, so b = −2,5 and c = 2,5). Exactly one correct: (x+5)(x−2)=0 ⟹ 2, −5."
+ },
+ {
+  "id": "QE-N-EXMPLR-4-CB-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In the centre of a rectangular lawn of dimensions 50 m × 40 m, a rectangular pond is to be constructed so that the area of the grass surrounding the pond is 1184 m². The pond is centred, leaving a uniform border of grass of width w m all around it.\n(i) Find the area of the pond.\n(ii) Set up a quadratic equation in w using the given areas.\n(iii) Solve the equation to find w and hence the dimensions of the pond.",
+   "answer": "(i) Pond area = 2000 − 1184 = 816 m². (ii) (50 − 2w)(40 − 2w) = 816, i.e. w² − 45w + 296 = 0. (iii) w = 8 m, so the pond is 34 m × 24 m.",
+   "solutionSteps": [
+    "[1 mark] (i) Lawn area = 50 × 40 = 2000 m²; pond area = 2000 − 1184 = 816 m².",
+    "[1 mark] (ii) Pond is (50 − 2w) m × (40 − 2w) m, so (50 − 2w)(40 − 2w) = 816 ⇒ 4w² − 180w + 1184 = 0 ⇒ w² − 45w + 296 = 0.",
+    "[1 mark] (iii) w² − 8w − 37w + 296 = 0 ⇒ (w − 8)(w − 37) = 0 ⇒ w = 8 or w = 37.",
+    "[1 mark] (iii) w = 37 is rejected since 2w < 40. So w = 8 m and the pond is 34 m × 24 m (check: 34 × 24 = 816)."
+   ],
+   "finalAnswer": "(i) 816 m²; (ii) w² − 45w + 296 = 0; (iii) w = 8 m, pond = 34 m × 24 m."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Flagged scratch text is not in the served row; but the 4-mark case had only two parts. Restructured into CBSE (i)(ii)(iii) 1+1+2 with [1 mark] steps; maths unchanged and verified (w = 8, 34 m × 24 m)."
+ },
+ {
+  "id": "QE-N-EXMPLR-4-MCQ-002",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Served row has no explanation and no 'Wait…' scratch; steps are clean. Verified: (a)→2x²+2x−1=0, (b)→2x²−2x+5=0, (d)→4x²−3=0 quadratic; (c)→(2√6+5)x+3=0 linear. Key (c) correct."
+ },
+ {
+  "id": "QE-N-EXMPLR-4-MCQ-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "limit",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Scratch text not in served row and key (b) is right, but all four options have D < 0 (9−48, 9−12, 4.5−4√2, 9−36): it asks the sum of non-real roots, outside the 2026-27 real-roots-only limit. Exemplar row, not authored."
+ },
+ {
+  "id": "QE-N-NCERT-4-MCQ-001",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Served options are clean (no '(after simplification: linear)' text). Verified: (a)→x²+7=0 quadratic; (b) x+12=0, (c) −x+5=0, (d) 3x−5=0 are linear. Key (a) correct."
+ },
+ {
+  "id": "QE2-041",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Served steps have no 'Or if different interpretation' scratch. Verified: 2(p+1)=p² ⇒ p=1±√3; D=4(2p+1)≥0 needs p≥−1/2, so 1−√3≈−0.73 is rejected; p=1+√3. 3-mark Short fits."
+ },
+ {
+  "id": "QE2-053",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Served explanation is clean ('The correct answer is 3'), no contradicting scratch. Verified: 3(1/9) − 10/3 + k = 0 ⇒ −3 + k = 0 ⇒ k = 3; key '3' correct."
+ },
+ {
+  "id": "Z3-QE-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Whole case is about a quadratic function's graph: y-/x-intercepts, vertex for maximum profit. Not 2026-27 Class 10 QE. Three of four answers are also 'pending verification'. Not LazyTopper-authored, so withheld."
+ },
+ {
+  "id": "CBE-M-QE-E-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] Speed of minibus = (x + 10) km/hr; AC bus time − minibus time = 2 ⟹ 600/x − 600/(x + 10) = 2.",
+    "[1 mark] 600(x + 10) − 600x = 2x(x + 10) ⟹ 6000 = 2x² + 20x ⟹ x² + 10x − 3000 = 0.",
+    "[1 mark] (x + 60)(x − 50) = 0 ⟹ x = 50 or x = −60; reject the negative value, so the speed of the AC bus = 50 km/hr."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single word problem with no case sub-parts. Not authored (CBE), so re-tagged to its true form: Section C 3-mark Short, with three [1 mark] steps. Verified x² + 10x − 3000 = 0 ⟹ 50 km/hr."
+ },
+ {
+  "id": "qe-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "A ball is thrown upwards and its height h (in metres) after t seconds is given by h = −5t² + 20t.\n(i) After how many seconds does the ball hit the ground?\n(ii) At what times is the ball at a height of 15 m?\n(iii) For what value of k will −5t² + 20t = k have equal roots? Hence find the greatest height reached by the ball and the time at which it is reached.",
+   "answer": "(i) t = 4 s. (ii) t = 1 s and t = 3 s. (iii) k = 20; greatest height 20 m, reached at t = 2 s.",
+   "explanation": "Each part is solved as a quadratic equation: h = 0 for landing, h = 15 for the given height, and equal roots (D = 0) for the single highest point.",
+   "solutionSteps": [
+    "[1 mark] (i) h = 0 ⟹ −5t² + 20t = 0 ⟹ 5t(4 − t) = 0 ⟹ t = 0 (launch) or t = 4. The ball hits the ground after 4 s.",
+    "[1 mark] (ii) −5t² + 20t = 15 ⟹ t² − 4t + 3 = 0 ⟹ (t − 1)(t − 3) = 0 ⟹ t = 1 s (going up) and t = 3 s (coming down).",
+    "[1 mark] (iii) 5t² − 20t + k = 0 has equal roots when D = (−20)² − 4(5)(k) = 400 − 20k = 0 ⟹ k = 20.",
+    "[1 mark] (iii) With k = 20 the ball reaches that height only once, so it is the greatest height, 20 m; the equal root t = 20/(2 × 5) = 2 s."
+   ],
+   "finalAnswer": "(i) 4 s; (ii) 1 s and 3 s; (iii) k = 20; greatest height 20 m at t = 2 s."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: (a)/(b) asked for the vertex (beyond Class 10). Rebuilt as a 1+1+2 case solved only by equations: landing time, times at 15 m, and equal roots giving the 20 m peak at 2 s. Added the missing steps."
+ },
+ {
+  "id": "2026-QE-AR-05",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): The equation x² − 6x + 11 = 0 has no real roots. Reason (R): If D = b² − 4ac < 0, the quadratic equation has no real roots.",
+   "section": "A",
+   "marks": 1,
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "For A: a = 1, b = −6, c = 11; D = (−6)² − 4(1)(11) = 36 − 44 = −8 < 0, so the equation has no real roots. A is true. [½]",
+    "R is a true property (D < 0 ⟹ no real roots), and it is exactly why A holds. So both are true and R correctly explains A. [½]"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Reason rephrased from 'complex (non-real) roots' (out of syllabus) to 'no real roots'. AR is a 1-mark Section A format, so changed from Section B 2 marks to Section A 1 mark, with [½]+[½] steps. Key unchanged."
+ }
+]

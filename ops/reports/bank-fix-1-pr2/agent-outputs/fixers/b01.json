@@ -1,0 +1,364 @@
+[
+ {
+  "id": "PYQ-S-2026-ACID-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "metals-and-non-metals",
+   "options": [
+    "Na2O",
+    "K2O",
+    "CO2",
+    "Al2O3"
+   ],
+   "answer": "Al2O3",
+   "solutionSteps": [
+    "[1 mark] Correct option: (d) Al2O3 — aluminium oxide reacts with both acids and bases to form salt and water, so it is amphoteric (Na2O, K2O are basic; CO2 is acidic)."
+   ],
+   "finalAnswer": "(d) Al2O3"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stripped '{ } of 32' footer from option/answer/steps; key unchanged. Amphoteric oxides are taught in NCERT Ch 3, so topicKey moved to metals-and-non-metals."
+ },
+ {
+  "id": "PYQ-S-2026-ACID-012",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Reaction of Acids with Metals",
+   "questionText": "In an activity, zinc granules are treated with dilute sulphuric acid and the hydrogen gas evolved is collected. If acetic acid of the same concentration is taken in place of dilute sulphuric acid, then:",
+   "options": [
+    "the same amount of H2 gas will be evolved.",
+    "H2 gas will not be evolved.",
+    "H2 gas will be evolved in a lesser amount.",
+    "O2 gas will be evolved in place of H2 gas."
+   ],
+   "answer": "H2 gas will be evolved in a lesser amount.",
+   "solutionSteps": [
+    "[1 mark] Correct option: (c) — acetic acid is a weak acid that ionises only partially, giving fewer H+ ions, so H2 gas is evolved more slowly / in a lesser amount than with dilute sulphuric acid."
+   ],
+   "finalAnswer": "(c) H2 gas will be evolved in a lesser amount."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Described the standard NCERT Zn + dil. H2SO4 set-up in words (figure not needed to answer); removed '{ } of 32' residue; tidied option grammar; key unchanged."
+ },
+ {
+  "id": "PYQ-S-2026-ACID-013",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Reaction of Acids with Metals",
+   "options": [
+    "copper and zinc",
+    "copper and iron",
+    "silver and magnesium",
+    "magnesium and aluminium"
+   ],
+   "answer": "magnesium and aluminium",
+   "solutionSteps": [
+    "[1 mark] Correct option: (d) magnesium and aluminium — both are above hydrogen in the reactivity series and displace H2 from dilute HCl; copper and silver do not."
+   ],
+   "finalAnswer": "(d) magnesium and aluminium"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stripped '{ } of 32' footer from option (d), answer, steps and finalAnswer; key unchanged."
+ },
+ {
+  "id": "PYQ-S-2026-ACID-014",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nature of Metal Oxides",
+   "questionText": "Magnesium ribbon burns with a dazzling white flame and changes into a white powder. The powder is dissolved in water. Identify the chemical formula of the white powder and the correct change observed when the solution is tested with litmus paper.",
+   "solutionSteps": [
+    "[1 mark] Correct option: (b) — Mg burns to form MgO, which dissolves in water to give Mg(OH)2, a base; so the solution turns red litmus blue."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed stray marks residue '1' and the unneeded figure reference; key (b) unchanged; added a reason to the step."
+ },
+ {
+  "id": "PYQ-S-ACID-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Conduction of Electricity by Acids",
+   "questionText": "Two iron nails fixed on a rubber cork are placed in a beaker and connected through a bulb and a switch to a 6 V battery. If the experiment is carried out separately with each of the following solutions in the beaker, the cases in which the bulb will glow is/are: (i) Dilute hydrochloric acid (ii) Dilute sulphuric acid (iii) Glucose solution (iv) Alcohol",
+   "solutionSteps": [
+    "[1 mark] Correct option: (c) (i) and (ii) — dilute HCl and dilute H2SO4 produce H+ ions in water and conduct electricity; glucose and alcohol do not ionise, so the bulb does not glow."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Described the standard NCERT conductivity set-up (nails, bulb, 6 V battery) so the row is self-contained; key (c) unchanged."
+ },
+ {
+  "id": "PYQ-S-ACID-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Olfactory Indicators",
+   "solutionSteps": [
+    "[1 mark] Correct option: (a) Clove oil and vanilla essence — their odour changes in acidic/basic media, so they are olfactory indicators; turmeric, litmus and methyl orange are colour indicators."
+   ],
+   "finalAnswer": "(a) Clove oil and vanilla essence"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced marking-scheme residue 'a) 1 1' in finalAnswer/steps with the real answer and reason; key unchanged."
+ },
+ {
+  "id": "PYQ-S-ACID-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Uses of Baking Soda",
+   "solutionSteps": [
+    "[1 mark] Correct option: (d) Baking soda — a very small amount of mildly basic NaHCO3 shifts the pH of fresh milk from 6 slightly towards alkaline, delaying curdling (lactic acid formation)."
+   ],
+   "finalAnswer": "(d) Baking soda (Sodium hydrogen carbonate)"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced marking-scheme residue 'd) 1 1' with the real answer and reason; key unchanged."
+ },
+ {
+  "id": "PYQ-S-ACID-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "metals-and-non-metals",
+   "solutionSteps": [
+    "[1 mark] Correct option: (c) — an amphoteric oxide (e.g. Al2O3, ZnO) shows both acidic and basic behaviour, reacting with acids as well as bases to form salt and water."
+   ],
+   "finalAnswer": "(c) It reacts with both acid as well as base to form salt and water."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced residue 'c) 1 1' with the real answer; amphoteric oxides are taught in NCERT Ch 3, so topicKey moved to metals-and-non-metals; key unchanged."
+ },
+ {
+  "id": "PYQ-S-ACID-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] Correct option: (c) — HCl gas dissolves in water and ionises; the H+ ions combine with water molecules to form hydronium ions: HCl + H2O → H3O+ + Cl−."
+   ],
+   "finalAnswer": "(c) Hydrogen chloride gas and water"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced marking-scheme residue 'c) 1 1' with the real answer and equation; key unchanged."
+ },
+ {
+  "id": "SCO-S-ACID-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Plaster of Paris",
+   "questionText": "Plaster of Paris is made from:",
+   "solutionSteps": [
+    "[1 mark] Correct option is (d) gypsum — heating gypsum (CaSO4·2H2O) at 373 K gives Plaster of Paris (CaSO4·½H2O)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fixed stem typo 'Plaster of pairs' -> 'Plaster of Paris'; added reason; key unchanged."
+ },
+ {
+  "id": "SCO-S-ACID-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Universal Indicator and pH",
+   "questionText": "The correct statement regarding universal indicator is:",
+   "options": [
+    "it is an indicator having pH = 7",
+    "it gives blue colour at pH = 3",
+    "it becomes colourless at pH = 7",
+    "it gives orange colour at pH = 3"
+   ],
+   "answer": "it gives orange colour at pH = 3",
+   "solutionSteps": [
+    "[1 mark] Correct option is (d) — universal indicator shows different colours over the pH range; an acidic solution of pH 3 gives an orange(-red) colour, while pH 7 gives green (not colourless) and blue appears only in basic range."
+   ],
+   "finalAnswer": "(d) it gives orange colour at pH = 3"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options were 'pH 3 =' inversions of 'pH = 3'; restored unambiguously from the text; key (d) unchanged; added reason."
+ },
+ {
+  "id": "SCO-S-ACID-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Indicators",
+   "options": [
+    "changed to red",
+    "changed first to red and then to blue",
+    "changed blue to colourless",
+    "remains blue in both the solutions"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed page header 'Chap 2 : Acid Base and Salt' from option (a); key unchanged."
+ },
+ {
+  "id": "SCO-S-ACID-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Bleaching Powder",
+   "solutionSteps": [
+    "[0.5 mark] Correct option is (b) lime present in it.",
+    "[0.5 mark] Bleaching powder (CaOCl2) contains some unreacted slaked lime, Ca(OH)2, which is only sparingly soluble in water; this gives the solution a milky appearance."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Repaired garbled explanation '( ) Ca OH 2' to Ca(OH)2 with clear reasoning; key unchanged."
+ },
+ {
+  "id": "SCO-S-ACID-017",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "pH in Everyday Substances",
+   "solutionSteps": [
+    "[0.5 mark] Correct option is (a) apple juice.",
+    "[0.5 mark] Apple juice has a pH of about 3 to 4 (less than 7), so it is acidic; soap solution, slaked lime and lime are basic (pH more than 7)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Repaired garbled explanation 'The pH of varies from 3-35 to 4 ... is , acidic'; key unchanged."
+ },
+ {
+  "id": "SCQ-S-ACID-038",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Indicators and pH of Salts",
+   "questionText": "(a) Define a universal indicator. Mention its one use.\n(b) Solution 'A' gives pink colour when a drop of phenolphthalein indicator is added to it. Solution 'B' gives a red colour when a drop of methyl orange is added to it. What type of solutions are 'A' and 'B' and which of these will have higher pH?\n(c) Name one salt whose solution has pH greater than 7 and one salt whose solution has pH less than 7.",
+   "answer": "(a) A universal indicator is a mixture of several indicators that shows different colours at different pH values; it is used to find the approximate pH (strength) of a solution. (b) 'A' is basic and 'B' is acidic; 'A' has the higher pH (more than 7). (c) pH > 7: sodium carbonate (Na2CO3); pH < 7: ammonium chloride (NH4Cl) (or copper sulphate, CuSO4).",
+   "solutionSteps": [
+    "[1 mark] (a) Universal indicator is a mixture of indicators showing different colours at different pH values; use: to determine the approximate pH / strength of an acid or base.",
+    "[1 mark] (b) Phenolphthalein turns pink in a base, so 'A' is basic; methyl orange turns red in an acid, so 'B' is acidic; hence 'A' has the higher pH (> 7).",
+    "[1 mark] (c) Na2CO3 (salt of strong base + weak acid) gives pH > 7; NH4Cl (salt of strong acid + weak base) gives pH < 7."
+   ],
+   "finalAnswer": "(a) Mixture of indicators; finds pH. (b) A basic, B acidic; A has higher pH. (c) Na2CO3 (pH > 7); NH4Cl (pH < 7)."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed page header from part (c); completed truncated answer and the 'pH is more than,' gap; split into 3 x [1 mark] steps."
+ },
+ {
+  "id": "APQ-S-ACID-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Reaction of H2 and Cl2; Acidic Nature of Wet HCl",
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "questionText": "In the chlor-alkali process, electrolysis of brine gives gas 'X' (chlorine) at the anode and gas 'Y' (hydrogen) at the cathode.\n(i) Write a balanced chemical equation for the reaction that takes place when 'X' and 'Y' react with each other.\n(ii) The product so formed turns blue litmus red only when it is wet, not when dry. Why?",
+   "answer": "(i) H2 + Cl2 → 2HCl. (ii) Dry HCl gas does not release H+ ions; only in the presence of water does it ionise (HCl + H2O → H3O+ + Cl−), and these H+ ions turn blue litmus red.",
+   "solutionSteps": [
+    "[1 mark] (i) H2(g) + Cl2(g) → 2HCl(g).",
+    "[1 mark] (ii) HCl shows acidic behaviour only in water: HCl + H2O → H3O+ + Cl−; dry HCl gives no H+ ions, so only wet HCl turns blue litmus red."
+   ],
+   "finalAnswer": "(i) H2 + Cl2 → 2HCl; (ii) H+ (H3O+) ions form only in the presence of water."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Not a real case (no sub-parts, context missing, CBSE-sourced): made the stem self-contained with (i)/(ii) and re-tagged to its true size — Section B, 2-mark Short; steps re-marked 1+1."
+ },
+ {
+  "id": "APQ-S-ACID-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Sonia has aqueous solutions of three salts — sodium acetate, sodium chloride and ammonium chloride — in three test tubes. The test tubes are not labelled. On checking, she finds the pH of the solutions to be 4.6, 7.0 and 8.9. Which of the following correctly matches the salts with their respective pH?",
+   "options": [
+    "pH 4.6 = sodium acetate, pH 7.0 = sodium chloride, pH 8.9 = ammonium chloride",
+    "pH 4.6 = sodium chloride, pH 7.0 = ammonium chloride, pH 8.9 = sodium acetate",
+    "pH 4.6 = ammonium chloride, pH 7.0 = sodium acetate, pH 8.9 = sodium chloride",
+    "pH 4.6 = ammonium chloride, pH 7.0 = sodium chloride, pH 8.9 = sodium acetate"
+   ],
+   "answer": "pH 4.6 = ammonium chloride, pH 7.0 = sodium chloride, pH 8.9 = sodium acetate",
+   "finalAnswer": "(d) pH 4.6 = ammonium chloride, pH 7.0 = sodium chloride, pH 8.9 = sodium acetate"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Option contents were embedded in the stem with bare 'A-D' options; moved them into the options (recovered verbatim); same key (d)."
+ },
+ {
+  "id": "BX-ABS-E-002",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Audit false positive: 'as shown' is from '(i) ... as shown by the test?' — no figure is referenced; requiresDiagram:false; case is self-contained with 4 x 1-mark sub-parts and correct answers."
+ },
+ {
+  "id": "CFPQ-S-ABS-013",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "pH is measured using a pH meter, which comprises a detecting unit consisting of a pH sensitive glass electrode and an indicating unit which displays the pH reading on a screen.\n\nTo measure the pH of a solution, the glass electrode is dipped into the solution and the pH is displayed on the screen of the indicating unit. Before measuring the pH of another solution, the glass electrode is rinsed with distilled water and dried carefully with tissue paper.\n\nHow is the pH reading of the second solution likely to be affected if the glass electrode is not dried with tissue paper in the following cases?\n(i) if the second solution being measured is acidic in nature\n(ii) if the second solution being measured is basic in nature",
+   "solutionSteps": [
+    "[1 mark] (i) Water left on the electrode dilutes the acidic solution, lowering its H+ ion concentration, so the meter shows a slightly higher pH than the actual value.",
+    "[1 mark] (ii) Water left on the electrode dilutes the basic solution, lowering its OH− ion concentration, so the meter shows a slightly lower pH than the actual value."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Photo of the pH meter is decorative, not needed to answer; replaced 'as shown below' with a words description; added the dilution reason to steps; answer unchanged."
+ },
+ {
+  "id": "sci-abs-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) P (pH 2) is strongly acidic and S (pH 13) is strongly basic — lower pH means more H+ ions, higher pH more OH− ions.",
+    "[1 mark] (b) Q (pH 7) is neutral.",
+    "[1 mark] (c) Mixing the strong acid P with the strong base S causes a neutralisation reaction.",
+    "[1 mark] (c) Products are a salt and water, e.g. HCl + NaOH → NaCl + H2O."
+   ],
+   "finalAnswer": "(a) P strongly acidic, S strongly basic; (b) Q neutral; (c) neutralisation — salt + water.",
+   "explanation": "pH < 7 is acidic (the lower, the stronger), pH 7 is neutral and pH > 7 is basic (the higher, the stronger). An acid and a base react to form salt and water (neutralisation)."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added missing 4-mark marking scheme (1+1+1+1), finalAnswer and a real explanation; answer unchanged."
+ }
+]

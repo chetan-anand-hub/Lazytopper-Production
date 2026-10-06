@@ -1,0 +1,242 @@
+[
+ {
+  "id": "BX-REP-E1-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A piece of ginger kept in a warm, moist kitchen corner sprouts green shoots from the knobs on its surface. Answer the following: (i) Identify the plant part that ginger represents. (ii) Name the type of reproduction taking place. (iii) Explain how the new shoots arise and whether the new plants will be genetically identical to the parent."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A nursery raises sugarcane by planting stem cuttings, each piece bearing at least one node. Within weeks, roots grow from the base and a shoot grows from the node. Answer the following: (i) Name the method of propagation. (ii) State which part of the cutting gives rise to the shoot and which to the roots. (iii) Give one reason a grower prefers cuttings to seeds for sugarcane."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A gardener bends a low branch of a guava plant to the ground and buries a part of it in moist soil while it is still joined to the parent. After roots develop on the buried part, he cuts it off to get a new guava plant. Answer the following: (i) Name this technique of propagation. (ii) Why is the branch kept attached to the parent during the process? (iii) State one advantage of this method over growing guava from seed."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A horticulturist joins a cut shoot of a superior mango variety onto the rooted stem of an ordinary mango plant, binds the joint, and later the plant bears the superior fruit in fewer years than a seed-grown tree would. Answer the following: (i) Name the two parts joined and identify each. (ii) Name and describe the technique. (iii) State one condition necessary for the joint to succeed."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-012",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A plant laboratory grows thousands of banana saplings from tiny bits of banana tissue placed on a nutrient jelly inside sterile bottles. The resulting plants are healthy and disease-free. Answer the following: (i) Name this technique. (ii) Outline the main steps involved. (iii) State two advantages of this method."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-013",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A farmer owns one mango tree that yields unusually sweet fruit. An expert advises him to multiply it by vegetative propagation rather than by sowing its seeds if he wants every new tree to give the same sweet fruit. Answer the following: (i) Why would seeds NOT reliably give the same sweet fruit? (ii) Which methods of vegetative propagation could the farmer use? (iii) Give the genetic reason why vegetatively raised trees keep the sweet trait."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-014",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In a home aquarium, a Hydra develops a small bulge on the side of its body. Over a few days this bulge grows tentacles, and finally it detaches to live as a separate tiny Hydra. Answer the following: (i) Name the mode of reproduction shown by Hydra. (ii) Describe how the new individual forms. (iii) How does this process differ from binary fission?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-015",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In a biology practical, students dissect a hibiscus flower and separate its parts into four sets arranged in rings (whorls) on the flower base. Answer the following: (i) Name the four whorls of the flower from outside inwards. (ii) Which whorls are reproductive, and name the parts of each. (iii) Why is the hibiscus called a bisexual flower?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-016",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A student covers some flower buds of a plant with paper bags before their anthers ripen, and leaves other flowers uncovered. The bagged flowers still set seed. Answer the following: (i) Define self-pollination and cross-pollination. (ii) Why were the flowers bagged before the anthers ripened? (iii) What does the seed-set inside the bags tell the student?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-017",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A student compares two flowers. A grass flower is small, dull-coloured, scentless, with feathery exposed stigmas and large amounts of light, dry pollen. A rose flower is large, brightly coloured, scented, and has sticky pollen. Answer the following: (i) Name the pollinating agent for each flower. (ii) Give two adaptations of the grass flower that suit its agent. (iii) Give two adaptations of the rose flower that suit its agent."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-018",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "During a garden survey a student collects four kinds of seeds/fruits: a light winged seed, a coconut, a burr covered in tiny hooks, and a dry pea pod that snaps open. Answer the following: (i) Match each to its likely dispersal agent. (ii) State one structural feature that helps each of the four disperse. (iii) State why seed dispersal is important for a plant."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-019",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A student sets up three jars with gram seeds: Jar 1 keeps the seeds dry; Jar 2 fully submerges them in boiled, cooled water and is sealed; Jar 3 keeps them moist with cotton but exposed to air. Only the seeds in Jar 3 germinate. Answer the following: (i) Name three conditions needed for germination. (ii) Why did the seeds in Jar 2 fail? (iii) Why did the seeds in Jar 1 fail?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-020",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A grower of a popular seedless variety of grapes wants to raise many new plants, but his fruit produces no seeds to sow. Answer the following: (i) Why can he not raise these plants from seeds? (ii) Which general mode of reproduction solves his problem? (iii) Name two suitable methods he can use."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-021",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A nursery finds that rose plants raised from cuttings flower in the very first year and all look alike, whereas roses grown from seeds take much longer and give plants that differ from one another. Answer the following: (i) Explain why cuttings flower much sooner. (ii) Explain why the seed-grown plants vary but the cuttings do not. (iii) State one drawback of raising the whole crop from cuttings."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-023",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "An onion kept in storage sprouts green leaves and forms small daughter bulbs at its base. Answer the following: (i) What plant part is the onion bulb? (ii) Name the type of reproduction taking place. (iii) Explain how new plants form and state their genetic relationship to the parent."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-024",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A strawberry plant sends out a slender horizontal stem that creeps along the ground; where this stem touches the soil some distance away, roots and a new little plant develop. Answer the following: (i) Name this creeping horizontal stem. (ii) Name the type of reproduction. (iii) State one advantage of reproducing this way."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-025",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A student compares how bread mould (Rhizopus) spreads by air-borne spores with how a mango tree spreads by seeds. Answer the following: (i) State one similarity between spores and seeds. (ii) State two differences (in the number of parents and in variation of offspring). (iii) Which of the two gives rise to variation, and why is that useful?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-026",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "After grafting a mango, a gardener wraps the joined region with grafting tape/wax and keeps it shaded for some days. Answer the following: (i) Why does he cover the graft union? (ii) Which tissue of the scion and stock must unite for the graft to succeed? (iii) What happens if the scion and stock are of very different, incompatible kinds?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-027",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "After a bee deposits pollen on the stigma of a flower, a slender tube grows down through the style, and a few days later the flower begins to form a fruit. Answer the following: (i) Name this tube and state what it carries. (ii) Trace the path of the tube up to the point of fertilisation. (iii) Define fertilisation as it occurs here."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ },
+ {
+  "id": "BX-REP-E1-028",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A student observes a pea flower after fertilisation: the petals and stamens wither and fall off, while the ovary gradually swells and ripens into a pod containing seeds. Answer the following: (i) What does each ovule develop into? (ii) What does the ovary develop into? (iii) What happens to the zygote, and why do the petals and stamens fall off?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray \"Answer:\" in stem means \"answer the following\"; rewritten as \"Answer the following:\" per rule 11. Case, sub-parts, 4-mark Section E tagging and 1+1+1+1 steps verified correct; answers unchanged."
+ }
+]

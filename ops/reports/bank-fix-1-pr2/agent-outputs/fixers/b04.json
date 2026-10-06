@@ -1,0 +1,366 @@
+[
+ {
+  "id": "arc-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "A designer creates a table mat in the shape of a sector of a circle with radius 28 cm and central angle 90°. (Use π = 22/7.)\n(i) Find the area of the sector.\n(ii) Find the length of the arc of the sector.\n(iii) The mat is further cut along the radius bisecting its angle into two equal parts. Find the central angle and the area of each part.",
+   "answer": "(i) 616 cm² (ii) 44 cm (iii) Each part is a sector of angle 45°, area 308 cm².",
+   "finalAnswer": "(i) 616 cm² (ii) 44 cm (iii) 45°, 308 cm² each",
+   "solutionSteps": [
+    "[1 mark] (i) Area of sector = (θ/360°) × πr² = (90/360) × (22/7) × 28² = (1/4) × (22/7) × 784 = 616 cm².",
+    "[1 mark] (ii) Arc length = (θ/360°) × 2πr = (90/360) × 2 × (22/7) × 28 = (1/4) × 176 = 44 cm.",
+    "[1 mark] (iii) Cutting along the bisecting radius gives two sectors, each of central angle 90°/2 = 45°.",
+    "[1 mark] Area of each part = (45/360) × (22/7) × 784 = (1/8) × 2464 = 308 cm² (= 616/2)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Added CBSE-style 1+1+2 solutionSteps and finalAnswer; relabelled parts (i)-(iii) and made part (iii) a proper 2-mark step (angle + area). Values unchanged."
+ },
+ {
+  "id": "ARC2-033",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "A",
+   "marks": 1,
+   "subtopic": "Segment Area",
+   "questionText": "Assertion (A): The area of the minor segment of a circle of radius r, whose chord subtends an angle of 90° at the centre, is (π/4 − 1/2)r².\nReason (R): Area of a segment = area of the corresponding sector − area of the corresponding triangle.",
+   "answer": "Both A and R are true, and R is the correct explanation of A.",
+   "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+   "solutionSteps": [
+    "[1 mark] Sector area = (90/360)πr² = (π/4)r²; triangle area = (1/2)·r·r = r²/2 (right angle at centre); segment = (π/4 − 1/2)r², so A is true, and it is obtained exactly by R (sector − triangle). Hence option (a)."
+   ],
+   "explanation": "A is true: for θ = 90°, sector = πr²/4 and the right triangle = r²/2, so the minor segment = (π/4 − 1/2)r². R is the standard segment formula and is exactly how A is obtained, so R correctly explains A."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Semicircle-as-segment (180°) is outside the 60/90/120 segment limit and non-standard; authored row rewritten to a 90° segment A-R, retagged to Section A 1-mark."
+ },
+ {
+  "id": "ARC-H03",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Bending sectors into cones (slant = radius, arc = base circumference) is not in 2026-27 Areas Related to Circles or SA&V; cannot be naturally repaired within the chapter limit."
+ },
+ {
+  "id": "ARC-M11",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Triangle minus three 60° vertex sectors is within the sector carve-out (audit itself proposes no action). Check: 9√3 ≈ 15.59, 3×(60/360)×π×1² = π/2 ≈ 1.57, shaded ≈ 14.02 cm². Stem self-contained; 2 marks fits."
+ },
+ {
+  "id": "ARC-H05",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] Each quadrant subtends 90° at the centre: area of one quadrant = (90/360) × πr² = (1/4) × (22/7) × 7² = 38.5 cm².",
+    "[1 mark] Shaded region = two opposite quadrants = 2 × 38.5 = 77 cm²."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "One-line computation (two quadrants = half circle) was padded to 5 marks; retagged Section B 2-mark Short, Easy, with 2 steps. Answer 77 cm² unchanged."
+ },
+ {
+  "id": "ARC2-012",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A circular pizza of radius 14 cm is cut into two equal parts by a diameter. Each half is then divided into sectors with central angle 60°. A child eats one such sector. (Use π = 22/7.)\n(i) How many such sectors is the whole pizza divided into?\n(ii) Find the area of the sector eaten by the child.\n(iii) Find the area of the pizza remaining.",
+   "answer": "(i) 6 sectors (ii) 308/3 ≈ 102.67 cm² (iii) 1540/3 ≈ 513.33 cm²",
+   "finalAnswer": "(i) 6 (ii) ≈ 102.67 cm² (iii) ≈ 513.33 cm²",
+   "solutionSteps": [
+    "[1 mark] (i) Each half (180°) gives 180°/60° = 3 sectors, so the pizza has 2 × 3 = 6 sectors.",
+    "[1 mark] (ii) Area of sector = (60/360) × (22/7) × 14² = (1/6) × 616 = 308/3 ≈ 102.67 cm².",
+    "[1 mark] (iii) Total area of pizza = πr² = (22/7) × 196 = 616 cm².",
+    "[1 mark] Remaining area = 616 − 308/3 = 1540/3 ≈ 513.33 cm²."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Case-Based 4-mark item had only two parts; restructured into (i)/(ii)/(iii) = 1+1+2 by adding a sector-count part; existing values retained and steps re-marked."
+ },
+ {
+  "id": "ARC2-013",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A park has a circular garden of radius 7 m. A path of width 1 m is constructed along the boundary of the garden, inside it. (Use π = 22/7.)\n(i) Find the radius of the inner circular region.\n(ii) Find the area of the inner circular region.\n(iii) Find the area of the path.",
+   "answer": "(i) 6 m (ii) 792/7 ≈ 113.14 m² (iii) 286/7 ≈ 40.86 m²",
+   "finalAnswer": "(i) 6 m (ii) ≈ 113.14 m² (iii) ≈ 40.86 m²",
+   "solutionSteps": [
+    "[1 mark] (i) Inner radius = 7 − 1 = 6 m.",
+    "[1 mark] (ii) Area of inner region = π × 6² = (22/7) × 36 = 792/7 ≈ 113.14 m².",
+    "[1 mark] (iii) Area of path = π(R² − r²) = (22/7)(7² − 6²) = (22/7) × 13.",
+    "[1 mark] = 286/7 ≈ 40.86 m²."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Case-Based 4-mark item had only two parts; restructured to 1+1+2 (inner radius, inner area, path area). Values unchanged, steps re-marked."
+ },
+ {
+  "id": "ARC2-016",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "difficulty": "Easy",
+   "answer": "32π cm² ≈ 100.48 cm² (π = 3.14)",
+   "finalAnswer": "32π cm² ≈ 100.48 cm² (π = 3.14)",
+   "solutionSteps": [
+    "[1 mark] Each sector has central angle 360°/4 = 90°, so the two red sectors together subtend 180°.",
+    "[1 mark] Red area = (180/360) × π × 8² = 32π ≈ 100.48 cm² (π = 3.14)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Two quarter-sectors = half circle is a 2-mark computation, not a 5-mark Long; retagged Section B 2-mark Short, Easy; clarified π value for the decimal."
+ },
+ {
+  "id": "APQ-M-AP-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Deep Space 1 ion propulsion engine produced a constant acceleration. The average velocities of the spacecraft (in km/hr) in its first 6 months were: 27360, 30915, 34470, 38025, 41580, 45135. When the spacecraft passed asteroid Braille, its average monthly velocity was 55800 km/hr.\n(i) Does the average monthly velocity form an arithmetic progression? Justify.\n(ii) The distance travelled in the first 10 months can be expressed as 7300p km, where p is the sum of the average monthly velocities for the first 10 months. Find p.\n(iii) The spacecraft passed comet Borelly 15 months after it passed Braille. Find the average monthly velocity when it passed Borelly.\nOR\n(iii) After how many months did the spacecraft pass Braille?",
+   "answer": "(i) Yes, AP with d = 3555 km/hr. (ii) p = 4,33,575. (iii) 1,09,125 km/hr. [OR] 9th month.",
+   "finalAnswer": "(i) Yes (AP, d = 3555); (ii) p = 4,33,575; (iii) 1,09,125 km/hr [OR] in the 9th month."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored the missing first-6-month velocity data (27360…45135), recoverable from the row's own solution (a = 27360, d = 3555); stem split into parts. Answers verified."
+ },
+ {
+  "id": "CASE-MATHS-AP-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Case Study: A school auditorium has seats arranged in rows. The first row has 10 seats, the second row has 13 seats, the third row has 16 seats, and so on, each row having 3 more seats than the previous row. The auditorium has 20 rows in total. Every row having 55 or more seats is reserved as a VIP row.\n\n(i) How many seats are in the 15th row?\n\n(ii) What is the total seating capacity of the auditorium?\n\n(iii) Which is the first VIP row? How many VIP rows are there in total?",
+   "answer": "(i) 52 seats (ii) 770 seats (iii) First VIP row is row 16; there are 5 VIP rows (rows 16 to 20).",
+   "finalAnswer": "(i) 52 (ii) 770 (iii) Row 16; 5 VIP rows",
+   "solutionSteps": [
+    "[1 mark] (i) AP with a = 10, d = 3: a₁₅ = 10 + 14 × 3 = 52 seats.",
+    "[1 mark] (ii) S₂₀ = (20/2)[2 × 10 + 19 × 3] = 10 × 77 = 770 seats.",
+    "[1 mark] (iii) VIP condition: aₙ ≥ 55 ⇒ 10 + (n − 1) × 3 ≥ 55 ⇒ n − 1 ≥ 15 ⇒ n ≥ 16, so the first VIP row is row 16 (a₁₆ = 55 seats).",
+    "[1 mark] VIP rows are rows 16, 17, 18, 19, 20 ⇒ 20 − 16 + 1 = 5 VIP rows."
+   ],
+   "explanation": "(i) a₁₅ = 10 + 14 × 3 = 52. (ii) S₂₀ = 10 × 77 = 770. (iii) aₙ ≥ 55 gives n ≥ 16, so rows 16–20 are VIP rows: 5 rows."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Part (iii) referenced an undefined VIP threshold and the stored answer was self-contradictory; defined VIP as ≥ 55 seats, solved (row 16, 5 rows), removed inline part-mark labels, steps 1+1+2."
+ },
+ {
+  "id": "PYQ-M-2024-AP-001a",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If the sum of the first m terms of an A.P. is the same as the sum of its first n terms (m ≠ n), then show that the sum of its first (m + n) terms is zero.",
+   "answer": "Since Sₘ = Sₙ with m ≠ n, 2a + (m + n − 1)d = 0, hence S₍ₘ₊ₙ₎ = ((m + n)/2)[2a + (m + n − 1)d] = 0.",
+   "finalAnswer": "S₍ₘ₊ₙ₎ = 0 (shown)",
+   "subtopic": "Sum of n Terms",
+   "solutionSteps": [
+    "[1 mark] Sₘ = Sₙ ⇒ (m/2)[2a + (m − 1)d] = (n/2)[2a + (n − 1)d] ⇒ 2a(m − n) + d[(m² − n²) − (m − n)] = 0.",
+    "[1 mark] Dividing by (m − n) ≠ 0: 2a + d(m + n − 1) = 0.",
+    "[1 mark] S₍ₘ₊ₙ₎ = ((m + n)/2)[2a + (m + n − 1)d] = ((m + n)/2) × 0 = 0. Hence proved."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored spaces and 'm ≠ n' in the stem (recoverable with certainty); rewrote truncated proof as a complete 3-step solution."
+ },
+ {
+  "id": "PYQ-M-2024-AP-002b",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "n = 16, d = 8/3",
+   "finalAnswer": "n = 16, d = 8/3",
+   "solutionSteps": [
+    "[1 mark] a = 5, l = 45, Sₙ = (n/2)(a + l) ⇒ 400 = (n/2)(5 + 45) = 25n.",
+    "[1 mark] n = 16.",
+    "[1 mark] l = a + (n − 1)d ⇒ 45 = 5 + 15d ⇒ d = 40/15 = 8/3."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer/steps were truncated ('d = 40 15 or'); completed: n = 16, d = 8/3."
+ },
+ {
+  "id": "PYQ-M-2025-AP-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): Common difference of the AP 5, 1, −3, −7, … is 4.\nReason (R): Common difference of the AP a₁, a₂, a₃, …, aₙ is obtained by d = aₙ − aₙ₋₁.",
+   "answer": "Assertion (A) is false but Reason (R) is true.",
+   "finalAnswer": "(d) Assertion (A) is false, but Reason (R) is true.",
+   "solutionSteps": [
+    "[1 mark] d = 1 − 5 = −4 (not 4), so A is false; R is the correct definition d = aₙ − aₙ₋₁, so R is true. Option (d)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored lost minus signs and the claim '… is 4' (consistent with the official key (d)); R restored to d = aₙ − aₙ₋₁. Step added."
+ },
+ {
+  "id": "PYQ-M-2025-AP-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A school is organizing a charity run to raise funds for a local hospital. The run is planned as a series of rounds around a track, with each round being 300 metres. To make the event more challenging and engaging, the organizers decide to increase the distance of each subsequent round by 50 metres. For example, the second round will be 350 metres, the third round will be 400 metres and so on. The total number of rounds planned is 10. Based on the information given above, answer the following questions:\n(i) Write the fourth, fifth and sixth terms of the Arithmetic Progression so formed.\n(ii) Determine the distance of the 8th round.\n(iii) (a) Find the total distance run after completing all 10 rounds.\nOR\n(iii) (b) If a runner completes only the first 6 rounds, what is the total distance run by the runner?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed stray mark numerals (1, 1, 2, 2) left from PDF extraction; wording otherwise unchanged. Answers verified (450/500/550, 650, 5250 / 2550)."
+ },
+ {
+  "id": "PYQ-M-AP-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(A) How many terms are there in an A.P. whose first and fifth terms are −14 and 2 respectively, and the last term is 62?\nOR\n(B) Which term of the A.P. 65, 61, 57, 53, … is the first negative term?",
+   "answer": "(A) 20 terms. OR (B) The 18th term (a₁₈ = −3) is the first negative term.",
+   "finalAnswer": "(A) 20 terms OR (B) 18th term (= −3)",
+   "solutionSteps": [
+    "[1 mark] (A) a = −14, a₅ = a + 4d = 2 ⇒ 4d = 16 ⇒ d = 4.",
+    "[1 mark] aₙ = 62 ⇒ −14 + (n − 1) × 4 = 62 ⇒ n − 1 = 19.",
+    "[1 mark] n = 20, so there are 20 terms.",
+    "OR (B) [1 mark] a = 65, d = −4; for the first negative term aₙ < 0 ⇒ 65 + (n − 1)(−4) < 0 ⇒ 69 − 4n < 0.",
+    "[1 mark] n > 69/4 = 17.25, so the least integer n = 18.",
+    "[1 mark] a₁₈ = 65 − 17 × 4 = −3; the 18th term is the first negative term."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed stray '3' mark residue, restored minus signs; completed truncated solution for both OR parts: (A) 20 terms, (B) 18th term (−3)."
+ },
+ {
+  "id": "PYQ-M-AP-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In an A.P., the sum of the first n terms is given by Sₙ = 6n − n². Find its 30th term.",
+   "answer": "a₃₀ = −53",
+   "finalAnswer": "a₃₀ = −53",
+   "solutionSteps": [
+    "[1 mark] S₁ = 6 − 1 = 5 ⇒ a = 5.",
+    "[1 mark] S₂ = 12 − 4 = 8 ⇒ a₂ = 8 − 5 = 3 ⇒ d = 3 − 5 = −2.",
+    "[1 mark] a₃₀ = a + 29d = 5 + 29(−2) = −53."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored minus sign in Sₙ = 6n − n²; replaced garbled/truncated solution: a = 5, d = −2, a₃₀ = −53."
+ },
+ {
+  "id": "PYQ-M-AP-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "d = 3",
+   "finalAnswer": "d = 3",
+   "solutionSteps": [
+    "[1 mark] a = 8, l = 65, Sₙ = (n/2)(a + l) ⇒ 730 = (n/2)(73).",
+    "[1 mark] n = (730 × 2)/73 = 20.",
+    "[1 mark] l = a + (n − 1)d ⇒ 65 = 8 + 19d ⇒ 19d = 57 ⇒ d = 3."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer truncated and had typo '18 + 19d'; completed: n = 20, 65 = 8 + 19d, d = 3."
+ },
+ {
+  "id": "2026-AP-CASE-04",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A staircase is built so that the heights of its steps (in cm), from the bottom, form an AP: 14, 15, 16, … The top step is 20 cm high.\n(i) Find the common difference of the AP.\n(ii) How many steps are there in the staircase?\n(iii) Find the total height climbed from the bottom to the top of the staircase.",
+   "answer": "(i) d = 1 cm (ii) 7 steps (iii) 119 cm",
+   "finalAnswer": "(i) 1 cm (ii) 7 steps (iii) 119 cm",
+   "explanation": "Common difference from consecutive terms; nth term formula for the number of steps; sum of AP for total height.",
+   "solutionSteps": [
+    "(i) d = 15 − 14 = 1 cm. [1]",
+    "(ii) aₙ = a + (n − 1)d ⇒ 20 = 14 + (n − 1)(1) ⇒ n = 7 steps. [1]",
+    "(iii) Sₙ = (n/2)(a + l) ⇒ S₇ = (7/2)(14 + 20). [1]",
+    "S₇ = (7/2) × 34 = 119 cm. [1]"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Case-Based 4-mark item had no sub-parts; restructured into (i)/(ii)/(iii) = 1+1+2 with clean steps. Values (d = 1, n = 7, 119 cm) unchanged."
+ },
+ {
+  "id": "CBE-M-AP-A-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "MCQ",
+   "questionText": "A person repays a car loan in monthly installments, starting with a first installment of Rs. 1000 and increasing the installment by Rs. 200 every month. If there are 40 installments in total, the amount paid in the last installment is:",
+   "options": [
+    "Rs. 8600",
+    "Rs. 8800",
+    "Rs. 9000",
+    "Rs. 7800"
+   ],
+   "answer": "Rs. 8800",
+   "finalAnswer": "Rs. 8800"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "1-mark Section A row tagged Case-Based showed an orphan part '(c)' with no options; made it a self-contained MCQ (correct option verified: 1000 + 39×200 = 8800)."
+ },
+ {
+  "id": "ap-comp-02",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "Riya saves ₹50 in the first week, ₹55 in the second week, ₹60 in the third week, and so on.\n(i) Is this an AP? If yes, find the common difference.\n(ii) How much will she save in the 15th week?\n(iii) Find her total savings after 20 weeks.",
+   "answer": "(i) Yes, d = ₹5. (ii) a₁₅ = 50 + 14 × 5 = ₹120. (iii) S₂₀ = 20/2 [2(50) + 19(5)] = 10 × 195 = ₹1950.",
+   "finalAnswer": "(i) Yes, d = ₹5 (ii) ₹120 (iii) ₹1950",
+   "solutionSteps": [
+    "[1 mark] (i) 55 − 50 = 60 − 55 = 5 (constant), so it is an AP with d = ₹5.",
+    "[1 mark] (ii) a₁₅ = a + 14d = 50 + 14 × 5 = ₹120.",
+    "[1 mark] (iii) S₂₀ = (20/2)[2 × 50 + 19 × 5] = 10 × [100 + 95].",
+    "[1 mark] S₂₀ = 10 × 195 = ₹1950."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Added 1+1+2 CBSE solutionSteps and finalAnswer; relabelled parts (i)-(iii). Values verified."
+ }
+]

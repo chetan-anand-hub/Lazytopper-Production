@@ -1,0 +1,353 @@
+[
+ {
+  "id": "PR2-023",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "Total cards = 52",
+    "Red cards (hearts + diamonds) = 13 + 13 = 26",
+    "P(red) = 26/52 = 1/2"
+   ],
+   "explanation": "Total cards = 52. Red cards (hearts + diamonds) = 13 + 13 = 26. P(red) = 26/52 = 1/2. Therefore, the correct answer is 1/2."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Fixed '26 + 26 = 26' to '13 + 13 = 26' in steps/explanation. A 4-option MCQ is a 1-mark Section A item, not 2-mark Section B; retagged A/1/Easy."
+ },
+ {
+  "id": "PR2-042",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A school organised a lottery for its 100 students. A box contains 100 tickets, one for each student, of which 25 are winning tickets. Each student draws one ticket at random, and a drawn ticket is not put back. Answer the following:\n(i) What is the probability that the first student draws a winning ticket?\n(ii) What is the probability that the first student draws a losing ticket?\n(iii) After 10 winning and 15 losing tickets have been drawn, what is the probability that the next student draws a winning ticket? Also find the probability that this student draws a losing ticket.",
+   "answer": "(i) 1/4 (ii) 3/4 (iii) P(winning) = 1/5, P(losing) = 4/5",
+   "finalAnswer": "(i) 1/4 (ii) 3/4 (iii) P(winning) = 1/5, P(losing) = 4/5",
+   "solutionSteps": [
+    "[1 mark] (i) Total tickets = 100, winning = 25, so P(winning) = 25/100 = 1/4",
+    "[1 mark] (ii) Losing tickets = 100 − 25 = 75, so P(losing) = 75/100 = 3/4",
+    "[1 mark] (iii) Tickets left = 100 − 25 = 75; winning left = 25 − 10 = 15; losing left = 75 − 15 = 60",
+    "[1 mark] (iii) P(winning) = 15/75 = 1/5 and P(losing) = 60/75 = 4/5"
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Stem now states 100 tickets (25 winning), draws without return, and (iii) asks for a specific event. Restructured to (i)(ii)(iii) 1+1+2. Dropped (iv) (trivial check)."
+ },
+ {
+  "id": "PROB-E14",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): Probability of any event lies between 0 and 1 inclusive.\nReason (R): For any event, the number of favourable outcomes is never negative and never exceeds the total number of possible outcomes.",
+   "explanation": "P(E) = (number of favourable outcomes)/(total number of outcomes). The numerator is at least 0 and at most the denominator, so 0 ≤ P(E) ≤ 1. Both A and R are true and R is the correct explanation of A."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Reason only restated A (degenerate). Rewrote R as the property that the solutionSteps already used (0 ≤ favourable ≤ total). The key (a) is unchanged and correct. Replaced the generic explanation."
+ },
+ {
+  "id": "PROB-N-EXEM-14-AR-001",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "The served row has no explanation field and no leaked reasoning. Steps are correct: P(1)=1/6≠5/6=P(not 1), so A is false. R is true, so the key (D) is right. The flag does not apply to the runtime row."
+ },
+ {
+  "id": "PYQ-M-2024-PROB-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Number of shirts without major defects = 48 + 4 = 52. P(acceptable to Anmol) = 52/60 = 13/15.",
+   "solutionSteps": [
+    "[1 mark] Anmol rejects only shirts with major defects, so acceptable shirts = 48 + 4 = 52 (out of 60).",
+    "[1 mark] P(acceptable to Anmol) = 52/60 = 13/15."
+   ],
+   "finalAnswer": "13/15"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Truncated answer restored: 52/60 = 13/15. Step-marked to 2 marks."
+ },
+ {
+  "id": "PYQ-M-2024-PROB-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Total cards left = 52 − 3 − 3 = 46. (i) P(club) = 10/46 = 5/23. (ii) P(red card) = 23/46 = 1/2.",
+   "solutionSteps": [
+    "[1 mark] Cards left = 52 − 6 = 46. Clubs left = 13 − 3 = 10, so P(club) = 10/46 = 5/23.",
+    "[1 mark] Red cards left = 13 hearts + (13 − 3) diamonds = 23, so P(red) = 23/46 = 1/2."
+   ],
+   "finalAnswer": "(i) 5/23 (ii) 1/2"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Restored the garbled fractions: 10/46 = 5/23 and 23/46 = 1/2, each worth 1 mark."
+ },
+ {
+  "id": "PYQ-M-2024-PROB-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In a survey on holidays, 120 people were asked to state which type of transport they used on their last holiday. The results are shown in a pie chart with these sector angles: Bus 36°, Ship 33°, Car 177°. The remaining 114° of the chart is made up of the Train and Aeroplane sectors. Answer the following questions:\n(i) If one person is selected at random, find the probability that he/she travelled by bus or ship.\n(ii) Which is the most favourite mode of transport and how many people used it?\n(iii) (a) A person is selected at random. If the probability that he did not use train is 4/5, find the number of people who used train.\nOR\n(iii) (b) The probability that a randomly selected person used aeroplane is 7/60. Find the revenue collected by the air company at the rate of ₹5,000 per person.",
+   "answer": "(i) 23/120 (ii) Car, 59 people (iii)(a) 24 people OR (iii)(b) 14 people used aeroplane; revenue = 14 × 5000 = ₹70,000"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Stem de-spaced, mark numbers and footer removed. The pie is described only by the angles in the row's own steps (36°, 33°, 177°) and its answers (train + aeroplane = 24 + 14 people = 114°). The answer field now holds all the parts."
+ },
+ {
+  "id": "PYQ-M-2025-PROB-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Selecting a number from the numbers 1 to 20 always gives one of those numbers. So the event is certain and its probability is 1: A is true.",
+    "R is the definition of a sure event (P(E) = 1), which is true. It explains why the probability in A is 1, so the answer is (a)."
+   ],
+   "finalAnswer": "(a) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A)."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed the conflicting residue '1 20 Sol. (C)…' from steps and finalAnswer. Kept the official key (a): picking a number from 1–20 is a sure event, so P = 1."
+ },
+ {
+  "id": "PYQ-M-2025-PROB-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Total outcomes = 36. Outcomes with difference 2: (1,3), (3,1), (2,4), (4,2), (3,5), (5,3), (4,6), (6,4) = 8. P = 8/36 = 2/9.",
+   "solutionSteps": [
+    "[1 mark] Total outcomes when two dice are thrown = 6 × 6 = 36.",
+    "[1 mark] Favourable outcomes (difference 2): (1,3), (3,1), (2,4), (4,2), (3,5), (5,3), (4,6), (6,4) = 8.",
+    "[1 mark] P(difference is 2) = 8/36 = 2/9."
+   ],
+   "finalAnswer": "2/9"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Truncated answer completed: 8/36 = 2/9. Steps split into 3 marks."
+ },
+ {
+  "id": "PYQ-M-2025-PROB-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Population with blue eyes = (100 − 65 − 25)% = 10%. (a) P(blue eyes) = 10/100 = 1/10. (b) P(brown or black eyes) = 90/100 = 9/10.",
+   "solutionSteps": [
+    "[1 mark] Percentage with blue eyes = 100% − 65% − 25% = 10%.",
+    "[1 mark] (a) P(blue eyes) = 10/100 = 1/10.",
+    "[1 mark] (b) P(brown or black eyes) = (65 + 25)/100 = 90/100 = 9/10."
+   ],
+   "finalAnswer": "(a) 1/10 (b) 9/10"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Garbled and truncated fractions restored: 1/10 and 9/10."
+ },
+ {
+  "id": "PYQ-M-2025-PROB-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Cards left = 52 − 3 = 49. (a) P(face card) = 9/49. (b) P(ace or jack) = (4 + 3)/49 = 7/49 = 1/7.",
+   "solutionSteps": [
+    "[1 mark] Removing the 3 face cards of spades leaves 52 − 3 = 49 cards.",
+    "[1 mark] (a) Face cards left = 12 − 3 = 9, so P(face card) = 9/49.",
+    "[1 mark] (b) Aces = 4, jacks left = 3 (jack of spades removed), so P(ace or jack) = 7/49 = 1/7."
+   ],
+   "finalAnswer": "(a) 9/49 (b) 1/7"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Truncated answer restored: (a) 9/49, (b) 7/49 = 1/7."
+ },
+ {
+  "id": "PYQ-M-2026-PROB-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(a) White balls = 5, red balls = 15. (b) P(black or white) = (7 + 5)/35 = 12/35.",
+   "solutionSteps": [
+    "[1 mark] (a) White + red balls = 35 − 7 − 8 = 20. Let white = x, so red = 20 − x.",
+    "[1 mark] (a) P(red) = 3 × P(white) ⇒ (20 − x)/35 = 3x/35 ⇒ 20 − x = 3x ⇒ x = 5. So white = 5 and red = 15.",
+    "[1 mark] (b) Black or white balls = 7 + 5 = 12.",
+    "[1 mark] (b) P(black or white) = 12/35."
+   ],
+   "finalAnswer": "(a) 15 red balls (b) 12/35"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "The denominator was lost ('7+5 35 = 12'). Restored 12/35 and rebuilt the part (a) working: x = 5 white, 15 red. Steps sum to 4 marks."
+ },
+ {
+  "id": "PYQ-M-PROB-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "1/20",
+    "1/50",
+    "1/25",
+    "1/100"
+   ],
+   "answer": "1/25",
+   "solutionSteps": [
+    "Perfect cubes from 1 to 100 are 1, 8, 27 and 64, which is 4 numbers. P = 4/100 = 1/25. Correct option: (c) 1/25."
+   ],
+   "finalAnswer": "(c) 1/25"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Options had lost their '1/' numerators (the key in the row reads '1 25'). Restored the fractions. Only 1/25 is correct: 4 cubes out of 100."
+ },
+ {
+  "id": "PYQ-M-PROB-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "1/4",
+    "1/20",
+    "1/25",
+    "1/5"
+   ],
+   "answer": "1/5",
+   "solutionSteps": [
+    "Total tickets = 5 + 20 = 25. P(prize) = 5/25 = 1/5. Correct option: (d) 1/5."
+   ],
+   "finalAnswer": "(d) 1/5"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "The fraction numerators were lost (key '𝟏 𝟓'). Restored them as 1/x. Only 1/5 is correct (5/25); the others are wrong."
+ },
+ {
+  "id": "PYQ-M-PROB-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "1/9",
+    "1/6",
+    "1/12",
+    "1/18"
+   ],
+   "answer": "1/12",
+   "solutionSteps": [
+    "Sum greater than 10: (5,6), (6,5), (6,6), which is 3 outcomes out of 36. P = 3/36 = 1/12. Correct option: (c) 1/12."
+   ],
+   "finalAnswer": "(c) 1/12"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "The fraction numerators were lost (key '𝟏 𝟏𝟐'). Restored them as 1/x. Only 1/12 is correct (3/36)."
+ },
+ {
+  "id": "PYQ-M-PROB-012",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Computer-based learning (CBL) refers to any teaching methodology that makes use of computers for information transmission. At an elementary school level, computer applications can be used to display multimedia lesson plans. A survey was done on 1000 elementary and secondary schools of Assam and they were classified by the number of computers they had:\nNumber of computers: 1–10 | 11–20 | 21–50 | 51–100 | 101 and more\nNumber of schools: 250 | 200 | 290 | 180 | 80\nOne school is chosen at random. Then:\n(i) Find the probability that the school chosen at random has more than 100 computers.\n(ii) (a) Find the probability that the school chosen at random has 50 or fewer computers.\nOR\n(ii) (b) Find the probability that the school chosen at random has no more than 20 computers.\n(iii) Find the probability that the school chosen at random has 10 or fewer computers.",
+   "answer": "(i) 80/1000 = 0.08 (ii)(a) (250 + 200 + 290)/1000 = 740/1000 = 0.74 OR (ii)(b) (250 + 200)/1000 = 450/1000 = 0.45 (iii) 250/1000 = 0.25"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Rebuilt the flattened table as rows; the counts sum to 1000. Removed inline mark numbers and fixed the inverted fractions ('1000 80') in the answer."
+ },
+ {
+  "id": "SQP-M-PROB-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "There is a square board of side '2a' units circumscribing a red circle. The region of the board outside the circle (inside the square) is shaded. Jayadev is asked to keep a dot on the board. The probability that he keeps the dot on the shaded region is"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "The stem now states that the shaded region is the part of the square outside the circle, which is exactly what the row's own solution uses. No figure is needed after that. Key (B) (4 − π)/4 is unchanged."
+ },
+ {
+  "id": "prob-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) Total balls = 5 + 4 + 3 = 12. P(red) = 5/12.",
+    "[1 mark] (b) Balls that are not blue = 12 − 3 = 9. P(not blue) = 9/12 = 3/4.",
+    "[1 mark] (c) Green or blue = 4 + 3 = 7. P(green or blue) = 7/12.",
+    "[1 mark] (d) New total = 14, red = 7. P(red) = 7/14 = 1/2."
+   ],
+   "finalAnswer": "(a) 5/12 (b) 3/4 (c) 7/12 (d) 1/2",
+   "explanation": "Total balls = 12. P(red) = 5/12; P(not blue) = 1 − 3/12 = 3/4; P(green or blue) = 7/12. After adding 2 red balls, total = 14 and red = 7, so P(red) = 1/2."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added a 4×1-mark solutionSteps scheme, a finalAnswer and a real explanation. The answers were already correct."
+ },
+ {
+  "id": "PR2-019",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A school is organising a raffle draw in which 100 tickets are sold, numbered 1 to 100. Ramesh buys 2 of these tickets. One ticket is drawn at random for the first prize.\n(i) What is the probability that the drawn ticket is one of Ramesh's tickets?\n(ii) What is the probability that the drawn ticket is not one of Ramesh's tickets?\n(iii) The school decides that the 5 tickets numbered 96 to 100 are reserved for teachers and removes them before the draw. Ramesh's tickets are not among them. Find the new probability that Ramesh wins the first prize, and the probability that he does not.",
+   "answer": "(i) 1/50 (ii) 49/50 (iii) P(wins) = 2/95, P(does not win) = 93/95",
+   "finalAnswer": "(i) 1/50 (ii) 49/50 (iii) 2/95, 93/95",
+   "solutionSteps": [
+    "[1 mark] (i) Total outcomes = 100, favourable = 2, so P = 2/100 = 1/50",
+    "[1 mark] (ii) P(not Ramesh's) = 1 − 1/50 = 49/50",
+    "[1 mark] (iii) Tickets left in the draw = 100 − 5 = 95, of which Ramesh holds 2",
+    "[1 mark] (iii) P(Ramesh wins) = 2/95, so P(does not win) = 1 − 2/95 = 93/95"
+   ],
+   "difficulty": "Medium"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row. The two-ticket without-replacement compound probability is beyond 'simple problems'. Rewritten as single-draw events, 1+1+2, with the complement kept."
+ },
+ {
+  "id": "PR2-020",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A school has 200 students: 120 boys and 80 girls. A student is selected randomly. (i) Find the probability of selecting a boy. (ii) Find the probability of selecting a girl. (iii) If 20 new girls join the school, find the probability that a student selected at random from the school is now a girl.",
+   "answer": "(i) 3/5 (ii) 2/5 (iii) 5/11",
+   "finalAnswer": "(i) 3/5 (ii) 2/5 (iii) 5/11",
+   "solutionSteps": [
+    "[1 mark] (i) P(boy) = 120/200 = 3/5",
+    "[1 mark] (ii) P(girl) = 80/200 = 2/5",
+    "[1 mark] (iii) New total = 200 + 20 = 220; girls = 80 + 20 = 100",
+    "[1 mark] (iii) P(girl) = 100/220 = 5/11"
+   ],
+   "difficulty": "Medium"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row. Part (iii) used two successive draws without replacement (compound probability, beyond the limit). Replaced it with a single-event change-of-sample question, marked 1+1+2. Note: the pyqYear 2025 tag is doubtful."
+ }
+]

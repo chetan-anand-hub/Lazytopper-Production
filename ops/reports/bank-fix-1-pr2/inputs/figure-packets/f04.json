@@ -1,0 +1,531 @@
+[
+ {
+  "id": "REPR-EXMPLR-7-MCQ-019",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/how-do-organisms-reproduce/REPR-EXMPLR-7-MCQ-019.webp"
+  ],
+  "runtime_row": {
+   "id": "REPR-EXMPLR-7-MCQ-019",
+   "subject": "Science",
+   "topicKey": "how-do-organisms-reproduce",
+   "subtopic": "Seed Structure",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Remembering",
+   "questionText": "In Figure 8.1, the parts A, B and C are sequentially (parts of a germinating seed)",
+   "options": [
+    "cotyledon, plumule and radicle",
+    "plumule, radicle and cotyledon",
+    "plumule, cotyledon and radicle",
+    "radicle, cotyledon and plumule"
+   ],
+   "answer": "plumule, cotyledon and radicle",
+   "solutionSteps": [
+    "REQUIRES-FIGURE: refer to Fig. 8.1 of NCERT Exemplar.",
+    "Standard seed parts: plumule (future shoot, top), cotyledon (food store, middle), radicle (future root, bottom)."
+   ],
+   "finalAnswer": "(c) Plumule, cotyledon, radicle.",
+   "ncertRef": "Exemplar Q19",
+   "isCompetencyBased": false,
+   "strategyHint": "REQUIRES-FIGURE: needs Fig. 8.1 from Exemplar."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem refers to 'Figure 8.1' parts A, B, C; no figure or diagramDescription; unanswerable as served.",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Labels A, B, C are defined only in Exemplar Fig. 8.1, which is absent; cannot be answered without the figure."
+  }
+ },
+ {
+  "id": "EYE-EXMPLR-10-MCQ-003",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/human-eye-and-colourful-world/EYE-EXMPLR-10-MCQ-003.webp"
+  ],
+  "runtime_row": {
+   "id": "EYE-EXMPLR-10-MCQ-003",
+   "subject": "Science",
+   "topicKey": "human-eye-and-colourful-world",
+   "subtopic": "Dispersion of Light",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Hard",
+   "bloomSkill": "Analysing",
+   "questionText": "A prism ABC (with BC as base) is placed in different orientations. A narrow beam of white light is incident on the prism as shown in Figure 11.1. In which of the following cases, after dispersion, the third colour from the top corresponds to the colour of the sky?",
+   "options": [
+    "(i)",
+    "(ii)",
+    "(iii)",
+    "(iv)"
+   ],
+   "answer": "(iii)",
+   "solutionSteps": [
+    "The sky appears blue, so the colour of the sky = blue.",
+    "In the VIBGYOR spectrum, the third colour (from the violet end) is Blue (Violet, Indigo, Blue, ...).",
+    "In the orientation where dispersion produces the spectrum with violet at top and red at bottom, the third colour from the top is blue — matching the colour of the sky.",
+    "This corresponds to orientation (iii) in Figure 11.1."
+   ],
+   "finalAnswer": "(iii) — option (c)",
+   "ncertRef": "Exemplar MCQ Q3",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: Figure 11.1 shows four prism orientations (i)-(iv); the answer depends on which has the spectrum with V at top so that 3rd colour from top = Blue = sky colour."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem depends on \"Figure 11.1\" (four prism orientations) that is neither shown nor described; options (i)-(iv) unanswerable",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Options (i)-(iv) are prism orientations shown only in Exemplar Figure 11.1, which is not in the text; unanswerable without the figure."
+  }
+ },
+ {
+  "id": "PYQ-S-2025-EYE-003",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-science/human-eye-and-colourful-world/PYQ-S-2025-EYE-003.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-S-2025-EYE-003",
+   "subject": "Science",
+   "topicKey": "human-eye-and-colourful-world",
+   "subtopic": "Dispersion of Light",
+   "section": "E",
+   "marks": 4,
+   "format": "Case-Based",
+   "difficulty": "Hard",
+   "bloomSkill": "Understanding",
+   "questionText": "A person allowed a narrow beam of white light from the sun to enter a dark room through a small aperture and placed a glass prism in its path in such a manner that the beam falls on the face AB of the prism as shown in the figure. A screen S is placed on the other side of the prism, facing AC. On turning the prism slowly, a beautiful band of colours is obtained on the screen. It is the spectrum of sunlight. (a) Name the phenomenon due to which a prism splits the incident white light into a band of colours. (b) State the reason of getting a band of seven colours in the above case. (c) (i) Explain with the help of a labelled ray diagram, an experimental arrangement to show the recombination of the spectrum of white light. 2 OR (c) (ii) Draw a labelled ray diagram to show the formation of a rainbow.",
+   "answer": "When spectrum produced by prism A is passed through the prism B, a beam of white light emerges from the other side of the prism B.",
+   "solutionSteps": [
+    "a) Dispersion of light",
+    "Different colours of light bend through different angles with respect to the incident ray as they pass through a prism.",
+    "(c) (i) Two identical prisms are placed in inverted position with respect to each other as shown.",
+    "When spectrum produced by prism A is passed through the prism B, a beam of white light emerges from the other side of the prism B."
+   ],
+   "finalAnswer": "When spectrum produced by prism A is passed through the prism B, a beam of white light emerges from the other side of the prism B.",
+   "ncertRef": "PYQ 31/2/1 Q39",
+   "isCompetencyBased": true,
+   "pyqYear": "2025",
+   "pyqSet": "1"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem has leftover mark '2'; steps omit (b) label and the OR (c)(ii) rainbow diagram; answer field is only a fragment of (c)(i)",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A person allowed a narrow beam of white light from the sun to enter a dark room through a small aperture and placed a glass prism in its path so that the beam falls on the face AB of the prism. A screen S is placed on the other side of the prism, facing AC. On turning the prism slowly, a beautiful band of colours is obtained on the screen. It is the spectrum of sunlight.\n(a) Name the phenomenon due to which a prism splits the incident white light into a band of colours. (1)\n(b) State the reason for getting a band of seven colours in the above case. (1)\n(c) (i) Explain with the help of a labelled ray diagram an experimental arrangement to show the recombination of the spectrum of white light. (2)\nOR\n(c) (ii) Draw a labelled ray diagram to show the formation of a rainbow. (2)",
+    "answer": "(a) Dispersion of light. (b) Different colours of light bend through different angles with respect to the incident ray as they pass through the prism. (c)(i) Two identical prisms are placed in inverted position with respect to each other; when the spectrum produced by prism A passes through prism B, a beam of white light emerges from prism B. OR (c)(ii) Labelled diagram: sunlight refracted and dispersed on entering a raindrop, internally reflected at the back, refracted again on leaving, red and violet emerging separately.",
+    "solutionSteps": [
+     "(a) Dispersion of light.",
+     "(b) Different colours of white light bend through different angles with respect to the incident ray as they pass through a prism, so they separate into seven colours.",
+     "(c)(i) Diagram: two identical prisms A and B, with B placed inverted with respect to A; white light enters A, is dispersed into a spectrum which then falls on B.",
+     "(c)(i) The spectrum produced by prism A, on passing through prism B, recombines and a beam of white light emerges from the other side of prism B.",
+     "OR (c)(ii) Diagram: a raindrop with sunlight refracted and dispersed on entering, internally reflected at the back surface, and refracted again on emerging, with red and violet rays labelled."
+    ],
+    "finalAnswer": "(a) Dispersion. (b) Different colours bend through different angles in the prism. (c)(i) Two identical prisms, the second inverted, recombine the spectrum into white light. OR (c)(ii) Rainbow: refraction + dispersion, internal reflection, refraction in a raindrop."
+   },
+   "rationale": "Removed leftover mark '2' and 'as shown in the figure' (setup fully described); labelled part marks; completed answer/steps for (b) and OR (c)(ii)."
+  }
+ },
+ {
+  "id": "PYQ-S-2026-EYE-002",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-science/human-eye-and-colourful-world/PYQ-S-2026-EYE-002.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-S-2026-EYE-002",
+   "subject": "Science",
+   "topicKey": "human-eye-and-colourful-world",
+   "subtopic": "General",
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "Study the given diagram and answer the questions that follow : (a) Write the name of the eye defect shown in the diagram. Where is the image formed in this eye defect with respect to the retina of the eye ? () () ,",
+   "answer": "become too small.",
+   "solutionSteps": [
+    "(a) • Hypermetropia/ Far Sightedness • Behind the retina.",
+    "(b) • Focal length of the eye lens is too long. • The eye ball has",
+    "become too small."
+   ],
+   "finalAnswer": "become too small.",
+   "ncertRef": "PYQ 31/3/1 Q35",
+   "isCompetencyBased": true,
+   "pyqYear": "2026",
+   "pyqSet": "1"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem garbled ('() () ,'), part (b) missing from stem, diagram needed but not described; answer field is fragment 'become too small.'",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Asks to identify the defect from a diagram not in the text; part (b) is missing from the stem and stem is garbled. Not authored; cannot reconstruct without inventing."
+  }
+ },
+ {
+  "id": "SCO-S-EYE-007",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/chapterwise-science/human-eye-and-colourful-world/SCO-S-EYE-007.webp"
+  ],
+  "runtime_row": {
+   "id": "SCO-S-EYE-007",
+   "subject": "Science",
+   "topicKey": "human-eye-and-colourful-world",
+   "subtopic": "Chapter Practice — Human Eye and the Colourful World",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Understanding",
+   "questionText": "A prism ABC (with BC as base) is placed in different orientations. A narrow beam of white light is incident on the prism as shown in figure. In which of the following cases, after dispersion, the sixth colour from the top corresponds to the colour of the sun?",
+   "options": [
+    "(I)",
+    "(II)",
+    "(III)",
+    "(IV)"
+   ],
+   "answer": "(II)",
+   "solutionSteps": [
+    "Correct option is (b) (II).",
+    "Generally, in case of a prism (II), the formation of spectrum is shown below In the above figure, from top the sixth colour is Indigo. But we can see that from bottom the sixth colour is orange which is the colour of sun. So, we can obtain the correct situation by inverting the prism. Thus, the required orientations can be bound in case II."
+   ],
+   "finalAnswer": "(b) (II)",
+   "ncertRef": "cbjescco11 Q9",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: question references shown in fig"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem depends on missing figure of prism orientations; options (I)-(IV) unanswerable; expl garbled",
+    "severity": "high"
+   },
+   {
+    "source": "tagging",
+    "category": "syllabus",
+    "detail": "Asks which colour matches \"colour of the sun\" (orange) - relies on excluded reddening of Sun at sunrise/sunset",
+    "proposal": "Retire",
+    "found_by": "agent:human-eye-and-colourful-world (medium)"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Options (I)-(IV) are prism orientations shown only in a missing figure; also leans on the excluded 'colour of the Sun' content."
+  }
+ },
+ {
+  "id": "CFPQ-S-LIFE-004",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-science/life-processes/CFPQ-S-LIFE-004.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-S-LIFE-004",
+   "subject": "Science",
+   "topicKey": "life-processes",
+   "subtopic": "Excretion - Structure of the Nephron",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Hard",
+   "bloomSkill": "Analysing",
+   "questionText": "Given below is a diagram of a nephron.\n\nWhich row of the following table correctly shows where filtration and selective reabsorption occur?\n\nRow | Filtration | Selective reabsorption\n1 | P | Q\n2 | Q | S\n3 | Q | R\n4 | P | R",
+   "options": [
+    "Filtration: P; Selective reabsorption: Q",
+    "Filtration: Q; Selective reabsorption: S",
+    "Filtration: Q; Selective reabsorption: R",
+    "Filtration: P; Selective reabsorption: R"
+   ],
+   "answer": "Filtration: Q; Selective reabsorption: R",
+   "solutionSteps": [
+    "[1 mark] Correct option: (3) filtration at Q and selective reabsorption at R. Q is the glomerulus inside the Bowman's capsule, where blood is filtered, and R is the coiled tubule, where useful substances are selectively reabsorbed back into the blood."
+   ],
+   "finalAnswer": "Filtration at Q, selective reabsorption at R.",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Science Class 10 Ch.6 — CFPQ_Science10.pdf, questions pdf pp.44–52 (printed folios 43–51)",
+   "requiresDiagram": true,
+   "diagramDescription": "A line diagram of a nephron. A leader labelled P points to the incoming arteriole at the top; Q points to the knot of capillaries (glomerulus) inside the cup-shaped Bowman's capsule; R points to the long coiled tubule below it; and S points to the straight collecting duct on the right. Arrows show the direction of flow."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Needs nephron diagram with labels P/Q/R/S; not provided, so filtration/reabsorption sites cannot be identified.",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A labelled diagram of a nephron shows: P — the incoming arteriole carrying blood to the nephron; Q — the knot of capillaries (glomerulus) inside the cup-shaped Bowman's capsule; R — the long coiled tubule; S — the straight collecting duct.\n\nWhich option correctly shows where filtration and selective reabsorption occur?"
+   },
+   "rationale": "Row carries its own diagramDescription; labels P-S embedded into the stem so it is self-contained. Key unchanged (filtration Q, reabsorption R)."
+  }
+ },
+ {
+  "id": "SCO-S-LIFE-009",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/chapterwise-science/life-processes/SCO-S-LIFE-009.webp"
+  ],
+  "runtime_row": {
+   "id": "SCO-S-LIFE-009",
+   "subject": "Science",
+   "topicKey": "life-processes",
+   "subtopic": "Chapter Practice — Life Processes",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Understanding",
+   "questionText": "A plant is kept in the dark for two days. A leaf is used in an experiment to investigate the effect of two factors on photosynthesis as shown in the diagram. What are the colours of Q and R, when the leaf is tested for starch, using iodine solution? Q R",
+   "options": [
+    "Blue/black Brown",
+    "Brown Brown",
+    "Blue/black Blue/black",
+    "Brown Blue/black"
+   ],
+   "answer": "Brown Brown",
+   "solutionSteps": [
+    "[0.5 mark] Correct option is (b) Brown Brown.",
+    "[0.5 mark] Some alkali solution is kept in the flask, which absorbs CO2, so no photosynthesis occurs and apical region of leaf will show negative results for starch test. Part Q of leaf remains in dark within the cut part of cork and no photosynthesis occurs here. It also shows negative result of starch test."
+   ],
+   "finalAnswer": "(b) Brown Brown",
+   "ncertRef": "cbjescco06 Q11",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: question references diagram"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Depends on a destarched-leaf diagram (regions Q and R) not described; stem ends with stray \"Q R\" table header.",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Answer depends on which leaf regions Q and R are covered/in the KOH flask, shown only in the missing diagram; stem ends with stray \"Q R\" header. Cannot describe figure without inventing it."
+  }
+ },
+ {
+  "id": "FND-L-QB-160",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/visuals/science/light-reflection-and-refraction/fnd-l-qb-160.webp"
+  ],
+  "runtime_row": {
+   "id": "FND-L-QB-160",
+   "subject": "Science",
+   "topicKey": "light-reflection-and-refraction",
+   "subtopic": "Refraction through a Prism",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "Study the following figure in which a student has marked the angle of incidence (angle i), angle of refraction (angle r), angle of emergence (angle e), angle of prism (angle A) and the angle of deviation (angle D). The correctly marked angles are:",
+   "options": [
+    "angle A and angle i.",
+    "angle A, angle i and angle r.",
+    "angle A, angle i, angle e and angle D.",
+    "angle A, angle i, angle r and angle D."
+   ],
+   "answer": "angle A and angle i.",
+   "solutionSteps": [
+    "[1 mark] The prism angle A is correctly marked at the apex and the angle of incidence i is correctly drawn between the incident ray and the normal at the first face; r is not measured from the normal, e is marked near the apex instead of at the emergent ray-normal, and D is marked at the wrong position - so only angle A and angle i are correct."
+   ],
+   "finalAnswer": "angle A and angle i.",
+   "isCompetencyBased": true,
+   "requiresDiagram": true,
+   "diagramDescription": "A triangular prism with apex angle marked A. An incident ray meets the left face where angle i is marked between the incident ray and the dashed normal (correct). The internal ray runs horizontally with r marked between it and the dashed extension of the incident ray (wrong reference). Near the apex, e is marked between a dashed line and the right face (wrong position), and D is marked at the emergence point between the emergent ray and the dashed normal (wrong position).",
+   "visualExplainerId": "science-light-reflection-and-refraction-fig-fnd-l-qb-160"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Answer depends on a prism diagram with marked angles that is not present/described in the stem or options; unanswerable as served text-only",
+    "severity": "medium"
+   },
+   {
+    "source": "tagging",
+    "category": "other-chapter",
+    "detail": "Refraction through a triangular glass prism is NCERT Class 10 Ch \"Human Eye and the Colourful World\" (sec 10.4), not Light ch; note this chapter's trends list includes \"Glass Slab / Prism\"",
+    "proposal": "human-eye-and-colourful-world",
+    "found_by": "agent:light-2 (uncertain)"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "topicKey": "human-eye-and-colourful-world",
+    "questionText": "While tracing the path of a ray of light through a triangular glass prism, a student marked the angles as follows: angle A at the apex of the prism, between its two refracting faces; angle i between the incident ray and the normal at the first face; angle r between the refracted ray inside the prism and the extension of the incident ray; angle e near the apex, between a dashed line and the second face; angle D at the point of emergence, between the emergent ray and the normal. The correctly marked angles are:",
+    "solutionSteps": [
+     "[1 mark] Angle A (between the two refracting faces) and angle i (incident ray to normal) are correct; r must be measured from the normal (not from the incident-ray extension), e must lie between the emergent ray and the normal at the second face, and D lies between the extended incident ray and the extended emergent ray - so only angle A and angle i are correctly marked."
+    ]
+   },
+   "rationale": "Figure-dependent stem rewritten in words from the row's own diagramDescription; answer unchanged. Refraction through a prism is NCERT Human Eye ch. (sec 10.4) - retagged."
+  }
+ },
+ {
+  "id": "FND-L-QB-171",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/visuals/science/light-reflection-and-refraction/fnd-l-qb-171.webp"
+  ],
+  "runtime_row": {
+   "id": "FND-L-QB-171",
+   "subject": "Science",
+   "topicKey": "light-reflection-and-refraction",
+   "subtopic": "Refraction through a Prism",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "After tracing the path of a ray of light through a glass prism a student marked the angle of incidence (angle i), angle of refraction (angle r), angle of emergence (angle e) and the angle of deviation (angle D) as shown in the diagram. The correctly marked angles are:",
+   "options": [
+    "angle i and angle r.",
+    "angle i and angle e.",
+    "angle i, angle e and angle D.",
+    "angle i, angle r and angle e."
+   ],
+   "answer": "angle i and angle e.",
+   "solutionSteps": [
+    "[1 mark] In the diagram the angle of incidence i is correctly drawn between the incident ray and the normal at the first face, and the angle of emergence e is correctly drawn between the emergent ray and the normal at the second face; r is not measured from the normal and D is marked at the wrong place, so the correctly marked angles are i and e."
+   ],
+   "finalAnswer": "angle i and angle e.",
+   "isCompetencyBased": true,
+   "requiresDiagram": true,
+   "diagramDescription": "A triangular glass prism. An incident ray meets the left face where angle i is marked between the incident ray and the dashed normal (correct). D is marked just after the first refraction between the internal ray and the dashed extension of the incident ray (wrong position for the deviation angle). Near the apex on the right face, r is marked between the dashed normal and the face (wrong reference). At the emergence point angle e is marked between the emergent ray and the dashed normal (correct).",
+   "visualExplainerId": "science-light-reflection-and-refraction-fig-fnd-l-qb-171"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Answer depends on a prism diagram with marked angles that is not present/described in the stem or options; unanswerable as served text-only",
+    "severity": "medium"
+   },
+   {
+    "source": "tagging",
+    "category": "other-chapter",
+    "detail": "Refraction through a triangular glass prism is NCERT Class 10 Ch \"Human Eye and the Colourful World\" (sec 10.4), not Light ch; note this chapter's trends list includes \"Glass Slab / Prism\"",
+    "proposal": "human-eye-and-colourful-world",
+    "found_by": "agent:light-2 (uncertain)"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "topicKey": "human-eye-and-colourful-world",
+    "questionText": "After tracing the path of a ray of light through a triangular glass prism, a student marked the angles as follows: angle i between the incident ray and the normal at the first face; angle D just after the first refraction, between the ray inside the prism and the extension of the incident ray; angle r near the apex on the second face, between the normal and the face; angle e at the point of emergence, between the emergent ray and the normal. The correctly marked angles are:",
+    "solutionSteps": [
+     "[1 mark] Angle i (incident ray to normal at the first face) and angle e (emergent ray to normal at the second face) are correct; r must be between the refracted ray inside the prism and the normal at the first face, and D must be between the extended incident ray and the extended emergent ray - so the correctly marked angles are i and e."
+    ]
+   },
+   "rationale": "Figure-dependent stem rewritten in words from the row's own diagramDescription; answer unchanged. Prism refraction retagged to Human Eye chapter."
+  }
+ },
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-014",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/light-reflection-and-refraction/LIGHT-EXMPLR-9-MCQ-014.webp"
+  ],
+  "runtime_row": {
+   "id": "LIGHT-EXMPLR-9-MCQ-014",
+   "subject": "Science",
+   "topicKey": "light-reflection-and-refraction",
+   "subtopic": "Refraction through Slab",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "The path of a ray of light coming from air passing through a rectangular glass slab traced by four students are shown as A, B, C and D in Figure 10.5. Which one of them is correct?",
+   "options": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ],
+   "answer": "B",
+   "solutionSteps": [
+    "At the air→glass interface, the ray bends TOWARDS the normal (glass is denser).",
+    "Inside the slab the refracted ray travels in a straight line.",
+    "At the glass→air interface, the ray bends AWAY from the normal.",
+    "The emergent ray is PARALLEL to the incident ray but laterally shifted. Only the diagram showing this geometry (option B in the textbook) is correct."
+   ],
+   "finalAnswer": "Option (b) — figure B",
+   "strategyHint": "REQUIRES-FIGURE: Four candidate ray paths through a glass slab (Fig. 10.5).",
+   "ncertRef": "Exemplar MCQ Q14",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem depends on Figure 10.5 (paths A-D) which is not included/described; options cannot be resolved from text",
+    "severity": "high"
+   },
+   {
+    "source": "broken",
+    "category": "empty-option",
+    "detail": "options [0, 1, 2, 3] are bare labels/empty (option content missing): ['A', 'B', 'C', 'D']",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Options are bare labels A-D naming four ray paths in Fig. 10.5; the paths are not described anywhere in the row and cannot be reconstructed without inventing distractors."
+  }
+ }
+]

@@ -1,0 +1,148 @@
+[
+ {
+  "id": "APQ-M-TRIG-011",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/apq-maths/trigonometry/APQ-M-TRIG-011.webp"
+  ],
+  "runtime_row": {
+   "id": "APQ-M-TRIG-011",
+   "subject": "Maths",
+   "topicKey": "trigonometry",
+   "subtopic": "cos θ from Similar Right Triangles",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "In the figure shown below, lines AB and PQ are parallel to each other. All measurements are in centimetres. Which of the following gives the value of cos θ?",
+   "options": [
+    "b/c",
+    "c/b",
+    "c/(b+y)",
+    "(a+x)/(b+y)"
+   ],
+   "answer": "c/b",
+   "solutionSteps": [
+    "Per MS: cos θ = c/b (adjacent over hypotenuse in one of the right triangles formed by the parallel lines)."
+   ],
+   "finalAnswer": "(b) c/b",
+   "ncertRef": "APQ PQ_2022 Q10",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: parallel lines AB and PQ with labelled sides a, b, c, x, y."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem relies on a figure (parallel lines AB, PQ, lengths a,b,c,x,y) that is not described; unsolvable as served",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Stem depends on a figure (parallel lines AB, PQ with sides a, b, c, x, y and angle θ) whose geometry is not carried by the row; cos θ cannot be determined from text. Not reconstructing from memory."
+  }
+ },
+ {
+  "id": "APQ-M-TRIG-013",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/apq-maths/trigonometry/APQ-M-TRIG-013.webp"
+  ],
+  "runtime_row": {
+   "id": "APQ-M-TRIG-013",
+   "subject": "Maths",
+   "topicKey": "trigonometry",
+   "subtopic": "Simplifying Trig Expression",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "Which of the following is equal to the given expression (as shown in the figure)?",
+   "options": [
+    "sec θ",
+    "cosec θ",
+    "(cot^2 θ)(sec θ)",
+    "(cot^2 θ)(cosec θ)"
+   ],
+   "answer": "(cot^2 θ)(sec θ)",
+   "solutionSteps": [
+    "Per MS answer key: option (c) (cot^2 θ)(sec θ)."
+   ],
+   "finalAnswer": "(c) (cot^2 θ)(sec θ)",
+   "ncertRef": "APQ PQ_2022 Q16",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: trig expression shown in PDF only as image."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "\"the given expression (as shown in the figure)\" - expression is missing from stem",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "The trig expression to be simplified exists only as an image in the source; the row carries no text of it, so the question is unanswerable as served."
+  }
+ },
+ {
+  "id": "CBE-M-TRIG-B-001",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/itembank-maths/trigonometry/CBE-M-TRIG-B-001.webp"
+  ],
+  "runtime_row": {
+   "id": "CBE-M-TRIG-B-001",
+   "subject": "Maths",
+   "topicKey": "trigonometry",
+   "subtopic": "Trigonometric Ratios of an Acute Angle",
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "The rod of a TV disc antenna is fixed at right angles to wall AB and a rod CD supports the disc, as shown in the figure. AC = 1.5 m and CD = 3 m. Compute the value of sec θ + cosec θ.",
+   "options": [],
+   "answer": "41/13",
+   "solutionSteps": [
+    "[1 mark] sec θ = CD/AD = 3/2.6 and cosec θ = CD/AC = 3/1.5 (using AD = 2.6 m from Pythagoras).",
+    "[1 mark] sec θ + cosec θ = 3/2.6 + 3/1.5 = 41/13."
+   ],
+   "finalAnswer": "41/13",
+   "isCompetencyBased": false,
+   "requiresDiagram": true,
+   "diagramDescription": "Right-angled triangle ACD representing a TV disc antenna. Rod AB is the vertical wall; the rod is fixed at right angles to wall AB. AC = 1.5 m is one leg, CD = 3 m is the hypotenuse (rod supporting the disc), and AD is the third side. Angle θ is the acute angle at D between CD and AD."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "θ is defined only in an unprovided figure (\"as shown in the figure\"); sec θ + cosec θ cannot be computed from text",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "The rod of a TV disc antenna is fixed at right angles to a vertical wall AB, and a rod CD supports the disc. This forms a triangle ACD, right-angled at A, in which AC = 1.5 m, the supporting rod CD = 3 m is the hypotenuse, and θ is the acute angle ∠ADC between CD and AD. Compute the value of sec θ + cosec θ.",
+    "answer": "(6 + 2√3)/3 ≈ 3.15",
+    "solutionSteps": [
+     "[1 mark] By Pythagoras, AD = √(CD² − AC²) = √(9 − 2.25) = √6.75 = (3√3)/2 m. So sec θ = CD/AD = 3 ÷ (3√3/2) = 2/√3 and cosec θ = CD/AC = 3/1.5 = 2.",
+     "[1 mark] sec θ + cosec θ = 2/√3 + 2 = (2√3 + 6)/3 ≈ 3.15."
+    ],
+    "finalAnswer": "sec θ + cosec θ = 2 + 2/√3 = (6 + 2√3)/3 ≈ 3.15",
+    "requiresDiagram": false
+   },
+   "rationale": "Made self-contained using the row's own diagramDescription (right angle at A, AC=1.5, CD=3 hyp, θ at D). Old 41/13 came from rounding AD to 2.6; exact value is 2+2/√3=(6+2√3)/3≈3.15."
+  }
+ }
+]

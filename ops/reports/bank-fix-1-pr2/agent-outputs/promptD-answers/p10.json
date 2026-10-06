@@ -1,0 +1,240 @@
+[
+ {
+  "id": "S-ABS-1",
+  "verdict": "ok",
+  "answer": "A neutral solution (e.g. pure water) at 25°C has [H⁺] = [OH⁻], so its pH is 7.",
+  "finalAnswer": "pH = 7",
+  "solutionSteps": [
+   "[1 mark] A neutral solution has equal H⁺ and OH⁻ ion concentration; its pH at 25°C is 7."
+  ]
+ },
+ {
+  "id": "S-MNM-1",
+  "verdict": "ok",
+  "answer": "(i) Metals are lustrous (have a shining surface). (ii) Metals are malleable and ductile, and are good conductors of heat and electricity (any two).",
+  "finalAnswer": "Lustrous; malleable/ductile; good conductors of heat and electricity (any two)",
+  "solutionSteps": [
+   "[1 mark] Any two correct physical properties, e.g. metallic lustre, malleability, ductility, good conductor of heat and electricity, sonorous, high melting point (0.5 mark each)."
+  ]
+ },
+ {
+  "id": "S-CARB-1",
+  "verdict": "ok",
+  "answer": "The valency of carbon is 4 (atomic number 6, electronic configuration 2, 4; it has 4 valence electrons). Carbon cannot easily gain 4 electrons to form C⁴⁻ (six protons cannot hold ten electrons) nor lose 4 electrons to form C⁴⁺ (requires a very large amount of energy). Hence it attains the noble gas configuration by sharing its four valence electrons with other atoms, i.e. it forms covalent bonds.",
+  "finalAnswer": "Valency 4; it shares electrons because gaining or losing 4 electrons is energetically difficult",
+  "solutionSteps": [
+   "[1 mark] Valency of carbon = 4 (configuration 2, 4; four valence electrons).",
+   "[1 mark] Gaining 4 electrons (C⁴⁻) or losing 4 electrons (C⁴⁺) is energetically unfavourable, so carbon shares its electrons and forms covalent bonds."
+  ]
+ },
+ {
+  "id": "S-LIFE-1",
+  "verdict": "ok",
+  "answer": "Nutrition is the process by which an organism takes in food and utilises it to obtain energy and materials for growth, repair and maintenance of the body. Its two main types are autotrophic nutrition and heterotrophic nutrition.",
+  "finalAnswer": "Autotrophic and heterotrophic nutrition",
+  "solutionSteps": [
+   "[1 mark] Correct definition of nutrition (0.5 mark) + naming autotrophic and heterotrophic nutrition (0.5 mark)."
+  ]
+ },
+ {
+  "id": "S-ELEC-1",
+  "verdict": "ok",
+  "answer": "Electric current is the rate of flow of electric charge through any cross-section of a conductor, I = Q/t. Its SI unit is the ampere (A).",
+  "finalAnswer": "Rate of flow of charge (I = Q/t); SI unit ampere (A)",
+  "solutionSteps": [
+   "[1 mark] Definition: rate of flow of electric charge, I = Q/t (0.5 mark); SI unit ampere, A (0.5 mark)."
+  ]
+ },
+ {
+  "id": "S-CC-1",
+  "verdict": "ok",
+  "answer": "The neuron (nerve cell) is the basic structural and functional unit of the nervous system.",
+  "finalAnswer": "Neuron (nerve cell)",
+  "solutionSteps": [
+   "[1 mark] Neuron (nerve cell)."
+  ]
+ },
+ {
+  "id": "S-REP-1",
+  "verdict": "ok",
+  "answer": "Asexual reproduction is the mode of reproduction in which a single parent produces new individuals without the formation and fusion of gametes. Example: Amoeba (binary fission) / Hydra (budding) / yeast (budding).",
+  "finalAnswer": "Single-parent reproduction without gametes; e.g. Amoeba",
+  "solutionSteps": [
+   "[1 mark] Definition: a single parent produces offspring without fusion of gametes (0.5 mark); one correct example such as Amoeba, Hydra, yeast or Planaria (0.5 mark)."
+  ]
+ },
+ {
+  "id": "S-HER-3",
+  "verdict": "ok",
+  "answer": "Genotype is the genetic constitution (set of genes/alleles) of an organism for a trait, e.g. TT or Tt for height in pea plants. Phenotype is the observable (external) expression of that trait, e.g. a tall pea plant. Plants with genotypes TT and Tt both have the same phenotype – tall.",
+  "finalAnswer": "Genotype = genetic make-up (TT/Tt); phenotype = observable trait (tall)",
+  "solutionSteps": [
+   "[1 mark] Genotype: genetic constitution of an organism for a trait, e.g. TT or Tt.",
+   "[1 mark] Phenotype: observable/visible expression of the trait, e.g. tall plant (both TT and Tt are tall)."
+  ]
+ },
+ {
+  "id": "S-LIGHT-4",
+  "verdict": "ok",
+  "answer": "Snell's law: For light of a given colour and a given pair of media, the ratio of the sine of the angle of incidence to the sine of the angle of refraction is a constant, sin i / sin r = constant (the incident ray, refracted ray and normal at the point of incidence also lie in the same plane). Refractive index: this constant is called the refractive index of the second medium with respect to the first, n₂₁ = sin i / sin r; equivalently n₂₁ = v₁/v₂, the ratio of the speed of light in medium 1 to that in medium 2. (Absolute refractive index n = c/v.)",
+  "finalAnswer": "sin i / sin r = constant; refractive index n₂₁ = sin i/sin r = v₁/v₂",
+  "solutionSteps": [
+   "[1 mark] Snell's law: sin i / sin r = constant for a given pair of media and given colour of light.",
+   "[1 mark] Refractive index: the constant n₂₁ = sin i / sin r = v₁/v₂ (speed of light in medium 1 / speed in medium 2)."
+  ]
+ },
+ {
+  "id": "S-EYE-4",
+  "verdict": "ok",
+  "answer": "Hypermetropia (far-sightedness) is the defect of vision in which a person can see distant objects clearly but cannot see nearby objects distinctly; the near point is farther than 25 cm and the image is formed behind the retina. It is caused by too long a focal length of the eye lens or the eyeball being too small. It is corrected using a convex (converging) lens of suitable power.",
+  "finalAnswer": "Far-sightedness; corrected by a convex (converging) lens",
+  "solutionSteps": [
+   "[1 mark] Hypermetropia: nearby objects not seen clearly, near point beyond 25 cm, image formed behind the retina.",
+   "[1 mark] Corrected using a convex (converging) lens of suitable power."
+  ]
+ },
+ {
+  "id": "S-MAG-8",
+  "verdict": "ok",
+  "answer": "(i) Direct current (DC) flows in one direction only, whereas alternating current (AC) reverses its direction periodically (in India every 1/100 s, frequency 50 Hz). (ii) DC is obtained from cells/batteries, whereas AC is supplied by power stations to homes; AC can be transmitted over long distances without much loss of energy, DC cannot.",
+  "finalAnswer": "DC flows in one direction; AC reverses direction periodically (50 Hz in India)",
+  "solutionSteps": [
+   "[1 mark] DC flows in one direction only; AC reverses direction periodically (50 Hz in India).",
+   "[1 mark] Second valid point: DC from cells/batteries vs AC from power stations / AC transmitted over long distances with less loss."
+  ],
+  "note": "AC/DC difference is not on the syllabusGuard list; in old NCERT it sat in the deleted Electric Generator section, but AC supply (220 V, 50 Hz) is still used in Domestic Electric Circuits. Kept as ok — reviewer may confirm."
+ },
+ {
+  "id": "S-ENV-8",
+  "verdict": "ok",
+  "answer": "Grass → Grasshopper → Frog → Snake → Eagle",
+  "finalAnswer": "Grass → Grasshopper → Frog → Snake → Eagle",
+  "solutionSteps": [
+   "[1 mark] Correct food chain in order with arrows pointing towards the consumer: Grass → Grasshopper → Frog → Snake → Eagle (any valid sequence of producer to top consumer accepted)."
+  ]
+ },
+ {
+  "id": "M-REAL-9",
+  "verdict": "ok",
+  "answer": "Let the prime factorisation of a be a = p₁p₂…pₙ, where p₁, p₂, …, pₙ are primes (not necessarily distinct). Then a² = (p₁p₂…pₙ)(p₁p₂…pₙ) = p₁²p₂²…pₙ². Given p divides a². By the Fundamental Theorem of Arithmetic, the prime factorisation of a² is unique, so the only prime factors of a² are p₁, p₂, …, pₙ. Hence p is one of p₁, p₂, …, pₙ. Since a = p₁p₂…pₙ, p divides a. Hence proved.",
+  "finalAnswer": "p divides a (proved using the Fundamental Theorem of Arithmetic)",
+  "solutionSteps": [
+   "[1 mark] Writing a = p₁p₂…pₙ and a² = p₁²p₂²…pₙ².",
+   "[1 mark] By uniqueness of prime factorisation (FTA), the prime p dividing a² must be one of p₁,…,pₙ, hence p divides a."
+  ]
+ },
+ {
+  "id": "M-POLY-10",
+  "verdict": "ok",
+  "answer": "Zeroes α = −1, β = 4. Sum α + β = 3, product αβ = −4. Required polynomial = k[x² − (α+β)x + αβ] = x² − 3x − 4 (taking k = 1). Verification: here a = 1, b = −3, c = −4. −b/a = 3 = α + β ✓; c/a = −4 = αβ ✓. Hence the relation between zeroes and coefficients is verified.",
+  "finalAnswer": "p(x) = x² − 3x − 4 (or any non-zero multiple)",
+  "solutionSteps": [
+   "[1 mark] Sum of zeroes = 3, product of zeroes = −4.",
+   "[1 mark] Polynomial = x² − (sum)x + product = x² − 3x − 4.",
+   "[1 mark] Verification: −b/a = 3 = α + β and c/a = −4 = αβ."
+  ]
+ },
+ {
+  "id": "M-PLE-10",
+  "verdict": "ok",
+  "answer": "Let the number be y and its double be x (two numbers). Equations: x + y = 18 …(1) and x − y = 6 …(2). Adding (1) and (2): 2x = 24, so x = 12. Substituting in (1): y = 18 − 12 = 6. Check: 12 = 2 × 6, 12 + 6 = 18, 12 − 6 = 6. The numbers are 6 and 12 (the number is 6, its double is 12).",
+  "finalAnswer": "Number = 6, its double = 12",
+  "solutionSteps": [
+   "[1 mark] Forming the equations x + y = 18 and x − y = 6.",
+   "[1 mark] Solving (elimination/substitution): 2x = 24, x = 12.",
+   "[1 mark] y = 6; the number is 6 and its double 12 (verified)."
+  ],
+  "text_fixed": "The sum of two numbers is 18 and their difference is 6 (the larger number is double the smaller). Form a pair of linear equations and solve it.",
+  "note": "Original wording ('a number and its double') reduces to one variable; intent is two numbers x + y = 18, x − y = 6, which gives 12 and 6 (12 is double 6), so the data is consistent."
+ },
+ {
+  "id": "M-QUAD-10",
+  "verdict": "ok",
+  "answer": "Here x ≠ −1, 2. 1/(x+1) + 1/(x−2) = 3/2 ⇒ (x − 2 + x + 1)/[(x+1)(x−2)] = 3/2 ⇒ (2x − 1)/(x² − x − 2) = 3/2 ⇒ 2(2x − 1) = 3(x² − x − 2) ⇒ 4x − 2 = 3x² − 3x − 6 ⇒ 3x² − 7x − 4 = 0. Using the quadratic formula: D = b² − 4ac = 49 + 48 = 97. x = [7 ± √97]/6. Both values are admissible (neither is −1 or 2).",
+  "finalAnswer": "x = (7 + √97)/6 or x = (7 − √97)/6",
+  "solutionSteps": [
+   "[1 mark] Combining fractions: (2x − 1)/(x² − x − 2) = 3/2.",
+   "[1 mark] Simplifying to the quadratic 3x² − 7x − 4 = 0.",
+   "[1 mark] D = 97; x = (7 ± √97)/6 (both valid since x ≠ −1, 2)."
+  ]
+ },
+ {
+  "id": "M-AP-10",
+  "verdict": "ok",
+  "answer": "S_n = n/2[2a + (n − 1)d]. S₅ = 5/2(2a + 4d) = 45 ⇒ 2a + 4d = 18 ⇒ a + 2d = 9 …(1). S₁₀ = 10/2(2a + 9d) = 145 ⇒ 2a + 9d = 29 …(2). From (1), 2a + 4d = 18; subtracting from (2): 5d = 11 ⇒ d = 11/5. Then a = 9 − 2(11/5) = 9 − 22/5 = 23/5.",
+  "finalAnswer": "a = 23/5, d = 11/5",
+  "solutionSteps": [
+   "[1 mark] S₅ = 45 gives a + 2d = 9.",
+   "[1 mark] S₁₀ = 145 gives 2a + 9d = 29.",
+   "[1 mark] Solving: d = 11/5, a = 23/5."
+  ]
+ },
+ {
+  "id": "M-CG-9",
+  "verdict": "ok",
+  "answer": "Let the point on the x-axis be P(x, 0), with A(−3, 4) and B(5, −2). PA = PB ⇒ PA² = PB². (x + 3)² + (0 − 4)² = (x − 5)² + (0 + 2)² ⇒ x² + 6x + 9 + 16 = x² − 10x + 25 + 4 ⇒ 6x + 25 = −10x + 29 ⇒ 16x = 4 ⇒ x = 1/4. The required point is (1/4, 0).",
+  "finalAnswer": "(1/4, 0)",
+  "solutionSteps": [
+   "[1 mark] Taking P(x, 0) and setting PA² = PB²: (x + 3)² + 16 = (x − 5)² + 4.",
+   "[1 mark] Expanding and simplifying: 6x + 25 = −10x + 29, i.e. 16x = 4.",
+   "[1 mark] x = 1/4; required point (1/4, 0)."
+  ]
+ },
+ {
+  "id": "M-APPTRIG-1",
+  "verdict": "ok",
+  "answer": "The angle of elevation of a point viewed (above the horizontal level) is the angle formed by the line of sight with the horizontal line through the observer's eye, when the point is above the horizontal level, i.e. when the observer raises the head to look at the object.",
+  "finalAnswer": "Angle between line of sight and horizontal when the object is above eye level",
+  "solutionSteps": [
+   "[1 mark] Angle formed by the line of sight with the horizontal when the object viewed is above the horizontal level of the observer's eye."
+  ]
+ },
+ {
+  "id": "M-CIR-1",
+  "verdict": "ok",
+  "answer": "The tangent at any point of a circle is perpendicular to the radius through the point of contact.",
+  "finalAnswer": "Tangent ⟂ radius at point of contact",
+  "solutionSteps": [
+   "[1 mark] The tangent at any point of a circle is perpendicular to the radius through the point of contact."
+  ]
+ },
+ {
+  "id": "M-ARC-2",
+  "verdict": "ok",
+  "answer": "Circumference = 2πr = 44 cm ⇒ 2 × 22/7 × r = 44 ⇒ r = 44 × 7/44 = 7 cm.",
+  "finalAnswer": "r = 7 cm",
+  "solutionSteps": [
+   "[1 mark] Using 2πr = 44: 2 × (22/7) × r = 44.",
+   "[1 mark] r = 44 × 7/(2 × 22) = 7 cm."
+  ]
+ },
+ {
+  "id": "M-SAV-2",
+  "verdict": "ok",
+  "answer": "Volume of cuboid = l × b × h = 4 cm × 5 cm × 10 cm = 200 cm³.",
+  "finalAnswer": "200 cm³",
+  "solutionSteps": [
+   "[1 mark] Volume of cuboid = l × b × h = 4 × 5 × 10.",
+   "[1 mark] Volume = 200 cm³."
+  ]
+ },
+ {
+  "id": "M-STAT-3",
+  "verdict": "ok",
+  "answer": "Class interval: in grouped data, each group into which the observations are divided, e.g. 10–20, is called a class interval; its lower and upper values are the class limits and their difference is the class size (width). Class mark: the mid-point of a class interval, class mark = (upper class limit + lower class limit)/2, e.g. for 10–20 the class mark is 15. It is taken as the representative value of the class.",
+  "finalAnswer": "Class interval = a group such as 10–20; class mark = (upper limit + lower limit)/2",
+  "solutionSteps": [
+   "[1 mark] Class interval: a group/range of values such as 10–20 into which data are grouped (with lower and upper limits).",
+   "[1 mark] Class mark = (upper class limit + lower class limit)/2, the mid-point, e.g. 15 for 10–20."
+  ]
+ },
+ {
+  "id": "M-PROB-3",
+  "verdict": "ok",
+  "answer": "Total outcomes = 6 {1, 2, 3, 4, 5, 6}. Favourable outcomes (even numbers) = {2, 4, 6} = 3. P(even) = 3/6 = 1/2.",
+  "finalAnswer": "1/2",
+  "solutionSteps": [
+   "[1 mark] Favourable outcomes {2, 4, 6} = 3 out of 6, so P(even) = 3/6 = 1/2."
+  ]
+ }
+]

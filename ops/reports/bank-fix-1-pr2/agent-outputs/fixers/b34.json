@@ -1,0 +1,259 @@
+[
+ {
+  "id": "PROB-N-EXEM-14-CB-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A carton has 24 bulbs, of which 6 are defective. One bulb is drawn at random.\n(i) What is the probability that the bulb drawn is NOT defective? (1 mark)\n(ii) Suppose the bulb drawn is defective and it is not put back. How many bulbs are now left in the carton, and how many of them are defective? (1 mark)\n(iii) A second bulb is now drawn at random from the bulbs left in the carton (as in part (ii)). What is the probability that this second bulb is defective? (2 marks)",
+   "solutionSteps": [
+    "(i) Non-defective bulbs = 24 − 6 = 18. P(not defective) = 18/24 = 3/4.",
+    "(ii) One defective bulb is removed: bulbs left = 24 − 1 = 23; defective bulbs left = 6 − 1 = 5.",
+    "(iii) Total possible outcomes for the second draw = 23 (all equally likely); favourable outcomes (defective) = 5.",
+    "(iii) P(second bulb defective) = 5/23."
+   ],
+   "finalAnswer": "(i) 3/4; (ii) 23 bulbs left, of which 5 are defective; (iii) 5/23",
+   "subtopic": "Simple Events — Drawing Items"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Matches the genuine Exemplar bulb problem; removed Class-12 'conditional/given that' framing and the conceptual part (iv). Restructured as 3-part case (1+1+2 = 4). Answers 3/4, 23 & 5, 5/23 unchanged."
+ },
+ {
+  "id": "PYQ-M-2025-PROB-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "pair-of-linear-equations",
+   "subtopic": "Word Problems",
+   "answer": "Let the number of red balls be x and the number of blue balls be y. Then 10x/100 + 20y/100 = 24, i.e. x + 2y = 240 …(i). Also 3x − y = 20 …(ii). Solving (i) and (ii): x = 40, y = 100. Number of red balls = 40 and number of blue balls = 100."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "No probability involved: solves x+2y=240, 3x−y=20 (x=40, y=100 verified). Re-tagged to pair-of-linear-equations; removed marking-scheme residue '1½ 1½ 1+1' from answer."
+ },
+ {
+  "id": "PR2-039",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 2,
+   "section": "B",
+   "format": "VSA",
+   "difficulty": "Easy"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "One-step classical probability (5 vowels out of 26 letters = 5/26) is not a 3-mark Section C item; re-tagged to 2-mark Section B VSA, Easy. Content and answer correct."
+ },
+ {
+  "id": "prob-hpq-104",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 2,
+   "section": "B",
+   "type": "VSA",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "Total outcomes when two dice are rolled = 6 × 6 = 36; favourable outcomes for sum 8: (2,6), (3,5), (4,4), (5,3), (6,2) = 5. [1]",
+    "P(sum is 8) = favourable/total = 5/36. [1]"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Listing 5 favourable outcomes out of 36 is a standard 2-mark Section B item, not 3-mark C. Re-tagged; steps re-split to [1]+[1] = 2. Answer 5/36 verified."
+ },
+ {
+  "id": "M-CIR-4",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "text": "PA and PB are tangents drawn from an external point P to a circle with centre O. If ∠APB = 70°, find ∠AOB.",
+   "marks": 2
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem fully states the set-up in words; figure not needed. Removed 'In figure'. ∠OAP = ∠OBP = 90°, so ∠AOB = 180° − 70° = 110°. Two-step item: marks 3→2."
+ },
+ {
+  "id": "M-POLY-7",
+  "surface": "promptD",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Not a missing figure: the student is asked to DRAW their own rough sketch; 'from the graph' refers to that sketch (zeroes = x-intercepts). Self-contained as served."
+ },
+ {
+  "id": "S-HER-1",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Content (Definitions of heredity and variation) is retained 2026-27 Heredity syllabus, not Evolution. Only the pack key 'heredity_evolution' is non-board; map to board key 'heredity'."
+ },
+ {
+  "id": "S-HER-11",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Content (Dominant trait (Mendel)) is retained 2026-27 Heredity syllabus, not Evolution. Only the pack key 'heredity_evolution' is non-board; map to board key 'heredity'."
+ },
+ {
+  "id": "S-HER-12",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Content (F2 3:1 ratio in monohybrid cross) is retained 2026-27 Heredity syllabus, not Evolution. Only the pack key 'heredity_evolution' is non-board; map to board key 'heredity'."
+ },
+ {
+  "id": "S-HER-13",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Content (Variation and its importance) is retained 2026-27 Heredity syllabus, not Evolution. Only the pack key 'heredity_evolution' is non-board; map to board key 'heredity'."
+ },
+ {
+  "id": "S-HER-14",
+  "surface": "promptD",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "ABO blood-group inheritance (AO × BO, codominance/multiple alleles) is not in the CBSE Class 10 Heredity chapter (Class 12 content). Repair would mean a different question, so withhold."
+ },
+ {
+  "id": "S-HER-2",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Content (Mendel's law of dominance) is retained 2026-27 Heredity syllabus, not Evolution. Only the pack key 'heredity_evolution' is non-board; map to board key 'heredity'."
+ },
+ {
+  "id": "S-HER-3",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Content (Genotype vs phenotype) is retained 2026-27 Heredity syllabus, not Evolution. Only the pack key 'heredity_evolution' is non-board; map to board key 'heredity'."
+ },
+ {
+  "id": "S-HER-4",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Content (Monohybrid cross) is retained 2026-27 Heredity syllabus, not Evolution. Only the pack key 'heredity_evolution' is non-board; map to board key 'heredity'."
+ },
+ {
+  "id": "S-HER-8",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "heredity"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Content (Sex determination in humans) is retained 2026-27 Heredity syllabus, not Evolution. Only the pack key 'heredity_evolution' is non-board; map to board key 'heredity'."
+ },
+ {
+  "id": "S-MNM-1",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "metals-and-non-metals"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Question on physical properties of metals is in-syllabus and clean; only pack key 'metals_nonmetals' is non-board. Map to board key 'metals-and-non-metals'."
+ },
+ {
+  "id": "S-MNM-10",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "metals-and-non-metals"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Question on electrolytic refining is in-syllabus and clean; only pack key 'metals_nonmetals' is non-board. Map to board key 'metals-and-non-metals'."
+ },
+ {
+  "id": "S-MNM-2",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "metals-and-non-metals"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Question on reactivity of sodium is in-syllabus and clean; only pack key 'metals_nonmetals' is non-board. Map to board key 'metals-and-non-metals'."
+ },
+ {
+  "id": "S-MNM-3",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "metals-and-non-metals"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Question on corrosion is in-syllabus and clean; only pack key 'metals_nonmetals' is non-board. Map to board key 'metals-and-non-metals'."
+ },
+ {
+  "id": "S-MNM-4",
+  "surface": "promptD",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "metals-and-non-metals"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Question on alloys is in-syllabus and clean; only pack key 'metals_nonmetals' is non-board. Map to board key 'metals-and-non-metals'."
+ }
+]

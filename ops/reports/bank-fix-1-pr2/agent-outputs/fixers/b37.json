@@ -1,0 +1,320 @@
+[
+ {
+  "id": "CFPQ-M-REALNUM-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "MCQ",
+   "questionText": "Two representations of the real number system are described below.\n\nRepresentation 1: A rectangle headed 'Real numbers' is split into two adjoining regions. The left region is labelled 'Rational numbers' and holds three nested circles: 'Integers' containing 'Whole numbers' containing 'Natural numbers'. The right region is a separate compartment labelled 'Irrational numbers'.\n\nRepresentation 2: A single rectangle headed 'Real numbers' holds five ellipses nested one inside the next, from the innermost outwards: 'Natural numbers', 'Whole numbers', 'Integers', 'Rational numbers', 'Irrational numbers'.\n\nWhich representation is correct?",
+   "options": [
+    "Representation 1 only",
+    "Representation 2 only",
+    "Both Representation 1 and Representation 2",
+    "Neither representation"
+   ],
+   "answer": "Representation 1 only",
+   "finalAnswer": "(a) Representation 1 only",
+   "solutionSteps": [
+    "[1 mark] Representation 1 only is correct: rational and irrational numbers are two separate (disjoint) sets that together make up the real numbers, with natural ⊂ whole ⊂ integers ⊂ rationals. Representation 2 is wrong because it places the rational numbers inside the irrational numbers, but no rational number is irrational."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Figure text embedded verbatim from the row's own diagramDescription so it is self-contained; Section A 1-mark VSA re-tagged MCQ with 4 options; answer unchanged in substance (Representation 1)."
+ },
+ {
+  "id": "PYQ-M-2024-REALNUM-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "2² × 3 × 5",
+    "2³ × 3²",
+    "2³ × 3² × 5",
+    "2³ × 3³ × 5"
+   ],
+   "answer": "2³ × 3² × 5",
+   "finalAnswer": "(c) 2³ × 3² × 5",
+   "solutionSteps": [
+    "[1 mark] 24 = 2³ × 3, 36 = 2² × 3², 60 = 2² × 3 × 5. LCM = product of highest powers = 2³ × 3² × 5 = 360. Correct option: (c) 2³ × 3² × 5."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Restored lost superscripts (LCM=2³×3²×5=360, verified) and removed page residue '1430(B)' from option (d)."
+ },
+ {
+  "id": "PYQ-M-2025-REALNUM-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "duplicate",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Same question/options/answer as PYQ-M-2025-REALNUM-002, which is clean; this copy has a whole General Instructions block in option (d) - the worse copy."
+ },
+ {
+  "id": "PYQ-M-RN-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): The number 5ⁿ cannot end with the digit 0, where n is a natural number.\nReason (R): Prime factorisation of 5 has only two factors, 1 and 5.",
+   "solutionSteps": [
+    "[1 mark] A is true: 5ⁿ has only the prime factor 5; to end in 0 it would need both 2 and 5 as prime factors. R is false: the prime factorisation of 5 is just 5 (1 is not a prime factor). Correct option: (c) Assertion (A) is true, but Reason (R) is false."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored superscript 5n -> 5ⁿ; added a justified step. Answer (c) unchanged."
+ },
+ {
+  "id": "PYQ-M-RN-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "HCF = 30",
+   "finalAnswer": "HCF = 30",
+   "solutionSteps": [
+    "[1 mark] Let the numbers be 2x and 3x (HCF = x, since 2 and 3 are co-prime). LCM = 2 × 3 × x = 6x = 180 ⇒ x = 30.",
+    "[1 mark] Numbers are 60 and 90; HCF(60, 90) = 30."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Truncated solution completed: numbers 60, 90; HCF = 30 (verified)."
+ },
+ {
+  "id": "PYQ-M-RN-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "HCF = 24, LCM = 480",
+   "finalAnswer": "HCF = 24, LCM = 480",
+   "solutionSteps": [
+    "[1 mark] 96 = 2⁵ × 3 and 120 = 2³ × 3 × 5.",
+    "[1 mark] HCF = 2³ × 3 = 24; LCM = 2⁵ × 3 × 5 = 480."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Garbled superscripts/'ol.' cleaned and truncated LCM completed: HCF 24, LCM 480 (24×480 = 96×120 = 11520)."
+ },
+ {
+  "id": "RN-E05",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "√4",
+    "√9/√16",
+    "√5",
+    "0.3̄"
+   ],
+   "explanation": "√5 is irrational because 5 is not a perfect square (√5 is a standard irrational number). By contrast: √4 = 2 (whole number), √9/√16 = 3/4 (fraction), and 0.3̄ = 1/3 (fraction) — all three are rational.",
+   "solutionSteps": [
+    "[1 mark] √4 = 2, √9/√16 = 3/4 and 0.3̄ = 1/3 are rational; √5 is irrational (5 is not a perfect square). Correct option: (c) √5."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Fixed garbled recurring-decimal option to 0.3̄; also removed 'square root of any prime' wording (a guard-banned general-prime phrase) from explanation; steps merged to one 1-mark step."
+ },
+ {
+  "id": "RN2-018",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Three alarm clocks ring at intervals of 20, 30 and 40 minutes respectively. All three ring together at 12:00 PM.\n(i) Express 20, 30 and 40 as products of their prime factors. [1 mark]\n(ii) How many times does the first clock ring in the 24 hours after 12:00 PM? [1 mark]\n(iii) After how many minutes, and at what time, will all three clocks next ring together? [2 marks]",
+   "answer": "(i) 20 = 2² × 5, 30 = 2 × 3 × 5, 40 = 2³ × 5 (ii) 72 times (iii) After 120 minutes, at 2:00 PM",
+   "finalAnswer": "(i) 20 = 2² × 5, 30 = 2 × 3 × 5, 40 = 2³ × 5 (ii) 72 times (iii) After 120 minutes, at 2:00 PM",
+   "solutionSteps": [
+    "[1 mark] Part (i): 20 = 2² × 5, 30 = 2 × 3 × 5, 40 = 2³ × 5.",
+    "[1 mark] Part (ii): The first clock rings every 20 minutes, i.e. 60 ÷ 20 = 3 times per hour, so 3 × 24 = 72 times in 24 hours.",
+    "[1 mark] Part (iii): LCM(20, 30, 40) = 2³ × 3 × 5 = 120 minutes.",
+    "[1 mark] 12:00 PM + 120 minutes = 2:00 PM."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed contradictory '6 times per hour' (20-min interval gives 3/hour, so 72 in 24 h); restructured into a proper 1+1+2 case with marked steps."
+ },
+ {
+  "id": "PYQ-M-RN-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Prove that √5 is an irrational number.",
+   "answer": "Assuming √5 = p/q (p, q co-prime integers, q ≠ 0) leads to 5 dividing both p and q, contradicting co-primality. Hence √5 is irrational.",
+   "finalAnswer": "√5 is an irrational number.",
+   "solutionSteps": [
+    "[1 mark] Let √5 be rational: √5 = p/q, where p, q are co-prime integers and q ≠ 0. Squaring, 5q² = p², so 5 divides p², hence 5 divides p. Let p = 5a for some integer a.",
+    "[1 mark] Then 25a² = 5q² ⇒ q² = 5a², so 5 divides q², hence 5 divides q.",
+    "[1 mark] So 5 is a common factor of p and q, contradicting that p and q are co-prime. Hence √5 is irrational."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed 'SECTION – D …' header residue and stray mark '3' from stem; cleaned garbled math-bold glyphs and split solution into 3 marked steps. Proof unchanged."
+ },
+ {
+  "id": "rn-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "A school is planning to distribute prizes. It has 240 pens and 168 notebooks. They are to be packed into the greatest possible number of identical groups, so that every group gets the same number of pens and the same number of notebooks, with nothing left over.\n(i) Find the HCF of 240 and 168 using prime factorisation.\n(ii) What is the greatest number of groups that can be formed?\n(iii) How many pens and how many notebooks will each group receive?",
+   "answer": "(i) 240 = 2⁴ × 3 × 5, 168 = 2³ × 3 × 7, HCF = 2³ × 3 = 24 (ii) 24 groups (iii) 10 pens and 7 notebooks per group",
+   "finalAnswer": "(i) HCF = 24 (ii) 24 groups (iii) 10 pens and 7 notebooks",
+   "solutionSteps": [
+    "[1 mark] 240 = 2⁴ × 3 × 5 and 168 = 2³ × 3 × 7.",
+    "[1 mark] HCF = 2³ × 3 = 24.",
+    "[1 mark] Greatest number of identical groups = HCF = 24.",
+    "[1 mark] Each group gets 240 ÷ 24 = 10 pens and 168 ÷ 24 = 7 notebooks."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Added 4-mark marking scheme; stem clarified ('greatest number of identical groups', nothing left over) since 'how many groups' was ambiguous; parts relabelled (i)-(iii). Values unchanged."
+ },
+ {
+  "id": "CBE-M-RN-B-004",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "All 3 steps carry prefixes: [1] + [½] + [½] = 2 = marks; the audit parser missed '½' (app marks use the ½ grid). Maths verified: LCM(48,72,108)=2⁴×3³=432 s = 7 min 12 s -> 9:27:12."
+ },
+ {
+  "id": "APQ-M-RN-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Requires proving √6 (composite-surd) irrational - composite-surd irrationality is OUT for 2026-27 per syllabusGuard; row is official APQ (not authored), so not repaired."
+ },
+ {
+  "id": "RN-M12",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): 5 + 2√3 is irrational.\nReason (R): The sum of two irrational numbers is always irrational.",
+   "explanation": "5 + 2√3 is irrational (it would otherwise make √3 rational), but the reason is false — for example, √2 + (−√2) = 0 is rational.",
+   "solutionSteps": [
+    "[1 mark] A: if 5 + 2√3 = r (rational), then √3 = (r − 5)/2 would be rational — contradiction, as √3 is irrational; so A is true. R: √2 + (−√2) = 0 is rational, so R is false. Correct option: (c) A is true, R is false."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored row: replaced out-of-scope √3+√5 (√p+√q form) with in-scope 5+2√3; answer (c) unchanged."
+ },
+ {
+  "id": "RN-M15",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): 3 + 2√5 is irrational.\nReason (R): Sum of two irrational numbers is always irrational.",
+   "explanation": "3 + 2√5 is irrational (it would otherwise make √5 rational), but the reason is false because √2 + (−√2) = 0 (rational).",
+   "solutionSteps": [
+    "[1 mark] A: if 3 + 2√5 = r (rational), then √5 = (r − 3)/2 would be rational — contradiction, as √5 is irrational; so A is true. R: √2 + (−√2) = 0 is rational, so R is false. Correct option: (c) A is true, R is false."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored row: replaced out-of-scope √2+√3 (√p+√q form) with NCERT-scope 3+2√5; answer (c) unchanged."
+ },
+ {
+  "id": "RN2-041",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Irrational Numbers",
+   "questionText": "Assertion (A): 6 − √7 is irrational.\nReason (R): The sum of two irrational numbers is always irrational.",
+   "solutionSteps": [
+    "[1 mark] A: if 6 − √7 = r (rational), then √7 = 6 − r would be rational — contradiction, as √7 is irrational; so A is true. R: √2 + (−√2) = 0 is rational, so R is false. Correct option: (c) A is true, R is false."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored row: replaced out-of-scope √5+√2 with in-scope 6−√7 (named-prime form IN per guard); subtopic 'Assertion-Reasoning' (a format) -> 'Irrational Numbers'; answer (c) unchanged."
+ },
+ {
+  "id": "RN2-042",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] HCF × LCM = product of the two numbers: 12 × 240 = 48 × b ⇒ b = 2880 ÷ 48 = 60.",
+    "[1 mark] Prime factorisation: 48 = 2⁴ × 3 and 60 = 2² × 3 × 5.",
+    "[1 mark] Verification: HCF(48, 60) = 2² × 3 = 12 and LCM(48, 60) = 2⁴ × 3 × 5 = 240, as given."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single-formula HCF×LCM item with verification is 3-mark SA weight, not 5-mark LA; retagged C/3/Short/Medium and steps condensed to 3 marked steps. Answer 60 unchanged."
+ },
+ {
+  "id": "2026-STAT-SA-05",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Median = 20 + [(20 − 12)/12] × 10 = 80/3 ≈ 26.67",
+   "finalAnswer": "Median ≈ 26.67"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer/finalAnswer gave only the method; solved: N=40, median class 20–30, cf=12, f=12, h=10 -> median = 80/3 ≈ 26.67, matching the existing steps."
+ },
+ {
+  "id": "APQ-M-STAT-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Needs the weight frequency table, which is absent; the row carries no table data (steps say REQUIRES-FIGURE), so it cannot be answered or reconstructed."
+ },
+ {
+  "id": "APQ-M-STAT-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The marks obtained by 80 students of Class X in a mock test of Mathematics are given below:\nMarks 0 and above: 80; 10 and above: 77; 20 and above: 72; 30 and above: 65; 40 and above: 55; 50 and above: 43; 60 and above: 28; 70 and above: 16; 80 and above: 10; 90 and above: 8 (maximum marks 100).\nFind the median and the mode of the data.\nOR\nIf the mean of the following frequency distribution is 91, find the missing frequencies x and y. (Classes 0-30: 12, 30-60: 21, 60-90: x, 90-120: 52, 120-150: y, 150-180: 11; Total = 150.)"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Missing 'and above' table rebuilt solely from class frequencies the row's own step 1 carries (3,5,7,10,12,15,12,6,2,8; sum 80). Median 52 and mode 55 re-verified; OR part (x=34, y=20) verified."
+ },
+ {
+  "id": "APQ-M-STAT-008",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Needs the pyramid graph of MP ages; the row carries only Σf/Σfx totals, not the age-group data, so the figure cannot be reconstructed from the row."
+ }
+]

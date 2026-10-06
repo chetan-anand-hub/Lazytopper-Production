@@ -1,0 +1,2946 @@
+[
+ {
+  "group": "EX54",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CTRL-NCERT-6-SA-007",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CTRL-NCERT-6-SA-007",
+    "subject": "Science",
+    "topicKey": "control-and-coordination",
+    "subtopic": "Chemical Coordination",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "How does chemical coordination take place in animals?",
+    "answer": "Chemical coordination in animals occurs through hormones secreted by endocrine glands. Hormones are released directly into the bloodstream and carried to target organs, where they bind to specific receptors and produce a response. This system is slower than nervous coordination but reaches all cells.",
+    "solutionSteps": [
+     "Endocrine glands (pituitary, thyroid, adrenal, etc.) secrete hormones.",
+     "Hormones travel in blood to specific target organs/tissues.",
+     "They bind to target cell receptors and elicit a response (e.g., insulin lowers blood sugar).",
+     "Feedback mechanism regulates hormone secretion."
+    ],
+    "finalAnswer": "Endocrine glands secrete hormones → carried in blood → act on target organs.",
+    "ncertRef": "In-text Q1 (after §6.3)",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CTRL-EXMPLR-6-LA-008",
+   "surface": "bank",
+   "origin": "official(exemplar)",
+   "withheld_now": false,
+   "row": {
+    "id": "CTRL-EXMPLR-6-LA-008",
+    "subject": "Science",
+    "topicKey": "control-and-coordination",
+    "subtopic": "Animal Hormonal Coordination",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "How does chemical coordination take place in animals?",
+    "answer": "Chemical coordination in animals is via hormones secreted by endocrine glands. Hormones are released directly into blood, transported to target organs where they bind to specific receptors and produce a response. Examples: thyroxin from thyroid (metabolism), insulin from pancreas (blood sugar), adrenaline from adrenal (fight-or-flight), growth hormone from pituitary (body growth), testosterone/oestrogen from gonads (puberty). Hormone levels are regulated by feedback mechanisms — e.g., rising blood sugar triggers insulin release; falling sugar reduces it.",
+    "solutionSteps": [
+     "Endocrine glands secrete hormones — pituitary, thyroid, adrenal, pancreas, gonads.",
+     "Hormones are released into the bloodstream.",
+     "They travel to target organs/cells with specific receptors.",
+     "Binding triggers a response (e.g., insulin → glucose uptake).",
+     "Feedback mechanisms regulate hormone levels (negative feedback).",
+     "Example: blood sugar rises → pancreas releases insulin → sugar drops → insulin reduces."
+    ],
+    "finalAnswer": "Endocrine glands secrete hormones → carried in blood → act on target organs; regulated by feedback.",
+    "ncertRef": "Exemplar Q52",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX55",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CTRL-NCERT-6-LA-002",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CTRL-NCERT-6-LA-002",
+    "subject": "Science",
+    "topicKey": "control-and-coordination",
+    "subtopic": "Neuron Structure & Function",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Draw the structure of a neuron and explain its function.",
+    "answer": "A neuron has three main parts: (1) Cell body (cyton) — contains nucleus and cytoplasm; (2) Dendrites — short branches that receive impulses from other neurons or receptors; (3) Axon — long fibre that carries impulses away from the cell body. Functions: dendrites pick up stimuli → impulse passes to cell body → travels along axon → at axonal end, chemical (neurotransmitter) is released across synapse to next neuron or to muscle/gland.",
+    "solutionSteps": [
+     "Draw labelled neuron showing: dendrites (input), cell body with nucleus, axon (long, may be myelinated), axon terminals, synapse.",
+     "Dendrites: receive electrical signals from other neurons or sensory receptors.",
+     "Cell body: integrates incoming signals; contains nucleus and most organelles.",
+     "Axon: conducts the electrical impulse away from cell body towards axon terminal.",
+     "Axon terminal: releases neurotransmitter chemicals into synapse.",
+     "Synapse: chemical crosses gap → generates new impulse in next neuron or triggers muscle/gland response."
+    ],
+    "finalAnswer": "Neuron = dendrites + cell body + axon; carries impulses from receptors to effectors via synapses.",
+    "ncertRef": "Exercise Q5",
+    "isCompetencyBased": false,
+    "strategyHint": "REQUIRES-FIGURE: must draw labelled neuron diagram."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CTRL-EXMPLR-6-LA-001",
+   "surface": "bank",
+   "origin": "official(exemplar)",
+   "withheld_now": false,
+   "row": {
+    "id": "CTRL-EXMPLR-6-LA-001",
+    "subject": "Science",
+    "topicKey": "control-and-coordination",
+    "subtopic": "Neuron Structure",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Draw the structure of a neuron and explain its function.",
+    "answer": "Neuron has: (1) Dendrites — branches receiving impulses from receptors or other neurons; (2) Cell body (cyton) — contains nucleus and integrates signals; (3) Axon — long fibre that conducts impulses away from cell body; (4) Myelin sheath — insulates axon, speeds conduction; (5) Axon terminals — release neurotransmitters at synapse. Function: receive (dendrites) → integrate (cell body) → conduct (axon) → transmit (synapse via chemicals) impulses to next neuron, muscle or gland.",
+    "solutionSteps": [
+     "Draw a labelled neuron: dendrites, cell body with nucleus, axon (long, myelinated), nodes of Ranvier, axon terminals, synapse.",
+     "Dendrites: receive electrical signals.",
+     "Cell body: integrates inputs, contains nucleus and organelles.",
+     "Axon: conducts impulse along its length.",
+     "Myelin sheath: insulates and speeds up signal.",
+     "Axon terminal: releases neurotransmitters at synapse → next cell."
+    ],
+    "finalAnswer": "Neuron = dendrites + cell body + axon + axon terminals. Function: receive, integrate, conduct and transmit nerve impulses.",
+    "ncertRef": "Exemplar Q45",
+    "isCompetencyBased": false,
+    "strategyHint": "REQUIRES-FIGURE: must include labelled neuron diagram."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX57",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-N-NCERT-1-LA-004",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-N-NCERT-1-LA-004",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrational Numbers",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that 3 + 2√5 is irrational, given that √5 is irrational.",
+    "answer": "Assume, to the contrary, that 3 + 2√5 is rational. Then we can write 3 + 2√5 = a/b for some integers a, b with b ≠ 0. Rearranging: 2√5 = a/b − 3 = (a − 3b)/b. Dividing by 2: √5 = (a − 3b)/(2b). Since a, b are integers, (a − 3b)/(2b) is a ratio of two integers with non-zero denominator, hence is rational. So √5 would be rational. But we are given that √5 is irrational — contradiction. Therefore our assumption was wrong, and 3 + 2√5 is irrational.",
+    "solutionSteps": [
+     "Suppose, for contradiction, that 3 + 2√5 is rational. Then 3 + 2√5 = a/b with a, b integers, b ≠ 0.",
+     "Isolate √5: 2√5 = a/b − 3 = (a − 3b)/b.",
+     "Divide by 2: √5 = (a − 3b)/(2b).",
+     "RHS is a ratio of integers (with non-zero denominator) → rational.",
+     "So √5 would be rational, contradicting the fact that √5 is irrational. Hence 3 + 2√5 is irrational."
+    ],
+    "finalAnswer": "3 + 2√5 is irrational.",
+    "ncertRef": "NCERT Ex 1.3 Q2",
+    "isCompetencyBased": true,
+    "strategyHint": "Isolate √5 on one side; show RHS is rational; contradict."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-REAL-2",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-REAL-2",
+    "text": "Prove that 3 + 2√5 is irrational, given that √5 is irrational.",
+    "marks": 2,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "real_numbers"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX61",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIRC-N-NCERT-10-SA-001",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIRC-N-NCERT-10-SA-001",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Concentric Circles",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Two concentric circles are of radii 5 cm and 3 cm. Find the length of the chord of the larger circle which touches the smaller circle.",
+    "solutionSteps": [
+     "Let AB be the chord of the larger circle touching the smaller circle at P. Then OP ⊥ AB and OP = 3 (radius of smaller circle).",
+     "OA = 5 (radius of larger).",
+     "In right ∆OPA: AP² = 5² − 3² = 16 ⇒ AP = 4 cm.",
+     "Since OP ⊥ AB, P bisects AB: AB = 2 × AP = 8 cm."
+    ],
+    "finalAnswer": "Chord length = 8 cm.",
+    "ncertRef": "NCERT Ex 10.2 Q7",
+    "isCompetencyBased": true,
+    "strategyHint": "The perpendicular from the centre bisects the chord."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "PYQ-M-CIRC-015",
+   "surface": "bank",
+   "origin": "official(pyq)",
+   "withheld_now": false,
+   "row": {
+    "id": "PYQ-M-CIRC-015",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Chord Properties",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Two concentric circles are of radii 5 cm and 3 cm. Find the length of the chord of the larger circle which touches the smaller circle.",
+    "answer": "OA = 5 cm, OP = 3 cm To find AB OP ⊥ AB (radius ⊥ tangent) AB is the chord of larger circle and OP ⊥ AB ∴ AP = PB In right-angled Δ AOP, AP2 = 52 – 32 = 16 AP = 4 cm 𝟏 𝟐 1 1 13  ∴ AB = 2AP = 8 cm",
+    "solutionSteps": [
+     "AB is the chord of larger circle touching the smaller circle at P.",
+     "OA = 5 cm, OP = 3 cm To find AB OP ⊥ AB (radius ⊥ tangent) AB is the chord of larger circle and OP ⊥ AB ∴ AP = PB In right-angled Δ AOP, AP2 = 52 – 32 = 16 AP = 4 cm 𝟏 𝟐 1 1 13  ∴ AB = 2AP = 8 cm"
+    ],
+    "finalAnswer": "OA = 5 cm, OP = 3 cm To find AB OP ⊥ AB (radius ⊥ tangent) AB is the chord of larger circle and OP ⊥ AB ∴ AP = PB In right-angled Δ AOP, AP2 = 52 – 32 = 16 AP = 4 cm 𝟏 𝟐 1 1 13  ∴ AB = 2AP = 8 cm",
+    "ncertRef": "PYQ 30/4/1 Q30",
+    "isCompetencyBased": true,
+    "pyqYear": "2023",
+    "pyqSet": "1"
+   },
+   "pending_fix": "fix",
+   "pending_fix_fields": {
+    "answer": "AB = 8 cm",
+    "solutionSteps": [
+     "Let chord AB of the larger circle touch the smaller circle at P. Then OP ⊥ AB (radius ⊥ tangent), OA = 5 cm, OP = 3 cm.",
+     "Perpendicular from the centre bisects the chord ⇒ AP = PB.",
+     "In right △AOP: AP² = OA² − OP² = 5² − 3² = 16 ⇒ AP = 4 cm, so AB = 2AP = 8 cm."
+    ],
+    "finalAnswer": "AB = 8 cm"
+   }
+  }
+ },
+ {
+  "group": "EX62",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIRC-N-NCERT-10-SA-002",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIRC-N-NCERT-10-SA-002",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Equal Tangents",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that the tangents drawn at the ends of a diameter of a circle are parallel.",
+    "solutionSteps": [
+     "Let AB be a diameter and let l, m be tangents at A and B respectively.",
+     "By Theorem 10.1, OA ⊥ l and OB ⊥ m.",
+     "Since A, O, B are collinear (AB is a diameter), both l and m are perpendicular to the line AB.",
+     "Two lines perpendicular to the same line are parallel ⇒ l ∥ m."
+    ],
+    "finalAnswer": "Proved: tangents at the ends of a diameter are parallel.",
+    "ncertRef": "NCERT Ex 10.2 Q4",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "PYQ-M-CIRC-012",
+   "surface": "bank",
+   "origin": "official(pyq)",
+   "withheld_now": false,
+   "row": {
+    "id": "PYQ-M-CIRC-012",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "General",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that the tangents drawn at the ends of a diameter of a circle are parallel.",
+    "answer": "Let PQ and RS be tangents at the end of diameter AB. ∠ PAO = ∠ RBO = 90° ⇒ PQ ‖ RS Correct figure 1 Mark",
+    "solutionSteps": [
+     "Let PQ and RS be tangents at the end of diameter AB. ∠ PAO = ∠ RBO = 90° ⇒ PQ ‖ RS Correct figure 1 Mark"
+    ],
+    "finalAnswer": "Let PQ and RS be tangents at the end of diameter AB. ∠ PAO = ∠ RBO = 90° ⇒ PQ ‖ RS Correct figure 1 Mark",
+    "ncertRef": "PYQ 30/5/3 Q24",
+    "isCompetencyBased": true,
+    "pyqYear": "2023",
+    "pyqSet": "3"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX62",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIRC-N-NCERT-10-SA-002",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIRC-N-NCERT-10-SA-002",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Equal Tangents",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that the tangents drawn at the ends of a diameter of a circle are parallel.",
+    "solutionSteps": [
+     "Let AB be a diameter and let l, m be tangents at A and B respectively.",
+     "By Theorem 10.1, OA ⊥ l and OB ⊥ m.",
+     "Since A, O, B are collinear (AB is a diameter), both l and m are perpendicular to the line AB.",
+     "Two lines perpendicular to the same line are parallel ⇒ l ∥ m."
+    ],
+    "finalAnswer": "Proved: tangents at the ends of a diameter are parallel.",
+    "ncertRef": "NCERT Ex 10.2 Q4",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "PYQ-M-2024-CIRC-008b",
+   "surface": "bank",
+   "origin": "official(pyq2024)",
+   "withheld_now": false,
+   "row": {
+    "id": "PYQ-M-2024-CIRC-008b",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "General",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that the tangents drawn at the ends of a diameter of a circle are parallel.",
+    "answer": "they are forming alternate interior angles Therefore, PQ || XY",
+    "solutionSteps": [
+     "Correct Figure OAY = OBP = 900",
+     "they are forming alternate interior angles Therefore, PQ || XY"
+    ],
+    "finalAnswer": "they are forming alternate interior angles Therefore, PQ || XY",
+    "ncertRef": "PYQ 30/5/1 Q21(b)",
+    "isCompetencyBased": true,
+    "pyqYear": "2024",
+    "pyqSet": "1"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX62",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIRC-N-NCERT-10-SA-002",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIRC-N-NCERT-10-SA-002",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Equal Tangents",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that the tangents drawn at the ends of a diameter of a circle are parallel.",
+    "solutionSteps": [
+     "Let AB be a diameter and let l, m be tangents at A and B respectively.",
+     "By Theorem 10.1, OA ⊥ l and OB ⊥ m.",
+     "Since A, O, B are collinear (AB is a diameter), both l and m are perpendicular to the line AB.",
+     "Two lines perpendicular to the same line are parallel ⇒ l ∥ m."
+    ],
+    "finalAnswer": "Proved: tangents at the ends of a diameter are parallel.",
+    "ncertRef": "NCERT Ex 10.2 Q4",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "PYQ-M-2025-CIRC-004",
+   "surface": "bank",
+   "origin": "official(pyq2025)",
+   "withheld_now": false,
+   "row": {
+    "id": "PYQ-M-2025-CIRC-004",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "General",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that the tangents drawn at the ends of a diameter of a circle are parallel.",
+    "answer": "∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚 Correct figure ½ Mark",
+    "solutionSteps": [
+     "Tangents 𝑙 and 𝑚 are drawn at the end points A and B of the diameter AB of the circle ∠1 = 90°, ∠2 = 90°",
+     "∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚 Correct figure ½ Mark"
+    ],
+    "finalAnswer": "∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚 Correct figure ½ Mark",
+    "ncertRef": "PYQ 30/3/1 Q25",
+    "isCompetencyBased": true,
+    "pyqYear": "2025",
+    "pyqSet": "1"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX64",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "SQP-M-RN-002",
+   "surface": "bank",
+   "origin": "official(sqp)",
+   "withheld_now": false,
+   "row": {
+    "id": "SQP-M-RN-002",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrational Numbers — Proof by Contradiction",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √2 is an irrational number.",
+    "options": [],
+    "answer": "Proof by contradiction (shown).",
+    "solutionSteps": [
+     "Assume, to the contrary, that √2 is rational. Then √2 = a/b for some coprime integers a, b (b ≠ 0). So b√2 = a; squaring: 2b² = a².",
+     "Thus 2 divides a², so 2 divides a. Write a = 2c for some integer c. Substitute: 2b² = 4c² ⇒ b² = 2c². So 2 divides b², hence 2 divides b.",
+     "So both a and b are divisible by 2 — contradicting that a and b are coprime. The assumption is wrong, therefore √2 is irrational."
+    ],
+    "finalAnswer": "√2 is irrational (proved by contradiction).",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "rn-hpq-4",
+   "surface": "hpq",
+   "origin": "LT-authored(hpq)",
+   "withheld_now": false,
+   "row": {
+    "id": "rn-hpq-4",
+    "subject": "Maths",
+    "topic": "Real Numbers",
+    "subtopic": "Irrational Numbers Proofs",
+    "concept": "Proving irrationality using contradiction",
+    "section": "C",
+    "type": "Short",
+    "difficulty": "Medium",
+    "marks": 3,
+    "likelihood": "Medium-High",
+    "tier": "must-crack",
+    "bloomSkill": "Analysing",
+    "question": "Prove that √2 is an irrational number.",
+    "answer": "Assume √2 is rational, i.e., √2 = p/q in lowest terms. Squaring gives 2 = p²/q² ⇒ p² = 2q², so p² is even and hence p is even. Let p = 2k. Then 2q² = 4k² ⇒ q² = 2k², so q is also even. This contradicts the assumption that p/q is in lowest terms. Hence √2 is irrational.",
+    "solutionSteps": [
+     "Assume √2 is rational, so √2 = p/q where p and q are coprime integers, q ≠ 0.; Squaring both sides: 2 = p²/q². [1]",
+     "So p² = 2q², hence p² is even and p is even. Let p = 2k; then 2q² = (2k)² = 4k² ⇒ q² = 2k², so q² is even and q is also even. [1]",
+     "Then p and q have a common factor 2, which contradicts that p and q are coprime. Therefore our assumption is wrong and √2 is irrational. [1]"
+    ],
+    "finalAnswer": "Hence √2 is irrational",
+    "explanation": "This is the classic 3-mark proof-by-contradiction question on irrational numbers. Boards often ask for √2, √3 or similar proofs.",
+    "policyTag": "RN-irrationality-proof"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX65",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CBE-S-CHEM-C-003",
+   "surface": "bank",
+   "origin": "official(cbe)",
+   "withheld_now": false,
+   "row": {
+    "id": "CBE-S-CHEM-C-003",
+    "subject": "Science",
+    "topicKey": "chemical-reactions-and-equations",
+    "subtopic": "Balancing Equations and State Symbols",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Ethanoic acid reacts with sodium to produce sodium ethanoate. Complete and balance the symbol equation to show this reaction. Include the state symbols.\n\nCH3COOH (aq) + Na (s) →",
+    "options": [],
+    "answer": "2CH3COOH (aq) + 2Na (s) → 2CH3COONa (aq) + H2 (g)↑",
+    "solutionSteps": [
+     "[1 mark] Identify the products: sodium ethanoate CH3COONa and hydrogen gas H2 — CH3COOH + Na → CH3COONa + H2.",
+     "[1 mark] Balance the equation: 2CH3COOH + 2Na → 2CH3COONa + H2.",
+     "[1 mark] Add correct state symbols for products: 2CH3COOH (aq) + 2Na (s) → 2CH3COONa (aq) + H2 (g). (No half marks — all state symbols required for the mark.)"
+    ],
+    "finalAnswer": "2CH3COOH (aq) + 2Na (s) → 2CH3COONa (aq) + H2 (g)↑",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CBE-S-CARB-C-003",
+   "surface": "bank",
+   "origin": "official(cbe)",
+   "withheld_now": false,
+   "row": {
+    "id": "CBE-S-CARB-C-003",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Reactions of Ethanoic Acid (Balancing)",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "Ethanoic acid reacts with sodium to produce sodium ethanoate. Complete and balance the symbol equation to show this reaction. Include the state symbols.\n\nCH3COOH (aq) + Na(s) →",
+    "options": [],
+    "answer": "2CH3COOH (aq) + 2Na (s) → 2CH3COONa (aq) + H2 (g)",
+    "solutionSteps": [
+     "[1 mark] Identify the products: sodium ethanoate (CH3COONa) and hydrogen gas (H2).",
+     "[1 mark] Balance the equation: 2CH3COOH + 2Na → 2CH3COONa + H2.",
+     "[1 mark] Add correct state symbols to the products (aq for CH3COONa, g for H2): 2CH3COOH (aq) + 2Na (s) → 2CH3COONa (aq) + H2 (g). (No half marks — all state symbols required.)"
+    ],
+    "finalAnswer": "2CH3COOH (aq) + 2Na (s) → 2CH3COONa (aq) + H2 (g)",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX66",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "PYQ-M-2024-REALNUM-003",
+   "surface": "bank",
+   "origin": "official(pyq2024)",
+   "withheld_now": false,
+   "row": {
+    "id": "PYQ-M-2024-REALNUM-003",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proof",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √3 is an irrational number.",
+    "answer": "p2 is divisible by 3 ⟹ p is divisible by 3  (i) ⟹ p = 3a, where 'a' is some integer 9a2 = 3q2 ⟹ q2 = 3a2 ⟹q2 is divisible by 3 ⟹ q is divisible by 3  (ii) (i) and (ii) leads to contradiction as 'p' and 'q' are coprime. ∴ √𝟑 is an irrational number.",
+    "solutionSteps": [
+     "Let √𝟑 be a rational number.",
+     "√𝟑= 𝐩 𝐪 , where q≠0 and p & q are coprime. 3q2 = p2",
+     "p2 is divisible by 3 ⟹ p is divisible by 3  (i) ⟹ p = 3a, where 'a' is some integer 9a2 = 3q2 ⟹ q2 = 3a2 ⟹q2 is divisible by 3 ⟹ q is divisible by 3  (ii) (i) and (ii) leads to contradiction as 'p' and 'q' are coprime. ∴ √𝟑 is an irrational number."
+    ],
+    "finalAnswer": "p2 is divisible by 3 ⟹ p is divisible by 3  (i) ⟹ p = 3a, where 'a' is some integer 9a2 = 3q2 ⟹ q2 = 3a2 ⟹q2 is divisible by 3 ⟹ q is divisible by 3  (ii) (i) and (ii) leads to contradiction as 'p' and 'q' are coprime. ∴ √𝟑 is an irrational number.",
+    "ncertRef": "PYQ 30(B) Q26",
+    "isCompetencyBased": true,
+    "pyqYear": "2024",
+    "pyqSet": "1"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-REAL-7",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-REAL-7",
+    "text": "Prove that √3 is an irrational number.",
+    "marks": 2,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "real_numbers"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX70",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "2026-REP-SA-02",
+   "surface": "predicted",
+   "origin": "LT-authored(predicted)",
+   "withheld_now": false,
+   "row": {
+    "id": "2026-REP-SA-02",
+    "topicKey": "Reproduction",
+    "subtopic": "Asexual Reproduction",
+    "kind": "Short",
+    "section": "B",
+    "marks": 2,
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Differentiate between binary fission and multiple fission with one example each.",
+    "answer": "Binary fission: parent cell splits into two almost equal halves, e.g., Amoeba.\nMultiple fission: parent cell divides into many daughter cells at once, e.g., Plasmodium.",
+    "explanation": "Key difference is number of daughter cells produced in one division.",
+    "policyTag": "Binary vs multiple fission",
+    "solutionSteps": [
+     "Binary fission is a type of asexual reproduction where the parent cell divides into two approximately equal daughter cells.; An example of an organism that reproduces by binary fission is Amoeba. [½]",
+     "Multiple fission is an asexual reproduction method where the parent cell divides into many daughter cells simultaneously. [½]",
+     "An example of an organism that reproduces by multiple fission is Plasmodium. [1]"
+    ],
+    "finalAnswer": "Binary fission: parent cell splits into two almost equal halves, e.g., Amoeba.\nMultiple fission: parent cell divides into many daughter cells at once, e.g., Plasmodium."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "S-REP-2",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "S-REP-2",
+    "text": "Differentiate between binary fission and multiple fission with one example each.",
+    "marks": 2,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "reproduction"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX72",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-TRIG-1",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-1",
+    "text": "Write values of sin 30° and cos 60°.",
+    "marks": 1,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-TRIG-1",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-1",
+    "text": "Write values of sin 30° and cos 60°.",
+    "marks": 1,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX73",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-TRIG-2",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-2",
+    "text": "If tan θ = 3/4 and θ is acute, find sin θ and cos θ.",
+    "marks": 2,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-TRIG-2",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-2",
+    "text": "If tan θ = 3/4 and θ is acute, find sin θ and cos θ.",
+    "marks": 2,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX74",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-TRIG-3",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-3",
+    "text": "Using identities, prove that sin²θ + cos²θ = 1.",
+    "marks": 2,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-TRIG-3",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-3",
+    "text": "Using identities, prove that sin²θ + cos²θ = 1.",
+    "marks": 2,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX75",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-TRIG-4",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-4",
+    "text": "Evaluate: sin 30° cos 60° + cos 30° sin 60°.",
+    "marks": 2,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-TRIG-4",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-4",
+    "text": "Evaluate: sin 30° cos 60° + cos 30° sin 60°.",
+    "marks": 2,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX76",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-TRIG-5",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-5",
+    "text": "Show that sec²θ − tan²θ = 1 for all θ where both are defined.",
+    "marks": 2,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-TRIG-5",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-5",
+    "text": "Show that sec²θ − tan²θ = 1 for all θ where both are defined.",
+    "marks": 2,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX77",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-TRIG-6",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-6",
+    "text": "If sin A = 5/13, A acute, find value of 2 tan A − 3 cot A.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-TRIG-6",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-6",
+    "text": "If sin A = 5/13, A acute, find value of 2 tan A − 3 cot A.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX78",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-TRIG-8",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-8",
+    "text": "Simplify: (1 − sin θ)(1 + sin θ) / cos²θ.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-TRIG-8",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-8",
+    "text": "Simplify: (1 − sin θ)(1 + sin θ) / cos²θ.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX79",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-TRIG-9",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-9",
+    "text": "If 3 tan A = 4, find values of (sin A − cos A) / (sin A + cos A).",
+    "marks": 3,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-TRIG-9",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-9",
+    "text": "If 3 tan A = 4, find values of (sin A − cos A) / (sin A + cos A).",
+    "marks": 3,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX80",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-TRIG-10",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-10",
+    "text": "Without using calculator, evaluate: sin²30° + cos²45° + tan²45° − 2 sin 60° cos 30°.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-TRIG-10",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-TRIG-10",
+    "text": "Without using calculator, evaluate: sin²30° + cos²45° + tan²45° − 2 sin 60° cos 30°.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "introduction_to_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX81",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-1",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-1",
+    "text": "Define angle of elevation with a neat statement.",
+    "marks": 1,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-1",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-1",
+    "text": "Define angle of elevation with a neat statement.",
+    "marks": 1,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX82",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-2",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-2",
+    "text": "A ladder 10 m long leans against a wall, making an angle of 60° with ground. Find height of wall reached.",
+    "marks": 2,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-2",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-2",
+    "text": "A ladder 10 m long leans against a wall, making an angle of 60° with ground. Find height of wall reached.",
+    "marks": 2,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX83",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-3",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-3",
+    "text": "From the top of a 20 m tower, angle of depression of a car on ground is 30°. Find distance of car from tower base.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-3",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-3",
+    "text": "From the top of a 20 m tower, angle of depression of a car on ground is 30°. Find distance of car from tower base.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX84",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-4",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-4",
+    "text": "A flagstaff stands on top of a 15 m building. From a point on ground, angles of elevation of top of building and top of flagstaff are 30° and 45° respectively. Find height of flagstaff.",
+    "marks": 4,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-4",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-4",
+    "text": "A flagstaff stands on top of a 15 m building. From a point on ground, angles of elevation of top of building and top of flagstaff are 30° and 45° respectively. Find height of flagstaff.",
+    "marks": 4,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX85",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-5",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-5",
+    "text": "The angle of elevation of top of a tower from a point A is 45°. On moving 10 m towards base, angle becomes 60°. Find height of tower.",
+    "marks": 4,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-5",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-5",
+    "text": "The angle of elevation of top of a tower from a point A is 45°. On moving 10 m towards base, angle becomes 60°. Find height of tower.",
+    "marks": 4,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX86",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-6",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-6",
+    "text": "From a ship at sea, top of a lighthouse is seen at elevation 30°. If lighthouse is 50 m high, find distance of ship from lighthouse base.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-6",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-6",
+    "text": "From a ship at sea, top of a lighthouse is seen at elevation 30°. If lighthouse is 50 m high, find distance of ship from lighthouse base.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX87",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-7",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-7",
+    "text": "At a point on level ground, angle of elevation of a vertical tower is 30°. On moving 20 m closer, angle becomes 60°. Find height of tower.",
+    "marks": 4,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-7",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-7",
+    "text": "At a point on level ground, angle of elevation of a vertical tower is 30°. On moving 20 m closer, angle becomes 60°. Find height of tower.",
+    "marks": 4,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX88",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-8",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-8",
+    "text": "The shadow of a tree is 10 m long when Sun’s elevation is 45°. Find height of tree.",
+    "marks": 2,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-8",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-8",
+    "text": "The shadow of a tree is 10 m long when Sun’s elevation is 45°. Find height of tree.",
+    "marks": 2,
+    "difficulty": "Easy",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX89",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-9",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-9",
+    "text": "From the top of a building 24 m high, the angle of depression to a point on ground is 30°. Find horizontal distance to the point.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-9",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-9",
+    "text": "From the top of a building 24 m high, the angle of depression to a point on ground is 30°. Find horizontal distance to the point.",
+    "marks": 3,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX90",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "M-APPTRIG-10",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-10",
+    "text": "Two persons on opposite sides of a tower measure angles of elevation as 45° and 60°. If distance between them is 40 m, find height of tower.",
+    "marks": 4,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "M-APPTRIG-10",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "M-APPTRIG-10",
+    "text": "Two persons on opposite sides of a tower measure angles of elevation as 45° and 60°. If distance between them is 40 m, find height of tower.",
+    "marks": 4,
+    "difficulty": "Hard",
+    "questionType": "subjective",
+    "pack": "applications_of_trigonometry"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR29",
+  "kind": "near",
+  "similarity": "0.92",
+  "a": {
+   "id": "RN-E09",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-E09",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "The product of a non-zero rational number and an irrational number is always:",
+    "options": [
+     "Rational",
+     "Irrational",
+     "An integer",
+     "Zero"
+    ],
+    "answer": "Irrational",
+    "explanation": "If r ≠ 0 is rational and x is irrational, then r·x is always irrational. Proof by contradiction: if r·x = q (rational), then x = q/r, which is rational (ratio of two rationals) — contradicting x being irrational. So the product must be irrational.",
+    "solutionSteps": [
+     "Let r be non-zero rational and x be irrational",
+     "Assume r·x = q (rational), then x = q/r = rational — contradiction",
+     "So r·x must be irrational"
+    ],
+    "finalAnswer": "Irrational",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "RN-E20",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-E20",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "The product of a non-zero rational number and an irrational number is:",
+    "options": [
+     "Always rational",
+     "Always irrational",
+     "Sometimes rational, sometimes irrational",
+     "Always zero"
+    ],
+    "answer": "Always irrational",
+    "explanation": "If r ≠ 0 is rational and x is irrational, their product r·x is always irrational. Proof: assume r·x = q (rational) → x = q/r, a ratio of two rationals, which would be rational — contradiction. Note: if r = 0, then 0 × (irrational) = 0, which is rational, but the question specifies r is non-zero.",
+    "finalAnswer": "Always irrational",
+    "isCompetencyBased": true,
+    "solutionSteps": [
+     "Let 'r' be a non-zero rational number and 'i' be an irrational number.",
+     "Assume, for contradiction, that their product 'ri' is rational.",
+     "Then, i = (ri)/r. Since 'ri' and 'r' are rational, their quotient 'i' must also be rational.",
+     "This contradicts our initial assumption that 'i' is an irrational number. Hence, the product 'ri' must be irrational."
+    ]
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR30",
+  "kind": "near",
+  "similarity": "0.82",
+  "a": {
+   "id": "PLE-M02",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "PLE-M02",
+    "subject": "Maths",
+    "topicKey": "pair-of-linear-equations",
+    "subtopic": "Word & Application Problems",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "The sum of a two-digit number and the number obtained by reversing the digits is 66. If the digits of the number differ by 2, find the number.",
+    "solutionSteps": [
+     "Let tens digit = x, units = y; Number = 10x + y, Reversed = 10y + x [1]",
+     "(10x+y) + (10y+x) = 66 → 11(x+y) = 66 → x+y = 6; x − y = 2 (given digits differ by 2) [1]",
+     "x = 4, y = 2 → Number = 42 (or 24) [1]"
+    ],
+    "finalAnswer": "42 or 24",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "PLE-N-NCERT-3-LA-002",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "PLE-N-NCERT-3-LA-002",
+    "subject": "Maths",
+    "topicKey": "pair-of-linear-equations",
+    "subtopic": "Word Problems on Linear Equations",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "The sum of a two-digit number and the number obtained by reversing the digits is 66. If the digits of the number differ by 2, find the number. How many such numbers are there?",
+    "answer": "There are TWO such numbers: 24 and 42. Let the digits be x (tens) and y (units). Then the number is 10x + y and the reversed number is 10y + x. Their sum is 11(x + y) = 66 → x + y = 6. The digits differ by 2: either x − y = 2 or y − x = 2. Case 1 (x − y = 2): x = 4, y = 2 → number = 42. Case 2 (y − x = 2): x = 2, y = 4 → number = 24.",
+    "solutionSteps": [
+     "Let the tens digit = x and units digit = y. Number = 10x + y; reversed = 10y + x.",
+     "Sum condition: (10x + y) + (10y + x) = 66 → 11(x + y) = 66 → x + y = 6 …(1).",
+     "Digit difference condition: x − y = 2 …(2a) OR y − x = 2 …(2b).",
+     "Case 1: (1) and (2a) → 2x = 8 → x = 4, y = 2 → number = 42.",
+     "Case 2: (1) and (2b) → 2y = 8 → y = 4, x = 2 → number = 24. Hence two numbers exist: 42 and 24."
+    ],
+    "finalAnswer": "Two numbers — 42 and 24 (both satisfy the conditions).",
+    "ncertRef": "NCERT Example 13",
+    "isCompetencyBased": true,
+    "strategyHint": "Two-digit number value = 10·(tens) + (units); 'differ by 2' has two cases (±)."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR31",
+  "kind": "near",
+  "similarity": "0.82",
+  "a": {
+   "id": "QE-E20",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "QE-E20",
+    "subject": "Maths",
+    "topicKey": "quadratic-equations",
+    "subtopic": "Word/Application Problems",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Find two consecutive positive integers, the sum of whose squares is 61.",
+    "solutionSteps": [
+     "n² + (n+1)² = 61; 2n² + 2n + 1 = 61 → 2n² + 2n − 60 = 0 → n² + n − 30 = 0 [½]",
+     "(n+6)(n−5) = 0 → n = 5 (positive) [½]",
+     "Numbers: 5 and 6 [1]"
+    ],
+    "finalAnswer": "5 and 6",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "QE-N-NCERT-4-SH-006",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "QE-N-NCERT-4-SH-006",
+    "subject": "Maths",
+    "topicKey": "quadratic-equations",
+    "subtopic": "Word Problems",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Find two consecutive positive integers, the sum of whose squares is 365.",
+    "answer": "The two consecutive positive integers are 13 and 14.",
+    "solutionSteps": [
+     "Let the smaller integer be x; the next is x + 1.",
+     "Equation: x² + (x + 1)² = 365 ⇒ 2x² + 2x + 1 = 365 ⇒ 2x² + 2x − 364 = 0 ⇒ x² + x − 182 = 0.",
+     "Factorise: x² + 14x − 13x − 182 = 0 ⇒ x(x + 14) − 13(x + 14) = 0 ⇒ (x − 13)(x + 14) = 0.",
+     "x = 13 or x = −14. Since we need positive integers, take x = 13.",
+     "Integers are 13 and 14. Verify: 13² + 14² = 169 + 196 = 365 ✓"
+    ],
+    "finalAnswer": "13 and 14.",
+    "ncertRef": "NCERT Ex 4.2 Q4",
+    "isCompetencyBased": true,
+    "strategyHint": "Reject negative or non-integer roots based on the physical/contextual constraint."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR32",
+  "kind": "near",
+  "similarity": "0.84",
+  "a": {
+   "id": "SQP-M-AP-001",
+   "surface": "bank",
+   "origin": "official(sqp)",
+   "withheld_now": false,
+   "row": {
+    "id": "SQP-M-AP-001",
+    "subject": "Maths",
+    "topicKey": "arithmetic-progression",
+    "subtopic": "nth Term — Difference Between Two APs",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Two APs have the same common difference. The first term of one of these is −1 and that of the other is −8. The difference between their 4th terms is",
+    "options": [
+     "(A) 1",
+     "(B) −7",
+     "(C) 7",
+     "(D) 9"
+    ],
+    "answer": "(C) 7",
+    "solutionSteps": [
+     "4th term of AP₁ = −1 + 3d; 4th term of AP₂ = −8 + 3d (same d). Difference = (−1 + 3d) − (−8 + 3d) = −1 + 8 = 7. The common difference cancels because both APs share it. Answer: (C)."
+    ],
+    "finalAnswer": "(C) 7",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "APQ-M-AP-002",
+   "surface": "bank",
+   "origin": "official(additionalPQ)",
+   "withheld_now": false,
+   "row": {
+    "id": "APQ-M-AP-002",
+    "subject": "Maths",
+    "topicKey": "arithmetic-progression",
+    "subtopic": "Difference of nth Terms",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Two APs have the same common difference. The first term of one of these is −1 and that of the other is −8. Then the difference between their 4th terms is",
+    "options": [
+     "−1",
+     "−8",
+     "7",
+     "−9"
+    ],
+    "answer": "7",
+    "solutionSteps": [
+     "a4 = a + 3d. Difference of 4th terms = (a1 + 3d) − (a2 + 3d) = a1 − a2 = −1 − (−8) = 7."
+    ],
+    "finalAnswer": "(c) 7",
+    "ncertRef": "APQ PQ2 Q6",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR33",
+  "kind": "near",
+  "similarity": "0.80",
+  "a": {
+   "id": "CG-M01",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-M01",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Distance Formula",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Find the point on the y-axis which is equidistant from the points A(6, 5) and B(−4, 3).",
+    "solutionSteps": [
+     "Let point be (0, y); (6²+(y−5)²) = (4²+(y−3)²) [1]",
+     "36+y²−10y+25 = 16+y²−6y+9 [1]",
+     "61−10y = 25−6y → −4y = −36 → y = 9 [1]"
+    ],
+    "finalAnswer": "(0, 9)",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CG-N-NCERT-7-EX-005",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-N-NCERT-7-EX-005",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Distance Formula",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Find a point on the y-axis which is equidistant from the points A(6, 5) and B(−4, 3).",
+    "answer": "Any point on the y-axis is of the form P(0, y). Equidistance: AP² = BP² ⇒ (6−0)² + (5−y)² = (−4−0)² + (3−y)². 36 + 25 − 10y + y² = 16 + 9 − 6y + y². 61 − 10y = 25 − 6y ⇒ −4y = −36 ⇒ y = 9. So the required point is (0, 9).",
+    "solutionSteps": [
+     "Any point on the y-axis has the form (0, y).",
+     "Set AP² = BP²: 6² + (5−y)² = (−4)² + (3−y)².",
+     "Expand: 36 + 25 − 10y + y² = 16 + 9 − 6y + y².",
+     "Cancel y²: 61 − 10y = 25 − 6y → −4y = −36 → y = 9.",
+     "Required point: (0, 9). Check: AP = √(36 + 16) = √52 and BP = √(16 + 36) = √52. ✓"
+    ],
+    "finalAnswer": "(0, 9).",
+    "ncertRef": "NCERT Example 5",
+    "isCompetencyBased": false,
+    "strategyHint": "Point on y-axis ⇒ x = 0; on x-axis ⇒ y = 0. Then set squared distances equal."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR34",
+  "kind": "near",
+  "similarity": "0.83",
+  "a": {
+   "id": "CG-H11",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-H11",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Section Formula",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "If the points A(6, 1), B(8, 2), C(9, 4) and D(p, 3) are the vertices of a parallelogram, taken in order, find p.",
+    "solutionSteps": [
+     "Mid AC = Mid BD; ((6+9)/2, (1+4)/2) = ((8+p)/2, (2+3)/2) [1]",
+     "(15/2, 5/2) = ((8+p)/2, 5/2) [1]",
+     "8+p = 15 → p = 7 [1]"
+    ],
+    "finalAnswer": "p = 7",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CG-N-NCERT-7-EX-010",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-N-NCERT-7-EX-010",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Midpoint Formula",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "If the points A(6, 1), B(8, 2), C(9, 4) and D(p, 3) are the vertices of a parallelogram, taken in order, find the value of p.",
+    "answer": "In a parallelogram the diagonals bisect each other, so midpoint of AC = midpoint of BD. Midpoint of AC = ((6+9)/2, (1+4)/2) = (15/2, 5/2). Midpoint of BD = ((8+p)/2, (2+3)/2) = ((8+p)/2, 5/2). Equating x-coordinates: 15/2 = (8+p)/2 ⇒ 15 = 8 + p ⇒ p = 7.",
+    "solutionSteps": [
+     "Diagonals of a parallelogram bisect each other ⇒ mid(AC) = mid(BD).",
+     "Mid(AC) = ((6+9)/2, (1+4)/2) = (15/2, 5/2).",
+     "Mid(BD) = ((8+p)/2, (2+3)/2) = ((8+p)/2, 5/2).",
+     "Equate x: 15/2 = (8+p)/2 → p = 7. (y already matches.)"
+    ],
+    "finalAnswer": "p = 7.",
+    "ncertRef": "NCERT Example 10",
+    "isCompetencyBased": false,
+    "strategyHint": "For a parallelogram with vertices in order, midpoints of diagonals are equal."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR35",
+  "kind": "near",
+  "similarity": "0.94",
+  "a": {
+   "id": "CIR-H06",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-H06",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Theorems & Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that the angle between the two tangents drawn from an external point to a circle is supplementary to the angle subtended by the line segment joining the points of contact at the centre.",
+    "solutionSteps": [
+     "Construction: Draw a circle with centre O and external point P. Draw tangents PA and PB, touching the circle at A and B. Join OA, OB, and OP.; Let PA, PB be tangents, O the centre; ∠OAP = ∠OBP = 90° [1]",
+     "In quadrilateral OAPB: sum of angles = 360°; ∠AOB + ∠APB + 90° + 90° = 360° [1]",
+     "∠AOB + ∠APB = 180°; They are supplementary. [1]"
+    ],
+    "finalAnswer": "Proved",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "PYQ-M-CIRC-014",
+   "surface": "bank",
+   "origin": "official(pyq)",
+   "withheld_now": false,
+   "row": {
+    "id": "PYQ-M-CIRC-014",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "General",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that the angle between the two tangents drawn from an external point to a circle is supplementary to the angle subtended by the line- segment joining the points of contact at the centre. 3 10",
+    "answer": "OAPB, ∠ OAP + ∠ APB + ∠ OBP + ∠ AOB = 360° 90° + ∠ APB + 90° + ∠ AOB = 360° (Tangent ⊥ radius) ∠ APB + ∠ AOB = 360° – 180° = 180° 1 mark for correct figure",
+    "solutionSteps": [
+     "PA and PB are tangents drawn from the external point P to the circle with centre O.",
+     "In quad.",
+     "OAPB, ∠ OAP + ∠ APB + ∠ OBP + ∠ AOB = 360° 90° + ∠ APB + 90° + ∠ AOB = 360° (Tangent ⊥ radius) ∠ APB + ∠ AOB = 360° – 180° = 180° 1 mark for correct figure"
+    ],
+    "finalAnswer": "OAPB, ∠ OAP + ∠ APB + ∠ OBP + ∠ AOB = 360° 90° + ∠ APB + 90° + ∠ AOB = 360° (Tangent ⊥ radius) ∠ APB + ∠ AOB = 360° – 180° = 180° 1 mark for correct figure",
+    "ncertRef": "PYQ 30/4/1 Q28",
+    "isCompetencyBased": true,
+    "pyqYear": "2023",
+    "pyqSet": "1"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR36",
+  "kind": "near",
+  "similarity": "0.88",
+  "a": {
+   "id": "SP-M-2022-CIRC-C-001",
+   "surface": "bank",
+   "origin": "official(sp)",
+   "withheld_now": false,
+   "row": {
+    "id": "SP-M-2022-CIRC-C-001",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangents to a Circle (Inscribed in Quadrilateral)",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "In the given figure, a circle is inscribed in a quadrilateral ABCD in which ∠B = 90°. If AD = 23 cm, AB = 29 cm and DS = 5 cm, find the radius (r) of the circle.",
+    "options": [],
+    "answer": "r = 11 cm",
+    "solutionSteps": [
+     "[1 mark] The tangent is perpendicular to the radius at the point of contact, so ∠OPB = ∠OQB = 90°. With ∠B = 90° and OP = OQ = r, quadrilateral OQBP is a square.",
+     "[1 mark] Tangents from an external point are equal: DR = DS = 5 cm and AQ = AR. Then AR = AD − DR = 23 − 5 = 18 cm, so AQ = 18 cm.",
+     "[1 mark] BQ = AB − AQ = 29 − 18 = 11 cm. Since OQBP is a square, radius OQ = BQ = 11 cm."
+    ],
+    "finalAnswer": "r = 11 cm",
+    "isCompetencyBased": false,
+    "requiresDiagram": true,
+    "diagramDescription": "A circle with centre O inscribed in quadrilateral ABCD with ∠B = 90°. The circle touches the four sides at points P (on AB), Q (on BC), R (on AD) and S (on DC). AD = 23 cm, AB = 29 cm, DS = 5 cm; OP and OQ are radii to the contact points on AB and BC."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "APQ-M-CIRC-004",
+   "surface": "bank",
+   "origin": "official(additionalPQ)",
+   "withheld_now": false,
+   "row": {
+    "id": "APQ-M-CIRC-004",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangents to Incircle of Quadrilateral",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A circle is inscribed in a quadrilateral ABCD in which ∠B = 90°. If AD = 23 cm, AB = 29 cm and DS = 5 cm, find the radius r of the circle.",
+    "answer": "r = 11 cm.",
+    "solutionSteps": [
+     "From tangent lengths from external point: DR = DS = 5 cm; AR = AD − DR = 23 − 5 = 18 cm. AQ = AR = 18 cm; QB = AB − AQ = 29 − 18 = 11 cm.",
+     "In quadrilateral OQBP: ∠B = 90° and ∠OQB = ∠OPB = 90° (tangent-radius). So OQBP is a square with side OQ = OP = r. Hence r = QB = 11 cm."
+    ],
+    "finalAnswer": "r = 11 cm.",
+    "ncertRef": "APQ PQ2 Q24",
+    "isCompetencyBased": true,
+    "strategyHint": "REQUIRES-FIGURE: inscribed circle in quadrilateral with right angle at B."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR37",
+  "kind": "near",
+  "similarity": "0.89",
+  "a": {
+   "id": "PYQ-M-2024-CIRC-010a",
+   "surface": "bank",
+   "origin": "official(pyq2024)",
+   "withheld_now": false,
+   "row": {
+    "id": "PYQ-M-2024-CIRC-010a",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent to a Circle",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "In the given figure, PQ is tangent to a circle centred at O and ÐBAQ=30°;showthatBP=BQ.",
+    "answer": "5 90 60 30 4 BP=BQ Join OQ = = − = = − = = + = = − = =",
+    "solutionSteps": [
+     "0 0 0 0 0 0 0 0 0 0 0 OQ=OA 2 30 3 90 30 60 4 90 60 30 6 1 2 60",
+     "5 90 60 30 4 BP=BQ Join OQ = = − = = − = = + = = − = ="
+    ],
+    "finalAnswer": "5 90 60 30 4 BP=BQ Join OQ = = − = = − = = + = = − = =",
+    "ncertRef": "PYQ 30/2/1 Q28(a)",
+    "isCompetencyBased": true,
+    "pyqYear": "2024",
+    "pyqSet": "1"
+   },
+   "pending_fix": "fix",
+   "pending_fix_fields": {
+    "questionText": "AB is a diameter of a circle with centre O. The tangent PQ to the circle at the point Q meets AB produced (beyond B) at P. If ∠BAQ = 30°, show that BP = BQ.",
+    "answer": "∠BQP = ∠BPQ = 30°, hence BP = BQ.",
+    "finalAnswer": "BP = BQ (proved), since ∠BQP = ∠BPQ = 30°",
+    "solutionSteps": [
+     "Join OQ. OA = OQ, so ∠OQA = ∠OAQ = 30°; exterior angle ∠BOQ = 30° + 30° = 60°.",
+     "OB = OQ, so ∠OBQ = ∠OQB = 60°; OQ ⊥ PQ gives ∠BQP = 90° − 60° = 30°.",
+     "In ΔOQP: ∠OPQ = 180° − 90° − 60° = 30°. So ∠BQP = ∠BPQ = 30°, hence BP = BQ."
+    ]
+   }
+  },
+  "b": {
+   "id": "PYQ-M-2024-CIRC-011a",
+   "surface": "bank",
+   "origin": "official(pyq2024)",
+   "withheld_now": false,
+   "row": {
+    "id": "PYQ-M-2024-CIRC-011a",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent to a Circle",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "In the given figure, PQ is tangent to a circle centred at O and ÐBAQ=30°;showthatBP=BQ. 3 OR",
+    "answer": "5 90 60 30 4 BP=BQ Join OQ = = − = = − = = + = = − = =",
+    "solutionSteps": [
+     "0 0 0 0 0 0 0 0 0 0 0 OQ=OA 2 30 3 90 30 60 4 90 60 30 6 1 2 60",
+     "5 90 60 30 4 BP=BQ Join OQ = = − = = − = = + = = − = ="
+    ],
+    "finalAnswer": "5 90 60 30 4 BP=BQ Join OQ = = − = = − = = + = = − = =",
+    "ncertRef": "PYQ 30/2/2 Q26(a)",
+    "isCompetencyBased": true,
+    "pyqYear": "2024",
+    "pyqSet": "2"
+   },
+   "pending_fix": "withhold",
+   "pending_fix_fields": {}
+  }
+ },
+ {
+  "group": "NR38",
+  "kind": "near",
+  "similarity": "0.85",
+  "a": {
+   "id": "ARC-M02",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "ARC-M02",
+    "subject": "Maths",
+    "topicKey": "areas-related-to-circles",
+    "subtopic": "Composite Figures",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A round table cover has six equal designs as shown in figure. If the radius of the cover is 28 cm, find the cost of making the designs at the rate of ₹0.35 per cm². (Use √3 = 1.7)",
+    "solutionSteps": [
+     "The cover is divided into 6 equilateral triangles by radii; Central angle per sector = 60°; Area of each sector = (60/360) × (22/7) × 28² = (1/6) × 2464 = 410.67 cm² [1]",
+     "Area of equilateral triangle = (√3/4) × 28² = (1.7/4) × 784 = 333.2 cm²; Area of each design (segment) = 410.67 − 333.2 = 77.47 cm² [1]",
+     "Total area of 6 designs = 6 × 77.47 = 464.8 cm²; Cost = 464.8 × 0.35 = ₹162.68 [1]"
+    ],
+    "finalAnswer": "≈ ₹162.68",
+    "isCompetencyBased": true
+   },
+   "pending_fix": "fix",
+   "pending_fix_fields": {
+    "questionText": "A round table cover of radius 28 cm has six equal designs. Each design is a minor segment of the circle cut off by a chord that subtends an angle of 60° at the centre (the six chords form a regular hexagon inscribed in the circle). Find the cost of making the designs at the rate of ₹0.35 per cm². (Use π = 22/7 and √3 = 1.7)",
+    "solutionSteps": [
+     "[1 mark] Area of each sector of angle 60° = (60/360) × (22/7) × 28² = 1232/3 ≈ 410.67 cm².",
+     "[1 mark] Each chord forms an equilateral triangle with the radii: area = (√3/4) × 28² = (1.7/4) × 784 = 333.2 cm². Area of each design (segment) = 410.67 − 333.2 = 77.47 cm².",
+     "[1 mark] Total area of 6 designs = 6 × 77.47 ≈ 464.8 cm²; Cost = 464.8 × 0.35 ≈ ₹162.68."
+    ]
+   }
+  },
+  "b": {
+   "id": "ARC-M06",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "ARC-M06",
+    "subject": "Maths",
+    "topicKey": "areas-related-to-circles",
+    "subtopic": "Composite Figures",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A round table cover has six equal designs as shown. If the radius of the cover is 28 cm, find the cost of making the designs at the rate of ₹0.35 per cm². (Use √3 = 1.7)",
+    "solutionSteps": [
+     "6 designs = 6 segments, each with central angle 60°; Area of each segment = sector − equilateral triangle part; Sector area = (60/360) × 22/7 × 784 = 410.67 cm² [1]",
+     "Triangle area = (√3/4) × 28² = (1.7/4) × 784 = 333.2 cm²; Each segment = 77.47 cm² [1]",
+     "6 segments = 464.8 cm²; Cost = 464.8 × 0.35 = ₹162.68 [1]"
+    ],
+    "finalAnswer": "≈ ₹162.68",
+    "isCompetencyBased": true
+   },
+   "pending_fix": "withhold",
+   "pending_fix_fields": {}
+  }
+ },
+ {
+  "group": "NR39",
+  "kind": "near",
+  "similarity": "0.89",
+  "a": {
+   "id": "SAV-H05",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "SAV-H05",
+    "subject": "Maths",
+    "topicKey": "surface-areas-and-volumes",
+    "subtopic": "Cylinder/Cone/Sphere",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "Water is flowing at the rate of 15 km/h through a pipe of diameter 14 cm into a cuboidal pond which is 50 m long and 44 m wide. In what time will the level of water in the pond rise by 21 cm?",
+    "solutionSteps": [
+     "Volume needed = 50 × 44 × 0.21 = 462 m³ [1]",
+     "Pipe radius = 7 cm = 0.07 m [1]",
+     "Flow rate = π(0.07)²(15000) m³/h = π(0.0049)(15000) = 73.5π m³/h [1]",
+     "= 22/7 × 73.5 = 231 m³/h [1]",
+     "Time = 462/231 = 2 hours [1]"
+    ],
+    "finalAnswer": "2 hours",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "SAV-N-EXEM2-12-LA-006",
+   "surface": "bank",
+   "origin": "official(exemplar2)",
+   "withheld_now": false,
+   "row": {
+    "id": "SAV-N-EXEM2-12-LA-006",
+    "subject": "Maths",
+    "topicKey": "surface-areas-and-volumes",
+    "subtopic": "Rate of Flow (Pipe filling Pond)",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "Water is flowing at the rate of 15 km/h through a pipe of diameter 14 cm into a cuboidal pond which is 50 m long and 44 m wide. In what time will the level of water in pond rise by 21 cm?",
+    "solutionSteps": [
+     "[1 mark] Pipe radius = 7 cm = 0.07 m; water speed = 15 km/h = 15000 m/h.",
+     "[1 mark] Volume of water per hour = (22/7)(0.07)²(15000) = 231 m³.",
+     "[1 mark] Required volume in pond = 50 × 44 × 0.21 = 462 m³.",
+     "[1 mark] Time = 462 / 231.",
+     "[1 mark] = 2 hours."
+    ],
+    "finalAnswer": "2 hours.",
+    "ncertRef": "Exemplar Ex 12.4 Q8",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR40",
+  "kind": "near",
+  "similarity": "0.90",
+  "a": {
+   "id": "SAV2-R02",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "SAV2-R02",
+    "subject": "Maths",
+    "topicKey": "surface-areas-and-volumes",
+    "subtopic": "Combination/Transformation",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A vessel is in the form of a hollow hemisphere mounted by a hollow cylinder. The diameter of the hemisphere is 14 cm and the total height of the vessel is 13 cm. Find the inner surface area of the vessel.",
+    "options": [],
+    "answer": "572 cm²",
+    "solutionSteps": [
+     "r = 7 cm, height of cylinder = 13 - 7 = 6 cm",
+     "Inner SA = CSA of cylinder + CSA of hemisphere",
+     "= 2πrh + 2πr² = 2π(7)(6) + 2π(49) = 84π + 98π = 182π ≈ 572 cm²"
+    ],
+    "finalAnswer": "572 cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.1"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "SAV-N-NCERT-12-SA-005",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "SAV-N-NCERT-12-SA-005",
+    "subject": "Maths",
+    "topicKey": "surface-areas-and-volumes",
+    "subtopic": "Surface Area of Combined Solids",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A vessel is in the form of a hollow hemisphere mounted by a hollow cylinder. The diameter of the hemisphere is 14 cm and the total height of the vessel is 13 cm. Find the inner surface area of the vessel. (Take π = 22/7.)",
+    "solutionSteps": [
+     "Radius r = 14/2 = 7 cm. Height of cylindrical part h = 13 − 7 = 6 cm.",
+     "Inner SA = CSA of hemisphere + CSA of cylinder = 2πr² + 2πrh = 2πr(r + h).",
+     "= 2 × (22/7) × 7 × (7 + 6) cm² = 2 × 22 × 13 cm² = 572 cm²."
+    ],
+    "finalAnswer": "Inner surface area = 572 cm².",
+    "ncertRef": "NCERT Ex 13.1 Q2",
+    "isCompetencyBased": true,
+    "strategyHint": "Cylinder height = total height − hemisphere radius; only inner curved surfaces are counted (vessel is hollow, top open)."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR41",
+  "kind": "near",
+  "similarity": "0.86",
+  "a": {
+   "id": "CBE-M-STAT-C-002",
+   "surface": "bank",
+   "origin": "official(cbe)",
+   "withheld_now": false,
+   "row": {
+    "id": "CBE-M-STAT-C-002",
+    "subject": "Maths",
+    "topicKey": "statistics",
+    "subtopic": "Mean of Grouped Data (Direct Method)",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Rosy, a farmer, grew fifty baby corn by developing the method of organic farming in her field. On harvesting, she measured the lengths of the baby corns (to the nearest mm) and grouped the results as tabulated below.\nLength (in mm) : Number of baby corns\n30–39 : 5\n40–49 : 2\n50–59 : 6\n60–69 : 8\n70–79 : 9\n80–89 : 11\n90–99 : 6\n100–109 : 3\nFind the average length of baby corns using the direct method.",
+    "options": [],
+    "answer": "71.7 mm",
+    "solutionSteps": [
+     "[1 mark] Find the class marks xi (34.5, 44.5, 54.5, 64.5, 74.5, 84.5, 94.5, 104.5) and compute xi·fi for each class (172.5, 89, 327, 516, 670.5, 929.5, 567, 313.5).",
+     "[1 mark] Apply the direct-method formula: mean (x̄) = Σ(xi·fi) / Σfi = 3585 / 50.",
+     "[1 mark] mean = 71.7 mm."
+    ],
+    "finalAnswer": "71.7 mm",
+    "isCompetencyBased": true,
+    "sourceOverride": "others"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CBE-M-STAT-C-003",
+   "surface": "bank",
+   "origin": "official(cbe)",
+   "withheld_now": false,
+   "row": {
+    "id": "CBE-M-STAT-C-003",
+    "subject": "Maths",
+    "topicKey": "statistics",
+    "subtopic": "Mode of Grouped Data",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Rosy, a farmer, grew fifty baby corn by developing the method of organic farming in her field. On harvesting, she measured the lengths of the baby corns (to the nearest mm) and grouped the results as tabulated below.\nLength (in mm) : Number of baby corns\n30–39 : 5\n40–49 : 2\n50–59 : 6\n60–69 : 8\n70–79 : 9\n80–89 : 11\n90–99 : 6\n100–109 : 3\nFind the modal length of baby corn.",
+    "options": [],
+    "answer": "82.36 mm",
+    "solutionSteps": [
+     "[1 mark] Convert to continuous class intervals and identify the modal class (highest frequency 11) as 79.5–89.5, with f0 = 9, f1 = 11, f2 = 6, l = 79.5, h = 10.",
+     "[1 mark] Apply the mode formula: z = l + ((f1 − f0) / (2f1 − f0 − f2)) × h = 79.5 + ((11 − 9) / (22 − 9 − 6)) × 10.",
+     "[1 mark] z = 79.5 + 2.86 = 82.36 mm."
+    ],
+    "finalAnswer": "82.36 mm",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR42",
+  "kind": "near",
+  "similarity": "0.86",
+  "a": {
+   "id": "PROB-M04",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "PROB-M04",
+    "subject": "Maths",
+    "topicKey": "probability",
+    "subtopic": "Combined/Word Problem Probability",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A box contains 90 discs numbered 1 to 90. One disc is drawn at random. Find the probability that it bears: (i) a two-digit number (ii) a perfect square (iii) a number divisible by 5.",
+    "solutionSteps": [
+     "(i) Two-digit: 10 to 90 → 81 numbers. P = 81/90 = 9/10 [1]",
+     "(ii) Perfect squares: 1,4,9,16,25,36,49,64,81 → 9. P = 9/90 = 1/10 [1]",
+     "(iii) Divisible by 5: 5,10,...,90 → 18. P = 18/90 = 1/5 [1]"
+    ],
+    "finalAnswer": "(i) 9/10, (ii) 1/10, (iii) 1/5",
+    "visualExplainerId": "maths-probability-classical-probability",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "PROB-N-NCERT-14-SA-004",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "PROB-N-NCERT-14-SA-004",
+    "subject": "Maths",
+    "topicKey": "probability",
+    "subtopic": "Numbered Discs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A box contains 90 discs numbered 1 to 90. If one disc is drawn at random, find the probability that it bears (i) a two-digit number, (ii) a perfect square, (iii) a number divisible by 5.",
+    "solutionSteps": [
+     "Total outcomes = 90.",
+     "(i) Two-digit numbers from 10 to 90 → 81 outcomes. P = 81/90 = 9/10.",
+     "(ii) Perfect squares ≤ 90: 1, 4, 9, 16, 25, 36, 49, 64, 81 → 9 outcomes. P = 9/90 = 1/10.",
+     "(iii) Multiples of 5 from 5 to 90: 5, 10, …, 90. Count = 90/5 = 18. P = 18/90 = 1/5."
+    ],
+    "finalAnswer": "(i) 9/10; (ii) 1/10; (iii) 1/5.",
+    "ncertRef": "NCERT Ex 15.1 Q18",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR43",
+  "kind": "near",
+  "similarity": "0.81",
+  "a": {
+   "id": "CHEM-EXMPLR-1-MCQ-018",
+   "surface": "bank",
+   "origin": "official(exemplar)",
+   "withheld_now": false,
+   "row": {
+    "id": "CHEM-EXMPLR-1-MCQ-018",
+    "subject": "Science",
+    "topicKey": "chemical-reactions-and-equations",
+    "subtopic": "Combination Reactions",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Analysing",
+    "questionText": "Which of the following are combination reactions?\n(i) 2KClO₃ --Heat--> 2KCl + 3O₂\n(ii) MgO + H₂O → Mg(OH)₂\n(iii) 4Al + 3O₂ → 2Al₂O₃\n(iv) Zn + FeSO₄ → ZnSO₄ + Fe",
+    "options": [
+     "(i) and (iii)",
+     "(iii) and (iv)",
+     "(ii) and (iv)",
+     "(ii) and (iii)"
+    ],
+    "answer": "(ii) and (iii)",
+    "solutionSteps": [
+     "(i) Single reactant breaks down → decomposition. Not combination.",
+     "(ii) MgO + H₂O → Mg(OH)₂ — two substances combine to give one product → combination ✓.",
+     "(iii) 4Al + 3O₂ → 2Al₂O₃ — two elements combine to give one compound → combination ✓.",
+     "(iv) Zn displaces Fe from FeSO₄ → displacement. Not combination.",
+     "Answer: (d) (ii) and (iii)."
+    ],
+    "finalAnswer": "(ii) and (iii) — option (d)",
+    "ncertRef": "Exemplar Ex 1.1 Q18 (MCQ)",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "PYQ-S-2026-CHEMRXN-002",
+   "surface": "bank",
+   "origin": "official(pyq2026)",
+   "withheld_now": false,
+   "row": {
+    "id": "PYQ-S-2026-CHEMRXN-002",
+    "subject": "Science",
+    "topicKey": "chemical-reactions-and-equations",
+    "subtopic": "Combination Reactions",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Which of the following are combination reactions ? (i) 2KClO3 ⎯→ ⎯ 2KCl + 3O2 (ii) MgO + H2O ⎯→ ⎯ Mg(OH)2 (iii) 4Al + 3O2 ⎯→ ⎯ 2Al2O3 (iv) Zn + FeSO4 ⎯→ ⎯ ZnSO4 + Fe",
+    "options": [
+     "(i) and (iii)",
+     "(iii) and (iv)",
+     "(ii) and (iv)",
+     "(ii) and (iii)"
+    ],
+    "answer": "(ii) and (iii)",
+    "solutionSteps": [
+     "[1 mark] Correct option: (d) (ii) and (iii)."
+    ],
+    "finalAnswer": "(d) (ii) and (iii)",
+    "ncertRef": "PYQ 31/2/1 Q17",
+    "isCompetencyBased": true,
+    "pyqYear": "2026",
+    "pyqSet": "1"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR44",
+  "kind": "near",
+  "similarity": "0.82",
+  "a": {
+   "id": "CBE-S-CHEM-A-006",
+   "surface": "bank",
+   "origin": "official(cbe)",
+   "withheld_now": false,
+   "row": {
+    "id": "CBE-S-CHEM-A-006",
+    "subject": "Science",
+    "topicKey": "chemical-reactions-and-equations",
+    "subtopic": "Oxidation and Reduction",
+    "section": "A",
+    "marks": 1,
+    "format": "VSA",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "The reaction between magnesium and oxygen can be described in different ways. Explain why the reaction can be described as an oxidation reaction.",
+    "options": [],
+    "answer": "Oxygen is gained/added by magnesium.",
+    "solutionSteps": [
+     "[1 mark] Magnesium gains/adds oxygen during the reaction; gain of oxygen is oxidation, so the reaction is an oxidation reaction."
+    ],
+    "finalAnswer": "Oxygen is gained (added) by magnesium.",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CBE-S-CHEM-A-007",
+   "surface": "bank",
+   "origin": "official(cbe)",
+   "withheld_now": false,
+   "row": {
+    "id": "CBE-S-CHEM-A-007",
+    "subject": "Science",
+    "topicKey": "chemical-reactions-and-equations",
+    "subtopic": "Exothermic and Endothermic Reactions",
+    "section": "A",
+    "marks": 1,
+    "format": "VSA",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "The reaction between magnesium and oxygen can be described in different ways. Explain why the reaction can be described as an exothermic reaction.",
+    "options": [],
+    "answer": "Heat is released.",
+    "solutionSteps": [
+     "[1 mark] Heat (energy) is released during the reaction; a reaction that releases heat is exothermic."
+    ],
+    "finalAnswer": "Heat is released during the reaction.",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR45",
+  "kind": "near",
+  "similarity": "0.81",
+  "a": {
+   "id": "METAL-NCERT-3-MCQ-003",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "METAL-NCERT-3-MCQ-003",
+    "subject": "Science",
+    "topicKey": "metals-and-non-metals",
+    "subtopic": "Properties of Ionic Compounds",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "An element reacts with oxygen to give a compound with a high melting point. This compound is also soluble in water. The element is likely to be",
+    "options": [
+     "calcium",
+     "carbon",
+     "silicon",
+     "iron"
+    ],
+    "answer": "calcium",
+    "solutionSteps": [
+     "High melting point + soluble in water → ionic oxide of a metal (basic oxide soluble in water → forms alkali).",
+     "Calcium: CaO has high m.p. (~2570°C) and dissolves in water to form Ca(OH)₂ — soluble. ✓",
+     "Carbon (CO₂) is a gas; Silicon (SiO₂) has high m.p. but is INSOLUBLE in water; Iron (Fe₂O₃) is insoluble."
+    ],
+    "finalAnswer": "Calcium — option (a)",
+    "ncertRef": "Exercise Q3",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "SCO-S-METAL-003",
+   "surface": "bank",
+   "origin": "transcribed-third-party(chapterwise)",
+   "withheld_now": false,
+   "row": {
+    "id": "SCO-S-METAL-003",
+    "subject": "Science",
+    "topicKey": "metals-and-non-metals",
+    "subtopic": "Chapter Practice — Metals and Non-metals",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "An element reacts with oxygen to give a compound with a high melting point. This compound is soluble in water. The element is likely to be-",
+    "options": [
+     "calcium",
+     "carbon",
+     "silicon",
+     "iron"
+    ],
+    "answer": "calcium",
+    "solutionSteps": [
+     "[1 mark] Correct option is (a) calcium."
+    ],
+    "finalAnswer": "(a) calcium",
+    "ncertRef": "cbjescco03 Q4",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR46",
+  "kind": "near",
+  "similarity": "0.86",
+  "a": {
+   "id": "SCQ-S-CARB-020",
+   "surface": "bank",
+   "origin": "transcribed-third-party(chapterwise)",
+   "withheld_now": false,
+   "row": {
+    "id": "SCQ-S-CARB-020",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Chapter Practice — Carbon and its Compounds",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Write the molecular formula of first two members of homologous series having functional group —Cl.",
+    "answer": "(1) CH3Cl Chloromethane (2) CH3CH2Cl Chloroethane",
+    "solutionSteps": [
+     "(1) CH3Cl Chloromethane (2) CH3CH2Cl Chloroethane"
+    ],
+    "ncertRef": "cbjesccq04 Q1",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "SCQ-S-CARB-021",
+   "surface": "bank",
+   "origin": "transcribed-third-party(chapterwise)",
+   "withheld_now": false,
+   "row": {
+    "id": "SCQ-S-CARB-021",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Chapter Practice — Carbon and its Compounds",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Write the molecular formula of first two members of homologous series having functional group —Br.",
+    "answer": "(1) CH3Br Bromomethane (2) C2H5Br Bromoethane",
+    "solutionSteps": [
+     "(1) CH3Br Bromomethane (2) C2H5Br Bromoethane"
+    ],
+    "ncertRef": "cbjesccq04 Q2",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR47",
+  "kind": "near",
+  "similarity": "0.86",
+  "a": {
+   "id": "SCQ-S-CARB-020",
+   "surface": "bank",
+   "origin": "transcribed-third-party(chapterwise)",
+   "withheld_now": false,
+   "row": {
+    "id": "SCQ-S-CARB-020",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Chapter Practice — Carbon and its Compounds",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Write the molecular formula of first two members of homologous series having functional group —Cl.",
+    "answer": "(1) CH3Cl Chloromethane (2) CH3CH2Cl Chloroethane",
+    "solutionSteps": [
+     "(1) CH3Cl Chloromethane (2) CH3CH2Cl Chloroethane"
+    ],
+    "ncertRef": "cbjesccq04 Q1",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "SCQ-S-CARB-022",
+   "surface": "bank",
+   "origin": "transcribed-third-party(chapterwise)",
+   "withheld_now": false,
+   "row": {
+    "id": "SCQ-S-CARB-022",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Chapter Practice — Carbon and its Compounds",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Write the molecular formula of first two members of homologous series having functional group —OH.",
+    "answer": "(1) CH3OH Methanol (2) C2H5OH Ethanol",
+    "solutionSteps": [
+     "(1) CH3OH Methanol (2) C2H5OH Ethanol"
+    ],
+    "ncertRef": "cbjesccq04 Q3",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR48",
+  "kind": "near",
+  "similarity": "0.86",
+  "a": {
+   "id": "SCQ-S-CARB-021",
+   "surface": "bank",
+   "origin": "transcribed-third-party(chapterwise)",
+   "withheld_now": false,
+   "row": {
+    "id": "SCQ-S-CARB-021",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Chapter Practice — Carbon and its Compounds",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Write the molecular formula of first two members of homologous series having functional group —Br.",
+    "answer": "(1) CH3Br Bromomethane (2) C2H5Br Bromoethane",
+    "solutionSteps": [
+     "(1) CH3Br Bromomethane (2) C2H5Br Bromoethane"
+    ],
+    "ncertRef": "cbjesccq04 Q2",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "SCQ-S-CARB-022",
+   "surface": "bank",
+   "origin": "transcribed-third-party(chapterwise)",
+   "withheld_now": false,
+   "row": {
+    "id": "SCQ-S-CARB-022",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Chapter Practice — Carbon and its Compounds",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Write the molecular formula of first two members of homologous series having functional group —OH.",
+    "answer": "(1) CH3OH Methanol (2) C2H5OH Ethanol",
+    "solutionSteps": [
+     "(1) CH3OH Methanol (2) C2H5OH Ethanol"
+    ],
+    "ncertRef": "cbjesccq04 Q3",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR49",
+  "kind": "near",
+  "similarity": "0.80",
+  "a": {
+   "id": "SCQ-S-CARB-024",
+   "surface": "bank",
+   "origin": "transcribed-third-party(chapterwise)",
+   "withheld_now": false,
+   "row": {
+    "id": "SCQ-S-CARB-024",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Chapter Practice — Carbon and its Compounds",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Write the formula of first two members of homologous series whose functional group is —CHO.",
+    "answer": "Functional group —CHO (aldehyde). 1. Methanal, HCHO 2. Ethanal, CH3CHO",
+    "solutionSteps": [
+     "[1 mark] First member: methanal (formaldehyde), HCHO",
+     "[1 mark] Second member: ethanal (acetaldehyde), CH3CHO"
+    ],
+    "ncertRef": "cbjesccq04 Q5",
+    "isCompetencyBased": false,
+    "sourceOverride": "others"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "SCQ-S-CARB-025",
+   "surface": "bank",
+   "origin": "transcribed-third-party(chapterwise)",
+   "withheld_now": false,
+   "row": {
+    "id": "SCQ-S-CARB-025",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Chapter Practice — Carbon and its Compounds",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Ethanal 6. Write the formula of first two members of homologous series whose functional group is .",
+    "answer": "1. 2-Propanone",
+    "solutionSteps": [
+     "1. 2-Propanone"
+    ],
+    "ncertRef": "cbjesccq04 Q2",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR50",
+  "kind": "near",
+  "similarity": "0.83",
+  "a": {
+   "id": "REP-E13",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "REP-E13",
+    "subject": "Science",
+    "topicKey": "how-do-organisms-reproduce",
+    "subtopic": "Sexual Reproduction in Humans",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "What are the changes seen in girls at the time of puberty? (Any three)",
+    "solutionSteps": [
+     "Breast development; Growth of pubic and underarm hair [½]",
+     "Onset of menstruation [½]",
+     "Widening of hips [1]"
+    ],
+    "finalAnswer": "Breast development, body hair, menstruation, hip widening",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "REPR-NCERT-7-SA-010",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "REPR-NCERT-7-SA-010",
+    "subject": "Science",
+    "topicKey": "how-do-organisms-reproduce",
+    "subtopic": "Puberty (Female)",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "What are the changes seen in girls at the time of puberty?",
+    "answer": "Changes in girls at puberty: (i) breast size increases with darkening of nipple area; (ii) onset of menstruation; (iii) growth of thick hair in armpits and pubic region; (iv) skin becomes oily, may develop pimples; (v) widening of hips; (vi) increase in height and weight; (vii) increased self-awareness and emotional changes.",
+    "solutionSteps": [
+     "Caused by secretion of oestrogen from ovaries.",
+     "Physical: breast development, darkening of nipple area.",
+     "Reproductive: onset of menstruation (menarche).",
+     "Hair: growth in armpits, pubic area.",
+     "Skin: oily, pimples may develop.",
+     "Skeletal: widening of hips, growth in height."
+    ],
+    "finalAnswer": "Breast development, menstruation onset, hair growth, oily skin, widening hips, height increase.",
+    "ncertRef": "In-text Q3 (after §7.3)",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR51",
+  "kind": "near",
+  "similarity": "0.91",
+  "a": {
+   "id": "GDR-L-EQ-13",
+   "surface": "bank",
+   "origin": "transcribed-third-party(gdr)",
+   "withheld_now": false,
+   "row": {
+    "id": "GDR-L-EQ-13",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Ray Diagrams for Mirrors and Lenses",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Understanding",
+    "questionText": "Draw the ray diagram in each case to show the position, nature of image formed when the object is placed:\na. at the centre of curvature of a concave mirror\nb. within focal length of a convex lens\nc. between pole and focus of concave mirror\nd. in front of concave lens\ne. in front of convex mirror",
+    "solutionSteps": [
+     "[1 mark] (a) Object at C of a concave mirror: image is formed at C itself; real, inverted and of the same size as the object (ray diagram).",
+     "[1 mark] (b) Object within the focal length of a convex lens (between O and F1): image is virtual, erect, magnified and on the same side as the object (ray diagram).",
+     "[1 mark] (c) Object between pole P and focus F of a concave mirror: image is formed behind the mirror; virtual, erect and magnified (ray diagram).",
+     "[1 mark] (d) Object in front of a concave lens: image is always virtual, erect, diminished, formed between the optical centre O and focus F1 on the same side as the object (ray diagram).",
+     "[1 mark] (e) Object in front of a convex mirror: image is always virtual, erect, diminished, formed behind the mirror between the pole P and focus F (ray diagram)."
+    ],
+    "finalAnswer": "(a) at C: real, inverted, same size; (b) virtual, erect, magnified, same side; (c) virtual, erect, magnified, behind mirror; (d) virtual, erect, diminished, between O and F1; (e) virtual, erect, diminished, between P and F behind the mirror.",
+    "isCompetencyBased": false,
+    "requiresDiagram": false,
+    "diagramDescription": "Five ray diagrams: (a) object at C of a concave mirror giving a real, inverted, same-size image at C; (b) object within the focal length of a convex lens giving a virtual, erect, magnified image on the same side; (c) object between P and F of a concave mirror giving a virtual, erect, magnified image behind the mirror; (d) object in front of a concave lens giving a virtual, erect, diminished image between O and F1; (e) object in front of a convex mirror giving a virtual, erect, diminished image between P and F behind the mirror."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "GDR-L-CBJ-028",
+   "surface": "bank",
+   "origin": "transcribed-third-party(gdr)",
+   "withheld_now": false,
+   "row": {
+    "id": "GDR-L-CBJ-028",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Ray Diagrams (Mirrors and Lenses)",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Draw the ray diagram in each case to show the position and nature of image formed when the object is placed:\n(a) at the centre of curvature of a concave mirror\n(b) within focal length of a convex lens\n(c) between pole and focus of concave mirror\n(d) in front of concave lens\n(e) in front of convex mirror",
+    "solutionSteps": [
+     "[1 mark] (a) Concave mirror, object at C: image at C, real, inverted and of the same size.",
+     "[1 mark] (b) Convex lens, object within the focal length: image on the same side as the object, virtual, erect and magnified.",
+     "[1 mark] (c) Concave mirror, object between P and F: image behind the mirror, virtual, erect and magnified.",
+     "[1 mark] (d) Concave lens, object in front: image between the optical centre and F on the object side, virtual, erect and diminished.",
+     "[1 mark] (e) Convex mirror, object in front: image between P and F behind the mirror, virtual, erect and diminished."
+    ],
+    "finalAnswer": "Five standard ray diagrams with the stated image positions and natures.",
+    "isCompetencyBased": false,
+    "requiresDiagram": false,
+    "diagramDescription": "Five diagrams: (a) concave mirror, object at C - real, inverted, same-size image at C; (b) convex lens, object between O and F1 - virtual, erect, magnified image on the same side; (c) concave mirror, object between P and F - virtual, erect, magnified image behind the mirror; (d) concave lens - virtual, erect, diminished image between O and F1 on the object side; (e) convex mirror - virtual, erect, diminished image between P and F behind the mirror."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "NR52",
+  "kind": "near",
+  "similarity": "0.86",
+  "a": {
+   "id": "GDR-L-NUM-017",
+   "surface": "bank",
+   "origin": "transcribed-third-party(gdr)",
+   "withheld_now": false,
+   "row": {
+    "id": "GDR-L-NUM-017",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Spherical Lenses",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "What is the nature of the image formed by a convex lens if the magnification produced by the convex lens is +3?",
+    "solutionSteps": [
+     "[1 mark] Positive magnification means the image is virtual and erect",
+     "[1 mark] Magnitude 3 is greater than 1, so the image is magnified 3 times; this happens when the object is between the optical centre and the focus"
+    ],
+    "finalAnswer": "Virtual, erect and magnified (3 times)",
+    "isCompetencyBased": false,
+    "requiresDiagram": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "GDR-L-NUM-018",
+   "surface": "bank",
+   "origin": "transcribed-third-party(gdr)",
+   "withheld_now": false,
+   "row": {
+    "id": "GDR-L-NUM-018",
+    "subject": "Science",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Spherical Lenses",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "What is the nature of the image formed by a convex lens if the magnification produced by the convex lens is -0.5?",
+    "solutionSteps": [
+     "[1 mark] Negative magnification means the image is real and inverted",
+     "[1 mark] Magnitude 0.5 is less than 1, so the image is diminished; this happens when the object is placed beyond 2F"
+    ],
+    "finalAnswer": "Real, inverted and diminished (half size)",
+    "isCompetencyBased": false,
+    "requiresDiagram": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ }
+]

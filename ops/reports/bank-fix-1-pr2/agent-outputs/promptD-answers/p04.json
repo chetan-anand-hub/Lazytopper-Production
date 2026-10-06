@@ -1,0 +1,267 @@
+[
+ {
+  "id": "S-CHEM-4",
+  "verdict": "ok",
+  "answer": "A redox reaction is one in which oxidation and reduction take place simultaneously — one reactant gains oxygen/loses hydrogen (is oxidised) while the other loses oxygen/gains hydrogen (is reduced). Example: CuO + H₂ → Cu + H₂O (on heating). Here CuO loses oxygen and is reduced to Cu, while H₂ gains oxygen and is oxidised to H₂O.",
+  "finalAnswer": "Oxidation and reduction occurring together; e.g. CuO + H₂ → Cu + H₂O (CuO reduced, H₂ oxidised)",
+  "solutionSteps": [
+   "[1 mark] Definition: a reaction in which one substance is oxidised (gains oxygen / loses hydrogen) and another is reduced (loses oxygen / gains hydrogen) simultaneously.",
+   "[1 mark] Example: CuO + H₂ → Cu + H₂O (heat); CuO is reduced to Cu and H₂ is oxidised to H₂O."
+  ]
+ },
+ {
+  "id": "S-ABS-5",
+  "verdict": "ok",
+  "answer": "Baking soda: sodium hydrogencarbonate, NaHCO₃ — used as an antacid to neutralise excess acid in the stomach (also in baking powder for making cakes soft and spongy). Washing soda: sodium carbonate decahydrate, Na₂CO₃·10H₂O — used to remove permanent hardness of water (also in glass, soap and paper industries, and as a cleaning agent).",
+  "finalAnswer": "NaHCO₃ (antacid / baking powder); Na₂CO₃·10H₂O (removing permanent hardness of water / cleaning)",
+  "solutionSteps": [
+   "[1 mark] Baking soda: NaHCO₃ (sodium hydrogencarbonate); washing soda: Na₂CO₃·10H₂O (sodium carbonate decahydrate) — 0.5 mark each.",
+   "[1 mark] Use of baking soda: antacid to neutralise excess stomach acid, or ingredient of baking powder.",
+   "[1 mark] Use of washing soda: removing permanent hardness of water, or in glass/soap/paper industries, or as cleaning agent."
+  ]
+ },
+ {
+  "id": "S-MNM-5",
+  "verdict": "ok",
+  "answer": "In a displacement reaction, a more reactive metal loses electrons more readily and so pushes out a less reactive metal from the solution of its salt. Example: when an iron nail is dipped in copper sulphate solution, Fe + CuSO₄(aq) → FeSO₄(aq) + Cu(s). The blue colour of the solution fades to pale green and a reddish-brown coating of copper forms on the nail, because iron is more reactive than copper.",
+  "finalAnswer": "Fe + CuSO₄ → FeSO₄ + Cu (iron displaces copper)",
+  "solutionSteps": [
+   "[1 mark] Explanation: a more reactive metal (higher in the reactivity series) displaces a less reactive metal from its salt solution.",
+   "[1 mark] Example with equation: Fe + CuSO₄(aq) → FeSO₄(aq) + Cu(s); blue solution turns pale green, reddish-brown copper deposits on iron."
+  ]
+ },
+ {
+  "id": "S-CARB-5",
+  "verdict": "ok",
+  "answer": "Catenation is the unique ability of carbon atoms to form strong covalent bonds with other carbon atoms, giving rise to long chains (straight or branched) and rings. This is because of the small size of the carbon atom, which makes C–C bonds very strong and stable. Catenation is one of the main reasons for the very large number of carbon compounds.",
+  "finalAnswer": "Self-linking of carbon atoms by covalent bonds into chains and rings",
+  "solutionSteps": [
+   "[1 mark] Definition: property of carbon atoms to bond covalently with other carbon atoms forming long chains, branched chains and rings.",
+   "[1 mark] Reason/significance: small size of carbon makes C–C bonds strong; leads to a very large number of carbon compounds."
+  ]
+ },
+ {
+  "id": "S-LIFE-5",
+  "verdict": "ok",
+  "answer": "Double circulation: in humans, blood passes through the heart twice during one complete cycle — once through the pulmonary circulation (right ventricle → lungs → left atrium) and once through the systemic circulation (left ventricle → body → right atrium). Importance: the right and left sides of the heart are completely separated, so oxygenated and deoxygenated blood do not mix. This gives a highly efficient supply of oxygen to the body, which is needed by mammals and birds that have high energy needs to maintain a constant body temperature.",
+  "finalAnswer": "Blood passes through the heart twice per cycle; keeps oxygenated and deoxygenated blood separate for efficient O₂ supply",
+  "solutionSteps": [
+   "[1 mark] Definition: blood flows through the heart twice in one complete cycle of the body.",
+   "[1 mark] Two circuits: pulmonary (heart → lungs → heart) and systemic (heart → body organs → heart).",
+   "[1 mark] Importance: no mixing of oxygenated and deoxygenated blood → efficient oxygen supply for high energy needs and maintaining constant body temperature."
+  ]
+ },
+ {
+  "id": "S-ELEC-5",
+  "verdict": "ok",
+  "answer": "In series, R_s = R₁ + R₂ = 4 Ω + 6 Ω = 10 Ω. By Ohm's law, I = V/R_s = 5 V / 10 Ω = 0.5 A.",
+  "finalAnswer": "R = 10 Ω, I = 0.5 A",
+  "solutionSteps": [
+   "[1 mark] Formula for series: R_s = R₁ + R₂.",
+   "[1 mark] R_s = 4 Ω + 6 Ω = 10 Ω.",
+   "[1 mark] I = V/R = 5 V / 10 Ω = 0.5 A."
+  ]
+ },
+ {
+  "id": "S-CC-5",
+  "verdict": "ok",
+  "answer": "Plants have no nervous system; control and coordination are brought about by plant hormones (phytohormones). They coordinate growth, development and responses to the environment (e.g. tropic movements). Examples: (i) Auxin — synthesised at the shoot tip, promotes cell elongation and helps the shoot bend towards light (phototropism). (ii) Gibberellins — promote growth of the stem. (Also: Cytokinins promote cell division; Abscisic acid inhibits growth and causes wilting of leaves.)",
+  "finalAnswer": "Plant hormones coordinate growth and responses; e.g. auxin, gibberellin (also cytokinin, abscisic acid)",
+  "solutionSteps": [
+   "[1 mark] Role: plant hormones (chemical messengers) coordinate growth, development and responses to stimuli such as light and gravity.",
+   "[1 mark] Example 1: Auxin — promotes cell elongation; causes bending of shoot towards light.",
+   "[1 mark] Example 2: Gibberellin — promotes stem growth (or cytokinin — promotes cell division; abscisic acid — inhibits growth, wilting of leaves)."
+  ]
+ },
+ {
+  "id": "S-REP-5",
+  "verdict": "ok",
+  "answer": "During sexual intercourse, sperms are deposited in the vagina. They travel upward through the cervix and uterus into the oviduct (fallopian tube). The ovary releases one egg every month, which also enters the oviduct. Fertilisation — fusion of the sperm with the egg — takes place in the oviduct, forming a zygote. The zygote divides repeatedly to form an embryo, which moves down to the uterus and gets implanted in the thick, blood-rich uterine lining, where it develops further.",
+  "finalAnswer": "Fusion of sperm and egg in the oviduct forming a zygote",
+  "solutionSteps": [
+   "[1 mark] Sperms deposited in vagina travel through cervix and uterus to the oviduct; ovary releases an egg into the oviduct.",
+   "[1 mark] Fusion of male and female gametes takes place in the oviduct (fallopian tube), forming a zygote.",
+   "[1 mark] Zygote divides to form an embryo, which is implanted in the thickened uterine wall."
+  ]
+ },
+ {
+  "id": "S-HER-12",
+  "verdict": "ok",
+  "answer": "The 3:1 ratio in F₂ shows that three-fourths of the plants show the dominant trait (e.g. tall) and one-fourth show the recessive trait (e.g. short). It means the recessive trait was not lost in F₁ but was only masked; the two factors (alleles) for a trait separate during gamete formation and recombine, so F₂ has TT : Tt : tt = 1 : 2 : 1, of which TT and Tt both appear tall.",
+  "finalAnswer": "3 dominant : 1 recessive phenotype; recessive trait reappears (genotype 1 TT : 2 Tt : 1 tt)",
+  "solutionSteps": [
+   "[1 mark] 3/4 of F₂ plants show the dominant trait and 1/4 show the recessive trait.",
+   "[1 mark] Recessive trait was hidden (not lost) in F₁; factors separate in gametes and recombine — genotypic ratio 1 TT : 2 Tt : 1 tt gives 3 tall : 1 short."
+  ]
+ },
+ {
+  "id": "S-LIGHT-8",
+  "verdict": "ok",
+  "answer": "Using New Cartesian sign convention: u = −30 cm, f = +20 cm. Lens formula: 1/v − 1/u = 1/f ⇒ 1/v = 1/f + 1/u = 1/20 + 1/(−30) = (3 − 2)/60 = 1/60. So v = +60 cm. The image is formed 60 cm on the other side of the lens; it is real and inverted.",
+  "finalAnswer": "v = +60 cm (real, inverted, on other side of lens)",
+  "solutionSteps": [
+   "[1 mark] Given with signs: u = −30 cm, f = +20 cm; lens formula 1/v − 1/u = 1/f.",
+   "[1 mark] Substitution: 1/v = 1/20 − 1/30 = 1/60.",
+   "[1 mark] v = +60 cm; image is real, inverted, 60 cm behind the lens."
+  ]
+ },
+ {
+  "id": "S-EYE-9",
+  "verdict": "ok",
+  "answer": "Persistence of vision: the impression of an image on the retina persists for about 1/16th of a second after the object is removed from view. In movies, still pictures are projected in quick succession (about 24 frames per second). Since each new frame appears before the impression of the previous one fades, the eye sees the frames as continuous motion.",
+  "finalAnswer": "Image persists on retina ~1/16 s; rapid frames appear as continuous motion",
+  "solutionSteps": [
+   "[1 mark] Definition: the sensation of an image persists on the retina for about 1/16 s after the object is removed.",
+   "[1 mark] Movies: successive still frames (~24 per second) are shown faster than this time, so they merge and appear as continuous motion."
+  ],
+  "note": "Persistence of vision is not explicitly in the NCERT Class 10 Human Eye chapter (2026-27 rationalised); answerable as general concept — reviewer may wish to confirm syllabus fit."
+ },
+ {
+  "id": "S-ENV-2",
+  "verdict": "ok",
+  "answer": "Producers are organisms that make their own food from simple inorganic substances using sunlight (photosynthesis), e.g. green plants, algae. Consumers are organisms that cannot make their own food and depend directly or indirectly on producers for food, e.g. herbivores like deer (also carnivores like lion).",
+  "finalAnswer": "Producers make own food (green plants); consumers depend on others (deer, lion)",
+  "solutionSteps": [
+   "[1 mark] Producers: autotrophs that make food by photosynthesis — e.g. green plants.",
+   "[1 mark] Consumers: heterotrophs that depend on producers directly or indirectly — e.g. deer / lion."
+  ]
+ },
+ {
+  "id": "M-REAL-2",
+  "verdict": "ok",
+  "answer": "Assume, to the contrary, that 3 + 2√5 is rational. Then 3 + 2√5 = a/b, where a, b are co-prime integers and b ≠ 0. So 2√5 = a/b − 3 ⇒ √5 = (a − 3b)/(2b). Since a, b are integers, (a − 3b)/(2b) is rational, so √5 would be rational. This contradicts the given fact that √5 is irrational. Hence 3 + 2√5 is irrational.",
+  "finalAnswer": "3 + 2√5 is irrational (by contradiction)",
+  "solutionSteps": [
+   "[1 mark] Assume 3 + 2√5 = a/b (a, b co-prime integers, b ≠ 0) and rearrange: √5 = (a − 3b)/(2b).",
+   "[1 mark] RHS is rational ⇒ √5 rational, contradicting given fact; hence 3 + 2√5 is irrational."
+  ]
+ },
+ {
+  "id": "M-POLY-3",
+  "verdict": "ok",
+  "answer": "For ax² + bx + c with a = 2, b = −7, c = 3: Sum of zeroes = −b/a = −(−7)/2 = 7/2. Product of zeroes = c/a = 3/2. (Check: 2x² − 7x + 3 = (2x − 1)(x − 3), zeroes 1/2 and 3; sum 7/2, product 3/2.)",
+  "finalAnswer": "Sum = 7/2, Product = 3/2",
+  "solutionSteps": [
+   "[1 mark] Sum of zeroes = −b/a = 7/2.",
+   "[1 mark] Product of zeroes = c/a = 3/2."
+  ]
+ },
+ {
+  "id": "M-PLE-4",
+  "verdict": "ok",
+  "answer": "For infinitely many solutions, a₁/a₂ = b₁/b₂ = c₁/c₂. Here a₁/a₂ = 3/6 = 1/2, b₁/b₂ = 4/8 = 1/2, c₁/c₂ = 10/k. So 10/k = 1/2 ⇒ k = 20.",
+  "finalAnswer": "k = 20",
+  "solutionSteps": [
+   "[1 mark] Condition: a₁/a₂ = b₁/b₂ = c₁/c₂, with 3/6 = 4/8 = 1/2.",
+   "[1 mark] 10/k = 1/2 ⇒ k = 20."
+  ]
+ },
+ {
+  "id": "M-QUAD-4",
+  "verdict": "ok",
+  "answer": "Here a = 3, b = −5, c = −2. D = b² − 4ac = 25 + 24 = 49 > 0. x = [−b ± √D]/(2a) = (5 ± 7)/6. So x = 12/6 = 2 or x = −2/6 = −1/3.",
+  "finalAnswer": "x = 2, x = −1/3",
+  "solutionSteps": [
+   "[1 mark] Identify a = 3, b = −5, c = −2 and compute D = b² − 4ac = 49.",
+   "[1 mark] x = (−b ± √D)/2a = (5 ± 7)/6.",
+   "[1 mark] Roots: x = 2 and x = −1/3."
+  ]
+ },
+ {
+  "id": "M-AP-4",
+  "verdict": "ok",
+  "answer": "a = 4, d = 3, n = 20. S_n = (n/2)[2a + (n − 1)d] = (20/2)[8 + 19 × 3] = 10 × (8 + 57) = 10 × 65 = 650.",
+  "finalAnswer": "S₂₀ = 650",
+  "solutionSteps": [
+   "[1 mark] S_n = n/2[2a + (n − 1)d] with a = 4, d = 3, n = 20.",
+   "[1 mark] S₂₀ = 10 × (8 + 57) = 650."
+  ]
+ },
+ {
+  "id": "M-TRI-8",
+  "verdict": "ok",
+  "answer": "In ΔABC and ΔPQR: ∠A = ∠P (given) and ∠B = ∠Q (given). By angle sum property, ∠C = 180° − ∠A − ∠B = 180° − ∠P − ∠Q = ∠R. Hence the triangles are equiangular, so by AA (AAA) similarity criterion, ΔABC ~ ΔPQR. Consequently, corresponding sides are proportional: AB/PQ = BC/QR = CA/RP, which is consistent with the given ratio BC/QR = CA/RP.",
+  "finalAnswer": "ΔABC ~ ΔPQR (AA similarity)",
+  "solutionSteps": [
+   "[1 mark] Given: ∠A = ∠P and ∠B = ∠Q; to prove ΔABC ~ ΔPQR.",
+   "[1 mark] Angle sum property: ∠C = 180° − (∠A + ∠B) = 180° − (∠P + ∠Q) = ∠R.",
+   "[1 mark] All corresponding angles equal ⇒ ΔABC ~ ΔPQR by AA (AAA) criterion.",
+   "[1 mark] Hence AB/PQ = BC/QR = CA/RP, consistent with the given ratio."
+  ],
+  "note": "Given ratio BC/QR = CA/RP is redundant; two equal angles alone suffice (AA)."
+ },
+ {
+  "id": "M-TRIG-4",
+  "verdict": "ok",
+  "answer": "sin 30° cos 60° + cos 30° sin 60° = (1/2)(1/2) + (√3/2)(√3/2) = 1/4 + 3/4 = 1.",
+  "finalAnswer": "1",
+  "solutionSteps": [
+   "[1 mark] Substitute values: (1/2)(1/2) + (√3/2)(√3/2).",
+   "[1 mark] = 1/4 + 3/4 = 1."
+  ]
+ },
+ {
+  "id": "M-APPTRIG-5",
+  "verdict": "ok",
+  "answer": "Let CD = h be the tower, D the foot, A the first point and B the point 10 m closer, with BD = x m, so AD = (x + 10) m. In right ΔBDC: tan 60° = h/x ⇒ h = √3x. In right ΔADC: tan 45° = h/(x + 10) ⇒ h = x + 10. So √3x = x + 10 ⇒ x = 10/(√3 − 1) = 5(√3 + 1). Hence h = x + 10 = 5√3 + 5 + 10 = 5(3 + √3) = 15 + 5√3 ≈ 23.66 m.",
+  "finalAnswer": "h = 5(3 + √3) m ≈ 23.66 m",
+  "solutionSteps": [
+   "[1 mark] Let height = h, BD = x; from ΔBDC: tan 60° = h/x ⇒ h = √3x.",
+   "[1 mark] From ΔADC: tan 45° = h/(x + 10) ⇒ h = x + 10.",
+   "[1 mark] √3x = x + 10 ⇒ x = 10/(√3 − 1) = 5(√3 + 1) m.",
+   "[1 mark] h = x + 10 = 15 + 5√3 = 5(3 + √3) m ≈ 23.66 m."
+  ]
+ },
+ {
+  "id": "M-CIR-5",
+  "verdict": "ok",
+  "answer": "Let O be the centre. PA and PB are tangents at A and B, and OA, OB are radii. Since the tangent at any point of a circle is perpendicular to the radius through the point of contact, ∠OAP = 90° and ∠OBP = 90°. So ∠OAP + ∠OBP = 180°. In quadrilateral PAOB, the sum of all angles is 360°, so ∠APB + ∠AOB = 360° − 180° = 180°. Since both pairs of opposite angles are supplementary, quadrilateral PAOB is cyclic.",
+  "finalAnswer": "PAOB is cyclic (opposite angles ∠A + ∠B = 180°)",
+  "solutionSteps": [
+   "[1 mark] Join OA, OB; tangent ⟂ radius at point of contact ⇒ ∠OAP = 90°.",
+   "[1 mark] Similarly ∠OBP = 90°.",
+   "[1 mark] ∠OAP + ∠OBP = 180°, hence ∠APB + ∠AOB = 360° − 180° = 180°.",
+   "[1 mark] Opposite angles supplementary ⇒ PAOB is a cyclic quadrilateral."
+  ],
+  "note": "Uses converse of cyclic-quadrilateral property (Class 9 result); acceptable."
+ },
+ {
+  "id": "M-ARC-6",
+  "verdict": "ok",
+  "answer": "The diagonal of the inscribed square is a diameter of the circle. Diagonal = 14√2 cm, so radius r = 7√2 cm and r² = 98 cm². Area of circle = πr² = (22/7) × 98 = 308 cm². Area of square = 14² = 196 cm². Area not covered = 308 − 196 = 112 cm².",
+  "finalAnswer": "112 cm²",
+  "solutionSteps": [
+   "[1 mark] Diagonal of square = diameter = 14√2 cm ⇒ r = 7√2 cm.",
+   "[1 mark] Area of circle = (22/7) × 98 = 308 cm².",
+   "[1 mark] Area of square = 14 × 14 = 196 cm².",
+   "[1 mark] Required area = 308 − 196 = 112 cm²."
+  ]
+ },
+ {
+  "id": "M-SAV-7",
+  "verdict": "ok",
+  "answer": "Radius r = 14/2 = 7 cm. Volume = (4/3)πr³ = (4/3) × (22/7) × 7 × 7 × 7 = (4 × 22 × 49)/3 = 4312/3 ≈ 1437.33 cm³.",
+  "finalAnswer": "4312/3 cm³ ≈ 1437.33 cm³",
+  "solutionSteps": [
+   "[1 mark] r = 7 cm; V = (4/3)πr³.",
+   "[1 mark] V = (4/3) × (22/7) × 343 = 4312/3 ≈ 1437.33 cm³."
+  ]
+ },
+ {
+  "id": "M-STAT-7",
+  "verdict": "out-of-syllabus",
+  "answer": "",
+  "finalAnswer": "",
+  "solutionSteps": [],
+  "note": "Skewness is not part of CBSE Class 10 Statistics (2026-27); only mean, median, mode of grouped data and the empirical relation 3 Median = Mode + 2 Mean. (Outside syllabus: mean > median indicates positive/right skew.)"
+ },
+ {
+  "id": "M-PROB-7",
+  "verdict": "ok",
+  "answer": "P(not E) = 1 − P(E) = 1 − 0.37 = 0.63.",
+  "finalAnswer": "0.63",
+  "solutionSteps": [
+   "[1 mark] P(not E) = 1 − P(E) = 1 − 0.37 = 0.63."
+  ]
+ }
+]

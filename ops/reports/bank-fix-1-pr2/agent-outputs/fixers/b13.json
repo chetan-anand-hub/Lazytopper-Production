@@ -1,0 +1,328 @@
+[
+ {
+  "id": "CFPQ-S-ELEC-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Suresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The label on the packet read:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nTo understand how to connect the LEDs, he referred to a circuit diagram on a website. In it, a wire from one pin of a mains plug runs to a row of eight LEDs (LED 1, LED 2, … LED 8) joined one after another along the top; at the far end the wire turns round and runs back through a second row of eight LEDs (LED 9, LED 10, … LED 16) joined one after another, and then returns to the other pin of the plug. There are no other wires or branches.\n\nWhich of the following describes how the LEDs are connected in this circuit?",
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed stray \"answer four out of five\" header; described the circuit (from the row's own diagramDescription) in the stem so it is self-contained. Answer unchanged: single path, all 16 in series."
+ },
+ {
+  "id": "CFPQ-S-ELEC-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Suresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The label on the packet read:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nTo understand how to connect the LEDs, he referred to a circuit diagram on a website. In it, a wire from one pin of a mains plug runs to a row of eight LEDs (LED 1, LED 2, … LED 8) joined one after another along the top; at the far end the wire turns round and runs back through a second row of eight LEDs (LED 9, LED 10, … LED 16) joined one after another, and then returns to the other pin of the plug. There are no other wires or branches.\n\nIf LED 2 in this circuit stops working, which other LEDs will also stop working?\n(Note: When an LED stops working, current cannot flow across it.)",
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed stray header; circuit described in text from the row's diagramDescription (single series loop). Answer unchanged: all other LEDs go out."
+ },
+ {
+  "id": "CFPQ-S-ELEC-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Suresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The label on the packet read:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nWhat will happen if he connects all 100 LEDs in a parallel combination to the 240 V mains supply?",
+   "options": [
+    "Each LED will work as expected since the available voltage is more than 3 V.",
+    "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
+    "Each LED will glow but the ones closer in the circuit to the main supply will glow brighter.",
+    "Each LED will have a potential difference of 2.4 V across it and therefore will glow dimmer than normal."
+   ],
+   "answer": "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
+   "finalAnswer": "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
+   "solutionSteps": [
+    "[1 mark] Correct option: (2). In a parallel combination every branch has the full supply voltage across it, so each LED - rated for only 3 V - gets 240 V across it and is damaged."
+   ],
+   "requiresDiagram": false
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Keyed option said 220 V vs 240 V stem; corrected option to 240 V (parallel branch gets full supply). Removed stray header and irrelevant diagram reference."
+ },
+ {
+  "id": "CFPQ-S-ELEC-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A circuit consists of a cell, an ammeter and one resistor, all connected in series. You are given one extra resistor. How should you connect the extra resistor so that the reading of the ammeter increases? Draw the new circuit diagram and give a reason.",
+   "section": "B",
+   "marks": 2,
+   "answer": "Connect the extra resistor in parallel with the existing resistor; this lowers the total resistance, so the current (ammeter reading) increases.",
+   "solutionSteps": [
+    "[1 mark] Circuit diagram: cell, ammeter and the original resistor in series, with the extra resistor connected in parallel across the original resistor (ammeter in the main line).",
+    "[1 mark] Reason: resistors in parallel have a lower equivalent resistance than either one alone (1/R = 1/R₁ + 1/R₂), so for the same cell voltage I = V/R increases and the ammeter reads more."
+   ],
+   "finalAnswer": "In parallel with the existing resistor (lower total resistance, so larger current)."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Circuit described in text (from row diagramDescription). A 1-mark VSA in Section A is invalid; re-tagged to 2-mark Section B VSA with diagram + reason steps. Answer unchanged in substance."
+ },
+ {
+  "id": "CFPQ-S-ELEC-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Three resistors E, F and G are connected in a circuit such that each resistor lies on a separate branch between the same two junction points X and Y. A 6 V battery (with an ammeter in the main line) is connected across X and Y. The resistances of F and G are 10 Ω and 5 Ω respectively; the resistance of E is unknown.\n\n(a) What is the term used to describe such an arrangement of resistors?\n(b) What is the resistance of E if 0.3 A current flows through it?\n(c) What is the total current flowing in the circuit?",
+   "answer": "(a) The resistors are connected in parallel. (b) R_E = V/I = 6/0.3 = 20 Ω. (c) Total current = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A",
+   "solutionSteps": [
+    "[1 mark] (a) The resistors are connected in parallel.",
+    "[2 marks] (b) Each branch has the full 6 V across it. I = V/R ⇒ R_E = V/I = 6/0.3 = 20 Ω. [1.5 marks for the steps, 0.5 mark for final answer with unit]",
+    "[2 marks] (c) Total current I = V/R_E + V/R_F + V/R_G = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A. [1.5 marks for the steps, 0.5 mark for final answer with unit]"
+   ],
+   "finalAnswer": "(a) parallel; (b) 20 Ω; (c) 2.1 A",
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Arrangement described in stem from row diagramDescription (three branches between X and Y); ohm written as Ω; R₁ notation replaced by R_E. Values unchanged."
+ },
+ {
+  "id": "CFPQ-S-ELEC-013",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer depends on exact switch/fuse topology; row diagramDescription (S2 in series with bulb, S3 across battery) does not support the key \"S1 and S2\" - figure cannot be reconstructed reliably. Also 1-mark VSA mis-tag."
+ },
+ {
+  "id": "EL-D04",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A 60 W bulb and a 100 W bulb, each rated for 220 V, are connected in parallel to a 220 V supply. (i) Which bulb has the higher resistance? (ii) Calculate the resistance of each bulb. (iii) If each bulb is used for 5 hours per day for 30 days, calculate the energy consumed by each bulb in kWh and its cost at Rs 6 per unit.",
+   "solutionSteps": [
+    "[1 mark] (i) P = V²/R, so R = V²/P. At the same voltage, lower power means higher resistance - the 60 W bulb has the higher resistance.",
+    "[1 mark] (ii) R(60 W) = 220²/60 = 48400/60 ≈ 806.7 Ω",
+    "[1 mark] R(100 W) = 220²/100 = 48400/100 = 484 Ω",
+    "[1 mark] (iii) Energy (60 W) = 0.060 kW × 5 h × 30 = 9 kWh; Energy (100 W) = 0.100 kW × 5 h × 30 = 15 kWh",
+    "[1 mark] Cost (60 W) = 9 × Rs 6 = Rs 54; Cost (100 W) = 15 × Rs 6 = Rs 90 (total Rs 144)"
+   ],
+   "explanation": "Using R = V²/P at 220 V: 60 W bulb ≈ 806.7 Ω, 100 W bulb = 484 Ω, so the lower-power bulb has the higher resistance. Energy = P × t: 9 kWh and 15 kWh over 30 days, costing Rs 54 and Rs 90.",
+   "finalAnswer": "60 W bulb has higher resistance (≈ 806.7 Ω vs 484 Ω); 60 W uses 9 kWh (Rs 54), 100 W uses 15 kWh (Rs 90) in 30 days"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Garbled \"O\" restored to Ω, V2 to V²; stem clarified (rated 220 V, in parallel). Dropped a meaningless \"draw circuit\" step not asked in the question; steps re-split to 5 marks. Values unchanged."
+ },
+ {
+  "id": "EL2-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "V = I/R",
+    "V = I × R",
+    "I = V/R",
+    "Both V = I × R and I = V/R are correct"
+   ],
+   "answer": "Both V = I × R and I = V/R are correct",
+   "finalAnswer": "Both V = I × R and I = V/R are correct",
+   "explanation": "Ohm's Law: V = I × R (Voltage = Current × Resistance). Rearranging gives I = V/R; both forms are equivalent. Therefore the correct answer is: Both V = I × R and I = V/R are correct."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Option \"Both B and C\" relied on letters; rewritten to name both forms so it survives shuffling/unlettered display. Same correct choice."
+ },
+ {
+  "id": "EL2-052",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Resistance is measured in ohms (Ω); 1 Ω = 1 V/A"
+   ],
+   "explanation": "Resistance is measured in ohm (Ω)."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Garbled ohm symbol \"O\" restored to Ω in steps/explanation. Stem, options and answer were already correct."
+ },
+ {
+  "id": "EL2-053",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Three resistors of 2 Ω, 3 Ω and 6 Ω are connected in parallel. Their equivalent resistance is:",
+   "options": [
+    "11 Ω",
+    "1 Ω",
+    "6 Ω",
+    "0.5 Ω"
+   ],
+   "answer": "1 Ω",
+   "finalAnswer": "1 Ω",
+   "solutionSteps": [
+    "1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 1; R = 1 Ω"
+   ],
+   "explanation": "1/R = 1/2 + 1/3 + 1/6 = 1; R = 1 Ω."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Garbled ohm \"O\" restored to Ω throughout; stem grammar fixed. Same correct value 1 Ω."
+ },
+ {
+  "id": "EL2-057",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A bulb has a resistance of 100 Ω. A current of 2 A flows through it. What is the potential difference across it?",
+   "solutionSteps": [
+    "V = IR = 2 × 100 = 200 V"
+   ],
+   "explanation": "V = IR = 2 × 100 = 200 V."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Garbled ohm \"O\" in stem restored to Ω. Answer 200 V unchanged."
+ },
+ {
+  "id": "ELEC-EXMPLR-11-LA-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Three identical bulbs B₁, B₂ and B₃ are connected in parallel across a 4.5 V battery. Ammeters A₁, A₂ and A₃ are connected in series with B₁, B₂ and B₃ respectively, and ammeter A is in the main line. When all the three bulbs glow, a current of 3 A is recorded by the ammeter A. (i) What happens to the glow of the other two bulbs when the bulb B₁ gets fused? (ii) What happens to the readings of A₁, A₂, A₃ and A when the bulb B₂ gets fused? (iii) How much power is dissipated in the circuit when all the three bulbs glow together?",
+   "answer": "The three identical bulbs are in parallel across the 4.5 V battery, so with a total current of 3 A each bulb carries 1 A. (i) If B₁ fuses, only its branch breaks; B₂ and B₃ still receive the full 4.5 V and glow as before. (ii) If B₂ fuses, A₂ reads 0; A₁ and A₃ still read 1 A each; A drops from 3 A to 2 A. (iii) Power dissipated when all three glow, P = V × I = 4.5 V × 3 A = 13.5 W.",
+   "solutionSteps": [
+    "[1 mark] Three identical bulbs in parallel each receive the full supply voltage; the main ammeter A reads the total current (3 A), so each bulb carries 1 A.",
+    "[1 mark] (i) If B₁ is fused, only the B₁ branch is broken. The other two branches still get full voltage and continue to glow as before (no change in brightness).",
+    "[1 mark] (ii) If B₂ fuses: A₂ → 0; A₁ and A₃ remain 1 A each; the main ammeter A drops from 3 A to 1 + 1 = 2 A.",
+    "[1 mark] (iii) Power dissipated when all three bulbs glow = V × I_total, with V = 4.5 V and I_total = 3 A.",
+    "[1 mark] P = 4.5 × 3 = 13.5 W."
+   ],
+   "strategyHint": "Parallel branches each get the full battery voltage; the main-line current is the sum of the branch currents."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Circuit (parallel bulbs, branch ammeters, 4.5 V battery) restored into the stem from the row's own answer/hint so (iii) is computable; answer unchanged."
+ },
+ {
+  "id": "ELEC-EXMPLR-11-LA-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In an electric circuit, an 8 V battery is connected in series with a 4 Ω resistor and a combination of two 8 Ω resistors connected in parallel. Two ammeters, A₁ and A₂, are connected in the main (series) line of the circuit. Find: (a) the effective resistance of the two 8 Ω resistors in the combination; (b) the current flowing through the 4 Ω resistor; (c) the potential difference across the 4 Ω resistor; (d) the power dissipated in the 4 Ω resistor; (e) the difference in the ammeter readings, if any.",
+   "answer": "The two 8 Ω resistors are in parallel and this combination is in series with the 4 Ω resistor and the 8 V battery. (a) R_p = (8 × 8)/(8 + 8) = 4 Ω. (b) Total resistance = 4 + 4 = 8 Ω, so I = 8 V / 8 Ω = 1 A through the 4 Ω resistor. (c) V across 4 Ω = 1 × 4 = 4 V. (d) P in 4 Ω = I²R = 1² × 4 = 4 W. (e) Both ammeters are in the same series line, so they read the same (1 A) — difference 0.",
+   "solutionSteps": [
+    "[0.5 mark] The two 8 Ω resistors are in parallel; this block is in series with the 4 Ω resistor and the 8 V battery.",
+    "[1 mark] (a) Effective resistance of the two 8 Ω resistors in parallel: R_p = (8 × 8)/(8 + 8) = 64/16 = 4 Ω.",
+    "[1.5 marks] (b) Total resistance R = R_p + 4 = 4 + 4 = 8 Ω; current I = V/R = 8 V / 8 Ω = 1 A, and being in series the 4 Ω resistor carries this 1 A.",
+    "[0.5 mark] (c) Potential difference across the 4 Ω resistor: V₄ = IR = 1 × 4 = 4 V.",
+    "[0.5 mark] (d) Power dissipated in the 4 Ω resistor: P₄ = I²R = 1² × 4 = 4 W.",
+    "[1 mark] (e) Both ammeters A₁ and A₂ are in the same series line and carry the same current (1 A), so the difference in their readings is 0."
+   ],
+   "strategyHint": "Reduce the parallel pair first, then add the series resistor; current is the same everywhere in a series line."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Circuit configuration (8 V battery, 4 Ω in series with 8 Ω ∥ 8 Ω, two main-line ammeters) moved from the answer/hint into the stem; values unchanged."
+ },
+ {
+  "id": "ELEC-EXMPLR-11-MCQ-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options refer to cases (i)-(iii) of Figure 12.2 whose resistor values/arrangements are not in the row; cannot be answered or reconstructed without the figure."
+ },
+ {
+  "id": "ELEC-EXMPLR-11-MCQ-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are four circuit diagrams (i)-(iv) of Figure 12.3, not present in text; cannot be answered without the figure."
+ },
+ {
+  "id": "ELEC-EXMPLR-11-MCQ-008",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are four cell-arrangement diagrams (Figure 12.4); not present in text and their exact contents cannot be confirmed."
+ },
+ {
+  "id": "ELEC-EXMPLR-11-MCQ-011",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Requires the V–I graph (Figure 12.5) to compare slopes; the graph is not in the text and must not be invented."
+ },
+ {
+  "id": "ELEC-EXMPLR-11-SA-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Three 2 Ω resistors A, B and C are connected such that A is in series with the parallel combination of B and C. Each of them dissipates energy and can withstand a maximum power of 18 W without melting. Find the maximum current that can flow through the three resistors.",
+   "answer": "A is in series with the parallel combination of B and C. For each resistor: P = I²R ⇒ maximum permissible current in any single 2 Ω resistor = √(P_max/R) = √(18/2) = √9 = 3 A. Resistor A carries the full circuit current I, so its limit is I ≤ 3 A. Resistors B and C share the current equally (identical), so each carries I/2; their limit allows I ≤ 2 × 3 = 6 A. The binding constraint is A. Therefore the maximum current that can flow through the main circuit (through A) is 3 A; through each of B and C the current is 1.5 A.",
+   "solutionSteps": [
+    "[1 mark] From P = I²R, the maximum current any single 2 Ω resistor can carry is I_max(one) = √(P/R) = √(18/2) = √9 = 3 A.",
+    "[0.5 mark] A is in series with the parallel combination of B and C, so the current I through A is the total circuit current.",
+    "[0.5 mark] Identical B and C each carry I/2.",
+    "[0.5 mark] Limit from A: I ≤ 3 A. Limit from B (or C): I/2 ≤ 3 A ⇒ I ≤ 6 A. The tighter limit is from A.",
+    "[0.5 mark] Hence maximum total current through the circuit is 3 A (with 1.5 A through each of B and C)."
+   ],
+   "strategyHint": "Find the current limit of one resistor from P = I²R, then check which resistor carries the most current."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Arrangement (A in series with B ∥ C) stated in stem from row answer/hint; removed figure reference. Answer unchanged."
+ },
+ {
+  "id": "ELEC-NCERT-11-LA-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Three resistors R₁, R₂ and R₃ of values 5 Ω, 10 Ω and 30 Ω respectively are connected in parallel to a battery of 12 V. Calculate (a) the current through each resistor, (b) the total current in the circuit, and (c) the total circuit resistance.",
+   "strategyHint": "In parallel every resistor has the full battery voltage across it; currents add."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Figure reference replaced by stating the parallel arrangement (from row answer/hint). Answer unchanged."
+ },
+ {
+  "id": "ELEC-NCERT-11-LA-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Resistors R₁ = 10 Ω and R₂ = 40 Ω are connected in parallel with each other; resistors R₃ = 30 Ω, R₄ = 20 Ω and R₅ = 60 Ω are connected in parallel with one another; and these two parallel combinations are connected in series with a 12 V battery. Calculate (a) the total resistance in the circuit, and (b) the total current flowing in the circuit.",
+   "strategyHint": "Reduce each parallel group to one equivalent resistor, then add the two in series."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Figure reference replaced by the arrangement (R₁∥R₂) in series with (R₃∥R₄∥R₅), taken from row answer/hint. Answer unchanged."
+ }
+]

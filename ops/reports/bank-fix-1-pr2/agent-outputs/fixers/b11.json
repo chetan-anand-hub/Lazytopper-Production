@@ -1,0 +1,301 @@
+[
+ {
+  "id": "PYQ-S-CTRL-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Hormone: adrenaline; gland: adrenal gland. Response (any two): heart beats faster, supplying more oxygen to muscles; breathing rate increases; blood supply to the digestive system and skin is reduced; blood is diverted to the skeletal muscles.",
+   "solutionSteps": [
+    "[½ mark] Hormone released: adrenaline.",
+    "[½ mark] Gland secreting it: adrenal gland.",
+    "[1 mark] Response 1: the heart beats faster, so more oxygen is supplied to the muscles.",
+    "[1 mark] Response 2 (any one more): breathing rate increases / blood supply to the digestive system and skin is reduced and diverted to the skeletal muscles."
+   ],
+   "finalAnswer": "Adrenaline, secreted by the adrenal glands; heart beats faster, breathing rate rises and blood is diverted from the digestive system and skin to the skeletal muscles."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed Wingdings bullets and marking-scheme residue ('(Any 2) ½, ½ 1 ×') from answer/finalAnswer/steps; rebuilt a clean ½+½+1+1 = 3 mark scheme from the row's own content. Answer unchanged."
+ },
+ {
+  "id": "PYQ-S-CTRL-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(a) (i) List three points of difference between nervous and hormonal mechanisms for control and coordination in animals.\n(ii) How are auxins related with the bending of plant shoot towards unidirectional light? Explain.\nOR\n(b) (i) Name the disorder which a person is likely to suffer from due to the following:\n(I) Over-secretion of growth hormone\n(II) Deficiency of oestrogen in females\n(III) Less secretion of thyroxine\nAlso name the gland that secretes each of the hormones mentioned above.\n(ii) How is the timing and amount of hormone released regulated? Explain with the help of an example.",
+   "answer": "(a)(i) Nervous control: messages as electrical impulses, carried through neurons, rapid and short-lived responses. Hormonal control: messages as chemicals (hormones), carried through blood, slow and long-lasting responses. (ii) In unidirectional light, auxin diffuses to the shaded side of the shoot; the cells there grow longer, so the shoot bends towards light. OR (b)(i) (I) Gigantism – pituitary; (II) delayed/absence of puberty changes – ovary; (III) goitre – thyroid. (ii) By feedback mechanisms, e.g. when blood sugar rises, more insulin is secreted; as it falls, insulin secretion is reduced.",
+   "solutionSteps": [
+    "[1 mark] (a)(i) Nervous: messages sent as electrical impulses; Hormonal: messages carried as chemicals (hormones).",
+    "[1 mark] Nervous: carried through neurons; Hormonal: carried through blood.",
+    "[1 mark] Nervous: rapid, short-lived responses; Hormonal: slow, long-lasting responses.",
+    "[1 mark] (a)(ii) When the growing shoot is exposed to unidirectional light, auxin diffuses towards the shaded side of the shoot.",
+    "[1 mark] The higher auxin concentration makes cells on the shaded side grow longer, so the shoot bends towards the light.",
+    "OR (b)(i) (I) Gigantism – pituitary gland; (II) delayed puberty / failure of secondary sexual characters – ovary; (III) goitre – thyroid gland. [½ mark each for disorder and gland = 3 marks]",
+    "(b)(ii) Timing and amount of hormone released are regulated by feedback mechanisms [1 mark]. Example: when blood sugar level rises, the pancreas secretes more insulin; as the level falls, insulin secretion is reduced [1 mark]."
+   ],
+   "finalAnswer": "(a)(i) Nervous – electrical impulses, via neurons, rapid & short-lived; hormonal – chemicals, via blood, slow & long-lasting. (ii) Auxin moves to the shaded side, cells there elongate, shoot bends to light. OR (b)(i) Gigantism–pituitary; delayed puberty–ovary; goitre–thyroid. (ii) Feedback mechanism, e.g. insulin and blood sugar."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed Wingdings glyphs, stray '5' mark residue and scheme residue ('(Any three) 1×3 1 1 ½ ×'); rebuilt jumbled table steps into ordered 3+2 / OR 3+2 step marks. Content unchanged."
+ },
+ {
+  "id": "CFPQ-S-CTRL-005",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Steps are [½]+[½]+[1] = 2 = marks. Audit parser read '[½ mark]' as no annotation; publishability stepMarks() now parses ½ (HALF-1 test). Parts (a)-(c) answerable from text; diagramDescription is supplied."
+ },
+ {
+  "id": "SQP-S-2023-CTRL-B-001",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Steps are [1]+[½]+[½] = 2 = marks. Audit parser read '[½ mark]' as no annotation; publishability stepMarks() handles ½ (HALF-1 positive control). Content is correct and clean."
+ },
+ {
+  "id": "PYQ-S-2026-CTRL-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "human-eye-and-colourful-world",
+   "subtopic": "Hypermetropia"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Shortened eyeball causing hypermetropia, corrected by a converging lens, is Human Eye chapter content. Retagged topicKey and subtopic; answer (a) Converging lens is correct."
+ },
+ {
+  "id": "CNC2-023",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Which hormone regulates blood sugar levels in the body?",
+   "options": [
+    "Thyroxine",
+    "Growth hormone",
+    "Insulin",
+    "Testosterone"
+   ],
+   "answer": "Insulin",
+   "solutionSteps": [
+    "Insulin, secreted by the pancreas, regulates blood sugar level; thyroxine regulates metabolism, growth hormone regulates growth and testosterone controls male secondary sexual characters, so the answer is (c) Insulin."
+   ],
+   "finalAnswer": "(c) Insulin",
+   "explanation": "Insulin is secreted by the pancreas and lowers the blood sugar level; its deficiency causes diabetes. Thyroxine regulates carbohydrate, protein and fat metabolism, growth hormone regulates growth, and testosterone controls male changes at puberty. Therefore, the correct answer is Insulin.",
+   "ncertRef": "NCERT Ch6 Table 6.1"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored pack row on parathyroid hormone/calcium, which is not in the NCERT 2026-27 chapter. Repaired to the in-syllabus insulin/blood-sugar regulation (NCERT Table 6.1) with one correct option."
+ },
+ {
+  "id": "SCO-S-CTRL-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Brain stem composition (midbrain+pons+medulla), optic lobes and corpora striata are beyond NCERT Class 10. External source (cbjescco07), not authored. Its 'none of the above' key is also unteachable from the syllabus."
+ },
+ {
+  "id": "SCO-S-CTRL-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Pineal body as a vestige of the third eye is beyond NCERT Class 10 2026-27 content. External source (cbjescco07), not authored, so withhold instead of repairing."
+ },
+ {
+  "id": "PYQ-S-2025-CTRL-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Plant Hormones"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Auxin and shoot elongation is about plant hormones, not the animal endocrine system. Retagged subtopic; answer (d) Auxins is correct."
+ },
+ {
+  "id": "PYQ-S-2025-CTRL-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Plant Hormones"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Cytokinins in rapidly dividing cells is about plant hormones, not the animal endocrine system. Retagged subtopic; answer (b) Cytokinins is correct."
+ },
+ {
+  "id": "APQ-M-CG-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Coordinates of O and N exist only in the source figure (strategyHint REQUIRES-FIGURE). The question cannot be answered as served, and the coordinates cannot be recovered."
+ },
+ {
+  "id": "APQ-M-CG-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "The ring radii and point values of the target board are figure-only. Parts (i)-(iii) depend on them, and the 2/3 boundary radii in the steps come from the unseen figure."
+ },
+ {
+  "id": "APQ-M-CG-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Raycasting is a technique used in computer games. A snooker game in creation stage is drawn on a coordinate map. It has six pockets P1–P6 and balls including a white ball W(−3, −2) and a green ball G(7, 1). The top rail joining pockets P4 and P6 lies along the line y = 3.\n(i) How much distance will a ray travel from the green ball to the nearest pocket P4(9, 3)?\n(ii) A yellow ball is placed at the midpoint of WG. Find its coordinates.\n(iii) The white ball is hit, rebounds off the rail P4P6 and lands in pocket P2(2, −4). On its way it crosses the x-axis at X(2/7, 0), which divides the path from the striking point on the rail to P2 in the ratio 3 : 4. Find the coordinates of the point on the rail where the ball struck.",
+   "answer": "(i) 2√2 units. (ii) (2, −1/2). (iii) (−1, 3).",
+   "solutionSteps": [
+    "[1 mark] (i) GP4 = √((9−7)² + (3−1)²) = √(4 + 4) = √8 = 2√2 units.",
+    "[1 mark] (ii) Midpoint of W(−3, −2) and G(7, 1) = ((−3+7)/2, (−2+1)/2) = (2, −1/2).",
+    "[1 mark] (iii) Let the striking point be S(c, 3). X divides S→P2 in ratio 3 : 4, so x-coordinate: (3·2 + 4·c)/7 = 2/7.",
+    "[1 mark] 6 + 4c = 2 ⟹ c = −1 (check y: (3·(−4) + 4·3)/7 = 0 ✓). Striking point = (−1, 3)."
+   ],
+   "finalAnswer": "(i) 2√2 units; (ii) (2, −1/2); (iii) (−1, 3)."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Dropped the OR (iii), which needs the figure-only R and P5. Said in words that rail P4P6 is y = 3 (P4 is (9,3) and the source MS uses (c,3)). Re-verified (i)-(iii) and step-marked them 1+1+2."
+ },
+ {
+  "id": "BX-COORD-E-023",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Two hikers start at the same time from the two ends of a straight path and walk towards each other: hiker X from A(1, 2) and hiker Y from B(11, 7). Hiker X walks 1.5 times as fast as hiker Y, and they meet at a point P on AB.\n(i) Explain why P divides AB in the ratio 3 : 2.\n(ii) Find the coordinates of the meeting point P.\n(iii) Find the distance AP walked by hiker X.\n(iv) Find PB and confirm AP : PB = 3 : 2.",
+   "solutionSteps": [
+    "[1 mark] Both walk for the same time until they meet, so distances are in the ratio of speeds: AP : PB = 1.5 : 1 = 3 : 2, i.e. P divides AB in the ratio 3 : 2.",
+    "[1 mark] P = ((3·11 + 2·1)/5, (3·7 + 2·2)/5) = (35/5, 25/5) = (7, 5).",
+    "[1 mark] AP = √[(7−1)² + (5−2)²] = √(36 + 9) = √45 = 3√5.",
+    "[1 mark] PB = √[(11−7)² + (7−5)²] = √(16 + 4) = √20 = 2√5, so AP : PB = 3√5 : 2√5 = 3 : 2. ✓"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "The old story had both hikers leave A in the same direction, so they could never meet. They now walk towards each other from A and B. Equal time means the distance ratio is 3:2. P=(7,5), AP=3√5 and PB=2√5 are unchanged."
+ },
+ {
+  "id": "BX-COORD-E-038",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Two base posts of an equilateral triangular frame are fixed at A(−3, 0) and B(3, 0). The third post C(0, y) is above the base, so y > 0.\n(i) Find the base length AB.\n(ii) Write the condition AC = AB in squared form.\n(iii) Solve for y.\n(iv) State the coordinates of post C.",
+   "solutionSteps": [
+    "[1 mark] AB = √[(3−(−3))² + 0²] = 6 units.",
+    "[1 mark] For an equilateral triangle AC = AB ⇒ (0−(−3))² + (y−0)² = 6² ⇒ 9 + y² = 36.",
+    "[1 mark] y² = 27 ⇒ y = 3√3 (taking the positive root since C is above the base).",
+    "[1 mark] Post C = (0, 3√3)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "The origin is the midpoint of AB, which is on a side, not inside the triangle. Replaced that premise with 'above the base, so y > 0' and corrected the step-3 justification. Answer C = (0, 3√3) is unchanged."
+ },
+ {
+  "id": "CG-M19",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If the distances of P(x, y) from A(5, 1) and B(−1, 5) are equal, prove that 3x = 2y."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "The stem said 'find 3x = 2y', which is garbled. It now says 'prove that 3x = 2y'. Steps check out: −10x−2y = 2x−10y ⇒ −12x+8y = 0 ⇒ 3x = 2y."
+ },
+ {
+  "id": "CG-N-EXEM2-7-MCQ-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If the point P(2, 1) lies on the line passing through the points A(4, 2) and B(8, 4), then",
+   "solutionSteps": [
+    "[1 mark] AP = √((4−2)²+(2−1)²) = √5, AB = √((8−4)²+(4−2)²) = √20 = 2√5 and PB = √45 = 3√5, so AP = (1/2) AB — option (D)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "P(2,1) lies on line AB produced beyond A, not on the segment, which the exemplar got wrong. The stem now says 'line passing through'. Only (D) holds: AP=√5, AB=2√5, PB=3√5."
+ },
+ {
+  "id": "CG-N03",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Points A(1, 2), B(4, 6) and C(7, 10) are collinear, with B lying between A and C. Then AB + BC equals:",
+   "explanation": "AB = √(3² + 4²) = 5, BC = √(3² + 4²) = 5 and AC = √(6² + 8²) = 10. Since B lies between A and C on the same line, AB + BC = AC (5 + 5 = 10). The correct answer is AC.",
+   "finalAnswer": "(a) AC",
+   "solutionSteps": [
+    "AB = √((4−1)² + (6−2)²) = 5, BC = √((7−4)² + (10−6)²) = 5, AC = √((7−1)² + (10−2)²) = 10; AB + BC = 10 = AC, so the answer is (a) AC."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "The original points were not collinear (5+√2 ≠ √41), and the steps solved some other problem. C is now (7, 10), so AB=5, BC=5, AC=10 and AB+BC=AC. Steps, explanation and finalAnswer rewritten to match."
+ },
+ {
+  "id": "CG2-016",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A rectangular plot of land has corners at A(0, 0), B(8, 0), C(8, 6) and D(0, 6). A person starts at corner A and walks along straight paths to different points of the plot.\n(i) Find the distance from A to the midpoint of BC.\n(ii) Find the distance from A to the centre of the rectangle.\n(iii) Find the length of the diagonal path AC. How much shorter is it than walking along the boundary from A to B to C?",
+   "answer": "(i) √73 units (ii) 5 units (iii) AC = 10 units; it is 4 units shorter than A→B→C (14 units).",
+   "solutionSteps": [
+    "[1 mark] (i) Midpoint of BC = (8, 3); distance = √[(8−0)² + (3−0)²] = √(64 + 9) = √73 units.",
+    "[1 mark] (ii) Centre = midpoint of AC = (4, 3); distance = √[(4−0)² + (3−0)²] = √25 = 5 units.",
+    "[1 mark] (iii) AC = √[(8−0)² + (6−0)²] = √100 = 10 units.",
+    "[1 mark] A→B→C = AB + BC = 8 + 6 = 14 units; the diagonal is 14 − 10 = 4 units shorter."
+   ],
+   "finalAnswer": "(i) √73 units (ii) 5 units (iii) AC = 10 units, 4 units shorter than A→B→C."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "(iii) was ill-posed ('perimeter divided by some factor'). It now asks for diagonal AC (10) and how much shorter it is than A→B→C (14), giving 4. Step-marked 1+1+2; the stem's 'boundary' wording is fixed too."
+ },
+ {
+  "id": "PYQ-M-2024-CG-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The perpendicular bisector of the line segment joining the points A(−1, 3) and B(2, 4) cuts the y-axis at:",
+   "solutionSteps": [
+    "A point (0, y) on the perpendicular bisector is equidistant from A and B: (0+1)² + (y−3)² = (0−2)² + (y−4)² ⇒ 1 + y² − 6y + 9 = 4 + y² − 8y + 16 ⇒ 2y = 10 ⇒ y = 5. Correct option: (a) (0, 5)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fixed 'yaxis' to 'y-axis' and the '(– 1' spacing. Checked answer (0,5) by equidistance: 10−6y+y² = 20−8y+y² gives y = 5. Added one working step."
+ }
+]

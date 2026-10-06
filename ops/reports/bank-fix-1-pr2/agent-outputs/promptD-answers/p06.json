@@ -1,0 +1,272 @@
+[
+ {
+  "id": "S-CHEM-7",
+  "verdict": "ok",
+  "answer": "Corrosion is the slow eating away (deterioration) of a metal when its surface is attacked by air, moisture, acids or other substances around it. Example: iron, when exposed to moist air, gets coated with a reddish-brown flaky substance called rust (hydrated iron(III) oxide, Fe2O3·xH2O); similarly silver turns black (silver sulphide) and copper acquires a green coating (basic copper carbonate). Prevention: painting, oiling/greasing, galvanisation (coating iron with zinc), chrome plating or alloying.",
+  "finalAnswer": "Corrosion = gradual destruction of metal by air/moisture/chemicals; e.g. rusting of iron; prevented by painting/galvanisation",
+  "solutionSteps": [
+   "[1 mark] Definition: corrosion is the slow deterioration of a metal when it is attacked by air, moisture, acids etc. around it.",
+   "[1 mark] Example: iron in moist air forms reddish-brown rust (Fe2O3·xH2O) (or silver turns black, copper turns green).",
+   "[1 mark] One method of prevention: painting / oiling / galvanisation (zinc coating) / chrome plating / alloying."
+  ]
+ },
+ {
+  "id": "S-ABS-7",
+  "verdict": "ok",
+  "answer": "A solution that turns red litmus blue is basic (alkaline). Example: sodium hydroxide (NaOH) solution (or lime water, Ca(OH)2).",
+  "finalAnswer": "Basic (alkaline) solution, e.g. NaOH",
+  "solutionSteps": [
+   "[1 mark] The solution is basic (alkaline); example: NaOH solution / lime water."
+  ]
+ },
+ {
+  "id": "S-MNM-7",
+  "verdict": "ok",
+  "answer": "Rusting of iron requires both air (oxygen) and water (moisture) to be present together; iron does not rust in dry air or in boiled water (free of dissolved air) kept under an oil layer. Rust is hydrated iron(III) oxide, Fe2O3·xH2O. Prevention: galvanisation — coating iron with a layer of zinc (also painting, oiling, greasing, chrome plating, alloying).",
+  "finalAnswer": "Both air (oxygen) and moisture (water) needed; prevent by galvanisation/painting",
+  "solutionSteps": [
+   "[1 mark] Rusting needs the presence of air (oxygen).",
+   "[1 mark] Rusting also needs water/moisture — both must be present together (no rusting in dry air or air-free water).",
+   "[1 mark] One method of prevention: galvanisation (zinc coating) / painting / oiling / greasing / alloying."
+  ]
+ },
+ {
+  "id": "S-CARB-7",
+  "verdict": "ok",
+  "answer": "When ethanol is heated at 443 K with excess concentrated sulphuric acid, it is dehydrated (a molecule of water is removed) to form ethene. Concentrated H2SO4 acts as a dehydrating agent.\nCH3CH2OH --(hot conc. H2SO4, 443 K)--> CH2=CH2 + H2O",
+  "finalAnswer": "Ethanol is dehydrated to ethene: CH3CH2OH → CH2=CH2 + H2O (conc. H2SO4, 443 K)",
+  "solutionSteps": [
+   "[1 mark] Ethanol undergoes dehydration (loses water) to form ethene (an unsaturated hydrocarbon).",
+   "[0.5 mark] Concentrated H2SO4 acts as a dehydrating agent.",
+   "[1 mark] Balanced equation: CH3CH2OH → CH2=CH2 + H2O",
+   "[0.5 mark] Condition written over the arrow: hot conc. H2SO4, 443 K."
+  ]
+ },
+ {
+  "id": "S-LIFE-7",
+  "verdict": "ok",
+  "answer": "Right atrium → (tricuspid valve) → right ventricle → pulmonary artery → lungs (blood is oxygenated) → pulmonary veins → left atrium → (bicuspid valve) → left ventricle → aorta → arteries to body organs/tissues (oxygen delivered, blood becomes deoxygenated) → veins → vena cava (superior and inferior) → right atrium. Thus blood passes through the heart twice in one cycle (double circulation).",
+  "finalAnswer": "RA → RV → pulmonary artery → lungs → pulmonary vein → LA → LV → aorta → body → vena cava → RA",
+  "solutionSteps": [
+   "[1 mark] Right atrium → right ventricle → pulmonary artery → lungs (oxygenation).",
+   "[1 mark] Lungs → pulmonary veins → left atrium → left ventricle → aorta.",
+   "[1 mark] Aorta → arteries → body tissues (deoxygenation) → veins → vena cava → right atrium (double circulation)."
+  ]
+ },
+ {
+  "id": "S-ELEC-7",
+  "verdict": "ok",
+  "answer": "Electric power is the rate at which electrical energy is consumed (or work is done) in a circuit: P = W/t. SI unit: watt (W); 1 W = 1 J/s = 1 V × 1 A.\nDerivation: work done in moving charge Q through potential difference V is W = VQ, so P = W/t = VQ/t = VI (since I = Q/t). By Ohm's law V = IR, so P = (IR)I = I²R.",
+  "finalAnswer": "P = W/t (unit watt); P = VI = I²R",
+  "solutionSteps": [
+   "[1 mark] Definition: electric power is the rate of consumption of electrical energy, P = W/t; SI unit watt (W).",
+   "[1 mark] W = VQ and I = Q/t, so P = VQ/t = VI.",
+   "[1 mark] Using Ohm's law V = IR: P = (IR)I = I²R."
+  ]
+ },
+ {
+  "id": "S-CC-7",
+  "verdict": "ok",
+  "answer": "Voluntary actions are actions done consciously, according to our will, and controlled by the fore-brain (cerebrum), e.g. writing, walking, talking. Involuntary actions occur without conscious control/thinking, controlled by the mid-brain and hind-brain (medulla), e.g. heartbeat, breathing, salivation, vomiting.",
+  "finalAnswer": "Voluntary: conscious, by cerebrum (e.g. writing); involuntary: without will, by medulla/mid-brain (e.g. heartbeat)",
+  "solutionSteps": [
+   "[1 mark] Voluntary actions are under conscious control of the will and are controlled by the fore-brain (cerebrum); example: writing / walking.",
+   "[1 mark] Involuntary actions take place without conscious thought, controlled by mid-brain and hind-brain (medulla); example: heartbeat / breathing / salivation."
+  ]
+ },
+ {
+  "id": "S-REP-7",
+  "verdict": "ok",
+  "answer": "Vegetative propagation is a method of asexual reproduction in plants in which new plants are produced from vegetative parts such as roots, stems or leaves (e.g. Bryophyllum leaf buds, potato tubers, layering/grafting in rose, sugarcane, banana). Advantage: plants bear flowers and fruits earlier than those produced from seeds; it also helps grow plants that have lost the capacity to produce seeds (banana, orange, rose, jasmine), and all plants are genetically similar to the parent, preserving desirable characters.",
+  "finalAnswer": "Asexual reproduction from roots/stems/leaves; advantage: earlier flowering/fruiting, seedless plants grown, desirable traits preserved",
+  "solutionSteps": [
+   "[1 mark] Vegetative propagation: new plants arise from vegetative parts (root, stem, leaf) of the parent plant, e.g. Bryophyllum, potato, rose by layering/grafting.",
+   "[1 mark] One advantage: earlier flowering and fruiting / propagation of seedless plants (banana, rose) / offspring genetically identical, so desirable characters retained."
+  ]
+ },
+ {
+  "id": "S-HER-14",
+  "verdict": "out-of-syllabus",
+  "answer": "Man: genotype I^A i (AO), gametes A and O. Woman: genotype I^B i (BO), gametes B and O.\nCross (Punnett square):\n        A     O\n  B    AB    BO\n  O    AO    OO\nGenotypes: AB, AO, BO, OO in ratio 1:1:1:1.\nPossible blood groups of children: AB, A, B and O (each with probability 1/4).",
+  "finalAnswer": "Blood groups AB, A, B and O, each 1/4 (1:1:1:1)",
+  "solutionSteps": [
+   "[1 mark] Gametes: man gives A and O; woman gives B and O.",
+   "[1 mark] Punnett square/cross gives genotypes AB, AO, BO, OO in 1:1:1:1 ratio.",
+   "[1 mark] Possible blood groups: AB, A, B and O (each 25%)."
+  ],
+  "note": "ABO blood groups (multiple alleles / codominance) are not part of NCERT Class 10 Heredity (2026-27); only Mendelian monohybrid/dihybrid crosses and sex determination are taught. ABO genetics is Class 12 content. Model answer provided for reference."
+ },
+ {
+  "id": "S-LIGHT-10",
+  "verdict": "ok",
+  "answer": "Concave mirror: (i) used as shaving/make-up mirror to see an enlarged face; (ii) used as reflector in torches, vehicle headlights and searchlights to get powerful parallel beams of light (also used by dentists to see enlarged images of teeth, and in solar furnaces to concentrate sunlight).\nConvex mirror: (i) used as rear-view (wing) mirror in vehicles because it always gives an erect, diminished image and has a wider field of view; (ii) used at blind turns of roads and in shops/ATMs as security mirrors for a wide field of view.",
+  "finalAnswer": "Concave: shaving mirror, headlights/torches; Convex: rear-view mirror, blind-turn/security mirror",
+  "solutionSteps": [
+   "[1.5 mark] Two uses of concave mirror: shaving/make-up mirror (enlarged image); reflector in torches/headlights/searchlights (or dentist's mirror, solar furnace).",
+   "[1.5 mark] Two uses of convex mirror: rear-view mirror in vehicles (erect, diminished image, wider field of view); security mirror at blind turns/shops."
+  ]
+ },
+ {
+  "id": "S-MAG-1",
+  "verdict": "ok",
+  "answer": "Magnetic field lines never intersect each other (because if they did, there would be two directions of the magnetic field at one point, which is not possible). Other properties: they are closed continuous curves, emerging from the north pole and merging at the south pole outside the magnet; they are crowded where the field is stronger.",
+  "finalAnswer": "Magnetic field lines never intersect each other",
+  "solutionSteps": [
+   "[1 mark] Any one property, e.g. magnetic field lines never intersect / they are closed curves going from N to S outside the magnet / crowded where field is strong."
+  ]
+ },
+ {
+  "id": "S-ENV-4",
+  "verdict": "ok",
+  "answer": "Biological magnification is the progressive increase in the concentration of non-biodegradable harmful chemicals (such as pesticides like DDT) at successive trophic levels of a food chain. Effect on humans: since humans occupy the top level of many food chains, the maximum concentration of these chemicals accumulates in our bodies (through food such as grains, vegetables, fish), causing harmful effects/diseases (damage to organs, nervous system, etc.).",
+  "finalAnswer": "Increasing concentration of non-biodegradable chemicals along trophic levels; humans at top accumulate maximum, harming health",
+  "solutionSteps": [
+   "[1 mark] Definition: progressive increase in concentration of non-biodegradable chemicals (e.g. DDT, pesticides) at each successive trophic level of a food chain.",
+   "[1 mark] Effect: humans at the top of the food chain accumulate the maximum concentration of these chemicals, which harms health (diseases, organ damage)."
+  ]
+ },
+ {
+  "id": "M-REAL-4",
+  "verdict": "ok",
+  "answer": "392 = 2 × 196 = 2 × 2 × 98 = 2 × 2 × 2 × 49 = 2³ × 7².\n252 = 2 × 126 = 2 × 2 × 63 = 2² × 3² × 7.\nHCF = product of smallest powers of common prime factors = 2² × 7 = 28.",
+  "finalAnswer": "392 = 2³ × 7²; HCF(392, 252) = 28",
+  "solutionSteps": [
+   "[1 mark] 392 = 2³ × 7².",
+   "[1 mark] 252 = 2² × 3² × 7.",
+   "[1 mark] HCF = 2² × 7 = 28."
+  ]
+ },
+ {
+  "id": "M-POLY-5",
+  "verdict": "ok",
+  "answer": "Let p(x) = 2x² + kx + 3. Since 1 is a zero, p(1) = 0: 2 + k + 3 = 0 ⇒ k = −5.\nSo p(x) = 2x² − 5x + 3. Product of zeros = c/a = 3/2, so 1 × β = 3/2 ⇒ β = 3/2.\n(Check: sum = 1 + 3/2 = 5/2 = −b/a.)",
+  "finalAnswer": "k = −5; other zero = 3/2",
+  "solutionSteps": [
+   "[1 mark] p(1) = 0 ⇒ 2 + k + 3 = 0.",
+   "[1 mark] k = −5, so p(x) = 2x² − 5x + 3.",
+   "[1 mark] Product of zeros = 3/2 ⇒ 1·β = 3/2 ⇒ other zero = 3/2."
+  ]
+ },
+ {
+  "id": "M-PLE-6",
+  "verdict": "ok",
+  "answer": "Let the numbers be x and y (x > y).\nx + y = 27 ...(1)\nx − y = 5 ...(2)\nAdding: 2x = 32 ⇒ x = 16. From (1): y = 27 − 16 = 11.\nThe numbers are 16 and 11.",
+  "finalAnswer": "The numbers are 16 and 11",
+  "solutionSteps": [
+   "[1 mark] Equations: x + y = 27 and x − y = 5.",
+   "[1 mark] Adding: 2x = 32 ⇒ x = 16.",
+   "[1 mark] y = 11; numbers are 16 and 11."
+  ]
+ },
+ {
+  "id": "M-QUAD-6",
+  "verdict": "ok",
+  "answer": "For x² − 4x + 1 = 0: α + β = 4, αβ = 1.\nSum of new roots = (α+1) + (β+1) = α + β + 2 = 6.\nProduct = (α+1)(β+1) = αβ + (α+β) + 1 = 1 + 4 + 1 = 6.\nRequired equation: x² − (sum)x + product = 0 ⇒ x² − 6x + 6 = 0.",
+  "finalAnswer": "x² − 6x + 6 = 0",
+  "solutionSteps": [
+   "[1 mark] α + β = 4 and αβ = 1.",
+   "[1 mark] Sum of new roots = α + β + 2 = 6.",
+   "[1 mark] Product of new roots = αβ + α + β + 1 = 6.",
+   "[1 mark] Required equation: x² − 6x + 6 = 0."
+  ]
+ },
+ {
+  "id": "M-AP-6",
+  "verdict": "ok",
+  "answer": "a₈ = a + 7d = 37 ...(1); a₁₃ = a + 12d = 62 ...(2).\nSubtracting: 5d = 25 ⇒ d = 5. Then a = 37 − 35 = 2.\nAP: 2, 7, 12, 17, ...",
+  "finalAnswer": "AP: 2, 7, 12, 17, … (a = 2, d = 5)",
+  "solutionSteps": [
+   "[1 mark] a + 7d = 37 and a + 12d = 62.",
+   "[1 mark] 5d = 25 ⇒ d = 5; a = 2.",
+   "[1 mark] AP: 2, 7, 12, 17, ..."
+  ]
+ },
+ {
+  "id": "M-CG-1",
+  "verdict": "ok",
+  "answer": "Distance = √[(8 − 2)² + (15 − 3)²] = √(36 + 144) = √180 = 6√5 units.",
+  "finalAnswer": "6√5 units (≈ 13.42 units)",
+  "solutionSteps": [
+   "[1 mark] d = √[(8 − 2)² + (15 − 3)²] = √(6² + 12²).",
+   "[1 mark] = √180 = 6√5 units."
+  ]
+ },
+ {
+  "id": "M-TRIG-6",
+  "verdict": "ok",
+  "answer": "sin A = 5/13 = P/H; take P = 5k, H = 13k. Base = √(169k² − 25k²) = 12k.\ntan A = 5/12, cot A = 12/5.\n2 tan A − 3 cot A = 2(5/12) − 3(12/5) = 5/6 − 36/5 = (25 − 216)/30 = −191/30.",
+  "finalAnswer": "−191/30",
+  "solutionSteps": [
+   "[1 mark] Using Pythagoras, adjacent side = 12k, so cos A = 12/13.",
+   "[1 mark] tan A = 5/12, cot A = 12/5.",
+   "[1 mark] 2(5/12) − 3(12/5) = 5/6 − 36/5 = −191/30."
+  ]
+ },
+ {
+  "id": "M-APPTRIG-7",
+  "verdict": "ok",
+  "answer": "Let AB = h be the tower, D the first point, C the point 20 m closer, BC = x.\nIn ΔABC: tan 60° = h/x ⇒ h = √3 x.\nIn ΔABD: tan 30° = h/(x + 20) ⇒ x + 20 = √3 h = √3(√3 x) = 3x ⇒ 2x = 20 ⇒ x = 10 m.\nh = 10√3 m ≈ 17.32 m.",
+  "finalAnswer": "Height = 10√3 m ≈ 17.32 m",
+  "solutionSteps": [
+   "[1 mark] Correct figure/setup: tower AB = h, BC = x, CD = 20 m.",
+   "[1 mark] tan 60° = h/x ⇒ h = √3 x.",
+   "[1 mark] tan 30° = h/(x + 20) ⇒ x + 20 = 3x ⇒ x = 10 m.",
+   "[1 mark] h = 10√3 m ≈ 17.32 m."
+  ]
+ },
+ {
+  "id": "M-CIR-8",
+  "verdict": "ok",
+  "answer": "When a circle touches all four sides of a square (inscribed circle), the distance between two opposite sides equals the diameter of the circle (the radii to opposite points of contact are perpendicular to the parallel sides and lie on one line through the centre). So side a = 2r, i.e. r = a/2.",
+  "finalAnswer": "r = a/2 (side = diameter)",
+  "solutionSteps": [
+   "[1 mark] Radii to points of contact on opposite sides are perpendicular to those parallel sides and together form a diameter equal to the distance between them.",
+   "[1 mark] Hence side of square = 2r, i.e. r = a/2."
+  ],
+  "note": "Text slightly terse; interpreted as inscribed circle of a square of side a."
+ },
+ {
+  "id": "M-ARC-8",
+  "verdict": "ok",
+  "answer": "The horse grazes a quadrant (90° sector) of radius r = 7 m (corner angle of rectangle = 90°).\nArea = (90/360) × πr² = (1/4) × (22/7) × 7 × 7 = 77/2 = 38.5 m².",
+  "finalAnswer": "38.5 m²",
+  "solutionSteps": [
+   "[1 mark] Grazing region is a quadrant of radius 7 m (angle 90°).",
+   "[1 mark] Area = (1/4)πr² = (1/4) × (22/7) × 49.",
+   "[1 mark] = 38.5 m²."
+  ]
+ },
+ {
+  "id": "M-SAV-9",
+  "verdict": "ok",
+  "answer": "r = 3 cm, h = 7 cm. The hemisphere's flat face covers the top of the cylinder exactly, so exposed surfaces are: curved surface of cylinder, base of cylinder and curved surface of hemisphere.\nTSA = 2πrh + πr² + 2πr² = πr(2h + 3r) = (22/7) × 3 × (14 + 9) = (22/7) × 69 = 1518/7 ≈ 216.86 cm².",
+  "finalAnswer": "1518/7 cm² ≈ 216.86 cm²",
+  "solutionSteps": [
+   "[1 mark] Identify exposed surfaces: CSA of cylinder + base of cylinder + CSA of hemisphere.",
+   "[1 mark] TSA = 2πrh + πr² + 2πr² = πr(2h + 3r).",
+   "[1 mark] = (22/7) × 3 × (14 + 9) = (22/7) × 69.",
+   "[1 mark] = 1518/7 ≈ 216.86 cm²."
+  ]
+ },
+ {
+  "id": "M-STAT-9",
+  "verdict": "ok",
+  "answer": "Advantage of mean: it is based on all the observations, is easy to calculate and is rigidly (mathematically) defined, so it can be used for further calculations and comparison of data sets.\nDisadvantage: it is strongly affected by extreme values (outliers) — e.g. for 2, 3, 4, 5, 100 the mean is 22.8, which does not represent most of the values. Hence, for data with extreme values, the median is a better measure of central tendency.",
+  "finalAnswer": "Advantage: uses all observations; disadvantage: distorted by extreme values — median preferred",
+  "solutionSteps": [
+   "[1 mark] Advantage: mean uses every observation and is rigidly defined / easy to compute and use further.",
+   "[1 mark] Disadvantage: mean is pulled by extreme values (outliers), so it may not represent the data (example illustrating).",
+   "[1 mark] Conclusion: for data with extreme values, median is a more suitable measure."
+  ]
+ },
+ {
+  "id": "M-PROB-9",
+  "verdict": "ok",
+  "answer": "Expected number of wins = number of games × probability of winning = 10 × 0.3 = 3.\nSo on average the player is expected to win 3 games out of 10.",
+  "finalAnswer": "3 wins",
+  "solutionSteps": [
+   "[1 mark] Expected wins = n × P(win) = 10 × 0.3.",
+   "[1 mark] = 3 wins (on average)."
+  ]
+ }
+]

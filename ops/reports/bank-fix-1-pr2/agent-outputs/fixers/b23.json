@@ -1,0 +1,206 @@
+[
+ {
+  "id": "LPX-A-008",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "fix",
+  "fields": {
+   "subtopic": "Excretion"
+  },
+  "rationale": "Urea formation in the liver (deamination) belongs to Excretion, not Transportation. Q/A are correct; only the subtopic changes."
+ },
+ {
+  "id": "CBE-S-LGHT-A-003",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: figure binding to CBE-S-LGHT-A-003.webp shows lens A convex; D (convex, real image where converging rays meet) c"
+ },
+ {
+  "id": "CFPQ-S-LGHT-006",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: Sun at infinity gives parallel rays converging at F = diagram 2, matches the description"
+ },
+ {
+  "id": "FND-L-BD-01",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: object beyond C gives image between C and F, matches"
+ },
+ {
+  "id": "FND-L-QB-002",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: parallel rays converge 12 cm in front, so concave f=12 cm, matches"
+ },
+ {
+  "id": "FND-L-QB-004",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: rotating the described grid 180 deg gives option C (two figures bound), matches"
+ },
+ {
+  "id": "FND-L-QB-025",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: I (undeviated through O) and III (parallel ray to F) are the correct rays, matches"
+ },
+ {
+  "id": "FND-L-QB-029",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: S has pins far apart at a moderate angle, matches"
+ },
+ {
+  "id": "FND-L-QB-030",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: emergent rays converge, so convex lens, matches"
+ },
+ {
+  "id": "FND-L-QB-042",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: IV marks r from the normal inside the glass, matches"
+ },
+ {
+  "id": "FND-L-QB-043",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: emergent beam diverges, so concave lens, matches"
+ },
+ {
+  "id": "FND-L-QB-057",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: i=2, e=1, r=4, lateral displacement=3, matches"
+ },
+ {
+  "id": "FND-L-QB-086",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: CD is the perpendicular between the emergent ray and the extended incident ray, matches"
+ },
+ {
+  "id": "FND-L-QB-090",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: figure shows light transmitted to a screen 40 cm away, so convex lens f=40 cm; the figure rules out the concave "
+ },
+ {
+  "id": "FND-L-QB-093",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: real image rotated 180 deg = Shape (A), matches"
+ },
+ {
+  "id": "FND-L-QB-098",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: described set-up II is oblique with pins far apart; matches the source key"
+ },
+ {
+  "id": "FND-L-QB-106",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: i=1, e=3, r=2, displacement=4, matches"
+ },
+ {
+  "id": "FND-L-QB-107",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: description: i and e drawn from the normals, r not, matches"
+ },
+ {
+  "id": "FND-L-QB-150",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "fix",
+  "fields": {
+   "topicKey": "human-eye-and-colourful-world"
+  },
+  "rationale": "Refraction through a triangular prism (angles A, i, r, e, D) is NCERT Human Eye sec 10.4 and is in the 2026-27 syllabus. Figure fnd-l-qb-150.webp is bound by questionId and served, so the figure flag is wrong. Only the chapter is retagged."
+ },
+ {
+  "id": "FND-L-QB-157",
+  "surface": "bank",
+  "withhold_reason": null,
+  "answer_changed": false,
+  "stem_changed": false,
+  "verdict": "reject",
+  "fields": {},
+  "rationale": "Figure flag wrong: an eye-confirmed raster figure is bound by questionId in data/figures/scienceFigureVisuals.ts and the .webp exists in public; QuestionVisualAid serves it. Key verified: X transmits (convex lens, 20 cm) and Y reflects (concave mirror, 25 cm), matches"
+ }
+]

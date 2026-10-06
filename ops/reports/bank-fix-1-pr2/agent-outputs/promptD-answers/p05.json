@@ -1,0 +1,268 @@
+[
+ {
+  "id": "S-CHEM-6",
+  "verdict": "ok",
+  "answer": "CaCO3(s) --heat--> CaO(s) + CO2(g) is a thermal decomposition reaction: a single reactant (calcium carbonate) breaks down on heating into two simpler products (calcium oxide/quicklime and carbon dioxide). Another example of the same type: 2FeSO4(s) --heat--> Fe2O3(s) + SO2(g) + SO3(g).",
+  "finalAnswer": "Thermal decomposition; e.g. 2FeSO4 → Fe2O3 + SO2 + SO3 (on heating)",
+  "solutionSteps": [
+   "[1 mark] Classification: thermal decomposition reaction — one reactant breaks down on heating into simpler products (CaO and CO2).",
+   "[1 mark] Another example: 2FeSO4(s) --heat--> Fe2O3(s) + SO2(g) + SO3(g) (or 2Pb(NO3)2 → 2PbO + 4NO2 + O2 on heating)."
+  ]
+ },
+ {
+  "id": "S-ABS-6",
+  "verdict": "ok",
+  "answer": "Plaster of Paris is a white powder obtained by heating gypsum (CaSO4·2H2O) at 373 K: CaSO4·2H2O → CaSO4·½H2O + 1½H2O. Its chemical name is calcium sulphate hemihydrate (CaSO4·½H2O). Use: for supporting/setting fractured bones in the right position (also making toys, decorative materials, smoothing surfaces).",
+  "finalAnswer": "Calcium sulphate hemihydrate, CaSO4·½H2O; used for plastering fractured bones",
+  "solutionSteps": [
+   "[1 mark] Plaster of Paris is obtained by heating gypsum at 373 K; chemical name calcium sulphate hemihydrate, CaSO4·½H2O.",
+   "[1 mark] Use: for supporting fractured bones in the right position (or making toys/decorative materials/smoothing walls)."
+  ]
+ },
+ {
+  "id": "S-MNM-6",
+  "verdict": "ok",
+  "answer": "The chief ore of aluminium is bauxite (Al2O3·2H2O). Aluminium is highly reactive, so it is extracted by electrolytic reduction (electrolysis) of its molten oxide (alumina).",
+  "finalAnswer": "Bauxite; electrolytic reduction",
+  "solutionSteps": [
+   "[1 mark] Ore of aluminium: bauxite (Al2O3·2H2O).",
+   "[1 mark] Process: electrolytic reduction of molten alumina (aluminium is too reactive to be reduced by carbon)."
+  ]
+ },
+ {
+  "id": "S-CARB-6",
+  "verdict": "ok",
+  "answer": "Hard water contains calcium and magnesium salts. Soap reacts with these ions to form an insoluble precipitate called scum, so much soap is wasted and cleaning is poor. Detergents are generally sodium salts of sulphonic acids or ammonium salts; their charged ends do not form insoluble precipitates with calcium and magnesium ions, so they lather well and remain effective in hard water.",
+  "finalAnswer": "Detergents do not form scum with Ca²⁺/Mg²⁺ ions of hard water",
+  "solutionSteps": [
+   "[1 mark] Soap reacts with Ca²⁺ and Mg²⁺ ions in hard water to form insoluble scum, wasting soap.",
+   "[1 mark] Detergents (sulphonate/ammonium salts) do not form insoluble precipitates with these ions, so they remain effective in hard water."
+  ]
+ },
+ {
+  "id": "S-LIFE-6",
+  "verdict": "ok",
+  "answer": "(Answering the 'list four functions' alternative.) Functions of the kidney: (i) Filtration of blood to remove nitrogenous wastes such as urea and uric acid; (ii) Formation of urine and its passage to the urinary bladder via the ureters; (iii) Osmoregulation — selective reabsorption of water to maintain the water balance of the body; (iv) Maintaining salt/ion balance by selective reabsorption of glucose, amino acids and salts. (Diagram alternative: nephron showing glomerulus, Bowman's capsule, tubular part, collecting duct, renal artery and renal vein branches.)",
+  "finalAnswer": "Filters blood/removes urea; forms urine; osmoregulation; maintains salt balance",
+  "solutionSteps": [
+   "[1 mark] Filtration of blood to remove nitrogenous wastes (urea, uric acid) — excretion.",
+   "[1 mark] Formation of urine, which passes through ureters to the urinary bladder; and osmoregulation (reabsorption of water to regulate water content).",
+   "[1 mark] Selective reabsorption of useful substances (glucose, amino acids, salts) to maintain salt/ion balance. [OR for the diagram alternative: correct nephron drawing with labels — glomerulus, Bowman's capsule, tubule, collecting duct.]"
+  ],
+  "note": "Question is an internal choice; model answer covers the 'four functions' option. A diagram-option answer cannot be shown as an image."
+ },
+ {
+  "id": "S-ELEC-6",
+  "verdict": "ok",
+  "answer": "Circuit: a battery, plug key and ammeter in series with a combination of three resistors R1, R2 and R3 connected in parallel between the same two points X and Y (each resistor on its own branch, so the same potential difference V appears across each); a voltmeter is connected across X and Y. Total current I = I1 + I2 + I3 = V/R1 + V/R2 + V/R3. Since I = V/Rp, the equivalent resistance is given by 1/Rp = 1/R1 + 1/R2 + 1/R3.",
+  "finalAnswer": "1/Rp = 1/R1 + 1/R2 + 1/R3",
+  "solutionSteps": [
+   "[1 mark] Diagram: battery, key and ammeter in series with three resistors R1, R2, R3 connected in parallel between points X and Y; voltmeter across XY.",
+   "[1 mark] Same p.d. V across each resistor; total current I = I1 + I2 + I3 = V/R1 + V/R2 + V/R3.",
+   "[1 mark] Using I = V/Rp: 1/Rp = 1/R1 + 1/R2 + 1/R3."
+  ]
+ },
+ {
+  "id": "S-CC-6",
+  "verdict": "ok",
+  "answer": "Adrenaline is secreted by the adrenal glands directly into the blood in an emergency (fight-or-flight). It acts on target organs: the heart beats faster, supplying more oxygen to muscles; blood supply to the digestive system and skin is reduced (by contraction of muscles around small arteries) and diverted to skeletal muscles; breathing rate increases due to contraction of the diaphragm and rib muscles. All these responses prepare the body to deal with the emergency.",
+  "finalAnswer": "Adrenaline raises heart and breathing rate and diverts blood to skeletal muscles",
+  "solutionSteps": [
+   "[1 mark] Adrenaline is secreted by adrenal glands into the blood during an emergency; heart beats faster to supply more oxygen to muscles.",
+   "[1 mark] Blood to digestive system and skin is reduced and diverted to skeletal muscles; breathing rate increases — body is prepared to face the situation."
+  ]
+ },
+ {
+  "id": "S-REP-6",
+  "verdict": "ok",
+  "answer": "Menstrual cycle: the cycle of changes in the female reproductive system repeated roughly every 28 days. Each month an ovary releases an egg and the uterine lining thickens and becomes spongy and richly supplied with blood to nourish an embryo if fertilisation occurs. If the egg is not fertilised, it lives for about one day; the thick, spongy uterine lining is no longer needed and breaks down slowly, coming out through the vagina as blood and mucus — menstruation, which lasts about 2–8 days. Significance: it prepares the uterus every month to receive and nourish a fertilised egg (embryo), and when fertilisation does not occur it removes the unused lining so that a fresh lining can be built for the next cycle.",
+  "finalAnswer": "Monthly cycle of uterine lining build-up and shedding (menstruation) when egg is not fertilised; prepares uterus for pregnancy",
+  "solutionSteps": [
+   "[1 mark] Every month an ovary releases one egg and the uterine lining thickens, becoming spongy and rich in blood vessels.",
+   "[1 mark] If the egg is not fertilised, the lining breaks down and is discharged through the vagina as blood and mucus (menstruation), about every 28 days, lasting 2–8 days.",
+   "[1 mark] Significance: prepares the uterus to receive and nourish a fertilised egg; removes unused lining so a fresh one is formed each cycle."
+  ]
+ },
+ {
+  "id": "S-HER-13",
+  "verdict": "ok",
+  "answer": "Variations arise (i) due to inaccuracies/errors in DNA copying during reproduction, and (ii) due to sexual reproduction, which combines DNA from two different individuals (parents), producing new combinations. Importance: variations help a species to survive in a changing environment — some variants may be better suited to new conditions (e.g. heat-resistant bacteria surviving a heat wave), so the species is not wiped out.",
+  "finalAnswer": "DNA copying errors and sexual reproduction; variation helps species survive changing environments",
+  "solutionSteps": [
+   "[1 mark] Two ways: inaccuracies in DNA copying during reproduction; and sexual reproduction combining DNA of two parents.",
+   "[1 mark] Importance: variation enables some individuals to survive changes in the environment, ensuring survival of the species."
+  ]
+ },
+ {
+  "id": "S-LIGHT-9",
+  "verdict": "ok",
+  "answer": "Light from the immersed part of the pencil travels from water (optically denser) into air (optically rarer) and bends away from the normal at the water surface (refraction). The refracted rays appear to come from a point higher than the actual position, so the immersed part appears raised; hence the pencil appears bent (displaced) at the surface of water.",
+  "finalAnswer": "Due to refraction of light at water–air boundary",
+  "solutionSteps": [
+   "[1 mark] Light from the immersed part passes from water (denser) to air (rarer) and bends away from the normal — refraction.",
+   "[1 mark] The rays appear to come from a raised point, so the immersed part looks raised and the pencil appears bent at the surface."
+  ]
+ },
+ {
+  "id": "S-EYE-10",
+  "verdict": "ok",
+  "answer": "This is due to atmospheric refraction. The Earth's atmosphere is optically denser near the surface and rarer higher up. When the Sun is slightly below the horizon, its light entering the atmosphere is refracted (bent towards the normal) progressively as it passes into denser layers, curving towards the Earth's surface. An observer therefore sees the Sun at an apparent position above its actual position, i.e. the Sun is visible even when it is slightly below the horizon. So the Sun is seen about 2 minutes before actual sunrise and for about 2 minutes after actual sunset — the time from sunrise to sunset increases by about 4 minutes.",
+  "finalAnswer": "Atmospheric refraction; Sun visible ~2 min before actual sunrise and ~2 min after actual sunset",
+  "solutionSteps": [
+   "[1 mark] Cause: atmospheric refraction — air density (refractive index) increases towards the Earth's surface.",
+   "[1 mark] Sunlight from the Sun just below the horizon bends towards the Earth on passing through denser layers, so the Sun's apparent position is above the horizon.",
+   "[1 mark] Hence the Sun is seen ~2 minutes before actual sunrise and ~2 minutes after actual sunset (day lengthened by ~4 minutes)."
+  ]
+ },
+ {
+  "id": "S-ENV-3",
+  "verdict": "ok",
+  "answer": "The 10% law states that only about 10% of the energy available at one trophic level is transferred to (available as food for) the next trophic level. Explanation: green plants capture about 1% of the sunlight falling on leaves; at each level most of the energy is used for life processes (respiration, movement) or lost as heat, so only ~10% is stored in body and passed on. E.g. 1000 J in plants → 100 J herbivores → 10 J carnivores. Hence food chains usually have only 3–4 trophic levels.",
+  "finalAnswer": "Only ~10% of energy at one trophic level passes to the next",
+  "solutionSteps": [
+   "[1 mark] Statement: only about 10% of the energy of one trophic level is transferred to the next trophic level.",
+   "[1 mark] Explanation: the rest is used in life processes/lost as heat; e.g. 1000 J → 100 J → 10 J, so food chains have only 3–4 levels."
+  ]
+ },
+ {
+  "id": "M-REAL-3",
+  "verdict": "ok",
+  "answer": "96 = 2⁵ × 3; 360 = 2³ × 3² × 5. HCF = product of smallest powers of common primes = 2³ × 3 = 24. LCM = product of greatest powers of all primes = 2⁵ × 3² × 5 = 1440. Verification: HCF × LCM = 24 × 1440 = 34560; product of numbers = 96 × 360 = 34560. Hence HCF × LCM = product of the two numbers.",
+  "finalAnswer": "HCF = 24, LCM = 1440; 24 × 1440 = 34560 = 96 × 360",
+  "solutionSteps": [
+   "[1 mark] Prime factorisation: 96 = 2⁵ × 3, 360 = 2³ × 3² × 5.",
+   "[1 mark] HCF = 2³ × 3 = 24; LCM = 2⁵ × 3² × 5 = 1440.",
+   "[1 mark] Verification: 24 × 1440 = 34560 = 96 × 360."
+  ]
+ },
+ {
+  "id": "M-POLY-4",
+  "verdict": "ok",
+  "answer": "Sum of zeroes = 3 + (−2) = 1; product of zeroes = 3 × (−2) = −6. Required polynomial = k[x² − (sum)x + product] = k(x² − x − 6); taking k = 1, p(x) = x² − x − 6.",
+  "finalAnswer": "x² − x − 6 (or k(x² − x − 6), k ≠ 0)",
+  "solutionSteps": [
+   "[1 mark] Sum of zeroes = 1, product of zeroes = −6.",
+   "[1 mark] Polynomial = x² − (sum)x + product = x² − x − 6."
+  ]
+ },
+ {
+  "id": "M-PLE-5",
+  "verdict": "ok",
+  "answer": "2x + y = 6 → y = 6 − 2x: points (0, 6), (1, 4), (3, 0). 4x + 2y = 12 → y = (12 − 4x)/2 = 6 − 2x: points (0, 6), (2, 2), (3, 0). Plotting, both lines pass through the same points, so the lines are coincident. Also a1/a2 = 2/4 = 1/2, b1/b2 = 1/2, c1/c2 = 6/12 = 1/2 — all equal. Hence the pair is consistent (dependent) and has infinitely many solutions.",
+  "finalAnswer": "Coincident lines; infinitely many solutions",
+  "solutionSteps": [
+   "[1 mark] Table for 2x + y = 6: (0, 6), (3, 0), (1, 4); table for 4x + 2y = 12: (0, 6), (3, 0), (2, 2).",
+   "[1 mark] Plotting the points gives the same straight line for both — the lines coincide (a1/a2 = b1/b2 = c1/c2 = 1/2).",
+   "[1 mark] Conclusion: dependent/consistent pair with infinitely many solutions."
+  ]
+ },
+ {
+  "id": "M-QUAD-5",
+  "verdict": "ok",
+  "answer": "For equal roots, discriminant D = b² − 4ac = 0. Here a = 1, b = k, c = 9: k² − 4(1)(9) = 0 ⇒ k² = 36 ⇒ k = ±6.",
+  "finalAnswer": "k = 6 or k = −6",
+  "solutionSteps": [
+   "[1 mark] Condition for equal roots: b² − 4ac = 0, with a = 1, b = k, c = 9.",
+   "[1 mark] k² − 36 = 0 ⇒ k² = 36.",
+   "[1 mark] k = ±6."
+  ]
+ },
+ {
+  "id": "M-AP-5",
+  "verdict": "ok",
+  "answer": "Sₙ = 3n² + 5n. a₁₀ = S₁₀ − S₉. S₁₀ = 3(100) + 5(10) = 350; S₉ = 3(81) + 5(9) = 243 + 45 = 288. a₁₀ = 350 − 288 = 62. (Check: aₙ = Sₙ − Sₙ₋₁ = 6n + 2, a₁₀ = 62.)",
+  "finalAnswer": "a₁₀ = 62",
+  "solutionSteps": [
+   "[1 mark] Use aₙ = Sₙ − Sₙ₋₁, so a₁₀ = S₁₀ − S₉.",
+   "[1 mark] S₁₀ = 300 + 50 = 350; S₉ = 243 + 45 = 288.",
+   "[1 mark] a₁₀ = 350 − 288 = 62."
+  ]
+ },
+ {
+  "id": "M-TRI-10",
+  "verdict": "ok",
+  "answer": "Let ΔABC be right-angled at B, and BD ⊥ AC (D on hypotenuse AC). To prove: ΔADB ~ ΔABC, ΔBDC ~ ΔABC and ΔADB ~ ΔBDC. (i) In ΔADB and ΔABC: ∠A = ∠A (common), ∠ADB = ∠ABC = 90°. So ΔADB ~ ΔABC (AA). (ii) In ΔBDC and ΔABC: ∠C = ∠C (common), ∠BDC = ∠ABC = 90°. So ΔBDC ~ ΔABC (AA). (iii) From (i) and (ii), ∠ABD = ∠C and ∠DBC = ∠A; in ΔADB and ΔBDC: ∠ADB = ∠BDC = 90° and ∠A = ∠DBC. So ΔADB ~ ΔBDC (AA). Hence the triangles on each side of the altitude are similar to the whole triangle and to each other.",
+  "finalAnswer": "ΔADB ~ ΔABC, ΔBDC ~ ΔABC, ΔADB ~ ΔBDC (AA similarity)",
+  "solutionSteps": [
+   "[1 mark] Figure and given/to prove: ΔABC right-angled at B, BD ⊥ AC.",
+   "[1 mark] ΔADB ~ ΔABC: ∠A common, ∠ADB = ∠ABC = 90° (AA).",
+   "[1 mark] ΔBDC ~ ΔABC: ∠C common, ∠BDC = ∠ABC = 90° (AA).",
+   "[1 mark] ΔADB ~ ΔBDC: ∠ADB = ∠BDC = 90°, ∠A = ∠DBC (from above) — AA; hence proved."
+  ],
+  "note": "The NCERT theorem (old Th 6.7) was removed with the Pythagoras section in the rationalised syllabus, but the result is provable with the AA criterion, which is in syllabus."
+ },
+ {
+  "id": "M-TRIG-5",
+  "verdict": "ok",
+  "answer": "sec θ = 1/cos θ and tan θ = sin θ/cos θ (cos θ ≠ 0). sec²θ − tan²θ = 1/cos²θ − sin²θ/cos²θ = (1 − sin²θ)/cos²θ = cos²θ/cos²θ = 1 (using sin²θ + cos²θ = 1). Hence proved.",
+  "finalAnswer": "sec²θ − tan²θ = 1",
+  "solutionSteps": [
+   "[1 mark] Write sec²θ − tan²θ = 1/cos²θ − sin²θ/cos²θ = (1 − sin²θ)/cos²θ.",
+   "[1 mark] Using sin²θ + cos²θ = 1: = cos²θ/cos²θ = 1. Hence proved."
+  ]
+ },
+ {
+  "id": "M-APPTRIG-6",
+  "verdict": "ok",
+  "answer": "Let AB = 50 m be the lighthouse and C the ship, with ∠ACB = 30°, ∠ABC = 90°. In right ΔABC, tan 30° = AB/BC ⇒ 1/√3 = 50/BC ⇒ BC = 50√3 m ≈ 50 × 1.732 = 86.6 m.",
+  "finalAnswer": "50√3 m ≈ 86.6 m",
+  "solutionSteps": [
+   "[1 mark] Figure: lighthouse AB = 50 m, ship at C, angle of elevation ∠ACB = 30°.",
+   "[1 mark] tan 30° = AB/BC ⇒ 1/√3 = 50/BC.",
+   "[1 mark] BC = 50√3 m ≈ 86.6 m."
+  ]
+ },
+ {
+  "id": "M-CIR-7",
+  "verdict": "ok",
+  "answer": "Let chord AB of the larger circle touch the smaller circle at P. OP ⊥ AB (radius ⊥ tangent), OP = 3 cm, OA = 5 cm. In right ΔOPA: AP = √(OA² − OP²) = √(25 − 9) = 4 cm. The perpendicular from the centre bisects the chord, so AB = 2 × AP = 8 cm.",
+  "finalAnswer": "8 cm",
+  "solutionSteps": [
+   "[1 mark] OP ⊥ AB at point of contact P (radius ⊥ tangent); OP = 3 cm, OA = 5 cm.",
+   "[1 mark] AP = √(5² − 3²) = √16 = 4 cm.",
+   "[1 mark] Perpendicular from centre bisects chord: AB = 2 × 4 = 8 cm."
+  ]
+ },
+ {
+  "id": "M-ARC-7",
+  "verdict": "ok",
+  "answer": "Joining the centres of the four touching circles forms a square of side 2r = 7 cm. Area of square = 7² = 49 cm². Each corner of the square contains a quadrant (angle 90°) of a circle: area of 4 quadrants = area of one circle = πr² = (22/7) × 3.5 × 3.5 = 38.5 cm². Required area = 49 − 38.5 = 10.5 cm².",
+  "finalAnswer": "10.5 cm²",
+  "solutionSteps": [
+   "[1 mark] Square joining centres has side 2 × 3.5 = 7 cm; area = 49 cm².",
+   "[1 mark] Each corner contains a quadrant (90° sector) of radius 3.5 cm; 4 quadrants = one full circle.",
+   "[1 mark] Area of 4 quadrants = (22/7) × 3.5² = 38.5 cm².",
+   "[1 mark] Required area = 49 − 38.5 = 10.5 cm²."
+  ],
+  "text_fixed": "Four equal circles, each of radius 3.5 cm, are placed so that each touches two others, with their centres forming a square. Find the area of the region enclosed between the circles inside the square formed by joining their centres. (Use π = 22/7)"
+ },
+ {
+  "id": "M-SAV-8",
+  "verdict": "ok",
+  "answer": "Volume of cylinder = πr²h = 300 cm³. Volume of cone with the same r and h = (1/3)πr²h = (1/3) × 300 = 100 cm³.",
+  "finalAnswer": "100 cm³",
+  "solutionSteps": [
+   "[1 mark] Volume of cone = (1/3)πr²h = (1/3) × volume of cylinder (same r, h).",
+   "[1 mark] = (1/3) × 300 = 100 cm³."
+  ]
+ },
+ {
+  "id": "M-STAT-8",
+  "verdict": "unanswerable",
+  "answer": "",
+  "finalAnswer": "",
+  "solutionSteps": [],
+  "note": "Refers to 'the following table' of class intervals and frequencies, but no table is given; the answer depends on the data (and 'quick estimate' is ambiguous). Cannot be answered as written."
+ },
+ {
+  "id": "M-PROB-8",
+  "verdict": "ok",
+  "answer": "Total outcomes when two dice are tossed = 6 × 6 = 36. Favourable outcomes for sum 9: (3, 6), (4, 5), (5, 4), (6, 3) = 4. P(sum = 9) = 4/36 = 1/9.",
+  "finalAnswer": "1/9",
+  "solutionSteps": [
+   "[1 mark] Total equally likely outcomes = 36.",
+   "[1 mark] Favourable outcomes: (3,6), (4,5), (5,4), (6,3) — 4 outcomes.",
+   "[1 mark] P = 4/36 = 1/9."
+  ]
+ }
+]

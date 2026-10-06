@@ -1,0 +1,240 @@
+[
+ {
+  "id": "MAG-EXMPLR-12-MCQ-003",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options 'A' and 'B' are genuine answers (the points A and B named in the stem), not empty labels. Stem is self-contained: current anticlockwise as seen from A makes face A the N-pole; key A is correct."
+ },
+ {
+  "id": "APQ-S-MAG-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A helical coil whose length is greater than its diameter is connected to a battery. Two points P and Q lie inside the coil. (a) How does the magnetic field at point P compare with the magnetic field at point Q? Justify your answer. (b) State one way in which the strength of the magnetic field inside a current-carrying helical coil can be changed."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed '(as shown)'; the only figure fact needed (P and Q both inside the coil) is carried by the row's own answer ('uniform field inside solenoid'). Answer unchanged."
+ },
+ {
+  "id": "PYQ-S-2026-MAG-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(i) What is a solenoid? Draw a diagram showing the magnetic field pattern due to a current-carrying solenoid (inside and outside). (ii) Name any two factors on which the magnitude of the magnetic field due to a current-carrying solenoid depends. (iii) A current-carrying solenoid is stretched and converted into a straight wire carrying current. Draw a diagram showing the magnetic field pattern around it and mark the direction of the magnetic field.",
+   "answer": "(i) A solenoid is a coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder; inside it the field lines are parallel straight lines (uniform field), outside they resemble those of a bar magnet. (ii) The current through the solenoid and the number of turns of the coil. (iii) Concentric circles around the wire, direction given by the right-hand thumb rule.",
+   "solutionSteps": [
+    "[1 mark] (i) Solenoid: a coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder.",
+    "[1 mark] Diagram: inside the solenoid the field lines are parallel straight lines (uniform field); outside they run from one end (N) to the other (S), like the field of a bar magnet, with directions of current and field marked.",
+    "[1 mark] (ii) Factors: (1) magnitude of the current flowing through the solenoid; (2) number of turns of the coil (per unit length).",
+    "[1 mark] (iii) Diagram: for a straight current-carrying wire, the field lines are concentric circles centred on the wire, in planes perpendicular to it.",
+    "[1 mark] Direction marked using the right-hand thumb rule (thumb along current, curled fingers give field direction). Marks are awarded if a different current direction is shown with the correct corresponding field direction."
+   ],
+   "finalAnswer": "(i) Closely wound cylindrical coil of insulated wire; uniform parallel field inside, bar-magnet-like field outside. (ii) Current and number of turns. (iii) Concentric circles around the wire, direction by the right-hand thumb rule."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Stem had Hindi-translation garble mid-text and an OR (b) whose (ii) needs an unbound figure. Kept the clean, self-contained option (a) only, dropped garble/marks residue, rewrote answer and 5 step-marked steps."
+ },
+ {
+  "id": "SCQ-S-MAG-024",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "'Identify the poles of the magnet in the given figure' — the figure (labels A1, B1, field-line directions) is not in the row's text and cannot be reconstructed from it."
+ },
+ {
+  "id": "SCQ-S-MAG-033",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A circular coil carries a current that flows anticlockwise when the coil is viewed from its front face. Draw the magnetic field lines for this coil. Decide which of its faces behaves as the North pole and which face as the South pole. Give reason to justify your answer.",
+   "answer": "The front face behaves as the North pole and the back face as the South pole, because the magnetic field lines emerge from the front face and enter the coil at the back face.",
+   "solutionSteps": [
+    "[1 mark] Field lines: concentric loops around each part of the wire, becoming nearly straight and parallel near the centre of the coil, emerging from the front face and entering at the back face.",
+    "[1 mark] Using the right-hand thumb rule (or the clock-face rule): current anticlockwise when viewed from a face means field lines come out of that face, so the front face is the North pole.",
+    "[1 mark] The back face (current appears clockwise from there) has field lines entering it, so it is the South pole."
+   ],
+   "finalAnswer": "Front face — North pole; back face — South pole (field lines emerge from the front face)."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Figure only fixed the current sense; the row's own answer (front face = N) implies current anticlockwise as viewed from the front, so that is stated in text. Answer cleaned ('enters out' fixed) and 3 steps given."
+ },
+ {
+  "id": "SCQ-S-MAG-041",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Part (b) asks the direction of the alpha-particle's deflection 'as shown below'; field and velocity directions exist only in the unbound figure, and the row's steps just say 'upwards in the shown figure'. Not reconstructable."
+ },
+ {
+  "id": "PYQ-S-MAG-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "A solenoid is a coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder. The magnetic field is uniform inside the solenoid.",
+   "solutionSteps": [
+    "[1 mark] Definition: a coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder is called a solenoid.",
+    "[1 mark] Diagram: parallel straight field lines inside the solenoid; outside, lines run from the N end to the S end like a bar magnet. (Deduct ½ mark if the direction of current or magnetic field is not marked.)",
+    "[1 mark] Region of uniform magnetic field: inside the solenoid."
+   ],
+   "finalAnswer": "Solenoid: closely wound cylindrical coil of insulated copper wire; the field is uniform inside the solenoid."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Removed Wingdings glyph U+F09F and the marking-scheme note from answer/finalAnswer; fixed 'unform'; supplied the definition in the answer and 3 step-marked steps. Stem unchanged."
+ },
+ {
+  "id": "CBE-S-MAGN-B-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "formative-only",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Official CBE row framed on the input current to an electric motor; motor is formative-only (owner ruling R7). Also needs Fig. 1, and stating its description in text would give away the answer."
+ },
+ {
+  "id": "CBE-S-MAGN-D-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "formative-only",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Official CBE row asking the rule for the spin direction of an electric-motor coil; electric motor is formative-only (owner ruling R7). Not LazyTopper-authored, so not re-framed."
+ },
+ {
+  "id": "SCO-S-MAG-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Magnetic shielding by iron is not in NCERT Class 10 / CBSE 2026-27 content; third-party chapterwise row, not authored."
+ },
+ {
+  "id": "SCO-S-MAG-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Induced magnetism / inducing magnet is not in NCERT Class 10 / CBSE 2026-27 content; third-party row."
+ },
+ {
+  "id": "SCO-S-MAG-004",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Magnetic induction preceding attraction, magnetising an iron ring and demagnetisation by heating are not NCERT Class 10 content; third-party row."
+ },
+ {
+  "id": "SCO-S-MAG-009",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Force between two parallel current-carrying conductors is not in NCERT Class 10 / CBSE 2026-27; third-party row."
+ },
+ {
+  "id": "SCO-S-MAG-013",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Effective (magnetic) length of a magnet is not NCERT Class 10 content; third-party row."
+ },
+ {
+  "id": "SCO-S-MAG-019",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Diamagnetism (bismuth bars aligning perpendicular to the field) is not NCERT Class 10 content; third-party row."
+ },
+ {
+  "id": "sci-mec-hpq-1",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "Right-hand thumb rule gives the direction of: (A) Force on a conductor (B) Magnetic field around a straight conductor (C) Current in a coil (D) Resistance of a conductor"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored HPQ: replaced distractor (D) 'Induced current' (EMI, out of 2026-27 syllabus) with an in-syllabus wrong option. Key (B) unchanged."
+ },
+ {
+  "id": "2026-MNM-03",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "finalAnswer": "Both A and R are true, and R is the correct explanation of A."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Key is correct (correctOption A: Zn more reactive, above Cu, displaces it). Only the finalAnswer wording did not match option A's text; set to the exact option text. Meaning unchanged."
+ },
+ {
+  "id": "CBE-S-MNM-A-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Requires the displacement observations in Table 1, which is not in the row's text; the order D, C, A, B cannot be derived without it."
+ },
+ {
+  "id": "CFPQ-S-MNM-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Krunal connected a copper plate and an iron plate to the positive and negative terminals of a battery respectively along with a switch. He immersed the plates into a beaker containing acidified copper sulphate solution. He then repeated the experiment with the iron plate replaced by a silver plate (copper plate still connected to the positive terminal, silver plate to the negative terminal).\n\nWhat is likely to happen to the concentration of copper sulphate in the solution on passing electric current through the solution in the set-up with the silver plate?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stimulus never introduced the silver plate. Added the replacement (silver plate on the negative terminal), as implied by the row's own step (copper anode dissolves, Cu deposits on cathode). Key 'remain the same' correct."
+ },
+ {
+  "id": "CFPQ-S-MNM-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Krunal connected a copper plate and an iron plate to the positive and negative terminals of a battery respectively along with a switch. He immersed the plates into a beaker containing acidified copper sulphate solution. He then repeated the experiment with the iron plate replaced by a silver plate (copper plate still connected to the positive terminal, silver plate to the negative terminal).\n\nWhich of the following will happen to the weights of the silver and copper plates after passing the current for some time?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stimulus lacked the silver-plate set-up. Added it per the row's own step (silver plate is cathode, copper plate anode). Key: silver gains, copper loses weight — correct."
+ }
+]

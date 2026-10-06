@@ -1,0 +1,252 @@
+[
+ {
+  "id": "S-CHEM-1",
+  "verdict": "ok",
+  "answer": "Rusting is the slow oxidation of iron by oxygen in the presence of moisture, forming hydrated iron(III) oxide (rust): 4Fe(s) + 3O2(g) + 2xH2O(l) → 2Fe2O3·xH2O(s).",
+  "finalAnswer": "4Fe + 3O2 + 2xH2O → 2Fe2O3·xH2O (rust)",
+  "solutionSteps": [
+   "[1 mark] Correct reactants and product: iron + oxygen + water → hydrated iron(III) oxide, Fe2O3·xH2O; Balanced equation: 4Fe(s) + 3O2(g) + 2xH2O(l) → 2Fe2O3·xH2O(s)"
+  ]
+ },
+ {
+  "id": "S-ABS-2",
+  "verdict": "ok",
+  "answer": "Vinegar contains acetic acid (ethanoic acid), CH3COOH.",
+  "finalAnswer": "Acetic (ethanoic) acid, CH3COOH",
+  "solutionSteps": [
+   "[1 mark] Acid: acetic acid (ethanoic acid); Formula: CH3COOH"
+  ]
+ },
+ {
+  "id": "S-MNM-2",
+  "verdict": "ok",
+  "answer": "Sodium is a highly reactive metal; it reacts vigorously with oxygen and moisture in air and catches fire. To prevent this, it is stored immersed in kerosene, with which it does not react and which keeps air and moisture away.",
+  "finalAnswer": "Highly reactive; kerosene keeps air and moisture away to prevent reaction/fire",
+  "solutionSteps": [
+   "[1 mark] Sodium reacts vigorously with oxygen and moisture of air (can catch fire), so it is kept immersed in kerosene, which does not react with it and cuts off air and moisture."
+  ]
+ },
+ {
+  "id": "S-CARB-2",
+  "verdict": "ok",
+  "answer": "A homologous series is a series of carbon compounds having the same functional group and similar chemical properties, in which successive members differ by a –CH2– unit. Characteristics: (i) successive members differ by –CH2– (molecular mass difference of 14 u); (ii) all members have the same general formula and similar chemical properties, while physical properties (melting point, boiling point) change gradually with increasing molecular mass.",
+  "finalAnswer": "Series of compounds with same functional group, successive members differing by –CH2–",
+  "solutionSteps": [
+   "[1 mark] Definition: series of carbon compounds with the same functional group/general formula and similar chemical properties, successive members differing by a –CH2– unit",
+   "[1 mark] Two characteristics (0.5 each): e.g. successive members differ by 14 u; same general formula and similar chemical properties; gradual gradation in physical properties"
+  ]
+ },
+ {
+  "id": "S-LIFE-2",
+  "verdict": "ok",
+  "answer": "Saliva contains the enzyme salivary amylase. It breaks down starch (a complex carbohydrate) into simple sugar (maltose).",
+  "finalAnswer": "Salivary amylase; converts starch into sugar (maltose)",
+  "solutionSteps": [
+   "[1 mark] Enzyme: salivary amylase; Function: breaks down starch into simple sugar (maltose)"
+  ]
+ },
+ {
+  "id": "S-ELEC-2",
+  "verdict": "ok",
+  "answer": "Ohm's law: the electric current flowing through a metallic conductor is directly proportional to the potential difference across its ends, provided its temperature remains the same; V ∝ I, i.e. V = IR. V–I graph: with current I (A) on the x-axis and potential difference V (V) on the y-axis, the graph for an ohmic conductor is a straight line passing through the origin; its slope gives the resistance R.",
+  "finalAnswer": "V = IR (at constant temperature); V–I graph is a straight line through origin",
+  "solutionSteps": [
+   "[1 mark] Statement: current through a conductor is directly proportional to the potential difference across its ends at constant temperature (V = IR)",
+   "[1 mark] Graph: straight line through the origin with axes labelled I (in A) and V (in V)"
+  ]
+ },
+ {
+  "id": "S-CC-2",
+  "verdict": "ok",
+  "answer": "Functions of a neuron (any two): (i) Dendrites receive information/stimulus and convert it into a chemical reaction that sets off an electrical impulse. (ii) The impulse travels from the dendrite to the cell body and along the axon to its end. (iii) At the axon end, chemicals are released which cross the synapse and start an impulse in the next neuron, thus transmitting messages in the body. (Alternatively, a labelled diagram showing dendrite, cell body with nucleus, axon and nerve ending.)",
+  "finalAnswer": "Receives stimuli and conducts/transmits nerve impulses",
+  "solutionSteps": [
+   "[1 mark] Function 1: dendrites receive information/stimulus and generate an electrical impulse (OR diagram drawn correctly)",
+   "[1 mark] Function 2: conducts impulse via cell body and axon and transmits it to the next neuron across the synapse by releasing chemicals (OR labels: dendrite, cell body, nucleus, axon, nerve ending)"
+  ],
+  "note": "Either-or question; model answer gives the 'two functions' option since a diagram cannot be rendered in text."
+ },
+ {
+  "id": "S-REP-2",
+  "verdict": "ok",
+  "answer": "Binary fission: the parent cell divides into two daughter cells; e.g. Amoeba (also Leishmania, Paramecium). Multiple fission: the parent cell divides into many daughter cells simultaneously (often within a cyst); e.g. Plasmodium (malarial parasite).",
+  "finalAnswer": "Binary: 2 daughter cells (Amoeba); Multiple: many daughter cells (Plasmodium)",
+  "solutionSteps": [
+   "[1 mark] Binary fission – one parent cell divides into two daughter cells; example: Amoeba",
+   "[1 mark] Multiple fission – one parent cell divides into many daughter cells at once; example: Plasmodium"
+  ]
+ },
+ {
+  "id": "S-HER-4",
+  "verdict": "ok",
+  "answer": "A monohybrid cross is a cross between two individuals considering only one pair of contrasting characters (one trait). Example: pure tall (TT) × pure dwarf (tt) pea plants. Gametes: T and t. F1: all Tt – tall. Selfing F1: Tt × Tt gives gametes T, t from each parent; F2: TT, Tt, Tt, tt. Phenotypic ratio 3 tall : 1 dwarf; genotypic ratio 1 TT : 2 Tt : 1 tt.",
+  "finalAnswer": "Cross for one trait; F1 all tall, F2 3 tall : 1 dwarf (genotype 1:2:1)",
+  "solutionSteps": [
+   "[1 mark] Definition: cross between two plants considering only one pair of contrasting characters",
+   "[1 mark] Parents TT (tall) × tt (dwarf) → gametes T, t → F1 all Tt (tall)",
+   "[1 mark] F1 selfed (Tt × Tt) → F2 TT : Tt : tt = 1 : 2 : 1; phenotypic ratio 3 tall : 1 dwarf"
+  ]
+ },
+ {
+  "id": "S-LIGHT-5",
+  "verdict": "ok",
+  "answer": "For a concave mirror, the point 2F is the centre of curvature C. Object AB is placed between F and C. Ray 1 from A parallel to the principal axis reflects and passes through the principal focus F. Ray 2 from A passing through F (or along the line through C) reflects parallel to the principal axis (or retraces its path). The reflected rays meet beyond C, forming image A'B'. Image: beyond C, real, inverted and enlarged (magnified).",
+  "finalAnswer": "Image beyond C (2F); real, inverted, enlarged",
+  "solutionSteps": [
+   "[1 mark] Diagram: concave mirror with P, F, C marked; object between F and C; two correct incident rays (parallel to axis; through F or C)",
+   "[1 mark] Diagram: correct reflected rays (through F; parallel to axis/retracing) with arrows meeting beyond C",
+   "[1 mark] Image position beyond C and nature: real, inverted, enlarged"
+  ],
+  "text_fixed": "Draw a ray diagram for the image formed by a concave mirror when the object is placed between F and C (2F). State the position and nature of the image."
+ },
+ {
+  "id": "S-EYE-5",
+  "verdict": "ok",
+  "answer": "A rainbow forms when: (i) there are tiny water droplets suspended in the air (just after rain); (ii) the Sun is behind the observer and the observer faces the droplets, i.e. the rainbow is seen in the direction opposite to the Sun. The droplets act as small prisms, causing refraction, dispersion and total internal reflection of sunlight.",
+  "finalAnswer": "Water droplets in air; Sun behind the observer",
+  "solutionSteps": [
+   "[1 mark] Tiny water droplets must be present in the atmosphere (after a shower), which act as prisms (refraction, dispersion, internal reflection)",
+   "[1 mark] The Sun must be behind the observer; rainbow is seen opposite to the Sun"
+  ]
+ },
+ {
+  "id": "S-MAG-9",
+  "verdict": "ok",
+  "answer": "A fuse is a safety device that protects circuits and appliances from overloading and short-circuiting. It is a wire of a material with low melting point. When an unduly high current flows, the fuse wire heats up (Joule heating), melts and breaks the circuit, stopping the current. It is placed in the live wire so that when it blows, the appliance is disconnected from the high-potential live wire; if it were in the neutral wire, the appliance would remain connected to the live wire even after the fuse blows, risking electric shock.",
+  "finalAnswer": "Fuse cuts off excess current by melting; in live wire so appliance is disconnected from supply when it blows",
+  "solutionSteps": [
+   "[1 mark] Role: safety device that prevents damage to circuit/appliances due to overloading or short-circuiting",
+   "[1 mark] Working: low melting point wire melts due to heating when excessive current flows and breaks the circuit",
+   "[1 mark] Placed in live wire so the appliance gets disconnected from the high-potential supply when the fuse blows; otherwise the appliance stays live and can give shock"
+  ]
+ },
+ {
+  "id": "S-ENV-9",
+  "verdict": "ok",
+  "answer": "Bacteria and fungi are called decomposers because they break down the complex organic substances of dead plants, animals and their wastes into simple inorganic substances. Importance: (i) they return nutrients to the soil, so they can be reused by plants (recycling of nutrients); (ii) they clean the environment by removing dead remains and wastes; (iii) they help in maintaining the balance/flow of matter in the ecosystem.",
+  "finalAnswer": "They break down dead organic matter into simple substances; recycle nutrients and clean the environment",
+  "solutionSteps": [
+   "[1 mark] They break down complex organic matter of dead organisms and wastes into simple inorganic substances",
+   "[1 mark] Importance 1: return/replenish nutrients to soil for reuse by plants (nutrient recycling)",
+   "[1 mark] Importance 2: clean the environment by decomposing dead bodies and wastes"
+  ]
+ },
+ {
+  "id": "M-REAL-10",
+  "verdict": "ok",
+  "answer": "(i) 12 = 2²×3, 15 = 3×5, 18 = 2×3². LCM = 2²×3²×5 = 180. (ii) They ring together again after 180 minutes = 3 hours, i.e. at 11:00 AM. (iii) Between 8:00 AM and 12:00 PM (240 min), common rings occur at multiples of 180 min after 8:00 AM: 11:00 AM only (next at 2:00 PM). So they ring together 1 time.",
+  "finalAnswer": "(i) 180 (ii) 180 minutes (iii) 1 time (at 11:00 AM)",
+  "solutionSteps": [
+   "[1 mark] (i) Prime factorisation 12 = 2²×3, 15 = 3×5, 18 = 2×3²; LCM = 2²×3²×5 = 180",
+   "[1 mark] (ii) They ring together again after 180 minutes (3 hours), at 11:00 AM",
+   "[1 mark] (iii) Interval 8:00 AM–12:00 PM = 240 min; common rings at 180-min multiples: 180 ≤ 240 < 360",
+   "[1 mark] (iii) Hence they ring together only once (at 11:00 AM)"
+  ]
+ },
+ {
+  "id": "M-PLE-1",
+  "verdict": "ok",
+  "answer": "The lines are parallel (no solution, inconsistent) if a1/a2 = b1/b2 ≠ c1/c2.",
+  "finalAnswer": "a1/a2 = b1/b2 ≠ c1/c2",
+  "solutionSteps": [
+   "[1 mark] Condition for parallel lines: a1/a2 = b1/b2 ≠ c1/c2"
+  ]
+ },
+ {
+  "id": "M-QUAD-1",
+  "verdict": "ok",
+  "answer": "Discriminant D = b² − 4ac. If D > 0: two distinct real roots; D = 0: two equal real roots; D < 0: no real roots. It thus indicates the nature of roots.",
+  "finalAnswer": "D = b² − 4ac; determines nature of roots",
+  "solutionSteps": [
+   "[1 mark] D = b² − 4ac; Indicates nature of roots: D > 0 two distinct real, D = 0 two equal real, D < 0 no real roots"
+  ]
+ },
+ {
+  "id": "M-AP-1",
+  "verdict": "ok",
+  "answer": "First four terms: 5, 9, 13, 17. Common difference d = 9 − 5 = 4.",
+  "finalAnswer": "5, 9, 13, 17; d = 4",
+  "solutionSteps": [
+   "[1 mark] d = 9 − 5 = 4; First four terms: 5, 9, 13, 17"
+  ],
+  "text_fixed": "For the AP 5, 9, 13, …, write the first four terms and find the common difference."
+ },
+ {
+  "id": "M-TRI-1",
+  "verdict": "ok",
+  "answer": "If a line is drawn parallel to one side of a triangle to intersect the other two sides in distinct points, the other two sides are divided in the same ratio. In ΔABC, if DE ∥ BC with D on AB and E on AC, then AD/DB = AE/EC.",
+  "finalAnswer": "Line parallel to one side divides the other two sides in the same ratio",
+  "solutionSteps": [
+   "[1 mark] Statement: a line drawn parallel to one side of a triangle intersecting the other two sides at distinct points divides those sides in the same ratio (AD/DB = AE/EC)"
+  ]
+ },
+ {
+  "id": "M-TRIG-1",
+  "verdict": "ok",
+  "answer": "sin 30° = 1/2 and cos 60° = 1/2.",
+  "finalAnswer": "sin 30° = 1/2, cos 60° = 1/2",
+  "solutionSteps": [
+   "[1 mark] sin 30° = 1/2; cos 60° = 1/2"
+  ]
+ },
+ {
+  "id": "M-APPTRIG-2",
+  "verdict": "ok",
+  "answer": "Let the ladder AC = 10 m make 60° with the ground, and AB be the height reached on the wall. sin 60° = AB/AC ⇒ √3/2 = AB/10 ⇒ AB = 5√3 m ≈ 8.66 m.",
+  "finalAnswer": "5√3 m ≈ 8.66 m",
+  "solutionSteps": [
+   "[1 mark] sin 60° = height/ladder ⇒ √3/2 = h/10",
+   "[1 mark] h = 5√3 m ≈ 8.66 m"
+  ],
+  "text_fixed": "A ladder 10 m long leans against a wall, making an angle of 60° with the ground. Find the height of the wall reached by the ladder."
+ },
+ {
+  "id": "M-CIR-2",
+  "verdict": "ok",
+  "answer": "Lengths of tangents drawn from an external point to a circle are equal. Hence PB = PA = 8 cm.",
+  "finalAnswer": "PB = 8 cm",
+  "solutionSteps": [
+   "[1 mark] Tangents from an external point are equal, so PB = PA = 8 cm"
+  ]
+ },
+ {
+  "id": "M-ARC-3",
+  "verdict": "ok",
+  "answer": "Area of sector = (θ/360°) × πr² = (60/360) × (22/7) × 6 × 6 = (1/6) × (792/7) = 132/7 cm² ≈ 18.86 cm².",
+  "finalAnswer": "132/7 cm² ≈ 18.86 cm²",
+  "solutionSteps": [
+   "[1 mark] Area = (θ/360°)πr² = (60/360) × (22/7) × 6²",
+   "[1 mark] = 132/7 cm² ≈ 18.86 cm²"
+  ]
+ },
+ {
+  "id": "M-SAV-3",
+  "verdict": "ok",
+  "answer": "CSA of cylinder = 2πrh = 2 × (22/7) × 7 × 10 = 440 cm².",
+  "finalAnswer": "440 cm²",
+  "solutionSteps": [
+   "[1 mark] CSA = 2πrh = 2 × (22/7) × 7 × 10",
+   "[1 mark] = 440 cm²"
+  ]
+ },
+ {
+  "id": "M-STAT-4",
+  "verdict": "ok",
+  "answer": "Sum of 8 numbers = 8 × 15 = 120. New sum = 120 + 10 + 17 = 147. New mean = 147/10 = 14.7.",
+  "finalAnswer": "14.7",
+  "solutionSteps": [
+   "[1 mark] Sum of 8 numbers = 8 × 15 = 120; new sum = 120 + 10 + 17 = 147",
+   "[1 mark] New mean = 147 ÷ 10 = 14.7"
+  ]
+ },
+ {
+  "id": "M-PROB-4",
+  "verdict": "ok",
+  "answer": "Total balls = 3 + 5 = 8, so total outcomes = 8. Favourable outcomes (red) = 3. P(red) = 3/8.",
+  "finalAnswer": "3/8",
+  "solutionSteps": [
+   "[1 mark] Total outcomes = 3 + 5 = 8; favourable outcomes = 3",
+   "[1 mark] P(red) = 3/8"
+  ]
+ }
+]

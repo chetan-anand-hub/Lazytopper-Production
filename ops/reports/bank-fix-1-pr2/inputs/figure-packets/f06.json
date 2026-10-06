@@ -1,0 +1,495 @@
+[
+ {
+  "id": "CBE-S-ENVI-A-004",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/itembank-science/our-environment/CBE-S-ENVI-A-004.webp"
+  ],
+  "runtime_row": {
+   "id": "CBE-S-ENVI-A-004",
+   "subject": "Science",
+   "topicKey": "our-environment",
+   "subtopic": "Food Chains and Energy Transfer",
+   "section": "A",
+   "marks": 1,
+   "format": "VSA",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "A food web is shown. Using the information in the food web, draw a food chain that has the most efficient transfer of energy to the human.",
+   "options": [],
+   "answer": "Spinach → Human (the shortest chain gives the most efficient energy transfer).",
+   "solutionSteps": [
+    "[1 mark] Draw the shortest food chain with the arrow direction correct: Spinach → Human (fewest trophic levels means least energy lost, so most efficient transfer to the human)."
+   ],
+   "finalAnswer": "Spinach → Human",
+   "isCompetencyBased": true,
+   "requiresDiagram": true,
+   "diagramDescription": "A food web is provided; the answer is the single most efficient food chain 'Spinach → Human' drawn with a correctly directed arrow indicating energy flow."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "\"A food web is shown\" but the web is not described; answer Spinach -> Human cannot be derived from stem.",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "The food web is not in the stem and diagramDescription only restates the answer, not the web's organisms/links; answer cannot be derived from the row."
+  }
+ },
+ {
+  "id": "CFPQ-S-ENV-005",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-science/our-environment/CFPQ-S-ENV-005.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-S-ENV-005",
+   "subject": "Science",
+   "topicKey": "our-environment",
+   "subtopic": "Food Chains and Food Webs",
+   "section": "A",
+   "marks": 1,
+   "format": "VSA",
+   "difficulty": "Hard",
+   "bloomSkill": "Applying",
+   "questionText": "Shown here is the extent to which two different animals can see in either direction without turning their heads. In animal 1, the eyes are placed towards the front of the head and in animal 2, the eyes are placed on either side of the head.\n\nSince the placement of eyes in the two animals is different, their vision is also slightly different.\n\nIn the figures above, the grey part represents the parts that can be seen by both eyes at a time, whereas the white parts represent those parts that can be seen only by one eye at a time.\n\nAnimal 2 can see a broader area at any time compared to animal 1. Animal 1 can distinguish depths better compared to animal 2.\n\nObserve the following food web. Classify the animals into two groups - one that would need to have vision as Animal 1 and another as Animal 2 in the diagram above.",
+   "answer": "Animal 1: lion, jackal, kite, wild cat and owl. Animal 2: mouse, goat, rabbit.",
+   "solutionSteps": [
+    "[1 mark] Animal 1: lion, jackal, kite, wild cat and owl. Animal 2: mouse, goat, rabbit."
+   ],
+   "finalAnswer": "Predators (lion, jackal, kite, wild cat, owl) need Animal 1 vision; prey (mouse, goat, rabbit) need Animal 2 vision.",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Science Class 10 Ch.15 — CFPQ_Science10.pdf, questions pdf pp.133–135 (printed folios 132–134)",
+   "requiresDiagram": true,
+   "diagramDescription": "Two fan-shaped field-of-view diagrams side by side, each with a small circle at the apex representing an animal's head. Animal 1 (left) has a narrow fan with a large shaded (grey) central region, showing a small total field but a wide binocular overlap. Animal 2 (right) has a much wider fan with only a narrow shaded wedge at the centre, showing a broad total field but little binocular overlap. Labelled 'Animal 1' and 'Animal 2' beneath. A second figure shows a food web drawn with pictures joined by arrows: a green plant (producer) at the left feeds a goat, a rabbit and a mouse; the goat and rabbit are eaten by a jackal and a wild cat; the mouse is eaten by an owl and a wild cat; the jackal and wild cat are eaten by a lion; and the mouse also leads to a kite. Labels read Green Plant producer, Goat, Rabbit, Mouse, Jackal, Wild cat, Owl, Kite and Lion."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says \"Observe the following food web\" and refers to eye-field figures, but the food web (lion, jackal, kite, wild cat, owl, mouse, goat, rabbit) is not described.",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "The extent to which two different animals can see in either direction without turning their heads is compared. In Animal 1, the eyes are placed towards the front of the head: it has a narrower total field of view, but a large central region is seen by both eyes at a time. In Animal 2, the eyes are placed on either side of the head: it has a much wider total field of view, but only a narrow central region is seen by both eyes.\n\nAnimal 2 can see a broader area at any time compared to Animal 1. Animal 1 can judge depth (distance) better than Animal 2.\n\nThe food web: a green plant (producer) is eaten by a goat, a rabbit and a mouse; the goat and the rabbit are eaten by a jackal and a wild cat; the mouse is eaten by an owl, a wild cat and a kite; the jackal and the wild cat are eaten by a lion.\n\nClassify the animals of this food web into two groups — those that would need vision like Animal 1 and those that would need vision like Animal 2.",
+    "requiresDiagram": false
+   },
+   "rationale": "Figures were missing; rewrote stem using only the row's own diagramDescription (eye-field fans and food-web links). Answer unchanged: predators need Animal-1 vision, prey Animal-2."
+  }
+ },
+ {
+  "id": "PYQ-M-2026-POLY-005",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-maths/polynomials/PYQ-M-2026-POLY-005.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-M-2026-POLY-005",
+   "subject": "Maths",
+   "topicKey": "polynomials",
+   "subtopic": "Zeroes of Polynomial",
+   "section": "E",
+   "marks": 4,
+   "format": "Case-Based",
+   "difficulty": "Hard",
+   "bloomSkill": "Evaluating",
+   "questionText": "An arch of a railway bridge, built on Chenab riverbed, is shown in the above diagram. It is a parabolic arch connecting two hills at P and Q. If the parabolic curve is represented by the polynomial p(x) = –0.0025x2 – 0.025x + 136. Observe the diagram and based on above information, answer the following questions : (i) Write the coordinates of point A. 1 (ii) Find the span of the arch. 1 (iii) (a) Write the zeroes of the polynomial using diagram and verify the relationship between sum of zeroes and polynomials. 2 OR (iii) (b) Find the values of p(x) at x = 100 and x = –100. Are they same ?",
+   "answer": "(i) At x = 0, p(x) = 136 ∴Coordinates of point A = (0,136) (ii) Span of the arch = 238.5 + 228.5 = 467 units (iii) (a) Zeroes of the polynomial are 228.5 and −238.5 Sum of zeroes = −10 = −−0.025 −0.0025 = −coefficient of x coefficient of x OR (iii) (b) p(100) = 108.5 p(−100) = 113.5 ∴p(100) ≠p(−100)",
+   "solutionSteps": [
+    "[1 mark] (i) Point A lies on the y-axis, so x = 0: p(0) = 136. Coordinates of A = (0, 136).",
+    "[1 mark] (ii) Span of the arch = distance between the two x-intercepts = 238.5 + 228.5 = 467 units.",
+    "[1 mark] (iii)(a) From the diagram, the zeroes of p(x) are 228.5 and −238.5; sum of zeroes = 228.5 + (−238.5) = −10.",
+    "[1 mark] Verification: −(coefficient of x)/(coefficient of x²) = −(−0.025)/(−0.0025) = −10 = sum of zeroes — relationship verified. [OR (iii)(b) p(100) = −0.0025(100)² − 0.025(100) + 136 = −25 − 2.5 + 136 = 108.5; p(−100) = −25 + 2.5 + 136 = 113.5. Since 108.5 ≠ 113.5, p(100) ≠ p(−100) — they are not the same.]"
+   ],
+   "finalAnswer": "(i) At x = 0, p(x) = 136 ∴Coordinates of point A = (0,136) (ii) Span of the arch = 238.5 + 228.5 = 467 units (iii) (a) Zeroes of the polynomial are 228.5 and −238.5 Sum of zeroes = −10 = −−0.025 −0.0025 = −coefficient of x coefficient of x OR (iii) (b) p(100) = 108.5 p(−100) = 113.5 ∴p(100) ≠p(−100)",
+   "ncertRef": "PYQ 30/5/1 Q36",
+   "isCompetencyBased": true,
+   "pyqYear": "2026",
+   "pyqSet": "1"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "'shown in the above diagram' -- diagram with P, Q coordinates (-238.5, 228.5) not provided; zeros cannot be read",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Point A, P, Q and the zeroes (228.5, -238.5) are read off the missing diagram; the exact zeroes of the stated p(x) are about 228.3 and -238.3, so the item cannot be answered as keyed without the figure."
+  }
+ },
+ {
+  "id": "CFPQ-M-REALNUM-005",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-maths/real-numbers/CFPQ-M-REALNUM-005.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-M-REALNUM-005",
+   "subject": "Maths",
+   "topicKey": "real-numbers",
+   "subtopic": "Irrational Numbers",
+   "section": "A",
+   "marks": 1,
+   "format": "VSA",
+   "difficulty": "Medium",
+   "bloomSkill": "Evaluating",
+   "questionText": "Two representations of real numbers are shown below.\n\nWhich one is correct?",
+   "answer": "Representation 1",
+   "solutionSteps": [
+    "[1 mark] Writes that Representation 1 is correct. In Representation 1 the rational numbers and the irrational numbers are two separate regions that together make up the real numbers, with the natural numbers inside the whole numbers inside the integers inside the rationals. Representation 2 is wrong because it nests the rational numbers inside the irrational numbers, and no rational number is irrational."
+   ],
+   "finalAnswer": "Representation 1",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Maths Class 10 Ch.1 — CFPQ_Maths10.pdf, questions pdf pp.5–7 (printed folios 4–6)",
+   "requiresDiagram": true,
+   "diagramDescription": "Two side-by-side box diagrams of the real number system, captioned 'Representation 1' and 'Representation 2', each headed 'Real numbers'. Representation 1 is a rectangle split into two adjoining regions: the left region is labelled 'Rational numbers' and holds three nested circles, 'Integers' containing 'Whole numbers' containing 'Natural numbers'; the right region is a separate compartment labelled 'Irrational numbers'. Representation 2 is a single rectangle holding five ellipses nested one inside the next, from the innermost outwards: 'Natural numbers', 'Whole numbers', 'Integers', 'Rational numbers', 'Irrational numbers'."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says 'Two representations of real numbers are shown below' but the figure is neither included nor described; unanswerable as text",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "format": "MCQ",
+    "questionText": "Two representations of the real number system are described below.\n\nRepresentation 1: A rectangle headed 'Real numbers' is split into two adjoining regions. The left region is labelled 'Rational numbers' and holds three nested circles: 'Integers' containing 'Whole numbers' containing 'Natural numbers'. The right region is a separate compartment labelled 'Irrational numbers'.\n\nRepresentation 2: A single rectangle headed 'Real numbers' holds five ellipses nested one inside the next, from the innermost outwards: 'Natural numbers', 'Whole numbers', 'Integers', 'Rational numbers', 'Irrational numbers'.\n\nWhich representation is correct?",
+    "options": [
+     "Representation 1 only",
+     "Representation 2 only",
+     "Both Representation 1 and Representation 2",
+     "Neither representation"
+    ],
+    "answer": "Representation 1 only",
+    "finalAnswer": "(a) Representation 1 only",
+    "solutionSteps": [
+     "[1 mark] Representation 1 only is correct: rational and irrational numbers are two separate (disjoint) sets that together make up the real numbers, with natural ⊂ whole ⊂ integers ⊂ rationals. Representation 2 is wrong because it places the rational numbers inside the irrational numbers, but no rational number is irrational."
+    ]
+   },
+   "rationale": "Figure text embedded verbatim from the row's own diagramDescription so it is self-contained; Section A 1-mark VSA re-tagged MCQ with 4 options; answer unchanged in substance (Representation 1)."
+  }
+ },
+ {
+  "id": "PYQ-M-2024-SAV-006",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-maths/surface-areas-and-volumes/PYQ-M-2024-SAV-006.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-M-2024-SAV-006",
+   "subject": "Maths",
+   "topicKey": "surface-areas-and-volumes",
+   "subtopic": "Volume of Solids",
+   "section": "E",
+   "marks": 4,
+   "format": "Case-Based",
+   "difficulty": "Hard",
+   "bloomSkill": "Applying",
+   "questionText": "Tamperproof tetrapacked milk guarantees both freshness and security. This milk ensures uncompromised quality, preserving the nutritional values within and making it a reliable choice for healthconscious individuals. 500 mL milk is packed in a cuboidal container of dimensions 15 cm ´ 8 cm ´ 5 cm. These milk packets are then packed in cuboidal cartons of dimensions 30 cm ´ 32 cm ´ 15 cm. Based on the above given information, answer the following questions : (i) Find the volume of the cuboidal carton. 1 (ii) (a) Find the total surface area of a milk packet. 2 OR (b) How many milk packets can be filled in a carton ? 2 (iii) How much milk can the cup (as shown in the figure) hold ?",
+   "answer": "(i) Volume of the carton = 30 × 32 × 15 = 14400 cm³ (ii) (a) Total surface area of a milk packet = 2(15×8 + 8×5 + 5×15) = 470 cm² OR (b) Number of packets = 14400/600 = 24 (iii) Capacity of the cup = (22/7) × 5 × 5 × 7 = 550 cm³ or 550 mL",
+   "solutionSteps": [
+    "[1 mark] (i) Volume of cuboidal carton = 30 × 32 × 15 = 14400 cm³.",
+    "[1 mark] (ii)(a) Total surface area of a milk packet = 2(lb + bh + hl) = 2(15×8 + 8×5 + 5×15) = 2(120 + 40 + 75). [OR (ii)(b): Number of packets = volume of carton ÷ volume of one packet = (30×32×15)/(15×8×5).]",
+    "[1 mark] (ii)(a) = 2 × 235 = 470 cm². [OR (ii)(b): = 14400/600 = 24 milk packets.]",
+    "[1 mark] (iii) Capacity of the cylindrical cup = πr²h = (22/7) × 5 × 5 × 7 = 550 cm³ or 550 mL."
+   ],
+   "finalAnswer": "(i) Volume of the carton = 30 × 32 × 15 = 14400 cm³ (ii) (a) Total surface area of a milk packet = 2(15×8 + 8×5 + 5×15) = 470 cm² OR (b) Number of packets = 14400/600 = 24 (iii) Capacity of the cup = (22/7) × 5 × 5 × 7 = 550 cm³ or 550 mL",
+   "ncertRef": "PYQ 30/4/1 Q38",
+   "isCompetencyBased": true,
+   "pyqYear": "2024",
+   "pyqSet": "1"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "\"´\" for ×; part (iii) asks about a cup \"as shown in the figure\" but cup dimensions (r=5, h=7) are not in the stem.",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Tamperproof tetrapacked milk guarantees both freshness and security. This milk ensures uncompromised quality, preserving the nutritional values within and making it a reliable choice for health-conscious individuals. 500 mL milk is packed in a cuboidal container of dimensions 15 cm × 8 cm × 5 cm. These milk packets are then packed in cuboidal cartons of dimensions 30 cm × 32 cm × 15 cm. Based on the above given information, answer the following questions:\n(i) Find the volume of the cuboidal carton.\n(ii) (a) Find the total surface area of a milk packet.\nOR\n(ii) (b) How many milk packets can be filled in a carton?\n(iii) Milk is served in a cylindrical cup of base radius 5 cm and height 7 cm. How much milk can the cup hold? (Use π = 22/7)"
+   },
+   "rationale": "Fixed ´→×, removed mark residues. Part (iii) referenced a figure; cup data (cylinder, r = 5 cm, h = 7 cm, π = 22/7) is carried by the row's own steps/answer (πr²h = 22/7×5×5×7), so stated it in the stem. Answers unchanged."
+  }
+ },
+ {
+  "id": "APQ-M-TRI-008",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/apq-maths/triangles/APQ-M-TRI-008.webp"
+  ],
+  "runtime_row": {
+   "id": "APQ-M-TRI-008",
+   "subject": "Maths",
+   "topicKey": "triangles",
+   "subtopic": "Similarity — Right Triangle Area",
+   "section": "D",
+   "marks": 5,
+   "format": "Long",
+   "difficulty": "Hard",
+   "bloomSkill": "Analysing",
+   "questionText": "In the figure, ΔABC is a right-angled triangle, such that: AC = 25 cm, PT ∥ AB and SR ∥ BC. Find the area of ΔPQR.",
+   "answer": "Area of ΔPQR = 32/3 cm^2.",
+   "solutionSteps": [
+    "[1 mark] From the figure: RC = 50/5 = 10 cm and PC = 50/3 cm, so PR = PC − RC = 50/3 − 10 = 20/3 cm.",
+    "[1 mark] Since QR ∥ BC (as SR ∥ BC), ΔPQR ~ ΔPTC by the Basic Proportionality Theorem, giving PR/CR = PQ/QT.",
+    "[1 mark] Substitute: (20/3)/10 = PQ/8 ⟹ PQ = (20/3) × 8 / 10 = 16/3 cm.",
+    "[1 mark] In right ΔPQR, by Pythagoras QR² = PR² − PQ² = (20/3)² − (16/3)² = (400 − 256)/9 = 144/9 ⟹ QR = 4 cm.",
+    "[1 mark] Area of ΔPQR = ½ × QR × PQ = ½ × 4 × 16/3 = 32/3 cm²."
+   ],
+   "finalAnswer": "Area = 32/3 cm^2.",
+   "ncertRef": "APQ PQ1 Q33",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: right triangle ABC with internal lines PT and SR."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Only AC = 25 cm is given; the other lengths needed (QR = 4, PQ = 16/3 from figure) are absent - unanswerable from text.",
+    "severity": "high"
+   },
+   {
+    "source": "tagging",
+    "category": "tagging",
+    "detail": "5-mark Section D tagged, but subtopic 'Similarity — Right Triangle Area' and answer is only an area computation needing figure; marks cannot be checked without figure.",
+    "proposal": "Verify marks against source",
+    "found_by": "agent:triangles (uncertain)"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Positions of P, Q, R, S, T and lengths (RC, PC, QT) come only from the figure; steps quote them without a configuration. Cannot be made self-contained from row text."
+  }
+ },
+ {
+  "id": "CBE-M-TRI-A-001",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/itembank-maths/triangles/CBE-M-TRI-A-001.webp"
+  ],
+  "runtime_row": {
+   "id": "CBE-M-TRI-A-001",
+   "subject": "Maths",
+   "topicKey": "triangles",
+   "subtopic": "Basic Proportionality Theorem",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Easy",
+   "bloomSkill": "Applying",
+   "questionText": "In the figure, ST is parallel to QR. What is the length of SP?",
+   "options": [
+    "A. 2 cm",
+    "B. 3 cm",
+    "C. 4 cm",
+    "D. 4.5 cm"
+   ],
+   "answer": "D. 4.5 cm",
+   "solutionSteps": [
+    "[1 mark] △PTS ∼ △PRQ since ST ∥ QR. By BPT, TP/RT = SP/QS, so SP/QS = TP/RT → SP = (TP/RT) × QS = (3/2) × 3 = 4.5 cm. Answer: D."
+   ],
+   "finalAnswer": "D. 4.5 cm",
+   "isCompetencyBased": false,
+   "requiresDiagram": true,
+   "diagramDescription": "Triangle PQR with point S on side PQ and point T on side PR, segment ST drawn parallel to base QR. Marked lengths: TP = 3 cm, QS = 3 cm, RT = 2 cm. SP is to be found. Diagram not drawn to scale."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says 'In the figure, ST is parallel to QR. What is the length of SP?' but gives no lengths; the values TP=3, RT=2, QS=3 used in the explanation are not in the stem.",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "In ΔPQR, S is a point on side PQ and T is a point on side PR such that ST ∥ QR. If TP = 3 cm, RT = 2 cm and QS = 3 cm, what is the length of SP?",
+    "solutionSteps": [
+     "[1 mark] Since ST ∥ QR, by BPT SP/SQ = TP/TR ⟹ SP/3 = 3/2 ⟹ SP = 4.5 cm. Answer: D."
+    ],
+    "requiresDiagram": false
+   },
+   "rationale": "All lengths and the configuration are carried by the row's diagramDescription; moved into stem. BPT: SP = 3×3/2 = 4.5 cm (D) verified."
+  }
+ },
+ {
+  "id": "PYQ-M-TRI-006",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-maths/triangles/PYQ-M-TRI-006.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-M-TRI-006",
+   "subject": "Maths",
+   "topicKey": "triangles",
+   "subtopic": "General",
+   "section": "E",
+   "marks": 4,
+   "format": "Case-Based",
+   "difficulty": "Hard",
+   "bloomSkill": "Applying",
+   "questionText": "Jagdish has a field which is in the shape of a right angled triangle AQC. He wants to leave a space in the form of a square PQRS inside the field for growing wheat and the remaining for growing vegetables (as shown in the figure). In the field, there is a pole marked as O. Based on the above information, answer the following questions : (i) Taking O as origin, coordinates of P are (–200, 0) and of Q are (200, 0). PQRS being a square, what are the coordinates of R and S ? 1 (ii) (a) What is the area of square PQRS ? 2 OR (b) What is the length of diagonal PR in square PQRS ? 2 (iii) If S divides CA in the ratio K:1, what is the value of K, where point A is (200, 800) ? 1 16",
+   "answer": "(i) R(200, 400), S(−200, 400) (ii) (a) Area of square PQRS = 400 × 400 = 160000 sq units OR (b) Diagonal PR = √(400² + 400²) = 400√2 (iii) k = 1",
+   "solutionSteps": [
+    "[1 mark] (i) PQRS is a square of side PQ = 400 m, so R = (200, 400) and S = (−200, 400).",
+    "[1 mark] (ii)(a) Side PQ = (200 + 200) m = 400 m. [OR (ii)(b) Diagonal PR = √(400² + 400²).]",
+    "[1 mark] (ii)(a) Area of square PQRS = 400 × 400 = 160000 sq m. [OR (ii)(b) PR = √320000 = 400√2 m.]",
+    "[1 mark] (iii) C(−600, 0), A(200, 800), S(−200, 400): S divides CA in the ratio k : 1 ⇒ −200 = (k·200 + 1·(−600))/(k + 1) ⇒ 200k − 600 = −200k − 200 ⇒ 400k = 400 ⇒ k = 1."
+   ],
+   "finalAnswer": "(i) R(200, 400), S(−200, 400); (ii)(a) 160000 sq m [OR (b) 400√2 m]; (iii) k = 1.",
+   "ncertRef": "PYQ 30/4/3 Q38",
+   "isCompetencyBased": true,
+   "pyqYear": "2023",
+   "pyqSet": "3"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Leftover mark numbers and page number in stem ('...R and S ? 1', '... ? 2 OR', '...(200, 800) ? 1 16'); figure (C location) not described though needed for (iii).",
+    "severity": "high"
+   },
+   {
+    "source": "tagging",
+    "category": "other-chapter",
+    "detail": "Case study asks coordinates of square vertices, area/diagonal from coordinates and section-formula ratio k - Coordinate Geometry.",
+    "proposal": "coordinate-geometry",
+    "found_by": "agent:triangles (high)"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Section Formula and Distance Formula",
+    "questionText": "Jagdish has a field in the shape of a right-angled triangle AQC, right-angled at Q. He wants to leave a space in the form of a square PQRS inside the field for growing wheat and use the remaining part for growing vegetables. Side PQ of the square lies along QC, vertex S lies on the hypotenuse CA, and the square lies on the same side of QC as A. In the field there is a pole marked O on line QC. Taking O as the origin and line QC as the x-axis, the coordinates of P are (–200, 0), of Q are (200, 0), of C are (–600, 0) and of A are (200, 800). Based on the above information, answer the following questions:\n(i) PQRS being a square, what are the coordinates of R and S?\n(ii) (a) What is the area of square PQRS?\nOR\n(b) What is the length of diagonal PR of square PQRS?\n(iii) If S divides CA in the ratio k : 1, what is the value of k?"
+   },
+   "rationale": "Removed mark/page residues; replaced 'as shown in the figure' with the configuration carried by the row's own steps (C(−600,0), A(200,800), S on CA). Coordinate-geometry content, retagged. Answer unchanged (k=1 verified)."
+  }
+ },
+ {
+  "id": "SP-M-2022-TRI-A-002",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/sqp-maths/triangles/SP-M-2022-TRI-A-002.webp"
+  ],
+  "runtime_row": {
+   "id": "SP-M-2022-TRI-A-002",
+   "subject": "Maths",
+   "topicKey": "triangles",
+   "subtopic": "Basic Proportionality Theorem (Thales)",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "In the given figure, ST || QR, then x is",
+   "options": [
+    "(a) 4",
+    "(b) 3",
+    "(c) 2",
+    "(d) 1"
+   ],
+   "answer": "(b) 3",
+   "solutionSteps": [
+    "[1 mark] By Basic Proportionality Theorem (ST || QR): PS/SQ = PT/TR → x/(x+3) = (x+1)/(x+5). Cross-multiply: x(x+5) = (x+1)(x+3) → x² + 5x = x² + 4x + 3 → x = 3. Answer: (b)."
+   ],
+   "finalAnswer": "(b) 3",
+   "isCompetencyBased": false,
+   "requiresDiagram": true,
+   "diagramDescription": "Triangle PQR with point S on side PQ and point T on side PR, with segment ST parallel to base QR. Along PQ: PS = x and SQ = x + 3. Along PR: PT = x + 1 and TR = x + 5."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem 'In the given figure, ST || QR, then x is' has no data; the segment expressions (x, x+3, x+1, x+5) exist only in the explanation.",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "In △PQR, S is a point on side PQ and T is a point on side PR such that ST ∥ QR. If PS = x, SQ = x + 3, PT = x + 1 and TR = x + 5, then x is"
+   },
+   "rationale": "Stem had no data; segment lengths taken from the row's own diagramDescription. BPT: x(x+5)=(x+1)(x+3) ⇒ x=3, option (b) unchanged."
+  }
+ },
+ {
+  "id": "APQ-M-TRIG-002",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/apq-maths/trigonometry/APQ-M-TRIG-002.webp"
+  ],
+  "runtime_row": {
+   "id": "APQ-M-TRIG-002",
+   "subject": "Maths",
+   "topicKey": "trigonometry",
+   "subtopic": "Sine of an Angle in a Square",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "In the figure, PQRS is a square. What is the value of sin ∠SPT?",
+   "options": [
+    "8/17",
+    "8/15",
+    "15/17",
+    "(cannot be found with the given information)"
+   ],
+   "answer": "8/17",
+   "solutionSteps": [
+    "From figure: triangle SPT with given sides yields a 8-15-17 right-triangle relation.",
+    "Per MS: sin ∠SPT = 8/17."
+   ],
+   "finalAnswer": "(a) 8/17",
+   "ncertRef": "APQ PQ1 Q11",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: square PQRS with diagonals or auxiliary point T."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says \"In the figure\" - triangle SPT side lengths come only from an unprovided figure; unsolvable as served",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Side lengths of △SPT exist only in an unprovided figure; the row carries no diagramDescription or data; unsolvable as served."
+  }
+ }
+]

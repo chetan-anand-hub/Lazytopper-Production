@@ -1,0 +1,521 @@
+[
+ {
+  "id": "PYQ-S-2026-ACID-014",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-science/acids-bases-and-salts/PYQ-S-2026-ACID-014.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-S-2026-ACID-014",
+   "subject": "Science",
+   "topicKey": "acids-bases-and-salts",
+   "subtopic": "Indicators",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "Magnesium ribbon burns with a dazzling white flame and changes into a white powder as shown in the diagram given below : 1 The powder is dissolved in water. Identify the chemical formula of the white powder and the correct change observed when the solution is tested with litmus paper.",
+   "options": [
+    "MgO, turns blue litmus into red.",
+    "MgO, turns red litmus blue.",
+    "MgO2, turns red litmus blue.",
+    "Mg2O, turns blue litmus red."
+   ],
+   "answer": "MgO, turns red litmus blue.",
+   "solutionSteps": [
+    "[1 mark] Correct option: (b) MgO, turns red litmus blue.."
+   ],
+   "finalAnswer": "(b) MgO, turns red litmus blue.",
+   "ncertRef": "PYQ 31/5/3 Q19",
+   "isCompetencyBased": true,
+   "pyqYear": "2026",
+   "pyqSet": "3"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stray '1' (marks residue) in stem after 'as shown in the diagram given below :'; diagram referenced but not needed",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "subtopic": "Nature of Metal Oxides",
+    "questionText": "Magnesium ribbon burns with a dazzling white flame and changes into a white powder. The powder is dissolved in water. Identify the chemical formula of the white powder and the correct change observed when the solution is tested with litmus paper.",
+    "solutionSteps": [
+     "[1 mark] Correct option: (b) — Mg burns to form MgO, which dissolves in water to give Mg(OH)2, a base; so the solution turns red litmus blue."
+    ]
+   },
+   "rationale": "Removed stray marks residue '1' and the unneeded figure reference; key (b) unchanged; added a reason to the step."
+  }
+ },
+ {
+  "id": "APQ-M-ARC-007",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-007.webp"
+  ],
+  "runtime_row": {
+   "id": "APQ-M-ARC-007",
+   "subject": "Maths",
+   "topicKey": "areas-related-to-circles",
+   "subtopic": "Sector Area — Sufficient Conditions",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "In the figure below, a unit square ROST is inscribed in a circular sector with centre O. Along with the above information, which of these is SUFFICIENT to find the area of sector POQ?",
+   "options": [
+    "area of the square ROST",
+    "radius of sector POQ",
+    "arc length PQ",
+    "(the given information is sufficient)"
+   ],
+   "answer": "arc length PQ",
+   "solutionSteps": [
+    "Per MS answer key: option (c). The arc length PQ (combined with known geometric relations to the inscribed unit square) suffices to determine both radius and angle, hence sector area."
+   ],
+   "finalAnswer": "(c) arc length PQ",
+   "ncertRef": "APQ PQ_2022 Q13",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: unit square inscribed in circular sector."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Figure-dependent (unit square ROST in sector POQ) not described; if R,T lie on OP,OQ then angle=90 and r=sqrt2 so the given info alone suffices, contradicting key (c)",
+    "severity": "medium"
+   },
+   {
+    "source": "tagging",
+    "category": "syllabus",
+    "detail": "combination of plane figures (OUT unless sector/segment/ring) :: …In the figure below, a unit square ROST is inscribed in a circular sector with centre O. Along…",
+    "proposal": "OUT review — square inscribed in a sector (combination) (uncertain)",
+    "found_by": "script+manual review"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold."
+  }
+ },
+ {
+  "id": "PYQ-M-2025-ARC-004",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-maths/areas-related-to-circles/PYQ-M-2025-ARC-004.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-M-2025-ARC-004",
+   "subject": "Maths",
+   "topicKey": "areas-related-to-circles",
+   "subtopic": "Area of Sector",
+   "section": "E",
+   "marks": 4,
+   "format": "Case-Based",
+   "difficulty": "Hard",
+   "bloomSkill": "Applying",
+   "questionText": "A brooch is a decorative piece often worn on clothing like jackets, blouses or dresses to add elegance. Made from precious metals and decorated with gemstones, brooches come in many shapes and designs. One such brooch is made with silver wire in the form of a circle with diameter 35 mm. The wire is also used in making 5 diameters which divide the circle into 10 equal sectors as shown in the figure. Based on the above given information, answer the following questions : (i) Find the central angle of each sector. 1 (ii) Find the length of the arc ACB. 1 (iii) (a) Find the area of each sector of the brooch. 2 OR (iii) (b) Find the total length of the silver wire used. 2",
+   "answer": "(i) central angle = 3600 10 = 36° (ii) length of arc ACB = 1 10 × 2 × 22 7 × 35 2 = 11mm (iii)(a) Area of each sector of the brooch = 1 10 × 22 7 × 35 2 × 35 2 = 385 4 mm2 or 96.25 mm2 OR (iii) (b) length of silver wire used = 2 × 22 7 × 35 2 + 5 × 35 = 285 mm",
+   "solutionSteps": [
+    "[1 mark] (i) The circle is divided into 10 equal sectors, so the central angle of each sector = 360°/10 = 36°.",
+    "[1 mark] (ii) Radius r = 35/2 mm. Length of arc ACB = (1/10) × 2πr = (1/10) × 2 × (22/7) × (35/2) = 11 mm.",
+    "[1 mark] (iii)(a) Area of each sector = (1/10) × πr² = (1/10) × (22/7) × (35/2) × (35/2).",
+    "[1 mark] (iii)(a) = (1/10) × (22/7) × (1225/4) = 385/4 = 96.25 mm². [OR (b) total silver wire = 2πr + 5 × 35 = 2 × (22/7) × (35/2) + 175 = 110 + 175 = 285 mm.]"
+   ],
+   "finalAnswer": "(i) 36°; (ii) arc ACB = 11 mm; (iii)(a) area of each sector = 96.25 mm² OR (b) total silver wire = 285 mm.",
+   "ncertRef": "PYQ 30/1/1 Q37",
+   "isCompetencyBased": true,
+   "pyqYear": "2025",
+   "pyqSet": "1"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Answer text truncated \"...+ 5 x 3\" and fractions flattened; also stem shows mark numbers inline (\"1\", \"2\")",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A brooch is a decorative piece often worn on clothing like jackets, blouses or dresses to add elegance. Made from precious metals and decorated with gemstones, brooches come in many shapes and designs. One such brooch is made with silver wire in the form of a circle with diameter 35 mm. The wire is also used in making 5 diameters which divide the circle into 10 equal sectors. ACB is the arc of one of these sectors. Based on the above given information, answer the following questions : (i) Find the central angle of each sector. (ii) Find the length of the arc ACB. (iii) (a) Find the area of each sector of the brooch. OR (iii) (b) Find the total length of the silver wire used. (Use π = 22/7)",
+    "answer": "(i) 36° (ii) arc ACB = 11 mm (iii)(a) area of each sector = 385/4 = 96.25 mm² OR (iii)(b) total silver wire = 110 + 175 = 285 mm"
+   },
+   "rationale": "Removed inline mark residues and 'as shown in the figure'. The stem now says ACB is the arc of one sector. Rebuilt the flattened answer. Values 36°, 11 mm, 96.25 mm², 285 mm checked."
+  }
+ },
+ {
+  "id": "Z3-ARC-004",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/visuals/maths/areas-circles/z3-arc-004.webp"
+  ],
+  "runtime_row": {
+   "id": "Z3-ARC-004",
+   "subject": "Maths",
+   "topicKey": "areas-related-to-circles",
+   "subtopic": "Area of a Border Region",
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "Varsha's dining-room table has a hardwood border around the outside. The outer dimensions of the table are 135 cm by 90 cm, and the wooden edge is 7 cm wide all around. Find the area of the wood (the border) around the edge of the table.",
+   "solutionSteps": [
+    "[1 mark] Outer area = 135 * 90 = 12150 cm^2.",
+    "[1 mark] Inner (table top inside the border) dimensions = (135 - 2*7) by (90 - 2*7) = 121 by 76, inner area = 121 * 76 = 9196 cm^2.",
+    "[1 mark] Area of wooden border = outer area - inner area = 12150 - 9196 = 2954 cm^2. (A value of 2912 cm^2 is also under review - pending verification.)"
+   ],
+   "finalAnswer": "2954 cm^2 by the border method; a value of 2912 cm^2 is also under review - pending verification.",
+   "isCompetencyBased": true,
+   "visualExplainerId": "maths-areas-circles-fig-z3-arc-004",
+   "requiresDiagram": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "finalAnswer/lastStep served with editorial note \"a value of 2912 cm^2 is also under review - pending verification\"",
+    "severity": "high"
+   },
+   {
+    "source": "tagging",
+    "category": "other-chapter",
+    "detail": "Rectangular table border (135x90, 7 cm edge) has no circle content at all",
+    "proposal": "retire (Class 8 mensuration; not a board chapter)",
+    "found_by": "agent:areas-related-to-circles (high)"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "requiresDiagram row. As written it is a plain rectangle (no circle content). The '2912' note equals 2954 − 4(49 − 38.5), so the figure probably has quarter-circle corners of r = 7. That cannot be confirmed without the figure."
+  }
+ },
+ {
+  "id": "SP-S-2023-CHEM-A-001",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/preboard-science/chemical-reactions-and-equations/SP-S-2023-CHEM-A-001.webp"
+  ],
+  "runtime_row": {
+   "id": "SP-S-2023-CHEM-A-001",
+   "subject": "Science",
+   "topicKey": "chemical-reactions-and-equations",
+   "subtopic": "Thermal Decomposition Reactions",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Easy",
+   "bloomSkill": "Understanding",
+   "questionText": "Identify the product which evolved during the above reaction.",
+   "options": [
+    "a. Colourless carbon dioxide",
+    "b. Reddish-brown nitrogen dioxide",
+    "c. Light yellow oxygen",
+    "d. Colourless nitrogen"
+   ],
+   "answer": "b. Reddish-brown nitrogen dioxide",
+   "solutionSteps": [
+    "[1 mark] Correct option is (b). The thermal decomposition of lead nitrate evolves reddish-brown nitrogen dioxide (NO2) gas along with oxygen; the brown fumes are characteristic of NO2."
+   ],
+   "finalAnswer": "b. Reddish-brown nitrogen dioxide",
+   "isCompetencyBased": false,
+   "requiresDiagram": true,
+   "diagramDescription": "The original item displays a chemical reaction/equation above the question (thermal decomposition of lead nitrate on heating, evolving brown fumes). The reaction itself is not reproduced in the source text; the marking-scheme answer indicates lead nitrate decomposition releasing reddish-brown nitrogen dioxide."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says \"the above reaction\" but no reaction/figure is given (lead nitrate heating context missing)",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Lead nitrate powder is heated strongly in a dry boiling tube and brown fumes are observed. Identify the product evolved as brown fumes during this reaction.",
+    "options": [
+     "Colourless carbon dioxide",
+     "Reddish-brown nitrogen dioxide",
+     "Light yellow oxygen",
+     "Colourless nitrogen"
+    ],
+    "answer": "Reddish-brown nitrogen dioxide",
+    "solutionSteps": [
+     "[1 mark] Correct option is (b). On heating, lead nitrate decomposes: 2Pb(NO3)2(s) → 2PbO(s) + 4NO2(g) + O2(g). The brown fumes are of nitrogen dioxide (NO2); oxygen is colourless."
+    ],
+    "finalAnswer": "(b) Reddish-brown nitrogen dioxide",
+    "requiresDiagram": false
+   },
+   "rationale": "Stem pointed to an unshown 'above reaction'; the row's own diagramDescription/solution confirm it is heating of lead nitrate, so context is written into the stem. Option letter prefixes removed. Answer (b) unchanged."
+  }
+ },
+ {
+  "id": "CBE-S-CTRL-A-005",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/itembank-science/control-and-coordination/CBE-S-CTRL-A-005.webp"
+  ],
+  "runtime_row": {
+   "id": "CBE-S-CTRL-A-005",
+   "subject": "Science",
+   "topicKey": "control-and-coordination",
+   "subtopic": "Stimulus for Shoot Growth",
+   "section": "A",
+   "marks": 1,
+   "format": "VSA",
+   "difficulty": "Easy",
+   "bloomSkill": "Remembering",
+   "questionText": "Identify the stimulus that causes the shoot to grow in the direction shown in Fig. 1.1.",
+   "options": [],
+   "answer": "Light",
+   "solutionSteps": [
+    "[1 mark] The stimulus causing the shoot to grow upward (towards light) is light."
+   ],
+   "finalAnswer": "Light",
+   "isCompetencyBased": false,
+   "requiresDiagram": true,
+   "diagramDescription": "Fig. 1.1 — seed with shoot growing upward (towards light)."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem \"direction shown in Fig. 1.1\" - figure not described; steps say \"upward (towards light)\" which is ambiguous without the figure.",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A seedling is kept in a box that has a single opening on one side through which light enters. After a few days, its shoot is seen bending and growing towards the opening. Identify the stimulus that causes the shoot to grow in this direction.",
+    "options": [
+     "Gravity",
+     "Light",
+     "Water",
+     "Touch"
+    ],
+    "format": "MCQ",
+    "solutionSteps": [
+     "[1 mark] Correct option: Light. The shoot bends towards the opening through which light enters — this is positive phototropism, so the stimulus is light."
+    ],
+    "requiresDiagram": false
+   },
+   "rationale": "Figure described in text (shoot bending towards light source) so the stem is self-contained; 1-mark Section A VSA re-tagged as MCQ with options. Answer Light unchanged."
+  }
+ },
+ {
+  "id": "CBE-S-CTRL-E-001",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/itembank-science/control-and-coordination/CBE-S-CTRL-E-001.webp"
+  ],
+  "runtime_row": {
+   "id": "CBE-S-CTRL-E-001",
+   "subject": "Science",
+   "topicKey": "control-and-coordination",
+   "subtopic": "Mechanism of Auxin in Phototropism",
+   "section": "E",
+   "marks": 4,
+   "format": "Case-Based",
+   "difficulty": "Hard",
+   "bloomSkill": "Analysing",
+   "questionText": "With reference to Fig. 1.1, explain how the plant hormone controls the growth response of the shoot.",
+   "options": [],
+   "answer": "Auxin is produced at the shoot tip, moves and collects on the side away from light, and causes the cells there to elongate, bending the shoot towards the light.",
+   "solutionSteps": [
+    "[1 mark] The hormone (auxin) is produced/made at the shoot tip.",
+    "[1 mark] The hormone moves / diffuses / passes / spreads down the shoot.",
+    "[1 mark] It collects on the side away from the light (the shaded side).",
+    "[1 mark] The hormone causes cell elongation on the shaded side (e.g. by stretching of cell walls / osmosis of water), so the shoot bends towards the light."
+   ],
+   "finalAnswer": "Auxin made at the tip diffuses to the shaded side and causes those cells to elongate, bending the shoot towards light.",
+   "isCompetencyBased": true,
+   "requiresDiagram": true,
+   "diagramDescription": "Fig. 1.1 — shoot bending towards a light source as auxin accumulates on the shaded side."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem \"With reference to Fig. 1.1\" - figure not described in the stem.",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A potted plant is kept near a window. After a few days its shoot is seen bending towards the light coming in through the window. Explain how the plant hormone controls this growth response of the shoot.",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "solutionSteps": [
+     "[1 mark] The hormone auxin is synthesised at the shoot tip and diffuses down the shoot.",
+     "[1 mark] When light falls from one side, auxin collects on the side of the shoot away from the light (the shaded side).",
+     "[1 mark] Auxin causes the cells on the shaded side to elongate more, so that side grows faster and the shoot bends towards the light (phototropism)."
+    ],
+    "requiresDiagram": false
+   },
+   "rationale": "Figure replaced by text description; tagged Case-Based with no case/sub-parts — non-authored row re-tagged to its true form, a 3-mark Section C short answer, steps re-marked to sum to 3."
+  }
+ },
+ {
+  "id": "CFPQ-S-CTRL-003",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-science/control-and-coordination/CFPQ-S-CTRL-003.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-S-CTRL-003",
+   "subject": "Science",
+   "topicKey": "control-and-coordination",
+   "subtopic": "Plant Hormones - Auxin",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Hard",
+   "bloomSkill": "Analysing",
+   "questionText": "Shown in the figure below is a plant in which auxin is synthesised at part X of the plant. Geeta took the potted plant and cut off part X. She then took the plant and kept it near a window with sunlight and observed it after 7 days.\n\nWhich of the following is she likely to have observed?",
+   "options": [
+    "Part Y grew and bent towards the window.",
+    "Part Z started growing upwards and out of the soil.",
+    "Part Y did not grow at all.",
+    "Part Y grew upwards."
+   ],
+   "answer": "Part Y did not grow at all.",
+   "solutionSteps": [
+    "[1 mark] Correct option: (3) Part Y did not grow at all. Part X, the shoot tip, is where auxin is made; with it removed there is no auxin to drive cell elongation in the stem, so part Y neither grows nor bends towards the light."
+   ],
+   "finalAnswer": "Part Y did not grow at all.",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Science Class 10 Ch.7 — CFPQ_Science10.pdf, questions pdf pp.59–61 (printed folios 58–60)",
+   "requiresDiagram": true,
+   "diagramDescription": "A potted plant drawn in outline. A leader labelled X points to the very tip of the main stem; a leader labelled Y points to the stem lower down, between leaf pairs; a leader labelled Z points to the roots inside the soil in the pot. Three pairs of leaves branch from the stem."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem relies on figure parts X, Y, Z; only X is described (auxin site), Y and Z are never identified, so options are not answerable from text.",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "In a potted plant, auxin is synthesised at part X, the tip of the main stem. Part Y is the stem lower down, between the leaf pairs, and part Z is the roots inside the soil. Geeta took the potted plant and cut off part X. She then kept the plant near a window with sunlight and observed it after 7 days.\n\nWhich of the following is she likely to have observed?",
+    "requiresDiagram": false
+   },
+   "rationale": "Figure labels X (stem tip), Y (lower stem), Z (roots) recovered from the row's diagramDescription and written into the stem, so options are answerable without the figure."
+  }
+ },
+ {
+  "id": "CTRL-EXMPLR-6-SA-003",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/control-and-coordination/CTRL-EXMPLR-6-SA-003.webp"
+  ],
+  "runtime_row": {
+   "id": "CTRL-EXMPLR-6-SA-003",
+   "subject": "Science",
+   "topicKey": "control-and-coordination",
+   "subtopic": "Endocrine Glands Diagram",
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "difficulty": "Medium",
+   "bloomSkill": "Remembering",
+   "questionText": "Label the endocrine glands in Figure 7.3.",
+   "answer": "Standard labels (top to bottom): Pituitary (base of brain), Thyroid (neck), Thymus, Adrenal (over kidneys), Pancreas (with islets of Langerhans), Testes (in males) / Ovaries (in females).",
+   "solutionSteps": [
+    "REQUIRES-FIGURE: refer to Fig. 7.3.",
+    "Major endocrine glands: pituitary, thyroid, adrenal, pancreas, testes/ovaries."
+   ],
+   "finalAnswer": "Pituitary, thyroid, thymus, adrenal, pancreas, testes (male) / ovaries (female).",
+   "ncertRef": "Exemplar Q36",
+   "isCompetencyBased": false,
+   "strategyHint": "REQUIRES-FIGURE: standard endocrine glands diagram."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Labelling question \"Label the endocrine glands in Figure 7.3\" served without the figure.",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Pure labelling task on Fig. 7.3; cannot be answered without the figure and the figure is not in the text."
+  }
+ },
+ {
+  "id": "SCO-S-CTRL-011",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/chapterwise-science/control-and-coordination/SCO-S-CTRL-011.webp"
+  ],
+  "runtime_row": {
+   "id": "SCO-S-CTRL-011",
+   "subject": "Science",
+   "topicKey": "control-and-coordination",
+   "subtopic": "Chapter Practice — Control and Coordination",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Understanding",
+   "questionText": "The given diagram shows some of the features of human skin. which part of the brain coordinates the information labelled in the diagram?",
+   "options": [
+    "Medulla",
+    "Hypothalamus",
+    "Cerebrum",
+    "Cerebellum"
+   ],
+   "answer": "Hypothalamus",
+   "solutionSteps": [
+    "Correct option is (b) Hypothalamus.",
+    "Hypothalamus is responsible for the regulation of body temperature and osmotic pressure in blood. It uses the negative feedback control mechanism. The hypothalamus acts like a thermostat by sending the changes in body temperature. It sends out signals to different body parts with mechanisms to control and adjust the temperature."
+   ],
+   "finalAnswer": "(b) Hypothalamus",
+   "ncertRef": "cbjescco07 Q13",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: question references diagram"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says \"The given diagram shows ... human skin ... information labelled\" but no figure/labels are described; unanswerable without figure.",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Depends on 'information labelled in the diagram' of skin; labels are not in the text and cannot be recovered without inventing figure content."
+  }
+ }
+]

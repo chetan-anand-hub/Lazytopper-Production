@@ -1,0 +1,297 @@
+[
+ {
+  "id": "PYQ-M-2024-SAV-004a",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The interior of a building is in the form of a cylinder of base radius 12 m and height 3.5 m, surmounted by a cone of equal base and slant height 14 m. Find the internal curved surface area of the building.",
+   "answer": "Internal CSA of the building = 2πrh + πrl = 2 × (22/7) × 12 × 3.5 + (22/7) × 12 × 14 = 264 + 528 = 792 m²"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored height 3×5 → 3.5 m (steps confirm h = 3.5), dropped 'OR 1430(B)' residue, cleaned answer text (broken fractions, stray '2 + 2'). Result 792 m² unchanged."
+ },
+ {
+  "id": "PYQ-M-2024-SAV-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Tamperproof tetrapacked milk guarantees both freshness and security. This milk ensures uncompromised quality, preserving the nutritional values within and making it a reliable choice for health-conscious individuals. 500 mL milk is packed in a cuboidal container of dimensions 15 cm × 8 cm × 5 cm. These milk packets are then packed in cuboidal cartons of dimensions 30 cm × 32 cm × 15 cm. Based on the above given information, answer the following questions:\n(i) Find the volume of the cuboidal carton.\n(ii) (a) Find the total surface area of a milk packet.\nOR\n(ii) (b) How many milk packets can be filled in a carton?\n(iii) Milk is served in a cylindrical cup of base radius 5 cm and height 7 cm. How much milk can the cup hold? (Use π = 22/7)"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fixed ´→×, removed mark residues. Part (iii) referenced a figure; cup data (cylinder, r = 5 cm, h = 7 cm, π = 22/7) is carried by the row's own steps/answer (πr²h = 22/7×5×5×7), so stated it in the stem. Answers unchanged."
+ },
+ {
+  "id": "PYQ-M-2025-SAV-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): If we join two hemispheres of same radius along their bases, then we get a sphere.\nReason (R): Total surface area of a sphere of radius r is 3πr².",
+   "solutionSteps": [
+    "Correct option: (c). Joining two hemispheres of equal radius along their bases gives a sphere, so A is true. The surface area of a sphere of radius r is 4πr², not 3πr² (3πr² is the TSA of a solid hemisphere), so R is false."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored π and superscript ('3 r2' → 3πr²); 3πr² keeps R false, matching keyed answer (c). Cleaned the step with a justification."
+ },
+ {
+  "id": "PYQ-M-2025-SAV-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A room is in the form of a cylinder surmounted by a hemispherical dome. The base radius of the hemisphere is half of the height of the cylindrical part. If the room contains 1408/21 m³ of air, find the height of the cylindrical part. (Use π = 22/7)",
+   "answer": "Height of the cylindrical part = 4 m (r = 2 m)",
+   "solutionSteps": [
+    "[1 mark] Let r be the radius of the hemisphere and cylinder and h the height of the cylinder; h = 2r. Volume of air = (2/3)πr³ + πr²h = (2/3)πr³ + πr²(2r) = (8/3)πr³.",
+    "[1 mark] (8/3) × (22/7) × r³ = 1408/21 ⇒ (176/21) r³ = 1408/21 ⇒ r³ = 8.",
+    "[1 mark] r = 2 m, so height of the cylindrical part h = 2r = 4 m."
+   ],
+   "finalAnswer": "Height of the cylindrical part = 4 m"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Air volume (1408/21 m³) and π = 22/7 recovered from the row's own working; verified r³ = 8 ⇒ r = 2, h = 4 m. Rewrote garbled step into 3 marked steps; answer now states the asked height."
+ },
+ {
+  "id": "PYQ-M-2025-SAV-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A vessel is in the form of an inverted cone. Its height is 8 cm and the radius of its top, which is open, is 5 cm. It is filled with water up to the brim. When lead shots, each of which is a sphere of radius 0.5 cm, are dropped into the vessel, one-fourth of the water flows out. Find the number of lead shots dropped in the vessel."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed marking-scheme residue '3 4 3 4=12', fixed 'onefourth' and '0·5'. Answer 100 verified."
+ },
+ {
+  "id": "PYQ-M-2026-SAV-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A conical cavity of maximum volume is carved out from a wooden solid hemisphere of radius 10 cm. Curved surface area of the cavity carved out is (use π = 3.14)",
+   "options": [
+    "314√2 cm²",
+    "314 cm²",
+    "3140√3 cm²",
+    "3140√2 cm²"
+   ],
+   "answer": "314√2 cm²",
+   "solutionSteps": [
+    "Correct option: (a). Maximum cone: r = h = 10 cm, so l = √(10² + 10²) = 10√2 cm; CSA = πrl = 3.14 × 10 × 10√2 = 314√2 cm²."
+   ],
+   "finalAnswer": "(a) 314√2 cm²"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored π in stem and the √ lost in options (option a's √ confirmed by row's own step; same glyph loss read for c, d). Verified r=h=10, l=10√2, CSA=314√2 cm²; only (a) is correct under any reading of c/d."
+ },
+ {
+  "id": "PYQ-M-2026-SAV-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Volume of remaining solid = πr²h − (1/3)πr²h = (22/7) × 2.1 × 2.1 × 2.8 − (1/3) × (22/7) × 2.1 × 2.1 × 2.8 = 25.872 cm³. Slant height l = √(2.1² + 2.8²) = 3.5 cm. TSA of remaining solid = 2πrh + πrl + πr² = 36.96 + 23.1 + 13.86 = 73.92 cm².",
+   "finalAnswer": "Volume of remaining solid = 25.872 cm³; total surface area of remaining solid = 73.92 cm²."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Cleaned broken fractions/superscripts in answer and finalAnswer. Values re-verified (25.872 cm³, 73.92 cm²); stem fine."
+ },
+ {
+  "id": "PYQ-M-2026-SAV-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A wall-mounted lamp is made of fabric. The lamp has a cuboidal shape, open from top and bottom, of length 24 cm, breadth 12 cm and height 17 cm. A spherical bulb of diameter 7 cm is latched inside it with a very thin rod. (Ignore the rod while making calculations; use π = 22/7.) Based on the above information, answer the following questions:\n(i) Find the surface area of the bulb.\n(ii) What could be the maximum diameter of the bulb if at least 1 cm space is left from each side?\n(iii) (a) Find the area of the fabric used if there is a fold of 2 cm on top and bottom edges.\nOR\n(iii) (b) Find the space available inside the lamp.",
+   "answer": "(i) Surface area of the bulb = 4 × (22/7) × (7/2) × (7/2) = 154 cm². (ii) Maximum diameter = minimum side − 2 cm = 12 − 2 = 10 cm. (iii)(a) With 2 cm fold at top and bottom, height = 21 cm; fabric area = 2 × 21 × (24 + 12) = 1512 cm². OR (iii)(b) Space available = 24 × 12 × 17 − (4/3) × (22/7) × (7/2)³ = 4896 − 539/3 = 14149/3 ≈ 4716.3 cm³.",
+   "finalAnswer": "(i) 154 cm²; (ii) 10 cm; (iii)(a) 1512 cm² OR (iii)(b) 14149/3 cm³ ≈ 4716.3 cm³"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed figure-label junk and 'shown below'; height 17 cm is carried by the row's own answer (fold → 21 cm, volume 24×12×17), so dimensions stated explicitly. Restored units (cm², cm³). Values verified."
+ },
+ {
+  "id": "PYQ-M-SAV-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "6/5 cm",
+    "3/5 cm",
+    "2/5 cm",
+    "5 cm"
+   ],
+   "solutionSteps": [
+    "Correct option: (d). Volume of cone = (1/3) × base area × h ⇒ 85 = (1/3) × 51 × h ⇒ h = 255/51 = 5 cm."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Garbled fraction options restored using the row's own extraction convention (numerator first, cf. '1408 21'); key 5 cm verified (h = 3V/A = 5) and is the only correct option under any reading."
+ },
+ {
+  "id": "PYQ-M-SAV-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In a coffee shop, coffee is served in two types of cups. One is cylindrical in shape with diameter 7 cm and height 14 cm and the other is hemispherical with diameter 21 cm. Based on the above, answer the following questions (use π = 22/7):\n(i) Find the area of the base of the cylindrical cup.\n(ii) (a) What is the capacity of the hemispherical cup?\nOR\n(ii) (b) Find the capacity of the cylindrical cup.\n(iii) What is the curved surface area of the cylindrical cup?",
+   "answer": "(i) Base area of cylindrical cup = (22/7) × (7/2) × (7/2) = 77/2 = 38.5 cm². (ii)(a) Capacity of hemispherical cup = (2/3) × (22/7) × (21/2)³ = 4851/2 = 2425.5 cm³. OR (ii)(b) Capacity of cylindrical cup = (22/7) × (7/2)² × 14 = 539 cm³. (iii) Curved surface area of cylindrical cup = 2 × (22/7) × (7/2) × 14 = 308 cm²."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed encoding junk 'àH$aU AÜ``Z' (source of the stray $) and mark residues; cleaned broken fractions in answer, fixing its wrong '(7)²' to (7/2)². Values unchanged and verified."
+ },
+ {
+  "id": "SAV-N-NCERT-12-MCQ-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "finalAnswer": "π cm³ — option (C)."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "π cm³ is the third option, so the label is (C), not (A). Value verified: (2/3)π + (1/3)π = π."
+ },
+ {
+  "id": "Z3-SAV-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A railway tunnel is a cylinder of radius 7 m and length 450 m. In its circular cross-section the centre is O and a level surface AB is laid for the railway lines, with ∠AOB = 90°. The space below AB is filled with rubble. (Use π = 22/7.)\n(i) How much volume of earth is removed to make the tunnel (the cylindrical bore)?\n(ii) A coating is applied to the inner curved surface of the tunnel above AB (the major-arc part). What is the area to be coated?\n(iii) (a) How much volume of rubble is required to fill the space below AB?\nOR\n(iii) (b) If excavation costs ₹250 per m³ and coating costs ₹30 per m², find the total cost of excavation and coating.",
+   "solutionSteps": [
+    "[1 mark] (i) Volume of the cylindrical bore = πr²L = (22/7) × 7 × 7 × 450 = 154 × 450 = 69300 m³.",
+    "[1 mark] (ii) Area to be coated = (270/360) × 2πrL = (3/4) × 2 × (22/7) × 7 × 450 = 33 × 450 = 14850 m².",
+    "[1 mark] (iii)(a) Area of minor segment below AB = area of sector − area of △AOB = (90/360) × (22/7) × 7² − (1/2) × 7 × 7 = 38.5 − 24.5 = 14 m². [OR (iii)(b): Cost of excavation = 69300 × 250 = ₹1,73,25,000; cost of coating = 14850 × 30 = ₹4,45,500.]",
+    "[1 mark] (iii)(a) Volume of rubble = 14 × 450 = 6300 m³. [OR (iii)(b): Total cost = 1,73,25,000 + 4,45,500 = ₹1,77,70,500.]"
+   ],
+   "finalAnswer": "(i) 69300 m³; (ii) 14850 m²; (iii)(a) 6300 m³ OR (iii)(b) ₹1,77,70,500"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: resolved 'pending verification' values (bore 69300 m³, segment 14 m² → rubble 6300 m³, costs) and restructured 5 sub-parts into the 1+1+2 case pattern with an internal OR. 90° segment is within limit; stem self-contained."
+ },
+ {
+  "id": "SAV-N-NCERT-12-CB-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "D",
+   "marks": 5,
+   "format": "Long",
+   "solutionSteps": [
+    "[1 mark] Volume of water initially in the cone = (1/3)πR²H = (1/3)π(5)²(8) = 200π/3 cm³.",
+    "[1 mark] Water that flows out = (1/4) × (200π/3) = 50π/3 cm³; this equals the total volume of the lead shots.",
+    "[1 mark] Volume of one lead shot = (4/3)π(0.5)³ = (4/3)π(0.125) = π/6 cm³.",
+    "[1 mark] Number of shots = (50π/3) ÷ (π/6) = (50π/3) × (6/π).",
+    "[1 mark] = 100. Hence 100 lead shots were dropped into the vessel."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single-answer problem with no case/sub-parts mis-tagged Case-Based; re-tagged to its board form (Section D, 5-mark Long, as asked in PYQ 30/3/1 Q35) with 5 marked steps. Answer 100 unchanged."
+ },
+ {
+  "id": "sav-comp-03",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "concept": "Case-based surface area of combined solid",
+   "answer": "(a) Height of cone = 17 − 7 = 10 cm. (b) Slant height l = √(7² + 10²) = √149 ≈ 12.21 cm. (c) TSA = CSA of cone + CSA of hemisphere = πrl + 2πr² = πr(l + 2r) = 7π(√149 + 14) ≈ 7 × 3.1416 × 26.21 ≈ 576.3 cm².",
+   "solutionSteps": [
+    "[1 mark] (a) Height of cone = total height − radius of hemisphere = 17 − 7 = 10 cm.",
+    "[1 mark] (b) Slant height l = √(r² + h²) = √(7² + 10²) = √149 ≈ 12.21 cm.",
+    "[1 mark] (c) TSA of toy = CSA of cone + CSA of hemisphere = πrl + 2πr² = πr(l + 2r).",
+    "[1 mark] = 7π(√149 + 14) ≈ 7 × 3.1416 × 26.21 ≈ 576.3 cm²."
+   ],
+   "finalAnswer": "(a) 10 cm; (b) √149 ≈ 12.21 cm; (c) ≈ 576.3 cm²"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added 4 marked steps (1+1+2) and finalAnswer; tidied answer to a consistent value (7π(√149+14) ≈ 576.3 cm²; old 576.35 came from rounding mismatch). Concept relabelled: it is surface area, not volume."
+ },
+ {
+  "id": "PYQ-M-2025-SAV-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(i) Volume of bigger part = (22/7) × (7/2)² × 12 = 462 cm³. (ii) CSA of bigger part = 2 × (22/7) × (7/2) × 12 = 264 cm². (iii)(a) Volume of two smaller parts = 2 × (22/7) × (1.05)² × 5 = 34.65 cm³; required ratio = 462 : 34.65 = 40 : 3. OR (iii)(b) Sum of CSAs of the two smaller parts = 2 × 2 × (22/7) × 1.05 × 5 = 66 cm²."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "LIMIT flag is mistaken: syllabus limits combinations of two solid TYPES; three cylinders is one type, and this is an actual 2025 board question. Only fix: answer field was partial/garbled; completed it from the row's verified steps."
+ },
+ {
+  "id": "SAV-M10",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Combined solid is cone + hemisphere (two solids, within limit); the cylinder is only the water container, handled by subtraction. No 2026-27 LIMIT rule bans this. Verified: 648000π − 288000π = 360000π cm³."
+ },
+ {
+  "id": "SAV-E12",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The volume of a solid sphere of radius 8 cm is how many times the volume of a solid sphere of radius 2 cm?",
+   "explanation": "Ratio of volumes = [(4/3)π(8)³] / [(4/3)π(2)³] = 512/8 = 64. Therefore, the correct answer is 64.",
+   "solutionSteps": [
+    "Volume ratio = (4/3)π(8)³ / (4/3)π(2)³ = (8/2)³ = 512/8 = 64."
+   ],
+   "subtopic": "Volume of a Sphere"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored row: melting/recasting (conversion of solids) is out for 2026-27; rewritten as a direct volume-comparison question. Options and key (64) unchanged and correct."
+ },
+ {
+  "id": "SAV-N-EXEM2-12-LA-010",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Transferring a bowl's liquid into bottles is the deleted 'conversion of solids' type; exemplar (not authored) row, cannot be naturally kept within scope. Also mis-tagged 5 marks for a 3-step item."
+ },
+ {
+  "id": "SAV2-R06",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Cistern-and-porous-bricks problem is from the deleted optional exercise (conversion/volume-transfer type); it is an NCERT copy, not naturally repairable within the 2026-27 limit."
+ },
+ {
+  "id": "SAV2P1-R02",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Hemispherical bowl → cylindrical bottles is the deleted conversion-of-solids type (same item as SAV-N-EXEM2-12-LA-010); repairing it would remove its entire content."
+ }
+]

@@ -1,0 +1,247 @@
+[
+ {
+  "id": "sci-abs-comp-02",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) Lower pH means more acidic; the lowest pH is 2, so solution A is the most acidic.",
+    "[1 mark] (b) Higher pH means more basic; the highest pH is 12, so solution C is the most basic.",
+    "[1 mark] (c) pH 7 is neutral, so solution B is neutral.",
+    "[1 mark] (d) Hydrogen ion concentration increases as pH decreases: C (12) < E (9) < B (7) < D (5) < A (2)."
+   ],
+   "finalAnswer": "(a) A (b) C (c) B (d) C < E < B < D < A"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answers verified correct; added 4 CBSE step-marked solutionSteps (1 mark per part) summing to 4 marks, plus finalAnswer."
+ },
+ {
+  "id": "BX-ABS-EX-A-033",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "BX-ABS-EX-A-034",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "BX-ABS-EX-A-035",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "BX-ABS-EX-A-036",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "BX-ABS-EX-A-037",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "BX-ABS-EX-A-038",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "BX-ABS-EX-A-039",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "BX-ABS-EX-A-040",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "BX-ABS-EX-A-041",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "BX-ABS-EX-A-042",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "format": "Assertion-Reasoning"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem is an Assertion-Reason item with the standard four A-R options; re-tag format MCQ -> Assertion-Reasoning. Keyed answer checked and correct."
+ },
+ {
+  "id": "ABS2-033",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Four samples of hydrochloric acid, each of volume 100 mL, have different pH values. Which sample would require the least amount of base to neutralise it completely?",
+   "options": [
+    "A) HCl solution of pH 1",
+    "B) HCl solution of pH 4",
+    "C) HCl solution of pH 2",
+    "D) HCl solution of pH 3"
+   ],
+   "answer": "B) HCl solution of pH 4",
+   "finalAnswer": "B) HCl solution of pH 4",
+   "solutionSteps": [
+    "[1 mark] For the same volume (100 mL), a higher pH means a lower H⁺ ion concentration, so less base is needed to neutralise it; the HCl solution of pH 4 has the highest pH and therefore needs the least base."
+   ],
+   "explanation": "The amount of base needed depends on how many H⁺ ions the acid contains. For equal volumes, a higher pH means a lower H⁺ ion concentration. The pH 4 sample has the fewest H⁺ ions, so it needs the least base. Therefore, the correct answer is B) HCl solution of pH 4.",
+   "section": "A",
+   "marks": 1,
+   "subtopic": "pH Scale and Neutralisation"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Molarity (M, moles = M×V) is not in Class 10 syllabus; authored pack row reframed qualitatively via pH (higher pH = fewer H+). Also a 2-mark Section B MCQ is invalid: re-tagged Section A, 1 mark."
+ },
+ {
+  "id": "CFPQ-S-ABS-012",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Board-published CFPQ competency item: the stem itself supplies the ten-fold-per-unit rule, so the student only applies given data (no log definition required). Answer 10^4 = 10,000 times is correct."
+ },
+ {
+  "id": "SCO-S-ACID-018",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Distinguishing Fe(II)/Fe(III) chloride by NaOH precipitate colours is qualitative cation analysis not in NCERT Class 10 2026-27; external (non-authored) row, so withhold."
+ },
+ {
+  "id": "APQ-M-ARC-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold."
+ },
+ {
+  "id": "APQ-M-ARC-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold."
+ },
+ {
+  "id": "APQ-M-ARC-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold."
+ },
+ {
+  "id": "APQ-M-ARC-004",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold."
+ },
+ {
+  "id": "APQ-M-ARC-006",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold."
+ },
+ {
+  "id": "APQ-M-ARC-007",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold."
+ }
+]

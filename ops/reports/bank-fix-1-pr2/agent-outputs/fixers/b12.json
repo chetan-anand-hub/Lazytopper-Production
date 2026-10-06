@@ -1,0 +1,360 @@
+[
+ {
+  "id": "PYQ-M-2024-CG-004a",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] Let P divide AB in the ratio k : 1. By the section formula, x-coordinate of P = (3k − 6)/(k + 1) = −4.",
+    "[1 mark] 3k − 6 = −4k − 4 ⇒ 7k = 2 ⇒ k = 2/7. Hence the required ratio is 2 : 7."
+   ],
+   "finalAnswer": "P divides AB in the ratio 2 : 7.",
+   "answer": "P divides AB in the ratio 2 : 7."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer was marking-scheme debris; rebuilt working: (3k−6)/(k+1) = −4 gives k = 2/7, ratio 2:7 (check y: (−16+70)/9 = 6)."
+ },
+ {
+  "id": "PYQ-M-2024-CG-005a",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In what ratio does the x-axis divide the line segment joining the points (2, −3) and (5, 6)? Also, find the coordinates of the point of intersection.",
+   "solutionSteps": [
+    "[1 mark] Let the x-axis divide the segment in the ratio k : 1 at the point (x, 0). Then y-coordinate: (6k − 3)/(k + 1) = 0.",
+    "[1 mark] 6k − 3 = 0 ⇒ k = 1/2, so the required ratio is 1 : 2.",
+    "[1 mark] x = (1×5 + 2×2)/(1 + 2) = 9/3 = 3. The point of intersection is (3, 0)."
+   ],
+   "finalAnswer": "Ratio 1 : 2; point of intersection (3, 0).",
+   "answer": "Ratio 1 : 2; point of intersection (3, 0)."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Fixed run-together words ('x-axis divide the line'); rebuilt flattened fractions: k = 1/2, ratio 1:2, point (3, 0)."
+ },
+ {
+  "id": "PYQ-M-2024-CG-006",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Case depends on the rocket design drawn on graph paper; coordinates of A–G are not in the text, so parts cannot be answered without the figure."
+ },
+ {
+  "id": "PYQ-M-2024-CG-007",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Case asks for P, Q, R read off the chart figure (not in text); stem also has Hindi page-header junk and the answer is garbled."
+ },
+ {
+  "id": "PYQ-M-2025-CG-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The midpoint of the line segment joining the points P(−4, 5) and Q(4, 6) lies on:",
+   "options": [
+    "x-axis",
+    "y-axis",
+    "origin",
+    "neither x-axis nor y-axis"
+   ],
+   "answer": "y-axis",
+   "solutionSteps": [
+    "[1 mark] Midpoint = ((−4 + 4)/2, (5 + 6)/2) = (0, 11/2). x-coordinate is 0, so it lies on the y-axis. Correct option: (b)."
+   ],
+   "finalAnswer": "(b) y-axis"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored lost minus sign P(−4, 5) (official key y-axis needs it: midpoint (0, 11/2)); cleaned 'xaxis'/'yaxis' options."
+ },
+ {
+  "id": "PYQ-M-2025-CG-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The points (−5, 0), (5, 0) and (0, 4) are the vertices of a triangle which is a/an:",
+   "options": [
+    "right-angled triangle",
+    "isosceles triangle",
+    "equilateral triangle",
+    "scalene triangle"
+   ],
+   "solutionSteps": [
+    "[1 mark] Sides: between (−5, 0) and (5, 0) = 10; from (0, 4) to each = √(25 + 16) = √41. Two equal sides, and 41 + 41 ≠ 100, so not right-angled: isosceles. Correct option: (b)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored minus sign (−5, 0) (as rendered two vertices coincided); removed page-header junk from option D; added justification."
+ },
+ {
+  "id": "PYQ-M-2025-CG-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Find the length of the median through the vertex B of △ABC with vertices A(9, −2), B(−3, 7) and C(−1, 10).",
+   "solutionSteps": [
+    "[1 mark] The median from B goes to the midpoint M of AC: M = ((9 − 1)/2, (−2 + 10)/2) = (4, 4).",
+    "[1 mark] BM = √[(4 + 3)² + (4 − 7)²] = √(49 + 9) = √58 units."
+   ],
+   "finalAnswer": "Length of the median through B = √58 units.",
+   "answer": "Length of the median through B = √58 units."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored lost minus signs (A(9,−2), B(−3,7), C(−1,10)) matching key √58; removed mark residue '1' from answer."
+ },
+ {
+  "id": "PYQ-M-2025-CG-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Find the ratio in which the y-axis divides the line segment joining the points (5, −6) and (−1, −4). Also find the point of intersection.",
+   "solutionSteps": [
+    "[1 mark] Let the y-axis divide the segment in the ratio k : 1 at P(0, y). x-coordinate: (−k + 5)/(k + 1) = 0.",
+    "[1 mark] −k + 5 = 0 ⇒ k = 5, so the ratio is 5 : 1.",
+    "[1 mark] y = (5×(−4) + 1×(−6))/(5 + 1) = −26/6 = −13/3. Point of intersection is (0, −13/3)."
+   ],
+   "finalAnswer": "Ratio 5 : 1; point of intersection (0, −13/3).",
+   "answer": "Ratio 5 : 1; point of intersection (0, −13/3)."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored minus signs (5, −6), (−1, −4) consistent with key; fixed 'yaxis'; rebuilt fractions."
+ },
+ {
+  "id": "PYQ-M-2025-CG-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If the midpoint of the line segment joining the points A(3, 4) and B(k, 6) is P(x, y) and x + y − 10 = 0, then find the value of k.",
+   "solutionSteps": [
+    "[1 mark] By the midpoint formula, x = (3 + k)/2 and y = (4 + 6)/2 = 5.",
+    "[1 mark] Substituting in x + y − 10 = 0: (3 + k)/2 + 5 − 10 = 0 ⇒ (3 + k)/2 = 5.",
+    "[1 mark] 3 + k = 10 ⇒ k = 7."
+   ],
+   "finalAnswer": "k = 7",
+   "answer": "k = 7"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored lost operator: x + y − 10 = 0; rebuilt flattened fractions; k = 7."
+ },
+ {
+  "id": "PYQ-M-2025-CG-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If (a, b) is the midpoint of the line segment joining the points A(10, −6) and B(k, 4) and a − 2b = 18, then find the value of k.",
+   "solutionSteps": [
+    "[1 mark] By the midpoint formula, a = (10 + k)/2 and b = (−6 + 4)/2 = −1.",
+    "[1 mark] Given a − 2b = 18: (10 + k)/2 − 2(−1) = 18 ⇒ (10 + k)/2 = 16.",
+    "[1 mark] 10 + k = 32 ⇒ k = 22."
+   ],
+   "finalAnswer": "k = 22",
+   "answer": "k = 22"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored minus signs A(10, −6) and a − 2b = 18 (key uses b = −1); k = 22 verified."
+ },
+ {
+  "id": "PYQ-M-2026-CG-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] P is equidistant from A and B ⇒ PA = PB ⇒ PA² = PB² ⇒ (x − 5)² + (y − 3)² = (x − 1)² + (y − 7)².",
+    "[1 mark] x² − 10x + 25 + y² − 6y + 9 = x² − 2x + 1 + y² − 14y + 49 ⇒ −10x − 6y + 34 = −2x − 14y + 50.",
+    "[1 mark] −8x + 8y = 16 ⇒ x − y + 2 = 0 (i.e. x − y = −2)."
+   ],
+   "finalAnswer": "x − y + 2 = 0",
+   "answer": "x − y + 2 = 0"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer was truncated ('x − y + 2 =') with squares flattened; rebuilt working, relation x − y + 2 = 0 verified."
+ },
+ {
+  "id": "PYQ-M-CG-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Find the ratio in which the y-axis divides the line segment joining the points (5, −6) and (−1, −4).",
+   "solutionSteps": [
+    "[1 mark] Let the point of division be P(0, y), dividing the segment in the ratio k : 1. x-coordinate: (k(−1) + 5)/(k + 1) = 0.",
+    "[1 mark] −k + 5 = 0 ⇒ k = 5. Required ratio is 5 : 1."
+   ],
+   "finalAnswer": "Ratio 5 : 1",
+   "answer": "Ratio 5 : 1"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored minus signs (5, −6), (−1, −4) (as rendered y-axis does not cut internally); rebuilt fractions; ratio 5:1."
+ },
+ {
+  "id": "PYQ-M-CG-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Find the ratio in which the line y = x divides the line segment joining the points (6, −3) and (1, 6).",
+   "solutionSteps": [
+    "[1 mark] Let the ratio be k : 1. Then P = ((k + 6)/(k + 1), (6k − 3)/(k + 1)).",
+    "[1 mark] P lies on y = x ⇒ k + 6 = 6k − 3 ⇒ 5k = 9 ⇒ k = 9/5. Ratio is 9 : 5."
+   ],
+   "finalAnswer": "Ratio 9 : 5",
+   "answer": "Ratio 9 : 5"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored minus sign (6, −3) per key's y = (6k−3)/(k+1); answer was truncated 'Ratio is 9 :' and had glyph residue; ratio 9:5 verified."
+ },
+ {
+  "id": "PYQ-M-CG-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If Q(0, 1) is equidistant from P(5, −3) and R(x, 6), find the values of x.",
+   "solutionSteps": [
+    "[1 mark] PQ = QR ⇒ PQ² = QR² ⇒ (5 − 0)² + (−3 − 1)² = (x − 0)² + (6 − 1)².",
+    "[1 mark] 25 + 16 = x² + 25 ⇒ x² = 16.",
+    "[1 mark] x = 4 or x = −4."
+   ],
+   "finalAnswer": "x = 4 or x = −4",
+   "answer": "x = 4 or x = −4"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored minus sign P(5, −3) matching key's (−3 − 1); removed mark residue '1 1 ½ +'; x = ±4 verified."
+ },
+ {
+  "id": "cg-comp-02",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "On a city map, three bus stops are located at A(2, 3), B(8, 7) and C(14, 11). A new bus stop D is to be built at the midpoint of A and C.\nBased on the above, answer the following:\n(i) Find the coordinates of D. [1 mark]\n(ii) Show that B divides AC in the ratio 1 : 1. [1 mark]\n(iii) Find the distance between A and C. [2 marks]",
+   "answer": "(i) D = (8, 7). (ii) B = (8, 7) = D, the midpoint of AC, so B divides AC in the ratio 1 : 1. (iii) AC = √208 = 4√13 ≈ 14.42 units.",
+   "finalAnswer": "(i) D(8, 7); (ii) B is the midpoint of AC, ratio 1 : 1; (iii) AC = 4√13 units.",
+   "solutionSteps": [
+    "[1 mark] (i) D = ((2 + 14)/2, (3 + 11)/2) = (8, 7).",
+    "[1 mark] (ii) B = (8, 7) coincides with D, the midpoint of AC, so B divides AC in the ratio 1 : 1.",
+    "[1 mark] (iii) AC = √[(14 − 2)² + (11 − 3)²] = √(144 + 64).",
+    "[1 mark] AC = √208 = 4√13 ≈ 14.42 units."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Added CBSE step-marked solutionSteps (1+1+2) and finalAnswer; relabelled sub-parts (i)(ii)(iii) with marks for Section E case format. Answers unchanged and verified."
+ },
+ {
+  "id": "PB-M-1-CG-A-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Points satisfying a linear equation",
+   "questionText": "The points (7, 2) and (−1, 0) lie on the line:"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Equation of a line is not a 2026-27 topic, but this MCQ is solved purely by substituting points into given linear equations; relabelled subtopic, completed stem. Key (b) verified."
+ },
+ {
+  "id": "BX-COORD-D-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "format": "Short",
+   "solutionSteps": [
+    "[1 mark] Diagonals of a parallelogram bisect each other ⇒ midpoint of AC = midpoint of BD. Midpoint of AC = ((1 + 6)/2, (2 + 6)/2) = (7/2, 4).",
+    "[1 mark] Let D = (x, y). Midpoint of BD = ((4 + x)/2, (3 + y)/2).",
+    "[1 mark] (4 + x)/2 = 7/2 ⇒ x = 3; (3 + y)/2 = 4 ⇒ y = 5. Hence D = (3, 5)."
+   ],
+   "answer": "In a parallelogram the diagonals AC and BD bisect each other, so midpoint of AC = midpoint of BD. Midpoint of AC = (7/2, 4). Let D = (x, y); midpoint of BD = ((4 + x)/2, (3 + y)/2). Equating: x = 3, y = 5. So D = (3, 5). Check: B − A = (3, 1) = C − D, so AB ∥ DC and AB = DC."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single midpoint-equation item is a standard 3-mark (Section C) question; re-tagged 3 marks/C/Short and condensed steps to 3. Answer D(3, 5) verified."
+ },
+ {
+  "id": "BX-COORD-D-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "format": "Short",
+   "solutionSteps": [
+    "[1 mark] Let the x-axis divide AB in the ratio k : 1; on the x-axis y = 0: (6k − 3)/(k + 1) = 0 ⇒ k = 1/2, ratio 1 : 2.",
+    "[1 mark] x = (1×5 + 2×2)/(1 + 2) = 9/3 = 3, so the point of division is (3, 0).",
+    "[1 mark] Distance from the origin = √(3² + 0²) = 3 units."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Ratio + point + trivial distance is a 3-mark (Section C) item, not a 5-mark long answer; re-tagged 3/C/Short, steps condensed to 3. Answers verified."
+ },
+ {
+  "id": "CG-H08",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] Let the line divide the segment in the ratio k : 1 at P = ((8k + 3)/(k + 1), (9k − 1)/(k + 1)).",
+    "[1 mark] P lies on x − y − 2 = 0 ⇒ (8k + 3) − (9k − 1) − 2(k + 1) = 0 ⇒ −3k + 2 = 0.",
+    "[1 mark] k = 2/3, so the required ratio is 2 : 3."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single ratio-finding item (4 lines of working) is a 3-mark Section C question; re-tagged 3/C/Short/Medium with 3 marked steps. Answer 2:3 verified."
+ },
+ {
+  "id": "Z3-CG-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Distance Formula",
+   "questionText": "On a school picnic, students must first visit an old age home and then move to the amusement park, instead of going directly from school to the park. On a map grid (1 unit = 1 km), the school is at S(0, 0), the old age home at H(6, 0) and the park at P(6, 8). Using the distance formula, find the additional distance the students cover by going via the old age home instead of travelling directly from school to the park.",
+   "solutionSteps": [
+    "[1 mark] SH = √[(6 − 0)² + (0 − 0)²] = 6 km and HP = √[(6 − 6)² + (8 − 0)²] = 8 km.",
+    "[1 mark] SP = √[(6 − 0)² + (8 − 0)²] = √(36 + 64) = √100 = 10 km.",
+    "[1 mark] Additional distance = (SH + HP) − SP = 14 − 10 = 4 km."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored row had no coordinates (pure subtraction). Recast with S(0,0), H(6,0), P(6,8), preserving SH=6, HP=8, SP=10, so it tests the distance formula; answer 4 km unchanged."
+ }
+]

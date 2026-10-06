@@ -1,0 +1,257 @@
+[
+ {
+  "id": "S-CHEM-2",
+  "verdict": "ok",
+  "answer": "A combination reaction is one in which two or more reactants combine to form a single product. Example: CaO(s) + H2O(l) → Ca(OH)2(aq) + heat (quicklime + water → slaked lime). Another: 2H2(g) + O2(g) → 2H2O(l).",
+  "finalAnswer": "Two or more reactants form a single product; e.g. CaO + H2O → Ca(OH)2",
+  "solutionSteps": [
+   "[1 mark] Definition: a reaction in which two or more reactants combine to form a single product.",
+   "[0.5 mark] Example with correct reactants and product: calcium oxide + water → calcium hydroxide.",
+   "[0.5 mark] Balanced equation with state symbols: CaO(s) + H2O(l) → Ca(OH)2(aq) + heat."
+  ]
+ },
+ {
+  "id": "S-ABS-3",
+  "verdict": "ok",
+  "answer": "Universal indicator is a mixture of several indicators that shows different colours at different pH values (concentrations of H+ ions) of a solution. Difference: litmus only tells whether a solution is acidic (blue litmus turns red) or basic (red litmus turns blue), whereas universal indicator also indicates the strength of the acid or base, i.e. the approximate pH (0–14), by a range of colours.",
+  "finalAnswer": "Mixture of indicators showing different colours at different pH; gives strength (pH), litmus only acid/base",
+  "solutionSteps": [
+   "[1 mark] Definition: universal indicator is a mixture of several indicators that shows different colours at different pH values.",
+   "[1 mark] Difference: litmus shows only whether a solution is acidic or basic; universal indicator also shows the strength (approximate pH) of the acid or base."
+  ]
+ },
+ {
+  "id": "S-MNM-3",
+  "verdict": "ok",
+  "answer": "Corrosion is the process in which a metal is slowly eaten up/damaged by the action of air, moisture or chemicals (such as acids) on its surface, e.g. rusting of iron (formation of hydrated iron(III) oxide, Fe2O3·xH2O). Harmful effect: rusting weakens iron structures such as bridges, railings, ships and car bodies, causing huge economic loss every year (and replacement costs).",
+  "finalAnswer": "Gradual damage of a metal by air, moisture or chemicals; e.g. rusting weakens iron bridges/structures",
+  "solutionSteps": [
+   "[1 mark] Definition: corrosion is the slow eating away of a metal by the action of air, moisture or chemicals on its surface (e.g. rusting of iron).",
+   "[1 mark] One harmful effect: it weakens metal structures such as iron bridges, ships, railings and car bodies, causing huge economic loss."
+  ]
+ },
+ {
+  "id": "S-CARB-3",
+  "verdict": "ok",
+  "answer": "In methane (CH4), carbon (atomic number 6, electronic configuration 2,4) has 4 valence electrons and each hydrogen has 1 valence electron. Carbon shares its four valence electrons with four hydrogen atoms, forming four C–H single covalent bonds (each a shared pair). Electron dot structure: C at the centre, with one H on each of the four sides (top, bottom, left, right); between C and each H is drawn one shared pair — one dot (carbon's electron) and one cross (hydrogen's electron). Thus carbon attains an octet and each hydrogen attains a duplet. Structural formula: H–C(–H)(–H)–H.",
+  "finalAnswer": "C in centre sharing one electron pair with each of 4 H atoms (4 C–H single covalent bonds)",
+  "solutionSteps": [
+   "[1 mark] Diagram: carbon at the centre with four hydrogen atoms around it, each C–H bond shown as one shared pair of electrons (one dot from C, one cross from H).",
+   "[1 mark] Diagram accuracy: total 4 shared pairs (8 electrons around C — octet; 2 around each H — duplet), showing four single covalent bonds."
+  ]
+ },
+ {
+  "id": "S-LIFE-3",
+  "verdict": "ok",
+  "answer": "Aerobic respiration: (i) takes place in the presence of oxygen; (ii) glucose is completely broken down into carbon dioxide and water; (iii) releases a large amount of energy; (iv) first step in cytoplasm, later in mitochondria. Anaerobic respiration: (i) takes place in the absence of oxygen; (ii) glucose is incompletely broken down into ethanol and carbon dioxide (in yeast) or lactic acid (in muscle cells); (iii) releases much less energy; (iv) occurs only in the cytoplasm.",
+  "finalAnswer": "Aerobic: with O2, CO2 + H2O, more energy; Anaerobic: without O2, ethanol + CO2 / lactic acid, less energy",
+  "solutionSteps": [
+   "[1 mark] Point 1: aerobic respiration occurs in the presence of oxygen; anaerobic respiration occurs in the absence of oxygen.",
+   "[1 mark] Point 2: aerobic gives CO2 + H2O and much energy (cytoplasm + mitochondria); anaerobic gives ethanol + CO2 (yeast) or lactic acid (muscles) and less energy (cytoplasm only)."
+  ]
+ },
+ {
+  "id": "S-ELEC-3",
+  "verdict": "ok",
+  "answer": "Given V = 12 V, R = 6 Ω. By Ohm's law, V = IR, so I = V/R = 12 V / 6 Ω = 2 A. The current flowing through the resistor is 2 A.",
+  "finalAnswer": "2 A",
+  "solutionSteps": [
+   "[1 mark] Given V = 12 V, R = 6 Ω; Ohm's law: V = IR ⇒ I = V/R.",
+   "[1 mark] I = 12/6 = 2 A (with unit)."
+  ]
+ },
+ {
+  "id": "S-CC-3",
+  "verdict": "ok",
+  "answer": "Reflex action: a sudden, automatic and involuntary response to a stimulus, without conscious thinking, controlled by the spinal cord (e.g. withdrawing the hand on touching a hot object). Reflex arc: the pathway followed by nerve impulses in a reflex action — receptor → sensory neuron → relay neuron in the spinal cord → motor neuron → effector (muscle/gland).",
+  "finalAnswer": "Reflex action: sudden involuntary response; reflex arc: receptor → sensory neuron → spinal cord → motor neuron → effector",
+  "solutionSteps": [
+   "[1 mark] Reflex action: a sudden, automatic, involuntary response to a stimulus, controlled by the spinal cord (example: pulling hand away from a hot object).",
+   "[1 mark] Reflex arc: the pathway of impulses in a reflex action — receptor → sensory neuron → relay neuron (spinal cord) → motor neuron → effector."
+  ]
+ },
+ {
+  "id": "S-REP-3",
+  "verdict": "ok",
+  "answer": "Regeneration is the ability of a fully differentiated organism to give rise to new individual organisms from its body parts. In Planaria (or Hydra), if the body is cut or broken into many pieces, each piece grows into a complete new organism. This is carried out by specialised cells which proliferate and make large numbers of cells; these cells then undergo changes to become various cell types and tissues in an organised sequence (development).",
+  "finalAnswer": "Formation of complete organisms from body pieces; e.g. each cut piece of Planaria grows into a new Planaria",
+  "solutionSteps": [
+   "[1 mark] Definition: regeneration is the ability of an organism to give rise to new individuals from its body parts, carried out by specialised cells that proliferate and differentiate.",
+   "[1 mark] Example: when Planaria (or Hydra) is cut into several pieces, each piece grows into a complete new organism."
+  ]
+ },
+ {
+  "id": "S-HER-8",
+  "verdict": "ok",
+  "answer": "In human beings, sex is genetically determined by sex chromosomes. Females have a perfect pair of sex chromosomes, XX; males have a mismatched pair, XY. So all eggs (ova) produced by the mother carry an X chromosome, whereas the father produces two kinds of sperms — half carrying X and half carrying Y. If a sperm carrying X fertilises the egg, the zygote is XX and develops into a girl; if a sperm carrying Y fertilises the egg, the zygote is XY and develops into a boy. Thus the sex of the child is determined by the type of sperm (from the father) that fertilises the egg; the chance of a boy or a girl is 50:50.",
+  "finalAnswer": "Determined by father's sperm: X sperm + X egg → XX girl; Y sperm + X egg → XY boy",
+  "solutionSteps": [
+   "[1 mark] Females have XX and males have XY sex chromosomes; all eggs carry X, while sperms are of two types — X-bearing and Y-bearing.",
+   "[1 mark] X-bearing sperm + egg (X) → XX zygote → girl; Y-bearing sperm + egg (X) → XY zygote → boy.",
+   "[1 mark] Hence the sex of the child depends on which type of sperm from the father fertilises the egg; probability of boy or girl is 50% each."
+  ]
+ },
+ {
+  "id": "S-LIGHT-6",
+  "verdict": "ok",
+  "answer": "Using New Cartesian sign convention: u = −30 cm, f = −15 cm (concave mirror). Mirror formula: 1/v + 1/u = 1/f ⇒ 1/v = 1/f − 1/u = 1/(−15) − 1/(−30) = −1/15 + 1/30 = (−2 + 1)/30 = −1/30. So v = −30 cm. The image is formed 30 cm in front of the mirror (at the centre of curvature, C); it is real, inverted and of the same size as the object (m = −v/u = −1).",
+  "finalAnswer": "v = −30 cm (30 cm in front of mirror, at C; real, inverted, same size)",
+  "solutionSteps": [
+   "[1 mark] Sign convention: u = −30 cm, f = −15 cm; mirror formula 1/v + 1/u = 1/f.",
+   "[1 mark] Substitution: 1/v = 1/f − 1/u = −1/15 + 1/30 = −1/30.",
+   "[1 mark] v = −30 cm: image 30 cm in front of the mirror (at C), real and inverted (same size)."
+  ]
+ },
+ {
+  "id": "S-EYE-7",
+  "verdict": "ok",
+  "answer": "Atmospheric refraction is the refraction of light by the Earth's atmosphere, caused by layers of air having different (gradually changing) optical densities/refractive indices, so that light bends as it passes through them. Example: twinkling of stars — starlight entering the atmosphere is continuously refracted by layers of varying refractive index; since the physical conditions of the atmosphere keep changing, the apparent position and the amount of starlight entering the eye flicker, so the star appears to twinkle. (Other examples: advance sunrise and delayed sunset by about 2 minutes; stars appearing higher than their actual position.)",
+  "finalAnswer": "Refraction of light by atmospheric layers of varying refractive index; e.g. twinkling of stars",
+  "solutionSteps": [
+   "[1 mark] Definition: refraction of light by the Earth's atmosphere due to air layers of gradually changing optical density (refractive index).",
+   "[1 mark] Example with explanation: twinkling of stars (or advance sunrise and delayed sunset) — varying refraction makes the apparent position/brightness of the star fluctuate."
+  ]
+ },
+ {
+  "id": "S-MAG-10",
+  "verdict": "ok",
+  "answer": "Earthing is a safety measure. The earth wire (green insulation) connects the metallic body of appliances like electric iron, toaster, fridge to a metal plate buried deep in the earth. If, due to leakage of current or a fault in insulation, the metal body becomes live, the earth wire provides a low-resistance conducting path for the current to flow to the earth. This keeps the body of the appliance at the potential of the earth, so the user does not get a severe electric shock.",
+  "finalAnswer": "Provides a low-resistance path for leakage current to earth, keeping metal body at earth potential and preventing shock",
+  "solutionSteps": [
+   "[1 mark] The earth wire connects the metallic body of the appliance to the earth and provides a low-resistance conducting path for any leakage current.",
+   "[1 mark] This keeps the metallic body at the earth's potential (zero), so the user is protected from a severe electric shock."
+  ]
+ },
+ {
+  "id": "S-ENV-10",
+  "verdict": "ok",
+  "answer": "Students can: (i) practise the 3 Rs — reduce use of paper and plastic, reuse notebooks/one-side-used sheets and bottles, recycle waste; (ii) segregate waste into biodegradable (green bin) and non-biodegradable (blue bin) in school, and compost biodegradable waste such as leftover food and leaves. Other valid ways: plant and care for trees; switch off fans and lights when not in use; turn off taps to save water; avoid plastic bags.",
+  "finalAnswer": "e.g. practise the 3 Rs (reduce, reuse, recycle); segregate biodegradable and non-biodegradable waste",
+  "solutionSteps": [
+   "[1 mark] Way 1: practise the 3 Rs — reduce, reuse and recycle (e.g. reuse paper, avoid single-use plastic).",
+   "[1 mark] Way 2: segregate biodegradable and non-biodegradable waste in separate bins (or save electricity/water, plant trees)."
+  ]
+ },
+ {
+  "id": "M-POLY-1",
+  "verdict": "ok",
+  "answer": "The highest power of x in 7x^4 − 3x^2 + 5x − 11 is 4, so the degree of the polynomial is 4 (it is a biquadratic polynomial).",
+  "finalAnswer": "4",
+  "solutionSteps": [
+   "[1 mark] The highest power of x is 4, so the degree is 4."
+  ]
+ },
+ {
+  "id": "M-PLE-2",
+  "verdict": "ok",
+  "answer": "x + 2y = 7 …(1), 3x − y = 5 …(2). From (1), x = 7 − 2y. Substituting in (2): 3(7 − 2y) − y = 5 ⇒ 21 − 6y − y = 5 ⇒ −7y = −16 ⇒ y = 16/7. Then x = 7 − 2(16/7) = 7 − 32/7 = 17/7. Check: 3(17/7) − 16/7 = 35/7 = 5 ✓. Solution: x = 17/7, y = 16/7.",
+  "finalAnswer": "x = 17/7, y = 16/7",
+  "solutionSteps": [
+   "[1 mark] From x + 2y = 7, x = 7 − 2y; substituting in 3x − y = 5: 21 − 7y = 5 ⇒ y = 16/7.",
+   "[1 mark] x = 7 − 32/7 = 17/7; solution x = 17/7, y = 16/7."
+  ]
+ },
+ {
+  "id": "M-QUAD-2",
+  "verdict": "ok",
+  "answer": "Comparing 4x^2 − 4x + 1 = 0 with ax^2 + bx + c = 0: a = 4, b = −4, c = 1. Discriminant D = b^2 − 4ac = (−4)^2 − 4(4)(1) = 16 − 16 = 0. Since D = 0, the equation has two equal real roots (each x = −b/2a = 1/2).",
+  "finalAnswer": "D = 0; two equal real roots (x = 1/2, 1/2)",
+  "solutionSteps": [
+   "[1 mark] a = 4, b = −4, c = 1; D = b^2 − 4ac = 16 − 16 = 0.",
+   "[1 mark] Since D = 0, the roots are real and equal (x = 1/2)."
+  ]
+ },
+ {
+  "id": "M-AP-2",
+  "verdict": "ok",
+  "answer": "Here a = 7, d = 10 − 7 = 3, n = 15. a_n = a + (n − 1)d ⇒ a_15 = 7 + 14 × 3 = 7 + 42 = 49. The 15th term is 49.",
+  "finalAnswer": "49",
+  "solutionSteps": [
+   "[1 mark] a = 7, d = 3; a_n = a + (n − 1)d.",
+   "[1 mark] a_15 = 7 + 14 × 3 = 49."
+  ]
+ },
+ {
+  "id": "M-TRI-2",
+  "verdict": "ok",
+  "answer": "Since DE ∥ BC, by the Basic Proportionality Theorem (Thales theorem), AD/DB = AE/EC. Therefore AE/EC = 2/3.",
+  "finalAnswer": "AE/EC = 2/3",
+  "solutionSteps": [
+   "[1 mark] DE ∥ BC, so by the Basic Proportionality Theorem, AD/DB = AE/EC.",
+   "[1 mark] AE/EC = 2/3."
+  ]
+ },
+ {
+  "id": "M-TRIG-2",
+  "verdict": "ok",
+  "answer": "tan θ = 3/4 = opposite/adjacent. In a right triangle take opposite side = 3k, adjacent side = 4k. Hypotenuse = √((3k)^2 + (4k)^2) = √(25k^2) = 5k. Hence sin θ = 3k/5k = 3/5 and cos θ = 4k/5k = 4/5 (both positive since θ is acute).",
+  "finalAnswer": "sin θ = 3/5, cos θ = 4/5",
+  "solutionSteps": [
+   "[1 mark] Opposite = 3k, adjacent = 4k; hypotenuse = √(9k^2 + 16k^2) = 5k (Pythagoras).",
+   "[1 mark] sin θ = 3/5, cos θ = 4/5."
+  ]
+ },
+ {
+  "id": "M-APPTRIG-3",
+  "verdict": "ok",
+  "answer": "Let AB be the tower, AB = 20 m, A the top, and C the car on the ground, BC = x m. The angle of depression from A to C is 30°, so ∠ACB = 30° (alternate angles). In right ΔABC, tan 30° = AB/BC ⇒ 1/√3 = 20/x ⇒ x = 20√3 m ≈ 20 × 1.732 = 34.64 m. The car is 20√3 m ≈ 34.64 m from the base of the tower.",
+  "finalAnswer": "20√3 m ≈ 34.64 m",
+  "solutionSteps": [
+   "[1 mark] Figure/setup: tower AB = 20 m, car at C; angle of depression 30° ⇒ ∠ACB = 30° (alternate angles).",
+   "[1 mark] In ΔABC, tan 30° = AB/BC ⇒ 1/√3 = 20/BC.",
+   "[1 mark] BC = 20√3 m ≈ 34.64 m."
+  ]
+ },
+ {
+  "id": "M-CIR-3",
+  "verdict": "ok",
+  "answer": "Given: a circle with centre O; PA and PB are two tangents from an external point P touching the circle at A and B. To prove: PA = PB. Construction: join OA, OB and OP. Proof: ∠OAP = ∠OBP = 90° (a tangent at any point of a circle is perpendicular to the radius through the point of contact). In right triangles OAP and OBP: OA = OB (radii of the same circle); OP = OP (common hypotenuse); ∠OAP = ∠OBP = 90°. So ΔOAP ≅ ΔOBP (RHS congruence). Hence PA = PB (CPCT). Thus tangents drawn from an external point to a circle are equal in length.",
+  "finalAnswer": "PA = PB (by RHS congruence, ΔOAP ≅ ΔOBP)",
+  "solutionSteps": [
+   "[1 mark] Given, to prove and construction with figure: circle centre O, tangents PA, PB from P; join OA, OB, OP.",
+   "[1 mark] ∠OAP = ∠OBP = 90° (tangent ⊥ radius); OA = OB (radii); OP common.",
+   "[1 mark] ΔOAP ≅ ΔOBP (RHS), so PA = PB (CPCT)."
+  ]
+ },
+ {
+  "id": "M-ARC-4",
+  "verdict": "ok",
+  "answer": "Area of ring = π(R^2 − r^2) with R = 14 cm, r = 7 cm. = (22/7)(14^2 − 7^2) = (22/7)(196 − 49) = (22/7)(147) = 22 × 21 = 462 cm².",
+  "finalAnswer": "462 cm²",
+  "solutionSteps": [
+   "[1 mark] Area of ring = area of outer circle − area of inner circle = π(R^2 − r^2).",
+   "[1 mark] Substitution: (22/7)(14^2 − 7^2) = (22/7)(196 − 49) = (22/7) × 147.",
+   "[1 mark] Area = 462 cm² (with unit)."
+  ]
+ },
+ {
+  "id": "M-SAV-4",
+  "verdict": "ok",
+  "answer": "Curved surface area of a cone = πrl, with r = 3.5 cm, l = 10 cm. CSA = (22/7) × 3.5 × 10 = 22 × 0.5 × 10 = 110 cm².",
+  "finalAnswer": "110 cm²",
+  "solutionSteps": [
+   "[1 mark] CSA of cone = πrl = (22/7) × 3.5 × 10.",
+   "[1 mark] CSA = 110 cm² (with unit)."
+  ]
+ },
+ {
+  "id": "M-STAT-5",
+  "verdict": "ok",
+  "answer": "In a grouped frequency distribution, the modal class is the class interval having the maximum frequency. So: (i) look at the frequency column and identify the highest frequency; (ii) the class interval corresponding to this highest frequency is the modal class. (The mode is then found within it using Mode = l + [(f1 − f0)/(2f1 − f0 − f2)] × h, where l is the lower limit of the modal class.)",
+  "finalAnswer": "Modal class = class interval with the highest frequency",
+  "solutionSteps": [
+   "[1 mark] Modal class is the class interval with the maximum frequency.",
+   "[1 mark] Method: scan the frequency column, find the highest frequency, and take its corresponding class interval as the modal class (used with l, f1, f0, f2, h in the mode formula)."
+  ]
+ },
+ {
+  "id": "M-PROB-5",
+  "verdict": "ok",
+  "answer": "Total number of outcomes = 52. (i) Number of hearts = 13, so P(heart) = 13/52 = 1/4. (ii) Number of kings = 4, so P(king) = 4/52 = 1/13.",
+  "finalAnswer": "(i) 1/4 (ii) 1/13",
+  "solutionSteps": [
+   "[1 mark] (i) Hearts = 13 of 52 cards; P(heart) = 13/52 = 1/4.",
+   "[1 mark] (ii) Kings = 4 of 52 cards; P(king) = 4/52 = 1/13."
+  ]
+ }
+]

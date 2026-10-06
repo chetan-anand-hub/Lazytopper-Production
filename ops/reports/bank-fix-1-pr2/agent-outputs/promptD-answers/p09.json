@@ -1,0 +1,253 @@
+[
+ {
+  "id": "S-CHEM-10",
+  "verdict": "ok",
+  "answer": "(a) Zinc is more reactive than copper, so it displaces copper from copper sulphate solution: Zn(s) + CuSO4(aq) → ZnSO4(aq) + Cu(s). The blue colour of the solution fades and reddish-brown copper is deposited on zinc.\n(b) Neutralisation (acid + base → salt + water): NaOH(aq) + HCl(aq) → NaCl(aq) + H2O(l).",
+  "finalAnswer": "(a) Zn + CuSO4 → ZnSO4 + Cu; (b) NaOH + HCl → NaCl + H2O",
+  "solutionSteps": [
+   "[1 mark] (a) Displacement: Zn(s) + CuSO4(aq) → ZnSO4(aq) + Cu(s) (balanced)",
+   "[1 mark] (b) Neutralisation: NaOH(aq) + HCl(aq) → NaCl(aq) + H2O(l) (balanced)",
+   "[1 mark] Correct state symbols and identification: Zn being more reactive displaces Cu; acid + base gives salt + water"
+  ]
+ },
+ {
+  "id": "S-ABS-10",
+  "verdict": "ok",
+  "answer": "Step 1: Baking soda (sodium hydrogencarbonate) is heated; it decomposes to give sodium carbonate, water and carbon dioxide:\n2NaHCO3(s) →(heat) Na2CO3(s) + H2O(l) + CO2(g).\nStep 2: The anhydrous sodium carbonate obtained is dissolved in water and recrystallised to get washing soda (sodium carbonate decahydrate):\nNa2CO3 + 10H2O → Na2CO3·10H2O.",
+  "finalAnswer": "Heat NaHCO3 to get Na2CO3, then recrystallise: Na2CO3·10H2O (washing soda)",
+  "solutionSteps": [
+   "[1 mark] Heating baking soda (NaHCO3) decomposes it into sodium carbonate, water and CO2",
+   "[1 mark] Balanced equation: 2NaHCO3 →(heat) Na2CO3 + H2O + CO2",
+   "[1 mark] Recrystallisation: Na2CO3 + 10H2O → Na2CO3·10H2O (washing soda)"
+  ]
+ },
+ {
+  "id": "S-MNM-10",
+  "verdict": "ok",
+  "answer": "Electrolytic refining is the method of purifying an impure metal by electrolysis. The impure metal is made the anode, a thin strip of the pure metal is made the cathode, and a solution of a soluble salt of the same metal is used as the electrolyte. On passing current, the pure metal from the anode dissolves into the electrolyte and an equivalent amount of pure metal from the electrolyte is deposited on the cathode. Soluble impurities go into the solution, while insoluble impurities settle at the bottom of the anode as anode mud.\nExample: Refining of copper — anode: impure copper; cathode: thin strip of pure copper; electrolyte: acidified copper sulphate solution. Anode: Cu → Cu²⁺ + 2e⁻; Cathode: Cu²⁺ + 2e⁻ → Cu.",
+  "finalAnswer": "Purification of impure metal by electrolysis, e.g. copper with acidified CuSO4",
+  "solutionSteps": [
+   "[1 mark] Definition: purification of an impure metal by electrolysis",
+   "[1 mark] Set-up and process: impure metal as anode, thin strip of pure metal as cathode, soluble salt of the metal as electrolyte; pure metal deposits on cathode, insoluble impurities collect as anode mud",
+   "[1 mark] Example: copper — impure Cu anode, pure Cu cathode, acidified CuSO4 electrolyte"
+  ]
+ },
+ {
+  "id": "S-CARB-10",
+  "verdict": "ok",
+  "answer": "Saturated hydrocarbons: carbon atoms are linked only by single bonds; e.g. ethane (C2H6). They burn with a clean (blue, non-sooty) flame.\nUnsaturated hydrocarbons: contain at least one carbon–carbon double or triple bond; e.g. ethene (C2H4) or ethyne (C2H2). They burn with a yellow, sooty (smoky) flame.\nTest: Burn the compound — a clean blue flame indicates a saturated hydrocarbon, a yellow sooty flame indicates an unsaturated hydrocarbon. (Also, unsaturated hydrocarbons undergo addition reactions, e.g. they decolourise bromine water; saturated ones do not.)",
+  "finalAnswer": "Saturated: only single bonds (ethane), clean flame; Unsaturated: double/triple bonds (ethene), sooty flame",
+  "solutionSteps": [
+   "[1 mark] Difference: saturated — only C–C single bonds; unsaturated — C=C double or C≡C triple bond",
+   "[1 mark] Examples: saturated — ethane (C2H6); unsaturated — ethene (C2H4)/ethyne (C2H2)",
+   "[1 mark] Test: on burning, saturated gives clean blue flame, unsaturated gives yellow sooty flame (or unsaturated decolourises bromine water)"
+  ]
+ },
+ {
+  "id": "S-LIFE-10",
+  "verdict": "ok",
+  "answer": "1. Source of food: In autotrophic nutrition, organisms make their own food from simple inorganic substances (CO2 and water); in heterotrophic nutrition, organisms obtain ready-made food from other organisms.\n2. Chlorophyll/sunlight: Autotrophs (green plants) need chlorophyll and sunlight for photosynthesis; heterotrophs do not have chlorophyll and do not need sunlight to make food.\n3. Trophic level: Autotrophs are producers (first trophic level); heterotrophs are consumers (herbivores, carnivores, parasites, saprophytes). Example: autotrophic — green plants; heterotrophic — animals, fungi.",
+  "finalAnswer": "Self-made food vs ready-made food; chlorophyll needed vs not; producers vs consumers",
+  "solutionSteps": [
+   "[1 mark] Autotrophs synthesise food from CO2 and water; heterotrophs depend on ready-made organic food",
+   "[1 mark] Autotrophs need chlorophyll and sunlight (photosynthesis); heterotrophs lack chlorophyll",
+   "[1 mark] Autotrophs are producers (e.g. green plants); heterotrophs are consumers (e.g. animals, fungi)"
+  ]
+ },
+ {
+  "id": "S-ELEC-10",
+  "verdict": "ok",
+  "answer": "The resistance R of a conductor depends on:\n1. Length (l): R is directly proportional to length — a longer wire offers more resistance (R ∝ l).\n2. Area of cross-section (A): R is inversely proportional to the area of cross-section — a thicker wire offers less resistance (R ∝ 1/A).\n3. Nature of the material: different materials have different resistivity (ρ); e.g. copper has low resistivity, nichrome high.\nCombining: R = ρl/A. (Resistance also depends on temperature — for metals it increases with temperature.)",
+  "finalAnswer": "Length (R ∝ l), area of cross-section (R ∝ 1/A), nature of material (ρ); R = ρl/A",
+  "solutionSteps": [
+   "[1 mark] Length: R directly proportional to length of conductor",
+   "[1 mark] Area of cross-section: R inversely proportional to area of cross-section",
+   "[1 mark] Nature of material (resistivity ρ) and combined relation R = ρl/A"
+  ]
+ },
+ {
+  "id": "S-CC-10",
+  "verdict": "ok",
+  "answer": "In animals, chemical coordination is brought about by hormones secreted by endocrine glands. Endocrine glands are ductless; they release hormones directly into the blood, which carries them to target organs/cells where they act. Hormones are needed in very small amounts and regulate growth, development and metabolism. Examples: adrenaline from the adrenal glands prepares the body for emergency (increases heart rate, diverts blood to muscles); insulin from the pancreas lowers blood sugar; thyroxine from the thyroid regulates carbohydrate, protein and fat metabolism. The timing and amount of hormone release are regulated by feedback mechanisms — e.g. a rise in blood sugar is detected by pancreatic cells, which then secrete more insulin; when sugar falls, insulin secretion is reduced.",
+  "finalAnswer": "Endocrine glands secrete hormones into blood → target organs; regulated by feedback mechanism",
+  "solutionSteps": [
+   "[1 mark] Hormones are secreted by ductless endocrine glands directly into the blood and carried to target organs",
+   "[1 mark] Example(s) of action, e.g. adrenaline (adrenal) in emergency, insulin (pancreas) lowers blood sugar",
+   "[1 mark] Timing and amount regulated by feedback mechanism (e.g. blood sugar–insulin)"
+  ]
+ },
+ {
+  "id": "S-HER-2",
+  "verdict": "ok",
+  "answer": "Law of dominance: When a pair of contrasting traits (alleles) is present together in an individual, only one of them expresses itself in the F1 generation; it is called the dominant trait, while the other, which remains hidden, is the recessive trait.\nExample: When a pure tall pea plant (TT) is crossed with a pure dwarf pea plant (tt), all F1 plants are tall (Tt). Tallness is dominant and dwarfness is recessive.",
+  "finalAnswer": "Only the dominant trait appears in F1; e.g. TT × tt gives all tall (Tt)",
+  "solutionSteps": [
+   "[1 mark] Statement: of a pair of contrasting traits, only the dominant one is expressed in F1; the recessive one is masked",
+   "[1 mark] Example: pure tall (TT) × pure dwarf (tt) pea plants → all F1 tall (Tt)"
+  ]
+ },
+ {
+  "id": "S-LIGHT-3",
+  "verdict": "ok",
+  "answer": "Mirror formula: 1/v + 1/u = 1/f\nwhere u = object distance (distance of object from the pole of the mirror), v = image distance (distance of image from the pole), f = focal length of the mirror. All distances are measured from the pole and take signs according to the New Cartesian sign convention.",
+  "finalAnswer": "1/v + 1/u = 1/f",
+  "solutionSteps": [
+   "[1 mark] Mirror formula: 1/v + 1/u = 1/f",
+   "[1 mark] u = object distance, v = image distance, f = focal length, all measured from the pole (New Cartesian sign convention)"
+  ]
+ },
+ {
+  "id": "S-EYE-3",
+  "verdict": "ok",
+  "answer": "Myopia (near-sightedness) is a defect of vision in which a person can see nearby objects clearly but cannot see distant objects distinctly; the image of a distant object is formed in front of the retina (far point is less than infinity).\nCauses: (i) excessive curvature of the eye lens, (ii) elongation of the eyeball.\nCorrection: by using a concave (diverging) lens of suitable power, which brings the image back onto the retina.",
+  "finalAnswer": "Near-sightedness; caused by excessive curvature of eye lens/elongated eyeball; corrected by concave lens",
+  "solutionSteps": [
+   "[1 mark] Myopia: near objects seen clearly, distant objects not; image forms in front of retina",
+   "[1 mark] Cause: excessive curvature of eye lens or elongation of eyeball",
+   "[1 mark] Correction: concave lens of suitable power"
+  ]
+ },
+ {
+  "id": "S-MAG-4",
+  "verdict": "ok",
+  "answer": "The magnetic field produced by a current-carrying solenoid depends on: (i) the number of turns in the solenoid — more turns, stronger field; (ii) the strength of current flowing through it — larger current, stronger field. (Also on the nature of core material, e.g. a soft iron core increases the field.)",
+  "finalAnswer": "Number of turns and magnitude of current",
+  "solutionSteps": [
+   "[1 mark] Number of turns of the coil — field increases with number of turns",
+   "[1 mark] Strength of current — field increases with current"
+  ]
+ },
+ {
+  "id": "S-ENV-7",
+  "verdict": "ok",
+  "answer": "Non-biodegradable pesticides are not broken down by decomposers. When sprayed on crops, they are washed into the soil and water bodies, and are absorbed by plants (producers) along with water and minerals. From plants they enter the food chain. Since they cannot be degraded or excreted, they accumulate progressively at each trophic level. This increase in concentration of harmful chemicals at successive trophic levels is called biological magnification. Organisms at the top of the food chain (e.g. human beings) therefore get the maximum concentration, which harms their health.",
+  "finalAnswer": "They accumulate and increase at each trophic level — biological magnification",
+  "solutionSteps": [
+   "[1 mark] Pesticides are non-biodegradable; they reach soil and water and are absorbed by plants",
+   "[1 mark] They enter the food chain and accumulate at each trophic level as they cannot be degraded",
+   "[1 mark] Biological magnification — maximum concentration in top consumers such as humans"
+  ]
+ },
+ {
+  "id": "M-REAL-8",
+  "verdict": "ok",
+  "answer": "For two numbers, HCF × LCM = product of the numbers.\nLCM = 1458 / 9 = 162.\nVerification: HCF × LCM = 9 × 162 = 1458 = product of the numbers. Verified.",
+  "finalAnswer": "LCM = 162",
+  "solutionSteps": [
+   "[1 mark] Using HCF × LCM = product: LCM = 1458/9 = 162",
+   "[1 mark] Verification: 9 × 162 = 1458 = product"
+  ],
+  "note": "questionType says MCQ but no options are given; answered as a 2-mark subjective item."
+ },
+ {
+  "id": "M-POLY-8",
+  "verdict": "ok",
+  "answer": "The polynomial has two distinct real zeroes. Reason: the zeroes of a polynomial p(x) are the x-coordinates of the points where the graph of y = p(x) intersects the x-axis (there y = p(x) = 0). Since the graph cuts the x-axis at two distinct points, there are exactly two distinct real zeroes.",
+  "finalAnswer": "Two distinct real zeroes",
+  "solutionSteps": [
+   "[1 mark] The quadratic polynomial has two distinct real zeroes",
+   "[1 mark] Reason: zeroes are the x-coordinates of points where y = p(x) meets the x-axis"
+  ]
+ },
+ {
+  "id": "M-PLE-9",
+  "verdict": "ok",
+  "answer": "2x − 3y = 8 → points: (4, 0), (1, −2), (−2, −4).\n4x − 6y = 16 → points: (4, 0), (1, −2), (−2, −4).\nBoth equations give the same points, so on plotting, the two lines coincide. (Check: a1/a2 = 2/4 = 1/2, b1/b2 = −3/−6 = 1/2, c1/c2 = 8/16 = 1/2.)\nHence the pair has infinitely many solutions (consistent, dependent).",
+  "finalAnswer": "Coincident lines — infinitely many solutions",
+  "solutionSteps": [
+   "[1 mark] Tables of values: both lines pass through (4, 0), (1, −2), (−2, −4); plotted lines coincide",
+   "[1 mark] Coincident lines ⇒ infinitely many solutions"
+  ]
+ },
+ {
+  "id": "M-QUAD-9",
+  "verdict": "ok",
+  "answer": "Let the roots be α and 2α.\nSum of roots: α + 2α = 3α = −m/2 ⇒ α = −m/6.\nProduct of roots: α·2α = 2α² = 3/2 ⇒ α² = 3/4.\nSubstituting α = −m/6: 2(m²/36) = 3/2 ⇒ m²/18 = 3/2 ⇒ m² = 27 ⇒ m = ±3√3.",
+  "finalAnswer": "m = ±3√3",
+  "solutionSteps": [
+   "[1 mark] Let roots be α, 2α; sum 3α = −m/2",
+   "[1 mark] Product 2α² = 3/2 ⇒ α² = 3/4",
+   "[1 mark] Eliminating α: m² = 27 ⇒ m = ±3√3"
+  ]
+ },
+ {
+  "id": "M-AP-9",
+  "verdict": "unanswerable",
+  "answer": "",
+  "finalAnswer": "",
+  "solutionSteps": [],
+  "note": "a = 6, d = 4: S_n = n/2[12 + 4(n − 1)] = 2n² + 4n. 2n² + 4n = 136 ⇒ n² + 2n − 68 = 0, discriminant 276 is not a perfect square, so no natural n exists (S_7 = 126, S_8 = 160). Data as written are inconsistent; the target sum needs correction (e.g. 126 → n = 7, 160 → n = 8)."
+ },
+ {
+  "id": "M-CG-8",
+  "verdict": "ok",
+  "answer": "PA = PB ⇒ PA² = PB².\nPA² = (x − 2)² + (4 − 3)² = x² − 4x + 4 + 1 = x² − 4x + 5.\nPB² = (x − 6)² + (4 − 7)² = x² − 12x + 36 + 9 = x² − 12x + 45.\nx² − 4x + 5 = x² − 12x + 45 ⇒ 8x = 40 ⇒ x = 5.",
+  "finalAnswer": "x = 5",
+  "solutionSteps": [
+   "[1 mark] PA = PB ⇒ PA² = PB² using distance formula",
+   "[1 mark] (x − 2)² + 1 = (x − 6)² + 9 ⇒ x² − 4x + 5 = x² − 12x + 45",
+   "[1 mark] 8x = 40 ⇒ x = 5"
+  ]
+ },
+ {
+  "id": "M-TRIG-10",
+  "verdict": "ok",
+  "answer": "sin 30° = 1/2, cos 45° = 1/√2, tan 45° = 1, sin 60° = cos 30° = √3/2.\nsin²30° + cos²45° + tan²45° − 2 sin 60° cos 30°\n= 1/4 + 1/2 + 1 − 2(√3/2)(√3/2)\n= 7/4 − 3/2 = 1/4.",
+  "finalAnswer": "1/4",
+  "solutionSteps": [
+   "[1 mark] Values: sin 30° = 1/2, cos 45° = 1/√2, tan 45° = 1, sin 60° = cos 30° = √3/2",
+   "[1 mark] Substitution: 1/4 + 1/2 + 1 − 2 × (3/4)",
+   "[1 mark] = 7/4 − 3/2 = 1/4"
+  ]
+ },
+ {
+  "id": "M-APPTRIG-10",
+  "verdict": "ok",
+  "answer": "Let AB = h m be the tower, with persons at C and D on opposite sides, ∠ACB = 45°, ∠ADB = 60°, CD = 40 m.\nIn △ABC: tan 45° = h/BC ⇒ BC = h.\nIn △ABD: tan 60° = h/BD ⇒ BD = h/√3.\nBC + BD = 40 ⇒ h + h/√3 = 40 ⇒ h(√3 + 1)/√3 = 40\n⇒ h = 40√3/(√3 + 1) = 40√3(√3 − 1)/2 = 20(3 − √3) = 60 − 20√3 ≈ 25.36 m.",
+  "finalAnswer": "h = 20(3 − √3) m ≈ 25.36 m",
+  "solutionSteps": [
+   "[1 mark] Figure/setup: tower AB = h, persons at C and D on opposite sides, BC + BD = 40 m",
+   "[1 mark] tan 45° = h/BC ⇒ BC = h",
+   "[1 mark] tan 60° = h/BD ⇒ BD = h/√3; h + h/√3 = 40",
+   "[1 mark] h = 40√3/(√3 + 1) = 20(3 − √3) m ≈ 25.36 m"
+  ]
+ },
+ {
+  "id": "M-ARC-1",
+  "verdict": "ok",
+  "answer": "Area = πr² = (22/7) × 7 × 7 = 154 cm².",
+  "finalAnswer": "154 cm²",
+  "solutionSteps": [
+   "[1 mark] Area = πr² = (22/7) × 49 = 154 cm²"
+  ]
+ },
+ {
+  "id": "M-SAV-1",
+  "verdict": "ok",
+  "answer": "TSA of cube = 6a² = 6 × 5² = 6 × 25 = 150 cm².",
+  "finalAnswer": "150 cm²",
+  "solutionSteps": [
+   "[1 mark] TSA of cube = 6a²",
+   "[1 mark] = 6 × 25 = 150 cm²"
+  ]
+ },
+ {
+  "id": "M-STAT-2",
+  "verdict": "ok",
+  "answer": "Mean = sum of observations / number of observations = (6 + 8 + 10 + 14 + 12)/5 = 50/5 = 10.",
+  "finalAnswer": "10",
+  "solutionSteps": [
+   "[1 mark] Sum of observations = 50, number of observations = 5",
+   "[1 mark] Mean = 50/5 = 10"
+  ]
+ },
+ {
+  "id": "M-PROB-2",
+  "verdict": "ok",
+  "answer": "Possible outcomes: {H, T} = 2; favourable outcome (tail) = 1. P(tail) = 1/2.",
+  "finalAnswer": "1/2",
+  "solutionSteps": [
+   "[1 mark] P(tail) = 1/2 (one favourable out of two equally likely outcomes)"
+  ]
+ }
+]

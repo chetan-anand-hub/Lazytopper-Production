@@ -1,0 +1,291 @@
+[
+ {
+  "id": "SCO-S-HERED-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "TT × tt",
+    "Tt × tt",
+    "Tt × TT",
+    "tt × tt"
+   ],
+   "answer": "Tt × tt",
+   "finalAnswer": "(b) Tt × tt",
+   "solutionSteps": [
+    "Correct option is (b) Tt × tt — a test cross crosses an individual showing the dominant trait (here heterozygous Tt) with the homozygous recessive (tt) to reveal its genotype."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Cross symbol garbled as '#'; restored '×' in options/answer and added justification. Key unchanged."
+ },
+ {
+  "id": "SCO-S-HERED-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Genetics is the study of —",
+   "solutionSteps": [
+    "Correct option is (a) Inheritance — genetics is the study of heredity, i.e. how traits are inherited, and of variation."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem garble 'Genetic s ... of-' cleaned to 'Genetics is the study of —'; added justification. Key unchanged."
+ },
+ {
+  "id": "SCO-S-HERED-013",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The genotypes of the offspring formed from the cross Tt × tt will be —",
+   "solutionSteps": [
+    "Correct option is (b) Tt and tt — Tt gives gametes T and t, tt gives only t, so the offspring are Tt and tt in a 1 : 1 ratio."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Misplaced '#' cross symbol restored: 'Tt × tt'. Tt×tt → Tt, tt (1:1); key (b) correct."
+ },
+ {
+  "id": "SCO-S-HERED-020",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Correct option is (c) 50% dominant, 50% recessive.",
+    "Let aa be the recessive homozygote and Aa the heterozygote. Aa gives gametes A and a; aa gives only a. Offspring: Aa and aa in a 1 : 1 ratio, i.e. 50% show the dominant trait and 50% the recessive trait."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed page header 'Chap 9 : Heredity and Evolution' and the dangling 'shown below' reference; wrote out the cross inline. Key unchanged."
+ },
+ {
+  "id": "SCQ-S-HERED-036",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(a) Mendel, working on the garden pea (Pisum sativum), found that traits are controlled by 'factors' (now called genes) present in pairs, one inherited from each parent. (b) Of a pair of contrasting traits, one is dominant and expresses itself, while the other is recessive and is masked in the hybrid (F1) — Law of Dominance. (c) The two factors of a pair separate (segregate) during gamete formation, so each gamete carries only one factor; they recombine at fertilisation — Law of Segregation (and with two traits, they assort independently — Law of Independent Assortment).",
+   "solutionSteps": [
+    "[1 mark] Traits are controlled by factors (genes) that occur in pairs; one factor of each pair is inherited from each parent.",
+    "[1 mark] Dominance: of two contrasting factors, one (dominant) is expressed in the F1 and the other (recessive) is masked.",
+    "[1 mark] Segregation: the paired factors separate during gamete formation so each gamete gets only one, and they recombine at fertilisation; for two traits they assort independently."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer/steps were truncated mid-word with the third point missing; rewrote a complete 3-point CBSE answer (factors in pairs, dominance, segregation/independent assortment) with [1 mark] steps."
+ },
+ {
+  "id": "SCQ-S-HERED-043",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Part (a) 'Fill in the boxes' depends on a cross diagram not present in the text; boxes cannot be answered without inventing the figure."
+ },
+ {
+  "id": "HE2-023",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A couple has three children: two boys and one girl. They want to know the probability of their next child being a boy. The woman says, 'Since we have had two boys, the next child is more likely to be a girl to balance the ratio.' The man says, 'Each child has an equal 50% chance of being a boy or a girl, regardless of previous children.'\n\n(i) Who is correct — the man or the woman? (1)\n(ii) What is the probability that their next child will be a boy? (1)\n(iii) With the help of a cross between the sex chromosomes of the parents, explain why each child has an equal chance of being a boy or a girl. (2)",
+   "solutionSteps": [
+    "(i) [1 mark] The man is correct: the sex of each child is decided independently at fertilisation; previous children do not affect the next one.",
+    "(ii) [1 mark] Probability of a boy = 1/2 = 50%.",
+    "(iii) [1 mark] Cross: mother (XX) × father (XY). The mother's eggs all carry X; the father produces two kinds of sperm in equal numbers — half with X, half with Y.",
+    "(iii) [1 mark] X-sperm + X-egg → XX (girl); Y-sperm + X-egg → XY (boy). Offspring XX : XY = 1 : 1, so every child has a 50% chance of being a boy, independent of earlier children."
+   ],
+   "answer": "(i) The man (each birth is independent) (ii) 1/2 or 50% (iii) XX × XY gives XX : XY = 1 : 1 because the father produces X- and Y-sperm in equal numbers.",
+   "finalAnswer": "(i) The man (each birth is independent) (ii) 1/2 or 50% (iii) XX × XY gives XX : XY = 1 : 1 because the father produces X- and Y-sperm in equal numbers."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Case had 'Question 1/2/3' without (i)(ii)(iii) structure or marks; restructured into a proper Section-E case (1+1+2) with step-marked solution. Answers unchanged in substance."
+ },
+ {
+  "id": "SCQ-S-HERED-042",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Asks to identify male/female 'in the figures' and fill blanks 3 to 8 that exist only in the absent figure; cannot be answered from text."
+ },
+ {
+  "id": "sci-he-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "(a) [1 mark] TT × tt: gametes T and t → F₁ all Tt (heterozygous); phenotype: all tall.",
+    "(b) [1 mark] Tt × Tt: gametes T, t from each parent → Punnett square gives TT, Tt, Tt, tt.",
+    "(c) [1 mark] Phenotypic ratio in F₂ = 3 tall : 1 dwarf (genotypic 1 TT : 2 Tt : 1 tt).",
+    "(d) [1 mark] Law of Dominance (tall masks dwarf in F₁) and Law of Segregation (T and t separate in gametes and reappear in F₂)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Missing marking scheme; added 4 one-mark solutionSteps matching parts (a)-(d). Answer unchanged and correct."
+ },
+ {
+  "id": "sci-hered-comp-02",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "(a) [1 mark] TT × tt → all F₁ are Tt; phenotype: all tall (heterozygous tall).",
+    "(b) [1 mark] Tt × Tt → TT : Tt : tt = 1 : 2 : 1; phenotypic ratio 3 tall : 1 dwarf.",
+    "(c) [1 mark] Tall is dominant (expressed in F₁); dwarf is recessive (masked in F₁, reappears in F₂).",
+    "(d) [1 mark] Homozygous tall (TT) = 1 of 4 F₂ plants = 25%."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Missing marking scheme; added 4 one-mark solutionSteps for parts (a)-(d). Answers unchanged and correct."
+ },
+ {
+  "id": "HE-H04",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "limit",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "X-linked colour-blindness inheritance (carriers, sex-linked crosses) is beyond the 'sex determination: brief introduction' limit; not naturally repairable without discarding the whole case."
+ },
+ {
+  "id": "HE2-019",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "limit",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "ZW sex determination in birds is outside NCERT/CBSE scope (human XY only); repairing to humans would just duplicate standard items."
+ },
+ {
+  "id": "HE2-040",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "limit",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "X-linked recessive carrier cross is sex-linked inheritance, beyond the 2026-27 sex-determination limit; also an MCQ mistagged 2 marks."
+ },
+ {
+  "id": "HE2-044",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Explain Mendel's Law of Independent Assortment using a dihybrid cross between a pea plant with round, yellow seeds (RRYY) and one with wrinkled, green seeds (rryy). Round (R) is dominant over wrinkled (r) and yellow (Y) is dominant over green (y). Give the F₁ result, the gametes formed by F₁, the F₂ phenotypes with their ratio, and explain how this ratio shows independent assortment.",
+   "section": "D",
+   "marks": 5,
+   "format": "Long",
+   "answer": "F₁ all RrYy (round, yellow); F₁ gametes RY, Ry, rY, ry; F₂ = 9 round yellow : 3 round green : 3 wrinkled yellow : 1 wrinkled green. New combinations (round green, wrinkled yellow) show the two traits are inherited independently.",
+   "finalAnswer": "F₂ ratio 9 : 3 : 3 : 1 (round yellow : round green : wrinkled yellow : wrinkled green) — new combinations prove independent assortment.",
+   "solutionSteps": [
+    "[1 mark] Law: when two pairs of traits are crossed, the factors of each pair are inherited independently of the other pair during gamete formation.",
+    "[1 mark] Parents RRYY (round, yellow) × rryy (wrinkled, green) → F₁ all RrYy (round, yellow).",
+    "[1 mark] F₁ selfed (RrYy × RrYy): each F₁ plant forms four kinds of gametes RY, Ry, rY, ry in equal numbers; a 4 × 4 Punnett square gives 16 combinations.",
+    "[1 mark] F₂ phenotypes: 9 round yellow : 3 round green : 3 wrinkled yellow : 1 wrinkled green.",
+    "[1 mark] Besides the parental types, new combinations (round green and wrinkled yellow) appear; each trait still separately shows 3 : 1 (12 round : 4 wrinkled; 12 yellow : 4 green), proving the two traits assort independently."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Dropped out-of-syllabus linkage part; retagged 1-mark A to 5-mark Section D Long; used R/Y notation consistent with seed traits; 5 step-marked points."
+ },
+ {
+  "id": "SCO-S-HERED-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "limit",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Sex-linked (X-linked) eye-colour inheritance in Drosophila exceeds the 2026-27 'sex determination: brief introduction' limit; sourced (not authored)."
+ },
+ {
+  "id": "SCO-S-HERED-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Origin-of-life/early-atmosphere item belongs to evolution content excluded in 2026-27; not heredity."
+ },
+ {
+  "id": "SCO-S-HERED-009",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Classification/taxonomy item belongs to the Evolution & classification portion excluded from 2026-27 board assessment."
+ },
+ {
+  "id": "SCO-S-HERED-019",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Human/primate evolution item; evolution is excluded from the 2026-27 board syllabus."
+ },
+ {
+  "id": "HERED-EXMPLR-8-LA-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Study the following cross showing self-pollination in F1, fill in the blank and answer the questions that follow.\nParents: RRYY × rryy (Round, yellow × Wrinkled, green)\nF1: RrYy (Round, yellow) × ?\n(a) Fill in the blank.\n(b) Which combinations of characters appear in the F2 progeny, and in what ratio?\n(c) Why do new combinations of characters appear in F2?",
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "answer": "(a) RrYy (F1 selfed). (b) Round yellow : Round green : Wrinkled yellow : Wrinkled green = 9 : 3 : 3 : 1. (c) The two pairs of characters (seed shape and colour) are inherited independently, so R/r and Y/y recombine freely in gametes (RY, Ry, rY, ry), giving new combinations.",
+   "finalAnswer": "(a) RrYy (b) 9 round yellow : 3 round green : 3 wrinkled yellow : 1 wrinkled green (c) Independent inheritance of the two traits.",
+   "solutionSteps": [
+    "[1 mark] (a) Self-pollination means F1 is crossed with itself, so the blank is RrYy.",
+    "[1 mark] (b) RrYy × RrYy gives F2: round yellow 9 : round green 3 : wrinkled yellow 3 : wrinkled green 1.",
+    "[1 mark] (c) Each F1 plant forms four gametes RY, Ry, rY, ry because the two traits are inherited independently; their random fusion produces new combinations (round green, wrinkled yellow)."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Stem said 'answer the question that follows' but no question followed; restored the exemplar's follow-up parts and retagged 5-mark D to 3-mark Section C with step marking."
+ },
+ {
+  "id": "PYQ-S-2024-REPR-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Correct option is (a) Sugarcane, roses, grapes — these are commonly raised by stem cuttings/layering (vegetative propagation); mustard, papaya and orange are normally grown from seeds."
+   ],
+   "finalAnswer": "(a) Sugarcane, roses, grapes"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Steps/finalAnswer contained marking-scheme boilerplate; replaced with the actual answer and justification. Key unchanged."
+ }
+]

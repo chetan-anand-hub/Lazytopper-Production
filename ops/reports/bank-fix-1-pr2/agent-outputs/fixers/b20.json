@@ -1,0 +1,287 @@
+[
+ {
+  "id": "SCO-S-EYE-016",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Spherical aberration is not in the 2026-27 Class 10 Human Eye syllabus; stem is also vague. Non-authored source row."
+ },
+ {
+  "id": "SCO-S-EYE-018",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Fraunhofer lines / absorption spectra are not in the 2026-27 Class 10 syllabus. Non-authored source row."
+ },
+ {
+  "id": "SCO-S-LIGHT-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Atmospheric heat absorption of morning sun is not Class 10 content and borders on the excluded sunrise/sunset topic; option 'It is God gift' is also unserviceable. Non-authored row."
+ },
+ {
+  "id": "HEC2-047",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 5,
+   "section": "D",
+   "answer": "(i) Presbyopia — the eye lens loses flexibility and ciliary muscles weaken with age, so the near point recedes. (ii) Convex lens reading glasses, or bifocal/progressive lenses. (iii) A pilot must read near instruments and see far outside, so both ranges must be clear. (iv) P = +2 D. (v) Yes — bifocal/progressive lenses (upper part for distance, lower convex +2 D part for near) give clear vision at all distances.",
+   "finalAnswer": "Presbyopia; corrected by convex (bifocal/progressive) lenses; required power = +2 D (convex lens of focal length 50 cm).",
+   "solutionSteps": [
+    "[1 mark] (i) The defect is presbyopia. With age the eye lens loses its flexibility and the ciliary muscles weaken, so the eye cannot accommodate for near objects; the near point recedes while distant vision stays normal.",
+    "[1 mark] (ii) A convex lens of suitable power (reading glasses), or bifocal/progressive lenses: upper part for distant vision, lower convex part for near vision.",
+    "[1 mark] (iii) As a pilot he must read nearby cockpit instruments and also watch distant objects outside; uncorrected presbyopia could make instrument reading unreliable, so his correction must give clear near and far vision.",
+    "[1 mark] (iv) Object at u = −25 cm must form a virtual image at the near point v = −50 cm. 1/f = 1/v − 1/u = −1/50 + 1/25 = +1/50 cm⁻¹, so f = +50 cm = +0.5 m and P = 1/f = +2 D (convex lens).",
+    "[1 mark] (v) Since his distant vision is normal, no correction (or very weak) is needed in the upper part; bifocal or progressive lenses with +2 D in the lower part let him see clearly at all distances, which suits his profession."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Five-part long question re-tagged 5 marks / Section D; missing step (iv) power calculation added (+2 D); steps now [1 mark] x5."
+ },
+ {
+  "id": "APQ-S-LIFE-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are graphs P/Q/R/S not described anywhere in the row; cannot be answered without the figure."
+ },
+ {
+  "id": "APQ-S-LIFE-012",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "All parts rely on chamber numbers 6-9 and structure 12 of a heart diagram that is not provided or described."
+ },
+ {
+  "id": "CFPQ-S-LIFE-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A labelled diagram of a nephron shows: P — the incoming arteriole carrying blood to the nephron; Q — the knot of capillaries (glomerulus) inside the cup-shaped Bowman's capsule; R — the long coiled tubule; S — the straight collecting duct.\n\nWhich option correctly shows where filtration and selective reabsorption occur?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Row carries its own diagramDescription; labels P-S embedded into the stem so it is self-contained. Key unchanged (filtration Q, reabsorption R)."
+ },
+ {
+  "id": "LIFE-EXMPLR-5-LONG-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (1) Ingestion: Amoeba (unicellular, holozoic heterotroph) puts out pseudopodia (finger-like projections) that surround and engulf the food particle, forming a food vacuole.",
+    "[1 mark] (2) Digestion: digestive enzymes from the cytoplasm enter the food vacuole and break complex food into simple, soluble molecules.",
+    "[1 mark] (3) Absorption: the simple digested molecules diffuse out of the food vacuole into the cytoplasm.",
+    "[1 mark] (4) Assimilation: the absorbed nutrients are used by the cell to obtain energy and for growth and repair.",
+    "[1 mark] (5) Egestion: the undigested residue is moved to the cell surface and thrown out when the vacuole ruptures there."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer is complete as served; filler 6th step removed and steps re-marked 1 mark each across the five stages (sum 5)."
+ },
+ {
+  "id": "PYQ-S-2024-LIFEP-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "finalAnswer": "(b) (i) Amino acids, (ii) glucose, (iii) fatty acids and glycerol",
+   "solutionSteps": [
+    "[1 mark] Correct option: (b). At the end of digestion proteins are broken down into amino acids, carbohydrates into glucose, and fats into fatty acids and glycerol."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Evaluator-instruction boilerplate replaced with the real answer and explanation; key (b) unchanged."
+ },
+ {
+  "id": "PYQ-S-2024-LIFEP-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "finalAnswer": "(d) Translocation",
+   "solutionSteps": [
+    "[1 mark] Correct option: (d) Translocation — the transport of soluble products of photosynthesis (e.g. sucrose) from leaves to other parts of the plant through phloem."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Evaluator boilerplate replaced with answer (d) Translocation and a one-line justification."
+ },
+ {
+  "id": "PYQ-S-2024-LIFEP-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "finalAnswer": "(a) Nose",
+   "solutionSteps": [
+    "[1 mark] Correct option: (a) Nose — olfactory receptors detect smell and are located in the inner lining of the nose."
+   ],
+   "topicKey": "control-and-coordination",
+   "subtopic": "Receptors"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Marking-scheme residue replaced with answer (a) Nose; olfactory receptors are taught under receptors in Control and Coordination, so topicKey moved."
+ },
+ {
+  "id": "PYQ-S-2024-LIFEP-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "We need to water the soil in plants on a regular basis. But it ultimately reaches the leaves of the plant. Explain how this takes place.",
+   "subtopic": "Transportation in Plants",
+   "answer": "Water absorbed by the roots moves up through the continuous xylem vessels of root, stem and leaves. Loss of water vapour through stomata of leaves (transpiration) creates a suction force, the transpiration pull, which pulls the water column up from the roots to the leaves.",
+   "finalAnswer": "Water rises through xylem from roots to leaves, pulled up by the transpiration pull created by loss of water vapour through the stomata.",
+   "solutionSteps": [
+    "[1 mark] Roots absorb water from the soil; it moves up through the interconnected xylem vessels of root, stem and leaves.",
+    "[1 mark] Evaporation of water through stomata of leaves (transpiration) creates a suction force (transpiration pull) that pulls the water column up to the leaves."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Merged OR alternatives split: kept alternative (a) (water transport via transpiration pull) as a clean 2-mark question; stray '2 OR (b)...' removed; answer/steps rewritten to sum to 2."
+ },
+ {
+  "id": "PYQ-S-2026-LIFEP-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Pravin was given a list of characteristics associated with the process of anaerobic respiration in humans:\n(i) Location — Muscle cell\n(ii) Condition — Requires presence of oxygen (O2) and carbon dioxide (CO2)\n(iii) End product — 3-carbon molecules\nWhich of the above characteristics is/are related to this process?",
+   "solutionSteps": [
+    "[1 mark] Correct option: (b) (i) and (iii). Anaerobic respiration occurs in muscle cells during lack of oxygen and converts pyruvate into lactic acid, a 3-carbon molecule; it does not require oxygen, so (ii) is wrong."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Flattened table rewritten as a readable list in the stem; key (b) unchanged (lactic acid is a 3-carbon molecule formed in muscle cells; no O2 needed)."
+ },
+ {
+  "id": "PYQ-S-2026-LIFEP-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Identify the part that controls the closing and opening of the stomatal pore in leaves of plants. Select the correct option."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray mark figure '1' removed from the stem."
+ },
+ {
+  "id": "PYQ-S-LIFE-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Asks to identify cells I-IV in a diagram that is not provided or described; option (d) also garbled."
+ },
+ {
+  "id": "PYQ-S-LIFE-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "finalAnswer": "(b) transpiration and temperature regulation.",
+   "solutionSteps": [
+    "[1 mark] Correct option: (b). Loss of water vapour from aerial parts is transpiration (X); evaporation of this water cools the plant, helping in temperature regulation (Y)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Marking-scheme residue 'b) 1 1' replaced with answer (b) and a justification."
+ },
+ {
+  "id": "PYQ-S-LIFE-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "finalAnswer": "(b) faster because the amount of dissolved oxygen in water is fairly low.",
+   "solutionSteps": [
+    "[1 mark] Correct option: (b). The amount of oxygen dissolved in water is much lower than in air, so aquatic organisms must breathe faster to obtain enough oxygen."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Marking-scheme residue replaced with answer (b) and justification."
+ },
+ {
+  "id": "PYQ-S-LIFE-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "finalAnswer": "(c) tongue",
+   "solutionSteps": [
+    "[1 mark] Correct option: (c) tongue — gustatory receptors detect taste and are present in the taste buds of the tongue."
+   ],
+   "topicKey": "control-and-coordination",
+   "subtopic": "Receptors"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Residue 'c) 1 1' replaced with answer (c) tongue; gustatory receptors belong to Control and Coordination (receptors), topicKey moved."
+ },
+ {
+  "id": "SCO-S-LIFE-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Asks which numbered cells (1-4) of a leaf diagram contain chloroplasts; diagram neither provided nor described."
+ },
+ {
+  "id": "SCO-S-LIFE-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "Epidermis",
+    "Stomata",
+    "Cortex",
+    "Guard cell"
+   ],
+   "answer": "Stomata",
+   "finalAnswer": "(b) Stomata",
+   "solutionSteps": [
+    "[0.5 mark] Correct option is (b) Stomata.",
+    "[0.5 mark] The oxygen gas produced during photosynthesis is released into the surroundings through the stomata."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Watermark text stripped from option (b), answer, steps and finalAnswer; key (b) Stomata unchanged."
+ }
+]

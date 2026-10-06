@@ -1,0 +1,326 @@
+[
+ {
+  "id": "PYQ-S-2024-ELEC-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Study the following circuit: between points A and B, resistors of 4 Ω, 6 Ω and 16 Ω are connected in series; between points B and C, two 8 Ω resistors are connected in parallel. A 6 V battery and a key are connected across A and C. On the basis of this circuit, answer the following questions: (a) Find the value of the total resistance between the points A and B. (b) Find the resistance between the points B and C. (c) (i) Calculate the current drawn from the battery when the key is closed. OR (c) (ii) In the above circuit, which of the two — the 16 Ω resistor or the parallel combination of the two 8 Ω resistors — will have more potential difference across its two ends? Justify your answer.",
+   "answer": "(a) 26 Ω (b) 4 Ω (c)(i) I = 6 V/30 Ω = 0.2 A. OR (c)(ii) The 16 Ω resistor: the same current (0.2 A) flows through both, and by Ohm's law (V = IR) the larger resistance has the larger potential difference — 0.2 × 16 = 3.2 V across 16 Ω versus 0.2 × 4 = 0.8 V across the parallel pair.",
+   "finalAnswer": "(a) 26 Ω (b) 4 Ω (c)(i) I = 6 V/30 Ω = 0.2 A. OR (c)(ii) The 16 Ω resistor: the same current (0.2 A) flows through both, and by Ohm's law (V = IR) the larger resistance has the larger potential difference — 0.2 × 16 = 3.2 V across 16 Ω versus 0.2 × 4 = 0.8 V across the parallel pair.",
+   "solutionSteps": [
+    "[1 mark] (a) Series: R_AB = 4 Ω + 6 Ω + 16 Ω = 26 Ω.",
+    "[1 mark] (b) Parallel: 1/R_BC = 1/8 + 1/8 = 1/4 ⇒ R_BC = 4 Ω.",
+    "[2 marks] (c)(i) Total resistance R = 26 Ω + 4 Ω = 30 Ω; I = V/R = 6 V / 30 Ω = 0.2 A. OR (c)(ii) The 16 Ω resistor. The 16 Ω resistor and the parallel pair are in series, so the same current 0.2 A flows through both; by Ohm's law V = IR, V(16 Ω) = 0.2 × 16 = 3.2 V while V(parallel pair) = 0.2 × 4 = 0.8 V."
+   ],
+   "subtopic": "Combination of Resistors"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Circuit values fully recoverable from the row's own marking scheme (4+6+16 series, 8||8, 6 V); described circuit in text, restored Ω symbols, removed mark residue, rewrote garbled steps covering all parts (1+1+2)."
+ },
+ {
+  "id": "PYQ-S-2025-ELEC-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Consider the following electric circuit: a 10 Ω resistor and a 15 Ω resistor are connected in parallel; this combination is connected in series with a parallel combination of a 60 Ω resistor and a 40 Ω resistor, and the whole arrangement is connected across a 15 V source. Calculate the values of the following: (a) The total resistance of the circuit (b) The total current drawn from the source (c) Potential difference across the parallel combination of the 10 Ω and 15 Ω resistors",
+   "answer": "(a) 10 Ω ∥ 15 Ω = 6 Ω; 60 Ω ∥ 40 Ω = 24 Ω; total R = 6 + 24 = 30 Ω (b) I = 15 V/30 Ω = 0.5 A (c) V = 0.5 A × 6 Ω = 3.0 V",
+   "finalAnswer": "(a) 10 Ω ∥ 15 Ω = 6 Ω; 60 Ω ∥ 40 Ω = 24 Ω; total R = 6 + 24 = 30 Ω (b) I = 15 V/30 Ω = 0.5 A (c) V = 0.5 A × 6 Ω = 3.0 V",
+   "solutionSteps": [
+    "[1 mark] (a) 1/R₁ = 1/10 + 1/15 = 1/6 ⇒ R₁ = 6 Ω; 1/R₂ = 1/60 + 1/40 = 5/120 ⇒ R₂ = 24 Ω; R₁ and R₂ are in series ⇒ R_total = 6 + 24 = 30 Ω.",
+    "[1 mark] (b) I = V/R = 15 V / 30 Ω = 0.5 A.",
+    "[1 mark] (c) V₁ = I R₁ = 0.5 A × 6 Ω = 3.0 V."
+   ],
+   "subtopic": "Combination of Resistors"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Circuit (10∥15 in series with 60∥40, 15 V) recovered from the row's own scheme; described in stem, restored Ω, rewrote garbled answer with all three parts."
+ },
+ {
+  "id": "PYQ-S-2026-ELEC-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A person was repairing an electric heater. He observed that there were three different connecting wires of three different colours in the cable attached to the heater. (i) What are these three different wires called? Name them colourwise. (ii) What is the value of the standard potential difference at which electricity is supplied in Indian homes for lighting? (iii) What is the role of (I) earthing and (II) fuse in domestic electric circuits?",
+   "answer": "(i) Live wire – red; neutral wire – black; earth wire – green. (ii) 220 V. (iii) (I) Earthing provides a low-resistance conducting path to the earth for any current leaking to the metallic body of an appliance, keeping the body at earth potential and protecting the user from electric shock. (II) A fuse is a safety device that melts and breaks the circuit when an unduly high current flows (overloading/short-circuit), preventing damage to appliances and the circuit.",
+   "finalAnswer": "(i) Live wire – red; neutral wire – black; earth wire – green. (ii) 220 V. (iii) (I) Earthing provides a low-resistance conducting path to the earth for any current leaking to the metallic body of an appliance, keeping the body at earth potential and protecting the user from electric shock. (II) A fuse is a safety device that melts and breaks the circuit when an unduly high current flows (overloading/short-circuit), preventing damage to appliances and the circuit.",
+   "solutionSteps": [
+    "[1.5 marks] (i) Live wire – red insulation; neutral wire – black insulation; earth wire – green insulation (½ mark each).",
+    "[0.5 mark] (ii) 220 V.",
+    "[1.5 marks] (iii) (I) Earthing: the earth wire provides a low-resistance conducting path for any current leaking to the metallic body of an appliance, keeping the body at the potential of the earth, so the user does not get a severe electric shock.",
+    "[1.5 marks] (II) Fuse: a safety device in series with the circuit whose wire melts and breaks the circuit when an unduly high current flows due to overloading or short-circuiting, preventing damage to the appliances and the circuit."
+   ],
+   "topicKey": "magnetic-effects-of-electric-current",
+   "subtopic": "Domestic Electric Circuits",
+   "difficulty": "Medium"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "OR-part (b)(ii) needs figures and is debris; served the complete, figure-free alternative (a) alone. Domestic circuits belongs to Magnetic Effects chapter; retagged, rebuilt 5-mark scheme, removed '5' residue and '½ 1' debris."
+ },
+ {
+  "id": "PYQ-S-2026-ELEC-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(i) Define the SI unit of power. Express the electric power of an electric appliance in terms of potential difference and current flowing through it. (ii) In a house, 3 bulbs of 100 W each are lit for 5 hours daily and an electric heater of 1.0 kW is used for half an hour daily. Calculate the total energy consumed in a month of 30 days and its cost at the rate of ₹ 3.60 per kWh. (iii) Convert the commercial unit of electric energy into joule (J).",
+   "answer": "(i) The SI unit of power is the watt: 1 W is the power of a device that consumes 1 J of energy in 1 s (1 W = 1 J/s), i.e. that carries 1 A at a potential difference of 1 V. P = VI. (ii) Energy per day = 1.5 kWh + 0.5 kWh = 2 kWh; in 30 days = 60 kWh; cost = 60 × ₹3.60 = ₹216. (iii) 1 kWh = 3.6 × 10⁶ J.",
+   "finalAnswer": "(i) The SI unit of power is the watt: 1 W is the power of a device that consumes 1 J of energy in 1 s (1 W = 1 J/s), i.e. that carries 1 A at a potential difference of 1 V. P = VI. (ii) Energy per day = 1.5 kWh + 0.5 kWh = 2 kWh; in 30 days = 60 kWh; cost = 60 × ₹3.60 = ₹216. (iii) 1 kWh = 3.6 × 10⁶ J.",
+   "solutionSteps": [
+    "[1 mark] (i) The SI unit of power is the watt (W): the power of a device that consumes energy at the rate of 1 joule per second (1 W = 1 J/s), equivalently one that carries a current of 1 A at a potential difference of 1 V.",
+    "[1 mark] Electric power P = VI (= I²R = V²/R).",
+    "[1 mark] (ii) E = P × t: bulbs = 3 × 100 W × 5 h = 1500 Wh = 1.5 kWh per day; heater = 1.0 kW × 0.5 h = 0.5 kWh per day; total = 2 kWh per day.",
+    "[1 mark] Energy in 30 days = 30 × 2 kWh = 60 kWh; cost = 60 × ₹3.60 = ₹216.",
+    "[1 mark] (iii) 1 kWh = 1000 W × 3600 s = 3.6 × 10⁶ J."
+   ],
+   "subtopic": "Electric Power"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Alternative (A) depends on a V-I graph and circuit not in the text (graph points cannot be recovered with confidence); served the complete figure-free alternative (B) as the 5-mark question with a full scheme."
+ },
+ {
+  "id": "PYQ-S-2026-ELEC-012",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(A) (i) Derive an expression for the equivalent resistance of three resistors R1, R2 and R3 connected in parallel with a battery. (ii) Resistors R1 = 2 Ω, R2 = 4 Ω and R3 = 6 Ω are connected in parallel across a 12 V battery. Find the values of the electric currents flowing through the resistors R1, R2 and R3. OR (B) (i) Define electrical resistivity of a material. (ii) How will the resistivity and resistance of a conducting wire change if the length and area of cross-section of the wire both are doubled? Justify your answer. (iii) Calculate the electric current flowing through a 4 Ω resistor that produces 100 J of heat every second."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Circuit for (A)(ii) (2, 4, 6 Ω in parallel across 12 V) is stated in the row's own scheme; written into the stem and 'as shown in figure' removed. Answer/steps already correct."
+ },
+ {
+  "id": "SCO-S-ELEC-011",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Depends on three circuit diagrams (I, II, III) whose topology is not in the text; cannot be answered or reconstructed without them."
+ },
+ {
+  "id": "SCO-S-ELEC-012",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Circuit 'as shown in figure' with garbled values; the scheme gives only the option letter, so the circuit cannot be recovered with confidence."
+ },
+ {
+  "id": "SCO-S-ELEC-013",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Heat depends on a current–time graph not given; scheme gives only the option, so graph values cannot be recovered."
+ },
+ {
+  "id": "SQP-S-2023-ELEC-A-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In a network between points A and B, a 4 Ω resistor is connected from A to a junction; from that junction a 6 Ω resistor and a plain connecting wire (of negligible resistance) run in parallel to a second junction, which is connected to B. The effective resistance between A and B will be"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem omitted the short-circuiting wire that the answer (4 Ω) depends on; wrote the row's own diagramDescription into the stem so it is self-contained."
+ },
+ {
+  "id": "CBE-S-ELEC-E-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A lamp contains a filament made from a very thin piece of metal. When there is a current in the filament, it glows brightly and becomes very hot. Explain how the current causes the filament to become hot.",
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "requiresDiagram": false,
+   "answer": "The filament has resistance which opposes the flow of charge; the moving electrons do work against this resistance (colliding with the metal ions), so electrical energy is converted into heat energy (H = I²Rt), and the very thin filament becomes hot enough to glow.",
+   "finalAnswer": "The filament has resistance which opposes the flow of charge; the moving electrons do work against this resistance (colliding with the metal ions), so electrical energy is converted into heat energy (H = I²Rt), and the very thin filament becomes hot enough to glow.",
+   "solutionSteps": [
+    "[1 mark] The metal of the filament has resistance, which opposes the flow of charge (electrons).",
+    "[1 mark] The moving electrons do work against this resistance — they collide with the ions of the metal, transferring energy to them.",
+    "[1 mark] So electrical energy is converted into heat (thermal) energy (Joule heating, H = I²Rt); the thin filament gets very hot and glows."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Single explain-question with no case sub-parts; not LazyTopper-authored, so re-tagged to its true form (Section C, 3-mark Short) with a 3-step scheme. Figure not needed; 'Fig. 1' reference removed."
+ },
+ {
+  "id": "PYQ-S-ELEC-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Which wire (A or B) has higher resistivity depends entirely on the slopes in the V-I graph, which is not in the text; answer is also mojibake-damaged."
+ },
+ {
+  "id": "PYQ-S-ELEC-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Part (iii) asks which of graphs A/B is series vs parallel; the answer depends on the graph slopes, which are not given and cannot be reconstructed without inventing figure content."
+ },
+ {
+  "id": "sci-elec-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) 1/R = 1/6 + 1/12 = 3/12 = 1/4 ⇒ R = 4 Ω.",
+    "[1 mark] (b) I = V/R = 12 V / 4 Ω = 3 A.",
+    "[1 mark] (c) Same 12 V across each: I₁ = 12/6 = 2 A; I₂ = 12/12 = 1 A (check: 2 + 1 = 3 A).",
+    "[1 mark] (d) Only the 12 Ω resistor remains: I = 12 V / 12 Ω = 1 A."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added CBSE step-marked solutionSteps (1 mark per sub-part); answer verified correct."
+ },
+ {
+  "id": "sci-elec-comp-02",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) 1/R = 1/2 + 1/3 + 1/6 = (3 + 2 + 1)/6 = 1 ⇒ R = 1 Ω.",
+    "[1 mark] (b) I = V/R = 12 V / 1 Ω = 12 A.",
+    "[1 mark] (c) Full 12 V across the 3 Ω resistor: I = 12/3 = 4 A.",
+    "[1 mark] (d) P = V²/R = 12²/6 = 144/6 = 24 W."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added CBSE step-marked solutionSteps (1 mark per sub-part); answer verified correct."
+ },
+ {
+  "id": "CBE-S-HERD-C-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In an animal, the allele for white fur (W) is dominant over the allele for brown fur (b). A pure-breeding white-furred animal (WW) is crossed with a brown-furred animal (bb); all the F1 offspring (Wb) have white fur. Draw a Punnett square to show how individuals from the F1 generation produce a generation, F2, with white fur and brown fur. Identify the genotypes in the F2 generation and calculate the proportion of individuals with brown fur.",
+   "solutionSteps": [
+    "[1 mark] Punnett square for F1 × F1 (Wb × Wb): gametes W and b from each parent give offspring WW, Wb, Wb, bb.",
+    "[1 mark] The F2 genotypes are WW, Wb and bb (ratio 1 : 2 : 1); WW and Wb are white, bb is brown.",
+    "[1 mark] Brown fur is bb, so the proportion with brown fur = 1/4 (25%)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem lacked the parental cross and dominance; added them exactly as implied by the row's answer (W white dominant, F1 Wb). Answer unchanged."
+ },
+ {
+  "id": "PYQ-S-2024-HERED-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(a) Any two: round/wrinkled seed shape; yellow/green seed colour; violet/white flower colour (any other valid pair). (b)(i) No — the F1 tall plants are heterozygous, gene combination Tt (parental tall plants were TT). (ii) 25%. (iii) TT : Tt = 1 : 2.",
+   "finalAnswer": "(a) Any two: round/wrinkled seed shape; yellow/green seed colour; violet/white flower colour (any other valid pair). (b)(i) No — the F1 tall plants are heterozygous, gene combination Tt (parental tall plants were TT). (ii) 25%. (iii) TT : Tt = 1 : 2.",
+   "solutionSteps": [
+    "[1 mark] (a) Two pairs of contrasting characters: round and wrinkled seed shape; violet and white flower colour (or yellow/green seeds, etc.) — ½ mark each.",
+    "[1 mark] (b)(i) No, they are not exactly the same: the F1 tall plants are heterozygous with gene combination Tt, whereas the parental tall plants were TT.",
+    "[0.5 mark] (ii) F1 selfing Tt × Tt gives TT, Tt, Tt, tt ⇒ short plants (tt) = 1/4 = 25%.",
+    "[0.5 mark] (iii) TT : Tt = 1 : 2."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer was a truncated fragment with mark residue; rebuilt complete answer and 3-mark scheme for all parts. Stem was fine."
+ },
+ {
+  "id": "PYQ-S-2026-HERED-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Variation gives some individuals of a species characteristics that help them survive when the environment changes. Example: if a population of bacteria living in temperate water faces a rise in water temperature (e.g. due to global warming), most would die, but the few heat-resistant variants would survive and reproduce, so the species survives.",
+   "finalAnswer": "Variation gives some individuals of a species characteristics that help them survive when the environment changes. Example: if a population of bacteria living in temperate water faces a rise in water temperature (e.g. due to global warming), most would die, but the few heat-resistant variants would survive and reproduce, so the species survives.",
+   "solutionSteps": [
+    "[1 mark] Variation provides a chance for a species to survive under unfavourable/changing environmental conditions, since some variants may be better suited to the new conditions.",
+    "[1 mark] Example: in a population of bacteria living in temperate water, if the water temperature rises due to global warming, most bacteria die but the few heat-resistant variants survive and multiply (or any other suitable example)."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer field held only '(or any other suitable example)'; restored the full answer from the scheme and gave 1+1 step marks."
+ },
+ {
+  "id": "PYQ-S-2026-HERED-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Use the following information for pea plants: Dominant allele for tall plants – T; Recessive allele for short plants – t; Dominant allele for purple flowers – P; Recessive allele for white flowers – p. (a) Perform a cross between a pure plant dominant for both the traits and another plant which is recessive for both the traits, and work out the progeny up to F2 generation. (b) What is the probability of obtaining tall plants with white flowers in F2 progeny?",
+   "answer": "(a) Parents TTPP (tall, purple) × ttpp (short, white); gametes TP and tp; F1 all TtPp (tall, purple). F1 selfed (TtPp × TtPp) gives F2 in the ratio tall purple 9 : tall white 3 : short purple 3 : short white 1. (b) Probability of tall plants with white flowers = 3/16.",
+   "finalAnswer": "(a) Parents TTPP (tall, purple) × ttpp (short, white); gametes TP and tp; F1 all TtPp (tall, purple). F1 selfed (TtPp × TtPp) gives F2 in the ratio tall purple 9 : tall white 3 : short purple 3 : short white 1. (b) Probability of tall plants with white flowers = 3/16.",
+   "solutionSteps": [
+    "[0.5 mark] (a) Parents: TTPP (tall, purple) × ttpp (short, white); gametes TP and tp.",
+    "[0.5 mark] F1: all TtPp — tall plants with purple flowers.",
+    "[1 mark] F1 selfed, TtPp × TtPp; each parent forms gametes TP, Tp, tP, tp. 4×4 checkerboard — row TP: TTPP, TTPp, TtPP, TtPp; row Tp: TTPp, TTpp, TtPp, Ttpp; row tP: TtPP, TtPp, ttPP, ttPp; row tp: TtPp, Ttpp, ttPp, ttpp. F2 ratio: tall purple 9 : tall white 3 : short purple 3 : short white 1.",
+    "[1 mark] (b) Tall with white flowers (TTpp, Ttpp, Ttpp) = 3 of 16 ⇒ probability = 3/16."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed stray '3' mark residue from stem; rewrote flattened Punnett table as a readable 4×4 checkerboard with 0.5+0.5+1+1 marking. Content unchanged."
+ },
+ {
+  "id": "PYQ-S-HERED-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "finalAnswer": "(c) Dominant trait, Inherited trait",
+   "solutionSteps": [
+    "[1 mark] (i) The trait that expresses itself in the F1 generation is the dominant trait; (ii) a trait that keeps passing from one generation to the next is an inherited trait. Correct option (c) Dominant trait, Inherited trait."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "finalAnswer/steps were mark residue 'c) 1 1'; answer option itself was already correct (c), so restored finalAnswer and a 1-mark justification."
+ },
+ {
+  "id": "PYQ-S-HERED-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In some families, either rural or urban, females are tortured for giving birth to a female child. They do not seem to understand the scientific reason behind the birth of a boy or a girl. In fact the mother is not responsible for the sex of the child and it has been genetically proved that the sex of a newborn is determined by what the child inherits from the father. (a) State the basis on which the sex of a newborn baby is determined in humans. (b) Why is the pair of sex chromosomes called a mismatched pair in males? (c) How is the original number of chromosomes present in the parents restored in the progeny? OR (c) Explain by giving two examples of the organisms in which the sex is not genetically determined.",
+   "answer": "(a) Sex is determined by the sex chromosome the child inherits from the father: X from father + X from mother → girl (XX); Y from father + X from mother → boy (XY). (b) In males the pair is mismatched because X is normal-sized while Y is short. (c) Gametes have half the number of chromosomes; fusion of male and female gametes at fertilisation restores the original number. OR (c) Some reptiles — incubation temperature of fertilised eggs determines sex; snails — individuals can change sex during their lifetime.",
+   "finalAnswer": "(a) Sex is determined by the sex chromosome the child inherits from the father: X from father + X from mother → girl (XX); Y from father + X from mother → boy (XY). (b) In males the pair is mismatched because X is normal-sized while Y is short. (c) Gametes have half the number of chromosomes; fusion of male and female gametes at fertilisation restores the original number. OR (c) Some reptiles — incubation temperature of fertilised eggs determines sex; snails — individuals can change sex during their lifetime.",
+   "solutionSteps": [
+    "[1 mark] (a) The sex chromosome inherited from the father: if a sperm carrying X fuses with the ovum (always X), a girl (XX) is born; if a sperm carrying Y fuses with the ovum, a boy (XY) is born.",
+    "[1 mark] (b) Because one of them is a normal-sized X chromosome while the other is a short Y chromosome.",
+    "[1 mark] (c) During formation of germ cells (gametes) the chromosome number is reduced to half. OR (c) Example 1: in some reptiles, the temperature at which the fertilised eggs are kept determines whether the young will be male or female.",
+    "[1 mark] When two germ cells from two individuals fuse during fertilisation, the original number of chromosomes is restored in the progeny. OR Example 2: in snails, individuals can change sex during their lifetime."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed mark residues '1','1','2' from stem; answer was a garbled OR fragment. Rebuilt full answer and 1+1+2 scheme covering (a), (b), (c) and OR (c)."
+ }
+]

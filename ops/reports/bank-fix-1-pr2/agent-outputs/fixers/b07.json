@@ -1,0 +1,335 @@
+[
+ {
+  "id": "PYQ-S-CHEM-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The balanced chemical equation showing the reaction between quicklime and water is:",
+   "options": [
+    "2CaO + H2O → 2CaOH + H2 + Heat",
+    "CaO + H2O → Ca(OH)2 + H2 + Heat",
+    "CaO + H2O → Ca(OH)2 + Heat",
+    "2CaO + 3H2O → 2Ca(OH)3 + O2 + Heat"
+   ],
+   "answer": "CaO + H2O → Ca(OH)2 + Heat",
+   "solutionSteps": [
+    "[1 mark] Correct option is (c). Quicklime (CaO) reacts vigorously with water to form slaked lime, calcium hydroxide, releasing heat: CaO(s) + H2O(l) → Ca(OH)2(aq) + Heat. No H2 or O2 is formed, and the equation is balanced (Ca 1, O 2, H 2 on each side)."
+   ],
+   "finalAnswer": "(c) CaO + H2O → Ca(OH)2 + Heat"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored lost reaction arrows in options/answer; replaced mark-scheme residue 'c) 1 1' with proper answer and justification. Correct option (c) unchanged in substance."
+ },
+ {
+  "id": "PYQ-S-CHEM-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Oxidation and Reduction (Redox)",
+   "questionText": "Study the following chemical reaction: 2Na(s) + 2H2O(l) → 2NaOH(aq) + H2(g). The reducing agent in this reaction is:",
+   "solutionSteps": [
+    "[1 mark] Correct option is (a) Na. Sodium reduces water to hydrogen gas (H2O loses oxygen/H is released) while sodium itself is oxidised to NaOH; the substance that gets oxidised and reduces another is the reducing agent."
+   ],
+   "finalAnswer": "(a) Na"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored the lost arrow in the equation; replaced residue 'a) 1 1' with answer + justification; specific subtopic. Answer Na unchanged."
+ },
+ {
+  "id": "SCO-S-CHEM-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "acids-bases-and-salts",
+   "subtopic": "Reactions of Acids and Bases with Metal Carbonates",
+   "questionText": "A dilute solution of sodium carbonate was added to two test tubes — one containing dilute HCl (test tube A) and the other containing dilute NaOH (test tube B). The correct observation would be:",
+   "solutionSteps": [
+    "[1 mark] Correct option is (c). In test tube A, the acid reacts with sodium carbonate: Na2CO3 + 2HCl → 2NaCl + H2O + CO2; colourless CO2 gas is liberated. In test tube B, NaOH (a base) does not react with sodium carbonate, so no gas is evolved."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored the truncated NCERT Exemplar stem (test tube B = dil NaOH, question line) as implied by options. Topic is acid/base + carbonate reaction, so retagged to acids-bases-and-salts."
+ },
+ {
+  "id": "SCO-S-CHEM-014",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Balancing Chemical Equations",
+   "questionText": "Ethane (C2H6) on complete combustion gives CO2 and water. If the equation is balanced in accordance with the law of conservation of mass, the coefficient of oxygen is equal to:",
+   "solutionSteps": [
+    "[1 mark] Correct option is (d) 7/2. C2H6 + O2 → CO2 + H2O; balance C: 2CO2; balance H: 3H2O; O atoms on right = 4 + 3 = 7, so O2 coefficient = 7/2: C2H6 + 7/2 O2 → 2CO2 + 3H2O (i.e. 2C2H6 + 7O2 → 4CO2 + 6H2O)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored garbled formula 'C H 2 6' to C2H6 and tidied stem; added balancing working. Answer 7/2 verified."
+ },
+ {
+  "id": "SP-S-2023-CHEM-A-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Lead nitrate powder is heated strongly in a dry boiling tube and brown fumes are observed. Identify the product evolved as brown fumes during this reaction.",
+   "options": [
+    "Colourless carbon dioxide",
+    "Reddish-brown nitrogen dioxide",
+    "Light yellow oxygen",
+    "Colourless nitrogen"
+   ],
+   "answer": "Reddish-brown nitrogen dioxide",
+   "solutionSteps": [
+    "[1 mark] Correct option is (b). On heating, lead nitrate decomposes: 2Pb(NO3)2(s) → 2PbO(s) + 4NO2(g) + O2(g). The brown fumes are of nitrogen dioxide (NO2); oxygen is colourless."
+   ],
+   "finalAnswer": "(b) Reddish-brown nitrogen dioxide",
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem pointed to an unshown 'above reaction'; the row's own diagramDescription/solution confirm it is heating of lead nitrate, so context is written into the stem. Option letter prefixes removed. Answer (b) unchanged."
+ },
+ {
+  "id": "SP-S-2023-CHEM-A-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Consider the following redox reaction: Fe2O3 + 3CO → 2Fe + 3CO2. Which of the following statements is correct?",
+   "options": [
+    "Fe2O3 is oxidised to Fe, and CO is reduced to CO2.",
+    "Both Fe2O3 and CO are oxidised to Fe and CO2, respectively.",
+    "Fe2O3 is reduced to Fe, and CO is oxidised to CO2.",
+    "Both Fe2O3 and CO are reduced to Fe and CO2, respectively."
+   ],
+   "answer": "Fe2O3 is reduced to Fe, and CO is oxidised to CO2.",
+   "finalAnswer": "(c) Fe2O3 is reduced to Fe, and CO is oxidised to CO2."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Balanced the equation (3CO), added the missing question line, removed option letter prefixes. Answer (c) unchanged."
+ },
+ {
+  "id": "sci-cre-hpq-1",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "Which of the following is the correctly balanced equation for the formation of iron(III) oxide from iron and oxygen (Fe + O₂ → Fe₂O₃)?\n(a) 2Fe + O₂ → Fe₂O₃\n(b) 4Fe + 3O₂ → 2Fe₂O₃\n(c) 2Fe + 3O₂ → Fe₂O₃\n(d) 4Fe + 2O₂ → 2Fe₂O₃",
+   "answer": "(b) 4Fe + 3O₂ → 2Fe₂O₃",
+   "finalAnswer": "(b) 4Fe + 3O₂ → 2Fe₂O₃"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored MCQ had no options; added four inline options (hpq has no options field), only (b) balances (Fe 4=4, O 6=6; others fail atom count). Stem names the oxide reaction precisely. Answer unchanged."
+ },
+ {
+  "id": "SCQ-S-CHEM-023",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Decomposition Reactions",
+   "questionText": "Write the essential condition for the following reaction to take place: 2AgBr → 2Ag + Br2. Write one application of this reaction.",
+   "solutionSteps": [
+    "[1 mark] Condition: the reaction takes place in the presence of sunlight (photolytic decomposition): 2AgBr(s) →(sunlight) 2Ag(s) + Br2(g).",
+    "[1 mark] Application: this reaction is used in black and white photography."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Replaced stray '$' with the reaction arrow; split solution into two 1-mark steps; specific subtopic."
+ },
+ {
+  "id": "SCQ-S-CHEM-027",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Oxidation and Reduction (Redox)",
+   "questionText": "Name the reducing agent in the following reaction: 3MnO2 + 4Al → 3Mn + 2Al2O3. State which is more reactive, Mn or Al, and why?",
+   "solutionSteps": [
+    "[1 mark] Al is the reducing agent — it removes oxygen from MnO2 (reducing it to Mn) and is itself oxidised to Al2O3.",
+    "[1 mark] Al is more reactive than Mn because Al displaces Mn from its compound MnO2."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fixed stray '$' to arrow, '4A1' to 4Al, and balanced Al2O3 (coefficient 2); split solution into 1+1 steps. Answer unchanged."
+ },
+ {
+  "id": "APQ-S-CHEM-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A single displacement reaction is represented below: PQ + R → PR + Q. Which of the following is true about the reactants and products?",
+   "options": [
+    "R forms the cation in the product, and PR is more stable than PQ.",
+    "R forms the cation in the product, and PR is less stable than PQ.",
+    "R forms the anion in the product, and PR is more stable than PQ.",
+    "R forms the anion in the product, and PR is less stable than PQ."
+   ],
+   "answer": "R forms the anion in the product, and PR is more stable than PQ.",
+   "finalAnswer": "(c) R forms the anion in the product, and PR is more stable than PQ."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Option texts were inline in the stem with bare labels A-D as options; moved them into the options array. Answer (c) unchanged (R replaces anion Q; displacement occurs only if PR is more stable)."
+ },
+ {
+  "id": "CBE-S-CHEM-B-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A piece of magnesium ribbon is to be burnt in air in an experiment. Suggest why the surface of the ribbon must be cleaned (rubbed with sandpaper) before the ribbon is used.",
+   "diagramDescription": null
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Figure only depicted a plain ribbon; stem rewritten to be self-contained without 'Fig. 1'. Answer unchanged."
+ },
+ {
+  "id": "PYQ-S-2026-CHEMRXN-013",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Part (i) asks to identify 'P' in a leaf cross-section diagram not present; answer fields are also truncated ('photosynthesis.'). Also mis-chaptered (Life Processes)."
+ },
+ {
+  "id": "PYQ-S-CHEM-014",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "carbon-and-its-compounds",
+   "subtopic": "Chemical Properties of Carbon Compounds",
+   "questionText": "Write the chemical equation for each of the following: (i) Combustion of methane (ii) Oxidation of ethanol (iii) Hydrogenation of ethene (iv) Esterification reaction (v) Saponification reaction",
+   "answer": "(i) CH4 + 2O2 → CO2 + 2H2O + heat (ii) CH3CH2OH →(alkaline KMnO4, heat) CH3COOH (iii) CH2=CH2 + H2 →(Ni catalyst) CH3–CH3 (iv) CH3COOH + C2H5OH →(conc. H2SO4) CH3COOC2H5 + H2O (v) CH3COOC2H5 + NaOH → CH3COONa + C2H5OH",
+   "solutionSteps": [
+    "[1 mark] (i) Combustion of methane: CH4 + 2O2 → CO2 + 2H2O + heat and light.",
+    "[1 mark] (ii) Oxidation of ethanol to ethanoic acid: CH3CH2OH →(alkaline KMnO4, heat / acidified K2Cr2O7) CH3COOH.",
+    "[1 mark] (iii) Hydrogenation of ethene: CH2=CH2 + H2 →(Ni catalyst) CH3–CH3 (ethane).",
+    "[1 mark] (iv) Esterification: CH3COOH + C2H5OH →(conc. H2SO4, warm) CH3COOC2H5 (ethyl ethanoate) + H2O.",
+    "[1 mark] (v) Saponification: CH3COOC2H5 + NaOH → CH3COONa + C2H5OH."
+   ],
+   "finalAnswer": "(i) CH4 + 2O2 → CO2 + 2H2O (ii) CH3CH2OH → CH3COOH (alkaline KMnO4/heat) (iii) CH2=CH2 + H2 → CH3–CH3 (Ni) (iv) CH3COOH + C2H5OH → CH3COOC2H5 + H2O (conc. H2SO4) (v) CH3COOC2H5 + NaOH → CH3COONa + C2H5OH"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed 'SECTION – E' header and '5' mark residues; dropped OR-(B) whose (iv)(a) structure is missing (figure). Kept self-contained 5-mark (A). All carbon-compound reactions: retagged carbon-and-its-compounds."
+ },
+ {
+  "id": "sci-cre-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) Experiment 1: Zn(s) + CuSO4(aq) → ZnSO4(aq) + Cu(s).",
+    "[1 mark] (a) Experiment 2: 2FeSO4(s) →(heat) Fe2O3(s) + SO2(g) + SO3(g) (green crystals first lose water of crystallisation).",
+    "[1 mark] (b) Experiment 1 is a displacement reaction; Experiment 2 is a (thermal) decomposition reaction.",
+    "[1 mark] (c) The blue colour of the copper sulphate solution fades to colourless because the more reactive zinc displaces copper, forming colourless zinc sulphate; reddish-brown copper deposits on the zinc."
+   ],
+   "finalAnswer": "(a) Zn + CuSO₄ → ZnSO₄ + Cu; 2FeSO₄ → Fe₂O₃ + SO₂ + SO₃ (b) Displacement; Decomposition (c) Blue → colourless, as Zn displaces Cu"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added a 4-step marking scheme (1+1+1+1 = 4 marks) consistent with the existing answer."
+ },
+ {
+  "id": "BX-CHEM-EX-A-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "carbon-and-its-compounds",
+   "subtopic": "Soaps and Detergents"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Salting out in soap preparation belongs to Soaps and Detergents (Carbon and its Compounds); retagged. Content correct."
+ },
+ {
+  "id": "PYQ-S-2025-CHEMRXN-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "metals-and-non-metals",
+   "subtopic": "Extraction of Metals — Electrolytic Reduction",
+   "solutionSteps": [
+    "[1 mark] Correct option: (b) Calcium and magnesium. Highly reactive metals (Na, Ca, Mg, Al) cannot be reduced by carbon and are obtained by electrolytic reduction of their molten chlorides/oxides; Au, Ag and Fe are not."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Electrolytic reduction of molten chlorides is extraction of metals — retagged metals-and-non-metals; added justification. Answer unchanged."
+ },
+ {
+  "id": "PYQ-S-2026-CHEMRXN-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "life-processes",
+   "subtopic": "Nutrition — Photosynthesis",
+   "solutionSteps": [
+    "[1 mark] Correct option: (b) (ii) and (iii). During photosynthesis chlorophyll absorbs light energy and converts it into chemical energy; CO2 is reduced (not oxidised) to carbohydrates, and water is split, not formed."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Events of photosynthesis are Life Processes content; retagged. Answer verified and justified."
+ },
+ {
+  "id": "CR2-016",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Assertion-Reason is a 1-mark Section A format; retagged marks 3→1, section C→A. Answer verified correct."
+ },
+ {
+  "id": "CR2-017",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Assertion-Reason is a 1-mark Section A format; retagged marks 3→1, section C→A. Answer verified correct."
+ },
+ {
+  "id": "CR2-018",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Assertion-Reason is a 1-mark Section A format; retagged marks 3→1, section C→A. Answer verified correct."
+ }
+]

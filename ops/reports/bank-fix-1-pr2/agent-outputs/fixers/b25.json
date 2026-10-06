@@ -1,0 +1,264 @@
+[
+ {
+  "id": "SQP-S-LIGHT-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A thin lens has a focal length of magnitude 5 m. A real, inverted image is to be formed by this lens at a distance of 7 m from its optical centre.\n(i) What kind of lens is it? Give a reason.\n(ii) Show with calculation where the object should be placed.\n(iii) Draw a neatly labelled ray diagram of the image formation mentioned in (ii).\n\n[OR]\n\nA 10 cm long pencil is placed 5 cm in front of a concave mirror having a radius of curvature of 40 cm.\n(i) Determine the position of the image formed by this mirror.\n(ii) What is the size of the image?\n(iii) Draw a ray diagram to show the formation of the image as mentioned in part (i).",
+   "solutionSteps": [
+    "[1 mark] (i) Convex lens — only a converging lens forms a real, inverted image. [OR (i) working: f = −R/2 = −20 cm, u = −5 cm; mirror formula 1/v + 1/u = 1/f gives 1/v = −1/20 + 1/5 = 3/20.]",
+    "[1 mark] (ii) Lens formula 1/f = 1/v − 1/u with f = +5 m, v = +7 m: 1/u = 1/7 − 1/5 = −2/35. [OR (i) result: v = +20/3 ≈ +6.67 cm, i.e. 6.67 cm behind the mirror — virtual and erect.]",
+    "[1 mark] (ii) u = −35/2 = −17.5 m: the object is placed 17.5 m in front of the lens (beyond 2F, since 2f = 10 m). [OR (ii) m = −v/u = −(20/3)/(−5) = +4/3; image size h′ = (4/3) × 10 ≈ 13.3 cm (erect, enlarged).]",
+    "[1 mark] (iii) Diagram: object beyond 2F₁; a ray parallel to the principal axis refracts through F₂ and a ray through the optical centre passes undeviated; they meet between F₂ and 2F₂ on the other side. [OR (iii) Diagram: object between P and F; a ray parallel to the axis reflects through F and a ray directed towards C reflects back along itself.]",
+    "[1 mark] (iii) Correct arrows and labels (O, F, 2F, principal axis); image shown real, inverted, diminished. [OR (iii) reflected rays diverge; produced backwards (dotted) they meet behind the mirror — virtual, erect, enlarged image labelled.]"
+   ],
+   "answer": "Main: (i) Convex lens. (ii) u = −17.5 m (object 17.5 m in front of the lens, beyond 2F). (iii) Ray diagram with object beyond 2F and real, inverted, diminished image. OR: (i) v = +6.67 cm (virtual image behind the mirror). (ii) Image size ≈ 13.3 cm (erect, enlarged). (iii) Ray diagram with object between P and F."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed dependency on the unseen figure: lens type is deducible from 'real, inverted image' (part (ii)); recast (i) accordingly. Re-sequenced steps so main and OR each sum to 5 marks; physics verified (u=−17.5 m; v=+20/3 cm, m=4/3)."
+ },
+ {
+  "id": "CBE-S-LGHT-E-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Draw a labelled ray diagram to show how a beam of light travelling parallel to the principal axis is focussed by a convex lens.",
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "subtopic": "Convex Lens — Ray Diagram (Parallel Beam)",
+   "solutionSteps": [
+    "[1 mark] Diagram: convex lens drawn with a beam of rays parallel to the principal axis, each refracting at the lens and converging to a single point on the other side.",
+    "[1 mark] Labels: principal axis, optical centre O and the convergence point marked as principal focus F (with arrows on rays)."
+   ],
+   "answer": "Parallel rays refract through the convex lens and converge at the principal focus F on the other side.",
+   "finalAnswer": "Parallel rays converge at the principal focus F after refraction through the convex lens.",
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "'Complete Fig. 2' depended on a figure; its content (parallel rays, convex lens) is fully described, so restated as a self-contained draw-the-diagram item. Not a case: re-tagged 2-mark Section B Short."
+ },
+ {
+  "id": "SQP-S-2025-LGHT-038",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Flag mistaken: stem has sub-parts A, B and C-OR-D (1+1+2 = 4) with a real case; parts answerable from knowledge/data given; schematic bound via visualExplainerId. Physics verified (u=−300 mm; f=30 mm)."
+ },
+ {
+  "id": "FND-L-QB-120",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options A–D are the students' names; their screen positions are given in the stem (C: 57.7 cm = 42.7+15). Labels are the real answer choices, not missing content."
+ },
+ {
+  "id": "FND-L-SPM-037",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options A–D are the media named in the stem with their refractive indices; A (n=1.31, lowest) gives max speed. Not missing content."
+ },
+ {
+  "id": "PYQ-S-2026-LIGHT-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A ray of light travelling in medium A enters medium B and, on refraction, bends away from the normal.\n(a) Which one of these two media is optically denser than the other? Justify your answer.\n(b) If the speed of light in medium A is v_A and in medium B is v_B, what is the refractive index of medium B with respect to medium A?",
+   "answer": "(a) Medium A is optically denser, because the ray bends away from the normal on entering B. (b) n_BA = v_A / v_B",
+   "solutionSteps": [
+    "[1 mark] (a) Medium A is optically denser than B: a ray going from a denser to a rarer medium bends away from the normal, as happens here.",
+    "[1 mark] (b) Refractive index of B with respect to A: n_BA = (speed of light in A)/(speed of light in B) = v_A / v_B."
+   ],
+   "finalAnswer": "(a) Medium A (ray bends away from the normal in B). (b) n_BA = v_A / v_B"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Figure missing, but the official scheme states what it shows (ray bends away from the normal entering B); stated that in the stem. Repaired garbled math-italic 'VA VB' to v_A / v_B; answer now includes (a)."
+ },
+ {
+  "id": "sci-lrr-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) u = −30 cm, f = +20 cm; 1/v − 1/u = 1/f ⇒ 1/v = 1/20 − 1/30 = 1/60 ⇒ v = +60 cm (60 cm behind the lens).",
+    "[1 mark] (b) m = v/u = 60/(−30) = −2.",
+    "[1 mark] (c) Real (v positive), inverted (m negative), magnified (|m| = 2 > 1).",
+    "[1 mark] (d) u = −15 cm: 1/v = 1/20 − 1/15 = −1/60 ⇒ v = −60 cm, m = (−60)/(−15) = +4; image becomes virtual, erect, magnified, on the same side as the object."
+   ],
+   "finalAnswer": "(a) v = +60 cm (b) m = −2 (c) Real, inverted, magnified (d) v = −60 cm, m = +4: virtual, erect, magnified"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added CBSE step-marked solutionSteps (4 × 1 mark) and finalAnswer; values verified by lens formula."
+ },
+ {
+  "id": "CFPQ-S-LGHT-012",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Audit did not parse '[½ mark]' prefixes; all steps are prefixed and sum ½+1+½+1 = 3 = marks. f=+2 m verified."
+ },
+ {
+  "id": "CFPQ-S-LGHT-013",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Audit did not parse '[½ mark]' prefixes; all steps are prefixed and sum ½+½+1+1 = 3 = marks. f=3400/217≈15.7 mm verified."
+ },
+ {
+  "id": "CFPQ-S-LGHT-014",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Audit did not parse '[½ mark]' prefixes; all steps are prefixed and sum 1+2+1+½+½ = 5 = marks. v=7.5 cm, length √13≈3.6 cm verified; figure bound via visualExplainerId."
+ },
+ {
+  "id": "CFPQ-S-LGHT-018",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Audit did not parse '[½ mark]' prefixes; all steps are prefixed and sum 1+½+½ = 2 = marks. figure bound via visualExplainerId."
+ },
+ {
+  "id": "FND-L-SPQ-010",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Audit did not parse '[½ mark]' prefixes; all steps are prefixed and sum ½+1+½+1 = 3 = marks. content correct."
+ },
+ {
+  "id": "FND-L-SPQ-016",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Audit did not parse '[½ mark]' prefixes; all steps are prefixed and sum ½+1+½+1 = 3 = marks. content correct."
+ },
+ {
+  "id": "SQP-S-2025-LGHT-033",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Audit did not parse '[½ mark]' prefixes; all steps are prefixed and sum ½+½+1 = 2 = marks. f=−20 cm verified; figure described in stem and bound."
+ },
+ {
+  "id": "CASE-SCI-LIGHT-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "human-eye-and-colourful-world",
+   "subtopic": "Defects of Vision — Corrective Lens Power"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Case is built on myopia/hypermetropia correction (Human Eye chapter); lens-power arithmetic is supporting. Re-tagged chapter; content correct (f=−40 cm, 66.7 cm, P=−1.0 D)."
+ },
+ {
+  "id": "FND-L-QB-102",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "human-eye-and-colourful-world"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Refraction through a triangular glass prism is in the 'Human Eye and the Colourful World' chapter (NCERT/CBSE 2026-27), not Light; content correct, re-tagged chapter only."
+ },
+ {
+  "id": "FND-L-QB-125",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "human-eye-and-colourful-world"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Refraction through a triangular glass prism is in the 'Human Eye and the Colourful World' chapter (NCERT/CBSE 2026-27), not Light; content correct, re-tagged chapter only."
+ },
+ {
+  "id": "FND-L-QB-154",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "human-eye-and-colourful-world"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Refraction through a triangular glass prism is in the 'Human Eye and the Colourful World' chapter (NCERT/CBSE 2026-27), not Light; content correct, re-tagged chapter only."
+ },
+ {
+  "id": "LT2-059",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "human-eye-and-colourful-world",
+   "subtopic": "Defects of Vision — Myopia"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Myopia and its correction belong to the Human Eye chapter; A-R content correct (option 1). Re-tagged."
+ },
+ {
+  "id": "LT2-044",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A camera uses a converging lens of focal length 5 cm to form images of objects at different distances.\n(a) If an object at a distance of 20 cm is to be photographed, calculate the image distance and the magnification.\n(b) What happens to the image when the object is moved closer to the lens?\n(c) Explain why adjusting the position of the film (sensor) is necessary when photographing objects at different distances.\n(d) At what distance from the lens should an object be placed so that its real image is of the same size as the object? Find the image distance in this case.",
+   "answer": "(a) v = +6.67 cm, m = −1/3 ≈ −0.33 (b) Image moves farther from the lens and becomes larger (v → ∞ as u → f) (c) v depends on u, so the sensor must be moved to the image position for a sharp image (d) Object at 2F: u = −10 cm, v = +10 cm, m = −1",
+   "solutionSteps": [
+    "[1 mark] (a) f = +5 cm, u = −20 cm; lens formula 1/v − 1/u = 1/f ⇒ 1/v = 1/5 − 1/20 = 3/20 ⇒ v = +20/3 ≈ +6.67 cm.",
+    "[1 mark] (a) m = v/u = (20/3)/(−20) = −1/3 ≈ −0.33: real, inverted, diminished image.",
+    "[1 mark] (b) As the object approaches the lens, v increases (u = −10 cm gives v = +10 cm; as u → −5 cm, v → ∞): the image moves away from the lens and grows larger.",
+    "[1 mark] (c) The focal length is fixed, so by the lens formula each object distance gives a different image distance; the sensor must sit exactly at that image distance for a sharp image.",
+    "[1 mark] (d) Same-size real image when object is at 2F: u = −10 cm ⇒ 1/v = 1/5 − 1/10 = 1/10 ⇒ v = +10 cm; m = 10/(−10) = −1."
+   ],
+   "finalAnswer": "(a) v ≈ 6.67 cm, m ≈ −0.33 (b) image moves away and enlarges (c) v changes with u, so focus must be adjusted (d) u = −10 cm (2F), v = +10 cm"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: replaced unmarkable part (d) (autofocus/aperture, beyond syllabus) with an in-syllabus 2F question; corrected sign convention and lens magnification (m = v/u); steps 5×1 mark."
+ }
+]

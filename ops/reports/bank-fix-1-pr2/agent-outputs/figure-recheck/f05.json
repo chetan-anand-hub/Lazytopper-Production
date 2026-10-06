@@ -1,0 +1,149 @@
+[
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-016",
+  "verdict": "keep",
+  "withhold_reason": null,
+  "fields": {},
+  "solved_answer": "Fig. D (ray parallel to the axis reflects through F)",
+  "figure_matches": true,
+  "rationale": "Figure shows Fig. 10.6 (ray parallel to axis on concave mirror) and candidates A-D; only D reflects the ray through F (A crosses between F and P, B through 2F, C retraces). Key D correct; first fixer withheld only for lack of figure."
+ },
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-017",
+  "verdict": "keep",
+  "withhold_reason": null,
+  "fields": {},
+  "solved_answer": "Fig. A (ray through F of convex lens emerges parallel to axis)",
+  "figure_matches": true,
+  "rationale": "Figure shows Fig. 10.7 (ray through F incident on convex lens) and A-D; A emerges parallel to the axis, which is correct. B passes through F, C reverses, D undeviated. Key A correct."
+ },
+ {
+  "id": "SCO-S-LIGHT-005",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In the given figure, a ray of light is incident on a plane mirror. Find the angle of incidence and the angle of reflection.",
+   "subtopic": "Laws of Reflection"
+  },
+  "solved_answer": "55°, 55°",
+  "figure_matches": true,
+  "rationale": "Figure shows incident ray at 35° to the mirror surface with the normal drawn; i = 90-35 = 55°, r = 55°. Key (b) correct. Kept figure reference, tidied stem, replaced generic subtopic; existing solution step already matches figure."
+ },
+ {
+  "id": "CBE-S-LGHT-E-001",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Draw a labelled ray diagram to show how a beam of light travelling parallel to the principal axis is focussed by a convex lens.",
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "subtopic": "Convex Lens — Ray Diagram (Parallel Beam)",
+   "solutionSteps": [
+    "[1 mark] Diagram: convex lens drawn with a beam of rays parallel to the principal axis, each refracting at the lens and converging to a single point on the other side.",
+    "[1 mark] Labels: principal axis, optical centre O and the convergence point marked as principal focus F (with arrows on rays)."
+   ],
+   "answer": "Parallel rays refract through the convex lens and converge at the principal focus F on the other side.",
+   "finalAnswer": "Parallel rays converge at the principal focus F after refraction through the convex lens.",
+   "requiresDiagram": false
+  },
+  "solved_answer": "Parallel rays converge at the principal focus F after the convex lens",
+  "figure_matches": true,
+  "rationale": "Figure only shows two parallel rays labelled 'light' (no lens), consistent with a self-drawn diagram. Not a case item (no sub-parts); adopted first fixer's self-contained 2-mark Section B version."
+ },
+ {
+  "id": "CBE-S-MAGN-A-001",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Which diagram, A, B or C, in the given figure shows the shape of the magnetic field around a straight current-carrying conductor?",
+   "options": [
+    "Diagram A",
+    "Diagram B",
+    "Diagram C",
+    "None of A, B or C"
+   ],
+   "answer": "Diagram A",
+   "solutionSteps": [
+    "[1 mark] The magnetic field around a straight current-carrying conductor consists of concentric circles centred on the wire, as in diagram A. Diagram B shows a bar-magnet-like pattern and diagram C shows straight parallel lines, so both are wrong."
+   ],
+   "finalAnswer": "Diagram A (concentric circular field lines around the wire)."
+  },
+  "solved_answer": "Diagram A",
+  "figure_matches": true,
+  "rationale": "Figure shows A concentric circles, B magnet-like loops, C parallel straight lines. Options now neutral labels (no give-away) with a 4th distractor; key A unchanged."
+ },
+ {
+  "id": "MAG-EXMPLR-12-MCQ-002",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A straight vertical copper wire passes through the centre O of a horizontal cardboard ABCD and is connected to a battery through a plug key K, as shown in the given figure. If the key is taken out (the circuit is made open) and magnetic field lines are drawn over the horizontal plane ABCD, the lines are"
+  },
+  "solved_answer": "straight lines parallel to each other (c)",
+  "figure_matches": true,
+  "rationale": "Figure 13.1 matches (wire through cardboard ABCD, key K, ammeter, rheostat). Open key: no current, only Earth's uniform field -> parallel straight lines. Key (c) correct; only replaced the 'NCERT Exemplar Figure 13.1' label with a given-figure reference."
+ },
+ {
+  "id": "MAG-EXMPLR-12-MCQ-005",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A uniform magnetic field exists in the plane of paper pointing from left to right as shown in the given figure. In the field an electron and a proton move as shown. The electron and the proton experience",
+   "solutionSteps": [
+    "Force on a moving charge: F = q(v × B). In the figure B points to the right, the proton moves up the page and the electron moves down the page.",
+    "Proton (+e, moving up): (up) × (right) = into the page, so the force on the proton is into the page.",
+    "Electron (−e, moving down): (down) × (right) = out of the page; the negative charge reverses it, so the force is into the page. (Equivalently, the electron's conventional current is upward, like the proton.)",
+    "Both forces point into the plane of paper — option (a)."
+   ]
+  },
+  "solved_answer": "both into the plane of paper (a)",
+  "figure_matches": true,
+  "rationale": "Figure 13.3: B left->right, proton up, electron down. Both forces into the page; key (a) correct. Steps rewritten with the figure's actual directions; stem reference made to 'given figure'."
+ },
+ {
+  "id": "MAG-NCERT-12-MCQ-004",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "An electron enters a magnetic field at right angles to it, as shown in the given figure. The direction of force acting on the electron will be",
+   "solutionSteps": [
+    "In the figure the magnetic field points to the right and the electron moves down the page, so the conventional current is up the page.",
+    "Fleming's left-hand rule: forefinger along the field (right), middle finger along the current (up the page).",
+    "The thumb then points into the page — option (d)."
+   ]
+  },
+  "solved_answer": "into the page (d)",
+  "figure_matches": true,
+  "rationale": "Figure shows field to the right, electron moving downward; current upward; F into page. Key (d) correct. Figure caption reads 'Figure 13.14' vs stem 'Fig. 12.14', so stem now says 'given figure'; steps made concrete."
+ },
+ {
+  "id": "PYQ-S-MAG-004",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A constant current flows in a horizontal wire in the plane of the paper from east to west as shown in the given figure. The direction of the magnetic field will be north to south at a point:",
+   "solutionSteps": [
+    "[1 mark] By the right-hand thumb rule, point the thumb west (direction of current): the field lines circle the wire so that directly below the wire the field points from north to south (and directly above it, south to north). Hence (b) directly below the wire."
+   ],
+   "finalAnswer": "(b) directly below the wire."
+  },
+  "solved_answer": "directly below the wire (b)",
+  "figure_matches": true,
+  "rationale": "Figure shows the E->W wire with N/S/E/W axes. RHTR: below the wire the field is N->S. Key (b) correct; replaced 'b) 1 1' marking-scheme residue with real working and kept figure reference."
+ },
+ {
+  "id": "CBE-S-MNM-A-003",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Using the observations in the given table (Table 1), write the metals A, B, C and D in order of least reactive to most reactive.",
+   "solutionSteps": [
+    "[1 mark] D displaces nothing (least reactive); C displaces only silver (between Ag and Cu); A displaces copper but not iron (between Cu and Fe); B displaces iron but not aluminium (between Fe and Al). Order, least to most reactive: D, C, A, B."
+   ]
+  },
+  "solved_answer": "D, C, A, B",
+  "figure_matches": true,
+  "rationale": "Figure is Table 1 of displacement results; derived order D < C < A < B matches key. Withhold unnecessary once table is shown; step now shows the reasoning from the table."
+ }
+]

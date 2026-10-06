@@ -1,0 +1,296 @@
+[
+ {
+  "id": "SCO-S-LIGHT-020",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Halving an equiconvex lens to get f=40 cm needs the lens-maker relation (f depends on surface radii), which is outside Class X 2026-27. Scraped row, not authored; cannot be naturally repaired."
+ },
+ {
+  "id": "LT2-016",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "answer": "v = +30 cm (image 30 cm on the other side of the lens); real, inverted and magnified (m = −2)",
+   "solutionSteps": [
+    "Given (New Cartesian sign convention): u = −15 cm, f = +10 cm. Lens formula: 1/v − 1/u = 1/f",
+    "1/v = 1/f + 1/u = 1/10 + 1/(−15) = 3/30 − 2/30 = 1/30, so v = +30 cm",
+    "v is positive, so the image is formed 30 cm on the other side of the lens; m = v/u = 30/(−15) = −2, so the image is real, inverted and magnified (twice the size)"
+   ],
+   "finalAnswer": "v = +30 cm; real, inverted, magnified (m = −2)"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single lens-formula substitution is a 3-mark Section C item, not 5-mark Long. Also corrected the wrong formula (1/f = 1/u + 1/v) to the sign-convention form 1/v − 1/u = 1/f; numeric result unchanged."
+ },
+ {
+  "id": "CBE-S-MAGN-A-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options B and C are placeholders for diagrams; diagramDescription only describes A, so B and C cannot be restored from row text and the MCQ has no real distractors."
+ },
+ {
+  "id": "MAG-EXMPLR-12-MCQ-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A straight vertical copper wire passes through the centre O of a horizontal cardboard ABCD and is connected to a battery through a plug key. If the key is taken out (the circuit is made open) and magnetic field lines are drawn over the horizontal plane ABCD, the lines are",
+   "solutionSteps": [
+    "[1 mark] With the key open no current flows in the wire, so the wire produces no magnetic field. Only the Earth's nearly uniform magnetic field acts over the plane ABCD, and its field lines are straight lines parallel to each other — option (c)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "The set-up is fully stated in the stem text; the answer does not depend on the figure. Removed the dangling figure reference."
+ },
+ {
+  "id": "MAG-EXMPLR-12-MCQ-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Velocity directions of the electron and proton exist only in Figure 13.3; the row text does not give them, so the force direction cannot be derived."
+ },
+ {
+  "id": "MAG-NCERT-12-MCQ-004",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "The directions of the field and the electron's motion are given only in Fig. 12.14 and not in the row text; the answer (into the page) cannot be derived without it."
+ },
+ {
+  "id": "PYQ-S-2024-MAG-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] The magnetic field lines of a current-carrying solenoid emerge from one end and enter the other, exactly like a bar magnet; one end acts as a north pole and the other as a south pole. Hence (c) a solenoid."
+   ],
+   "finalAnswer": "(c) A solenoid"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced marking-scheme boilerplate in steps/finalAnswer with the real justification; key (solenoid) is correct."
+ },
+ {
+  "id": "PYQ-S-2026-MAG-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Part (a)(i) depends on an undrawn diagram of magnets X and Y, and the OR block is Hindi-stripped garble. The answer only covers part of the question. Not authored."
+ },
+ {
+  "id": "PYQ-S-2026-MAG-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(A) (i) Draw a diagram showing the magnetic field lines around a bar magnet. Write any two characteristics of magnetic field lines. (ii) Write the statement of Right hand thumb rule. (iii) The concentric circles representing the magnetic field around a current carrying straight wire become larger and larger as we move away from the wire. How does magnetic field change on these concentric circles?\nOR\n(B) (i) Draw a diagram showing the magnetic field lines in and around a current carrying solenoid. Write any two salient features of these lines. (ii) What is an electromagnet and how is it made?",
+   "subtopic": "Magnetic Field Lines, Right-Hand Thumb Rule & Solenoid",
+   "answer": "(A) (i) Diagram: closed field lines leaving the N pole and entering the S pole of the bar magnet. Any two: field lines emerge from N and merge at S outside, running S to N inside (closed curves); closeness of lines shows field strength; no two field lines cross. (ii) Hold the current-carrying straight conductor in the right hand with the thumb along the current; the curled fingers give the direction of the magnetic field lines. (iii) The magnetic field decreases as the circles get larger (farther from the wire).\nOR (B) (i) Diagram of solenoid field lines; features: pattern similar to a bar magnet; inside, the lines are parallel straight lines (uniform field). (ii) An electromagnet is a piece of magnetic material (soft iron) that behaves as a magnet only while current flows through the coil around it; it is made by winding insulated copper wire as a coil around a soft-iron core and passing current through it.",
+   "solutionSteps": [
+    "(A)(i) Diagram: magnetic field lines around a bar magnet as closed curves, leaving the N pole and entering the S pole, with arrows marked.",
+    "(A)(i) Any two characteristics: outside the magnet the field lines go from N pole to S pole and inside from S to N, so they are closed curves; the closeness of the lines shows the relative strength of the field; no two field lines ever cross each other.",
+    "(A)(ii) Right-hand thumb rule: imagine holding a current-carrying straight conductor in your right hand so that the thumb points in the direction of current; then the fingers wrapped around the conductor show the direction of the magnetic field lines.",
+    "(A)(iii) As the concentric circles become larger (farther from the wire), the magnetic field on them decreases; the field is inversely proportional to distance from the wire.",
+    "OR (B)(i) Diagram: field lines of a current-carrying solenoid, parallel inside and spreading out at the ends like a bar magnet, with direction marked. Any two features: the pattern is similar to that of a bar magnet (one end N, other end S); inside the solenoid the lines are parallel straight lines, showing a uniform field.",
+    "(B)(ii) An electromagnet is a magnetic material (soft iron) that behaves like a magnet only while an electric current passes through the coil around it. It is made by winding a coil of insulated copper wire around a soft-iron core (or placing a soft-iron core inside a solenoid) and passing current through the coil."
+   ],
+   "finalAnswer": "(A) Field lines are closed curves N→S outside, do not cross, closeness = strength; right-hand thumb rule as stated; field decreases on larger circles. OR (B) Solenoid field like a bar magnet, uniform parallel lines inside; electromagnet = soft-iron core in a current-carrying coil."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed page footer '____ of 32 1191-1' and the '(1+1)' / 'PAGE10 (SET 31/5/1)' residues. Replaced the mark-residue answer with a full model answer for both the A and B options. Widened the subtopic to cover the question."
+ },
+ {
+  "id": "PYQ-S-MAG-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer depends on the alpha particle's direction 'as shown' (no figure or text given). The options are also generic Assertion-Reason residue, so neither options nor key are recoverable."
+ },
+ {
+  "id": "PYQ-S-MAG-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "The directions of the field and the particle's entry exist only in the absent figure ('as shown'), so the direction of force cannot be derived from the row text."
+ },
+ {
+  "id": "PYQ-S-MAG-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A constant current flows in a horizontal wire lying in the plane of the paper, from east to west. The direction of the magnetic field will be from north to south at a point:",
+   "solutionSteps": [
+    "[1 mark] By the right-hand thumb rule, point the thumb west (direction of current): the fingers curl so that, directly below the wire, the field points from north to south (directly above the wire it points south to north). Hence (b) directly below the wire."
+   ],
+   "finalAnswer": "(b) directly below the wire."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem is answerable from text (current E→W; RHTR gives N→S field below the wire, S→N above); removed 'as shown in the figure' and replaced 'b) 1 1' scheme residue with a real explanation."
+ },
+ {
+  "id": "PYQ-S-MAG-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] Statements (a), (b) and (d) are correct. Statement (c) is incorrect because the field pattern of a current-carrying solenoid is the SAME as that of a bar magnet, not different. Hence (c)."
+   ],
+   "finalAnswer": "(c) The pattern of the magnetic field of a current-carrying solenoid is different from that of a bar magnet — this is the incorrect statement."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced 'c) 1 1' marking-scheme residue with the actual reasoning; key (c) is correct."
+ },
+ {
+  "id": "PYQ-S-MAG-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Field lines are concentric circles around every part of the loop. With the current anticlockwise (seen from above), by the right-hand thumb rule the field inside the loop points upward (out of the table) and outside the loop it points downward (into the table). Near the centre the lines are nearly straight and parallel.",
+   "solutionSteps": [
+    "Mark the anticlockwise current direction on the loop (as seen from above). Apply the right-hand thumb rule to each part of the loop: the field lines form concentric circles around the wire.",
+    "Pattern and direction: inside the loop all lines point upward (out of the table), and near the centre they are almost straight; outside the loop the lines point downward (into the table)."
+   ],
+   "finalAnswer": "Inside the loop: field upward (out of the table), lines nearly straight at the centre; outside the loop: field downward (into the table); concentric circles around the wire."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer/steps were only marking-scheme headings. Replaced them with the actual field pattern and direction worked out by the right-hand thumb rule from the stated anticlockwise current."
+ },
+ {
+  "id": "PYQ-S-MAG-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(a) (i) A straight cylindrical conductor is suspended with its axis perpendicular to the magnetic field of a horse-shoe magnet. The conductor gets displaced towards left when a current is passed through it. What will happen to the displacement of the conductor if the (1) current through it is increased? (2) horse-shoe magnet is replaced by another stronger horse-shoe magnet? (3) direction of current through it is reversed? (ii) Name and state the rule for determining the direction of force on a current carrying conductor in a magnetic field.\nOR\n(b) Draw the pattern of the magnetic field produced around a vertical current carrying straight conductor passing through a horizontal cardboard. Mark the direction of current and the magnetic field lines. Name and state the rule which is used to determine the direction of magnetic field associated with a current carrying conductor.",
+   "answer": "(a)(i) (1) Displacement increases. (2) Displacement increases. (3) Displacement reverses (conductor moves to the right). (ii) Fleming's left-hand rule: stretch thumb, forefinger and middle finger of the left hand mutually perpendicular; if the forefinger points along the magnetic field and the middle finger along the current, the thumb gives the direction of force (motion) on the conductor.\nOR (b) Concentric circles centred on the wire on the cardboard, direction given by the right-hand thumb rule: holding the conductor in the right hand with the thumb along the current, the curled fingers give the direction of the field lines.",
+   "solutionSteps": [
+    "(a)(i) (1) Increased current → larger force → displacement increases. (2) Stronger magnet → larger force → displacement increases. (3) Current reversed → force reverses → conductor is displaced towards the right.",
+    "(a)(ii) Fleming's left-hand rule: stretch the thumb, forefinger and middle finger of the left hand so that they are mutually perpendicular. If the forefinger points in the direction of the magnetic field and the middle finger in the direction of current, the thumb points in the direction of force (motion) on the conductor.",
+    "OR (b) Diagram: concentric circular field lines on the cardboard centred on the wire, with the current direction (e.g. upward) marked on the wire and arrows on the circles (anticlockwise seen from above for upward current).",
+    "(b) Right-hand thumb rule: imagine holding the current-carrying straight conductor in the right hand with the thumb pointing in the direction of current; the fingers wrapped around it give the direction of the magnetic field lines."
+   ],
+   "finalAnswer": "(a)(i) increases; increases; reverses (moves right). (ii) Fleming's left-hand rule (as stated). OR (b) Concentric circles around the wire; right-hand thumb rule (as stated)."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed the stray mark '3' and bifocal-lens/presbyopia answer residue from another question (with \\uf09f glyph). Wrote the real answers for both (a) and the OR (b). Fleming's left-hand rule is in syllabus (only the right-hand rule is excluded)."
+ },
+ {
+  "id": "SCO-S-MAG-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The magnetic lines of force inside a current carrying solenoid are",
+   "solutionSteps": [
+    "[1 mark] Inside a long current-carrying solenoid the field is uniform, so the field lines are straight, parallel to each other and along the axis. Hence (a)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed the page header 'CBSE Objective Questions Exam 2019-2020 … Chap 13' that split the stem; key (a) is correct."
+ },
+ {
+  "id": "SCO-S-MAG-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Which of the following processes will not produce new magnetic poles?",
+   "solutionSteps": [
+    "[1 mark] Cutting a magnet creates new N and S poles at the cut. A current-carrying solenoid has N and S poles at its ends. An iron rod touching a magnet gets magnetised and develops poles. A straight current-carrying wire makes only circular field lines with no poles. Hence (c)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed the tail of the previous answer and the publisher disclaimer/'12.' prefix. Key (c) is correct: a straight wire's circular field has no poles."
+ },
+ {
+  "id": "SCO-S-MAG-012",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Magnetic declination and ship-steering navigation are not in the Class X 2026-27 syllabus. The degree signs are also garbled ('8c', '18c'). Scraped, not authored."
+ },
+ {
+  "id": "SCO-S-MAG-015",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "Current flowing through the conductor",
+    "Distance from the conductor",
+    "Voltage across the conductor",
+    "Resistance of the conductor"
+   ],
+   "answer": "Current flowing through the conductor",
+   "solutionSteps": [
+    "[1 mark] The magnetic field produced by a current-carrying conductor at a point is directly proportional to the current through it (and inversely proportional to the distance from it). Hence (a)."
+   ],
+   "finalAnswer": "(a) Current flowing through the conductor"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Truncated option (a) 'current flowing through to the' restored to 'Current flowing through the conductor' (unambiguous; the other options all end in 'the conductor'). Key unchanged."
+ },
+ {
+  "id": "SCQ-S-MAG-036",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Domestic Electric Circuits — Fuse Rating",
+   "difficulty": "Medium",
+   "answer": "Current drawn I = P/V = 2200 W / 220 V = 10 A, so the minimum fuse rating is 10 A (in practice a fuse slightly above 10 A is used).",
+   "solutionSteps": [
+    "Total power of two geysers run together: P = 2 × 1.1 kW = 2.2 kW = 2200 W",
+    "Current drawn from the line: I = P/V = 2200 W / 220 V",
+    "I = 10 A, so the fuse must be able to carry at least 10 A: minimum fuse rating = 10 A (a fuse slightly above 10 A is used in practice)."
+   ],
+   "finalAnswer": "Minimum fuse rating = 10 A (I = 2200 W / 220 V = 10 A)"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Replaced garbled PDF-formula text with a clean three-step solution: I = P/V = 2200/220 = 10 A. Subtopic set to the fuse topic. Difficulty lowered from Hard to Medium."
+ }
+]

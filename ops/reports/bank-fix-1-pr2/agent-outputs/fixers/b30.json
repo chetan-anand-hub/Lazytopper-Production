@@ -1,0 +1,301 @@
+[
+ {
+  "id": "SCO-S-ENV-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Global warming vs past natural climate change is not in Class 10 Our Environment (2026-27: ecosystem, food chains/webs, ozone, waste). External source (cbjescco15), not authored; withhold."
+ },
+ {
+  "id": "SCO-S-ENV-006",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Greenhouse effect (CO2 absorbing radiated heat) is not part of Class 10 Our Environment 2026-27; external source row, cannot be retagged to another Class 10 chapter."
+ },
+ {
+  "id": "SCO-S-ENV-007",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Carbon cycle/carbon reservoir is Class 9 Natural Resources (biogeochemical cycles), not Class 10 Our Environment; external row."
+ },
+ {
+  "id": "SCO-S-ENV-013",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Hydrosphere/lithosphere definitions are Class 9 Natural Resources content, not Class 10 Our Environment; external row."
+ },
+ {
+  "id": "SCO-S-ENV-016",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Population/biotic community definitions are not taught in NCERT Class 10 Our Environment (Class 12 Ecology); external row."
+ },
+ {
+  "id": "SCO-S-ENV-019",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Human impact on the nitrogen cycle (acid rain, greenhouse gas) is outside Class 10 Our Environment 2026-27; external row."
+ },
+ {
+  "id": "SCQ-S-ENV-025",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Construct a food chain using rabbit, grass and fox, and assign the trophic level to the rabbit."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed source tag [Delhi 2016]; stem now asks for the food chain + trophic level, matching the existing 2-mark scheme (1 chain + 1 level). Answer/steps unchanged."
+ },
+ {
+  "id": "PLE2-018",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A rectangular garden has a perimeter of 56 m. Its length is 4 m more than its width.\n(i) Taking length = l m and width = w m, form the linear equation given by the perimeter.\n(ii) Form the second linear equation from the relation between length and width.\n(iii) Solve the pair of equations to find the length and width of the garden, and hence its area.",
+   "answer": "(i) l + w = 28  (ii) l − w = 4  (iii) Length = 16 m, width = 12 m; area = 192 m².",
+   "solutionSteps": [
+    "[1 mark] (i) Perimeter: 2(l + w) = 56 ⇒ l + w = 28 …(1)",
+    "[1 mark] (ii) Length is 4 m more than width: l = w + 4 ⇒ l − w = 4 …(2)",
+    "[1 mark] (iii) Adding (1) and (2): 2l = 32 ⇒ l = 16; from (1): w = 28 − 16 = 12",
+    "[1 mark] Length = 16 m, width = 12 m; area = 16 × 12 = 192 m² (check: 2(16 + 12) = 56 ✓)"
+   ],
+   "finalAnswer": "Length = 16 m, width = 12 m (area 192 m²)",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "pyqYear": null,
+   "pyqSet": null
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row was indeterminate (both conditions gave l+w=28). Restructured into a determinate 1+1+2 case (l−w=4 ⇒ 16 m × 12 m). Cleared pyqYear/pyqSet since the rewritten item is not a PYQ."
+ },
+ {
+  "id": "PYQ-M-2024-PLE-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The solution of the pair of linear equations 2x/3 − y/2 = −1/6 and x/2 + 2y/3 = 3 is :"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored fractions. Check x=2,y=3: 4/3 − 3/2 = −1/6 ✓; 1 + 2 = 3 ✓. Key (c) stands."
+ },
+ {
+  "id": "PYQ-M-2025-PLE-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If x = 1 and y = 2 is a solution of the pair of linear equations 2x − 3y + a = 0 and 2x + 3y − b = 0, then :"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored minus signs. 2−6+a=0 ⇒ a=4; 2+6−b=0 ⇒ b=8 ⇒ 2a=b; only (b) holds."
+ },
+ {
+  "id": "PYQ-M-2025-PLE-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A) : The pair of linear equations px + 3y + 59 = 0 and 2x + 6y + 118 = 0 will have infinitely many solutions if p = 1. Reason (R): If the pair of linear equations px + 3y + 19 = 0 and 2x + 6y + 157 = 0 has a unique solution, then p ≠ 1.",
+   "solutionSteps": [
+    "Correct option: (b). A: p/2 = 3/6 = 59/118 gives p = 1, so A is true. R: unique solution needs p/2 ≠ 3/6, i.e. p ≠ 1, so R is true. R concerns a different pair (unique-solution condition), so it does not explain A."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored lost ≠ in Reason. A true (p=1 makes ratios all 1/2), R true (p≠1 for unique), R not the explanation ⇒ (b). Cleaned the double-period step."
+ },
+ {
+  "id": "PYQ-M-2025-PLE-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "coincident",
+    "parallel",
+    "intersecting at one point",
+    "intersecting at right angles"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed page footer \"30/3/2 # 6| P a g e\" from option (d). Key (b) parallel correct."
+ },
+ {
+  "id": "PYQ-M-2025-PLE-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A school is organizing a grand cultural event to show the talent of its students. To accommodate the guests, the school plans to rent chairs and tables from a local supplier. It finds that the rent for each chair is ₹50 and for each table is ₹200. The school spends ₹30,000 for renting the chairs and tables. Also, the total number of items (chairs and tables) rented is 300.\n(i) Write down the pair of linear equations representing the given information.\n(ii) (a) Find the number of chairs and number of tables rented by the school.\nOR\n(b) If the school wants to spend a maximum of ₹27,000 on 300 items (tables and chairs), then find the number of chairs and tables it can rent.\n(iii) What is the maximum number of tables that can be rented in ₹30,000 if no chairs are rented?",
+   "answer": "(i) x + y = 300 and 50x + 200y = 30000 (i.e. x + 4y = 600). (ii)(a) 200 chairs and 100 tables. OR (b) 220 chairs and 80 tables. (iii) 150 tables.",
+   "solutionSteps": [
+    "(i) Let chairs = x, tables = y: x + y = 300 and 50x + 200y = 30000, i.e. x + 4y = 600. [1 mark]",
+    "(ii)(a) Subtracting x + y = 300 from x + 4y = 600: 3y = 300 ⇒ y = 100, x = 200. So 200 chairs and 100 tables. [2 marks] OR (b) x + y = 300 and 50x + 200y = 27000, i.e. x + 4y = 540 ⇒ 3y = 240 ⇒ y = 80, x = 220. So 220 chairs and 80 tables. [2 marks]",
+    "(iii) Number of tables = 30000 ÷ 200 = 150, so at most 150 tables can be rented if no chairs are rented. [1 mark]"
+   ],
+   "finalAnswer": "(i) x + y = 300, x + 4y = 600; (ii)(a) 200 chairs, 100 tables OR (b) 220 chairs, 80 tables; (iii) 150 tables"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored ₹ symbols, removed inline mark digits/½ residue, fixed garbled \"30000 200\" to 30000 ÷ 200 = 150. Stem was complete. Verified: 200·50+100·200=30000; 220·50+80·200=27000."
+ },
+ {
+  "id": "PYQ-M-2026-PLE-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "garbled",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options (a) \"1 2 2 1 c c a a\" and (c) \"2 1 2 1 b b a a\" are fraction extractions whose relation symbol (= or ≠) and order cannot be recovered; if either were an equality it would also be true, so uniqueness of key cannot be confirmed."
+ },
+ {
+  "id": "PYQ-M-2026-PLE-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "The lines x = 4 and 3x − 2y = 6 intersect at (4, 3). Solution: x = 4, y = 3.",
+   "solutionSteps": [
+    "[1 mark] Table for 3x − 2y = 6 (y = (3x − 6)/2): (0, −3), (2, 0), (4, 3); plot and join to get the line.",
+    "[1 mark] x = 4 is the vertical line through (4, 0), parallel to the y-axis; draw it on the same axes.",
+    "[1 mark] The two lines intersect at (4, 3). Hence x = 4, y = 3 (check: 3(4) − 2(3) = 6 ✓)."
+   ],
+   "finalAnswer": "x = 4, y = 3"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer was truncated \"y =\". Substituting x=4: 12 − 2y = 6 ⇒ y = 3. Rebuilt 3-step graphical solution; question needs no figure (student draws it)."
+ },
+ {
+  "id": "le-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "Aman bought 3 pens and 2 pencils for Rs 60. Beena bought 2 pens and 5 pencils for Rs 62.\n(i) Form a pair of linear equations for the given situation.\n(ii) Solve the equations to find the cost of one pen and one pencil.\n(iii) What is the cost of 4 pens and 4 pencils?",
+   "answer": "(i) 3x + 2y = 60 and 2x + 5y = 62, where x = cost of a pen and y = cost of a pencil (in Rs). (ii) Pen = Rs 16, pencil = Rs 6. (iii) 4 pens + 4 pencils = 4(16 + 6) = Rs 88.",
+   "solutionSteps": [
+    "[1 mark] (i) Let cost of a pen = Rs x and a pencil = Rs y: 3x + 2y = 60 …(1) and 2x + 5y = 62 …(2).",
+    "[1 mark] (ii) (1)×5: 15x + 10y = 300; (2)×2: 4x + 10y = 124; subtracting: 11x = 176 ⇒ x = 16.",
+    "[1 mark] From (1): 48 + 2y = 60 ⇒ y = 6. Pen = Rs 16, pencil = Rs 6 (check (2): 32 + 30 = 62 ✓).",
+    "[1 mark] (iii) Cost of 4 pens and 4 pencils = 4(x + y) = 4(16 + 6) = Rs 88."
+   ],
+   "finalAnswer": "Pen = Rs 16, pencil = Rs 6; 4 pens + 4 pencils = Rs 88",
+   "explanation": "Form two linear equations from the two purchases and solve by elimination (multiply to equalise the y-coefficients, then subtract). Here x = 16, y = 6, so 4(x + y) = 88."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored data gave non-terminating rupee prices (x=170/11). Changed Beena's total to Rs 62 => pen Rs 16, pencil Rs 6, 4+4 costs Rs 88. Added 1+2+1 step-marked scheme."
+ },
+ {
+  "id": "PLE-M10",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "quadratic-equations",
+   "subtopic": "Word Problems on Quadratic Equations",
+   "questionText": "In a class test, the sum of Shefali's marks in Mathematics and English is 30. Had she got 2 more marks in Mathematics and 3 marks less in English, the product of their marks would have been 210.\n(i) Taking her marks in Mathematics as x, express her marks in English in terms of x.\n(ii) Form the quadratic equation representing the given condition.\n(iii) Solve the equation to find her marks in the two subjects.",
+   "solutionSteps": [
+    "(i) Maths = x, so English = 30 − x [1]",
+    "(ii) (x + 2)(30 − x − 3) = 210 → (x + 2)(27 − x) = 210 → 27x − x² + 54 − 2x = 210 → x² − 25x + 156 = 0 [1]",
+    "(iii) x² − 13x − 12x + 156 = 0 → (x − 12)(x − 13) = 0 → x = 12 or x = 13 [1]",
+    "If x = 12, English = 18; if x = 13, English = 17 (check: 14 × 15 = 210 ✓, 15 × 14 = 210 ✓) [1]"
+   ],
+   "finalAnswer": "Maths 12, English 18; or Maths 13, English 17",
+   "visualExplainerId": null
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Product condition is quadratic, not a linear pair; (iv) consistency was meaningless. Retagged to quadratic-equations, rewrote parts as 1+1+2 quadratic case solved by factorisation. Same marks. Cleared linear-equations visual explainer."
+ },
+ {
+  "id": "SQP-M-PLE-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The sum of a two digit number and the number obtained by reversing the digits is 66. If the digits of the number differ by 2, find the number. How many such numbers are there?",
+   "answer": "The numbers are 42 and 24 (two such numbers).",
+   "solutionSteps": [
+    "Let tens digit = x, units digit = y. Original number = 10x + y; reversed number = 10y + x. Sum: (10x + y) + (10y + x) = 66 ⇒ 11(x + y) = 66 ⇒ x + y = 6.",
+    "Digits differ by 2: either x − y = 2 or y − x = 2.",
+    "Case 1: x + y = 6 and x − y = 2 ⇒ x = 4, y = 2 → number = 42. Case 2: x + y = 6 and y − x = 2 ⇒ x = 2, y = 4 → number = 24. Two such numbers: 42 and 24."
+   ],
+   "finalAnswer": "42 and 24 (two such numbers)"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed OR alternative (2/√x + 3/√y …), equations reducible to linear form are deleted for 2026-27. Main question, answer and 3-step scheme kept."
+ },
+ {
+  "id": "BX-PLE-D-024",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] Let the larger angle = x and the smaller = y. Then x + y = 180 …(1) and x = 2y − 6 …(2).",
+    "[1 mark] Substituting (2) in (1): 3y − 6 = 180 ⇒ y = 62, x = 2(62) − 6 = 118. The angles are 118° and 62°."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Two-equation, one-substitution item is a 2-mark Section B Short, not a 5-mark Long. Steps condensed to 2 marks; answer 118°, 62° unchanged and correct."
+ },
+ {
+  "id": "BX-PLE-D-025",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] Let the angles be x° and y°. Complementary: x + y = 90 …(1); ratio 4 : 5: 5x − 4y = 0 …(2).",
+    "[1 mark] From (1), y = 90 − x; in (2): 9x − 360 = 0 ⇒ x = 40, y = 50. The angles are 40° and 50°."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Ratio + complementary pair is a 2-mark Section B Short, not 5-mark Long. Steps condensed to 2 marks; answer 40°, 50° unchanged and correct."
+ }
+]

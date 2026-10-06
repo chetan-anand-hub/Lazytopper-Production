@@ -1,0 +1,323 @@
+[
+ {
+  "id": "PYQ-M-2026-POLY-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "While playing badminton, Ravi sees a barrier chain hung between two posts at the edge of the walkway of a street. It hangs in the shape of a parabola. Based on the above information, answer the following questions:\n(a) Which type of polynomial (linear, quadratic, cubic etc.) is graphically represented by a parabola?\n(b) If the polynomial represented by the parabola intersects the x-axis at –2 and 3 and the y-axis at –3, write the zeroes of the polynomial.\n(c) Find the expression for the above polynomial.\nOR\n(c) If the zeroes of a quadratic polynomial are –5 and 3, find its expression."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "No figure needed: all data (x-intercepts -2, 3; y-intercept -3) is in the text. Answer is complete in the served row (not truncated). Only cleaned 'xaxis'/'yaxis' and wording."
+ },
+ {
+  "id": "PYQ-M-2026-POLY-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Point A, P, Q and the zeroes (228.5, -238.5) are read off the missing diagram; the exact zeroes of the stated p(x) are about 228.3 and -238.3, so the item cannot be answered as keyed without the figure."
+ },
+ {
+  "id": "PYQ-M-POLY-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): The polynomial p(x) = x² + 3x + 3 has two real zeroes.\nReason (R): A quadratic polynomial can have at most two real zeroes.",
+   "solutionSteps": [
+    "Correct option: (d). For x² + 3x + 3, b² − 4ac = 9 − 12 = −3 < 0, so it has no real zeroes — A is false. A quadratic has at most two real zeroes — R is true."
+   ],
+   "finalAnswer": "(d) Assertion (A) is false but Reason (R) is true."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored x² superscript, removed mark residue '1' from finalAnswer, added justification. Key (d) verified: discriminant −3 < 0."
+ },
+ {
+  "id": "PYQ-M-POLY-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If α, β are the zeroes of the polynomial x² – 1, then the value of (α + β) is:",
+   "solutionSteps": [
+    "Correct option: (d) 0. For x² − 1, a = 1, b = 0, so α + β = −b/a = 0 (zeroes are 1 and −1)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored x² superscript; key 0 verified."
+ },
+ {
+  "id": "PYQ-M-POLY-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If α, β are the zeroes of the polynomial p(x) = 4x² – 3x – 7, then 1/α + 1/β is equal to:",
+   "options": [
+    "7/3",
+    "−7/3",
+    "3/7",
+    "−3/7"
+   ],
+   "answer": "−3/7",
+   "solutionSteps": [
+    "Correct option: (d) −3/7. α + β = 3/4, αβ = −7/4, so 1/α + 1/β = (α + β)/(αβ) = (3/4)/(−7/4) = −3/7."
+   ],
+   "finalAnswer": "(d) −3/7"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "PDF fractions de-garbled: stem 1/α + 1/β, options 7/3, −7/3, 3/7, −3/7 (pattern of garbled '7 3 −'/'3 7 −'). Key −3/7 verified; exactly one option correct."
+ },
+ {
+  "id": "PYQ-M-POLY-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If one zero of the polynomial p(x) = 6x² + 37x – (k – 2) is the reciprocal of the other, then find the value of k.",
+   "subtopic": "Relationship between Zeroes and Coefficients",
+   "answer": "k = −4",
+   "solutionSteps": [
+    "[1 mark] Let the zeroes be α and 1/α. Product of zeroes = α · (1/α) = 1 = c/a = −(k − 2)/6.",
+    "[1 mark] So −(k − 2) = 6 ⇒ −k + 2 = 6 ⇒ k = −4."
+   ],
+   "finalAnswer": "k = −4"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Answer was garbled/truncated ('k = –'); re-solved: product 1 = −(k−2)/6 ⇒ k = −4. Restored x², retagged subtopic."
+ },
+ {
+  "id": "PYQ-M-POLY-006",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "duplicate",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Same question as PYQ-M-POLY-005 (other paper set) with SECTION–C header residue and the same truncated answer; 005 is the repaired copy, this is the worse duplicate."
+ },
+ {
+  "id": "SQP-M-POLY-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Question is entirely about a graph not present in the text ('The given linear polynomial y = f(x)'); answer cannot be determined without it."
+ },
+ {
+  "id": "poly-comp-02",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "(a) Split the middle term: 6x² + 11x − 10 = 6x² + 15x − 4x − 10 = 3x(2x + 5) − 2(2x + 5) = (3x − 2)(2x + 5). [1]",
+    "Zeros: x = 2/3 and x = −5/2. [1]",
+    "(b) A length must be positive, so x = 2/3 m is the valid zero; −5/2 is rejected. [1]",
+    "(c) Sum = 2/3 − 5/2 = −11/6 = −b/a; Product = (2/3)(−5/2) = −5/3 = −10/6 = c/a. Relationship verified. [1]"
+   ],
+   "finalAnswer": "(a) Zeros 2/3 and −5/2; (b) x = 2/3 (length must be positive); (c) sum −11/6 = −b/a, product −5/3 = c/a — verified."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added CBSE step-marked solutionSteps (4 × 1 mark) and finalAnswer; content verified correct."
+ },
+ {
+  "id": "2026-POLY-CASE-08",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The polynomial P(x) = x² − 3x − 4 models the profit (in lakh ₹, a negative value meaning a loss) of a small start-up x years after it opened.\n(a) Factorise P(x) by splitting the middle term.\n(b) Find the zeroes of P(x).\n(c) Which zero gives a meaningful break-even time (profit zero)? Also verify the relationship between the zeroes and the coefficients of P(x).",
+   "answer": "(a) P(x) = (x − 4)(x + 1). (b) Zeroes: 4 and −1. (c) Only x = 4 is meaningful (time cannot be negative), so break-even is after 4 years. Sum = 3 = −(−3)/1, product = −4 = −4/1 — verified.",
+   "explanation": "Split −3x as −4x + x: x² − 4x + x − 4 = x(x − 4) + 1(x − 4) = (x − 4)(x + 1). The zeroes are 4 and −1. Time x ≥ 0, so x = −1 is rejected and the start-up breaks even after 4 years. Sum of zeroes 3 = −b/a and product −4 = c/a.",
+   "solutionSteps": [
+    "(a) x² − 3x − 4 = x² − 4x + x − 4 = x(x − 4) + 1(x − 4) = (x − 4)(x + 1). [1]",
+    "(b) P(x) = 0 ⇒ x = 4 or x = −1. [1]",
+    "(c) Time cannot be negative, so x = −1 is rejected; break-even occurs at x = 4 years. [1]",
+    "Sum = 4 + (−1) = 3 = −(−3)/1 = −b/a; Product = (4)(−1) = −4 = c/a. Verified. [1]"
+   ],
+   "strategyHint": "Split the middle term to factorise, then reject zeroes that make no sense in the real-world context.",
+   "finalAnswer": "(a) (x − 4)(x + 1). (b) 4 and −1. (c) x = 4 years is the only meaningful break-even time; sum 3 = −b/a, product −4 = c/a."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: complete factorisation of a cubic is outside 2026-27 (zero-coefficient work is quadratic-only). Rebuilt as a quadratic profit case with 1+1+2 parts; solved and verified."
+ },
+ {
+  "id": "CFPQ-M-POLY-013",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Official CBSE Class 10 CFPQ (Ch.2) item; the marking scheme uses f(−1)=0 and comparing coefficients, not the division algorithm. Not in any 2026-27 LIMIT; flag was uncertain. Served as CBSE published it."
+ },
+ {
+  "id": "CFPQ-M-POLY-014",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Official CBSE Class 10 CFPQ (Ch.2) item; solved by comparing coefficients (no division algorithm) and reading zeroes as x-intercepts. Not in any 2026-27 LIMIT; key (two points) verified."
+ },
+ {
+  "id": "PL2-R10",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The graph of a quadratic polynomial p(x) intersects the x-axis at −3 and 2 and the y-axis at −12. Find p(x) and verify the relationship between its zeroes and coefficients.",
+   "answer": "p(x) = 2x² + 2x − 12; sum of zeroes = −1 = −b/a, product = −6 = c/a",
+   "solutionSteps": [
+    "Zeroes are −3 and 2, so p(x) = k(x + 3)(x − 2) = k(x² + x − 6).",
+    "p(0) = −6k = −12 ⇒ k = 2, so p(x) = 2x² + 2x − 12.",
+    "Sum = −3 + 2 = −1 = −2/2 = −b/a; Product = (−3)(2) = −6 = −12/2 = c/a. Verified."
+   ],
+   "finalAnswer": "p(x) = 2x² + 2x − 12; sum −1 = −b/a, product −6 = c/a (verified)."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: sum/product of zeroes of a cubic is outside 2026-27 (quadratic only). Repaired to a quadratic with given x- and y-intercepts; solved and verified."
+ },
+ {
+  "id": "POLY-H05",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "For p(x) = x³ + ax² + bx + 6, it is given that 2 is a zero of p(x) and p(3) = 3. Find a and b."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Authored row: removed remainder/factor-theorem framing (Class 9) — now just evaluating p(x) at given values. Answer a = −3, b = −1 unchanged and re-verified."
+ },
+ {
+  "id": "BX-POLY-D-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 2,
+   "section": "B",
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] α + β = −b/a, αβ = c/a, and α² + β² = (α + β)² − 2αβ.",
+    "[1 mark] = b²/a² − 2c/a = (b² − 2ac)/a². Hence proved."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Two-line identity derivation; not a 5-mark long answer. Retagged to 2-mark Section B with 2 marked steps."
+ },
+ {
+  "id": "BX-POLY-D-013",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 2,
+   "section": "B",
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] α + β = −b/a, αβ = c/a (c ≠ 0, so α, β ≠ 0); 1/α + 1/β = (α + β)/(αβ).",
+    "[1 mark] = (−b/a) ÷ (c/a) = −b/c. Hence proved."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Two-line derivation; retagged from 5-mark Long to 2-mark Section B with 2 marked steps."
+ },
+ {
+  "id": "BX-POLY-D-015",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] α + β = −b/a, αβ = c/a (c ≠ 0 so α, β ≠ 0); 1/α² + 1/β² = (α² + β²)/(αβ)².",
+    "[1 mark] Numerator: (α + β)² − 2αβ = b²/a² − 2c/a = (b² − 2ac)/a²; denominator (αβ)² = c²/a².",
+    "[1 mark] Divide: (b² − 2ac)/c². Hence proved."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Short derivation; retagged from 5-mark Long to 3-mark Section C with 3 marked steps."
+ },
+ {
+  "id": "POLY-H07-R",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] α + β = −b/a and αβ = c/a; α/β + β/α = (α² + β²)/(αβ).",
+    "[1 mark] α² + β² = (α + β)² − 2αβ = b²/a² − 2c/a = (b² − 2ac)/a².",
+    "[1 mark] (α² + β²)/(αβ) = [(b² − 2ac)/a²] ÷ (c/a) = (b² − 2ac)/(ac). Hence proved."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Short derivation; retagged from 5-mark Long to 3-mark Section C with 3 marked steps."
+ },
+ {
+  "id": "POLY-N-NCERT-2-LA-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "Split the middle term: 3x² − 4x + 3x − 4 = x(3x − 4) + 1(3x − 4) = (x + 1)(3x − 4).",
+    "Zeroes: x = −1 and x = 4/3.",
+    "Sum = −1 + 4/3 = 1/3 = −(−1)/3 = −b/a; Product = (−1)(4/3) = −4/3 = c/a. Relationship verified."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "NCERT Ex 2.2 find-zeroes-and-verify item is a standard 3-mark SA, not 5-mark LA. Retagged to Section C, 3 steps."
+ },
+ {
+  "id": "poly-hpq-2",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 2,
+   "section": "B",
+   "solutionSteps": [
+    "Compare with ax² + bx + c: a = 2, b = −5, c = 3; α + β = −b/a = 5/2. [1]",
+    "αβ = c/a = 3/2. [1]"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Direct formula application with no solving; worth 2 marks, not 3. Retagged to Section B with 2 marked steps."
+ }
+]

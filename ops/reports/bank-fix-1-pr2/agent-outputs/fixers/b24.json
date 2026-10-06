@@ -1,0 +1,297 @@
+[
+ {
+  "id": "FND-L-QB-160",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "human-eye-and-colourful-world",
+   "questionText": "While tracing the path of a ray of light through a triangular glass prism, a student marked the angles as follows: angle A at the apex of the prism, between its two refracting faces; angle i between the incident ray and the normal at the first face; angle r between the refracted ray inside the prism and the extension of the incident ray; angle e near the apex, between a dashed line and the second face; angle D at the point of emergence, between the emergent ray and the normal. The correctly marked angles are:",
+   "solutionSteps": [
+    "[1 mark] Angle A (between the two refracting faces) and angle i (incident ray to normal) are correct; r must be measured from the normal (not from the incident-ray extension), e must lie between the emergent ray and the normal at the second face, and D lies between the extended incident ray and the extended emergent ray - so only angle A and angle i are correctly marked."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Figure-dependent stem rewritten in words from the row's own diagramDescription; answer unchanged. Refraction through a prism is NCERT Human Eye ch. (sec 10.4) - retagged."
+ },
+ {
+  "id": "FND-L-QB-171",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "human-eye-and-colourful-world",
+   "questionText": "After tracing the path of a ray of light through a triangular glass prism, a student marked the angles as follows: angle i between the incident ray and the normal at the first face; angle D just after the first refraction, between the ray inside the prism and the extension of the incident ray; angle r near the apex on the second face, between the normal and the face; angle e at the point of emergence, between the emergent ray and the normal. The correctly marked angles are:",
+   "solutionSteps": [
+    "[1 mark] Angle i (incident ray to normal at the first face) and angle e (emergent ray to normal at the second face) are correct; r must be between the refracted ray inside the prism and the normal at the first face, and D must be between the extended incident ray and the extended emergent ray - so the correctly marked angles are i and e."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Figure-dependent stem rewritten in words from the row's own diagramDescription; answer unchanged. Prism refraction retagged to Human Eye chapter."
+ },
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A light ray travelling in medium A enters medium B and bends towards the normal at the boundary. The refractive index of medium B relative to medium A will be",
+   "solutionSteps": [
+    "[1 mark] (a) greater than unity - the ray bends TOWARDS the normal on entering B, so B is optically denser than A; the angle of refraction is smaller than the angle of incidence, so n(B/A) = sin i / sin r > 1."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fig. 10.2 replaced by the ray behaviour recorded in the row's own strategyHint (ray bends towards normal in B); answer (a) unchanged."
+ },
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Beams of light enter a closed box through holes A and B and emerge through holes C and D respectively. Each emergent beam is parallel to its incident beam but shifted sideways. Which of the following could be inside the box?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fig. 10.3 replaced by the geometry recorded in the row's strategyHint (emergent beams parallel to incident, laterally shifted); answer unchanged."
+ },
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A parallel beam of light enters a closed box through holes on side A. Inside the box the rays meet at a point and then spread out, emerging through the holes on the opposite face. Which of the following could be inside the box?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fig. 10.4 replaced by the geometry recorded in the row's strategyHint (parallel rays converge to a point then diverge); answer convex lens unchanged."
+ },
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-014",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are bare labels A-D naming four ray paths in Fig. 10.5; the paths are not described anywhere in the row and cannot be reconstructed without inventing distractors."
+ },
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-016",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options Fig. A-D are four candidate ray diagrams (Fig. 10.6) not described in the row; the incident ray itself is unknown, so the question cannot be answered text-only."
+ },
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-017",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options Fig. A-D are candidate ray diagrams (Fig. 10.7) not described in the row; lens type and incident ray unknown, unanswerable without the figure."
+ },
+ {
+  "id": "LIGHT-NCERT-9-SA-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The absolute refractive indices of some media are: Air 1.0003, Ice 1.31, Water 1.33, Alcohol 1.36, Kerosene 1.44, Turpentine oil 1.47, Crown glass 1.52, Rock salt 1.54, Carbon disulphide 1.63, Dense flint glass 1.65, Ruby 1.71, Sapphire 1.77, Diamond 2.42. From these values, find the medium having the highest optical density and the medium having the lowest optical density.",
+   "solutionSteps": [
+    "[0.5 mark] Optical density is indicated by the refractive index - higher n means optically denser.",
+    "[0.5 mark] Compare the given absolute refractive indices for the highest and lowest values.",
+    "[0.5 mark] Highest n = 2.42 → Diamond. Lowest n = 1.0003 → Air.",
+    "[0.5 mark] Therefore: highest optical density = Diamond; lowest = Air."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem referenced NCERT Table 9.3 without the data; embedded the standard NCERT refractive-index values so the row is self-contained. Answer unchanged."
+ },
+ {
+  "id": "PYQ-S-2024-LIGHT-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Power of a lens is the reciprocal of its focal length in metres (degree of convergence/divergence produced by the lens). P = 1/f(m) = 100/f(cm) = 100/50 = 2 D.",
+   "solutionSteps": [
+    "[1 mark] Power of a lens is the reciprocal of its focal length expressed in metres / the degree of convergence or divergence of light rays achieved by a lens.",
+    "[1 mark] P = 1/f(m) = 100/f(cm) = 100/50 = 2 D (dioptre)."
+   ],
+   "finalAnswer": "P = 100/50 = 2 D"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Garbled fraction 'P = 1 f = 100 50' restored to P = 1/f(m) = 100/f(cm) = 100/50 = 2 D; definition added to answer. Value unchanged."
+ },
+ {
+  "id": "PYQ-S-2024-LIGHT-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(a) (i) State the laws of reflection of light. (ii) An object of height 5·0 cm is placed at 15 cm in front of a concave mirror of focal length 10 cm. At what distance from the mirror should a screen be placed, so that a focussed image is obtained on it? Find the height of the image. OR (b) (i) State the laws of refraction of light. (ii) Draw a ray diagram to show refraction of a ray of light through a rectangular glass slab. How is the emergent ray related to the incident ray? Mark the lateral displacement in the diagram."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed mark residues '5' and page artifact '5 22 >'. The diagram is one the student must DRAW, so no figure is missing; numerics verified (v = -30 cm, h' = -10 cm)."
+ },
+ {
+  "id": "PYQ-S-2025-LIGHT-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are angle numbers 1-7 marked on an undescribed prism figure; no text in the row identifies which number is which angle - unanswerable without the figure."
+ },
+ {
+  "id": "PYQ-S-2025-LIGHT-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "f = –20 cm, u = –30 cm. 1/v = 1/f – 1/u = –1/20 + 1/30 = –1/60 ⇒ v = –60 cm. The image is formed 60 cm in front of the mirror (real, inverted).",
+   "solutionSteps": [
+    "[0.5 mark] f = –20 cm, u = –30 cm (New Cartesian sign convention).",
+    "[1.5 marks] Mirror formula 1/f = 1/v + 1/u ⇒ 1/v = 1/f – 1/u = –1/20 + 1/30 = (–3 + 2)/60 = –1/60 ⇒ v = –60 cm. The image is formed 60 cm in front of the mirror."
+   ],
+   "finalAnswer": "v = –60 cm (image 60 cm in front of the mirror)"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Garbled fractions restored and lost sign fixed: v = -60 cm (real image in front). Verified: -1/20+1/30 = -1/60."
+ },
+ {
+  "id": "PYQ-S-2025-LIGHT-011",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "f = –15 cm, u = –10 cm. 1/v = 1/f – 1/u = –1/15 + 1/10 = 1/30 ⇒ v = +30 cm. The image is formed 30 cm behind the mirror (virtual, erect).",
+   "solutionSteps": [
+    "[0.5 mark] u = –10 cm, f = –15 cm (New Cartesian sign convention).",
+    "[1.5 marks] Mirror formula 1/f = 1/v + 1/u ⇒ 1/v = 1/f – 1/u = –1/15 + 1/10 = (–2 + 3)/30 = 1/30 ⇒ v = +30 cm. The image is formed 30 cm behind the mirror."
+   ],
+   "finalAnswer": "v = +30 cm (image 30 cm behind the mirror)"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Garbled fractions restored; v = +30 cm verified (-1/15+1/10 = 1/30), image behind mirror, virtual."
+ },
+ {
+  "id": "PYQ-S-2025-LIGHT-019",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(a) (i) Concave lens; f = 1/P = 1/(–2·5) m = –0·4 m = –40 cm; prescribed for myopia. (ii) m = –2: (I) real and inverted; (II) magnified - image twice the size of the object; (III) v = m×u = –2 × (–20) = +40 cm, i.e. 40 cm on the other side of the lens (beyond 2F); (IV) height of image is negative. (iii) Lens A (f = 10 cm): power ∝ 1/f, so the shorter focal length gives the higher degree of convergence/divergence. OR (b) (i) Ray diagram: ray bends towards the normal on entering glass and away from the normal on leaving; emergent ray parallel to incident ray. (ii) Snell's law: sin i / sin r = constant (refractive index of the second medium w.r.t. the first) for a given pair of media and a given colour of light. (iii) (I) Convex lens forms a virtual image only when the object is between F and the optical centre; a concave lens forms a virtual image for any object position. (II) Virtual image by convex lens is magnified (m > 1); by concave lens it is diminished (m < 1).",
+   "solutionSteps": [
+    "[2 marks] (a) (i) Concave (diverging) lens. f = 1/P = 1/(–2·5) m = –0·4 m = –40 cm. Prescribed for myopia (short-sightedness). OR (b) (i) Ray diagram: an oblique ray from air bends towards the normal on entering the glass slab (r < i), and away from the normal on emerging into air (e = i); the emergent ray is parallel to the incident ray, with arrows marked.",
+    "[2 marks] (a) (ii) m = –2 with u = –20 cm: (I) image is real and inverted; (II) image is magnified - twice the size of the object; (III) v = m × u = (–2)(–20) = +40 cm, i.e. 40 cm on the other side of the lens (beyond 2F); (IV) height of the image is negative. OR (b) (iii) (I) Convex lens gives a virtual image only for an object between F and O; concave lens gives a virtual image for all object positions. (II) Convex lens: virtual image magnified (m > 1); concave lens: virtual image diminished (m < 1).",
+    "[1 mark] (a) (iii) Lens A (f = 10 cm) - power P = 1/f, so the smaller focal length gives the higher degree of convergence/divergence. OR (b) (ii) Snell's law: the ratio sin i / sin r is a constant for a given pair of media and a given colour of light; this constant is the refractive index of the second medium with respect to the first."
+   ],
+   "finalAnswer": "(a) (i) Concave lens, f = –40 cm, myopia; (ii) real & inverted, magnified (2×), at 40 cm on the other side of the lens, negative height; (iii) lens A (f = 10 cm). OR (b) emergent ray parallel to incident ray; Snell's law sin i/sin r = constant; convex-lens virtual image magnified (object within F), concave-lens virtual image diminished (any object position)."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer covered only (a)(iii) and steps were garbled/split mid-sentence. Wrote full step-marked answer for (a) and OR (b); verified f = -40 cm, v = +40 cm. Steps sum to 5."
+ },
+ {
+  "id": "PYQ-S-2026-LIGHT-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A ray of light travelling in Medium 1 strikes the plane boundary with Medium 2, making an angle of 30° with the surface. The refracted ray in Medium 2 makes an angle of 30° with the normal. Calculate the refractive index of Medium 2 with respect to Medium 1. (Given that √3 = 1·732)",
+   "solutionSteps": [
+    "[1 mark] n = sin i / sin r. The incident ray makes 30° with the surface, so ∠i = 90° − 30° = 60°; ∠r = 30°.",
+    "[1 mark] n = sin 60° / sin 30° = (√3/2) / (1/2) = √3 = 1·732"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Ray diagram replaced by the angles stated in the row's own solution (30° to surface in Medium 1, r = 30°); restored lost √ and removed stray mark '2'. Answer √3 unchanged."
+ },
+ {
+  "id": "PYQ-S-2026-LIGHT-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A ray of light passes from Medium 1 into Medium 2. The refracted ray in Medium 2 makes an angle of 60° with the boundary surface. Given that the refractive index of Medium 2 with respect to Medium 1 is √3, calculate the angle of incidence.",
+   "solutionSteps": [
+    "[1 mark] sin i / sin r = n ⇒ sin i = n sin r. The refracted ray makes 60° with the surface, so ∠r = 90° − 60° = 30°, giving sin i = √3 × sin 30°.",
+    "[1 mark] sin i = √3 × 1/2 = √3/2 ⇒ i = 60°"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Ray diagram replaced by the angle recorded in the row's own solution (refracted ray 60° to surface, r = 30°); restored √3. Answer i = 60° unchanged."
+ },
+ {
+  "id": "PYQ-S-LIGHT-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(a) A student has focussed the image of an object of height 3 cm on a white screen using a concave mirror of focal length 12 cm. If the distance of the object from the mirror is 18 cm, find the values of the following: (i) distance of the image from the mirror; (ii) height of the image. OR (b) Define power of a lens. The focal length of a lens is –10 cm. Write the nature of the lens and find its power. If an object is placed at a distance of 20 cm from the optical centre of this lens, according to the New Cartesian Sign Convention, what will be the sign of magnification in this case?",
+   "answer": "(a) (i) v = –36 cm (image 36 cm in front of the mirror); (ii) h′ = –6 cm (real, inverted). OR (b) Power of a lens is the reciprocal of its focal length in metres (degree of convergence/divergence). f = –10 cm ⇒ diverging (concave) lens; P = 100/f(cm) = 100/(–10) = –10 D; magnification is positive (+), as a concave lens always forms a virtual, erect image.",
+   "solutionSteps": [
+    "[1.5 marks] (a) (i) h = 3 cm, f = –12 cm, u = –18 cm. 1/v = 1/f – 1/u = –1/12 + 1/18 = (–3 + 2)/36 = –1/36 ⇒ v = –36 cm. OR (b) Power of a lens: reciprocal of its focal length in metres / degree of convergence or divergence of light achieved by the lens. Negative focal length ⇒ diverging (concave) lens.",
+    "[1.5 marks] (a) (ii) h′/h = –v/u ⇒ h′ = –(–36/–18) × 3 cm = –6 cm (real, inverted). OR (b) P = 1/f(m) = 100/f(cm) = 100/(–10) = –10 D; a concave lens forms a virtual, erect image, so the sign of magnification is positive."
+   ],
+   "finalAnswer": "(a) v = –36 cm, h′ = –6 cm; OR (b) concave lens, P = –10 D, magnification positive"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored lost minus sign in OR(b) focal length (-10 cm, consistent with concave / -10 D answer), removed '3' residue and mojibake bullets; wrote full answer for both parts. Verified v=-36, h'=-6, P=-10 D."
+ },
+ {
+  "id": "PYQ-S-LIGHT-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(a) (i) An object of 5 cm height is placed at a distance of 20 cm from the optical centre of a concave lens of focal length 18 cm. Calculate (1) the image distance and (2) the magnification in this case. (ii) Compare the values of magnification obtained by a concave lens and a convex lens when both the lenses form virtual images. OR (b) A convex lens can form (i) a real, inverted and magnified image as well as (ii) a virtual, erect and magnified image of an object. If the focal length of the lens is 10 cm, what should be the range of the object distance in both cases? Draw ray diagrams to justify your answer.",
+   "answer": "(a) (i) (1) u = –20 cm, f = –18 cm; 1/v = 1/f + 1/u = –1/18 – 1/20 = –38/360 ⇒ v = –360/38 ≈ –9·47 cm (on the same side as the object). (2) m = v/u = (–9·47)/(–20) ≈ +0·47. (ii) For virtual images, a convex lens gives m > 1 (magnified) while a concave lens gives m < 1 (diminished); both are positive. OR (b) (i) Real, inverted, magnified: object between F and 2F, i.e. 10 cm < object distance < 20 cm. (ii) Virtual, erect, magnified: object between optical centre and F, i.e. object distance < 10 cm. Ray diagrams for both cases.",
+   "solutionSteps": [
+    "[1 mark] (a) (i) (1) h = 5 cm, u = –20 cm, f = –18 cm. Lens formula 1/v – 1/u = 1/f ⇒ 1/v = 1/f + 1/u = –1/18 – 1/20 = –(20 + 18)/360 = –38/360 ⇒ v = –9·47 cm. OR (b) (i) For a real, inverted, magnified image the object must lie between F and 2F: 10 cm < object distance < 20 cm.",
+    "[1 mark] (a) (i) (2) m = v/u = (–9·47)/(–20) ≈ +0·47. OR (b) (ii) For a virtual, erect, magnified image the object must lie between the optical centre and F: object distance < 10 cm.",
+    "[1 mark] (a) (ii) For virtual images: convex lens m > 1 (magnified), concave lens m < 1 (diminished); both positive. OR (b) Ray diagrams: (i) object between F and 2F - image beyond 2F, real, inverted, enlarged; (ii) object between O and F - rays diverge after refraction, image on the same side as the object, virtual, erect, enlarged (arrows on rays required)."
+   ],
+   "finalAnswer": "(a) v ≈ –9·47 cm, m ≈ +0·47; convex lens virtual image m > 1, concave lens m < 1. OR (b) (i) 10 cm < u < 20 cm; (ii) u < 10 cm"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "PDF-garbled fractions and page/mark residues removed; full step-marked answer for (a) and OR(b) rewritten. Verified v = -360/38 = -9.47 cm, m = +0.47. Removed '3' residue from stem."
+ },
+ {
+  "id": "SCO-S-LIGHT-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A ray of light is incident on a plane mirror making an angle of 35° with the mirror surface. Find the angle of incidence and the angle of reflection.",
+   "subtopic": "Laws of Reflection",
+   "solutionSteps": [
+    "[1 mark] (b) 55°, 55° - the incident ray makes 35° with the mirror surface, so the angle of incidence (measured from the normal) is 90° − 35° = 55°; by the law of reflection the angle of reflection is also 55°."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Diagram replaced by the 35° angle recorded in the row's own solution; answer 55°, 55° unchanged. Generic subtopic replaced."
+ }
+]

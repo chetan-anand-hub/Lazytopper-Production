@@ -1,0 +1,257 @@
+[
+ {
+  "id": "S-CHEM-3",
+  "verdict": "ok",
+  "answer": "Unbalanced: Fe + H2O → Fe3O4 + H2. Balance Fe: 3 Fe atoms on the right, so take 3Fe. Balance O: 4 O atoms in Fe3O4, so take 4H2O. Then 8 H atoms on the left, so take 4H2. Balanced equation: 3Fe(s) + 4H2O(g) → Fe3O4(s) + 4H2(g).",
+  "finalAnswer": "3Fe + 4H2O → Fe3O4 + 4H2",
+  "solutionSteps": [
+   "[1 mark] Balance Fe and O: 3Fe on the left (3 Fe in Fe3O4) and 4H2O on the left (4 O in Fe3O4).",
+   "[1 mark] Balance H with 4H2 on the right: 3Fe(s) + 4H2O(g) → Fe3O4(s) + 4H2(g)."
+  ]
+ },
+ {
+  "id": "S-ABS-4",
+  "verdict": "ok",
+  "answer": "Bacteria in the mouth break down sugar and food particles left after eating and produce acids, which lower the pH in the mouth. Tooth enamel is made of calcium hydroxyapatite (calcium phosphate), the hardest substance in the body. It does not dissolve in water, but it is corroded when the pH falls below 5.5. Using a basic toothpaste neutralises the excess acid and prevents tooth decay.",
+  "finalAnswer": "Acids from bacterial breakdown of sugar lower pH below 5.5 and corrode the calcium phosphate (enamel)",
+  "solutionSteps": [
+   "[1 mark] Bacteria degrade sugar/food particles left in the mouth to produce acids, lowering the pH below 5.5.",
+   "[1 mark] Enamel (calcium hydroxyapatite/calcium phosphate) gets corroded at pH below 5.5, causing tooth decay; a basic toothpaste neutralises the acid."
+  ]
+ },
+ {
+  "id": "S-MNM-4",
+  "verdict": "ok",
+  "answer": "An alloy is a homogeneous mixture of two or more metals, or of a metal and a non-metal. Example: Brass, an alloy of copper and zinc, is used to make utensils, decorative items and electrical fittings. (Other examples: stainless steel (iron, nickel, chromium) for utensils; solder (lead, tin) for welding electrical wires.)",
+  "finalAnswer": "Homogeneous mixture of metals (or metal + non-metal), e.g. brass (Cu + Zn) for utensils",
+  "solutionSteps": [
+   "[1 mark] Definition: an alloy is a homogeneous mixture of two or more metals, or a metal and a non-metal.",
+   "[1 mark] Example with use: brass (copper + zinc), used for utensils/decorative articles (or solder for welding electrical wires, etc.)."
+  ]
+ },
+ {
+  "id": "S-CARB-4",
+  "verdict": "ok",
+  "answer": "The functional group in ethanol is the alcohol (hydroxyl) group, –OH. Molecular formula C2H5OH. Structural formula: H3C–CH2–OH, i.e. a two-carbon chain in which the first carbon carries three H atoms, the second carbon carries two H atoms and the –OH group (H–C(H)(H)–C(H)(H)–O–H).",
+  "finalAnswer": "Alcohol (hydroxyl) group –OH; CH3–CH2–OH",
+  "solutionSteps": [
+   "[1 mark] Functional group: alcohol (hydroxyl) group, –OH.",
+   "[1 mark] Structural formula: H–C(H2)–C(H2)–O–H, i.e. CH3–CH2–OH, showing all bonds."
+  ]
+ },
+ {
+  "id": "S-LIFE-4",
+  "verdict": "ok",
+  "answer": "Alveoli are tiny balloon-like structures at the ends of the bronchioles in the lungs. They provide a very large surface area for exchange of gases. Their walls are thin and contain an extensive network of blood capillaries. Oxygen from inhaled air diffuses across the alveolar walls into the blood, and carbon dioxide diffuses from the blood into the alveoli to be breathed out.",
+  "finalAnswer": "Alveoli give a large, thin, capillary-rich surface for exchange of O2 and CO2",
+  "solutionSteps": [
+   "[1 mark] Alveoli are balloon-like sacs at the ends of the bronchioles that provide a large surface area, with thin walls and a rich network of blood capillaries.",
+   "[1 mark] O2 diffuses from alveolar air into the blood and CO2 diffuses from the blood into the alveoli, so gases are exchanged."
+  ]
+ },
+ {
+  "id": "S-ELEC-4",
+  "verdict": "ok",
+  "answer": "Resistivity (ρ) of a material is the resistance of a conductor of that material having unit length and unit area of cross-section; from R = ρl/A, ρ = RA/l. Its SI unit is Ω m. Difference: resistivity is a characteristic property of the material and depends only on the material (and temperature), not on the dimensions of the conductor. Resistance (unit Ω) depends on the material as well as on the length and area of cross-section of the conductor (R ∝ l, R ∝ 1/A).",
+  "finalAnswer": "ρ = RA/l (Ω m); depends only on material, whereas resistance (Ω) also depends on length and area",
+  "solutionSteps": [
+   "[1 mark] Definition: resistivity is the resistance of a conductor of unit length and unit cross-sectional area, ρ = RA/l, SI unit Ω m.",
+   "[1 mark] Difference: resistivity depends only on the nature of the material (and temperature); resistance (Ω) also depends on the length and area of cross-section of the conductor."
+  ]
+ },
+ {
+  "id": "S-CC-4",
+  "verdict": "ok",
+  "answer": "1. Fore-brain (cerebrum): the main thinking part of the brain; it has sensory areas that receive impulses from receptors, motor areas that control voluntary muscles, and is the centre of thinking, memory, learning and intelligence. 2. Mid-brain: controls involuntary actions such as reflex movements of the head, neck and eyes and change in pupil size. 3. Hind-brain: the cerebellum maintains posture and balance of the body and controls precision of voluntary actions; the medulla controls involuntary actions such as blood pressure, salivation and vomiting; the pons regulates respiration.",
+  "finalAnswer": "Fore-brain (thinking, voluntary actions), mid-brain (involuntary reflexes of head/eyes), hind-brain (cerebellum – balance/posture; medulla – BP, vomiting)",
+  "solutionSteps": [
+   "[1 mark] Fore-brain (cerebrum): main thinking part — thinking, memory, receives sensory impulses and controls voluntary actions.",
+   "[1 mark] Mid-brain: controls involuntary actions, e.g. reflex movements of the head, neck and eyes.",
+   "[1 mark] Hind-brain: cerebellum maintains posture and balance (precision of voluntary actions); medulla controls involuntary actions like blood pressure, salivation, vomiting."
+  ]
+ },
+ {
+  "id": "S-REP-4",
+  "verdict": "ok",
+  "answer": "Parts of a flower involved in sexual reproduction: (1) Stamen — the male reproductive part; its anther produces pollen grains. (2) Stigma — the sticky terminal part of the pistil that receives pollen. (3) Style — the tube through which the pollen tube grows to reach the ovary. (4) Ovary — the swollen basal part of the pistil containing ovules, each having an egg cell. (Stigma, style and ovary together form the pistil/carpel, the female reproductive part.)",
+  "finalAnswer": "Stamen (anther), stigma, style, ovary",
+  "solutionSteps": [
+   "[1 mark] Male part: stamen (anther producing pollen grains, on a filament) — any two correct parts named.",
+   "[1 mark] Female parts of the pistil: stigma, style and ovary (containing ovules) — remaining parts named to make four."
+  ]
+ },
+ {
+  "id": "S-HER-11",
+  "verdict": "ok",
+  "answer": "A dominant trait is the trait that expresses itself in the F1 generation (in the presence of the contrasting trait) when two pure parents with contrasting traits are crossed. Example: in Mendel's pea plants, tallness (T) is dominant over dwarfness (t) — a cross of tall × dwarf gave all tall plants in F1. (Also round seed over wrinkled, violet flower over white.)",
+  "finalAnswer": "Trait expressed in F1/hybrid; e.g. tall over dwarf in pea",
+  "solutionSteps": [
+   "[1 mark] A dominant trait is the one that is expressed in the F1 generation even in the presence of the contrasting allele, e.g. tallness over dwarfness in pea plants."
+  ]
+ },
+ {
+  "id": "S-LIGHT-7",
+  "verdict": "ok",
+  "answer": "Power of a lens is the degree of convergence or divergence of light rays achieved by the lens. It is defined as the reciprocal of its focal length expressed in metres: P = 1/f (f in m). Its SI unit is the dioptre (D); 1 D is the power of a lens of focal length 1 m (1 D = 1 m⁻¹). Power of a convex lens is positive and of a concave lens is negative.",
+  "finalAnswer": "P = 1/f (f in metres); SI unit dioptre (D)",
+  "solutionSteps": [
+   "[1 mark] Power of a lens is the degree of convergence/divergence of light it produces, equal to the reciprocal of its focal length in metres: P = 1/f.",
+   "[1 mark] SI unit: dioptre (D); 1 D = 1 m⁻¹ (power of a lens of focal length 1 m)."
+  ]
+ },
+ {
+  "id": "S-EYE-8",
+  "verdict": "ok",
+  "answer": "Danger signals are red because red light has the longest wavelength in the visible spectrum. Scattering of light by fine particles (fog, smoke, dust) is least for longer wavelengths, so red light is scattered the least. It therefore travels the longest distance through fog or smoke without fading and can be seen clearly from far away.",
+  "finalAnswer": "Red has the longest wavelength, so it is scattered least by fog/smoke and is visible from a distance",
+  "solutionSteps": [
+   "[1 mark] Red light has the longest wavelength among visible colours.",
+   "[1 mark] Hence it is least scattered by fog/smoke/dust particles and can be seen clearly from a long distance."
+  ]
+ },
+ {
+  "id": "S-ENV-1",
+  "verdict": "ok",
+  "answer": "An ecosystem is a self-sustaining functional unit consisting of all the biotic components (living organisms – plants, animals, micro-organisms) of an area together with the abiotic components (physical factors like temperature, rainfall, wind, soil, minerals), interacting with each other. Example: a pond, forest, lake (natural) or a garden, crop field, aquarium (artificial).",
+  "finalAnswer": "Biotic + abiotic components of an area interacting together; e.g. pond / forest / aquarium",
+  "solutionSteps": [
+   "[1 mark] Definition: all the living (biotic) organisms of an area together with the non-living (abiotic) factors, interacting with each other, form an ecosystem.",
+   "[1 mark] Example: pond, forest or lake (natural) / garden, crop field or aquarium (artificial)."
+  ]
+ },
+ {
+  "id": "M-REAL-1",
+  "verdict": "ok",
+  "answer": "√4 = 2 (rational); √9/√16 = 3/4 (rational); 0.333... = 1/3 (rational, non-terminating repeating). √5 is irrational since 5 is not a perfect square. Answer: (c) √5.",
+  "finalAnswer": "(c) √5",
+  "solutionSteps": [
+   "[1 mark] √4 = 2, √9/√16 = 3/4 and 0.333… = 1/3 are rational; √5 is irrational since 5 is not a perfect square — option (c)."
+  ]
+ },
+ {
+  "id": "M-POLY-2",
+  "verdict": "ok",
+  "answer": "For x² − 5x + 6, sum of zeroes = −b/a = 5. Given one zero α = 2, the other zero β = 5 − 2 = 3. (Check: product = 2 × 3 = 6 = c/a.)",
+  "finalAnswer": "3",
+  "solutionSteps": [
+   "[1 mark] Sum of zeroes = −(−5)/1 = 5, so the other zero = 5 − 2 = 3."
+  ]
+ },
+ {
+  "id": "M-PLE-3",
+  "verdict": "ok",
+  "answer": "2x + 3y = 13 …(1), 3x − 2y = 4 …(2). Multiply (1) by 2: 4x + 6y = 26 …(3). Multiply (2) by 3: 9x − 6y = 12 …(4). Adding (3) and (4): 13x = 38, so x = 38/13. Substituting in (1): 3y = 13 − 76/13 = 93/13, so y = 31/13. Check in (2): 3(38/13) − 2(31/13) = (114 − 62)/13 = 52/13 = 4 ✓. Solution: x = 38/13, y = 31/13.",
+  "finalAnswer": "x = 38/13, y = 31/13",
+  "solutionSteps": [
+   "[1 mark] Make coefficients of y equal: (1)×2 gives 4x + 6y = 26 and (2)×3 gives 9x − 6y = 12.",
+   "[1 mark] Add to eliminate y: 13x = 38, so x = 38/13.",
+   "[1 mark] Substitute in (1): 3y = 13 − 76/13 = 93/13, so y = 31/13 (verified in (2))."
+  ]
+ },
+ {
+  "id": "M-QUAD-3",
+  "verdict": "ok",
+  "answer": "x² − 7x + 10 = 0. Split the middle term: −7x = −5x − 2x (since (−5)(−2) = 10 and −5 − 2 = −7). x² − 5x − 2x + 10 = 0 ⇒ x(x − 5) − 2(x − 5) = 0 ⇒ (x − 5)(x − 2) = 0. So x − 5 = 0 or x − 2 = 0, giving x = 5 or x = 2.",
+  "finalAnswer": "x = 2, 5",
+  "solutionSteps": [
+   "[1 mark] Split the middle term and factorise: x² − 5x − 2x + 10 = (x − 5)(x − 2) = 0.",
+   "[1 mark] Roots: x = 5 or x = 2."
+  ]
+ },
+ {
+  "id": "M-AP-3",
+  "verdict": "ok",
+  "answer": "Here a = 3, d = 8 − 3 = 5. Let aₙ = 103. aₙ = a + (n − 1)d ⇒ 103 = 3 + (n − 1)5 ⇒ (n − 1)5 = 100 ⇒ n − 1 = 20 ⇒ n = 21. So 103 is the 21st term.",
+  "finalAnswer": "21st term",
+  "solutionSteps": [
+   "[1 mark] a = 3, d = 5; aₙ = a + (n − 1)d ⇒ 103 = 3 + (n − 1)5.",
+   "[1 mark] (n − 1) = 20 ⇒ n = 21; 103 is the 21st term."
+  ]
+ },
+ {
+  "id": "M-TRI-4",
+  "verdict": "ok",
+  "answer": "Given: In ΔABC, a line DE ∥ BC intersects AB at D and AC at E. To prove: AD/DB = AE/EC. Construction: Join BE and CD; draw DM ⊥ AC and EN ⊥ AB. Proof: ar(ADE) = ½ × AD × EN and ar(BDE) = ½ × DB × EN, so ar(ADE)/ar(BDE) = AD/DB …(1). Similarly ar(ADE) = ½ × AE × DM and ar(DEC) = ½ × EC × DM, so ar(ADE)/ar(DEC) = AE/EC …(2). ΔBDE and ΔDEC are on the same base DE and between the same parallels BC and DE, so ar(BDE) = ar(DEC) …(3). From (1), (2) and (3): AD/DB = AE/EC. Hence proved.",
+  "finalAnswer": "AD/DB = AE/EC (Basic Proportionality Theorem)",
+  "solutionSteps": [
+   "[1 mark] Given, to prove and construction: ΔABC with DE ∥ BC; join BE, CD; draw EN ⊥ AB and DM ⊥ AC.",
+   "[1 mark] ar(ADE)/ar(BDE) = (½·AD·EN)/(½·DB·EN) = AD/DB and ar(ADE)/ar(DEC) = (½·AE·DM)/(½·EC·DM) = AE/EC.",
+   "[1 mark] ar(BDE) = ar(DEC) (same base DE, between same parallels DE and BC), hence AD/DB = AE/EC."
+  ]
+ },
+ {
+  "id": "M-TRIG-3",
+  "verdict": "ok",
+  "answer": "Consider right ΔABC, right-angled at B, with ∠A = θ. Then sin θ = BC/AC and cos θ = AB/AC. sin²θ + cos²θ = BC²/AC² + AB²/AC² = (AB² + BC²)/AC². By Pythagoras theorem, AB² + BC² = AC². Therefore sin²θ + cos²θ = AC²/AC² = 1. Hence proved.",
+  "finalAnswer": "sin²θ + cos²θ = 1",
+  "solutionSteps": [
+   "[1 mark] In right ΔABC (right angle at B, ∠A = θ): sin θ = BC/AC, cos θ = AB/AC, so sin²θ + cos²θ = (BC² + AB²)/AC².",
+   "[1 mark] By Pythagoras theorem AB² + BC² = AC², so sin²θ + cos²θ = AC²/AC² = 1."
+  ]
+ },
+ {
+  "id": "M-APPTRIG-4",
+  "verdict": "ok",
+  "answer": "Let BC = 15 m be the building, CD = h m the flagstaff on top of it, and A the point on the ground with AB = x m. In right ΔABC: tan 30° = BC/AB ⇒ 1/√3 = 15/x ⇒ x = 15√3 m. In right ΔABD: tan 45° = BD/AB ⇒ 1 = (15 + h)/x ⇒ 15 + h = 15√3. So h = 15√3 − 15 = 15(√3 − 1) m ≈ 15 × 0.732 = 10.98 m. Height of the flagstaff = 15(√3 − 1) m ≈ 10.98 m.",
+  "finalAnswer": "15(√3 − 1) m ≈ 10.98 m",
+  "solutionSteps": [
+   "[1 mark] Figure/notation: building BC = 15 m, flagstaff CD = h, point A on ground at distance AB = x; ∠BAC = 30°, ∠BAD = 45°.",
+   "[1 mark] In ΔABC: tan 30° = 15/x ⇒ x = 15√3 m.",
+   "[1 mark] In ΔABD: tan 45° = (15 + h)/x ⇒ 15 + h = 15√3.",
+   "[1 mark] h = 15(√3 − 1) m ≈ 10.98 m."
+  ]
+ },
+ {
+  "id": "M-CIR-4",
+  "verdict": "ok",
+  "answer": "OA ⊥ PA and OB ⊥ PB (tangent at any point of a circle is perpendicular to the radius through the point of contact), so ∠OAP = ∠OBP = 90°. In quadrilateral OAPB, the sum of angles is 360°: ∠AOB + ∠OAP + ∠APB + ∠OBP = 360° ⇒ ∠AOB + 90° + 70° + 90° = 360° ⇒ ∠AOB = 110°.",
+  "finalAnswer": "∠AOB = 110°",
+  "solutionSteps": [
+   "[1 mark] Radius ⊥ tangent at point of contact: ∠OAP = ∠OBP = 90°.",
+   "[1 mark] Angle sum of quadrilateral OAPB: ∠AOB + 90° + 70° + 90° = 360°.",
+   "[1 mark] ∠AOB = 110°."
+  ],
+  "note": "Figure referenced but all needed data (tangents PA, PB from P, centre O, ∠APB = 70°) is stated in the text."
+ },
+ {
+  "id": "M-ARC-5",
+  "verdict": "ok",
+  "answer": "Length of arc l = (θ/360°) × 2πr = (72/360) × 2 × π × 10 = (1/5) × 20π = 4π cm. Taking π = 22/7, l = 88/7 ≈ 12.57 cm (with π = 3.14, l = 12.56 cm).",
+  "finalAnswer": "4π cm ≈ 12.57 cm",
+  "solutionSteps": [
+   "[1 mark] Formula: l = (θ/360°) × 2πr; substitute θ = 72°, r = 10 cm.",
+   "[1 mark] l = (1/5) × 20π = 4π cm ≈ 12.57 cm (with unit)."
+  ]
+ },
+ {
+  "id": "M-SAV-5",
+  "verdict": "ok",
+  "answer": "Volume of water the pipe can hold = volume of cylinder with internal radius r = 3 cm and height h = 21 cm = πr²h = (22/7) × 3 × 3 × 21 = 22 × 9 × 3 = 594 cm³.",
+  "finalAnswer": "594 cm³",
+  "solutionSteps": [
+   "[1 mark] Volume of water = volume of cylinder = πr²h, with r = 3 cm, h = 21 cm.",
+   "[1 mark] Substitution: (22/7) × 3² × 21 = 22 × 9 × 3.",
+   "[1 mark] Volume = 594 cm³."
+  ]
+ },
+ {
+  "id": "M-STAT-6",
+  "verdict": "ok",
+  "answer": "Steps to find the median of grouped data: (1) Prepare the cumulative frequency (cf) column and find n = Σfᵢ; compute n/2. (2) Locate the median class: the class whose cumulative frequency is just greater than (or equal to) n/2. Note l = lower limit of the median class, cf = cumulative frequency of the class preceding the median class, f = frequency of the median class, h = class size. (Make classes continuous if needed.) (3) Apply the formula: Median = l + [(n/2 − cf)/f] × h, and simplify.",
+  "finalAnswer": "Median = l + [(n/2 − cf)/f] × h",
+  "solutionSteps": [
+   "[1 mark] Find cumulative frequencies, n = Σf and n/2.",
+   "[1 mark] Identify the median class (cf just greater than n/2) and read l, cf (preceding class), f and h.",
+   "[1 mark] Compute Median = l + [(n/2 − cf)/f] × h."
+  ]
+ },
+ {
+  "id": "M-PROB-6",
+  "verdict": "ok",
+  "answer": "Possible outcomes when a die is thrown: 1, 2, 3, 4, 5, 6 (6 outcomes). Favourable outcomes (number > 4): 5, 6 (2 outcomes). P(number > 4) = 2/6 = 1/3.",
+  "finalAnswer": "1/3",
+  "solutionSteps": [
+   "[1 mark] Favourable outcomes {5, 6} out of 6, so P = 2/6 = 1/3."
+  ]
+ }
+]

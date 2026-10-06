@@ -1,0 +1,512 @@
+[
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-016",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/light-reflection-and-refraction/LIGHT-EXMPLR-9-MCQ-016.webp"
+  ],
+  "runtime_row": {
+   "id": "LIGHT-EXMPLR-9-MCQ-016",
+   "subject": "Science",
+   "topicKey": "light-reflection-and-refraction",
+   "subtopic": "Ray Diagrams — Concave Mirror",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "Which of the following ray diagrams is correct for the ray of light incident on a concave mirror as shown in Figure 10.6?",
+   "options": [
+    "Fig. A",
+    "Fig. B",
+    "Fig. C",
+    "Fig. D"
+   ],
+   "answer": "Fig. D",
+   "solutionSteps": [
+    "Recall the rules for concave-mirror ray diagrams.",
+    "A ray parallel to the principal axis reflects through the focus; a ray through the focus reflects parallel to the axis; a ray through C retraces its path.",
+    "Compare each candidate (A, B, C, D) with these rules.",
+    "The diagram that obeys all the rules consistently with the incident ray shown is Fig. D."
+   ],
+   "finalAnswer": "Fig. D — option (d)",
+   "strategyHint": "REQUIRES-FIGURE: Four candidate reflected-ray diagrams for a concave mirror (Fig. 10.6).",
+   "ncertRef": "Exemplar MCQ Q16",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem depends on Figure 10.6 (Figs A-D) which is not included/described; options cannot be resolved from text",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Options Fig. A-D are four candidate ray diagrams (Fig. 10.6) not described in the row; the incident ray itself is unknown, so the question cannot be answered text-only."
+  }
+ },
+ {
+  "id": "LIGHT-EXMPLR-9-MCQ-017",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/light-reflection-and-refraction/LIGHT-EXMPLR-9-MCQ-017.webp"
+  ],
+  "runtime_row": {
+   "id": "LIGHT-EXMPLR-9-MCQ-017",
+   "subject": "Science",
+   "topicKey": "light-reflection-and-refraction",
+   "subtopic": "Ray Diagrams — Lens",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "Which of the following ray diagrams is correct for the ray of light incident on a lens shown in Fig. 10.7?",
+   "options": [
+    "Fig. A",
+    "Fig. B",
+    "Fig. C",
+    "Fig. D"
+   ],
+   "answer": "Fig. A",
+   "solutionSteps": [
+    "Rules for lens ray diagrams: a ray parallel to the principal axis refracts through the focus (convex) or appears to come from the focus (concave); a ray through the optical centre passes undeviated; a ray through the focus emerges parallel to the axis.",
+    "Each of A, B, C, D shows a candidate refracted ray.",
+    "Applying the rules to the incident ray in Fig. 10.7, only Fig. A is consistent with the geometric construction.",
+    "Hence option (a)."
+   ],
+   "finalAnswer": "Fig. A — option (a)",
+   "strategyHint": "REQUIRES-FIGURE: Four candidate refracted-ray diagrams for a lens (Fig. 10.7).",
+   "ncertRef": "Exemplar MCQ Q17",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem depends on Fig. 10.7 (Figs A-D) which is not included/described; options cannot be resolved from text",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Options Fig. A-D are candidate ray diagrams (Fig. 10.7) not described in the row; lens type and incident ray unknown, unanswerable without the figure."
+  }
+ },
+ {
+  "id": "SCO-S-LIGHT-005",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/chapterwise-science/light-reflection-and-refraction/SCO-S-LIGHT-005.webp"
+  ],
+  "runtime_row": {
+   "id": "SCO-S-LIGHT-005",
+   "subject": "Science",
+   "topicKey": "light-reflection-and-refraction",
+   "subtopic": "Chapter Practice — Light - Reflection and Refraction",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Understanding",
+   "questionText": "Find the angle of incidence and angle of reflection from the diagram.",
+   "options": [
+    "45°, 40°",
+    "55°, 55°",
+    "60°, 60°",
+    "30°, 30°"
+   ],
+   "answer": "55°, 55°",
+   "solutionSteps": [
+    "[1 mark] (b) 55°, 55° — in the diagram the incident ray makes 35° with the mirror surface, so the angle of incidence (measured from the normal) is 90° − 35° = 55°; by the law of reflection the angle of reflection is also 55°."
+   ],
+   "finalAnswer": "(b) 55°, 55°",
+   "ncertRef": "cbjescco10 Q7",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: question references diagram"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem depends on \"from the diagram\" which is not included/described; options cannot be resolved from text",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A ray of light is incident on a plane mirror making an angle of 35° with the mirror surface. Find the angle of incidence and the angle of reflection.",
+    "subtopic": "Laws of Reflection",
+    "solutionSteps": [
+     "[1 mark] (b) 55°, 55° - the incident ray makes 35° with the mirror surface, so the angle of incidence (measured from the normal) is 90° − 35° = 55°; by the law of reflection the angle of reflection is also 55°."
+    ]
+   },
+   "rationale": "Diagram replaced by the 35° angle recorded in the row's own solution; answer 55°, 55° unchanged. Generic subtopic replaced."
+  }
+ },
+ {
+  "id": "CBE-S-LGHT-E-001",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/itembank-science/light-reflection-and-refraction/CBE-S-LGHT-E-001.webp"
+  ],
+  "runtime_row": {
+   "id": "CBE-S-LGHT-E-001",
+   "subject": "Science",
+   "topicKey": "light-reflection-and-refraction",
+   "subtopic": "Convex Lens Ray Diagram",
+   "section": "E",
+   "marks": 4,
+   "format": "Case-Based",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "Complete the ray diagram in Fig. 2 to show how light is focussed by a convex lens.",
+   "options": [],
+   "answer": "Show parallel rays refracting through the convex lens and meeting at the focal point F.",
+   "solutionSteps": [
+    "[1 mark] Diagram: draw the convex (converging) lens.",
+    "[1 mark] Show correct refraction of the rays at the lens.",
+    "[1 mark] The refracted rays meet (converge) at a point.",
+    "[1 mark] Label the meeting point F / the focal point."
+   ],
+   "finalAnswer": "Parallel rays refract through the convex lens and converge at the focal point F.",
+   "isCompetencyBased": true,
+   "requiresDiagram": true,
+   "diagramDescription": "Fig. 2 — a convex lens with parallel incident rays to be completed showing refraction and convergence at the focal point F."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "case-missing-subparts",
+    "detail": "case/Section-E row with no (i)/(ii)/(iii) sub-questions in stem",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Draw a labelled ray diagram to show how a beam of light travelling parallel to the principal axis is focussed by a convex lens.",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "subtopic": "Convex Lens — Ray Diagram (Parallel Beam)",
+    "solutionSteps": [
+     "[1 mark] Diagram: convex lens drawn with a beam of rays parallel to the principal axis, each refracting at the lens and converging to a single point on the other side.",
+     "[1 mark] Labels: principal axis, optical centre O and the convergence point marked as principal focus F (with arrows on rays)."
+    ],
+    "answer": "Parallel rays refract through the convex lens and converge at the principal focus F on the other side.",
+    "finalAnswer": "Parallel rays converge at the principal focus F after refraction through the convex lens.",
+    "requiresDiagram": false
+   },
+   "rationale": "'Complete Fig. 2' depended on a figure; its content (parallel rays, convex lens) is fully described, so restated as a self-contained draw-the-diagram item. Not a case: re-tagged 2-mark Section B Short."
+  }
+ },
+ {
+  "id": "CBE-S-MAGN-A-001",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/itembank-science/magnetic-effects-of-electric-current/CBE-S-MAGN-A-001.webp"
+  ],
+  "runtime_row": {
+   "id": "CBE-S-MAGN-A-001",
+   "subject": "Science",
+   "topicKey": "magnetic-effects-of-electric-current",
+   "subtopic": "Magnetic Field Around a Current-Carrying Conductor",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Easy",
+   "bloomSkill": "Remembering",
+   "questionText": "Which diagram, A, B or C, shows the shape of the magnetic field around a current-carrying conductor?",
+   "options": [
+    "A. Concentric circles around the straight wire",
+    "B. (alternative field pattern shown)",
+    "C. (alternative field pattern shown)"
+   ],
+   "answer": "A. Concentric circles around the straight wire",
+   "solutionSteps": [
+    "[1 mark] The magnetic field around a straight current-carrying conductor consists of concentric circles centred on the wire - diagram A."
+   ],
+   "finalAnswer": "A (concentric circular field lines around the wire).",
+   "isCompetencyBased": false,
+   "requiresDiagram": true,
+   "diagramDescription": "Three candidate diagrams A, B and C of magnetic field patterns around a straight current-carrying wire; A shows concentric circular field lines around the conductor."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Options B and C are placeholders '(alternative field pattern shown)' and the diagrams are not given; option A gives away the answer",
+    "severity": "high"
+   },
+   {
+    "source": "broken",
+    "category": "missing-options",
+    "detail": "MCQ with 3 options",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Options B and C are placeholders for diagrams; diagramDescription only describes A, so B and C cannot be restored from row text and the MCQ has no real distractors."
+  }
+ },
+ {
+  "id": "MAG-EXMPLR-12-MCQ-002",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/magnetic-effects-of-electric-current/MAG-EXMPLR-12-MCQ-002.webp"
+  ],
+  "runtime_row": {
+   "id": "MAG-EXMPLR-12-MCQ-002",
+   "subject": "Science",
+   "topicKey": "magnetic-effects-of-electric-current",
+   "subtopic": "Magnetic Field Lines",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "A straight vertical copper wire passes through the centre O of a horizontal cardboard ABCD and is connected to a battery through a plug key (NCERT Exemplar Figure 13.1). If the key is taken out (the circuit is made open) and magnetic field lines are drawn over the horizontal plane ABCD, the lines are",
+   "options": [
+    "concentric circles",
+    "elliptical in shape",
+    "straight lines parallel to each other",
+    "concentric circles near the point O but of elliptical shapes as we go away from it"
+   ],
+   "answer": "straight lines parallel to each other",
+   "solutionSteps": [
+    "With the key open no current flows in the wire, so the wire produces no magnetic field; only the Earth's (nearly uniform) magnetic field acts on the plane ABCD, whose field lines are straight lines parallel to each other → option (c)."
+   ],
+   "finalAnswer": "Option (c).",
+   "ncertRef": "Exemplar MCQ Q2",
+   "isCompetencyBased": true,
+   "strategyHint": "Figure 13.1 is a straight vertical current-carrying wire through cardboard ABCD (no bar magnet); with the key open only the Earth's uniform field remains.",
+   "sourceOverride": "others"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem relies on Figure 13.1 which is not described",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A straight vertical copper wire passes through the centre O of a horizontal cardboard ABCD and is connected to a battery through a plug key. If the key is taken out (the circuit is made open) and magnetic field lines are drawn over the horizontal plane ABCD, the lines are",
+    "solutionSteps": [
+     "[1 mark] With the key open no current flows in the wire, so the wire produces no magnetic field. Only the Earth's nearly uniform magnetic field acts over the plane ABCD, and its field lines are straight lines parallel to each other — option (c)."
+    ]
+   },
+   "rationale": "The set-up is fully stated in the stem text; the answer does not depend on the figure. Removed the dangling figure reference."
+  }
+ },
+ {
+  "id": "MAG-EXMPLR-12-MCQ-005",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/magnetic-effects-of-electric-current/MAG-EXMPLR-12-MCQ-005.webp"
+  ],
+  "runtime_row": {
+   "id": "MAG-EXMPLR-12-MCQ-005",
+   "subject": "Science",
+   "topicKey": "magnetic-effects-of-electric-current",
+   "subtopic": "Force on Moving Charge",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Hard",
+   "bloomSkill": "Applying",
+   "questionText": "A uniform magnetic field exists in the plane of paper pointing from left to right as shown in Figure 13.3. In the field an electron and a proton move as shown. The electron and the proton experience",
+   "options": [
+    "forces both pointing into the plane of paper",
+    "forces both pointing out of the plane of paper",
+    "forces pointing into the plane of paper and out of the plane of paper, respectively",
+    "force pointing opposite and along the direction of the uniform magnetic field respectively"
+   ],
+   "answer": "forces both pointing into the plane of paper",
+   "solutionSteps": [
+    "Force on a moving charge: F = q v × B. Note the sign of charge.",
+    "The proton (positive) and the electron (negative) move in opposite directions in the figure, but the negative sign of the electron's charge flips the cross-product direction.",
+    "Working out v × B and multiplying by the respective sign of charge gives the same force direction for both — both INTO the plane of paper.",
+    "Hence option (a) is correct."
+   ],
+   "finalAnswer": "Option (a): both forces point into the plane of paper.",
+   "ncertRef": "Exemplar MCQ Q5",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: B field arrows left→right; electron and proton velocities as shown. Use F = qv × B with sign of charge."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem relies on Figure 13.3 (directions of electron and proton motion) which is not described; answer not derivable from text",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Velocity directions of the electron and proton exist only in Figure 13.3; the row text does not give them, so the force direction cannot be derived."
+  }
+ },
+ {
+  "id": "MAG-NCERT-12-MCQ-004",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/ncert-science/magnetic-effects-of-electric-current/MAG-NCERT-12-MCQ-004.webp"
+  ],
+  "runtime_row": {
+   "id": "MAG-NCERT-12-MCQ-004",
+   "subject": "Science",
+   "topicKey": "magnetic-effects-of-electric-current",
+   "subtopic": "Fleming's Left-hand Rule",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Hard",
+   "bloomSkill": "Applying",
+   "questionText": "An electron enters a magnetic field at right angles to it (see Fig. 12.14). The direction of force acting on the electron will be",
+   "options": [
+    "to the right.",
+    "to the left.",
+    "out of the page.",
+    "into the page."
+   ],
+   "answer": "into the page.",
+   "solutionSteps": [
+    "Conventional current direction is opposite to the direction of motion of electrons (since electrons carry negative charge).",
+    "Apply Fleming's left-hand rule using the magnetic-field direction and the conventional current direction.",
+    "The thumb then gives the direction of force — which works out to be INTO the page.",
+    "Hence option (d) is correct."
+   ],
+   "finalAnswer": "Option (d): into the page.",
+   "ncertRef": "Example 12.2",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: electron entering a horizontal magnetic field; apply Fleming's left-hand rule with current opposite to electron motion."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem depends on Fig. 12.14 (directions of field and electron motion) which is not described; answer cannot be derived from the text",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "The directions of the field and the electron's motion are given only in Fig. 12.14 and not in the row text; the answer (into the page) cannot be derived without it."
+  }
+ },
+ {
+  "id": "PYQ-S-MAG-004",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-science/magnetic-effects-of-electric-current/PYQ-S-MAG-004.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-S-MAG-004",
+   "subject": "Science",
+   "topicKey": "magnetic-effects-of-electric-current",
+   "subtopic": "General",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "A constant current flows in a horizontal wire in the plane of the paper from east to west as shown in the figure. The direction of the magnetic field will be north to south at a point :",
+   "options": [
+    "directly above the wire.",
+    "directly below the wire.",
+    "located in the plane of the paper on the north side of the wire.",
+    "located in the plane of the paper on the south side of the wire."
+   ],
+   "answer": "directly below the wire.",
+   "solutionSteps": [
+    "b) 1 1"
+   ],
+   "finalAnswer": "b) 1 1",
+   "ncertRef": "PYQ 31/5/1 Q14",
+   "isCompetencyBased": true,
+   "pyqYear": "2023",
+   "pyqSet": "1"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "finalAnswer/expl are marking-scheme residue 'b) 1 1'; figure referenced not shown (stem is answerable from text)",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A constant current flows in a horizontal wire lying in the plane of the paper, from east to west. The direction of the magnetic field will be from north to south at a point:",
+    "solutionSteps": [
+     "[1 mark] By the right-hand thumb rule, point the thumb west (direction of current): the fingers curl so that, directly below the wire, the field points from north to south (directly above the wire it points south to north). Hence (b) directly below the wire."
+    ],
+    "finalAnswer": "(b) directly below the wire."
+   },
+   "rationale": "Stem is answerable from text (current E→W; RHTR gives N→S field below the wire, S→N above); removed 'as shown in the figure' and replaced 'b) 1 1' scheme residue with a real explanation."
+  }
+ },
+ {
+  "id": "CBE-S-MNM-A-003",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/itembank-science/metals-and-non-metals/CBE-S-MNM-A-003.webp"
+  ],
+  "runtime_row": {
+   "id": "CBE-S-MNM-A-003",
+   "subject": "Science",
+   "topicKey": "metals-and-non-metals",
+   "subtopic": "Reactivity Series",
+   "section": "A",
+   "marks": 1,
+   "format": "VSA",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "Using the observations in Table 1, write the metals A, B, C and D in order of least reactive to most reactive.",
+   "options": [],
+   "answer": "D, C, A, B",
+   "solutionSteps": [
+    "[1 mark] From the displacement results, the order from least reactive to most reactive is D, C, A, B."
+   ],
+   "finalAnswer": "D, C, A, B (least to most reactive)",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Refers to 'observations in Table 1' which is not included in the stem; cannot be answered",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Requires the displacement observations in Table 1, which is not in the row's text; the order D, C, A, B cannot be derived without it."
+  }
+ }
+]

@@ -1,0 +1,335 @@
+[
+ {
+  "id": "METAL-EXMPLR-3-MCQ-036",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options (a)-(d) are four cell diagrams that are not in the row; only the correct set-up is hinted, the three wrong figures are unknown. Cannot be answered or reconstructed without the figures."
+ },
+ {
+  "id": "SCO-S-METAL-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "Ag₃N",
+    "Ag₂O",
+    "Ag₂S",
+    "Ag₂S and Ag₃N"
+   ],
+   "answer": "Ag₂S",
+   "solutionSteps": [
+    "[1 mark] Silver reacts with sulphur compounds (H₂S) in air to form a black coating of silver sulphide, Ag₂S. Correct option is (c) Ag₂S."
+   ],
+   "finalAnswer": "(c) Ag₂S"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Subscripts lost in extraction; restored the standard formulas Ag₃N, Ag₂O, Ag₂S. Key unchanged in substance: (c) silver sulphide."
+ },
+ {
+  "id": "SCO-S-METAL-015",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Metal M reacts with oxygen to form a metallic oxide MO. This oxide reacts with moisture and carbon dioxide of the atmosphere to form a basic carbonate of M. The metal M is",
+   "solutionSteps": [
+    "[1 mark] Copper forms copper(II) oxide (CuO), which in moist air with CO₂ forms a green coating of basic copper carbonate. Correct option is (a) Cu."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored garbled 'O M' to MO and 'basic carbonate metal M' to 'basic carbonate of M'. Key Cu correct (green basic copper carbonate)."
+ },
+ {
+  "id": "SCO-S-METAL-017",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "Odour",
+    "Effect on acidified K₂Cr₂O₇ solution",
+    "Solubility test",
+    "None of these"
+   ],
+   "solutionSteps": [
+    "[1 mark] A wet jar only dissolves a little of the SO₂; the remaining gas still has its pungent odour, still turns acidified K₂Cr₂O₇ green and still dissolves in water. So none of the tests fails. Correct option is (d) None of these."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Restored K₂Cr₂O₇. Key kept: moisture dissolves only part of the SO₂, so odour, dichromate and solubility tests all still work; added reasoning."
+ },
+ {
+  "id": "SCQ-S-METAL-033",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(a) The arrangement of metals in decreasing order of their reactivity is called the reactivity (activity) series. A metal higher in the series is more reactive and can displace a metal lower in the series from its salt solution, so the series predicts the relative activity of metals. (b) Metals in the middle (e.g. Zn, Fe) are first converted to oxides (roasting/calcination) and then reduced with carbon, e.g. ZnO + C → Zn + CO. Metals at the top (e.g. Na) are obtained by electrolytic reduction of their molten chlorides, e.g. molten NaCl: at cathode Na⁺ + e⁻ → Na; at anode 2Cl⁻ → Cl₂ + 2e⁻.",
+   "solutionSteps": [
+    "[1 mark] (a) The reactivity series lists metals in decreasing order of reactivity; a metal placed higher can displace a metal placed lower from its salt solution, so the series predicts their relative activity.",
+    "[1 mark] (b) Middle of the series: oxide is reduced with carbon (sulphide/carbonate ores are first roasted/calcined to oxide), e.g. ZnO + C → Zn + CO.",
+    "[1 mark] (b) Top of the series: electrolytic reduction of the molten chloride, e.g. molten NaCl — cathode: Na⁺ + e⁻ → Na; anode: 2Cl⁻ → Cl₂ + 2e⁻."
+   ],
+   "finalAnswer": "Reactivity series = metals in decreasing order of reactivity (higher displaces lower). Middle metals: reduction of oxide with carbon (ZnO + C → Zn + CO). Top metals: electrolytic reduction of molten chloride (NaCl → Na at cathode)."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer was truncated; completed with NCERT methods: carbon reduction for middle metals (ZnO + C) and electrolysis of molten NaCl for top metals. Steps split 1+1+1."
+ },
+ {
+  "id": "2026-MNM-05",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "Rohan lives in a coastal town and notices that his iron bicycle rusts much faster than his cousin's bicycle in a dry inland town.\n(i) Name the two substances that must be present for iron to rust. [1]\n(ii) Why does Rohan's bicycle rust faster in the coastal town? [1]\n(iii) Suggest two methods to prevent rusting of the bicycle and briefly explain why each method works. [2]",
+   "answer": "(i) Oxygen (air) and water (moisture). (ii) Coastal air is very humid and carries salt, so more moisture is present and rusting is faster. (iii) Painting/oiling/greasing forms a barrier that keeps air and moisture away from iron; galvanising coats iron with zinc, which is more reactive and corrodes first, protecting iron even if the coating is scratched.",
+   "explanation": "Rusting needs both air (oxygen) and moisture. Humid, salty coastal air speeds it up. Paint or grease is a physical barrier; zinc in galvanising also gives sacrificial protection because it is more reactive than iron.",
+   "solutionSteps": [
+    "(i) Iron rusts only when both oxygen (air) and water (moisture) are present. [1]",
+    "(ii) Coastal air is humid and salty, so more moisture is in contact with iron and rusting is faster. [1]",
+    "(iii) Method 1: Painting / applying oil or grease — forms a layer that prevents air and moisture from reaching the iron. [1]",
+    "(iii) Method 2: Galvanising — coating with zinc; zinc is more reactive than iron and gets oxidised first, so iron is protected even if the coating is scratched. [1]"
+   ],
+   "finalAnswer": "(i) Oxygen and moisture; (ii) humid, salty coastal air; (iii) painting/oiling (barrier) and galvanising (zinc corrodes in preference to iron)."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored Section-E case had no sub-parts; restructured into (i)(ii)(iii) 1+1+2 around the same scenario, answer/steps aligned."
+ },
+ {
+  "id": "CFPQ-S-MNM-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A piece of iron rusts when it comes in contact with air and moisture. Prakash had two identical shiny iron pieces P and Q. To prevent the pieces from rusting, he coated piece P with oil paint and he galvanized piece Q with a coat of zinc metal. He noticed that the coatings were not complete and that a small part of the iron was exposed in both the pieces.\n\n(i) What is Prakash likely to observe about the exposed part of piece P after some days? [1]\n(ii) What is he likely to observe about the exposed part of piece Q after some days? [1]\n(iii) Explain the reason for the difference in the two observations. [2]",
+   "format": "Case-Based",
+   "solutionSteps": [
+    "[1 mark] (i) The exposed part of piece P gets rusted.",
+    "[1 mark] (ii) The exposed part of piece Q does not get rusted.",
+    "[1 mark] (iii) Oil paint prevents rusting only by preventing contact of iron with moist air, so the exposed iron of P rusts.",
+    "[1 mark] (iii) In galvanising, zinc is more reactive than iron and gets oxidised in preference to iron, so even the exposed iron of Q is protected."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "4-mark Section-E scenario tagged Short with a single prompt; split the existing question into (i)(ii)(iii) matching its own 1+1+2 scheme and set format Case-Based. Content and key unchanged."
+ },
+ {
+  "id": "MNM2-023",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A car manufacturer uses three different methods to prevent corrosion of car parts:\nMethod 1: Painting with a thick protective coating\nMethod 2: Galvanisation with a zinc layer\nMethod 3: Using stainless steel (an alloy of iron with chromium and nickel)\n\n(i) How does painting prevent corrosion of the car parts? [1]\n(ii) How does galvanisation protect the iron even if the zinc layer gets scratched? [1]\n(iii) Why does stainless steel not rust easily, and which of the three methods gives the most effective long-term protection? Justify your answer. [2]",
+   "answer": "(i) Paint forms a physical barrier that keeps oxygen and moisture away from iron. (ii) Zinc is more reactive than iron, so it gets oxidised first and protects the iron (sacrificial protection). (iii) Alloying iron with chromium and nickel changes its properties so stainless steel does not rust (chromium forms a thin protective oxide layer); Method 3 is most effective long-term because the protection is throughout the metal and does not wear off, whereas paint and zinc coatings can get damaged or wear away.",
+   "solutionSteps": [
+    "(i) Painting creates a physical barrier preventing oxygen and moisture from reaching the iron. [1 mark]",
+    "(ii) Zinc is more reactive than iron, gets oxidised in preference to iron and sacrifices itself, so exposed iron is still protected. [1 mark]",
+    "(iii) Stainless steel is an alloy; chromium forms a thin, self-repairing oxide layer, so it resists rusting throughout the metal. [1 mark]",
+    "(iii) Method 3 is most effective long-term: its protection is not a surface coating that can wear off, unlike paint (Method 1) and the zinc layer (Method 2). [1 mark]"
+   ],
+   "finalAnswer": "(i) Barrier to air and moisture; (ii) zinc corrodes in preference to iron; (iii) stainless steel (alloy with Cr, Ni) resists rusting throughout — Method 3 is most effective long-term."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored case lacked sub-parts; restructured into (i)(ii)(iii) 1+1+2 on the same three methods, answer and steps aligned."
+ },
+ {
+  "id": "MNM2-045",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A student heats copper turnings in air and observes that they turn black. When hydrogen gas is then passed over the heated black substance, it turns reddish-brown again and water droplets are formed.\n\n(i) Name the black substance formed and write its chemical formula. [1]\n(ii) What type of reaction takes place when copper is heated in air? [1]\n(iii) Write the balanced equation for the reaction of the black substance with hydrogen, and identify the substance oxidised and the substance reduced. [2]",
+   "answer": "(i) Copper(II) oxide, CuO. (ii) Oxidation (combination of copper with oxygen): 2Cu + O₂ → 2CuO. (iii) CuO + H₂ → Cu + H₂O (on heating); hydrogen is oxidised to water and copper(II) oxide is reduced to copper — a redox reaction.",
+   "solutionSteps": [
+    "(i) The black substance is copper(II) oxide, CuO. [1 mark]",
+    "(ii) 2Cu + O₂ → 2CuO; copper gains oxygen, so it is oxidation (a combination reaction). [1 mark]",
+    "(iii) CuO + H₂ → Cu + H₂O (heat). [1 mark]",
+    "(iii) H₂ gains oxygen and is oxidised; CuO loses oxygen and is reduced to red-brown copper. [1 mark]"
+   ],
+   "finalAnswer": "(i) CuO; (ii) oxidation (2Cu + O₂ → 2CuO); (iii) CuO + H₂ → Cu + H₂O — H₂ oxidised, CuO reduced.",
+   "topicKey": "chemical-reactions-and-equations",
+   "subtopic": "Oxidation and Reduction"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored case had four A-D parts (5 answers for 4 marks) and a wrong 'displacement principle' part; restructured to (i)(ii)(iii) 1+1+2. Content is NCERT Ch1 redox (Cu/CuO/H2), so re-tagged chapter."
+ },
+ {
+  "id": "PYQ-S-2025-METAL-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "electricity",
+   "subtopic": "Resistivity",
+   "solutionSteps": [
+    "[1 mark] Alloys generally have higher resistivity than their constituent metals (which is why they are used in heating elements). Resistivity does not depend on length or area. Correct option: (b) Higher than that of its constituent metals."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Resistivity of alloys and its (in)dependence on length/area is Electricity-chapter content; re-tagged. Fixed '..' step and added reasoning; key unchanged."
+ },
+ {
+  "id": "mnm-hpq-104",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "question": "Aluminium is placed high in the reactivity series. (a) Why can aluminium not be obtained by heating its oxide with carbon? (b) Name the process used to obtain aluminium from its oxide and state what happens at the cathode.",
+   "concept": "Electrolytic reduction",
+   "answer": "(a) Aluminium has a greater affinity for oxygen than carbon, so carbon cannot reduce aluminium oxide. (b) Electrolytic reduction of molten aluminium oxide; at the cathode Al³⁺ ions gain electrons and pure aluminium is deposited (Al³⁺ + 3e⁻ → Al).",
+   "explanation": "Metals high in the reactivity series are more reactive than carbon, so they are obtained by electrolytic reduction of their molten compounds; the metal is deposited at the cathode (negative electrode).",
+   "solutionSteps": [
+    "(a) Aluminium is more reactive than carbon (greater affinity for oxygen), so carbon cannot reduce Al₂O₃. [1]",
+    "(b) Aluminium is obtained by electrolytic reduction of its molten oxide. [1]",
+    "(b) At the cathode, Al³⁺ + 3e⁻ → Al; pure aluminium is deposited. [1]"
+   ],
+   "finalAnswer": "(a) Al is more reactive than carbon; (b) electrolytic reduction of molten Al₂O₃ — Al³⁺ + 3e⁻ → Al at the cathode."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row relied on cryolite/alumina-temperature detail beyond NCERT Class 10; repaired to NCERT-level electrolytic reduction of aluminium oxide, 1+1+1."
+ },
+ {
+  "id": "2026-MNM-04",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "type": "VeryShort"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "2-mark Section-B HPQ rows use type VeryShort; 'Short' is the 3-mark type. Re-tagged; content and ½+½+1 steps fine."
+ },
+ {
+  "id": "CBE-S-ENVI-A-004",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "The food web is not in the stem and diagramDescription only restates the answer, not the web's organisms/links; answer cannot be derived from the row."
+ },
+ {
+  "id": "CFPQ-S-ENV-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The extent to which two different animals can see in either direction without turning their heads is compared. In Animal 1, the eyes are placed towards the front of the head: it has a narrower total field of view, but a large central region is seen by both eyes at a time. In Animal 2, the eyes are placed on either side of the head: it has a much wider total field of view, but only a narrow central region is seen by both eyes.\n\nAnimal 2 can see a broader area at any time compared to Animal 1. Animal 1 can judge depth (distance) better than Animal 2.\n\nThe food web: a green plant (producer) is eaten by a goat, a rabbit and a mouse; the goat and the rabbit are eaten by a jackal and a wild cat; the mouse is eaten by an owl, a wild cat and a kite; the jackal and the wild cat are eaten by a lion.\n\nClassify the animals of this food web into two groups — those that would need vision like Animal 1 and those that would need vision like Animal 2.",
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Figures were missing; rewrote stem using only the row's own diagramDescription (eye-field fans and food-web links). Answer unchanged: predators need Animal-1 vision, prey Animal-2."
+ },
+ {
+  "id": "PYQ-S-2024-ENV-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Pond, grassland and forest ecosystems are natural; a cropland is created and maintained by humans, so it is an artificial (man-made) ecosystem. Correct option: (d) Cropland ecosystem."
+   ],
+   "finalAnswer": "(d) Cropland ecosystem"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Step and finalAnswer held marking-scheme boilerplate; replaced with the actual answer and reasoning. Key unchanged."
+ },
+ {
+  "id": "PYQ-S-2025-ENV-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "The phenomenon is biological magnification. These chemicals (e.g. pesticides) are non-biodegradable, so they are not broken down and get accumulated progressively at each trophic level. Human beings occupy the top level in the food chain, so the maximum concentration of these chemicals accumulates in our bodies.",
+   "solutionSteps": [
+    "[1 mark] The phenomenon is biological magnification.",
+    "[1 mark] These chemicals are non-biodegradable, so they are not broken down and get accumulated over successive trophic levels.",
+    "[1 mark] Human beings occupy the top level in the food chain, so the concentration is maximum in our bodies."
+   ],
+   "finalAnswer": "Biological magnification — non-biodegradable chemicals accumulate at each trophic level and humans, at the top of the food chain, receive the maximum concentration."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer held only the last line with stray '`1'; step 1 was a scheme heading. Restored full 1+1+1 answer from the row's own steps."
+ },
+ {
+  "id": "PYQ-S-2025-ENV-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "(a) (Any two) Energy captured by plants does not revert to solar input, and energy passed to herbivores does not return to autotrophs; as energy moves through trophic levels it is no longer available to the previous level; energy available at each level diminishes progressively because of loss at each level. (b) 100 J. By the 10% law only 10% of energy passes to the next level: Producers 10,000 J → Primary consumers 1,000 J → Secondary consumers 100 J.",
+   "solutionSteps": [
+    "[1 mark] (a) Energy captured by plants does not revert to solar input, and energy passed to herbivores does not go back to autotrophs; as energy moves through successive trophic levels it is no longer available to the previous level (any two reasons, ½ each).",
+    "[1 mark] (b) By the 10% law, only about 10% of the energy at one trophic level is transferred to the next.",
+    "[1 mark] (b) Producers 10,000 J → primary consumers 1,000 J → secondary consumers 100 J. Energy available to secondary consumers = 100 J."
+   ],
+   "finalAnswer": "(a) Energy does not flow back to the previous level / is progressively lost at each level; (b) 100 J (10,000 → 1,000 → 100 J by the 10% law)."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer/finalAnswer were garbled scheme text; rebuilt from the row's own reasons and the 10% law. 100 J verified."
+ },
+ {
+  "id": "PYQ-S-2026-ENV-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem relies on 'the given figure' of trophic levels T1–T5; no figure or description is carried by the row, so which label is the top level cannot be determined from text."
+ },
+ {
+  "id": "PYQ-S-2026-ENV-013",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In the following food chain, 5 J of energy is available to man. Calculate how much energy was available at the producer level. Why?\nPlant → Goat → Man",
+   "answer": "500 J. According to the 10% law, only 10% of the energy of one trophic level is transferred to the next. Man has 5 J, so Goat had 5 × 10 = 50 J and the plants (producers) had 50 × 10 = 500 J.",
+   "solutionSteps": [
+    "[1 mark] According to the 10% law, only 10% of the energy at a trophic level is transferred to the next trophic level.",
+    "[1 mark] Man has 5 J, so Goat had 5 × 10 = 50 J and Plant (producer) had 50 × 10 = 500 J."
+   ],
+   "finalAnswer": "500 J (by the 10% law: 5 J → 50 J → 500 J)"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed stray marks digit '2' and extraction arrows from stem; answer completed with reason. 500 J correct."
+ },
+ {
+  "id": "SCO-S-ENV-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Which group of organisms forms the final link of a food chain by breaking down the dead remains of all other organisms?",
+   "solutionSteps": [
+    "Decomposers (bacteria and fungi) break down the dead remains and wastes of producers and consumers, returning nutrients to the soil. Correct option is (b) decomposers."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Garbled stem 'The last chain of food is' rewritten as an unambiguous question about the final link of a food chain; key decomposers unchanged."
+ }
+]

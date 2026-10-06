@@ -1,0 +1,320 @@
+[
+ {
+  "id": "BX-AP-D-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 2,
+   "section": "B",
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] Let the APs have first terms a and a′ and common difference d; their 100th terms are a + 99d and a′ + 99d, whose difference is a − a′ = 100.",
+    "[1 mark] Their 1000th terms are a + 999d and a′ + 999d; difference = a − a′ = 100, since the d-terms cancel for every n."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Short justification (difference of first terms) is a 2-mark item, not a 5-mark long answer; retagged B/2 and steps merged to sum to 2."
+ },
+ {
+  "id": "BX-AP-D-024",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 2,
+   "section": "B",
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] Here d = 5 and last term l = 253; nth term from the end = l − (n − 1)d.",
+    "[1 mark] 20th term from the end = 253 − 19 × 5 = 253 − 95 = 158."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single formula application (kth term from end) is 2-mark VSA/short; retagged B/2, steps condensed."
+ },
+ {
+  "id": "BX-AP-D-029",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] Monthly salaries year by year form an AP with a = 15000, d = 1200.",
+    "[1 mark] 10th-year salary: a₁₀ = a + 9d = 15000 + 10800 = ₹25,800.",
+    "[1 mark] Total over 10 years: S₁₀ = 10/2 [2(15000) + 9(1200)] = 5 × 40800 = ₹2,04,000."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Two direct substitutions (a₁₀, S₁₀) fit a 3-mark Section C item; retagged C/3 with 3 steps."
+ },
+ {
+  "id": "BX-AP-D-041",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 2,
+   "section": "B",
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] Strikes per hour 1, 2, 3, …, 12 form an AP with a = 1, l = 12, n = 12.",
+    "[1 mark] Total = S₁₂ = 12/2 (1 + 12) = 6 × 13 = 78 strikes."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Sum 1+…+12 is a single-formula 2-mark item; retagged B/2."
+ },
+ {
+  "id": "BX-AP-D-059",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] 2, 4, 6, …, 100 is an AP with a = 2, d = 2, l = 100.",
+    "[1 mark] Number of terms: 100 = 2 + (n − 1)2 ⇒ n = 50.",
+    "[1 mark] Sum = 50/2 (2 + 100) = 25 × 102 = 2550."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Find n then one sum formula: 3-mark Section C item, not 5; retagged C/3."
+ },
+ {
+  "id": "BX-AP-D-060",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 3,
+   "section": "C",
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] Saplings per row 1, 2, 3, … form an AP with a = 1, d = 1, n = 25.",
+    "[1 mark] Total = S₂₅ = 25/2 [2(1) + 24(1)] = 25 × 13 = 325 saplings.",
+    "[1 mark] aₙ = 1 + (n − 1)(1) = 18 ⇒ n = 18, so the 18th row has 18 saplings."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "One sum + one trivial nth-term: 3-mark Section C; retagged C/3."
+ },
+ {
+  "id": "BX-AP-D-070",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 2,
+   "section": "B",
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] Middle term condition: 2(x + 10) = 2x + (3x + 2) ⇒ 2x + 20 = 5x + 2 ⇒ x = 6.",
+    "[1 mark] Terms: 2x = 12, x + 10 = 16, 3x + 2 = 20 (common difference 4)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single linear equation from consecutive-terms condition is a 2-mark item; retagged B/2."
+ },
+ {
+  "id": "APQ-S-CARB-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem depends on a reaction-scheme figure ('chemical changes shown') absent from text; X cannot be identified without it."
+ },
+ {
+  "id": "CARB-EXMPLR-4-MCQ-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options (i)-(iv) refer to NCERT structure figures not in the row; unanswerable without them."
+ },
+ {
+  "id": "CARB-EXMPLR-4-MCQ-010",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are bare labels for missing electron-dot diagrams; option content not recoverable."
+ },
+ {
+  "id": "CARB-EXMPLR-4-MCQ-011",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "garbled",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options (b)-(d) are placeholders ('different option'); original structures not recoverable from the row and would have to be invented."
+ },
+ {
+  "id": "CARB-EXMPLR-4-MCQ-016",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are bare labels for missing benzene structure drawings."
+ },
+ {
+  "id": "CARB-EXMPLR-4-MCQ-022",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are bare labels for missing water electron-dot drawings."
+ },
+ {
+  "id": "CARB-EXMPLR-4-MCQ-023",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are bare labels for missing hydrocarbon structures."
+ },
+ {
+  "id": "CARB-EXMPLR-4-MCQ-024",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Structures (ii)-(iv) are a placeholder; answer depends on missing figure."
+ },
+ {
+  "id": "CC2-021",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A student conducts an experiment with three compounds: methane (CH₄), ethene (C₂H₄) and ethyne (C₂H₂). She burns each in air and also adds each to bromine water.\n\n(i) Write the balanced chemical equation for the complete combustion of methane. (1 mark)\n(ii) State what is observed when each of the three compounds is passed through bromine water. (1 mark)\n(iii) Explain why methane behaves differently from ethene and ethyne with bromine water, and name the type of reaction that occurs (a) on burning and (b) with bromine water. (2 marks)",
+   "answer": "(i) CH₄ + 2O₂ → CO₂ + 2H₂O. (ii) Methane: no change (bromine water stays orange-brown); ethene and ethyne: bromine water is decolourised. (iii) Methane is saturated (only C–C/C–H single bonds) so it cannot undergo addition; ethene (C=C) and ethyne (C≡C) are unsaturated and add bromine across the multiple bond. Burning = combustion (oxidation); bromine water = addition reaction.",
+   "finalAnswer": "(i) CH₄ + 2O₂ → CO₂ + 2H₂O. (ii) Methane: no change (bromine water stays orange-brown); ethene and ethyne: bromine water is decolourised. (iii) Methane is saturated (only C–C/C–H single bonds) so it cannot undergo addition; ethene (C=C) and ethyne (C≡C) are unsaturated and add bromine across the multiple bond. Burning = combustion (oxidation); bromine water = addition reaction.",
+   "solutionSteps": [
+    "[1 mark] (i) Complete combustion of methane: CH₄ + 2O₂ → CO₂ + 2H₂O (+ heat and light).",
+    "[1 mark] (ii) Methane: no change, bromine water stays orange-brown. Ethene and ethyne: orange-brown colour of bromine water disappears (decolourised).",
+    "[1 mark] (iii) Methane is a saturated hydrocarbon (single bonds only), so bromine cannot add to it; ethene (C=C) and ethyne (C≡C) are unsaturated, so bromine adds across the multiple bond.",
+    "[1 mark] (iii) Burning in air is combustion, an oxidation reaction; reaction with bromine water is an addition reaction."
+   ],
+   "subtopic": "Saturated vs Unsaturated Hydrocarbons"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Part (c) named ethane (not in experiment); step 1 was template filler; 4 parts not in E pattern. Restructured into (i)(ii)(iii) 1+1+2 with corrected wording and consistent steps."
+ },
+ {
+  "id": "CFPQ-S-CARB-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "Hydroxyl group (—OH)",
+    "Aldehyde group (—CHO)",
+    "Ketone group (—CO—)",
+    "Carboxyl group (—COOH)"
+   ],
+   "answer": "Carboxyl group (—COOH)",
+   "finalAnswer": "Carboxyl group (—COOH)",
+   "requiresDiagram": false,
+   "solutionSteps": [
+    "[1 mark] Correct option: (d) Carboxyl group (—COOH). Baking soda (sodium hydrogencarbonate) reacts with an acid to release carbon dioxide; of the four groups only the carboxyl group is acidic — hydroxyl, aldehyde and ketone groups are not."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Options P/Q/R/S pointed to a missing figure; group identities recovered from the row's diagramDescription/solution and written into the options. Answer unchanged in substance (S = carboxyl)."
+ },
+ {
+  "id": "PYQ-S-2026-CARB-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Consider the structures 'X' and 'Y' given below:\nX: CH₃–CH₂–CH₂–CH₃\nY: CH₃–CH(CH₃)–CH₃\nWhich of the following statements are correct?\n(i) 'X' and 'Y' are homologues.\n(ii) 'X' and 'Y' have the same structural formula, but different molecular formula.\n(iii) 'X' and 'Y' have the same molecular formula, but different structural formula.\n(iv) 'X' and 'Y' are structural isomers.",
+   "subtopic": "Structural Isomers",
+   "solutionSteps": [
+    "Both X (straight chain) and Y (branched chain) have molecular formula C₄H₁₀ but different structures, so they are structural isomers, not homologues. Correct option: (d) (iii) and (iv)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Flattened drawings recoverable: X = 4-C straight chain with 10 H (n-butane), Y = 3-C chain with a CH₃ branch (isobutane); rewritten as condensed formulas, matching key (iii),(iv)."
+ },
+ {
+  "id": "PYQ-S-2026-CARB-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "The hydrophobic tail of the soap molecule is in the interior of the cluster, whereas hydrophilic end is on the surface of the cluster.",
+    "The hydrophobic tail is on the surface of the cluster, whereas hydrophilic end is in the interior of cluster.",
+    "Both hydrophobic tail and hydrophilic end are in the interior of the cluster.",
+    "Both hydrophobic tail and hydrophilic end are on the surface of the cluster."
+   ],
+   "solutionSteps": [
+    "Correct option: (a). In a micelle the hydrophobic (hydrocarbon) tails point inward towards the oily dirt, and the ionic hydrophilic ends face the water on the surface of the cluster."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed leaked page artefact '{ } of 32' from option 4 and fixed the double full stop in the solution; answer unchanged."
+ },
+ {
+  "id": "SCO-S-CARB-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The number of oxygen molecules used in the complete combustion of 1 molecule of ethanol is:",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "subtopic": "Combustion",
+   "solutionSteps": [
+    "C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O, so 3 oxygen molecules are used. Correct option: (c) 3."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Option 4 carried a leaked page header; restored to '4'. Answer 3 verified by balanced equation; generic subtopic replaced."
+ }
+]

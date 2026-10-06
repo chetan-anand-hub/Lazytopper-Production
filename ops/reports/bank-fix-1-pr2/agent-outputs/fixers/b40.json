@@ -1,0 +1,299 @@
+[
+ {
+  "id": "Z3-SAV-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Volumes of a Cone and a Sphere",
+   "questionText": "(Take pi = 22/7.) A sugar cone is 10 cm deep and has a top diameter of 4 cm. A spherical scoop of ice cream of diameter 4 cm rests on top of the cone.\n(i) Find the capacity (volume) of the cone.\n(ii) Find the volume of the spherical scoop of ice cream.\n(iii) Is the volume of the scoop more or less than the capacity of the cone? Express the volume of the scoop as a percentage of the capacity of the cone.",
+   "solutionSteps": [
+    "[1 mark] (i) Cone: r = 2 cm, h = 10 cm. Volume = (1/3)*pi*r^2*h = (1/3)*(22/7)*4*10 = 880/21 cm^3 (approx 41.90 cm^3).",
+    "[1 mark] (ii) Sphere: r = 2 cm. Volume = (4/3)*pi*r^3 = (4/3)*(22/7)*8 = 704/21 cm^3 (approx 33.52 cm^3).",
+    "[1 mark] (iii) Since 704/21 < 880/21 (approx 33.52 cm^3 < 41.90 cm^3), the volume of the scoop is LESS than the capacity of the cone.",
+    "[1 mark] (iii) Percentage = (704/21) / (880/21) * 100 = (704/880)*100 = 80%. The scoop's volume is 80% of the cone's capacity."
+   ],
+   "finalAnswer": "(i) 880/21 cm^3 (approx 41.90 cm^3)  (ii) 704/21 cm^3 (approx 33.52 cm^3)  (iii) Less; 80% of the cone's capacity"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Melting the scoop into the cone is conversion of solids (OUT 2026-27). Authored row: reframed as direct volume of cone and sphere plus comparison (in syllabus), 1+1+2 case kept; recomputed with pi=22/7."
+ },
+ {
+  "id": "2026-TRI-MCQ-05",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If ΔABC ∼ ΔDEF with AB/DE = AC/DF, which of the following is true?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Broken LaTeX \\(\\\\frac…)\\ replaced by plain AB/DE = AC/DF; options/answer unchanged (A↔D, so ∠A = ∠D)."
+ },
+ {
+  "id": "2026-TRI-SA-07",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Let AE = x ⇒ EC = 10 − x. [1]",
+    "Since DE ∥ BC, by BPT AD/DB = AE/EC ⇒ 3/2 = x/(10 − x). [1]",
+    "3(10 − x) = 2x ⇒ 30 = 5x ⇒ x = 6, so AE = 6 cm. [1]"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Placeholder last step replaced with actual working; 3/2 = x/(10−x) ⇒ x = 6 verified. Answer unchanged."
+ },
+ {
+  "id": "APQ-M-TRI-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In ΔPQR, S is a point on side PQ and T is a point on side QR such that ∠STQ = ∠PRQ. If QT : TR = 2 : 3 and PR = 20 cm, then what is the length of ST?",
+   "solutionSteps": [
+    "In ΔQTS and ΔQRP: ∠STQ = ∠PRQ (given) and ∠Q is common ⟹ ΔQTS ∼ ΔQRP (AA similarity).",
+    "QT : TR = 2 : 3 ⟹ QT/QR = 2/5. So ST/PR = QT/QR = 2/5 ⟹ ST = (2/5) × 20 = 8 cm."
+   ],
+   "strategyHint": "Spot the AA similarity (common ∠Q) and use QT/QR, not QT/TR."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "PR = 20 cm (carried in the row's own step) and S on PQ (required by the stated similarity with common ∠Q) moved into stem; ratio mislabel QT/QP corrected to QT/QR. 2/5×20 = 8 cm verified."
+ },
+ {
+  "id": "APQ-M-TRI-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "ΔPQR and ΔCBA are two scalene triangles in which ∠P = ∠C, ∠Q = ∠B and ∠R = ∠A, but their corresponding sides are of different lengths. Anas: ΔPQR is similar to ΔCBA. Rishi: ΔPQR is congruent to ΔCBA. Which of them is/are correct?",
+   "solutionSteps": [
+    "Corresponding angles are equal (P↔C, Q↔B, R↔A) ⟹ ΔPQR ∼ ΔCBA by AA similarity, so Anas is correct.",
+    "Corresponding sides are not equal in length ⟹ the triangles are not congruent, so Rishi is wrong. Answer: (a) Only Anas."
+   ],
+   "strategyHint": "Similar = same shape (equal angles); congruent additionally needs equal sides."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Figure facts carried only in the row's steps (equal angles in order PQR↔CBA, different side lengths) moved into stem so it is self-contained. Answer Only Anas unchanged."
+ },
+ {
+  "id": "APQ-M-TRI-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Rod lengths/positions exist only in the figure; row's text carries no data (step says only 'Per MS: 111/7'). Cannot be answered or reconstructed."
+ },
+ {
+  "id": "APQ-M-TRI-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "x and y are undefined in the stem and the row carries no figure description ('REQUIRES-FIGURE' placeholder). Unanswerable."
+ },
+ {
+  "id": "APQ-M-TRI-008",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Positions of P, Q, R, S, T and lengths (RC, PC, QT) come only from the figure; steps quote them without a configuration. Cannot be made self-contained from row text."
+ },
+ {
+  "id": "APQ-M-TRI-009",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "p and r are defined only in the figure; row text never defines r. Unanswerable from text."
+ },
+ {
+  "id": "APQ-M-TRI-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "For ΔKLM and ΔPQR, the lengths of sides KL, LM, PQ and QR are known, and KL/PQ = LM/QR. Along with this information, which of the following is sufficient to conclude whether ΔKLM is similar to ΔPQR?\n(i) ∠KLM = ∠PQR\n(ii) the ratio KM : PR",
+   "options": [
+    "only (i)",
+    "only (ii)",
+    "either (i) or (ii)",
+    "the given information alone is enough, as the ratio of two pairs of sides is known"
+   ],
+   "solutionSteps": [
+    "(i) ∠KLM = ∠PQR is the angle included between the proportional sides ⟹ SAS similarity criterion ⟹ sufficient.",
+    "(ii) Knowing KM : PR lets us check whether all three pairs of sides are in the same ratio ⟹ SSS similarity criterion ⟹ sufficient.",
+    "Two proportional sides alone are not enough, so either (i) or (ii) is needed and each alone suffices."
+   ],
+   "strategyHint": "SAS needs the INCLUDED angle; SSS needs the third pair of sides."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Undescribed 'shown' figure replaced by the condition the row's own SAS/SSS steps rely on (two known proportional sides, ∠KLM included); garbled option (d) cleaned. Answer (c) unchanged."
+ },
+ {
+  "id": "CBE-M-TRI-A-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In ΔPQR, S is a point on side PQ and T is a point on side PR such that ST ∥ QR. If TP = 3 cm, RT = 2 cm and QS = 3 cm, what is the length of SP?",
+   "solutionSteps": [
+    "[1 mark] Since ST ∥ QR, by BPT SP/SQ = TP/TR ⟹ SP/3 = 3/2 ⟹ SP = 4.5 cm. Answer: D."
+   ],
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "All lengths and the configuration are carried by the row's diagramDescription; moved into stem. BPT: SP = 3×3/2 = 4.5 cm (D) verified."
+ },
+ {
+  "id": "CBE-M-TRI-C-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "BA, FE and CD are parallel lines. Line segments EC and FD intersect at G. Given that EG = 5 cm, GC = 10 cm, AB = 15 cm and DC = 18 cm, calculate EF.",
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Steps already state FD is a transversal and ∠EGF, ∠CGD are vertically opposite (EC and FD cross at G); stated in stem. EF/EG = CD/CG ⟹ EF = 9 cm verified."
+ },
+ {
+  "id": "CBE-M-TRI-C-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In ΔABC, E is a point on side AC and F is a point on side BC such that EF ∥ AB. G is a point on EC such that EG = 5 cm and GC = 10 cm. If AB = 15 cm and EF = 9 cm, calculate AC.",
+   "requiresDiagram": false
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Configuration the steps use (AB ∥ EF, ∠C common, E–G–C on AC so CE = 15) stated in stem; irrelevant DC dropped. AC/CE = AB/EF ⟹ AC = 25 cm verified."
+ },
+ {
+  "id": "PYQ-M-2024-TRI-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Basic Proportionality Theorem",
+   "questionText": "In ΔABC, DE ∥ BC, where D lies on AB and E lies on AC. If AD = 2.4 cm, DB = 4 cm and AE = 2 cm, then the length of AC is :",
+   "options": [
+    "10/3 cm",
+    "3/10 cm",
+    "16/3 cm",
+    "1.2 cm"
+   ],
+   "answer": "16/3 cm",
+   "solutionSteps": [
+    "By BPT, AD/DB = AE/EC ⟹ 2.4/4 = 2/EC ⟹ EC = 10/3 cm.",
+    "AC = AE + EC = 2 + 10/3 = 16/3 cm. Correct option: (c) 16/3 cm."
+   ],
+   "finalAnswer": "(c) 16/3 cm"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Flattened fractions restored (row's own finalAnswer '16 3' shows option order reversed), page code '1530/5/1' and 'D ABC' removed; stem fully answerable from text. BPT gives 16/3 cm, option (c)."
+ },
+ {
+  "id": "PYQ-M-2026-TRI-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Devansh proved that ΔABC ∼ ΔPQR using the SAS similarity criterion. If he found ∠C = ∠R, then which of the following was proved true?",
+   "options": [
+    "AC/AB = PR/PQ",
+    "BC/AC = PR/QR",
+    "AC/BC = PR/PQ",
+    "AC/BC = PR/QR"
+   ],
+   "answer": "AC/BC = PR/QR",
+   "solutionSteps": [
+    "For SAS similarity with ∠C = ∠R, the sides including these angles must be proportional: AC/PR = BC/QR, i.e. AC/BC = PR/QR.",
+    "Correct option: (d) AC/BC = PR/QR."
+   ],
+   "finalAnswer": "(d) AC/BC = PR/QR"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored Δ and ∠ symbols, un-flattened fraction options, removed Oriya-glyph garbage from steps/finalAnswer. SAS at C/R needs AC/PR = BC/QR ⟹ option (d)."
+ },
+ {
+  "id": "PYQ-M-2026-TRI-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "circles",
+   "subtopic": "Tangents from an External Point — Incircle",
+   "answer": "r = 3 cm",
+   "solutionSteps": [
+    "Let AB = 8 cm and BC = 15 cm. By Pythagoras, AC = √(8² + 15²) = √289 = 17 cm. Let the incircle (centre O, radius r) touch AB at P, BC at Q and AC at R.",
+    "OP ⊥ AB and OQ ⊥ BC (radius ⊥ tangent) and ∠B = 90°, so OPBQ is a square ⟹ PB = BQ = r. Tangents from an external point are equal: AR = AP = 8 − r and CR = CQ = 15 − r.",
+    "AC = AR + CR ⟹ 17 = (8 − r) + (15 − r) = 23 − 2r ⟹ 2r = 6 ⟹ r = 3 cm."
+   ],
+   "finalAnswer": "r = 3 cm"
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Answer was a broken fragment; rewritten with AC = 17 and 17 = 23 − 2r ⟹ r = 3 cm. Equal-tangent-lengths reasoning belongs to Circles, so topicKey re-tagged."
+ },
+ {
+  "id": "PYQ-M-2026-TRI-004",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Vertex coordinates exist only in the figure; stem gives none and the answer text is glyph-garbled, so B and C cannot be recovered with confidence. (Also belongs to coordinate-geometry.)"
+ },
+ {
+  "id": "PYQ-M-TRI-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Position of O relative to A, B, P, Q is only in the figure; row text (answer/steps) carries no configuration, so the stem cannot be made self-contained."
+ },
+ {
+  "id": "PYQ-M-TRI-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Positions of B, D, P relative to A and C are only in the figure; row text carries no configuration. Unanswerable from text."
+ },
+ {
+  "id": "PYQ-M-TRI-004",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "No lengths/expressions for x appear in the row; all data is in the missing figure."
+ }
+]

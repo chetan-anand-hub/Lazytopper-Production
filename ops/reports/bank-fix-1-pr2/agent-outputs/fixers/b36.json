@@ -1,0 +1,356 @@
+[
+ {
+  "id": "2026-QE-MCQ-08",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "Polynomials",
+   "subtopic": "Relationship between Zeroes and Coefficients"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Product of roots = c/a is the zeroes-coefficient relation, taught in Polynomials (2026-27 QE covers solving/nature of roots only). Retagged; topicKey uses the predicted file's display-name convention. Content correct."
+ },
+ {
+  "id": "2026-QE-SA-05",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "Polynomials",
+   "subtopic": "Relationship between Zeroes and Coefficients",
+   "solutionSteps": [
+    "Compare x² − 7x + 12 = 0 with ax² + bx + c = 0: a = 1, b = −7, c = 12. (i) α + β = −b/a = −(−7)/1 = 7. [½]",
+    "(ii) αβ = c/a = 12/1 = 12. [½]",
+    "α² + β² = (α + β)² − 2αβ = 7² − 2(12) = 49 − 24 = 25. [1]"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "α+β, αβ, α²+β² from coefficients is Polynomials zeroes-coefficient content; retagged (display-name convention). Cleaned '.;' join residue in step 1. Answer 25 verified."
+ },
+ {
+  "id": "QE-E15",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "polynomials",
+   "subtopic": "Relationship between Zeroes and Coefficients",
+   "explanation": "For ax² + bx + c = 0 (a ≠ 0), the sum of the roots (zeroes of ax² + bx + c) is −b/a.",
+   "solutionSteps": [
+    "For the quadratic ax² + bx + c with zeroes α and β, α + β = −(coefficient of x)/(coefficient of x²) = −b/a, so the answer is −b/a."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Sum of roots = −b/a is the Polynomials zeroes-coefficient relation; retagged. solutionSteps were from an unrelated question (x=2 root check) — replaced with a correct 1-step justification."
+ },
+ {
+  "id": "QE-E19",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "polynomials",
+   "subtopic": "Relationship between Zeroes and Coefficients",
+   "explanation": "Product of roots = c/a. For 3x² − 11x + 10 = 0, a = 3 and c = 10, so the product is 10/3.",
+   "solutionSteps": [
+    "Product of roots = c/a; here a = 3, c = 10, so product = 10/3."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Product of roots = c/a is Polynomials content; retagged. solutionSteps belonged to an unrelated 'which is quadratic' question — replaced with correct step (10/3 verified: roots 2 and 5/3)."
+ },
+ {
+  "id": "QE2-012",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "polynomials",
+   "subtopic": "Relationship between Zeroes and Coefficients",
+   "section": "A",
+   "marks": 1,
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "Sum of roots = −b/a; for x² − px + q = 0, a = 1, b = −p, so α + β = −(−p)/1 = p."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Sum of roots via coefficients is Polynomials content; retagged. A 1-mark MCQ was tagged Section C / 3 marks / Hard — corrected to A / 1 / Easy, single justification step."
+ },
+ {
+  "id": "QE2-022",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "polynomials",
+   "subtopic": "Relationship between Zeroes and Coefficients",
+   "section": "B",
+   "marks": 2,
+   "difficulty": "Medium",
+   "questionText": "If α and β are the roots of x² − 5x + 6 = 0, find the value of α² + β²."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "α²+β² via sum/product is Polynomials zeroes-coefficient content; retagged. Two-step evaluation fits a 2-mark Section B item, not 3/C/Hard. Answer 13 verified (roots 2,3)."
+ },
+ {
+  "id": "QE2-027",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "polynomials",
+   "subtopic": "Relationship between Zeroes and Coefficients",
+   "section": "A",
+   "marks": 1,
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "For 2x² − 8x + 6 = 0, sum of roots = −b/a = 8/2 = 4, so A is true; but the sum of roots is −b/a, not c/a (c/a is the product), so R is false. Hence option (c)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Sum of roots relation is Polynomials content; retagged. Assertion-Reason is a 1-mark Section A item (was C/3/Hard). Key (c) correct; steps merged into one justification."
+ },
+ {
+  "id": "QE2-026",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Nature of Roots",
+   "section": "A",
+   "marks": 1
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "'Imaginary' flags are stale: served stem already says 'no real roots'. But an Assertion-Reason item is 1 mark / Section A (was B/2) and subtopic was the format name — retagged. Key (b) correct."
+ },
+ {
+  "id": "QE2-036",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "subtopic": "Nature of Roots",
+   "questionText": "For the quadratic equation x² + 2(k + 1)x + k² = 0, where k is a real number:\n(i) Find the discriminant in terms of k.\n(ii) Find the value of k for which the roots are real and equal.\n(iii) Find the values of k for which the roots are real and distinct, and the values for which the equation has no real roots.",
+   "answer": "(i) D = 4(2k + 1)  (ii) k = −1/2  (iii) real and distinct for k > −1/2; no real roots for k < −1/2",
+   "finalAnswer": "(i) D = 4(2k + 1)  (ii) k = −1/2  (iii) real and distinct for k > −1/2; no real roots for k < −1/2",
+   "solutionSteps": [
+    "[1 mark] (i) a = 1, b = 2(k + 1), c = k². D = b² − 4ac = 4(k + 1)² − 4k² = 4(k² + 2k + 1 − k²) = 4(2k + 1).",
+    "[1 mark] (ii) Real and equal roots: D = 0 ⇒ 2k + 1 = 0 ⇒ k = −1/2.",
+    "[1 mark] (iii) Real and distinct roots: D > 0 ⇒ k > −1/2. No real roots: D < 0 ⇒ k < −1/2."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Part (iv) 'imaginary' roots is out (real roots only) → rephrased 'no real roots'. Not a case (no scenario) → retagged Short/C/3 with 3 parts. Removed garbled steps ('= 4(k+1) [correction…]'). D = 4(2k+1) verified."
+ },
+ {
+  "id": "Z3-QE-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Word Problems (Break-even Application)",
+   "questionText": "Car Production: An automobile manufacturer models the profit from the sale of its vehicles by the function P(x) = -x^2 + 350x - 6600, where P(x) is the profit in thousand Rupees and x is the number of automobiles made and sold. Answer the following questions based on this model:\n(i) When no cars are produced, what is the profit/loss?\n(ii) What is the break-even point? (the zero-profit point where P(x) = 0)\n(iii) What is the profit/loss if 175 cars are produced?\n(iv) What is the profit/loss if 400 cars are produced?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem said capacity 'up to 300 cars' yet (iv) uses 400 and break-even 330 — removed the capacity clause (no data invented). Evaluating P(x) and solving P(x)=0 is in-syllabus QE. 'Maximum Profit' title (nothing maximised) renamed. Answers verified."
+ },
+ {
+  "id": "Z3-QE-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Word Problems (Projectile Height)",
+   "solutionSteps": [
+    "[1 mark] (i) h(5) = -16(5)^2 + 240(5) + 544 = -400 + 1200 + 544 = 1344 ft. (ii) h(10) = -16(10)^2 + 240(10) + 544 = -1600 + 2400 + 544 = 1344 ft.",
+    "[1 mark] (iii) Solve h(t) = 1344: -16t^2 + 240t + 544 = 1344 => t^2 - 15t + 50 = 0 => (t - 5)(t - 10) = 0 => t = 5 or 10. The quadratic gives two times for the same height: the rocket passes 1344 ft going up at t = 5 and again coming down at t = 10.",
+    "[1 mark] (iv) Height H is reached when 16t^2 - 240t + (H - 544) = 0 has real roots: D = 240^2 - 64(H - 544) >= 0 => H - 544 <= 900 => H <= 1444. Maximum height = 1444 ft (equal roots, t = 240/32 = 7.5 s).",
+    "[1 mark] (v) Airborne until h(t) = 0: -16t^2 + 240t + 544 = 0 => t^2 - 15t - 34 = 0 => (t - 17)(t + 2) = 0 => t = 17 (reject t = -2). The rocket was airborne for 17 s."
+   ],
+   "finalAnswer": "(i) 1344 ft  (ii) 1344 ft  (iii) h(t) = 1344 has two roots t = 5 and t = 10 (going up, then coming down)  (iv) 1444 ft  (v) 17 s"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Authentic stem kept; only AI-authored solutions used vertex/symmetry (beyond QE). Re-solved (iii) by solving h(t)=1344 and (iv) by the discriminant (D≥0 ⇒ H≤1444), both in-syllabus. All values verified."
+ },
+ {
+  "id": "Z3-QE-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Word Problems (Discriminant – Area Applications)",
+   "solutionSteps": [
+    "[1 mark] (i) Let width = x ft; 2(length + width) = 200 gives length = (100 - x) ft. For area A: x(100 - x) = A => x^2 - 100x + A = 0.",
+    "[1 mark] (i) Real dimensions need D >= 0: 100^2 - 4A >= 0 => A <= 2500. Maximum area 2500 sq ft, with equal roots x = 100/2 = 50: dimensions 50 ft x 50 ft.",
+    "[1 mark] (ii) With the house as one side, fencing = one length + two widths: L + 2x = 200 => L = 200 - 2x. Area: x(200 - 2x) = A => 2x^2 - 200x + A = 0.",
+    "[1 mark] (ii) D >= 0: 200^2 - 8A >= 0 => A <= 5000. Maximum area 5000 sq ft at x = 200/4 = 50, L = 100: dimensions 50 ft x 100 ft."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Authentic stem; the AI solution used completing the square (banned method) for the maximum. Re-solved via discriminant D≥0 (cf. NCERT 'is a park of perimeter p and area A possible?'), within syllabus. Answers unchanged and verified."
+ },
+ {
+  "id": "Z3-QE-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Word Problems (Discriminant – Area Applications)",
+   "solutionSteps": [
+    "[1 mark] Let the outer rectangle be L by W, with the 2 internal fences parallel to the width W. Fencing: 2L + 4W = 384 => L = 192 - 2W.",
+    "[1 mark] (i) For area A: W(192 - 2W) = A => 2W^2 - 192W + A = 0. Real W needs D >= 0: 192^2 - 8A >= 0 => A <= 4608.",
+    "[1 mark] (i) Maximum area 4608 sq ft at equal roots W = 192/4 = 48 ft, so L = 192 - 96 = 96 ft. Outer rectangle: 48 ft by 96 ft.",
+    "[1 mark] (ii) The 96 ft length is split into 3 equal pens, so each pen is 48 ft by 96/3 = 32 ft."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Authentic stem (self-contained text); the AI solution used completing the square. Re-solved by discriminant D≥0 ⇒ A≤4608, W=48, L=96, pens 48×32 — in-syllabus, answers unchanged."
+ },
+ {
+  "id": "2026-QE-LA-02",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "kind": "Short",
+   "section": "B",
+   "marks": 2,
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "Let the smaller integer be n; the next is n + 1. Then n(n + 1) = 156 ⇒ n² + n − 156 = 0. [1]",
+    "(n + 13)(n − 12) = 0 ⇒ n = 12 (reject n = −13 as the integers are positive). The integers are 12 and 13. [1]"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "One-equation factorisation (n²+n−156=0) is a 2-mark Section B item, not 5/D. Retagged and steps compressed to two [1] steps summing to 2. Answer 12, 13 verified."
+ },
+ {
+  "id": "BX-QUAD-D-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] Let the smaller odd integer be x; the next is x + 2. x(x + 2) = 483 ⇒ x² + 2x − 483 = 0.",
+    "[1 mark] Split the middle term: x² + 23x − 21x − 483 = 0 ⇒ (x + 23)(x − 21) = 0 ⇒ x = 21 or x = −23.",
+    "[1 mark] Reject x = −23 (integers are positive). The integers are 21 and 23 (21 × 23 = 483 ✓)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "A single form-and-factorise word problem is a 3-mark Section C item, not 5-mark Section D. Retagged; steps regrouped to three [1 mark] steps summing to 3. Answer verified."
+ },
+ {
+  "id": "BX-QUAD-D-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] Let the daughter's age be x years; the mother's age is x² years. x² + x = 42 ⇒ x² + x − 42 = 0.",
+    "[1 mark] Factorise: (x + 7)(x − 6) = 0 ⇒ x = 6 or x = −7.",
+    "[1 mark] Reject x = −7 (age cannot be negative). Daughter 6 years, mother 6² = 36 years (6 + 36 = 42 ✓)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "A single form-and-factorise word problem is a 3-mark Section C item, not 5-mark Section D. Retagged; steps regrouped to three [1 mark] steps summing to 3. Answer verified."
+ },
+ {
+  "id": "BX-QUAD-D-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "[1 mark] Let the breadth be x m; length = (x + 5) m. x(x + 5) = 84 ⇒ x² + 5x − 84 = 0.",
+    "[1 mark] Factorise: (x + 12)(x − 7) = 0 ⇒ x = 7 or x = −12.",
+    "[1 mark] Reject x = −12 (breadth cannot be negative). Breadth = 7 m, length = 12 m (7 × 12 = 84 m² ✓)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "A single form-and-factorise word problem is a 3-mark Section C item, not 5-mark Section D. Retagged; steps regrouped to three [1 mark] steps summing to 3. Answer verified."
+ },
+ {
+  "id": "BX-QUAD-D-020",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "marks": 2,
+   "format": "Short",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "[1 mark] Let the number be x: x² = x + 30 ⇒ x² − x − 30 = 0 ⇒ (x − 6)(x + 5) = 0.",
+    "[1 mark] x = 6 or x = −5; reject −5 (not a natural number). The number is 6 (36 = 6 + 30 ✓)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Two-step x² − x − 30 = 0 is a 2-mark Section B item, not 5/D. Retagged; steps compressed to two [1 mark] steps summing to 2. Answer 6 verified."
+ },
+ {
+  "id": "QE2-030",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "Let the number be x (x ≠ 0). x + 1/x = 13/6 ⇒ 6x² + 6 = 13x ⇒ 6x² − 13x + 6 = 0.",
+    "D = (−13)² − 4(6)(6) = 169 − 144 = 25, so x = (13 ± 5)/12.",
+    "x = 18/12 = 3/2 or x = 8/12 = 2/3. The number is 3/2 or 2/3."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Form + solve one quadratic is a 3-mark Section C item, not 5/D/Hard. Retagged; 8 fragmentary steps regrouped into 3 CBSE steps. Answer 3/2 or 2/3 verified."
+ },
+ {
+  "id": "CBE-M-RN-A-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "garbled",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Premise is mathematically flawed: a cube of volume 15 m³ cannot fill a cube of 165/195/285 m³ with no space left; HCF of volumes is not a valid answer. Official CBSE item text, so not rewritable without inventing a new question."
+ }
+]

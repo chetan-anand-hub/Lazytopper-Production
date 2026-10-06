@@ -1,0 +1,265 @@
+[
+ {
+  "id": "S-CHEM-8",
+  "verdict": "ok",
+  "answer": "A precipitation reaction is a double displacement reaction in which two soluble salts exchange ions and one of the products is an insoluble salt that separates out as a solid (precipitate). Example: when aqueous sodium sulphate is mixed with aqueous barium chloride, a white precipitate of barium sulphate forms: Na2SO4(aq) + BaCl2(aq) → BaSO4(s)↓ + 2NaCl(aq). Ba²⁺ and SO4²⁻ ions combine to form BaSO4, which is insoluble in water and settles as a white precipitate, while NaCl stays in solution.",
+  "finalAnswer": "Na2SO4(aq) + BaCl2(aq) → BaSO4(s)↓ (white ppt) + 2NaCl(aq)",
+  "solutionSteps": [
+   "[1 mark] Definition: a double displacement reaction in which ions are exchanged between two soluble salts and an insoluble product (precipitate) is formed.",
+   "[1 mark] Example with balanced equation: Na2SO4(aq) + BaCl2(aq) → BaSO4(s)↓ + 2NaCl(aq).",
+   "[1 mark] Explanation: Ba²⁺ and SO4²⁻ combine to form insoluble BaSO4, which separates as a white precipitate; NaCl remains dissolved."
+  ]
+ },
+ {
+  "id": "S-ABS-8",
+  "verdict": "ok",
+  "answer": "Acids react with metal carbonates to give a salt, carbon dioxide and water. Metal carbonate + Acid → Salt + Carbon dioxide + Water. Example: Na2CO3(s) + 2HCl(aq) → 2NaCl(aq) + H2O(l) + CO2(g). The CO2 evolved (brisk effervescence) turns lime water milky: Ca(OH)2 + CO2 → CaCO3 + H2O.",
+  "finalAnswer": "Salt + CO2 + H2O; e.g. Na2CO3 + 2HCl → 2NaCl + H2O + CO2",
+  "solutionSteps": [
+   "[1 mark] Statement: metal carbonate + acid → salt + carbon dioxide + water (CO2 gas evolved with effervescence, turns lime water milky).",
+   "[1 mark] Balanced equation: Na2CO3(s) + 2HCl(aq) → 2NaCl(aq) + H2O(l) + CO2(g)."
+  ]
+ },
+ {
+  "id": "S-MNM-8",
+  "verdict": "ok",
+  "answer": "Copper is less reactive than hydrogen; it lies below hydrogen in the reactivity series. Metals react with dilute acids by displacing hydrogen from the acid. Since copper is less reactive than hydrogen, it cannot displace hydrogen from dilute HCl, so no reaction occurs and no hydrogen gas is evolved.",
+  "finalAnswer": "Copper is below hydrogen in the reactivity series, so it cannot displace hydrogen from dilute acids.",
+  "solutionSteps": [
+   "[1 mark] Copper is less reactive than hydrogen (placed below hydrogen in the reactivity series).",
+   "[1 mark] Hence it cannot displace hydrogen from dilute HCl, so no reaction/no H2 gas is produced."
+  ]
+ },
+ {
+  "id": "S-CARB-8",
+  "verdict": "ok",
+  "answer": "A soap molecule is a sodium or potassium salt of a long-chain carboxylic acid. It has an ionic (hydrophilic) end that dissolves in water and a long hydrocarbon (hydrophobic) tail that dissolves in oil/grease. When soap is added to water containing oily dirt, the molecules arrange themselves in clusters called micelles: the hydrocarbon tails point inwards towards the oily dirt and trap it in the centre, while the ionic ends face outwards towards water. The micelle thus forms an emulsion in water; the dirt held inside the micelles is pulled out of the cloth and is washed away when the cloth is rinsed with water (agitation/scrubbing helps).",
+  "finalAnswer": "Soap forms micelles: hydrophobic tails trap oily dirt inside, ionic ends face water, so dirt is emulsified and rinsed away.",
+  "solutionSteps": [
+   "[1 mark] Structure: soap molecule has a hydrophilic ionic end (soluble in water) and a hydrophobic long hydrocarbon tail (soluble in oil).",
+   "[1 mark] Micelle formation: tails point inwards towards the oily dirt and ionic ends point outwards towards water, trapping dirt at the centre of the micelle.",
+   "[1 mark] Cleansing: micelles form an emulsion in water; the trapped dirt is removed from the cloth and washed away on rinsing."
+  ]
+ },
+ {
+  "id": "S-LIFE-8",
+  "verdict": "ok",
+  "answer": "Transport of soluble products of photosynthesis (food) from leaves to other parts of the plant is called translocation. It occurs through the phloem tissue (sieve tubes with the help of companion cells). Translocation is an active process using energy from ATP: sucrose is loaded into phloem, osmotic pressure increases, water enters, and the pressure moves material to tissues with lower pressure. Movement is in both directions — upward and downward (from leaves to storage organs, roots, fruits, growing parts, as per need).",
+  "finalAnswer": "Translocation through phloem; movement is both upward and downward.",
+  "solutionSteps": [
+   "[1 mark] Process is called translocation and occurs through phloem (sieve tubes and companion cells), using energy from ATP.",
+   "[1 mark] Direction: both upward and downward (bidirectional), from leaves (source) to parts that need or store food."
+  ]
+ },
+ {
+  "id": "S-ELEC-8",
+  "verdict": "ok",
+  "answer": "P = 1000 W = 1 kW. Time per day = 2 h, so total time in 30 days = 2 × 30 = 60 h. Energy = P × t = 1 kW × 60 h = 60 kWh.",
+  "finalAnswer": "60 kWh",
+  "solutionSteps": [
+   "[1 mark] Given: P = 1000 W = 1 kW; total time t = 2 h × 30 = 60 h.",
+   "[1 mark] Formula: E = P × t.",
+   "[1 mark] E = 1 kW × 60 h = 60 kWh (60 units)."
+  ]
+ },
+ {
+  "id": "S-CC-8",
+  "verdict": "ok",
+  "answer": "Phototropism is the directional growth movement of a plant part in response to light. (1) When light falls on a growing shoot from one side, the plant hormone auxin, synthesised at the shoot tip, diffuses towards the shaded side of the shoot. (2) The higher concentration of auxin on the shaded side stimulates the cells there to elongate more than the cells on the lighted side. (3) As a result the shoot bends towards the light (positive phototropism); roots generally bend away from light (negative phototropism).",
+  "finalAnswer": "Shoot bends towards light because auxin accumulates on the shaded side and causes more cell elongation there.",
+  "solutionSteps": [
+   "[1 mark] Definition: phototropism is the growth movement of a plant part in response to the direction of light (shoot — positively phototropic; root — negatively phototropic).",
+   "[1 mark] Auxin synthesised at the shoot tip diffuses to the side away from light (shaded side).",
+   "[1 mark] Cells on the shaded side elongate more, so the shoot bends towards light."
+  ]
+ },
+ {
+  "id": "S-REP-8",
+  "verdict": "ok",
+  "answer": "Variations in a population increase the chances of survival of the species: if the environment changes drastically (e.g. rise in temperature), some individuals with suitable variations may survive and continue the species, so the species is not wiped out. For an individual, however, a particular variation may not be useful in its present environment and may even be harmful; the individual cannot change it, and its survival depends only on whether that variation suits the conditions.",
+  "finalAnswer": "Variation helps some individuals survive changed conditions, so the species continues; a given variation may not help (or may harm) a particular individual.",
+  "solutionSteps": [
+   "[1 mark] Benefit to species: variation ensures some individuals can survive drastic environmental changes, so the population/species survives.",
+   "[1 mark] Not necessarily to individual: a particular variation may not be advantageous (or may be harmful) to that individual in its environment."
+  ]
+ },
+ {
+  "id": "S-LIGHT-1",
+  "verdict": "ok",
+  "answer": "Laws of reflection: (i) The angle of incidence is equal to the angle of reflection (∠i = ∠r). (ii) The incident ray, the normal to the mirror at the point of incidence and the reflected ray all lie in the same plane.",
+  "finalAnswer": "∠i = ∠r; incident ray, normal and reflected ray lie in the same plane.",
+  "solutionSteps": [
+   "[1 mark] First law: angle of incidence equals angle of reflection.",
+   "[1 mark] Second law: incident ray, normal at the point of incidence and reflected ray lie in the same plane."
+  ]
+ },
+ {
+  "id": "S-EYE-1",
+  "verdict": "ok",
+  "answer": "The iris controls the amount of light entering the eye by regulating the size of the pupil.",
+  "finalAnswer": "Iris",
+  "solutionSteps": [
+   "[1 mark] Iris — it adjusts the size of the pupil to control the light entering the eye."
+  ]
+ },
+ {
+  "id": "S-MAG-2",
+  "verdict": "ok",
+  "answer": "Right-hand thumb rule: Imagine holding a current-carrying straight conductor in the right hand such that the thumb points in the direction of current; then the direction in which the fingers wrap around the conductor gives the direction of the magnetic field lines. Use: it is used to find the direction of the magnetic field (field lines) around a current-carrying straight conductor (also for a circular loop/solenoid).",
+  "finalAnswer": "Thumb along current, curled fingers give direction of magnetic field; used to find field direction around a current-carrying conductor.",
+  "solutionSteps": [
+   "[1 mark] Statement: hold the straight conductor in the right hand with the thumb pointing along the current; the curled fingers give the direction of the magnetic field lines.",
+   "[1 mark] Use: to find the direction of the magnetic field around a current-carrying straight conductor."
+  ]
+ },
+ {
+  "id": "S-ENV-5",
+  "verdict": "ok",
+  "answer": "(a) Energy flow is unidirectional because the energy captured by autotrophs (producers) does not revert to the Sun, and the energy passed to herbivores does not come back to autotrophs; it moves progressively from one trophic level to the next and is not available to the previous level. (b) Food chains are usually short (3–4 trophic levels) because only about 10% of the energy is transferred from one trophic level to the next (10% law); the rest is lost as heat or used in life processes, so after a few levels the available energy is too little to support another trophic level.",
+  "finalAnswer": "(a) Energy passed to a higher trophic level never returns to the lower one. (b) Only ~10% energy passes to the next level, so little energy remains after 3–4 levels.",
+  "solutionSteps": [
+   "[1.5 mark] (a) Energy captured by producers does not revert to the Sun and energy passed to herbivores does not return to producers — it flows only to the next trophic level.",
+   "[1.5 mark] (b) Only about 10% of energy is transferred to the next trophic level (rest lost as heat/used in life processes), so after 3–4 levels too little energy is left to support another level."
+  ]
+ },
+ {
+  "id": "M-REAL-5",
+  "verdict": "ok",
+  "answer": "Assume, to the contrary, that √5 is rational. Then √5 = a/b, where a, b are co-prime integers and b ≠ 0. So a = √5 b ⇒ a² = 5b². Hence 5 divides a², and since 5 is prime, 5 divides a. Let a = 5c. Then 25c² = 5b² ⇒ b² = 5c², so 5 divides b², hence 5 divides b. Thus 5 is a common factor of a and b, contradicting that a and b are co-prime. Hence our assumption is wrong, and √5 is irrational.",
+  "finalAnswer": "√5 is irrational (proved by contradiction).",
+  "solutionSteps": [
+   "[1 mark] Assume √5 = a/b with a, b co-prime integers, b ≠ 0; squaring gives a² = 5b², so 5 | a² ⇒ 5 | a.",
+   "[1 mark] Put a = 5c: 25c² = 5b² ⇒ b² = 5c², so 5 | b² ⇒ 5 | b.",
+   "[1 mark] 5 is a common factor of a and b — contradiction with co-primeness; hence √5 is irrational."
+  ]
+ },
+ {
+  "id": "M-POLY-6",
+  "verdict": "ok",
+  "answer": "For 3x² − 2x + 1: α + β = −(−2)/3 = 2/3 and αβ = 1/3. Sum of new zeroes = 1/α + 1/β = (α + β)/αβ = (2/3)/(1/3) = 2. Product = 1/(αβ) = 3. Required polynomial = k[x² − (sum)x + product] = k(x² − 2x + 3), k ≠ 0; e.g. x² − 2x + 3.",
+  "finalAnswer": "x² − 2x + 3 (or k(x² − 2x + 3))",
+  "solutionSteps": [
+   "[1 mark] α + β = 2/3, αβ = 1/3.",
+   "[1 mark] 1/α + 1/β = (α+β)/αβ = 2 and (1/α)(1/β) = 1/αβ = 3.",
+   "[1 mark] Required polynomial: x² − 2x + 3 (or any non-zero multiple k(x² − 2x + 3))."
+  ],
+  "note": "Discriminant of 3x² − 2x + 1 is 4 − 12 < 0, so α, β are not real; the sum/product relations still give the answer algebraically, but the item may be better replaced with a polynomial having real zeroes."
+ },
+ {
+  "id": "M-PLE-7",
+  "verdict": "unanswerable",
+  "answer": "",
+  "finalAnswer": "",
+  "solutionSteps": [],
+  "note": "Defective data. Let fraction = x/y. Condition 1: (x−1)/(y+2) = 1/2 ⇒ 2x − y = 4. Condition 2: (x+4)/(y+4) = 1 ⇒ x = y. Solving gives x = y = 4, i.e. the 'fraction' 4/4 = 1, which is degenerate (adding 4 to both then trivially keeps it 1). The second condition as written is meaningless; the original source condition (likely a different value than 1, e.g. a fraction) appears to have been garbled. Needs the correct second condition before a model answer can be written."
+ },
+ {
+  "id": "M-QUAD-7",
+  "verdict": "ok",
+  "answer": "Let the roots be α and β. Given αβ = 2 and 1/α + 1/β = (α + β)/αβ = 5 ⇒ α + β = 5 × 2 = 10. Required quadratic: x² − (α + β)x + αβ = 0 ⇒ x² − 10x + 2 = 0.",
+  "finalAnswer": "x² − 10x + 2 = 0",
+  "solutionSteps": [
+   "[1 mark] 1/α + 1/β = (α + β)/αβ = 5 with αβ = 2.",
+   "[1 mark] Hence α + β = 10.",
+   "[1 mark] Equation: x² − (α+β)x + αβ = 0 ⇒ x² − 10x + 2 = 0."
+  ],
+  "note": "'their product' is read as the product of the roots (αβ = 2). If it meant the product of the reciprocals, αβ = 1/2, α + β = 5/2 and the equation would be 2x² − 5x + 1 = 0."
+ },
+ {
+  "id": "M-AP-7",
+  "verdict": "ok",
+  "answer": "Let the numbers be a − d, a, a + d. Sum: 3a = 21 ⇒ a = 7. Product: (a − d)a(a + d) = a(a² − d²) = 315 ⇒ 7(49 − d²) = 315 ⇒ 49 − d² = 45 ⇒ d² = 4 ⇒ d = ±2. For d = 2: 5, 7, 9; for d = −2: 9, 7, 5. The numbers are 5, 7, 9.",
+  "finalAnswer": "5, 7, 9",
+  "solutionSteps": [
+   "[1 mark] Take the numbers as a − d, a, a + d.",
+   "[1 mark] Sum: 3a = 21 ⇒ a = 7.",
+   "[1 mark] Product: 7(49 − d²) = 315 ⇒ d² = 4 ⇒ d = ±2.",
+   "[1 mark] Numbers: 5, 7, 9 (or 9, 7, 5)."
+  ]
+ },
+ {
+  "id": "M-CG-2",
+  "verdict": "ok",
+  "answer": "Midpoint = ((x₁ + x₂)/2, (y₁ + y₂)/2) = ((−4 + 6)/2, (5 + (−3))/2) = (2/2, 2/2) = (1, 1).",
+  "finalAnswer": "(1, 1)",
+  "solutionSteps": [
+   "[1 mark] Midpoint formula: ((x₁ + x₂)/2, (y₁ + y₂)/2).",
+   "[1 mark] ((−4 + 6)/2, (5 − 3)/2) = (1, 1)."
+  ]
+ },
+ {
+  "id": "M-TRIG-8",
+  "verdict": "ok",
+  "answer": "(1 − sin θ)(1 + sin θ)/cos²θ = (1 − sin²θ)/cos²θ = cos²θ/cos²θ = 1.",
+  "finalAnswer": "1",
+  "solutionSteps": [
+   "[1 mark] (1 − sin θ)(1 + sin θ) = 1 − sin²θ.",
+   "[1 mark] Using sin²θ + cos²θ = 1: 1 − sin²θ = cos²θ.",
+   "[1 mark] cos²θ/cos²θ = 1."
+  ]
+ },
+ {
+  "id": "M-APPTRIG-8",
+  "verdict": "ok",
+  "answer": "Let height of tree = h m and shadow = 10 m. tan 45° = h/10 ⇒ 1 = h/10 ⇒ h = 10 m.",
+  "finalAnswer": "10 m",
+  "solutionSteps": [
+   "[1 mark] tan 45° = height/shadow = h/10.",
+   "[1 mark] Since tan 45° = 1, h = 10 m."
+  ]
+ },
+ {
+  "id": "M-CIR-9",
+  "verdict": "ok",
+  "answer": "Let PA and PB be tangents from external point P to a circle with centre O, touching it at A and B. To prove: ∠APB + ∠AOB = 180°. Proof: The tangent at any point of a circle is perpendicular to the radius through the point of contact, so ∠OAP = 90° and ∠OBP = 90°. In quadrilateral OAPB, ∠OAP + ∠APB + ∠OBP + ∠AOB = 360° ⇒ 90° + ∠APB + 90° + ∠AOB = 360° ⇒ ∠APB + ∠AOB = 180°. Hence the angle between the tangents is supplementary to the angle subtended by AB at the centre.",
+  "finalAnswer": "∠APB + ∠AOB = 180°",
+  "solutionSteps": [
+   "[1 mark] Given/To prove with figure: tangents PA, PB from P to circle with centre O; prove ∠APB + ∠AOB = 180°.",
+   "[1 mark] Radius ⟂ tangent at point of contact: ∠OAP = ∠OBP = 90°.",
+   "[1 mark] Angle sum of quadrilateral OAPB = 360° ⇒ ∠APB + ∠AOB = 180°."
+  ]
+ },
+ {
+  "id": "M-ARC-9",
+  "verdict": "ok",
+  "answer": "Area enclosed by the diameter and the arc = area of semicircle = ½ × area of circle = ½πr² = πr²/2.",
+  "finalAnswer": "πr²/2",
+  "solutionSteps": [
+   "[1 mark] Region is a semicircle = half of the circle of radius r (area πr²).",
+   "[1 mark] Area = ½πr² = πr²/2 square units."
+  ]
+ },
+ {
+  "id": "M-SAV-10",
+  "verdict": "ok",
+  "answer": "Volume of rainwater on roof = 22 m × 20 m × 2.5 cm = 22 × 20 × 0.025 m³ = 11 m³. Let the rise in water level be h m. Volume in tank = πr²h = (22/7) × 4² × h. Equating: (22/7) × 16 × h = 11 ⇒ h = (11 × 7)/(22 × 16) = 7/32 m = 0.21875 m ≈ 21.9 cm.",
+  "finalAnswer": "7/32 m ≈ 0.219 m (≈ 21.9 cm)",
+  "solutionSteps": [
+   "[1 mark] Rainfall 2.5 cm = 0.025 m; volume of water = 22 × 20 × 0.025 = 11 m³.",
+   "[1 mark] Volume of water in tank = πr²h = (22/7) × 16 × h.",
+   "[1 mark] (22/7) × 16 × h = 11.",
+   "[1 mark] h = 7/32 m ≈ 0.219 m (≈ 21.9 cm)."
+  ]
+ },
+ {
+  "id": "M-STAT-10",
+  "verdict": "ok",
+  "answer": "Mode = 3 Median − 2 Mean = 3 × 52 − 2 × 50.5 = 156 − 101 = 55.",
+  "finalAnswer": "55",
+  "solutionSteps": [
+   "[1 mark] Mode = 3 Median − 2 Mean.",
+   "[1 mark] = 3 × 52 − 2 × 50.5 = 156 − 101.",
+   "[1 mark] Mode = 55."
+  ]
+ },
+ {
+  "id": "M-PROB-10",
+  "verdict": "ok",
+  "answer": "Probability of a sure (certain) event is 1, and of an impossible event is 0. Hence P(A) = 1 and P(B) = 0.",
+  "finalAnswer": "P(A) = 1, P(B) = 0",
+  "solutionSteps": [
+   "[1 mark] A is a sure event, so P(A) = 1.",
+   "[1 mark] B is an impossible event, so P(B) = 0."
+  ]
+ }
+]

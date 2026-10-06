@@ -1,0 +1,320 @@
+[
+ {
+  "id": "PYQ-M-2026-CIRC-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "areas-related-to-circles",
+   "subtopic": "Perimeter of a Segment",
+   "questionText": "Chord AB of a circle with centre O and radius 21 mm subtends an angle of 120° at the centre. Find the perimeter of the minor segment formed by chord AB (the region bounded by chord AB and the minor arc AB). (Use √3 = 1.73 and π = 22/7)",
+   "answer": "Perimeter of minor segment = (44 + 21√3) mm ≈ 80.33 mm",
+   "solutionSteps": [
+    "Draw OC ⊥ AB. Then C is the mid-point of AB and ∠AOC = ½ × 120° = 60°.",
+    "In right △OCA: sin 60° = AC/OA ⇒ √3/2 = AC/21 ⇒ AC = 21√3/2 mm, so AB = 2AC = 21√3 mm.",
+    "Length of minor arc AB = (120/360) × 2 × (22/7) × 21 = 44 mm.",
+    "Perimeter of minor segment = arc AB + chord AB = 44 + 21√3 = 44 + 21 × 1.73 = 44 + 36.33 = 80.33 mm."
+   ],
+   "finalAnswer": "(44 + 21√3) mm ≈ 80.33 mm"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored √3, 60°, fractions; 'shaded region' made explicit as minor segment (answer confirms arc+chord); retagged to Areas Related to Circles (120° segment is within limit)."
+ },
+ {
+  "id": "PYQ-M-2026-CIRC-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "areas-related-to-circles",
+   "subtopic": "Area of Sector and Perimeter of Segment",
+   "questionText": "A chord of a circle of radius 14 cm subtends an angle of 60° at the centre. Find the area of the smaller sector and the perimeter of the smaller segment. (Use π = 22/7)",
+   "answer": "Area of smaller sector = 308/3 cm² ≈ 102.67 cm²; perimeter of smaller segment = 86/3 cm ≈ 28.67 cm",
+   "solutionSteps": [
+    "OA = OB = 14 cm and ∠AOB = 60°, so △OAB is equilateral ⇒ chord AB = 14 cm.",
+    "Area of smaller sector = (60/360) × (22/7) × 14 × 14 = 308/3 cm² ≈ 102.67 cm².",
+    "Length of minor arc AB = (60/360) × 2 × (22/7) × 14 = 44/3 cm.",
+    "Perimeter of smaller segment = AB + arc AB = 14 + 44/3 = 86/3 cm ≈ 28.67 cm."
+   ],
+   "finalAnswer": "Area of sector = 308/3 cm² (≈ 102.67 cm²); perimeter of segment = 86/3 cm (≈ 28.67 cm)"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored ° in stem, fractions and cm² units; values unchanged (308/3, 86/3); retagged to Areas Related to Circles (60° within limit)."
+ },
+ {
+  "id": "PYQ-M-2026-CIRC-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "PQ = 12 cm; with AC = AQ = x, (12 − x)² = 8² + x² ⇒ x = 10/3. Hence AB = 20/3 cm ≈ 6.67 cm and PA = 26/3 cm ≈ 8.67 cm."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Answer field was truncated with lost squares; rewritten complete and consistent with existing correct solutionSteps/finalAnswer."
+ },
+ {
+  "id": "PYQ-M-CIRC-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A quadrilateral PQRS circumscribes a circle, touching the sides PQ, QR, RS and SP at A, B, C and D respectively. Then PA + CS is equal to:",
+   "solutionSteps": [
+    "Tangents from an external point are equal: PA = PD (from P) and CS = SD (from S).",
+    "PA + CS = PD + DS = PS. Correct option: (c) PS."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Contact points defined in text (standard labelling, consistent with key PS); figure no longer needed; steps given."
+ },
+ {
+  "id": "PYQ-M-CIRC-006",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "x is an angle defined only in the missing figure; cannot be stated without inventing the figure."
+ },
+ {
+  "id": "PYQ-M-CIRC-007",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Point D and the angle COD are defined only by the figure; answer 30° cannot be reconstructed confidently from text."
+ },
+ {
+  "id": "PYQ-M-CIRC-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "O is the centre of a circle. AB and AC are tangents drawn to the circle from an external point A, touching it at B and C. If ∠BAC = 65°, then find the measure of ∠BOC.",
+   "answer": "∠BOC = 115°",
+   "solutionSteps": [
+    "∠OBA = ∠OCA = 90° (tangent ⊥ radius at point of contact).",
+    "In quadrilateral ABOC: ∠BAC + ∠BOC = 360° − 90° − 90° = 180° ⇒ ∠BOC = 180° − 65° = 115°."
+   ],
+   "finalAnswer": "∠BOC = 115°"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored ∠ and °; stem self-contained without figure; clean 2-step solution."
+ },
+ {
+  "id": "PYQ-M-CIRC-015",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "AB = 8 cm",
+   "solutionSteps": [
+    "Let chord AB of the larger circle touch the smaller circle at P. Then OP ⊥ AB (radius ⊥ tangent), OA = 5 cm, OP = 3 cm.",
+    "Perpendicular from the centre bisects the chord ⇒ AP = PB.",
+    "In right △AOP: AP² = OA² − OP² = 5² − 3² = 16 ⇒ AP = 4 cm, so AB = 2AP = 8 cm."
+   ],
+   "finalAnswer": "AB = 8 cm"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed marking-scheme residue and restored squares; answer 8 cm unchanged."
+ },
+ {
+  "id": "APQ-M-CIRC-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "PQ is a diameter of a circle with centre O. R is a point on the circle at which a tangent is drawn. A line through O parallel to PR meets this tangent at S. Show that SQ is a tangent to the circle.\nOR\nA circle has centre O. Tangents drawn at points A and C of the circle intersect at B. If OA ⊥ OC, show that quadrilateral OABC is a square.",
+   "solutionSteps": [
+    "[Variant 1] OR ⊥ RS (tangent ⊥ radius). OP = OR ⇒ ∠OPR = ∠ORP. Since OS ∥ PR: ∠ROS = ∠ORP (alternate angles) and ∠QOS = ∠OPR (corresponding angles) ⇒ ∠ROS = ∠QOS.",
+    "In △ORS and △OQS: OR = OQ (radii), ∠ROS = ∠QOS, OS common ⇒ △ORS ≅ △OQS (SAS) ⇒ ∠OQS = ∠ORS = 90°.",
+    "OQ ⊥ SQ at Q, which lies on the circle ⇒ SQ is a tangent at Q.",
+    "[Variant 2] ∠OAB = ∠OCB = 90° (tangent ⊥ radius) and ∠AOC = 90° (given) ⇒ ∠ABC = 360° − 270° = 90°, so OABC is a rectangle.",
+    "OA = OC (radii) — adjacent sides of the rectangle are equal (also BA = BC, tangents from B) ⇒ OABC is a square."
+   ],
+   "strategyHint": "Use tangent ⊥ radius and congruence (SAS) for Variant 1; for Variant 2 show all angles 90° and adjacent sides equal."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Both variants are fully describable in words; removed figure references; corrected faulty angle-equality reasoning in variant 1 proof."
+ },
+ {
+  "id": "CIR-E09",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "TP and TQ are tangents from an external point T to a circle with centre O. If ∠PTQ = 70°, then ∠POQ =",
+   "explanation": "∠OPT = ∠OQT = 90° (tangent ⊥ radius). In quadrilateral OPTQ, ∠POQ = 360° − 90° − 90° − 70° = 110°. Therefore, the correct answer is 110°.",
+   "solutionSteps": [
+    "∠OPT = ∠OQT = 90°; in quadrilateral OPTQ, ∠POQ = 360° − 180° − 70° = 110°."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Self-contained without figure; removed figure reference, tightened explanation."
+ },
+ {
+  "id": "CIR-E19",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "PA and PB are tangents from an external point P to a circle with centre O. If ∠APB = 50°, then ∠OAB =",
+   "explanation": "∠OAP = ∠OBP = 90°, so in quadrilateral OAPB, ∠AOB = 360° − 180° − 50° = 130°. △OAB is isosceles (OA = OB), so ∠OAB = (180° − 130°)/2 = 25°. Therefore, the correct answer is 25°.",
+   "solutionSteps": [
+    "∠OAP = ∠OBP = 90° ⇒ ∠AOB = 360° − 180° − 50° = 130°.",
+    "△OAB is isosceles (OA = OB = radius).",
+    "∠OAB = (180° − 130°)/2 = 25°."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Defined centre O and external point in text; figure not needed; clarified reasoning."
+ },
+ {
+  "id": "CIR-M05",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "XY and X'Y' are two parallel tangents to a circle with centre O, touching it at P and Q respectively. Another tangent AB, with point of contact C, intersects XY at A and X'Y' at B. Prove that ∠AOB = 90°.",
+   "solutionSteps": [
+    "[1 mark] Join OP, OC, OQ. Since XY ∥ X'Y' and OP ⊥ XY, OQ ⊥ X'Y', P, O, Q are collinear (PQ is a diameter). In △OPA and △OCA: OP = OC (radii), OA common, PA = CA (tangents from A) ⇒ △OPA ≅ △OCA (SSS).",
+    "[1 mark] Hence ∠POA = ∠COA; similarly △OQB ≅ △OCB ⇒ ∠QOB = ∠COB.",
+    "[1 mark] ∠POA + ∠COA + ∠COB + ∠QOB = 180° (POQ is a straight line) ⇒ 2∠COA + 2∠COB = 180° ⇒ ∠AOB = ∠COA + ∠COB = 90°."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Named contact points P, Q in text (figure not needed); removed junk construction text; mark-prefixed steps sum to 3."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Two circles touch each other externally at A. QR is a common tangent to the two circles, touching them at Q and R respectively. The common tangent at A meets QR at P. If AP = 4.2 cm, then the length of QR is:",
+   "solutionSteps": [
+    "Tangents from P: PQ = PA = 4.2 cm and PR = PA = 4.2 cm.",
+    "QR = PQ + PR = 8.4 cm. Correct option: (c) 8.4 cm."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Setup fully describable in text; removed figure reference; added working."
+ },
+ {
+  "id": "PYQ-M-2025-CIRC-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "PB is a tangent at B to a circle with centre O. AB is a chord of the circle of length 24 cm and at a distance of 5 cm from the centre. If the length PB of the tangent is 20 cm, find the length of OP.",
+   "answer": "OP = √569 cm",
+   "solutionSteps": [
+    "Let OM ⊥ AB, OM = 5 cm. The perpendicular from the centre bisects the chord ⇒ MB = 12 cm.",
+    "In right △OMB: OB = √(5² + 12²) = √169 = 13 cm (radius).",
+    "PB is tangent ⇒ PB ⊥ OB. In right △OBP: OP = √(13² + 20²) = √(169 + 400) = √569 cm."
+   ],
+   "finalAnswer": "OP = √569 cm (≈ 23.85 cm)"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem self-contained; removed figure reference and garbled marking residue; restored squares."
+ },
+ {
+  "id": "PYQ-M-2026-CIRC-005",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Two-circle configuration (points P, A, S, positions of M,N,T) needs the figure; scheme itself notes ambiguity of TB (45 vs 56 cm)."
+ },
+ {
+  "id": "PYQ-M-CIRC-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "From an external point P, a line is drawn which cuts a circle with centre O at A and B (A lying between P and B). OC is drawn perpendicular to the chord AB, meeting it at C. Prove that PA · PB = PC² − AC².",
+   "answer": "PA · PB = (PC − AC)(PC + CB) = (PC − AC)(PC + AC) = PC² − AC²",
+   "solutionSteps": [
+    "OC ⊥ AB ⇒ C is the mid-point of AB (perpendicular from centre bisects the chord) ⇒ AC = CB.",
+    "PA = PC − AC and PB = PC + CB = PC + AC ⇒ PA · PB = (PC − AC)(PC + AC) = PC² − AC²."
+   ],
+   "finalAnswer": "PA · PB = PC² − AC² (proved)"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored '−' and squares; described secant PAB in words (the tangent PT was irrelevant to the proof); proof fully self-contained."
+ },
+ {
+  "id": "PYQ-M-CIRC-013",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Position of A and Q (and that A, O, Q are collinear, which the proof relies on) is fixed only by the figure; not stated in text."
+ },
+ {
+  "id": "PYQ-M-CIRC-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "coordinate-geometry",
+   "subtopic": "Distance Formula"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "A true via distance formula: OA = 2, (x−2)² + 4 = 4 ⇒ x = 2; R false (centre is not mid-point of every chord). Content is Coordinate Geometry; retagged."
+ },
+ {
+  "id": "2026-CIRC-CASE-11",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Tangents from an External Point",
+   "questionText": "A circular fountain in a park has centre O and radius 5 m. A lamp post stands at point P, 13 m from O. Two straight paths PA and PB run from the lamp post and just touch the fountain's boundary at A and B.\n(i) Find the length of path PA. [1]\n(ii) What is the measure of ∠OAP? Give a reason. [1]\n(iii) Find the area of the quadrilateral OAPB enclosed by the two paths and the radii OA and OB. [2]",
+   "answer": "(i) PA = 12 m (ii) ∠OAP = 90°, since the tangent at a point is perpendicular to the radius through it (iii) 60 m²",
+   "explanation": "PA is a tangent, so OA ⊥ PA and PA = √(OP² − OA²) = √(169 − 25) = 12 m. PA = PB (tangents from an external point), so △OAP ≅ △OBP and area OAPB = 2 × ½ × 5 × 12 = 60 m².",
+   "solutionSteps": [
+    "(i) OA ⊥ PA ⇒ PA = √(13² − 5²) = √144 = 12 m. [1]",
+    "(ii) ∠OAP = 90°, because the tangent at any point of a circle is perpendicular to the radius through the point of contact. [1]",
+    "(iii) PA = PB = 12 m and OA = OB, so △OAP ≅ △OBP; area △OAP = ½ × OA × PA = ½ × 5 × 12 = 30 m². [1]",
+    "Area of OAPB = 2 × 30 = 60 m². [1]"
+   ],
+   "strategyHint": "Tangent ⊥ radius gives a right triangle; tangents from one external point are equal.",
+   "finalAnswer": "(i) 12 m (ii) 90° (tangent ⊥ radius) (iii) 60 m²"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row used Class 9 chord-distance content with only 2 parts; rebuilt as an in-syllabus tangent case (i)(ii)(iii) 1+1+2 = 4 marks, solved."
+ },
+ {
+  "id": "CI2-033",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Number of common tangents of two circles is outside 2026-27 Circles (tangent at a point, two tangent theorems); also mis-tagged 3-mark MCQ. No natural in-limit repair without replacing the question."
+ }
+]

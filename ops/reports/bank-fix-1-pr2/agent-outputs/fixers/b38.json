@@ -1,0 +1,356 @@
+[
+ {
+  "id": "CBE-M-STAT-B-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The table below gives the heights of 100 students (in cm) of a class.\nHeight : Number of students\n145–150 : 5\n150–155 : 15\n155–160 : 25\n160–165 : 30\n165–170 : 15\n170–175 : 10\nFind the modal class of the given data."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "First class 140–145 left a gap before 150–155; frequencies already total 100 over six classes, so relabelled it 145–150 to make classes contiguous. Modal class 160–165 unchanged."
+ },
+ {
+  "id": "CBE-M-STAT-C-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The table below gives the heights of 100 students (in cm) of a class.\nHeight : Number of students\n145–150 : 5\n150–155 : 15\n155–160 : 25\n160–165 : 30\n165–170 : 15\n170–175 : 10\nFind the median height of the students."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Same gap fixed (140–145 → 145–150; Σf = 100 unchanged). cf 5, 20, 45, 75, 90, 100; median class 160–165; Median = 160 + (5/30)×5 = 160.83 cm — answer unchanged."
+ },
+ {
+  "id": "PYQ-M-2024-STAT-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Calculate the mean of the following data:\nClass : Frequency\n4–6 : 5\n7–9 : 4\n10–12 : 9\n13–15 : 10",
+   "answer": "Mean = 296/28 = 74/7 ≈ 10.57",
+   "solutionSteps": [
+    "[1 mark] Class marks xi: 5, 8, 11, 14; frequencies fi: 5, 4, 9, 10; Σfi = 28.",
+    "[1 mark] fixi: 25, 32, 99, 140; Σfixi = 296.",
+    "[1 mark] Mean = Σfixi/Σfi = 296/28 = 74/7 ≈ 10.57."
+   ],
+   "finalAnswer": "Mean = 74/7 ≈ 10.57"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Flattened PDF table dump in stem/answer; rebuilt table and steps. Verified: Σf = 28, Σfx = 296, mean = 74/7 ≈ 10.57."
+ },
+ {
+  "id": "PYQ-M-2025-STAT-001",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Served stem is already complete ('Find the missing frequency f. Hence find the mode.' + clean table, no trailing digits). Verified f = 20 (18(44+f) = 752+20f) and Mode = 19 + (7/22)×2 ≈ 19.64; steps sum 5."
+ },
+ {
+  "id": "PYQ-M-2025-STAT-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The following frequency distribution gives the monthly consumption of electricity of 68 consumers of a locality. Find the mean and mode of the data.\nMonthly Consumption (in units) : Number of Consumers\n65–85 : 4\n85–105 : 5\n105–125 : 13\n125–145 : 20\n145–165 : 14\n165–185 : 8\n185–205 : 4",
+   "answer": "Mean = 137.06 units and Mode = 135.77 units"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Last-class frequency 4 was missing; recovered from stated total 68 (Σ others = 64) and the marking-scheme table. Stray mark '1' removed from answer. Verified mean 137.06, mode 135.77."
+ },
+ {
+  "id": "PYQ-M-2026-STAT-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Compute the median of the following data:\nMid-value : Frequency\n115 : 12\n125 : 15\n135 : 20\n145 : 16\n155 : 10\n165 : 16\n175 : 11",
+   "answer": "Median = 141.875 (≈ 141.88)",
+   "solutionSteps": [
+    "[1 mark] Mid-values differ by 10, so the classes are 110–120, 120–130, 130–140, 140–150, 150–160, 160–170, 170–180; cumulative frequencies 12, 27, 47, 63, 73, 89, 100; N = 100.",
+    "[1 mark] N/2 = 50; the cf just greater than 50 is 63, so the median class is 140–150 (l = 140, cf = 47, f = 16, h = 10).",
+    "[1 mark] Median = l + ((N/2 − cf)/f) × h = 140 + (3/16) × 10 = 140 + 1.875 = 141.875 ≈ 141.88."
+   ],
+   "finalAnswer": "Median ≈ 141.88",
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Stem had leading residue 'of 24 (b)'; answer/steps were from an unrelated heights-and-distances case. Data is complete (7 mid-values, 7 freqs); solved: median 141.875. Not a case — retagged C/3/Short."
+ },
+ {
+  "id": "PYQ-M-STAT-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "For the following distribution:\nClass : Frequency\n0–5 : 10\n5–10 : 15\n10–15 : 12\n15–20 : 20\n20–25 : 9\nThe sum of the lower limits of the median class and the modal class is:",
+   "solutionSteps": [
+    "N = 66, N/2 = 33; cf 10, 25, 37 ⇒ median class 10–15 (lower limit 10). Highest frequency 20 ⇒ modal class 15–20 (lower limit 15). Sum = 10 + 15 = 25. Correct option: (b) 25."
+   ],
+   "finalAnswer": "(b) 25"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray marks digit '1' removed from stem and finalAnswer; table formatted. Verified answer 25 (median class 10–15, modal class 15–20)."
+ },
+ {
+  "id": "PYQ-M-STAT-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Find the mean of the following frequency distribution:\nClasses : Frequency\n25–30 : 14\n30–35 : 22\n35–40 : 16\n40–45 : 6\n45–50 : 5\n50–55 : 3\n55–60 : 4",
+   "answer": "Mean = 42.5 − (79/70) × 5 ≈ 36.86",
+   "solutionSteps": [
+    "[1 mark] Class marks xi: 27.5, 32.5, 37.5, 42.5, 47.5, 52.5, 57.5; take a = 42.5, h = 5, ui = (xi − 42.5)/5: −3, −2, −1, 0, 1, 2, 3.",
+    "[1 mark] fiui: −42, −44, −16, 0, 5, 6, 12; Σfi = 70, Σfiui = −79.",
+    "[1 mark] Mean = a + (Σfiui/Σfi) × h = 42.5 − (79/70) × 5 = 42.5 − 5.64 ≈ 36.86."
+   ],
+   "finalAnswer": "Mean ≈ 36.86"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Frequency 4 for 55–60 was missing in stem; recovered from the marking-scheme table (55–60 → 4, Σf = 70). Garbled table dump replaced with clean steps. Verified Σfu = −79, mean ≈ 36.86."
+ },
+ {
+  "id": "PYQ-M-STAT-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The monthly expenditure on milk in 200 families of a Housing Society is given below:\nMonthly Expenditure (in ₹) : Number of families\n1000–1500 : 24\n1500–2000 : 40\n2000–2500 : 33\n2500–3000 : x\n3000–3500 : 30\n3500–4000 : 22\n4000–4500 : 16\n4500–5000 : 7\nFind the value of x and also find the median and mean expenditure on milk.",
+   "answer": "x = 28; Median expenditure = 2500 + (3/28) × 500 ≈ ₹2553.57; Mean expenditure = 2750 − (35/200) × 500 = ₹2662.50."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Rupee glyph garbled as '(in `)' and table split across columns; rebuilt stem table, cleaned answer dump. Verified x = 28, median ≈ 2553.57, mean = 2662.50 (Σfd = −35)."
+ },
+ {
+  "id": "ST2-036",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A teacher computed the mean marks of 40 students from a grouped frequency distribution and obtained Σfi = 40 and Σfixi = 1680. Later she found that the frequencies of two classes had been interchanged: the class with class mark 45 had been recorded as 8 instead of 5, and the class with class mark 25 had been recorded as 5 instead of 8. Find the incorrect mean and the correct mean.",
+   "answer": "Incorrect mean = 42; correct mean = 40.5",
+   "solutionSteps": [
+    "[1 mark] Incorrect mean = Σfixi/Σfi = 1680/40 = 42.",
+    "[1 mark] Correction: class mark 45 has 3 too many (remove 3 × 45 = 135); class mark 25 has 3 too few (add 3 × 25 = 75). Correct Σfixi = 1680 − 135 + 75 = 1620; Σfi stays 40.",
+    "[1 mark] Correct mean = 1620/40 = 40.5."
+   ],
+   "finalAnswer": "Incorrect mean = 42; correct mean = 40.5"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row was indeterminate (no class mark; Σf would no longer be 40; answer a range). Re-authored with given class marks and an interchange keeping Σf = 40; solved: 42 → 40.5."
+ },
+ {
+  "id": "STAT-N-EXEM-13-CRE-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Choose modal class 20-30 (so l = 20, h = 10) and target mode = 25.",
+    "Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × h = 20 + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × 10 = 25.",
+    "So (f₁ − f₀)/(2f₁ − f₀ − f₂) = 1/2 ⇒ 2(f₁ − f₀) = 2f₁ − f₀ − f₂ ⇒ f₂ = f₀.",
+    "Pick f₀ = 5 (class 10-20), f₁ = 11 (class 20-30, the largest) and f₂ = 5 (class 30-40); give class 0-10 frequency 0. Distribution: 0-10 → 0, 10-20 → 5, 20-30 → 11, 30-40 → 5.",
+    "Check: highest frequency 11 is in 20-30, so it is the modal class. Mode = 20 + ((11 − 5)/(22 − 5 − 5)) × 10 = 20 + (6/12) × 10 = 25. ✓"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Steps 4–5 carried a leaked trial (f₁ = 12, f₂ = 4 → 24.67) contradicting the final 0, 5, 11, 5. Rewrote them to the final distribution; verified Mode = 20 + (6/12)×10 = 25."
+ },
+ {
+  "id": "2026-STAT-CASE-01",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A teacher records the weekly test scores (out of 25) of five students in her class: 18, 20, 15, 22, 15. Based on this information, answer the following questions:\n(i) What is the mode of the scores? (1 mark)\n(ii) Find the median score. (1 mark)\n(iii) Find the mean score and state whether it is greater than, less than or equal to the median. (2 marks)",
+   "answer": "(i) Mode = 15 (ii) Median = 18 (iii) Mean = 18; the mean is equal to the median.",
+   "finalAnswer": "(i) 15 (ii) 18 (iii) Mean = 18, equal to the median.",
+   "explanation": "Arrange in ascending order: 15, 15, 18, 20, 22. 15 occurs twice, so the mode is 15. The middle (3rd) value is 18, so the median is 18. Sum = 90, so the mean is 90/5 = 18, which equals the median.",
+   "solutionSteps": [
+    "(i) Arrange in ascending order: 15, 15, 18, 20, 22; 15 occurs most often, so mode = 15. [1]",
+    "(ii) n = 5 (odd), so the median is the 3rd value = 18. [1]",
+    "(iii) Sum = 18 + 20 + 15 + 22 + 15 = 90; mean = 90/5 = 18. [1]",
+    "(iii) Mean = 18 = median, so the mean is equal to the median. [1]"
+   ],
+   "difficulty": "Easy"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored Section-E row had no case sub-parts. Restructured into a case with (i)(ii)(iii) = 1+1+2 on the same data; steps sum to 4. Verified mode 15, median 18, mean 18. Difficulty Easy (direct computation)."
+ },
+ {
+  "id": "stats-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) Class marks 5, 15, 25, 35, 45; fx = 25, 120, 300, 525, 450; Σfx = 1420, Σf = 50; Mean = 1420/50 = 28.4 marks.",
+    "[1 mark] (b) n/2 = 25; cumulative frequencies 5, 13, 25, 40, 50; the first cf greater than 25 is 40, so the median class is 30-40 (median = 30 + ((25 − 25)/15) × 10 = 30).",
+    "[1 mark] (c) Modal class = 30-40 (highest frequency 15): l = 30, f₁ = 15, f₀ = 12, f₂ = 10, h = 10.",
+    "[1 mark] (c) Mode = 30 + ((15 − 12)/(2×15 − 12 − 10)) × 10 = 30 + (3/8) × 10 = 33.75 marks."
+   ],
+   "finalAnswer": "(a) Mean = 28.4 marks (b) Median class 30-40 (c) Mode = 33.75 marks"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added the missing marking scheme (1 + 1 + 2 = 4) matching the existing answer. Verified Σfx = 1420 → mean 28.4; median class 30-40; mode = 33.75."
+ },
+ {
+  "id": "2026-STAT-AR-11",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Mode (Grouped Data)"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Question is about mode / modal class, not step-deviation mean; subtopic relabelled. Content and A–R verdict unchanged."
+ },
+ {
+  "id": "STAT-H10",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "In a frequency distribution, the mean is 15 and the mode is 18. Using the empirical relationship between the three measures of central tendency, find the median.",
+   "solutionSteps": [
+    "Empirical relationship: 3 Median = Mode + 2 Mean [1]",
+    "3M = 18 + 30 = 48 ⇒ Median = 16 [1]"
+   ],
+   "finalAnswer": "Median = 16",
+   "subtopic": "Empirical Relationship of Mean, Median and Mode",
+   "section": "B",
+   "marks": 2,
+   "difficulty": "Medium"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Skewness is outside the 2026-27 syllabus; dropped that part (authored row). Remaining task is a 2-step use of 3 Median = Mode + 2 Mean → Median = 16, so retagged B/2 marks; subtopic corrected."
+ },
+ {
+  "id": "STAT-N-NCERT-13-VSA-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "options": [
+    "7.5",
+    "15",
+    "17.5",
+    "35"
+   ],
+   "answer": "17.5",
+   "solutionSteps": [
+    "Class mark = (lower limit + upper limit)/2 = (10 + 25)/2 = 17.5. Correct option: (c) 17.5."
+   ],
+   "finalAnswer": "Class mark = 17.5."
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "One-line class-mark recall is a 1-mark item; Section A 1-mark items are MCQ, so given 4 options (distractors: half-width, width, sum) with exactly one correct, 17.5."
+ },
+ {
+  "id": "APQ-M-SAV-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A right circular cone has volume 13,600 cm³ and base radius 20 cm. Find the angle which the slant height makes with the base radius. (Take π = 3 and √3 = 1.7.)",
+   "answer": "60°",
+   "solutionSteps": [
+    "[1 mark] Volume = (1/3)πr²h = (1/3)(3)(20)²h = 400h = 13600 ⟹ h = 34 cm.",
+    "[1 mark] tan θ = h/r = 34/20 = 1.7 = √3 ⟹ θ = 60°."
+   ],
+   "finalAnswer": "60°",
+   "strategyHint": "Find h from the volume, then use tan θ = h/r in the right triangle formed by the height, radius and slant height."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Cone figure's only datum (radius 20 cm) is carried by the row's steps/hint, so stated it in text. The OR part (two right triangles, figure-only, trig) is unrecoverable and dropped. Verified h = 34, tan θ = 1.7 = √3 → 60°."
+ },
+ {
+  "id": "APQ-M-SAV-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Two rectangular sheets, each of dimensions 45 cm × 155 cm, are folded to make hollow right circular cylindrical pipes, with exactly 1 cm overlap when sticking the ends. Sheet 1 is folded along its length (so its height is 155 cm) and Sheet 2 along its width (so its height is 45 cm). Both pipes are closed at both ends.\n(i) Find the difference in the curved surface areas of the two cylinders.\n(ii) Find the ratio of the volumes of the two cylinders formed. (Use π = 22/7.)",
+   "answer": "(i) 110 cm² (ii) V₁ : V₂ = 124 : 441",
+   "solutionSteps": [
+    "[1 mark] Sheet 1: height h₁ = 155 cm, circumference = 45 − 1 = 44 cm. Sheet 2: height h₂ = 45 cm, circumference = 155 − 1 = 154 cm.",
+    "[1 mark] (i) CSA = circumference × height: CSA₁ = 44 × 155 = 6820 cm², CSA₂ = 154 × 45 = 6930 cm²; difference = 6930 − 6820 = 110 cm².",
+    "[1 mark] (ii) 2πr₁ = 44 ⟹ r₁ = 7 cm; 2πr₂ = 154 ⟹ r₂ = 49/2 cm.",
+    "[1 mark] (ii) V₁ = πr₁²h₁ = (22/7)(49)(155) = 23870 cm³; V₂ = πr₂²h₂ = (22/7)(2401/4)(45) = 84892.5 cm³.",
+    "[1 mark] (ii) V₁ : V₂ = 23870 : 84892.5 = 124 : 441."
+   ],
+   "finalAnswer": "(i) 110 cm² (ii) 124 : 441",
+   "strategyHint": "The side along which the sheet is folded becomes the height; the other side minus the 1 cm overlap becomes the circumference."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "(ii) had no value ('from MS'); solved: 124 : 441. OR variant depends on a figure ('geometry shown') with no dimensions in text — dropped. Main variant re-stepped to 5 marks; verified CSAs 6820/6930 (Δ110)."
+ },
+ {
+  "id": "PYQ-M-2024-SAV-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "2π : 1",
+    "4π : 1",
+    "3π : 1",
+    "1 : 4π"
+   ],
+   "answer": "3π : 1"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "π rendered as 'p' and page-code '1430/4/1' leaked into option D; restored. TSA of solid hemisphere = 3πr², so ratio 3π : 1 (option c)."
+ },
+ {
+  "id": "PYQ-M-2024-SAV-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Two identical solid cubes of side 'a' are joined end to end. The total surface area of the resulting cuboid is:",
+   "options": [
+    "6a²",
+    "10a²",
+    "5a²",
+    "4a²"
+   ],
+   "answer": "10a²",
+   "solutionSteps": [
+    "The cuboid is 2a × a × a; TSA = 2(2a·a + a·a + 2a·a) = 10a² (or 2 × 6a² − 2a² for the two hidden faces). Correct option: (b) 10a²."
+   ],
+   "finalAnswer": "(b) 10a²"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "'endtoend', lost superscripts (a2) and stray mark '1' cleaned. Verified TSA = 12a² − 2a² = 10a²."
+ }
+]

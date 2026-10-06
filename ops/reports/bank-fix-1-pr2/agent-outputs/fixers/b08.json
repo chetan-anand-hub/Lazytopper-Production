@@ -1,0 +1,326 @@
+[
+ {
+  "id": "CR2-033",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A",
+   "solutionSteps": [
+    "H₂ (oxidation state 0) becomes H in H₂O (+1): hydrogen loses electrons, i.e. is oxidised — so A is true, R is true, and R explains A → option (a)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "A-R is a 1-mark Section A item; retagged marks 1/sec A, steps condensed to one. Content verified correct (a)."
+ },
+ {
+  "id": "CR2-037",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "2Mg + O₂ → 2MgO: two reactants combine to form a single product, which is exactly the definition in R — A true, R true, R explains A → option (a)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "A-R is 1-mark Section A; retagged marks 1/sec A/Easy, one-step justification. Answer (a) verified."
+ },
+ {
+  "id": "CR2-042",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "marks": 1,
+   "section": "A",
+   "solutionSteps": [
+    "An oxidising agent oxidises another substance by accepting its electrons, so it itself gets reduced — A true, R true, and R explains A → option (a)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "A-R is 1-mark Section A; retagged marks 1/sec A, one-step justification. Answer (a) verified."
+ },
+ {
+  "id": "CR2-049",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Consider the reaction between sodium and chlorine: 2Na + Cl₂ → 2NaCl\n\n(a) Show, using electron-dot structures, the transfer of electrons in this reaction.\n(b) Identify which reactant is oxidised and which is reduced, in terms of loss or gain of electrons.\n(c) Identify the oxidising agent and the reducing agent.\n(d) Explain why this is a redox reaction.\n(e) Classify this reaction as combination, decomposition, displacement or double displacement. Justify.",
+   "answer": "Na is oxidised (reducing agent) and Cl₂ is reduced (oxidising agent); it is a redox reaction and also a combination reaction.",
+   "finalAnswer": "Na is oxidised (reducing agent) and Cl₂ is reduced (oxidising agent); it is a redox reaction and also a combination reaction.",
+   "solutionSteps": [
+    "(a) Na• → Na⁺ + e⁻ and :Cl: (7 valence electrons) + e⁻ → Cl⁻ (8 electrons); Na⁺ and Cl⁻ attract to form Na⁺Cl⁻ — one electron passes from each Na atom to each Cl atom.",
+    "(b) Na loses an electron (0 → +1), so Na is oxidised; Cl gains an electron (0 → −1), so Cl₂ is reduced.",
+    "(c) Reducing agent: Na (it gives electrons and itself gets oxidised). Oxidising agent: Cl₂ (it accepts electrons and itself gets reduced).",
+    "(d) Oxidation (loss of electrons by Na) and reduction (gain of electrons by Cl) occur simultaneously in the same reaction, so it is a redox reaction.",
+    "(e) Combination reaction: two elements, Na and Cl₂, combine to form a single product, NaCl."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Authored row: dropped off-chapter mole calculation (e) and replaced with an in-chapter classification part; steps realigned 1+1+1+1+1 = 5 marks."
+ },
+ {
+  "id": "APQ-M-CIRC-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Two circles with centres O and N touch each other externally at point P, so that O, P and N are collinear. The radius of the circle with centre O is twice that of the circle with centre N. OX is a tangent from O to the circle with centre N, touching it at X, and OX = 18 cm. What is the radius of the circle with centre N?",
+   "solutionSteps": [
+    "Let radius of circle N = r, so radius of circle O = 2r; touching externally, ON = 2r + r = 3r. Radius NX ⊥ tangent OX, so in right ΔOXN: ON² = OX² + NX² ⟹ 9r² = 324 + r² ⟹ 8r² = 324 ⟹ r² = 81/2 ⟹ r = 9/√2 cm → option (c)."
+   ],
+   "strategyHint": "Radius ⊥ tangent at X; apply Pythagoras in ΔOXN with ON = 3r."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Configuration fully stated in text (external touching, X point of contact) so no figure needed; removed 'Wait:' drafting residue; answer 9/√2 cm verified."
+ },
+ {
+  "id": "APQ-M-CIRC-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A circle with centre O and radius 7 cm has tangents drawn at points P, T and S on it. The tangents at P and T meet at Q, and the tangents at T and S meet at R, so that T lies on QR. If QR = 12 cm, what is the perimeter of the polygon PQTRSO?",
+   "solutionSteps": [
+    "OP = OS = 7 cm (radii). Tangents from an external point are equal: QP = QT and RS = RT. Perimeter = OP + PQ + QT + TR + RS + SO = 7 + QT + QT + TR + TR + 7 = 14 + 2(QT + TR) = 14 + 2 × 12 = 38 cm → option (c)."
+   ],
+   "strategyHint": "Equal tangents from Q and from R; QT + TR = QR."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Figure replaced by explicit textual configuration (Q, R as tangent intersections, T on QR); removed 'Hmm:' residue; 38 cm verified."
+ },
+ {
+  "id": "APQ-M-CIRC-009",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Needs the figure: positions of P, Q, L, M are not recoverable from text; answer field contradicts finalAnswer (80°), and a text reconstruction gives neither key."
+ },
+ {
+  "id": "APQ-M-CIRC-010",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem gives no angle; the 25° and the position of P exist only in the absent figure. Cannot be answered from text."
+ },
+ {
+  "id": "CIR-M08",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Let the circle touch AB, BC, CD, DA at P, Q, R, S. Tangents from an external point are equal: AP = AS = a, BP = BQ = b, CQ = CR = c, DR = DS = d [½]",
+    "AB + CD = (a+b) + (c+d); AD + BC = (a+d) + (b+c) [½]",
+    "Both equal a + b + c + d, hence AB + CD = AD + BC [1]"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced irrelevant boilerplate construction in step 1 with the actual points of contact; marks ½+½+1 = 2 preserved."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "5√3/2 cm",
+    "10 cm",
+    "3√5 cm",
+    "5√3 cm"
+   ],
+   "answer": "5√3 cm",
+   "finalAnswer": "(d) 5√3 cm",
+   "solutionSteps": [
+    "OP bisects the 60° angle, so ∠APO = 30° with OA ⊥ AP; tan 30° = OA/AP ⟹ 1/√3 = 5/AP ⟹ AP = 5√3 cm → option (d)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Restored lost √ in options (5√3/2, 3√5, 5√3); answer 5√3 cm verified by tan 30° = 5/AP."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "PT is a tangent at P to a circle with centre O. Chord PQ subtends an angle of 65° at the centre. The measure of ∠QPT is:",
+   "subtopic": "Tangent and Chord",
+   "solutionSteps": [
+    "OP = OQ, so ∠OPQ = (180° − 65°)/2 = 57.5°; OP ⊥ PT gives ∠QPT = 90° − 57.5° = 32.5° → option (d)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fixed run-together words and Ð→∠; configuration fully stated in text so no figure needed; 32.5° verified."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-003",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "∠x is defined only in the absent figure; the stem cannot be answered from text and the garble cannot reveal what x is."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "AB and AC are tangents drawn from an external point A to a circle, touching it at B and C respectively. If ∠ABC = 42°, then the measure of ∠BAC is :",
+   "subtopic": "Tangents from an External Point",
+   "solutionSteps": [
+    "AB = AC (tangents from A), so ∠ACB = ∠ABC = 42°; ∠BAC = 180° − 2 × 42° = 96° → option (a)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fixed Ð→∠ and stated contact points in text so no figure needed; 96° verified."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "RJ and RL are two tangents drawn from an external point R to a circle with centre O, touching it at J and L. If ∠RJL = 42°, then the measure of ∠JOL is :",
+   "subtopic": "Tangents from an External Point",
+   "finalAnswer": "(b) 84°",
+   "solutionSteps": [
+    "OJ ⊥ RJ, so ∠OJL = 90° − 42° = 48°; OJ = OL gives ∠OLJ = 48°; ∠JOL = 180° − 96° = 84° → option (b)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Fixed Ð→∠ and '840'→84°; contact points stated in text so no figure needed; 84° verified."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-008a",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "Each tangent = 3√3 cm",
+   "finalAnswer": "AP = 3√3 cm",
+   "solutionSteps": [
+    "Let PA, PB be tangents from P touching at A, B; OP bisects ∠APB, so ∠APO = 30°, and OA ⊥ PA with OA = 3 cm.",
+    "In right ΔOAP: tan 30° = OA/AP ⟹ 1/√3 = 3/AP ⟹ AP = 3√3 cm."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced marking-scheme residue in answer/steps/finalAnswer with clean 2-step working; 3√3 cm verified."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-009b",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "From an external point P, two tangents PA and PB are drawn to a circle with centre O. At a point E on the circle, a tangent is drawn which intersects PA and PB at C and D respectively. If PA = 10 cm, find the perimeter of ΔPCD.",
+   "answer": "Perimeter of ΔPCD = 20 cm",
+   "finalAnswer": "20 cm",
+   "solutionSteps": [
+    "Tangents from an external point are equal: CE = CA, DE = DB, and PA = PB = 10 cm.",
+    "Perimeter = PC + CD + DP = PC + CE + ED + DP = (PC + CA) + (DB + DP) = PA + PB.",
+    "= 10 + 10 = 20 cm."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Removed paper code '1430(B)', fixed 'D PCD'→ΔPCD, cleaned answer residue into 3 steps; 20 cm verified."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-010a",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "AB is a diameter of a circle with centre O. The tangent PQ to the circle at the point Q meets AB produced (beyond B) at P. If ∠BAQ = 30°, show that BP = BQ.",
+   "answer": "∠BQP = ∠BPQ = 30°, hence BP = BQ.",
+   "finalAnswer": "BP = BQ (proved), since ∠BQP = ∠BPQ = 30°",
+   "solutionSteps": [
+    "Join OQ. OA = OQ, so ∠OQA = ∠OAQ = 30°; exterior angle ∠BOQ = 30° + 30° = 60°.",
+    "OB = OQ, so ∠OBQ = ∠OQB = 60°; OQ ⊥ PQ gives ∠BQP = 90° − 60° = 30°.",
+    "In ΔOQP: ∠OPQ = 180° − 90° − 60° = 30°. So ∠BQP = ∠BPQ = 30°, hence BP = BQ."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Figure configuration recovered from the scheme residue (Join OQ, OQ=OA, 30/60/90) and stated in text; unreadable answer residue replaced with a 3-step proof."
+ },
+ {
+  "id": "PYQ-M-2024-CIRC-011a",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "duplicate",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Identical question to PYQ-M-2024-CIRC-010a (same garbled stem plus '3 OR' residue); 010a is repaired, this is the worse copy."
+ },
+ {
+  "id": "PYQ-M-2025-CIRC-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A chord of a circle of radius 10 cm subtends a right angle at the centre of the circle. Find the area of the corresponding minor segment. [Use π = 3.14]",
+   "topicKey": "areas-related-to-circles",
+   "subtopic": "Area of Segment",
+   "answer": "28.5 cm²",
+   "finalAnswer": "28.5 cm²",
+   "solutionSteps": [
+    "Area of minor sector OACB = (90/360) × 3.14 × 10 × 10 = 78.5 cm².",
+    "Area of right ΔOAB = ½ × 10 × 10 = 50 cm².",
+    "Area of minor segment = 78.5 − 50 = 28.5 cm²."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored π, retagged to areas-related-to-circles (segment area, 90° in limit), cleaned answer residue into 3 steps; 28.5 cm² verified."
+ },
+ {
+  "id": "PYQ-M-2025-CIRC-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "PC is a tangent to a circle with centre O at the point C. AOB is a diameter which, when extended beyond B, meets the tangent at P. If ∠PCA = 110°, find ∠CBA and ∠BCO.",
+   "answer": "∠CBA = 70° and ∠BCO = 70°",
+   "finalAnswer": "∠CBA = 70°, ∠BCO = 70°",
+   "solutionSteps": [
+    "∠ACB = 90° (angle in a semicircle), so ∠PCB = ∠PCA − ∠ACB = 110° − 90° = 20°.",
+    "OC ⊥ PC, so ∠BCO = 90° − ∠PCB = 90° − 20° = 70°.",
+    "OB = OC, so ∠CBA = ∠OBC = ∠BCO = 70°."
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Removed '4 (LA), 5 4 5=20' residue, restored ∠/°, stated configuration in text; answer now gives both ∠CBA and ∠BCO = 70°."
+ }
+]

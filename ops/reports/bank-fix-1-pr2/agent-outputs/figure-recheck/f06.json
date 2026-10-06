@@ -1,0 +1,109 @@
+[
+ {
+  "id": "CBE-S-ENVI-A-004",
+  "verdict": "keep",
+  "withhold_reason": null,
+  "fields": {},
+  "solved_answer": "Spinach → Human",
+  "figure_matches": true,
+  "rationale": "Figure shows the food web Spinach→Chicken→Human, Spinach→Goat→Human, Spinach→Human. Shortest chain Spinach→Human is most efficient; key correct and answerable with figure."
+ },
+ {
+  "id": "CFPQ-S-ENV-005",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Two different animals differ in how far they can see in either direction without turning their heads. In Animal 1, the eyes are placed towards the front of the head: its total field of view is narrower, but a large central part of it is seen by both eyes at a time. In Animal 2, the eyes are placed on either side of the head: its total field of view is much wider, but only a narrow central part is seen by both eyes at a time.\n\nAnimal 2 can see a broader area at any time compared to Animal 1. Animal 1 can judge depth (distance) better than Animal 2.\n\nObserve the food web in the given figure. Classify its animals into two groups — those that would need vision like Animal 1 and those that would need vision like Animal 2."
+  },
+  "solved_answer": "Animal 1 (predators): lion, jackal, wild cat, owl, kite. Animal 2 (prey): goat, rabbit, mouse.",
+  "figure_matches": true,
+  "rationale": "Bound figure is only the food web; the eye-field figure the stem cites ('grey part', 'figures above') is absent, so eye fields are put in words. Food web kept as figure reference (fixer's prose wrongly had goat eaten by wild cat). Key unchanged."
+ },
+ {
+  "id": "PYQ-M-2026-POLY-005",
+  "verdict": "withhold",
+  "withhold_reason": "figure-mismatch",
+  "fields": {},
+  "solved_answer": "A = (0, 136); exact zeroes of p(x) are −5 ± √54425 ≈ 228.3 and −238.3, span ≈ 466.6 (keyed 228.5, −238.5, 467 come from the missing arch diagram); p(100)=108.5, p(−100)=113.5.",
+  "figure_matches": false,
+  "rationale": "Bound figure is a cuboidal lamp shade (24×12×17 cm), not the Chenab parabolic arch with A, P, Q. Zeroes/span must be read from the arch diagram, so the row is unanswerable as keyed."
+ },
+ {
+  "id": "CFPQ-M-REALNUM-005",
+  "verdict": "keep",
+  "withhold_reason": null,
+  "fields": {},
+  "solved_answer": "Representation 1",
+  "figure_matches": true,
+  "rationale": "Figure shows both representations exactly as the steps describe; Representation 1 (rationals and irrationals disjoint) is correct. Answerable with figure; no MCQ conversion needed."
+ },
+ {
+  "id": "PYQ-M-2024-SAV-006",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Tamperproof tetrapacked milk guarantees both freshness and security. This milk ensures uncompromised quality, preserving the nutritional values within and making it a reliable choice for health-conscious individuals. 500 mL milk is packed in a cuboidal container of dimensions 15 cm × 8 cm × 5 cm. These milk packets are then packed in cuboidal cartons of dimensions 30 cm × 32 cm × 15 cm. Based on the above given information, answer the following questions:\n(i) Find the volume of the cuboidal carton.\n(ii) (a) Find the total surface area of a milk packet.\nOR\n(ii) (b) How many milk packets can be filled in a carton?\n(iii) How much milk can the cylindrical cup (as shown in the figure) hold? (Use π = 22/7)"
+  },
+  "solved_answer": "(i) 14400 cm³ (ii)(a) 470 cm² OR (b) 24 (iii) 550 cm³ = 550 mL",
+  "figure_matches": true,
+  "rationale": "Figure shows a cylindrical cup: radius line labelled 5 cm, height 7 cm, so key 550 cm³ is right. Fixed ´→× and mark residues, kept figure reference for part (iii)."
+ },
+ {
+  "id": "APQ-M-TRI-008",
+  "verdict": "withhold",
+  "withhold_reason": "missing-data",
+  "fields": {},
+  "solved_answer": "Not determinable from text+figure. Key 32/3 cm² follows only if AB = 20 cm (BC = 15) and PC = 50/3 cm (AP : PC = 1 : 2), neither of which is given.",
+  "figure_matches": true,
+  "rationale": "Figure matches (right angle B, PT∥AB, SR∥BC, QT = 8 cm) but gives no AB/BC or position of P; with only AC = 25 and QT = 8 the area of ΔPQR is not determined. Steps' RC=10, PC=50/3 are unsupported."
+ },
+ {
+  "id": "CBE-M-TRI-A-001",
+  "verdict": "keep",
+  "withhold_reason": null,
+  "fields": {},
+  "solved_answer": "D. 4.5 cm (SP/SQ = PT/TR ⇒ SP = 3×3/2)",
+  "figure_matches": true,
+  "rationale": "Figure labels TP = 3 cm, RT = 2 cm, QS = 3 cm with ST∥QR; BPT gives SP = 4.5 cm. Answerable with figure as served; key D correct."
+ },
+ {
+  "id": "PYQ-M-TRI-006",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "topicKey": "coordinate-geometry",
+   "subtopic": "Section Formula and Distance Formula",
+   "questionText": "Jagdish has a field which is in the shape of a right-angled triangle AQC. He wants to leave a space in the form of a square PQRS inside the field for growing wheat and the remaining for growing vegetables (as shown in the figure). In the field, there is a pole marked as O. Based on the above information, answer the following questions:\n(i) Taking O as origin, coordinates of P are (–200, 0) and of Q are (200, 0). PQRS being a square, what are the coordinates of R and S?\n(ii) (a) What is the area of square PQRS?\nOR\n(ii) (b) What is the length of diagonal PR in square PQRS?\n(iii) If S divides CA in the ratio k : 1, what is the value of k, where point A is (200, 800)?"
+  },
+  "solved_answer": "(i) R(200, 400), S(−200, 400) (ii)(a) 160000 sq units OR (b) 400√2 units (iii) C(−600, 0) from grid ⇒ k = 1",
+  "figure_matches": true,
+  "rationale": "Figure grid (100 units/square) gives C(−600,0), A(200,800), S(−200,400), matching steps. Removed mark/page residues ('1', '2 OR', '1 16'); kept figure reference; retagged to coordinate geometry. Key unchanged."
+ },
+ {
+  "id": "SP-M-2022-TRI-A-002",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] By Basic Proportionality Theorem (ST || QR): PS/SQ = PT/TR → x/(x+1) = (x+3)/(x+5). Cross-multiply: x(x+5) = (x+1)(x+3) → x² + 5x = x² + 4x + 3 → x = 3. Answer: (b)."
+   ],
+   "diagramDescription": "Triangle PQR with point S on side PQ and point T on side PR, with segment ST parallel to base QR. Along PQ: PS = x and SQ = x + 1. Along PR: PT = x + 3 and TR = x + 5."
+  },
+  "solved_answer": "(b) 3",
+  "figure_matches": true,
+  "rationale": "Figure labels PS = x, SQ = x+1, PT = x+3, TR = x+5; the row (and fixer's stem) swapped SQ/PT. Same equation, x = 3, key (b) stands. Corrected step and description; stem keeps figure reference."
+ },
+ {
+  "id": "APQ-M-TRIG-002",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT = 90° − ∠UPQ, so sin ∠SPT = cos ∠UPQ = PU/PQ = 8/17."
+   ]
+  },
+  "solved_answer": "8/17",
+  "figure_matches": true,
+  "rationale": "Figure: square PQRS, QU ⊥ PT at U, PU = 8, UQ = 15, PQ = 17. sin∠SPT = cos∠UPQ = 8/17; key correct. Replaced 'Per MS' placeholder steps with real working."
+ }
+]

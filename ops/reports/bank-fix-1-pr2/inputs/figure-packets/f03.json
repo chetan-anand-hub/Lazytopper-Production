@@ -1,0 +1,510 @@
+[
+ {
+  "id": "ELEC-EXMPLR-11-MCQ-011",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/electricity/ELEC-EXMPLR-11-MCQ-011.webp"
+  ],
+  "runtime_row": {
+   "id": "ELEC-EXMPLR-11-MCQ-011",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "V-I Graph Interpretation",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "A student carries out an experiment and plots the V–I graph of three samples of nichrome wire with resistances R₁, R₂ and R₃ respectively (Figure 12.5). Which of the following is true?",
+   "options": [
+    "R₁ = R₂ = R₃",
+    "R₁ > R₂ > R₃",
+    "R₃ > R₂ > R₁",
+    "R₂ > R₃ > R₁"
+   ],
+   "answer": "R₃ > R₂ > R₁",
+   "solutionSteps": [
+    "[1 mark] In Figure 12.5 the current I is on the y-axis and V on the x-axis, so the slope of each line is I/V = 1/R: the LESS steep the line, the HIGHER the resistance. The line for R₁ is steepest and R₃ is least steep, with R₂ in between, so R₃ > R₂ > R₁. Correct option (c)."
+   ],
+   "finalAnswer": "Option (c) — R₃ > R₂ > R₁",
+   "strategyHint": "REQUIRES-FIGURE: V–I straight-line graphs of three samples with different slopes.",
+   "ncertRef": "Exemplar MCQ Q11",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem refers to a figure (Fig 12.x) that is essential to choose the option and is not described in text",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Requires the V–I graph (Figure 12.5) to compare slopes; the graph is not in the text and must not be invented."
+  }
+ },
+ {
+  "id": "ELEC-EXMPLR-11-SA-002",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/electricity/ELEC-EXMPLR-11-SA-002.webp"
+  ],
+  "runtime_row": {
+   "id": "ELEC-EXMPLR-11-SA-002",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Power Rating Safety",
+   "section": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Hard",
+   "bloomSkill": "Applying",
+   "questionText": "Three 2 Ω resistors, A, B and C, are connected as shown in Figure 12.7. Each of them dissipates energy and can withstand a maximum power of 18 W without melting. Find the maximum current that can flow through the three resistors?",
+   "answer": "From the figure, A is in series with the parallel combination of B and C. For each resistor: P = I²R ⇒ maximum permissible current in any single 2 Ω resistor = √(P_max/R) = √(18/2) = √9 = 3 A. Resistor A carries the full circuit current I, so its limit is I ≤ 3 A. Resistors B and C share the current equally (identical), so each carries I/2; their limit allows I ≤ 2 × 3 = 6 A. The binding constraint is A. Therefore the maximum current that can flow through the main circuit (through A) is 3 A; through each of B and C the current is 1.5 A.",
+   "solutionSteps": [
+    "[1 mark] From P = I²R, the maximum current any single 2 Ω resistor can carry is I_max(one) = √(P/R) = √(18/2) = √9 = 3 A.",
+    "[0.5 mark] Per the figure, A is in series with the parallel combination of B and C, so the current I through A is the total circuit current.",
+    "[0.5 mark] Identical B and C each carry I/2.",
+    "[0.5 mark] Limit from A: I ≤ 3 A. Limit from B (or C): I/2 ≤ 3 A ⇒ I ≤ 6 A. The tighter limit is from A.",
+    "[0.5 mark] Hence maximum total current through the circuit is 3 A (with 1.5 A through each of B and C)."
+   ],
+   "finalAnswer": "Maximum total current = 3 A (1.5 A each through B and C).",
+   "strategyHint": "REQUIRES-FIGURE: A in series with the parallel combination of B and C, all 2 Ω.",
+   "ncertRef": "Exemplar SA Q20",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says \"as shown in figure\"/\"Fig.\" but the configuration needed to solve is not described in text (only in the answer)",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Three 2 Ω resistors A, B and C are connected such that A is in series with the parallel combination of B and C. Each of them dissipates energy and can withstand a maximum power of 18 W without melting. Find the maximum current that can flow through the three resistors.",
+    "answer": "A is in series with the parallel combination of B and C. For each resistor: P = I²R ⇒ maximum permissible current in any single 2 Ω resistor = √(P_max/R) = √(18/2) = √9 = 3 A. Resistor A carries the full circuit current I, so its limit is I ≤ 3 A. Resistors B and C share the current equally (identical), so each carries I/2; their limit allows I ≤ 2 × 3 = 6 A. The binding constraint is A. Therefore the maximum current that can flow through the main circuit (through A) is 3 A; through each of B and C the current is 1.5 A.",
+    "solutionSteps": [
+     "[1 mark] From P = I²R, the maximum current any single 2 Ω resistor can carry is I_max(one) = √(P/R) = √(18/2) = √9 = 3 A.",
+     "[0.5 mark] A is in series with the parallel combination of B and C, so the current I through A is the total circuit current.",
+     "[0.5 mark] Identical B and C each carry I/2.",
+     "[0.5 mark] Limit from A: I ≤ 3 A. Limit from B (or C): I/2 ≤ 3 A ⇒ I ≤ 6 A. The tighter limit is from A.",
+     "[0.5 mark] Hence maximum total current through the circuit is 3 A (with 1.5 A through each of B and C)."
+    ],
+    "strategyHint": "Find the current limit of one resistor from P = I²R, then check which resistor carries the most current."
+   },
+   "rationale": "Arrangement (A in series with B ∥ C) stated in stem from row answer/hint; removed figure reference. Answer unchanged."
+  }
+ },
+ {
+  "id": "ELEC-NCERT-11-LA-006",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/ncert-science/electricity/ELEC-NCERT-11-LA-006.webp"
+  ],
+  "runtime_row": {
+   "id": "ELEC-NCERT-11-LA-006",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Parallel Combination Calculation",
+   "section": "D",
+   "marks": 5,
+   "format": "Long",
+   "difficulty": "Easy",
+   "bloomSkill": "Applying",
+   "questionText": "In the circuit diagram given in Fig. 11.10, suppose the resistors R₁, R₂ and R₃ have the values 5 Ω, 10 Ω, 30 Ω, respectively, which have been connected to a battery of 12 V. Calculate (a) the current through each resistor, (b) the total current in the circuit, and (c) the total circuit resistance.",
+   "answer": "Three resistors are in parallel with a 12 V battery, so each has 12 V across it. (a) I₁ = 12/5 = 2.4 A; I₂ = 12/10 = 1.2 A; I₃ = 12/30 = 0.4 A. (b) I = I₁ + I₂ + I₃ = 2.4 + 1.2 + 0.4 = 4 A. (c) 1/R_p = 1/5 + 1/10 + 1/30 = 6/30 + 3/30 + 1/30 = 10/30 = 1/3 ⇒ R_p = 3 Ω.",
+   "solutionSteps": [
+    "[0.5 mark] In parallel each resistor has the full battery voltage V = 12 V across it.",
+    "[1.5 marks] (a) I₁ = V/R₁ = 12/5 = 2.4 A; I₂ = V/R₂ = 12/10 = 1.2 A; I₃ = V/R₃ = 12/30 = 0.4 A.",
+    "[1 mark] (b) Total current I = I₁ + I₂ + I₃ = 2.4 + 1.2 + 0.4 = 4 A.",
+    "[1.5 marks] (c) 1/R_p = 1/5 + 1/10 + 1/30 = 6/30 + 3/30 + 1/30 = 10/30 = 1/3, so R_p = 3 Ω.",
+    "[0.5 mark] Cross-check: I = V/R_p = 12/3 = 4 A. Consistent."
+   ],
+   "finalAnswer": "I₁ = 2.4 A, I₂ = 1.2 A, I₃ = 0.4 A; I = 4 A; R_p = 3 Ω.",
+   "strategyHint": "REQUIRES-FIGURE: 12 V battery with 5 Ω, 10 Ω, 30 Ω in parallel.",
+   "ncertRef": "Example 11.8",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says \"as shown in figure\"/\"Fig.\" but the configuration needed to solve is not described in text (only in the answer)",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Three resistors R₁, R₂ and R₃ of values 5 Ω, 10 Ω and 30 Ω respectively are connected in parallel to a battery of 12 V. Calculate (a) the current through each resistor, (b) the total current in the circuit, and (c) the total circuit resistance.",
+    "strategyHint": "In parallel every resistor has the full battery voltage across it; currents add."
+   },
+   "rationale": "Figure reference replaced by stating the parallel arrangement (from row answer/hint). Answer unchanged."
+  }
+ },
+ {
+  "id": "ELEC-NCERT-11-LA-007",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/ncert-science/electricity/ELEC-NCERT-11-LA-007.webp"
+  ],
+  "runtime_row": {
+   "id": "ELEC-NCERT-11-LA-007",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Series-Parallel Combination",
+   "section": "D",
+   "marks": 5,
+   "format": "Long",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "If in Fig. 11.12, R₁ = 10 Ω, R₂ = 40 Ω, R₃ = 30 Ω, R₄ = 20 Ω, R₅ = 60 Ω, and a 12 V battery is connected to the arrangement. Calculate (a) the total resistance in the circuit, and (b) the total current flowing in the circuit.",
+   "answer": "R₁ and R₂ are in parallel: 1/R' = 1/10 + 1/40 = 5/40 ⇒ R' = 8 Ω. R₃, R₄ and R₅ are in parallel: 1/R'' = 1/30 + 1/20 + 1/60 = 2/60 + 3/60 + 1/60 = 6/60 = 1/10 ⇒ R'' = 10 Ω. The two combinations are then in series: R = R' + R'' = 8 + 10 = 18 Ω. (a) Total resistance = 18 Ω. (b) Total current I = V/R = 12/18 = 0.67 A.",
+   "solutionSteps": [
+    "[1 mark] First parallel group (R₁, R₂): 1/R' = 1/10 + 1/40 = 4/40 + 1/40 = 5/40 ⇒ R' = 40/5 = 8 Ω.",
+    "[1.5 marks] Second parallel group (R₃, R₄, R₅): 1/R'' = 1/30 + 1/20 + 1/60. With LCM 60: = 2/60 + 3/60 + 1/60 = 6/60 = 1/10 ⇒ R'' = 10 Ω.",
+    "[0.5 mark] These two equivalent resistors R' and R'' are in series.",
+    "[1 mark] Total resistance: R = R' + R'' = 8 + 10 = 18 Ω.",
+    "[1 mark] Total current: I = V/R = 12 / 18 = 2/3 ≈ 0.67 A."
+   ],
+   "finalAnswer": "R = 18 Ω; I ≈ 0.67 A.",
+   "strategyHint": "REQUIRES-FIGURE: 12 V battery driving (R₁ ∥ R₂) in series with (R₃ ∥ R₄ ∥ R₅).",
+   "ncertRef": "Example 11.9",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says \"as shown in figure\"/\"Fig.\" but the configuration needed to solve is not described in text (only in the answer)",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Resistors R₁ = 10 Ω and R₂ = 40 Ω are connected in parallel with each other; resistors R₃ = 30 Ω, R₄ = 20 Ω and R₅ = 60 Ω are connected in parallel with one another; and these two parallel combinations are connected in series with a 12 V battery. Calculate (a) the total resistance in the circuit, and (b) the total current flowing in the circuit.",
+    "strategyHint": "Reduce each parallel group to one equivalent resistor, then add the two in series."
+   },
+   "rationale": "Figure reference replaced by the arrangement (R₁∥R₂) in series with (R₃∥R₄∥R₅), taken from row answer/hint. Answer unchanged."
+  }
+ },
+ {
+  "id": "PYQ-S-2026-ELEC-011",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-science/electricity/PYQ-S-2026-ELEC-011.webp",
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-science/electricity/PYQ-S-2026-ELEC-011-2.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-S-2026-ELEC-011",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Ohm's Law",
+   "section": "D",
+   "marks": 5,
+   "format": "Long",
+   "difficulty": "Hard",
+   "bloomSkill": "Analysing",
+   "questionText": "(A) V-I graph for a nichrome wire is shown in the diagram. (i) Prove that the graph follows Ohm's law and calculate the resistance of nichrome wire from the given V-I graph. (ii) (I) Calculate the equivalent resistance of the combination of resistors connected in the given circuit. (II) Find the value of the total current drawn from the battery. OR (B) (i) Define the SI unit of power. Express the electric power of an electric appliance in terms of potential difference and current flowing through it. (ii) In a house, 3 bulbs of 100 W each, are lit for 5 hours daily and an electric heater of 1.0 kW is used for half an hour daily. Calculate the total energy consumed in a month of 30 days and its cost at the rate of ₹ 3.60 per kWh. (iii) Convert the commercial unit of electric energy into Joule (J).",
+   "answer": "(A) (i) Straight line through the origin ⇒ Ohm's law; R = slope = 4 Ω. (ii) (I) Equivalent resistance = 15 Ω; (II) I = 5/15 = 1/3 A. OR (B) (i) 1 W = 1 J/s; P = VI. (ii) Total energy in 30 days = 60 kWh; cost = ₹216. (iii) 1 kWh = 3.6 × 10⁶ J.",
+   "solutionSteps": [
+    "[1 mark] (A) (i) The V–I graph is a straight line passing through the origin (V ∝ I), so it follows Ohm's law. R = slope of the V–I graph = (0.8 − 0.4)/(0.2 − 0.1) = 0.4/0.1 = 4 Ω (any other two points on the line give the same value).",
+    "[1 mark] (ii) (I) The 3 Ω and 7 Ω resistors are in series: Rₛ = 3 + 7 = 10 Ω. Rₛ is in parallel with the 10 Ω resistor: 1/Rₚ = 1/10 + 1/10 ⇒ Rₚ = 5 Ω. The other two 5 Ω resistors are in series with Rₚ.",
+    "[1 mark] Net resistance R = 5 + 5 + 5 = 15 Ω. (II) Total current drawn from the 5 V battery I = V/R = 5/15 = 1/3 A ≈ 0.33 A.",
+    "[1 mark] OR (B) (i) The SI unit of power is the watt: the power of a device that consumes 1 joule of energy in 1 second (1 W = 1 J/s), or that carries 1 A at a potential difference of 1 V (1 W = 1 V × 1 A). Electric power P = VI.",
+    "[1 mark] (ii) E = P × t. Energy of the 3 bulbs = 3 × 100 W × 5 h = 1500 Wh = 1.5 kWh; energy of the heater = 1.0 kW × 0.5 h = 0.5 kWh; total per day = 2 kWh; total for 30 days = 30 × 2 = 60 kWh; cost = 60 × ₹3.60 = ₹216. (iii) 1 kWh = 1000 W × 3600 s = 3.6 × 10⁶ J."
+   ],
+   "finalAnswer": "(A) (i) Straight line through the origin ⇒ Ohm's law; R = slope = 4 Ω. (ii) (I) Equivalent resistance = 15 Ω; (II) I = 5/15 = 1/3 A. OR (B) (i) 1 W = 1 J/s; P = VI. (ii) Total energy in 30 days = 60 kWh; cost = ₹216. (iii) 1 kWh = 3.6 × 10⁶ J.",
+   "ncertRef": "PYQ 31/4/2 Q39",
+   "isCompetencyBased": true,
+   "pyqYear": "2026",
+   "pyqSet": "2"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Needs the V-I graph and circuit figures (\"shown in the diagram\", \"given circuit\") which are not provided; values (R=4 Ω, 15 Ω, 5 V) unrecoverable from stem",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "(i) Define the SI unit of power. Express the electric power of an electric appliance in terms of potential difference and current flowing through it. (ii) In a house, 3 bulbs of 100 W each are lit for 5 hours daily and an electric heater of 1.0 kW is used for half an hour daily. Calculate the total energy consumed in a month of 30 days and its cost at the rate of ₹ 3.60 per kWh. (iii) Convert the commercial unit of electric energy into joule (J).",
+    "answer": "(i) The SI unit of power is the watt: 1 W is the power of a device that consumes 1 J of energy in 1 s (1 W = 1 J/s), i.e. that carries 1 A at a potential difference of 1 V. P = VI. (ii) Energy per day = 1.5 kWh + 0.5 kWh = 2 kWh; in 30 days = 60 kWh; cost = 60 × ₹3.60 = ₹216. (iii) 1 kWh = 3.6 × 10⁶ J.",
+    "finalAnswer": "(i) The SI unit of power is the watt: 1 W is the power of a device that consumes 1 J of energy in 1 s (1 W = 1 J/s), i.e. that carries 1 A at a potential difference of 1 V. P = VI. (ii) Energy per day = 1.5 kWh + 0.5 kWh = 2 kWh; in 30 days = 60 kWh; cost = 60 × ₹3.60 = ₹216. (iii) 1 kWh = 3.6 × 10⁶ J.",
+    "solutionSteps": [
+     "[1 mark] (i) The SI unit of power is the watt (W): the power of a device that consumes energy at the rate of 1 joule per second (1 W = 1 J/s), equivalently one that carries a current of 1 A at a potential difference of 1 V.",
+     "[1 mark] Electric power P = VI (= I²R = V²/R).",
+     "[1 mark] (ii) E = P × t: bulbs = 3 × 100 W × 5 h = 1500 Wh = 1.5 kWh per day; heater = 1.0 kW × 0.5 h = 0.5 kWh per day; total = 2 kWh per day.",
+     "[1 mark] Energy in 30 days = 30 × 2 kWh = 60 kWh; cost = 60 × ₹3.60 = ₹216.",
+     "[1 mark] (iii) 1 kWh = 1000 W × 3600 s = 3.6 × 10⁶ J."
+    ],
+    "subtopic": "Electric Power"
+   },
+   "rationale": "Alternative (A) depends on a V-I graph and circuit not in the text (graph points cannot be recovered with confidence); served the complete figure-free alternative (B) as the 5-mark question with a full scheme."
+  }
+ },
+ {
+  "id": "PYQ-S-2026-ELEC-012",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/pyq-science/electricity/PYQ-S-2026-ELEC-012.webp"
+  ],
+  "runtime_row": {
+   "id": "PYQ-S-2026-ELEC-012",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Resistivity",
+   "section": "D",
+   "marks": 5,
+   "format": "Long",
+   "difficulty": "Hard",
+   "bloomSkill": "Analysing",
+   "questionText": "(A) (i) Derive an expression for the equivalent resistance of three resistors connected in parallel with a battery as shown in figure. (ii) Find the values of the electric currents flowing through the resistors R1, R2 and R3 in the given electric circuit. OR (B) (i) Define electrical resistivity of a material. (ii) How will the resistivity and resistance of a conducting wire change if the length and area of cross-section of wire both are doubled ? Justify your answer. (iii) Calculate the electric current flowing through a 4 Ω resistor that produces 100 J of heat every second.",
+   "answer": "(A) (i) 1/Rₚ = 1/R₁ + 1/R₂ + 1/R₃. (ii) I₁ = 12/2 = 6 A, I₂ = 12/4 = 3 A, I₃ = 12/6 = 2 A. OR (B) (i) Resistivity = resistance of a wire of unit length and unit area of cross-section. (ii) Resistivity unchanged (property of the material); resistance unchanged since l/A is unchanged. (iii) H = I²Rt ⇒ I = √(100/4) = 5 A.",
+   "solutionSteps": [
+    "[1 mark] (A) (i) In a parallel combination the potential difference V across each resistor is the same.",
+    "[0.5 mark] Current through each resistor: I₁ = V/R₁,",
+    "[0.5 mark] I₂ = V/R₂, I₃ = V/R₃.",
+    "[1 mark] If Rₚ is the resistance of the parallel combination, the current drawn from the battery is I = V/Rₚ, and I = I₁ + I₂ + I₃ ⇒ V/Rₚ = V/R₁ + V/R₂ + V/R₃ ⇒ 1/Rₚ = 1/R₁ + 1/R₂ + 1/R₃. (ii) All three resistors are in parallel across the 12 V battery: I₁ = 12/2 = 6 A, I₂ = 12/4 = 3 A, I₃ = 12/6 = 2 A. OR (B) (i) Resistivity is the resistance offered by a wire of the material of unit length and unit area of cross-section (ρ = RA/l; SI unit Ω m).",
+    "[1 mark] (ii) Resistivity remains the same — it is a characteristic property of the material, independent of its dimensions. Resistance R = ρl/A also remains the same, because doubling both l and A leaves l/A unchanged.",
+    "[1 mark] (iii) H = I²Rt ⇒ 100 J = I² × 4 Ω × 1 s ⇒ I² = 25 ⇒ I = 5 A."
+   ],
+   "finalAnswer": "(A) (i) 1/Rₚ = 1/R₁ + 1/R₂ + 1/R₃. (ii) I₁ = 12/2 = 6 A, I₂ = 12/4 = 3 A, I₃ = 12/6 = 2 A. OR (B) (i) Resistivity = resistance of a wire of unit length and unit area of cross-section. (ii) Resistivity unchanged (property of the material); resistance unchanged since l/A is unchanged. (iii) H = I²Rt ⇒ I = √(100/4) = 5 A.",
+   "ncertRef": "PYQ 31/4/3 Q39",
+   "isCompetencyBased": true,
+   "pyqYear": "2026",
+   "pyqSet": "3"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Part (A)(ii) needs circuit \"given\" (12 V, 2/4/6 Ω) not stated in stem",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "(A) (i) Derive an expression for the equivalent resistance of three resistors R1, R2 and R3 connected in parallel with a battery. (ii) Resistors R1 = 2 Ω, R2 = 4 Ω and R3 = 6 Ω are connected in parallel across a 12 V battery. Find the values of the electric currents flowing through the resistors R1, R2 and R3. OR (B) (i) Define electrical resistivity of a material. (ii) How will the resistivity and resistance of a conducting wire change if the length and area of cross-section of the wire both are doubled? Justify your answer. (iii) Calculate the electric current flowing through a 4 Ω resistor that produces 100 J of heat every second."
+   },
+   "rationale": "Circuit for (A)(ii) (2, 4, 6 Ω in parallel across 12 V) is stated in the row's own scheme; written into the stem and 'as shown in figure' removed. Answer/steps already correct."
+  }
+ },
+ {
+  "id": "SCO-S-ELEC-012",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/chapterwise-science/electricity/SCO-S-ELEC-012.webp"
+  ],
+  "runtime_row": {
+   "id": "SCO-S-ELEC-012",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Chapter Practice — Electricity",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Understanding",
+   "questionText": "Two cells of 3V each are connected in parallel. An external resistance of .0 5 W is connected in series to the junction of two parallel resistors of 4 W and 2 W and then to common terminal of battery through each resistor as shown in figure. What is the current flowing through 4 W resistor?",
+   "options": [
+    "0.25 A",
+    "0.55 A",
+    "0.35 A",
+    "1.50 A"
+   ],
+   "answer": "0.55 A",
+   "solutionSteps": [
+    "[1 mark] Correct option is (b) 0.55 A."
+   ],
+   "finalAnswer": "(b) 0.55 A",
+   "ncertRef": "cbjescco12 Q17",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: question references shown in fig"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Garbled symbols (\".0 5 W\" for 0.5 Ω, \"4 W\", \"2 W\" for ohms) and refers to a figure not provided",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Circuit 'as shown in figure' with garbled values; the scheme gives only the option letter, so the circuit cannot be recovered with confidence."
+  }
+ },
+ {
+  "id": "SCO-S-ELEC-013",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/chapterwise-science/electricity/SCO-S-ELEC-013.webp"
+  ],
+  "runtime_row": {
+   "id": "SCO-S-ELEC-013",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Chapter Practice — Electricity",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Understanding",
+   "questionText": "The current flowing through a wire of resistance 2 W varies with time as shown in figure alongside. The amount of heat produced (in J) in 3 s would be",
+   "options": [
+    "2 J",
+    "18 J",
+    "28 J",
+    "10 J"
+   ],
+   "answer": "28 J",
+   "solutionSteps": [
+    "[1 mark] Correct option is (c) 28 J."
+   ],
+   "finalAnswer": "(c) 28 J",
+   "ncertRef": "cbjescco12 Q18",
+   "isCompetencyBased": true,
+   "strategyHint": "REQUIRES-FIGURE: question references shown in fig"
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Answer depends on current-time graph \"shown in figure\" not provided; \"2 W\" should be 2 Ω",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Heat depends on a current–time graph not given; scheme gives only the option, so graph values cannot be recovered."
+  }
+ },
+ {
+  "id": "SQP-S-2023-ELEC-A-002",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/preboard-science/electricity/SQP-S-2023-ELEC-A-002.webp"
+  ],
+  "runtime_row": {
+   "id": "SQP-S-2023-ELEC-A-002",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Combination of resistors",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "In the given network a 4 Ω resistor and a 6 Ω resistor are connected between points A and B. The effective resistance between A and B will be",
+   "options": [
+    "(a) 4 Ω",
+    "(b) 6 Ω",
+    "(c) May be 10 Ω",
+    "(d) Must be 10 Ω"
+   ],
+   "answer": "(a) 4 Ω",
+   "solutionSteps": [
+    "[1 mark] From the figure, the 6 Ω resistor is short-circuited by the plain connecting wire joined across it: a zero-resistance path in parallel with 6 Ω gives 0 Ω, so the current bypasses the 6 Ω resistor and the effective resistance between A and B is just the 4 Ω in the main line. Correct option (a) 4 Ω."
+   ],
+   "finalAnswer": "(a) 4 Ω",
+   "isCompetencyBased": false,
+   "requiresDiagram": true,
+   "diagramDescription": "A network between terminals A and B: from A a 4 Ω resistor leads to a junction; from that junction a 6 Ω resistor and a plain connecting wire run in parallel to a second junction, which connects to B — the wire short-circuits the 6 Ω resistor."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Answer (4 Ω) depends on figure where 6 Ω is shorted by a wire; stem does not say so, so a student would answer 10 Ω",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "In a network between points A and B, a 4 Ω resistor is connected from A to a junction; from that junction a 6 Ω resistor and a plain connecting wire (of negligible resistance) run in parallel to a second junction, which is connected to B. The effective resistance between A and B will be"
+   },
+   "rationale": "Stem omitted the short-circuiting wire that the answer (4 Ω) depends on; wrote the row's own diagramDescription into the stem so it is self-contained."
+  }
+ },
+ {
+  "id": "CBE-S-ELEC-E-001",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/itembank-science/electricity/CBE-S-ELEC-E-001.webp"
+  ],
+  "runtime_row": {
+   "id": "CBE-S-ELEC-E-001",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Heating Effect of Electric Current",
+   "section": "E",
+   "marks": 4,
+   "format": "Case-Based",
+   "difficulty": "Medium",
+   "bloomSkill": "Understanding",
+   "questionText": "Fig. 1 shows the filament in a lamp. The filament is made from a very thin piece of metal. When there is a current in the filament it glows brightly and becomes very hot. Explain how the current causes the filament to become hot.",
+   "options": [],
+   "answer": "The filament metal has resistance; work is done against the resistance by the moving electrons; this releases heat energy; electrical energy is transferred to thermal/heat energy.",
+   "solutionSteps": [
+    "[1 mark] The filament metal has resistance which opposes the flow of charge.",
+    "[1 mark] Work is done against this resistance by the electrons as they move through the wire.",
+    "[1 mark] As the electrons collide with the ions of the metal lattice, heat energy is released.",
+    "[1 mark] Electrical energy is thereby transferred to thermal (heat) energy, so the filament becomes very hot and glows."
+   ],
+   "finalAnswer": "Electrical energy is converted to heat energy because work is done by the moving electrons against the filament's resistance, raising its temperature.",
+   "isCompetencyBased": true,
+   "requiresDiagram": true,
+   "diagramDescription": "Fig. 1 shows a lamp with a thin metal filament coil inside the glass bulb, connected across the supply terminals."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "case-missing-subparts",
+    "detail": "case/Section-E row with no (i)/(ii)/(iii) sub-questions in stem",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A lamp contains a filament made from a very thin piece of metal. When there is a current in the filament, it glows brightly and becomes very hot. Explain how the current causes the filament to become hot.",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "requiresDiagram": false,
+    "answer": "The filament has resistance which opposes the flow of charge; the moving electrons do work against this resistance (colliding with the metal ions), so electrical energy is converted into heat energy (H = I²Rt), and the very thin filament becomes hot enough to glow.",
+    "finalAnswer": "The filament has resistance which opposes the flow of charge; the moving electrons do work against this resistance (colliding with the metal ions), so electrical energy is converted into heat energy (H = I²Rt), and the very thin filament becomes hot enough to glow.",
+    "solutionSteps": [
+     "[1 mark] The metal of the filament has resistance, which opposes the flow of charge (electrons).",
+     "[1 mark] The moving electrons do work against this resistance — they collide with the ions of the metal, transferring energy to them.",
+     "[1 mark] So electrical energy is converted into heat (thermal) energy (Joule heating, H = I²Rt); the thin filament gets very hot and glows."
+    ]
+   },
+   "rationale": "Single explain-question with no case sub-parts; not LazyTopper-authored, so re-tagged to its true form (Section C, 3-mark Short) with a 3-step scheme. Figure not needed; 'Fig. 1' reference removed."
+  }
+ }
+]

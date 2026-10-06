@@ -1,0 +1,317 @@
+[
+ {
+  "id": "APQ-M-TRIG-011",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem depends on a figure (parallel lines AB, PQ with sides a, b, c, x, y and angle θ) whose geometry is not carried by the row; cos θ cannot be determined from text. Not reconstructing from memory."
+ },
+ {
+  "id": "APQ-M-TRIG-013",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "The trig expression to be simplified exists only as an image in the source; the row carries no text of it, so the question is unanswerable as served."
+ },
+ {
+  "id": "AR-TRIG-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): The angle of elevation of the sun decreases as the length of the shadow of an object increases.\nReason (R): As the angle of elevation θ decreases, tanθ decreases, so for the same object height, the shadow length (base) increases."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Shadow has length, not height: 'height of the shadow' -> 'length of the shadow of an object'. A and R both true, R explains A; answer (A) unchanged."
+ },
+ {
+  "id": "CBE-M-TRIG-B-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The rod of a TV disc antenna is fixed at right angles to a vertical wall AB, and a rod CD supports the disc. This forms a triangle ACD, right-angled at A, in which AC = 1.5 m, the supporting rod CD = 3 m is the hypotenuse, and θ is the acute angle ∠ADC between CD and AD. Compute the value of sec θ + cosec θ.",
+   "answer": "(6 + 2√3)/3 ≈ 3.15",
+   "solutionSteps": [
+    "[1 mark] By Pythagoras, AD = √(CD² − AC²) = √(9 − 2.25) = √6.75 = (3√3)/2 m. So sec θ = CD/AD = 3 ÷ (3√3/2) = 2/√3 and cosec θ = CD/AC = 3/1.5 = 2.",
+    "[1 mark] sec θ + cosec θ = 2/√3 + 2 = (2√3 + 6)/3 ≈ 3.15."
+   ],
+   "finalAnswer": "sec θ + cosec θ = 2 + 2/√3 = (6 + 2√3)/3 ≈ 3.15",
+   "requiresDiagram": false
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Made self-contained using the row's own diagramDescription (right angle at A, AC=1.5, CD=3 hyp, θ at D). Old 41/13 came from rounding AD to 2.6; exact value is 2+2/√3=(6+2√3)/3≈3.15."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Assertion (A): If sin A = 1/3 (0° < A < 90°), then the value of cos A is 2√2/3.\nReason (R): For every angle θ, sin²θ + cos²θ = 1.",
+   "solutionSteps": [
+    "cos A = √(1 − sin²A) = √(1 − 1/9) = √(8/9) = 2√2/3, so A is true; R is the identity sin²θ + cos²θ = 1 (true) and is exactly what gives cos A, so R correctly explains A. Correct option: (a)."
+   ],
+   "finalAnswer": "(a) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A)."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored spacing, fractions 1/3 and 2√2/3, θ for 'q', sin²θ+cos²θ. Verified cos A = 2√2/3; answer (a) unchanged."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The ratio of the length of a pole and its shadow on the ground is 1 : √3. The angle of elevation of the Sun is:",
+   "solutionSteps": [
+    "tan θ = pole/shadow = 1/√3, so θ = 30°. Correct option: (d) 30°."
+   ],
+   "finalAnswer": "(d) 30°"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "√ lost: ratio is 1 : √3 (keyed answer 30° needs tan θ = 1/√3). Fixed '300' -> 30° in steps/finalAnswer."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The length of the shadow of a tower on the plane ground is √3 times the height of the tower. The angle of elevation of the Sun is:",
+   "solutionSteps": [
+    "tan θ = height/shadow = h/(√3 h) = 1/√3, so θ = 30°. Correct option: (a) 30°."
+   ],
+   "finalAnswer": "(a) 30°"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "√ lost: shadow is √3 times the height (keyed 30° needs tan θ = 1/√3). Fixed '300' -> 30°."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-006b",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If sin A = 3/5 and cos B = 12/13, then find the value of (tan A + tan B).",
+   "answer": "7/6",
+   "solutionSteps": [
+    "[1 mark] sin A = 3/5 ⇒ cos A = 4/5, so tan A = 3/4; cos B = 12/13 ⇒ sin B = 5/13, so tan B = 5/12.",
+    "[1 mark] tan A + tan B = 3/4 + 5/12 = 9/12 + 5/12 = 14/12 = 7/6."
+   ],
+   "finalAnswer": "tan A + tan B = 7/6"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored fractions 3/5, 12/13. Rebuilt garbled marking-scheme answer: tan A=3/4, tan B=5/12, sum 14/12=7/6."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-007a",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Evaluate: 2 sin²30° sec 60° + tan²60°.",
+   "answer": "4",
+   "solutionSteps": [
+    "[1 mark] sin 30° = 1/2, sec 60° = 2, tan 60° = √3.",
+    "[1 mark] 2 × (1/2)² × 2 + (√3)² = 2 × 1/4 × 2 + 3 = 1 + 3 = 4."
+   ],
+   "finalAnswer": "4"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored spacing/exponents (sin²30°, tan²60°) per the answer's working; completed truncated answer: 1 + 3 = 4."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Evaluate: (cos 45° + sin 60°) / (sec 30° + cosec 30°)",
+   "answer": "(2√3 + 3√2) / (4√2(1 + √3)) = (3 + √6)/(4(1 + √3))",
+   "solutionSteps": [
+    "[1 mark] cos 45° + sin 60° = 1/√2 + √3/2 = (√2 + √3)/2; sec 30° + cosec 30° = 2/√3 + 2 = 2(1 + √3)/√3.",
+    "[1 mark] Value = [(√2 + √3)/2] ÷ [2(1 + √3)/√3] = √3(√2 + √3)/(4(1 + √3)) = (2√3 + 3√2)/(4√2(1 + √3)), i.e. (3 + √6)/(4(1 + √3))."
+   ],
+   "finalAnswer": "(2√3 + 3√2) / (4√2(1 + √3))"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Fraction recovered from the answer's working; stray '2 – 63' residue removed. Answer re-derived and matches MS (2√3+3√2)/(4√2(1+√3))."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Evaluate: 5 tan 60° / [(sin²60° + cos²60°) tan 30°]",
+   "answer": "15",
+   "solutionSteps": [
+    "[1 mark] sin²60° + cos²60° = (√3/2)² + (1/2)² = 3/4 + 1/4 = 1; tan 60° = √3, tan 30° = 1/√3.",
+    "[1 mark] Value = 5√3 / (1 × 1/√3) = 5√3 × √3 = 15."
+   ],
+   "finalAnswer": "15"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Fraction structure restored (numerator 5 tan 60°, denominator (sin²60°+cos²60°) tan 30°), consistent with MS value 15; clean steps."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-011b",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If sin (A − B) = 1/2 and cos (A + B) = 1/2, where 0° < A + B ≤ 90° and A > B, find ∠A and ∠B.",
+   "answer": "∠A = 45°, ∠B = 15°",
+   "solutionSteps": [
+    "[1 mark] sin(A − B) = 1/2 = sin 30° ⇒ A − B = 30° …(i); cos(A + B) = 1/2 = cos 60° ⇒ A + B = 60° …(ii)",
+    "[1 mark] Adding (i) and (ii): 2A = 90° ⇒ A = 45°; then B = 60° − 45° = 15°."
+   ],
+   "finalAnswer": "∠A = 45°, ∠B = 15°"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored 1/2 (was '2 1'), ≤ (was £), ∠ (was Ð); answer now gives both A = 45° and B = 15°."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-015",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Prove that: sin⁶θ + cos⁶θ = 1 − 3 sin²θ cos²θ.",
+   "answer": "LHS = (sin²θ + cos²θ)³ − 3 sin²θ cos²θ (sin²θ + cos²θ) = 1 − 3 sin²θ cos²θ = RHS",
+   "solutionSteps": [
+    "[1 mark] LHS = (sin²θ)³ + (cos²θ)³ = (sin²θ + cos²θ)[sin⁴θ + cos⁴θ − sin²θ cos²θ].",
+    "[1 mark] = 1 × [(sin²θ + cos²θ)² − 2 sin²θ cos²θ − sin²θ cos²θ], using sin²θ + cos²θ = 1.",
+    "[1 mark] = 1 − 3 sin²θ cos²θ = RHS. Hence proved."
+   ],
+   "finalAnswer": "sin⁶θ + cos⁶θ = 1 − 3 sin²θ cos²θ (proved)"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Kept part (a) identity (restored θ, exponents); dropped fused OR part (b), a Circles tangent figure question. Rebuilt garbled MS proof in 3 steps. topicKey stays trigonometry."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-016",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Prove that (cosec²θ − sec²θ)/(cosec²θ + sec²θ) = 3/4, if tan θ = 1/√7.",
+   "answer": "sec²θ = 8/7, cosec²θ = 8; LHS = (8 − 8/7)/(8 + 8/7) = 3/4 = RHS",
+   "solutionSteps": [
+    "[1 mark] sec²θ = 1 + tan²θ = 1 + 1/7 = 8/7.",
+    "[1 mark] cot θ = √7, so cosec²θ = 1 + cot²θ = 1 + 7 = 8.",
+    "[1 mark] LHS = (8 − 8/7)/(8 + 8/7) = (48/7)/(64/7) = 48/64 = 3/4 = RHS. Hence proved."
+   ],
+   "finalAnswer": "(cosec²θ − sec²θ)/(cosec²θ + sec²θ) = 3/4 (proved)"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored fraction, squares, θ and tan θ = 1/√7 (MS values sec²=8/7, cosec²=8 confirm √7). Proof rebuilt and verified = 3/4."
+ },
+ {
+  "id": "PYQ-M-2024-TRIG-017",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Prove that (sin A + cos A)/(sin A − cos A) + (sin A − cos A)/(sin A + cos A) = 2/(2 sin²A − 1).",
+   "answer": "LHS = [(sin A + cos A)² + (sin A − cos A)²]/(sin²A − cos²A) = 2/(2 sin²A − 1) = RHS",
+   "solutionSteps": [
+    "[1 mark] LHS = [(sin A + cos A)² + (sin A − cos A)²] / [(sin A − cos A)(sin A + cos A)].",
+    "[1 mark] Numerator = (1 + 2 sin A cos A) + (1 − 2 sin A cos A) = 2; denominator = sin²A − cos²A.",
+    "[1 mark] sin²A − cos²A = sin²A − (1 − sin²A) = 2 sin²A − 1, so LHS = 2/(2 sin²A − 1) = RHS. Hence proved."
+   ],
+   "finalAnswer": "(sin A + cos A)/(sin A − cos A) + (sin A − cos A)/(sin A + cos A) = 2/(2 sin²A − 1) (proved)"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored spacing and fraction structure from the MS working; rebuilt clean 3-step proof (verified)."
+ },
+ {
+  "id": "PYQ-M-2025-TRIG-002",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Served stem is already clean: '4k = tan² 60° − 2 cosec² 30° − 2 tan² 30°'. Steps verify: 3 − 8 − 2/3 = −17/3, k = −17/12. Flag describes stale text."
+ },
+ {
+  "id": "PYQ-M-2025-TRIG-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "If tan A + cot A = 6, then find the value of tan²A + cot²A − 4.",
+   "answer": "30",
+   "solutionSteps": [
+    "[1 mark] (tan A + cot A)² = 36 ⇒ tan²A + cot²A + 2 tan A cot A = 36; since tan A cot A = 1, tan²A + cot²A = 34.",
+    "[1 mark] ∴ tan²A + cot²A − 4 = 34 − 4 = 30."
+   ],
+   "finalAnswer": "30"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored the lost minus sign and squares (MS working shows '−4'); clean steps, answer 30."
+ },
+ {
+  "id": "PYQ-M-2025-TRIG-004",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "garbled",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Sub-parts (i) and (ii) have no text (only mark residues); their wording and the figure labels B, C, D, E, h are not recoverable from the row without guessing. Cannot serve as a 4-mark case."
+ },
+ {
+  "id": "PYQ-M-2026-TRIG-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A kite is flying at a height of 60 m above the ground level. Ravi, standing on the roof of a house, is holding the string straight and observes the angle of elevation of the kite as 30°. From the bottom of the same building, the angle of elevation of the kite is 45°. Find the length of the string and the height of the roof from the ground. (Use √3 = 1.73)",
+   "answer": "Length of the string = 40√3 m ≈ 69.2 m; height of the roof = (60 − 20√3) m ≈ 25.4 m",
+   "solutionSteps": [
+    "[1 mark] Let K be the kite, KG = 60 m its height above the ground, T the bottom and R the top (roof) of the building; S is the point on KG level with the roof, so SR = GT and KS = 60 − TR.",
+    "[1 mark] From T: tan 45° = KG/GT ⇒ 1 = 60/GT ⇒ GT = 60 m, so SR = 60 m.",
+    "[1 mark] From R: tan 30° = KS/SR ⇒ 1/√3 = KS/60 ⇒ KS = 20√3 m ≈ 34.6 m.",
+    "[1 mark] Height of roof TR = 60 − 20√3 = 60 − 34.6 = 25.4 m.",
+    "[1 mark] sin 30° = KS/KR ⇒ 1/2 = 20√3/KR ⇒ KR = 40√3 = 69.2 m. Length of string = 69.2 m; height of roof = 25.4 m."
+   ],
+   "finalAnswer": "Length of the string = 69.2 m; height of the roof from the ground = 25.4 m"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored √3 = 1.73, º -> °; rebuilt MS working (fixed '300', '1 2', mark residue 'Correct figure I 1 18') into 5 steps; points defined in text. Verified 69.2 m and 25.4 m."
+ },
+ {
+  "id": "PYQ-M-2026-TRIG-002",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Refers to 'the diagram given above'; d, y, h, x and point X are defined only in the figure (none bound), sub-parts depend on them, and answer omits parts. Not reconstructing figure from memory."
+ }
+]

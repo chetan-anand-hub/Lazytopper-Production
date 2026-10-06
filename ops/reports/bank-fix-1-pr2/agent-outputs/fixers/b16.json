@@ -1,0 +1,267 @@
+[
+ {
+  "id": "PYQ-S-2024-REPR-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Each human gamete (sperm and egg) is haploid with 23 chromosomes; their fusion gives a diploid zygote with 23 + 23 = 46 chromosomes. Correct option: (c) 46."
+   ],
+   "finalAnswer": "(c) 46"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced marking-scheme boilerplate in steps/finalAnswer with the real explanation; answer 46 unchanged and correct."
+ },
+ {
+  "id": "PYQ-S-2024-REPR-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Brightly coloured (often scented) petals attract insects for pollination; sepals are green and protective, while stigma and style receive pollen. Correct option: (c) Petals only."
+   ],
+   "finalAnswer": "(c) Petals only"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced marking-scheme boilerplate in steps/finalAnswer with the real explanation; answer unchanged."
+ },
+ {
+  "id": "PYQ-S-2026-REPR-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "Oviduct",
+    "Cervix",
+    "Uterus",
+    "Vagina"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Removed page-footer residue '{ } of 32' from option (d). Answer Uterus correct."
+ },
+ {
+  "id": "PYQ-S-REPR-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "Syphilis (like gonorrhoea) is a bacterial infection, while warts (like HIV-AIDS) are caused by a virus. So the bacterial and viral infections respectively are syphilis and warts. Correct option: (d)."
+   ],
+   "finalAnswer": "(d) Syphilis and Warts"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Replaced garbled 'd) 1 1' with proper explanation; answer unchanged and correct."
+ },
+ {
+  "id": "REPR-EXMPLR-7-MCQ-018",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "options": [
+    "(i) and (iv)",
+    "(i), (ii) and (iv)",
+    "(i), (ii) and (iii)",
+    "(i), (iii) and (iv)"
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Option (d) duplicated (b); replaced with distinct distractor '(i), (iii) and (iv)' (contains false (iv)). Exactly one correct option (c) remains."
+ },
+ {
+  "id": "REPR-EXMPLR-7-MCQ-019",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Labels A, B, C are defined only in Exemplar Fig. 8.1, which is absent; cannot be answered without the figure."
+ },
+ {
+  "id": "SCO-S-REPR-009",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Histology of seminiferous tubules (germinal epithelium) is beyond NCERT Class 10 2026-27; non-authored scraped row (also footer residue)."
+ },
+ {
+  "id": "SCO-S-REPR-014",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are numbered labels 1-5 of a carpel diagram that is not provided; unanswerable."
+ },
+ {
+  "id": "SCO-S-REPR-015",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options are bare letters A-D referring to a missing table of conditions; option content not recoverable."
+ },
+ {
+  "id": "SCO-S-REPR-018",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "out-of-syllabus",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Stem mislabels seed/fruit dispersal as 'pollination'; seed dispersal is not in the Class 10 2026-27 syllabus; scraped, non-authored row with garbled explanation."
+ },
+ {
+  "id": "SCO-S-REPR-019",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Gametes P and Q fuse to form cell R. Cell R later gives rise to an organism that produces gametes S, T, U and V. Which statement about the number of chromosomes in these cells is correct?",
+   "solutionSteps": [
+    "P and Q are haploid gametes of the same species, so they carry the same number of chromosomes; R (the zygote) is diploid. Gametes S, T, U and V formed later are again haploid, i.e. half of R and equal to Q — so (a), (c) and (d) are wrong. Correct option: (b)."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Diagram is only a flow P+Q->R->S,T,U,V, fully expressible in text; rewrote stem, removed garbling, cleaned explanation. Answer (b) unchanged."
+ },
+ {
+  "id": "SCQ-S-REPR-036",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Mention the total number of chromosomes, along with the sex chromosomes, in human beings. Explain how, in a sexually reproducing organism, the chromosome number of the parents and their offspring remains the same.",
+   "answer": "Humans have 46 chromosomes (23 pairs): 22 pairs of autosomes and 1 pair of sex chromosomes — XX in females and XY in males. Germ cells (gametes) are formed in specialised reproductive organs and carry only half the number of chromosomes (and half the DNA) of body cells. When a male and a female gamete fuse at fertilisation, the zygote gets the full (original) chromosome number back, so offspring have the same chromosome number as the parents.",
+   "solutionSteps": [
+    "Humans have 46 chromosomes, i.e. 23 pairs: 22 pairs of autosomes + 1 pair of sex chromosomes (XX in females, XY in males).",
+    "Gametes are formed in specialised reproductive organs and contain only half the number of chromosomes and half the DNA of a body cell (23 in humans).",
+    "At fertilisation a male and a female gamete fuse (23 + 23 = 46), restoring the original chromosome number in the zygote; hence parents and offspring have the same chromosome number."
+   ],
+   "finalAnswer": "46 chromosomes (22 pairs autosomes + XX/XY); gametes are haploid and fertilisation restores the full number, keeping it constant across generations."
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Answer was truncated with '[Delhi 2017]' tag; rewrote complete answer and 3 one-mark steps; minor stem grammar fix."
+ },
+ {
+  "id": "SCQ-S-REPR-038",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "answer": "a. Each of the three pieces grows into a complete new Planaria by regeneration. b. Buds present in the notches along the leaf margin develop into new plantlets, which grow into new plants (vegetative propagation). c. Spores are released and dispersed; on reaching a suitable moist substratum each spore germinates into a new Rhizopus individual (spore formation).",
+   "solutionSteps": [
+    "a. Each of the three cut pieces of Planaria grows into a complete new Planaria — regeneration.",
+    "b. Buds in the notches of the Bryophyllum leaf margin develop into new plantlets that grow into new plants — vegetative propagation.",
+    "c. The sporangia release numerous spores which, on a suitable moist substratum, germinate into new Rhizopus individuals — spore formation."
+   ],
+   "finalAnswer": "a. Regeneration into three Planaria; b. Leaf-notch buds form new plantlets (vegetative propagation); c. Spores released germinate into new Rhizopus."
+  },
+  "answer_changed": true,
+  "stem_changed": false,
+  "rationale": "Removed '[Delhi 2017]' tag and 'Chap 8' header, completed truncated answer, split into 3 one-mark steps. Content unchanged."
+ },
+ {
+  "id": "BX-REP-E1-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A baker mixes baker's yeast into warm, sugary dough to make it rise. When she views a drop under a microscope, she sees small rounded outgrowths on many yeast cells, and in a few places a short chain of such outgrowths. Answer the following: (i) Name the mode of reproduction shown by yeast. (ii) Explain how a single outgrowth forms and why a chain sometimes appears. (iii) Give one reason the yeast multiply so fast in the dough and state whether the offspring are identical to the parent."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray 'Answer:' before sub-parts rewritten as 'Answer the following:'; case, sub-parts and 1+1+2 step marks are otherwise correct."
+ },
+ {
+  "id": "BX-REP-E1-002",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A student places a detached leaf of Bryophyllum flat on moist soil. After a few days, tiny plantlets with small roots sprout from the notches along the leaf margin, even though the leaf was cut from the parent plant. Answer the following: (i) Name the process by which new plantlets are produced here. (ii) From which structures on the leaf do the plantlets arise? (iii) Explain why the new plantlets are exactly like the parent plant."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray 'Answer:' before sub-parts rewritten as 'Answer the following:'; case, sub-parts and 1+1+2 step marks are otherwise correct."
+ },
+ {
+  "id": "BX-REP-E1-003",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "While cleaning a pond sample, a student accidentally cuts a flatworm (Planaria) into three pieces. To her surprise, each piece grows into a complete new Planaria. Answer the following: (i) Name the phenomenon shown by Planaria. (ii) Which type of cells make this possible and how? (iii) Is this phenomenon the same as reproduction? Justify your answer."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray 'Answer:' before sub-parts rewritten as 'Answer the following:'; case, sub-parts and 1+1+2 step marks are otherwise correct."
+ },
+ {
+  "id": "BX-REP-E1-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A microbiology class observes two single-celled organisms. Amoeba is seen splitting into two equal daughter cells. The malarial parasite Plasmodium, however, is seen dividing into many tiny daughter cells at once. Answer the following: (i) Name the type of fission shown by each organism. (ii) State the key difference between the two processes. (iii) State one advantage the Plasmodium's method gives the parasite."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray 'Answer:' before sub-parts rewritten as 'Answer the following:'; case, sub-parts and 1+1+2 step marks are otherwise correct."
+ },
+ {
+  "id": "BX-REP-E1-005",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A pond is covered with green, slimy filaments of the alga Spirogyra. A student notices that when the filaments mature, they break into smaller pieces, and each piece later grows into a new filament. Answer the following: (i) Name the mode of reproduction shown. (ii) Explain how new individuals are formed. (iii) Why can Spirogyra reproduce this way but a dog or a human cannot?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray 'Answer:' before sub-parts rewritten as 'Answer the following:'; case, sub-parts and 1+1+2 step marks are otherwise correct."
+ },
+ {
+  "id": "BX-REP-E1-006",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A slice of bread left in a warm, moist place develops a cottony white growth (bread mould, Rhizopus). On erect threads of this growth, a student sees tiny rounded black knob-like structures. Answer the following: (i) Name these black knob-like structures and the mode of reproduction. (ii) Explain the role of these structures in reproduction. (iii) Why do the reproductive units have thick walls?"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray 'Answer:' before sub-parts rewritten as 'Answer the following:'; case, sub-parts and 1+1+2 step marks are otherwise correct."
+ },
+ {
+  "id": "BX-REP-E1-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A farmer sows pieces of potato tuber, each carrying a small depression called an 'eye', instead of sowing seeds. From each planted piece a new potato plant grows. Answer the following: (i) Name the method of reproduction used by the farmer. (ii) What are the 'eyes' on a potato, and what is a potato botanically? (iii) State one advantage of raising the crop this way rather than from seeds."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stray 'Answer:' before sub-parts rewritten as 'Answer the following:'; case, sub-parts and 1+1+2 step marks are otherwise correct."
+ }
+]

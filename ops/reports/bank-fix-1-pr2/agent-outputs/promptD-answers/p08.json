@@ -1,0 +1,246 @@
+[
+ {
+  "id": "S-CHEM-9",
+  "verdict": "ok",
+  "answer": "X is calcium oxide (quick lime), CaO. When quick lime is dissolved in water it forms slaked lime (calcium hydroxide), whose solution is used for whitewashing: CaO(s) + H2O(l) → Ca(OH)2(aq) + heat. The reaction is a combination reaction and is highly exothermic. (Calcium oxide itself is obtained by heating limestone: CaCO3(s) → CaO(s) + CO2(g).) On the walls, Ca(OH)2 reacts slowly with CO2 of air to form a shiny coat of CaCO3.",
+  "finalAnswer": "X = calcium oxide (quick lime); CaO + H2O → Ca(OH)2 + heat",
+  "solutionSteps": [
+   "[1 mark] Name X: calcium oxide (quick lime), CaO.",
+   "[1 mark] Balanced equation: CaO(s) + H2O(l) → Ca(OH)2(aq) (slaked lime) + heat.",
+   "[1 mark] Reaction is a combination reaction and exothermic; the slaked lime solution is used for whitewashing (forms CaCO3 coat with CO2 of air)."
+  ]
+ },
+ {
+  "id": "S-ABS-9",
+  "verdict": "ok",
+  "answer": "Quicklime (CaO) and slaked lime [Ca(OH)2] are bases. Acidic soil (pH too low) is not suitable for the growth of most crops. Adding these bases neutralises the excess acid in the soil, raising the pH to near neutral, which is favourable for plant growth.",
+  "finalAnswer": "They are bases that neutralise excess acidity of soil",
+  "solutionSteps": [
+   "[1 mark] Quicklime/slaked lime are basic in nature; most plants need soil pH near neutral and do not grow well in acidic soil.",
+   "[1 mark] The base neutralises the excess acid in soil (neutralisation), raising soil pH and making it suitable for crops."
+  ]
+ },
+ {
+  "id": "S-MNM-9",
+  "verdict": "ok",
+  "answer": "(i) Lustre: metals have metallic lustre (shiny), non-metals are generally dull (except iodine, graphite). (ii) Malleability and ductility: metals are malleable and ductile; non-metals are brittle (solids) and non-ductile. (iii) Conductivity: metals are good conductors of heat and electricity; non-metals are poor conductors (except graphite). (Also: metals form basic oxides, non-metals form acidic or neutral oxides; metals are generally solids with high melting points.)",
+  "finalAnswer": "Lustre, malleability/ductility, conductivity (any three valid differences)",
+  "solutionSteps": [
+   "[1 mark] Metals are lustrous; non-metals are generally dull (exception: iodine/graphite).",
+   "[1 mark] Metals are malleable and ductile; solid non-metals are brittle.",
+   "[1 mark] Metals are good conductors of heat and electricity; non-metals are poor conductors (exception: graphite). (Any other valid difference, e.g. basic vs acidic oxides, also accepted.)"
+  ]
+ },
+ {
+  "id": "S-CARB-9",
+  "verdict": "ok",
+  "answer": "General formula CnH2n+2. (i) Methane, CH4: one C atom bonded to four H atoms by single bonds — H–C(H)(H)–H. (ii) Ethane, C2H6: H3C–CH3, i.e. two C atoms joined by a single bond, each carrying three H atoms. (iii) Propane, C3H8: H3C–CH2–CH3, a chain of three C atoms joined by single bonds, the end carbons carrying three H and the middle carbon two H. In the full structural formulae every bond (C–C and C–H) is shown as a line and each carbon has four single bonds.",
+  "finalAnswer": "Methane CH4, ethane C2H6, propane C3H8",
+  "solutionSteps": [
+   "[1 mark] Methane, CH4 — structure: central C with four single C–H bonds.",
+   "[1 mark] Ethane, C2H6 — structure: H3C–CH3 with all C–H and the C–C bond shown as single lines.",
+   "[1 mark] Propane, C3H8 — structure: H3C–CH2–CH3 with every carbon showing four single bonds."
+  ]
+ },
+ {
+  "id": "S-LIFE-9",
+  "verdict": "ok",
+  "answer": "Herbivores eat plant material (grass) rich in cellulose, which is difficult to digest. A longer small intestine gives more time and surface for the digestion of cellulose and absorption of food. Carnivores eat meat, which is easier to digest, so they have a shorter small intestine.",
+  "finalAnswer": "Cellulose in plant food needs longer time to digest",
+  "solutionSteps": [
+   "[1 mark] Herbivores eat grass/plant food containing cellulose, which takes a long time to digest; hence a longer small intestine allows complete digestion and absorption.",
+   "[1 mark] Carnivores eat meat, which is easily digested, so a shorter small intestine is sufficient."
+  ]
+ },
+ {
+  "id": "S-ELEC-9",
+  "verdict": "ok",
+  "answer": "(i) In parallel, each appliance gets the same full mains voltage (220 V), so each works at its rated power. (ii) Each appliance has its own independent circuit/switch; if one appliance is switched off or fails, the others keep working. (Also, the total resistance is lower in parallel, so each draws the current it needs.) In series, the voltage would be divided and a fault in one would break the whole circuit.",
+  "finalAnswer": "Same voltage to each appliance; each can be operated independently",
+  "solutionSteps": [
+   "[1 mark] In parallel, every appliance gets the same mains voltage and draws the current it needs, so it works at its rated power (in series the voltage gets divided).",
+   "[1 mark] Appliances can be switched on/off independently; failure of one does not break the circuit for others (in series, one fault stops all)."
+  ]
+ },
+ {
+  "id": "S-CC-9",
+  "verdict": "ok",
+  "answer": "The spinal cord is part of the central nervous system; it carries messages between the brain and the body and controls reflex actions. Injury to it disrupts the transmission of impulses to and from all body parts below the injury, causing loss of sensation and movement (paralysis), and it cannot easily heal. An injury to a leg muscle affects only that muscle locally and generally heals.",
+  "finalAnswer": "Spinal cord (CNS) injury blocks impulses to/from many body parts, causing paralysis",
+  "solutionSteps": [
+   "[1 mark] Spinal cord is part of the CNS; it conducts impulses between brain and body and controls reflex actions.",
+   "[1 mark] Its injury stops messages to/from all parts below the injury (loss of sensation/paralysis), whereas a leg-muscle injury is local and affects only that muscle."
+  ]
+ },
+ {
+  "id": "S-HER-1",
+  "verdict": "ok",
+  "answer": "Heredity: the transmission (inheritance) of characters/traits from parents to their offspring, generation after generation. Variation: the differences in characters/traits among individuals of the same species (including between parents and offspring and among siblings).",
+  "finalAnswer": "Heredity = inheritance of traits from parents to offspring; variation = differences among individuals of a species",
+  "solutionSteps": [
+   "[1 mark] Heredity: transmission of characters from parents to offspring.",
+   "[1 mark] Variation: differences in characters among individuals of the same species."
+  ]
+ },
+ {
+  "id": "S-LIGHT-2",
+  "verdict": "ok",
+  "answer": "The focal length of a concave mirror is the distance between its pole (P) and its principal focus (F), i.e. f = R/2. As per the New Cartesian sign convention it is negative for a concave mirror.",
+  "finalAnswer": "Distance between pole and principal focus (f = R/2)",
+  "solutionSteps": [
+   "[1 mark] Focal length is the distance between the pole and the principal focus of the mirror (f = R/2)."
+  ]
+ },
+ {
+  "id": "S-EYE-2",
+  "verdict": "ok",
+  "answer": "Far point: the farthest point up to which the eye can see objects clearly; for a normal eye it is at infinity. Near point: the minimum distance at which objects can be seen most distinctly without strain; for a normal adult eye it is about 25 cm.",
+  "finalAnswer": "Far point = infinity; near point = 25 cm",
+  "solutionSteps": [
+   "[1 mark] Far point: farthest point up to which the eye can see clearly; at infinity for a normal eye.",
+   "[1 mark] Near point (least distance of distinct vision): closest point at which objects are seen clearly without strain; about 25 cm for a normal eye."
+  ]
+ },
+ {
+  "id": "S-MAG-3",
+  "verdict": "ok",
+  "answer": "Fleming's left-hand rule: stretch the thumb, forefinger and middle finger of the left hand mutually perpendicular; if the forefinger points along the magnetic field and the middle finger along the current, the thumb gives the direction of force (motion) on the conductor.",
+  "finalAnswer": "Fleming's left-hand rule",
+  "solutionSteps": [
+   "[1 mark] Fleming's left-hand rule."
+  ]
+ },
+ {
+  "id": "S-ENV-6",
+  "verdict": "ok",
+  "answer": "Biodegradable wastes are substances that can be broken down into simpler harmless substances by the action of decomposers (bacteria, fungi), e.g. vegetable peels, paper, cotton. Non-biodegradable wastes cannot be broken down by biological processes/decomposers and persist in the environment for a long time, e.g. plastics, polythene, glass, DDT.",
+  "finalAnswer": "Biodegradable: broken down by decomposers (e.g. vegetable peels); non-biodegradable: not broken down (e.g. plastic)",
+  "solutionSteps": [
+   "[1 mark] Biodegradable: broken down by decomposers (bacteria/fungi) into harmless substances; example — vegetable/fruit peels.",
+   "[1 mark] Non-biodegradable: not broken down by biological processes, persist in environment; example — plastic/polythene."
+  ]
+ },
+ {
+  "id": "M-REAL-7",
+  "verdict": "ok",
+  "answer": "Assume, to the contrary, that √3 is rational. Then √3 = a/b, where a, b are integers, b ≠ 0, and a, b are coprime. Squaring: 3b² = a², so 3 divides a², hence 3 divides a (3 is prime). Let a = 3c. Then 3b² = 9c² ⇒ b² = 3c², so 3 divides b², hence 3 divides b. Thus 3 is a common factor of a and b, contradicting that a and b are coprime. Hence √3 is irrational.",
+  "finalAnswer": "√3 is irrational (proof by contradiction)",
+  "solutionSteps": [
+   "[1 mark] Assume √3 = a/b (a, b coprime integers, b ≠ 0); squaring gives a² = 3b², so 3 | a²  ⇒ 3 | a; write a = 3c.",
+   "[1 mark] Then b² = 3c² ⇒ 3 | b, so 3 is a common factor of a and b — contradiction; hence √3 is irrational."
+  ]
+ },
+ {
+  "id": "M-POLY-7",
+  "verdict": "ok",
+  "answer": "Rough sketch: the graph of a cubic p(x) = ax³ + bx² + cx + d (a > 0) starts from the bottom left, rises, turns down, turns up again and goes to the top right (an 'S'-shaped curve), cutting the x-axis at three distinct points, e.g. for p(x) = (x + 2)(x − 1)(x − 3) it cuts the x-axis at x = −2, 1 and 3. The zeroes of the polynomial are the x-coordinates of the points where the graph intersects the x-axis; since the curve meets the x-axis at three distinct points, the polynomial has three distinct real zeroes.",
+  "finalAnswer": "Zeroes = x-coordinates of the 3 points where the curve cuts the x-axis",
+  "solutionSteps": [
+   "[1 mark] Correct rough sketch: S-shaped cubic curve cutting the x-axis at three distinct points (e.g. x = −2, 1, 3).",
+   "[1 mark] Zeroes are the x-coordinates of the points where the graph intersects the x-axis; three intersections ⇒ three distinct real zeroes."
+  ]
+ },
+ {
+  "id": "M-PLE-8",
+  "verdict": "unanswerable",
+  "answer": "",
+  "finalAnswer": "",
+  "solutionSteps": [],
+  "note": "Data is inconsistent: with x adult and y child tickets, x + y = 25 and 120x + 80y = 2500 give 40x = 500, x = 12.5 and y = 12.5 — not whole numbers, so no valid ticket counts exist. The figures must be corrected (e.g. total ₹2400 gives x = 10, y = 15)."
+ },
+ {
+  "id": "M-QUAD-8",
+  "verdict": "ok",
+  "answer": "Let breadth = x m; then length = (x + 4) m. Area: x(x + 4) = 96 ⇒ x² + 4x − 96 = 0. Factorising: x² + 12x − 8x − 96 = 0 ⇒ (x + 12)(x − 8) = 0 ⇒ x = 8 or x = −12. Breadth cannot be negative, so x = 8. Breadth = 8 m, length = 12 m. Check: 8 × 12 = 96 m².",
+  "finalAnswer": "Breadth = 8 m, length = 12 m",
+  "solutionSteps": [
+   "[1 mark] Let breadth = x m, length = (x + 4) m; area gives x(x + 4) = 96.",
+   "[1 mark] Quadratic equation: x² + 4x − 96 = 0.",
+   "[1 mark] Solve: (x + 12)(x − 8) = 0 ⇒ x = 8 or x = −12.",
+   "[1 mark] Reject negative value; breadth = 8 m, length = 12 m."
+  ]
+ },
+ {
+  "id": "M-AP-8",
+  "verdict": "ok",
+  "answer": "Amounts form an AP with n = 10, d = 5, S10 = 1000. S_n = n/2[2a + (n − 1)d] ⇒ 1000 = 5[2a + 45] ⇒ 2a + 45 = 200 ⇒ a = 77.5. Last student: a10 = a + 9d = 77.5 + 45 = 122.5. First student gets ₹77.50 and last student gets ₹122.50.",
+  "finalAnswer": "First: ₹77.50; last: ₹122.50",
+  "solutionSteps": [
+   "[1 mark] AP with n = 10, d = 5, S10 = 1000; use S_n = n/2[2a + (n − 1)d]: 1000 = 5(2a + 45).",
+   "[1 mark] 2a + 45 = 200 ⇒ a = ₹77.50 (first student).",
+   "[1 mark] a10 = a + 9d = 77.5 + 45 = ₹122.50 (last student)."
+  ]
+ },
+ {
+  "id": "M-CG-3",
+  "verdict": "ok",
+  "answer": "Let P(x, y) divide A(1, −2) and B(5, 6) in the ratio m1 : m2 = 1 : 3. Section formula: x = (m1x2 + m2x1)/(m1 + m2) = (1×5 + 3×1)/4 = 8/4 = 2; y = (m1y2 + m2y1)/(m1 + m2) = (1×6 + 3×(−2))/4 = 0/4 = 0. Required point is (2, 0).",
+  "finalAnswer": "(2, 0)",
+  "solutionSteps": [
+   "[1 mark] Section formula: P = ((m1x2 + m2x1)/(m1 + m2), (m1y2 + m2y1)/(m1 + m2)) with m1 : m2 = 1 : 3.",
+   "[1 mark] x = (1×5 + 3×1)/4 = 2.",
+   "[1 mark] y = (1×6 + 3×(−2))/4 = 0; point is (2, 0)."
+  ]
+ },
+ {
+  "id": "M-TRIG-9",
+  "verdict": "ok",
+  "answer": "3 tan A = 4 ⇒ tan A = 4/3. Dividing numerator and denominator by cos A: (sin A − cos A)/(sin A + cos A) = (tan A − 1)/(tan A + 1) = (4/3 − 1)/(4/3 + 1) = (1/3)/(7/3) = 1/7. (Alternatively, sin A = 4/5, cos A = 3/5 gives (1/5)/(7/5) = 1/7.)",
+  "finalAnswer": "1/7",
+  "solutionSteps": [
+   "[1 mark] tan A = 4/3 (or sin A = 4/5, cos A = 3/5 using a right triangle with sides 3, 4, 5).",
+   "[1 mark] Divide by cos A: expression = (tan A − 1)/(tan A + 1) (or substitute sin A, cos A).",
+   "[1 mark] = (1/3)/(7/3) = 1/7."
+  ]
+ },
+ {
+  "id": "M-APPTRIG-9",
+  "verdict": "ok",
+  "answer": "Let AB = 24 m be the building and C the point on the ground, BC = d. Angle of depression 30° = angle of elevation of A from C, so ∠ACB = 30°. In right ΔABC, tan 30° = AB/BC ⇒ 1/√3 = 24/d ⇒ d = 24√3 m ≈ 41.57 m.",
+  "finalAnswer": "24√3 m ≈ 41.57 m",
+  "solutionSteps": [
+   "[1 mark] Angle of depression from top = angle of elevation at the point, ∠ACB = 30°; in right ΔABC, tan 30° = AB/BC.",
+   "[1 mark] 1/√3 = 24/d.",
+   "[1 mark] d = 24√3 m ≈ 41.57 m."
+  ]
+ },
+ {
+  "id": "M-CIR-10",
+  "verdict": "ok",
+  "answer": "Let O be the centre, OC = 15 cm, and CT the tangent touching the circle at T, OT = 13 cm. Radius ⟂ tangent at point of contact, so ∠OTC = 90°. By Pythagoras: CT² = OC² − OT² = 225 − 169 = 56 ⇒ CT = √56 = 2√14 cm ≈ 7.48 cm.",
+  "finalAnswer": "2√14 cm ≈ 7.48 cm",
+  "solutionSteps": [
+   "[1 mark] OT ⟂ CT (radius ⟂ tangent); CT² = OC² − OT² = 15² − 13².",
+   "[1 mark] CT² = 56 ⇒ CT = 2√14 cm ≈ 7.48 cm."
+  ]
+ },
+ {
+  "id": "M-ARC-10",
+  "verdict": "ok",
+  "answer": "Outer radius R = 20 m; path is inside, so inner radius r = 20 − 2 = 18 m. Area of path = πR² − πr² = π(20² − 18²) = π(400 − 324) = 76π m² = 76 × 22/7 = 1672/7 ≈ 238.86 m².",
+  "finalAnswer": "76π m² ≈ 238.86 m²",
+  "solutionSteps": [
+   "[1 mark] Outer radius R = 20 m, inner radius r = 20 − 2 = 18 m.",
+   "[1 mark] Area of path = π(R² − r²) = π(400 − 324) = 76π.",
+   "[1 mark] = 76 × 22/7 ≈ 238.86 m²."
+  ]
+ },
+ {
+  "id": "M-STAT-1",
+  "verdict": "ok",
+  "answer": "The mean of ungrouped data is the sum of all the observations divided by the number of observations: x̄ = (x1 + x2 + … + xn)/n = Σxi/n (for a frequency distribution, x̄ = Σfixi/Σfi).",
+  "finalAnswer": "x̄ = Σxi / n",
+  "solutionSteps": [
+   "[1 mark] Mean = sum of observations ÷ number of observations, x̄ = Σxi/n (or Σfixi/Σfi)."
+  ]
+ },
+ {
+  "id": "M-PROB-1",
+  "verdict": "ok",
+  "answer": "The theoretical (classical) probability of an event E is P(E) = (number of outcomes favourable to E)/(number of all possible outcomes of the experiment), assuming the outcomes are equally likely.",
+  "finalAnswer": "P(E) = favourable outcomes / total equally likely outcomes",
+  "solutionSteps": [
+   "[1 mark] P(E) = number of outcomes favourable to E ÷ total number of possible (equally likely) outcomes."
+  ]
+ }
+]

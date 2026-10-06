@@ -1,0 +1,321 @@
+[
+ {
+  "id": "PYQ-M-TRIG-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "subtopic": "Trigonometric Identities",
+   "options": [
+    "(1 + cot²θ)/cot θ",
+    "√(1 + cot²θ)",
+    "√(1 + cot²θ)/cot θ",
+    "√(1 − cot²θ)/cot θ"
+   ],
+   "answer": "√(1 + cot²θ)/cot θ",
+   "solutionSteps": [
+    "sec²θ = 1 + tan²θ = 1 + 1/cot²θ = (cot²θ + 1)/cot²θ, so sec θ = √(1 + cot²θ)/cot θ. Correct option: (c)."
+   ],
+   "finalAnswer": "(c) √(1 + cot²θ)/cot θ"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Options lost radicals/fraction bars; restored per garble layout (a,c fractions; c = answer). sec θ = √(1+cot²θ)/cot θ verified; exactly one correct."
+ },
+ {
+  "id": "PYQ-M-TRIG-004",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(A) Evaluate 2 sec²θ + 3 cosec²θ − 2 sin θ cos θ if θ = 45°.\nOR\n(B) If sin θ − cos θ = 0, then find the value of sin⁴θ + cos⁴θ.",
+   "answer": "(A) 9. OR (B) 1/2.",
+   "solutionSteps": [
+    "(A) Substitute sec 45° = √2, cosec 45° = √2, sin 45° = cos 45° = 1/√2: 2(√2)² + 3(√2)² − 2·(1/√2)·(1/√2).",
+    "= 4 + 6 − 1 = 9. OR (B) sin θ = cos θ ⇒ tan θ = 1 ⇒ θ = 45°; sin⁴45° + cos⁴45° = (1/√2)⁴ + (1/√2)⁴ = 1/4 + 1/4 = 1/2."
+   ],
+   "finalAnswer": "(A) 9; OR (B) 1/2"
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Restored squares/degree signs, removed stray mark \"2\"; answer was truncated and covered only OR — now (A)=4+6−1=9, (B)=1/4+1/4=1/2."
+ },
+ {
+  "id": "PYQ-M-TRIG-008",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "(A) A straight highway leads to the foot of a tower. A man standing on the top of the 75 m high tower observes two cars at angles of depression of 30° and 60°, which are approaching the foot of the tower. If one car is exactly behind the other on the same side of the tower, find the distance between the two cars. (Use √3 = 1.73)\nOR\n(B) From the top of a 7 m high building, the angle of elevation of the top of a cable tower is 60° and the angle of depression of its foot is 30°. Determine the height of the tower."
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Restored √ in \"use √3 = 1.73\", degree signs, removed stray mark \"5\", laid out OR. Answers verified: 50√3≈86.5 m; (B) 7√3·√3+7=28 m."
+ },
+ {
+  "id": "PYQ-M-TRIG-009",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Runtime stem has degree signs and answer/steps are clean (served row differs from flagged PDF text). Verified: x=25, h=25√3, BD=50 m, AC=75 m."
+ },
+ {
+  "id": "SQP-M-TRIG-006",
+  "surface": "bank",
+  "verdict": "reject",
+  "withhold_reason": null,
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Part (iii) is complete in served row (\"20(√3 + 1) m?\"). Official CBSE SQP; each answer path uses ≤2 right triangles (45°+30° or 45°+60°). Answers verified: 80; 80(√3−1)/80(1−1/√3); 600(√3+1) m/min."
+ },
+ {
+  "id": "Z3-TG-007",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Train Speed: Sarthak is stopped in his car at a railroad crossing. His car is 40 m from the crossing, measured perpendicular to the track. He spots a large oak tree beside the track some distance away and estimates that the angle between his line of sight to the crossing and his line of sight to the tree is about 60°. The train takes 3 s to travel from the crossing to the tree. How fast is the train moving? (Use √3 = 1.732)"
+  },
+  "answer_changed": false,
+  "stem_changed": true,
+  "rationale": "Stem put 60° between track and sight line (would give 40/tan60°=23.1 m) but solution uses 60° at the car. Reworded so the angle is at the car; 40√3=69.28 m, speed 23.09 m/s now consistent."
+ },
+ {
+  "id": "2026-TRIG-APP-CASE-08",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "From the top of a lighthouse 40 m high, a coast guard observes two boats on the same straight line with the base of the lighthouse, on the same side of it. The angles of depression of the boats are 45° and 30°.\n(i) Find the distance of the nearer boat (angle of depression 45°) from the base of the lighthouse. [1 mark]\n(ii) Find the distance of the farther boat (angle of depression 30°) from the base of the lighthouse. [1 mark]\n(iii) Find the distance between the two boats. (Use √3 = 1.732) [2 marks]",
+   "answer": "(i) 40 m; (ii) 40√3 m ≈ 69.28 m; (iii) 40(√3 − 1) m ≈ 29.28 m.",
+   "finalAnswer": "(i) 40 m; (ii) 40√3 m ≈ 69.28 m; (iii) 40(√3 − 1) m ≈ 29.28 m.",
+   "explanation": "The angle of depression from the top equals the angle of elevation from the boat (alternate angles). Use tan in each right triangle with the 40 m height, then subtract the two distances.",
+   "solutionSteps": [
+    "(i) Angle of elevation from nearer boat = 45°: tan 45° = 40/x ⇒ x = 40 m. [1]",
+    "(ii) Angle of elevation from farther boat = 30°: tan 30° = 40/y ⇒ 1/√3 = 40/y ⇒ y = 40√3 m ≈ 69.28 m. [1]",
+    "(iii) Boats are on the same side, so distance between them = y − x = 40√3 − 40. [1]",
+    "= 40(√3 − 1) = 40 × 0.732 ≈ 29.28 m. [1]"
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Case-Based 4-mark row had no sub-parts; restructured (authored) into (i)1+(i)1+(iii)2 with same data; answer/steps made consistent (old answer swapped x/y labels). 2 triangles, 30°/45° only."
+ },
+ {
+  "id": "2026-TRIG-LA-05",
+  "surface": "predicted",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "A boy is standing at a point A on level ground such that the angle of elevation of the top of a school building is 45°. When he walks 20 m closer to the building to a point B, the angle of elevation becomes 60°. Let the height of the building be h m and the distance of A from the foot of the building be x m.\n(i) Using the observation from A, express h in terms of x. [1 mark]\n(ii) Using the observation from B, form an equation in x. [1 mark]\n(iii) Find the height of the building, correct to one decimal place. (Use √3 = 1.732) [2 marks]",
+   "answer": "(i) h = x; (ii) √3(x − 20) = x; (iii) h = 10(3 + √3) ≈ 47.3 m.",
+   "finalAnswer": "(i) h = x; (ii) √3(x − 20) = x; (iii) Height of the building = 10(3 + √3) ≈ 47.3 m.",
+   "solutionSteps": [
+    "(i) At A: tan 45° = h/x ⇒ 1 = h/x ⇒ h = x. [1]",
+    "(ii) At B the distance is (x − 20): tan 60° = h/(x − 20) ⇒ √3 = x/(x − 20) ⇒ √3(x − 20) = x. [1]",
+    "(iii) x(√3 − 1) = 20√3 ⇒ x = 20√3/(√3 − 1) = 20√3(√3 + 1)/2 = 10(3 + √3). [1]",
+    "h = x = 10(3 + 1.732) = 47.32 ≈ 47.3 m. [1]"
+   ]
+  },
+  "answer_changed": true,
+  "stem_changed": true,
+  "rationale": "Case-Based 4-mark row had no sub-parts; restructured (authored) into (i)(ii)(iii) 1+1+2 on the same data. h=10(3+√3)≈47.3 m verified; 2 triangles, 45°/60°."
+ },
+ {
+  "id": "trig-comp-01",
+  "surface": "hpq",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "solutionSteps": [
+    "[1 mark] (a) Figure: lighthouse AB = 45 m with top A and foot B; ships C (nearer) and D (farther) on the same side on the line through B; angles of depression from A are 60° to C and 30° to D, so ∠ACB = 60° and ∠ADB = 30°.",
+    "[1 mark] (b) In right △ABC: tan 60° = AB/BC ⇒ √3 = 45/BC ⇒ BC = 45/√3 = 15√3 m ≈ 25.98 m.",
+    "[1 mark] (c) In right △ABD: tan 30° = AB/BD ⇒ 1/√3 = 45/BD ⇒ BD = 45√3 m.",
+    "[1 mark] CD = BD − BC = 45√3 − 15√3 = 30√3 m ≈ 51.96 m."
+   ],
+   "finalAnswer": "(b) 15√3 m ≈ 25.98 m; (c) 30√3 m ≈ 51.96 m"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Added 4-step marking scheme (1+1+2) matching the existing answer; results verified (15√3 m, 30√3 m)."
+ },
+ {
+  "id": "APQ-M-TRIG-017",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "figure",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Row itself says REQUIRES-FIGURE; positions of planes relative to Anuja/Sarthak (e.g. C between them) are not in the text, and OR (iii) altitude of plane A (≈591 m) contradicts (ii) (790 m) without the figure."
+ },
+ {
+  "id": "PB-M-1-TRIG-C-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "limit",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Transcribed preboard (not authored) using three sight-line right triangles (60° depression, 45°, 30° elevation) — breaches ≤2-triangle LIMIT; cannot be repaired as an external item."
+ },
+ {
+  "id": "PB-M-2-TRIG-C-001",
+  "surface": "bank",
+  "verdict": "withhold",
+  "withhold_reason": "limit",
+  "fields": {},
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Transcribed preboard (not authored) with three right triangles from one post (30°, 60°, 45°) — breaches ≤2-triangle LIMIT."
+ },
+ {
+  "id": "2026-TRIG-P1-C-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "cbseFormat": "B",
+   "marks": 2,
+   "format": "VSA",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "2 sin θ = 1 ⇒ sin θ = 1/2.",
+    "Since sin 30° = 1/2 and θ is acute, θ = 30°."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "One-step standard value tagged 3 marks/C; re-tagged B, 2 marks, VSA, Easy with 2 steps."
+ },
+ {
+  "id": "2026-TRIG-P1-C-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "cbseFormat": "B",
+   "marks": 2,
+   "format": "VSA",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "cos θ = 1/√2, and cos 45° = 1/√2 (standard value).",
+    "Since θ is acute, θ = 45°."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "One-step standard value tagged 3 marks/C; re-tagged B, 2 marks, VSA, Easy with 2 steps."
+ },
+ {
+  "id": "2026-TRIG-P1-C-020",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "cbseFormat": "B",
+   "marks": 2,
+   "format": "VSA",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "Let the distance of the point from the foot of the tower be x m. tan 45° = 14/x.",
+    "1 = 14/x ⇒ x = 14 m."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single tan step tagged 3 marks/C; re-tagged B, 2 marks, VSA, Easy with 2 steps. Answer 14 m unchanged."
+ },
+ {
+  "id": "2026-TRIG-P1-C-025",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "cbseFormat": "B",
+   "marks": 2,
+   "format": "VSA",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "Let the distance of the boy from the foot of the tree be x m. tan 45° = 14/x.",
+    "1 = 14/x ⇒ x = 14 m."
+   ],
+   "subtopic": "Heights and distances",
+   "skillFamily": "Heights_Distances"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single tan step tagged 3 marks/C and mislabelled \"Proof pattern writing\"; re-tagged B/2/VSA/Easy, subtopic Heights and distances."
+ },
+ {
+  "id": "2026-TRIG-P1-D-001",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "B",
+   "cbseFormat": "B",
+   "marks": 2,
+   "format": "VSA",
+   "difficulty": "Easy",
+   "solutionSteps": [
+    "LHS = (1 − sin A)(1 + sin A) = 1 − sin²A  [(a − b)(a + b) = a² − b²].",
+    "Since sin²A + cos²A = 1, 1 − sin²A = cos²A = RHS. Hence proved."
+   ],
+   "subtopic": "Trigonometric identities"
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Two-line identity tagged 5 marks/D; re-tagged B, 2 marks, VSA, Easy with 2 steps."
+ },
+ {
+  "id": "2026-TRIG-P1-D-009",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "cbseFormat": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "Let the building be AB = 20 m and the car be at C, BC = x m. Angle of depression 30° ⇒ ∠ACB = 30° (alternate angles).",
+    "tan 30° = AB/BC ⇒ 1/√3 = 20/x ⇒ x = 20√3 m.",
+    "sin 30° = AB/AC ⇒ 1/2 = 20/AC ⇒ line of sight AC = 40 m."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single right triangle (tan + sin) tagged 5 marks/D; re-tagged C, 3 marks, Short, Medium with 3 steps. Answers 20√3 m, 40 m unchanged."
+ },
+ {
+  "id": "2026-TRIG-P1-D-010",
+  "surface": "bank",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "section": "C",
+   "cbseFormat": "C",
+   "marks": 3,
+   "format": "Short",
+   "difficulty": "Medium",
+   "solutionSteps": [
+    "Let the tower be AB = h m and the point be C with BC = 15 m; ∠ACB = 60°.",
+    "tan 60° = h/15 ⇒ h = 15√3 m.",
+    "cos 60° = 15/AC ⇒ 1/2 = 15/AC ⇒ AC = 30 m."
+   ]
+  },
+  "answer_changed": false,
+  "stem_changed": false,
+  "rationale": "Single right triangle (tan + cos) tagged 5 marks/D; re-tagged C, 3 marks, Short, Medium with 3 steps. Answers 15√3 m, 30 m unchanged."
+ }
+]

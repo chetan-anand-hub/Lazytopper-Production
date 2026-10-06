@@ -1,0 +1,44 @@
+[
+ {
+  "id": "APQ-M-TRIG-011",
+  "verdict": "keep",
+  "withhold_reason": null,
+  "fields": {},
+  "solved_answer": "c/b (option b): AB ∥ PQ so ∠OAB = ∠OPQ = θ (corresponding angles); in right ΔOBA, cos θ = AB/OA = c/b.",
+  "figure_matches": true,
+  "rationale": "Figure shows O-A-P line, AB ⊥ OQ with AB=c, OA=b, AP=y, PQ=z, θ at P between PA and PQ. ∠OAB=θ by corresponding angles, so cos θ=c/b. Key correct; answerable with figure shown, so first fixer's withhold unnecessary."
+ },
+ {
+  "id": "APQ-M-TRIG-013",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "Which of the following is equal to the expression shown in the given figure?",
+   "answer": "sec θ",
+   "finalAnswer": "(a) sec θ",
+   "solutionSteps": [
+    "(cot θ · sec² θ)/cosec θ = (cos θ/sin θ) × (1/cos² θ) × sin θ = 1/cos θ = sec θ. So option (a) sec θ."
+   ]
+  },
+  "solved_answer": "sec θ (option a). Figure expression is (cot θ sec² θ)/cosec θ = (cosθ/sinθ)(1/cos²θ)(sinθ) = 1/cosθ = sec θ. Disagrees with served key (cot²θ)(sec θ).",
+  "figure_matches": true,
+  "rationale": "Figure shows (cot θ sec²θ)/cosec θ, which simplifies exactly to sec θ. Served key (cot²θ)(sec θ) is wrong for this expression; corrected key to option (a). Expression is legible and shown, so not withheld."
+ },
+ {
+  "id": "CBE-M-TRIG-B-001",
+  "verdict": "fix",
+  "withhold_reason": null,
+  "fields": {
+   "questionText": "The rod AC of a TV disc antenna is fixed at right angles to the wall AB, and a rod CD supports the disc, as shown in the given figure. AC = 1.5 m and CD = 3 m. If θ = ∠ADC, compute the value of sec θ + cosec θ.",
+   "answer": "2 + 2/√3 = (6 + 2√3)/3 ≈ 3.15",
+   "solutionSteps": [
+    "[1 mark] In right ΔCAD (right angle at A), AD = √(CD² − AC²) = √(9 − 2.25) = (3√3)/2 m. So sec θ = CD/AD = 3 ÷ (3√3/2) = 2/√3 and cosec θ = CD/AC = 3/1.5 = 2.",
+    "[1 mark] sec θ + cosec θ = 2/√3 + 2 = (6 + 2√3)/3 ≈ 3.15."
+   ],
+   "finalAnswer": "sec θ + cosec θ = 2 + 2/√3 = (6 + 2√3)/3 ≈ 3.15"
+  },
+  "solved_answer": "2 + 2/√3 = (6+2√3)/3 ≈ 3.155 (θ = 30°). Served 41/13 is only a rounded approximation (AD taken as 2.6).",
+  "figure_matches": true,
+  "rationale": "Figure: AC horizontal rod ⊥ wall at A, D on wall below A, θ at D between DA and DC. sin θ=1.5/3 so θ=30°; exact sum is 2+2/√3. Adopted first fixer's exact answer but kept figure reference and requiresDiagram true."
+ }
+]

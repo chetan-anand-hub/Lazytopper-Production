@@ -1,0 +1,2375 @@
+[
+ {
+  "group": "EX1",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "TRIG2-E09",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "TRIG2-E09",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Identities and simplification",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Evaluate: 2 tan²45° + cos²30° − sin²60°.",
+    "solutionSteps": [
+     "tan 45° = 1, cos 30° = √3/2, sin 60° = √3/2 [1]",
+     "2(1)² + (3/4) − (3/4) = 2 [1]"
+    ],
+    "finalAnswer": "2",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "TRIG-N-NCERT-8-SA-007",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "TRIG-N-NCERT-8-SA-007",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Ratios of Specific Angles",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Evaluate 2 tan²45° + cos²30° − sin²60°.",
+    "solutionSteps": [
+     "tan 45° = 1 ⇒ 2 tan²45° = 2(1)² = 2.",
+     "cos 30° = √3/2 ⇒ cos²30° = 3/4.",
+     "sin 60° = √3/2 ⇒ sin²60° = 3/4.",
+     "Expression = 2 + 3/4 − 3/4 = 2."
+    ],
+    "finalAnswer": "2.",
+    "ncertRef": "NCERT Ex 8.2 Q1(ii)",
+    "isCompetencyBased": false,
+    "strategyHint": "cos 30° and sin 60° are both √3/2 — their squares cancel."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX2",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "TRIG2-M01",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "TRIG2-M01",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Identities and simplification",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that: (1 + tan²A)/(1 + cot²A) = tan²A.",
+    "solutionSteps": [
+     "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan. [1]",
+     "LHS = sec²A/cosec²A (using identities 1+tan²A = sec²A and 1+cot²A = cosec²A) [1]",
+     "= (1/cos²A)/(1/sin²A) = sin²A/cos²A = tan²A = RHS [1]"
+    ],
+    "finalAnswer": "Proved",
+    "visualExplainerId": "maths-trigonometry-trigonometric-identities",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "TRIG-PRF-C-001",
+   "surface": "bank",
+   "origin": "LT-authored(proof)",
+   "withheld_now": false,
+   "row": {
+    "id": "TRIG-PRF-C-001",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Identities",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that: (1 + tan²A)/(1 + cot²A) = tan²A",
+    "options": [],
+    "answer": "LHS = tan²A = RHS (proved)",
+    "solutionSteps": [
+     "LHS = (1 + tan²A)/(1 + cot²A)",
+     "Using identities: 1 + tan²A = sec²A  and  1 + cot²A = cosec²A",
+     "LHS = sec²A / cosec²A",
+     "= (1/cos²A) / (1/sin²A)",
+     "= (1/cos²A) × (sin²A/1)",
+     "= sin²A/cos²A",
+     "= tan²A = RHS. Hence Proved."
+    ],
+    "finalAnswer": "LHS = tan²A = RHS",
+    "explanation": "Use sec²A = 1+tan²A and cosec²A = 1+cot²A. Then sec²A/cosec²A = sin²A/cos²A = tan²A.",
+    "isCompetencyBased": false,
+    "ncertRef": "Ex 8.4 Q1"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX3",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "TRIG2-M05",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "TRIG2-M05",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Heights and distances",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "The angle of elevation of the top of a tower from a point on the ground which is 30 m from the foot of the tower is 30°. Find the height of the tower.",
+    "solutionSteps": [
+     "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances. [1]",
+     "tan 30° = h/30 [1]",
+     "1/√3 = h/30 → h = 30/√3 = 10√3 m [1]"
+    ],
+    "finalAnswer": "10√3 m ≈ 17.32 m",
+    "visualExplainerId": "maths-trigonometry-height-and-distance-problems",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "TRIG-N-NCERT-9-SA-004",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "TRIG-N-NCERT-9-SA-004",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Angle of Elevation",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "The angle of elevation of the top of a tower from a point on the ground, which is 30 m from the foot of the tower, is 30°. Find the height of the tower.",
+    "solutionSteps": [
+     "tan 30° = height/distance = h/30.",
+     "1/√3 = h/30 ⇒ h = 30/√3 = 10√3 m."
+    ],
+    "finalAnswer": "Height of the tower = 10√3 m ≈ 17.32 m.",
+    "ncertRef": "NCERT Ex 9.1 Q4",
+    "isCompetencyBased": true,
+    "strategyHint": "tan(elevation) = height / horizontal distance."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX4",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "TRIG2-M07",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "TRIG2-M07",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Identities and simplification",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that: (cosec θ − cot θ)² = (1 − cos θ)/(1 + cos θ).",
+    "solutionSteps": [
+     "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.; LHS = (1/sin θ − cos θ/sin θ)² = ((1 − cos θ)/sin θ)² [1]",
+     "= (1 − cos θ)²/sin²θ = (1 − cos θ)²/(1 − cos²θ); = (1 − cos θ)²/((1 − cos θ)(1 + cos θ)) [1]",
+     "= (1 − cos θ)/(1 + cos θ) = RHS [1]"
+    ],
+    "finalAnswer": "Proved",
+    "visualExplainerId": "maths-trigonometry-trigonometric-identities",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "TG3-020",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "TG3-020",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Identities",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that: (cosec θ - cot θ)² = (1 - cos θ)/(1 + cos θ)",
+    "options": [],
+    "answer": "Proved",
+    "solutionSteps": [
+     "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.",
+     "LHS = (cosec θ - cot θ)²",
+     "= (1/sin θ - cos θ/sin θ)²",
+     "= ((1 - cos θ)/sin θ)²",
+     "= (1 - cos θ)²/sin²θ",
+     "= (1 - cos θ)²/(1 - cos²θ)",
+     "= (1 - cos θ)²/[(1 - cos θ)(1 + cos θ)]",
+     "= (1 - cos θ)/(1 + cos θ) = RHS"
+    ],
+    "finalAnswer": "Proved",
+    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
+    "isCompetencyBased": true,
+    "pyqYear": "2023",
+    "pyqSet": "SET-A",
+    "ncertRef": "Ex 8.3"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX9",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M03",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M03",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √3 is irrational.",
+    "solutionSteps": [
+     "Assume √3 is rational, so √3 = p/q where p, q are co-prime integers, q ≠ 0.; Squaring: 3 = p²/q², so p² = 3q². [1]",
+     "This means 3 divides p², hence 3 divides p. Let p = 3m.; Then 9m² = 3q², so q² = 3m², meaning 3 divides q² and hence 3 divides q. [1]",
+     "But p and q were co-prime, contradiction. Hence √3 is irrational. [1]"
+    ],
+    "finalAnswer": "√3 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "RN2-010",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN2-010",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that √3 is irrational.",
+    "options": [],
+    "answer": "√3 is irrational",
+    "solutionSteps": [
+     "Assume √3 = p/q where p, q are coprime integers, q ≠ 0.",
+     "Squaring: 3 = p²/q², so p² = 3q².",
+     "3 divides p², and since 3 is prime, 3 divides p. Let p = 3k.",
+     "Then 9k² = 3q², so q² = 3k², meaning 3 divides q.",
+     "Both p and q divisible by 3 contradicts gcd(p, q) = 1.",
+     "Hence √3 is irrational."
+    ],
+    "finalAnswer": "√3 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false,
+    "pyqYear": "2022",
+    "pyqSet": "B",
+    "ncertRef": "Ex 1.3"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX9",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M03",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M03",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √3 is irrational.",
+    "solutionSteps": [
+     "Assume √3 is rational, so √3 = p/q where p, q are co-prime integers, q ≠ 0.; Squaring: 3 = p²/q², so p² = 3q². [1]",
+     "This means 3 divides p², hence 3 divides p. Let p = 3m.; Then 9m² = 3q², so q² = 3m², meaning 3 divides q² and hence 3 divides q. [1]",
+     "But p and q were co-prime, contradiction. Hence √3 is irrational. [1]"
+    ],
+    "finalAnswer": "√3 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "RN-N-NCERT-1-LA-002",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-N-NCERT-1-LA-002",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrational Numbers",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that √3 is irrational.",
+    "answer": "Assume, to the contrary, that √3 is rational. Then √3 = a/b for coprime integers a, b with b ≠ 0. Squaring: 3 = a²/b², so a² = 3b². Hence 3 divides a², and by Theorem 1.3 (prime p | a² ⇒ p | a), 3 divides a. Write a = 3c. Then (3c)² = 3b² ⇒ 9c² = 3b² ⇒ b² = 3c². So 3 divides b², hence 3 divides b. Thus 3 is a common factor of a and b, contradicting the assumption that a and b are coprime. Hence √3 is irrational.",
+    "solutionSteps": [
+     "Suppose √3 is rational. Then √3 = a/b with gcd(a, b) = 1 and b ≠ 0.",
+     "Squaring: 3 = a²/b² ⇒ a² = 3b² ⇒ 3 | a².",
+     "By the prime-divides-square theorem, 3 | a. Write a = 3c.",
+     "Substitute: 9c² = 3b² ⇒ b² = 3c². So 3 | b², hence 3 | b.",
+     "Now 3 | a and 3 | b, contradicting gcd(a, b) = 1. Hence √3 is irrational."
+    ],
+    "finalAnswer": "√3 is irrational.",
+    "ncertRef": "NCERT Example 9",
+    "isCompetencyBased": true,
+    "strategyHint": "Same template as √2 proof; replace 2 with 3."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX10",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M07",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M07",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that 3 + 2√5 is irrational.",
+    "solutionSteps": [
+     "Assume 3 + 2√5 is rational, say 3 + 2√5 = a/b where a, b are integers, b ≠ 0.; Then 2√5 = a/b − 3 = (a − 3b)/b. [1]",
+     "So √5 = (a − 3b)/(2b), which is rational.; But √5 is irrational (proved earlier). Contradiction. [1]",
+     "Hence 3 + 2√5 is irrational. [1]"
+    ],
+    "finalAnswer": "3 + 2√5 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "RN2-013",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN2-013",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that 3 + 2√5 is irrational.",
+    "options": [],
+    "answer": "3 + 2√5 is irrational",
+    "solutionSteps": [
+     "Assume 3 + 2√5 is rational = r",
+     "Then 2√5 = r - 3",
+     "√5 = (r - 3)/2",
+     "RHS is rational (ratio of two rationals)",
+     "But √5 is irrational, contradiction",
+     "Therefore, 3 + 2√5 is irrational"
+    ],
+    "finalAnswer": "3 + 2√5 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false,
+    "pyqYear": "2022",
+    "pyqSet": "A",
+    "ncertRef": "Ex 1.3"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX11",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M11",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M11",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √2 is irrational.",
+    "solutionSteps": [
+     "Assume √2 = p/q, where p, q are co-prime integers, q ≠ 0.; Squaring: 2 = p²/q², so p² = 2q². [1]",
+     "2 divides p², so 2 divides p. Let p = 2k.; Then 4k² = 2q², so q² = 2k², meaning 2 divides q. [1]",
+     "Both p and q divisible by 2 contradicts co-prime assumption.; Hence √2 is irrational. [1]"
+    ],
+    "finalAnswer": "√2 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "RN2-034",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN2-034",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that √2 is irrational.",
+    "options": [],
+    "answer": "Proof by contradiction",
+    "solutionSteps": [
+     "Assume √2 is rational, so √2 = p/q where p, q are coprime integers (q ≠ 0)",
+     "Squaring both sides: 2 = p²/q²",
+     "Therefore: p² = 2q²",
+     "This means p² is even, so p must be even. Let p = 2k",
+     "Then: (2k)² = 2q², so 4k² = 2q², giving q² = 2k²",
+     "This means q² is even, so q must be even",
+     "But if both p and q are even, they have common factor 2, contradicting that they are coprime",
+     "Therefore, √2 is irrational"
+    ],
+    "finalAnswer": "Proof by contradiction",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false,
+    "ncertRef": "Ex 1.3"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX11",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M11",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M11",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √2 is irrational.",
+    "solutionSteps": [
+     "Assume √2 = p/q, where p, q are co-prime integers, q ≠ 0.; Squaring: 2 = p²/q², so p² = 2q². [1]",
+     "2 divides p², so 2 divides p. Let p = 2k.; Then 4k² = 2q², so q² = 2k², meaning 2 divides q. [1]",
+     "Both p and q divisible by 2 contradicts co-prime assumption.; Hence √2 is irrational. [1]"
+    ],
+    "finalAnswer": "√2 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "RN2-050",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN2-050",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that √2 is irrational.",
+    "options": [],
+    "answer": "√2 is irrational",
+    "solutionSteps": [
+     "Assume √2 is rational. Then √2 = p/q where p and q are coprime integers with q ≠ 0.",
+     "Squaring both sides: 2 = p²/q², so p² = 2q².",
+     "Since 2 divides p², and 2 is prime, 2 divides p (by the prime divisibility lemma).",
+     "Let p = 2k for some integer k. Then p² = 4k².",
+     "Substituting: 4k² = 2q², so q² = 2k².",
+     "Since 2 divides q², and 2 is prime, 2 divides q.",
+     "Now 2 divides both p and q, contradicting gcd(p, q) = 1.",
+     "Hence our assumption is false. Therefore, √2 is irrational."
+    ],
+    "finalAnswer": "√2 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false,
+    "pyqYear": "2023",
+    "pyqSet": "A",
+    "ncertRef": "Ex 1.3"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX11",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M11",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M11",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √2 is irrational.",
+    "solutionSteps": [
+     "Assume √2 = p/q, where p, q are co-prime integers, q ≠ 0.; Squaring: 2 = p²/q², so p² = 2q². [1]",
+     "2 divides p², so 2 divides p. Let p = 2k.; Then 4k² = 2q², so q² = 2k², meaning 2 divides q. [1]",
+     "Both p and q divisible by 2 contradicts co-prime assumption.; Hence √2 is irrational. [1]"
+    ],
+    "finalAnswer": "√2 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "RN-N-NCERT-1-LA-001",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-N-NCERT-1-LA-001",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrational Numbers",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that √2 is irrational.",
+    "answer": "We use the method of proof by contradiction. Assume, to the contrary, that √2 is rational. Then √2 = a/b for some coprime integers a, b with b ≠ 0. Squaring: 2 = a²/b², so a² = 2b². Hence 2 divides a², which (by the theorem 'if a prime p divides a², then p divides a') implies 2 divides a. Write a = 2c. Substituting: (2c)² = 2b² ⇒ 4c² = 2b² ⇒ b² = 2c². So 2 divides b² and hence 2 divides b. But then 2 is a common factor of a and b, which contradicts our assumption that a and b are coprime. The contradiction arose from supposing √2 rational. Therefore √2 is irrational.",
+    "solutionSteps": [
+     "Assume √2 is rational. Then √2 = a/b for some integers a, b coprime, b ≠ 0.",
+     "Square both sides: 2 = a²/b², so a² = 2b². Hence 2 | a².",
+     "By Theorem 1.3 (if prime p | a², then p | a), we get 2 | a. Write a = 2c for some integer c.",
+     "Substitute: (2c)² = 2b² ⇒ 4c² = 2b² ⇒ b² = 2c². So 2 | b², which gives 2 | b.",
+     "Thus 2 divides BOTH a and b, contradicting gcd(a, b) = 1. The assumption is false; hence √2 is irrational."
+    ],
+    "finalAnswer": "√2 is irrational (proof by contradiction).",
+    "ncertRef": "NCERT Theorem 1.4",
+    "isCompetencyBased": true,
+    "strategyHint": "Standard four-step contradiction: assume rational → derive 2 | a → derive 2 | b → contradict coprimality."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX12",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M19",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M19",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √5 is irrational.",
+    "solutionSteps": [
+     "Assume √5 = p/q where p, q are co-prime, q ≠ 0.; Then p² = 5q², so 5 divides p². Since 5 is prime, 5 divides p. [1]",
+     "Let p = 5k. Then 25k² = 5q², so q² = 5k², hence 5 divides q.; Both p and q divisible by 5 contradicts co-prime assumption. [1]",
+     "Hence √5 is irrational. [1]"
+    ],
+    "finalAnswer": "√5 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "RN2-011",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN2-011",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that √5 is irrational.",
+    "options": [],
+    "answer": "√5 is irrational",
+    "solutionSteps": [
+     "Assume √5 is rational = p/q (in lowest terms, gcd(p,q) = 1)",
+     "Then 5 = p²/q², so p² = 5q²",
+     "This means p² is divisible by 5, so p is divisible by 5",
+     "Let p = 5k, then 25k² = 5q², so q² = 5k²",
+     "This means q² is divisible by 5, so q is divisible by 5",
+     "Both p and q are divisible by 5, contradicting gcd(p,q) = 1",
+     "Therefore, √5 is irrational"
+    ],
+    "finalAnswer": "√5 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false,
+    "pyqYear": "2021",
+    "pyqSet": "A",
+    "ncertRef": "Ex 1.3"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX12",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M19",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M19",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √5 is irrational.",
+    "solutionSteps": [
+     "Assume √5 = p/q where p, q are co-prime, q ≠ 0.; Then p² = 5q², so 5 divides p². Since 5 is prime, 5 divides p. [1]",
+     "Let p = 5k. Then 25k² = 5q², so q² = 5k², hence 5 divides q.; Both p and q divisible by 5 contradicts co-prime assumption. [1]",
+     "Hence √5 is irrational. [1]"
+    ],
+    "finalAnswer": "√5 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "RN-N-NCERT-1-LA-003",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-N-NCERT-1-LA-003",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrational Numbers",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that √5 is irrational.",
+    "answer": "Assume, to the contrary, that √5 is rational. Then √5 = a/b for coprime integers a, b with b ≠ 0. Squaring: 5 = a²/b², so a² = 5b². Hence 5 divides a², and by Theorem 1.3 (prime p | a² ⇒ p | a), 5 divides a. Write a = 5c. Substituting: 25c² = 5b² ⇒ b² = 5c². So 5 divides b², and hence 5 divides b. But then 5 is a common factor of a and b, contradicting gcd(a, b) = 1. The contradiction shows our assumption was wrong, so √5 is irrational.",
+    "solutionSteps": [
+     "Assume √5 is rational. Write √5 = a/b with gcd(a, b) = 1, b ≠ 0.",
+     "Squaring: 5 = a²/b² ⇒ a² = 5b² ⇒ 5 | a².",
+     "Since 5 is prime, 5 | a² ⇒ 5 | a. Write a = 5c for some integer c.",
+     "Substitute: (5c)² = 5b² ⇒ 25c² = 5b² ⇒ b² = 5c². Hence 5 | b² ⇒ 5 | b.",
+     "Now 5 is a common factor of a and b, contradicting gcd(a, b) = 1. Hence √5 is irrational."
+    ],
+    "finalAnswer": "√5 is irrational.",
+    "ncertRef": "NCERT Ex 1.3 Q1",
+    "isCompetencyBased": true,
+    "strategyHint": "Identical template — works for any prime p in place of 5."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX12",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M19",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M19",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √5 is irrational.",
+    "solutionSteps": [
+     "Assume √5 = p/q where p, q are co-prime, q ≠ 0.; Then p² = 5q², so 5 divides p². Since 5 is prime, 5 divides p. [1]",
+     "Let p = 5k. Then 25k² = 5q², so q² = 5k², hence 5 divides q.; Both p and q divisible by 5 contradicts co-prime assumption. [1]",
+     "Hence √5 is irrational. [1]"
+    ],
+    "finalAnswer": "√5 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "2026-RN-SA-09",
+   "surface": "predicted",
+   "origin": "LT-authored(predicted)",
+   "withheld_now": false,
+   "row": {
+    "id": "2026-RN-SA-09",
+    "topicKey": "Real Numbers",
+    "subtopic": "Irrationality Proofs",
+    "kind": "Short",
+    "section": "C",
+    "marks": 3,
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √5 is irrational.",
+    "answer": "Assume √5 = p/q in lowest terms (q ≠ 0, HCF(p, q) = 1). Then 5q² = p², so 5 | p²; since 5 is prime, 5 | p. Write p = 5k, so 5q² = 25k², i.e. q² = 5k², so 5 | q² and hence 5 | q. Now 5 divides both p and q, contradicting HCF(p, q) = 1. Therefore √5 is irrational.",
+    "finalAnswer": "√5 is irrational (proved by contradiction).",
+    "explanation": "Standard CBSE proof by contradiction using the Fundamental Theorem of Arithmetic: if a prime divides a square, it divides the base.",
+    "solutionSteps": [
+     "Assume √5 = p/q in lowest terms with HCF(p, q) = 1; then 5q² = p². [1]",
+     "5 | p², and 5 is prime, so 5 | p. Put p = 5k → q² = 5k², so 5 | q. [1]",
+     "5 divides both p and q, contradicting HCF(p, q) = 1; hence √5 is irrational. [1]"
+    ],
+    "strategyHint": "Assume rational in lowest terms, force a common factor, reach a contradiction.",
+    "policyTag": "Real Numbers 3-mark irrationality proof"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX12",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "RN-M19",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "RN-M19",
+    "subject": "Maths",
+    "topicKey": "real-numbers",
+    "subtopic": "Irrationality Proofs",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that √5 is irrational.",
+    "solutionSteps": [
+     "Assume √5 = p/q where p, q are co-prime, q ≠ 0.; Then p² = 5q², so 5 divides p². Since 5 is prime, 5 divides p. [1]",
+     "Let p = 5k. Then 25k² = 5q², so q² = 5k², hence 5 divides q.; Both p and q divisible by 5 contradicts co-prime assumption. [1]",
+     "Hence √5 is irrational. [1]"
+    ],
+    "finalAnswer": "√5 is irrational (proved by contradiction)",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "math-real-hpq-3",
+   "surface": "hpq",
+   "origin": "LT-authored(hpq)",
+   "withheld_now": false,
+   "row": {
+    "id": "math-real-hpq-3",
+    "subject": "Maths",
+    "topic": "Real Numbers",
+    "subtopic": "Fundamental Theorem of Arithmetic",
+    "concept": "Irrationality proof using prime factorisation",
+    "section": "C",
+    "type": "Short",
+    "difficulty": "Hard",
+    "marks": 3,
+    "likelihood": "Medium-High",
+    "tier": "must-crack",
+    "bloomSkill": "Analysing",
+    "question": "Prove that √5 is irrational.",
+    "answer": "Assuming √5 rational leads to a contradiction; hence √5 is irrational.",
+    "solutionSteps": [
+     "Assume √5 is rational. Then √5 = p/q, where p and q are coprime integers and q ≠ 0.; Square both sides: 5 = p²/q² ⇒ p² = 5q². [1]",
+     "So p² is divisible by 5 ⇒ p is divisible by 5. Let p = 5k.; Substitute: (5k)² = 5q² ⇒ 25k² = 5q² ⇒ q² = 5k², so q is also divisible by 5. [1]",
+     "This contradicts the assumption that p and q are coprime. Therefore √5 is irrational. [1]"
+    ],
+    "finalAnswer": "Hence √5 is irrational",
+    "explanation": "Classic 3-mark proof using Fundamental Theorem of Arithmetic; appears often in Real Numbers."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX17",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "QE-M06",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "QE-M06",
+    "subject": "Maths",
+    "topicKey": "quadratic-equations",
+    "subtopic": "Word/Application Problems",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less for the same journey. Find the speed of the train.",
+    "solutionSteps": [
+     "360/x − 360/(x+5) = 1; 360(x+5) − 360x = x(x+5) [1]",
+     "1800 = x² + 5x; x² + 5x − 1800 = 0 [1]",
+     "(x+45)(x−40) = 0 → x = 40 [1]"
+    ],
+    "finalAnswer": "40 km/h",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "QE-N-NCERT-4-LA-002",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "QE-N-NCERT-4-LA-002",
+    "subject": "Maths",
+    "topicKey": "quadratic-equations",
+    "subtopic": "Word Problems",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less for the same journey. Find the speed of the train.",
+    "answer": "The original speed of the train is 40 km/h.",
+    "solutionSteps": [
+     "Let the original speed be x km/h (x > 0).",
+     "Time taken at speed x = 360/x hours; time at increased speed (x + 5) = 360/(x + 5) hours.",
+     "Given difference of 1 hour: 360/x − 360/(x + 5) = 1.",
+     "Cross-multiply: 360(x + 5) − 360x = x(x + 5) ⇒ 1800 = x² + 5x ⇒ x² + 5x − 1800 = 0.",
+     "Quadratic formula: x = (−5 ± √(25 + 7200))/2 = (−5 ± √7225)/2 = (−5 ± 85)/2 = 40 or −45.",
+     "Reject x = −45 (speed positive). Hence original speed = 40 km/h. Verify: 360/40 − 360/45 = 9 − 8 = 1 ✓"
+    ],
+    "finalAnswer": "Original speed = 40 km/h.",
+    "ncertRef": "NCERT Ex 4.3 Q8",
+    "isCompetencyBased": true,
+    "strategyHint": "Distance / time pattern: form an equation in time difference (or sum); apply the quadratic formula."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX18",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "QE-M13",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "QE-M13",
+    "subject": "Maths",
+    "topicKey": "quadratic-equations",
+    "subtopic": "Word/Application Problems",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A natural number when increased by 12 equals 160 times its reciprocal. Find the number.",
+    "solutionSteps": [
+     "x + 12 = 160/x; x² + 12x − 160 = 0 [1]",
+     "(x + 20)(x − 8) = 0 [1]",
+     "x = 8 (natural number) [1]"
+    ],
+    "finalAnswer": "8",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "QE-N-EXMPLR-4-SA-008",
+   "surface": "bank",
+   "origin": "official(exemplar)",
+   "withheld_now": false,
+   "row": {
+    "id": "QE-N-EXMPLR-4-SA-008",
+    "subject": "Maths",
+    "topicKey": "quadratic-equations",
+    "subtopic": "Word Problems",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A natural number, when increased by 12, equals 160 times its reciprocal. Find the number.",
+    "answer": "The natural number is 8.",
+    "solutionSteps": [
+     "Let the natural number be x. Equation: x + 12 = 160/x.",
+     "Multiply by x (valid since x > 0): x² + 12x = 160 ⇒ x² + 12x − 160 = 0.",
+     "Factorise: x² + 20x − 8x − 160 = 0 ⇒ x(x + 20) − 8(x + 20) = 0 ⇒ (x − 8)(x + 20) = 0.",
+     "x = 8 or x = −20. Reject negative (must be natural). x = 8.",
+     "Verify: 8 + 12 = 20 and 160/8 = 20 ✓"
+    ],
+    "finalAnswer": "The natural number is 8.",
+    "ncertRef": "Exemplar Ex 4.4 Q3",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX20",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "QE2-058",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "QE2-058",
+    "subject": "Maths",
+    "topicKey": "quadratic-equations",
+    "subtopic": "Problem Solving",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.",
+    "solutionSteps": [
+     "Let speed = x km/h. Time = 360/x hours.; New speed = (x+5) km/h. New time = 360/(x+5) hours. [1]",
+     "Given: 360/x − 360/(x+5) = 1.; 360(x+5) − 360x = x(x+5) [1]",
+     "360x + 1800 − 360x = x² + 5x; x² + 5x − 1800 = 0 [1]",
+     "Using quadratic formula or factoring: x = (−5 ± √(25+7200))/2 = (−5 ± √7225)/2 = (−5 ± 85)/2.; x = 80/2 = 40 (taking positive value). Speed = 40 km/h. [1]",
+     "Verify: Time = 360/40 = 9 h. At 45 km/h: 360/45 = 8 h. Difference = 1 h. ✓ [1]"
+    ],
+    "answer": "The speed of the train is 40 km/h.",
+    "explanation": "See solution steps for full working.",
+    "finalAnswer": "The speed of the train is 40 km/h.",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "2026-QE-LA-05",
+   "surface": "predicted",
+   "origin": "LT-authored(predicted)",
+   "withheld_now": false,
+   "row": {
+    "id": "2026-QE-LA-05",
+    "topicKey": "Quadratic Equations",
+    "subtopic": "Word/Application Problems",
+    "kind": "Long",
+    "section": "D",
+    "marks": 5,
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.",
+    "answer": "Let speed = x km/h. Time = 360/x. New time = 360/(x+5). 360/x − 360/(x+5) = 1. Solving: 360×5 = x(x+5) ⇒ x²+5x−1800=0 ⇒ (x+45)(x−40)=0. x = 40 km/h.",
+    "finalAnswer": "Speed of the train = 40 km/h.",
+    "explanation": "Classic board-style speed-distance-time word problem that reduces to a quadratic equation.",
+    "solutionSteps": [
+     "Let speed be x km/h, time = 360/x hours.; With increased speed: time = 360/(x+5) hours. [1]",
+     "Set up equation: 360/x − 360/(x+5) = 1. [1]",
+     "Cross-multiply and simplify to get quadratic. [1]",
+     "Solve and reject negative root. [1]",
+     "State speed with units. [1]"
+    ],
+    "strategyHint": "Speed-distance-time problems always give a quadratic; set up time difference equation.",
+    "policyTag": "QE 5-mark speed-distance application"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX21",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "AP-M09",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "AP-M09",
+    "subject": "Maths",
+    "topicKey": "arithmetic-progression",
+    "subtopic": "nth Term",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Determine the AP whose 3rd term is 5 and the 7th term is 9.",
+    "solutionSteps": [
+     "a+2d = 5, a+6d = 9 [½]",
+     "4d = 4 → d = 1, a = 3 [½]",
+     "AP: 3, 4, 5, 6, ... [1]"
+    ],
+    "finalAnswer": "3, 4, 5, 6, ...",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "AP-N-NCERT-5-SA-001",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "AP-N-NCERT-5-SA-001",
+    "subject": "Maths",
+    "topicKey": "arithmetic-progression",
+    "subtopic": "nth Term of AP",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Determine the AP whose 3rd term is 5 and the 7th term is 9.",
+    "solutionSteps": [
+     "a + 2d = 5 …(1) and a + 6d = 9 …(2).",
+     "Subtract (1) from (2): 4d = 4 ⇒ d = 1.",
+     "Substitute in (1): a = 5 − 2 = 3.",
+     "So the AP is 3, 4, 5, 6, 7, ……"
+    ],
+    "finalAnswer": "AP: 3, 4, 5, 6, 7, ….",
+    "ncertRef": "NCERT Example 5 (page 102)",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX23",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CG-E16",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-E16",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Distance Formula",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Check whether (5, −2), (6, 4) and (7, −2) are the vertices of an isosceles triangle.",
+    "solutionSteps": [
+     "AB = √(1+36) = √37; BC = √(1+36) = √37 [½]",
+     "AC = √(4+0) = 2 [½]",
+     "AB = BC → isosceles ✓ [1]"
+    ],
+    "finalAnswer": "Yes, isosceles (AB = BC = √37)",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CG-N-NCERT-7-EX-016",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-N-NCERT-7-EX-016",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Distance Formula",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Check whether (5, −2), (6, 4) and (7, −2) are the vertices of an isosceles triangle.",
+    "answer": "Let A(5, −2), B(6, 4), C(7, −2). AB = √[(6−5)² + (4−(−2))²] = √(1+36) = √37. BC = √[(7−6)² + (−2−4)²] = √(1+36) = √37. AC = √[(7−5)² + (−2−(−2))²] = √(4+0) = 2. Since AB = BC = √37, two sides are equal → △ABC is isosceles.",
+    "solutionSteps": [
+     "AB = √[(6−5)² + (4+2)²] = √(1+36) = √37.",
+     "BC = √[(7−6)² + (−2−4)²] = √(1+36) = √37.",
+     "AC = √[(7−5)² + 0²] = √4 = 2.",
+     "AB = BC → two sides equal → isosceles triangle."
+    ],
+    "finalAnswer": "Yes — the triangle is isosceles (AB = BC = √37, AC = 2).",
+    "ncertRef": "NCERT Ex 7.1 Q4",
+    "isCompetencyBased": false,
+    "strategyHint": "Isosceles = at least two equal side-lengths."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX24",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CG-E19",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-E19",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Section Formula",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Find the coordinates of the point which divides the join of (−1, 7) and (4, −3) in the ratio 2:3.",
+    "solutionSteps": [
+     "x = (2×4+3×(−1))/5 = 5/5 = 1 [1]",
+     "y = (2×(−3)+3×7)/5 = 15/5 = 3 [1]"
+    ],
+    "finalAnswer": "(1, 3)",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CG-N-NCERT-7-EX-020",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-N-NCERT-7-EX-020",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Section Formula",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Find the coordinates of the point which divides the join of (−1, 7) and (4, −3) in the ratio 2 : 3.",
+    "answer": "Using section formula with m₁ : m₂ = 2 : 3, A(−1, 7), B(4, −3): x = (2·4 + 3·(−1))/(2+3) = (8 − 3)/5 = 1. y = (2·(−3) + 3·7)/5 = (−6 + 21)/5 = 15/5 = 3. Required point: (1, 3).",
+    "solutionSteps": [
+     "P = ((m₁x₂ + m₂x₁)/(m₁+m₂), (m₁y₂ + m₂y₁)/(m₁+m₂)) with m₁=2, m₂=3.",
+     "x = (2(4) + 3(−1))/5 = 5/5 = 1.",
+     "y = (2(−3) + 3(7))/5 = 15/5 = 3."
+    ],
+    "finalAnswer": "(1, 3).",
+    "ncertRef": "NCERT Ex 7.2 Q1",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX25",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CG-M11",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-M11",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Section Formula",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Find the coordinates of the points of trisection of the line segment joining (4, −1) and (−2, −3).",
+    "solutionSteps": [
+     "P divides in 1:2: P = ((−2+8)/3, (−3−2)/3) = (2, −5/3) [1]",
+     "Q divides in 2:1: Q = ((−4+4)/3, (−6−1)/3) = (0, −7/3) [1]"
+    ],
+    "finalAnswer": "(2, −5/3) and (0, −7/3)",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CG-N-NCERT-7-EX-021",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CG-N-NCERT-7-EX-021",
+    "subject": "Maths",
+    "topicKey": "coordinate-geometry",
+    "subtopic": "Section Formula",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Find the coordinates of the points of trisection of the line segment joining (4, −1) and (−2, −3).",
+    "answer": "Let P and Q be trisection points. P divides in 1:2, Q in 2:1. P = ((1·(−2) + 2·4)/3, (1·(−3) + 2·(−1))/3) = ((−2+8)/3, (−3−2)/3) = (6/3, −5/3) = (2, −5/3). Q = ((2·(−2) + 1·4)/3, (2·(−3) + 1·(−1))/3) = ((−4+4)/3, (−6−1)/3) = (0, −7/3).",
+    "solutionSteps": [
+     "P (ratio 1:2): x = (1(−2) + 2(4))/3 = 6/3 = 2; y = (1(−3) + 2(−1))/3 = −5/3.",
+     "Q (ratio 2:1): x = (2(−2) + 1(4))/3 = 0; y = (2(−3) + 1(−1))/3 = −7/3.",
+     "Trisection points: P(2, −5/3) and Q(0, −7/3)."
+    ],
+    "finalAnswer": "P(2, −5/3) and Q(0, −7/3).",
+    "ncertRef": "NCERT Ex 7.2 Q2",
+    "isCompetencyBased": false,
+    "strategyHint": "Trisection: ratios are 1:2 (near A) and 2:1 (near B)."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX27",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIR-M03",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-M03",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Properties",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that the parallelogram circumscribing a circle is a rhombus.",
+    "solutionSteps": [
+     "Construction: Draw a circle with centre O and mark the point of tangency. Draw the tangent line at that point.; Let ABCD be a parallelogram circumscribing the circle; AP = AS, BP = BQ, CR = CQ, DR = DS (tangent lengths) [1]",
+     "AB = AP + PB, CD = CR + RD; BC = BQ + QC, AD = AS + SD; AB + CD = AP + PB + CR + RD [1]",
+     "BC + AD = BQ + QC + AS + SD; Since opposite sides of parallelogram are equal: AB = CD, BC = AD; 2AB = (AP+AS) + (PB+QC) + ... → all sides equal → rhombus [1]"
+    ],
+    "finalAnswer": "Proved: all sides are equal → rhombus",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CIRC-N-NCERT-10-LA-002",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIRC-N-NCERT-10-LA-002",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Parallelogram Circumscribing Circle",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that the parallelogram circumscribing a circle is a rhombus.",
+    "solutionSteps": [
+     "Let ABCD be a parallelogram circumscribing a circle, touching AB, BC, CD, DA at P, Q, R, S.",
+     "By equal tangents: AP = AS, BP = BQ, CQ = CR, DR = DS.",
+     "AB + CD = (AP + PB) + (CR + RD) = (AS + SD) + (BQ + QC) = AD + BC.",
+     "Since ABCD is a parallelogram, AB = CD and AD = BC. So 2AB = 2AD ⇒ AB = AD.",
+     "Hence all sides AB = BC = CD = DA, i.e., ABCD is a rhombus."
+    ],
+    "finalAnswer": "Proved: a parallelogram that circumscribes a circle is a rhombus.",
+    "ncertRef": "NCERT Ex 10.2 Q11",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX27",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIR-M03",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-M03",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Properties",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that the parallelogram circumscribing a circle is a rhombus.",
+    "solutionSteps": [
+     "Construction: Draw a circle with centre O and mark the point of tangency. Draw the tangent line at that point.; Let ABCD be a parallelogram circumscribing the circle; AP = AS, BP = BQ, CR = CQ, DR = DS (tangent lengths) [1]",
+     "AB = AP + PB, CD = CR + RD; BC = BQ + QC, AD = AS + SD; AB + CD = AP + PB + CR + RD [1]",
+     "BC + AD = BQ + QC + AS + SD; Since opposite sides of parallelogram are equal: AB = CD, BC = AD; 2AB = (AP+AS) + (PB+QC) + ... → all sides equal → rhombus [1]"
+    ],
+    "finalAnswer": "Proved: all sides are equal → rhombus",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CIR-PRF-C-005",
+   "surface": "bank",
+   "origin": "LT-authored(proof)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-PRF-C-005",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent to a Circle",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that the parallelogram circumscribing a circle is a rhombus.",
+    "options": [],
+    "answer": "The parallelogram is a rhombus (all sides equal, proved)",
+    "solutionSteps": [
+     "GIVEN: ABCD is a parallelogram that circumscribes a circle. The circle touches AB at P, BC at Q, CD at R and DA at S.",
+     "TO PROVE: AB = BC = CD = DA  (i.e., ABCD is a rhombus)",
+     "PROOF: Since tangents from an external point are equal:",
+     "From A: AP = AS  ...(i)",
+     "From B: BP = BQ  ...(ii)",
+     "From C: CQ = CR  ...(iii)",
+     "From D: DR = DS  ...(iv)",
+     "Adding (i) + (ii) + (iii) + (iv):",
+     "AP + BP + CQ + DR = AS + BQ + CR + DS",
+     "(AP + BP) + (CQ + DR) = (AS + DS) + (BQ + CR)",
+     "AB + CD = AD + BC  ...(v)",
+     "Since ABCD is a parallelogram: AB = CD and AD = BC  ...(vi)",
+     "Substituting (vi) in (v):",
+     "AB + AB = AD + AD",
+     "2AB = 2AD",
+     "AB = AD",
+     "Since AB = CD and AD = BC and AB = AD:",
+     "AB = BC = CD = DA",
+     "Therefore ABCD is a rhombus. Hence Proved."
+    ],
+    "finalAnswer": "ABCD is a rhombus (AB = BC = CD = DA proved)",
+    "explanation": "Apply equal tangent lengths from all four vertices to get AB+CD = AD+BC. For a parallelogram AB=CD and AD=BC. Substituting gives 2AB = 2AD, so AB = AD, making all sides equal.",
+    "isCompetencyBased": true,
+    "pyqYear": "2025",
+    "pyqSet": "30/1/1",
+    "ncertRef": "Ex 10.2 Q10"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX28",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIR-M08",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-M08",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Properties",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A quadrilateral ABCD is drawn to circumscribe a circle. Prove that AB + CD = AD + BC.",
+    "solutionSteps": [
+     "Construction: Draw a circle with centre O and mark the point of tangency. Draw the tangent line at that point.; Let tangent lengths: AP = AS = a, BP = BQ = b, CQ = CR = c, DR = DS = d [½]",
+     "AB + CD = (a+b) + (c+d); AD + BC = (a+d) + (b+c) [½]",
+     "Both equal a + b + c + d [1]"
+    ],
+    "finalAnswer": "AB + CD = AD + BC (proved)",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "isCompetencyBased": true
+   },
+   "pending_fix": "fix",
+   "pending_fix_fields": {
+    "solutionSteps": [
+     "Let the circle touch AB, BC, CD, DA at P, Q, R, S. Tangents from an external point are equal: AP = AS = a, BP = BQ = b, CQ = CR = c, DR = DS = d [½]",
+     "AB + CD = (a+b) + (c+d); AD + BC = (a+d) + (b+c) [½]",
+     "Both equal a + b + c + d, hence AB + CD = AD + BC [1]"
+    ]
+   }
+  },
+  "b": {
+   "id": "CIRC-N-NCERT-10-SA-004",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIRC-N-NCERT-10-SA-004",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Circumscribed Quadrilateral",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Evaluating",
+    "questionText": "A quadrilateral ABCD is drawn to circumscribe a circle. Prove that AB + CD = AD + BC.",
+    "solutionSteps": [
+     "Let the circle touch AB, BC, CD, DA at P, Q, R, S respectively.",
+     "From equal tangents: AP = AS, BP = BQ, CR = CQ, DR = DS.",
+     "AB + CD = (AP + PB) + (CR + RD) and AD + BC = (AS + SD) + (BQ + QC).",
+     "Substituting equal tangent pairs gives AB + CD = AD + BC."
+    ],
+    "finalAnswer": "Proved: opposite sides of the circumscribed quadrilateral are equal in pairs of sums.",
+    "ncertRef": "NCERT Ex 10.2 Q8",
+    "isCompetencyBased": true,
+    "strategyHint": "Use the equal-tangents theorem at each vertex."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX28",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIR-M08",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-M08",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Properties",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A quadrilateral ABCD is drawn to circumscribe a circle. Prove that AB + CD = AD + BC.",
+    "solutionSteps": [
+     "Construction: Draw a circle with centre O and mark the point of tangency. Draw the tangent line at that point.; Let tangent lengths: AP = AS = a, BP = BQ = b, CQ = CR = c, DR = DS = d [½]",
+     "AB + CD = (a+b) + (c+d); AD + BC = (a+d) + (b+c) [½]",
+     "Both equal a + b + c + d [1]"
+    ],
+    "finalAnswer": "AB + CD = AD + BC (proved)",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "isCompetencyBased": true
+   },
+   "pending_fix": "fix",
+   "pending_fix_fields": {
+    "solutionSteps": [
+     "Let the circle touch AB, BC, CD, DA at P, Q, R, S. Tangents from an external point are equal: AP = AS = a, BP = BQ = b, CQ = CR = c, DR = DS = d [½]",
+     "AB + CD = (a+b) + (c+d); AD + BC = (a+d) + (b+c) [½]",
+     "Both equal a + b + c + d, hence AB + CD = AD + BC [1]"
+    ]
+   }
+  },
+  "b": {
+   "id": "CIR-PRF-D-003",
+   "surface": "bank",
+   "origin": "LT-authored(proof)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-PRF-D-003",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Equal Tangents from External Point",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "A quadrilateral ABCD is drawn to circumscribe a circle. Prove that AB + CD = AD + BC.",
+    "options": [],
+    "answer": "AB + CD = AD + BC (proved)",
+    "solutionSteps": [
+     "GIVEN: Quadrilateral ABCD circumscribes a circle. The circle touches AB at P, BC at Q, CD at R and DA at S.",
+     "TO PROVE: AB + CD = AD + BC",
+     "PROOF: Since tangents from an external point to a circle are equal in length:",
+     "From vertex A: AP = AS  ...(i)",
+     "From vertex B: BP = BQ  ...(ii)",
+     "From vertex C: CQ = CR  ...(iii)",
+     "From vertex D: DR = DS  ...(iv)",
+     "Adding all four equations (i) + (ii) + (iii) + (iv):",
+     "AP + BP + CQ + DR = AS + BQ + CR + DS",
+     "Grouping the left side:",
+     "(AP + BP) + (CQ + DR) = (AS + DS) + (BQ + CR)",
+     "AB + CD = AD + BC   [since AP+BP = AB, CQ+DR = CD, AS+DS = AD, BQ+CR = BC]",
+     "Hence Proved."
+    ],
+    "finalAnswer": "AB + CD = AD + BC (proved using equal tangent lengths from each vertex)",
+    "explanation": "The circle touches each side at one point. From each vertex, two equal tangents are drawn. Sum the four pairs, group by sides to get AB + CD = AD + BC.",
+    "isCompetencyBased": true,
+    "pyqYear": "2023",
+    "pyqSet": "30/2/1",
+    "ncertRef": "Ex 10.2 Q11",
+    "strategyHint": "Label the four tangent points P, Q, R, S on sides AB, BC, CD, DA. Apply equal tangents from each of the four vertices. Sum all four equations and regroup."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX29",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIR-M10",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-M10",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Properties",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.",
+    "solutionSteps": [
+     "Construction: Draw a circle with centre O and external point P. Draw tangents PA and PB, touching the circle at A and B. Join OA, OB, and OP.; Let ∠TPQ = θ. Since TP = TQ, △TPQ is isosceles [1]",
+     "∠TQP = θ, so ∠PTQ = 180° − 2θ; ∠OPT = 90° (radius ⊥ tangent), so ∠OPQ = 90° − θ [1]",
+     "∠PTQ = 180° − 2θ = 2(90° − θ) = 2∠OPQ [1]"
+    ],
+    "finalAnswer": "∠PTQ = 2∠OPQ (proved)",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CIRC-N-NCERT-10-SA-005",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIRC-N-NCERT-10-SA-005",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangents from External Point",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Evaluating",
+    "questionText": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.",
+    "solutionSteps": [
+     "Let ∠PTQ = θ. TP = TQ (equal tangents), so ∆TPQ is isosceles.",
+     "∠TPQ = ∠TQP = (180° − θ)/2 = 90° − θ/2.",
+     "OP ⊥ TP ⇒ ∠OPT = 90°.",
+     "∠OPQ = ∠OPT − ∠TPQ = 90° − (90° − θ/2) = θ/2 = (1/2)∠PTQ.",
+     "Hence ∠PTQ = 2∠OPQ."
+    ],
+    "finalAnswer": "Proved: ∠PTQ = 2∠OPQ.",
+    "ncertRef": "NCERT Example 2 (page 212)",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX29",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIR-M10",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-M10",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Properties",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.",
+    "solutionSteps": [
+     "Construction: Draw a circle with centre O and external point P. Draw tangents PA and PB, touching the circle at A and B. Join OA, OB, and OP.; Let ∠TPQ = θ. Since TP = TQ, △TPQ is isosceles [1]",
+     "∠TQP = θ, so ∠PTQ = 180° − 2θ; ∠OPT = 90° (radius ⊥ tangent), so ∠OPQ = 90° − θ [1]",
+     "∠PTQ = 180° − 2θ = 2(90° − θ) = 2∠OPQ [1]"
+    ],
+    "finalAnswer": "∠PTQ = 2∠OPQ (proved)",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CIR-PRF-D-004",
+   "surface": "bank",
+   "origin": "LT-authored(proof)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-PRF-D-004",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent to a Circle",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.",
+    "options": [],
+    "answer": "∠PTQ = 2∠OPQ (proved)",
+    "solutionSteps": [
+     "GIVEN: Circle with centre O. TP and TQ are tangents from external point T touching circle at P and Q.",
+     "TO PROVE: ∠PTQ = 2∠OPQ",
+     "PROOF: Since tangents from external point are equal: TP = TQ  ...(i)",
+     "Therefore △TPQ is isosceles.",
+     "∠TPQ = ∠TQP  (base angles of isosceles △TPQ)  ...(ii)",
+     "Let ∠TPQ = ∠TQP = x",
+     "In △TPQ: ∠PTQ + ∠TPQ + ∠TQP = 180°",
+     "∠PTQ + x + x = 180°",
+     "∠PTQ = 180° − 2x  ...(iii)",
+     "Now, TP is a tangent and OP is the radius at P.",
+     "∠OPT = 90°  (tangent ⊥ radius)  ...(iv)",
+     "∠OPQ = ∠OPT − ∠TPQ = 90° − x  ...(v)",
+     "Therefore 2∠OPQ = 2(90° − x) = 180° − 2x  ...(vi)",
+     "From (iii) and (vi):",
+     "∠PTQ = 180° − 2x = 2∠OPQ. Hence Proved."
+    ],
+    "finalAnswer": "∠PTQ = 2∠OPQ (proved)",
+    "explanation": "TP = TQ (equal tangents) makes △TPQ isosceles. Let base angles = x. ∠PTQ = 180°−2x. Since ∠OPT = 90°, ∠OPQ = 90°−x. So 2∠OPQ = 180°−2x = ∠PTQ.",
+    "isCompetencyBased": true,
+    "pyqYear": "2022",
+    "pyqSet": "30/3/1",
+    "ncertRef": "Ex 10.2 Q13",
+    "strategyHint": "Use TP = TQ (isosceles triangle). Let base angle = x. Express ∠PTQ in terms of x. Use ∠OPT = 90° to express ∠OPQ in terms of x. Show they match."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX29",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIR-M10",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-M10",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Properties",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.",
+    "solutionSteps": [
+     "Construction: Draw a circle with centre O and external point P. Draw tangents PA and PB, touching the circle at A and B. Join OA, OB, and OP.; Let ∠TPQ = θ. Since TP = TQ, △TPQ is isosceles [1]",
+     "∠TQP = θ, so ∠PTQ = 180° − 2θ; ∠OPT = 90° (radius ⊥ tangent), so ∠OPQ = 90° − θ [1]",
+     "∠PTQ = 180° − 2θ = 2(90° − θ) = 2∠OPQ [1]"
+    ],
+    "finalAnswer": "∠PTQ = 2∠OPQ (proved)",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "APQ-M-CIRC-006",
+   "surface": "bank",
+   "origin": "official(additionalPQ)",
+   "withheld_now": false,
+   "row": {
+    "id": "APQ-M-CIRC-006",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangents from External Point — Angle",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2 ∠OPQ.",
+    "answer": "Proved.",
+    "solutionSteps": [
+     "Let ∠PTQ = θ. Tangents from external point: TP = TQ ⟹ ΔTPQ is isosceles. So ∠TPQ = ∠TQP = (180° − θ)/2 = 90° − θ/2.",
+     "OP ⊥ PT (tangent ⊥ radius) ⟹ ∠OPT = 90°.",
+     "∠OPQ = ∠OPT − ∠TPQ = 90° − (90° − θ/2) = θ/2 = ½ × ∠PTQ. Hence ∠PTQ = 2 ∠OPQ."
+    ],
+    "finalAnswer": "∠PTQ = 2 ∠OPQ (proved).",
+    "ncertRef": "APQ PQ2 Q28",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX30",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIR-M19",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-M19",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Properties",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A triangle ABC is drawn to circumscribe a circle of radius 4 cm such that the segments BD and DC into which BC is divided by the point of contact D are of lengths 8 cm and 6 cm respectively. Find the sides AB and AC.",
+    "solutionSteps": [
+     "Let AF = AE = x (tangent lengths from A); BF = BD = 8, CE = CD = 6; AB = x+8, AC = x+6, BC = 14 [1]",
+     "Area by Heron's: s = (x+8+x+6+14)/2 = x+14; Area = √[(x+14)(x)(6)(8)] = √[48x(x+14)]; Also Area = r × s = 4(x+14) [1]",
+     "16(x+14)² = 48x(x+14); 16(x+14) = 48x → x+14 = 3x → x = 7; AB = 15, AC = 13 [1]"
+    ],
+    "finalAnswer": "AB = 15 cm, AC = 13 cm",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CIRC-N-NCERT-10-LA-001",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIRC-N-NCERT-10-LA-001",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Triangle Circumscribing Circle",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "A triangle ABC is drawn to circumscribe a circle of radius 4 cm such that the segments BD and DC into which BC is divided by the point of contact D are of lengths 8 cm and 6 cm respectively. Find the sides AB and AC.",
+    "solutionSteps": [
+     "Let the circle touch AB at F and AC at E. Then BD = BF = 8, DC = CE = 6, and let AF = AE = x.",
+     "Area of ∆ABC by Heron-like decomposition using incircle: Area = r × s where s = semi-perimeter.",
+     "Sides: AB = 8 + x, AC = 6 + x, BC = 14. s = (8 + x + 6 + x + 14)/2 = 14 + x.",
+     "Compute area another way using ∆OBC, ∆OCA, ∆OAB each with height = r = 4: Area = (1/2)×4×(BC + CA + AB) = 2 × 2s = 4s? Actually Area = r·s.",
+     "Also Area² = s(s − a)(s − b)(s − c) where a = BC = 14, b = CA = 6 + x, c = AB = 8 + x. s = 14 + x.",
+     "s − a = x, s − b = 8, s − c = 6.",
+     "(rs)² = s(s − a)(s − b)(s − c) ⇒ r²s = (s − a)(s − b)(s − c).",
+     "16(14 + x) = x × 8 × 6 = 48x ⇒ 16x + 224 = 48x ⇒ 32x = 224 ⇒ x = 7.",
+     "AB = 8 + 7 = 15 cm and AC = 6 + 7 = 13 cm."
+    ],
+    "finalAnswer": "AB = 15 cm and AC = 13 cm.",
+    "ncertRef": "NCERT Ex 10.2 Q12",
+    "isCompetencyBased": true,
+    "strategyHint": "Combine 'equal tangents' with Area = r·s and Heron's formula."
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX31",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CIR-H01",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CIR-H01",
+    "subject": "Maths",
+    "topicKey": "circles",
+    "subtopic": "Tangent Theorems & Proofs",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "Prove that the tangent at any point of a circle is perpendicular to the radius through the point of contact.",
+    "solutionSteps": [
+     "Construction: Draw a circle with centre O and point P on the circle. Draw the tangent l at P and radius OP. Assume l is not perpendicular to OP and derive a contradiction.; Let O be centre, P be point on circle, line l be tangent at P [1]",
+     "Assume l is not ⊥ to OP. Draw OQ ⊥ l where Q is on l; Then OQ < OP (perpendicular is shortest distance) [1]",
+     "But Q is on tangent l, and l touches circle only at P; So Q must be outside the circle → OQ > OP (radius) [1]",
+     "This contradicts OQ < OP [1]",
+     "Hence our assumption is wrong, l ⊥ OP [1]"
+    ],
+    "finalAnswer": "Proved by contradiction",
+    "visualExplainerId": "maths-circles-tangent-properties",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "2026-CIRC-SA-01b",
+   "surface": "predicted",
+   "origin": "LT-authored(predicted)",
+   "withheld_now": false,
+   "row": {
+    "id": "2026-CIRC-SA-01b",
+    "topicKey": "Circles",
+    "subtopic": "Tangent Properties",
+    "kind": "Short",
+    "section": "B",
+    "marks": 2,
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Prove that the tangent at any point of a circle is perpendicular to the radius through the point of contact.",
+    "answer": "The tangent at a point on a circle is perpendicular to the radius through that point.",
+    "finalAnswer": "If OP is radius and PT is tangent at P, then OP ⟂ PT.",
+    "explanation": "Join the centre O to the point of contact P. Any other point Q on the tangent has OQ > OP, so OP is the shortest distance from O to the tangent. Hence OP ⟂ tangent at P.",
+    "solutionSteps": [
+     "Consider circle with centre O and tangent at P touching circle.; Join OP and any other segment OQ to a point Q on the tangent. [½]",
+     "Use the property that the shortest distance from a point to a line is the perpendicular.; Show that OP is the shortest distance. [½]",
+     "Conclude that OP ⟂ tangent at P. [1]"
+    ],
+    "strategyHint": "Think of shortest distance from a point to a line being the perpendicular segment.",
+    "policyTag": "Tangents/radius property"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX34",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "PROB-E06",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "PROB-E06",
+    "subject": "Maths",
+    "topicKey": "probability",
+    "subtopic": "Single Event Probability",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Two coins are tossed simultaneously. Find the probability of getting at least one head.",
+    "solutionSteps": [
+     "Sample space: {HH, HT, TH, TT} [1]",
+     "At least one head: {HH, HT, TH} → 3/4 [1]"
+    ],
+    "finalAnswer": "3/4",
+    "visualExplainerId": "maths-probability-complementary-events",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "PR2-006",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "PR2-006",
+    "subject": "Maths",
+    "topicKey": "probability",
+    "subtopic": "Classical Probability",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Two coins are tossed simultaneously. Find the probability of getting at least one head.",
+    "options": [],
+    "answer": "3/4",
+    "solutionSteps": [
+     "Total outcomes = {HH, HT, TH, TT} = 4",
+     "At least one head = {HH, HT, TH} = 3",
+     "P(at least one head) = 3/4"
+    ],
+    "finalAnswer": "3/4",
+    "visualExplainerId": "maths-probability-complementary-events",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 15.1"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX35",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CR-E06",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CR-E06",
+    "subject": "Science",
+    "topicKey": "chemical-reactions-and-equations",
+    "subtopic": "Balancing Equations",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Balance the equation: Fe + H₂O → Fe₃O₄ + H₂",
+    "solutionSteps": [
+     "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides. [1]",
+     "3Fe + 4H₂O → Fe₃O₄ + 4H₂ [1]"
+    ],
+    "finalAnswer": "3Fe + 4H₂O → Fe₃O₄ + 4H₂",
+    "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "S-CHEM-3",
+   "surface": "promptD",
+   "origin": "LT-authored(promptD)",
+   "withheld_now": false,
+   "row": {
+    "id": "S-CHEM-3",
+    "text": "Balance the equation: Fe + H2O → Fe3O4 + H2.",
+    "marks": 2,
+    "difficulty": "Medium",
+    "questionType": "subjective",
+    "pack": "chemical_reactions_equations"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX36",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CR-E10",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CR-E10",
+    "subject": "Science",
+    "topicKey": "chemical-reactions-and-equations",
+    "subtopic": "Oxidation-Reduction",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "Why do we apply paint on iron articles?",
+    "solutionSteps": [
+     "Paint prevents iron from coming in contact with air and moisture [1]",
+     "This prevents rusting (corrosion) [1]"
+    ],
+    "finalAnswer": "To prevent rusting by blocking contact with air and moisture",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CHEM-NCERT-1-VSA-007",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CHEM-NCERT-1-VSA-007",
+    "subject": "Science",
+    "topicKey": "chemical-reactions-and-equations",
+    "subtopic": "Corrosion",
+    "section": "B",
+    "marks": 2,
+    "format": "VSA",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "Why do we apply paint on iron articles?",
+    "answer": "Paint forms a protective coating that prevents iron from coming in contact with air (oxygen) and moisture. This prevents the oxidation of iron, i.e. rusting (corrosion).",
+    "solutionSteps": [
+     "[0.5 mark] Rusting of iron requires both air (oxygen) and moisture.",
+     "[0.5 mark] Paint creates a barrier that prevents these reactants from reaching the iron surface.",
+     "[0.5 mark] Without contact between iron and O₂/H₂O, rusting cannot occur.",
+     "[0.5 mark] Hence painting prevents corrosion and prolongs the life of the iron article."
+    ],
+    "finalAnswer": "To prevent rusting by blocking contact between iron and air/moisture.",
+    "ncertRef": "Exercise Q18",
+    "isCompetencyBased": true
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX38",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "ABS-E04",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "ABS-E04",
+    "subject": "Science",
+    "topicKey": "acids-bases-and-salts",
+    "subtopic": "Properties & Identification",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "Which of the following is a strong acid?",
+    "options": [
+     "Acetic acid",
+     "Citric acid",
+     "Hydrochloric acid",
+     "Carbonic acid"
+    ],
+    "answer": "Hydrochloric acid",
+    "explanation": "The correct answer is Hydrochloric acid. This is a fundamental result that should be recalled directly from the key concepts of this topic.",
+    "finalAnswer": "Hydrochloric acid",
+    "isCompetencyBased": false,
+    "solutionSteps": [
+     "Strong acids dissociate completely in water to produce a high concentration of H+ ions.",
+     "Among the given options, Acetic acid, Citric acid, and Carbonic acid are weak acids.",
+     "Hydrochloric acid (HCl) is a strong acid as it ionizes completely in water."
+    ]
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "ABS2-053",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "ABS2-053",
+    "subject": "Science",
+    "topicKey": "acids-bases-and-salts",
+    "subtopic": "Properties & Identification",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "Which of the following is a strong acid?",
+    "options": [
+     "Acetic acid",
+     "Citric acid",
+     "Hydrochloric acid",
+     "Carbonic acid"
+    ],
+    "answer": "Hydrochloric acid",
+    "solutionSteps": [
+     "HCl is a strong acid that dissociates completely in water"
+    ],
+    "finalAnswer": "Hydrochloric acid",
+    "explanation": "HCl is a strong acid — fully dissociates in water.",
+    "isCompetencyBased": false,
+    "ncertRef": "NCERT Ch2"
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX39",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CARB-M10",
+   "surface": "bank",
+   "origin": "LT-authored(AI pack)",
+   "withheld_now": false,
+   "row": {
+    "id": "CARB-M10",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Reactions",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "What is hydrogenation? What is its industrial application?",
+    "solutionSteps": [
+     "Addition of H₂ to unsaturated hydrocarbons in presence of Ni/Pd/Pt catalyst [1]",
+     "Industrial use: converting vegetable oils (unsaturated, liquid) to vegetable ghee/vanaspati (saturated, solid) [1]"
+    ],
+    "finalAnswer": "Adding H₂ to unsaturated compounds; used to make vegetable ghee",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CARB-NCERT-4-VSA-015",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CARB-NCERT-4-VSA-015",
+    "subject": "Science",
+    "topicKey": "carbon-and-its-compounds",
+    "subtopic": "Addition Reactions",
+    "section": "B",
+    "marks": 2,
+    "format": "VSA",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "What is hydrogenation? What is its industrial application?",
+    "answer": "Hydrogenation is the addition of H₂ to an unsaturated hydrocarbon (containing C=C or C≡C) in the presence of a catalyst (usually Ni). E.g., R-CH=CH-R' + H₂ --(Ni)--> R-CH₂-CH₂-R'. Industrial application: hydrogenation of vegetable oils (which contain unsaturated fatty acids) to form solid fats like vanaspati ghee.",
+    "solutionSteps": [
+     "Hydrogenation: addition of H₂ across C=C or C≡C, catalysed by Ni (or Pt/Pd).",
+     "Reaction: CH₂=CH₂ + H₂ → CH₃CH₃.",
+     "Industrial use: vegetable oils + H₂ (Ni catalyst) → solid fat (vanaspati / hydrogenated oil)."
+    ],
+    "finalAnswer": "Addition of H₂ to unsaturated compound (Ni catalyst). Used to make vanaspati from oils.",
+    "ncertRef": "Exercise Q12",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ },
+ {
+  "group": "EX53",
+  "kind": "exact",
+  "similarity": "1.00",
+  "a": {
+   "id": "CTRL-NCERT-6-SA-002",
+   "surface": "bank",
+   "origin": "official(ncert)",
+   "withheld_now": false,
+   "row": {
+    "id": "CTRL-NCERT-6-SA-002",
+    "subject": "Science",
+    "topicKey": "control-and-coordination",
+    "subtopic": "Synapse",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "What happens at the synapse between two neurons?",
+    "answer": "At the synapse (gap between two neurons), the electrical impulse arriving at the axonal end of the first neuron triggers the release of chemicals (neurotransmitters). These chemicals diffuse across the synapse and generate a new electrical impulse in the dendrite of the next neuron.",
+    "solutionSteps": [
+     "Electrical impulse reaches the axonal end of pre-synaptic neuron.",
+     "It triggers release of chemicals (neurotransmitters) into the synaptic gap.",
+     "Chemicals diffuse across the synapse and bind to receptors on the dendrite of the next neuron.",
+     "A new electrical impulse is generated in the post-synaptic neuron."
+    ],
+    "finalAnswer": "Electrical → chemical → electrical signal transmission across the synaptic gap.",
+    "ncertRef": "In-text Q2 (after §6.1)",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  },
+  "b": {
+   "id": "CTRL-EXMPLR-6-SA-009",
+   "surface": "bank",
+   "origin": "official(exemplar)",
+   "withheld_now": false,
+   "row": {
+    "id": "CTRL-EXMPLR-6-SA-009",
+    "subject": "Science",
+    "topicKey": "control-and-coordination",
+    "subtopic": "Synapse",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "What happens at the synapse between two neurons?",
+    "answer": "At the synapse, electrical impulses arriving at the axonal end of one neuron trigger the release of neurotransmitter chemicals. These diffuse across the synaptic gap and bind to receptors on the dendrite of the next neuron, generating a new electrical impulse.",
+    "solutionSteps": [
+     "Impulse reaches pre-synaptic axonal end.",
+     "Neurotransmitters released into synaptic cleft.",
+     "They diffuse across the gap and bind to dendrite receptors of next neuron.",
+     "New impulse generated → signal continues."
+    ],
+    "finalAnswer": "Electrical → chemical (neurotransmitter) → electrical signal transmission across synaptic gap.",
+    "ncertRef": "Exemplar Q42",
+    "isCompetencyBased": false
+   },
+   "pending_fix": null,
+   "pending_fix_fields": null
+  }
+ }
+]

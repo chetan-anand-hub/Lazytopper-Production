@@ -1,0 +1,507 @@
+[
+ {
+  "id": "APQ-M-CG-001",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/apq-maths/coordinate-geometry/APQ-M-CG-001.webp"
+  ],
+  "runtime_row": {
+   "id": "APQ-M-CG-001",
+   "subject": "Maths",
+   "topicKey": "coordinate-geometry",
+   "subtopic": "Distance Formula",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Easy",
+   "bloomSkill": "Applying",
+   "questionText": "The coordinates of the centre of the circle, O, and a point on the circle, N, are shown in the figure. What is the radius of the circle?",
+   "options": [
+    "√0.4 units",
+    "2 units",
+    "4 units",
+    "√42.4 units"
+   ],
+   "answer": "2 units",
+   "solutionSteps": [
+    "Radius = distance from centre to point on circle, computed via distance formula on the coordinates shown in the figure.",
+    "Per MS: radius = 2 units."
+   ],
+   "finalAnswer": "(b) 2 units",
+   "ncertRef": "APQ PQ1 Q4",
+   "isCompetencyBased": false,
+   "strategyHint": "REQUIRES-FIGURE: coordinates of O and N from PDF."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says coordinates \"are shown in the figure\" but no coordinates/figure are described; unanswerable as served",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Coordinates of O and N exist only in the source figure (strategyHint REQUIRES-FIGURE). The question cannot be answered as served, and the coordinates cannot be recovered."
+  }
+ },
+ {
+  "id": "CFPQ-S-ELEC-001",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-science/electricity/CFPQ-S-ELEC-001.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-S-ELEC-001",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Series and Parallel Combinations",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "Read the information given below and answer four out of five following questions.\n\nSuresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The packet on the LEDs had the following printed on a label:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nTo understand how he should connect the LEDs, he referred to the following circuit diagram on a website.\n\nWhich of the following describes how the LEDs are connected in the circuit diagram?",
+   "options": [
+    "all in series",
+    "all in parallel",
+    "8 each in a series combination, and the two combinations in parallel",
+    "8 each in a parallel combination, and the two combinations in series"
+   ],
+   "answer": "all in series",
+   "solutionSteps": [
+    "[1 mark] Correct option: (1) all in series. Tracing the diagram, a single conductor leaves the plug, passes through LED 1 to LED 8, turns at the far end and returns through LED 9 to LED 16 - there is one path only, so every LED carries the same current."
+   ],
+   "finalAnswer": "all in series",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
+   "requiresDiagram": true,
+   "diagramDescription": "A circuit diagram of a decorative light string. From a mains-supply plug on the left, a single conductor runs to a row of eight lamps labelled LED 1, LED 2 … LED 8 along the top, continues round at the right-hand end, and returns through a second row of eight lamps labelled LED 9, LED 10 … LED 16 along the bottom back to the plug - one continuous loop of sixteen LEDs."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Asks how LEDs are connected \"in the circuit diagram\" which is not provided/described; also stray header \"answer four out of five following questions\"",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Suresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The label on the packet read:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nTo understand how to connect the LEDs, he referred to a circuit diagram on a website. In it, a wire from one pin of a mains plug runs to a row of eight LEDs (LED 1, LED 2, … LED 8) joined one after another along the top; at the far end the wire turns round and runs back through a second row of eight LEDs (LED 9, LED 10, … LED 16) joined one after another, and then returns to the other pin of the plug. There are no other wires or branches.\n\nWhich of the following describes how the LEDs are connected in this circuit?",
+    "requiresDiagram": false
+   },
+   "rationale": "Removed stray \"answer four out of five\" header; described the circuit (from the row's own diagramDescription) in the stem so it is self-contained. Answer unchanged: single path, all 16 in series."
+  }
+ },
+ {
+  "id": "CFPQ-S-ELEC-002",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-science/electricity/CFPQ-S-ELEC-001.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-S-ELEC-002",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Series and Parallel Combinations",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Applying",
+   "questionText": "Read the information given below and answer four out of five following questions.\n\nSuresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The packet on the LEDs had the following printed on a label:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nTo understand how he should connect the LEDs, he referred to the following circuit diagram on a website.\n\nIf the LED marked 'LED 2' in the diagram stops working, which other LEDs will also stop working?\n(Note: When an LED stops working, current cannot flow across it.)",
+   "options": [
+    "only LED 3 to LED 8",
+    "only LED 3 to LED 8 and LED 1",
+    "all the other LEDs in the circuit",
+    "none of the other LEDs in the circuit"
+   ],
+   "answer": "all the other LEDs in the circuit",
+   "solutionSteps": [
+    "[1 mark] Correct option: (3) all the other LEDs in the circuit. The sixteen LEDs form a single series loop, so a break anywhere opens the only path and every LED goes out."
+   ],
+   "finalAnswer": "all the other LEDs in the circuit",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
+   "requiresDiagram": true,
+   "diagramDescription": "A circuit diagram of a decorative light string. From a mains-supply plug on the left, a single conductor runs to a row of eight lamps labelled LED 1, LED 2 … LED 8 along the top, continues round at the right-hand end, and returns through a second row of eight lamps labelled LED 9, LED 10 … LED 16 along the bottom back to the plug - one continuous loop of sixteen LEDs."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Depends on circuit diagram not provided/described (LED 2 failure)",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Suresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The label on the packet read:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nTo understand how to connect the LEDs, he referred to a circuit diagram on a website. In it, a wire from one pin of a mains plug runs to a row of eight LEDs (LED 1, LED 2, … LED 8) joined one after another along the top; at the far end the wire turns round and runs back through a second row of eight LEDs (LED 9, LED 10, … LED 16) joined one after another, and then returns to the other pin of the plug. There are no other wires or branches.\n\nIf LED 2 in this circuit stops working, which other LEDs will also stop working?\n(Note: When an LED stops working, current cannot flow across it.)",
+    "requiresDiagram": false
+   },
+   "rationale": "Removed stray header; circuit described in text from the row's diagramDescription (single series loop). Answer unchanged: all other LEDs go out."
+  }
+ },
+ {
+  "id": "CFPQ-S-ELEC-004",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-science/electricity/CFPQ-S-ELEC-001.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-S-ELEC-004",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Potential Difference in a Parallel Circuit",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "Read the information given below and answer four out of five following questions.\n\nSuresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The packet on the LEDs had the following printed on a label:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nTo understand how he should connect the LEDs, he referred to the following circuit diagram on a website.\n\nWhat will happen if he connects 100 LEDs, all in a parallel combination, to the 240 V mains supply?",
+   "options": [
+    "Each LED will work as expected since the available voltage is more than 3 V.",
+    "Each LED will have a potential difference of 220 V and therefore they will get damaged.",
+    "Each LED will glow but the ones closer in the circuit to the main supply will glow brighter.",
+    "Each LED will have a potential difference of 2.4 V across it and therefore will glow dimmer than normal."
+   ],
+   "answer": "Each LED will have a potential difference of 220 V and therefore they will get damaged.",
+   "solutionSteps": [
+    "[1 mark] Correct option: (2). In a parallel combination every branch carries the full supply voltage, so each LED - rated for only 3 V - is subjected to the whole mains voltage and is destroyed. (The option as printed says 220 V while the stem specifies 240 V; that inconsistency is in the source and the option is reproduced verbatim.)"
+   ],
+   "finalAnswer": "Each LED will have a potential difference of 220 V and therefore they will get damaged.",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
+   "requiresDiagram": true,
+   "diagramDescription": "A circuit diagram of a decorative light string. From a mains-supply plug on the left, a single conductor runs to a row of eight lamps labelled LED 1, LED 2 … LED 8 along the top, continues round at the right-hand end, and returns through a second row of eight lamps labelled LED 9, LED 10 … LED 16 along the bottom back to the plug - one continuous loop of sixteen LEDs."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Keyed option says \"220 V\" while stem says 240 V mains; keyed answer contains a factual mismatch",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Suresh bought a packet of 100 LEDs to make his own lights for decoration in his house. The label on the packet read:\nLED 2835, 0.2 W, 30 Lumens, 3 V\n\nWhat will happen if he connects all 100 LEDs in a parallel combination to the 240 V mains supply?",
+    "options": [
+     "Each LED will work as expected since the available voltage is more than 3 V.",
+     "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
+     "Each LED will glow but the ones closer in the circuit to the main supply will glow brighter.",
+     "Each LED will have a potential difference of 2.4 V across it and therefore will glow dimmer than normal."
+    ],
+    "answer": "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
+    "finalAnswer": "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
+    "solutionSteps": [
+     "[1 mark] Correct option: (2). In a parallel combination every branch has the full supply voltage across it, so each LED - rated for only 3 V - gets 240 V across it and is damaged."
+    ],
+    "requiresDiagram": false
+   },
+   "rationale": "Keyed option said 220 V vs 240 V stem; corrected option to 240 V (parallel branch gets full supply). Removed stray header and irrelevant diagram reference."
+  }
+ },
+ {
+  "id": "CFPQ-S-ELEC-009",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-science/electricity/CFPQ-S-ELEC-009.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-S-ELEC-009",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Equivalent Resistance",
+   "section": "A",
+   "marks": 1,
+   "format": "VSA",
+   "difficulty": "Hard",
+   "bloomSkill": "Applying",
+   "questionText": "Study the circuit diagram given below. You are given one extra resistor. By drawing a new circuit diagram, show how you can connect the extra resistor to increase the reading on the ammeter in the circuit below.",
+   "answer": "Connect the extra resistor in parallel with the existing resistor.",
+   "solutionSteps": [
+    "[1 mark] A circuit diagram showing the extra resistor connected in parallel with the resistor already in the circuit. Adding a resistor in parallel lowers the total resistance, so the current read by the ammeter increases."
+   ],
+   "finalAnswer": "In parallel with the existing resistor.",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
+   "requiresDiagram": true,
+   "diagramDescription": "A simple series circuit: a cell on the left, an ammeter A and a resistor drawn as a zig-zag along the top, and the return wire below, captioned 'Circuit'. A second, unconnected zig-zag resistor is drawn to the right, captioned 'Extra resistor'."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "\"Study the circuit diagram given below\" - figure not provided/described",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "A circuit consists of a cell, an ammeter and one resistor, all connected in series. You are given one extra resistor. How should you connect the extra resistor so that the reading of the ammeter increases? Draw the new circuit diagram and give a reason.",
+    "section": "B",
+    "marks": 2,
+    "answer": "Connect the extra resistor in parallel with the existing resistor; this lowers the total resistance, so the current (ammeter reading) increases.",
+    "solutionSteps": [
+     "[1 mark] Circuit diagram: cell, ammeter and the original resistor in series, with the extra resistor connected in parallel across the original resistor (ammeter in the main line).",
+     "[1 mark] Reason: resistors in parallel have a lower equivalent resistance than either one alone (1/R = 1/R₁ + 1/R₂), so for the same cell voltage I = V/R increases and the ammeter reads more."
+    ],
+    "finalAnswer": "In parallel with the existing resistor (lower total resistance, so larger current)."
+   },
+   "rationale": "Circuit described in text (from row diagramDescription). A 1-mark VSA in Section A is invalid; re-tagged to 2-mark Section B VSA with diagram + reason steps. Answer unchanged in substance."
+  }
+ },
+ {
+  "id": "CFPQ-S-ELEC-011",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-science/electricity/CFPQ-S-ELEC-011.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-S-ELEC-011",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Resistors in Parallel",
+   "section": "D",
+   "marks": 5,
+   "format": "Long",
+   "difficulty": "Hard",
+   "bloomSkill": "Applying",
+   "questionText": "Three resistors in a circuit are attached as shown here. The resistance of F and G are 10 ohm and 5 ohm respectively. The resistance of E is unknown. These resistors are connected to a battery with potential difference 6 V.\n\n(a) What is the term used to describe such an arrangement of resistors?\n(b) What is the resistance of E if 0.3 A current flows through it?\n(c) What is the total current flowing in the circuit?",
+   "answer": "(a) Resistors are attached in parallel. (b) R₁ = 6/0.3 = 20 ohm. (c) Total current = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A",
+   "solutionSteps": [
+    "[1 mark] (a) Resistors are attached in parallel",
+    "[2 marks] (b) Resistance of E = R₁; I = V/R; 0.3 = 6/R; R₁ = 6/0.3; R₁ = 20 ohm. [1.5 marks for the steps to calculate R₁ and 0.5 marks for final answer]",
+    "[2 marks] (c) Total current (I) = V/R₁ + V/R₂ + V/R₃ = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A. [1.5 marks for the steps and 0.5 marks for final answer]"
+   ],
+   "finalAnswer": "(a) parallel; (b) 20 ohm; (c) 2.1 A",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
+   "requiresDiagram": true,
+   "diagramDescription": "Three resistors drawn as zig-zags on three separate branches between two junction points labelled X (left) and Y (right): E on the top branch, F in the middle and G below. From Y the wire runs down through an ammeter A to a 6 V battery at the bottom and back to X."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem says \"as shown in figure\"/\"Fig.\" but the configuration needed to solve is not described in text (only in the answer)",
+    "severity": "medium"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "fix",
+   "withhold_reason": null,
+   "fields": {
+    "questionText": "Three resistors E, F and G are connected in a circuit such that each resistor lies on a separate branch between the same two junction points X and Y. A 6 V battery (with an ammeter in the main line) is connected across X and Y. The resistances of F and G are 10 Ω and 5 Ω respectively; the resistance of E is unknown.\n\n(a) What is the term used to describe such an arrangement of resistors?\n(b) What is the resistance of E if 0.3 A current flows through it?\n(c) What is the total current flowing in the circuit?",
+    "answer": "(a) The resistors are connected in parallel. (b) R_E = V/I = 6/0.3 = 20 Ω. (c) Total current = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A",
+    "solutionSteps": [
+     "[1 mark] (a) The resistors are connected in parallel.",
+     "[2 marks] (b) Each branch has the full 6 V across it. I = V/R ⇒ R_E = V/I = 6/0.3 = 20 Ω. [1.5 marks for the steps, 0.5 mark for final answer with unit]",
+     "[2 marks] (c) Total current I = V/R_E + V/R_F + V/R_G = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A. [1.5 marks for the steps, 0.5 mark for final answer with unit]"
+    ],
+    "finalAnswer": "(a) parallel; (b) 20 Ω; (c) 2.1 A",
+    "requiresDiagram": false
+   },
+   "rationale": "Arrangement described in stem from row diagramDescription (three branches between X and Y); ohm written as Ω; R₁ notation replaced by R_E. Values unchanged."
+  }
+ },
+ {
+  "id": "CFPQ-S-ELEC-013",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/cfpq-science/electricity/CFPQ-S-ELEC-013.webp"
+  ],
+  "runtime_row": {
+   "id": "CFPQ-S-ELEC-013",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Electric Fuse and Short Circuit",
+   "section": "A",
+   "marks": 1,
+   "format": "VSA",
+   "difficulty": "Hard",
+   "bloomSkill": "Analysing",
+   "questionText": "Observe the circuit shown below. All the three switches are open.\n\nIdentify the switch/switches that on being closed will cause the fuse to blow.",
+   "answer": "Switch 1 and Switch 2",
+   "solutionSteps": [
+    "[1 mark] For identifying both, Switch 1 and Switch 2"
+   ],
+   "finalAnswer": "Switch 1 and Switch 2 together.",
+   "isCompetencyBased": true,
+   "ncertRef": "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
+   "requiresDiagram": true,
+   "diagramDescription": "A circuit with a battery on the left and a fuse in the top wire. Switch 1 is in the top wire after the fuse. A lower branch contains Switch 2 in series with a bulb on the right, and a third branch on the left contains Switch 3 across the battery. All three switches are drawn open."
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Answer (Switch 1 and 2) depends entirely on a circuit figure not provided/described",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Answer depends on exact switch/fuse topology; row diagramDescription (S2 in series with bulb, S3 across battery) does not support the key \"S1 and S2\" - figure cannot be reconstructed reliably. Also 1-mark VSA mis-tag."
+  }
+ },
+ {
+  "id": "ELEC-EXMPLR-11-MCQ-002",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/electricity/ELEC-EXMPLR-11-MCQ-002.webp"
+  ],
+  "runtime_row": {
+   "id": "ELEC-EXMPLR-11-MCQ-002",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Heating in Combinations",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Medium",
+   "bloomSkill": "Analysing",
+   "questionText": "In the following circuits (Figure 12.2), heat produced in the resistor or combination of resistors connected to a 12 V battery will be",
+   "options": [
+    "same in all the cases",
+    "minimum in case (i)",
+    "maximum in case (ii)",
+    "maximum in case (iii)"
+   ],
+   "answer": "maximum in case (iii)",
+   "solutionSteps": [
+    "For the same supply voltage V, heat dissipated per unit time is P = V²/R; lower equivalent resistance means more heat.",
+    "Case (iii) (per the figure) corresponds to the lowest equivalent resistance among the three.",
+    "Hence the heat produced is maximum in case (iii)."
+   ],
+   "finalAnswer": "Option (d) — maximum in case (iii)",
+   "strategyHint": "REQUIRES-FIGURE: three different resistor combinations (single, series, parallel) on a 12 V battery.",
+   "ncertRef": "Exemplar MCQ Q2",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem refers to a figure (Fig 12.x) that is essential to choose the option and is not described in text",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Options refer to cases (i)-(iii) of Figure 12.2 whose resistor values/arrangements are not in the row; cannot be answered or reconstructed without the figure."
+  }
+ },
+ {
+  "id": "ELEC-EXMPLR-11-MCQ-005",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/electricity/ELEC-EXMPLR-11-MCQ-005.webp"
+  ],
+  "runtime_row": {
+   "id": "ELEC-EXMPLR-11-MCQ-005",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Circuit Diagram",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Easy",
+   "bloomSkill": "Understanding",
+   "questionText": "Identify the circuit (Figure 12.3) in which the electrical components have been properly connected.",
+   "options": [
+    "(i)",
+    "(ii)",
+    "(iii)",
+    "(iv)"
+   ],
+   "answer": "(ii)",
+   "solutionSteps": [
+    "A correct circuit requires: ammeter in series with the resistor, voltmeter in parallel across the resistor, key in series with the cell, and a closed loop.",
+    "Option (ii) (per the figure) is the only arrangement that meets all these requirements.",
+    "Hence option (b)."
+   ],
+   "finalAnswer": "Option (b) — circuit (ii)",
+   "strategyHint": "REQUIRES-FIGURE: four candidate circuit diagrams with ammeter, voltmeter, resistor, key, cell.",
+   "ncertRef": "Exemplar MCQ Q5",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem refers to a figure (Fig 12.x) that is essential to choose the option and is not described in text",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Options are four circuit diagrams (i)-(iv) of Figure 12.3, not present in text; cannot be answered without the figure."
+  }
+ },
+ {
+  "id": "ELEC-EXMPLR-11-MCQ-008",
+  "surface": "bank",
+  "figure_files": [
+   "/home/user/LT-worktrees/bf2/lazytopper/public/figures/exemplar-science/electricity/ELEC-EXMPLR-11-MCQ-008.webp"
+  ],
+  "runtime_row": {
+   "id": "ELEC-EXMPLR-11-MCQ-008",
+   "subject": "Science",
+   "topicKey": "electricity",
+   "subtopic": "Cells in Series",
+   "section": "A",
+   "marks": 1,
+   "format": "MCQ",
+   "difficulty": "Easy",
+   "bloomSkill": "Understanding",
+   "questionText": "The proper representation of series combination of cells (Figure 12.4) obtaining maximum potential is",
+   "options": [
+    "(i)",
+    "(ii)",
+    "(iii)",
+    "(iv)"
+   ],
+   "answer": "(i)",
+   "solutionSteps": [
+    "[1 mark] For maximum potential difference the cells must be in series with the positive terminal of each cell joined to the negative terminal of the next, so that the EMFs add. In Figure 12.4 only arrangement (i) has every cell in the same sense (longer line +, shorter line −, joined head to tail); in (iii) the second cell is reversed, and in (ii) and (iv) the cells are not all in one sense. Correct option (a) — diagram (i)."
+   ],
+   "finalAnswer": "Option (a) — diagram (i)",
+   "strategyHint": "REQUIRES-FIGURE: four arrangements of cells; only one has all + terminals joined to next − terminal.",
+   "ncertRef": "Exemplar MCQ Q8",
+   "isCompetencyBased": true
+  },
+  "flags": [
+   {
+    "source": "broken",
+    "category": "broken (solver)",
+    "detail": "Stem refers to a figure (Fig 12.x) that is essential to choose the option and is not described in text",
+    "severity": "high"
+   }
+  ],
+  "first_fixer": {
+   "verdict": "withhold",
+   "withhold_reason": "figure",
+   "fields": {},
+   "rationale": "Options are four cell-arrangement diagrams (Figure 12.4); not present in text and their exact contents cannot be confirmed."
+  }
+ }
+]
