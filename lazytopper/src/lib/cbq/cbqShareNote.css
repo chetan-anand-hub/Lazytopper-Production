@@ -1,0 +1,18 @@
+/* CBQ-1 PR-2 — the CBQ share legend on the Chapter Test / Full Mock setup.
+   Visual grammar: navy ink, soft-white panel, green accent edge. */
+.lt-cbq-share {
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background-color: hsl(210, 40%, 98%);
+  border: 1px solid hsl(214, 32%, 89%);
+  box-shadow: inset 3px 0 0 hsl(152, 55%, 45%);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: hsl(222, 47%, 16%);
+}
+.lt-cbq-share__main b { font-weight: 800; }
+.lt-cbq-share__soft,
+.lt-cbq-share__rest { color: hsl(215, 19%, 40%); }
+.lt-cbq-share__rest { font-size: 12px; margin-top: 2px; }
+.lt-cbq-share__short { font-size: 12px; margin-top: 6px; color: hsl(215, 19%, 35%); font-style: italic; }

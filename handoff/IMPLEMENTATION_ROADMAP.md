@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-07 — PROGRESS + TUTOR: **WAVE B-18 — ME-ENGINE-1 PR-1 + PR-2 + PR-2b + PR-2c** (`#964` + `#968` + `#970` + `#983`) — trunk `984bd663` — ✅ COMPLETE (PR-3 ⏸ SKIPPED by the owner; OR-LIVE PARTIAL ×3 + PASS ×1, no rollback; L1 second-device pull OWED; owner-owed: `[PROD-AI-500]`)
+
+- ✅ **One shared read model** `progressReadModel.ts` (IST today, 7 / 14 / 30 / 120 days, 26 board chapters, graded-only tests, paginated reads) — `#964`.
+- ✅ **Mistakes resolve, not delete** (`resolvedAt` / `resolvedBy`); **won back = a later correct attempt only**, pinned (owner Round 1) — `#964`.
+- ✅ **Tutor brief on the model;** Tutor doubts timestamped + synced; wrong-answer log synced; G3 pin Me == brief == model — `#968`.
+- ✅ **Second-device hydration race fixed; one imported honesty gate** for Me, the Tutor brief and the MI widget; **MI widget switched** (MIC H3 amended under the four conditions, 146 → 148) — `#970`.
+- ✅ **Weak Area Practice: mastery retired** (owner Round 2), accuracy / attempts from the model, difficulty from marks lost — `#970`; **no unearned praise; a failed Tutor turn is not counted** — `#983`.
+- ⏸ **PR-3 (concepts, G5 / G6) SKIPPED** until the concept map exists (owner Round 5).
+- ⬜ **Owed live:** `[FU-B18-L1-SECOND-DEVICE-PULL-LIVE]` after production AI recovers.
+- ⬜ **Next client lanes:** J2a `#979` (verified, held on `[PROD-AI-500]`) → J2b → A-17 J3; ME-REPORT-1 later.
+
 ## 2026-10-07 — CI: **WAVE CI1 — CI-SPEED-1 NIGHTLY RESTORE** (`#981`, `[FU-CI1-NIGHTLY-RESTORE]`) — trunk `63e94564` — ✅ COMPLETE (verifier PASS; post-merge PASS; owner-owed: merge-queue option, Railway `watchPatterns`)
 
 - ✅ **Nightly full suite under both clocks restored:** `schedule: '30 20 * * *'` (02:00 IST), first scheduled run 2026-10-07T20:30Z; a scheduled failure opens an issue. Hand-run `37539342806` green: 330/330 files, 4,755 tests, both clocks.
