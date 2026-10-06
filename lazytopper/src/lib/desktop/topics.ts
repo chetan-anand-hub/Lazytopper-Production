@@ -1,5 +1,6 @@
 import type { DesktopStream, DesktopSubject } from "./navigation";
 import { getRuntimeTopicCandidates } from "../../data/syllabus/topicAliasMap";
+import { SYLLABUS_2026_27, type SyllabusSubject } from "../../config/syllabus2026-27";
 
 export type DesktopTrendTier = "high" | "medium" | "low";
 
@@ -9,20 +10,32 @@ export interface DesktopTopicSummary {
   subject: DesktopSubject;
   stream: DesktopStream;
   trendTier: DesktopTrendTier;
+  /**
+   * Approximate marks for this chapter, DERIVED from CBSE's unit marks (SYLLABUS-FIX-CODE
+   * F2) — never hand-typed. Each subject's chapters sum to exactly 80.
+   */
   weight: number;
+  /** The chip label for `weight`: "approx. N marks". */
   marks: string;
   blurb: string;
 }
 
-const TOPICS: DesktopTopicSummary[] = [
+/**
+ * A chapter as authored. `share` is LazyTopper's relative estimate of how a unit's marks
+ * split between its chapters — it is NOT a marks figure. CBSE publishes marks per UNIT
+ * only (src/config/syllabus2026-27.ts, Maths p3 / Science p4); `weight` and `marks` are
+ * derived from those unit marks below.
+ */
+type AuthoredTopic = Omit<DesktopTopicSummary, "weight" | "marks"> & { share: number };
+
+const AUTHORED_TOPICS: AuthoredTopic[] = [
   {
     slug: "real-numbers",
     name: "Real Numbers",
     subject: "Maths",
     stream: "All",
     trendTier: "medium",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "The fundamental theorem of arithmetic and proofs of the irrationality of √2, √3 and √5.",
   },
   {
@@ -31,8 +44,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "medium",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Zeroes of a quadratic polynomial and the relationship between its zeroes and coefficients.",
   },
   {
@@ -41,8 +53,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "high",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Solving pairs of linear equations by substitution and elimination, including word problems.",
   },
   {
@@ -51,8 +62,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "high",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Factorisation, quadratic formula, discriminant analysis, and applied word problems.",
   },
   {
@@ -61,8 +71,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "high",
-    weight: 5,
-    marks: "~5 marks",
+    share: 5,
     blurb: "nth term, sum of the first n terms, and AP-based application problems.",
   },
   {
@@ -71,8 +80,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "high",
-    weight: 7,
-    marks: "~7 marks",
+    share: 7,
     blurb: "Similarity criteria, basic proportionality theorem, and proofs based on similar triangles.",
   },
   {
@@ -81,8 +89,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "high",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Distance formula and section formula on the coordinate plane.",
   },
   {
@@ -91,8 +98,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "high",
-    weight: 12,
-    marks: "~12 marks",
+    share: 12,
     blurb: "Trigonometric ratios and identities together with heights and distances applications.",
   },
   {
@@ -101,8 +107,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "high",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Tangents to a circle, length of tangents from an external point, and related proofs.",
   },
   {
@@ -111,8 +116,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "medium",
-    weight: 4,
-    marks: "~4 marks",
+    share: 4,
     blurb: "Area of sectors and segments and combinations of plane figures involving circles.",
   },
   {
@@ -121,8 +125,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "high",
-    weight: 7,
-    marks: "~7 marks",
+    share: 7,
     blurb: "Surface area and volume of combinations of solids.",
   },
   {
@@ -131,9 +134,8 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "medium",
-    weight: 6,
-    marks: "~6 marks",
-    blurb: "Mean, median and mode of grouped data, plus cumulative frequency curves.",
+    share: 6,
+    blurb: "Mean, median and mode of grouped data.",
   },
   {
     slug: "probability",
@@ -141,8 +143,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Maths",
     stream: "All",
     trendTier: "medium",
-    weight: 5,
-    marks: "~5 marks",
+    share: 5,
     blurb: "Classical probability of simple events with cards, dice, and similar setups.",
   },
 
@@ -152,8 +153,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Chemistry",
     trendTier: "high",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Types of chemical reactions, balancing equations, and oxidation–reduction basics.",
   },
   {
@@ -162,8 +162,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Chemistry",
     trendTier: "high",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Properties of acids and bases, the pH scale, and the chemistry of common salts.",
   },
   {
@@ -172,8 +171,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Chemistry",
     trendTier: "high",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Physical and chemical properties, the reactivity series, and extraction of metals.",
   },
   {
@@ -182,8 +180,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Chemistry",
     trendTier: "high",
-    weight: 7,
-    marks: "~7 marks",
+    share: 7,
     blurb: "Covalent bonding in carbon, homologous series, functional groups, and key organic reactions.",
   },
   {
@@ -192,8 +189,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Physics",
     trendTier: "high",
-    weight: 7,
-    marks: "~7 marks",
+    share: 7,
     blurb: "Spherical mirrors, lenses, the mirror and lens formulae, and image formation by ray diagrams.",
   },
   {
@@ -202,8 +198,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Physics",
     trendTier: "medium",
-    weight: 5,
-    marks: "~5 marks",
+    share: 5,
     blurb: "Structure of the human eye, defects of vision and their correction, plus dispersion and scattering of light.",
   },
   {
@@ -212,8 +207,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Physics",
     trendTier: "high",
-    weight: 7,
-    marks: "~7 marks",
+    share: 7,
     blurb: "Ohm's law, resistors in series and parallel, and electrical power and energy numericals.",
   },
   {
@@ -222,8 +216,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Physics",
     trendTier: "high",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Magnetic field due to current-carrying conductors, the right-hand rule, and the force on a conductor in a magnetic field.",
   },
   {
@@ -232,8 +225,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Biology",
     trendTier: "high",
-    weight: 8,
-    marks: "~8 marks",
+    share: 8,
     blurb: "Nutrition, respiration, transportation, and excretion in plants and animals.",
   },
   {
@@ -242,8 +234,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Biology",
     trendTier: "high",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Nervous and hormonal coordination in animals and tropic movements in plants.",
   },
   {
@@ -252,8 +243,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Biology",
     trendTier: "medium",
-    weight: 6,
-    marks: "~6 marks",
+    share: 6,
     blurb: "Modes of asexual and sexual reproduction in plants and animals, including reproductive health.",
   },
   {
@@ -262,8 +252,7 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Biology",
     trendTier: "medium",
-    weight: 5,
-    marks: "~5 marks",
+    share: 5,
     blurb: "Mendel's laws of inheritance, monohybrid and dihybrid crosses, and sex determination.",
   },
   {
@@ -272,11 +261,60 @@ const TOPICS: DesktopTopicSummary[] = [
     subject: "Science",
     stream: "Biology",
     trendTier: "low",
-    weight: 4,
-    marks: "~4 marks",
+    share: 4,
     blurb: "Ecosystems, food chains and food webs, and impact of human activities on the environment.",
   },
 ];
+
+/**
+ * Split CBSE's unit marks across the unit's chapters (SYLLABUS-FIX-CODE F2).
+ *
+ * THE RULE (deterministic): within each CBSE unit, the unit's marks are shared in
+ * proportion to each chapter's authored `share`, by the largest-remainder method —
+ * floor every proportional part, then hand the leftover marks one at a time to the
+ * largest fractional parts; a tie goes to the chapter listed first in the CBSE unit
+ * (F1 `units[].chapters` order). A one-chapter unit gets all of its unit's marks.
+ * So every unit total is EXACT and each subject sums to exactly 80; only the split
+ * inside a multi-chapter unit is an estimate, which is why the chip says "approx.".
+ */
+export function deriveChapterMarks(
+  subject: SyllabusSubject,
+  shareBySlug: ReadonlyMap<string, number>,
+): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const unit of SYLLABUS_2026_27[subject].units) {
+    const shares = unit.chapters.map((slug) => Math.max(0, shareBySlug.get(slug) ?? 0));
+    const total = shares.reduce((a, b) => a + b, 0);
+    const exact = shares.map((s) =>
+      total > 0 ? (unit.marks * s) / total : unit.marks / unit.chapters.length,
+    );
+    const base = exact.map(Math.floor);
+    let left = unit.marks - base.reduce((a, b) => a + b, 0);
+    const order = exact
+      .map((v, i) => ({ i, frac: v - Math.floor(v) }))
+      .sort((a, b) => b.frac - a.frac || a.i - b.i);
+    for (let k = 0; left > 0; k = (k + 1) % order.length, left -= 1) base[order[k].i] += 1;
+    unit.chapters.forEach((slug, i) => out.set(slug, base[i]));
+  }
+  return out;
+}
+
+const deriveTopics = (authored: AuthoredTopic[]): DesktopTopicSummary[] => {
+  const marksBySlug = new Map<string, number>();
+  for (const subject of ["maths", "science"] as const) {
+    const label = subject === "maths" ? "Maths" : "Science";
+    const shares = new Map(
+      authored.filter((t) => t.subject === label).map((t) => [t.slug, t.share] as const),
+    );
+    for (const [slug, marks] of deriveChapterMarks(subject, shares)) marksBySlug.set(slug, marks);
+  }
+  return authored.map(({ share: _share, ...topic }) => {
+    const weight = marksBySlug.get(topic.slug) ?? 0;
+    return { ...topic, weight, marks: `approx. ${weight} marks` };
+  });
+};
+
+const TOPICS: DesktopTopicSummary[] = deriveTopics(AUTHORED_TOPICS);
 
 /**
  * THE WHOLE TOPIC REGISTRY, ENUMERABLE.

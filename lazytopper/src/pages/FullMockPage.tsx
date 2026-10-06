@@ -114,6 +114,13 @@ const SECTION_HEAD: Record<string, string> = {
   E: "Section E · Case-based · 4 marks",
 };
 
+/** Bar segment grow class (lt-fm__g1..g20) for a unit: its marks scaled so the largest
+ *  unit is g20 — proportional across the bar (presentation only). */
+function unitBarGrow(marks: number, units: ReadonlyArray<{ target: number }>): number {
+  const max = units.reduce((m, u) => Math.max(m, u.target), 1);
+  return Math.max(1, Math.min(20, Math.round((marks / max) * 20)));
+}
+
 /** The weightage-bar palette (presentation only — cycled by index). */
 const WBAR_CLASSES = 8;
 
@@ -878,7 +885,7 @@ export default function FullMockPage() {
 
               <div className="lt-ct__card">
                 <div className="lt-ct__sub">
-                  A complete board paper — every chapter, real weightage, real timing. Objective is
+                  A complete board paper — every chapter, CBSE&rsquo;s unit marks, real timing. Objective is
                   scored the moment you submit; write the rest on paper and upload for the full result.
                 </div>
 
@@ -932,23 +939,27 @@ export default function FullMockPage() {
                       ))}
                     </div>
 
+                    {/* SYLLABUS-FIX-CODE F3: marks per CBSE UNIT, the only split CBSE publishes
+                        (src/config/syllabus2026-27.ts). No per-chapter claim. A unit the bank
+                        could not fill shows its real marks against CBSE's, never a padded total. */}
                     <div className="lt-ct__histrail-h">
-                      Chapter weightage{" "}
-                      <span className="lt-fm__lbl-soft">— as the board distributes it</span>
+                      Marks per unit{" "}
+                      <span className="lt-fm__lbl-soft">— by CBSE&rsquo;s unit marks</span>
                     </div>
                     <div className="lt-fm__wbar" aria-hidden="true">
-                      {draw.chapterWeights.map((w, i) => (
+                      {draw.unitMarks.map((u, i) => (
                         <i
-                          key={w.slug}
-                          className={`lt-fm__wseg lt-fm__g${Math.max(1, Math.min(20, Math.round(w.percent)))} lt-fm__c${i % WBAR_CLASSES}`}
+                          key={u.unit}
+                          className={`lt-fm__wseg lt-fm__g${unitBarGrow(u.target, draw.unitMarks)} lt-fm__c${i % WBAR_CLASSES}`}
                         />
                       ))}
                     </div>
                     <div className="lt-fm__wlegend">
-                      {draw.chapterWeights.map((w, i) => (
-                        <div className="lt-fm__wlegend-item" key={w.slug}>
+                      {draw.unitMarks.map((u, i) => (
+                        <div className="lt-fm__wlegend-item" key={u.unit}>
                           <span className={`lt-fm__wlegend-sw lt-fm__c${i % WBAR_CLASSES}`} />
-                          {w.label} {Math.round(w.percent)}%
+                          {u.name}{" "}
+                          {u.actual === u.target ? `${u.target} marks` : `${u.actual} of ${u.target} marks`}
                         </div>
                       ))}
                     </div>

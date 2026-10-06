@@ -15,6 +15,10 @@
  *   Generated: 2026-10-06 by the A16 PR-1 generator (scratch script, not committed).
  *   Owner rulings of 2026-10-05 are applied by the generator and each resolved item
  *   carries a `ruling` note; every other AMBIGUOUS item is left AMBIGUOUS.
+ *   Owner ruling of 2026-10-06 (A16 PR-2, applied to the TYPED reference only — the
+ *   verbatim SYLLABUS_2026_27_SOURCE is untouched): atmospheric refraction moved from
+ *   AMBIGUOUS to IN (human-eye-and-colourful-world); the colour of the Sun at
+ *   sunrise/sunset stays OUT.
  *
  * Pure data module: it imports NOTHING from the app (no new import edges).
  *
@@ -1229,6 +1233,11 @@ export const SYLLABUS_2026_27 = {
             "item": "Refraction through a prism; dispersion; scattering of light; daily-life applications",
             "page": 6,
             "quote": "Refraction of light through a prism, dispersion of light, scattering of light, applications in daily life (excluding colour of the sun at sunrise and sunset)."
+          },
+          {
+            "item": "Atmospheric refraction (twinkling of stars, advance sunrise/delayed sunset) — kept; NOT the excluded colour of the Sun at sunrise/sunset",
+            "page": 6,
+            "ruling": "Owner ruling 2026-10-06: atmospheric refraction (twinkling, advance sunrise) kept, since it isn't the excluded 'colour of the Sun at sunrise/sunset'."
           }
         ],
         "out": [
@@ -1246,14 +1255,15 @@ export const SYLLABUS_2026_27 = {
             "page": 6
           }
         ],
-        "ambiguous": [
+        "ambiguous": [],
+        "resolved": [
           {
             "item": "Atmospheric refraction (twinkling of stars, advance sunrise/delayed sunset)",
             "page": 6,
-            "workingReading": "not named on p6 (only prism, dispersion, scattering, daily-life applications); reported, NOT a finding"
+            "workingReading": "not named on p6 (only prism, dispersion, scattering, daily-life applications); reported, NOT a finding",
+            "ruling": "Owner ruling 2026-10-06: atmospheric refraction (twinkling, advance sunrise) kept, since it isn't the excluded 'colour of the Sun at sunrise/sunset'."
           }
-        ],
-        "resolved": []
+        ]
       },
       {
         "key": "electricity",

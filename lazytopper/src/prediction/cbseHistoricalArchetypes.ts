@@ -4,6 +4,7 @@ import type {
   HistoricalFormat,
   HistoricalSourceType,
 } from "./historicalDataset";
+import { FORMATIVE_ONLY_TOPICS, SYLLABUS_OUT } from "../config/syllabus2026-27";
 
 export interface CbseArchetypeEntry {
   subject: "Maths" | "Science";
@@ -678,39 +679,94 @@ export const CBSE_HISTORICAL_ARCHETYPES: CbseArchetypeEntry[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2026-27 CBSE Maths syllabus deletions
+// 2026-27 CBSE Maths syllabus deletions (SYLLABUS-FIX-CODE F6)
 //
-// CBSE has historically trimmed the Maths syllabus (e.g. Constructions was
-// removed in earlier rationalisation rounds; Statistics / Probability scope
-// has been narrowed at various points).  No topics are deleted for 2026-27 as
-// of the current confirmed syllabus.  The config object below intentionally
-// starts empty so that adding a future deletion requires ONLY editing this
-// object — no changes to the scoring logic are needed.
+// THE OUT LIST IS READ, NOT RESTATED. Every Maths item CBSE's 2026-27 curriculum
+// PDF leaves out is a row of `SYLLABUS_OUT.maths` in src/config/syllabus2026-27.ts
+// (the one reference, owner ruling 6). A historical or bank SUBTOPIC is a short
+// label ("Area of Triangle", "Pythagoras/Converse"), not the PDF's sentence, so
+// each F1 row is paired below with the label fragments that identify it.
+// cbseHistoricalArchetypes.syllabus.test.ts pins the pairing BOTH ways: every F1
+// Maths OUT row has at least one fragment here, and no entry here names a row F1
+// does not have — so a change to F1 fails the test instead of drifting silently.
 //
-// How to add a deletion when CBSE announces one:
-//   • Full chapter removed  → add the chapter name to `deletedTopics`.
-//   • Partial removal       → add keyword fragment(s) to
-//                             `deletedSubtopicKeywords` (matched as
-//                             case-insensitive substrings of the subtopic).
+// Owner ruling 1 (2026-10-05): Pythagoras used as a numeric TOOL stays IN, so a
+// fragment never matches a tool-use label; only a subtopic NAMED for the theorem
+// (the concept / its proof) is excluded. Converse-of-BPT USE stays IN (the PDF
+// states it without proof) — only its PROOF is out, hence the "proof of …" forms.
+// No whole Maths chapter is out, so `deletedTopics` stays empty.
 // ─────────────────────────────────────────────────────────────────────────────
-export const MATHS_DELETED_CHAPTERS_2026_27 = {
-  effectiveFromYear: 2026,
 
-  /** Full Maths chapters removed entirely (none confirmed for 2026-27). */
-  deletedTopics: [] as string[],
-
-  /**
-   * Subtopic-level keyword fragments deleted from otherwise-retained Maths
-   * chapters (none confirmed for 2026-27).  Matched as case-insensitive
-   * substrings against the normalised subtopic name.
-   */
-  deletedSubtopicKeywords: [
+/** F1 Maths OUT item (exact `SYLLABUS_OUT.maths[].item`) -> subtopic-label fragments. */
+export const MATHS_OUT_SUBTOPIC_FRAGMENTS: Readonly<Record<string, readonly string[]>> = {
+  "Euclid's division lemma / division algorithm (HCF by repeated division)": ["euclid", "division lemma"],
+  "Decimal expansions of rational numbers (terminating / non-terminating repeating; 2^m5^n denominator test)": [
+    "decimal expansion",
+    "decimal representation",
+    "terminating decimal",
+  ],
+  "Zero–coefficient relationship for CUBIC polynomials (α+β+γ, αβ+βγ+γα, αβγ)": ["cubic"],
+  "Division algorithm for polynomials (long division, finding remaining zeros by division)": ["division algorithm"],
+  "Cross-multiplication method": ["cross multiplication"],
+  "Equations reducible to a pair of linear equations (1/x, 1/y substitution etc.)": [
+    "reducible to a pair",
+    "reducible to pair",
+    "reducible to linear",
+  ],
+  "Solving by completing the square (as a method)": ["completing the square"],
+  "Finding complex/non-real roots": ["complex root", "non real root", "imaginary root"],
+  "Area of a triangle from coordinates (and collinearity via zero area)": ["area of triangle", "area of a triangle"],
+  "Section formula — external division": ["external division", "divides externally"],
+  "Ratio of areas of similar triangles (area theorem) and problems using it": [
+    "area ratio",
+    "areas of similar",
+    "ratio of areas of similar",
+    "area theorem",
+  ],
+  "Pythagoras theorem and its converse (as Triangles content / proofs)": ["pythagoras"],
+  "PROOFS of the converse of BPT, AAA, SSS, SAS criteria": [
+    "proof of converse",
+    "proof of the converse",
+    "proof of aaa",
+    "proof of sss",
+    "proof of sas",
+  ],
+  "Constructions (division of a line segment, tangents to a circle, similar triangles) — the entire Constructions chapter": [
     "constructions",
     "division of a line segment",
     "construction of tangents",
-    "frustum",
+    "construction of similar",
+  ],
+  "Trigonometric ratios of complementary angles (sin(90°−A) = cos A etc.) as a topic": ["complementary angle"],
+  "Frustum of a cone": ["frustum"],
+  "Conversion of one solid into another (melting/recasting) as a topic": [
+    "conversion of solid",
+    "conversion of one solid",
+    "melting",
+    "recast",
+  ],
+  "Graphical representation of cumulative frequency (ogive; median from ogive)": [
     "ogive",
     "graph ogive",
+    "cumulative frequency graph",
+    "cumulative frequency curve",
+  ],
+};
+
+export const MATHS_DELETED_CHAPTERS_2026_27 = {
+  effectiveFromYear: 2026,
+
+  /** Full Maths chapters removed entirely — F1 has none for 2026-27. */
+  deletedTopics: SYLLABUS_OUT.maths
+    .filter((row) => row.item.startsWith("WHOLE CHAPTER: "))
+    .map((row) => row.key) as string[],
+
+  /**
+   * Subtopic-label fragments for every F1 Maths OUT row, in F1 order (deduped).
+   * Matched as case-insensitive substrings against the normalised subtopic name.
+   */
+  deletedSubtopicKeywords: [
+    ...new Set(SYLLABUS_OUT.maths.flatMap((row) => MATHS_OUT_SUBTOPIC_FRAGMENTS[row.item] ?? [])),
   ] as string[],
 } as const;
 
@@ -785,9 +841,13 @@ export function isMathsDeletedForYear(
 //   • Ch 8 Reproductive Health subtopics — reproduction chapter including
 //     contraception, family planning, STIs, safe sex are back in scope.
 //
-// Formative only (NOT assessed in year-end exam):
-//   • Electric Motor / Electromagnetic Induction / Electric Generator
-//     (Note for Teachers — Science_SecP1_2026-27.pdf)
+// Formative only (NOT assessed in the year-end board exam) — READ from
+// `FORMATIVE_ONLY_TOPICS` in src/config/syllabus2026-27.ts (the one reference):
+//   Periodic Classification (p4, p6), Evolution (p5), Electric Motor /
+//   Electromagnetic Induction / Electric Generator (p6). `isScienceDeletedFor2026_27`
+//   excludes every one of them (SYLLABUS-FIX-CODE F6) — until F6 the list below was
+//   defined and never read, so the nine "Electric Motor & Electromagnetic Induction"
+//   archetypes still scored as live predictions.
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCIENCE_DELETED_CHAPTERS_2026_27 = {
   effectiveFromYear: 2026,
@@ -825,11 +885,7 @@ export const SCIENCE_DELETED_CHAPTERS_2026_27 = {
    * board examination. Predictions / weightings must NOT surface these even
    * though they remain in the curriculum.
    */
-  formativeOnlyTopics: [
-    "Electric Motor",
-    "Electromagnetic Induction",
-    "Electric Generator",
-  ] as const,
+  formativeOnlyTopics: FORMATIVE_ONLY_TOPICS.map((t) => t.name),
 } as const;
 
 function normStr(raw: string): string {
@@ -847,6 +903,8 @@ function normStr(raw: string): string {
  *  2. Partial-chapter deletions (Evolution, Sources of Energy): match the
  *     subtopic name against deleted keyword fragments so that sibling subtopics
  *     (Mendel's experiments, food chains, etc.) are NOT excluded.
+ *  3. Formative-only topics, read from F1 (Motor / EMI / Generator, Evolution,
+ *     Periodic Classification).
  */
 export function isScienceDeletedFor2026_27(topic: string, subtopic?: string): boolean {
   const normTopic = normStr(topic);
@@ -864,6 +922,15 @@ export function isScienceDeletedFor2026_27(topic: string, subtopic?: string): bo
       const normKW = normStr(kw);
       if (normSub.includes(normKW)) return true;
     }
+  }
+
+  // 3. Formative-only topics (F1 FORMATIVE_ONLY_TOPICS) — taught, never in the
+  //    board exam. A whole formative chapter matches on the topic name; a formative
+  //    section matches on the subtopic label.
+  for (const name of SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics) {
+    const normName = normStr(name);
+    if (normTopic === normName) return true;
+    if (normSub && normSub.includes(normName)) return true;
   }
 
   return false;

@@ -22,8 +22,10 @@ import {
   isMathsDeletedFor2026_27,
   isMathsDeletedForYear,
   MATHS_DELETED_CHAPTERS_2026_27,
+  MATHS_OUT_SUBTOPIC_FRAGMENTS,
   SCIENCE_DELETED_CHAPTERS_2026_27,
 } from "../../lazytopper/src/prediction/cbseHistoricalArchetypes.js";
+import { SYLLABUS_OUT } from "../../lazytopper/src/config/syllabus2026-27.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // isScienceDeletedFor2026_27
@@ -109,12 +111,38 @@ describe("isMathsDeletedFor2026_27 — current 2026-27 state (subtopic-level del
     );
   });
 
-  test("6 Maths subtopic keywords are deleted for 2026-27 (Constructions, Frustum, Ogive)", () => {
-    assert.equal(
-      MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.length,
-      6,
-      "deletedSubtopicKeywords array should contain 6 entries: constructions, division of a line segment, construction of tangents, frustum, ogive, graph ogive"
-    );
+  // SYLLABUS-FIX-CODE F6: the Maths keywords are now the label fragments of EVERY F1 Maths
+  // OUT row (lazytopper/src/config/syllabus2026-27.ts SYLLABUS_OUT.maths) — 18 rows, one or
+  // more fragments each — not the 6 hand-picked keywords this pinned before.
+  test("every F1 Maths OUT row contributes fragments; the pre-F6 six are still present", () => {
+    assert.equal(SYLLABUS_OUT.maths.length, 18, "F1 lists 18 Maths OUT rows");
+    for (const row of SYLLABUS_OUT.maths) {
+      const frags = MATHS_OUT_SUBTOPIC_FRAGMENTS[row.item] ?? [];
+      assert.ok(frags.length > 0, `no fragment for F1 OUT row: ${row.item}`);
+      for (const f of frags) {
+        assert.ok(MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.includes(f), `fragment not wired: ${f}`);
+      }
+    }
+    for (const kw of ["constructions", "division of a line segment", "construction of tangents", "frustum", "ogive", "graph ogive"]) {
+      assert.ok(MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.includes(kw), `pre-F6 keyword dropped: ${kw}`);
+    }
+    assert.equal(MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.length, 43);
+  });
+
+  test("the real Maths OUT items are excluded (area theorem, the theorem of the right triangle, coordinate area, melting/recasting)", () => {
+    assert.equal(isMathsDeletedFor2026_27("Triangles", "Area Ratio in Similar Triangles"), true);
+    assert.equal(isMathsDeletedFor2026_27("Triangles", "Pythagoras/Converse"), true);
+    assert.equal(isMathsDeletedFor2026_27("Coordinate Geometry", "Area of Triangle"), true);
+    assert.equal(isMathsDeletedFor2026_27("Surface Areas and Volumes", "Melting and Recasting"), true);
+    assert.equal(isMathsDeletedFor2026_27("Trigonometry", "Complementary Angles"), true);
+    assert.equal(isMathsDeletedFor2026_27("Real Numbers", "Euclid's Division Lemma"), true);
+  });
+
+  test("IN look-alikes are NOT excluded (converse of BPT used, reducible-to-quadratic word problems, Pythagorean identities)", () => {
+    assert.equal(isMathsDeletedFor2026_27("Triangles", "Converse of BPT"), false);
+    assert.equal(isMathsDeletedFor2026_27("Quadratic Equations", "Word Problems Reducible to Quadratics"), false);
+    assert.equal(isMathsDeletedFor2026_27("Trigonometry", "Pythagorean identities"), false);
+    assert.equal(isMathsDeletedFor2026_27("Surface Areas and Volumes", "Combination of Solids"), false);
   });
 
   test("returns false for any Maths topic name alone when no full-chapter deletions are configured", () => {

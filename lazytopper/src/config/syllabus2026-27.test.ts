@@ -132,6 +132,17 @@ describe("owner rulings (2026-10-05) are encoded", () => {
     expect(SYLLABUS_OUT.science.some((r) => /P = P1 \+ P2|lenses in contact/i.test(r.item))).toBe(false);
   });
 
+  it("owner ruling 2026-10-06: atmospheric refraction IN; colour of the Sun at sunrise/sunset stays OUT", () => {
+    const eye = chapter("science", "human-eye-and-colourful-world");
+    const ar = eye.in.find((i) => /^Atmospheric refraction/.test(i.item));
+    expect(ar?.ruling).toMatch(/Owner ruling 2026-10-06/);
+    expect(eye.ambiguous.some((a) => /atmospheric refraction/i.test(a.item))).toBe(false);
+    expect(eye.resolved.some((r) => /atmospheric refraction/i.test(r.item) && /2026-10-06/.test(r.ruling))).toBe(true);
+    expect(SYLLABUS_AMBIGUOUS.science.some((r) => /atmospheric refraction/i.test(r.item))).toBe(false);
+    expect(SYLLABUS_OUT.science.some((r) => /^Colour of the Sun at sunrise and sunset/.test(r.item))).toBe(true);
+    expect(SYLLABUS_OUT.science.some((r) => /atmospheric refraction/i.test(r.item))).toBe(false);
+  });
+
   it("ruling 4: heredity IN (board chapter), evolution formative-only", () => {
     expect(isBoardChapterKey("heredity")).toBe(true);
     expect(heredity.status).toBe("BOARD");

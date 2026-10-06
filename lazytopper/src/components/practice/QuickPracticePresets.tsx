@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { DifficultyChoice } from "./practiceQuestionBuilder";
+import { PAPER_DESIGN } from "../../config/syllabus2026-27";
 
 /** The committed-filter bundle a preset applies. Every field is a real PracticeControls
  *  value. `committedDifficulty` is intentionally "all" on every preset: the coarse
@@ -52,23 +53,41 @@ export interface QpPresetConfig {
 }
 
 /**
+ * Owner ruling 5 (2026-10-05): a paper-share claim must cite the 2026-27 curriculum PDF's
+ * own typology, or be removed. The numbers are READ from the one reference
+ * (src/config/syllabus2026-27.ts PAPER_DESIGN) — Maths Standard p8 (applying +
+ * analysing/evaluating/creating), Science p9 (application + formulate/analyse/evaluate/
+ * create) — never a hand-typed "half the paper".
+ */
+const COMPETENCY_CBSE_LINE = (() => {
+  const m = PAPER_DESIGN.maths.standard041;
+  const s = PAPER_DESIGN.science;
+  const mathsPct = m.applying.pct + m.analysingEvaluatingCreating.pct;
+  const sciencePct = s.application + s.formulateAnalyzeEvaluateCreate;
+  return (
+    `CBSE's 2026-27 syllabus puts ${mathsPct}% of Maths marks (p${m.page}) and ` +
+    `${sciencePct}% of Science marks (p${s.page}) on applying and analysing.`
+  );
+})();
+
+/**
  * The four live presets + the gated 5th. Each `filters` bundle maps to REAL
  * PracticeControls.tsx value strings (verified vs its option arrays + compat matrices):
  *
- *  · Quick drill — marks "1" (Section A, the 20% objective/MCQ+AR tier). style "all":
+ *  · Quick drill — marks "1" (Section A, the objective MCQ+AR one-markers). style "all":
  *    there is no "MCQ"/"objective" STYLE value, and the 1-mark bucket IS the objective
  *    tier (STYLE_COMPAT["1"] = {all, ar}). difficulty "all" == Easy-Medium here, because
  *    DIFF_COMPAT_BY_MARKS["1"] = {Easy, Medium} (a 1-mark set has no Hard to admit).
  *  · Board mix (default) — marks "all" triggers PracticePage's board blueprint fan-out
- *    (A30/B20/C20/D20/E10 — the ~50/20/30 competency-inclusive shape). engine "All"
+ *    (A30/B20/C20/D20/E10 — LazyTopper's section mix; it makes NO paper-share claim). engine "All"
  *    keeps the real paper's difficulty spread; a Medium-exact filter would GUT the
  *    blueprint by dropping the Easy Section-A and Hard Section-D items.
  *  · Competency — marks "4" (Section E case-based, the largest CBQ chunk) + style "case".
  *    The single-select cannot express "case + assertion-reason" (AR is a 1-mark Section-A
  *    format, a different bucket); case-based is the closest single value the engine
  *    supports (the documented limitation). Gated per topic against the live bank.
- *  · High-marks — marks "23,5" (the comma SET: 2-3-mark short + 5-mark long = the ~30%
- *    descriptive tier). style "all": there is no "long-answer" STYLE value; the 5+23
+ *  · High-marks — marks "23,5" (the comma SET: 2-3-mark short + 5-mark long — the
+ *    descriptive questions). style "all": there is no "long-answer" STYLE value; the 5+23
  *    buckets carry the descriptive character (STYLE_COMPAT of both admits {all,proof,hots}).
  */
 export const QP_PRESETS: QpPresetConfig[] = [
@@ -79,7 +98,7 @@ export const QP_PRESETS: QpPresetConfig[] = [
     accentClass: "qp-quick",
     desc: "Five fast one-markers to warm up and build momentum.",
     chips: [{ text: "5 questions", accent: true }, { text: "1 mark" }, { text: "Objective" }],
-    cbse: "The 20% objective tier — the easiest marks to secure.",
+    cbse: "Section A one-markers — the easiest marks to secure.",
     startNote: "Quick drill · 5 one-mark questions",
     filters: { marks: "1", style: "all", source: "all", committedDifficulty: "all", engineDifficulty: "All", count: 5 },
   },
@@ -101,7 +120,7 @@ export const QP_PRESETS: QpPresetConfig[] = [
     accentClass: "qp-comp",
     desc: "Case-based application questions — the competency tier where the most marks are won and lost.",
     chips: [{ text: "Case-based", accent: true }, { text: "4 marks" }, { text: "5 questions" }],
-    cbse: "Half the CBSE paper (40/80 marks) is competency-based — the tier students lose the most on.",
+    cbse: COMPETENCY_CBSE_LINE,
     startNote: "Competency · 5 case-based questions",
     filters: { marks: "4", style: "case", source: "all", committedDifficulty: "all", engineDifficulty: "All", count: 5 },
   },
@@ -112,7 +131,7 @@ export const QP_PRESETS: QpPresetConfig[] = [
     accentClass: "qp-high",
     desc: "Heavier short- and long-answer questions — where method and presentation marks are won or lost.",
     chips: [{ text: "4 questions", accent: true }, { text: "2-3 & 5 marks" }, { text: "Descriptive" }],
-    cbse: "The ~30% descriptive tier — step-wise marking rewards clear method.",
+    cbse: "Short and long answers — step-wise marking rewards clear method.",
     startNote: "High-marks · 4 descriptive questions",
     filters: { marks: "23,5", style: "all", source: "all", committedDifficulty: "all", engineDifficulty: "All", count: 4 },
   },

@@ -18,13 +18,16 @@ export interface RotationSignal {
 
 const MATHS_ROTATION_PAIRS: RotationPair[] = [
   { subtopicA: "Distance Formula", subtopicB: "Section Formula", topic: "Coordinate Geometry", subject: "Maths" },
-  { subtopicA: "BPT (Basic Proportionality Theorem)", subtopicB: "Pythagoras/Converse", topic: "Triangles", subject: "Maths" },
   { subtopicA: "Tangent Properties", subtopicB: "Tangent Theorems & Proofs", topic: "Circles", subject: "Maths" },
   { subtopicA: "Mean (Step Deviation)", subtopicB: "Median of Grouped Data", topic: "Statistics", subject: "Maths" },
   { subtopicA: "Algebraic Solution", subtopicB: "Word/Application Problems", topic: "Quadratic Equations", subject: "Maths" },
   { subtopicA: "Trig Identities/Proofs", subtopicB: "Application/Heights & Distances", topic: "Trigonometry", subject: "Maths" },
-  { subtopicA: "Cylinder/Cone/Sphere", subtopicB: "Combination/Transformation", topic: "Surface Areas and Volumes", subject: "Maths" },
 ];
+// SYLLABUS-FIX-CODE F6 removed two Maths pairs whose partner is OUT of CBSE's 2026-27
+// syllabus (F1 SYLLABUS_OUT.maths): BPT <-> "Pythagoras/Converse" (the theorem and its
+// converse, p5; owner ruling 1 keeps only its use as a numeric tool) and
+// Cylinder/Cone/Sphere <-> "Combination/Transformation" (the historical label fuses
+// combinations of solids with melting/recasting, which is OUT, p7; owner ruling 2).
 
 const SCIENCE_ROTATION_PAIRS: RotationPair[] = [
   { subtopicA: "Balancing Equations & Types of Reactions", subtopicB: "Applications & Daily-life Context", topic: "Chemical Reactions & Equations", subject: "Science" },
