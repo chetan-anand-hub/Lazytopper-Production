@@ -100,10 +100,10 @@ const MEDIUM_COMMENT = 'Write in English (or Hindi in Devanagari): board examine
 
 /** Ruling (5) and A17 ruling 1 (units) plus the CBSE format marks the golden set shows are never deducted today. */
 const PRESENTATION_PROMPT =
-  'PRESENTATION — DEDUCT ONLY WHERE THE CBSE SCHEME AWARDS THAT MARK (a missing unit: ALWAYS — see UNITS), and then DO deduct it:\n' +
+  'PRESENTATION — DEDUCT ONLY WHERE THE CBSE SCHEME AWARDS THAT MARK (a missing unit: ALWAYS — see UNITS), and then DO deduct it. ALL exam-technique ("presentation") deductions of ONE answer together cost AT MOST 1 mark (½ on a 1-mark answer), and an answer never goes below 0:\n' +
   '   - a required conclusion / "hence proved" / "verified" line absent; a required labelled figure absent (that loses the figure mark); arrows missing on a ray diagram; a required formula statement absent; the contextual rejection of a root missing in a word problem (½).\n' +
   '   - UNITS. A CORRECT answer written WITHOUT ITS UNIT — "r = 7" where the answer is 7 cm — or with a WRONG unit is "presentation", in MATHS AND IN SCIENCE ALIKE, whether or not the question or its scheme mentions the unit: the FINAL answer of a QUANTITY-VALUED answer (a length, area, volume, mass, time, speed, money, current, resistance, power, energy …) loses EXACTLY ½ — ONCE per question, however many answers in it lack the unit. Write that step\'s "teacherAnnotation" EXACTLY as: ' + UNIT_COMMENT_EXAMPLE + ' (with the unit the answer needs in the brackets). Only the FINAL answer is checked, never an intermediate line. ⚠ NEVER for a PURE NUMBER — a probability, a ratio, a count, a trigonometric ratio, a root or zero of a polynomial, or any answer that has no unit: no deduction and no comment about units. ⚠⚠ IT IS NEVER "conceptual" AND NEVER "calculation": THE STUDENT DID THE MATHEMATICS. A missing unit does not change whether the mathematics is right; deduct ½ and no more.\n' +
-  '   - MEDIUM OF THE ANSWER. CBSE answers are written in ENGLISH, or in HINDI IN DEVANAGARI script. An answer written in HINGLISH — Hindi words in Roman script mixed with English ("Carbon ke paas 4 valence electrons hain, isliye ...") — is marked on its content exactly as if it were in English, and then loses EXACTLY ½ ONCE for the medium, typed "presentation", with that step\'s "teacherAnnotation" EXACTLY: ' + MEDIUM_COMMENT + ' ⚠ English that uses technical terms is NOT Hinglish, and Hindi written in Devanagari is NEVER penalised. NEVER deduct for grammar, spelling, informal English or style. ⚠ TERMINOLOGY STILL COUNTS: where the CBSE scheme pays the EXACT technical term ("oesophagus", not "food pipe"), that ½ is lost as before ("presentation"), whatever medium surrounds it.\n' +
+  '   - MEDIUM OF THE ANSWER. CBSE answers are written in ENGLISH, or in HINDI IN DEVANAGARI script. An answer written in HINGLISH — Hindi words in Roman script mixed with English ("Carbon ke paas 4 valence electrons hain, isliye ...") — is marked on its content exactly as if it were in English, and then loses EXACTLY ½ ONCE for the medium, typed "presentation", with that step\'s "teacherAnnotation" EXACTLY: ' + MEDIUM_COMMENT + ' ⚠ English that uses technical terms is NOT Hinglish, ONE stray Roman-script Hindi word in an English answer is NOT Hinglish (only a clause or more in Roman-script Hindi is), and Hindi written in Devanagari is NEVER penalised. NEVER deduct for grammar, spelling, informal English or style. ⚠ TERMINOLOGY STILL COUNTS: where the CBSE scheme pays the EXACT technical term ("oesophagus", not "food pipe"), that ½ is lost as before ("presentation"), whatever medium surrounds it.\n' +
   '   - STATE SYMBOLS (s/l/g/aq): NEVER deduct for their absence and never mention it as a fault.\n' +
   '   - PRESENTATION vs MISSING: fold a short format element INTO the attempted step it belongs to (status "partial", mistakeType "presentation"); do not split it off as a separate "missing" step. Right answer with weak or no justification → presentation, not conceptual.';
 
@@ -282,6 +282,8 @@ const UNIT_NOT_OWED_ANNOTATION = 'No mark is lost for a unit here: this answer i
 const UNIT_ALREADY_CHARGED_ANNOTATION = 'The unit was already charged once in this question, so no further mark is lost here.';
 // Owner rule (never deduct for the language of an answer — Hinglish or Hindi is fine), applied after the model.
 // A17 ruling 3: an answer in English or Devanagari Hindi loses nothing for its language (grammar, spelling, style).
+// A17 owner ruling B (2026-10-06, later): all exam-technique deductions of one answer are capped.
+const EXAM_TECHNIQUE_CAP_ANNOTATION = 'Exam-technique deductions in one answer are capped at 1 mark (½ on a 1-mark answer), so no further mark is lost here.';
 const LANGUAGE_NOT_MARKED_ANNOTATION = 'No mark is lost for the language this is written in — the science in it is what is marked.';
 const NOT_GRADED_TIMEOUT_NOTE = "We couldn't finish marking this question in time, so it has not been marked — please check it again.";
 const NOT_GRADED_ERROR_NOTE = "We couldn't mark this question this time, so it has not been marked — please check it again.";
@@ -340,6 +342,7 @@ module.exports = {
   NOT_FOUND_ON_PAGE_NOTE,
   UNIT_NOT_OWED_ANNOTATION,
   MEDIUM_COMMENT,
+  EXAM_TECHNIQUE_CAP_ANNOTATION,
   UNIT_ALREADY_CHARGED_ANNOTATION,
   unitComment,
   LANGUAGE_NOT_MARKED_ANNOTATION,

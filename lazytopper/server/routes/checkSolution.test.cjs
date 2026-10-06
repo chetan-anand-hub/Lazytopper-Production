@@ -910,7 +910,11 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // with one fixed comment; English and Devanagari Hindi never) replaces "language is never marked", and
 // both subject checklists name the medium.
 //   PREVIOUS 5cab8ba315d6a589e3293d24a59810dff70b7562cfd9b2247420f265b9abe862, then b8a62dc00c0d82763cb556688281520a76fe4f1a98961beab3d011a8ad73847b
-const NO_UPLOADS_CONTENTS_SHA256 = 'bba8045764c14b359a0d4186578a1e826bd6b910ba2c965f8bbb620b1cea447c';
+// FIXUP-2 (owner rulings later 2026-10-06; bba80457… → below): one stray Roman-script Hindi word is not
+// Hinglish (a clause or more is), and all exam-technique deductions of an answer are capped at 1 (½ on a
+// 1-mark answer). Rule TEXT only.
+//   PREVIOUS bba8045764c14b359a0d4186578a1e826bd6b910ba2c965f8bbb620b1cea447c
+const NO_UPLOADS_CONTENTS_SHA256 = '72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

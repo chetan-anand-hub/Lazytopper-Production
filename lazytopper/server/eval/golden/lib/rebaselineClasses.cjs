@@ -21,15 +21,18 @@
 //                         "no mark is lost for the language" line change; at most ONE medium-comment
 //                         step per question, which moves by ½ at most; the mark moves by exactly what
 //                         those steps moved.
+//   a17-rb-cap            (FIXUP-2, owner ruling B) only exam-technique steps that end carrying the cap
+//                         line give marks back; the mark moves by exactly what those steps moved.
 //   Paper totals (gradedMarksAwarded) move by exactly the sum of the question marks that moved.
 
 const R = require('../../../grading/rules.cjs');
 
 const UNIT_TEXT = /write the unit \(|The unit was already charged once|No mark is lost for a unit here/;
 const MEDIUM_TEXT = /Write in English \(or Hindi in Devanagari\)|No mark is lost for the language this is written in/;
+const CAP_TEXT = /Exam-technique deductions in one answer are capped/; // FIXUP-2 ruling B
 const STEP_FIELDS = new Set(['teacherAnnotation', 'correctedWorking', 'marksAwarded', 'marksDeducted', 'mistakeType', 'status']);
 const RESULT_TOTALS = new Set(['marksAwarded', 'percentage', 'mistakeSummary', 'marksLostByType', 'teacherNote']);
-const A17_CLASSES = ['a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium'];
+const A17_CLASSES = ['a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap'];
 
 const isObj = (v) => v !== null && typeof v === 'object';
 /** Every node that differs between a and b: [path, aValue, bValue] at the FIRST differing node. */
@@ -74,12 +77,12 @@ function classViolations(classes, delta, toBody) {
     if (rest[0] === 'annotatedSteps' && Number.isInteger(rest[1]) && (rest.length === 2 || STEP_FIELDS.has(rest[2]))) {
       const step = (result.annotatedSteps || [])[rest[1]] || {};
       const ann = String(step.teacherAnnotation || '');
-      const ok = (cls.has('a17-r1-units') && UNIT_TEXT.test(ann)) || (cls.has('a17-r3-medium') && MEDIUM_TEXT.test(ann));
+      const ok = (cls.has('a17-r1-units') && UNIT_TEXT.test(ann)) || (cls.has('a17-r3-medium') && MEDIUM_TEXT.test(ann)) || (cls.has('a17-rb-cap') && CAP_TEXT.test(ann));
       if (!ok) { out.push(p.join('.') + ': a step that ends with no ' + [...cls].join('/') + ' text changed'); continue; }
       if (rest[2] === 'marksAwarded') pr.steps.set(rest[1], (pr.steps.get(rest[1]) || 0) + (Number(to) - Number(from)));
       continue;
     }
-    if (RESULT_TOTALS.has(rest[0]) && (cls.has('a17-r1-units') || cls.has('a17-r3-medium'))) {
+    if (RESULT_TOTALS.has(rest[0]) && (cls.has('a17-r1-units') || cls.has('a17-r3-medium') || cls.has('a17-rb-cap'))) {
       if (rest[0] === 'marksAwarded' && rest.length === 1) pr.marks = Number(to) - Number(from);
       continue;
     }
@@ -106,7 +109,11 @@ function classViolations(classes, delta, toBody) {
 
 /** The smallest set of A17 classes that accepts a delta, or null. */
 function classesFor(delta, toBody) {
-  const sets = [[0], [1], [2], [0, 1], [0, 2], [1, 2], [0, 1, 2]].map((ix) => ix.map((i) => A17_CLASSES[i]));
+  // every non-empty subset, smallest first
+  const n = A17_CLASSES.length;
+  const sets = [];
+  for (let m = 1; m < (1 << n); m += 1) sets.push(A17_CLASSES.filter((_, i) => m & (1 << i)));
+  sets.sort((x, y) => x.length - y.length);
   for (const s of sets) {
     if (classViolations(s, delta, toBody).length) continue;
     // each class in the set must be NEEDED (a superfluous label is a false label)

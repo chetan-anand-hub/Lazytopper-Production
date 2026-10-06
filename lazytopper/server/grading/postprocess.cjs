@@ -237,12 +237,31 @@ function isMarkerWord(t, w, at) {
   if (NOTATION_OPERATOR.test(prev) || NOTATION_OPERATOR.test(next)) return false; // ka = 5, x + ke
   return true;
 }
+// A17 owner ruling (2026-10-06, later): ONE stray Roman-script Hindi word in an English answer is NOT
+// Hinglish. Only an answer with at least one CLAUSE in Roman-script Hindi counts. A clause is a stretch
+// between punctuation (. , ; : ! ? — – and line breaks); it is Roman-script Hindi when it holds at least
+// TWO DIFFERENT marker words that make up at least a third of its words. So a stray "sahi", one word in
+// each of several sentences, or one word repeated ("yaar … yaar … yaar") never counts.
+const CLAUSE_BREAK = /[.,;:!?\n\u2014\u2013]+/;
+function hindiClause(t, from, clause) {
+  const words = [];
+  const markers = new Set();
+  for (const m of clause.matchAll(/[A-Za-z]+/g)) {
+    words.push(m[0]);
+    if (isMarkerWord(t, m[0], from + m.index)) markers.add(m[0].toLowerCase());
+  }
+  return markers.size >= 2 && markers.size * 3 >= words.length;
+}
 function mediumOf(text) {
   const t = String(text || '');
   if ((t.match(DEVANAGARI) || []).length >= 10) return 'devanagari';
-  const hits = [];
-  for (const m of t.matchAll(/[A-Za-z]+/g)) if (isMarkerWord(t, m[0], m.index)) hits.push(m[0].toLowerCase());
-  return hits.length >= 3 && new Set(hits).size >= 2 ? 'hinglish' : 'english';
+  let at = 0;
+  for (const clause of t.split(CLAUSE_BREAK)) {
+    const from = t.indexOf(clause, at);
+    if (clause && hindiClause(t, from, clause)) return 'hinglish';
+    at = from + clause.length;
+  }
+  return 'english';
 }
 const languageWhy = (s) => [s.teacherAnnotation, s.correctedWorking, s.description].join(' . ');
 const isLanguageLoss = (s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && (s.mistakeType === 'presentation' || s.mistakeType === null)
@@ -288,18 +307,59 @@ function applyMediumRuling(steps, q, raw) {
       if (s.status === 'withdrawn' || s.status === 'unattempted' || s.mistakeType || s._unitCharged || !(s.marksAwarded >= 0.5)) continue;
       if (!target || s.marksAwarded >= target.marksAwarded) target = s;
     }
+    // FIXUP-2 (owner ruling B): with no untyped credited step left, the ½ comes from the unit step if
+    // it still holds marks (the two exam-technique deductions stack; the cap below then applies).
+    if (!target) target = steps.find((s) => s._unitCharged && s.marksAwarded >= 0.5) || null;
     if (target) {
+      const stacked = Boolean(target._unitCharged);
       target.marksAwarded = half(target.marksAwarded - 0.5);
       target.marksDeducted = half(target.marksDeducted + 0.5);
       target.mistakeType = 'presentation';
       target.status = 'partial';
       target.correctedWorking = null;
-      target.teacherAnnotation = R.MEDIUM_COMMENT;
+      target.teacherAnnotation = stacked ? target.teacherAnnotation + ' ' + R.MEDIUM_COMMENT : R.MEDIUM_COMMENT;
       target._mediumCharged = true;
       charged += 1;
     }
   }
   return { medium, charged, restored };
+}
+
+/* ── A17 owner ruling B (2026-10-06, later) · THE EXAM-TECHNIQUE CAP ───────────────────
+   The units ½ and the medium ½ may both apply, but ALL exam-technique deductions of one answer
+   together cost at most 1 mark — ½ on a 1-mark answer — and the answer never goes below 0. "Exam
+   technique" is the taxonomy's `presentation` type (src/lib/mistakeDisplay.ts: exam technique =
+   presentation), so EVERY presentation deduction counts toward the cap: a unit, the medium, a missing
+   conclusion, a missing figure, the exact term. Over the cap, the excess is given back — the medium
+   first, then other presentation steps from the last, the unit last — and that step says so. */
+// NOT counted toward the cap: a REQUIRED FIGURE that is absent or not marked on — under DIAGRAMS D2 the
+// figure is its own CBSE value point ("the figure mark is LOST"), not a format nicety (verified key
+// GS-S05-b: "draw the ray diagram" answered in words = 0). Arrows/labels on a drawn figure still count.
+const FIGURE_VALUE_POINT = /\b(?:diagram|figure|graph)\b[^.;]*\b(?:not drawn|absent|missing|not shown|not marked)\b|\b(?:not drawn|no|without|missing)\s+(?:a\s+|the\s+|any\s+)?(?:labelled\s+)?(?:ray\s+)?(?:diagram|figure|graph)\b|\b(?:marked|drawn|shown)\s+(?:on|in)\s+(?:a|the)\s+(?:ray\s+)?(?:diagram|figure)\b/i;
+const countsTowardCap = (s) => !(FIGURE_VALUE_POINT.test([s.teacherAnnotation, s.description].join(' . ')) && !/\barrow/i.test(String(s.teacherAnnotation || '')));
+function examTechniqueCap(totalMarks) { return Number(totalMarks) <= 1 ? 0.5 : 1; }
+function capExamTechnique(steps, totalMarks) {
+  const cap = examTechniqueCap(totalMarks);
+  const et = (s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s);
+  const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded));
+  let excess = half(steps.filter(et).reduce((a, s) => a + lostOf(s), 0) - cap);
+  if (!(excess > 0)) return 0;
+  const order = [...steps.filter((s) => et(s) && s._mediumCharged),
+    ...steps.filter((s) => et(s) && !s._mediumCharged && !s._unitCharged).reverse(),
+    ...steps.filter((s) => et(s) && s._unitCharged && !s._mediumCharged)];
+  let n = 0;
+  for (const s of order) {
+    if (!(excess > 0)) break;
+    const back = giveBack(s, Math.min(excess, lostOf(s)));
+    if (!(back > 0)) continue;
+    excess = half(excess - back);
+    n += 1;
+    let ann = String(s.teacherAnnotation || '');
+    if (s._mediumCharged) { ann = ann.replace(R.MEDIUM_COMMENT, '').trim(); s._mediumCharged = false; }
+    s.teacherAnnotation = ((s.status === 'correct' && !ann ? '✓ ' : '') + (ann ? ann + ' ' : '') + R.EXAM_TECHNIQUE_CAP_ANNOTATION).trim();
+    s._etCapped = true;
+  }
+  return n;
 }
 
 function scrubSentences(text, pattern) {
@@ -881,6 +941,8 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // A17 ruling 3 (owner change 2026-10-06): Hinglish loses exactly ½ once, typed presentation, with
   // one fixed comment; no other language deduction stands (applyMediumRuling).
   const mediumRuling = questionIsObjective ? { medium: null, charged: 0, restored: 0 } : applyMediumRuling(steps, q, raw);
+  // A17 owner ruling B: all exam-technique (presentation) deductions of one answer ≤ 1 (½ on a 1-mark answer).
+  if (!questionIsObjective) capExamTechnique(steps, totalMarks);
   const languageRestored = mediumRuling.restored;
 
   // 6 · SUBJECTIVE marks
@@ -1323,5 +1385,7 @@ module.exports = {
   unitNamed,
   applyMediumRuling,
   mediumOf,
+  capExamTechnique,
+  examTechniqueCap,
   UNIT_LOSS,
 };

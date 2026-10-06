@@ -6,7 +6,9 @@
     "2": "'Don't know' / blank on ANY question = not attempted: 0 marks, never charged, never a mistake.",
     "3": "MEDIUM (owner change 2026-10-06, supersedes \"Hinglish never deducted\"): answers are in English or in Hindi in Devanagari. A Hinglish answer (Roman-script Hindi mixed with English) keeps its content marks and loses exactly 1/2 once, typed presentation, comment: Write in English (or Hindi in Devanagari): board examiners expect one medium. English with technical terms and Devanagari Hindi are never penalised; no other language deduction.",
     "4": "An immaterial miscopy (it changes no value used in the working) is not penalised.",
-    "5": "The premium usage meter counts only graded questions."
+    "5": "The premium usage meter counts only graded questions.",
+    "A": "FIXUP-2 (owner, 2026-10-06 later): a single stray Roman-script Hindi word in an English answer is NOT Hinglish - no deduction; only an answer with a clause or more in Roman-script Hindi counts.",
+    "B": "FIXUP-2 (owner, 2026-10-06 later): the units 1/2 and the medium 1/2 may both apply, but all exam-technique (presentation) deductions of one answer together cost at most 1 mark (1/2 on a 1-mark answer), and the answer never goes below 0."
   },
   "cases": [
     {
@@ -204,6 +206,51 @@
         "meteredShare": 1
       },
       "why": "The question's p(x) copied as p(y) on the first line — IMMATERIAL: no value used in the working changes and every step is right. Not silly, no deduction."
+    },
+    {
+      "caseId": "A17-RA-STRAY",
+      "ruling": "A",
+      "question": {
+        "fromItem": "GS-S19"
+      },
+      "answer": {
+        "text": "A. Snell's law: for light of a given colour and a given pair of media, the ratio of the sine of the angle of incidence to the sine of the angle of refraction is constant: sin i / sin r = constant. Sahi.\nB. The refractive index of medium 2 with respect to medium 1 is the ratio of the speed of light in medium 1 to the speed of light in medium 2: n₂₁ = v₁/v₂."
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 2,
+        "mistakeType": null,
+        "medium": false,
+        "charged": true,
+        "meteredShare": 1
+      },
+      "why": "The verified English answer with ONE stray Roman-script Hindi word (\"Sahi.\"): not Hinglish, no deduction (ruling A)."
+    },
+    {
+      "caseId": "A17-RB-STACK",
+      "ruling": "B",
+      "question": {
+        "fromItem": "GS-M07"
+      },
+      "answer": {
+        "text": "ΔABC ~ ΔPQR hai, isliye AB/PQ = BC/QR = AC/PR hota hai\n6/PQ = 4/QR = 8/6\nPQ = (6 × 6)/8 = 4.5 cm\nQR = (4 × 6)/8 = 3 cm\nPQ + QR = 4.5 + 3 = 7.5"
+      },
+      "entries": [
+        "single",
+        "set"
+      ],
+      "expected": {
+        "totalMarks": 1,
+        "mistakeType": "presentation",
+        "unit": "cm",
+        "medium": true,
+        "charged": true,
+        "meteredShare": 1
+      },
+      "why": "Correct content in Hinglish with the final answer 7.5 written without its unit: the units 1/2 and the medium 1/2 stack to -1 (within the cap of 1 on a 2-mark answer)."
     }
   ]
 }

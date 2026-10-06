@@ -62,7 +62,7 @@ function surfaceRequest(s, mutateTarget) {
   const target = single ? null : (req.questions || []).find(subjective);
   if (!single) assert.ok(target, s.id + ': no subjective question in the request');
   const view = single
-    ? { get marks() { return Number(req.marks) || 1; }, set questionText(t) { req.question = t; }, set textAnswer(t) { if ('textAnswer' in req) req.textAnswer = t; }, set finalAnswer(v) { if ('finalAnswer' in req) req.finalAnswer = v; }, qNumber: 1 }
+    ? { get marks() { return Number(req.marks) || 1; }, set marks(m) { req.marks = m; }, set questionText(t) { req.question = t; }, set textAnswer(t) { if ('textAnswer' in req) req.textAnswer = t; }, set finalAnswer(v) { if ('finalAnswer' in req) req.finalAnswer = v; }, qNumber: 1 }
     : target;
   if (mutateTarget) mutateTarget(view, req);
   return { req, single, targetQ: single ? 1 : target.qNumber, targetMarks: single ? Number(req.marks) || 1 : Number(target.marks) || 1, handler: job.handler };
@@ -165,6 +165,30 @@ const termSteps = (marks) => [
 const HINGLISH_VOL = 'V = (2/3)πr³ + (1/3)πr²h, isliye volume yeh hota hai aur answer ye hai';
 const hinglishUnitSteps = (marks) => { const st = unitSteps(marks); st[0] = { ...st[0], studentWork: HINGLISH_VOL }; return st; };
 
+// FIXUP-2 · owner ruling A: ONE stray Roman-script Hindi word is NOT Hinglish; a clause or more is.
+const STRAY = {
+  'Science, one stray word': 'Carbon has 4 valence electrons, so it shares electrons and forms covalent bonds. Sahi.',
+  'Maths, one stray word': 'x² − 2x − 8 = 0 factorises as (x − 4)(x + 2) = 0, matlab the roots are x = 4 and x = −2.',
+  'one word in several sentences': 'The answer is sahi. Ek more check: the working is bahut clear.',
+  'one word repeated': 'Yeh: the current is 2 A. Yeh: the resistance is 5 Ω. Yeh: the voltage is 10 V.',
+};
+const HINDI_CLAUSE = 'Ohm law ke hisaab se current resistance se inversely proportional hota hai, so I = V/R.';
+const strayCharged = (text) => workSteps(text, { status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct, but written in Hinglish.' });
+const strayUncharged = (text) => workSteps(text, { status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓ Correct.' });
+// FIXUP-2 · owner ruling B: all exam-technique (presentation) deductions of one answer ≤ 1 (½ on a 1-mark answer), never below 0.
+const oneMarkUnit = () => [{ description: 'Final answer', studentWork: HINGLISH_VOL + ' = 243.83', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation',
+  teacherAnnotation: '½ Correct value, but the unit cm³ is missing.', correctedWorking: '243.83 cm³' }];
+const floorSteps = (marks) => [
+  { description: 'Method', studentWork: HINGLISH_VOL, status: 'incorrect', marksAvailable: marks - 1, marksAwarded: 0, marksDeducted: marks - 1, mistakeType: 'conceptual', teacherAnnotation: '× Wrong formula for the cone.' },
+  { description: 'Final answer', studentWork: '= 243.83', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct value, but the unit cm³ is missing.', correctedWorking: '243.83 cm³' },
+];
+const threeEtSteps = (marks) => [
+  { description: 'Working', studentWork: HINGLISH_VOL, status: 'correct', marksAvailable: marks - 2, marksAwarded: marks - 2, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓ Correct.' },
+  { description: 'Conclusion', studentWork: 'isliye volume yeh hai', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ The concluding statement is missing.' },
+  { description: 'Final answer', studentWork: '= 243.83', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct value, but the unit cm³ is missing.', correctedWorking: '243.83 cm³' },
+];
+const etLost = (out) => out.annotatedSteps.filter((st) => st.mistakeType === 'presentation').reduce((a, st) => a + st.marksDeducted, 0);
+
 for (const s of SURFACES) {
   test('A17 ruling 1 (units) — ' + s.id + ': a missing unit on the final answer costs EXACTLY ½, typed presentation, with the one fixed comment', async () => {
     for (const acceptsV2 of [false, true]) {
@@ -251,6 +275,39 @@ for (const s of SURFACES) {
     assert.ok(r.result.annotatedSteps.some((st) => st.teacherAnnotation === R.unitComment('cm³')));
     const t = await drive(s, { targetSteps: termSteps });
     assert.equal(t.result.marksAwarded, t.targetMarks - 0.5, s.id + ': the exact CBSE term is still marked (CLAUDE.md §13)');
+  });
+
+  test('FIXUP-2 ruling A (medium) — ' + s.id + ': ONE stray Roman-script Hindi word is NOT Hinglish (Science, Maths, several sentences, repeated); a Roman-Hindi CLAUSE is', async () => {
+    for (const [label, text] of Object.entries(STRAY)) {
+      for (const steps of [strayCharged(text), strayUncharged(text)]) {
+        const r = await drive(s, { mutateTarget: setText(text), targetSteps: steps });
+        assert.equal(r.result.marksAwarded, r.targetMarks, s.id + ' ' + label + ': no ½');
+        assert.ok(!r.result.annotatedSteps.some((st) => st.teacherAnnotation === R.MEDIUM_COMMENT), s.id + ' ' + label);
+      }
+    }
+    const c = await drive(s, { mutateTarget: setText(HINDI_CLAUSE), targetSteps: strayUncharged(HINDI_CLAUSE) });
+    assert.equal(c.result.marksAwarded, c.targetMarks - 0.5, s.id + ': a Roman-Hindi clause costs ½');
+  });
+
+  test('FIXUP-2 ruling B (exam-technique cap) — ' + s.id + ': units ½ + medium ½ stack to −1; capped at ½ on a 1-mark answer; never below 0; every presentation deduction counts toward the cap', async () => {
+    const vol = (q) => { q.questionText = VOL_Q; noKey(q); q.textAnswer = HINGLISH_VOL + '\n= 243.83'; };
+    // multi-mark: both apply → −1 (the existing independence test, re-asserted against the cap)
+    const both = await drive(s, { mutateTarget: vol, targetSteps: hinglishUnitSteps });
+    assert.equal(both.result.marksAwarded, both.targetMarks - 1, s.id + ': −1');
+    assert.equal(etLost(both.result), 1);
+    // a 1-mark answer with both → −½ only
+    const one = await drive(s, { mutateTarget: (q) => { vol(q); q.marks = 1; }, targetSteps: oneMarkUnit });
+    assert.equal(one.targetMarks, 1);
+    assert.equal(one.result.marksAwarded, 0.5, s.id + ': ½ on a 1-mark answer');
+    assert.ok(one.result.annotatedSteps[0].teacherAnnotation.startsWith(R.unitComment('cm³')) && one.result.annotatedSteps[0].teacherAnnotation.includes(R.EXAM_TECHNIQUE_CAP_ANNOTATION), s.id + ': the unit comment stays; the cap is said');
+    // content 0.5 and both → floor 0, never below
+    const fl = await drive(s, { mutateTarget: (q) => { vol(q); q.marks = 3; }, targetSteps: floorSteps });
+    assert.equal(fl.result.marksAwarded, 0, s.id + ': floor 0');
+    assert.ok(fl.result.annotatedSteps.every((st) => st.marksAwarded >= 0));
+    // a missing conclusion + the unit + the medium = 1½ of exam technique → capped at 1
+    const three = await drive(s, { mutateTarget: (q) => { vol(q); q.marks = 4; }, targetSteps: threeEtSteps });
+    assert.equal(three.result.marksAwarded, 3, s.id + ': 4 − 1 (capped)');
+    assert.equal(etLost(three.result), 1);
   });
 
   test('A17 ruling 4 (immaterial miscopy) — ' + s.id + ': the "silly" definition itself carries the immaterial-miscopy exception in this surface\'s prompt', async () => {

@@ -304,7 +304,7 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     // A17 owner rulings 1 and 2 (GRADING-JOBS-1 J0) add two declared classes: the one fixed unit comment,
     // and a subjective non-attempt that is now NOT ATTEMPTED instead of a graded 0; ruling 3 as changed by the
     // owner 2026-10-06 adds the medium class (a Hinglish answer: ½ once, one fixed comment).
-    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium'];
+    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap'];
     assert.ok(keys.length > 0 && keys.every((k) => rb.entries[k].class.split('+').every((c) => DECLARED.includes(c))), 'only the declared classes');
     // A LEGACY grading body may change only by controller decision D38 (not found → pending; a blank
     // slot → unattempted) or an A17 owner ruling (1: the unit comment; 2: not attempted); the v2 field
