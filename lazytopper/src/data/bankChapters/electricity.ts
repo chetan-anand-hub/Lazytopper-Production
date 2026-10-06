@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "electricity" (Science): 304 served rows from 17 source arrays, 16 withheld.
+// Chapter "electricity" (Science): 399 served rows from 18 source arrays, 16 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -23,6 +23,7 @@ import { electricityPYQ2025 } from "../questionBanks/class10/science/electricity
 import { ELEC_CFPQ } from "../questionBanks/class10/science/electricity.cfpq";
 import { electricityPYQ2024 } from "../questionBanks/class10/science/electricity.pyq2024";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
+import { ELECTRICITY_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/electricity.b1.cbq.ltgen";
 
 export default defineChapter("electricity", [
   [48, ELECTRICITY_PACK1, true],
@@ -42,6 +43,7 @@ export default defineChapter("electricity", [
   [405, ELEC_CFPQ, false],
   [412, electricityPYQ2024, false],
   [415, CURATED_INLINE_QUESTIONS, false],
+  [432, ELECTRICITY_CBQ_B1_LT_GENERATED, false],
 ], [
   "EL2-002",
   "CBE-S-ELEC-A-003",
