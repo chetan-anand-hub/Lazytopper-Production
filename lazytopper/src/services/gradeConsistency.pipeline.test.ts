@@ -166,6 +166,7 @@ import { aggregateFourType } from "../components/results/scorecardVariants";
 import { WorksheetGradedPrintDoc } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { hashAttemptString } from "./attemptDedupKey";
 import { isSupersededByRegrade, resolveStableMistakeLog } from "./mistakeLogService";
+import { readStudyModel } from "./progressReadModel";
 import { desktopTopicBySlug } from "../lib/desktop/topics";
 import { marksLostToWork } from "../lib/mistakeDisplay";
 import { recordAttempt } from "./practiceInsights";
@@ -438,7 +439,8 @@ describe("G3 · Check & Improve, whole paper (rendered)", () => {
     });
     check(S, "regrade.oneAttemptPerQuestion", attempts().length === gradedQs, `${attempts().length} attempts vs ${gradedQs} graded questions`);
     // H3 (formerly HELD) — the sidebar card's "checked answers" are the GRADED answers, not MI entries.
-    const card = computeMiCardSummary(miEntries() as never, attempts() as never);
+    // ME-ENGINE-1 PR-1 — the card reads the ONE shared read model, here over the in-memory store.
+    const card = computeMiCardSummary(await readStudyModel(UID, { window: "week" }));
     check(S, "miCard.checkedCount=gradedAnswers", card.checkedCount === gradedQs, `card ${card.checkedCount} vs graded ${gradedQs} (MI entries ${miEntries().length})`);
   }, 30000);
 });
