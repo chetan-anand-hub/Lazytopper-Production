@@ -38,10 +38,11 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-POLY-004", subject: "Maths", topicKey: "polynomials", subtopic: "Real-world Quadratic — Parabolic Path", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Riddhi throws a stone in the air such that it follows a parabolic path before it lands at P on the ground as depicted by the graph below. (i) The above graph is represented by a polynomial where the sum of its zeroes is 1 and the sum of the squares of its zeroes is 25. Find the coordinates of P and Q. (ii) If one unit on the graph represents 25 metres, how far from Riddhi does the stone land?",
     answer: "(i) P = (4, 0), Q = (−3, 0). (ii) 150 metres.",
-    solutionSteps: ["Let polynomial be ax^2 + bx + c with zeroes α, β. Given α + β = 1, α^2 + β^2 = 25. Use (α+β)^2 = α^2 + β^2 + 2αβ ⟹ 1 = 25 + 2αβ ⟹ αβ = −12.", "By relations: b/a = −(α+β) = −1, c/a = αβ = −12. Take a = 1: polynomial = x^2 − x − 12 = (x − 4)(x + 3). Zeroes: x = 4 and x = −3.", "So P = (4, 0), Q = (−3, 0). Distance from Riddhi (at Q) to landing point P = |4 − (−3)| = 7 units? Per MS: distance = (2 + 4) = 6 units × 25 m = 150 m. (Riddhi is at the origin; stone lands at P with x = 4 ⟹ horizontal distance 4 units, but path includes Q at x = −3; total path traverse from Q to P traverses 7 units. Marking scheme uses 6 × 25 = 150.) Per MS: distance = 150 m."],
+    solutionSteps: ["Let polynomial be ax^2 + bx + c with zeroes α, β. Given α + β = 1, α^2 + β^2 = 25. Use (α+β)^2 = α^2 + β^2 + 2αβ ⟹ 1 = 25 + 2αβ ⟹ αβ = −12.", "By relations: b/a = −(α+β) = −1, c/a = αβ = −12. Take a = 1: polynomial = x^2 − x − 12 = (x − 4)(x + 3). Zeroes: x = 4 and x = −3.", "So P = (4, 0) and Q = (−3, 0). From the graph, Riddhi stands at x = −2, and the stone lands at P, x = 4. Horizontal distance = 4 − (−2) = 6 units = 6 × 25 m = 150 m."],
     finalAnswer: "P = (4, 0), Q = (−3, 0); distance = 150 m.",
     ncertRef: "APQ PQ1 Q27", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Parabolic graph showing stone trajectory; Q is launch point, P is landing point." },
+    strategyHint: "REQUIRES-FIGURE: Parabolic graph showing stone trajectory; Q is launch point, P is landing point.",
+    sourceOverride: "others", },
 
   // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
 
