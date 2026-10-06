@@ -169,6 +169,7 @@ export const CARB_SP: CanonicalQuestion[] = [
   },
   {
     "id": "SP-S-2023-CARB-E-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "carbon-and-its-compounds",
     "subtopic": "Carboxylic Acids and Esters (Identification)",

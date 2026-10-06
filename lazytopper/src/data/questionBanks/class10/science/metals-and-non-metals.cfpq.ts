@@ -52,7 +52,7 @@ const KRUNAL_STIMULUS =
 export const MNM_CFPQ: CanonicalQuestion[] = [
   // pdf-page 20 (folio 19) — Q1. Key: pdf-page 24, option 4.
   {
-    id: "CFPQ-S-MNM-001",
+    id: "CFPQ-S-MNM-001", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Reactivity Series and Displacement",
@@ -76,7 +76,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 20 (folio 19) — Q2. Key: pdf-page 24, option 2.
   {
-    id: "CFPQ-S-MNM-002",
+    id: "CFPQ-S-MNM-002", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Electrolysis and Electroplating",
@@ -103,7 +103,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 20 (folio 19) — Q3. Key: pdf-page 24, option 2.
   {
-    id: "CFPQ-S-MNM-003",
+    id: "CFPQ-S-MNM-003", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Reactivity Series and Displacement",
@@ -132,7 +132,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 21 (folio 20) — Q4. Key: pdf-page 24, option 3.
   {
-    id: "CFPQ-S-MNM-004",
+    id: "CFPQ-S-MNM-004", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Electrolytic Refining of Copper",
@@ -161,7 +161,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 21 (folio 20) — Q5. Key: pdf-page 24, option 1.
   {
-    id: "CFPQ-S-MNM-005",
+    id: "CFPQ-S-MNM-005", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Electrolytic Refining of Copper",
@@ -216,7 +216,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 21 (folio 20) — Q7 [1]. Rubric: pdf-page 25.
   {
-    id: "CFPQ-S-MNM-007",
+    id: "CFPQ-S-MNM-007", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Occurrence of Metals in Nature",
@@ -262,7 +262,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 22 (folio 21) — Q9 [4]. Rubric: pdf-page 25.
   {
-    id: "CFPQ-S-MNM-009",
+    id: "CFPQ-S-MNM-009", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Corrosion and Its Prevention",
@@ -336,7 +336,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 22 (folio 21) — Q12 [1]. Rubric: pdf-page 26.
   {
-    id: "CFPQ-S-MNM-012",
+    id: "CFPQ-S-MNM-012", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Extraction of Metals - Reduction with Carbon",
@@ -356,7 +356,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 23 (folio 22) — Q13 [2]. Rubric: pdf-page 26.
   {
-    id: "CFPQ-S-MNM-013",
+    id: "CFPQ-S-MNM-013", competencyVerified: true,
     subject: "Science",
     topicKey: "metals-and-non-metals",
     subtopic: "Extraction of Highly Reactive Metals",

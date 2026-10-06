@@ -9,7 +9,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // 2026-27 banned topics filtered (Ch 5/9-Evolution/14/16/Motor/EMI)
 
 export const acidsBasesSaltsPYQ2024: CanonicalQuestion[] = [
-  { id: "PYQ-S-2024-ACID-001", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Indicators", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2024-ACID-001", competencyVerified: true, subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Indicators", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An aqueous solution of a salt turns blue litmus to red. The salt could be the one obtained by the reaction of :",
     options: ["HNO3 and NaOH", "H2SO4 and KOH", "CH3COOH and NaOH", "HCl and NH4OH"],
     answer: "HCl and NH4OH",
@@ -17,7 +17,7 @@ export const acidsBasesSaltsPYQ2024: CanonicalQuestion[] = [
     finalAnswer: "(d) HCl and NH4OH",
     ncertRef: "PYQ 31/4/1 Q2", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
-  { id: "PYQ-S-2024-ACID-002", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2024-ACID-002", competencyVerified: true, subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Four solutions, namely glucose, alcohol, hydrochloric acid and sulphuric acid filled in four separate beakers are connected one by one in an electric circuit with a bulb. The solutions in which the bulb will glow when current is passed are :",
     options: ["Glucose and alcohol", "Alcohol and hydrochloric acid", "Glucose and sulphuric acid", "Hydrochloric acid and sulphuric acid"],
     answer: "Hydrochloric acid and sulphuric acid",

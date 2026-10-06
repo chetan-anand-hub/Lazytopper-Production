@@ -126,7 +126,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 134 (folio 133) — Q4 [2]. Rubric row 4: pdf-page 137.
   {
-    id: "CFPQ-S-ENV-004",
+    id: "CFPQ-S-ENV-004", competencyVerified: true,
     subject: "Science",
     topicKey: "our-environment",
     subtopic: "Predator and Prey Adaptations",
@@ -177,7 +177,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 134 (folio 133) — Q6 [1]. Rubric row 6: pdf-page 137.
   {
-    id: "CFPQ-S-ENV-006",
+    id: "CFPQ-S-ENV-006", competencyVerified: true,
     subject: "Science",
     topicKey: "our-environment",
     subtopic: "Biodegradable and Non-biodegradable Waste",
@@ -248,7 +248,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 135 (folio 134) — Q9 [1]. Rubric row 9: pdf-page 137.
   {
-    id: "CFPQ-S-ENV-009",
+    id: "CFPQ-S-ENV-009", competencyVerified: true,
     subject: "Science",
     topicKey: "our-environment",
     subtopic: "Food Chains and Trophic Levels",

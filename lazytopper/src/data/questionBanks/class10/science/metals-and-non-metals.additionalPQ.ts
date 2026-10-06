@@ -8,7 +8,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
   // Science-PQ Q5 (Section A, MCQ, 1 mark)
-  { id: "APQ-S-METAL-001", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Corrosion — Galvanisation", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
+  { id: "APQ-S-METAL-001", competencyVerified: true, subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Corrosion — Galvanisation", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Galvanisation is a process of coating iron articles with a layer of zinc to prevent the iron from rusting. The iron is protected even if the zinc coating is scratched and iron is exposed. Which of the following is true about how zinc prevents the rusting of iron? P) A galvanised iron article does not undergo oxidation. Q) The zinc coating prevents contact of iron with air. R) Zinc undergoes corrosion more easily than iron.",
     options: ["only P", "only Q", "only P and Q", "only Q and R"],
     answer: "only Q and R",
@@ -31,7 +31,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     ncertRef: "APQ Science-PQ Q6", isCompetencyBased: false },
 
   // Science-PQ Q7 (Section A, MCQ, 1 mark)
-  { id: "APQ-S-METAL-003", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series — Tarnishing", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "APQ-S-METAL-003", competencyVerified: true, subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series — Tarnishing", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Metals are lustrous and shine especially when their freshly cut surfaces are exposed. Salma cut pieces and compared the lustre of the freshly cut surfaces of: aluminium, sodium, copper, iron. The freshly cut surface of which of these metals is likely to lose its lustre first on exposure to air?",
     options: ["aluminium", "sodium", "copper", "iron"],
     answer: "sodium",
@@ -62,7 +62,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     ncertRef: "APQ Science-PQ Q21", isCompetencyBased: true },
 
   // Science-PQ Q27 (Section C, Short, 3 marks)
-  { id: "APQ-S-METAL-006", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Corrosion — Iron vs Aluminium", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "APQ-S-METAL-006", competencyVerified: true, subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Corrosion — Iron vs Aluminium", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Equal sized bars of aluminium and iron are exposed to the environment. Which of them is likely to corrode till the level marked by the line FIRST? Justify your answer.",
     answer: "Iron corrodes first.",
     solutionSteps: ["[1 mark] Iron oxidises on exposure to air and moisture, forming rust (Fe2O3·xH2O). The rust layer is porous and allows air/moisture to penetrate to fresh metal beneath, so corrosion continues progressively.", "[1 mark] Aluminium also oxidises but forms a thin, IMPERMEABLE Al2O3 layer on the surface that PROTECTS the metal beneath. Further corrosion is blocked.", "[1 mark] Hence iron corrodes till the marked level FIRST while aluminium remains intact."],
@@ -127,7 +127,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     ncertRef: "APQ Science-PQ2 Q17", isCompetencyBased: true },
 
   // Science-PQ2 Q27 (Section C, Short, 3 marks)
-  { id: "APQ-S-METAL-012", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series — Displacement Reactions", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "APQ-S-METAL-012", competencyVerified: true, subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series — Displacement Reactions", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Sakshi added iron filings to four test tubes A, B, C, D containing aqueous solutions of ZnSO4, CuSO4, FeSO4 and Al2(SO4)3 respectively. (a) In which test tube will she observe the reaction to be most vigorous? (b) What is the reason for her observation? (c) Write a well-balanced equation of the reaction in (b).",
     answer: "(a) Test tube B. (b) Cu is below Fe in reactivity series. (c) Fe + CuSO4 → FeSO4 + Cu.",
     solutionSteps: ["[1 mark] (a) Most vigorous reaction is in TEST TUBE B (CuSO4 solution).", "[1 mark] (b) Iron (Fe) is more reactive than copper (Cu) — Cu lies BELOW Fe in the reactivity series. Hence Fe displaces Cu from CuSO4. Fe cannot displace Zn or Al (more reactive than Fe), and FeSO4 has no displacement.", "[1 mark] (c) Balanced equation: Fe(s) + CuSO4(aq) → FeSO4(aq) + Cu(s). Blue colour of CuSO4 fades; reddish Cu deposits on iron filings."],

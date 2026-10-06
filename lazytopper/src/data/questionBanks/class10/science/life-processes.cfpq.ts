@@ -49,7 +49,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const LIFE_CFPQ: CanonicalQuestion[] = [
   // pdf-page 44 (folio 43) — Q1. Key: pdf-page 53, option 1.
   {
-    id: "CFPQ-S-LIFE-001",
+    id: "CFPQ-S-LIFE-001", competencyVerified: true,
     subject: "Science",
     topicKey: "life-processes",
     subtopic: "Human Heart and Double Circulation",
@@ -77,7 +77,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 44 (folio 43) — Q2. Key: pdf-page 53, option 4.
   {
-    id: "CFPQ-S-LIFE-002",
+    id: "CFPQ-S-LIFE-002", competencyVerified: true,
     subject: "Science",
     topicKey: "life-processes",
     subtopic: "Transport of Oxygen in Blood",
@@ -100,7 +100,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 44 (folio 43) — Q3. Key: pdf-page 53, option 4.
   {
-    id: "CFPQ-S-LIFE-003",
+    id: "CFPQ-S-LIFE-003", competencyVerified: true,
     subject: "Science",
     topicKey: "life-processes",
     subtopic: "Photosynthesis",
@@ -182,7 +182,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 46 (folio 45) — Q6. Key: pdf-page 53, option 1.
   {
-    id: "CFPQ-S-LIFE-006",
+    id: "CFPQ-S-LIFE-006", competencyVerified: true,
     subject: "Science",
     topicKey: "life-processes",
     subtopic: "Human Digestive System",
@@ -210,7 +210,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 46 (folio 45) — Q8. Key: pdf-page 53, option 1.
   {
-    id: "CFPQ-S-LIFE-008",
+    id: "CFPQ-S-LIFE-008", competencyVerified: true,
     subject: "Science",
     topicKey: "life-processes",
     subtopic: "Aerobic and Anaerobic Respiration",
@@ -309,7 +309,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 47 (folio 46) — Q12 [4]. Rubric row 12: pdf-page 54.
   {
-    id: "CFPQ-S-LIFE-012",
+    id: "CFPQ-S-LIFE-012", competencyVerified: true,
     subject: "Science",
     topicKey: "life-processes",
     subtopic: "Photosynthesis and Transpiration",
@@ -437,7 +437,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 51 (folio 50) — Q18 [3]. Rubric row 18: pdf-page 56.
   {
-    id: "CFPQ-S-LIFE-018",
+    id: "CFPQ-S-LIFE-018", competencyVerified: true,
     subject: "Science",
     topicKey: "life-processes",
     subtopic: "Digestion in the Stomach",

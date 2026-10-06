@@ -205,6 +205,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
   },
   {
     "id": "CBE-S-CARB-C-002",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "carbon-and-its-compounds",
     "subtopic": "Reaction of Sodium with Ethanol - Rate of Reaction",
@@ -247,6 +248,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
   },
   {
     "id": "CBE-S-CARB-C-004",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Hard Water",
@@ -268,6 +270,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
   },
   {
     "id": "CBE-S-CARB-C-005",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "carbon-and-its-compounds",
     "subtopic": "Action of Soap in Hard Water",

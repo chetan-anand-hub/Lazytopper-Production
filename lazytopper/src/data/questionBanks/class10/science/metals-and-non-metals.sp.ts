@@ -75,6 +75,7 @@ export const MNM_SP: CanonicalQuestion[] = [
   },
   {
     "id": "SQP-S-2023-MNM-E-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity series — displacement reactions",

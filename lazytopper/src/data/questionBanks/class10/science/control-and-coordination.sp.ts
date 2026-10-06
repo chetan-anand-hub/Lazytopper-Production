@@ -7,6 +7,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const CTRL_SP: CanonicalQuestion[] = [
   {
     "id": "SQP-S-2023-CTRL-A-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "control-and-coordination",
     "subtopic": "Tropic movements in plants",

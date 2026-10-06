@@ -93,6 +93,7 @@ export const ENVI_CBE: CanonicalQuestion[] = [
   },
   {
     "id": "CBE-S-ENVI-B-001",
+    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Effects of Fertiliser Run-off on Lake Ecosystems (Eutrophication)",
