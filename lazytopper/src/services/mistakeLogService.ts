@@ -403,6 +403,19 @@ export async function getMistakeLogHistoryFromCloud(
  * or device switches. No-ops when Firestore is unavailable.
  */
 export async function hydrateMistakeLogsFromCloud(uid: string): Promise<void> {
+  // ME-ENGINE-1 PR-2 (G11) — the sign-in hydration also restores the two device-local weak-area
+  // inputs from the cloud (the wrong-answer log and the mock history), so a second device shows
+  // the same weak areas. They run beside the mistake-log hydration and settle before it returns,
+  // so a reader that re-reads on this hydration's tick (`mistakeLogsHydrated`) sees them too.
+  // Loaded lazily: neither is part of this module's static graph. Never throws.
+  await Promise.allSettled([
+    hydrateMistakeLogEntriesFromCloud(uid),
+    import("./adaptivePracticeEngine").then((m) => m.hydrateWrongAnswerLogFromCloud(uid)),
+    import("./mockScoreHistory").then((m) => m.hydrateMockScoreHistoryFromCloud(uid)),
+  ]);
+}
+
+async function hydrateMistakeLogEntriesFromCloud(uid: string): Promise<void> {
   const existing = readLocal(uid);
   if (existing.length > 0) return; // localStorage already has data — skip
 

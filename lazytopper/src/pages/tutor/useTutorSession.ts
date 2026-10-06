@@ -25,6 +25,7 @@ import { canonicalSlugMatches } from "../../data/syllabus/canonicalTopicSlug";
 import {
   loadTutorSessionLocal,
   loadTutorSessionFromCloud,
+  recordTutorTurn,
   saveTutorSession,
   type TutorCoverage,
   type TutorPendingMarker,
@@ -439,9 +440,12 @@ export function useTutorSession({
       const next: TutorTurn[] = [...messages, { role: "user", content: clean }];
       setMessages(next);
       persist(next, null);
+      // ME-ENGINE-1 PR-2 (G8) — the doubt counts as Tutor ACTIVITY: one synced, timestamped
+      // event (metadata only — the text stays in the thread). Honest-gated like `persist`.
+      recordTutorTurn(user, { topicKey, subject });
       void runModel(next);
     },
-    [messages, runModel, concept, persist, updatePending],
+    [messages, runModel, concept, persist, updatePending, user, topicKey, subject],
   );
 
   const retry = useCallback(() => {
