@@ -879,9 +879,11 @@ function createCheckSolutionRoute(deps) {
           meta: questions.map((q) => ({ qNumber: q.qNumber, totalMarks: q.marks })),
           // D12: what the fair-use `finish` hooks would have committed — settled once, at the end.
           deferred: deferredCommitOf(res),
-          run: (onPartSettled, jobStartedAt) => gradeStructuredSet({
+          // The job's wall deadline runs from when it STARTS running (queue time excluded), read on
+          // THIS route's clock — the clock the grading core measures every deadline on.
+          run: (onPartSettled) => gradeStructuredSet({
             questions, imageBase64, imageMimeType, subject, uploads, acceptsV2,
-            startedAt: jobStartedAt, onPartSettled,
+            startedAt: nowMs(), onPartSettled,
             // The job budget (timing.cjs). `deps.jobTimingFor` is an EVAL/TEST seam only: the golden
             // 0-call job case replays stored replies, so it grades with the synchronous chunk plan.
             jobTiming: typeof deps.jobTimingFor === 'function' ? deps.jobTimingFor(questions.length) : timingLib.jobTiming(),

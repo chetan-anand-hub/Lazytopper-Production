@@ -188,7 +188,8 @@ function createGradingJobs(deps = {}) {
    * this claim's pending marker), then queues or starts the worker inside the submitting request's
    * async context. Returns { ok:true, jobId, total, pollAfterMs, state } or { ok:false } (the handler
    * then grades synchronously — nothing was written, nothing is lost).
-   *   run(onRows, startedAt) → Promise<graded> (the grading core's result; may throw)
+   *   run(onRows) → Promise<graded> (the grading core's result; may throw). The caller times the
+   *   grading on its own clock (the core's), from the moment run() is called.
    *   finish(graded | { error }) → { body: string, graded: number, model: string|null }
    */
   async function submit({ attempt, total, meta, deferred, run, finish }) {
@@ -291,7 +292,7 @@ function createGradingJobs(deps = {}) {
 
     let outcome;
     try {
-      outcome = entry.finish(await entry.run(onRows, startedAt));
+      outcome = entry.finish(await entry.run(onRows));
     } catch (error) {
       outcome = entry.finish({ error });
     }
