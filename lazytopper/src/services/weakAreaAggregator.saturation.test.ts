@@ -37,12 +37,6 @@ vi.mock("./studentProgressStore", () => ({ getActiveProgressUser: () => null }))
 vi.mock("./firebaseClient", () => ({ firestoreDb: null }));
 vi.mock("../utils/topicResolver", () => ({ normalizeTopicKey: (k: string) => k }));
 vi.mock("../data/syllabus/canonicalTopicSlug", () => ({ resolveCanonicalSlug: (k: string) => k }));
-vi.mock("../data/syllabus/cbse10Canonical", () => ({
-  canonicalChapters: [
-    { canonicalSlug: "triangles", subjectId: "maths" },
-    { canonicalSlug: "electricity", subjectId: "science" },
-  ],
-}));
 
 import { getWeakAreas } from "./weakAreaAggregator";
 
