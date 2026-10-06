@@ -38,8 +38,8 @@
    ]
   },
   "arithmetic-progression": {
-   "n": 356,
-   "sha256": "c1195fead8cd583053d6ca8cd1cd5e49b605d38b294528f41c13df0cf88e3df1",
+   "n": 366,
+   "sha256": "d6a54d02a88dbf63cb8d8a7d83d798847c8706b6ba7425b22ed0018d6fc7b372",
    "head": [
     "Z3-AP-010",
     "BX-AP-E-022",
@@ -47,8 +47,8 @@
    ]
   },
   "triangles": {
-   "n": 315,
-   "sha256": "0019085438140d7f660970f5e5b319e10e49395b3f060bb0d6c66ef7a26c45ae",
+   "n": 325,
+   "sha256": "fbeb93f03f45a44d6235ea7fa275ac6a3bfa0db31183dc26c9241f2b22d383da",
    "head": [
     "BX-TRI-E-028",
     "BX-TRI-E-036",
@@ -74,8 +74,8 @@
    ]
   },
   "circles": {
-   "n": 222,
-   "sha256": "89f8b0fcc5cec607156ce4d64b0f70ae9b41e07831c48f63f598bf495ea13816",
+   "n": 232,
+   "sha256": "4d1c110512c60f9aad874c3a182db4854655a49a59811931b274bd094cee4d20",
    "head": [
     "CIRC-N-NCERT-10-CB-001",
     "Z3-CI-001",
@@ -182,8 +182,8 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 162,
-   "sha256": "952405a0025cf9bc9e65ab3fdc84f38e88bceb39ad068fc111d983db230793f2",
+   "n": 182,
+   "sha256": "5d45b1eb45f13fdcc57aa5d2f7a28cfbd03b97d2d48885ba6cf0cba43f778f63",
    "head": [
     "SQP-S-2023-MAGN-A-002",
     "SP-S-2023-MAGN-A-001",
@@ -274,8 +274,8 @@
    ]
   },
   "arithmetic-progression": {
-   "n": 68,
-   "sha256": "c49eb7c19e95ae96d1717737b24cfb09cf9fb328a1e5dacf1c17fdea3fbb56d3",
+   "n": 69,
+   "sha256": "05ef83d60f28a2cb0a85547b8822187c8c232a842ea8be4efab059c61bbfc23a",
    "head": [
     "AP from Sum Formula\tAP-N-EXEM2-5-SA-007",
     "AP from nth Term\tPYQ-M-2026-AP-001,PYQ-M-AP-001,PYQ-M-AP-004,AP-N-EXEM-5-VSA-003,2026-AP-MCQ-05,2026-AP-SA-07,AP-M05,AP-AR05,AP2-055,AP-E09,AP-E14,AP-E19,AP-H03,AP-H08,AP-H13,AP-M01,AP-M09,AP-M14,AP-M17,AP-E05,AP-E15,AP-E04,AP-E07,AP-E01,AP-E02,AP-E11,AP-N01,AP2-044,AP2-047,AP2-051,AP2-053",
@@ -283,8 +283,8 @@
    ]
   },
   "triangles": {
-   "n": 42,
-   "sha256": "e9ff1e6151ef18732fe605f2e524c8c898ccd7fe6e9f1c8f7bf31458fda7b378",
+   "n": 43,
+   "sha256": "6bbc50bcf18a1044a9ffa6ba4e4c32400447f0dfe302328f6208f651f62c7c30",
    "head": [
     "BPT & Similar Triangles\tCBE-M-TRI-A-002,CBE-M-TRI-C-003,CBE-M-TRI-C-007,CBE-M-TRI-C-004,CBE-M-TRI-C-005,2026-TRIANGLE-LA-03",
     "BPT (Basic Proportionality Theorem)\tBX-TRI-E-028,BX-TRI-E-036,BX-TRI-E-012,BX-TRI-E-013,AR-TRI-007,AR-TRI-001,BX-TRI-EX-A-010,CBE-M-TRI-A-001,APQ-M-TRI-003,TRI-N-NCERT-6-LA-002,TRI-N-EXMPLR-6-LA-004,BX-TRI-D-042,TRI-PRF-D-001,TRI-PRF-D-005,BX-TRI-D-001,BX-TRI-D-002,BX-TRI-D-023,BX-TRI-PF-003,CBE-M-TRI-C-001,TRI-N-EXMPLR-6-SA-009,TRI-PRF-C-001,BX-TRI-EX-B-001,BX-TRI-EX-B-003,BX-TRI-PF-012,CBE-M-TRI-B-003,BX-TRI-EX-A-008,TRI-N-NCERT-6-SA-001,CBE-M-TRI-B-001,CBE-M-TRI-A-003,2026-TRI-SA-07,TR3-054,TR3-021,TR3-050,TR3-008,TR3-009,TR3-039,TR3-040,TR3-057,TR3-007,TR3-006,TR3-038",
@@ -311,7 +311,7 @@
   },
   "circles": {
    "n": 61,
-   "sha256": "56bb10c64626eee8ab513e4561affe46407b854732d7dfd511ce64d8068c7aae",
+   "sha256": "682ad2a004f31695566f159b17e1bc45ad5e9ba802d8a2fee81c159d20515be5",
    "head": [
     "Angle Between Tangents\tCIRC-N-EXEM-10-AR-001,CIRC-N-EXEM-10-AR-002,CIRC-N-NCERT-10-MCQ-003,CIRC-N-NCERT-10-MCQ-004,CIRC-N-EXEM-10-MCQ-002",
     "Angle at Centre and Tangent\tCIRC-N-EXEM-10-MCQ-006",
@@ -418,12 +418,12 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 54,
-   "sha256": "9168e17c174f3e511a342cd82134bf25e52ba792e6ad4fca2ffacd77350bf159",
+   "n": 55,
+   "sha256": "75a7ced65fc885b82b31eb3f27fdd2a132d8740ea3ce245322b9507138bbd316",
    "head": [
+    "AC Frequency\tLTG-S-MAG-005,LTG-S-MAG-002,LTG-S-MAG-003,LTG-S-MAG-001,LTG-S-MAG-006,LTG-S-MAG-008,LTG-S-MAG-009,LTG-S-MAG-010,LTG-S-MAG-004,LTG-S-MAG-007",
     "AC and DC\tPYQ-S-2026-ACID-018,ME2-048,ME2-017,ME2-039,ME2-041",
-    "AC vs DC\tMAG-EXMPLR-12-SA-011",
-    "Advantages of AC over DC\tCBE-S-MAGN-B-006"
+    "AC vs DC\tMAG-EXMPLR-12-SA-011"
    ]
   },
   "life-processes": {
@@ -1015,25 +1015,25 @@
   },
   "magnetic-effects-of-electric-current::seed1": {
    "n": 10,
-   "sha256": "c26dc09445675f162ddee798564208d0ef3a9dd441a011e6b85db3dc199e74fc",
+   "sha256": "cf6fceb9ea1b1f5e2af86bf506791d0c0bf40fe7173a0866d9531bae49de72ea",
    "head": [
-    "APQ-S-MAG-003",
+    "LTG-S-MAG-005",
     "MAG-NCERT-12-MCQ-003",
-    "MAG-NCERT-12-MCQ-005"
+    "MAG-EXMPLR-12-MCQ-001"
    ]
   },
   "magnetic-effects-of-electric-current::seed2": {
    "n": 10,
-   "sha256": "13d9d8350f193919e0efa37ebda1f745f76278fefd720ddab18cb556e874e64a",
+   "sha256": "115e85bac35ae7537efe7e899c160debf12884e8ea0a61560ba04a1280f2088b",
    "head": [
-    "MAG-NCERT-12-MCQ-006",
+    "LTG-S-MAG-001",
     "MAG-NCERT-12-MCQ-004",
     "SQP-S-2023-MAGN-A-002"
    ]
   },
   "magnetic-effects-of-electric-current::seed3": {
    "n": 10,
-   "sha256": "3aa978d25ba72e45b2db7b5ba1dc86dc62a41fed3f0dac71805e54b63151eb93",
+   "sha256": "12c8262b1d80bf38115e2bd88f8fdd0cc172d54178442b680d4611638821f30b",
    "head": [
     "MAG-NCERT-12-MCQ-004",
     "SP-S-2023-MAGN-A-001",

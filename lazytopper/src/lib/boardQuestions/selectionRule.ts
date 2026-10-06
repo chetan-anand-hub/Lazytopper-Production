@@ -68,6 +68,8 @@ export interface SelectableQuestion {
   isCompetencyBased?: boolean;
   requiresDiagram?: boolean;
   answer?: string;
+  /** GEN-THIN-1: internal provenance — "lt-generated" rows are never published as board questions. */
+  origin?: string;
 }
 
 /** One published question, exactly as the note renders it. */
@@ -221,6 +223,10 @@ export function qualifies(
   withheldIds: ReadonlySet<string>,
 ): boolean {
   if (q.isCompetencyBased !== true) return false;
+  // GEN-THIN-1 (owner, 2026-10-06): a LazyTopper-generated row must never look like a past
+  // board question, and this panel publishes "board questions" on every notes page. Adding
+  // the filter rewrote NOTHING: the artifact is byte-identical (boardQuestions.guard.test.ts).
+  if (q.origin === "lt-generated") return false;
   if (aiQuestionIds.has(q.id)) return false;
   if (withheldIds.has(q.id)) return false;
   if (syllabusExclusion(q) !== null) return false;

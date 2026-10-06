@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "circles" (Maths): 215 served rows from 16 source arrays, 14 withheld.
+// Chapter "circles" (Maths): 225 served rows from 17 source arrays, 14 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -22,6 +22,7 @@ import { CIRCLES_PYQ_2026 } from "../questionBanks/class10/maths/circles.pyq2026
 import { CIRCLES_PYQ_2024 } from "../questionBanks/class10/maths/circles.pyq2024";
 import { CIRCLES_PYQ_2025 } from "../questionBanks/class10/maths/circles.pyq2025";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
+import { CIRCLES_LT_GENERATED } from "../questionBanks/class10/maths/circles.ltgen";
 
 export default defineChapter("circles", [
   [18, CIRCLES_PACK1, true],
@@ -40,6 +41,7 @@ export default defineChapter("circles", [
   [342, CIRCLES_PYQ_2024, false],
   [354, CIRCLES_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
+  [418, CIRCLES_LT_GENERATED, false],
 ], [
   "CIR-M12",
   "CIR-M17",
