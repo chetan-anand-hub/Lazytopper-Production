@@ -23,6 +23,113 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-07 — WAVE B-18 (CONTROLLER B): ME-ENGINE-1 PR-1 (`#964` `dfb83379`), PR-2 (`#968` `bab5ad0d`), PR-2b (`#970` `d1a8e88f`), PR-2c (`#983` `984bd663`) — 11 closed, 21 new open, 1 older id kept open; PR-3 skipped
+
+Sources: `Desktop/diff/WAVE_STATE_B18.md` (FU ENTRIES, D0–D43), the builder reports `report-me-engine-1-pr1/-pr2/-pr2b/-pr2c-2026-10-06.md` (Follow-ups), the verifier records `verify-970-4b69fdb8.md` / `verify-983-91174125.md`, the live records `live-after-me-engine-1-pr1/-pr2/-pr2b-2026-10-06.md`, `smoke-983-984bd663.md`, and the scout's gap table (`report-me-data-scout-1-2026-10-06.md` §7, G9 / G13). **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3); the closure of `[FU-ME-PROGRESS-CONSISTENCY-IST-MIDNIGHT]` (raised in the CI1 section below) is recorded here. Every FU id named here has its own heading (standing rule 1). The J2 lane's FUs (`#979`, not yet merged) are recorded by the J2 docs PR, not here.
+
+### B-18 — closed
+
+### `[FU-ME1-WIDGET-GATE]` — ✅ CLOSED by `#970` (`d1a8e88f`)
+PR-1 could not switch the MI sidebar widget to the shared model: the CI ops gate `check_improve_convergence_acceptance.mjs` (MIC H3, ~l.1068–1071) pinned the card's old data source, so the switch was reverted and parked (`Desktop/diff/b18-me-pr1-widget/`). The owner approved the gate amendment under the four standing conditions (Round 2); `#970` switched the widget and amended MIC H3 (146 → 148 checks, MIC 148/148 in CI `37530079851`) *(controller-verified)*.
+
+### `[FU-ME1-WIDGET-MARKS-BASIS]` — ✅ CLOSED by owner ruling (Round 2) + `#970`
+Whether the widget's "marks lost" should be the graded-stream loss (= Me's "on the table") instead of the MI-entry sum. Owner: *"The widget's "marks lost" = the graded stream, the same as Me."* Applied in `#970`.
+
+### `[FU-ME2-WAL-HYDRATE-RACE]` — ✅ CLOSED by `#970`
+OR-LIVE-2 found device B never pulled the synced wrong-answer log: the hydration `getDoc` raced `ensureLearnerCloudBaseline`'s pending write (a 4 s delay control pulled it) *(agent-reported)*. `#970`: `readSyncedProfile` waits for pending writes; pinned with a mutation RED *(builder-reported)*. **The race test's fake is an SDK assumption (verifier note) — the live proof is `[FU-B18-L1-SECOND-DEVICE-PULL-LIVE]`, still owed.**
+
+### `[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE]` — ✅ CLOSED by `#970`
+OR-LIVE-2: the Tutor brief named 2 concepts at 2 graded answers while Me withheld. Spec-required, not an owner choice (one honesty threshold). `#970`: one gate source (`progressReadModel` `weaknessNamingRung`) imported by Me and the brief.
+
+### `[FU-B18-WIDGET-NAMES-BELOW-GATE]` — ✅ CLOSED by `#970`
+Raised at `#970` READY-1: the switched widget could name a group below the gate. Controller decision C-W1 (D26): the widget applies the same weakness-naming rung (`modelNamesWeakness`); mutation WG RED *(controller-verified)*.
+
+### `[FU-ME-PROGRESS-CONSISTENCY-IST-MIDNIGHT]` — ✅ CLOSED by `#970`
+`progressReadModel.consistency.test.tsx` failed for clock instants ~18:30–18:38Z. Cause: a TEST defect (fixture times 6–24 min before "now" crossed IST midnight); the code was correct. Pinned at 18:29:59 / 18:30 / 18:35 / 18:44Z *(builder-reported; controller-verified)*.
+
+### `[FU-ME2-WEAKAREA-ATTEMPTS-DEVICE-LOCAL]` — ✅ CLOSED by `#970` (the mastery / 0% part by owner Round 2)
+OR-LIVE-2: Weak Area Practice showed device-local "Attempts" (B: 0 vs A: 2) and "Mastery 0%" / "Accuracy 0%". `#970`: accuracy and attempts from the shared model (same gate as Me); every mastery display removed; pinned that no student-facing render contains "mastery" or a fake 0%. Live (`#970`, `#983`): no mastery / 0% *(agent-reported)*. The page's OTHER device-local figures → `[FU-B18-WEAKAREA-OTHER-LOCAL-FIGURES]`.
+
+### `[FU-ME2-BRIEF-WINDOW]` — ✅ CLOSED by owner ruling (Round 2) + `#970`
+The brief speaks for Me's DEFAULT window. Owner: *"The Tutor brief uses Me's default window (month), Me's groups and Me's honesty threshold, imported, not copied."* Applied in `#970`. If Me ever remembers a chosen window, the brief must read the same one.
+
+### `[FU-B18-TUTOR-DOUBT-COUNTED-ON-FAILURE]` — ✅ CLOSED by `#983` (`984bd663`)
+`#968` recorded `doubtsAt` for a Tutor turn that returned 500 (seen live during `[PROD-AI-500]`). `#983`: a doubt is recorded only after a successful reply (timestamp = reply time). **Live-proven:** a Tutor 500 wrote no `doubtsAt` entry (`smoke-983-984bd663.md`) *(agent-reported)*.
+
+### `[FU-B18-WEAKAREA-EMPTY-PRAISE]` — ✅ CLOSED by `#983`
+With an empty list, `/weak-area-practice` said "No Weak Areas! All your topics are looking strong" with zero graded answers (pre-existing; doctrine: honest empty states). `#983`: praise removed in every state; below the on-screen paper's own gate → "Not Enough Graded Yet" + "Go to Practice"; above it → neutral "No Topic to Suggest Right Now". The verifier's round-1 FAIL (Science tab praised with 0 Science answers) was fixed by the per-paper gate (mutation E2 RED). Live: 6 views honest *(agent-reported)*.
+
+### `[FU-ME1-WIN-PRERENDER-STALE-SVG]` — ✅ NOT A PRODUCT DEFECT · recorded, no action
+The local Windows build fails the postbuild `applyPrerendered` / `verify-production-build` on a stale `/notes/magnetic-effects-of-electric-current` svg reference, the same on unmodified trunk (Windows CRLF svg hash). CI's linux build is the authority. Related: B-17's `[FU-B17-WINDOWS-SVG-CRLF-HASH]` (stays open; do not duplicate).
+
+### B-18 — older ids, kept open
+- **`[FU-B15-FREECHECK-V2]` — STAYS OPEN** (owner: fine to leave open). `#964` only made the free-check replay record graded answers.
+
+### B-18 — new, open
+
+### `[FU-B18-L1-SECOND-DEVICE-PULL-LIVE]` — OPEN · MEDIUM · LIVE CHECK OWED
+After `#970`, the live check L1 (a graded wrong answer on device A, pulled by device B) was NOT measured: production AI returned 500, so no graded wrong answer could be created *(agent-reported)*. **It is owed, never PASS.** Re-run once grading works (throwaway account, eval key only; delete the account and prove it).
+
+### `[FU-ME1-WONBACK-UNREACHABLE]` — OPEN · OWNER SCOPE
+OR-LIVE-1: "won back" has no live re-attempt path — Quick Practice's seen-set never re-serves an attempted bank question on any device, and worksheet / Chapter Test / Full Mock mistakes carry `ws:` / `ct:` / `fm:` ids that cannot join *(agent-reported)*. Options (owner): an MI "try again" or Quick Practice re-serving the student's own mistakes. Not built.
+
+### `[FU-ME1-SYNTHETIC-WONBACK]` — OPEN · LOW
+Worksheet / Chapter Test / Full Mock mistakes carry `ws:` / `ct:` / `fm:` slot ids; a later correct attempt cannot join them by bank id until the call sites pass the bank id (or PR-3 joins by concept) *(builder-reported)*.
+
+### `[FU-ME1-NO-TODAY-ON-ME]` — OPEN · → ME-REPORT-1 (owner)
+Me shows no "today". Owner (Round 2): *""Today" and won back: engine data now; display in ME-REPORT-1."* The model already computes IST today.
+
+### `[FU-ME-GATE-COPY]` — OPEN · LOW (copy)
+With 1–3 graded answers Me says "no graded marks yet". With the 6-answer gate, a trial student (about 5 checks a day) sees no Me number on day 1 *(agent-reported, OR-LIVE-1)*. The gate is correct; the copy could say how many more graded answers are needed.
+
+### `[FU-B18-WEAKAREA-LOCAL-LIST]` — OPEN · MEDIUM
+`getWeakAreas` still builds the Weak Area list from device-local data (`loadInsights`, the mastery snapshot, mock scores), so an empty list cannot prove that no topic is weak; until the list reads the synced model only, the page never praises (D38). Also: the "N weak area(s) closed this week! 🎉" banner comes from the same device-local summary, with inline styles (verifier, `#983` round 2).
+
+### `[FU-B18-WEAKAREA-OTHER-LOCAL-FIGURES]` — OPEN · MEDIUM
+Verifier on `#970`: Weak Area Practice still shows other device-local figures (urgency, "Closed This Week", summary counts) beside the model-backed accuracy / attempts.
+
+### `[FU-ME2-WEAKAREA-PRACTICEINSIGHTS-LOCAL]` — OPEN · LOW
+`getWeakAreas` also reads `loadInsights()` (the practiceInsights device cache) and the mastery snapshot (no writer); outside G11's two named stores and not re-verified *(builder-reported, PR-2)*. Fold into `[FU-B18-WEAKAREA-LOCAL-LIST]` when that is built.
+
+### `[FU-B18-WAP-CTA-HARDCODED-COLOR]` — OPEN · LOW
+`.wap-empty__cta` (`WeakAreaPracticePage.css`, `#983`) hardcodes `#58cc02`, copying the page's existing buttons (verifier note).
+
+### `[FU-B18-LEARNINGPATH-DIFFICULTY-FROM-MASTERY]` — OPEN · LOW
+`learningPathGenerator.ts:106-107, 213-214` still pick difficulty from `masteryPercent`, which is always 0 → always Easy. The owner's list named the page's :326 only *(builder-reported, PR-2b)*.
+
+### `[FU-B18-WEAKAREA-WINDOW-LABEL]` — OPEN · LOW (copy)
+Weak Area accuracy / attempts are for Me's default window (30 days); the card label does not say so (no visual change was made) *(builder-reported)*.
+
+### `[FU-B18-WEAKAREA-REVIEWS-MASTERED]` — OPEN · LOW
+The Reviews tab's spaced-repetition stage "Mastered" is untouched; it is not the retired "mastery" figure and was not in the owner's list *(builder-reported)*. Owner to say whether the word stays.
+
+### `[FU-B18-WIDGET-HIDES-TOTAL-BELOW-GATE]` — OPEN · LOW (note for ME-REPORT-1)
+Verifier on `#970`: the MI widget withholds the total marks-lost below the gate while Me shows it — stricter than Me; nothing is invented.
+
+### `[FU-B18-MCQ-NOT-IN-WRONG-LOG]` — OPEN · LOW · may be by design
+A wrong MCQ counts on Me ("1 of 5 answers graded", both devices) but does not enter the wrong-answer log or Weak Areas *(agent-reported, `#970` live)*. Noted for ME-REPORT-1.
+
+### `[FU-ME2-TUTOR-ACTIVITY-NOT-RENDERED]` — OPEN · → ME-REPORT-1
+The model exposes activity counts (including Tutor doubts) but no surface renders them; confirmed live on `/`, `/me` and the Tutor page *(agent-reported)*.
+
+### `[FU-ME2-DOUBTSAT-GROWTH]` — OPEN · LOW
+`tutorSessions/{uid}.doubtsAt` grows without bound (~14 bytes per doubt, ~70k doubts per MB); a yearly roll-up or cap is needed before an extreme user nears the 1 MB document limit *(builder-reported)*.
+
+### `[FU-QP-COPYLINK-NOT-EXACT]` — OPEN · LOW · pre-existing-looking
+"Copy link: this exact question set" does not reproduce the set (`focusBankIds` + `strictFocus` are overridden by the seen-set / rotation) *(agent-reported, OR-LIVE-1)*.
+
+### `[FU-QP-POOL-EXHAUSTED-EMPTY]` — OPEN · MEDIUM (honest empty state) · pre-existing-looking
+After about 13 questions, "Refresh set" leads to "4 questions in this set" with zero questions rendered and no Refresh button *(agent-reported, OR-LIVE-1)*. Not an honest empty state.
+
+### `[FU-B18-ME-PR3-SKIPPED]` — OPEN · OWNER-PARKED
+ME-ENGINE-1 PR-3 (concepts, G5 / G6; won back by concept) is skipped by the owner (Round 5: *"Skip ME-ENGINE-1 PR-3 for now: it needs the concept map, which isn't built yet."*). Resume when the concept map exists.
+
+### `[FU-B18-G9-STUDY-MINUTES]` — OPEN · OUT OF ME-ENGINE-1 §1
+Scout G9: study minutes exist for Full Mock only; either drop minutes from the design or persist `focusTracker` per day to Firestore (its current sync hits a removed 404 route) — `focusTracker.ts:188-218`, `dbSyncService.ts:96-104` *(scout-reported)*.
+
+### `[FU-B18-G13-MCQ-MAX-ONE]` — OPEN · OUT OF ME-ENGINE-1 §1
+Scout G13: a Quick Practice MCQ click records max = 1 and one attempt forever; use the question's real marks and a session submissionId — `PracticeQuestionCard.tsx:305-317`, `attemptDedupKey.ts:74-78` *(scout-reported)*.
+
 ## 2026-10-07 — WAVE CI1 (CONTROLLER C): FU-CI1-NIGHTLY-RESTORE (`#981` `63e94564`) — 2 new open, 1 closed, 1 updated
 
 Sources: `Desktop/diff/WAVE_STATE_CI1.md` (D6, D7, checkpoints), `COORDINATOR_LOG.md` (21:12Z), `COORD/BOARD.md` (21:04Z, 21:12Z), `ci1/report-fu-ci1-nightly-restore-2026-10-07.md`, `CI1_MERGE_QUEUE_STEPS.md`. **Bodies come from those sources and from run logs re-read with `gh`; nothing is invented.** The dated CI-SPEED-1 entries directly below are NOT edited (standing rule 3); their updates are recorded here. Every FU id named here has its own heading (standing rule 1). Product-lane FUs raised by other controllers in the same window are theirs to record.

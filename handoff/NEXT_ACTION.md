@@ -1,3 +1,29 @@
+## ★★★ 2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B) — ME-ENGINE-1 COMPLETE: `#964` + `#968` + `#970` + `#983` LIVE; PR-3 SKIPPED BY THE OWNER; PRODUCTION AI FAILING UPSTREAM, J2 HELD (docs) — THIS BLOCK SUPERSEDES THE CI1 NIGHTLY-RESTORE BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the CI1 NIGHTLY-RESTORE, CI-SPEED-1, WAVE B-17, A-16 CLOSE, B-16, A-15 CLOSE, B-15, B-14, A-13 and every older block below stand unchanged, except the items this block names.)*
+
+**TRUNK IS `984bd663`** for this lane (`#983`, merged 2026-10-06T23:02:29Z, `gh pr view 983`, docs-builder-verified); when this docs PR was written trunk was `ca96f52e` (C's docs `#988`); before it opened, `5a7ecc16` (`#989`, another lane, no `handoff/` file) merged. Results, numbers, run ids and the verifier record: `CURRENT_STATE.md`, the `[CURRENT · PROGRESS + TUTOR]` WAVE B-18 block.
+
+★ **STANDING FOR EVERY CONTROLLER FROM NOW ON:**
+- **Every progress number reads `progressReadModel.ts`** and its one weakness-naming gate, imported — never a device-local store, never a copied threshold.
+- **Mistakes are resolved, never deleted; "won back" = a later correct attempt by the student only.** Re-grades never count (owner).
+- **No "mastery" on any student-facing render; no praise without synced evidence.**
+- **A live check that cannot create its precondition is OWED, never PASS.**
+- **Never `git stash` in a lane** — the stash is shared by every worktree of the repo.
+
+### NEXT — CONTROLLER B (after this docs PR merges)
+1. **Release the handoff lock** on the board (+ `#973` mirror); tell A-17 and C the merge SHA.
+2. **J2 — background-grading client.** J2a `#979` is VERIFIED (PASS-WITH-NOTES) and **HELD** until a production grade succeeds (`[PROD-AI-500]`); then update-branch, prove the lane files byte-identical, merge on green, rollout + smoke. Then push **J2b** (local-ready `ed25a5a4`, branch `lane/grading-jobs-j2b`; `#980` closed) as a new PR, verifier, merge. Send A-17 the J2 merge SHA — **A-17's J3 (switch ON + OR-LIVE) waits on it.**
+3. **Re-run the owed live check `[FU-B18-L1-SECOND-DEVICE-PULL-LIVE]`** once grading works: a graded wrong answer on device A, then device B pulls it (throwaway account, eval key only; delete the account and prove it).
+4. **ME-ENGINE-1 PR-3 (concepts, G5 / G6) stays SKIPPED** until the concept map exists (owner Round 5).
+5. **ME-REPORT-1** (display "today" and won back on Me; the engine data already exists) — later, when the owner schedules it.
+6. Remove only B-18's own worktrees (`b18-me-engine-1`, `b18-me-base`, `b18-me-engine-2`, `b18-me-engine-2b`, `b18-me-engine-2c`, `b18-me-docs`).
+
+### NEXT — OWNER
+1. **`[PROD-AI-500]` (priority):** production `/api/grade-worksheet` and `/api/tutor` return 500 (since at least 21:24Z; still at 23:09:45Z). Read the Railway logs for rids `ZrcXmpipQeOWV5QIwUFZXw` / `TpaobFBISSKLaDIM0_TJvA`; check production Gemini billing / quota; add credit to the eval project (HTTP 402). No repo change explains it; nothing was reverted.
+2. **Optional:** re-tune the controller's Weak Area difficulty bands (D26 C-W2); override the controller's J2 decisions (D30).
+3. **Scope when you choose:** ME-REPORT-1, and a re-attempt path for won back (`[FU-ME1-WONBACK-UNREACHABLE]`).
+4. **Carried:** every owner item of the CI1 blocks and older blocks stands.
+
 ## ★★★ 2026-10-07 — WAVE CI1 (CI, CONTROLLER C) — FU-CI1-NIGHTLY-RESTORE DONE: `#981` MERGED, THE FULL SUITE UNDER BOTH CLOCKS RUNS NIGHTLY AGAIN (docs) — THIS BLOCK SUPERSEDES THE CI-SPEED-1 BLOCK BELOW ON TRUNK SHA AND ITS NIGHTLY ITEM ONLY
 *(The owner items of the CI-SPEED-1, WAVE B-17, A-16 CLOSE, B-16, A-15 CLOSE, B-15, B-14, A-13 and every older block below stand unchanged, except the items this block names.)*
 

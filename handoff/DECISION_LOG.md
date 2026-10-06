@@ -1,3 +1,80 @@
+## 2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B): ME-ENGINE-1 — PRs `#964` `dfb83379`, `#968` `bab5ad0d`, `#970` `d1a8e88f`, `#983` `984bd663` merged — trunk `984bd663` — LIVE; PR-3 skipped by the owner
+
+> ⚠ **SCOPE.** Decisions are Controller B-18's, from `Desktop/diff/WAVE_STATE_B18.md` (DECISIONS D0–D43, numbered as there; never renumbered by this docs builder). Owner words are quoted verbatim from `Desktop/diff/OWNER_RULINGS_B18_ME.md` (Rounds 1–5). The spec ME-ENGINE-1 v1.0 (`82C7034D6DF2`) is owner-authored; the scout's G1–G14 are input, not rulings.
+
+### OWNER rulings (B-18) — verbatim
+- **Round 1 — the won-back rule (before merging `#964`):**
+  > before merging #964: confirm, and pin with a test, that "marks won back" counts ONLY later-correct-attempt (a new attempt by the student). Mistakes resolved by re-grade or re-grade-not-attempted leave the live counts (as now), but never count as won back and never show as improvement. Put that rule in #964's description.
+- **Round 2 — after OR-LIVE-1/2 and PR-2:**
+  > Weak Area Practice is a LIVE premium feature: keep it (it's MI's "what to practise next"). "Mastery" is retired. In PR-2b, granted beyond the spec files for WeakAreaPracticePage.tsx:
+  > remove every mastery display: "Mastery %" (:69–70), the mastery progress bar (:78), "Overall Mastery" (:420–421);
+  > stop choosing difficulty from mastery (:326); base it on the student's graded marks lost in that topic from the shared model;
+  > make Accuracy and Attempts come from the shared, synced read model (the same numbers on every device; the same honesty threshold as Me; nothing shown below it).
+  > Pin it: no student-facing render contains "mastery" or a fake 0%.
+  > Won back = a later, separate attempt by the student answered correctly: the same question now, the same concept after PR-3. Re-grades never count.
+  > "Today" and won back: engine data now; display in ME-REPORT-1.
+  > The convergence-gate amendment: approved under the four standing conditions.
+  > The widget's "marks lost" = the graded stream, the same as Me.
+  > The Tutor brief uses Me's default window (month), Me's groups and Me's honesty threshold, imported, not copied.
+  >
+  > Your two PR-2b fixes are right: wait for the pending write; one shared threshold. J2 interrupts at a safe point when it arrives.
+- **Round 3 — speed (spec defaults; applies to every builder):**
+  > builders run only the tests for the files they changed, plus the typechecks and the premise gate. Never the full local suite; CI runs it once. Don't wait on CI just to start the next independent step (never idle). Quote CI's lines in the PR description instead of re-running locally.
+- **Round 4 — autonomy rules, next 5 hours (owner + cofounder unavailable):**
+  > Decide yourself. Use the spec's rulings and the standing decision policy. Where they don't cover a choice, pick the option that is safe for students, reversible and smallest, record it under DECISIONS in your state file with the reason, and continue. Never stop and wait for an answer. If something truly needs the owner, post an OWNER-ASK line on Desktop\diff\COORD\BOARD.md and carry on with other work.
+  > Coordinate only via the board: CLAIM files before editing, RELEASE after merge, read it before every PR. When two open PRs share a file, the earlier claim merges first; the other merges trunk in (merge commit, never force-push) and regenerates generated files.
+  > Merging: merge your own PR when CI is fully green and your independent verifier sub-agent has passed it. Never bypass a required check, never --admin, never change GitHub / Vercel / Railway / Firebase / Google settings.
+  > After every merge: 5 consecutive cold reads of https://www.lazytopper.com/version.json = the merge SHA, then a 3-page smoke test (Home, Practice Hub, Check & Improve). If production breaks, revert your PR immediately (a revert PR, merged when green), note it on the board, and continue.
+  > Speed rules: builders run only changed-file tests, typechecks and the premise gate; CI runs the full suite. Never idle while CI runs; prepare the next step instead.
+  > Live AI checks: throwaway accounts only (delete them after, and prove it); eval key only (cap ₹10,000).
+  > Context or usage limits: at ~15% context, or if rate-limited, write a checkpoint in your state file (done / next command / open PRs) and stop at a safe point (never mid-merge).
+  > Every PR description carries the full report, mutation table, CI lines and audit request: the cofounder audits PRs by number later.
+- **Round 5 — plan for the next 5 hours:**
+  > Finish ME-ENGINE-1 PR-2b (the second-browser fix, one shared honesty threshold, Weak Area Practice with no mastery figures, the IST-midnight fix, the widget switch, the brief imports). Merge when green.
+  > Then J2 (the background-grading client): write your own J2 builder brief from A-17's J2 CLIENT CONTRACT v1.0 (in J1's PR description, location posted on the board). J2 rules:
+  > poll the status endpoint;
+  > show results question by question, marked provisional until final;
+  > resume after a reload;
+  > fall back to today's synchronous path if jobs are off or fail;
+  > surfaces: C&I papers, Chapter Test, Full Mock, worksheets, multi-question Quick Practice (single checks unchanged; the signed-out free check unchanged);
+  > the switch stays OFF (A-17 turns it on in J3).
+  > Claim those page files on the board (C1 may also touch Chapter Test / Full Mock pages: first claim wins).
+  > Skip ME-ENGINE-1 PR-3 for now: it needs the concept map, which isn't built yet. Record it in your state file.
+  > Rulings in force: Weak Area Practice stays (no mastery); won back = a later correct attempt only; "today" and won back are data-only until ME-REPORT-1.
+- **Other owner rules in force this wave** (`WAVE_STATE_B18.md` D18, D23, D24): every file CLAIMed on `Desktop/diff/COORD/BOARD.md` before editing and RELEASEd after merge; every board line mirrored on issue `#973`; CI-1 (Controller C) is the coordinator while the owner is away.
+
+### The four standing gate-amendment conditions (B-15), as applied to MIC H3 in `#970`
+The owner approved the convergence-gate amendment "under the four standing conditions" (Round 2). Applied to `check_improve_convergence_acceptance.mjs` MIC H3 (the check that pinned the MI widget's old data source):
+1. **Each changed line cites the superseding ruling** — the two amended H3 lines and the two new lines each carry `// OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel` (the marks line cites "widget's 'marks lost' = the graded stream").
+2. **Replaced in the same PR by a pin whose mutation goes RED** — mutation W (the old card source) → 4 gate checks RED; mutation W2 (card marks = the MI-entry sum) → 2 tests RED (the G3 widget slot and the graded-stream contract).
+3. **Bans lifted only for files the PR must change** — no new ban lifted (`MistakeIntelCard` was already outside FORBIDDEN); the forbidden-diff block (~l.1138–1170) is untouched; the only hunk is `@@ -1065,10 +1065,20 @@`.
+4. **Nothing report-only or skipped; the total gate count never goes down** — MIC **146 → 148** checks, 148/148 in CI `37530079851`.
+*(builder-reported, `report-me-engine-1-pr2b-2026-10-06.md`; MIC count controller-verified; the verifier on `#970` passed it.)*
+
+### Controller decisions (B-18), with the reason
+- **D0 — spec hash verified, durable copy written; PR order** PR-1 now (disjoint from `#957` / `#961` / `#962`), PR-2 after A-17's `#957` (shared `tutorContextBrief.ts`), PR-3 after BANK-FIX-1 PR-3. **Why:** no lane overlap; the Tutor brief file was A-17's first.
+- **D4 — the won-back ruling routed to the PR-1 builder before merge** (verify / fix, 3-case pin, mutation, rule quoted in the description). **Outcome:** the code did NOT hold the rule (re-grades counted) → fixed and pinned. *(Superseded in detail by the owner's Round 2 definition of won back.)*
+- **D5 / D6 — PR-1 merged without the widget switch; OR-LIVE-1 PARTIAL is not a rollback.** **Why:** the ops gate pinned the widget's source and a gate amendment needs the owner's words (a controller cannot grant it — B-15); rollback is for regressions only. *(D5's OWNER ASK superseded by Round 2: amendment approved, widget basis = graded stream.)*
+- **D7 — PR-2 dispatched while the owner asks were open,** excluding the widget and any won-back re-attempt path. **Why:** OR-AUTO; the rest did not depend on the answers.
+- **D10 — the brief naming concepts below Me's gate is spec-required, not an owner choice** → folded into PR-2b. **Why:** the spec requires one honesty threshold.
+- **D11 — owner Round 2 folded into PR-2b** (Weak Area mastery removal, widget switch, MIC H3 amendment, brief imports). **Why:** same theme (every surface on the shared model); one PR instead of two.
+- **D15 — the IST-midnight test failure owned by B-18** (in PR-2b), not by C's CI lane. **Why:** standing rule 2 — the lane that owns the file fixes it; C's date-sensitive manifest is C's file.
+- **D20 — owner autonomy rules applied** (Round 4): independent verifier before every merge; 5 cold reads + 3-page smoke after; OWNER-ASKs on the board, never waiting.
+- **D22 — J2 dispatched in parallel with PR-2b, not after it.** **Why:** disjoint files; never idle; both stop at READY and merge in order.
+- **D26 — C-W1:** the widget applies the same weakness-naming rung before naming a group (spec: one threshold; safe for students) → fixed in `#970` before merge. **C-W2: the builder's difficulty bands (share of marks lost ≥ 0.6 → Easy, ≥ 0.3 → Medium) kept as a CONTROLLER decision — the owner may re-tune.** **C-W3:** a late board claim on `date-sensitive-tests.json` posted, merge order asked of CI-1. **Why:** autonomy rules — safe, reversible, smallest.
+- **D28 / D29 — `#970` merged after update-branch with all 17 files proven byte-identical** to the verifier-passed head. **Why:** the verifier's verdict carries over only to an identical lane diff.
+- **D30 — J2 decisions (controller, open to owner override):** contract-literal deviations accepted (a new idempotency key after a 404; Chapter Test stores paper + frozen score + code with the job; row index = server-filtered position); (i) an interrupted job's FINAL graded rows are recorded to MI / progress even if the student never presses "grade the remaining N" — they were charged, so the data is honest (→ J2b); (ii) the new J2 copy ships as written behind the OFF switch, with an OWNER-ASK (CI-1 approved it under owner ruling 7). **Why:** autonomy rules; reversible; nothing student-visible until J3.
+- **D31 / D34 — J2a `#979` HELD during `[PROD-AI-500]`** although verified. **Why:** a client grading change landing during a grading outage muddies diagnosis, and its 200-path cannot be live-smoked while AI is down; holding is the safest, fully reversible option and costs nothing (J2b / PR-2c kept building). **No revert of `#970`:** it changed no server file.
+- **D36 — `#983` does NOT wait for the AI outage.** **Why:** it only removes a false count and unearned praise; its smoke needs no AI.
+- **D37 / D38 — after the verifier's FAIL on `#983`:** a per-paper praise gate; **praise copy removed entirely** (the list mixes device-local sources, so "no weak topic" cannot be proven from synced data); a new page-local `WeakAreaPracticePage.css` instead of `src/styles.css`. **Why:** safe for students, smallest; `[FU-B18-WEAKAREA-LOCAL-LIST]` holds the real fix.
+- **D40 / D41 — `#983` merged after update-branch with 5/5 files byte-identical.**
+- **D43 — handoff lock taken at 23:13Z; this docs PR stops at READY;** the controller verifies and merges.
+- **No D23-equivalent slip recorded for B-18.** B-17's D23 (a state-file edit keyed on a missing heading) is carried as a lesson.
+
+### Scope discovered (§10, `SURFACE_TRACKER.md` §2a)
+- **The DPDP map location ↔ `server/services/accountExport.test.cjs` coupling.** A new synced Firestore location must go in the DPDP map, and a server test pins those locations, so a client-only lane that adds a location breaks a `server/**` test (forbidden to it). `#968` added fields to already-mapped docs instead. Scope = Settling (Me / Progress, Tutor).
+- **The MIC gate pinning the MI widget's old source.** Any change to the widget's data needs a gate amendment under the owner's four conditions. Scope = Settling (MI widget).
+
 ## 2026-10-06 — WAVE B-17 (SYLLABUS, CONTROLLER B): QUICK-FIXES-1 — PRs `#955` `6259187b`, `#956` `5cd9d97e`, `#958` `613d8996` merged — trunk `613d8996` — LIVE
 
 > ⚠ **SCOPE.** Decisions are Controller B-17's, from `Desktop/diff/WAVE_STATE_B17.md` (DECISIONS D0–D8) and the controller's addenda in `BRIEF_B17_QF_PR2.md` (ADDENDUM 1, 3) and `BRIEF_B17_QF_PR3.md` (ADDENDUM 1). **The state file numbers decisions D0–D8 only; it has no D9–D17 entries at docs time.** The later decisions below are recorded unnumbered from the addenda, never renumbered by this docs builder. Owner words are quoted verbatim from `OWNER_RULINGS_B17_QF.md`, `BRIEF_B17_QF_PR2.md` ADDENDUM 2 and the spec's WHY.
