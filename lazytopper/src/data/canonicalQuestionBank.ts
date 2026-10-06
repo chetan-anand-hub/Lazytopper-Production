@@ -534,6 +534,10 @@ import { HUMAN_EYE_CBQ_LT_GENERATED } from './questionBanks/class10/science/huma
 import { OUR_ENVIRONMENT_CBQ_LT_GENERATED } from './questionBanks/class10/science/our-environment.cbq.ltgen';
 import { REAL_NUMBERS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/real-numbers.cbq.ltgen';
 import { LIGHT_CBQ_LT_GENERATED } from './questionBanks/class10/science/light-reflection-and-refraction.cbq.ltgen';
+// CBQ-1 C2 PR-2 — Science CBQs of every mark toward >= 100 per chapter (blind-solved; internal provenance).
+import { MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/magnetic-effects-of-electric-current.b1.cbq.ltgen';
+import { LIGHT_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/light-reflection-and-refraction.b1.cbq.ltgen';
+import { ELECTRICITY_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/electricity.b1.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1032,6 +1036,10 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...OUR_ENVIRONMENT_CBQ_LT_GENERATED,
   ...REAL_NUMBERS_CBQ_LT_GENERATED,
   ...LIGHT_CBQ_LT_GENERATED,
+  // CBQ-1 C2 PR-2 — Science CBQs of every mark.
+  ...MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED,
+  ...LIGHT_CBQ_B1_LT_GENERATED,
+  ...ELECTRICITY_CBQ_B1_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------

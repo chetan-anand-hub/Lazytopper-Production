@@ -155,12 +155,12 @@
    ]
   },
   "light-reflection-and-refraction": {
-   "n": 708,
-   "sha256": "3042ec829191f9b6f762b0051f646f41dccbf24833707ee4a2250501422c3a44",
+   "n": 803,
+   "sha256": "4f526e0dc216d98635f60ffec8625b94130aee08fc8c2d945fe25415ad65aaf0",
    "head": [
-    "LIGHT-EXMPLR-9-MCQ-016",
-    "LIGHT-EXMPLR-9-MCQ-017",
-    "CFPQ-S-LGHT-006"
+    "LTG-S-LIGHT-253",
+    "LTG-S-LIGHT-257",
+    "LIGHT-EXMPLR-9-MCQ-016"
    ]
   },
   "human-eye-and-colourful-world": {
@@ -173,21 +173,21 @@
    ]
   },
   "electricity": {
-   "n": 316,
-   "sha256": "aee06959743ba42cb80fd4548fd5828830ed26690e6e37abe200df41c338934e",
+   "n": 411,
+   "sha256": "255979de3dcd613ecddfb4133eb3355255d4664b76d35c93fdb508845f45d4bf",
    "head": [
-    "PYQ-S-2026-ELEC-002",
-    "CASE-SCI-EL-001",
-    "AR-EL-010"
+    "LTG-S-ELEC-233",
+    "LTG-S-ELEC-237",
+    "LTG-S-ELEC-296"
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 195,
-   "sha256": "1ea214ead5464d6f5247c32a4cc07626c09470c45f6cabc3d37f37dc77d11342",
+   "n": 290,
+   "sha256": "c737e8a8010dbbd253eaeb4f136f27f405453d6320e26de81060a8022dce584a",
    "head": [
-    "LTG-S-MAG-101",
-    "LTG-S-MAG-103",
-    "LTG-S-MAG-108"
+    "LTG-S-MAG-253",
+    "LTG-S-MAG-254",
+    "LTG-S-MAG-101"
    ]
   },
   "life-processes": {
@@ -392,11 +392,11 @@
   },
   "light-reflection-and-refraction": {
    "n": 167,
-   "sha256": "b3201e15d656e3872c7df4a0af0f4c2e3426a9a830565ef6425c26e612c608bf",
+   "sha256": "f03bd0b6495cbab8a59ab064406fc5d6af1c69b4aa9e3a9c224e072cef340671",
    "head": [
     "Always Erect Image\tLIGHT-NCERT-9-MCQ-005",
-    "Cause of Refraction\t2026-LIGHT-MCQ-02,CBE-S-LGHT-B-008,LT-M08,LT2-042,LT-H04,LT-M04,LT2-035,LT-E11,LT-M10,LT-M15,LT2-034,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-033,LT2-050,LT2-054,LT2-057,LT2-010,LT2-022,LT-E13,LT-E09",
-    "Chapter Practice — Light - Reflection and Refraction\tSCO-S-LIGHT-003,SCO-S-LIGHT-004,SCO-S-LIGHT-005,SCO-S-LIGHT-006,SCO-S-LIGHT-007,SCO-S-LIGHT-012,SCO-S-LIGHT-013,SCO-S-LIGHT-014,SCO-S-LIGHT-015,SCO-S-LIGHT-016,SCO-S-LIGHT-019,SCO-S-LIGHT-020,SCQ-S-LIGHT-028,SCQ-S-LIGHT-029,SCQ-S-LIGHT-031,sci-phy-light-3m-2026-01,SCQ-S-LIGHT-035,SCQ-S-LIGHT-038,SCQ-S-LIGHT-039,SCQ-S-LIGHT-040,SCQ-S-LIGHT-041,SCQ-S-LIGHT-042,SCQ-S-LIGHT-043,SCQ-S-LIGHT-021,SCQ-S-LIGHT-023,SCQ-S-LIGHT-024,SCQ-S-LIGHT-025,SCQ-S-LIGHT-026,SCQ-S-LIGHT-027,SCQ-S-LIGHT-030,SCQ-S-LIGHT-032,2026-LIGHT-MCQ-02,SCQ-S-LIGHT-033,GDR-L-CBJ-009,GDR-L-CBJ-025,SCQ-S-LIGHT-044,LT-M08,LT2-042,LT-H04,LT-M04,LT-M05,LT2-035,LT-H08,LT-E11,LT-M11,LT-M10,LT-M15,LT2-034,LT-E06,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-M07,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-033,LT2-050,LT2-054,LT2-057,LT2-010,LT2-022,LT-E13,LT-H10,LT-H01,LT-M01,LT-E08,LT-E14,LT-H03,LT-E09,LT-E01,LT-E02,LT-E04,LT-E10,LT-E12,LT-M03,LT-M09,LT-M14"
+    "Cause of Refraction\tLTG-S-LIGHT-255,LTG-S-LIGHT-244,2026-LIGHT-MCQ-02,CBE-S-LGHT-B-008,LT-M08,LT2-042,LT-H04,LT-M04,LT2-035,LT-E11,LT-M10,LT-M15,LT2-034,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-033,LT2-050,LT2-054,LT2-057,LT2-010,LT2-022,LT-E13,LT-E09",
+    "Chapter Practice — Light - Reflection and Refraction\tLTG-S-LIGHT-255,LTG-S-LIGHT-244,SCO-S-LIGHT-003,SCO-S-LIGHT-004,SCO-S-LIGHT-005,SCO-S-LIGHT-006,SCO-S-LIGHT-007,SCO-S-LIGHT-012,SCO-S-LIGHT-013,SCO-S-LIGHT-014,SCO-S-LIGHT-015,SCO-S-LIGHT-016,SCO-S-LIGHT-019,SCO-S-LIGHT-020,SCQ-S-LIGHT-028,SCQ-S-LIGHT-029,SCQ-S-LIGHT-031,sci-phy-light-3m-2026-01,SCQ-S-LIGHT-035,SCQ-S-LIGHT-038,SCQ-S-LIGHT-039,SCQ-S-LIGHT-040,SCQ-S-LIGHT-041,SCQ-S-LIGHT-042,SCQ-S-LIGHT-043,SCQ-S-LIGHT-021,SCQ-S-LIGHT-023,SCQ-S-LIGHT-024,SCQ-S-LIGHT-025,SCQ-S-LIGHT-026,SCQ-S-LIGHT-027,SCQ-S-LIGHT-030,SCQ-S-LIGHT-032,2026-LIGHT-MCQ-02,SCQ-S-LIGHT-033,GDR-L-CBJ-009,GDR-L-CBJ-025,SCQ-S-LIGHT-044,LT-M08,LT2-042,LT-H04,LT-M04,LT-M05,LT2-035,LT-H08,LT-E11,LT-M11,LT-M10,LT-M15,LT2-034,LT-E06,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-M07,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-033,LT2-050,LT2-054,LT2-057,LT2-010,LT2-022,LT-E13,LT-H10,LT-H01,LT-M01,LT-E08,LT-E14,LT-H03,LT-E09,LT-E01,LT-E02,LT-E04,LT-E10,LT-E12,LT-M03,LT-M09,LT-M14"
    ]
   },
   "human-eye-and-colourful-world": {
@@ -410,7 +410,7 @@
   },
   "electricity": {
    "n": 147,
-   "sha256": "195fd05dda063bad304d78390c878ca12471c9e98643845c34db76c2e7a40d74",
+   "sha256": "00947870af943a6287ea954018e2f15e638a89cd99da3e0539a4c7d2d9f034a2",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
@@ -419,10 +419,10 @@
   },
   "magnetic-effects-of-electric-current": {
    "n": 55,
-   "sha256": "0b6593ecbee374688c289d617de1ea693859ae66b0ceb0400cd2c083f2e72783",
+   "sha256": "e5a7280e4c3e0852f2523e1fa8f32904b8dc7504b0bb6b51e135c77426805081",
    "head": [
-    "AC Frequency\tLTG-S-MAG-005,LTG-S-MAG-002,LTG-S-MAG-003,LTG-S-MAG-001,LTG-S-MAG-006,LTG-S-MAG-008,LTG-S-MAG-009,LTG-S-MAG-010,LTG-S-MAG-004,LTG-S-MAG-007",
-    "AC and DC\tPYQ-S-2026-ACID-018,ME2-048,ME2-017,ME2-039,ME2-041",
+    "AC Frequency\tLTG-S-MAG-296,LTG-S-MAG-005,LTG-S-MAG-002,LTG-S-MAG-003,LTG-S-MAG-283,LTG-S-MAG-001,LTG-S-MAG-006,LTG-S-MAG-008,LTG-S-MAG-009,LTG-S-MAG-288,LTG-S-MAG-010,LTG-S-MAG-004,LTG-S-MAG-007",
+    "AC and DC\tLTG-S-MAG-292,PYQ-S-2026-ACID-018,ME2-048,ME2-017,ME2-039,ME2-041",
     "AC vs DC\tMAG-EXMPLR-12-SA-011"
    ]
   },
@@ -934,29 +934,29 @@
   },
   "light-reflection-and-refraction::seed1": {
    "n": 10,
-   "sha256": "7b319b18a66149e08b65a1ad6533ae1be8c1af71fa8c4ce551c406016f227770",
+   "sha256": "7b61c28c16543b8b6104ac46215c3443796384b7a183ea3440e4ec3db8f6a271",
    "head": [
-    "FND-L-SPQ-024",
-    "FND-L-SPQ-022",
-    "LIGHT-NCERT-9-MCQ-006"
+    "CFPQ-S-LGHT-006",
+    "LTG-S-LIGHT-257",
+    "LTG-S-LIGHT-225"
    ]
   },
   "light-reflection-and-refraction::seed2": {
    "n": 10,
-   "sha256": "91c89a5fbdc0c2354c8659c5f0c686f6047c456f583b124ee871b31128bf4759",
+   "sha256": "ebcaa1dddedbc5c4d8d9c4e15051fc64922495cc595c0f2b53d6f8db8c1bb6a9",
    "head": [
-    "CASE-SCI-LIGHT-001",
-    "PYQ-S-2024-LIGHT-010",
-    "LIGHT-EXMPLR-9-MCQ-016"
+    "LTG-S-LIGHT-255",
+    "FND-L-SPQ-022",
+    "LTG-S-LIGHT-253"
    ]
   },
   "light-reflection-and-refraction::seed3": {
    "n": 10,
-   "sha256": "b991ece9a7cbdf31b91f01ee8cd1ee35ca917811eee0f41b543e3d98b5cd7ee8",
+   "sha256": "de00cfeafe12fe0018214409e1c779497143019a2a9fb9d0576244e34f65bcf0",
    "head": [
-    "PYQ-S-2024-LIGHT-010",
-    "LIGHT-EXMPLR-9-MCQ-017",
-    "CFPQ-S-LGHT-006"
+    "FND-L-SPQ-022",
+    "LIGHT-EXMPLR-9-MCQ-016",
+    "LIGHT-EXMPLR-9-MCQ-017"
    ]
   },
   "human-eye-and-colourful-world::seed1": {
@@ -988,56 +988,56 @@
   },
   "electricity::seed1": {
    "n": 10,
-   "sha256": "62d3c14c0fb3ce31f394d69af44abe0814a7159bf1e841ab88aff0d6df580ea3",
+   "sha256": "bd91524ca6a5fb18754dc38598a35b47bf1e55d8a8214d6475a85a4d5a5d6f9b",
    "head": [
-    "AR-EL-004",
-    "AR-EL-010",
-    "ELEC-NCERT-11-SA-011"
+    "LTG-S-ELEC-274",
+    "LTG-S-ELEC-237",
+    "LTG-S-ELEC-215"
    ]
   },
   "electricity::seed2": {
    "n": 10,
-   "sha256": "67fff46e0d51772361d76c9787eec070b4c959f40209c7c7fc71b1a66203d5f7",
+   "sha256": "ad6d59aa1f337dc59e3eddd41cc8c24e924aa6869c3b1cccd00994ab18275ca7",
    "head": [
     "CASE-SCI-EL-001",
-    "PYQ-S-2024-ELEC-002",
-    "PYQ-S-2026-ELEC-002"
+    "AR-EL-010",
+    "LTG-S-ELEC-233"
    ]
   },
   "electricity::seed3": {
    "n": 10,
-   "sha256": "1545f6274ded20b3d868f651acdd2e4af204bdf1094a233913d53d5bdb23f902",
+   "sha256": "526939942d6ea9200865cf3fcac6b2854626c7f2bf4cb87300c590ef5ec4149c",
    "head": [
-    "PYQ-S-2024-ELEC-002",
-    "SQP-S-ELEC-004",
-    "AR-EL-003"
+    "AR-EL-010",
+    "LTG-S-ELEC-296",
+    "PYQ-S-2026-ELEC-002"
    ]
   },
   "magnetic-effects-of-electric-current::seed1": {
    "n": 10,
-   "sha256": "f7e9e9d145a1ce7aa0b05a057145266dffecd583ecfde2996fafd1501767e88b",
+   "sha256": "693aaba1b8b71710dd5ebc893cfdfa8837f5b7f84fb659237c8aa1fe9f152bd9",
    "head": [
-    "LTG-S-MAG-102",
+    "LTG-S-MAG-103",
     "LTG-S-MAG-104",
-    "MAG-NCERT-12-MCQ-006"
+    "LTG-S-MAG-206"
    ]
   },
   "magnetic-effects-of-electric-current::seed2": {
    "n": 10,
-   "sha256": "987e5b48fa3ae38027805510b760cddacbc00fe838093657332ce7df55272455",
+   "sha256": "77ee47027f9ef57dda7a8d1e544092e200eeb52e4766ab022b3c94226359e7a9",
    "head": [
-    "LTG-S-MAG-110",
-    "LTG-S-MAG-105",
-    "LTG-S-MAG-101"
+    "LTG-S-MAG-214",
+    "LTG-S-MAG-216",
+    "LTG-S-MAG-253"
    ]
   },
   "magnetic-effects-of-electric-current::seed3": {
    "n": 10,
-   "sha256": "9e41b388a2904408ba2dcd97ee02b9d0930d21d3ccb3c2ca368945d40edac48f",
+   "sha256": "ccc5bfb78ad627316d87c6623699e45b111c07588c57df12d8340ec49a4410a5",
    "head": [
-    "LTG-S-MAG-105",
-    "LTG-S-MAG-103",
-    "LTG-S-MAG-108"
+    "LTG-S-MAG-216",
+    "LTG-S-MAG-254",
+    "LTG-S-MAG-101"
    ]
   },
   "life-processes::seed1": {
