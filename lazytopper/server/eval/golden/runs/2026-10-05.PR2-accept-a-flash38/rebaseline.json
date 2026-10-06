@@ -43,8 +43,113 @@
   },
   "run1:V2.W.MM.GS-MM-05": {
    "from": "7ac75445d91259c899d1b3c29f65b7ff5511ed02264d2ca4c02443f109f77a2a",
-   "to": "466fde17a7f0ca31aa14f20206acb09683bf5a457c2be172460dd8cc1ffb7fb2",
-   "class": "v2-notGraded-field"
+   "to": "0a00f9585f57ac004071584faf1635f179b5555ac4fdc66d69bf283fc8e755cc",
+   "class": "v2-notGraded-field+a17-r3-medium",
+   "a17": {
+    "base": "466fde17a7f0ca31aa14f20206acb09683bf5a457c2be172460dd8cc1ffb7fb2",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct final calculation",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ],
+     [
+      [
+       "results",
+       0,
+       "marksLostByType",
+       "presentation"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "gradedMarksAwarded"
+      ],
+      5.5,
+      5
+     ]
+    ]
+   }
   },
   "run1:V2.W.MM.GS-MM-02": {
    "from": "0766900cb2bb57203a565f59319af265b7e78825114fd6c7c8c97ba74032b9c9",
@@ -58,13 +163,89 @@
   },
   "run1:W.CIM.OA-01": {
    "from": "ce46c9b078b7b96008735e51d24ecd142b216cb6c1566a762f7cdef7433278d5",
-   "to": "619577efd8c2f8945e4639895dfba9e6cf1082ec13a3b44c87e900de9004afe3",
-   "class": "d38-blank-slot-unattempted"
+   "to": "f7ed6bf3003d80e0924e2ae7b57b9f8ac95a07e012f65138fe599847339bea6f",
+   "class": "d38-blank-slot-unattempted+a17-r1-units",
+   "a17": {
+    "base": "619577efd8c2f8945e4639895dfba9e6cf1082ec13a3b44c87e900de9004afe3",
+    "delta": [
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Numerical value correct, but SI unit (Ω) missing",
+      "−½: write the unit (Ω) with your final answer."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "✓ Correct calculation, but SI unit (A) and formula I = V/R omitted This was already charged once in this question, so no further mark is lost here.",
+      "✓ The unit was already charged once in this question, so no further mark is lost here."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       2,
+       "correctedWorking"
+      ],
+      "I = V/R = 6 V / 1 Ω = 6 A",
+      null
+     ]
+    ]
+   }
   },
   "run1:V2.W.CIM.OA-01": {
    "from": "6377c733ab2fe559c9885fcea61541741eec4f4061c9ed783254096f360ed9d4",
-   "to": "78fc549ec82ade7e893c8fc0af9779500fb3b17eb6fe7af1b49e3509ff75efa5",
-   "class": "v2-notGraded-field+d38-blank-slot-unattempted"
+   "to": "35cc90615c73dd01c79c6674b55a715bc202f49bd6a864aba83cb3c4f97c1426",
+   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units",
+   "a17": {
+    "base": "78fc549ec82ade7e893c8fc0af9779500fb3b17eb6fe7af1b49e3509ff75efa5",
+    "delta": [
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ SI unit (Ω) missing",
+      "−½: write the unit (Ω) with your final answer."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "✓ SI unit (A) missing This was already charged once in this question, so no further mark is lost here.",
+      "✓ The unit was already charged once in this question, so no further mark is lost here."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       2,
+       "correctedWorking"
+      ],
+      "I = V/R = 6/1 = 6 A",
+      null
+     ]
+    ]
+   }
   },
   "run1:V2.W.CP.paper-03": {
    "from": "7050f81d34b529ef5ef553468e7b052b5689b3f1a55ef192d0e58651270370fb",
@@ -83,8 +264,24 @@
   },
   "run1:V2.W.CP.paper-01": {
    "from": "5760bc68ebdf6ca2ebc5bc1916c294ff5c14bb73041896c60b5ead47e6740c8a",
-   "to": "638170fbb79741f8dc2c75b90ff5e1d03b0aeaa0f57964a45cebfa3c88ef0e9f",
-   "class": "v2-notGraded-field"
+   "to": "63482cc61908eb8b68a9d3b6361a6fcbc9853120bb7fdf83127d593cc9ba3b81",
+   "class": "v2-notGraded-field+a17-r1-units",
+   "a17": {
+    "base": "638170fbb79741f8dc2c75b90ff5e1d03b0aeaa0f57964a45cebfa3c88ef0e9f",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Correct numerical value but SI unit (V) is missing",
+      "−½: write the unit (V) with your final answer."
+     ]
+    ]
+   }
   },
   "run2:W.CT.P0-01": {
    "from": "8fa9c0e98f69fc897f09a29ba17e5f64c984da0ad0ac8adaf0cf55134e5938e1",
@@ -98,8 +295,46 @@
   },
   "run2:W.CIM.OA-01": {
    "from": "60ba9e4b8b0f3666806bd86c1871b4762fd8aa53c2ba636d4a0c8177f8aacee5",
-   "to": "392d7e33d9660dccd961092f7cb2b89212dfcaae707955791dbcad8f862bc910",
-   "class": "d38-blank-slot-unattempted"
+   "to": "a53c0ab012aa3cc07a330a386b6bf81e6c6a0ac2df71efcaaa54f72f5665ee9e",
+   "class": "d38-blank-slot-unattempted+a17-r1-units",
+   "a17": {
+    "base": "392d7e33d9660dccd961092f7cb2b89212dfcaae707955791dbcad8f862bc910",
+    "delta": [
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Missing unit (Ω).",
+      "−½: write the unit (Ω) with your final answer."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       3,
+       "teacherAnnotation"
+      ],
+      "✓ Missing SI unit (A). This was already charged once in this question, so no further mark is lost here.",
+      "✓ The unit was already charged once in this question, so no further mark is lost here."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       3,
+       "correctedWorking"
+      ],
+      "I = 6 A",
+      null
+     ]
+    ]
+   }
   },
   "run2:V2.W.MM.GS-MM-06": {
    "from": "8346f989e2486c2493a2fc309ee3bfd2a18f089cb6d798934285fda0206b1785",
@@ -128,13 +363,134 @@
   },
   "run2:V2.W.CIM.OA-01": {
    "from": "03c1b72dffee0af39ddfbbfce5ad3b85221562397d4810a1813eeb62e1b1bb8c",
-   "to": "f911114b020f4bd4b97a821cfc730363794fc6ef2067361ea9227aee4bf1c43a",
-   "class": "v2-notGraded-field+d38-blank-slot-unattempted"
+   "to": "1ce03d67844aa75a228ca5a87ec6d17e1e256338cab94dc0e33685c1d02f972d",
+   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units",
+   "a17": {
+    "base": "f911114b020f4bd4b97a821cfc730363794fc6ef2067361ea9227aee4bf1c43a",
+    "delta": [
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "½ Numerical work correct, but unit Ω is missing",
+      "−½: write the unit (Ω) with your final answer."
+     ]
+    ]
+   }
   },
   "run2:V2.W.MM.GS-MM-05": {
    "from": "8d77f48538a1e06a52ee20caf317bd72f129290947145a5435ca333db4d468a4",
-   "to": "e78c60b1bb7e7585e166422f0306536a49f35f50177377e6334eed80bbcebc8a",
-   "class": "v2-notGraded-field"
+   "to": "1d8c17b957380c8b67417354868a3c3c95d07b5b32b7f7a5434070bc74c257ec",
+   "class": "v2-notGraded-field+a17-r3-medium",
+   "a17": {
+    "base": "e78c60b1bb7e7585e166422f0306536a49f35f50177377e6334eed80bbcebc8a",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct simplification to final answer 2",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ],
+     [
+      [
+       "results",
+       0,
+       "marksLostByType",
+       "presentation"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "gradedMarksAwarded"
+      ],
+      5.5,
+      5
+     ]
+    ]
+   }
   },
   "run2:V2.W.MM.GS-MM-01": {
    "from": "c948283a24b2b810ee3b12171efce2d5fad682ca2ee3793a03dea0f4b5583822",
@@ -158,8 +514,24 @@
   },
   "run2:V2.W.CP.paper-01": {
    "from": "8c9f2ccd955c58fe3363827149ca5881016dccc86ee38fa63570a9b8b721a96a",
-   "to": "184e244b3418973f0e11dbeaed63c844fd8b95b4503f21e3b462ddadb263eb34",
-   "class": "v2-notGraded-field"
+   "to": "1fcd1a06a3378ca59d6abb562d1fdd226fec0fd9923130df18bf97e53ea918b2",
+   "class": "v2-notGraded-field+a17-r1-units",
+   "a17": {
+    "base": "184e244b3418973f0e11dbeaed63c844fd8b95b4503f21e3b462ddadb263eb34",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Numerical value 40 is correct, but SI unit (V or volts) is missing",
+      "−½: write the unit (V) with your final answer."
+     ]
+    ]
+   }
   },
   "run3:W.CIM.CMM": {
    "from": "2addae24666471497ad4f37181052501138f13f09beef943f71a81a53e7c8474",
@@ -173,8 +545,46 @@
   },
   "run3:W.CIM.OA-01": {
    "from": "e50f69f05135253701499d272d45afb4097fad1a09fd012c425b3745d870e883",
-   "to": "e49095d4f6b4959186e149ad9fe56e5f18856096e3160fb569ecd00c8a3540d8",
-   "class": "d38-blank-slot-unattempted"
+   "to": "e966b88c4d8c88384669eab12663f8705b1ba721b3a69edf07eedb0c57c216c0",
+   "class": "d38-blank-slot-unattempted+a17-r1-units",
+   "a17": {
+    "base": "e49095d4f6b4959186e149ad9fe56e5f18856096e3160fb569ecd00c8a3540d8",
+    "delta": [
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "½ Correct calculation, but unit Ω is missing",
+      "−½: write the unit (Ω) with your final answer."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct calculation, but unit A is missing This was already charged once in this question, so no further mark is lost here.",
+      "✓ The unit was already charged once in this question, so no further mark is lost here."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       1,
+       "correctedWorking"
+      ],
+      "I = V / R = 6 / 1 = 6 A",
+      null
+     ]
+    ]
+   }
   },
   "run3:V2.W.MM.GS-MM-01": {
    "from": "161334e6e254882468c88dc418f0a5a7c0fb18ea602a831489515ab46e2b298a",
@@ -203,8 +613,113 @@
   },
   "run3:V2.W.MM.GS-MM-05": {
    "from": "607619d6625577691e43b7069cd98aa377a7b846dd2feea34957eac085cef7ae",
-   "to": "e606606b3dbc312ab4d00e51048534b9ce19c16163d0071eb8d4f01d712e4820",
-   "class": "v2-notGraded-field"
+   "to": "41fb344f979b6c29a0b0382332a1818bf581041ab5cfcb3a08cf38fedec5ce71",
+   "class": "v2-notGraded-field+a17-r3-medium",
+   "a17": {
+    "base": "e606606b3dbc312ab4d00e51048534b9ce19c16163d0071eb8d4f01d712e4820",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       2,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       2,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       2,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "✓ Correct division to find final answer",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       2,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ],
+     [
+      [
+       "results",
+       0,
+       "marksLostByType",
+       "presentation"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "gradedMarksAwarded"
+      ],
+      6,
+      5.5
+     ]
+    ]
+   }
   },
   "run3:V2.W.MM.GS-MM-06": {
    "from": "d578111c40576a91047fb1e39b6e8a8f96b894d8202f57ad9d10f94a4933d090",
@@ -213,8 +728,46 @@
   },
   "run3:V2.W.CIM.OA-01": {
    "from": "ccefba4ac9e8618a57b1fc2bfd7790be7b6775a9bb7a7c50b1fd3958113b9894",
-   "to": "38723842823ee7cb1a91f08bf701120478946f6f5a1c2510f1ff05f13d6a59d4",
-   "class": "v2-notGraded-field+d38-blank-slot-unattempted"
+   "to": "fcd51490f5bb09fea33063ac7aa78f53e993d5a51d38bd20e59b9f044f7652c1",
+   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units",
+   "a17": {
+    "base": "38723842823ee7cb1a91f08bf701120478946f6f5a1c2510f1ff05f13d6a59d4",
+    "delta": [
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "× SI unit Ω missing",
+      "−½: write the unit (Ω) with your final answer."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       3,
+       "teacherAnnotation"
+      ],
+      "✓ SI unit A missing This was already charged once in this question, so no further mark is lost here.",
+      "✓ The unit was already charged once in this question, so no further mark is lost here."
+     ],
+     [
+      [
+       "results",
+       4,
+       "annotatedSteps",
+       3,
+       "correctedWorking"
+      ],
+      "I = 6 A",
+      null
+     ]
+    ]
+   }
   },
   "run3:V2.W.CP.paper-02": {
    "from": "d01ea5bfbe0c0481a5eadfd6712110e98c0cb89c704ad84741e8658c3a7ffee4",
@@ -233,8 +786,24 @@
   },
   "run3:V2.W.CP.paper-01": {
    "from": "690d69d813a78a641c225c1ac7f1b647120476d7516a0c2e1531160e4df00855",
-   "to": "bccedab13452ff4b5bc7e260e87c4be4a7c15d89d844e7a33cd19fbc7a3ce0b9",
-   "class": "v2-notGraded-field"
+   "to": "003227537adcaac166c729a7d9c3b884f03dd2f2b1e200a496c10d913492c6bc",
+   "class": "v2-notGraded-field+a17-r1-units",
+   "a17": {
+    "base": "bccedab13452ff4b5bc7e260e87c4be4a7c15d89d844e7a33cd19fbc7a3ce0b9",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Missing SI unit (V)",
+      "−½: write the unit (V) with your final answer."
+     ]
+    ]
+   }
   },
   "detect:D.ITEM.GS-M03": {
    "from": "630a443a68abbbd0d98c20fa7ec710248e8347168c29558111034a46c4604c20",
@@ -305,6 +874,1612 @@
    "from": "c29c8f945e88d09daecb569d852cb25aabbb36526fd5f626be161f1d4efa1d26",
    "to": "1efa6e641b8e511b156e1577600a56c01fe213e55bf3f16bb26cafdadead323b",
    "class": "detect-symbols-restored"
+  },
+  "run1:S.CI.GS-M06-a": {
+   "from": "3569308bf5704b2a7ff219d38d78d3d99cfabd9c8e53f0debb858127452513c3",
+   "to": "862f68b2274574948f95829d5e39680e01d5dc16095ba589479f52ce5c88f0c6",
+   "class": "a17-r3-medium",
+   "a17": {
+    "base": "3569308bf5704b2a7ff219d38d78d3d99cfabd9c8e53f0debb858127452513c3",
+    "delta": [
+     [
+      [
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct substitution and simplification of the denominator to 3/2",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run1:S.CI.GS-M24-a": {
+   "from": "16e4dc980637d91d7dc3034832aa8655a5924c666383483a1119da10910d78d7",
+   "to": "866b653f3730889dd00506789ebf2b0d16af162124d1d3abf694fc82ac854452",
+   "class": "a17-r2-not-attempted",
+   "a17": {
+    "base": "16e4dc980637d91d7dc3034832aa8655a5924c666383483a1119da10910d78d7",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "description"
+      ],
+      "Probability of drawing a red ball and a yellow ball",
+      "Answer"
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "Unattempted",
+      ""
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "correctedWorking"
+      ],
+      "Total balls = 4 + 3 + 2 = 9. (i) P(red) = 4/9. (ii) P(yellow) = 2/9.",
+      null
+     ],
+     [
+      [
+       "teacherNote"
+      ],
+      "Marked against: Total number of possible outcomes = 9 and P(red) = 4/9 (1); P(yellow) = 2/9 (1). This question was left completely unattempted. Remember that writing down the total number of outcomes and formula for probability can earn you valuable step marks.",
+      "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   }
+  },
+  "run1:S.CI.GS-S08-a": {
+   "from": "764f06ab8bfc2bde5b5dcfea7b41748aee01c35894d7a3636598003348c86245",
+   "to": "4d3251e4d4e25bd533bf78adcc9f30b03d255ded724f76f1d7d2966844f9023c",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "764f06ab8bfc2bde5b5dcfea7b41748aee01c35894d7a3636598003348c86245",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "½ Correct formula and numerical calculation, but missing SI unit (W).",
+      "−½: write the unit (W) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run1:W.PAR.PARM7": {
+   "from": "80479f70bcdd938cbfd32569ae291a22d3415240d290dcf6b11d6332026a08ef",
+   "to": "488147c4647337cce51d9f731f9a85109cafab447603712c0057b5ae9b56b676",
+   "class": "a17-r2-not-attempted",
+   "a17": {
+    "base": "80479f70bcdd938cbfd32569ae291a22d3415240d290dcf6b11d6332026a08ef",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "description"
+      ],
+      "Solving probability of drawing red and yellow balls",
+      "Answer"
+     ],
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "Unattempted (blank page provided)",
+      ""
+     ],
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "correctedWorking"
+      ],
+      "Total balls = 4 + 3 + 2 = 9\n(i) P(red) = 4/9\n(ii) P(yellow) = 2/9",
+      null
+     ],
+     [
+      [
+       "results",
+       3,
+       "teacherNote"
+      ],
+      "Marked against: Total number of possible outcomes = 4 + 3 + 2 = 9 (0.5); P(red) = 4/9 (0.5); P(yellow) = 2/9 (1). This question was left unattempted as the answer sheet was completely blank.",
+      "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   }
+  },
+  "run1:W.PAR.PARM3": {
+   "from": "67727250fa3c3f89fb3ebd40499c5d10430f071036bb2bf5c9007f25323c92e7",
+   "to": "aaa6783bad225673100751e69257f1c90c9cd322ac78f6b5ba6459866cf5b7fc",
+   "class": "a17-r3-medium",
+   "a17": {
+    "base": "67727250fa3c3f89fb3ebd40499c5d10430f071036bb2bf5c9007f25323c92e7",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct calculation and final answer",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ],
+     [
+      [
+       "gradedMarksAwarded"
+      ],
+      8.5,
+      8
+     ]
+    ]
+   }
+  },
+  "run1:S.HPQ.GS-S08-a": {
+   "from": "ebb141d503ba05e4aeaeb68697631fd08511d74400109eec5677bfec0994a2ba",
+   "to": "72a56c8d9d1f711acdbdb06189c450569442d7857aa2549a638c6d52274a5a57",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "ebb141d503ba05e4aeaeb68697631fd08511d74400109eec5677bfec0994a2ba",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       3,
+       "teacherAnnotation"
+      ],
+      "½ Correct calculation, but SI unit (W) is missing",
+      "−½: write the unit (W) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run1:W.PAR.PARS3": {
+   "from": "3c5db75b0b33d392244b117257a57ab67c3a97da2a57bb98bcc37fc048c8c395",
+   "to": "82c289bb8973ad11b06cd36db80425431c9af307cab0bf0068821a5d322f5292",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "3c5db75b0b33d392244b117257a57ab67c3a97da2a57bb98bcc37fc048c8c395",
+    "delta": [
+     [
+      [
+       "results",
+       1,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Correct formula and numerical value, but SI unit 'W' is missing",
+      "−½: write the unit (W) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run1:S.CP.CP01-Q04-a": {
+   "from": "449273423c3a63c2ece6e680a2f5f5a70a8786ef22867631a5cdf2bad1c89d24",
+   "to": "9d7e2a75e06e16563b1a27414940f6d97763b69a0489343b870b0ca926ff2603",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "449273423c3a63c2ece6e680a2f5f5a70a8786ef22867631a5cdf2bad1c89d24",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "½ Correct numerical value, but SI unit (V or volts) is missing",
+      "−½: write the unit (V) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run1:W.MM.GS-MM-05": {
+   "from": "8add86f540f4d7a95cf0aef7127cbfba10cf8edcc3faffddcc69e7f93638665d",
+   "to": "eebbf969d469cca4cd0193b85806ae83243ab810520d54eb089821c2e19e8d2c",
+   "class": "a17-r3-medium",
+   "a17": {
+    "base": "8add86f540f4d7a95cf0aef7127cbfba10cf8edcc3faffddcc69e7f93638665d",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correctly evaluated to 2",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ],
+     [
+      [
+       "gradedMarksAwarded"
+      ],
+      5.5,
+      5
+     ]
+    ]
+   }
+  },
+  "run1:V2.S.CI.GS-M24-a": {
+   "from": "aef6d977e51a1446786c0b7f3b350777f32ef53578d259efacfbf2c5991cea88",
+   "to": "99c644a035c8628038abb6014d082f6c43dff56c7faaf08112ea4c75be118218",
+   "class": "a17-r2-not-attempted",
+   "a17": {
+    "base": "aef6d977e51a1446786c0b7f3b350777f32ef53578d259efacfbf2c5991cea88",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "description"
+      ],
+      "Probability of drawing a red ball and a yellow ball",
+      "Answer"
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "Unattempted.",
+      ""
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "correctedWorking"
+      ],
+      "Total number of balls = 4 + 3 + 2 = 9\n(i) P(red ball) = 4/9\n(ii) P(yellow ball) = 2/9",
+      null
+     ],
+     [
+      [
+       "teacherNote"
+      ],
+      "This question was left blank. Always attempt probability questions by finding the total number of possible outcomes and the number of favourable outcomes.",
+      "This question was not attempted, so it earns no marks."
+     ],
+     [
+      [
+       "rubric"
+      ],
+      [
+       {
+        "point": "Total number of outcomes = 9 and P(drawing a red ball) = 4/9",
+        "marks": 1
+       },
+       {
+        "point": "P(drawing a yellow ball) = 2/9",
+        "marks": 1
+       }
+      ],
+      null
+     ]
+    ]
+   }
+  },
+  "run1:W.CP.paper-01": {
+   "from": "9a3f3fe9faa24d7560219b3cf0ab2f75af47e48e540aea8d044344fce7788603",
+   "to": "7fb28e8ca01d63225e0fe55108a071aa8d310f1eb99ef80119c0ed498bad0538",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "9a3f3fe9faa24d7560219b3cf0ab2f75af47e48e540aea8d044344fce7788603",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Numerical value is correct, but SI unit (V or volts) is missing",
+      "−½: write the unit (V) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run2:S.CI.GS-M06-a": {
+   "from": "0c4b96fe7adbfc9e30e539696f93ac95ae6d1e4300d0b6e34806fab59d922cc0",
+   "to": "8b228e5cf989f95d51840a5ae514b8e69de69d9d93c9198a5c219d8c91652156",
+   "class": "a17-r3-medium",
+   "a17": {
+    "base": "0c4b96fe7adbfc9e30e539696f93ac95ae6d1e4300d0b6e34806fab59d922cc0",
+    "delta": [
+     [
+      [
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct values and sum: (√3/2)² + (√3/2)² = 3/2",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run2:S.CI.GS-S08-a": {
+   "from": "d280fe60c444ded2f0129cf99b2854eff65709b35ab45e8a64bee4651d584264",
+   "to": "20e3f758f2eca301f9d9ce38976fb0780fc04b20691c15955661dc8dd4f6d9c4",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "d280fe60c444ded2f0129cf99b2854eff65709b35ab45e8a64bee4651d584264",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Correct calculation and formula, but the SI unit (W or watts) is missing.",
+      "−½: write the unit (W) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run2:S.HPQ.GS-S08-a": {
+   "from": "fea4213d4d7198581866a731e0d54bb62c682f58ed6ab9fc6e1eebb117b1c918",
+   "to": "23d17fbc02073ba6a4fa7b6c3f139287fc0b907e15db64abc02e51a5393ba252",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "fea4213d4d7198581866a731e0d54bb62c682f58ed6ab9fc6e1eebb117b1c918",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "½ Correct formula and numerical calculation, but the SI unit 'W' (watts) is missing",
+      "−½: write the unit (W) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run2:S.CP.CP01-Q04-a": {
+   "from": "dd2297e8b3719787a0336137c11bb4bd0ba20c511188064cd5b86eb7947fdd62",
+   "to": "611eb7fbb896ea120e5455360c1dad257bcda158db73de776821383190ac4711",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "dd2297e8b3719787a0336137c11bb4bd0ba20c511188064cd5b86eb7947fdd62",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "½ Correct calculation, but SI unit (V) is missing",
+      "−½: write the unit (V) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run2:W.MM.GS-MM-05": {
+   "from": "019279d45ac3818403205383fded0bdcaa5bcf685985a24158c6dba8a909786e",
+   "to": "019095f7a2f1651e4e725f46a7ff84db5ef7afaff247c39a129a3a86a19c9371",
+   "class": "a17-r3-medium",
+   "a17": {
+    "base": "019279d45ac3818403205383fded0bdcaa5bcf685985a24158c6dba8a909786e",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct evaluation to obtain 2",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ],
+     [
+      [
+       "gradedMarksAwarded"
+      ],
+      6,
+      5.5
+     ]
+    ]
+   }
+  },
+  "run2:W.PAR.PARS3": {
+   "from": "c2b4e6bd88495d3aff2adb9c38ce3b0861d2b4ec6d486f0ba832d93bd04047e0",
+   "to": "d095be1fba18560af2ad0840ed18a4ba0d3d77c580a8f8bf5574343c6a96f100",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "c2b4e6bd88495d3aff2adb9c38ce3b0861d2b4ec6d486f0ba832d93bd04047e0",
+    "delta": [
+     [
+      [
+       "results",
+       1,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Correct formula and numerical calculation (8), but the SI unit (W) is missing.",
+      "−½: write the unit (W) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run2:W.PAR.PARM3": {
+   "from": "65f5af935aaed9618ddc47d9fe4d1da458fab5c4ae69a1128346ea59c0834e91",
+   "to": "e3aaef847a2eb38dcb23ced289ed89cfa8aea38091537cbe469e43b41d66ffb3",
+   "class": "a17-r3-medium",
+   "a17": {
+    "base": "65f5af935aaed9618ddc47d9fe4d1da458fab5c4ae69a1128346ea59c0834e91",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct simplification to 2",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ],
+     [
+      [
+       "gradedMarksAwarded"
+      ],
+      8.5,
+      8
+     ]
+    ]
+   }
+  },
+  "run2:S.CI.GS-M24-a": {
+   "from": "da9389b33a17805e244e3d9b6baf821e9710efd0a7e3e043e71842fab1f26ef5",
+   "to": "866b653f3730889dd00506789ebf2b0d16af162124d1d3abf694fc82ac854452",
+   "class": "a17-r2-not-attempted",
+   "a17": {
+    "base": "da9389b33a17805e244e3d9b6baf821e9710efd0a7e3e043e71842fab1f26ef5",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "description"
+      ],
+      "Find probability of drawing (i) a red ball and (ii) a yellow ball",
+      "Answer"
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "No attempt shown.",
+      ""
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "correctedWorking"
+      ],
+      "Total balls = 4 + 3 + 2 = 9. (i) P(red) = 4/9. (ii) P(yellow) = 2/9.",
+      null
+     ],
+     [
+      [
+       "teacherNote"
+      ],
+      "Marked against: Probability of drawing a red ball = 4/9 (1); Probability of drawing a yellow ball = 2/9 (1). This question was left unattempted. To solve it, find the total number of balls (9) and divide the number of favorable balls by the total to find the probabilities.",
+      "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   }
+  },
+  "run2:W.PAR.PARM7": {
+   "from": "8cc50e7464d6aee43be8513545d8b406717588a3dae53aa6865a39965e629a0b",
+   "to": "0f57e67c49bee68cdca9722b8942c08521b60b093d421613e42f0d385d5eeda8",
+   "class": "a17-r2-not-attempted",
+   "a17": {
+    "base": "8cc50e7464d6aee43be8513545d8b406717588a3dae53aa6865a39965e629a0b",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "description"
+      ],
+      "Probability of drawing red and yellow balls",
+      "Answer"
+     ],
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "Unattempted (blank page submitted).",
+      ""
+     ],
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "correctedWorking"
+      ],
+      "Total balls = 4 + 3 + 2 = 9.\n(i) P(red) = 4/9\n(ii) P(yellow) = 2/9",
+      null
+     ],
+     [
+      [
+       "results",
+       3,
+       "teacherNote"
+      ],
+      "Marked against: (i) Total outcomes = 9 / P(red) = 4/9 (1); (ii) P(yellow) = 2/9 (1). This question was left unattempted on the answer sheet. Simple probability questions can earn you full marks easily with standard formula application.",
+      "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   }
+  },
+  "run2:V2.S.CI.GS-M24-a": {
+   "from": "1e3711b58fe3062bab87c60d76fdec7660932d4e555eca8e47da61f7ca4fbdb2",
+   "to": "99c644a035c8628038abb6014d082f6c43dff56c7faaf08112ea4c75be118218",
+   "class": "a17-r2-not-attempted",
+   "a17": {
+    "base": "1e3711b58fe3062bab87c60d76fdec7660932d4e555eca8e47da61f7ca4fbdb2",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "description"
+      ],
+      "Find the probability of drawing (i) a red ball and (ii) a yellow ball",
+      "Answer"
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "Unattempted",
+      ""
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "correctedWorking"
+      ],
+      "Total number of balls = 4 + 3 + 2 = 9\n(i) Number of red balls = 4\nP(red ball) = 4/9\n(ii) Number of yellow balls = 2\nP(yellow ball) = 2/9",
+      null
+     ],
+     [
+      [
+       "teacherNote"
+      ],
+      "This question was left unattempted. Remember to write down the total number of possible outcomes and find the probability using the ratio of favourable outcomes to total outcomes.",
+      "This question was not attempted, so it earns no marks."
+     ],
+     [
+      [
+       "rubric"
+      ],
+      [
+       {
+        "point": "Total number of outcomes = 4 + 3 + 2 = 9 and P(drawing a red ball) = 4/9",
+        "marks": 1
+       },
+       {
+        "point": "P(drawing a yellow ball) = 2/9",
+        "marks": 1
+       }
+      ],
+      null
+     ]
+    ]
+   }
+  },
+  "run2:W.CP.paper-01": {
+   "from": "a31a36903d63c7b22cc8ffff2e3bd02ac7c67be361512123480b4b097b03cb9c",
+   "to": "4d0527ff5aa11c7fb4da507302202cf71fb795f78ba050c625e7ae1cd12a4801",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "a31a36903d63c7b22cc8ffff2e3bd02ac7c67be361512123480b4b097b03cb9c",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "½ Correct numerical value, but SI unit (V or volts) is missing",
+      "−½: write the unit (V) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run3:S.CI.GS-M06-a": {
+   "from": "9ef54d255f15add0e86f5cb8f35f97978b8408d86bc77b977c5b81eec25ce8e3",
+   "to": "7b5d432a4ae799943bd3414f72a17e883b9bb73f0f12c848714dbfb704b77af8",
+   "class": "a17-r3-medium",
+   "a17": {
+    "base": "9ef54d255f15add0e86f5cb8f35f97978b8408d86bc77b977c5b81eec25ce8e3",
+    "delta": [
+     [
+      [
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct calculation and final answer",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run3:S.CI.GS-S08-a": {
+   "from": "85f0785ca7542b5888ae6b17ae7550ab1af192c1790f90350c3534e5f3a76e69",
+   "to": "dced0426407dba8c228012b7f9c5ffe7bfc1117e0f25251b298788cf28325ef6",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "85f0785ca7542b5888ae6b17ae7550ab1af192c1790f90350c3534e5f3a76e69",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "½ Correct formula and numerical calculation, but missing the SI unit (W or watts).",
+      "−½: write the unit (W) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run3:S.CI.GS-M24-a": {
+   "from": "9ad6b17fb6ae62362b08fc15b9d93e173bae18dc35f4d855a6534b5cf9d1b717",
+   "to": "866b653f3730889dd00506789ebf2b0d16af162124d1d3abf694fc82ac854452",
+   "class": "a17-r2-not-attempted",
+   "a17": {
+    "base": "9ad6b17fb6ae62362b08fc15b9d93e173bae18dc35f4d855a6534b5cf9d1b717",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "description"
+      ],
+      "Find the probability of drawing a red ball and a yellow ball",
+      "Answer"
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "Unattempted",
+      ""
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "correctedWorking"
+      ],
+      "Total outcomes = 4 + 3 + 2 = 9; (i) P(red ball) = 4/9; (ii) P(yellow ball) = 2/9",
+      null
+     ],
+     [
+      [
+       "teacherNote"
+      ],
+      "Marked against: Total number of outcomes = 9 and P(red) = 4/9 (1); P(yellow) = 2/9 (1). This question was left unattempted. Always calculate the total number of balls first and divide the count of favorable balls by the total.",
+      "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   }
+  },
+  "run3:W.PAR.PARM7": {
+   "from": "c7b291b3d080c7d676966232bd61a27c2cf313c3c2afa352db9b17fa5bc3e510",
+   "to": "f2c84c7ebe1bbadc3a989715e416721d77d76f8544253f67c4aaae3f5c7e3a28",
+   "class": "a17-r2-not-attempted",
+   "a17": {
+    "base": "c7b291b3d080c7d676966232bd61a27c2cf313c3c2afa352db9b17fa5bc3e510",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "description"
+      ],
+      "Entire question unattempted on the submitted answer sheet",
+      "Answer"
+     ],
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "× Unattempted (blank page submitted)",
+      ""
+     ],
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "correctedWorking"
+      ],
+      "Total balls = 4 + 3 + 2 = 9.\n(i) P(red) = 4/9\n(ii) P(yellow) = 2/9",
+      null
+     ],
+     [
+      [
+       "results",
+       3,
+       "teacherNote"
+      ],
+      "Marked against: Total number of outcomes = 9 (0.5); (i) P(red) = 4/9 (0.5); (ii) P(yellow) = 2/9 (1). This question was left completely unattempted on the provided answer sheet.",
+      "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   }
+  },
+  "run3:W.PAR.PARS3": {
+   "from": "76aff266317972b0f2ecad68a3b9c282d6219ed685f67da2cc71d888f7502053",
+   "to": "0ed7655b7be3a4f3e591109add75cb6b01d79eaa6285d6d016e2579dabc3ad17",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "76aff266317972b0f2ecad68a3b9c282d6219ed685f67da2cc71d888f7502053",
+    "delta": [
+     [
+      [
+       "results",
+       1,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Correct numerical value but SI unit (W or watts) is missing",
+      "−½: write the unit (W) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run3:S.HPQ.GS-S08-a": {
+   "from": "1d1e5301d39102f9cf715f434a8547ffb083b607201e489bb3fd2619139746a7",
+   "to": "9ba6b384797b3d2fdb2e842c8d75c2f33bc992dea4c6905daaf5478e859acea2",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "1d1e5301d39102f9cf715f434a8547ffb083b607201e489bb3fd2619139746a7",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       3,
+       "teacherAnnotation"
+      ],
+      "½ Numerical calculation is correct (8), but the SI unit (W or watts) is missing.",
+      "−½: write the unit (W) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run3:W.PAR.PARM3": {
+   "from": "79019ffc0711f8570eec9047a11bf6e79b965d8197887b1e1a8a01692dac5d9b",
+   "to": "6d1cf18a1a21f67cf9ad8c8de7124fe2b7d2be1b163e4076130fcf00eafef901",
+   "class": "a17-r3-medium",
+   "a17": {
+    "base": "79019ffc0711f8570eec9047a11bf6e79b965d8197887b1e1a8a01692dac5d9b",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct simplification to 2",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ],
+     [
+      [
+       "gradedMarksAwarded"
+      ],
+      8.5,
+      8
+     ]
+    ]
+   }
+  },
+  "run3:S.CP.CP01-Q04-a": {
+   "from": "ec1f5a8332d8feadab75a00cb40bbd678f1a8dcf6a15d7973ee54d5f1f710058",
+   "to": "3e9f8fe98285ae26f385ece018032c6914957049f6f104227fd5699a0742fdea",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "ec1f5a8332d8feadab75a00cb40bbd678f1a8dcf6a15d7973ee54d5f1f710058",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "teacherAnnotation"
+      ],
+      "½ Correct numerical value, but SI unit (V or volts) is missing",
+      "−½: write the unit (V) with your final answer."
+     ]
+    ]
+   }
+  },
+  "run3:W.MM.GS-MM-05": {
+   "from": "373d7357c40d03e3b90d416846fd75f00c2924410ffdf558bb91fb8466c59680",
+   "to": "7a4b2ab51d12c5feddc4358cc58ba5e359322fd330be48731cbb022aadb77f1e",
+   "class": "a17-r3-medium",
+   "a17": {
+    "base": "373d7357c40d03e3b90d416846fd75f00c2924410ffdf558bb91fb8466c59680",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "marksAwarded"
+      ],
+      2,
+      1.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "percentage"
+      ],
+      100,
+      75
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "status"
+      ],
+      "correct",
+      "partial"
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksAwarded"
+      ],
+      1,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "marksDeducted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "✓ Correct final evaluation",
+      "Write in English (or Hindi in Devanagari): board examiners expect one medium."
+     ],
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ],
+     [
+      [
+       "gradedMarksAwarded"
+      ],
+      5.5,
+      5
+     ]
+    ]
+   }
+  },
+  "run3:V2.S.CI.GS-M24-a": {
+   "from": "e67f1c2016aeb81d5166f85bfd836281a7442263b928980fec20257debd2fce9",
+   "to": "99c644a035c8628038abb6014d082f6c43dff56c7faaf08112ea4c75be118218",
+   "class": "a17-r2-not-attempted",
+   "a17": {
+    "base": "e67f1c2016aeb81d5166f85bfd836281a7442263b928980fec20257debd2fce9",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "description"
+      ],
+      "Calculation of probability of drawing a red ball and a yellow ball",
+      "Answer"
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "teacherAnnotation"
+      ],
+      "Unattempted",
+      ""
+     ],
+     [
+      [
+       "annotatedSteps",
+       0,
+       "correctedWorking"
+      ],
+      "Total number of balls = 4 + 3 + 2 = 9. (i) P(red) = 4/9. (ii) P(yellow) = 2/9.",
+      null
+     ],
+     [
+      [
+       "teacherNote"
+      ],
+      "This question was left unattempted. Start by calculating the total number of outcomes (4 + 3 + 2 = 9) and then find the respective probabilities using the formula P(E) = Number of favourable outcomes / Total number of outcomes.",
+      "This question was not attempted, so it earns no marks."
+     ],
+     [
+      [
+       "rubric"
+      ],
+      [
+       {
+        "point": "(i) Total outcomes = 9 and P(red ball) = 4/9",
+        "marks": 1
+       },
+       {
+        "point": "(ii) P(yellow ball) = 2/9",
+        "marks": 1
+       }
+      ],
+      null
+     ]
+    ]
+   }
+  },
+  "run3:W.CP.paper-01": {
+   "from": "b75c58cdea5cbb70c8b56476d4618841532aced6346d4261a6a2024e63a5bb6c",
+   "to": "a2056f22ab70c3f8a902e90118bd040d896d6dbbcb84387e16957a26474dc866",
+   "class": "a17-r1-units",
+   "a17": {
+    "base": "b75c58cdea5cbb70c8b56476d4618841532aced6346d4261a6a2024e63a5bb6c",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       1,
+       "teacherAnnotation"
+      ],
+      "½ Numerical value correct but SI unit (V) omitted",
+      "−½: write the unit (V) with your final answer."
+     ]
+    ]
+   }
   }
+ },
+ "a17": {
+  "pr": "A17 GRADING-RULINGS J0 (GRADING-JOBS-1)",
+  "generator": "server/eval/golden/goldenRebaseline.cjs",
+  "counts": {
+   "a17-r3-medium": 12,
+   "a17-r2-not-attempted": 9,
+   "a17-r1-units": 24
+  },
+  "about": "A17 owner rulings change these bodies ON PURPOSE. a17-r1-units: a unit deduction carries the one fixed unit comment, or is given back once already charged / on a pure number. a17-r2-not-attempted: a question with no attempt (blank / \"Don't know\") is NOT ATTEMPTED (0, no type, not charged) instead of a graded 0. a17-r3-medium: a Hinglish answer loses exactly one half once with the fixed medium comment; any other language deduction is given back. Each entry carries a17.base (the trunk digest) and a17.delta (every changed node); golden.test section 11 undoes the delta to a17.base and checks it against lib/rebaselineClasses.cjs."
  }
 }

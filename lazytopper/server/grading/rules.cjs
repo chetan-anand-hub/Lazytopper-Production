@@ -15,10 +15,21 @@
 //       DIFFERENT PROBLEM or using an INVALID METHOD.
 //   (4) crossed-out / withdrawn work is not assessed.
 //   (5) no deduction for missing state symbols.
-//   (6) Maths units follow the question's scheme (silent -> no deduction); Science keeps
-//       its unit deduction.
+//   (6) SUPERSEDED 2026-10-06 by A17 ruling 1 below (Maths units no longer follow the scheme).
 //   (7) mistake type: copied wrongly = silly, performed wrongly = calculation, method
 //       misunderstood = conceptual, CBSE format only = presentation, unattempted = no type.
+// A17 OWNER RULINGS (GRADING-JOBS-1, fixed 2026-10-06), on EVERY grading surface:
+//   (A17-1) UNITS: a missing or wrong unit on the FINAL answer of a quantity-valued answer costs
+//       exactly ½, in Maths AND Science, at most ½ per question, typed "presentation" (shown as
+//       exam technique); never on a pure number (probability, ratio, count, unitless term). The
+//       step says "−½: write the unit (<unit>) with your final answer." (postprocess.cjs
+//       applyUnitRuling enforces the cap, the type, the comment and the pure-number exemption).
+//   (A17-2) "Don't know" / blank on ANY question = not attempted: 0, never charged, never a mistake.
+//   (A17-3) MEDIUM (owner change 2026-10-06, supersedes "Hinglish never deducted"): answers are in
+//       English or in Hindi in Devanagari; a Hinglish answer keeps its content marks and loses exactly
+//       ½ once, typed presentation, with one fixed comment (postprocess.cjs applyMediumRuling). No
+//       other language deduction; the exact CBSE TERM is still marked.
+//   (A17-4) an immaterial miscopy is not penalised — in the "silly" definition too.
 // Standing: an MCQ is 0 or full on the answer alone; unattempted is a fourth state; the
 // authority is CBSE's published marking schemes ("the way a CBSE examiner marks").
 //
@@ -38,10 +49,10 @@ const MISTAKE_CAUSE_REASONING_PROMPT = 'The mistake type must reflect WHAT THE E
 /** Ruling (7), stated once. Every example is a golden-set or owner-key case. */
 const MISTAKE_TAXONOMY_PROMPT =
   'MISTAKE TYPE — choose by the CAUSE, exactly as the owner ruled:\n' +
-  '   - "silly" = COPIED WRONGLY: a value, sign or term copied wrongly from the question or from the student\'s OWN earlier line (e.g. the question\'s +3 written as +5; u = 60 copied as 90; a root read off correct factors with the wrong sign). The student\'s other work shows they know better.\n' +
+  '   - "silly" = COPIED WRONGLY: a value, sign or term copied wrongly from the question or from the student\'s OWN earlier line (e.g. the question\'s +3 written as +5; u = 60 copied as 90; a root read off correct factors with the wrong sign). The student\'s other work shows they know better. ⚠ A miscopy that is IMMATERIAL — it changes NO value used in the working, so the mathematics is identical and no value point was avoided — is NOT silly and NOT a mistake at all: no type, no deduction (case law 5).\n' +
   '   - "calculation" = PERFORMED WRONGLY: the method is right but an operation the student performed is wrong — arithmetic (19 × 4 written as 72), algebra or expansion, a sign lost while rearranging, an outcome missed while listing, WRONG COEFFICIENTS while genuinely attempting to balance an equation.\n' +
   '   - "conceptual" = METHOD MISUNDERSTOOD: the wrong formula, identity, law, theorem, principle, organ or process for the situation (e.g. cos A = 1 − sin A; the wrong sign convention u = +20 for a real object), a misread of what the question asks, a wrong reactant or product in a chemical equation, or AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION.\n' +
-  '   - "presentation" = CBSE FORMAT ONLY: the mathematics or science is right but a mark the CBSE scheme awards for FORMAT is missing — a required conclusion / "hence proved" line, a required labelled figure, ray arrows on a ray diagram, a required formula statement, the unit of a final numerical answer where the scheme pays it, the contextual rejection of a root in a word problem, the EXACT CBSE technical term where the student shows the right concept in everyday words ("clotting cells" for platelets, "food pipe" for oesophagus — the ½ for the term is lost, and it is presentation, not conceptual). ⚠ NEVER for missing state symbols (no deduction at all). ANYTHING THAT CHANGES WHETHER THE MATHEMATICS OR SCIENCE IS RIGHT IS NOT PRESENTATION.\n' +
+  '   - "presentation" = CBSE FORMAT ONLY: the mathematics or science is right but a mark the CBSE scheme awards for FORMAT is missing — a required conclusion / "hence proved" line, a required labelled figure, ray arrows on a ray diagram, a required formula statement, the unit of a quantity-valued final answer (see UNITS), the contextual rejection of a root in a word problem, the EXACT CBSE technical term where the student shows the right concept in everyday words ("clotting cells" for platelets, "food pipe" for oesophagus — the ½ for the term is lost, and it is presentation, not conceptual). ⚠ NEVER for missing state symbols (no deduction at all). ANYTHING THAT CHANGES WHETHER THE MATHEMATICS OR SCIENCE IS RIGHT IS NOT PRESENTATION.\n' +
   '   - NO TYPE (mistakeType null): a correct step; a step that correctly carries forward an earlier error (ECF); an unattempted or withdrawn step; a wrong answer with no working shown (undiagnosable). Never invent a mistake on a right step.';
 
 const IDENTIFY_EVERY_STEP_PROMPT = 'Identify EVERY step in the student\'s work in order — don\'t skip any.';
@@ -79,11 +90,20 @@ const UNATTEMPTED_AND_WITHDRAWN_PROMPT =
   '   - MISSING: a required step left out of work that WAS attempted gets status "missing" (marks not earned, mistakeType null) — unless it is a CBSE format element, which is presentation (see PRESENTATION).\n' +
   '   - MULTI-PART QUESTIONS AND THE UNATTEMPTED SUB-PART. Where a question has parts and the student ANSWERED ONE and SKIPPED ANOTHER, the skipped part is UNATTEMPTED (as above). ⚠ It is NOT a mistake of any kind: never give it a mistakeType, never count it as a mistake, and never treat it as a wrong answer that scored zero — the marks are simply NOT EARNED. ⚠⚠ AND IT IS NOT A DEPARTURE: they wrote NOTHING, so there is nothing to have been adopted and nothing to work from. NEVER set "isDeparture": true on an unattempted part, and never zero the parts below it because of one. ★ BUT DO NOT MAKE IT INVISIBLE: REPORT the skipped part as a step with status "unattempted" rather than OMITTING it. Uncounted is not the same as unreported. ★ THE PART THEY DID ANSWER IS MARKED ON ITS OWN MERITS, in full, exactly as if the other part did not exist. A part answered only "Don\'t know" or "DK" is unattempted too; a part with any real attempt is graded.';
 
-/** Ruling (5) and (6) plus the CBSE format marks the golden set shows are never deducted today. */
+/** A17 ruling 1: the ONE comment a unit deduction carries (U+2212 minus, U+00BD half). */
+function unitComment(unit) {
+  return '\u2212\u00BD: write the unit (' + String(unit) + ') with your final answer.';
+}
+const UNIT_COMMENT_EXAMPLE = unitComment('cm\u00B3');
+/** A17 ruling 3 (owner change 2026-10-06): the ONE comment a Hinglish answer's ½ carries. */
+const MEDIUM_COMMENT = 'Write in English (or Hindi in Devanagari): board examiners expect one medium.';
+
+/** Ruling (5) and A17 ruling 1 (units) plus the CBSE format marks the golden set shows are never deducted today. */
 const PRESENTATION_PROMPT =
-  'PRESENTATION — DEDUCT ONLY WHERE THE CBSE SCHEME AWARDS THAT MARK, and then DO deduct it:\n' +
+  'PRESENTATION — DEDUCT ONLY WHERE THE CBSE SCHEME AWARDS THAT MARK (a missing unit: ALWAYS — see UNITS), and then DO deduct it. ALL exam-technique ("presentation") deductions of ONE answer together cost AT MOST 1 mark (½ on a 1-mark answer), and an answer never goes below 0:\n' +
   '   - a required conclusion / "hence proved" / "verified" line absent; a required labelled figure absent (that loses the figure mark); arrows missing on a ray diagram; a required formula statement absent; the contextual rejection of a root missing in a word problem (½).\n' +
-  '   - UNITS. A CORRECT answer written WITHOUT ITS UNIT — "r = 7" where the answer is 7 cm — is "presentation" where a unit is owed: Science — a final numerical answer without its SI unit loses ½; Maths — ONLY where the question asks for the unit or the scheme pays it; where the question is silent, NO deduction. ⚠⚠ IT IS NEVER "conceptual" AND NEVER "calculation": THE STUDENT DID THE MATHEMATICS. A missing unit does not change whether the mathematics is right; deduct on the ½ scale and no more.\n' +
+  '   - UNITS. A CORRECT answer written WITHOUT ITS UNIT — "r = 7" where the answer is 7 cm — or with a WRONG unit is "presentation", in MATHS AND IN SCIENCE ALIKE, whether or not the question or its scheme mentions the unit: the FINAL answer of a QUANTITY-VALUED answer (a length, area, volume, mass, time, speed, money, current, resistance, power, energy …) loses EXACTLY ½ — ONCE per question, however many answers in it lack the unit. Write that step\'s "teacherAnnotation" EXACTLY as: ' + UNIT_COMMENT_EXAMPLE + ' (with the unit the answer needs in the brackets). Only the FINAL answer is checked, never an intermediate line. ⚠ NEVER for a PURE NUMBER — a probability, a ratio, a count, a trigonometric ratio, a root or zero of a polynomial, or any answer that has no unit: no deduction and no comment about units. ⚠⚠ IT IS NEVER "conceptual" AND NEVER "calculation": THE STUDENT DID THE MATHEMATICS. A missing unit does not change whether the mathematics is right; deduct ½ and no more.\n' +
+  '   - MEDIUM OF THE ANSWER. CBSE answers are written in ENGLISH, or in HINDI IN DEVANAGARI script. An answer written in HINGLISH — Hindi words in Roman script mixed with English ("Carbon ke paas 4 valence electrons hain, isliye ...") — is marked on its content exactly as if it were in English, and then loses EXACTLY ½ ONCE for the medium, typed "presentation", with that step\'s "teacherAnnotation" EXACTLY: ' + MEDIUM_COMMENT + ' ⚠ English that uses technical terms is NOT Hinglish, ONE stray Roman-script Hindi word in an English answer is NOT Hinglish (only a clause or more in Roman-script Hindi is), and Hindi written in Devanagari is NEVER penalised. NEVER deduct for grammar, spelling, informal English or style. ⚠ TERMINOLOGY STILL COUNTS: where the CBSE scheme pays the EXACT technical term ("oesophagus", not "food pipe"), that ½ is lost as before ("presentation"), whatever medium surrounds it.\n' +
   '   - STATE SYMBOLS (s/l/g/aq): NEVER deduct for their absence and never mention it as a fault.\n' +
   '   - PRESENTATION vs MISSING: fold a short format element INTO the attempted step it belongs to (status "partial", mistakeType "presentation"); do not split it off as a separate "missing" step. Right answer with weak or no justification → presentation, not conceptual.';
 
@@ -208,8 +228,10 @@ const SCIENCE_CASE_LAW_PROMPT =
 const SCHEME_CORROBORATION_PROMPT =
   'THE STORED MARKING SCHEME CORROBORATES; IT IS NEVER AUTHORITY ON METHOD. Derive the value points from the QUESTION and its MARK VALUE first, always. Where a stored scheme is supplied it CORROBORATES THE MARK DISTRIBUTION — how many marks sit at each stage. A stored scheme must NEVER be the reason a correct alternative method loses marks. WHERE YOUR DERIVATION AND THE STORED SCHEME DISAGREE, your derivation from the question governs the METHOD — and you never mention the scheme or the disagreement to the student. ⚠ A STORED SCHEME MAY NEVER BE THE REASON A REQUIRED ELEMENT GOES UNCHECKED: if the question requires a figure, a unit, a balanced equation or a conclusion and the stored scheme is silent about it, the derived rubric STILL EXPECTS IT.';
 
-const SUBJECT_CHECKLIST_MATHS = 'formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where the question asks for them';
-const SUBJECT_CHECKLIST_SCIENCE = 'terminology, balanced equations (check the species first; state symbols are not required), NCERT-standard language, diagrams labelled, SI units on numerical answers';
+const SUBJECT_CHECKLIST_MATHS = 'formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, the unit on a quantity-valued final answer (never on a pure number), the medium (English, or Hindi in Devanagari)';
+// A17 ruling 3 (owner change 2026-10-06): "NCERT-standard language" invited ANY language deduction;
+// the checks are the MEDIUM (English, or Hindi in Devanagari) and the NCERT TERM — nothing else.
+const SUBJECT_CHECKLIST_SCIENCE = 'terminology, balanced equations (check the species first; state symbols are not required), the medium (English, or Hindi in Devanagari — a Hinglish answer loses ½ once) and NCERT terminology (the exact technical term; grammar, spelling and style are never marked), diagrams labelled, SI units on numerical answers';
 
 function subjectChecklistBody(mode) {
   if (mode === 'maths') return 'For Maths: check ' + SUBJECT_CHECKLIST_MATHS + '.';
@@ -253,9 +275,15 @@ const NO_ANSWER_ON_PAGE_NOTE = 'No answer to this question was found on your pag
 // model did NOT find on any uploaded page is NOT GRADED (pending), never a final 0 — the student
 // may simply have left that page out.
 const NOT_FOUND_ON_PAGE_NOTE = "We couldn't find your answer to this question on the uploaded pages, so it has not been marked — if you answered it, add that page (with the question number beside it) and check again.";
-// Ruling 6 (Maths units follow the question's scheme; silent → no deduction), applied after the model.
-const MATHS_UNIT_NOT_REQUIRED_ANNOTATION = 'No mark is lost for the unit here: the question does not ask for one (Maths).';
+// A17 ruling 1, applied after the model: a "unit" deduction on an answer that is a pure number
+// (or whose unit cannot be named) is given back, with this line.
+const UNIT_NOT_OWED_ANNOTATION = 'No mark is lost for a unit here: this answer is a pure number, so it has no unit.';
+// A17 ruling 1: the unit is charged ONCE per question; a second unit deduction is given back.
+const UNIT_ALREADY_CHARGED_ANNOTATION = 'The unit was already charged once in this question, so no further mark is lost here.';
 // Owner rule (never deduct for the language of an answer — Hinglish or Hindi is fine), applied after the model.
+// A17 ruling 3: an answer in English or Devanagari Hindi loses nothing for its language (grammar, spelling, style).
+// A17 owner ruling B (2026-10-06, later): all exam-technique deductions of one answer are capped.
+const EXAM_TECHNIQUE_CAP_ANNOTATION = 'Exam-technique deductions in one answer are capped at 1 mark (½ on a 1-mark answer), so no further mark is lost here.';
 const LANGUAGE_NOT_MARKED_ANNOTATION = 'No mark is lost for the language this is written in — the science in it is what is marked.';
 const NOT_GRADED_TIMEOUT_NOTE = "We couldn't finish marking this question in time, so it has not been marked — please check it again.";
 const NOT_GRADED_ERROR_NOTE = "We couldn't mark this question this time, so it has not been marked — please check it again.";
@@ -312,7 +340,11 @@ module.exports = {
   SINGLE_COULD_NOT_READ_MESSAGE,
   NOT_GRADED_TIMEOUT_NOTE,
   NOT_FOUND_ON_PAGE_NOTE,
-  MATHS_UNIT_NOT_REQUIRED_ANNOTATION,
+  UNIT_NOT_OWED_ANNOTATION,
+  MEDIUM_COMMENT,
+  EXAM_TECHNIQUE_CAP_ANNOTATION,
+  UNIT_ALREADY_CHARGED_ANNOTATION,
+  unitComment,
   LANGUAGE_NOT_MARKED_ANNOTATION,
   NOT_GRADED_ERROR_NOTE,
 };

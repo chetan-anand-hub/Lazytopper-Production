@@ -18,6 +18,7 @@ const { load, readJson } = require('./data.cjs');
 const { commentFailures, consistencyFailures, stepText, isLoss } = require('./truth.cjs');
 const { digest } = require('./planner.cjs');
 const { NOT_GRADED_TIMEOUT_NOTE, NOT_GRADED_ERROR_NOTE } = require('../../../grading/rules.cjs');
+const R = require('../../../grading/rules.cjs');
 
 const LABEL = { conceptual: 'knowledge gap', presentation: 'exam technique', calculation: 'careless', silly: 'careless' };
 const TYPES = ['conceptual', 'calculation', 'silly', 'presentation'];
@@ -39,6 +40,14 @@ const quant = (a, p) => { if (!a.length) return null; const s = [...a].sort((x, 
 const sumSummary = (m) => (m ? TYPES.reduce((a, k) => a + (Number(m[k]) || 0), 0) : 0);
 
 function expectationFor(caseId, G, locators, probesTruth) {
+  if (caseId.startsWith('A17-')) {
+    // A17 owner rulings (GRADING-JOBS-1 J0; truth/rulings-a17.json), scored apart (a17_rulings).
+    const a = G.a17.find((x) => x.caseId === caseId);
+    const e = a.expected;
+    return { kind: 'a17', ruling: a.ruling, a17: e, totalMarks: e.totalMarks, maxMarks: a.resolved.marks, objective: false, wrongStep: null,
+      mistakeType: e.mistakeType ?? null, wrongStepLocator: null, departureKind: null, departureReturns: false, illegible: false, declineAcceptable: false,
+      subject: a.resolved.subject };
+  }
   if (caseId.startsWith('GS-MM-')) {
     const [base, qPart] = caseId.split('.Q');
     const m = G.mismatch.find((x) => x.caseId === base);
@@ -229,6 +238,28 @@ function makeRow(item, caseId, result, ctx) {
   row.commentsJudge = row.judge && !row.judge.stale && typeof row.judge.commentsTrue === 'boolean' ? row.judge.commentsTrue : undefined;
   row.commentsAll = row.commentsDet === undefined ? undefined : (row.commentsDet && (row.commentsJudge === undefined ? true : row.commentsJudge));
   row.consistent = row.status === 'graded' ? row.consistencyFailures.length === 0 : undefined;
+  if (exp.kind === 'a17') {
+    // A17: the row passes only when EVERY stated expectation holds (marks, type, the one unit
+    // comment, the not-attempted state, what was charged and what the premium meter recorded).
+    const e = exp.a17;
+    const steps = row.status === 'graded' && Array.isArray(result.annotatedSteps) ? result.annotatedSteps : [];
+    const fails = [];
+    if (row.status !== 'graded') fails.push('status ' + row.status);
+    else {
+      if (row.marksExact !== true) fails.push('marks ' + row.awarded + ' != ' + e.totalMarks);
+      if (row.typePass !== true) fails.push('type ' + row.primaryType + ' != ' + e.mistakeType);
+      if (e.unit && !steps.some((s) => String(s.teacherAnnotation || '').startsWith(R.unitComment(e.unit)) && s.mistakeType === 'presentation')) fails.push('no unit comment for ' + e.unit);
+      if (!e.unit && steps.some((s) => /write the unit/.test(String(s.teacherAnnotation || '')))) fails.push('a unit comment on a question that owes none');
+      if (e.medium === true && !steps.some((s) => String(s.teacherAnnotation || '').includes(R.MEDIUM_COMMENT) && s.mistakeType === 'presentation')) fails.push('no medium comment');
+      if (e.medium === false && steps.some((s) => s.teacherAnnotation === R.MEDIUM_COMMENT)) fails.push('a medium charge on an English / Devanagari answer');
+      if (e.notAttempted && !(result.teacherNote === R.NOT_ATTEMPTED_NOTE && steps.every((s) => !s.mistakeType) && (!row.v2 || steps.every((s) => s.status === 'unattempted')))) fails.push('not the not-attempted state');
+    }
+    const charged = item.rep.charged;
+    if (typeof e.charged === 'boolean' && charged !== (e.charged ? 1 : 0)) fails.push('charged ' + charged);
+    if (typeof e.meteredShare === 'number' && item.rep.meteredShare !== e.meteredShare) fails.push('metered ' + item.rep.meteredShare);
+    row.a17Fails = fails;
+    row.a17Pass = fails.length === 0;
+  }
   return row;
 }
 
@@ -436,7 +467,9 @@ function score(input) {
     agg: aggregate(oa2Rows.filter((r) => !r.v2 && r.expectedAnswerMismatch !== true)),
     bySurfaceRun: Object.fromEntries([...new Set(oa2Rows.map((r) => r.surface + '#' + r.run))].map((k) => {
       const list = oa2Rows.filter((r) => r.surface + '#' + r.run === k);
-      return [k, { total: list.filter((r) => r.status === 'graded' && r.expectedAnswerMismatch !== true).reduce((a2, r) => a2 + r.awarded, 0), key: 33.5,
+      return [k, { total: list.filter((r) => r.status === 'graded' && r.expectedAnswerMismatch !== true).reduce((a2, r) => a2 + r.awarded, 0),
+        // the owner key's total (33½ before A17; Q12 and Q18 re-pinned by A17 rulings 1 and 3 → 32½), from the expectations
+        key: list.filter((r) => r.expectedAnswerMismatch !== true).reduce((a2, r) => a2 + (Number(r.expectedTotal) || 0), 0),
         withinHalf: list.filter((r) => r.withinHalf === true).length, n: list.length,
         perQuestion: list.map((r) => ({ id: r.caseId, awarded: r.status === 'graded' ? r.awarded : r.status, expected: r.expectedTotal, type: r.primaryType || null, expectedType: r.expectedType })) }];
     })),
@@ -468,6 +501,9 @@ function score(input) {
   // GRADER-CORE-1 PR-2 · P0 and the v2 unattempted status
   result.p0 = rate(rows.filter((r) => r.kind === 'p0'), 'p0Pass');
   result.unattemptedV2 = rate(rows, 'unattemptedV2');
+  // A17 owner rulings (GRADING-JOBS-1 J0): null ("na") where the replayed run holds no A17 job.
+  const a17Rows = rows.filter((r) => r.kind === 'a17');
+  result.a17 = { ...rate(a17Rows, 'a17Pass'), rows: a17Rows.map((r) => ({ caseId: r.caseId, entry: r.entry, run: r.run, status: r.status, awarded: r.awarded, expected: r.expectedTotal, fails: r.a17Fails })) };
 
   // chapter (detect) — stored detect outputs replayed through handleDetectQuestion
   const det = [];
@@ -640,6 +676,8 @@ function headline(res) {
     detect_minus_kept: res.detectPaper ? res.detectPaper.owner.minusPct : null,
     detect_per_question: res.detectPaper ? res.detectPaper.owner.perQuestionPct : null,
     detect_dup_numbers: res.detectPaper ? res.detectPaper.dupT2.pct : null,
+    // A17 owner rulings 1-5 (truth/rulings-a17.json)
+    a17_rulings: res.a17 ? res.a17.pct : null,
   };
 }
 

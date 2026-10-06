@@ -901,7 +901,20 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // blank answer (unattempted) is told apart from an answer not found (not graded). Every transport moved together.
 // The LOCAL combined PR-3 + PR-2b head also carries PR-2b's prompt rules (figures, rubric values, comments, ECF).
 //   PREVIOUS 594d78d3a487cdd9493c887b490c1d510d8cccb45952d635997c13094e133b68 (PR-2b alone) / e882944e850b5c7933a24ed93af3f4d5cfa3295d5a35220a9c8bcc34d6d3d40c (PR-3 alone)
-const NO_UPLOADS_CONTENTS_SHA256 = '5cab8ba315d6a589e3293d24a59810dff70b7562cfd9b2247420f265b9abe862';
+// ★ AND AGAIN — A17 owner rulings (GRADING-JOBS-1 J0, 2026-10-06; 5cab8ba3… → below): ruling 1 (a
+// missing/wrong unit on a quantity-valued final answer costs ½ in Maths AND Science, once per
+// question, never on a pure number, with one fixed comment), ruling 3 (language is never marked; the
+// Science checklist's "NCERT-standard language" became "NCERT terminology") and ruling 4 (an
+// immaterial miscopy is not "silly"). Rule TEXT only; every transport moved together. Then ruling 3 AS
+// CHANGED BY THE OWNER 2026-10-06 (b8a62dc0… → below): the MEDIUM rule (a Hinglish answer loses ½ once,
+// with one fixed comment; English and Devanagari Hindi never) replaces "language is never marked", and
+// both subject checklists name the medium.
+//   PREVIOUS 5cab8ba315d6a589e3293d24a59810dff70b7562cfd9b2247420f265b9abe862, then b8a62dc00c0d82763cb556688281520a76fe4f1a98961beab3d011a8ad73847b
+// FIXUP-2 (owner rulings later 2026-10-06; bba80457… → below): one stray Roman-script Hindi word is not
+// Hinglish (a clause or more is), and all exam-technique deductions of an answer are capped at 1 (½ on a
+// 1-mark answer). Rule TEXT only.
+//   PREVIOUS bba8045764c14b359a0d4186578a1e826bd6b910ba2c965f8bbb620b1cea447c
+const NO_UPLOADS_CONTENTS_SHA256 = '72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

@@ -74,9 +74,13 @@ function getPath(obj, dotted) {
   return obj[dotted];
 }
 
-function applyRepins(casesById, repins) {
+function applyRepins(casesById, repins, opts = {}) {
   const applied = [];
+  // A17 (GRADING-JOBS-1 J0): a row may also re-pin a PAPER case (owner-anomaly-02 OA2-*, a controller
+  // paper CP*), applied once those are loaded (opts.paper); the verified-set pass skips them.
+  const isPaper = (id) => /^(?:OA2-|CPdd-|DUP-)/.test(id);
   for (const r of repins.repins) {
+    if (isPaper(r.caseId) !== Boolean(opts.paper)) continue;
     const c = casesById[r.caseId];
     if (!c) throw new Error('repin: unknown case ' + r.caseId);
     const e = c.expected;
@@ -175,6 +179,8 @@ function load() {
   const owner = readJson('owner-anomaly-01/case.json');
   const probes = readJson('probes/injection.json');
   const mismatch = resolveMismatch(readJson('truth/mismatch.json'), { itemsById, casesById, detect, nameBySlug });
+  // A17 owner rulings (GRADING-JOBS-1 J0): truth/rulings-a17.json, composed on golden questions.
+  const a17 = resolveA17(readJson('truth/rulings-a17.json'), { itemsById, casesById, detect, nameBySlug });
 
   // GRADER-CORE-1 PR-2 · the four CONTROLLER TEST PAPERS (owner addendum 2026-10-05). SYNTHETIC
   // answer sheets (font-rendered handwriting) for CBSE published questions, every value point
@@ -214,9 +220,36 @@ function load() {
   // question single (its answer crop); scored with the paper scorer, reported apart (res.owner2).
   const owner2 = readJson('owner-anomaly-02/case.json');
   owner2.questions.forEach((q) => { q.caseId = 'OA2-Q' + String(q.qNumber).padStart(2, '0'); paperCaseById[q.caseId] = { ...q, paperId: 'owner-02' }; });
+  // A17: owner rulings that change a PAPER case's truth (truth/repins.json, guarded by the old value).
+  for (const r of applyRepins(paperCaseById, repins, { paper: true })) appliedRepins.push(r);
 
-  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, papers, paperCaseById, dupPaper, owner2, GOLDEN_DIR };
+  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, a17, papers, paperCaseById, dupPaper, owner2, GOLDEN_DIR };
   return _cache;
+}
+
+// A17 owner rulings (truth/rulings-a17.json): each case's question from a golden ITEM, its typed
+// answer new (`text`) or copied from a verified typed case (`fromCase`). Every reference must resolve.
+function resolveA17(raw, ctx) {
+  return raw.cases.map((c) => {
+    const item = ctx.itemsById[c.question.fromItem];
+    if (!item) throw new Error('a17: unknown question item ' + c.question.fromItem);
+    let text = c.answer.text;
+    if (c.answer.fromCase) {
+      const src = ctx.casesById[c.answer.fromCase];
+      if (!src || src.mode !== 'typed') throw new Error('a17: answer case ' + c.answer.fromCase + ' is not a typed golden case');
+      text = src.textAnswer;
+    }
+    if (!String(text || '').trim()) throw new Error('a17: case ' + c.caseId + ' has no answer text');
+    const d = ctx.detect[item.id];
+    return {
+      ...c, label: raw.label,
+      resolved: {
+        questionText: composeQuestion(item), subject: item.subject, marks: Number(item.question.marks),
+        topic: d ? d.topicName : (ctx.nameBySlug[item.chapterTrue.appTopicKey] || item.chapterTrue.name),
+        objective: false, itemId: item.id, answer: { mode: 'typed', text },
+      },
+    };
+  });
 }
 
 // The answer-question MISMATCH cases (owner addendum 2026-10-05), resolved from their

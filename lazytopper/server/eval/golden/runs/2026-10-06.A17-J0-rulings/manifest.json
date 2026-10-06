@@ -1,0 +1,85 @@
+{
+ "runId": "2026-10-06.A17-J0-rulings",
+ "config": {
+  "id": "PR2-a-flash38",
+  "model": "gemini-3.8-flash",
+  "thinkingBudget": null,
+  "core": true,
+  "gradingMode": "single",
+  "label": "PR-2 (a): gemini-3.8-flash only (SUBSTITUTE: gemini-2.5-flash refused to this key), dynamic thinking"
+ },
+ "createdAt": "2026-10-06T10:34:03.759Z",
+ "dry": false,
+ "detectModel": "gemini-2.5-flash",
+ "detectModelIsProxy": false,
+ "note": "A17 owner rulings (GRADING-JOBS-1 J0): the A17 ruling jobs (truth/rulings-a17.json, S.A17.* and W.A17.*) EXTRACTED from the J0 full x3 acceptance run 2026-10-06.A17-J0-full-flash38 (gemini-3.8-flash, the shipped grading config), records unedited. Jobs whose model call failed at the provider (deadline / HTTP 429 under 32-way concurrency) are left out: 49 of 54 records. Replayed zero-call by G1 as extraRuns label a17.",
+ "serverFileSha256LF": {
+  "grading/rules.cjs": "34c74d808e8e3180865f453f5a13d3302e9663acb631889df6e4c42e2954059d",
+  "grading/prompt.cjs": "619082e57a068e65aa0002507376eb57702b1f4695bc7098b1774d8394b58464",
+  "grading/postprocess.cjs": "4c88c2aaac057c983b401f97612005ddd08e47615d284ebc835148f6db581a8f",
+  "grading/core.cjs": "3e1f73f13c3aa5614f03d7338e8515ddd80d3ed8d754380e4e3552979fb1654a",
+  "grading/verify.cjs": "a836d20abb4b4d190eefdc39f0fa3407cc6746963999adf24cf82f02fc23e1e4",
+  "grading/schema.cjs": "48f5530a6c8897a9da44141dbe4f72e2ecba6600b0e2356bdf2017fff506de8f",
+  "grading/fence.cjs": "0ec8a21922bd7da98c24ddd52a758bfee26ececc5b9f690f722da88a9317f64e",
+  "grading/timing.cjs": "04fd8cf1a783d91c76fd7b0445fd3eda6dc658b2e0fa23465502548adf296651",
+  "grading/charge.cjs": "e05516a19af25bf27f78ecef712434c9d2e0e17f11107db3b42cdde84a207131",
+  "grading/detect.cjs": "b95a22cd0a34b5b2fbd534e27ef9c3d9d3824ef547b92158c9297d5c587e1f4b",
+  "grading/pdfTextLayer.cjs": "02f32f60165b740cac059ced383df317434b1b34547da6dd88def28b1eff59c8",
+  "routes/checkSolution.cjs": "9d818bb390d054cb709a80693df97b2dec8d146e9e44850f27fc73fc9c5db66d",
+  "routes/objectiveScoring.cjs": "b184e474a7b13f2438496a30ddf85580ea148a77152211fd1bffb6dba24249c5",
+  "services/geminiClient.cjs": "ed072dce3ea53a69051f542e400853338e067d8cb090e5aefa24fbbbe255015c",
+  "services/serverConfig.cjs": "9b9dfce312d3dfbaa207d25d2f0a85d7d005c509420e6476e28ba28a7c4e5745",
+  "services/httpUtils.cjs": "ca02bfeaedf71b47ea7f08cad526bd39db61a2920e5353d7bfaecab7116c6e54",
+  "mentorImageSupport.cjs": "105f1192a95789ba650b55067131b4e45d39aeaada640ad385552545b10b764b",
+  "services/serverUtils.cjs": "802142b6aadf83c23c2cb3324160b8ee0ce7675c6e2725279318e928de43e068"
+ },
+ "timeoutMs": 80000,
+ "concurrency": 32,
+ "runsPlanned": 3,
+ "ledger": "j0.jsonl",
+ "stubs": "no fair-use/idempotency/entitlement middleware (handler called directly); solution cache returns null (production with no DATABASE_URL)",
+ "completedAt": "2026-10-06T10:46:04.370Z",
+ "httpStats": {
+  "http": 897,
+  "ok": 686,
+  "status429": 0,
+  "timeouts": 210,
+  "errors": 211,
+  "httpInFlight": 1,
+  "peakHttpInFlight": 86
+ },
+ "parallel": [
+  {
+   "startedAt": "2026-10-06T10:34:04.613Z",
+   "wallMs": 719757,
+   "jobs": 681,
+   "ramp": [
+    8,
+    16,
+    32
+   ],
+   "rampEvery": 8,
+   "peakJobsInFlight": 32,
+   "peakHttpInFlight": 86,
+   "status429": 0,
+   "levels": [
+    {
+     "atMs": 0,
+     "inFlightCap": 8,
+     "why": "start"
+    },
+    {
+     "atMs": 31861,
+     "inFlightCap": 16,
+     "why": "no 429 -> step up"
+    },
+    {
+     "atMs": 49725,
+     "inFlightCap": 32,
+     "why": "no 429 -> step up"
+    }
+   ],
+   "timeoutMs": 80000
+  }
+ ]
+}

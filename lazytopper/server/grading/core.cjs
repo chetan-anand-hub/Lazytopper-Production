@@ -36,6 +36,10 @@ const { chooseNonce } = require('./fence.cjs');
 const { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT, GRADING_RESPONSE_SCHEMA_INVENTORY } = require('./schema.cjs');
 const { normaliseQuestionResult } = require('./postprocess.cjs');
 const timingLib = require('./timing.cjs');
+const { isChargeable } = require('./charge.cjs');
+// A17 owner ruling 5: every grading model call is metered in proportion to the CHARGEABLE share of
+// the questions it graded (services/usageLedger.cjs meter groups).
+const { createMeterGroup, runInMeterGroup, settleMeterGroup } = require('../services/usageLedger.cjs');
 
 /**
  * C3 · P0 (controller decision D23) — the page inventory the model committed to BEFORE grading,
@@ -257,6 +261,10 @@ function createGradingCore(deps) {
    */
   async function attemptChunk(c) {
     const { model, questions, uploadByNumber, document, subject, single, autoDetect, label, attempt, timeoutMs, deadlineAt, others, chunkKey } = c;
+    // A17 ruling 5: this call's usage is held in its own meter group, settled by gradeSet once
+    // the questions it graded are known to be graded or not (c.meters collects it).
+    const meter = createMeterGroup();
+    if (Array.isArray(c.meters)) c.meters.push({ questions, meter });
     // D31: ONE nonce per request, shared by all its chunks (and their retries), and the paper's
     // rulebook switches, so every chunk's prompt starts with the same bytes (implicit caching).
     const nonce = c.nonce || chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce);
@@ -284,7 +292,7 @@ function createGradingCore(deps) {
     const firstQ = questions[0] ? questions[0].qNumber : 1;
     const t0 = now();
     try {
-      const { reply, model: used } = await withinBudget(callModel(model, contents, genConfig), Math.min(timeoutMs, deadlineAt - now()));
+      const { reply, model: used } = await withinBudget(runInMeterGroup(meter, () => callModel(model, contents, genConfig)), Math.min(timeoutMs, deadlineAt - now()));
       const parsed = extractJsonObjectFromText(reply && reply.text);
       const results = resultsOf(parsed, single, firstQ);
       if (!results) {
@@ -313,7 +321,7 @@ function createGradingCore(deps) {
       model: chunk.model, questions: qs, uploadByNumber: uploadsFor(qs), document: ctx.document, subject: chunk.subject,
       single: ctx.single, autoDetect: ctx.autoDetect, label: ctx.label, attempt, timeoutMs, deadlineAt: ctx.callDeadlineAt,
       others: ctx.document ? Math.max(0, ctx.total - qs.length) : 0, chunkKey: keyOf(qs),
-      nonce: ctx.nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme,
+      nonce: ctx.nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
     });
     const left0 = ctx.callDeadlineAt - now();
     if (left0 <= 0) return [{ questions: chunk.questions, attempt: { error: deadlineError(0), model: chunk.model, timedOut: true } }];
@@ -365,13 +373,17 @@ function createGradingCore(deps) {
     // which alone could spend the whole grading budget. A scheme that has not arrived by then
     // is not waited for: that question is graded without one (exactly as with no cache), and
     // the generation finishes in the background for the next request.
+    // A17 ruling 5: every model call this request makes, with the questions it is for.
+    const meters = [];
     if (solutionCache && !autoDetect) {
       const keyless = questions.filter((q) => (!Array.isArray(q.solutionSteps) || q.solutionSteps.length === 0) && !isObjective(q) && q.objective !== true);
       if (keyless.length > 0) {
         const arrived = new Map();
         const hooks = Promise.all(keyless.map(async (q) => {
           try {
-            const cached = await solutionCache.getOrCreateModelSolution({
+            const meter = createMeterGroup();
+            meters.push({ questions: [q], meter });
+            const cached = await runInMeterGroup(meter, () => solutionCache.getOrCreateModelSolution({
               question: q.questionText,
               marks: q.marks,
               subject: q.subject || input.subject || 'Maths',
@@ -379,7 +391,7 @@ function createGradingCore(deps) {
               qType: q.qType || '',
               section: q.section || '',
               isObjective: false,
-            });
+            }));
             if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) arrived.set(q, cached.schemeSteps);
           } catch (e) {
             console.warn(label + ' solution-cache hook failed for Q' + q.qNumber + ' (grading continues):', e.message);
@@ -440,7 +452,7 @@ function createGradingCore(deps) {
     }
 
     const ctx = {
-      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked,
+      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked, meters,
       // D31: request-level, so all chunks share them (see attemptChunk).
       nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce),
       paperHasAnyTyped: questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0),
@@ -560,6 +572,13 @@ function createGradingCore(deps) {
         notGraded: notGradedById.get(i) || null,
       },
     ));
+    // A17 ruling 5 · the premium meter counts graded questions only: each call's usage is written
+    // scaled by the chargeable share of the questions IT graded (0 when none was graded). A chunk's
+    // failed first attempt and its retries are metered against their own questions the same way.
+    for (const { questions: qs, meter } of meters) {
+      const ids = qs.map((q) => idOf.get(q)).filter((id) => id !== undefined);
+      settleMeterGroup(meter, ids.length ? ids.filter((id) => isChargeable(results[id])).length / ids.length : 0);
+    }
     return { ok: true, results, summary, modelUsed, detection, chunkCount: chunks.length };
   }
 
