@@ -24,6 +24,11 @@ function loadDotEnvIfPresent() {
   }
 }
 
+/** GRADING-JOBS-1 J1: background grading jobs are ON only when GRADING_JOBS is exactly "1". Default OFF. */
+function resolveGradingJobsSwitch(env = process.env) {
+  return String((env && env.GRADING_JOBS) || '').trim() === '1';
+}
+
 function resolveConfig() {
   loadDotEnvIfPresent();
 
@@ -84,6 +89,10 @@ function resolveConfig() {
   if (process.env.GRADING_DEADLINE_MS) ENV_USED.push(`GRADING_DEADLINE_MS=${GRADING_DEADLINE_MS}`);
   if (process.env.GRADING_CHUNK_TIMEOUT_MS) ENV_USED.push(`GRADING_CHUNK_TIMEOUT_MS=${GRADING_CHUNK_TIMEOUT_MS}`);
   if (process.env.GRADING_CACHE_BUDGET_MS) ENV_USED.push(`GRADING_CACHE_BUDGET_MS=${GRADING_CACHE_BUDGET_MS}`);
+  // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs. DARK unless exactly "1" (the
+  // FAIR_USE_ENFORCE convention): off, a submit asking for one is graded synchronously, as today.
+  const GRADING_JOBS = resolveGradingJobsSwitch(process.env);
+  if (process.env.GRADING_JOBS) ENV_USED.push(`GRADING_JOBS=${GRADING_JOBS ? '1' : 'off'}`);
   const IS_DEV = String(process.env.NODE_ENV || '').toLowerCase() !== 'production';
   const REPO_ROOT = process.cwd();
   const MAX_HISTORY_TURNS = 4;
@@ -108,7 +117,7 @@ function resolveConfig() {
     PORT, CORS_ORIGIN, ENV_USED,
     GEMINI_API_KEY, DIRECT_GEMINI_API_KEY, GEMINI_MODEL, GEMINI_TUTOR_MODEL, GEMINI_TIMEOUT_MS,
     GRADING_MODEL, GRADING_THINKING_BUDGET, GRADING_MODE, GRADING_LIGHT_MODEL,
-    GRADING_DEADLINE_MS, GRADING_CHUNK_TIMEOUT_MS, GRADING_CACHE_BUDGET_MS,
+    GRADING_DEADLINE_MS, GRADING_CHUNK_TIMEOUT_MS, GRADING_CACHE_BUDGET_MS, GRADING_JOBS,
     HAS_REPLIT_PROXY, REPLIT_GEMINI_BASE_URL, REPLIT_GEMINI_API_KEY,
     HAS_ANTHROPIC_PROXY, REPLIT_ANTHROPIC_BASE_URL, REPLIT_ANTHROPIC_API_KEY,
     ANTHROPIC_TIMEOUT_MS,
@@ -121,4 +130,4 @@ function resolveConfig() {
   };
 }
 
-module.exports = { resolveConfig };
+module.exports = { resolveConfig, resolveGradingJobsSwitch };

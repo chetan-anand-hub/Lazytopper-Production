@@ -2568,3 +2568,8 @@ test('§20.9 ★ OWNER-ANOMALY-02 (live AFTER-PR2: detect returned "x² 5x + 6")
   assert.match(qs[2].questionText, /1 × 10⁻⁶ m²\. The resistivity of copper is 1\.6 × 10⁻⁸ Ω m\./);
   assert.ok(detectPrompt(h).includes('the test for the gas evolved — is metals-and-non-metals'), 'the per-question chapter rule (Q17 was filed under chemical reactions live)');
 });
+
+// GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on this route — the submit's async
+// branch, the job runner, the poll route and the deferred fair-use commit (grading/jobs.suite.cjs:
+// a *.suite.cjs run from here, so it is part of test:server:check-solution in CI).
+require('../grading/jobs.suite.cjs');

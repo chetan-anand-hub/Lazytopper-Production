@@ -110,6 +110,45 @@ function deliveredAGrade(res) {
   return charged === undefined || charged > 0;
 }
 
+/* ── GRADING-JOBS-1 J1 · DEFERRED COMMIT (controller decision D12; review C6/§3.7) ──────────────
+   A background grading job answers 202 BEFORE anything is graded. The response-`finish` hooks
+   below would then charge the REQUESTED count and mark the paper pass graded (a missing chargeable
+   count means "the requested count" — servedCommit / deliveredAGrade). So a job's handler records a
+   chargeable count of 0 on its 202 (the hooks commit NOTHING and mark NOTHING), and takes from `res`
+   WHAT the hooks would have committed: `deferredCommitOf(res)` = { uid, tier, surface, commit?, pass? }
+   — plain data, persisted in the job record at submit, so whichever reader ends the job (its own
+   worker at `done`, or a later poll that finds it `interrupted`) can settle it with
+   `commitDeferred(deferred, graded)`: the same servedCommit + recordTrialUse + markPaperGraded the
+   synchronous path runs, for the questions actually graded. Exactly-once is the JOB's duty (one
+   transaction flips the job's `charged` flag; only its winner calls commitDeferred). */
+const DEFERRED_COMMIT = Symbol.for('lazytopper.fairUse.deferredCommit');
+
+function setDeferredCommit(res, deferred) {
+  if (!res || (typeof res !== 'object' && typeof res !== 'function')) return;
+  try {
+    Object.defineProperty(res, DEFERRED_COMMIT, { value: deferred, enumerable: false, configurable: true, writable: true });
+  } catch { /* a frozen test double */ }
+}
+
+/** What this request's fair-use hooks would commit for a served grade (plain JSON), or null. */
+function deferredCommitOf(res) {
+  const d = res && (typeof res === 'object' || typeof res === 'function') ? res[DEFERRED_COMMIT] : undefined;
+  return d && typeof d === 'object' ? JSON.parse(JSON.stringify(d)) : null;
+}
+
+/* ── GRADING-JOBS-1 J1 · THE CLAIMED ATTEMPT (controller decision D10) ───────────────────────────
+   A job's id IS its idempotency attempt id, and its record IS that attempt's record. createGrading-
+   Idempotency.begin marks the request it CLAIMED (verified uid + valid key + Firestore reachable)
+   with { uid, attemptId, path } — the handler reads it with gradingAttemptOf(req). No mark (no key,
+   a bad key, no verified uid, no Firestore, a Firestore error, a replay) → the request can never
+   become a job: it runs synchronously, exactly as before. */
+const GRADING_ATTEMPT = Symbol.for('lazytopper.fairUse.gradingAttempt');
+
+function gradingAttemptOf(req) {
+  const a = req && typeof req === 'object' ? req[GRADING_ATTEMPT] : undefined;
+  return a && typeof a === 'object' ? a : null;
+}
+
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -825,6 +864,8 @@ function createFairUse(deps = {}) {
           if (res.statusCode >= 200 && res.statusCode < 300 && deliveredAGrade(res)) void markPaperGraded(uid, pass);
         });
       }
+      // J1 (D12): what a background job settles at its end instead of this hook.
+      setDeferredCommit(res, { uid, tier, surface, pass: pass ? { surface: pass.surface, paperKey: pass.paperKey, issuedAt: pass.issuedAt } : null });
       return false;
     }
 
@@ -872,7 +913,34 @@ function createFairUse(deps = {}) {
         if (spent) ledger.recordTrialUse(uid, spent);
       });
     }
+    // J1 (D12): what a background job settles at its end instead of the hook above (a premium
+    // caller has no commit: its cost is the meter, carried in the job's own async context).
+    setDeferredCommit(res, { uid, tier, surface, commit: decision.commit || null });
     return false;
+  }
+
+  /**
+   * J1 (D12) — settle a background job's DEFERRED commit: exactly what the `finish` hooks above do
+   * for a served synchronous grade with `graded` chargeable questions (servedCommit → recordTrialUse;
+   * a verified paper pass marked graded when at least one question was). The caller guarantees it
+   * runs ONCE per job (grading/jobs.cjs: the transaction that flips the job's `charged` flag).
+   * Never throws. Returns what was spent.
+   */
+  function commitDeferred(deferred, graded) {
+    try {
+      const d = deferred && typeof deferred === 'object' ? deferred : null;
+      const uid = d && typeof d.uid === 'string' ? d.uid.trim() : '';
+      if (!uid) return { spent: null, paperGraded: false };
+      const n = Math.max(0, Math.floor(Number(graded) || 0));
+      const spent = d.commit ? servedCommit(d.commit, n) : null;
+      if (spent) ledger.recordTrialUse(uid, spent);
+      const paperGraded = Boolean(d.pass && n > 0);
+      if (paperGraded) void markPaperGraded(uid, d.pass);
+      return { spent, paperGraded };
+    } catch {
+      emit('fair_use.deferred_commit_failed');
+      return { spent: null, paperGraded: false };
+    }
   }
 
   /** U5: GET /api/usage/me — the VERIFIED caller's own allowances. Percentages only, never rupees. */
@@ -1070,7 +1138,7 @@ function createFairUse(deps = {}) {
     }
   }
 
-  return { applyToRequest, handleUsageMe, handlePaperPass, isPremium, markPaperGraded };
+  return { applyToRequest, handleUsageMe, handlePaperPass, isPremium, markPaperGraded, commitDeferred };
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1233,7 +1301,12 @@ function createGradingIdempotency(deps = {}) {
           const expiresAtMs = mine && Number.isFinite(Number(data.expiresAtMs))
             ? Number(data.expiresAtMs)
             : nowMs + IDEMPOTENCY_TTL_MS;
-          tx.set(ref, { state: 'done', claimId, status, body, completedAtMs: nowMs, expiresAtMs, expiresAt: new Date(expiresAtMs) });
+          // GRADING-JOBS-1 J1 (D10): a 202 that started a background job is stored here like any
+          // 2xx (so a retried submit replays the same jobId), and the JOB written onto this same
+          // record by this same claim is carried over — never wiped by the store. A record with no
+          // `job` (every synchronous grade) is written exactly as before.
+          const job = mine && data.job && typeof data.job === 'object' ? data.job : null;
+          tx.set(ref, { state: 'done', claimId, status, body, completedAtMs: nowMs, expiresAtMs, expiresAt: new Date(expiresAtMs), ...(job ? { job } : {}) });
           return 'stored';
         }
         if (mine) {
@@ -1320,6 +1393,13 @@ function createGradingIdempotency(deps = {}) {
       if (step.kind === 'claimed') {
         emit('idempotency.claimed');
         attach(res, db, ref, claimId);
+        // J1 (D10): the only requests that may become a background job (gradingAttemptOf).
+        try {
+          Object.defineProperty(req, GRADING_ATTEMPT, {
+            value: Object.freeze({ uid, attemptId: idempotencyAttemptId(reqPath, key), path: reqPath, claimId }),
+            enumerable: false, configurable: true,
+          });
+        } catch { /* a frozen test double: it simply never becomes a job */ }
         return { claimed: true };
       }
       waited = true;
@@ -1376,6 +1456,12 @@ module.exports = {
   PAPER_PASS_TTL_MS,
   PAPER_PASSES_FIELD,
   createGradingIdempotency,
+  gradingAttemptOf,
+  deferredCommitOf,
+  setDeferredCommit,
+  DEFERRED_COMMIT,
+  GRADING_ATTEMPT,
+  IDEMPOTENCY_MAX_BODY_BYTES,
   classifyIdempotencyRecord,
   idempotencyKeyOf,
   idempotencyAttemptId,
