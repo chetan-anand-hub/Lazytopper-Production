@@ -53,7 +53,7 @@ export default defineChapter("triangles", [
   [326, TRIANGLES_PYQ_2026, false],
   [339, TRIANGLES_PYQ_2024, false],
   [417, TRIANGLES_LT_GENERATED, false],
-  [434, TRIANGLES_CBQ_LT_GENERATED, false],
+  [437, TRIANGLES_CBQ_LT_GENERATED, false],
 ], [
   "2026-TRI-P1-A-004",
   "2026-TRI-P1-A-009",

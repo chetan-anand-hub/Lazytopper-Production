@@ -45,7 +45,7 @@ export default defineChapter("trigonometry", [
   [341, TRIGONOMETRY_PYQ_2024, false],
   [353, TRIGONOMETRY_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
-  [433, TRIGONOMETRY_CBQ_LT_GENERATED, false],
+  [436, TRIGONOMETRY_CBQ_LT_GENERATED, false],
 ], [
   "TRIG2-E08",
   "TRIG2-H02",
