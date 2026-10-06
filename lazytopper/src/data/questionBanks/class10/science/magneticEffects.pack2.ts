@@ -289,7 +289,6 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Show direction of force/motion using arrows."
     ],
     "finalAnswer": "Labeled diagram of DC motor with all essential components",
-    "visualExplainerId": "science-magnetic-effects-electric-motor-and-generator",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -607,7 +606,6 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "9. DC generator requires split-ring commutator, more complex, difficult to transform."
     ],
     "finalAnswer": "Complete AC generator analysis with diagram, EMF derivation, and advantages over DC",
-    "visualExplainerId": "science-magnetic-effects-electric-motor-and-generator",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Delhi",
@@ -1251,7 +1249,6 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Role of commutator: maintains force direction by reversing current every half rotation"
     ],
     "finalAnswer": "A DC motor works by applying a current through a coil in a magnetic field. The current-carrying sides of the coil experience forces (according to Fleming's Left Hand Rule) that create a torque, rotating the coil. The split-ring commutator automatically reverses the current direction every half-rotation, ensuring the magnetic force continues to act in the direction of motion, resulting in continuous rotation. The brushes maintain electrical contact with the commutator throughout this process.",
-    "visualExplainerId": "science-magnetic-effects-electric-motor-and-generator",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",

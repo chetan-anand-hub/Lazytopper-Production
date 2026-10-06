@@ -117,7 +117,7 @@ const AUTHORED_TOPICS: AuthoredTopic[] = [
     stream: "All",
     trendTier: "medium",
     share: 4,
-    blurb: "Area of sectors and segments and combinations of plane figures involving circles.",
+    blurb: "Area of sectors and segments.",
   },
   {
     slug: "surface-areas-and-volumes",

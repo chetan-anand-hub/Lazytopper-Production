@@ -705,6 +705,13 @@ export const MATHS_OUT_SUBTOPIC_FRAGMENTS: Readonly<Record<string, readonly stri
     "decimal representation",
     "terminating decimal",
   ],
+  // QUICK-FIXES-1 PR-2 (owner rulings R1–R3, 2026-10-06). Fragments are specific on purpose: same-method named-prime
+  // proofs ("Irrationality Proofs") and the official IN row labelled "Combinations of Plane Figures" must not match.
+  "Irrationality statements or proofs for a general prime p and for composite surds (e.g. √p for any prime p, √p + √q, 'the square root of every prime is irrational', prove √15 irrational)": [
+    "general prime",
+    "every prime is irrational",
+    "any prime is irrational",
+  ],
   "Zero–coefficient relationship for CUBIC polynomials (α+β+γ, αβ+βγ+γα, αβγ)": ["cubic"],
   "Division algorithm for polynomials (long division, finding remaining zeros by division)": ["division algorithm"],
   "Cross-multiplication method": ["cross multiplication"],
@@ -717,6 +724,7 @@ export const MATHS_OUT_SUBTOPIC_FRAGMENTS: Readonly<Record<string, readonly stri
   "Finding complex/non-real roots": ["complex root", "non real root", "imaginary root"],
   "Area of a triangle from coordinates (and collinearity via zero area)": ["area of triangle", "area of a triangle"],
   "Section formula — external division": ["external division", "divides externally"],
+  "Centroid of a triangle from coordinates": ["centroid"],
   "Ratio of areas of similar triangles (area theorem) and problems using it": [
     "area ratio",
     "areas of similar",
@@ -738,6 +746,10 @@ export const MATHS_OUT_SUBTOPIC_FRAGMENTS: Readonly<Record<string, readonly stri
     "construction of similar",
   ],
   "Trigonometric ratios of complementary angles (sin(90°−A) = cos A etc.) as a topic": ["complementary angle"],
+  "Areas of combinations of plane figures (circle parts with rectangles or other shapes, a circle minus an inscribed square or triangle; the sector-or-segment and ring exceptions are IN)": [
+    "areas of combinations",
+    "area of combinations",
+  ],
   "Frustum of a cone": ["frustum"],
   "Conversion of one solid into another (melting/recasting) as a topic": [
     "conversion of solid",

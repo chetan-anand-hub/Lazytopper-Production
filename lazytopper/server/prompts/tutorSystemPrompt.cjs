@@ -51,6 +51,11 @@ const TUTOR_SYLLABUS_2026_27 = {
         "page": 3
       },
       {
+        "chapter": "real-numbers",
+        "item": "Irrationality statements or proofs for a general prime p and for composite surds (e.g. √p for any prime p, √p + √q, 'the square root of every prime is irrational', prove √15 irrational)",
+        "page": 3
+      },
+      {
         "chapter": "polynomials",
         "item": "Zero–coefficient relationship for CUBIC polynomials (α+β+γ, αβ+βγ+γα, αβγ)",
         "page": 3
@@ -91,6 +96,11 @@ const TUTOR_SYLLABUS_2026_27 = {
         "page": 5
       },
       {
+        "chapter": "coordinate-geometry",
+        "item": "Centroid of a triangle from coordinates",
+        "page": 5
+      },
+      {
         "chapter": "triangles",
         "item": "Ratio of areas of similar triangles (area theorem) and problems using it",
         "page": 5
@@ -116,6 +126,11 @@ const TUTOR_SYLLABUS_2026_27 = {
         "page": 6
       },
       {
+        "chapter": "areas-related-to-circles",
+        "item": "Areas of combinations of plane figures (circle parts with rectangles or other shapes, a circle minus an inscribed square or triangle; the sector-or-segment and ring exceptions are IN)",
+        "page": 7
+      },
+      {
         "chapter": "surface-areas-and-volumes",
         "item": "Frustum of a cone",
         "page": 7
@@ -133,9 +148,19 @@ const TUTOR_SYLLABUS_2026_27 = {
     ],
     "science": [
       {
+        "chapter": "chemical-reactions-and-equations",
+        "item": "Rancidity (oxidation of fats and oils in food, and its prevention by antioxidants or nitrogen flushing)",
+        "page": 4
+      },
+      {
         "chapter": "acids-bases-and-salts",
         "item": "pH defined via logarithm (pH = −log[H+]) and log-based pH computations",
         "page": 4
+      },
+      {
+        "chapter": "carbon-and-its-compounds",
+        "item": "Nomenclature of carboxylic acids (naming an acid by the -oic acid suffix, e.g. propanoic or butanoic acid)",
+        "page": 5
       },
       {
         "chapter": "light-reflection-and-refraction",
@@ -315,8 +340,44 @@ const TUTOR_SYLLABUS_2026_27 = {
   "keepIn": [
     {
       "subject": "maths",
+      "chapter": "real-numbers",
+      "item": "Same-method irrationality proofs for the square root of a named prime (e.g. √7, √11) and expressions built from such surds (e.g. 6 − √7, 5 + 6√7)",
+      "page": 3
+    },
+    {
+      "subject": "maths",
       "chapter": "triangles",
       "item": "Using a²+b²=c² as a numeric TOOL (e.g. tangent length, heights and distances) — not as a Class-X theorem",
+      "page": 5
+    },
+    {
+      "subject": "maths",
+      "chapter": "areas-related-to-circles",
+      "item": "Shaded regions made only of a sector or segment with the triangle or square that defines it, including a triangle or square minus the sectors at its vertices",
+      "page": 7
+    },
+    {
+      "subject": "maths",
+      "chapter": "areas-related-to-circles",
+      "item": "Rings and annular sectors (area between two concentric circles or sector arcs), and a quadrant or sector minus a triangle with a vertex at the centre",
+      "page": 7
+    },
+    {
+      "subject": "maths",
+      "chapter": "areas-related-to-circles",
+      "item": "Measures of a circle inscribed in a square, or a square inscribed in a circle (no shaded region)",
+      "page": 7
+    },
+    {
+      "subject": "maths",
+      "chapter": "statistics",
+      "item": "Empirical relation 3 Median = Mode + 2 Mean, used as a tool",
+      "page": 7
+    },
+    {
+      "subject": "science",
+      "chapter": "carbon-and-its-compounds",
+      "item": "Identifying the -COOH (carboxylic acid) functional group, and natural acids such as methanoic acid in an ant sting",
       "page": 5
     },
     {

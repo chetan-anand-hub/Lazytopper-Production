@@ -139,7 +139,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
   {
     id: "2026-CR-AR-04",
     topicKey: "ChemicalReactions",
-    subtopic: "Corrosion & Rancidity",
+    subtopic: "Corrosion",
     kind: "Assertion-Reasoning",
     section: "A",
     marks: 1,

@@ -79,15 +79,17 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // 109 -> 108 at ELEC-FIX-1 (2026-09-11): CBE-S-ELEC-A-003 unbound (row withheld, crop kept on disk).
     // 108 -> 107 at MERGE-ELEC (2026-09-11): both removals land together (LIGHT-FIX-1 via #774 + ELEC-FIX-1) = 43 Item Bank + 33 Exemplar + 7 NCERT + 24 CFPQ.
     // 107 -> 105 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): CBE-S-MAGN-E-001 and MAG-EXMPLR-12-MCQ-007 unbound (rows withheld, formative-only EMI / out-of-syllabus; crops kept on disk).
-    expect(batch1).toHaveLength(105);
+    // 105 -> 104 at QUICK-FIXES-1 PR-2 (2026-10-06): CFPQ-S-CARB-013 unbound (row withheld, owner ruling R6; crop kept on disk).
+    expect(batch1).toHaveLength(104);
     // 49 = 3 Foundation + 12 chapter-wise + 17 board-paper (16 rows, ELEC-011 twice) + 13 preboard + 2 SQP + 2 APQ (FIG-SCI-2)
     // 49 -> 46 at LIGHT-FIX-1 stage 2 (2026-09-11): the 3 Foundation rows (FND-L-SPX-003/-004/-043) are
     // withheld as out-of-syllabus (beyond-board tier) and their bindings removed
     // 49 -> 47 at ELEC-FIX-1 (2026-09-11): PYQ-S-2025-ELEC-009 and PYQ-S-ELEC-004 unbound (rows withheld, crops kept on disk).
     // 46 -> 44 at MERGE-ELEC (2026-09-11): both removals land together (LIGHT-FIX-1 via #774 + ELEC-FIX-1) = 0 Foundation + 12 chapter-wise + 15 board-paper + 13 preboard + 2 SQP + 2 APQ.
     // 44 -> 43 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): SCO-S-MAG-016 unbound (row withheld; crop kept on disk).
-    expect(batch2).toHaveLength(43);
-    expect(batch).toHaveLength(105 + 43);
+    // 43 -> 42 at QUICK-FIXES-1 PR-2 (2026-10-06): SQP-S-CC-002 unbound (row withheld, owner ruling R6; crop kept on disk).
+    expect(batch2).toHaveLength(42);
+    expect(batch).toHaveLength(104 + 42);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);
