@@ -16,11 +16,11 @@
     "lastmod": "2026-10-06"
   },
   "/highly-probable/10/Maths": {
-    "sha256": "bc1511b2e008680415b405139e9e4ac8730e9586e25e6705d5f19a5205f1cd0f",
+    "sha256": "5cc1753bdd9ab8e72f6e0ae306f1fb471583d8b86262922203f17651cb002d7b",
     "lastmod": "2026-10-06"
   },
   "/highly-probable/10/Science": {
-    "sha256": "dfc584981261c5296365339000a43ec3dbf5f1ab7f4707320c077b31688b500c",
+    "sha256": "45018e422743abd90a7e4748e04228aa709a0a0c13baa62fee2a0c1fa2735694",
     "lastmod": "2026-10-06"
   },
   "/legal/privacy": {
@@ -40,8 +40,8 @@
     "lastmod": "2026-10-04"
   },
   "/notes/areas-related-to-circles": {
-    "sha256": "511db06ecb530f2d52f98176232b265047ffbb6c34357494901b196793547a12",
-    "lastmod": "2026-10-04"
+    "sha256": "ad733d768d03712cf2af412ce2084ed8c839eb9b886a9abe5baf22564b4f39ad",
+    "lastmod": "2026-10-06"
   },
   "/notes/arithmetic-progression": {
     "sha256": "c52f60715ab4d3bbf9afbb20aa32e60411a90f5c1727b0944a1703a03b2643c5",
@@ -52,8 +52,8 @@
     "lastmod": "2026-10-04"
   },
   "/notes/chemical-reactions-and-equations": {
-    "sha256": "0397d972f6f9dc2a4cd8e10750e88ad4a5e2a219b765500591d4ba62bb7edaec",
-    "lastmod": "2026-10-04"
+    "sha256": "3d458665da6c4347d54357e35d2711f02ab9f7bffbc87060bc13898bcb8c783c",
+    "lastmod": "2026-10-06"
   },
   "/notes/circles": {
     "sha256": "981e1cd1f249c6cdbd99d837666c8434344368585636b9fefec09da50da9775d",
@@ -120,8 +120,8 @@
     "lastmod": "2026-10-04"
   },
   "/notes/real-numbers": {
-    "sha256": "e1105e624a3233e65bcea81ed2e40b24261d187ff51744a489a6bbcdfdc3bcba",
-    "lastmod": "2026-10-04"
+    "sha256": "2d8c52e14fd3e0022431a062148796fed6877bc1c8ae79efaec91e4ad8c83b8e",
+    "lastmod": "2026-10-06"
   },
   "/notes/statistics": {
     "sha256": "a0c0c8407082a757759d962b57cef21f97a0c0833b1d34e583a4c34962f6da1e",
@@ -152,7 +152,7 @@
     "lastmod": "2026-10-06"
   },
   "/topic-hub/areas-related-to-circles": {
-    "sha256": "06d7d29f6bb55f7c5fb8cf5cc8bd3300d6934774d11f1eec9b8b8f1ec644c435",
+    "sha256": "2dc00967bd0068fe302fc3bf1355bd4c87e7d4c988e79e9dd6f865adf68729cd",
     "lastmod": "2026-10-06"
   },
   "/topic-hub/arithmetic-progression": {
@@ -164,7 +164,7 @@
     "lastmod": "2026-10-06"
   },
   "/topic-hub/chemical-reactions-and-equations": {
-    "sha256": "061523755dfbaa981059a1f9cf8ed8c5a77c196b6457596cf23f4d813a7c6460",
+    "sha256": "1435a193bf9d9eb3de6605d590f8895769d20f9b589cb45ecb69bfd6b859bf0f",
     "lastmod": "2026-10-06"
   },
   "/topic-hub/circles": {
