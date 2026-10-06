@@ -1,5 +1,29 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-06 — WAVE A-15 CLOSE (GRADER, CONTROLLER A): GRADER-CORE-1 PR-3 (`#942` `76447a63`) + PR-2b (`#944` `28ae0354`); HOTFIX-2 (`#945` `b5ff8cdc`) rolled back by `#946` `e2c5bb46`; trunk `e2c5bb46`. LIVE on deploy (no flag); rollouts recorded in `CURRENT_STATE.md`.**
+> ★ **THE GRADER MOVES UNDER EVERY GRADING SURFACE (C&I single + multi, Quick Practice, Chapter Test, Full Mock, Worksheet, HPQ / Predicted): CHARGED ONLY FOR GRADED QUESTIONS; ONE 80 s DEADLINE WITH NOT-GRADED (UNCHARGED) FOR UNFINISHED QUESTIONS; ≤ 10-QUESTION PAPERS IN ONE CALL, LARGER ONES CHUNKED; ABSENT FROM EVERY PAGE = NOT GRADED; DETECTION KEEPS MINUS SIGNS AND (OPT-IN) PER-QUESTION SUBJECT / CHAPTER; TRUTHFUL COMMENTS AND THE SCHEMES' HALF-MARKS.** **No matrix cell value changes:** every grading surface's cells already read ✅, and this wave changes server behaviour beneath them, not their recorded status; Full Mock `Verified` ⬜ stays ⬜ (driven by agents only, not the owner). Server-only: no client file changed.
+
+### ✅ Grading — charging (all grading surfaces) — **CHARGED PER REQUEST / PER QUESTION SENT, INCL. COULDN'T-READ, MISMATCH AND TIMED-OUT → CHARGED ONLY FOR GRADED QUESTIONS; A PAPER WITH NOTHING GRADED DOES NOT MARK THE PASS — LIVE (`#942`)**
+- Live: mismatch charged 0 (was 1); correct 1; Quick Practice 1 *(agent-reported)*. Open: `[FU-GRADER-UNATTEMPTED-SINGLE-CHARGED]`, `[FU-PREMIUM-WINDOW-COUNTS-UNGRADED]`, `[FU-GRADE-OKFALSE-IS-CHARGED]` (live couldn't-read single not yet measured), the D25 FUs.
+
+### ✅ Grading — timing (C&I multi, Chapter Test, Full Mock, Worksheet papers) — **ONE CALL, BOUNDED ONLY BY `GEMINI_TIMEOUT_MS` (ALL-OR-NOTHING) → ONE 80 s GRADING DEADLINE; ≤ 10 QUESTIONS ONE CALL, > 10 CHUNKED (3 PER CHUNK, PARALLEL), UNFINISHED = NOT GRADED, UNCHARGED — LIVE (`#942`; `#945`'s 8-per-chunk variant rolled back by `#946`)**
+- Measured: OA-01 (10 questions, one call) 54.2 s live; the 27-question paper 78.1 s, 26 / 27 graded on PR-3's path (eval key) *(builder-reported; agent-reported)*. Open: `[FU-GRADING-JOBS]`, `[FU-GRADER-SPEED-PAGE-CROPPED-CHUNKS]`, `[FU-CHUNK-THINKING-COST]`, `[FU-IDEMPOTENCY-WAIT-75-VS-80]`. Scope discovered → §2a (`DECISION_LOG.md`, wave A-15 close).
+
+### ✅ Grading — detection (C&I paper upload) — **MINUS SIGNS LOST; ONE SUBJECT / CHAPTER PER PAPER; DUPLICATE PRINTED NUMBERS COLLIDE → MINUS SIGNS KEPT (TEXT LAYER); PER-QUESTION ID / SUBJECT / CHAPTER UNDER `acceptsV2`; SERVER MERGE BY A UNIQUE PER-QUESTION ID — LIVE (`#942`; client adoption pending)**
+- Live: minus signs kept on the owner's paper *(agent-reported)*. Open (B-lane): `[FU-B15-DETECT-V2-PER-QUESTION]`, `[FU-B15-DUP-QNUMBER-TOPIC-MAP]`, `[FU-UPLOADS-KEYED-BY-QNUMBER]`.
+
+### ✅ Grading — marking (all grading surfaces) — **FALSE COMMENTS, SIGN-DROP CHARGES, ECF THROUGH A FUDGED STEP, WHOLE-MARK SLIP COSTS, LANGUAGE DEDUCTIONS → TRUTHFUL COMMENTS, SIGN-SAFE QUOTES, NO ECF AFTER A FUDGED STEP, THE SCHEMES' HALF-MARKS, NO LANGUAGE DEDUCTIONS; ABSENT = NOT GRADED — LIVE (`#942`, `#944`)**
+- Measured: total exact 92.8, type 97.5; live OA-01 14.5 / 24 vs 15 *(builder-reported; agent-reported)*. Open: `[FU-RULE6-HINGLISH-STILL-LIVE]`, `[FU-UNTYPED-DEDUCTIONS]`, `[FU-SLIP-WEIGHT]`, `[FU-GRADER-CT-LINE-JOIN]`, `[FU-B-PENDING-COPY]` (client copy), `[FU-G3-NOTGRADED-COPY]`.
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- No client file changed this close (server-only PRs). The free check stays v1 → `[FU-B15-FREECHECK-V2]` (the owner's next client priority). Notes, Topic Hub, Exam Trends, Pricing, Login, Tutor, Me / Progress unchanged.
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, 2026-10-06, wave A-15 close, per `CLAUDE.md` §10)*
+- **Check & Improve / grading (Scope already Settling):** a synchronous request cannot promise a full 38–39-question board paper (the slowest chunk decides it; HOTFIX-2 rolled back) → background grading jobs → `[FU-GRADING-JOBS]`.
+- **Premium fair use (no matrix row):** the premium meter counts model cost, not graded questions → `[FU-PREMIUM-WINDOW-COUNTS-UNGRADED]`.
+
+### 📋 Scope discovered? — **YES, on surfaces whose `Scope` already reads Settling** (Check & Improve; the grading behind every graded surface), so no cell changes. Logged in `DECISION_LOG.md` (2026-10-06, wave A-15 close) and in §2a above.
+
 > **2026-10-05 — WAVE B-15 (RESULTS, CONTROLLER B): SCORECARD-MI-1 (`#935` `dd338130`, `#940` `834fea7c`) + CBQ-ENTRY-1 (`#938` `fdfdff11`, `#939` `4de266dc`); and WAVE A-15's merged GRADER-CORE-1 PRs (`#936` `532d3635`, `#937` `9678a259`, `#941` `07936091`, Controller A), trunk `834fea7c`. LIVE on deploy (no flag); every rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **EVERY SURFACE THAT SHOWS A GRADE OR A MISTAKE MOVES ON THE RESULTS AXIS (THE OWNER'S TAXONOMY AND WORDING FROM ONE MODULE; MARKS, NOT COUNTS; HONEST NOT-GRADED STATES; RE-GRADES REPLACE); PRACTICE HUB AND THE LANDING PAGE GAIN A CBQ ENTRY; THE GRADER (A) MOVES TO ONE CORE.** **No matrix cell value changes:** every moved surface's cells already read ✅ (Check & Improve, Quick Practice, Practice Hub, HPQ / Predicted, Worksheet, Chapter Test, Me / Progress); the three non-✅ cells it touches keep their recorded reasons — Tutor `MI` 🟡 (the independent Stage-3 gap, untouched), Home `MI` 🟡 (mobile renders an honest empty state by design; `[FU-B15-MOBILE-HOME-MI-CARD]` re-confirms it), Landing `Verified` 🟡 (owner both-width confirmation; the CBQ button was verified live by an agent, not the owner) — and Full Mock `Verified` ⬜ stays ⬜ (Full Mock was driven by agents only). The moves are recorded here as status lines *(builder-reported; live evidence agent-reported or controller-verified)*.
 

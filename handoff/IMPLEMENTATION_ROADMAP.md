@@ -1,5 +1,20 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-06 — GRADER: **WAVE A-15 CLOSE — GRADER-CORE-1 PR-3 + PR-2b** (`#942` + `#944`; HOTFIX-2 `#945` rolled back by `#946`) — trunk `e2c5bb46` — ✅ COMPLETE (OR-LIVE FINAL PASS; owner papers OA-01 14.5 / 24 vs 15, OA-02 19 / 27 graded on HOTFIX-2 → rolled back; owner-owed: free check by hand, delete `GEMINI_TIMEOUT_MS` (safe), rotate the eval key, D26 ECF rulings, `[FU-GRADER-2027-PRICE]` 2026-12-15, `[FU-ADMIN-TELEMETRY-UI]`, Rolling Releases back on, read the fallback counter)
+
+- ✅ **Charged only for graded questions** (`#942`, C9, LIVE): failed / timed-out / unfinished / couldn't-read / mismatch / unattempted / unread-option questions are uncharged; live: mismatch charged 0.
+- ✅ **One 80 s grading deadline, independent of `GEMINI_TIMEOUT_MS`; ≤ 10-question papers in one call, larger papers chunked with partial results** (`#942`, D43, LIVE).
+- ✅ **Detection keeps minus signs; per-question subject / chapter / id under `acceptsV2`; duplicate printed numbers no longer collide on the server** (`#942`, LIVE; client adoption is B-lane).
+- ✅ **Absent from every page = not graded, never 0** (`#942`, D38, LIVE).
+- ✅ **Truthful comments, sign-safe quotes, no ECF through fudged steps, scheme half-marks, median single-vs-set scorer** (`#944`, LIVE).
+- ✅ **Measured:** total exact 92.8 (bar 90 met), type 97.5, wrong step 95.4, papers within ½ 100; ₹77.31 per student-month (budget ₹125).
+- ❌ **C8 "10-question p95 < 45 s" — MISSED** (chunked p95 68.0 s); full board papers in a synchronous request — not met (HOTFIX-2 rolled back) → `[FU-GRADING-JOBS]` proposed.
+- ✅ **Rulings recorded:** owner (continue with the miss; eval cap ₹5,000; the board-paper bar; the HOTFIX-2 direction; the Trigonometry alias stands; next client priority) and controller decisions D35, D37–D46 (`DECISION_LOG.md`).
+- ✅ **FUs:** new, carried and closed (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`, wave A-15 close).
+- ✅ **Docs:** this handoff (after B's `#943`, OR-16).
+- ⬜ **Controller A:** tell B-16; one final audit request; the end-of-lane owner message; STOP.
+- ⬜ **Owner:** the owner-owed list in `NEXT_ACTION.md`; pick the next lanes (background grading jobs; `[FU-B15-FREECHECK-V2]`).
+
 ## 2026-10-05 — RESULTS + GRADER: **WAVE B-15 — SCORECARD-MI-1 + CBQ-ENTRY-1** (`#935` + `#938` + `#939` + `#940`) **and WAVE A-15's merged GRADER-CORE-1 PRs** (`#936` + `#937` + `#941`, Controller A) — trunk `834fea7c` — ✅ COMPLETE for B (OR-LIVE-1 PARTIAL 9 / 15, OR-LIVE-CBQ 10 / 10, OR-LIVE-CBQFIX 7 / 7, OR-LIVE-2 PARTIAL 10 / 12, no rollback; owner-owed: the practice-card retry ruling, an optional Tutor message, disk, re-enabling Rolling Releases, the carried UPLOAD-2 / UPLOAD-2-FIX-1 acceptances); A's PR-3 + PR-2b in flight (`#942`, A's docs)
 
 - ✅ **One display module for mistakes** (`#935`, LIVE): the owner's taxonomy and wording on every surface; "Not attempted" its own state; old records never converted; G4 one-module guard.
