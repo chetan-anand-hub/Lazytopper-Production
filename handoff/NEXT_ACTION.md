@@ -1,7 +1,7 @@
 ## ★★★ 2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B) — ME-ENGINE-1 COMPLETE: `#964` + `#968` + `#970` + `#983` LIVE; PR-3 SKIPPED BY THE OWNER; PRODUCTION AI FAILING UPSTREAM, J2 HELD (docs) — THIS BLOCK SUPERSEDES THE CI1 NIGHTLY-RESTORE BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the CI1 NIGHTLY-RESTORE, CI-SPEED-1, WAVE B-17, A-16 CLOSE, B-16, A-15 CLOSE, B-15, B-14, A-13 and every older block below stand unchanged, except the items this block names.)*
 
-**TRUNK IS `984bd663`** for this lane (`#983`, merged 2026-10-06T23:02:29Z, `gh pr view 983`, docs-builder-verified); when this docs PR was cut trunk was `ca96f52e` (C's docs `#988`), with zero commits since. Results, numbers, run ids and the verifier record: `CURRENT_STATE.md`, the `[CURRENT · PROGRESS + TUTOR]` WAVE B-18 block.
+**TRUNK IS `984bd663`** for this lane (`#983`, merged 2026-10-06T23:02:29Z, `gh pr view 983`, docs-builder-verified); when this docs PR was written trunk was `ca96f52e` (C's docs `#988`); before it opened, `5a7ecc16` (`#989`, another lane, no `handoff/` file) merged. Results, numbers, run ids and the verifier record: `CURRENT_STATE.md`, the `[CURRENT · PROGRESS + TUTOR]` WAVE B-18 block.
 
 ★ **STANDING FOR EVERY CONTROLLER FROM NOW ON:**
 - **Every progress number reads `progressReadModel.ts`** and its one weakness-naming gate, imported — never a device-local store, never a copied threshold.
