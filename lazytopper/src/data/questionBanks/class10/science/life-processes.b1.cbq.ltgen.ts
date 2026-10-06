@@ -79,7 +79,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The lower surface of this leaf has many more stomata than the upper surface.",
     "solutionSteps": [
-      "[1 mark] Heat makes the air inside the leaf expand and escape through the stomatal pores, so more bubbles from the lower surface means more stomata there. The bubbles are not fresh oxygen from photosynthesis, so the last option is wrong."
+      "[1 mark] Heat makes the air inside the leaf expand and escape through the stomatal pores, so more bubbles from the lower surface means more stomata there. The bubbles are not fresh oxygen from photosynthesis, so the fourth option is wrong."
     ],
     "finalAnswer": "The lower surface of this leaf has many more stomata than the upper surface.",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Oxygen, released when water molecules are split during photosynthesis",
     "solutionSteps": [
-      "[1 mark] A glowing stick bursting into flame shows oxygen. During photosynthesis, water is split into hydrogen and oxygen, and this oxygen is given out; the carbon dioxide is used to build carbohydrate, so the second option is a common but wrong idea."
+      "[1 mark] A glowing stick bursting into flame shows oxygen. During photosynthesis, water is split into hydrogen and oxygen, and this oxygen is given out; the carbon dioxide is used to build carbohydrate, so the first option is a common but wrong idea."
     ],
     "finalAnswer": "Oxygen, released when water molecules are split during photosynthesis",
     "isCompetencyBased": true,
