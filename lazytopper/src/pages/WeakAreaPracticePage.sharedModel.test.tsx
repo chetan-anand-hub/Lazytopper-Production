@@ -15,8 +15,11 @@
  * threshold (the old `area.accuracy` with no evidence); A3 — Accuracy/Attempts read the
  * device-local weak-area figures again; A4 — difficulty from mastery again.
  *
- * ME-ENGINE-1 PR-2c [WEAKAREA-EMPTY-PRAISE]: E1 — drop the `modelNamesWeakness` gate on the empty
- * list (praise with no graded evidence) → the "0 graded" pin goes RED.
+ * ME-ENGINE-1 PR-2c [WEAKAREA-EMPTY-PRAISE] — an empty list never praises (the list is still
+ * device-local: FU-B18-WEAKAREA-LOCAL-LIST), and its copy follows the gate of the paper ON SCREEN:
+ *   E1 — drop the gate (always the above-gate line) → the 0-graded + below-gate pins;
+ *   E2 — the subject tab judged on the BOTH-papers gate again → the Science-tab pin;
+ *   E3 — the old praise comes back above the gate → the "no praise in any state" pin.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, cleanup, fireEvent } from "@testing-library/react";
@@ -92,8 +95,14 @@ vi.mock("../services/learningPathGenerator", () => ({
   checkAndAdaptPath: () => null,
 }));
 
-import WeakAreaPracticePage, { areaEvidence, difficultyFromMarksLost } from "./WeakAreaPracticePage";
-import { ME_DEFAULT_WINDOW, readStudyModel } from "../services/progressReadModel";
+import WeakAreaPracticePage, { areaEvidence, difficultyFromMarksLost, emptyListGateMet } from "./WeakAreaPracticePage";
+import {
+  ME_DEFAULT_WINDOW,
+  modelNamesWeakness,
+  readStudyModel,
+  rungNamesWeakness,
+  subjectRungOf,
+} from "../services/progressReadModel";
 
 let n = 0;
 function attempt(agoMs: number, scored: number, available: number): PracticeAttempt {
@@ -184,8 +193,8 @@ describe("Weak Area Practice — no mastery, and Accuracy/Attempts from the shar
   });
 });
 
-describe("Weak Area Practice — an empty list never praises without graded evidence (PR-2c)", () => {
-  const PRAISE = /looking strong|No Weak Areas/i;
+describe("Weak Area Practice — an empty list never praises, and follows the gate of the paper on screen (PR-2c)", () => {
+  const PRAISE = /looking strong|No Weak Areas|great job|well done|keep it up/i;
   async function renderEmpty(): Promise<void> {
     render(
       <MemoryRouter>
@@ -194,41 +203,73 @@ describe("Weak Area Practice — an empty list never praises without graded evid
     );
     await screen.findByText("Fix My Weak Areas");
   }
+  /** Let the shared read model resolve and the page re-render. */
+  const settle = () => new Promise((r) => setTimeout(r, 30));
+  const aboveGateMaths = () => [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(h * HOUR, 2, 2));
 
   it("★ 0 graded answers: no praise — the honest 'not enough graded yet' state, pointing to Practice", async () => {
     H.emptyList = true;
     H.attempts = [];
     device("B");
     await renderEmpty();
-    const thin = await screen.findByTestId("weak-area-empty-thin");
+    await screen.findByTestId("weak-area-empty-thin");
+    await settle();
+    const thin = screen.getByTestId("weak-area-empty-thin");
     expect(thin.textContent).toMatch(/Not enough of your answers have been graded yet to suggest a topic/);
-    // Let the read model settle, then re-check: it must still not praise.
-    await waitFor(() => expect(screen.getByTestId("weak-area-empty-thin")).toBeTruthy());
-    await new Promise((r) => setTimeout(r, 20));
-    expect(screen.queryByTestId("weak-area-empty-thin")).not.toBeNull();
     expect(document.body.textContent).not.toMatch(PRAISE);
     fireEvent.click(screen.getByRole("button", { name: "Go to Practice" }));
     expect(H.navigate.at(-1)).toBe("/practice-hub");
   });
 
-  it("below the gate (2 graded answers): still no praise", async () => {
+  it("below the gate (2 graded answers): still 'not enough graded yet', no praise", async () => {
     H.emptyList = true;
     H.attempts = [attempt(0.5 * HOUR, 2, 2), attempt(0.5 * HOUR, 2, 2)];
     device("B");
     await renderEmpty();
-    await new Promise((r) => setTimeout(r, 20));
+    await settle();
     expect(screen.queryByTestId("weak-area-empty-thin")).not.toBeNull();
     expect(document.body.textContent).not.toMatch(PRAISE);
   });
 
-  it("CONTROL — above the gate with real graded evidence and no weak topic: the praise may show", async () => {
+  it("★ above the gate with no weak topic listed: a NEUTRAL line — no praise in any state", async () => {
     H.emptyList = true;
-    H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(h * HOUR, 2, 2));
-    const { modelNamesWeakness } = await import("../services/progressReadModel");
+    H.attempts = aboveGateMaths();
     expect(modelNamesWeakness(await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW }))).toBe(true); // precondition
     device("B");
     await renderEmpty();
-    await waitFor(() => expect(document.body.textContent).toMatch(/All your topics are looking strong/));
+    const none = await screen.findByTestId("weak-area-empty-none");
+    expect(none.textContent).toMatch(/No Topic to Suggest Right Now/);
     expect(screen.queryByTestId("weak-area-empty-thin")).toBeNull();
+    expect(document.body.textContent).not.toMatch(PRAISE);
+    // …and on the Maths tab (its own rung passes) too.
+    fireEvent.click(screen.getByRole("button", { name: /^Maths/ }));
+    await settle();
+    expect(screen.queryByTestId("weak-area-empty-none")).not.toBeNull();
+    expect(document.body.textContent).not.toMatch(PRAISE);
+  });
+
+  it("★ Maths above the gate, Science tab with 0 Science answers → the Science paper's own gate: 'not enough graded yet'", async () => {
+    H.emptyList = true;
+    H.attempts = aboveGateMaths(); // every attempt is maths
+    const model = await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW });
+    expect(modelNamesWeakness(model)).toBe(true); // precondition: the both-papers gate PASSES
+    expect(rungNamesWeakness(subjectRungOf(model.progress, "science"))).toBe(false); // …the Science rung does not
+    device("B");
+    await renderEmpty();
+    await screen.findByTestId("weak-area-empty-none"); // "All" tab: the gate is met
+    fireEvent.click(screen.getByRole("button", { name: /^Science/ }));
+    await settle();
+    expect(screen.queryByTestId("weak-area-empty-thin")).not.toBeNull();
+    expect(screen.queryByTestId("weak-area-empty-none")).toBeNull();
+    expect(document.body.textContent).not.toMatch(PRAISE);
+  });
+
+  it("emptyListGateMet: no model → false; 'All' = every paper with answers; a tab = that paper's rung", async () => {
+    expect(emptyListGateMet(null, "All")).toBe(false);
+    H.attempts = aboveGateMaths();
+    const model = await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW });
+    expect(emptyListGateMet(model, "All")).toBe(true);
+    expect(emptyListGateMet(model, "Maths")).toBe(true);
+    expect(emptyListGateMet(model, "Science")).toBe(false);
   });
 });
