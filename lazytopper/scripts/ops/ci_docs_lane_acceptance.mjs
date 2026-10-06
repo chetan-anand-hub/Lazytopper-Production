@@ -58,8 +58,14 @@ export const DEFAULT_RULES = Object.freeze({
   requireMarkdownExtension: true,
   // M2 — an empty or unresolvable changed-file list takes the FULL bar. THE ONE THAT MATTERS.
   unresolvableIsFullBar: true,
-  // M3 — a wave-closing handoff takes the FULL bar even though every path in it is markdown.
-  waveCloserForcesFull: true,
+  // M3 — CI-SPEED-1 (owner spec, D42): a wave-closing handoff now takes the FAST path like any
+  // other docs-only PR. Until then this was `true`, and because CLAUDE.md section 10 makes EVERY
+  // handoff touch CURRENT_STATE.md + SESSION_LOG.md, the fast path never fired in practice: the
+  // B-14, A-15, B-15 and B-16 handoffs (#934 #947 #943 #952) all ran the full ~25-minute bar.
+  // The integration check moved to where it is not optional: every merge's push run on trunk
+  // runs the full bar, and the nightly job runs everything under both clocks. `[ci-full]` in the
+  // title still forces the full bar. The mutation (flip this back to true) must turn a6 RED.
+  waveCloserForcesFull: false,
   // M4 — the verdict names its subject (how many files were inspected), not just its verdict.
   announceSubject: true,
 });
@@ -91,16 +97,22 @@ export const WAVE_CLOSER_PATHS = Object.freeze([
 /** An explicit human override, for the case the file heuristic cannot see. Forces FULL, never fast. */
 export const FULL_BAR_MARKER = "[ci-full]";
 
-const DOCS_DIR_PREFIX = "handoff/";
+/**
+ * Directories whose MARKDOWN is documentation (CI-SPEED-1: the spec's docs set is handoff/**,
+ * ops/** and *.md outside src). Deliberately an allowlist, not "any .md outside src": markdown
+ * under lazytopper/server/eval/golden/ is grader test DATA and must take the full bar.
+ * notes/ counts only at its top level (notes/specs and notes/assets ship bytes).
+ */
+const DOCS_DIR_PREFIXES = Object.freeze(["handoff/", "ops/", "docs/"]);
 
 /** Is this single path a docs path? Extension-checked, never directory-only. */
 export function isDocsPath(filePath, rules = DEFAULT_RULES) {
   const p = String(filePath || "").replace(/\\/g, "/").replace(/^\.\//, "");
   if (!p) return false;
   const isMarkdown = p.toLowerCase().endsWith(".md");
-  const underHandoff = p.startsWith(DOCS_DIR_PREFIX);
+  const underDocsDir = DOCS_DIR_PREFIXES.some((d) => p.startsWith(d)) || /^notes\/[^/]+$/.test(p);
   const isRootFile = !p.includes("/");
-  if (!underHandoff && !isRootFile) return false;
+  if (!underDocsDir && !isRootFile) return false;
   // ★ M1 LIVES HERE. Drop the extension test and `handoff/tool.mjs` reads as documentation.
   if (rules.requireMarkdownExtension && !isMarkdown) return false;
   return true;
@@ -294,6 +306,30 @@ function workflowSteps(text) {
   });
 }
 
+/**
+ * Split the workflow into JOB blocks (CI-SPEED-1: the gate is a set of parallel jobs). Returns
+ * [{ id, start, end, block, jobIf }] where jobIf is the job-level `if:` expression (or "").
+ */
+function workflowJobs(text) {
+  const lines = text.split(/\r?\n/);
+  const jobsAt = lines.findIndex((l) => /^jobs:\s*$/.test(l));
+  if (jobsAt === -1) return [];
+  const starts = [];
+  for (let i = jobsAt + 1; i < lines.length; i += 1) if (/^ {2}[A-Za-z][\w-]*:\s*$/.test(lines[i])) starts.push(i);
+  return starts.map((start, idx) => {
+    const end = idx + 1 < starts.length ? starts[idx + 1] : lines.length;
+    const body = lines.slice(start, end);
+    const ifLine = body.find((l) => /^ {4}if:/.test(l)) || "";
+    return { id: lines[start].trim().replace(/:$/, ""), start: start + 1, end, block: body.join("\n"),
+      jobIf: ifLine.replace(/^ {4}if:\s*/, "").trim() };
+  });
+}
+
+/** The job a 1-based line number belongs to. */
+function jobOfLine(jobs, line) {
+  return jobs.find((j) => line >= j.start && line <= j.end) || null;
+}
+
 /** The comment block immediately preceding a step, i.e. the lines this lane is asked to de-stale. */
 function commentBlockBefore(text, stepName) {
   const lines = text.split(/\r?\n/);
@@ -308,22 +344,27 @@ const FULL_BAR_STEPS = [
   "Set up Java",
   "Install ripgrep",
   "Firestore rules tests",
-  "Root guard matrix",
+  "Root guard matrix (scripts/",
   "Typecheck (root",
   "Edge security tests",
   "Build (lazytopper)",
   "Ops matrix",
   "Typecheck test files",
   "Vitest suites",
+  // CI-SPEED-1: the date-sensitive selection guard is full-bar work like every step above.
+  "Date-sensitive clock selection guard",
 ];
 
-const GATE_EXPR = "steps.classify.outputs.docs_only != 'true'";
+// CI-SPEED-1: gating moved from every step to every full-bar JOB (job-level `if:`).
+const GATE_EXPR = "needs.classify.outputs.docs_only != 'true'";
+// The nightly job runs only on schedule / dispatch, where the classifier always says "full bar".
+const NIGHTLY_EXPR = "github.event_name == 'schedule'";
 
 function runSuite(mutation) {
   const rules = { ...DEFAULT_RULES };
   if (mutation === 1) rules.requireMarkdownExtension = false;
   if (mutation === 2) rules.unresolvableIsFullBar = false;
-  if (mutation === 3) rules.waveCloserForcesFull = false;
+  if (mutation === 3) rules.waveCloserForcesFull = true;
   if (mutation === 4) rules.announceSubject = false;
 
   const V = (input) => classifyChangeset({ resolved: true, ...input }, rules).verdict;
@@ -357,10 +398,19 @@ function runSuite(mutation) {
       V({ files: [], resolved: false }) === "full",
     "an empty list is NOT 'nothing changed' — it is 'we do not know', which runs everything");
 
-  check("a6_wave_closer_forces_full_on_a_pure_markdown_changeset",
-    V({ files: ["handoff/CURRENT_STATE.md", "handoff/SESSION_LOG.md", "handoff/NEXT_ACTION.md"] }) === "full" &&
+  check("a6_wave_closer_takes_the_fast_path_and_ci_full_still_forces_the_bar",
+    V({ files: ["handoff/CURRENT_STATE.md", "handoff/SESSION_LOG.md", "handoff/NEXT_ACTION.md"] }) === "docs-only" &&
+      V({ files: ["handoff/CURRENT_STATE.md", "handoff/SESSION_LOG.md"], prTitle: "docs(handoff): close [ci-full]" }) === "full" &&
       V({ files: ["handoff/NEXT_ACTION.md"], prTitle: "docs(handoff): thing [ci-full]" }) === "full",
-    "the #600 / #576 / #553 shape, plus the explicit [ci-full] override");
+    "the #943 / #947 / #952 shape (CURRENT_STATE + SESSION_LOG) is fast since CI-SPEED-1; [ci-full] forces the full bar");
+
+  check("a6b_the_docs_set_is_handoff_ops_docs_root_and_top_level_notes_markdown_only",
+    V({ files: ["ops/arcs/CONTROLLER_WAVE_CLOSEOUT.md", "docs/SEO_DECISIONS.md", "notes/NoteSpec_Schema.md", "AGENTS.md"] }) === "docs-only" &&
+      V({ files: ["handoff/NEXT_ACTION.md", "lazytopper/server/eval/golden/data/answers.md"] }) === "full" &&
+      V({ files: ["handoff/NEXT_ACTION.md", "notes/specs/x.md"] }) === "full" &&
+      V({ files: ["handoff/NEXT_ACTION.md", "lazytopper/src/data/bsre/notes.md"] }) === "full" &&
+      V({ files: ["handoff/NEXT_ACTION.md", "ops/tool.mjs"] }) === "full",
+    "golden-eval markdown is grader test DATA; notes/specs ships; ops/ code is code");
 
   {
     // ★ M4 is asserted on the RENDERED output, not on the flag — a flag nobody prints is not a
@@ -402,23 +452,40 @@ function runSuite(mutation) {
       /--no-renames/.test(readText(fileURLToPath(import.meta.url))),
     "the #566 blind spot: a squash diffs against the base AT MERGE TIME");
 
+  const jobs = workflowJobs(wf);
   {
     const mojibake = steps.find((s) => /Mojibake check/.test(s.name));
+    const mjob = mojibake ? jobOfLine(jobs, mojibake.start) : null;
     check("a11_mojibake_runs_on_every_path",
-      Boolean(mojibake) && !/^\s{8}if:/m.test(mojibake.block),
+      Boolean(mojibake) && !/^\s{8}if:/m.test(mojibake.block) && Boolean(mjob) && mjob.jobIf === "",
       mojibake ? "the Mojibake step carries no `if:` — it is the one gate a docs PR can fail"
                : "the Mojibake step is missing from quality-gate.yml");
   }
 
   {
+    // Every step carrying a full-bar name must sit in a job gated on GATE_EXPR (or in the
+    // schedule/dispatch-only nightly job), and at least one must sit in a GATE_EXPR job.
     const missing = FULL_BAR_STEPS.filter((n) => {
-      const s = steps.find((x) => x.name.includes(n));
-      return !s || !s.block.includes(GATE_EXPR);
+      const matches = steps.filter((x) => x.name.startsWith(n));
+      if (!matches.length) return true;
+      const owners = matches.map((m) => jobOfLine(jobs, m.start));
+      const gated = (j) => Boolean(j) && (j.jobIf.includes(GATE_EXPR) || j.jobIf.includes(NIGHTLY_EXPR));
+      return !owners.every(gated) || !owners.some((j) => j && j.jobIf.includes(GATE_EXPR));
     });
     check("a12_every_full_bar_step_is_gated_by_the_same_expression",
       missing.length === 0,
       missing.length ? `ungated or missing: ${missing.join(", ")}`
                      : `${FULL_BAR_STEPS.length} steps all gated on \`${GATE_EXPR}\``);
+  }
+
+  {
+    const agg = jobs.find((j) => j.id === "quality-gate");
+    const docsLane = jobs.find((j) => j.id === "docs-lane");
+    const needsOk = Boolean(agg) && /needs:\s*\[classify, docs-lane, static, build-ops, vitest, clock\]/.test(agg.block);
+    check("a12b_the_required_check_is_an_always_running_aggregate",
+      Boolean(agg) && agg.jobIf === "always()" && needsOk && /ci_aggregate\.mjs --aggregate/.test(agg.block) &&
+        Boolean(docsLane) && docsLane.jobIf === "",
+      "the trunk ruleset requires a check named `quality-gate`; it must run on every path and judge every job");
   }
 
   check("a13_no_workflow_level_paths_filter",
@@ -471,7 +538,7 @@ function runSuite(mutation) {
     "both numbers were true once; neither was true at 81d0d53c");
 
   {
-    const rootBlock = commentBlockBefore(wf, "Root guard matrix");
+    const rootBlock = commentBlockBefore(wf, "Root guard matrix (scripts/");
     const vitestBlock = commentBlockBefore(wf, "Vitest suites");
     // ★ A COUNT IN A COMMENT IS A DERIVED VALUE WITH NO TEST BEHIND IT. The replacement must point
     //   at the source instead of restating the number, or it re-stales exactly the same way.
@@ -494,7 +561,7 @@ function runSuite(mutation) {
   if (mutation) {
     const TARGET = { 1: "a2_one_ts_file_forces_the_full_bar",
                      2: "a5_unresolvable_or_empty_change_list_fails_closed_to_full",
-                     3: "a6_wave_closer_forces_full_on_a_pure_markdown_changeset",
+                     3: "a6_wave_closer_takes_the_fast_path_and_ci_full_still_forces_the_bar",
                      4: "a7_the_classifier_names_its_subject_not_only_its_verdict" }[mutation];
     const target = checks.find((c) => c.name === TARGET);
     if (target?.ok) {

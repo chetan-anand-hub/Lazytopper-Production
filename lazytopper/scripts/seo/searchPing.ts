@@ -47,6 +47,11 @@ import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+// CI-SPEED-1 — the deploy-inert skip. ONE copy of the rule: the decision lives in the .mjs, and it
+// classifies with vercel_ignore_build.mjs's own verdictForFiles; the file list uses its git args.
+import { listChangedPaths } from "../ops/vercel_ignore_build.mjs";
+import { SKIP_LINE, decideInertSkip } from "../ops/searchping_inert_skip.mjs";
+
 const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 /** The committed sitemap, as a repo-relative path for `git show`. */
@@ -371,6 +376,38 @@ async function main(): Promise<void> {
     throw new Error(`searchPing: --sha=<deployed commit> is required (got "${sha ?? ""}")`);
   }
   const dryRun = process.argv.includes("--dry-run");
+
+  // ── CI-SPEED-1: was this push deliberately NOT deployed? (workflow step before the wait) ──
+  // Decided by what www ACTUALLY serves. Skip only when the live commit is an ancestor and every
+  // file since it is deploy-inert by vercel_ignore_build.mjs's classifier; every other outcome —
+  // including a crash — writes skipped=false and the unchanged wait runs. Never pings.
+  if (process.argv.includes("--inert-skip-check")) {
+    // eslint-disable-next-line no-console
+    const log = (line: string): void => console.log(line);
+    let result: { skip: boolean; path: string; reason: string; live?: string | null; range?: string; files?: string[] };
+    try {
+      result = await decideInertSkip(sha, {
+        readLiveSha: readServedSha,
+        isAncestor: (ancestor: string, descendant: string) => isAncestor(ancestor, descendant),
+        changedFiles: (from: string, to: string) => listChangedPaths(from, to, { cwd: LAZYTOPPER_ROOT }),
+        sleep: (ms: number) => new Promise<void>((done) => setTimeout(done, ms)),
+        log,
+      });
+    } catch (err) {
+      result = { skip: false, path: "wait", reason: `skip check threw — waiting (${String(err)})` };
+    }
+    if (result.skip) {
+      log(`SEARCH_PING: ${SKIP_LINE}`);
+      log(`SEARCH_PING: live=${result.live} range=${result.range} (${result.reason})`);
+      for (const file of result.files ?? []) log(`SEARCH_PING:   ${file}`);
+    }
+    log(
+      `SEARCH_PING_PATH: ${result.skip ? "skip (deploy-inert, no wait, no ping)" : `wait (${result.path}: ${result.reason})`}`,
+    );
+    if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `skipped=${result.skip}
+`);
+    return;
+  }
 
   // ── S2: the wait (workflow step 1) ────────────────────────────────────────────
   if (process.argv.includes("--wait")) {
