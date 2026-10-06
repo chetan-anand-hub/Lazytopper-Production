@@ -2,7 +2,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { loadInsights, type PracticeAttempt } from "./practiceInsights";
 import { loadWrongAnswerLog, type WrongAnswerEntry } from "./adaptivePracticeEngine";
 import { loadTopicMasterySnapshot, type TopicHubNodeMasteryState } from "./topicHubMastery";
-import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
+import { BOARD_CHAPTER_KEYS, chapterUnit } from "../config/syllabus2026-27";
 import { normalizeTopicKey } from "../utils/topicResolver";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { getMockTopicScores } from "./mockScoreHistory";
@@ -155,14 +155,16 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
   const wrongMap = aggregateWrongAnswersByTopic(Object.values(wrongLog.entries));
   const mockTopicScores = getMockTopicScores();
 
-  // topicKey = canonical topics.ts slug — the vocabulary the bank and the
-  // worksheet-enrichment JOIN share (P0 [FU-TOPICKEY-UNIVERSAL]). masteryKey keeps
-  // the PRE-EXISTING mastery-snapshot lookup vocabulary so no stored mastery
-  // orphans (the mastery subsystem behaviour is unchanged).
-  const allTopics = canonicalChapters.map((ch) => ({
-    topicKey: resolveCanonicalSlug(ch.canonicalSlug) || ch.canonicalSlug,
-    masteryKey: normalizeTopicKey(ch.canonicalSlug) || ch.canonicalSlug,
-    subject: (ch.subjectId === "science" ? "Science" : "Maths") as "Maths" | "Science",
+  // The chapter list is the 26 board chapters of the CBSE 2026-27 syllabus reference
+  // (SYLLABUS-FIX-CODE F7) — not the older 25-chapter canonical list, which folds Human
+  // Eye into Light and so never evaluated it. topicKey = canonical topics.ts slug — the
+  // vocabulary the bank and the worksheet-enrichment JOIN share (P0
+  // [FU-TOPICKEY-UNIVERSAL]); the 26 reference keys already are those slugs.
+  // masteryKey keeps the mastery-snapshot lookup vocabulary (normalizeTopicKey).
+  const allTopics = BOARD_CHAPTER_KEYS.map((key) => ({
+    topicKey: resolveCanonicalSlug(key) || key,
+    masteryKey: normalizeTopicKey(key) || key,
+    subject: (chapterUnit(key)?.subject === "science" ? "Science" : "Maths") as "Maths" | "Science",
   }));
 
   const weakAreas: WeakArea[] = [];
