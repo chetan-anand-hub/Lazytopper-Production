@@ -210,6 +210,17 @@ const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH, createGr
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
+// GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on POST /api/grade-worksheet
+// (`Prefer: respond-async`), polled at GET /api/grade-worksheet/jobs/:jobId. DARK unless
+// GRADING_JOBS=1: off, every submit is graded synchronously exactly as before. The deferred
+// fair-use commit is resolved lazily — `fairUse` is constructed further down, long before any job ends.
+const { createGradingJobs, JOB_POLL_PATH_RE } = require('./grading/jobs.cjs');
+const { createGradingJobsRoutes } = require('./routes/gradingJobs.cjs');
+const gradingJobs = createGradingJobs({
+  telemetry,
+  commitDeferred: (deferred, graded) => fairUse.commitDeferred(deferred, graded),
+});
+
 const geminiClientModule = createGeminiClient({
   GEMINI_API_KEY: config.GEMINI_API_KEY,
   HAS_REPLIT_PROXY: config.HAS_REPLIT_PROXY,
@@ -291,6 +302,9 @@ const routeDeps = {
   GRADING_DEADLINE_MS: config.GRADING_DEADLINE_MS,
   GRADING_CHUNK_TIMEOUT_MS: config.GRADING_CHUNK_TIMEOUT_MS,
   GRADING_CACHE_BUDGET_MS: config.GRADING_CACHE_BUDGET_MS,
+  // GRADING-JOBS-1 J1: the switch and the job runner reach the grade-worksheet handler.
+  GRADING_JOBS: config.GRADING_JOBS,
+  gradingJobs,
   CLAUDE_MODEL_SONNET: config.CLAUDE_MODEL_SONNET,
   ACTIVE_PROVIDER: config.ACTIVE_PROVIDER,
   STUB_MODE: config.STUB_MODE,
@@ -372,6 +386,8 @@ const accountExportRoutes = createAccountExportRoutes({
 });
 
 const paymentRoutes = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry });
+// J1: the job poll — self-gating (verified uid, owner-scoped path, its own per-uid cap).
+const gradingJobsRoutes = createGradingJobsRoutes({ sendJson, verifiedCaller, gradingJobs, telemetry, corsOrigin: config.CORS_ORIGIN });
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -407,6 +423,8 @@ async function handleRequest(req, res) {
       reqPath === USAGE_ME_PATH ||
       // FAIR-USE-2 (F1): the paper-pass mint — a credentialed POST.
       reqPath === USAGE_PAPER_PATH ||
+      // GRADING-JOBS-1 J1: the job poll — a credentialed GET, preflighted like the export.
+      JOB_POLL_PATH_RE.test(reqPath) ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+\/status$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+$/.test(reqPath) ||
@@ -507,6 +525,13 @@ async function handleRequest(req, res) {
     // FAIR-USE-1 (U2/U3): grading endpoints only, verified trial/premium callers only.
     // Returns true only when FAIR_USE_ENFORCE=1 and it has already sent the 409/429.
     if (await fairUse.applyToRequest(req, res, reqPath, verifiedUid, { freeCheck: freeCheckAdmitted })) return;
+  }
+
+  // GRADING-JOBS-1 J1: a background grading job's status. A GET, so none of the POST pipeline
+  // above ran: the route verifies the uid, scopes the read to it and caps itself.
+  if (req.method === 'GET') {
+    const jobPoll = reqPath.match(JOB_POLL_PATH_RE);
+    if (jobPoll) return gradingJobsRoutes.handlePoll(req, res, jobPoll[1]);
   }
 
   // FAIR-USE-1 (U5): the verified caller's own allowances — percentages, never rupees.
@@ -809,6 +834,20 @@ const server = http.createServer((req, res) => {
     sendJson(res, 500, { error: 'Unhandled server error', details: e.message });
   });
 });
+
+// GRADING-JOBS-1 J1 (D15) · BEST EFFORT on shutdown: end every background job this process runs as
+// `interrupted` (final rows kept and charged once; the rest "not graded", uncharged), then let the
+// signal do what it always did. Installed only with the switch on (off, nothing changes). ★ It is NOT
+// the safety net: on Railway this process is a CHILD of artifacts/api-server, which neither handles nor
+// forwards SIGTERM, so a redeploy usually kills it with no signal at all. The heartbeat is the net — a
+// job whose heartbeat stops is ended as interrupted by the next poll (grading/jobs.cjs).
+if (config.GRADING_JOBS) {
+  process.once('SIGTERM', () => {
+    const reraise = () => process.kill(process.pid, 'SIGTERM');
+    const guard = setTimeout(reraise, 3000);
+    gradingJobs.interruptAll('shutdown').catch(() => 0).finally(() => { clearTimeout(guard); reraise(); });
+  });
+}
 
 server.listen(config.PORT, () => {
   console.log(`LazyTopper AI server running on port ${config.PORT}`);

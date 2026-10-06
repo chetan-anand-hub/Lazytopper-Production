@@ -424,3 +424,23 @@ test('§12 replay of a PR-3 live run is faithful: a call still in flight at the 
   assert.ok(JSON.stringify(proxy.body).includes('gemini-3.8-flash') && !JSON.stringify(proxy.body).includes('gemini-2.5-flash'), 'the proxy run replays on its own detect model');
   assert.ok(JSON.stringify(dflt.body).includes('gemini-2.5-flash'), 'CONTROL: without detectModel the production detect model is used (PR-1/PR-2 runs)');
 });
+
+// ── §J1 the 0-call JOB case (GRADING-JOBS-1 J1, controller decision D13) ─────
+// The stored /api/grade-worksheet replies of the floor's runs, replayed through the background-job
+// path AND the synchronous path (goldenJobs.cjs, network hard-blocked): every job's final body is
+// byte-identical to the synchronous 200, and every row a job published as final while it ran equals
+// its final entry.
+test('§J1 GOLDEN JOB CASE — job final body == sync body for every stored paper, and every final:true row == its final row', () => {
+  const r = node([path.join(GOLDEN, 'goldenJobs.cjs')]);
+  const line = (r.stdout.split('\n').find((l) => l.startsWith('GOLDEN-JOBS: ')) || '');
+  assert.ok(line, 'no GOLDEN-JOBS line; stdout: ' + r.stdout.slice(0, 500) + ' stderr: ' + String(r.stderr).slice(0, 500));
+  assert.match(line, / calls=0 /, line);
+  assert.match(line, / bodyDiffs=0 /, line + '\n' + r.stdout);
+  assert.match(line, / finalRowDiffs=0 /, line + '\n' + r.stdout);
+  assert.match(line, / errors=0 /, line + '\n' + r.stdout);
+  const jobs = Number((line.match(/ jobs=(\d+)/) || [])[1]);
+  const finals = Number((line.match(/ finalRows=(\d+)/) || [])[1]);
+  assert.ok(jobs >= 100 && finals > 0, 'the case must actually compare papers and rows: ' + line);
+  assert.match(line, / verdict=PASS$/, line);
+  assert.strictEqual(r.status, 0);
+});

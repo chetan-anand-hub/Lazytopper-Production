@@ -29,6 +29,11 @@ const { chargeableCount, isChargeable, setChargeableCount } = require('../gradin
 const D = require('../grading/detect.cjs');
 const { extractPdfText, usableQuestionText } = require('../grading/pdfTextLayer.cjs');
 const { chooseNonce, fence } = require('../grading/fence.cjs');
+// GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on this same URL (opt-in, switch-gated).
+const jobsLib = require('../grading/jobs.cjs');
+const timingLib = require('../grading/timing.cjs');
+const { gradingAttemptOf, deferredCommitOf } = require('../services/fairUse.cjs');
+const { redactErrorDetails } = require('../services/httpUtils.cjs');
 // The most text-layer characters handed to the detect prompt (a typed paper is ~2–4k).
 const MAX_TEXT_LAYER_CHARS = 20000;
 
@@ -137,6 +142,8 @@ function createCheckSolutionRoute(deps) {
   // and falls back to GEMINI_MODEL for every direct / legacy construction. The optional
   // `solutionCache` dep (C&I PR-3) reaches it through `deps` unchanged.
   const core = createGradingCore(deps);
+  // J1: the job runner (server/index.cjs passes it with GRADING_JOBS). Absent → never a job.
+  const gradingJobs = deps.gradingJobs || null;
   // PR-3 (C8): the clock the grading deadline is measured on (a test may inject one).
   const nowMs = typeof deps.now === 'function' ? deps.now : () => Date.now();
 
@@ -721,7 +728,7 @@ function createCheckSolutionRoute(deps) {
   // Returns { ok, results, summary, modelUsed } where results is one normalised entry per
   // known question (graded OR couldNotRead) — or { ok:false } on a reply that could not be
   // used, or { gradingUnavailable:true } with no provider (the caller owns the HTTP status).
-  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt }) {
+  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt, jobTiming, onPartSettled }) {
     // STUB-503 · GRADING PATH: signalled with a flag the caller turns into the 503, kept
     // DISTINCT from `{ ok: false }` (an unparseable model reply keeps its 200 copy).
     if (isStubMode()) {
@@ -736,6 +743,9 @@ function createCheckSolutionRoute(deps) {
       single: false,
       label: '[grade-worksheet]',
       startedAt,
+      // J1: a background job only (absent on the synchronous path — the core is then unchanged).
+      ...(jobTiming ? { jobTiming } : {}),
+      ...(onPartSettled ? { onPartSettled } : {}),
     });
   }
 
@@ -850,6 +860,50 @@ function createCheckSolutionRoute(deps) {
       }
     }
 
+    // ── GRADING-JOBS-1 J1 (owner ruling 7) · A BACKGROUND JOB, when — and only when — every
+    // condition holds (controller decision D9): the client asked (`Prefer: respond-async`, or body
+    // `async: true`); the switch GRADING_JOBS is on; the request was CLAIMED by idempotency (so it
+    // has a verified uid, a valid Idempotency-Key and Firestore — fairUse.gradingAttemptOf); it asks
+    // for the v2 shape (a job's rows carry v2 fields, e.g. notGraded "interrupted"); a grader exists
+    // (stub mode answers its 503 synchronously). Anything else — including a job store that refuses
+    // the job — falls through to the synchronous grade below, unchanged byte for byte.
+    if (
+      deps.GRADING_JOBS === true && gradingJobs && acceptsV2 && !isStubMode()
+      && jobsLib.wantsAsync(req, payload)
+    ) {
+      const attempt = gradingAttemptOf(req);
+      if (attempt && attempt.path === '/api/grade-worksheet') {
+        const job = await gradingJobs.submit({
+          attempt,
+          total: questions.length,
+          meta: questions.map((q) => ({ qNumber: q.qNumber, totalMarks: q.marks })),
+          // D12: what the fair-use `finish` hooks would have committed — settled once, at the end.
+          deferred: deferredCommitOf(res),
+          run: (onPartSettled, jobStartedAt) => gradeStructuredSet({
+            questions, imageBase64, imageMimeType, subject, uploads, acceptsV2,
+            startedAt: jobStartedAt, onPartSettled,
+            // The job budget (timing.cjs). `deps.jobTimingFor` is an EVAL/TEST seam only: the golden
+            // 0-call job case replays stored replies, so it grades with the synchronous chunk plan.
+            jobTiming: typeof deps.jobTimingFor === 'function' ? deps.jobTimingFor(questions.length) : timingLib.jobTiming(),
+          }),
+          finish: (graded) => jobOutcome(graded, { worksheetId, acceptsV2 }),
+        });
+        if (job.ok) {
+          // D12 · THE 202 CHARGES NOTHING: a chargeable count of 0 makes the fair-use `finish` hooks
+          // commit nothing and leave the paper pass unmarked (the deferred commit settles it later).
+          setChargeableCount(res, 0);
+          return sendJson(res, 202, {
+            ok: true,
+            jobId: job.jobId,
+            state: job.state,
+            total: job.total,
+            pollAfterMs: job.pollAfterMs,
+            pollPath: jobsLib.JOB_POLL_PATH_PREFIX + job.jobId,
+          });
+        }
+      }
+    }
+
     try {
       const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt });
       // STUB-503 — checked BEFORE `!graded.ok`: "we couldn't read this" and "we cannot grade
@@ -860,43 +914,73 @@ function createCheckSolutionRoute(deps) {
       setGradingModelHeader(res, graded.modelUsed);
       if (!graded.ok) {
         setChargeableCount(res, 0); // C9: nothing graded, nothing charged
-        return sendJson(res, 200, {
-          ok: false,
-          error: "We couldn't grade this worksheet — please try a clearer scan, or try again.",
-        });
+        return sendJson(res, 200, WORKSHEET_NOT_GRADED_BODY);
       }
 
-      const results = graded.results;
       // C9: a partial paper charges only the questions that were actually graded.
-      setChargeableCount(res, chargeableCount(results));
-      // Honest totals: the graded subtotal is SEPARATE from the full paper total so a
-      // question that was not marked never deflates a final mark presented as complete.
-      // Legacy: "not marked" = couldNotRead (as before). v2: also an answer that does not
-      // address the question and an unread MCQ option — EXACTLY the couldNotRead treatment.
-      const isGraded = (r) => (acceptsV2 ? r._graded === true : !r.couldNotRead);
-      const gradedResults = results.filter(isGraded);
-      const gradedMarksAwarded = gradedResults.reduce((s, r) => s + (Number(r.marksAwarded) || 0), 0);
-      const gradedMarksTotal = gradedResults.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0);
-      const worksheetTotalMarks = results.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0);
-
-      return sendJson(res, 200, {
-        ok: true,
-        worksheetId,
-        results,
-        totalQuestions: results.length,
-        gradedCount: gradedResults.length,
-        pendingCount: results.length - gradedResults.length,
-        gradedMarksAwarded: Math.round(gradedMarksAwarded * 2) / 2,
-        gradedMarksTotal: Math.round(gradedMarksTotal * 2) / 2,
-        worksheetTotalMarks: Math.round(worksheetTotalMarks * 2) / 2,
-        summary: graded.summary || '',
-        provider: ACTIVE_PROVIDER,
-        model: graded.modelUsed,
-      });
+      setChargeableCount(res, chargeableCount(graded.results));
+      return sendJson(res, 200, buildWorksheetBody(graded, { worksheetId, acceptsV2 }));
     } catch (err) {
       console.error('[grade-worksheet]', err);
       return sendJson(res, 500, { ok: false, error: 'Failed to grade the worksheet. Please try again.' });
     }
+  }
+
+  // The body of a worksheet grade that could not use the model's reply (a 200, charged nothing).
+  const WORKSHEET_NOT_GRADED_BODY = Object.freeze({
+    ok: false,
+    error: "We couldn't grade this worksheet — please try a clearer scan, or try again.",
+  });
+
+  /**
+   * THE worksheet grade body — ONE builder for the synchronous 200 and a background job's `final`
+   * (GRADING-JOBS-1 J1, D13: the job's final body is byte-identical to the synchronous one).
+   */
+  function buildWorksheetBody(graded, { worksheetId, acceptsV2 }) {
+    const results = graded.results;
+    // Honest totals: the graded subtotal is SEPARATE from the full paper total so a
+    // question that was not marked never deflates a final mark presented as complete.
+    // Legacy: "not marked" = couldNotRead (as before). v2: also an answer that does not
+    // address the question and an unread MCQ option — EXACTLY the couldNotRead treatment.
+    const isGraded = (r) => (acceptsV2 ? r._graded === true : !r.couldNotRead);
+    const gradedResults = results.filter(isGraded);
+    const gradedMarksAwarded = gradedResults.reduce((s, r) => s + (Number(r.marksAwarded) || 0), 0);
+    const gradedMarksTotal = gradedResults.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0);
+    const worksheetTotalMarks = results.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0);
+    return {
+      ok: true,
+      worksheetId,
+      results,
+      totalQuestions: results.length,
+      gradedCount: gradedResults.length,
+      pendingCount: results.length - gradedResults.length,
+      gradedMarksAwarded: Math.round(gradedMarksAwarded * 2) / 2,
+      gradedMarksTotal: Math.round(gradedMarksTotal * 2) / 2,
+      worksheetTotalMarks: Math.round(worksheetTotalMarks * 2) / 2,
+      summary: graded.summary || '',
+      provider: ACTIVE_PROVIDER,
+      model: graded.modelUsed,
+    };
+  }
+
+  /**
+   * J1 · what a finished JOB stores: its final body — the EXACT bytes the synchronous path would
+   * have sent (sendJson = JSON.stringify(redactErrorDetails(body))) — the questions it charges, and
+   * the model (the done poll's X-Grading-Model). A job whose grading threw has the synchronous 500's
+   * copy as its final body, charged nothing.
+   */
+  function jobOutcome(graded, { worksheetId, acceptsV2 }) {
+    const asBytes = (body) => JSON.stringify(redactErrorDetails(body));
+    if (!graded || graded.error || graded.gradingUnavailable) {
+      if (graded && graded.error) console.error('[grade-worksheet job]', graded.error);
+      return { body: asBytes(jobsLib.JOB_FAILED_BODY), graded: 0, model: null };
+    }
+    if (!graded.ok) return { body: asBytes(WORKSHEET_NOT_GRADED_BODY), graded: 0, model: graded.modelUsed || null };
+    return {
+      body: asBytes(buildWorksheetBody(graded, { worksheetId, acceptsV2 })),
+      graded: chargeableCount(graded.results),
+      model: graded.modelUsed || null,
+    };
   }
 
   return { handleCheckSolution, handleDetectQuestion, handleGradeWorksheet };

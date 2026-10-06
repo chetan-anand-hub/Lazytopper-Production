@@ -34,7 +34,7 @@ const { isObjective, scoreObjective, normaliseOption, optionsDifferOnlyByCase, n
 const { buildGradingContents } = require('./prompt.cjs');
 const { chooseNonce } = require('./fence.cjs');
 const { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT, GRADING_RESPONSE_SCHEMA_INVENTORY } = require('./schema.cjs');
-const { normaliseQuestionResult } = require('./postprocess.cjs');
+const { normaliseQuestionResult, inventoryStable } = require('./postprocess.cjs');
 const timingLib = require('./timing.cjs');
 const { isChargeable } = require('./charge.cjs');
 // A17 owner ruling 5: every grading model call is metered in proportion to the CHARGEABLE share of
@@ -328,11 +328,15 @@ function createGradingCore(deps) {
     // In a CHUNKED paper a multi-question chunk's first attempt is capped (its retry can be
     // smaller, hence faster); a one-question chunk — and a single-call paper (D43) — gets the
     // whole remaining budget (its retry cannot be smaller).
-    const t1 = ctx.chunked && chunk.questions.length > 1 ? Math.min(timing.chunkTimeoutMs, left0) : left0;
+    // GRADING-JOBS-1 J1 (D14): a background JOB has no 45 s first-attempt kill — every call, first
+    // attempt and retry, is capped at the job's per-call cap (timing.cjs JOB_PER_CALL_MS) and the
+    // job's wall deadline. The synchronous path below is unchanged.
+    const jobCap = ctx.job ? (ms) => Math.min(ctx.job.perCallMs, ms) : null;
+    const t1 = jobCap ? jobCap(left0) : ctx.chunked && chunk.questions.length > 1 ? Math.min(timing.chunkTimeoutMs, left0) : left0;
     const first = await run(chunk.questions, 1, t1);
     if (first.results) return [{ questions: chunk.questions, attempt: first }];
     if (first.error && !timingLib.isRetryableError(first.error)) return [{ questions: chunk.questions, attempt: first }];
-    const left = ctx.callDeadlineAt - now();
+    const left = jobCap ? jobCap(ctx.callDeadlineAt - now()) : ctx.callDeadlineAt - now();
     if (left < timing.minRetryMs) return [{ questions: chunk.questions, attempt: first }];
     const split = Boolean(first.timedOut) && chunk.questions.length > 1;
     const parts = split ? chunk.questions.map((q) => [q]) : [chunk.questions];
@@ -349,9 +353,18 @@ function createGradingCore(deps) {
    *   acceptsV2?: boolean, single?: boolean,
    *   autoDetect?: {topicVocabulary: Array, fallbackMarks: number}|null, label?: string,
    *   startedAt?: number,
+   *   jobTiming?: {wallMs: number, perCallMs: number, chunkQuestions: number}|null,
+   *   onPartSettled?: (rows: Array<{index: number, final: boolean, result: object}>) => void,
    * }} input
    *   startedAt (PR-3, C8): when the HTTP handler was entered (before the body was read) —
    *   the request deadline runs from it. Absent: from this call.
+   *   jobTiming (GRADING-JOBS-1 J1, D14): a BACKGROUND JOB's own budget (timing.cjs jobTiming) —
+   *   its wall deadline replaces the request deadline, every chunk has `chunkQuestions` questions at
+   *   most (even a small paper), and no call has the 45 s first-attempt kill. Absent: unchanged.
+   *   onPartSettled (J1, D13): called as each chunk part settles, with one row per question it
+   *   covered: the question's normalised result judged on THAT part alone, and `final` — whether
+   *   that result is already the one the finished paper will carry (postprocess inventoryStable).
+   *   A hook that throws is ignored. Absent: nothing is computed (the synchronous path is as before).
    */
   async function gradeSet(input) {
     const single = input.single === true;
@@ -361,8 +374,10 @@ function createGradingCore(deps) {
     // C8 · a question's identity is its position in the request — never its printed number.
     const idOf = new Map(questions.map((q, i) => [q, i]));
     const startedAt = Number.isFinite(input.startedAt) ? input.startedAt : now();
-    const deadlineAt = startedAt + timing.deadlineMs;
+    const job = input.jobTiming && typeof input.jobTiming === 'object' ? input.jobTiming : null;
+    const deadlineAt = startedAt + (job ? job.wallMs : timing.deadlineMs);
     const callDeadlineAt = deadlineAt - timing.marginMs;
+    const onPartSettled = typeof input.onPartSettled === 'function' ? input.onPartSettled : null;
 
     // ── C&I PR-3 scheme-first cache hook (read-before-grade): every keyless SUBJECTIVE
     // question gets a student-agnostic model solution through the shared question-hash cache.
@@ -445,20 +460,75 @@ function createGradingCore(deps) {
     // D43 (hybrid): a paper of at most timing.singleCallMaxQuestions questions is ONE call per
     // routed group (as PR-2 shipped); only a larger paper is chunked. A printed number never
     // repeats inside one call (planChunks), so a small paper splits only at a duplicate.
-    const chunked = questions.length > timing.singleCallMaxQuestions;
+    // J1 (D14): a background job is ALWAYS chunked, at the job's chunk size — even a small paper.
+    const chunked = job ? true : questions.length > timing.singleCallMaxQuestions;
+    const chunkSize = job ? Math.max(1, Math.floor(job.chunkQuestions) || 1) : timingLib.MAX_CHUNK_QUESTIONS;
     const chunks = [];
     for (const g of groups.values()) {
-      for (const qs of planChunks(g.questions, chunked ? timingLib.MAX_CHUNK_QUESTIONS : Math.max(1, g.questions.length))) chunks.push({ model: g.model, subject: g.subject, questions: qs });
+      for (const qs of planChunks(g.questions, chunked ? chunkSize : Math.max(1, g.questions.length))) chunks.push({ model: g.model, subject: g.subject, questions: qs });
+    }
+
+    // The per-question context of the ONE normaliser — shared by the final results below and the
+    // job's per-part rows (onPartSettled), so a row judged on its own part differs from its final
+    // result ONLY through the page inventory (its own part's versus the paper's union).
+    const normCtx = (q, inventory, notGraded) => ({
+      acceptsV2: input.acceptsV2 === true,
+      answerInput: answerInputOf(q),
+      // PR-3 (ruling 6, deterministic): this question's OWN subject when the request says it — a
+      // per-question subject, or the request subject of a ONE-question request. A multi-question
+      // request's subject is the paper's (a mixed paper is filed under its first question), so it
+      // is not used; post-processing then falls back to the model's own per-question subject.
+      subjectHint: String(q.subject || '').trim() || (questions.length === 1 ? String(input.subject || '').trim() : ''),
+      inventory,
+      notGraded,
+    });
+    // J1 (D13): rows for the job, as each part settles. Without an inventory anywhere in this paper
+    // (typed answers, per-question photos) a question's result depends on its own reply only, so it is
+    // final at once; on one document it is final only in the stable case (postprocess inventoryStable).
+    const inventoryPossible = Boolean(document) && !autoDetect;
+    const emitRows = (rows) => {
+      if (!onPartSettled || rows.length === 0) return;
+      try { onPartSettled(rows); } catch { /* a progress hook never affects the grade */ }
+    };
+    const rowsOfPart = (part) => {
+      const a = part.attempt || {};
+      const partial = Boolean(document) && part.questions.length < questions.length;
+      if (!a.results) {
+        const why = a.timedOut ? 'timeout' : 'error';
+        return part.questions.map((q) => ({ index: idOf.get(q), final: true, result: normaliseQuestionResult(q, null, normCtx(q, null, why)) }));
+      }
+      const byNumber = new Map();
+      for (const r of a.results) if (r && r.qNumber != null) byNumber.set(Number(r.qNumber), r);
+      return part.questions.map((q) => {
+        const raw = byNumber.get(Number(q.qNumber)) || null;
+        const n = Number(q.qNumber);
+        const own = a.inventory ? { present: a.inventory.has(n), firstLines: [...(a.inventory.get(n) || [])], partial } : null;
+        const unread = !raw || raw.couldNotRead === true || raw.couldNotRead === 'true';
+        const final = !inventoryPossible || unread || inventoryStable(own, raw);
+        // A copy of the reply: the final pass below reads the same object.
+        return { index: idOf.get(q), final, result: normaliseQuestionResult(q, raw ? structuredClone(raw) : null, normCtx(q, own, null)) };
+      });
+    };
+    if (onPartSettled && deterministic.size > 0) {
+      emitRows([...deterministic].map(([id, raw]) => ({ index: id, final: true,
+        result: normaliseQuestionResult(questions[id], structuredClone(raw), normCtx(questions[id], null, null)) })));
     }
 
     const ctx = {
-      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked, meters,
+      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked, meters, job,
       // D31: request-level, so all chunks share them (see attemptChunk).
       nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce),
       paperHasAnyTyped: questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0),
       paperAnyScheme: questions.some((q) => Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0),
     };
-    const settled = await Promise.allSettled(chunks.map((c) => gradeChunk(c, ctx)));
+    const settled = await Promise.allSettled(chunks.map((c) => {
+      const p = gradeChunk(c, ctx);
+      if (!onPartSettled) return p;
+      return p.then((ps) => {
+        try { emitRows(ps.flatMap(rowsOfPart)); } catch { /* never affects the grade */ }
+        return ps;
+      });
+    }));
     const parts = [];
     settled.forEach((s, i) => {
       if (s.status === 'fulfilled') parts.push(...s.value);
@@ -557,20 +627,11 @@ function createGradingCore(deps) {
 
     // A question the model omitted is couldNotRead (honest pending); a question whose chunk
     // did not finish is "not graded" (C8) — never silently zeroed, never charged (C9).
+    // (normCtx, above: the same context the job's per-part rows were judged with.)
     const results = questions.map((q, i) => normaliseQuestionResult(
       q,
       notGradedById.has(i) ? null : rawById.get(i) || null,
-      {
-        acceptsV2: input.acceptsV2 === true,
-        answerInput: answerInputOf(q),
-        // PR-3 (ruling 6, deterministic): this question's OWN subject when the request says it — a
-        // per-question subject, or the request subject of a ONE-question request. A multi-question
-        // request's subject is the paper's (a mixed paper is filed under its first question), so it
-        // is not used; post-processing then falls back to the model's own per-question subject.
-        subjectHint: String(q.subject || '').trim() || (questions.length === 1 ? String(input.subject || '').trim() : ''),
-        inventory: inventoryById.get(i) || null,
-        notGraded: notGradedById.get(i) || null,
-      },
+      normCtx(q, inventoryById.get(i) || null, notGradedById.get(i) || null),
     ));
     // A17 ruling 5 · the premium meter counts graded questions only: each call's usage is written
     // scaled by the chargeable share of the questions IT graded (0 when none was graded). A chunk's

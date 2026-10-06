@@ -550,6 +550,29 @@ function inventoryConfirms(inventory, steps, raw) {
   return lines.some((l) => firstLineInWork(l, work));
 }
 
+/** GRADING-JOBS-1 J1 (controller decision D13; review C3/§3.4) — THE STABLE CASE. In a one-document
+ *  paper graded in chunks, a question's verdict is decided against the UNION of every chunk's page
+ *  inventory, which is known only when the LAST chunk settles; that union can flip `every`/`some`
+ *  (D43). A question graded by its own chunk is FINAL there only when its OWN chunk's inventory
+ *  already settles every inventory test the same way the union will:
+ *    • it lists the question (presence cannot be taken away by more lines);
+ *    • one of its lines is quotable (≥ 4 characters after the label), NOT a non-attempt phrase, and
+ *      found in the question's own studentWork — so `blankInInventory` (an `every`) is already false,
+ *      and `firstLineNotInWork` / `inventoryConfirms` (a `some`) are already decided. Adding lines
+ *      from other chunks cannot change any of the three.
+ *  Anything else is PROVISIONAL until every chunk has settled. `inventory` is THIS chunk's own
+ *  {present, firstLines, partial} (null: this chunk's reply carried none — never stable, because
+ *  another chunk's inventory can still arrive for the question). */
+function inventoryStable(inventory, raw) {
+  if (!inventory || typeof inventory !== 'object' || inventory.present !== true) return false;
+  const lines = (Array.isArray(inventory.firstLines) ? inventory.firstLines : [])
+    .filter((l) => compactText(stripAnswerLabel(l)).length >= 4 && nonAttemptText(l) !== 'phrase');
+  if (lines.length === 0) return false;
+  const steps = normaliseSteps(raw && raw.annotatedSteps);
+  const work = steps.map((s) => s.studentWork).concat([String((raw && raw.studentFinalAnswer) || '')]).join('\n');
+  return lines.some((l) => firstLineInWork(l, work));
+}
+
 /* ── D29 (Controller B's ask (1)) — GENUINELY UNATTEMPTED WORK IS "unattempted" ───────
    A part the student did not attempt — left blank, answered only "Don't know" / "DK", or
    struck out with nothing in its place — is the FOURTH STATE (no type, its marks in
@@ -1370,6 +1393,7 @@ module.exports = {
   stripAnswerLabel,
   firstLineInWork,
   inventoryVerdict,
+  inventoryStable,
   markGenuinelyUnattempted,
   nonAttemptText,
   isRealQuestionText,
