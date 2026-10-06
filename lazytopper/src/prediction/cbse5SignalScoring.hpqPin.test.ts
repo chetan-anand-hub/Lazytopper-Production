@@ -93,7 +93,9 @@ const FROZEN_HPQ_RANKING: string[] = [
   "prob-hpq-101|0.9111111111|0.9533333333",
   "prob-hpq-102|0.9111111111|0.8633333333",
   "prob-hpq-103|0.3222222222|0.5216666667",
-  "prob-hpq-104|0.3222222222|0.4916666667",
+  // BANK-FIX-1 PR-2 (2026-10-07): DATA moved, not the scorer — prob-hpq-104 (P(sum of two dice = 8)) is a
+  // two-step item re-marked 3 -> 2 (Section B, VeryShort); only its composite moved. Was 0.4916666667.
+  "prob-hpq-104|0.3222222222|0.4816666667",
   "qe-comp-01|0.9111111111|0.9008333333",
   "qe-hpq-101|0.9111111111|0.9533333333",
   "qe-hpq-102|0.9111111111|0.6583333333",

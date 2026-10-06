@@ -425,12 +425,15 @@ const sectionAQuestions = [
         questionText:
           "Assertion (A): If two triangles are similar, then their perimeters are in the same ratio as their corresponding sides.\nReason (R): The ratio of areas of similar triangles is equal to the ratio of corresponding sides.",
         answer:
-          "Assertion is true but Reason is false.",
+          "A is true, R is false.",
         working: [
           "Perimeter ratio does equal the ratio of corresponding sides for similar triangles.",
           "But area ratio equals the square of the side ratio, not the side ratio itself.",
         ],
         formatOverride: "Assertion-Reasoning",
+        // BANK-FIX-1 PR-2 (2026-10-07, controller D14): the standard four A-R options, as on A-011/014/020.
+        options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+        finalAnswer: "A is true, R is false.",
       },
       {
         questionId: "2026-TRI-P1-A-017",
