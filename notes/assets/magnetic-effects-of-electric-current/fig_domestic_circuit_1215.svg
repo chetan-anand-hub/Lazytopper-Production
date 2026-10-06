@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 262" role="img" aria-label="Schematic of a common domestic electric circuit: the live wire (red), neutral wire (black) and earth wire (green) enter from the mains; the live passes through the Electricity Board's fuse, the electricity meter and the distribution box containing the main switch and fuses for each circuit; the live and neutral then run as two rails 220 volts apart with three sockets connected in parallel across them; the earth wire runs along the top and connects to the earth pin of every socket.">
+  <title>A schematic diagram of one of the common domestic circuits</title>
+  <desc>Redrawn as a labelled SVG from NCERT Science Class 10 (Reprint 2026-27), Magnetic Effects of Electric Current (ch. 12), Figure 12.15 "A schematic diagram of one of the common domestic circuits", p.205. Topology and labels follow NCERT: earth wire along the top to each socket's earth pin (crossing the live rail without joining it), Electricity Board's fuse and electricity meter on the live, distribution box with main switch and fuses for each circuit, 220 V between the live and neutral rails, appliances (sockets) in parallel. Wire colours as the NCERT text states them: live red, neutral black, earth green.</desc>
+  <rect width="400" height="262" fill="#fcfdfe"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#0f2444">
+    <!-- mains entry labels (NCERT: Earth wire / Live wire / Neutral wire; colours from the text, p.204) -->
+    <text x="72" y="100" text-anchor="end">Earth wire</text>
+    <text x="72" y="113" text-anchor="end" fill="#0e8f52">(green)</text>
+    <text x="72" y="136" text-anchor="end">Live wire</text>
+    <text x="72" y="149" text-anchor="end" fill="#b42f2f">(red)</text>
+    <text x="72" y="174" text-anchor="end">Neutral wire</text>
+    <text x="72" y="187" text-anchor="end" fill="#5a6472">(black)</text>
+  </g>
+
+  <!-- ===== neutral wire (black): entry -> fuse box -> under the meter -> distribution box -> bottom rail ===== -->
+  <path d="M 74 178 H 240 V 214 H 380" fill="none" stroke="#0f2444" stroke-width="2"/>
+  <path d="M 300 214 V 158 M 340 214 V 158 M 380 214 V 158" fill="none" stroke="#0f2444" stroke-width="2"/>
+
+  <!-- ===== live wire (red): entry -> Board's fuse -> meter -> distribution box -> top rail ===== -->
+  <path d="M 74 140 H 240 V 62 H 380" fill="none" stroke="#d63a3a" stroke-width="2"/>
+  <path d="M 300 62 V 142 M 340 62 V 142 M 380 62 V 142" fill="none" stroke="#d63a3a" stroke-width="2"/>
+
+  <!-- ===== earth wire (green): entry -> up -> top rail -> down to each socket's earth pin; jump-arcs where it crosses the live rail ===== -->
+  <path d="M 74 104 H 84 V 36 H 389" fill="none" stroke="#16b96a" stroke-width="2"/>
+  <path d="M 309 36 V 58 A 4 4 0 0 1 309 66 V 150 M 349 36 V 58 A 4 4 0 0 1 349 66 V 150 M 389 36 V 150" fill="none" stroke="#16b96a" stroke-width="2"/>
+
+  <!-- Electricity Board's fuse: box on the mains, fuse holder on the live -->
+  <rect x="96" y="118" width="30" height="72" fill="none" stroke="#0f2444" stroke-width="1.6"/>
+  <circle cx="104" cy="140" r="2.8" fill="#fcfdfe" stroke="#0f2444" stroke-width="1.4"/>
+  <circle cx="118" cy="140" r="2.8" fill="#fcfdfe" stroke="#0f2444" stroke-width="1.4"/>
+
+  <!-- Electricity meter -->
+  <circle cx="158" cy="150" r="20" fill="none" stroke="#0f2444" stroke-width="1.6"/>
+  <rect x="151" y="146" width="14" height="11" rx="2" fill="#eef1f5" stroke="#0f2444" stroke-width="1.2"/>
+  <path d="M 154 154 A 5 5 0 0 1 162 154" fill="none" stroke="#0f2444" stroke-width="1"/>
+
+  <!-- Distribution box: main switch (bar) and fuses for each circuit (pairs) -->
+  <rect x="190" y="108" width="36" height="100" fill="#eef1f5" stroke="#0f2444" stroke-width="1.6"/>
+  <rect x="196" y="116" width="3.5" height="84" fill="#0f2444"/>
+  <circle cx="210" cy="122" r="2.5" fill="#fcfdfe" stroke="#0f2444" stroke-width="1.2"/>
+  <circle cx="219" cy="122" r="2.5" fill="#fcfdfe" stroke="#0f2444" stroke-width="1.2"/>
+  <circle cx="210" cy="140" r="2.5" fill="#fcfdfe" stroke="#0f2444" stroke-width="1.2"/>
+  <circle cx="219" cy="140" r="2.5" fill="#fcfdfe" stroke="#0f2444" stroke-width="1.2"/>
+  <circle cx="210" cy="158" r="2.5" fill="#fcfdfe" stroke="#0f2444" stroke-width="1.2"/>
+  <circle cx="219" cy="158" r="2.5" fill="#fcfdfe" stroke="#0f2444" stroke-width="1.2"/>
+
+  <!-- 220 V between the live rail and the neutral rail -->
+  <line x1="254" y1="70" x2="254" y2="206" stroke="#0f2444" stroke-width="1.4"/>
+  <path d="M 254 63 L 250 73 L 258 73 Z" fill="#0f2444"/>
+  <path d="M 254 213 L 250 203 L 258 203 Z" fill="#0f2444"/>
+
+  <!-- three sockets (appliances) in parallel across live and neutral; earth to the right pin -->
+  <g fill="#dfe5ec" stroke="#0f2444" stroke-width="1.6">
+    <path d="M 291 150 L 295.5 142 L 304.5 142 L 309 150 L 304.5 158 L 295.5 158 Z"/>
+    <path d="M 331 150 L 335.5 142 L 344.5 142 L 349 150 L 344.5 158 L 335.5 158 Z"/>
+    <path d="M 371 150 L 375.5 142 L 384.5 142 L 389 150 L 384.5 158 L 375.5 158 Z"/>
+  </g>
+  <g fill="#fcfdfe" stroke="#0f2444" stroke-width="1">
+    <circle cx="296.5" cy="146.5" r="1.6"/><circle cx="296.5" cy="153.5" r="1.6"/><circle cx="303.5" cy="150" r="1.6"/>
+    <circle cx="336.5" cy="146.5" r="1.6"/><circle cx="336.5" cy="153.5" r="1.6"/><circle cx="343.5" cy="150" r="1.6"/>
+    <circle cx="376.5" cy="146.5" r="1.6"/><circle cx="376.5" cy="153.5" r="1.6"/><circle cx="383.5" cy="150" r="1.6"/>
+  </g>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#0f2444">
+    <text x="111" y="204" text-anchor="middle">Electricity</text>
+    <text x="111" y="217" text-anchor="middle">Board&#8217;s fuse</text>
+    <text x="158" y="103" text-anchor="middle">Electricity</text>
+    <text x="158" y="116" text-anchor="middle">meter</text>
+    <text x="254" y="55" text-anchor="middle">220 V</text>
+    <g font-size="11">
+      <text x="208" y="228" text-anchor="middle">Distribution box:</text>
+      <text x="208" y="240" text-anchor="middle">main switch and</text>
+      <text x="208" y="252" text-anchor="middle">fuses for each circuit</text>
+      <text x="340" y="236" text-anchor="middle" fill="#5a6472">sockets in parallel</text>
+    </g>
+  </g>
+</svg>

@@ -141,9 +141,13 @@ describe("Practice hub routing parity (redesign — frozen interlink contract)",
   }, 30000);
 
   it("full-subject scope emits the subject-level URLs with no topic params", async () => {
+    // QUICK-FIXES-1 (Q1): the Quick Practice URL now SAYS it is full-subject. The old pin
+    // (`/practice/10/Maths?source=…`, no scope) froze the defect: with no topic and no
+    // scope PracticePage fell back to its default chapter, so "Full subject" drew Real
+    // Numbers only (FU-B16-FULLSUBJECT-QP-ONE-CHAPTER). Still no topic params.
     await renderHub(FULL);
     expect(fireAndCapture(CTA.quick)).toBe(
-      `/practice/10/Maths?source=practice&returnTo=${FULL_RT}`,
+      `/practice/10/Maths?scope=full-subject&source=practice&returnTo=${FULL_RT}`,
     );
     cleanup();
 
@@ -157,6 +161,14 @@ describe("Practice hub routing parity (redesign — frozen interlink contract)",
     expect(fireAndCapture(CTA.fulltest)).toBe(
       `/full-mock/10/Maths?source=practice&returnTo=${FULL_RT}`,
     );
+  }, 30000);
+
+  it("full-subject Science with a stream carries the stream to Quick Practice (QUICK-FIXES-1)", async () => {
+    const entry = "/practice-hub?subject=Science&stream=Physics&scope=full-subject";
+    await renderHub(entry);
+    const href = fireAndCapture(CTA.quick);
+    expect(href.startsWith("/practice/10/Science?scope=full-subject&stream=Physics&source=practice&returnTo=")).toBe(true);
+    expect(href).not.toMatch(/[?&]topics?=/);
   }, 30000);
 
   it("Science scope routes to the Science surfaces", async () => {

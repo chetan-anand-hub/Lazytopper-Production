@@ -283,13 +283,27 @@ describe("HPQ / predicted / promptD: the rows this lane removed stay removed", (
     expect(back).toEqual([]);
   });
 
+  it("QUICK-FIXES-1 Q2: promptD M-TRI-6 (\"verify Pythagoras theorem\") is gone", () => {
+    // Owner ruling 1 (6 Oct, audit D36): stating / proving / VERIFYING the theorem is OUT;
+    // using it as a tool stays IN. M-TRI-6 is a LazyTopper fallback row, not an official
+    // one, so it is removed (not withheld). Its kept-row CONTROL moved to M-TRI-4 below.
+    expect(packIds.has("M-TRI-6")).toBe(false);
+    const verify = [...packIds].filter((id) => {
+      const q = Object.values(promptDPracticePacks.maths)
+        .flatMap((p) => p.questions)
+        .find((x) => String(x.id) === id);
+      return /verify\s+(the\s+)?pythagoras/i.test(String(q?.text ?? ""));
+    });
+    expect(verify).toEqual([]);
+  });
+
   it("the periodic-classification fallback pack is gone", () => {
     expect(Object.keys(promptDPracticePacks.science)).not.toContain("periodic_classification");
   });
 
   it("CONTROL: the lookups see live rows (kept rows are found)", () => {
     expect(predictedIds.has("2026-QE-AR-05")).toBe(true);
-    expect(packIds.has("M-TRI-6")).toBe(true);
+    expect(packIds.has("M-TRI-4")).toBe(true);
     expect(packIds.has("M-APPTRIG-7-D2")).toBe(true);
     expect(hpqIds.size).toBeGreaterThan(100);
   });

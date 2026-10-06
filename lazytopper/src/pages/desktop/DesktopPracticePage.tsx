@@ -28,6 +28,7 @@ import {
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
+import { appendFullSubjectScope } from "../../components/practice/fullSubjectPractice";
 // BANK-LEAN-1 (P18): `import type`, NOT `import { type … }`. Under this repo's
 // `verbatimModuleSyntax`, the inline form is emitted as `import {} from "…"` — a
 // side-effect import that kept predictionDataService → predictionCore →
@@ -2003,8 +2004,13 @@ export default function DesktopPracticePage() {
     count?: number;
     questionType?: string;
     pyqOnly?: boolean;
+    /** QUICK-FIXES-1 (Q1): a whole-subject set. Emits `scope=full-subject` (+ `stream=`
+     *  for a Science stream) so PracticePage draws from EVERY board chapter — without it
+     *  an absent topic fell through to the page's default chapter (Real Numbers). */
+    fullSubject?: boolean;
   }): string => {
     const sp = new URLSearchParams();
+    if (params.fullSubject) appendFullSubjectScope(sp, scope.subject, scope.stream);
     if (params.topic) sp.set("topic", params.topic);
     // Multi-topic: emit the SET (reused convention). PracticePage keys `isMultiTopic` on
     // `topics=` having 2+ members and takes the fan-out branch; a single/absent `topics`
@@ -2088,7 +2094,7 @@ export default function DesktopPracticePage() {
           timed: timerOn || undefined,
         })
       : scope.scope === "full-subject"
-        ? buildLegacyPracticePath({ timed: timerOn || undefined })
+        ? buildLegacyPracticePath({ fullSubject: true, timed: timerOn || undefined })
         : scope.scope === "multi-topic" && scope.selectedTopicSlugs.length >= 2
           ? buildLegacyPracticePath({
               // The full SET, not selectedTopicSlugs[0] — the old collapse was the
