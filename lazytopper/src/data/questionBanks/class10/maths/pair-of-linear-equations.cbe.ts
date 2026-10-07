@@ -312,7 +312,7 @@ export const PLE_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-PLE-C-003",
+    "id": "CBE-M-PLE-C-003", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "pair-of-linear-equations",
     "subtopic": "Real-Life Problems on Linear Equations",
@@ -333,7 +333,7 @@ export const PLE_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-PLE-C-004",
+    "id": "CBE-M-PLE-C-004", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "pair-of-linear-equations",
     "subtopic": "Real-Life Problems on Linear Equations",

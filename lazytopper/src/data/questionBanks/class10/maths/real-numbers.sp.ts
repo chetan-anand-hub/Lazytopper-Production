@@ -31,7 +31,7 @@ export const RN_SP: CanonicalQuestion[] = [
     sourceOverride: "others",
   },
   {
-    "id": "SP-M-2022-RN-A-002",
+    "id": "SP-M-2022-RN-A-002", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "real-numbers",
     "subtopic": "Factors and Divisibility",
