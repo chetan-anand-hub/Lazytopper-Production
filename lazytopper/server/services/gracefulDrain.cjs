@@ -11,21 +11,26 @@
 //   2. Requests already being served run to the end, and background grading jobs keep grading: each one
 //      writes its rows as they settle and ends `done` (charged once, for graded questions only) through
 //      its own code path in grading/jobs.cjs, which this file does not change.
-//   3. When nothing is left in flight the process exits 0. If work is still running at the deadline
+//   3. When nothing is left in flight — no request, no live job, AND no usage / fair-use ledger write
+//      still on the wire (usageLedger.pendingWrites(): those writes are fire-and-forget, so exiting
+//      right after the last job could lose a graded row's charge) — the process exits 0. If work is still running at the deadline
 //      (DRAIN_DEADLINE_MS, inside Railway's draining window), every job still live is ended as
-//      `interrupted` — final rows kept and charged, the rest "not graded" and never charged — and the
-//      process exits. That is jobs.cjs's own interruptAll, the same honest ending as before.
+//      `interrupted` — final rows kept and charged, the rest "not graded" and never charged — the
+//      ledger writes that ending started are awaited, and the process exits. INTERRUPT_GUARD_MS bounds
+//      that whole step, so a write that never settles cannot hold the exit past deadline + guard. That is jobs.cjs's own interruptAll, the same honest ending as before.
 // It replaces the old best-effort hook (interrupt everything at once, then re-raise SIGTERM), which
 // could only ever end running work early.
 //
 // Every timer is injected, so the tests drive time without reading a clock.
+
+const { pendingWrites: ledgerPendingWrites, settledWrites: ledgerSettledWrites } = require('./usageLedger.cjs');
 
 /** The child's drain budget. Railway sends SIGKILL `drainingSeconds` (120) after SIGTERM, and the
  *  parent allows itself PARENT_DRAIN_DEADLINE_MS (115 s); this leaves room for the interrupt writes. */
 const DRAIN_DEADLINE_MS = 110000;
 /** How often the drain looks at "is anything still in flight". */
 const DRAIN_POLL_MS = 500;
-/** The longest the deadline's interruptAll may take before the process exits regardless. */
+/** The longest the deadline's interruptAll + its ledger writes may take before the process exits regardless. */
 const INTERRUPT_GUARD_MS = 4000;
 /** What a client is told to wait before trying again (the new deployment is already serving). */
 const RETRY_AFTER_SECONDS = 5;
@@ -39,6 +44,8 @@ const SERVER_RESTARTING_BODY = Object.freeze({
 
 /**
  * @param deps.jobs        { stats(): { live:number }, interruptAll(reason): Promise<number> } | null
+ * @param deps.writes      { pending(): number, settled(): Promise } — the ledger's pending writes
+ *                         (default: services/usageLedger.cjs pendingWrites / settledWrites)
  * @param deps.exit        (code) => void — process.exit in production
  * @param deps.corsOrigin  the Access-Control-Allow-Origin the gateway answers with
  * @param deps.setTimeout / clearTimeout / setInterval / clearInterval — injected timers (tests)
@@ -47,6 +54,7 @@ const SERVER_RESTARTING_BODY = Object.freeze({
  */
 function createGracefulDrain(deps = {}) {
   const jobs = deps.jobs || null;
+  const writes = deps.writes || { pending: ledgerPendingWrites, settled: ledgerSettledWrites };
   const exit = typeof deps.exit === 'function' ? deps.exit : (code) => process.exit(code);
   const log = typeof deps.log === 'function' ? deps.log : () => {};
   const corsOrigin = deps.corsOrigin || '*';
@@ -74,6 +82,23 @@ function createGracefulDrain(deps = {}) {
       return s && Number(s.live) > 0 ? Number(s.live) : 0;
     } catch {
       return 0;
+    }
+  }
+
+  function pendingWrites() {
+    try {
+      const n = writes && typeof writes.pending === 'function' ? Number(writes.pending()) : 0;
+      return n > 0 ? n : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  function writesSettled() {
+    try {
+      return Promise.resolve(writes && typeof writes.settled === 'function' ? writes.settled() : undefined).catch(() => undefined);
+    } catch {
+      return Promise.resolve();
     }
   }
 
@@ -119,16 +144,16 @@ function createGracefulDrain(deps = {}) {
 
   function check() {
     if (ended) return;
-    if (inFlight === 0 && liveJobs() === 0) finish('drained', 0);
+    if (inFlight === 0 && liveJobs() === 0 && pendingWrites() === 0) finish('drained', 0);
   }
 
   function onDeadline() {
     if (ended) return;
-    log(`[graceful-drain] deadline after ${deadlineMs} ms: ${inFlight} request(s), ${liveJobs()} job(s) still running — ending live jobs as interrupted`);
+    log(`[graceful-drain] deadline after ${deadlineMs} ms: ${inFlight} request(s), ${liveJobs()} job(s), ${pendingWrites()} ledger write(s) still running — ending live jobs as interrupted`);
     let settled = false;
     const guard = setT(() => { if (!settled) { settled = true; finish('deadline', -1); } }, guardMs);
     const p = jobs && typeof jobs.interruptAll === 'function' ? jobs.interruptAll('shutdown') : Promise.resolve(0);
-    Promise.resolve(p).catch(() => 0).then((n) => {
+    Promise.resolve(p).catch(() => 0).then((n) => writesSettled().then(() => n)).then((n) => {
       if (settled) return;
       settled = true;
       clearT(guard);
@@ -140,7 +165,7 @@ function createGracefulDrain(deps = {}) {
   function begin(reason = 'SIGTERM') {
     if (draining) return done;
     draining = true;
-    log(`[graceful-drain] ${reason}: refusing new requests; ${inFlight} request(s) and ${liveJobs()} job(s) in flight; deadline ${deadlineMs} ms`);
+    log(`[graceful-drain] ${reason}: refusing new requests; ${inFlight} request(s), ${liveJobs()} job(s) and ${pendingWrites()} ledger write(s) in flight; deadline ${deadlineMs} ms`);
     if (server && typeof server.close === 'function') {
       try { server.close(); } catch { /* not listening */ }
     }

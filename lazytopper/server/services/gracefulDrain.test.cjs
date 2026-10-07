@@ -14,8 +14,9 @@ const path = require('node:path');
 const { EventEmitter } = require('node:events');
 
 const {
-  createGracefulDrain, DRAIN_DEADLINE_MS, SERVER_RESTARTING_BODY, RETRY_AFTER_SECONDS,
+  createGracefulDrain, DRAIN_DEADLINE_MS, INTERRUPT_GUARD_MS, SERVER_RESTARTING_BODY, RETRY_AFTER_SECONDS,
 } = require('./gracefulDrain.cjs');
+const { createUsageLedger, pendingWrites } = require('./usageLedger.cjs');
 const { createGradingJobs } = require('../grading/jobs.cjs');
 const { GRADING_RESULTS_COLLECTION, GRADING_RESULTS_SEGMENTS } = require('./fairUse.cjs');
 
@@ -110,14 +111,15 @@ const UID = 'student-uid-1';
 const JOB_ID = 'a'.repeat(40);
 const DOC_PATH = [GRADING_RESULTS_COLLECTION, UID, GRADING_RESULTS_SEGMENTS.attempts, JOB_ID].join('/');
 
-/** The real jobs runner with one claimed attempt record ready to become a job. */
-function realJobs(timers) {
+/** The real jobs runner with one claimed attempt record ready to become a job. `onCommit` (optional)
+ *  runs inside the deferred commit, as fair use's commitDeferred does (it starts the ledger write). */
+function realJobs(timers, onCommit) {
   const store = memFirestore();
   store.docs.set(DOC_PATH, { state: 'pending', claimId: 'claim-1', expiresAtMs: 10 ** 12 });
   const commits = [];
   const jobs = createGradingJobs({
     resolveFirestore: () => ({ db: store.db }),
-    commitDeferred: (deferred, graded) => commits.push({ deferred, graded }),
+    commitDeferred: (deferred, graded) => { commits.push({ deferred, graded }); if (onCommit) onCommit(graded); },
     now: timers.now,
     heartbeatMs: 10 ** 9,
   });
@@ -250,4 +252,106 @@ test('PIN 6 · index.cjs routes every request through the drain and hands SIGTER
   assert.match(src, /createGracefulDrain\(\{\s*jobs: gradingJobs,/);
   assert.doesNotMatch(src, /interruptAll\('shutdown'\)/, 'SIGTERM no longer interrupts running jobs at once');
   assert.doesNotMatch(src, /DARK unless\s*\/\/\s*GRADING_JOBS=1/, 'D79: the operator comment no longer says jobs are dark unless GRADING_JOBS=1');
+});
+
+/* ── ROUND 2 (verifier SHOULD-FIX 1 + 2) ─────────────────────────────────────────────────────────── */
+
+/** A REAL usageLedger whose Firestore `set` is HELD until release(): the charge is "on the wire". */
+function heldLedger(timers) {
+  const writes = [];
+  let release = () => {};
+  const gate = new Promise((r) => { release = r; });
+  const doc = (p) => ({
+    collection: (name) => ({ doc: (id) => doc(`${p}/${name}/${id}`) }),
+    async set(data) { await gate; writes.push({ path: p, data }); },
+  });
+  const ledger = createUsageLedger({
+    resolveFirestore: () => ({ db: { collection: (name) => ({ doc: (id) => doc(`${name}/${id}`) }) }, FieldValue: { increment: (n) => ({ increment: n }) } }),
+    telemetry: { increment() {} },
+    now: timers.now,
+  });
+  return { ledger, writes, release };
+}
+
+test('PIN 7 · an ABORTED request (close without finish) releases the in-flight count, so the drain still exits', async () => {
+  const timers = fakeTimers();
+  const { drain, exits } = drainWith(timers, null);
+  let res;
+  const handler = drain.wrap((req, r) => { res = r; });
+  handler({ method: 'POST', url: '/api/grade-worksheet' }, fakeRes());
+  assert.equal(drain.inFlight(), 1);
+  void drain.begin('SIGTERM');
+  await timers.advance(1000);
+  assert.deepEqual(exits, [], 'still in flight');
+  res.emit('close'); // the client went away: Node fires close, never finish
+  assert.equal(drain.inFlight(), 0, 'the aborted request is no longer counted');
+  res.emit('close');
+  assert.equal(drain.inFlight(), 0, 'released once: never negative');
+  await timers.advance(1000);
+  assert.deepEqual(exits, [0], 'exit 0 well before the deadline');
+});
+
+test('PIN 8 · a usage / fair-use ledger write still on the wire DELAYS the exit until it settles (the charge is not lost)', async () => {
+  const timers = fakeTimers();
+  const held = heldLedger(timers);
+  const { jobs, store } = realJobs(timers, (graded) => held.ledger.recordTrialUse(UID, { worksheets: graded }));
+  const { release } = await submitHeldJob(jobs);
+  const { drain, exits } = drainWith(timers, jobs);
+  const ended = drain.begin('SIGTERM');
+  release();
+  await settle(200);
+  await timers.advance(5000);
+  assert.equal(store.docs.get(DOC_PATH).job.state, 'done', 'the job ended done');
+  assert.equal(jobs.stats().live, 0, 'no live job is left');
+  assert.equal(pendingWrites(), 1, 'its charge is still on the wire');
+  assert.deepEqual(exits, [], 'no exit while the charge is pending');
+  held.release();
+  await settle(50);
+  await timers.advance(1000);
+  assert.equal(held.writes.length, 1, 'the charge landed');
+  assert.deepEqual(held.writes[0].data, { trialWorksheets: { increment: 2 } }, 'charged exactly the graded count');
+  assert.equal(pendingWrites(), 0);
+  assert.deepEqual(exits, [0]);
+  assert.deepEqual(await ended, { ending: 'drained', interrupted: 0 });
+  // Both markPaperGraded call sites in fair use are tracked the same way.
+  const src = fs.readFileSync(path.join(__dirname, 'fairUse.cjs'), 'utf8');
+  assert.equal((src.match(/void trackWrite\(markPaperGraded\(/g) || []).length, 2, 'both markPaperGraded calls are tracked');
+  assert.doesNotMatch(src, /void markPaperGraded\(/, 'no untracked markPaperGraded call');
+});
+
+test('PIN 9 · at the deadline the interrupt’s charge write is awaited before the exit', async () => {
+  const timers = fakeTimers();
+  const held = heldLedger(timers);
+  const { jobs, store } = realJobs(timers, (graded) => held.ledger.recordTrialUse(UID, { worksheets: graded }));
+  await submitHeldJob(jobs); // never released
+  const { drain, exits } = drainWith(timers, jobs);
+  const ended = drain.begin('SIGTERM');
+  await timers.advance(DRAIN_DEADLINE_MS);
+  await settle(200);
+  assert.equal(store.docs.get(DOC_PATH).job.state, 'interrupted');
+  assert.equal(pendingWrites(), 1, 'the interrupt started its charge write');
+  assert.deepEqual(exits, [], 'no exit while that write is pending');
+  held.release();
+  await settle(50);
+  assert.deepEqual(held.writes.map((w) => w.data), [{ trialWorksheets: { increment: 1 } }], 'the final graded row is charged');
+  assert.deepEqual(exits, [0]);
+  assert.deepEqual(await ended, { ending: 'deadline', interrupted: 1 });
+});
+
+test('PIN 10 · a ledger write that NEVER settles cannot hold the exit past deadline + guard (inside the Railway 120 s window)', async () => {
+  const timers = fakeTimers();
+  const held = heldLedger(timers);
+  held.ledger.recordTrialUse(UID, { worksheets: 1 }); // stuck on the wire
+  assert.equal(pendingWrites(), 1);
+  const { drain, exits } = drainWith(timers, { stats: () => ({ live: 0 }), interruptAll: async () => 0 });
+  const ended = drain.begin('SIGTERM');
+  await timers.advance(DRAIN_DEADLINE_MS + INTERRUPT_GUARD_MS - 1);
+  assert.deepEqual(exits, [], 'waits for the write up to the guard');
+  await timers.advance(1);
+  assert.deepEqual(exits, [0], 'the deadline guard still ends it');
+  assert.deepEqual(await ended, { ending: 'deadline', interrupted: -1 });
+  assert.ok(DRAIN_DEADLINE_MS + INTERRUPT_GUARD_MS < 115000, 'child exits before the parent deadline (115 s) and SIGKILL (120 s)');
+  held.release(); // tidy the module-wide set for any later test
+  await settle(50);
+  assert.equal(pendingWrites(), 0);
 });
