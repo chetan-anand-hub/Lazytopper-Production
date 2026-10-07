@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "coordinate-geometry" (Maths): 265 served rows from 19 source arrays, 35 withheld.
+// Chapter "coordinate-geometry" (Maths): 370 served rows from 20 source arrays, 35 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -25,6 +25,7 @@ import { COORDINATE_GEOMETRY_PYQ_2026 } from "../questionBanks/class10/maths/coo
 import { COORDINATE_GEOMETRY_PYQ_2024 } from "../questionBanks/class10/maths/coordinate-geometry.pyq2024";
 import { COORDINATE_GEOMETRY_PYQ_2025 } from "../questionBanks/class10/maths/coordinate-geometry.pyq2025";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
+import { COORDINATE_GEOMETRY_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/coordinate-geometry.cbq.ltgen";
 
 export default defineChapter("coordinate-geometry", [
   [16, COORDINATE_GEOMETRY_PACK1, true],
@@ -46,6 +47,7 @@ export default defineChapter("coordinate-geometry", [
   [340, COORDINATE_GEOMETRY_PYQ_2024, false],
   [352, COORDINATE_GEOMETRY_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
+  [445, COORDINATE_GEOMETRY_CBQ_LT_GENERATED, false],
 ], [
   "CG-E15",
   "CG-H05",
