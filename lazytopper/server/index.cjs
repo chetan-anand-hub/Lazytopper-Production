@@ -211,8 +211,9 @@ const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH, createGr
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
 // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on POST /api/grade-worksheet
-// (`Prefer: respond-async`), polled at GET /api/grade-worksheet/jobs/:jobId. DARK unless
-// GRADING_JOBS=1: off, every submit is graded synchronously exactly as before. The deferred
+// (`Prefer: respond-async`), polled at GET /api/grade-worksheet/jobs/:jobId. ON BY DEFAULT (J3);
+// GRADING_JOBS=0/off/false is the kill switch: off, every submit is graded synchronously exactly as
+// before (services/serverConfig.cjs describeGradingJobsSwitch). The deferred
 // fair-use commit is resolved lazily — `fairUse` is constructed further down, long before any job ends.
 const { createGradingJobs, JOB_POLL_PATH_RE } = require('./grading/jobs.cjs');
 const { createGradingJobsRoutes } = require('./routes/gradingJobs.cjs');
