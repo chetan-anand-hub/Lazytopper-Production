@@ -262,7 +262,7 @@ export const BANK_FIX_1_PR1: readonly BankFix1Entry[] = [
 // ===== BANK-FIX-1 PR-2 (2026-10-07) — broken tagging, ambiguous keys, missing figures, fallback answers =====
 //
 // One entry per (surface, id) whose RUNTIME row this PR changed — measured, not declared: a dump of
-// trunk 62a28977 (before) against this branch (after). `fields` are the runtime fields that differ.
+// trunk 99bc3682 (before) against this branch (after). `fields` are the runtime fields that differ.
 //   verdict "fixed"          — content changed (stem / options / key / steps / explanation); every served
 //                              one was re-solved by an INDEPENDENT solver that never saw the key
 //                              (`resolve`): "agree" (blind batch), "agree-with-figure" (solver saw the bound
@@ -336,7 +336,7 @@ export const BANK_FIX_1_PR2_DUPLICATE_PAIRS: readonly (readonly [string, string]
   ["TRIG2-M07", "TG3-020"],
 ];
 
-/** Served rows per chapter, trunk 62a28977 (before) → this PR (after): [before, after] per surface. */
+/** Served rows per chapter, trunk 99bc3682 (before) → this PR (after): [before, after] per surface. */
 export const BANK_FIX_1_PR2_SERVED_COUNTS: readonly { chapter: string; bank: readonly [number, number]; hpq: readonly [number, number]; predicted: readonly [number, number]; promptD: readonly [number, number] }[] = [
   { chapter: "arithmetic-progression", bank: [355, 353], hpq: [6, 6], predicted: [11, 11], promptD: [10, 10] },
   { chapter: "areas-related-to-circles", bank: [196, 189], hpq: [1, 1], predicted: [3, 3], promptD: [10, 10] },
@@ -356,7 +356,7 @@ export const BANK_FIX_1_PR2_SERVED_COUNTS: readonly { chapter: string; bank: rea
   { chapter: "chemical-reactions-and-equations", bank: [517, 512], hpq: [5, 5], predicted: [5, 5], promptD: [9, 9] },
   { chapter: "control-and-coordination", bank: [385, 377], hpq: [6, 6], predicted: [7, 7], promptD: [10, 10] },
   { chapter: "electricity", bank: [399, 395], hpq: [6, 6], predicted: [12, 12], promptD: [10, 10] },
-  { chapter: "heredity", bank: [324, 315], hpq: [4, 4], predicted: [4, 4], promptD: [9, 8] },
+  { chapter: "heredity", bank: [319, 310], hpq: [4, 4], predicted: [4, 4], promptD: [9, 8] },
   { chapter: "how-do-organisms-reproduce", bank: [527, 519], hpq: [3, 3], predicted: [6, 6], promptD: [8, 8] },
   { chapter: "human-eye-and-colourful-world", bank: [309, 304], hpq: [3, 2], predicted: [6, 6], promptD: [9, 9] },
   { chapter: "life-processes", bank: [587, 577], hpq: [10, 10], predicted: [13, 13], promptD: [10, 10] },

@@ -1899,6 +1899,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LTG-S-EYE-207",              // persistence of vision
   "LTG-S-EYE-212",              // persistence of vision
   "LTG-S-EYE-215",              // persistence of vision
+  // ---- CBQ-1 C2 (owner ruling 2026-10-07 03:07Z, Option B): sex determination is a "brief introduction" in the
+  // 2026-27 syllabus — capped at 8 generated CBQs, no 5-mark rows; the excess is withheld (kept in the pack) ----
+  "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291",
+  "LTG-S-HERED-292", "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297",
+  "LTG-S-HERED-298", "LTG-S-HERED-299", // the two 5-mark sex-determination rows
   // ---- BANK-FIX-1 PR-2 (2026-10-07): broken tagging, duplicates, missing figures, out-of-syllabus (withholds2.json) ----
   "PYQ-S-2026-ACID-012",        // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "PYQ-S-ACID-001",             // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
