@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Served bank id -> {topicKey, subtopic, section} for 10157 rows, in aggregator order.
+// Served bank id -> {topicKey, subtopic, section} for 10156 rows, in aggregator order.
 // Ids and tags only, never question content. Read through ./bankIdIndex.ts.
 
 export const BANK_ID_INDEX_TOPIC_KEYS: readonly string[] = [
@@ -11997,7 +11997,6 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["LTG-M-QE-281", 5, 42, 4],
   ["LTG-M-QE-282", 5, 1199, 4],
   ["LTG-M-QE-283", 5, 316, 4],
-  ["LTG-M-QE-284", 5, 313, 4],
   ["LTG-M-QE-285", 5, 313, 4],
   ["LTG-M-QE-286", 5, 50, 4],
   ["LTG-M-QE-287", 5, 316, 4],
