@@ -1645,7 +1645,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A circular sports ground has centre O and radius 29 m. In the middle of the ground is a circular flower bed with the same centre O and radius 20 m. For a function, a straight rope AB is tied between two poles A and B standing on the outer boundary of the ground, so that the rope just touches the edge of the flower bed at the point M.\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠OMA? Give a reason.\n(ii) Find the distance AM.\n(iii) Find the length of the rope AB, and the cost of hanging decorative lights along the whole rope at ₹25 per metre.",
+    "questionText": "A circular sports ground has centre O and radius 29 m. In the middle of the ground is a circular flower bed with the same centre O and radius 20 m. For a function, a straight rope AB is tied between two poles A and B standing on the outer boundary of the ground, so that the rope just touches the edge of the flower bed at the point M.\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠OMA? Give a reason. [1 mark]\n(ii) Find the distance AM. [1 mark]\n(iii) Find the length of the rope AB, and the cost of hanging decorative lights along the whole rope at ₹25 per metre. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) 21 m (iii) AB = 42 m, ₹1050",
     "solutionSteps": [
@@ -1672,7 +1672,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In a tailoring workshop, two pulleys are joined by a crossed belt. The larger pulley has centre O and radius 9 cm; the smaller pulley has centre C and radius 6 cm; the distance between the centres is OC = 25 cm. One straight portion AB of the belt touches the larger pulley at A and the smaller pulley at B, the two pulleys lying on opposite sides of AB, and AB crosses the line of centres OC at the point X.\nBased on the above information, answer the following questions:\n(i) What is the angle between the belt AB and the radius OA? Give a reason.\n(ii) Show that △OAX ~ △CBX and hence find OX.\n(iii) Find the length of the straight portion AB of the belt.",
+    "questionText": "In a tailoring workshop, two pulleys are joined by a crossed belt. The larger pulley has centre O and radius 9 cm; the smaller pulley has centre C and radius 6 cm; the distance between the centres is OC = 25 cm. One straight portion AB of the belt touches the larger pulley at A and the smaller pulley at B, the two pulleys lying on opposite sides of AB, and AB crosses the line of centres OC at the point X.\nBased on the above information, answer the following questions:\n(i) What is the angle between the belt AB and the radius OA? Give a reason. [1 mark]\n(ii) Show that △OAX ~ △CBX and hence find OX. [1 mark]\n(iii) Find the length of the straight portion AB of the belt. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) OX = 15 cm (iii) AB = 20 cm",
     "solutionSteps": [
@@ -1699,7 +1699,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A school lawn is in the shape of a triangle ABC, right-angled at B, with AB = 21 m, BC = 20 m and CA = 29 m. A circular region of the lawn with centre O and radius r m is to be watered by a sprinkler. The edge of this circular region just touches the three sides of the lawn: AB at P, BC at Q and CA at R.\nBased on the above information, answer the following questions:\n(i) Name the type of quadrilateral OPBQ and give a reason.\n(ii) Express the lengths AR and CR in terms of r.\n(iii) Find the radius r of the circular region.",
+    "questionText": "A school lawn is in the shape of a triangle ABC, right-angled at B, with AB = 21 m, BC = 20 m and CA = 29 m. A circular region of the lawn with centre O and radius r m is to be watered by a sprinkler. The edge of this circular region just touches the three sides of the lawn: AB at P, BC at Q and CA at R.\nBased on the above information, answer the following questions:\n(i) Name the type of quadrilateral OPBQ and give a reason. [1 mark]\n(ii) Express the lengths AR and CR in terms of r. [1 mark]\n(iii) Find the radius r of the circular region. [2 marks]",
     "options": [],
     "answer": "(i) square (ii) AR = 21 − r, CR = 20 − r (iii) r = 6 m",
     "solutionSteps": [
@@ -1726,7 +1726,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A village P lies near a circular lake with centre O and radius 250 m. Two straight roads start from the village; each road just touches the edge of the lake, the first at A and the second at B. The two roads meet at the village at a right angle, i.e. ∠APB = 90°.\nBased on the above information, answer the following questions:\n(i) Find ∠AOB, giving a reason.\n(ii) Show that OAPB is a square and write the length PA.\n(iii) A cyclist rides from A to the village P and then on to B at a steady speed of 15 km/h. Find the distance covered and the time taken in minutes.",
+    "questionText": "A village P lies near a circular lake with centre O and radius 250 m. Two straight roads start from the village; each road just touches the edge of the lake, the first at A and the second at B. The two roads meet at the village at a right angle, i.e. ∠APB = 90°.\nBased on the above information, answer the following questions:\n(i) Find ∠AOB, giving a reason. [1 mark]\n(ii) Show that OAPB is a square and write the length PA. [1 mark]\n(iii) A cyclist rides from A to the village P and then on to B at a steady speed of 15 km/h. Find the distance covered and the time taken in minutes. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) PA = 250 m (iii) 500 m, 2 minutes",
     "solutionSteps": [
@@ -1753,7 +1753,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A workshop uses a V-gauge to check round steel rods. The two flat faces of the gauge meet at the corner P and make an angle of 120° with each other. A rod is laid in the gauge; its circular cross-section has centre O and radius 9 mm and touches the two faces at A and B. (Use √3 = 1.732.)\nBased on the above information, answer the following questions:\n(i) Is PA equal to PB? State the result you use.\n(ii) Find ∠OPA, giving a reason.\n(iii) Find the distance OP from the corner of the gauge to the centre of the rod.",
+    "questionText": "A workshop uses a V-gauge to check round steel rods. The two flat faces of the gauge meet at the corner P and make an angle of 120° with each other. A rod is laid in the gauge; its circular cross-section has centre O and radius 9 mm and touches the two faces at A and B. (Use √3 = 1.732.)\nBased on the above information, answer the following questions:\n(i) Is PA equal to PB? State the result you use. [1 mark]\n(ii) Find ∠OPA, giving a reason. [1 mark]\n(iii) Find the distance OP from the corner of the gauge to the centre of the rod. [2 marks]",
     "options": [],
     "answer": "(i) Yes (ii) 60° (iii) 6√3 mm ≈ 10.392 mm",
     "solutionSteps": [
@@ -1780,7 +1780,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "For a Diwali display, Kavya makes a rangoli board ABCD in the shape of a parallelogram. A circular diya plate with centre O is placed on it so that its rim touches all four sides AB, BC, CD and DA. The side AB measures 15 cm, and the two diagonals of the board measure 18 cm and 24 cm.\nBased on the above information, answer the following questions:\n(i) Write the relation between AB + CD and BC + DA, giving a reason.\n(ii) Show that the board must be a rhombus and write the length of BC.\n(iii) Find the radius of the diya plate.",
+    "questionText": "For a Diwali display, Kavya makes a rangoli board ABCD in the shape of a parallelogram. A circular diya plate with centre O is placed on it so that its rim touches all four sides AB, BC, CD and DA. The side AB measures 15 cm, and the two diagonals of the board measure 18 cm and 24 cm.\nBased on the above information, answer the following questions:\n(i) Write the relation between AB + CD and BC + DA, giving a reason. [1 mark]\n(ii) Show that the board must be a rhombus and write the length of BC. [1 mark]\n(iii) Find the radius of the diya plate. [2 marks]",
     "options": [],
     "answer": "(i) AB + CD = BC + DA (ii) BC = 15 cm (iii) 7.2 cm",
     "solutionSteps": [
@@ -1807,7 +1807,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In a public garden there is a circular pond with centre O and radius 15 m. A gazebo A stands 39 m from O. Two straight hedges AP and AQ run from the gazebo and just touch the edge of the pond at P and Q. A straight stone bench BC is placed between the gazebo and the pond so that it touches the edge of the pond at R, with its end B on hedge AP and its end C on hedge AQ. A low fence is to be put along the triangle ABC.\nBased on the above information, answer the following questions:\n(i) Find the length of the hedge AP.\n(ii) Write BR and CR in terms of the hedges, giving a reason.\n(iii) Find the perimeter of the triangle ABC and the cost of fencing it at ₹45 per metre.",
+    "questionText": "In a public garden there is a circular pond with centre O and radius 15 m. A gazebo A stands 39 m from O. Two straight hedges AP and AQ run from the gazebo and just touch the edge of the pond at P and Q. A straight stone bench BC is placed between the gazebo and the pond so that it touches the edge of the pond at R, with its end B on hedge AP and its end C on hedge AQ. A low fence is to be put along the triangle ABC.\nBased on the above information, answer the following questions:\n(i) Find the length of the hedge AP. [1 mark]\n(ii) Write BR and CR in terms of the hedges, giving a reason. [1 mark]\n(iii) Find the perimeter of the triangle ABC and the cost of fencing it at ₹45 per metre. [2 marks]",
     "options": [],
     "answer": "(i) 36 m (ii) BR = BP, CR = CQ (iii) 72 m, ₹3240",
     "solutionSteps": [
@@ -1834,7 +1834,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A circular roundabout with centre O and radius 18 m lies between two straight, parallel roads. The first road touches the roundabout at A and the second road touches it at B. A third straight road touches the roundabout at C and meets the first road at P and the second road at Q, with P and Q on the same side of the line AB. The distance AP is 12 m.\nBased on the above information, answer the following questions:\n(i) Explain why the points A, O and B lie on one straight line.\n(ii) Find the distance between the two parallel roads.\n(iii) Show that ∠POQ = 90° and hence find the distance BQ.",
+    "questionText": "A circular roundabout with centre O and radius 18 m lies between two straight, parallel roads. The first road touches the roundabout at A and the second road touches it at B. A third straight road touches the roundabout at C and meets the first road at P and the second road at Q, with P and Q on the same side of the line AB. The distance AP is 12 m.\nBased on the above information, answer the following questions:\n(i) Explain why the points A, O and B lie on one straight line. [1 mark]\n(ii) Find the distance between the two parallel roads. [1 mark]\n(iii) Show that ∠POQ = 90° and hence find the distance BQ. [2 marks]",
     "options": [],
     "answer": "(i) AB is a diameter (ii) 36 m (iii) BQ = 27 m",
     "solutionSteps": [
@@ -1861,7 +1861,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A circular island has centre O and radius 10 km. A boat P is 20 km from O. From the boat, the captain sees the island between two straight lines of sight PT and PT' that just touch the shore at T and T'. (Use √3 = 1.732.)\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠OTP? Give a reason.\n(ii) Find the angle TPT' between the two lines of sight.\n(iii) Find the length PT.",
+    "questionText": "A circular island has centre O and radius 10 km. A boat P is 20 km from O. From the boat, the captain sees the island between two straight lines of sight PT and PT' that just touch the shore at T and T'. (Use √3 = 1.732.)\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠OTP? Give a reason. [1 mark]\n(ii) Find the angle TPT' between the two lines of sight. [1 mark]\n(iii) Find the length PT. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) 60° (iii) 10√3 km ≈ 17.32 km",
     "solutionSteps": [
@@ -1888,7 +1888,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A carpenter makes a table top ABCD in the shape of a quadrilateral with ∠C = 90°. A circular glass inlay with centre O and radius r cm is fitted so that its edge touches all four sides: AB at P, BC at Q, CD at R and DA at S. He measures AB = 45 cm, AP = 13 cm and BC = 50 cm.\nBased on the above information, answer the following questions:\n(i) Find the length BP.\n(ii) Find the length CQ, giving a reason.\n(iii) Show that OQCR is a square and find the radius of the glass inlay.",
+    "questionText": "A carpenter makes a table top ABCD in the shape of a quadrilateral with ∠C = 90°. A circular glass inlay with centre O and radius r cm is fitted so that its edge touches all four sides: AB at P, BC at Q, CD at R and DA at S. He measures AB = 45 cm, AP = 13 cm and BC = 50 cm.\nBased on the above information, answer the following questions:\n(i) Find the length BP. [1 mark]\n(ii) Find the length CQ, giving a reason. [1 mark]\n(iii) Show that OQCR is a square and find the radius of the glass inlay. [2 marks]",
     "options": [],
     "answer": "(i) 32 cm (ii) 18 cm (iii) r = 18 cm",
     "solutionSteps": [
@@ -1915,7 +1915,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "On a farm, two cylindrical water tanks stand on level ground. Seen from above, the smaller tank is a circle with centre O and radius 7 m and the larger tank is a circle with centre C and radius 14 m. A surveyor's laser L is placed on the line CO extended beyond O, with LO = 25 m. The laser beam just touches the smaller tank at A and then just touches the larger tank at B, both tanks lying on the same side of the beam LB.\nBased on the above information, answer the following questions:\n(i) Explain why OA is parallel to CB.\n(ii) Find the distance LA.\n(iii) Find the distance AB between the two points where the beam touches the tanks.",
+    "questionText": "On a farm, two cylindrical water tanks stand on level ground. Seen from above, the smaller tank is a circle with centre O and radius 7 m and the larger tank is a circle with centre C and radius 14 m. A surveyor's laser L is placed on the line CO extended beyond O, with LO = 25 m. The laser beam just touches the smaller tank at A and then just touches the larger tank at B, both tanks lying on the same side of the beam LB.\nBased on the above information, answer the following questions:\n(i) Explain why OA is parallel to CB. [1 mark]\n(ii) Find the distance LA. [1 mark]\n(iii) Find the distance AB between the two points where the beam touches the tanks. [2 marks]",
     "options": [],
     "answer": "(i) both ⊥ LB (ii) 24 m (iii) 24 m",
     "solutionSteps": [
@@ -1942,7 +1942,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In a grain warehouse, two straight conveyor belts start from a point T and pass over a large circular drum with centre O, each belt just touching the drum, at P and Q. The angle between the two belts is ∠PTQ = 64°. A straight support rod joins P and Q.\nBased on the above information, answer the following questions:\n(i) Find ∠POQ.\n(ii) Find ∠TPQ, giving a reason.\n(iii) Find ∠OPQ and verify that ∠PTQ = 2∠OPQ.",
+    "questionText": "In a grain warehouse, two straight conveyor belts start from a point T and pass over a large circular drum with centre O, each belt just touching the drum, at P and Q. The angle between the two belts is ∠PTQ = 64°. A straight support rod joins P and Q.\nBased on the above information, answer the following questions:\n(i) Find ∠POQ. [1 mark]\n(ii) Find ∠TPQ, giving a reason. [1 mark]\n(iii) Find ∠OPQ and verify that ∠PTQ = 2∠OPQ. [2 marks]",
     "options": [],
     "answer": "(i) 116° (ii) 58° (iii) 32°; 2 × 32° = 64°",
     "solutionSteps": [
@@ -1969,7 +1969,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A football of radius 15 cm rests on the floor in the corner of a room, touching the floor and one wall, which are at right angles. In the vertical cross-section through the centre O of the ball, the ball is a circle touching the floor at A and the wall at B, and P is the corner where the floor meets the wall. Arjun places a straight stick in the same cross-section so that it touches the ball at a point C on the side facing the corner, with one end X on the floor between P and A and the other end Y on the wall between P and B. (Use √2 = 1.414.)\nBased on the above information, answer the following questions:\n(i) Show that OAPB is a square and write the length PA.\n(ii) Find the distance OP from the corner to the centre of the ball.\n(iii) Find the perimeter of the triangle PXY formed by the floor, the wall and the stick.",
+    "questionText": "A football of radius 15 cm rests on the floor in the corner of a room, touching the floor and one wall, which are at right angles. In the vertical cross-section through the centre O of the ball, the ball is a circle touching the floor at A and the wall at B, and P is the corner where the floor meets the wall. Arjun places a straight stick in the same cross-section so that it touches the ball at a point C on the side facing the corner, with one end X on the floor between P and A and the other end Y on the wall between P and B. (Use √2 = 1.414.)\nBased on the above information, answer the following questions:\n(i) Show that OAPB is a square and write the length PA. [1 mark]\n(ii) Find the distance OP from the corner to the centre of the ball. [1 mark]\n(iii) Find the perimeter of the triangle PXY formed by the floor, the wall and the stick. [2 marks]",
     "options": [],
     "answer": "(i) square, PA = 15 cm (ii) 15√2 cm ≈ 21.21 cm (iii) 30 cm",
     "solutionSteps": [
@@ -1996,7 +1996,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A decorative steel plate (thali) has an outer rim and a smaller circle painted on it, both with centre O. The painted circle has radius 9 cm. A straight line of beads AB, 24 cm long, is glued on the plate with its ends A and B on the outer rim, so that it just touches the painted circle at M. A second straight line of beads CD, with ends on the outer rim, just touches the painted circle at N, where N is the point of the painted circle diametrically opposite M.\nBased on the above information, answer the following questions:\n(i) Find the length AM, giving a reason.\n(ii) Find the radius of the outer rim.\n(iii) Show that AB ∥ CD and find the distance between the two lines of beads.",
+    "questionText": "A decorative steel plate (thali) has an outer rim and a smaller circle painted on it, both with centre O. The painted circle has radius 9 cm. A straight line of beads AB, 24 cm long, is glued on the plate with its ends A and B on the outer rim, so that it just touches the painted circle at M. A second straight line of beads CD, with ends on the outer rim, just touches the painted circle at N, where N is the point of the painted circle diametrically opposite M.\nBased on the above information, answer the following questions:\n(i) Find the length AM, giving a reason. [1 mark]\n(ii) Find the radius of the outer rim. [1 mark]\n(iii) Show that AB ∥ CD and find the distance between the two lines of beads. [2 marks]",
     "options": [],
     "answer": "(i) 12 cm (ii) 15 cm (iii) 18 cm",
     "solutionSteps": [
@@ -2023,7 +2023,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A traffic island is in the shape of an equilateral triangle ABC of side 18 m. A circular base for a lamp post, with centre O, is laid inside it so that its edge touches all three sides: AB at P, BC at Q and CA at R. (Use √3 = 1.732.)\nBased on the above information, answer the following questions:\n(i) Show that P is the midpoint of AB and write AP.\n(ii) Find ∠OAP, giving a reason.\n(iii) Find the radius of the circular base.",
+    "questionText": "A traffic island is in the shape of an equilateral triangle ABC of side 18 m. A circular base for a lamp post, with centre O, is laid inside it so that its edge touches all three sides: AB at P, BC at Q and CA at R. (Use √3 = 1.732.)\nBased on the above information, answer the following questions:\n(i) Show that P is the midpoint of AB and write AP. [1 mark]\n(ii) Find ∠OAP, giving a reason. [1 mark]\n(iii) Find the radius of the circular base. [2 marks]",
     "options": [],
     "answer": "(i) AP = 9 m (ii) 30° (iii) 3√3 m ≈ 5.196 m",
     "solutionSteps": [
@@ -2050,7 +2050,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A circular sports field has centre O and diameter AB = 50 m. A straight service road touches the field at A. A bus is parked on the road at P, 120 m from A. From the bus, a second straight path PC is laid that just touches the field at another point C.\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠PAB? Give a reason.\n(ii) Find the length of the path PC, giving a reason.\n(iii) Find the straight-line distance PB from the bus to the far end B of the diameter.",
+    "questionText": "A circular sports field has centre O and diameter AB = 50 m. A straight service road touches the field at A. A bus is parked on the road at P, 120 m from A. From the bus, a second straight path PC is laid that just touches the field at another point C.\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠PAB? Give a reason. [1 mark]\n(ii) Find the length of the path PC, giving a reason. [1 mark]\n(iii) Find the straight-line distance PB from the bus to the far end B of the diameter. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) 120 m (iii) 130 m",
     "solutionSteps": [
@@ -2077,7 +2077,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A circular mango orchard has centre O and radius 12 m. The gate P is 20 m from O. Two straight fences PA and PB run from the gate and just touch the boundary of the orchard at A and B. A straight cable AB joins the two points of contact, crossing OP at M.\nBased on the above information, answer the following questions:\n(i) Find the length of the fence PA.\n(ii) Explain why OP is perpendicular to AB and M is the midpoint of AB.\n(iii) Find the length of the cable AB.",
+    "questionText": "A circular mango orchard has centre O and radius 12 m. The gate P is 20 m from O. Two straight fences PA and PB run from the gate and just touch the boundary of the orchard at A and B. A straight cable AB joins the two points of contact, crossing OP at M.\nBased on the above information, answer the following questions:\n(i) Find the length of the fence PA. [1 mark]\n(ii) Explain why OP is perpendicular to AB and M is the midpoint of AB. [1 mark]\n(iii) Find the length of the cable AB. [2 marks]",
     "options": [],
     "answer": "(i) 16 m (ii) OP is the perpendicular bisector of AB (iii) 19.2 m",
     "solutionSteps": [
@@ -2104,7 +2104,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A circular water tank, seen from above, has centre O and radius 15 m. Two straight steel cables are tied to a hook T on the ground and just touch the tank at P and Q. A straight pipe joins P and Q; it is 24 m long and crosses the line OT at M.\nBased on the above information, answer the following questions:\n(i) Find the distance OM of the pipe from the centre of the tank.\n(ii) Show that △OMP ~ △OPT.\n(iii) Find the distance OT and the length of each cable TP.",
+    "questionText": "A circular water tank, seen from above, has centre O and radius 15 m. Two straight steel cables are tied to a hook T on the ground and just touch the tank at P and Q. A straight pipe joins P and Q; it is 24 m long and crosses the line OT at M.\nBased on the above information, answer the following questions:\n(i) Find the distance OM of the pipe from the centre of the tank. [1 mark]\n(ii) Show that △OMP ~ △OPT. [1 mark]\n(iii) Find the distance OT and the length of each cable TP. [2 marks]",
     "options": [],
     "answer": "(i) 9 m (ii) AA similarity (iii) OT = 25 m, TP = 20 m",
     "solutionSteps": [
@@ -2131,7 +2131,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Anjali fixes a circular embroidery hoop with centre O on a table. She holds a needle at a point P, 41 cm from O, and stretches the thread straight from P so that it just touches the hoop at A. The straight thread PA is 40 cm long.\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠OAP? Give a reason.\n(ii) Find the radius of the hoop.\n(iii) Find the shortest and the longest distance from P to a point on the hoop.",
+    "questionText": "Anjali fixes a circular embroidery hoop with centre O on a table. She holds a needle at a point P, 41 cm from O, and stretches the thread straight from P so that it just touches the hoop at A. The straight thread PA is 40 cm long.\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠OAP? Give a reason. [1 mark]\n(ii) Find the radius of the hoop. [1 mark]\n(iii) Find the shortest and the longest distance from P to a point on the hoop. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) 9 cm (iii) 32 cm, 50 cm",
     "solutionSteps": [
@@ -2158,7 +2158,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A circular racing track has centre O and radius 40 m. Two straight approach roads meet at a point T outside the track and just touch the track at P and Q. A straight footbridge joins P and Q. The footbridge subtends an angle ∠POQ = 120° at the centre. (Use √3 = 1.732.)\nBased on the above information, answer the following questions:\n(i) Find the angle ∠PTQ between the two approach roads.\n(ii) Show that △TPQ is equilateral.\n(iii) Find the length of the footbridge PQ and hence the length of each approach road TP.",
+    "questionText": "A circular racing track has centre O and radius 40 m. Two straight approach roads meet at a point T outside the track and just touch the track at P and Q. A straight footbridge joins P and Q. The footbridge subtends an angle ∠POQ = 120° at the centre. (Use √3 = 1.732.)\nBased on the above information, answer the following questions:\n(i) Find the angle ∠PTQ between the two approach roads. [1 mark]\n(ii) Show that △TPQ is equilateral. [1 mark]\n(iii) Find the length of the footbridge PQ and hence the length of each approach road TP. [2 marks]",
     "options": [],
     "answer": "(i) 60° (ii) equilateral (iii) PQ = TP = 40√3 m ≈ 69.28 m",
     "solutionSteps": [
@@ -2185,7 +2185,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Neha has a rectangular photo frame 30 cm long and 20 cm wide. She wants to place a circular photograph inside it so that the photograph touches all four sides of the frame.\nBased on the above information, answer the following questions:\n(i) Can a circle touch all four sides of this frame? Justify.\n(ii) Find the radius of the largest circular photograph that touches both the long sides and one short side of the frame.\n(iii) Neha instead buys a square frame with the same perimeter as the rectangular one. Find the radius of the circular photograph that touches all four sides of the square frame.",
+    "questionText": "Neha has a rectangular photo frame 30 cm long and 20 cm wide. She wants to place a circular photograph inside it so that the photograph touches all four sides of the frame.\nBased on the above information, answer the following questions:\n(i) Can a circle touch all four sides of this frame? Justify. [1 mark]\n(ii) Find the radius of the largest circular photograph that touches both the long sides and one short side of the frame. [1 mark]\n(iii) Neha instead buys a square frame with the same perimeter as the rectangular one. Find the radius of the circular photograph that touches all four sides of the square frame. [2 marks]",
     "options": [],
     "answer": "(i) No (ii) 10 cm (iii) 12.5 cm",
     "solutionSteps": [
@@ -2212,7 +2212,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "A circular garden has centre O and radius 10 m. The gardener plans straight footpaths that just touch the edge of the garden at one point. Three lamp posts stand at X, 6 m from O; at Y, exactly on the edge of the garden; and at Z, 26 m from O.\nBased on the above information, answer the following questions:\n(i) How many such footpaths can start from the lamp post at X? Justify.\n(ii) How many such footpaths can start from Y, and what angle does it make with OY?\n(iii) How many such footpaths can start from Z, and how long is each, measured from Z to its point of contact?",
+    "questionText": "A circular garden has centre O and radius 10 m. The gardener plans straight footpaths that just touch the edge of the garden at one point. Three lamp posts stand at X, 6 m from O; at Y, exactly on the edge of the garden; and at Z, 26 m from O.\nBased on the above information, answer the following questions:\n(i) How many such footpaths can start from the lamp post at X? Justify. [1 mark]\n(ii) How many such footpaths can start from Y, and what angle does it make with OY? [1 mark]\n(iii) How many such footpaths can start from Z, and how long is each, measured from Z to its point of contact? [2 marks]",
     "options": [],
     "answer": "(i) 0 (ii) 1, 90° (iii) 2, each 24 m",
     "solutionSteps": [
@@ -2239,7 +2239,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A factory conveyor belt runs around two equal rollers. Seen from the side, each roller is a circle of radius 0.5 m; their centres O and C are 6 m apart. The upper straight part AB of the belt touches the first roller at A and the second at B, and the lower straight part DE touches the first roller at D and the second at E, both straight parts being parallel to OC.\nBased on the above information, answer the following questions:\n(i) What is the angle between the belt AB and the radius OA? Give a reason.\n(ii) Show that OABC is a rectangle and find the length AB.\n(iii) Find the distance between the upper and lower straight parts of the belt, and the total length of the two straight parts.",
+    "questionText": "A factory conveyor belt runs around two equal rollers. Seen from the side, each roller is a circle of radius 0.5 m; their centres O and C are 6 m apart. The upper straight part AB of the belt touches the first roller at A and the second at B, and the lower straight part DE touches the first roller at D and the second at E, both straight parts being parallel to OC.\nBased on the above information, answer the following questions:\n(i) What is the angle between the belt AB and the radius OA? Give a reason. [1 mark]\n(ii) Show that OABC is a rectangle and find the length AB. [1 mark]\n(iii) Find the distance between the upper and lower straight parts of the belt, and the total length of the two straight parts. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) AB = 6 m (iii) 1 m, 12 m",
     "solutionSteps": [
@@ -2266,7 +2266,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "An old haveli has a courtyard ABCD in the shape of a quadrilateral. A circular fountain with centre O is built in it so that its edge touches all four walls AB, BC, CD and DA, at P, Q, R and S respectively. An architect measures the angle between the lines joining the centre to the corners A and B, and finds ∠AOB = 115°.\nBased on the above information, answer the following questions:\n(i) Show that OA bisects ∠DAB.\n(ii) Express ∠OAB + ∠OBA in terms of ∠A and ∠B of the courtyard.\n(iii) Show that ∠AOB + ∠COD = 180° and find ∠COD.",
+    "questionText": "An old haveli has a courtyard ABCD in the shape of a quadrilateral. A circular fountain with centre O is built in it so that its edge touches all four walls AB, BC, CD and DA, at P, Q, R and S respectively. An architect measures the angle between the lines joining the centre to the corners A and B, and finds ∠AOB = 115°.\nBased on the above information, answer the following questions:\n(i) Show that OA bisects ∠DAB. [1 mark]\n(ii) Express ∠OAB + ∠OBA in terms of ∠A and ∠B of the courtyard. [1 mark]\n(iii) Show that ∠AOB + ∠COD = 180° and find ∠COD. [2 marks]",
     "options": [],
     "answer": "(i) △OAP ≅ △OAS (ii) ½(∠A + ∠B) (iii) ∠COD = 65°",
     "solutionSteps": [
@@ -2293,7 +2293,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A circular stage has centre O. A straight rope is tied along the front of the stage so that it just touches the edge of the stage at A; T is a point on the rope. A straight red carpet AC is laid from A to another point C on the edge of the stage, on the same side of OA as T, so that the carpet makes an angle ∠CAT = 40° with the rope.\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠OAT? Give a reason.\n(ii) Find ∠OAC and ∠OCA.\n(iii) Find ∠AOC and show that ∠CAT = ½∠AOC.",
+    "questionText": "A circular stage has centre O. A straight rope is tied along the front of the stage so that it just touches the edge of the stage at A; T is a point on the rope. A straight red carpet AC is laid from A to another point C on the edge of the stage, on the same side of OA as T, so that the carpet makes an angle ∠CAT = 40° with the rope.\nBased on the above information, answer the following questions:\n(i) What is the measure of ∠OAT? Give a reason. [1 mark]\n(ii) Find ∠OAC and ∠OCA. [1 mark]\n(iii) Find ∠AOC and show that ∠CAT = ½∠AOC. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) 50°, 50° (iii) 80°",
     "solutionSteps": [
@@ -2320,7 +2320,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A circular helipad has centre O and radius 9 m. From a control booth P outside the helipad, two straight guide-lines of lights PA and PB are laid so that each just touches the edge of the helipad, at A and B respectively. The guide-line PA is 12 m long.\n(a) Prove that the lengths of the tangents drawn from an external point to a circle are equal.\n(b) Hence find the length of PB and the distance OP of the booth from the centre.\n(c) A painted border is to be drawn along the boundary of the region OAPB (along OA, AP, PB and BO). Find the cost of painting it at ₹80 per metre.",
+    "questionText": "A circular helipad has centre O and radius 9 m. From a control booth P outside the helipad, two straight guide-lines of lights PA and PB are laid so that each just touches the edge of the helipad, at A and B respectively. The guide-line PA is 12 m long.\n(a) Prove that the lengths of the tangents drawn from an external point to a circle are equal. [2 marks]\n(b) Hence find the length of PB and the distance OP of the booth from the centre. [1 mark]\n(c) A painted border is to be drawn along the boundary of the region OAPB (along OA, AP, PB and BO). Find the cost of painting it at ₹80 per metre. [2 marks]",
     "options": [],
     "answer": "(a) △OAP ≅ △OBP (RHS) ⇒ PA = PB; (b) PB = 12 m, OP = 15 m; (c) cost = ₹3360",
     "solutionSteps": [
@@ -2348,7 +2348,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A quadrilateral lawn ABCD is laid around a circular well so that each of its four straight edges AB, BC, CD and DA touches the rim of the well. The edges measure AB = 14 m, BC = 17 m and CD = 19 m; the edge DA has not been measured.\n(a) Prove that for a quadrilateral ABCD circumscribing a circle, AB + CD = AD + BC.\n(b) Find the length of the edge DA.\n(c) A hedge is to be planted along all four edges of the lawn at ₹45 per metre. Find the total cost.",
+    "questionText": "A quadrilateral lawn ABCD is laid around a circular well so that each of its four straight edges AB, BC, CD and DA touches the rim of the well. The edges measure AB = 14 m, BC = 17 m and CD = 19 m; the edge DA has not been measured.\n(a) Prove that for a quadrilateral ABCD circumscribing a circle, AB + CD = AD + BC. [2 marks]\n(b) Find the length of the edge DA. [1 mark]\n(c) A hedge is to be planted along all four edges of the lawn at ₹45 per metre. Find the total cost. [2 marks]",
     "options": [],
     "answer": "(a) Using equal tangents from each vertex, AB + CD = AD + BC; (b) DA = 16 m; (c) cost = ₹2970",
     "solutionSteps": [
@@ -2376,7 +2376,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A shop signboard is cut in the shape of a triangle ABC, right-angled at B. A circular logo of radius 30 cm with centre O is painted on it so that the logo touches all three edges: AB at P, BC at Q and CA at R. The edge AB is 150 cm long, and the logo touches the edge CA at R with AR = 120 cm. Let CR = x cm.\n(a) Show that BPOQ is a square, and hence that BQ = 30 cm.\n(b) Find x and the lengths of BC and CA.\n(c) An LED strip is fixed along all three edges of the board at ₹90 per metre. Find its cost.",
+    "questionText": "A shop signboard is cut in the shape of a triangle ABC, right-angled at B. A circular logo of radius 30 cm with centre O is painted on it so that the logo touches all three edges: AB at P, BC at Q and CA at R. The edge AB is 150 cm long, and the logo touches the edge CA at R with AR = 120 cm. Let CR = x cm.\n(a) Show that BPOQ is a square, and hence that BQ = 30 cm. [2 marks]\n(b) Find x and the lengths of BC and CA. [2 marks]\n(c) An LED strip is fixed along all three edges of the board at ₹90 per metre. Find its cost. [1 mark]",
     "options": [],
     "answer": "(a) BPOQ has three right angles and OP = OQ, so it is a square; BQ = 30 cm; (b) x = 50, BC = 80 cm, CA = 170 cm; (c) cost = ₹360",
     "solutionSteps": [
@@ -2404,7 +2404,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A circular sports stadium is designed with two concentric circles centred at O: the inner boundary of the playing field has radius 33 m and the outer wall has radius 65 m. A straight camera rail AB is fixed with both ends A and B on the outer wall, such that the rail just touches the inner boundary at the point P.\n(a) Prove that P is the mid-point of the rail AB.\n(b) Find the length of the rail AB.\n(c) Find the cost of the rail at ₹500 per metre.",
+    "questionText": "A circular sports stadium is designed with two concentric circles centred at O: the inner boundary of the playing field has radius 33 m and the outer wall has radius 65 m. A straight camera rail AB is fixed with both ends A and B on the outer wall, such that the rail just touches the inner boundary at the point P.\n(a) Prove that P is the mid-point of the rail AB. [2 marks]\n(b) Find the length of the rail AB. [2 marks]\n(c) Find the cost of the rail at ₹500 per metre. [1 mark]",
     "options": [],
     "answer": "(a) OP ⊥ AB and △OPA ≅ △OPB (RHS) ⇒ AP = PB; (b) AB = 112 m; (c) cost = ₹56000",
     "solutionSteps": [
@@ -2432,7 +2432,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A drive belt leaves a circular pulley of radius 10 cm (centre O) at the points A and B and runs in two straight pieces PA and PB to a small hook P, each piece just touching the pulley. The two pieces of belt meet at P at an angle ∠APB = 60°.\n(a) Prove that ∠AOB + ∠APB = 180° and find ∠AOB.\n(b) Find the distance OP of the hook from the centre of the pulley.\n(c) Find the length PA of one straight piece of belt. (Use √3 = 1.732.)",
+    "questionText": "A drive belt leaves a circular pulley of radius 10 cm (centre O) at the points A and B and runs in two straight pieces PA and PB to a small hook P, each piece just touching the pulley. The two pieces of belt meet at P at an angle ∠APB = 60°.\n(a) Prove that ∠AOB + ∠APB = 180° and find ∠AOB. [2 marks]\n(b) Find the distance OP of the hook from the centre of the pulley. [2 marks]\n(c) Find the length PA of one straight piece of belt. (Use √3 = 1.732.) [1 mark]",
     "options": [],
     "answer": "(a) ∠AOB = 120°; (b) OP = 20 cm; (c) PA = 10√3 ≈ 17.32 cm",
     "solutionSteps": [
@@ -2460,7 +2460,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A circular roundabout with centre O lies between two straight parallel roads l and m, each of which just touches the edge of the roundabout: road l at X and road m at Y. A third straight road touches the roundabout at C and meets road l at A and road m at B. A traffic survey records AC = 9 m and BC = 16 m. Let the radius of the roundabout be r m.\n(a) Prove that ∠AOB = 90°.\n(b) Find the radius r of the roundabout.\n(c) Find the distance between the two parallel roads.",
+    "questionText": "A circular roundabout with centre O lies between two straight parallel roads l and m, each of which just touches the edge of the roundabout: road l at X and road m at Y. A third straight road touches the roundabout at C and meets road l at A and road m at B. A traffic survey records AC = 9 m and BC = 16 m. Let the radius of the roundabout be r m.\n(a) Prove that ∠AOB = 90°. [2 marks]\n(b) Find the radius r of the roundabout. [2 marks]\n(c) Find the distance between the two parallel roads. [1 mark]",
     "options": [],
     "answer": "(a) OA and OB bisect the co-interior angles at A and B, so ∠AOB = 90°; (b) r = 12 m; (c) 24 m",
     "solutionSteps": [
@@ -2488,7 +2488,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A circular lake has centre O and radius 15 m. A boathouse P in the park is 25 m from O. Two straight wooden jetties PA and PB are built from P, each just touching the edge of the lake, at A and B respectively. A straight footbridge is then built across the water from A to B.\n(a) Find the length of each jetty.\n(b) Find the area of the region OAPB enclosed by the radii OA, OB and the two jetties.\n(c) Prove that OP is perpendicular to AB, and hence find the length of the footbridge AB.",
+    "questionText": "A circular lake has centre O and radius 15 m. A boathouse P in the park is 25 m from O. Two straight wooden jetties PA and PB are built from P, each just touching the edge of the lake, at A and B respectively. A straight footbridge is then built across the water from A to B.\n(a) Find the length of each jetty. [1 mark]\n(b) Find the area of the region OAPB enclosed by the radii OA, OB and the two jetties. [1 mark]\n(c) Prove that OP is perpendicular to AB, and hence find the length of the footbridge AB. [3 marks]",
     "options": [],
     "answer": "(a) PA = PB = 20 m; (b) 300 m²; (c) AB = 24 m",
     "solutionSteps": [
@@ -2516,7 +2516,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A scale model of a triangular road-warning sign ABC has AB = AC = 10 cm and BC = 12 cm. A circular reflector with centre O is fixed on the model so that it touches all three edges: BC at D, CA at E and AB at F.\n(a) Prove that D is the mid-point of BC.\n(b) Find the length AF, from the vertex A to the point where the reflector touches AB.\n(c) Find the radius of the reflector.",
+    "questionText": "A scale model of a triangular road-warning sign ABC has AB = AC = 10 cm and BC = 12 cm. A circular reflector with centre O is fixed on the model so that it touches all three edges: BC at D, CA at E and AB at F.\n(a) Prove that D is the mid-point of BC. [2 marks]\n(b) Find the length AF, from the vertex A to the point where the reflector touches AB. [1 mark]\n(c) Find the radius of the reflector. [2 marks]",
     "options": [],
     "answer": "(a) Equal tangents with AB = AC give BD = CD; (b) AF = 4 cm; (c) r = 3 cm",
     "solutionSteps": [
@@ -2544,7 +2544,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "A cylindrical water tank lies on its side, so that its cross-section is a circle with centre O. Two straight roof beams PA and PB, from the apex P of a shed, rest on the tank and just touch its circular cross-section at A and B. A straight tie-rod joins A and B. The beams meet at the apex at an angle ∠APB = 70°.\n(a) Prove that ∠APB = 2∠OAB.\n(b) Find ∠PAB and ∠OAB.\n(c) Find the angle ∠AOB between the radii to the points of contact.",
+    "questionText": "A cylindrical water tank lies on its side, so that its cross-section is a circle with centre O. Two straight roof beams PA and PB, from the apex P of a shed, rest on the tank and just touch its circular cross-section at A and B. A straight tie-rod joins A and B. The beams meet at the apex at an angle ∠APB = 70°.\n(a) Prove that ∠APB = 2∠OAB. [2 marks]\n(b) Find ∠PAB and ∠OAB. [2 marks]\n(c) Find the angle ∠AOB between the radii to the points of contact. [1 mark]",
     "options": [],
     "answer": "(a) Proof using PA = PB and OA ⊥ PA; (b) ∠PAB = 55°, ∠OAB = 35°; (c) ∠AOB = 110°",
     "solutionSteps": [
@@ -2572,7 +2572,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A circular stage has centre O and radius 7 m. A spotlight tower P stands 25 m from O. Two straight rope barriers PA and PB run from the tower and just touch the edge of the stage at A and B. A third straight rope barrier CD just touches the stage at a point E on the nearer arc between A and B, with C on PA and D on PB, so that the ropes PC, CD and DP enclose a triangular waiting area.\n(a) Find the length PA.\n(b) Prove that the perimeter of △PCD equals PA + PB.\n(c) Find the cost of the rope for the three sides of △PCD at ₹40 per metre.",
+    "questionText": "A circular stage has centre O and radius 7 m. A spotlight tower P stands 25 m from O. Two straight rope barriers PA and PB run from the tower and just touch the edge of the stage at A and B. A third straight rope barrier CD just touches the stage at a point E on the nearer arc between A and B, with C on PA and D on PB, so that the ropes PC, CD and DP enclose a triangular waiting area.\n(a) Find the length PA. [1 mark]\n(b) Prove that the perimeter of △PCD equals PA + PB. [3 marks]\n(c) Find the cost of the rope for the three sides of △PCD at ₹40 per metre. [1 mark]",
     "options": [],
     "answer": "(a) PA = 24 m; (b) perimeter = PA + PB = 48 m; (c) cost = ₹1920",
     "solutionSteps": [
@@ -2600,7 +2600,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A carpenter makes a quadrilateral table top ABCD with ∠D = 90°. A circular glass inlay with centre O is set into it so that the inlay touches all four edges: AB at P, BC at Q, CD at R and DA at S. The carpenter measures BC = 55 cm, CD = 35 cm and BQ = 40 cm. Let the radius of the inlay be r cm.\n(a) Find the length CR.\n(b) Show that ORDS is a square and hence find r.\n(c) Find the distance OC from the centre of the inlay to the corner C.",
+    "questionText": "A carpenter makes a quadrilateral table top ABCD with ∠D = 90°. A circular glass inlay with centre O is set into it so that the inlay touches all four edges: AB at P, BC at Q, CD at R and DA at S. The carpenter measures BC = 55 cm, CD = 35 cm and BQ = 40 cm. Let the radius of the inlay be r cm.\n(a) Find the length CR. [2 marks]\n(b) Show that ORDS is a square and hence find r. [1 mark]\n(c) Find the distance OC from the centre of the inlay to the corner C. [2 marks]",
     "options": [],
     "answer": "(a) CR = 15 cm; (b) ORDS is a square, r = 20 cm; (c) OC = 25 cm",
     "solutionSteps": [

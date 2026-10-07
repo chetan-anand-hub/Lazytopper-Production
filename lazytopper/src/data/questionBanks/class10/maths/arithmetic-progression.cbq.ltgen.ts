@@ -1723,7 +1723,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A stepwell (baori) in a Rajasthan village is being restored. Its front wall has 15 horizontal stone steps going down to the water. The topmost step is 42 m long and each step below it is 2 m shorter than the step just above it. The restoration team will fix a brass strip along the front edge of every step.\nBased on the above information, answer the following questions:\n(i) Find the length of the 8th step from the top.\n(ii) Which step from the top is 18 m long?\n(iii) Find the total length of brass strip needed for all 15 steps.",
+    "questionText": "A stepwell (baori) in a Rajasthan village is being restored. Its front wall has 15 horizontal stone steps going down to the water. The topmost step is 42 m long and each step below it is 2 m shorter than the step just above it. The restoration team will fix a brass strip along the front edge of every step.\nBased on the above information, answer the following questions:\n(i) Find the length of the 8th step from the top. [1 mark]\n(ii) Which step from the top is 18 m long? [1 mark]\n(iii) Find the total length of brass strip needed for all 15 steps. [2 marks]",
     "options": [],
     "answer": "(i) 28 m (ii) 13th step (iii) 420 m",
     "solutionSteps": [
@@ -1750,7 +1750,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "The clock on a town-hall tower strikes the hours: it chimes once at 1 o'clock, twice at 2 o'clock, and so on up to 12 chimes at 12 o'clock, after which the pattern repeats. In addition, it gives one single chime at every half hour (1:30, 2:30, and so on).\nBased on the above information, answer the following questions:\n(i) Counting only the hourly chimes, how many chimes are struck from 1 o'clock to 7 o'clock (both included)?\n(ii) Find the total number of hourly chimes from 1 o'clock to 12 o'clock.\n(iii) Find the total number of chimes (hourly and half-hourly) the clock makes in one full day of 24 hours.",
+    "questionText": "The clock on a town-hall tower strikes the hours: it chimes once at 1 o'clock, twice at 2 o'clock, and so on up to 12 chimes at 12 o'clock, after which the pattern repeats. In addition, it gives one single chime at every half hour (1:30, 2:30, and so on).\nBased on the above information, answer the following questions:\n(i) Counting only the hourly chimes, how many chimes are struck from 1 o'clock to 7 o'clock (both included)? [1 mark]\n(ii) Find the total number of hourly chimes from 1 o'clock to 12 o'clock. [1 mark]\n(iii) Find the total number of chimes (hourly and half-hourly) the clock makes in one full day of 24 hours. [2 marks]",
     "options": [],
     "answer": "(i) 28 (ii) 78 (iii) 180 chimes",
     "solutionSteps": [
@@ -1777,7 +1777,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A drama theatre has 16 rows of seats with 30 seats in every row. Ticket prices depend on the row: a seat in row 1 (nearest the stage) costs ₹900 and every row further back costs ₹40 less than the row just in front of it.\nBased on the above information, answer the following questions:\n(i) Find the price of a ticket in row 10.\n(ii) In which row does a ticket cost ₹420?\n(iii) Find the total money collected when every seat in the theatre is sold.",
+    "questionText": "A drama theatre has 16 rows of seats with 30 seats in every row. Ticket prices depend on the row: a seat in row 1 (nearest the stage) costs ₹900 and every row further back costs ₹40 less than the row just in front of it.\nBased on the above information, answer the following questions:\n(i) Find the price of a ticket in row 10. [1 mark]\n(ii) In which row does a ticket cost ₹420? [1 mark]\n(iii) Find the total money collected when every seat in the theatre is sold. [2 marks]",
     "options": [],
     "answer": "(i) ₹540 (ii) Row 13 (iii) ₹288000",
     "solutionSteps": [
@@ -1804,7 +1804,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In a mobile puzzle game, clearing level 1 needs 120 experience points (XP), and every next level needs 30 XP more than the level before it. Levels must be cleared in order and the XP used for a level is spent.\nBased on the above information, answer the following questions:\n(i) How many XP are needed to clear level 9?\n(ii) Find the total XP needed to clear the first 9 levels.\n(iii) Tanvi has collected exactly 4950 XP and spends all of them on clearing levels from level 1 onwards. How many levels does she clear?",
+    "questionText": "In a mobile puzzle game, clearing level 1 needs 120 experience points (XP), and every next level needs 30 XP more than the level before it. Levels must be cleared in order and the XP used for a level is spent.\nBased on the above information, answer the following questions:\n(i) How many XP are needed to clear level 9? [1 mark]\n(ii) Find the total XP needed to clear the first 9 levels. [1 mark]\n(iii) Tanvi has collected exactly 4950 XP and spends all of them on clearing levels from level 1 onwards. How many levels does she clear? [2 marks]",
     "options": [],
     "answer": "(i) 360 XP (ii) 2160 XP (iii) 15 levels",
     "solutionSteps": [
@@ -1831,7 +1831,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "During a 40 km charity cycle ride, water stations are set up along the straight route. The first station is 3 km from the start line and after that a station is placed every 4 km, as long as it lies within the 40 km route. A support van starts at the start line, drives to station 1 and back to the start line, then to station 2 and back, and so on until every station has been served once.\nBased on the above information, answer the following questions:\n(i) How far from the start line is the 7th station?\n(ii) How many water stations are there on the route?\n(iii) Find the total distance driven by the van to serve all the stations and return to the start line.",
+    "questionText": "During a 40 km charity cycle ride, water stations are set up along the straight route. The first station is 3 km from the start line and after that a station is placed every 4 km, as long as it lies within the 40 km route. A support van starts at the start line, drives to station 1 and back to the start line, then to station 2 and back, and so on until every station has been served once.\nBased on the above information, answer the following questions:\n(i) How far from the start line is the 7th station? [1 mark]\n(ii) How many water stations are there on the route? [1 mark]\n(iii) Find the total distance driven by the van to serve all the stations and return to the start line. [2 marks]",
     "options": [],
     "answer": "(i) 27 km (ii) 10 stations (iii) 420 km",
     "solutionSteps": [
@@ -1858,7 +1858,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A toy company makes a wooden xylophone with 12 bars. The longest bar is 30 cm and each next bar is 1.5 cm shorter than the one before it, so that the notes rise in pitch.\nBased on the above information, answer the following questions:\n(i) Find the length of the shortest (12th) bar.\n(ii) Which bar is 21 cm long?\n(iii) Find the total length of wooden strip needed to cut all 12 bars, assuming no wastage.",
+    "questionText": "A toy company makes a wooden xylophone with 12 bars. The longest bar is 30 cm and each next bar is 1.5 cm shorter than the one before it, so that the notes rise in pitch.\nBased on the above information, answer the following questions:\n(i) Find the length of the shortest (12th) bar. [1 mark]\n(ii) Which bar is 21 cm long? [1 mark]\n(iii) Find the total length of wooden strip needed to cut all 12 bars, assuming no wastage. [2 marks]",
     "options": [],
     "answer": "(i) 13.5 cm (ii) 7th bar (iii) 261 cm",
     "solutionSteps": [
@@ -1885,7 +1885,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "At a tea estate in Assam, a new tea plucker is trained for 20 days. Her daily target is 18 kg of tea leaves on day 1 and the target rises by 1.5 kg every day. She meets her target exactly on every day of the training.\nBased on the above information, answer the following questions:\n(i) What is her target on day 9?\n(ii) On which day is her target 42 kg?\n(iii) Find the total quantity of tea leaves she plucks during the 20 days of training.",
+    "questionText": "At a tea estate in Assam, a new tea plucker is trained for 20 days. Her daily target is 18 kg of tea leaves on day 1 and the target rises by 1.5 kg every day. She meets her target exactly on every day of the training.\nBased on the above information, answer the following questions:\n(i) What is her target on day 9? [1 mark]\n(ii) On which day is her target 42 kg? [1 mark]\n(iii) Find the total quantity of tea leaves she plucks during the 20 days of training. [2 marks]",
     "options": [],
     "answer": "(i) 30 kg (ii) Day 17 (iii) 645 kg",
     "solutionSteps": [
@@ -1912,7 +1912,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A ropeway to a hill-top temple is supported by 20 towers. The base of the 1st tower is at an altitude of 1250 m above sea level and the base of each next tower is 18 m higher than that of the tower before it.\nBased on the above information, answer the following questions:\n(i) Find the altitude of the base of the 6th tower.\n(ii) Which tower has its base at an altitude of 1466 m?\n(iii) Find the altitude of the base of the last (20th) tower, and how much higher it is than the base of the 5th tower.",
+    "questionText": "A ropeway to a hill-top temple is supported by 20 towers. The base of the 1st tower is at an altitude of 1250 m above sea level and the base of each next tower is 18 m higher than that of the tower before it.\nBased on the above information, answer the following questions:\n(i) Find the altitude of the base of the 6th tower. [1 mark]\n(ii) Which tower has its base at an altitude of 1466 m? [1 mark]\n(iii) Find the altitude of the base of the last (20th) tower, and how much higher it is than the base of the 5th tower. [2 marks]",
     "options": [],
     "answer": "(i) 1340 m (ii) 13th tower (iii) 1592 m; 270 m higher than the 5th",
     "solutionSteps": [
@@ -1939,7 +1939,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "To prepare for a district swimming meet, Kunal trains in a 25 m pool, where one lap is one length of the pool. He swims 8 laps on day 1 and 2 more laps on each day than on the day before.\nBased on the above information, answer the following questions:\n(i) How many laps does he swim on day 12?\n(ii) What distance does he swim on day 12?\n(iii) Find the total distance he swims in the first 12 days, in kilometres.",
+    "questionText": "To prepare for a district swimming meet, Kunal trains in a 25 m pool, where one lap is one length of the pool. He swims 8 laps on day 1 and 2 more laps on each day than on the day before.\nBased on the above information, answer the following questions:\n(i) How many laps does he swim on day 12? [1 mark]\n(ii) What distance does he swim on day 12? [1 mark]\n(iii) Find the total distance he swims in the first 12 days, in kilometres. [2 marks]",
     "options": [],
     "answer": "(i) 30 laps (ii) 750 m (iii) 5.7 km",
     "solutionSteps": [
@@ -1966,7 +1966,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In a computer course, Ayesha's typing speed is tested once every week. Her speed is 22 words per minute (wpm) in week 1 and improves by 3 wpm every week. A data-entry job she wants needs a speed of at least 70 wpm. In each weekly test she types for exactly 5 minutes at that week's speed.\nBased on the above information, answer the following questions:\n(i) What is her typing speed in week 8?\n(ii) In which week does she first reach the speed needed for the job?\n(iii) Find the total number of words she types in the weekly tests of the first 10 weeks.",
+    "questionText": "In a computer course, Ayesha's typing speed is tested once every week. Her speed is 22 words per minute (wpm) in week 1 and improves by 3 wpm every week. A data-entry job she wants needs a speed of at least 70 wpm. In each weekly test she types for exactly 5 minutes at that week's speed.\nBased on the above information, answer the following questions:\n(i) What is her typing speed in week 8? [1 mark]\n(ii) In which week does she first reach the speed needed for the job? [1 mark]\n(iii) Find the total number of words she types in the weekly tests of the first 10 weeks. [2 marks]",
     "options": [],
     "answer": "(i) 43 wpm (ii) Week 17 (iii) 1775 words",
     "solutionSteps": [
@@ -1993,7 +1993,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In a chair-car coach of a train, seats are numbered 1 to 78. The window seats are numbered 1, 6, 11, 16, and so on, up to 76.\nBased on the above information, answer the following questions:\n(i) How many window seats are there in the coach?\n(ii) What is the seat number of the 10th window seat?\n(iii) A school group books all the seats numbered from 30 to 70 (both included). How many of these are window seats?",
+    "questionText": "In a chair-car coach of a train, seats are numbered 1 to 78. The window seats are numbered 1, 6, 11, 16, and so on, up to 76.\nBased on the above information, answer the following questions:\n(i) How many window seats are there in the coach? [1 mark]\n(ii) What is the seat number of the 10th window seat? [1 mark]\n(iii) A school group books all the seats numbered from 30 to 70 (both included). How many of these are window seats? [2 marks]",
     "options": [],
     "answer": "(i) 16 (ii) Seat 46 (iii) 8 window seats",
     "solutionSteps": [
@@ -2020,7 +2020,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A multi-level car park charges by the hour: ₹30 for the 1st hour, ₹50 for the 2nd hour, ₹70 for the 3rd hour, and so on, each hour costing ₹20 more than the hour before. The bill is the total of the charges for all the hours.\nBased on the above information, answer the following questions:\n(i) What is the charge for the 5th hour?\n(ii) Find the bill for parking a car for 5 hours.\n(iii) Mr. Sen has only ₹600. For how many complete hours can he park his car?",
+    "questionText": "A multi-level car park charges by the hour: ₹30 for the 1st hour, ₹50 for the 2nd hour, ₹70 for the 3rd hour, and so on, each hour costing ₹20 more than the hour before. The bill is the total of the charges for all the hours.\nBased on the above information, answer the following questions:\n(i) What is the charge for the 5th hour? [1 mark]\n(ii) Find the bill for parking a car for 5 hours. [1 mark]\n(iii) Mr. Sen has only ₹600. For how many complete hours can he park his car? [2 marks]",
     "options": [],
     "answer": "(i) ₹110 (ii) ₹350 (iii) 6 hours",
     "solutionSteps": [
@@ -2047,7 +2047,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "At a city bus terminal, the first bus of the day on route 21 leaves at 6:00 a.m. After that a bus leaves every 12 minutes. The last bus of the day leaves at 9:36 p.m.\nBased on the above information, answer the following questions:\n(i) At what time does the 15th bus leave?\n(ii) At what time does the 30th bus leave?\n(iii) How many buses leave on route 21 in a day?",
+    "questionText": "At a city bus terminal, the first bus of the day on route 21 leaves at 6:00 a.m. After that a bus leaves every 12 minutes. The last bus of the day leaves at 9:36 p.m.\nBased on the above information, answer the following questions:\n(i) At what time does the 15th bus leave? [1 mark]\n(ii) At what time does the 30th bus leave? [1 mark]\n(iii) How many buses leave on route 21 in a day? [2 marks]",
     "options": [],
     "answer": "(i) 8:48 a.m. (ii) 11:48 a.m. (iii) 79 buses",
     "solutionSteps": [
@@ -2074,7 +2074,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A trekking group climbs towards a Himalayan pass. On day 1 they gain 600 m in height, and because of the thinning air they gain 40 m less on each day than on the day before. The pass is 4200 m above their starting point.\nBased on the above information, answer the following questions:\n(i) How much height do they gain on day 5?\n(ii) Find the total height gained in the first 5 days.\n(iii) On which day do they reach the pass? Give a reason for rejecting any other value you get.",
+    "questionText": "A trekking group climbs towards a Himalayan pass. On day 1 they gain 600 m in height, and because of the thinning air they gain 40 m less on each day than on the day before. The pass is 4200 m above their starting point.\nBased on the above information, answer the following questions:\n(i) How much height do they gain on day 5? [1 mark]\n(ii) Find the total height gained in the first 5 days. [1 mark]\n(iii) On which day do they reach the pass? Give a reason for rejecting any other value you get. [2 marks]",
     "options": [],
     "answer": "(i) 440 m (ii) 2600 m (iii) Day 10 (n = 21 rejected as a₂₁ < 0)",
     "solutionSteps": [
@@ -2101,7 +2101,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In the month of March (31 days) of a certain year, the first Sunday falls on 3 March. A school's robotics club meets every third day, starting on 2 March (2 March, 5 March, 8 March, and so on).\nBased on the above information, answer the following questions:\n(i) How many Sundays are there in that March?\n(ii) How many club meetings are held in March?\n(iii) On which date(s) in March does a club meeting fall on a Sunday?",
+    "questionText": "In the month of March (31 days) of a certain year, the first Sunday falls on 3 March. A school's robotics club meets every third day, starting on 2 March (2 March, 5 March, 8 March, and so on).\nBased on the above information, answer the following questions:\n(i) How many Sundays are there in that March? [1 mark]\n(ii) How many club meetings are held in March? [1 mark]\n(iii) On which date(s) in March does a club meeting fall on a Sunday? [2 marks]",
     "options": [],
     "answer": "(i) 5 (ii) 10 (iii) 17 March only",
     "solutionSteps": [
@@ -2128,7 +2128,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Nikhil's phone is fully charged (100%) at 7:00 a.m. On a long train journey, with the screen always on, the charge falls by 6% every hour. Readings are noted exactly on every hour and the phone is not charged during the journey.\nBased on the above information, answer the following questions:\n(i) What is the charge at 12 noon?\n(ii) At what time will the charge be 28%?\n(iii) The phone shows a low-battery alert when the charge is 10% or less. At what time is the alert first shown?",
+    "questionText": "Nikhil's phone is fully charged (100%) at 7:00 a.m. On a long train journey, with the screen always on, the charge falls by 6% every hour. Readings are noted exactly on every hour and the phone is not charged during the journey.\nBased on the above information, answer the following questions:\n(i) What is the charge at 12 noon? [1 mark]\n(ii) At what time will the charge be 28%? [1 mark]\n(iii) The phone shows a low-battery alert when the charge is 10% or less. At what time is the alert first shown? [2 marks]",
     "options": [],
     "answer": "(i) 70% (ii) 7:00 p.m. (iii) 10:00 p.m.",
     "solutionSteps": [
@@ -2155,7 +2155,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "During a power cut, two candles are lit at the same time. Candle P is 24 cm tall and burns down by 1.5 cm every hour. Candle Q is 30 cm tall and burns down by 2.5 cm every hour.\nBased on the above information, answer the following questions:\n(i) What is the height of candle P after 4 hours?\n(ii) After how many hours does candle Q burn out completely?\n(iii) After how many hours will both candles be of the same height, and what is that height?",
+    "questionText": "During a power cut, two candles are lit at the same time. Candle P is 24 cm tall and burns down by 1.5 cm every hour. Candle Q is 30 cm tall and burns down by 2.5 cm every hour.\nBased on the above information, answer the following questions:\n(i) What is the height of candle P after 4 hours? [1 mark]\n(ii) After how many hours does candle Q burn out completely? [1 mark]\n(iii) After how many hours will both candles be of the same height, and what is that height? [2 marks]",
     "options": [],
     "answer": "(i) 18 cm (ii) 12 hours (iii) After 6 hours; 15 cm",
     "solutionSteps": [
@@ -2182,7 +2182,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Two coaching centres offer a 12-month course. Centre A charges ₹2000 in month 1 and increases the fee by ₹100 every month. Centre B charges a fixed fee of ₹2500 every month.\nBased on the above information, answer the following questions:\n(i) What is Centre A's fee in the 12th month?\n(ii) In which month does Centre A's monthly fee first exceed Centre B's monthly fee?\n(iii) Which centre is cheaper for the whole 12-month course, and by how much?",
+    "questionText": "Two coaching centres offer a 12-month course. Centre A charges ₹2000 in month 1 and increases the fee by ₹100 every month. Centre B charges a fixed fee of ₹2500 every month.\nBased on the above information, answer the following questions:\n(i) What is Centre A's fee in the 12th month? [1 mark]\n(ii) In which month does Centre A's monthly fee first exceed Centre B's monthly fee? [1 mark]\n(iii) Which centre is cheaper for the whole 12-month course, and by how much? [2 marks]",
     "options": [],
     "answer": "(i) ₹3100 (ii) Month 7 (iii) Centre B, cheaper by ₹600",
     "solutionSteps": [
@@ -2209,7 +2209,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A district health camp runs a vaccination drive. On day 1 it gives 120 doses, and on each following day it gives 15 more doses than on the day before. The district's target for the drive is 3375 doses.\nBased on the above information, answer the following questions:\n(i) How many doses are given on day 8?\n(ii) Find the total number of doses given in the first 8 days.\n(iii) On which day is the target of 3375 doses reached?",
+    "questionText": "A district health camp runs a vaccination drive. On day 1 it gives 120 doses, and on each following day it gives 15 more doses than on the day before. The district's target for the drive is 3375 doses.\nBased on the above information, answer the following questions:\n(i) How many doses are given on day 8? [1 mark]\n(ii) Find the total number of doses given in the first 8 days. [1 mark]\n(iii) On which day is the target of 3375 doses reached? [2 marks]",
     "options": [],
     "answer": "(i) 225 doses (ii) 1380 doses (iii) Day 15",
     "solutionSteps": [
@@ -2236,7 +2236,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A car company's service plan for a new car: the 1st service is due at 1000 km on the odometer, and after that a service is due every 5000 km (6000 km, 11000 km, and so on). The 1st service costs ₹1500 and each later service costs ₹300 more than the one before it.\nBased on the above information, answer the following questions:\n(i) At what odometer reading is the 6th service due?\n(ii) How many services are due by the time the odometer reads 60000 km?\n(iii) Find the total cost of all these services.",
+    "questionText": "A car company's service plan for a new car: the 1st service is due at 1000 km on the odometer, and after that a service is due every 5000 km (6000 km, 11000 km, and so on). The 1st service costs ₹1500 and each later service costs ₹300 more than the one before it.\nBased on the above information, answer the following questions:\n(i) At what odometer reading is the 6th service due? [1 mark]\n(ii) How many services are due by the time the odometer reads 60000 km? [1 mark]\n(iii) Find the total cost of all these services. [2 marks]",
     "options": [],
     "answer": "(i) 26000 km (ii) 12 services (iii) ₹37800",
     "solutionSteps": [
@@ -2263,7 +2263,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A courier company charges ₹40 for a parcel weighing up to 500 g and ₹15 more for every additional 500 g or part of it. So parcels of 0.5 kg, 1 kg, 1.5 kg, … are charged ₹40, ₹55, ₹70, … respectively.\nBased on the above information, answer the following questions:\n(i) Find the charge for sending a 3 kg parcel.\n(ii) What is the heaviest parcel that can be sent for ₹250?\n(iii) A shop sends 10 parcels weighing 0.5 kg, 1 kg, 1.5 kg, …, 5 kg. Find the total charge.",
+    "questionText": "A courier company charges ₹40 for a parcel weighing up to 500 g and ₹15 more for every additional 500 g or part of it. So parcels of 0.5 kg, 1 kg, 1.5 kg, … are charged ₹40, ₹55, ₹70, … respectively.\nBased on the above information, answer the following questions:\n(i) Find the charge for sending a 3 kg parcel. [1 mark]\n(ii) What is the heaviest parcel that can be sent for ₹250? [1 mark]\n(iii) A shop sends 10 parcels weighing 0.5 kg, 1 kg, 1.5 kg, …, 5 kg. Find the total charge. [2 marks]",
     "options": [],
     "answer": "(i) ₹115 (ii) 7.5 kg (iii) ₹1075",
     "solutionSteps": [
@@ -2290,7 +2290,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A farmer ploughs a triangular field in straight furrows parallel to its base. The first furrow, along the base, is 120 m long and each next furrow is 6 m shorter than the previous one; the last furrow is 6 m long. Seed is sown along every furrow at the rate of 1 kg of seed for every 90 m of furrow.\nBased on the above information, answer the following questions:\n(i) Find the length of the 10th furrow.\n(ii) How many furrows are there in the field?\n(iii) How many kilograms of seed are needed for the whole field?",
+    "questionText": "A farmer ploughs a triangular field in straight furrows parallel to its base. The first furrow, along the base, is 120 m long and each next furrow is 6 m shorter than the previous one; the last furrow is 6 m long. Seed is sown along every furrow at the rate of 1 kg of seed for every 90 m of furrow.\nBased on the above information, answer the following questions:\n(i) Find the length of the 10th furrow. [1 mark]\n(ii) How many furrows are there in the field? [1 mark]\n(iii) How many kilograms of seed are needed for the whole field? [2 marks]",
     "options": [],
     "answer": "(i) 66 m (ii) 20 furrows (iii) 14 kg",
     "solutionSteps": [
@@ -2317,7 +2317,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In an inter-school relay race, a team of 8 runners runs legs of increasing length, one leg each: the 1st leg is 150 m and each next leg is 50 m longer than the leg before it.\nBased on the above information, answer the following questions:\n(i) Find the length of the 8th leg.\n(ii) Find the total length of the race.\n(iii) Next year the organisers want a total race length of 3720 m, with the same 8 runners, the same 1st leg of 150 m and the legs still in AP. By how much should each leg be longer than the previous one?",
+    "questionText": "In an inter-school relay race, a team of 8 runners runs legs of increasing length, one leg each: the 1st leg is 150 m and each next leg is 50 m longer than the leg before it.\nBased on the above information, answer the following questions:\n(i) Find the length of the 8th leg. [1 mark]\n(ii) Find the total length of the race. [1 mark]\n(iii) Next year the organisers want a total race length of 3720 m, with the same 8 runners, the same 1st leg of 150 m and the legs still in AP. By how much should each leg be longer than the previous one? [2 marks]",
     "options": [],
     "answer": "(i) 500 m (ii) 2600 m (iii) 90 m",
     "solutionSteps": [
@@ -2344,7 +2344,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Track workers lay concrete sleepers along a new railway line. The first sleeper is at the 0 m mark and each next sleeper is 0.6 m further along the track. On a 300 m stretch, sleepers are laid from the 0 m mark up to and including the 300 m mark. Every 5th sleeper, starting with the 3rd (the 3rd, 8th, 13th, … sleepers), gets a painted inspection mark.\nBased on the above information, answer the following questions:\n(i) How far from the 0 m mark is the 20th sleeper?\n(ii) How many sleepers are laid on the 300 m stretch?\n(iii) How many sleepers on this stretch get an inspection mark?",
+    "questionText": "Track workers lay concrete sleepers along a new railway line. The first sleeper is at the 0 m mark and each next sleeper is 0.6 m further along the track. On a 300 m stretch, sleepers are laid from the 0 m mark up to and including the 300 m mark. Every 5th sleeper, starting with the 3rd (the 3rd, 8th, 13th, … sleepers), gets a painted inspection mark.\nBased on the above information, answer the following questions:\n(i) How far from the 0 m mark is the 20th sleeper? [1 mark]\n(ii) How many sleepers are laid on the 300 m stretch? [1 mark]\n(iii) How many sleepers on this stretch get an inspection mark? [2 marks]",
     "options": [],
     "answer": "(i) 11.4 m (ii) 501 sleepers (iii) 100 sleepers",
     "solutionSteps": [
@@ -2371,7 +2371,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The spiral staircase inside a lighthouse has identical steps, each rising 18 cm. The lamp gallery is 27 m above the ground floor and the staircase ends exactly at the gallery. Handrail lights are fixed at the 6th step, the 18th step, the 30th step, and so on (at every 12th step after the 6th).\nBased on the above information, answer the following questions:\n(i) How high above the ground floor is a person who has climbed 40 steps?\n(ii) How many steps are there from the ground floor to the gallery?\n(iii) How many handrail lights are there on the staircase, and at what height above the ground floor is the highest one?",
+    "questionText": "The spiral staircase inside a lighthouse has identical steps, each rising 18 cm. The lamp gallery is 27 m above the ground floor and the staircase ends exactly at the gallery. Handrail lights are fixed at the 6th step, the 18th step, the 30th step, and so on (at every 12th step after the 6th).\nBased on the above information, answer the following questions:\n(i) How high above the ground floor is a person who has climbed 40 steps? [1 mark]\n(ii) How many steps are there from the ground floor to the gallery? [1 mark]\n(iii) How many handrail lights are there on the staircase, and at what height above the ground floor is the highest one? [2 marks]",
     "options": [],
     "answer": "(i) 7.2 m (ii) 150 steps (iii) 13 lights; the highest at 27 m",
     "solutionSteps": [
@@ -2398,7 +2398,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Two classes run a plastic-waste collection drive. Class 10A collects 45 kg in week 1 and 12 kg more in each week than in the week before. Class 10B collects 81 kg in week 1 and 8 kg more in each week than in the week before.\nBased on the above information, answer the following questions:\n(i) How much does Class 10A collect in week 6?\n(ii) In which week do the two classes collect the same amount?\n(iii) Find the total plastic waste collected by the two classes together in the first 10 weeks.",
+    "questionText": "Two classes run a plastic-waste collection drive. Class 10A collects 45 kg in week 1 and 12 kg more in each week than in the week before. Class 10B collects 81 kg in week 1 and 8 kg more in each week than in the week before.\nBased on the above information, answer the following questions:\n(i) How much does Class 10A collect in week 6? [1 mark]\n(ii) In which week do the two classes collect the same amount? [1 mark]\n(iii) Find the total plastic waste collected by the two classes together in the first 10 weeks. [2 marks]",
     "options": [],
     "answer": "(i) 105 kg (ii) Week 10 (iii) 2160 kg",
     "solutionSteps": [
@@ -2425,7 +2425,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "One side of the pylon of a cable-stayed bridge has 16 straight steel cables. The shortest cable is 42 m long and each next cable is 7.5 m longer than the one before it. The other side of the pylon has an identical set of 16 cables.\nBased on the above information, answer the following questions:\n(i) Find the length of the longest cable.\n(ii) Which cable on one side is 102 m long?\n(iii) Find the total length of steel cable used on both sides of the pylon.",
+    "questionText": "One side of the pylon of a cable-stayed bridge has 16 straight steel cables. The shortest cable is 42 m long and each next cable is 7.5 m longer than the one before it. The other side of the pylon has an identical set of 16 cables.\nBased on the above information, answer the following questions:\n(i) Find the length of the longest cable. [1 mark]\n(ii) Which cable on one side is 102 m long? [1 mark]\n(iii) Find the total length of steel cable used on both sides of the pylon. [2 marks]",
     "options": [],
     "answer": "(i) 154.5 m (ii) 9th cable (iii) 3144 m",
     "solutionSteps": [
@@ -2452,7 +2452,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "In a school high-jump event, the bar is set at 1.10 m in round 1 and is raised by 5 cm in every next round. The school record for the event is 2.03 m.\nBased on the above information, answer the following questions:\n(i) What is the height of the bar in round 8?\n(ii) In which round is the bar at 1.70 m?\n(iii) In which round does the bar first go above the school record, and what is its height in that round?",
+    "questionText": "In a school high-jump event, the bar is set at 1.10 m in round 1 and is raised by 5 cm in every next round. The school record for the event is 2.03 m.\nBased on the above information, answer the following questions:\n(i) What is the height of the bar in round 8? [1 mark]\n(ii) In which round is the bar at 1.70 m? [1 mark]\n(iii) In which round does the bar first go above the school record, and what is its height in that round? [2 marks]",
     "options": [],
     "answer": "(i) 1.45 m (ii) Round 13 (iii) Round 20; 2.05 m",
     "solutionSteps": [
@@ -2479,7 +2479,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "For a fundraising walk, a sponsor promises Meghna ₹10 for the 1st km, ₹15 for the 2nd km, ₹20 for the 3rd km, and so on, ₹5 more for each further km. Her friend Rohan's sponsor promises a flat ₹40 for every km he walks.\nBased on the above information, answer the following questions:\n(i) How much does Meghna's sponsor pay for her 12th km?\n(ii) Find the total amount Meghna raises if she walks 12 km.\n(iii) If both walk the same number of km, after how many km will their total amounts be equal? What is that amount?",
+    "questionText": "For a fundraising walk, a sponsor promises Meghna ₹10 for the 1st km, ₹15 for the 2nd km, ₹20 for the 3rd km, and so on, ₹5 more for each further km. Her friend Rohan's sponsor promises a flat ₹40 for every km he walks.\nBased on the above information, answer the following questions:\n(i) How much does Meghna's sponsor pay for her 12th km? [1 mark]\n(ii) Find the total amount Meghna raises if she walks 12 km. [1 mark]\n(iii) If both walk the same number of km, after how many km will their total amounts be equal? What is that amount? [2 marks]",
     "options": [],
     "answer": "(i) ₹65 (ii) ₹450 (iii) 13 km; ₹520 each",
     "solutionSteps": [
@@ -2506,7 +2506,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In a craft class, students join hexagons made of drinking straws in a row, so that each new hexagon shares one straw with the hexagon before it. One hexagon needs 6 straws, two hexagons need 11 straws, three need 16 straws, and so on.\nBased on the above information, answer the following questions:\n(i) How many straws are needed for a row of 10 hexagons?\n(ii) A row uses 201 straws. How many hexagons does it have?\n(iii) The class makes 12 separate rows having 1, 2, 3, …, 12 hexagons. Find the total number of straws used.",
+    "questionText": "In a craft class, students join hexagons made of drinking straws in a row, so that each new hexagon shares one straw with the hexagon before it. One hexagon needs 6 straws, two hexagons need 11 straws, three need 16 straws, and so on.\nBased on the above information, answer the following questions:\n(i) How many straws are needed for a row of 10 hexagons? [1 mark]\n(ii) A row uses 201 straws. How many hexagons does it have? [1 mark]\n(iii) The class makes 12 separate rows having 1, 2, 3, …, 12 hexagons. Find the total number of straws used. [2 marks]",
     "options": [],
     "answer": "(i) 51 (ii) 40 hexagons (iii) 402 straws",
     "solutionSteps": [
@@ -2533,7 +2533,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "In weekly maths tests, each marked out of 100, Isha scored 52 in test 1 and improved by exactly 4 marks in every next test.\nBased on the above information, answer the following questions:\n(i) What did she score in the 6th test?\n(ii) Find her average score over the first 6 tests.\n(iii) In which test does she score 96? Can this pattern of improvement continue up to the 15th test? Justify.",
+    "questionText": "In weekly maths tests, each marked out of 100, Isha scored 52 in test 1 and improved by exactly 4 marks in every next test.\nBased on the above information, answer the following questions:\n(i) What did she score in the 6th test? [1 mark]\n(ii) Find her average score over the first 6 tests. [1 mark]\n(iii) In which test does she score 96? Can this pattern of improvement continue up to the 15th test? Justify. [2 marks]",
     "options": [],
     "answer": "(i) 72 (ii) 62 (iii) 12th test; no, it can continue only up to the 13th test (a₁₄ = 104 > 100)",
     "solutionSteps": [
@@ -2728,7 +2728,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A mosaic artist makes a sequence of tile designs. Design 1 uses 5 tiles, Design 2 uses 9 tiles, Design 3 uses 13 tiles, and each design uses 4 tiles more than the one before it.\n(a) Write an expression for the number of tiles in Design n.\n(b) Which design uses 101 tiles?\n(c) For an exhibition she makes one copy each of Designs 10 to 20. How many tiles does she need in all?",
+    "questionText": "A mosaic artist makes a sequence of tile designs. Design 1 uses 5 tiles, Design 2 uses 9 tiles, Design 3 uses 13 tiles, and each design uses 4 tiles more than the one before it.\n(a) Write an expression for the number of tiles in Design n. [1 mark]\n(b) Which design uses 101 tiles? [1 mark]\n(c) For an exhibition she makes one copy each of Designs 10 to 20. How many tiles does she need in all? [3 marks]",
     "options": [],
     "answer": "(a) 4n + 1 (b) Design 25 (c) 671 tiles",
     "solutionSteps": [

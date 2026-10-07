@@ -1930,7 +1930,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The front face of a stone footbridge has an arch over the river. The arch is an arc AB of a circle of radius 28 m with centre O, and the lines joining its two feet A and B to O make a right angle at O. The opening under the arch, between the arc AB and the straight line AB at water level, is the minor segment. Find (i) the length of LED strip needed to run once along the arch and (ii) the area of the opening. (Use π = 22/7.)",
+    "questionText": "The front face of a stone footbridge has an arch over the river. The arch is an arc AB of a circle of radius 28 m with centre O, and the lines joining its two feet A and B to O make a right angle at O. The opening under the arch, between the arc AB and the straight line AB at water level, is the minor segment. Find (i) the length of LED strip needed to run once along the arch and (ii) the area of the opening. (Use π = 22/7.)\n[Marks: (i) 2 marks, (ii) 1 mark]",
     "options": [],
     "answer": "(i) 44 m (ii) 224 m²",
     "solutionSteps": [
@@ -2034,7 +2034,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A mosquito-fogging machine fixed on a cart sprays fog over a sector of the ground centred at the machine. On its high setting it reaches 21 m and turns through an angle of 60°. On its low setting it reaches only 10.5 m. Find (i) the area covered on the high setting and (ii) the angle through which the machine must turn on the low setting to cover the same area. (Use π = 22/7.)",
+    "questionText": "A mosquito-fogging machine fixed on a cart sprays fog over a sector of the ground centred at the machine. On its high setting it reaches 21 m and turns through an angle of 60°. On its low setting it reaches only 10.5 m. Find (i) the area covered on the high setting and (ii) the angle through which the machine must turn on the low setting to cover the same area. (Use π = 22/7.)\n[Marks: (i) 2 marks, (ii) 1 mark]",
     "options": [],
     "answer": "(i) 231 m² (ii) 240°",
     "solutionSteps": [
@@ -2060,7 +2060,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A lighthouse stands on a rocky headland. Its beam is visible up to 14 km out at sea, but the land blocks it on one side, so the beam lights only a sector of the sea of angle 90°, with its centre at the lighthouse. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the length of the outer curved edge of the region of sea lit by the beam.\n(ii) Find the area of sea lit by the beam.\n(iii) A stronger lamp is fitted, so the beam is now visible up to 21 km over the same 90° sector. Find the increase in the area of sea lit.",
+    "questionText": "A lighthouse stands on a rocky headland. Its beam is visible up to 14 km out at sea, but the land blocks it on one side, so the beam lights only a sector of the sea of angle 90°, with its centre at the lighthouse. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the length of the outer curved edge of the region of sea lit by the beam. [1 mark]\n(ii) Find the area of sea lit by the beam. [1 mark]\n(iii) A stronger lamp is fitted, so the beam is now visible up to 21 km over the same 90° sector. Find the increase in the area of sea lit. [2 marks]",
     "options": [],
     "answer": "(i) 22 km (ii) 154 km² (iii) 192.5 km²",
     "solutionSteps": [
@@ -2087,7 +2087,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A rotating lawn sprinkler in a public park throws water up to a distance of 6 m. It is set to turn back and forth through an angle of 150°, so that it waters a sector-shaped part of the lawn with its centre at the sprinkler. (Take π = 3.14.)\nBased on the above information, answer the following questions:\n(i) Find the area of the lawn watered by the sprinkler.\n(ii) Find the length of the curved edge of the watered region.\n(iii) The gardener changes the setting so that, with the same reach of 6 m, the sprinkler waters 75.36 m². Find the new angle through which it turns.",
+    "questionText": "A rotating lawn sprinkler in a public park throws water up to a distance of 6 m. It is set to turn back and forth through an angle of 150°, so that it waters a sector-shaped part of the lawn with its centre at the sprinkler. (Take π = 3.14.)\nBased on the above information, answer the following questions:\n(i) Find the area of the lawn watered by the sprinkler. [1 mark]\n(ii) Find the length of the curved edge of the watered region. [1 mark]\n(iii) The gardener changes the setting so that, with the same reach of 6 m, the sprinkler waters 75.36 m². Find the new angle through which it turns. [2 marks]",
     "options": [],
     "answer": "(i) 47.1 m² (ii) 15.7 m (iii) 240°",
     "solutionSteps": [
@@ -2114,7 +2114,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "At a school fete, a round pizza of diameter 42 cm is cut from its centre into 12 equal slices. Each slice is a sector of the circle, and its curved edge is the crust. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the central angle of each slice.\n(ii) Find the length of the crust on each slice.\n(iii) Four adjacent slices are packed together as one piece in a box. Find the perimeter of this piece.",
+    "questionText": "At a school fete, a round pizza of diameter 42 cm is cut from its centre into 12 equal slices. Each slice is a sector of the circle, and its curved edge is the crust. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the central angle of each slice. [1 mark]\n(ii) Find the length of the crust on each slice. [1 mark]\n(iii) Four adjacent slices are packed together as one piece in a box. Find the perimeter of this piece. [2 marks]",
     "options": [],
     "answer": "(i) 30° (ii) 11 cm (iii) 86 cm",
     "solutionSteps": [
@@ -2141,7 +2141,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A decorative folding fan opens out into a sector of angle 160°. Its ribs are 18 cm long, measured from the pivot. Coloured paper is pasted only on the outer part of the fan, from 9 cm to 18 cm away from the pivot; the inner part shows only the bare ribs. (Take π = 3.14.)\nBased on the above information, answer the following questions:\n(i) Find the length of the outer curved edge of the open fan.\n(ii) Find the area of the whole sector of radius 18 cm formed by the open fan.\n(iii) Find the area of the coloured paper on the fan.",
+    "questionText": "A decorative folding fan opens out into a sector of angle 160°. Its ribs are 18 cm long, measured from the pivot. Coloured paper is pasted only on the outer part of the fan, from 9 cm to 18 cm away from the pivot; the inner part shows only the bare ribs. (Take π = 3.14.)\nBased on the above information, answer the following questions:\n(i) Find the length of the outer curved edge of the open fan. [1 mark]\n(ii) Find the area of the whole sector of radius 18 cm formed by the open fan. [1 mark]\n(iii) Find the area of the coloured paper on the fan. [2 marks]",
     "options": [],
     "answer": "(i) 50.24 cm (ii) 452.16 cm² (iii) 339.12 cm²",
     "solutionSteps": [
@@ -2168,7 +2168,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A municipal sports ground has a circular jogging track laid around a circular lawn. The boundary of the lawn, which is the inner edge of the track, has radius 63 m, and the track is 7 m wide all round. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the length of the inner edge of the track.\n(ii) Find the length of the outer edge of the track.\n(iii) Find the cost of resurfacing the track at ₹50 per m².",
+    "questionText": "A municipal sports ground has a circular jogging track laid around a circular lawn. The boundary of the lawn, which is the inner edge of the track, has radius 63 m, and the track is 7 m wide all round. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the length of the inner edge of the track. [1 mark]\n(ii) Find the length of the outer edge of the track. [1 mark]\n(iii) Find the cost of resurfacing the track at ₹50 per m². [2 marks]",
     "options": [],
     "answer": "(i) 396 m (ii) 440 m (iii) ₹146300",
     "solutionSteps": [
@@ -2195,7 +2195,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Meera rides a bicycle to her school, which is 2.2 km from her home by road. Each wheel of her bicycle has a diameter of 70 cm. One morning she reaches school in exactly 10 minutes. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the distance moved by the bicycle in one complete revolution of a wheel.\n(ii) Find the number of complete revolutions made by each wheel on the way to school.\n(iii) Find the number of revolutions made by each wheel per minute, and Meera's average speed in km/h.",
+    "questionText": "Meera rides a bicycle to her school, which is 2.2 km from her home by road. Each wheel of her bicycle has a diameter of 70 cm. One morning she reaches school in exactly 10 minutes. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the distance moved by the bicycle in one complete revolution of a wheel. [1 mark]\n(ii) Find the number of complete revolutions made by each wheel on the way to school. [1 mark]\n(iii) Find the number of revolutions made by each wheel per minute, and Meera's average speed in km/h. [2 marks]",
     "options": [],
     "answer": "(i) 220 cm (ii) 1000 revolutions (iii) 100 revolutions per minute; 13.2 km/h",
     "solutionSteps": [
@@ -2222,7 +2222,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A temple courtyard is a square of side 28 m. At each of its four corners, a flower bed in the shape of a quadrant of a circle of radius 7 m is made, with its centre at that corner. The rest of the courtyard is to be paved with stone. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the area of one flower bed.\n(ii) Find the total length of the curved edges of all four flower beds.\n(iii) Find the cost of paving the rest of the courtyard at ₹120 per m².",
+    "questionText": "A temple courtyard is a square of side 28 m. At each of its four corners, a flower bed in the shape of a quadrant of a circle of radius 7 m is made, with its centre at that corner. The rest of the courtyard is to be paved with stone. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the area of one flower bed. [1 mark]\n(ii) Find the total length of the curved edges of all four flower beds. [1 mark]\n(iii) Find the cost of paving the rest of the courtyard at ₹120 per m². [2 marks]",
     "options": [],
     "answer": "(i) 38.5 m² (ii) 44 m (iii) ₹75600",
     "solutionSteps": [
@@ -2249,7 +2249,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A farmer has a plot of land in the shape of a right-angled triangle; the two sides that meet at the right angle are 24 m and 21 m long. He ties a goat at each of the three corners with a rope 7 m long, so that each goat grazes a sector inside the plot with its centre at that corner. No two grazing regions overlap. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the sum of the central angles of the three grazed sectors, giving a reason.\n(ii) Find the area grazed by the goat tied at the right-angled corner.\n(iii) Find the area of the plot that is left ungrazed.",
+    "questionText": "A farmer has a plot of land in the shape of a right-angled triangle; the two sides that meet at the right angle are 24 m and 21 m long. He ties a goat at each of the three corners with a rope 7 m long, so that each goat grazes a sector inside the plot with its centre at that corner. No two grazing regions overlap. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the sum of the central angles of the three grazed sectors, giving a reason. [1 mark]\n(ii) Find the area grazed by the goat tied at the right-angled corner. [1 mark]\n(iii) Find the area of the plot that is left ungrazed. [2 marks]",
     "options": [],
     "answer": "(i) 180° (ii) 38.5 m² (iii) 175 m²",
     "solutionSteps": [
@@ -2276,7 +2276,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A circular stained-glass window of a church has radius 42 cm and centre O. A straight lead strip AB is fixed along a chord that subtends a right angle at O. The smaller part of the window cut off by AB (the minor segment) is filled with red glass, and the rest of the window with clear glass. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the area of the sector OAB.\n(ii) Find the area of the triangle OAB.\n(iii) Find the area of the clear glass.",
+    "questionText": "A circular stained-glass window of a church has radius 42 cm and centre O. A straight lead strip AB is fixed along a chord that subtends a right angle at O. The smaller part of the window cut off by AB (the minor segment) is filled with red glass, and the rest of the window with clear glass. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the area of the sector OAB. [1 mark]\n(ii) Find the area of the triangle OAB. [1 mark]\n(iii) Find the area of the clear glass. [2 marks]",
     "options": [],
     "answer": "(i) 1386 cm² (ii) 882 cm² (iii) 5040 cm²",
     "solutionSteps": [
@@ -2303,7 +2303,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A horizontal drainage pipe has a circular cross-section of internal radius 14 cm with centre O. On a dry day a little water flows along the bottom of the pipe, so that in the cross-section the water surface is a chord AB which subtends an angle of 60° at O. (Take π = 22/7 and √3 = 1.73.)\nBased on the above information, answer the following questions:\n(i) Find the width AB of the water surface.\n(ii) Find the area of the sector OAB.\n(iii) Find the area of the cross-section of the water flowing in the pipe.",
+    "questionText": "A horizontal drainage pipe has a circular cross-section of internal radius 14 cm with centre O. On a dry day a little water flows along the bottom of the pipe, so that in the cross-section the water surface is a chord AB which subtends an angle of 60° at O. (Take π = 22/7 and √3 = 1.73.)\nBased on the above information, answer the following questions:\n(i) Find the width AB of the water surface. [1 mark]\n(ii) Find the area of the sector OAB. [1 mark]\n(iii) Find the area of the cross-section of the water flowing in the pipe. [2 marks]",
     "options": [],
     "answer": "(i) 14 cm (ii) 102.67 cm² (iii) 17.90 cm²",
     "solutionSteps": [
@@ -2330,7 +2330,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A circular garden has radius 21 m with a fountain at its centre O. A straight footpath runs along a chord AB of the boundary, where A and B subtend an angle of 120° at O. The smaller part of the garden beyond the footpath (the minor segment) is covered with turf. (Take π = 22/7 and √3 = 1.73.)\nBased on the above information, answer the following questions:\n(i) Find the length of the curved boundary of the turfed part.\n(ii) Find the area of the sector OAB.\n(iii) Find the area of the turfed part.",
+    "questionText": "A circular garden has radius 21 m with a fountain at its centre O. A straight footpath runs along a chord AB of the boundary, where A and B subtend an angle of 120° at O. The smaller part of the garden beyond the footpath (the minor segment) is covered with turf. (Take π = 22/7 and √3 = 1.73.)\nBased on the above information, answer the following questions:\n(i) Find the length of the curved boundary of the turfed part. [1 mark]\n(ii) Find the area of the sector OAB. [1 mark]\n(iii) Find the area of the turfed part. [2 marks]",
     "options": [],
     "answer": "(i) 44 m (ii) 462 m² (iii) 271.27 m²",
     "solutionSteps": [
@@ -2357,7 +2357,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "An open-air amphitheatre is built in the shape of a sector of angle 90°. The stage is the inner sector of radius 14 m, and the seating occupies the region between the curved edge of the stage and the back wall, which is an arc of radius 28 m with the same centre and the same angle. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the area of the stage.\n(ii) Find the length of the curved back wall.\n(iii) If each seat needs 0.6 m² of floor space, find the maximum number of seats that can be placed in the seating region.",
+    "questionText": "An open-air amphitheatre is built in the shape of a sector of angle 90°. The stage is the inner sector of radius 14 m, and the seating occupies the region between the curved edge of the stage and the back wall, which is an arc of radius 28 m with the same centre and the same angle. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the area of the stage. [1 mark]\n(ii) Find the length of the curved back wall. [1 mark]\n(iii) If each seat needs 0.6 m² of floor space, find the maximum number of seats that can be placed in the seating region. [2 marks]",
     "options": [],
     "answer": "(i) 154 m² (ii) 44 m (iii) 770 seats",
     "solutionSteps": [
@@ -2384,7 +2384,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "At a village fair, Aarav sits on a merry-go-round at a distance of 3.5 m from its central pole, and his sister sits on the same ride at a distance of 4.9 m from the pole. One ride lasts 12 complete rounds. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the distance Aarav travels in one round.\n(ii) Find the distance Aarav travels in one complete ride.\n(iii) How much farther than Aarav does his sister travel in one complete ride?",
+    "questionText": "At a village fair, Aarav sits on a merry-go-round at a distance of 3.5 m from its central pole, and his sister sits on the same ride at a distance of 4.9 m from the pole. One ride lasts 12 complete rounds. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the distance Aarav travels in one round. [1 mark]\n(ii) Find the distance Aarav travels in one complete ride. [1 mark]\n(iii) How much farther than Aarav does his sister travel in one complete ride? [2 marks]",
     "options": [],
     "answer": "(i) 22 m (ii) 264 m (iii) 105.6 m",
     "solutionSteps": [
@@ -2411,7 +2411,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "The speedometer of a scooter has a needle 7 cm long, pivoted at the centre of a circular dial. As the speed rises from 0 km/h to 180 km/h, the needle turns uniformly through an angle of 270°. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Through what angle has the needle turned from the zero mark when the speed is 60 km/h?\n(ii) Find the length of the arc traced by the tip of the needle as the speed rises from 0 to 120 km/h.\n(iii) Find the area swept by the needle as the speed rises from 40 km/h to 100 km/h.",
+    "questionText": "The speedometer of a scooter has a needle 7 cm long, pivoted at the centre of a circular dial. As the speed rises from 0 km/h to 180 km/h, the needle turns uniformly through an angle of 270°. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Through what angle has the needle turned from the zero mark when the speed is 60 km/h? [1 mark]\n(ii) Find the length of the arc traced by the tip of the needle as the speed rises from 0 to 120 km/h. [1 mark]\n(iii) Find the area swept by the needle as the speed rises from 40 km/h to 100 km/h. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) 22 cm (iii) 38.5 cm²",
     "solutionSteps": [
@@ -2438,7 +2438,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "For a Diwali display, Kavya draws the largest possible circle inside a square board of side 28 cm. She then glues golden lace along the whole circle and along all four edges of the square. The lace costs ₹1.50 per cm. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the radius of the circle.\n(ii) Find the circumference of the circle.\n(iii) Find the total cost of the lace used.",
+    "questionText": "For a Diwali display, Kavya draws the largest possible circle inside a square board of side 28 cm. She then glues golden lace along the whole circle and along all four edges of the square. The lace costs ₹1.50 per cm. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the radius of the circle. [1 mark]\n(ii) Find the circumference of the circle. [1 mark]\n(iii) Find the total cost of the lace used. [2 marks]",
     "options": [],
     "answer": "(i) 14 cm (ii) 88 cm (iii) ₹300",
     "solutionSteps": [
@@ -2465,7 +2465,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A carpenter has a log whose cross-section is a circle of diameter 70 cm. From it he cuts a beam with the largest possible square cross-section, so that the four corners of the square lie on the circle. (Take π = 22/7 and √2 = 1.414.)\nBased on the above information, answer the following questions:\n(i) Find the circumference of the circular cross-section of the log.\n(ii) Find the area of the square cross-section of the beam.\n(iii) Find the perimeter of the square cross-section of the beam.",
+    "questionText": "A carpenter has a log whose cross-section is a circle of diameter 70 cm. From it he cuts a beam with the largest possible square cross-section, so that the four corners of the square lie on the circle. (Take π = 22/7 and √2 = 1.414.)\nBased on the above information, answer the following questions:\n(i) Find the circumference of the circular cross-section of the log. [1 mark]\n(ii) Find the area of the square cross-section of the beam. [1 mark]\n(iii) Find the perimeter of the square cross-section of the beam. [2 marks]",
     "options": [],
     "answer": "(i) 220 cm (ii) 2450 cm² (iii) 197.96 cm",
     "solutionSteps": [
@@ -2492,7 +2492,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A goat is tied with a rope 14 m long to a peg fixed at the foot of a long straight boundary wall, in the middle of an open grassy stretch. The goat can graze only on one side of the wall. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Name the shape of the region the goat can graze and state its central angle.\n(ii) Find the area of grass the goat can graze.\n(iii) To protect a vegetable patch, the rope is shortened to 7 m. Find the decrease in the grazing area.",
+    "questionText": "A goat is tied with a rope 14 m long to a peg fixed at the foot of a long straight boundary wall, in the middle of an open grassy stretch. The goat can graze only on one side of the wall. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Name the shape of the region the goat can graze and state its central angle. [1 mark]\n(ii) Find the area of grass the goat can graze. [1 mark]\n(iii) To protect a vegetable patch, the rope is shortened to 7 m. Find the decrease in the grazing area. [2 marks]",
     "options": [],
     "answer": "(i) Semicircle, 180° (ii) 308 m² (iii) 231 m²",
     "solutionSteps": [
@@ -2519,7 +2519,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A surveyor uses a measuring wheel of radius 14 cm. A counter on the handle records the number of complete revolutions as the wheel is rolled along the ground. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the distance covered by the wheel in one revolution.\n(ii) Along one straight side of a plot the counter shows 250. Find the length of that side in metres.\n(iii) The surveyor then rolls the wheel once along the edge of a circular pond, and the counter shows 1750. Find the radius of the pond.",
+    "questionText": "A surveyor uses a measuring wheel of radius 14 cm. A counter on the handle records the number of complete revolutions as the wheel is rolled along the ground. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the distance covered by the wheel in one revolution. [1 mark]\n(ii) Along one straight side of a plot the counter shows 250. Find the length of that side in metres. [1 mark]\n(iii) The surveyor then rolls the wheel once along the edge of a circular pond, and the counter shows 1750. Find the radius of the pond. [2 marks]",
     "options": [],
     "answer": "(i) 88 cm (ii) 220 m (iii) 245 m",
     "solutionSteps": [
@@ -2546,7 +2546,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A family records its monthly spending on a pie chart drawn as a circle of radius 7 cm. Food takes 25% of the spending and rent takes 40%; each item is represented by a sector whose angle is the same percentage of 360°. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the central angle of the sector for food.\n(ii) Find the area of the sector for food.\n(iii) Find the length of the arc of the sector for rent.",
+    "questionText": "A family records its monthly spending on a pie chart drawn as a circle of radius 7 cm. Food takes 25% of the spending and rent takes 40%; each item is represented by a sector whose angle is the same percentage of 360°. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the central angle of the sector for food. [1 mark]\n(ii) Find the area of the sector for food. [1 mark]\n(iii) Find the length of the arc of the sector for rent. [2 marks]",
     "options": [],
     "answer": "(i) 90° (ii) 38.5 cm² (iii) 17.6 cm",
     "solutionSteps": [
@@ -2573,7 +2573,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The door of a garden shed is 2.1 m wide and is hinged along one vertical edge. As it swings open, its bottom edge sweeps a sector on the floor with its centre at the hinge. Normally the door opens through 90°. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the floor area swept by the bottom edge when the door opens fully.\n(ii) Find the distance moved by the free bottom corner of the door when it opens fully.\n(iii) A shelf placed on the floor now lets the door open only through 60°. By how much does the swept floor area decrease?",
+    "questionText": "The door of a garden shed is 2.1 m wide and is hinged along one vertical edge. As it swings open, its bottom edge sweeps a sector on the floor with its centre at the hinge. Normally the door opens through 90°. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the floor area swept by the bottom edge when the door opens fully. [1 mark]\n(ii) Find the distance moved by the free bottom corner of the door when it opens fully. [1 mark]\n(iii) A shelf placed on the floor now lets the door open only through 60°. By how much does the swept floor area decrease? [2 marks]",
     "options": [],
     "answer": "(i) 3.465 m² (ii) 3.3 m (iii) 1.155 m²",
     "solutionSteps": [
@@ -2600,7 +2600,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A coastal radar station can detect ships up to a distance of 35 km. Its beam rotates uniformly about the station, making 6 complete rotations every minute, and at each instant it scans the sea along one radius. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the total area of sea within the range of the radar.\n(ii) Find the length of the arc at the edge of the range swept by the beam in 2 seconds.\n(iii) Find the area of sea scanned by the beam in 5 seconds.",
+    "questionText": "A coastal radar station can detect ships up to a distance of 35 km. Its beam rotates uniformly about the station, making 6 complete rotations every minute, and at each instant it scans the sea along one radius. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the total area of sea within the range of the radar. [1 mark]\n(ii) Find the length of the arc at the edge of the range swept by the beam in 2 seconds. [1 mark]\n(iii) Find the area of sea scanned by the beam in 5 seconds. [2 marks]",
     "options": [],
     "answer": "(i) 3850 km² (ii) 44 km (iii) 1925 km²",
     "solutionSteps": [
@@ -2627,7 +2627,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In one corner of a housing colony, a lawn is laid out as a quadrant of a circle of radius 28 m, with its centre O at the corner. A straight paved path joins the two ends A and B of the curved boundary. The region between the path AB and the curved boundary is to be planted with flowers. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the length of the curved boundary of the lawn.\n(ii) Find the area of the triangular part OAB.\n(iii) Find the cost of planting flowers in the region between the path and the curved boundary at ₹25 per m².",
+    "questionText": "In one corner of a housing colony, a lawn is laid out as a quadrant of a circle of radius 28 m, with its centre O at the corner. A straight paved path joins the two ends A and B of the curved boundary. The region between the path AB and the curved boundary is to be planted with flowers. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the length of the curved boundary of the lawn. [1 mark]\n(ii) Find the area of the triangular part OAB. [1 mark]\n(iii) Find the cost of planting flowers in the region between the path and the curved boundary at ₹25 per m². [2 marks]",
     "options": [],
     "answer": "(i) 44 m (ii) 392 m² (iii) ₹5600",
     "solutionSteps": [
@@ -2654,7 +2654,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "On a farm in Haryana, a centre-pivot irrigation system has a sprinkler arm 70 m long that rotates about a fixed pivot at one end, watering a circular field. The outer tip of the arm moves at a steady 2.2 m per minute. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the area of the field watered in one full rotation.\n(ii) On a windy day the arm is run only through an angle of 72°. Find the area watered that day.\n(iii) Find the time taken by the arm to complete one full rotation.",
+    "questionText": "On a farm in Haryana, a centre-pivot irrigation system has a sprinkler arm 70 m long that rotates about a fixed pivot at one end, watering a circular field. The outer tip of the arm moves at a steady 2.2 m per minute. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the area of the field watered in one full rotation. [1 mark]\n(ii) On a windy day the arm is run only through an angle of 72°. Find the area watered that day. [1 mark]\n(iii) Find the time taken by the arm to complete one full rotation. [2 marks]",
     "options": [],
     "answer": "(i) 15400 m² (ii) 3080 m² (iii) 200 minutes",
     "solutionSteps": [
@@ -2681,7 +2681,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A factory punches flat metal washers out of a steel sheet. Each washer is a ring with outer diameter 4.2 cm and a central circular hole of diameter 2.8 cm. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the outer circumference of a washer.\n(ii) Find the circumference of the hole.\n(iii) Find the area of steel in one face of 500 washers.",
+    "questionText": "A factory punches flat metal washers out of a steel sheet. Each washer is a ring with outer diameter 4.2 cm and a central circular hole of diameter 2.8 cm. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the outer circumference of a washer. [1 mark]\n(ii) Find the circumference of the hole. [1 mark]\n(iii) Find the area of steel in one face of 500 washers. [2 marks]",
     "options": [],
     "answer": "(i) 13.2 cm (ii) 8.8 cm (iii) 3850 cm²",
     "solutionSteps": [
@@ -2708,7 +2708,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "On a hill route, a railway line turns along an arc of a circle. The inner rail lies on an arc of radius 1400 m that turns through an angle of 45°. The outer rail lies on an arc with the same centre and the same angle, 1.4 m farther from the centre. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the length of the inner rail on the curve.\n(ii) A train runs along the curve at a steady 66 km/h. Find the time, in seconds, it takes to cover the length of the inner rail.\n(iii) How much longer is the outer rail than the inner rail on this curve?",
+    "questionText": "On a hill route, a railway line turns along an arc of a circle. The inner rail lies on an arc of radius 1400 m that turns through an angle of 45°. The outer rail lies on an arc with the same centre and the same angle, 1.4 m farther from the centre. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the length of the inner rail on the curve. [1 mark]\n(ii) A train runs along the curve at a steady 66 km/h. Find the time, in seconds, it takes to cover the length of the inner rail. [1 mark]\n(iii) How much longer is the outer rail than the inner rail on this curve? [2 marks]",
     "options": [],
     "answer": "(i) 1100 m (ii) 60 s (iii) 1.1 m",
     "solutionSteps": [
@@ -2735,7 +2735,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The tips of the blades of a ceiling fan are 70 cm from its axis. At full speed the fan makes 300 complete revolutions every minute. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the distance, in metres, travelled by the tip of a blade in one revolution.\n(ii) Find the distance travelled by the tip of a blade in one minute at full speed.\n(iii) Find the speed of the tip of a blade in km/h.",
+    "questionText": "The tips of the blades of a ceiling fan are 70 cm from its axis. At full speed the fan makes 300 complete revolutions every minute. (Take π = 22/7.)\nBased on the above information, answer the following questions:\n(i) Find the distance, in metres, travelled by the tip of a blade in one revolution. [1 mark]\n(ii) Find the distance travelled by the tip of a blade in one minute at full speed. [1 mark]\n(iii) Find the speed of the tip of a blade in km/h. [2 marks]",
     "options": [],
     "answer": "(i) 4.4 m (ii) 1320 m (iii) 79.2 km/h",
     "solutionSteps": [
