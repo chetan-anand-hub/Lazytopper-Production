@@ -41,33 +41,36 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
 
   // REQUIRES-FIGURE
   { id: "LIGHT-EXMPLR-9-MCQ-005", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refractive Index", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "A light ray enters from medium A to medium B as shown in Figure 10.2. The refractive index of medium B relative to A will be",
+    questionText: "A light ray travelling in medium A enters medium B and bends towards the normal at the boundary. The refractive index of medium B relative to medium A will be",
     options: ["greater than unity", "less than unity", "equal to unity", "zero"],
     answer: "greater than unity",
-    solutionSteps: ["[1 mark] (a) greater than unity — in Fig. 10.2 the ray bends TOWARDS the normal as it enters medium B, which happens only when light goes from a rarer to a denser medium; the angle of refraction is smaller than the angle of incidence, so n(B/A) = sin i / sin r > 1."],
+    solutionSteps: ["[1 mark] (a) greater than unity - the ray bends TOWARDS the normal on entering B, so B is optically denser than A; the angle of refraction is smaller than the angle of incidence, so n(B/A) = sin i / sin r > 1."],
     finalAnswer: "Greater than unity — option (a)",
     strategyHint: "REQUIRES-FIGURE: Ray bending TOWARDS the normal when entering medium B from A.",
-    ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true },
+    ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // REQUIRES-FIGURE
   { id: "LIGHT-EXMPLR-9-MCQ-006", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction through Slab", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "Beams of light are incident through the holes A and B and emerge out of box through the holes C and D respectively as shown in Figure 10.3. Which of the following could be inside the box?",
+    questionText: "Beams of light enter a closed box through holes A and B and emerge through holes C and D respectively. Each emergent beam is parallel to its incident beam but shifted sideways. Which of the following could be inside the box?",
     options: ["A rectangular glass slab", "A convex lens", "A concave lens", "A prism"],
     answer: "A rectangular glass slab",
     solutionSteps: ["The emergent rays are parallel to the corresponding incident rays but laterally shifted.", "Only a rectangular glass slab causes lateral displacement WITHOUT changing the direction of the ray.", "A convex/concave lens would converge/diverge the rays; a prism would deviate them at an angle.", "Hence a rectangular glass slab is inside the box."],
     finalAnswer: "Rectangular glass slab — option (a)",
     strategyHint: "REQUIRES-FIGURE: Two parallel rays in, emerging shifted but parallel out of box (Fig. 10.3).",
-    ncertRef: "Exemplar MCQ Q6", isCompetencyBased: true },
+    ncertRef: "Exemplar MCQ Q6", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // REQUIRES-FIGURE
   { id: "LIGHT-EXMPLR-9-MCQ-007", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Lenses", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "A beam of light is incident through the holes on side A and emerges out of the holes on the other face of the box as shown in Figure 10.4. Which of the following could be inside the box?",
+    questionText: "A parallel beam of light enters a closed box through holes on side A. Inside the box the rays meet at a point and then spread out, emerging through the holes on the opposite face. Which of the following could be inside the box?",
     options: ["Concave lens", "Rectangular glass slab", "Prism", "Convex lens"],
     answer: "Convex lens",
     solutionSteps: ["The parallel incident beam converges to a point and then diverges on emerging.", "Only a convex (converging) lens makes parallel rays meet at a focus.", "A concave lens diverges; a slab gives parallel emergent rays; a prism just deviates the beam without focusing.", "Hence a convex lens is inside the box."],
     finalAnswer: "Convex lens — option (d)",
     strategyHint: "REQUIRES-FIGURE: Parallel rays in, converging to a point inside box, then diverging out (Fig. 10.4).",
-    ncertRef: "Exemplar MCQ Q7", isCompetencyBased: true },
+    ncertRef: "Exemplar MCQ Q7", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   { id: "LIGHT-EXMPLR-9-MCQ-008", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Power of a Lens", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Which of the following statements is true?",

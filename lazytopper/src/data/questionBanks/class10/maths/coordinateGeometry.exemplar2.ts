@@ -40,12 +40,13 @@ export const CG_EXEMPLAR2: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 7.1 Q6", isCompetencyBased: false },
 
   { id: "CG-N-EXEM2-7-MCQ-002", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Point Dividing a Segment", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "If the point P (2, 1) lies on the line segment joining points A (4, 2) and B (8, 4), then",
+    questionText: "If the point P(2, 1) lies on the line passing through the points A(4, 2) and B(8, 4), then",
     options: ["AP = (1/3) AB", "AP = PB", "PB = (1/3) AB", "AP = (1/2) AB"],
     answer: "AP = (1/2) AB",
-    solutionSteps: ["[1 mark] AP = √((4−2)²+(2−1)²) = √5 and AB = √((8−4)²+(4−2)²) = √20 = 2√5, so AP = (1/2) AB — option (D)."],
+    solutionSteps: ["[1 mark] AP = √((4−2)²+(2−1)²) = √5, AB = √((8−4)²+(4−2)²) = √20 = 2√5 and PB = √45 = 3√5, so AP = (1/2) AB — option (D)."],
     finalAnswer: "AP = (1/2) AB — option (D).",
-    ncertRef: "Exemplar Ex 7.1 Q12", isCompetencyBased: false },
+    ncertRef: "Exemplar Ex 7.1 Q12", isCompetencyBased: false,
+    sourceOverride: "others", },
 
   // ⚠ RECON: P (a/3, 4) — the fraction a/3 was flattened in the PDF; reconstructed.
   { id: "CG-N-EXEM2-7-MCQ-003", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Mid-point Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",

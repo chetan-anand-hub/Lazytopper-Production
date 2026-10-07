@@ -549,7 +549,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
 {
     id: "POLY-H05", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros & Factorisation",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "If x³ + ax² + bx + 6 has (x − 2) as a factor and leaves remainder 3 when divided by (x − 3), find a and b.",
+    questionText: "For p(x) = x³ + ax² + bx + 6, it is given that 2 is a zero of p(x) and p(3) = 3. Find a and b.",
     solutionSteps: [
       "p(2) = 0: 8 + 4a + 2b + 6 = 0 ⟹ 4a + 2b = −14 ⟹ 2a + b = −7 …(i); p(3) = 3: 27 + 9a + 3b + 6 = 3 ⟹ 9a + 3b = −30 ⟹ 3a + b = −10 …(ii) [1]",
       "From (ii) − (i): a = −3 [1]",
@@ -557,6 +557,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     ],
     finalAnswer: "a = −3, b = −1",
     visualExplainerId: "maths-polynomials-zeroes-of-a-polynomial", isCompetencyBased: true,
+    sourceOverride: "others",
   },
 {
     id: "POLY-H06", subject: "Maths", topicKey: "polynomials", subtopic: "Coefficient–root Relations",
@@ -692,17 +693,16 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
   },
   {
     id: "POLY-H07-R", subject: "Maths", topicKey: "polynomials", subtopic: "Coefficient–root Relations",
-    section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α and β are the zeroes of the quadratic polynomial f(x) = ax² + bx + c, prove that: (α/β) + (β/α) = (b² − 2ac)/ac.",
     solutionSteps: [
-      "[1 mark] By the coefficient–root relations for f(x) = ax² + bx + c, the sum of the zeroes is α + β = −b/a.",
-      "[1 mark] The product of the zeroes is αβ = c/a.",
-      "[1 mark] Rewrite the required expression over a common denominator: α/β + β/α = (α² + β²)/(αβ).",
-      "[1 mark] α² + β² = (α + β)² − 2αβ = (−b/a)² − 2(c/a) = b²/a² − 2c/a = (b² − 2ac)/a².",
-      "[1 mark] So (α² + β²)/(αβ) = [(b² − 2ac)/a²] ÷ (c/a) = (b² − 2ac)/(ac). Hence proved.",
+      "[1 mark] α + β = −b/a and αβ = c/a; α/β + β/α = (α² + β²)/(αβ).",
+      "[1 mark] α² + β² = (α + β)² − 2αβ = b²/a² − 2c/a = (b² − 2ac)/a².",
+      "[1 mark] (α² + β²)/(αβ) = [(b² − 2ac)/a²] ÷ (c/a) = (b² − 2ac)/(ac). Hence proved."
     ],
     finalAnswer: "Proved: (α/β) + (β/α) = (b² − 2ac)/ac",
     visualExplainerId: "maths-polynomials-zeroes-of-a-polynomial", isCompetencyBased: true,
+    sourceOverride: "others",
   },
   { id: "POLY-ND01", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The zeros of the polynomial p(x) = 2x³ − 5x² − 14x + 8 are α, β, γ. Without finding the zeros, determine the values of: (i) α + β + γ, (ii) αβ + βγ + γα, (iii) αβγ.", solutionSteps: [
       "[1 mark] For a cubic ax³ + bx² + cx + d with zeros α, β, γ, here a = 2, b = −5, c = −14, d = 8.",

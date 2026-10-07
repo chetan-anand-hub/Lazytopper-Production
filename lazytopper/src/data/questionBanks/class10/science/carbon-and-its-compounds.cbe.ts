@@ -13,17 +13,18 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "subtopic": "Gas Released when Sodium Reacts with Ethanol",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Deduce the identity of the gas released when sodium reacts with ethanol.",
-    "options": [],
-    "answer": "Hydrogen (H2).",
+    "questionText": "The gas released when sodium reacts with ethanol is",
+    "options": ["oxygen (O₂)", "carbon dioxide (CO₂)", "hydrogen (H₂)", "nitrogen (N₂)"],
+    "answer": "hydrogen (H₂)",
     "solutionSteps": [
-      "[1 mark] Sodium reacts with ethanol to form sodium ethoxide and hydrogen gas, so the gas released is hydrogen (H2)."
+      "[1 mark] hydrogen (H₂) — 2Na + 2CH₃CH₂OH → 2CH₃CH₂ONa + H₂: hydrogen gas is evolved."
     ],
-    "finalAnswer": "Hydrogen (H2).",
-    "isCompetencyBased": false
+    "finalAnswer": "hydrogen (H₂)",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CARB-A-002",
@@ -32,17 +33,18 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "subtopic": "Carbon Compounds (Oxides)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Carbon reacts with the element with atomic number 8. Name the compound formed in the reaction.",
-    "options": [],
-    "answer": "Carbon dioxide",
+    "questionText": "Carbon reacts with the element with atomic number 8. The compound formed in the reaction is",
+    "options": ["carbon dioxide", "methane", "carbon tetrachloride", "carbon disulfide"],
+    "answer": "carbon dioxide",
     "solutionSteps": [
-      "[1 mark] The element with atomic number 8 is oxygen; carbon reacting with oxygen forms carbon dioxide (CO2)."
+      "[1 mark] carbon dioxide — the element with atomic number 8 is oxygen; C + O₂ → CO₂ (carbon dioxide)."
     ],
-    "finalAnswer": "Carbon dioxide",
-    "isCompetencyBased": false
+    "finalAnswer": "carbon dioxide",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CARB-A-003",
@@ -51,17 +53,18 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "subtopic": "Bonding in Carbon Compounds",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Name the type of bonding in the compound formed when carbon reacts with the element with atomic number 8.",
-    "options": [],
-    "answer": "Covalent",
+    "questionText": "The type of bonding in the compound formed when carbon reacts with the element with atomic number 8 is",
+    "options": ["ionic bonding", "metallic bonding", "hydrogen bonding", "covalent bonding"],
+    "answer": "covalent bonding",
     "solutionSteps": [
-      "[1 mark] Carbon dioxide is formed by sharing of electrons between carbon and oxygen atoms, so the bonding is covalent."
+      "[1 mark] covalent bonding — carbon and oxygen are non-metals that share electrons, so CO₂ has covalent bonds."
     ],
-    "finalAnswer": "Covalent bonding",
-    "isCompetencyBased": false
+    "finalAnswer": "covalent bonding",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CARB-A-004",
@@ -70,17 +73,18 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "subtopic": "Alkanes (Molecular Formula)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Alkanes are a family of hydrocarbons in crude oil. They have the same general formula CnH2n+2. For n = 2, calculate the molecular formula of this alkane.",
-    "options": [],
-    "answer": "C2H6",
+    "questionText": "Alkanes are a family of hydrocarbons in crude oil with the general formula CₙH₂ₙ₊₂. For n = 2, the molecular formula of the alkane is",
+    "options": ["C₂H₄", "C₂H₆", "C₂H₂", "C₃H₈"],
+    "answer": "C₂H₆",
     "solutionSteps": [
-      "[1 mark] Substitute n = 2 into CnH2n+2: carbon = 2, hydrogen = 2(2)+2 = 6, giving the molecular formula C2H6."
+      "[1 mark] C₂H₆ — CₙH₂ₙ₊₂ with n = 2 gives C₂H₍2×2+2₎ = C₂H₆."
     ],
-    "finalAnswer": "C2H6",
-    "isCompetencyBased": false
+    "finalAnswer": "C₂H₆",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CARB-A-005",
@@ -89,19 +93,20 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "subtopic": "Alkanes (Structural Formula)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Draw the structural formula of this alkane (C2H6, ethane).",
-    "options": [],
-    "answer": "Structural formula of ethane (C2H6): two carbon atoms joined by a single C–C bond, each carbon bonded to three hydrogen atoms (H3C–CH3).",
+    "questionText": "The structural formula of the alkane with molecular formula C₂H₆ (ethane) is",
+    "options": ["H₂C=CH₂ (double C=C bond, four C–H bonds)", "H₃C–CH₃ (single C–C bond, six C–H bonds)", "HC≡CH (triple C≡C bond, two C–H bonds)", "H₃C–CH₂–CH₃ (two C–C bonds, eight C–H bonds)"],
+    "answer": "H₃C–CH₃ (single C–C bond, six C–H bonds)",
     "solutionSteps": [
-      "[1 mark] Draw ethane: two carbon atoms joined by a single bond, with each carbon bonded to three hydrogen atoms (H3C–CH3); no double carbon bonds. (ecf allowed from answer to (c)(i).)"
+      "[1 mark] H₃C–CH₃ (single C–C bond, six C–H bonds) — ethane is saturated: two carbons joined by a single bond, each carbon bonded to three hydrogens."
     ],
-    "finalAnswer": "H3C–CH3 (ethane, single C–C bond, six C–H bonds)",
+    "finalAnswer": "H₃C–CH₃ (single C–C bond, six C–H bonds)",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "diagramDescription": "Student must draw the displayed structural formula of ethane: two carbon atoms connected by a single bond, each carbon showing three C–H single bonds (total 6 hydrogen atoms). Mark scheme: do not allow double carbon bonds."
+    "diagramDescription": "Student must draw the displayed structural formula of ethane: two carbon atoms connected by a single bond, each carbon showing three C–H single bonds (total 6 hydrogen atoms). Mark scheme: do not allow double carbon bonds.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CARB-A-006",
@@ -110,17 +115,18 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "subtopic": "Alkenes (Molecular Formula)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Alkenes have the same general formula CnH2n. For n = 2, calculate the molecular formula of this alkene.",
-    "options": [],
-    "answer": "C2H4",
+    "questionText": "Alkenes have the general formula CₙH₂ₙ. For n = 2, the molecular formula of the alkene is",
+    "options": ["C₂H₆", "C₂H₂", "C₃H₆", "C₂H₄"],
+    "answer": "C₂H₄",
     "solutionSteps": [
-      "[1 mark] Substitute n = 2 into CnH2n: carbon = 2, hydrogen = 2(2) = 4, giving the molecular formula C2H4."
+      "[1 mark] C₂H₄ — CₙH₂ₙ with n = 2 gives C₂H₄."
     ],
-    "finalAnswer": "C2H4",
-    "isCompetencyBased": false
+    "finalAnswer": "C₂H₄",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CARB-A-007",
@@ -129,19 +135,20 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "subtopic": "Alkenes (Structural Formula)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Draw the structural formula of this alkene (C2H4, ethene).",
-    "options": [],
-    "answer": "Structural formula of ethene (C2H4): two carbon atoms joined by a double bond (C=C), each carbon bonded to two hydrogen atoms (H2C=CH2).",
+    "questionText": "The structural formula of the alkene with molecular formula C₂H₄ (ethene) is",
+    "options": ["H₂C=CH₂ (double C=C bond, four C–H bonds)", "H₃C–CH₃ (single C–C bond, six C–H bonds)", "HC≡CH (triple C≡C bond, two C–H bonds)", "H₂C=CH–CH₃ (one C=C bond, six C–H bonds)"],
+    "answer": "H₂C=CH₂ (double C=C bond, four C–H bonds)",
     "solutionSteps": [
-      "[1 mark] Draw ethene: two carbon atoms joined by a double bond (C=C), with each carbon bonded to two hydrogen atoms (H2C=CH2)."
+      "[1 mark] H₂C=CH₂ (double C=C bond, four C–H bonds) — ethene is unsaturated: two carbons joined by a double bond, each carbon bonded to two hydrogens."
     ],
-    "finalAnswer": "H2C=CH2 (ethene, C=C double bond, four C–H bonds)",
+    "finalAnswer": "H₂C=CH₂ (double C=C bond, four C–H bonds)",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "diagramDescription": "Student must draw the displayed structural formula of ethene: two carbon atoms connected by a double bond (C=C), each carbon showing two C–H single bonds (total 4 hydrogen atoms)."
+    "diagramDescription": "Student must draw the displayed structural formula of ethene: two carbon atoms connected by a double bond (C=C), each carbon showing two C–H single bonds (total 4 hydrogen atoms).",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CARB-A-008",
@@ -150,17 +157,18 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "subtopic": "Uses of Ethanoic Acid",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "State one use of ethanoic acid.",
-    "options": [],
-    "answer": "Any one: making dyes / pigments / paints / coatings.",
+    "questionText": "One use of ethanoic acid is",
+    "options": ["as an antacid to cure acidity", "as a fuel in spirit lamps", "in making dyes, pigments and paints", "as a drying agent for gases"],
+    "answer": "in making dyes, pigments and paints",
     "solutionSteps": [
-      "[1 mark] One use of ethanoic acid is in the manufacture of dyes / pigments / paints / coatings."
+      "[1 mark] in making dyes, pigments and paints — ethanoic acid is an industrial raw material for dyes, pigments, paints and coatings (dilute form is vinegar)."
     ],
-    "finalAnswer": "Used to make dyes / pigments / paints / coatings (any one).",
-    "isCompetencyBased": false
+    "finalAnswer": "in making dyes, pigments and paints",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CARB-B-001",

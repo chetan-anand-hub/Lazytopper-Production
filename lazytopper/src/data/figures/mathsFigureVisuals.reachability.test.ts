@@ -25,6 +25,7 @@ import path from "node:path";
 import { canonicalQuestionBank, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 import { MATHS_FIGURE_VISUALS, getFiguresForQuestion } from "../visualConceptRegistry";
 import { resolveCanonicalSlug } from "../bankQuery";
+import { BOUND_BUT_WITHHELD } from "./mathsFigureVisuals";
 
 const PUBLIC = path.resolve(__dirname, "..", "..", "..", "public");
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
@@ -46,14 +47,28 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // CBE-M-TRI-A-004, CBE-M-TRI-C-006, SP-M-2022-TRI-A-003; Z3-TG-110 is outside this batch). Crops kept on disk.
     // 86 -> 82 at QUICK-FIXES-1 PR-2 (2026-10-06): bindings of 4 withheld rows removed (CBE-M-ARC-C-001, CBE-M-ARC-C-002,
     // CBE-M-ARC-E-001, PYQ-M-ARC-005; owner ruling R3). Crops kept on disk.
-    expect(batch).toHaveLength(82); // +2: CBE-M-CG-A-001 / CBE-M-CG-B-002 (Item Bank p230, rulings 1-4 PR)
+    // 82 -> 79 at BANK-FIX-1 PR-2 (2026-10-07): bindings removed for APQ-M-TRI-008, PB-M-1-TRIG-C-001 and
+    // PYQ-M-2026-POLY-005 (rows withheld: figure / limit). Z3-ARC-004 (withheld, figure) is also
+    // unbound but sits outside this batch (/visuals/). Crops kept on disk.
+    // 79 -> 77 at BANK-FIX-1 PR-2 phase B (2026-10-07): CBE-M-STAT-B-001 and CBE-M-STAT-C-001 unbound (figure pass: the stem
+    // is self-contained and the figure contradicts it or is decorative; rows stay served). Z3-CG-004's two figures are
+    // unbound too, outside this batch (/visuals/). Crops kept on disk.
+    // 77 -> 116 at DIAGRAMS-1 PR-1 (2026-10-07, merged over BANK-FIX): +39 Circles/Triangles crops for 38 rows (board
+    // papers, APQ, SQP, NCERT, Exemplar). PYQ-M-2024-CIRC-011a's binding was dropped (BANK-FIX withholds it as a
+    // duplicate of 010a). They share the /figures/<source>-maths/ prefixes this batch filters on; each binding is pinned one by one in
+    // mathsFigureVisuals.diagrams1.test.ts. APQ-M-CIRC-007 carries two figures (main + OR part).
+    expect(batch).toHaveLength(116); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {
-    const missing = batch.filter((f) => !served.has(f.questionId ?? ""));
+    // Declared exception: rows in BOUND_BUT_WITHHELD (mathsFigureVisuals.ts) carry a bound figure while BANK-FIX
+    // withholds them; each has a stated reason, and a declared row that is actually served is itself a failure.
+    const declared = (q: string | undefined) => Object.prototype.hasOwnProperty.call(BOUND_BUT_WITHHELD, q ?? "");
+    const missing = batch.filter((f) => !served.has(f.questionId ?? "") && !declared(f.questionId));
     expect(missing.map((f) => f.questionId)).toEqual([]);
-    const withheld = batch.filter((f) => WITHHELD_QUESTION_IDS.has(f.questionId ?? ""));
+    const withheld = batch.filter((f) => WITHHELD_QUESTION_IDS.has(f.questionId ?? "") && !declared(f.questionId));
     expect(withheld.map((f) => f.questionId)).toEqual([]);
+    expect(Object.keys(BOUND_BUT_WITHHELD).filter((q) => served.has(q))).toEqual([]);
   });
 
   it("every bound question resolves to a canonical maths slug, so every topic-filtered surface reaches it", () => {
@@ -81,8 +96,15 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     expect(getFiguresForQuestion("CBE-M-TRI-A-001").map((f) => f.filePath)).toEqual([
       "/figures/itembank-maths/triangles/CBE-M-TRI-A-001.webp",
     ]);
-    // a bound row must resolve to ONE figure — a duplicate entry would draw the same figure twice
-    const dup = batch.filter((f) => getFiguresForQuestion(f.questionId).length !== 1);
+    // a bound row must resolve to ONE figure — a duplicate entry would draw the same figure twice.
+    // Declared exception (DIAGRAMS-1 PR-1): APQ-M-CIRC-007's stem carries an OR part with its own printed figure, so
+    // it binds two DIFFERENT crops in source order. Any other multi-figure row must be declared here deliberately.
+    const MULTI_FIGURE: Record<string, number> = { "APQ-M-CIRC-007": 2 };
+    const dup = batch.filter((f) => getFiguresForQuestion(f.questionId).length !== (MULTI_FIGURE[f.questionId ?? ""] ?? 1));
     expect(dup.map((f) => f.questionId)).toEqual([]);
+    for (const qid of Object.keys(MULTI_FIGURE)) {
+      const paths = getFiguresForQuestion(qid).map((f) => f.filePath);
+      expect(new Set(paths).size).toBe(paths.length); // two crops, never the same file twice
+    }
   });
 });

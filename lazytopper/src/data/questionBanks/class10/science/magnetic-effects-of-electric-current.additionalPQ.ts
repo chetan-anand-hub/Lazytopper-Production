@@ -22,12 +22,13 @@ export const MAGNETIC_EFFECTS_APQ: CanonicalQuestion[] = [
 
   // Science-PQ Q25 OR variant (Section B, Short, 2 marks)
   { id: "APQ-S-MAG-002", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field inside a Solenoid", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "A helical coil whose length is greater than its diameter is connected to a battery (as shown). (a) How does the magnetic field at point P compare with the magnetic field at point Q? Justify your answer. (b) State one way in which the strength of the magnetic field inside a current carrying helical coil can be changed.",
+    questionText: "A helical coil whose length is greater than its diameter is connected to a battery. Two points P and Q lie inside the coil. (a) How does the magnetic field at point P compare with the magnetic field at point Q? Justify your answer. (b) State one way in which the strength of the magnetic field inside a current-carrying helical coil can be changed.",
     answer: "(a) Same at P and Q (uniform field inside solenoid). (b) Change number of turns or current.",
     solutionSteps: ["(a) The helical coil acts as a solenoid. Inside a solenoid (length >> diameter), the magnetic field is UNIFORM and consists of parallel straight lines. So magnetic field at P = magnetic field at Q.", "(b) To change the strength: (i) increase/decrease the number of turns per unit length, OR (ii) increase/decrease the current through the coil. (Also: insert an iron core to dramatically increase B.)"],
     finalAnswer: "(a) Same; (b) change turns or current.",
     ncertRef: "APQ Science-PQ Q25 (OR variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: helical coil/solenoid with points P, Q labelled." },
+    strategyHint: "REQUIRES-FIGURE: helical coil/solenoid with points P, Q labelled.",
+    sourceOverride: "others", },
 
   // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
 

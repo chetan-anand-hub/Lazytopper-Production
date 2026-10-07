@@ -1,6 +1,6 @@
 /**
  * c3CbqPacks.maths.test.ts — CBQ-1 C3: the Maths competency packs (PR-1 Trigonometry + Triangles;
- * PR-2 Statistics + Pair of Linear Equations + Quadratic Equations).
+ * PR-2 Statistics + Pair of Linear Equations + Quadratic Equations; PR-3 Coordinate Geometry).
  *
  * Pins what this PR ships, as FLOORS (a later PR may add rows; none may silently vanish):
  *   - per chapter × marks counts of competency-verified rows in the SERVED bank;
@@ -21,6 +21,7 @@ import { TRIANGLES_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/trian
 import { STATISTICS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/statistics.cbq.ltgen";
 import { PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/pair-of-linear-equations.cbq.ltgen";
 import { QUADRATIC_EQUATIONS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/quadratic-equations.cbq.ltgen";
+import { COORDINATE_GEOMETRY_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/coordinate-geometry.cbq.ltgen";
 
 const PACKS = [
   { slug: "trigonometry", code: "TRIG", rows: TRIGONOMETRY_CBQ_LT_GENERATED, floor: { 1: 32, 2: 17, 3: 14, 4: 29, 5: 11 } },
@@ -28,6 +29,8 @@ const PACKS = [
   { slug: "statistics", code: "STAT", rows: STATISTICS_CBQ_LT_GENERATED, floor: { 1: 34, 2: 17, 3: 17, 4: 31, 5: 10 } },
   { slug: "pair-of-linear-equations", code: "PLE", rows: PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED, floor: { 1: 32, 2: 17, 3: 17, 4: 27, 5: 10 } },
   { slug: "quadratic-equations", code: "QE", rows: QUADRATIC_EQUATIONS_CBQ_LT_GENERATED, floor: { 1: 33, 2: 23, 3: 17, 4: 24, 5: 10 } },
+  // Coordinate Geometry has no 5-mark rows: the official papers carry none (top-up rows at 2/3 marks instead).
+  { slug: "coordinate-geometry", code: "CG", rows: COORDINATE_GEOMETRY_CBQ_LT_GENERATED, floor: { 1: 32, 2: 21, 3: 24, 4: 28, 5: 0 } },
 ] as const;
 
 const STEP = /^\[(\d+(?:\.5)?|½) marks?\]\s/;
@@ -36,7 +39,7 @@ const stepValue = (s: string) => {
   return m ? (m[1] === "½" ? 0.5 : Number(m[1])) : NaN;
 };
 
-describe("CBQ-1 C3 · Maths competency packs (Trigonometry, Triangles, Statistics, Pair of Linear Equations, Quadratic Equations)", () => {
+describe("CBQ-1 C3 · Maths competency packs (Trigonometry, Triangles, Statistics, Pair of Linear Equations, Quadratic Equations, Coordinate Geometry)", () => {
   it("every pack row is served, and served competency-verified counts per marks meet the shipped floor", () => {
     const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
     for (const p of PACKS) {

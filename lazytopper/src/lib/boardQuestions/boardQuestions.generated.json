@@ -186,7 +186,7 @@
       "questions": [
         {
           "id": "APQ-S-CHEM-001",
-          "questionText": "A single displacement reaction is represented below: PQ + R → PR + Q. Which of the following is true about the reactants and products? Option A: R = cation in product, PR more stable than PQ. Option B: R = cation in product, PR less stable. Option C: R = anion in product, PR more stable. Option D: R = anion in product, PR less stable.",
+          "questionText": "A single displacement reaction is represented below: PQ + R → PR + Q. Which of the following is true about the reactants and products?",
           "marks": 1,
           "section": "A",
           "solutionSteps": [
@@ -249,18 +249,15 @@
           ]
         },
         {
-          "id": "PYQ-M-2026-CIRC-006",
-          "questionText": "PQ and PR are two tangents to a circle with centre O and radius 5 cm. AB is another tangent to the circle at C which lies on OP. If OP = 13 cm, then find the length AB and PA.",
-          "marks": 5,
-          "section": "D",
+          "id": "PYQ-M-2024-TRI-004a",
+          "questionText": "A circle is inscribed in a right-angled triangle ABC, right-angled at B. If BC = 7 cm and AB = 24 cm, find the radius of the circle.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] Given: circle with centre O and radius OQ = 5 cm, external point P with OP = 13 cm; PQ and PR are tangents from P, so PQ = PR and OQ ⊥ PQ.",
-            "[1 mark] Tangent length from P: PQ = √(OP² − OQ²) = √(169 − 25) = √144 = 12 cm.",
-            "[1 mark] C lies on OP and AB is the tangent at C, so OC = radius = 5 cm ⇒ PC = OP − OC = 13 − 5 = 8 cm, and AB ⊥ OP at C.",
-            "[1 mark] Let AC = AQ = x (equal tangents from A). Then PA = PQ − AQ = 12 − x. In right △PCA (right angle at C): PA² = PC² + AC² ⇒ (12 − x)² = 8² + x² ⇒ 144 − 24x = 64 ⇒ x = 10/3.",
-            "[1 mark] Hence AC = 10/3 cm, so AB = 2·AC = 20/3 cm ≈ 6.67 cm and PA = 12 − 10/3 = 26/3 cm ≈ 8.67 cm."
-          ],
-          "pyqYear": "2026"
+            "[1 mark] AC = √(24² + 7²) = √625 = 25 cm. Let the radius be r cm.",
+            "[1 mark] Tangents from B are equal and the radii to the points of contact on AB and BC form a square with B, so the tangent lengths from B are r; tangent lengths from A = 24 − r and from C = 7 − r.",
+            "[1 mark] AC = (24 − r) + (7 − r) = 25 ⇒ 31 − 2r = 25 ⇒ r = 3 cm."
+          ]
         }
       ]
     },
@@ -282,14 +279,13 @@
         },
         {
           "id": "CBE-S-CTRL-E-001",
-          "questionText": "With reference to Fig. 1.1, explain how the plant hormone controls the growth response of the shoot.",
-          "marks": 4,
-          "section": "E",
+          "questionText": "A potted plant is kept near a window. After a few days its shoot is seen bending towards the light coming in through the window. Explain how the plant hormone controls this growth response of the shoot.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] The hormone (auxin) is produced/made at the shoot tip.",
-            "[1 mark] The hormone moves / diffuses / passes / spreads down the shoot.",
-            "[1 mark] It collects on the side away from the light (the shaded side).",
-            "[1 mark] The hormone causes cell elongation on the shaded side (e.g. by stretching of cell walls / osmosis of water), so the shoot bends towards the light."
+            "[1 mark] The hormone auxin is synthesised at the shoot tip and diffuses down the shoot.",
+            "[1 mark] When light falls from one side, auxin collects on the side of the shoot away from the light (the shaded side).",
+            "[1 mark] Auxin causes the cells on the shaded side to elongate more, so that side grows faster and the shoot bends towards the light (phototropism)."
           ]
         },
         {
@@ -307,16 +303,26 @@
       "subject": "maths",
       "questions": [
         {
+          "id": "APQ-M-CG-009",
+          "questionText": "Raycasting is a technique used in computer games. A snooker game in creation stage is drawn on a coordinate map. It has six pockets P1–P6 and balls including a white ball W(−3, −2) and a green ball G(7, 1). The top rail joining pockets P4 and P6 lies along the line y = 3.\n(i) How much distance will a ray travel from the green ball to the nearest pocket P4(9, 3)?\n(ii) A yellow ball is placed at the midpoint of WG. Find its coordinates.\n(iii) The white ball is hit, rebounds off the rail P4P6 and lands in pocket P2(2, −4). On its way it crosses the x-axis at X(2/7, 0), which divides the path from the striking point on the rail to P2 in the ratio 3 : 4. Find the coordinates of the point on the rail where the ball struck.",
+          "marks": 4,
+          "section": "E",
+          "solutionSteps": [
+            "[1 mark] (i) GP4 = √((9−7)² + (3−1)²) = √(4 + 4) = √8 = 2√2 units.",
+            "[1 mark] (ii) Midpoint of W(−3, −2) and G(7, 1) = ((−3+7)/2, (−2+1)/2) = (2, −1/2).",
+            "[1 mark] (iii) Let the striking point be S(c, 3). X divides S→P2 in ratio 3 : 4, so x-coordinate: (3·2 + 4·c)/7 = 2/7.",
+            "[1 mark] 6 + 4c = 2 ⟹ c = −1 (check y: (3·(−4) + 4·3)/7 = 0 ✓). Striking point = (−1, 3)."
+          ]
+        },
+        {
           "id": "BX-COORD-D-001",
           "questionText": "Three consecutive vertices of a parallelogram ABCD taken in order are A(1, 2), B(4, 3) and C(6, 6). Using the property that the diagonals of a parallelogram bisect each other, find the coordinates of the fourth vertex D.",
-          "marks": 5,
-          "section": "D",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] Property: diagonals of a parallelogram bisect each other ⇒ midpoint of diagonal AC = midpoint of diagonal BD.",
-            "[1 mark] Midpoint of AC = ((1+6)/2, (2+6)/2) = (7/2, 4).",
-            "[1 mark] Let D = (x, y). Midpoint of BD = ((4+x)/2, (3+y)/2).",
-            "[1 mark] Equate x: (4+x)/2 = 7/2 ⇒ x = 3. Equate y: (3+y)/2 = 4 ⇒ y = 5.",
-            "[1 mark] D = (3, 5). Verify: B−A = (3, 1) and C−D = (3, 1) so AB ∥ = DC. Hence ABCD is a parallelogram."
+            "[1 mark] Diagonals of a parallelogram bisect each other ⇒ midpoint of AC = midpoint of BD. Midpoint of AC = ((1 + 6)/2, (2 + 6)/2) = (7/2, 4).",
+            "[1 mark] Let D = (x, y). Midpoint of BD = ((4 + x)/2, (3 + y)/2).",
+            "[1 mark] (4 + x)/2 = 7/2 ⇒ x = 3; (3 + y)/2 = 4 ⇒ y = 5. Hence D = (3, 5)."
           ]
         },
         {
@@ -330,19 +336,6 @@
             "[1 mark] AB = CD and BC = DA ⇒ both pairs of opposite sides equal ⇒ ABCD is a parallelogram.",
             "[1 mark] Diagonal AC = √[(4+2)²+(3+1)²] = √52; diagonal BD = √[(1−1)²+(2−0)²] = 2.",
             "[1 mark] AC ≠ BD, so the diagonals are unequal ⇒ ABCD is a parallelogram but NOT a rectangle."
-          ]
-        },
-        {
-          "id": "BX-COORD-D-003",
-          "questionText": "The corners of a rhombus-shaped tile are marked A(3, 0), B(4, 5), C(−1, 4) and D(−2, −1). Show that all four sides are equal, and by comparing the diagonals prove that the tile is a rhombus but not a square.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] AB = √[(4−3)²+(5−0)²] = √26 and BC = √[(−1−4)²+(4−5)²] = √26.",
-            "[1 mark] CD = √[(−2+1)²+(−1−4)²] = √26 and DA = √[(3+2)²+(0+1)²] = √26.",
-            "[1 mark] AB = BC = CD = DA = √26 ⇒ all four sides equal ⇒ ABCD is a rhombus.",
-            "[1 mark] Diagonal AC = √[(−1−3)²+(4−0)²] = √32; diagonal BD = √[(−2−4)²+(−1−5)²] = √72.",
-            "[1 mark] AC ≠ BD ⇒ the diagonals are unequal, so it is a rhombus but NOT a square."
           ]
         }
       ]
@@ -510,15 +503,6 @@
       "subject": "science",
       "questions": [
         {
-          "id": "APQ-S-LIFE-002",
-          "questionText": "Oxygen saturation levels refer to the extent haemoglobin is bound to oxygen. As altitude increases, the atmospheric pressure decreases. Which of the following graphs correctly represents the oxygen saturation levels as altitude increases?",
-          "marks": 1,
-          "section": "A",
-          "solutionSteps": [
-            "[1 mark] At higher altitude, atmospheric pressure (and pO2) is lower ⟹ less O2 binds to haemoglobin ⟹ O2 saturation decreases as altitude increases. Graph Q shows a decreasing trend matching this physiology."
-          ]
-        },
-        {
           "id": "APQ-S-LIFE-003",
           "questionText": "Patient X was suffering from a pancreatic condition due to which the pancreas was not functioning adequately. Which of the following is a doctor likely to suggest to such an individual?",
           "marks": 1,
@@ -535,6 +519,16 @@
           "solutionSteps": [
             "[1 mark] Lizards respire and release CO2 inside the jar, increasing CO2 concentration around plant X.",
             "[1 mark] Higher CO2 availability + adequate light ⟹ higher rate of photosynthesis in X compared to Y (which has limited CO2 in the closed jar)."
+          ]
+        },
+        {
+          "id": "APQ-S-LIFE-005",
+          "questionText": "Proteinuria is a condition in which significant amounts of protein can be detected in urine. Which process in the nephron is likely to be affected causing proteinuria? Justify.",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] Filtration: normally large proteins are too big to pass through the glomerular filter. If filtration becomes leaky, proteins enter the filtrate.",
+            "[1 mark] Selective reabsorption: even if small amounts pass through, they're normally reabsorbed back into blood. If reabsorption fails, proteins remain in urine ⟹ proteinuria."
           ]
         }
       ]
@@ -581,6 +575,15 @@
       "subject": "science",
       "questions": [
         {
+          "id": "PYQ-S-2024-MAG-001",
+          "questionText": "The current carrying device which produces a magnetic field similar to that of a bar magnet is :",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] The magnetic field lines of a current-carrying solenoid emerge from one end and enter the other, exactly like a bar magnet; one end acts as a north pole and the other as a south pole. Hence (c) a solenoid."
+          ]
+        },
+        {
           "id": "PYQ-S-2024-METAL-002",
           "questionText": "A student fixes a sheet of white paper on a drawing board. He places a bar magnet in the centre of it. He sprinkles some iron filings uniformly around the bar magnet. Then he taps the drawing board gently and observes that the iron filings arrange themselves in a particular pattern. (a) Why do iron filings arrange in a particular pattern ? (b) What does the crowding of iron filings at the ends of the magnet indicate ? (c) What do the lines, along which the iron filings align, represent ? (d) If the student places a cardboard horizontally in a current carrying solenoid and repeats the above activity, in what pattern would the iron filings arrange ? State the conclusion drawn about the magnetic field based on the observed pattern of the lines.",
           "marks": 3,
@@ -607,19 +610,6 @@
             "[1 mark] (iii) • A piece of wire made of a metal or an alloy. • appropriate (low) melting point."
           ],
           "pyqYear": "2026"
-        },
-        {
-          "id": "SCQ-S-MAG-039",
-          "questionText": "(a) Explain what is the difference between direct current and alternating current? Write one important advantage of using alternating current. (b) An air conditioner of 2 kW is used in an electric circuit having a fuse of 10 A rating. If the potential difference of the supply is 220 V, will the fuse be able to withstand, when the air conditioner is switched on? Justify your answer.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] (a) Direct current (DC) is a unidirectional current of constant magnitude — it always flows in the same direction.",
-            "[1 mark] Alternating current (AC) is a current which changes its magnitude and reverses its direction periodically after fixed intervals of time.",
-            "[1 mark] One important advantage of AC: it can be transmitted over long distances with much less loss of electrical power (its voltage can be stepped up or down easily).",
-            "[1 mark] (b) Given P = 2 kW = 2000 W, V = 220 V. Current drawn, I = P/V = 2000/220 ≈ 9.09 A.",
-            "[1 mark] The fuse rating is 10 A, which is greater than the 9.09 A drawn by the air conditioner, so the fuse will withstand it — it will not blow when the air conditioner is switched on."
-          ]
         }
       ]
     },
@@ -662,23 +652,22 @@
       "questions": [
         {
           "id": "CBE-S-ENVI-A-004",
-          "questionText": "A food web is shown. Using the information in the food web, draw a food chain that has the most efficient transfer of energy to the human.",
+          "questionText": "A food web is shown. Which food chain from this web has the most efficient transfer of energy to the human?",
           "marks": 1,
           "section": "A",
           "solutionSteps": [
-            "[1 mark] Draw the shortest food chain with the arrow direction correct: Spinach → Human (fewest trophic levels means least energy lost, so most efficient transfer to the human)."
+            "[1 mark] Spinach → Human — the shortest chain has the fewest trophic levels, so the least energy is lost before reaching the human."
           ]
         },
         {
           "id": "CBE-S-ENVI-E-001",
           "questionText": "In periods of high rainfall, fertiliser can flow into lake ecosystems. Explain what is meant by the term ecosystem.",
-          "marks": 4,
-          "section": "E",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] An ecosystem includes the living organisms - the plants and animals.",
-            "[1 mark] These organisms live together in a habitat / community.",
-            "[1 mark] The organisms interact with each other (biotic interactions).",
-            "[1 mark] The organisms also interact with their non-living surroundings (abiotic factors, e.g. climate, water, light)."
+            "[1 mark] An ecosystem consists of all the living organisms (plants, animals, microorganisms) living together in an area/habitat.",
+            "[1 mark] These organisms interact with one another (biotic interactions).",
+            "[1 mark] They also interact with their non-living surroundings (abiotic factors such as water, light, temperature, soil)."
           ]
         },
         {
@@ -827,14 +816,12 @@
         {
           "id": "BX-QUAD-D-001",
           "questionText": "The product of two consecutive positive odd integers is 483. Find the two integers.",
-          "marks": 5,
-          "section": "D",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] Let the smaller odd integer be x; the next consecutive odd integer is x + 2. Given product: x(x + 2) = 483.",
-            "[1 mark] Write in standard form: x² + 2x − 483 = 0.",
-            "[1 mark] Split the middle term: x² + 23x − 21x − 483 = 0 ⇒ (x + 23)(x − 21) = 0.",
-            "[1 mark] Roots x = 21 or x = −23. Reject x = −23 because the integers must be positive.",
-            "[1 mark] So x = 21 and the integers are 21 and 23 (21 × 23 = 483 ✓)."
+            "[1 mark] Let the smaller odd integer be x; the next is x + 2. x(x + 2) = 483 ⇒ x² + 2x − 483 = 0.",
+            "[1 mark] Split the middle term: x² + 23x − 21x − 483 = 0 ⇒ (x + 23)(x − 21) = 0 ⇒ x = 21 or x = −23.",
+            "[1 mark] Reject x = −23 (integers are positive). The integers are 21 and 23 (21 × 23 = 483 ✓)."
           ]
         },
         {
@@ -869,15 +856,6 @@
       "subject": "maths",
       "questions": [
         {
-          "id": "CBE-M-RN-A-002",
-          "questionText": "Three cubical warehouses of volume 165 m³, 195 m³ and 285 m³ are to be used for storage. What is the volume of the greatest cubical box that can be kept in the warehouse so that no space is left vacant?",
-          "marks": 1,
-          "section": "A",
-          "solutionSteps": [
-            "[1 mark] Required volume = HCF(165, 195, 285) = 15 m³. Answer: B."
-          ]
-        },
-        {
           "id": "CBE-M-RN-A-003",
           "questionText": "Shilpi wants to organize a party. She has 36 kiwis and 60 oranges at home and decided to distribute them equally among all. She decides to add 42 apples also. In this case, how many maximum guests can she invite?",
           "marks": 1,
@@ -893,6 +871,15 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] 336 = 56 × 6 and 54 = 9 × 6, so HCF(336, 54) = 6 = maximum guests. Answer: A."
+          ]
+        },
+        {
+          "id": "CBE-M-RN-A-005",
+          "questionText": "There are five bells placed at different swings in a park, which toll at intervals of 2, 3, 5, 6, and 10 minutes, respectively. They all toll together when the park is open for visitors at 10:00 AM. How many more times do they all toll together till the park is closed at 8:00 PM?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] LCM(2, 3, 5, 6, 10) = 30, so the bells toll together every 30 minutes. From 10:00 AM to 8:00 PM is 10 hours = 600 minutes; 600 ÷ 30 = 20 more times. Answer: B."
           ]
         }
       ]
@@ -914,25 +901,22 @@
           ]
         },
         {
-          "id": "APQ-M-STAT-008",
-          "questionText": "The pyramid graph shows the ages of 548 Members of Parliament (MPs) in the 17th Lok Sabha. On an average, how much younger is a female MP than a male MP? Round your answer to the nearest whole number.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] From the pyramid graph, construct grouped frequency distribution tables (class marks × frequencies) of ages for male and female MPs separately.",
-            "[1 mark] Female MPs: Σfᵢ = 80, Σfᵢxᵢ = 4280 ⇒ mean age = 4280/80 = 53.5 years.",
-            "[1 mark] Male MPs: Σfᵢ = 468, Σfᵢxᵢ = 27980 ⇒ mean age = 27980/468 ≈ 59.8 years.",
-            "[1 mark] Difference of mean ages = 59.8 − 53.5 = 6.3 years.",
-            "[1 mark] Rounded to the nearest whole number, a female MP is on average ≈ 6 years younger than a male MP."
-          ]
-        },
-        {
           "id": "CBE-M-STAT-A-001",
           "questionText": "The Indian Council of Medical Research wants to analyse the age group of people affected by a certain disease. The table below shows the age distribution of patients with a certain disease admitted to a hospital.\nAge (in years) : Number of cases\n5–14 : 6\n15–24 : 11\n25–34 : 21\n35–44 : 23\n45–54 : 14\n55–64 : 5\nThe most highly affected age group is:",
           "marks": 1,
           "section": "A",
           "solutionSteps": [
             "[1 mark] The most highly affected age group is the class with the highest frequency. The class 35–44 has the highest frequency (23), so the answer is (iii) 35–44."
+          ]
+        },
+        {
+          "id": "CBE-M-STAT-B-002",
+          "questionText": "Given below is a table of marks obtained by 85 students in a class in a Mathematics assessment.\nMarks obtained by a student : Number of students\nBelow 10 : 5\nBelow 20 : 9\nBelow 30 : 17\nBelow 40 : 29\nBelow 50 : 45\nBelow 60 : 60\nBelow 70 : 70\nBelow 80 : 78\nBelow 90 : 83\nBelow 100 : 85\nFind the median marks.",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] N = 85, so N/2 = 42.5. Cumulative frequencies give the median class 40–50 (cf 45 is the first greater than 42.5); l = 40, cf = 29, f = 45 − 29 = 16, h = 10.",
+            "[1 mark] Median = 40 + ((42.5 − 29) / 16) × 10 = 40 + 8.44 = 48.44 (approx.)."
           ]
         }
       ]
@@ -941,16 +925,26 @@
       "subject": "maths",
       "questions": [
         {
+          "id": "APQ-M-SAV-004",
+          "questionText": "A right circular cone has volume 13,600 cm³ and base radius 20 cm. Find the angle which the slant height makes with the base radius. (Take π = 3 and √3 = 1.7.)",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] Volume = (1/3)πr²h = (1/3)(3)(20)²h = 400h = 13600 ⟹ h = 34 cm.",
+            "[1 mark] tan θ = h/r = 34/20 = 1.7 = √3 ⟹ θ = 60°."
+          ]
+        },
+        {
           "id": "APQ-M-SAV-006",
-          "questionText": "Two rectangular sheets of dimensions 45 cm × 155 cm are folded to make hollow right circular cylindrical pipes with exactly 1 cm overlap when sticking the ends. Sheet 1 is folded along its length, Sheet 2 along its width. Both pipes are closed on both ends. (i) Find the difference in curved surface areas of the two cylinders. (ii) Find the ratio of the volumes of the two cylinders formed. (Use π = 22/7.) OR (i) How many cylindrical cans (with the geometry shown) can be packed in a cubical container with no more cans fitting? (ii) If one can capacity = 539 ml, find the internal volume of the cubical container.",
+          "questionText": "Two rectangular sheets, each of dimensions 45 cm × 155 cm, are folded to make hollow right circular cylindrical pipes, with exactly 1 cm overlap when sticking the ends. Sheet 1 is folded along its length (so its height is 155 cm) and Sheet 2 along its width (so its height is 45 cm). Both pipes are closed at both ends.\n(i) Find the difference in the curved surface areas of the two cylinders.\n(ii) Find the ratio of the volumes of the two cylinders formed. (Use π = 22/7.)",
           "marks": 5,
           "section": "D",
           "solutionSteps": [
-            "[1 mark] Variant 1 (i): Sheet 1 makes a pipe of height 155 cm; the 1 cm overlap wastes 155 × 1 = 155 cm². Sheet 2 makes a pipe of height 45 cm; overlap wastes 45 × 1 = 45 cm².",
-            "[1 mark] Difference in curved surface area = 155 − 45 = 110 cm².",
-            "[1 mark] (ii) Sheet 1 circumference = 45 − 1 = 44 cm ⟹ r₁ = 7 cm; Sheet 2 circumference = 155 − 1 = 154 cm ⟹ r₂ = 49/2 cm.",
-            "[1 mark] (ii) Ratio of volumes V₁ : V₂ = (r₁²·h₁)/(r₂²·h₂) = (7²·155)/((49/2)²·45) = 124 : 441.",
-            "[1 mark] OR variant: container side = 2p with 4 cans per direction ⟹ 4 × 4 × 2 = 32 cans; with can capacity 539 ml, p = 14 cm, cube side = 28 cm, internal volume = 28³ = 21952 cm³."
+            "[1 mark] Sheet 1: height h₁ = 155 cm, circumference = 45 − 1 = 44 cm. Sheet 2: height h₂ = 45 cm, circumference = 155 − 1 = 154 cm.",
+            "[1 mark] (i) CSA = circumference × height: CSA₁ = 44 × 155 = 6820 cm², CSA₂ = 154 × 45 = 6930 cm²; difference = 6930 − 6820 = 110 cm².",
+            "[1 mark] (ii) 2πr₁ = 44 ⟹ r₁ = 7 cm; 2πr₂ = 154 ⟹ r₂ = 49/2 cm.",
+            "[1 mark] (ii) V₁ = πr₁²h₁ = (22/7)(49)(155) = 23870 cm³; V₂ = πr₂²h₂ = (22/7)(2401/4)(45) = 84892.5 cm³.",
+            "[1 mark] (ii) V₁ : V₂ = 23870 : 84892.5 = 124 : 441."
           ]
         },
         {
@@ -964,15 +958,6 @@
             "[1 mark] Matka (sphere) volume = (4/3)·π·r³ = (4/3)·(22/7)·(21)³ = 38,808 cm³ ≈ 0.0388 m³.",
             "[1 mark] (ii) Water for 3 colonies = 3 × 42 = 126 m³; water for 400 matkas = 400 × 0.0388 ≈ 16 m³.",
             "[1 mark] (ii) Total water supplied = 126 + 16 = 142 m³ (approx)."
-          ]
-        },
-        {
-          "id": "CBE-M-SAV-A-001",
-          "questionText": "Kanupriya runs a bakery shop. After a biscuit is cooked it becomes a cylinder of radius 3 cm and height 0.7 cm. Find the volume of one biscuit after it is cooked.",
-          "marks": 1,
-          "section": "A",
-          "solutionSteps": [
-            "[1 mark] Volume of cylinder = πr²h = (22/7) × 3 × 3 × 0.7 = 19.8 cm³. Answer: C."
           ]
         }
       ]
@@ -994,19 +979,6 @@
           ]
         },
         {
-          "id": "APQ-M-TRI-008",
-          "questionText": "In the figure, ΔABC is a right-angled triangle, such that: AC = 25 cm, PT ∥ AB and SR ∥ BC. Find the area of ΔPQR.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] From the figure: RC = 50/5 = 10 cm and PC = 50/3 cm, so PR = PC − RC = 50/3 − 10 = 20/3 cm.",
-            "[1 mark] Since QR ∥ BC (as SR ∥ BC), ΔPQR ~ ΔPTC by the Basic Proportionality Theorem, giving PR/CR = PQ/QT.",
-            "[1 mark] Substitute: (20/3)/10 = PQ/8 ⟹ PQ = (20/3) × 8 / 10 = 16/3 cm.",
-            "[1 mark] In right ΔPQR, by Pythagoras QR² = PR² − PQ² = (20/3)² − (16/3)² = (400 − 256)/9 = 144/9 ⟹ QR = 4 cm.",
-            "[1 mark] Area of ΔPQR = ½ × QR × PQ = ½ × 4 × 16/3 = 32/3 cm²."
-          ]
-        },
-        {
           "id": "BX-TRI-D-001",
           "questionText": "In △ABC, D and E lie on sides AB and AC respectively such that DE ∥ BC. It is given that AD = (x + 1) cm, DB = (x − 1) cm, AE = (x + 3) cm and EC = x cm. Find the value of x, and hence write the lengths of AD and AE.",
           "marks": 5,
@@ -1018,12 +990,34 @@
             "[1 mark] The x² terms cancel: x = 2x − 3 ⇒ x = 3.",
             "[1 mark] Hence AD = x + 1 = 4 cm and AE = x + 3 = 6 cm (with DB = 2 cm, EC = 3 cm; ratios 4/2 = 6/3 ✓)."
           ]
+        },
+        {
+          "id": "BX-TRI-D-002",
+          "questionText": "In △PQR, points A and B lie on PQ (A between P and B) and points C and D lie on PR such that AC ∥ BD ∥ QR. Given PA = 2 cm, AB = 3 cm, BQ = 4 cm and PC = 3 cm, find the lengths CD and DR.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Parallel lines cut the two transversals PQ and PR in the same ratio (BPT applied repeatedly).",
+            "[1 mark] Along PQ the intercepts are PA : AB : BQ = 2 : 3 : 4.",
+            "[1 mark] Hence along PR, PC : CD : DR = 2 : 3 : 4.",
+            "[1 mark] PC corresponds to 2 parts and PC = 3 cm, so one part = 1.5 cm.",
+            "[1 mark] Therefore CD = 3 × 1.5 = 4.5 cm and DR = 4 × 1.5 = 6 cm."
+          ]
         }
       ]
     },
     "trigonometry": {
       "subject": "maths",
       "questions": [
+        {
+          "id": "APQ-M-TRIG-002",
+          "questionText": "In the figure, PQRS is a square. What is the value of sin ∠SPT?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT = 90° − ∠UPQ, so sin ∠SPT = cos ∠UPQ = PU/PQ = 8/17."
+          ]
+        },
         {
           "id": "APQ-M-TRIG-009",
           "questionText": "A man on the top of a vertical tower observes a car moving at a uniform speed coming directly towards it. If it takes 12 minutes for the angle of depression to change from 30° to 45°, how soon after this will the car reach the tower? Give your answer to nearest minutes. (Use √3 = 1.73). OR If the angle of elevation of a cloud from a point 10 metres above a lake is 30° and the angle of depression of its reflection in the lake is 60°, find the height of the cloud from the surface of the lake.",
@@ -1045,16 +1039,6 @@
           "solutionSteps": [
             "[1 mark] tan 45° = opposite/adjacent = (height of flagpole)/25.",
             "[1 mark] 1 = (height of flagpole)/25 → height of flagpole = 25 m."
-          ]
-        },
-        {
-          "id": "CBE-M-TRIG-B-008",
-          "questionText": "Ravi got a clinometer from his school's maths lab and started measuring angles of elevation. He saw a corporate building with the company logo painted on a wall. From a point P on the ground, 24 metres from the base of the building, the angle of elevation of the roof is 45°. The angle of elevation of C, the centre of the logo, is 30°. What is the height of the centre of the logo from the ground?",
-          "marks": 2,
-          "section": "B",
-          "solutionSteps": [
-            "[1 mark] tan 30° = h/x → h/24 = 1/√3.",
-            "[1 mark] h = 24/√3 = 8√3 = 8 × 1.73 = 13.84 m."
           ]
         }
       ]

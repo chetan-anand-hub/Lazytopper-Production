@@ -8,7 +8,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Coverage: 9 text-extractable QPs (31/1/x, 31/2/x, 31/3/x); 9 scanned QPs (31/4/x, 31/5/x, 31/6/x) skipped — require OCR
 
 export const controlCoordinationPYQ2025: CanonicalQuestion[] = [
-  { id: "PYQ-S-2025-CTRL-001", subject: "Science", topicKey: "control-and-coordination", subtopic: "Endocrine System", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2025-CTRL-001", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The plant hormone whose concentration stimulates the cells to grow longer on the side of the shoot which is away from light is :",
     options: ["Cytokinins", "Gibberellins", "Adrenaline", "Auxins"],
     answer: "Auxins",
@@ -16,7 +16,7 @@ export const controlCoordinationPYQ2025: CanonicalQuestion[] = [
     finalAnswer: "(d) Auxins",
     ncertRef: "PYQ 31/1/1 Q9", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1" },
-  { id: "PYQ-S-2025-CTRL-002", subject: "Science", topicKey: "control-and-coordination", subtopic: "Endocrine System", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2025-CTRL-002", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The plant hormone present in greater concentration in the areas of rapidly dividing cells is :",
     options: ["Auxin", "Cytokinins", "Gibberellins", "Abscisic acid"],
     answer: "Cytokinins",

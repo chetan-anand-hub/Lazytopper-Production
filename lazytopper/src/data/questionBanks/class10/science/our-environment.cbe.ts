@@ -13,17 +13,18 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "subtopic": "Meaning of Arrows in a Food Chain",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "What do the arrows in a food chain represent?",
-    "options": [],
-    "answer": "The transfer of energy from the producer to the consumer(s).",
+    "questionText": "In a food chain, the arrows represent",
+    "options": ["the transfer of energy from the consumers back to the producer", "the flow of oxygen from producers to consumers", "the transfer of energy from the food to the feeder (producer to consumers)", "the number of organisms at each trophic level"],
+    "answer": "the transfer of energy from the food to the feeder (producer to consumers)",
     "solutionSteps": [
-      "[1 mark] The arrows represent the transfer of energy (in the direction food → feeder), i.e. from the producer to the consumers."
+      "[1 mark] the transfer of energy from the food to the feeder (producer to consumers) — arrows show the direction of energy flow, from the organism eaten to the one that eats it."
     ],
-    "finalAnswer": "The transfer of energy from the producer to the consumers (direction of energy flow).",
-    "isCompetencyBased": false
+    "finalAnswer": "the transfer of energy from the food to the feeder (producer to consumers)",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ENVI-A-002",
@@ -56,19 +57,20 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "subtopic": "Producers in a Food Web",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Part of a forest food web is shown. The producers in the food web make their own food. Identify one producer.",
-    "options": [],
-    "answer": "Coconut tree or banana plant.",
+    "questionText": "Part of a forest food web is shown. The producers in the food web make their own food. Which of these is a producer?",
+    "options": ["grasshopper", "fruit bat", "frog", "coconut tree"],
+    "answer": "coconut tree",
     "solutionSteps": [
-      "[1 mark] A producer in the food web is the coconut tree (or banana plant)."
+      "[1 mark] coconut tree — the coconut tree makes its own food by photosynthesis; the others are consumers."
     ],
-    "finalAnswer": "Coconut tree (or banana plant)",
+    "finalAnswer": "coconut tree",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Part of a forest food web showing producers (e.g. coconut tree, banana plant) and the organisms that feed on them."
+    "diagramDescription": "Part of a forest food web showing producers (e.g. coconut tree, banana plant) and the organisms that feed on them.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ENVI-A-004",
@@ -77,19 +79,20 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "subtopic": "Food Chains and Energy Transfer",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A food web is shown. Using the information in the food web, draw a food chain that has the most efficient transfer of energy to the human.",
-    "options": [],
-    "answer": "Spinach → Human (the shortest chain gives the most efficient energy transfer).",
+    "questionText": "A food web is shown. Which food chain from this web has the most efficient transfer of energy to the human?",
+    "options": ["Spinach → Human", "Spinach → Goat → Human", "Spinach → Chicken → Human", "Human → Spinach"],
+    "answer": "Spinach → Human",
     "solutionSteps": [
-      "[1 mark] Draw the shortest food chain with the arrow direction correct: Spinach → Human (fewest trophic levels means least energy lost, so most efficient transfer to the human)."
+      "[1 mark] Spinach → Human — the shortest chain has the fewest trophic levels, so the least energy is lost before reaching the human."
     ],
     "finalAnswer": "Spinach → Human",
     "isCompetencyBased": true,
     "requiresDiagram": true,
-    "diagramDescription": "A food web is provided; the answer is the single most efficient food chain 'Spinach → Human' drawn with a correctly directed arrow indicating energy flow."
+    "diagramDescription": "A food web is provided; the answer is the single most efficient food chain 'Spinach → Human' drawn with a correctly directed arrow indicating energy flow.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ENVI-B-001",
@@ -182,22 +185,22 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Meaning of an Ecosystem",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
     "questionText": "In periods of high rainfall, fertiliser can flow into lake ecosystems. Explain what is meant by the term ecosystem.",
     "options": [],
     "answer": "An ecosystem is a community of organisms (plants and animals) living together in a habitat, which interact with one another (biotic factors) and with their non-living surroundings (abiotic factors such as climate, water, light).",
     "solutionSteps": [
-      "[1 mark] An ecosystem includes the living organisms - the plants and animals.",
-      "[1 mark] These organisms live together in a habitat / community.",
-      "[1 mark] The organisms interact with each other (biotic interactions).",
-      "[1 mark] The organisms also interact with their non-living surroundings (abiotic factors, e.g. climate, water, light)."
+      "[1 mark] An ecosystem consists of all the living organisms (plants, animals, microorganisms) living together in an area/habitat.",
+      "[1 mark] These organisms interact with one another (biotic interactions).",
+      "[1 mark] They also interact with their non-living surroundings (abiotic factors such as water, light, temperature, soil)."
     ],
     "finalAnswer": "An ecosystem is a community of organisms in a habitat interacting with each other (biotic) and with their non-living surroundings (abiotic).",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ENVI-E-002",
@@ -228,43 +231,43 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Effect of Pesticide on a Food Chain and Bioaccumulation",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
     "questionText": "A farmer sprays their spinach with pesticide and kills most of the caterpillars, though some caterpillars survive. The food chain is spinach → caterpillar → blackbird → eagle. Discuss the impact on the food chain.",
     "options": [],
     "answer": "With fewer caterpillars there is less food for the blackbirds, so blackbird numbers fall / they die out; this means less food for the eagles, so eagle numbers fall / they die out. The pesticide in the surviving caterpillars transfers to the consumers that eat them and bioaccumulates up the chain in the blackbirds and eagles.",
     "solutionSteps": [
-      "[1 mark] Killing most caterpillars leaves less food for the blackbirds, so blackbird numbers fall / they may die out.",
-      "[1 mark] With fewer blackbirds there is less food for the eagles, so eagle numbers fall / they may die out.",
-      "[1 mark] Pesticide in the surviving caterpillars is transferred to the consumers (blackbirds, then eagles) when they are eaten.",
-      "[1 mark] The pesticide bioaccumulates, building up to higher concentrations in consumers higher up the chain (eagles), which can harm them."
+      "[1 mark] Killing most caterpillars leaves less food for the blackbirds, so blackbird numbers fall.",
+      "[1 mark] With fewer blackbirds there is less food for the eagles, so eagle numbers also fall.",
+      "[1 mark] Pesticide in the surviving caterpillars passes to blackbirds and then eagles when eaten and accumulates (biological magnification), reaching the highest concentration in the eagles and harming them."
     ],
     "finalAnswer": "Fewer caterpillars mean less food up the chain (blackbirds then eagles decline), and pesticide in surviving caterpillars bioaccumulates in the consumers, harming the top predators.",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ENVI-E-004",
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Pollutants and Ecosystem Impact (Eutrophication)",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
     "questionText": "Detergents are non-biodegradable. Explain two negative environmental impacts of detergents in a lake ecosystem.",
     "options": [],
     "answer": "Detergents contain phosphates that act as fertiliser, causing algal blooms; subsequent decomposition causes eutrophication and oxygen depletion, leading to death of aquatic organisms.",
     "solutionSteps": [
-      "[1 mark] Detergents act as a fertiliser because they contain phosphates.",
-      "[1 mark] This causes increased growth of algae / an algal bloom.",
-      "[1 mark] Decomposition of algae by microbes increases respiration, causing eutrophication / oxygen depletion in the water.",
-      "[1 mark] Oxygen depletion (and endocrine disruption of aquatic animals) leads to death of fish, plants and other organisms."
+      "[1 mark] Detergents contain phosphates, which act as a fertiliser in the lake and cause excessive growth of algae (algal bloom).",
+      "[1 mark] When the algae die, microbes decomposing them use up the dissolved oxygen (eutrophication / oxygen depletion).",
+      "[1 mark] The lack of oxygen kills fish and other aquatic organisms, disturbing the lake ecosystem."
     ],
     "finalAnswer": "Phosphates cause algal bloom; resulting eutrophication / oxygen depletion kills aquatic organisms.",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   }
 ];

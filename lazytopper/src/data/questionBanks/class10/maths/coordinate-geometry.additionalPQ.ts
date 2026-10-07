@@ -11,10 +11,11 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "The coordinates of the centre of the circle, O, and a point on the circle, N, are shown in the figure. What is the radius of the circle?",
     options: ["√0.4 units", "2 units", "4 units", "√42.4 units"],
     answer: "2 units",
-    solutionSteps: ["Radius = distance from centre to point on circle, computed via distance formula on the coordinates shown in the figure.", "Per MS: radius = 2 units."],
+    solutionSteps: ["From the figure, O(−4, 3) and N(−2.4, 1.8). Radius = ON = √[(−2.4 − (−4))² + (1.8 − 3)²] = √[(1.6)² + (−1.2)²].", "= √(2.56 + 1.44) = √4 = 2 units. Correct option (b)."],
     finalAnswer: "(b) 2 units",
     ncertRef: "APQ PQ1 Q4", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: coordinates of O and N from PDF." },
+    strategyHint: "REQUIRES-FIGURE: coordinates of O and N from PDF.",
+    sourceOverride: "others", },
 
   // PQ1 Q20 (Section A, Assertion-Reasoning, 1 mark)
   { id: "APQ-M-CG-002", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Equidistant Points — Locus", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Hard", bloomSkill: "Analysing",
@@ -94,10 +95,11 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
 
   // PQ_2022 Q37 (Section E, Case-Based, 4 marks)
   { id: "APQ-M-CG-009", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance, Midpoint, Section Formula — Raycasting Game", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "Raycasting is a technique used in computer games. A snooker game in creation stage on a coordinate map has six pockets P1-P6 and three balls — white W(−3, −2), red R, green G(7, 1). (i) How much distance will a ray travel from the green ball to the nearest pocket (P4 at (9, 3))? (ii) Find coordinates of the yellow ball at the midpoint of WG. (iii) White ball rebounds off rail (line P4-P6) and lands in P2(2, −4). Ball crossed x-axis at X(2/7, 0). Ratio of distance rail-to-X and X-to-P2 = 3:4. Find coordinates of point on rail where ball struck. OR (iii) Riju wants to hit a blue ball (−1, −3) into P5 along a straight path. Would the red ball lie on the path?",
-    answer: "(i) 2√2 units. (ii) (2, −1/2). (iii) (−1, 3). [OR] Yes — collinear (BR + RP5 = BP5).",
-    solutionSteps: ["(i) Distance G(7,1) → P4(9,3) = √((9−7)^2 + (3−1)^2) = √(4 + 4) = √8 = 2√2.", "(ii) Midpoint of W(−3, −2), G(7, 1) = ((−3+7)/2, (−2+1)/2) = (2, −1/2).", "(iii) Let strike point on rail be (c, 3). X(2/7, 0) divides line from (c, 3) to P2(2, −4) in ratio 3:4. By section formula: 2/7 = (3·2 + 4·c)/7 ⟹ 2 = 6 + 4c ⟹ c = −1. So strike point = (−1, 3).", "[OR] BR = 2√5, RP5 = √5, BP5 = 3√5. BR + RP5 = BP5 ⟹ collinear ⟹ red ball lies on path."],
-    finalAnswer: "(i) 2√2; (ii) (2, −1/2); (iii) (−1, 3) [or] yes, collinear.",
+    questionText: "Raycasting is a technique used in computer games. A snooker game in creation stage is drawn on a coordinate map. It has six pockets P1–P6 and balls including a white ball W(−3, −2) and a green ball G(7, 1). The top rail joining pockets P4 and P6 lies along the line y = 3.\n(i) How much distance will a ray travel from the green ball to the nearest pocket P4(9, 3)?\n(ii) A yellow ball is placed at the midpoint of WG. Find its coordinates.\n(iii) The white ball is hit, rebounds off the rail P4P6 and lands in pocket P2(2, −4). On its way it crosses the x-axis at X(2/7, 0), which divides the path from the striking point on the rail to P2 in the ratio 3 : 4. Find the coordinates of the point on the rail where the ball struck.",
+    answer: "(i) 2√2 units. (ii) (2, −1/2). (iii) (−1, 3).",
+    solutionSteps: ["[1 mark] (i) GP4 = √((9−7)² + (3−1)²) = √(4 + 4) = √8 = 2√2 units.", "[1 mark] (ii) Midpoint of W(−3, −2) and G(7, 1) = ((−3+7)/2, (−2+1)/2) = (2, −1/2).", "[1 mark] (iii) Let the striking point be S(c, 3). X divides S→P2 in ratio 3 : 4, so x-coordinate: (3·2 + 4·c)/7 = 2/7.", "[1 mark] 6 + 4c = 2 ⟹ c = −1 (check y: (3·(−4) + 4·3)/7 = 0 ✓). Striking point = (−1, 3)."],
+    finalAnswer: "(i) 2√2 units; (ii) (2, −1/2); (iii) (−1, 3).",
     ncertRef: "APQ PQ_2022 Q37", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: snooker table coordinate map with pockets and balls." },
+    strategyHint: "REQUIRES-FIGURE: snooker table coordinate map with pockets and balls.",
+    sourceOverride: "others", },
 ];

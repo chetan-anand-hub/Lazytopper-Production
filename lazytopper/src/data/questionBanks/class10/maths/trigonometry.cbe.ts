@@ -45,16 +45,16 @@ export const TRIG_CBE: CanonicalQuestion[] = [
     "subtopic": "Trigonometric Ratios of Specific Angles",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "If sin (A − B) = ½ and cos (A + B) = ½, where (A + B) ≤ 90° and A > B, find the value of tan 2A.",
-    "options": [],
-    "answer": "tan 2A is not defined (A = 45°, so 2A = 90°)",
+    "questionText": "If sin (A − B) = ½ and cos (A + B) = ½, where (A + B) ≤ 90° and A > B, then tan 2A is",
+    "options": ["1", "not defined", "√3", "0"],
+    "answer": "not defined",
     "solutionSteps": [
-      "[1 mark] sin(A−B) = ½ ⇒ A−B = 30°; cos(A+B) = ½ ⇒ A+B = 60°. Adding: 2A = 90° ⇒ A = 45°, B = 15°. Hence tan 2A = tan 90°, which is not defined."
+      "[1 mark] not defined — A − B = 30° and A + B = 60° give A = 45°, so tan 2A = tan 90°, which is not defined."
     ],
-    "finalAnswer": "tan 2A is not defined (A = 45°, so 2A = 90°)",
+    "finalAnswer": "not defined",
     "isCompetencyBased": false,
     sourceOverride: "others",
   },
@@ -89,17 +89,18 @@ export const TRIG_CBE: CanonicalQuestion[] = [
     "subtopic": "Trigonometric Ratios of Specific Angles",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Evaluate in the simplest form: cos 60°·cos 30° − sin 60°·sin 30°",
-    "options": [],
+    "questionText": "The value of cos 60°·cos 30° − sin 60°·sin 30° is",
+    "options": ["1", "1/2", "√3/2", "0"],
     "answer": "0",
     "solutionSteps": [
-      "[1 mark] cos 60°·cos 30° − sin 60°·sin 30° = (1/2)(√3/2) − (√3/2)(1/2) = 0."
+      "[1 mark] 0 — (1/2)(√3/2) − (√3/2)(1/2) = √3/4 − √3/4 = 0."
     ],
     "finalAnswer": "0",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRIG-A-005",
@@ -135,17 +136,18 @@ export const TRIG_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The rod of a TV disc antenna is fixed at right angles to wall AB and a rod CD supports the disc, as shown in the figure. AC = 1.5 m and CD = 3 m. Compute the value of sec θ + cosec θ.",
+    "questionText": "The rod AC of a TV disc antenna is fixed at right angles to the wall AB, and a rod CD supports the disc, as shown in the given figure. AC = 1.5 m and CD = 3 m. If θ = ∠ADC, compute the value of sec θ + cosec θ.",
     "options": [],
-    "answer": "41/13",
+    "answer": "2 + 2/√3 = (6 + 2√3)/3 ≈ 3.15",
     "solutionSteps": [
-      "[1 mark] sec θ = CD/AD = 3/2.6 and cosec θ = CD/AC = 3/1.5 (using AD = 2.6 m from Pythagoras).",
-      "[1 mark] sec θ + cosec θ = 3/2.6 + 3/1.5 = 41/13."
+      "[1 mark] In right ΔCAD (right angle at A), AD = √(CD² − AC²) = √(9 − 2.25) = (3√3)/2 m. So sec θ = CD/AD = 3 ÷ (3√3/2) = 2/√3 and cosec θ = CD/AC = 3/1.5 = 2.",
+      "[1 mark] sec θ + cosec θ = 2/√3 + 2 = (6 + 2√3)/3 ≈ 3.15."
     ],
-    "finalAnswer": "41/13",
+    "finalAnswer": "sec θ + cosec θ = 2 + 2/√3 = (6 + 2√3)/3 ≈ 3.15",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Right-angled triangle ACD representing a TV disc antenna. Rod AB is the vertical wall; the rod is fixed at right angles to wall AB. AC = 1.5 m is one leg, CD = 3 m is the hypotenuse (rod supporting the disc), and AD is the third side. Angle θ is the acute angle at D between CD and AD."
+    "diagramDescription": "Right-angled triangle ACD representing a TV disc antenna. Rod AB is the vertical wall; the rod is fixed at right angles to wall AB. AC = 1.5 m is one leg, CD = 3 m is the hypotenuse (rod supporting the disc), and AD is the third side. Angle θ is the acute angle at D between CD and AD.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRIG-B-002",

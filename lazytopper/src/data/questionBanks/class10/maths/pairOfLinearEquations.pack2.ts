@@ -434,26 +434,22 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "section": "E",
     "marks": 4,
     "format": "Case-Based",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "A rectangular garden has perimeter 56 meters. If the length is increased by 2 meters and width is decreased by 2 meters, the perimeter remains the same. Find (a) the linear equations, (b) the original dimensions.",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A rectangular garden has a perimeter of 56 m. Its length is 4 m more than its width.\n(i) Taking length = l m and width = w m, form the linear equation given by the perimeter.\n(ii) Form the second linear equation from the relation between length and width.\n(iii) Solve the pair of equations to find the length and width of the garden, and hence its area.",
     "options": [],
-    "answer": "The equations are dependent; infinitely many solutions exist where l + w = 28",
+    "answer": "(i) l + w = 28  (ii) l − w = 4  (iii) Length = 16 m, width = 12 m; area = 192 m².",
     "solutionSteps": [
-      "Let length = l, width = w",
-      "(a) Original perimeter: 2(l + w) = 56, so l + w = 28",
-      "New perimeter: 2(l + 2 + w - 2) = 2(l + w) = 56",
-      "Both equations give l + w = 28",
-      "These are the same equation (coincident lines)",
-      "(b) Infinitely many solutions possible",
-      "Any l and w such that l + w = 28 satisfies both conditions"
+      "[1 mark] (i) Perimeter: 2(l + w) = 56 ⇒ l + w = 28 …(1)",
+      "[1 mark] (ii) Length is 4 m more than width: l = w + 4 ⇒ l − w = 4 …(2)",
+      "[1 mark] (iii) Adding (1) and (2): 2l = 32 ⇒ l = 16; from (1): w = 28 − 16 = 12",
+      "[1 mark] Length = 16 m, width = 12 m; area = 16 × 12 = 192 m² (check: 2(16 + 12) = 56 ✓)"
     ],
-    "finalAnswer": "The equations are dependent; infinitely many solutions exist where l + w = 28",
+    "finalAnswer": "Length = 16 m, width = 12 m (area 192 m²)",
     "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "Set C",
-    "ncertRef": "Ex 3.1"
+    "ncertRef": "Ex 3.1",
+    sourceOverride: "others",
   },
 {
     "id": "PLE2-019",
@@ -479,9 +475,8 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "c = 12",
     "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": false,
-    "pyqYear": "2021",
-    "pyqSet": "Set A",
-    "ncertRef": "Ex 3.1"
+    "ncertRef": "Ex 3.1",
+    sourceOverride: "others",
   },
 {
     "id": "PLE2-020",
@@ -774,9 +769,8 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "24",
     "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "Set B",
-    "ncertRef": "Ex 3.5"
+    "ncertRef": "Ex 3.5",
+    sourceOverride: "others",
   },
 {
     "id": "PLE2-034",
@@ -878,9 +872,8 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "(a) x + y = 35, 150x + 200y = 6500. (b) Fiction: 10 books, Non-fiction: 25 books",
     "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "Set C",
-    "ncertRef": "Ex 3.5, Ex 3.6"
+    "ncertRef": "Ex 3.5, Ex 3.6",
+    sourceOverride: "others",
   },
 {
     "id": "PLE2-038",

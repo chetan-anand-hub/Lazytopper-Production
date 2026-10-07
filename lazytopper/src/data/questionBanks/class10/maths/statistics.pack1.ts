@@ -217,11 +217,11 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "(iv) ₹15K or more: 16+9 = 25, i.e. 25% [1]"
     ], finalAnswer: "(i) ₹12,100 (ii) ≈ ₹11,951 (iii) 34 (iv) 25%", visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true,
       sourceOverride: "others" },
-  { id: "STAT-H10", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In a frequency distribution, if the mean is 15, mode is 18, find the median and comment on the skewness.", solutionSteps: [
-      "Mode = 3 Median − 2 Mean [1]",
-      "18 = 3M − 30 → M = 16 [1]",
-      "Since Mean < Median < Mode, the distribution is negatively skewed [1]",
-    ], finalAnswer: "Median = 16; negatively skewed" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
+  { id: "STAT-H10", subject: "Maths", topicKey: "statistics", subtopic: "Empirical Relationship of Mean, Median and Mode", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing", questionText: "In a frequency distribution, the mean is 15 and the mode is 18. Using the empirical relationship between the three measures of central tendency, find the median.", solutionSteps: [
+      "Empirical relationship: 3 Median = Mode + 2 Mean [1]",
+      "3M = 18 + 30 = 48 ⇒ Median = 16 [1]"
+    ], finalAnswer: "Median = 16", visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true,
+      sourceOverride: "others", },
   { id: "STAT-H11", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The mean of 30 observations is 25 and the mean of 20 other observations is 35. Find the combined mean of all 50 observations.", solutionSteps: [
       "Total₁ = 30 × 25 = 750 [1]",
       "Total₂ = 20 × 35 = 700 [1]",

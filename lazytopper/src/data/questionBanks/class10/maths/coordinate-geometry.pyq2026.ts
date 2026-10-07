@@ -11,11 +11,12 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const COORDINATE_GEOMETRY_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-CG-001", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Equidistant Points", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find a relation between x and y such that the point P(x, y) is equidistant from the points A(5, 3) and B(1, 7).",
-    answer: "PA2 = PB2 ⟹ ( x – 5)2 + (y – 3)2 = ( x – 1)2 + (y – 7)2 ⟹ x2 + 25 – 10x + y2 + 9 – 6y = x2 + 1 – 2x + y2 + 49 – 14y ⟹ x – y = – 2 or x – y + 2 =",
-    solutionSteps: ["Since P (x, y) is equidistant from A(5, 3) and B(1, 7)", "PA = PB", "PA2 = PB2 ⟹ ( x – 5)2 + (y – 3)2 = ( x – 1)2 + (y – 7)2 ⟹ x2 + 25 – 10x + y2 + 9 – 6y = x2 + 1 – 2x + y2 + 49 – 14y ⟹ x – y = – 2 or x – y + 2 ="],
-    finalAnswer: "PA2 = PB2 ⟹ ( x – 5)2 + (y – 3)2 = ( x – 1)2 + (y – 7)2 ⟹ x2 + 25 – 10x + y2 + 9 – 6y = x2 + 1 – 2x + y2 + 49 – 14y ⟹ x – y = – 2 or x – y + 2 =",
+    answer: "x − y + 2 = 0",
+    solutionSteps: ["[1 mark] P is equidistant from A and B ⇒ PA = PB ⇒ PA² = PB² ⇒ (x − 5)² + (y − 3)² = (x − 1)² + (y − 7)².", "[1 mark] x² − 10x + 25 + y² − 6y + 9 = x² − 2x + 1 + y² − 14y + 49 ⇒ −10x − 6y + 34 = −2x − 14y + 50.", "[1 mark] −8x + 8y = 16 ⇒ x − y + 2 = 0 (i.e. x − y = −2)."],
+    finalAnswer: "x − y + 2 = 0",
     ncertRef: "PYQ 30(B) Q28", isCompetencyBased: true,
-    pyqYear: "2026", pyqSet: "1" },
+    sourceOverride: "others",
+  },
   // RETIRED 2026-07-21 ([FU-BANK-GARBLED-ANSWER-CLASS], owner-approved): "PYQ-M-2026-CG-002".
   // Its questionText welded two unrelated problems — the Latin remnants of 30/5/1 Q35 (a
   // circle/tangent problem, whose Hindi half is in a PUA-mapped font that extracts as nothing)

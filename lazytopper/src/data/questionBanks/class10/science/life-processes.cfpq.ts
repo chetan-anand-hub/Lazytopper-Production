@@ -315,7 +315,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     subtopic: "Photosynthesis and Transpiration",
     section: "E",
     marks: 4,
-    format: "Short",
+    format: "Case-Based",
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
@@ -392,7 +392,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     subtopic: "Photosynthesis and Respiration",
     section: "E",
     marks: 4,
-    format: "Short",
+    format: "Case-Based",
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:

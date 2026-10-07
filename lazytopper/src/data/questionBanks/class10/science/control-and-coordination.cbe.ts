@@ -37,19 +37,20 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subtopic": "Plant Hormone — Auxin",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Fig. 1.1 shows how the root and shoot of a seed develop in response to stimuli. State the name of the plant hormone that causes the root and shoot to develop in the way shown in Fig. 1.1.",
-    "options": [],
-    "answer": "Auxin",
+    "questionText": "Fig. 1.1 shows how the root and shoot of a seed develop in response to stimuli. The plant hormone that causes the root and shoot to develop in the way shown in Fig. 1.1 is",
+    "options": ["auxin", "abscisic acid", "cytokinin", "thyroxine"],
+    "answer": "auxin",
     "solutionSteps": [
-      "[1 mark] The plant hormone responsible is auxin."
+      "[1 mark] auxin — auxin controls tropic growth: its uneven distribution makes the shoot grow up and the root grow down."
     ],
-    "finalAnswer": "Auxin",
+    "finalAnswer": "auxin",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1.1 — a germinating seed showing the shoot growing upward and the root growing downward in response to stimuli."
+    "diagramDescription": "Fig. 1.1 — a germinating seed showing the shoot growing upward and the root growing downward in response to stimuli.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-003",
@@ -58,19 +59,20 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subtopic": "Stimulus for Root Growth",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Identify the stimulus that causes the roots to grow in the direction shown in Fig. 1.1.",
-    "options": [],
-    "answer": "Gravity",
+    "questionText": "The stimulus that causes the roots to grow in the direction shown in Fig. 1.1 is",
+    "options": ["touch", "chemicals", "temperature", "gravity"],
+    "answer": "gravity",
     "solutionSteps": [
-      "[1 mark] The stimulus causing downward root growth is gravity."
+      "[1 mark] gravity — the roots grow downwards, towards the pull of the earth — a response to gravity (positive geotropism)."
     ],
-    "finalAnswer": "Gravity",
+    "finalAnswer": "gravity",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1.1 — seed with root growing downward (towards gravity)."
+    "diagramDescription": "Fig. 1.1 — seed with root growing downward (towards gravity).",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-004",
@@ -79,17 +81,18 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subtopic": "Response Name — Geotropism",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "State the name of the response by which the root grows towards gravity.",
-    "options": [],
-    "answer": "Gravitropism / geotropism",
+    "questionText": "The response by which the root grows towards gravity is called",
+    "options": ["phototropism", "geotropism (gravitropism)", "hydrotropism", "chemotropism"],
+    "answer": "geotropism (gravitropism)",
     "solutionSteps": [
-      "[1 mark] The response is called gravitropism (geotropism)."
+      "[1 mark] geotropism (gravitropism) — growth movement in response to gravity is geotropism; roots are positively geotropic."
     ],
-    "finalAnswer": "Gravitropism / geotropism",
-    "isCompetencyBased": false
+    "finalAnswer": "geotropism (gravitropism)",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-005",
@@ -105,12 +108,13 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "options": [],
     "answer": "Light",
     "solutionSteps": [
-      "[1 mark] The stimulus causing the shoot to grow upward (towards light) is light."
+      "[1 mark] The shoot grows upwards, away from the root. The stimulus is light (positive phototropism); gravity (negative geotropism of the shoot) is also accepted."
     ],
-    "finalAnswer": "Light",
+    "finalAnswer": "Light (gravity also accepted)",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1.1 — seed with shoot growing upward (towards light)."
+    "diagramDescription": "Fig. 1.1 — seed with shoot growing upward (towards light).",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-006",
@@ -119,17 +123,18 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subtopic": "Response Name — Phototropism",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "State the name of the response by which the shoot grows towards light.",
-    "options": [],
-    "answer": "Phototropism",
+    "questionText": "The response by which the shoot grows towards light is called",
+    "options": ["geotropism", "phototropism", "hydrotropism", "chemotropism"],
+    "answer": "phototropism",
     "solutionSteps": [
-      "[1 mark] The response is called phototropism."
+      "[1 mark] phototropism — growth movement in response to light is phototropism; shoots are positively phototropic."
     ],
-    "finalAnswer": "Phototropism",
-    "isCompetencyBased": false
+    "finalAnswer": "phototropism",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-007",
@@ -184,23 +189,23 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "control-and-coordination",
     "subtopic": "Mechanism of Auxin in Phototropism",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
-    "difficulty": "Hard",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "With reference to Fig. 1.1, explain how the plant hormone controls the growth response of the shoot.",
+    "questionText": "A potted plant is kept near a window. After a few days its shoot is seen bending towards the light coming in through the window. Explain how the plant hormone controls this growth response of the shoot.",
     "options": [],
     "answer": "Auxin is produced at the shoot tip, moves and collects on the side away from light, and causes the cells there to elongate, bending the shoot towards the light.",
     "solutionSteps": [
-      "[1 mark] The hormone (auxin) is produced/made at the shoot tip.",
-      "[1 mark] The hormone moves / diffuses / passes / spreads down the shoot.",
-      "[1 mark] It collects on the side away from the light (the shaded side).",
-      "[1 mark] The hormone causes cell elongation on the shaded side (e.g. by stretching of cell walls / osmosis of water), so the shoot bends towards the light."
+      "[1 mark] The hormone auxin is synthesised at the shoot tip and diffuses down the shoot.",
+      "[1 mark] When light falls from one side, auxin collects on the side of the shoot away from the light (the shaded side).",
+      "[1 mark] Auxin causes the cells on the shaded side to elongate more, so that side grows faster and the shoot bends towards the light (phototropism)."
     ],
     "finalAnswer": "Auxin made at the tip diffuses to the shaded side and causes those cells to elongate, bending the shoot towards light.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
-    "diagramDescription": "Fig. 1.1 — shoot bending towards a light source as auxin accumulates on the shaded side."
+    "requiresDiagram": false,
+    "diagramDescription": "Fig. 1.1 — shoot bending towards a light source as auxin accumulates on the shaded side.",
+    sourceOverride: "others",
   }
 ];

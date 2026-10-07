@@ -54,7 +54,7 @@ export const TRIANGLES_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/4/1 Q33", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-TRI-006", subject: "Maths", topicKey: "triangles", subtopic: "General", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Jagdish has a field which is in the shape of a right angled triangle AQC. He wants to leave a space in the form of a square PQRS inside the field for growing wheat and the remaining for growing vegetables (as shown in the figure). In the field, there is a pole marked as O. Based on the above information, answer the following questions : (i) Taking O as origin, coordinates of P are (–200, 0) and of Q are (200, 0). PQRS being a square, what are the coordinates of R and S ? 1 (ii) (a) What is the area of square PQRS ? 2 OR (b) What is the length of diagonal PR in square PQRS ? 2 (iii) If S divides CA in the ratio K:1, what is the value of K, where point A is (200, 800) ? 1 16",
+    questionText: "Jagdish has a field which is in the shape of a right-angled triangle AQC. He wants to leave a space in the form of a square PQRS inside the field for growing wheat and the remaining for growing vegetables (as shown in the figure). In the field, there is a pole marked as O. Based on the above information, answer the following questions:\n(i) Taking O as origin, coordinates of P are (–200, 0) and of Q are (200, 0). PQRS being a square, what are the coordinates of R and S?\n(ii) (a) What is the area of square PQRS?\nOR\n(ii) (b) What is the length of diagonal PR in square PQRS?\n(iii) If S divides CA in the ratio k : 1, what is the value of k, where point A is (200, 800)?",
     answer: "(i) R(200, 400), S(−200, 400) (ii) (a) Area of square PQRS = 400 × 400 = 160000 sq units OR (b) Diagonal PR = √(400² + 400²) = 400√2 (iii) k = 1",
     solutionSteps: [
       "[1 mark] (i) PQRS is a square of side PQ = 400 m, so R = (200, 400) and S = (−200, 400).",
@@ -64,5 +64,6 @@ export const TRIANGLES_PYQ: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) R(200, 400), S(−200, 400); (ii)(a) 160000 sq m [OR (b) 400√2 m]; (iii) k = 1.",
     ncertRef: "PYQ 30/4/3 Q38", isCompetencyBased: true,
-    pyqYear: "2023", pyqSet: "3" },
+    sourceOverride: "others",
+  },
 ];
