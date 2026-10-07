@@ -124,8 +124,14 @@ jobs:
           corepack enable
           # pnpm 10.32.1: matches the lockfile and sets npm_config_user_agent for the root
           # preinstall guard (pnpm 11 leaves it empty on linux -> "Use pnpm instead").
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -161,8 +167,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -221,8 +233,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -279,8 +297,14 @@ jobs:
       - name: Enable pnpm (corepack, pinned as in the Dockerfile)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 24 (the Railway image is node:24-slim)
         uses: actions/setup-node@v7
         with:
@@ -322,8 +346,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -393,8 +423,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -479,8 +515,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
