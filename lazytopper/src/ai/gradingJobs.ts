@@ -1,7 +1,8 @@
 // src/ai/gradingJobs.ts
 //
 // GRADING-JOBS-1 J2 — the background-grading CLIENT (contract: J2_CLIENT_CONTRACT v1.0,
-// PR #966 "## J2 CLIENT CONTRACT v1.0"; the server is J1, switch GRADING_JOBS default OFF).
+// PR #966 "## J2 CLIENT CONTRACT v1.0"; the server is J1; since J3 the server switch
+// GRADING_JOBS defaults ON, and GRADING_JOBS=0/off/false is the server-side kill switch).
 //
 // ONE function, `gradeWorksheetJob`, used by `aiClient.gradeWorksheet` when — and only when —
 // a caller passes `opts.job`. It does the three things contract §11 asks of the shared layer:
