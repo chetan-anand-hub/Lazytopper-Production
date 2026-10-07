@@ -446,3 +446,47 @@
     justify-content: center;
   }
 }
+/* HARDEN-1 PR-2 · Grader health card (read-only) and the two spend numbers */
+.gh-card {
+  max-width: 1180px;
+  margin: 0 auto 20px;
+  padding: 16px;
+  background: var(--sa-navy-800);
+  border: 1px solid var(--sa-line);
+  border-radius: 14px;
+}
+.gh-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.gh-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.gh-note {
+  margin: 8px 0;
+  font-size: 0.8rem;
+}
+.gh-table td:nth-child(2),
+.gh-table td:nth-child(3) {
+  font-variant-numeric: tabular-nums;
+}
+.gh-charged {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: var(--sa-green);
+  background: var(--sa-green-soft);
+}
+.gh-counters {
+  margin-top: 12px;
+}
+.sa-spend {
+  white-space: nowrap;
+}

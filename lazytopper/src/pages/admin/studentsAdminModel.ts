@@ -99,7 +99,20 @@ export interface TimelineDay {
     feed?: ActivityFeedItem[] | null;
     feedTruncated?: boolean;
   } | null;
-  ai: { calls: number; costInr: number; checks: number; chapterTests: number; mocks: number; worksheets: number } | null;
+  /**
+   * `costInr` = the USAGE METER (graded share; what counts against the premium cap).
+   * `providerSpendInr` = the ACTUAL AI SPEND the provider billed; null (or absent, from a
+   * server before HARDEN-1 PR-2) = not recorded (a day before #957) — never 0, never the meter.
+   */
+  ai: {
+    calls: number;
+    costInr: number;
+    providerSpendInr?: number | null;
+    checks: number;
+    chapterTests: number;
+    mocks: number;
+    worksheets: number;
+  } | null;
   sessions: { surface: string; subject: string | null; topics: string[]; marksAwarded: number | null; marksTotal: number | null; status: string | null; atMs: number | null }[];
   practice: { attempts: number; correct: number; marksScored: number; marksAvailable: number } | null;
   mocks: { subject: string | null; totalMarks: number | null; maxMarks: number | null; percent: number | null; atMs: number | null }[];
@@ -185,6 +198,11 @@ export function formatIstTime(ms: number | null | undefined): string {
 export function formatDayKey(key: string): string {
   const ms = Date.parse(`${key}T12:00:00.000+05:30`);
   return Number.isFinite(ms) ? IST_DATE.format(ms) : key;
+}
+
+/** Rupees with 2 decimals ("₹1.23"); null/absent/non-finite -> "not recorded", never "₹0.00". */
+export function formatInr(value: number | null | undefined): string {
+  return typeof value === "number" && Number.isFinite(value) ? `₹${value.toFixed(2)}` : "not recorded";
 }
 
 /* ── Masking ────────────────────────────────────────────────────────────── */

@@ -47,7 +47,7 @@ export default defineChapter("coordinate-geometry", [
   [340, COORDINATE_GEOMETRY_PYQ_2024, false],
   [352, COORDINATE_GEOMETRY_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
-  [445, COORDINATE_GEOMETRY_CBQ_LT_GENERATED, false],
+  [448, COORDINATE_GEOMETRY_CBQ_LT_GENERATED, false],
 ], [
   "CG-E15",
   "CG-H05",
