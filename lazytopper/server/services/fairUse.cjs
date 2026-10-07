@@ -11,7 +11,8 @@
  *                and 1 worksheet grading. A request needing more than remain -> 409
  *                { error: "trial_limit", remaining, resetAt } and NOTHING is graded.
  *   U3 premium — real cost from the METER-1 ledger: ₹84 per rolling 7 IST days, ₹38
- *                per IST day, ₹25 per rolling 5 IST hours. At a cap -> 429
+ *                per IST day, ₹25 per rolling 5 IST hours, and (CAP-30DAY) ₹1,140 per rolling
+ *                30 IST days. At a cap -> 429
  *                { error: "usage_limit", window, resetAt }. Checked BEFORE the model
  *                call, so one request may overrun a cap by its own cost, never more.
  *   U5         — GET /api/usage/me: remaining allowances and PERCENTAGES. Never rupees.
@@ -156,6 +157,11 @@ const DAY_MS = 24 * HOUR_MS;
 /** Rolling windows, in whole IST buckets: today + the 6 days before it; this hour + the 4 before it. */
 const WEEK_DAYS = 7;
 const FIVE_HOURS = 5;
+/**
+ * CAP-30DAY — the rolling 30-IST-day premium window: today + the 29 days before it, the SAME
+ * day-bucket mechanism as the week. Only a PREMIUM read covers it; a trial read stays 7 days.
+ */
+const THIRTY_DAYS = 30;
 
 /* ── Surfaces (U1) ─────────────────────────────────────────────────────────── */
 
@@ -231,6 +237,16 @@ const DEFAULT_LIMITS = Object.freeze({
   premiumWeekInr: 84,
   premiumDayInr: 38,
   premiumFiveHourInr: 25,
+  /**
+   * CAP-30DAY. Chosen so that, with the env UNSET, the 30-day cap can never refuse anyone the
+   * shorter caps would serve: 30 x the day default (₹38). Under the default week (₹84) and day
+   * caps, a rolling 30 days holds at most 3 weeks + 2 days + the current week, i.e. under
+   * 3x84 + 2x38 + 84 = ₹412, plus one over-run request per block (5 blocks). Reaching ₹1,140
+   * would need ONE request to cost > ₹145 (the measured worst, a 38-Q C&I paper incl. aborts,
+   * is ~₹86). So today's behaviour is unchanged until the owner sets FAIR_USE_PREMIUM_30DAY_INR.
+   * (30/7 x the week default = ₹360 was NOT used: a steady ₹84/week reaches it inside 30 days.)
+   */
+  premiumThirtyDayInr: 1140,
 });
 
 const LIMIT_ENV = Object.freeze({
@@ -241,6 +257,7 @@ const LIMIT_ENV = Object.freeze({
   premiumWeekInr: 'FAIR_USE_PREMIUM_WEEK_INR',
   premiumDayInr: 'FAIR_USE_PREMIUM_DAY_INR',
   premiumFiveHourInr: 'FAIR_USE_PREMIUM_FIVE_HOUR_INR',
+  premiumThirtyDayInr: 'FAIR_USE_PREMIUM_30DAY_INR',
 });
 
 const ENFORCE_ENV = 'FAIR_USE_ENFORCE';
@@ -269,6 +286,7 @@ function resolveLimits(env) {
       weekMicroInr: inr('premiumWeekInr'),
       dayMicroInr: inr('premiumDayInr'),
       fiveHourMicroInr: inr('premiumFiveHourInr'),
+      thirtyDayMicroInr: inr('premiumThirtyDayInr'),
     },
   };
 }
@@ -474,11 +492,19 @@ function istBucketStartMs(ms, sizeMs) {
   return Math.floor((ms + IST_OFFSET_MS) / sizeMs) * sizeMs - IST_OFFSET_MS;
 }
 
-/** Today's IST day key and the six before it, oldest first. */
-function windowDayKeys(nowMs) {
+/**
+ * Today's IST day key and the `spanDays - 1` before it, oldest first. Default 7 (the trial
+ * and paper-pass reads, unchanged); a PREMIUM read passes THIRTY_DAYS (premiumWindowDayKeys).
+ */
+function windowDayKeys(nowMs, spanDays = WEEK_DAYS) {
   const keys = [];
-  for (let k = WEEK_DAYS - 1; k >= 0; k -= 1) keys.push(istDayKey(nowMs - k * DAY_MS));
+  for (let k = spanDays - 1; k >= 0; k -= 1) keys.push(istDayKey(nowMs - k * DAY_MS));
   return keys;
+}
+
+/** CAP-30DAY: the day documents a tier's decision needs — 30 for premium, 7 otherwise. */
+function windowDayKeysFor(tier, nowMs) {
+  return windowDayKeys(nowMs, tier === 'premium' ? THIRTY_DAYS : WEEK_DAYS);
 }
 
 function num(v) {
@@ -486,10 +512,10 @@ function num(v) {
   return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
-/** Day buckets for a field, oldest first: { startMs, value }. */
-function dayBuckets(days, nowMs, field) {
+/** Day buckets for a field over the last `spanDays` IST days (default 7), oldest first: { startMs, value }. */
+function dayBuckets(days, nowMs, field, spanDays = WEEK_DAYS) {
   const out = [];
-  for (let k = WEEK_DAYS - 1; k >= 0; k -= 1) {
+  for (let k = spanDays - 1; k >= 0; k -= 1) {
     const t = nowMs - k * DAY_MS;
     const data = days.get(istDayKey(t)) || {};
     out.push({ startMs: istBucketStartMs(t, DAY_MS), value: num(data[field]) });
@@ -615,18 +641,24 @@ function premiumState(days, nowMs, limits) {
   const p = limits.premium;
   const five = hourBuckets(days, nowMs);
   const week = dayBuckets(days, nowMs, 'costMicroInr');
+  // CAP-30DAY: the same day buckets over 30 IST days. A day document that was not read
+  // (a 7-day read) counts as 0, so an old caller can never be refused by this window.
+  const thirty = dayBuckets(days, nowMs, 'costMicroInr', THIRTY_DAYS);
   const dayUsed = num((days.get(istDayKey(nowMs)) || {}).costMicroInr);
   const fiveUsed = sum(five);
   const weekUsed = sum(week);
+  const thirtyUsed = sum(thirty);
   const resets = {
     fiveHour: rollingResetAt(five, p.fiveHourMicroInr, FIVE_HOURS * HOUR_MS),
     day: nextIstMidnightIso(nowMs),
     week: rollingResetAt(week, p.weekMicroInr, WEEK_DAYS * DAY_MS),
+    thirtyDay: rollingResetAt(thirty, p.thirtyDayMicroInr, THIRTY_DAYS * DAY_MS),
   };
   // Longest window first: when more than one cap is reached, the one reported is the
   // one that actually decides when the student is served again.
   let atCap = null;
-  if (weekUsed >= p.weekMicroInr) atCap = 'week';
+  if (thirtyUsed >= p.thirtyDayMicroInr) atCap = 'thirtyDay';
+  else if (weekUsed >= p.weekMicroInr) atCap = 'week';
   else if (dayUsed >= p.dayMicroInr) atCap = 'day';
   else if (fiveUsed >= p.fiveHourMicroInr) atCap = 'fiveHour';
   return {
@@ -634,6 +666,8 @@ function premiumState(days, nowMs, limits) {
       fiveHourPct: pct(fiveUsed, p.fiveHourMicroInr),
       dayPct: pct(dayUsed, p.dayMicroInr),
       weekPct: pct(weekUsed, p.weekMicroInr),
+      // CAP-30DAY: additive (an old client ignores it); its reset is resets.thirtyDay.
+      thirtyDayPct: pct(thirtyUsed, p.thirtyDayMicroInr),
       resets,
     },
     atCap,
@@ -649,7 +683,12 @@ function trialCommitFor(surface, questionCount) {
   return undefined;
 }
 
-const PREMIUM_RULE = Object.freeze({ fiveHour: 'premium_five_hour', day: 'premium_day', week: 'premium_week' });
+const PREMIUM_RULE = Object.freeze({
+  fiveHour: 'premium_five_hour',
+  day: 'premium_day',
+  week: 'premium_week',
+  thirtyDay: 'premium_thirty_day',
+});
 
 /**
  * The pure decision. `days` is the ledger read (Map dayKey -> data); `limits` came from
@@ -872,7 +911,7 @@ function createFairUse(deps = {}) {
 
     let days;
     try {
-      days = await ledger.readDays(uid, windowDayKeys(nowMs));
+      days = await ledger.readDays(uid, windowDayKeysFor(tier, nowMs));
     } catch {
       emit('fair_use.ledger_unreadable');
       days = null;
@@ -959,7 +998,7 @@ function createFairUse(deps = {}) {
     const nowMs = now();
     let days;
     try {
-      days = await ledger.readDays(uid, windowDayKeys(nowMs));
+      days = await ledger.readDays(uid, windowDayKeysFor(tier, nowMs));
     } catch {
       emit('fair_use.ledger_unreadable');
       return sendJson(res, 503, { error: 'usage_unavailable' });
@@ -1441,6 +1480,8 @@ module.exports = {
   trialState,
   premiumState,
   windowDayKeys,
+  windowDayKeysFor,
+  THIRTY_DAYS,
   readPassEntry,
   SURFACES,
   SURFACE_HEADER,

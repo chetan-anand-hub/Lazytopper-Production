@@ -6,8 +6,9 @@
  * switch is off (or the read fails, or is slow, or the student is signed out).
  *
  * Trial: checks left today, the chapter test today, the mock and the worksheet this
- * week, each with the server's reset time. Premium: three bars (5-hour, day, week) as
- * PERCENTAGES — the server sends no rupee figure and none is shown.
+ * week, each with the server's reset time. Premium: bars for 5-hour, day, week and
+ * (CAP-30DAY) 30-day, as PERCENTAGES — the server sends no rupee figure and none is shown.
+ * The 30-day bar appears only when the server sent its percentage (an older server: no bar).
  * Honest-or-silent: a tier whose numbers did not arrive gets an empty-state sentence,
  * never a made-up count; a tier fair use does not apply to (free) renders nothing.
  */
@@ -86,6 +87,9 @@ export function UsageCardView({ snapshot, nowMs = Date.now() }: { snapshot: Usag
         { key: "fiveHour", label: "Last 5 hours", pct: p.fiveHourPct, at: p.resets.fiveHour },
         { key: "day", label: "Today", pct: p.dayPct, at: p.resets.day },
         { key: "week", label: "This week", pct: p.weekPct, at: p.resets.week },
+        ...(p.thirtyDayPct !== null
+          ? [{ key: "thirtyDay", label: "Last 30 days", pct: p.thirtyDayPct, at: p.resets.thirtyDay }]
+          : []),
       ]
     : [];
   return (
