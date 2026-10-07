@@ -223,6 +223,14 @@ export interface TextSynonymEntry {
   /** Start of the reference item text (omit for kind "chapter"). */
   readonly itemStartsWith?: string;
   readonly phrases: readonly string[];
+  /**
+   * Phrases whose ARTICLES / INFLECTION are load-bearing (FU-GUARD3-COMPLETE-SQUARE). Each is
+   * matched like `phrases` AND must also appear verbatim in the sentence's literal form
+   * (literalText: case, diacritics, punctuation folded; "a"/"an"/"the" and word endings KEPT).
+   * normaliseLabel() drops articles, so "complete the square" would otherwise equal the noun
+   * "a complete square grid". Use only where the article separates the banned sense.
+   */
+  readonly literalPhrases?: readonly string[];
   /** As LABEL_VARIANTS.chapterScoped: do not fire on a row known to sit in another board chapter. */
   readonly chapterScoped?: boolean;
 }
@@ -256,7 +264,10 @@ export const TEXT_SYNONYMS: readonly TextSynonymEntry[] = [
     phrases: ["reducible to linear", "reduce to a pair of linear equations"] },
   // config item: quadratic-equations out[0] completing the square
   { key: "quadratic-equations", kind: "out", itemStartsWith: "Solving by completing the square",
-    phrases: ["completing the square", "complete the square", "method of completing square"] },
+    phrases: ["completing the square", "method of completing square"],
+    // literal: "complete the square" (the method) normalises to "complete square", the same as the
+    // noun "a complete square grid / arrangement" in LCM/HCF rows. The "the" is what tells them apart.
+    literalPhrases: ["complete the square"] },
   // config item: coordinate-geometry out[1] external division
   { key: "coordinate-geometry", kind: "out", itemStartsWith: "Section formula — external division",
     phrases: ["divides externally", "externally in the ratio", "external division"] },
@@ -326,12 +337,36 @@ export const TEXT_SYNONYMS: readonly TextSynonymEntry[] = [
       "management of natural resources", "amrita devi bishnoi", "arabari forest"] },
 ];
 
+/** A G3 free-text term; `literal` set = must ALSO appear in the sentence's literalText(). */
+export interface TextMatchTerm extends MatchTerm {
+  readonly literal?: string;
+}
+
+/**
+ * Literal form of a phrase or sentence: case and diacritics folded, every non-alphanumeric run
+ * (punctuation, apostrophes, symbols) one space. Unlike normaliseLabel(), articles and plurals are KEPT.
+ */
+export function literalText(s: string): string {
+  return s
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** A literal term fires only if its literal phrase is in the sentence; any other term always fires. */
+export function literalHolds(term: MatchTerm, sentence: string): boolean {
+  const literal = (term as TextMatchTerm).literal;
+  return literal === undefined || ` ${literalText(sentence)} `.includes(` ${literal} `);
+}
+
 /** Resolve TEXT_SYNONYMS into free-text MatchTerms; any unresolved entry is an error. */
 export function synonymTerms(
   entries: readonly TextSynonymEntry[],
   items: readonly ReferenceItem[],
-): { terms: MatchTerm[]; errors: string[] } {
-  const terms: MatchTerm[] = [];
+): { terms: TextMatchTerm[]; errors: string[] } {
+  const terms: TextMatchTerm[] = [];
   const errors: string[] = [];
   for (const e of entries) {
     const hits =
@@ -344,7 +379,10 @@ export function synonymTerms(
       errors.push(`TEXT_SYNONYMS entry ${e.key}/${e.kind} "${e.itemStartsWith ?? ""}" resolves to ${hits.length} reference items (must be exactly 1).`);
       continue;
     }
-    for (const p of e.phrases) {
+    // Literal phrases go LAST: matchFreeText keeps one hit per (sentence, item), so a plain phrase of
+    // the same item must get the first chance before a literal one can be dropped by literalHolds().
+    const all = [...e.phrases.map((p) => ({ p, literal: false })), ...(e.literalPhrases ?? []).map((p) => ({ p, literal: true }))];
+    for (const { p, literal } of all) {
       const term = normaliseLabel(p);
       if (!term.includes(" ")) {
         errors.push(`TEXT_SYNONYMS phrase "${p}" must be multi-word.`);
@@ -357,6 +395,7 @@ export function synonymTerms(
         item: hits[0].item,
         source: "variant",
         ...(e.chapterScoped ? { scopeKey: e.key } : {}),
+        ...(literal ? { literal: literalText(p) } : {}),
       });
     }
   }
@@ -385,6 +424,7 @@ const ruleText: RowRule = {
     const byKey = new Map<string, { matched: string; fields: string[]; text: string }>();
     for (const f of row.fields) {
       for (const h of matchFreeText(f.text, ctx.textMatcher, row.chapter)) {
+        if (!literalHolds(h.term, h.sentence)) continue;
         const matched = `${h.term.itemId}: "${h.term.term}"`;
         const cur = byKey.get(matched);
         if (cur) {
