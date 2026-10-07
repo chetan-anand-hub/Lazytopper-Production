@@ -147,10 +147,7 @@ export const BANK_FIX_1_PR2_WITHHOLD_CATEGORY: ReadonlyMap<string, BankFix1Pr2Wi
   ["RN-M19", "duplicate"],
   ["RN2-013", "duplicate"],
   ["SAV-H05", "duplicate"],
-  ["SAV-N-EXEM2-12-LA-010", "out-of-syllabus"],
   ["SAV2-R02", "duplicate"],
-  ["SAV2-R06", "out-of-syllabus"],
-  ["SAV2P1-R02", "out-of-syllabus"],
   ["SCO-S-ACID-018", "out-of-syllabus"],
   ["SCO-S-CARB-010", "figure"],
   ["SCO-S-CTRL-001", "out-of-syllabus"],
@@ -208,4 +205,8 @@ export const BANK_FIX_1_PR2_WITHHOLD_CATEGORY: ReadonlyMap<string, BankFix1Pr2Wi
   ["TRIG2-M07", "duplicate"],
   ["Z3-ARC-004", "figure"],
   ["Z3-QE-003", "out-of-syllabus"],
+  // BANK-FIX-3 (2026-10-07): maximisation rows (2026-27 QE has no maxima). The three SAV liquid-transfer rows
+  // were removed from this map by the owner ruling of 10:21Z (rate of flow / liquid transfer is IN) — bankFix3Ledger.ts.
+  ["Z3-QE-005", "out-of-syllabus"],
+  ["Z3-QE-006", "out-of-syllabus"],
 ]);

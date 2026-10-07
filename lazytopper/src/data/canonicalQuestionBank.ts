@@ -2067,9 +2067,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCO-S-ENV-019",              // out-of-syllabus: Human impact on the nitrogen cycle (acid rain, greenhouse gas) is outside Class 10 Our Environment 2026-27; external row.
   "Z3-QE-003",                  // out-of-syllabus: Whole case is about a quadratic function's graph: y-/x-intercepts, vertex for maximum profit. Not 2026-27 Class 10 QE. Three of four answers are also 'pending verifica...
   "APQ-M-RN-002",               // out-of-syllabus: Requires proving √6 (composite-surd) irrational - composite-surd irrationality is OUT for 2026-27 per syllabusGuard; row is official APQ (not authored), so not repaired.
-  "SAV-N-EXEM2-12-LA-010",      // out-of-syllabus: Transferring a bowl's liquid into bottles is the deleted 'conversion of solids' type; exemplar (not authored) row, cannot be naturally kept within scope. Also mis-tagg...
-  "SAV2-R06",                   // out-of-syllabus: Cistern-and-porous-bricks problem is from the deleted optional exercise (conversion/volume-transfer type); it is an NCERT copy, not naturally repairable within the 202...
-  "SAV2P1-R02",                 // out-of-syllabus: Hemispherical bowl → cylindrical bottles is the deleted conversion-of-solids type (same item as SAV-N-EXEM2-12-LA-010); repairing it would remove its entire content.
   "TRI-N-NCERT-6-CB-002",       // out-of-syllabus: Built on NCERT Ex 6.5 Q10 (Pythagoras theorem section, deleted from 2026-27 Triangles); every part is pure Pythagoras with no Class 10 chapter home. Not LazyTopper-aut...
   "AR-TRI-009",                 // out-of-syllabus: Assertion–Reason on RHS congruence of right triangles is Class 9 congruence content, not in Class 10 2026-27 syllabus; no natural repair within Triangles (similarity/B...
   "PB-M-2-TRI-A-002",           // out-of-syllabus: Triangle-inequality / construction feasibility is Class 7/9 content with no home in the 2026-27 Class 10 syllabus; preboard row, not authored.
@@ -2099,6 +2096,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "2026-TRIG-P1-A-041",         // not-board-content: "from which side should you start a proof" is proof-writing advice, not a question on the syllabus
   "2026-TRIG-P1-A-043",         // not-board-content: "what final phrase ends a proof" (Hence proved) is exam etiquette, not syllabus content
   "2026-TRIG-P1-A-044",         // not-board-content: "what to do before part (i) of a case study" is exam technique, not syllabus content
+  // BANK-FIX-3 (2026-10-07): out of syllabus — the case asks for a MAXIMUM; 2026-27 Quadratic Equations has no maxima
+  "Z3-QE-005",                  // out-of-syllabus: maximisation (2026-27 QE has no maxima)
+  "Z3-QE-006",                  // out-of-syllabus: maximisation (2026-27 QE has no maxima)
 ]);
 
 /**

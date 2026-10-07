@@ -97,10 +97,10 @@ export const CIRCLES_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-CIRC-009", subject: "Maths", topicKey: "circles", subtopic: "Tangent Lengths — Geometry", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Shown below is a circle with 3 tangents KQ, KP and LM. QL = 2 cm and KL = 6 cm. PM = (1/2)KL. What is the measure of ∠LMK?",
     options: ["50°", "65°", "80°", "(cannot be uniquely determined with the given information)"],
-    answer: "(cannot be uniquely determined with the given information)",
+    answer: "80°",
     solutionSteps: ["Per MS answer key: option (c) 80°. (NB: published MS gives 80°; without the figure the configuration cannot be fully reconstructed in text.)"],
     finalAnswer: "(c) 80°",
-    ncertRef: "APQ PQ_2022 Q9", isCompetencyBased: true,
+    ncertRef: "APQ PQ_2022 Q9", isCompetencyBased: true, sourceOverride: "others",
     strategyHint: "REQUIRES-FIGURE: circle with 3 tangents KQ, KP, LM and labelled lengths." },
 
   // PQ_2022 Q22 (Section B, Short, 2 marks)
