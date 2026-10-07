@@ -170,21 +170,6 @@
     {
       "rule": "G4-HD-TRIANGLES",
       "surface": "bank",
-      "rowId": "PB-M-1-TRIG-C-001",
-      "matched": "3 elevation/depression angles",
-      "verdict": "review",
-      "file": "lazytopper/src/data/questionBanks/class10/maths/trigonometry.preboard.ts",
-      "lane": "C1",
-      "fu": "FU-GUARD3-HD-TRIANGLES",
-      "fields": [
-        "questionText"
-      ],
-      "text": "A local Outdoors Club has just hiked to the south rim of a large canyon, when they spot a climber attempting to scale the taller northern face. The distance bet",
-      "judgedOut": "three right triangles (depression 60° to the bottom, elevation 30° to the climber, 45° to the top)"
-    },
-    {
-      "rule": "G4-HD-TRIANGLES",
-      "surface": "bank",
       "rowId": "PB-M-2-TRIG-C-001",
       "matched": "3 elevation/depression angles",
       "verdict": "review",
@@ -196,20 +181,6 @@
       ],
       "text": "From her elevated observation post 300 m (horizontally) away, a naturalist spots a troop of baboons high up in a tree. The angle of depression to the bottom of ",
       "judgedOut": "three right triangles (depression 30°, elevation 60° to the top, 45° to the troop)"
-    },
-    {
-      "rule": "G9-1MARK-OPTIONS",
-      "surface": "bank",
-      "rowId": "2026-TRI-P1-A-011",
-      "matched": "1-mark A-R row with no options",
-      "verdict": "hit",
-      "file": "lazytopper/src/data/questionBanks/class10/maths/triangles.pack1.ts",
-      "lane": "C1",
-      "fu": "FU-1MARK-MCQ",
-      "fields": [
-        "options"
-      ],
-      "text": "Assertion (A): If two sides of one triangle are proportional to two sides of another triangle, the t"
     },
     {
       "rule": "G9-1MARK-OPTIONS",
