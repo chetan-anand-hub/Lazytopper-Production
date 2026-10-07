@@ -23,6 +23,10 @@ import { checkUploadFile, UPLOAD_LIMIT_SENTENCE } from "../../services/uploadLim
 import QrAnswerHandoff from "../../components/qr/QrAnswerHandoff";
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../../components/upload/PageTray";
 import { gradingStageLabel, type GradingStage } from "../../ai/gradingTransport";
+import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../../ai/gradingJobs";
+import { recordableInterruptedRows, recordedIndicesOf } from "../../ai/gradingJobRecords";
+import GradingJobRows from "../../components/grading/GradingJobRows";
+import { isGradingJobGone, useGradingJob } from "../../components/grading/useGradingJob";
 import MobileShell from "../../components/mobile/MobileShell";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
@@ -861,6 +865,35 @@ const FREE_CHECK_CALL: PaidCallOptions = { freeCheck: true };
 // FAIR-USE-2 (F3): a signed-in C&I grade names its true surface (counted per question).
 const CI_GRADE_CALL: PaidCallOptions = { surface: "check-improve" };
 
+/** GRADING-JOBS-1 J2 — what a C&I paper's background grade stores beside its job (text only,
+ *  never the answer image) so a reload can restore the session and resume the poll. */
+interface CiPaperJobContext {
+  confirmed: ConfirmedDetection;
+  detectedQuestions: DetectedQuestion[];
+  ciCode: string;
+  ciName: string | null;
+  topicTouched: boolean;
+  limitTo: number | null;
+  imageMime: string;
+}
+
+function readCiPaperJobContext(raw: unknown): CiPaperJobContext | null {
+  if (!raw || typeof raw !== "object") return null;
+  const c = raw as Partial<CiPaperJobContext>;
+  if (!c.confirmed || typeof c.confirmed !== "object") return null;
+  if (!Array.isArray(c.detectedQuestions) || c.detectedQuestions.length < 2) return null;
+  if (typeof c.ciCode !== "string" || !c.ciCode) return null;
+  return {
+    confirmed: c.confirmed,
+    detectedQuestions: c.detectedQuestions,
+    ciCode: c.ciCode,
+    ciName: typeof c.ciName === "string" ? c.ciName : null,
+    topicTouched: c.topicTouched === true,
+    limitTo: typeof c.limitTo === "number" ? c.limitTo : null,
+    imageMime: typeof c.imageMime === "string" ? c.imageMime : "image/jpeg",
+  };
+}
+
 const DesktopCheckImprovePageInner: React.FC<{
   overlay?: CheckImproveOverlayProps;
   freeCheck?: FreeCheckInnerMode;
@@ -1074,6 +1107,11 @@ const DesktopCheckImprovePageInner: React.FC<{
   const [ciSaved, setCiSaved] = useState(false);
   // The 5th <ResultsScorecard> variant, opened on every completed grade.
   const [scorecardOpen, setScorecardOpen] = useState(false);
+  // GRADING-JOBS-1 J2 — the paper's background grade (signed-in only): landed rows, an
+  // interruption to offer back, and the limit the grade was sent with (for the remaining N).
+  const ciJob = useGradingJob();
+  const ciJobStore = useMemo(() => sessionJobStore("check-improve-paper"), []);
+  const ciLastLimitRef = useRef<number | null>(null);
 
   // ── OVERLAY RETURN (tutor⇄C&I overlay, build v1.1) — present only when hosted ──────
   // Build the just-graded SessionRecord IN-PROCESS with the SAME builder the persist path
@@ -1610,13 +1648,76 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Multi-question grade: grade the WHOLE detected paper in one structured call
   // (the surface-agnostic worksheet grader), then fan each legible result through
   // Mistake Intelligence exactly as the worksheet grade loop does.
-  async function gradeMultiQuestion(limitTo: number | null = null) {
-    if (!confirmed || !detectedQuestions || !imageBase64) return;
+  /** ONE graded C&I paper question → the MI front door + its score twin. Returns whether the
+   *  front door took it (the save-status signal). Shared by a finished grade and, J2b (D30-2),
+   *  by the FINAL graded rows of an interrupted background grade. */
+  async function recordCiQuestion(
+    g: WorksheetGradeResponse["results"][number],
+    gi: number,
+    results: WorksheetGradeResponse["results"],
+    questionIds: string[],
+    sessionCode: string,
+    paperFilingArg: { subject: ConfirmedDetection["subject"]; topicName: string; topicSlug: string },
+    paperMixedArg: boolean,
+  ): Promise<boolean> {
+    if (!detectedQuestions) return false;
+      if (g.couldNotRead) return false;
+      // PR-2 — an answer that was not graded (option unread, or it does not match its
+      // question) records nothing anywhere: no MI entry, no attempt (owner addendum).
+      if (!isGradedQuestion(g)) return false;
+      const csr = multiQuestionToCsr(g);
+      const questionId = questionIds[gi];
+      // OR-LIVE L1 — the text of THIS question (two questions printed "Q5" keep their own).
+      const qText =
+        detectedTextForResult(detectedQuestions, results, gi) ||
+        `${sessionCode} · Q${g.qNumber}`;
+      // B2 (GA-16) — this question's OWN subject and chapter, never the first question's.
+      const filing = perQuestionFiling(g, paperFilingArg, paperMixedArg);
+      // eslint-disable-next-line no-await-in-loop
+      const rec = await recordMistake(user, csr, {
+        subject: filing.subject,
+        topic: filing.topicName,
+        topicKey: filing.topicSlug,
+        question: qText,
+        questionId,
+        surface: "check-improve",
+        submissionId: sessionCode,
+      });
+      recordAttempt(user, {
+        subject: filing.subject,
+        topic: filing.topicName,
+        topicKey: filing.topicSlug,
+        question: qText,
+        questionId,
+        marksScored: csr.marksAwarded,
+        marksAvailable: csr.totalMarks,
+        mode: "graded",
+        // H1 — the same submission identity as the MI entry above.
+        surface: "check-improve",
+        submissionId: sessionCode,
+        grade: csr,
+      });
+      return (
+        rec.outcome === "logged" ||
+        rec.outcome === "duplicate" ||
+        rec.outcome === "skipped-clean" ||
+        rec.outcome === "skipped-not-attempted"
+      );
+  }
+
+  async function gradeMultiQuestion(
+    limitTo: number | null = null,
+    mode: { resume?: boolean; continueFrom?: GradingJobInterruptedError } = {},
+  ) {
+    // J2: a resume after a reload polls the stored job — it needs no file (it never re-sends).
+    if (!confirmed || !detectedQuestions || (!imageBase64 && !mode.resume)) return;
     setErrorMessage(null);
     fairUse.clearLimit();
     setStatus("loading");
     setGradeStage(null);
     setSaveStatus("idle");
+    ciLastLimitRef.current = limitTo;
+    if (!mode.continueFrom) ciJob.reset();
     // FAIR-USE-UI-1 (UI2): the student agreed to "we'll mark the first R" - EXACTLY the
     // first R questions of the paper, in its own order, are sent. Null = all, as before.
     const questionsToGrade = limitTo !== null ? detectedQuestions.slice(0, limitTo) : detectedQuestions;
@@ -1660,9 +1761,35 @@ const DesktopCheckImprovePageInner: React.FC<{
           // request shape is fixed (spec §1). [FU-B15-FREECHECK-V2]
           ...(!freeCallOpts && q.objective === true && q.answer ? { answer: q.answer } : {}),
         })),
-        imageBase64,
+        imageBase64: imageBase64 ?? "",
         imageMimeType: imageMime,
-      }, { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
+      }, {
+        ...(freeCallOpts ?? CI_GRADE_CALL),
+        onStage: setGradeStage,
+        // GRADING-JOBS-1 J2 — the signed-in paper grades as a background job (rows land one by
+        // one; resume after a reload). NEVER the free check (contract §2, §11).
+        ...(freeCallOpts
+          ? {}
+          : {
+              job: {
+                store: ciJobStore,
+                paperKey: `ci:${sessionCode}`,
+                context: {
+                  confirmed,
+                  detectedQuestions,
+                  ciCode: sessionCode,
+                  ciName: sessionTitle ?? null,
+                  topicTouched,
+                  limitTo,
+                  imageMime,
+                } satisfies CiPaperJobContext,
+                onProgress: ciJob.onProgress,
+                ...(mode.resume ? { resumeOnly: true } : {}),
+                ...(mode.continueFrom ? { continueFrom: mode.continueFrom } : {}),
+              },
+            }),
+      });
+      ciJob.reset();
       if (!response || response.ok === false) {
         setErrorMessage("Grading unavailable — please try a clearer scan, or try again.");
         setStatus("error");
@@ -1767,51 +1894,12 @@ const DesktopCheckImprovePageInner: React.FC<{
         let anyRecorded = false;
         // B5 — stable per-question ids, unique even when detected numbers repeat.
         const questionIds = ciQuestionIds(sessionCode, shown.results);
+        // J2b (D30-2): rows recorded when the job was interrupted are not recorded twice.
+        const alreadyRecordedIdx = recordedIndicesOf(mode.continueFrom ?? null);
         for (const [gi, g] of shown.results.entries()) {
-          if (g.couldNotRead) continue;
-          // PR-2 — an answer that was not graded (option unread, or it does not match its
-          // question) records nothing anywhere: no MI entry, no attempt (owner addendum).
-          if (!isGradedQuestion(g)) continue;
-          const csr = multiQuestionToCsr(g);
-          const questionId = questionIds[gi];
-          // OR-LIVE L1 — the text of THIS question (two questions printed "Q5" keep their own).
-          const qText =
-            detectedTextForResult(detectedQuestions, shown.results, gi) ||
-            `${sessionCode} · Q${g.qNumber}`;
-          // B2 (GA-16) — this question's OWN subject and chapter, never the first question's.
-          const filing = perQuestionFiling(g, paperFiling, paperMixed);
+          if (alreadyRecordedIdx.has(gi)) continue;
           // eslint-disable-next-line no-await-in-loop
-          const rec = await recordMistake(user, csr, {
-            subject: filing.subject,
-            topic: filing.topicName,
-            topicKey: filing.topicSlug,
-            question: qText,
-            questionId,
-            surface: "check-improve",
-            submissionId: sessionCode,
-          });
-          recordAttempt(user, {
-            subject: filing.subject,
-            topic: filing.topicName,
-            topicKey: filing.topicSlug,
-            question: qText,
-            questionId,
-            marksScored: csr.marksAwarded,
-            marksAvailable: csr.totalMarks,
-            mode: "graded",
-            // H1 — the same submission identity as the MI entry above.
-            surface: "check-improve",
-            submissionId: sessionCode,
-            grade: csr,
-          });
-          if (
-            rec.outcome === "logged" ||
-            rec.outcome === "duplicate" ||
-            rec.outcome === "skipped-clean" ||
-            rec.outcome === "skipped-not-attempted"
-          ) {
-            anyRecorded = true;
-          }
+          if (await recordCiQuestion(g, gi, shown.results, questionIds, sessionCode, paperFiling, paperMixed)) anyRecorded = true;
         }
         setSaveStatus(anyRecorded ? "saved" : "no-user");
       } catch (e) {
@@ -1819,6 +1907,36 @@ const DesktopCheckImprovePageInner: React.FC<{
         setSaveStatus("save-failed");
       }
     } catch (e) {
+      // J2 §6: an interrupted background grade keeps its marked rows and offers the rest back.
+      if (ciJob.captureInterrupted(e)) {
+        setGradeStage(null);
+        setStatus("idle");
+        // J2b (D30-2) — the FINAL graded rows of the interrupted job are recorded now, exactly
+        // as a finished grade records them (same ids, so idempotent). No session record: an
+        // interrupted job has no totals (§6). A recording miss never hides the interruption.
+        const recordable = recordableInterruptedRows(e);
+        if (recordable.length > 0 && sessionCode) {
+          const code = sessionCode;
+          const allRows = [...(e as GradingJobInterruptedError).rows].sort((a, b) => a.index - b.index);
+          const ids = ciQuestionIds(code, allRows);
+          const skip = recordedIndicesOf(mode.continueFrom ?? null);
+          const filingBase = { subject: confirmed.subject, topicName: confirmed.topicName, topicSlug: confirmed.topicSlug };
+          const mixed = isMixedPaper(allRows);
+          try {
+            let any = false;
+            for (const { index, row } of recordable) {
+              if (skip.has(index)) continue;
+              // eslint-disable-next-line no-await-in-loop
+              if (await recordCiQuestion(row, index, allRows, ids, code, filingBase, mixed)) any = true;
+            }
+            setSaveStatus(any ? "saved" : "no-user");
+          } catch (recordErr) {
+            console.warn("[check-improve] interrupted-row record failed:", recordErr);
+            setSaveStatus("save-failed");
+          }
+        }
+        return;
+      }
       const refused = freeRefusalFor(e);
       if (refused) {
         setFreeRefusal(refused);
@@ -1840,14 +1958,42 @@ const DesktopCheckImprovePageInner: React.FC<{
       // LOW-END-1 R2: a dropped connection / timeout (after the transport's retries) says
       // so in a plain sentence; everything else keeps today's copy.
       setGradeStage(null);
+      // J2b (verifier N2): a background grade that is gone (404 / past 24 h after a reload) says
+      // so in its own honest sentence (isGradingJobGone), as Worksheets does.
       setErrorMessage(
-        e instanceof Error && e.name === "GradingNetworkError"
+        e instanceof Error && (e.name === "GradingNetworkError" || isGradingJobGone(e))
           ? e.message
           : "Grading unavailable — please try again.",
       );
       setStatus("error");
     }
   }
+
+  // J2 — resume after a reload: a background paper grade still stored for this tab restores
+  // the confirmed read + detected questions + session code, then polls the SAME job.
+  const ciResumeCheckedRef = useRef(false);
+  const [ciResumePending, setCiResumePending] = useState(false);
+  useEffect(() => {
+    if (ciResumeCheckedRef.current || isFreeMode || !user?.uid) return;
+    ciResumeCheckedRef.current = true;
+    const rec = resumableJob(ciJobStore);
+    const ctx = rec ? readCiPaperJobContext(rec.context) : null;
+    if (!rec || !ctx || rec.paperKey !== `ci:${ctx.ciCode}`) return;
+    setConfirmed(ctx.confirmed);
+    setDetectedQuestions(ctx.detectedQuestions);
+    setCiCode(ctx.ciCode);
+    if (ctx.ciName) setCiName(ctx.ciName);
+    setTopicTouched(ctx.topicTouched);
+    setImageMime(ctx.imageMime);
+    ciLastLimitRef.current = ctx.limitTo;
+    setCiResumePending(true);
+  }, [isFreeMode, user?.uid, ciJobStore]);
+  useEffect(() => {
+    if (!ciResumePending || !confirmed || !detectedQuestions || !ciCode) return;
+    setCiResumePending(false);
+    void gradeMultiQuestion(ciLastLimitRef.current, { resume: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ciResumePending, confirmed, detectedQuestions, ciCode]);
 
   async function handleGrade() {
     if (!canGrade || !confirmed) return;
@@ -2996,6 +3142,16 @@ const DesktopCheckImprovePageInner: React.FC<{
             </div>
           </div>
         )}
+        <GradingJobRows
+          progress={ciJob.progress}
+          interrupted={ciJob.interrupted}
+          onGradeRemaining={
+            ciJob.interrupted && imageBase64
+              ? () => void gradeMultiQuestion(ciLastLimitRef.current, { continueFrom: ciJob.interrupted! })
+              : undefined
+          }
+          busy={status === "loading"}
+        />
         {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
         {fairUseConfirm !== null ? (
           <FairUseConfirm
