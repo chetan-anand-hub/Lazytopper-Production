@@ -149,7 +149,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 13.3 Q32", isCompetencyBased: true },
 
   // ===== Section D — Long Answer (5 marks) =====
-  { id: "PROB-N-EXEM-14-LA-001", subject: "Maths", topicKey: "probability", subtopic: "Coins", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+  { id: "PROB-N-EXEM-14-LA-001", competencyVerified: true, subject: "Maths", topicKey: "probability", subtopic: "Coins", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "In a game the entry fee is ₹5. The game consists of tossing a coin 3 times. If one or two heads show, Sweta gets her entry fee back; if she throws 3 heads she gets double the entry fee; otherwise she loses. For tossing a coin three times, find the probability that she (i) loses the entry fee, (ii) gets double the entry fee, (iii) just gets her entry fee back.",
     solutionSteps: ["[1 mark] The coin is tossed 3 times, so the sample space has 2³ = 8 equally likely outcomes: HHH, HHT, HTH, THH, HTT, THT, TTH, TTT.", "[1 mark] (i) She loses only when no head shows (0 heads) — outcome TTT, i.e. 1 favourable outcome.", "[1 mark] (i) P(loses the entry fee) = 1/8.", "[1 mark] (ii) She gets double the fee only on 3 heads (HHH) — 1 outcome, so P(gets double) = 1/8.", "[1 mark] (iii) She gets her fee back on exactly 1 or 2 heads = 8 − 1(HHH) − 1(TTT) = 6 outcomes, so P = 6/8 = 3/4."],
     finalAnswer: "(i) 1/8; (ii) 1/8; (iii) 3/4.",
