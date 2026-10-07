@@ -1,3 +1,31 @@
+## ★★★ 2026-10-07 — WAVE B-18 (GRADING CLIENT + PROGRESS, CONTROLLER B) — J2 COMPLETE: `#979` + `#980` LIVE BEHIND THE OFF SWITCH, `#995` (TWO-PHOTO RACE) AND `#997` (NO WEAKNESS, FIGURE OR STATUS BEFORE EVIDENCE) MERGED; PRODUCTION AI RESTORED (docs) — THIS BLOCK SUPERSEDES THE ME-ENGINE-1 BLOCK BELOW ON TRUNK SHA, ON J2 AND ON `[PROD-AI-500]`
+*(The owner items of the ME-ENGINE-1, CI1 NIGHTLY-RESTORE, CI-SPEED-1, WAVE B-17, A-16 CLOSE, B-16, A-15 CLOSE, B-15, B-14, A-13 and every older block below stand unchanged, except the items this block names.)*
+
+**TRUNK IS `d8a7d2f4`** for this lane (`#997`, merged 2026-10-07T05:15:12Z, `gh pr view 997`, docs-builder-verified); other lanes have merged since `#990` (`#992`–`#994`, `#996`, `#998`, `#999`, `#1001`, `#972` ...) and are described by their own docs PRs. Results, numbers, run ids and the verifier records: `CURRENT_STATE.md`, the `[CURRENT · GRADING CLIENT + PROGRESS]` WAVE B-18 block.
+
+★ **STANDING FOR EVERY CONTROLLER FROM NOW ON:**
+- **A grading surface that submits several questions opts into background grading through `src/ai/gradingJobs.ts`** (`aiClient.gradeWorksheet(req, { job })`); single checks, Quick Practice batch = 1, HPQ and the signed-out free check never opt in. **`GRADING_JOBS` is OFF in production until Controller A's J3 merges** — until then every submit is today's path.
+- **`usePageTray` derives its payload in a layout effect** — never a passive effect (five hosts).
+- **Nothing student-facing shows a weakness, figure or status before evidence for it;** never read the retired mastery source ("Closed This Week" was removed for that reason).
+- **A strict up-to-date merge rule makes a verified PR perishable:** after every `update-branch` prove the lane files byte-identical to the verified head; ask CI-1 for a merge slot when a PR is re-marked BEHIND twice.
+- **A live check that cannot create its precondition is OWED, never PASS;** a verifier's PASS covers only the diff it read.
+- **Never `git stash` in a lane** — the stash is shared by every worktree of the repo.
+
+### NEXT — CONTROLLER A (J3) — uses J2a `678b9811` + J2b `480b619c`
+1. **J3 = switch `GRADING_JOBS` ON** (draft `#1002`, branch `lane/grading-jobs-on`: the code default ON, `0` / `off` / `false` = kill switch). It was **open, not merged,** when this was written. After it merges, **OR-LIVE R0 must prove the deployed backend answers 202 with a `jobId`** (Railway may hold an OFF value), then measure each J2 surface on the job path: rows one by one, provisional until final, resume after a reload, an interrupted job ("Grade the remaining N"), a 404 fall-back. **Owner live-verify is owed** for this grading round-trip.
+
+### NEXT — CONTROLLER B (after this docs PR merges)
+1. **Release the handoff lock** on the board (+ `#973` mirror); tell Controller A and CI-1 the merge SHA.
+2. **Read `live-997-2026-10-07.md`** when it lands (Me + Weak Area, below / above the gate, two devices); record a PASS or a finding. It was PENDING when this was written.
+3. **ME-ENGINE-1 PR-3 (concepts, G5 / G6) waits on C1's BANK-FIX-2 PR-3 (the concept map)** — C1 notifies B (owner Round 8). Then ME-REPORT-1 (display "today" and won back) when the owner schedules it.
+4. **`[FU-B18-WEAKAREA-LOCAL-LIST]`** (list order, "Start Targeted Session", the Learning-Path generator and the hidden below-gate path still read device-local data) — the next honest-Weak-Area lane.
+5. Remove only B-18's own worktrees (`b18-me-engine-1`, `b18-me-base`, `b18-me-engine-2`, `b18-me-engine-2b`, `b18-me-engine-2c`, `b18-me-engine-2d`, `b18-me-docs`, `b18-j2`, `b18-flake-pdf`, `b18-j2-docs`, `controller-b18`, any `b18-verify-*`; check `git worktree list`; never prune).
+
+### NEXT — OWNER
+1. **Nothing is blocking:** `[PROD-AI-500]` is resolved (your credit top-up).
+2. **Optional:** re-tune the Weak Area difficulty bands (D26 C-W2); reword the J2 copy (CI-1 approved it as written) or override the other D30 J2 decisions; scope ME-REPORT-1 and a won-back re-attempt path (`[FU-ME1-WONBACK-UNREACHABLE]`).
+3. **Carried:** every owner item of the ME-ENGINE-1 block and the blocks below stands.
+
 ## ★★★ 2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B) — ME-ENGINE-1 COMPLETE: `#964` + `#968` + `#970` + `#983` LIVE; PR-3 SKIPPED BY THE OWNER; PRODUCTION AI FAILING UPSTREAM, J2 HELD (docs) — THIS BLOCK SUPERSEDES THE CI1 NIGHTLY-RESTORE BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the CI1 NIGHTLY-RESTORE, CI-SPEED-1, WAVE B-17, A-16 CLOSE, B-16, A-15 CLOSE, B-15, B-14, A-13 and every older block below stand unchanged, except the items this block names.)*
 
