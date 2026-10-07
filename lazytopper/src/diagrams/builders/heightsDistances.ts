@@ -227,6 +227,12 @@ function lenLabel(p: HdBase, expr: Len | undefined, unknownLetter: string | unde
   return unknownLetter || undefined;
 }
 
+/** A world offset that lands ~`viewUnits` below the ground once the scene is fitted. */
+function belowGround(width: number, height: number, viewUnits: number): number {
+  const sEst = Math.min((VIEW.w - MARGIN.l - MARGIN.r) / width, (VIEW.h - MARGIN.t - MARGIN.b) / height);
+  return -viewUnits / sEst;
+}
+
 function deg(a: number): string {
   return `${a}°`;
 }
@@ -489,6 +495,20 @@ function buildTwoSameSide(p: HdTwoSameSide, labels: HdLabels): BuildResult<HdMod
     s.angle("eye", "farE", "far", p.far, deg(p.far));
     s.right("nearE", "eye", "near");
     s.right("farE", "eye", "far");
+    if (nL || fL) {
+      const y = belowGround(dFar, h, 30);
+      s.p("dim0", 0, y);
+      if (nL) {
+        s.p("dimN", dNear, y);
+        s.seg("dim0", "dimN", "measure", nL, "b");
+      }
+      if (fL) {
+        const y2 = nL ? belowGround(dFar, h, 52) : y;
+        s.p("dim0b", 0, y2);
+        s.p("dimF", dFar, y2);
+        s.seg("dim0b", "dimF", "measure", fL, "b");
+      }
+    }
     s.letter("eye", -12, -4);
     s.letter("obs", -6, 15);
     s.letter("near", -4, -9);
@@ -514,6 +534,12 @@ function buildTwoSameSide(p: HdTwoSameSide, labels: HdLabels): BuildResult<HdMod
     s.angle("top", "href", "far", p.far, deg(p.far));
     s.angle("top", "href", "near", p.near, deg(p.near));
     s.right("foot", "top", "near");
+    if (fL) {
+      const y = belowGround(dFar, h, 32);
+      s.p("dimA", 0, y);
+      s.p("dimB", dFar, y);
+      s.seg("dimA", "dimB", "measure", fL, "b");
+    }
     s.letter("top", -10, -6);
     s.letter("foot", -10, 14);
     s.letter("near", 0, 15);
@@ -552,7 +578,13 @@ function buildTwoSameSide(p: HdTwoSameSide, labels: HdLabels): BuildResult<HdMod
       s.angle("near", "foot", "top", p.near, deg(p.near));
       s.right("foot", "near", "top");
     }
-    if (fL && !gL) s.facts.push(`The farther point is ${fL} from the foot.`);
+    if (fL) {
+      const y = belowGround(dFar, h, 32);
+      s.p("dimA", 0, y);
+      s.p("dimB", dFar, y);
+      s.seg("dimA", "dimB", "measure", fL, "b");
+      s.facts.push(`The farther point is ${fL} from the foot.`);
+    }
     s.letter("top", 8, -6);
     s.letter("foot", 8, 15);
     s.letter("far", -4, 15);
