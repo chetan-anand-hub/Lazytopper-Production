@@ -3,22 +3,42 @@
  * Pins: every pack row is SERVED and isCbq; the chapter serves >= 100 CBQs;
  * no duplicate stems; every MCQ / AR answer is one of its options; every 1-mark row is
  * MCQ or Assertion-Reasoning; no excluded-topic (frustum / melting-and-recasting) text.
+ * Owner rulings (2026-10-07): SAV-250/259 (water displacement) are WITHHELD — kept in the pack,
+ * not served; single-solid questions only at 1–2 marks, so every 3+ mark row is a combination of solids.
  * Reads no clock.
  */
 import { describe, it, expect } from "vitest";
 
-import { canonicalQuestionBank } from "../canonicalQuestionBank";
+import { canonicalQuestionBank, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 import { isCbq } from "../../lib/cbq/cbqClassification";
 import { SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED as ROWS } from "../questionBanks/class10/maths/surface-areas-and-volumes.cbq.ltgen";
 
 const SLUG = "surface-areas-and-volumes";
+const OWNER_WITHHELD = ["LTG-M-SAV-250", "LTG-M-SAV-259"] as const;
+const COMBINED = /^(Surface Area of Combined Solids|Volume of Combined Solids|Combination of Solids)$/;
 
 describe("CBQ-1 C2 Maths C pack (Surface Areas and Volumes)", () => {
   const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
 
-  it("every pack row is served, isCbq, and in its own chapter", () => {
+  it("owner ruling: SAV-250 and SAV-259 are withheld (kept in the pack, not served)", () => {
+    for (const id of OWNER_WITHHELD) {
+      expect(ROWS.some((q) => q.id === id), `${id} stays in the pack`).toBe(true);
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(true);
+      expect(served.has(id), id).toBe(false);
+    }
+  });
+
+  it("owner ruling: every 3+ mark row combines solids (single solids only at 1-2 marks)", () => {
+    const big = ROWS.filter((q) => q.marks >= 3 && !(OWNER_WITHHELD as readonly string[]).includes(q.id));
+    expect(big.length).toBeGreaterThan(40);
+    for (const q of big) expect(q.subtopic, q.id).toMatch(COMBINED);
+    // control: a single-solid label would fail
+    expect("Volume of Solids").not.toMatch(COMBINED);
+  });
+
+  it("every served pack row is isCbq and in its own chapter", () => {
     expect(ROWS.length).toBeGreaterThan(0);
-    for (const q of ROWS) {
+    for (const q of ROWS.filter((r) => !(OWNER_WITHHELD as readonly string[]).includes(r.id))) {
       const s = served.get(q.id);
       expect(s, `${q.id} not served`).toBeDefined();
       expect(isCbq(s), `${q.id} not isCbq`).toBe(true);

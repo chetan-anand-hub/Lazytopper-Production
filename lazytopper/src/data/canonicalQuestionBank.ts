@@ -1906,6 +1906,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291",
   "LTG-S-HERED-292", "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297",
   "LTG-S-HERED-298", "LTG-S-HERED-299", // the two 5-mark sex-determination rows
+  // ---- CBQ-1 C2 (owner ruling via CI-1 05:47Z, 2026-10-07): water displacement by a dropped solid is the deleted
+  // "conversion of solids" family — withheld (kept in the pack, not served) ----
+  "LTG-M-SAV-250", "LTG-M-SAV-259",
 ]);
 
 /**
