@@ -6,7 +6,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
  */
 export const SAV_SP: CanonicalQuestion[] = [
   {
-    "id": "SP-M-2022-SAV-D-001",
+    "id": "SP-M-2022-SAV-D-001", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "surface-areas-and-volumes",
     "subtopic": "Volume (Cylinder and Cuboid)",

@@ -36,7 +36,7 @@ export const CG_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": false
   },
   {
-    "id": "CBE-M-CG-C-002",
+    "id": "CBE-M-CG-C-002", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "coordinate-geometry",
     "subtopic": "Distance Formula (Real-Life Context)",
