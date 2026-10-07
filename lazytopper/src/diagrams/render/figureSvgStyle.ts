@@ -29,4 +29,14 @@ export const FIGURE_SVG_CSS = `
 .lt-fig .lt-fig__angle-label { fill: #2b8a3e; font-weight: 600; }
 .lt-fig .lt-fig__len-label { font-weight: 600; }
 .lt-fig .lt-fig__pt { font-weight: 700; font-style: italic; }
+.lt-fig .lt-fig__seg--tangent { stroke: #1e2a4a; stroke-width: 1.6; }
+.lt-fig .lt-fig__seg--radius { stroke: #1e2a4a; stroke-width: 1.3; }
+.lt-fig .lt-fig__seg--chord { stroke: #1e2a4a; stroke-width: 1.3; }
+.lt-fig .lt-fig__seg--edge { stroke: #1e2a4a; stroke-width: 1.7; }
+.lt-fig .lt-fig__seg--axis { stroke: #64748b; stroke-width: 1.1; }
+.lt-fig .lt-fig__circle { stroke: #1e2a4a; stroke-width: 1.7; fill: none; }
+.lt-fig .lt-fig__circle--construction { stroke: #64748b; stroke-width: 1.1; stroke-dasharray: 4 4; }
+.lt-fig .lt-fig__region { fill: #cfe9d6; stroke: none; }
+.lt-fig .lt-fig__tick { font-size: 12px; fill: #475569; }
+.lt-fig .lt-fig__coord { font-size: 14px; font-weight: 600; }
 `;

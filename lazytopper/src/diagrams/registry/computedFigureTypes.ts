@@ -12,6 +12,10 @@
  *     the question are right, not only the numbers.
  */
 import type { HdLabels, HdParams } from "../builders/heightsDistances";
+import type { CircleDraw, CircleParams } from "../builders/circleTangents";
+import type { BptParams } from "../builders/triangleBpt";
+import type { CoordDraw, CoordParams } from "../builders/coordinatePlot";
+import type { SectorDraw, SectorParams } from "../builders/circleSector";
 
 export type FigureSlot = "solution" | "question";
 
@@ -39,15 +43,11 @@ export interface FigureExpectation {
   quote: string;
 }
 
-export interface ComputedFigureBinding {
+interface ComputedFigureBindingBase {
   kind: "computed";
   /** Exact served row id. */
   questionId: string;
   slot: FigureSlot;
-  builder: "heightsDistances";
-  params: HdParams;
-  /** Point letters matching the row's own solution, and unknown-length letters ("q.h"). */
-  labels?: HdLabels;
   /** Set when the figure covers one part / one alternative of the row. */
   part?: string;
   caption?: string;
@@ -56,6 +56,49 @@ export interface ComputedFigureBinding {
   /** Who read the row against the rendered figure, and when. */
   confirmedBy: string;
 }
+
+export interface HdFigureBinding extends ComputedFigureBindingBase {
+  builder: "heightsDistances";
+  params: HdParams;
+  /** Point letters matching the row's own solution, and unknown-length letters ("q.h"). */
+  labels?: HdLabels;
+}
+
+/**
+ * Geometry figures (DIAGRAMS-1 PR-2d). `params` holds ONLY numbers read from the row
+ * (each one quoted in `provenance`, plus template/unit/scaleFree); `draw` holds display
+ * choices that are not numbers (which segments, which region is shaded).
+ */
+export interface CircleFigureBinding extends ComputedFigureBindingBase {
+  builder: "circleTangents";
+  params: CircleParams;
+  draw?: CircleDraw;
+  labels?: Record<string, string>;
+}
+export interface TriangleFigureBinding extends ComputedFigureBindingBase {
+  builder: "triangleBpt";
+  params: BptParams;
+  labels?: Record<string, string>;
+}
+export interface CoordinateFigureBinding extends ComputedFigureBindingBase {
+  builder: "coordinatePlot";
+  params: CoordParams;
+  draw?: CoordDraw;
+  labels?: Record<string, string>;
+}
+export interface SectorFigureBinding extends ComputedFigureBindingBase {
+  builder: "circleSector";
+  params: SectorParams;
+  draw?: SectorDraw;
+  labels?: Record<string, string>;
+}
+
+export type ComputedFigureBinding =
+  | HdFigureBinding
+  | CircleFigureBinding
+  | TriangleFigureBinding
+  | CoordinateFigureBinding
+  | SectorFigureBinding;
 
 /**
  * An OFFICIAL raster crop bound to a solution (NCERT / CBSE answer figures). Never a

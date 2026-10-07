@@ -4,8 +4,10 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildHeightsDistances } from "../builders/heightsDistances";
+import { buildSector } from "../builders/circleSector";
+import { buildCoordinatePlot } from "../builders/coordinatePlot";
 import type { FigureSpec } from "../figureSpec";
-import { FigureSvg, arcLayouts } from "./FigureSvg";
+import { FigureSvg, arcLayouts, regionPath } from "./FigureSvg";
 import { FIGURE_SVG_CSS } from "./figureSvgStyle";
 
 afterEach(cleanup);
@@ -71,5 +73,40 @@ describe("FigureSvg", () => {
     cleanup();
     const b = render(<FigureSvg spec={s} idPrefix="same" />).container.innerHTML;
     expect(a).toBe(b);
+  });
+});
+
+describe("FigureSvg — geometry elements (DIAGRAMS-1 PR-2d)", () => {
+  it("draws a circle at its view radius, a shaded region under the lines, and plain text", () => {
+    const r = buildSector({ template: "sector", unit: "cm", r: "21", theta: 60 }, {}, { shade: "segment" })!;
+    const { container } = render(<FigureSvg spec={r.spec} idPrefix="g1" />);
+    const circle = r.spec.elements.find((e) => e.t === "circle")!;
+    const el = container.querySelector("circle.lt-fig__circle")!;
+    expect(Number(el.getAttribute("r"))).toBeCloseTo(circle.t === "circle" ? circle.r : 0, 1);
+    const region = container.querySelector("path.lt-fig__region")!;
+    expect(region).not.toBeNull();
+    // The region group comes BEFORE the lines, so outlines stay on top of the shading.
+    const groups = Array.from(container.querySelectorAll("svg > g"));
+    expect(groups[0].querySelector("path.lt-fig__region")).not.toBeNull();
+    expect(FIGURE_SVG_CSS).toMatch(/lt-fig__region \{[^}]*fill/);
+  });
+  it("a region over 180° takes the large-arc flag; a minor one does not", () => {
+    const c = { x: 0, y: 0 };
+    expect(regionPath(c, { x: 10, y: 0 }, { x: 0, y: -10 }, 10, 90, "sector")).toMatch(/A 10 10 0 0 0/);
+    expect(regionPath(c, { x: 10, y: 0 }, { x: 0, y: 10 }, 10, 270, "sector")).toMatch(/A 10 10 0 1 0/);
+    expect(regionPath(c, { x: 10, y: 0 }, { x: 0, y: -10 }, 10, 90, "segment").startsWith("M 10 0 A")).toBe(true);
+  });
+  it("tick and coordinate text use their own classes; still no inline style anywhere", () => {
+    const r = buildCoordinatePlot({ template: "points", unit: "none", A: "(3, 4)", B: "(0, 0)" }, {}, { segs: [["A", "B"]] })!;
+    const { container } = render(<FigureSvg spec={r.spec} idPrefix="g2" />);
+    expect(container.querySelectorAll("text.lt-fig__tick").length).toBeGreaterThan(3);
+    const coords = Array.from(container.querySelectorAll("text.lt-fig__coord")).map((t) => t.textContent);
+    expect(coords).toEqual(expect.arrayContaining(["A(3, 4)", "B(0, 0)"]));
+    expect(container.querySelectorAll("[style]").length).toBe(0);
+  });
+  it("CONTROL: an H&D figure (no geometry elements) renders no region group", () => {
+    const { container } = render(<FigureSvg spec={spec()} idPrefix="g3" />);
+    expect(container.querySelector("path.lt-fig__region")).toBeNull();
+    expect(container.querySelectorAll("svg > g").length).toBe(3);
   });
 });
