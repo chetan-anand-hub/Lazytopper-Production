@@ -173,7 +173,7 @@ describe("scanFile — banned sub-topics containing an apostrophe (FU-SYLLABUSGU
     });
 
     test(`FAIL: planted row with '${name}' in SINGLE quotes with an escaped apostrophe is caught`, () => {
-      const escaped = name.replace(/'/g, "\\'");
+      const escaped = name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
       const file = fixture(
         `apos-sq-${i}.ts`,
         `export const q = { id: 'planted-${i}', subtopic: '${escaped}', question: 'Planted.' };`
