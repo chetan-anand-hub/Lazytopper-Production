@@ -86,6 +86,7 @@ export interface MoreLikeThisResponse {
 
 import { paidJsonHeaders, UID_HEADER, SignInAgainError, REAUTH_MESSAGE } from "./paidCallHeaders";
 import type { GradingHttpResponse, GradingStageListener } from "./gradingTransport";
+import type { GradingJobOptions } from "./gradingJobs";
 
 /* ── AUTHGATE-FIX-1: one silent token refresh ─────────────────────────────────
    The server answers 401 `reauth_required` when the ID token a call carried did not
@@ -168,6 +169,11 @@ export interface PaidCallOptions {
    *  sends the request by XHR so upload progress can be reported; omitted, the request
    *  goes by fetch. Either way R1's timeout / retry / idempotency key apply. */
   onStage?: GradingStageListener;
+  /** GRADING-JOBS-1 J2 — opt this ONE grade-worksheet call into a background job (contract
+   *  v1.0 §2: `Prefer: respond-async`). Only the multi-question paid surfaces pass it (C&I
+   *  paper, Worksheets, Chapter Test, Full Mock, Quick Practice batch > 1). Ignored on a free
+   *  check and by every other endpoint. Omitted, the request is byte-identical to before. */
+  job?: GradingJobOptions;
 }
 
 /**
@@ -183,11 +189,13 @@ async function postGrading(
   body: unknown,
   opts: PaidCallOptions | undefined,
   refreshedHeaders: () => Promise<Record<string, string>>,
+  /** J2: the job client picks the key (it stores it before polling). Absent → minted here. */
+  keyOverride?: string,
 ): Promise<GradingHttpResponse> {
   const { sendGradingRequest, newIdempotencyKey } = await import("./gradingTransport");
   // ONE key for this check attempt — made once, here, so the token-refresh re-send
   // (AUTHGATE-FIX-1) carries the SAME key as the first send and as every network retry.
-  const idempotencyKey = newIdempotencyKey();
+  const idempotencyKey = keyOverride ?? newIdempotencyKey();
   const payload = JSON.stringify(body);
   const sendOpts = {
     idempotencyKey,
@@ -1015,6 +1023,26 @@ export async function gradeWorksheet(req: {
   // (signed out, passes not configured, mint failed) -> sent without one, graded as before.
   const paperPass = await paperPassHeaders(identity, opts);
   const extra: Record<string, string> = { ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}), ...paperPass };
+  // GRADING-JOBS-1 J2: a background job ONLY when the caller opted in — never a free check.
+  if (opts?.job && !opts.freeCheck) {
+    const { gradeWorksheetJob, PREFER_HEADER, PREFER_ASYNC_VALUE } = await import("./gradingJobs");
+    return gradeWorksheetJob(req, opts.job, {
+      submit: (payload, sendOpts) => {
+        const sendExtra = sendOpts.preferAsync ? { ...extra, [PREFER_HEADER]: PREFER_ASYNC_VALUE } : extra;
+        return postGrading(
+          `${API_BASE}/grade-worksheet`,
+          { ...identity, ...sendExtra },
+          withAcceptsV2(payload as typeof req, opts),
+          opts,
+          refreshedPaidHeaders(sendExtra),
+          sendOpts.idempotencyKey,
+        );
+      },
+      poll: pollGradingJob,
+      parse: <T,>(res: Pick<Response, "ok" | "status" | "text">) => handleJsonResponse<T>(res),
+      ...(opts.onStage ? { onStage: opts.onStage } : {}),
+    });
+  }
   const res = await postGrading(
     `${API_BASE}/grade-worksheet`,
     { ...identity, ...extra },
@@ -1023,6 +1051,32 @@ export async function gradeWorksheet(req: {
     refreshedPaidHeaders(extra),
   );
   return handleJsonResponse<WorksheetGradeResponse>(res);
+}
+
+/**
+ * J2 — GET one job's status (contract §3) with the Bearer token. A 401 is retried ONCE with a
+ * forced token refresh; a second 401 is SignInAgainError, as on a grade. Every other status is
+ * returned for the job client to read.
+ */
+async function pollGradingJob(pollPath: string): Promise<Pick<Response, "ok" | "status" | "text">> {
+  const authOnly = (h: Record<string, string>) => {
+    const out = { ...h };
+    delete out["Content-Type"];
+    return out;
+  };
+  const send = (headers: Record<string, string>) => fetch(pollPath, { method: "GET", headers, cache: "no-store" });
+  const first = authOnly(await paidJsonHeaders());
+  const res = await send(first);
+  if (res.status !== REAUTH_STATUS || !first.Authorization) return res;
+  let fresh: Record<string, string>;
+  try {
+    fresh = authOnly(await paidJsonHeaders({ forceRefresh: true }));
+  } catch {
+    throw new SignInAgainError(REAUTH_MESSAGE);
+  }
+  const again = await send(fresh);
+  if (again.status === REAUTH_STATUS) throw new SignInAgainError(REAUTH_MESSAGE);
+  return again;
 }
 
 export interface GenerateVisualRequest {
