@@ -122,6 +122,20 @@
     {
       "rule": "G3-TEXT",
       "surface": "bank",
+      "rowId": "RN-E05",
+      "matched": "real-numbers/out[2]: \"square root of any prime\"",
+      "verdict": "hit",
+      "file": "lazytopper/src/data/questionBanks/class10/maths/realNumbers.pack1.ts",
+      "lane": "C1",
+      "fu": "FU-GUARD3-TEXT-OUT",
+      "fields": [
+        "explanation"
+      ],
+      "text": "√5 is irrational because 5 is a prime number and the square root of any prime is irrational."
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
       "rowId": "SAV-E17",
       "matched": "surface-areas-and-volumes/out[1]: \"melted and recast\"",
       "verdict": "hit",
