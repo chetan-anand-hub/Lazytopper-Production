@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { writeFileSync, mkdirSync, rmSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
@@ -19,9 +19,11 @@ import {
   normaliseLabel,
   referenceItems,
   resolveVariants,
+  runRowRules,
   scanServedItems,
   type ServedSources,
 } from "./syllabusGuard.js";
+import * as G3 from "./syllabusGuard.rows.js";
 
 const tmp = join(tmpdir(), `syllabus-guard-test-${process.pid}`);
 mkdirSync(tmp, { recursive: true });
@@ -133,6 +135,115 @@ describe("scanFile — banned subtopic detection", () => {
     );
     const violations = scanFile(file, ["Evolution", "Fossil"]);
     assert.equal(violations.length, 0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FU-SYLLABUSGUARD-APOSTROPHE — a banned name that CONTAINS an apostrophe is caught.
+// The old value capture `[^"'`]+` stopped at the apostrophe, so "Euclid's Division
+// Lemma" was read as "Euclid" and a planted row PASSED. The four names below are
+// copied EXACTLY from the bank-level banned lists in syllabusGuard.ts (Maths l.58/60,
+// Science l.139/141 at the time of writing).
+// ─────────────────────────────────────────────────────────────────────────────
+
+const APOSTROPHE_BANNED = [
+  "Euclid's Division Lemma",
+  "Euclid's Division Algorithm",
+  "Dobereiner's Triads",
+  "Mendeleev's Periodic Table",
+] as const;
+
+describe("scanFile — banned sub-topics containing an apostrophe (FU-SYLLABUSGUARD-APOSTROPHE)", () => {
+  test("the four apostrophe names are real, current banned phrases (not invented for the test)", () => {
+    for (const name of APOSTROPHE_BANNED) {
+      assert.ok(SURFACE_BANNED_PHRASES.includes(name), `${name} is in SURFACE_BANNED_PHRASES`);
+    }
+  });
+
+  APOSTROPHE_BANNED.forEach((name, i) => {
+    test(`FAIL: planted row with "${name}" in DOUBLE quotes is caught`, () => {
+      const file = fixture(
+        `apos-dq-${i}.ts`,
+        `export const q = { id: "planted-${i}", subtopic: ${JSON.stringify(name)}, question: "Planted." };`
+      );
+      const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+      assert.equal(violations.length, 1);
+      assert.equal(violations[0].subtopic, name);
+      assert.equal(violations[0].matchCount, 1);
+    });
+
+    test(`FAIL: planted row with '${name}' in SINGLE quotes with an escaped apostrophe is caught`, () => {
+      const escaped = name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+      const file = fixture(
+        `apos-sq-${i}.ts`,
+        `export const q = { id: 'planted-${i}', subtopic: '${escaped}', question: 'Planted.' };`
+      );
+      assert.ok(file.length > 0 && escaped.includes("\\'"), "fixture really uses an escaped apostrophe");
+      const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+      assert.equal(violations.length, 1);
+      assert.equal(violations[0].subtopic, name, "reported unescaped, as the banned list spells it");
+    });
+  });
+
+  test("FAIL: a JSON-style quoted key with an apostrophe value is caught", () => {
+    const file = fixture(
+      "apos-json.ts",
+      `export const rows = [{ "subtopic": "Mendeleev's Periodic Table", "marks": 1 }];`
+    );
+    const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+    assert.equal(violations.length, 1);
+    assert.equal(violations[0].subtopic, "Mendeleev's Periodic Table");
+  });
+
+  test("FAIL: a template-literal value with an apostrophe is caught", () => {
+    const file = fixture("apos-tl.ts", "export const q = { subtopic: `Dobereiner's Triads`, question: 'x' };");
+    const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+    assert.equal(violations.length, 1);
+    assert.equal(violations[0].subtopic, "Dobereiner's Triads");
+  });
+
+  test("FAIL: an apostrophe row does not hide the next row's banned value (scan resumes correctly)", () => {
+    const file = fixture(
+      "apos-sequence.ts",
+      `export const a = [\n  { subtopic: "Mendel's contribution", q: "ok" },\n  { subtopic: 'Euclid\\'s Division Algorithm', q: "x" },\n  { subtopic: "Euclid's Division Lemma", q: "y" },\n];`
+    );
+    const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+    assert.deepEqual(
+      violations.map((v) => v.subtopic).sort(),
+      ["Euclid's Division Algorithm", "Euclid's Division Lemma"]
+    );
+  });
+
+  test("PASS: \"Mendel's contribution\" (RETAINED Heredity, board-assessed 2026-27) is not flagged", () => {
+    const file = fixture(
+      "apos-mendel.ts",
+      `export const a = [\n  { subtopic: "Mendel's contribution" },\n  { subtopic: 'Mendel\\'s contribution' },\n  { subtopic: "Heredity" },\n  { subtopic: "Laws of Inheritance" },\n  { subtopic: "Sex Determination" },\n];`
+    );
+    const violations = scanFile(file, [...APOSTROPHE_BANNED, ...SURFACE_BANNED_PHRASES]);
+    assert.equal(violations.length, 0);
+  });
+
+  test("PASS: exact full-string semantics kept: \"Mendel's contribution\" is NOT read as a banned \"Mendel\"", () => {
+    // The old capture truncated at the apostrophe, so a list containing a bare "Mendel"
+    // would have flagged this RETAINED row. The full value must be compared.
+    const file = fixture("apos-mendel-prefix.ts", `export const q = { subtopic: "Mendel's contribution" };`);
+    assert.equal(scanFile(file, ["Mendel"]).length, 0);
+  });
+
+  test("PASS: an unrelated apostrophe sub-topic (\"Ohm's Law\", \"Pythagoras' theorem\") is not flagged", () => {
+    const file = fixture(
+      "apos-unrelated.ts",
+      `export const a = [{ subtopic: "Ohm's Law" }, { subtopic: 'Pythagoras\\' theorem' }, { subtopic: "Fleming's Left-hand Rule" }];`
+    );
+    assert.equal(scanFile(file, [...APOSTROPHE_BANNED, ...SURFACE_BANNED_PHRASES]).length, 0);
+  });
+
+  test("PASS: a banned name only as a SUBSTRING of a longer apostrophe value is not flagged (exact match)", () => {
+    const file = fixture(
+      "apos-substring.ts",
+      `export const q = { subtopic: "HCF using Euclid's Division Lemma (formative note)" };`
+    );
+    assert.equal(scanFile(file, [...APOSTROPHE_BANNED]).length, 0);
   });
 });
 
@@ -701,6 +812,415 @@ describe("served-set scan — legacy Topic Hub datasets are scanned (QUICK-FIXES
   test("IN legacy text passes: corrosion and its prevention", () => {
     const planted = [...SERVED.legacyHub, { file: "PLANTED-LEGACY-IN", data: { coreIdeas: ["Effects of oxidation in daily life (rusting / corrosion)."] } }];
     assert.deepEqual(scanWith({ legacyHub: planted }), []);
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// GUARD-3 (owner order 2026-10-07): row rules over every SERVED row + the ratchet.
+// Each rule: a planted CONTROL row that MUST fail and a PASS look-alike. The real
+// served set must have no finding outside the baseline / reviewed lists.
+// ═════════════════════════════════════════════════════════════════════════════
+
+const TEXT_MATCHER = G3.buildTextMatcher(MATCHER);
+const G3_CTX = { textMatcher: TEXT_MATCHER };
+
+/** A planted BANK row, collected through the guard's own served-row path. */
+function plantedRow(q: Record<string, unknown>): G3.ServedRow {
+  const rows = G3.collectServedRows(
+    { rawBank: [{ id: "PLANTED-G3", subject: "maths", marks: 3, format: "Short", ...q }], withheldIds: new Set(), hpq: [], predicted: [] },
+    MATCHER.chapterKeys,
+  );
+  assert.equal(rows.length, 1);
+  return rows[0];
+}
+function findings(q: Record<string, unknown>, rule?: G3.RuleId) {
+  const rules = rule ? G3.ROW_RULES.filter((r) => r.id === rule) : G3.ROW_RULES;
+  return G3.scanRows([plantedRow(q)], G3_CTX, rules).map((f) => [f.rule, f.verdict, f.matched]);
+}
+
+describe("GUARD-3 G2 — served rows: withheld rows are not served, every text field is read", () => {
+  test("a withheld row is not collected; a served row is", () => {
+    const rows = G3.collectServedRows(
+      {
+        rawBank: [{ id: "A", topicKey: "statistics", questionText: "x" }, { id: "B", topicKey: "statistics", questionText: "y" }],
+        withheldIds: new Set(["A"]),
+        hpq: [],
+        predicted: [],
+      },
+      MATCHER.chapterKeys,
+    );
+    assert.deepEqual(rows.map((r) => r.id), ["B"]);
+  });
+
+  test("question text, every option, answer, explanation, solution steps, final answer and hint are read", () => {
+    const row = plantedRow({
+      questionText: "q", options: ["o1", "o2"], answer: "a", explanation: "e", solutionSteps: ["s1", "s2"], finalAnswer: "f", strategyHint: "h",
+    });
+    assert.deepEqual(row.fields.map((f) => f.field), [
+      "questionText", "options[0]", "options[1]", "answer", "explanation", "solutionSteps[0]", "solutionSteps[1]", "finalAnswer", "strategyHint",
+    ]);
+  });
+
+  test("an HPQ bucket title maps to its board chapter key", () => {
+    assert.equal(G3.chapterKeyForTitle("Arithmetic Progressions", MATCHER.chapterKeys), "arithmetic-progression");
+    assert.equal(G3.chapterKeyForTitle("Light – Reflection & Refraction", MATCHER.chapterKeys), "light-reflection-and-refraction");
+  });
+});
+
+/** A planted PREDICTED row (display-name topicKey, as the predicted sets ship it), via the served-row path. */
+function plantedPredicted(q: Record<string, unknown>): G3.ServedRow {
+  const rows = G3.collectServedRows(
+    { rawBank: [], withheldIds: new Set(), hpq: [], predicted: [{ id: "PLANTED-PRED", subject: "Maths", marks: 3, ...q }] },
+    MATCHER.chapterKeys,
+  );
+  assert.equal(rows.length, 1);
+  return rows[0];
+}
+function predictedFindings(q: Record<string, unknown>, rule: G3.RuleId) {
+  return G3.scanRows([plantedPredicted(q)], G3_CTX, G3.ROW_RULES.filter((r) => r.id === rule)).map((f) => [f.rule, f.verdict, f.matched]);
+}
+
+describe("GUARD-3 G2 — PREDICTED rows resolve their display-name topicKey to a chapter key", () => {
+  test("a display name resolves to its key; a key stays a key; an unmatched name is undefined (never a non-key string)", () => {
+    assert.equal(plantedPredicted({ topicKey: "Areas Related to Circles" }).chapter, "areas-related-to-circles");
+    assert.equal(plantedPredicted({ topicKey: "Statistics" }).chapter, "statistics");
+    assert.equal(plantedPredicted({ topicKey: "real-numbers" }).chapter, "real-numbers");
+    assert.equal(plantedPredicted({ topicKey: "LifeProcesses" }).chapter, undefined);
+  });
+  test("CONTROL G4-SEGMENT-ANGLE: a PREDICTED minor segment of 100° FAILS", () => {
+    assert.deepEqual(
+      predictedFindings({ topicKey: "Areas Related to Circles", questionText: "A chord subtends 100° at the centre of a circle of radius 7 cm. Find the area of the minor segment." }, "G4-SEGMENT-ANGLE"),
+      [["G4-SEGMENT-ANGLE", "hit", "segment central angle 100°"]],
+    );
+  });
+  test("CONTROL G4-BIMODAL: a PREDICTED bimodal Statistics question FAILS", () => {
+    assert.deepEqual(
+      predictedFindings({ topicKey: "Statistics", questionText: "The following distribution is bimodal. Find both modes." }, "G4-BIMODAL"),
+      [["G4-BIMODAL", "hit", "bimodal/multimodal data"]],
+    );
+  });
+  test("CONTROL G4-R1-IRRATIONAL: a PREDICTED 'prove √15 irrational' FAILS", () => {
+    assert.deepEqual(
+      predictedFindings({ topicKey: "Real Numbers", questionText: "Prove that √15 is irrational." }, "G4-R1-IRRATIONAL"),
+      [["G4-R1-IRRATIONAL", "hit", "composite surd √15"]],
+    );
+  });
+  test("PASS look-alike: a PREDICTED 100° segment in another chapter, a 120° segment, a Biology 'two modes' stem and √5 all pass", () => {
+    assert.deepEqual(predictedFindings({ topicKey: "Coordinate Geometry", questionText: "Find the area of the minor segment cut by the line; the angle is 100°." }, "G4-SEGMENT-ANGLE"), []);
+    assert.deepEqual(predictedFindings({ topicKey: "Areas Related to Circles", questionText: "A chord subtends 120° at the centre. Find the area of the minor segment." }, "G4-SEGMENT-ANGLE"), []);
+    assert.deepEqual(predictedFindings({ topicKey: "how-do-organisms-reproduce", questionText: "Name the two modes of asexual reproduction in hydra." }, "G4-BIMODAL"), []);
+    assert.deepEqual(predictedFindings({ topicKey: "Real Numbers", questionText: "Prove that √5 is irrational." }, "G4-R1-IRRATIONAL").filter((x) => x[1] === "hit"), []);
+  });
+  test("HPQ assertion-reason fields are read: assertion, reason (question) and aROptions (option)", () => {
+    const rows = G3.collectServedRows(
+      { rawBank: [], withheldIds: new Set(), hpq: [{ topic: "Statistics", questions: [{ id: "H", assertion: "a", reason: "r", aROptions: ["o1", "o2"] }] }], predicted: [] },
+      MATCHER.chapterKeys,
+    );
+    assert.deepEqual(rows[0].fields.map((f) => [f.field, f.role]), [["assertion", "question"], ["reason", "question"], ["aROptions[0]", "option"], ["aROptions[1]", "option"]]);
+  });
+});
+
+describe("GUARD-3 G3-TEXT — OUT / FORMATIVE phrases in question text, options and solutions", () => {
+  test("CONTROL: a planted question teaching the frustum of a cone FAILS", () => {
+    assert.deepEqual(
+      findings({ topicKey: "surface-areas-and-volumes", questionText: "A bucket is in the form of a frustum of a cone. Find its capacity." }, "G3-TEXT"),
+      [["G3-TEXT", "hit", 'surface-areas-and-volumes/out[0]: "frustum of cone"']],
+    );
+  });
+  test("CONTROL: an OUT phrase only in a SOLUTION step FAILS (solutions are scanned)", () => {
+    const f = findings(
+      { topicKey: "surface-areas-and-volumes", questionText: "Find the radius.", solutionSteps: ["The sphere is melted and recast into a cone, so volumes are equal."] },
+      "G3-TEXT",
+    );
+    assert.deepEqual(f.map((x) => x[1]), ["hit"]);
+  });
+  test("CONTROL: an OUT phrase that is the KEY option FAILS", () => {
+    const f = findings(
+      { topicKey: "human-eye-and-colourful-world", marks: 1, format: "MCQ", questionText: "A rainbow is formed by:", options: ["Scattering", "Total internal reflection"], answer: "B" },
+      "G3-TEXT",
+    );
+    assert.deepEqual(f.map((x) => x[1]), ["hit"]);
+  });
+  test("REVIEW (not a pass): the same phrase only as a WRONG option", () => {
+    const f = findings(
+      { topicKey: "human-eye-and-colourful-world", marks: 1, format: "MCQ", questionText: "The sky is blue because of:", options: ["Scattering", "Total internal reflection"], answer: "Scattering" },
+      "G3-TEXT",
+    );
+    assert.deepEqual(f.map((x) => x[1]), ["review"]);
+  });
+  test("CONTROL: a TEXT_SYNONYMS phrase (evolution, FORMATIVE) FAILS", () => {
+    const f = findings({ topicKey: "heredity", questionText: "Explain genetic drift with an example." }, "G3-TEXT");
+    assert.deepEqual(f, [["G3-TEXT", "hit", 'heredity/formative[0]: "genetic drift"']]);
+  });
+  test("apostrophe-safe text: curly and straight apostrophes both FAIL for Dobereiner's / Mendeleev's", () => {
+    for (const t of ["Dobereiner’s triads group three elements.", "State Mendeleev's periodic law."]) {
+      const f = findings({ topicKey: "carbon-and-its-compounds", questionText: t }, "G3-TEXT");
+      assert.equal(f.length, 1, t);
+      assert.equal(f[0][1], "hit");
+    }
+  });
+  test("PASS: \"Mendel's contribution\" and the RETAINED Heredity content are not flagged (every rule)", () => {
+    assert.deepEqual(
+      findings({
+        topicKey: "heredity",
+        questionText: "Describe Mendel's contribution to the laws of inheritance. How is sex determination done in humans?",
+        solutionSteps: ["Mendel's contribution: laws of inheritance from pea plants; heredity of traits."],
+      }),
+      [],
+    );
+  });
+  test("PASS look-alikes fixed on the real served set: solar cooker (Light), biogas plant (Our Environment), section-formula ratio", () => {
+    assert.deepEqual(findings({ topicKey: "light-reflection-and-refraction", questionText: "A solar cooker uses a concave mirror." }, "G3-TEXT"), []);
+    assert.deepEqual(findings({ topicKey: "our-environment", questionText: "Wet waste can go to compost pits or a biogas plant." }, "G3-TEXT"), []);
+    assert.deepEqual(findings({ topicKey: "coordinate-geometry", questionText: "The midpoint divides a line segment in the ratio 1 : 1." }, "G3-TEXT"), []);
+  });
+  test("a sentence that states the content is excluded is not teaching it", () => {
+    assert.deepEqual(
+      findings({ topicKey: "surface-areas-and-volumes", questionText: "Note: the frustum of a cone is no longer in this chapter." }, "G3-TEXT"),
+      [],
+    );
+  });
+  test("every TEXT_SYNONYMS entry resolves to exactly one reference item; a rotted one is an ERROR", () => {
+    assert.deepEqual(G3.synonymTerms(G3.TEXT_SYNONYMS, MATCHER.items).errors, []);
+    const bad = G3.synonymTerms([{ key: "real-numbers", kind: "out", itemStartsWith: "No such item", phrases: ["two words"] }], MATCHER.items);
+    assert.equal(bad.errors.length, 1);
+    assert.throws(
+      () => G3.buildTextMatcher(MATCHER, [{ key: "statistics", kind: "out", itemStartsWith: "Graphical", phrases: ["ogive"] }]),
+      /multi-word/,
+    );
+  });
+});
+
+describe("GUARD-3 G4 — computable limits", () => {
+  test("CONTROL G4-HD-ANGLE: an angle of elevation of 75° FAILS (unicode, LaTeX and 'degrees' forms)", () => {
+    for (const a of ["75°", "75^\\circ", "75^{\\circ}", "75 degrees"]) {
+      const f = findings(
+        { topicKey: "trigonometry", questionText: `The angle of elevation of the top of a tower from a point is ${a}. Find its height.` },
+        "G4-HD-ANGLE",
+      );
+      assert.deepEqual(f, [["G4-HD-ANGLE", "hit", "elevation/depression angle 75°"]], a);
+    }
+  });
+  test("PASS G4-HD-ANGLE: 30°, 45° and 60° (and the 90° of the right angle) pass", () => {
+    assert.deepEqual(
+      findings({ topicKey: "trigonometry", questionText: "The angles of elevation are 30° and 60°. The tower makes 90° with the ground." }, "G4-HD-ANGLE"),
+      [],
+    );
+  });
+  test("REVIEW G4-HD-ANGLE: 'increases by 15°' is a change of angle, not a silent pass", () => {
+    const f = findings(
+      { topicKey: "trigonometry", questionText: "The angle of elevation is 30°. Moving closer, the angle of elevation increases by 15°." },
+      "G4-HD-ANGLE",
+    );
+    assert.deepEqual(f.map((x) => x[1]), ["review"]);
+  });
+  test("PASS G4-HD-ANGLE: Trigonometry ratios outside heights and distances are not in scope", () => {
+    assert.deepEqual(findings({ topicKey: "trigonometry", questionText: "Evaluate sin 0° + cos 90° + tan 15°." }, "G4-HD-ANGLE"), []);
+  });
+  test("CONTROL G4-HD-TRIANGLES: three angles of elevation/depression -> REVIEW (never a silent pass)", () => {
+    const f = findings(
+      {
+        topicKey: "trigonometry",
+        questionText: "From a point, the angle of depression of the bottom is 60°, and the angles of elevation of the climber and the top are 30° and 45°.",
+      },
+      "G4-HD-TRIANGLES",
+    );
+    assert.deepEqual(f, [["G4-HD-TRIANGLES", "review", "3 elevation/depression angles"]]);
+  });
+  test("PASS G4-HD-TRIANGLES: two right triangles pass", () => {
+    assert.deepEqual(
+      findings({ topicKey: "trigonometry", questionText: "The angles of elevation of the top of a tower from two points are 30° and 60°." }, "G4-HD-TRIANGLES"),
+      [],
+    );
+  });
+  test("CONTROL G4-SEGMENT-ANGLE: a segment with a central angle of 100° FAILS", () => {
+    assert.deepEqual(
+      findings(
+        { topicKey: "areas-related-to-circles", questionText: "A chord subtends 100° at the centre of a circle of radius 7 cm. Find the area of the minor segment." },
+        "G4-SEGMENT-ANGLE",
+      ),
+      [["G4-SEGMENT-ANGLE", "hit", "segment central angle 100°"]],
+    );
+  });
+  test("PASS G4-SEGMENT-ANGLE: 120° segments pass; a 100° SECTOR alone passes (the limit is on segments only)", () => {
+    assert.deepEqual(
+      findings({ topicKey: "areas-related-to-circles", questionText: "A chord subtends 120° at the centre. Find the area of the minor segment." }, "G4-SEGMENT-ANGLE"),
+      [],
+    );
+    assert.deepEqual(
+      findings({ topicKey: "areas-related-to-circles", questionText: "Find the area of a sector of angle 100° of a circle of radius 7 cm." }, "G4-SEGMENT-ANGLE"),
+      [],
+    );
+    assert.deepEqual(
+      findings({ topicKey: "coordinate-geometry", questionText: "Find the area of the minor segment cut by the line; the angle is 100°." }, "G4-SEGMENT-ANGLE"),
+      [],
+    );
+  });
+  test("REVIEW G4-SEGMENT-ANGLE: a segment-and-sector question with a 100° angle", () => {
+    const f = findings(
+      { topicKey: "areas-related-to-circles", questionText: "A sector of angle 100° is cut. Find the area of the minor segment of the 90° chord." },
+      "G4-SEGMENT-ANGLE",
+    );
+    assert.deepEqual(f.map((x) => x[1]), ["review"]);
+  });
+  test("CONTROL G4-BIMODAL: bimodal data in a Statistics question FAILS", () => {
+    assert.deepEqual(
+      findings({ topicKey: "statistics", questionText: "The following distribution is bimodal. Find both modes." }, "G4-BIMODAL"),
+      [["G4-BIMODAL", "hit", "bimodal/multimodal data"]],
+    );
+  });
+  test("PASS G4-BIMODAL: 'two modes of asexual reproduction' (Biology) passes; a solution-only mention is REVIEW", () => {
+    assert.deepEqual(
+      findings({ topicKey: "how-do-organisms-reproduce", questionText: "Name the two modes of asexual reproduction in hydra." }, "G4-BIMODAL"),
+      [],
+    );
+    const f = findings({ topicKey: "statistics", questionText: "Find the mode.", solutionSteps: ["Bimodal data would have two modes."] }, "G4-BIMODAL");
+    assert.deepEqual(f.map((x) => x[1]), ["review"]);
+  });
+  test("CONTROL G4-R1-IRRATIONAL: 'prove √15 irrational' (composite surd, from scratch) FAILS", () => {
+    for (const q of ["Prove that √15 is irrational.", "Prove that \\sqrt{15} is irrational.", "Show that the square root of 15 is irrational."]) {
+      assert.deepEqual(findings({ topicKey: "real-numbers", questionText: q }, "G4-R1-IRRATIONAL"), [["G4-R1-IRRATIONAL", "hit", "composite surd √15"]], q);
+    }
+  });
+  test("CONTROL G4-R1-IRRATIONAL: a general prime p FAILS", () => {
+    const f = findings({ topicKey: "real-numbers", questionText: "Prove that √p is irrational, where p is a prime." }, "G4-R1-IRRATIONAL");
+    assert.deepEqual(f, [["G4-R1-IRRATIONAL", "hit", "general prime p"]]);
+  });
+  test("PASS G4-R1-IRRATIONAL: named primes and expressions built on them (R1 IN); √6 given; a classification statement", () => {
+    for (const q of [
+      "Prove that √7 is irrational.",
+      "Prove that 6 − √7 is irrational.",
+      "Prove that 5 + 6√7 is irrational.",
+      "Given that √6 is irrational, prove that (√2 + √3)² is irrational.",
+      "Which of the following is irrational: √4, √9, √15, √16?",
+    ]) {
+      const hits = findings({ topicKey: "real-numbers", questionText: q }, "G4-R1-IRRATIONAL").filter((x) => x[1] === "hit");
+      assert.deepEqual(hits, [], q);
+    }
+  });
+  test("REVIEW G4-R1-IRRATIONAL: two named prime surds (√2 + √3) is ambiguous under R1, never a silent pass", () => {
+    assert.deepEqual(findings({ topicKey: "real-numbers", questionText: "Prove that √2 + √3 is irrational." }, "G4-R1-IRRATIONAL"), [
+      ["G4-R1-IRRATIONAL", "review", "two prime surds √2, √3"],
+    ]);
+  });
+  test("every G4 limit and the R1 OUT item are still in the reference", () => {
+    assert.deepEqual(G3.checkLimitsPresent(REFERENCE), []);
+  });
+  test("every rule's config citation is pinned: the cited line contains its quote", () => {
+    const lines = readFileSync(join(import.meta.dirname, "../../", G3.CONFIG_FILE), "utf-8").split("\n");
+    for (const r of G3.ROW_RULES) {
+      if (!r.cite.startsWith(G3.CONFIG_FILE)) continue;
+      const n = Number(r.cite.split(":").pop());
+      assert.ok(lines[n - 1]?.includes(r.citeQuote), `${r.id}: ${r.cite} must contain "${r.citeQuote}"`);
+    }
+  });
+});
+
+describe("GUARD-3 G9 — a served 1-mark row must have options (MCQ or assertion-reason)", () => {
+  test("CONTROL: a 1-mark row with no options FAILS; an empty options array FAILS", () => {
+    assert.deepEqual(findings({ topicKey: "statistics", marks: 1, format: "VSA", questionText: "Define mode." }, "G9-1MARK-OPTIONS"), [
+      ["G9-1MARK-OPTIONS", "hit", "1-mark VSA row with no options"],
+    ]);
+    assert.equal(findings({ topicKey: "statistics", marks: 1, format: "MCQ", questionText: "Define mode.", options: [] }, "G9-1MARK-OPTIONS").length, 1);
+  });
+  test("PASS: a 1-mark MCQ with options; a 1-mark A-R with options", () => {
+    assert.deepEqual(
+      findings({ topicKey: "statistics", marks: 1, format: "MCQ", questionText: "Mode is:", options: ["a", "b", "c", "d"] }, "G9-1MARK-OPTIONS"),
+      [],
+    );
+    assert.deepEqual(
+      findings(
+        {
+          topicKey: "statistics",
+          marks: 1,
+          format: "Assertion-Reasoning",
+          questionText: "Assertion (A): x. Reason (R): y.",
+          options: ["Both A and R are true, and R is the correct explanation of A.", "b", "c", "d"],
+        },
+        "G9-1MARK-OPTIONS",
+      ),
+      [],
+    );
+  });
+  test("A-R is detected by its own format field or by its 'Assertion (A)' stem", () => {
+    assert.deepEqual(
+      findings({ topicKey: "statistics", marks: 1, format: "MCQ", questionText: "Assertion (A): x.\nReason (R): y." }, "G9-1MARK-OPTIONS"),
+      [["G9-1MARK-OPTIONS", "hit", "1-mark A-R row with no options"]],
+    );
+    assert.ok(G3.isAssertionReason(plantedRow({ format: "Assertion-Reasoning", questionText: "x" })));
+  });
+  test("PASS: a 2-mark row without options is not in scope", () => {
+    assert.deepEqual(findings({ topicKey: "statistics", marks: 2, format: "Short", questionText: "Find the mode." }, "G9-1MARK-OPTIONS"), []);
+  });
+});
+
+describe("GUARD-3 G1 — the ratchet: baseline + reviewed, both can only shrink", () => {
+  const f = (rowId: string, verdict: "hit" | "review" = "hit"): G3.RowFinding => ({
+    rule: "G3-TEXT", verdict, surface: "bank", rowId, matched: "m", fields: ["questionText"], text: "t",
+  });
+  const b = (rowId: string): G3.BaselineEntry => ({ rule: "G3-TEXT", surface: "bank", rowId, matched: "m", file: "f.ts", lane: "C1", fu: "FU-X" });
+  const r = (rowId: string, evidence = "e"): G3.ReviewedEntry => ({ rule: "G3-TEXT", surface: "bank", rowId, matched: "m", reason: "r", evidence });
+
+  test("CONTROL: a finding in neither list FAILS (unlisted)", () => {
+    assert.deepEqual(G3.applyRatchet([f("NEW")], { baseline: [], reviewed: [] }).unlisted.map((x) => x.rowId), ["NEW"]);
+  });
+  test("a baselined hit and a reviewed finding pass", () => {
+    const res = G3.applyRatchet([f("OLD"), f("AMB", "review")], { baseline: [b("OLD")], reviewed: [r("AMB")] });
+    assert.deepEqual([res.unlisted.length, res.baselined.length, res.reviewed.length], [0, 1, 1]);
+  });
+  test("CONTROL: a stale baseline entry FAILS; a stale reviewed entry FAILS", () => {
+    const res = G3.applyRatchet([], { baseline: [b("FIXED")], reviewed: [r("GONE")] });
+    assert.deepEqual([res.staleBaseline.map((e) => e.rowId), res.staleReviewed.map((e) => e.rowId)], [["FIXED"], ["GONE"]]);
+  });
+  test("CONTROL: a reviewed entry without evidence, a duplicate, or an entry in both lists is an ERROR", () => {
+    assert.equal(G3.applyRatchet([f("X")], { baseline: [], reviewed: [r("X", "")] }).errors.length, 1);
+    assert.equal(G3.applyRatchet([f("X")], { baseline: [b("X"), b("X")], reviewed: [] }).errors.length, 1);
+    assert.equal(G3.applyRatchet([f("X")], { baseline: [b("X")], reviewed: [r("X")] }).errors.length, 1);
+  });
+  test("RATCHET PIN: the lists never grow (baseline <= 212, reviewed <= 31); lower these numbers as rows are fixed", () => {
+    const files = G3.loadRatchetFiles();
+    assert.ok(files.baseline.length <= 212, `baseline has ${files.baseline.length} entries`);
+    assert.ok(files.reviewed.length <= 31, `reviewed has ${files.reviewed.length} entries`);
+    for (const e of files.baseline) assert.ok(["C1", "C2", "C3"].includes(e.lane) && e.fu && e.file, JSON.stringify(e));
+    for (const e of files.reviewed) assert.ok(e.reason.trim() && e.evidence.trim(), JSON.stringify(e));
+  });
+});
+
+describe("GUARD-3 — the REAL served set, today", () => {
+  test("every finding is baselined or reviewed, and no entry is stale (the guard's own Mode 4 path)", async () => {
+    const res = await runRowRules(SERVED);
+    assert.ok(res.rowCount > 9000, `rows ${res.rowCount}`);
+    assert.deepEqual(res.ratchet.unlisted.map((x) => `${x.rule} ${x.rowId} ${x.matched}`), []);
+    assert.deepEqual(res.ratchet.staleBaseline.map((x) => `${x.rule} ${x.rowId}`), []);
+    assert.deepEqual(res.ratchet.staleReviewed.map((x) => `${x.rule} ${x.rowId}`), []);
+    assert.deepEqual(res.ratchet.errors, []);
+  });
+  test("CONTROL per rule on the real path: one planted served row per rule makes Mode 4 report it as UNLISTED", async () => {
+    const planted = [
+      { id: "CTRL-G3", topicKey: "surface-areas-and-volumes", marks: 3, questionText: "A bucket is in the form of a frustum of a cone. Find its capacity." },
+      { id: "CTRL-HD", topicKey: "trigonometry", marks: 3, questionText: "The angle of elevation of the top of a tower is 75°. Find its height." },
+      {
+        id: "CTRL-HD3",
+        topicKey: "trigonometry",
+        marks: 3,
+        questionText: "The angle of depression of the bottom is 60° and the angles of elevation of the climber and the top are 30° and 45°.",
+      },
+      { id: "CTRL-SEG", topicKey: "areas-related-to-circles", marks: 3, questionText: "A chord subtends 100° at the centre. Find the area of the minor segment." },
+      { id: "CTRL-BI", topicKey: "statistics", marks: 3, questionText: "The following data is bimodal. Find both modes." },
+      { id: "CTRL-R1", topicKey: "real-numbers", marks: 3, questionText: "Prove that √15 is irrational." },
+      { id: "CTRL-G9", topicKey: "statistics", marks: 1, format: "VSA", questionText: "Define the mode." },
+    ];
+    const res = await runRowRules({ ...SERVED, rawBank: [...SERVED.rawBank, ...planted] as typeof SERVED.rawBank });
+    const got = res.ratchet.unlisted.map((x) => `${x.rule} ${x.rowId}`).sort();
+    assert.deepEqual(got, [
+      "G3-TEXT CTRL-G3",
+      "G4-BIMODAL CTRL-BI",
+      "G4-HD-ANGLE CTRL-HD",
+      "G4-HD-TRIANGLES CTRL-HD3",
+      "G4-R1-IRRATIONAL CTRL-R1",
+      "G4-SEGMENT-ANGLE CTRL-SEG",
+      "G9-1MARK-OPTIONS CTRL-G9",
+    ]);
   });
 });
 

@@ -1,0 +1,285 @@
+{
+  "_doc": "GUARD-3 REVIEWED LIST (controller ruling G1). Each entry is a finding a reviewer judged IN, with the reason and an evidence citation; the cofounder audits every entry. A stale entry (no longer matching) FAILS the guard. The key is rule + surface + rowId + matched.",
+  "reviewer": "CI-1 GUARD-3 builder (agent), 2026-10-07; pending cofounder audit",
+  "entries": [
+    {
+      "rule": "G3-TEXT",
+      "surface": "predicted",
+      "rowId": "2026-ME-MCQ-01",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"fleming right hand rule\"",
+      "verdict": "review",
+      "reason": "\"Fleming's right-hand rule\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "key 'Right-hand thumb rule' (IN)"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "predicted",
+      "rowId": "2026-MG-MCQ-05",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"fleming right hand rule\"",
+      "verdict": "review",
+      "reason": "\"Fleming's right-hand rule\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "key 'Right-hand thumb rule' (IN)"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "BX-PLE-D-038",
+      "matched": "real-numbers/out[0]: \"division algorithm\"",
+      "verdict": "hit",
+      "reason": "Pair-of-linear-equations word problem: 'dividing the larger number by the smaller gives quotient 3 and remainder 5', written as x = 3y + 5. It uses dividend = divisor x quotient + remainder as arithmetic; Euclid's lemma / HCF by repeated division is not taught or asked.",
+      "evidence": "NCERT Class X Ch3 word problems of this form; lazytopper/src/config/syllabus2026-27.ts real-numbers out[0] is Euclid's lemma 'HCF by repeated division'"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "CBE-S-MAGN-B-005",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
+      "verdict": "hit",
+      "reason": "CBSE competency item: asks the TYPE of current shown in a current-time trace (AC); the motor is only the setting.",
+      "evidence": "CBSE CBE (official competency booklet) row; magnetic-effects formative[0] covers the motor's working, not AC/DC"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "CBE-S-MAGN-D-001",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
+      "verdict": "hit",
+      "reason": "CBSE competency item: the answer is Fleming's LEFT-hand rule (force on a current-carrying conductor, IN); the motor coil is the setting, and no motor principle, part or working is asked.",
+      "evidence": "CBSE CBE (official competency booklet) row; Fleming's left-hand rule is IN (magnetic-effects BOARD content)"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "EL-E14",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
+      "verdict": "review",
+      "reason": "\"electric motor\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts magnetic-effects formative[0]; key 'Electric iron' (heating effect, Electricity, IN)"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "EL-M13",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
+      "verdict": "hit",
+      "reason": "Names the electric motor only as a NON-example of the heating effect (Joule's law question); it does not teach the motor's principle or working, which is the FORMATIVE item.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts magnetic-effects formative[0] ('Electric motor; electromagnetic induction ...; electric generator')"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "ELEC-NCERT-11-LA-009",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
+      "verdict": "hit",
+      "reason": "NCERT Electricity exercise: 'An electric motor takes 5 A from a 220 V line' asks only power and energy (P = VI); the motor is a load, not the topic.",
+      "evidence": "NCERT Class X Science Ch11 (Electricity) Exercises; Electricity is a BOARD chapter"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "EYE-EXMPLR-10-MCQ-005",
+      "matched": "light-reflection-and-refraction/out[1]: \"total internal reflection\"",
+      "verdict": "review",
+      "reason": "\"total internal reflection\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "PYQ-S-2024-EYE-001 (CBSE board 2024) carries the same 'total internal reflection' distractor; key = 'Refraction, dispersion and internal reflection'; this row's own solution says 'not total internal reflection'"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "HEC2-034",
+      "matched": "light-reflection-and-refraction/out[1]: \"total internal reflection\"",
+      "verdict": "review",
+      "reason": "\"total internal reflection\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "PYQ-S-2024-EYE-001 (CBSE board 2024) carries the same 'total internal reflection' distractor; key = 'Refraction, dispersion and internal reflection'"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "HEC2-040",
+      "matched": "light-reflection-and-refraction/out[1]: \"total internal reflection\"",
+      "verdict": "review",
+      "reason": "\"total internal reflection\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "PYQ-S-2024-EYE-001 (CBSE board 2024) carries the same 'total internal reflection' distractor; key = 'Refraction, dispersion and internal reflection'"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "HEY-E14",
+      "matched": "light-reflection-and-refraction/out[1]: \"total internal reflection\"",
+      "verdict": "review",
+      "reason": "\"total internal reflection\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "PYQ-S-2024-EYE-001 (CBSE board 2024) carries the same 'total internal reflection' distractor; key = 'Refraction, dispersion and internal reflection'"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "ME2-004",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"induced current\"",
+      "verdict": "review",
+      "reason": "\"induced current / induced EMF\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "key 'Direction of force on current-carrying conductor' (Fleming's left-hand rule, IN)"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "ME2-004",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"induced emf\"",
+      "verdict": "review",
+      "reason": "\"induced current / induced EMF\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "key 'Direction of force on current-carrying conductor' (Fleming's left-hand rule, IN)"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "ME2-030",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"induced current\"",
+      "verdict": "review",
+      "reason": "\"induced current / induced EMF\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "key = force on a current-carrying conductor (Fleming's left-hand rule, IN)"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "ME2-030",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"induced emf\"",
+      "verdict": "review",
+      "reason": "\"induced current / induced EMF\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "key = force on a current-carrying conductor (Fleming's left-hand rule, IN)"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "PYQ-S-2024-EYE-001",
+      "matched": "light-reflection-and-refraction/out[1]: \"total internal reflection\"",
+      "verdict": "review",
+      "reason": "\"total internal reflection\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "CBSE board 2024 question (this row); key = 'Refraction, dispersion and internal reflection'"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "SAV-N-EXEM2-12-MCQ-003",
+      "matched": "surface-areas-and-volumes/out[0]: \"frustum of cone\"",
+      "verdict": "review",
+      "reason": "\"frustum of a cone\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "NCERT Exemplar Ch12 MCQ; key 'circle'"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "SAV-N-EXMPLR-12-MCQ-001",
+      "matched": "surface-areas-and-volumes/out[0]: \"frustum of cone\"",
+      "verdict": "review",
+      "reason": "\"frustum of a cone\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "NCERT Exemplar Ch12 MCQ; key 'a cone and a cylinder'"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "bank",
+      "rowId": "SAV-N-EXMPLR-12-MCQ-003",
+      "matched": "surface-areas-and-volumes/out[0]: \"frustum of cone\"",
+      "verdict": "review",
+      "reason": "\"frustum of a cone\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "NCERT Exemplar Ch12 MCQ; key 'a hemisphere and a cone'"
+    },
+    {
+      "rule": "G3-TEXT",
+      "surface": "hpq",
+      "rowId": "sci-mec-hpq-1",
+      "matched": "magnetic-effects-of-electric-current/formative[0]: \"induced current\"",
+      "verdict": "hit",
+      "reason": "\"induced current\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
+      "evidence": "HPQ inline options: (D) 'Induced current' is a distractor; key (B) magnetic field around a straight conductor (right-hand thumb rule, IN)"
+    },
+    {
+      "rule": "G4-BIMODAL",
+      "surface": "bank",
+      "rowId": "STAT2P1-R05",
+      "matched": "bimodal/multimodal data",
+      "verdict": "review",
+      "reason": "No bimodal data is given or computed; the solution names 'bimodal' once as an example of where the empirical relation fails. The limit is on problems set on bimodal data.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:844 ('Mean, median and mode of grouped data (bimodal situation to be avoided)'); empirical relation IN by owner ruling R4"
+    },
+    {
+      "rule": "G4-HD-ANGLE",
+      "surface": "bank",
+      "rowId": "TRIG-N-EXMPLR-9-LA-001",
+      "matched": "other angle in a heights-and-distances question 15°",
+      "verdict": "review",
+      "reason": "'increases by 15°' is a change: the angles of elevation are 30° and 30° + 15° = 45° (solution step 3), both allowed.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:706; the row's solutionSteps[2] 'angle is 30° + 15° = 45°'"
+    },
+    {
+      "rule": "G4-HD-TRIANGLES",
+      "surface": "bank",
+      "rowId": "APQ-M-TRIG-009",
+      "matched": "4 elevation/depression angles",
+      "verdict": "review",
+      "reason": "Two alternatives joined by OR; each uses two right triangles (car 30° to 45°; cloud 30° and its reflection 60°).",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:701"
+    },
+    {
+      "rule": "G4-HD-TRIANGLES",
+      "surface": "bank",
+      "rowId": "APQ-M-TRIG-017",
+      "matched": "6 elevation/depression angles",
+      "verdict": "review",
+      "reason": "Case study: (i) one triangle, (ii) one triangle, (iii) two triangles (60° and 45° to plane C), OR (iii) two triangles; no part uses more than two.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:701"
+    },
+    {
+      "rule": "G4-HD-TRIANGLES",
+      "surface": "bank",
+      "rowId": "LTG-M-TRIG-297",
+      "matched": "3 elevation/depression angles",
+      "verdict": "review",
+      "reason": "One tower, two Sun positions (30° and 60°): two right triangles.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:701"
+    },
+    {
+      "rule": "G4-HD-TRIANGLES",
+      "surface": "bank",
+      "rowId": "SQP-M-TRIG-006",
+      "matched": "3 elevation/depression angles",
+      "verdict": "review",
+      "reason": "Official CBSE SQP case study (bird 45° then 30°, ball 60°); each part uses at most two right triangles, and an SQP item is IN by the evidence rule.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:701; CBSE SQP (evidence rule: 2025-26/2026-27 SQP)"
+    },
+    {
+      "rule": "G4-HD-TRIANGLES",
+      "surface": "bank",
+      "rowId": "Z3-TG-103",
+      "matched": "3 elevation/depression angles",
+      "verdict": "review",
+      "reason": "Case study with two independent parts: (i) one right triangle (45°), (ii) two right triangles (30° and 60° from the same top). No part uses more than two.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:701"
+    },
+    {
+      "rule": "G4-R1-IRRATIONAL",
+      "surface": "bank",
+      "rowId": "RN-H01",
+      "matched": "two prime surds √2, √5",
+      "verdict": "review",
+      "reason": "Prove √2 + √5 irrational: an expression built from named-prime surds. It is provable with √2 alone (isolate √5 = r − √2 and square: √2 = (r² − 3)/(2r) rational), so no composite-surd proof is needed; R1's OUT form is the GENERAL √p + √q.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:264-266 (owner ruling R1, IN: same-method proofs for a named prime and expressions built from such surds)"
+    },
+    {
+      "rule": "G4-R1-IRRATIONAL",
+      "surface": "bank",
+      "rowId": "RN-N-EXMPLR-1-LA-001",
+      "matched": "two prime surds √3, √5",
+      "verdict": "review",
+      "reason": "Prove √3 + √5 irrational (NCERT Exemplar): built from named-prime surds; provable with √3 alone by isolating √5 and squaring; not the general √p + √q.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:264-266 (owner ruling R1, IN: same-method proofs for a named prime and expressions built from such surds)"
+    },
+    {
+      "rule": "G4-R1-IRRATIONAL",
+      "surface": "bank",
+      "rowId": "RN2-043",
+      "matched": "two prime surds √2, √3",
+      "verdict": "review",
+      "reason": "Prove √2 + √3 irrational: built from named-prime surds; provable with √2 alone by isolating √3 and squaring (√2 = (r² − 1)/(2r)); not the general √p + √q that R1 puts OUT.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:264-266 (owner ruling R1, IN: same-method proofs for a named prime and expressions built from such surds)"
+    }
+  ]
+}

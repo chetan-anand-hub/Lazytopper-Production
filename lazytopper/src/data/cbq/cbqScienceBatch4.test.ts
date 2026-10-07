@@ -32,6 +32,13 @@ const PACKS = [
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
 // Owner DEC-12 (2026-10-07): persistence of vision is not in the 2026-27 Human Eye content list → withheld.
 const PERSISTENCE_OF_VISION: readonly string[] = ["LTG-S-EYE-202", "LTG-S-EYE-207", "LTG-S-EYE-212", "LTG-S-EYE-215"];
+// Owner ruling 2026-10-07 03:07Z (Option B): sex determination capped at 8 CBQs, no 5-mark rows → excess withheld;
+// Heredity backfilled with LTG-S-HERED-301..306 (Mendel / expression of traits / variation) to stay >= 100.
+const SEX_DETERMINATION_WITHHELD: readonly string[] = [
+  "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291", "LTG-S-HERED-292",
+  "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297", "LTG-S-HERED-298", "LTG-S-HERED-299",
+];
+const WITHHELD_HERE = new Set([...PERSISTENCE_OF_VISION, ...SEX_DETERMINATION_WITHHELD]);
 // C1's single classifier (lib/cbq/cbqClassification.ts, #977): isCbq = competencyVerified === true.
 
 describe("CBQ-1 · C2 batch 4 (Metals, Heredity, Human Eye)", () => {
@@ -43,16 +50,31 @@ describe("CBQ-1 · C2 batch 4 (Metals, Heredity, Human Eye)", () => {
     }
   });
 
+  it("owner ruling 03:07Z (Option B): sex determination is capped at 8 served CBQs, none 5-mark; the excess is withheld", () => {
+    for (const id of SEX_DETERMINATION_WITHHELD) {
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(true);
+      expect(served.has(id), id).toBe(false);
+      expect(HEREDITY_CBQ_B1_LT_GENERATED.some((q) => q.id === id), `${id} stays in the pack`).toBe(true);
+    }
+    const sexDet = HEREDITY_CBQ_B1_LT_GENERATED.filter((q) => /^LTG-S-HERED-2(8\d|9\d)$/.test(q.id) && served.has(q.id));
+    expect(sexDet.length).toBeLessThanOrEqual(8);
+    expect(sexDet.filter((q) => q.marks === 5)).toEqual([]);
+    // the backfill keeps Heredity at >= 100 and contains no sex determination
+    const backfill = HEREDITY_CBQ_B1_LT_GENERATED.filter((q) => /-3\d\d$/.test(q.id));
+    expect(backfill.length).toBe(6);
+    for (const q of backfill) expect(/sex determination|X chromosome|Y chromosome|\bXX\b|\bXY\b/i.test(q.questionText), q.id).toBe(false);
+  });
+
   it("every other pack row is served, in its chapter, generated, and a CBQ", () => {
     for (const p of PACKS) {
       for (const q of p.rows) {
-        if (PERSISTENCE_OF_VISION.includes(q.id)) continue;
+        if (WITHHELD_HERE.has(q.id)) continue;
         const s = served.get(q.id);
         expect(s, `${q.id} is not served`).toBeTruthy();
         expect(s?.topicKey, q.id).toBe(p.slug);
         expect(s?.origin, q.id).toBe("lt-generated");
         expect(isCbq(s!), q.id).toBe(true);
-        expect(q.id, q.id).toMatch(/^LTG-S-[A-Z]+-2\d\d$/);
+        expect(q.id, q.id).toMatch(/^LTG-S-[A-Z]+-[23]\d\d$/);
       }
     }
   });
