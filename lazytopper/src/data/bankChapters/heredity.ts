@@ -51,7 +51,7 @@ export default defineChapter("heredity", [
   [392, heredityPYQ2024, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [425, HEREDITY_CBQ_LT_GENERATED, false],
-  [442, HEREDITY_CBQ_B1_LT_GENERATED, false],
+  [445, HEREDITY_CBQ_B1_LT_GENERATED, false],
 ], [
   "HE-H04",
   "HE2-008",

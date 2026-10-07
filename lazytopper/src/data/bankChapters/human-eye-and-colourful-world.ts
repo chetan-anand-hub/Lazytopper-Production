@@ -57,7 +57,7 @@ export default defineChapter("human-eye-and-colourful-world", [
   [411, humanEyePYQ2024, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [426, HUMAN_EYE_CBQ_LT_GENERATED, false],
-  [443, HUMAN_EYE_CBQ_B1_LT_GENERATED, false],
+  [446, HUMAN_EYE_CBQ_B1_LT_GENERATED, false],
 ], [
   "HEY-E10",
   "HEY-M08",
