@@ -1,5 +1,5 @@
 /**
- * c3CbqPacks.test.ts — CBQ-1 C3 PR-1: the Trigonometry + Triangles competency packs.
+ * c3CbqPacks.maths.test.ts — CBQ-1 C3 PR-1: the Trigonometry + Triangles competency packs.
  *
  * Pins what this PR ships, as FLOORS (a later PR may add rows; none may silently vanish):
  *   - per chapter × marks counts of competency-verified rows in the SERVED bank;
@@ -13,10 +13,10 @@
 
 import { describe, it, expect } from "vitest";
 
-import type { CanonicalQuestion } from "../../../predictionTypes";
-import { canonicalQuestionBank } from "../../../canonicalQuestionBank";
-import { TRIGONOMETRY_CBQ_LT_GENERATED } from "./trigonometry.cbq.ltgen";
-import { TRIANGLES_CBQ_LT_GENERATED } from "./triangles.cbq.ltgen";
+import type { CanonicalQuestion } from "../predictionTypes";
+import { canonicalQuestionBank } from "../canonicalQuestionBank";
+import { TRIGONOMETRY_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/trigonometry.cbq.ltgen";
+import { TRIANGLES_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/triangles.cbq.ltgen";
 
 const PACKS = [
   { slug: "trigonometry", code: "TRIG", rows: TRIGONOMETRY_CBQ_LT_GENERATED, floor: { 1: 32, 2: 17, 3: 14, 4: 29, 5: 11 } },

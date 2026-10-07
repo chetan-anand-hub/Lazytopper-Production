@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "human-eye-and-colourful-world" (Science): 213 served rows from 24 source arrays, 34 withheld.
+// Chapter "human-eye-and-colourful-world" (Science): 308 served rows from 25 source arrays, 34 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -30,6 +30,7 @@ import { EYE_CFPQ } from "../questionBanks/class10/science/human-eye-and-colourf
 import { humanEyePYQ2024 } from "../questionBanks/class10/science/humanEye.pyq2024";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 import { HUMAN_EYE_CBQ_LT_GENERATED } from "../questionBanks/class10/science/human-eye-and-colourful-world.cbq.ltgen";
+import { HUMAN_EYE_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/human-eye-and-colourful-world.b1.cbq.ltgen";
 
 export default defineChapter("human-eye-and-colourful-world", [
   [45, LT2_PACK2, true],
@@ -56,6 +57,7 @@ export default defineChapter("human-eye-and-colourful-world", [
   [411, humanEyePYQ2024, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [426, HUMAN_EYE_CBQ_LT_GENERATED, false],
+  [443, HUMAN_EYE_CBQ_B1_LT_GENERATED, false],
 ], [
   "HEY-E10",
   "HEY-M08",

@@ -60,7 +60,6 @@ export const SCIENCE_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
   },
   {
     "id": "CASE-SCI-EL-002",
-    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "electricity",
     "subtopic": "Resistance",
@@ -81,9 +80,8 @@ export const SCIENCE_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "Part (i): R = ρL/A Part (ii): R_A = 0.034 Ω Part (iii): R_B = 2.2 Ω. Copper for wiring (low R), Nichrome for heating (high R + high melting point).",
     "explanation": "Part (i): Resistance R = ρL/A where ρ is resistivity, L is length, A is cross-sectional area. Part (ii): R = ρL/A = (1.7×10⁻⁸ × 2)/(1×10⁻⁶) = 0.034 Ω. Part (iii): R_B = 2.2 Ω. Copper (0.034 Ω) wastes less energy — ideal for wiring. Nichrome (2.2 Ω, high melting point) generates more heat — ideal for heating elements.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch12 Ex 12.2"
+    "ncertRef": "NCERT Ch12 Ex 12.2",
+    sourceOverride: "others",
   },
   {
     "id": "CASE-SCI-LP-001",

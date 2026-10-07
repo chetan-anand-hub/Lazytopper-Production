@@ -860,7 +860,6 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-B-001",
-    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Food chains and trophic levels",
@@ -879,11 +878,10 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Carnivores die out; autotrophs increase in number.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-002",
-    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Waste — effects on the environment",
@@ -902,8 +900,8 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Algal bloom followed by oxygen depletion reduces the fish population.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-003",
     "subject": "Science",
@@ -1016,7 +1014,6 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-B-008",
-    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Food chains and trophic levels",
@@ -1035,8 +1032,8 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Herbivores overpopulate; overgrazing depletes producers and unbalances the ecosystem.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2013"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-009",
     "subject": "Science",
@@ -1083,7 +1080,6 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-B-013",
-    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Ecosystem — producers, consumers, decomposers",
@@ -1102,11 +1098,10 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Decomposers break the bodies down and recycle the nutrients into the soil.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-014",
-    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Food chains and trophic levels",
@@ -1125,8 +1120,8 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Peacock population falls; rat population increases sharply.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-015",
     "subject": "Science",
@@ -1197,7 +1192,6 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
   },
   {
     "id": "OEX-C-003",
-    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "our-environment",
     "subtopic": "Ecosystem — producers, consumers, decomposers",
@@ -1217,6 +1211,6 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Dead matter piles up and soil is not replenished, disrupting the ecosystem.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
-  },
+    sourceOverride: "others",
+    },
 ];
