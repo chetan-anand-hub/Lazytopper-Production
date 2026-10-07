@@ -262,7 +262,7 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 15 (folio 14) — Q4, margin [2]. Rubric: pdf-page 21 (folio 20), 1 + 1.
   {
-    id: "CFPQ-M-POLY-004",
+    id: "CFPQ-M-POLY-004", competencyVerified: true,
     subject: "Maths",
     topicKey: "polynomials",
     subtopic: "Zeros & Factorisation",
@@ -357,7 +357,7 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 17 (folio 16) — Q9, margin [5]. Rubric: pdf-page 22 (folio 21), 0.5 + 1 + 1.5 + 1 + 1.
   {
-    id: "CFPQ-M-POLY-009",
+    id: "CFPQ-M-POLY-009", competencyVerified: true,
     subject: "Maths",
     topicKey: "polynomials",
     subtopic: "Zeros & Factorisation",

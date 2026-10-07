@@ -425,7 +425,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ch8 Ex 8.4 Q7", isCompetencyBased: true,
     strategyHint: "Same tower, two shadow lengths — write tan at each elevation and eliminate x." },
 
-  { id: "TRIG-N-EXMPLR-9-LA-004", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+  { id: "TRIG-N-EXMPLR-9-LA-004", competencyVerified: true, subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "The angle of elevation of the top of a tower 30 m high from the foot of another tower in the same plane is 60°, and the angle of elevation of the top of the second tower from the foot of the first is 30°. Find the distance between the two towers and the height of the second tower.",
     solutionSteps: [
       "[1 mark] Diagram: two towers on the same horizontal plane — Tower 1 of height 30 m, Tower 2 of height h, distance between their feet = d.",

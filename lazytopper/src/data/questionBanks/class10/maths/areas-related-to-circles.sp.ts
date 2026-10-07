@@ -30,7 +30,7 @@ export const ARC_SP: CanonicalQuestion[] = [
     "isCompetencyBased": false
   },
   {
-    "id": "SP-M-2022-ARC-E-001",
+    "id": "SP-M-2022-ARC-E-001", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "areas-related-to-circles",
     "subtopic": "Circumference, Sector Area and Revolutions",

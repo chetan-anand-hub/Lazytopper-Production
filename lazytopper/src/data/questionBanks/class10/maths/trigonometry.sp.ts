@@ -139,7 +139,7 @@ export const TRIG_SP: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "SP-M-2022-TRIG-E-001",
+    "id": "SP-M-2022-TRIG-E-001", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "trigonometry",
     "subtopic": "Heights and Distances (Angles of Elevation and Depression)",
