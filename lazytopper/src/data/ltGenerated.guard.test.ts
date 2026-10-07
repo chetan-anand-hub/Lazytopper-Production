@@ -54,11 +54,15 @@ const GEN: CanonicalQuestion[] = canonicalQuestionBank.filter((q) => q.origin ==
 // Owner rulings (2026-10-07): these generated rows are WITHHELD (kept in their pack, not served). No other
 // generated row may be withheld.
 //  - DEC-12: persistence of vision is not in the 2026-27 Human Eye content list.
-//  - 03:07Z Option B: sex determination ("brief introduction") capped at 8 CBQs with no 5-mark rows.
+//  - 03:07Z Option B: sex determination ("brief introduction") capped at 8 CBQs with no 5-mark rows;
+//    10:25Z cap = A: the 8 covers every generated row, so GEN-THIN LTG-S-HERED-102/106 are withheld too.
+//  - CI-1 13:0xZ: LTG-M-QE-284 part (iii) maxima via equal roots is out.
 const OWNER_WITHHELD_GENERATED: ReadonlySet<string> = new Set([
   "LTG-S-EYE-202", "LTG-S-EYE-207", "LTG-S-EYE-212", "LTG-S-EYE-215",
   "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291", "LTG-S-HERED-292",
   "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297", "LTG-S-HERED-298", "LTG-S-HERED-299",
+  "LTG-M-QE-284", // 2026-10-07 CI-1 13:0xZ: part (iii) maxima via equal roots, OUT
+  "LTG-S-HERED-102", "LTG-S-HERED-106",
 ]);
 const BANK_BY_ID = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
 const RAW_BY_ID = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
@@ -426,8 +430,12 @@ describe("GEN-THIN-1 PR-2 · CBQs of every mark", () => {
         expect(AI_GENERATED_QUESTION_IDS.has(q.id), `${q.id} is an AI-pack row`).toBe(false);
       }
     }
+    // 94 PR-2 rows exist; owner ruling 10:25Z (cap = A) withholds two of them (LTG-S-HERED-102/106), so 92 are served.
+    const rawPr2 = RAW_CANONICAL_QUESTION_BANK.filter((q) => q.origin === "lt-generated" && /-1\d\d$/.test(q.id));
+    expect(rawPr2.length).toBe(94);
     const pr2 = GEN.filter((q) => /-1\d\d$/.test(q.id));
-    expect(pr2.length).toBe(94);
+    expect(pr2.length).toBe(94 - rawPr2.filter((q) => OWNER_WITHHELD_GENERATED.has(q.id)).length);
+    expect(pr2.length).toBe(92);
     for (const q of pr2) expect(q.competencyVerified, q.id).toBe(true);
   });
 });

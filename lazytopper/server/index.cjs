@@ -135,6 +135,7 @@ const {
   scheduleWarmPool,
 } = require('./services/warmQuestionPool.cjs');
 const { ensureGeneratedQuestionsTable } = require('./db/ensureGeneratedQuestionsTable.cjs');
+const { ensureStepSolutionsTable } = require('./db/ensureStepSolutionsTable.cjs');
 const { createQuestionReportRoutes } = require('./routes/questionReport.cjs');
 const { createAdminSolutionCacheRoutes } = require('./routes/adminSolutionCache.cjs');
 // Admin-gated READ path for the token + rate-limit telemetry. #540 wired the
@@ -211,9 +212,11 @@ const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH, createGr
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
 // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on POST /api/grade-worksheet
-// (`Prefer: respond-async`), polled at GET /api/grade-worksheet/jobs/:jobId. DARK unless
-// GRADING_JOBS=1: off, every submit is graded synchronously exactly as before. The deferred
-// fair-use commit is resolved lazily — `fairUse` is constructed further down, long before any job ends.
+// (`Prefer: respond-async`), polled at GET /api/grade-worksheet/jobs/:jobId. ON BY DEFAULT (J3 / D71):
+// the kill switch is GRADING_JOBS=0 / off / false, and DELETING the variable turns jobs ON
+// (services/serverConfig.cjs describeGradingJobsSwitch). Off, every submit is graded synchronously
+// exactly as before. The deferred fair-use commit is resolved lazily — `fairUse` is constructed
+// further down, long before any job ends.
 const { createGradingJobs, JOB_POLL_PATH_RE } = require('./grading/jobs.cjs');
 const { createGradingJobsRoutes } = require('./routes/gradingJobs.cjs');
 const gradingJobs = createGradingJobs({
@@ -843,26 +846,26 @@ async function handleRequest(req, res) {
   return sendJson(res, 404, { error: 'Not Found' });
 }
 
-const server = http.createServer((req, res) => {
-  runWithRequestContext(() => handleRequest(req, res)).catch((e) => {
+// GRACEFUL-DEPLOY (owner 2026-10-07): a redeploy loses no grading work. On SIGTERM (forwarded by the
+// parent, artifacts/api-server) new requests get an honest retryable 503, requests in flight and
+// background grading jobs run to the end, then the process exits; at the deadline, jobs still live end
+// `interrupted` exactly as before. Installed whatever the GRADING_JOBS switch says (off, there are
+// simply no jobs to wait for). See services/gracefulDrain.cjs.
+const { createGracefulDrain } = require('./services/gracefulDrain.cjs');
+const gracefulDrain = createGracefulDrain({
+  jobs: gradingJobs,
+  corsOrigin: config.CORS_ORIGIN,
+  log: (line) => console.warn(line),
+});
+
+const server = gracefulDrain.attach(http.createServer(gracefulDrain.wrap((req, res) => {
+  return runWithRequestContext(() => handleRequest(req, res)).catch((e) => {
     console.error(e);
     sendJson(res, 500, { error: 'Unhandled server error', details: e.message });
   });
-});
+})));
 
-// GRADING-JOBS-1 J1 (D15) · BEST EFFORT on shutdown: end every background job this process runs as
-// `interrupted` (final rows kept and charged once; the rest "not graded", uncharged), then let the
-// signal do what it always did. Installed only with the switch on (off, nothing changes). ★ It is NOT
-// the safety net: on Railway this process is a CHILD of artifacts/api-server, which neither handles nor
-// forwards SIGTERM, so a redeploy usually kills it with no signal at all. The heartbeat is the net — a
-// job whose heartbeat stops is ended as interrupted by the next poll (grading/jobs.cjs).
-if (config.GRADING_JOBS) {
-  process.once('SIGTERM', () => {
-    const reraise = () => process.kill(process.pid, 'SIGTERM');
-    const guard = setTimeout(reraise, 3000);
-    gradingJobs.interruptAll('shutdown').catch(() => 0).finally(() => { clearTimeout(guard); reraise(); });
-  });
-}
+process.once('SIGTERM', () => { void gracefulDrain.begin('SIGTERM'); });
 
 server.listen(config.PORT, () => {
   console.log(`LazyTopper AI server running on port ${config.PORT}`);
@@ -909,7 +912,14 @@ server.listen(config.PORT, () => {
     ensureGeneratedQuestionsTable().catch(
       (e) => console.warn('[gen-q-schema] ensure failed:', e.message)
     );
+    // FU-STEP-SOLUTION-CACHE-TABLE: the "Show steps" cache table was never created,
+    // so every read/write 42P01'd into a miss and every request regenerated via AI.
+    // DDL only, fail-open: a DB error logs and the server keeps serving.
+    ensureStepSolutionsTable().catch(
+      (e) => console.warn('[step-solutions-schema] ensure failed:', e.message)
+    );
   } else {
     console.log('[gen-q-schema] skipped — STUB_MODE or no DATABASE_URL.');
+    console.info('[step-solutions-schema] skipped — STUB_MODE or no DATABASE_URL.');
   }
 });

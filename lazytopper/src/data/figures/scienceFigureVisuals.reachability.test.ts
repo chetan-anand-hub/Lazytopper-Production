@@ -40,6 +40,7 @@ import path from "node:path";
 import { canonicalQuestionBank, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 import { SCIENCE_FIGURE_VISUALS, getFiguresForQuestion } from "../visualConceptRegistry";
 import { resolveCanonicalSlug } from "../bankQuery";
+import { BOUND_BUT_WITHHELD } from "./scienceFigureVisuals";
 
 const PUBLIC = path.resolve(__dirname, "..", "..", "..", "public");
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
@@ -84,6 +85,10 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // the fixed text is self-contained), CBE-S-MAGN-B-005 and CTRL-EXMPLR-6-SA-003 unbound (rows withheld). Crops kept on disk.
     // 101 -> 100 at BANK-FIX-1 PR-2 phase B (2026-10-07): CBE-S-CTRL-A-005 unbound (row withheld: the figure shows an
     // upright seedling and no light source, so the item is undecidable). Crop kept on disk.
+    // 100 -> 99 at DIAGRAMS-1 PR-3 (2026-10-07): CBE-S-LGHT-E-001 unbound (incomplete crop: two parallel arrows, no lens;
+    // the stem is self-contained after BANK-FIX). Row stays served; crop kept on disk.
+    // 99 -> 100 at DIAGRAMS-1 PR-4 (2026-10-07): +1 NCERT Exemplar crop (CTRL-EXMPLR-6-MCQ-025, bound but withheld).
+    // Each PR-4 binding is pinned one by one in scienceFigureVisuals.diagrams1.test.ts.
     expect(batch1).toHaveLength(100);
     // 49 = 3 Foundation + 12 chapter-wise + 17 board-paper (16 rows, ELEC-011 twice) + 13 preboard + 2 SQP + 2 APQ (FIG-SCI-2)
     // 49 -> 46 at LIGHT-FIX-1 stage 2 (2026-09-11): the 3 Foundation rows (FND-L-SPX-003/-004/-043) are
@@ -94,18 +99,29 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // 43 -> 42 at QUICK-FIXES-1 PR-2 (2026-10-06): SQP-S-CC-002 unbound (row withheld, owner ruling R6; crop kept on disk).
     // 42 -> 39 at BANK-FIX-1 PR-2 (2026-10-07): PYQ-S-2026-EYE-002, SCO-S-CTRL-013 and SCO-S-EYE-007 unbound
     // (rows withheld: garbled / garbled / syllabus-excluded; crops kept on disk).
-    expect(batch2).toHaveLength(39);
-    expect(batch).toHaveLength(100 + 39);
+    // 39 -> 48 at DIAGRAMS-1 PR-3 (2026-10-07): +9 Light / Life Processes crops for 9 rows (7 board-paper 2023-2026 under
+    // /figures/pyq-science/, 2 APQ 2023-24 under /figures/other-science/); counted from the registry after the merge with
+    // BANK-FIX. 4 of the 9 are bound but withheld (BOUND_BUT_WITHHELD in scienceFigureVisuals.ts). Each binding is pinned
+    // one by one in scienceFigureVisuals.diagrams1.test.ts.
+    // 48 -> 39 at DIAGRAMS-1 PR-3 (2026-10-07): -9 at DIAGRAMS-1 PR-3 (2026-10-07): third-party chapter-wise booklet figures unbound (owner ruling)
+    // 39 -> 40 at DIAGRAMS-1 PR-4 (2026-10-07): +1 board-paper crop (PYQ-S-2026-ENV-001, bound but withheld).
+    expect(batch2).toHaveLength(40);
+    // 147 -> 138: -9 at DIAGRAMS-1 PR-3 (2026-10-07): third-party chapter-wise booklet figures unbound (owner ruling)
+    expect(batch).toHaveLength(100 + 40);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {
-    const missing = batch.filter((f) => !served.has(f.questionId ?? ""));
+    // Declared exception: rows in BOUND_BUT_WITHHELD (scienceFigureVisuals.ts) carry a bound figure while BANK-FIX
+    // withholds them; each has a stated reason, and a declared row that is actually served is itself a failure.
+    const declared = (q: string | undefined) => Object.prototype.hasOwnProperty.call(BOUND_BUT_WITHHELD, q ?? "");
+    const missing = batch.filter((f) => !served.has(f.questionId ?? "") && !declared(f.questionId));
     expect(missing.map((f) => f.questionId)).toEqual([]);
-    const withheld = batch.filter((f) => WITHHELD_QUESTION_IDS.has(f.questionId ?? ""));
+    const withheld = batch.filter((f) => WITHHELD_QUESTION_IDS.has(f.questionId ?? "") && !declared(f.questionId));
     expect(withheld.map((f) => f.questionId)).toEqual([]);
+    expect(Object.keys(BOUND_BUT_WITHHELD).filter((q) => served.has(q))).toEqual([]);
   });
 
   it("every bound question resolves to a canonical science slug, and its asset is filed under that slug", () => {
@@ -152,9 +168,8 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // (foundation-science: FND-L-SPX-003 was the control until LIGHT-FIX-1 stage 2 withheld it and
     // removed its binding — the family now has no entries, so the control is that the id resolves to NOTHING)
     expect(getFiguresForQuestion("FND-L-SPX-003")).toEqual([]);
-    expect(getFiguresForQuestion("SCO-S-ELEC-012").map((f) => f.filePath)).toEqual([
-      "/figures/chapterwise-science/electricity/SCO-S-ELEC-012.webp",
-    ]);
+    // SCO-S-ELEC-012 resolves to nothing since DIAGRAMS-1 PR-3 (2026-10-07): the chapter-wise booklet figures are unbound (owner ruling)
+    expect(getFiguresForQuestion("SCO-S-ELEC-012")).toEqual([]);
     // probe PYQ-S-2025-ELEC-009 -> PYQ-S-2026-ELEC-012 at ELEC-FIX-1 (2026-09-11): -009 is withheld and unbound.
     expect(getFiguresForQuestion("PYQ-S-2026-ELEC-012").map((f) => f.filePath)).toEqual([
       "/figures/pyq-science/electricity/PYQ-S-2026-ELEC-012.webp",

@@ -85,6 +85,7 @@ const {
   LEDGER_SEGMENTS,
   TRIAL_COUNTER_FIELDS,
   USAGE_LEDGER_COLLECTION,
+  trackWrite,
 } = require('./usageLedger.cjs');
 // GRADER-CORE-1 PR-3 (C9): the grading handler records how many questions it actually GRADED
 // (a non-enumerable count on `res`, set before it sends). Absent → the requested count, as before.
@@ -861,7 +862,7 @@ function createFairUse(deps = {}) {
         res.once('finish', () => {
           // C9: a 2xx that graded NOTHING (every question couldn't-read / timed out / failed /
           // mismatched / unattempted) does not make the paper allowance count permanently.
-          if (res.statusCode >= 200 && res.statusCode < 300 && deliveredAGrade(res)) void markPaperGraded(uid, pass);
+          if (res.statusCode >= 200 && res.statusCode < 300 && deliveredAGrade(res)) void trackWrite(markPaperGraded(uid, pass));
         });
       }
       // J1 (D12): what a background job settles at its end instead of this hook.
@@ -935,7 +936,7 @@ function createFairUse(deps = {}) {
       const spent = d.commit ? servedCommit(d.commit, n) : null;
       if (spent) ledger.recordTrialUse(uid, spent);
       const paperGraded = Boolean(d.pass && n > 0);
-      if (paperGraded) void markPaperGraded(uid, d.pass);
+      if (paperGraded) void trackWrite(markPaperGraded(uid, d.pass));
       return { spent, paperGraded };
     } catch {
       emit('fair_use.deferred_commit_failed');
@@ -1112,6 +1113,7 @@ function createFairUse(deps = {}) {
    *                                     counts it; rewriting it would count it twice
    *   no entry (its mint's record failed) -> the whole entry, graded: a graded paper counts
    * Fire-and-forget from the response's `finish`: never awaited by a request, never rejects.
+   * Both callers TRACK it (usageLedger.trackWrite), so a redeploy's drain waits for it to land.
    */
   async function markPaperGraded(uid, pass) {
     try {
