@@ -561,6 +561,9 @@ import { STATISTICS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/stati
 import { PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/pair-of-linear-equations.cbq.ltgen';
 import { QUADRATIC_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/quadratic-equations.cbq.ltgen';
 import { COORDINATE_GEOMETRY_CBQ_LT_GENERATED } from './questionBanks/class10/maths/coordinate-geometry.cbq.ltgen';
+import { ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/acids-bases-and-salts.c3.cbq.ltgen';
+import { CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/chemical-reactions-and-equations.c3.cbq.ltgen';
+import { OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/our-environment.c3.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1086,6 +1089,9 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED,
   ...QUADRATIC_EQUATIONS_CBQ_LT_GENERATED,
   ...COORDINATE_GEOMETRY_CBQ_LT_GENERATED,
+  ...ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED,
+  ...CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED,
+  ...OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------

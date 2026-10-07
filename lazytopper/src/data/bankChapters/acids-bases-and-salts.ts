@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "acids-bases-and-salts" (Science): 539 served rows from 21 source arrays, 18 withheld.
+// Chapter "acids-bases-and-salts" (Science): 549 served rows from 22 source arrays, 18 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -27,6 +27,7 @@ import { acidsBasesSaltsPYQ2024 } from "../questionBanks/class10/science/acidsBa
 import { ABS_CFPQ } from "../questionBanks/class10/science/acids-bases-and-salts.cfpq";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 import { ACIDS_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/acids-bases-and-salts.b1.cbq.ltgen";
+import { ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED } from "../questionBanks/class10/science/acids-bases-and-salts.c3.cbq.ltgen";
 
 export default defineChapter("acids-bases-and-salts", [
   [30, ACIDS_BASES_SALTS_PACK1, true],
@@ -50,6 +51,7 @@ export default defineChapter("acids-bases-and-salts", [
   [398, ABS_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [434, ACIDS_CBQ_B1_LT_GENERATED, false],
+  [452, ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED, false],
 ], [
   "ABS-E04",
   "ACID-EXMPLR-2-MCQ-015",

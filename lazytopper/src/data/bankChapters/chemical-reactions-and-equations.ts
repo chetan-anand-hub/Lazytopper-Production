@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "chemical-reactions-and-equations" (Science): 512 served rows from 21 source arrays, 54 withheld.
+// Chapter "chemical-reactions-and-equations" (Science): 526 served rows from 22 source arrays, 54 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -27,6 +27,7 @@ import { chemicalReactionsPYQ2024 } from "../questionBanks/class10/science/chemi
 import { CHEM_CFPQ } from "../questionBanks/class10/science/chemical-reactions-and-equations.cfpq";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 import { CHEM_REACTIONS_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/chemical-reactions-and-equations.b1.cbq.ltgen";
+import { CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED } from "../questionBanks/class10/science/chemical-reactions-and-equations.c3.cbq.ltgen";
 
 export default defineChapter("chemical-reactions-and-equations", [
   [28, CHEMICAL_REACTIONS_PACK1, true],
@@ -50,6 +51,7 @@ export default defineChapter("chemical-reactions-and-equations", [
   [397, CHEM_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [441, CHEM_REACTIONS_CBQ_B1_LT_GENERATED, false],
+  [453, CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED, false],
 ], [
   "CR-E10",
   "CR-E13",
