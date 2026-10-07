@@ -33,6 +33,9 @@ import { useFairUse } from "../usage/useFairUse";
 import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../upload/PageTray";
 import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../../ai/gradingTransport";
+import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../../ai/gradingJobs";
+import GradingJobRows from "../grading/GradingJobRows";
+import { useGradingJob } from "../grading/useGradingJob";
 import {
   gradeWorksheetAndRecord,
   type WorksheetGradeOutcome,
@@ -225,6 +228,10 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
   const [downloading, setDownloading] = useState(false);
   const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({});
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  // GRADING-JOBS-1 J2 — a background grade: rows as they land, resume after a reload, and
+  // "grade the remaining N" after an interruption. One slot per worksheet (sessionStorage).
+  const jobUi = useGradingJob();
+  const jobStore = useMemo(() => sessionJobStore(`worksheet:${ws.worksheetId}`), [ws.worksheetId]);
 
   // Restore a previously-saved grade for this worksheet (revisit). The scorecard
   // does NOT auto-open on a cache restore (it would be jarring on mount); a "View
@@ -339,14 +346,31 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     [tray.addFiles],
   );
 
-  const handleGrade = useCallback(async () => {
-    if (!imageBase64 || grading) return;
+  const runGrade = useCallback(async (mode: { resume?: boolean; continueFrom?: GradingJobInterruptedError } = {}) => {
+    // J2: a resume after a reload polls the stored job — it needs no file (it never re-sends).
+    if ((!imageBase64 && !mode.resume) || grading) return;
     setGrading(true);
     setStage(null);
     setError(null);
     fairUse.clearLimit();
+    if (!mode.continueFrom) jobUi.reset();
     try {
-      const result = await gradeWorksheetAndRecord(user, ws, { imageBase64, imageMimeType }, { onStage: setStage });
+      const result = await gradeWorksheetAndRecord(
+        user,
+        ws,
+        { imageBase64: imageBase64 ?? "", imageMimeType },
+        {
+          onStage: setStage,
+          job: {
+            store: jobStore,
+            paperKey: ws.worksheetId,
+            onProgress: jobUi.onProgress,
+            ...(mode.resume ? { resumeOnly: true } : {}),
+            ...(mode.continueFrom ? { continueFrom: mode.continueFrom } : {}),
+          },
+        },
+      );
+      jobUi.reset();
       if (!result.response.ok) {
         // The grader REFUSES rather than guessing a mark — correct, and never to be
         // softened. But "couldn't grade it" leaves a student with nothing to act on, so
@@ -369,6 +393,11 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
         fairUse.noteGraded();
       }
     } catch (err) {
+      // J2 §6: an interrupted background grade keeps its marked rows and offers the rest back.
+      if (jobUi.captureInterrupted(err)) {
+        setStage(null);
+        return;
+      }
       // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
       if (await fairUse.handleRefusal(err)) return;
       // LOW-END-1 R2: never the raw message ("Failed to fetch") — a plain sentence.
@@ -377,7 +406,21 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     } finally {
       setGrading(false);
     }
-  }, [imageBase64, imageMimeType, grading, user, ws, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
+  }, [imageBase64, imageMimeType, grading, user, ws, jobStore, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
+
+  const handleGrade = useCallback(() => {
+    void runGrade();
+  }, [runGrade]);
+
+  // J2 — resume after a reload: a background grade of THIS worksheet is still stored, so poll
+  // it (never re-submit). Once per mount.
+  const resumedRef = useRef(false);
+  useEffect(() => {
+    if (resumedRef.current) return;
+    resumedRef.current = true;
+    if (resumableJob(jobStore, ws.worksheetId)) void runGrade({ resume: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleReset = useCallback(() => {
     tray.clear();
@@ -472,6 +515,14 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
           {grading && (
             <p className="lt-wg__progress">Reading each answer and marking it against the scheme. Please keep this page open.</p>
           )}
+          <GradingJobRows
+            progress={jobUi.progress}
+            interrupted={jobUi.interrupted}
+            onGradeRemaining={
+              jobUi.interrupted && imageBase64 ? () => void runGrade({ continueFrom: jobUi.interrupted! }) : undefined
+            }
+            busy={grading}
+          />
           {error && <div className="lt-wg__err" role="alert">{error}</div>}
           {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
           <p className="lt-wg__tip">

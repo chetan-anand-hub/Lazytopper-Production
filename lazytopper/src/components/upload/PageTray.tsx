@@ -22,7 +22,7 @@
 // file), a single photo falls back to the pre-UPLOAD-2 path — the original file through
 // the same guard — rather than dead-ending the student on a crop screen with no image.
 
-import { useCallback, useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import PhotoCropStep, { type PhotoCropSelection } from "./PhotoCropStep";
 import {
@@ -394,7 +394,12 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
   }, []);
 
   // ── The pages -> ONE payload ──
-  useEffect(() => {
+  // FU-CI-FLAKE-CI-PDF-6MB: a LAYOUT effect, so the payload is retracted in the SAME commit
+  // that shows the new pages. As a passive effect there was one commit in which the tray
+  // showed 2 pages while the host's Grade button was still live on the stale 1-page photo:
+  // a tap there graded page 1 alone, and a test's waitFor saw "enabled" and then clicked a
+  // button the late effect had just disabled (grader called 0 times).
+  useLayoutEffect(() => {
     const generation = (generationRef.current += 1);
     const o = optsRef.current;
     // Any assembly still in flight is for an older set of pages: it is dropped.
