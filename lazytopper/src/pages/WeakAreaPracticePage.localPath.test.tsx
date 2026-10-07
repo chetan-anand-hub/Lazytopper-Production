@@ -46,9 +46,22 @@ vi.mock("../services/weakAreaAggregator", () => ({
   getWeakAreas: vi.fn(() => summary),
 }));
 
-// ME-ENGINE-1 PR-2b — the page reads the shared model for the signed-in student; signed out here,
-// so no model read (and no network) happens — this file pins the learning path only.
-vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
+// ME-ENGINE-1 PR-2b — the page reads the shared model for the signed-in student. ME-ENGINE-1 PR-2d:
+// the page names a weak area (and offers the path) only ABOVE Me's gate, so this file signs a
+// student in and stubs the shared read with a Maths paper that passes the REAL gate
+// (`rungNamesWeakness` / `modelNamesWeakness` stay real). The stub makes no network call, so the
+// "no network" pin below still measures the path generation alone.
+vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u-lp" }, loading: false }) }));
+vi.mock("../services/progressReadModel", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../services/progressReadModel")>()),
+  readStudyModel: async () => ({
+    progress: {
+      subjects: [{ key: "maths", label: "Maths", marksAvailable: 16, marksScored: 8 }],
+      subjectTotals: { maths: { answers: 8 } },
+      topics: [],
+    },
+  }),
+}));
 
 vi.mock("../services/spacedRepetitionEngine", () => ({
   getDueReviews: vi.fn(() => []),
@@ -102,13 +115,13 @@ function renderPage() {
 }
 
 describe("WeakAreaPracticePage — local learning-path generation", () => {
-  it("still produces a learning path when the generate button is clicked", () => {
+  it("still produces a learning path when the generate button is clicked", async () => {
     renderPage();
 
     // CONTROL for every assertion below: the button must actually be on screen
     // under this fixture. If the weak-area fixture stopped rendering, the
     // "no network call" test would still pass while testing nothing at all.
-    const button = screen.getByRole("button", { name: "Generate Learning Path" });
+    const button = await screen.findByRole("button", { name: "Generate Learning Path" });
     expect(button).toBeInTheDocument();
 
     fireEvent.click(button);
@@ -118,10 +131,10 @@ describe("WeakAreaPracticePage — local learning-path generation", () => {
     expect(screen.getByText("Day 1 of 14")).toBeInTheDocument();
   });
 
-  it("★ makes NO network call while generating the path", () => {
+  it("★ makes NO network call while generating the path", async () => {
     renderPage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Generate Learning Path" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Generate Learning Path" }));
 
     // The path was produced (so the click genuinely did the work) ...
     expect(screen.getByText("Day 1 of 14")).toBeInTheDocument();
@@ -139,8 +152,9 @@ describe("WeakAreaPracticePage — local learning-path generation", () => {
     expect(fetchSpy).toHaveBeenCalledWith("/api/mentor", { method: "POST" });
   });
 
-  it("exposes no button still advertising a live AI path", () => {
+  it("exposes no button still advertising a live AI path", async () => {
     renderPage();
+    await screen.findByRole("button", { name: "Generate Learning Path" });
 
     // The old label read "Generate AI Learning Path" / "Generating AI Path...".
     // The AI path is gone, so copy implying it must be gone too.

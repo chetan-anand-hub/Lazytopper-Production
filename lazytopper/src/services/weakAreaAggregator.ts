@@ -132,6 +132,24 @@ export function wrongAnswerEvidenceUnits(e: WrongAnswerEntry): number {
   return marks + (count - marked);
 }
 
+/**
+ * ME-ENGINE-1 PR-2d [WEAKAREA-NAMES-BELOW-GATE] — the concept LABEL a wrong-answer entry may show a
+ * student, or null. `recordWrongAnswer` stores `conceptKey || questionId`, and the graded bridge
+ * (mistakeIntelligence) stores the TOPIC as the concept of a free-typed check — so a stored
+ * "concept" is often a raw question id ("AP-E15") or the chapter itself. Neither is a concept:
+ * a raw id is never shown to a student, and the chapter is already the card's title. Silence,
+ * never an id.
+ */
+export function weakConceptLabel(e: Pick<WrongAnswerEntry, "conceptKey" | "questionId" | "topicKey">): string | null {
+  const concept = String(e.conceptKey ?? "").trim();
+  if (!concept) return null;
+  if (concept === String(e.questionId ?? "").trim()) return null;
+  if (concept === String(e.topicKey ?? "").trim()) return null;
+  if (concept === (resolveCanonicalSlug(e.topicKey) || "")) return null;
+  if (/^graded:/i.test(concept)) return null;
+  return concept;
+}
+
 function aggregateWrongAnswersByTopic(entries: WrongAnswerEntry[]): Map<string, { count: number; units: number; concepts: string[] }> {
   const map = new Map<string, { count: number; units: number; concepts: string[] }>();
   for (const e of entries) {
@@ -139,8 +157,9 @@ function aggregateWrongAnswersByTopic(entries: WrongAnswerEntry[]): Map<string, 
     const prev = map.get(key) || { count: 0, units: 0, concepts: [] };
     prev.count += e.count;
     prev.units += wrongAnswerEvidenceUnits(e);
-    if (e.conceptKey && !prev.concepts.includes(e.conceptKey)) {
-      prev.concepts.push(e.conceptKey);
+    const label = weakConceptLabel(e);
+    if (label && !prev.concepts.includes(label)) {
+      prev.concepts.push(label);
     }
     map.set(key, prev);
   }
