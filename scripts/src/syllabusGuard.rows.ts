@@ -774,12 +774,14 @@ export const FU_FOR_RULE: Record<RuleId, string> = {
 /** Index `id: "<x>"` declarations under the given directories (repo-relative paths). */
 export function indexRowFiles(repoRoot: string, dirs: readonly string[]): Map<string, string> {
   const idx = new Map<string, string>();
-  const ID = /["']?\bid["']?\s*:\s*(["'`])((?:\\[\s\S]|(?!\1)[^\\\n])*)\1/g;
+  // `id:` or `questionId:` (pack rows whose id is derived from questionId); generated indexes skipped.
+  const ID = /["']?\b(?:id|questionId)["']?\s*:\s*(["'`])((?:\\[\s\S]|(?!\1)[^\\\n])*)\1/g;
   const walk = (abs: string) => {
     for (const name of readdirSync(abs)) {
       const p = join(abs, name);
-      if (statSync(p).isDirectory()) walk(p);
-      else if (/\.(ts|json)$/.test(name) && !/\.test\.ts$/.test(name)) {
+      if (statSync(p).isDirectory()) {
+        if (name !== "bankChapters") walk(p);
+      } else if (/\.(ts|json)$/.test(name) && !/\.test\.ts$/.test(name)) {
         const text = readFileSync(p, "utf-8");
         for (const m of text.matchAll(ID)) if (!idx.has(m[2])) idx.set(m[2], relative(repoRoot, p).replace(/\\/g, "/"));
       }
