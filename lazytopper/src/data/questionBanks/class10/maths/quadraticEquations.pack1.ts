@@ -66,12 +66,11 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "x = 5 or x = −1 [1]",
     ], finalAnswer: "x = 5 or x = −1" , isCompetencyBased: true },
   { id: "QE-E14", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "For what value of k does x² + 4x + k = 0 have equal roots?", options: ["4", "8", "2", "16"], answer: "4", explanation: "D = 0: 16 − 4k = 0 → k = 4. Therefore, the correct answer is 4.", solutionSteps: ["D = 0: 16 − 4k = 0 → k = 4"], finalAnswer: "4" , isCompetencyBased: true },
-  { id: "QE-E15", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of roots of ax² + bx + c = 0 is:", options: ["b/a", "−b/a", "c/a", "−c/a"], answer: "−b/a", explanation: "The correct answer is −b/a. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "−b/a" , isCompetencyBased: false,
+  { id: "QE-E15", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of roots of ax² + bx + c = 0 is:", options: ["b/a", "−b/a", "c/a", "−c/a"], answer: "−b/a", explanation: "For ax² + bx + c = 0 (a ≠ 0), the sum of the roots (zeroes of ax² + bx + c) is −b/a.", finalAnswer: "−b/a" , isCompetencyBased: false,
     solutionSteps: [
-      "Let the given quadratic equation be x^2 - 5x + 6 = 0.",
-      "Substitute x = 2 into the equation: (2)^2 - 5(2) + 6 = 4 - 10 + 6 = 0.",
-      "Since substituting x = 2 satisfies the equation, x = 2 is a root.",
+      "For the quadratic ax² + bx + c with zeroes α and β, α + β = −(coefficient of x)/(coefficient of x²) = −b/a, so the answer is −b/a."
     ],
+    sourceOverride: "others",
   },
   { id: "QE-E16", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): x = 3 is a root of x² − 6x + 9 = 0.\nReason (R): x² − 6x + 9 = (x − 3)².", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
@@ -92,12 +91,11 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "Set D = (-k)^2 - 4(2)(1) = k^2 - 8 = 0. This gives k^2 = 8, so k = +/- sqrt(8) = +/- 2sqrt(2). From the options, k = 2sqrt(2).",
     ],
   },
-  { id: "QE-E19", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The product of roots of 3x² − 11x + 10 = 0 is:", options: ["10/3", "11/3", "−10/3", "−11/3"], answer: "10/3", explanation: "The correct answer is 10/3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "10/3" , isCompetencyBased: true,
+  { id: "QE-E19", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The product of roots of 3x² − 11x + 10 = 0 is:", options: ["10/3", "11/3", "−10/3", "−11/3"], answer: "10/3", explanation: "Product of roots = c/a. For 3x² − 11x + 10 = 0, a = 3 and c = 10, so the product is 10/3.", finalAnswer: "10/3" , isCompetencyBased: true,
     solutionSteps: [
-      "A quadratic equation is of the form ax^2 + bx + c = 0, where a != 0.",
-      "Consider the options. For option (B) x + 1/x = 5, multiply by x (assuming x != 0) to get x^2 + 1 = 5x.",
-      "Rearranging gives x^2 - 5x + 1 = 0, which is in the standard quadratic form with a=1 != 0. Other options simplify to non-quadratic forms.",
+      "Product of roots = c/a; here a = 3, c = 10, so product = 10/3."
     ],
+    sourceOverride: "others",
   },
   { id: "QE-E20", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find two consecutive positive integers, the sum of whose squares is 61.", solutionSteps: [
       "n² + (n+1)² = 61; 2n² + 2n + 1 = 61 → 2n² + 2n − 60 = 0 → n² + n − 30 = 0 [½]",

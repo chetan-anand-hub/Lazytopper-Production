@@ -2,12 +2,13 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "chemical-reactions-and-equations" (Science): 517 served rows from 19 source arrays, 50 withheld.
+// Chapter "chemical-reactions-and-equations" (Science): 512 served rows from 21 source arrays, 54 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
 import { CHEMICAL_REACTIONS_PACK1 } from "../questionBanks/class10/science/chemicalReactions.pack1";
 import { CR2_PACK2 } from "../questionBanks/class10/science/chemicalReactions.pack2";
+import { MNM2_PACK2 } from "../questionBanks/class10/science/metalsNonMetals.pack2";
 import { CHEM_REACTIONS_EXPAND_EXTRACT } from "../questionBanks/class10/science/chemicalReactions.expand.extract";
 import { CHEM_REACTIONS_EXPAND_LONG_D } from "../questionBanks/class10/science/chemicalReactions.expand.longD";
 import { CHEM_REACTIONS_EXPAND_CASE_E } from "../questionBanks/class10/science/chemicalReactions.expand.caseE";
@@ -18,6 +19,7 @@ import { CHEM_CBE } from "../questionBanks/class10/science/chemical-reactions-an
 import { CHEM_SP } from "../questionBanks/class10/science/chemical-reactions-and-equations.sp";
 import { CHEMICAL_REACTIONS_APQ } from "../questionBanks/class10/science/chemical-reactions-and-equations.additionalPQ";
 import { CHEMICAL_REACTIONS_CHAPTERWISE } from "../questionBanks/class10/science/chemical-reactions-and-equations.chapterwise";
+import { OUR_ENVIRONMENT_CHAPTERWISE } from "../questionBanks/class10/science/our-environment.chapterwise";
 import { CHEMICAL_REACTIONS_PYQ } from "../questionBanks/class10/science/chemical-reactions-and-equations.pyq";
 import { chemicalReactionsPYQ2026 } from "../questionBanks/class10/science/chemicalReactions.pyq2026";
 import { chemicalReactionsPYQ2025 } from "../questionBanks/class10/science/chemicalReactions.pyq2025";
@@ -29,6 +31,7 @@ import { CHEM_REACTIONS_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/sci
 export default defineChapter("chemical-reactions-and-equations", [
   [28, CHEMICAL_REACTIONS_PACK1, true],
   [29, CR2_PACK2, true],
+  [33, MNM2_PACK2, true],
   [65, CHEM_REACTIONS_EXPAND_EXTRACT, false],
   [66, CHEM_REACTIONS_EXPAND_LONG_D, false],
   [67, CHEM_REACTIONS_EXPAND_CASE_E, false],
@@ -39,6 +42,7 @@ export default defineChapter("chemical-reactions-and-equations", [
   [230, CHEM_SP, false],
   [269, CHEMICAL_REACTIONS_APQ, false],
   [282, CHEMICAL_REACTIONS_CHAPTERWISE, false],
+  [294, OUR_ENVIRONMENT_CHAPTERWISE, false],
   [295, CHEMICAL_REACTIONS_PYQ, false],
   [359, chemicalReactionsPYQ2026, false],
   [372, chemicalReactionsPYQ2025, false],
@@ -47,6 +51,7 @@ export default defineChapter("chemical-reactions-and-equations", [
   [415, CURATED_INLINE_QUESTIONS, false],
   [441, CHEM_REACTIONS_CBQ_B1_LT_GENERATED, false],
 ], [
+  "CR-E10",
   "CR-E13",
   "CR-M10",
   "CR-H09",
@@ -68,6 +73,8 @@ export default defineChapter("chemical-reactions-and-equations", [
   "CHEM-NCERT-1-VSA-008",
   "CHEM-NCERT-1-SA-015",
   "CHEM-EXMPLR-1-MCQ-014",
+  "CHEM-EXMPLR-1-MCQ-018",
+  "CBE-S-CHEM-C-003",
   "SCQ-S-CHEM-026",
   "SCQ-S-CHEM-039",
   "PYQ-S-CHEM-002",
@@ -76,6 +83,7 @@ export default defineChapter("chemical-reactions-and-equations", [
   "PYQ-S-CHEM-016",
   "PYQ-S-2026-CHEMRXN-009",
   "PYQ-S-2026-CHEMRXN-010",
+  "PYQ-S-2026-CHEMRXN-013",
   "PYQ-S-2026-CHEMRXN-015",
   "PYQ-S-2026-CHEMRXN-017",
   "PYQ-S-2026-CHEMRXN-022",

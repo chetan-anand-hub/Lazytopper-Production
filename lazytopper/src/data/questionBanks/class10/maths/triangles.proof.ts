@@ -58,10 +58,9 @@ export const TRIANGLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "EC = 4.8 cm",
     "explanation": "BPT states that a line parallel to one side of a triangle divides the other two sides proportionally. Proof uses area method. Application: 4/6 = 3.2/EC gives EC = 4.8 cm.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/1/1",
     "ncertRef": "Theorem 6.1, Ex 6.2",
-    "strategyHint": "State the theorem first. Use area method for proof. Each step must have a reason. Application is a direct ratio calculation."
+    "strategyHint": "State the theorem first. Use area method for proof. Each step must have a reason. Application is a direct ratio calculation.",
+    sourceOverride: "others",
   },
 
   {
@@ -276,10 +275,9 @@ export const TRIANGLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "CD² = AD × BD (proved via AA similarity chain)",
     "explanation": "Three-part proof using altitude on hypotenuse. Each sub-triangle shares a right angle and one acute angle with the original, establishing AA similarity. The geometric mean result CD² = AD × BD follows from the ratio of corresponding sides.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/2/1",
     "ncertRef": "Ex 6.5 Q15, Ex 6.5 Q16",
-    "strategyHint": "For all three parts, identify the common angle and the right angle. The altitude creates three right triangles that are all similar to each other."
+    "strategyHint": "For all three parts, identify the common angle and the right angle. The altitude creates three right triangles that are all similar to each other.",
+    sourceOverride: "others",
   },
 
   {

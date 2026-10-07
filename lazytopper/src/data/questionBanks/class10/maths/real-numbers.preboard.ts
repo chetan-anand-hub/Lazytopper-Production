@@ -38,14 +38,14 @@ export const RN_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "HCF of Numbers",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "H.C.F. of 6, 72 and 120 is __________.",
-    "options": [],
+    "questionText": "The H.C.F. of 6, 72 and 120 is",
+    "options": ["12", "6", "24", "360"],
     "answer": "6",
     "solutionSteps": [
-      "[1 mark] 6 = 2 × 3, 72 = 2³ × 3², 120 = 2³ × 3 × 5. Common factors with least powers = 2 × 3 = 6. H.C.F. = 6."
+      "[1 mark] 6 — 6 = 2 × 3, 72 = 2³ × 3², 120 = 2³ × 3 × 5; least powers of common primes give 2 × 3 = 6."
     ],
     "finalAnswer": "6",
     "isCompetencyBased": false

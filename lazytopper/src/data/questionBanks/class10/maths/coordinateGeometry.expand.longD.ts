@@ -8,12 +8,13 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // requiresDiagram:false — every configuration is fully described in words (student self-draws).
 
 export const COORD_EXPAND_LONG_D: CanonicalQuestion[] = [
-  { id: "BX-COORD-D-001", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying", requiresDiagram: false,
+  { id: "BX-COORD-D-001", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", requiresDiagram: false,
     questionText: "Three consecutive vertices of a parallelogram ABCD taken in order are A(1, 2), B(4, 3) and C(6, 6). Using the property that the diagonals of a parallelogram bisect each other, find the coordinates of the fourth vertex D.",
-    answer: "In a parallelogram the diagonals AC and BD bisect each other, so midpoint of AC = midpoint of BD. Midpoint of AC = ((1+6)/2, (2+6)/2) = (7/2, 4). Let D = (x, y); midpoint of BD = ((4+x)/2, (3+y)/2). Equate: (4+x)/2 = 7/2 ⇒ x = 3; (3+y)/2 = 4 ⇒ y = 5. So D = (3, 5). Check: AB = C−D vector: B−A = (3, 1) and C−D = (3, 1), confirming AB ∥ = DC.",
-    solutionSteps: ["[1 mark] Property: diagonals of a parallelogram bisect each other ⇒ midpoint of diagonal AC = midpoint of diagonal BD.", "[1 mark] Midpoint of AC = ((1+6)/2, (2+6)/2) = (7/2, 4).", "[1 mark] Let D = (x, y). Midpoint of BD = ((4+x)/2, (3+y)/2).", "[1 mark] Equate x: (4+x)/2 = 7/2 ⇒ x = 3. Equate y: (3+y)/2 = 4 ⇒ y = 5.", "[1 mark] D = (3, 5). Verify: B−A = (3, 1) and C−D = (3, 1) so AB ∥ = DC. Hence ABCD is a parallelogram."],
+    answer: "In a parallelogram the diagonals AC and BD bisect each other, so midpoint of AC = midpoint of BD. Midpoint of AC = (7/2, 4). Let D = (x, y); midpoint of BD = ((4 + x)/2, (3 + y)/2). Equating: x = 3, y = 5. So D = (3, 5). Check: B − A = (3, 1) = C − D, so AB ∥ DC and AB = DC.",
+    solutionSteps: ["[1 mark] Diagonals of a parallelogram bisect each other ⇒ midpoint of AC = midpoint of BD. Midpoint of AC = ((1 + 6)/2, (2 + 6)/2) = (7/2, 4).", "[1 mark] Let D = (x, y). Midpoint of BD = ((4 + x)/2, (3 + y)/2).", "[1 mark] (4 + x)/2 = 7/2 ⇒ x = 3; (3 + y)/2 = 4 ⇒ y = 5. Hence D = (3, 5)."],
     finalAnswer: "D = (3, 5).",
-    isCompetencyBased: true, strategyHint: "For a parallelogram, set midpoint of one diagonal equal to midpoint of the other and solve." },
+    isCompetencyBased: true, strategyHint: "For a parallelogram, set midpoint of one diagonal equal to midpoint of the other and solve.",
+    sourceOverride: "others", },
 
   { id: "BX-COORD-D-002", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false,
     questionText: "Verify that the points A(−2, −1), B(1, 0), C(4, 3) and D(1, 2), taken in order, form a parallelogram. Using the lengths of the diagonals, decide further whether it is a rectangle.",
@@ -43,12 +44,13 @@ export const COORD_EXPAND_LONG_D: CanonicalQuestion[] = [
     finalAnswer: "P(2, 3); common distance PA = PB = PC = 5.",
     isCompetencyBased: true, strategyHint: "Equidistant from three points ⇒ set PA²=PB² and PB²=PC² to get two linear equations; solve." },
 
-  { id: "BX-COORD-D-006", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying", requiresDiagram: false,
+  { id: "BX-COORD-D-006", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", requiresDiagram: false,
     questionText: "Find the ratio in which the x-axis divides the line segment joining the points A(2, −3) and B(5, 6). Also find the coordinates of the point of division and its distance from the origin.",
     answer: "Let the x-axis divide AB in ratio k : 1. Its y-coordinate is 0, so by section formula y = (6k + (−3)·1)/(k+1) = 0 ⇒ 6k − 3 = 0 ⇒ k = 1/2, giving ratio 1 : 2. x-coordinate: x = (1·5 + 2·2)/(1+2) = (5+4)/3 = 3. Point of division = (3, 0). Distance from origin = √(3²+0²) = 3 units.",
-    solutionSteps: ["[1 mark] Let the x-axis divide AB in ratio k : 1; a point on the x-axis has y = 0.", "[1 mark] y = (6k + (−3)·1)/(k+1) = 0 ⇒ 6k − 3 = 0 ⇒ k = 1/2 ⇒ ratio = 1 : 2.", "[1 mark] Using ratio 1 : 2, x = (1·5 + 2·2)/(1+2) = 9/3 = 3.", "[1 mark] Point of division = (3, 0).", "[1 mark] Distance from the origin = √(3² + 0²) = 3 units."],
+    solutionSteps: ["[1 mark] Let the x-axis divide AB in the ratio k : 1; on the x-axis y = 0: (6k − 3)/(k + 1) = 0 ⇒ k = 1/2, ratio 1 : 2.", "[1 mark] x = (1×5 + 2×2)/(1 + 2) = 9/3 = 3, so the point of division is (3, 0).", "[1 mark] Distance from the origin = √(3² + 0²) = 3 units."],
     finalAnswer: "Ratio 1 : 2; point (3, 0); distance from origin = 3.",
-    isCompetencyBased: true, strategyHint: "On the x-axis y = 0 — set the section-formula y equal to 0 to get the ratio, then find x." },
+    isCompetencyBased: true, strategyHint: "On the x-axis y = 0 — set the section-formula y equal to 0 to get the ratio, then find x.",
+    sourceOverride: "others", },
 
   { id: "BX-COORD-D-007", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Analysing", requiresDiagram: false,
     questionText: "For the triangle with vertices A(−1, 3), B(5, 1) and C(2, −4): (i) find the centroid G by averaging the vertices; (ii) find the midpoint D of side BC; and (iii) verify that G divides the median AD internally in the ratio 2 : 1.",

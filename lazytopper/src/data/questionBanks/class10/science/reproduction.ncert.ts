@@ -123,10 +123,11 @@ export const REPRODUCTION_NCERT: CanonicalQuestion[] = [
 
   { id: "REPR-NCERT-7-SA-013", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual vs Asexual", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "What are the advantages of sexual reproduction over asexual reproduction?",
-    answer: "Advantages of sexual reproduction: (i) Generates more variation (combines DNA from two parents) → faster evolution; (ii) Better adaptation to changing environment; (iii) Offspring are not exact copies → at least some may survive new conditions; (iv) Helps in speciation and natural selection; (v) Halving + recombination of chromosomes maintains chromosome number across generations.",
-    solutionSteps: ["Sexual reproduction combines DNA from two parents.", "This generates MORE variation than asexual (which gives clones).", "Variations → better adaptability to changing environments.", "Useful for evolution and survival of species in long term.", "Asexual offspring are identical → entire population could be wiped out by same threat."],
-    finalAnswer: "More variation → better adaptability, evolution, survival under environmental changes.",
-    ncertRef: "Exercise Q4", isCompetencyBased: true },
+    answer: "Advantages of sexual reproduction: (i) Generates more variation (combines DNA from two parents); (ii) Better adaptation to changing environment; (iii) Offspring are not exact copies → at least some may survive new conditions; (iv) Helps the species survive in the long term (the whole population is not wiped out by one threat).",
+    solutionSteps: ["[1 mark] Sexual reproduction combines DNA from two parents, so it generates more variation than asexual reproduction (which gives near-identical copies).", "[1 mark] More variation means better adaptation to a changing environment: offspring are not exact copies, so at least some may survive new conditions.", "[1 mark] This helps the species survive in the long term — an asexual population of identical individuals could be wiped out by a single threat."],
+    finalAnswer: "More variation → better adaptability and survival of the species under environmental changes.",
+    ncertRef: "Exercise Q4", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   { id: "REPR-NCERT-7-SA-014", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Testes Function", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "What are the functions performed by the testis in human beings?",

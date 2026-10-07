@@ -66,11 +66,14 @@ export const STAT_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Section 14.4", isCompetencyBased: true },
 
   // ===== Section B — Short Answer (2 marks) =====
-  { id: "STAT-N-NCERT-13-VSA-001", subject: "Maths", topicKey: "statistics", subtopic: "Class Mark", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+  { id: "STAT-N-NCERT-13-VSA-001", subject: "Maths", topicKey: "statistics", subtopic: "Class Mark", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the class mark of the class interval 10 – 25.",
-    solutionSteps: ["Class mark = (Lower limit + Upper limit) / 2.", "= (10 + 25)/2 = 35/2 = 17.5."],
+    solutionSteps: ["Class mark = (lower limit + upper limit)/2 = (10 + 25)/2 = 17.5. Correct option: (c) 17.5."],
     finalAnswer: "Class mark = 17.5.",
-    ncertRef: "NCERT Section 14.2 (Table 14.3)", isCompetencyBased: false },
+    ncertRef: "NCERT Section 14.2 (Table 14.3)", isCompetencyBased: false,
+    options: ["7.5", "15", "17.5", "35"],
+    answer: "17.5",
+    sourceOverride: "others", },
 
   { id: "STAT-N-NCERT-13-VSA-002", subject: "Maths", topicKey: "statistics", subtopic: "Cumulative Frequency", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Frequencies of five classes are 5, 3, 4, 3 and 3. Form the cumulative frequency (less-than type) values for these five classes.",

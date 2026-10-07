@@ -21,17 +21,18 @@ export const RN_CBE: CanonicalQuestion[] = [
     "subtopic": "Prime Factorisation (Fundamental Theorem of Arithmetic)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Express 255 as a product of prime factors.",
-    "options": [],
-    "answer": "255 = 3 × 5 × 17",
+    "questionText": "The prime factorisation of 255 is",
+    "options": ["3 × 5 × 17", "5 × 51", "3 × 85", "15 × 17"],
+    "answer": "3 × 5 × 17",
     "solutionSteps": [
-      "[1 mark] By prime factorisation, 255 = 3 × 5 × 17."
+      "[1 mark] 3 × 5 × 17 — 255 = 3 × 85 = 3 × 5 × 17, and 3, 5, 17 are all prime."
     ],
-    "finalAnswer": "255 = 3 × 5 × 17",
-    "isCompetencyBased": false
+    "finalAnswer": "3 × 5 × 17",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-RN-A-002",

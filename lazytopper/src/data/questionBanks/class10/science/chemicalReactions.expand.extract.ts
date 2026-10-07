@@ -67,8 +67,8 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "Oxidation", isCompetencyBased: false, requiresDiagram: false,
   },
   {
-    id: "BX-CHEM-EX-A-007", subject: "Science", topicKey: "chemical-reactions-and-equations",
-    subtopic: "Precipitation Reactions", section: "A", marks: 1, format: "MCQ",
+    id: "BX-CHEM-EX-A-007", subject: "Science", topicKey: "carbon-and-its-compounds",
+    subtopic: "Soaps and Detergents", section: "A", marks: 1, format: "MCQ",
     difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "In the preparation of soap, a small amount of sodium chloride (common salt) is added to the mixture of fat and sodium hydroxide. The role of the common salt is to:",
     options: ["Favour the precipitation of soap", "Enhance the cleansing capacity of soap", "Increase the weight of the soap", "Decrease the acidity of the soap"],

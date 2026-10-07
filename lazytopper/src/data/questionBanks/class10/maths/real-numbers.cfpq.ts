@@ -257,20 +257,22 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
     subtopic: "Irrational Numbers",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Evaluating",
     questionText:
-      "Two representations of real numbers are shown below.\n\nWhich one is correct?",
-    answer: "Representation 1",
+      "Two representations of real numbers are shown. Which one is correct?",
+    answer: "Representation 1, as rational and irrational numbers are separate, non-overlapping sets",
     solutionSteps: [
-      "[1 mark] Writes that Representation 1 is correct. In Representation 1 the rational numbers and the irrational numbers are two separate regions that together make up the real numbers, with the natural numbers inside the whole numbers inside the integers inside the rationals. Representation 2 is wrong because it nests the rational numbers inside the irrational numbers, and no rational number is irrational.",
+      "[1 mark] Representation 1, as rational and irrational numbers are separate, non-overlapping sets — rational and irrational numbers are disjoint and together form the real numbers, as Representation 1 shows."
     ],
-    finalAnswer: "Representation 1",
+    finalAnswer: "Representation 1, as rational and irrational numbers are separate, non-overlapping sets",
     isCompetencyBased: true,
     ncertRef: REAL_NUMBERS_CFPQ_REF,
     requiresDiagram: true,
     diagramDescription: SET_DIAGRAM_DESC,
+    options: ["Representation 2, as every rational number is also an irrational number", "Representation 2, as irrational numbers include the integers", "Representation 1, as rational and irrational numbers are separate, non-overlapping sets", "Representation 1, as irrational numbers are a part of the integers"],
+    sourceOverride: "others",
   },
   // pdf-page 6 (folio 5) — Q7, margin [2]. Rubric: pdf-page 9 (folio 8), 1 + 1.
   {
@@ -372,19 +374,20 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
     subtopic: "Fundamental Theorem of Arithmetic",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
-      "(n² + 3n - 4) can be expressed as a product of only 2 prime factors where n is a natural number.\n\nFind the value(s) of n for which the given expression is an even composite number. Show your work and give valid reasons.",
+      "(n² + 3n − 4) can be expressed as a product of only 2 prime factors, where n is a natural number. For which value of n is the given expression an even composite number?",
     answer: "n = 3",
     solutionSteps: [
-      "[0.5 mark] Factorises the given expression as (n - 1)(n + 4).",
-      "[0.5 mark] Writes that, for the above to be an even composite number, one of the factors has to be 2 and hence (n - 1) = 2, giving n = 3.",
+      "[1 mark] n = 3 — n² + 3n − 4 = (n − 1)(n + 4); for an even product of two primes one factor must be 2, so n − 1 = 2, n = 3 (value 14 = 2 × 7)."
     ],
     finalAnswer: "n = 3",
     isCompetencyBased: true,
     ncertRef: REAL_NUMBERS_CFPQ_REF,
+    options: ["n = 1", "n = 7", "n = 8", "n = 3"],
+    sourceOverride: "others",
   },
   // pdf-page 7 (folio 6) — Q14, margin [1]. Rubric: pdf-page 11 (folio 10), 1 mark.
   {
@@ -394,18 +397,20 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
     subtopic: "Fundamental Theorem of Arithmetic",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Easy",
     bloomSkill: "Understanding",
     questionText:
-      "The prime factorisation of a prime number is the number itself.\n\nHow many factors and prime factors does the square of a prime number have?",
+      "The prime factorisation of a prime number is the number itself. How many factors and how many prime factors does the square of a prime number have?",
     answer: "3 factors and 1 prime factor",
     solutionSteps: [
-      "[1 mark] For the square of a prime number: number of factors = 3 and number of prime factors = 1. (The rubric awards 0.5 marks for each correct number.)",
+      "[1 mark] 3 factors and 1 prime factor — p² has factors 1, p, p² (three) and only one prime factor, p."
     ],
     finalAnswer: "3 factors and 1 prime factor",
     isCompetencyBased: true,
     ncertRef: REAL_NUMBERS_CFPQ_REF,
+    options: ["3 factors and 1 prime factor", "2 factors and 1 prime factor", "3 factors and 2 prime factors", "4 factors and 2 prime factors"],
+    sourceOverride: "others",
   },
 ];
 

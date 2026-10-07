@@ -147,9 +147,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "finalAnswer": "√3 is irrational",
       "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
       "isCompetencyBased": false,
-      "pyqYear": "2022",
-      "pyqSet": "B",
-      "ncertRef": "Ex 1.3"
+      "ncertRef": "Ex 1.3",
+      sourceOverride: "others",
     },
   {
     "id": "RN2-011",
@@ -176,9 +175,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "√5 is irrational",
     "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
-    "pyqYear": "2021",
-    "pyqSet": "A",
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-012",
@@ -319,9 +317,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "(i) 24 books per shelf (ii) 11 shelves",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "B",
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-018",
@@ -333,22 +330,19 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Three alarm clocks ring at intervals of 20, 30, and 40 minutes respectively. All three ring together at 12:00 PM. (i) After how many minutes will they ring together again? (ii) If the first clock rings 6 times per hour, how many times does it ring in 24 hours? (iii) At what time will the three clocks ring together again?",
+    "questionText": "Three alarm clocks ring at intervals of 20, 30 and 40 minutes respectively. All three ring together at 12:00 PM.\n(i) Express 20, 30 and 40 as products of their prime factors. [1 mark]\n(ii) How many times does the first clock ring in the 24 hours after 12:00 PM? [1 mark]\n(iii) After how many minutes, and at what time, will all three clocks next ring together? [2 marks]",
     "options": [],
-    "answer": "(i) 120 minutes (ii) 144 times (iii) 2:00 PM",
+    "answer": "(i) 20 = 2² × 5, 30 = 2 × 3 × 5, 40 = 2³ × 5 (ii) 72 times (iii) After 120 minutes, at 2:00 PM",
     "solutionSteps": [
-      "Part (i): Find LCM(20, 30, 40)",
-      "20 = 2² × 5, 30 = 2 × 3 × 5, 40 = 2³ × 5",
-      "LCM = 2³ × 3 × 5 = 120 minutes",
-      "Part (ii): Clock rings every 20 min, so 3 times per hour, 3 × 24 = 72 times",
-      "If it rings 6 times per hour, then 6 × 24 = 144 times",
-      "Part (iii): 12:00 PM + 120 minutes = 2:00 PM"
+      "[1 mark] Part (i): 20 = 2² × 5, 30 = 2 × 3 × 5, 40 = 2³ × 5.",
+      "[1 mark] Part (ii): The first clock rings every 20 minutes, i.e. 60 ÷ 20 = 3 times per hour, so 3 × 24 = 72 times in 24 hours.",
+      "[1 mark] Part (iii): LCM(20, 30, 40) = 2³ × 3 × 5 = 120 minutes.",
+      "[1 mark] 12:00 PM + 120 minutes = 2:00 PM."
     ],
-    "finalAnswer": "(i) 120 minutes (ii) 144 times (iii) 2:00 PM",
+    "finalAnswer": "(i) 20 = 2² × 5, 30 = 2 × 3 × 5, 40 = 2³ × 5 (ii) 72 times (iii) After 120 minutes, at 2:00 PM",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "A",
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-020",
@@ -567,9 +561,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "144",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
       "id": "RN2-031",
@@ -622,9 +615,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       ],
       "finalAnswer": "Maximum length = 12 m; 4 pieces and 3 pieces respectively",
       "isCompetencyBased": false,
-      "pyqYear": "2020",
-      "pyqSet": undefined,
-      "ncertRef": "Ex 1.3"
+      "ncertRef": "Ex 1.3",
+      sourceOverride: "others",
     },
   {
       "id": "RN2-033",
@@ -770,9 +762,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "HCF = 16, LCM = 240",
     "isCompetencyBased": false,
-    "pyqYear": "2019",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.2, Ex 1.3"
+    "ncertRef": "Ex 1.2, Ex 1.3",
+    sourceOverride: "others",
   },
   {
       "id": "RN2-039",
@@ -838,13 +829,13 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "id": "RN2-041",
     "subject": "Maths",
     "topicKey": "real-numbers",
-    "subtopic": "Assertion-Reasoning",
+    "subtopic": "Irrational Numbers",
     "section": "A",
     "marks": 1,
     "format": "Assertion-Reasoning",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): √5 + √2 is irrational. Reason (R): The sum of two irrational numbers is always irrational.",
+    "questionText": "Assertion (A): 6 − √7 is irrational.\nReason (R): The sum of two irrational numbers is always irrational.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -853,49 +844,35 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "A is true, R is false.",
     "solutionSteps": [
-      "Assertion: √5 + √2 is irrational - TRUE",
-      "Reason: Sum of two irrational numbers is always irrational - FALSE",
-      "Counter-example: (√2) + (-√2) = 0, which is rational",
-      "Another example: √5 + (3-√5) = 3, which is rational",
-      "So R is false, though A happens to be true in this case"
+      "[1 mark] A: if 6 − √7 = r (rational), then √7 = 6 − r would be rational — contradiction, as √7 is irrational; so A is true. R: √2 + (−√2) = 0 is rational, so R is false. Correct option: (c) A is true, R is false."
     ],
     "finalAnswer": "A is true, R is false.",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-042",
     "subject": "Maths",
     "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
-    "section": "D",
-    "marks": 5,
-    "format": "Long",
-    "difficulty": "Hard",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
     "bloomSkill": "Evaluating",
     "questionText": "Two numbers have HCF = 12 and LCM = 240. If one number is 48, find the other number. Verify your answer and express both numbers as products of prime factors.",
     "options": [],
-    "answer": "The other number is 60",
+    "answer": "The other number is 60. Verification: HCF(48, 60) = 12 and LCM(48, 60) = 240, and 12 × 240 = 2880 = 48 × 60. Prime factorisations: 48 = 2⁴ × 3 and 60 = 2² × 3 × 5.",
     "solutionSteps": [
-      "Given: HCF = 12, LCM = 240, one number a = 48",
-      "Using HCF(a,b) × LCM(a,b) = a × b",
-      "12 × 240 = 48 × b",
-      "2880 = 48 × b",
-      "b = 2880 ÷ 48 = 60",
-      "Verification:",
-      "Prime factorization of 48: 48 = 2⁴ × 3",
-      "Prime factorization of 60: 60 = 2² × 3 × 5",
-      "HCF(48, 60) = 2² × 3 = 12 ✓",
-      "LCM(48, 60) = 2⁴ × 3 × 5 = 16 × 15 = 240 ✓",
-      "Also: 12 × 240 = 2880 and 48 × 60 = 2880 ✓"
+      "[1 mark] HCF × LCM = product of the two numbers: 12 × 240 = 48 × b ⇒ b = 2880 ÷ 48 = 60.",
+      "[1 mark] Prime factorisation: 48 = 2⁴ × 3 and 60 = 2² × 3 × 5.",
+      "[1 mark] Verification: HCF(48, 60) = 2² × 3 = 12 and LCM(48, 60) = 2⁴ × 3 × 5 = 240, as given."
     ],
-    "finalAnswer": "The other number is 60",
+    "finalAnswer": "The other number is 60; 48 = 2⁴ × 3, 60 = 2² × 3 × 5; HCF 12 × LCM 240 = 2880 = 48 × 60.",
     "isCompetencyBased": false,
-    "pyqYear": "2022",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-043",
@@ -924,9 +901,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "Proved by assuming rationality and deriving contradiction",
     "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
-    "pyqYear": "2023",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
       "id": "RN2-044",
@@ -951,9 +927,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "finalAnswer": "7 − 2√3 is irrational",
       "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
       "isCompetencyBased": false,
-      "pyqYear": "2024",
-      "pyqSet": undefined,
-      "ncertRef": "Ex 1.3"
+      "ncertRef": "Ex 1.3",
+      sourceOverride: "others",
     },
   {
     "id": "RN2-045",
@@ -982,9 +957,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "It always has at least one prime factor of the form 4k + 3",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.2"
+    "ncertRef": "Ex 1.2",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-050",
@@ -1012,9 +986,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "√2 is irrational",
     "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
-    "pyqYear": "2023",
-    "pyqSet": "A",
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-051",
@@ -1039,9 +1012,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "HCF = 4, LCM = 9696",
     "isCompetencyBased": false,
-    "pyqYear": "2022",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.2"
+    "ncertRef": "Ex 1.2",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-052",
@@ -1067,9 +1039,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "5 − 3√2 is irrational",
     "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
-    "pyqYear": "2024",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-053",
@@ -1124,9 +1095,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "√3 is irrational, hence 2 + √3 is irrational",
     "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
-    "pyqYear": "2023",
-    "pyqSet": "B",
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-055",
@@ -1152,9 +1122,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "The other number is 126",
     "isCompetencyBased": false,
-    "pyqYear": "2021",
-    "pyqSet": "B",
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-056",
@@ -1278,9 +1247,8 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "√5 is irrational; hence 3 − 2√5 is irrational",
     "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
-    "pyqYear": "2024",
-    "pyqSet": "B",
-    "ncertRef": "Ex 1.3"
+    "ncertRef": "Ex 1.3",
+    sourceOverride: "others",
   },
   {
     "id": "RN2-060",

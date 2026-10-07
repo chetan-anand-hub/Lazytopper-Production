@@ -33,16 +33,16 @@ export const RN_EXTRACT2: CanonicalQuestion[] = [
     "subtopic": "Fundamental Theorem of Arithmetic",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "For what least value of the natural number n is 24^n divisible by 10? Justify your answer.",
-    "options": [],
-    "answer": "No natural number n makes 24^n divisible by 10.",
+    "questionText": "The least natural number n for which 24ⁿ is divisible by 10 is",
+    "options": ["n = 1", "n = 2", "n = 5", "No such natural number n exists"],
+    "answer": "No such natural number n exists",
     "solutionSteps": [
-      "[1 mark] 24^n = (2^3 x 3)^n = 2^(3n) x 3^n. Its prime factorisation contains no factor 5, and a number is divisible by 10 only if it has both 2 and 5 as factors. By the uniqueness of the Fundamental Theorem of Arithmetic, 24^n can never be divisible by 10 — there is no such value of n."
+      "[1 mark] No such natural number n exists — 24ⁿ = 2³ⁿ × 3ⁿ has no prime factor 5, so 24ⁿ is never divisible by 10."
     ],
-    "finalAnswer": "No value of n exists.",
+    "finalAnswer": "No such natural number n exists",
     "isCompetencyBased": false,
     "requiresDiagram": false
   },
