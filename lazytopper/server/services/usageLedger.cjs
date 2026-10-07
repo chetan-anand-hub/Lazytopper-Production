@@ -103,6 +103,35 @@ const TRIAL_COUNTER_FIELDS = Object.freeze({
 
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 
+/* ── Pending writes (GRACEFUL-DEPLOY round 2) ─────────────────────────────────
+ * Every ledger write here is fire-and-forget: a request path never awaits it. On a redeploy the
+ * gateway drains and then exits (services/gracefulDrain.cjs), so a write still on the wire at that
+ * moment would be lost: a graded row left uncharged. Each write's settlement promise is therefore
+ * TRACKED (module-wide, so every createUsageLedger instance and fairUse's markPaperGraded share one
+ * set) and the drain waits for pendingWrites() to reach 0 — bounded by its own deadline — before it
+ * exits. Tracking changes WHAT is written in no way: it only observes the promise. */
+const pendingWriteSet = new Set();
+
+/** Track a write's settlement promise until it settles (success OR failure). Returns `p` unchanged. */
+function trackWrite(p) {
+  if (!p || typeof p.then !== 'function') return p;
+  pendingWriteSet.add(p);
+  const drop = () => { pendingWriteSet.delete(p); };
+  p.then(drop, drop);
+  return p;
+}
+
+/** How many tracked ledger writes have not settled yet. */
+function pendingWrites() {
+  return pendingWriteSet.size;
+}
+
+/** Resolves once every write pending NOW has settled (never rejects). */
+function settledWrites() {
+  return Promise.allSettled([...pendingWriteSet]).then(() => undefined);
+}
+
+
 /** The IST hour ("00".."23") of an instant — the hour-bucket key inside its IST day. */
 function istHourKey(nowMs) {
   return new Date(nowMs + IST_OFFSET_MS).toISOString().slice(11, 13);
@@ -351,7 +380,7 @@ function createUsageLedger(deps = {}) {
 
       // ★ NOT AWAITED. Promise.resolve().then() also moves a synchronously-throwing
       // `set` off this stack, so it lands in the same counted rejection path.
-      return Promise.resolve()
+      return trackWrite(Promise.resolve()
         .then(() => ref.set(data, { merge: true }))
         .then(
           () => true,
@@ -359,7 +388,7 @@ function createUsageLedger(deps = {}) {
             count(TELEMETRY.WRITE_FAILED);
             return false;
           }
-        );
+        ));
     } catch {
       count(TELEMETRY.ERROR);
       return null;
@@ -375,9 +404,9 @@ function createUsageLedger(deps = {}) {
       const fs = resolveFirestore();
       if (!fs || !fs.db || !fs.FieldValue) return null;
       const ref = dayRef(fs.db, uid, istDayKey(nowMs));
-      return Promise.resolve()
+      return trackWrite(Promise.resolve()
         .then(() => ref.set({ [LEDGER_SPEND_FIELD]: fs.FieldValue.increment(increment.costMicroInr) }, { merge: true }))
-        .then(() => true, () => { count(TELEMETRY.WRITE_FAILED); return false; });
+        .then(() => true, () => { count(TELEMETRY.WRITE_FAILED); return false; }));
     } catch {
       count(TELEMETRY.ERROR);
       return null;
@@ -425,7 +454,7 @@ function createUsageLedger(deps = {}) {
       }
       if (Object.keys(data).length === 0) return null;
       const ref = dayRef(fs.db, id, istDayKey(now()));
-      return Promise.resolve()
+      return trackWrite(Promise.resolve()
         .then(() => ref.set(data, { merge: true }))
         .then(
           () => true,
@@ -433,7 +462,7 @@ function createUsageLedger(deps = {}) {
             count(TELEMETRY.WRITE_FAILED);
             return false;
           }
-        );
+        ));
     } catch {
       count(TELEMETRY.ERROR);
       return null;
@@ -476,6 +505,9 @@ module.exports = {
   createMeterGroup,
   runInMeterGroup,
   settleMeterGroup,
+  trackWrite,
+  pendingWrites,
+  settledWrites,
   USAGE_LEDGER_COLLECTION,
   LEDGER_SEGMENTS,
   LEDGER_FIELDS,
