@@ -780,3 +780,43 @@ describe("J · <AccountDataControls /> is present and LAST", () => {
     expect(screen.queryByRole("button", { name: /delete my account/i })).toBeNull();
   });
 });
+
+/* ══════════════ K · the easy-marks card follows Me's gate (ME-ENGINE-1 PR-2d) ══════════════ */
+
+/*
+ * Live #970-L1 (2026-10-07): at 2 graded answers Me said "We will not name a weakness from one or
+ * two questions" — and the easy-marks card printed "1.5 marks you already knew … 1 calculation
+ * slip", a per-group figure below the gate. The card now asks the SAME imported gate
+ * (`rungNamesWeakness`) for the paper on screen.
+ * Mutation this block turns RED: K1 — drop `rungNamesWeakness(paperRung)` from the card's condition.
+ */
+describe("K · the easy-marks card prints no per-group figure below Me's gate (PR-2d)", () => {
+  const slip = logEntry({
+    id: "m-calc",
+    totalMarks: 2,
+    marksLost: 1.5,
+    mistakeCounts: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 },
+    stepDetails: [{ stepNumber: 1, mistakeType: "calculation", marksDeducted: 1.5 }],
+  });
+
+  it("★ below the gate (the Maths rung carries no marks base): no easy-marks card, no 'you already knew', no slip count", async () => {
+    mockGetWindowedProgress.mockResolvedValue(
+      windowed({ subjects: [rung("maths", "Maths")], topics: [], mistakeTypes: [rung("calculation", "Calculation")] }),
+    );
+    mockGetMistakeLogs.mockResolvedValue([slip]);
+    renderPage();
+    await waitFor(() => expect(mockGetMistakeLogs).toHaveBeenCalled()); // precondition: the slip WAS read
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByTestId("me-easy-marks")).toBeNull();
+    expect(document.body.textContent).not.toMatch(/you already knew/);
+    expect(document.body.textContent).not.toMatch(/calculation slip/);
+  });
+
+  it("★ CONTROL: above the gate the SAME slip shows the card with its marks", async () => {
+    mockGetMistakeLogs.mockResolvedValue([slip]);
+    renderPage(); // RECONCILE: Maths 100 graded, 70 secured — the gate passes
+    const card = await screen.findByTestId("me-easy-marks");
+    expect(card.textContent).toMatch(/you already knew/);
+    expect(card.textContent).toMatch(/1 calculation slip/);
+  });
+});

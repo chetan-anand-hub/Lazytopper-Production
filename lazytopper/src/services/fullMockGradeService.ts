@@ -22,6 +22,8 @@
 //      fullMockSession); the record id keeps it idempotent.
 
 import type { AuthUser } from "../context/AuthContext";
+import type { GradingJobOptions } from "../ai/gradingJobs";
+import { recordableInterruptedRows, recordedQNumbersOf } from "../ai/gradingJobRecords";
 import {
   gradeWorksheet,
   type CheckSolutionResponse,
@@ -145,51 +147,23 @@ export async function gradeFullMockUpload(args: {
   subjectiveQuestions: PersistedWorksheetQuestion[];
   upload: { imageBase64: string; imageMimeType: string };
   focus?: SessionFocusAggregates;
+  /** GRADING-JOBS-1 J2 — grade as a background job (rows land one by one; resume after a reload). */
+  job?: GradingJobOptions;
 }): Promise<FullMockGradeOutcome> {
   const { user, paper, code, subject, objective, subjectiveQuestions, upload, focus } = args;
 
-  const subjectiveResponse = await gradeWorksheet({
-    worksheetId: paper.worksheetId,
-    subject: paper.subject,
-    questions: subjectiveQuestions.map((q) => ({
-      qNumber: q.qNumber,
-      marks: q.marks,
-      topic: q.topicLabel,
-      topicLabel: q.topicLabel,
-      questionText: q.questionText,
-      section: q.section,
-      answer: q.answer,
-      options: q.options,
-      solutionSteps: q.solutionSteps,
-      finalAnswer: q.finalAnswer,
-    })),
-    imageBase64: upload.imageBase64,
-    imageMimeType: upload.imageMimeType,
-  }, { surface: "full-mock", paperKey: paper.worksheetId });
-
-  if (!subjectiveResponse.ok) return { ok: false, response: subjectiveResponse, miOutcomes: [] };
-
-  // SCORECARD-MI-1 — ONE set of counts for every reader of this grade: no type on a
-  // full-mark question (owner ruling).
-  const response = withEffectiveCounts(buildFullMockResponse({
-    paper,
-    objective,
-    subjectiveQuestions,
-    subjectiveResponse,
-  }));
-
-  // Cache the unified grade device-locally (same-session re-open + graded PDF);
-  // the durable cross-device re-open reads the perQuestion payload written below.
-  saveWorksheetGrade(paper.worksheetId, response);
-
   const qByNumber = new Map(subjectiveQuestions.map((q) => [q.qNumber, q]));
   const miOutcomes: FullMockMiOutcome[] = [];
-  for (const g of withEffectiveCounts(subjectiveResponse).results) {
+  // J2b (D30-2): rows already recorded from the interruption this grade continues.
+  const alreadyRecorded = recordedQNumbersOf(args.job?.continueFrom);
+
+  /** ONE graded question → the MI front door + its score twin (the one per-question path). */
+  const recordGraded = async (g: WorksheetQuestionGrade): Promise<void> => {
     // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
     // nothing: no MI entry, no attempt, never a 0.
-    if (!isGradedQuestion(g)) continue;
+    if (!isGradedQuestion(g)) return;
     const q = qByNumber.get(g.qNumber);
-    if (!q) continue;
+    if (!q) return;
     const csr = toCheckSolutionResponse(g);
     const questionId = fullMockQuestionId(paper.worksheetId, g.qNumber);
     // Sequential await: recordMistake reads+writes the device-local dedup list.
@@ -224,6 +198,65 @@ export async function gradeFullMockUpload(args: {
       grade: csr,
     });
     miOutcomes.push({ qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged });
+  };
+
+  let subjectiveResponse: WorksheetGradeResponse;
+  try {
+    subjectiveResponse = await gradeWorksheet({
+    worksheetId: paper.worksheetId,
+    subject: paper.subject,
+    questions: subjectiveQuestions.map((q) => ({
+      qNumber: q.qNumber,
+      marks: q.marks,
+      topic: q.topicLabel,
+      topicLabel: q.topicLabel,
+      questionText: q.questionText,
+      section: q.section,
+      answer: q.answer,
+      options: q.options,
+      solutionSteps: q.solutionSteps,
+      finalAnswer: q.finalAnswer,
+    })),
+    imageBase64: upload.imageBase64,
+    imageMimeType: upload.imageMimeType,
+  }, { surface: "full-mock", paperKey: paper.worksheetId, ...(args.job ? { job: args.job } : {}) });
+  } catch (err) {
+    // J2b (D30-2) — an interrupted background grade: its FINAL graded rows are recorded now,
+    // exactly as a normal graded row (same ids, so idempotent), then the interruption goes on
+    // to the page ("Grade the remaining N"). No paper-level record: there are no totals (§6).
+    try {
+      for (const { row } of recordableInterruptedRows(err)) {
+        if (alreadyRecorded.has(row.qNumber)) continue;
+        // eslint-disable-next-line no-await-in-loop
+        await recordGraded(row);
+      }
+    } catch (recordErr) {
+      // A recording miss never hides the interruption from the student.
+      console.warn("[fullMockGradeService] interrupted-row record failed", recordErr);
+    }
+    throw err;
+  }
+
+  if (!subjectiveResponse.ok) return { ok: false, response: subjectiveResponse, miOutcomes: [] };
+
+  // SCORECARD-MI-1 — ONE set of counts for every reader of this grade: no type on a
+  // full-mark question (owner ruling).
+  const response = withEffectiveCounts(buildFullMockResponse({
+    paper,
+    objective,
+    subjectiveQuestions,
+    subjectiveResponse,
+  }));
+
+  // Cache the unified grade device-locally (same-session re-open + graded PDF);
+  // the durable cross-device re-open reads the perQuestion payload written below.
+  saveWorksheetGrade(paper.worksheetId, response);
+
+  for (const g of withEffectiveCounts(subjectiveResponse).results) {
+    // J2b (D30-2): a row recorded when the job was interrupted is not recorded twice.
+    if (alreadyRecorded.has(g.qNumber)) continue;
+    // eslint-disable-next-line no-await-in-loop
+    await recordGraded(g);
   }
 
   // Overwrite the partial record with the FULL one (idempotent by id = code).

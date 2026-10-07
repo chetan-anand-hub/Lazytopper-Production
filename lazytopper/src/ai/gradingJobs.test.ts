@@ -380,6 +380,67 @@ describe("§6 — interrupted: final rows stay; 'grade the remaining N' re-submi
     expect(out.summary).toBe(""); // never invented for the merged paper
     expect(out.results[0]).not.toHaveProperty("index");
   });
+
+  it("N6 — 'grade the remaining' picks questions by INDEX and sends at most one upload per printed number", async () => {
+    // Q2 is printed twice (indices 1 and 2); only index 2 was interrupted.
+    const dupReq = {
+      ...REQ,
+      imageBase64: undefined,
+      questions: [
+        { qNumber: 1, marks: 2, questionText: "First" },
+        { qNumber: 2, marks: 2, questionText: "Second (a)" },
+        { qNumber: 2, marks: 2, questionText: "Second (b)" },
+      ],
+      uploads: [
+        { qNumber: 1, imageBase64: "AAA" },
+        { qNumber: 2, imageBase64: "BBB" },
+        { qNumber: 2, imageBase64: "CCC" },
+      ],
+    };
+    const err = new GradingJobInterruptedError(
+      [row(0, true), row(1, true), { ...interruptedRow(2), qNumber: 2 }] as never,
+      "ws-1",
+    );
+    script = [() => ({ status: 200, body: { ...FINAL, results: [graded(2, 1)] } })];
+    await gradeWorksheet(dupReq, { surface: "worksheet", job: { store: memoryStore(), paperKey: "ws-1", continueFrom: err } });
+    const sent = JSON.parse(posts()[0].body as string) as { questions: Array<{ questionText: string }>; uploads: Array<{ imageBase64: string }> };
+    expect(sent.questions.map((q) => q.questionText)).toEqual(["Second (b)"]);
+    expect(sent.uploads.map((u) => u.imageBase64)).toEqual(["BBB"]);
+  });
+});
+
+/* ── N4: a kept job belongs to the content it grades ──────────────────────── */
+
+describe("N4 — a job kept after a network give-up is resumed only for the SAME submission", () => {
+  async function giveUp(store: ReturnType<typeof memoryStore>) {
+    script = [() => ({ status: 202, body: ACCEPTED }), ...Array.from({ length: MAX_CONSECUTIVE_POLL_FAILURES }, () => () => "network" as const)];
+    await expect(gradeWorksheet(REQ, { surface: "worksheet", job: { store, paperKey: "ws-1" } })).rejects.toBeInstanceOf(GradingNetworkError);
+    expect(store.value?.bodyHash).toBeTruthy();
+    requests = [];
+  }
+
+  it("★ a NEW photo for the same paper drops the kept job and submits afresh (never the old photo's grade)", async () => {
+    const store = memoryStore();
+    await giveUp(store);
+    const NEW_JOB = "b".repeat(40);
+    script = [
+      () => ({ status: 202, body: { ...ACCEPTED, jobId: NEW_JOB, pollPath: `/api/grade-worksheet/jobs/${NEW_JOB}` } }),
+      () => ({ status: 200, body: { ok: true, jobId: NEW_JOB, state: "done", total: 3, done: 3, results: [], final: FINAL } }),
+    ];
+    await gradeWorksheet({ ...REQ, imageBase64: "TkVXUEhPVE8=" }, { surface: "worksheet", job: { store, paperKey: "ws-1" } });
+    expect(posts()).toHaveLength(1);
+    expect(JSON.parse(posts()[0].body as string).imageBase64).toBe("TkVXUEhPVE8=");
+    expect(polls().map((r) => r.url)).toEqual([`/api/grade-worksheet/jobs/${NEW_JOB}`]);
+  });
+
+  it("CONTROL: the SAME photo resumes the kept job (no second submit, no second charge)", async () => {
+    const store = memoryStore();
+    await giveUp(store);
+    script = [() => ({ status: 200, body: { ok: true, jobId: JOB_ID, state: "done", total: 3, done: 3, results: [], final: FINAL } })];
+    await gradeWorksheet(REQ, { surface: "worksheet", job: { store, paperKey: "ws-1" } });
+    expect(posts()).toHaveLength(0);
+    expect(polls()[0].url).toBe(POLL);
+  });
 });
 
 /* ── §2/§11 guards ────────────────────────────────────────────────────────── */
