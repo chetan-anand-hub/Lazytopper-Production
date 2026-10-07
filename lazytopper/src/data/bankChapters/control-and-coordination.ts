@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "control-and-coordination" (Science): 377 served rows from 19 source arrays, 12 withheld.
+// Chapter "control-and-coordination" (Science): 350 served rows from 19 source arrays, 39 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -55,8 +55,35 @@ export default defineChapter("control-and-coordination", [
   "CBE-S-CTRL-A-005",
   "SCO-S-CTRL-001",
   "SCO-S-CTRL-002",
+  "SCO-S-CTRL-003",
+  "SCO-S-CTRL-005",
+  "SCO-S-CTRL-006",
+  "SCO-S-CTRL-007",
+  "SCO-S-CTRL-008",
+  "SCO-S-CTRL-010",
+  "SCO-S-CTRL-011",
   "SCO-S-CTRL-012",
   "SCO-S-CTRL-013",
+  "SCO-S-CTRL-017",
+  "SCO-S-CTRL-018",
+  "SCO-S-CTRL-019",
+  "SCO-S-CTRL-020",
+  "SCQ-S-CTRL-021",
+  "SCQ-S-CTRL-022",
+  "SCQ-S-CTRL-023",
+  "SCQ-S-CTRL-024",
+  "SCQ-S-CTRL-025",
+  "SCQ-S-CTRL-026",
+  "SCQ-S-CTRL-028",
+  "SCQ-S-CTRL-029",
+  "SCQ-S-CTRL-030",
+  "SCQ-S-CTRL-031",
+  "SCQ-S-CTRL-032",
+  "SCQ-S-CTRL-034",
+  "SCQ-S-CTRL-035",
+  "SCQ-S-CTRL-036",
+  "SCQ-S-CTRL-037",
+  "SCQ-S-CTRL-038",
   "PYQ-S-CTRL-003",
   "PYQ-S-2025-CTRL-008",
 ]);

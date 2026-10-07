@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "acids-bases-and-salts" (Science): 549 served rows from 22 source arrays, 18 withheld.
+// Chapter "acids-bases-and-salts" (Science): 523 served rows from 22 source arrays, 44 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -55,12 +55,38 @@ export default defineChapter("acids-bases-and-salts", [
 ], [
   "ABS-E04",
   "ACID-EXMPLR-2-MCQ-015",
+  "SCO-S-ACID-001",
+  "SCO-S-ACID-002",
+  "SCO-S-ACID-003",
+  "SCO-S-ACID-004",
   "SCO-S-ACID-005",
+  "SCO-S-ACID-006",
+  "SCO-S-ACID-011",
+  "SCO-S-ACID-012",
+  "SCO-S-ACID-013",
   "SCO-S-ACID-014",
   "SCO-S-ACID-015",
+  "SCO-S-ACID-016",
   "SCO-S-ACID-018",
   "SCO-S-ACID-019",
+  "SCO-S-ACID-020",
+  "SCQ-S-ACID-021",
+  "SCQ-S-ACID-022",
+  "SCQ-S-ACID-023",
+  "SCQ-S-ACID-024",
+  "SCQ-S-ACID-025",
+  "SCQ-S-ACID-026",
+  "SCQ-S-ACID-027",
+  "SCQ-S-ACID-028",
+  "SCQ-S-ACID-029",
+  "SCQ-S-ACID-030",
+  "SCQ-S-ACID-031",
+  "SCQ-S-ACID-032",
+  "SCQ-S-ACID-033",
   "SCQ-S-ACID-034",
+  "SCQ-S-ACID-035",
+  "SCQ-S-ACID-036",
+  "SCQ-S-ACID-037",
   "SCQ-S-ACID-044",
   "PYQ-S-ACID-001",
   "PYQ-S-ACID-011",

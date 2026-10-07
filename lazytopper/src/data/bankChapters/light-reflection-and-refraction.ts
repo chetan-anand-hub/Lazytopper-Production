@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "light-reflection-and-refraction" (Science): 780 served rows from 22 source arrays, 75 withheld.
+// Chapter "light-reflection-and-refraction" (Science): 757 served rows from 22 source arrays, 98 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -57,17 +57,40 @@ export default defineChapter("light-reflection-and-refraction", [
   "LT2-025",
   "LIGHT-EXMPLR-9-MCQ-004",
   "SCO-S-LIGHT-002",
+  "SCO-S-LIGHT-003",
+  "SCO-S-LIGHT-004",
+  "SCO-S-LIGHT-006",
   "SCO-S-LIGHT-008",
   "SCO-S-LIGHT-009",
   "SCO-S-LIGHT-010",
   "SCO-S-LIGHT-011",
+  "SCO-S-LIGHT-012",
+  "SCO-S-LIGHT-013",
+  "SCO-S-LIGHT-014",
+  "SCO-S-LIGHT-015",
+  "SCO-S-LIGHT-016",
   "SCO-S-LIGHT-017",
   "SCO-S-LIGHT-018",
+  "SCO-S-LIGHT-019",
   "SCO-S-LIGHT-020",
+  "SCQ-S-LIGHT-021",
   "SCQ-S-LIGHT-022",
+  "SCQ-S-LIGHT-023",
+  "SCQ-S-LIGHT-024",
+  "SCQ-S-LIGHT-025",
+  "SCQ-S-LIGHT-026",
+  "SCQ-S-LIGHT-027",
+  "SCQ-S-LIGHT-028",
+  "SCQ-S-LIGHT-029",
+  "SCQ-S-LIGHT-030",
+  "SCQ-S-LIGHT-031",
+  "SCQ-S-LIGHT-032",
+  "SCQ-S-LIGHT-033",
   "SCQ-S-LIGHT-034",
+  "SCQ-S-LIGHT-035",
   "SCQ-S-LIGHT-036",
   "SCQ-S-LIGHT-037",
+  "SCQ-S-LIGHT-038",
   "PYQ-S-LIGHT-010",
   "PYQ-S-LIGHT-011",
   "PYQ-S-LIGHT-012",

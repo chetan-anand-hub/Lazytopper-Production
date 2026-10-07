@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "magnetic-effects-of-electric-current" (Science): 271 served rows from 21 source arrays, 80 withheld.
+// Chapter "magnetic-effects-of-electric-current" (Science): 251 served rows from 21 source arrays, 100 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -110,17 +110,37 @@ export default defineChapter("magnetic-effects-of-electric-current", [
   "SQP-S-2023-MAGN-C-001",
   "SCO-S-MAG-001",
   "SCO-S-MAG-002",
+  "SCO-S-MAG-003",
   "SCO-S-MAG-004",
   "SCO-S-MAG-005",
   "SCO-S-MAG-006",
   "SCO-S-MAG-007",
   "SCO-S-MAG-009",
+  "SCO-S-MAG-011",
   "SCO-S-MAG-012",
   "SCO-S-MAG-013",
   "SCO-S-MAG-014",
   "SCO-S-MAG-016",
+  "SCO-S-MAG-017",
+  "SCO-S-MAG-018",
   "SCO-S-MAG-019",
+  "SCO-S-MAG-020",
+  "SCQ-S-MAG-021",
+  "SCQ-S-MAG-022",
+  "SCQ-S-MAG-023",
   "SCQ-S-MAG-024",
+  "SCQ-S-MAG-025",
+  "SCQ-S-MAG-026",
+  "SCQ-S-MAG-027",
+  "SCQ-S-MAG-028",
+  "SCQ-S-MAG-029",
+  "SCQ-S-MAG-030",
+  "SCQ-S-MAG-031",
+  "SCQ-S-MAG-032",
+  "SCQ-S-MAG-034",
+  "SCQ-S-MAG-035",
+  "SCQ-S-MAG-037",
+  "SCQ-S-MAG-038",
   "SCQ-S-MAG-041",
   "PYQ-S-ELEC-002",
   "PYQ-S-MAG-001",

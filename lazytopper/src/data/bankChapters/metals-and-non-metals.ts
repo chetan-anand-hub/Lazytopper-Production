@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "metals-and-non-metals" (Science): 513 served rows from 22 source arrays, 17 withheld.
+// Chapter "metals-and-non-metals" (Science): 484 served rows from 22 source arrays, 46 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -57,10 +57,39 @@ export default defineChapter("metals-and-non-metals", [
   "METAL-EXMPLR-3-SA-014",
   "METAL-EXMPLR-3-LONG-001",
   "CBE-S-MNM-B-006",
+  "SCO-S-METAL-001",
   "SCO-S-METAL-002",
   "SCO-S-METAL-003",
+  "SCO-S-METAL-004",
+  "SCO-S-METAL-005",
+  "SCO-S-METAL-007",
+  "SCO-S-METAL-008",
+  "SCO-S-METAL-009",
+  "SCO-S-METAL-010",
+  "SCO-S-METAL-011",
+  "SCO-S-METAL-012",
+  "SCO-S-METAL-013",
+  "SCO-S-METAL-014",
   "SCO-S-METAL-016",
+  "SCO-S-METAL-018",
+  "SCO-S-METAL-019",
+  "SCO-S-METAL-020",
+  "SCQ-S-METAL-021",
+  "SCQ-S-METAL-023",
+  "SCQ-S-METAL-024",
+  "SCQ-S-METAL-025",
+  "SCQ-S-METAL-026",
+  "SCQ-S-METAL-027",
+  "SCQ-S-METAL-028",
+  "SCQ-S-METAL-029",
+  "SCQ-S-METAL-030",
+  "SCQ-S-METAL-031",
+  "SCQ-S-METAL-032",
   "SCQ-S-METAL-034",
+  "SCQ-S-METAL-035",
+  "SCQ-S-METAL-036",
+  "SCQ-S-METAL-037",
+  "SCQ-S-METAL-038",
   "SCQ-S-METAL-044",
   "PYQ-S-METAL-003",
   "PYQ-S-2026-METAL-004",

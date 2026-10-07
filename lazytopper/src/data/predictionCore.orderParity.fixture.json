@@ -119,8 +119,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 531,
-   "sha256": "9f4da4519bf033fec082453540bb3923c7eea56626c89f98c140ce8348a907c0",
+   "n": 503,
+   "sha256": "e204edb13aaedf29cee00d1623902c2131990b1ad953b38ecb9187fb8fee2f64",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -128,8 +128,8 @@
    ]
   },
   "acids-bases-and-salts": {
-   "n": 557,
-   "sha256": "3eecd1cae89f9ffccee6608fbf654aa18b4dc09d8dd48ef3cf85351d3886a134",
+   "n": 531,
+   "sha256": "3e4ae10c3430c1834689cf5cfa4273a5aeb33b190ec356937c115d74ba4fd798",
    "head": [
     "BX-ABS-E-002",
     "BX-ABS-E-004",
@@ -137,8 +137,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 520,
-   "sha256": "2acff69ef2e351558ee2e075754d17a1937457a9db773be4f2a14dc7549efa9c",
+   "n": 491,
+   "sha256": "467e021ed156d21520f3a2e29fc46defeafbb64480ea55ac516d11fef5ad3ffa",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
@@ -146,8 +146,8 @@
    ]
   },
   "carbon-and-its-compounds": {
-   "n": 362,
-   "sha256": "8ad77c1474ba74ad932a1e7950d1c9a674a1f456bda76e862979ee5b3520e734",
+   "n": 335,
+   "sha256": "916740bd39db5d9c85423db07357a133d10f2417dc06458f7763faedcbd5b4e9",
    "head": [
     "LTG-S-CARB-274",
     "LTG-S-CARB-273",
@@ -155,8 +155,8 @@
    ]
   },
   "light-reflection-and-refraction": {
-   "n": 795,
-   "sha256": "77e5d0d01c73fe7da15911a58eb5cb870e8e6f456697459c481422efc75ad20b",
+   "n": 772,
+   "sha256": "b2b9cac0cbc0aeaa6f215956cdcbaf6b847e79794998c7c0fd73e8d139977e5f",
    "head": [
     "LTG-S-LIGHT-253",
     "LTG-S-LIGHT-257",
@@ -164,8 +164,8 @@
    ]
   },
   "human-eye-and-colourful-world": {
-   "n": 304,
-   "sha256": "8dac48ff3291e12052be47c810d163f4e72d71357d9a5254f7bd754bbfd5e9bb",
+   "n": 288,
+   "sha256": "65f44e5fd07b3acf3fe7b8c9e73d88da32dd1be3fab98811b3adfda7b37ed0b9",
    "head": [
     "LTG-S-EYE-104",
     "LTG-S-EYE-233",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 407,
-   "sha256": "880dbe363ad0648993eabe7aac8fa6f9e2b6126710f8d0533f884663ecc9a694",
+   "n": 378,
+   "sha256": "ee5bac15c3c0ed48ce4cd7064e9b3dbfc62939e53360cbc262fb9cd241f3615b",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -182,8 +182,8 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 276,
-   "sha256": "c36b5901ffcb729d0bb6088dd0be1c00a4f1d605e1c84226c2ac4a70b5c143e7",
+   "n": 256,
+   "sha256": "114f82484baf3eb0fdbf481a071609a1c0ced65f0ef0a5d35c5b5ed799d244df",
    "head": [
     "LTG-S-MAG-253",
     "LTG-S-MAG-254",
@@ -191,8 +191,8 @@
    ]
   },
   "life-processes": {
-   "n": 590,
-   "sha256": "f1e57d5066f3d4f3269ebd5e978b790f48f972db09db4a1d0e091ef08a849abf",
+   "n": 565,
+   "sha256": "fdcc4d38cdd6a1a05aa6dc724a7b9859c172c994852c8be2c61ec6f4d914f6c6",
    "head": [
     "LTG-S-LIFE-257",
     "LTG-S-LIFE-216",
@@ -200,8 +200,8 @@
    ]
   },
   "control-and-coordination": {
-   "n": 384,
-   "sha256": "e60f1fed036a2841bf35bdf45deb3882c1a571d8000f321d9c088b86aba08b33",
+   "n": 357,
+   "sha256": "0c55c0c3bd0289947857f8a73033c4efb037007d1af477cb4c787a7b469d3bfa",
    "head": [
     "LTG-S-CTRL-213",
     "LTG-S-CTRL-255",
@@ -209,8 +209,8 @@
    ]
   },
   "how-do-organisms-reproduce": {
-   "n": 525,
-   "sha256": "803cf2634010e0d1d8813349c5a05cdcf7600efcb8e95baf41ec29f26b16d24d",
+   "n": 494,
+   "sha256": "dc2136ac3c4d07bf5ea02d1a88694069623b01c73f5a42589943b2c9c941c7d4",
    "head": [
     "LTG-S-REPR-254",
     "LTG-S-REPR-256",
@@ -218,8 +218,8 @@
    ]
   },
   "heredity": {
-   "n": 314,
-   "sha256": "362ed586eac67e848a101d7a26b67b39545ecdd09c569e2390da885e5eb8343d",
+   "n": 292,
+   "sha256": "9cd80c30cb2b0674a07ce285a24801f3b6c13b0cbd7d04ec1935ce45efcc7520",
    "head": [
     "LTG-S-HERED-234",
     "LTG-S-HERED-225",
@@ -227,8 +227,8 @@
    ]
   },
   "our-environment": {
-   "n": 357,
-   "sha256": "3196556a44d2e2d975d1f478e14587f0917b7436d56014fe9250dd8e99d749ca",
+   "n": 340,
+   "sha256": "626b2df7d835f08faa98797d1e5473cc1e613729348bc721a02400da913d8e82",
    "head": [
     "LTG-S-ENV-235",
     "LTG-S-ENV-236",
@@ -356,7 +356,7 @@
   },
   "chemical-reactions-and-equations": {
    "n": 73,
-   "sha256": "2296fb93b33500879e992b43be2ee8667a79385727074b946ede5be188b5099a",
+   "sha256": "10ab9a8ec35dcd4f001f7ca447c138a1b312181b91d4a50389d0e237ad0567e9",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
@@ -365,7 +365,7 @@
   },
   "acids-bases-and-salts": {
    "n": 153,
-   "sha256": "1254b002774962abb47ad4dfe3fc45c495c0739f98d91b51501521d7abd7e256",
+   "sha256": "e78876ac7da3d77ffd4beac88012b69a8c1ad3ec391790f00691079970eb88ec",
    "head": [
     "Acid Rain\tPYQ-S-2026-ACID-019,PYQ-S-2026-ACID-004,LTG-S-ACID-305,BX-ABS-D-016",
     "Acid-Base Indicators (Litmus)\tBX-ABS-E-002,BX-ABS-E-004,LTG-S-ACID-217,BX-ABS-E-001,BX-ABS-E-003,BX-ABS-E-006,LTG-S-ACID-213,BX-ABS-EX-A-036,LTG-S-ACID-214,BX-ABS-E-005,LTG-S-ACID-205,LTG-S-ACID-206,PYQ-S-2026-ACID-009,PYQ-S-2024-ACID-001,LTG-S-ACID-203,ACID-EXMPLR-2-MCQ-002,ACID-EXMPLR-2-MCQ-017,LTG-S-ACID-201,LTG-S-ACID-204,SCO-S-ACID-009,BX-ABS-EX-A-014,BX-ABS-EX-A-019,LTG-S-ACID-210,ACID-EXMPLR-2-SA-003,ACID-EXMPLR-2-SA-006,BX-ABS-EX-C-011,PYQ-S-2026-ACID-015,PYQ-S-2025-ACID-005,PYQ-S-2024-ACID-004,LTG-S-ACID-211,BX-ABS-EX-A-027,LTG-S-ACID-208,LTG-S-ACID-212,LTG-S-ACID-207,BX-ABS-EX-B-006,BX-ABS-D-018,CBE-S-ACID-A-001",
@@ -374,7 +374,7 @@
   },
   "metals-and-non-metals": {
    "n": 113,
-   "sha256": "ca0dd89322cc957fce0f06e7ad13101b9d994c930679488a42ce27b1dd3b3d9a",
+   "sha256": "9aad71477b26bd118a5067ca8e023a0b3087b3cf4bab0d0c5ff5683517335e81",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
@@ -383,7 +383,7 @@
   },
   "carbon-and-its-compounds": {
    "n": 108,
-   "sha256": "31b4656577e9bbc4a869caf4a08616981b9fa3d4abda9c6c7ea72574afec6904",
+   "sha256": "f0e77d00cc02d817e33d3a69e070168471f018cdda1334f0b6cf8bc672036242",
    "head": [
     "Acid Properties\tCARB-EXMPLR-4-LONG-001",
     "Action of Soap in Hard Water\tCBE-S-CARB-C-005",
@@ -392,16 +392,16 @@
   },
   "light-reflection-and-refraction": {
    "n": 165,
-   "sha256": "cb93b3f5520321ba5e360a3512b25c37f7ab587677b3607b98afc97abd482d57",
+   "sha256": "c639d70cb60804b9da827525c3f6477958d2269faae3995bdb24f623bc297623",
    "head": [
     "Always Erect Image\tLIGHT-NCERT-9-MCQ-005",
     "Cause of Refraction\tLTG-S-LIGHT-255,LTG-S-LIGHT-244,2026-LIGHT-MCQ-02,CBE-S-LGHT-B-008,LT-M08,LT2-042,LT-H04,LT-M04,LT2-035,LT-E11,LT-M10,LT-M15,LT2-034,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-010,LT2-022,LT2-033,LT2-050,LT2-054,LT2-057,LT-E13,LT-E09",
-    "Chapter Practice — Light - Reflection and Refraction\tLTG-S-LIGHT-255,LTG-S-LIGHT-244,SCO-S-LIGHT-003,SCO-S-LIGHT-004,SCO-S-LIGHT-006,SCO-S-LIGHT-007,SCO-S-LIGHT-012,SCO-S-LIGHT-013,SCO-S-LIGHT-014,SCO-S-LIGHT-015,SCO-S-LIGHT-016,SCO-S-LIGHT-019,SCQ-S-LIGHT-028,SCQ-S-LIGHT-029,SCQ-S-LIGHT-031,sci-phy-light-3m-2026-01,SCQ-S-LIGHT-035,SCQ-S-LIGHT-038,SCQ-S-LIGHT-039,SCQ-S-LIGHT-040,SCQ-S-LIGHT-041,SCQ-S-LIGHT-042,SCQ-S-LIGHT-043,SCQ-S-LIGHT-021,SCQ-S-LIGHT-023,SCQ-S-LIGHT-024,SCQ-S-LIGHT-025,SCQ-S-LIGHT-026,SCQ-S-LIGHT-027,SCQ-S-LIGHT-030,SCQ-S-LIGHT-032,2026-LIGHT-MCQ-02,SCQ-S-LIGHT-033,GDR-L-CBJ-009,GDR-L-CBJ-025,SCQ-S-LIGHT-044,LT-M08,LT2-042,LT-H04,LT-M04,LT-M05,LT2-035,LT-H08,LT-E11,LT-M11,LT-M10,LT-M15,LT2-034,LT-E06,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-M07,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-010,LT2-022,LT2-033,LT2-050,LT2-054,LT2-057,LT-E13,LT-H10,LT-H01,LT-M01,LT-E08,LT-E14,LT-H03,LT-E09,LT-E01,LT-E02,LT-E04,LT-E10,LT-E12,LT-M03,LT-M09,LT-M14"
+    "Chapter Practice — Light - Reflection and Refraction\tLTG-S-LIGHT-255,LTG-S-LIGHT-244,SCO-S-LIGHT-007,sci-phy-light-3m-2026-01,SCQ-S-LIGHT-039,SCQ-S-LIGHT-040,SCQ-S-LIGHT-041,SCQ-S-LIGHT-042,SCQ-S-LIGHT-043,2026-LIGHT-MCQ-02,GDR-L-CBJ-009,GDR-L-CBJ-025,SCQ-S-LIGHT-044,LT-M08,LT2-042,LT-H04,LT-M04,LT-M05,LT2-035,LT-H08,LT-E11,LT-M11,LT-M10,LT-M15,LT2-034,LT-E06,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-M07,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-010,LT2-022,LT2-033,LT2-050,LT2-054,LT2-057,LT-E13,LT-H10,LT-H01,LT-M01,LT-E08,LT-E14,LT-H03,LT-E09,LT-E01,LT-E02,LT-E04,LT-E10,LT-E12,LT-M03,LT-M09,LT-M14"
    ]
   },
   "human-eye-and-colourful-world": {
    "n": 50,
-   "sha256": "3a273245be8b9e27d9e3218be6ef64daa75be0e8945aee477a7b8e6c412eba25",
+   "sha256": "868a25ea94fd395c7d189fe7ef0fdfd2cc7d9c323f13587f6bb7bc1a77d13440",
    "head": [
     "Accommodation of Eye\tPYQ-S-2024-EYE-004",
     "Accommodation of the Eye\tCFPQ-S-EYE-008,CFPQ-S-EYE-002",
@@ -410,7 +410,7 @@
   },
   "electricity": {
    "n": 148,
-   "sha256": "3348d72c0285e1b26560476ed9f579b2b44621b0503d22d68f57f2bb75053f2c",
+   "sha256": "97564958fb41c941fedb0a43d8766b29aaf71891d750e23beb47d14fbdd2232b",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
@@ -419,7 +419,7 @@
   },
   "magnetic-effects-of-electric-current": {
    "n": 55,
-   "sha256": "c82e991d9766b64e0c166891ed1f3aa2e8ddd7360cde5b13d0adb851bcf67c20",
+   "sha256": "72f173b948e5b439c9d0598a9d323e374389f16a79e2a24fdea442b84d9fe812",
    "head": [
     "AC Frequency\tLTG-S-MAG-296,LTG-S-MAG-005,LTG-S-MAG-002,LTG-S-MAG-003,LTG-S-MAG-283,LTG-S-MAG-001,LTG-S-MAG-006,LTG-S-MAG-008,LTG-S-MAG-009,LTG-S-MAG-288,LTG-S-MAG-010,LTG-S-MAG-004,LTG-S-MAG-007",
     "AC and DC\tLTG-S-MAG-292,PYQ-S-2026-ACID-018,ME2-048,ME2-017,ME2-039,ME2-041",
@@ -428,7 +428,7 @@
   },
   "life-processes": {
    "n": 131,
-   "sha256": "7363219e40dbfa703bc9f5000037a79cb39e40f09e8c6af292fc7bfa96ddc944",
+   "sha256": "33653442b81cca0bcfc6c934ebbb8eebe64ae38b513d48c3685a73276e77f0a4",
    "head": [
     "ATP\tLIFE-EXMPLR-5-SA-026",
     "Acidity in Stomach\tLIFE-EXMPLR-5-MCQ-006,LIFE-NCERT-5-VSA-005",
@@ -437,7 +437,7 @@
   },
   "control-and-coordination": {
    "n": 102,
-   "sha256": "6709be122379de63566ddefaec807c53f3cc1ad8c8587263ef026436c84fdd5b",
+   "sha256": "746bafae153d753a492562d55702eb0925864df0e280a48893960905e7041a5b",
    "head": [
     "Abscisic Acid\tCFPQ-S-CTRL-011,CFPQ-S-CTRL-006,CTRL-EXMPLR-6-MCQ-011,CTRL-EXMPLR-6-MCQ-020",
     "Adrenaline\tCFPQ-S-CTRL-010,CBE-S-CTRL-A-008,CTRL-NCERT-6-SA-009,APQ-S-CTRL-005",
@@ -446,7 +446,7 @@
   },
   "how-do-organisms-reproduce": {
    "n": 151,
-   "sha256": "8f386124abcdfccddf027803c40ac95894356176d711f54f80d9d5b6d3a41a29",
+   "sha256": "36e247c6e2820ed38d55aacaaccce2fca4a4f1067382a95f834f0e4376e6206c",
    "head": [
     "Artificial Vegetative Propagation\tLTG-S-REPR-102,LTG-S-REPR-233,LTG-S-REPR-235,LTG-S-REPR-236,LTG-S-REPR-225,CFPQ-S-REPR-008,LTG-S-REPR-222,PYQ-S-2025-REPR-002,PYQ-S-2024-REPR-001,LTG-S-REPR-107,LTG-S-REPR-221,LTG-S-REPR-224,LTG-S-REPR-239,BX-REP-EX-A-005,REPR-EXMPLR-7-MCQ-013,LTG-S-REPR-229,LTG-S-REPR-231,LTG-S-REPR-232,LTG-S-REPR-230,CFPQ-S-REPR-009,LTG-S-REPR-227,LTG-S-REPR-228,LTG-S-REPR-238,BX-REP-EX-A-004,PYQ-S-REPR-004,BX-REP-EX-B-013,BX-REP-EX-C-009,BX-REP-EX-B-001,REPR-NCERT-7-SA-006,BX-REP-D-023,BX-REP-D-002",
     "Asexual Modes\tREPR-EXMPLR-7-LA-001,REPR-EXMPLR-7-MCQ-001",
@@ -455,16 +455,16 @@
   },
   "heredity": {
    "n": 65,
-   "sha256": "3297827784e6c32253e736ab6de467315fe469c653cdd34580f82932eec02618",
+   "sha256": "8fa04ce5ce5c668dcfeb48aaf56e777be68731f639f31a66d8488acff32cabe8",
    "head": [
     "Alleles\tBX-HER-EX-A-002,CBE-S-HERD-A-002",
     "Case-Based — Monohybrid Inheritance of Earlobe Type\tSQP-S-HER-003,HERED-NCERT-8-SA-007,HERED-NCERT-8-SA-005,HERED-EXMPLR-8-MCQ-011,HERED-EXMPLR-8-LA-004",
-    "Chapter Practice — Heredity\tLTG-S-HERED-216,SCO-S-HERED-006,SCO-S-HERED-007,SCO-S-HERED-010,SCO-S-HERED-011,SCO-S-HERED-012,SCO-S-HERED-013,SCO-S-HERED-014,SCO-S-HERED-015,SCO-S-HERED-016,SCO-S-HERED-017,SCO-S-HERED-020,LTG-S-HERED-204,LTG-S-HERED-219,SCQ-S-HERED-023,SCQ-S-HERED-025,SCQ-S-HERED-026,SCQ-S-HERED-030,SCQ-S-HERED-032,sci-bio-heredity-3m-2026-01,SCQ-S-HERED-033,SCQ-S-HERED-034,SCQ-S-HERED-035,SCQ-S-HERED-036,LTG-S-HERED-208,SCQ-S-HERED-039,SCQ-S-HERED-040,SCQ-S-HERED-021,SCQ-S-HERED-022,SCQ-S-HERED-024,SCQ-S-HERED-027,SCQ-S-HERED-028,SCQ-S-HERED-031,SCQ-S-HERED-038"
+    "Chapter Practice — Heredity\tLTG-S-HERED-216,SCO-S-HERED-007,SCO-S-HERED-013,SCO-S-HERED-014,SCO-S-HERED-020,LTG-S-HERED-204,LTG-S-HERED-219,sci-bio-heredity-3m-2026-01,SCQ-S-HERED-036,LTG-S-HERED-208,SCQ-S-HERED-039,SCQ-S-HERED-040"
    ]
   },
   "our-environment": {
    "n": 71,
-   "sha256": "332afc99ef2329d85c1d9a22e90aa2e98dd80324253c6adfa0cef93fc3da9d3f",
+   "sha256": "f49a56edf6e0114be5445e765d73695731dbfe76f12adc693eeacc39fe87bd23",
    "head": [
     "Biodegradability\tOE-E01a,OE2-036,OE-M02,OE2-011,OE-M05,OE2-017,OE2-030,OE-E06,OE-E07,OE-E12,OE2-005,OE2-007,OE-D03,OE2-034,OE-B04,OE2-028,OE-B01,OE2-021",
     "Biodegradable and Non-biodegradable\tLTG-S-ENV-296,LTG-S-ENV-297,LTG-S-ENV-109,LTG-S-ENV-293,LTG-S-ENV-295,OEX-A-033,LTG-S-ENV-281,PYQ-S-2026-ENV-005,PYQ-S-2026-ENV-007,CFPQ-S-ENV-006,PYQ-S-2024-ENV-001,LTG-S-ENV-282,LTG-S-ENV-287,LTG-S-ENV-290,PYQ-S-ENV-006,PYQ-S-2024-ENV-003,OEX-A-001,OEX-A-024,LTG-S-ENV-283,LTG-S-ENV-299,LTG-S-ENV-288,LTG-S-ENV-292,OESE-024,OESE-009,OESE-017,OESE-020",

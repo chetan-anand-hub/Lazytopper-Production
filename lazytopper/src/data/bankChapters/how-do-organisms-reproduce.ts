@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "how-do-organisms-reproduce" (Science): 519 served rows from 21 source arrays, 11 withheld.
+// Chapter "how-do-organisms-reproduce" (Science): 488 served rows from 21 source arrays, 42 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -55,10 +55,41 @@ export default defineChapter("how-do-organisms-reproduce", [
   "REP-H10",
   "REP2-022",
   "REP2-046",
+  "SCO-S-REPR-001",
+  "SCO-S-REPR-002",
+  "SCO-S-REPR-003",
+  "SCO-S-REPR-004",
+  "SCO-S-REPR-005",
+  "SCO-S-REPR-006",
+  "SCO-S-REPR-007",
+  "SCO-S-REPR-008",
   "SCO-S-REPR-009",
+  "SCO-S-REPR-010",
+  "SCO-S-REPR-011",
+  "SCO-S-REPR-012",
+  "SCO-S-REPR-013",
   "SCO-S-REPR-014",
   "SCO-S-REPR-015",
+  "SCO-S-REPR-016",
+  "SCO-S-REPR-017",
   "SCO-S-REPR-018",
+  "SCO-S-REPR-020",
+  "SCQ-S-REPR-021",
+  "SCQ-S-REPR-022",
+  "SCQ-S-REPR-023",
+  "SCQ-S-REPR-024",
+  "SCQ-S-REPR-025",
+  "SCQ-S-REPR-026",
+  "SCQ-S-REPR-027",
+  "SCQ-S-REPR-028",
+  "SCQ-S-REPR-029",
+  "SCQ-S-REPR-030",
+  "SCQ-S-REPR-031",
+  "SCQ-S-REPR-032",
+  "SCQ-S-REPR-033",
+  "SCQ-S-REPR-034",
+  "SCQ-S-REPR-035",
+  "SCQ-S-REPR-037",
   "PYQ-S-2025-REPR-006",
   "PYQ-S-2025-REPR-009",
   "PYQ-S-2025-REPR-010",

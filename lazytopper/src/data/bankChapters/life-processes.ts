@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "life-processes" (Science): 577 served rows from 21 source arrays, 26 withheld.
+// Chapter "life-processes" (Science): 552 served rows from 21 source arrays, 51 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -61,8 +61,33 @@ export default defineChapter("life-processes", [
   "LPX-A-063",
   "APQ-S-LIFE-002",
   "APQ-S-LIFE-012",
+  "SCO-S-LIFE-002",
   "SCO-S-LIFE-003",
+  "SCO-S-LIFE-004",
+  "SCO-S-LIFE-005",
+  "SCO-S-LIFE-006",
+  "SCO-S-LIFE-007",
+  "SCO-S-LIFE-010",
+  "SCO-S-LIFE-013",
+  "SCO-S-LIFE-016",
+  "SCO-S-LIFE-017",
+  "SCO-S-LIFE-018",
+  "SCO-S-LIFE-019",
   "SCO-S-LIFE-020",
+  "SCQ-S-LIFE-021",
+  "SCQ-S-LIFE-022",
+  "SCQ-S-LIFE-023",
+  "SCQ-S-LIFE-024",
+  "SCQ-S-LIFE-026",
+  "SCQ-S-LIFE-027",
+  "SCQ-S-LIFE-028",
+  "SCQ-S-LIFE-029",
+  "SCQ-S-LIFE-030",
+  "SCQ-S-LIFE-031",
+  "SCQ-S-LIFE-033",
+  "SCQ-S-LIFE-034",
+  "SCQ-S-LIFE-036",
+  "SCQ-S-LIFE-038",
   "PYQ-S-LIFE-002",
   "PYQ-S-LIFE-010",
   "PYQ-S-LIFE-012",

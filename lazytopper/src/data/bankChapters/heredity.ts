@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "heredity" (Science): 310 served rows from 22 source arrays, 45 withheld.
+// Chapter "heredity" (Science): 288 served rows from 22 source arrays, 67 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -73,12 +73,34 @@ export default defineChapter("heredity", [
   "SCO-S-HERED-003",
   "SCO-S-HERED-004",
   "SCO-S-HERED-005",
+  "SCO-S-HERED-006",
   "SCO-S-HERED-008",
   "SCO-S-HERED-009",
+  "SCO-S-HERED-010",
+  "SCO-S-HERED-011",
+  "SCO-S-HERED-012",
+  "SCO-S-HERED-015",
+  "SCO-S-HERED-016",
+  "SCO-S-HERED-017",
   "SCO-S-HERED-018",
   "SCO-S-HERED-019",
+  "SCQ-S-HERED-021",
+  "SCQ-S-HERED-022",
+  "SCQ-S-HERED-023",
+  "SCQ-S-HERED-024",
+  "SCQ-S-HERED-025",
+  "SCQ-S-HERED-026",
+  "SCQ-S-HERED-027",
+  "SCQ-S-HERED-028",
   "SCQ-S-HERED-029",
+  "SCQ-S-HERED-030",
+  "SCQ-S-HERED-031",
+  "SCQ-S-HERED-032",
+  "SCQ-S-HERED-033",
+  "SCQ-S-HERED-034",
+  "SCQ-S-HERED-035",
   "SCQ-S-HERED-037",
+  "SCQ-S-HERED-038",
   "SCQ-S-HERED-041",
   "SCQ-S-HERED-042",
   "SCQ-S-HERED-043",

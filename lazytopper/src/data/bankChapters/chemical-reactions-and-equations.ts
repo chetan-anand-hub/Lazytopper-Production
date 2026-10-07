@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "chemical-reactions-and-equations" (Science): 526 served rows from 22 source arrays, 54 withheld.
+// Chapter "chemical-reactions-and-equations" (Science): 498 served rows from 22 source arrays, 82 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -77,7 +77,35 @@ export default defineChapter("chemical-reactions-and-equations", [
   "CHEM-EXMPLR-1-MCQ-014",
   "CHEM-EXMPLR-1-MCQ-018",
   "CBE-S-CHEM-C-003",
+  "SCO-S-CHEM-001",
+  "SCO-S-CHEM-002",
+  "SCO-S-CHEM-003",
+  "SCO-S-CHEM-004",
+  "SCO-S-CHEM-007",
+  "SCO-S-CHEM-008",
+  "SCO-S-CHEM-009",
+  "SCO-S-CHEM-010",
+  "SCO-S-CHEM-011",
+  "SCO-S-CHEM-012",
+  "SCO-S-CHEM-013",
+  "SCO-S-CHEM-015",
+  "SCO-S-CHEM-016",
+  "SCQ-S-CHEM-017",
+  "SCQ-S-CHEM-018",
+  "SCQ-S-CHEM-019",
+  "SCQ-S-CHEM-020",
+  "SCQ-S-CHEM-021",
+  "SCQ-S-CHEM-022",
+  "SCQ-S-CHEM-024",
+  "SCQ-S-CHEM-025",
   "SCQ-S-CHEM-026",
+  "SCQ-S-CHEM-028",
+  "SCQ-S-CHEM-029",
+  "SCQ-S-CHEM-030",
+  "SCQ-S-CHEM-031",
+  "SCQ-S-CHEM-032",
+  "SCQ-S-CHEM-033",
+  "SCQ-S-CHEM-034",
   "SCQ-S-CHEM-039",
   "PYQ-S-CHEM-002",
   "PYQ-S-CHEM-006",

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "electricity" (Science): 395 served rows from 18 source arrays, 20 withheld.
+// Chapter "electricity" (Science): 366 served rows from 18 source arrays, 49 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -49,10 +49,39 @@ export default defineChapter("electricity", [
   "EL2-004",
   "CBE-S-ELEC-A-003",
   "APQ-S-ELEC-001",
+  "SCO-S-ELEC-001",
+  "SCO-S-ELEC-002",
   "SCO-S-ELEC-003",
+  "SCO-S-ELEC-004",
+  "SCO-S-ELEC-005",
+  "SCO-S-ELEC-006",
+  "SCO-S-ELEC-007",
+  "SCO-S-ELEC-008",
+  "SCO-S-ELEC-009",
+  "SCO-S-ELEC-010",
   "SCO-S-ELEC-011",
   "SCO-S-ELEC-014",
+  "SCO-S-ELEC-015",
+  "SCO-S-ELEC-016",
+  "SCO-S-ELEC-017",
+  "SCQ-S-ELEC-018",
+  "SCQ-S-ELEC-019",
+  "SCQ-S-ELEC-020",
+  "SCQ-S-ELEC-021",
+  "SCQ-S-ELEC-022",
+  "SCQ-S-ELEC-023",
+  "SCQ-S-ELEC-024",
+  "SCQ-S-ELEC-025",
+  "SCQ-S-ELEC-026",
+  "SCQ-S-ELEC-027",
+  "SCQ-S-ELEC-028",
+  "SCQ-S-ELEC-029",
+  "SCQ-S-ELEC-030",
+  "SCQ-S-ELEC-031",
+  "SCQ-S-ELEC-032",
+  "SCQ-S-ELEC-033",
   "SCQ-S-ELEC-034",
+  "SCQ-S-ELEC-035",
   "SCQ-S-ELEC-036",
   "SCQ-S-ELEC-037",
   "SCQ-S-ELEC-038",
