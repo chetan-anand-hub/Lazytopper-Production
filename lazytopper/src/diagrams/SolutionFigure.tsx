@@ -13,6 +13,8 @@
  * empty state — no placeholder, never a lookalike.
  */
 import { useId, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { NoteFigureLightbox } from "../components/notes/NoteFigureLightbox";
 import { buildComputedFigure, getSolutionFigures } from "./registry";
 import type { ComputedFigureBinding, CropFigureBinding, FigureSlot } from "./registry/computedFigureTypes";
@@ -38,6 +40,16 @@ interface Props {
 type Built =
   | { kind: "computed"; binding: ComputedFigureBinding; spec: FigureSpec }
   | { kind: "crop"; binding: CropFigureBinding };
+
+/**
+ * The enlarge overlay is position:fixed. Inside a transformed ancestor (the Practice
+ * card's animate-float-up) a fixed box is trapped and lands off-screen, so it is
+ * portalled to <body> HERE as well — NoteFigureLightbox portals itself today, but
+ * this guarantee does not depend on another component's internals.
+ */
+function ToBody({ children }: { children: ReactNode }) {
+  return typeof document === "undefined" ? null : createPortal(children, document.body);
+}
 
 function Caption({ main, part, extra }: { main: string; part?: string; extra?: string }) {
   return (
@@ -67,7 +79,11 @@ function ComputedFigure({ binding, spec, idPrefix }: { binding: ComputedFigureBi
         </span>
       </button>
       <Caption main={SOLUTION_FIGURE_CAPTION} part={binding.part} extra={extra} />
-      {src ? <NoteFigureLightbox src={src} alt={spec.desc} label={spec.title} onClose={() => setSrc(null)} /> : null}
+      {src ? (
+        <ToBody>
+          <NoteFigureLightbox src={src} alt={spec.desc} label={spec.title} onClose={() => setSrc(null)} />
+        </ToBody>
+      ) : null}
     </figure>
   );
 }
@@ -81,7 +97,11 @@ function CropFigure({ binding }: { binding: CropFigureBinding }) {
         <img className="lt-solfig__img" src={src} alt={binding.alt} loading="lazy" decoding="async" />
       </button>
       <Caption main={SOLUTION_CROP_CAPTION} part={binding.part} extra={binding.caption} />
-      {open ? <NoteFigureLightbox src={src} alt={binding.alt} label={binding.alt} onClose={() => setOpen(false)} /> : null}
+      {open ? (
+        <ToBody>
+          <NoteFigureLightbox src={src} alt={binding.alt} label={binding.alt} onClose={() => setOpen(false)} />
+        </ToBody>
+      ) : null}
     </figure>
   );
 }

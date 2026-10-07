@@ -62,6 +62,9 @@ describe("SolutionFigure", () => {
     render(<SolutionFigure questionId={BOUND} />);
     fireEvent.click(screen.getByRole("button", { name: /Enlarge figure/ }));
     const dialog = screen.getByRole("dialog");
+    // Portalled to <body>: never inside the card, so a transformed ancestor cannot trap it.
+    expect(dialog.parentElement).toBe(document.body);
+    expect(dialog.closest("figure")).toBeNull();
     const img = dialog.querySelector("img")!;
     const src = img.getAttribute("src")!;
     expect(src.startsWith("data:image/svg+xml")).toBe(true);
