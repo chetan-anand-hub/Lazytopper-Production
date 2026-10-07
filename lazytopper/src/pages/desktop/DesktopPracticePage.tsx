@@ -43,6 +43,9 @@ import {
   type LearningSignalKind,
   type LearningSignalMode,
 } from "../../lib/desktop/learningSignals";
+import { lazyWithRetry } from "../../lib/lazyWithRetry";
+// DIAGRAMS-1 PR-2a — solution figure drawn from the question's own numbers (lazy; null when unbound).
+const SolutionFigure = lazyWithRetry(() => import("../../diagrams/SolutionFigure"));
 
 /**
  * DesktopPracticePage — Level 2 (PR-C2: locked-prototype parity).
@@ -2752,6 +2755,9 @@ export default function DesktopPracticePage() {
                                 <strong style={{ fontSize: 12.5, color: TEXT_FG }}>
                                   Solution / explanation from the real question row
                                 </strong>
+                                <React.Suspense fallback={null}>
+                                  <SolutionFigure questionId={String(activeQuestion.id)} />
+                                </React.Suspense>
                                 <ol
                                   style={{
                                     margin: 0,
