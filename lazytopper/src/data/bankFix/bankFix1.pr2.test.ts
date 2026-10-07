@@ -252,10 +252,22 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
     const pd = BANK_FIX_1_PR2_SERVED_COUNTS.reduce((s, c) => s + c.promptD[0] - c.promptD[1], 0);
     expect(pd).toBe(BANK_FIX_1_PR2.filter((e) => e.surface === "promptD" && (e.verdict === "withheld" || e.verdict === "clone-removed")).length);
   });
-  it("today's served bank count per chapter is at least the lane's 'after'", () => {
+  // Later lanes' owner-ordered withholds, by chapter: each lowers that chapter's floor by exactly one
+  // row, and is pinned below as withheld, not served and in that chapter (dated, never a bare number).
+  //   2026-10-07 CBQ-1 C3 (owner ruling CI-1 13:0xZ): LTG-M-QE-284 part (iii) maxima via equal roots, OUT.
+  const LATER_WITHHOLDS: Record<string, readonly string[]> = {
+    "quadratic-equations": ["LTG-M-QE-284"],
+  };
+  it("every later-lane withhold is withheld, not served, and in its chapter", () => {
+    const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>
+      ids.filter((id) => !WITHHELD_QUESTION_IDS.has(id) || servedIds.has(id) || String(bankById.get(id)?.topicKey) !== chapter));
+    expect(bad).toEqual([]);
+  });
+  it("today's served bank count per chapter is at least the lane's 'after' (minus later-lane withholds)", () => {
     const now = new Map<string, number>();
     for (const q of served) now.set(String(q.topicKey), (now.get(String(q.topicKey)) ?? 0) + 1);
-    const short = BANK_FIX_1_PR2_SERVED_COUNTS.filter((c) => (now.get(c.chapter) ?? 0) < c.bank[1]);
-    expect(short.map((c) => `${c.chapter}: ${now.get(c.chapter) ?? 0} < ${c.bank[1]}`)).toEqual([]);
+    const floor = (c: { chapter: string; bank: readonly number[] }) => c.bank[1] - (LATER_WITHHOLDS[c.chapter]?.length ?? 0);
+    const short = BANK_FIX_1_PR2_SERVED_COUNTS.filter((c) => (now.get(c.chapter) ?? 0) < floor(c));
+    expect(short.map((c) => `${c.chapter}: ${now.get(c.chapter) ?? 0} < ${floor(c)}`)).toEqual([]);
   });
 });
