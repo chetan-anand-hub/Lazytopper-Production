@@ -33,6 +33,7 @@ import {
   LT_GENERATED_QUESTION_IDS,
 } from "./canonicalQuestionBank";
 import type { CanonicalQuestion } from "./predictionTypes";
+import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix/bankFix1Pr2Withholds";
 import { resolveCanonicalSlug } from "./syllabus/canonicalTopicSlug";
 import { PredictionCore } from "./predictionCore";
 import { generatePracticeSet } from "./practiceSetGenerator";
@@ -54,6 +55,28 @@ const GEN: CanonicalQuestion[] = canonicalQuestionBank.filter((q) => q.origin ==
 // generated rows are WITHHELD (kept in their pack, not served). No other generated row may be withheld.
 const OWNER_WITHHELD_GENERATED: ReadonlySet<string> = new Set(["LTG-S-EYE-202", "LTG-S-EYE-207", "LTG-S-EYE-212", "LTG-S-EYE-215"]);
 const BANK_BY_ID = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
+const RAW_BY_ID = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
+// BANK-FIX-1 PR-2 (2026-10-07, controller D18): a template is the row a generated question WAS modelled on, so
+// re-pointing it would falsify provenance. A template may therefore be WITHHELD when BANK-FIX-1 PR-2 withheld it
+// for a reason that leaves its content in the syllabus (figure missing / duplicate / garbled text). A template
+// withheld as out of the syllabus (out-of-syllabus / limit / syllabus-excluded / formative-only) is still a red:
+// a question modelled on it carries that content.
+const TEMPLATE_MAY_BE_WITHHELD = new Set(["figure", "duplicate", "garbled"]);
+// BANK-FIX-1 PR-2 (2026-10-07, controller D21): a template withheld as "limit" is accepted ONLY for these reviewed rows.
+// The limit is lazytopper/src/config/syllabus2026-27.ts:699-704 — "Heights & distances: at most TWO right triangles"
+// ("Problems should not involve more than two right triangles.") and "angles of elevation/depression ONLY 30°, 45°,
+// 60°". Their templates (PB-M-1-TRIG-C-001, PB-M-2-TRIG-C-001) need three right triangles; each generated row was
+// reviewed and uses exactly two right triangles with angles 30°/45°/60° only:
+//   LTG-M-TRIG-251 drone 60 m up, depression 30° -> 60°; LTG-M-TRIG-253 10 m ladder slipping 60° -> 30°;
+//   LTG-M-TRIG-255 helicopter 300 m up, lifeboat at 45° and swimmer at 30°.
+export const LIMIT_TEMPLATE_REVIEWED: ReadonlySet<string> = new Set(["LTG-M-TRIG-251", "LTG-M-TRIG-253", "LTG-M-TRIG-255"]);
+const templateOf = (q: CanonicalQuestion): CanonicalQuestion | undefined => {
+  const id = String(q.shapedFrom);
+  if (BANK_BY_ID.has(id)) return BANK_BY_ID.get(id);
+  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id);
+  const allowed = cat !== undefined && (TEMPLATE_MAY_BE_WITHHELD.has(cat) || (cat === "limit" && LIMIT_TEMPLATE_REVIEWED.has(q.id)));
+  return allowed && WITHHELD_QUESTION_IDS.has(id) ? RAW_BY_ID.get(id) : undefined;
+};
 
 /** The five thin concepts (B-16's list), each with the subtopic label its generated rows
  *  carry and the Topic Hub concept row that links into Practice for it. */
@@ -104,8 +127,12 @@ describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped"
   it("every row: authored + origin + a real, non-generated, non-AI template + a paper/question citation", () => {
     for (const q of GEN) {
       expect(q.questionProvenance, q.id).toBe("authored");
-      const tpl = BANK_BY_ID.get(String(q.shapedFrom));
-      expect(tpl, `${q.id} shapedFrom ${q.shapedFrom} is not a served bank row`).toBeTruthy();
+      const tpl = templateOf(q);
+      expect(tpl, `${q.id} shapedFrom ${q.shapedFrom} is not a served bank row (nor a BANK-FIX-1 PR-2 figure/duplicate/garbled withhold)`).toBeTruthy();
+      // a WITHHELD template must still be a same-subject row (the next test pins subject and chapter for all)
+      if (!BANK_BY_ID.has(String(q.shapedFrom))) {
+        expect(tpl!.subject, `${q.id} withheld template ${q.shapedFrom} subject`).toBe(q.subject);
+      }
       expect(tpl?.origin, `${q.id} is modelled on another generated row`).toBeUndefined();
       expect(AI_GENERATED_QUESTION_IDS.has(String(q.shapedFrom)), `${q.id} modelled on an AI-pack row`).toBe(false);
       expect(String(q.modelledOn ?? "").trim().length, `${q.id} modelledOn`).toBeGreaterThanOrEqual(12);
@@ -118,7 +145,7 @@ describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped"
     // Effects board question (31/5/2 Q39), filed under an Acids-looking id. Owner rule: cite a
     // same-chapter row, or the nearest same-shape row of the same subject, and pin same-subject.
     for (const q of GEN) {
-      const tpl = BANK_BY_ID.get(String(q.shapedFrom))!;
+      const tpl = templateOf(q)!;
       expect(tpl.subject, `${q.id} -> ${tpl.id} subject`).toBe(q.subject);
       const tplChapter = resolveCanonicalSlug(tpl.topicKey);
       const named = String(tpl.id).toUpperCase().split(/[-_]/).map((t) => CHAPTER_ID_CODES[t]).filter(Boolean);
@@ -132,6 +159,19 @@ describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped"
         expect(isOfficialRow(tpl), `${q.id} cross-chapter template ${tpl.id} must be an official row`).toBe(true);
       }
     }
+  });
+
+  it("CONTROL — a withheld template is accepted only for a figure / duplicate / garbled withhold (BANK-FIX-1 PR-2, D18)", () => {
+    const byCat = (c: string) => [...BANK_FIX_1_PR2_WITHHOLD_CATEGORY].find(([, v]) => v === c)?.[0];
+    const fig = byCat("figure")!, lim = byCat("limit")!, oos = byCat("out-of-syllabus")!;
+    expect(templateOf({ shapedFrom: fig } as CanonicalQuestion)?.id).toBe(fig);
+    expect(templateOf({ shapedFrom: lim } as CanonicalQuestion)).toBeUndefined();
+    // a reviewed generated row may use its "limit" template; the same template for any other row is still a red
+    expect(templateOf({ id: "LTG-M-TRIG-251", shapedFrom: "PB-M-2-TRIG-C-001" } as CanonicalQuestion)?.id).toBe("PB-M-2-TRIG-C-001");
+    expect(templateOf({ id: "LTG-M-TRIG-999", shapedFrom: "PB-M-2-TRIG-C-001" } as CanonicalQuestion)).toBeUndefined();
+    expect(templateOf({ shapedFrom: oos } as CanonicalQuestion)).toBeUndefined();
+    // every categorised id IS withheld (the map and the withhold block agree)
+    expect([...BANK_FIX_1_PR2_WITHHOLD_CATEGORY.keys()].filter((id) => !WITHHELD_QUESTION_IDS.has(id))).toEqual([]);
   });
 
   it("CONTROL — the chapter-code check fires on the Acids-looking id it was written for", () => {
