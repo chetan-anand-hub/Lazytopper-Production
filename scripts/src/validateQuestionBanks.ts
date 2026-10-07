@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -9,7 +9,15 @@ const require = createRequire(import.meta.url);
 // Shared file-collection helpers
 // ---------------------------------------------------------------------------
 
-function collectTsFiles(dir: string, isRoot = false): string[] {
+/**
+ * Test files (`*.test.ts` / `*.spec.ts`, and `.tsx` variants) are never question
+ * packs. Check 2 dynamically IMPORTS every collected file, and a test file imports
+ * `vitest` — absent from the Railway backend build, so one test file placed under
+ * a question-bank root failed every deploy ("Cannot find package 'vitest'").
+ */
+export const TEST_FILE_PATTERN = /\.(test|spec)\.tsx?$/;
+
+export function collectTsFiles(dir: string, isRoot = false): string[] {
   const results: string[] = [];
   let entries;
   try {
@@ -24,7 +32,7 @@ function collectTsFiles(dir: string, isRoot = false): string[] {
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
       results.push(...collectTsFiles(fullPath, false));
-    } else if (entry.isFile() && entry.name.endsWith(".ts")) {
+    } else if (entry.isFile() && entry.name.endsWith(".ts") && !TEST_FILE_PATTERN.test(entry.name)) {
       results.push(fullPath);
     }
   }
@@ -405,4 +413,6 @@ async function main(): Promise<void> {
   }
 }
 
-main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
