@@ -34,6 +34,7 @@ const H = vi.hoisted(() => ({
   navigate: [] as string[],
   emptyList: false,
   path: null as unknown,
+  closed: 0,
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => ({
@@ -67,7 +68,7 @@ vi.mock("../context/AuthContext", () => ({
 const DEVICE_KEY = "test.device";
 vi.mock("../services/weakAreaAggregator", () => ({
   getWeakAreas: () => {
-    if (H.emptyList) return { weakAreas: [], totalWeak: 0, closedThisWeek: 0, overallMasteryPercent: 0 };
+    if (H.emptyList) return { weakAreas: [], totalWeak: 0, closedThisWeek: H.closed, overallMasteryPercent: 0 };
     const deviceA = window.localStorage.getItem("test.device") === "A";
     const area = {
       topicKey: "arithmetic-progression",
@@ -84,7 +85,7 @@ vi.mock("../services/weakAreaAggregator", () => ({
       lastPracticedAt: 0,
       weakConcepts: [],
     };
-    return { weakAreas: [area], totalWeak: 1, closedThisWeek: 0, overallMasteryPercent: 0 };
+    return { weakAreas: [area], totalWeak: 1, closedThisWeek: H.closed, overallMasteryPercent: 0 };
   },
 }));
 vi.mock("../services/spacedRepetitionEngine", () => ({
@@ -150,6 +151,7 @@ beforeEach(() => {
   H.navigate = [];
   H.emptyList = false;
   H.path = null;
+  H.closed = 0;
 });
 
 describe("Weak Area Practice — no mastery, and Accuracy/Attempts from the shared model (OWNER RULING 2026-10-06)", () => {
@@ -450,5 +452,51 @@ describe("Weak Area Practice — nothing named, counted or labelled before there
     expect(areaStatus(ev(0.75))).toBe("Critical");
     expect(areaStatus(ev(0.5))).toBe("Needs Work");
     expect(areaStatus(ev(0.1))).toBe("Review");
+  });
+});
+
+/*
+ * ME-ENGINE-1 PR-2d (controller addition) — "Closed This Week" was computed from the RETIRED mastery
+ * score (`computeTopicMastery`, a store with no writer), so it could only ever be 0: a figure that
+ * can never be real. The tile and the "N weak areas closed this week!" banner are removed. The pin
+ * feeds a NON-ZERO mastery-based closure count (2) so a resurrected tile or banner would render it.
+ * Mutation this block turns RED: C1 — put the tile back.
+ */
+describe("Weak Area Practice — no mastery-based closure figure in any state (PR-2d)", () => {
+  const settle = () => new Promise((r) => setTimeout(r, 30));
+  const CLOSURE = /closed this week/i;
+  const states: Array<[string, () => void]> = [
+    ["0 graded answers, empty list", () => { H.emptyList = true; H.attempts = []; }],
+    ["below the gate, one weak area", () => { H.attempts = [attempt(0.5 * HOUR, 1, 2), attempt(0.5 * HOUR, 0.5, 2)]; }],
+    ["above the gate, one weak area", () => { H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h, i) => attempt(h * HOUR, i % 2 ? 2 : 0, 2)); }],
+    ["above the gate, empty list", () => { H.emptyList = true; H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(h * HOUR, 2, 2)); }],
+  ];
+  for (const [name, arrange] of states) {
+    it(`★ ${name}: no 'Closed This Week' tile, no closure banner`, async () => {
+      H.closed = 2;
+      arrange();
+      device("B");
+      render(
+        <MemoryRouter>
+          <WeakAreaPracticePage />
+        </MemoryRouter>,
+      );
+      await screen.findByText("Fix My Weak Areas");
+      await settle();
+      expect(document.body.textContent).not.toMatch(CLOSURE);
+    });
+  }
+
+  it("★ CONTROL: above the gate the stat row IS on screen (so the absence above is not an absent row)", async () => {
+    H.closed = 2;
+    H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h, i) => attempt(h * HOUR, i % 2 ? 2 : 0, 2));
+    device("B");
+    render(
+      <MemoryRouter>
+        <WeakAreaPracticePage />
+      </MemoryRouter>,
+    );
+    await screen.findByText("Arithmetic Progression");
+    expect(document.body.textContent).toMatch(/1Weak Areas/);
   });
 });

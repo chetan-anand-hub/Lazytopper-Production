@@ -428,7 +428,6 @@ export default function WeakAreaPracticePage() {
   const [summary, setSummary] = useState<WeakAreaSummary | null>(null);
   const [learningPath, setLearningPath] = useState<LearningPath | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showCelebration, setShowCelebration] = useState(false);
   const { user } = useAuth();
   const uid = user?.uid ?? null;
   const [model, setModel] = useState<StudyReadModel | null>(null);
@@ -505,14 +504,6 @@ export default function WeakAreaPracticePage() {
     setTab("learning-path");
   };
 
-  useEffect(() => {
-    if (summary && summary.closedThisWeek > 0) {
-      setShowCelebration(true);
-      const timer = setTimeout(() => setShowCelebration(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [summary?.closedThisWeek]);
-
   return (
     <div className="lt-page" style={{ paddingTop: 8 }}>
       <button
@@ -537,32 +528,16 @@ export default function WeakAreaPracticePage() {
         Targeted practice to close your gaps and boost your score.
       </p>
 
-      {showCelebration && summary && summary.closedThisWeek > 0 && (
-        <div
-          style={{
-            padding: "12px 16px",
-            borderRadius: 14,
-            background: "linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(34,197,94,0.1) 100%)",
-            border: "2px solid rgba(245,158,11,0.4)",
-            marginBottom: 16,
-            textAlign: "center",
-            animation: "fadeIn 0.5s ease",
-          }}
-        >
-          <div style={{ fontSize: 32 }}>&#127881;</div>
-          <div style={{ fontWeight: 800, fontSize: 16, color: "#f59e0b" }}>
-            {summary.closedThisWeek} weak area{summary.closedThisWeek > 1 ? "s" : ""} closed this week!
-          </div>
-        </div>
-      )}
-
-      {/* ME-ENGINE-1 PR-2d — the counts show only above the gate (below it, "1 weak area" from one
+      {/* ME-ENGINE-1 PR-2d — "Closed This Week" (tile and celebration banner) is REMOVED: it was
+          computed from the retired mastery score (`computeTopicMastery`, no writer), so it could
+          only ever be 0 — a figure that can never be real (CLAUDE.md §5).
+          The counts show only above the gate (below it, "1 weak area" from one
           miss — or a "0" — would be a figure Me withholds). */}
       {summary && gateMet && (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            gridTemplateColumns: "1fr",
             gap: 10,
             marginBottom: 16,
           }}
@@ -570,10 +545,6 @@ export default function WeakAreaPracticePage() {
           <div style={{ padding: "12px 8px", borderRadius: 12, background: "rgba(239,68,68,0.08)", textAlign: "center" }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: "#ef4444" }}>{shownAreas.length}</div>
             <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Weak Areas</div>
-          </div>
-          <div style={{ padding: "12px 8px", borderRadius: 12, background: "rgba(34,197,94,0.08)", textAlign: "center" }}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#22c55e" }}>{summary.closedThisWeek}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Closed This Week</div>
           </div>
         </div>
       )}
