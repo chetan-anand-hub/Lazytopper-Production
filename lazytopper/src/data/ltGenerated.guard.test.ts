@@ -428,8 +428,12 @@ describe("GEN-THIN-1 PR-2 · CBQs of every mark", () => {
         expect(AI_GENERATED_QUESTION_IDS.has(q.id), `${q.id} is an AI-pack row`).toBe(false);
       }
     }
+    // 94 PR-2 rows exist; owner ruling 10:25Z (cap = A) withholds two of them (LTG-S-HERED-102/106), so 92 are served.
+    const rawPr2 = RAW_CANONICAL_QUESTION_BANK.filter((q) => q.origin === "lt-generated" && /-1\d\d$/.test(q.id));
+    expect(rawPr2.length).toBe(94);
     const pr2 = GEN.filter((q) => /-1\d\d$/.test(q.id));
-    expect(pr2.length).toBe(94);
+    expect(pr2.length).toBe(94 - rawPr2.filter((q) => OWNER_WITHHELD_GENERATED.has(q.id)).length);
+    expect(pr2.length).toBe(92);
     for (const q of pr2) expect(q.competencyVerified, q.id).toBe(true);
   });
 });

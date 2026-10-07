@@ -219,7 +219,7 @@
   },
   "heredity": {
    "n": 314,
-   "sha256": "362ed586eac67e848a101d7a26b67b39545ecdd09c569e2390da885e5eb8343d",
+   "sha256": "256bf42c0835ff76316933cebdec603b197308737ba2ea5128972785c814a49c",
    "head": [
     "LTG-S-HERED-234",
     "LTG-S-HERED-225",
@@ -455,7 +455,7 @@
   },
   "heredity": {
    "n": 65,
-   "sha256": "3297827784e6c32253e736ab6de467315fe469c653cdd34580f82932eec02618",
+   "sha256": "b3e7ab2d5ad4cd710c97fd1409b29ae89960d04811be395ef3279de2894770d4",
    "head": [
     "Alleles\tBX-HER-EX-A-002,CBE-S-HERD-A-002",
     "Case-Based — Monohybrid Inheritance of Earlobe Type\tSQP-S-HER-003,HERED-NCERT-8-SA-007,HERED-NCERT-8-SA-005,HERED-EXMPLR-8-MCQ-011,HERED-EXMPLR-8-LA-004",
