@@ -34,6 +34,7 @@ function loadDotEnvIfPresent() {
  *                              deliberate: the code default is ON, so a typo must not silently
  *                              turn jobs off; only an explicit off value does.
  * Operators: DELETING the variable turns jobs ON. To turn them off, set GRADING_JOBS=0 and redeploy.
+ * The live check for this switch and the operator runbook: ops/arcs/J3_GRADING_JOBS_ON_LIVE_CHECK.md.
  */
 const GRADING_JOBS_OFF_VALUES = new Set(['0', 'off', 'false']);
 const GRADING_JOBS_ON_VALUES = new Set(['1', 'on', 'true']);
