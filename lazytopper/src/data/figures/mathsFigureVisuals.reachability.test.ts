@@ -57,7 +57,9 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // papers, APQ, SQP, NCERT, Exemplar). PYQ-M-2024-CIRC-011a's binding was dropped (BANK-FIX withholds it as a
     // duplicate of 010a). They share the /figures/<source>-maths/ prefixes this batch filters on; each binding is pinned one by one in
     // mathsFigureVisuals.diagrams1.test.ts. APQ-M-CIRC-007 carries two figures (main + OR part).
-    expect(batch).toHaveLength(116); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
+    // 116 -> 120 at DIAGRAMS-1 C3 PR-D1 (2026-10-07): +4 Surface Areas and Volumes / Arithmetic Progression crops for 4
+    // served rows (APQ, board paper 2026), pinned one by one in mathsFigureVisuals.c3.test.ts.
+    expect(batch).toHaveLength(120); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {
