@@ -187,7 +187,7 @@
       "rowId": "PB-M-1-TRIG-C-001",
       "matched": "3 elevation/depression angles",
       "verdict": "review",
-      "file": "lazytopper/src/data/figures/mathsFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/maths/trigonometry.preboard.ts",
       "lane": "C1",
       "fu": "FU-GUARD3-HD-TRIANGLES",
       "fields": [
@@ -987,7 +987,7 @@
       "rowId": "CBE-M-CG-A-001",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/mathsFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/maths/coordinate-geometry.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1141,7 +1141,7 @@
       "rowId": "CBE-M-TRI-A-003",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/mathsFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/maths/triangles.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1155,7 +1155,7 @@
       "rowId": "CBE-M-TRIG-A-002",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/bankFix/bankFix1Ledger.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/maths/trigonometry.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1519,7 +1519,7 @@
       "rowId": "CBE-S-CTRL-A-002",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/control-and-coordination.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1533,7 +1533,7 @@
       "rowId": "CBE-S-CTRL-A-003",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/control-and-coordination.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1561,7 +1561,7 @@
       "rowId": "CBE-S-CTRL-A-005",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/control-and-coordination.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1589,7 +1589,7 @@
       "rowId": "CBE-S-ELEC-A-001",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/electricity.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1603,7 +1603,7 @@
       "rowId": "CBE-S-ELEC-A-002",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/electricity.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1631,7 +1631,7 @@
       "rowId": "CBE-S-ENVI-A-003",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/our-environment.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1645,7 +1645,7 @@
       "rowId": "CBE-S-ENVI-A-004",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/our-environment.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1687,7 +1687,7 @@
       "rowId": "CBE-S-HEYE-A-001",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/human-eye-and-colourful-world.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1701,7 +1701,7 @@
       "rowId": "CBE-S-LGHT-A-001",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/light-reflection-and-refraction.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1743,7 +1743,7 @@
       "rowId": "CBE-S-LGHT-A-005",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/light-reflection-and-refraction.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1799,7 +1799,7 @@
       "rowId": "CBE-S-MNM-A-003",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/metals-and-non-metals.cbe.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1855,7 +1855,7 @@
       "rowId": "CFPQ-M-POLY-005",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/mathsFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/maths/polynomials.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1869,7 +1869,7 @@
       "rowId": "CFPQ-M-POLY-015",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/mathsFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/maths/polynomials.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -1883,7 +1883,7 @@
       "rowId": "CFPQ-M-REALNUM-005",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/mathsFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/maths/real-numbers.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2023,7 +2023,7 @@
       "rowId": "CFPQ-S-CARB-014",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/carbon-and-its-compounds.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2135,7 +2135,7 @@
       "rowId": "CFPQ-S-ELEC-008",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/electricity.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2149,7 +2149,7 @@
       "rowId": "CFPQ-S-ELEC-009",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/electricity.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2163,7 +2163,7 @@
       "rowId": "CFPQ-S-ELEC-013",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/electricity.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2177,7 +2177,7 @@
       "rowId": "CFPQ-S-ENV-005",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/our-environment.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2219,7 +2219,7 @@
       "rowId": "CFPQ-S-EYE-011",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/bankFix/bankFix1Ledger.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/human-eye-and-colourful-world.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2233,7 +2233,7 @@
       "rowId": "CFPQ-S-LGHT-009",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/light-reflection-and-refraction.cfpq-sqp25.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2289,7 +2289,7 @@
       "rowId": "CFPQ-S-REPR-004",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/how-do-organisms-reproduce.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2303,7 +2303,7 @@
       "rowId": "CFPQ-S-REPR-006",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/science/how-do-organisms-reproduce.cfpq.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [
@@ -2793,7 +2793,7 @@
       "rowId": "PB-M-2-ARC-A-003",
       "matched": "1-mark VSA row with no options",
       "verdict": "hit",
-      "file": "lazytopper/src/data/figures/mathsFigureVisuals.ts",
+      "file": "lazytopper/src/data/questionBanks/class10/maths/areas-related-to-circles.preboard.ts",
       "lane": "C1",
       "fu": "FU-1MARK-MCQ",
       "fields": [

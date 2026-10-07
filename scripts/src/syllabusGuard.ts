@@ -1278,7 +1278,7 @@ export async function runRowRules(sources: LoadedServedSources) {
   let index: Map<string, string> | undefined;
   const fileOf = (id: string) => {
     if (ratchet.unlisted.length === 0) return undefined;
-    index ??= rows.indexRowFiles(REPO_ROOT, ["lazytopper/src/data"]);
+    index ??= rows.indexRowFiles(REPO_ROOT, ["lazytopper/src/data/questionBanks", "lazytopper/src/data"]);
     return index.get(id);
   };
   return { rowCount: served.length, findings, ratchet, countsByRule, fileOf };

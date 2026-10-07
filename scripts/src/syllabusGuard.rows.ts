@@ -771,7 +771,7 @@ export const FU_FOR_RULE: Record<RuleId, string> = {
 
 // ── Row id → source file (for reports and the baseline) ──────────────────────
 
-/** Index `id: "<x>"` declarations under the given directories (repo-relative paths). */
+/** Index `id: "<x>"` declarations under the given directories, the FIRST directory winning (repo-relative paths). */
 export function indexRowFiles(repoRoot: string, dirs: readonly string[]): Map<string, string> {
   const idx = new Map<string, string>();
   // `id:` or `questionId:` (pack rows whose id is derived from questionId); generated indexes skipped.
