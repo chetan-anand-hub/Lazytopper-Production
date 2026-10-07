@@ -165,12 +165,14 @@ export interface BuildResult<M> {
   model: M;
 }
 
-const VIEW = { w: 400, h: 260 };
-const MARGIN = { l: 40, r: 40, t: 28, b: 38 };
+const VIEW = { w: 320, h: 220 };
+const MARGIN = { l: 30, r: 30, t: 20, b: 30 };
 /** A segment labelled ALONG its length (a/b) shorter than this (view units) is illegible: refuse. */
+/** Room kept around the drawing for point letters and length labels (view units). */
+const CROP_PAD = { l: 50, r: 50, t: 22, b: 38 };
 export const MIN_LABELLED_SEGMENT = 14;
 /** A segment labelled BESIDE it (l/r — e.g. a 1.5 m eye height drawn to scale) must still be visible. */
-export const MIN_SIDE_LABELLED_SEGMENT = 2;
+export const MIN_SIDE_LABELLED_SEGMENT = 1.5;
 
 // ───────────────────────── scene assembly ─────────────────────────
 
@@ -254,7 +256,19 @@ function finish(
 
   const box = boundsOf(Object.values(scene.pts));
   const unit = p.scaleFree ? "none" : p.unit;
-  const t = fitUniform(box, VIEW, MARGIN, unit);
+  const fit = fitUniform(box, VIEW, MARGIN, unit);
+  // Crop the view to the drawing (plus room for labels), so a tall or narrow scene
+  // fills the card instead of floating in white space. A pure translation: the scale,
+  // and so every drawn angle and length ratio, is unchanged.
+  const raw = Object.values(scene.pts).map((w) => toView(fit, w));
+  const vb = boundsOf(raw);
+  const dx = CROP_PAD.l - vb.minX;
+  const dy = CROP_PAD.t - vb.minY;
+  const t = { ...fit, ox: fit.ox + dx, oy: fit.oy + dy };
+  const viewBox = {
+    w: Math.round(vb.maxX - vb.minX + CROP_PAD.l + CROP_PAD.r),
+    h: Math.round(vb.maxY - vb.minY + CROP_PAD.t + CROP_PAD.b),
+  };
   const points: Record<string, FigurePoint> = {};
   for (const [id, w] of Object.entries(scene.pts)) points[id] = toView(t, w);
 
@@ -284,11 +298,11 @@ function finish(
   const desc = scene.facts.join(" ");
   return {
     kind: "lt_figure_v1",
-    viewBox: { ...VIEW },
+    viewBox,
     transform: t,
     title,
     desc,
-    note: p.scaleFree ? "Angles exact; lengths not given in the question" : undefined,
+    note: p.scaleFree ? "Not to scale: the question gives no length, so only the angles are exact." : undefined,
     points,
     elements: [...scene.els, ...letters],
   };

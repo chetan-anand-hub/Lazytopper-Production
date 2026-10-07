@@ -25,7 +25,7 @@ export const FIGURE_SVG_CSS = `
 .lt-fig .lt-fig__arc { stroke: #2b8a3e; stroke-width: 1.5; fill: none; }
 .lt-fig .lt-fig__right { stroke: #1e2a4a; stroke-width: 1.1; fill: none; }
 .lt-fig .lt-fig__dot { fill: #1e2a4a; }
-.lt-fig text { font-size: 13px; fill: #1e2a4a; paint-order: stroke; stroke: #ffffff; stroke-width: 3.5px; stroke-linejoin: round; }
+.lt-fig text { font-size: 15px; fill: #1e2a4a; paint-order: stroke; stroke: #ffffff; stroke-width: 3.5px; stroke-linejoin: round; }
 .lt-fig .lt-fig__angle-label { fill: #2b8a3e; font-weight: 600; }
 .lt-fig .lt-fig__len-label { font-weight: 600; }
 .lt-fig .lt-fig__pt { font-weight: 700; font-style: italic; }

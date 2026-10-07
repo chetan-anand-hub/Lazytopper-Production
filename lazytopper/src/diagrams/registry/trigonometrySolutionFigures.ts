@@ -337,7 +337,6 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     builder: "heightsDistances",
     params: {template: "twoPointsSameSide", view: "depression", unit: "m", far: 30, near: 60, scaleFree: true},
     labels: { "q.h": "h", "q.dNear": "d"},
-    caption: "Speed and time fix the scene only up to scale: angles are exact, lengths are not drawn to a number.",
     provenance: [
       {param: "far", field: "questionText", quote: "at an angle of depression 30°"},
       {param: "near", field: "questionText", quote: "the angle of depression becomes 60°"},
@@ -670,7 +669,6 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     builder: "heightsDistances",
     params: {template: "twoPointsSameSide", view: "depression", unit: "m", far: 30, near: 60, scaleFree: true},
     labels: { "q.h": "h", far: "C₁", near: "C₂"},
-    caption: "The question gives no length: angles are exact, lengths are not drawn to a number.",
     provenance: [
       {param: "far", field: "questionText", quote: "at an angle of depression of 30°"},
       {param: "near", field: "questionText", quote: "the angle of depression of the car becomes 60°"},
@@ -808,7 +806,6 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     params: {template: "twoPointsSameSide", view: "depression", unit: "m", far: 30, near: 45, scaleFree: true},
     labels: {top: "A", foot: "B", far: "D", near: "C"},
     part: "first alternative (the car)",
-    caption: "First alternative (the car). Speed and time fix the scene only up to scale: angles are exact, lengths are not drawn to a number.",
     provenance: [
       {param: "far", field: "questionText", quote: "for the angle of depression to change from 30° to 45°"},
       {param: "near", field: "questionText", quote: "for the angle of depression to change from 30° to 45°"},
@@ -826,7 +823,6 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     params: {template: "twoPointsSameSide", view: "depression", unit: "m", far: 30, near: 60, h: "75"},
     labels: {top: "B", foot: "A", near: "P", far: "Q"},
     part: "alternative (A) (the two cars)",
-    caption: "Alternative (A): the two cars.",
     provenance: [
       {param: "h", field: "questionText", quote: "the top of the 75 m high tower"},
       {param: "far", field: "questionText", quote: "observes two cars at angles of depression of 30° and 60°"},

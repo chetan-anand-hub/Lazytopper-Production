@@ -35,6 +35,11 @@
   width: 100%;
   height: auto;
 }
+/* A tall scene (a tower seen from close by) is capped in height and centred, so it
+   never pushes the solution steps a screen down. */
+.lt-solfig__svg svg {
+  max-height: 340px;
+}
 .lt-solfig__cap {
   margin: 0;
   padding: 6px 10px 8px;
