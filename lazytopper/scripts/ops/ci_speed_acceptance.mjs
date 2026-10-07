@@ -9,7 +9,10 @@
  *   (d) the workflow wiring - shards, clock jobs, nightly full run, concurrency;
  *   (e) search-ping's deploy-inert skip (searchping_inert_skip.mjs) - skips ONLY when what www
  *       serves is an ancestor and the whole range is deploy-inert by verdictForFiles; every other
- *       case (code in range, not an ancestor, unreadable live, git error) waits.
+ *       case (code in range, not an ancestor, unreadable live, git error) waits;
+ *   (f) RAILWAY-BUILD-GATE - the `railway-build` job runs the ROOT build exactly as the Railway
+ *       image does (Node 24, frozen install WITH devDependencies, unfiltered `pnpm run build`),
+ *       and the aggregate `quality-gate` judges it.
  *
  * Run by quality-gate.yml (build-ops job).   node scripts/ops/ci_speed_acceptance.mjs
  */
@@ -22,7 +25,7 @@ import { decide, isDeployInertPath, listChangedPaths, verdictForFiles } from "./
 import { CONFIRM_READS, SETTLE_READS, SKIP_LINE, classifyLiveRead, decideInertSkip } from "./searchping_inert_skip.mjs";
 import { guard, dateSignalsIn, readList, scan } from "../testClock/dateSensitive.mjs";
 import { isRepoFrame } from "../testClock/clockRecorderFrames.mjs";
-import { evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
+import { FULL_BAR_JOBS, evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ANCHOR = path.resolve(HERE, "..", "..");
@@ -172,7 +175,7 @@ export const REAL_COMMITS = [
 {
   const ok = { result: "success" };
   const skip = { result: "skipped" };
-  const fullNeeds = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, vitest: ok, clock: ok };
+  const fullNeeds = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, clock: ok };
   const shards = [1, 2, 3, 4].map((i) => ({ shard: `${i}/4`, files: 10, tests: 100, passed: 100, failed: 0, skipped: 0, todo: 0 }));
   const green = evaluate({ needs: fullNeeds, docsOnly: "false", shards, expectedShards: 4, filesOnDisk: 40 });
   check("g1_full_bar_all_green_passes", green.ok && green.totals.files === 40 && green.totals.tests === 400, green.problems.join("; "));
@@ -184,7 +187,7 @@ export const REAL_COMMITS = [
   const droppedFile = evaluate({ needs: fullNeeds, docsOnly: "false", shards, filesOnDisk: 41 });
   const skippedTest = evaluate({ needs: fullNeeds, docsOnly: "false", shards: [...shards.slice(0, 3), { ...shards[3], skipped: 1 }], filesOnDisk: 40 });
   check("g3_shards_must_all_report_cover_every_file_and_skip_nothing", !missingShard.ok && !droppedFile.ok && !skippedTest.ok);
-  const docsNeeds = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, vitest: skip, clock: skip };
+  const docsNeeds = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, "railway-build": skip, vitest: skip, clock: skip };
   const docsGreen = evaluate({ needs: docsNeeds, docsOnly: "true" });
   const docsMojibakeRed = evaluate({ needs: { ...docsNeeds, "docs-lane": { result: "failure" } }, docsOnly: "true" });
   const fullButSkipped = evaluate({ needs: docsNeeds, docsOnly: "false", shards, filesOnDisk: 40 });
@@ -265,6 +268,64 @@ export const REAL_COMMITS = [
   check("w6_static_guard_and_this_suite_run_on_the_full_bar",
     /dateSensitive\.mjs --guard/.test(buildOps) && /ci_speed_acceptance\.mjs/.test(buildOps) &&
       /if: needs\.classify\.outputs\.docs_only != 'true'/.test(buildOps));
+}
+
+// ---- (f) RAILWAY-BUILD-GATE (owner order 2026-10-07) ------------------------------------------
+// #985 merged green and then failed every Railway backend build: the root `pnpm run build` runs
+// validateQuestionBanks, which no PR job ran. The `railway-build` job mirrors the Dockerfile.
+// Each pin is a pure function of the workflow text and runs on the REAL file AND on a MUTATED
+// copy that must fail it: a pin that cannot fail is not a pin.
+function railwayBuildPins(wfText) {
+  const blockOf = (id) => {
+    const m = wfText.match(new RegExp(`\\n  ${id}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z][\\w-]*:\\n|$)`));
+    return m ? m[1] : "";
+  };
+  const rb = blockOf("railway-build");
+  const code = rb.replace(/^\s*#.*$/gm, "");
+  const lines = code.split("\n").map((l) => l.trim());
+  const agg = blockOf("quality-gate");
+  const needs = ((agg.match(/^ {4}needs:\s*\[([^\]]*)\]/m) || [])[1] || "").split(",").map((x) => x.trim());
+  return {
+    exists_and_full_bar: rb !== "" && /^ {4}needs: classify$/m.test(rb) &&
+      /^ {4}if: needs\.classify\.outputs\.docs_only != 'true'$/m.test(rb),
+    node_24: /^ {10}node-version: '24'$/m.test(code) && (code.match(/node-version:/g) || []).length === 1 &&
+      /corepack prepare pnpm@10\.32\.1 --activate/.test(code),
+    install_frozen_with_dev_deps: lines.includes("run: pnpm install --frozen-lockfile") &&
+      !/--prod\b|--production\b|pnpm prune|NODE_ENV=production/.test(code),
+    unfiltered_root_build: lines.includes("pnpm run build") &&
+      !/--filter|pnpm -r\b|--dir\b|working-directory:/.test(code),
+    in_aggregate_needs: needs.includes("railway-build"),
+  };
+}
+{
+  const wf = read(WORKFLOW);
+  const pins = railwayBuildPins(wf);
+  const RB = /(\n  railway-build:\n[\s\S]*?)/.source;
+  const mutants = {
+    exists_and_full_bar: wf.replace(/(\n  railway-build:\n    needs: classify\n)    if: [^\n]*\n/, "$1"),
+    node_24: wf.replace(new RegExp(`${RB}node-version: '24'`), "$1node-version: '22'"),
+    install_frozen_with_dev_deps: wf.replace(new RegExp(`${RB}run: pnpm install --frozen-lockfile`), "$1run: pnpm install --prod --frozen-lockfile"),
+    unfiltered_root_build: wf.replace(new RegExp(`${RB}\\n {10}pnpm run build\\n`), "$1\n          pnpm --filter lazytopper run build\n"),
+    in_aggregate_needs: wf.replace(/(\n  quality-gate:\n    needs: \[[^\]]*?), railway-build/, "$1"),
+  };
+  for (const [k, ok] of Object.entries(pins)) {
+    const m = mutants[k];
+    const bites = m !== wf && railwayBuildPins(m)[k] === false;
+    check(`r_${k}`, ok && bites, `real=${ok}; control (a mutant that must fail it) fails it=${bites}`);
+  }
+  const ok = { result: "success" };
+  const skip = { result: "skipped" };
+  const shards = [1, 2, 3, 4].map((i) => ({ shard: `${i}/4`, files: 10, tests: 100, passed: 100, failed: 0, skipped: 0, todo: 0 }));
+  const full = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, clock: ok };
+  const docs = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, "railway-build": skip, vitest: skip, clock: skip };
+  const { "railway-build": _absent, ...missing } = full;
+  const pass = (needs, docsOnly) => evaluate({ needs, docsOnly, shards, expectedShards: 4, filesOnDisk: 40 }).ok;
+  check("r_aggregate_judges_railway_build",
+    FULL_BAR_JOBS.includes("railway-build") && pass(full, "false") &&
+      !pass({ ...full, "railway-build": { result: "failure" } }, "false") &&
+      !pass({ ...full, "railway-build": skip }, "false") && !pass(missing, "false") &&
+      pass(docs, "true") && !pass({ ...docs, "railway-build": ok }, "true"),
+    `FULL_BAR_JOBS=[${FULL_BAR_JOBS.join(", ")}]: a failed, skipped or missing railway-build must fail quality-gate on the full bar; skipped by design on the docs path`);
 }
 
 // ---- (e) search-ping deploy-inert skip ---------------------------------------------------------
