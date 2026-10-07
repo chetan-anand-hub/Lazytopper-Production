@@ -557,6 +557,7 @@ import { ENVIRONMENT_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science
 import { STATISTICS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/statistics.cbq.ltgen';
 import { PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/pair-of-linear-equations.cbq.ltgen';
 import { QUADRATIC_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/quadratic-equations.cbq.ltgen';
+import { SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/surface-areas-and-volumes.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1078,6 +1079,7 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...STATISTICS_CBQ_LT_GENERATED,
   ...PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED,
   ...QUADRATIC_EQUATIONS_CBQ_LT_GENERATED,
+  ...SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------
