@@ -168,6 +168,22 @@ export interface BuildResult<M> {
 const VIEW = { w: 320, h: 220 };
 const MARGIN = { l: 30, r: 30, t: 20, b: 30 };
 /** A segment labelled ALONG its length (a/b) shorter than this (view units) is illegible: refuse. */
+/**
+ * CURRICULUM LIMITS (owner standing rule): CBSE Class 10 heights & distances uses
+ * angles of elevation/depression of 30°, 45° and 60° ONLY, and at most TWO right
+ * triangles in one scene. A figure outside that is refused.
+ */
+export const CURRICULUM_ANGLES: readonly number[] = [30, 45, 60];
+export const MAX_RIGHT_TRIANGLES = 2;
+
+/** True when every drawn angle is 30°/45°/60° and the scene has at most two right triangles
+ *  (each angle arc in an H&D figure belongs to exactly one right triangle). */
+export function withinCurriculum(spec: Pick<FigureSpec, "elements">): boolean {
+  const arcs = spec.elements.filter((e) => e.t === "angle");
+  if (arcs.length > MAX_RIGHT_TRIANGLES) return false;
+  return arcs.every((e) => e.t === "angle" && CURRICULUM_ANGLES.some((a) => Math.abs(a - e.deg) < 1e-6));
+}
+
 /** Room kept around the drawing for point letters and length labels (view units). */
 const CROP_PAD = { l: 50, r: 50, t: 22, b: 38 };
 export const MIN_LABELLED_SEGMENT = 14;
@@ -254,6 +270,7 @@ function finish(
   scene.pts.__g1 = { x: box0.maxX + pad, y: 0 };
   scene.els.unshift({ t: "seg", a: "__g0", b: "__g1", role: "ground" });
 
+  if (!withinCurriculum({ elements: scene.els })) return null;
   const box = boundsOf(Object.values(scene.pts));
   const unit = p.scaleFree ? "none" : p.unit;
   const fit = fitUniform(box, VIEW, MARGIN, unit);

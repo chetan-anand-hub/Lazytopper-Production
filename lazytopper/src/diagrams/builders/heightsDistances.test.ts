@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 import { angleBetweenDeg, dist, evalLengthExpr, prettyExpr } from "../figureGeometry";
 import type { FigureSpec } from "../figureSpec";
 import { ALL_COMPUTED_FIGURE_BINDINGS, buildComputedFigure } from "../registry";
-import { buildHeightsDistances } from "./heightsDistances";
+import { buildHeightsDistances, withinCurriculum } from "./heightsDistances";
 import type { HdParams } from "./heightsDistances";
 
 const ANGLE_KEYS = ["theta", "far", "near", "left", "right", "lower", "upper", "top", "foot", "ground", "atLeftFoot", "atRightFoot"];
@@ -163,7 +163,7 @@ describe("heights & distances — REFUSES rather than draws a wrong figure", () 
     ["two vertical points with upper ≥ ground angle", { template: "twoVerticalPoints", unit: "m", ground: 30, upper: 45, k: "10" }],
     ["a length that is not a number", { template: "single", view: "elevation", unit: "m", theta: 30, d: "x" }],
     ["eye at or above the top", { template: "single", view: "elevation", unit: "m", theta: 30, h: "1.5", eye: "1.5" }],
-    ["illegible: a labelled gap a few view units long", { template: "twoPointsSameSide", view: "elevation", unit: "m", far: 59, near: 60, h: "100" }],
+    ["illegible: a labelled eye height under 1.5 view units", { template: "single", view: "elevation", unit: "m", theta: 45, d: "100", eye: "0.01" }],
   ];
   for (const [name, p] of refusals) {
     it(`refuses: ${name}`, () => {
@@ -190,5 +190,33 @@ describe("heights & distances — determinism and the registry", () => {
       expect(r, b.questionId).not.toBeNull();
       assertDrawsItsOwnNumbers(r!.spec, b.params);
     }
+  });
+});
+
+describe("heights & distances — CURRICULUM LIMITS (30°/45°/60° only, at most 2 right triangles)", () => {
+  const offSyllabus: Array<[string, HdParams]> = [
+    ["a given 50° elevation", { template: "single", view: "elevation", unit: "m", theta: 50, d: "10" }],
+    ["a given 15° depression", { template: "single", view: "depression", unit: "m", theta: 15, h: "10" }],
+    ["a solved angle that is not 30/45/60 (h = 10, d = 20)", { template: "single", view: "elevation", unit: "m", h: "10", d: "20" }],
+    ["two points with 20° and 60°", { template: "twoPointsSameSide", view: "elevation", unit: "m", far: 20, near: 60, gap: "10" }],
+    ["opposite sides with 75°", { template: "twoPointsOppositeSides", view: "elevation", unit: "m", left: 75, right: 30, h: "10" }],
+  ];
+  for (const [name, p] of offSyllabus) {
+    it(`refuses ${name}`, () => {
+      expect(buildHeightsDistances(p)).toBeNull();
+    });
+  }
+  it("refuses a scene with more than two right triangles (three angle arcs)", () => {
+    const r = buildHeightsDistances({ template: "twoPointsSameSide", view: "elevation", unit: "m", far: 30, near: 60, gap: "20" })!;
+    const third = { t: "angle" as const, at: "far", from: "near", to: "top", deg: 30, label: "30°" };
+    expect(withinCurriculum({ elements: [...r.spec.elements, third] })).toBe(false);
+    expect(withinCurriculum({ elements: r.spec.elements.map((e) => (e.t === "angle" ? { ...e, deg: 50 } : e)) })).toBe(false);
+  });
+  it("CONTROL: a 30°/60° two-triangle scene, and a solved 60° angle, still draw", () => {
+    const r = buildHeightsDistances({ template: "twoPointsSameSide", view: "elevation", unit: "m", far: 30, near: 60, gap: "20" });
+    expect(r).not.toBeNull();
+    expect(withinCurriculum(r!.spec)).toBe(true);
+    expect(buildHeightsDistances({ template: "single", view: "shadow", unit: "m", h: "8", d: "8/√3" })).not.toBeNull();
+    expect(buildHeightsDistances({ template: "objectOnObject", unit: "m", lower: 45, upper: 60, len: "12" })).not.toBeNull();
   });
 });
