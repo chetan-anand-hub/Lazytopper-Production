@@ -1,7 +1,7 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App, { extractPrerenderedRoute } from "./App";
+import App, { extractPrerenderedRoute, hydratableRoutePreload, type PrerenderedRoute } from "./App";
+import { DESKTOP_VIEWPORT_QUERY, mountApp } from "./lib/prerenderHydration";
 import "./styles.css";
 import { AuthProvider } from "./context/AuthContext";
 import { ProfileProvider } from "./context/ProfileContext";
@@ -25,18 +25,20 @@ import RouteAnalytics from "./analytics/RouteAnalytics";
 // whispering into a browser console. Deleting the call without that test would have
 // been deleting the check.
 
-// SEO-5 PR-2 (D3) — KEEP THE FIRST ROUTE'S PRERENDERED MARKUP. `createRoot` (no hydration —
-// unchanged) discards whatever the served HTML put in #root on its first commit. Cut the route
-// region out first, so the first route's Suspense fallback can show THAT instead of
-// "Loading..." until the route is ready (see `withRouteSuspense` in App.tsx). Null on any
-// page that was not prerendered, which then behaves exactly as before.
+// LOW-END-3 PR-2 (e) — A PRERENDERED PAGE IS HYDRATED, NOT REPLACED. On the five named page
+// families (`hydratableRoutePreload` in App.tsx) the route chunk is loaded first and React then
+// adopts the served DOM with `hydrateRoot`: no node is removed, so first paint is the page.
+// Everywhere else `createRoot` mounts exactly as before (lib/prerenderHydration.ts).
+//
+// SEO-5 PR-2 (D3) — ON THE createRoot PATH, KEEP THE FIRST ROUTE'S PRERENDERED MARKUP. `createRoot`
+// discards whatever the served HTML put in #root on its first commit. Cut the route region out
+// first, so the first route's Suspense fallback can show THAT instead of "Loading..." until the
+// route is ready (see `withRouteSuspense` in App.tsx). Null on any page that was not
+// prerendered, which then behaves exactly as before.
 const rootElement = document.getElementById("root") as HTMLElement;
-const prerenderedRoute = extractPrerenderedRoute(
-  rootElement,
-  window.location.pathname.slice(import.meta.env.BASE_URL.replace(/\/$/, '').length) || "/",
-);
+const routePath = window.location.pathname.slice(import.meta.env.BASE_URL.replace(/\/$/, '').length) || "/";
 
-ReactDOM.createRoot(rootElement).render(
+const app = (prerenderedRoute: PrerenderedRoute | null) => (
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       {/* Page views for a client-side router: one document load, then every "page" is a
@@ -56,5 +58,13 @@ ReactDOM.createRoot(rootElement).render(
         </ProfileProvider>
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
+
+void mountApp(rootElement, {
+  path: routePath,
+  isDesktopViewport: typeof window.matchMedia === "function" && window.matchMedia(DESKTOP_VIEWPORT_QUERY).matches,
+  preloadFor: hydratableRoutePreload,
+  hydrate: () => app(null),
+  create: () => app(extractPrerenderedRoute(rootElement, routePath)),
+});

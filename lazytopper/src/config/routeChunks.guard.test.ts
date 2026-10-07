@@ -48,7 +48,8 @@ describe("ROUTE_CHUNK_MODULES — the preloaded chunk is the route's own lazy pa
     for (const name of entry.modules) {
       it(`${entry.prefix}${entry.exact ? "" : "*"} -> ${name}: a lazy import of a file named ${name}`, () => {
         const lazyDecl = new RegExp(
-          `const ${name}\\s*=\\s*lazy\\(\\(\\)\\s*=>\\s*import\\("[^"]*/${name}"\\)\\)`,
+          // LOW-END-3 PR-2: a hydrated page family is declared with `lazyWithPreload` (same import).
+          `const ${name}\\s*=\\s*(?:lazy|lazyWithPreload)\\(\\(\\)\\s*=>\\s*import\\("[^"]*/${name}"\\)\\)`,
         );
         expect(APP, `App.tsx has no lazy(() => import(".../${name}"))`).toMatch(lazyDecl);
       });

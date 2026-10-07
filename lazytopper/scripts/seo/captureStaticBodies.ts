@@ -481,6 +481,34 @@ export function countResidualAuthNodes(root: Element): number {
 }
 
 /**
+ * LOW-END-3 PR-2 (e): keep React's TEXT-NODE BOUNDARIES in the serialized HTML, in place.
+ * Returns how many separators were inserted.
+ *
+ * ★ WHY. `main.tsx` now HYDRATES the named pages from this artifact. React renders
+ * `Learn the {n} concepts` as three text nodes; `innerHTML` writes them as one run of text,
+ * and the browser parses that back as ONE node. Hydration then finds "Learn the 5 concepts"
+ * where it expects "Learn the ", reports a mismatch and rebuilds the route (measured on
+ * Topic Hub and /check-your-answer). `renderToString` solves this with an empty comment
+ * between adjacent text nodes, which hydration skips; this does the same on the captured DOM.
+ * Comments render nothing and take no layout, so the page looks and reads exactly as before.
+ *
+ * ★ IT RUNS AFTER THE STRIP: removing a node can make two text nodes neighbours, and the
+ * hydration pass renders neither the stripped node nor anything in its place.
+ *
+ * ⚠ NO VARIABLE-ASSIGNED INNER FUNCTIONS IN THIS BODY (shipped via `toString()`, as above).
+ */
+export function separateAdjacentText(root: Element): number {
+  const doc = root.ownerDocument;
+  const walker = doc.createTreeWalker(root, 4 /* NodeFilter.SHOW_TEXT */);
+  const before: Node[] = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (node.nextSibling && node.nextSibling.nodeType === 3) before.push(node.nextSibling);
+  }
+  for (const node of before) node.parentNode?.insertBefore(doc.createComment(" "), node);
+  return before.length;
+}
+
+/**
  * Remove auth-dependent chrome from the live DOM, then serialize.
  *
  * Runs inside the page. Every rule is structural (an `href`, a `data-testid`) or
@@ -498,7 +526,7 @@ async function captureBody(page: Page): Promise<{ html: string; text: string; re
   // `ReferenceError: __name is not defined` on every path with the build otherwise
   // healthy. Supplying it as a parameter makes the shipped source self-contained.
   return page.evaluate(
-    ([stripSource, residualSource]) => {
+    ([stripSource, residualSource, separateSource]) => {
       const root = document.getElementById("root");
       if (!root) return { html: "", text: "", removed: 0, residualAuthNodes: 0 };
 
@@ -506,7 +534,10 @@ async function captureBody(page: Page): Promise<{ html: string; text: string; re
       const countResidual = new Function("__name", `return (${residualSource})`)(
         (fn: unknown) => fn,
       );
+      const separate = new Function("__name", `return (${separateSource})`)((fn: unknown) => fn);
       const removed = strip(root) as number;
+      // After the strip, never before it (see separateAdjacentText).
+      separate(root);
 
       return {
         html: root.innerHTML,
@@ -515,7 +546,7 @@ async function captureBody(page: Page): Promise<{ html: string; text: string; re
         residualAuthNodes: countResidual(root) as number,
       };
     },
-    [stripAuthChrome.toString(), countResidualAuthNodes.toString()] as const,
+    [stripAuthChrome.toString(), countResidualAuthNodes.toString(), separateAdjacentText.toString()] as const,
   );
 }
 

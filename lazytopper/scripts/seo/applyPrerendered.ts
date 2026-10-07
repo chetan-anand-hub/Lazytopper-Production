@@ -389,6 +389,93 @@ export function withPreloads(html: string, hrefs: readonly string[]): string {
   return html.replace("</head>", `${links}</head>`);
 }
 
+/** The id of the deferred boot script on a hydrated prerendered page (LOW-END-3 PR-2, D74). */
+export const BOOT_SCRIPT_ID = "lt-boot";
+
+/** Which viewports a page's deferred boot defers on: those where `main.tsx` hydrates it. */
+export type DeferredBoot = "narrow" | "any";
+
+/**
+ * LOW-END-3 PR-2 (D74): the files whose app start waits for the first frame — exactly the files
+ * `main.tsx` HYDRATES (`hydratableRoutePreload` in src/App.tsx; `deferredBoot.guard.test.ts`
+ * pins the two lists to each other). On these, React adopts the painted DOM and changes nothing,
+ * so starting the app after the first frame cannot move LCP to a re-render (the cause of PR-1's
+ * C LCP regression); every other file keeps today's head module script and preloads.
+ *   - "any": /check-your-answer, which hydrates at every width (no DesktopShell).
+ *   - "narrow": the MOBILE file of Notes, Topic Hub, Exam Trends and Predicted Questions. Those
+ *     hydrate below 1024 px only; a wide viewport given this file boots at once, as today.
+ */
+export function deferredBootFor(path: string, variant: "mobile" | "desktop"): DeferredBoot | null {
+  if (path === "/check-your-answer") return "any";
+  if (variant !== "mobile") return null;
+  if (/^\/(notes|topic-hub)\/[^/]+$/.test(path)) return "narrow";
+  if (path === "/exam-trends" || /^\/highly-probable\/[^/]+\/[^/]+$/.test(path)) return "narrow";
+  return null;
+}
+
+/**
+ * The deferred boot loader: a classic inline script, ES5, no dependencies. After the first frame
+ * (requestAnimationFrame, then a task) it adds the page's route `modulepreload` links and imports
+ * the entry module, once. A HIDDEN page never runs requestAnimationFrame, so it starts at once, and
+ * so does a page that becomes hidden before its first frame. PR-1's 200 ms timer is gone: on a busy
+ * phone (and on the measuring host) the first frame came later than 200 ms, so the timer started
+ * the entry BEFORE first paint, the exact thing this loader exists to prevent. A 3 s timer remains
+ * only as a safety net. A "narrow" page on a viewport >= 1024 px is not hydrated: it starts at once.
+ */
+export const BOOT_LOADER =
+  "(function(s){var d=0;function go(){if(d)return;d=1;" +
+  'var p=(s.getAttribute("data-preload")||"").split(" ");' +
+  'for(var i=0;i<p.length;i++){if(!p[i])continue;var l=document.createElement("link");' +
+  'l.rel="modulepreload";l.crossOrigin="anonymous";l.href=p[i];document.head.appendChild(l);}' +
+  'import(s.getAttribute("data-entry"));}' +
+  'if(s.getAttribute("data-boot")==="narrow"&&window.matchMedia&&window.matchMedia("(min-width: 1024px)").matches){go();return;}' +
+  'if(document.visibilityState==="hidden"||!window.requestAnimationFrame){go();return;}' +
+  'document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")go();});' +
+  "requestAnimationFrame(function(){setTimeout(go,0);});" +
+  "setTimeout(go,3000);})(document.currentScript);";
+
+/**
+ * Move the entry `<script type="module">` and the route preloads out of the markup into one
+ * inline boot script at the end of the body (BOOT_LOADER). The first paint then never waits for,
+ * or shares the main thread with, the entry: on the unthrottled run Lighthouse simulates from,
+ * the ~330 KB entry otherwise finishes and runs before Chrome's first frame, and every slow
+ * profile is charged for it (PR-1 round 1).
+ */
+export function withDeferredBoot(
+  html: string,
+  entryTag: string,
+  entrySrc: string,
+  hrefs: readonly string[],
+  boot: DeferredBoot,
+): string {
+  const tags = html.split(entryTag).length - 1;
+  if (tags !== 1) {
+    throw new Error(`applyPrerendered: expected the entry <script type="module"> exactly once to defer it, found ${tags}`);
+  }
+  const bodyCloses = html.split("</body>").length - 1;
+  if (bodyCloses !== 1) {
+    throw new Error(`applyPrerendered: expected exactly one </body> to insert the boot script, found ${bodyCloses}`);
+  }
+  const script =
+    `<script id="${BOOT_SCRIPT_ID}" data-boot="${boot}" data-entry="${entrySrc}" data-preload="${hrefs.join(" ")}">` +
+    `${BOOT_LOADER}</script>`;
+  return html.replace(entryTag, () => "").replace("</body>", () => `${script}</body>`);
+}
+
+/** The shell's entry module tag, exactly as Vite wrote it (null when absent). */
+export function entryScriptTagOf(shellHtml: string): { tag: string; src: string } | null {
+  const match = shellHtml.match(/<script\b[^>]*\btype="module"[^>]*\bsrc="([^"]*assets\/[^"/]+\.js)"[^>]*><\/script>/);
+  return match ? { tag: match[0], src: match[1] } : null;
+}
+
+/** A built page's deferred boot script, or null when it boots from a head module script. */
+export function bootScriptIn(html: string): { boot: string; entry: string; preloads: string[] } | null {
+  const match = html.match(
+    new RegExp(`<script id="${BOOT_SCRIPT_ID}" data-boot="([^"]*)" data-entry="([^"]*)" data-preload="([^"]*)">`),
+  );
+  return match ? { boot: match[1], entry: match[2], preloads: match[3].split(" ").filter(Boolean) } : null;
+}
+
 /**
  * LOW-END-3 PR-1 (d): the CSS files Vite injects when the entry dynamically imports
  * `chunkFile`, read from the entry's own `__vite__mapDeps` table:
@@ -534,6 +621,9 @@ export function verifyBuiltPages(
   let mobileFiles = 0;
   let desktopFiles = 0;
   let preloadLinks = 0;
+  // The entry every deferred boot must import: the one `__shell.html` (no body) still loads.
+  const shellFile = join(outDir, SPA_SHELL);
+  const entrySrc = existsSync(shellFile) ? (entryScriptTagOf(readFileSync(shellFile, "utf8"))?.src ?? null) : null;
   for (const path of expected) {
     const relative = path.replace(/^\//, "");
     const mobile = path === "/" ? ["index.html"] : [`${relative}.html`, join(relative, "index.html")];
@@ -549,7 +639,21 @@ export function verifyBuiltPages(
       }
       const html = readFileSync(absolute, "utf8");
       if (html.includes(EMPTY_ROOT)) failures.push(`${path}: the ${variant} file ${file} has an EMPTY body`);
-      const hrefs = modulepreloadHrefsIn(html);
+      // LOW-END-3 PR-2 (D74): a hydrated file boots after the first frame, every other file as
+      // before. Its route preloads then live in the boot script, and are checked below as links.
+      const boot = bootScriptIn(html);
+      const wantBoot = deferredBootFor(path, variant);
+      if (wantBoot !== null && entrySrc !== null) {
+        if (!boot || boot.boot !== wantBoot || boot.entry !== entrySrc || html.split(`id="${BOOT_SCRIPT_ID}"`).length !== 2) {
+          failures.push(`${path}: the ${variant} file ${file} does not boot the entry ${entrySrc} once, after the first frame ("${wantBoot}")`);
+        }
+        if (/<script\b[^>]*\btype="module"/.test(html) || modulepreloadHrefsIn(html).length > 0) {
+          failures.push(`${path}: the ${variant} file ${file} still starts JS before the first frame (module script or modulepreload in the markup)`);
+        }
+      } else if (boot) {
+        failures.push(`${path}: the ${variant} file ${file} defers its boot but is not hydrated (deferredBootFor is null)`);
+      }
+      const hrefs = [...modulepreloadHrefsIn(html), ...(boot?.preloads ?? [])];
       if (routeChunkModulesFor(path).length > 0 && hrefs.length === 0) {
         failures.push(`${path}: the ${variant} file ${file} carries no modulepreload for its route chunk`);
       }
@@ -732,8 +836,15 @@ export function applyArtifact(
       );
     }
   }
-  const finish = (path: string, html: string, hrefs: readonly string[]): string =>
-    withPreloads(withRouteStyles(html, routeStyles.get(path) ?? []), hrefs);
+  // LOW-END-3 PR-2 (D74): hydrated files start the app after the first frame.
+  const entryScript = options.preloads !== false ? entryScriptTagOf(cleanShell) : null;
+  const finish = (path: string, html: string, hrefs: readonly string[], variant: "mobile" | "desktop"): string => {
+    const styled = withRouteStyles(html, routeStyles.get(path) ?? []);
+    const boot = deferredBootFor(path, variant);
+    return boot !== null && entryScript !== null
+      ? withDeferredBoot(styled, entryScript.tag, entryScript.src, hrefs, boot)
+      : withPreloads(styled, hrefs);
+  };
 
   let filesWritten = 0;
   let desktopFilesWritten = 0;
@@ -756,7 +867,7 @@ export function applyArtifact(
             `shape, or this step ran twice.`,
         );
       }
-      writeFileSync(file, finish(path, shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), hrefs), "utf8");
+      writeFileSync(file, finish(path, shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), hrefs, "mobile"), "utf8");
       filesWritten += 1;
     }
     const desktopFile = join(outDir, desktopVariantFile(path));
@@ -764,7 +875,7 @@ export function applyArtifact(
     const desktopFragment = desktopFragments.get(path) as string;
     writeFileSync(
       desktopFile,
-      finish(path, stamped.replace(EMPTY_ROOT, `<div id="root">${desktopFragment}</div>`), hrefs),
+      finish(path, stamped.replace(EMPTY_ROOT, `<div id="root">${desktopFragment}</div>`), hrefs, "desktop"),
       "utf8",
     );
     desktopFilesWritten += 1;

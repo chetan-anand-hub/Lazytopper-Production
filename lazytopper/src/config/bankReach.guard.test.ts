@@ -229,8 +229,9 @@ describe("BANK-LEAN-1 · pages that serve no bank questions do not reach canonic
     const app = collapse(readFileSync(resolve(SRC, "App.tsx"), "utf8"));
     for (const [name, file] of Object.entries(PROTECTED)) {
       const spec = `./${file.replace(/\.tsx?$/, "")}`;
-      const expected = collapse(`const ${name} = lazy(() => import("${spec}"))`);
-      expect(app.includes(expected), `App.tsx no longer lazy-loads ${name} from ${spec}`).toBe(true);
+      // LOW-END-3 PR-2: a hydrated page family is declared with `lazyWithPreload` (same import).
+      const declared = ["lazy", "lazyWithPreload"].some((fn) => app.includes(collapse(`const ${name} = ${fn}(() => import("${spec}"))`)));
+      expect(declared, `App.tsx no longer lazy-loads ${name} from ${spec}`).toBe(true);
       expect(existsSync(resolve(SRC, file)), `${file} does not exist`).toBe(true);
     }
   });

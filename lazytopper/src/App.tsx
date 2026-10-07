@@ -8,6 +8,7 @@ import Welcome from "./pages/Welcome";
 
 import { CommandPalette } from './ui/components/CommandPalette';
 import { useState, useEffect, Suspense, createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef } from "react"; import { lazyWithRetry as lazy } from "./lib/lazyWithRetry";
+import { lazyWithPreload, useHydrated } from "./lib/prerenderHydration";
 import { useVibeMode } from './context/vibeModeContext';
 import { parseCommandIntent } from "./services/commandIntent";
 import { normalizeTopicKey } from "./utils/topicResolver";
@@ -41,7 +42,7 @@ const DesktopPracticePage = lazy(() => import("./pages/desktop/DesktopPracticePa
 // Phase-2 clean-branch pass. MockPaper is KEPT routed but is now unreachable (its
 // only entry was the deferred PredictivePapers) — flagged in the sever report.
 const MockPaper = lazy(() => import("./pages/MockPaper"));
-const HighlyProbableQuestions = lazy(() => import("./pages/HighlyProbableQuestions"));
+const HighlyProbableQuestions = lazyWithPreload(() => import("./pages/HighlyProbableQuestions"));
 // Learn-Flow rebuild PR-B: the legacy mobile Topic Hub components
 // (pages/TopicHub.tsx premium lesson flow + pages/app/TopicHub.tsx bare entry) are
 // no longer routed — DesktopTopicHubPage (the responsive concept-spine) renders at
@@ -62,7 +63,7 @@ const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 import { captureIncomingReferral } from "./services/referralService";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
-const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
+const CheckYourAnswerPage = lazyWithPreload(() => import("./pages/CheckYourAnswerPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
 const DiagramQualityPage = lazy(() => import("./pages/DiagramQualityPage"));
@@ -86,9 +87,9 @@ const MobileHome        = lazy(() => import("./pages/app/MobileHome"));
 // Replaces BOTH retired twins (the old desktop card grid + the old mobile tier
 // list). It mounts inside DesktopShell at desktop width (isDesktopShellRoute)
 // and reflows fluidly to mobile — no breakpoint file swap for this route.
-const ExamTrendsRanked = lazy(() => import("./pages/ExamTrendsRanked"));
-const DesktopTopicHubPage = lazy(() => import("./pages/desktop/DesktopTopicHubPage"));
-const DesktopNotesPage = lazy(() => import("./pages/desktop/DesktopNotesPage"));
+const ExamTrendsRanked = lazyWithPreload(() => import("./pages/ExamTrendsRanked"));
+const DesktopTopicHubPage = lazyWithPreload(() => import("./pages/desktop/DesktopTopicHubPage"));
+const DesktopNotesPage = lazyWithPreload(() => import("./pages/desktop/DesktopNotesPage"));
 const DesktopCheckImprovePage = lazy(() => import("./pages/desktop/DesktopCheckImprovePage"));
 // QR answer handoff — the phone half. Public + bare full-screen ("/u" is in
 // BARE_FULLSCREEN_PREFIXES): the student scans a QR shown on their laptop, sends
@@ -184,6 +185,42 @@ export function extractPrerenderedRoute(container: Element | null, path: string)
   }
   const html = holder.innerHTML;
   return html.trim() === "" ? null : { path, html };
+}
+
+/**
+ * LOW-END-3 PR-2 (e): the route chunk to load before `main.tsx` HYDRATES a prerendered page,
+ * or null when the page must keep `createRoot` (see `lib/prerenderHydration.ts`).
+ *
+ * Only the five named page families. At >= 1024 px, Notes, Topic Hub, Exam Trends and
+ * Predicted Questions render inside DesktopShell, whose Mistake Intel card and greeting the
+ * capture strips, so hydration there would mismatch: they keep `createRoot` until that chrome
+ * is hydration-safe (FU-LE3-DESKTOP-SHELL-HYDRATION). /check-your-answer has no shell.
+ */
+export function hydratableRoutePreload(path: string, isDesktopViewport: boolean): (() => Promise<void>) | null {
+  const route = path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+  if (route === "/check-your-answer") return CheckYourAnswerPage.preload;
+  if (isDesktopViewport) return null;
+  const notes = /^\/notes\/([^/]+)$/.exec(route);
+  if (notes) {
+    // The page renders the chapter only once its spec chunk has landed (useNoteSpec reads a
+    // cache), so the spec is part of what the first render needs. The registry is imported
+    // here, not at the top: it lives in the Notes chunk and must stay out of the entry.
+    let slug: string;
+    try {
+      slug = decodeURIComponent(notes[1]);
+    } catch {
+      return null;
+    }
+    return () =>
+      Promise.all([
+        DesktopNotesPage.preload(),
+        import("./components/notes/noteSpecRegistry").then((registry) => registry.ensureNoteSpec(slug)),
+      ]).then(() => undefined);
+  }
+  if (/^\/topic-hub\/[^/]+$/.test(route)) return DesktopTopicHubPage.preload;
+  if (route === "/exam-trends") return ExamTrendsRanked.preload;
+  if (/^\/highly-probable\/[^/]+\/[^/]+$/.test(route)) return HighlyProbableQuestions.preload;
+  return null;
 }
 
 interface PrerenderedRouteState {
@@ -688,6 +725,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
   const { user } = useAuth();
   const { isTrialActive, isTrialExpired, daysLeftInTrial, isPremium } = useSubscription();
   const isDesktop = useIsDesktop();
+  const hydrated = useHydrated();
 
   useEffect(() => {
     captureIncomingReferral();
@@ -931,7 +969,9 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
             >
               {(user.displayName || user.email || "S").charAt(0).toUpperCase()}
             </button>
-          ) : !location.pathname.startsWith("/login") ? (
+          ) : !location.pathname.startsWith("/login") && hydrated ? (
+            // LOW-END-3 PR-2: the capture strips this signed-out button, so it sits out the
+            // hydration pass (useHydrated) and appears right after it.
             <button
               type="button"
               onClick={() => navigate("/login")}

@@ -22,6 +22,7 @@ import {
   inlinableCss,
   inlinedStylesIn,
   modulepreloadHrefsIn,
+  bootScriptIn,
   routeCssFor,
   INLINE_ROUTE_CSS_MODULES,
   verifyBuiltPages,
@@ -123,7 +124,7 @@ const read = (out: string, file: string): string =>
   readFileSync(join(out, file), "utf8");
 
 describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page", () => {
-  it("inlines the CYA route CSS in the head of every variant; the entry link and head preloads stay", () => {
+  it("inlines the CYA route CSS in the head of every variant; the entry link stays, the route preload is deferred (PR-2)", () => {
     const { out, art, cleanup } = build();
     try {
       applyArtifact(out, art, PATHS);
@@ -146,12 +147,12 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
         expect(html.indexOf(ROUTE_CSS), file).toBeLessThan(
           html.indexOf("</head>"),
         );
-        // Unchanged: the entry link and the route modulepreload in the head.
+        // Unchanged: the entry stylesheet link. LOW-END-3 PR-2 (D74): /check-your-answer is
+        // hydrated at every width, so its route preload moved from the head into the deferred
+        // boot script, which starts it after the first frame.
         expect(html, file).toContain(ENTRY_LINK);
-        expect(
-          modulepreloadHrefsIn(html.slice(0, html.indexOf("</head>"))),
-          file,
-        ).toEqual(["/assets/CheckYourAnswerPage-CCCCCCCC.js"]);
+        expect(modulepreloadHrefsIn(html), file).toEqual([]);
+        expect(bootScriptIn(html)?.preloads, file).toEqual(["/assets/CheckYourAnswerPage-CCCCCCCC.js"]);
       }
       // ★ CONTROL (D63a): the Notes route DOES import a lazy CSS (KaTeX), and it is NOT inlined:
       // only the allowlisted CheckYourAnswerPage route's own CSS is. The Notes page is

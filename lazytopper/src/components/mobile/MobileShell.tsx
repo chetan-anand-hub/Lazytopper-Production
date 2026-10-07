@@ -1,5 +1,5 @@
-import { type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, type ReactNode } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MobileAccountMenu } from "./MobileAccountMenu";
 
 interface MobileShellProps {
@@ -44,6 +44,17 @@ export function MobileShell({
   children,
 }: MobileShellProps) {
   const navigate = useNavigate();
+  // LOW-END-3 PR-2 (e): NO ENTRANCE ANIMATION ON THE PAGE LOAD'S OWN ROUTE. The fade-in is for
+  // in-app navigation. On a page load the content is already painted (prerendered HTML), and
+  // starting it at opacity 0 kept it out of LCP until a later repaint (measured on Notes and
+  // Predicted Questions: LCP 0.3-0.5 s after first paint, while the content was on screen).
+  // React Router gives the page load's own location the key "default", so this is pure and is
+  // the same in the prerender capture, in hydration and in a client render. It is decided once,
+  // at mount: a shell kept across an in-app navigation does not start fading in afterwards. The
+  // class stays (tests and the fixed-position notes rely on it); the settled transform is kept,
+  // so the containing block for position: fixed descendants is unchanged.
+  const locationKey = useLocation().key;
+  const [entrance] = useState(locationKey !== "default");
 
   const handleBack = () => {
     if (onBack) {
@@ -162,6 +173,7 @@ export function MobileShell({
         style={{
           padding: `20px 20px ${showNav ? "calc(var(--mob-nav-height) + 28px)" : "env(safe-area-inset-bottom, 28px)"}`,
           minHeight: hasHeader ? "calc(100dvh - 52px)" : "100dvh",
+          ...(entrance ? {} : { animation: "none", transform: "translateY(0)" }),
         }}
       >
         {children}

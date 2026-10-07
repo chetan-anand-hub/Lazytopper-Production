@@ -15,6 +15,7 @@ import {
   desktopVariantFile,
   fragmentPathFor,
   modulepreloadHrefsIn,
+  bootScriptIn,
   resolveRouteChunk,
   staticImportsOf,
   validateArtifact,
@@ -409,11 +410,16 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
       expect(modulepreloadHrefsIn(readFileSync(join(out, "pricing.html"), "utf8"))).toEqual(expectedPricing);
       expect(modulepreloadHrefsIn(readFileSync(join(out, "pricing", "index.html"), "utf8"))).toEqual(expectedPricing);
       expect(modulepreloadHrefsIn(readFileSync(join(out, "__desktop", "pricing.html"), "utf8"))).toEqual(expectedPricing);
-      expect(modulepreloadHrefsIn(readFileSync(join(out, "notes", "electricity.html"), "utf8"))).toEqual([
+      const notesPreloads = [
         "/assets/DesktopNotesPage-FFFFFFFF.js",
         "/assets/Card-DDDDDDDD.js",
         "/assets/tokens-GGGGGGGG.js",
-      ]);
+      ];
+      // LOW-END-3 PR-2 (D74): the MOBILE Notes file is hydrated, so the same preloads start from
+      // the deferred boot script after the first frame; the desktop file keeps them in the head.
+      expect(modulepreloadHrefsIn(readFileSync(join(out, "notes", "electricity.html"), "utf8"))).toEqual([]);
+      expect(bootScriptIn(readFileSync(join(out, "notes", "electricity.html"), "utf8"))?.preloads).toEqual(notesPreloads);
+      expect(modulepreloadHrefsIn(readFileSync(join(out, "__desktop", "notes", "electricity.html"), "utf8"))).toEqual(notesPreloads);
       // The root's page is in the entry chunk already: nothing to preload.
       expect(modulepreloadHrefsIn(readFileSync(join(out, "index.html"), "utf8"))).toEqual([]);
       // crossorigin, so the browser reuses the preload for the module request.
@@ -461,9 +467,50 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
     const { out, art, cleanup } = build();
     try {
       applyArtifact(out, art, PATHS);
-      const file = join(out, "notes", "electricity.html");
+      const file = join(out, "__desktop", "notes", "electricity.html");
       writeFileSync(file, readFileSync(file, "utf8").replace(/<link rel="modulepreload"[^>]*>/g, ""), "utf8");
       expect(verifyBuiltPages(out, PATHS).failures.join(" ")).toContain("carries no modulepreload for its route chunk");
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("LOW-END-3 PR-2 (D74): the hydrated mobile Notes file boots the entry once, after the first frame", () => {
+    const { out, art, cleanup } = build();
+    try {
+      applyArtifact(out, art, PATHS);
+      const html = readFileSync(join(out, "notes", "electricity.html"), "utf8");
+      expect(bootScriptIn(html)).toEqual({
+        boot: "narrow",
+        entry: "/assets/index-AAAAAAAA.js",
+        preloads: ["/assets/DesktopNotesPage-FFFFFFFF.js", "/assets/Card-DDDDDDDD.js", "/assets/tokens-GGGGGGGG.js"],
+      });
+      expect(html).not.toMatch(/<script\b[^>]*\btype="module"/);
+      // Not hydrated: the desktop Notes file, /pricing and the root keep the head module script.
+      for (const file of [join("__desktop", "notes", "electricity.html"), "pricing.html", "index.html"]) {
+        const other = readFileSync(join(out, file), "utf8");
+        expect(bootScriptIn(other), file).toBeNull();
+        expect(other, file).toContain('<script type="module" crossorigin src="/assets/index-AAAAAAAA.js"></script>');
+      }
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("pin (D74) RED: a hydrated file that starts the entry before the first frame", () => {
+    const { out, art, cleanup } = build();
+    try {
+      applyArtifact(out, art, PATHS);
+      const file = join(out, "notes", "electricity.html");
+      const html = readFileSync(file, "utf8").replace(/<script id="lt-boot"[\s\S]*?<\/script>/, "");
+      writeFileSync(
+        file,
+        html.replace("</head>", '<script type="module" crossorigin src="/assets/index-AAAAAAAA.js"></script></head>'),
+        "utf8",
+      );
+      const failures = verifyBuiltPages(out, PATHS).failures.join(" ");
+      expect(failures).toContain("does not boot the entry /assets/index-AAAAAAAA.js once, after the first frame");
+      expect(failures).toContain("still starts JS before the first frame");
     } finally {
       cleanup();
     }
