@@ -175,7 +175,7 @@ export const promptDPracticePacks: PracticePacksIndex =
         },
         {
           "id": "S-CHEM-9",
-          "text": "A substance X (calcium oxide), used in the preparation of whitewash, reacts vigorously with water. Name X and write its formula; write the reaction of X with water.",
+          "text": "A substance X, used in whitewashing, reacts vigorously with water. Name X and write its formula; write the reaction of X with water.",
           "marks": 3,
           "difficulty": "Hard",
           "questionType": "subjective",

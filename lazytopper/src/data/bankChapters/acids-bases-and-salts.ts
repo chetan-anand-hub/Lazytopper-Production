@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "acids-bases-and-salts" (Science): 540 served rows from 22 source arrays, 18 withheld.
+// Chapter "acids-bases-and-salts" (Science): 539 served rows from 21 source arrays, 18 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -24,7 +24,6 @@ import { CARBON_COMPOUNDS_PYQ } from "../questionBanks/class10/science/carbon-an
 import { acidsBasesSaltsPYQ2026 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2026";
 import { acidsBasesSaltsPYQ2025 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2025";
 import { acidsBasesSaltsPYQ2024 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2024";
-import { lifeProcessesPYQ2024 } from "../questionBanks/class10/science/lifeProcesses.pyq2024";
 import { ABS_CFPQ } from "../questionBanks/class10/science/acids-bases-and-salts.cfpq";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 import { ACIDS_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/acids-bases-and-salts.b1.cbq.ltgen";
@@ -48,7 +47,6 @@ export default defineChapter("acids-bases-and-salts", [
   [360, acidsBasesSaltsPYQ2026, false],
   [373, acidsBasesSaltsPYQ2025, false],
   [386, acidsBasesSaltsPYQ2024, false],
-  [389, lifeProcessesPYQ2024, false],
   [398, ABS_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [434, ACIDS_CBQ_B1_LT_GENERATED, false],

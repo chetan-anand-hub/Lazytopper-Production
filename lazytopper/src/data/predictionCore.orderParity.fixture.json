@@ -47,8 +47,8 @@
    ]
   },
   "triangles": {
-   "n": 411,
-   "sha256": "d2d082f9856ee7bd1b9f842ca12c518b81c70de4608feb2c639f583b6e7f615b",
+   "n": 412,
+   "sha256": "afdeb894250429380c342d3c9d820a91576bd40e893c560574da499bb5a17e56",
    "head": [
     "BX-TRI-E-028",
     "BX-TRI-E-036",
@@ -56,8 +56,8 @@
    ]
   },
   "coordinate-geometry": {
-   "n": 266,
-   "sha256": "55b64366a0be539f5698cee22a5d4f4880ee4b9c301ce810b7dc55a6ee5422c7",
+   "n": 265,
+   "sha256": "6d38e4d28c9505ca382a9056d819568652e74c430ee777f5bff2367d0acf4b6d",
    "head": [
     "BX-COORD-E-014",
     "BX-COORD-E-016",
@@ -128,8 +128,8 @@
    ]
   },
   "acids-bases-and-salts": {
-   "n": 548,
-   "sha256": "0c4d41616f06e05c8b1576e4a5aff96d6969fa58134232969e594571d1e363b6",
+   "n": 547,
+   "sha256": "671d54ea330700afc6e665b7f83a3a583fe2926e3c8ffdf73c8941330c1fd8e7",
    "head": [
     "BX-ABS-E-002",
     "BX-ABS-E-004",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 407,
-   "sha256": "780163cf23322cd8b7724e4dbd42ec2fab442816c702f5d4ac3a383079f095e1",
+   "n": 408,
+   "sha256": "9c603261b314b5e71f55ddf85b5b5685afd1f4d717691d6c3bdbeecb563dc9e4",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -182,8 +182,8 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 277,
-   "sha256": "92d75088bbab7937c3580c399c1f3b0e09db7e170f42ff04b5f959418b1f8722",
+   "n": 276,
+   "sha256": "def1ee6e21389f6da2385a4a49a9570741911d1db8e5607e31d528215955c7e0",
    "head": [
     "LTG-S-MAG-253",
     "LTG-S-MAG-254",
@@ -191,8 +191,8 @@
    ]
   },
   "life-processes": {
-   "n": 590,
-   "sha256": "ab14c0db3fb77f34fae40a68abcd535e1dadf382b35e05ff80ee1b4200e2a29d",
+   "n": 591,
+   "sha256": "612b5419f1fd93aa0a3618a59c5bef5cdca06548cf35c50187fe7a2b79bd7f7f",
    "head": [
     "LTG-S-LIFE-257",
     "LTG-S-LIFE-216",
@@ -284,7 +284,7 @@
   },
   "triangles": {
    "n": 38,
-   "sha256": "b21153055db0ac376e87c2c4fbd8825c3af972684e865faa9450b7d5f884615a",
+   "sha256": "ec41f1fccd4530ba7b9739703312f9764c4877ca09049b6af453241ab3c391d5",
    "head": [
     "BPT & Similar Triangles\tCBE-M-TRI-A-002,CBE-M-TRI-C-003,CBE-M-TRI-C-007,CBE-M-TRI-C-004,CBE-M-TRI-C-005,2026-TRIANGLE-LA-03",
     "BPT (Basic Proportionality Theorem)\tBX-TRI-E-028,BX-TRI-E-036,LTG-M-TRI-276,LTG-M-TRI-283,BX-TRI-E-012,BX-TRI-E-013,LTG-M-TRI-296,LTG-M-TRI-282,AR-TRI-007,AR-TRI-001,BX-TRI-EX-A-010,PYQ-M-2024-TRI-002,LTG-M-TRI-208,LTG-M-TRI-220,CBE-M-TRI-A-001,LTG-M-TRI-201,TRI-N-NCERT-6-LA-002,TRI-N-EXMPLR-6-LA-004,BX-TRI-D-042,LTG-M-TRI-306,TRI-PRF-D-001,TRI-PRF-D-005,BX-TRI-D-001,BX-TRI-D-002,BX-TRI-D-023,BX-TRI-PF-003,CBE-M-TRI-C-001,LTG-M-TRI-241,LTG-M-TRI-255,TRI-N-EXMPLR-6-SA-009,TRI-PRF-C-001,BX-TRI-EX-B-001,BX-TRI-EX-B-003,BX-TRI-PF-012,CBE-M-TRI-B-003,LTG-M-TRI-252,LTG-M-TRI-260,BX-TRI-EX-A-008,TRI-N-NCERT-6-SA-001,LTG-M-TRI-240,CBE-M-TRI-B-001,CBE-M-TRI-A-003,2026-TRI-SA-07,TR3-054,TR3-021,TR3-050,TR3-008,TR3-009,TR3-039,TR3-040,TR3-057,TR3-007,TR3-006,TR3-038",
@@ -293,7 +293,7 @@
   },
   "coordinate-geometry": {
    "n": 54,
-   "sha256": "a3b58708fe0445d797c8710e3e5e99c53f617461f2d932b27fda32f53f72ef9f",
+   "sha256": "6d48c4130090d49efec90ca2a76bdfd7f2badc1f865d8117fdfca8f74cc38c9e",
    "head": [
     "Case-Based — Football Field Coordinates\tSQP-M-CG-003",
     "Coordinate Geometry\t2026-CG-SA-01",
@@ -364,8 +364,8 @@
    ]
   },
   "acids-bases-and-salts": {
-   "n": 152,
-   "sha256": "66fd45eca48b98ea6d68f80d827ddc44ca36657c9e24f95abc5a2994a56a3eb2",
+   "n": 151,
+   "sha256": "dc64c0d1959fa18615e686b9f7ed745df10cac61e7c898c57f08910251b459ca",
    "head": [
     "Acid Rain\tPYQ-S-2026-ACID-019,PYQ-S-2026-ACID-004,BX-ABS-D-016",
     "Acid-Base Indicators (Litmus)\tBX-ABS-E-002,BX-ABS-E-004,LTG-S-ACID-217,BX-ABS-E-001,BX-ABS-E-003,BX-ABS-E-006,LTG-S-ACID-213,BX-ABS-EX-A-036,LTG-S-ACID-214,BX-ABS-E-005,LTG-S-ACID-205,LTG-S-ACID-206,PYQ-S-2026-ACID-009,PYQ-S-2024-ACID-001,LTG-S-ACID-203,ACID-EXMPLR-2-MCQ-002,ACID-EXMPLR-2-MCQ-017,LTG-S-ACID-201,LTG-S-ACID-204,SCO-S-ACID-009,BX-ABS-EX-A-014,BX-ABS-EX-A-019,LTG-S-ACID-210,ACID-EXMPLR-2-SA-003,ACID-EXMPLR-2-SA-006,BX-ABS-EX-C-011,PYQ-S-2026-ACID-015,PYQ-S-2025-ACID-005,PYQ-S-2024-ACID-004,LTG-S-ACID-211,BX-ABS-EX-A-027,LTG-S-ACID-208,LTG-S-ACID-212,LTG-S-ACID-207,BX-ABS-EX-B-006,BX-ABS-D-018,CBE-S-ACID-A-001",
@@ -410,7 +410,7 @@
   },
   "electricity": {
    "n": 148,
-   "sha256": "244c8aab28fb828b44722cac5c4e48d4c54b88e7722bced4f5fb1bf9ecb3f4fb",
+   "sha256": "7c9fb9d283b5f28f0a7c1c5eac8b6ccd867d860ad24f45a1b6294b8f8db6296f",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
@@ -418,8 +418,8 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 56,
-   "sha256": "21dc1bd8a52e2941819b5749bf2cce8df0bfc38150981bed4577ade9215413fa",
+   "n": 55,
+   "sha256": "6d5903d58665ae8da1bf7e89eb251d1775cc2ab9e8a442913eae25e596e93c70",
    "head": [
     "AC Frequency\tLTG-S-MAG-296,LTG-S-MAG-005,LTG-S-MAG-002,LTG-S-MAG-003,LTG-S-MAG-283,LTG-S-MAG-001,LTG-S-MAG-006,LTG-S-MAG-008,LTG-S-MAG-009,LTG-S-MAG-288,LTG-S-MAG-010,LTG-S-MAG-004,LTG-S-MAG-007",
     "AC and DC\tLTG-S-MAG-292,PYQ-S-2026-ACID-018,ME2-048,ME2-017,ME2-039,ME2-041",
@@ -428,7 +428,7 @@
   },
   "life-processes": {
    "n": 131,
-   "sha256": "3d0f788a88a638f272bd776da8d515598f395340c3b32844486a490f819d1194",
+   "sha256": "0cfe1e7952ed3003e1c8e7e1692910f69af38f24c9d8d970e0e9835a0b3fd4fb",
    "head": [
     "ATP\tLIFE-EXMPLR-5-SA-026",
     "Acidity in Stomach\tLIFE-EXMPLR-5-MCQ-006,LIFE-NCERT-5-VSA-005",

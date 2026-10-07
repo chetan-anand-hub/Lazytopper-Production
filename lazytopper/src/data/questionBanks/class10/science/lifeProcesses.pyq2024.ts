@@ -18,7 +18,7 @@ export const lifeProcessesPYQ2024: CanonicalQuestion[] = [
     ncertRef: "PYQ 31/4/1 Q6", isCompetencyBased: true,
     sourceOverride: "others",
   },
-  { id: "PYQ-S-2024-LIFEP-002", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "pH in Everyday Life — Antacids", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2024-LIFEP-002", subject: "Science", topicKey: "life-processes", subtopic: "Digestion", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The acid produced in our stomach during digestion and the base used to neutralise the excess acid during indigestion respectively are :",
     options: ["HCl, Mg(OH)2", "HCl, Ca(OH)2", "Amino acids, Ca(OH)2", "Lactic acid, Mg(OH)2"],
     answer: "HCl, Mg(OH)2",
