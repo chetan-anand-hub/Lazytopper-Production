@@ -1148,8 +1148,12 @@ export default function MeProgressPage() {
             ) : null}
           </section>
 
-          {/* ---- easy marks ---- */}
-          {careless.hasData && careless.marksLost > 0 ? (
+          {/* ---- easy marks ----
+              ME-ENGINE-1 PR-2d [ME-EASYMARKS-BELOW-GATE]: a per-group figure (the Careless marks and
+              slip counts) is printed only above Me's ONE gate for this paper (`rungNamesWeakness`,
+              imported, never copied) — the same gate the hero split asks. Below it the hero
+              already says why nothing is named; this card stays silent. */}
+          {rungNamesWeakness(paperRung) && careless.hasData && careless.marksLost > 0 ? (
             <section className="lt-me__section" aria-label="Easy marks">
               <div className="lt-me__easy" data-testid="me-easy-marks">
                 <div className="lt-me__easy-n">{careless.marksLost}</div>
