@@ -252,8 +252,8 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     bloomSkill: "Applying",
     questionText:
       "The product of two consecutive positive integers is 156. Form a quadratic equation and find the integers.",
-    answer: "The integers are 12 and 13.",
-    finalAnswer: "Required integers: 12 and 13.",
+    answer: "Let the smaller integer be x; then x(x + 1) = 156, i.e. the quadratic equation x² + x − 156 = 0. The integers are 12 and 13.",
+    finalAnswer: "x² + x − 156 = 0; the integers are 12 and 13.",
     explanation:
       "Let smaller integer be n. Then n(n + 1) = 156 ⇒ n² + n − 156 = 0. Factorise as (n + 13)(n − 12) = 0. Take n = 12 (positive).",
     solutionSteps: [
@@ -1433,16 +1433,14 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText:
-      "Assertion (A): The area of a sector is proportional to its central angle. Reason (R): A full circle corresponds to 360° and area πr².",
+      "Assertion (A): The area of a sector is proportional to its central angle. Reason (R): Equal central angles of a circle cut off sectors of equal area, so a sector of angle θ is the fraction θ/360° of the circle's area πr².",
     answer:
       "Both A and R are true, and R is the correct explanation of A.",
     explanation:
-      "Direct proportionality from (θ/360)πr².",
+      "R gives the reason the sector area is the fraction θ/360° of πr², i.e. proportional to θ.",
     policyTag: "Sector formula reasoning",
     solutionSteps: [
-      "Assertion (A) states that the area of a sector is proportional to its central angle. The formula for the area of a sector is (θ/360°) × πr², where θ is the central angle.; Reason (R) states that a full circle corresponds to 360° and has an area of πr². This is the basis for the sector area formula. [½]",
-      "The area of a sector is a fraction of the total area of the circle, determined by the ratio of its central angle to the total angle of a circle (360°). [½]",
-      "Thus, the area of a sector is directly proportional to its central angle, and Reason R provides the fundamental facts that explain this proportionality. [1]",
+      "A is true: area of a sector = (θ/360°) × πr², which is proportional to θ. R is true and explains A: equal central angles cut off equal areas, so a sector of angle θ is the fraction θ/360° of πr². Correct option: (a). [1]"
     ],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],

@@ -319,6 +319,9 @@ const CBQ_CHAPTERS = [
   { subject: "Science", slug: "light-reflection-and-refraction", fiveMark: true },
 ] as const;
 const CBQ_FLOOR = 8;
+// BANK-FIX-1 PR-2 (2026-10-07): CBE-S-HEYE-E-001/-002 re-marked to 3-mark Short; C2 restores to 8 with its PR-5
+// (consent: COORD BOARD 2026-10-06T23:41Z). Human Eye ONLY; every other chapter keeps CBQ_FLOOR.
+const CBQ_FLOOR_BY_SLUG: Readonly<Record<string, number>> = { "human-eye-and-colourful-world": 7 };
 
 /** The chooser's own draw (cbqAvailability.chapterHasCbqs), counted instead of `.some`. */
 const chooserCaseStudies = (subject: "Maths" | "Science", slug: string) =>
@@ -334,7 +337,7 @@ describe("GEN-THIN-1 PR-2 · CBQs of every mark", () => {
   it("CBQ CHOOSER — each of the 10 chapters shows ≥ 8 distinct human-tier case studies through the chooser's own draw", T, () => {
     for (const c of CBQ_CHAPTERS) {
       const drawn = chooserCaseStudies(c.subject, c.slug).filter((q) => !AI_GENERATED_QUESTION_IDS.has(q.id));
-      expect(new Set(drawn.map((q) => q.id)).size, `${c.slug}: chooser case studies`).toBeGreaterThanOrEqual(CBQ_FLOOR);
+      expect(new Set(drawn.map((q) => q.id)).size, `${c.slug}: chooser case studies`).toBeGreaterThanOrEqual(CBQ_FLOOR_BY_SLUG[c.slug] ?? CBQ_FLOOR);
       expect(chapterHasCbqs(c.subject, c.slug), `${c.slug}: chooser offers the chapter`).toBe(true);
     }
   });

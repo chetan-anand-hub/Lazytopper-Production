@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "human-eye-and-colourful-world" (Science): 214 served rows from 25 source arrays, 34 withheld.
+// Chapter "human-eye-and-colourful-world" (Science): 213 served rows from 24 source arrays, 34 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -11,7 +11,6 @@ import { HUMAN_EYE_PACK1 } from "../questionBanks/class10/science/humanEyeAndCol
 import { HEC2_PACK2 } from "../questionBanks/class10/science/humanEyeAndColourfulWorld.pack2";
 import { EYE_NCERT } from "../questionBanks/class10/science/humanEye.ncert";
 import { EYE_EXEMPLAR } from "../questionBanks/class10/science/humanEye.exemplar";
-import { SCIENCE_CASE_BASED_QUESTIONS } from "../questionBanks/class10/science/science.caseBased";
 import { HUMAN_EYE_SQP } from "../questionBanks/class10/science/human-eye-and-colourful-world.sqp";
 import { HEYE_CBE } from "../questionBanks/class10/science/human-eye-and-colourful-world.cbe";
 import { HEYE_SP } from "../questionBanks/class10/science/human-eye-and-colourful-world.sp";
@@ -38,7 +37,6 @@ export default defineChapter("human-eye-and-colourful-world", [
   [47, HEC2_PACK2, true],
   [101, EYE_NCERT, false],
   [102, EYE_EXEMPLAR, false],
-  [164, SCIENCE_CASE_BASED_QUESTIONS, false],
   [188, HUMAN_EYE_SQP, false],
   [213, HEYE_CBE, false],
   [239, HEYE_SP, false],

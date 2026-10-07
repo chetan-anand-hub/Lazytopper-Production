@@ -1346,15 +1346,15 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Consider the reaction between sodium and chlorine: 2Na + Cl₂ → 2NaCl\n\n(a) Show, using electron-dot structures, the transfer of electrons in this reaction.\n(b) Identify which reactant is oxidised and which is reduced, in terms of loss or gain of electrons.\n(c) Identify the oxidising agent and the reducing agent.\n(d) Explain why this is a redox reaction.\n(e) Classify this reaction as combination, decomposition, displacement or double displacement. Justify.",
     "options": [],
-    "answer": "Na is oxidised (reducing agent) and Cl₂ is reduced (oxidising agent); it is a redox reaction and also a combination reaction.",
+    "answer": "(a) Na• + •Cl → Na⁺[:Cl:]⁻: each Na atom gives its one valence electron to a Cl atom (2 electrons in all for Cl₂), forming Na⁺ and Cl⁻ ions that attract as NaCl. (b) Na loses electrons, so it is oxidised; Cl gains electrons, so Cl₂ is reduced. (c) Oxidising agent: Cl₂; reducing agent: Na. (d) Loss of electrons (oxidation of Na) and gain of electrons (reduction of Cl) occur together in the same reaction, so it is a redox reaction. (e) Combination reaction: two reactants, Na and Cl₂, form a single product, NaCl.",
     "solutionSteps": [
-      "(a) Na• → Na⁺ + e⁻ and :Cl: (7 valence electrons) + e⁻ → Cl⁻ (8 electrons); Na⁺ and Cl⁻ attract to form Na⁺Cl⁻ — one electron passes from each Na atom to each Cl atom.",
-      "(b) Na loses an electron (0 → +1), so Na is oxidised; Cl gains an electron (0 → −1), so Cl₂ is reduced.",
-      "(c) Reducing agent: Na (it gives electrons and itself gets oxidised). Oxidising agent: Cl₂ (it accepts electrons and itself gets reduced).",
-      "(d) Oxidation (loss of electrons by Na) and reduction (gain of electrons by Cl) occur simultaneously in the same reaction, so it is a redox reaction.",
-      "(e) Combination reaction: two elements, Na and Cl₂, combine to form a single product, NaCl."
+      "[1 mark] (a) Na• → Na⁺ + e⁻ and :Cl: (7 valence electrons) + e⁻ → Cl⁻ (8 electrons); Na⁺ and Cl⁻ attract to form Na⁺Cl⁻ — one electron passes from each Na atom to each Cl atom.",
+      "[1 mark] (b) Na loses an electron (0 → +1), so Na is oxidised; Cl gains an electron (0 → −1), so Cl₂ is reduced.",
+      "[1 mark] (c) Reducing agent: Na (it gives electrons and itself gets oxidised). Oxidising agent: Cl₂ (it accepts electrons and itself gets reduced).",
+      "[1 mark] (d) Oxidation (loss of electrons by Na) and reduction (gain of electrons by Cl) occur simultaneously in the same reaction, so it is a redox reaction.",
+      "[1 mark] (e) Combination reaction: two elements, Na and Cl₂, combine to form a single product, NaCl."
     ],
-    "finalAnswer": "Na is oxidised (reducing agent) and Cl₂ is reduced (oxidising agent); it is a redox reaction and also a combination reaction.",
+    "finalAnswer": "(a) one electron passes from each Na to each Cl (2 e⁻ to Cl₂), forming Na⁺Cl⁻; (b) Na oxidised, Cl₂ reduced; (c) oxidising agent Cl₂, reducing agent Na; (d) redox: loss and gain of electrons occur together; (e) combination: two reactants form a single product.",
     "visualExplainerId": "science-chemical-reactions-oxidation-and-reduction",
     "isCompetencyBased": true,
     "ncertRef": "NCERT Ch1 Exercise",

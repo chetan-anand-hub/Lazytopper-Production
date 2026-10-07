@@ -1326,15 +1326,15 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A 45-year-old man visits an optometrist complaining that he cannot read small print on his mobile phone but can see distant objects clearly. However, 10 years ago, he could read small print comfortably.\n\n(i) Identify the vision defect and explain its cause.\n(ii) What optical device(s) can correct this defect?\n(iii) The man is also a pilot. Explain why his condition might require special consideration.\n(iv) Calculate the power of the lens needed if the man's near point is 50 cm and the normal near point is 25 cm.\n(v) Discuss whether his distant vision should be corrected along with near vision correction.",
     "options": [],
-    "answer": "(i) Presbyopia — the eye lens loses flexibility and ciliary muscles weaken with age, so the near point recedes. (ii) Convex lens reading glasses, or bifocal/progressive lenses. (iii) A pilot must read near instruments and see far outside, so both ranges must be clear. (iv) P = +2 D. (v) Yes — bifocal/progressive lenses (upper part for distance, lower convex +2 D part for near) give clear vision at all distances.",
+    "answer": "(i) Presbyopia — the eye lens loses flexibility and ciliary muscles weaken with age, so the near point recedes. (ii) Convex lens reading glasses, or bifocal/progressive lenses. (iii) A pilot must read near instruments and see far outside, so both ranges must be clear. (iv) P = +2 D. (v) No — he sees distant objects clearly, so no distance correction is needed (the upper part of a bifocal would have zero power); only the near-vision part needs the +2 D convex lens.",
     "solutionSteps": [
       "[1 mark] (i) The defect is presbyopia. With age the eye lens loses its flexibility and the ciliary muscles weaken, so the eye cannot accommodate for near objects; the near point recedes while distant vision stays normal.",
       "[1 mark] (ii) A convex lens of suitable power (reading glasses), or bifocal/progressive lenses: upper part for distant vision, lower convex part for near vision.",
       "[1 mark] (iii) As a pilot he must read nearby cockpit instruments and also watch distant objects outside; uncorrected presbyopia could make instrument reading unreliable, so his correction must give clear near and far vision.",
       "[1 mark] (iv) Object at u = −25 cm must form a virtual image at the near point v = −50 cm. 1/f = 1/v − 1/u = −1/50 + 1/25 = +1/50 cm⁻¹, so f = +50 cm = +0.5 m and P = 1/f = +2 D (convex lens).",
-      "[1 mark] (v) Since his distant vision is normal, no correction (or very weak) is needed in the upper part; bifocal or progressive lenses with +2 D in the lower part let him see clearly at all distances, which suits his profession."
+      "[1 mark] (v) No. His distant vision is normal, so no distance correction is needed: the upper part of a bifocal would have zero power, and only the lower part needs +2 D for near vision."
     ],
-    "finalAnswer": "Presbyopia; corrected by convex (bifocal/progressive) lenses; required power = +2 D (convex lens of focal length 50 cm).",
+    "finalAnswer": "Presbyopia; corrected by convex (reading or bifocal/progressive) lenses; required power = +2 D (convex lens of focal length 50 cm); distant vision needs no correction.",
     "isCompetencyBased": true,
     "ncertRef": "NCERT Ch11 Exercise",
     sourceOverride: "others",

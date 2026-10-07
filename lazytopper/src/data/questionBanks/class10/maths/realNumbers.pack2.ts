@@ -863,13 +863,13 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Two numbers have HCF = 12 and LCM = 240. If one number is 48, find the other number. Verify your answer and express both numbers as products of prime factors.",
     "options": [],
-    "answer": "The other number is 60",
+    "answer": "The other number is 60. Verification: HCF(48, 60) = 12 and LCM(48, 60) = 240, and 12 × 240 = 2880 = 48 × 60. Prime factorisations: 48 = 2⁴ × 3 and 60 = 2² × 3 × 5.",
     "solutionSteps": [
       "[1 mark] HCF × LCM = product of the two numbers: 12 × 240 = 48 × b ⇒ b = 2880 ÷ 48 = 60.",
       "[1 mark] Prime factorisation: 48 = 2⁴ × 3 and 60 = 2² × 3 × 5.",
       "[1 mark] Verification: HCF(48, 60) = 2² × 3 = 12 and LCM(48, 60) = 2⁴ × 3 × 5 = 240, as given."
     ],
-    "finalAnswer": "The other number is 60",
+    "finalAnswer": "The other number is 60; 48 = 2⁴ × 3, 60 = 2² × 3 × 5; HCF 12 × LCM 240 = 2880 = 48 × 60.",
     "isCompetencyBased": false,
     "ncertRef": "Ex 1.3",
     sourceOverride: "others",

@@ -1380,3 +1380,21 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
     ],
   },
 ];
+
+/**
+ * BANK-FIX-1 PR-2 phase B (2026-10-07): HPQ rows that are not served. Ids never change; a withheld row stays
+ * in the source above and is filtered out of its bucket here, before highlyProbableQuestions merges the buckets.
+ */
+export const HPQ_WITHHELD_IDS: ReadonlySet<string> = new Set<string>([
+  // ambiguous: "cannot see nearby objects" + a convex lens fits hypermetropia AND presbyopia, so part (b)'s
+  // cause has two defensible answers (independent re-solve, phase B, b04)
+  "sci-eye-comp-01",
+]);
+
+for (const bucket of hpqCompetencyAdditions) {
+  bucket.questions = bucket.questions.filter((q) => !HPQ_WITHHELD_IDS.has(q.id));
+}
+// a bucket left with no questions is dropped, so no surface lists an empty topic
+for (let i = hpqCompetencyAdditions.length - 1; i >= 0; i--) {
+  if (hpqCompetencyAdditions[i].questions.length === 0) hpqCompetencyAdditions.splice(i, 1);
+}

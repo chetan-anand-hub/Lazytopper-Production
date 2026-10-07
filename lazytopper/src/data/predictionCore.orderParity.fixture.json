@@ -2,8 +2,8 @@
  "targetYear": "2026",
  "chapters": {
   "real-numbers": {
-   "n": 232,
-   "sha256": "25fa2c924fd1d053debbecfcfa8c0e79d9fa490ade172b474291a34d8ce1403a",
+   "n": 231,
+   "sha256": "1ccebe9f52162bf787f9e362a10ad402d8be5f3e898a150baeb09593f17d2b39",
    "head": [
     "RNX2-A-003",
     "RN-N-NCERT-1-MCQ-004",
@@ -155,8 +155,8 @@
    ]
   },
   "light-reflection-and-refraction": {
-   "n": 794,
-   "sha256": "1499f4b53003bc8ac5f783229f14453a7a139a4d96e2f13854df9adc9b980573",
+   "n": 795,
+   "sha256": "4ccea87f8e73de9d0f969de1901b4fe6f55f9083fc5a40c9fa3379e11a06e5a5",
    "head": [
     "LTG-S-LIGHT-253",
     "LTG-S-LIGHT-257",
@@ -164,8 +164,8 @@
    ]
   },
   "human-eye-and-colourful-world": {
-   "n": 214,
-   "sha256": "808e25b48436d6bc279a2a4013c3974c6c8ae82cbc4e84e87e91ac640acc3f94",
+   "n": 213,
+   "sha256": "0ab6396d029d143bf168a0067bf8d1d00253d0ea11ca88197fdaa2a984c885fb",
    "head": [
     "LTG-S-EYE-104",
     "LTG-S-EYE-101",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 408,
-   "sha256": "e970f3fc1b19b6785e6c192009244a678cbb4486a6fe206b73bf61553d024031",
+   "n": 407,
+   "sha256": "780163cf23322cd8b7724e4dbd42ec2fab442816c702f5d4ac3a383079f095e1",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -200,8 +200,8 @@
    ]
   },
   "control-and-coordination": {
-   "n": 290,
-   "sha256": "598e3f660fb9e2879bbd34b07cd95afd050cd28a8254d979e6ac7a50370eb9a4",
+   "n": 289,
+   "sha256": "dcf897dc159dd22d1f9644a0cc0a3f6fe8ca065fd24d0d81eedbff170ffb3782",
    "head": [
     "LTG-S-CTRL-107",
     "LTG-S-CTRL-101",
@@ -218,8 +218,8 @@
    ]
   },
   "heredity": {
-   "n": 225,
-   "sha256": "54498a07032b103e3cda44a70e9b1d49ea553f0b2da09f33a3fb4ca208ca4a02",
+   "n": 224,
+   "sha256": "2214d342cc35f6e7a56a251814c40cf610fe7ddf738edaf1bfbd9fe56c5f378b",
    "head": [
     "SQP-S-HER-003",
     "LTG-S-HERED-107",
@@ -239,7 +239,7 @@
  "concepts": {
   "real-numbers": {
    "n": 33,
-   "sha256": "dca47f22678c76a72348817059f07e025a27a9abce10f305519e67d316da9cc6",
+   "sha256": "2b5ec790d39470547465e61caa9c403f2e2772e05abdd32e5ca59c103afa126c",
    "head": [
     "Assertion-Reasoning\tRN2-040",
     "Divisibility\tSP-M-2022-RN-A-002,PB-M-2-RN-A-001,PYQ-M-RN-004,PYQ-M-2024-REALNUM-002",
@@ -391,8 +391,8 @@
    ]
   },
   "light-reflection-and-refraction": {
-   "n": 164,
-   "sha256": "03b9f352fd8027dc106d69bae8f50c58675087427eee50ce534116b88626d395",
+   "n": 165,
+   "sha256": "cb771316323b617877ae2883845975a2616dd553b1f4a11fb1415a21b76e9cf1",
    "head": [
     "Always Erect Image\tLIGHT-NCERT-9-MCQ-005",
     "Cause of Refraction\tLTG-S-LIGHT-255,LTG-S-LIGHT-244,2026-LIGHT-MCQ-02,CBE-S-LGHT-B-008,LT-M08,LT2-042,LT-H04,LT-M04,LT2-035,LT-E11,LT-M10,LT-M15,LT2-034,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-010,LT2-022,LT2-033,LT2-050,LT2-054,LT2-057,LT-E13,LT-E09",
@@ -400,8 +400,8 @@
    ]
   },
   "human-eye-and-colourful-world": {
-   "n": 49,
-   "sha256": "a1e4282a8fe3ac3450077f48160f0221bbe052d7a59ca818c1d2f713ba041bad",
+   "n": 48,
+   "sha256": "63c40fa68a38b5590ef5ee03209b1cf63ed3105564c922dd0b8c8fc3f85e462e",
    "head": [
     "Accommodation of Eye\tPYQ-S-2024-EYE-004",
     "Accommodation of the Eye\tCFPQ-S-EYE-008,CFPQ-S-EYE-002",
@@ -410,7 +410,7 @@
   },
   "electricity": {
    "n": 148,
-   "sha256": "6cd43fc8ecfe2dd1a73d21689cc800b90483c56fdc1d7ee97173368e0c3210cd",
+   "sha256": "244c8aab28fb828b44722cac5c4e48d4c54b88e7722bced4f5fb1bf9ecb3f4fb",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
@@ -436,8 +436,8 @@
    ]
   },
   "control-and-coordination": {
-   "n": 98,
-   "sha256": "b9b732c65a83f507b456e9e484d2bb1a8dbaa4631a817d87768ff7a68c646243",
+   "n": 97,
+   "sha256": "62d22877975f8f9c7f0f5f553a189072700e6493d0d2585b463270eda5fdc0f2",
    "head": [
     "Abscisic Acid\tCFPQ-S-CTRL-006,CTRL-EXMPLR-6-MCQ-011,CTRL-EXMPLR-6-MCQ-020,CFPQ-S-CTRL-011",
     "Adrenaline\tCBE-S-CTRL-A-008,CFPQ-S-CTRL-010,CTRL-NCERT-6-SA-009,APQ-S-CTRL-005",
@@ -455,11 +455,11 @@
   },
   "heredity": {
    "n": 61,
-   "sha256": "9dd323a0ec6610d1a83651030a8d8961e89bb04833df515cf2bf99cba53a666b",
+   "sha256": "ee4328d52ac7d963b8672d6e6a7f80e38ccec51ec8f9623140addc0f2c322409",
    "head": [
     "Alleles\tBX-HER-EX-A-002,CBE-S-HERD-A-002",
     "Case-Based — Monohybrid Inheritance of Earlobe Type\tSQP-S-HER-003,HERED-NCERT-8-SA-007,HERED-NCERT-8-SA-005,HERED-EXMPLR-8-MCQ-011,HERED-EXMPLR-8-LA-004",
-    "Chapter Practice — Heredity\tSCO-S-HERED-002,SCO-S-HERED-006,SCO-S-HERED-007,SCO-S-HERED-010,SCO-S-HERED-011,SCO-S-HERED-012,SCO-S-HERED-013,SCO-S-HERED-014,SCO-S-HERED-015,SCO-S-HERED-016,SCO-S-HERED-017,SCO-S-HERED-020,SCQ-S-HERED-023,SCQ-S-HERED-025,SCQ-S-HERED-026,SCQ-S-HERED-030,SCQ-S-HERED-032,sci-bio-heredity-3m-2026-01,SCQ-S-HERED-033,SCQ-S-HERED-034,SCQ-S-HERED-035,SCQ-S-HERED-036,SCQ-S-HERED-039,SCQ-S-HERED-040,SCQ-S-HERED-021,SCQ-S-HERED-022,SCQ-S-HERED-024,SCQ-S-HERED-027,SCQ-S-HERED-028,SCQ-S-HERED-031,SCQ-S-HERED-038"
+    "Chapter Practice — Heredity\tSCO-S-HERED-006,SCO-S-HERED-007,SCO-S-HERED-010,SCO-S-HERED-011,SCO-S-HERED-012,SCO-S-HERED-013,SCO-S-HERED-014,SCO-S-HERED-015,SCO-S-HERED-016,SCO-S-HERED-017,SCO-S-HERED-020,SCQ-S-HERED-023,SCQ-S-HERED-025,SCQ-S-HERED-026,SCQ-S-HERED-030,SCQ-S-HERED-032,sci-bio-heredity-3m-2026-01,SCQ-S-HERED-033,SCQ-S-HERED-034,SCQ-S-HERED-035,SCQ-S-HERED-036,SCQ-S-HERED-039,SCQ-S-HERED-040,SCQ-S-HERED-021,SCQ-S-HERED-022,SCQ-S-HERED-024,SCQ-S-HERED-027,SCQ-S-HERED-028,SCQ-S-HERED-031,SCQ-S-HERED-038"
    ]
   },
   "our-environment": {
@@ -934,16 +934,16 @@
   },
   "light-reflection-and-refraction::seed1": {
    "n": 10,
-   "sha256": "5c867376bfd251ba9cf323d2491bcbe75ed29005e541f08f2e3a7f6488fde2d4",
+   "sha256": "7b61c28c16543b8b6104ac46215c3443796384b7a183ea3440e4ec3db8f6a271",
    "head": [
     "CFPQ-S-LGHT-006",
     "LTG-S-LIGHT-257",
-    "LTG-S-LIGHT-285"
+    "LTG-S-LIGHT-225"
    ]
   },
   "light-reflection-and-refraction::seed2": {
    "n": 10,
-   "sha256": "b7d9c7938fa0fe81e3306ce82bbc27c4343ff6bdf7afe79745d84afdc8b89aa1",
+   "sha256": "ebcaa1dddedbc5c4d8d9c4e15051fc64922495cc595c0f2b53d6f8db8c1bb6a9",
    "head": [
     "LTG-S-LIGHT-255",
     "FND-L-SPQ-022",
@@ -952,7 +952,7 @@
   },
   "light-reflection-and-refraction::seed3": {
    "n": 10,
-   "sha256": "a9320490d5c3ddb141d5e4410726524b8aebc22a83dc589ec2b669f1427ff6d4",
+   "sha256": "de00cfeafe12fe0018214409e1c779497143019a2a9fb9d0576244e34f65bcf0",
    "head": [
     "FND-L-SPQ-022",
     "LIGHT-EXMPLR-9-MCQ-016",
@@ -961,25 +961,25 @@
   },
   "human-eye-and-colourful-world::seed1": {
    "n": 10,
-   "sha256": "3b04a7826a95091974eaae1aa1329bf593521ff4e2ce7079a2049b00cb916bbf",
+   "sha256": "05afdb12043fe6f213ab083d2338e8922bd326594a7d9fc5054688fe2ee2ca30",
    "head": [
     "SQP-S-2023-HEYE-E-001",
     "LTG-S-EYE-103",
-    "EYE-EXMPLR-10-MCQ-006"
+    "EYE-NCERT-10-MCQ-001"
    ]
   },
   "human-eye-and-colourful-world::seed2": {
    "n": 10,
-   "sha256": "6592f7f1c3bcd6141192ccdb5e00cc45355a5414b1d385a0d50613dd6c83b49f",
+   "sha256": "cebda3d291daeab64f4adbbfe99564fe112e1327bfbc0f216b7f75ea3646cb04",
    "head": [
-    "CASE-SCI-LIGHT-001",
+    "EYE-EXMPLR-10-MCQ-014",
     "CFPQ-S-EYE-009",
     "LTG-S-EYE-104"
    ]
   },
   "human-eye-and-colourful-world::seed3": {
    "n": 10,
-   "sha256": "58b8450a01e67af3faaf154f0d521da5e14214e63b59738ed1ac9b92431df560",
+   "sha256": "42c61df0dd54f7ed4865e2971b08bf7d93f7b6089c4d975aeb0e13cd77d9aa51",
    "head": [
     "CFPQ-S-EYE-009",
     "LTG-S-EYE-101",

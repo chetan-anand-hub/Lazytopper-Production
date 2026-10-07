@@ -186,8 +186,8 @@ export const SCIENCE_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
   {
     "id": "CASE-SCI-LIGHT-001",
     "subject": "Science",
-    "topicKey": "human-eye-and-colourful-world",
-    "subtopic": "Defects of Vision — Corrective Lens Power",
+    "topicKey": "light-reflection-and-refraction",
+    "subtopic": "Refraction — Lenses",
     "section": "E",
     "marks": 4,
     "format": "Case-Based",

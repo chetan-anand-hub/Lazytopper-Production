@@ -175,16 +175,16 @@ export const promptDPracticePacks: PracticePacksIndex =
         },
         {
           "id": "S-CHEM-9",
-          "text": "A solution of substance ‘X’ is used for whitewashing. Name ‘X’ and write the chemical reaction of its preparation.",
+          "text": "A substance X (calcium oxide), used in the preparation of whitewash, reacts vigorously with water. Name X and write its formula; write the reaction of X with water.",
           "marks": 3,
           "difficulty": "Hard",
           "questionType": "subjective",
-          "answer": "X is calcium oxide (quick lime), CaO. When quick lime is dissolved in water it forms slaked lime (calcium hydroxide), whose solution is used for whitewashing: CaO(s) + H2O(l) → Ca(OH)2(aq) + heat. The reaction is a combination reaction and is highly exothermic. (Calcium oxide itself is obtained by heating limestone: CaCO3(s) → CaO(s) + CO2(g).) On the walls, Ca(OH)2 reacts slowly with CO2 of air to form a shiny coat of CaCO3.",
-          "finalAnswer": "X = calcium oxide (quick lime); CaO + H2O → Ca(OH)2 + heat",
+          "answer": "X is calcium oxide (quick lime), formula CaO. It reacts vigorously with water to form slaked lime (calcium hydroxide), releasing a large amount of heat: CaO(s) + H2O(l) → Ca(OH)2(aq) + heat. This is a combination reaction and is exothermic.",
+          "finalAnswer": "X = calcium oxide (quick lime), CaO; CaO + H2O → Ca(OH)2 + heat",
           "solutionSteps": [
-            "[1 mark] Name X: calcium oxide (quick lime), CaO.",
+            "[1 mark] Name and formula of X: calcium oxide (quick lime), CaO.",
             "[1 mark] Balanced equation: CaO(s) + H2O(l) → Ca(OH)2(aq) (slaked lime) + heat.",
-            "[1 mark] Reaction is a combination reaction and exothermic; the slaked lime solution is used for whitewashing (forms CaCO3 coat with CO2 of air)."
+            "[1 mark] The reaction is a combination reaction and is exothermic (heat is released)."
           ]
         },
         {
@@ -2536,7 +2536,7 @@ export const promptDPracticePacks: PracticePacksIndex =
         },
         {
           "id": "M-QUAD-7",
-          "text": "Sum of reciprocals of the roots of a quadratic equation is 5 and their product is 2. Form the equation.",
+          "text": "The sum of the reciprocals of the roots of a quadratic equation is 5 and the product of the roots is 2. Form the equation.",
           "marks": 3,
           "difficulty": "Medium",
           "questionType": "subjective",
@@ -2991,7 +2991,7 @@ export const promptDPracticePacks: PracticePacksIndex =
         },
         {
           "id": "M-TRIG-3",
-          "text": "Using identities, prove that sin²θ + cos²θ = 1.",
+          "text": "Prove that sin²θ + cos²θ = 1.",
           "marks": 2,
           "difficulty": "Easy",
           "questionType": "subjective",
@@ -3974,15 +3974,15 @@ export const promptDPracticePacks: PracticePacksIndex =
         },
         {
           "id": "M-PROB-9",
-          "text": "For a game, probability of winning is 0.3. If player plays 10 times, how many wins are expected on average?",
+          "text": "The probability of winning a game is 0.3. Find the probability of not winning it.",
           "marks": 2,
           "difficulty": "Medium",
           "questionType": "subjective",
-          "answer": "Expected number of wins = number of games × probability of winning = 10 × 0.3 = 3.\nSo on average the player is expected to win 3 games out of 10.",
-          "finalAnswer": "3 wins",
+          "answer": "Let E be the event of winning. P(not E) = 1 − P(E) = 1 − 0.3 = 0.7. So the probability of not winning the game is 0.7.",
+          "finalAnswer": "0.7",
           "solutionSteps": [
-            "[1 mark] Expected wins = n × P(win) = 10 × 0.3.",
-            "[1 mark] = 3 wins (on average)."
+            "[1 mark] P(not E) = 1 − P(E), where E is the event of winning.",
+            "[1 mark] P(not winning) = 1 − 0.3 = 0.7."
           ]
         },
         {

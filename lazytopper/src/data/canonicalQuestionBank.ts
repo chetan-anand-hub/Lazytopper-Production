@@ -2052,6 +2052,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2026-PLE-001",         // garbled: Options (a) "1 2 2 1 c c a a" and (c) "2 1 2 1 b b a a" are fraction extractions whose relation symbol (= or ≠) and order cannot be recovered; if either were an equali...
   "CBE-M-RN-A-002",             // garbled: Premise is mathematically flawed: a cube of volume 15 m³ cannot fill a cube of 165/195/285 m³ with no space left; HCF of volumes is not a valid answer. Official CBSE i...
   "PYQ-M-2025-TRIG-004",        // garbled: Sub-parts (i) and (ii) have no text (only mark residues); their wording and the figure labels B, C, D, E, h are not recoverable from the row without guessing. Cannot s...
+  // BANK-FIX-1 PR-2 phase B (2026-10-07): rows the independent re-solve could not confirm (ambiguous wording / two defensible keys)
+  "EL2-004",                    // ambiguous: the options are ambiguous; the independent re-solve could not single out one key (phase B, b03)
+  "SCO-S-HERED-002",            // ambiguous: two options are defensible keys (independent re-solve, phase B, b03)
+  "CBE-S-CTRL-A-005",           // ambiguous: the figure shows an upright seedling and no light source, so light vs gravity is undecidable (figure pass, phase B)
+  "PYQ-M-RN-002",               // ambiguous: R ("prime factorisation of 5 has only two factors") supports (c) literally and (a) by intent; key and re-solve disagree (phase B, b06)
 ]);
 
 /**
