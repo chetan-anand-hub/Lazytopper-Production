@@ -42,8 +42,8 @@ export default defineChapter("our-environment", [
   [414, ourEnvironmentPYQ2024, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [427, OUR_ENVIRONMENT_CBQ_LT_GENERATED, false],
-  [447, ENVIRONMENT_CBQ_B1_LT_GENERATED, false],
-  [454, OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED, false],
+  [450, ENVIRONMENT_CBQ_B1_LT_GENERATED, false],
+  [458, OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED, false],
 ], [
   "OEX-A-005",
   "SCO-S-ENV-002",

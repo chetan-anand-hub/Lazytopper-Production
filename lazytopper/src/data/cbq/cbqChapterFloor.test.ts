@@ -79,13 +79,19 @@ const PINNED = [
   "how-do-organisms-reproduce",
   "heredity",
   "our-environment",
+  // Maths (C2 Maths B/C — now >= 100 on trunk)
+  "real-numbers",
+  "polynomials",
+  "surface-areas-and-volumes",
+  "probability",
 ] as const;
 
 /**
- * Below the floor today (C2's remaining Maths chapters are not merged yet). When any of these
- * reaches 100 the ratchet test FAILS: move it into PINNED in the same PR.
+ * Chapters still below the floor. EMPTY: every bank chapter is pinned >= 100. If a chapter ever
+ * needs to be listed here it must be a deliberate, reviewed regression of the floor; when any listed
+ * chapter reaches 100 the ratchet test FAILS until it is moved into PINNED.
  */
-const KNOWN_BELOW = ["real-numbers", "polynomials", "surface-areas-and-volumes", "probability"] as const;
+const KNOWN_BELOW: readonly string[] = [];
 
 const subjectOf = (slug: string) => (BANK_CHAPTER_SUBJECT as Record<string, string>)[slug] as SubjectKey;
 

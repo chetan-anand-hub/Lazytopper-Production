@@ -50,8 +50,8 @@ export default defineChapter("chemical-reactions-and-equations", [
   [385, chemicalReactionsPYQ2024, false],
   [397, CHEM_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
-  [441, CHEM_REACTIONS_CBQ_B1_LT_GENERATED, false],
-  [453, CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED, false],
+  [444, CHEM_REACTIONS_CBQ_B1_LT_GENERATED, false],
+  [457, CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED, false],
 ], [
   "CR-E10",
   "CR-E13",

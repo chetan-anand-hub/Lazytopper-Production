@@ -51,7 +51,7 @@ export default defineChapter("acids-bases-and-salts", [
   [398, ABS_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [434, ACIDS_CBQ_B1_LT_GENERATED, false],
-  [452, ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED, false],
+  [456, ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED, false],
 ], [
   "ABS-E04",
   "ACID-EXMPLR-2-MCQ-015",
