@@ -14,8 +14,8 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Three musical fountains in a shopping mall shoot up water every 16 seconds, 24 seconds and 40 seconds respectively. All three shoot up together at exactly 5:00 PM. At what time will they next shoot up together?",
     "options": [
-      "5:02 PM",
       "5:04 PM",
+      "5:02 PM",
       "5:08 PM",
       "5:16 PM"
     ],
@@ -43,8 +43,8 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A district library receives 168 Hindi, 252 English and 420 Sanskrit magazines. The librarian ties them into bundles so that every bundle has the same number of magazines, each bundle has magazines of only one language, and the number of bundles is as small as possible. How many bundles will she make?",
     "options": [
-      "10",
       "84",
+      "10",
       "12",
       "20"
     ],
@@ -74,8 +74,8 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "9",
       "45",
-      "90",
-      "15"
+      "15",
+      "90"
     ],
     "answer": "15",
     "solutionSteps": [
@@ -102,9 +102,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A fruit wholesaler has 2³ × 3² × 5² apples. He packs all of them into crates, each holding exactly 2² × 3 × 5 apples. How many crates does he fill?",
     "options": [
       "15",
-      "30",
       "60",
-      "10"
+      "10",
+      "30"
     ],
     "answer": "30",
     "solutionSteps": [
@@ -130,9 +130,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In a clock repair shop, two meshing gear wheels have 36 teeth and 60 teeth. A chalk mark is put on the pair of teeth that are touching at the start. What is the least number of complete turns of the smaller wheel after which the two marked teeth touch again?",
     "options": [
+      "5",
       "3",
       "12",
-      "5",
       "180"
     ],
     "answer": "5",
@@ -160,9 +160,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "An electrician has three rolls of cable of lengths 126 m, 168 m and 210 m. He must cut all of them into pieces of equal length, as long as possible, with no cable left over. How many pieces will he get in all?",
     "options": [
       "42",
+      "12",
       "14",
-      "6",
-      "12"
+      "6"
     ],
     "answer": "12",
     "solutionSteps": [
@@ -188,9 +188,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Two cyclists start together from the starting line of a circular velodrome. One completes a lap in 72 seconds and the other in 96 seconds. When they are first together again at the starting line, how many laps has the faster cyclist completed?",
     "options": [
-      "4",
       "3",
       "24",
+      "4",
       "288"
     ],
     "answer": "4",
@@ -218,9 +218,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A class teacher distributes 130 pencils and 77 erasers equally among the students present, giving every student the same number of pencils and the same number of erasers. 4 pencils and 7 erasers are left over. What is the greatest possible number of students present?",
     "options": [
       "7",
-      "14",
       "21",
-      "70"
+      "70",
+      "14"
     ],
     "answer": "14",
     "solutionSteps": [
@@ -246,9 +246,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "For a school function, the caretaker has a number of chairs. If he arranges them in rows of 12, or rows of 16, or rows of 20, exactly 3 chairs are left over each time. What is the least number of chairs he can have?",
     "options": [
+      "243",
       "237",
       "240",
-      "243",
       "483"
     ],
     "answer": "243",
@@ -276,8 +276,8 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A puzzle app shows a locker code N = 15ⁿ, where n is a natural number chosen by the player. Which statement about N is true for EVERY natural number n?",
     "options": [
       "N ends with the digit 0 for some n",
-      "N is even for some n",
       "N ends with the digit 5",
+      "N is even for some n",
       "N has 2 as a prime factor"
     ],
     "answer": "N ends with the digit 5",
@@ -304,9 +304,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A craftsman measures two bamboo poles in centimetres. The HCF of the two lengths is 18 cm and their LCM is 360 cm. One pole is 72 cm long. How long is the other pole?",
     "options": [
-      "90 cm",
       "80 cm",
       "108 cm",
+      "90 cm",
       "45 cm"
     ],
     "answer": "90 cm",
@@ -334,9 +334,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A dairy uses two steel milk cans whose capacities (in litres, whole numbers) are in the ratio 4 : 5. The LCM of the two capacities is 240 litres. What is the capacity of the larger can?",
     "options": [
       "48 litres",
-      "60 litres",
       "12 litres",
-      "120 litres"
+      "120 litres",
+      "60 litres"
     ],
     "answer": "60 litres",
     "solutionSteps": [
@@ -362,10 +362,10 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "From a city bus depot, buses on Route 7 leave every 25 minutes and buses on Route 12 leave every 35 minutes. Buses on both routes leave together at 6:00 AM. When will buses on both routes next leave together?",
     "options": [
+      "8:55 AM",
       "7:00 AM",
       "6:35 AM",
-      "9:15 AM",
-      "8:55 AM"
+      "9:15 AM"
     ],
     "answer": "8:55 AM",
     "solutionSteps": [
@@ -391,8 +391,8 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "An NGO has 360 notebooks and 270 pens to pack into identical school kits, every kit having the same number of notebooks and the same number of pens, with nothing left over. They want to make as many kits as possible. How many pens will each kit contain?",
     "options": [
-      "3",
       "4",
+      "3",
       "30",
       "90"
     ],
@@ -451,8 +451,8 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "Only the total length",
       "Only the product",
-      "Both the total length and the product",
-      "Neither of them"
+      "Neither of them",
+      "Both the total length and the product"
     ],
     "answer": "Both the total length and the product",
     "solutionSteps": [
@@ -478,8 +478,8 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Three security guards in a housing society take 20 minutes, 36 minutes and 48 minutes respectively to complete one round of their patrol. They start together from the main gate at 10:00 PM and keep walking rounds. At what time will they next be together at the main gate?",
     "options": [
-      "4:00 AM",
       "10:00 AM (next day)",
+      "4:00 AM",
       "2:00 AM",
       "10:00 PM (next day)"
     ],
@@ -508,9 +508,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A farmer's rectangular field measures 1260 m by 840 m. He wants to divide it completely into identical square plots, each as large as possible. How many plots will he get?",
     "options": [
       "420",
+      "6",
       "12",
-      "24",
-      "6"
+      "24"
     ],
     "answer": "6",
     "solutionSteps": [
@@ -537,8 +537,8 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "The number of seats in a new stadium is 7 × 11 × 13 + 13. The organisers want to arrange all the seats in equal rows, with more than one row and more than one seat in each row. Which statement is correct?",
     "options": [
       "It cannot be done, because the number of seats is prime",
-      "It can be done, for example in 13 rows of 78 seats each",
       "It can be done, but only with 7 rows",
+      "It can be done, for example in 13 rows of 78 seats each",
       "It can be done, but only with 11 rows"
     ],
     "answer": "It can be done, for example in 13 rows of 78 seats each",
@@ -567,8 +567,8 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "15 hours",
       "6 hours",
-      "30 hours",
-      "60 hours"
+      "60 hours",
+      "30 hours"
     ],
     "answer": "30 hours",
     "solutionSteps": [

@@ -44,8 +44,8 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "In a musical fountain, a jet of water leaves the pool surface and falls back into it. Taking the pool surface as the x-axis and a marker stone as the origin, the jet follows p(x) = −2x² + 12x − 10, where x is in metres. The jet meets the surface at the zeroes of p(x), and its highest point is directly above the point midway between these two zeroes. How far from the marker stone is the highest point of the jet?",
     "options": [
       "6 m",
-      "5 m",
       "3 m",
+      "5 m",
       "2.5 m"
     ],
     "answer": "3 m",
@@ -74,8 +74,8 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "x² − 11x + 18",
       "−x² − 11x − 18",
-      "−x² + 7x + 18",
-      "−x² + 11x − 18"
+      "−x² + 11x − 18",
+      "−x² + 7x + 18"
     ],
     "answer": "−x² + 11x − 18",
     "solutionSteps": [
@@ -101,10 +101,10 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The length and breadth (in metres) of a rectangular kitchen garden are the zeroes of the polynomial p(x) = x² − 17x + 60. Without finding the length and breadth, what is the area of the garden?",
     "options": [
-      "60 m²",
       "17 m²",
       "34 m²",
-      "120 m²"
+      "120 m²",
+      "60 m²"
     ],
     "answer": "60 m²",
     "solutionSteps": [
@@ -130,8 +130,8 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Two taps can each fill an empty water tank alone in α hours and β hours respectively, where α and β are the zeroes of x² − 9x + 18. If both taps are opened together, in how many hours will the empty tank be filled?",
     "options": [
-      "9 hours",
       "2 hours",
+      "9 hours",
       "4.5 hours",
       "18 hours"
     ],
@@ -160,8 +160,8 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A handicraft stall's profit is P(x) = −x² + kx − 24 thousand rupees when it makes x hundred items. The stall breaks even (P(x) = 0) when it makes 400 items. At what other production level does the stall break even?",
     "options": [
       "1000 items",
-      "240 items",
       "600 items",
+      "240 items",
       "200 items"
     ],
     "answer": "600 items",
@@ -190,8 +190,8 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "8",
       "4",
-      "64",
-      "16"
+      "16",
+      "64"
     ],
     "answer": "16",
     "solutionSteps": [
@@ -217,10 +217,10 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A chain hangs between two poles. Taking the floor as the x-axis, the chain follows y = x² − 4x + 5 (in metres). How many points of the chain touch the floor, i.e. how many zeroes does x² − 4x + 5 have?",
     "options": [
-      "0",
       "1",
       "2",
-      "3"
+      "3",
+      "0"
     ],
     "answer": "0",
     "solutionSteps": [
@@ -246,8 +246,8 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "An engineer models a cable of a footbridge by p(x) = x² + bx + c, taking the deck as the x-axis and a pillar as the origin. Both points where the cable meets the deck (the zeroes of p(x)) lie to the left of the pillar, i.e. both zeroes are negative. Which of the following must be true?",
     "options": [
-      "b < 0 and c > 0",
       "b > 0 and c > 0",
+      "b < 0 and c > 0",
       "b > 0 and c < 0",
       "b < 0 and c < 0"
     ],
@@ -276,8 +276,8 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A school gate has a symmetric arch with its central pillar at the origin and the ground as the x-axis. The arch is modelled by p(x) = −x² + (k − 3)x + 36, and its two feet are equally far from the central pillar on opposite sides, so the zeroes are α and −α. What is the value of k?",
     "options": [
       "−3",
-      "0",
       "3",
+      "0",
       "36"
     ],
     "answer": "3",
@@ -306,8 +306,8 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "2",
       "4",
-      "−2",
-      "6"
+      "6",
+      "−2"
     ],
     "answer": "6",
     "solutionSteps": [
@@ -333,10 +333,10 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A quiz app checks a student's answer by forming a quadratic polynomial whose zeroes are the ages of two siblings. The sum of their ages is 9 years and the product is 20. Which of the following is an acceptable answer?",
     "options": [
-      "2x² − 18x + 40",
       "2x² + 18x + 40",
       "x² − 20x + 9",
-      "2x² − 9x + 20"
+      "2x² − 9x + 20",
+      "2x² − 18x + 40"
     ],
     "answer": "2x² − 18x + 40",
     "solutionSteps": [
@@ -362,9 +362,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "The support frame of a playground slide is a right triangle. Its horizontal run and vertical rise (in metres) are the zeroes of x² − 14x + 48. What is the length of the sloping side?",
     "options": [
+      "10 m",
       "14 m",
       "48 m",
-      "10 m",
       "√48 m"
     ],
     "answer": "10 m",
@@ -392,9 +392,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A water rocket is launched from a point 3 m from the start line and lands 7 m from the start line. Its height (in metres) at a distance x metres from the start line is h(x) = −x² + kx − 21. What is the value of k?",
     "options": [
       "21",
+      "10",
       "4",
-      "−10",
-      "10"
+      "−10"
     ],
     "answer": "10",
     "solutionSteps": [
@@ -420,9 +420,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A surveyor describes a drainage channel by a quadratic polynomial y = p(x), with ground level as the x-axis and all lengths in decimetres. The channel profile meets ground level at x = −2 and x = 5, and directly above the origin the channel bottom is 10 dm below ground level, i.e. p(0) = −10. Which is p(x)?",
     "options": [
-      "x² − 3x − 10",
       "x² + 3x − 10",
       "−x² + 3x + 10",
+      "x² − 3x − 10",
       "x² − 3x + 10"
     ],
     "answer": "x² − 3x − 10",
@@ -450,9 +450,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A can of juice is placed in a blast chiller. For the first 10 minutes its temperature is T(t) = 48 − 6t degrees Celsius, t minutes after it is placed inside. After how many minutes does the temperature reach 0 °C (the zero of T(t))?",
     "options": [
       "6 minutes",
-      "8 minutes",
       "48 minutes",
-      "42 minutes"
+      "42 minutes",
+      "8 minutes"
     ],
     "answer": "8 minutes",
     "solutionSteps": [
@@ -478,9 +478,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A coach's motion-tracking app describes a long-jumper's path as the graph of a quadratic polynomial y = p(x), with the ground as the x-axis. The graph opens downward and its highest point is at (3, 4), i.e. 4 units above the ground. How many zeroes does p(x) have?",
     "options": [
+      "2",
       "0",
       "1",
-      "2",
       "3"
     ],
     "answer": "2",
@@ -508,9 +508,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "Two buses leave a depot at α and β hours after noon, where α and β are the zeroes of x² − 5x + 4. From next week, each departure is shifted 2 hours later. Which polynomial has the new departure times as its zeroes?",
     "options": [
       "x² − 7x + 6",
+      "x² − 9x + 18",
       "x² − 9x + 6",
-      "x² − 9x + 12",
-      "x² − 9x + 18"
+      "x² − 9x + 12"
     ],
     "answer": "x² − 9x + 18",
     "solutionSteps": [
