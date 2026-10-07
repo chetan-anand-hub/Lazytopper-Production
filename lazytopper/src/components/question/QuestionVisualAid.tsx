@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
 import type { VisualConcept } from "../../data/visualConceptRegistry";
 import { paidJsonHeaders } from "../../ai/paidCallHeaders";
@@ -51,7 +52,11 @@ function SourceFigures({ figures }: { figures: VisualConcept[] }): React.ReactEl
           </button>
         ))}
       </div>
-      {zoomed && (
+      {/* The overlay is PORTALLED to document.body. Rendered in place, `position: fixed`
+          resolves against the nearest transformed ancestor (the mobile shell's
+          main.animate-float-up keeps an identity transform), so at phone width the
+          enlarged figure was centred in a 20,000px-tall box, off-screen. */}
+      {zoomed && typeof document !== "undefined" && createPortal(
         <div
           onClick={() => setZoomed(null)}
           style={{
@@ -65,7 +70,8 @@ function SourceFigures({ figures }: { figures: VisualConcept[] }): React.ReactEl
             alt="Enlarged figure"
             style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 8, background: "#fff" }}
           />
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
