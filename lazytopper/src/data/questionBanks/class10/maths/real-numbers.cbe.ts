@@ -107,7 +107,7 @@ export const RN_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-RN-A-005",
+    "id": "CBE-M-RN-A-005", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "real-numbers",
     "subtopic": "LCM in Real-Life Context",
@@ -151,7 +151,7 @@ export const RN_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": false
   },
   {
-    "id": "CBE-M-RN-B-002",
+    "id": "CBE-M-RN-B-002", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "real-numbers",
     "subtopic": "LCM in Real-Life Context",
@@ -171,7 +171,7 @@ export const RN_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-RN-B-003",
+    "id": "CBE-M-RN-B-003", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "real-numbers",
     "subtopic": "HCF Remainder in Real-Life Context",
@@ -191,7 +191,7 @@ export const RN_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-RN-B-004",
+    "id": "CBE-M-RN-B-004", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "real-numbers",
     "subtopic": "LCM in Real-Life Context",
@@ -212,7 +212,7 @@ export const RN_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-RN-B-005",
+    "id": "CBE-M-RN-B-005", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "real-numbers",
     "subtopic": "HCF in Real-Life Context",
@@ -252,7 +252,7 @@ export const RN_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-RN-C-001",
+    "id": "CBE-M-RN-C-001", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "real-numbers",
     "subtopic": "HCF in Real-Life Context",
@@ -273,7 +273,7 @@ export const RN_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-RN-C-002",
+    "id": "CBE-M-RN-C-002", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "real-numbers",
     "subtopic": "HCF in Real-Life Context",
