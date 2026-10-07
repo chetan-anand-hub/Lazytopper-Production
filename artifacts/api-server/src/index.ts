@@ -1,9 +1,11 @@
 import { spawn, type ChildProcess } from "child_process";
 import fs from "fs";
+import http from "http";
 import net from "net";
 import path from "path";
 import app from "./app";
 import { logger } from "./lib/logger";
+import { createGracefulShutdown } from "./lib/gracefulShutdown";
 
 const rawPort = process.env["PORT"];
 
@@ -20,6 +22,13 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const GATEWAY_PORT = process.env["GATEWAY_PORT"] || "3001";
+
+// GRACEFUL-DEPLOY: SIGTERM is drained, not ignored, and it is forwarded to the gateway child.
+// See ./lib/gracefulShutdown.ts.
+const shutdown = createGracefulShutdown({
+  exit: (code) => process.exit(code),
+  log: (line) => logger.warn(line),
+});
 
 function startGateway(): void {
   const candidates = [
@@ -58,6 +67,7 @@ function startGateway(): void {
   const MAX_RESTARTS = 5;
 
   function doSpawn(): void {
+    if (!shutdown.mayRespawn()) return;
     try {
       const child: ChildProcess = spawn("node", [gwPath], {
         cwd: wsRoot,
@@ -77,7 +87,13 @@ function startGateway(): void {
         logger.warn({ gateway: true }, data.toString().trim());
       });
 
+      shutdown.setChild(child);
+
       child.on("exit", (code: number | null) => {
+        if (!shutdown.mayRespawn()) {
+          logger.info({ code }, "Gateway exited during shutdown (not restarted)");
+          return;
+        }
         restarts++;
         if (restarts <= MAX_RESTARTS) {
           logger.warn({ code, restarts }, "Gateway exited, restarting in 3s...");
@@ -186,11 +202,16 @@ function scheduleWarmup(): void {
 startGateway();
 scheduleWarmup();
 
-app.listen(port, "0.0.0.0", (err) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
-  }
+const server = http.createServer(shutdown.wrap((req, res) => app(req, res)));
+shutdown.attachServer(server);
 
+server.once("error", (err) => {
+  logger.error({ err }, "Error listening on port");
+  process.exit(1);
+});
+
+server.listen(port, "0.0.0.0", () => {
   logger.info({ port }, "Server listening");
 });
+
+process.once("SIGTERM", () => shutdown.begin("SIGTERM"));
