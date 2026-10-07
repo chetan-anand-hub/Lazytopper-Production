@@ -14,6 +14,10 @@
 //                                 re-solve packet (bf3). A later lane applies the solver's verdict.
 //   verdict "re-sourced-official" — an Others row verified VERBATIM against the official CBSE PDF: the override is
 //                                 removed and the official source fields restored (served as PYQ again).
+//   verdict "official-text-repaired" — PR-B: an OFFICIAL row (no Others override) whose text was garbled by PDF
+//                                 extraction; stem / options restored to the official CBSE wording and answer /
+//                                 steps set to the official marking scheme. Stays official; still WITHHELD until the
+//                                 bf3b blind re-solve agrees (the controller then names the rows to un-withhold).
 //   verdict "flag-rejected"     — the scout flag (explanation vs key) was checked: the explanation does NOT
 //                                 contradict the key, so the row is unchanged.
 // `resolve: "pending"` = in the bf3 blind re-solve packet; the re-solve verdict is owed before the PR opens.
@@ -21,7 +25,7 @@
 
 export interface BankFix3Entry {
   id: string;
-  verdict: "fixed" | "withheld" | "restored" | "held-for-resolve" | "flag-rejected" | "re-sourced-official";
+  verdict: "fixed" | "withheld" | "restored" | "held-for-resolve" | "flag-rejected" | "re-sourced-official" | "official-text-repaired";
   /** D-number / item of the BANK-FIX-3 brief. */
   item: string;
   /** Omitted = the question bank. "hpq" = highlyProbableQuestions (hpqCompetencyAdditions.ts). */
@@ -37,6 +41,8 @@ export interface BankFix3Entry {
   keyMustContain?: readonly string[];
   /** values the served answer / finalAnswer / steps / stem must NOT carry any more. */
   mustNotContain?: readonly string[];
+  /** values the stem (questionText) must carry — the restored official symbols. */
+  stemMustContain?: readonly string[];
   why: string;
 }
 
@@ -59,7 +65,7 @@ export const BANK_FIX_3: readonly BankFix3Entry[] = [
   { id: "REP-M13", verdict: "fixed", item: "4", fields: ["solutionSteps"], others: false, resolve: "agree", key: "Both A and R are true, and R is the correct explanation of A.", keyOptionIndex: 0, why: "Blind re-solve (bf3) chose (a): the key is correct. The steps argued a different A-R pair (self/cross-pollination) and concluded (D); replaced by one [1 mark] step justifying (a). finalAnswer already the option text. LT-authored pack row." },
   { id: "PLE-N01", verdict: "fixed", item: "4", fields: ["finalAnswer", "solutionSteps"], others: false, resolve: "agree", key: "Parallel lines", keyOptionIndex: 0, why: "Blind re-solve (bf3) chose (a): the key is correct. The steps defined a linear equation and concluded (C) Straight line; replaced by one [1 mark] step (a1/a2 = b1/b2 != c1/c2). finalAnswer set to the option text. LT-authored pack row." },
   // ── 5. answer vs finalAnswer ─────────────────────────────────────────────────────────────────────
-  { id: "APQ-M-CIRC-009", verdict: "fixed", item: "5", fields: ["answer", "sourceOverride"], others: true, resolve: "pending", key: "80°", keyOptionIndex: 2, why: "answer said '(cannot be uniquely determined ...)' but finalAnswer and the official MS give (c) 80° (∠K = 50° per the official figure). answer set to '80°'. The row stays WITHHELD (BANK-FIX-1 PR-2, 'figure'): the figure is still not bound." },
+  { id: "APQ-M-CIRC-009", verdict: "re-sourced-official", item: "5 + PR-B", fields: ["answer", "questionText", "solutionSteps"], others: false, resolve: "pending", key: "80°", keyOptionIndex: 2, why: "PR-A: answer said '(cannot be uniquely determined ...)' but finalAnswer and the official MS give (c) 80°; answer set to '80°'. PR-B: stem verbatim with CBSE Practice Questions 2022-23 Maths Standard Q9 (cbseacademic.nic.in/web_material/SQP/ClassX_2022_23/Mathematics-PQ.pdf p5: 'PM = ½ KL' and the '(Note: The figure is not to scale.)' line restored); key C per Mathematics-PQMS.pdf p1. Others override removed (official APQ, like APQ-M-CIRC-010). One [1 mark] step. Figure bound by #1015. Still WITHHELD pending the bf3b blind re-solve." },
   // ── 6. explanation vs key — every one benign ─────────────────────────────────────────────────────
   { id: "EL2-001", verdict: "flag-rejected", item: "6", fields: [], others: false, key: "Charge", keyOptionIndex: 2, why: "Explanation names Charge (the key); 'rate of flow of energy is power' is a distractor note, not a contradiction." },
   { id: "LT2-060", verdict: "flag-rejected", item: "6", fields: [], others: false, key: "Dioptre", keyOptionIndex: 2, why: "Explanation 'measured in dioptre (D)' agrees with the key." },
@@ -83,6 +89,17 @@ export const BANK_FIX_3: readonly BankFix3Entry[] = [
   { id: "SAV-N-EXEM2-12-LA-010", verdict: "restored", item: "owner 10:21Z", fields: ["subtopic"], others: false, resolve: "pending", keyMustContain: ["54"], why: "restored by owner ruling 10:21Z (liquid transfer is IN). Text, answer and steps checked: 486π / 9π = 54, correct. Subtopic 'Hemispherical Bowl to Bottles' (unmapped) -> 'Volume of Solids' (mapped). Same item as SAV2P1-R02 (5-mark exemplar vs 3-mark pack)." },
   { id: "SAV2-R06", verdict: "restored", item: "owner 10:21Z", fields: ["solutionSteps", "sourceOverride", "subtopic"], others: true, resolve: "pending", keyMustContain: ["1792"], why: "restored by owner ruling 10:21Z. Steps solved n·V·16/17 = 1,850,400 as an EQUATION giving n = 1792 (it gives 1792.4). Rewritten as the no-overflow inequality: n ≤ 1792.4, so at most 1792 bricks. Key unchanged. Subtopic 'Combination/Transformation' -> 'Volume of Solids'." },
   { id: "SAV2P1-R02", verdict: "withheld", item: "owner 10:21Z + D32", fields: ["subtopic"], others: false, category: "duplicate", why: "duplicate of SAV-N-EXEM2-12-LA-010 (official exemplar kept). Restored by owner ruling 10:21Z (liquid transfer is IN; text and answer 54 correct; subtopic -> Volume of Solids), then withheld by D32 as the LazyTopper-pack copy of the official exemplar item. Not a template of any generated row." },
+  // ── PR-B: official-text repair of the figure-bound withheld rows (official PDFs, cbse.gov.in / cbseacademic.nic.in) ──
+  { id: "PYQ-M-TRI-002", verdict: "official-text-repaired", item: "PR-B", fields: ["questionText", "solutionSteps"], others: false, resolve: "pending", key: "1 cm", keyOptionIndex: 3, stemMustContain: ["AB ∥ PQ"], why: "CBSE Class X Maths Standard (041) 2023 QP 30/2/2 Q6 (p5): 'AB ∥ PQ' restored (the ∥ was lost); MS 30/2/2 Q6 = (d) 1 cm. Still WITHHELD pending the bf3b blind re-solve." },
+  { id: "PYQ-M-TRI-003", verdict: "official-text-repaired", item: "PR-B", fields: ["questionText", "solutionSteps"], others: false, resolve: "pending", key: "2 cm", keyOptionIndex: 0, stemMustContain: ["∠A = ∠C"], why: "CBSE Class X Maths Standard (041) 2023 QP 30/2/3 Q4 (p5): '∠A = ∠C' restored (angle signs lost); MS 30/2/3 Q4 = (a) 2 cm. Still WITHHELD pending the bf3b blind re-solve." },
+  { id: "PYQ-M-TRI-004", verdict: "official-text-repaired", item: "PR-B", fields: ["questionText", "solutionSteps"], others: false, resolve: "pending", key: "10", keyOptionIndex: 3, stemMustContain: ["DE ∥ BC"], why: "CBSE Class X Maths Standard (041) 2023 QP 30/5/1 Q4 (p5): 'DE ∥ BC' restored; MS 30/5/1 Q4 = (d) 10. Still WITHHELD pending the bf3b blind re-solve." },
+  { id: "PYQ-M-CIRC-006", verdict: "official-text-repaired", item: "PR-B", fields: ["answer", "options", "questionText", "solutionSteps"], others: false, resolve: "pending", key: "115°", keyOptionIndex: 3, stemMustContain: ["∠TPO = 25°"], why: "CBSE Class X Maths Standard (041) 2023 QP 30/4/3 Q16 (p7): '25o' / '65 o' degree glyphs restored to ° in stem, options and answer; MS 30/4/3 Q16 = (d) 115°. Still WITHHELD pending the bf3b blind re-solve." },
+  { id: "PYQ-M-CIRC-007", verdict: "official-text-repaired", item: "PR-B", fields: ["answer", "options", "questionText", "solutionSteps"], others: false, resolve: "pending", key: "30°", keyOptionIndex: 0, stemMustContain: ["∠COD = 120°", "∠BAO"], why: "CBSE Class X Maths Standard (041) 2023 QP 30/5/1 Q16 (p9): '∠COD = 120°' and '∠BAO' restored; options carry ° as printed; MS 30/5/1 Q16 = (a) 30. Still WITHHELD pending the bf3b blind re-solve." },
+  { id: "PYQ-M-CIRC-013", verdict: "official-text-repaired", item: "PR-B", fields: ["answer", "finalAnswer", "questionText", "solutionSteps"], others: false, resolve: "pending", keyMustContain: ["∠QAP + ∠APR = 90°"], stemMustContain: ["∠QAP + ∠APR = 90°"], why: "CBSE Class X Maths Standard (041) 2023 QP 30/2/1 Q31 (p17): '∠QAP + ∠APR = 90°' restored; steps = MS 30/2/1 Q31 (1 + 1 + ½ + ½). Still WITHHELD pending the bf3b blind re-solve." },
+  { id: "PYQ-M-2024-CIRC-003", verdict: "official-text-repaired", item: "PR-B", fields: ["questionText", "solutionSteps"], others: false, resolve: "pending", key: "125°", keyOptionIndex: 3, stemMustContain: ["∠TPO = 35°", "the measure of ∠x"], why: "CBSE Class X Maths Standard (041) 2024 QP 30/3/1 Q10 (p9): run-together text and the 'Ð' angle glyph restored; MS 2023-24 30/3/1 Q10 = (D) 125°. Still WITHHELD pending the bf3b blind re-solve." },
+  { id: "PYQ-M-2024-CIRC-010a", verdict: "official-text-repaired", item: "PR-B", fields: ["answer", "finalAnswer", "questionText", "solutionSteps"], others: false, resolve: "pending", keyMustContain: ["BP = BQ"], stemMustContain: ["∠BAQ = 30°; show that BP = BQ"], why: "CBSE Class X Maths Standard (041) 2024 QP 30/2/1 Q28(a) (p17): stem restored; digit-garbage answer / steps replaced by MS 2023-24 30/2/1 Q28(a) (six ½ steps; the MS's numbered angles ∠1..∠6 written as ∠OAQ, ∠OQA, ∠OQB, ∠BQP, ∠QPB, ∠QOB). Still WITHHELD pending the bf3b blind re-solve." },
+  { id: "PYQ-M-2024-CIRC-011a", verdict: "official-text-repaired", item: "PR-B", fields: ["answer", "finalAnswer", "questionText", "solutionSteps"], others: false, resolve: "pending", keyMustContain: ["BP = BQ"], stemMustContain: ["∠BAQ = 30°; show that BP = BQ"], why: "CBSE Class X Maths Standard (041) 2024 QP 30/2/2 Q26(a) (p15): same question and same MS (30/2/2 Q26(a)) as PYQ-M-2024-CIRC-010a; text repaired identically and the '3 OR' residue removed. Stays withheld as 'duplicate' of 010a (BANK-FIX-1 PR-2) and has no bound figure. Still WITHHELD pending the bf3b blind re-solve." },
+  { id: "PYQ-M-2026-TRI-004", verdict: "official-text-repaired", item: "PR-B", fields: ["answer", "finalAnswer", "questionText", "solutionSteps", "subtopic", "topicKey"], others: false, resolve: "pending", keyMustContain: ["√130/3"], stemMustContain: ["ΔABC in the ratio 1 : 2"], why: "CBSE Class X Maths Standard (041) 2026 QP 30/5/3 Q21 (1172-3_30-5-3 p13): 'ΔABC' restored; glyph-garbled answer replaced by MS 2025-26 30/5/3 Q21 (D = (0, 4/3) [1] + AD = √130/3 units [1]). Re-tagged triangles/General -> coordinate-geometry / 'Section Formula and Distance Formula' (mapped); its figure entry's chapter -> Coordinate Geometry. Still WITHHELD pending the bf3b blind re-solve." },
 ];
 
 /** Ids BANK-FIX-3 restored to service after BANK-FIX-1 PR-2 withheld them (owner ruling 10:21Z). */

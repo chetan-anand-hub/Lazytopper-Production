@@ -25,6 +25,7 @@ import { conceptForSubtopic } from "../concepts/conceptLabelMap";
 import { highlyProbableQuestions } from "../highlyProbableQuestions";
 import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix1Pr2Withholds";
 import { BANK_FIX_3, BANK_FIX_3_RESTORED_IDS, SCRATCH_TEXT_RE } from "./bankFix3Ledger";
+import { getFiguresForQuestion } from "../visualConceptRegistry";
 
 type Row = Record<string, unknown> & { id: string };
 const raw = RAW_CANONICAL_QUESTION_BANK as unknown as Row[];
@@ -62,12 +63,13 @@ function scratchHits(rows: readonly Row[]): string[] {
 describe("BANK-FIX-3 · ledger and ids", () => {
   it("is non-vacuous and covers every verdict the lane used", () => {
     const by = (v: string) => BANK_FIX_3.filter((e) => e.verdict === v).length;
-    expect(by("fixed")).toBe(19);
+    expect(by("fixed")).toBe(18);
     expect(by("withheld")).toBe(3);
     expect(by("restored")).toBe(2);
     expect(by("held-for-resolve")).toBe(0);
     expect(by("flag-rejected")).toBe(7);
-    expect(by("re-sourced-official")).toBe(1);
+    expect(by("re-sourced-official")).toBe(2);
+    expect(by("official-text-repaired")).toBe(10);
   });
   it("every ledger id is still on its surface (ids are never changed or deleted); ids are unique", () => {
     expect(BANK_FIX_3.filter((e) => !rowOf(e)).map((e) => e.id)).toEqual([]);
@@ -96,7 +98,7 @@ describe("BANK-FIX-3 · withheld and restored", () => {
       expect(servedIds.has(id), id).toBe(true);
     }
   });
-  it("APQ-M-CIRC-009 had its answer fixed but stays withheld (figure not bound)", () => {
+  it("APQ-M-CIRC-009 had its answer fixed; its figure is bound (#1015) but it stays withheld until the bf3b re-solve", () => {
     expect(WITHHELD_QUESTION_IDS.has("APQ-M-CIRC-009")).toBe(true);
     expect(servedIds.has("APQ-M-CIRC-009")).toBe(false);
   });
@@ -105,7 +107,7 @@ describe("BANK-FIX-3 · withheld and restored", () => {
 describe("BANK-FIX-3 · changed rows are pinned to their final key / answer", () => {
   it("objective keys resolve (app resolver) to the pinned option", () => {
     const pinned = BANK_FIX_3.filter((e) => e.keyOptionIndex !== undefined);
-    expect(pinned.length).toBe(11);
+    expect(pinned.length).toBe(17);
     const bad: string[] = [];
     for (const e of pinned) {
       const q = rawById.get(e.id)!;
@@ -151,7 +153,7 @@ describe("BANK-FIX-3 · changed rows are pinned to their final key / answer", ()
 describe("BANK-FIX-3 · ruling 2: Others rows are never PYQ / year-bearing", () => {
   it("every ledger row marked Others carries the override, no year / set / isPYQ, and is not PYQ", () => {
     const others = BANK_FIX_3.filter((e) => e.others);
-    expect(others.length).toBe(13);
+    expect(others.length).toBe(12);
     const bad: string[] = [];
     for (const e of others) {
       const q = rawById.get(e.id)!;
@@ -255,6 +257,66 @@ describe("BANK-FIX-3 · PYQ-M-2025-SAV-004 is official again (CBSE 2025, 30/3/1 
     const marks = (q.solutionSteps as string[]).map((t) => Number(/^\[(\d+(?:\.\d+)?) mark\]/.exec(t)?.[1]));
     expect(marks).toEqual([1, 0.5, 1, 1, 0.5, 1]);
     expect(q.marks).toBe(5);
+    expect(conceptForSubtopic(String(q.topicKey), String(q.subtopic))).toBeTruthy();
+  });
+});
+
+describe("BANK-FIX-3 PR-B · official-text repair of the figure-bound withheld rows", () => {
+  const repaired = BANK_FIX_3.filter((e) => e.verdict === "official-text-repaired" || e.id === "APQ-M-CIRC-009");
+  const stepMarks = (q: Row) => (q.solutionSteps as string[]).map((t) => Number(/^\[(\d+(?:\.\d+)?) marks?\] /.exec(t)?.[1] ?? NaN));
+  it("covers exactly the eleven PR-B rows", () => {
+    expect(repaired.map((e) => e.id).sort()).toEqual([
+      "APQ-M-CIRC-009", "PYQ-M-2024-CIRC-003", "PYQ-M-2024-CIRC-010a", "PYQ-M-2024-CIRC-011a", "PYQ-M-2026-TRI-004",
+      "PYQ-M-CIRC-006", "PYQ-M-CIRC-007", "PYQ-M-CIRC-013", "PYQ-M-TRI-002", "PYQ-M-TRI-003", "PYQ-M-TRI-004",
+    ]);
+  });
+  it("every row is still withheld and not served (un-withhold waits for the blind re-solve)", () => {
+    for (const e of repaired) {
+      expect(WITHHELD_QUESTION_IDS.has(e.id), e.id).toBe(true);
+      expect(servedIds.has(e.id), e.id).toBe(false);
+    }
+  });
+  it("stems carry the restored official symbols and no extraction residue", () => {
+    const bad: string[] = [];
+    for (const e of repaired) {
+      const q = rawById.get(e.id)!;
+      const stem = String(q.questionText);
+      for (const v of e.stemMustContain ?? []) if (!stem.includes(v)) bad.push(`${e.id}: stem missing ${v}`);
+      const all = textOf(q, ["questionText", "options", "answer", "finalAnswer", "solutionSteps"]);
+      if (/[\u00d0\ue000-\uf8ff\u0d6c\u0d70]|\d ?o\b|\b3 OR\b|\s=\s=\s/u.test(all)) bad.push(`${e.id}: residue`);
+    }
+    expect(bad).toEqual([]);
+  });
+  it("official rows stay official: no Others override; PYQ rows keep year / set and are PYQ", () => {
+    for (const e of repaired) {
+      const q = rawById.get(e.id)!;
+      expect(q.sourceOverride, e.id).toBeUndefined();
+      if (e.id.startsWith("PYQ-")) {
+        expect(q.pyqYear && q.pyqSet, e.id).toBeTruthy();
+        expect(isPYQQuestion(q), e.id).toBe(true);
+      }
+    }
+  });
+  it("[N mark] step prefixes sum to the row's marks (official ½ steps as 0.5)", () => {
+    for (const e of repaired) {
+      const q = rawById.get(e.id)!;
+      const m = stepMarks(q);
+      expect(m.every((x) => Number.isFinite(x)), e.id).toBe(true);
+      expect(m.reduce((a, b) => a + b, 0), e.id).toBe(q.marks);
+    }
+    expect(stepMarks(rawById.get("PYQ-M-CIRC-013")!)).toEqual([1, 1, 0.5, 0.5]);
+    expect(stepMarks(rawById.get("PYQ-M-2024-CIRC-010a")!)).toEqual([0.5, 0.5, 0.5, 0.5, 0.5, 0.5]);
+    expect(stepMarks(rawById.get("PYQ-M-2026-TRI-004")!)).toEqual([1, 1]);
+  });
+  it("every row but the 011a duplicate resolves to its bound official figure", () => {
+    for (const e of repaired) {
+      const n = getFiguresForQuestion(e.id).length;
+      expect(n, e.id).toBe(e.id === "PYQ-M-2024-CIRC-011a" ? 0 : 1);
+    }
+  });
+  it("PYQ-M-2026-TRI-004 is coordinate geometry with a mapped in-syllabus label", () => {
+    const q = rawById.get("PYQ-M-2026-TRI-004")!;
+    expect([q.topicKey, q.subtopic]).toEqual(["coordinate-geometry", "Section Formula and Distance Formula"]);
     expect(conceptForSubtopic(String(q.topicKey), String(q.subtopic))).toBeTruthy();
   });
 });
