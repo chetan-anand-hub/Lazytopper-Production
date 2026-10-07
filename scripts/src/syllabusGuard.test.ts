@@ -980,6 +980,37 @@ describe("GUARD-3 G3-TEXT — OUT / FORMATIVE phrases in question text, options 
       [],
     );
   });
+  // FU-GUARD3-COMPLETE-SQUARE: normaliseLabel() drops articles, so "complete the square" (the OUT
+  // method) and the noun "a complete square grid" (LCM/HCF rows) both normalise to "complete square".
+  // The method phrase is a literalPhrase: its "the" must be present in the sentence.
+  test("PASS: a 'complete square' NOUN (grid / arrangement of tiles) is not the completing-the-square method", () => {
+    for (const t of [
+      "Find the side of the smallest complete square grid that can be made from tiles of 12 cm by 18 cm.",
+      "The tiles are laid in a complete square arrangement of tiles; find the least number of tiles needed.",
+    ]) {
+      assert.deepEqual(findings({ topicKey: "real-numbers", questionText: t }, "G3-TEXT"), [], t);
+      assert.deepEqual(findings({ topicKey: "quadratic-equations", questionText: t }, "G3-TEXT"), [], t);
+    }
+  });
+  test("CONTROL: the completing-the-square METHOD still FAILS (every phrasing, incl. with a noun use in the same sentence)", () => {
+    for (const [t, term] of [
+      ["Solve by completing the square: x² − 6x + 5 = 0.", "completing square"],
+      ["Complete the square to solve x²+4x−5=0.", "complete square"],
+      ["Use the method of completing square to find the roots.", "completing square"],
+      ["Arrange the tiles into a complete square grid, then complete the square for x² + 2x.", "complete square"],
+    ]) {
+      assert.deepEqual(
+        findings({ topicKey: "quadratic-equations", questionText: t }, "G3-TEXT"),
+        [["G3-TEXT", "hit", `quadratic-equations/out[0]: "${term}"`]],
+        t,
+      );
+    }
+  });
+  test("literalText keeps articles and inflection; the completing-the-square synonym carries its literal", () => {
+    assert.equal(G3.literalText("Complete  THE square’s grid!"), "complete the square s grid");
+    const lit = G3.synonymTerms(G3.TEXT_SYNONYMS, MATCHER.items).terms.filter((t) => t.literal !== undefined);
+    assert.deepEqual(lit.map((t) => [t.itemId, t.term, t.literal]), [["quadratic-equations/out[0]", "complete square", "complete the square"]]);
+  });
   test("every TEXT_SYNONYMS entry resolves to exactly one reference item; a rotted one is an ERROR", () => {
     assert.deepEqual(G3.synonymTerms(G3.TEXT_SYNONYMS, MATCHER.items).errors, []);
     const bad = G3.synonymTerms([{ key: "real-numbers", kind: "out", itemStartsWith: "No such item", phrases: ["two words"] }], MATCHER.items);
