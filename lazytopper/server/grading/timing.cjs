@@ -72,7 +72,7 @@ const CLIENT_PER_ATTEMPT_BUDGET_MS = 90000;
    clamp is 80 000): the synchronous path's timing above is unchanged, number for number.
      JOB_WALL_MS          180 000 — from the moment the job starts RUNNING (queue time excluded). A
                           question unfinished then is "not graded" (timeout) and never charged.
-     JOB_PER_CALL_MS      120 000 — every model call's cap (first attempt AND retry). Above the
+     JOB_PER_CALL_MS      120 000 — every model call's cap (first attempt AND retry, except the J3 abort retry below). Above the
                           highest grading call ever observed: 77.1 s server time for a 4-question
                           single-call paper (OR-LIVE TRUNK-FINAL on e2c5bb46, WAVE_STATE_A15 l.295) and
                           67 s for the slowest 8-question chunk (HOTFIX-2 run b, review §3.4 —
@@ -85,12 +85,20 @@ const CLIENT_PER_ATTEMPT_BUDGET_MS = 90000;
 const JOB_WALL_MS = 180000;
 const JOB_PER_CALL_MS = 120000;
 const JOB_CHUNK_QUESTIONS = 8;
+/* J3 round 6 (FU-GRADING-ABORTS; cofounder ruling "split retry on the extended budget"): a job chunk
+   whose FIRST call is aborted is split, as before, into one-question calls (attempt 2), and those calls
+   get this larger budget: a per-call cap of JOB_ABORT_RETRY_PER_CALL_MS inside a job wall of
+   JOB_ABORT_RETRY_WALL_MS (from the same start). Every chunk that did not abort keeps the J1 numbers
+   above exactly (same request, same timing). Measured: #1009. */
+const JOB_ABORT_RETRY_PER_CALL_MS = 180000;
+const JOB_ABORT_RETRY_WALL_MS = 270000;
 const JOB_HEARTBEAT_MS = 10000;
 const JOB_STALE_MS = 30000;
 
 /** The job budget the grading core takes as `jobTiming` (a fresh object; never env-driven). */
 function jobTiming() {
-  return { wallMs: JOB_WALL_MS, perCallMs: JOB_PER_CALL_MS, chunkQuestions: JOB_CHUNK_QUESTIONS };
+  return { wallMs: JOB_WALL_MS, perCallMs: JOB_PER_CALL_MS, chunkQuestions: JOB_CHUNK_QUESTIONS,
+    abortRetry: { perCallMs: JOB_ABORT_RETRY_PER_CALL_MS, wallMs: JOB_ABORT_RETRY_WALL_MS } };
 }
 
 function clampInt(raw, lo, hi, dflt) {
@@ -160,6 +168,8 @@ module.exports = {
   JOB_WALL_MS,
   JOB_PER_CALL_MS,
   JOB_CHUNK_QUESTIONS,
+  JOB_ABORT_RETRY_PER_CALL_MS,
+  JOB_ABORT_RETRY_WALL_MS,
   JOB_HEARTBEAT_MS,
   JOB_STALE_MS,
   jobTiming,

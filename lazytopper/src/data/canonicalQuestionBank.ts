@@ -565,6 +565,9 @@ import { PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class
 import { QUADRATIC_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/quadratic-equations.cbq.ltgen';
 import { COORDINATE_GEOMETRY_CBQ_LT_GENERATED } from './questionBanks/class10/maths/coordinate-geometry.cbq.ltgen';
 import { SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/surface-areas-and-volumes.cbq.ltgen';
+import { ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/acids-bases-and-salts.c3.cbq.ltgen';
+import { CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/chemical-reactions-and-equations.c3.cbq.ltgen';
+import { OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/our-environment.c3.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1094,6 +1097,9 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...QUADRATIC_EQUATIONS_CBQ_LT_GENERATED,
   ...COORDINATE_GEOMETRY_CBQ_LT_GENERATED,
   ...SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED,
+  ...ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED,
+  ...CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED,
+  ...OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------
@@ -1920,6 +1926,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291",
   "LTG-S-HERED-292", "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297",
   "LTG-S-HERED-298", "LTG-S-HERED-299", // the two 5-mark sex-determination rows
+  // owner ruling 10:25Z (cap = A): the cap of 8 covers ALL generated rows, so the two GEN-THIN sex-determination rows
+  // are withheld too (official CBSE sex-determination questions are not capped) ----
+  "LTG-S-HERED-102", "LTG-S-HERED-106",
   // ---- BANK-FIX-1 PR-2 (2026-10-07): broken tagging, duplicates, missing figures, out-of-syllabus (withholds2.json) ----
   "PYQ-S-2026-ACID-012",        // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "PYQ-S-ACID-001",             // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
@@ -2113,6 +2122,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "2026-TRIG-P1-A-041",         // not-board-content: "from which side should you start a proof" is proof-writing advice, not a question on the syllabus
   "2026-TRIG-P1-A-043",         // not-board-content: "what final phrase ends a proof" (Hence proved) is exam etiquette, not syllabus content
   "2026-TRIG-P1-A-044",         // not-board-content: "what to do before part (i) of a case study" is exam technique, not syllabus content
+  // ---- CBQ-1 C3 (owner ruling 2026-10-07, CI-1 13:0xZ) ----
+  "LTG-M-QE-284",               // owner ruling 2026-10-07 (CI-1 13:0xZ): part (iii) 'greatest height' via equal roots = maxima, OUT (generated CBQ; withheld, not deleted)
 ]);
 
 /**

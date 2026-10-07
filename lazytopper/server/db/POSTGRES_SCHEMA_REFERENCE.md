@@ -259,7 +259,16 @@ state of a deployment with no Postgres.
   returns its zeroed baseline. The two public entry points, `lookup` and `save`, add
   a second `try/catch` on top. No 42P01 reaches a user-facing route.
 
-Neither table is created anywhere. There is no migration directory, no `.sql` file
-and no boot-time `CREATE TABLE` for either one, anywhere in this repository. If you
-want either cache to actually cache, run the DDL above by hand against the target
-database, once.
+**`step_solutions` is created at boot (FU-STEP-SOLUTION-CACHE-TABLE).**
+`lazytopper/server/db/ensureStepSolutionsTable.cjs` issues the §1b DDL verbatim
+(`CREATE TABLE IF NOT EXISTS`, idempotent, fail-open) from the `server.listen`
+callback in `index.cjs`, beside `ensureGeneratedQuestionsTable`, whenever
+`DATABASE_URL` is set and `STUB_MODE` is off. Until then production logged
+`relation "step_solutions" does not exist` and every "Show steps" regenerated.
+
+**`tutor_cache` is still created nowhere - deliberately.** The `createTutorCache()`
+instance in `index.cjs` has no consumer (no route calls `lookup`, `save` or
+`getStats`), so the table would serve nothing today. Creating it is a decision for
+whoever wires the cache, because it arms a 0.38-Jaccard semantic answer cache. Until
+then there is no migration directory, no `.sql` file and no boot-time `CREATE TABLE`
+for it anywhere in this repository.
