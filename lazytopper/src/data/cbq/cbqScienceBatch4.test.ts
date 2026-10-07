@@ -15,7 +15,7 @@ import "../../test/preloadBankChapters";
 
 import { describe, it, expect } from "vitest";
 
-import { canonicalQuestionBank } from "../canonicalQuestionBank";
+import { canonicalQuestionBank, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 import { isCbq } from "../../lib/cbq/cbqClassification";
 import type { CanonicalQuestion } from "../predictionTypes";
 import { METALS_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/metals-and-non-metals.b1.cbq.ltgen";
@@ -30,12 +30,23 @@ const PACKS = [
 ] as const;
 
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
+// Owner DEC-12 (2026-10-07): persistence of vision is not in the 2026-27 Human Eye content list → withheld.
+const PERSISTENCE_OF_VISION: readonly string[] = ["LTG-S-EYE-202", "LTG-S-EYE-207", "LTG-S-EYE-212", "LTG-S-EYE-215"];
 // C1's single classifier (lib/cbq/cbqClassification.ts, #977): isCbq = competencyVerified === true.
 
 describe("CBQ-1 · C2 batch 4 (Metals, Heredity, Human Eye)", () => {
-  it("every pack row is served, in its chapter, generated, and a CBQ", () => {
+  it("owner DEC-12: the 4 persistence-of-vision rows are withheld (kept in the pack, not served)", () => {
+    for (const id of PERSISTENCE_OF_VISION) {
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(true);
+      expect(served.has(id), id).toBe(false);
+      expect(HUMAN_EYE_CBQ_B1_LT_GENERATED.some((q) => q.id === id), `${id} stays in the pack`).toBe(true);
+    }
+  });
+
+  it("every other pack row is served, in its chapter, generated, and a CBQ", () => {
     for (const p of PACKS) {
       for (const q of p.rows) {
+        if (PERSISTENCE_OF_VISION.includes(q.id)) continue;
         const s = served.get(q.id);
         expect(s, `${q.id} is not served`).toBeTruthy();
         expect(s?.topicKey, q.id).toBe(p.slug);

@@ -101,7 +101,7 @@ export async function gradeWorksheetAndRecord(
   worksheet: PersistedWorksheet,
   upload: { imageBase64: string; imageMimeType: string },
   /** LOW-END-1 R2: the panel's stage listener (Uploading NN% -> Sent ✓ -> Grading… -> Done). */
-  opts?: { onStage?: PaidCallOptions["onStage"] },
+  opts?: { onStage?: PaidCallOptions["onStage"]; job?: PaidCallOptions["job"] },
 ): Promise<WorksheetGradeOutcome> {
   const rawResponse = await gradeWorksheet({
     worksheetId: worksheet.worksheetId,
@@ -129,7 +129,13 @@ export async function gradeWorksheetAndRecord(
     })),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
-  }, { surface: "worksheet", paperKey: worksheet.worksheetId, ...(opts?.onStage ? { onStage: opts.onStage } : {}) });
+  }, {
+    surface: "worksheet",
+    paperKey: worksheet.worksheetId,
+    ...(opts?.onStage ? { onStage: opts.onStage } : {}),
+    // GRADING-JOBS-1 J2 — a background job when the panel opted in (rows land one by one).
+    ...(opts?.job ? { job: opts.job } : {}),
+  });
 
   if (!rawResponse.ok) return { response: rawResponse, miOutcomes: [] };
   // SCORECARD-MI-1 — ONE set of counts for every reader of this grade (scorecard, PDF,

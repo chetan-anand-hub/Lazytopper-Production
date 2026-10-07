@@ -14,10 +14,10 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In a school lab, Kavya aims a laser pointer at a plane mirror lying flat on the table. She measures with a protractor that the incident beam makes an angle of 35° with the surface of the mirror. What is the angle between the incident beam and the reflected beam?",
     "options": [
+      "110°",
       "35°",
       "55°",
-      "70°",
-      "110°"
+      "70°"
     ],
     "answer": "110°",
     "solutionSteps": [
@@ -72,9 +72,9 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Ishita gets a sharp image of a far-away window on a screen kept 20 cm in front of a concave mirror. She now places a lit candle 30 cm in front of the same mirror. Where must she place the screen, and what kind of image of the flame will she get?",
     "options": [
-      "60 cm in front of the mirror; inverted and enlarged",
       "60 cm behind the mirror; erect and enlarged",
       "12 cm in front of the mirror; inverted and diminished",
+      "60 cm in front of the mirror; inverted and enlarged",
       "40 cm in front of the mirror; inverted and of the same size"
     ],
     "answer": "60 cm in front of the mirror; inverted and enlarged",
@@ -102,9 +102,9 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "Mr. Thomas runs a long, narrow grocery shop. He wants to fix one mirror near the ceiling so that, from the billing counter, he can watch the whole length of the shop and always see customers the right way up, however near or far they are. Which choice is best?",
     "options": [
       "A concave mirror, because it always gives an enlarged image",
-      "A convex mirror, because it always gives an erect, diminished image and covers a wider field of view",
       "A plane mirror, because it gives an image of the same size as the object",
-      "A concave mirror, because it always gives an erect image of distant objects"
+      "A concave mirror, because it always gives an erect image of distant objects",
+      "A convex mirror, because it always gives an erect, diminished image and covers a wider field of view"
     ],
     "answer": "A convex mirror, because it always gives an erect, diminished image and covers a wider field of view",
     "solutionSteps": [
@@ -186,7 +186,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "The word on the bonnet of an ambulance is painted as a mirror-reversed version of \"AMBULANCE\". (a) Which property of the image formed by a plane mirror makes this necessary? (b) What will a driver in front see when she looks at the ambulance in her mirror, and why does this help in an emergency?",
+    "questionText": "The word on the bonnet of an ambulance is painted as a mirror-reversed version of \"AMBULANCE\". (a) Which property of the image formed by a plane mirror makes this necessary? (b) What will a driver in front see when she looks at the ambulance in her mirror, and why does this help in an emergency?\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) Lateral inversion: the left and right of the image are interchanged. (b) She reads \"AMBULANCE\" correctly, so she can identify it at once and give way.",
     "solutionSteps": [
@@ -211,7 +211,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Gurpreet holds a spherical mirror facing a distant tree outside the lab window and gets a sharp, inverted image of the tree on a screen kept 12 cm in front of the mirror. (a) Name the mirror and state its focal length. (b) She now wants to use this mirror to send out a parallel beam from a small bulb. At what distance from the mirror should she place the bulb, and what is the mirror's radius of curvature?",
+    "questionText": "Gurpreet holds a spherical mirror facing a distant tree outside the lab window and gets a sharp, inverted image of the tree on a screen kept 12 cm in front of the mirror. (a) Name the mirror and state its focal length. (b) She now wants to use this mirror to send out a parallel beam from a small bulb. At what distance from the mirror should she place the bulb, and what is the mirror's radius of curvature?\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) Concave mirror, f = 12 cm (−12 cm by sign convention). (b) Bulb at the principal focus, 12 cm from the mirror; R = 2f = 24 cm.",
     "solutionSteps": [
@@ -237,7 +237,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Dr. Fatima uses a small concave mirror of focal length 2 cm to examine a patient's molar tooth. (a) Should she hold the mirror less than 2 cm or more than 2 cm away from the tooth? Give a reason based on the image she needs. (b) Her trainee suggests a small convex mirror instead. Why would that be less useful?",
+    "questionText": "Dr. Fatima uses a small concave mirror of focal length 2 cm to examine a patient's molar tooth. (a) Should she hold the mirror less than 2 cm or more than 2 cm away from the tooth? Give a reason based on the image she needs. (b) Her trainee suggests a small convex mirror instead. Why would that be less useful?\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) Less than 2 cm, i.e. tooth between pole and focus, giving a virtual, erect, enlarged image. (b) A convex mirror always gives a diminished image, so details look smaller.",
     "solutionSteps": [
@@ -262,7 +262,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "To make a simple road-sign reflector, Aditya fixes two plane mirrors edge to edge so that their reflecting surfaces face each other at 90°. A ray of light falls on the first mirror with an angle of incidence of 30°. (a) What is the angle of reflection at the first mirror? (b) Find the angle of incidence at the second mirror. (c) State the direction of the ray finally leaving the second mirror compared with the original ray, and why this is useful for a road sign.",
+    "questionText": "To make a simple road-sign reflector, Aditya fixes two plane mirrors edge to edge so that their reflecting surfaces face each other at 90°. A ray of light falls on the first mirror with an angle of incidence of 30°. (a) What is the angle of reflection at the first mirror? (b) Find the angle of incidence at the second mirror. (c) State the direction of the ray finally leaving the second mirror compared with the original ray, and why this is useful for a road sign.\n[Marks: (a) 1 mark, (b) 1 mark, (c) 1 mark]",
     "options": [],
     "answer": "(a) 30° (b) 60° (c) The final ray is parallel to the incident ray but in the opposite direction, so light returns towards the vehicle's driver.",
     "solutionSteps": [
@@ -290,7 +290,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A pharmacy has a convex security mirror of focal length 1 m mounted in a corner. A customer 1.8 m tall stands 3 m in front of the mirror. Find (a) the position of the customer's image, (b) the height of the image, and (c) state the nature of the image.",
+    "questionText": "A pharmacy has a convex security mirror of focal length 1 m mounted in a corner. A customer 1.8 m tall stands 3 m in front of the mirror. Find (a) the position of the customer's image, (b) the height of the image, and (c) state the nature of the image.\n[Marks: (a) 1 mark, (b) 1 mark, (c) 1 mark]",
     "options": [],
     "answer": "(a) v = +0.75 m, i.e. 0.75 m behind the mirror (b) 0.45 m (c) Virtual, erect and diminished.",
     "solutionSteps": [
@@ -318,7 +318,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Imran shaves with a concave mirror of focal length 20 cm, holding his face 10 cm from it. (a) Calculate the position of the image of his face. (b) Find the magnification and describe the image. (c) Imran's brother says he will see the same kind of image even if he stands 40 cm from this mirror. Is he right? Explain.",
+    "questionText": "Imran shaves with a concave mirror of focal length 20 cm, holding his face 10 cm from it. (a) Calculate the position of the image of his face. (b) Find the magnification and describe the image. (c) Imran's brother says he will see the same kind of image even if he stands 40 cm from this mirror. Is he right? Explain.\n[Marks: (a) 1 mark, (b) 1 mark, (c) 1 mark]",
     "options": [],
     "answer": "(a) v = +20 cm (20 cm behind the mirror) (b) m = +2: virtual, erect, twice enlarged (c) No — at 40 cm (beyond F, at C) the image is real, inverted and of the same size.",
     "solutionSteps": [
@@ -345,7 +345,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "The eco-club of a school in Jodhpur tested two shiny metal dishes of the same size as solar heaters on a sunny afternoon. Dish P curves inwards towards the Sun (reflecting surface on the inside) and has a radius of curvature of 100 cm. Dish Q curves outwards (reflecting surface on the outside). In each trial a small blackened vessel holding 250 mL of water at 30 °C was kept on the axis of the dish, facing the Sun, for 20 minutes. Their record was:\nTrial 1 — Dish P, vessel 50 cm from the dish: 72 °C\nTrial 2 — Dish P, vessel 30 cm from the dish: 48 °C\nTrial 3 — Dish Q, vessel 50 cm in front of the dish: 34 °C\nThe club leader, Priyanka, concluded that the shape of the dish and the position of the vessel both matter.\n(i) Name the type of mirror that Dish P acts as, and state its focal length.\n(ii) Name the point at which the vessel was kept in Trial 1.\n(iii) Explain why Trial 2 gave a lower temperature than Trial 1, and why Dish Q heated the water the least.",
+    "questionText": "The eco-club of a school in Jodhpur tested two shiny metal dishes of the same size as solar heaters on a sunny afternoon. Dish P curves inwards towards the Sun (reflecting surface on the inside) and has a radius of curvature of 100 cm. Dish Q curves outwards (reflecting surface on the outside). In each trial a small blackened vessel holding 250 mL of water at 30 °C was kept on the axis of the dish, facing the Sun, for 20 minutes. Their record was:\nTrial 1 — Dish P, vessel 50 cm from the dish: 72 °C\nTrial 2 — Dish P, vessel 30 cm from the dish: 48 °C\nTrial 3 — Dish Q, vessel 50 cm in front of the dish: 34 °C\nThe club leader, Priyanka, concluded that the shape of the dish and the position of the vessel both matter.\n(i) Name the type of mirror that Dish P acts as, and state its focal length. [1 mark]\n(ii) Name the point at which the vessel was kept in Trial 1. [1 mark]\n(iii) Explain why Trial 2 gave a lower temperature than Trial 1, and why Dish Q heated the water the least. [2 marks]",
     "options": [],
     "answer": "(i) Concave mirror, f = 50 cm (ii) Principal focus (iii) At 30 cm the vessel is not at F, so the reflected rays are not concentrated on it; Dish Q is convex and makes the rays diverge, so little energy reaches the vessel.",
     "solutionSteps": [
@@ -372,7 +372,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "On a narrow mountain road near Shimla, drivers cannot see vehicles coming round a sharp bend. The road department fixes a large curved mirror on a pole at the bend. Its reflecting surface bulges outwards towards the road, and its radius of curvature is 4 m. Sonam, a driver waiting at the bend, sees an approaching car in the mirror. The car is 8 m in front of the mirror and is 1.5 m tall. She notices that the car looks smaller than it really is but is always upright, and that she can see a long stretch of the road in this one mirror.\n(i) Name the type of mirror used at the bend.\n(ii) What is the focal length of this mirror (with sign, using the New Cartesian sign convention)?\n(iii) Find the position of the car's image, and the height of the image.",
+    "questionText": "On a narrow mountain road near Shimla, drivers cannot see vehicles coming round a sharp bend. The road department fixes a large curved mirror on a pole at the bend. Its reflecting surface bulges outwards towards the road, and its radius of curvature is 4 m. Sonam, a driver waiting at the bend, sees an approaching car in the mirror. The car is 8 m in front of the mirror and is 1.5 m tall. She notices that the car looks smaller than it really is but is always upright, and that she can see a long stretch of the road in this one mirror.\n(i) Name the type of mirror used at the bend. [1 mark]\n(ii) What is the focal length of this mirror (with sign, using the New Cartesian sign convention)? [1 mark]\n(iii) Find the position of the car's image, and the height of the image. [2 marks]",
     "options": [],
     "answer": "(i) Convex mirror (ii) f = +2 m (iii) v = +1.6 m (1.6 m behind the mirror); m = +0.2, image height 0.3 m.",
     "solutionSteps": [
@@ -399,7 +399,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "An eye clinic in Madurai has a narrow examination room only 3.0 m long. The standard vision test needs the patient to read a letter chart from a distance of 6.0 m. The optometrist, Dr. Selvi, fixes the chart on the back wall, just above the patient's chair, and a large plane mirror on the front wall, exactly 3.0 m from the back wall. The patient faces the mirror and reads the chart's image. The letters on the chart are printed reversed left-to-right. One day, a new assistant, Joseph, moves the chair 0.5 m forward from the back wall to make space for a cupboard, but leaves the chart where it was.\n(i) How far behind the mirror is the image of the chart formed?\n(ii) Why are the letters on the chart printed reversed left-to-right?\n(iii) Find the distance between the patient and the image of the chart after Joseph moved the chair, and state whether the test will still be valid.",
+    "questionText": "An eye clinic in Madurai has a narrow examination room only 3.0 m long. The standard vision test needs the patient to read a letter chart from a distance of 6.0 m. The optometrist, Dr. Selvi, fixes the chart on the back wall, just above the patient's chair, and a large plane mirror on the front wall, exactly 3.0 m from the back wall. The patient faces the mirror and reads the chart's image. The letters on the chart are printed reversed left-to-right. One day, a new assistant, Joseph, moves the chair 0.5 m forward from the back wall to make space for a cupboard, but leaves the chart where it was.\n(i) How far behind the mirror is the image of the chart formed? [1 mark]\n(ii) Why are the letters on the chart printed reversed left-to-right? [1 mark]\n(iii) Find the distance between the patient and the image of the chart after Joseph moved the chair, and state whether the test will still be valid. [2 marks]",
     "options": [],
     "answer": "(i) 3.0 m behind the mirror (ii) The plane mirror laterally inverts the image, so reversed letters appear correct (iii) 2.5 m + 3.0 m = 5.5 m; not valid, as it is less than the required 6.0 m.",
     "solutionSteps": [
@@ -426,7 +426,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "For the school annual day, Class 10 students in Guwahati built periscopes so that short children at the back of the hall could watch the stage over the crowd. Each periscope is a vertical tube with a plane mirror at each end. The top mirror faces the stage and is tilted at 45° to the horizontal; the bottom mirror is parallel to it and faces the viewer's eye. The two mirrors are 0.6 m apart along the tube. Light from the stage travels horizontally to the top mirror, goes straight down the tube, and is reflected by the bottom mirror horizontally into the eye. Riya uses one such periscope while standing 20 m from the stage, with her eye 0.1 m from the bottom mirror.\n(i) What is the angle of incidence of the horizontal ray at the top mirror?\n(ii) Through what angle is the ray turned at the top mirror, so that it travels down the tube?\n(iii) The top mirror forms an image of the stage that acts as the object for the bottom mirror. How far from Riya's eye does the final image of the stage appear? Take the horizontal distance from the stage to the top mirror as 20 m.",
+    "questionText": "For the school annual day, Class 10 students in Guwahati built periscopes so that short children at the back of the hall could watch the stage over the crowd. Each periscope is a vertical tube with a plane mirror at each end. The top mirror faces the stage and is tilted at 45° to the horizontal; the bottom mirror is parallel to it and faces the viewer's eye. The two mirrors are 0.6 m apart along the tube. Light from the stage travels horizontally to the top mirror, goes straight down the tube, and is reflected by the bottom mirror horizontally into the eye. Riya uses one such periscope while standing 20 m from the stage, with her eye 0.1 m from the bottom mirror.\n(i) What is the angle of incidence of the horizontal ray at the top mirror? [1 mark]\n(ii) Through what angle is the ray turned at the top mirror, so that it travels down the tube? [1 mark]\n(iii) The top mirror forms an image of the stage that acts as the object for the bottom mirror. How far from Riya's eye does the final image of the stage appear? Take the horizontal distance from the stage to the top mirror as 20 m. [2 marks]",
     "options": [],
     "answer": "(i) 45° (ii) 90° (iii) 20 m + 0.6 m + 0.1 m = 20.7 m.",
     "solutionSteps": [
@@ -453,7 +453,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Ananya performed an experiment with a concave mirror, a lit candle and a white screen. For each candle position she moved the screen to look for a sharp image of the flame and recorded what she saw. Her notebook showed:\nRow 1 — candle 45 cm from mirror: sharp image on screen at 22.5 cm, inverted, diminished\nRow 2 — candle 30 cm from mirror: sharp image on screen at 30 cm, inverted, same size as flame\nRow 3 — candle 20 cm from mirror: sharp image on screen at 60 cm, inverted, enlarged\nRow 4 — candle 10 cm from mirror: sharp image on screen at 30 cm, inverted, enlarged\nHer teacher, Mrs. D'Souza, read the record and said that three rows are correct but one row describes something that cannot happen with this mirror.\n(i) Using Row 2, find the focal length of the mirror.\n(ii) Which row cannot be correct? Give a reason.\n(iii) For the candle at 10 cm, find the actual position of the image and its magnification, and state its nature.",
+    "questionText": "Ananya performed an experiment with a concave mirror, a lit candle and a white screen. For each candle position she moved the screen to look for a sharp image of the flame and recorded what she saw. Her notebook showed:\nRow 1 — candle 45 cm from mirror: sharp image on screen at 22.5 cm, inverted, diminished\nRow 2 — candle 30 cm from mirror: sharp image on screen at 30 cm, inverted, same size as flame\nRow 3 — candle 20 cm from mirror: sharp image on screen at 60 cm, inverted, enlarged\nRow 4 — candle 10 cm from mirror: sharp image on screen at 30 cm, inverted, enlarged\nHer teacher, Mrs. D'Souza, read the record and said that three rows are correct but one row describes something that cannot happen with this mirror.\n(i) Using Row 2, find the focal length of the mirror. [1 mark]\n(ii) Which row cannot be correct? Give a reason. [1 mark]\n(iii) For the candle at 10 cm, find the actual position of the image and its magnification, and state its nature. [2 marks]",
     "options": [],
     "answer": "(i) R = 30 cm, so f = 15 cm (ii) Row 4: the candle is inside the focus, so no real image can be caught on a screen (iii) v = +30 cm (30 cm behind the mirror), m = +3: virtual, erect, enlarged.",
     "solutionSteps": [
@@ -480,7 +480,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Lakshmi is designing a make-up mirror for her mother. She wants an erect image of the face that is 3 times enlarged when the face is held 12 cm from the mirror. (a) Which type of spherical mirror must she use, and why? (b) Find the position of the image. (c) Find the focal length of the mirror. (d) Her mother moves back so that her face is 27 cm from this mirror. Find the new position and magnification of the image and state its nature. (e) Advise her mother: within what distance from the mirror must she keep her face to see an erect image?",
+    "questionText": "Lakshmi is designing a make-up mirror for her mother. She wants an erect image of the face that is 3 times enlarged when the face is held 12 cm from the mirror. (a) Which type of spherical mirror must she use, and why? (b) Find the position of the image. (c) Find the focal length of the mirror. (d) Her mother moves back so that her face is 27 cm from this mirror. Find the new position and magnification of the image and state its nature. (e) Advise her mother: within what distance from the mirror must she keep her face to see an erect image?\n[Marks: (a) 1 mark, (b) 1 mark, (c) 1 mark, (d) 1 mark, (e) 1 mark]",
     "options": [],
     "answer": "(a) Concave (only it gives an erect, enlarged image) (b) v = +36 cm, 36 cm behind (c) f = −18 cm (d) v = −54 cm, m = −2: real, inverted, enlarged (e) Closer than 18 cm (within the focal length).",
     "solutionSteps": [
@@ -509,7 +509,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Vikram is choosing a side mirror for his scooter and compares two options with a truck 3 m tall standing 3 m behind the scooter, i.e. 3 m in front of the mirror. Option X is a plane mirror. Option Y is a convex mirror of focal length 60 cm. (a) For Option X, state the position and height of the truck's image. (b) For Option Y, calculate the position of the image. (c) For Option Y, calculate the magnification and the height of the image. (d) State the nature of the image formed by Option Y. (e) Which option should Vikram choose for his scooter? Justify with two reasons.",
+    "questionText": "Vikram is choosing a side mirror for his scooter and compares two options with a truck 3 m tall standing 3 m behind the scooter, i.e. 3 m in front of the mirror. Option X is a plane mirror. Option Y is a convex mirror of focal length 60 cm. (a) For Option X, state the position and height of the truck's image. (b) For Option Y, calculate the position of the image. (c) For Option Y, calculate the magnification and the height of the image. (d) State the nature of the image formed by Option Y. (e) Which option should Vikram choose for his scooter? Justify with two reasons.\n[Marks: (a) 1 mark, (b) 1 mark, (c) 1 mark, (d) 1 mark, (e) 1 mark]",
     "options": [],
     "answer": "(a) 3 m behind the mirror, 3 m tall (b) v = +0.5 m, 0.5 m behind the mirror (c) m = +1/6, image 0.5 m tall (d) Virtual, erect, diminished (e) Option Y: always erect image and a much wider field of view.",
     "solutionSteps": [
@@ -570,8 +570,8 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Nandini holds a curved make-up mirror 10 cm from her face and sees an erect, enlarged image. When her younger brother stands 50 cm from the same mirror, he sees his own image upside down. Which of the following best describes the mirror?",
     "options": [
-      "A concave mirror with focal length between 10 cm and 50 cm",
       "A concave mirror with focal length less than 10 cm",
+      "A concave mirror with focal length between 10 cm and 50 cm",
       "A convex mirror with focal length between 10 cm and 50 cm",
       "A plane mirror that is slightly bent at the edges"
     ],
@@ -599,9 +599,9 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In a practical notebook, Harpreet recorded for a spherical mirror: object distance u = −30 cm and image distance v = −60 cm (New Cartesian sign convention). What can be concluded from these two readings alone?",
     "options": [
-      "A concave mirror of focal length 20 cm, forming a real, inverted image twice the size of the object",
       "A concave mirror of focal length 20 cm, forming a virtual, erect image twice the size of the object",
       "A convex mirror of focal length 20 cm, forming a virtual, erect image half the size of the object",
+      "A concave mirror of focal length 20 cm, forming a real, inverted image twice the size of the object",
       "A concave mirror of focal length 90 cm, forming a real, inverted image twice the size of the object"
     ],
     "answer": "A concave mirror of focal length 20 cm, forming a real, inverted image twice the size of the object",
@@ -788,7 +788,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Ishita obtained sharp images of a candle flame on a screen using a concave mirror and recorded (New Cartesian sign convention): Reading 1 — u = −15 cm, v = −30 cm; Reading 2 — u = −20 cm, v = −20 cm; Reading 3 — u = −30 cm, v = −15 cm.\n(a) Find the focal length of the mirror.\n(b) In which reading is the candle at the centre of curvature? Give a reason.\n(c) Predict the image position and magnification if she places the candle at 12 cm from the mirror.",
+    "questionText": "Ishita obtained sharp images of a candle flame on a screen using a concave mirror and recorded (New Cartesian sign convention): Reading 1 — u = −15 cm, v = −30 cm; Reading 2 — u = −20 cm, v = −20 cm; Reading 3 — u = −30 cm, v = −15 cm.\n(a) Find the focal length of the mirror. [1 mark]\n(b) In which reading is the candle at the centre of curvature? Give a reason. [1 mark]\n(c) Predict the image position and magnification if she places the candle at 12 cm from the mirror. [1 mark]",
     "options": [],
     "answer": "(a) f = −10 cm (focal length 10 cm); (b) Reading 2, since u = v = −20 cm = 2f, the image is formed at C itself; (c) v = −60 cm, m = −5 (real, inverted, 5 times enlarged).",
     "solutionSteps": [
@@ -816,7 +816,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A shopkeeper in Indore fixes a convex dome mirror of focal length 50 cm in a corner of his shop. A shopper 1.6 m tall stands 2.0 m from the mirror.\n(a) Find the position of the shopper's image.\n(b) Find the height of the image.\n(c) Give one reason why the shopkeeper prefers this mirror to a plane mirror of the same size.",
+    "questionText": "A shopkeeper in Indore fixes a convex dome mirror of focal length 50 cm in a corner of his shop. A shopper 1.6 m tall stands 2.0 m from the mirror.\n(a) Find the position of the shopper's image. [1 mark]\n(b) Find the height of the image. [1 mark]\n(c) Give one reason why the shopkeeper prefers this mirror to a plane mirror of the same size. [1 mark]",
     "options": [],
     "answer": "(a) v = +0.4 m (40 cm behind the mirror); (b) m = +0.2, image height 0.32 m, erect; (c) a convex mirror always forms an erect, diminished image and gives a much wider field of view, so the whole shop can be watched in one mirror.",
     "solutionSteps": [
@@ -842,7 +842,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Arjun wants a shaving mirror that shows his face erect and 3 times enlarged when his face is 20 cm from the mirror.\n(a) Find the focal length and type of mirror he must buy.\n(b) His friend says that the same mirror will still help him if he stands 40 cm away from it. Evaluate this claim by finding the magnification at 40 cm.",
+    "questionText": "Arjun wants a shaving mirror that shows his face erect and 3 times enlarged when his face is 20 cm from the mirror.\n(a) Find the focal length and type of mirror he must buy. [2 marks]\n(b) His friend says that the same mirror will still help him if he stands 40 cm away from it. Evaluate this claim by finding the magnification at 40 cm. [1 mark]",
     "options": [],
     "answer": "(a) v = +60 cm, f = −30 cm: a concave mirror of focal length 30 cm; (b) at u = −40 cm, v = −120 cm and m = −3 — the image is real and inverted, so the claim is wrong.",
     "solutionSteps": [
@@ -869,7 +869,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A small workshop in Coimbatore makes reflectors for torches. Each reflector is a concave mirror of focal length 3.0 cm. Before fitting the bulb permanently, Selvi, the quality checker, slides the bulb along the principal axis and shines the torch on a wall, noting how the patch of light behaves:\nBulb 2.0 cm from the pole — the patch grows larger as the wall moves farther away.\nBulb 3.0 cm from the pole — the patch stays almost the same size whether the wall is 1 m or 3 m away.\nBulb 4.0 cm from the pole — the light first narrows to a bright spot a short distance in front of the torch and then spreads out.\nThe workshop wants a beam that stays narrow over long distances so that a person walking on a dark village road can see far ahead.\n(i) At which bulb position should the bulb be fixed? Give a reason.\n(ii) Write the values of u and f, with signs, for the bulb at 4.0 cm, according to the New Cartesian sign convention.\n(iii) Using the mirror formula, find how far in front of the mirror the bright spot forms when the bulb is at 4.0 cm, and state the nature of this image of the filament.",
+    "questionText": "A small workshop in Coimbatore makes reflectors for torches. Each reflector is a concave mirror of focal length 3.0 cm. Before fitting the bulb permanently, Selvi, the quality checker, slides the bulb along the principal axis and shines the torch on a wall, noting how the patch of light behaves:\nBulb 2.0 cm from the pole — the patch grows larger as the wall moves farther away.\nBulb 3.0 cm from the pole — the patch stays almost the same size whether the wall is 1 m or 3 m away.\nBulb 4.0 cm from the pole — the light first narrows to a bright spot a short distance in front of the torch and then spreads out.\nThe workshop wants a beam that stays narrow over long distances so that a person walking on a dark village road can see far ahead.\n(i) At which bulb position should the bulb be fixed? Give a reason. [1 mark]\n(ii) Write the values of u and f, with signs, for the bulb at 4.0 cm, according to the New Cartesian sign convention. [1 mark]\n(iii) Using the mirror formula, find how far in front of the mirror the bright spot forms when the bulb is at 4.0 cm, and state the nature of this image of the filament. [2 marks]",
     "options": [],
     "answer": "(i) 3.0 cm, i.e. at the principal focus — rays from F become parallel to the principal axis, giving a narrow beam; (ii) u = −4.0 cm, f = −3.0 cm; (iii) v = −12 cm, so the spot forms 12 cm in front of the mirror; it is a real (and inverted) image of the filament.",
     "solutionSteps": [
@@ -896,7 +896,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A volunteer group in Jaisalmer is testing two dish-shaped concave reflectors for community solar cookers. Dish A has a radius of curvature of 1.2 m and Dish B has a radius of curvature of 1.6 m. On a clear afternoon, they point Dish A straight at the Sun and place a blackened pot of water at different distances from its pole along the principal axis. The sky stays cloudless throughout. After 20 minutes they record the water temperature:\n0.4 m — 70 °C; 0.6 m — 95 °C; 0.8 m — 78 °C; 1.2 m — 45 °C.\nOne volunteer, Mohan, argues that the pot should be kept at 1.2 m because \"the centre of curvature is the most important point of a mirror\".\n(i) What is the focal length of Dish A, and why is the water hottest at 0.6 m?\n(ii) At what distance from the pole should the pot be placed for Dish B?\n(iii) Use the data and your understanding of reflection to explain why Mohan's argument is wrong.",
+    "questionText": "A volunteer group in Jaisalmer is testing two dish-shaped concave reflectors for community solar cookers. Dish A has a radius of curvature of 1.2 m and Dish B has a radius of curvature of 1.6 m. On a clear afternoon, they point Dish A straight at the Sun and place a blackened pot of water at different distances from its pole along the principal axis. The sky stays cloudless throughout. After 20 minutes they record the water temperature:\n0.4 m — 70 °C; 0.6 m — 95 °C; 0.8 m — 78 °C; 1.2 m — 45 °C.\nOne volunteer, Mohan, argues that the pot should be kept at 1.2 m because \"the centre of curvature is the most important point of a mirror\".\n(i) What is the focal length of Dish A, and why is the water hottest at 0.6 m? [1 mark]\n(ii) At what distance from the pole should the pot be placed for Dish B? [1 mark]\n(iii) Use the data and your understanding of reflection to explain why Mohan's argument is wrong. [2 marks]",
     "options": [],
     "answer": "(i) f = R/2 = 0.6 m; parallel sunrays converge at the principal focus, concentrating heat on the pot; (ii) 0.8 m from the pole (f = 1.6/2); (iii) at 1.2 m (the centre of curvature) the temperature is lowest, 45 °C, because the reflected rays have already met at F and are spreading out, so the energy falls over a larger area.",
     "solutionSteps": [
@@ -923,7 +923,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "At a driving school in Pune, the instructor Mrs. Deshpande explains why the side mirror of a car is a convex mirror and not a plane mirror. The mirror used has a radius of curvature of 3.0 m. To show the effect, she parks a second car, 1.5 m tall, at two places behind her own car, in front of the mirror, and lets the trainees work out the images:\nCar 3.0 m from the mirror — image forms 1.0 m behind the mirror.\nCar 13.5 m from the mirror — image position to be found.\nTrainees notice that the side mirror shows the whole lane behind and beside the car, though every vehicle in it looks small. The side mirror carries the printed warning: \"Objects in mirror are closer than they appear.\"\n(i) Why is the magnification produced by this mirror always positive, wherever the car is?\n(ii) Find the magnification and the height of the image when the car is 3.0 m from the mirror.\n(iii) Find the image position and magnification when the car is 13.5 m from the mirror, and use your result to explain the printed warning.",
+    "questionText": "At a driving school in Pune, the instructor Mrs. Deshpande explains why the side mirror of a car is a convex mirror and not a plane mirror. The mirror used has a radius of curvature of 3.0 m. To show the effect, she parks a second car, 1.5 m tall, at two places behind her own car, in front of the mirror, and lets the trainees work out the images:\nCar 3.0 m from the mirror — image forms 1.0 m behind the mirror.\nCar 13.5 m from the mirror — image position to be found.\nTrainees notice that the side mirror shows the whole lane behind and beside the car, though every vehicle in it looks small. The side mirror carries the printed warning: \"Objects in mirror are closer than they appear.\"\n(i) Why is the magnification produced by this mirror always positive, wherever the car is? [1 mark]\n(ii) Find the magnification and the height of the image when the car is 3.0 m from the mirror. [1 mark]\n(iii) Find the image position and magnification when the car is 13.5 m from the mirror, and use your result to explain the printed warning. [2 marks]",
     "options": [],
     "answer": "(i) A convex mirror always forms a virtual, erect image behind the mirror, so m is positive; (ii) m = +1/3, image height 0.5 m; (iii) v = +1.35 m, m = +0.1; the image is very small, so the brain judges the car to be farther away than it really is — hence the warning.",
     "solutionSteps": [
@@ -950,7 +950,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In a school laboratory in Shillong, Tenzing and Meera are studying a concave mirror whose focal length is not marked. They place a lighted candle at different distances in front of the mirror and move a white screen until a sharp image is formed. They take care to keep the candle flame at the same height as the centre of the mirror. Their readings, using the New Cartesian sign convention, are:\nu = −60 cm, v = −30 cm\nu = −40 cm, v = −40 cm\nu = −30 cm, v = −60 cm\nu = −25 cm, v = −100 cm\nNext, Meera moves the candle to 15 cm from the mirror. However far they move the screen, no image appears on it, though Tenzing, looking into the mirror, can see a large upright flame.\n(i) Using the reading in which the object and image distances are equal, find the focal length of the mirror.\n(ii) Which reading gives the largest image on the screen? Find its magnification.\n(iii) Find the image position when the candle is at 15 cm, and explain why it cannot be obtained on the screen.",
+    "questionText": "In a school laboratory in Shillong, Tenzing and Meera are studying a concave mirror whose focal length is not marked. They place a lighted candle at different distances in front of the mirror and move a white screen until a sharp image is formed. They take care to keep the candle flame at the same height as the centre of the mirror. Their readings, using the New Cartesian sign convention, are:\nu = −60 cm, v = −30 cm\nu = −40 cm, v = −40 cm\nu = −30 cm, v = −60 cm\nu = −25 cm, v = −100 cm\nNext, Meera moves the candle to 15 cm from the mirror. However far they move the screen, no image appears on it, though Tenzing, looking into the mirror, can see a large upright flame.\n(i) Using the reading in which the object and image distances are equal, find the focal length of the mirror. [1 mark]\n(ii) Which reading gives the largest image on the screen? Find its magnification. [1 mark]\n(iii) Find the image position when the candle is at 15 cm, and explain why it cannot be obtained on the screen. [2 marks]",
     "options": [],
     "answer": "(i) u = v = −40 cm means the candle is at C, so R = 40 cm and f = −20 cm; (ii) u = −25 cm, v = −100 cm, m = −4; (iii) v = +60 cm — the image is 60 cm behind the mirror, virtual and erect (m = +4), so no light reaches a screen there.",
     "solutionSteps": [
@@ -977,7 +977,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Imran, a goldsmith in Jaipur, checks the fine engraving on rings using a concave mirror of focal length 12 cm fixed on a stand near his workbench. When he holds a ring 8 cm in front of the mirror, he sees a clear, upright and enlarged image of the engraving in the mirror. One day his apprentice, Pooja, holds a ring 18 cm in front of the same mirror. She is surprised to find that the image of the ring now appears upside down; with a card she finds that this image is formed 36 cm in front of the mirror. Imran smiles and tells her that the mirror has not changed at all — the position of the ring decides everything about the image.\n(i) Within what range of distances from the mirror must the ring be held to see an upright, enlarged image?\n(ii) Find the magnification of the image Pooja obtained, and state its nature.\n(iii) Using the mirror formula, find the position of the image and the magnification when the ring is held 8 cm from the mirror.",
+    "questionText": "Imran, a goldsmith in Jaipur, checks the fine engraving on rings using a concave mirror of focal length 12 cm fixed on a stand near his workbench. When he holds a ring 8 cm in front of the mirror, he sees a clear, upright and enlarged image of the engraving in the mirror. One day his apprentice, Pooja, holds a ring 18 cm in front of the same mirror. She is surprised to find that the image of the ring now appears upside down; with a card she finds that this image is formed 36 cm in front of the mirror. Imran smiles and tells her that the mirror has not changed at all — the position of the ring decides everything about the image.\n(i) Within what range of distances from the mirror must the ring be held to see an upright, enlarged image? [1 mark]\n(ii) Find the magnification of the image Pooja obtained, and state its nature. [1 mark]\n(iii) Using the mirror formula, find the position of the image and the magnification when the ring is held 8 cm from the mirror. [2 marks]",
     "options": [],
     "answer": "(i) Closer than 12 cm, i.e. between the pole and the principal focus; (ii) m = −2 — real, inverted, twice enlarged; (iii) v = +24 cm (24 cm behind the mirror), m = +3 — virtual, erect, three times enlarged.",
     "solutionSteps": [
@@ -1004,7 +1004,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Priyanka buys a two-sided mirror for her dressing table: one side is plane and the other is a spherical mirror. When she holds the curved side 15 cm from her face, she sees an upright image of her face 2.5 times its actual size.\n(a) Using the New Cartesian sign convention, find the image distance.\n(b) Find the focal length of the curved side and name the type of mirror.\n(c) Find its radius of curvature.\n(d) She moves the mirror to 20 cm from her face. Find the new magnification.\n(e) Describe the image she would get if she held the mirror 50 cm from her face, giving a reason.",
+    "questionText": "Priyanka buys a two-sided mirror for her dressing table: one side is plane and the other is a spherical mirror. When she holds the curved side 15 cm from her face, she sees an upright image of her face 2.5 times its actual size.\n(a) Using the New Cartesian sign convention, find the image distance. [1 mark]\n(b) Find the focal length of the curved side and name the type of mirror. [1 mark]\n(c) Find its radius of curvature. [1 mark]\n(d) She moves the mirror to 20 cm from her face. Find the new magnification. [1 mark]\n(e) Describe the image she would get if she held the mirror 50 cm from her face, giving a reason. [1 mark]",
     "options": [],
     "answer": "(a) v = +37.5 cm; (b) f = −25 cm, concave mirror; (c) R = −50 cm (50 cm); (d) v = +100 cm, m = +5; (e) at 50 cm her face is at the centre of curvature, so the image is real, inverted and the same size (m = −1), formed at 50 cm in front of the mirror.",
     "solutionSteps": [
@@ -1032,7 +1032,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A bus company in Guwahati is choosing a side mirror for its buses. The engineer, Bhaskar, compares a convex mirror and a concave mirror, each of focal length 2.0 m. An auto-rickshaw 1.8 m high is 18 m behind the bus, i.e. 18 m in front of the mirror.\n(a) Find the position of the auto-rickshaw's image in the convex mirror.\n(b) Find the magnification and height of this image.\n(c) Find the image position and magnification for the concave mirror and state the nature of this image.\n(d) Which mirror should Bhaskar choose? Justify using your results.\n(e) Show from the mirror formula that, for the convex mirror, the image always lies between the pole and the principal focus, however far the vehicle is.",
+    "questionText": "A bus company in Guwahati is choosing a side mirror for its buses. The engineer, Bhaskar, compares a convex mirror and a concave mirror, each of focal length 2.0 m. An auto-rickshaw 1.8 m high is 18 m behind the bus, i.e. 18 m in front of the mirror.\n(a) Find the position of the auto-rickshaw's image in the convex mirror. [1 mark]\n(b) Find the magnification and height of this image. [1 mark]\n(c) Find the image position and magnification for the concave mirror and state the nature of this image. [1 mark]\n(d) Which mirror should Bhaskar choose? Justify using your results. [1 mark]\n(e) Show from the mirror formula that, for the convex mirror, the image always lies between the pole and the principal focus, however far the vehicle is. [1 mark]",
     "options": [],
     "answer": "(a) v = +1.8 m; (b) m = +0.1, image height 0.18 m (erect); (c) v = −2.25 m, m = −0.125 — real, inverted, diminished image in front of the mirror; (d) the convex mirror, as it always gives an erect image and a wider field of view; (e) 1/v = 1/f + 1/|u| > 1/f with f positive, so 0 < v < f.",
     "solutionSteps": [
@@ -1062,8 +1062,8 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In a school lab in Bhopal, Sana is given four clear liquids whose measured speeds of light are: Liquid P — 2.25 × 10⁸ m/s; Liquid Q — 2.00 × 10⁸ m/s; Liquid R — 2.40 × 10⁸ m/s; Liquid S — 2.10 × 10⁸ m/s. She sends a ray of light from air into each liquid at the same oblique angle of incidence. In which liquid will the ray bend the most towards the normal?",
     "options": [
-      "Liquid P",
       "Liquid Q",
+      "Liquid P",
       "Liquid R",
       "Liquid S"
     ],
@@ -1091,8 +1091,8 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Four students traced the path of a ray of light through the same rectangular glass slab kept in air, each using an angle of incidence of 40°. They reported (angle of refraction, angle of emergence) as: Joseph — (25°, 40°); Pallavi — (25°, 25°); Harpreet — (48°, 40°); Ayaan — (25°, 52°). Whose readings are consistent with the laws of refraction?",
     "options": [
-      "Joseph",
       "Pallavi",
+      "Joseph",
       "Harpreet",
       "Ayaan"
     ],
@@ -1120,9 +1120,9 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The speed of light is 2.0 × 10⁸ m/s in a transparent medium X and 2.5 × 10⁸ m/s in another transparent medium Y. A ray of light passes obliquely from X into Y. Which option correctly gives the refractive index of Y with respect to X and the behaviour of the ray?",
     "options": [
-      "0.8; the ray bends away from the normal",
       "1.25; the ray bends towards the normal",
       "1.25; the ray bends away from the normal",
+      "0.8; the ray bends away from the normal",
       "0.8; the ray bends towards the normal"
     ],
     "answer": "0.8; the ray bends away from the normal",
@@ -1149,10 +1149,10 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Devika places a coin at the bottom of an empty steel bowl and moves back until the coin is just hidden behind the rim. Without moving her head, her brother slowly pours water into the bowl and the coin comes into view again. Which statement best explains this?",
     "options": [
-      "Light from the coin bends away from the normal as it passes from water into air, so it reaches her eye over the rim.",
       "Light from the coin bends towards the normal as it passes from water into air, so it reaches her eye over the rim.",
       "The water surface reflects light from the coin upwards like a plane mirror.",
-      "The water raises the coin itself closer to the surface of the bowl."
+      "The water raises the coin itself closer to the surface of the bowl.",
+      "Light from the coin bends away from the normal as it passes from water into air, so it reaches her eye over the rim."
     ],
     "answer": "Light from the coin bends away from the normal as it passes from water into air, so it reaches her eye over the rim.",
     "solutionSteps": [
@@ -1234,7 +1234,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Ishaan's teacher gives him three transparent blocks with these refractive indices: Block P — 1.36, Block Q — 1.52, Block R — 1.65.\n(a) He sends rays from air into each block at the same oblique angle of incidence. In which block will the angle of refraction be the smallest? Give a reason.\n(b) He then places block P in contact with block R and sends a ray obliquely from R into P. Will the ray bend towards or away from the normal at the boundary? Justify.",
+    "questionText": "Ishaan's teacher gives him three transparent blocks with these refractive indices: Block P — 1.36, Block Q — 1.52, Block R — 1.65.\n(a) He sends rays from air into each block at the same oblique angle of incidence. In which block will the angle of refraction be the smallest? Give a reason. [1 mark]\n(b) He then places block P in contact with block R and sends a ray obliquely from R into P. Will the ray bend towards or away from the normal at the boundary? Justify. [1 mark]",
     "options": [],
     "answer": "(a) Block R — highest refractive index, so light slows the most and bends most towards the normal. (b) Away from the normal — the ray goes from optically denser R (1.65) to rarer P (1.36).",
     "solutionSteps": [
@@ -1259,7 +1259,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The front panel of a fish tank in an aquarium shop in Kolkata is made of a clear plastic. Inside the tank, light travels through the water at 2.25 × 10⁸ m/s and through the plastic panel at 1.875 × 10⁸ m/s.\n(a) Calculate the refractive index of the plastic with respect to the water.\n(b) A ray from a fish travels obliquely from the water into the panel. State whether it bends towards or away from the normal, using your answer to (a).",
+    "questionText": "The front panel of a fish tank in an aquarium shop in Kolkata is made of a clear plastic. Inside the tank, light travels through the water at 2.25 × 10⁸ m/s and through the plastic panel at 1.875 × 10⁸ m/s.\n(a) Calculate the refractive index of the plastic with respect to the water. [1 mark]\n(b) A ray from a fish travels obliquely from the water into the panel. State whether it bends towards or away from the normal, using your answer to (a). [1 mark]",
     "options": [],
     "answer": "(a) 1.2 (b) Towards the normal, because the refractive index of plastic with respect to water is greater than 1 (plastic is optically denser).",
     "solutionSteps": [
@@ -1285,7 +1285,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Meera places a thick rectangular glass paperweight on a ruled notebook line. When she looks at the line from the side at a slant, the part of the line under the glass appears shifted sideways from the rest of the line. When she looks straight down from directly above, the line looks continuous.\n(a) Why does the line appear shifted when viewed at a slant?\n(b) Why is there no shift when viewed straight from above?",
+    "questionText": "Meera places a thick rectangular glass paperweight on a ruled notebook line. When she looks at the line from the side at a slant, the part of the line under the glass appears shifted sideways from the rest of the line. When she looks straight down from directly above, the line looks continuous.\n(a) Why does the line appear shifted when viewed at a slant? [1 mark]\n(b) Why is there no shift when viewed straight from above? [1 mark]",
     "options": [],
     "answer": "(a) Light refracts at both parallel faces of the glass; the emergent ray is parallel to the incident ray but laterally displaced, so the line seems shifted. (b) Light travels along the normal, so it is not bent and there is no lateral displacement.",
     "solutionSteps": [
@@ -1310,7 +1310,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "At a science centre in Bengaluru, a 3.0 m long solid transparent acrylic rod is on display. A sensor shows that a pulse of light takes 1.5 × 10⁻⁸ s to travel from one end of the rod to the other. (Speed of light in vacuum/air = 3 × 10⁸ m/s.)\n(a) Calculate the speed of light in the acrylic.\n(b) Find the absolute refractive index of the acrylic.\n(c) If a ray passes obliquely from the acrylic into water (refractive index 1.33), will it bend towards or away from the normal? Give a reason.",
+    "questionText": "At a science centre in Bengaluru, a 3.0 m long solid transparent acrylic rod is on display. A sensor shows that a pulse of light takes 1.5 × 10⁻⁸ s to travel from one end of the rod to the other. (Speed of light in vacuum/air = 3 × 10⁸ m/s.)\n(a) Calculate the speed of light in the acrylic. [1 mark]\n(b) Find the absolute refractive index of the acrylic. [1 mark]\n(c) If a ray passes obliquely from the acrylic into water (refractive index 1.33), will it bend towards or away from the normal? Give a reason. [1 mark]",
     "options": [],
     "answer": "(a) 2 × 10⁸ m/s (b) 1.5 (c) Away from the normal — light goes from optically denser acrylic (1.5) into rarer water (1.33).",
     "solutionSteps": [
@@ -1338,7 +1338,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Tenzin traced a ray of light from air into the same glass block three times and recorded the sines of the angles:\nTrial 1 — sin i = 0.50, sin r = 0.33\nTrial 2 — sin i = 0.71, sin r = 0.47\nTrial 3 — sin i = 0.87, sin r = 0.70\n(a) Calculate sin i / sin r for each trial (to two decimal places).\n(b) Which law of refraction lets you decide that one trial has a measurement error? Identify that trial.\n(c) Estimate the refractive index of the glass from the reliable trials.",
+    "questionText": "Tenzin traced a ray of light from air into the same glass block three times and recorded the sines of the angles:\nTrial 1 — sin i = 0.50, sin r = 0.33\nTrial 2 — sin i = 0.71, sin r = 0.47\nTrial 3 — sin i = 0.87, sin r = 0.70\n(a) Calculate sin i / sin r for each trial (to two decimal places). [1 mark]\n(b) Which law of refraction lets you decide that one trial has a measurement error? Identify that trial. [1 mark]\n(c) Estimate the refractive index of the glass from the reliable trials. [1 mark]",
     "options": [],
     "answer": "(a) 1.52, 1.51, 1.24 (b) Snell's law — sin i / sin r is constant for a given pair of media; Trial 3 is in error. (c) About 1.5.",
     "solutionSteps": [
@@ -1365,7 +1365,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A fruit-juice unit in Nagpur checks the sugar content of its juice by refraction: the more sugar dissolved, the higher the refractive index of the juice. A ray of light is sent from air into three samples at the same angle of incidence (sin i = 0.80). The sines of the angles of refraction measured are: Sample A — 0.60; Sample B — 0.58; Sample C — 0.56.\n(a) Calculate the refractive index of each sample (to two decimal places).\n(b) Which sample has the most dissolved sugar? Justify.\n(c) In which sample does light travel the fastest?",
+    "questionText": "A fruit-juice unit in Nagpur checks the sugar content of its juice by refraction: the more sugar dissolved, the higher the refractive index of the juice. A ray of light is sent from air into three samples at the same angle of incidence (sin i = 0.80). The sines of the angles of refraction measured are: Sample A — 0.60; Sample B — 0.58; Sample C — 0.56.\n(a) Calculate the refractive index of each sample (to two decimal places). [1 mark]\n(b) Which sample has the most dissolved sugar? Justify. [1 mark]\n(c) In which sample does light travel the fastest? [1 mark]",
     "options": [],
     "answer": "(a) A 1.33, B 1.38, C 1.43 (b) Sample C — highest refractive index. (c) Sample A — lowest refractive index.",
     "solutionSteps": [
@@ -1392,7 +1392,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Students of a school in Jaipur traced the path of a ray of light through a rectangular glass slab 6.0 cm thick, kept in air, using pins on a drawing board. For each angle of incidence they measured the angle of refraction inside the slab, the angle of emergence, and the lateral displacement (the perpendicular distance between the incident ray produced and the emergent ray). Their results were:\nAngle of incidence 30° — refraction 19°, emergence 30°, lateral displacement 1.2 cm\nAngle of incidence 45° — refraction 28°, emergence 45°, lateral displacement 2.0 cm\nAngle of incidence 60° — refraction 35°, emergence 60°, lateral displacement 3.1 cm\nTheir teacher, Mrs Kulkarni, asked them to look for patterns in the data and to use them to make predictions.\n(i) What relation do you notice between the angle of incidence and the angle of emergence? Why does this happen?\n(ii) How does the lateral displacement change as the angle of incidence increases?\n(iii) Predict, with reason, the lateral displacement (a) if the ray falls on the slab along the normal, and (b) at 45° incidence if a slab of the same glass but 12.0 cm thick is used.",
+    "questionText": "Students of a school in Jaipur traced the path of a ray of light through a rectangular glass slab 6.0 cm thick, kept in air, using pins on a drawing board. For each angle of incidence they measured the angle of refraction inside the slab, the angle of emergence, and the lateral displacement (the perpendicular distance between the incident ray produced and the emergent ray). Their results were:\nAngle of incidence 30° — refraction 19°, emergence 30°, lateral displacement 1.2 cm\nAngle of incidence 45° — refraction 28°, emergence 45°, lateral displacement 2.0 cm\nAngle of incidence 60° — refraction 35°, emergence 60°, lateral displacement 3.1 cm\nTheir teacher, Mrs Kulkarni, asked them to look for patterns in the data and to use them to make predictions.\n(i) What relation do you notice between the angle of incidence and the angle of emergence? Why does this happen? [1 mark]\n(ii) How does the lateral displacement change as the angle of incidence increases? [1 mark]\n(iii) Predict, with reason, the lateral displacement (a) if the ray falls on the slab along the normal, and (b) at 45° incidence if a slab of the same glass but 12.0 cm thick is used. [2 marks]",
     "options": [],
     "answer": "(i) Angle of emergence = angle of incidence, because the slab has parallel faces with air on both sides. (ii) It increases. (iii)(a) Zero — no bending along the normal. (b) It increases to about double, ≈ 4.0 cm.",
     "solutionSteps": [
@@ -1419,7 +1419,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "At a science exhibition in Guwahati, a stall called 'Race of Light' shows four sealed transparent tubes, each 1.0 m long, filled with different media. A board at the stall lists their absolute refractive indices:\nWater — 1.33\nKerosene — 1.44\nTurpentine oil — 1.47\nCrown-glass rod — 1.50\nThe student guide, Priyanka, explains that the absolute refractive index of a medium tells us how many times faster light travels in vacuum than in that medium. Visitors are asked to predict which tube light would cross first and how a ray would bend when passing from one medium to another. (Speed of light in vacuum = 3 × 10⁸ m/s.)\n(i) In which medium does light travel the slowest?\n(ii) A ray passes obliquely from turpentine oil into kerosene. Will it bend towards or away from the normal?\n(iii) Calculate the speed of light in the crown-glass rod and the time light takes to travel its 1.0 m length. Will light take more or less time to cross the water tube?",
+    "questionText": "At a science exhibition in Guwahati, a stall called 'Race of Light' shows four sealed transparent tubes, each 1.0 m long, filled with different media. A board at the stall lists their absolute refractive indices:\nWater — 1.33\nKerosene — 1.44\nTurpentine oil — 1.47\nCrown-glass rod — 1.50\nThe student guide, Priyanka, explains that the absolute refractive index of a medium tells us how many times faster light travels in vacuum than in that medium. Visitors are asked to predict which tube light would cross first and how a ray would bend when passing from one medium to another. (Speed of light in vacuum = 3 × 10⁸ m/s.)\n(i) In which medium does light travel the slowest? [1 mark]\n(ii) A ray passes obliquely from turpentine oil into kerosene. Will it bend towards or away from the normal? [1 mark]\n(iii) Calculate the speed of light in the crown-glass rod and the time light takes to travel its 1.0 m length. Will light take more or less time to cross the water tube? [2 marks]",
     "options": [],
     "answer": "(i) Crown glass. (ii) Away from the normal. (iii) 2 × 10⁸ m/s; 5 × 10⁻⁹ s; less time in water (lower refractive index, light faster).",
     "solutionSteps": [
@@ -1446,7 +1446,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "During summer holidays at her grandparents' house near Thrissur, eight-year-old Anjali dropped a shiny coin into a large tub of clear water. When she tried to pick it up, her hand reached the water above the coin and she missed it: the coin seemed to lie higher than it really was. Her cousin Rahul, a Class 10 student, then put a steel straw into a glass of lime juice and showed her that the straw looked bent exactly at the surface of the juice. Rahul explained that light coming from objects under water changes direction when it leaves the water and enters air. Our eyes and brain assume that light always travels in straight lines, so we see the object at the point from which the light appears to come, not where the object really is.\n(i) Name the phenomenon responsible for both observations.\n(ii) When light from the coin passes from water into air, does it bend towards or away from the normal?\n(iii) Explain why the coin appears raised. How would the effect change if the tub were filled with a clear liquid of higher refractive index than water, at the same depth?",
+    "questionText": "During summer holidays at her grandparents' house near Thrissur, eight-year-old Anjali dropped a shiny coin into a large tub of clear water. When she tried to pick it up, her hand reached the water above the coin and she missed it: the coin seemed to lie higher than it really was. Her cousin Rahul, a Class 10 student, then put a steel straw into a glass of lime juice and showed her that the straw looked bent exactly at the surface of the juice. Rahul explained that light coming from objects under water changes direction when it leaves the water and enters air. Our eyes and brain assume that light always travels in straight lines, so we see the object at the point from which the light appears to come, not where the object really is.\n(i) Name the phenomenon responsible for both observations. [1 mark]\n(ii) When light from the coin passes from water into air, does it bend towards or away from the normal? [1 mark]\n(iii) Explain why the coin appears raised. How would the effect change if the tub were filled with a clear liquid of higher refractive index than water, at the same depth? [2 marks]",
     "options": [],
     "answer": "(i) Refraction of light. (ii) Away from the normal. (iii) The rays bend away from the normal at the surface; traced back in straight lines they appear to come from a point above the coin. With a liquid of higher refractive index the bending is greater, so the coin appears raised even more.",
     "solutionSteps": [
@@ -1473,7 +1473,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "For a class demonstration in Shillong, Mr Lyngdoh fills the bottom of a tall glass tank with water (refractive index 4/3) and gently pours a layer of cooking oil (refractive index 1.47) on top. The oil floats on the water. The thick glass base of the tank has refractive index 3/2. Using a low-power laser pointer, always pointed away from people's eyes, he sends a narrow beam obliquely from the air into the oil. The beam then passes into the water and finally into the glass base. Students mark the beam at each boundary and draw the normal there. Some students are surprised that the beam behaves differently at different boundaries even though all the media are clear.\n(i) At the air–oil boundary, does the beam bend towards or away from the normal?\n(ii) At the oil–water boundary, the beam bends away from the normal, although water is heavier than oil. Explain.\n(iii) Calculate the refractive index of the glass with respect to the water, and state how the beam bends as it enters the glass base.",
+    "questionText": "For a class demonstration in Shillong, Mr Lyngdoh fills the bottom of a tall glass tank with water (refractive index 4/3) and gently pours a layer of cooking oil (refractive index 1.47) on top. The oil floats on the water. The thick glass base of the tank has refractive index 3/2. Using a low-power laser pointer, always pointed away from people's eyes, he sends a narrow beam obliquely from the air into the oil. The beam then passes into the water and finally into the glass base. Students mark the beam at each boundary and draw the normal there. Some students are surprised that the beam behaves differently at different boundaries even though all the media are clear.\n(i) At the air–oil boundary, does the beam bend towards or away from the normal? [1 mark]\n(ii) At the oil–water boundary, the beam bends away from the normal, although water is heavier than oil. Explain. [1 mark]\n(iii) Calculate the refractive index of the glass with respect to the water, and state how the beam bends as it enters the glass base. [2 marks]",
     "options": [],
     "answer": "(i) Towards the normal. (ii) Water (4/3 ≈ 1.33) is optically rarer than oil (1.47); optical density, not mass density, decides bending. (iii) 9/8 = 1.125; the beam bends towards the normal.",
     "solutionSteps": [
@@ -1500,7 +1500,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "An underwater tunnel at a public aquarium in Chennai lets visitors walk beneath the fish. The water (refractive index 1.33) is separated from the air inside the tunnel by a thick, flat-faced transparent acrylic wall of refractive index 1.50. Light from a fish therefore passes from the water into the acrylic and then from the acrylic into the air before reaching a visitor's eye. A visitor, Kabir, remembers his school experiment with a rectangular glass slab in air and says: 'The acrylic wall is just like that slab, so a ray leaving the wall into the tunnel must be parallel to the ray that entered it from the water.' His sister Nisha is not so sure. (Speed of light in vacuum = 3 × 10⁸ m/s.)\n(i) At the water–acrylic face, does the light from the fish bend towards or away from the normal?\n(ii) At the acrylic–air face, does the light bend towards or away from the normal?\n(iii) Calculate the speed of light in the acrylic. Is Kabir's claim correct? Give a reason.",
+    "questionText": "An underwater tunnel at a public aquarium in Chennai lets visitors walk beneath the fish. The water (refractive index 1.33) is separated from the air inside the tunnel by a thick, flat-faced transparent acrylic wall of refractive index 1.50. Light from a fish therefore passes from the water into the acrylic and then from the acrylic into the air before reaching a visitor's eye. A visitor, Kabir, remembers his school experiment with a rectangular glass slab in air and says: 'The acrylic wall is just like that slab, so a ray leaving the wall into the tunnel must be parallel to the ray that entered it from the water.' His sister Nisha is not so sure. (Speed of light in vacuum = 3 × 10⁸ m/s.)\n(i) At the water–acrylic face, does the light from the fish bend towards or away from the normal? [1 mark]\n(ii) At the acrylic–air face, does the light bend towards or away from the normal? [1 mark]\n(iii) Calculate the speed of light in the acrylic. Is Kabir's claim correct? Give a reason. [2 marks]",
     "options": [],
     "answer": "(i) Towards the normal. (ii) Away from the normal. (iii) 2 × 10⁸ m/s; Kabir is wrong — the media on the two sides of the wall (water and air) are different, so the emergent ray is not parallel to the incident ray.",
     "solutionSteps": [
@@ -1527,7 +1527,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In a practical class in Patna, Simran traces the path of a ray through a rectangular glass slab kept in air. For an angle of incidence of 60° (sin 60° = 0.866) she measures the angle of refraction inside the slab and finds sin r = 0.577. (Speed of light in air = 3 × 10⁸ m/s; refractive index of water = 1.33.)\n(a) Calculate the refractive index of the glass.\n(b) Calculate the speed of light in the glass.\n(c) What should the angle of emergence be? Give a reason.\n(d) She now uses a slab of the same thickness made of glass of refractive index 1.6, keeping the angle of incidence at 60°. Will the angle of refraction be smaller or larger, and will the lateral displacement increase or decrease?\n(e) Finally she places the first slab at the bottom of a tray of water and sends the ray from the water into the slab at the same angle. Will the emergent ray (back in the water) still be parallel to the incident ray? Will the ray bend more or less on entering the slab than it did from air? Justify both.",
+    "questionText": "In a practical class in Patna, Simran traces the path of a ray through a rectangular glass slab kept in air. For an angle of incidence of 60° (sin 60° = 0.866) she measures the angle of refraction inside the slab and finds sin r = 0.577. (Speed of light in air = 3 × 10⁸ m/s; refractive index of water = 1.33.)\n(a) Calculate the refractive index of the glass. [1 mark]\n(b) Calculate the speed of light in the glass. [1 mark]\n(c) What should the angle of emergence be? Give a reason. [1 mark]\n(d) She now uses a slab of the same thickness made of glass of refractive index 1.6, keeping the angle of incidence at 60°. Will the angle of refraction be smaller or larger, and will the lateral displacement increase or decrease? [1 mark]\n(e) Finally she places the first slab at the bottom of a tray of water and sends the ray from the water into the slab at the same angle. Will the emergent ray (back in the water) still be parallel to the incident ray? Will the ray bend more or less on entering the slab than it did from air? Justify both. [1 mark]",
     "options": [],
     "answer": "(a) 1.5 (b) 2 × 10⁸ m/s (c) 60°, faces parallel with air on both sides (d) Smaller angle of refraction; lateral displacement increases (e) Yes, still parallel (water on both sides); it bends less, since glass relative to water has a smaller refractive index (1.5 ÷ 1.33 ≈ 1.13) than relative to air (1.5).",
     "solutionSteps": [
@@ -1556,7 +1556,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "An optics laboratory in Pune measures the speed of light in three transparent liquids X, Y and Z: X — 2.25 × 10⁸ m/s; Y — 2.0 × 10⁸ m/s; Z — 1.8 × 10⁸ m/s. (Speed of light in vacuum = 3 × 10⁸ m/s.)\n(a) Calculate the absolute refractive index of each liquid.\n(b) Arrange the liquids in increasing order of optical density.\n(c) Find the refractive index of Z with respect to X.\n(d) A ray passes from liquid Z into liquid Y with sin i = 0.6. Find sin r and state whether the ray bends towards or away from the normal.\n(e) How long does light take to travel 30 cm through liquid Y?",
+    "questionText": "An optics laboratory in Pune measures the speed of light in three transparent liquids X, Y and Z: X — 2.25 × 10⁸ m/s; Y — 2.0 × 10⁸ m/s; Z — 1.8 × 10⁸ m/s. (Speed of light in vacuum = 3 × 10⁸ m/s.)\n(a) Calculate the absolute refractive index of each liquid. [1 mark]\n(b) Arrange the liquids in increasing order of optical density. [1 mark]\n(c) Find the refractive index of Z with respect to X. [1 mark]\n(d) A ray passes from liquid Z into liquid Y with sin i = 0.6. Find sin r and state whether the ray bends towards or away from the normal. [1 mark]\n(e) How long does light take to travel 30 cm through liquid Y? [1 mark]",
     "options": [],
     "answer": "(a) X 4/3 ≈ 1.33, Y 1.5, Z 5/3 ≈ 1.67 (b) X < Y < Z (c) 1.25 (d) sin r = 2/3 ≈ 0.67; bends away from the normal (e) 1.5 × 10⁻⁹ s",
     "solutionSteps": [
@@ -1616,8 +1616,8 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Ritu finds an unmarked lens in the lab. When she holds it a few centimetres above a printed page, the letters look smaller and upright. As she slowly lifts the lens higher, the letters stay upright and look even smaller. Which conclusion is correct?",
     "options": [
-      "It is a concave lens, because a concave lens forms virtual, erect and diminished images for every position of the object.",
       "It is a convex lens, because the page is within its focal length, where a convex lens forms erect images.",
+      "It is a concave lens, because a concave lens forms virtual, erect and diminished images for every position of the object.",
       "It is a convex lens, because the page is beyond 2F, where a convex lens forms diminished images.",
       "It is a concave lens, because a concave lens forms real, erect images that shrink with distance."
     ],
@@ -1646,8 +1646,8 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "In the lab, Arjun points a convex lens at a building far away across the playground and gets its sharpest image on a screen 18 cm from the lens; three repeats give the same distance. He then places a lit candle 36 cm in front of the same lens. Where should he place the screen to get a sharp image of the flame?",
     "options": [
       "18 cm behind the lens",
-      "36 cm behind the lens",
       "72 cm behind the lens",
+      "36 cm behind the lens",
       "Nowhere, because the image of the flame will be virtual"
     ],
     "answer": "36 cm behind the lens",
@@ -1674,10 +1674,10 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "The front door of a flat in Kochi has a small peephole fitted with a concave lens. Looking out through it, Joseph sees the whole width of the corridor, and any visitor appears small and upright. Which statement correctly explains this?",
     "options": [
-      "The concave lens forms a virtual, erect and diminished image of a visitor at any distance outside the door.",
       "The concave lens forms a real, inverted and diminished image, which the eye turns upright.",
       "A convex lens would work better, because with the visitor beyond 2F it forms a virtual, erect, diminished image.",
-      "The concave lens forms a virtual, erect image only when the visitor stands within its focal length."
+      "The concave lens forms a virtual, erect image only when the visitor stands within its focal length.",
+      "The concave lens forms a virtual, erect and diminished image of a visitor at any distance outside the door."
     ],
     "answer": "The concave lens forms a virtual, erect and diminished image of a visitor at any distance outside the door.",
     "solutionSteps": [
@@ -1759,7 +1759,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Analysing",
-    "questionText": "Sneha has two unmarked lenses, L1 and L2, of the same size. She points each at a window on the far side of a large hall and moves a sheet of paper behind it. With L1, a sharp, inverted image of the window appears on the paper about 20 cm from the lens. With L2, no image appears on the paper at any distance.\n(a) Identify each lens, giving a reason from her observations.\n(b) Which lens could her grandfather use as a reading magnifier, and roughly how far from the page should he hold it?",
+    "questionText": "Sneha has two unmarked lenses, L1 and L2, of the same size. She points each at a window on the far side of a large hall and moves a sheet of paper behind it. With L1, a sharp, inverted image of the window appears on the paper about 20 cm from the lens. With L2, no image appears on the paper at any distance.\n(a) Identify each lens, giving a reason from her observations. [1 mark]\n(b) Which lens could her grandfather use as a reading magnifier, and roughly how far from the page should he hold it? [1 mark]",
     "options": [],
     "answer": "(a) L1 is convex (forms a real image on paper); L2 is concave (forms only virtual images). (b) L1, held less than about 20 cm (within its focal length) from the page.",
     "solutionSteps": [
@@ -1784,7 +1784,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Rohan has to find the focal length of a convex lens. He focuses a tube-light fixed on a wall 2.2 m from the lens and gets a sharp image on a screen 22 cm behind the lens. He records 'focal length = 22 cm'. His teacher says the true value is smaller.\n(a) Explain the error in Rohan's reasoning.\n(b) Use the lens formula with his readings to find the actual focal length.",
+    "questionText": "Rohan has to find the focal length of a convex lens. He focuses a tube-light fixed on a wall 2.2 m from the lens and gets a sharp image on a screen 22 cm behind the lens. He records 'focal length = 22 cm'. His teacher says the true value is smaller.\n(a) Explain the error in Rohan's reasoning. [1 mark]\n(b) Use the lens formula with his readings to find the actual focal length. [1 mark]",
     "options": [],
     "answer": "(a) The tube-light is not far enough for its rays to be parallel, so the image forms beyond F; 22 cm is the image distance, not f. (b) f = +20 cm.",
     "solutionSteps": [
@@ -1810,7 +1810,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Ayaan's new spectacle lens has power −2.5 D. To test it, he holds the lens 40 cm in front of a word printed on a wall poster and looks at the word through the lens.\n(a) Find the focal length of the lens in cm and name the type of lens.\n(b) Find the position of the image of the word and state its nature.",
+    "questionText": "Ayaan's new spectacle lens has power −2.5 D. To test it, he holds the lens 40 cm in front of a word printed on a wall poster and looks at the word through the lens.\n(a) Find the focal length of the lens in cm and name the type of lens. [1 mark]\n(b) Find the position of the image of the word and state its nature. [1 mark]",
     "options": [],
     "answer": "(a) f = −40 cm; concave (diverging) lens. (b) v = −20 cm, i.e. 20 cm from the lens on the poster's side; virtual, erect and diminished (half size).",
     "solutionSteps": [
@@ -1836,7 +1836,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Priyanka builds a simple box camera for a science fair: a convex lens of focal length 5.0 cm at the front and a light sensor fixed 6.0 cm behind the lens.\n(a) How far in front of the lens must a flower vase be kept to get a sharp image on the sensor? [1½ marks]\n(b) The vase is 15 cm tall. Find the height of its image on the sensor and state the nature of the image. [1½ marks]",
+    "questionText": "Priyanka builds a simple box camera for a science fair: a convex lens of focal length 5.0 cm at the front and a light sensor fixed 6.0 cm behind the lens.\n(a) How far in front of the lens must a flower vase be kept to get a sharp image on the sensor? [1½ marks] [1.5 marks]\n(b) The vase is 15 cm tall. Find the height of its image on the sensor and state the nature of the image. [1½ marks] [1.5 marks]",
     "options": [],
     "answer": "(a) u = −30 cm: the vase must be 30 cm in front of the lens. (b) m = −0.2, image height 3.0 cm (−3.0 cm); real, inverted and diminished.",
     "solutionSteps": [
@@ -1891,7 +1891,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "An optician in Lucknow has three lenses: P of power +10 D, Q of power +2 D and R of power −4 D. Choose the most suitable lens for each job below, stating its focal length and a reason.\n(a) A watch repairer needs a hand lens to see tiny screws enlarged.\n(b) A front-door peephole must show visitors small and upright.\n(c) A screen held 50 cm from the lens must show a sharp image of a distant hilltop.",
+    "questionText": "An optician in Lucknow has three lenses: P of power +10 D, Q of power +2 D and R of power −4 D. Choose the most suitable lens for each job below, stating its focal length and a reason.\n(a) A watch repairer needs a hand lens to see tiny screws enlarged. [1 mark]\n(b) A front-door peephole must show visitors small and upright. [1 mark]\n(c) A screen held 50 cm from the lens must show a sharp image of a distant hilltop. [1 mark]",
     "options": [],
     "answer": "(a) P, f = +10 cm (convex, short focal length, high magnification). (b) R, f = −25 cm (concave: virtual, erect, diminished images). (c) Q, f = +50 cm (distant object imaged at F).",
     "solutionSteps": [
@@ -1917,7 +1917,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Nandini's group in Guwahati is measuring the focal length of a convex lens on an optical bench. They place a candle at different distances in front of the lens and move a screen on the other side until the image of the flame is sharp. Their readings (object distance and image distance, both measured from the lens) are:\nReading 1 — 25 cm, 100 cm\nReading 2 — 30 cm, 60 cm\nReading 3 — 40 cm, 40 cm\nReading 4 — 50 cm, 45 cm\nReading 5 — 60 cm, 30 cm\nThe group notices that as the candle is moved away from the lens, the screen has to be brought closer to it. Everyone agrees that in Reading 3 the image was the same size as the flame. Later, their teacher points out that one reading was noted down wrongly.\n(i) Using Reading 3 alone, state the focal length of the lens, with a reason.\n(ii) Which reading was noted down wrongly? Justify your answer.\n(iii) Using Reading 5 and the lens formula with the New Cartesian sign convention, calculate the focal length, and then find the power of the lens.",
+    "questionText": "Nandini's group in Guwahati is measuring the focal length of a convex lens on an optical bench. They place a candle at different distances in front of the lens and move a screen on the other side until the image of the flame is sharp. Their readings (object distance and image distance, both measured from the lens) are:\nReading 1 — 25 cm, 100 cm\nReading 2 — 30 cm, 60 cm\nReading 3 — 40 cm, 40 cm\nReading 4 — 50 cm, 45 cm\nReading 5 — 60 cm, 30 cm\nThe group notices that as the candle is moved away from the lens, the screen has to be brought closer to it. Everyone agrees that in Reading 3 the image was the same size as the flame. Later, their teacher points out that one reading was noted down wrongly.\n(i) Using Reading 3 alone, state the focal length of the lens, with a reason. [1 mark]\n(ii) Which reading was noted down wrongly? Justify your answer. [1 mark]\n(iii) Using Reading 5 and the lens formula with the New Cartesian sign convention, calculate the focal length, and then find the power of the lens. [2 marks]",
     "options": [],
     "answer": "(i) f = 20 cm (same-size image when object is at 2F, 2f = 40 cm). (ii) Reading 4 (v should lie between 40 cm and 30 cm; correct value ≈ 33.3 cm). (iii) f = +20 cm; P = +5 D.",
     "solutionSteps": [
@@ -1944,7 +1944,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "For the annual day in Shillong, the school sets up a slide projector at the back of the hall. Its convex projection lens has a focal length of 20 cm, and the screen stands 4.2 m from the lens. Lalrin, who handles the slides, notices two things. First, a sharp picture appears only when the slide is at one particular distance from the lens, slightly more than its focal length. Second, every slide must be loaded upside down for the picture to appear the right way up. Each picture on a slide is 3.5 cm tall, yet the audience sees a picture many times larger on the screen. Lalrin wonders exactly how far the slide must be from the lens and how tall the picture on the screen will be.\n(i) Why must the slides be loaded upside down?\n(ii) Between which two points on the principal axis of the lens must the slide lie? Give a reason.\n(iii) Use the lens formula to find how far the slide must be from the lens, and then find the height of the picture on the screen.",
+    "questionText": "For the annual day in Shillong, the school sets up a slide projector at the back of the hall. Its convex projection lens has a focal length of 20 cm, and the screen stands 4.2 m from the lens. Lalrin, who handles the slides, notices two things. First, a sharp picture appears only when the slide is at one particular distance from the lens, slightly more than its focal length. Second, every slide must be loaded upside down for the picture to appear the right way up. Each picture on a slide is 3.5 cm tall, yet the audience sees a picture many times larger on the screen. Lalrin wonders exactly how far the slide must be from the lens and how tall the picture on the screen will be.\n(i) Why must the slides be loaded upside down? [1 mark]\n(ii) Between which two points on the principal axis of the lens must the slide lie? Give a reason. [1 mark]\n(iii) Use the lens formula to find how far the slide must be from the lens, and then find the height of the picture on the screen. [2 marks]",
     "options": [],
     "answer": "(i) The lens forms a real, inverted image. (ii) Between F and 2F (20 cm to 40 cm), giving a real, inverted, enlarged image beyond 2F. (iii) u = −21 cm; m = −20, picture 70 cm tall.",
     "solutionSteps": [
@@ -1971,7 +1971,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Before a science quiz in Pune, Mrs Kulkarni gives her class three unlabelled lenses, A, B and C, and asks them to identify each one only by observation. Working outdoors, the students hold each lens over a printed page and then use it to focus sunlight onto a sheet of paper (they never look at the sun through any lens). They record:\nLens A — held 4 cm above the page, letters look enlarged and upright; sunlight converges to a bright spot on paper 10 cm below it.\nLens B — letters look smaller and upright at every height; no bright spot forms at any distance.\nLens C — held 4 cm above the page, letters look enlarged and upright; sunlight converges to a bright spot 25 cm below it.\n(i) Which lens is concave? Give one observation that supports this.\n(ii) Which of A and C has the greater power? Explain.\n(iii) Find the power of lens C. Within what distance from a page must lens C be held to see the letters enlarged and upright?",
+    "questionText": "Before a science quiz in Pune, Mrs Kulkarni gives her class three unlabelled lenses, A, B and C, and asks them to identify each one only by observation. Working outdoors, the students hold each lens over a printed page and then use it to focus sunlight onto a sheet of paper (they never look at the sun through any lens). They record:\nLens A — held 4 cm above the page, letters look enlarged and upright; sunlight converges to a bright spot on paper 10 cm below it.\nLens B — letters look smaller and upright at every height; no bright spot forms at any distance.\nLens C — held 4 cm above the page, letters look enlarged and upright; sunlight converges to a bright spot 25 cm below it.\n(i) Which lens is concave? Give one observation that supports this. [1 mark]\n(ii) Which of A and C has the greater power? Explain. [1 mark]\n(iii) Find the power of lens C. Within what distance from a page must lens C be held to see the letters enlarged and upright? [2 marks]",
     "options": [],
     "answer": "(i) Lens B (only diminished erect images, no bright spot). (ii) Lens A (shorter focal length, 10 cm; P = +10 D). (iii) P = +4 D; within 25 cm of the page.",
     "solutionSteps": [
@@ -1998,7 +1998,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Kiran is investigating the images formed by a concave lens of focal length 15 cm. She places a 4.0 cm tall candle at different distances in front of the lens and, looking through the lens from the other side, notes where the image of the flame appears and how tall it is. A screen held anywhere, on either side of the lens, never catches an image. Her results:\nObject 15 cm from lens — image 7.5 cm from lens, 2.0 cm tall\nObject 30 cm from lens — image 10 cm from lens, about 1.3 cm tall\nObject 45 cm from lens — image 11.25 cm from lens, 1.0 cm tall\nEvery image is upright and lies on the same side of the lens as the candle.\n(i) Why can no screen catch these images?\n(ii) Describe how the position and size of the image change as the candle moves farther away. Where would the image of a very distant object be formed?\n(iii) Use the lens formula to find the image position when the candle is 60 cm from the lens, and then find the height of the image.",
+    "questionText": "Kiran is investigating the images formed by a concave lens of focal length 15 cm. She places a 4.0 cm tall candle at different distances in front of the lens and, looking through the lens from the other side, notes where the image of the flame appears and how tall it is. A screen held anywhere, on either side of the lens, never catches an image. Her results:\nObject 15 cm from lens — image 7.5 cm from lens, 2.0 cm tall\nObject 30 cm from lens — image 10 cm from lens, about 1.3 cm tall\nObject 45 cm from lens — image 11.25 cm from lens, 1.0 cm tall\nEvery image is upright and lies on the same side of the lens as the candle.\n(i) Why can no screen catch these images? [1 mark]\n(ii) Describe how the position and size of the image change as the candle moves farther away. Where would the image of a very distant object be formed? [1 mark]\n(iii) Use the lens formula to find the image position when the candle is 60 cm from the lens, and then find the height of the image. [2 marks]",
     "options": [],
     "answer": "(i) The images are virtual (rays only appear to meet). (ii) Image moves towards F and becomes smaller; a very distant object is imaged at F, 15 cm from the lens. (iii) v = −12 cm; m = +0.2, image 0.8 cm tall.",
     "solutionSteps": [
@@ -2025,7 +2025,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In a gem market in Jaipur, Ishaan's aunt checks gemstones for tiny scratches with a hand lens. Her lens is convex, with a focal length of 5.0 cm. She holds a gemstone 4.0 cm from the lens and keeps her eye close to the other side. A scratch 2.0 mm long then looks much bigger and the right way up. When Ishaan tries the same lens with the stone about 8 cm away, he finds the scratch looks upside down and blurred unless he moves his eye far back from the lens. His aunt explains that a hand lens works as a magnifier only when the object is held at the right distance.\n(i) Where, relative to the principal focus, must the stone be held for the lens to work as a magnifier?\n(ii) State the nature of the image seen by the aunt.\n(iii) Use the lens formula to find the position of the image she sees, and then find the length of the scratch in the image.",
+    "questionText": "In a gem market in Jaipur, Ishaan's aunt checks gemstones for tiny scratches with a hand lens. Her lens is convex, with a focal length of 5.0 cm. She holds a gemstone 4.0 cm from the lens and keeps her eye close to the other side. A scratch 2.0 mm long then looks much bigger and the right way up. When Ishaan tries the same lens with the stone about 8 cm away, he finds the scratch looks upside down and blurred unless he moves his eye far back from the lens. His aunt explains that a hand lens works as a magnifier only when the object is held at the right distance.\n(i) Where, relative to the principal focus, must the stone be held for the lens to work as a magnifier? [1 mark]\n(ii) State the nature of the image seen by the aunt. [1 mark]\n(iii) Use the lens formula to find the position of the image she sees, and then find the length of the scratch in the image. [2 marks]",
     "options": [],
     "answer": "(i) Between the optical centre and F (less than 5.0 cm). (ii) Virtual, erect, enlarged, on the stone's side. (iii) v = −20 cm; m = +5, scratch appears 10 mm (1.0 cm) long.",
     "solutionSteps": [
@@ -2052,7 +2052,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Diya slides a lit candle along an optical bench towards a convex lens of focal length 15 cm, starting from far away, and tries each time to catch a sharp image on a screen on the other side of the lens. Using the lens formula and the New Cartesian sign convention, predict for each candle position below where the screen must be placed (if anywhere), and state the nature and relative size of the image.\n(a) 60 cm from the lens\n(b) 30 cm from the lens\n(c) 20 cm from the lens\n(d) 15 cm from the lens\n(e) 10 cm from the lens",
+    "questionText": "Diya slides a lit candle along an optical bench towards a convex lens of focal length 15 cm, starting from far away, and tries each time to catch a sharp image on a screen on the other side of the lens. Using the lens formula and the New Cartesian sign convention, predict for each candle position below where the screen must be placed (if anywhere), and state the nature and relative size of the image.\n(a) 60 cm from the lens [1 mark]\n(b) 30 cm from the lens [1 mark]\n(c) 20 cm from the lens [1 mark]\n(d) 15 cm from the lens [1 mark]\n(e) 10 cm from the lens [1 mark]",
     "options": [],
     "answer": "(a) v = +20 cm, real, inverted, diminished (m = −1/3). (b) v = +30 cm, real, inverted, same size. (c) v = +60 cm, real, inverted, enlarged (m = −3). (d) Image at infinity; no screen position. (e) v = −30 cm, virtual, erect, enlarged (m = +3); no screen position.",
     "solutionSteps": [
@@ -2080,7 +2080,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "In a school lab in Chennai, Meenakshi wants to find the focal length of a concave lens. A convex lens alone gives a sharp image of a distant tower on a screen 20 cm behind it. When she places the concave lens in close contact with the convex lens, the sharp image of the tower moves to 60 cm behind the pair.\n(a) Why can the focal length of a concave lens not be found directly by focusing a distant object on a screen with the concave lens alone?\n(b) Find the power of the convex lens.\n(c) Find the power of the combination.\n(d) Find the power and focal length of the concave lens.\n(e) Her friend Arun repeats the experiment, placing a different concave lens of focal length 15 cm in contact with the same convex lens, and gets no image on the screen at any distance. Explain why, with a calculation.",
+    "questionText": "In a school lab in Chennai, Meenakshi wants to find the focal length of a concave lens. A convex lens alone gives a sharp image of a distant tower on a screen 20 cm behind it. When she places the concave lens in close contact with the convex lens, the sharp image of the tower moves to 60 cm behind the pair.\n(a) Why can the focal length of a concave lens not be found directly by focusing a distant object on a screen with the concave lens alone? [1 mark]\n(b) Find the power of the convex lens. [1 mark]\n(c) Find the power of the combination. [1 mark]\n(d) Find the power and focal length of the concave lens. [1 mark]\n(e) Her friend Arun repeats the experiment, placing a different concave lens of focal length 15 cm in contact with the same convex lens, and gets no image on the screen at any distance. Explain why, with a calculation. [1 mark]",
     "options": [],
     "answer": "(a) A concave lens forms only virtual images. (b) +5 D. (c) +5/3 D ≈ +1.67 D. (d) −10/3 D ≈ −3.33 D; f = −30 cm. (e) Combined power = +5 − 6.67 = −1.67 D: the pair diverges and forms only virtual images.",
     "solutionSteps": [
@@ -2110,8 +2110,8 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Anaya holds one lens of her spectacles a few centimetres above a printed page and notices that the letters always look smaller and upright, whatever distance she tries. Which of the following entries could be printed for this lens on her optician's slip?",
     "options": [
-      "Power +1.25 D; focal length +80 cm",
       "Power −1.25 D; focal length −80 cm",
+      "Power +1.25 D; focal length +80 cm",
       "Power −1.25 D; focal length −12.5 cm",
       "Power +0.80 D; focal length −1.25 m"
     ],
@@ -2139,8 +2139,8 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "For a model telescope, Tenzing needs a lens pair that acts as a single converging lens of focal length 25 cm. His kit has four thin lenses (focal lengths given as magnitudes): a convex lens of 20 cm, a convex lens of 50 cm, a concave lens of 50 cm and a concave lens of 100 cm. Which two lenses, placed in close contact, give exactly what he needs?",
     "options": [
-      "Convex lens of 20 cm with concave lens of 100 cm",
       "Convex lens of 20 cm with concave lens of 50 cm",
+      "Convex lens of 20 cm with concave lens of 100 cm",
       "Convex lens of 50 cm with concave lens of 100 cm",
       "Convex lens of 20 cm with convex lens of 50 cm"
     ],
@@ -2197,10 +2197,10 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Meghna holds a convex lens 12 cm above her desk and sees a sharp, inverted image of the ceiling fan on the desk. A blade of the fan is 120 cm long and its image on the desk is 6.0 cm long. Using the New Cartesian sign convention, what is the object distance of the fan from the lens?",
     "options": [
-      "u = −240 cm",
       "u = +240 cm",
       "u = −0.60 cm",
-      "u = −12 cm"
+      "u = −12 cm",
+      "u = −240 cm"
     ],
     "answer": "u = −240 cm",
     "solutionSteps": [
@@ -2282,7 +2282,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Kabir uses a lens to focus the image of a far-off mobile tower on his classroom wall and gets the sharpest image when the lens is 40 cm from the wall. (a) Find the power of his lens, with its sign. (b) His friend claims that a lens of power +4 D would form the sharp image of the same tower closer to the lens than 40 cm. Is the friend right? Justify with a calculation.",
+    "questionText": "Kabir uses a lens to focus the image of a far-off mobile tower on his classroom wall and gets the sharpest image when the lens is 40 cm from the wall. (a) Find the power of his lens, with its sign. (b) His friend claims that a lens of power +4 D would form the sharp image of the same tower closer to the lens than 40 cm. Is the friend right? Justify with a calculation.\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) P = +2.5 D (convex lens, f = +40 cm). (b) Yes — a +4 D lens has f = 25 cm, so the tower's image forms 25 cm from the lens.",
     "solutionSteps": [
@@ -2307,7 +2307,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "In the school laboratory, Ritu places a concave lens of focal length 40 cm in close contact with a convex lens of focal length 20 cm and holds the pair facing the Sun, with a sheet of paper behind it (she never looks at the Sun through it). (a) Calculate the power of the combination. (b) Will the pair bring sunlight to a point on the paper? If yes, how far from the lenses should the paper be?",
+    "questionText": "In the school laboratory, Ritu places a concave lens of focal length 40 cm in close contact with a convex lens of focal length 20 cm and holds the pair facing the Sun, with a sheet of paper behind it (she never looks at the Sun through it). (a) Calculate the power of the combination. (b) Will the pair bring sunlight to a point on the paper? If yes, how far from the lenses should the paper be?\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) +2.5 D. (b) Yes — the pair is converging; sunlight meets at 40 cm from the lenses.",
     "solutionSteps": [
@@ -2332,7 +2332,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Analysing",
-    "questionText": "An optician's slip for Mr Wangchuk reads: Right eye — −2.5 D; Left eye — −1.25 D. (a) Find the focal length of each lens and say which lens has the longer focal length. (b) Name the kind of lens used for both eyes, and state which of the two lenses diverges light more strongly, with a reason.",
+    "questionText": "An optician's slip for Mr Wangchuk reads: Right eye — −2.5 D; Left eye — −1.25 D. (a) Find the focal length of each lens and say which lens has the longer focal length. (b) Name the kind of lens used for both eyes, and state which of the two lenses diverges light more strongly, with a reason.\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) Right −40 cm, left −80 cm; the left-eye lens has the longer focal length. (b) Both concave (diverging); the right-eye lens diverges more strongly (larger magnitude of power).",
     "solutionSteps": [
@@ -2412,7 +2412,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "On an optical bench, Harpreet clips a +6 D lens and a −2 D lens in close contact. A toy 5 cm tall stands 50 cm in front of the pair. (a) Find the power and focal length of the combination. (b) Where must the screen be placed to get a sharp image? (c) Find the height of the image and state its nature.",
+    "questionText": "On an optical bench, Harpreet clips a +6 D lens and a −2 D lens in close contact. A toy 5 cm tall stands 50 cm in front of the pair. (a) Find the power and focal length of the combination. (b) Where must the screen be placed to get a sharp image? (c) Find the height of the image and state its nature.\n[Marks: (a) 1 mark, (b) 1 mark, (c) 1 mark]",
     "options": [],
     "answer": "(a) +4 D, f = +25 cm. (b) 50 cm behind the pair (v = +50 cm). (c) Height −5 cm: real, inverted, same size.",
     "solutionSteps": [
@@ -2439,7 +2439,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "An optician's shop in Madurai keeps a box of trial lenses to check prescriptions before cutting spectacle glass. Each trial lens is marked only with its power in dioptres. On a busy Saturday, the optician, Ms Rizvi, notes the slips of three customers:\nMr Iyer — +2.0 D (reading glasses)\nMs Kaur — −1.0 D\nArjun — −4.0 D\nShe explains to a trainee that the sign of the power tells the type of lens, and that the size of the number tells how strongly the lens bends light. When a required lens is not in the box, she stacks two trial lenses in close contact in the trial frame, because thin lenses in contact behave like a single lens whose power is the sum of their powers.\n(i) Which customer needs the most strongly diverging lens? Give the focal length of that lens.\n(ii) Find the focal length of Mr Iyer's lens and name the type of lens.\n(iii) The box has no +1.0 D lens. Which two customers' lens powers, placed in contact, would give +1.0 D? Find the focal length of this combination.",
+    "questionText": "An optician's shop in Madurai keeps a box of trial lenses to check prescriptions before cutting spectacle glass. Each trial lens is marked only with its power in dioptres. On a busy Saturday, the optician, Ms Rizvi, notes the slips of three customers:\nMr Iyer — +2.0 D (reading glasses)\nMs Kaur — −1.0 D\nArjun — −4.0 D\nShe explains to a trainee that the sign of the power tells the type of lens, and that the size of the number tells how strongly the lens bends light. When a required lens is not in the box, she stacks two trial lenses in close contact in the trial frame, because thin lenses in contact behave like a single lens whose power is the sum of their powers.\n(i) Which customer needs the most strongly diverging lens? Give the focal length of that lens. [1 mark]\n(ii) Find the focal length of Mr Iyer's lens and name the type of lens. [1 mark]\n(iii) The box has no +1.0 D lens. Which two customers' lens powers, placed in contact, would give +1.0 D? Find the focal length of this combination. [2 marks]",
     "options": [],
     "answer": "(i) Arjun; f = −25 cm. (ii) +50 cm, convex (converging). (iii) Mr Iyer's +2.0 D with Ms Kaur's −1.0 D; f = +100 cm.",
     "solutionSteps": [
@@ -2466,7 +2466,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Rohan, a member of his school's nature club in Pune, photographs butterflies with a camera whose lens is a convex lens of focal length 50 mm. The light-sensitive sensor stays fixed inside the camera; to focus, the lens slides forward or backward until a sharp image falls on the sensor. A scale on the lens barrel shows the lens-to-sensor distance. Rohan notes down two readings from the scale:\nPhotographing distant hills — 50 mm\nPhotographing a butterfly resting on a flower — 55 mm\nThe butterfly has a wingspan of 6.0 cm. Rohan wonders why the lens has to move away from the sensor for nearby objects, and how large the butterfly actually appears on the tiny sensor compared with its real size.\n(i) State the nature of the image formed on the sensor and the sign of its magnification.\n(ii) Why is the lens-to-sensor distance exactly 50 mm for the distant hills?\n(iii) Using the lens formula, find how far the butterfly is from the lens, and find the size of its image on the sensor.",
+    "questionText": "Rohan, a member of his school's nature club in Pune, photographs butterflies with a camera whose lens is a convex lens of focal length 50 mm. The light-sensitive sensor stays fixed inside the camera; to focus, the lens slides forward or backward until a sharp image falls on the sensor. A scale on the lens barrel shows the lens-to-sensor distance. Rohan notes down two readings from the scale:\nPhotographing distant hills — 50 mm\nPhotographing a butterfly resting on a flower — 55 mm\nThe butterfly has a wingspan of 6.0 cm. Rohan wonders why the lens has to move away from the sensor for nearby objects, and how large the butterfly actually appears on the tiny sensor compared with its real size.\n(i) State the nature of the image formed on the sensor and the sign of its magnification. [1 mark]\n(ii) Why is the lens-to-sensor distance exactly 50 mm for the distant hills? [1 mark]\n(iii) Using the lens formula, find how far the butterfly is from the lens, and find the size of its image on the sensor. [2 marks]",
     "options": [],
     "answer": "(i) Real, inverted, diminished; m negative. (ii) Light from distant hills converges at the focus, v = f = 50 mm. (iii) u = −55 cm; m = −0.1, image wingspan 0.6 cm (6 mm), inverted.",
     "solutionSteps": [
@@ -2493,7 +2493,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Before a practical examination at a school in Raipur, the laboratory assistant, Mr Dsouza, lays out four lenses whose labels show only their power:\nLens A — +2.5 D\nLens B — +5.0 D\nLens C — −5.0 D\nLens D — +20 D\nEach student must choose the right lens for a task. Pooja must obtain, on a screen, an image of a lit bulb that is exactly the same size as the bulb, with the bulb and the screen fixed 80 cm apart. Vikram must look at the fine veins of a leaf through the most powerful magnifier available. Sneha is handed a lens and told that it will never give an image on a screen, wherever the object is placed.\n(i) Which lens did Sneha receive? Give its focal length.\n(ii) Which lens should Vikram use, and what is its focal length?\n(iii) Which lens should Pooja choose, and where must she place it between the bulb and the screen? Justify your choice.",
+    "questionText": "Before a practical examination at a school in Raipur, the laboratory assistant, Mr Dsouza, lays out four lenses whose labels show only their power:\nLens A — +2.5 D\nLens B — +5.0 D\nLens C — −5.0 D\nLens D — +20 D\nEach student must choose the right lens for a task. Pooja must obtain, on a screen, an image of a lit bulb that is exactly the same size as the bulb, with the bulb and the screen fixed 80 cm apart. Vikram must look at the fine veins of a leaf through the most powerful magnifier available. Sneha is handed a lens and told that it will never give an image on a screen, wherever the object is placed.\n(i) Which lens did Sneha receive? Give its focal length. [1 mark]\n(ii) Which lens should Vikram use, and what is its focal length? [1 mark]\n(iii) Which lens should Pooja choose, and where must she place it between the bulb and the screen? Justify your choice. [2 marks]",
     "options": [],
     "answer": "(i) Lens C, f = −20 cm. (ii) Lens D, f = +5 cm. (iii) Lens B (f = +20 cm), placed midway — 40 cm from the bulb and 40 cm from the screen.",
     "solutionSteps": [
@@ -2520,7 +2520,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "For a science exhibition in Agartala, Nilima and Dev built a phone projector from a shoebox. They fixed a lens of power +5 D in a hole cut in one end of the box, placed a phone showing a bright photo inside the box, and pointed the lens at a white wall in a dark room. They slid the phone back and forth inside the box until a sharp picture appeared on the wall. Their notes read:\nPhone screen to lens — 25 cm\nWidth of photo on the phone — 12 cm\nVisitors were puzzled that the team had placed the phone upside down. Dev also noticed that when the phone was slid closer than 20 cm to the lens, no picture formed on the wall at all, however far away the wall was.\n(i) Why did the team place the phone upside down?\n(ii) Why does no picture form on the wall when the phone is closer than 20 cm to the lens?\n(iii) How far from the lens must the wall be for a sharp picture, and how wide is the picture on the wall?",
+    "questionText": "For a science exhibition in Agartala, Nilima and Dev built a phone projector from a shoebox. They fixed a lens of power +5 D in a hole cut in one end of the box, placed a phone showing a bright photo inside the box, and pointed the lens at a white wall in a dark room. They slid the phone back and forth inside the box until a sharp picture appeared on the wall. Their notes read:\nPhone screen to lens — 25 cm\nWidth of photo on the phone — 12 cm\nVisitors were puzzled that the team had placed the phone upside down. Dev also noticed that when the phone was slid closer than 20 cm to the lens, no picture formed on the wall at all, however far away the wall was.\n(i) Why did the team place the phone upside down? [1 mark]\n(ii) Why does no picture form on the wall when the phone is closer than 20 cm to the lens? [1 mark]\n(iii) How far from the lens must the wall be for a sharp picture, and how wide is the picture on the wall? [2 marks]",
     "options": [],
     "answer": "(i) The convex lens forms a real, inverted image, so an upside-down phone gives an upright picture. (ii) f = 20 cm; inside F the image is virtual. (iii) 1.0 m from the lens; 48 cm wide.",
     "solutionSteps": [
@@ -2547,7 +2547,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Selvi paints tiny wooden toys in her workshop in Channapatna, Karnataka. Her headband magnifier comes with three clip-on thin lenses, each marked only with its power:\nLens 1 — +2.0 D\nLens 2 — +3.0 D\nLens 3 — −1.0 D\nAny two lenses can be clipped together in close contact, and the pair then acts like a single lens whose power is the sum of their powers. Selvi wants the strongest possible magnifying combination for painting the eyes of a toy parrot. Her nephew, a Class 10 student, suggests that she first check whether each choice makes light converge or diverge, and then work out where the magnified image of the parrot will appear and how much larger it will look.\n(i) Which lens can never be used on its own as a magnifier? Give a reason.\n(ii) Which pair gives the strongest magnifying combination? Find its focal length.\n(iii) Selvi holds the toy parrot 10 cm from this pair. Using the lens formula, find the position of the image and the magnification.",
+    "questionText": "Selvi paints tiny wooden toys in her workshop in Channapatna, Karnataka. Her headband magnifier comes with three clip-on thin lenses, each marked only with its power:\nLens 1 — +2.0 D\nLens 2 — +3.0 D\nLens 3 — −1.0 D\nAny two lenses can be clipped together in close contact, and the pair then acts like a single lens whose power is the sum of their powers. Selvi wants the strongest possible magnifying combination for painting the eyes of a toy parrot. Her nephew, a Class 10 student, suggests that she first check whether each choice makes light converge or diverge, and then work out where the magnified image of the parrot will appear and how much larger it will look.\n(i) Which lens can never be used on its own as a magnifier? Give a reason. [1 mark]\n(ii) Which pair gives the strongest magnifying combination? Find its focal length. [1 mark]\n(iii) Selvi holds the toy parrot 10 cm from this pair. Using the lens formula, find the position of the image and the magnification. [2 marks]",
     "options": [],
     "answer": "(i) Lens 3 — it is concave (negative power). (ii) Lens 1 + Lens 2: +5.0 D, f = +20 cm. (iii) v = −20 cm (same side as the toy); m = +2, virtual and erect.",
     "solutionSteps": [
@@ -2603,7 +2603,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Mrs Banerjee's old spectacles have lenses of power −2.0 D. After an eye check-up, her new prescription is −2.5 D for both eyes. At an optician's shop in Kolkata, the optician first checks the new power by holding an extra trial lens in close contact with one old lens.\n(a) Find the focal lengths of the old lens and the new lens, and name the type of lens.\n(b) What power, and what kind, of trial lens must be added in contact with the old lens to match the new prescription? Find its focal length.\n(c) Mrs Banerjee looks through the new lens at a notice-board letter 8.0 cm tall, kept 120 cm from the lens. Using the lens formula, find the position of the image.\n(d) Find the magnification and the height of the image, and state its nature.\n(e) Which lens, old or new, bends light more strongly? Justify.",
+    "questionText": "Mrs Banerjee's old spectacles have lenses of power −2.0 D. After an eye check-up, her new prescription is −2.5 D for both eyes. At an optician's shop in Kolkata, the optician first checks the new power by holding an extra trial lens in close contact with one old lens.\n(a) Find the focal lengths of the old lens and the new lens, and name the type of lens. [1 mark]\n(b) What power, and what kind, of trial lens must be added in contact with the old lens to match the new prescription? Find its focal length. [1 mark]\n(c) Mrs Banerjee looks through the new lens at a notice-board letter 8.0 cm tall, kept 120 cm from the lens. Using the lens formula, find the position of the image. [1 mark]\n(d) Find the magnification and the height of the image, and state its nature. [1 mark]\n(e) Which lens, old or new, bends light more strongly? Justify. [1 mark]",
     "options": [],
     "answer": "(a) Old −50 cm, new −40 cm; concave. (b) −0.5 D concave trial lens, f = −200 cm. (c) v = −30 cm. (d) m = +0.25, 2.0 cm tall, virtual, erect, diminished. (e) The new lens (larger magnitude of power).",
     "solutionSteps": [
