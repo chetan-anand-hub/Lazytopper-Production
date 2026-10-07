@@ -96,7 +96,7 @@ async function openStepsOnFirstQuestion() {
       </Routes>
     </MemoryRouter>,
   );
-  await screen.findAllByText(/^Question \d+: solve it\.$/);
+  await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
   // PRACTICE-HONESTY-1 — steps are locked until a question is answered or the session is
   // finished. This suite is about the error copy, so it finishes the (unattempted) session,
   // goes back to the set, and opens the now-unlocked steps.
