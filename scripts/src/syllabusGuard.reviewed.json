@@ -32,24 +32,6 @@
     {
       "rule": "G3-TEXT",
       "surface": "bank",
-      "rowId": "CBE-S-MAGN-B-005",
-      "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
-      "verdict": "hit",
-      "reason": "CBSE competency item: asks the TYPE of current shown in a current-time trace (AC); the motor is only the setting.",
-      "evidence": "CBSE CBE (official competency booklet) row; magnetic-effects formative[0] covers the motor's working, not AC/DC"
-    },
-    {
-      "rule": "G3-TEXT",
-      "surface": "bank",
-      "rowId": "CBE-S-MAGN-D-001",
-      "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
-      "verdict": "hit",
-      "reason": "CBSE competency item: the answer is Fleming's LEFT-hand rule (force on a current-carrying conductor, IN); the motor coil is the setting, and no motor principle, part or working is asked.",
-      "evidence": "CBSE CBE (official competency booklet) row; Fleming's left-hand rule is IN (magnetic-effects BOARD content)"
-    },
-    {
-      "rule": "G3-TEXT",
-      "surface": "bank",
       "rowId": "EL-E14",
       "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
       "verdict": "review",
@@ -183,15 +165,6 @@
       "evidence": "NCERT Exemplar Ch12 MCQ; key 'a hemisphere and a cone'"
     },
     {
-      "rule": "G3-TEXT",
-      "surface": "hpq",
-      "rowId": "sci-mec-hpq-1",
-      "matched": "magnetic-effects-of-electric-current/formative[0]: \"induced current\"",
-      "verdict": "hit",
-      "reason": "\"induced current\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
-      "evidence": "HPQ inline options: (D) 'Induced current' is a distractor; key (B) magnetic field around a straight conductor (right-hand thumb rule, IN)"
-    },
-    {
       "rule": "G4-BIMODAL",
       "surface": "bank",
       "rowId": "STAT2P1-R05",
@@ -221,11 +194,20 @@
     {
       "rule": "G4-HD-TRIANGLES",
       "surface": "bank",
-      "rowId": "APQ-M-TRIG-017",
-      "matched": "6 elevation/depression angles",
+      "rowId": "PYQ-M-TRIG-008",
+      "matched": "4 elevation/depression angles",
       "verdict": "review",
-      "reason": "Case study: (i) one triangle, (ii) one triangle, (iii) two triangles (60° and 45° to plane C), OR (iii) two triangles; no part uses more than two.",
-      "evidence": "lazytopper/src/config/syllabus2026-27.ts:701"
+      "reason": "(A) OR (B), each part two right triangles (A: cars at depression 30° and 60° from one 75 m tower; B: one 7 m building, elevation and depression from the same top), same shape as reviewed APQ-M-TRIG-009; the angles became readable to the guard only after BANK-FIX-1 PR-2 fixed the garbled \"30o\" → \"30°\".",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:701; BANK-FIX-1 PR-2 ledger (fixer:b43, questionText)"
+    },
+    {
+      "rule": "G4-HD-TRIANGLES",
+      "surface": "predicted",
+      "rowId": "2026-TRIG-APP-CASE-08",
+      "matched": "4 elevation/depression angles",
+      "verdict": "review",
+      "reason": "One 40 m lighthouse, two boats at depression 45° and 30°: two right triangles. 45° and 30° appear twice only because BANK-FIX-1 PR-2 split the 4-mark case into parts (i)-(iii), each part restating its angle.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:701; BANK-FIX-1 PR-2 ledger (fixer:b43, questionText)"
     },
     {
       "rule": "G4-HD-TRIANGLES",

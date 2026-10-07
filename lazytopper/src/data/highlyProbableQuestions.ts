@@ -715,10 +715,10 @@ const hpqAdditions: HPQTopicBucket[] = [
         topic: "Probability",
         subtopic: "Combined events",
         concept: "Sum of two dice",
-        section: "C",
-        type: "Short",
-        difficulty: "Medium",
-        marks: 3,
+        section: "B",
+        type: "VeryShort",
+        difficulty: "Easy",
+        marks: 2,
         likelihood: "High",
         tier: "must-crack",
         bloomSkill: "Applying",
@@ -728,9 +728,8 @@ const hpqAdditions: HPQTopicBucket[] = [
         explanation:
           "Favourable outcomes for sum 8: (2,6), (3,5), (4,4), (5,3), (6,2) — a total of 5. Total possible outcomes = 36. Probability = 5/36.",
         solutionSteps: [
-          "When two dice are rolled simultaneously, the total number of possible outcomes is 6 * 6 = 36.; The favorable outcomes where the sum of the numbers obtained is 8 are: (2,6), (3,5), (4,4), (5,3), (6,2). [1]",
-          "The number of favorable outcomes = 5.; The probability of an event E is P(E) = (Number of favorable outcomes) / (Total number of outcomes). [1]",
-          "P(sum is 8) = 5/36. [1]",
+          "Total outcomes when two dice are rolled = 6 × 6 = 36; favourable outcomes for sum 8: (2,6), (3,5), (4,4), (5,3), (6,2) = 5. [1]",
+          "P(sum is 8) = favourable/total = 5/36. [1]"
         ],
         finalAnswer: "5/36",
       },
@@ -847,17 +846,17 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Applying",
         question:
-          "Explain briefly the process of electrolytic reduction used in the extraction of aluminium. Why is cryolite added to the electrolyte?",
+          "Aluminium is placed high in the reactivity series. (a) Why can aluminium not be obtained by heating its oxide with carbon? (b) Name the process used to obtain aluminium from its oxide and state what happens at the cathode.",
         answer:
-          "Aluminium oxide is dissolved in molten cryolite and electrolysed. At the cathode, Al³⁺ ions gain electrons to form molten aluminium. Cryolite lowers the melting point and increases conductivity of the mixture, making the process economical.",
+          "(a) Aluminium has a greater affinity for oxygen than carbon, so carbon cannot reduce aluminium oxide. (b) Electrolytic reduction of molten aluminium oxide; at the cathode Al³⁺ ions gain electrons and pure aluminium is deposited (Al³⁺ + 3e⁻ → Al).",
         explanation:
-          "Pure alumina has a very high melting point; dissolving it in cryolite reduces the temperature required and improves ion mobility.",
+          "Metals high in the reactivity series are more reactive than carbon, so they are obtained by electrolytic reduction of their molten compounds; the metal is deposited at the cathode (negative electrode).",
         solutionSteps: [
-          "Aluminium oxide (alumina) is dissolved in molten cryolite to form the electrolyte.; During electrolysis, Al³⁺ ions migrate to the cathode and gain electrons to form molten aluminium (Al³⁺ + 3e⁻ → Al). [1]",
-          "Cryolite is added because it significantly lowers the melting point of alumina from 2072°C to about 900°C.; It also increases the electrical conductivity of the electrolyte mixture. [1]",
-          "These effects make the electrolytic reduction process more energy-efficient and economical. [1]",
+          "(a) Aluminium is more reactive than carbon (greater affinity for oxygen), so carbon cannot reduce Al₂O₃. [1]",
+          "(b) Aluminium is obtained by electrolytic reduction of its molten oxide. [1]",
+          "(b) At the cathode, Al³⁺ + 3e⁻ → Al; pure aluminium is deposited. [1]"
         ],
-        finalAnswer: "Aluminium oxide is dissolved in molten cryolite and electrolysed. At the cathode, Al³⁺ ions gain electrons to form molten aluminium. Cryolite lowers the melting point and increases conductivity of the mixture, making the process economical.",
+        finalAnswer: "(a) Al is more reactive than carbon; (b) electrolytic reduction of molten Al₂O₃ — Al³⁺ + 3e⁻ → Al at the cathode.",
       },
       {
         id: "mnm-hpq-105",
@@ -1286,10 +1285,10 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         topic: "Polynomials",
         subtopic: "Coefficient–root Relations",
         concept: "Sum and product of zeroes of a quadratic",
-        section: "C",
+        section: "B",
         type: "Short",
         difficulty: "Medium",
-        marks: 3,
+        marks: 2,
         likelihood: "High",
         tier: "high-roi",
         bloomSkill: "Applying",
@@ -1297,9 +1296,8 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "For the quadratic polynomial p(x) = 2x² − 5x + 3, find the sum and product of its zeroes using coefficient–root relations.",
         answer: "Sum of zeroes = 5/2, product of zeroes = 3/2",
         solutionSteps: [
-          "Compare p(x) = 2x² − 5x + 3 with ax² + bx + c.; Here a = 2, b = −5, c = 3. [1]",
-          "Use α + β = −b/a and αβ = c/a.; Compute α + β = −(−5)/2 = 5/2. [1]",
-          "Compute αβ = 3/2. [1]",
+          "Compare with ax² + bx + c: a = 2, b = −5, c = 3; α + β = −b/a = 5/2. [1]",
+          "αβ = c/a = 3/2. [1]"
         ],
         finalAnswer: "Sum of zeroes = 5/2, product of zeroes = 3/2",
         explanation:
@@ -1405,8 +1403,8 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "Which of the following is the correctly balanced form of the equation for rusting? Fe + O₂ → Fe₂O₃",
-        answer: "4Fe + 3O₂ → 2Fe₂O₃",
+          "Which of the following is the correctly balanced equation for the formation of iron(III) oxide from iron and oxygen (Fe + O₂ → Fe₂O₃)?\n(a) 2Fe + O₂ → Fe₂O₃\n(b) 4Fe + 3O₂ → 2Fe₂O₃\n(c) 2Fe + 3O₂ → Fe₂O₃\n(d) 4Fe + 2O₂ → 2Fe₂O₃",
+        answer: "(b) 4Fe + 3O₂ → 2Fe₂O₃",
         explanation:
           "Total Fe atoms and O atoms on both sides must be equal; 4Fe + 3O₂ → 2Fe₂O₃ balances the equation.",
         policyTag: "MCQ balancing",
@@ -1415,7 +1413,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "To balance oxygen, multiply O₂ by 3 and Fe₂O₃ by 2: Fe + 3O₂ → 2Fe₂O₃.",
           "To balance iron, multiply Fe by 4: 4Fe + 3O₂ → 2Fe₂O₃. This is the correctly balanced equation.",
         ],
-        finalAnswer: "4Fe + 3O₂ → 2Fe₂O₃",
+        finalAnswer: "(b) 4Fe + 3O₂ → 2Fe₂O₃",
       },
       {
         id: "sci-cre-hpq-2",
@@ -1675,7 +1673,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "The position of Zinc above copper in the activity series signifies its higher reactivity.",
           "Therefore, the Reason correctly explains why the Assertion is true.",
         ],
-        finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+        finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
       },
       {
         id: "2026-MNM-04",
@@ -1685,7 +1683,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         subtopic: "Ores & Extraction",
         concept: "Extraction of iron",
         section: "B",
-        type: "Short",
+        type: "VeryShort",
         difficulty: "Medium",
         marks: 2,
         likelihood: "High",
@@ -1720,18 +1718,18 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Applying",
         question:
-          "Rohan’s bicycle rusts quickly in a coastal area. Suggest two methods to prevent rusting and briefly explain why each method works.",
-        answer: "Painting and applying oil/grease or galvanising.",
+          "Rohan lives in a coastal town and notices that his iron bicycle rusts much faster than his cousin's bicycle in a dry inland town.\n(i) Name the two substances that must be present for iron to rust. [1]\n(ii) Why does Rohan's bicycle rust faster in the coastal town? [1]\n(iii) Suggest two methods to prevent rusting of the bicycle and briefly explain why each method works. [2]",
+        answer: "(i) Oxygen (air) and water (moisture). (ii) Coastal air is very humid and carries salt, so more moisture is present and rusting is faster. (iii) Painting/oiling/greasing forms a barrier that keeps air and moisture away from iron; galvanising coats iron with zinc, which is more reactive and corrodes first, protecting iron even if the coating is scratched.",
         explanation:
-          "Painting and oil/grease create a protective layer, preventing oxygen and water from reaching the iron surface. Galvanising coats iron with zinc which is more reactive and protects by sacrificial action.",
+          "Rusting needs both air (oxygen) and moisture. Humid, salty coastal air speeds it up. Paint or grease is a physical barrier; zinc in galvanising also gives sacrificial protection because it is more reactive than iron.",
         policyTag: "Case/resistivity NEP",
         solutionSteps: [
-          "Method 1: Painting the bicycle.; Painting creates a physical barrier, preventing the iron surface from coming into contact with oxygen and moisture, which are necessary for rusting. [1]",
-          "Method 2: Galvanising the bicycle parts. [1]",
-          "Galvanising involves coating the iron with a layer of zinc. [1]",
-          "Zinc is more reactive than iron, so it corrodes preferentially, protecting the iron even if the coating is scratched (sacrificial protection). [1]",
+          "(i) Iron rusts only when both oxygen (air) and water (moisture) are present. [1]",
+          "(ii) Coastal air is humid and salty, so more moisture is in contact with iron and rusting is faster. [1]",
+          "(iii) Method 1: Painting / applying oil or grease — forms a layer that prevents air and moisture from reaching the iron. [1]",
+          "(iii) Method 2: Galvanising — coating with zinc; zinc is more reactive than iron and gets oxidised first, so iron is protected even if the coating is scratched. [1]"
         ],
-        finalAnswer: "Painting and applying oil/grease or galvanising.",
+        finalAnswer: "(i) Oxygen and moisture; (ii) humid, salty coastal air; (iii) painting/oiling (barrier) and galvanising (zinc corrodes in preference to iron).",
       },
     ],
   },
@@ -2321,7 +2319,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Remembering",
         question:
-          "Right-hand thumb rule gives the direction of: (A) Force on a conductor (B) Magnetic field around a straight conductor (C) Current in a coil (D) Induced current",
+          "Right-hand thumb rule gives the direction of: (A) Force on a conductor (B) Magnetic field around a straight conductor (C) Current in a coil (D) Resistance of a conductor",
         answer: "Magnetic field around a straight conductor",
         explanation:
           "Right-hand thumb rule relates current direction (thumb) to magnetic field direction (curling fingers).",

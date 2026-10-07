@@ -151,12 +151,13 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "Add: (a²+b²)x = a²+b² → x = 1 [1]",
       "Substitute: a + by = a − b → by = −b → y = −1 [1]",
     ], finalAnswer: "x = 1, y = −1" , visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true },
-  { id: "PLE-M10", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word & Application Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "In a class test, the sum of Shefali's marks in Mathematics and English is 30. Had she got 2 more marks in Mathematics and 3 marks less in English, the product of their marks would have been 210.\n(i) Form the pair of linear equations.\n(ii) Solve the equations.\n(iii) Find her marks in each subject.\n(iv) Is the pair of equations consistent?", solutionSteps: [
-      "Let Maths = x, English = y; (i) x + y = 30 and (x+2)(y−3) = 210 [1]",
-      "(ii) From x + y = 30: y = 30 − x; (x+2)(27−x) = 210 → 27x − x² + 54 − 2x = 210 → x² − 25x + 156 = 0 [1]",
-      "(x−12)(x−13) = 0 → x = 12 or 13; (iii) If x=12, y=18 or x=13, y=17 [1]",
-      "(iv) Yes, consistent (has solutions) [1]",
-    ], finalAnswer: "(12, 18) or (13, 17)" , visualExplainerId: "maths-linear-equations-consistency-of-equations", isCompetencyBased: true },
+  { id: "PLE-M10", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems on Quadratic Equations", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "In a class test, the sum of Shefali's marks in Mathematics and English is 30. Had she got 2 more marks in Mathematics and 3 marks less in English, the product of their marks would have been 210.\n(i) Taking her marks in Mathematics as x, express her marks in English in terms of x.\n(ii) Form the quadratic equation representing the given condition.\n(iii) Solve the equation to find her marks in the two subjects.", solutionSteps: [
+      "(i) Maths = x, so English = 30 − x [1]",
+      "(ii) (x + 2)(30 − x − 3) = 210 → (x + 2)(27 − x) = 210 → 27x − x² + 54 − 2x = 210 → x² − 25x + 156 = 0 [1]",
+      "(iii) x² − 13x − 12x + 156 = 0 → (x − 12)(x − 13) = 0 → x = 12 or x = 13 [1]",
+      "If x = 12, English = 18; if x = 13, English = 17 (check: 14 × 15 = 210 ✓, 15 × 14 = 210 ✓) [1]"
+    ], finalAnswer: "Maths 12, English 18; or Maths 13, English 17", isCompetencyBased: true,
+      sourceOverride: "others", },
   { id: "PLE-M11", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Solutions/Nature", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "For what values of p and q will the following pair have infinitely many solutions?\n4x + 5y = 2, (2p + 7q)x + (p + 8q)y = 2q − p + 1.", solutionSteps: [
       "4/(2p+7q) = 5/(p+8q) = 2/(2q−p+1); From first two: 4(p+8q) = 5(2p+7q) → 4p+32q = 10p+35q → −6p−3q=0 → 2p+q=0 → q=−2p [½]",
       "From first and third: 4(2q−p+1)=2(2p+7q) → 8q−4p+4=4p+14q → −8p−6q+4=0 [½]",

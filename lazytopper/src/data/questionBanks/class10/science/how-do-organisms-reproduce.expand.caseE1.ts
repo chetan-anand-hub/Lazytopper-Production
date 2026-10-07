@@ -11,7 +11,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A baker mixes baker's yeast into warm, sugary dough to make it rise. When she views a drop under a microscope, she sees small rounded outgrowths on many yeast cells, and in a few places a short chain of such outgrowths. Answer: (i) Name the mode of reproduction shown by yeast. (ii) Explain how a single outgrowth forms and why a chain sometimes appears. (iii) Give one reason the yeast multiply so fast in the dough and state whether the offspring are identical to the parent.",
+    "questionText": "A baker mixes baker's yeast into warm, sugary dough to make it rise. When she views a drop under a microscope, she sees small rounded outgrowths on many yeast cells, and in a few places a short chain of such outgrowths. Answer the following: (i) Name the mode of reproduction shown by yeast. (ii) Explain how a single outgrowth forms and why a chain sometimes appears. (iii) Give one reason the yeast multiply so fast in the dough and state whether the offspring are identical to the parent.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -22,7 +22,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Budding (asexual); buds are outgrowths that may form chains; warmth + sugar drive rapid division; offspring are identical clones.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-002",
@@ -34,7 +35,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "A student places a detached leaf of Bryophyllum flat on moist soil. After a few days, tiny plantlets with small roots sprout from the notches along the leaf margin, even though the leaf was cut from the parent plant. Answer: (i) Name the process by which new plantlets are produced here. (ii) From which structures on the leaf do the plantlets arise? (iii) Explain why the new plantlets are exactly like the parent plant.",
+    "questionText": "A student places a detached leaf of Bryophyllum flat on moist soil. After a few days, tiny plantlets with small roots sprout from the notches along the leaf margin, even though the leaf was cut from the parent plant. Answer the following: (i) Name the process by which new plantlets are produced here. (ii) From which structures on the leaf do the plantlets arise? (iii) Explain why the new plantlets are exactly like the parent plant.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -45,7 +46,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Vegetative propagation via leaf-margin adventitious buds; single parent + mitosis makes plantlets identical clones.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-003",
@@ -57,7 +59,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "While cleaning a pond sample, a student accidentally cuts a flatworm (Planaria) into three pieces. To her surprise, each piece grows into a complete new Planaria. Answer: (i) Name the phenomenon shown by Planaria. (ii) Which type of cells make this possible and how? (iii) Is this phenomenon the same as reproduction? Justify your answer.",
+    "questionText": "While cleaning a pond sample, a student accidentally cuts a flatworm (Planaria) into three pieces. To her surprise, each piece grows into a complete new Planaria. Answer the following: (i) Name the phenomenon shown by Planaria. (ii) Which type of cells make this possible and how? (iii) Is this phenomenon the same as reproduction? Justify your answer.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -68,7 +70,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Regeneration; specialised cells proliferate and re-differentiate into whole worms; it is a repair ability, not true reproduction.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-004",
@@ -80,7 +83,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A microbiology class observes two single-celled organisms. Amoeba is seen splitting into two equal daughter cells. The malarial parasite Plasmodium, however, is seen dividing into many tiny daughter cells at once. Answer: (i) Name the type of fission shown by each organism. (ii) State the key difference between the two processes. (iii) State one advantage the Plasmodium's method gives the parasite.",
+    "questionText": "A microbiology class observes two single-celled organisms. Amoeba is seen splitting into two equal daughter cells. The malarial parasite Plasmodium, however, is seen dividing into many tiny daughter cells at once. Answer the following: (i) Name the type of fission shown by each organism. (ii) State the key difference between the two processes. (iii) State one advantage the Plasmodium's method gives the parasite.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -91,7 +94,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Amoeba = binary fission (two daughters); Plasmodium = multiple fission (many at once), giving rapid spread/survival.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-005",
@@ -103,7 +107,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "A pond is covered with green, slimy filaments of the alga Spirogyra. A student notices that when the filaments mature, they break into smaller pieces, and each piece later grows into a new filament. Answer: (i) Name the mode of reproduction shown. (ii) Explain how new individuals are formed. (iii) Why can Spirogyra reproduce this way but a dog or a human cannot?",
+    "questionText": "A pond is covered with green, slimy filaments of the alga Spirogyra. A student notices that when the filaments mature, they break into smaller pieces, and each piece later grows into a new filament. Answer the following: (i) Name the mode of reproduction shown. (ii) Explain how new individuals are formed. (iii) Why can Spirogyra reproduce this way but a dog or a human cannot?",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -114,7 +118,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Fragmentation; each broken piece grows into a new filament; possible only because Spirogyra lacks specialised organs.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-006",
@@ -126,7 +131,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "A slice of bread left in a warm, moist place develops a cottony white growth (bread mould, Rhizopus). On erect threads of this growth, a student sees tiny rounded black knob-like structures. Answer: (i) Name these black knob-like structures and the mode of reproduction. (ii) Explain the role of these structures in reproduction. (iii) Why do the reproductive units have thick walls?",
+    "questionText": "A slice of bread left in a warm, moist place develops a cottony white growth (bread mould, Rhizopus). On erect threads of this growth, a student sees tiny rounded black knob-like structures. Answer the following: (i) Name these black knob-like structures and the mode of reproduction. (ii) Explain the role of these structures in reproduction. (iii) Why do the reproductive units have thick walls?",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -137,7 +142,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Sporangia; spore formation; sporangia release many wind-dispersed spores whose thick walls survive harsh conditions.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-007",
@@ -149,7 +155,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A farmer sows pieces of potato tuber, each carrying a small depression called an 'eye', instead of sowing seeds. From each planted piece a new potato plant grows. Answer: (i) Name the method of reproduction used by the farmer. (ii) What are the 'eyes' on a potato, and what is a potato botanically? (iii) State one advantage of raising the crop this way rather than from seeds.",
+    "questionText": "A farmer sows pieces of potato tuber, each carrying a small depression called an 'eye', instead of sowing seeds. From each planted piece a new potato plant grows. Answer the following: (i) Name the method of reproduction used by the farmer. (ii) What are the 'eyes' on a potato, and what is a potato botanically? (iii) State one advantage of raising the crop this way rather than from seeds.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -160,7 +166,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Natural vegetative propagation; eyes are buds on a stem tuber; gives a uniform, faster, true-to-type crop.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-008",
@@ -172,7 +179,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "A piece of ginger kept in a warm, moist kitchen corner sprouts green shoots from the knobs on its surface. Answer: (i) Identify the plant part that ginger represents. (ii) Name the type of reproduction taking place. (iii) Explain how the new shoots arise and whether the new plants will be genetically identical to the parent.",
+    "questionText": "A piece of ginger kept in a warm, moist kitchen corner sprouts green shoots from the knobs on its surface. Answer the following: (i) Identify the plant part that ginger represents. (ii) Name the type of reproduction taking place. (iii) Explain how the new shoots arise and whether the new plants will be genetically identical to the parent.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -183,7 +190,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Ginger is a rhizome; natural vegetative propagation; nodal buds sprout; offspring are identical clones.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-009",
@@ -195,7 +203,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A nursery raises sugarcane by planting stem cuttings, each piece bearing at least one node. Within weeks, roots grow from the base and a shoot grows from the node. Answer: (i) Name the method of propagation. (ii) State which part of the cutting gives rise to the shoot and which to the roots. (iii) Give one reason a grower prefers cuttings to seeds for sugarcane.",
+    "questionText": "A nursery raises sugarcane by planting stem cuttings, each piece bearing at least one node. Within weeks, roots grow from the base and a shoot grows from the node. Answer the following: (i) Name the method of propagation. (ii) State which part of the cutting gives rise to the shoot and which to the roots. (iii) Give one reason a grower prefers cuttings to seeds for sugarcane.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -206,7 +214,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Stem cutting (artificial); nodal bud gives shoot, base gives adventitious roots; cuttings keep the variety true and quick.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-010",
@@ -218,7 +227,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A gardener bends a low branch of a guava plant to the ground and buries a part of it in moist soil while it is still joined to the parent. After roots develop on the buried part, he cuts it off to get a new guava plant. Answer: (i) Name this technique of propagation. (ii) Why is the branch kept attached to the parent during the process? (iii) State one advantage of this method over growing guava from seed.",
+    "questionText": "A gardener bends a low branch of a guava plant to the ground and buries a part of it in moist soil while it is still joined to the parent. After roots develop on the buried part, he cuts it off to get a new guava plant. Answer the following: (i) Name this technique of propagation. (ii) Why is the branch kept attached to the parent during the process? (iii) State one advantage of this method over growing guava from seed.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -229,7 +238,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Layering; the branch stays attached for nourishment until it roots; gives an identical, faster-establishing plant.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-011",
@@ -241,7 +251,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "A horticulturist joins a cut shoot of a superior mango variety onto the rooted stem of an ordinary mango plant, binds the joint, and later the plant bears the superior fruit in fewer years than a seed-grown tree would. Answer: (i) Name the two parts joined and identify each. (ii) Name and describe the technique. (iii) State one condition necessary for the joint to succeed.",
+    "questionText": "A horticulturist joins a cut shoot of a superior mango variety onto the rooted stem of an ordinary mango plant, binds the joint, and later the plant bears the superior fruit in fewer years than a seed-grown tree would. Answer the following: (i) Name the two parts joined and identify each. (ii) Name and describe the technique. (iii) State one condition necessary for the joint to succeed.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -252,7 +262,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Scion (shoot) + stock (rooted plant); grafting; needs cambial contact so vascular tissues unite; gives early, true fruit.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-012",
@@ -264,7 +275,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Understanding",
-    "questionText": "A plant laboratory grows thousands of banana saplings from tiny bits of banana tissue placed on a nutrient jelly inside sterile bottles. The resulting plants are healthy and disease-free. Answer: (i) Name this technique. (ii) Outline the main steps involved. (iii) State two advantages of this method.",
+    "questionText": "A plant laboratory grows thousands of banana saplings from tiny bits of banana tissue placed on a nutrient jelly inside sterile bottles. The resulting plants are healthy and disease-free. Answer the following: (i) Name this technique. (ii) Outline the main steps involved. (iii) State two advantages of this method.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -275,7 +286,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Tissue culture; explant -> callus -> plantlets -> soil; yields many identical, disease-free plants quickly.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-013",
@@ -287,7 +299,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A farmer owns one mango tree that yields unusually sweet fruit. An expert advises him to multiply it by vegetative propagation rather than by sowing its seeds if he wants every new tree to give the same sweet fruit. Answer: (i) Why would seeds NOT reliably give the same sweet fruit? (ii) Which methods of vegetative propagation could the farmer use? (iii) Give the genetic reason why vegetatively raised trees keep the sweet trait.",
+    "questionText": "A farmer owns one mango tree that yields unusually sweet fruit. An expert advises him to multiply it by vegetative propagation rather than by sowing its seeds if he wants every new tree to give the same sweet fruit. Answer the following: (i) Why would seeds NOT reliably give the same sweet fruit? (ii) Which methods of vegetative propagation could the farmer use? (iii) Give the genetic reason why vegetatively raised trees keep the sweet trait.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -298,7 +310,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Seeds vary (two parents); vegetative methods (grafting/layering/cutting/tissue culture) make clones, keeping the sweet trait.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-014",
@@ -310,7 +323,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In a home aquarium, a Hydra develops a small bulge on the side of its body. Over a few days this bulge grows tentacles, and finally it detaches to live as a separate tiny Hydra. Answer: (i) Name the mode of reproduction shown by Hydra. (ii) Describe how the new individual forms. (iii) How does this process differ from binary fission?",
+    "questionText": "In a home aquarium, a Hydra develops a small bulge on the side of its body. Over a few days this bulge grows tentacles, and finally it detaches to live as a separate tiny Hydra. Answer the following: (i) Name the mode of reproduction shown by Hydra. (ii) Describe how the new individual forms. (iii) How does this process differ from binary fission?",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -321,7 +334,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Budding; a body-wall outgrowth develops tentacles and detaches; unlike fission the parent stays intact.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-015",
@@ -333,7 +347,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "In a biology practical, students dissect a hibiscus flower and separate its parts into four sets arranged in rings (whorls) on the flower base. Answer: (i) Name the four whorls of the flower from outside inwards. (ii) Which whorls are reproductive, and name the parts of each. (iii) Why is the hibiscus called a bisexual flower?",
+    "questionText": "In a biology practical, students dissect a hibiscus flower and separate its parts into four sets arranged in rings (whorls) on the flower base. Answer the following: (i) Name the four whorls of the flower from outside inwards. (ii) Which whorls are reproductive, and name the parts of each. (iii) Why is the hibiscus called a bisexual flower?",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -344,7 +358,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Whorls: calyx, corolla, androecium, gynoecium; androecium + gynoecium are reproductive; both present makes hibiscus bisexual.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-016",
@@ -356,7 +371,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A student covers some flower buds of a plant with paper bags before their anthers ripen, and leaves other flowers uncovered. The bagged flowers still set seed. Answer: (i) Define self-pollination and cross-pollination. (ii) Why were the flowers bagged before the anthers ripened? (iii) What does the seed-set inside the bags tell the student?",
+    "questionText": "A student covers some flower buds of a plant with paper bags before their anthers ripen, and leaves other flowers uncovered. The bagged flowers still set seed. Answer the following: (i) Define self-pollination and cross-pollination. (ii) Why were the flowers bagged before the anthers ripened? (iii) What does the seed-set inside the bags tell the student?",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -367,7 +382,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Self- vs cross-pollination defined; bagging blocks outside pollen; seed in bags proves self-pollination.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-017",
@@ -379,7 +395,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A student compares two flowers. A grass flower is small, dull-coloured, scentless, with feathery exposed stigmas and large amounts of light, dry pollen. A rose flower is large, brightly coloured, scented, and has sticky pollen. Answer: (i) Name the pollinating agent for each flower. (ii) Give two adaptations of the grass flower that suit its agent. (iii) Give two adaptations of the rose flower that suit its agent.",
+    "questionText": "A student compares two flowers. A grass flower is small, dull-coloured, scentless, with feathery exposed stigmas and large amounts of light, dry pollen. A rose flower is large, brightly coloured, scented, and has sticky pollen. Answer the following: (i) Name the pollinating agent for each flower. (ii) Give two adaptations of the grass flower that suit its agent. (iii) Give two adaptations of the rose flower that suit its agent.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -390,7 +406,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Grass = wind (light dry pollen, feathery stigma); rose = insect (bright scented nectar flowers, sticky pollen).",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-018",
@@ -402,7 +419,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "During a garden survey a student collects four kinds of seeds/fruits: a light winged seed, a coconut, a burr covered in tiny hooks, and a dry pea pod that snaps open. Answer: (i) Match each to its likely dispersal agent. (ii) State one structural feature that helps each of the four disperse. (iii) State why seed dispersal is important for a plant.",
+    "questionText": "During a garden survey a student collects four kinds of seeds/fruits: a light winged seed, a coconut, a burr covered in tiny hooks, and a dry pea pod that snaps open. Answer the following: (i) Match each to its likely dispersal agent. (ii) State one structural feature that helps each of the four disperse. (iii) State why seed dispersal is important for a plant.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -413,7 +430,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Wind/water/animal/explosive matched; each has a suiting feature; dispersal cuts competition and spreads the plant.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-019",
@@ -425,7 +443,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A student sets up three jars with gram seeds: Jar 1 keeps the seeds dry; Jar 2 fully submerges them in boiled, cooled water and is sealed; Jar 3 keeps them moist with cotton but exposed to air. Only the seeds in Jar 3 germinate. Answer: (i) Name three conditions needed for germination. (ii) Why did the seeds in Jar 2 fail? (iii) Why did the seeds in Jar 1 fail?",
+    "questionText": "A student sets up three jars with gram seeds: Jar 1 keeps the seeds dry; Jar 2 fully submerges them in boiled, cooled water and is sealed; Jar 3 keeps them moist with cotton but exposed to air. Only the seeds in Jar 3 germinate. Answer the following: (i) Name three conditions needed for germination. (ii) Why did the seeds in Jar 2 fail? (iii) Why did the seeds in Jar 1 fail?",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -436,7 +454,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Water, air, warmth needed; Jar 2 fails (no oxygen), Jar 1 fails (no water); Jar 3 has both and germinates.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-020",
@@ -448,7 +467,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A grower of a popular seedless variety of grapes wants to raise many new plants, but his fruit produces no seeds to sow. Answer: (i) Why can he not raise these plants from seeds? (ii) Which general mode of reproduction solves his problem? (iii) Name two suitable methods he can use.",
+    "questionText": "A grower of a popular seedless variety of grapes wants to raise many new plants, but his fruit produces no seeds to sow. Answer the following: (i) Why can he not raise these plants from seeds? (ii) Which general mode of reproduction solves his problem? (iii) Name two suitable methods he can use.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -459,7 +478,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "No seeds to sow; use vegetative propagation (cutting, grafting/layering) to make identical seedless plants.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-021",
@@ -471,7 +491,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A nursery finds that rose plants raised from cuttings flower in the very first year and all look alike, whereas roses grown from seeds take much longer and give plants that differ from one another. Answer: (i) Explain why cuttings flower much sooner. (ii) Explain why the seed-grown plants vary but the cuttings do not. (iii) State one drawback of raising the whole crop from cuttings.",
+    "questionText": "A nursery finds that rose plants raised from cuttings flower in the very first year and all look alike, whereas roses grown from seeds take much longer and give plants that differ from one another. Answer the following: (i) Explain why cuttings flower much sooner. (ii) Explain why the seed-grown plants vary but the cuttings do not. (iii) State one drawback of raising the whole crop from cuttings.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -482,7 +502,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Cuttings are mature clones so they flower early and uniform; seedlings vary; but a clonal crop risks total loss to one disease.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-023",
@@ -494,7 +515,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "An onion kept in storage sprouts green leaves and forms small daughter bulbs at its base. Answer: (i) What plant part is the onion bulb? (ii) Name the type of reproduction taking place. (iii) Explain how new plants form and state their genetic relationship to the parent.",
+    "questionText": "An onion kept in storage sprouts green leaves and forms small daughter bulbs at its base. Answer the following: (i) What plant part is the onion bulb? (ii) Name the type of reproduction taking place. (iii) Explain how new plants form and state their genetic relationship to the parent.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -505,7 +526,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Onion is a modified underground stem (bulb); natural vegetative propagation via basal buds; offspring are identical clones.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-024",
@@ -517,7 +539,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "A strawberry plant sends out a slender horizontal stem that creeps along the ground; where this stem touches the soil some distance away, roots and a new little plant develop. Answer: (i) Name this creeping horizontal stem. (ii) Name the type of reproduction. (iii) State one advantage of reproducing this way.",
+    "questionText": "A strawberry plant sends out a slender horizontal stem that creeps along the ground; where this stem touches the soil some distance away, roots and a new little plant develop. Answer the following: (i) Name this creeping horizontal stem. (ii) Name the type of reproduction. (iii) State one advantage of reproducing this way.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -528,7 +550,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Runner (stolon); natural vegetative propagation; nodes root into new plants; quick spread of identical plants.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-025",
@@ -540,7 +563,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A student compares how bread mould (Rhizopus) spreads by air-borne spores with how a mango tree spreads by seeds. Answer: (i) State one similarity between spores and seeds. (ii) State two differences (in the number of parents and in variation of offspring). (iii) Which of the two gives rise to variation, and why is that useful?",
+    "questionText": "A student compares how bread mould (Rhizopus) spreads by air-borne spores with how a mango tree spreads by seeds. Answer the following: (i) State one similarity between spores and seeds. (ii) State two differences (in the number of parents and in variation of offspring). (iii) Which of the two gives rise to variation, and why is that useful?",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -551,7 +574,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both are dispersal units; spores = asexual/identical, seeds = sexual/varied; seed variation aids adaptation.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-026",
@@ -563,7 +587,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "After grafting a mango, a gardener wraps the joined region with grafting tape/wax and keeps it shaded for some days. Answer: (i) Why does he cover the graft union? (ii) Which tissue of the scion and stock must unite for the graft to succeed? (iii) What happens if the scion and stock are of very different, incompatible kinds?",
+    "questionText": "After grafting a mango, a gardener wraps the joined region with grafting tape/wax and keeps it shaded for some days. Answer the following: (i) Why does he cover the graft union? (ii) Which tissue of the scion and stock must unite for the graft to succeed? (iii) What happens if the scion and stock are of very different, incompatible kinds?",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -574,7 +598,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Cover prevents drying/infection while healing; scion-stock cambium must unite; incompatible pairs fail to join and die.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-027",
@@ -586,7 +611,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Understanding",
-    "questionText": "After a bee deposits pollen on the stigma of a flower, a slender tube grows down through the style, and a few days later the flower begins to form a fruit. Answer: (i) Name this tube and state what it carries. (ii) Trace the path of the tube up to the point of fertilisation. (iii) Define fertilisation as it occurs here.",
+    "questionText": "After a bee deposits pollen on the stigma of a flower, a slender tube grows down through the style, and a few days later the flower begins to form a fruit. Answer the following: (i) Name this tube and state what it carries. (ii) Trace the path of the tube up to the point of fertilisation. (iii) Define fertilisation as it occurs here.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -597,7 +622,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Pollen tube carries the male gamete stigma -> style -> ovary -> ovule; fusion of male and female gametes = fertilisation (zygote).",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-028",
@@ -609,7 +635,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "A student observes a pea flower after fertilisation: the petals and stamens wither and fall off, while the ovary gradually swells and ripens into a pod containing seeds. Answer: (i) What does each ovule develop into? (ii) What does the ovary develop into? (iii) What happens to the zygote, and why do the petals and stamens fall off?",
+    "questionText": "A student observes a pea flower after fertilisation: the petals and stamens wither and fall off, while the ovary gradually swells and ripens into a pod containing seeds. Answer the following: (i) What does each ovule develop into? (ii) What does the ovary develop into? (iii) What happens to the zygote, and why do the petals and stamens fall off?",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -620,7 +646,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Ovule -> seed, ovary -> fruit, zygote -> embryo; spent floral parts wither as they are no longer needed.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-029",
@@ -632,7 +659,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Under a microscope, Amoeba is seen to split into two in any direction, whereas Leishmania (a parasite causing kala-azar, having a whip-like flagellum at one end) always splits along one definite direction with respect to its flagellum. Answer: (i) Name the mode of reproduction common to both. (ii) State the difference highlighted between the two organisms. (iii) Explain why Leishmania divides in a definite orientation.",
+    "questionText": "Under a microscope, Amoeba is seen to split into two in any direction, whereas Leishmania (a parasite causing kala-azar, having a whip-like flagellum at one end) always splits along one definite direction with respect to its flagellum. Answer the following: (i) Name the mode of reproduction common to both. (ii) State the difference highlighted between the two organisms. (iii) Explain why Leishmania divides in a definite orientation.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -643,7 +670,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both use binary fission; Amoeba splits in any plane, Leishmania in a fixed plane because it has a definite body structure.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-030",
@@ -655,7 +683,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A rare ornamental orchid grows very slowly and unreliably from its tiny seeds. A commercial lab instead multiplies it into thousands of identical saleable plants within a year from small pieces of its tissue. Answer: (i) Which technique does the lab use? (ii) Why is this preferred to growing orchids from seed? (iii) State two commercial advantages of the technique.",
+    "questionText": "A rare ornamental orchid grows very slowly and unreliably from its tiny seeds. A commercial lab instead multiplies it into thousands of identical saleable plants within a year from small pieces of its tissue. Answer the following: (i) Which technique does the lab use? (ii) Why is this preferred to growing orchids from seed? (iii) State two commercial advantages of the technique.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -666,7 +694,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Tissue culture; orchid seeds germinate poorly, so it gives fast identical stock; advantages are mass, uniform, disease-free plants.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-031",
@@ -678,7 +707,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A nursery worker dips the cut base of rose stems in a rooting powder and plants them in moist soil; roots soon appear at the buried nodes and each stem grows into a rose plant with the same flower colour as the parent. Answer: (i) Name this method of propagation. (ii) From where on the cutting do the new roots arise? (iii) Explain why the new plants have the same flower colour and why rooting powder is applied.",
+    "questionText": "A nursery worker dips the cut base of rose stems in a rooting powder and plants them in moist soil; roots soon appear at the buried nodes and each stem grows into a rose plant with the same flower colour as the parent. Answer the following: (i) Name this method of propagation. (ii) From where on the cutting do the new roots arise? (iii) Explain why the new plants have the same flower colour and why rooting powder is applied.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -689,7 +718,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Stem cutting; adventitious roots from buried nodes; clone keeps flower colour; rooting powder boosts root formation.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-032",
@@ -701,7 +731,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In a pond, an aquatic plant releases its pollen onto the water, where it floats and drifts until it reaches the stigmas of female flowers at the water surface. Answer: (i) Name the pollinating agent in this case. (ii) What is the special term for pollination by this agent? (iii) State two features of the plant that suit this kind of pollination.",
+    "questionText": "In a pond, an aquatic plant releases its pollen onto the water, where it floats and drifts until it reaches the stigmas of female flowers at the water surface. Answer the following: (i) Name the pollinating agent in this case. (ii) What is the special term for pollination by this agent? (iii) State two features of the plant that suit this kind of pollination.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -712,7 +742,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Water; hydrophily; floating light pollen + surface-reaching flowers and large pollen quantity suit water pollination.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-033",
@@ -724,7 +755,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "On a hot afternoon a student hears sudden snapping sounds in a balsam plant and sees its ripe pods burst open, flinging the seeds a short distance away. Answer: (i) Name this mode of seed dispersal. (ii) Explain the mechanism by which the seeds are thrown out. (iii) State one advantage the plant gains by throwing its seeds away from itself.",
+    "questionText": "On a hot afternoon a student hears sudden snapping sounds in a balsam plant and sees its ripe pods burst open, flinging the seeds a short distance away. Answer the following: (i) Name this mode of seed dispersal. (ii) Explain the mechanism by which the seeds are thrown out. (iii) State one advantage the plant gains by throwing its seeds away from itself.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -735,7 +766,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Explosive dispersal; drying builds tension, the pod bursts and flings seeds; reduces competition with the parent.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-034",
@@ -747,7 +779,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "After a walk, a student finds spiny burrs of Xanthium stuck to her socks. Nearby, a bird eats a juicy guava and later drops the hard seeds far away. Answer: (i) Name the common dispersal agent for both cases. (ii) State the feature of the burr and of the guava that helps each disperse. (iii) Explain how eating the fruit leads to the seeds being spread.",
+    "questionText": "After a walk, a student finds spiny burrs of Xanthium stuck to her socks. Nearby, a bird eats a juicy guava and later drops the hard seeds far away. Answer the following: (i) Name the common dispersal agent for both cases. (ii) State the feature of the burr and of the guava that helps each disperse. (iii) Explain how eating the fruit leads to the seeds being spread.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -758,7 +790,8 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Animals; hooked burr clings to fur, fleshy guava is eaten; undigested seeds are dropped far away in droppings.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-REP-E1-035",
@@ -770,7 +803,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "An agricultural advisor tells a farmer that an orchard raised by vegetative propagation will flower early and be uniform, but warns that a single disease could wipe out the whole orchard. Answer: (i) State two advantages of vegetative propagation. (ii) Explain the disease-risk the advisor warns about. (iii) Name one method that can supply disease-free planting stock.",
+    "questionText": "An agricultural advisor tells a farmer that an orchard raised by vegetative propagation will flower early and be uniform, but warns that a single disease could wipe out the whole orchard. Answer the following: (i) State two advantages of vegetative propagation. (ii) Explain the disease-risk the advisor warns about. (iii) Name one method that can supply disease-free planting stock.",
     "options": [],
     "answer": "",
     "solutionSteps": [
@@ -781,6 +814,7 @@ export const REPRODUCE_EXPAND_CASE_E1: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Advantages: early, uniform, seedless-capable, quick; risk: clones share disease susceptibility; tissue culture gives disease-free stock.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
 ];

@@ -164,17 +164,19 @@ describe("chapterTestSectionFor — the SURFACE-1 band + bar (1-mark VSA in, mis
     expect(chapterTestSectionFor({ ...written, marks: 3 })).toBe("C");
   });
 
-  it("a drawn real-numbers paper DOES place a 1-mark row in Section B for some seed", () => {
-    // real-numbers carries 9 human 1-mark written rows (P10); across a run of seeds
-    // at least one paper must draw one into B, and every B row stays inside 1–2.
+  it("a drawn real-numbers paper places NO 1-mark row in Section B (BANK-FIX-2: no served 1-mark row is written)", () => {
+    // Until BANK-FIX-2 (2026-10-07) real-numbers carried 9 human 1-mark written rows (P10) and some seed drew one
+    // into B. Owner ruling: every served 1-mark row is now a 4-option MCQ or A-R (pinned in bankFix1.pr2.test.ts),
+    // so they all go to Section A. The B band itself (1-mark VSA admitted) stays pinned by the synthetic rows above;
+    // every B row still stays inside 1–2.
     let seenOneMark = false;
-    for (let seed = 1; seed <= 40 && !seenOneMark; seed += 1) {
+    for (let seed = 1; seed <= 40; seed += 1) {
       const d = draw(seed);
       const b = d.paper.questions.filter((q) => q.section === "B");
       for (const q of b) expect([1, 2]).toContain(q.marks);
       if (b.some((q) => q.marks === 1)) seenOneMark = true;
     }
-    expect(seenOneMark).toBe(true);
+    expect(seenOneMark).toBe(false);
   });
 
   it('a mis-keyed MCQ (key "A" against options "A. …") is NOT admitted to Section A; its keyed twin is', () => {

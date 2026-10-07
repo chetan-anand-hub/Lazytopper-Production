@@ -84,21 +84,22 @@ export const CHEM_SP: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Identify the product which evolved during the above reaction.",
+    "questionText": "Colourless crystals of lead nitrate are heated strongly in a boiling tube as shown in the given figure. Identify the product which evolved during this reaction.",
     "options": [
-      "a. Colourless carbon dioxide",
-      "b. Reddish-brown nitrogen dioxide",
-      "c. Light yellow oxygen",
-      "d. Colourless nitrogen"
+      "Colourless carbon dioxide",
+      "Reddish-brown nitrogen dioxide",
+      "Light yellow oxygen",
+      "Colourless nitrogen"
     ],
-    "answer": "b. Reddish-brown nitrogen dioxide",
+    "answer": "Reddish-brown nitrogen dioxide",
     "solutionSteps": [
-      "[1 mark] Correct option is (b). The thermal decomposition of lead nitrate evolves reddish-brown nitrogen dioxide (NO2) gas along with oxygen; the brown fumes are characteristic of NO2."
+      "[1 mark] Correct option is (b). On heating, lead nitrate decomposes: 2Pb(NO3)2(s) → 2PbO(s) + 4NO2(g) + O2(g). The brown fumes are of nitrogen dioxide (NO2); oxygen is colourless."
     ],
-    "finalAnswer": "b. Reddish-brown nitrogen dioxide",
+    "finalAnswer": "(b) Reddish-brown nitrogen dioxide",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "The original item displays a chemical reaction/equation above the question (thermal decomposition of lead nitrate on heating, evolving brown fumes). The reaction itself is not reproduced in the source text; the marking-scheme answer indicates lead nitrate decomposition releasing reddish-brown nitrogen dioxide."
+    "diagramDescription": "The original item displays a chemical reaction/equation above the question (thermal decomposition of lead nitrate on heating, evolving brown fumes). The reaction itself is not reproduced in the source text; the marking-scheme answer indicates lead nitrate decomposition releasing reddish-brown nitrogen dioxide.",
+    sourceOverride: "others",
   },
   {
     "id": "SP-S-2023-CHEM-A-002",
@@ -110,19 +111,20 @@ export const CHEM_SP: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In the following redox reaction: Fe2O3 + CO -> 2Fe + 3CO2",
+    "questionText": "Consider the following redox reaction: Fe2O3 + 3CO → 2Fe + 3CO2. Which of the following statements is correct?",
     "options": [
-      "a. Fe2O3 is oxidised to Fe, and CO is reduced to CO2.",
-      "b. Both Fe2O3 and CO are oxidised to Fe and CO2, respectively.",
-      "c. Fe2O3 is reduced to Fe, and CO is oxidised to CO2.",
-      "d. Both Fe2O3 and CO are reduced to Fe and CO2, respectively."
+      "Fe2O3 is oxidised to Fe, and CO is reduced to CO2.",
+      "Both Fe2O3 and CO are oxidised to Fe and CO2, respectively.",
+      "Fe2O3 is reduced to Fe, and CO is oxidised to CO2.",
+      "Both Fe2O3 and CO are reduced to Fe and CO2, respectively."
     ],
-    "answer": "c. Fe2O3 is reduced to Fe, and CO is oxidised to CO2.",
+    "answer": "Fe2O3 is reduced to Fe, and CO is oxidised to CO2.",
     "solutionSteps": [
       "[1 mark] Correct option is (c). Fe2O3 loses oxygen (reduction) to give Fe, while CO gains oxygen (oxidation) to give CO2; loss of oxygen is reduction and gain of oxygen is oxidation."
     ],
-    "finalAnswer": "c. Fe2O3 is reduced to Fe, and CO is oxidised to CO2.",
-    "isCompetencyBased": false
+    "finalAnswer": "(c) Fe2O3 is reduced to Fe, and CO is oxidised to CO2.",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "SP-S-2023-CHEM-A-003",

@@ -111,11 +111,12 @@ export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
       "−4 = (3k−6)/(k+1) → −4k−4 = 3k−6 → 7k = 2 → k = 2/7 [1]",
     ], finalAnswer: "2:7" , isCompetencyBased: true },
   { id: "CG-M18", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If (1, 2), (4, y), (x, 6) and (3, 5) are vertices of a parallelogram taken in order, then (x, y) =", options: ["(6, 3)", "(3, 6)", "(5, 4)", "(2, 5)"], answer: "(6, 3)", explanation: "Midpoint of diagonals must be equal. ((1+x)/2, (2+6)/2) = ((4+3)/2, (y+5)/2). 1+x = 7 → x=6, 8 = y+5 → y=3. Therefore, the correct answer is (6, 3).", solutionSteps: ["Midpoint of diagonals must be equal", "((1+x)/2, (2+6)/2) = ((4+3)/2, (y+5)/2)", "1+x = 7 → x=6, 8 = y+5 → y=3"], finalAnswer: "(6, 3)" , isCompetencyBased: true },
-  { id: "CG-M19", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the distances of P(x, y) from A(5, 1) and B(−1, 5) are equal, find 3x = 2y.", solutionSteps: [
+  { id: "CG-M19", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the distances of P(x, y) from A(5, 1) and B(−1, 5) are equal, prove that 3x = 2y.", solutionSteps: [
       "(x−5)²+(y−1)² = (x+1)²+(y−5)² [1]",
       "−10x+25−2y+1 = 2x+1−10y+25 [1]",
       "−12x+8y = 0 → 3x = 2y [1]",
-    ], finalAnswer: "3x = 2y (proved)" , isCompetencyBased: true },
+    ], finalAnswer: "3x = 2y (proved)" , isCompetencyBased: true,
+      sourceOverride: "others", },
   { id: "CG-H01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Find the coordinates of a point A, where AB is the diameter of a circle with centre (2, −3) and B is (1, 4).", solutionSteps: [
       "Let A be (x, y). The center (2, -3) is the midpoint of the diameter AB. [1]",
       "Using the midpoint formula: (x+1)/2 = 2 and (y+4)/2 = -3. [1]",
@@ -136,13 +137,12 @@ export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
       "Other vertices are perpendicular to diagonal at midpoint [1]",
       "Since diagonal is horizontal, other vertices are at (1, 2±2) = (1, 4) and (1, 0) [1]",
     ], finalAnswer: "(1, 4) and (1, 0)" , isCompetencyBased: true },
-  { id: "CG-H08", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In what ratio does the line x − y − 2 = 0 divide the line segment joining (3, −1) and (8, 9)?", solutionSteps: [
-      "Let ratio = k:1; P = ((8k+3)/(k+1), (9k−1)/(k+1)) [1]",
-      "Substitute in x−y−2 = 0: [1]",
-      "(8k+3)/(k+1) − (9k−1)/(k+1) − 2 = 0 [1]",
-      "8k+3−9k+1−2k−2 = 0 [1]",
-      "−3k+2 = 0 → k = 2/3 [1]",
-    ], finalAnswer: "2:3" , isCompetencyBased: true },
+  { id: "CG-H08", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing", questionText: "In what ratio does the line x − y − 2 = 0 divide the line segment joining (3, −1) and (8, 9)?", solutionSteps: [
+      "[1 mark] Let the line divide the segment in the ratio k : 1 at P = ((8k + 3)/(k + 1), (9k − 1)/(k + 1)).",
+      "[1 mark] P lies on x − y − 2 = 0 ⇒ (8k + 3) − (9k − 1) − 2(k + 1) = 0 ⇒ −3k + 2 = 0.",
+      "[1 mark] k = 2/3, so the required ratio is 2 : 3."
+    ], finalAnswer: "2:3" , isCompetencyBased: true,
+      sourceOverride: "others", },
   { id: "CG-H10", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Find the circumcentre of the triangle with vertices (0, 0), (−4, 0) and (0, 6).", solutionSteps: [
       "The triangle is right-angled at the origin (legs along axes); Circumcentre is the midpoint of the hypotenuse [1]",
       "Hypotenuse from (−4, 0) to (0, 6) [1]",
@@ -198,12 +198,11 @@ export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
       "Calculate the coordinates of the point and choose the correct option.",
     ],
   },
-  { id: "CG-N03", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Points A(1, 2), B(4, 6), C(5, 7) are collinear if AB + BC equals:", options: ["AC","AB","BC","AB − BC"], answer: "AC", explanation: "The correct answer is AC. Three points are collinear when the sum of two distances equals the third: AB + BC = AC.", finalAnswer: "Three points are collinear when the sum of two distances equals the third: AB + BC = AC.", isCompetencyBased: false,
+  { id: "CG-N03", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Points A(1, 2), B(4, 6) and C(7, 10) are collinear, with B lying between A and C. Then AB + BC equals:", options: ["AC","AB","BC","AB − BC"], answer: "AC", explanation: "AB = √(3² + 4²) = 5, BC = √(3² + 4²) = 5 and AC = √(6² + 8²) = 10. Since B lies between A and C on the same line, AB + BC = AC (5 + 5 = 10). The correct answer is AC.", finalAnswer: "(a) AC", isCompetencyBased: false,
     solutionSteps: [
-      "Apply the distance formula: d = sqrt((x2-x1)^2 + (y2-y1)^2).",
-      "Substitute the points (2,3) and (4,1): d = sqrt((4-2)^2 + (1-3)^2) = sqrt(2^2 + (-2)^2).",
-      "Calculate d = sqrt(4+4) = sqrt(8) = 2sqrt(2). Therefore, option (B) is correct.",
+      "AB = √((4−1)² + (6−2)²) = 5, BC = √((7−4)² + (10−6)²) = 5, AC = √((7−1)² + (10−2)²) = 10; AB + BC = 10 = AC, so the answer is (a) AC."
     ],
+    sourceOverride: "others",
   },
   { id: "CG-N04", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A point P divides the segment joining A(1, 1) and B(7, 4) in ratio 2:1 internally. The coordinates of P are:", options: ["(5, 3)","(3, 2)","(4, 3)","(5, 2)"], answer: "(5, 3)", explanation: "The correct answer is (5, 3). P = ((2×7+1×1)/3, (2×4+1×1)/3) = (15/3, 9/3) = (5, 3).", finalAnswer: "P = ((2×7+1×1)/3, (2×4+1×1)/3) = (15/3, 9/3) = (5, 3).", isCompetencyBased: false,
     solutionSteps: [

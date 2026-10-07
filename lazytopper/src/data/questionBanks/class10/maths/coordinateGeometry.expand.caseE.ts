@@ -471,18 +471,19 @@ export const COORD_EXPAND_CASE_E: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Two hikers start together and walk along the straight path from A(1, 2) toward B(11, 7). Hiker X walks 1.5 times as fast as hiker Y, so they meet at the point P dividing A→B in the ratio 3 : 2.\n(i) Explain the ratio used for the meeting point.\n(ii) Find the coordinates of the meeting point P.\n(iii) Find the distance AP walked by hiker X.\n(iv) Find PB and confirm AP : PB = 3 : 2.",
+    "questionText": "Two hikers start at the same time from the two ends of a straight path and walk towards each other: hiker X from A(1, 2) and hiker Y from B(11, 7). Hiker X walks 1.5 times as fast as hiker Y, and they meet at a point P on AB.\n(i) Explain why P divides AB in the ratio 3 : 2.\n(ii) Find the coordinates of the meeting point P.\n(iii) Find the distance AP walked by hiker X.\n(iv) Find PB and confirm AP : PB = 3 : 2.",
     "options": [],
     "answer": "P = (7, 5); AP = 3√5, PB = 2√5, so AP : PB = 3 : 2.",
     "solutionSteps": [
-      "[1 mark] Equal-time meeting with speeds in ratio 3 : 2 means P divides A→B in the ratio 3 : 2.",
+      "[1 mark] Both walk for the same time until they meet, so distances are in the ratio of speeds: AP : PB = 1.5 : 1 = 3 : 2, i.e. P divides AB in the ratio 3 : 2.",
       "[1 mark] P = ((3·11 + 2·1)/5, (3·7 + 2·2)/5) = (35/5, 25/5) = (7, 5).",
       "[1 mark] AP = √[(7−1)² + (5−2)²] = √(36 + 9) = √45 = 3√5.",
       "[1 mark] PB = √[(11−7)² + (7−5)²] = √(16 + 4) = √20 = 2√5, so AP : PB = 3√5 : 2√5 = 3 : 2. ✓"
     ],
     "finalAnswer": "P = (7, 5); AP : PB = 3 : 2.",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-COORD-E-024",
@@ -816,18 +817,19 @@ export const COORD_EXPAND_CASE_E: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Two base posts of an equilateral triangular frame are fixed at A(−3, 0) and B(3, 0). The third post C(0, y) is above the base so that the origin lies inside the triangle.\n(i) Find the base length AB.\n(ii) Write the condition AC = AB in squared form.\n(iii) Solve for y.\n(iv) State the coordinates of post C.",
+    "questionText": "Two base posts of an equilateral triangular frame are fixed at A(−3, 0) and B(3, 0). The third post C(0, y) is above the base, so y > 0.\n(i) Find the base length AB.\n(ii) Write the condition AC = AB in squared form.\n(iii) Solve for y.\n(iv) State the coordinates of post C.",
     "options": [],
     "answer": "AB = 6; 9 + y² = 36 ⇒ y = 3√3; C = (0, 3√3).",
     "solutionSteps": [
       "[1 mark] AB = √[(3−(−3))² + 0²] = 6 units.",
       "[1 mark] For an equilateral triangle AC = AB ⇒ (0−(−3))² + (y−0)² = 6² ⇒ 9 + y² = 36.",
-      "[1 mark] y² = 27 ⇒ y = 3√3 (positive, so the origin lies inside the triangle).",
+      "[1 mark] y² = 27 ⇒ y = 3√3 (taking the positive root since C is above the base).",
       "[1 mark] Post C = (0, 3√3)."
     ],
     "finalAnswer": "C = (0, 3√3).",
     "isCompetencyBased": true,
-    "requiresDiagram": false
+    "requiresDiagram": false,
+    sourceOverride: "others",
   },
   {
     "id": "BX-COORD-E-039",

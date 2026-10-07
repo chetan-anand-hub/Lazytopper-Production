@@ -15,19 +15,20 @@ export const HERD_SP: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Out of the following statements which one is not a direct conclusion that can be drawn from Mendel's Experiment? (a) In F1 generation, only one of the parental traits is expressed. (b) Two copies of each of the parental traits are inherited in a sexually transmitted organism. (c) Natural selection can transform the frequency of inherited traits. (d) A recessive trait is only expressed when both copies of the trait are identical.",
+    "questionText": "Out of the following statements which one is not a direct conclusion that can be drawn from Mendel's Experiment? (a) In F1 generation, only one of the parental traits is expressed. (b) Two copies of each of the parental traits are inherited in a sexually reproducing organism. (c) Genes are made of DNA and are located on chromosomes. (d) A recessive trait is only expressed when both copies of the trait are identical.",
     "options": [
       "(a) In F1 generation, only one of the parental traits is expressed.",
-      "(b) Two copies of each of the parental traits are inherited in a sexually transmitted organism.",
-      "(c) Natural selection can transform the frequency of inherited traits.",
+      "(b) Two copies of each of the parental traits are inherited in a sexually reproducing organism.",
+      "(c) Genes are made of DNA and are located on chromosomes.",
       "(d) A recessive trait is only expressed when both copies of the trait are identical."
     ],
-    "answer": "(c) Natural selection can transform the frequency of inherited traits.",
+    "answer": "(c) Genes are made of DNA and are located on chromosomes.",
     "solutionSteps": [
-      "[1 mark] Correct option (c): Mendel's monohybrid/dihybrid crosses demonstrated dominance, two copies of each trait and recessive expression, but they did not deal with natural selection; hence statement (c) is not a direct conclusion of Mendel's experiment."
+      "[1 mark] Correct option (c): Mendel's crosses showed that only one parental trait appears in F1, that two copies of each trait are inherited, and that a recessive trait shows only when both copies are identical; he knew nothing of DNA or chromosomes, so (c) is not a direct conclusion of his experiment."
     ],
-    "finalAnswer": "(c) Natural selection can transform the frequency of inherited traits.",
-    "isCompetencyBased": true
+    "finalAnswer": "(c) Genes are made of DNA and are located on chromosomes.",
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "SQP-S-2023-HERD-A-002",

@@ -18,7 +18,7 @@ export const PROBABILITY_SQP: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "There is a square board of side '2a' units circumscribing a red circle. Jayadev is asked to keep a dot on the above said board. The probability that he keeps the dot on the shaded region is",
+    "questionText": "There is a square board of side '2a' units circumscribing a red circle. The region of the board outside the circle (inside the square) is shaded. Jayadev is asked to keep a dot on the board. The probability that he keeps the dot on the shaded region is",
     "options": [
       "(A) π/4",
       "(B) (4 − π)/4",
@@ -30,7 +30,8 @@ export const PROBABILITY_SQP: CanonicalQuestion[] = [
       "Area of square = (2a)² = 4a². Area of inscribed circle (radius a) = πa². Shaded area (outside circle, inside square) = 4a² − πa². P(dot on shaded) = (4a² − πa²)/(4a²) = (4 − π)/4. Answer: (B)."
     ],
     "finalAnswer": "(B) (4 − π)/4",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "SQP-M-PROB-002",

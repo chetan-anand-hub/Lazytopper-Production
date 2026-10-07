@@ -448,6 +448,8 @@ export function mapUnifiedQuestionToPractice(question: RawQuestion | Record<stri
     solutionSteps: Array.isArray(question?.solutionSteps) ? question.solutionSteps : [],
     explanation: String(question?.explanation ?? ""),
     answer: String(question?.answer ?? ""),
+    // BANK-FIX-1 PR-2: Prompt-D rows now carry a model answer; the final answer travels with it.
+    ...(question?.finalAnswer ? { finalAnswer: String(question.finalAnswer) } : {}),
     subject: String(question?.subject ?? ""),
     topicKey: String(question?.topicKey ?? ""),
     subtopic: String(question?.subtopic ?? question?.conceptKey ?? question?.subtopicKey ?? ""),
