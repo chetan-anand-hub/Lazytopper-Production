@@ -192,7 +192,7 @@ describe("PRACTICE-HONESTY-1 §2 + §5 · Finish → scorecard → Back to this 
     fireEvent.click(screen.getByText("q1-correct"));
     fireEvent.click(screen.getByText("q2-wrong"));
     finish();
-    const back = await screen.findByRole("button", { name: new RegExp(BACK_TO_SET.replace(/[()]/g, "\\$&")) });
+    const back = await screen.findByRole("button", { name: (n: string) => n.includes(BACK_TO_SET) });
     // Just the marks + the review button: no confirm card, no CTA to check written answers,
     // no Chapter Test / fresh-set menu.
     expect(screen.queryByTestId("qp-confirm")).toBeNull();
