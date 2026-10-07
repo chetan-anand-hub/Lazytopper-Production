@@ -1163,10 +1163,14 @@ if (forbiddenBase) {
   check('EQ-TEST: EquationInput.test.tsx shows zero changes (the autoGrow proof — it passes untouched)',
     !changed.includes('lazytopper/src/components/equation/EquationInput.test.tsx'),
     changed.includes('lazytopper/src/components/equation/EquationInput.test.tsx') ? 'THE TEST FILE WAS MODIFIED' : '');
-} else if (EVENT === 'push') {
-  // Push-to-trunk: legitimately no PR to scope against. NOT a check and NOT a pass —
-  // the diff would be empty and "pass" every forbidden path without examining one.
-  console.log('  --  N/A: push-to-trunk run — no PR to scope a forbidden-path diff to.');
+} else if (['push', 'schedule', 'workflow_dispatch', 'merge_group'].includes(EVENT)) {
+  // Every CI event that is NOT a pull_request (FU-CI1-NIGHTLY-RESTORE): a push to trunk,
+  // the nightly schedule, a hand-run workflow_dispatch, a merge-queue merge_group. None
+  // carries a PR base ref, so there is legitimately no PR to scope against. NOT a check
+  // and NOT a pass — the diff would be empty and "pass" every forbidden path without
+  // examining one. `pull_request` is deliberately NOT in this list (pinned below): a PR
+  // whose base ref cannot be resolved still falls through to the IN_CI hard failure.
+  console.log(`  --  N/A: ${EVENT} run — no PR to scope a forbidden-path diff to.`);
   console.log('      (The PR that introduced the change was gated on ITS own run. Not counted as a pass.)');
 } else if (IN_CI) {
   // A pull_request (or other CI event) whose base ref we could not resolve. Same rule
@@ -1179,6 +1183,29 @@ if (forbiddenBase) {
 } else {
   console.log('  ~~  SKIPPED (local, non-CI): no base ref — forbidden-path diff not checked.');
   console.log('      (A local skip is fine; the PR run scopes it against the real base.)');
+}
+
+// ★ PIN (FU-CI1-NIGHTLY-RESTORE) — the N/A branch above, asserted by SOURCE INSPECTION of
+// this very file, so it runs on every invocation regardless of which event branch fired.
+// A widened N/A set that swallowed `pull_request` would turn the PR hard-failure into a
+// silent skip; a deleted IN_CI branch would do the same for any unknown CI event.
+{
+  const self = read(fileURLToPath(import.meta.url)).replace(/\r\n/g, '\n');
+  const naLine = self.match(/^\} else if \(\[([^\]\n]*)\]\.includes\(EVENT\)\) \{$/m);
+  const naSet = naLine ? [...naLine[1].matchAll(/'([^']+)'/g)].map((m) => m[1]) : [];
+  check('FORBIDDEN-PIN: the non-PR N/A branch exists as one `[...].includes(EVENT)` list',
+    !!naLine && naSet.length > 0, 'N/A branch not found in the expected shape');
+  check('FORBIDDEN-PIN: `pull_request` is NEVER in the N/A set (a PR with no base ref must hard-fail)',
+    !!naLine && !naSet.includes('pull_request') && !naSet.includes('pull_request_target'),
+    `N/A set = ${JSON.stringify(naSet)}`);
+  check('FORBIDDEN-PIN: the N/A set covers push, schedule, workflow_dispatch and merge_group',
+    ['push', 'schedule', 'workflow_dispatch', 'merge_group'].every((e) => naSet.includes(e)),
+    `N/A set = ${JSON.stringify(naSet)}`);
+  const hardFail = /^\} else if \(IN_CI\) \{\n(?:\s*\/\/[^\n]*\n)*\s*check\('FORBIDDEN: the PR base ref is reachable in CI \(fetch-depth must be 0\)',\n\s*false,/m;
+  const hfIdx = self.search(hardFail);
+  check('FORBIDDEN-PIN: the IN_CI hard-fail branch (check(..., false)) still follows the N/A branch',
+    hfIdx > -1 && !!naLine && hfIdx > self.indexOf(naLine[0]),
+    hfIdx === -1 ? 'the IN_CI `FORBIDDEN: the PR base ref is reachable` hard failure is GONE' : 'out of order');
 }
 
 /* ══════════════════════════════════════════════════════════════════════════

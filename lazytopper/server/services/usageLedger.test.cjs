@@ -704,22 +704,36 @@ ${res.status} ${res.text}`);
 ${delta}`);
     assert.equal(count(delta, /LEDGER_SET/g), 0, `a refused call was charged
 ${delta}`);
-    // On an UNGATED paid route the same caller still reaches the model (keyed on its IP
-    // by the limiter) — which is exactly why the charge must not follow the header.
+    // REWRITTEN for AUTHGATE-2 (HARDEN-1 §2 PR-1: an invalid bearer on the four AI routes is
+    // 401 before any model call). detect-question used to serve this caller keyed on its IP;
+    // it is now refused like the tutor above — no model call, no charge.
     before = srv.log();
     res = await post(port, '/api/detect-question', { question: 'Find the resistance of a 2 m wire.' }, {
       authorization: 'Bearer forged-token',
       'x-lazytopper-uid': 'forged-header-uid',
     });
+    assert.equal(res.status, 401, `a token that does not verify is refused on detect-question
+${res.status} ${res.text}`);
     await wait(400);
     delta = srv.log().slice(before.length);
-    assert.equal(count(delta, /GEMINI_FETCH/g), 1,
-      `CONTROL: the unverified caller must really reach Gemini, or this proves nothing
-${res.status} ${res.text}
+    assert.equal(count(delta, /GEMINI_FETCH/g), 0, `a refused call must not reach Gemini
 ${delta}`);
     assert.equal(count(delta, /LEDGER_SET/g), 0, `an UNVERIFIED header uid was charged
 ${delta}`);
     assert.ok(!delta.includes('forged-header-uid'), 'the header uid reached the ledger');
+    // CONTROL: the same route with a VERIFIED token really reaches Gemini and is charged
+    // once, so the zeroes above are the refusal and not a dead route.
+    before = srv.log();
+    res = await post(port, '/api/detect-question', { question: 'Find the resistance of a 2 m wire.' }, {
+      authorization: 'Bearer good-token',
+    });
+    for (let i = 0; i < 40 && !/LEDGER_SET/.test(srv.log().slice(before.length)); i++) await wait(50);
+    delta = srv.log().slice(before.length);
+    assert.equal(count(delta, /GEMINI_FETCH/g), 1, `CONTROL: a verified detect reaches Gemini
+${res.status} ${res.text}
+${delta}`);
+    assert.equal(count(delta, /LEDGER_SET/g), 1, `CONTROL: a verified detect is charged once
+${delta}`);
 
     // ── (3) An ADMITTED free check (signed-out visitor) is charged to nobody. ──
     before = srv.log();

@@ -28,7 +28,8 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ANCHOR = path.resolve(HERE, "..", "..");
 const REPO_ROOT = path.resolve(ANCHOR, "..");
 const WORKFLOW = path.join(REPO_ROOT, ".github", "workflows", "quality-gate.yml");
-const VERCEL_JSON = path.join(REPO_ROOT, "vercel.json");
+const LANE_OVERLAP = path.join(REPO_ROOT, ".github", "workflows", "lane-overlap.yml");
+const VERCEL_JSON =path.join(REPO_ROOT, "vercel.json");
 
 const checks = [];
 const check = (name, ok, detail = "") => checks.push({ name, ok: Boolean(ok), detail });
@@ -199,13 +200,13 @@ export const REAL_COMMITS = [
     const m = wf.match(new RegExp(`\\n  ${id.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z][\\w-]*:\\n|$)`));
     return m ? m[1] : "";
   };
-  // ★ FU-CI1-NIGHTLY-RESTORE (owner ruling 2026-10-07, "Ship #969, nightly off for now"): the
-  //   nightly `schedule:` is OFF until #970 merges and the convergence gate learns that non-PR
-  //   events are N/A. This pins the NEW state - dispatch present, schedule ABSENT, FU id named.
-  //   The follow-up flips it back to requiring the cron.
-  check("w1_dispatch_trigger_present_schedule_off_until_FU_CI1_NIGHTLY_RESTORE",
-    !/\n  schedule:/.test(wf) && !/- cron:/.test(wf) && /\n  workflow_dispatch:\s*\n/.test(wf) &&
-      /FU-CI1-NIGHTLY-RESTORE/.test(wf));
+  // ★ FU-CI1-NIGHTLY-RESTORE (owner mandate 2026-10-07): the nightly `schedule:` is BACK, now
+  //   that the convergence gate treats every non-PR event (push, schedule, workflow_dispatch,
+  //   merge_group) as N/A (its FORBIDDEN-PIN). Pins the 02:00 IST cron AND manual dispatch.
+  //   (Was: schedule ABSENT, from #969 until this follow-up.)
+  check("w1_nightly_schedule_and_dispatch_triggers_present",
+    /\n  schedule:\n    - cron: '30 20 \* \* \*'/.test(wf) && /\n  workflow_dispatch:\s*\n/.test(wf),
+    "the nightly full clock run needs BOTH the 02:00 IST cron ('30 20 * * *') and workflow_dispatch");
   check("w2_concurrency_separates_events",
     /group:\s*quality-gate-\$\{\{\s*github\.event_name\s*\}\}-\$\{\{\s*github\.ref\s*\}\}/.test(wf),
     "a nightly/dispatched run must never cancel (or be cancelled by) a trunk push run");
@@ -217,10 +218,44 @@ export const REAL_COMMITS = [
   const nightly = jobBlock("nightly-full-clock");
   check("w4_nightly_job_runs_the_full_suites_under_both_clocks_and_opens_an_issue",
     /if: github\.event_name == 'schedule' \|\| github\.event_name == 'workflow_dispatch'/.test(nightly) &&
-      /pnpm --filter lazytopper exec vitest run\n/.test(nightly) && /pnpm --filter lazytopper run test:matrix:all/.test(nightly) &&
+      // The WHOLE suite: no --shard, no file filter — only the reporters D7's coverage step reads.
+      /pnpm --filter lazytopper exec vitest run --reporter=default --reporter=json --outputFile="\$RUNNER_TEMP\/vitest-nightly\.json"\n/.test(nightly) &&
+      /pnpm --filter lazytopper run test:matrix:all/.test(nightly) &&
       /issues: write/.test(nightly) && /gh issue create/.test(nightly) &&
       /2030-06-15T06:30:00\.000Z/.test(nightly) && /2030-02-14T18:45:00\.000Z/.test(nightly) &&
       !/issues: write/.test(wf.replace(nightly, "")));
+  // ★ D7 — the nightly's unsharded run must collect EVERY test file on disk, counted by ci_aggregate's
+  //   own functions (the PR shards' rule), and the step must run even after a failed suite step.
+  check("w11_nightly_asserts_files_equal_files_on_disk",
+    /- name: Every test file on disk ran \(files = files on disk\)\n\s*if: \$\{\{ !cancelled\(\) \}\}\n/.test(nightly) &&
+      /VITEST_JSON: \$\{\{ runner\.temp \}\}\/vitest-nightly\.json/.test(nightly) &&
+      /import \{ countTestFilesOnDisk, summariseVitestJson \} from "\.\/lazytopper\/scripts\/ops\/ci_aggregate\.mjs"/.test(nightly) &&
+      /s\.files === onDisk/.test(nightly) && /if \(!ok\) process\.exit\(1\)/.test(nightly),
+    "a nightly that silently drops a test file must fail — the files-on-disk assertion is missing or weakened");
+  // The issue-on-failure step stays SCHEDULE-only: a hand-run dispatch reports in its own run page.
+  check("w7_issue_on_failure_is_schedule_only",
+    /- name: Open an issue \(scheduled run failed\)\n\s*if: failure\(\) && github\.event_name == 'schedule'\n/.test(nightly));
+  // ★ D3 — READY FOR A FUTURE MERGE QUEUE. Both REQUIRED checks (`quality-gate`, `lane-overlap`)
+  //   must report on merge_group, or a queue waits forever on "expected — waiting for status".
+  const lo = read(LANE_OVERLAP);
+  const mergeGroupTrigger = /\n  merge_group:\n    types: \[checks_requested\]\n    branches: \[base\/approved-thru-437\]\n/;
+  check("w8_merge_group_trigger_in_both_required_workflows",
+    mergeGroupTrigger.test(wf) && mergeGroupTrigger.test(lo),
+    "quality-gate.yml and lane-overlap.yml both need `merge_group: types: [checks_requested]` on the trunk");
+  check("w9_lane_overlap_job_name_unchanged",
+    /\njobs:\n  lane-overlap:\n/.test(lo) && !/\n    name:/.test(lo),
+    "`lane-overlap` is a REQUIRED check: the job id must stay exactly lane-overlap, with no display-name override");
+  // The pass-through runs on merge_group ONLY; every real step runs on pull_request ONLY. Step by step.
+  const loSteps = lo.split(/\n      - name: /).slice(1);
+  const isPassThrough = (st) => /LANE_OVERLAP: N\/A on merge_group/.test(st);
+  const passThrough = loSteps.filter(isPassThrough);
+  const realSteps = loSteps.filter((st) => !isPassThrough(st));
+  check("w10_lane_overlap_pass_through_gated_on_merge_group_only",
+    passThrough.length === 1 && /\n        if: github\.event_name == 'merge_group'\n/.test(passThrough[0]) &&
+      !/\n        if:[^\n]*pull_request/.test(passThrough[0]) &&
+      realSteps.length > 0 && realSteps.every((st) => /\n        if: github\.event_name == 'pull_request'\n/.test(st)) &&
+      realSteps.some((st) => /node scripts\/ops\/lane_overlap\.mjs/.test(st)),
+    `pass-through steps=${passThrough.length}; the pass-through must be gated on merge_group only, every real step on pull_request`);
   const vitest = jobBlock("vitest");
   check("w5_default_vitest_runs_every_file_once_via_4_shards",
     /shard: \[1, 2, 3, 4\]/.test(vitest) && /pnpm --filter lazytopper exec vitest run --shard \$\{\{ matrix\.shard \}\}\/4/.test(vitest) &&
