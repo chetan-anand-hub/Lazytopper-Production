@@ -70,32 +70,35 @@ const CLIENT_PER_ATTEMPT_BUDGET_MS = 90000;
    no web request open, so none of the request numbers above apply to it. It has its OWN budget,
    deliberately NOT read from the environment and NOT passed through normaliseTiming (whose deadline
    clamp is 80 000): the synchronous path's timing above is unchanged, number for number.
-     JOB_WALL_MS          270 000 — from the moment the job starts RUNNING (queue time excluded). A
+     JOB_WALL_MS          180 000 — from the moment the job starts RUNNING (queue time excluded). A
                           question unfinished then is "not graded" (timeout) and never charged.
-     JOB_PER_CALL_MS      180 000 — every model call's cap (first attempt AND retry). No 45 s first-attempt
-                          kill: a killed chunk throws its work away.
-     J3 (FU-GRADING-ABORTS; eval key, gemini-3.8-flash, dynamic thinking — the owner rejected a thinking
-     cap): J1 set 120 000 / 180 000 from calls observed on an older model. Measured on the job path,
-     5-7-question chunks of a 27-question document ran 59-115 s and some passed 120 s (aborted, then
-     re-graded one question per call in 17-58 s, finishing at 164-178 s of the 180 s wall; J1-LIVE lost
-     2 questions to that wall in 2 of 3 runs). Smaller chunks did not help (4-question chunks of the same
-     paper ran up to 107 s and still passed 120 s under load, at higher cost), so the chunk size stays 8 and
-     the budget grows: a 180 s call cap above every chunk seen, and a wall that still leaves 90 s for the
-     one-question retries after a chunk that hits it. Measurements: #1002.
+     JOB_PER_CALL_MS      120 000 — every model call's cap (first attempt AND retry, except the J3 abort retry below). Above the
+                          highest grading call ever observed: 77.1 s server time for a 4-question
+                          single-call paper (OR-LIVE TRUNK-FINAL on e2c5bb46, WAVE_STATE_A15 l.295) and
+                          67 s for the slowest 8-question chunk (HOTFIX-2 run b, review §3.4 —
+                          agent-reported). No 45 s first-attempt kill: a killed chunk throws its work away.
      JOB_CHUNK_QUESTIONS  8 — a cost choice, not a timeout choice (review §7: ~₹29–33 for a 38-Q paper
                           at 8–10 per chunk vs ~₹51 at 3 — agent-reported); rows still arrive per chunk.
      JOB_HEARTBEAT_MS     10 000 — a live job writes heartbeatAtMs at least this often.
      JOB_STALE_MS         30 000 — a queued/running job whose heartbeat is older is INTERRUPTED (decided
                           on read: a restart or redeploy killed the process that ran it). */
-const JOB_WALL_MS = 270000;
-const JOB_PER_CALL_MS = 180000;
+const JOB_WALL_MS = 180000;
+const JOB_PER_CALL_MS = 120000;
 const JOB_CHUNK_QUESTIONS = 8;
+/* J3 round 5 (FU-GRADING-ABORTS; cofounder ruling "retry only what aborted"): a job chunk whose FIRST
+   call is aborted at JOB_PER_CALL_MS is retried ONCE, whole, with this larger budget: a per-call cap of
+   JOB_ABORT_RETRY_PER_CALL_MS inside a job wall of JOB_ABORT_RETRY_WALL_MS (from the same start). It
+   replaces the one-question-per-call retries for that case only; every chunk that did not abort keeps
+   the J1 numbers above exactly (same request, same timing). Measured: #1009. */
+const JOB_ABORT_RETRY_PER_CALL_MS = 180000;
+const JOB_ABORT_RETRY_WALL_MS = 270000;
 const JOB_HEARTBEAT_MS = 10000;
 const JOB_STALE_MS = 30000;
 
 /** The job budget the grading core takes as `jobTiming` (a fresh object; never env-driven). */
 function jobTiming() {
-  return { wallMs: JOB_WALL_MS, perCallMs: JOB_PER_CALL_MS, chunkQuestions: JOB_CHUNK_QUESTIONS };
+  return { wallMs: JOB_WALL_MS, perCallMs: JOB_PER_CALL_MS, chunkQuestions: JOB_CHUNK_QUESTIONS,
+    abortRetry: { perCallMs: JOB_ABORT_RETRY_PER_CALL_MS, wallMs: JOB_ABORT_RETRY_WALL_MS } };
 }
 
 function clampInt(raw, lo, hi, dflt) {
@@ -165,6 +168,8 @@ module.exports = {
   JOB_WALL_MS,
   JOB_PER_CALL_MS,
   JOB_CHUNK_QUESTIONS,
+  JOB_ABORT_RETRY_PER_CALL_MS,
+  JOB_ABORT_RETRY_WALL_MS,
   JOB_HEARTBEAT_MS,
   JOB_STALE_MS,
   jobTiming,

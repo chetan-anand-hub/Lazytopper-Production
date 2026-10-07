@@ -317,9 +317,9 @@ function createGradingCore(deps) {
       const nums = new Set(qs.map((q) => Number(q.qNumber)));
       return new Map([...ctx.uploadByNumber].filter(([n]) => nums.has(n)));
     };
-    const run = (qs, attempt, timeoutMs) => attemptChunk({
+    const run = (qs, attempt, timeoutMs, deadlineAt = ctx.callDeadlineAt) => attemptChunk({
       model: chunk.model, questions: qs, uploadByNumber: uploadsFor(qs), document: ctx.document, subject: chunk.subject,
-      single: ctx.single, autoDetect: ctx.autoDetect, label: ctx.label, attempt, timeoutMs, deadlineAt: ctx.callDeadlineAt,
+      single: ctx.single, autoDetect: ctx.autoDetect, label: ctx.label, attempt, timeoutMs, deadlineAt,
       others: ctx.document ? Math.max(0, ctx.total - qs.length) : 0, chunkKey: keyOf(qs),
       nonce: ctx.nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
     });
@@ -330,12 +330,25 @@ function createGradingCore(deps) {
     // whole remaining budget (its retry cannot be smaller).
     // GRADING-JOBS-1 J1 (D14): a background JOB has no 45 s first-attempt kill — every call, first
     // attempt and retry, is capped at the job's per-call cap (timing.cjs JOB_PER_CALL_MS) and the
-    // job's wall deadline. The synchronous path below is unchanged.
+    // job's wall deadline, except the J3 abort retry below. The synchronous path below is unchanged.
     const jobCap = ctx.job ? (ms) => Math.min(ctx.job.perCallMs, ms) : null;
     const t1 = jobCap ? jobCap(left0) : ctx.chunked && chunk.questions.length > 1 ? Math.min(timing.chunkTimeoutMs, left0) : left0;
     const first = await run(chunk.questions, 1, t1);
     if (first.results) return [{ questions: chunk.questions, attempt: first }];
     if (first.error && !timingLib.isRetryableError(first.error)) return [{ questions: chunk.questions, attempt: first }];
+    // J3 round 5 (cofounder ruling, "retry only what aborted"): a JOB chunk whose first call was
+    // ABORTED at the per-call cap is retried ONCE, WHOLE (the same request, attempt 2), with the larger
+    // abort-retry budget: its own per-call cap inside the longer abort-retry wall. This REPLACES, for
+    // that case only, the one-question-per-call split below. Every other chunk (graded first time, an
+    // HTTP error, an unparseable reply) takes the unchanged path. A second abort ends "not graded".
+    const abortRetry = ctx.job && ctx.job.abortRetry && first.timedOut ? ctx.job.abortRetry : null;
+    if (abortRetry) {
+      const retryDeadlineAt = ctx.startedAt + abortRetry.wallMs - timing.marginMs;
+      const leftR = Math.min(abortRetry.perCallMs, retryDeadlineAt - now());
+      if (leftR < timing.minRetryMs) return [{ questions: chunk.questions, attempt: first }];
+      console.warn(ctx.label + ' chunk ' + keyOf(chunk.questions) + ' timed out — retrying once, whole, within ' + Math.round(leftR) + ' ms (abort retry).');
+      return [{ questions: chunk.questions, attempt: await run(chunk.questions, 2, leftR, retryDeadlineAt) }];
+    }
     const left = jobCap ? jobCap(ctx.callDeadlineAt - now()) : ctx.callDeadlineAt - now();
     if (left < timing.minRetryMs) return [{ questions: chunk.questions, attempt: first }];
     const split = Boolean(first.timedOut) && chunk.questions.length > 1;
@@ -515,7 +528,7 @@ function createGradingCore(deps) {
     }
 
     const ctx = {
-      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked, meters, job,
+      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked, meters, job, startedAt,
       // D31: request-level, so all chunks share them (see attemptChunk).
       nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce),
       paperHasAnyTyped: questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0),

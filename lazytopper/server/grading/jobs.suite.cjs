@@ -124,19 +124,22 @@ function pipeRes() {
 }
 
 /* ── The stubbed model: per-question grades; any call can be HELD until released ── */
-function stubModel({ marksOf, verdictOf, inventoryOf, onCall } = {}) {
+function stubModel({ marksOf, verdictOf, inventoryOf, onCall, failWith } = {}) {
   const calls = [];
   const holds = [];
   let holdNext = null;
   const ctxUids = [];
   async function callGemini(model, contents, cfg) {
     const ids = String((cfg && cfg.chunkKey) || '').split('+').filter(Boolean).map((k) => Number(k.slice(1)));
-    calls.push({ ids, cfg: { timeoutMs: cfg.timeoutMs, attempt: cfg.attempt, chunkKey: cfg.chunkKey } });
+    calls.push({ ids, cfg: { timeoutMs: cfg.timeoutMs, attempt: cfg.attempt, chunkKey: cfg.chunkKey, deadlineAt: cfg.deadlineAt } });
     ctxUids.push(ledgerLib.currentUid());
     if (onCall) onCall(model); // J1b: what geminiClient does after a successful call (usageLedger.recordUsage)
     if (holdNext && holdNext(ids)) {
       await new Promise((resolve) => holds.push({ ids, resolve }));
     }
+    // J3 round 5: a call can FAIL instead (e.g. the per-call abort geminiClient raises: HTTP 504).
+    const failure = failWith ? failWith(ids, cfg) : null;
+    if (failure) throw failure;
     const results = ids.map((id) => {
       const qNumber = id + 1;
       const marks = marksOf ? marksOf(id) : 2;
@@ -650,9 +653,9 @@ test('J1b (d) · a BACKGROUND job records the same meter cost and the same real 
 });
 
 /* ════════════════════════ D14 · job timing (the synchronous timing unchanged) ════════════════════════ */
-test('J1 D14 / J3 · a job grades in chunks of 8 with the 180 s per-call cap and a 270 s wall; the sync path keeps 1 call / 45 s chunks', async () => {
-  assert.deepEqual(timingLib.jobTiming(), { wallMs: 270000, perCallMs: 180000, chunkQuestions: 8 }, 'J3 (FU-GRADING-ABORTS): the job budget');
-  assert.ok(timingLib.JOB_WALL_MS - timingLib.JOB_PER_CALL_MS >= 90000, 'a chunk that hits its cap still leaves 90 s for the one-question retries');
+test('J1 D14 / J3 · a job grades in chunks of 8 with the J1 120 s per-call cap and 180 s wall (an aborted chunk: one retry at 180 s within 270 s); the sync path keeps 1 call / 45 s chunks', async () => {
+  assert.deepEqual(timingLib.jobTiming(), { wallMs: 180000, perCallMs: 120000, chunkQuestions: 8, abortRetry: { perCallMs: 180000, wallMs: 270000 } },
+    'J3 round 5 (cofounder ruling): J1 budget for every chunk; the larger budget only for the one retry of an aborted chunk');
   const h = harness();
   await h.submit({ key: KEY(40), payload: typedPaper(10) });
   await until(() => h.model.calls.length === 2, 'two job chunks');
@@ -669,6 +672,78 @@ test('J1 D14 / J3 · a job grades in chunks of 8 with the 180 s per-call cap and
   assert.deepEqual(s2.model.calls.map((c) => c.ids.length), [3, 3, 3, 3], 'sync: chunks of 3');
   for (const c of s2.model.calls) assert.ok(c.cfg.timeoutMs <= timingLib.DEFAULT_GRADING_CHUNK_TIMEOUT_MS, 'sync: 45 s first attempt');
   assert.equal(timingLib.normaliseTiming({}).deadlineMs, 80000, 'the sync request deadline is unchanged');
+});
+
+/* ═════════ J3 round 5 · RETRY ONLY WHAT ABORTED (cofounder ruling; FU-GRADING-ABORTS) ═════════
+   Every job chunk keeps the J1 budget (120 s per call, 180 s wall). ONLY a chunk whose first call was
+   ABORTED at that cap is retried, ONCE, WHOLE, at 180 s per call inside a 270 s wall; a second abort is
+   today's honest "not graded" (timeout), and the charge counts graded questions only. An abort is what
+   geminiClient raises at the per-call cap: HTTP 504. */
+const abortError = () => Object.assign(new Error('Gemini request timed out after 120000ms'), { status: 504 });
+const MARGIN = timingLib.GRADING_MARGIN_MS;
+async function runJob(h, key, n = 10) {
+  const res = await h.submit({ key: KEY(key), payload: typedPaper(n) });
+  assert.equal(res.statusCode, 202, res.body);
+  const { jobId } = JSON.parse(res.body);
+  await until(() => h.recordOf('stu-1', jobId).job.state === 'done', 'job done', 2000);
+  await settle();
+  return (await h.poll(jobId)).json;
+}
+
+test('J3 R5 (a) · a chunk that is NOT aborted runs at the J1 budget (120 s cap, 180 s wall) and is never retried', async () => {
+  const h = harness();
+  const done = await runJob(h, 60);
+  assert.equal(h.model.calls.length, 2, 'two chunks, two calls, no retry');
+  const d0 = h.model.calls[0].cfg.deadlineAt;
+  for (const c of h.model.calls) {
+    assert.equal(c.cfg.attempt, 1);
+    assert.equal(c.cfg.timeoutMs, 120000, 'the J1 per-call cap');
+    assert.equal(c.cfg.deadlineAt, d0, 'one wall for every first call');
+  }
+  assert.ok(d0 - Date.now() <= 180000 - MARGIN, 'the J1 180 s wall, not 270 s');
+  assert.ok(done.final.results.every((r) => !r.notGraded));
+  assert.deepEqual(h.trialWrites, [{ uid: 'stu-1', counts: { checks: 10 } }]);
+  // A chunk that FAILED without an abort (HTTP 503) keeps the unchanged path: one retry at the J1 budget.
+  const e = harness({ model: stubModel({ failWith: (ids, cfg) => (ids.includes(9) && cfg.attempt === 1 ? Object.assign(new Error('overloaded'), { status: 503 }) : null) }) });
+  await runJob(e, 61);
+  const retry = e.model.calls.filter((c) => c.cfg.attempt === 2);
+  assert.equal(retry.length, 1);
+  assert.ok(retry[0].cfg.timeoutMs <= 120000, 'an HTTP-error retry stays at the J1 cap: ' + retry[0].cfg.timeoutMs);
+  assert.equal(retry[0].cfg.deadlineAt, e.model.calls[0].cfg.deadlineAt, 'and inside the J1 wall');
+});
+
+test('J3 R5 (b) · an ABORTED chunk is retried exactly ONCE, whole, at 180 s per call within the 270 s wall', async () => {
+  const h = harness({ model: stubModel({ failWith: (ids, cfg) => (ids.includes(9) && cfg.attempt === 1 ? abortError() : null) }) });
+  const done = await runJob(h, 62);
+  assert.equal(h.model.calls.length, 3, '2 first calls + 1 retry (no one-question-per-call split)');
+  const first = h.model.calls.find((c) => c.ids.includes(9) && c.cfg.attempt === 1);
+  const retry = h.model.calls.filter((c) => c.cfg.attempt === 2);
+  assert.equal(retry.length, 1, 'exactly one retry');
+  assert.deepEqual(retry[0].ids, first.ids, 'the WHOLE chunk, the same request');
+  assert.equal(retry[0].cfg.timeoutMs, 180000, 'the larger per-call cap');
+  assert.equal(retry[0].cfg.deadlineAt - first.cfg.deadlineAt, 90000, 'the 270 s wall (J1 wall + 90 s)');
+  assert.ok(done.final.results.every((r) => !r.notGraded), 'every question graded');
+  assert.deepEqual(h.trialWrites, [{ uid: 'stu-1', counts: { checks: 10 } }]);
+  // The retry's cap is the time left before the abort-retry wall when that is under its 180 s cap
+  // (a test wall of 100 s stands in for a retry that starts late in a real 270 s job).
+  const w = harness({
+    model: stubModel({ failWith: (ids, cfg) => (ids.includes(9) && cfg.attempt === 1 ? abortError() : null) }),
+    jobTimingFor: () => ({ ...timingLib.jobTiming(), abortRetry: { perCallMs: 180000, wallMs: 100000 } }),
+  });
+  await runJob(w, 63);
+  const wr = w.model.calls.find((c) => c.cfg.attempt === 2);
+  assert.ok(wr.cfg.timeoutMs <= 100000 - MARGIN && wr.cfg.timeoutMs > 90000, 'min(180 s, time left before the wall): ' + wr.cfg.timeoutMs);
+  assert.equal(wr.cfg.deadlineAt - w.model.calls[0].cfg.deadlineAt, 100000 - 180000, 'the retry runs against the abort-retry wall');
+});
+
+test('J3 R5 (c)+(d) · a SECOND abort ends "not graded" (timeout), no further retry; the charge counts graded questions only', async () => {
+  const h = harness({ model: stubModel({ failWith: (ids) => (ids.includes(9) ? abortError() : null) }) });
+  const done = await runJob(h, 64);
+  assert.equal(h.model.calls.length, 3, 'first call + ONE retry for the aborted chunk; nothing more');
+  assert.equal(h.model.calls.filter((c) => c.ids.length === 1).length, 0, 'no one-question-per-call retries');
+  const ng = done.final.results.map((r, i) => [i, r.notGraded]).filter(([, g]) => g).map(([i, g]) => i + ':' + g);
+  assert.deepEqual(ng, ['5:timeout', '6:timeout', '7:timeout', '8:timeout', '9:timeout']);
+  assert.deepEqual(h.trialWrites, [{ uid: 'stu-1', counts: { checks: 5 } }], '(d) only the 5 graded questions are charged');
 });
 
 /* ═══════════ CORS · the opt-in header is allowed; the poll route is live with the switch OFF ═══════════ */

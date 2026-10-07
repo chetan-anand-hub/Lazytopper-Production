@@ -78,6 +78,13 @@ function syncPlanAsJob(n) {
   };
 }
 
+/** J3 round 5: the same plan WITH production's abort retry (timing.jobTiming().abortRetry): a chunk whose
+ *  first call ABORTED is retried once, whole, at the larger budget. The synchronous path has no such retry,
+ *  so this plan is used only by the ABORT-RETRY pass below, never by the job-vs-sync identity pass. */
+function syncPlanAsJobWithAbortRetry(n) {
+  return { ...syncPlanAsJob(n), abortRetry: timingLib.jobTiming().abortRetry };
+}
+
 /** The stored replies of one record, served by identity exactly as lib/replay.cjs serves them. */
 function replayCallGemini(record) {
   const calls = (record.calls || []).slice();
@@ -115,15 +122,19 @@ function driverFor(cfg, record, callGemini, detectModel) {
  * own inventory is NOT the paper's union and the stable rule (postprocess inventoryStable) decides.
  * `provisionalChanged` = provisional rows that did change at done (a real verdict flip).
  */
-async function compareJobToSync({ label, request, makeDriver }) {
+async function compareJobToSync({ label, request, makeDriver, abortRetry = false }) {
   const sync = await makeDriver(null).run({ handler: 'handleGradeWorksheet', request });
   if (sync.httpStatus !== 200) return { skipped: true };
   const syncBytes = JSON.stringify(sync.body);
   const firstAttemptChunks = new Set();
-  const d = makeDriver((cfg) => { if (cfg && cfg.chunkKey && (cfg.attempt || 1) === 1) firstAttemptChunks.add(cfg.chunkKey); });
+  const retryCalls = []; // J3 round 5: the job's attempt-2 calls { chunkKey, timeoutMs }
+  const d = makeDriver((cfg) => {
+    if (cfg && cfg.chunkKey && (cfg.attempt || 1) === 1) firstAttemptChunks.add(cfg.chunkKey);
+    if (cfg && cfg.attempt === 2) retryCalls.push({ chunkKey: cfg.chunkKey || null, timeoutMs: cfg.timeoutMs });
+  });
   const fs = memoryFirestore();
   const jobs = jobsLib.createGradingJobs({ resolveFirestore: () => ({ db: fs.db }), commitDeferred: () => null });
-  const route = createCheckSolutionRoute({ ...d.deps, GRADING_JOBS: true, gradingJobs: jobs, jobTimingFor: syncPlanAsJob });
+  const route = createCheckSolutionRoute({ ...d.deps, GRADING_JOBS: true, gradingJobs: jobs, jobTimingFor: abortRetry ? syncPlanAsJobWithAbortRetry : syncPlanAsJob });
   const uid = 'golden-eval';
   const key = 'golden-job-' + String(label).replace(/[^A-Za-z0-9-]/g, '-').slice(0, 40);
   const attemptId = idempotencyAttemptId('/api/grade-worksheet', key);
@@ -158,11 +169,14 @@ async function compareJobToSync({ label, request, makeDriver }) {
   return {
     bodyEqual: job.final === syncBytes, finalRows, provisionalRows, provisionalChanged, finalRowDiffs,
     parts: firstAttemptChunks.size, oneDocument: Boolean(String(request.imageBase64 || '').trim()),
+    // an abort retry = an attempt-2 call above the J1 per-call cap (only the abort retry may exceed it)
+    abortRetries: retryCalls.filter((c) => c.timeoutMs > timingLib.JOB_PER_CALL_MS).map((c) => c.chunkKey),
+    firstAttemptChunks: [...firstAttemptChunks],
   };
 }
 
 /** One stored grade-worksheet record, replayed from its stored model replies. */
-async function replayAsJob(planJob, record, R) {
+async function replayAsJob(planJob, record, R, opts = {}) {
   const cfg = R.manifest && R.manifest.config;
   const detectModel = R.manifest && R.manifest.detectModel;
   const request = { ...JSON.parse(JSON.stringify(planJob.request)), acceptsV2: true };
@@ -171,7 +185,7 @@ async function replayAsJob(planJob, record, R) {
     const callGemini = spy ? (m, c, cfgCall) => { spy(cfgCall); return replay(m, c, cfgCall); } : replay;
     return driverFor(cfg, record, callGemini, detectModel);
   };
-  return compareJobToSync({ label: record.jobKey, request, makeDriver });
+  return compareJobToSync({ label: record.jobKey, request, makeDriver, abortRetry: opts.abortRetry === true });
 }
 
 /**
@@ -219,6 +233,25 @@ async function replayRunsAsJobs(runDirs, opts = {}) {
   const out = {
     jobs: 0, skipped: 0, bodyDiffs: [], finalRows: 0, provisionalRows: 0, provisionalChanged: 0, finalRowDiffs: [], errors: [],
     multiChunkPapers: 0, multiChunkOneDocument: 0, multiChunkFinalRows: 0, syntheticFlip: null,
+    abortRetryJobs: 0, abortRetryIdentical: 0, abortRetried: 0,
+  };
+  // J3 round 5 · THE ABORT-RETRY PASS: the same stored replies through the job path WITH production's abort
+  // retry. A job none of whose chunks aborted must be BYTE-IDENTICAL to the synchronous body (the abort
+  // retry changes nothing else); a job with an aborted chunk must retry each such chunk exactly once,
+  // WHOLE (its own first-attempt chunk key), and never split it. Failures join bodyDiffs / errors.
+  const addAbortRetry = (label, r) => {
+    if (r.skipped) return;
+    out.abortRetryJobs += 1;
+    if (r.error) { out.errors.push('ABORT-RETRY ' + label + ': ' + r.error); return; }
+    if (r.abortRetries.length === 0) {
+      if (!r.bodyEqual || r.finalRowDiffs.length) out.bodyDiffs.push('ABORT-RETRY ' + label);
+      else out.abortRetryIdentical += 1;
+      return;
+    }
+    out.abortRetried += 1;
+    const once = new Set(r.abortRetries).size === r.abortRetries.length;
+    const whole = r.abortRetries.every((k) => r.firstAttemptChunks.includes(k));
+    if (!once || !whole) out.errors.push('ABORT-RETRY ' + label + ': retries ' + JSON.stringify(r.abortRetries) + ' are not one whole retry per aborted chunk');
   };
   const add = (label, r) => {
     if (r.skipped) { out.skipped += 1; return; }
@@ -244,6 +277,9 @@ async function replayRunsAsJobs(runDirs, opts = {}) {
         let r;
         try { r = await replayAsJob(planJob, record, R); } catch (e) { r = { error: (e && e.message) || String(e) }; }
         add(record.jobKey + '#' + run, r);
+        let ar;
+        try { ar = await replayAsJob(planJob, record, R, { abortRetry: true }); } catch (e) { ar = { error: (e && e.message) || String(e) }; }
+        addAbortRetry(record.jobKey + '#' + run, ar);
       }
     }
   }
@@ -260,4 +296,4 @@ async function replayRunsAsJobs(runDirs, opts = {}) {
   return out;
 }
 
-module.exports = { replayRunsAsJobs, replayAsJob, compareJobToSync, syntheticFlipCase, syncPlanAsJob, memoryFirestore };
+module.exports = { replayRunsAsJobs, replayAsJob, compareJobToSync, syntheticFlipCase, syncPlanAsJob, syncPlanAsJobWithAbortRetry, memoryFirestore };
