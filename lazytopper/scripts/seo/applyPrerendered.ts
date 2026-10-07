@@ -389,6 +389,124 @@ export function withPreloads(html: string, hrefs: readonly string[]): string {
   return html.replace("</head>", `${links}</head>`);
 }
 
+/**
+ * LOW-END-3 PR-1 (d): the CSS files Vite injects when the entry dynamically imports
+ * `chunkFile`, read from the entry's own `__vite__mapDeps` table:
+ * `import("./X-hash.js"),__vite__mapDeps([i,j])` with `m.f=["assets/X-hash.js","assets/X-h2.css",…]`.
+ *
+ * ★ WHY. A lazy route's stylesheet (e.g. `CheckYourAnswerPage-*.css`) arrives only with its
+ * chunk, AFTER the prerendered body has painted without it, so the page re-lays out when it
+ * lands. That is the /check-your-answer shift (#963 §4.5: hero 106 → 271 px at 1440, CLS 0.898).
+ * Inlined into the page's head, the first paint already has the route's styles and nothing moves.
+ * When the chunk later loads, Vite appends the same rules as a <link>: identical values, no shift.
+ *
+ * No `__vite__mapDeps` call for the chunk means no CSS (Vite emits the call only when the
+ * import has deps). A table that is present but cannot be read throws.
+ */
+export function dynamicImportCssOf(entryCode: string, chunkFile: string): string[] {
+  const escaped = chunkFile.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const call = entryCode.match(new RegExp(`import\\("\\./${escaped}"\\),__vite__mapDeps\\(\\[([0-9,]*)\\]`));
+  if (!call) return [];
+  const table = entryCode.match(/m\.f=\[([^\]]*)\]/);
+  if (!table) {
+    throw new Error(
+      `applyPrerendered: the entry imports ${chunkFile} through __vite__mapDeps but its dependency ` +
+        `table (m.f=[…]) could not be read. The Vite output changed shape.`,
+    );
+  }
+  const files = [...table[1].matchAll(/"([^"]*)"/g)].map((m) => m[1]);
+  const css: string[] = [];
+  for (const index of call[1].split(",").filter(Boolean).map(Number)) {
+    const dep = files[index];
+    if (dep === undefined) {
+      throw new Error(`applyPrerendered: __vite__mapDeps index ${index} for ${chunkFile} is outside the table`);
+    }
+    if (dep.endsWith(".css")) css.push(dep.replace(/^.*assets\//, ""));
+  }
+  return css;
+}
+
+/**
+ * LOW-END-3 PR-1 (d), controller D63a: the ONLY route whose own CSS is inlined.
+ *
+ * ★ WHY AN ALLOWLIST. Inlining every route's CSS also put `katex-*.css` (~8 KB br) into each
+ * Notes and HPQ page and measurably delayed their first paint (B FCP +0.18–0.30 s, C FCP
+ * +0.02–0.08 s). /check-your-answer is the one page whose layout shifts without its route CSS
+ * (#963 §4.5), so it is the one page that gets it.
+ */
+export const INLINE_ROUTE_CSS_MODULES: readonly string[] = ["CheckYourAnswerPage"];
+
+/** The allowlisted route's own CSS files (never shared deps such as KaTeX) for `path`, in order. */
+export function routeCssFor(
+  path: string,
+  assetsDir: string,
+  shellHtml: string,
+  assetFiles: readonly string[],
+): string[] {
+  const { entry } = entryScriptOf(shellHtml);
+  const entryCode = readFileSync(join(assetsDir, entry), "utf8");
+  const css: string[] = [];
+  for (const moduleName of routeChunkModulesFor(path)) {
+    if (!INLINE_ROUTE_CSS_MODULES.includes(moduleName)) continue;
+    for (const file of dynamicImportCssOf(entryCode, resolveRouteChunk(moduleName, assetFiles))) {
+      if (file.startsWith(`${moduleName}-`) && !css.includes(file)) css.push(file);
+    }
+  }
+  return css;
+}
+
+/**
+ * A stylesheet's text, checked safe to inline: it must not close the `<style>` element, and
+ * every `url()` must be absolute (a relative one resolved against `/assets/` in the file, but
+ * would resolve against the PAGE once inlined).
+ */
+export function inlinableCss(file: string, css: string): string {
+  if (/<\/style/i.test(css)) throw new Error(`applyPrerendered: ${file} contains "</style" and cannot be inlined`);
+  for (const match of css.matchAll(/url\(\s*(['"]?)([^'")]*)\1\s*\)/g)) {
+    if (!/^(?:\/|data:|https?:|#)/.test(match[2])) {
+      throw new Error(`applyPrerendered: ${file} has a relative url(${match[2]}) that would break once inlined`);
+    }
+  }
+  return css;
+}
+
+/**
+ * Add `<style data-lt-inline="file">` blocks for a page's route CSS immediately before `</head>`
+ * (after the entry stylesheet link, the order Vite's own links would give). The entry stylesheet
+ * link itself is left as it is.
+ */
+export function withRouteStyles(html: string, blocks: ReadonlyArray<{ file: string; css: string }>): string {
+  if (blocks.length === 0) return html;
+  const closes = html.split("</head>").length - 1;
+  if (closes !== 1) {
+    throw new Error(`applyPrerendered: expected exactly one </head> to inline route CSS, found ${closes}`);
+  }
+  const styles = blocks.map(({ file, css }) => `<style data-lt-inline="${file}">${css}</style>`).join("");
+  return html.replace("</head>", () => `${styles}</head>`);
+}
+
+/** Every `data-lt-inline` file name in a built page. */
+export function inlinedStylesIn(html: string): string[] {
+  return [...html.matchAll(/<style data-lt-inline="([^"]+)">/g)].map((m) => m[1]);
+}
+
+/**
+ * LOW-END-3 PR-1 (a): every absolute URL on this site that a built page emits (canonical,
+ * og:url, og:image, JSON-LD, links) must be the final `https://www.lazytopper.com/…`, and no
+ * href/src may point under the retired `/app` base. Each of those costs the reader a redirect
+ * hop (#963 §2d: +160–410 ms measured, ~0.9 s per new connection at a 300 ms RTT).
+ */
+export function hopUrlsIn(html: string): string[] {
+  const bad = new Set<string>();
+  for (const match of html.matchAll(/(?:https?:)?\/\/(?:[a-z0-9-]+\.)*lazytopper\.com[^\s"'<>)]*/gi)) {
+    const url = match[0];
+    if (!/^https:\/\/www\.lazytopper\.com(?:[/?#]|$)/.test(url)) bad.add(url);
+    else if (/^https:\/\/www\.lazytopper\.com\/app(?:[/?#]|$)/.test(url)) bad.add(url);
+  }
+  for (const match of html.matchAll(/\b(?:href|src|action)="(\/app(?:[/?#][^"]*)?)"/g)) bad.add(match[1]);
+  return [...bad];
+}
+
 /** Every `<link rel="modulepreload" href>` in a built page. */
 export function modulepreloadHrefsIn(html: string): string[] {
   const hrefs: string[] = [];
@@ -440,6 +558,10 @@ export function verifyBuiltPages(
         if (!/\/assets\/[^/]+\.js$/.test(href) || !existsSync(target) || !statSync(target).isFile()) {
           failures.push(`${path}: the ${variant} file ${file} preloads ${href}, which this build did not emit`);
         }
+      }
+      // LOW-END-3 PR-1 (a): no URL that costs the reader a redirect hop.
+      for (const url of hopUrlsIn(html)) {
+        failures.push(`${path}: the ${variant} file ${file} emits ${url}, which redirects (not the final www URL)`);
       }
       preloadLinks += hrefs.length;
       if (variant === "mobile") mobileFiles += 1;
@@ -596,6 +718,23 @@ export function applyArtifact(
     for (const path of expected) preloads.set(path, preloadHrefsFor(path, assetsDir, cleanShell, assetFiles));
   }
 
+  // LOW-END-3 PR-1 (d): each page's route CSS, resolved and checked before anything is written.
+  const routeStyles = new Map<string, Array<{ file: string; css: string }>>();
+  if (options.preloads !== false) {
+    const assetFiles = readdirSync(assetsDir);
+    for (const path of expected) {
+      routeStyles.set(
+        path,
+        routeCssFor(path, assetsDir, cleanShell, assetFiles).map((file) => ({
+          file,
+          css: inlinableCss(file, readFileSync(join(assetsDir, file), "utf8")),
+        })),
+      );
+    }
+  }
+  const finish = (path: string, html: string, hrefs: readonly string[]): string =>
+    withPreloads(withRouteStyles(html, routeStyles.get(path) ?? []), hrefs);
+
   let filesWritten = 0;
   let desktopFilesWritten = 0;
   let bodyBytes = 0;
@@ -617,7 +756,7 @@ export function applyArtifact(
             `shape, or this step ran twice.`,
         );
       }
-      writeFileSync(file, withPreloads(shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), hrefs), "utf8");
+      writeFileSync(file, finish(path, shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), hrefs), "utf8");
       filesWritten += 1;
     }
     const desktopFile = join(outDir, desktopVariantFile(path));
@@ -625,7 +764,7 @@ export function applyArtifact(
     const desktopFragment = desktopFragments.get(path) as string;
     writeFileSync(
       desktopFile,
-      withPreloads(stamped.replace(EMPTY_ROOT, `<div id="root">${desktopFragment}</div>`), hrefs),
+      finish(path, stamped.replace(EMPTY_ROOT, `<div id="root">${desktopFragment}</div>`), hrefs),
       "utf8",
     );
     desktopFilesWritten += 1;
