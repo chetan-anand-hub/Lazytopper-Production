@@ -40,6 +40,7 @@ export interface FigureExpectation {
 }
 
 export interface ComputedFigureBinding {
+  kind: "computed";
   /** Exact served row id. */
   questionId: string;
   slot: FigureSlot;
@@ -55,3 +56,27 @@ export interface ComputedFigureBinding {
   /** Who read the row against the rendered figure, and when. */
   confirmedBy: string;
 }
+
+/**
+ * An OFFICIAL raster crop bound to a solution (NCERT / CBSE answer figures). Never a
+ * lookalike: the crop must be of THIS question's own figure, eye-confirmed.
+ * File rules (enforced by computedFigures.provenance.test.ts): under
+ * /figures/solutions/, WebP, at most 80 KB, row served.
+ */
+export interface CropFigureBinding {
+  kind: "crop";
+  questionId: string;
+  slot: FigureSlot;
+  /** Public path, e.g. "/figures/solutions/life-processes/NCERT-LP-001.webp". */
+  filePath: string;
+  /** Alt text: what the figure shows. */
+  alt: string;
+  source: { file: string; page: number; figure: string };
+  /** What was matched against the row (labels, values, orientation). */
+  eyeConfirm: string;
+  part?: string;
+  caption?: string;
+  confirmedBy: string;
+}
+
+export type SolutionFigureBinding = ComputedFigureBinding | CropFigureBinding;

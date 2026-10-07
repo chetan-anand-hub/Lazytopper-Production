@@ -49,3 +49,8 @@
   margin-top: 2px;
   color: #64748b;
 }
+.lt-solfig__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

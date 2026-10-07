@@ -12,11 +12,13 @@
  * the binding must be re-read and re-quoted (or dropped) — a wrong figure is worse
  * than none.
  */
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 import { highlyProbableQuestions } from "../../data/highlyProbableQuestions";
-import { ALL_COMPUTED_FIGURE_BINDINGS, buildComputedFigure } from "./index";
-import type { ProvenanceField } from "./computedFigureTypes";
+import { ALL_COMPUTED_FIGURE_BINDINGS, ALL_CROP_FIGURE_BINDINGS, ALL_SOLUTION_FIGURE_BINDINGS, buildComputedFigure } from "./index";
+import type { CropFigureBinding, ProvenanceField } from "./computedFigureTypes";
 
 type Row = Record<string, unknown>;
 
@@ -48,8 +50,8 @@ describe("computed figures — provenance against the served rows", () => {
     expect(ALL_COMPUTED_FIGURE_BINDINGS.length).toBeGreaterThan(0);
   });
 
-  it("no (question, slot, part) is bound twice", () => {
-    const keys = ALL_COMPUTED_FIGURE_BINDINGS.map((b) => `${b.questionId}|${b.slot}|${b.part ?? ""}`);
+  it("no (question, slot, part) is bound twice — across computed AND crop entries", () => {
+    const keys = ALL_SOLUTION_FIGURE_BINDINGS.map((b) => `${b.questionId}|${b.slot}|${b.part ?? ""}`);
     expect(new Set(keys).size).toBe(keys.length);
   });
 
@@ -94,4 +96,59 @@ describe("computed figures — provenance against the served rows", () => {
       });
     });
   }
+});
+
+// ───────────── crop entries ─────────────
+
+const PUBLIC_DIR = join(process.cwd(), "public");
+const MAX_CROP_BYTES = 80 * 1024;
+
+/** Every reason a crop entry is not acceptable ([] = acceptable). */
+function cropProblems(c: CropFigureBinding): string[] {
+  const out: string[] = [];
+  if (!served.has(c.questionId)) out.push("row not served");
+  if (!c.filePath.startsWith("/figures/solutions/")) out.push("not under /figures/solutions/");
+  if (!/\.webp$/i.test(c.filePath)) out.push("not a .webp path");
+  if (!c.alt.trim()) out.push("no alt text");
+  if (!c.eyeConfirm.trim()) out.push("no eye-confirm note");
+  const abs = join(PUBLIC_DIR, c.filePath);
+  if (!existsSync(abs)) {
+    out.push("file missing");
+    return out;
+  }
+  const head = readFileSync(abs).subarray(0, 12);
+  if (head.toString("latin1", 0, 4) !== "RIFF" || head.toString("latin1", 8, 12) !== "WEBP") out.push("not WebP content");
+  if (statSync(abs).size > MAX_CROP_BYTES) out.push("over 80 KB");
+  return out;
+}
+
+describe("solution figure CROPS — file and row checks", () => {
+  for (const c of ALL_CROP_FIGURE_BINDINGS) {
+    it(`${c.questionId}: served, WebP under /figures/solutions/, ≤ 80 KB, alt + eye-confirm`, () => {
+      expect(cropProblems(c)).toEqual([]);
+    });
+  }
+
+  // The list is empty in PR-2a, so the checker itself is proven on fixtures.
+  const base: CropFigureBinding = {
+    kind: "crop",
+    questionId: "TRIG-N-NCERT-9-SA-001",
+    slot: "solution",
+    filePath: "/figures/solutions/none/MISSING.webp",
+    alt: "a figure",
+    source: { file: "x.pdf", page: 1, figure: "1" },
+    eyeConfirm: "matched",
+    confirmedBy: "test",
+  };
+  it("the checker REJECTS a missing file, a non-WebP path, an unserved row, a path outside /figures/solutions/", () => {
+    expect(cropProblems(base)).toContain("file missing");
+    expect(cropProblems({ ...base, filePath: "/figures/solutions/a.png" })).toContain("not a .webp path");
+    expect(cropProblems({ ...base, questionId: "NO-SUCH-ROW" })).toContain("row not served");
+    expect(cropProblems({ ...base, filePath: "/figures/apq-maths/x.webp" })).toContain("not under /figures/solutions/");
+  });
+  it("CONTROL: the checker reads a real public WebP's bytes and size (only the folder rule fails)", () => {
+    const real = "/figures/apq-maths/coordinate-geometry/APQ-M-CG-001.webp";
+    expect(existsSync(join(PUBLIC_DIR, real))).toBe(true);
+    expect(cropProblems({ ...base, filePath: real })).toEqual(["not under /figures/solutions/"]);
+  });
 });

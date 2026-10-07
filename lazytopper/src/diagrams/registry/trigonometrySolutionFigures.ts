@@ -15,6 +15,7 @@ import type { ComputedFigureBinding } from "./computedFigureTypes";
 
 export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-A-038",
     slot: "solution",
     builder: "heightsDistances",
@@ -30,6 +31,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-B-021",
     slot: "solution",
     builder: "heightsDistances",
@@ -45,6 +47,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-B-023",
     slot: "solution",
     builder: "heightsDistances",
@@ -60,6 +63,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-C-015",
     slot: "solution",
     builder: "heightsDistances",
@@ -75,6 +79,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-C-016",
     slot: "solution",
     builder: "heightsDistances",
@@ -90,6 +95,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-C-017",
     slot: "solution",
     builder: "heightsDistances",
@@ -105,6 +111,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-C-019",
     slot: "solution",
     builder: "heightsDistances",
@@ -120,6 +127,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-C-020",
     slot: "solution",
     builder: "heightsDistances",
@@ -135,6 +143,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-C-025",
     slot: "solution",
     builder: "heightsDistances",
@@ -150,6 +159,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-D-009",
     slot: "solution",
     builder: "heightsDistances",
@@ -166,6 +176,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-D-010",
     slot: "solution",
     builder: "heightsDistances",
@@ -182,6 +193,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-D-013",
     slot: "solution",
     builder: "heightsDistances",
@@ -199,6 +211,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-D-014",
     slot: "solution",
     builder: "heightsDistances",
@@ -215,6 +228,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-D-015",
     slot: "solution",
     builder: "heightsDistances",
@@ -231,6 +245,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-E-002",
     slot: "solution",
     builder: "heightsDistances",
@@ -248,6 +263,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-E-004",
     slot: "solution",
     builder: "heightsDistances",
@@ -264,6 +280,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-P1-E-007",
     slot: "solution",
     builder: "heightsDistances",
@@ -280,6 +297,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-M02",
     slot: "solution",
     builder: "heightsDistances",
@@ -295,6 +313,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-M05",
     slot: "solution",
     builder: "heightsDistances",
@@ -310,6 +329,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-H01",
     slot: "solution",
     builder: "heightsDistances",
@@ -327,6 +347,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-H03",
     slot: "solution",
     builder: "heightsDistances",
@@ -343,6 +364,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-H07",
     slot: "solution",
     builder: "heightsDistances",
@@ -360,6 +382,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-H11",
     slot: "solution",
     builder: "heightsDistances",
@@ -375,6 +398,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-H13",
     slot: "solution",
     builder: "heightsDistances",
@@ -391,6 +415,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-CB01",
     slot: "solution",
     builder: "heightsDistances",
@@ -410,6 +435,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-CB02",
     slot: "solution",
     builder: "heightsDistances",
@@ -428,6 +454,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG2-B06",
     slot: "solution",
     builder: "heightsDistances",
@@ -443,6 +470,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TG3-021",
     slot: "solution",
     builder: "heightsDistances",
@@ -459,6 +487,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TG3-022",
     slot: "solution",
     builder: "heightsDistances",
@@ -476,6 +505,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TG3-042",
     slot: "solution",
     builder: "heightsDistances",
@@ -491,6 +521,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TG3-052",
     slot: "solution",
     builder: "heightsDistances",
@@ -507,6 +538,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TG3-063",
     slot: "solution",
     builder: "heightsDistances",
@@ -524,6 +556,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-NCERT-9-SA-001",
     slot: "solution",
     builder: "heightsDistances",
@@ -539,6 +572,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-NCERT-9-LA-001",
     slot: "solution",
     builder: "heightsDistances",
@@ -556,6 +590,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-NCERT-9-SA-004",
     slot: "solution",
     builder: "heightsDistances",
@@ -571,6 +606,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-NCERT-9-LA-003",
     slot: "solution",
     builder: "heightsDistances",
@@ -589,6 +625,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-NCERT-9-LA-005",
     slot: "solution",
     builder: "heightsDistances",
@@ -606,6 +643,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-NCERT-9-CB-001",
     slot: "solution",
     builder: "heightsDistances",
@@ -624,6 +662,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-NCERT-9-LA-006",
     slot: "solution",
     builder: "heightsDistances",
@@ -641,6 +680,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-NCERT-9-CB-002",
     slot: "solution",
     builder: "heightsDistances",
@@ -657,6 +697,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-EXMPLR-9-SA-006",
     slot: "solution",
     builder: "heightsDistances",
@@ -673,6 +714,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-EXMPLR-9-LA-001",
     slot: "solution",
     builder: "heightsDistances",
@@ -689,6 +731,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-EXMPLR-9-LA-004",
     slot: "solution",
     builder: "heightsDistances",
@@ -706,6 +749,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-EXMPLR-9-LA-005",
     slot: "solution",
     builder: "heightsDistances",
@@ -722,6 +766,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "TRIG-N-EXMPLR-9-CB-001",
     slot: "solution",
     builder: "heightsDistances",
@@ -738,6 +783,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "Z3-TG-105",
     slot: "solution",
     builder: "heightsDistances",
@@ -753,6 +799,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "Z3-TG-108",
     slot: "solution",
     builder: "heightsDistances",
@@ -770,6 +817,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "APQ-M-TRIG-009",
     slot: "solution",
     builder: "heightsDistances",
@@ -787,6 +835,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "PYQ-M-TRIG-009",
     slot: "solution",
     builder: "heightsDistances",
@@ -805,6 +854,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "PYQ-M-2026-TRIG-001",
     slot: "solution",
     builder: "heightsDistances",
@@ -822,6 +872,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "2026-TRIG-APP-01",
     slot: "solution",
     builder: "heightsDistances",
@@ -837,6 +888,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-206",
     slot: "solution",
     builder: "heightsDistances",
@@ -851,6 +903,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-218",
     slot: "solution",
     builder: "heightsDistances",
@@ -865,6 +918,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-220",
     slot: "solution",
     builder: "heightsDistances",
@@ -880,6 +934,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-225",
     slot: "solution",
     builder: "heightsDistances",
@@ -894,6 +949,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-230",
     slot: "solution",
     builder: "heightsDistances",
@@ -908,6 +964,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-232",
     slot: "solution",
     builder: "heightsDistances",
@@ -923,6 +980,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-233",
     slot: "solution",
     builder: "heightsDistances",
@@ -938,6 +996,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-234",
     slot: "solution",
     builder: "heightsDistances",
@@ -953,6 +1012,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-236",
     slot: "solution",
     builder: "heightsDistances",
@@ -970,6 +1030,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-245",
     slot: "solution",
     builder: "heightsDistances",
@@ -986,6 +1047,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-250",
     slot: "solution",
     builder: "heightsDistances",
@@ -1002,6 +1064,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-251",
     slot: "solution",
     builder: "heightsDistances",
@@ -1018,6 +1081,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-252",
     slot: "solution",
     builder: "heightsDistances",
@@ -1035,6 +1099,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-254",
     slot: "solution",
     builder: "heightsDistances",
@@ -1051,6 +1116,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-255",
     slot: "solution",
     builder: "heightsDistances",
@@ -1066,6 +1132,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-263",
     slot: "solution",
     builder: "heightsDistances",
@@ -1082,6 +1149,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-266",
     slot: "solution",
     builder: "heightsDistances",
@@ -1100,6 +1168,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-267",
     slot: "solution",
     builder: "heightsDistances",
@@ -1117,6 +1186,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-268",
     slot: "solution",
     builder: "heightsDistances",
@@ -1133,6 +1203,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-269",
     slot: "solution",
     builder: "heightsDistances",
@@ -1151,6 +1222,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-273",
     slot: "solution",
     builder: "heightsDistances",
@@ -1169,6 +1241,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-274",
     slot: "solution",
     builder: "heightsDistances",
@@ -1185,6 +1258,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-276",
     slot: "solution",
     builder: "heightsDistances",
@@ -1203,6 +1277,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-282",
     slot: "solution",
     builder: "heightsDistances",
@@ -1221,6 +1296,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-284",
     slot: "solution",
     builder: "heightsDistances",
@@ -1239,6 +1315,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-285",
     slot: "solution",
     builder: "heightsDistances",
@@ -1257,6 +1334,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-292",
     slot: "solution",
     builder: "heightsDistances",
@@ -1274,6 +1352,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-293",
     slot: "solution",
     builder: "heightsDistances",
@@ -1292,6 +1371,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-294",
     slot: "solution",
     builder: "heightsDistances",
@@ -1310,6 +1390,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-295",
     slot: "solution",
     builder: "heightsDistances",
@@ -1327,6 +1408,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-296",
     slot: "solution",
     builder: "heightsDistances",
@@ -1344,6 +1426,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-297",
     slot: "solution",
     builder: "heightsDistances",
@@ -1362,6 +1445,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-300",
     slot: "solution",
     builder: "heightsDistances",
@@ -1380,6 +1464,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "LTG-M-TRIG-301",
     slot: "solution",
     builder: "heightsDistances",
@@ -1397,6 +1482,7 @@ export const TRIGONOMETRY_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     confirmedBy: "opus-5.5 builder: row read + rendered figure eye-checked 2026-10-07",
   },
   {
+    kind: "computed",
     questionId: "trig-comp-01",
     slot: "solution",
     builder: "heightsDistances",
