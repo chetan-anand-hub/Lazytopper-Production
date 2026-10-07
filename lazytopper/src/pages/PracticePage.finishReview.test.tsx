@@ -242,6 +242,16 @@ describe("PRACTICE-HONESTY-1 §2 + §5 · Finish → scorecard → Back to this 
     expectAllUnlocked();
   });
 
+  it("★ written-only: no '0 / 0 MCQ marks' big number (honest empty); the check CTA and 'Back to this set' remain", async () => {
+    await buildSet([mkItem(1, false), mkItem(2, false)]);
+    await saveTypedFor(1);
+    finish();
+    const confirm = await screen.findByTestId("qp-confirm");
+    expect(within(confirm).queryByTestId("qp-mcq-marks")).toBeNull();
+    expect(within(confirm).getByTestId("qp-grade-batch").textContent).toBe(CHECK_CTA);
+    expect(within(confirm).getByTestId("qp-back-to-set").textContent).toBe(BACK_TO_SET);
+  });
+
   it("★ the graded sheet's 'Back to this set (see the steps)' reopens unlocked too", async () => {
     gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
     await buildSet([mkItem(1, false), mkItem(2, false)]);

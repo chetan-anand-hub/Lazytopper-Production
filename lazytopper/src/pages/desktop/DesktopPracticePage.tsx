@@ -28,7 +28,6 @@ import {
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
-import { StepsLockedNote } from "../../components/practice/StepsLockedNote";
 import { appendFullSubjectScope } from "../../components/practice/fullSubjectPractice";
 // BANK-LEAN-1 (P18): `import type`, NOT `import { type … }`. Under this repo's
 // `verbatimModuleSyntax`, the inline form is emitted as `import {} from "…"` — a
@@ -129,10 +128,6 @@ const BORDER = "hsl(220, 18%, 90%)";
 const CARD_BG = "#ffffff";
 const SECTION_BG = "hsl(220, 20%, 97%)";
 const PILL_BG = "hsl(210, 33%, 96%)";
-// PRACTICE-HONESTY-1 (D36) - the Quick Practice run panel has no Finish; its unlocks are
-// typed working or "Mark as attempted", so the lock note names those.
-const DESKTOP_QP_SOLUTION_LOCKED_COPY =
-  "Try it first: write your working (or tap Mark as attempted) to see the solution.";
 const PILL_FG = "hsl(220, 25%, 22%)";
 const DANGER_FG = "hsl(0, 65%, 42%)";
 
@@ -2555,12 +2550,6 @@ export default function DesktopPracticePage() {
                     const solutionVisible = quickPracticeSolutionVisibleIds.has(
                       activeQuestion.id,
                     );
-                    // PRACTICE-HONESTY-1 (D36) — the same rule as the practice card: the
-                    // solution stays locked until the student has tried the question (typed
-                    // working, or marked it attempted). This panel has no Finish, so those
-                    // are the only unlocks. Once shown, a solution stays shown.
-                    const solutionLocked =
-                      !solutionVisible && !attempted && answerDraft.trim().length === 0;
                     const solutionParts = getQuickPracticeSolutionParts(activeQuestion);
                     const isLastQuestion =
                       currentQuickPracticeIndex >= quickPracticePanel.questions.length - 1;
@@ -2831,9 +2820,6 @@ export default function DesktopPracticePage() {
                             >
                               Mark as attempted
                             </button>
-                            {solutionLocked ? (
-                              <StepsLockedNote copy={DESKTOP_QP_SOLUTION_LOCKED_COPY} />
-                            ) : (
                             <button
                               type="button"
                               onClick={() => handleQuickPracticeShowSolution(activeQuestion)}
@@ -2852,7 +2838,6 @@ export default function DesktopPracticePage() {
                             >
                               {solutionVisible ? "Solution shown" : "Show solution"}
                             </button>
-                            )}
                             <button
                               type="button"
                               onClick={() => handleQuickPracticeNext(activeQuestion)}

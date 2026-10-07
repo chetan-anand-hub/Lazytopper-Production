@@ -3173,10 +3173,13 @@ const packTopicKey = useMemo(() => {
           <div className="qp-cf__k">Session scorecard</div>
           <div className="qp-cf__kk">Quick practice</div>
           {/* PRACTICE-HONESTY-1 — the Chapter Test / Full Mock model: the big number is the
-              MCQ MARKS already scored; the written answers are not scored until checked. */}
-          <div className="qp-cf__big" data-testid="qp-mcq-marks">
-            {mcqMarks.awarded}<small>{` / ${mcqMarks.total} MCQ mark${mcqMarks.total === 1 ? "" : "s"}`}</small>
-          </div>
+              MCQ MARKS already scored; the written answers are not scored until checked.
+              A written-only session has no MCQ marks, so no "0 / 0" is shown (honest empty). */}
+          {mcqMarks.total > 0 && (
+            <div className="qp-cf__big" data-testid="qp-mcq-marks">
+              {mcqMarks.awarded}<small>{` / ${mcqMarks.total} MCQ mark${mcqMarks.total === 1 ? "" : "s"}`}</small>
+            </div>
+          )}
           <p className="qp-cf__lede">
             {sessionStats.localMcqAnswered > 0
               ? "Your MCQs are scored. Get your written answers checked for the full result."
