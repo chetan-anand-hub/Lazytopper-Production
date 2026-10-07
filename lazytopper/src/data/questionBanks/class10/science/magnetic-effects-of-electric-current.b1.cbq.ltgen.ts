@@ -43,8 +43,8 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Lata places a bar magnet flat on a table and puts a small compass on the table right beside the middle of the magnet, about 2 cm from it. The magnet is strong enough that other magnetic effects can be ignored. In which direction will the north end of the compass needle point?",
     "options": [
-      "Parallel to the magnet, towards the end that is the magnet's south pole",
       "Parallel to the magnet, towards the end that is the magnet's north pole",
+      "Parallel to the magnet, towards the end that is the magnet's south pole",
       "Perpendicular to the magnet, directly away from it",
       "In no fixed direction, because the field beside the middle of a bar magnet is zero"
     ],
@@ -74,8 +74,8 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "Outside the magnet, the lines leave the north pole and enter the south pole.",
       "Inside the magnet, the lines run from the south pole to the north pole.",
-      "The lines are drawn closer together near the poles than near the middle.",
-      "Two lines near the north pole are drawn crossing each other."
+      "Two lines near the north pole are drawn crossing each other.",
+      "The lines are drawn closer together near the poles than near the middle."
     ],
     "answer": "Two lines near the north pole are drawn crossing each other.",
     "solutionSteps": [
@@ -101,10 +101,10 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Joseph has two identical-looking steel bars, X and Y. Only one of them is a magnet. When he brings one end of X close to the north pole of a compass needle, the needle is attracted towards X. Which further observation would prove that X is the magnet?",
     "options": [
-      "The other end of X repels the north pole of the needle.",
       "The other end of X also attracts the north pole of the needle.",
       "The same end of X also attracts the south pole of the needle.",
-      "X is attracted when a strong magnet is brought near it."
+      "X is attracted when a strong magnet is brought near it.",
+      "The other end of X repels the north pole of the needle."
     ],
     "answer": "The other end of X repels the north pole of the needle.",
     "solutionSteps": [
@@ -186,7 +186,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Ravi places a steel paper clip on a thin wooden board and moves a bar magnet slowly underneath the board. The clip slides along with the magnet. When he repeats this with a wooden plank 6 cm thick, the clip does not move at all.\n(a) Why does the clip move in the first case, even though the magnet never touches it?\n(b) Why does the clip stay still when the thick plank is used?",
+    "questionText": "Ravi places a steel paper clip on a thin wooden board and moves a bar magnet slowly underneath the board. The clip slides along with the magnet. When he repeats this with a wooden plank 6 cm thick, the clip does not move at all.\n(a) Why does the clip move in the first case, even though the magnet never touches it? [1 mark]\n(b) Why does the clip stay still when the thick plank is used? [1 mark]",
     "options": [],
     "answer": "(a) The magnet's magnetic field extends through the thin non-magnetic board and exerts a force on the steel clip. (b) The field weakens with distance; 6 cm away it is too weak to drag the clip.",
     "solutionSteps": [
@@ -211,7 +211,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Neha placed two bar magnets on a sheet and traced their field lines with a compass. In her sketch, two field lines cross at a point K. She explains: 'At K, the compass needle points along both lines at the same time.'\n(a) Is her explanation possible? Give a reason.\n(b) What must she change in her sketch?",
+    "questionText": "Neha placed two bar magnets on a sheet and traced their field lines with a compass. In her sketch, two field lines cross at a point K. She explains: 'At K, the compass needle points along both lines at the same time.'\n(a) Is her explanation possible? Give a reason. [1 mark]\n(b) What must she change in her sketch? [1 mark]",
     "options": [],
     "answer": "(a) No; the magnetic field at a point has only one direction, so the needle can settle in only one direction at K. (b) Redraw the lines so they do not cross, following the single field direction found at K.",
     "solutionSteps": [
@@ -236,7 +236,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Pooja's compass, kept on her study table, normally points north-south. One day it points towards one corner of the table, and she finds a bar magnet with worn-off pole labels in the drawer just beneath that corner. The south end of the needle points towards the magnet.\n(a) Why did the compass stop pointing north-south?\n(b) Which pole of the hidden magnet is nearer to the compass? Give a reason.",
+    "questionText": "Pooja's compass, kept on her study table, normally points north-south. One day it points towards one corner of the table, and she finds a bar magnet with worn-off pole labels in the drawer just beneath that corner. The south end of the needle points towards the magnet.\n(a) Why did the compass stop pointing north-south? [1 mark]\n(b) Which pole of the hidden magnet is nearer to the compass? Give a reason. [1 mark]",
     "options": [],
     "answer": "(a) Near the compass the magnet's field is much stronger, so the needle aligns with it. (b) The north pole, since the needle's south end is attracted to it and unlike poles attract.",
     "solutionSteps": [
@@ -261,7 +261,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Simran keeps a compass on a table with its needle at rest. She then places the north pole of a bar magnet at different distances from the compass, along a line perpendicular to the needle's resting direction, and records the angle through which the needle turns:\n2 cm: 76 degrees; 4 cm: 52 degrees; 8 cm: 18 degrees; 16 cm: 3 degrees\n(a) What do the readings show about how the magnet's field changes with distance?\n(b) At which of these distances would the magnet's field lines be most crowded? Why?\n(c) She predicts that at 30 cm the needle will turn by about 10 degrees. Is her prediction reasonable? Justify.",
+    "questionText": "Simran keeps a compass on a table with its needle at rest. She then places the north pole of a bar magnet at different distances from the compass, along a line perpendicular to the needle's resting direction, and records the angle through which the needle turns:\n2 cm: 76 degrees; 4 cm: 52 degrees; 8 cm: 18 degrees; 16 cm: 3 degrees\n(a) What do the readings show about how the magnet's field changes with distance? [1 mark]\n(b) At which of these distances would the magnet's field lines be most crowded? Why? [1 mark]\n(c) She predicts that at 30 cm the needle will turn by about 10 degrees. Is her prediction reasonable? Justify. [1 mark]",
     "options": [],
     "answer": "(a) The field weakens as distance increases. (b) At 2 cm, where the field is strongest, because crowded lines mean a strong field. (c) No; the deflection is only 3 degrees at 16 cm and keeps falling, so at 30 cm it should be less than 3 degrees.",
     "solutionSteps": [
@@ -288,7 +288,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "The pole markings on a bar magnet in Sameer's school lab have rubbed off. He names its ends X and Y. When he brings a compass close to end X, the north end of the needle turns and points towards X.\n(a) Identify the pole at end X. Give a reason.\n(b) In which direction will the north end of the needle point when the compass is placed close to end Y, along the length of the magnet?\n(c) Inside the magnet, do the field lines run from X to Y or from Y to X? Explain.",
+    "questionText": "The pole markings on a bar magnet in Sameer's school lab have rubbed off. He names its ends X and Y. When he brings a compass close to end X, the north end of the needle turns and points towards X.\n(a) Identify the pole at end X. Give a reason. [1 mark]\n(b) In which direction will the north end of the needle point when the compass is placed close to end Y, along the length of the magnet? [1 mark]\n(c) Inside the magnet, do the field lines run from X to Y or from Y to X? Explain. [1 mark]",
     "options": [],
     "answer": "(a) X is the south pole, since it attracts the needle's north pole. (b) Away from Y, because Y is the north pole. (c) From X to Y, since inside a magnet field lines run from the south pole to the north pole.",
     "solutionSteps": [
@@ -340,7 +340,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "For a science club display in Guwahati, Bhavya traced the magnetic field lines of a bar magnet on a large chart paper. To compare the field at different places, she drew a short marker, 1 cm long, at four positions and counted how many of her field lines passed through each marker:\nJust beyond the north pole: 9 lines\nJust beyond the south pole: 9 lines\nBeside the middle of the magnet, 2 cm away: 3 lines\nBeside the middle of the magnet, 10 cm away: 1 line\nWhile explaining the display, Bhavya said, 'If I put a marker 30 cm away, no line would pass through it, so the magnet has no field there at all.' A visitor also asked what her chart would look like for a stronger magnet of the same size.\n(i) At which position or positions is the magnetic field strongest? Use her data.\n(ii) What happens to the field as one moves away from the side of the magnet? Support your answer with her counts.\n(iii) Evaluate Bhavya's statement about the 30 cm marker, and predict how the count at the 2 cm marker would change for the stronger magnet.",
+    "questionText": "For a science club display in Guwahati, Bhavya traced the magnetic field lines of a bar magnet on a large chart paper. To compare the field at different places, she drew a short marker, 1 cm long, at four positions and counted how many of her field lines passed through each marker:\nJust beyond the north pole: 9 lines\nJust beyond the south pole: 9 lines\nBeside the middle of the magnet, 2 cm away: 3 lines\nBeside the middle of the magnet, 10 cm away: 1 line\nWhile explaining the display, Bhavya said, 'If I put a marker 30 cm away, no line would pass through it, so the magnet has no field there at all.' A visitor also asked what her chart would look like for a stronger magnet of the same size.\n(i) At which position or positions is the magnetic field strongest? Use her data. [1 mark]\n(ii) What happens to the field as one moves away from the side of the magnet? Support your answer with her counts. [1 mark]\n(iii) Evaluate Bhavya's statement about the 30 cm marker, and predict how the count at the 2 cm marker would change for the stronger magnet. [2 marks]",
     "options": [],
     "answer": "(i) Just beyond the north and south poles (9 lines per cm). (ii) It weakens: 3 lines at 2 cm, 1 line at 10 cm. (iii) Her statement is wrong; the field there is very weak but not zero. A stronger magnet would give more than 3 lines through the 2 cm marker.",
     "solutionSteps": [
@@ -367,7 +367,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A group of Scouts in Dehradun was learning to find directions with a magnetic compass before a trek. On open ground, the needle settled pointing north-south. Their leader then asked them to hold the compass close to different objects, one at a time, and note what happened:\nPlastic water bottle: no change\nWooden walking stick: no change\nSteel buckle of a bag: needle turned by about 15 degrees\nSmall speaker taken out of an old radio (it contains a magnet): needle turned by about 70 degrees\nThe leader explained that the compass needle is itself a tiny magnet, so it responds to any magnetic field or magnetic material close to it. A compass, she said, gives a reliable direction only when such things are kept away from it.\n(i) Why did the plastic bottle and the wooden stick have no effect on the needle?\n(ii) Why did the speaker turn the needle far more than the steel buckle did?\n(iii) Suggest two precautions the Scouts should take while reading directions with the compass on the trek, with a reason for each.",
+    "questionText": "A group of Scouts in Dehradun was learning to find directions with a magnetic compass before a trek. On open ground, the needle settled pointing north-south. Their leader then asked them to hold the compass close to different objects, one at a time, and note what happened:\nPlastic water bottle: no change\nWooden walking stick: no change\nSteel buckle of a bag: needle turned by about 15 degrees\nSmall speaker taken out of an old radio (it contains a magnet): needle turned by about 70 degrees\nThe leader explained that the compass needle is itself a tiny magnet, so it responds to any magnetic field or magnetic material close to it. A compass, she said, gives a reliable direction only when such things are kept away from it.\n(i) Why did the plastic bottle and the wooden stick have no effect on the needle? [1 mark]\n(ii) Why did the speaker turn the needle far more than the steel buckle did? [1 mark]\n(iii) Suggest two precautions the Scouts should take while reading directions with the compass on the trek, with a reason for each. [2 marks]",
     "options": [],
     "answer": "(i) Plastic and wood are non-magnetic. (ii) The speaker's magnet produces its own strong field, which the needle aligns with; the buckle is only a magnetic material attracting the needle. (iii) Any two valid precautions with reasons, e.g. keep the compass away from magnets, phones or speakers, from iron or steel objects, and from current-carrying wires (all deflect the needle); hold it level so the needle swings freely.",
     "solutionSteps": [
@@ -394,7 +394,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "In a school laboratory in Madurai, a teacher floats two identical steel sewing needles on small pieces of cork in two bowls of water, kept well apart. Needle 1 has been magnetised by stroking it with a bar magnet; Needle 2 has not. The students gently turn each needle and release it several times, noting where it comes to rest:\nNeedle 1: always settles along the north-south direction, with the same end pointing north every time\nNeedle 2: settles in a different direction each time\nNext, the teacher brings the north pole of a bar magnet close to the north-pointing end of Needle 1, and the needle swings away from the magnet. When she brings the same pole close to Needle 2, the needle moves towards the magnet.\n(i) What does the behaviour of Needle 1 on its own show about it?\n(ii) Why did Needle 1 swing away from the magnet's north pole?\n(iii) Why did Needle 2 move towards the magnet? What would the north-pointing end of Needle 1 do if the south pole of the magnet were brought near it?",
+    "questionText": "In a school laboratory in Madurai, a teacher floats two identical steel sewing needles on small pieces of cork in two bowls of water, kept well apart. Needle 1 has been magnetised by stroking it with a bar magnet; Needle 2 has not. The students gently turn each needle and release it several times, noting where it comes to rest:\nNeedle 1: always settles along the north-south direction, with the same end pointing north every time\nNeedle 2: settles in a different direction each time\nNext, the teacher brings the north pole of a bar magnet close to the north-pointing end of Needle 1, and the needle swings away from the magnet. When she brings the same pole close to Needle 2, the needle moves towards the magnet.\n(i) What does the behaviour of Needle 1 on its own show about it? [1 mark]\n(ii) Why did Needle 1 swing away from the magnet's north pole? [1 mark]\n(iii) Why did Needle 2 move towards the magnet? What would the north-pointing end of Needle 1 do if the south pole of the magnet were brought near it? [2 marks]",
     "options": [],
     "answer": "(i) Needle 1 is a magnet; its north-pointing end is its north pole. (ii) Like poles repel. (iii) Needle 2 is unmagnetised magnetic material, attracted by either pole; Needle 1's north end would be attracted to the south pole.",
     "solutionSteps": [
@@ -421,7 +421,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Harpreet lays a strong bar magnet in the middle of a large sheet of paper, with its north pole towards the left edge of the sheet and its south pole towards the right edge. Close to such a strong magnet, the effect of any other magnetic field can be neglected. She places a small compass at three points, each 3 cm from the magnet, and notes where the north end of the needle points:\nPoint P, on the line of the magnet, 3 cm beyond the north pole: towards the left edge\nPoint Q, on the line of the magnet, 3 cm beyond the south pole: towards the left edge\nPoint R, 3 cm from the middle of the magnet, towards the top edge: towards the right edge\nHer partner is puzzled: 'P and Q are at opposite ends of the magnet, yet the needle points the same way at both, while at R it points the other way.'\n(i) Why does the needle at P point towards the left edge?\n(ii) Why does the needle at Q also point towards the left edge, even though Q is near the south pole?\n(iii) Explain the reading at R, and use all three readings to describe the path of one complete field line.",
+    "questionText": "Harpreet lays a strong bar magnet in the middle of a large sheet of paper, with its north pole towards the left edge of the sheet and its south pole towards the right edge. Close to such a strong magnet, the effect of any other magnetic field can be neglected. She places a small compass at three points, each 3 cm from the magnet, and notes where the north end of the needle points:\nPoint P, on the line of the magnet, 3 cm beyond the north pole: towards the left edge\nPoint Q, on the line of the magnet, 3 cm beyond the south pole: towards the left edge\nPoint R, 3 cm from the middle of the magnet, towards the top edge: towards the right edge\nHer partner is puzzled: 'P and Q are at opposite ends of the magnet, yet the needle points the same way at both, while at R it points the other way.'\n(i) Why does the needle at P point towards the left edge? [1 mark]\n(ii) Why does the needle at Q also point towards the left edge, even though Q is near the south pole? [1 mark]\n(iii) Explain the reading at R, and use all three readings to describe the path of one complete field line. [2 marks]",
     "options": [],
     "answer": "(i) At P the field points away from the north pole. (ii) At Q the field points into the south pole, i.e. towards the left. (iii) Beside the middle the lines run from the N end to the S end (left to right); a field line leaves N, curves round outside to S, and returns inside the magnet from S to N, forming a closed curve.",
     "solutionSteps": [
@@ -448,7 +448,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "At a toy stall in a Hyderabad science fair, three identical ring magnets were slipped onto a smooth vertical wooden rod fixed in a base. Each ring has one flat face as its north pole and the other flat face as its south pole. The lowest ring, ring 1, rested on the base, but rings 2 and 3 floated in the air one above the other, without touching anything except the rod. Ayesha measured the gaps:\nGap between ring 1 and ring 2: 1.2 cm\nGap between ring 2 and ring 3 (top): 2.0 cm\nWhen she lifted the top ring off, turned it upside down and slipped it back onto the rod, it slid down and snapped onto ring 2.\n(i) Why do rings 2 and 3 float instead of resting on the rings below them?\n(ii) Why did the top ring snap onto ring 2 after it was turned over?\n(iii) Ayesha noticed that the lower gap is smaller than the upper gap. Explain this using the weight each gap has to support and how the magnetic force changes with distance.",
+    "questionText": "At a toy stall in a Hyderabad science fair, three identical ring magnets were slipped onto a smooth vertical wooden rod fixed in a base. Each ring has one flat face as its north pole and the other flat face as its south pole. The lowest ring, ring 1, rested on the base, but rings 2 and 3 floated in the air one above the other, without touching anything except the rod. Ayesha measured the gaps:\nGap between ring 1 and ring 2: 1.2 cm\nGap between ring 2 and ring 3 (top): 2.0 cm\nWhen she lifted the top ring off, turned it upside down and slipped it back onto the rod, it slid down and snapped onto ring 2.\n(i) Why do rings 2 and 3 float instead of resting on the rings below them? [1 mark]\n(ii) Why did the top ring snap onto ring 2 after it was turned over? [1 mark]\n(iii) Ayesha noticed that the lower gap is smaller than the upper gap. Explain this using the weight each gap has to support and how the magnetic force changes with distance. [2 marks]",
     "options": [],
     "answer": "(i) Like poles face each other and repel, balancing the weight. (ii) Turning it over makes unlike poles face, which attract. (iii) The lower gap supports two rings, needing a larger repulsion, and the force is larger at a smaller distance, so the lower gap is smaller.",
     "solutionSteps": [
@@ -475,7 +475,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Farhan pins a sheet of paper on a drawing board and lays a strong bar magnet on it, with its north pole towards the window. Near the magnet, the effect of other magnetic fields can be neglected. He uses a small compass to map the magnet's field.\n(a) Before starting, he checks that there is no iron or steel object and no other magnet near the board. Why is this needed?\n(b) He places the compass just beside the north pole, marks dots at both ends of the needle, then moves the compass forward so that the tail of the needle sits on the dot where its head was, and repeats. Where will this chain of dots end, and what does the smooth curve joining them represent?\n(c) He starts a second curve from a point a little away from the first starting point. Can the two curves ever cross? Justify.\n(d) On comparing all his curves, he finds that they are closest together near the two ends of the magnet. What does this show?\n(e) His friend says, 'There is no magnetic field inside the magnet, because no curve could be drawn there.' Evaluate this statement.",
+    "questionText": "Farhan pins a sheet of paper on a drawing board and lays a strong bar magnet on it, with its north pole towards the window. Near the magnet, the effect of other magnetic fields can be neglected. He uses a small compass to map the magnet's field.\n(a) Before starting, he checks that there is no iron or steel object and no other magnet near the board. Why is this needed? [1 mark]\n(b) He places the compass just beside the north pole, marks dots at both ends of the needle, then moves the compass forward so that the tail of the needle sits on the dot where its head was, and repeats. Where will this chain of dots end, and what does the smooth curve joining them represent? [1 mark]\n(c) He starts a second curve from a point a little away from the first starting point. Can the two curves ever cross? Justify. [1 mark]\n(d) On comparing all his curves, he finds that they are closest together near the two ends of the magnet. What does this show? [1 mark]\n(e) His friend says, 'There is no magnetic field inside the magnet, because no curve could be drawn there.' Evaluate this statement. [1 mark]",
     "options": [],
     "answer": "(a) Iron, steel or other magnets would disturb the needle, so the map would not show this magnet's field alone. (b) At the south pole; it is a magnetic field line. (c) No; the field has one direction at each point. (d) The field is strongest near the poles. (e) Wrong; the field exists inside, with lines running from the south pole to the north pole.",
     "solutionSteps": [
@@ -503,7 +503,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Two identical bar magnets, A and B, lie end to end along a straight line on a table, with a 4 cm gap between their facing ends. A small compass can be slid into the gap.\nArrangement 1: the north pole of magnet A faces the south pole of magnet B.\nArrangement 2: magnet B is turned around, so the north pole of A faces the north pole of B.\n(a) In which arrangement will the magnets pull towards each other, and in which will they push apart? State the rule you used.\n(b) In Arrangement 1, which way does the north end of a compass placed at the middle of the gap point? Explain.\n(c) Describe the field lines in the gap in Arrangement 1.\n(d) In Arrangement 2, describe what happens to the field lines coming out of the two facing north poles.\n(e) In Arrangement 1, the gap is increased from 4 cm to 12 cm. What happens to the spacing of the field lines in the gap and to the pull between the magnets?",
+    "questionText": "Two identical bar magnets, A and B, lie end to end along a straight line on a table, with a 4 cm gap between their facing ends. A small compass can be slid into the gap.\nArrangement 1: the north pole of magnet A faces the south pole of magnet B.\nArrangement 2: magnet B is turned around, so the north pole of A faces the north pole of B.\n(a) In which arrangement will the magnets pull towards each other, and in which will they push apart? State the rule you used. [1 mark]\n(b) In Arrangement 1, which way does the north end of a compass placed at the middle of the gap point? Explain. [1 mark]\n(c) Describe the field lines in the gap in Arrangement 1. [1 mark]\n(d) In Arrangement 2, describe what happens to the field lines coming out of the two facing north poles. [1 mark]\n(e) In Arrangement 1, the gap is increased from 4 cm to 12 cm. What happens to the spacing of the field lines in the gap and to the pull between the magnets? [1 mark]",
     "options": [],
     "answer": "(a) Arrangement 1 attracts, Arrangement 2 repels: unlike poles attract, like poles repel. (b) Towards magnet B, from A's north pole to B's south pole. (c) Many crowded lines go straight across the gap from A's N to B's S. (d) They bend away sideways from each other, so very few lines cross the middle of the gap. (e) The lines spread farther apart, so the field is weaker and the pull decreases.",
     "solutionSteps": [
@@ -562,8 +562,8 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In a school workshop, a thick insulated DC cable runs straight up a wall, and the current in it flows vertically upwards. Considering only the field produced by the cable, in which direction does the magnetic field point at a spot on the floor-level shelf just to the east of the cable?",
     "options": [
-      "Towards the north",
       "Towards the south",
+      "Towards the north",
       "Vertically upwards, along the cable",
       "Towards the east, away from the cable"
     ],
@@ -591,9 +591,9 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A flat circular coil lies on a horizontal table. Seen from above, the current in it flows clockwise. Kabir claims, 'The upper face of the coil acts as a north pole.' Which statement correctly evaluates the situation?",
     "options": [
-      "Kabir is wrong: the field at the centre points vertically downwards, so the upper face acts as a south pole.",
       "Kabir is right: the field at the centre points vertically upwards, so the upper face acts as a north pole.",
       "Kabir is wrong: the field at the centre lies along the table, so neither face acts as a pole.",
+      "Kabir is wrong: the field at the centre points vertically downwards, so the upper face acts as a south pole.",
       "Kabir is wrong: the fields of opposite sides of the loop cancel, so the field at the centre is zero."
     ],
     "answer": "Kabir is wrong: the field at the centre points vertically downwards, so the upper face acts as a south pole.",
@@ -620,10 +620,10 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "The magnetic field at the centre of a circular coil is directly proportional to the current and to the number of turns, and inversely proportional to the radius of the coil. Gurpreet has four coils to choose from for the strongest field at the centre:\nCoil P — 50 turns, radius 10 cm, 1 A\nCoil Q — 20 turns, radius 4 cm, 1 A\nCoil R — 10 turns, radius 5 cm, 3 A\nCoil S — 25 turns, radius 20 cm, 2 A\nWhich coil should she choose?",
     "options": [
-      "Coil R",
       "Coil P",
       "Coil Q",
-      "Coil S"
+      "Coil S",
+      "Coil R"
     ],
     "answer": "Coil R",
     "solutionSteps": [
@@ -705,7 +705,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Tenzin stretches a straight wire along the north–south line and fixes it a few centimetres above a table. He places a compass on the table directly below the wire and switches on a steady current. The north pole of the needle swings towards the west.\n(a) In which direction is the current flowing in the wire? Name the rule you used.\n(b) Predict the direction in which the north pole of the needle will swing if the compass is placed directly above the wire, with the current unchanged. Give a reason.",
+    "questionText": "Tenzin stretches a straight wire along the north–south line and fixes it a few centimetres above a table. He places a compass on the table directly below the wire and switches on a steady current. The north pole of the needle swings towards the west.\n(a) In which direction is the current flowing in the wire? Name the rule you used. [1 mark]\n(b) Predict the direction in which the north pole of the needle will swing if the compass is placed directly above the wire, with the current unchanged. Give a reason. [1 mark]",
     "options": [],
     "answer": "(a) From south to north (right-hand thumb rule). (b) Towards the east, because the field above the wire is opposite to the field below it.",
     "solutionSteps": [
@@ -730,7 +730,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Members of a geography club in Shimla are finding the north direction with a compass on a lab bench. Their readings are wrong whenever the compass is close to a vertical DC cable that carries a steady current to the lab's battery charger.\n(a) Why does the cable disturb the compass reading?\n(b) Suggest two changes that would reduce this error, and justify each.",
+    "questionText": "Members of a geography club in Shimla are finding the north direction with a compass on a lab bench. Their readings are wrong whenever the compass is close to a vertical DC cable that carries a steady current to the lab's battery charger.\n(a) Why does the cable disturb the compass reading? [1 mark]\n(b) Suggest two changes that would reduce this error, and justify each. [1 mark]",
     "options": [],
     "answer": "(a) The current in the cable produces a magnetic field around it that adds to the Earth's field at the compass. (b) Move the compass farther from the cable, since the field weakens with distance; take readings with the charger switched off (or at a lower current), since a smaller current gives a weaker field.",
     "solutionSteps": [
@@ -755,7 +755,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Nisha holds a flat circular coil upright so that one face of it faces her. When a steady current flows, she brings the north pole of a bar magnet towards that face and finds that the magnet is pushed away.\n(a) Is the current in the coil clockwise or anticlockwise as seen by Nisha? Justify.\n(b) In which direction does the magnetic field point at the centre of the coil?",
+    "questionText": "Nisha holds a flat circular coil upright so that one face of it faces her. When a steady current flows, she brings the north pole of a bar magnet towards that face and finds that the magnet is pushed away.\n(a) Is the current in the coil clockwise or anticlockwise as seen by Nisha? Justify. [1 mark]\n(b) In which direction does the magnetic field point at the centre of the coil? [1 mark]",
     "options": [],
     "answer": "(a) Anticlockwise, because the face towards Nisha repels a north pole, so it is a north pole. (b) Along the axis, out of the coil towards Nisha.",
     "solutionSteps": [
@@ -780,7 +780,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A tram in Kolkata draws a steady direct current from a straight overhead wire. On one stretch, the current in the wire flows from west to east.\n(a) Using the appropriate rule, find the direction of the magnetic field due to the wire at a point on the road directly below it and at a point directly above it. [2 marks]\n(b) How would the field at the road change if the wire were raised to twice its height? [½ mark]\n(c) How would it change at peak hours, when the current in the wire is doubled? [½ mark]",
+    "questionText": "A tram in Kolkata draws a steady direct current from a straight overhead wire. On one stretch, the current in the wire flows from west to east.\n(a) Using the appropriate rule, find the direction of the magnetic field due to the wire at a point on the road directly below it and at a point directly above it. [2 marks]\n(b) How would the field at the road change if the wire were raised to twice its height? [½ mark] [0.5 marks]\n(c) How would it change at peak hours, when the current in the wire is doubled? [½ mark] [0.5 marks]",
     "options": [],
     "answer": "(a) Below: towards the north; above: towards the south (right-hand thumb rule). (b) It becomes weaker (about half). (c) It becomes stronger (about double).",
     "solutionSteps": [
@@ -808,7 +808,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Farhan wants the direction of the magnetic field around a vertical wire in which the current flows downwards. He curls the fingers of his right hand in the direction of the current and concludes that the field points straight down, along the wire.\n(a) Identify the mistake in Farhan's method.\n(b) Apply the rule correctly and state the direction of the field lines as seen by someone looking down from above the wire.\n(c) How is the same rule used to find the direction of the field at the centre of a circular loop?",
+    "questionText": "Farhan wants the direction of the magnetic field around a vertical wire in which the current flows downwards. He curls the fingers of his right hand in the direction of the current and concludes that the field points straight down, along the wire.\n(a) Identify the mistake in Farhan's method. [1 mark]\n(b) Apply the rule correctly and state the direction of the field lines as seen by someone looking down from above the wire. [1 mark]\n(c) How is the same rule used to find the direction of the field at the centre of a circular loop? [1 mark]",
     "options": [],
     "answer": "(a) He swapped the roles: the thumb must point along the current and the curled fingers give the field. (b) Clockwise circles around the wire. (c) Curl the fingers along the current in the loop; the thumb gives the field direction at the centre.",
     "solutionSteps": [
@@ -835,7 +835,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A vertical circular loop of wire passes through a horizontal sheet of cardboard at two points: P on the west side and Q on the east side, 10 cm apart. When the switch is closed, the current flows downwards through the cardboard at P and upwards through it at Q.\n(a) Seen from above, are the field lines around P clockwise or anticlockwise? What about those around Q?\n(b) Find the direction of the magnetic field at M, the point midway between P and Q on the cardboard.\n(c) Explain why the field is strong near M and why the field lines there are almost straight.",
+    "questionText": "A vertical circular loop of wire passes through a horizontal sheet of cardboard at two points: P on the west side and Q on the east side, 10 cm apart. When the switch is closed, the current flows downwards through the cardboard at P and upwards through it at Q.\n(a) Seen from above, are the field lines around P clockwise or anticlockwise? What about those around Q? [1 mark]\n(b) Find the direction of the magnetic field at M, the point midway between P and Q on the cardboard. [1 mark]\n(c) Explain why the field is strong near M and why the field lines there are almost straight. [1 mark]",
     "options": [],
     "answer": "(a) Around P: clockwise; around Q: anticlockwise. (b) At M the field points towards the south. (c) The fields due to both segments point the same way at M and add; near the centre the circles are so large that they look like straight parallel lines.",
     "solutionSteps": [
@@ -862,7 +862,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A physics teacher in Guwahati wanted her class to see how the magnetic field of a straight wire depends on distance. She stretched a long straight wire across the laboratory and passed a steady current of 5 A through it from a low-voltage DC supply. Students used a mobile phone magnetometer app, which was first set to zero so that the Earth's field was removed, and recorded only the field due to the wire at different distances from it:\nDistance 1 cm — 100 μT\nDistance 2 cm — 50 μT\nDistance 5 cm — 20 μT\nDistance 10 cm — 10 μT\n(μT stands for microtesla, a unit of magnetic field.) Sanjana noticed that the needle of a compass kept near the wire changed its direction when the current was reversed, while Joseph noticed that the app reading at a fixed point rose when the current was increased.\n(i) What relationship between the field and the distance from the wire do the readings show?\n(ii) Predict the reading at 4 cm from the wire with the current still 5 A.\n(iii) The current is now made 10 A and its direction is reversed. Predict the reading at 2 cm and state what happens to the direction of the field there.",
+    "questionText": "A physics teacher in Guwahati wanted her class to see how the magnetic field of a straight wire depends on distance. She stretched a long straight wire across the laboratory and passed a steady current of 5 A through it from a low-voltage DC supply. Students used a mobile phone magnetometer app, which was first set to zero so that the Earth's field was removed, and recorded only the field due to the wire at different distances from it:\nDistance 1 cm — 100 μT\nDistance 2 cm — 50 μT\nDistance 5 cm — 20 μT\nDistance 10 cm — 10 μT\n(μT stands for microtesla, a unit of magnetic field.) Sanjana noticed that the needle of a compass kept near the wire changed its direction when the current was reversed, while Joseph noticed that the app reading at a fixed point rose when the current was increased.\n(i) What relationship between the field and the distance from the wire do the readings show? [1 mark]\n(ii) Predict the reading at 4 cm from the wire with the current still 5 A. [1 mark]\n(iii) The current is now made 10 A and its direction is reversed. Predict the reading at 2 cm and state what happens to the direction of the field there. [2 marks]",
     "options": [],
     "answer": "(i) The field is inversely proportional to the distance (doubling the distance halves it). (ii) 25 μT. (iii) 100 μT; the direction of the field is reversed.",
     "solutionSteps": [
@@ -889,7 +889,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A school in Kochi lights its classrooms using a bank of batteries charged by rooftop solar panels. A thick insulated cable carrying direct current to the lights runs straight along the north–south direction, fixed just under the surface of a long wooden desk. Ananya placed a magnetic compass on the desk directly over the cable. With the lights switched off, the needle pointed north as usual. As soon as the lights were switched on, the north pole of the needle turned towards the north-east. Her friend Rohit then switched on two more rows of lights, and the needle turned further towards the east. When everything was switched off again, the needle returned to pointing north. The students noted that the cable is fully insulated and that they never touched any bare wire during the activity.\n(i) Why did the compass needle turn when the lights were switched on?\n(ii) Using the right-hand thumb rule, find the direction of the current in the cable.\n(iii) Predict how the needle would behave (a) if the compass were placed on the floor directly under the cable, with the same lights on, and (b) why did switching on more lights turn the needle further?",
+    "questionText": "A school in Kochi lights its classrooms using a bank of batteries charged by rooftop solar panels. A thick insulated cable carrying direct current to the lights runs straight along the north–south direction, fixed just under the surface of a long wooden desk. Ananya placed a magnetic compass on the desk directly over the cable. With the lights switched off, the needle pointed north as usual. As soon as the lights were switched on, the north pole of the needle turned towards the north-east. Her friend Rohit then switched on two more rows of lights, and the needle turned further towards the east. When everything was switched off again, the needle returned to pointing north. The students noted that the cable is fully insulated and that they never touched any bare wire during the activity.\n(i) Why did the compass needle turn when the lights were switched on? [1 mark]\n(ii) Using the right-hand thumb rule, find the direction of the current in the cable. [1 mark]\n(iii) Predict how the needle would behave (a) if the compass were placed on the floor directly under the cable, with the same lights on, and (b) why did switching on more lights turn the needle further? [2 marks]",
     "options": [],
     "answer": "(i) The current in the cable produces a magnetic field that combines with the Earth's field. (ii) From south to north. (iii)(a) It would turn towards the north-west, since the field below the cable points west. (b) More lights draw a larger current, which produces a stronger field.",
     "solutionSteps": [
@@ -916,7 +916,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Kavya's group in Mysuru wanted to design a flat coil that gives a strong magnetic field at its centre for a model of a magnetic door latch. They wound insulated copper wire on round frames and measured the field at the centre of each coil with a field sensor. Their results were:\nCoil A — 10 turns, radius 4 cm, current 1 A: 15 units\nCoil B — 20 turns, radius 4 cm, current 1 A: 30 units\nCoil C — 20 turns, radius 8 cm, current 1 A: 15 units\nCoil D — 20 turns, radius 4 cm, current 2 A: 60 units\nAt the end, the group's teacher reminded them to keep the current low so that the thin wire does not overheat, and asked them to plan their final coil only from the pattern in the table.\n(i) Which two coils show the effect of the number of turns? State the effect and give a reason.\n(ii) What do Coils B and C show?\n(iii) Predict the reading for a coil of 40 turns, radius 8 cm, carrying 2 A. Also, if the current in this coil flows clockwise as seen by an observer facing it, is the face towards the observer a north pole or a south pole?",
+    "questionText": "Kavya's group in Mysuru wanted to design a flat coil that gives a strong magnetic field at its centre for a model of a magnetic door latch. They wound insulated copper wire on round frames and measured the field at the centre of each coil with a field sensor. Their results were:\nCoil A — 10 turns, radius 4 cm, current 1 A: 15 units\nCoil B — 20 turns, radius 4 cm, current 1 A: 30 units\nCoil C — 20 turns, radius 8 cm, current 1 A: 15 units\nCoil D — 20 turns, radius 4 cm, current 2 A: 60 units\nAt the end, the group's teacher reminded them to keep the current low so that the thin wire does not overheat, and asked them to plan their final coil only from the pattern in the table.\n(i) Which two coils show the effect of the number of turns? State the effect and give a reason. [1 mark]\n(ii) What do Coils B and C show? [1 mark]\n(iii) Predict the reading for a coil of 40 turns, radius 8 cm, carrying 2 A. Also, if the current in this coil flows clockwise as seen by an observer facing it, is the face towards the observer a north pole or a south pole? [2 marks]",
     "options": [],
     "answer": "(i) Coils A and B: doubling the turns doubles the field, because the field of each turn adds in the same direction. (ii) Doubling the radius halves the field at the centre. (iii) 60 units; south pole.",
     "solutionSteps": [
@@ -943,7 +943,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "In the battery room of a hospital in Chennai, engineers must keep stray magnetic fields away from sensitive monitoring equipment. Current reaches the equipment through one straight cable and returns through a second straight cable. An engineer, Meenakshi, measured the field 20 cm to one side of the cables, in the same plane as both, for a steady current of 10 A:\nOnly the supply cable laid out, return cable routed far away — 10 μT\nSupply and return cables laid side by side, 1 cm apart — about 0.5 μT\nShe concluded that the two cables should always be run together. A trainee, Vikram, then placed a small sensor exactly midway between the two cables when they were 1 cm apart and found a strong field there.\n(i) Why do the fields of the supply and return cables point in opposite directions at the point 20 cm away?\n(ii) Why is the field midway between the two cables strong instead of nearly zero?\n(iii) Explain why the field 20 cm away is nearly zero but not exactly zero when the cables are run together. What reading would you expect if the return cable were again routed far away, and why?",
+    "questionText": "In the battery room of a hospital in Chennai, engineers must keep stray magnetic fields away from sensitive monitoring equipment. Current reaches the equipment through one straight cable and returns through a second straight cable. An engineer, Meenakshi, measured the field 20 cm to one side of the cables, in the same plane as both, for a steady current of 10 A:\nOnly the supply cable laid out, return cable routed far away — 10 μT\nSupply and return cables laid side by side, 1 cm apart — about 0.5 μT\nShe concluded that the two cables should always be run together. A trainee, Vikram, then placed a small sensor exactly midway between the two cables when they were 1 cm apart and found a strong field there.\n(i) Why do the fields of the supply and return cables point in opposite directions at the point 20 cm away? [1 mark]\n(ii) Why is the field midway between the two cables strong instead of nearly zero? [1 mark]\n(iii) Explain why the field 20 cm away is nearly zero but not exactly zero when the cables are run together. What reading would you expect if the return cable were again routed far away, and why? [2 marks]",
     "options": [],
     "answer": "(i) The currents are in opposite directions, so by the right-hand thumb rule their fields at a point on the same side are opposite. (ii) Between the cables the two fields point the same way and add. (iii) The cables are at slightly different distances (20 cm and 21 cm), so the two fields are nearly but not exactly equal; about 10 μT, since only the supply cable's field would remain.",
     "solutionSteps": [
@@ -970,7 +970,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In a physics laboratory in Bhubaneswar, a teacher set up two identical flat circular coils facing each other on a common axis, 10 cm apart, each connected to its own DC supply through a switch. A field sensor was fixed on the axis exactly midway between the coils. Pooja, Deepak and Salma recorded these readings:\nOnly coil 1 switched on — 20 units\nOnly coil 2 switched on — 20 units\nBoth on, currents in the same sense around the common axis — 40 units\nBoth on, current in coil 2 reversed — 0 units\nSalma also noticed that the coils, which hung from light threads, moved slightly towards each other in one arrangement and slightly apart in the other.\n(i) Why is the reading 40 units when both coils carry current in the same sense?\n(ii) Why is the reading zero when the current in coil 2 is reversed?\n(iii) In which arrangement do the coils move towards each other? Justify by identifying the poles formed on the faces of the coils that face each other.",
+    "questionText": "In a physics laboratory in Bhubaneswar, a teacher set up two identical flat circular coils facing each other on a common axis, 10 cm apart, each connected to its own DC supply through a switch. A field sensor was fixed on the axis exactly midway between the coils. Pooja, Deepak and Salma recorded these readings:\nOnly coil 1 switched on — 20 units\nOnly coil 2 switched on — 20 units\nBoth on, currents in the same sense around the common axis — 40 units\nBoth on, current in coil 2 reversed — 0 units\nSalma also noticed that the coils, which hung from light threads, moved slightly towards each other in one arrangement and slightly apart in the other.\n(i) Why is the reading 40 units when both coils carry current in the same sense? [1 mark]\n(ii) Why is the reading zero when the current in coil 2 is reversed? [1 mark]\n(iii) In which arrangement do the coils move towards each other? Justify by identifying the poles formed on the faces of the coils that face each other. [2 marks]",
     "options": [],
     "answer": "(i) Both coils produce fields along the axis in the same direction, so 20 + 20 = 40 units. (ii) Equal fields in opposite directions cancel at the midpoint. (iii) Same-sense currents: the facing faces are opposite poles (N facing S), so the coils attract.",
     "solutionSteps": [
@@ -997,7 +997,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A straight wire passes vertically through the centre of a horizontal board. Four small compasses are placed on the board, each 3 cm from the wire: one to its north, one to its east, one to its south and one to its west. A steady current flows upwards through the wire.\n(a) State the right-hand thumb rule.\n(b) The current is large enough that the Earth's field can be ignored near the wire. In which direction will the north pole of each of the four compasses point?\n(c) What will each compass show if the direction of the current is reversed?\n(d) A fifth compass is placed 6 cm to the north of the wire. How does the field there compare with the field at the first northern compass?\n(e) The current is now made very small, so that the field of the wire near the compasses is weaker than the Earth's horizontal field. Which two compasses will continue to point exactly north when the current is switched on? Justify.",
+    "questionText": "A straight wire passes vertically through the centre of a horizontal board. Four small compasses are placed on the board, each 3 cm from the wire: one to its north, one to its east, one to its south and one to its west. A steady current flows upwards through the wire.\n(a) State the right-hand thumb rule. [1 mark]\n(b) The current is large enough that the Earth's field can be ignored near the wire. In which direction will the north pole of each of the four compasses point? [1 mark]\n(c) What will each compass show if the direction of the current is reversed? [1 mark]\n(d) A fifth compass is placed 6 cm to the north of the wire. How does the field there compare with the field at the first northern compass? [1 mark]\n(e) The current is now made very small, so that the field of the wire near the compasses is weaker than the Earth's horizontal field. Which two compasses will continue to point exactly north when the current is switched on? Justify. [1 mark]",
     "options": [],
     "answer": "(a) Hold the conductor in the right hand with the thumb along the current; the curled fingers give the direction of the field lines. (b) North compass: west; east compass: north; south compass: east; west compass: south. (c) Each points the opposite way: north compass east, east compass south, south compass west, west compass north. (d) Weaker (about half), same direction (west). (e) The east and west compasses, because the wire's field there is along the north–south line.",
     "solutionSteps": [
@@ -1025,7 +1025,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Rajat, a student in Jaipur, finds that a single circular loop of radius 10 cm carrying a steady current of 2 A produces a magnetic field of about 12.6 μT at its centre. The field at the centre of a circular coil is directly proportional to the current and to the number of turns, and inversely proportional to the radius.\n(a) Explain why the fields produced by all parts of the loop add up at its centre instead of cancelling.\n(b) Rajat winds 10 turns of the same radius and passes the same current. Calculate the field at the centre.\n(c) He now keeps 10 turns and 2 A but reduces the radius to 5 cm. Calculate the new field at the centre.\n(d) Looking at one face of this coil, Rajat sees the current flowing clockwise. State the direction of the field at the centre and the polarity of that face.\n(e) Give two ways in which the field pattern of a circular loop differs from that of a long straight wire.",
+    "questionText": "Rajat, a student in Jaipur, finds that a single circular loop of radius 10 cm carrying a steady current of 2 A produces a magnetic field of about 12.6 μT at its centre. The field at the centre of a circular coil is directly proportional to the current and to the number of turns, and inversely proportional to the radius.\n(a) Explain why the fields produced by all parts of the loop add up at its centre instead of cancelling. [1 mark]\n(b) Rajat winds 10 turns of the same radius and passes the same current. Calculate the field at the centre. [1 mark]\n(c) He now keeps 10 turns and 2 A but reduces the radius to 5 cm. Calculate the new field at the centre. [1 mark]\n(d) Looking at one face of this coil, Rajat sees the current flowing clockwise. State the direction of the field at the centre and the polarity of that face. [1 mark]\n(e) Give two ways in which the field pattern of a circular loop differs from that of a long straight wire. [1 mark]",
     "options": [],
     "answer": "(a) By the right-hand thumb rule every part of the loop gives a field in the same direction at the centre, so they add. (b) 126 μT. (c) 252 μT. (d) Along the axis, away from Rajat; the face is a south pole. (e) Straight wire: concentric circles around the wire, with no poles; loop: nearly straight parallel lines at the centre, perpendicular to the plane of the loop, and its two faces act like the poles of a magnet.",
     "solutionSteps": [
@@ -1055,10 +1055,10 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Anjali winds four long air-cored solenoids, each much longer than its diameter, and passes a steady current through each. Their details are:\nSolenoid P — 200 turns over 20 cm, current 1 A\nSolenoid Q — 100 turns over 20 cm, current 3 A\nSolenoid R — 400 turns over 40 cm, current 0.5 A\nSolenoid S — 150 turns over 5 cm, current 1 A\nInside which solenoid is the magnetic field the strongest?",
     "options": [
+      "Solenoid S",
       "Solenoid P",
       "Solenoid Q",
-      "Solenoid R",
-      "Solenoid S"
+      "Solenoid R"
     ],
     "answer": "Solenoid S",
     "solutionSteps": [
@@ -1084,8 +1084,8 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Sanjana keeps a small compass 15 cm from one end of a current-carrying solenoid wound on a hollow cardboard tube. The needle settles at a small angle from its original direction. Without changing the current, she slides a soft iron rod into the tube. What will she most likely observe?",
     "options": [
-      "The needle turns through a larger angle in the same sense, because the soft iron core makes the field stronger without changing its direction.",
       "The needle swings to the opposite side, because the soft iron rod reverses the poles of the solenoid.",
+      "The needle turns through a larger angle in the same sense, because the soft iron core makes the field stronger without changing its direction.",
       "The needle returns to its original direction, because the iron rod absorbs the magnetic field inside the tube.",
       "The needle does not move further, because the iron rod is not connected to the battery."
     ],
@@ -1114,8 +1114,8 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "A locksmith in Aligarh is building a latch that is held shut by an electromagnet and must spring open the moment the current is switched off. He has four rods of the same size: soft iron, hardened steel, copper and aluminium. Which rod should he use as the core of the coil?",
     "options": [
       "Hardened steel, because it becomes the strongest magnet and stays magnetised",
-      "Soft iron, because it becomes strongly magnetised while the current flows and loses almost all its magnetism when the current stops",
       "Copper, because it is the best conductor of electricity",
+      "Soft iron, because it becomes strongly magnetised while the current flows and loses almost all its magnetism when the current stops",
       "Aluminium, because it is light and does not rust"
     ],
     "answer": "Soft iron, because it becomes strongly magnetised while the current flows and loses almost all its magnetism when the current stops",
@@ -1143,9 +1143,9 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "Tarun looks straight at end X of a current-carrying solenoid lying on his table and sees that the current in the turns nearest him flows anticlockwise. He now slowly brings the north pole of a bar magnet towards end X. What will happen?",
     "options": [
       "The bar magnet is attracted, because end X behaves as a south pole.",
-      "The bar magnet is repelled, because end X behaves as a north pole.",
       "Nothing happens, because a solenoid has no magnetic field outside it.",
-      "The bar magnet is attracted, because a magnet always attracts a current-carrying coil."
+      "The bar magnet is attracted, because a magnet always attracts a current-carrying coil.",
+      "The bar magnet is repelled, because end X behaves as a north pole."
     ],
     "answer": "The bar magnet is repelled, because end X behaves as a north pole.",
     "solutionSteps": [
@@ -1227,7 +1227,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Hamid needs to test a small magnetic sensor in a field that has the same strength and direction everywhere around the sensor. He has a long solenoid connected to a battery.\n(a) Where should he place the sensor, and why?\n(b) He then reverses the battery connections. What happens to the strength and to the direction of the field at the sensor?",
+    "questionText": "Hamid needs to test a small magnetic sensor in a field that has the same strength and direction everywhere around the sensor. He has a long solenoid connected to a battery.\n(a) Where should he place the sensor, and why? [1 mark]\n(b) He then reverses the battery connections. What happens to the strength and to the direction of the field at the sensor? [1 mark]",
     "options": [],
     "answer": "(a) Inside the solenoid, near its middle, away from the ends, where the field lines are parallel straight lines, so the field is uniform. (b) The strength stays the same; the direction reverses.",
     "solutionSteps": [
@@ -1252,7 +1252,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Lakshmi tests a soft-iron-cored electromagnet by hanging iron washers from it until no more will hold. Her readings are:\n100 turns, 0.5 A — 6 washers\n100 turns, 1.0 A — 12 washers\n200 turns, 1.0 A — 24 washers\n(a) What relationship do her readings show between the strength of the electromagnet and (i) the current, (ii) the number of turns?\n(b) Assuming the same pattern continues, how many washers should the coil hold with 200 turns and 1.5 A?",
+    "questionText": "Lakshmi tests a soft-iron-cored electromagnet by hanging iron washers from it until no more will hold. Her readings are:\n100 turns, 0.5 A — 6 washers\n100 turns, 1.0 A — 12 washers\n200 turns, 1.0 A — 24 washers\n(a) What relationship do her readings show between the strength of the electromagnet and (i) the current, (ii) the number of turns? [1 mark]\n(b) Assuming the same pattern continues, how many washers should the coil hold with 200 turns and 1.5 A? [1 mark]",
     "options": [],
     "answer": "(a) Strength is directly proportional to the current and to the number of turns. (b) 36 washers.",
     "solutionSteps": [
@@ -1302,7 +1302,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Neha tried to make an electromagnet for a science fair. She wound bare (uninsulated) copper wire tightly around a steel bolt, with neighbouring turns touching each other, and connected the ends to a cell. The bolt picked up only a few pins. When she disconnected the cell, the bolt still held some of the pins.\n(a) Which choice made her electromagnet so weak? Explain and suggest a correction.\n(b) Which choice made the bolt keep holding pins after the cell was disconnected? Suggest a correction.\n(c) After both corrections, state one more change she could make to lift more pins.",
+    "questionText": "Neha tried to make an electromagnet for a science fair. She wound bare (uninsulated) copper wire tightly around a steel bolt, with neighbouring turns touching each other, and connected the ends to a cell. The bolt picked up only a few pins. When she disconnected the cell, the bolt still held some of the pins.\n(a) Which choice made her electromagnet so weak? Explain and suggest a correction. [1 mark]\n(b) Which choice made the bolt keep holding pins after the cell was disconnected? Suggest a correction. [1 mark]\n(c) After both corrections, state one more change she could make to lift more pins. [1 mark]",
     "options": [],
     "answer": "(a) Bare wire with touching turns: current bypasses the turns; use insulated copper wire. (b) Steel core retains magnetism; use a soft iron core. (c) Increase the number of turns (or the current).",
     "solutionSteps": [
@@ -1328,7 +1328,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Solenoid P has 400 turns wound evenly over a length of 20 cm. Solenoid Q has 600 turns wound evenly over a length of 60 cm, and its diameter is twice that of P. Both are long compared with their diameters and are air-cored.\n(a) If each carries a current of 2 A, which has the stronger magnetic field inside, and by what factor?\n(b) What current should flow through Q so that the field inside it equals the field inside P carrying 2 A?\n(c) Riya says Q's larger diameter must also be taken into account. Is she right? Give a reason.",
+    "questionText": "Solenoid P has 400 turns wound evenly over a length of 20 cm. Solenoid Q has 600 turns wound evenly over a length of 60 cm, and its diameter is twice that of P. Both are long compared with their diameters and are air-cored.\n(a) If each carries a current of 2 A, which has the stronger magnetic field inside, and by what factor? [1 mark]\n(b) What current should flow through Q so that the field inside it equals the field inside P carrying 2 A? [1 mark]\n(c) Riya says Q's larger diameter must also be taken into account. Is she right? Give a reason. [1 mark]",
     "options": [],
     "answer": "(a) P, twice as strong. (b) 4 A. (c) No; the field inside a long solenoid does not depend on its diameter.",
     "solutionSteps": [
@@ -1354,7 +1354,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Gaurav places two identical air-cored solenoids A and B in a line on a smooth table, so that end A2 of A faces end B1 of B with a small gap between them. Standing in the gap and looking at end A2, he sees the current in A flowing clockwise. Turning round to look at end B1, he sees the current in B also flowing clockwise.\n(a) Name the magnetic poles at A2 and B1. Will the solenoids attract or repel each other?\n(b) What single change in the connections of B would make them attract each other?\n(c) Soft iron rods are now placed inside both solenoids, keeping the currents the same. How does this affect the force between them?",
+    "questionText": "Gaurav places two identical air-cored solenoids A and B in a line on a smooth table, so that end A2 of A faces end B1 of B with a small gap between them. Standing in the gap and looking at end A2, he sees the current in A flowing clockwise. Turning round to look at end B1, he sees the current in B also flowing clockwise.\n(a) Name the magnetic poles at A2 and B1. Will the solenoids attract or repel each other? [1 mark]\n(b) What single change in the connections of B would make them attract each other? [1 mark]\n(c) Soft iron rods are now placed inside both solenoids, keeping the currents the same. How does this affect the force between them? [1 mark]",
     "options": [],
     "answer": "(a) A2 and B1 are both south poles; they repel. (b) Reverse the current in B. (c) The force becomes much larger; its nature (attraction or repulsion) is unchanged.",
     "solutionSteps": [
@@ -1380,7 +1380,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The emergency exit of a hospital ward in Lucknow is fitted with a magnetic door lock. A coil of insulated copper wire wound on a soft iron block is fixed to the door frame, and a flat iron plate is screwed to the door. While a steady direct current flows through the coil, the block becomes a strong magnet and holds the plate so firmly that the door cannot be pushed open. The lock is connected to the fire-alarm system: when the alarm sounds, the current to the coil is cut off and the door can be pushed open at once, so that patients and staff can leave quickly. The maintenance team noted these readings for the lock:\nCurrent 0.25 A — holds against a push of 150 N\nCurrent 0.50 A — holds against a push of 300 N\nOne day an electrician connected the supply wires to the coil the other way round, and the lock still held the door just as firmly.\n(i) Why is soft iron, and not steel, used for the block?\n(ii) What does the data show about the holding strength and the current?\n(iii) Why does the lock still hold the door firmly after the supply wires are reversed? Give one way to make it hold even more firmly.",
+    "questionText": "The emergency exit of a hospital ward in Lucknow is fitted with a magnetic door lock. A coil of insulated copper wire wound on a soft iron block is fixed to the door frame, and a flat iron plate is screwed to the door. While a steady direct current flows through the coil, the block becomes a strong magnet and holds the plate so firmly that the door cannot be pushed open. The lock is connected to the fire-alarm system: when the alarm sounds, the current to the coil is cut off and the door can be pushed open at once, so that patients and staff can leave quickly. The maintenance team noted these readings for the lock:\nCurrent 0.25 A — holds against a push of 150 N\nCurrent 0.50 A — holds against a push of 300 N\nOne day an electrician connected the supply wires to the coil the other way round, and the lock still held the door just as firmly.\n(i) Why is soft iron, and not steel, used for the block? [1 mark]\n(ii) What does the data show about the holding strength and the current? [1 mark]\n(iii) Why does the lock still hold the door firmly after the supply wires are reversed? Give one way to make it hold even more firmly. [2 marks]",
     "options": [],
     "answer": "(i) Soft iron loses its magnetism when the current is cut, so the door releases at once; steel would stay magnetised. (ii) Holding strength is directly proportional to the current. (iii) Reversing the current only interchanges the poles; an unmagnetised iron plate is attracted by either pole. Increase the current or the number of turns.",
     "solutionSteps": [
@@ -1407,7 +1407,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "At a recycling centre in Surat, a mixed heap of used drink cans moves along a conveyor belt. Some cans are made of tin-plated steel and others of aluminium. Above the belt hangs an electromagnet made of many turns of insulated copper wire on a soft iron core. As the cans pass underneath with the current switched on, some cans jump up and stick to the electromagnet while the rest continue along the belt. The electromagnet then swings sideways over a collection bin, the operator switches off the current, and the stuck cans drop into the bin. A trainee suggested replacing the soft iron core with a steel core \"to make it stronger\". The supervisor refused, saying the sorting would stop working.\n(i) Which cans stick to the electromagnet, and why?\n(ii) Why do the cans fall into the bin when the operator switches off the current?\n(iii) Explain why the supervisor refused the trainee's suggestion, and state how the operator could make the electromagnet pick up heavier loads of cans without changing the core.",
+    "questionText": "At a recycling centre in Surat, a mixed heap of used drink cans moves along a conveyor belt. Some cans are made of tin-plated steel and others of aluminium. Above the belt hangs an electromagnet made of many turns of insulated copper wire on a soft iron core. As the cans pass underneath with the current switched on, some cans jump up and stick to the electromagnet while the rest continue along the belt. The electromagnet then swings sideways over a collection bin, the operator switches off the current, and the stuck cans drop into the bin. A trainee suggested replacing the soft iron core with a steel core \"to make it stronger\". The supervisor refused, saying the sorting would stop working.\n(i) Which cans stick to the electromagnet, and why? [1 mark]\n(ii) Why do the cans fall into the bin when the operator switches off the current? [1 mark]\n(iii) Explain why the supervisor refused the trainee's suggestion, and state how the operator could make the electromagnet pick up heavier loads of cans without changing the core. [2 marks]",
     "options": [],
     "answer": "(i) Steel cans, because steel (iron) is attracted by a magnet; aluminium is not. (ii) The soft iron core loses its magnetism when the current stops. (iii) A steel core would stay magnetised, so cans would not drop into the bin; increase the current or the number of turns.",
     "solutionSteps": [
@@ -1434,7 +1434,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Students in a school laboratory in Guwahati used a magnetic field sensor to measure the field at the centre of different long air-cored solenoids. Each solenoid was much longer than its diameter, and the turns were wound evenly. Their readings, in millitesla (mT), were:\nTrial 1 — 100 turns over 10 cm, 1 A, tube diameter 2 cm: 1.2 mT\nTrial 2 — 200 turns over 10 cm, 1 A, tube diameter 2 cm: 2.4 mT\nTrial 3 — 200 turns over 20 cm, 1 A, tube diameter 2 cm: 1.2 mT\nTrial 4 — 200 turns over 20 cm, 2 A, tube diameter 2 cm: 2.4 mT\nTrial 5 — 200 turns over 20 cm, 2 A, tube diameter 4 cm: 2.4 mT\nThe sensor also showed that, inside each solenoid, the reading stayed almost the same as it was moved away from the centre, until it came close to the ends.\n(i) Which two trials show the effect of the length of the solenoid when the number of turns and current are kept the same?\n(ii) What do Trials 4 and 5 show about the field inside a long solenoid?\n(iii) State the relationship that the data shows, and use it to predict the reading for a solenoid of 300 turns over 10 cm carrying 2 A.",
+    "questionText": "Students in a school laboratory in Guwahati used a magnetic field sensor to measure the field at the centre of different long air-cored solenoids. Each solenoid was much longer than its diameter, and the turns were wound evenly. Their readings, in millitesla (mT), were:\nTrial 1 — 100 turns over 10 cm, 1 A, tube diameter 2 cm: 1.2 mT\nTrial 2 — 200 turns over 10 cm, 1 A, tube diameter 2 cm: 2.4 mT\nTrial 3 — 200 turns over 20 cm, 1 A, tube diameter 2 cm: 1.2 mT\nTrial 4 — 200 turns over 20 cm, 2 A, tube diameter 2 cm: 2.4 mT\nTrial 5 — 200 turns over 20 cm, 2 A, tube diameter 4 cm: 2.4 mT\nThe sensor also showed that, inside each solenoid, the reading stayed almost the same as it was moved away from the centre, until it came close to the ends.\n(i) Which two trials show the effect of the length of the solenoid when the number of turns and current are kept the same? [1 mark]\n(ii) What do Trials 4 and 5 show about the field inside a long solenoid? [1 mark]\n(iii) State the relationship that the data shows, and use it to predict the reading for a solenoid of 300 turns over 10 cm carrying 2 A. [2 marks]",
     "options": [],
     "answer": "(i) Trials 2 and 3. (ii) The field inside does not depend on the diameter of the solenoid. (iii) Field ∝ (turns per unit length) × current; predicted reading 7.2 mT.",
     "solutionSteps": [
@@ -1461,7 +1461,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A small workshop in Moradabad makes magnetic catches for cupboard doors. A worker places a metal bar inside a long solenoid and passes a strong steady direct current through it for a few seconds. To choose the best metal, the owner, Mrs Kaur, tested two bars of the same size and counted how many identical iron pins each bar could hold:\nSoft iron bar — while current flows: 60 pins; after current is switched off: 1 pin\nSteel bar — while current flows: 45 pins; after current is switched off: 40 pins\nTo mark the poles, the worker looks at end P of the bar from outside the solenoid and sees that the current in the turns there flows clockwise. The other end of the bar is Q.\n(i) Which bar should be used for the cupboard catches? Justify using the data.\n(ii) Which bar would be the better choice for a lifting electromagnet, and why?\n(iii) Name the poles formed at P and Q. What would happen to these poles if the worker reversed the current?",
+    "questionText": "A small workshop in Moradabad makes magnetic catches for cupboard doors. A worker places a metal bar inside a long solenoid and passes a strong steady direct current through it for a few seconds. To choose the best metal, the owner, Mrs Kaur, tested two bars of the same size and counted how many identical iron pins each bar could hold:\nSoft iron bar — while current flows: 60 pins; after current is switched off: 1 pin\nSteel bar — while current flows: 45 pins; after current is switched off: 40 pins\nTo mark the poles, the worker looks at end P of the bar from outside the solenoid and sees that the current in the turns there flows clockwise. The other end of the bar is Q.\n(i) Which bar should be used for the cupboard catches? Justify using the data. [1 mark]\n(ii) Which bar would be the better choice for a lifting electromagnet, and why? [1 mark]\n(iii) Name the poles formed at P and Q. What would happen to these poles if the worker reversed the current? [2 marks]",
     "options": [],
     "answer": "(i) Steel: it still holds 40 pins after the current is switched off (retains magnetism). (ii) Soft iron: strongest while current flows (60 pins) and loses its magnetism when switched off. (iii) P becomes a south pole and Q a north pole; reversing the current makes P north and Q south.",
     "solutionSteps": [
@@ -1488,7 +1488,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Aarav's grandmother in Bhubaneswar went for an MRI scan of her knee. The technician explained that the scanner contains a very large solenoid shaped like a tunnel, made of many closely wound turns carrying a large steady current. The patient lies on a bed that slides deep into the tunnel, so that the part being scanned is near the middle of the solenoid. Before the scan, she was asked to remove her hairpins, keys and any iron objects, and a visitor's iron wheelchair was not allowed into the scanner room. Aarav later read in a library book that the field near the middle of the tunnel is very strong and the same everywhere, while near the openings it becomes weaker and spreads out.\n(i) Why is the knee placed near the middle of the solenoid and not near an opening?\n(ii) Why are iron objects not allowed near the scanner?\n(iii) Engineers want to double the field inside the tunnel. Suggest one way to do this. If they also make the tunnel wider to fit larger patients, keeping the turns per unit length and current the same, will the field inside change? Give a reason.",
+    "questionText": "Aarav's grandmother in Bhubaneswar went for an MRI scan of her knee. The technician explained that the scanner contains a very large solenoid shaped like a tunnel, made of many closely wound turns carrying a large steady current. The patient lies on a bed that slides deep into the tunnel, so that the part being scanned is near the middle of the solenoid. Before the scan, she was asked to remove her hairpins, keys and any iron objects, and a visitor's iron wheelchair was not allowed into the scanner room. Aarav later read in a library book that the field near the middle of the tunnel is very strong and the same everywhere, while near the openings it becomes weaker and spreads out.\n(i) Why is the knee placed near the middle of the solenoid and not near an opening? [1 mark]\n(ii) Why are iron objects not allowed near the scanner? [1 mark]\n(iii) Engineers want to double the field inside the tunnel. Suggest one way to do this. If they also make the tunnel wider to fit larger patients, keeping the turns per unit length and current the same, will the field inside change? Give a reason. [2 marks]",
     "options": [],
     "answer": "(i) The field near the middle is uniform and strong. (ii) Iron objects are strongly attracted and pulled towards the solenoid. (iii) Double the current (or the turns per unit length); widening the tunnel does not change the field, as it does not depend on diameter.",
     "solutionSteps": [
@@ -1515,7 +1515,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "A tailor in Varanasi often drops steel pins on the floor. His daughter Shreya decides to build a hand-held pin collector: a coil of insulated copper wire wound on a rod, powered by cells through a push switch. She plans to press the switch to collect the pins and release it over a tray to drop them.\n(a) She has rods of soft iron, steel and wood. Which should she use as the core, and why would each of the other two be unsuitable?\n(b) Describe the magnetic field lines inside the coil when current flows. What does this pattern indicate?\n(c) In a trial, a coil of 100 turns carrying 0.5 A held 30 g of pins. Assuming the mass held is directly proportional to both the number of turns and the current, what current would 100 turns need to hold 120 g?\n(d) Her cell holder cannot safely supply more than 1 A. How many turns should the coil have to hold 120 g at 1 A?\n(e) Why must the wire be insulated, and not bare?",
+    "questionText": "A tailor in Varanasi often drops steel pins on the floor. His daughter Shreya decides to build a hand-held pin collector: a coil of insulated copper wire wound on a rod, powered by cells through a push switch. She plans to press the switch to collect the pins and release it over a tray to drop them.\n(a) She has rods of soft iron, steel and wood. Which should she use as the core, and why would each of the other two be unsuitable? [1 mark]\n(b) Describe the magnetic field lines inside the coil when current flows. What does this pattern indicate? [1 mark]\n(c) In a trial, a coil of 100 turns carrying 0.5 A held 30 g of pins. Assuming the mass held is directly proportional to both the number of turns and the current, what current would 100 turns need to hold 120 g? [1 mark]\n(d) Her cell holder cannot safely supply more than 1 A. How many turns should the coil have to hold 120 g at 1 A? [1 mark]\n(e) Why must the wire be insulated, and not bare? [1 mark]",
     "options": [],
     "answer": "(a) Soft iron; steel would stay magnetised and keep the pins, wood would not strengthen the field. (b) Parallel, straight, equally spaced lines: uniform field. (c) 2 A. (d) 200 turns. (e) Bare turns would touch, so current would not flow round each turn.",
     "solutionSteps": [
@@ -1543,7 +1543,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Farhan claims, \"A current-carrying solenoid is exactly the same as a bar magnet in every way.\" His friend Aditi tests the claim using a long air-cored solenoid, a battery, a switch and a small compass.\n(a) State two ways in which the solenoid does behave like a bar magnet.\n(b) State two ways in which it is different from a bar magnet, so that Farhan's claim is not fully correct.\n(c) Looking at end X of the solenoid from outside, Aditi sees the current flowing clockwise. Name the pole at X, and state which end of the compass needle will point towards X when the compass is placed near it.\n(d) A solenoid of 500 turns wound over 25 cm carrying 2 A gives a field of 5 mT inside. Find the field inside a solenoid of 800 turns wound over 40 cm carrying 3 A.\n(e) Aditi notices that the compass deflects less when kept just beyond an end of the solenoid than when it is placed inside near the middle. Explain this using field lines.",
+    "questionText": "Farhan claims, \"A current-carrying solenoid is exactly the same as a bar magnet in every way.\" His friend Aditi tests the claim using a long air-cored solenoid, a battery, a switch and a small compass.\n(a) State two ways in which the solenoid does behave like a bar magnet. [1 mark]\n(b) State two ways in which it is different from a bar magnet, so that Farhan's claim is not fully correct. [1 mark]\n(c) Looking at end X of the solenoid from outside, Aditi sees the current flowing clockwise. Name the pole at X, and state which end of the compass needle will point towards X when the compass is placed near it. [1 mark]\n(d) A solenoid of 500 turns wound over 25 cm carrying 2 A gives a field of 5 mT inside. Find the field inside a solenoid of 800 turns wound over 40 cm carrying 3 A. [1 mark]\n(e) Aditi notices that the compass deflects less when kept just beyond an end of the solenoid than when it is placed inside near the middle. Explain this using field lines. [1 mark]",
     "options": [],
     "answer": "(a) It has north and south poles at its ends; its field-line pattern outside is like a bar magnet's (it also attracts iron / sets north-south when freely suspended). (b) Its magnetism can be switched off, its strength can be changed by the current, and its poles can be reversed by reversing the current. (c) X is a south pole; the north end of the needle points towards X. (d) 7.5 mT. (e) Field lines spread out (diverge) beyond the ends, so the field is weaker there.",
     "solutionSteps": [
@@ -1603,9 +1603,9 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "Tanvi hangs a short copper rod between the poles of a horseshoe magnet, with the rod at right angles to the magnetic field. When she passes a current, the rod is displaced only slightly. Which one of the following changes will NOT help her obtain a larger displacement of the rod?",
     "options": [
       "Increasing the current through the rod using a rheostat",
+      "Turning the rod so that it lies along the direction of the magnetic field",
       "Replacing the magnet with a stronger horseshoe magnet of the same size",
-      "Placing two identical magnets side by side so that a greater length of the rod lies in the field",
-      "Turning the rod so that it lies along the direction of the magnetic field"
+      "Placing two identical magnets side by side so that a greater length of the rod lies in the field"
     ],
     "answer": "Turning the rod so that it lies along the direction of the magnetic field",
     "solutionSteps": [
@@ -1631,9 +1631,9 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A straight horizontal copper wire lying along the north–south direction hangs from a sensitive spring balance. A magnet produces a uniform horizontal magnetic field pointing from west to east across the wire. When a current is switched on in the wire from north to south, what happens to the reading of the spring balance?",
     "options": [
-      "The reading decreases, because the force on the wire is vertically upwards",
       "The reading increases, because the force on the wire is vertically downwards",
       "The reading stays the same, because the force on the wire acts towards the east",
+      "The reading decreases, because the force on the wire is vertically upwards",
       "The reading stays the same, because a horizontal wire experiences no force in a horizontal field"
     ],
     "answer": "The reading decreases, because the force on the wire is vertically upwards",
@@ -1662,8 +1662,8 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "Protons moving at right angles to the field",
       "Electrons moving at right angles to the field",
-      "Neutrons moving at right angles to the field",
-      "Alpha particles moving at an angle of 60° to the field"
+      "Alpha particles moving at an angle of 60° to the field",
+      "Neutrons moving at right angles to the field"
     ],
     "answer": "Neutrons moving at right angles to the field",
     "solutionSteps": [
@@ -1745,7 +1745,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Gurpreet faces the screen of an electron beam tube in his school laboratory. Inside the tube, a beam of electrons travels horizontally from the back of the tube straight towards him and makes a bright spot at the centre of the screen. His teacher then sets up a uniform magnetic field that points vertically upwards across the beam.\n(a) In which direction (as seen by Gurpreet) will the bright spot shift? Give a reason using the relevant rule.\n(b) If the field were instead set up along the length of the beam, what would happen to the spot?",
+    "questionText": "Gurpreet faces the screen of an electron beam tube in his school laboratory. Inside the tube, a beam of electrons travels horizontally from the back of the tube straight towards him and makes a bright spot at the centre of the screen. His teacher then sets up a uniform magnetic field that points vertically upwards across the beam.\n(a) In which direction (as seen by Gurpreet) will the bright spot shift? Give a reason using the relevant rule. [1 mark]\n(b) If the field were instead set up along the length of the beam, what would happen to the spot? [1 mark]",
     "options": [],
     "answer": "(a) The spot shifts to Gurpreet's right; (b) the spot stays at the centre (no deflection).",
     "solutionSteps": [
@@ -1770,7 +1770,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Near the equator, the Earth's magnetic field is nearly horizontal and points towards the geographic north. Fast protons arriving from space fall vertically downwards towards the ground there.\n(a) In which direction is such a proton pushed by the Earth's magnetic field? Name the rule you used.\n(b) In which direction would an electron falling vertically downwards at the same place be pushed? Give a reason.",
+    "questionText": "Near the equator, the Earth's magnetic field is nearly horizontal and points towards the geographic north. Fast protons arriving from space fall vertically downwards towards the ground there.\n(a) In which direction is such a proton pushed by the Earth's magnetic field? Name the rule you used. [1 mark]\n(b) In which direction would an electron falling vertically downwards at the same place be pushed? Give a reason. [1 mark]",
     "options": [],
     "answer": "(a) Towards the east (Fleming's left-hand rule); (b) towards the west, because its charge is negative.",
     "solutionSteps": [
@@ -1795,7 +1795,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "For a science fair in Indore, Ravi lays two straight horizontal metal rails along the north–south direction and places a light copper rod across them, so that the rod points east–west. A strong magnet below the rails produces a vertically downward magnetic field at the rod. A cell connected to the rails sends a current through the rod from west to east, and the rod rolls along the rails.\n(a) In which direction does the rod roll?\n(b) Ravi reverses the cell connections and also turns the magnet upside down at the same time, expecting the rod to roll the other way. Is he right? Give a reason.",
+    "questionText": "For a science fair in Indore, Ravi lays two straight horizontal metal rails along the north–south direction and places a light copper rod across them, so that the rod points east–west. A strong magnet below the rails produces a vertically downward magnetic field at the rod. A cell connected to the rails sends a current through the rod from west to east, and the rod rolls along the rails.\n(a) In which direction does the rod roll? [1 mark]\n(b) Ravi reverses the cell connections and also turns the magnet upside down at the same time, expecting the rod to roll the other way. Is he right? Give a reason. [1 mark]",
     "options": [],
     "answer": "(a) Towards the north; (b) No — reversing both the current and the field leaves the direction of force unchanged, so the rod still rolls north.",
     "solutionSteps": [
@@ -1820,7 +1820,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "In a laboratory room, a uniform horizontal magnetic field is set up pointing from the west wall towards the east wall.\n(a) A beam of alpha particles travels vertically downwards from the ceiling into this field. In which direction is it deflected?\n(b) A beam of electrons travels vertically downwards into the same field. In which direction is it deflected? Give a reason.\n(c) Would a beam of alpha particles travelling from the west wall towards the east wall be deflected? Justify.",
+    "questionText": "In a laboratory room, a uniform horizontal magnetic field is set up pointing from the west wall towards the east wall.\n(a) A beam of alpha particles travels vertically downwards from the ceiling into this field. In which direction is it deflected? [1 mark]\n(b) A beam of electrons travels vertically downwards into the same field. In which direction is it deflected? Give a reason. [1 mark]\n(c) Would a beam of alpha particles travelling from the west wall towards the east wall be deflected? Justify. [1 mark]",
     "options": [],
     "answer": "(a) Towards the south; (b) towards the north, since electrons carry negative charge; (c) No — it moves along the field, so no force acts.",
     "solutionSteps": [
@@ -1846,7 +1846,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "In a school laboratory in Amritsar, Harpreet placed a short aluminium rod in the gap of a horseshoe magnet so that the rod pointed straight from the N-pole face to the S-pole face. When she passed a steady current through the rod, it did not move at all. Her friend Joseph said: \"Aluminium is not attracted by a magnet, so a magnet can never push it. Use an iron rod instead.\"\n(a) Is Joseph's reasoning correct? Explain.\n(b) What is the actual reason that the rod did not move?\n(c) Suggest how Harpreet should place the rod, and one more change that would make its displacement larger.",
+    "questionText": "In a school laboratory in Amritsar, Harpreet placed a short aluminium rod in the gap of a horseshoe magnet so that the rod pointed straight from the N-pole face to the S-pole face. When she passed a steady current through the rod, it did not move at all. Her friend Joseph said: \"Aluminium is not attracted by a magnet, so a magnet can never push it. Use an iron rod instead.\"\n(a) Is Joseph's reasoning correct? Explain. [1 mark]\n(b) What is the actual reason that the rod did not move? [1 mark]\n(c) Suggest how Harpreet should place the rod, and one more change that would make its displacement larger. [1 mark]",
     "options": [],
     "answer": "(a) No — the force arises from the current in the conductor, not from the rod being magnetic; (b) the rod lay along the field lines, so no force acted; (c) place the rod at right angles to the field, and increase the current (or use a stronger magnet).",
     "solutionSteps": [
@@ -1873,7 +1873,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A group of students in Guwahati measured the sideways displacement of a suspended copper rod placed between the poles of a magnet. The same length of rod lay in the field in every trial.\nTrial P — 1 A, weak magnet, rod at right angles to field: 2 mm\nTrial Q — 2 A, weak magnet, rod at right angles to field: 4 mm\nTrial R — 2 A, strong magnet, rod at right angles to field: 7 mm\nTrial S — 2 A, strong magnet, rod along the field: 0 mm\n(a) Which two trials show the effect of the current? What do they show?\n(b) Which two trials show the effect of the strength of the magnetic field? What do they show?\n(c) Explain the result of Trial S.",
+    "questionText": "A group of students in Guwahati measured the sideways displacement of a suspended copper rod placed between the poles of a magnet. The same length of rod lay in the field in every trial.\nTrial P — 1 A, weak magnet, rod at right angles to field: 2 mm\nTrial Q — 2 A, weak magnet, rod at right angles to field: 4 mm\nTrial R — 2 A, strong magnet, rod at right angles to field: 7 mm\nTrial S — 2 A, strong magnet, rod along the field: 0 mm\n(a) Which two trials show the effect of the current? What do they show? [1 mark]\n(b) Which two trials show the effect of the strength of the magnetic field? What do they show? [1 mark]\n(c) Explain the result of Trial S. [1 mark]",
     "options": [],
     "answer": "(a) P and Q — a larger current gives a larger force (displacement); (b) Q and R — a stronger field gives a larger force; (c) in S the current is parallel to the field, so no force acts on the rod.",
     "solutionSteps": [
@@ -1899,7 +1899,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In their school laboratory in Jaipur, Aditi and Farhan hung a straight horizontal copper rod from a sensitive spring balance. The rod passed through the gap of a strong magnet, where the magnetic field was horizontal and at right angles to the rod. Flexible leads connected the rod to a battery, a rheostat, an ammeter and a reversing key, so that both the size and the direction of the current could be changed. With no current, the balance read 50.0 g. They then recorded the readings below, keeping the magnet and the rod in the same position throughout.\nCurrent 1 A (direction X): 48.8 g\nCurrent 2 A (direction X): 47.6 g\nCurrent 3 A (direction X): 46.4 g\nCurrent 2 A (direction reversed): 52.4 g\nFarhan noticed that each extra ampere changed the reading by the same amount.\n(i) In which direction does the magnetic force act on the rod when the current flows in direction X? How do you know?\n(ii) Predict the balance reading for a current of 4 A in direction X.\n(iii) Explain why the reading becomes 52.4 g when the 2 A current is reversed. What would the reading be if the rod were turned to lie along the magnetic field, with 2 A flowing?",
+    "questionText": "In their school laboratory in Jaipur, Aditi and Farhan hung a straight horizontal copper rod from a sensitive spring balance. The rod passed through the gap of a strong magnet, where the magnetic field was horizontal and at right angles to the rod. Flexible leads connected the rod to a battery, a rheostat, an ammeter and a reversing key, so that both the size and the direction of the current could be changed. With no current, the balance read 50.0 g. They then recorded the readings below, keeping the magnet and the rod in the same position throughout.\nCurrent 1 A (direction X): 48.8 g\nCurrent 2 A (direction X): 47.6 g\nCurrent 3 A (direction X): 46.4 g\nCurrent 2 A (direction reversed): 52.4 g\nFarhan noticed that each extra ampere changed the reading by the same amount.\n(i) In which direction does the magnetic force act on the rod when the current flows in direction X? How do you know? [1 mark]\n(ii) Predict the balance reading for a current of 4 A in direction X. [1 mark]\n(iii) Explain why the reading becomes 52.4 g when the 2 A current is reversed. What would the reading be if the rod were turned to lie along the magnetic field, with 2 A flowing? [2 marks]",
     "options": [],
     "answer": "(i) Upwards, since the reading falls below 50.0 g; (ii) 45.2 g; (iii) reversing the current reverses the force, which now acts downwards with the same size (2.4 g), giving 52.4 g; along the field there is no force, so the reading is 50.0 g.",
     "solutionSteps": [
@@ -1926,7 +1926,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "For a science club activity in Varanasi, Sneha made a \"current swing\". She bent a thin, light copper wire into a U-shape and hung it from two metal hooks so that it could swing freely. The horizontal lower arm of the U lay along the east–west direction, inside the gap of a strong horseshoe magnet. The magnet was held so that its N-pole was directly above the arm and its S-pole directly below it. The two hooks were connected to a low-voltage cell through a switch. When she closed the switch, a current flowed through the lower arm from west to east and the swing was pushed out sideways. Her teacher then replaced the cell with a low-voltage alternating current (AC) source of frequency 50 Hz and asked the club to predict what the swing would do.\n(i) What is the direction of the magnetic field at the lower arm of the swing?\n(ii) In which direction is the swing pushed when the cell is used?\n(iii) Describe how the swing behaves with the 50 Hz AC source and explain why. How many times each second does the force on the arm change direction?",
+    "questionText": "For a science club activity in Varanasi, Sneha made a \"current swing\". She bent a thin, light copper wire into a U-shape and hung it from two metal hooks so that it could swing freely. The horizontal lower arm of the U lay along the east–west direction, inside the gap of a strong horseshoe magnet. The magnet was held so that its N-pole was directly above the arm and its S-pole directly below it. The two hooks were connected to a low-voltage cell through a switch. When she closed the switch, a current flowed through the lower arm from west to east and the swing was pushed out sideways. Her teacher then replaced the cell with a low-voltage alternating current (AC) source of frequency 50 Hz and asked the club to predict what the swing would do.\n(i) What is the direction of the magnetic field at the lower arm of the swing? [1 mark]\n(ii) In which direction is the swing pushed when the cell is used? [1 mark]\n(iii) Describe how the swing behaves with the 50 Hz AC source and explain why. How many times each second does the force on the arm change direction? [2 marks]",
     "options": [],
     "answer": "(i) Vertically downwards (from N-pole to S-pole); (ii) towards the north; (iii) it vibrates back and forth (north–south) instead of moving one way, because the current, and hence the force, keeps reversing; the force changes direction 100 times each second.",
     "solutionSteps": [
@@ -1953,7 +1953,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Ms Fernandes, a physics teacher in Margao, Goa, uses an electron deflection tube to show her class how a magnetic field acts on moving charges. Inside the evacuated tube, a narrow beam of electrons travels horizontally from left to right across a glowing screen, leaving a straight, bright trace that the students can see from the front. She then places the tube between two large coils carrying current, which produce a uniform magnetic field pointing horizontally away from the students, into the screen. The trace immediately curves. Next she reverses the current in the coils, which reverses the magnetic field, and the trace curves the other way. A student, Nikhil, asks whether the electrons lose speed when the beam bends. Ms Fernandes explains that the magnetic force always acts at right angles to the motion of the electrons. Finally, she turns the tube so that the beam travels along the direction of the field.\n(i) As seen by the students, does the trace curve upwards or downwards when the field points away from them?\n(ii) Which way does the trace curve after the field is reversed?\n(iii) Answer Nikhil's question with a reason. What happens to the trace when the beam travels along the field?",
+    "questionText": "Ms Fernandes, a physics teacher in Margao, Goa, uses an electron deflection tube to show her class how a magnetic field acts on moving charges. Inside the evacuated tube, a narrow beam of electrons travels horizontally from left to right across a glowing screen, leaving a straight, bright trace that the students can see from the front. She then places the tube between two large coils carrying current, which produce a uniform magnetic field pointing horizontally away from the students, into the screen. The trace immediately curves. Next she reverses the current in the coils, which reverses the magnetic field, and the trace curves the other way. A student, Nikhil, asks whether the electrons lose speed when the beam bends. Ms Fernandes explains that the magnetic force always acts at right angles to the motion of the electrons. Finally, she turns the tube so that the beam travels along the direction of the field.\n(i) As seen by the students, does the trace curve upwards or downwards when the field points away from them? [1 mark]\n(ii) Which way does the trace curve after the field is reversed? [1 mark]\n(iii) Answer Nikhil's question with a reason. What happens to the trace when the beam travels along the field? [2 marks]",
     "options": [],
     "answer": "(i) Downwards; (ii) upwards; (iii) No — a force at right angles to the motion changes only the direction of motion, not the speed; along the field the trace stays straight because no force acts.",
     "solutionSteps": [
@@ -1980,7 +1980,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Ayesha and Rohan, two students in Bhubaneswar, hung a long horizontal copper rod from two thin wires. They had several identical small horseshoe magnets. When a magnet was placed with the rod in its gap, exactly 3 cm of the rod lay in its magnetic field, at right angles to the field. Magnets could be placed side by side along the rod, all held the same way up, or with one magnet turned upside down so that its field pointed the opposite way. The current was kept at 1.5 A in every trial, and they measured the sideways displacement of the rod.\nOne magnet: 2 mm\nTwo magnets, same way up: 4 mm\nThree magnets, same way up: 6 mm\nThree magnets, middle one upside down: 2 mm\nRohan said the last result must be a mistake, because three magnets should always push more than one.\n(i) Which factor affecting the force on the rod is being changed in the first three trials?\n(ii) Predict the displacement with four magnets, all the same way up, assuming the pattern continues.\n(iii) Explain why the last trial gives only 2 mm, so that Rohan is wrong. Predict the displacement with two magnets placed side by side, one of them upside down.",
+    "questionText": "Ayesha and Rohan, two students in Bhubaneswar, hung a long horizontal copper rod from two thin wires. They had several identical small horseshoe magnets. When a magnet was placed with the rod in its gap, exactly 3 cm of the rod lay in its magnetic field, at right angles to the field. Magnets could be placed side by side along the rod, all held the same way up, or with one magnet turned upside down so that its field pointed the opposite way. The current was kept at 1.5 A in every trial, and they measured the sideways displacement of the rod.\nOne magnet: 2 mm\nTwo magnets, same way up: 4 mm\nThree magnets, same way up: 6 mm\nThree magnets, middle one upside down: 2 mm\nRohan said the last result must be a mistake, because three magnets should always push more than one.\n(i) Which factor affecting the force on the rod is being changed in the first three trials? [1 mark]\n(ii) Predict the displacement with four magnets, all the same way up, assuming the pattern continues. [1 mark]\n(iii) Explain why the last trial gives only 2 mm, so that Rohan is wrong. Predict the displacement with two magnets placed side by side, one of them upside down. [2 marks]",
     "options": [],
     "answer": "(i) The length of the conductor lying in the magnetic field; (ii) 8 mm; (iii) the upside-down magnet reverses the field on its 3 cm, so the force there is opposite and cancels the force from one other magnet, leaving the effect of one magnet (2 mm); with two magnets, one upside down, the forces cancel and the displacement is 0 mm.",
     "solutionSteps": [
@@ -2007,7 +2007,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "During a visit to a research laboratory in Hyderabad, students from a local school were shown an experiment on beams of particles. Four narrow beams, labelled P, Q, R and S, were sent one at a time, each travelling horizontally towards the north at high speed. Each beam passed through the same region, where a uniform magnetic field pointed vertically upwards, and then struck a detector screen. The scientist told them that the four beams were made of protons, electrons, neutrons and alpha particles, but not in that order. The positions of the spots on the screen, compared with the spot made when the field was switched off, were recorded as follows.\nBeam P — shifted towards the east\nBeam Q — shifted towards the west\nBeam R — not shifted\nBeam S — shifted towards the east\n(i) Which beam is made of neutrons? Give a reason.\n(ii) Which beams carry positive charge?\n(iii) Identify beam Q, giving a reason. In which direction would the spot of beam P shift if the magnetic field were made to point vertically downwards?",
+    "questionText": "During a visit to a research laboratory in Hyderabad, students from a local school were shown an experiment on beams of particles. Four narrow beams, labelled P, Q, R and S, were sent one at a time, each travelling horizontally towards the north at high speed. Each beam passed through the same region, where a uniform magnetic field pointed vertically upwards, and then struck a detector screen. The scientist told them that the four beams were made of protons, electrons, neutrons and alpha particles, but not in that order. The positions of the spots on the screen, compared with the spot made when the field was switched off, were recorded as follows.\nBeam P — shifted towards the east\nBeam Q — shifted towards the west\nBeam R — not shifted\nBeam S — shifted towards the east\n(i) Which beam is made of neutrons? Give a reason. [1 mark]\n(ii) Which beams carry positive charge? [1 mark]\n(iii) Identify beam Q, giving a reason. In which direction would the spot of beam P shift if the magnetic field were made to point vertically downwards? [2 marks]",
     "options": [],
     "answer": "(i) R, because neutrons are uncharged and feel no magnetic force; (ii) P and S; (iii) Q is the electron beam, being deflected opposite to the positive beams; with the field downwards, P shifts towards the west.",
     "solutionSteps": [
@@ -2034,7 +2034,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "In a school laboratory in Kochi, Aarav suspends a horizontal copper rod by two light flexible wires so that the rod lies along the north–south direction. A strong magnet produces a uniform magnetic field that acts vertically downwards over a fixed length of the rod. When a current of 1 A flows through the rod from south to north, the rod is displaced by 5 mm.\n(a) In which direction is the rod displaced? Name the rule used.\n(b) Nothing else is changed, but the current is raised to 2 A. Will the displacement be more or less than 5 mm? Give a reason.\n(c) The rod is re-hung so that it lies along the east–west direction, with the same length in the field and a current of 1 A flowing from west to east. In which direction is it displaced now?\n(d) In part (c), is the force on the rod larger than, smaller than or equal to the force in part (a)? Justify.\n(e) Finally, Aarav holds the rod vertically, along the magnetic field, and passes the current. Predict what happens and explain.",
+    "questionText": "In a school laboratory in Kochi, Aarav suspends a horizontal copper rod by two light flexible wires so that the rod lies along the north–south direction. A strong magnet produces a uniform magnetic field that acts vertically downwards over a fixed length of the rod. When a current of 1 A flows through the rod from south to north, the rod is displaced by 5 mm.\n(a) In which direction is the rod displaced? Name the rule used. [1 mark]\n(b) Nothing else is changed, but the current is raised to 2 A. Will the displacement be more or less than 5 mm? Give a reason. [1 mark]\n(c) The rod is re-hung so that it lies along the east–west direction, with the same length in the field and a current of 1 A flowing from west to east. In which direction is it displaced now? [1 mark]\n(d) In part (c), is the force on the rod larger than, smaller than or equal to the force in part (a)? Justify. [1 mark]\n(e) Finally, Aarav holds the rod vertically, along the magnetic field, and passes the current. Predict what happens and explain. [1 mark]",
     "options": [],
     "answer": "(a) Towards the west (Fleming's left-hand rule); (b) more than 5 mm, since a larger current gives a larger force; (c) towards the north; (d) equal, as the rod is still at right angles to the vertical field; (e) no displacement, because a current parallel to the field experiences no force.",
     "solutionSteps": [
@@ -2062,7 +2062,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Students from Bengaluru visit a laboratory where a uniform horizontal magnetic field, pointing towards the north, is used to steer beams of particles travelling horizontally.\n(a) A beam of protons travelling towards the east enters the field. In which direction is it deflected?\n(b) A beam of electrons travelling towards the east enters the same field. In which direction is it deflected? Give a reason.\n(c) Kabir, one of the students, claims: \"A proton beam moving east and an electron beam moving west will be deflected in opposite directions, because their charges are opposite.\" Evaluate his claim.\n(d) Will a beam of neutrons travelling towards the east be deflected? Justify.\n(e) The technician wants a proton beam to pass through this field without any deflection. In which direction should it travel, and why?",
+    "questionText": "Students from Bengaluru visit a laboratory where a uniform horizontal magnetic field, pointing towards the north, is used to steer beams of particles travelling horizontally.\n(a) A beam of protons travelling towards the east enters the field. In which direction is it deflected? [1 mark]\n(b) A beam of electrons travelling towards the east enters the same field. In which direction is it deflected? Give a reason. [1 mark]\n(c) Kabir, one of the students, claims: \"A proton beam moving east and an electron beam moving west will be deflected in opposite directions, because their charges are opposite.\" Evaluate his claim. [1 mark]\n(d) Will a beam of neutrons travelling towards the east be deflected? Justify. [1 mark]\n(e) The technician wants a proton beam to pass through this field without any deflection. In which direction should it travel, and why? [1 mark]",
     "options": [],
     "answer": "(a) Vertically upwards; (b) vertically downwards, as electrons moving east are a current towards the west; (c) Kabir is wrong — both beams are deflected upwards; (d) no, neutrons are uncharged; (e) towards the north or the south, i.e. along the field, where no force acts.",
     "solutionSteps": [
@@ -2092,8 +2092,8 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Ishita's bedroom circuit runs on the 220 V mains and is protected by a 5 A fuse. She wants to switch on some appliances together without the fuse melting. Which set of appliances can she use together safely on this circuit?",
     "options": [
-      "A 1000 W room heater and a 200 W television",
       "A 750 W electric iron and three 100 W bulbs",
+      "A 1000 W room heater and a 200 W television",
       "Two 600 W bread toasters",
       "A single 1500 W hair dryer"
     ],
@@ -2121,8 +2121,8 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In Imran's house, the metal body of a refrigerator is connected to the earth wire through its three-pin plug. One day the insulation of the live wire inside the refrigerator wears off and the bare wire touches the metal body. What happens at that moment?",
     "options": [
-      "The leaked current flows through the earth wire into the ground, so the metal body stays at nearly zero potential and a person touching it is protected from a severe shock.",
       "The metal body rises to 220 V and stays there, because the earth wire carries current only when the neutral wire is broken.",
+      "The leaked current flows through the earth wire into the ground, so the metal body stays at nearly zero potential and a person touching it is protected from a severe shock.",
       "The current in the live wire stops at once, because the earth wire cancels the potential of the live wire.",
       "The neutral wire carries the leaked current back to the supply, so the earth wire plays no part in protecting the user."
     ],
@@ -2181,8 +2181,8 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "The current drops to zero because the lamp is cut out of the circuit.",
       "The current stays about 0.3 A because the supply voltage does not change.",
-      "The resistance of the path becomes very small, so the current rises to a very large value and the fuse or MCB cuts off the supply.",
-      "The current is diverted into the earth wire, so the lamp glows more brightly."
+      "The current is diverted into the earth wire, so the lamp glows more brightly.",
+      "The resistance of the path becomes very small, so the current rises to a very large value and the fuse or MCB cuts off the supply."
     ],
     "answer": "The resistance of the path becomes very small, so the current rises to a very large value and the fuse or MCB cuts off the supply.",
     "solutionSteps": [
@@ -2264,7 +2264,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Sneha's study-room circuit runs on the 220 V mains and is protected by a 5 A fuse. A 100 W lamp and a 120 W table fan are already on. In winter she wants to plug a 1100 W room heater into the same circuit and run all three together.\n(a) Calculate the total current that would be drawn.\n(b) Should she do this? Justify your answer and suggest a safer arrangement.",
+    "questionText": "Sneha's study-room circuit runs on the 220 V mains and is protected by a 5 A fuse. A 100 W lamp and a 120 W table fan are already on. In winter she wants to plug a 1100 W room heater into the same circuit and run all three together.\n(a) Calculate the total current that would be drawn. [1 mark]\n(b) Should she do this? Justify your answer and suggest a safer arrangement. [1 mark]",
     "options": [],
     "answer": "(a) Total power 1320 W, I = 1320/220 = 6 A. (b) No — 6 A exceeds the 5 A rating, causing overloading and melting the fuse; run the heater from the separate 15 A power circuit.",
     "solutionSteps": [
@@ -2289,7 +2289,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In a school laboratory in Agartala, a timing device connected to the mains shows that the current takes 20 ms to complete one cycle.\n(a) Find the frequency of the mains supply.\n(b) How many times does the current change its direction in 3 s?",
+    "questionText": "In a school laboratory in Agartala, a timing device connected to the mains shows that the current takes 20 ms to complete one cycle.\n(a) Find the frequency of the mains supply. [1 mark]\n(b) How many times does the current change its direction in 3 s? [1 mark]",
     "options": [],
     "answer": "(a) f = 1/0.02 s = 50 Hz. (b) 150 cycles in 3 s, two reversals per cycle = 300 times.",
     "solutionSteps": [
@@ -2314,7 +2314,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Mr Joseph in Thrissur plugs his new metal-bodied microwave oven, which has a three-pin plug, into a two-pin wall socket using an adapter that has no earth connection. The oven works normally.\n(a) Which safety connection is missing in this arrangement?\n(b) Explain the danger if the live wire inside the oven ever touches its metal body.",
+    "questionText": "Mr Joseph in Thrissur plugs his new metal-bodied microwave oven, which has a three-pin plug, into a two-pin wall socket using an adapter that has no earth connection. The oven works normally.\n(a) Which safety connection is missing in this arrangement? [1 mark]\n(b) Explain the danger if the live wire inside the oven ever touches its metal body. [1 mark]",
     "options": [],
     "answer": "(a) The earth connection — the metal body is not joined to the earth wire through the earth pin. (b) The body would reach the potential of the live wire with no low-resistance path to earth, so a person touching it would get a severe shock.",
     "solutionSteps": [
@@ -2339,7 +2339,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Harpreet's 880 W electric iron is used on the 220 V mains. The fuse box in his hostel has spare fuses of rating 3 A, 5 A and 15 A.\n(a) Calculate the current drawn by the iron.\n(b) Which fuse is most suitable for the iron's circuit? Give a reason for rejecting the 3 A fuse.\n(c) His friend says, 'Use the 15 A fuse so that it never melts.' Is the friend right? Explain.",
+    "questionText": "Harpreet's 880 W electric iron is used on the 220 V mains. The fuse box in his hostel has spare fuses of rating 3 A, 5 A and 15 A.\n(a) Calculate the current drawn by the iron. [1 mark]\n(b) Which fuse is most suitable for the iron's circuit? Give a reason for rejecting the 3 A fuse. [1 mark]\n(c) His friend says, 'Use the 15 A fuse so that it never melts.' Is the friend right? Explain. [1 mark]",
     "options": [],
     "answer": "(a) I = 880/220 = 4 A. (b) 5 A fuse, just above the normal current; a 3 A fuse would melt even in normal use. (c) No — a 15 A fuse would not melt on overloading or a fault, so wires and the iron could overheat and catch fire.",
     "solutionSteps": [
@@ -2366,7 +2366,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "An 1100 W electric kettle works on the 220 V mains in a café in Madurai. One day its damaged cord lets the live and neutral wires touch, so the current bypasses the heating element through a path of resistance only 0.5 Ω.\n(a) Calculate the normal current drawn by the kettle.\n(b) Calculate the current that would flow through the faulty path if there were no fuse or MCB.\n(c) Name this fault and state why the circuit must be cut off at once.",
+    "questionText": "An 1100 W electric kettle works on the 220 V mains in a café in Madurai. One day its damaged cord lets the live and neutral wires touch, so the current bypasses the heating element through a path of resistance only 0.5 Ω.\n(a) Calculate the normal current drawn by the kettle. [1 mark]\n(b) Calculate the current that would flow through the faulty path if there were no fuse or MCB. [1 mark]\n(c) Name this fault and state why the circuit must be cut off at once. [1 mark]",
     "options": [],
     "answer": "(a) I = 1100/220 = 5 A. (b) I = 220/0.5 = 440 A. (c) Short circuit; such a huge current overheats the wires and can start a fire, so the fuse or MCB must break the circuit.",
     "solutionSteps": [
@@ -2393,7 +2393,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Analysing",
-    "questionText": "Pooja's family in a village near Bikaner uses two supplies. A solar battery gives a steady 12 V and its positive and negative terminals never change. The mains line gives 220 V, and its current reverses direction 100 times every second.\n(a) Which supply is DC and which is AC? Give one reason for each.\n(b) Find the frequency of the mains supply.\n(c) The mains electricity reaches the village from a power station far away. Why is it sent as AC and not as DC?",
+    "questionText": "Pooja's family in a village near Bikaner uses two supplies. A solar battery gives a steady 12 V and its positive and negative terminals never change. The mains line gives 220 V, and its current reverses direction 100 times every second.\n(a) Which supply is DC and which is AC? Give one reason for each. [1 mark]\n(b) Find the frequency of the mains supply. [1 mark]\n(c) The mains electricity reaches the village from a power station far away. Why is it sent as AC and not as DC? [1 mark]",
     "options": [],
     "answer": "(a) Solar battery — DC (fixed polarity, current in one direction); mains — AC (current reverses periodically). (b) 50 Hz. (c) AC can be transmitted over long distances without much loss of energy.",
     "solutionSteps": [
@@ -2419,7 +2419,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Mr and Mrs Rathore are getting their new house in Bhubaneswar wired. The electrician explains that the supply reaches the house through a live wire with red insulation and a neutral wire with black insulation, and that a third wire with green insulation is joined to a metal plate buried deep in the ground near the house. He plans two separate circuits, both on 220 V: a 5 A circuit for the lights and fans, and a 15 A circuit for high-power appliances. Each circuit has its own fuse, and every appliance is connected across the live and neutral wires with its own switch, in parallel with the others. The appliances the family plans to use are:\nCeiling fan — 66 W\nLED lamp — 22 W\nWater geyser (metal body) — 2200 W\nElectric iron — 1100 W\n(i) Give one reason why the appliances are connected in parallel and not in series.\n(ii) Calculate the current drawn by the water geyser.\n(iii) Into which circuit should the geyser be connected, and why? Also state why its metal body must be connected to the green wire.",
+    "questionText": "Mr and Mrs Rathore are getting their new house in Bhubaneswar wired. The electrician explains that the supply reaches the house through a live wire with red insulation and a neutral wire with black insulation, and that a third wire with green insulation is joined to a metal plate buried deep in the ground near the house. He plans two separate circuits, both on 220 V: a 5 A circuit for the lights and fans, and a 15 A circuit for high-power appliances. Each circuit has its own fuse, and every appliance is connected across the live and neutral wires with its own switch, in parallel with the others. The appliances the family plans to use are:\nCeiling fan — 66 W\nLED lamp — 22 W\nWater geyser (metal body) — 2200 W\nElectric iron — 1100 W\n(i) Give one reason why the appliances are connected in parallel and not in series. [1 mark]\n(ii) Calculate the current drawn by the water geyser. [1 mark]\n(iii) Into which circuit should the geyser be connected, and why? Also state why its metal body must be connected to the green wire. [2 marks]",
     "options": [],
     "answer": "(i) In parallel each appliance gets the full 220 V and can be switched on or off independently. (ii) I = 2200/220 = 10 A. (iii) The 15 A circuit, since 10 A would overload the 5 A circuit; the green earth wire gives leaked current a low-resistance path to earth, preventing a severe shock.",
     "solutionSteps": [
@@ -2446,7 +2446,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Before the practical examinations at a school in Panaji, the laboratory assistant, Ms Mathew, checked the three-pin sockets on the benches where students would use electric hot plates with metal bodies. Her notes read:\nBench 1 — earth wire firmly connected; resistance of earth path 1 Ω\nBench 2 — earth wire firmly connected; resistance of earth path 2 Ω\nBench 3 — earth wire loose; not connected to the earth plate\nShe explained to the students that the earth wire of the building ends in a metal plate buried deep in moist soil, and that the earth pin of each three-pin plug is joined to the metal body of the hot plate. Every bench circuit is protected by its own fuse. She stuck a 'Do not use' label on one socket until it could be repaired.\n(i) Which bench socket was labelled 'Do not use', and why?\n(ii) Why is the earth wire made to have a very low resistance?\n(iii) Suppose the live wire inside a hot plate on Bench 1 touches its metal body. Describe the path taken by the current, and explain what happens to the fuse of that circuit.",
+    "questionText": "Before the practical examinations at a school in Panaji, the laboratory assistant, Ms Mathew, checked the three-pin sockets on the benches where students would use electric hot plates with metal bodies. Her notes read:\nBench 1 — earth wire firmly connected; resistance of earth path 1 Ω\nBench 2 — earth wire firmly connected; resistance of earth path 2 Ω\nBench 3 — earth wire loose; not connected to the earth plate\nShe explained to the students that the earth wire of the building ends in a metal plate buried deep in moist soil, and that the earth pin of each three-pin plug is joined to the metal body of the hot plate. Every bench circuit is protected by its own fuse. She stuck a 'Do not use' label on one socket until it could be repaired.\n(i) Which bench socket was labelled 'Do not use', and why? [1 mark]\n(ii) Why is the earth wire made to have a very low resistance? [1 mark]\n(iii) Suppose the live wire inside a hot plate on Bench 1 touches its metal body. Describe the path taken by the current, and explain what happens to the fuse of that circuit. [2 marks]",
     "options": [],
     "answer": "(i) Bench 3 — with no earth connection, a leakage would leave the metal body at the live wire's potential and could give a severe shock. (ii) So leaked current flows easily to earth through it and not through a person, keeping the body at earth potential. (iii) Live wire → metal body → earth wire → buried plate → earth; the low-resistance path draws a very large current, so the fuse melts and cuts off the supply.",
     "solutionSteps": [
@@ -2473,7 +2473,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "For a Diwali get-together at a community hall in Ajmer, the organisers plugged several appliances into one extension board connected to the 220 V mains. The board is protected by a 10 A fuse, and each of its sockets has its own switch. The appliances were:\nString of decorative lights — 220 W\nMusic system — 440 W\nElectric kettle — 1100 W\nRoom heater — 880 W\nWhen only the lights and the music system were on, everything worked. Soon after the kettle and the heater were also switched on, the fuse melted and everything on the board went off. One organiser wanted to replace the melted fuse wire with a thick copper wire so that 'this never happens again'.\n(i) Are the appliances connected to the board in series or in parallel? Give one observation from the passage that supports your answer.\n(ii) Name the condition that caused the fuse to melt.\n(iii) Calculate the total current drawn when all four appliances were on, and evaluate the organiser's idea of using a thick copper wire.",
+    "questionText": "For a Diwali get-together at a community hall in Ajmer, the organisers plugged several appliances into one extension board connected to the 220 V mains. The board is protected by a 10 A fuse, and each of its sockets has its own switch. The appliances were:\nString of decorative lights — 220 W\nMusic system — 440 W\nElectric kettle — 1100 W\nRoom heater — 880 W\nWhen only the lights and the music system were on, everything worked. Soon after the kettle and the heater were also switched on, the fuse melted and everything on the board went off. One organiser wanted to replace the melted fuse wire with a thick copper wire so that 'this never happens again'.\n(i) Are the appliances connected to the board in series or in parallel? Give one observation from the passage that supports your answer. [1 mark]\n(ii) Name the condition that caused the fuse to melt. [1 mark]\n(iii) Calculate the total current drawn when all four appliances were on, and evaluate the organiser's idea of using a thick copper wire. [2 marks]",
     "options": [],
     "answer": "(i) Parallel — the lights and music system worked while the kettle and heater were off, each socket having its own switch. (ii) Overloading. (iii) 2640 W ÷ 220 V = 12 A, more than 10 A; the copper wire idea is unsafe — it would not melt, so the wiring could overheat and start a fire.",
     "solutionSteps": [
@@ -2500,7 +2500,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Shreya, a Class 10 student in Vijayawada, read the following printed on her phone charger:\nInput: 100–240 V AC, 50/60 Hz\nOutput: 5 V DC\nHer science teacher explained that the mains supply in Indian homes is an alternating current (AC) of 220 V with a frequency of 50 Hz, while the battery of a phone must be charged with a direct current (DC). The charger takes in the mains AC and gives out a small DC. The teacher added that the label tells us the range of supplies on which the charger can work safely. Shreya's cousin lives in a country where the mains supply is 120 V with a frequency of 60 Hz, and he plans to borrow the charger during his visit.\n(i) How is the current that enters the charger different from the current that leaves it?\n(ii) How many times does the current in Shreya's home wiring change its direction in one second?\n(iii) Calculate the time taken by the mains current in India to complete one cycle. Can the charger be used on her cousin's 120 V, 60 Hz supply? Justify using the label.",
+    "questionText": "Shreya, a Class 10 student in Vijayawada, read the following printed on her phone charger:\nInput: 100–240 V AC, 50/60 Hz\nOutput: 5 V DC\nHer science teacher explained that the mains supply in Indian homes is an alternating current (AC) of 220 V with a frequency of 50 Hz, while the battery of a phone must be charged with a direct current (DC). The charger takes in the mains AC and gives out a small DC. The teacher added that the label tells us the range of supplies on which the charger can work safely. Shreya's cousin lives in a country where the mains supply is 120 V with a frequency of 60 Hz, and he plans to borrow the charger during his visit.\n(i) How is the current that enters the charger different from the current that leaves it? [1 mark]\n(ii) How many times does the current in Shreya's home wiring change its direction in one second? [1 mark]\n(iii) Calculate the time taken by the mains current in India to complete one cycle. Can the charger be used on her cousin's 120 V, 60 Hz supply? Justify using the label. [2 marks]",
     "options": [],
     "answer": "(i) Input is AC, which reverses direction periodically; output is DC, which flows in one direction only. (ii) 100 times. (iii) T = 1/50 = 0.02 s; yes — 120 V is within 100–240 V and 60 Hz is listed on the label.",
     "solutionSteps": [
@@ -2527,7 +2527,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In an old house in Prayagraj, the wiring of the drawing room is protected by a miniature circuit breaker (MCB) rated 10 A. Normally the room's fan, lights and television together draw about 3 A from the 220 V mains. One night there was a loud crack near the television socket and the MCB tripped, switching off the supply to the room. In the morning, an electrician found that rats had chewed through the insulation of the cable behind a cupboard, so the bare live and neutral wires had come into direct contact. He said that the current at that moment must have been many times greater than 10 A. Before switching the MCB back on, he replaced the damaged length of cable with new insulated cable and sealed the gap the rats had used.\n(i) Name the fault that occurred behind the cupboard.\n(ii) Why did the current become so large when the bare wires touched?\n(iii) How did the MCB protect the house? Why did the electrician repair the cable before switching the MCB back on?",
+    "questionText": "In an old house in Prayagraj, the wiring of the drawing room is protected by a miniature circuit breaker (MCB) rated 10 A. Normally the room's fan, lights and television together draw about 3 A from the 220 V mains. One night there was a loud crack near the television socket and the MCB tripped, switching off the supply to the room. In the morning, an electrician found that rats had chewed through the insulation of the cable behind a cupboard, so the bare live and neutral wires had come into direct contact. He said that the current at that moment must have been many times greater than 10 A. Before switching the MCB back on, he replaced the damaged length of cable with new insulated cable and sealed the gap the rats had used.\n(i) Name the fault that occurred behind the cupboard. [1 mark]\n(ii) Why did the current become so large when the bare wires touched? [1 mark]\n(iii) How did the MCB protect the house? Why did the electrician repair the cable before switching the MCB back on? [2 marks]",
     "options": [],
     "answer": "(i) Short circuit. (ii) The current bypassed the appliances through a path of almost zero resistance, so I = V/R became very large. (iii) The MCB switched off automatically when the current exceeded 10 A, preventing overheating and fire; switching on before the repair would recreate the short circuit.",
     "solutionSteps": [
@@ -2554,7 +2554,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Dr Sinha is setting up a small clinic in Ranchi supplied with 220 V, 50 Hz mains. The electrician proposes a lighting circuit protected by a 5 A fuse and a power circuit protected by a 15 A fuse. The planned load is:\nLighting circuit — 10 LED tube lights of 22 W each and 2 fans of 55 W each\nPower circuit — one instrument sterilizer of 1320 W and one room heater of 1100 W, both with metal bodies\n(a) Calculate the total current drawn by the lighting circuit when everything on it is switched on. Is its 5 A fuse suitable?\n(b) Calculate the total current in the power circuit when the sterilizer and the heater are both on. Will the 15 A fuse melt?\n(c) Why must the sterilizer and the heater be connected to the power circuit and not to the lighting circuit?\n(d) Why should the fuse and the switch of each appliance be placed in the live wire?\n(e) Why should the metal bodies of the sterilizer and the heater be earthed?",
+    "questionText": "Dr Sinha is setting up a small clinic in Ranchi supplied with 220 V, 50 Hz mains. The electrician proposes a lighting circuit protected by a 5 A fuse and a power circuit protected by a 15 A fuse. The planned load is:\nLighting circuit — 10 LED tube lights of 22 W each and 2 fans of 55 W each\nPower circuit — one instrument sterilizer of 1320 W and one room heater of 1100 W, both with metal bodies\n(a) Calculate the total current drawn by the lighting circuit when everything on it is switched on. Is its 5 A fuse suitable? [1 mark]\n(b) Calculate the total current in the power circuit when the sterilizer and the heater are both on. Will the 15 A fuse melt? [1 mark]\n(c) Why must the sterilizer and the heater be connected to the power circuit and not to the lighting circuit? [1 mark]\n(d) Why should the fuse and the switch of each appliance be placed in the live wire? [1 mark]\n(e) Why should the metal bodies of the sterilizer and the heater be earthed? [1 mark]",
     "options": [],
     "answer": "(a) 330 W ÷ 220 V = 1.5 A; yes, below 5 A. (b) 2420 W ÷ 220 V = 11 A; no, below 15 A. (c) The sterilizer alone draws 6 A, which would overload the 5 A lighting circuit. (d) So that a melted fuse or an off switch cuts the appliance off from the high-potential live wire. (e) The earth wire carries leaked current to the ground, keeping the bodies at earth potential and preventing severe shocks.",
     "solutionSteps": [
@@ -2582,7 +2582,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Two incidents were reported in a hostel in Shillong, where every room has a 220 V circuit protected by a 5 A fuse.\nIncident 1: In Room 12, Lalit switched on an 880 W electric iron while a 440 W room heater was already working. A few minutes later the fuse melted.\nIncident 2: In Room 7, the cord of a 40 W table lamp had been pinched under a door for weeks. When the lamp was switched on there was a spark at the cord and the fuse melted at once.\n(a) Calculate the current drawn in Room 12 before and after the iron was switched on.\n(b) Name the fault in each incident.\n(c) Explain why the current became very large in Incident 2 even though only a small lamp was being used.\n(d) Why is the fuse wire made of a material with a low melting point, and how is it connected in the circuit?\n(e) Suggest one precaution that would have prevented each incident.",
+    "questionText": "Two incidents were reported in a hostel in Shillong, where every room has a 220 V circuit protected by a 5 A fuse.\nIncident 1: In Room 12, Lalit switched on an 880 W electric iron while a 440 W room heater was already working. A few minutes later the fuse melted.\nIncident 2: In Room 7, the cord of a 40 W table lamp had been pinched under a door for weeks. When the lamp was switched on there was a spark at the cord and the fuse melted at once.\n(a) Calculate the current drawn in Room 12 before and after the iron was switched on. [1 mark]\n(b) Name the fault in each incident. [1 mark]\n(c) Explain why the current became very large in Incident 2 even though only a small lamp was being used. [1 mark]\n(d) Why is the fuse wire made of a material with a low melting point, and how is it connected in the circuit? [1 mark]\n(e) Suggest one precaution that would have prevented each incident. [1 mark]",
     "options": [],
     "answer": "(a) Before: 440/220 = 2 A; after: 1320/220 = 6 A (> 5 A). (b) Incident 1 — overloading; Incident 2 — short circuit. (c) Damaged insulation let live and neutral touch, bypassing the lamp through near-zero resistance, so the current became very large. (d) Low melting point so it melts quickly when the current exceeds its rating; it is connected in series in the live wire. (e) Do not run high-power appliances together on one light circuit (use the 15 A power circuit); replace damaged cords and keep cords from being pinched.",
     "solutionSteps": [
