@@ -9,7 +9,10 @@
  *   (d) the workflow wiring - shards, clock jobs, nightly full run, concurrency;
  *   (e) search-ping's deploy-inert skip (searchping_inert_skip.mjs) - skips ONLY when what www
  *       serves is an ancestor and the whole range is deploy-inert by verdictForFiles; every other
- *       case (code in range, not an ancestor, unreadable live, git error) waits.
+ *       case (code in range, not an ancestor, unreadable live, git error) waits;
+ *   (f) RAILWAY-BUILD-GATE - the `railway-build` job runs the ROOT build exactly as the Railway
+ *       image does (Node 24, frozen install WITH devDependencies, unfiltered `pnpm run build`),
+ *       and the aggregate `quality-gate` judges it.
  *
  * Run by quality-gate.yml (build-ops job).   node scripts/ops/ci_speed_acceptance.mjs
  */
@@ -22,13 +25,14 @@ import { decide, isDeployInertPath, listChangedPaths, verdictForFiles } from "./
 import { CONFIRM_READS, SETTLE_READS, SKIP_LINE, classifyLiveRead, decideInertSkip } from "./searchping_inert_skip.mjs";
 import { guard, dateSignalsIn, readList, scan } from "../testClock/dateSensitive.mjs";
 import { isRepoFrame } from "../testClock/clockRecorderFrames.mjs";
-import { evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
+import { FULL_BAR_JOBS, evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ANCHOR = path.resolve(HERE, "..", "..");
 const REPO_ROOT = path.resolve(ANCHOR, "..");
 const WORKFLOW = path.join(REPO_ROOT, ".github", "workflows", "quality-gate.yml");
-const VERCEL_JSON = path.join(REPO_ROOT, "vercel.json");
+const LANE_OVERLAP = path.join(REPO_ROOT, ".github", "workflows", "lane-overlap.yml");
+const VERCEL_JSON =path.join(REPO_ROOT, "vercel.json");
 
 const checks = [];
 const check = (name, ok, detail = "") => checks.push({ name, ok: Boolean(ok), detail });
@@ -171,7 +175,7 @@ export const REAL_COMMITS = [
 {
   const ok = { result: "success" };
   const skip = { result: "skipped" };
-  const fullNeeds = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, vitest: ok, clock: ok };
+  const fullNeeds = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, clock: ok };
   const shards = [1, 2, 3, 4].map((i) => ({ shard: `${i}/4`, files: 10, tests: 100, passed: 100, failed: 0, skipped: 0, todo: 0 }));
   const green = evaluate({ needs: fullNeeds, docsOnly: "false", shards, expectedShards: 4, filesOnDisk: 40 });
   check("g1_full_bar_all_green_passes", green.ok && green.totals.files === 40 && green.totals.tests === 400, green.problems.join("; "));
@@ -183,7 +187,7 @@ export const REAL_COMMITS = [
   const droppedFile = evaluate({ needs: fullNeeds, docsOnly: "false", shards, filesOnDisk: 41 });
   const skippedTest = evaluate({ needs: fullNeeds, docsOnly: "false", shards: [...shards.slice(0, 3), { ...shards[3], skipped: 1 }], filesOnDisk: 40 });
   check("g3_shards_must_all_report_cover_every_file_and_skip_nothing", !missingShard.ok && !droppedFile.ok && !skippedTest.ok);
-  const docsNeeds = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, vitest: skip, clock: skip };
+  const docsNeeds = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, "railway-build": skip, vitest: skip, clock: skip };
   const docsGreen = evaluate({ needs: docsNeeds, docsOnly: "true" });
   const docsMojibakeRed = evaluate({ needs: { ...docsNeeds, "docs-lane": { result: "failure" } }, docsOnly: "true" });
   const fullButSkipped = evaluate({ needs: docsNeeds, docsOnly: "false", shards, filesOnDisk: 40 });
@@ -199,13 +203,13 @@ export const REAL_COMMITS = [
     const m = wf.match(new RegExp(`\\n  ${id.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z][\\w-]*:\\n|$)`));
     return m ? m[1] : "";
   };
-  // ★ FU-CI1-NIGHTLY-RESTORE (owner ruling 2026-10-07, "Ship #969, nightly off for now"): the
-  //   nightly `schedule:` is OFF until #970 merges and the convergence gate learns that non-PR
-  //   events are N/A. This pins the NEW state - dispatch present, schedule ABSENT, FU id named.
-  //   The follow-up flips it back to requiring the cron.
-  check("w1_dispatch_trigger_present_schedule_off_until_FU_CI1_NIGHTLY_RESTORE",
-    !/\n  schedule:/.test(wf) && !/- cron:/.test(wf) && /\n  workflow_dispatch:\s*\n/.test(wf) &&
-      /FU-CI1-NIGHTLY-RESTORE/.test(wf));
+  // ★ FU-CI1-NIGHTLY-RESTORE (owner mandate 2026-10-07): the nightly `schedule:` is BACK, now
+  //   that the convergence gate treats every non-PR event (push, schedule, workflow_dispatch,
+  //   merge_group) as N/A (its FORBIDDEN-PIN). Pins the 02:00 IST cron AND manual dispatch.
+  //   (Was: schedule ABSENT, from #969 until this follow-up.)
+  check("w1_nightly_schedule_and_dispatch_triggers_present",
+    /\n  schedule:\n    - cron: '30 20 \* \* \*'/.test(wf) && /\n  workflow_dispatch:\s*\n/.test(wf),
+    "the nightly full clock run needs BOTH the 02:00 IST cron ('30 20 * * *') and workflow_dispatch");
   check("w2_concurrency_separates_events",
     /group:\s*quality-gate-\$\{\{\s*github\.event_name\s*\}\}-\$\{\{\s*github\.ref\s*\}\}/.test(wf),
     "a nightly/dispatched run must never cancel (or be cancelled by) a trunk push run");
@@ -217,10 +221,44 @@ export const REAL_COMMITS = [
   const nightly = jobBlock("nightly-full-clock");
   check("w4_nightly_job_runs_the_full_suites_under_both_clocks_and_opens_an_issue",
     /if: github\.event_name == 'schedule' \|\| github\.event_name == 'workflow_dispatch'/.test(nightly) &&
-      /pnpm --filter lazytopper exec vitest run\n/.test(nightly) && /pnpm --filter lazytopper run test:matrix:all/.test(nightly) &&
+      // The WHOLE suite: no --shard, no file filter — only the reporters D7's coverage step reads.
+      /pnpm --filter lazytopper exec vitest run --reporter=default --reporter=json --outputFile="\$RUNNER_TEMP\/vitest-nightly\.json"\n/.test(nightly) &&
+      /pnpm --filter lazytopper run test:matrix:all/.test(nightly) &&
       /issues: write/.test(nightly) && /gh issue create/.test(nightly) &&
       /2030-06-15T06:30:00\.000Z/.test(nightly) && /2030-02-14T18:45:00\.000Z/.test(nightly) &&
       !/issues: write/.test(wf.replace(nightly, "")));
+  // ★ D7 — the nightly's unsharded run must collect EVERY test file on disk, counted by ci_aggregate's
+  //   own functions (the PR shards' rule), and the step must run even after a failed suite step.
+  check("w11_nightly_asserts_files_equal_files_on_disk",
+    /- name: Every test file on disk ran \(files = files on disk\)\n\s*if: \$\{\{ !cancelled\(\) \}\}\n/.test(nightly) &&
+      /VITEST_JSON: \$\{\{ runner\.temp \}\}\/vitest-nightly\.json/.test(nightly) &&
+      /import \{ countTestFilesOnDisk, summariseVitestJson \} from "\.\/lazytopper\/scripts\/ops\/ci_aggregate\.mjs"/.test(nightly) &&
+      /s\.files === onDisk/.test(nightly) && /if \(!ok\) process\.exit\(1\)/.test(nightly),
+    "a nightly that silently drops a test file must fail — the files-on-disk assertion is missing or weakened");
+  // The issue-on-failure step stays SCHEDULE-only: a hand-run dispatch reports in its own run page.
+  check("w7_issue_on_failure_is_schedule_only",
+    /- name: Open an issue \(scheduled run failed\)\n\s*if: failure\(\) && github\.event_name == 'schedule'\n/.test(nightly));
+  // ★ D3 — READY FOR A FUTURE MERGE QUEUE. Both REQUIRED checks (`quality-gate`, `lane-overlap`)
+  //   must report on merge_group, or a queue waits forever on "expected — waiting for status".
+  const lo = read(LANE_OVERLAP);
+  const mergeGroupTrigger = /\n  merge_group:\n    types: \[checks_requested\]\n    branches: \[base\/approved-thru-437\]\n/;
+  check("w8_merge_group_trigger_in_both_required_workflows",
+    mergeGroupTrigger.test(wf) && mergeGroupTrigger.test(lo),
+    "quality-gate.yml and lane-overlap.yml both need `merge_group: types: [checks_requested]` on the trunk");
+  check("w9_lane_overlap_job_name_unchanged",
+    /\njobs:\n  lane-overlap:\n/.test(lo) && !/\n    name:/.test(lo),
+    "`lane-overlap` is a REQUIRED check: the job id must stay exactly lane-overlap, with no display-name override");
+  // The pass-through runs on merge_group ONLY; every real step runs on pull_request ONLY. Step by step.
+  const loSteps = lo.split(/\n      - name: /).slice(1);
+  const isPassThrough = (st) => /LANE_OVERLAP: N\/A on merge_group/.test(st);
+  const passThrough = loSteps.filter(isPassThrough);
+  const realSteps = loSteps.filter((st) => !isPassThrough(st));
+  check("w10_lane_overlap_pass_through_gated_on_merge_group_only",
+    passThrough.length === 1 && /\n        if: github\.event_name == 'merge_group'\n/.test(passThrough[0]) &&
+      !/\n        if:[^\n]*pull_request/.test(passThrough[0]) &&
+      realSteps.length > 0 && realSteps.every((st) => /\n        if: github\.event_name == 'pull_request'\n/.test(st)) &&
+      realSteps.some((st) => /node scripts\/ops\/lane_overlap\.mjs/.test(st)),
+    `pass-through steps=${passThrough.length}; the pass-through must be gated on merge_group only, every real step on pull_request`);
   const vitest = jobBlock("vitest");
   check("w5_default_vitest_runs_every_file_once_via_4_shards",
     /shard: \[1, 2, 3, 4\]/.test(vitest) && /pnpm --filter lazytopper exec vitest run --shard \$\{\{ matrix\.shard \}\}\/4/.test(vitest) &&
@@ -230,6 +268,64 @@ export const REAL_COMMITS = [
   check("w6_static_guard_and_this_suite_run_on_the_full_bar",
     /dateSensitive\.mjs --guard/.test(buildOps) && /ci_speed_acceptance\.mjs/.test(buildOps) &&
       /if: needs\.classify\.outputs\.docs_only != 'true'/.test(buildOps));
+}
+
+// ---- (f) RAILWAY-BUILD-GATE (owner order 2026-10-07) ------------------------------------------
+// #985 merged green and then failed every Railway backend build: the root `pnpm run build` runs
+// validateQuestionBanks, which no PR job ran. The `railway-build` job mirrors the Dockerfile.
+// Each pin is a pure function of the workflow text and runs on the REAL file AND on a MUTATED
+// copy that must fail it: a pin that cannot fail is not a pin.
+function railwayBuildPins(wfText) {
+  const blockOf = (id) => {
+    const m = wfText.match(new RegExp(`\\n  ${id}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z][\\w-]*:\\n|$)`));
+    return m ? m[1] : "";
+  };
+  const rb = blockOf("railway-build");
+  const code = rb.replace(/^\s*#.*$/gm, "");
+  const lines = code.split("\n").map((l) => l.trim());
+  const agg = blockOf("quality-gate");
+  const needs = ((agg.match(/^ {4}needs:\s*\[([^\]]*)\]/m) || [])[1] || "").split(",").map((x) => x.trim());
+  return {
+    exists_and_full_bar: rb !== "" && /^ {4}needs: classify$/m.test(rb) &&
+      /^ {4}if: needs\.classify\.outputs\.docs_only != 'true'$/m.test(rb),
+    node_24: /^ {10}node-version: '24'$/m.test(code) && (code.match(/node-version:/g) || []).length === 1 &&
+      /corepack prepare pnpm@10\.32\.1 --activate/.test(code),
+    install_frozen_with_dev_deps: lines.includes("run: pnpm install --frozen-lockfile") &&
+      !/--prod\b|--production\b|pnpm prune|NODE_ENV=production/.test(code),
+    unfiltered_root_build: lines.includes("pnpm run build") &&
+      !/--filter|pnpm -r\b|--dir\b|working-directory:/.test(code),
+    in_aggregate_needs: needs.includes("railway-build"),
+  };
+}
+{
+  const wf = read(WORKFLOW);
+  const pins = railwayBuildPins(wf);
+  const RB = /(\n  railway-build:\n[\s\S]*?)/.source;
+  const mutants = {
+    exists_and_full_bar: wf.replace(/(\n  railway-build:\n    needs: classify\n)    if: [^\n]*\n/, "$1"),
+    node_24: wf.replace(new RegExp(`${RB}node-version: '24'`), "$1node-version: '22'"),
+    install_frozen_with_dev_deps: wf.replace(new RegExp(`${RB}run: pnpm install --frozen-lockfile`), "$1run: pnpm install --prod --frozen-lockfile"),
+    unfiltered_root_build: wf.replace(new RegExp(`${RB}\\n {10}pnpm run build\\n`), "$1\n          pnpm --filter lazytopper run build\n"),
+    in_aggregate_needs: wf.replace(/(\n  quality-gate:\n    needs: \[[^\]]*?), railway-build/, "$1"),
+  };
+  for (const [k, ok] of Object.entries(pins)) {
+    const m = mutants[k];
+    const bites = m !== wf && railwayBuildPins(m)[k] === false;
+    check(`r_${k}`, ok && bites, `real=${ok}; control (a mutant that must fail it) fails it=${bites}`);
+  }
+  const ok = { result: "success" };
+  const skip = { result: "skipped" };
+  const shards = [1, 2, 3, 4].map((i) => ({ shard: `${i}/4`, files: 10, tests: 100, passed: 100, failed: 0, skipped: 0, todo: 0 }));
+  const full = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, clock: ok };
+  const docs = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, "railway-build": skip, vitest: skip, clock: skip };
+  const { "railway-build": _absent, ...missing } = full;
+  const pass = (needs, docsOnly) => evaluate({ needs, docsOnly, shards, expectedShards: 4, filesOnDisk: 40 }).ok;
+  check("r_aggregate_judges_railway_build",
+    FULL_BAR_JOBS.includes("railway-build") && pass(full, "false") &&
+      !pass({ ...full, "railway-build": { result: "failure" } }, "false") &&
+      !pass({ ...full, "railway-build": skip }, "false") && !pass(missing, "false") &&
+      pass(docs, "true") && !pass({ ...docs, "railway-build": ok }, "true"),
+    `FULL_BAR_JOBS=[${FULL_BAR_JOBS.join(", ")}]: a failed, skipped or missing railway-build must fail quality-gate on the full bar; skipped by design on the docs path`);
 }
 
 // ---- (e) search-ping deploy-inert skip ---------------------------------------------------------

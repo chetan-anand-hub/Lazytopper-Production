@@ -82,7 +82,7 @@
 // Reused rather than re-implemented: the bearer-token shape must not drift between
 // the module that verifies it and the module that reports why verification produced
 // nothing. Same header, one definition.
-const { extractBearerToken, REASON_INVALID, REASON_UNAVAILABLE } = require('./verifiedCaller.cjs');
+const { extractBearerToken, REASON_INVALID, REASON_UNAVAILABLE, REASON_VERIFIED, REASON_NO_TOKEN } = require('./verifiedCaller.cjs');
 // Reused for the same reason: whether a request carries a uid header is already
 // decided by the rate limiter's trust order (verified uid -> X-Lazytopper-Uid ->
 // anonymous IP bucket). Reading the header here would be a second definition.
@@ -137,6 +137,56 @@ const DENY_REAUTH_REQUIRED = 'entitlement.deny.reauth_required';
 const REAUTH_STATUS = 401;
 const REAUTH_ERROR = 'reauth_required';
 const REAUTH_MESSAGE = 'Please sign in again to continue.';
+
+/* ────────────────────────────────────────────────────────────────────────────
+   AUTHGATE-2 (HARDEN-1 PR-1) — a verified caller, or App Check, on four AI routes.
+   ────────────────────────────────────────────────────────────────────────────
+   These four routes call a model but are not premium features, so GATED_ROUTES does
+   not decide them. Until AUTHGATE-2 they served whoever asked: a bearer token that did
+   not verify was keyed on the IP, and a request with no token at all went to the
+   anonymous bucket. Now, at the route boundary, BEFORE idempotency, the free check,
+   the limiter and any model call:
+     • a VERIFIED caller           → passes; today's behaviour and limits.
+     • a token that did not verify → 401 `reauth_required` (the client refreshes once).
+     • the verifier UNAVAILABLE    → passes, exactly as on the entitlement routes: a
+       server fault, already counted as `auth.token.verifier_unavailable`.
+     • NO token (signed out)       → passes ONLY with a valid App Check token in
+       `X-Firebase-AppCheck`; missing → 401, invalid / unverifiable → 403. Admitted
+       callers are keyed to the anonymous bucket (index.cjs passes `signedOut`).
+   A refused call never reaches the limiter, the meter or a handler: it costs nothing.
+
+   ★ detect-question verifies WITHOUT consuming the token (spec §2 PR-1), so a token
+   verified here is still fresh for any later consuming check. The other three consume
+   it: one attestation, one call. A MARKED free-check request is not decided here at
+   all — freeCheck.cjs already requires App Check for it, fail-closed and consuming,
+   behind its own wire contract, which this lane must not change (P6).
+   ──────────────────────────────────────────────────────────────────────────── */
+const AI_CALLER_ROUTES = Object.freeze([
+  '/api/detect-question',
+  '/api/more-like-this',
+  '/api/generate-visual',
+  '/api/generate-diagram',
+]);
+/** Routes whose App Check verify must not consume the token. */
+const NON_CONSUMING_APP_CHECK_ROUTES = Object.freeze(['/api/detect-question']);
+/** Same wire name as freeCheck.cjs / freeCheckClient.ts (pinned equal by a test). */
+const AI_APP_CHECK_HEADER = 'X-Firebase-AppCheck';
+const APP_CHECK_REQUIRED_ERROR = 'app_check_required';
+const APP_CHECK_REASONS = Object.freeze({
+  MISSING: 'app_check_missing',
+  INVALID: 'app_check_invalid',
+  UNAVAILABLE: 'app_check_unavailable',
+});
+const APP_CHECK_STATUS = Object.freeze({
+  [APP_CHECK_REASONS.MISSING]: 401,
+  [APP_CHECK_REASONS.INVALID]: 403,
+  [APP_CHECK_REASONS.UNAVAILABLE]: 403,
+});
+const APP_CHECK_MESSAGE = 'Please sign in to use this.';
+/** Counter names, readable at /api/admin/token-telemetry like every other counter. */
+const AI_ROUTE_REFUSED_REAUTH = 'ai_route.refused.reauth_required';
+const AI_ROUTE_REFUSED_PREFIX = 'ai_route.refused.';
+const AI_ROUTE_ADMITTED_APP_CHECK = 'ai_route.admitted.app_check';
 /**
  * A uid header with NO bearer token (UID-HEADER-CLOSE-1). A DENIAL, not a fail-open.
  *
@@ -340,6 +390,8 @@ function isEntitled(tier) {
 function createEntitlementGate(deps = {}) {
   const {
     adminFirestore = null,
+    // AUTHGATE-2: only appCheck() is read, by requireVerifiedCallerOrAppCheck. Null fails CLOSED there.
+    firebaseAdmin = null,
     telemetry = null,
     sendJson = null,
     now = () => Date.now(),
@@ -604,6 +656,61 @@ function createEntitlementGate(deps = {}) {
     return true;
   }
 
+  /** AUTHGATE-2: the refusal for a signed-out call without a usable App Check token. */
+  function refuseAppCheck(res, reason) {
+    emit(`${AI_ROUTE_REFUSED_PREFIX}${reason}`);
+    if (typeof sendJson === 'function') {
+      sendJson(res, APP_CHECK_STATUS[reason], { error: APP_CHECK_REQUIRED_ERROR, reason, message: APP_CHECK_MESSAGE });
+    }
+    return { refused: true, signedOut: true };
+  }
+
+  /**
+   * AUTHGATE-2 (HARDEN-1 PR-1): on the four AI_CALLER_ROUTES, require a verified caller
+   * or, for a signed-out caller, a valid App Check token. See the block above
+   * AI_CALLER_ROUTES. Called by index.cjs straight after rejectUnverifiedToken, before
+   * idempotency, the free check, the limiter and dispatch.
+   *
+   * @param opts.freeCheckRequest  freeCheck.isFreeCheckRequest(...) for this request:
+   *                               such a request is left to freeCheck.cjs, unchanged.
+   * @returns {{ refused: boolean, signedOut: boolean }} — `refused` true when it has
+   *          already responded; `signedOut` true when an admitted caller had no token
+   *          and must be keyed to the anonymous bucket.
+   */
+  async function requireVerifiedCallerOrAppCheck(req, res, reqPath, verification, opts = {}) {
+    const pass = { refused: false, signedOut: false };
+    if (!AI_CALLER_ROUTES.includes(reqPath)) return pass;
+    const reason = verification && verification.reason;
+    if (reason === REASON_VERIFIED || reason === REASON_UNAVAILABLE) return pass;
+    if (reason !== REASON_NO_TOKEN) {
+      // A token was offered and did not verify (or the verdict is unknown): 401, so a
+      // signed-in student whose token expired refreshes it and retries once.
+      emit(AI_ROUTE_REFUSED_REAUTH);
+      if (typeof sendJson === 'function') sendJson(res, REAUTH_STATUS, reauthBody());
+      return { refused: true, signedOut: false };
+    }
+    // Signed out. A marked free check is decided by freeCheck.cjs, App Check included.
+    if (opts.freeCheckRequest === true) return { refused: false, signedOut: true };
+
+    const token = String((req && req.headers && req.headers[AI_APP_CHECK_HEADER.toLowerCase()]) || '').trim();
+    if (!token) return refuseAppCheck(res, APP_CHECK_REASONS.MISSING);
+    // FAIL CLOSED: there is no paying student to protect on this path, only a budget.
+    if (!firebaseAdmin || typeof firebaseAdmin.appCheck !== 'function') {
+      return refuseAppCheck(res, APP_CHECK_REASONS.UNAVAILABLE);
+    }
+    let verified = false;
+    try {
+      const consume = !NON_CONSUMING_APP_CHECK_ROUTES.includes(reqPath);
+      const claims = await firebaseAdmin.appCheck().verifyToken(token, consume ? { consume: true } : undefined);
+      verified = !!(claims && typeof claims.appId === 'string' && claims.appId) && claims.alreadyConsumed !== true;
+    } catch {
+      verified = false;
+    }
+    if (!verified) return refuseAppCheck(res, APP_CHECK_REASONS.INVALID);
+    emit(AI_ROUTE_ADMITTED_APP_CHECK);
+    return { refused: false, signedOut: true };
+  }
+
   /**
    * The ROUTE-BOUNDARY gate. Call once per POST, before dispatch.
    *
@@ -657,6 +764,7 @@ function createEntitlementGate(deps = {}) {
     resolve,
     applyToRequest,
     rejectUnverifiedToken,
+    requireVerifiedCallerOrAppCheck,
     denialBody,
     /** test-only visibility into the positive cache */
     _cacheSize: () => positiveCache.size,
@@ -689,4 +797,14 @@ module.exports = {
   REAUTH_STATUS,
   REAUTH_ERROR,
   REAUTH_MESSAGE,
+  AI_CALLER_ROUTES,
+  NON_CONSUMING_APP_CHECK_ROUTES,
+  AI_APP_CHECK_HEADER,
+  APP_CHECK_REQUIRED_ERROR,
+  APP_CHECK_REASONS,
+  APP_CHECK_STATUS,
+  APP_CHECK_MESSAGE,
+  AI_ROUTE_REFUSED_REAUTH,
+  AI_ROUTE_REFUSED_PREFIX,
+  AI_ROUTE_ADMITTED_APP_CHECK,
 };

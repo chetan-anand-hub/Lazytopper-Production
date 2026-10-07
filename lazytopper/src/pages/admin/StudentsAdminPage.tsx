@@ -16,6 +16,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import StudentDetailPanel from "./StudentDetailPanel";
+import GraderHealthCard from "./GraderHealthCard";
 import {
   coveredCount,
   fetchAdmin,
@@ -228,6 +229,9 @@ export default function StudentsAdminPage() {
           </div>
 
           {list.status !== "refused" && <SummaryCards state={summary} periodLabel={periodLabel} />}
+
+          {/* HARDEN-1 PR-2: read-only, loads on request, only once the admin API has answered. */}
+          {list.status === "ok" && <GraderHealthCard getToken={stableGetToken} />}
 
           {list.status === "loading" && <p className="sa-muted">Loading students…</p>}
           {list.status === "refused" && (

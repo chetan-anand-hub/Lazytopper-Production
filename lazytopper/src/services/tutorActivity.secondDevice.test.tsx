@@ -10,14 +10,16 @@
  * not depend on, the bank chunk.
  *
  * Mutations this file turns RED:
- *   T — drop the Tutor turn write (`recordTutorTurn` in useTutorSession.send) → the count pin;
+ *   T — drop the Tutor turn write (`recordTutorTurn` in useTutorSession.runModel) → the count pin;
+ *   F — record the doubt BEFORE the reply (back in `send`) → the failed-reply pins (a doubt the
+ *       Tutor never answered is not Tutor activity; #970 live check, TUTOR-DOUBT-COUNTED-ON-FAILURE);
  *   D — the brief reads device-local weak areas again → the brief parity pin;
  *   P — the sign-in hydration skips the wrong-answer log / mock history → the second-device pins.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 
-const H = vi.hoisted(() => ({ store: new Map<string, Record<string, unknown>>(), modelCalls: 0 }));
+const H = vi.hoisted(() => ({ store: new Map<string, Record<string, unknown>>(), modelCalls: 0, failNext: 0 }));
 
 vi.mock("firebase/firestore", () => {
   type Ref = { __kind: "col" | "doc"; path: string };
@@ -84,6 +86,10 @@ vi.mock("../ai/tutorClient", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../ai/tutorClient")>()),
   callTutor: async () => {
     H.modelCalls += 1;
+    if (H.failNext > 0) {
+      H.failNext -= 1;
+      throw new Error("The tutor request failed."); // what callTutor throws on a 500
+    }
     return { reply: "ok" };
   },
 }));
@@ -130,6 +136,7 @@ const settle = () => new Promise((r) => setTimeout(r, 0));
 beforeEach(() => {
   H.store.clear();
   H.modelCalls = 0;
+  H.failNext = 0;
   newDevice();
 });
 
@@ -151,6 +158,7 @@ describe("G8 — a doubt sent to the Tutor is recorded (synced) and counted", ()
     const { result } = mountTutor(USER);
     act(() => result.current.send("Why are these triangles similar?"));
     await waitFor(() => expect(H.modelCalls).toBe(1));
+    await waitFor(() => expect(doubtCount()).toBe(1));
     expect(Object.keys(doubtsAt())).toEqual(["maths:triangles"]);
     expect(doubtsAt()["maths:triangles"]).toHaveLength(1);
     expect(typeof doubtsAt()["maths:triangles"][0]).toBe("number"); // a send time — no text, no grade
@@ -169,9 +177,28 @@ describe("G8 — a doubt sent to the Tutor is recorded (synced) and counted", ()
     await waitFor(() => expect(H.modelCalls).toBe(1));
     act(() => result.current.send("Second doubt"));
     await waitFor(() => expect(H.modelCalls).toBe(2));
-    expect(doubtCount()).toBe(2);
+    await waitFor(() => expect(doubtCount()).toBe(2));
     const m = await readStudyModel(UID, { window: "today" });
     expect(m.activity.tutor).toEqual({ doubts: 2, sessions: 1, complete: true });
+  });
+
+  it("★ a FAILED reply (500) → no doubt written, nothing counted; the successful retry → exactly one", async () => {
+    H.failNext = 1;
+    const { result } = mountTutor(USER);
+    act(() => result.current.send("Why are these triangles similar?"));
+    await waitFor(() => expect(result.current.status).toBe("error"));
+    expect(H.modelCalls).toBe(1); // precondition: the model WAS called, and it failed
+    await settle();
+    expect(H.store.has(`tutorSessions/${UID}`)).toBe(false);
+    expect((await readStudyModel(UID, { window: "today" })).activity.tutor.doubts).toBe(0);
+
+    act(() => result.current.retry());
+    await waitFor(() => expect(result.current.status).toBe("idle"));
+    expect(H.modelCalls).toBe(2);
+    await waitFor(() => expect(doubtCount()).toBe(1));
+    await settle();
+    expect(doubtCount()).toBe(1); // one doubt, answered once — never two
+    expect((await readStudyModel(UID, { window: "today" })).activity.tutor).toEqual({ doubts: 1, sessions: 1, complete: true });
   });
 
   it("CONTROL — signed out / a local session sends a doubt → nothing recorded, nothing counted", async () => {
@@ -189,6 +216,7 @@ describe("G8 — a doubt sent to the Tutor is recorded (synced) and counted", ()
     const { result } = mountTutor(USER);
     act(() => result.current.send("A doubt on device A"));
     await waitFor(() => expect(H.modelCalls).toBe(1));
+    await waitFor(() => expect(doubtCount()).toBe(1));
     const a = await readStudyModel(UID, { window: "week" });
     newDevice();
     const b = await readStudyModel(UID, { window: "week" });

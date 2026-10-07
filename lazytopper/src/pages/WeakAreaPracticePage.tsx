@@ -5,8 +5,10 @@ import { useAuth } from "../context/AuthContext";
 import {
   ME_DEFAULT_WINDOW,
   boardChapterKey,
+  modelNamesWeakness,
   readStudyModel,
   rungNamesWeakness,
+  subjectRungOf,
   type StudyReadModel,
 } from "../services/progressReadModel";
 import { getDueReviews, getSRStats, type SRConceptCard } from "../services/spacedRepetitionEngine";
@@ -17,6 +19,7 @@ import {
   checkAndAdaptPath,
   type LearningPath,
 } from "../services/learningPathGenerator";
+import "./WeakAreaPracticePage.css";
 
 type ViewTab = "weak-areas" | "learning-path" | "reviews";
 
@@ -67,6 +70,17 @@ export function difficultyFromMarksLost(evidence: AreaEvidence | null): "Easy" |
   if (evidence.lostShare >= 0.6) return "Easy";
   if (evidence.lostShare >= 0.3) return "Medium";
   return "Hard";
+}
+
+/**
+ * ME-ENGINE-1 PR-2c — Me's gate for the paper ON SCREEN. A one-paper tab asks that paper's own
+ * rung (`rungNamesWeakness`); "All" asks `modelNamesWeakness` (every paper with graded answers
+ * must pass; none → false). No model (loading, signed out, failed read) → false.
+ */
+export function emptyListGateMet(model: StudyReadModel | null, subjectFilter: "All" | "Maths" | "Science"): boolean {
+  if (!model) return false;
+  if (subjectFilter === "All") return modelNamesWeakness(model);
+  return rungNamesWeakness(subjectRungOf(model.progress, subjectFilter === "Maths" ? "maths" : "science"));
 }
 
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
@@ -565,14 +579,35 @@ export default function WeakAreaPracticePage() {
 
       {tab === "weak-areas" && (
         <div>
+          {/* ME-ENGINE-1 PR-2c [WEAKAREA-EMPTY-PRAISE]: an empty list NEVER praises. The list comes
+              from `getWeakAreas`, which still reads device-local practice data, so an empty list
+              is not proof that no topic is weak (FU-B18-WEAKAREA-LOCAL-LIST). The copy follows the
+              gate of the paper ON SCREEN (`emptyListGateMet`): below it — no graded answers in that
+              paper, signed out, a failed read — "not enough graded yet"; above it, a neutral line. */}
           {!summary || summary.weakAreas.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "40px 20px" }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>&#127881;</div>
-              <h3 style={{ fontWeight: 800, fontSize: 18, color: "#22c55e" }}>No Weak Areas!</h3>
-              <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 8 }}>
-                All your topics are looking strong. Keep practicing to maintain your skills.
-              </p>
-            </div>
+            emptyListGateMet(model, subjectFilter) ? (
+              <div className="wap-empty" data-testid="weak-area-empty-none">
+                <div className="wap-empty__icon" aria-hidden="true">&#128218;</div>
+                <h3 className="wap-empty__title">No Topic to Suggest Right Now</h3>
+                <p className="wap-empty__text">
+                  Keep practising — this list updates as your answers are graded.
+                </p>
+                <button type="button" className="wap-empty__cta" onClick={() => navigate("/practice-hub")}>
+                  Go to Practice
+                </button>
+              </div>
+            ) : (
+              <div className="wap-empty" data-testid="weak-area-empty-thin">
+                <div className="wap-empty__icon" aria-hidden="true">&#128218;</div>
+                <h3 className="wap-empty__title">Not Enough Graded Yet</h3>
+                <p className="wap-empty__text">
+                  Not enough of your answers have been graded yet to suggest a topic. Practise a few questions and check back.
+                </p>
+                <button type="button" className="wap-empty__cta" onClick={() => navigate("/practice-hub")}>
+                  Go to Practice
+                </button>
+              </div>
+            )
           ) : (
             <>
               <button

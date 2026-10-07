@@ -312,7 +312,10 @@ function resolveCaller(req, verifiedUid, opts) {
   if (verified) return { id: verified, anonymous: false, verified: true };
 
   const tokenRejected = !!(opts && opts.tokenRejected === true);
-  const uid = tokenRejected ? "" : String(req?.headers?.["x-lazytopper-uid"] || "").trim();
+  // AUTHGATE-2: a caller admitted with NO token (App Check only) is signed out by
+  // construction, so its uid header — a string anyone can type — keys nothing.
+  const signedOut = !!(opts && opts.signedOut === true);
+  const uid = tokenRejected || signedOut ? "" : String(req?.headers?.["x-lazytopper-uid"] || "").trim();
   if (uid) return { id: uid, anonymous: false, verified: false };
 
   const xff = String(req?.headers?.["x-forwarded-for"] || "").split(",")[0].trim();
@@ -422,6 +425,7 @@ function createRateLimiter(options = {}) {
     const day = rollIfNeeded(nowMs);
     const caller = resolveCaller(req, verifiedUid, {
       tokenRejected: !!(options && options.tokenRejected === true),
+      signedOut: !!(options && options.signedOut === true),
     });
     const freeCheck = !!(options && options.freeCheck === true) && caller.anonymous;
     const premiumShedExempt = !!(options && options.premium === true) && caller.verified;

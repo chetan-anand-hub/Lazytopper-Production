@@ -10,7 +10,8 @@
  * skipped shard. So this FAILS CLOSED:
  *
  *   classify, docs-lane            must be `success`, always.
- *   static, build-ops, vitest, clock
+ *   static, build-ops, railway-build, vitest, clock
+ *       (railway-build: the root build exactly as the Railway image runs it — RAILWAY-BUILD-GATE)
  *       docs-only path (classify said docs_only=true)  -> must be `skipped` (skipped BY DESIGN)
  *       anything else                                   -> must be `success`
  *   vitest shards (full bar only)  every one of the EXPECTED_SHARDS reported a summary, none
@@ -30,7 +31,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ANCHOR = path.resolve(HERE, "..", ".."); // lazytopper/
 
 export const ALWAYS_JOBS = Object.freeze(["classify", "docs-lane"]);
-export const FULL_BAR_JOBS = Object.freeze(["static", "build-ops", "vitest", "clock"]);
+export const FULL_BAR_JOBS = Object.freeze(["static", "build-ops", "railway-build", "vitest", "clock"]);
 
 /** Count the vitest files the default run collects (vitest.config.ts include: src/**\/*.test.{ts,tsx}). */
 export function countTestFilesOnDisk(anchor = ANCHOR) {

@@ -12,6 +12,8 @@ import { useAuth } from "../../context/AuthContext";
 import { recordAttempt } from "../../services/practiceInsights";
 import { practiceCardAttemptIdentity } from "../../services/attemptDedupKey";
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
+// CBQ-1 PR-1: the visible "CBQ" label, shown iff isCbq(q) (the one classifier).
+import { CbqLabel } from "../../lib/cbq/CbqLabel";
 
 const REPORT_TYPES = [
   "Wrong answer given",
@@ -486,6 +488,7 @@ export function PracticeQuestionCard({
             Question {idx + 1}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+            <CbqLabel question={q} />
             <span style={metaChipStyle(MARKS_BLUE_SOFT, `1px solid ${MARKS_BLUE_BORDER}`, MARKS_BLUE_FG)}>
               {q.marks} mark{q.marks !== 1 ? "s" : ""}
             </span>
