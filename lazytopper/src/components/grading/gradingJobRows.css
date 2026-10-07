@@ -1,0 +1,15 @@
+/* GRADING-JOBS-1 J2 — the rows of a background grade as they land. Inherits the host
+   surface's colours (every grading surface has its own theme); only neutral borders and
+   the existing amber token for "provisional". */
+.lt-gj { margin: 12px 0 0; padding: 10px 12px; border: 1px solid rgba(127, 127, 127, 0.28); border-radius: 12px; font-size: 13px; line-height: 1.45; color: inherit; }
+.lt-gj__head { font-weight: 700; margin: 0 0 6px; }
+.lt-gj__note { margin: 0 0 8px; opacity: 0.8; }
+.lt-gj__list { list-style: none; margin: 0; padding: 0; }
+.lt-gj__row { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; padding: 4px 0; border-top: 1px solid rgba(127, 127, 127, 0.16); }
+.lt-gj__row:first-child { border-top: 0; }
+.lt-gj__q { font-weight: 700; min-width: 40px; }
+.lt-gj__val { flex: 1; text-align: right; }
+.lt-gj__val--muted { opacity: 0.75; }
+.lt-gj__prov { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--lt-amber-500, #ff9600); color: var(--lt-amber-500, #ff9600); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.lt-gj__btn { margin-top: 10px; padding: 8px 14px; border-radius: 10px; border: 1px solid currentColor; background: transparent; color: inherit; font-weight: 700; cursor: pointer; }
+.lt-gj__btn:disabled { opacity: 0.6; cursor: default; }
