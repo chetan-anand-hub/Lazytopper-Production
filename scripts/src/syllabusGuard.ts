@@ -346,6 +346,15 @@ function unescapeLiteral(raw: string): string {
   return raw.replace(/\\([\s\S])/g, "$1");
 }
 
+/**
+ * The comparison form of a sub-topic: lower case, with a typographic apostrophe (U+2018, U+2019,
+ * U+02BC) folded to ' (GUARD-3 G5), so "Euclid’s Division Lemma" is the banned "Euclid's Division
+ * Lemma". Still an exact, full-string comparison: nothing else is normalised.
+ */
+export function foldForCompare(s: string): string {
+  return s.replace(/[‘’ʼ]/g, "'").toLowerCase();
+}
+
 export interface Violation {
   file: string;
   subtopic: string;
@@ -357,14 +366,14 @@ export function scanFile(filePath: string, bannedSubtopics: string[]): Violation
   const content = readFileSync(filePath, "utf-8");
   const violations: Violation[] = [];
 
-  const bannedSet = new Set(bannedSubtopics.map((s) => s.toLowerCase()));
+  const bannedSet = new Set(bannedSubtopics.map(foldForCompare));
   const counts = new Map<string, number>();
 
   let match: RegExpExecArray | null;
   SUBTOPIC_PATTERN.lastIndex = 0;
   while ((match = SUBTOPIC_PATTERN.exec(content)) !== null) {
     const subtopic = unescapeLiteral(match[2]);
-    if (bannedSet.has(subtopic.toLowerCase())) {
+    if (bannedSet.has(foldForCompare(subtopic))) {
       counts.set(subtopic, (counts.get(subtopic) ?? 0) + 1);
     }
   }
@@ -1210,6 +1219,35 @@ async function runGuard(): Promise<void> {
     }
   }
 
+  // ── Mode 4 (GUARD-3): row rules over every served row + the ratchet ──
+  const g3 = await runRowRules(served.sources);
+  console.log(
+    `\nChecking every SERVED row's text, options and solutions (GUARD-3: ${g3.rowCount} rows, ` +
+      `${g3.findings.length} finding(s); baseline ${g3.ratchet.baselined.length}, reviewed ${g3.ratchet.reviewed.length})...`
+  );
+  for (const [rule, n] of Object.entries(g3.countsByRule)) console.log(`  ${rule}: ${n}`);
+  const g3Failures =
+    g3.ratchet.unlisted.length + g3.ratchet.staleBaseline.length + g3.ratchet.staleReviewed.length + g3.ratchet.errors.length;
+  if (g3Failures === 0) {
+    console.log(`  ✓ No finding outside the baseline / reviewed lists, and no stale entry.`);
+  } else {
+    hasError = true;
+    for (const f of g3.ratchet.unlisted) {
+      console.error(
+        `  ✗ ${f.rule} ${f.verdict.toUpperCase()} ${f.surface} ${f.rowId}${g3.fileOf(f.rowId) ? ` (${g3.fileOf(f.rowId)})` : ""} ` +
+          `[${f.fields.join(",")}]: ${f.matched} — "${f.text}"`
+      );
+    }
+    for (const e of g3.ratchet.staleBaseline) {
+      console.error(`  ✗ STALE baseline entry (no longer matches; remove it): ${e.rule} ${e.surface} ${e.rowId} ${e.matched}`);
+    }
+    for (const e of g3.ratchet.staleReviewed) {
+      console.error(`  ✗ STALE reviewed entry (no longer matches; remove it): ${e.rule} ${e.surface} ${e.rowId} ${e.matched}`);
+    }
+    for (const e of g3.ratchet.errors) console.error(`  ✗ ${e}`);
+    totalViolations += g3Failures;
+  }
+
   if (hasError) {
     console.error(
       `\nSyllabus guard FAILED — ${totalViolations} out-of-syllabus item(s) detected.`
@@ -1223,6 +1261,34 @@ async function runGuard(): Promise<void> {
   }
 }
 
+/** GUARD-3 (Mode 4): the row rules + ratchet over the served set already loaded for Mode 3. */
+export async function runRowRules(sources: LoadedServedSources) {
+  // Loaded at run time: syllabusGuard.rows.ts imports this module, so a static import would be a cycle.
+  const rows = await import("./syllabusGuard.rows.js");
+  const ref = await loadReference();
+  const limitErrors = rows.checkLimitsPresent(ref);
+  if (limitErrors.length > 0) throw new Error(`syllabusGuard: ${limitErrors.join(" ")}`);
+  const base = buildSyllabusMatcher(ref);
+  const served = rows.collectServedRows(sources, base.chapterKeys);
+  const findings = rows.scanRows(served, { textMatcher: rows.buildTextMatcher(base) });
+  const ratchet = rows.applyRatchet(findings, rows.loadRatchetFiles());
+  const countsByRule: Record<string, number> = {};
+  for (const r of rows.ROW_RULES) countsByRule[r.id] = 0;
+  for (const f of findings) countsByRule[f.rule]++;
+  let index: Map<string, string> | undefined;
+  const fileOf = (id: string) => {
+    if (ratchet.unlisted.length === 0) return undefined;
+    index ??= rows.indexRowFiles(REPO_ROOT, ["lazytopper/src/data"]);
+    return index.get(id);
+  };
+  return { rowCount: served.length, findings, ratchet, countsByRule, fileOf };
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  await runGuard();
+  // Not a top-level await: runRowRules() imports syllabusGuard.rows.ts, which imports this module,
+  // and that import cannot settle while this module is still evaluating a top-level await.
+  runGuard().catch((err: unknown) => {
+    console.error(err);
+    process.exit(1);
+  });
 }
