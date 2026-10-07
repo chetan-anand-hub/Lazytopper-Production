@@ -52,10 +52,9 @@ export const TRIGONOMETRY_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "LHS = 7 + tan²θ + cot²θ = RHS",
     "explanation": "Expand using (a+b)² formula. Use sinθ·cosecθ = 1 and cosθ·secθ = 1. Group sin²θ + cos²θ = 1. Apply sec²θ = 1 + tan²θ and cosec²θ = 1 + cot²θ to get 7 + tan²θ + cot²θ.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/1/1",
     "ncertRef": "Ex 8.4",
-    "strategyHint": "Always work on LHS only. Expand the squares first, simplify sinθ·cosecθ = 1 and cosθ·secθ = 1, then use the three fundamental identities."
+    "strategyHint": "Always work on LHS only. Expand the squares first, simplify sinθ·cosecθ = 1 and cosθ·secθ = 1, then use the three fundamental identities.",
+    sourceOverride: "others",
   },
 
   {
@@ -99,10 +98,9 @@ export const TRIGONOMETRY_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "LHS = 1 + secθ·cosecθ = RHS",
     "explanation": "Convert to sinθ/cosθ. Find common denominator. Use a³−b³ factorisation. Cancel (sinθ−cosθ). Simplify to get 1 + secθ·cosecθ.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/2/1",
     "ncertRef": "Ex 8.4 Q5",
-    "strategyHint": "Convert tanθ and cotθ to sinθ/cosθ. Use a³ − b³ = (a−b)(a²+ab+b²) after combining fractions. This is a landmark CBSE question — memorise the a³−b³ step."
+    "strategyHint": "Convert tanθ and cotθ to sinθ/cosθ. Use a³ − b³ = (a−b)(a²+ab+b²) after combining fractions. This is a landmark CBSE question — memorise the a³−b³ step.",
+    sourceOverride: "others",
   },
 
   {
@@ -142,10 +140,9 @@ export const TRIGONOMETRY_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "LHS = cosecA + cotA = RHS",
     "explanation": "Divide by sinA to convert to cotA and cosecA. Replace 1 in numerator with cosec²A − cot²A = (cosecA−cotA)(cosecA+cotA). Factor out (cosecA+cotA) and cancel with the denominator.",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "30/1/1",
     "ncertRef": "Ex 8.4 Q3",
-    "strategyHint": "Divide throughout by sinA first. Then replace 1 = cosec²A − cot²A = (cosecA+cotA)(cosecA−cotA) in the numerator. This factorisation is the key step."
+    "strategyHint": "Divide throughout by sinA first. Then replace 1 = cosec²A − cot²A = (cosecA+cotA)(cosecA−cotA) in the numerator. This factorisation is the key step.",
+    sourceOverride: "others",
   },
 
   {
@@ -183,10 +180,9 @@ export const TRIGONOMETRY_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "LHS = 1/(secθ − tanθ) = RHS",
     "explanation": "Divide by cosθ. Replace 1 = (secθ+tanθ)(secθ−tanθ) in numerator. Factor and cancel. Then rationalise secθ+tanθ using sec²θ−tan²θ = 1.",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "30/1/1",
     "ncertRef": "Ex 8.4",
-    "strategyHint": "Divide by cosθ to bring secθ and tanθ. The critical substitution is 1 = sec²θ − tan²θ = (secθ+tanθ)(secθ−tanθ) in the numerator."
+    "strategyHint": "Divide by cosθ to bring secθ and tanθ. The critical substitution is 1 = sec²θ − tan²θ = (secθ+tanθ)(secθ−tanθ) in the numerator.",
+    sourceOverride: "others",
   },
 
   {
@@ -259,10 +255,9 @@ export const TRIGONOMETRY_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "q(p² − 1) = 2p (proved)",
     "explanation": "Square p to get p² − 1 = 2sinθcosθ. Express q = (sinθ+cosθ)/(sinθcosθ) = p/(sinθcosθ). Multiply: q(p²−1) = [p/(sinθcosθ)] × 2sinθcosθ = 2p.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/2/1",
     "ncertRef": "Ex 8.4",
-    "strategyHint": "Square p immediately — this gives p² − 1 = 2sinθcosθ. Simplify q into p/sinθcosθ form. The product then cancels cleanly."
+    "strategyHint": "Square p immediately — this gives p² − 1 = 2sinθcosθ. Simplify q into p/sinθcosθ form. The product then cancels cleanly.",
+    sourceOverride: "others",
   },
 
   // ─────────────────────────────────────────────
@@ -325,9 +320,8 @@ export const TRIGONOMETRY_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "LHS = secA + tanA = RHS",
     "explanation": "Rationalise the surd by multiplying inside by (1+sinA)/(1+sinA). Denominator becomes 1−sin²A = cos²A. Square root gives (1+sinA)/cosA = secA+tanA.",
     "isCompetencyBased": false,
-    "pyqYear": "2022",
-    "pyqSet": "30/2/1",
-    "ncertRef": "Ex 8.4 Q2"
+    "ncertRef": "Ex 8.4 Q2",
+    sourceOverride: "others",
   },
 
   {
@@ -474,8 +468,7 @@ export const TRIGONOMETRY_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "cosθ − sinθ = √2 sinθ (proved)",
     "explanation": "From given: sinθ = cosθ(√2−1). Rationalise by multiplying by (√2+1)/(√2+1) to get cosθ = sinθ(√2+1). Substitute into cosθ−sinθ = sinθ(√2+1)−sinθ = √2sinθ.",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "30/1/1",
-    "ncertRef": "Ex 8.4"
+    "ncertRef": "Ex 8.4",
+    sourceOverride: "others",
   }
 ];

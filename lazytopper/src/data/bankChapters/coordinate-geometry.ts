@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "coordinate-geometry" (Maths): 370 served rows from 20 source arrays, 35 withheld.
+// Chapter "coordinate-geometry" (Maths): 259 served rows from 21 source arrays, 43 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -21,11 +21,12 @@ import { CG_SP } from "../questionBanks/class10/maths/coordinate-geometry.sp";
 import { CG_PREBOARD } from "../questionBanks/class10/maths/coordinate-geometry.preboard";
 import { COORDINATE_GEOMETRY_APQ } from "../questionBanks/class10/maths/coordinate-geometry.additionalPQ";
 import { COORDINATE_GEOMETRY_PYQ } from "../questionBanks/class10/maths/coordinate-geometry.pyq";
+import { CIRCLES_PYQ } from "../questionBanks/class10/maths/circles.pyq";
 import { COORDINATE_GEOMETRY_PYQ_2026 } from "../questionBanks/class10/maths/coordinate-geometry.pyq2026";
+import { TRIANGLES_PYQ_2024 } from "../questionBanks/class10/maths/triangles.pyq2024";
 import { COORDINATE_GEOMETRY_PYQ_2024 } from "../questionBanks/class10/maths/coordinate-geometry.pyq2024";
 import { COORDINATE_GEOMETRY_PYQ_2025 } from "../questionBanks/class10/maths/coordinate-geometry.pyq2025";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
-import { COORDINATE_GEOMETRY_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/coordinate-geometry.cbq.ltgen";
 
 export default defineChapter("coordinate-geometry", [
   [16, COORDINATE_GEOMETRY_PACK1, true],
@@ -43,14 +44,20 @@ export default defineChapter("coordinate-geometry", [
   [249, CG_PREBOARD, false],
   [262, COORDINATE_GEOMETRY_APQ, false],
   [314, COORDINATE_GEOMETRY_PYQ, false],
+  [316, CIRCLES_PYQ, false],
   [327, COORDINATE_GEOMETRY_PYQ_2026, false],
+  [339, TRIANGLES_PYQ_2024, false],
   [340, COORDINATE_GEOMETRY_PYQ_2024, false],
   [352, COORDINATE_GEOMETRY_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
-  [448, COORDINATE_GEOMETRY_CBQ_LT_GENERATED, false],
 ], [
   "CG-E15",
+  "CG-E16",
+  "CG-E19",
+  "CG-M01",
+  "CG-M11",
   "CG-H05",
+  "CG-H11",
   "CG-L01",
   "CG-N05",
   "CG-ND02",
@@ -81,7 +88,10 @@ export default defineChapter("coordinate-geometry", [
   "CG-N-EXEM2-7-LA-001",
   "SP-M-2022-CG-A-001",
   "SP-M-2022-CG-A-002",
+  "APQ-M-CG-005",
   "APQ-M-CG-006",
   "PYQ-M-CG-002",
+  "PYQ-M-2024-CG-006",
+  "PYQ-M-2024-CG-007",
   "PYQ-M-2025-CG-003",
 ]);

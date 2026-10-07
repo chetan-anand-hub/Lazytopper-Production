@@ -373,12 +373,14 @@ const sectionAQuestions = [
         questionText:
           "Assertion (A): If two sides of one triangle are proportional to two sides of another triangle, the triangles are similar.\nReason (R): SAS similarity needs the included angles to be equal along with proportional corresponding sides.",
         answer:
-          "Assertion is false but Reason is true.",
+          "A is false, R is true.",
         working: [
           "Proportional sides alone are not enough for SAS similarity.",
           "The included angles must also be equal.",
         ],
         formatOverride: "Assertion-Reasoning",
+        options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+        finalAnswer: "A is false, R is true.",
       },
       {
         questionId: "2026-TRI-P1-A-012",
@@ -401,12 +403,14 @@ const sectionAQuestions = [
         questionText:
           "Assertion (A): If DE is parallel to BC in Delta ABC, then AD/AB = AE/AC.\nReason (R): Triangles ADE and ABC are similar by AA similarity.",
         answer:
-          "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
+          "Both A and R are true, and R is the correct explanation of A.",
         working: [
           "Parallel lines create equal corresponding angles.",
           "That proves Delta ADE is similar to Delta ABC, which gives the proportional side relation.",
         ],
         formatOverride: "Assertion-Reasoning",
+        options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+        finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
       },
       {
         questionId: "2026-TRI-P1-A-015",
@@ -421,12 +425,15 @@ const sectionAQuestions = [
         questionText:
           "Assertion (A): If two triangles are similar, then their perimeters are in the same ratio as their corresponding sides.\nReason (R): The ratio of areas of similar triangles is equal to the ratio of corresponding sides.",
         answer:
-          "Assertion is true but Reason is false.",
+          "A is true, R is false.",
         working: [
           "Perimeter ratio does equal the ratio of corresponding sides for similar triangles.",
           "But area ratio equals the square of the side ratio, not the side ratio itself.",
         ],
         formatOverride: "Assertion-Reasoning",
+        // BANK-FIX-1 PR-2 (2026-10-07, controller D14): the standard four A-R options, as on A-011/014/020.
+        options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+        finalAnswer: "A is true, R is false.",
       },
       {
         questionId: "2026-TRI-P1-A-017",
@@ -462,6 +469,7 @@ const sectionAQuestions = [
           "By AA, the triangles are similar, so their sides are proportional, proving the diagonals divide each other in the same ratio.",
         ],
         formatOverride: "Assertion-Reasoning",
+        options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
       },
     ]
   ),

@@ -53,10 +53,9 @@ export const MAGNETIC_EFFECTS_PACK1: CanonicalQuestion[] = [
       "Permanent magnet: always magnetic; cannot be switched on/off; made of steel/hard magnetic material [1]",
     ], finalAnswer: "Electromagnet: temporary, controllable; Permanent: always on, fixed strength" , isCompetencyBased: false },
   { id: "ME-M14", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Fleming's Left-Hand Rule and Force on Conductor", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "State Fleming's left-hand rule. Where is it applied?", solutionSteps: [
-      "Stretch thumb, forefinger, and middle finger of left hand mutually perpendicular; Forefinger → direction of magnetic field (B) [½]",
-      "Middle finger → direction of current (I); Thumb → direction of force/motion (F) [½]",
-      "Applied to find force on current-carrying conductor in a magnetic field (electric motor) [1]",
-    ], finalAnswer: "Three fingers: field, current, force; applied in electric motors" , isCompetencyBased: false },
+      "[1 mark] Stretch the thumb, forefinger and middle finger of the left hand so that they are mutually perpendicular; the forefinger points along the magnetic field and the middle finger along the current.",
+      "[1 mark] The thumb then gives the direction of the force (motion) on the conductor; the rule is applied to find the direction of the force on a current-carrying conductor placed in a magnetic field."
+    ], finalAnswer: "Stretch the thumb, forefinger and middle finger of the left hand so that they are mutually perpendicular. The forefinger points along the magnetic field, the middle finger along the current; the thumb then gives the direction of the force (motion) on the conductor.", isCompetencyBased: false },
   { id: "ME-H01", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Electric Motor", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain the principle, construction, and working of a DC motor with a labelled diagram. What is the role of each component?", solutionSteps: [
       "Diagram: Draw the electric motor (or generator) showing the rectangular coil ABCD between the poles of a magnet, commutator (motor) or slip rings (generator), carbon brushes, and external circuit.; Principle: current-carrying coil in magnetic field experiences force (motor effect) [1]",
       "Construction: armature coil, permanent magnets, split ring commutator, carbon brushes, axle; Armature coil: rectangular coil that rotates [1]",

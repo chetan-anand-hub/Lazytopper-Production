@@ -36,6 +36,8 @@ type TrigQuestionSpec = {
   bloomSkill?: BloomLevel;
   strategyHint?: string;
   options?: readonly string[];
+  /** BANK-FIX-1 PR-2: content-changed rows are filed under "Others" (owner ruling 2). */
+  sourceOverride?: "others";
 };
 
 type GroupDefaults = Pick<
@@ -50,7 +52,9 @@ type GroupSpec = Omit<
   Partial<
     Pick<
       TrigQuestionSpec,
-      "loIds" | "difficulty" | "subtopic" | "bloomSkill" | "strategyHint"
+      // BANK-FIX-1 PR-2: a row re-marked by the bank audit carries its own cbseFormat
+      // (marks and section derive from it) and, if re-filed, its own skillFamily.
+      "cbseFormat" | "skillFamily" | "loIds" | "difficulty" | "subtopic" | "bloomSkill" | "strategyHint"
     >
   >;
 
@@ -148,6 +152,9 @@ function defaultVisualId(skillFamily: TrigSkillFamily): string {
 
 function buildSolutionSteps(spec: TrigQuestionSpec): string[] {
   const lines = [...spec.working];
+  // BANK-FIX-2 (2026-10-07): a Section A MCQ carries exactly one "[1 mark]" step (CLAUDE.md §13);
+  // the key is the option text, so no separate "Final answer:" line.
+  if (spec.options) return lines;
   if (spec.cbseFormat === "C" || spec.cbseFormat === "D") {
     lines.push(`Therefore, boxed final answer: ${spec.finalAnswer ?? spec.answer}`);
     return lines;
@@ -170,7 +177,8 @@ function makeTrigQuestion(spec: TrigQuestionSpec): TrigPackQuestion {
     section: spec.cbseFormat,
     cbseFormat: spec.cbseFormat,
     marks: MARKS_BY_SECTION[spec.cbseFormat],
-    format: FORMAT_BY_SECTION[spec.cbseFormat],
+    // BANK-FIX-1 PR-2: a Section A row with no options is a very-short written answer, not an MCQ.
+    format: spec.cbseFormat === "A" && !spec.options ? "VSA" : FORMAT_BY_SECTION[spec.cbseFormat],
     difficulty: spec.difficulty,
     bloomSkill: spec.bloomSkill ?? defaultBloom(spec.skillFamily),
     questionText: spec.questionText,
@@ -193,6 +201,7 @@ function makeTrigQuestion(spec: TrigQuestionSpec): TrigPackQuestion {
     skillFamily: spec.skillFamily,
     loIds: [...spec.loIds],
     visualExplainerId: spec.cbseFormat !== "A" ? defaultVisualId(spec.skillFamily) : undefined,
+    ...(spec.sourceOverride ? { sourceOverride: spec.sourceOverride } : {}),
   };
 }
 
@@ -201,6 +210,8 @@ function buildGroup(defaults: GroupDefaults, specs: readonly GroupSpec[]): TrigP
     makeTrigQuestion({
       ...defaults,
       ...spec,
+      cbseFormat: spec.cbseFormat ?? defaults.cbseFormat,
+      skillFamily: spec.skillFamily ?? defaults.skillFamily,
       loIds: spec.loIds ?? defaults.loIds,
       difficulty: spec.difficulty ?? defaults.difficulty,
     })
@@ -217,66 +228,86 @@ const sectionARatioQuestions = buildGroup(
   [
     {
       questionId: "2026-TRIG-P1-A-001",
-      questionText: "In right triangle ABC, right-angled at B, write sin A.",
-      answer: "sin A = BC/AC.",
-      working: ["For angle A, opposite side is BC and hypotenuse is AC."],
+      questionText: "In right triangle ABC, right-angled at B, sin A is equal to",
+      answer: "BC/AC",
+      working: ["[1 mark] BC/AC — for angle A, opposite side is BC and hypotenuse is AC."],
+      options: ["AB/AC", "BC/AC", "BC/AB", "AC/BC"],
+      finalAnswer: "BC/AC",
     },
     {
       questionId: "2026-TRIG-P1-A-002",
-      questionText: "In right triangle ABC, right-angled at B, write cos A.",
-      answer: "cos A = AB/AC.",
-      working: ["For angle A, adjacent side is AB and hypotenuse is AC."],
+      questionText: "In right triangle ABC, right-angled at B, cos A is equal to",
+      answer: "AB/AC",
+      working: ["[1 mark] AB/AC — for angle A, adjacent side is AB and hypotenuse is AC."],
+      options: ["AB/AC", "BC/AC", "AB/BC", "AC/AB"],
+      finalAnswer: "AB/AC",
     },
     {
       questionId: "2026-TRIG-P1-A-003",
-      questionText: "In right triangle PQR, right-angled at Q, write tan P.",
-      answer: "tan P = QR/PQ.",
-      working: ["For angle P, opposite side is QR and adjacent side is PQ."],
+      questionText: "In right triangle PQR, right-angled at Q, tan P is equal to",
+      answer: "QR/PQ",
+      working: ["[1 mark] QR/PQ — for angle P, opposite side is QR and adjacent side is PQ."],
+      options: ["PQ/QR", "QR/PR", "PQ/PR", "QR/PQ"],
+      finalAnswer: "QR/PQ",
     },
     {
       questionId: "2026-TRIG-P1-A-004",
-      questionText: "Name the side opposite the right angle in any right triangle.",
-      answer: "The hypotenuse.",
-      working: ["The side opposite the right angle is always the hypotenuse."],
+      questionText: "In any right triangle, the side opposite the right angle is called the",
+      answer: "Hypotenuse",
+      working: ["[1 mark] Hypotenuse — the side opposite the right angle is always the hypotenuse (the longest side)."],
+      options: ["Base", "Perpendicular", "Hypotenuse", "Adjacent side"],
+      finalAnswer: "Hypotenuse",
     },
     {
       questionId: "2026-TRIG-P1-A-005",
-      questionText: "If tan theta = 3/4, write cot theta.",
-      answer: "cot theta = 4/3.",
-      working: ["cot theta is the reciprocal of tan theta."],
+      questionText: "If tan θ = 3/4, then cot θ is equal to",
+      answer: "4/3",
+      working: ["[1 mark] 4/3 — cot θ = 1/tan θ = 4/3."],
       loIds: ["LO_TRIG_01_RATIOS_SETUP", "LO_TRIG_05_SOLVE_EQUATIONS_STANDARD"],
+      options: ["3/4", "4/3", "5/3", "5/4"],
+      finalAnswer: "4/3",
     },
     {
       questionId: "2026-TRIG-P1-A-006",
-      questionText: "If sin theta = 7/25, what is the ratio of opposite side to hypotenuse?",
-      answer: "7:25.",
-      working: ["sin theta directly gives opposite/hypotenuse."],
+      questionText: "If sin θ = 7/25, the ratio of the opposite side to the hypotenuse is",
+      answer: "7 : 25",
+      working: ["[1 mark] 7 : 25 — sin θ = opposite/hypotenuse = 7/25."],
+      options: ["7 : 25", "24 : 25", "7 : 24", "25 : 7"],
+      finalAnswer: "7 : 25",
     },
     {
       questionId: "2026-TRIG-P1-A-007",
-      questionText: "Which trigonometric ratio is adjacent side divided by hypotenuse?",
-      answer: "cos theta.",
-      working: ["cos theta is defined as adjacent/hypotenuse."],
+      questionText: "The trigonometric ratio equal to adjacent side ÷ hypotenuse is",
+      answer: "cos θ",
+      working: ["[1 mark] cos θ — cos θ is defined as adjacent/hypotenuse."],
+      options: ["sin θ", "tan θ", "sec θ", "cos θ"],
+      finalAnswer: "cos θ",
     },
     {
       questionId: "2026-TRIG-P1-A-008",
-      questionText: "If sec theta = hypotenuse/base, which basic ratio is its reciprocal?",
-      answer: "cos theta.",
-      working: ["sec theta is the reciprocal of cos theta."],
+      questionText: "sec θ = hypotenuse/base. sec θ is the reciprocal of",
+      answer: "cos θ",
+      working: ["[1 mark] cos θ — sec θ = 1/cos θ, since cos θ = base/hypotenuse."],
+      options: ["sin θ", "tan θ", "cos θ", "cot θ"],
+      finalAnswer: "cos θ",
     },
     {
       questionId: "2026-TRIG-P1-A-009",
-      questionText: "In a heights-and-distances sketch, which ratio directly links vertical height and horizontal distance?",
-      answer: "tan theta.",
-      working: ["tan theta = perpendicular/base links height and horizontal distance."],
+      questionText: "In a heights-and-distances problem, the ratio that directly gives vertical height ÷ horizontal distance is",
+      answer: "tan θ",
+      working: ["[1 mark] tan θ — tan θ = perpendicular/base = height/horizontal distance."],
       loIds: ["LO_TRIG_01_RATIOS_SETUP", "LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE"],
+      options: ["sin θ", "tan θ", "cos θ", "cosec θ"],
+      finalAnswer: "tan θ",
     },
     {
       questionId: "2026-TRIG-P1-A-010",
-      questionText: "If angle of elevation is theta, write the ratio for height over line of sight.",
-      answer: "sin theta = height/line of sight.",
-      working: ["height is opposite side and line of sight is hypotenuse."],
+      questionText: "If the angle of elevation is θ, then height ÷ line of sight is equal to",
+      answer: "sin θ",
+      working: ["[1 mark] sin θ — height is the opposite side and the line of sight is the hypotenuse."],
       loIds: ["LO_TRIG_01_RATIOS_SETUP", "LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE"],
+      options: ["sin θ", "cos θ", "tan θ", "cot θ"],
+      finalAnswer: "sin θ",
     },
   ]
 );
@@ -289,16 +320,16 @@ const sectionAStandardValueQuestions = buildGroup(
     difficulty: "Easy",
   },
   [
-    { questionId: "2026-TRIG-P1-A-011", questionText: "Write the value of sin 30 deg.", answer: "1/2.", working: ["Recall the standard value table for 30 deg."] },
-    { questionId: "2026-TRIG-P1-A-012", questionText: "Write the value of cos 60 deg.", answer: "1/2.", working: ["cos 60 deg is a standard half-value."] },
-    { questionId: "2026-TRIG-P1-A-013", questionText: "Write the value of tan 45 deg.", answer: "1.", working: ["At 45 deg, opposite and adjacent are equal."] },
-    { questionId: "2026-TRIG-P1-A-014", questionText: "Write the value of sin 0 deg.", answer: "0.", working: ["sin 0 deg is the starting standard value."] },
-    { questionId: "2026-TRIG-P1-A-015", questionText: "Write the value of cos 0 deg.", answer: "1.", working: ["cos 0 deg is 1 from the standard table."] },
-    { questionId: "2026-TRIG-P1-A-016", questionText: "Write the value of tan 0 deg.", answer: "0.", working: ["tan 0 deg = sin 0 deg / cos 0 deg = 0/1."] },
-    { questionId: "2026-TRIG-P1-A-017", questionText: "Write the value of sin 90 deg.", answer: "1.", working: ["sin 90 deg is the maximum standard value."] },
-    { questionId: "2026-TRIG-P1-A-018", questionText: "Write the value of cos 90 deg.", answer: "0.", working: ["cos 90 deg is 0 from the standard table."] },
-    { questionId: "2026-TRIG-P1-A-019", questionText: "Write the value of tan 60 deg.", answer: "sqrt(3).", working: ["tan 60 deg is a standard value."] },
-    { questionId: "2026-TRIG-P1-A-020", questionText: "Write the value of tan 30 deg.", answer: "1/sqrt(3).", working: ["tan 30 deg is the reciprocal partner of tan 60 deg."] },
+    { questionId: "2026-TRIG-P1-A-011", questionText: "The value of sin 30° is", answer: "1/2", working: ["[1 mark] 1/2 — from the standard table, sin 30° = 1/2."], options: ["√3/2", "1/√2", "1", "1/2"], finalAnswer: "1/2" },
+    { questionId: "2026-TRIG-P1-A-012", questionText: "The value of cos 60° is", answer: "1/2", working: ["[1 mark] 1/2 — from the standard table, cos 60° = 1/2."], options: ["√3/2", "1/√2", "1/2", "0"], finalAnswer: "1/2" },
+    { questionId: "2026-TRIG-P1-A-013", questionText: "The value of tan 45° is", answer: "1", working: ["[1 mark] 1 — at 45° the opposite and adjacent sides are equal, so tan 45° = 1."], options: ["0", "1", "√3", "1/√3"], finalAnswer: "1" },
+    { questionId: "2026-TRIG-P1-A-014", questionText: "The value of sin 0° is", answer: "0", working: ["[1 mark] 0 — from the standard table, sin 0° = 0."], options: ["0", "1", "1/2", "Not defined"], finalAnswer: "0" },
+    { questionId: "2026-TRIG-P1-A-015", questionText: "The value of cos 0° is", answer: "1", working: ["[1 mark] 1 — from the standard table, cos 0° = 1."], options: ["0", "1/2", "√3/2", "1"], finalAnswer: "1" },
+    { questionId: "2026-TRIG-P1-A-016", questionText: "The value of tan 0° is", answer: "0", working: ["[1 mark] 0 — tan 0° = sin 0°/cos 0° = 0/1 = 0."], options: ["1", "√3", "0", "Not defined"], finalAnswer: "0" },
+    { questionId: "2026-TRIG-P1-A-017", questionText: "The value of sin 90° is", answer: "1", working: ["[1 mark] 1 — from the standard table, sin 90° = 1."], options: ["0", "1", "1/2", "Not defined"], finalAnswer: "1" },
+    { questionId: "2026-TRIG-P1-A-018", questionText: "The value of cos 90° is", answer: "0", working: ["[1 mark] 0 — from the standard table, cos 90° = 0."], options: ["0", "1", "√3/2", "Not defined"], finalAnswer: "0" },
+    { questionId: "2026-TRIG-P1-A-019", questionText: "The value of tan 60° is", answer: "√3", working: ["[1 mark] √3 — tan 60° = sin 60°/cos 60° = (√3/2)/(1/2) = √3."], options: ["1/√3", "1", "√3/2", "√3"], finalAnswer: "√3" },
+    { questionId: "2026-TRIG-P1-A-020", questionText: "The value of tan 30° is", answer: "1/√3", working: ["[1 mark] 1/√3 — tan 30° = sin 30°/cos 30° = (1/2)/(√3/2) = 1/√3."], options: ["√3", "1/2", "1/√3", "1"], finalAnswer: "1/√3" },
   ]
 );
 
@@ -310,14 +341,14 @@ const sectionAIdentityQuestions = buildGroup(
     difficulty: "Medium",
   },
   [
-    { questionId: "2026-TRIG-P1-A-021", questionText: "If sin theta = 3/5 and theta is acute, write cos theta.", answer: "4/5.", working: ["Using sin^2 theta + cos^2 theta = 1, the corresponding triple is 3-4-5."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_01_RATIOS_SETUP"] },
-    { questionId: "2026-TRIG-P1-A-022", questionText: "If cos theta = 12/13 and theta is acute, write sin theta.", answer: "5/13.", working: ["Use the Pythagorean relation for the right triangle 5-12-13."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_01_RATIOS_SETUP"] },
-    { questionId: "2026-TRIG-P1-A-023", questionText: "Evaluate sin^2 30 deg + cos^2 30 deg.", answer: "1.", working: ["Use the identity sin^2 theta + cos^2 theta = 1."] },
-    { questionId: "2026-TRIG-P1-A-024", questionText: "Simplify sec^2 45 deg - tan^2 45 deg.", answer: "1.", working: ["Use sec^2 theta - tan^2 theta = 1."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_04_TRANSFORM_SIMPLIFY"] },
-    { questionId: "2026-TRIG-P1-A-025", questionText: "Simplify 1 - sin^2 60 deg.", answer: "1/4.", working: ["1 - sin^2 theta = cos^2 theta, and cos 60 deg = 1/2."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_04_TRANSFORM_SIMPLIFY"] },
-    { questionId: "2026-TRIG-P1-A-026", questionText: "Simplify sin 45 deg / cos 45 deg.", answer: "1.", working: ["sin 45 deg and cos 45 deg are equal."], loIds: ["LO_TRIG_04_TRANSFORM_SIMPLIFY", "LO_TRIG_02_STANDARD_VALUES"] },
-    { questionId: "2026-TRIG-P1-A-027", questionText: "If cot theta = 1, write tan theta.", answer: "1.", working: ["tan theta is the reciprocal of cot theta."], loIds: ["LO_TRIG_04_TRANSFORM_SIMPLIFY", "LO_TRIG_05_SOLVE_EQUATIONS_STANDARD"] },
-    { questionId: "2026-TRIG-P1-A-028", questionText: "Fill in the blank: 1 + tan^2 theta = ____.", answer: "sec^2 theta.", working: ["Use the standard trigonometric identity."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_04_TRANSFORM_SIMPLIFY"] },
+    { questionId: "2026-TRIG-P1-A-021", questionText: "If sin θ = 3/5 and θ is acute, then cos θ is equal to", answer: "4/5", working: ["[1 mark] 4/5 — cos θ = √(1 − 9/25) = 4/5 (3-4-5 triangle)."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_01_RATIOS_SETUP"], options: ["3/4", "4/5", "5/4", "5/3"], finalAnswer: "4/5" },
+    { questionId: "2026-TRIG-P1-A-022", questionText: "If cos θ = 12/13 and θ is acute, then sin θ is equal to", answer: "5/13", working: ["[1 mark] 5/13 — sin θ = √(1 − 144/169) = 5/13 (5-12-13 triangle)."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_01_RATIOS_SETUP"], options: ["5/13", "12/5", "13/5", "5/12"], finalAnswer: "5/13" },
+    { questionId: "2026-TRIG-P1-A-023", questionText: "The value of sin²30° + cos²30° is", answer: "1", working: ["[1 mark] 1 — by the identity sin²θ + cos²θ = 1: 1/4 + 3/4 = 1."], options: ["0", "1/2", "2", "1"], finalAnswer: "1" },
+    { questionId: "2026-TRIG-P1-A-024", questionText: "The value of sec²45° − tan²45° is", answer: "1", working: ["[1 mark] 1 — by the identity sec²θ − tan²θ = 1: 2 − 1 = 1."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_04_TRANSFORM_SIMPLIFY"], options: ["0", "2", "1", "3"], finalAnswer: "1" },
+    { questionId: "2026-TRIG-P1-A-025", questionText: "The value of 1 − sin²60° is", answer: "1/4", working: ["[1 mark] 1/4 — 1 − sin²60° = cos²60° = (1/2)² = 1/4."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_04_TRANSFORM_SIMPLIFY"], options: ["3/4", "1/4", "1/2", "0"], finalAnswer: "1/4" },
+    { questionId: "2026-TRIG-P1-A-026", questionText: "The value of sin 45° ÷ cos 45° is", answer: "1", working: ["[1 mark] 1 — sin 45° = cos 45° = 1/√2, so the quotient is 1 (= tan 45°)."], loIds: ["LO_TRIG_04_TRANSFORM_SIMPLIFY", "LO_TRIG_02_STANDARD_VALUES"], options: ["1", "0", "√2", "1/√2"], finalAnswer: "1" },
+    { questionId: "2026-TRIG-P1-A-027", questionText: "If cot θ = 1, then tan θ is equal to", answer: "1", working: ["[1 mark] 1 — tan θ = 1/cot θ = 1/1 = 1."], loIds: ["LO_TRIG_04_TRANSFORM_SIMPLIFY", "LO_TRIG_05_SOLVE_EQUATIONS_STANDARD"], options: ["0", "−1", "√3", "1"], finalAnswer: "1" },
+    { questionId: "2026-TRIG-P1-A-028", questionText: "1 + tan²θ is equal to", answer: "sec²θ", working: ["[1 mark] sec²θ — standard identity: 1 + tan²θ = sec²θ."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_04_TRANSFORM_SIMPLIFY"], options: ["cosec²θ", "cot²θ", "sec²θ", "cos²θ"], finalAnswer: "sec²θ" },
   ]
 );
 
@@ -329,13 +360,13 @@ const sectionAEquationQuestions = buildGroup(
     difficulty: "Easy",
   },
   [
-    { questionId: "2026-TRIG-P1-A-029", questionText: "Find theta if sin theta = 1/2 and theta is acute.", answer: "30 deg.", working: ["From the standard values, sin 30 deg = 1/2."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
-    { questionId: "2026-TRIG-P1-A-030", questionText: "Find theta if cos theta = sqrt(3)/2 and theta is acute.", answer: "30 deg.", working: ["cos 30 deg = sqrt(3)/2."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
-    { questionId: "2026-TRIG-P1-A-031", questionText: "Find theta if tan theta = sqrt(3) and theta is acute.", answer: "60 deg.", working: ["tan 60 deg = sqrt(3)."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
-    { questionId: "2026-TRIG-P1-A-032", questionText: "Find theta if sin theta = 1 and theta lies in [0 deg, 90 deg].", answer: "90 deg.", working: ["sin 90 deg = 1."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
-    { questionId: "2026-TRIG-P1-A-033", questionText: "Find theta if sin theta = cos theta and theta is acute.", answer: "45 deg.", working: ["sin theta = cos theta at theta = 45 deg in the acute range."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
-    { questionId: "2026-TRIG-P1-A-034", questionText: "Find theta if 2 tan theta = 2 and theta is acute.", answer: "45 deg.", working: ["tan theta = 1, so theta = 45 deg."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
-    { questionId: "2026-TRIG-P1-A-035", questionText: "Find theta if sec theta = 2 and theta is acute.", answer: "60 deg.", working: ["sec theta = 2 means cos theta = 1/2, so theta = 60 deg."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
+    { questionId: "2026-TRIG-P1-A-029", questionText: "If sin θ = 1/2 and θ is acute, then θ is equal to", answer: "30°", working: ["[1 mark] 30° — from the standard values, sin 30° = 1/2."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], options: ["45°", "30°", "60°", "90°"], finalAnswer: "30°" },
+    { questionId: "2026-TRIG-P1-A-030", questionText: "If cos θ = √3/2 and θ is acute, then θ is equal to", answer: "30°", working: ["[1 mark] 30° — from the standard values, cos 30° = √3/2."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], options: ["30°", "0°", "45°", "60°"], finalAnswer: "30°" },
+    { questionId: "2026-TRIG-P1-A-031", questionText: "If tan θ = √3 and θ is acute, then θ is equal to", answer: "60°", working: ["[1 mark] 60° — from the standard values, tan 60° = √3."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], options: ["30°", "45°", "90°", "60°"], finalAnswer: "60°" },
+    { questionId: "2026-TRIG-P1-A-032", questionText: "If sin θ = 1 and 0° ≤ θ ≤ 90°, then θ is equal to", answer: "90°", working: ["[1 mark] 90° — sin 90° = 1."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], options: ["0°", "45°", "90°", "60°"], finalAnswer: "90°" },
+    { questionId: "2026-TRIG-P1-A-033", questionText: "If sin θ = cos θ and θ is acute, then θ is equal to", answer: "45°", working: ["[1 mark] 45° — sin θ = cos θ gives tan θ = 1, so θ = 45°."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], options: ["0°", "45°", "30°", "60°"], finalAnswer: "45°" },
+    { questionId: "2026-TRIG-P1-A-034", questionText: "If 2 tan θ = 2 and θ is acute, then θ is equal to", answer: "45°", working: ["[1 mark] 45° — tan θ = 1, so θ = 45°."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], options: ["45°", "30°", "60°", "90°"], finalAnswer: "45°" },
+    { questionId: "2026-TRIG-P1-A-035", questionText: "If sec θ = 2 and θ is acute, then θ is equal to", answer: "60°", working: ["[1 mark] 60° — sec θ = 2 means cos θ = 1/2, so θ = 60°."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], options: ["0°", "30°", "45°", "60°"], finalAnswer: "60°" },
   ]
 );
 
@@ -347,11 +378,11 @@ const sectionAApplicationQuestions = buildGroup(
     difficulty: "Medium",
   },
   [
-    { questionId: "2026-TRIG-P1-A-036", questionText: "A pole and its shadow are equal in length. What is the angle of elevation of the sun?", answer: "45 deg.", working: ["tan theta = pole/shadow = 1, so theta = 45 deg."] },
-    { questionId: "2026-TRIG-P1-A-037", questionText: "The angle of depression from the top of a building to a car is 30 deg. What is the angle of elevation from the car to the top?", answer: "30 deg.", working: ["Angle of depression equals angle of elevation."] },
-    { questionId: "2026-TRIG-P1-A-038", questionText: "From a point on the ground, the angle of elevation of a tower is 60 deg and the horizontal distance is 10 m. Write the height of the tower.", answer: "10sqrt(3) m.", working: ["Use tan 60 deg = h/10.", "So sqrt(3) = h/10 and h = 10sqrt(3) m."] },
-    { questionId: "2026-TRIG-P1-A-039", questionText: "A ladder makes a 45 deg angle with the ground and its foot is 4 m from the wall. How high does it reach?", answer: "4 m.", working: ["tan 45 deg = height/4 = 1, so height = 4 m."] },
-    { questionId: "2026-TRIG-P1-A-040", questionText: "A tower is seen from a point on level ground at 30 deg. Which ratio should be used first to relate height and distance?", answer: "tan 30 deg = height/distance.", working: ["Height is opposite side and distance is adjacent side."], loIds: ["LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES"] },
+    { questionId: "2026-TRIG-P1-A-036", questionText: "A pole and its shadow are equal in length. The angle of elevation of the sun is", answer: "45°", working: ["[1 mark] 45° — tan θ = pole/shadow = 1, so θ = 45°."], options: ["30°", "60°", "45°", "90°"], finalAnswer: "45°" },
+    { questionId: "2026-TRIG-P1-A-037", questionText: "The angle of depression from the top of a building to a car is 30°. The angle of elevation of the top of the building from the car is", answer: "30°", working: ["[1 mark] 30° — angle of depression = angle of elevation (alternate angles between parallel horizontals)."], options: ["60°", "30°", "90°", "120°"], finalAnswer: "30°" },
+    { questionId: "2026-TRIG-P1-A-038", questionText: "From a point on the ground 10 m from the foot of a tower, the angle of elevation of its top is 60°. The height of the tower is", answer: "10√3 m", working: ["[1 mark] 10√3 m — tan 60° = h/10, so h = 10√3 m."], options: ["10√3 m", "10/√3 m", "5√3 m", "20 m"], finalAnswer: "10√3 m" },
+    { questionId: "2026-TRIG-P1-A-039", questionText: "A ladder makes an angle of 45° with the ground and its foot is 4 m from the wall. The height it reaches on the wall is", answer: "4 m", working: ["[1 mark] 4 m — tan 45° = height/4 = 1, so height = 4 m."], options: ["2 m", "2√2 m", "4√2 m", "4 m"], finalAnswer: "4 m" },
+    { questionId: "2026-TRIG-P1-A-040", questionText: "A tower is seen from a point on level ground at an angle of elevation of 30°. The relation to use first to connect height and distance is", answer: "tan 30° = height/distance", working: ["[1 mark] tan 30° = height/distance — height is the opposite side and distance is the adjacent side, so use tan."], loIds: ["LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES"], options: ["sin 30° = height/distance", "cos 30° = height/distance", "tan 30° = height/distance", "tan 30° = distance/height"], finalAnswer: "tan 30° = height/distance" },
   ]
 );
 
@@ -364,7 +395,7 @@ const sectionAProofQuestions = buildGroup(
   },
   [
     { questionId: "2026-TRIG-P1-A-041", questionText: "In a trigonometric proof, from which side should you usually start?", answer: "Start from the LHS or the more complex side.", working: ["Board proofs normally begin from one side only, preferably the more workable side."] },
-    { questionId: "2026-TRIG-P1-A-042", questionText: "Fill in the missing line for a proof: sin^2 theta + ____ = 1.", answer: "cos^2 theta.", working: ["Use the core identity before moving to the next line."] },
+    { questionId: "2026-TRIG-P1-A-042", questionText: "Fill in the blank: sin²θ + ____ = 1", answer: "cos²θ", working: ["[1 mark] cos²θ — the core identity is sin²θ + cos²θ = 1."], options: ["cos²θ", "tan²θ", "sec²θ", "cosec²θ"], finalAnswer: "cos²θ" },
     { questionId: "2026-TRIG-P1-A-043", questionText: "What final phrase is expected at the end of a completed trig proof?", answer: "Hence proved.", working: ["CBSE proof writing should end with a clear conclusion line."] },
   ]
 );
@@ -378,7 +409,7 @@ const sectionACaseProtocolQuestions = buildGroup(
   },
   [
     { questionId: "2026-TRIG-P1-A-044", questionText: "In a trig case-study question, what should you do before solving part (i)?", answer: "Extract the given data and label a quick sketch.", working: ["Part-wise solving starts after identifying the data correctly."] },
-    { questionId: "2026-TRIG-P1-A-045", questionText: "A case stem gives angle 60 deg and base 5 m. Which ratio should be used first to find height?", answer: "tan 60 deg = height/5.", working: ["Height over base suggests the tangent ratio."], loIds: ["LO_TRIG_09_CASE_STUDY_PROTOCOL", "LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE"] },
+    { questionId: "2026-TRIG-P1-A-045", questionText: "A case-study stem gives an angle of elevation of 60° and a base of 5 m. The relation to use first to find the height is", answer: "tan 60° = height/5", working: ["[1 mark] tan 60° = height/5 — height over base is the tangent ratio."], loIds: ["LO_TRIG_09_CASE_STUDY_PROTOCOL", "LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE"], options: ["sin 60° = height/5", "tan 60° = height/5", "cos 60° = height/5", "tan 60° = 5/height"], finalAnswer: "tan 60° = height/5" },
   ]
 );
 
@@ -497,8 +528,8 @@ const sectionCQuestions = [
       difficulty: "Medium",
     },
     [
-      { questionId: "2026-TRIG-P1-C-009", questionText: "Solve 2 sin theta = 1 for acute theta.", answer: "theta = 30 deg.", working: ["The equation gives sin theta = 1/2.", "Using the standard value table, theta = 30 deg.", "State the acute-angle solution clearly."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
-      { questionId: "2026-TRIG-P1-C-010", questionText: "Solve cos theta = 1/sqrt(2) for acute theta.", answer: "theta = 45 deg.", working: ["1/sqrt(2) is the standard value of cos 45 deg.", "Hence theta = 45 deg.", "Write the acute-angle answer in the final line."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
+      { questionId: "2026-TRIG-P1-C-009", questionText: "Solve 2 sin theta = 1 for acute theta.", answer: "theta = 30 deg.", working: ["2 sin θ = 1 ⇒ sin θ = 1/2.", "Since sin 30° = 1/2 and θ is acute, θ = 30°."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], cbseFormat: "B", difficulty: "Easy", sourceOverride: "others" },
+      { questionId: "2026-TRIG-P1-C-010", questionText: "Solve cos theta = 1/sqrt(2) for acute theta.", answer: "theta = 45 deg.", working: ["cos θ = 1/√2, and cos 45° = 1/√2 (standard value).", "Since θ is acute, θ = 45°."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"], cbseFormat: "B", difficulty: "Easy", sourceOverride: "others" },
       { questionId: "2026-TRIG-P1-C-011", questionText: "Solve tan^2 theta = 3 for acute theta.", answer: "theta = 60 deg.", working: ["tan^2 theta = 3 implies tan theta = sqrt(3) for acute theta.", "Using the standard value table, theta = 60 deg.", "Write the final acute-angle answer."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_02_STANDARD_VALUES"] },
       { questionId: "2026-TRIG-P1-C-012", questionText: "Solve sec theta = cosec theta for acute theta.", answer: "theta = 45 deg.", working: ["sec theta = cosec theta gives 1/cos theta = 1/sin theta.", "So sin theta = cos theta.", "Hence theta = 45 deg."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_04_TRANSFORM_SIMPLIFY"] },
       { questionId: "2026-TRIG-P1-C-013", questionText: "Solve 2 cos^2 theta = 1 for acute theta.", answer: "theta = 45 deg.", working: ["The equation gives cos^2 theta = 1/2.", "So cos theta = 1/sqrt(2) for acute theta.", "Hence theta = 45 deg."], loIds: ["LO_TRIG_05_SOLVE_EQUATIONS_STANDARD", "LO_TRIG_03_IDENTITY_PYTHAG"] },
@@ -518,7 +549,7 @@ const sectionCQuestions = [
       { questionId: "2026-TRIG-P1-C-017", questionText: "From the top of a 24 m building, the angle of depression of a car is 30 deg. Find the distance of the car from the foot of the building.", answer: "24sqrt(3) m.", working: ["Angle of elevation from the car is also 30 deg.", "Use tan 30 deg = 24 / distance.", "So distance = 24sqrt(3) m."] },
       { questionId: "2026-TRIG-P1-C-018", questionText: "A kite string 50 m long makes an angle of 60 deg with the ground. Find the height of the kite and the horizontal distance of the flyer from the point vertically below the kite.", answer: "Height = 25sqrt(3) m and horizontal distance = 25 m.", working: ["Use sin 60 deg = height / 50 to get height = 25sqrt(3) m.", "Use cos 60 deg = horizontal distance / 50 to get horizontal distance = 25 m.", "Write both required values clearly."], loIds: ["LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE", "LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES"] },
       { questionId: "2026-TRIG-P1-C-019", questionText: "A vertical pole 8 m high casts a shadow 8/sqrt(3) m long. Find the angle of elevation of the sun.", answer: "60 deg.", working: ["Use tan theta = 8 / (8/sqrt(3)).", "This gives tan theta = sqrt(3).", "Hence theta = 60 deg."] },
-      { questionId: "2026-TRIG-P1-C-020", questionText: "From a point on level ground, the angle of elevation of the top of a tower is 45 deg. If the height of the tower is 14 m, find the distance of the point from the tower.", answer: "14 m.", working: ["Let the distance from the tower be x m.", "Using tan 45 deg = 14 / x = 1, we get x = 14 m.", "Hence the required distance is 14 m."] },
+      { questionId: "2026-TRIG-P1-C-020", questionText: "From a point on level ground, the angle of elevation of the top of a tower is 45 deg. If the height of the tower is 14 m, find the distance of the point from the tower.", answer: "14 m.", working: ["Let the distance of the point from the foot of the tower be x m. tan 45° = 14/x.", "1 = 14/x ⇒ x = 14 m."], cbseFormat: "B", difficulty: "Easy", sourceOverride: "others" },
     ]
   ),
   ...buildGroup(
@@ -533,7 +564,7 @@ const sectionCQuestions = [
       { questionId: "2026-TRIG-P1-C-022", questionText: "Prove that (sec A - cos A) / tan A = sin A.", answer: "LHS = sin A.", working: ["Write sec A as 1/cos A and tan A as sin A/cos A.", "Then the numerator becomes (1 - cos^2 A)/cos A = sin^2 A/cos A.", "Dividing by sin A/cos A leaves sin A."] },
       { questionId: "2026-TRIG-P1-C-023", questionText: "Show that (1 + tan^2 A) sin^2 A = tan^2 A.", answer: "LHS = tan^2 A.", working: ["Use 1 + tan^2 A = sec^2 A.", "Then sec^2 A sin^2 A = (sin^2 A)/(cos^2 A).", "This is tan^2 A."] },
       { questionId: "2026-TRIG-P1-C-024", questionText: "If (sin A + cos A)^2 = 2 and A is acute, find A.", answer: "A = 45 deg.", working: ["Expand to get sin^2 A + cos^2 A + 2 sin A cos A = 2.", "Using sin^2 A + cos^2 A = 1, we get 2 sin A cos A = 1.", "So sin 2A = 1 and for acute A, A = 45 deg."], loIds: ["LO_TRIG_03_IDENTITY_PYTHAG", "LO_TRIG_05_SOLVE_EQUATIONS_STANDARD"] },
-      { questionId: "2026-TRIG-P1-C-025", questionText: "A boy observes the top of a tree at an angle of elevation of 45 deg. If the tree is 14 m high, find the distance of the boy from the tree.", answer: "14 m.", working: ["Let the distance from the tree be x m.", "Using tan 45 deg = 14 / x = 1, we get x = 14 m.", "Hence the boy is 14 m away from the tree."], loIds: ["LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE", "LO_TRIG_10_ERROR_CHECK_REVIEW"] },
+      { questionId: "2026-TRIG-P1-C-025", questionText: "A boy observes the top of a tree at an angle of elevation of 45 deg. If the tree is 14 m high, find the distance of the boy from the tree.", answer: "14 m.", working: ["Let the distance of the boy from the foot of the tree be x m. tan 45° = 14/x.", "1 = 14/x ⇒ x = 14 m."], loIds: ["LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE", "LO_TRIG_10_ERROR_CHECK_REVIEW"], cbseFormat: "B", skillFamily: "Heights_Distances", difficulty: "Easy", subtopic: "Heights and distances", sourceOverride: "others" },
     ]
   ),
 ] satisfies readonly TrigPackQuestion[];
@@ -546,7 +577,7 @@ const sectionDQuestions = [
       difficulty: "Hard",
     },
     [
-      { questionId: "2026-TRIG-P1-D-001", questionText: "Prove that (1 - sin A)(1 + sin A) = cos^2 A.", answer: "LHS = cos^2 A.", working: ["Start with the LHS: (1 - sin A)(1 + sin A).", "Use the identity (x - y)(x + y) = x^2 - y^2 to get 1 - sin^2 A.", "Apply the identity 1 - sin^2 A = cos^2 A.", "Thus the LHS equals cos^2 A."] },
+      { questionId: "2026-TRIG-P1-D-001", questionText: "Prove that (1 - sin A)(1 + sin A) = cos^2 A.", answer: "LHS = cos^2 A.", working: ["LHS = (1 − sin A)(1 + sin A) = 1 − sin²A  [(a − b)(a + b) = a² − b²].", "Since sin²A + cos²A = 1, 1 − sin²A = cos²A = RHS. Hence proved."], cbseFormat: "B", difficulty: "Easy", subtopic: "Trigonometric identities", sourceOverride: "others" },
       { questionId: "2026-TRIG-P1-D-002", questionText: "Prove that (sec A + tan A)(1 - sin A) = cos A.", answer: "LHS = cos A.", working: ["Start with the LHS and write sec A = 1/cos A and tan A = sin A/cos A.", "Then sec A + tan A = (1 + sin A)/cos A.", "Multiply by (1 - sin A) to get (1 - sin^2 A)/cos A.", "Use 1 - sin^2 A = cos^2 A and simplify to cos A."] },
       { questionId: "2026-TRIG-P1-D-003", questionText: "Prove that (1 - cos A)/sin A = sin A/(1 + cos A).", answer: "LHS = RHS.", working: ["Start with the LHS and multiply numerator and denominator by (1 + cos A).", "The numerator becomes 1 - cos^2 A.", "Replace 1 - cos^2 A by sin^2 A.", "Simplify to get sin A/(1 + cos A), which is the RHS."] },
       { questionId: "2026-TRIG-P1-D-004", questionText: "Prove that (sec A - tan A)^2 = (1 - sin A)/(1 + sin A).", answer: "LHS = RHS.", working: ["Start with the LHS and write sec A - tan A = (1 - sin A)/cos A.", "Square both numerator and denominator to get (1 - sin A)^2/cos^2 A.", "Replace cos^2 A by 1 - sin^2 A = (1 - sin A)(1 + sin A).", "Cancel the common factor (1 - sin A) to get (1 - sin A)/(1 + sin A)."] },
@@ -564,8 +595,8 @@ const sectionDQuestions = [
       difficulty: "Hard",
     },
     [
-      { questionId: "2026-TRIG-P1-D-009", questionText: "From the top of a 20 m high building, the angle of depression of a car on the road is 30 deg. Find the distance of the car from the foot of the building and the line of sight.", answer: "Distance = 20sqrt(3) m and line of sight = 40 m.", working: ["Let the distance of the car from the foot of the building be x m.", "Angle of elevation from the car is 30 deg, so tan 30 deg = 20/x.", "This gives x = 20sqrt(3) m.", "Using sin 30 deg = 20/line of sight, the line of sight is 40 m."] },
-      { questionId: "2026-TRIG-P1-D-010", questionText: "From a point on the ground 15 m from the foot of a tower, the angle of elevation of the top is 60 deg. Find the height of the tower and the line joining the point to the top.", answer: "Height = 15sqrt(3) m and line joining point to top = 30 m.", working: ["Let the height of the tower be h m.", "Using tan 60 deg = h/15, we get h = 15sqrt(3) m.", "Now use cos 60 deg = 15/line joining point to top.", "So the required slant line is 30 m."] },
+      { questionId: "2026-TRIG-P1-D-009", questionText: "From the top of a 20 m high building, the angle of depression of a car on the road is 30 deg. Find the distance of the car from the foot of the building and the line of sight.", answer: "Distance = 20sqrt(3) m and line of sight = 40 m.", working: ["Let the building be AB = 20 m and the car be at C, BC = x m. Angle of depression 30° ⇒ ∠ACB = 30° (alternate angles).", "tan 30° = AB/BC ⇒ 1/√3 = 20/x ⇒ x = 20√3 m.", "sin 30° = AB/AC ⇒ 1/2 = 20/AC ⇒ line of sight AC = 40 m."], cbseFormat: "C", difficulty: "Medium", sourceOverride: "others" },
+      { questionId: "2026-TRIG-P1-D-010", questionText: "From a point on the ground 15 m from the foot of a tower, the angle of elevation of the top is 60 deg. Find the height of the tower and the line joining the point to the top.", answer: "Height = 15sqrt(3) m and line joining point to top = 30 m.", working: ["Let the tower be AB = h m and the point be C with BC = 15 m; ∠ACB = 60°.", "tan 60° = h/15 ⇒ h = 15√3 m.", "cos 60° = 15/AC ⇒ 1/2 = 15/AC ⇒ AC = 30 m."], cbseFormat: "C", difficulty: "Medium", sourceOverride: "others" },
       { questionId: "2026-TRIG-P1-D-011", questionText: "From the top of a 30 m building, the angles of depression of the top and the foot of a pole are 30 deg and 60 deg respectively. Find the height of the pole and the distance between the building and the pole.", answer: "Height of pole = 20 m and distance = 10sqrt(3) m.", working: ["Let the horizontal distance between the building and the pole be x m and the pole height be h m.", "Using the angle of depression to the foot, tan 60 deg = 30/x, so x = 10sqrt(3) m.", "Using the angle of depression to the top, tan 30 deg = (30 - h)/x.", "Substitute x = 10sqrt(3) to get 1/sqrt(3) = (30 - h)/(10sqrt(3)), hence h = 20 m."], loIds: ["LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES", "LO_TRIG_10_ERROR_CHECK_REVIEW"] },
       { questionId: "2026-TRIG-P1-D-012", questionText: "Two poles of heights 8 m and 20 m stand on the same level ground. From a point between them, the angles of elevation of their tops are 45 deg and 60 deg respectively. Find the distances of the point from the two poles.", answer: "Distance from 8 m pole = 8 m and distance from 20 m pole = 20/sqrt(3) m.", working: ["Let the distances from the point to the 8 m pole and 20 m pole be x and y respectively.", "Using tan 45 deg = 8/x, we get x = 8 m.", "Using tan 60 deg = 20/y, we get y = 20/sqrt(3) m.", "Hence the required distances are obtained."], loIds: ["LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES", "LO_TRIG_07_HEIGHTS_DISTANCES_SINGLE"] },
       { questionId: "2026-TRIG-P1-D-013", questionText: "From a point on the ground, the angle of elevation of the top of a tower is 30 deg. After moving 50 m towards the tower, the angle becomes 60 deg. Find the height of the tower and the original distance from the tower.", answer: "Height = 25sqrt(3) m and original distance = 75 m.", working: ["Let the distance after moving closer be x m and the tower height be h m.", "From the closer point, tan 60 deg = h/x, so h = xsqrt(3).", "From the original point, tan 30 deg = h/(x + 50).", "Substitute h = xsqrt(3) to get 1/sqrt(3) = xsqrt(3)/(x + 50), so 3x = x + 50 and x = 25.", "Hence h = 25sqrt(3) m and the original distance is x + 50 = 75 m."], loIds: ["LO_TRIG_08_HEIGHTS_DISTANCES_TWOANGLES", "LO_TRIG_10_ERROR_CHECK_REVIEW"] },

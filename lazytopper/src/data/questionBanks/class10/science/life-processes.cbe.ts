@@ -61,17 +61,18 @@ export const LIFE_CBE: CanonicalQuestion[] = [
     "subtopic": "Photosynthesis — Balanced Equation",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Deduce the balanced symbol equation for photosynthesis.",
-    "options": [],
-    "answer": "6CO2 + 6H2O → C6H12O6 + 6O2",
+    "questionText": "The balanced symbol equation for photosynthesis is",
+    "options": ["CO₂ + H₂O → C₆H₁₂O₆ + O₂", "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O", "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂", "6CO₂ + 6H₂O → C₆H₁₂O₆ + 3O₂"],
+    "answer": "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
     "solutionSteps": [
-      "[1 mark] Balanced symbol equation for photosynthesis: 6CO2 + 6H2O → C6H12O6 + 6O2."
+      "[1 mark] 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ — carbon dioxide and water form glucose and oxygen; atoms balance with 6CO₂, 6H₂O and 6O₂ (the reverse equation is respiration)."
     ],
-    "finalAnswer": "6CO2 + 6H2O → C6H12O6 + 6O2",
-    "isCompetencyBased": false
+    "finalAnswer": "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-LIFE-B-001",
@@ -246,43 +247,43 @@ export const LIFE_CBE: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "life-processes",
     "subtopic": "Water Uptake and Transport in Plants",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
-    "difficulty": "Medium",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "State one product of respiration that plants must replace continuously. State where this is absorbed and how it is transferred to the cells of leaves. (product ____; absorbed ____; transferred by ____; to the cells by ____)",
+    "questionText": "Plants continuously lose water by transpiration and must replace it. (a) Where is this water absorbed? (b) Through which tissue is it transported to the leaves? (c) By which process does it enter the cells of the leaves?",
     "options": [],
-    "answer": "Product: water; absorbed: root hair cells; transferred by active transport / in xylem; to the cells by osmosis.",
+    "answer": "(a) By the root hair cells of the roots. (b) Through the xylem. (c) By osmosis.",
     "solutionSteps": [
-      "[1 mark] Product that must be replaced continuously: water.",
-      "[1 mark] It is absorbed at the root hair cells.",
-      "[1 mark] It is transferred by active transport / in the xylem.",
-      "[1 mark] It moves into the cells of the leaves by osmosis."
+      "[1 mark] (a) Water is absorbed from the soil by the root hair cells.",
+      "[1 mark] (b) It is transported upward to the leaves through the xylem (vessels and tracheids), pulled by transpiration.",
+      "[1 mark] (c) It moves from the xylem into the leaf cells by osmosis."
     ],
-    "finalAnswer": "Water; absorbed at root hair cells; transported in the xylem (active transport); enters leaf cells by osmosis.",
-    "isCompetencyBased": true
+    "finalAnswer": "(a) Root hair cells; (b) xylem; (c) osmosis.",
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-LIFE-E-002",
     "subject": "Science",
     "topicKey": "life-processes",
     "subtopic": "Photosynthesis and Respiration Sustaining Life",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Discuss how the processes of photosynthesis and respiration sustain life.",
+    "questionText": "Explain how the processes of photosynthesis and respiration together sustain life on Earth.",
     "options": [],
     "answer": "Photosynthesis makes food and releases oxygen, letting energy enter food chains; respiration releases that energy for life processes and consumes the oxygen produced.",
     "solutionSteps": [
-      "[1 mark] Photosynthesis: plants make food / starch, so (light) energy enters food chains.",
-      "[1 mark] Consumers eat plants and gain energy from them; oxygen is released in photosynthesis.",
-      "[1 mark] Respiration releases energy from food for growth / movement / maintaining body temperature (AVP).",
-      "[1 mark] Respiration consumes the oxygen produced by photosynthesis, linking the two processes (ALLOW at least one point from each list)."
+      "[1 mark] Photosynthesis: green plants use light energy to make food (glucose/starch) from carbon dioxide and water and release oxygen; this food is the energy source for all food chains (consumers eat plants).",
+      "[1 mark] Respiration: living organisms break down food to release energy (ATP) needed for growth, movement, maintaining body temperature and other life processes.",
+      "[1 mark] Link: respiration uses the oxygen released by photosynthesis and releases carbon dioxide and water, which are the raw materials of photosynthesis, so the two processes keep each other going."
     ],
     "finalAnswer": "Photosynthesis stores energy as food and releases oxygen; respiration releases that energy for life and uses the oxygen — together they sustain life.",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   }
 ];

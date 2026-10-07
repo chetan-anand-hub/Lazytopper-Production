@@ -14,14 +14,14 @@ export const STAT_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Empirical Relation between Mean, Median and Mode",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "If the median of a series exceeds the mean by 3, find by what number the mode exceeds its mean.",
-    "options": [],
+    "questionText": "If the median of a series exceeds the mean by 3, then the mode exceeds the mean by",
+    "options": ["3", "6", "9", "1"],
     "answer": "9",
     "solutionSteps": [
-      "[1 mark] Empirical relation: Mode = 3 Median − 2 Mean. So Mode − Mean = 3 Median − 3 Mean = 3(Median − Mean) = 3 × 3 = 9. The mode exceeds the mean by 9."
+      "[1 mark] 9 — Mode = 3 Median − 2 Mean ⇒ Mode − Mean = 3(Median − Mean) = 3 × 3 = 9."
     ],
     "finalAnswer": "9",
     "isCompetencyBased": false
@@ -53,16 +53,16 @@ export const STAT_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Empirical Relation (Mean, Median, Mode)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Find the median of the data, using an empirical relation, given that Mode = 12.4 and Mean = 10.5.",
-    "options": [],
-    "answer": "Median = 11.13 (approx.)",
+    "questionText": "Using the empirical relation, the median of a data set with Mode = 12.4 and Mean = 10.5 is approximately",
+    "options": ["11.45", "21.95", "9.87", "11.13"],
+    "answer": "11.13",
     "solutionSteps": [
-      "[1 mark] Empirical relation: Mode = 3·Median − 2·Mean → 12.4 = 3·Median − 2(10.5) → 3·Median = 12.4 + 21 = 33.4 → Median = 33.4/3 = 11.13 (approx.)."
+      "[1 mark] 11.13 — 12.4 = 3 Median − 2(10.5) ⇒ 3 Median = 33.4 ⇒ Median ≈ 11.13."
     ],
-    "finalAnswer": "Median ≈ 11.13",
+    "finalAnswer": "11.13",
     "isCompetencyBased": false
   },
   {

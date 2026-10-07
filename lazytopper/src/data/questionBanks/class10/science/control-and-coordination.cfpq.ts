@@ -223,21 +223,22 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
     subtopic: "Reflex Action and Voluntary Action",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "Sheila saw a snake and instantly jumped back. She then slowly moved away from the snake.\n\nWhat is the difference between the two actions of instantly jumping and walking away?",
+      "Sheila saw a snake and instantly jumped back. She then slowly moved away from the snake. Which statement correctly describes the two actions?",
     answer:
-      "The jump was an involuntary quick reflex action; walking away was a voluntary slow action.",
+      "Jumping back was an involuntary reflex; walking away was voluntary",
     solutionSteps: [
-      "[½ mark] The jump was an involuntary quick reflex action.",
-      "[½ mark] Walking away was a voluntary slow action.",
+      "[1 mark] Jumping back was an involuntary reflex; walking away was voluntary — the instant jump is a quick reflex, while the slow walk away is a deliberate, voluntary action."
     ],
-    finalAnswer: "The jump was an involuntary reflex; walking away was a voluntary action.",
+    finalAnswer: "Jumping back was an involuntary reflex; walking away was voluntary",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.7 — CFPQ_Science10.pdf, questions pdf pp.59–61 (printed folios 58–60)",
     requiresDiagram: false,
+    options: ["Jumping back was voluntary; walking away was an involuntary reflex", "Both actions were involuntary reflexes", "Both actions were voluntary and controlled by thinking", "Jumping back was an involuntary reflex; walking away was voluntary"],
+    sourceOverride: "others",
   },
   // pdf-page 61 (folio 60) — Q9 [2]. Rubric: pdf-page 63.
   {
@@ -272,17 +273,19 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
     subtopic: "Hormones in Animals - Adrenaline",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Easy",
     bloomSkill: "Applying",
     questionText:
-      "While on a roller coaster ride, Aditya noticed an increase in his heartbeat and his breathing. Which hormone is responsible for the changes in Aditya's body?",
-    answer: "adrenaline",
-    solutionSteps: ["[1 mark] adrenaline"],
-    finalAnswer: "adrenaline",
+      "While on a roller coaster ride, Aditya noticed an increase in his heartbeat and his breathing. Which hormone is responsible for these changes?",
+    answer: "Adrenaline",
+    solutionSteps: ["[1 mark] Adrenaline — adrenaline is released in stress or excitement and speeds up heartbeat and breathing."],
+    finalAnswer: "Adrenaline",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.7 — CFPQ_Science10.pdf, questions pdf pp.59–61 (printed folios 58–60)",
     requiresDiagram: false,
+    options: ["Adrenaline", "Insulin", "Thyroxine", "Growth hormone"],
+    sourceOverride: "others",
   },
   // pdf-page 61 (folio 60) — Q11 [1]. Rubric: pdf-page 63.
   {
@@ -292,20 +295,21 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
     subtopic: "Plant Hormones - Abscisic Acid",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText:
-      "'Plant growth regulators do not always promote growth.'\n\nCite one example in support of the above statement and mention the action of the same.",
-    answer: "abscissic acid - promotes ageing and senescence",
+      "'Plant growth regulators do not always promote growth.' Which example supports this statement?",
+    answer: "Abscisic acid, which promotes ageing and wilting of leaves",
     solutionSteps: [
-      "[½ mark] abscissic acid",
-      "[½ mark] promotes ageing and senescence",
+      "[1 mark] Abscisic acid, which promotes ageing and wilting of leaves — abscisic acid inhibits growth and promotes senescence, unlike the other three."
     ],
-    finalAnswer: "Abscisic acid, which promotes ageing and senescence rather than growth.",
+    finalAnswer: "Abscisic acid, which promotes ageing and wilting of leaves",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.7 — CFPQ_Science10.pdf, questions pdf pp.59–61 (printed folios 58–60)",
     requiresDiagram: false,
+    options: ["Auxin, which promotes cell elongation", "Abscisic acid, which promotes ageing and wilting of leaves", "Gibberellin, which promotes stem growth", "Cytokinin, which promotes cell division"],
+    sourceOverride: "others",
   },
 ];
 

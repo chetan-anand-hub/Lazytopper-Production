@@ -56,10 +56,9 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "∠OPA = 50°",
     "explanation": "Tangent is perpendicular to radius at point of contact — proved by showing OA is shortest distance. Application: in △OAP, angles sum to 180°. ∠OAP = 90°, ∠AOP = 40°, so ∠OPA = 50°.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/1/1",
     "ncertRef": "Theorem 10.1, Ex 10.1",
-    "strategyHint": "The proof uses the key idea that every point on the tangent except A is outside the circle, making OA the shortest path — hence perpendicular."
+    "strategyHint": "The proof uses the key idea that every point on the tangent except A is outside the circle, making OA the shortest path — hence perpendicular.",
+    sourceOverride: "others",
   },
 
   {
@@ -98,10 +97,9 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "∠AOB = 110°",
     "explanation": "PA = PB proved by RHS congruence of △OAP and △OBP. Application: angles in quadrilateral OAPB sum to 360°. 90°+70°+90°+∠AOB = 360° gives ∠AOB = 110°.",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "30/1/1",
     "ncertRef": "Theorem 10.2, Ex 10.2",
-    "strategyHint": "This is the most frequently tested Circle proof. Construction: join OA, OB, OP. Use RHS (right angle + hypotenuse + side). CPCT gives PA = PB and additional angle bisector results."
+    "strategyHint": "This is the most frequently tested Circle proof. Construction: join OA, OB, OP. Use RHS (right angle + hypotenuse + side). CPCT gives PA = PB and additional angle bisector results.",
+    sourceOverride: "others",
   },
 
   {
@@ -135,10 +133,9 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "AB + CD = AD + BC (proved using equal tangent lengths from each vertex)",
     "explanation": "The circle touches each side at one point. From each vertex, two equal tangents are drawn. Sum the four pairs, group by sides to get AB + CD = AD + BC.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/2/1",
     "ncertRef": "Ex 10.2 Q11",
-    "strategyHint": "Label the four tangent points P, Q, R, S on sides AB, BC, CD, DA. Apply equal tangents from each of the four vertices. Sum all four equations and regroup."
+    "strategyHint": "Label the four tangent points P, Q, R, S on sides AB, BC, CD, DA. Apply equal tangents from each of the four vertices. Sum all four equations and regroup.",
+    sourceOverride: "others",
   },
 
   {
@@ -174,10 +171,9 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "∠PTQ = 2∠OPQ (proved)",
     "explanation": "TP = TQ (equal tangents) makes △TPQ isosceles. Let base angles = x. ∠PTQ = 180°−2x. Since ∠OPT = 90°, ∠OPQ = 90°−x. So 2∠OPQ = 180°−2x = ∠PTQ.",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "30/3/1",
     "ncertRef": "Ex 10.2 Q13",
-    "strategyHint": "Use TP = TQ (isosceles triangle). Let base angle = x. Express ∠PTQ in terms of x. Use ∠OPT = 90° to express ∠OPQ in terms of x. Show they match."
+    "strategyHint": "Use TP = TQ (isosceles triangle). Let base angle = x. Express ∠PTQ in terms of x. Use ∠OPT = 90° to express ∠OPQ in terms of x. Show they match.",
+    sourceOverride: "others",
   },
 
   {
@@ -218,10 +214,9 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "∠AOB = 90° (proved)",
     "explanation": "OA bisects ∠POC (equal tangents from A). OB bisects ∠QOC (equal tangents from B). Since XY ∥ X'Y', POQ is a diameter so ∠POQ = 180°. Half of 180° = 90° = ∠AOB.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/2/1",
     "ncertRef": "Ex 10.2 Q12",
-    "strategyHint": "The key is that XY ∥ X'Y' means P and Q are diametrically opposite, so ∠POQ = 180°. OA and OB are angle bisectors, so their included angle is half of 180° = 90°."
+    "strategyHint": "The key is that XY ∥ X'Y' means P and Q are diametrically opposite, so ∠POQ = 180°. OA and OB are angle bisectors, so their included angle is half of 180° = 90°.",
+    sourceOverride: "others",
   },
 
   // ─────────────────────────────────────────────
@@ -288,9 +283,8 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "PA = PB — the chord is bisected at the tangent point P.",
     "explanation": "OP ⊥ AB (tangent-radius). OP is also perpendicular from centre to chord AB of larger circle. Perpendicular from centre bisects chord, so PA = PB.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/1/1",
-    "ncertRef": "Ex 10.2 Q4"
+    "ncertRef": "Ex 10.2 Q4",
+    sourceOverride: "others",
   },
 
   {
@@ -326,9 +320,8 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "Tangent from A = 4 cm, from B = 6 cm, from C = 2 cm",
     "explanation": "Set up three equations from equal tangent lengths at each vertex. Sum all three, divide by 2 to get s = 12. Subtract each equation to find individual tangent lengths.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/3/1",
-    "ncertRef": "Ex 10.2 Q6"
+    "ncertRef": "Ex 10.2 Q6",
+    sourceOverride: "others",
   },
 
   {
@@ -359,9 +352,8 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "∠APB + ∠AOB = 180° (proved via angle sum of quadrilateral OAPB)",
     "explanation": "In quadrilateral OAPB, ∠OAP = ∠OBP = 90° (tangent-radius). Angle sum of quadrilateral = 360°. So ∠APB + ∠AOB = 360° − 180° = 180°.",
     "isCompetencyBased": false,
-    "pyqYear": "2022",
-    "pyqSet": "30/2/1",
-    "ncertRef": "Ex 10.2 Q7"
+    "ncertRef": "Ex 10.2 Q7",
+    sourceOverride: "others",
   },
 
   {
@@ -401,8 +393,7 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "ABCD is a rhombus (AB = BC = CD = DA proved)",
     "explanation": "Apply equal tangent lengths from all four vertices to get AB+CD = AD+BC. For a parallelogram AB=CD and AD=BC. Substituting gives 2AB = 2AD, so AB = AD, making all sides equal.",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "30/1/1",
-    "ncertRef": "Ex 10.2 Q10"
+    "ncertRef": "Ex 10.2 Q10",
+    sourceOverride: "others",
   }
 ];

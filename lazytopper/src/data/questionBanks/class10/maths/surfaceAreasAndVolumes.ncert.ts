@@ -35,9 +35,10 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "Cone: r = 1 cm, h = 1 cm → V₂ = (1/3)πr²h = (1/3)π cm³.",
       "Total volume = (2/3)π + (1/3)π = π cm³."
     ],
-    finalAnswer: "π cm³ — option (A).",
+    finalAnswer: "π cm³ — option (C).",
     ncertRef: "NCERT Ex 13.2 Q1", isCompetencyBased: false,
-    strategyHint: "Add hemisphere volume (2/3)πr³ and cone volume (1/3)πr²h; with r = h = 1 they combine to exactly π." },
+    strategyHint: "Add hemisphere volume (2/3)πr³ and cone volume (1/3)πr²h; with r = h = 1 they combine to exactly π.",
+    sourceOverride: "others", },
 
   { id: "SAV-N-NCERT-12-AR-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Surface Area of Combined Solids", section: "A", marks: 1, format: "Assertion-Reasoning",
@@ -209,17 +210,19 @@ export const SAV_NCERT: CanonicalQuestion[] = [
     strategyHint: "Base is open, so only CSA of cylinder + CSA of cone count; then multiply by the rate." },
 
   { id: "SAV-N-NCERT-12-CB-002", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Volume of Combined Solids", section: "E", marks: 4, format: "Case-Based",
+    subtopic: "Volume of Combined Solids", section: "D", marks: 5, format: "Long",
     difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "A vessel is in the form of an inverted cone of height 8 cm and top radius 5 cm, open at the top and filled with water to the brim. Lead shots — each a sphere of radius 0.5 cm — are dropped in, and one-fourth of the water flows out. Find the number of lead shots dropped into the vessel. (Take π = 22/7.)",
     solutionSteps: [
-      "Volume of the cone (water initially) = (1/3)πR²H = (1/3)π(5)²(8) cm³ = 200π/3 cm³.",
-      "Water displaced = (1/4) × cone volume = (1/4)(200π/3) = 50π/3 cm³.",
-      "Volume of one lead shot = (4/3)π(0.5)³ = (4/3)π(0.125) = π/6 cm³.",
-      "Number of shots = (50π/3) ÷ (π/6) = (50π/3)(6/π) = 100."
+      "[1 mark] Volume of water initially in the cone = (1/3)πR²H = (1/3)π(5)²(8) = 200π/3 cm³.",
+      "[1 mark] Water that flows out = (1/4) × (200π/3) = 50π/3 cm³; this equals the total volume of the lead shots.",
+      "[1 mark] Volume of one lead shot = (4/3)π(0.5)³ = (4/3)π(0.125) = π/6 cm³.",
+      "[1 mark] Number of shots = (50π/3) ÷ (π/6) = (50π/3) × (6/π).",
+      "[1 mark] = 100. Hence 100 lead shots were dropped into the vessel."
     ],
     finalAnswer: "Number of lead shots = 100.",
     ncertRef: "NCERT Ex 13.2 Q5", isCompetencyBased: true,
-    strategyHint: "Displaced water = (1/4) of cone volume = N × (volume of one sphere); solve for N." },
+    strategyHint: "Displaced water = (1/4) of cone volume = N × (volume of one sphere); solve for N.",
+    sourceOverride: "others", },
 
 ];

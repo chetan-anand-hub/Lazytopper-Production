@@ -136,11 +136,12 @@ export const POLY_NCERT: CanonicalQuestion[] = [
     finalAnswer: "All three values are zeroes; all three relationships verified.",
     ncertRef: "NCERT Example 5 (page 32)", isCompetencyBased: true },
 
-  { id: "POLY-N-NCERT-2-LA-002", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes & Coefficient Relationship", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+  { id: "POLY-N-NCERT-2-LA-002", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes & Coefficient Relationship", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the zeroes of the quadratic polynomial 3x² – x – 4 and verify the relationship between the zeroes and the coefficients.",
-    solutionSteps: ["Factorise by splitting middle term: 3x² − 4x + 3x − 4 = x(3x − 4) + 1(3x − 4) = (x + 1)(3x − 4).", "Zeroes: x = −1 and x = 4/3.", "Sum: −1 + 4/3 = 1/3 = −(−1)/3 = −b/a. ✓", "Product: (−1)(4/3) = −4/3 = c/a. ✓", "Relationships verified."],
+    solutionSteps: ["Split the middle term: 3x² − 4x + 3x − 4 = x(3x − 4) + 1(3x − 4) = (x + 1)(3x − 4).", "Zeroes: x = −1 and x = 4/3.", "Sum = −1 + 4/3 = 1/3 = −(−1)/3 = −b/a; Product = (−1)(4/3) = −4/3 = c/a. Relationship verified."],
     finalAnswer: "Zeroes: −1 and 4/3; sum = 1/3, product = −4/3.",
-    ncertRef: "NCERT Ex 2.2 Q1(vi)", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 2.2 Q1(vi)", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // ===== Section E — Case-Based (4 marks) =====
   { id: "POLY-N-NCERT-2-CB-001", subject: "Maths", topicKey: "polynomials", subtopic: "Constructing a Polynomial", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",

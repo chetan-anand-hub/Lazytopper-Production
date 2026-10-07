@@ -20,10 +20,11 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "In the figure, PQRS is a square. What is the value of sin ∠SPT?",
     options: ["8/17", "8/15", "15/17", "(cannot be found with the given information)"],
     answer: "8/17",
-    solutionSteps: ["From figure: triangle SPT with given sides yields a 8-15-17 right-triangle relation.", "Per MS: sin ∠SPT = 8/17."],
+    solutionSteps: ["[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT = 90° − ∠UPQ, so sin ∠SPT = cos ∠UPQ = PU/PQ = 8/17."],
     finalAnswer: "(a) 8/17",
     ncertRef: "APQ PQ1 Q11", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: square PQRS with diagonals or auxiliary point T." },
+    strategyHint: "REQUIRES-FIGURE: square PQRS with diagonals or auxiliary point T.",
+    sourceOverride: "others", },
 
   // PQ1 Q12 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRIG-003", subject: "Maths", topicKey: "trigonometry", subtopic: "Identifying Error in Trig Proof", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
@@ -124,13 +125,14 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
 
   // PQ_2022 Q16 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRIG-013", subject: "Maths", topicKey: "trigonometry", subtopic: "Simplifying Trig Expression", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Which of the following is equal to the given expression (as shown in the figure)?",
+    questionText: "Which of the following is equal to the expression shown in the given figure?",
     options: ["sec θ", "cosec θ", "(cot^2 θ)(sec θ)", "(cot^2 θ)(cosec θ)"],
-    answer: "(cot^2 θ)(sec θ)",
-    solutionSteps: ["Per MS answer key: option (c) (cot^2 θ)(sec θ)."],
-    finalAnswer: "(c) (cot^2 θ)(sec θ)",
+    answer: "sec θ",
+    solutionSteps: ["(cot θ · sec² θ)/cosec θ = (cos θ/sin θ) × (1/cos² θ) × sin θ = 1/cos θ = sec θ. So option (a) sec θ."],
+    finalAnswer: "(a) sec θ",
     ncertRef: "APQ PQ_2022 Q16", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: trig expression shown in PDF only as image." },
+    strategyHint: "REQUIRES-FIGURE: trig expression shown in PDF only as image.",
+    sourceOverride: "others", },
 
   // PQ_2022 Q24 first variant (Section B, Short, 2 marks)
   { id: "APQ-M-TRIG-014", subject: "Maths", topicKey: "trigonometry", subtopic: "Trig Equations — Standard Angles", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

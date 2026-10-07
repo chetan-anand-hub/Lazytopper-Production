@@ -297,23 +297,21 @@ describe("RULE 2 — both mark conventions are valid", () => {
     "CFPQ-S-LGHT-014",
     "CFPQ-S-LGHT-018",
     "SQP-S-2025-LGHT-033",
-    // control-and-coordination (4)
+    // control-and-coordination (2)
     "SQP-S-2023-CTRL-B-001",
     "CFPQ-S-CTRL-005",
-    "CFPQ-S-CTRL-008",
-    "CFPQ-S-CTRL-011",
-    // carbon-and-its-compounds (2)
-    "CFPQ-S-CARB-006",
+    // carbon-and-its-compounds (1)
     "CFPQ-S-CARB-019",
     // real-numbers (1)
     "CBE-M-RN-B-004",
-    // electricity (1)
-    "CFPQ-S-ELEC-008",
   ] as const;
   const LEADING_HALF = /^\s*\[\s*\d*½\s*marks?\s*\]/i;
 
-  it("★ HALF-1 positive control: the 15 bank rows carrying [½ mark] pass Rule 2 and Rule 3", () => {
-    expect(HALF_MARK_ROWS).toHaveLength(15);
+  // 15 -> 11 at BANK-FIX-2 (2026-10-07, owner ruling: every 1-mark row is a 4-option MCQ): CFPQ-S-CTRL-008, CFPQ-S-CTRL-011,
+  // CFPQ-S-CARB-006 and CFPQ-S-ELEC-008 were 1-mark written rows; as MCQs they carry ONE "[1 mark]" step (CLAUDE.md §13), so
+  // they no longer hold a [½ mark] step. Still served; no other row moved.
+  it("★ HALF-1 positive control: the 11 bank rows carrying [½ mark] pass Rule 2 and Rule 3", () => {
+    expect(HALF_MARK_ROWS).toHaveLength(11);
     for (const id of HALF_MARK_ROWS) {
       const q = row(id);
       const steps = q.solutionSteps ?? [];

@@ -154,12 +154,13 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjescco08 Q24", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references given below" },
   // cbjescco08 Q25
   { id: "SCO-S-REPR-019", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "The diagram represents gametes P and Q fusing to give cell R. This cell then produces gametes , , S T U and V . Which statement about the number of chromosomes in the cells and gametes is corrects.",
+    questionText: "Gametes P and Q fuse to form cell R. Cell R later gives rise to an organism that produces gametes S, T, U and V. Which statement about the number of chromosomes in these cells is correct?",
     options: ["The number of chromosomes in P and Q are different", "The number of chromosomes in P and Q are same", "The number of chromosomes in S in one quarter of chromosomes in R", "The number of chromosomes in T is half the number of chromosomes in Q"],
     answer: "The number of chromosomes in P and Q are same",
-    solutionSteps: ["Correct option is (b) The number of chromosomes in P and Q are same.", "are same P and Q are haploid gametes white R is zygote and dipolid. Zygote give rise to an individual which further produces gametes by meiosis. in which chromosome number is half i.e. haploid."],
+    solutionSteps: ["P and Q are haploid gametes of the same species, so they carry the same number of chromosomes; R (the zygote) is diploid. Gametes S, T, U and V formed later are again haploid, i.e. half of R and equal to Q — so (a), (c) and (d) are wrong. Correct option: (b)."],
     finalAnswer: "(b) The number of chromosomes in P and Q are same",
-    ncertRef: "cbjescco08 Q25", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram" },
+    ncertRef: "cbjescco08 Q25", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram",
+    sourceOverride: "others", },
   // cbjescco08 Q27
   { id: "SCO-S-REPR-020", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "The vegetative reproduction in sweet potato is done by",
@@ -260,10 +261,12 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjesccq08 Q73", isCompetencyBased: true },
   // cbjesccq08 Q74 (Section C, 3mk)
   { id: "SCQ-S-REPR-036", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Mention the total number of chromosome along with sex chromosome. Explain how in a sexually reproducing organism chromosome number of parents and their offsprings is the same.",
-    answer: "[Delhi 2017] Total number chromosomes is 23 pairs. The last pair is called sex chromosome. If they are similar, they are termed as XX chromosome. They are present in the females. If they are dissimilar, they are called XY. They are present in the males. DNA doubling is always fol",
-    solutionSteps: ["[Delhi 2017] Total number chromosomes is 23 pairs. The last pair is called sex chromosome. If they are similar, they are termed as XX chromosome. They are present in the females. If they are dissimilar, they are called XY. They are present in the males. DNA doubling is always followed by cell division. But multicellular organisms have special linkages of cells in specialised organs which have only half the number of chromosomes and half the amount of DNA. Thus, when these germ- cells from two individuals combine during sexual reproduction to form a new individual, it results in re-establishmen"],
-    ncertRef: "cbjesccq08 Q74", isCompetencyBased: true },
+    questionText: "Mention the total number of chromosomes, along with the sex chromosomes, in human beings. Explain how, in a sexually reproducing organism, the chromosome number of the parents and their offspring remains the same.",
+    answer: "Humans have 46 chromosomes (23 pairs): 22 pairs of autosomes and 1 pair of sex chromosomes — XX in females and XY in males. Germ cells (gametes) are formed in specialised reproductive organs and carry only half the number of chromosomes (and half the DNA) of body cells. When a male and a female gamete fuse at fertilisation, the zygote gets the full (original) chromosome number back, so offspring have the same chromosome number as the parents.",
+    solutionSteps: ["Humans have 46 chromosomes, i.e. 23 pairs: 22 pairs of autosomes + 1 pair of sex chromosomes (XX in females, XY in males).", "Gametes are formed in specialised reproductive organs and contain only half the number of chromosomes and half the DNA of a body cell (23 in humans).", "At fertilisation a male and a female gamete fuse (23 + 23 = 46), restoring the original chromosome number in the zygote; hence parents and offspring have the same chromosome number."],
+    ncertRef: "cbjesccq08 Q74", isCompetencyBased: true,
+    finalAnswer: "46 chromosomes (22 pairs autosomes + XX/XY); gametes are haploid and fertilisation restores the full number, keeping it constant across generations.",
+    sourceOverride: "others", },
   // cbjesccq08 Q75 (Section C, 3mk)
   { id: "SCQ-S-REPR-037", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "State the basic requirement for sexual reproduction. Write the importance of such reproduction in nature.",
@@ -273,9 +276,11 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq08 Q76 (Section C, 3mk)
   { id: "SCQ-S-REPR-038", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "What happens when: a. Accidentally Planaria is cut into three different pieces. b. Bryophyllum leaf fall on the wet soil. c. On maturation sporangia of Rhizopus burst.",
-    answer: "[Delhi 2017] a. Three new Planaria will form due to regeneration. b. New plantlets will form from these buds helping the plant to propagate vegetatively. Chap 8 : How Do Organisms Reproduce c. Spores are released which upon finding suitable substratum germinates to form new indiv",
-    solutionSteps: ["[Delhi 2017] a. Three new Planaria will form due to regeneration. b. New plantlets will form from these buds helping the plant to propagate vegetatively. Chap 8 : How Do Organisms Reproduce c. Spores are released which upon finding suitable substratum germinates to form new individual."],
-    ncertRef: "cbjesccq08 Q76", isCompetencyBased: true },
+    answer: "a. Each of the three pieces grows into a complete new Planaria by regeneration. b. Buds present in the notches along the leaf margin develop into new plantlets, which grow into new plants (vegetative propagation). c. Spores are released and dispersed; on reaching a suitable moist substratum each spore germinates into a new Rhizopus individual (spore formation).",
+    solutionSteps: ["a. Each of the three cut pieces of Planaria grows into a complete new Planaria — regeneration.", "b. Buds in the notches of the Bryophyllum leaf margin develop into new plantlets that grow into new plants — vegetative propagation.", "c. The sporangia release numerous spores which, on a suitable moist substratum, germinate into new Rhizopus individuals — spore formation."],
+    ncertRef: "cbjesccq08 Q76", isCompetencyBased: true,
+    finalAnswer: "a. Regeneration into three Planaria; b. Leaf-notch buds form new plantlets (vegetative propagation); c. Spores released germinate into new Rhizopus.",
+    sourceOverride: "others", },
   // cbjesccq08 Q118 (Section D, 5mk)
   { id: "SCQ-S-REPR-039", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Name the type of asexual reproduction demonstrated by the following organisms: a. Amoeba b. Rhizopus c. Planaria d. Plasmodium e. Bryophyllum",

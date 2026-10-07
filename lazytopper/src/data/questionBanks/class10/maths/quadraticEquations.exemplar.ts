@@ -259,10 +259,10 @@ export const QE_EXEMPLAR: CanonicalQuestion[] = [
 
   // ===== Section E: Case-Based (4 marks) =====
   { id: "QE-N-EXMPLR-4-CB-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "In the centre of a rectangular lawn of dimensions 50 m × 40 m, a rectangular pond is to be constructed so that the area of the grass surrounding the pond is 1184 m². The pond is centred, leaving a uniform border of grass of width w m all around it.\n(i) Set up a quadratic equation in w using the given areas.\n(ii) Solve to find the dimensions of the pond.",
-    answer: "(i) (50 − 2w)(40 − 2w) = 816, i.e. 4w² − 180w + 1184 = 0 (equivalently w² − 45w + 296 = 0). (ii) w = 8 m, so the pond is 34 m × 24 m.",
-    solutionSteps: ["Total lawn area = 50 × 40 = 2000 m². Grass area = 1184 m² ⇒ pond area = 2000 − 1184 = 816 m².", "Pond dimensions = (50 − 2w) × (40 − 2w) m. So (50 − 2w)(40 − 2w) = 816.", "Expand: 2000 − 100w − 80w + 4w² = 816 ⇒ 4w² − 180w + 1184 = 0 ⇒ w² − 45w + 296 = 0.", "Factorise: w² − 8w − 37w + 296 = 0 ⇒ w(w − 8) − 37(w − 8) = 0 ⇒ (w − 8)(w − 37) = 0 ⇒ w = 8 or w = 37.", "w = 37 is rejected since 2w must be less than 40. So w = 8 m and the pond is (50 − 16) × (40 − 16) = 34 m × 24 m. Check: 34 × 24 = 816 ✓."],
-    finalAnswer: "Quadratic: w² − 45w + 296 = 0; w = 8 m; pond = 34 m × 24 m.",
+    questionText: "In the centre of a rectangular lawn of dimensions 50 m × 40 m, a rectangular pond is to be constructed so that the area of the grass surrounding the pond is 1184 m². The pond is centred, leaving a uniform border of grass of width w m all around it.\n(i) Find the area of the pond.\n(ii) Set up a quadratic equation in w using the given areas.\n(iii) Solve the equation to find w and hence the dimensions of the pond.",
+    answer: "(i) Pond area = 2000 − 1184 = 816 m². (ii) (50 − 2w)(40 − 2w) = 816, i.e. w² − 45w + 296 = 0. (iii) w = 8 m, so the pond is 34 m × 24 m.",
+    solutionSteps: ["[1 mark] (i) Lawn area = 50 × 40 = 2000 m²; pond area = 2000 − 1184 = 816 m².", "[1 mark] (ii) Pond is (50 − 2w) m × (40 − 2w) m, so (50 − 2w)(40 − 2w) = 816 ⇒ 4w² − 180w + 1184 = 0 ⇒ w² − 45w + 296 = 0.", "[1 mark] (iii) w² − 8w − 37w + 296 = 0 ⇒ (w − 8)(w − 37) = 0 ⇒ w = 8 or w = 37.", "[1 mark] (iii) w = 37 is rejected since 2w < 40. So w = 8 m and the pond is 34 m × 24 m (check: 34 × 24 = 816)."],
+    finalAnswer: "(i) 816 m²; (ii) w² − 45w + 296 = 0; (iii) w = 8 m, pond = 34 m × 24 m.",
     ncertRef: "Exemplar Ex 4.4 Q7", isCompetencyBased: true,
     strategyHint: "Subtract pond area from lawn area to use the grass-area constraint.",
     sourceOverride: "others" },

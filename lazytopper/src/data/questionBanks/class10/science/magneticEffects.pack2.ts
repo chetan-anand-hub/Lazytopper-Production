@@ -112,10 +112,10 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Fleming's left-hand rule: Thumb (Force), Index (field), Middle (current)",
       "It determines the direction of force when current flows through a conductor in a magnetic field.",
-      "Fleming's right-hand rule is used for electromagnetic induction."
+      "It does not give the direction of the magnetic field itself; that is found with a compass or the right-hand thumb rule."
     ],
     "finalAnswer": "Direction of force on current-carrying conductor",
-    "explanation": "Fleming's left-hand rule: Thumb (Force), Index (field), Middle (current). It determines the direction of force when current flows through a conductor in a magnetic field. Fleming's right-hand rule is used for electromagnetic induction. Therefore, the correct answer is Direction of force on current-carrying conductor.",
+    "explanation": "Fleming's left-hand rule: Thumb (Force), Index (field), Middle (current). It determines the direction of force when current flows through a conductor in a magnetic field. It does not give the direction of the magnetic field itself; that is found with a compass or the right-hand thumb rule. Therefore, the correct answer is Direction of force on current-carrying conductor.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -189,18 +189,16 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "subtopic": "Electromagnet",
     "section": "A",
     "marks": 1,
-    "format": "Short",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Name the material most suitable for making the core of an electromagnet.",
-    "options": [],
-    "answer": "Soft iron (or iron core)",
+    "questionText": "The material most suitable for making the core of an electromagnet is",
+    "options": ["Steel", "Soft iron", "Copper", "Aluminium"],
+    "answer": "Soft iron",
     "solutionSteps": [
-      "Soft iron has high permeability and low retentivity.",
-      "It readily magnetizes and demagnetizes when current is switched on/off.",
-      "This makes it ideal for electromagnets in practical applications."
+      "[1 mark] Soft iron — soft iron is magnetised strongly when current flows and loses its magnetism when current is switched off."
     ],
-    "finalAnswer": "Soft iron (or iron core)",
+    "finalAnswer": "Soft iron",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -523,9 +521,8 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Equal opposite forces form couple producing torque without net force",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "Delhi",
-    "ncertRef": "NCERT Ch13 Exercise"
+    "ncertRef": "NCERT Ch13 Exercise",
+    sourceOverride: "others",
   },
   {
     "id": "ME2-019",
@@ -648,8 +645,8 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
-    "section": "B",
-    "marks": 2,
+    "section": "A",
+    "marks": 1,
     "format": "Assertion-Reasoning",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
@@ -839,11 +836,11 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "answer": "Direction of force on a current-carrying conductor in a magnetic field",
     "solutionSteps": [
       "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current",
-      "Used for motors (force determination)",
-      "Fleming's Right Hand Rule is for generators (induced current)"
+      "Used to find the direction of force (and hence motion) on a current-carrying conductor placed in a magnetic field",
+      "It gives only the direction of the force, not the strength of the magnetic field"
     ],
     "finalAnswer": "Direction of force on a current-carrying conductor in a magnetic field",
-    "explanation": "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current. Used for motors (force determination). Fleming's Right Hand Rule is for generators (induced current). Therefore, the correct answer is Direction of force on a current-carrying conductor in a magnetic field.",
+    "explanation": "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current. It is used to find the direction of force (and hence motion) on a current-carrying conductor placed in a magnetic field. It gives only the direction of the force, not the strength of the magnetic field. Therefore, the correct answer is Direction of force on a current-carrying conductor in a magnetic field.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1159,9 +1156,8 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "AC is preferred because it can be easily stepped up to high voltage for transmission (reducing losses) and then stepped down at the destination using simple and efficient transformers. DC cannot be easily transformed and would require expensive and complex conversion equipment.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "All India",
-    "ncertRef": "NCERT Ch13 Exercise Q7"
+    "ncertRef": "NCERT Ch13 Exercise Q7",
+    sourceOverride: "others",
   },
   {
     "id": "ME2-042",
@@ -1285,8 +1281,8 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Fleming Rules",
-    "section": "B",
-    "marks": 2,
+    "section": "A",
+    "marks": 1,
     "format": "MCQ",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
@@ -1306,9 +1302,8 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "Perpendicular to the magnetic field",
     "explanation": "Force F = BIL sin(θ) where θ is angle between conductor and field. Force is maximum when sin(θ) = 1, i.e., θ = 90°. This means conductor is perpendicular to the field. Therefore, the correct answer is Perpendicular to the magnetic field.",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "All India",
-    "ncertRef": "NCERT Ch13 InText Q7"
+    "ncertRef": "NCERT Ch13 InText Q7",
+    sourceOverride: "others",
   },
   {
     "id": "ME2-047",
@@ -1342,8 +1337,8 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "AC and DC",
-    "section": "B",
-    "marks": 2,
+    "section": "A",
+    "marks": 1,
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
