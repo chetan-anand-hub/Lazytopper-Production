@@ -920,6 +920,6 @@ server.listen(config.PORT, () => {
     );
   } else {
     console.log('[gen-q-schema] skipped — STUB_MODE or no DATABASE_URL.');
-    console.log('[step-solutions-schema] skipped — STUB_MODE or no DATABASE_URL.');
+    console.info('[step-solutions-schema] skipped — STUB_MODE or no DATABASE_URL.');
   }
 });
