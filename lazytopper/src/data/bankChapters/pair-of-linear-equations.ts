@@ -49,7 +49,7 @@ export default defineChapter("pair-of-linear-equations", [
   [349, PAIR_LINEAR_EQUATIONS_PYQ_2025, false],
   [358, PROBABILITY_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
-  [446, PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED, false],
+  [449, PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED, false],
 ], [
   "PLE-M02",
   "PLE-M03",

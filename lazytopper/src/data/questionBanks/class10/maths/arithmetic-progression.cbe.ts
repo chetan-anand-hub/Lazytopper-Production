@@ -229,7 +229,7 @@ export const AP_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": false
   },
   {
-    "id": "CBE-M-AP-C-001",
+    "id": "CBE-M-AP-C-001", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms (Real-Life Application)",
