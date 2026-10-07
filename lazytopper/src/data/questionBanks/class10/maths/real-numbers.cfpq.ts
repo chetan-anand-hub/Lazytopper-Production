@@ -175,7 +175,7 @@ const SET_DIAGRAM_DESC =
 export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
   // pdf-page 5 (folio 4) — Q1. Key: pdf-page 8 (folio 7), option 3.
   {
-    id: "CFPQ-M-REALNUM-001",
+    id: "CFPQ-M-REALNUM-001", competencyVerified: true,
     subject: "Maths",
     topicKey: "real-numbers",
     subtopic: "Fundamental Theorem of Arithmetic",
@@ -224,7 +224,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 5 (folio 4) — Q3. Key: pdf-page 8 (folio 7), option 3.
   {
-    id: "CFPQ-M-REALNUM-003",
+    id: "CFPQ-M-REALNUM-003", competencyVerified: true,
     subject: "Maths",
     topicKey: "real-numbers",
     subtopic: "HCF and LCM",
@@ -276,7 +276,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 6 (folio 5) — Q7, margin [2]. Rubric: pdf-page 9 (folio 8), 1 + 1.
   {
-    id: "CFPQ-M-REALNUM-007",
+    id: "CFPQ-M-REALNUM-007", competencyVerified: true,
     subject: "Maths",
     topicKey: "real-numbers",
     subtopic: "HCF and LCM",
@@ -298,7 +298,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 6 (folio 5) — Q8, margin [2]. Rubric: pdf-page 9 (folio 8), 1 + 0.5 + 0.5.
   {
-    id: "CFPQ-M-REALNUM-008",
+    id: "CFPQ-M-REALNUM-008", competencyVerified: true,
     subject: "Maths",
     topicKey: "real-numbers",
     subtopic: "HCF and LCM",
@@ -344,7 +344,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 6 (folio 5) — Q10, margin [3]. Rubric: pdf-page 10 (folio 9), 0.5 + 0.5 + 1 + 1.
   {
-    id: "CFPQ-M-REALNUM-010",
+    id: "CFPQ-M-REALNUM-010", competencyVerified: true,
     subject: "Maths",
     topicKey: "real-numbers",
     subtopic: "HCF and LCM",

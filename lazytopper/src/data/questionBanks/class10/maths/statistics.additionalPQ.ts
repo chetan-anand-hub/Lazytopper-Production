@@ -35,7 +35,7 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
     strategyHint: "REQUIRES-FIGURE: Original frequency distribution table." },
 
   // PQ1 Q35 (Section D, Long, 5 marks)
-  { id: "APQ-M-STAT-004", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "APQ-M-STAT-004", competencyVerified: true, subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A car assembly unit assembles a limited number of cars daily, depending on the prevailing demand. The table presents an analysis: cars assembled per day (0-4: 33 days, 4-8: 18 days, 8-12: 21 days, 12-16: 11 days, 16-20: 7 days). (i) If the demand of the cars is doubled, estimate how many cars on an average should be assembled per day to meet the increased demand? (ii) At least on how many days, less than average number of cars were assembled?",
     answer: "(i) ~15 cars per day. (ii) At least 33 days.",
     solutionSteps: ["[1 mark] Class marks xᵢ: 2, 6, 10, 14, 18; frequencies fᵢ: 33, 18, 21, 11, 7; Σfᵢ = 90.", "[1 mark] Σfᵢ·xᵢ = 33·2 + 18·6 + 21·10 + 11·14 + 7·18 = 66 + 108 + 210 + 154 + 126 = 664.", "[1 mark] Mean = Σfᵢxᵢ/Σfᵢ = 664/90 ≈ 7.38 cars per day.", "[1 mark] (i) For doubled demand, average required = 2 × 7.38 ≈ 14.76 ≈ 15 cars per day.", "[1 mark] (ii) The mean 7.38 lies in class 4-8; all 33 days in class 0-4 had fewer than 7.38 cars assembled, so on at least 33 days production was below average."],

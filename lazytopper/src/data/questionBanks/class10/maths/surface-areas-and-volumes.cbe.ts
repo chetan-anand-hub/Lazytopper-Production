@@ -38,7 +38,7 @@ export const SAV_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-SAV-A-002",
+    "id": "CBE-M-SAV-A-002", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combination of Solids — Sphere in a Cylinder",
@@ -86,7 +86,7 @@ export const SAV_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": false
   },
   {
-    "id": "CBE-M-SAV-B-001",
+    "id": "CBE-M-SAV-B-001", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "surface-areas-and-volumes",
     "subtopic": "Packing Solids — Counting in a Cylinder",
@@ -128,7 +128,7 @@ export const SAV_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "CBE-M-SAV-C-001",
+    "id": "CBE-M-SAV-C-001", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "surface-areas-and-volumes",
     "subtopic": "Volume of a Combination of Solids",
@@ -175,7 +175,7 @@ export const SAV_CBE: CanonicalQuestion[] = [
     sourceOverride: "others",
   },
   {
-    "id": "CBE-M-SAV-C-003",
+    "id": "CBE-M-SAV-C-003", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "surface-areas-and-volumes",
     "subtopic": "Smallest Cuboidal Box Enclosing a Solid",
@@ -198,7 +198,7 @@ export const SAV_CBE: CanonicalQuestion[] = [
     "diagramDescription": "A jackfruit (cylinder with two hemispherical ends, length 60 cm, diameter 25 cm) enclosed snugly in a cuboidal box of dimensions 60 cm × 25 cm × 25 cm."
   },
   {
-    "id": "CBE-M-SAV-C-004",
+    "id": "CBE-M-SAV-C-004", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "surface-areas-and-volumes",
     "subtopic": "Volume of a Cylinder — Rate of Filling",
