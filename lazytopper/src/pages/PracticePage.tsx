@@ -162,6 +162,9 @@ export const questionMatchesFilters = (
     }
     if (style === "case" &&
         !fmt.includes("case") && section !== "E") return false;
+    // CBQ-1 PR-1 — the CBQ filter: ONLY rows the one classifier calls a CBQ, of every
+    // mark value (the marks filter above still narrows when the student also picks one).
+    if (style === "cbq" && !isCbq(q)) return false;
   }
 
   if (source !== "all") {
@@ -490,6 +493,7 @@ import {
   resolvePracticePackKey,
   buildPracticeQuestionsWithAiTopup,
   buildPracticeQuestionsFromEngine,
+  buildCbqPracticePool,
   normaliseSubject,
   parseDifficultyChoice,
   parsePositiveInt,
@@ -497,6 +501,7 @@ import {
   parseBooleanFlag,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
+import { isCbq } from "../lib/cbq/cbqClassification";
 import {
   parseTopicsParam,
   topicSetKey,
@@ -787,9 +792,12 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       : queryMarks === "all"
         ? "all"
         : navMarksFilter !== undefined ? navMarksToUi(navMarksFilter) : "all";
-    const styleUi = queryStyle && ["all", "proof", "ar", "hots", "case"].includes(queryStyle)
+    // CBQ-1 PR-1: `style=cbq` (and the hub's `questionType=Competency`) opens a CBQ set.
+    const styleUi = queryStyle && ["all", "proof", "ar", "hots", "case", "cbq"].includes(queryStyle)
       ? queryStyle
-      : "all";
+      : !queryStyle && qp.get("questionType") === "Competency"
+        ? "cbq"
+        : "all";
     const sourceUi = querySource && ["all", "pyq", "ncert", "others"].includes(querySource)
       ? querySource
       : "all";
@@ -1148,6 +1156,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       : backLabel;
 
   const engineMarksFilter = useMemo(() => mapEngineMarks(committedMarks), [committedMarks]);
+  // CBQ-1 PR-1 — a committed CBQ filter serves from the topic's CBQ pool (see the fetch).
+  const cbqMode = committedStyle === "cbq";
 
   // PR-E1 FINAL-BUG FIX — derive BOTH the displayed set AND the post-build "N
   // available" hint from this ONE realized pool (`questions`), via the shared
@@ -1441,19 +1451,15 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   );
   const bank = useBankChapters(bankTopicKeys);
 
+  // CBQ-1 PR-1: live iff ANY chosen topic has >= 1 CBQ of ANY mark value (`isCbq`, the one
+  // classifier), read from the SAME pool a CBQ set is served from (buildCbqPracticePool).
+  // It replaced a Section-E draw kept through marks "4" / style "case" (4-mark only).
   const competencyAvailable = useMemo(() => {
     if (!bank.ready) return false;
     const labels = isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel];
     for (const label of labels) {
       if (!label || label.toLowerCase() === "generic") continue;
-      const drawn = buildPracticeQuestionsFromEngine({
-        subjectKey,
-        topicKey: label,
-        count: 200,
-        difficulty: "All",
-        boardPattern: "E", // Section E == the case-based competency slice the preset serves
-      });
-      if (drawn.some((q) => questionMatchesFilters(q, "4", "case", "all", "all", null))) return true;
+      if (buildCbqPracticePool({ subjectKey, topicKey: label }).length > 0) return true;
     }
     return false;
   }, [subjectKey, topicLabel, isMultiTopic, multiTopics, bank.ready]);
@@ -1505,13 +1511,16 @@ const packTopicKey = useMemo(() => {
     const labels = isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel];
     let total = 0;
     for (const label of labels) {
-      const bankQuestions = buildPracticeQuestionsFromEngine({
-        subjectKey,
-        topicKey: label,
-        count: 200,
-        difficulty: "All",
-        boardPattern: sectionForMarks === "All" ? undefined : sectionForMarks,
-      });
+      // CBQ-1 PR-1: a CBQ set counts the topic's whole CBQ pool (what it will serve).
+      const bankQuestions = pendingStyle === "cbq"
+        ? buildCbqPracticePool({ subjectKey, topicKey: label })
+        : buildPracticeQuestionsFromEngine({
+            subjectKey,
+            topicKey: label,
+            count: 200,
+            difficulty: "All",
+            boardPattern: sectionForMarks === "All" ? undefined : sectionForMarks,
+          });
       total += bankQuestions.filter((q) =>
         questionMatchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange)
       ).length;
@@ -1597,7 +1606,23 @@ const packTopicKey = useMemo(() => {
 
         let next: PracticeQuestion[];
 
-        if (isMultiTopic) {
+        if (cbqMode) {
+          // ── CBQ-1 PR-1: a CBQ set ─────────────────────────────────────────────
+          // The pool is EVERY CBQ (`isCbq`) of the chosen topic(s), all mark values,
+          // interleaved by mark — real bank rows only (no canonical fallback, no AI
+          // top-up, which would not be CBQs). selectInRangeFromPool then applies the
+          // committed filters (style "cbq" keeps only isCbq rows) and slices to the count.
+          // A topic without CBQs contributes nothing: the honest empty state.
+          next = isMultiTopic
+            ? mergeMultiTopicDeep({
+                pools: multiTopics.map((t) => ({
+                  key: t.canonicalSlug,
+                  questions: buildCbqPracticePool({ subjectKey, topicKey: t.label }),
+                })),
+                offset: rotationOffset,
+              })
+            : buildCbqPracticePool({ subjectKey, topicKey: topicLabel });
+        } else if (isMultiTopic) {
           // ── QP MULTI-TOPIC fan-out (shape "3c") ────────────────────────────
           // Fan out ONE unchanged single-topic fetch per chosen topic, then merge +
           // pool-and-shuffle. FLATTEN, not nest: each per-topic fetch already carries the
@@ -1844,6 +1869,9 @@ const packTopicKey = useMemo(() => {
     committedMarksRange,
     committedSource,
     regenerationKey,
+    // CBQ-1 PR-1: switching INTO / OUT OF a CBQ set changes the pool (other style
+    // changes stay client-side only, exactly as before).
+    cbqMode,
     // Multi-topic fan-out deps (the single-topic path never reads these).
     isMultiTopic,
     isFullSubject,
@@ -2719,7 +2747,7 @@ const packTopicKey = useMemo(() => {
             <div className="qp-eyebrow">Competency-based questions</div>
             <h2 className="qp-title">No CBQs for this chapter yet</h2>
             <p className="qp-lede">
-              {topicLabel || rawTopicParam} has no competency-based (Section E) questions yet.
+              {topicLabel || rawTopicParam} has no competency-based questions (CBQs) yet.
               You can still practise the chapter.
             </p>
             <div className="qp-start">

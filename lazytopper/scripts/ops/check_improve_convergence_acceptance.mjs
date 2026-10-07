@@ -1065,10 +1065,20 @@ const micSrc = stripComments(read(path.join(LAZY, 'src', 'components', 'desktop'
 check('MIC (H3): its labels come ONLY from lib/mistakeDisplay — no local type-label map, no legacy label',
   /from "\.\.\/\.\.\/lib\/mistakeDisplay"/.test(micSrc) && /mistakeGroupByKey\(/.test(micSrc)
     && !/PATTERN_LABELS/.test(micSrc) && !/concept gaps|calculation slips|silly mistakes|presentation issues/i.test(micSrc));
-check('MIC (H3): "checked answers" = GRADED ANSWERS from the attempt store, never MI log entries',
-  /getAttemptsFromCloud\(/.test(micSrc) && /a\.mode === "graded"/.test(micSrc) && !/answerCount:\s*entries\.length/.test(micSrc));
-check('MIC (H3): the biggest loss is decided in MARKS per group when entries carry them',
-  /aggregateEntryMarks\(entries\)/.test(micSrc) && /groupMarks\(marks\)/.test(micSrc));
+// OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+// — the two H3 lines below WERE pinned to the OLD source (`getAttemptsFromCloud(` + `a.mode === "graded"`;
+// `aggregateEntryMarks(entries)` + `groupMarks(marks)`). Amended to pin the SAME behaviour on the shared read
+// model, and two NEW lines pin the new source (count 146 → 148, never down). Replacement pins + their RED
+// mutation: MistakeIntelCard.contract.test.tsx and progressReadModel.consistency.test.tsx (widget == Me == brief).
+check('MIC (H3): "checked answers" = GRADED ANSWERS from the shared read model, never MI log entries', // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+  /model\.progress\.activity\.gradedAnswers/.test(micSrc) && !/answerCount:\s*entries\.length/.test(micSrc) && !/checkedCount\s*=\s*[^;]*entries\.length/.test(micSrc)); // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+check('MIC (H3): the biggest loss is decided in MARKS per group by the shared model ONE group split', // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+  /topLossGroup\(byGroup\)/.test(micSrc) && /model\.mistakes\.byGroup/.test(micSrc)); // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+check('MIC (ME-ENGINE-1): the card reads ONE source — readStudyModel from services/progressReadModel; no device-local / MI-entry fetch', // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget reads progressReadModel
+  /from "\.\.\/\.\.\/services\/progressReadModel"/.test(micSrc) && /readStudyModel\(uid,/.test(micSrc)
+    && !/getMistakeLogs\(/.test(micSrc) && !/getAttemptsFromCloud\(/.test(micSrc));
+check('MIC (ME-ENGINE-1): "marks lost" = the GRADED STREAM (progress.totals.marksLost, Me "on the table"), never the MI-entry sum', // OWNER RULING 2026-10-06 (ME-ENGINE-1, OWNER_RULINGS_B18_ME.md Round 2): widget's "marks lost" = the graded stream
+  /model\.progress\.totals\?\.marksLost/.test(micSrc) && !/totalMarksLost\s*\+=\s*entry\.marksLost/.test(micSrc));
 
 // ── The three replacement contract suites — EXIST · RUN · COLLECTED · SUBJECT (the house
 //    pattern of FORBID-1 / FORBID-6 / OPS-LIFT-1: a deleted ban plus a suite nobody runs is worse
@@ -1153,10 +1163,14 @@ if (forbiddenBase) {
   check('EQ-TEST: EquationInput.test.tsx shows zero changes (the autoGrow proof — it passes untouched)',
     !changed.includes('lazytopper/src/components/equation/EquationInput.test.tsx'),
     changed.includes('lazytopper/src/components/equation/EquationInput.test.tsx') ? 'THE TEST FILE WAS MODIFIED' : '');
-} else if (EVENT === 'push') {
-  // Push-to-trunk: legitimately no PR to scope against. NOT a check and NOT a pass —
-  // the diff would be empty and "pass" every forbidden path without examining one.
-  console.log('  --  N/A: push-to-trunk run — no PR to scope a forbidden-path diff to.');
+} else if (['push', 'schedule', 'workflow_dispatch', 'merge_group'].includes(EVENT)) {
+  // Every CI event that is NOT a pull_request (FU-CI1-NIGHTLY-RESTORE): a push to trunk,
+  // the nightly schedule, a hand-run workflow_dispatch, a merge-queue merge_group. None
+  // carries a PR base ref, so there is legitimately no PR to scope against. NOT a check
+  // and NOT a pass — the diff would be empty and "pass" every forbidden path without
+  // examining one. `pull_request` is deliberately NOT in this list (pinned below): a PR
+  // whose base ref cannot be resolved still falls through to the IN_CI hard failure.
+  console.log(`  --  N/A: ${EVENT} run — no PR to scope a forbidden-path diff to.`);
   console.log('      (The PR that introduced the change was gated on ITS own run. Not counted as a pass.)');
 } else if (IN_CI) {
   // A pull_request (or other CI event) whose base ref we could not resolve. Same rule
@@ -1169,6 +1183,29 @@ if (forbiddenBase) {
 } else {
   console.log('  ~~  SKIPPED (local, non-CI): no base ref — forbidden-path diff not checked.');
   console.log('      (A local skip is fine; the PR run scopes it against the real base.)');
+}
+
+// ★ PIN (FU-CI1-NIGHTLY-RESTORE) — the N/A branch above, asserted by SOURCE INSPECTION of
+// this very file, so it runs on every invocation regardless of which event branch fired.
+// A widened N/A set that swallowed `pull_request` would turn the PR hard-failure into a
+// silent skip; a deleted IN_CI branch would do the same for any unknown CI event.
+{
+  const self = read(fileURLToPath(import.meta.url)).replace(/\r\n/g, '\n');
+  const naLine = self.match(/^\} else if \(\[([^\]\n]*)\]\.includes\(EVENT\)\) \{$/m);
+  const naSet = naLine ? [...naLine[1].matchAll(/'([^']+)'/g)].map((m) => m[1]) : [];
+  check('FORBIDDEN-PIN: the non-PR N/A branch exists as one `[...].includes(EVENT)` list',
+    !!naLine && naSet.length > 0, 'N/A branch not found in the expected shape');
+  check('FORBIDDEN-PIN: `pull_request` is NEVER in the N/A set (a PR with no base ref must hard-fail)',
+    !!naLine && !naSet.includes('pull_request') && !naSet.includes('pull_request_target'),
+    `N/A set = ${JSON.stringify(naSet)}`);
+  check('FORBIDDEN-PIN: the N/A set covers push, schedule, workflow_dispatch and merge_group',
+    ['push', 'schedule', 'workflow_dispatch', 'merge_group'].every((e) => naSet.includes(e)),
+    `N/A set = ${JSON.stringify(naSet)}`);
+  const hardFail = /^\} else if \(IN_CI\) \{\n(?:\s*\/\/[^\n]*\n)*\s*check\('FORBIDDEN: the PR base ref is reachable in CI \(fetch-depth must be 0\)',\n\s*false,/m;
+  const hfIdx = self.search(hardFail);
+  check('FORBIDDEN-PIN: the IN_CI hard-fail branch (check(..., false)) still follows the N/A branch',
+    hfIdx > -1 && !!naLine && hfIdx > self.indexOf(naLine[0]),
+    hfIdx === -1 ? 'the IN_CI `FORBIDDEN: the PR base ref is reachable` hard failure is GONE' : 'out of order');
 }
 
 /* ══════════════════════════════════════════════════════════════════════════

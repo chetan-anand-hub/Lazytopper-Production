@@ -534,6 +534,24 @@ import { HUMAN_EYE_CBQ_LT_GENERATED } from './questionBanks/class10/science/huma
 import { OUR_ENVIRONMENT_CBQ_LT_GENERATED } from './questionBanks/class10/science/our-environment.cbq.ltgen';
 import { REAL_NUMBERS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/real-numbers.cbq.ltgen';
 import { LIGHT_CBQ_LT_GENERATED } from './questionBanks/class10/science/light-reflection-and-refraction.cbq.ltgen';
+// CBQ-1 C2 PR-2 — Science CBQs of every mark toward >= 100 per chapter (blind-solved; internal provenance).
+import { MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/magnetic-effects-of-electric-current.b1.cbq.ltgen';
+import { LIGHT_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/light-reflection-and-refraction.b1.cbq.ltgen';
+import { ELECTRICITY_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/electricity.b1.cbq.ltgen';
+// CBQ-1 C2 PR-3 — Life Processes, Acids, Carbon CBQs of every mark (blind-solved; internal provenance).
+import { LIFE_PROCESSES_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/life-processes.b1.cbq.ltgen';
+import { ACIDS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/acids-bases-and-salts.b1.cbq.ltgen';
+import { CARBON_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/carbon-and-its-compounds.b1.cbq.ltgen';
+import { TRIGONOMETRY_CBQ_LT_GENERATED } from './questionBanks/class10/maths/trigonometry.cbq.ltgen';
+import { TRIANGLES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/triangles.cbq.ltgen';
+// CBQ-1 C2 PR-4 — Chemical Reactions, Control, Reproduction CBQs of every mark (blind-solved; internal provenance).
+import { CHEM_REACTIONS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/chemical-reactions-and-equations.b1.cbq.ltgen';
+import { CONTROL_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/control-and-coordination.b1.cbq.ltgen';
+import { REPRODUCTION_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/how-do-organisms-reproduce.b1.cbq.ltgen';
+// CBQ-1 C2 PR-5 — Metals, Heredity, Human Eye CBQs of every mark (blind-solved; internal provenance).
+import { METALS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/metals-and-non-metals.b1.cbq.ltgen';
+import { HEREDITY_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/heredity.b1.cbq.ltgen';
+import { HUMAN_EYE_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/human-eye-and-colourful-world.b1.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1032,6 +1050,24 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...OUR_ENVIRONMENT_CBQ_LT_GENERATED,
   ...REAL_NUMBERS_CBQ_LT_GENERATED,
   ...LIGHT_CBQ_LT_GENERATED,
+  // CBQ-1 C2 PR-2 — Science CBQs of every mark.
+  ...MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED,
+  ...LIGHT_CBQ_B1_LT_GENERATED,
+  ...ELECTRICITY_CBQ_B1_LT_GENERATED,
+  // CBQ-1 C2 PR-3 — Life Processes, Acids, Carbon CBQs of every mark.
+  ...LIFE_PROCESSES_CBQ_B1_LT_GENERATED,
+  ...ACIDS_CBQ_B1_LT_GENERATED,
+  ...CARBON_CBQ_B1_LT_GENERATED,
+  ...TRIGONOMETRY_CBQ_LT_GENERATED,
+  ...TRIANGLES_CBQ_LT_GENERATED,
+  // CBQ-1 C2 PR-4 — Chemical Reactions, Control, Reproduction CBQs of every mark.
+  ...CHEM_REACTIONS_CBQ_B1_LT_GENERATED,
+  ...CONTROL_CBQ_B1_LT_GENERATED,
+  ...REPRODUCTION_CBQ_B1_LT_GENERATED,
+  // CBQ-1 C2 PR-5 — Metals, Heredity, Human Eye CBQs of every mark.
+  ...METALS_CBQ_B1_LT_GENERATED,
+  ...HEREDITY_CBQ_B1_LT_GENERATED,
+  ...HUMAN_EYE_CBQ_B1_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------

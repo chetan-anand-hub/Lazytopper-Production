@@ -25,7 +25,7 @@ import { PAPER_DESIGN } from "../../config/syllabus2026-27";
 export interface QpPresetFilters {
   /** committed marks token — single bucket or comma SET ("23,5"). */
   marks: string;
-  /** committed style — "all" | "proof" | "ar" | "hots" | "case". */
+  /** committed style — "all" | "proof" | "ar" | "hots" | "case" | "cbq". */
   style: string;
   /** committed source — "all" | "pyq" | "ncert" | "others". */
   source: string;
@@ -82,10 +82,12 @@ const COMPETENCY_CBSE_LINE = (() => {
  *    (A30/B20/C20/D20/E10 — LazyTopper's section mix; it makes NO paper-share claim). engine "All"
  *    keeps the real paper's difficulty spread; a Medium-exact filter would GUT the
  *    blueprint by dropping the Easy Section-A and Hard Section-D items.
- *  · Competency — marks "4" (Section E case-based, the largest CBQ chunk) + style "case".
- *    The single-select cannot express "case + assertion-reason" (AR is a 1-mark Section-A
- *    format, a different bucket); case-based is the closest single value the engine
- *    supports (the documented limitation). Gated per topic against the live bank.
+ *  · Competency — CBQ-1 PR-1 (ruling 2, closes FU-CBQ-CHOOSER-ALL-MARKS): marks "all" +
+ *    style "cbq" — the topic's competency-based questions (CBQs) of EVERY mark value, as
+ *    the one classifier `isCbq` (src/lib/cbq/cbqClassification.ts) decides. CBSE: a CBQ
+ *    can be 1, 2, 3, 4 or 5 marks (Circular Acad-30/2024). It replaced marks "4" + style
+ *    "case" (Section-E case studies only). PracticePage serves a "cbq" set from the
+ *    topic's CBQ pool, interleaved by mark. Gated per topic: 0 CBQs → "coming soon".
  *  · High-marks — marks "23,5" (the comma SET: 2-3-mark short + 5-mark long — the
  *    descriptive questions). style "all": there is no "long-answer" STYLE value; the 5+23
  *    buckets carry the descriptive character (STYLE_COMPAT of both admits {all,proof,hots}).
@@ -118,11 +120,11 @@ export const QP_PRESETS: QpPresetConfig[] = [
     label: "Competency",
     icon: "🧩",
     accentClass: "qp-comp",
-    desc: "Case-based application questions — the competency tier where the most marks are won and lost.",
-    chips: [{ text: "Case-based", accent: true }, { text: "4 marks" }, { text: "5 questions" }],
+    desc: "Competency-based questions (CBQs) — applying ideas to real-life, data and case contexts, at every mark value.",
+    chips: [{ text: "CBQs only", accent: true }, { text: "All marks" }, { text: "5 questions" }],
     cbse: COMPETENCY_CBSE_LINE,
-    startNote: "Competency · 5 case-based questions",
-    filters: { marks: "4", style: "case", source: "all", committedDifficulty: "all", engineDifficulty: "All", count: 5 },
+    startNote: "Competency · 5 CBQs, mixed marks",
+    filters: { marks: "all", style: "cbq", source: "all", committedDifficulty: "all", engineDifficulty: "All", count: 5 },
   },
   {
     key: "high",
