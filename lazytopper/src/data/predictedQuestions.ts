@@ -2919,6 +2919,10 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
 export const predictedQuestions: PredictedQuestion[] = [
   ...predictedQuestionsBase,
   ...predictedQuestionsAdditions,
+  // PROBE (GUARD-3 G7, reverted next commit): one PREDICTED row per chapter-scoped rule.
+  { id: "PROBE-PRED-SEGMENT-01", topicKey: "Areas Related to Circles", subtopic: "Sectors and Segments", kind: "Short", section: "C", marks: 3, difficulty: "Medium", bloomSkill: "Applying", questionText: "PROBE: A chord subtends 100° at the centre of a circle of radius 7 cm. Find the area of the minor segment.", answer: "PROBE", explanation: "PROBE" },
+  { id: "PROBE-PRED-BIMODAL-01", topicKey: "Statistics", subtopic: "Mode of Grouped Data", kind: "Short", section: "C", marks: 3, difficulty: "Medium", bloomSkill: "Applying", questionText: "PROBE: The following distribution is bimodal. Find both modes.", answer: "PROBE", explanation: "PROBE" },
+  { id: "PROBE-PRED-R1-01", topicKey: "Real Numbers", subtopic: "Irrationality Proofs", kind: "Short", section: "C", marks: 3, difficulty: "Medium", bloomSkill: "Applying", questionText: "PROBE: Prove that √15 is irrational.", answer: "PROBE", explanation: "PROBE" },
 ];
 
 export type PredictedQuestionId = (typeof predictedQuestions)[number]["id"];

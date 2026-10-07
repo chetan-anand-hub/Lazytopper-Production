@@ -1,6 +1,8 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
+  // PROBE (GUARD-3 G7, reverted next commit): typographic-apostrophe banned subtopic (G5).
+  { id: "PROBE-G5-APOS-01", subject: "Maths", topicKey: "real-numbers", subtopic: "Euclid’s Division Lemma", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "PROBE: planted row.", solutionSteps: ["PROBE step one", "PROBE step two"], finalAnswer: "PROBE", isCompetencyBased: false },
   {
     id: "RN-E02", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
