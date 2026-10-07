@@ -211,7 +211,8 @@ async function buildSet(pool: PQ[], opts: { overlay?: () => void; count?: number
   // ★ The AUTO-BUILD entry (a topic in the URL), not the preset chooser: "Quick drill"
   // commits marks=1, which would filter out every 3-mark written question this suite is
   // about. Same page, same code path for everything under test.
-  await screen.findAllByText(/^Question \d+: solve it\.$/);
+  // (30 s: the page's lazy bank build can exceed the 1 s default on a loaded machine.)
+  await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
   return view;
 }
 

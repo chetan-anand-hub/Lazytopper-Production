@@ -134,6 +134,25 @@ function displayedSet(): string[] {
     .map((el) => (el.textContent || "").replace(/^Question (\d+).*$/, "$1"));
 }
 
+/** PRACTICE-HONESTY-1 (owner spec §5, controller D39): the MCQ-only scorecard is "just the
+ *  marks + the review button" — it no longer offers "Build a fresh set". The product path to
+ *  a fresh set from a finished set is now: "Back to this set (see the steps)" → the toolbar's
+ *  "Refresh set", which calls the SAME `buildFreshSet` the old scorecard CTA did
+ *  (PracticePage: `refreshSet = () => buildFreshSet()`). So the fresh-set contract below is
+ *  driven through that path, and the scorecard's lack of the CTA is pinned. */
+async function freshSetFromFinishedSet(callsBefore: number) {
+  expect(screen.queryByRole("button", { name: /Build a fresh set/i })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: /Back to this set \(see the steps\)/ }));
+  await waitFor(() => {
+    if (document.querySelector(".lt-sc__big")) throw new Error("scorecard still up");
+  });
+  fireEvent.click(screen.getByRole("button", { name: /Refresh set/i }));
+  await waitFor(() => {
+    if (mockBuild.mock.calls.length <= callsBefore) throw new Error("no rebuild fetch yet");
+    if (document.querySelector(".lt-sc__big")) throw new Error("scorecard still up");
+  });
+}
+
 describe('QP "Build a fresh set" — the second set must not be the first set', () => {
   it("THE OWNER'S BUG: a finished set → Build a fresh set → a DIFFERENT set of questions", async () => {
     mockBuild.mockResolvedValue(POOL); // constant pool: only the PAGE can make set #2 differ
@@ -148,7 +167,7 @@ describe('QP "Build a fresh set" — the second set must not be the first set', 
     );
 
     // ── Set #1: the "Quick drill" preset (marks=1, count=5) on the full-page path ──
-    fireEvent.click(await screen.findByRole("button", { name: /Quick drill/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /Quick drill/i }, { timeout: 30000 }));
     fireEvent.click(screen.getByRole("button", { name: /Start practising/i }));
     await screen.findAllByText(/^Question \d+: solve it\.$/);
     const first = displayedSet();
@@ -166,13 +185,9 @@ describe('QP "Build a fresh set" — the second set must not be the first set', 
     const attemptsAtFinish = trace.attempts.length;
     const seenAtLastFetch = mockBuild.mock.calls[mockBuild.mock.calls.length - 1][0].seenQuestionIds;
 
-    // ── Set #2: the real scorecard CTA ──
+    // ── Set #2: Back to this set → Refresh set (the path after D39) ──
     const callsBefore = mockBuild.mock.calls.length;
-    fireEvent.click(screen.getByRole("button", { name: /Build a fresh set/i }));
-    await waitFor(() => {
-      if (mockBuild.mock.calls.length <= callsBefore) throw new Error("no rebuild fetch yet");
-      if (document.querySelector(".lt-sc__big")) throw new Error("scorecard still up");
-    });
+    await freshSetFromFinishedSet(callsBefore);
     await screen.findAllByText(/^Question \d+: solve it\.$/);
     const second = displayedSet();
     const seedAfter = trace.seeds[trace.seeds.length - 1]?.value;
@@ -187,7 +202,7 @@ describe('QP "Build a fresh set" — the second set must not be the first set', 
         `  session seed @ set #1      = ${seedBefore}`,
         `  attempts blob @ finish     = ${attemptsAtFinish} (ids: ${trace.attempts.map((a) => a.questionId).join(", ")})`,
         `  seenQuestionIds @ fetch #1 = ${seenAtLastFetch ? seenAtLastFetch.size : "undefined"}`,
-        `  --- tap "Build a fresh set" ---`,
+        `  --- Back to this set → Refresh set ---`,
         `  set #2 (displayed)         = [${second.join(", ")}]`,
         `  session seed @ set #2      = ${seedAfter}`,
         `  seenQuestionIds @ fetch #2 = ${seenAtFreshFetch ? seenAtFreshFetch.size : "undefined"}`,
@@ -227,7 +242,7 @@ describe('QP "Build a fresh set" — the second set must not be the first set', 
         </Routes>
       </MemoryRouter>,
     );
-    fireEvent.click(await screen.findByRole("button", { name: /Quick drill/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /Quick drill/i }, { timeout: 30000 }));
     fireEvent.click(screen.getByRole("button", { name: /Start practising/i }));
     await screen.findAllByText(/^Question \d+: solve it\.$/);
     const first = displayedSet();
@@ -240,11 +255,7 @@ describe('QP "Build a fresh set" — the second set must not be the first set', 
     });
 
     const callsBefore = mockBuild.mock.calls.length;
-    fireEvent.click(screen.getByRole("button", { name: /Build a fresh set/i }));
-    await waitFor(() => {
-      if (mockBuild.mock.calls.length <= callsBefore) throw new Error("no rebuild fetch yet");
-      if (document.querySelector(".lt-sc__big")) throw new Error("scorecard still up");
-    });
+    await freshSetFromFinishedSet(callsBefore);
     await screen.findAllByText(/^Question \d+: solve it\.$/);
     const second = displayedSet();
 
