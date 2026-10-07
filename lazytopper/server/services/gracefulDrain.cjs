@@ -1,5 +1,6 @@
 'use strict';
 // server/services/gracefulDrain.cjs — A REDEPLOY LOSES NO GRADING WORK (GRACEFUL-DEPLOY, owner 2026-10-07).
+// Live proof: a grading job in flight on the old instance at SIGTERM still ends `done` (#1016 OR-LIVE).
 //
 // WHAT HAPPENS ON A RAILWAY REDEPLOY. The new deployment passes its healthcheck and takes the traffic;
 // then (after `deploy.overlapSeconds`) the OLD one gets SIGTERM, and SIGKILL `deploy.drainingSeconds`
