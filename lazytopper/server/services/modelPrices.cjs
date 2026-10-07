@@ -35,6 +35,9 @@ const MODEL_PRICES = Object.freeze({
   'gemini-2.5-flash': Object.freeze({
     inputUsdPerMillion: 0.3,
     outputUsdPerMillion: 2.5,
+    // METER-AUDIT-1: the cached-input rate (usageMetadata.cachedContentTokenCount). Same source
+    // as the eval scorer's PRICES (server/eval/golden/lib/score.cjs, fetched 2026-10-05).
+    cachedInputUsdPerMillion: 0.03,
   }),
   // GRADER-CORE-1 PR-2 (server/grading/modelConfig.cjs DEFAULT_GRADING_MODEL). Source: the
   // eval scorer's PRICES (server/eval/golden/lib/score.cjs), Google's published list price,
@@ -44,6 +47,10 @@ const MODEL_PRICES = Object.freeze({
   'gemini-3.8-flash': Object.freeze({
     inputUsdPerMillion: 0.75,
     outputUsdPerMillion: 3.75,
+    // METER-AUDIT-1: cached input (implicit or explicit context cache), $0.075 / 1M through
+    // 2026-12-31 (score.cjs PRICES, same page and date). Before this row a cache hit was metered
+    // at the full input rate — 10x its list price (FU-J1B-CACHED-INPUT-RATE).
+    cachedInputUsdPerMillion: 0.075,
   }),
 });
 
@@ -57,7 +64,7 @@ const IST_2027_01_01_MS = Date.UTC(2026, 11, 31, 18, 30, 0);
  */
 const PRICE_CHANGES = Object.freeze({
   'gemini-3.8-flash': Object.freeze([
-    Object.freeze({ fromMs: IST_2027_01_01_MS, inputUsdPerMillion: 1.5, outputUsdPerMillion: 7.5 }),
+    Object.freeze({ fromMs: IST_2027_01_01_MS, inputUsdPerMillion: 1.5, outputUsdPerMillion: 7.5, cachedInputUsdPerMillion: 0.15 }),
   ]),
 });
 
@@ -79,6 +86,7 @@ function priceFor(model, atMs) {
     for (const change of PRICE_CHANGES[model]) {
       if (atMs >= change.fromMs) {
         price = { inputUsdPerMillion: change.inputUsdPerMillion, outputUsdPerMillion: change.outputUsdPerMillion };
+        if (Number.isFinite(change.cachedInputUsdPerMillion)) price.cachedInputUsdPerMillion = change.cachedInputUsdPerMillion;
       }
     }
   }
