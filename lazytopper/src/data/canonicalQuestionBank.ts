@@ -564,6 +564,7 @@ import { STATISTICS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/stati
 import { PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/pair-of-linear-equations.cbq.ltgen';
 import { QUADRATIC_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/quadratic-equations.cbq.ltgen';
 import { COORDINATE_GEOMETRY_CBQ_LT_GENERATED } from './questionBanks/class10/maths/coordinate-geometry.cbq.ltgen';
+import { SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/surface-areas-and-volumes.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1092,6 +1093,7 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED,
   ...QUADRATIC_EQUATIONS_CBQ_LT_GENERATED,
   ...COORDINATE_GEOMETRY_CBQ_LT_GENERATED,
+  ...SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------
