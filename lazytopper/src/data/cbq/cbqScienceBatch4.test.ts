@@ -38,6 +38,9 @@ const SEX_DETERMINATION_WITHHELD: readonly string[] = [
   "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291", "LTG-S-HERED-292",
   "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297", "LTG-S-HERED-298", "LTG-S-HERED-299",
 ];
+// Owner ruling 10:25Z (cap = A): the cap of 8 covers every GENERATED row, so the two GEN-THIN sex-determination
+// rows are withheld too; official CBSE sex-determination questions are not capped. Backfill 307/308 keeps 101.
+const GEN_THIN_SEX_DETERMINATION: readonly string[] = ["LTG-S-HERED-102", "LTG-S-HERED-106"];
 const WITHHELD_HERE = new Set([...PERSISTENCE_OF_VISION, ...SEX_DETERMINATION_WITHHELD]);
 // C1's single classifier (lib/cbq/cbqClassification.ts, #977): isCbq = competencyVerified === true.
 
@@ -61,8 +64,26 @@ describe("CBQ-1 · C2 batch 4 (Metals, Heredity, Human Eye)", () => {
     expect(sexDet.filter((q) => q.marks === 5)).toEqual([]);
     // the backfill keeps Heredity at >= 100 and contains no sex determination
     const backfill = HEREDITY_CBQ_B1_LT_GENERATED.filter((q) => /-3\d\d$/.test(q.id));
-    expect(backfill.length).toBe(6);
+    expect(backfill.length).toBe(8);
     for (const q of backfill) expect(/sex determination|X chromosome|Y chromosome|\bXX\b|\bXY\b/i.test(q.questionText), q.id).toBe(false);
+  });
+
+  it("owner ruling 10:25Z (cap = A): at most 8 SERVED generated rows on sex determination, across every generated pack", () => {
+    for (const id of GEN_THIN_SEX_DETERMINATION) {
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(true);
+      expect(served.has(id), id).toBe(false);
+    }
+    const SEXDET = /sex determination|sex chromosome|\bX chromosome|\bY chromosome|\bXX\b|\bXY\b/i;
+    const genSexDet = canonicalQuestionBank.filter(
+      (q) => q.origin === "lt-generated" && q.topicKey === "heredity" && SEXDET.test(`${q.subtopic} ${q.questionText}`),
+    );
+    expect(genSexDet.map((q) => q.id).sort()).toEqual(
+      ["LTG-S-HERED-281", "LTG-S-HERED-282", "LTG-S-HERED-284", "LTG-S-HERED-285", "LTG-S-HERED-287", "LTG-S-HERED-290", "LTG-S-HERED-293", "LTG-S-HERED-296"],
+    );
+    // controls: the pattern fires on sex-determination text and not on "every chromosome"
+    expect(SEXDET.test("Sex Determination in Humans")).toBe(true);
+    expect(SEXDET.test("a Y chromosome from the father")).toBe(true);
+    expect(SEXDET.test("every chromosome in the cell")).toBe(false);
   });
 
   it("every other pack row is served, in its chapter, generated, and a CBQ", () => {
