@@ -2817,15 +2817,15 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "An interior designer has two square marble tiles of sides α cm and β cm, where α and β are the zeroes of the polynomial p(x) = x² - 14x + 48. She wants the totals before measuring the tiles.\nBased on the above information, answer the following questions:\n(a) Without finding the zeroes, find the total perimeter of the two tiles.\n(b) Without finding the zeroes, find the total area of the two tiles.\n(c) Find α and β and check your answer to (b). Also find the side of a single square tile whose area equals the total area of the two tiles.",
+    "questionText": "An interior designer has two square marble tiles of sides α cm and β cm, where α and β are the zeroes of the polynomial p(x) = x² - 14x + 48. She wants the totals before measuring the tiles.\nBased on the above information, answer the following questions:\n(a) Without finding the zeroes, find the total perimeter of the two tiles. [2 marks]\n(b) Without finding the zeroes, find the total area of the two tiles. [1 mark]\n(c) Find α and β and check your answer to (b). Also find the side of a single square tile whose area equals the total area of the two tiles. [2 marks]",
     "options": [],
     "answer": "(a) 56 cm (b) 100 cm² (c) sides 6 cm and 8 cm; single tile side 10 cm",
     "solutionSteps": [
-      "[1 mark] From the coefficients, α + β = -(-14)/1 = 14 and αβ = 48/1 = 48.",
+      "[1 mark] (a) From the coefficients, α + β = -(-14)/1 = 14 and αβ = 48/1 = 48.",
       "[1 mark] (a) Total perimeter = 4α + 4β = 4(α + β) = 56 cm.",
       "[1 mark] (b) Total area = α² + β² = (α + β)² - 2αβ = 196 - 96 = 100 cm².",
       "[1 mark] (c) x² - 14x + 48 = (x - 6)(x - 8), so the sides are 6 cm and 8 cm; 6² + 8² = 36 + 64 = 100 cm², which checks.",
-      "[1 mark] Side of the single tile = √100 = 10 cm."
+      "[1 mark] (c) Side of the single tile = √100 = 10 cm."
     ],
     "finalAnswer": "(a) 56 cm (b) 100 cm² (c) sides 6 cm and 8 cm; single tile side 10 cm",
     "isCompetencyBased": true,
