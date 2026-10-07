@@ -14,6 +14,8 @@ name: Quality Gate
 #   docs-lane     mojibake (EVERY path) + the classifier's own acceptance + root guard matrix (docs path)
 #   static        Firestore rules, root guard matrix, root typecheck, edge security tests, test typecheck
 #   build-ops     build + the lazytopper ops matrix
+#   railway-build the ROOT `pnpm run build` exactly as the Railway backend image runs it (Node 24,
+#                 frozen install WITH devDependencies, no .git) — RAILWAY-BUILD-GATE
 #   vitest        the WHOLE vitest suite, sharded 1/4..4/4 (every file runs exactly once)
 #   clock         the date-sensitive manifest + the whole ops matrix, at 2030 and at IST midnight
 #   quality-gate  the AGGREGATE. Its name is the REQUIRED status check in the trunk ruleset; it
@@ -122,8 +124,14 @@ jobs:
           corepack enable
           # pnpm 10.32.1: matches the lockfile and sets npm_config_user_agent for the root
           # preinstall guard (pnpm 11 leaves it empty on linux -> "Use pnpm instead").
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -159,8 +167,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -219,8 +233,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -246,6 +266,59 @@ jobs:
           set -euo pipefail
           node lazytopper/scripts/testClock/dateSensitive.mjs --guard
           node lazytopper/scripts/ops/ci_speed_acceptance.mjs
+
+  # ★★ RAILWAY-BUILD-GATE (owner order 2026-10-07): the ROOT build, EXACTLY as the Railway
+  # backend image runs it, so a PR that would break the backend deploy fails HERE first.
+  # #985 merged green and then failed every Railway build after it: the root build runs
+  # validateQuestionBanks, which no other job here runs, and Container Boot skipped the image
+  # build because #985 touched no "image-relevant" path. This job mirrors the Dockerfile:
+  #   FROM node:24-slim                       -> Node 24 (every other job here uses 22)
+  #   corepack prepare pnpm@10.32.1 --activate -> same
+  #   pnpm install --frozen-lockfile          -> same, WITH devDependencies. NEVER `--prod`:
+  #       the gateway needs `typescript` at runtime and the build starts with `tsc`; a --prod
+  #       install fails at `tsc` where Railway passes (RAILWAY-BUILD-GATE R1, proven once).
+  #   pnpm run build (root, unfiltered)       -> same script: typecheck -> syllabusGuard ->
+  #       validateQuestionBanks -> api-server + lazytopper builds
+  #   .dockerignore drops .git                -> .git is moved aside for the build (the only
+  #       build step that reads git, writeVersion.ts, then logs its no-SHA warning, as in the image)
+  # Skipped on the docs-only fast path: markdown under handoff/ ops/ docs/ cannot change any
+  # input of the root build. Judged by the aggregate `quality-gate` below like every full-bar job.
+  # fetch-depth 1: no step of the root build reads history.
+  railway-build:
+    needs: classify
+    if: needs.classify.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - name: Enable pnpm (corepack, pinned as in the Dockerfile)
+        run: |
+          corepack enable
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
+      - name: Use Node.js 24 (the Railway image is node:24-slim)
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Install workspace (frozen lockfile, WITH devDependencies, as the Dockerfile)
+        run: pnpm install --frozen-lockfile
+      - name: Root build exactly as Railway runs it (pnpm run build, no .git like the image)
+        run: |
+          set -euo pipefail
+          node --version
+          mv .git "$RUNNER_TEMP/dotgit-hidden"
+          trap 'mv "$RUNNER_TEMP/dotgit-hidden" .git' EXIT
+          pnpm run build
 
   # --- Vitest render/unit suites, SHARDED ---
   # ★ HOW MANY FILES AND TESTS? READ THEM FROM THE LOG — each shard prints vitest's "Test Files" /
@@ -273,8 +346,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -344,8 +423,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
@@ -376,7 +461,7 @@ jobs:
   # upstream job succeeded — or, on the docs path only, the full-bar jobs were skipped — and,
   # on the full bar, unless all 4 vitest shards reported and together ran every test file.
   quality-gate:
-    needs: [classify, docs-lane, static, build-ops, vitest, clock]
+    needs: [classify, docs-lane, static, build-ops, railway-build, vitest, clock]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -430,8 +515,14 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.32.1 --activate
-          pnpm --version
+          # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
+          ok=0; for n in 1 2 3; do
+            if [ "$n" -gt 1 ]; then echo "COREPACK_RETRY: attempt $n"; fi
+            if corepack prepare pnpm@10.32.1 --activate; then ok=1; break; fi
+            if [ "$n" -eq 1 ]; then sleep 5; elif [ "$n" -eq 2 ]; then sleep 15; fi
+          done
+          if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
+          v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
         uses: actions/setup-node@v7
         with:
