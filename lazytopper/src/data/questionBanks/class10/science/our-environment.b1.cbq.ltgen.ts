@@ -1107,7 +1107,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The pesticide is not broken down or excreted, so it collects in each animal's body, and each hawk eats many snakes in its lifetime, taking in the pesticide stored in all of them.",
     "solutionSteps": [
-      "[1 mark] The first statement is correct: the non-biodegradable pesticide builds up at each trophic level because every consumer eats many organisms of the level below. Water is only a minor route, and energy decreases (about 10% passes on) at each higher level."
+      "[1 mark] The option saying the pesticide is not broken down or excreted is correct: the non-biodegradable pesticide builds up at each trophic level because every consumer eats many organisms of the level below. Water is only a minor route, and energy decreases (about 10% passes on) at each higher level."
     ],
     "finalAnswer": "The pesticide is not broken down or excreted, so it collects in each animal's body, and each hawk eats many snakes in its lifetime, taking in the pesticide stored in all of them.",
     "isCompetencyBased": true,
