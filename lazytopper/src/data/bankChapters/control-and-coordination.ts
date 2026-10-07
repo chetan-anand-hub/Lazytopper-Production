@@ -41,7 +41,7 @@ export default defineChapter("control-and-coordination", [
   [402, CTRL_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [422, CONTROL_COORDINATION_CBQ_LT_GENERATED, false],
-  [439, CONTROL_CBQ_B1_LT_GENERATED, false],
+  [442, CONTROL_CBQ_B1_LT_GENERATED, false],
 ], [
   "CTRL-EXMPLR-6-MCQ-025",
   "PYQ-S-CTRL-003",

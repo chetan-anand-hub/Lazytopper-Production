@@ -45,7 +45,7 @@ export default defineChapter("metals-and-non-metals", [
   [387, metalsNonMetalsPYQ2024, false],
   [399, MNM_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
-  [441, METALS_CBQ_B1_LT_GENERATED, false],
+  [444, METALS_CBQ_B1_LT_GENERATED, false],
 ], [
   "METAL-EXMPLR-3-SA-014",
   "METAL-EXMPLR-3-LONG-001",

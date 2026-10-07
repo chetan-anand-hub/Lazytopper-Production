@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "areas-related-to-circles" (Maths): 196 served rows from 16 source arrays, 31 withheld.
+// Chapter "areas-related-to-circles" (Maths): 298 served rows from 17 source arrays, 31 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -22,6 +22,7 @@ import { AREAS_RELATED_TO_CIRCLES_PYQ_2026 } from "../questionBanks/class10/math
 import { AREAS_RELATED_TO_CIRCLES_PYQ_2024 } from "../questionBanks/class10/maths/areas-related-to-circles.pyq2024";
 import { AREAS_RELATED_TO_CIRCLES_PYQ_2025 } from "../questionBanks/class10/maths/areas-related-to-circles.pyq2025";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
+import { AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/areas-related-to-circles.cbq.ltgen";
 
 export default defineChapter("areas-related-to-circles", [
   [20, AREAS_RELATED_TO_CIRCLES_PACK1, true],
@@ -40,6 +41,7 @@ export default defineChapter("areas-related-to-circles", [
   [343, AREAS_RELATED_TO_CIRCLES_PYQ_2024, false],
   [355, AREAS_RELATED_TO_CIRCLES_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
+  [440, AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED, false],
 ], [
   "ARC-E10",
   "ARC-M14",
