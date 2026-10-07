@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "pair-of-linear-equations" (Maths): 337 served rows from 19 source arrays, 49 withheld.
+// Chapter "pair-of-linear-equations" (Maths): 440 served rows from 20 source arrays, 49 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -25,6 +25,7 @@ import { PAIR_LINEAR_EQUATIONS_PYQ_2026 } from "../questionBanks/class10/maths/p
 import { PAIR_LINEAR_EQUATIONS_PYQ_2024 } from "../questionBanks/class10/maths/pair-of-linear-equations.pyq2024";
 import { PAIR_LINEAR_EQUATIONS_PYQ_2025 } from "../questionBanks/class10/maths/pair-of-linear-equations.pyq2025";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
+import { PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/pair-of-linear-equations.cbq.ltgen";
 
 export default defineChapter("pair-of-linear-equations", [
   [10, PAIR_LINEAR_EQUATIONS_PACK1, true],
@@ -46,6 +47,7 @@ export default defineChapter("pair-of-linear-equations", [
   [336, PAIR_LINEAR_EQUATIONS_PYQ_2024, false],
   [349, PAIR_LINEAR_EQUATIONS_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
+  [449, PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED, false],
 ], [
   "PLE-M03",
   "PLE-M04",

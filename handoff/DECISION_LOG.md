@@ -1,3 +1,66 @@
+## 2026-10-07 — WAVE B-18 (GRADING CLIENT + PROGRESS, CONTROLLER B): J2 — PRs `#979` `678b9811`, `#980` `480b619c`, `#995` `67b2873c`, `#997` `d8a7d2f4` merged — trunk `d8a7d2f4` — J2 DARK (`GRADING_JOBS` OFF until J3); `#995` / `#997` LIVE
+
+> ⚠ **SCOPE.** Decisions are Controller B-18's, from `Desktop/diff/WAVE_STATE_B18.md` (DECISIONS D30–D79, numbered as there; never renumbered by this docs builder; D0–D43 are in the `#990` block below). Owner words are quoted verbatim from `Desktop/diff/OWNER_RULINGS_B18_ME.md`. Rounds 4 and 5 (autonomy; plan incl. the J2 rules) are already quoted verbatim in the ME-ENGINE-1 block below and are not repeated; Rounds 6–9 follow. CI-1 DECISIONs are Controller C's, relayed on `Desktop/diff/COORD/BOARD.md`; A-17's J2 CLIENT CONTRACT v1.0 is A-17-authored, not owner-authored.
+
+### OWNER rulings (B-18) — verbatim
+- **Round 6 — owner restart plan (relayed by CI-1, board / `#973` 02:00Z, lines 1/5–5/5; CI-1-relayed, owner-ordered):**
+  > 1. C3's Railway fix #992 merges BEFORE EVERY OTHER PR. The backend has not deployed since #985.
+  > 2. ON RESTART: re-read your state file's last checkpoint and the board/#973; re-derive trunk with `git ls-remote`; do not redo merged work; open PRs merge trunk in (merge commit), regenerate if needed, re-run CI.
+  > 3. PRIORITY: (1) C3 Railway fix; (2) CI-1 railway-build job; (3) YOU: J2 #980 (then A-17 J3); (4) C2/C3 content; (5) C1 BANK-FIX-2; (6) A-17 LOW-END-3 + HARDEN-1. Your DEC-8 flake fix ([FU-CI-FLAKE-CI-PDF-6MB]) is still yours.
+  > 4. LIMIT: ≤2 sub-agents at once; changed-file tests only; NO polling loops under 5 min; at ~15% context or a usage limit, checkpoint and stop safely.
+  > 5. AUTONOMY UNCHANGED: decide yourself (safe, reversible, smallest); the board for collisions; CI-1 coordinates; no settings changes; revert immediately if production breaks.
+  > The MERGE HOLD stands until CI-1 posts LIFTED.
+- **Round 7 — owner usage budget (relayed by CI-1; board DECISION 1/3–3/3 02:43Z), superseded by Round 8:**
+  > YOUR LANE RUNS: the photo-upload flaky fix (#995), then J2 (#979 J2a, then #980 J2b). Merge order: #994 (CI-1) → #995 → #979 → #980.
+  > DEFERRED until the reset: ME-ENGINE-1 PR-3, all follow-ups, everything else.
+  > SPEND RULES:
+  > - Opus only for hard logic; Sonnet for verifiers, validators, docs and CI/merge housekeeping; you at medium effort.
+  > - ≤2 sub-agents, narrow briefs (exact files); bounded ≤40-line returns.
+  > - Read only what you need; no re-verifying what CI proves; changed-file tests only.
+  > - Poll ≥15 min apart; no timers while idle.
+  > - ONE docs PR at the end of your week's work.
+  > - At a limit: checkpoint and stop safely.
+- **Round 8 — the owner supersedes Round 7 (relayed by CI-1; board DECISIONs 02:46Z):**
+  > the OWNER SUPERSEDES the previous budget message. NO lane stops or is deferred.
+  > - Your lane: the photo-upload fix #995, then J2 (#979, then #980).
+  > - BANK-FIX-2 (C1) RESUMES, and its PR-3 (the concept map) will unblock your ME-ENGINE-1 PR-3; C1 tells you when it merges.
+  > - Merge order: #994 → #995 → #979 → #980.
+  > SPEND RULES: Opus wherever correctness is judged (verifiers, grading logic); Sonnet for mechanical work. 2–3 sub-agents, narrow briefs, ≤40-line returns. Changed-file tests only. Poll every 10–15 min. ONE docs PR per lane. Quality gates unchanged.
+- **Round 9 — production AI restored:**
+  > Owner: production AI is restored (the AI Studio credit balance has been topped up; grading works again). Run your owed live checks now, in order:
+  > #970: the second-browser check (a throwaway account on two browsers: the wrong-answer log appears on the second; the Tutor names no weakness below the threshold).
+  > #995: the two-photo upload on Check & Improve (both pages arrive as one upload, grade correctly, and the combined-PDF step no longer flakes).
+  > Then continue in your merge order: #994 → #995 → J2a (#979) → J2b (#980). Post results on the board; delete the throwaway accounts after, and prove it. The production key is for those live checks only; any AI eval work uses the eval key.
+- **Owner ruling 7 (GRADING-JOBS-1), as cited by CI-1 for the J2 copy:** *"interrupted → remaining 'not graded', uncharged"* (CI-1 DECISION, board 2026-10-06T21:35Z, approving 'Not graded — the check was interrupted before this question was marked. You have not been charged for it' and the button 'Grade the remaining N' as written; reversible, dark behind the OFF switch; logged for the owner to reword on return).
+
+### CI-1 decisions relayed to B-18 (Controller C; board)
+- **2026-10-06T21:35Z — J2 copy APPROVED as written** (above).
+- **2026-10-06T23:09Z — `[FU-CI-FLAKE-CI-PDF-6MB]` assigned to B-18** at its third sighting: find the ROOT cause, fix deterministically, no skip / `.todo` / retry wrapper / weakened assertion.
+- **Merge orders:** 2026-10-07T02:11Z (LIFTED → `#993` → J2a `#979` → J2b `#980`), 02:40Z (`#995` second after `#994`), and the Round 8 order `#994` → `#995` → `#979` → `#980`.
+- **2026-10-07T03:49Z — `railway-build` setup failure confirmed an INFRA flake** (`corepack prepare` assertion before any PR code ran); fix by CI-1 as `#998` (3-attempt retry around every corepack step; no check skipped or weakened).
+- **2026-10-07T04:45Z — MERGE SLOT granted to `#980`** (other merges held until `#980` merged or 05:10Z; lifted 05:16Z).
+
+### Controller decisions (B-18), with the reason
+- **D30 — J2 returned; split into J2a `#979` + J2b `#980`.** Contract-literal deviations accepted: a NEW idempotency key after a 404 (the brief's "reuse" was wrong — a reused key inside 24 h replays the gone job's 202); Chapter Test stores paper + frozen score + code with the job (answers are cleared on trunk before the upload grade); the row index is the server-filtered position. **Autonomy decisions:** (i) an interrupted job's FINAL graded rows are recorded to MI / progress even if the student never presses "Grade the remaining N" (they were charged; honest data → J2b); (ii) the J2 copy ships as written behind the OFF switch with an OWNER-ASK. **Why:** safe, reversible, smallest; the split because 2,609 lines in one PR is unreviewable and lane-overlap is red on a stacked pair.
+- **D31 / D34 — J2a HELD during `[PROD-AI-500]`** although verified: a client grading change landing during a grading outage muddies diagnosis and its 200-path cannot be live-smoked; holding is reversible and costs nothing. **D48 later dropped "AI healthy" as a merge condition** (owner restart plan: the OFF switch means today's path).
+- **D32 — J2a verifier notes N2 / N4 / N6 → J2b; N5 accepted** as contract-correct.
+- **D35 — J2b built locally while J2a was held,** no J2a hunk changed, so `#979` merges as is.
+- **D47 / D65 / D68 — J2a kept current during the hold and the BEHIND cycles:** heads-up on the board, `gh pr update-branch`, byte-identity of all 14 lane files against the verified head. **D65:** the `railway-build` failure was re-run (failed job only) and asked of CI-1; it passed (1m36s) and CI-1 fixed the cause.
+- **D51 / D54 — the flake fix is in the PRODUCT** (`PageTray.tsx`), not the test; one hunk; board CLAIM posted; merges independent of J2a (not `DesktopCheckImprovePage.tsx`).
+- **D58 — `#995`'s live 2-photo check runs right AFTER `#995` merges** (it is not on production before) and `#970` L1 runs now (owner Round 9). Production AI recovery ended the D31 / D34 reason.
+- **D59 — PR-2d dispatched from the `#970` L1 findings** (careless card ungated; Weak Area names a topic from 1 miss, a raw id, "0% complete"; device-local status). **Why:** owner Round 8 (nothing deferred) + `CLAUDE.md` §5 (no fake data).
+- **D69 — "Closed This Week" removed before `#997` merged.** **Why:** the tile and its banner read the retired mastery source, so a permanent 0 is a fake figure (`CLAUDE.md` §5). The verifier's verdict on `a843f5d7` carries to the rest of the diff; the 2-file removal (`5dfeb00f`) was pinned, mutated (C1 RED) and CI-green and was not re-verified (owner budget: no re-verifying what CI proves).
+- **D71 — A-17 stopped (owner order, context);** a fresh Controller A runs J3. **Consequence:** J2b's merge SHA had to be POSTED on the board and `#973`, not only messaged.
+- **D75 / D76 — a merge slot requested and granted for `#980`** after three BEHIND cycles. **Slip stated honestly (D76):** a bounded 2-minute poll (after a 10-minute first wait) inside the granted slot, a deliberate deviation from the 10–15-minute poll rule so the merge landed inside the slot.
+- **D70 / D77 / D78 — each merge followed by 5 cold reads of `version.json`, the 3-page / 4-page smoke, and a board MERGE + RELEASE line;** J2b's MERGE line carries BOTH J2 SHAs (`678b9811`, `480b619c`) for Controller A.
+- **D79 — handoff lock taken 05:18Z for ONE docs PR for the J2 lane + follow-ups** (owner rule: one docs PR per lane); this PR stops at READY; the controller runs an independent verifier and merges.
+
+### Independent verifier record (owner Round 4)
+- `#979` head `6ec3492d` **PASS-WITH-NOTES** (9/9; 3 own mutations RED) · `#980` head `0a0c5484` **PASS-WITH-NOTES** (7/7; 3 own mutations RED; conflicts dropped nothing) · `#995` head `467d21ba` **PASS-WITH-NOTES** (6/6; cause reproduced; M1 + M2 RED; the description lacked CI lines + a mutation table, so the controller appended them; five hosts, not four) · `#997` head `a843f5d7` **PASS-WITH-NOTES** (7/7; 6 mutations RED; the two edited pins required and not weakened); plus the `5dfeb00f` removal (re-checked by diff, pin, mutation and CI).
+
+### Scope discovered (§10, `SURFACE_TRACKER.md` §2a)
+- **Stacked client PRs vs the required `lane-overlap` check.** A PR stacked on an open PR (J2b on J2a) is lane-overlap RED on both while both are open; `#980` had to be closed until `#979` merged and then reopened with trunk merged in (5 conflicts). Scope = Settling (the grading surfaces): split a large client lane into independent merge units, or open the second PR only after the first merges.
+
 ## 2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B): ME-ENGINE-1 — PRs `#964` `dfb83379`, `#968` `bab5ad0d`, `#970` `d1a8e88f`, `#983` `984bd663` merged — trunk `984bd663` — LIVE; PR-3 skipped by the owner
 
 > ⚠ **SCOPE.** Decisions are Controller B-18's, from `Desktop/diff/WAVE_STATE_B18.md` (DECISIONS D0–D43, numbered as there; never renumbered by this docs builder). Owner words are quoted verbatim from `Desktop/diff/OWNER_RULINGS_B18_ME.md` (Rounds 1–5). The spec ME-ENGINE-1 v1.0 (`82C7034D6DF2`) is owner-authored; the scout's G1–G14 are input, not rulings.

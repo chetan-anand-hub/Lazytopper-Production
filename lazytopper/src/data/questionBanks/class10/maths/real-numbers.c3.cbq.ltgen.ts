@@ -70,7 +70,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "An interior designer has a large stock of identical rectangular tiles, each 18 cm by 30 cm. Laying all tiles in the same direction and without cutting any, she wants to make the smallest possible complete square panel. How many tiles will the panel use?",
+    "questionText": "An interior designer has a large stock of identical rectangular tiles, each 18 cm by 30 cm. Laying all tiles in the same direction and without cutting any, she wants to make the smallest possible full square panel. How many tiles will the panel use?",
     "options": [
       "9",
       "45",
@@ -418,7 +418,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A landscaper receives paving stones in batches of 360. He wants to order k identical batches so that the total number of stones can be laid as a complete square grid (a perfect square). What is the smallest possible value of k?",
+    "questionText": "A landscaper receives paving stones in batches of 360. He wants to order k identical batches so that the total number of stones can be laid as a full square grid (a perfect square). What is the smallest possible value of k?",
     "options": [
       "2",
       "5",

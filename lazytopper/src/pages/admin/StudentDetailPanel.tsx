@@ -9,6 +9,7 @@ import {
   detailUrl,
   fetchAdmin,
   formatDayKey,
+  formatInr,
   formatIstDateTime,
   formatIstTime,
   maskEmail,
@@ -151,7 +152,14 @@ function DayCard({ day }: { day: TimelineDay }) {
           <div className="sa-day-row">
             <dt>AI usage</dt>
             <dd>
-              {day.ai.calls} AI {day.ai.calls === 1 ? "call" : "calls"} · ₹{day.ai.costInr.toFixed(2)}
+              {day.ai.calls} AI {day.ai.calls === 1 ? "call" : "calls"}
+              {/* HARDEN-1 PR-2: two separate, labelled numbers — never one copied into the other. */}
+              <span className="sa-spend" data-testid="sa-usage-meter">
+                {" · "}usage meter (graded) {formatInr(day.ai.costInr)}
+              </span>
+              <span className="sa-spend" data-testid="sa-actual-spend">
+                {" · "}actual AI spend {formatInr(day.ai.providerSpendInr)}
+              </span>
               {day.ai.checks + day.ai.chapterTests + day.ai.mocks + day.ai.worksheets > 0 && (
                 <span className="sa-muted sa-span">
                   trial use: {day.ai.checks} checks, {day.ai.chapterTests} chapter tests, {day.ai.mocks} mocks,{" "}

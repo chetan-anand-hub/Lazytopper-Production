@@ -25,7 +25,7 @@ vi.mock("./firebaseClient", () => ({ firestoreDb: null }));
 vi.mock("../utils/topicResolver", () => ({ normalizeTopicKey: (k: string) => k }));
 vi.mock("../data/syllabus/canonicalTopicSlug", () => ({ resolveCanonicalSlug: (k: string) => k }));
 
-import { getWeakAreas, wrongAnswerEvidenceUnits } from "./weakAreaAggregator";
+import { getWeakAreas, weakConceptLabel, wrongAnswerEvidenceUnits } from "./weakAreaAggregator";
 import type { WrongAnswerEntry } from "./adaptivePracticeEngine";
 
 const scoreOf = (topicKey: string) =>
@@ -133,5 +133,47 @@ describe("GA-21 — the accuracy clause counts only knowledge-gap losses", () =>
   it("CONTROL — attempts without marks are judged as before (correct:false → a miss)", () => {
     for (let i = 0; i < 3; i++) h.attempts.push({ topicKey: "triangles", correct: false, timestamp: Date.now() });
     expect(scoreOf("triangles")).toBe(18);
+  });
+});
+
+/*
+ * ME-ENGINE-1 PR-2d [WEAKAREA-NAMES-BELOW-GATE] — a raw question id is never shown to a student.
+ * Live #970-L1 (2026-10-07) showed "AP-E15" as a weak-area chip: `recordWrongAnswer` stores
+ * `conceptKey || questionId`, and the graded bridge stores the TOPIC as the concept of a
+ * free-typed check. Neither is a concept; the chip shows a real concept label or nothing.
+ * Mutation this block turns RED: R1 — `aggregateWrongAnswersByTopic` pushes `e.conceptKey` again.
+ */
+describe("PR-2d — a weak area's concept chips never carry a raw question id", () => {
+  const conceptsOf = (topicKey: string) =>
+    getWeakAreas({ limit: 20 }).weakAreas.find((w) => w.topicKey === topicKey)?.weakConcepts;
+
+  it("★ the live #970-L1 entry (conceptKey = the question id 'AP-E15') shows NO chip", () => {
+    h.wrongEntries["arithmetic-progression::AP-E15"] = {
+      questionId: "AP-E15",
+      topicKey: "arithmetic-progression",
+      conceptKey: "AP-E15",
+      count: 1,
+      conceptualMarksLost: 2,
+      conceptualMarksCount: 1,
+    };
+    // precondition: the entry still QUALIFIES the topic (this pin is about the chip only)
+    expect(conceptsOf("arithmetic-progression")).toBeDefined();
+    expect(conceptsOf("arithmetic-progression")).toEqual([]);
+  });
+
+  it("★ CONTROL: a real concept label on the same topic IS shown", () => {
+    h.wrongEntries.a = { questionId: "AP-E15", topicKey: "arithmetic-progression", conceptKey: "AP-E15", count: 1 };
+    h.wrongEntries.b = { questionId: "AP-N-7", topicKey: "arithmetic-progression", conceptKey: "nth term of an AP", count: 1 };
+    expect(conceptsOf("arithmetic-progression")).toEqual(["nth term of an AP"]);
+  });
+
+  it("weakConceptLabel: a question id, the topic itself or a graded: placeholder → null; a concept → itself", () => {
+    expect(weakConceptLabel({ questionId: "AP-E15", topicKey: "arithmetic-progression", conceptKey: "AP-E15" })).toBeNull();
+    expect(weakConceptLabel({ questionId: "graded:triangles", topicKey: "triangles", conceptKey: "triangles" })).toBeNull();
+    expect(weakConceptLabel({ questionId: "x", topicKey: "triangles", conceptKey: "graded:triangles" })).toBeNull();
+    expect(weakConceptLabel({ questionId: "x", topicKey: "triangles", conceptKey: "  " })).toBeNull();
+    expect(weakConceptLabel({ questionId: "T-1", topicKey: "triangles", conceptKey: "Basic proportionality theorem" })).toBe(
+      "Basic proportionality theorem",
+    );
   });
 });
