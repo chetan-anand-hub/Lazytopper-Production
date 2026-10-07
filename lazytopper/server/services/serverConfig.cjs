@@ -33,6 +33,7 @@ function loadDotEnvIfPresent() {
  *   anything else            → ON, plus an ENV_USED note naming it unrecognised. Fail-open is
  *                              deliberate: the code default is ON, so a typo must not silently
  *                              turn jobs off; only an explicit off value does.
+ * Operators: DELETING the variable turns jobs ON. To turn them off, set GRADING_JOBS=0 and redeploy.
  */
 const GRADING_JOBS_OFF_VALUES = new Set(['0', 'off', 'false']);
 const GRADING_JOBS_ON_VALUES = new Set(['1', 'on', 'true']);
