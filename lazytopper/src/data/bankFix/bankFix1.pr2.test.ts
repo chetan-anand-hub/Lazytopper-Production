@@ -19,7 +19,28 @@
  *   7. served counts per chapter: the lane's totals, and today's served counts are at least the
  *      lane's "after" (a later lane that withholds a row lowers the floor with a dated comment).
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// PracticePage (imported only for its pure `questionMatchesFilters`) reaches services/cbseExamDate,
+// which computes the board-exam date from the clock at module load. Nothing pinned here depends on
+// the exam date, so that one module is stubbed: this file never reads the clock and stays out of
+// the CI clock manifest.
+vi.mock("../../services/cbseExamDate", () => ({
+  CBSE_PHASE2_DATE: "",
+  CBSE_PHASE2_END: "",
+  predictCbseExamDate: () => "",
+  predictCbsePhase2Date: () => "",
+  predictCbsePhase2End: () => "",
+  daysLeftFromIsoDate: () => 0,
+  fetchCbseExamDate: async () => ({}),
+  fetchCbsePhase1Date: () => ({}),
+  fetchCbsePhase2Date: () => ({}),
+  getPhaseDeadline: () => "",
+  getCbseExamDateAdminOverride: () => null,
+  setCbseExamDateAdminOverride: () => undefined,
+  clearCbseExamDateAdminOverride: () => undefined,
+}));
+
 import {
   RAW_CANONICAL_QUESTION_BANK,
   WITHHELD_QUESTION_IDS,
