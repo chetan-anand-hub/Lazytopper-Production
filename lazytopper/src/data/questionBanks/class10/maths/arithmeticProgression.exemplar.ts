@@ -169,7 +169,7 @@ export const AP_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Sample Question 1 (page 54)", isCompetencyBased: true,
     strategyHint: "When four terms are in AP, let them be a − 3d, a − d, a + d, a + 3d for symmetry." },
 
-  { id: "AP-N-EXEM-5-LA-002", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+  { id: "AP-N-EXEM-5-LA-002", competencyVerified: true, subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Jaspal Singh repays a total loan of ₹1,18,000 by paying every month, starting with the first instalment of ₹1000, increasing by ₹100 every month. What amount will he pay in the 30th instalment? After paying the 30th instalment, how much loan does he still have to pay?",
     solutionSteps: ["[1 mark] The monthly instalments form an AP with first term a = 1000 and common difference d = 100.", "[1 mark] 30th instalment a₃₀ = a + 29d = 1000 + 29 × 100 = 1000 + 2900 = ₹3900.", "[1 mark] Total repaid in 30 instalments S₃₀ = (30/2)[2a + 29d] = 15[2 × 1000 + 29 × 100].", "[1 mark] S₃₀ = 15 × (2000 + 2900) = 15 × 4900 = ₹73,500.", "[1 mark] Loan still to be paid = 1,18,000 − 73,500 = ₹44,500."],
     finalAnswer: "30th instalment = ₹3900; loan still owed = ₹44,500.",
