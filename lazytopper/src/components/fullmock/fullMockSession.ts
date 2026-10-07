@@ -27,6 +27,7 @@
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { SessionFocusAggregates } from "../../services/sessionRecords";
 import type { ObjectiveScore } from "../../services/chapterTestGradeService";
+import { isStoredGradingJob, type GradingJobStore, type StoredGradingJob } from "../../ai/gradingJobs";
 
 export type FullMockSessionPhase = "taking" | "awaiting-upload";
 
@@ -54,6 +55,9 @@ export interface FullMockSessionState {
   pyqCount?: number;
   freshCount?: number;
   updatedAt: number;
+  /** GRADING-JOBS-1 J2 (contract §11) — the background grade of this awaiting-upload mock,
+   *  `{jobId, idempotencyKey, …}`, so a reload resumes the SAME job. Absent = none running. */
+  gradingJob?: StoredGradingJob | null;
 }
 
 const KEY_PREFIX = "lazytopper.fm.session.v1";
@@ -120,6 +124,28 @@ export function clearFullMockSession(uid: string | null | undefined, code: strin
   } catch {
     /* best-effort */
   }
+}
+
+/**
+ * J2 — the job store for ONE mock: its `gradingJob` field on the persisted awaiting-upload
+ * session (the contract's "add jobId to the persisted awaiting-upload session"). A mock with no
+ * saved session on this device holds nothing (the poll still runs; only a reload cannot resume).
+ */
+export function fullMockJobStore(uid: string | null | undefined, code: string): GradingJobStore {
+  return {
+    read() {
+      const s = loadFullMockSession(uid, code);
+      return s && isStoredGradingJob(s.gradingJob) ? s.gradingJob : null;
+    },
+    write(rec) {
+      const s = loadFullMockSession(uid, code);
+      if (s) saveFullMockSession(uid, { ...s, gradingJob: rec });
+    },
+    clear() {
+      const s = loadFullMockSession(uid, code);
+      if (s && s.gradingJob) saveFullMockSession(uid, { ...s, gradingJob: null });
+    },
+  };
 }
 
 /** All of this device's saved mock sessions for a uid (newest first). */
