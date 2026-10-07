@@ -124,19 +124,22 @@ function pipeRes() {
 }
 
 /* ── The stubbed model: per-question grades; any call can be HELD until released ── */
-function stubModel({ marksOf, verdictOf, inventoryOf, onCall } = {}) {
+function stubModel({ marksOf, verdictOf, inventoryOf, onCall, failWith } = {}) {
   const calls = [];
   const holds = [];
   let holdNext = null;
   const ctxUids = [];
   async function callGemini(model, contents, cfg) {
     const ids = String((cfg && cfg.chunkKey) || '').split('+').filter(Boolean).map((k) => Number(k.slice(1)));
-    calls.push({ ids, cfg: { timeoutMs: cfg.timeoutMs, attempt: cfg.attempt, chunkKey: cfg.chunkKey } });
+    calls.push({ ids, cfg: { timeoutMs: cfg.timeoutMs, attempt: cfg.attempt, chunkKey: cfg.chunkKey, deadlineAt: cfg.deadlineAt } });
     ctxUids.push(ledgerLib.currentUid());
     if (onCall) onCall(model); // J1b: what geminiClient does after a successful call (usageLedger.recordUsage)
     if (holdNext && holdNext(ids)) {
       await new Promise((resolve) => holds.push({ ids, resolve }));
     }
+    // J3 round 5: a call can FAIL instead (e.g. the per-call abort geminiClient raises: HTTP 504).
+    const failure = failWith ? failWith(ids, cfg) : null;
+    if (failure) throw failure;
     const results = ids.map((id) => {
       const qNumber = id + 1;
       const marks = marksOf ? marksOf(id) : 2;
@@ -246,6 +249,10 @@ function createJobsFor(fs, clock, fairUse, commits, maxInFlight) {
   });
 }
 
+// J3: the interruption / charging / erasure pins below were written for a 10-question paper graded as
+// TWO parts of 5 (questions 6-10 held). They pin semantics, not the chunk size, so they keep that plan
+// explicitly; the production chunk size (timing.JOB_CHUNK_QUESTIONS) is pinned by the D14 / J3 test.
+const TWO_PARTS_OF_5 = () => ({ wallMs: timingLib.JOB_WALL_MS, perCallMs: timingLib.JOB_PER_CALL_MS, chunkQuestions: 5 });
 const KEY = (n) => '7f9c2ba4-e88f-4d21-9a3b-' + String(n).padStart(12, '0');
 const jobIdFor = (key) => idempotencyAttemptId(GRADE_WORKSHEET_PATH, key);
 
@@ -314,7 +321,7 @@ test('J1 PIN 2 · CHARGE = GRADED, EXACTLY ONCE — across a retried submit, pol
 });
 
 test('J1 PIN 2 · RESTART — a job declared interrupted is charged once; its worker finishing later charges nothing', async () => {
-  const h = harness();
+  const h = harness({ jobTimingFor: TWO_PARTS_OF_5 });
   h.model.holdWhen((ids) => ids.includes(9)); // the second chunk (questions 6-10) never returns in time
   const res = await h.submit({ key: KEY(4), payload: typedPaper(10) });
   const { jobId } = JSON.parse(res.body);
@@ -374,7 +381,7 @@ test('J1 PIN 4 · INTERRUPTED — final rows stay; every other question is notGr
   const model = stubModel({
     inventoryOf: (ids) => ids.map((id) => ({ qNumber: id + 1, firstLine: id === 1 ? '(a)' : 'Answer ' + (id + 1) + ': the working is shown here' })),
   });
-  const h = harness({ model });
+  const h = harness({ model, jobTimingFor: TWO_PARTS_OF_5 });
   h.model.holdWhen((ids) => ids.includes(9));
   const paper = { ...typedPaper(10), imageBase64: 'JVBERi0xLjQK', imageMimeType: 'application/pdf' };
   for (const q of paper.questions) q.textAnswer = '';
@@ -405,7 +412,7 @@ test('J1 PIN 4 · INTERRUPTED — final rows stay; every other question is notGr
 });
 
 test('J1 PIN 4 · SIGTERM (best effort) — interruptAll ends a running job at once, final rows kept', async () => {
-  const h = harness();
+  const h = harness({ jobTimingFor: TWO_PARTS_OF_5 });
   h.model.holdWhen((ids) => ids.includes(9));
   const res = await h.submit({ key: KEY(7), payload: typedPaper(10) });
   const { jobId } = JSON.parse(res.body);
@@ -556,7 +563,7 @@ test('J1 PIN 6 · FINAL ROWS NEVER CHANGE AT DONE; done body == the synchronous 
 
 /* ════════════════════════════════════ PIN 7 ════════════════════════════════════ */
 test('J1 PIN 7 · ERASURE RACE — a record erased mid-job is never re-created, and nothing is charged', async () => {
-  const h = harness();
+  const h = harness({ jobTimingFor: TWO_PARTS_OF_5 });
   h.model.holdWhen((ids) => ids.includes(9));
   const res = await h.submit({ key: KEY(11), payload: typedPaper(10) });
   const { jobId } = JSON.parse(res.body);
@@ -646,7 +653,9 @@ test('J1b (d) · a BACKGROUND job records the same meter cost and the same real 
 });
 
 /* ════════════════════════ D14 · job timing (the synchronous timing unchanged) ════════════════════════ */
-test('J1 D14 · a job grades in chunks of 8 with the 120 s per-call cap; the sync path keeps 1 call / 45 s chunks', async () => {
+test('J1 D14 / J3 · a job grades in chunks of 8 with the J1 120 s per-call cap and 180 s wall (an aborted chunk: one-question retries at 180 s within 270 s); the sync path keeps 1 call / 45 s chunks', async () => {
+  assert.deepEqual(timingLib.jobTiming(), { wallMs: 180000, perCallMs: 120000, chunkQuestions: 8, abortRetry: { perCallMs: 180000, wallMs: 270000 } },
+    'J3 round 6 (cofounder ruling): J1 budget for every chunk; the larger budget only for the split retry of an aborted chunk');
   const h = harness();
   await h.submit({ key: KEY(40), payload: typedPaper(10) });
   await until(() => h.model.calls.length === 2, 'two job chunks');
@@ -663,6 +672,99 @@ test('J1 D14 · a job grades in chunks of 8 with the 120 s per-call cap; the syn
   assert.deepEqual(s2.model.calls.map((c) => c.ids.length), [3, 3, 3, 3], 'sync: chunks of 3');
   for (const c of s2.model.calls) assert.ok(c.cfg.timeoutMs <= timingLib.DEFAULT_GRADING_CHUNK_TIMEOUT_MS, 'sync: 45 s first attempt');
   assert.equal(timingLib.normaliseTiming({}).deadlineMs, 80000, 'the sync request deadline is unchanged');
+});
+
+/* ═════════ J3 round 6 · SPLIT RETRY ON THE EXTENDED BUDGET (cofounder ruling; FU-GRADING-ABORTS) ═════════
+   Every job chunk keeps the J1 budget (120 s per call, 180 s wall). ONLY a chunk whose first call was
+   ABORTED is retried: split, as trunk does, into one call per question, but each at 180 s per call inside
+   a 270 s wall; a split call that aborts again is today's honest "not graded" (timeout) for its question,
+   and the charge counts graded questions only. An abort is what geminiClient raises at the per-call cap:
+   HTTP 504. */
+const abortError = () => Object.assign(new Error('Gemini request timed out after 120000ms'), { status: 504 });
+const MARGIN = timingLib.GRADING_MARGIN_MS;
+async function runJob(h, key, n = 10) {
+  const res = await h.submit({ key: KEY(key), payload: typedPaper(n) });
+  assert.equal(res.statusCode, 202, res.body);
+  const { jobId } = JSON.parse(res.body);
+  await until(() => h.recordOf('stu-1', jobId).job.state === 'done', 'job done', 2000);
+  await settle();
+  return (await h.poll(jobId)).json;
+}
+
+test('J3 R6 (a) · a chunk that is NOT aborted runs at the J1 budget (120 s cap, 180 s wall) and is never retried', async () => {
+  const h = harness();
+  const done = await runJob(h, 60);
+  assert.equal(h.model.calls.length, 2, 'two chunks, two calls, no retry');
+  const d0 = h.model.calls[0].cfg.deadlineAt;
+  for (const c of h.model.calls) {
+    assert.equal(c.cfg.attempt, 1);
+    assert.equal(c.cfg.timeoutMs, 120000, 'the J1 per-call cap');
+    assert.equal(c.cfg.deadlineAt, d0, 'one wall for every first call');
+  }
+  assert.ok(d0 - Date.now() <= 180000 - MARGIN, 'the J1 180 s wall, not 270 s');
+  assert.ok(done.final.results.every((r) => !r.notGraded));
+  assert.deepEqual(h.trialWrites, [{ uid: 'stu-1', counts: { checks: 10 } }]);
+  // A chunk that FAILED without an abort (HTTP 503) keeps the unchanged path: one retry at the J1 budget.
+  const e = harness({ model: stubModel({ failWith: (ids, cfg) => (ids.includes(9) && cfg.attempt === 1 ? Object.assign(new Error('overloaded'), { status: 503 }) : null) }) });
+  await runJob(e, 61);
+  const retry = e.model.calls.filter((c) => c.cfg.attempt === 2);
+  assert.equal(retry.length, 1);
+  assert.ok(retry[0].cfg.timeoutMs <= 120000, 'an HTTP-error retry stays at the J1 cap: ' + retry[0].cfg.timeoutMs);
+  assert.equal(retry[0].cfg.deadlineAt, e.model.calls[0].cfg.deadlineAt, 'and inside the J1 wall');
+});
+
+test('J3 R6 (b) · an ABORTED chunk is retried as one-question calls, each ONCE, at 180 s per call within the 270 s wall', async () => {
+  const h = harness({ model: stubModel({ failWith: (ids, cfg) => (ids.includes(9) && cfg.attempt === 1 ? abortError() : null) }) });
+  const done = await runJob(h, 62);
+  const first = h.model.calls.find((c) => c.ids.includes(9) && c.cfg.attempt === 1);
+  const retry = h.model.calls.filter((c) => c.cfg.attempt === 2);
+  assert.deepEqual(first.ids, [5, 6, 7, 8, 9], 'the second chunk of a 10-question job (two balanced chunks of at most 8)');
+  assert.equal(h.model.calls.length, 2 + first.ids.length, '2 first calls + one call per question of the aborted chunk');
+  assert.deepEqual(retry.map((c) => c.ids).sort((a, b) => a[0] - b[0]), first.ids.map((id) => [id]), 'split: each question once, alone');
+  for (const c of retry) {
+    assert.equal(c.cfg.timeoutMs, 180000, 'the larger per-call cap (not the J1 120 s)');
+    assert.equal(c.cfg.deadlineAt - first.cfg.deadlineAt, 90000, 'the 270 s wall (J1 wall + 90 s)');
+  }
+  const other = h.model.calls.filter((c) => !c.ids.some((id) => first.ids.includes(id)));
+  assert.equal(other.length, 1);
+  assert.ok(other.every((c) => c.cfg.attempt === 1 && c.cfg.timeoutMs === 120000),
+    'the chunk that did not abort: one call at the J1 cap');
+  assert.ok(done.final.results.every((r) => !r.notGraded), 'every question graded');
+  assert.deepEqual(h.trialWrites, [{ uid: 'stu-1', counts: { checks: 10 } }]);
+  // A ONE-question chunk that aborts is retried as itself, on the same larger budget.
+  const o = harness({ model: stubModel({ failWith: (ids, cfg) => (ids.includes(0) && cfg.attempt === 1 ? abortError() : null) }) });
+  await runJob(o, 65, 1);
+  const or = o.model.calls.filter((c) => c.cfg.attempt === 2);
+  assert.equal(or.length, 1);
+  assert.deepEqual(or[0].ids, [0]);
+  assert.equal(or[0].cfg.timeoutMs, 180000);
+  // Each split call's cap is the time left before the abort-retry wall when that is under its 180 s cap
+  // (a test wall of 100 s stands in for a retry that starts late in a real 270 s job).
+  const w = harness({
+    model: stubModel({ failWith: (ids, cfg) => (ids.includes(9) && cfg.attempt === 1 ? abortError() : null) }),
+    jobTimingFor: () => ({ ...timingLib.jobTiming(), abortRetry: { perCallMs: 180000, wallMs: 100000 } }),
+  });
+  await runJob(w, 63);
+  const wr = w.model.calls.filter((c) => c.cfg.attempt === 2);
+  assert.equal(wr.length, 5);
+  for (const c of wr) {
+    assert.ok(c.cfg.timeoutMs <= 100000 - MARGIN && c.cfg.timeoutMs > 90000, 'min(180 s, time left before the wall): ' + c.cfg.timeoutMs);
+    assert.equal(c.cfg.deadlineAt - w.model.calls[0].cfg.deadlineAt, 100000 - 180000, 'the split calls run against the abort-retry wall');
+  }
+});
+
+test('J3 R6 (c)+(d) · a split call that aborts AGAIN ends its question "not graded" (timeout), no further retry; the charge counts graded questions only', async () => {
+  // questions 6-10 graded as 5 + 5 (chunk 2 = ids 5..9); the first call of chunk 2 aborts; on the split, ids 7 and 9 abort again.
+  const h = harness({
+    model: stubModel({ failWith: (ids, cfg) => (ids.includes(9) && cfg.attempt === 1 ? abortError() : cfg.attempt === 2 && (ids[0] === 7 || ids[0] === 9) ? abortError() : null) }),
+    jobTimingFor: () => ({ ...TWO_PARTS_OF_5(), abortRetry: timingLib.jobTiming().abortRetry }),
+  });
+  const done = await runJob(h, 64);
+  assert.equal(h.model.calls.length, 2 + 5, 'two first calls + 5 split calls; no third attempt');
+  assert.equal(h.model.calls.filter((c) => c.cfg.attempt > 2).length, 0);
+  const ng = done.final.results.map((r, i) => [i, r.notGraded]).filter(([, g]) => g).map(([i, g]) => i + ':' + g);
+  assert.deepEqual(ng, ['7:timeout', '9:timeout']);
+  assert.deepEqual(h.trialWrites, [{ uid: 'stu-1', counts: { checks: 8 } }], '(d) only the 8 graded questions are charged');
 });
 
 /* ═══════════ CORS · the opt-in header is allowed; the poll route is live with the switch OFF ═══════════ */
