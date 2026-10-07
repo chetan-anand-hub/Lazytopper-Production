@@ -5,6 +5,10 @@
  * answer and marks. Pinned by officialCbqTags.science.test.ts (tagged set === this list).
  * Maths official tags are C3's (a separate file); never edit this list by hand without the same
  * classify → blind-solve → compare evidence.
+ *
+ * 2026-10-07 (C2, C1 REQUEST / BANK-FIX-1 PR-2): CASE-SCI-EL-002, OEX-B-001/002/008/013/014 and OEX-C-003
+ * were untagged — no paper or question number confirms their source year, so BANK-FIX files them
+ * under Others (owner rule: untraceable official rows are not presented as board questions).
  */
 export const OFFICIAL_CBQ_SCIENCE_IDS: readonly string[] = [
   "ACID-EXMPLR-2-MCQ-003",
@@ -20,7 +24,6 @@ export const OFFICIAL_CBQ_SCIENCE_IDS: readonly string[] = [
   "APQ-S-METAL-001",
   "APQ-S-METAL-003",
   "APQ-S-METAL-012",
-  "CASE-SCI-EL-002",
   "CBE-S-CARB-C-002",
   "CBE-S-CARB-C-004",
   "CBE-S-ENVI-B-001",
@@ -117,12 +120,6 @@ export const OFFICIAL_CBQ_SCIENCE_IDS: readonly string[] = [
   "METAL-NCERT-3-SA-008",
   "METAL-NCERT-3-VSA-014",
   "METAL-NCERT-3-VSA-015",
-  "OEX-B-001",
-  "OEX-B-002",
-  "OEX-B-008",
-  "OEX-B-013",
-  "OEX-B-014",
-  "OEX-C-003",
   "PYQ-S-2024-ACID-002",
   "PYQ-S-2025-CHEMRXN-021",
   "PYQ-S-2025-LIGHT-001",
