@@ -124,21 +124,23 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     subtopic: "Sex Determination in Humans",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "\"The biological sex of an individual only depends on the sperm cell.\"\n\nIs the above statement true or false? Justify your answer.",
+      "\"The biological sex of an individual only depends on the sperm cell.\" Which option correctly evaluates this statement?",
     answer:
-      "True. All egg cell contains only X chromosome. It is the sperm that may contain an X or a Y chromosome and so depending on which sperm unites with the egg, the biological sex of the individual is determined.",
+      "True, as every egg carries an X chromosome while a sperm carries either X or Y",
     solutionSteps: [
-      "[1 mark] True. All egg cell contains only X chromosome. It is the sperm that may contain an X or a Y chromosome and so depending on which sperm unites with the egg, the biological sex of the individual is determined.",
+      "[1 mark] True, as every egg carries an X chromosome while a sperm carries either X or Y — the egg always contributes X; whether the sperm brings X or Y decides the sex of the child."
     ],
     finalAnswer:
-      "True - every egg carries an X chromosome, so it is the sperm's X or Y that decides the sex.",
+      "True, as every egg carries an X chromosome while a sperm carries either X or Y",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.8 — CFPQ_Science10.pdf, questions pdf pp.65–67 (printed folios 64–66)",
     requiresDiagram: false,
+    options: ["False, as the egg may carry either an X or a Y chromosome", "True, as every sperm carries a Y chromosome", "True, as every egg carries an X chromosome while a sperm carries either X or Y", "False, as sex in humans is decided by the environment"],
+    sourceOverride: "others",
   },
   // pdf-page 66 (folio 65) — Q4 [1]. Rubric row 5: pdf-page 69.
   {
@@ -148,19 +150,21 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     subtopic: "Modes of Reproduction in Animals",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Analysing",
-    questionText: VENN + "Name any one animal whose mode of reproduction is represented by region P.",
-    answer: "Any animal that lays eggs after internal fertilisation such as birds, lizards, etc.",
+    questionText: "In the diagram, each labelled region (P to W) represents a combination of reproductive processes found in an animal, decided by which circles the region is (or is not) part of. Which animal's mode of reproduction is represented by region P?",
+    answer: "Hen",
     solutionSteps: [
-      "[1 mark] Any animal that lays eggs after internal fertilisation such as birds, lizards, etc.",
+      "[1 mark] Hen — P = internal fertilisation only; a hen fertilises internally but lays eggs that develop outside."
     ],
-    finalAnswer: "A bird or a lizard - internal fertilisation, but the egg is laid and develops outside.",
+    finalAnswer: "Hen",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.8 — CFPQ_Science10.pdf, questions pdf pp.65–67 (printed folios 64–66)",
     requiresDiagram: true,
     diagramDescription: VENN_DESC,
+    options: ["Frog", "Human", "Fish", "Hen"],
+    sourceOverride: "others",
   },
   // pdf-page 66 (folio 65) — Q5 [2]. Rubric row 6: pdf-page 69.
   {
@@ -197,19 +201,19 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     subtopic: "Modes of Reproduction in Animals",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Analysing",
-    questionText:
-      VENN +
-      "'In vitro fertilisation' is a process of fusing a human egg and sperm outside a woman's body, in a laboratory. After fertilisation, the zygote is allowed to develop into an embryo for 2-6 days. The embryo is then implanted in the woman's uterus, where it develops normally.\n\nWhich labelled region in the diagram BEST represents reproduction via in vitro fertilisation?",
+    questionText: "In the diagram, each labelled region (P to W) represents a combination of reproductive processes found in an animal.\n\n'In vitro fertilisation' fuses a human egg and sperm outside a woman's body, in a laboratory. The zygote develops into an embryo for 2–6 days, which is then implanted in the woman's uterus, where it develops normally.\n\nWhich labelled region BEST represents reproduction via in vitro fertilisation?",
     answer: "U",
-    solutionSteps: ["[1 mark] U"],
-    finalAnswer: "U - fertilisation is not internal, but the embryo develops inside the mother and receives nutrition directly.",
+    solutionSteps: ["[1 mark] U — fertilisation is not internal, but the embryo develops inside the mother and gets nutrition from her: region U."],
+    finalAnswer: "U",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.8 — CFPQ_Science10.pdf, questions pdf pp.65–67 (printed folios 64–66)",
     requiresDiagram: true,
     diagramDescription: VENN_DESC,
+    options: ["U", "R", "T", "V"],
+    sourceOverride: "others",
   },
   // pdf-page 67 (folio 66) — Q7 [1]. Rubric row 8: pdf-page 69.
   {
@@ -219,17 +223,19 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     subtopic: "Sexual Reproduction in Flowering Plants",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "Bindu wants to produce a hybrid variety of tomatoes. She has tomato plants X and Y belonging to two different varieties, one with smooth, long fruits and the other one with wrinkled, round fruits.\n\nTomatoes have bisexual flowers. Bindu carries out the following steps carefully to cross pollinate the flowers of plants X and Y:\n\n1. She removes a part of the flowers of tomato plant X just before the flowers bloom.\n2. She manually pollinates the flowers of tomato plant X using pollen from the flowers of tomato plant Y.\n3. She ties small plastic bags around the pollinated flowers of tomato plant X. The plastic bags are removed after a couple of days.\n\nBindu carried out step 1 so as to prevent self-pollination. Which part did she remove?",
-    answer: "stamens/anthers",
-    solutionSteps: ["[1 mark] stamens/anthers"],
-    finalAnswer: "the stamens (anthers)",
+      "Bindu wants to produce a hybrid variety of tomatoes. She has tomato plants X and Y of two different varieties, one with smooth, long fruits and the other with wrinkled, round fruits. Tomatoes have bisexual flowers. She carries out these steps to cross-pollinate X and Y:\n\n1. She removes a part of the flowers of plant X just before they bloom.\n2. She manually pollinates the flowers of plant X using pollen from plant Y.\n3. She ties small plastic bags around the pollinated flowers of plant X, removing them after a couple of days.\n\nStep 1 was carried out to prevent self-pollination. Which part did she remove?",
+    answer: "Stamens (anthers)",
+    solutionSteps: ["[1 mark] Stamens (anthers) — removing the anthers before they release pollen stops the flower pollinating itself."],
+    finalAnswer: "Stamens (anthers)",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.8 — CFPQ_Science10.pdf, questions pdf pp.65–67 (printed folios 64–66)",
     requiresDiagram: false,
+    options: ["Stigma", "Stamens (anthers)", "Ovary", "Sepals"],
+    sourceOverride: "others",
   },
   // pdf-page 67 (folio 66) — Q8 [1]. Rubric row 9: pdf-page 69.
   {
@@ -239,21 +245,23 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     subtopic: "Vegetative Propagation",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "Plants produced through vegetative propagation are genetically identical to their parents.\n\nWhat could be the biggest disadvantage of vegetative propagation?",
+      "Plants produced through vegetative propagation are genetically identical to their parents. What could be the biggest disadvantage of vegetative propagation?",
     answer:
-      "Both the parent plant and the progeny will be susceptible to same pathogen which can wipe out the entire population; or less genetic diversity as no new variety will be produced.",
+      "Lack of variation, so one disease can wipe out the whole population",
     solutionSteps: [
-      "[1 mark] For any disadvantage such as: Both the parent plant and the progeny will be susceptible to same pathogen which can wipe out the entire population; less genetic diversity as no new variety will be produced.",
+      "[1 mark] Lack of variation, so one disease can wipe out the whole population — identical plants share the same susceptibility, so a single pathogen can destroy all of them."
     ],
     finalAnswer:
-      "No genetic variation - one pathogen can wipe out the whole population.",
+      "Lack of variation, so one disease can wipe out the whole population",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.8 — CFPQ_Science10.pdf, questions pdf pp.65–67 (printed folios 64–66)",
     requiresDiagram: false,
+    options: ["Plants take much longer to bear flowers and fruits", "Offspring show too much variation from the parent", "Lack of variation, so one disease can wipe out the whole population", "It always requires pollinators to succeed"],
+    sourceOverride: "others",
   },
   // pdf-page 67 (folio 66) — Q9 [2]. Rubric row 10: pdf-page 69.
   {

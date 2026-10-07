@@ -66,9 +66,7 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
   { id: "SAV-E16", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If a solid hemisphere has radius 7 cm, its curved surface area is:", options: ["308 cm²", "616 cm²", "154 cm²", "462 cm²"], answer: "308 cm²", explanation: "CSA = 2πr² = 2 × 22/7 × 49 = 308. Therefore, the correct answer is 308 cm².", solutionSteps: ["CSA = 2πr² = 2 × 22/7 × 49 = 308"], finalAnswer: "308 cm²" , isCompetencyBased: true },
   { id: "SAV-E17", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination/Transformation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "A cylindrical pencil sharpened at one end is a combination of:", options: ["Cylinder and cone", "Cylinder and hemisphere", "Cone and hemisphere", "Two cylinders"], answer: "Cylinder and cone", explanation: "The correct answer is Cylinder and cone. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Cylinder and cone" , isCompetencyBased: false,
     solutionSteps: [
-      "Understand that when a solid is melted and recast, its volume remains constant.",
-      "Recall the formula for the volume of a sphere (V_sphere = 4/3 pi R^3) and a cylinder (V_cylinder = pi r^2 h).",
-      "Equate the volume of the sphere to the volume of the cylinder: 4/3 pi R^3 = pi r^2 h.",
+      "[1 mark] The unsharpened body of the pencil is a cylinder and the sharpened end tapers to a point, which is a cone; so the solid is a combination of a cylinder and a cone. Correct option: (a) Cylinder and cone."
     ],
   },
   { id: "SAV-E18", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the volume of the largest right circular cone that can be cut from a cube of edge 9 cm.", solutionSteps: [

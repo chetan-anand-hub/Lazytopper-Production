@@ -14,17 +14,18 @@ export const MNM_CBE: CanonicalQuestion[] = [
     "subtopic": "Ionic and Covalent Compounds (Properties)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
     "questionText": "The table gives information about five substances A, B, C, D and E.\n\nSubstance | Melting point (K) | Electrical conductivity (Solid) | Electrical conductivity (Liquid/aqueous)\nA | 290 | poor | poor\nB | 209 | poor | poor\nC | 887 | poor | good\nD | 156 | poor | poor\nE | 985 | poor | good\n\nWhich substances are covalent compounds?",
-    "options": [],
+    "options": ["C and E", "A and D only", "B, C and D", "A, B and D"],
     "answer": "A, B and D",
     "solutionSteps": [
-      "[1 mark] Covalent compounds have low melting points and do not conduct electricity in either solid or liquid/aqueous state; A, B and D have low melting points and poor conductivity throughout, so they are the covalent compounds (all three required)."
+      "[1 mark] A, B and D — A, B and D have low melting points and do not conduct even when liquid/aqueous, so they are covalent; C and E are ionic."
     ],
     "finalAnswer": "A, B and D",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-MNM-A-002",
@@ -58,16 +59,16 @@ export const MNM_CBE: CanonicalQuestion[] = [
     "subtopic": "Reactivity Series",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Using the observations in the given table (Table 1), write the metals A, B, C and D in order of least reactive to most reactive.",
-    "options": [],
+    "questionText": "Using the observations in the given table (Table 1), the metals A, B, C and D in order of least reactive to most reactive are",
+    "options": ["D, C, A, B", "B, A, C, D", "D, A, C, B", "C, D, A, B"],
     "answer": "D, C, A, B",
     "solutionSteps": [
-      "[1 mark] D displaces nothing (least reactive); C displaces only silver (between Ag and Cu); A displaces copper but not iron (between Cu and Fe); B displaces iron but not aluminium (between Fe and Al). Order, least to most reactive: D, C, A, B."
+      "[1 mark] D, C, A, B — D displaces nothing (even Ag); C displaces only Ag; A displaces Cu but not Fe; B displaces Fe — so D < C < A < B."
     ],
-    "finalAnswer": "D, C, A, B (least to most reactive)",
+    "finalAnswer": "D, C, A, B",
     "isCompetencyBased": true,
     sourceOverride: "others",
   },
@@ -78,17 +79,18 @@ export const MNM_CBE: CanonicalQuestion[] = [
     "subtopic": "Role of Cryolite in Aluminium Extraction",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Alumina, Al2O3, is mixed with cryolite, Na3AlF6, before electrolysis. Suggest why cryolite is added to alumina.",
-    "options": [],
-    "answer": "It decreases the melting point of the alumina / increases conductivity.",
+    "questionText": "Alumina, Al₂O₃, is mixed with cryolite, Na₃AlF₆, before electrolysis. Cryolite is added",
+    "options": ["to raise the melting point of alumina", "to supply oxygen for the reaction", "to lower the melting point of alumina", "to reduce alumina chemically to aluminium"],
+    "answer": "to lower the melting point of alumina",
     "solutionSteps": [
-      "[1 mark] Cryolite decreases the melting point of the alumina (and/or increases the conductivity of the molten mixture)."
+      "[1 mark] to lower the melting point of alumina — cryolite lowers the melting point of alumina (and improves conductivity), saving energy in electrolysis."
     ],
-    "finalAnswer": "Decreases melting point of alumina / increases conductivity.",
-    "isCompetencyBased": false
+    "finalAnswer": "to lower the melting point of alumina",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-MNM-B-001",

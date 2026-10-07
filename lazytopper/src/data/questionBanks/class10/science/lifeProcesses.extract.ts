@@ -968,14 +968,14 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Respiration",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Which flap of tissue prevents the entry of food into the respiratory tract during swallowing?",
-    "options": [],
+    "questionText": "The flap of tissue that prevents the entry of food into the respiratory tract during swallowing is the",
+    "options": ["Epiglottis", "Larynx", "Diaphragm", "Pharynx"],
     "answer": "Epiglottis",
     "solutionSteps": [
-      "[1 mark] The epiglottis covers the opening of the trachea (glottis) during swallowing, preventing food from entering the respiratory tract."
+      "[1 mark] Epiglottis — the epiglottis covers the glottis (opening of the trachea) during swallowing."
     ],
     "finalAnswer": "Epiglottis",
     "isCompetencyBased": false
@@ -987,14 +987,14 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Name the lymphatic capillaries that arise from the villi of the small intestine and absorb digested fats.",
-    "options": [],
+    "questionText": "The lymphatic capillaries in the villi of the small intestine that absorb digested fats are called",
+    "options": ["Lymph nodes", "Blood capillaries", "Venules", "Lacteals"],
     "answer": "Lacteals",
     "solutionSteps": [
-      "[1 mark] The lacteals are the lymphatic capillaries in the villi of the small intestine that absorb the products of fat digestion."
+      "[1 mark] Lacteals — lacteals in the villi absorb the products of fat digestion."
     ],
     "finalAnswer": "Lacteals",
     "isCompetencyBased": false
@@ -1006,14 +1006,14 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "What is the semi-liquid mixture of partially digested food formed in the stomach called?",
-    "options": [],
+    "questionText": "The semi-liquid mixture of partially digested food formed in the stomach is called",
+    "options": ["Bolus", "Bile", "Chyme", "Chyle"],
     "answer": "Chyme",
     "solutionSteps": [
-      "[1 mark] The acidic, semi-liquid, partially digested food that leaves the stomach is called chyme."
+      "[1 mark] Chyme — the acidic, partially digested food leaving the stomach is chyme."
     ],
     "finalAnswer": "Chyme",
     "isCompetencyBased": false
@@ -1025,14 +1025,14 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Transportation",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "The pressure of blood in the arteries during ventricular relaxation is called what type of pressure?",
-    "options": [],
+    "questionText": "The pressure of blood in the arteries during ventricular relaxation is called",
+    "options": ["Systolic pressure", "Diastolic pressure", "Osmotic pressure", "Atmospheric pressure"],
     "answer": "Diastolic pressure",
     "solutionSteps": [
-      "[1 mark] The arterial blood pressure during ventricular relaxation (diastole) is called diastolic pressure."
+      "[1 mark] Diastolic pressure — pressure during ventricular relaxation (diastole) is diastolic pressure."
     ],
     "finalAnswer": "Diastolic pressure",
     "isCompetencyBased": false
@@ -1044,14 +1044,14 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Respiration",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Name the pathway of glucose breakdown that is common to both aerobic and anaerobic respiration.",
-    "options": [],
+    "questionText": "The pathway of glucose breakdown that is common to both aerobic and anaerobic respiration is",
+    "options": ["Glycolysis", "Fermentation", "Photolysis", "Transpiration"],
     "answer": "Glycolysis",
     "solutionSteps": [
-      "[1 mark] Glycolysis, the breakdown of glucose to pyruvate in the cytoplasm, is common to both aerobic and anaerobic respiration."
+      "[1 mark] Glycolysis — glycolysis (glucose to pyruvate in the cytoplasm) is the first step of both types of respiration."
     ],
     "finalAnswer": "Glycolysis",
     "isCompetencyBased": false
@@ -1063,16 +1063,16 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Define the term 'translocation' as used in the transport of substances in plants.",
-    "options": [],
-    "answer": "The transport of food (soluble products of photosynthesis) from the leaves to other parts of the plant through the phloem.",
+    "questionText": "In plants, the term 'translocation' refers to the",
+    "options": ["Transport of water from roots to leaves through xylem", "Loss of water vapour from the aerial parts of the plant", "Transport of food from leaves to other parts through xylem", "Transport of food from leaves to other parts through phloem"],
+    "answer": "Transport of food from leaves to other parts through phloem",
     "solutionSteps": [
-      "[1 mark] Translocation is the transport of the soluble products of photosynthesis (mainly sucrose) from the leaves to other parts of the plant through the phloem."
+      "[1 mark] Transport of food from leaves to other parts through phloem — translocation is the movement of soluble products of photosynthesis from leaves to other parts via phloem."
     ],
-    "finalAnswer": "Transport of food from leaves to other plant parts through phloem.",
+    "finalAnswer": "Transport of food from leaves to other parts through phloem",
     "isCompetencyBased": false,
     sourceOverride: "others",
   },
@@ -1083,16 +1083,16 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "What is peristalsis?",
-    "options": [],
-    "answer": "The rhythmic contraction and relaxation of the muscular wall of the alimentary canal that pushes food forward.",
+    "questionText": "Peristalsis is",
+    "options": ["the absorption of digested food by the villi of the small intestine", "the rhythmic contraction and relaxation of the muscles of the alimentary canal that pushes food forward", "the breaking of fat into small globules by the action of bile juice", "the mixing of food with saliva by the chewing action of teeth"],
+    "answer": "the rhythmic contraction and relaxation of the muscles of the alimentary canal that pushes food forward",
     "solutionSteps": [
-      "[1 mark] Peristalsis is the wave-like rhythmic contraction and relaxation of the muscles of the alimentary canal wall that moves food forward along the gut."
+      "[1 mark] the rhythmic contraction and relaxation of the muscles of the alimentary canal that pushes food forward — peristalsis is the wave-like muscular movement of the gut wall that moves food along the alimentary canal."
     ],
-    "finalAnswer": "Rhythmic muscular contractions that push food along the gut.",
+    "finalAnswer": "the rhythmic contraction and relaxation of the muscles of the alimentary canal that pushes food forward",
     "isCompetencyBased": false,
     sourceOverride: "others",
   },
@@ -1103,16 +1103,16 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Respiration",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Why is respiration considered an exothermic process?",
-    "options": [],
-    "answer": "Because the oxidation of glucose during respiration releases energy.",
+    "questionText": "Respiration is considered an exothermic process because",
+    "options": ["energy is absorbed to break down glucose during respiration", "oxygen is taken in from the air during respiration", "water is absorbed by the cells during respiration", "oxidation of glucose during respiration releases energy"],
+    "answer": "oxidation of glucose during respiration releases energy",
     "solutionSteps": [
-      "[1 mark] During respiration, glucose is oxidised in the presence of oxygen and energy is released; because energy is given out, respiration is an exothermic process."
+      "[1 mark] oxidation of glucose during respiration releases energy — glucose is oxidised in respiration and energy is given out, so the process is exothermic."
     ],
-    "finalAnswer": "It releases energy on oxidation of glucose.",
+    "finalAnswer": "oxidation of glucose during respiration releases energy",
     "isCompetencyBased": false,
     sourceOverride: "others",
   },
@@ -1123,16 +1123,16 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Transportation",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "What is the stored form of carbohydrate in plants and in animals, respectively?",
-    "options": [],
-    "answer": "Starch in plants and glycogen in animals.",
+    "questionText": "The stored form of carbohydrate in plants and in animals, respectively, is",
+    "options": ["starch and glycogen", "glycogen and starch", "glucose and glycogen", "sucrose and fat"],
+    "answer": "starch and glycogen",
     "solutionSteps": [
-      "[1 mark] Plants store carbohydrate as starch, while animals store it as glycogen."
+      "[1 mark] starch and glycogen — plants store carbohydrate as starch, animals store it as glycogen (in liver and muscles)."
     ],
-    "finalAnswer": "Starch (plants); glycogen (animals).",
+    "finalAnswer": "starch and glycogen",
     "isCompetencyBased": false,
     sourceOverride: "others",
   },

@@ -2082,6 +2082,10 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCO-S-HERED-002",            // ambiguous: two options are defensible keys (independent re-solve, phase B, b03)
   "CBE-S-CTRL-A-005",           // ambiguous: the figure shows an upright seedling and no light source, so light vs gravity is undecidable (figure pass, phase B)
   "PYQ-M-RN-002",               // ambiguous: R ("prime factorisation of 5 has only two factors") supports (c) literally and (a) by intent; key and re-solve disagree (phase B, b06)
+  // BANK-FIX-2 (2026-10-07, controller D24): exam-technique prompts, not board content (no fair MCQ; not a Class 10 question)
+  "2026-TRIG-P1-A-041",         // not-board-content: "from which side should you start a proof" is proof-writing advice, not a question on the syllabus
+  "2026-TRIG-P1-A-043",         // not-board-content: "what final phrase ends a proof" (Hence proved) is exam etiquette, not syllabus content
+  "2026-TRIG-P1-A-044",         // not-board-content: "what to do before part (i) of a case study" is exam technique, not syllabus content
 ]);
 
 /**

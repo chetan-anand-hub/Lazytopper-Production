@@ -61,17 +61,18 @@ export const LIFE_CBE: CanonicalQuestion[] = [
     "subtopic": "Photosynthesis — Balanced Equation",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Deduce the balanced symbol equation for photosynthesis.",
-    "options": [],
-    "answer": "6CO2 + 6H2O → C6H12O6 + 6O2",
+    "questionText": "The balanced symbol equation for photosynthesis is",
+    "options": ["CO₂ + H₂O → C₆H₁₂O₆ + O₂", "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O", "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂", "6CO₂ + 6H₂O → C₆H₁₂O₆ + 3O₂"],
+    "answer": "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
     "solutionSteps": [
-      "[1 mark] Balanced symbol equation for photosynthesis: 6CO2 + 6H2O → C6H12O6 + 6O2."
+      "[1 mark] 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ — carbon dioxide and water form glucose and oxygen; atoms balance with 6CO₂, 6H₂O and 6O₂ (the reverse equation is respiration)."
     ],
-    "finalAnswer": "6CO2 + 6H2O → C6H12O6 + 6O2",
-    "isCompetencyBased": false
+    "finalAnswer": "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-LIFE-B-001",

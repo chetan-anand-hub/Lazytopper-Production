@@ -50,7 +50,7 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
       "A concave lens is used to correct myopia as it diverges the light rays before they enter the eye, ensuring the image forms correctly on the retina.",
     ],
   },
-  { id: "HEY-E08", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Dispersion", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A rainbow is formed due to:", options: ["Reflection only", "Refraction only", "Dispersion and total internal reflection", "Scattering only"], answer: "Dispersion and total internal reflection", explanation: "The correct answer is Dispersion and total internal reflection. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Dispersion and total internal reflection" , isCompetencyBased: false,
+  { id: "HEY-E08", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Dispersion", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A rainbow is formed due to:", options: ["Reflection only", "Refraction only", "Dispersion, refraction and internal reflection", "Scattering only"], answer: "Dispersion, refraction and internal reflection", explanation: "The correct answer is Dispersion, refraction and internal reflection. Raindrops act like tiny prisms: sunlight is refracted and dispersed on entering a drop, reflected internally at the back of the drop, and refracted again as it comes out, giving the spectrum of colours we see as a rainbow.", finalAnswer: "Dispersion, refraction and internal reflection", isCompetencyBased: false,
     solutionSteps: [
       "Dispersion is the phenomenon where white light splits into its constituent colours when passing through a prism.",
       "The deviation of light depends on its wavelength and the refractive index of the medium.",
@@ -106,11 +106,11 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
       "Cause: eyeball is too long or lens is too curved → image forms in front of retina; Ray diagram: parallel rays from distant object converge before retina [1]",
       "Correction: concave lens diverges rays slightly before entering the eye; Corrective lens moves image back onto retina [1]",
     ], finalAnswer: "Image forms before retina; corrected with concave lens" , visualExplainerId: "science-human-eye-defects-of-vision-and-correction", isCompetencyBased: true },
-  { id: "HEY-M02", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Dispersion", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Explain the formation of a rainbow with a diagram.", solutionSteps: [
-      "Diagram: Draw a triangular glass prism. Show the incident white light ray entering one face, refracting at both faces, and splitting into a spectrum of colours (VIBGYOR) on emergence.; Sunlight enters a raindrop, undergoes refraction at the surface; Inside the drop, white light disperses into component colours [1]",
-      "Light undergoes total internal reflection at the back of the drop; Light refracts again as it exits the drop [1]",
-      "Each colour exits at a slightly different angle → we see a spectrum arc; Violet on inner side, red on outer side of rainbow [1]",
-    ], finalAnswer: "Refraction→dispersion→total internal reflection→refraction in raindrops" , visualExplainerId: "science-human-eye-dispersion-of-light-and-rainbow", isCompetencyBased: false },
+  { id: "HEY-M02", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Dispersion", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Explain the formation of a rainbow.", solutionSteps: [
+      "Sunlight enters a raindrop, undergoes refraction at the surface; Inside the drop, white light disperses into component colours [1]",
+      "Light is reflected internally at the back of the drop; Light refracts again as it exits the drop [1]",
+      "Each colour exits at a slightly different angle → we see a spectrum arc; Violet on inner side, red on outer side of rainbow [1]"
+    ], finalAnswer: "Refraction→dispersion→internal reflection→refraction in raindrops", visualExplainerId: "science-human-eye-dispersion-of-light-and-rainbow", isCompetencyBased: false },
   { id: "HEY-M03", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Scattering", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Explain the Tyndall effect with an example. How is it different from Rayleigh scattering?", solutionSteps: [
       "Tyndall effect: scattering of light by colloidal particles; Example: light beam visible in a dusty room or fog [1]",
       "Rayleigh scattering: scattering by molecules much smaller than wavelength of light; Rayleigh is wavelength-dependent (blue scattered more); Tyndall is less wavelength-dependent [1]",
@@ -174,9 +174,9 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Irregular cornea curvature; corrected with cylindrical lenses" , isCompetencyBased: false },
   { id: "HEY-M14", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Dispersion", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "When two identical prisms are placed inverted with respect to each other, the second prism:", options: ["Disperses light further", "Recombines the spectrum into white light", "Reflects all light", "Absorbs all colours"], answer: "Recombines the spectrum into white light", explanation: "The correct answer is Recombines the spectrum into white light. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Recombines the spectrum into white light" , isCompetencyBased: true,
     solutionSteps: [
-      "A rainbow is formed due to the dispersion of sunlight by tiny water droplets in the atmosphere.",
-      "This process involves refraction (as light enters and exits the droplet), dispersion (splitting of light into colours), and total internal reflection (inside the droplet).",
-      "Therefore, all these phenomena collectively contribute to the formation of a rainbow.",
+      "The first prism disperses white light into its seven constituent colours (VIBGYOR).",
+      "The second, identical prism placed inverted bends each colour by the same amount in the opposite direction, so all colours recombine.",
+      "Hence white light emerges from the second prism (Newton's experiment). Correct option: Recombines the spectrum into white light."
     ],
   },
   { id: "HEY-M15", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "The phenomenon of persistence of vision is used in:", options: ["Microscopes", "Cameras", "Cinema/movies", "Telescopes"], answer: "Cinema/movies", explanation: "The correct answer is Cinema/movies. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Cinema/movies" , isCompetencyBased: false,

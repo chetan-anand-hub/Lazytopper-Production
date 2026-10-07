@@ -45,16 +45,16 @@ export const TRIG_CBE: CanonicalQuestion[] = [
     "subtopic": "Trigonometric Ratios of Specific Angles",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "If sin (A − B) = ½ and cos (A + B) = ½, where (A + B) ≤ 90° and A > B, find the value of tan 2A.",
-    "options": [],
-    "answer": "tan 2A is not defined (A = 45°, so 2A = 90°)",
+    "questionText": "If sin (A − B) = ½ and cos (A + B) = ½, where (A + B) ≤ 90° and A > B, then tan 2A is",
+    "options": ["1", "not defined", "√3", "0"],
+    "answer": "not defined",
     "solutionSteps": [
-      "[1 mark] sin(A−B) = ½ ⇒ A−B = 30°; cos(A+B) = ½ ⇒ A+B = 60°. Adding: 2A = 90° ⇒ A = 45°, B = 15°. Hence tan 2A = tan 90°, which is not defined."
+      "[1 mark] not defined — A − B = 30° and A + B = 60° give A = 45°, so tan 2A = tan 90°, which is not defined."
     ],
-    "finalAnswer": "tan 2A is not defined (A = 45°, so 2A = 90°)",
+    "finalAnswer": "not defined",
     "isCompetencyBased": false,
     sourceOverride: "others",
   },
@@ -89,17 +89,18 @@ export const TRIG_CBE: CanonicalQuestion[] = [
     "subtopic": "Trigonometric Ratios of Specific Angles",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Evaluate in the simplest form: cos 60°·cos 30° − sin 60°·sin 30°",
-    "options": [],
+    "questionText": "The value of cos 60°·cos 30° − sin 60°·sin 30° is",
+    "options": ["1", "1/2", "√3/2", "0"],
     "answer": "0",
     "solutionSteps": [
-      "[1 mark] cos 60°·cos 30° − sin 60°·sin 30° = (1/2)(√3/2) − (√3/2)(1/2) = 0."
+      "[1 mark] 0 — (1/2)(√3/2) − (√3/2)(1/2) = √3/4 − √3/4 = 0."
     ],
     "finalAnswer": "0",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRIG-A-005",

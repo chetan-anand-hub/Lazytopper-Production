@@ -13,19 +13,20 @@ export const ELEC_CBE: CanonicalQuestion[] = [
     "subtopic": "Resistors in Series",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "The circuit diagram shows resistors R1, R2, R3, R4 and R5 connected in series and parallel combinations. State two resistors that are connected in series.",
-    "options": [],
-    "answer": "R1 and R2 (ALLOW R2 and R4 / R3 and R4 / R3 and R5).",
+    "questionText": "The circuit diagram shows resistors R1, R2, R3, R4 and R5 connected in series and parallel combinations. Which two resistors are connected in series with each other?",
+    "options": ["R1 and R2", "R4 and R5", "R1 and R3", "R2 and R3"],
+    "answer": "R1 and R2",
     "solutionSteps": [
-      "[1 mark] Identify two resistors in the same single path with no branch between them, e.g. R1 and R2."
+      "[1 mark] R1 and R2 — R1 and R2 lie one after the other in the same branch with no junction between them, so they carry the same current."
     ],
     "finalAnswer": "R1 and R2",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Circuit diagram with cell Vt, ammeters and resistors R1 (20 Ω), R2 (40 Ω), R3 (30 Ω), R4 (40 Ω), R5 (120 Ω) in series-parallel combination; circuit current 0.25 A."
+    "diagramDescription": "Circuit diagram with cell Vt, ammeters and resistors R1 (20 Ω), R2 (40 Ω), R3 (30 Ω), R4 (40 Ω), R5 (120 Ω) in series-parallel combination; circuit current 0.25 A.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ELEC-A-002",
@@ -34,19 +35,20 @@ export const ELEC_CBE: CanonicalQuestion[] = [
     "subtopic": "Resistors in Parallel",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Using the same circuit, state one combination of resistors in parallel.",
-    "options": [],
-    "answer": "R4 and R5 (also R1 and R2 are in parallel with R3).",
+    "questionText": "Using the same circuit, which two resistors are connected in parallel with each other?",
+    "options": ["R1 and R2", "R4 and R5", "R2 and R4", "R1 and R5"],
+    "answer": "R4 and R5",
     "solutionSteps": [
-      "[1 mark] Identify two resistors that share both nodes / lie on separate branches, e.g. R4 and R5."
+      "[1 mark] R4 and R5 — R4 and R5 are joined between the same two junctions, so they are in parallel."
     ],
     "finalAnswer": "R4 and R5",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Same series-parallel circuit with R1–R5 and cell Vt."
+    "diagramDescription": "Same series-parallel circuit with R1–R5 and cell Vt.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ELEC-A-003",

@@ -510,14 +510,14 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Ecosystem — producers, consumers, decomposers",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Name any two decomposers that operate in an ecosystem.",
-    "options": [],
+    "questionText": "Which of the following are two decomposers in an ecosystem?",
+    "options": ["Bacteria and fungi", "Grass and algae", "Green plants and fungi", "Deer and bacteria"],
     "answer": "Bacteria and fungi",
     "solutionSteps": [
-      "[1 mark] Bacteria and fungi are the two main decomposers; they break down dead organic remains into simple inorganic substances."
+      "[1 mark] Bacteria and fungi — bacteria and fungi break down dead organic remains into simple inorganic substances."
     ],
     "finalAnswer": "Bacteria and fungi",
     "isCompetencyBased": false,
@@ -531,16 +531,16 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Ecosystem — natural and artificial",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "List two examples of man-made (artificial) ecosystems.",
-    "options": [],
-    "answer": "Aquarium and crop field (garden)",
+    "questionText": "Which of the following are two examples of man-made (artificial) ecosystems?",
+    "options": ["Forest and pond", "Lake and grassland", "Ocean and desert", "Aquarium and crop field"],
+    "answer": "Aquarium and crop field",
     "solutionSteps": [
-      "[1 mark] Aquarium and crop field (or garden) are artificial ecosystems, since they are created and maintained by humans."
+      "[1 mark] Aquarium and crop field — aquariums and crop fields are created and maintained by humans."
     ],
-    "finalAnswer": "Aquarium and crop field (garden)",
+    "finalAnswer": "Aquarium and crop field",
     "isCompetencyBased": false,
     "requiresDiagram": false,
     sourceOverride: "others",
@@ -552,16 +552,16 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Waste — biodegradable and non-biodegradable",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Why are plastics classified as non-biodegradable substances?",
-    "options": [],
-    "answer": "Micro-organisms cannot break them down as they lack the enzymes to decompose plastics.",
+    "questionText": "Plastics are classified as non-biodegradable because",
+    "options": ["They are made from natural raw materials", "They dissolve completely in water", "Micro-organisms lack the enzymes needed to break them down", "Sunlight breaks them down within a few days"],
+    "answer": "Micro-organisms lack the enzymes needed to break them down",
     "solutionSteps": [
-      "[1 mark] Plastics are non-biodegradable because decomposers such as bacteria and fungi do not possess the enzymes needed to break them down, so they persist in the environment."
+      "[1 mark] Micro-organisms lack the enzymes needed to break them down — decomposers such as bacteria and fungi do not possess enzymes to break down plastics, so they persist."
     ],
-    "finalAnswer": "Micro-organisms lack the enzymes required to decompose plastics.",
+    "finalAnswer": "Micro-organisms lack the enzymes needed to break them down",
     "isCompetencyBased": false,
     "requiresDiagram": false,
     sourceOverride: "others",
@@ -573,14 +573,14 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Food chains and trophic levels",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Draw a food chain that operates in a forest ecosystem.",
-    "options": [],
+    "questionText": "Which of the following is a correct food chain in a forest ecosystem?",
+    "options": ["Tiger → Deer → Grass", "Grass → Deer → Tiger", "Grass → Tiger → Deer", "Deer → Grass → Tiger"],
     "answer": "Grass → Deer → Tiger",
     "solutionSteps": [
-      "[1 mark] Grass (producer) → Deer (primary consumer) → Tiger (secondary consumer) is a valid forest food chain."
+      "[1 mark] Grass → Deer → Tiger — grass (producer) is eaten by deer (primary consumer), which is eaten by tiger (secondary consumer)."
     ],
     "finalAnswer": "Grass → Deer → Tiger",
     "isCompetencyBased": false,
@@ -594,14 +594,14 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Flow of energy (10% law)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Flow of energy in an ecosystem is unidirectional. Name the first two components of the environment involved in this flow of energy starting from the Sun.",
-    "options": [],
+    "questionText": "Flow of energy in an ecosystem is unidirectional. The first two components involved in this flow, starting from the Sun, are",
+    "options": ["Producers and primary consumers", "Producers and decomposers", "Primary and secondary consumers", "Decomposers and primary consumers"],
     "answer": "Producers and primary consumers",
     "solutionSteps": [
-      "[1 mark] Energy from the Sun is first captured by producers and then passed to primary consumers, so these are the first two components in the unidirectional flow."
+      "[1 mark] Producers and primary consumers — solar energy is first captured by producers and then passed to primary consumers."
     ],
     "finalAnswer": "Producers and primary consumers",
     "isCompetencyBased": false,

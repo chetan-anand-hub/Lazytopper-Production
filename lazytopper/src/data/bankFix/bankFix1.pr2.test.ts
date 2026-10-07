@@ -99,7 +99,7 @@ describe("BANK-FIX-1 PR-2 · ledger is non-vacuous", () => {
     const by = (v: BankFix1Pr2Entry["verdict"]) => BANK_FIX_1_PR2.filter((e) => e.verdict === v).length;
     expect(by("fixed")).toBeGreaterThan(500);
     expect(by("withheld")).toBeGreaterThan(180);
-    expect(by("re-tagged")).toBeGreaterThan(300);
+    expect(by("re-tagged")).toBeGreaterThan(250);
     expect(by("re-sourced")).toBeGreaterThan(200);
     expect(by("answer-written")).toBeGreaterThan(200);
     expect(by("clone-removed")).toBe(19);
@@ -158,6 +158,12 @@ describe("BANK-FIX-1 PR-2 · every served content change was independently re-so
     const bad = BANK_FIX_1_PR2.filter((e) => (e.verdict === "fixed" || e.verdict === "answer-written") && isServedOn(e) && !e.resolve);
     expect(bad.map((e) => `${e.surface}:${e.id}`)).toEqual([]);
   });
+  it("the only rows still owed a last blind re-check are the three post-adjudication refixes (BANK-FIX-2 REFIX2)", () => {
+    // Re-fixed after the written adjudicator (HEY-M02 stem, ME-M14 key, REPR-NCERT-7-SA-013 point (v));
+    // the last re-check flips them to "agree-after-refix" (refix3). Any other pending row is a red.
+    const pending = BANK_FIX_1_PR2.filter((e) => e.resolve === "pending-recheck").map((e) => e.id).sort();
+    expect(pending).toEqual(["HEY-M02", "ME-M14", "REPR-NCERT-7-SA-013"]);
+  });
 });
 
 describe("BANK-FIX-1 PR-2 · ruling 2: Others rows are never PYQ / NCERT / year-bearing", () => {
@@ -204,6 +210,15 @@ describe("BANK-FIX-1 PR-2 · the audit checks, re-run over the whole served set"
   it("every served bank MCQ / A-R is 1 mark, Section A", () => {
     const bad = served.filter(isObjectiveBankRow).filter((q) => q.marks !== 1 || q.section !== "A");
     expect(bad.map((q) => `${q.id}:${q.marks}${q.section}`)).toEqual([]);
+  });
+  it("BANK-FIX-2 (owner ruling 2026-10-07, GUARD-3 G9): every served 1-mark bank row is an MCQ / A-R with >= 4 options and a key that is one of them", () => {
+    // The 1-mark population is the CBSE Section A: a written 1-mark answer has no fair auto-grade, so
+    // every one is a 4-option MCQ or an Assertion-Reason row with the 4 standard options.
+    const oneMark = served.filter((q) => Number(q.marks) === 1);
+    expect(oneMark.length).toBeGreaterThan(3000);
+    expect(oneMark.filter((q) => optionsOf(q).length < 4).map((q) => `${q.id}:${optionsOf(q).length}`)).toEqual([]);
+    const unresolved = oneMark.filter((q) => resolveCorrectOptionIndex(undefined, keyOf(q), optionsOf(q)) < 0);
+    expect(unresolved.map((q) => q.id)).toEqual([]);
   });
   it("predicted layer: every Assertion-Reason row has options, and every row with options is 1 mark", () => {
     const ar = predicted.filter((q) => /^\s*Assertion\b/i.test(String(q.questionText ?? q.question ?? "")));

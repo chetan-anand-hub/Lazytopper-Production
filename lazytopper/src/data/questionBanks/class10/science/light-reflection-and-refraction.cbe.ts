@@ -13,19 +13,20 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "subtopic": "Refraction of Light",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Light rays from a coin in water change direction at the surface of the water before entering the eye, as shown in Fig. 1. Name the wave process which occurs as the light passes from the water into the air.",
-    "options": [],
-    "answer": "Refraction.",
+    "questionText": "Light rays from a coin in water change direction at the surface of the water before entering the eye, as shown in Fig. 1. The wave process which occurs as the light passes from the water into the air is",
+    "options": ["reflection", "dispersion", "refraction", "scattering"],
+    "answer": "refraction",
     "solutionSteps": [
-      "[1 mark] The bending of light as it passes from water into air is refraction."
+      "[1 mark] refraction — light bends as it passes from water into air because its speed changes — refraction."
     ],
-    "finalAnswer": "Refraction",
+    "finalAnswer": "refraction",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1 — light rays from a coin lying in water bending at the water surface as they pass into the air and enter the observer's eye."
+    "diagramDescription": "Fig. 1 — light rays from a coin lying in water bending at the water surface as they pass into the air and enter the observer's eye.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-LGHT-A-002",
@@ -34,17 +35,18 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "subtopic": "Virtual Images",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Light rays from a coin lying in water change direction at the surface of the water before entering the eye, and the eye sees an image of the coin. Explain why the image of the coin is a virtual image.",
-    "options": [],
-    "answer": "The rays do not actually meet (they only appear to come from the image point).",
+    "questionText": "Light rays from a coin lying in water change direction at the surface of the water before entering the eye, and the eye sees an image of the coin. The image of the coin is a virtual image because",
+    "options": ["the refracted rays do not actually meet; they only appear to meet", "the refracted rays actually meet at the image point", "the image of the coin is formed upside down", "light travels more slowly in air than in water"],
+    "answer": "the refracted rays do not actually meet; they only appear to meet",
     "solutionSteps": [
-      "[1 mark] The light rays do not actually meet, so the image is virtual."
+      "[1 mark] the refracted rays do not actually meet; they only appear to meet — the refracted rays diverge and only appear to come from the image point, so the image is virtual."
     ],
-    "finalAnswer": "Because the rays do not actually meet.",
-    "isCompetencyBased": false
+    "finalAnswer": "the refracted rays do not actually meet; they only appear to meet",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-LGHT-A-003",
@@ -79,17 +81,18 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "subtopic": "Focal Length of a Lens",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Describe the focal length of a lens.",
-    "options": [],
-    "answer": "The distance from the centre of the lens to the focal point.",
+    "questionText": "The focal length of a lens is the distance between",
+    "options": ["its optical centre and its principal focus", "its optical centre and its centre of curvature", "its two principal foci", "the object and its image"],
+    "answer": "its optical centre and its principal focus",
     "solutionSteps": [
-      "[1 mark] The focal length is the distance from the centre of the lens to the focal point."
+      "[1 mark] its optical centre and its principal focus — focal length is measured from the optical centre to the principal focus."
     ],
-    "finalAnswer": "The distance from the centre of the lens to its focal point.",
-    "isCompetencyBased": false
+    "finalAnswer": "its optical centre and its principal focus",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-LGHT-A-005",
@@ -98,19 +101,20 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "subtopic": "Nature of Image Formed by a Lens",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "The diagram shows how an image at B is formed by light from an object at A passing through a lens. Describe the nature of the image at B.",
-    "options": [],
-    "answer": "Inverted and the same size.",
+    "questionText": "The diagram shows how an image at B′ is formed by light from an object AB passing through a convex lens. The nature of the image is",
+    "options": ["real, inverted and of the same size", "real, inverted and magnified", "virtual, erect and magnified", "real, inverted and diminished"],
+    "answer": "real, inverted and magnified",
     "solutionSteps": [
-      "[1 mark] The image at B is inverted and the same size as the object (ALLOW upside down and same size)."
+      "[1 mark] real, inverted and magnified — the object lies between F₁ and 2F₁, so the image forms beyond 2F₂ and is larger than the object, as the figure shows."
     ],
-    "finalAnswer": "Inverted and the same size as the object.",
+    "finalAnswer": "real, inverted and magnified",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Diagram showing light from an object at A passing through a lens to form an image at B (object at 2F, image inverted and same size)."
+    "diagramDescription": "Diagram showing light from an object at A passing through a lens to form an image at B (object at 2F, image inverted and same size).",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-LGHT-A-006",
@@ -119,17 +123,18 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "subtopic": "Magnification of a Lens",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "The height of an object A, H_A is 4 cm. The height of the image of object A, H_B is also 4 cm. Calculate the magnification M of the lens.",
-    "options": [],
-    "answer": "M = 1",
+    "questionText": "The height of an object A, H_A, is 4 cm. The height of the image of object A, H_B, is also 4 cm. The magnification M of the lens is",
+    "options": ["0", "4", "1", "16"],
+    "answer": "1",
     "solutionSteps": [
-      "[1 mark] Magnification M = height of image / height of object = H_B / H_A = 4 cm / 4 cm = 1."
+      "[1 mark] 1 — M = H_B / H_A = 4 cm / 4 cm = 1."
     ],
-    "finalAnswer": "M = 1",
-    "isCompetencyBased": false
+    "finalAnswer": "1",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-LGHT-B-001",

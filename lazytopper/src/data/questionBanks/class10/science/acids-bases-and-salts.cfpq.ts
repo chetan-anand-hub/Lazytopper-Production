@@ -85,20 +85,21 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     subtopic: "pH Scale and Dilution",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText:
-      "The following table lists the pH values of some substances.\n\nSolutions | pH\nhydrochloric acid | 1\nmilk | 6\npure water | 7\nbaking soda | 9\nsodium hydroxide | 14\n\nWhat would happen to the pH of an acid and a base when each is diluted (pure distilled water is added to it)?",
-    answer: "The pH of an acid would increase and the pH of a base would decrease.",
+      "The following table lists the pH values of some substances.\n\nSolutions | pH\nhydrochloric acid | 1\nmilk | 6\npure water | 7\nbaking soda | 9\nsodium hydroxide | 14\n\nWhat happens to the pH of an acid and of a base when each is diluted with pure distilled water?",
+    answer: "pH of the acid increases; pH of the base decreases",
     solutionSteps: [
-      "[0.5 mark] The pH of an acid would increase.",
-      "[0.5 mark] The pH of a base would decrease.",
+      "[1 mark] pH of the acid increases; pH of the base decreases — dilution moves both towards neutral pH 7, so acid pH rises and base pH falls."
     ],
-    finalAnswer: "The pH of an acid would increase; the pH of a base would decrease.",
+    finalAnswer: "pH of the acid increases; pH of the base decreases",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
     requiresDiagram: false,
+    options: ["pH of the acid increases; pH of the base decreases", "pH of the acid decreases; pH of the base increases", "pH of both the acid and the base increases", "pH of both the acid and the base stays the same"],
+    sourceOverride: "others",
   },
   // pdf-page 12 (folio 11) — Q4 [3]. Rubric: pdf-page 17.
   {
@@ -204,17 +205,19 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     subtopic: "Sodium Hydrogencarbonate - Identification",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "Rajesh was given a substance and asked to identify it. He conducted three tests on the substance and recorded the results below.(P) It releases carbon dioxide, water and a sodium salt on heating with water.(Q) It turns universal indicator greenish-blue.(R) It can be prepared from ammonia as a raw material.\n\nWhat substance was Rajesh given?",
-    answer: "baking soda / sodium hydrogencarbonate / NaHCO₃",
-    solutionSteps: ["[1 mark] baking soda / sodium hydrogencarbonate / NaHCO₃"],
-    finalAnswer: "baking soda (sodium hydrogencarbonate, NaHCO₃)",
+      "Rajesh was given a substance and asked to identify it. He conducted three tests and recorded the results below.\n(P) It releases carbon dioxide, water and a sodium salt on heating with water.\n(Q) It turns universal indicator greenish-blue.\n(R) It can be prepared from ammonia as a raw material.\n\nWhat substance was Rajesh given?",
+    answer: "Sodium hydrogencarbonate (baking soda), NaHCO₃",
+    solutionSteps: ["[1 mark] Sodium hydrogencarbonate (baking soda), NaHCO₃ — only NaHCO₃ releases CO₂ on heating and is a mild base made using ammonia."],
+    finalAnswer: "Sodium hydrogencarbonate (baking soda), NaHCO₃",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
     requiresDiagram: false,
+    options: ["Sodium carbonate (washing soda), Na₂CO₃", "Sodium hydrogencarbonate (baking soda), NaHCO₃", "Sodium hydroxide (caustic soda), NaOH", "Calcium oxychloride (bleaching powder), CaOCl₂"],
+    sourceOverride: "others",
   },
   // pdf-page 13 (folio 12) — Q9 [1], shared "Rajesh" stimulus. Rubric: pdf-page 18.
   {
@@ -224,19 +227,21 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     subtopic: "Uses of Sodium Hydrogencarbonate",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Easy",
     bloomSkill: "Applying",
     questionText:
-      "Rajesh was given a substance and asked to identify it. He conducted three tests on the substance and recorded the results below.(P) It releases carbon dioxide, water and a sodium salt on heating with water.(Q) It turns universal indicator greenish-blue.(R) It can be prepared from ammonia as a raw material.\n\nGive ONE use of the substance based on the properties mentioned in P and Q.",
-    answer: "Used in antacids / used in toothpaste / used as a first aid in acidic insect bites.",
+      "Rajesh was given a substance and asked to identify it. He conducted three tests and recorded the results below.\n(P) It releases carbon dioxide, water and a sodium salt on heating with water.\n(Q) It turns universal indicator greenish-blue.\n(R) It can be prepared from ammonia as a raw material.\n\nWhich is a use of the substance based on the properties in P and Q?",
+    answer: "As an antacid to relieve acidity in the stomach",
     solutionSteps: [
-      "[1 mark] For any of the following: used in antacids; used in toothpaste; used as a first aid in acidic insect bites.",
+      "[1 mark] As an antacid to relieve acidity in the stomach — being a mild base (Q) that releases CO₂ (P), it neutralises excess stomach acid."
     ],
-    finalAnswer: "Used in antacids (or in toothpaste, or as first aid for acidic insect bites).",
+    finalAnswer: "As an antacid to relieve acidity in the stomach",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
     requiresDiagram: false,
+    options: ["As a bleaching agent in the textile industry", "For disinfecting drinking water", "As an antacid to relieve acidity in the stomach", "For removing permanent hardness of water"],
+    sourceOverride: "others",
   },
   // pdf-page 13 (folio 12) — Q10 [1], shared "Rajesh" stimulus. Rubric: pdf-page 18.
   {
@@ -246,17 +251,19 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     subtopic: "Sodium Carbonate and Washing Soda",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "Rajesh was given a substance and asked to identify it. He conducted three tests on the substance and recorded the results below.(P) It releases carbon dioxide, water and a sodium salt on heating with water.(Q) It turns universal indicator greenish-blue.(R) It can be prepared from ammonia as a raw material.\n\nRajesh later read that recrystallisation of the sodium salt formed in P gives another basic salt that is used in manufacture of borax.\n\nIdentify the sodium salt formed in P.",
-    answer: "sodium carbonate / Na₂CO₃",
-    solutionSteps: ["[1 mark] sodium carbonate / Na₂CO₃"],
-    finalAnswer: "sodium carbonate (Na₂CO₃)",
+      "Rajesh was given a substance and asked to identify it. He conducted three tests and recorded the results below.\n(P) It releases carbon dioxide, water and a sodium salt on heating with water.\n(Q) It turns universal indicator greenish-blue.\n(R) It can be prepared from ammonia as a raw material.\n\nRajesh later read that recrystallisation of the sodium salt formed in P gives another basic salt that is used in the manufacture of borax. The sodium salt formed in P is",
+    answer: "sodium carbonate, Na₂CO₃",
+    solutionSteps: ["[1 mark] sodium carbonate, Na₂CO₃ — 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂; recrystallised Na₂CO₃ gives washing soda, used to make borax."],
+    finalAnswer: "sodium carbonate, Na₂CO₃",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
     requiresDiagram: false,
+    options: ["sodium chloride, NaCl", "sodium hydroxide, NaOH", "sodium hydrogencarbonate, NaHCO₃", "sodium carbonate, Na₂CO₃"],
+    sourceOverride: "others",
   },
   // pdf-page 14 (folio 13) — Q11 [1]. Rubric: pdf-page 18.
   {
@@ -266,17 +273,19 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     subtopic: "Neutralisation Reaction",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText:
-      "Aditi finds that a mixture of an acid and a base does not change the colour of either red or blue litmus paper.\n\nCompare the amounts of H⁺ and OH⁻ in the solution.",
-    answer: "The amount of H⁺ is equal to the amount of OH⁻ in the solution.",
-    solutionSteps: ["[1 mark] The amount of H⁺ is equal to the amount of OH⁻ in the solution."],
-    finalAnswer: "They are equal - the solution is neutral.",
+      "Aditi finds that a mixture of an acid and a base does not change the colour of either red or blue litmus paper. Compared with each other, the amounts of H⁺ and OH⁻ ions in the solution are",
+    answer: "equal",
+    solutionSteps: ["[1 mark] equal — no litmus change means the solution is neutral, so H⁺ and OH⁻ are present in equal amounts."],
+    finalAnswer: "equal",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
     requiresDiagram: false,
+    options: ["equal", "more H⁺ than OH⁻", "more OH⁻ than H⁺", "both zero"],
+    sourceOverride: "others",
   },
   // pdf-page 14 (folio 13) — Q12 [1]. Rubric: pdf-page 18.
   {
@@ -286,20 +295,22 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     subtopic: "pH Scale and Hydrogen Ion Concentration",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Applying",
     questionText:
-      "pH is measured on a scale of 0 to 14, with lower values indicating high hydrogen ion concentration (more acidic) and higher values indicating low hydrogen ion concentration (less acidic). A pH of 7 is considered as neutral. Every whole unit in pH represents a ten-fold increase in or decrease in hydrogen ion concentration.\n\nWhat would the hydrogen ion concentration of a solution of pH 4 be compared to a solution of pH 8?",
+      "pH is measured on a scale of 0 to 14, with lower values indicating high hydrogen ion concentration (more acidic) and higher values indicating low hydrogen ion concentration. A pH of 7 is neutral. Every whole unit of pH represents a ten-fold change in hydrogen ion concentration.\n\nCompared with a solution of pH 8, the hydrogen ion concentration of a solution of pH 4 is",
     answer:
-      "A solution of pH 4 would have 10,000 times higher concentration of hydrogen ions compared to a solution of pH 8.",
+      "10,000 times higher",
     solutionSteps: [
-      "[1 mark] A solution of pH 4 would have 10,000 times higher concentration of hydrogen ions compared to a solution of pH 8.",
+      "[1 mark] 10,000 times higher — a 4-unit pH drop means 10⁴ = 10,000 times more H⁺ ions."
     ],
-    finalAnswer: "10,000 times higher.",
+    finalAnswer: "10,000 times higher",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
     requiresDiagram: false,
+    options: ["4 times higher", "10,000 times higher", "10,000 times lower", "2 times lower"],
+    sourceOverride: "others",
   },
   // pdf-page 14 (folio 13) — Q13 [2]. Rubric: pdf-page 18.
   {

@@ -37,19 +37,20 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subtopic": "Plant Hormone — Auxin",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Fig. 1.1 shows how the root and shoot of a seed develop in response to stimuli. State the name of the plant hormone that causes the root and shoot to develop in the way shown in Fig. 1.1.",
-    "options": [],
-    "answer": "Auxin",
+    "questionText": "Fig. 1.1 shows how the root and shoot of a seed develop in response to stimuli. The plant hormone that causes the root and shoot to develop in the way shown in Fig. 1.1 is",
+    "options": ["auxin", "abscisic acid", "cytokinin", "thyroxine"],
+    "answer": "auxin",
     "solutionSteps": [
-      "[1 mark] The plant hormone responsible is auxin."
+      "[1 mark] auxin — auxin controls tropic growth: its uneven distribution makes the shoot grow up and the root grow down."
     ],
-    "finalAnswer": "Auxin",
+    "finalAnswer": "auxin",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1.1 — a germinating seed showing the shoot growing upward and the root growing downward in response to stimuli."
+    "diagramDescription": "Fig. 1.1 — a germinating seed showing the shoot growing upward and the root growing downward in response to stimuli.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-003",
@@ -58,19 +59,20 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subtopic": "Stimulus for Root Growth",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Identify the stimulus that causes the roots to grow in the direction shown in Fig. 1.1.",
-    "options": [],
-    "answer": "Gravity",
+    "questionText": "The stimulus that causes the roots to grow in the direction shown in Fig. 1.1 is",
+    "options": ["touch", "chemicals", "temperature", "gravity"],
+    "answer": "gravity",
     "solutionSteps": [
-      "[1 mark] The stimulus causing downward root growth is gravity."
+      "[1 mark] gravity — the roots grow downwards, towards the pull of the earth — a response to gravity (positive geotropism)."
     ],
-    "finalAnswer": "Gravity",
+    "finalAnswer": "gravity",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1.1 — seed with root growing downward (towards gravity)."
+    "diagramDescription": "Fig. 1.1 — seed with root growing downward (towards gravity).",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-004",
@@ -79,17 +81,18 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subtopic": "Response Name — Geotropism",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "State the name of the response by which the root grows towards gravity.",
-    "options": [],
-    "answer": "Gravitropism / geotropism",
+    "questionText": "The response by which the root grows towards gravity is called",
+    "options": ["phototropism", "geotropism (gravitropism)", "hydrotropism", "chemotropism"],
+    "answer": "geotropism (gravitropism)",
     "solutionSteps": [
-      "[1 mark] The response is called gravitropism (geotropism)."
+      "[1 mark] geotropism (gravitropism) — growth movement in response to gravity is geotropism; roots are positively geotropic."
     ],
-    "finalAnswer": "Gravitropism / geotropism",
-    "isCompetencyBased": false
+    "finalAnswer": "geotropism (gravitropism)",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-005",
@@ -120,17 +123,18 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "subtopic": "Response Name — Phototropism",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "State the name of the response by which the shoot grows towards light.",
-    "options": [],
-    "answer": "Phototropism",
+    "questionText": "The response by which the shoot grows towards light is called",
+    "options": ["geotropism", "phototropism", "hydrotropism", "chemotropism"],
+    "answer": "phototropism",
     "solutionSteps": [
-      "[1 mark] The response is called phototropism."
+      "[1 mark] phototropism — growth movement in response to light is phototropism; shoots are positively phototropic."
     ],
-    "finalAnswer": "Phototropism",
-    "isCompetencyBased": false
+    "finalAnswer": "phototropism",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CTRL-A-007",

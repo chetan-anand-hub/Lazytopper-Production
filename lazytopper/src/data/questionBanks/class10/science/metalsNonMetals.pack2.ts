@@ -428,17 +428,16 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
-    "format": "Short",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "List two physical properties that distinguish metals from non-metals.",
-    "options": [],
-    "answer": "Lustre and electrical/thermal conductivity",
+    "questionText": "Which pair of physical properties is characteristic of metals and distinguishes them from non-metals?",
+    "options": ["Lustre and good electrical conductivity", "Brittleness and dull surface", "Low density and poor conduction of heat", "Brittleness and poor electrical conductivity"],
+    "answer": "Lustre and good electrical conductivity",
     "solutionSteps": [
-      "Physical properties of metals: lustrous, malleable, ductile, conductor of heat and electricity",
-      "Physical properties of non-metals: non-lustrous, brittle, non-conductor or poor conductor"
+      "[1 mark] Lustre and good electrical conductivity — metals are lustrous and good conductors of heat and electricity; non-metals are dull and poor conductors."
     ],
-    "finalAnswer": "Lustre and electrical/thermal conductivity",
+    "finalAnswer": "Lustre and good electrical conductivity",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,

@@ -13,17 +13,18 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "subtopic": "Meaning of Arrows in a Food Chain",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "What do the arrows in a food chain represent?",
-    "options": [],
-    "answer": "The transfer of energy from the producer to the consumer(s).",
+    "questionText": "In a food chain, the arrows represent",
+    "options": ["the transfer of energy from the consumers back to the producer", "the flow of oxygen from producers to consumers", "the transfer of energy from the food to the feeder (producer to consumers)", "the number of organisms at each trophic level"],
+    "answer": "the transfer of energy from the food to the feeder (producer to consumers)",
     "solutionSteps": [
-      "[1 mark] The arrows represent the transfer of energy (in the direction food → feeder), i.e. from the producer to the consumers."
+      "[1 mark] the transfer of energy from the food to the feeder (producer to consumers) — arrows show the direction of energy flow, from the organism eaten to the one that eats it."
     ],
-    "finalAnswer": "The transfer of energy from the producer to the consumers (direction of energy flow).",
-    "isCompetencyBased": false
+    "finalAnswer": "the transfer of energy from the food to the feeder (producer to consumers)",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ENVI-A-002",
@@ -56,19 +57,20 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "subtopic": "Producers in a Food Web",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Part of a forest food web is shown. The producers in the food web make their own food. Identify one producer.",
-    "options": [],
-    "answer": "Coconut tree or banana plant.",
+    "questionText": "Part of a forest food web is shown. The producers in the food web make their own food. Which of these is a producer?",
+    "options": ["grasshopper", "fruit bat", "frog", "coconut tree"],
+    "answer": "coconut tree",
     "solutionSteps": [
-      "[1 mark] A producer in the food web is the coconut tree (or banana plant)."
+      "[1 mark] coconut tree — the coconut tree makes its own food by photosynthesis; the others are consumers."
     ],
-    "finalAnswer": "Coconut tree (or banana plant)",
+    "finalAnswer": "coconut tree",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Part of a forest food web showing producers (e.g. coconut tree, banana plant) and the organisms that feed on them."
+    "diagramDescription": "Part of a forest food web showing producers (e.g. coconut tree, banana plant) and the organisms that feed on them.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ENVI-A-004",
@@ -77,19 +79,20 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "subtopic": "Food Chains and Energy Transfer",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A food web is shown. Using the information in the food web, draw a food chain that has the most efficient transfer of energy to the human.",
-    "options": [],
-    "answer": "Spinach → Human (the shortest chain gives the most efficient energy transfer).",
+    "questionText": "A food web is shown. Which food chain from this web has the most efficient transfer of energy to the human?",
+    "options": ["Spinach → Human", "Spinach → Goat → Human", "Spinach → Chicken → Human", "Human → Spinach"],
+    "answer": "Spinach → Human",
     "solutionSteps": [
-      "[1 mark] Draw the shortest food chain with the arrow direction correct: Spinach → Human (fewest trophic levels means least energy lost, so most efficient transfer to the human)."
+      "[1 mark] Spinach → Human — the shortest chain has the fewest trophic levels, so the least energy is lost before reaching the human."
     ],
     "finalAnswer": "Spinach → Human",
     "isCompetencyBased": true,
     "requiresDiagram": true,
-    "diagramDescription": "A food web is provided; the answer is the single most efficient food chain 'Spinach → Human' drawn with a correctly directed arrow indicating energy flow."
+    "diagramDescription": "A food web is provided; the answer is the single most efficient food chain 'Spinach → Human' drawn with a correctly directed arrow indicating energy flow.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ENVI-B-001",

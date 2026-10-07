@@ -652,11 +652,11 @@
       "questions": [
         {
           "id": "CBE-S-ENVI-A-004",
-          "questionText": "A food web is shown. Using the information in the food web, draw a food chain that has the most efficient transfer of energy to the human.",
+          "questionText": "A food web is shown. Which food chain from this web has the most efficient transfer of energy to the human?",
           "marks": 1,
           "section": "A",
           "solutionSteps": [
-            "[1 mark] Draw the shortest food chain with the arrow direction correct: Spinach → Human (fewest trophic levels means least energy lost, so most efficient transfer to the human)."
+            "[1 mark] Spinach → Human — the shortest chain has the fewest trophic levels, so the least energy is lost before reaching the human."
           ]
         },
         {

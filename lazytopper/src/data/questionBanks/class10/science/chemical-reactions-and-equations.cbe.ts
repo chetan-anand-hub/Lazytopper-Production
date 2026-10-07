@@ -13,37 +13,39 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "subtopic": "Types of Chemical Reactions - Combination",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "State and explain the type of reaction between calcium oxide and water.",
-    "options": [],
-    "answer": "Combination reaction (because more than one reactant forms only one product). [It is also exothermic, as heat is released.]",
+    "questionText": "The reaction between calcium oxide and water is",
+    "options": ["a combination reaction, because two reactants form a single product", "a decomposition reaction, because a single reactant breaks into two products", "a displacement reaction, because calcium displaces hydrogen from water", "a double displacement reaction, because ions are exchanged between reactants"],
+    "answer": "a combination reaction, because two reactants form a single product",
     "solutionSteps": [
-      "[1 mark] It is a combination reaction because more than one reactant (CaO and H2O) combines to form only one product, Ca(OH)2."
+      "[1 mark] a combination reaction, because two reactants form a single product — CaO + H₂O → Ca(OH)₂: two reactants form a single product (it is also exothermic)."
     ],
-    "finalAnswer": "Combination reaction - two reactants form a single product (it is also exothermic).",
-    "isCompetencyBased": false
+    "finalAnswer": "a combination reaction, because two reactants form a single product",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CHEM-A-002",
     "subject": "Science",
     "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Laboratory Safety Precautions",
-    "section": "A",
-    "marks": 1,
-    "format": "VSA",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "State two precautions you should take when reacting calcium oxide with water.",
+    "questionText": "State two precautions you should take when reacting calcium oxide with water. Give a reason for any one.",
     "options": [],
-    "answer": "Any two from: wear goggles; use a heat-resistant container; use small quantities of CaO.",
+    "answer": "Any two: wear safety goggles; use a heat-resistant container (e.g. a beaker); add only small quantities of CaO. Reason: the reaction is vigorous and highly exothermic.",
     "solutionSteps": [
-      "[0.5 mark] Wear safety goggles to protect the eyes (the reaction is vigorous and exothermic).",
-      "[0.5 mark] Use a heat-resistant container and only small quantities of CaO."
+      "[1 mark] First precaution: wear safety goggles (the vigorous, highly exothermic reaction can splash hot Ca(OH)₂).",
+      "[1 mark] Second precaution: use a heat-resistant container / add only small quantities of CaO, since a lot of heat is released."
     ],
-    "finalAnswer": "Wear goggles; use a heat-resistant container / small quantities of CaO.",
-    "isCompetencyBased": false
+    "finalAnswer": "Wear goggles; use a heat-resistant container / small quantities of CaO (reaction is vigorous and exothermic).",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CHEM-A-003",
@@ -52,17 +54,18 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "subtopic": "Exothermic and Endothermic Reactions",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Methane gas is burnt in air. State whether the reaction is exothermic or endothermic.",
-    "options": [],
-    "answer": "Exothermic.",
+    "questionText": "Methane gas is burnt in air. This reaction is",
+    "options": ["endothermic, because heat is absorbed", "endothermic, because a flame is needed to start it", "exothermic, because heat is released", "neither, because there is no heat change"],
+    "answer": "exothermic, because heat is released",
     "solutionSteps": [
-      "[1 mark] Burning (combustion) of methane releases heat to the surroundings, so it is an exothermic reaction."
+      "[1 mark] exothermic, because heat is released — combustion of methane (CH₄ + 2O₂ → CO₂ + 2H₂O) releases heat, so it is exothermic."
     ],
-    "finalAnswer": "Exothermic reaction.",
-    "isCompetencyBased": false
+    "finalAnswer": "exothermic, because heat is released",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CHEM-A-004",
@@ -95,17 +98,18 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "subtopic": "Combination Reaction",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "The reaction between magnesium and oxygen can be described in different ways. Explain why the reaction can be described as a combination reaction.",
-    "options": [],
-    "answer": "More than one reactant combine to form a single product.",
+    "questionText": "The reaction between magnesium and oxygen can be described as a combination reaction because",
+    "options": ["a single reactant breaks down into two products", "magnesium displaces another metal from its salt", "two reactants combine to form a single product", "ions are exchanged between two compounds"],
+    "answer": "two reactants combine to form a single product",
     "solutionSteps": [
-      "[1 mark] In the reaction more than one reactant (magnesium and oxygen) combine to form a single product (magnesium oxide), which is the defining feature of a combination reaction."
+      "[1 mark] two reactants combine to form a single product — 2Mg + O₂ → 2MgO: more than one reactant combine to form a single product."
     ],
-    "finalAnswer": "More than one reactant combines to form a single product.",
-    "isCompetencyBased": false
+    "finalAnswer": "two reactants combine to form a single product",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CHEM-A-006",
@@ -114,17 +118,18 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "subtopic": "Oxidation and Reduction",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "The reaction between magnesium and oxygen can be described in different ways. Explain why the reaction can be described as an oxidation reaction.",
-    "options": [],
-    "answer": "Oxygen is gained/added by magnesium.",
+    "questionText": "The reaction between magnesium and oxygen can be described as an oxidation reaction because",
+    "options": ["magnesium gains oxygen", "magnesium loses oxygen", "magnesium gains hydrogen", "magnesium gains electrons"],
+    "answer": "magnesium gains oxygen",
     "solutionSteps": [
-      "[1 mark] Magnesium gains/adds oxygen during the reaction; gain of oxygen is oxidation, so the reaction is an oxidation reaction."
+      "[1 mark] magnesium gains oxygen — in 2Mg + O₂ → 2MgO, oxygen is added to magnesium, which is oxidation."
     ],
-    "finalAnswer": "Oxygen is gained (added) by magnesium.",
-    "isCompetencyBased": false
+    "finalAnswer": "magnesium gains oxygen",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CHEM-A-007",
@@ -133,17 +138,18 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "subtopic": "Exothermic and Endothermic Reactions",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "The reaction between magnesium and oxygen can be described in different ways. Explain why the reaction can be described as an exothermic reaction.",
-    "options": [],
-    "answer": "Heat is released.",
+    "questionText": "The reaction between magnesium and oxygen can be described as an exothermic reaction because",
+    "options": ["heat is absorbed during the reaction", "the reaction needs continuous heating", "light is absorbed by magnesium", "heat is released during the reaction"],
+    "answer": "heat is released during the reaction",
     "solutionSteps": [
-      "[1 mark] Heat (energy) is released during the reaction; a reaction that releases heat is exothermic."
+      "[1 mark] heat is released during the reaction — burning magnesium gives out heat (and light), so the reaction is exothermic."
     ],
-    "finalAnswer": "Heat is released during the reaction.",
-    "isCompetencyBased": false
+    "finalAnswer": "heat is released during the reaction",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CHEM-A-008",
@@ -176,17 +182,18 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "subtopic": "Electrolytic Decomposition of Water",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Suggest why pure water does not undergo electrolytic decomposition.",
-    "options": [],
-    "answer": "It is not ionic / no ions are present.",
+    "questionText": "Pure water does not readily undergo electrolytic decomposition because it",
+    "options": ["has a very high boiling point", "contains almost no free ions to conduct electricity", "is a mixture of hydrogen and oxygen", "contains too many dissolved salts"],
+    "answer": "contains almost no free ions to conduct electricity",
     "solutionSteps": [
-      "[1 mark] Pure water has no ions present (it is covalently bonded), and without free ions to carry charge it cannot conduct electricity, so it does not undergo electrolytic decomposition."
+      "[1 mark] contains almost no free ions to conduct electricity — pure water is covalent with practically no ions, so it hardly conducts and is not electrolysed."
     ],
-    "finalAnswer": "Because pure water has no ions present (it is covalently bonded).",
-    "isCompetencyBased": false
+    "finalAnswer": "contains almost no free ions to conduct electricity",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CHEM-A-010",
@@ -243,17 +250,18 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "subtopic": "Types of Reactions (Decomposition)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Sodium hydrogen carbonate (NaHCO3) is heated strongly to produce sodium carbonate, water and carbon dioxide. State the name of this type of reaction.",
-    "options": [],
-    "answer": "Decomposition.",
+    "questionText": "Sodium hydrogen carbonate (NaHCO₃) is heated strongly to produce sodium carbonate, water and carbon dioxide. This type of reaction is",
+    "options": ["combination", "decomposition", "displacement", "neutralisation"],
+    "answer": "decomposition",
     "solutionSteps": [
-      "[1 mark] Heating a single compound to give several products is a (thermal) decomposition reaction."
+      "[1 mark] decomposition — 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂: one reactant breaks into several products on heating (thermal decomposition)."
     ],
-    "finalAnswer": "Decomposition reaction",
-    "isCompetencyBased": false
+    "finalAnswer": "decomposition",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-CHEM-B-001",

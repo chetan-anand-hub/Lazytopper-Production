@@ -177,20 +177,21 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     subtopic: "Test for Unsaturation",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "Bromine water is a reddish solution of bromine (Br₂) in water. When shaken with an unsaturated hydrocarbon, the red colour of the bromine water disappears because the bromine is used up in an addition reaction.\n\nKohli has three test tubes containing hexane, hexene and hexyne respectively. Which of the three compounds can he identify using the bromine water test? Give a reason for your answer.",
-    answer: "hexane - only hexane will not decolourise the bromine water.",
+      "Bromine water is a reddish solution of bromine (Br₂) in water. When shaken with an unsaturated hydrocarbon, the red colour disappears because bromine is used up in an addition reaction.\n\nKohli has three test tubes containing hexane, hexene and hexyne respectively. Which compound can he identify using the bromine water test, and why?",
+    answer: "Hexane, as it is the only one that does NOT decolourise bromine water",
     solutionSteps: [
-      "[½ mark] hexane",
-      "[½ mark] Only hexane will not decolourise the bromine water.",
+      "[1 mark] Hexane, as it is the only one that does NOT decolourise bromine water — hexene and hexyne are both unsaturated and both decolourise it; only saturated hexane gives a distinct result."
     ],
-    finalAnswer: "hexane, because it alone is saturated and so does not decolourise bromine water.",
+    finalAnswer: "Hexane, as it is the only one that does NOT decolourise bromine water",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.4 — CFPQ_Science10.pdf, questions pdf pp.28–32 (printed folios 27–31)",
     requiresDiagram: false,
+    options: ["Hexane, as it is the only one that does NOT decolourise bromine water", "Hexene, as it is the only one that decolourises bromine water", "Hexyne, as it is the only one that decolourises bromine water", "Hexane, as it is the only one that decolourises bromine water"],
+    sourceOverride: "others",
   },
   // pdf-page 29 (folio 28) — Q7 [3]. Rubric: pdf-page 34.
   {
@@ -376,19 +377,21 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     subtopic: "Molecular Formulae of Hydrocarbons",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Applying",
     questionText:
-      "An alkane has 11 carbon atoms arranged within ring structures as shown below.\n\nWhat is the molecular formula of the alkane?",
+      "An alkane has 11 carbon atoms arranged within ring structures as shown. The molecular formula of the alkane is",
     answer: "C₁₁H₂₀",
-    solutionSteps: ["[1 mark] C₁₁H₂₀"],
+    solutionSteps: ["[1 mark] C₁₁H₂₀ — two rings with only single bonds: H = 2n + 2 − 2(rings) = 24 − 4 = 20."],
     finalAnswer: "C₁₁H₂₀",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.4 — CFPQ_Science10.pdf, questions pdf pp.28–32 (printed folios 27–31)",
     requiresDiagram: true,
     diagramDescription:
       "A carbon skeleton of two rings joined by a single bond: a five-membered ring of carbon atoms on the left and a six-membered ring on the right, linked carbon-to-carbon between them. Every vertex is labelled C; hydrogen atoms are not shown. Eleven carbon atoms in total.",
+    options: ["C₁₁H₂₄", "C₁₁H₂₀", "C₁₁H₂₂", "C₁₁H₁₈"],
+    sourceOverride: "others",
   },
   // pdf-page 31 (folio 30) — Q15 [3]. Rubric: pdf-page 36.
   {
@@ -472,19 +475,21 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     subtopic: "Catenation",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText:
-      "Polythene is a plastic made from ethene (CH₂=CH₂). When ethene is subjected to high pressure and moderately high temperatures, ethene molecules react with each other to form large molecules hundreds of times bigger, forming the plastic.\n\nWhich property of carbon atoms is instrumental in the formation of polythene?",
-    answer: "catenation - the ability of carbon atoms to link with each other to form long chains",
+      "Polythene is a plastic made from ethene (CH₂=CH₂). Under high pressure and moderately high temperature, ethene molecules react with each other to form molecules hundreds of times bigger. Which property of carbon atoms is instrumental in the formation of polythene?",
+    answer: "Catenation",
     solutionSteps: [
-      "[1 mark] catenation OR the ability of carbon atoms to link with each other to form long chains",
+      "[1 mark] Catenation — catenation lets carbon atoms link to each other into the long chains of polythene."
     ],
-    finalAnswer: "catenation",
+    finalAnswer: "Catenation",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.4 — CFPQ_Science10.pdf, questions pdf pp.28–32 (printed folios 27–31)",
     requiresDiagram: false,
+    options: ["Allotropy", "Isomerism", "Catenation", "Formation of ionic bonds"],
+    sourceOverride: "others",
   },
   // pdf-page 32 (folio 31) — Q19 [3]. Rubric: pdf-page 37.
   {

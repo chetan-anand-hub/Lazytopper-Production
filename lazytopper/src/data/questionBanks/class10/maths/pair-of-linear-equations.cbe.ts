@@ -73,17 +73,18 @@ export const PLE_CBE: CanonicalQuestion[] = [
     "subtopic": "Formulating Linear Equations from a Word Problem",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Two numbers, x and y (x > y), have a difference of 6 and an average of 4. Frame a pair of linear equations in two variables.",
-    "options": [],
+    "questionText": "Two numbers x and y (x > y) have a difference of 6 and an average of 4. The pair of linear equations representing this situation is",
+    "options": ["x − y = 6 and x + y = 4", "x + y = 6 and x − y = 8", "x − y = 6 and x + y = 8", "x − y = 6 and x + y = 2"],
     "answer": "x − y = 6 and x + y = 8",
     "solutionSteps": [
-      "[1 mark] Difference gives x − y = 6; average gives (x + y)/2 = 4, i.e. x + y = 8."
+      "[1 mark] x − y = 6 and x + y = 8 — difference gives x − y = 6; average (x + y)/2 = 4 gives x + y = 8."
     ],
     "finalAnswer": "x − y = 6 and x + y = 8",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-PLE-B-001",
@@ -197,17 +198,18 @@ export const PLE_CBE: CanonicalQuestion[] = [
     "subtopic": "Real-Life Problems on Linear Equations",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "The ticket charge for an amusement park is Rs 150 for children and Rs 400 for adults. Compute the total amount collected if 415 children and 150 adults visited the park.",
-    "options": [],
+    "questionText": "The ticket charge for an amusement park is Rs 150 for children and Rs 400 for adults. If 415 children and 150 adults visited the park, the total amount collected is",
+    "options": ["Rs 122250", "Rs 188500", "Rs 62250", "Rs 310750"],
     "answer": "Rs 122250",
     "solutionSteps": [
-      "[1 mark] Total amount = 415 × 150 + 150 × 400 = 62250 + 60000 = Rs 122250."
+      "[1 mark] Rs 122250 — 415 × 150 + 150 × 400 = 62250 + 60000 = Rs 122250."
     ],
     "finalAnswer": "Rs 122250",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-PLE-B-003",

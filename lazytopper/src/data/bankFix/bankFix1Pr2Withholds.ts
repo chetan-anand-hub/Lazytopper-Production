@@ -13,7 +13,9 @@ export type BankFix1Pr2WithholdCategory =
   | "garbled"
   | "limit"
   | "out-of-syllabus"
-  | "syllabus-excluded";
+  | "syllabus-excluded"
+  /** BANK-FIX-2 D24: exam-technique prompts, not board content. NOT a template category (ltGenerated.guard D18). */
+  | "not-board-content";
 
 export const BANK_FIX_1_PR2_WITHHOLD_CATEGORY: ReadonlyMap<string, BankFix1Pr2WithholdCategory> = new Map<string, BankFix1Pr2WithholdCategory>([
   ["ABS-E04", "duplicate"],
@@ -116,6 +118,9 @@ export const BANK_FIX_1_PR2_WITHHOLD_CATEGORY: ReadonlyMap<string, BankFix1Pr2Wi
   ["PYQ-M-CIRC-013", "figure"],
   ["PYQ-M-POLY-006", "duplicate"],
   ["PYQ-M-RN-002", "ambiguous"],
+  ["2026-TRIG-P1-A-041", "not-board-content"],
+  ["2026-TRIG-P1-A-043", "not-board-content"],
+  ["2026-TRIG-P1-A-044", "not-board-content"],
   ["PYQ-M-TRI-002", "figure"],
   ["PYQ-M-TRI-003", "figure"],
   ["PYQ-M-TRI-004", "figure"],

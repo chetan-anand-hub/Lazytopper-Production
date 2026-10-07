@@ -130,12 +130,13 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
 
   // ===== Exercise 6.3 — Short Answer =====
   { id: "TRI-N-EXMPLR-6-LA-001", subject: "Maths", topicKey: "triangles", subtopic: "Similarity Proofs", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "In △PQR, PR² − PQ² = QR² and M is a point on side PR such that QM ⊥ PR. Prove that QM² = PM · MR.",
-    answer: "Given: △PQR with PR² − PQ² = QR², i.e., PR² = PQ² + QR². M on PR with QM ⊥ PR. To prove: QM² = PM · MR. Proof: From PR² = PQ² + QR², by the converse of Pythagoras Theorem, ∠Q = 90° (the angle opposite PR is the right angle). So △PQR is right-angled at Q. QM is the altitude from the right-angle vertex Q to the hypotenuse PR. By Theorem 6.7, QM creates two triangles △PMQ and △QMR each similar to △PQR. From △PMQ ~ △QMR: PM/QM = QM/MR. Cross-multiplying: QM² = PM · MR.",
-    solutionSteps: ["Given: PR² − PQ² = QR² ⇒ PR² = PQ² + QR².", "By converse of Pythagoras Theorem, the angle opposite the longest side PR is 90°, i.e., ∠Q = 90°.", "QM is the altitude from the right-angle vertex Q to the hypotenuse PR.", "By Theorem 6.7, △PMQ ~ △QMR (each similar to △PQR, hence to each other).", "Corresponding ratio: PM/QM = QM/MR.", "Cross-multiplying: QM² = PM · MR. Q.E.D."],
-    finalAnswer: "Proved: QM² = PM · MR via converse of Pythagoras + Theorem 6.7 similarity.",
+    questionText: "In △PQR, ∠PQR = 90° and M is a point on side PR such that QM ⊥ PR. Prove that QM² = PM · MR.",
+    answer: "Given: △PQR with ∠PQR = 90°. M on PR with QM ⊥ PR. To prove: QM² = PM · MR. Proof: In △PMQ and △QMR, ∠PMQ = ∠QMR = 90°. In △PMQ, ∠MPQ = 90° − ∠PQM. Since ∠PQM + ∠MQR = ∠PQR = 90°, ∠MQR = 90° − ∠PQM. Hence ∠MPQ = ∠MQR. So △PMQ ~ △QMR (AA similarity). Corresponding sides are proportional: PM/QM = QM/MR. Cross-multiplying: QM² = PM · MR.",
+    solutionSteps: ["[1 mark] Given ∠PQR = 90° and QM ⊥ PR, so ∠PMQ = ∠QMR = 90°.", "[1 mark] In △PMQ, ∠MPQ + ∠PQM = 90°, so ∠MPQ = 90° − ∠PQM.", "[1 mark] ∠PQM + ∠MQR = ∠PQR = 90°, so ∠MQR = 90° − ∠PQM; hence ∠MPQ = ∠MQR.", "[1 mark] By AA similarity, △PMQ ~ △QMR, so PM/QM = QM/MR.", "[1 mark] Cross-multiplying: QM² = PM · MR. Hence proved."],
+    finalAnswer: "Proved: QM² = PM · MR, since △PMQ ~ △QMR by AA similarity.",
     ncertRef: "Exemplar Ex 6.3 Q1", isCompetencyBased: true,
-    strategyHint: "Recognise the rearranged Pythagorean relation, apply converse to locate the right angle, then use Theorem 6.7." },
+    strategyHint: "Use the right angle at Q and QM ⊥ PR to show two equal angles in △PMQ and △QMR, then apply AA similarity.",
+    sourceOverride: "others",},
 
   { id: "TRI-N-EXMPLR-6-SA-007", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the altitude of an equilateral triangle of side 8 cm.",

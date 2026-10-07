@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Served bank id -> {topicKey, subtopic, section} for 9407 rows, in aggregator order.
+// Served bank id -> {topicKey, subtopic, section} for 9404 rows, in aggregator order.
 // Ids and tags only, never question content. Read through ./bankIdIndex.ts.
 
 export const BANK_ID_INDEX_TOPIC_KEYS: readonly string[] = [
@@ -2145,10 +2145,7 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["2026-TRIG-P1-A-038", 1, 15, 0],
   ["2026-TRIG-P1-A-039", 1, 15, 0],
   ["2026-TRIG-P1-A-040", 1, 15, 0],
-  ["2026-TRIG-P1-A-041", 1, 16, 0],
   ["2026-TRIG-P1-A-042", 1, 16, 0],
-  ["2026-TRIG-P1-A-043", 1, 16, 0],
-  ["2026-TRIG-P1-A-044", 1, 17, 0],
   ["2026-TRIG-P1-A-045", 1, 17, 0],
   ["2026-TRIG-P1-B-001", 1, 11, 1],
   ["2026-TRIG-P1-B-002", 1, 11, 1],
@@ -7741,7 +7738,7 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["CBE-M-TRIG-C-004", 1, 10, 2],
   ["CBE-M-TRIG-C-005", 1, 10, 2],
   ["CBE-S-CHEM-A-001", 13, 1247, 0],
-  ["CBE-S-CHEM-A-002", 13, 1248, 0],
+  ["CBE-S-CHEM-A-002", 13, 1248, 1],
   ["CBE-S-CHEM-A-003", 13, 303, 0],
   ["CBE-S-CHEM-A-004", 13, 1249, 0],
   ["CBE-S-CHEM-A-005", 13, 1250, 0],

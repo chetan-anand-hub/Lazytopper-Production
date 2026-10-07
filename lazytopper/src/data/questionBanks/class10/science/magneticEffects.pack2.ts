@@ -112,10 +112,10 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Fleming's left-hand rule: Thumb (Force), Index (field), Middle (current)",
       "It determines the direction of force when current flows through a conductor in a magnetic field.",
-      "Fleming's right-hand rule is used for electromagnetic induction."
+      "It does not give the direction of the magnetic field itself; that is found with a compass or the right-hand thumb rule."
     ],
     "finalAnswer": "Direction of force on current-carrying conductor",
-    "explanation": "Fleming's left-hand rule: Thumb (Force), Index (field), Middle (current). It determines the direction of force when current flows through a conductor in a magnetic field. Fleming's right-hand rule is used for electromagnetic induction. Therefore, the correct answer is Direction of force on current-carrying conductor.",
+    "explanation": "Fleming's left-hand rule: Thumb (Force), Index (field), Middle (current). It determines the direction of force when current flows through a conductor in a magnetic field. It does not give the direction of the magnetic field itself; that is found with a compass or the right-hand thumb rule. Therefore, the correct answer is Direction of force on current-carrying conductor.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -189,18 +189,16 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "subtopic": "Electromagnet",
     "section": "A",
     "marks": 1,
-    "format": "Short",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Name the material most suitable for making the core of an electromagnet.",
-    "options": [],
-    "answer": "Soft iron (or iron core)",
+    "questionText": "The material most suitable for making the core of an electromagnet is",
+    "options": ["Steel", "Soft iron", "Copper", "Aluminium"],
+    "answer": "Soft iron",
     "solutionSteps": [
-      "Soft iron has high permeability and low retentivity.",
-      "It readily magnetizes and demagnetizes when current is switched on/off.",
-      "This makes it ideal for electromagnets in practical applications."
+      "[1 mark] Soft iron — soft iron is magnetised strongly when current flows and loses its magnetism when current is switched off."
     ],
-    "finalAnswer": "Soft iron (or iron core)",
+    "finalAnswer": "Soft iron",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -838,11 +836,11 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "answer": "Direction of force on a current-carrying conductor in a magnetic field",
     "solutionSteps": [
       "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current",
-      "Used for motors (force determination)",
-      "Fleming's Right Hand Rule is for generators (induced current)"
+      "Used to find the direction of force (and hence motion) on a current-carrying conductor placed in a magnetic field",
+      "It gives only the direction of the force, not the strength of the magnetic field"
     ],
     "finalAnswer": "Direction of force on a current-carrying conductor in a magnetic field",
-    "explanation": "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current. Used for motors (force determination). Fleming's Right Hand Rule is for generators (induced current). Therefore, the correct answer is Direction of force on a current-carrying conductor in a magnetic field.",
+    "explanation": "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current. It is used to find the direction of force (and hence motion) on a current-carrying conductor placed in a magnetic field. It gives only the direction of the force, not the strength of the magnetic field. Therefore, the correct answer is Direction of force on a current-carrying conductor in a magnetic field.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,

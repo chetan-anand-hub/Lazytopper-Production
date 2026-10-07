@@ -38,16 +38,16 @@ export const QE_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Solving a Quadratic Equation",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Find the positive root of 3x² + 6 = 9.",
-    "options": [],
-    "answer": "x = 1",
+    "questionText": "The positive root of 3x² + 6 = 9 is",
+    "options": ["1", "3", "√3", "√5"],
+    "answer": "1",
     "solutionSteps": [
-      "[1 mark] 3x² + 6 = 9 → 3x² = 3 → x² = 1 → x = ±1. The positive root is x = 1."
+      "[1 mark] 1 — 3x² = 3 ⇒ x² = 1 ⇒ x = ±1; the positive root is 1."
     ],
-    "finalAnswer": "x = 1",
+    "finalAnswer": "1",
     "isCompetencyBased": false
   },
   {
@@ -81,16 +81,16 @@ export const QE_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Roots of a Quadratic Equation",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "If one root of the quadratic equation 6x² − x − k = 0 is 2/3, then find the value of k.",
-    "options": [],
-    "answer": "k = 2",
+    "questionText": "If one root of the quadratic equation 6x² − x − k = 0 is 2/3, then the value of k is",
+    "options": ["−2", "2", "8/3", "10/3"],
+    "answer": "2",
     "solutionSteps": [
-      "[1 mark] Substitute x = 2/3: 6(2/3)² − (2/3) − k = 0 → 6(4/9) − 2/3 − k = 0 → 8/3 − 2/3 − k = 0 → 2 − k = 0 → k = 2."
+      "[1 mark] 2 — 6(4/9) − 2/3 − k = 0 ⇒ 8/3 − 2/3 = k ⇒ k = 2."
     ],
-    "finalAnswer": "k = 2",
+    "finalAnswer": "2",
     "isCompetencyBased": false
   }
 ];

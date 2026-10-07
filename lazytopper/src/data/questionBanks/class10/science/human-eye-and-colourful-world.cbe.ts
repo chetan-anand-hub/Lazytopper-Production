@@ -13,19 +13,20 @@ export const HEYE_CBE: CanonicalQuestion[] = [
     "subtopic": "Dispersion of White Light by a Prism",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Fig. 1 shows the effect of a prism on white light. State the name of the process shown in Fig. 1.",
-    "options": [],
-    "answer": "Dispersion / dispersal.",
+    "questionText": "Fig. 1 shows the effect of a prism on white light. The process shown in Fig. 1 is called",
+    "options": ["scattering", "total internal reflection", "reflection", "dispersion"],
+    "answer": "dispersion",
     "solutionSteps": [
-      "[1 mark] The splitting of white light into its colours by a prism is called dispersion."
+      "[1 mark] dispersion — splitting of white light into its component colours by a prism is dispersion."
     ],
-    "finalAnswer": "Dispersion",
+    "finalAnswer": "dispersion",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1 — a glass prism splitting a beam of white light into a spectrum of colours."
+    "diagramDescription": "Fig. 1 — a glass prism splitting a beam of white light into a spectrum of colours.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-HEYE-A-002",

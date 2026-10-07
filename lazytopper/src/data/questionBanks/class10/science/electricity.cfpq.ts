@@ -253,22 +253,23 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     subtopic: "Ammeter and Voltmeter Connections",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "Suresh arranges the electric circuit shown below to measure the current flowing through and the potential difference of a bulb.\n\nIs the circuit correct? If not, then identify the mistake.",
-    answer: "The circuit is incorrect. The positions of the ammeter and voltmeter have been interchanged.",
+      "Suresh arranges the electric circuit shown to measure the current through, and the potential difference across, a bulb. Which statement about the circuit is correct?",
+    answer: "It is incorrect: the ammeter and voltmeter have been interchanged",
     solutionSteps: [
-      "[½ mark] The circuit is incorrect.",
-      "[½ mark] The positions of the ammeter and voltmeter have been interchanged.",
+      "[1 mark] It is incorrect: the ammeter and voltmeter have been interchanged — the ammeter is across the bulb and the voltmeter is in series; they must be swapped."
     ],
-    finalAnswer: "No - the ammeter and voltmeter are swapped.",
+    finalAnswer: "It is incorrect: the ammeter and voltmeter have been interchanged",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
     requiresDiagram: true,
     diagramDescription:
       "A circuit with a cell on the left. An ammeter A is drawn on the upper branch in parallel across a bulb, and a voltmeter V is drawn in the lower branch in series with the main loop - the two meters are in each other's correct positions.",
+    options: ["It is incorrect: the ammeter and voltmeter have been interchanged", "It is correct as drawn", "It is incorrect: the cell terminals must be reversed", "It is incorrect: both meters should be in series with the bulb"],
+    sourceOverride: "others",
   },
   // pdf-page 103 (folio 102) — Q9 [1]. Rubric row 9: pdf-page 108.
   {
@@ -278,21 +279,23 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     subtopic: "Equivalent Resistance",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Applying",
     questionText:
-      "Study the circuit diagram given below. You are given one extra resistor. By drawing a new circuit diagram, show how you can connect the extra resistor to increase the reading on the ammeter in the circuit below.",
-    answer: "Connect the extra resistor in parallel with the existing resistor.",
+      "Study the circuit diagram. You are given one extra resistor. How should it be connected to INCREASE the reading on the ammeter?",
+    answer: "In parallel with the existing resistor",
     solutionSteps: [
-      "[1 mark] A circuit diagram showing the extra resistor connected in parallel with the resistor already in the circuit. Adding a resistor in parallel lowers the total resistance, so the current read by the ammeter increases.",
+      "[1 mark] In parallel with the existing resistor — a parallel resistor lowers the total resistance, so the current through the ammeter rises."
     ],
-    finalAnswer: "In parallel with the existing resistor.",
+    finalAnswer: "In parallel with the existing resistor",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
     requiresDiagram: true,
     diagramDescription:
       "A simple series circuit: a cell on the left, an ammeter A and a resistor drawn as a zig-zag along the top, and the return wire below, captioned 'Circuit'. A second, unconnected zig-zag resistor is drawn to the right, captioned 'Extra resistor'.",
+    options: ["In series with the existing resistor", "In parallel with the existing resistor", "In parallel with the ammeter", "In series between the cell and the ammeter"],
+    sourceOverride: "others",
   },
   // pdf-page 103 (folio 102) — Q10 [2]. Rubric row 10: pdf-page 108.
   {
@@ -355,20 +358,21 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     subtopic: "Electric Fuse and Short Circuit",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
-      "Observe the circuit shown below. All the three switches are open.\n\nIdentify the switch/switches that on being closed will cause the fuse to blow.",
+      "Observe the circuit shown. All three switches are open. Closing which switch/switches will cause the fuse to blow?",
     answer: "Switch 1 and Switch 2",
-    solutionSteps: ["[1 mark] Switch 1 and Switch 2. Closing Switch 1 completes the circuit through the fuse and the bulb. Switch 2 is connected across the bulb, so closing it as well short-circuits the bulb: the resistance becomes almost zero, a very large current flows through the fuse and it blows. Switch 3 has both its terminals on the same return wire, so closing it changes nothing."],
-    finalAnswer: "Switch 1 and Switch 2 together.",
+    solutionSteps: ["[1 mark] Switch 1 and Switch 2 — Switch 1 completes the circuit and Switch 2 short-circuits the bulb, so a very large current flows through the fuse."],
+    finalAnswer: "Switch 1 and Switch 2",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",
     requiresDiagram: true,
     diagramDescription:
       "A battery on the left; its upper terminal connects through a fuse and then Switch 1 along the top wire to the right-hand side, which runs down through a bulb to the bottom return wire back to the battery. Switch 2 is connected between the wire just above the bulb and the bottom wire, i.e. across the bulb. Switch 3 is connected between two points of the battery's lower (return) wire. All three switches are drawn open.",
     sourceOverride: "others",
+    options: ["Switch 1 only", "Switch 1 and Switch 3", "Switch 1 and Switch 2", "Switch 2 and Switch 3"],
   },
   // pdf-page 104 (folio 103) — Q14 [2]. Rubric row 14: pdf-page 109.
   {

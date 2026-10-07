@@ -78,7 +78,9 @@ describe("BANK-FIX-1 PR-1 · withheld rows are withheld", () => {
 // pins no longer apply: CC2-017 (branched-chain locant naming is beyond Class 10; now straight-chain
 // functional-group naming) and PR2-019 (two-ticket compound probability is beyond "simple problems";
 // now single-draw events). Their new keys go through the PR-2 independent re-solve and PR-2's own pins.
-const SUPERSEDED_BY_PR2: ReadonlySet<string> = new Set(["CC2-017", "PR2-019"]);
+// BANK-FIX-2 (2026-10-07, owner ruling: every 1-mark row is an MCQ): CBE-M-TRIG-A-002 is now a 4-option MCQ
+// keyed "not defined" (tan 90°); its new key is pinned by BANK_FIX_1_PR2 keyOptionIndex, re-solved blind (mcq batch).
+const SUPERSEDED_BY_PR2: ReadonlySet<string> = new Set(["CC2-017", "PR2-019", "CBE-M-TRIG-A-002"]);
 
 describe("BANK-FIX-1 PR-1 · objective keys resolve to the agreed option", () => {
   const objective = BANK_FIX_1_PR1.filter(

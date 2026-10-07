@@ -72,19 +72,20 @@ export const TRI_CBE: CanonicalQuestion[] = [
     "subtopic": "Basic Proportionality Theorem",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "In the figure, AB ∥ CD ∥ EF, with AC = 12 cm, BD = 9 cm, DF = 6 cm and CE = x. Given that x = 8 cm, find AE.",
-    "options": [],
-    "answer": "AE = 20 cm",
+    "questionText": "In the figure, AB ∥ CD ∥ EF, with AC = 12 cm, BD = 9 cm, DF = 6 cm and CE = x. Given that x = 8 cm, the length of AE is",
+    "options": ["18 cm", "20 cm", "15 cm", "21 cm"],
+    "answer": "20 cm",
     "solutionSteps": [
-      "[1 mark] AE = AC + CE = 12 + 8 = 20 cm."
+      "[1 mark] 20 cm — AE = AC + CE = 12 + 8 = 20 cm (consistent with 9/6 = 12/x, x = 8 cm)."
     ],
-    "finalAnswer": "AE = 20 cm",
+    "finalAnswer": "20 cm",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Three parallel lines AB ∥ CD ∥ EF cut by two transversals. On one transversal the points are A, C, E (with AC = 12 cm, CE = x = 8 cm); on the other transversal the points are B, D, F (with BD = 9 cm, DF = 6 cm). AE is to be found. This is part (b) of the item; part (a) establishes x = 8 cm."
+    "diagramDescription": "Three parallel lines AB ∥ CD ∥ EF cut by two transversals. On one transversal the points are A, C, E (with AC = 12 cm, CE = x = 8 cm); on the other transversal the points are B, D, F (with BD = 9 cm, DF = 6 cm). AE is to be found. This is part (b) of the item; part (a) establishes x = 8 cm.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRI-A-004",
