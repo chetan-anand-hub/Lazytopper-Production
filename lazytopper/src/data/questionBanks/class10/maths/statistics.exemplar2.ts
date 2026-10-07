@@ -102,7 +102,7 @@ export const STAT_EXEMPLAR2: CanonicalQuestion[] = [
     finalAnswer: "Mean weight = 123.4 kg.",
     ncertRef: "Exemplar Ex 13.3 Q7", isCompetencyBased: true },
 
-  { id: "STAT-N-EXEM2-13-SA-005", subject: "Maths", topicKey: "statistics", subtopic: "Mean and Interpretation", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating",
+  { id: "STAT-N-EXEM2-13-SA-005", competencyVerified: true, subject: "Maths", topicKey: "statistics", subtopic: "Mean and Interpretation", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "The mileage (km per litre) of 50 cars of the same model was tested: 10-12 → 7, 12-14 → 12, 14-16 → 18, 16-18 → 13. Find the mean mileage. The manufacturer claimed that the mileage of the model was 16 km/litre. Do you agree with this claim?",
     solutionSteps: ["[1 mark] Class marks are 11, 13, 15, 17 and Σfᵢ = 50.", "[1 mark] Σfᵢxᵢ = 7×11 + 12×13 + 18×15 + 13×17 = 77 + 156 + 270 + 221 = 724, so mean = 724/50 = 14.48 km/l.", "[1 mark] No — the mean mileage (14.48 km/l) is about 1.52 km/l less than the claimed 16 km/l, so the claim is not justified."],
     finalAnswer: "Mean ≈ 14.48 km/l; No, the claim of 16 km/l is not justified.",
