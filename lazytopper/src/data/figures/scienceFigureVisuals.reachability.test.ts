@@ -85,7 +85,9 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // the fixed text is self-contained), CBE-S-MAGN-B-005 and CTRL-EXMPLR-6-SA-003 unbound (rows withheld). Crops kept on disk.
     // 101 -> 100 at BANK-FIX-1 PR-2 phase B (2026-10-07): CBE-S-CTRL-A-005 unbound (row withheld: the figure shows an
     // upright seedling and no light source, so the item is undecidable). Crop kept on disk.
-    expect(batch1).toHaveLength(100);
+    // 100 -> 99 at DIAGRAMS-1 PR-3 (2026-10-07): CBE-S-LGHT-E-001 unbound (incomplete crop: two parallel arrows, no lens;
+    // the stem is self-contained after BANK-FIX). Row stays served; crop kept on disk.
+    expect(batch1).toHaveLength(99);
     // 49 = 3 Foundation + 12 chapter-wise + 17 board-paper (16 rows, ELEC-011 twice) + 13 preboard + 2 SQP + 2 APQ (FIG-SCI-2)
     // 49 -> 46 at LIGHT-FIX-1 stage 2 (2026-09-11): the 3 Foundation rows (FND-L-SPX-003/-004/-043) are
     // withheld as out-of-syllabus (beyond-board tier) and their bindings removed
@@ -100,7 +102,7 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // BANK-FIX. 4 of the 9 are bound but withheld (BOUND_BUT_WITHHELD in scienceFigureVisuals.ts). Each binding is pinned
     // one by one in scienceFigureVisuals.diagrams1.test.ts.
     expect(batch2).toHaveLength(48);
-    expect(batch).toHaveLength(100 + 48);
+    expect(batch).toHaveLength(99 + 48);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);

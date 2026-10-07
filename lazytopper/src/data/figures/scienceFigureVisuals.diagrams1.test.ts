@@ -44,6 +44,7 @@ const PR3_NOT_BOUND = [
   "LP-M11", // OUT: AI-pack row; no official figure exists
   "SQP-S-LIGHT-004", // DROPPED: BANK-FIX made the stem self-contained and the SQP lens figure gives away part (i) 'what kind of lens'
   "SCO-S-LIFE-003", "SCO-S-LIFE-011", "SCO-S-LIFE-020", // DROPPED: only source is the cbse.online / rava.org.in booklet, not official
+  "CBE-S-LGHT-E-001", // UNBOUND (trunk binding removed): Item Bank crop shows two parallel arrows and no lens; stem self-contained after BANK-FIX
 ];
 
 // Census 2026-10-07 Appendix 3: bound figures BANK-FIX-1 PR-2 found WRONG. PR-3 must never bind any of them.
