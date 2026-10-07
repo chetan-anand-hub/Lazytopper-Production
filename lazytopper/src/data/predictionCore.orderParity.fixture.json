@@ -119,8 +119,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 515,
-   "sha256": "eb8b08e1abd9af068ef25396bc82194a1ba5370f771974f7b3b325b9635fca7b",
+   "n": 517,
+   "sha256": "d1f4684f2bea511370652cad1d8b16820d59787f9d99ad583722467d0325d3e6",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -137,8 +137,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 519,
-   "sha256": "269502501aaf92beee6ee0412a6c725db0a9d68c934a274f7ef9ab8c283d3e38",
+   "n": 520,
+   "sha256": "a96c9980b1961a608cd5ab73fa8691fcb9c4ef06a4693d9bed63142275076acb",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
@@ -146,8 +146,8 @@
    ]
   },
   "carbon-and-its-compounds": {
-   "n": 363,
-   "sha256": "66eae459aa870af3c07c953521ea6c41e2e676e681c045776247527ea1f2157f",
+   "n": 362,
+   "sha256": "57431e8a72e6b72703afd0e3ffd94e928a3079c7518d12069ed0d4bead8a47ee",
    "head": [
     "LTG-S-CARB-274",
     "LTG-S-CARB-273",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 408,
-   "sha256": "9c603261b314b5e71f55ddf85b5b5685afd1f4d717691d6c3bdbeecb563dc9e4",
+   "n": 407,
+   "sha256": "9c2bca15a43d6db141c0fe6935255108735169c225ccbf799632eb13b16f6959",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -191,8 +191,8 @@
    ]
   },
   "life-processes": {
-   "n": 591,
-   "sha256": "612b5419f1fd93aa0a3618a59c5bef5cdca06548cf35c50187fe7a2b79bd7f7f",
+   "n": 590,
+   "sha256": "4ef08bef9becaab6a492130e331fb603a7a12a46207560656be13efa5c0bf631",
    "head": [
     "LTG-S-LIFE-257",
     "LTG-S-LIFE-216",
@@ -356,7 +356,7 @@
   },
   "chemical-reactions-and-equations": {
    "n": 73,
-   "sha256": "094d9e646bb9424d774d9d0396930ae2302350862b8612ed24f1b66927dd10f6",
+   "sha256": "de2760ab3d4f02ad906c1296a06e7ca2aea3674559ffeb25d02af263a6fe0053",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
@@ -374,7 +374,7 @@
   },
   "metals-and-non-metals": {
    "n": 113,
-   "sha256": "217210e1d5de1366d243a0d105baaea260a311c94120d4a48c91172f4ef2e4d5",
+   "sha256": "0012f89511663b9dbd03207f076fcb4e1c46f919ad6aaca24ae8f3d538a835ad",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
@@ -383,7 +383,7 @@
   },
   "carbon-and-its-compounds": {
    "n": 108,
-   "sha256": "91e597b534a0171581ee4ab2149b6580fed7b8ce82259596cb83abf3e6685c02",
+   "sha256": "657e8ef8a2ed27b693af2bb3b93ddd619f47178d5e7dae6ab57ed430acc6e19c",
    "head": [
     "Acid Properties\tCARB-EXMPLR-4-LONG-001",
     "Action of Soap in Hard Water\tCBE-S-CARB-C-005",
@@ -410,7 +410,7 @@
   },
   "electricity": {
    "n": 148,
-   "sha256": "7c9fb9d283b5f28f0a7c1c5eac8b6ccd867d860ad24f45a1b6294b8f8db6296f",
+   "sha256": "600995c70e3965ae38f164a4f2fd775179164b2aa9ed51cee6775e594eb9aca6",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
@@ -428,7 +428,7 @@
   },
   "life-processes": {
    "n": 131,
-   "sha256": "0cfe1e7952ed3003e1c8e7e1692910f69af38f24c9d8d970e0e9835a0b3fd4fb",
+   "sha256": "2f65b65ea6ef94973f4d3c4010d51dada836d63ef7336dd47f544858dc8746b0",
    "head": [
     "ATP\tLIFE-EXMPLR-5-SA-026",
     "Acidity in Stomach\tLIFE-EXMPLR-5-MCQ-006,LIFE-NCERT-5-VSA-005",

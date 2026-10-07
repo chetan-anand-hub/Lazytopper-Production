@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "carbon-and-its-compounds" (Science): 356 served rows from 19 source arrays, 22 withheld.
+// Chapter "carbon-and-its-compounds" (Science): 355 served rows from 18 source arrays, 22 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -16,7 +16,6 @@ import { CARB_CBE } from "../questionBanks/class10/science/carbon-and-its-compou
 import { CARB_SP } from "../questionBanks/class10/science/carbon-and-its-compounds.sp";
 import { CARBON_COMPOUNDS_APQ } from "../questionBanks/class10/science/carbon-and-its-compounds.additionalPQ";
 import { CARBON_COMPOUNDS_CHAPTERWISE } from "../questionBanks/class10/science/carbon-and-its-compounds.chapterwise";
-import { CHEMICAL_REACTIONS_PYQ } from "../questionBanks/class10/science/chemical-reactions-and-equations.pyq";
 import { CARBON_COMPOUNDS_PYQ } from "../questionBanks/class10/science/carbon-and-its-compounds.pyq";
 import { carbonCompoundsPYQ2026 } from "../questionBanks/class10/science/carbonCompounds.pyq2026";
 import { carbonCompoundsPYQ2025 } from "../questionBanks/class10/science/carbonCompounds.pyq2025";
@@ -37,7 +36,6 @@ export default defineChapter("carbon-and-its-compounds", [
   [233, CARB_SP, false],
   [272, CARBON_COMPOUNDS_APQ, false],
   [285, CARBON_COMPOUNDS_CHAPTERWISE, false],
-  [295, CHEMICAL_REACTIONS_PYQ, false],
   [298, CARBON_COMPOUNDS_PYQ, false],
   [362, carbonCompoundsPYQ2026, false],
   [375, carbonCompoundsPYQ2025, false],

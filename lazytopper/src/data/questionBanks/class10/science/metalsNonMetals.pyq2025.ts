@@ -24,7 +24,7 @@ export const metalsNonMetalsPYQ2025: CanonicalQuestion[] = [
     finalAnswer: "(c) Brass and Bronze",
     ncertRef: "PYQ 31/2/1 Q5", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1" },
-  { id: "PYQ-S-2025-METAL-003", subject: "Science", topicKey: "electricity", subtopic: "Resistivity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2025-METAL-003", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Alloys", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The resistivity of a wire made of an alloy is generally :",
     options: ["Lower than that of its constituent metals.", "Higher than that of its constituent metals.", "Decreases with increase in its area of cross-section.", "Increases with increase in its length."],
     answer: "Higher than that of its constituent metals.",

@@ -8,7 +8,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Coverage: 12 text-extractable QPs (31/2/x, 31/3/x, 31/4/x, 31/5/x); 3 scanned QPs (31/1/x) skipped — require OCR
 
 export const chemicalReactionsPYQ2026: CanonicalQuestion[] = [
-  { id: "PYQ-S-2026-CHEMRXN-001", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition — Photosynthesis", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2026-CHEMRXN-001", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The following events occur during the process of photosynthesis. Choose the option that indicates the correct events. (i) Oxidation of carbon dioxide to carbohydrates (ii) Conversion of light energy into chemical energy (iii) Absorption of light energy by chlorophyll (iv) Conversion of hydrogen and oxygen into water",
     options: ["(i) and (ii)", "(ii) and (iii)", "(iii) and (iv)", "(i) and (iv)"],
     answer: "(ii) and (iii)",
