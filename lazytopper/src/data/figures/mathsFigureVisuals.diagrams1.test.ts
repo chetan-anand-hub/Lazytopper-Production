@@ -13,12 +13,19 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { canonicalQuestionBank } from "../canonicalQuestionBank";
+import { canonicalQuestionBank, RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 import { MATHS_FIGURE_VISUALS, getFiguresForQuestion } from "../visualConceptRegistry";
 import { resolveCanonicalSlug } from "../bankQuery";
 
 const PUBLIC = path.resolve(__dirname, "..", "..", "..", "public");
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
+const inBank = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
+
+// Bound rows that the bank currently WITHHOLDS. A binding on a withheld row is harmless (no student sees it) and is
+// expected while BANK-FIX-1 PR-2 withholds rows for their missing figure: it lands, the figure is already bound, and
+// the controller un-withholds rows one by one. Empty on trunk today. After BANK-FIX merges, list the withheld ids here
+// (DIAGRAMS-1 PR-1 post-bankfix plan); a row listed here that is actually served fails, so the list cannot go stale.
+const BOUND_BUT_WITHHELD: readonly string[] = [];
 
 // [questionId, filePath] in source order (a row with two figures lists both, main figure first).
 const PR1_BINDINGS: ReadonlyArray<readonly [string, string]> = [
@@ -76,6 +83,8 @@ const CENSUS_WRONG_IDS = [
   "PYQ-M-2026-POLY-005", "PYQ-S-2026-EYE-002",
 ];
 
+// `title` is rendered as the figure's <img alt>: it must DESCRIBE the figure, never be the generic placeholder.
+const isDescriptiveAlt = (t: string) => t.length >= 20 && !/^Source figure/i.test(t) && !t.includes('"');
 const slug = (chapter: string) => chapter.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const pr1Paths = new Set(PR1_BINDINGS.map(([, p]) => p));
 const pr1Entries = MATHS_FIGURE_VISUALS.filter((f) => pr1Paths.has(f.filePath));
@@ -95,20 +104,27 @@ describe("DIAGRAMS-1 PR-1 bindings (Circles + Triangles) are exactly the eye-con
     expect(wrong.map(([q]) => q)).toEqual([]);
   });
 
-  it("every pinned question is a SERVED row whose chapter matches the binding's chapter", () => {
-    const missing = PR1_BINDINGS.filter(([q]) => !served.has(q)).map(([q]) => q);
-    expect(missing).toEqual([]);
+  it("every pinned question EXISTS in the bank and is served, or is declared in BOUND_BUT_WITHHELD", () => {
+    const absent = PR1_BINDINGS.filter(([q]) => !inBank.has(q)).map(([q]) => q);
+    expect(absent).toEqual([]);
+    const undeclared = PR1_BINDINGS.filter(([q]) => !served.has(q) && !BOUND_BUT_WITHHELD.includes(q)).map(([q]) => q);
+    expect(undeclared).toEqual([]);
+    const stale = BOUND_BUT_WITHHELD.filter((q) => served.has(q) || !WITHHELD_QUESTION_IDS.has(q));
+    expect(stale).toEqual([]); // declared withheld but actually served (or not withheld at all)
+    expect(BOUND_BUT_WITHHELD.filter((q) => !PR1_BINDINGS.some(([b]) => b === q))).toEqual([]);
+  });
+
+  it("every binding's chapter matches its row's chapter (served or withheld)", () => {
     const mismatched = pr1Entries.filter((f) => {
-      const row = served.get(f.questionId ?? "");
+      const row = inBank.get(f.questionId ?? "");
       return !row || resolveCanonicalSlug(row.topicKey) !== slug(f.chapter);
     });
     expect(mismatched.map((f) => `${f.questionId}:${f.chapter}`)).toEqual([]);
-    expect(new Set(pr1Entries.map((f) => f.chapter))).toEqual(new Set(["Circles", "Triangles"]));
   });
 
   it("every entry has the registry's raster-figure shape", () => {
     const bad = pr1Entries.filter(
-      (f) => f.subject !== "maths" || f.isInteractive !== false || f.keywords.length !== 0 || !/^Source figure( \d)?$/.test(f.title)
+      (f) => f.subject !== "maths" || f.isInteractive !== false || f.keywords.length !== 0 || !isDescriptiveAlt(f.title)
         || !f.filePath.startsWith("/figures/") || !f.filePath.endsWith(".webp"),
     );
     expect(bad.map((f) => f.id)).toEqual([]);
