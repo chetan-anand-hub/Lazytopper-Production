@@ -28,7 +28,7 @@ export interface BankFix3Entry {
   surface?: "hpq";
   fields: readonly string[];
   others: boolean;
-  resolve?: "pending";
+  resolve?: "pending" | "agree";
   category?: string;
   key?: string;
   /** 0-based option the stored key must resolve to (app resolver). */
@@ -56,8 +56,8 @@ export const BANK_FIX_3: readonly BankFix3Entry[] = [
   { id: "TRIG-PRF-C-003", verdict: "fixed", item: "3", fields: ["solutionSteps", "sourceOverride"], others: true, resolve: "pending", why: "Removed the unused common-denominator line and 'Wait — let's factor more carefully:'; the a³ + b³ route is kept." },
   { id: "APQ-M-TRI-006", verdict: "fixed", item: "3", fields: ["solutionSteps", "sourceOverride"], others: true, resolve: "pending", why: "Variant 2 stated 'Medians AD = ½BC, PM = ½QR' (false) then '(wait, ...)'. Rewritten: D, M are mid-points so BD/QM = BC/QR = AB/PQ; with ∠B = ∠Q, △ABD ~ △PQM (SAS) => AB/PQ = AD/PM." },
   // ── 4. key vs steps — not decided here ───────────────────────────────────────────────────────────
-  { id: "REP-M13", verdict: "held-for-resolve", item: "4", fields: [], others: false, resolve: "pending", key: "Both A and R are true, and R is the correct explanation of A.", keyOptionIndex: 0, why: "Key (a) but the steps argue a different A-R pair (self/cross-pollination) and conclude (d). Unchanged; sent answer-free to the bf3 blind re-solve." },
-  { id: "PLE-N01", verdict: "held-for-resolve", item: "4", fields: [], others: false, resolve: "pending", key: "Parallel lines", keyOptionIndex: 0, why: "Key (a) but the steps answer a different question ('graph is a straight line', option (c)). Unchanged; sent answer-free to the bf3 blind re-solve." },
+  { id: "REP-M13", verdict: "fixed", item: "4", fields: ["solutionSteps"], others: false, resolve: "agree", key: "Both A and R are true, and R is the correct explanation of A.", keyOptionIndex: 0, why: "Blind re-solve (bf3) chose (a): the key is correct. The steps argued a different A-R pair (self/cross-pollination) and concluded (D); replaced by one [1 mark] step justifying (a). finalAnswer already the option text. LT-authored pack row." },
+  { id: "PLE-N01", verdict: "fixed", item: "4", fields: ["finalAnswer", "solutionSteps"], others: false, resolve: "agree", key: "Parallel lines", keyOptionIndex: 0, why: "Blind re-solve (bf3) chose (a): the key is correct. The steps defined a linear equation and concluded (C) Straight line; replaced by one [1 mark] step (a1/a2 = b1/b2 != c1/c2). finalAnswer set to the option text. LT-authored pack row." },
   // ── 5. answer vs finalAnswer ─────────────────────────────────────────────────────────────────────
   { id: "APQ-M-CIRC-009", verdict: "fixed", item: "5", fields: ["answer", "sourceOverride"], others: true, resolve: "pending", key: "80°", keyOptionIndex: 2, why: "answer said '(cannot be uniquely determined ...)' but finalAnswer and the official MS give (c) 80° (∠K = 50° per the official figure). answer set to '80°'. The row stays WITHHELD (BANK-FIX-1 PR-2, 'figure'): the figure is still not bound." },
   // ── 6. explanation vs key — every one benign ─────────────────────────────────────────────────────

@@ -62,10 +62,10 @@ function scratchHits(rows: readonly Row[]): string[] {
 describe("BANK-FIX-3 · ledger and ids", () => {
   it("is non-vacuous and covers every verdict the lane used", () => {
     const by = (v: string) => BANK_FIX_3.filter((e) => e.verdict === v).length;
-    expect(by("fixed")).toBe(17);
+    expect(by("fixed")).toBe(19);
     expect(by("withheld")).toBe(3);
     expect(by("restored")).toBe(2);
-    expect(by("held-for-resolve")).toBe(2);
+    expect(by("held-for-resolve")).toBe(0);
     expect(by("flag-rejected")).toBe(7);
     expect(by("re-sourced-official")).toBe(1);
   });
@@ -135,9 +135,15 @@ describe("BANK-FIX-3 · changed rows are pinned to their final key / answer", ()
     expect(c.answer).toBe("80°");
     expect(String(c.finalAnswer)).toBe("(c) 80°");
   });
-  it("held-for-resolve rows are unchanged (their keys stay until the blind re-solve rules)", () => {
-    for (const e of BANK_FIX_3.filter((x) => x.verdict === "held-for-resolve")) {
-      expect(rawById.get(e.id)!.answer, e.id).toBe(e.key);
+  it("REP-M13 / PLE-N01 (blind re-solve agreed with the key): one [1 mark] step for option (a), no other option letter", () => {
+    for (const [id, fa] of [["REP-M13", "Both A and R are true, and R is the correct explanation of A."], ["PLE-N01", "Parallel lines"]] as const) {
+      const q = rawById.get(id)!;
+      const steps = q.solutionSteps as string[];
+      expect(steps.length, id).toBe(1);
+      expect(steps[0].startsWith("[1 mark] (a)"), id).toBe(true);
+      expect(steps[0], id).not.toMatch(/\(([b-dB-D])\)/);
+      expect(q.finalAnswer, id).toBe(fa);
+      expect(q.answer, id).toBe(fa);
     }
   });
 });
