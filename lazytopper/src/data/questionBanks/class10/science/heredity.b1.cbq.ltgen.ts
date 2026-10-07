@@ -2613,9 +2613,9 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "At a genetics laboratory in Chhindwara, Yamini studies fruit flies in which normal wings (N) are dominant over vestigial (small, shrivelled) wings (n). She mated two normal-winged flies and raised 200 offspring: 150 had normal wings and 50 had vestigial wings. About how many of the 150 normal-winged offspring are expected to carry the allele for vestigial wings?",
     "options": [
-      "100",
       "50",
       "75",
+      "100",
       "150"
     ],
     "answer": "100",

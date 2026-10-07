@@ -74,8 +74,7 @@ describe("CBQ-1 · generated Science CBQ packs: presentation", () => {
 
   it("each chapter's generated MCQs are keyed evenly across A–D (max − min ≤ 1)", () => {
     for (const [slug, qs] of byChapter) {
-      // ≤ 2: owner-ruled withholds (DEC-12, sex-determination cap) can take one key out of a perfectly balanced pack
-      expect(keySpread(qs.filter((q) => q.format === "MCQ")), slug).toBeLessThanOrEqual(2);
+      expect(keySpread(qs.filter((q) => q.format === "MCQ")), slug).toBeLessThanOrEqual(1);
     }
   });
 
@@ -94,5 +93,8 @@ describe("CBQ-1 · generated Science CBQ packs: presentation", () => {
     expect(partMarkProblems({ id: "X", marks: 3, questionText: "Stem\n(a) First?\n(b) Second?", solutionSteps: steps })).toHaveLength(2);
     expect(partMarkProblems({ id: "X", marks: 3, questionText: "Stem\n(a) First? [1 mark]\n(b) Second? [1 mark]", solutionSteps: steps })).toHaveLength(1);
     expect(partMarkProblems({ id: "X", marks: 3, questionText: "Stem\n(a) First? [1 mark]\n(b) Second? [2 marks]", solutionSteps: steps })).toEqual([]);
+    // "N mark each" is checked against the steps, not trusted
+    expect(partMarkProblems({ id: "X", marks: 3, questionText: "Stem [1 mark each]\n(a) First?\n(b) Second?", solutionSteps: steps })).toHaveLength(1);
+    expect(partMarkProblems({ id: "X", marks: 2, questionText: "Stem [1 mark each]\n(a) First?\n(b) Second?", solutionSteps: ["[1 mark] (a) one", "[1 mark] (b) two"] })).toEqual([]);
   });
 });
