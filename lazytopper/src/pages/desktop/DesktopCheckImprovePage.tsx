@@ -24,8 +24,9 @@ import QrAnswerHandoff from "../../components/qr/QrAnswerHandoff";
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../../components/upload/PageTray";
 import { gradingStageLabel, type GradingStage } from "../../ai/gradingTransport";
 import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../../ai/gradingJobs";
+import { recordableInterruptedRows, recordedIndicesOf } from "../../ai/gradingJobRecords";
 import GradingJobRows from "../../components/grading/GradingJobRows";
-import { useGradingJob } from "../../components/grading/useGradingJob";
+import { isGradingJobGone, useGradingJob } from "../../components/grading/useGradingJob";
 import MobileShell from "../../components/mobile/MobileShell";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
@@ -1647,6 +1648,63 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Multi-question grade: grade the WHOLE detected paper in one structured call
   // (the surface-agnostic worksheet grader), then fan each legible result through
   // Mistake Intelligence exactly as the worksheet grade loop does.
+  /** ONE graded C&I paper question → the MI front door + its score twin. Returns whether the
+   *  front door took it (the save-status signal). Shared by a finished grade and, J2b (D30-2),
+   *  by the FINAL graded rows of an interrupted background grade. */
+  async function recordCiQuestion(
+    g: WorksheetGradeResponse["results"][number],
+    gi: number,
+    results: WorksheetGradeResponse["results"],
+    questionIds: string[],
+    sessionCode: string,
+    paperFilingArg: { subject: ConfirmedDetection["subject"]; topicName: string; topicSlug: string },
+    paperMixedArg: boolean,
+  ): Promise<boolean> {
+    if (!detectedQuestions) return false;
+      if (g.couldNotRead) return false;
+      // PR-2 — an answer that was not graded (option unread, or it does not match its
+      // question) records nothing anywhere: no MI entry, no attempt (owner addendum).
+      if (!isGradedQuestion(g)) return false;
+      const csr = multiQuestionToCsr(g);
+      const questionId = questionIds[gi];
+      // OR-LIVE L1 — the text of THIS question (two questions printed "Q5" keep their own).
+      const qText =
+        detectedTextForResult(detectedQuestions, results, gi) ||
+        `${sessionCode} · Q${g.qNumber}`;
+      // B2 (GA-16) — this question's OWN subject and chapter, never the first question's.
+      const filing = perQuestionFiling(g, paperFilingArg, paperMixedArg);
+      // eslint-disable-next-line no-await-in-loop
+      const rec = await recordMistake(user, csr, {
+        subject: filing.subject,
+        topic: filing.topicName,
+        topicKey: filing.topicSlug,
+        question: qText,
+        questionId,
+        surface: "check-improve",
+        submissionId: sessionCode,
+      });
+      recordAttempt(user, {
+        subject: filing.subject,
+        topic: filing.topicName,
+        topicKey: filing.topicSlug,
+        question: qText,
+        questionId,
+        marksScored: csr.marksAwarded,
+        marksAvailable: csr.totalMarks,
+        mode: "graded",
+        // H1 — the same submission identity as the MI entry above.
+        surface: "check-improve",
+        submissionId: sessionCode,
+        grade: csr,
+      });
+      return (
+        rec.outcome === "logged" ||
+        rec.outcome === "duplicate" ||
+        rec.outcome === "skipped-clean" ||
+        rec.outcome === "skipped-not-attempted"
+      );
+  }
+
   async function gradeMultiQuestion(
     limitTo: number | null = null,
     mode: { resume?: boolean; continueFrom?: GradingJobInterruptedError } = {},
@@ -1836,51 +1894,12 @@ const DesktopCheckImprovePageInner: React.FC<{
         let anyRecorded = false;
         // B5 — stable per-question ids, unique even when detected numbers repeat.
         const questionIds = ciQuestionIds(sessionCode, shown.results);
+        // J2b (D30-2): rows recorded when the job was interrupted are not recorded twice.
+        const alreadyRecordedIdx = recordedIndicesOf(mode.continueFrom ?? null);
         for (const [gi, g] of shown.results.entries()) {
-          if (g.couldNotRead) continue;
-          // PR-2 — an answer that was not graded (option unread, or it does not match its
-          // question) records nothing anywhere: no MI entry, no attempt (owner addendum).
-          if (!isGradedQuestion(g)) continue;
-          const csr = multiQuestionToCsr(g);
-          const questionId = questionIds[gi];
-          // OR-LIVE L1 — the text of THIS question (two questions printed "Q5" keep their own).
-          const qText =
-            detectedTextForResult(detectedQuestions, shown.results, gi) ||
-            `${sessionCode} · Q${g.qNumber}`;
-          // B2 (GA-16) — this question's OWN subject and chapter, never the first question's.
-          const filing = perQuestionFiling(g, paperFiling, paperMixed);
+          if (alreadyRecordedIdx.has(gi)) continue;
           // eslint-disable-next-line no-await-in-loop
-          const rec = await recordMistake(user, csr, {
-            subject: filing.subject,
-            topic: filing.topicName,
-            topicKey: filing.topicSlug,
-            question: qText,
-            questionId,
-            surface: "check-improve",
-            submissionId: sessionCode,
-          });
-          recordAttempt(user, {
-            subject: filing.subject,
-            topic: filing.topicName,
-            topicKey: filing.topicSlug,
-            question: qText,
-            questionId,
-            marksScored: csr.marksAwarded,
-            marksAvailable: csr.totalMarks,
-            mode: "graded",
-            // H1 — the same submission identity as the MI entry above.
-            surface: "check-improve",
-            submissionId: sessionCode,
-            grade: csr,
-          });
-          if (
-            rec.outcome === "logged" ||
-            rec.outcome === "duplicate" ||
-            rec.outcome === "skipped-clean" ||
-            rec.outcome === "skipped-not-attempted"
-          ) {
-            anyRecorded = true;
-          }
+          if (await recordCiQuestion(g, gi, shown.results, questionIds, sessionCode, paperFiling, paperMixed)) anyRecorded = true;
         }
         setSaveStatus(anyRecorded ? "saved" : "no-user");
       } catch (e) {
@@ -1892,6 +1911,30 @@ const DesktopCheckImprovePageInner: React.FC<{
       if (ciJob.captureInterrupted(e)) {
         setGradeStage(null);
         setStatus("idle");
+        // J2b (D30-2) — the FINAL graded rows of the interrupted job are recorded now, exactly
+        // as a finished grade records them (same ids, so idempotent). No session record: an
+        // interrupted job has no totals (§6). A recording miss never hides the interruption.
+        const recordable = recordableInterruptedRows(e);
+        if (recordable.length > 0 && sessionCode) {
+          const code = sessionCode;
+          const allRows = [...(e as GradingJobInterruptedError).rows].sort((a, b) => a.index - b.index);
+          const ids = ciQuestionIds(code, allRows);
+          const skip = recordedIndicesOf(mode.continueFrom ?? null);
+          const filingBase = { subject: confirmed.subject, topicName: confirmed.topicName, topicSlug: confirmed.topicSlug };
+          const mixed = isMixedPaper(allRows);
+          try {
+            let any = false;
+            for (const { index, row } of recordable) {
+              if (skip.has(index)) continue;
+              // eslint-disable-next-line no-await-in-loop
+              if (await recordCiQuestion(row, index, allRows, ids, code, filingBase, mixed)) any = true;
+            }
+            setSaveStatus(any ? "saved" : "no-user");
+          } catch (recordErr) {
+            console.warn("[check-improve] interrupted-row record failed:", recordErr);
+            setSaveStatus("save-failed");
+          }
+        }
         return;
       }
       const refused = freeRefusalFor(e);
@@ -1915,8 +1958,10 @@ const DesktopCheckImprovePageInner: React.FC<{
       // LOW-END-1 R2: a dropped connection / timeout (after the transport's retries) says
       // so in a plain sentence; everything else keeps today's copy.
       setGradeStage(null);
+      // J2b (verifier N2): a background grade that is gone (404 / past 24 h after a reload) says
+      // so in its own honest sentence (isGradingJobGone), as Worksheets does.
       setErrorMessage(
-        e instanceof Error && e.name === "GradingNetworkError"
+        e instanceof Error && (e.name === "GradingNetworkError" || isGradingJobGone(e))
           ? e.message
           : "Grading unavailable — please try again.",
       );

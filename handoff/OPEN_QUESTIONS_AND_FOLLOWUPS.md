@@ -23,6 +23,67 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-07 — WAVE B-18 (CONTROLLER B): J2 (`#979` `678b9811`, `#980` `480b619c`), FLAKE-PDF (`#995` `67b2873c`), ME PR-2d (`#997` `d8a7d2f4`) — 8 closed, 3 new named, 3 older ids kept open (2 extended); `[PROD-AI-500]` resolved
+
+Sources: `Desktop/diff/WAVE_STATE_B18.md` (D30–D79, FU ENTRIES), the builder reports `report-j2-2026-10-06.md`, `report-flake-pdf-2026-10-07.md`, `report-me-engine-1-pr2d-2026-10-07.md`, the verifier records `verify-979-6ec3492d.md` / `verify-980-0a0c5484.md` / `verify-995-467d21ba.md` / `verify-997-a843f5d7.md`, the live records `live-970-L1-2026-10-07.md` / `live-995-2026-10-07.md`, and the board. **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3): the older headings for the closed ids still read OPEN where they were written; this section is where they close. The `live-997` record did not exist when this was written.
+
+### B-18 J2 / FLAKE-PDF / PR-2d — closed
+
+### `[FU-CI-FLAKE-CI-PDF-6MB]` — ✅ CLOSED by `#995` (`67b2873c`) · live PASS
+The "flaky" test was a **product race**: `usePageTray` derived its payload in a passive `useEffect`, so for one commit the tray showed 2 pages while Grade was still enabled on the stale 1-page JPEG (a fast tap could grade page 1 alone). `#995` makes it a `useLayoutEffect` — the payload is retracted in the same commit. Pinned by a MutationObserver probe (`<tray items>:<Grade D|E>` at every mutation); reverting the fix turns the new pin RED on its first iteration; no timeout changed, no test skipped. The effect covers all **five** hosts (the verifier added `ChapterTestUploadPanel`, which has no direct test). **Live (agent-reported):** 3/3 runs, Grade disabled at the first 2-page state, ONE 2-page `application/pdf`, graded 200, both pages read; a network drop resent once, charged once; account deleted and proven.
+
+### `[FU-J2-INTERRUPTED-UNRECORDED]` — ✅ CLOSED by `#980`
+An interrupted job's FINAL graded rows were charged but not written to MI / progress if the student never pressed "Grade the remaining N". Controller decision D30: record the final rows alone, via each surface's own per-question path (`src/ai/gradingJobRecords.ts`); a continued grade skips the already-recorded rows.
+
+### `[FU-J2-CI-SAME-SESSION-REUPLOAD]` — ✅ CLOSED by `#980` (verifier note N4)
+A C&I paper whose poll failed kept its job for the session code, so a different photo in the same session resumed the old job. `#980` stores a `bodyHash` (FNV-1a of the request JSON incl. the document); different content drops the kept job; a reload resume is unaffected.
+
+### `[FU-J2B-REOPEN]` — ✅ CLOSED
+`#980` was closed until `#979` merged (a stacked pair is lane-overlap red), then reopened with trunk merged in (5 conflicts resolved to J2b after proving trunk's copy equalled J2a) and merged 05:02:01Z.
+
+### `[FU-B18-L1-SECOND-DEVICE-PULL-LIVE]` — ✅ CLOSED by live PASS (agent-reported)
+After the owner restored production AI (Round 9), a throwaway account graded two answers on device A (200 in 39 s); a fresh device B showed A's wrong-answer log on first load (1273 ms); the account was deleted and proven (`live-970-L1-2026-10-07.md`). The earlier OWED entry stands as written for the date it was true.
+
+### `[ME-EASYMARKS-BELOW-GATE]` — ✅ CLOSED by `#997` (live finding 1 of `#970-L1`)
+Me's easy-marks (careless-marks) card showed below Me's own 6-graded-answer gate (gated only on `careless.hasData && marksLost > 0`, `#655`). Now it renders only when the paper's rung passes the imported `rungNamesWeakness`; mutation K1 RED.
+
+### `[WEAKAREA-NAMES-BELOW-GATE]` — ✅ CLOSED by `#997` (live finding 2)
+Weak Area Practice named a topic from one miss, showed the raw question id `AP-E15` as a concept and "0% complete" on a path. Now `namedWeakAreas` (the on-screen paper's gate + the area's own rung) drives the list, count tile, tab badge, "Start Targeted Session", "Generate Learning Path" and the Learning Path tab (below the gate "Not Enough Graded Yet"); `weakConceptLabel` drops an id / topic / `graded:` placeholder; "N% complete" appears only once a day is done. Mutations W1, W2, R1 RED. The "Closed This Week" tile and its banner were also removed (mastery-sourced, so a permanent 0).
+
+### `[WEAKAREA-STATUS-DEVICE-LOCAL]` — ✅ CLOSED by `#997` (live finding 3)
+The status label came from the device-local `confidenceScore` (device A "Review", device B "Needs Work" for the same area). Now `areaStatus(areaEvidence(model))` from the shared read model (same 0.6 / 0.3 cut-offs as the practice difficulty); no evidence = no badge. Two-device pin; mutation W3 RED.
+
+### B-18 J2 / PR-2d — new (ids named by this docs builder where the source gave none)
+
+### `[FU-J2B-MANIFEST-REASON-STRINGS]` — OPEN · LOW · cosmetic (verifier note, `#980`)
+The two entries `#980` added to `scripts/testClock/date-sensitive-tests.json` have hand-written reason strings; the manifest is otherwise generated. No behaviour impact.
+
+### `[FU-J2B-CI-INTERRUPTED-IDS-CONTRACT-6]` — OPEN · LOW (verifier note, `#980`)
+The C&I interrupted-row question ids are computed over the full interrupted row set on the assumption of contract §6 ("interrupted results carry every question"). If the server ever returns a subset, the ids could misalign. Pinned for today's server; J3's live measurement should confirm.
+
+### `[FU-J2-NETWORK-GIVEUP-NO-FALLBACK]` — RECORDED · ACCEPTED (verifier note N5, `#979`)
+After the bounded back-off (6 consecutive 503 / network failures) the client throws `GradingNetworkError` and KEEPS the job; it does not fall back to the synchronous path (a second submit could charge twice; contract §3 says retry with back-off). Safer than the dispatch wording; no action unless the owner wants a different give-up behaviour.
+
+### Kept open (extended)
+
+### `[FU-B18-WEAKAREA-LOCAL-LIST]` — OPEN · MEDIUM — EXTENDED by `#997`
+`#997` gated what the page NAMES, but the list's ORDER and the "Start Targeted Session" pick still come from the device-local `confidenceScore` (including the +15 for "no local attempts", `weakAreaAggregator.ts` ~L216), so two devices can order the list differently; the Learning-Path generator reads the ungated `getWeakAreas` (the All tab can include a below-gate paper's topic); a below-gate Learning Path tab still builds and saves a hidden path. Real fix: re-sort and pick on the synced evidence. Same root as `[FU-ME2-WEAKAREA-PRACTICEINSIGHTS-LOCAL]` (fold in). The "closed this week" banner part of the older entry is gone with `#997`.
+
+### `[FU-J2-WINDOWS-PAGE-FLAKE]` — OPEN · LOW
+Several `PracticePage` / `ChapterTestPage` suites time out on cold bank chunks on a Windows dev box; the same files fail on unmodified trunk (7 of 8 files in the builder's trunk run). CI linux is the judge. Pre-existing.
+
+### `[FU-J2-OWNER-WORDING]` — OPEN · OWNER OPTIONAL
+The J2 per-row copy "Not graded — the check was interrupted before this question was marked. You have not been charged for it" and the button "Grade the remaining N" were APPROVED as written by CI-1 on the board 2026-10-06T21:35Z under owner ruling 7 (GRADING-JOBS-1: "interrupted → remaining 'not graded', uncharged"). The owner may reword on return; the copy is dark behind `GRADING_JOBS` OFF.
+
+### `[FU-B18-ME-PR3-SKIPPED]` — OPEN · WAITING (no change)
+ME-ENGINE-1 PR-3 (concepts, G5 / G6) waits on C1's BANK-FIX-2 PR-3 (the concept map); C1 notifies B (owner Round 8).
+
+### `[FU-B18-J3-LIVE-JOB-PATH]` — OPEN · OWNER LIVE-VERIFY OWED (named by this docs builder)
+J2 changed a live grading round-trip but runs today's path while `GRADING_JOBS` is OFF, so its job path (202 + poll, provisional rows, resume, interrupted, 404 fall-back) is unit- and mutation-proven only. Controller A's J3 (draft `#1002` when written) must measure it live (OR-LIVE R0 proves the backend answers 202), then the owner confirms.
+
+### `[FU-B18-PR2D-LIVE-PENDING]` — OPEN · LIVE CHECK PENDING (named by this docs builder)
+`#997` (Me careless card + Weak Area names / count / progress / status, below and above the gate, on two devices) has a live check dispatched 05:15Z; its record was not present when this was written. Record the result here when it lands; never PASS before.
+
 ## 2026-10-07 — WAVE B-18 (CONTROLLER B): ME-ENGINE-1 PR-1 (`#964` `dfb83379`), PR-2 (`#968` `bab5ad0d`), PR-2b (`#970` `d1a8e88f`), PR-2c (`#983` `984bd663`) — 11 closed, 21 new open, 1 older id kept open; PR-3 skipped
 
 Sources: `Desktop/diff/WAVE_STATE_B18.md` (FU ENTRIES, D0–D43), the builder reports `report-me-engine-1-pr1/-pr2/-pr2b/-pr2c-2026-10-06.md` (Follow-ups), the verifier records `verify-970-4b69fdb8.md` / `verify-983-91174125.md`, the live records `live-after-me-engine-1-pr1/-pr2/-pr2b-2026-10-06.md`, `smoke-983-984bd663.md`, and the scout's gap table (`report-me-data-scout-1-2026-10-06.md` §7, G9 / G13). **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3); the closure of `[FU-ME-PROGRESS-CONSISTENCY-IST-MIDNIGHT]` (raised in the CI1 section below) is recorded here. Every FU id named here has its own heading (standing rule 1). The J2 lane's FUs (`#979`, not yet merged) are recorded by the J2 docs PR, not here.

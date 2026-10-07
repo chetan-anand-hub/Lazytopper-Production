@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "quadratic-equations" (Maths): 322 served rows from 19 source arrays, 13 withheld.
+// Chapter "quadratic-equations" (Maths): 429 served rows from 20 source arrays, 13 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -25,6 +25,7 @@ import { QUADRATIC_EQUATIONS_PYQ_2026 } from "../questionBanks/class10/maths/qua
 import { QUADRATIC_EQUATIONS_PYQ_2024 } from "../questionBanks/class10/maths/quadratic-equations.pyq2024";
 import { QUADRATIC_EQUATIONS_PYQ_2025 } from "../questionBanks/class10/maths/quadratic-equations.pyq2025";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
+import { QUADRATIC_EQUATIONS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/quadratic-equations.cbq.ltgen";
 
 export default defineChapter("quadratic-equations", [
   [12, QUADRATIC_EQUATIONS_PACK1, true],
@@ -46,6 +47,7 @@ export default defineChapter("quadratic-equations", [
   [337, QUADRATIC_EQUATIONS_PYQ_2024, false],
   [350, QUADRATIC_EQUATIONS_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
+  [450, QUADRATIC_EQUATIONS_CBQ_LT_GENERATED, false],
 ], [
   "QE-E13",
   "QE-M12",

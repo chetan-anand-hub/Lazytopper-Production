@@ -557,6 +557,9 @@ import { HEREDITY_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/he
 import { HUMAN_EYE_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/human-eye-and-colourful-world.b1.cbq.ltgen';
 // CBQ-1 C2 PR-6 — Our Environment CBQs of every mark (blind-solved; internal provenance).
 import { ENVIRONMENT_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/our-environment.b1.cbq.ltgen';
+import { STATISTICS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/statistics.cbq.ltgen';
+import { PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/pair-of-linear-equations.cbq.ltgen';
+import { QUADRATIC_EQUATIONS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/quadratic-equations.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1078,6 +1081,9 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...HUMAN_EYE_CBQ_B1_LT_GENERATED,
   // CBQ-1 C2 PR-6 — Our Environment CBQs of every mark.
   ...ENVIRONMENT_CBQ_B1_LT_GENERATED,
+  ...STATISTICS_CBQ_LT_GENERATED,
+  ...PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED,
+  ...QUADRATIC_EQUATIONS_CBQ_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------
@@ -1899,6 +1905,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LTG-S-EYE-207",              // persistence of vision
   "LTG-S-EYE-212",              // persistence of vision
   "LTG-S-EYE-215",              // persistence of vision
+  // ---- CBQ-1 C2 (owner ruling 2026-10-07 03:07Z, Option B): sex determination is a "brief introduction" in the
+  // 2026-27 syllabus — capped at 8 generated CBQs, no 5-mark rows; the excess is withheld (kept in the pack) ----
+  "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291",
+  "LTG-S-HERED-292", "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297",
+  "LTG-S-HERED-298", "LTG-S-HERED-299", // the two 5-mark sex-determination rows
 ]);
 
 /**
