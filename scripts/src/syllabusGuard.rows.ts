@@ -81,8 +81,9 @@ function strings(v: unknown, path: string, out: { path: string; text: string }[]
 }
 
 /** Student-visible fields of a question row, by role (controller ruling G3). */
-const QUESTION_KEYS = ["questionText", "question"] as const;
-const OPTION_KEYS = ["options"] as const;
+// assertion / reason / aROptions: the HPQ assertion-reason rows (HighlyProbableQuestions renders them).
+const QUESTION_KEYS = ["questionText", "question", "assertion", "reason"] as const;
+const OPTION_KEYS = ["options", "aROptions"] as const;
 const SOLUTION_KEYS = ["answer", "explanation", "solutionSteps", "finalAnswer", "strategyHint"] as const;
 
 export function rowFields(q: Record<string, unknown>): RowField[] {
@@ -114,6 +115,12 @@ export function chapterKeyForTitle(title: string, chapterKeys: Iterable<string>)
   return undefined;
 }
 
+/** A reference chapter key as-is, else the key whose name matches (chapterKeyForTitle), else undefined. */
+export function resolveChapterKey(value: string, chapterKeys: Iterable<string>): string | undefined {
+  const keys = [...chapterKeys];
+  return keys.includes(value) ? value : chapterKeyForTitle(value, keys);
+}
+
 export function collectServedRows(src: RowSourcesLike, chapterKeys: Iterable<string>): ServedRow[] {
   const keys = [...chapterKeys];
   const rows: ServedRow[] = [];
@@ -139,7 +146,10 @@ export function collectServedRows(src: RowSourcesLike, chapterKeys: Iterable<str
   }
   for (const raw of src.predicted) {
     const q = raw as Record<string, unknown>;
-    rows.push(base("predicted", q, typeof q.topicKey === "string" ? q.topicKey : undefined));
+    // Predicted rows carry a DISPLAY name in topicKey ("Statistics", "Areas Related to Circles"). The
+    // chapter-scoped rules (SEGMENT, BIMODAL, R1) compare a reference KEY, so resolve it; a name that
+    // matches no key ("LifeProcesses") is undefined, never a non-key string.
+    rows.push(base("predicted", q, typeof q.topicKey === "string" ? resolveChapterKey(q.topicKey, keys) : undefined));
   }
   return rows;
 }

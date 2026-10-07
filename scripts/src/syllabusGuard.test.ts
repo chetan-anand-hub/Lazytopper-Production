@@ -867,6 +867,59 @@ describe("GUARD-3 G2 — served rows: withheld rows are not served, every text f
   });
 });
 
+/** A planted PREDICTED row (display-name topicKey, as the predicted sets ship it), via the served-row path. */
+function plantedPredicted(q: Record<string, unknown>): G3.ServedRow {
+  const rows = G3.collectServedRows(
+    { rawBank: [], withheldIds: new Set(), hpq: [], predicted: [{ id: "PLANTED-PRED", subject: "Maths", marks: 3, ...q }] },
+    MATCHER.chapterKeys,
+  );
+  assert.equal(rows.length, 1);
+  return rows[0];
+}
+function predictedFindings(q: Record<string, unknown>, rule: G3.RuleId) {
+  return G3.scanRows([plantedPredicted(q)], G3_CTX, G3.ROW_RULES.filter((r) => r.id === rule)).map((f) => [f.rule, f.verdict, f.matched]);
+}
+
+describe("GUARD-3 G2 — PREDICTED rows resolve their display-name topicKey to a chapter key", () => {
+  test("a display name resolves to its key; a key stays a key; an unmatched name is undefined (never a non-key string)", () => {
+    assert.equal(plantedPredicted({ topicKey: "Areas Related to Circles" }).chapter, "areas-related-to-circles");
+    assert.equal(plantedPredicted({ topicKey: "Statistics" }).chapter, "statistics");
+    assert.equal(plantedPredicted({ topicKey: "real-numbers" }).chapter, "real-numbers");
+    assert.equal(plantedPredicted({ topicKey: "LifeProcesses" }).chapter, undefined);
+  });
+  test("CONTROL G4-SEGMENT-ANGLE: a PREDICTED minor segment of 100° FAILS", () => {
+    assert.deepEqual(
+      predictedFindings({ topicKey: "Areas Related to Circles", questionText: "A chord subtends 100° at the centre of a circle of radius 7 cm. Find the area of the minor segment." }, "G4-SEGMENT-ANGLE"),
+      [["G4-SEGMENT-ANGLE", "hit", "segment central angle 100°"]],
+    );
+  });
+  test("CONTROL G4-BIMODAL: a PREDICTED bimodal Statistics question FAILS", () => {
+    assert.deepEqual(
+      predictedFindings({ topicKey: "Statistics", questionText: "The following distribution is bimodal. Find both modes." }, "G4-BIMODAL"),
+      [["G4-BIMODAL", "hit", "bimodal/multimodal data"]],
+    );
+  });
+  test("CONTROL G4-R1-IRRATIONAL: a PREDICTED 'prove √15 irrational' FAILS", () => {
+    assert.deepEqual(
+      predictedFindings({ topicKey: "Real Numbers", questionText: "Prove that √15 is irrational." }, "G4-R1-IRRATIONAL"),
+      [["G4-R1-IRRATIONAL", "hit", "composite surd √15"]],
+    );
+  });
+  test("PASS look-alike: a PREDICTED 100° segment in another chapter, a 120° segment, a Biology 'two modes' stem and √5 all pass", () => {
+    assert.deepEqual(predictedFindings({ topicKey: "Coordinate Geometry", questionText: "Find the area of the minor segment cut by the line; the angle is 100°." }, "G4-SEGMENT-ANGLE"), []);
+    assert.deepEqual(predictedFindings({ topicKey: "Areas Related to Circles", questionText: "A chord subtends 120° at the centre. Find the area of the minor segment." }, "G4-SEGMENT-ANGLE"), []);
+    assert.deepEqual(predictedFindings({ topicKey: "how-do-organisms-reproduce", questionText: "Name the two modes of asexual reproduction in hydra." }, "G4-BIMODAL"), []);
+    assert.deepEqual(predictedFindings({ topicKey: "Real Numbers", questionText: "Prove that √5 is irrational." }, "G4-R1-IRRATIONAL").filter((x) => x[1] === "hit"), []);
+  });
+  test("HPQ assertion-reason fields are read: assertion, reason (question) and aROptions (option)", () => {
+    const rows = G3.collectServedRows(
+      { rawBank: [], withheldIds: new Set(), hpq: [{ topic: "Statistics", questions: [{ id: "H", assertion: "a", reason: "r", aROptions: ["o1", "o2"] }] }], predicted: [] },
+      MATCHER.chapterKeys,
+    );
+    assert.deepEqual(rows[0].fields.map((f) => [f.field, f.role]), [["assertion", "question"], ["reason", "question"], ["aROptions[0]", "option"], ["aROptions[1]", "option"]]);
+  });
+});
+
 describe("GUARD-3 G3-TEXT — OUT / FORMATIVE phrases in question text, options and solutions", () => {
   test("CONTROL: a planted question teaching the frustum of a cone FAILS", () => {
     assert.deepEqual(
