@@ -54,6 +54,7 @@ const {
   USAGE_LEDGER_COLLECTION,
   LEDGER_SEGMENTS,
   TRIAL_COUNTER_FIELDS,
+  LEDGER_SPEND_FIELD,
 } = require('../services/usageLedger.cjs');
 
 const ADMIN_STUDENTS_PATH = '/api/admin/students';
@@ -549,7 +550,7 @@ function createAdminStudentsRoutes(deps = {}) {
           ? studentDoc(USAGE_LEDGER_COLLECTION).collection(LEDGER_SEGMENTS.days).orderBy(docId, 'desc')
           : studentDoc(USAGE_LEDGER_COLLECTION).collection(LEDGER_SEGMENTS.days))
           .limit(DETAIL_LIMITS.usageDays)
-          .select('calls', 'costMicroInr', ...Object.values(TRIAL_COUNTER_FIELDS))
+          .select('calls', 'costMicroInr', LEDGER_SPEND_FIELD, ...Object.values(TRIAL_COUNTER_FIELDS))
       ),
       safeDocs(sessionRecords(uid).orderBy('gradedAt', 'desc').limit(DETAIL_LIMITS.sessions)
         .select('surface', 'subject', 'topicKeys', 'marksAwarded', 'marksTotal', 'status', 'gradedAt')),
@@ -605,7 +606,17 @@ function createAdminStudentsRoutes(deps = {}) {
     for (const d of usageDays || []) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(d.id)) continue;
       const v = d.data() || {};
-      const ai = { calls: countOf(v.calls), costInr: Math.round(countOf(v.costMicroInr) / 10000) / 100 };
+      // HARDEN-1 PR-2 (FU-A17-ADMIN-SPEND-FIELD): TWO separate numbers, never one copied into
+      // the other. `costInr` is the USAGE METER (costMicroInr — graded share only; what counts
+      // against the premium cap). `providerSpendInr` is the ACTUAL AI SPEND
+      // (providerSpendMicroInr — what the provider billed, written since #957). A day recorded
+      // before #957 has no spend field: null = "not recorded", never 0 and never the meter.
+      const spendRaw = v[LEDGER_SPEND_FIELD];
+      const providerSpendInr =
+        typeof spendRaw === 'number' && Number.isFinite(spendRaw) && spendRaw >= 0
+          ? Math.round(spendRaw / 10000) / 100
+          : null;
+      const ai = { calls: countOf(v.calls), costInr: Math.round(countOf(v.costMicroInr) / 10000) / 100, providerSpendInr };
       for (const [name, field] of Object.entries(TRIAL_COUNTER_FIELDS)) ai[name] = countOf(v[field]);
       dayOf(d.id).ai = ai;
     }
