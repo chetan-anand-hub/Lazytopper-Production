@@ -135,6 +135,7 @@ const {
   scheduleWarmPool,
 } = require('./services/warmQuestionPool.cjs');
 const { ensureGeneratedQuestionsTable } = require('./db/ensureGeneratedQuestionsTable.cjs');
+const { ensureStepSolutionsTable } = require('./db/ensureStepSolutionsTable.cjs');
 const { createQuestionReportRoutes } = require('./routes/questionReport.cjs');
 const { createAdminSolutionCacheRoutes } = require('./routes/adminSolutionCache.cjs');
 // Admin-gated READ path for the token + rate-limit telemetry. #540 wired the
@@ -911,7 +912,14 @@ server.listen(config.PORT, () => {
     ensureGeneratedQuestionsTable().catch(
       (e) => console.warn('[gen-q-schema] ensure failed:', e.message)
     );
+    // FU-STEP-SOLUTION-CACHE-TABLE: the "Show steps" cache table was never created,
+    // so every read/write 42P01'd into a miss and every request regenerated via AI.
+    // DDL only, fail-open: a DB error logs and the server keeps serving.
+    ensureStepSolutionsTable().catch(
+      (e) => console.warn('[step-solutions-schema] ensure failed:', e.message)
+    );
   } else {
     console.log('[gen-q-schema] skipped — STUB_MODE or no DATABASE_URL.');
+    console.log('[step-solutions-schema] skipped — STUB_MODE or no DATABASE_URL.');
   }
 });
