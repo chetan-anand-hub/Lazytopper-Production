@@ -46,10 +46,10 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // CBE-M-TRI-A-004, CBE-M-TRI-C-006, SP-M-2022-TRI-A-003; Z3-TG-110 is outside this batch). Crops kept on disk.
     // 86 -> 82 at QUICK-FIXES-1 PR-2 (2026-10-06): bindings of 4 withheld rows removed (CBE-M-ARC-C-001, CBE-M-ARC-C-002,
     // CBE-M-ARC-E-001, PYQ-M-ARC-005; owner ruling R3). Crops kept on disk.
-    // 82 -> 120 at DIAGRAMS-1 PR-1 (2026-10-07): +38 Circles/Triangles crops for 37 rows (board papers, APQ, SQP,
+    // 82 -> 121 at DIAGRAMS-1 PR-1 (2026-10-07): +39 Circles/Triangles crops for 38 rows (board papers, APQ, SQP,
     // NCERT). They share the /figures/<source>-maths/ prefixes this batch filters on; each binding is pinned one by
     // one in mathsFigureVisuals.diagrams1.test.ts. APQ-M-CIRC-007 carries two figures (main + OR part).
-    expect(batch).toHaveLength(120); // +2: CBE-M-CG-A-001 / CBE-M-CG-B-002 (Item Bank p230, rulings 1-4 PR)
+    expect(batch).toHaveLength(121); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {
