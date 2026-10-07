@@ -332,6 +332,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Basic Proportionality Theorem (Statement, Proof and Application)": "BPT (Basic Proportionality Theorem)",
     "Basic Proportionality Theorem (Thales)": "BPT (Basic Proportionality Theorem)",
     "Basic Proportionality Theorem — Application": "BPT (Basic Proportionality Theorem)",
+    "Basic Proportionality Theorem — Statement, Proof, and Application": "BPT (Basic Proportionality Theorem)", // DIAGRAMS-1 PR-1b: SQP-M-TRI-003 served again
     "Basic Proportionality Theorem — Statement and Application": "BPT (Basic Proportionality Theorem)",
     "Board-style proof checking": "Similarity Criteria",
     "Converse of BPT": "BPT (Basic Proportionality Theorem)",
@@ -461,6 +462,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Bisecting Arc": "Tangent Theorems & Proofs",
     "Circle Inscribed in Two Squares — Radius": "Tangent Properties",
     "Circumscribed Quadrilateral": "Tangent Theorems & Proofs",
+    "Inscribed Angle and Tangent — ∠OQN": "Tangent Properties", // DIAGRAMS-1 PR-1b: APQ-M-CIRC-010 served again (radius ⊥ tangent, as "Angle at Centre and Tangent")
     "Common Tangent — Two Semicircles": "Tangent Properties",
     "Concentric Circles": "Tangent Properties",
     "Cyclic Quadrilateral PQOR": "Tangent Properties",
@@ -822,6 +824,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Identifying Compounds": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Identifying Salts and Compounds": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Identifying a Base from Clues": "pH, Indicators & Strength",
+    "Importance of pH": "pH, Indicators & Strength",
     "Important Chemical Salts": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Important Salts/Compounds": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Indicators": "pH, Indicators & Strength",
@@ -832,6 +835,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Measurement of pH": "pH, Indicators & Strength",
     "Mild Basic Salt Identification": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Nature of Salts (Acidic Salt)": "pH, Indicators & Strength",
+    "Natural Indicators": "pH, Indicators & Strength",
     "Neutralisation in Daily Life": "pH, Indicators & Strength",
     "Neutralisation in Everyday Life": "pH, Indicators & Strength",
     "Neutralisation — Parent Acid and Base of Salts": "pH, Indicators & Strength",
@@ -1314,6 +1318,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Gastric Glands": "Nutrition & Respiration (Human + Plants)",
     "Haemoglobin": "Transportation & Excretion in Humans",
     "Heart": "Transportation & Excretion in Humans",
+    "Heart Anatomy — Chambers and Vessels": "Transportation & Excretion in Humans", // DIAGRAMS-1 PR-1b: APQ-S-LIFE-012 served again
     "Heart Chambers": "Transportation & Excretion in Humans",
     "Heart — Oxygenated Blood Inlet and Septum Significance": "Transportation & Excretion in Humans",
     "Human Digestive System": "Nutrition & Respiration (Human + Plants)",
@@ -1334,6 +1339,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Nutrition — Photosynthesis": "Nutrition & Respiration (Human + Plants)",
     "Nutrition — Saprophytic Mode (External Digestion)": "Nutrition & Respiration (Human + Plants)",
     "Nutrition — Saprophytic Nutrition": "Nutrition & Respiration (Human + Plants)",
+    "Oxygen Saturation vs Altitude": "Transportation & Excretion in Humans", // DIAGRAMS-1 PR-1b: APQ-S-LIFE-002 served again (haemoglobin O2 binding, as "Haemoglobin" / "Transport of Oxygen in Blood")
     "Parasites": "Nutrition & Respiration (Human + Plants)",
     "Peristalsis": "Nutrition & Respiration (Human + Plants)",
     "Peristalsis in Alimentary Canal": "Nutrition & Respiration (Human + Plants)",
