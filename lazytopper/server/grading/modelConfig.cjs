@@ -23,11 +23,15 @@
 // or the prompt is cached/trimmed (PR-2 report, owner decision).
 const DEFAULT_GRADING_MODEL = 'gemini-3.8-flash';
 // THINK-CAP-1 (GRADING-JOBS-1 ruling 7, "no paper ever times out"; decisions D50/D57/D58): a
-// thinking CEILING on every grading call (singles and paper/job chunks). With dynamic thinking the
-// same request swung 6-12x in thinking tokens, and single calls / 7-question job chunks ran into the
-// 78 s / 120 s caps (A-17 R6-AB, J1-LIVE, GOLDEN-RERUN reports). Chosen by data on the eval key
-// (THINK-CAP-1 report): the smallest ceiling that met every golden floor on the sample.
-// GRADING_THINKING_BUDGET still overrides it: a number >= 0 sets the ceiling, "-1" / "dynamic"
+// fixed thinkingBudget on every grading call (singles and paper/job chunks). With dynamic thinking
+// the same request swung 6-12x in thinking tokens, and single calls / 7-question job chunks ran into
+// the 78 s / 120 s caps (A-17 R6-AB, J1-LIVE, GOLDEN-RERUN reports).
+// MEASURED on the eval key (THINK-CAP-1 report, 2026-10-07): for gemini-3.8-flash this value is NOT
+// a ceiling. At 2048 the grading calls report no thinking tokens at all (and run ~3x faster); at
+// 4096 / 8192 they think MORE than dynamic (up to 5.8k / 7.7k tokens; 4096 hit the 78 s deadline).
+// 2048 is the value that removed every deadline abort while matching the dynamic baseline's marks
+// on the same items. Re-measure before changing it, or before changing the grading model.
+// GRADING_THINKING_BUDGET still overrides it: a number >= 0 sets the budget, "-1" / "dynamic"
 // restores the model's dynamic thinking (no settings change needed to ship; one env var reverts).
 const DEFAULT_GRADING_THINKING_BUDGET = 2048;
 // 'single' = every graded question goes to GRADING_MODEL. 'router' = the owner's routed
