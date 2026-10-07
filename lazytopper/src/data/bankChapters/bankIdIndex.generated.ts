@@ -1990,7 +1990,6 @@ export const BANK_ID_INDEX_SUBTOPICS: readonly string[] = [
   "Mean of Grouped Data — Two Groups Comparison",
   "Natural Indicators",
   "Importance of pH",
-  "Reactions of Metal Oxides with Acids",
 ];
 
 export const BANK_ID_INDEX_SECTIONS: readonly string[] = [
@@ -12561,7 +12560,7 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["LTG-S-ACID-307", 14, 110, 2],
   ["LTG-S-ACID-308", 14, 348, 2],
   ["LTG-S-ACID-309", 14, 1954, 4],
-  ["LTG-S-ACID-310", 14, 1955, 3],
+  ["LTG-S-ACID-310", 14, 387, 3],
   ["LTG-S-CHEMRXN-301", 13, 1923, 1],
   ["LTG-S-CHEMRXN-302", 13, 305, 1],
   ["LTG-S-CHEMRXN-303", 13, 102, 1],

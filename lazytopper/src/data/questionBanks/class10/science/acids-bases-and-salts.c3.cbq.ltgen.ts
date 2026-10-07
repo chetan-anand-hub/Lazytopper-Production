@@ -239,7 +239,7 @@ export const ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "id": "LTG-S-ACID-310",
     "subject": "Science",
     "topicKey": "acids-bases-and-salts",
-    "subtopic": "Reactions of Metal Oxides with Acids",
+    "subtopic": "Acids with Metal Oxides",
     "section": "D",
     "marks": 5,
     "format": "Long",
