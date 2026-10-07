@@ -88,8 +88,11 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // 46 -> 44 at MERGE-ELEC (2026-09-11): both removals land together (LIGHT-FIX-1 via #774 + ELEC-FIX-1) = 0 Foundation + 12 chapter-wise + 15 board-paper + 13 preboard + 2 SQP + 2 APQ.
     // 44 -> 43 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): SCO-S-MAG-016 unbound (row withheld; crop kept on disk).
     // 43 -> 42 at QUICK-FIXES-1 PR-2 (2026-10-06): SQP-S-CC-002 unbound (row withheld, owner ruling R6; crop kept on disk).
-    expect(batch2).toHaveLength(42);
-    expect(batch).toHaveLength(104 + 42);
+    // 42 -> 55 at DIAGRAMS-1 PR-3 (2026-10-07): +13 Light / Life Processes crops for 13 rows (7 board-paper 2023-2026,
+    // 1 SQP 2023-24, 2 APQ 2023-24, 3 chapter-wise) under the existing pyq/sqp/other/chapterwise prefixes; each binding is pinned
+    // one by one in scienceFigureVisuals.diagrams1.test.ts.
+    expect(batch2).toHaveLength(55);
+    expect(batch).toHaveLength(104 + 55);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);
