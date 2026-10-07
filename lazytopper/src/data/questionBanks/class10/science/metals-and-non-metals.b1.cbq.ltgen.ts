@@ -569,7 +569,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Iron",
     "solutionSteps": [
-      "[1 mark] Iron does not react with cold or hot water but reacts with steam to give black iron oxide (Fe₃O₄) and hydrogen, which burns with a pop. magnesium reacts with hot water, forming magnesium hydroxide, so it would have changed in the boiling water; copper does not react even with steam; sodium reacts with cold water."
+      "[1 mark] Iron does not react with cold or hot water but reacts with steam to give black iron oxide (Fe₃O₄) and hydrogen, which burns with a pop. Magnesium reacts with hot water, forming magnesium hydroxide, so it would have changed in the boiling water; copper does not react even with steam; sodium reacts with cold water."
     ],
     "finalAnswer": "Iron",
     "isCompetencyBased": true,
@@ -781,16 +781,17 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Ms Bose, a teacher in Durgapur, gives her class three clues about a grey metal M:\n(P) M shows no change in cold or hot water, but reacts when steam is passed over the heated metal, giving a gas that burns with a pop sound.\n(Q) The oxide of M reacts with dilute hydrochloric acid and also with sodium hydroxide solution, forming a salt and water each time.\n(R) M forms a sulphate with the formula MSO₄.\n(a) Identify M, and state which clue rules out aluminium. (1 mark)\n(b) Write the balanced chemical equations for the two reactions of the oxide of M described in clue (Q). (1 mark)\n(c) Write the balanced chemical equation for the reaction in clue (P). (1 mark)",
+    "questionText": "Ms Bose, a teacher in Durgapur, gives her class three clues about a grey metal M:\n(P) M shows no change in cold or hot water, but reacts when steam is passed over the heated metal, giving a gas that burns with a pop sound.\n(Q) The oxide of M reacts with dilute hydrochloric acid and also with sodium hydroxide solution, forming a salt and water each time.\n(R) M forms a sulphate with the formula MSO₄.\n(a) Identify M, and state which clue rules out aluminium. (1 mark)\n(b) Write the balanced chemical equations for the two reactions of the oxide of M described in clue (Q). (1 mark)\n(c) Write the balanced chemical equation, with state symbols, for the reaction in clue (P). (1 mark)",
     "options": [],
-    "answer": "(a) M is zinc; clue (R) rules out aluminium, whose sulphate is Al₂(SO₄)₃. (b) ZnO + 2HCl → ZnCl₂ + H₂O; ZnO + 2NaOH → Na₂ZnO₂ + H₂O. (c) Zn + H₂O → ZnO + H₂.",
+    "answer": "(a) M is zinc; clue (R) rules out aluminium, whose sulphate is Al₂(SO₄)₃. (b) ZnO + 2HCl → ZnCl₂ + H₂O; ZnO + 2NaOH → Na₂ZnO₂ + H₂O. (c) Zn(s) + H₂O(g) → ZnO(s) + H₂(g).",
     "solutionSteps": [
       "[1 mark] (a) Clues (P) and (Q) fit a metal that reacts only with steam and forms an amphoteric oxide; the formula MSO₄ in clue (R) shows a divalent metal, which rules out aluminium (Al₂(SO₄)₃). M is zinc.",
       "[0.5 mark] (b) With the acid, zinc oxide behaves as a base: ZnO + 2HCl → ZnCl₂ + H₂O.",
       "[0.5 mark] (b) With the alkali, zinc oxide behaves as an acid: ZnO + 2NaOH → Na₂ZnO₂ + H₂O (sodium zincate).",
-      "[1 mark] (c) Zinc reacts with steam to form zinc oxide and hydrogen: Zn + H₂O → ZnO + H₂."
+      "[0.5 mark] (c) Balanced equation: Zinc reacts with steam to form zinc oxide and hydrogen: Zn + H₂O → ZnO + H₂.",
+      "[0.5 mark] (c) State symbols: Zn(s) + H₂O(g) → ZnO(s) + H₂(g)"
     ],
-    "finalAnswer": "(a) M is zinc; clue (R) rules out aluminium, whose sulphate is Al₂(SO₄)₃. (b) ZnO + 2HCl → ZnCl₂ + H₂O; ZnO + 2NaOH → Na₂ZnO₂ + H₂O. (c) Zn + H₂O → ZnO + H₂.",
+    "finalAnswer": "(a) M is zinc; clue (R) rules out aluminium, whose sulphate is Al₂(SO₄)₃. (b) ZnO + 2HCl → ZnCl₂ + H₂O; ZnO + 2NaOH → Na₂ZnO₂ + H₂O. (c) Zn(s) + H₂O(g) → ZnO(s) + H₂(g).",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
@@ -1744,14 +1745,15 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Tenzin writes in his revision notes: \"Calcination and roasting both give a metal oxide, so zinc blende (ZnS) can either be calcined or roasted before reduction — either process will do.\"\n(a) Explain why Tenzin's statement is incorrect for zinc blende. [1 mark]\n(b) Write the balanced chemical equation for the process that must be used on zinc blende. [1 mark]",
+    "questionText": "Tenzin writes in his revision notes: \"Calcination and roasting both give a metal oxide, so zinc blende (ZnS) can either be calcined or roasted before reduction — either process will do.\"\n(a) Explain why Tenzin's statement is incorrect for zinc blende. [1 mark]\n(b) Write the balanced chemical equation, with state symbols, for the process that must be used on zinc blende. [1 mark]",
     "options": [],
-    "answer": "(a) Calcination (heating in limited air) suits carbonate ores; a sulphide ore must be heated in excess air so that sulphur is removed as SO₂ — only roasting does this. (b) 2ZnS + 3O₂ → 2ZnO + 2SO₂.",
+    "answer": "(a) Calcination (heating in limited air) suits carbonate ores; a sulphide ore must be heated in excess air so that sulphur is removed as SO₂ — only roasting does this. (b) 2ZnS(s) + 3O₂(g) —heat→ 2ZnO(s) + 2SO₂(g).",
     "solutionSteps": [
       "[1 mark] (a) Calcination is strong heating in a limited supply of air and is used for carbonate ores; converting ZnS to ZnO needs plenty of air to oxidise the sulphur to SO₂, which is roasting, so the two are not interchangeable.",
-      "[1 mark] (b) Roasting: 2ZnS(s) + 3O₂(g) → 2ZnO(s) + 2SO₂(g) (on strong heating)."
+      "[0.5 mark] (b) Balanced equation: Roasting: 2ZnS + 3O₂ → 2ZnO + 2SO₂ (on strong heating).",
+      "[0.5 mark] (b) State symbols (and condition over the arrow): 2ZnS(s) + 3O₂(g) —heat→ 2ZnO(s) + 2SO₂(g)"
     ],
-    "finalAnswer": "(a) Calcination (heating in limited air) suits carbonate ores; a sulphide ore must be heated in excess air so that sulphur is removed as SO₂ — only roasting does this. (b) 2ZnS + 3O₂ → 2ZnO + 2SO₂.",
+    "finalAnswer": "(a) Calcination (heating in limited air) suits carbonate ores; a sulphide ore must be heated in excess air so that sulphur is removed as SO₂ — only roasting does this. (b) 2ZnS(s) + 3O₂(g) —heat→ 2ZnO(s) + 2SO₂(g).",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
@@ -1819,16 +1821,17 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "To repair a broken iron shaft of a heavy machine at a remote quarry with no electricity supply, a welding team ignites a mixture of iron(III) oxide and aluminium powder around the joint. A trainee, Manoj, suggests that copper powder could be used in place of the aluminium powder.\n(a) Write the balanced chemical equation for the reaction that the team uses. [1 mark]\n(b) Will Manoj's suggestion work? Justify your answer using the reactivity of the metals. [1 mark]\n(c) Why does the iron formed come out as a liquid that can fill the gap in the shaft? [1 mark]",
+    "questionText": "To repair a broken iron shaft of a heavy machine at a remote quarry with no electricity supply, a welding team ignites a mixture of iron(III) oxide and aluminium powder around the joint. A trainee, Manoj, suggests that copper powder could be used in place of the aluminium powder.\n(a) Write the balanced chemical equation, with state symbols, for the reaction that the team uses. [1 mark]\n(b) Will Manoj's suggestion work? Justify your answer using the reactivity of the metals. [1 mark]\n(c) Why does the iron formed come out as a liquid that can fill the gap in the shaft? [1 mark]",
     "options": [],
-    "answer": "(a) Fe₂O₃ + 2Al → 2Fe + Al₂O₃ + heat. (b) No — copper is less reactive than iron, so it cannot take oxygen from iron(III) oxide; aluminium is more reactive than iron and can. (c) The reaction is highly exothermic, so the heat released melts the iron formed.",
+    "answer": "(a) Fe₂O₃(s) + 2Al(s) → 2Fe(l) + Al₂O₃(s) + heat. (b) No — copper is less reactive than iron, so it cannot take oxygen from iron(III) oxide; aluminium is more reactive than iron and can. (c) The reaction is highly exothermic, so the heat released melts the iron formed.",
     "solutionSteps": [
-      "[1 mark] (a) Thermite reaction: Fe₂O₃(s) + 2Al(s) → 2Fe(l) + Al₂O₃(s) + heat.",
+      "[0.5 mark] (a) Balanced equation: Thermite reaction: Fe₂O₃ + 2Al → 2Fe + Al₂O₃ + heat.",
+      "[0.5 mark] (a) State symbols: Fe₂O₃(s) + 2Al(s) → 2Fe(l) + Al₂O₃(s) + heat",
       "[0.5 mark] (b) No, the suggestion will not work.",
       "[0.5 mark] (b) Copper is below iron in the reactivity series, so it cannot displace iron from iron(III) oxide; aluminium is more reactive than iron and removes the oxygen.",
       "[1 mark] (c) The reaction is highly exothermic; the large amount of heat released raises the temperature above the melting point of iron, so the iron is formed in the molten state."
     ],
-    "finalAnswer": "(a) Fe₂O₃ + 2Al → 2Fe + Al₂O₃ + heat; (b) No — copper is less reactive than iron; (c) the reaction releases so much heat that the iron is molten.",
+    "finalAnswer": "(a) Fe₂O₃(s) + 2Al(s) → 2Fe(l) + Al₂O₃(s) + heat; (b) No — copper is less reactive than iron; (c) the reaction releases so much heat that the iron is molten.",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
@@ -2035,18 +2038,19 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "For a written project on how industries obtain metals, Arjun proposed these plans:\nPlan 1 — Sodium: heat sodium chloride strongly with coke.\nPlan 2 — Manganese: heat manganese dioxide with aluminium powder.\nPlan 3 — Zinc: heat zinc blende (ZnS) directly with coke.\n(a) Plan 1 will not work. Explain why, and describe the correct method, naming the electrode at which sodium is obtained. [2 marks]\n(b) Plan 2 will work. Write the balanced chemical equation and state why aluminium can be used. [1 mark]\n(c) Plan 3 misses an essential step. Name the missing step and write balanced chemical equations for that step and for the reduction that follows it. [2 marks]",
+    "questionText": "For a written project on how industries obtain metals, Arjun proposed these plans:\nPlan 1 — Sodium: heat sodium chloride strongly with coke.\nPlan 2 — Manganese: heat manganese dioxide with aluminium powder.\nPlan 3 — Zinc: heat zinc blende (ZnS) directly with coke.\n(a) Plan 1 will not work. Explain why, and describe the correct method, naming the electrode at which sodium is obtained. [2 marks]\n(b) Plan 2 will work. Write the balanced chemical equation and state why aluminium can be used. [1 mark]\n(c) Plan 3 misses an essential step. Name the missing step and write balanced chemical equations, with state symbols, for that step and for the reduction that follows it. [2 marks]",
     "options": [],
-    "answer": "(a) Sodium is very high in the reactivity series, so carbon cannot reduce its compounds; sodium is obtained by electrolytic reduction of molten sodium chloride, with sodium at the cathode (Na⁺ + e⁻ → Na) and chlorine at the anode. (b) 3MnO₂ + 4Al → 3Mn + 2Al₂O₃ + heat; aluminium is more reactive than manganese. (c) Roasting: 2ZnS + 3O₂ → 2ZnO + 2SO₂; then ZnO + C → Zn + CO.",
+    "answer": "(a) Sodium is very high in the reactivity series, so carbon cannot reduce its compounds; sodium is obtained by electrolytic reduction of molten sodium chloride, with sodium at the cathode (Na⁺ + e⁻ → Na) and chlorine at the anode. (b) 3MnO₂ + 4Al → 3Mn + 2Al₂O₃ + heat; aluminium is more reactive than manganese. (c) Roasting: 2ZnS(s) + 3O₂(g) → 2ZnO(s) + 2SO₂(g); then ZnO(s) + C(s) —heat→ Zn(s) + CO(g).",
     "solutionSteps": [
       "[1 mark] (a) Sodium is a highly reactive metal near the top of the reactivity series; it holds chlorine (and oxygen) more strongly than carbon can, so heating with coke cannot give sodium.",
       "[1 mark] (a) Sodium is obtained by electrolytic reduction of molten sodium chloride: sodium is deposited at the cathode (Na⁺ + e⁻ → Na) and chlorine is released at the anode.",
       "[0.5 mark] (b) 3MnO₂(s) + 4Al(s) → 3Mn(l) + 2Al₂O₃(s) + heat.",
       "[0.5 mark] (b) Aluminium is more reactive than manganese, so it removes oxygen from manganese dioxide (displacement).",
       "[1 mark] (c) Missing step: roasting (heating strongly in excess air): 2ZnS(s) + 3O₂(g) → 2ZnO(s) + 2SO₂(g).",
-      "[1 mark] (c) Reduction of the oxide with carbon: ZnO(s) + C(s) → Zn(s) + CO(g)."
+      "[0.5 mark] (c) Balanced equation: Reduction of the oxide with carbon: ZnO + C → Zn + CO.",
+      "[0.5 mark] (c) State symbols (and condition over the arrow): ZnO(s) + C(s) —heat→ Zn(s) + CO(g)"
     ],
-    "finalAnswer": "(a) Electrolysis of molten NaCl — Na at the cathode; (b) 3MnO₂ + 4Al → 3Mn + 2Al₂O₃, Al more reactive than Mn; (c) roasting 2ZnS + 3O₂ → 2ZnO + 2SO₂, then ZnO + C → Zn + CO.",
+    "finalAnswer": "(a) Electrolysis of molten NaCl — Na at the cathode; (b) 3MnO₂ + 4Al → 3Mn + 2Al₂O₃, Al more reactive than Mn; (c) roasting 2ZnS(s) + 3O₂(g) → 2ZnO(s) + 2SO₂(g), then ZnO(s) + C(s) —heat→ Zn(s) + CO(g).",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
