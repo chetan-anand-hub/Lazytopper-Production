@@ -262,7 +262,7 @@ export const BANK_FIX_1_PR1: readonly BankFix1Entry[] = [
 // ===== BANK-FIX-1 PR-2 (2026-10-07) — broken tagging, ambiguous keys, missing figures, fallback answers =====
 //
 // One entry per (surface, id) whose RUNTIME row this PR changed — measured, not declared: a dump of
-// trunk 678b9811 (before) against this branch (after). `fields` are the runtime fields that differ.
+// trunk 62a28977 (before) against this branch (after). `fields` are the runtime fields that differ.
 //   verdict "fixed"          — content changed (stem / options / key / steps / explanation); every served
 //                              one was re-solved by an INDEPENDENT solver that never saw the key
 //                              (`resolve`): "agree" (blind batch), "agree-with-figure" (solver saw the bound
@@ -336,18 +336,18 @@ export const BANK_FIX_1_PR2_DUPLICATE_PAIRS: readonly (readonly [string, string]
   ["TRIG2-M07", "TG3-020"],
 ];
 
-/** Served rows per chapter, trunk 678b9811 (before) → this PR (after): [before, after] per surface. */
+/** Served rows per chapter, trunk 62a28977 (before) → this PR (after): [before, after] per surface. */
 export const BANK_FIX_1_PR2_SERVED_COUNTS: readonly { chapter: string; bank: readonly [number, number]; hpq: readonly [number, number]; predicted: readonly [number, number]; promptD: readonly [number, number] }[] = [
   { chapter: "arithmetic-progression", bank: [355, 353], hpq: [6, 6], predicted: [11, 11], promptD: [10, 10] },
   { chapter: "areas-related-to-circles", bank: [196, 189], hpq: [1, 1], predicted: [3, 3], promptD: [10, 10] },
   { chapter: "circles", bank: [235, 215], hpq: [2, 2], predicted: [7, 7], promptD: [9, 9] },
   { chapter: "coordinate-geometry", bank: [265, 259], hpq: [2, 2], predicted: [6, 6], promptD: [5, 5] },
-  { chapter: "pair-of-linear-equations", bank: [337, 335], hpq: [8, 8], predicted: [13, 13], promptD: [10, 9] },
+  { chapter: "pair-of-linear-equations", bank: [440, 438], hpq: [8, 8], predicted: [13, 13], promptD: [10, 9] },
   { chapter: "polynomials", bank: [240, 241], hpq: [4, 4], predicted: [6, 8], promptD: [9, 9] },
   { chapter: "probability", bank: [212, 209], hpq: [6, 6], predicted: [8, 8], promptD: [10, 10] },
-  { chapter: "quadratic-equations", bank: [322, 315], hpq: [7, 7], predicted: [14, 12], promptD: [10, 10] },
+  { chapter: "quadratic-equations", bank: [429, 422], hpq: [7, 7], predicted: [14, 12], promptD: [10, 10] },
   { chapter: "real-numbers", bank: [236, 227], hpq: [4, 4], predicted: [4, 4], promptD: [9, 9] },
-  { chapter: "statistics", bank: [197, 195], hpq: [6, 6], predicted: [15, 15], promptD: [10, 8] },
+  { chapter: "statistics", bank: [306, 304], hpq: [6, 6], predicted: [15, 15], promptD: [10, 8] },
   { chapter: "surface-areas-and-volumes", bank: [176, 171], hpq: [1, 1], predicted: [8, 8], promptD: [9, 9] },
   { chapter: "triangles", bank: [425, 406], hpq: [4, 4], predicted: [6, 6], promptD: [5, 5] },
   { chapter: "trigonometry", bank: [496, 485], hpq: [8, 8], predicted: [13, 13], promptD: [57, 38] },
