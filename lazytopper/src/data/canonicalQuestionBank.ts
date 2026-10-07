@@ -544,6 +544,10 @@ import { ACIDS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/acids
 import { CARBON_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/carbon-and-its-compounds.b1.cbq.ltgen';
 import { TRIGONOMETRY_CBQ_LT_GENERATED } from './questionBanks/class10/maths/trigonometry.cbq.ltgen';
 import { TRIANGLES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/triangles.cbq.ltgen';
+// CBQ-1 C2 PR-4 — Chemical Reactions, Control, Reproduction CBQs of every mark (blind-solved; internal provenance).
+import { CHEM_REACTIONS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/chemical-reactions-and-equations.b1.cbq.ltgen';
+import { CONTROL_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/control-and-coordination.b1.cbq.ltgen';
+import { REPRODUCTION_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/how-do-organisms-reproduce.b1.cbq.ltgen';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1052,6 +1056,10 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...CARBON_CBQ_B1_LT_GENERATED,
   ...TRIGONOMETRY_CBQ_LT_GENERATED,
   ...TRIANGLES_CBQ_LT_GENERATED,
+  // CBQ-1 C2 PR-4 — Chemical Reactions, Control, Reproduction CBQs of every mark.
+  ...CHEM_REACTIONS_CBQ_B1_LT_GENERATED,
+  ...CONTROL_CBQ_B1_LT_GENERATED,
+  ...REPRODUCTION_CBQ_B1_LT_GENERATED,
 ];
 
 // ---------------------------------------------------------------------------
