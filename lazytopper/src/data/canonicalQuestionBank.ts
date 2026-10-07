@@ -548,6 +548,10 @@ import { TRIANGLES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/triang
 import { CHEM_REACTIONS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/chemical-reactions-and-equations.b1.cbq.ltgen';
 import { CONTROL_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/control-and-coordination.b1.cbq.ltgen';
 import { REPRODUCTION_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/how-do-organisms-reproduce.b1.cbq.ltgen';
+// CBQ-1 C2 PR-5 — Metals, Heredity, Human Eye CBQs of every mark (blind-solved; internal provenance).
+import { METALS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/metals-and-non-metals.b1.cbq.ltgen';
+import { HEREDITY_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/heredity.b1.cbq.ltgen';
+import { HUMAN_EYE_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/human-eye-and-colourful-world.b1.cbq.ltgen';
 // CBQ-1 C2 PR-6 — Our Environment CBQs of every mark (blind-solved; internal provenance).
 import { ENVIRONMENT_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/our-environment.b1.cbq.ltgen';
 
@@ -1062,6 +1066,10 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...CHEM_REACTIONS_CBQ_B1_LT_GENERATED,
   ...CONTROL_CBQ_B1_LT_GENERATED,
   ...REPRODUCTION_CBQ_B1_LT_GENERATED,
+  // CBQ-1 C2 PR-5 — Metals, Heredity, Human Eye CBQs of every mark.
+  ...METALS_CBQ_B1_LT_GENERATED,
+  ...HEREDITY_CBQ_B1_LT_GENERATED,
+  ...HUMAN_EYE_CBQ_B1_LT_GENERATED,
   // CBQ-1 C2 PR-6 — Our Environment CBQs of every mark.
   ...ENVIRONMENT_CBQ_B1_LT_GENERATED,
 ];
