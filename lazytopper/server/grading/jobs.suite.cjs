@@ -13,6 +13,8 @@
 //   5 switch OFF ⇒ sync byte-identical · 6 final:true rows never change at done ·
 //   7 an erased record is never re-created · 8 the 5th job queues.
 // Plus D12 (the premium meter's context follows a QUEUED job) and D14 (job timing).
+// J3 (controller D71): the switch is ON by default; GRADING_JOBS=0/off/false is the kill switch
+// (J3 SWITCH 1-6; the env → handler case reuses PIN 5's byte-identical sync proof).
 //
 // Named *.suite.cjs, NOT *.test.cjs: checkSolution.test.cjs requires it, so it runs in CI under
 // test:server:check-solution (the matrix-wiring guard enumerates *.test.cjs files that need their own
@@ -449,6 +451,62 @@ test('J1 PIN 5 · SWITCH OFF (or any missing condition) ⇒ the synchronous 200,
   assert.equal(h.recordOf('stu-1', jobIdFor(KEY(9))).job, undefined);
 });
 
+/* ═══════════ J3 (controller D71) · the switch is ON BY DEFAULT; GRADING_JOBS is a kill switch ═══════════ */
+const { describeGradingJobsSwitch, resolveGradingJobsSwitch, resolveConfig } = require('../services/serverConfig.cjs');
+const UNRECOGNISED_NOTE = 'GRADING_JOBS=1(unrecognised value; use 0/off/false to turn jobs off)';
+const switchCase = (env, on, envNote) => {
+  assert.deepEqual(describeGradingJobsSwitch(env), { on, envNote }, JSON.stringify(env));
+  assert.equal(resolveGradingJobsSwitch(env), on, 'resolveGradingJobsSwitch agrees: ' + JSON.stringify(env));
+};
+
+test('J3 SWITCH 1 · unset / empty / whitespace ⇒ ON (the new default), with no ENV_USED note', () => {
+  for (const env of [{}, { GRADING_JOBS: undefined }, { GRADING_JOBS: '' }, { GRADING_JOBS: '   ' }, null]) switchCase(env, true, null);
+});
+
+test('J3 SWITCH 2 · "0" / "off" / "false" (trimmed, any case) ⇒ OFF, the kill switch', () => {
+  for (const v of ['0', 'off', 'false', 'OFF', 'Off', 'FALSE', ' false ', '\t0\n', ' oFf ']) switchCase({ GRADING_JOBS: v }, false, 'GRADING_JOBS=off');
+});
+
+test('J3 SWITCH 3 · "1" / "on" / "true" (trimmed, any case) ⇒ ON', () => {
+  for (const v of ['1', 'on', 'true', 'ON', 'True', ' 1 ', ' TRUE ']) switchCase({ GRADING_JOBS: v }, true, 'GRADING_JOBS=1');
+});
+
+test('J3 SWITCH 4 · any other value ⇒ ON (fail-open: a typo never silently turns jobs off) + an ENV_USED note', () => {
+  for (const v of ['yes', 'no', '2', '00', 'disabled', 'of', 'offf', 'f', 'null']) switchCase({ GRADING_JOBS: v }, true, UNRECOGNISED_NOTE);
+});
+
+test('J3 SWITCH 5 · resolveConfig (what index.cjs serves) carries the switch and its ENV_USED note', () => {
+  const saved = { ...process.env };
+  const restore = () => {
+    for (const k of Object.keys(process.env)) if (!(k in saved)) delete process.env[k];
+    Object.assign(process.env, saved);
+  };
+  const run = (value) => {
+    if (value === undefined) delete process.env.GRADING_JOBS; else process.env.GRADING_JOBS = value;
+    try { const c = resolveConfig(); return { on: c.GRADING_JOBS, notes: c.ENV_USED.filter((n) => n.startsWith('GRADING_JOBS')) }; } finally { restore(); }
+  };
+  assert.deepEqual(run(undefined), { on: true, notes: [] }, 'unset → ON, no note');
+  assert.deepEqual(run(''), { on: true, notes: [] }, 'empty → ON, no note');
+  assert.deepEqual(run(' Off '), { on: false, notes: ['GRADING_JOBS=off'] }, 'kill switch');
+  assert.deepEqual(run('true'), { on: true, notes: ['GRADING_JOBS=1'] }, 'explicit on');
+  assert.deepEqual(run('banana'), { on: true, notes: [UNRECOGNISED_NOTE] }, 'unrecognised → ON + note');
+});
+
+test('J3 SWITCH 6 · env → handler: a kill-switch value gives the synchronous 200 BYTE-IDENTICAL to the no-jobs server; every other value gives a 202 job', async () => {
+  const baseline = await harness({ withJobs: false }).submit({ key: KEY(50), prefer: false, payload: typedPaper(4) });
+  assert.equal(baseline.statusCode, 200);
+  for (const v of ['0', 'off', 'false', ' OFF ']) {
+    const r = await harness({ switchOn: resolveGradingJobsSwitch({ GRADING_JOBS: v }) }).submit({ key: KEY(50), payload: typedPaper(4) });
+    assert.equal(r.statusCode, 200, JSON.stringify(v) + ' → sync');
+    assert.equal(r.body, baseline.body, JSON.stringify(v) + ': byte-identical to the no-jobs server');
+  }
+  for (const env of [{}, { GRADING_JOBS: '' }, { GRADING_JOBS: '1' }, { GRADING_JOBS: 'on' }, { GRADING_JOBS: 'banana' }]) {
+    const r = await harness({ switchOn: resolveGradingJobsSwitch(env) }).submit({ key: KEY(51), payload: typedPaper(4) });
+    assert.equal(r.statusCode, 202, JSON.stringify(env) + ' → a job');
+    assert.equal(JSON.parse(r.body).jobId, jobIdFor(KEY(51)));
+  }
+});
+
 /* ════════════════════════════════════ PIN 6 ════════════════════════════════════ */
 test('J1 PIN 6 · FINAL ROWS NEVER CHANGE AT DONE; done body == the synchronous body', async () => {
   const inventoryOf = (ids) => {
@@ -608,12 +666,14 @@ test('J1 D14 · a job grades in chunks of 8 with the 120 s per-call cap; the syn
 });
 
 /* ═══════════ CORS · the opt-in header is allowed; the poll route is live with the switch OFF ═══════════ */
-test('J1 CORS · the REAL server (switch unset) preflights `Prefer` on the submit and the poll, and the poll answers 401 without a token', async () => {
+// J3: run twice: switch UNSET (now the default, ON) and the kill switch OFF ("0"), where the contract
+// (§8) says the poll route and its preflight stay live.
+for (const [label, switchValue, portOffset] of [['switch unset = ON', undefined, 0], ['kill switch GRADING_JOBS=0', '0', 1]]) test('J1 CORS · the REAL server (' + label + ') preflights `Prefer` on the submit and the poll, and the poll answers 401 without a token', async () => {
   const path = require('path');
   const { spawn } = require('child_process');
-  const port = 39000 + (process.pid % 900);
+  const port = 39000 + ((process.pid * 2 + portOffset) % 1800);
   const env = { ...process.env, PORT: String(port), API_KEY: '', AI_PROVIDER: '', GEMINI_API_KEY: '', GRADING_JOBS: '' };
-  delete env.GRADING_JOBS;
+  if (switchValue === undefined) delete env.GRADING_JOBS; else env.GRADING_JOBS = switchValue;
   const child = spawn(process.execPath, [path.join(__dirname, '..', 'index.cjs')], { env, stdio: 'ignore' });
   try {
     const base = 'http://127.0.0.1:' + port;
@@ -630,7 +690,7 @@ test('J1 CORS · the REAL server (switch unset) preflights `Prefer` on the submi
     assert.ok((await allowed('/api/grade-worksheet')).includes('prefer'), 'the submit preflight allows Prefer');
     assert.ok((await allowed('/api/grade-worksheet/jobs/' + '0'.repeat(40))).includes('prefer'), 'and the poll preflight');
     const poll = await fetch(base + '/api/grade-worksheet/jobs/' + '0'.repeat(40));
-    assert.equal(poll.status, 401, 'the poll route is mounted with the switch off (and self-gating)');
+    assert.equal(poll.status, 401, 'the poll route is mounted (' + label + ') and self-gating');
   } finally {
     child.kill();
   }
