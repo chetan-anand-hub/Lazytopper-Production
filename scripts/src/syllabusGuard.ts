@@ -331,7 +331,20 @@ const BOARD_PREP_SURFACES: string[] = [
   "tutor/topicTeachContracts.ts",
 ];
 
-const SUBTOPIC_PATTERN = /["']?subtopic["']?\s*:\s*["'`]([^"'`]+)["'`]/g;
+// FU-SYLLABUSGUARD-APOSTROPHE. The value is matched by its OWN opening quote (group 1)
+// and closed only by that same quote (the backreference \1), skipping any backslash
+// escape, so a double-quoted value may contain an apostrophe ("Euclid's Division Lemma")
+// and a single-quoted one an escaped apostrophe ('Euclid\'s Division Lemma'). The old
+// capture `[^"'`]+` stopped at ANY quote char, read "Euclid's Division Lemma" as
+// "Euclid", and so passed every banned name that contains an apostrophe.
+// Group 2 is the RAW literal body; `unescapeLiteral` undoes the escapes before comparing.
+// Matching semantics are unchanged: exact full-string, case-insensitive (as before).
+const SUBTOPIC_PATTERN = /["']?subtopic["']?\s*:\s*(["'`])((?:\\[\s\S]|(?!\1)[^\\])*)\1/g;
+
+/** Undo string-literal escapes in a captured value: `\'` -> `'`, `\"` -> `"`, `\\` -> `\`. */
+function unescapeLiteral(raw: string): string {
+  return raw.replace(/\\([\s\S])/g, "$1");
+}
 
 export interface Violation {
   file: string;
@@ -350,7 +363,7 @@ export function scanFile(filePath: string, bannedSubtopics: string[]): Violation
   let match: RegExpExecArray | null;
   SUBTOPIC_PATTERN.lastIndex = 0;
   while ((match = SUBTOPIC_PATTERN.exec(content)) !== null) {
-    const subtopic = match[1];
+    const subtopic = unescapeLiteral(match[2]);
     if (bannedSet.has(subtopic.toLowerCase())) {
       counts.set(subtopic, (counts.get(subtopic) ?? 0) + 1);
     }

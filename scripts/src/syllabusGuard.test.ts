@@ -137,6 +137,115 @@ describe("scanFile — banned subtopic detection", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FU-SYLLABUSGUARD-APOSTROPHE — a banned name that CONTAINS an apostrophe is caught.
+// The old value capture `[^"'`]+` stopped at the apostrophe, so "Euclid's Division
+// Lemma" was read as "Euclid" and a planted row PASSED. The four names below are
+// copied EXACTLY from the bank-level banned lists in syllabusGuard.ts (Maths l.58/60,
+// Science l.139/141 at the time of writing).
+// ─────────────────────────────────────────────────────────────────────────────
+
+const APOSTROPHE_BANNED = [
+  "Euclid's Division Lemma",
+  "Euclid's Division Algorithm",
+  "Dobereiner's Triads",
+  "Mendeleev's Periodic Table",
+] as const;
+
+describe("scanFile — banned sub-topics containing an apostrophe (FU-SYLLABUSGUARD-APOSTROPHE)", () => {
+  test("the four apostrophe names are real, current banned phrases (not invented for the test)", () => {
+    for (const name of APOSTROPHE_BANNED) {
+      assert.ok(SURFACE_BANNED_PHRASES.includes(name), `${name} is in SURFACE_BANNED_PHRASES`);
+    }
+  });
+
+  APOSTROPHE_BANNED.forEach((name, i) => {
+    test(`FAIL: planted row with "${name}" in DOUBLE quotes is caught`, () => {
+      const file = fixture(
+        `apos-dq-${i}.ts`,
+        `export const q = { id: "planted-${i}", subtopic: ${JSON.stringify(name)}, question: "Planted." };`
+      );
+      const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+      assert.equal(violations.length, 1);
+      assert.equal(violations[0].subtopic, name);
+      assert.equal(violations[0].matchCount, 1);
+    });
+
+    test(`FAIL: planted row with '${name}' in SINGLE quotes with an escaped apostrophe is caught`, () => {
+      const escaped = name.replace(/'/g, "\\'");
+      const file = fixture(
+        `apos-sq-${i}.ts`,
+        `export const q = { id: 'planted-${i}', subtopic: '${escaped}', question: 'Planted.' };`
+      );
+      assert.ok(file.length > 0 && escaped.includes("\\'"), "fixture really uses an escaped apostrophe");
+      const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+      assert.equal(violations.length, 1);
+      assert.equal(violations[0].subtopic, name, "reported unescaped, as the banned list spells it");
+    });
+  });
+
+  test("FAIL: a JSON-style quoted key with an apostrophe value is caught", () => {
+    const file = fixture(
+      "apos-json.ts",
+      `export const rows = [{ "subtopic": "Mendeleev's Periodic Table", "marks": 1 }];`
+    );
+    const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+    assert.equal(violations.length, 1);
+    assert.equal(violations[0].subtopic, "Mendeleev's Periodic Table");
+  });
+
+  test("FAIL: a template-literal value with an apostrophe is caught", () => {
+    const file = fixture("apos-tl.ts", "export const q = { subtopic: `Dobereiner's Triads`, question: 'x' };");
+    const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+    assert.equal(violations.length, 1);
+    assert.equal(violations[0].subtopic, "Dobereiner's Triads");
+  });
+
+  test("FAIL: an apostrophe row does not hide the next row's banned value (scan resumes correctly)", () => {
+    const file = fixture(
+      "apos-sequence.ts",
+      `export const a = [\n  { subtopic: "Mendel's contribution", q: "ok" },\n  { subtopic: 'Euclid\\'s Division Algorithm', q: "x" },\n  { subtopic: "Euclid's Division Lemma", q: "y" },\n];`
+    );
+    const violations = scanFile(file, [...APOSTROPHE_BANNED]);
+    assert.deepEqual(
+      violations.map((v) => v.subtopic).sort(),
+      ["Euclid's Division Algorithm", "Euclid's Division Lemma"]
+    );
+  });
+
+  test("PASS: \"Mendel's contribution\" (RETAINED Heredity, board-assessed 2026-27) is not flagged", () => {
+    const file = fixture(
+      "apos-mendel.ts",
+      `export const a = [\n  { subtopic: "Mendel's contribution" },\n  { subtopic: 'Mendel\\'s contribution' },\n  { subtopic: "Heredity" },\n  { subtopic: "Laws of Inheritance" },\n  { subtopic: "Sex Determination" },\n];`
+    );
+    const violations = scanFile(file, [...APOSTROPHE_BANNED, ...SURFACE_BANNED_PHRASES]);
+    assert.equal(violations.length, 0);
+  });
+
+  test("PASS: exact full-string semantics kept: \"Mendel's contribution\" is NOT read as a banned \"Mendel\"", () => {
+    // The old capture truncated at the apostrophe, so a list containing a bare "Mendel"
+    // would have flagged this RETAINED row. The full value must be compared.
+    const file = fixture("apos-mendel-prefix.ts", `export const q = { subtopic: "Mendel's contribution" };`);
+    assert.equal(scanFile(file, ["Mendel"]).length, 0);
+  });
+
+  test("PASS: an unrelated apostrophe sub-topic (\"Ohm's Law\", \"Pythagoras' theorem\") is not flagged", () => {
+    const file = fixture(
+      "apos-unrelated.ts",
+      `export const a = [{ subtopic: "Ohm's Law" }, { subtopic: 'Pythagoras\\' theorem' }, { subtopic: "Fleming's Left-hand Rule" }];`
+    );
+    assert.equal(scanFile(file, [...APOSTROPHE_BANNED, ...SURFACE_BANNED_PHRASES]).length, 0);
+  });
+
+  test("PASS: a banned name only as a SUBSTRING of a longer apostrophe value is not flagged (exact match)", () => {
+    const file = fixture(
+      "apos-substring.ts",
+      `export const q = { subtopic: "HCF using Euclid's Division Lemma (formative note)" };`
+    );
+    assert.equal(scanFile(file, [...APOSTROPHE_BANNED]).length, 0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // BOARD-PREP SURFACE scan (PART C) — curated word-boundary phrase matcher
 // ─────────────────────────────────────────────────────────────────────────────
 
