@@ -56,9 +56,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "CBE-M-RN-A-002",
+    "shapedFrom": "SQP-M-RN-001",
     "origin": "lt-generated",
-    "modelledOn": "CBSE CBE Item Bank Maths Class X (2021) CBE-M-RN-A-002"
+    "modelledOn": "CBSE Sample Question Paper Maths (SQP-M-RN-001)"
   },
   {
     "id": "LTG-M-RN-203",
@@ -259,9 +259,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2025-REALNUM-001",
+    "shapedFrom": "CBE-M-RN-A-001",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2025 30/3/1 Q2"
+    "modelledOn": "CBSE CBE Item Bank Maths Class X (CBE-M-RN-A-001)"
   },
   {
     "id": "LTG-M-RN-210",
@@ -520,9 +520,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "CBE-M-RN-A-002",
+    "shapedFrom": "CBE-M-RN-A-003",
     "origin": "lt-generated",
-    "modelledOn": "CBSE CBE Item Bank Maths Class X (2021) CBE-M-RN-A-002"
+    "modelledOn": "CBSE CBE Item Bank Maths Class X (CBE-M-RN-A-003)"
   },
   {
     "id": "LTG-M-RN-219",
@@ -665,9 +665,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-RN-002",
+    "shapedFrom": "SP-M-2022-RN-A-003",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2023 30/5/1 Q20"
+    "modelledOn": "CBSE Sample Paper Maths (SP-M-2022-RN-A-003)"
   },
   {
     "id": "LTG-M-RN-224",
@@ -781,9 +781,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-RN-002",
+    "shapedFrom": "APQ-M-RN-001",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2023 30/5/1 Q20"
+    "modelledOn": "CBSE Additional Practice Questions Maths (APQ-M-RN-001)"
   },
   {
     "id": "LTG-M-RN-228",
@@ -926,9 +926,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-RN-002",
+    "shapedFrom": "APQ-M-RN-007",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2023 30/5/1 Q20"
+    "modelledOn": "CBSE Additional Practice Questions Maths (APQ-M-RN-007)"
   },
   {
     "id": "LTG-M-RN-233",
@@ -984,9 +984,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-RN-002",
+    "shapedFrom": "SP-M-2022-RN-A-003",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2023 30/5/1 Q20"
+    "modelledOn": "CBSE Sample Paper Maths (SP-M-2022-RN-A-003)"
   },
   {
     "id": "LTG-M-RN-235",
@@ -2270,9 +2270,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2024-CG-006",
+    "shapedFrom": "PYQ-M-TRI-006",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2024 30/4/3 Q38"
+    "modelledOn": "CBSE Board paper (PYQ-M-TRI-006)"
   },
   {
     "id": "LTG-M-RN-285",
@@ -2621,9 +2621,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2024-CG-006",
+    "shapedFrom": "PYQ-M-SAV-005",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2024 30/4/3 Q38"
+    "modelledOn": "CBSE Board paper (PYQ-M-SAV-005)"
   },
   {
     "id": "LTG-M-RN-298",
@@ -2810,9 +2810,9 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2024-CG-006",
+    "shapedFrom": "PYQ-M-PROB-012",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2024 30/4/3 Q38"
+    "modelledOn": "CBSE Board paper (PYQ-M-PROB-012)"
   },
   {
     "id": "LTG-M-RN-305",

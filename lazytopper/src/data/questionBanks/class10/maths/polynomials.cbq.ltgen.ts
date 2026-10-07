@@ -230,9 +230,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "APQ-M-POLY-001",
+    "shapedFrom": "CBE-M-POLY-A-001",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Additional Practice Questions (Maths Standard) PQ1 Q1"
+    "modelledOn": "CBSE CBE Item Bank Maths Class X (CBE-M-POLY-A-001)"
   },
   {
     "id": "LTG-M-POLY-209",
@@ -259,9 +259,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "SQP-M-POLY-001",
+    "shapedFrom": "CBE-M-POLY-A-002",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Sample Question Paper Maths Standard (Polynomials, SQP-M-POLY-001)"
+    "modelledOn": "CBSE CBE Item Bank Maths Class X (CBE-M-POLY-A-002)"
   },
   {
     "id": "LTG-M-POLY-210",
@@ -462,9 +462,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "SQP-M-POLY-001",
+    "shapedFrom": "CBE-M-POLY-A-003",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Sample Question Paper Maths Standard (Polynomials, SQP-M-POLY-001)"
+    "modelledOn": "CBSE CBE Item Bank Maths Class X (CBE-M-POLY-A-003)"
   },
   {
     "id": "LTG-M-POLY-217",
@@ -491,9 +491,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "APQ-M-POLY-001",
+    "shapedFrom": "CBE-M-POLY-A-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Additional Practice Questions (Maths Standard) PQ1 Q1"
+    "modelledOn": "CBSE CBE Item Bank Maths Class X (CBE-M-POLY-A-004)"
   },
   {
     "id": "LTG-M-POLY-218",
@@ -1822,9 +1822,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-268",
@@ -1849,9 +1849,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-269",
@@ -1903,9 +1903,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-271",
@@ -1930,9 +1930,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-272",
@@ -1984,9 +1984,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-274",
@@ -2011,9 +2011,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-275",
@@ -2038,9 +2038,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-276",
@@ -2065,9 +2065,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-277",
@@ -2092,9 +2092,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-278",
@@ -2146,9 +2146,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-280",
@@ -2173,9 +2173,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-281",
@@ -2200,9 +2200,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-282",
@@ -2254,9 +2254,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-284",
@@ -2281,9 +2281,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-285",
@@ -2335,9 +2335,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-287",
@@ -2362,9 +2362,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-288",
@@ -2389,9 +2389,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-289",
@@ -2416,9 +2416,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-290",
@@ -2443,9 +2443,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-291",
@@ -2497,9 +2497,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-293",
@@ -2551,9 +2551,9 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
-    "shapedFrom": "PYQ-M-2026-POLY-005",
+    "shapedFrom": "PYQ-M-2026-POLY-004",
     "origin": "lt-generated",
-    "modelledOn": "CBSE Board 2026 30/5/1 Q36"
+    "modelledOn": "CBSE Board 2026 paper (PYQ-M-2026-POLY-004)"
   },
   {
     "id": "LTG-M-POLY-295",
