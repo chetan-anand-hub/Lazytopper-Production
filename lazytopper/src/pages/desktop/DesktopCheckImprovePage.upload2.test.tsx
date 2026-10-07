@@ -213,6 +213,47 @@ describe("(a) C&I ANSWER path — a 6 MB phone photo", () => {
   }, 60_000);
 });
 
+describe("FU-CI-FLAKE-CI-PDF-6MB · no commit shows 2 pages with Grade live on the stale 1-page photo", () => {
+  // Records every DOM state at MutationObserver time — the instant waitFor checks. With the
+  // tray's payload step as a PASSIVE effect, the 2-page tray was committed while Grade was
+  // still enabled on page 1's JPEG ("2:E" before "2:D"): a tap there graded page 1 alone, and
+  // the R6 test's waitFor could pass on that stale state, then click a just-disabled button.
+  it("★ the first state showing 2 pages has Grade disabled; Grade returns only with the PDF", async () => {
+    const { container } = renderPage();
+    await readTypedQuestion();
+    const seen: string[] = [];
+    const mo = new MutationObserver(() => {
+      const items = container.querySelectorAll('[data-testid="page-tray-item"]').length;
+      const btn = Array.from(container.querySelectorAll("button")).find((b) => /Grade my answer/.test(b.textContent || "")) as
+        | HTMLButtonElement
+        | undefined;
+      const state = `${items}:${btn ? (btn.disabled ? "D" : "E") : "-"}`;
+      if (seen[seen.length - 1] !== state) seen.push(state);
+    });
+    mo.observe(container, { subtree: true, childList: true, attributes: true, characterData: true });
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    choose(answerInput, [sixMbPhoto("p1.jpg")]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    await screen.findByTestId("page-tray-add");
+    choose(document.querySelector("input.lt-pt__file") as HTMLInputElement, [sixMbPhoto("p2.jpg")]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    const grade = await screen.findByRole("button", { name: /Grade my answer/ });
+    await waitFor(() => expect(screen.getAllByTestId("page-tray-item")).toHaveLength(2));
+    await waitFor(() => expect(grade).not.toBeDisabled(), { timeout: 20_000 });
+    mo.disconnect();
+    // CONTROL: the observer did see the 1-page live state and the final 2-page live state.
+    expect(seen).toContain("1:E");
+    const twoPage = seen.filter((x) => x.startsWith("2:"));
+    expect(twoPage[0]).toBe("2:D");
+    expect(twoPage[twoPage.length - 1]).toBe("2:E");
+    // Grade went live exactly once on 2 pages — when the PDF arrived.
+    expect(twoPage.filter((x) => x === "2:E")).toHaveLength(1);
+    fireEvent.click(grade);
+    await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));
+    expect((H.checkSolutionImage.mock.calls[0][0] as { imageMimeType: string }).imageMimeType).toBe("application/pdf");
+  }, 60_000);
+});
+
 describe("(a) C&I QUESTION path — a 6 MB phone photo of the question", () => {
   it("★ is accepted and read: the detect call gets a JPEG under the cap", async () => {
     const { container } = renderPage();
