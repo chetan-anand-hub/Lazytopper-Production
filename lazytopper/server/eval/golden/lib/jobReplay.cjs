@@ -78,8 +78,8 @@ function syncPlanAsJob(n) {
   };
 }
 
-/** J3 round 5: the same plan WITH production's abort retry (timing.jobTiming().abortRetry): a chunk whose
- *  first call ABORTED is retried once, whole, at the larger budget. The synchronous path has no such retry,
+/** J3 round 6: the same plan WITH production's abort retry (timing.jobTiming().abortRetry): a chunk whose
+ *  first call ABORTED is split into one-question calls, as before, at the larger budget. The synchronous path has no such retry,
  *  so this plan is used only by the ABORT-RETRY pass below, never by the job-vs-sync identity pass. */
 function syncPlanAsJobWithAbortRetry(n) {
   return { ...syncPlanAsJob(n), abortRetry: timingLib.jobTiming().abortRetry };
@@ -127,7 +127,7 @@ async function compareJobToSync({ label, request, makeDriver, abortRetry = false
   if (sync.httpStatus !== 200) return { skipped: true };
   const syncBytes = JSON.stringify(sync.body);
   const firstAttemptChunks = new Set();
-  const retryCalls = []; // J3 round 5: the job's attempt-2 calls { chunkKey, timeoutMs }
+  const retryCalls = []; // J3 round 5/6: the job's attempt-2 calls { chunkKey, timeoutMs }
   const d = makeDriver((cfg) => {
     if (cfg && cfg.chunkKey && (cfg.attempt || 1) === 1) firstAttemptChunks.add(cfg.chunkKey);
     if (cfg && cfg.attempt === 2) retryCalls.push({ chunkKey: cfg.chunkKey || null, timeoutMs: cfg.timeoutMs });
@@ -235,10 +235,11 @@ async function replayRunsAsJobs(runDirs, opts = {}) {
     multiChunkPapers: 0, multiChunkOneDocument: 0, multiChunkFinalRows: 0, syntheticFlip: null,
     abortRetryJobs: 0, abortRetryIdentical: 0, abortRetried: 0,
   };
-  // J3 round 5 · THE ABORT-RETRY PASS: the same stored replies through the job path WITH production's abort
+  // J3 round 6 · THE ABORT-RETRY PASS: the same stored replies through the job path WITH production's abort
   // retry. A job none of whose chunks aborted must be BYTE-IDENTICAL to the synchronous body (the abort
-  // retry changes nothing else); a job with an aborted chunk must retry each such chunk exactly once,
-  // WHOLE (its own first-attempt chunk key), and never split it. Failures join bodyDiffs / errors.
+  // retry changes nothing else); a job with an aborted chunk must retry it as ONE call per question (a
+  // one-question chunk as itself), each question exactly once, covering the whole chunk and nothing
+  // outside it — trunk's split shape on the larger budget. Failures join bodyDiffs / errors.
   const addAbortRetry = (label, r) => {
     if (r.skipped) return;
     out.abortRetryJobs += 1;
@@ -249,9 +250,13 @@ async function replayRunsAsJobs(runDirs, opts = {}) {
       return;
     }
     out.abortRetried += 1;
+    const idsOf = (k) => String(k || '').split('+').filter(Boolean);
     const once = new Set(r.abortRetries).size === r.abortRetries.length;
-    const whole = r.abortRetries.every((k) => r.firstAttemptChunks.includes(k));
-    if (!once || !whole) out.errors.push('ABORT-RETRY ' + label + ': retries ' + JSON.stringify(r.abortRetries) + ' are not one whole retry per aborted chunk');
+    const single = r.abortRetries.every((k) => idsOf(k).length === 1);
+    const retried = new Set(r.abortRetries);
+    const parents = new Set(r.abortRetries.map((k) => r.firstAttemptChunks.find((c) => idsOf(c).includes(k))));
+    const split = !parents.has(undefined) && [...parents].every((c) => idsOf(c).every((id) => retried.has(id)));
+    if (!once || !single || !split) out.errors.push('ABORT-RETRY ' + label + ': retries ' + JSON.stringify(r.abortRetries) + ' are not one single-question call per question of each aborted chunk');
   };
   const add = (label, r) => {
     if (r.skipped) { out.skipped += 1; return; }

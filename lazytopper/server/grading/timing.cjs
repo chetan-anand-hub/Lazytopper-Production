@@ -85,11 +85,11 @@ const CLIENT_PER_ATTEMPT_BUDGET_MS = 90000;
 const JOB_WALL_MS = 180000;
 const JOB_PER_CALL_MS = 120000;
 const JOB_CHUNK_QUESTIONS = 8;
-/* J3 round 5 (FU-GRADING-ABORTS; cofounder ruling "retry only what aborted"): a job chunk whose FIRST
-   call is aborted at JOB_PER_CALL_MS is retried ONCE, whole, with this larger budget: a per-call cap of
-   JOB_ABORT_RETRY_PER_CALL_MS inside a job wall of JOB_ABORT_RETRY_WALL_MS (from the same start). It
-   replaces the one-question-per-call retries for that case only; every chunk that did not abort keeps
-   the J1 numbers above exactly (same request, same timing). Measured: #1009. */
+/* J3 round 6 (FU-GRADING-ABORTS; cofounder ruling "split retry on the extended budget"): a job chunk
+   whose FIRST call is aborted is split, as before, into one-question calls (attempt 2), and those calls
+   get this larger budget: a per-call cap of JOB_ABORT_RETRY_PER_CALL_MS inside a job wall of
+   JOB_ABORT_RETRY_WALL_MS (from the same start). Every chunk that did not abort keeps the J1 numbers
+   above exactly (same request, same timing). Measured: #1009. */
 const JOB_ABORT_RETRY_PER_CALL_MS = 180000;
 const JOB_ABORT_RETRY_WALL_MS = 270000;
 const JOB_HEARTBEAT_MS = 10000;

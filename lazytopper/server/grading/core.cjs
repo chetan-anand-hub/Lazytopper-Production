@@ -336,18 +336,22 @@ function createGradingCore(deps) {
     const first = await run(chunk.questions, 1, t1);
     if (first.results) return [{ questions: chunk.questions, attempt: first }];
     if (first.error && !timingLib.isRetryableError(first.error)) return [{ questions: chunk.questions, attempt: first }];
-    // J3 round 5 (cofounder ruling, "retry only what aborted"): a JOB chunk whose first call was
-    // ABORTED at the per-call cap is retried ONCE, WHOLE (the same request, attempt 2), with the larger
-    // abort-retry budget: its own per-call cap inside the longer abort-retry wall. This REPLACES, for
-    // that case only, the one-question-per-call split below. Every other chunk (graded first time, an
-    // HTTP error, an unparseable reply) takes the unchanged path. A second abort ends "not graded".
+    // J3 round 6 (cofounder ruling, "split retry on the extended budget"): a JOB chunk whose first call
+    // was ABORTED keeps the proven recovery SHAPE below (split into one-question calls; a one-question
+    // chunk is retried as itself), but those attempt-2 calls get the larger abort-retry budget: each is
+    // capped at min(abort-retry per-call cap, time left before the abort-retry wall) instead of the J1
+    // numbers. Every other chunk (graded first time, an HTTP error, an unparseable reply) takes the
+    // unchanged path. A split call that aborts again ends that question "not graded" (timeout).
     const abortRetry = ctx.job && ctx.job.abortRetry && first.timedOut ? ctx.job.abortRetry : null;
     if (abortRetry) {
       const retryDeadlineAt = ctx.startedAt + abortRetry.wallMs - timing.marginMs;
       const leftR = Math.min(abortRetry.perCallMs, retryDeadlineAt - now());
       if (leftR < timing.minRetryMs) return [{ questions: chunk.questions, attempt: first }];
-      console.warn(ctx.label + ' chunk ' + keyOf(chunk.questions) + ' timed out — retrying once, whole, within ' + Math.round(leftR) + ' ms (abort retry).');
-      return [{ questions: chunk.questions, attempt: await run(chunk.questions, 2, leftR, retryDeadlineAt) }];
+      const partsR = chunk.questions.length > 1 ? chunk.questions.map((q) => [q]) : [chunk.questions];
+      console.warn(ctx.label + ' chunk ' + keyOf(chunk.questions) + ' timed out — retrying once as ' + partsR.length +
+        ' single-question call(s) within ' + Math.round(leftR) + ' ms (abort retry).');
+      const retriedR = await Promise.all(partsR.map((qs) => run(qs, 2, leftR, retryDeadlineAt)));
+      return partsR.map((qs, i) => ({ questions: qs, attempt: retriedR[i] }));
     }
     const left = jobCap ? jobCap(ctx.callDeadlineAt - now()) : ctx.callDeadlineAt - now();
     if (left < timing.minRetryMs) return [{ questions: chunk.questions, attempt: first }];
