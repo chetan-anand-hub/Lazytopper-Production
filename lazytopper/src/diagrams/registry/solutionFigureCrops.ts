@@ -5,11 +5,14 @@
  * (enforced by computedFigures.provenance.test.ts).
  *
  * PR-2e — Life Processes: NCERT Class 10 Science (Reprint 2026-27, jesc105.pdf)
- * textbook figures, cropped in #1020 (assets) and bound here to rows whose answer
- * asks the student to DRAW that exact diagram with those labels. A row is bound only
- * when every label the row asks for is labelled in the NCERT figure (manifest:
+ * textbook figures, cropped in #1020 (assets) and bound here to rows whose question
+ * asks for that exact diagram (or, for PYQ-S-2024-LIFEP-007 (a), whose own solution is
+ * the NCERT activity the figure draws). A row is bound only when every label its
+ * question AND its own answer ask for is labelled in the NCERT figure (manifest:
  * Desktop/diff/b19/pr3/solution-crops.csv). Not bound: lp-hpq-104 (its answer names
  * loop of Henle / proximal and distal tubules, which Fig. 5.14 does not label),
+ * LP-H03 (its solution step describes a labelled nephron, not Fig. 5.13), LPSD-018
+ * (its answer requires labelled valves; Fig. 5.10 labels none),
  * SCQ-S-LIFE-043/-044 (third-party booklet rows, pending the booklet withhold), the
  * 2026-LP-* predicted rows (no solution mount on that surface).
  */
@@ -21,32 +24,12 @@ const BY = "controller B-20: row read + crop eye-checked against the labels aske
 export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
   {
     kind: "crop",
-    questionId: "LP-H03",
-    slot: "solution",
-    filePath: "/figures/solutions/ncert-science/life-processes/ncert-fig-5-13-excretory-system.webp",
-    alt: "Human excretory system: kidneys, ureters, urinary bladder and urethra, with the aorta, vena cava and renal artery and vein",
-    source: { file: NCERT_LP, page: 18, figure: "NCERT Class 10 Science, Fig. 5.13" },
-    eyeConfirm: "asked: Kidney, Ureter, Urinary bladder, Urethra; all four are labelled in Fig. 5.13",
-    confirmedBy: BY,
-  },
-  {
-    kind: "crop",
     questionId: "LIFE-EXMPLR-5-LONG-005",
     slot: "solution",
     filePath: "/figures/solutions/ncert-science/life-processes/ncert-fig-5-6-alimentary-canal.webp",
     alt: "Human alimentary canal: mouth, oesophagus, stomach, small and large intestine, with the liver and pancreas",
     source: { file: NCERT_LP, page: 7, figure: "NCERT Class 10 Science, Fig. 5.6" },
     eyeConfirm: "asked: Mouth, Oesophagus, Stomach, Intestine; Fig. 5.6 labels mouth (buccal cavity), oesophagus, stomach, small and large intestine",
-    confirmedBy: BY,
-  },
-  {
-    kind: "crop",
-    questionId: "LPSD-018",
-    slot: "solution",
-    filePath: "/figures/solutions/ncert-science/life-processes/ncert-fig-5-10-human-heart.webp",
-    alt: "Sectional view of the human heart: four chambers, septum, aorta, pulmonary arteries and veins, vena cava, with arrows for blood flow",
-    source: { file: NCERT_LP, page: 14, figure: "NCERT Class 10 Science, Fig. 5.10" },
-    eyeConfirm: "asked: labelled heart, its four chambers and the major vessels; Fig. 5.10 labels right/left atrium, right/left ventricle, aorta, pulmonary arteries, pulmonary veins, vena cava (valves are asked only to be explained, not labelled)",
     confirmedBy: BY,
   },
   {
