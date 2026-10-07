@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Served bank id -> {topicKey, subtopic, section} for 9598 rows, in aggregator order.
+// Served bank id -> {topicKey, subtopic, section} for 9594 rows, in aggregator order.
 // Ids and tags only, never question content. Read through ./bankIdIndex.ts.
 
 export const BANK_ID_INDEX_TOPIC_KEYS: readonly string[] = [
@@ -11421,20 +11421,16 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["LTG-S-HERED-298", 20, 148, 3],
   ["LTG-S-HERED-299", 20, 148, 3],
   ["LTG-S-EYE-201", 22, 161, 0],
-  ["LTG-S-EYE-202", 22, 161, 0],
   ["LTG-S-EYE-203", 22, 726, 0],
   ["LTG-S-EYE-204", 22, 726, 0],
   ["LTG-S-EYE-205", 22, 161, 0],
   ["LTG-S-EYE-206", 22, 726, 0],
-  ["LTG-S-EYE-207", 22, 161, 1],
   ["LTG-S-EYE-208", 22, 726, 1],
   ["LTG-S-EYE-209", 22, 726, 1],
   ["LTG-S-EYE-210", 22, 161, 2],
   ["LTG-S-EYE-211", 22, 726, 2],
-  ["LTG-S-EYE-212", 22, 161, 2],
   ["LTG-S-EYE-213", 22, 161, 4],
   ["LTG-S-EYE-214", 22, 726, 4],
-  ["LTG-S-EYE-215", 22, 161, 4],
   ["LTG-S-EYE-216", 22, 161, 4],
   ["LTG-S-EYE-217", 22, 726, 4],
   ["LTG-S-EYE-218", 22, 726, 3],

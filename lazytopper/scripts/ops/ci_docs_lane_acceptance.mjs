@@ -481,7 +481,7 @@ function runSuite(mutation) {
   {
     const agg = jobs.find((j) => j.id === "quality-gate");
     const docsLane = jobs.find((j) => j.id === "docs-lane");
-    const needsOk = Boolean(agg) && /needs:\s*\[classify, docs-lane, static, build-ops, vitest, clock\]/.test(agg.block);
+    const needsOk = Boolean(agg) && /needs:\s*\[classify, docs-lane, static, build-ops, railway-build, vitest, clock\]/.test(agg.block);
     check("a12b_the_required_check_is_an_always_running_aggregate",
       Boolean(agg) && agg.jobIf === "always()" && needsOk && /ci_aggregate\.mjs --aggregate/.test(agg.block) &&
         Boolean(docsLane) && docsLane.jobIf === "",
