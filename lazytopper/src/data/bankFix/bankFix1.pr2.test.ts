@@ -50,6 +50,7 @@ import { predictedQuestions } from "../predictedQuestions";
 import { predictedQuestionsScience } from "../predictedQuestionsScience";
 import { highlyProbableQuestions } from "../highlyProbableQuestions";
 import { HPQ_WITHHELD_IDS } from "../hpqCompetencyAdditions";
+import { BOOKLET_VERBATIM_WITHHELD_IDS } from "./bookletVerbatimWithholds";
 import { PROMPT_D_WITHHELD_IDS, promptDPracticePacks } from "../promptDPracticePacks";
 import { mapUnifiedQuestionToPractice } from "../../components/practice/practiceQuestionBuilder";
 import { resolveCorrectOptionIndex, normaliseOptionKeepCase } from "../../lib/objectiveScoring";
@@ -266,6 +267,10 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   it("today's served bank count per chapter is at least the lane's 'after' (minus later-lane withholds)", () => {
     const now = new Map<string, number>();
     for (const q of served) now.set(String(q.topicKey), (now.get(String(q.topicKey)) ?? 0) + 1);
+    // BOOKLET-WITHHOLD-1 (owner, 2026-10-07): rows withheld LATER by that owner ruling were served at this lane's
+    // 'after'; count them back so this ratchet still catches any other drop.
+    const booklet = new Set(BOOKLET_VERBATIM_WITHHELD_IDS);
+    for (const q of RAW_CANONICAL_QUESTION_BANK) if (booklet.has(q.id)) now.set(String(q.topicKey), (now.get(String(q.topicKey)) ?? 0) + 1);
     const floor = (c: { chapter: string; bank: readonly number[] }) => c.bank[1] - (LATER_WITHHOLDS[c.chapter]?.length ?? 0);
     const short = BANK_FIX_1_PR2_SERVED_COUNTS.filter((c) => (now.get(c.chapter) ?? 0) < floor(c));
     expect(short.map((c) => `${c.chapter}: ${now.get(c.chapter) ?? 0} < ${floor(c)}`)).toEqual([]);

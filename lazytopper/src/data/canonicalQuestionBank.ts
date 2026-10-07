@@ -568,6 +568,8 @@ import { SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED } from './questionBanks/clas
 import { ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/acids-bases-and-salts.c3.cbq.ltgen';
 import { CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/chemical-reactions-and-equations.c3.cbq.ltgen';
 import { OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/our-environment.c3.cbq.ltgen';
+// BOOKLET-WITHHOLD-1 — verbatim third-party booklet rows (withheld below).
+import { BOOKLET_VERBATIM_WITHHELD_IDS } from './bankFix/bookletVerbatimWithholds';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1130,6 +1132,9 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
 // examiner/marking-scheme boilerplate, not working; spliced-solution = the stored
 // solution text belongs to a different question.
 export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
+  // ---- BOOKLET-WITHHOLD-1 (owner, 2026-10-07): 320 Science rows copied verbatim from third-party booklets
+  // (copyright risk; see bankFix/bookletVerbatimWithholds.ts) ----
+  ...BOOKLET_VERBATIM_WITHHELD_IDS,
   // ---- Science: bilingual column bleed / wrong-question pasted in (re-extract) ----
   "PYQ-S-2025-ACID-008",     // bilingual
   "PYQ-S-2025-ACID-009",     // bilingual
