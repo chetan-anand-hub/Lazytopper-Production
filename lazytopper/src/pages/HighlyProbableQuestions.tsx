@@ -52,6 +52,8 @@ import { trackUxEvent } from "../services/uxTelemetry";
 const SolutionChecker = lazyWithRetry(() =>
   import("../components/question/SolutionChecker").then((m) => ({ default: m.SolutionChecker })),
 );
+// DIAGRAMS-1 PR-2a — solution figure drawn from the question's own numbers (lazy; null when unbound).
+const SolutionFigure = lazyWithRetry(() => import("../diagrams/SolutionFigure"));
 
 // ---------- Local types / helpers ----------
 
@@ -1666,6 +1668,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                             questionText={q.question}
                             kind={q.type}
                             marks={q.marks}
+                            questionId={q.id ? String(q.id) : undefined}
                           />
                           {hasOptions && (
                             <div
@@ -1941,6 +1944,12 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                     Close
                                   </button>
                                 </div>
+
+                                {q.id && (
+                                  <Suspense fallback={null}>
+                                    <SolutionFigure questionId={String(q.id)} />
+                                  </Suspense>
+                                )}
 
                                 {solutionLoading[q.id] && (
                                   <div style={{ fontSize: "0.82rem", color: "#1cb0f6", padding: "8px 0" }}>
