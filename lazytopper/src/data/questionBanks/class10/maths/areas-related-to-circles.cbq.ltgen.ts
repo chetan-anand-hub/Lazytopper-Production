@@ -2243,7 +2243,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "id": "LTG-M-ARC-283",
     "subject": "Maths",
     "topicKey": "areas-related-to-circles",
-    "subtopic": "Area of Sector — Sum of Angles in Triangle",
+    "subtopic": "Area of Sector",
     "section": "E",
     "marks": 4,
     "format": "Case-Based",
