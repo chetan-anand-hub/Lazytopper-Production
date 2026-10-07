@@ -1930,7 +1930,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The front face of a stone footbridge has an arch over the river. The arch is an arc AB of a circle of radius 28 m with centre O, and the lines joining its two feet A and B to O make a right angle at O. The opening under the arch, between the arc AB and the straight line AB at water level, is the minor segment. Find (i) the length of LED strip needed to run once along the arch and (ii) the area of the opening. (Use π = 22/7.)\n[Marks: (i) 2 marks, (ii) 1 mark]",
+    "questionText": "The front face of a stone footbridge has an arch over the river. The arch is an arc AB of a circle of radius 28 m with centre O, and the lines joining its two feet A and B to O make a right angle at O. The opening under the arch, between the arc AB and the straight line AB at water level, is the minor segment. Find (i) the length of LED strip needed to run once along the arch and (ii) the area of the opening. (Use π = 22/7.)\n[Marks: (i) 1 mark, (ii) 2 marks]",
     "options": [],
     "answer": "(i) 44 m (ii) 224 m²",
     "solutionSteps": [
@@ -2034,7 +2034,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A mosquito-fogging machine fixed on a cart sprays fog over a sector of the ground centred at the machine. On its high setting it reaches 21 m and turns through an angle of 60°. On its low setting it reaches only 10.5 m. Find (i) the area covered on the high setting and (ii) the angle through which the machine must turn on the low setting to cover the same area. (Use π = 22/7.)\n[Marks: (i) 2 marks, (ii) 1 mark]",
+    "questionText": "A mosquito-fogging machine fixed on a cart sprays fog over a sector of the ground centred at the machine. On its high setting it reaches 21 m and turns through an angle of 60°. On its low setting it reaches only 10.5 m. Find (i) the area covered on the high setting and (ii) the angle through which the machine must turn on the low setting to cover the same area. (Use π = 22/7.)\n[Marks: (i) 1 mark, (ii) 2 marks]",
     "options": [],
     "answer": "(i) 231 m² (ii) 240°",
     "solutionSteps": [
