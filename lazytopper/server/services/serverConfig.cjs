@@ -24,9 +24,30 @@ function loadDotEnvIfPresent() {
   }
 }
 
-/** GRADING-JOBS-1 J1: background grading jobs are ON only when GRADING_JOBS is exactly "1". Default OFF. */
+/*
+ * GRADING-JOBS-1 J3 (controller D71): background grading jobs are ON BY DEFAULT. GRADING_JOBS is
+ * now only a KILL SWITCH, read trimmed and case-insensitively:
+ *   unset / empty            → ON  (the default; no ENV_USED note)
+ *   "0" | "off" | "false"    → OFF (every submit graded synchronously, byte-identical to before)
+ *   "1" | "on"  | "true"     → ON
+ *   anything else            → ON, plus an ENV_USED note naming it unrecognised. Fail-open is
+ *                              deliberate: the code default is ON, so a typo must not silently
+ *                              turn jobs off; only an explicit off value does.
+ * Operators: DELETING the variable turns jobs ON. To turn them off, set GRADING_JOBS=0 and redeploy.
+ */
+const GRADING_JOBS_OFF_VALUES = new Set(['0', 'off', 'false']);
+const GRADING_JOBS_ON_VALUES = new Set(['1', 'on', 'true']);
+
+function describeGradingJobsSwitch(env = process.env) {
+  const value = String((env && env.GRADING_JOBS) || '').trim().toLowerCase();
+  if (!value) return { on: true, envNote: null };
+  if (GRADING_JOBS_OFF_VALUES.has(value)) return { on: false, envNote: 'GRADING_JOBS=off' };
+  if (GRADING_JOBS_ON_VALUES.has(value)) return { on: true, envNote: 'GRADING_JOBS=1' };
+  return { on: true, envNote: 'GRADING_JOBS=1(unrecognised value; use 0/off/false to turn jobs off)' };
+}
+
 function resolveGradingJobsSwitch(env = process.env) {
-  return String((env && env.GRADING_JOBS) || '').trim() === '1';
+  return describeGradingJobsSwitch(env).on;
 }
 
 function resolveConfig() {
@@ -89,10 +110,10 @@ function resolveConfig() {
   if (process.env.GRADING_DEADLINE_MS) ENV_USED.push(`GRADING_DEADLINE_MS=${GRADING_DEADLINE_MS}`);
   if (process.env.GRADING_CHUNK_TIMEOUT_MS) ENV_USED.push(`GRADING_CHUNK_TIMEOUT_MS=${GRADING_CHUNK_TIMEOUT_MS}`);
   if (process.env.GRADING_CACHE_BUDGET_MS) ENV_USED.push(`GRADING_CACHE_BUDGET_MS=${GRADING_CACHE_BUDGET_MS}`);
-  // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs. DARK unless exactly "1" (the
-  // FAIR_USE_ENFORCE convention): off, a submit asking for one is graded synchronously, as today.
-  const GRADING_JOBS = resolveGradingJobsSwitch(process.env);
-  if (process.env.GRADING_JOBS) ENV_USED.push(`GRADING_JOBS=${GRADING_JOBS ? '1' : 'off'}`);
+  // GRADING-JOBS-1 (owner ruling 7; J3 / D71): background grading jobs, ON by default. GRADING_JOBS
+  // set to 0/off/false is the kill switch: off, a submit asking for one is graded synchronously.
+  const { on: GRADING_JOBS, envNote: GRADING_JOBS_ENV_NOTE } = describeGradingJobsSwitch(process.env);
+  if (GRADING_JOBS_ENV_NOTE) ENV_USED.push(GRADING_JOBS_ENV_NOTE);
   const IS_DEV = String(process.env.NODE_ENV || '').toLowerCase() !== 'production';
   const REPO_ROOT = process.cwd();
   const MAX_HISTORY_TURNS = 4;
@@ -130,4 +151,4 @@ function resolveConfig() {
   };
 }
 
-module.exports = { resolveConfig, resolveGradingJobsSwitch };
+module.exports = { resolveConfig, resolveGradingJobsSwitch, describeGradingJobsSwitch };

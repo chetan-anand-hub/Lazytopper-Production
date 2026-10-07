@@ -7,8 +7,8 @@
  * a non-WebP file, a chapter mismatch, or a re-bound WRONG / decorative id fail loudly. The eye-confirm table (source
  * PDF, page, clip, what was matched) lives with the PR evidence; the trailing comment on each pin repeats source+page.
  *
- * Rows deliberately NOT bound are pinned too: two Exemplar rows whose stem contradicts the official figure, and two
- * AI-pack rows with no official figure found (they wait for a computed builder). They must keep resolving to NO figure.
+ * Rows deliberately NOT bound are pinned too (one Exemplar row with no clean crop, two AI-pack rows with no official
+ * figure, one duplicate whose binding was dropped). They must keep resolving to NO figure.
  */
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
@@ -16,16 +16,15 @@ import path from "node:path";
 import { canonicalQuestionBank, RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 import { MATHS_FIGURE_VISUALS, getFiguresForQuestion } from "../visualConceptRegistry";
 import { resolveCanonicalSlug } from "../bankQuery";
+import { BOUND_BUT_WITHHELD as BOUND_BUT_WITHHELD_REASONS } from "./mathsFigureVisuals";
 
 const PUBLIC = path.resolve(__dirname, "..", "..", "..", "public");
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
 const inBank = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
 
-// Bound rows that the bank currently WITHHOLDS. A binding on a withheld row is harmless (no student sees it) and is
-// expected while BANK-FIX-1 PR-2 withholds rows for their missing figure: it lands, the figure is already bound, and
-// the controller un-withholds rows one by one. Empty on trunk today. After BANK-FIX merges, list the withheld ids here
-// (DIAGRAMS-1 PR-1 post-bankfix plan); a row listed here that is actually served fails, so the list cannot go stale.
-const BOUND_BUT_WITHHELD: readonly string[] = [];
+// Bound rows the bank currently WITHHOLDS (BANK-FIX-1 #1007), each with its reason, live in the registry file beside
+// the bindings. A row listed there that is actually served fails below, so the list cannot go stale.
+const BOUND_BUT_WITHHELD: readonly string[] = Object.keys(BOUND_BUT_WITHHELD_REASONS);
 
 // [questionId, filePath] in source order (a row with two figures lists both, main figure first).
 const PR1_BINDINGS: ReadonlyArray<readonly [string, string]> = [
@@ -45,7 +44,6 @@ const PR1_BINDINGS: ReadonlyArray<readonly [string, string]> = [
   ["PYQ-M-2024-CIRC-005", "/figures/pyq-maths/circles/PYQ-M-2024-CIRC-005.webp"], // 30-4-2(Mathematics Standard).pdf p5
   ["PYQ-M-2024-CIRC-006", "/figures/pyq-maths/circles/PYQ-M-2024-CIRC-006.webp"], // 30-5-1(Mathematics Standard).pdf p9
   ["PYQ-M-2024-CIRC-010a", "/figures/pyq-maths/circles/PYQ-M-2024-CIRC-010a.webp"], // 30-2-1(Mathematics Standard).pdf p17 (embedded image)
-  ["PYQ-M-2024-CIRC-011a", "/figures/pyq-maths/circles/PYQ-M-2024-CIRC-011a.webp"], // 30-2-2(Mathematics Standard).pdf p15 (embedded image)
   ["PYQ-M-2025-CIRC-006", "/figures/pyq-maths/circles/PYQ-M-2025-CIRC-006.webp"], // 30-3-1_Mathematics Standard.pdf p15
   ["PYQ-M-2025-CIRC-007", "/figures/pyq-maths/circles/PYQ-M-2025-CIRC-007.webp"], // 30-3-3_Mathematics Standard.pdf p15
   ["PYQ-M-2026-TRI-004", "/figures/pyq-maths/triangles/PYQ-M-2026-TRI-004.webp"], // 1172-3_30-5-3  (Mathematics Standard).pdf p13
@@ -67,14 +65,15 @@ const PR1_BINDINGS: ReadonlyArray<readonly [string, string]> = [
   ["APQ-M-CIRC-011", "/figures/apq-maths/circles/APQ-M-CIRC-011.webp"], // Mathematics-PQ_2022.pdf p12
   ["SQP-M-TRI-003", "/figures/sqp-maths/triangles/SQP-M-TRI-003.webp"], // MathsStandard-SQP.pdf p7 (embedded image)
   ["CIRC-N-NCERT-10-MCQ-003", "/figures/ncert-maths/circles/CIRC-N-NCERT-10-MCQ-003.webp"], // jemh110.pdf p8
-  ["CIR-M05", "/figures/ncert-maths/circles/CIR-M05.webp"], // jemh110.pdf p9 (NCERT Fig. 10.13; stem = NCERT Ex 10.2 Q9 verbatim)
+  ["TRI-N-EXMPLR-6-SA-011", "/figures/exemplar-maths/triangles/TRI-N-EXMPLR-6-SA-011.webp"], // jeep206.pdf p11 (embedded image)
+  ["CIR-M05", "/figures/ncert-maths/circles/CIR-M05.webp"], // jemh110.pdf p9 (embedded image)
 ];
 
 // Not bound on purpose — must resolve to no figure.
 const PR1_NOT_BOUND = [
-  "TRI-N-EXMPLR-6-SA-011", // NO-MATCH: stem says "C on segment BD"; Exemplar Fig. 6.12 has D on AB
-  "TRI-N-EXMPLR-6-LA-002", // NO-MATCH: stem says AB and CD intersect at P; Exemplar Fig. 6.16 has AC and BD crossing at P
-  "CIR-E09", "CIR-E19", // AI pack: no official figure found for these two stems (wait for a computed circle+tangent builder)
+  "TRI-N-EXMPLR-6-LA-002", // stem matches Exemplar Fig. 6.16 after BANK-FIX, but the caption sits inside the figure's box: no clean crop
+  "CIR-E09", "CIR-E19", // AI pack: no official figure found for these two stems (BANK-FIX rewrote them figure-free)
+  "PYQ-M-2024-CIRC-011a", // binding dropped: BANK-FIX withholds it as a duplicate of PYQ-M-2024-CIRC-010a
 ];
 
 // Census 2026-10-07 Appendix 3: bound figures BANK-FIX-1 PR-2 found WRONG. PR-1 must never bind any of them.
@@ -91,9 +90,9 @@ const pr1Paths = new Set(PR1_BINDINGS.map(([, p]) => p));
 const pr1Entries = MATHS_FIGURE_VISUALS.filter((f) => pr1Paths.has(f.filePath));
 
 describe("DIAGRAMS-1 PR-1 bindings (Circles + Triangles) are exactly the eye-confirmed set", () => {
-  it("the pinned set is the size this PR shipped: 39 figures for 38 rows", () => {
+  it("the pinned set is the size this PR shipped: 39 figures for 38 rows (after the BANK-FIX merge)", () => {
     expect(PR1_BINDINGS).toHaveLength(39);
-    expect(new Set(PR1_BINDINGS.map(([q]) => q)).size).toBe(38);
+    expect(new Set(PR1_BINDINGS.map(([q]) => q)).size).toBe(38); // 37 + CIR-M05 + Exemplar SA-011 - 011a
     expect(pr1Paths.size).toBe(39); // no crop is reused for two bindings
     expect(pr1Entries).toHaveLength(39); // each pinned file is bound exactly once in the registry
   });

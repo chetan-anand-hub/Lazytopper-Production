@@ -17,12 +17,13 @@ export const ACIDS_BASES_SALTS_APQ: CanonicalQuestion[] = [
 
   // Science-PQ Q4 (Section A, MCQ, 1 mark)
   { id: "APQ-S-ACID-002", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "pH of Salt Solutions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Sonia has aqueous solutions of three salts — sodium acetate, sodium chloride and ammonium chloride in three test tubes. The test tubes are not labeled. On checking, she finds the pH of the solutions to be 4.6, 7.0 and 8.9. Which of the following correctly matches the salts with their respective pH? (A) pH4.6=NaOAc, pH7=NaCl, pH8.9=NH4Cl  (B) pH4.6=NaCl, pH7=NH4Cl, pH8.9=NaOAc  (C) pH4.6=NH4Cl, pH7=NaOAc, pH8.9=NaCl  (D) pH4.6=NH4Cl, pH7=NaCl, pH8.9=NaOAc",
-    options: ["A", "B", "C", "D"],
-    answer: "D",
+    questionText: "Sonia has aqueous solutions of three salts — sodium acetate, sodium chloride and ammonium chloride — in three test tubes. The test tubes are not labelled. On checking, she finds the pH of the solutions to be 4.6, 7.0 and 8.9. Which of the following correctly matches the salts with their respective pH?",
+    options: ["pH 4.6 = sodium acetate, pH 7.0 = sodium chloride, pH 8.9 = ammonium chloride", "pH 4.6 = sodium chloride, pH 7.0 = ammonium chloride, pH 8.9 = sodium acetate", "pH 4.6 = ammonium chloride, pH 7.0 = sodium acetate, pH 8.9 = sodium chloride", "pH 4.6 = ammonium chloride, pH 7.0 = sodium chloride, pH 8.9 = sodium acetate"],
+    answer: "pH 4.6 = ammonium chloride, pH 7.0 = sodium chloride, pH 8.9 = sodium acetate",
     solutionSteps: ["Salt of strong acid + strong base (NaCl) → pH neutral ≈ 7.", "Salt of weak acid + strong base (sodium acetate, NaOAc) → pH basic > 7 ⟹ 8.9.", "Salt of strong acid + weak base (NH4Cl) → pH acidic < 7 ⟹ 4.6."],
-    finalAnswer: "(d) D",
-    ncertRef: "APQ Science-PQ Q4", isCompetencyBased: true },
+    finalAnswer: "(d) pH 4.6 = ammonium chloride, pH 7.0 = sodium chloride, pH 8.9 = sodium acetate",
+    ncertRef: "APQ Science-PQ Q4", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
 
@@ -53,10 +54,11 @@ export const ACIDS_BASES_SALTS_APQ: CanonicalQuestion[] = [
     strategyHint: "REQUIRES-FIGURE: electrolysis set-up of brine showing X, Y and Z." },
 
   // Science-PQ2 Q37 OR variant (Section E, Case-Based, 4 marks)
-  { id: "APQ-S-ACID-006", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "HCl Formation and Acidic Property of Wet HCl Gas", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "From the chlor-alkali context (X = Cl2, Y = H2): write a balanced chemical reaction that takes place when 'X' and 'Y' react with each other. The product so produced will turn blue litmus red only when wet — why?",
-    answer: "H2 + Cl2 → 2 HCl. HCl turns litmus red only when wet because it must dissociate into H+ in water.",
-    solutionSteps: ["[1 mark] When hydrogen (Y) and chlorine (X) react, they combine to form hydrogen chloride gas: H2(g) + Cl2(g) → 2 HCl(g).", "[1 mark] Dry HCl gas does NOT turn dry blue litmus red, because in the absence of water it cannot release hydrogen ions.", "[1 mark] In the presence of moisture (wet litmus), HCl dissolves in the water and dissociates: HCl(g) + H2O → H3O+ + Cl−.", "[1 mark] The H+ (hydronium) ions so produced give the solution its acidic character, so only wet HCl turns blue litmus red."],
-    finalAnswer: "H2 + Cl2 → 2 HCl; wet HCl furnishes H+ ions ⟹ acidic ⟹ turns blue litmus red.",
-    ncertRef: "APQ Science-PQ2 Q37 (OR variant)", isCompetencyBased: true },
+  { id: "APQ-S-ACID-006", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reaction of H2 and Cl2; Acidic Nature of Wet HCl", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "In the chlor-alkali process, electrolysis of brine gives gas 'X' (chlorine) at the anode and gas 'Y' (hydrogen) at the cathode.\n(i) Write a balanced chemical equation for the reaction that takes place when 'X' and 'Y' react with each other.\n(ii) The product so formed turns blue litmus red only when it is wet, not when dry. Why?",
+    answer: "(i) H2 + Cl2 → 2HCl. (ii) Dry HCl gas does not release H+ ions; only in the presence of water does it ionise (HCl + H2O → H3O+ + Cl−), and these H+ ions turn blue litmus red.",
+    solutionSteps: ["[1 mark] (i) H2(g) + Cl2(g) → 2HCl(g).", "[1 mark] (ii) HCl shows acidic behaviour only in water: HCl + H2O → H3O+ + Cl−; dry HCl gives no H+ ions, so only wet HCl turns blue litmus red."],
+    finalAnswer: "(i) H2 + Cl2 → 2HCl; (ii) H+ (H3O+) ions form only in the presence of water.",
+    ncertRef: "APQ Science-PQ2 Q37 (OR variant)", isCompetencyBased: true,
+    sourceOverride: "others", },
 ];

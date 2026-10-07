@@ -304,7 +304,9 @@ describe("HPQ / predicted / promptD: the rows this lane removed stay removed", (
   it("CONTROL: the lookups see live rows (kept rows are found)", () => {
     expect(predictedIds.has("2026-QE-AR-05")).toBe(true);
     expect(packIds.has("M-TRI-4")).toBe(true);
-    expect(packIds.has("M-APPTRIG-7-D2")).toBe(true);
+    // BANK-FIX-1 PR-2 (2026-10-07): the "-D2" drill clones were removed (same questions under a second id);
+    // the control now names the surviving original row.
+    expect(packIds.has("M-APPTRIG-7")).toBe(true);
     expect(hpqIds.size).toBeGreaterThan(100);
   });
 

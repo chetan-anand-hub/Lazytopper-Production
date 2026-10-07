@@ -11,13 +11,13 @@ export const CG_PREBOARD: CanonicalQuestion[] = [
     "id": "PB-M-1-CG-A-001",
     "subject": "Maths",
     "topicKey": "coordinate-geometry",
-    "subtopic": "Equation of a Line through Two Points",
+    "subtopic": "Points satisfying a linear equation",
     "section": "A",
     "marks": 1,
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "The points (7, 2) and (−1, 0) lie on a line",
+    "questionText": "The points (7, 2) and (−1, 0) lie on the line:",
     "options": [
       "(a) 7y = 3x − 7",
       "(b) 4y = x + 1",
@@ -29,7 +29,8 @@ export const CG_PREBOARD: CanonicalQuestion[] = [
       "[1 mark] Test (b) 4y = x + 1: for (7, 2): 4(2) = 8 and 7 + 1 = 8 ✓; for (−1, 0): 4(0) = 0 and −1 + 1 = 0 ✓. Both points satisfy it. Answer: (b)."
     ],
     "finalAnswer": "(b) 4y = x + 1",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "PB-M-1-CG-A-002",

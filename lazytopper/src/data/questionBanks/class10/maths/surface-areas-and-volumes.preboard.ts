@@ -38,14 +38,14 @@ export const SAV_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Diagonal of a Cube Inscribed in a Sphere",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "The length of the diagonal of a cube that can be inscribed in a sphere of radius 7.5 cm is __________.",
-    "options": [],
+    "questionText": "The length of the diagonal of a cube that can be inscribed in a sphere of radius 7.5 cm is",
+    "options": ["7.5 cm", "15√3 cm", "15 cm", "5√3 cm"],
     "answer": "15 cm",
     "solutionSteps": [
-      "[1 mark] For a cube inscribed in a sphere, the space diagonal of the cube equals the diameter of the sphere. Diagonal = 2 × radius = 2 × 7.5 = 15 cm."
+      "[1 mark] 15 cm — the cube's space diagonal equals the sphere's diameter = 2 × 7.5 = 15 cm."
     ],
     "finalAnswer": "15 cm",
     "isCompetencyBased": false
@@ -57,14 +57,14 @@ export const SAV_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Forming a Cylinder from a Sheet",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A rectangular sheet of paper 40 cm × 22 cm is rolled to form a hollow cylinder of height 40 cm. Find the radius of the cylinder.",
-    "options": [],
+    "questionText": "A rectangular sheet of paper 40 cm × 22 cm is rolled to form a hollow cylinder of height 40 cm. The radius of the cylinder is",
+    "options": ["7 cm", "1.75 cm", "14 cm", "3.5 cm"],
     "answer": "3.5 cm",
     "solutionSteps": [
-      "[1 mark] On rolling along the side of length 22 cm, the width 22 cm becomes the circumference of the base: 2πr = 22 → 2 × (22/7) × r = 22 → r = 22 × 7 / 44 = 3.5 cm."
+      "[1 mark] 3.5 cm — base circumference = 22 cm: 2 × (22/7) × r = 22 ⇒ r = 3.5 cm."
     ],
     "finalAnswer": "3.5 cm",
     "isCompetencyBased": false
@@ -100,14 +100,14 @@ export const SAV_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Volume of a Cylinder",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "If the heights of two cylinders are equal and their radii are in the ratio 7 : 5, then the ratio of their volumes is __________.",
-    "options": [],
+    "questionText": "If the heights of two cylinders are equal and their radii are in the ratio 7 : 5, then the ratio of their volumes is",
+    "options": ["49 : 25", "7 : 5", "343 : 125", "25 : 49"],
     "answer": "49 : 25",
     "solutionSteps": [
-      "[1 mark] Volume of a cylinder = πr²h. With equal heights, ratio = r₁² : r₂² = 7² : 5² = 49 : 25."
+      "[1 mark] 49 : 25 — V = πr²h with equal h, so ratio = 7² : 5² = 49 : 25."
     ],
     "finalAnswer": "49 : 25",
     "isCompetencyBased": false
@@ -119,14 +119,14 @@ export const SAV_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Total Surface Area of a Hemisphere",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "What is the ratio of the total surface area of a solid hemisphere to the square of its radius?",
-    "options": [],
+    "questionText": "The ratio of the total surface area of a solid hemisphere to the square of its radius is",
+    "options": ["2π : 1", "3π : 1", "4π : 1", "π : 1"],
     "answer": "3π : 1",
     "solutionSteps": [
-      "[1 mark] Total surface area of a solid hemisphere = 3πr². Ratio to r² = 3πr² : r² = 3π : 1."
+      "[1 mark] 3π : 1 — TSA of a solid hemisphere = 2πr² + πr² = 3πr², so the ratio is 3π : 1."
     ],
     "finalAnswer": "3π : 1",
     "isCompetencyBased": false

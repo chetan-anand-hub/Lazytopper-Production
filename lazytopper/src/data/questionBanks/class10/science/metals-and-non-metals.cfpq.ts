@@ -142,8 +142,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
-      KRUNAL_STIMULUS +
-      "What is likely to happen to the concentration of copper sulphate in the solution on passing electric current through the solution in the set-up with the silver plate?",
+      "Krunal connected a copper plate and an iron plate to the positive and negative terminals of a battery respectively along with a switch. He immersed the plates into a beaker containing acidified copper sulphate solution. He then repeated the experiment with the iron plate replaced by a silver plate (copper plate still connected to the positive terminal, silver plate to the negative terminal).\n\nWhat is likely to happen to the concentration of copper sulphate in the solution on passing electric current through the solution in the set-up with the silver plate?",
     options: [
       "It will increase.",
       "It will decrease.",
@@ -158,6 +157,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.3 — CFPQ_Science10.pdf, questions pdf pp.20–23 (printed folios 19–22)",
     requiresDiagram: false,
+    sourceOverride: "others",
   },
   // pdf-page 21 (folio 20) — Q5. Key: pdf-page 24, option 1.
   {
@@ -171,8 +171,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
-      KRUNAL_STIMULUS +
-      "Which of the following will happen to the weights of the silver and copper plates after passing the current for some time?",
+      "Krunal connected a copper plate and an iron plate to the positive and negative terminals of a battery respectively along with a switch. He immersed the plates into a beaker containing acidified copper sulphate solution. He then repeated the experiment with the iron plate replaced by a silver plate (copper plate still connected to the positive terminal, silver plate to the negative terminal).\n\nWhich of the following will happen to the weights of the silver and copper plates after passing the current for some time?",
     options: [
       "The weight of the silver plate will increase and that of the copper plate will decrease.",
       "The weight of the copper plate will increase and that of the silver plate will decrease.",
@@ -187,6 +186,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.3 — CFPQ_Science10.pdf, questions pdf pp.20–23 (printed folios 19–22)",
     requiresDiagram: false,
+    sourceOverride: "others",
   },
   // pdf-page 21 (folio 20) — Q6 [5]. Rubric: pdf-page 25.
   {
@@ -222,17 +222,19 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     subtopic: "Occurrence of Metals in Nature",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "Listed here is the reactivity of certain metals.\n\nMetal | Reaction with air | Reaction with water | Reaction with dilute acids\nGold | Does not oxidise or burn | No reaction | No reaction\nSodium | Burns vigorously to form an oxide | Violent reaction | Violent reaction\nZinc | Burns to form an oxide | Reacts on heating | Reacts to produce hydrogen\nPlatinum | No reaction | Does not dissolve or react | No reaction\n\nFrom the list above, identify the metal(s) that are likely to be found in a pure state in the Earth's crust.",
-    answer: "gold and platinum",
-    solutionSteps: ["[1 mark] 0.5 marks each for identifying the following: gold; platinum."],
-    finalAnswer: "gold and platinum",
+      "Listed here is the reactivity of certain metals.\n\nMetal | Reaction with air | Reaction with water | Reaction with dilute acids\nGold | Does not oxidise or burn | No reaction | No reaction\nSodium | Burns vigorously to form an oxide | Violent reaction | Violent reaction\nZinc | Burns to form an oxide | Reacts on heating | Reacts to produce hydrogen\nPlatinum | No reaction | Does not dissolve or react | No reaction\n\nWhich metal(s) are likely to be found in a pure (free) state in the Earth's crust?",
+    answer: "Gold and platinum",
+    solutionSteps: ["[1 mark] Gold and platinum — gold and platinum react with nothing in the table, so they stay uncombined in nature."],
+    finalAnswer: "Gold and platinum",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.3 — CFPQ_Science10.pdf, questions pdf pp.20–23 (printed folios 19–22)",
     requiresDiagram: false,
+    options: ["Sodium and zinc", "Sodium only", "Gold and platinum", "Zinc and platinum"],
+    sourceOverride: "others",
   },
   // pdf-page 22 (folio 21) — Q8 [2]. Rubric: pdf-page 25.
   {
@@ -268,22 +270,25 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     subtopic: "Corrosion and Its Prevention",
     section: "E",
     marks: 4,
-    format: "Short",
+    format: "Case-Based",
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
-      "A piece of iron rusts when it comes in contact with air and moisture. Prakash had two identical shiny iron pieces P and Q. To prevent the pieces from rusting, he coated piece P with oil paint and he galvanized piece Q with a coat of zinc metal. He noticed that the coatings were not complete and that a small part of the iron was exposed in both the pieces.\n\nWhat is Prakash likely to observe about the exposed parts of the two iron pieces after some days? Explain why.",
+      "A piece of iron rusts when it comes in contact with air and moisture. Prakash had two identical shiny iron pieces P and Q. To prevent the pieces from rusting, he coated piece P with oil paint and he galvanized piece Q with a coat of zinc metal. He noticed that the coatings were not complete and that a small part of the iron was exposed in both the pieces.\n\n(i) What is Prakash likely to observe about the exposed part of piece P after some days? [1]\n(ii) What is he likely to observe about the exposed part of piece Q after some days? [1]\n(iii) Explain the reason for the difference in the two observations. [2]",
     answer:
       "The exposed part of piece P is rusted; the exposed part of piece Q is not rusted. Oil painting prevents rusting only by preventing contact of iron with moist air, whereas galvanising also protects by zinc getting oxidised in preference to iron as it is more reactive than iron.",
     solutionSteps: [
-      "[2 marks] 1 mark each for the following: The exposed part of piece P is rusted. The exposed part of piece Q not rusted.",
-      "[2 marks] 1 mark each for the following: Oil painting prevents rusting only by preventing contact of iron with moist air. [1 mark] Galvanising also protects by zinc getting oxidised in preference to iron as it is more reactive than iron. [1 mark]",
+      "[1 mark] (i) The exposed part of piece P gets rusted.",
+      "[1 mark] (ii) The exposed part of piece Q does not get rusted.",
+      "[1 mark] (iii) Oil paint prevents rusting only by preventing contact of iron with moist air, so the exposed iron of P rusts.",
+      "[1 mark] (iii) In galvanising, zinc is more reactive than iron and gets oxidised in preference to iron, so even the exposed iron of Q is protected."
     ],
     finalAnswer:
       "P's exposed part rusts, Q's does not - paint is only a physical barrier, while zinc gives sacrificial protection.",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.3 — CFPQ_Science10.pdf, questions pdf pp.20–23 (printed folios 19–22)",
     requiresDiagram: false,
+    sourceOverride: "others",
   },
   // pdf-page 22 (folio 21) — Q10 [2]. Rubric: pdf-page 26.
   {
@@ -342,17 +347,19 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     subtopic: "Extraction of Metals - Reduction with Carbon",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
-      "A metal oxide on being heated with carbon does NOT produce carbon dioxide.\n\nGive a possible explanation for this behaviour of the metal oxide.",
-    answer: "The metal is more reactive than carbon.",
-    solutionSteps: ["[1 mark] The metal is more reactive than carbon."],
-    finalAnswer: "The metal is more reactive than carbon, so carbon cannot reduce its oxide.",
+      "A metal oxide on being heated with carbon does NOT produce carbon dioxide. The most likely explanation is that",
+    answer: "the metal is more reactive than carbon",
+    solutionSteps: ["[1 mark] the metal is more reactive than carbon — carbon can reduce an oxide only of a less reactive metal; a more reactive metal holds on to its oxygen."],
+    finalAnswer: "the metal is more reactive than carbon",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.3 — CFPQ_Science10.pdf, questions pdf pp.20–23 (printed folios 19–22)",
     requiresDiagram: false,
+    options: ["the metal is less reactive than carbon", "the metal oxide is basic in nature", "carbon dioxide reacts with the metal as soon as it forms", "the metal is more reactive than carbon"],
+    sourceOverride: "others",
   },
   // pdf-page 23 (folio 22) — Q13 [2]. Rubric: pdf-page 26.
   {

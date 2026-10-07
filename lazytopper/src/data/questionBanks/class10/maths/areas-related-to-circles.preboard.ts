@@ -14,14 +14,14 @@ export const ARC_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Length of an Arc of a Sector",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Length of arc of a sector of angle 45° of a circle of radius 14 cm is __________.",
-    "options": [],
+    "questionText": "The length of the arc of a sector of angle 45° of a circle of radius 14 cm is",
+    "options": ["22 cm", "5.5 cm", "11 cm", "77 cm"],
     "answer": "11 cm",
     "solutionSteps": [
-      "[1 mark] Arc length = (θ/360°) × 2πr = (45/360) × 2 × (22/7) × 14 = (1/8) × 88 = 11 cm."
+      "[1 mark] 11 cm — (45/360) × 2 × (22/7) × 14 = (1/8) × 88 = 11 cm."
     ],
     "finalAnswer": "11 cm",
     "isCompetencyBased": false
@@ -33,14 +33,14 @@ export const ARC_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Distance Covered by a Wheel",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "The diameter of a wheel is 1.26 m. What is the distance covered in 500 revolutions?",
-    "options": [],
+    "questionText": "The diameter of a wheel is 1.26 m. The distance covered by it in 500 revolutions is",
+    "options": ["990 m", "3960 m", "630 m", "1980 m"],
     "answer": "1980 m",
     "solutionSteps": [
-      "[1 mark] Distance in one revolution = circumference = πd = (22/7) × 1.26 = 3.96 m. Distance in 500 revolutions = 500 × 3.96 = 1980 m."
+      "[1 mark] 1980 m — one revolution = πd = (22/7) × 1.26 = 3.96 m; 500 × 3.96 = 1980 m."
     ],
     "finalAnswer": "1980 m",
     "isCompetencyBased": false
@@ -76,14 +76,14 @@ export const ARC_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Area of a Circle",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "If the radius of a circle is 14 cm, the area of the circle is __________.",
-    "options": [],
+    "questionText": "If the radius of a circle is 14 cm, the area of the circle is",
+    "options": ["616 cm²", "88 cm²", "154 cm²", "1232 cm²"],
     "answer": "616 cm²",
     "solutionSteps": [
-      "[1 mark] Area = πr² = (22/7) × 14 × 14 = 22 × 28 = 616 cm²."
+      "[1 mark] 616 cm² — πr² = (22/7) × 14 × 14 = 616 cm²."
     ],
     "finalAnswer": "616 cm²",
     "isCompetencyBased": false
@@ -95,16 +95,16 @@ export const ARC_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Area Between Two Concentric Circles (Ring)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Two coins of diameter 2 cm and 4 cm respectively are kept one over the other (concentrically) as shown in the figure. Find the area of the shaded ring-shaped region (in square cm).",
-    "options": [],
-    "answer": "3π cm² (≈ 9.43 cm²)",
+    "questionText": "Two coins of diameter 2 cm and 4 cm respectively are kept one over the other (concentrically) as shown in the figure. The area of the shaded ring-shaped region is",
+    "options": ["π cm²", "3π cm²", "4π cm²", "12π cm²"],
+    "answer": "3π cm²",
     "solutionSteps": [
-      "[1 mark] The larger coin has radius 2 cm and the smaller has radius 1 cm. Area of ring = π(R² − r²) = π(2² − 1²) = π(4 − 1) = 3π ≈ 9.43 cm²."
+      "[1 mark] 3π cm² — radii are 2 cm and 1 cm; area = π(2² − 1²) = 3π cm² (≈ 9.43 cm²)."
     ],
-    "finalAnswer": "3π cm² ≈ 9.43 cm²",
+    "finalAnswer": "3π cm²",
     "isCompetencyBased": false,
     "requiresDiagram": true,
     "diagramDescription": "Two concentric circles: an outer circle of diameter 4 cm (radius 2 cm) and an inner circle of diameter 2 cm (radius 1 cm) placed centrally over it. The annular region between the two circles is shaded."

@@ -1899,6 +1899,204 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LTG-S-EYE-207",              // persistence of vision
   "LTG-S-EYE-212",              // persistence of vision
   "LTG-S-EYE-215",              // persistence of vision
+  // ---- CBQ-1 C2 (owner ruling 2026-10-07 03:07Z, Option B): sex determination is a "brief introduction" in the
+  // 2026-27 syllabus — capped at 8 generated CBQs, no 5-mark rows; the excess is withheld (kept in the pack) ----
+  "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291",
+  "LTG-S-HERED-292", "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297",
+  "LTG-S-HERED-298", "LTG-S-HERED-299", // the two 5-mark sex-determination rows
+  // ---- BANK-FIX-1 PR-2 (2026-10-07): broken tagging, duplicates, missing figures, out-of-syllabus (withholds2.json) ----
+  "PYQ-S-2026-ACID-012",        // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
+  "PYQ-S-ACID-001",             // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
+  "APQ-M-ARC-001",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
+  "APQ-M-ARC-002",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
+  "APQ-M-ARC-003",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
+  "APQ-M-ARC-004",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
+  "APQ-M-ARC-006",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
+  "APQ-M-ARC-008",              // figure: Shaded sector is defined only by the Fibonacci-grid figure, which is missing (strategyHint says REQUIRES-FIGURE). The stem cannot identify which sector or radius is me...
+  "APQ-M-ARC-010",              // figure: The shaded segment and angle MON = 90 deg come only from the missing figure. The stem does not define the region. APQ source, not authored.
+  "Z3-ARC-004",                 // figure: Figure shows a rounded-corner table but the inset corner looks square and no corner radius is given; text describes a plain rectangle (no circle content). Key still ca...
+  "APQ-S-CARB-005",             // figure: Stem depends on a reaction-scheme figure ('chemical changes shown') absent from text; X cannot be identified without it.
+  "CARB-EXMPLR-4-MCQ-005",      // figure: Options (i)-(iv) refer to NCERT structure figures not in the row; unanswerable without them.
+  "CARB-EXMPLR-4-MCQ-010",      // figure: Options are bare labels for missing electron-dot diagrams; option content not recoverable.
+  "CARB-EXMPLR-4-MCQ-016",      // figure: Options are bare labels for missing benzene structure drawings.
+  "CARB-EXMPLR-4-MCQ-022",      // figure: Options are bare labels for missing water electron-dot drawings.
+  "CARB-EXMPLR-4-MCQ-023",      // figure: Options are bare labels for missing hydrocarbon structures.
+  "CARB-EXMPLR-4-MCQ-024",      // figure: Structures (ii)-(iv) are a placeholder; answer depends on missing figure.
+  "SCO-S-CARB-010",             // figure: Stem relies on 'structures of three hydrocarbons given below' which are absent; the answer cannot be determined without them.
+  "PYQ-S-2026-CHEMRXN-013",     // figure: Part (i) asks to identify 'P' in a leaf cross-section diagram not present; answer fields are also truncated ('photosynthesis.'). Also mis-chaptered (Life Processes).
+  "APQ-M-CIRC-009",             // figure: Needs the figure: positions of P, Q, L, M are not recoverable from text; answer field contradicts finalAnswer (80°), and a text reconstruction gives neither key.
+  "APQ-M-CIRC-010",             // figure: Stem gives no angle; the 25° and the position of P exist only in the absent figure. Cannot be answered from text.
+  "PYQ-M-2024-CIRC-003",        // figure: ∠x is defined only in the absent figure; the stem cannot be answered from text and the garble cannot reveal what x is.
+  "PYQ-M-2024-CIRC-010a",       // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
+  "PYQ-M-CIRC-001",             // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
+  "PYQ-M-CIRC-006",             // figure: x is an angle defined only in the missing figure; cannot be stated without inventing the figure.
+  "PYQ-M-CIRC-007",             // figure: Point D and the angle COD are defined only by the figure; answer 30° cannot be reconstructed confidently from text.
+  "PYQ-M-2026-CIRC-005",        // figure: Two-circle configuration (points P, A, S, positions of M,N,T) needs the figure; scheme itself notes ambiguity of TB (45 vs 56 cm).
+  "PYQ-M-CIRC-013",             // figure: Position of A and Q (and that A, O, Q are collinear, which the proof relies on) is fixed only by the figure; not stated in text.
+  "CTRL-EXMPLR-6-SA-003",       // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
+  "SCO-S-CTRL-012",             // figure: Positions of anaesthetic blocks X, Y, Z exist only in the missing figure; answer 'At Z' cannot be determined from text.
+  "APQ-M-CG-005",               // figure: The ring radii and point values of the target board are figure-only. Parts (i)-(iii) depend on them, and the 2/3 boundary radii in the steps come from the unseen figure.
+  "PYQ-M-2024-CG-006",          // figure: Case depends on the rocket design drawn on graph paper; coordinates of A–G are not in the text, so parts cannot be answered without the figure.
+  "PYQ-M-2024-CG-007",          // figure: Case asks for P, Q, R read off the chart figure (not in text); stem also has Hindi page-header junk and the answer is garbled.
+  "SCO-S-ELEC-011",             // figure: Depends on three circuit diagrams (I, II, III) whose topology is not in the text; cannot be answered or reconstructed without them.
+  "PYQ-S-ELEC-001",             // figure: Which wire (A or B) has higher resistivity depends entirely on the slopes in the V-I graph, which is not in the text; answer is also mojibake-damaged.
+  "PYQ-S-ELEC-003",             // figure: Part (iii) asks which of graphs A/B is series vs parallel; the answer depends on the graph slopes, which are not given and cannot be reconstructed without inventing fi...
+  "SCQ-S-HERED-043",            // figure: Part (a) 'Fill in the boxes' depends on a cross diagram not present in the text; boxes cannot be answered without inventing the figure.
+  "SCQ-S-HERED-042",            // figure: Asks to identify male/female 'in the figures' and fill blanks 3 to 8 that exist only in the absent figure; cannot be answered from text.
+  "HERED-EXMPLR-8-LA-002",      // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
+  "SCO-S-REPR-014",             // figure: Options are numbered labels 1-5 of a carpel diagram that is not provided; unanswerable.
+  "SCO-S-REPR-015",             // figure: Options are bare letters A-D referring to a missing table of conditions; option content not recoverable.
+  "APQ-S-LIFE-002",             // figure: Options are graphs P/Q/R/S not described anywhere in the row; cannot be answered without the figure.
+  "APQ-S-LIFE-012",             // figure: All parts rely on chamber numbers 6-9 and structure 12 of a heart diagram that is not provided or described.
+  "PYQ-S-LIFE-002",             // figure: Asks to identify cells I-IV in a diagram that is not provided or described; option (d) also garbled.
+  "SCO-S-LIFE-003",             // figure: Asks which numbered cells (1-4) of a leaf diagram contain chloroplasts; diagram neither provided nor described.
+  "SCO-S-LIFE-020",             // figure: Labels W, X, Y, Z exist only in the missing diagram of the gas-exchange system; stem is also garbled. Cannot be answered without inventing the figure.
+  "PYQ-S-2025-LIGHT-005",       // figure: Options are angle numbers 1-7 marked on an undescribed prism figure; no text in the row identifies which number is which angle - unanswerable without the figure.
+  "PYQ-S-2026-MAG-001",         // figure: Part (a)(i) depends on an undrawn diagram of magnets X and Y, and the OR block is Hindi-stripped garble. The answer only covers part of the question. Not authored.
+  "PYQ-S-MAG-002",              // figure: Answer depends on the alpha particle's direction 'as shown' (no figure or text given). The options are also generic Assertion-Reason residue, so neither options nor ke...
+  "PYQ-S-MAG-003",              // figure: The directions of the field and the particle's entry exist only in the absent figure ('as shown'), so the direction of force cannot be derived from the row text.
+  "SCQ-S-MAG-024",              // figure: 'Identify the poles of the magnet in the given figure' — the figure (labels A1, B1, field-line directions) is not in the row's text and cannot be reconstructed from it.
+  "SCQ-S-MAG-041",              // figure: Part (b) asks the direction of the alpha-particle's deflection 'as shown below'; field and velocity directions exist only in the unbound figure, and the row's steps ju...
+  "METAL-EXMPLR-3-MCQ-036",     // figure: Options (a)-(d) are four cell diagrams that are not in the row; only the correct set-up is hinted, the three wrong figures are unknown. Cannot be answered or reconstru...
+  "PYQ-S-2026-ENV-001",         // figure: Stem relies on 'the given figure' of trophic levels T1–T5; no figure or description is carried by the row, so which label is the top level cannot be determined from text.
+  "SCO-S-ENV-015",              // figure: Needs the river/sewage diagram and graph locating points A-D; row carries no description of where A-D are, so the answer cannot be determined.
+  "SCO-S-ENV-017",              // figure: Needs the numbered energy-flow arrow diagram; row does not say which arrow is which, so options '4 3', '2 1' etc. are unanswerable.
+  "APQ-M-POLY-001",             // figure: Options are 'Graph (a)'-'Graph (d)' with no diagramDescription; the four graphs are not in the row, so the MCQ cannot be answered.
+  "PYQ-M-2026-POLY-005",        // figure: Bound figure is a cuboidal lamp shade (24×12×17 cm), not the Chenab parabolic arch with A, P, Q. Zeroes/span must be read from the arch diagram, so the row is unanswer...
+  "SQP-M-POLY-001",             // figure: Question is entirely about a graph not present in the text ('The given linear polynomial y = f(x)'); answer cannot be determined without it.
+  "APQ-M-STAT-003",             // figure: Needs the weight frequency table, which is absent; the row carries no table data (steps say REQUIRES-FIGURE), so it cannot be answered or reconstructed.
+  "APQ-M-STAT-008",             // figure: Needs the pyramid graph of MP ages; the row carries only Σf/Σfx totals, not the age-group data, so the figure cannot be reconstructed from the row.
+  "APQ-M-TRI-003",              // figure: Rod lengths/positions exist only in the figure; row's text carries no data (step says only 'Per MS: 111/7'). Cannot be answered or reconstructed.
+  "APQ-M-TRI-005",              // figure: x and y are undefined in the stem and the row carries no figure description ('REQUIRES-FIGURE' placeholder). Unanswerable.
+  "APQ-M-TRI-008",              // figure: Figure matches (right angle B, PT∥AB, SR∥BC, QT = 8 cm) but gives no AB/BC or position of P; with only AC = 25 and QT = 8 the area of ΔPQR is not determined. Steps' RC...
+  "APQ-M-TRI-009",              // figure: p and r are defined only in the figure; row text never defines r. Unanswerable from text.
+  "PYQ-M-2026-TRI-004",         // figure: Vertex coordinates exist only in the figure; stem gives none and the answer text is glyph-garbled, so B and C cannot be recovered with confidence. (Also belongs to coo...
+  "PYQ-M-TRI-002",              // figure: Position of O relative to A, B, P, Q is only in the figure; row text (answer/steps) carries no configuration, so the stem cannot be made self-contained.
+  "PYQ-M-TRI-003",              // figure: Positions of B, D, P relative to A and C are only in the figure; row text carries no configuration. Unanswerable from text.
+  "PYQ-M-TRI-004",              // figure: No lengths/expressions for x appear in the row; all data is in the missing figure.
+  "SQP-M-TRI-003",              // figure: Part (b) depends on an unprovided figure (positions of A,B,D,E,F,C); no diagramDescription and the steps do not fix the configuration reliably.
+  "APQ-M-TRIG-003",             // figure: The 'solved problem shown below' (its steps) is not included in the row; question cannot be answered.
+  "PYQ-M-2026-TRIG-002",        // figure: Refers to 'the diagram given above'; d, y, h, x and point X are defined only in the figure (none bound), sub-parts depend on them, and answer omits parts. Not reconstr...
+  "APQ-M-TRIG-017",             // figure: Row itself says REQUIRES-FIGURE; positions of planes relative to Anuja/Sarthak (e.g. C between them) are not in the text, and OR (iii) altitude of plane A (≈591 m) con...
+  "ARC-M06",                    // duplicate: Near-verbatim duplicate of ARC-M02 (same table cover, r = 28, ₹0.35). ARC-M02 is repaired and kept; this copy also depends on the missing figure.
+  "CIR-M08",                    // duplicate: duplicate of CIRC-N-NCERT-10-SA-004 (kept): Same AB+CD=AD+BC proof; keep official NCERT over LT-authored (pending fix is a step edit, not a withhold).
+  "PYQ-M-2024-CIRC-011a",       // duplicate: Identical question to PYQ-M-2024-CIRC-010a (same garbled stem plus '3 OR' residue); 010a is repaired, this is the worse copy.
+  "LIFE-EXMPLR-5-MCQ-034",      // duplicate: Same item as LIFE-EXMPLR-5-MCQ-014 (path of urine, identical four options reordered, same answer). Keep MCQ-014 (now correctly tagged Excretion); withhold this later c...
+  "LP2-054",                    // duplicate: Exact duplicate stem/options of LP2-001. Also weaker: 'Bacteria' distractor is arguable (some bacteria are autotrophic). Withhold this later copy, keep LP2-001.
+  "PYQ-M-POLY-006",             // duplicate: Same question as PYQ-M-POLY-005 (other paper set) with SECTION–C header residue and the same truncated answer; 005 is the repaired copy, this is the worse duplicate.
+  "PYQ-M-2025-REALNUM-001",     // duplicate: Same question/options/answer as PYQ-M-2025-REALNUM-002, which is clean; this copy has a whole General Instructions block in option (d) - the worse copy.
+  "TRIG2-E09",                  // duplicate: duplicate of TRIG-N-NCERT-8-SA-007 (kept): Same expression to evaluate; keep official NCERT Ex 8.2 Q1(ii) over LT-authored copy.
+  "TRIG2-M01",                  // duplicate: duplicate of TRIG-PRF-C-001 (kept): Same identity proof; both LT-authored. TRIG2-M01 has a spurious triangle-construction step; TRIG-PRF-C-001 is cleaner and complete.
+  "TRIG2-M05",                  // duplicate: duplicate of TRIG-N-NCERT-9-SA-004 (kept): Same tower/30 m/30° problem, same answer 10√3 m; keep official NCERT over LT-authored.
+  "TRIG2-M07",                  // duplicate: duplicate of TG3-020 (kept): Same identity proof; both LT-authored with a spurious construction line. TG3-020 has the fuller step-by-step working; TRIG2-M07 crams steps.
+  "RN-M03",                     // duplicate: duplicate of RN-N-NCERT-1-LA-002 (kept): Same √3 irrationality proof; keep official NCERT over LT-authored.
+  "RN2-013",                    // duplicate: duplicate of RN-M07 (kept): Same 3+2√5 proof, both LT-authored. RN-M07 is properly 3-mark with p/q form; RN2-013 is mislabelled 2-mark and looser.
+  "RN-M11",                     // duplicate: duplicate of RN2-050 (kept): Same √2 proof, both LT-authored. RN2-050 is fuller and cites prime lemma; RN-M11 also withheld vs NCERT LA-001. RN2-050 vs NCERT not in th...
+  "RN-M19",                     // duplicate: duplicate of RN-N-NCERT-1-LA-003 (kept): Same √5 irrationality proof; keep official NCERT over LT-authored.
+  "QE-M06",                     // duplicate: duplicate of QE-N-NCERT-4-LA-002 (kept): Same 360 km train problem, answer 40 km/h; keep official NCERT over LT-authored.
+  "QE-M13",                     // duplicate: duplicate of QE-N-EXMPLR-4-SA-008 (kept): Same 'increased by 12 = 160× reciprocal' problem, answer 8; keep official exemplar over LT-authored.
+  "AP-M09",                     // duplicate: duplicate of AP-N-NCERT-5-SA-001 (kept): Same AP (a3=5, a7=9) problem; keep official NCERT over LT-authored.
+  "CG-E16",                     // duplicate: duplicate of CG-N-NCERT-7-EX-016 (kept): Same isosceles check for (5,−2),(6,4),(7,−2); keep official NCERT over LT-authored.
+  "CG-E19",                     // duplicate: duplicate of CG-N-NCERT-7-EX-020 (kept): Same section-formula problem, ratio 2:3, answer (1,3); keep official NCERT over LT-authored.
+  "CG-M11",                     // duplicate: duplicate of CG-N-NCERT-7-EX-021 (kept): Same trisection of (4,−1),(−2,−3); keep official NCERT over LT-authored.
+  "CIR-M03",                    // duplicate: duplicate of CIRC-N-NCERT-10-LA-002 (kept): Same parallelogram-is-rhombus proof; keep official NCERT over LT-authored.
+  "CIR-M10",                    // duplicate: duplicate of CIRC-N-NCERT-10-SA-005 (kept): Same ∠PTQ=2∠OPQ proof; keep official NCERT over LT-authored.
+  "CIR-M19",                    // duplicate: duplicate of CIRC-N-NCERT-10-LA-001 (kept): Same circumscribed-triangle problem (BD=8, DC=6, r=4), AB=15, AC=13; keep official NCERT.
+  "PROB-E06",                   // duplicate: duplicate of PR2-006 (kept): Same two-coins at-least-one-head question, both LT-authored; PR2-006 is slightly fuller (explicit counts, P formula) and is the smaller id.
+  "CR-E10",                     // duplicate: duplicate of CHEM-NCERT-1-VSA-007 (kept): Same 'why paint iron articles' question; keep official NCERT over LT-authored.
+  "ABS-E04",                    // duplicate: duplicate of ABS2-053 (kept): Identical MCQ and options, both LT-authored. ABS2-053 has the 1-step Section A form; ABS-E04 has boilerplate explanation.
+  "CARB-M10",                   // duplicate: duplicate of CARB-NCERT-4-VSA-015 (kept): Same hydrogenation question; keep official NCERT over LT-authored.
+  "CTRL-EXMPLR-6-SA-009",       // duplicate: duplicate of CTRL-NCERT-6-SA-002 (kept): Same synapse question, both official (NCERT in-text vs exemplar, equal tier). NCERT row slightly fuller (receptors, post-synap...
+  "CTRL-NCERT-6-SA-007",        // duplicate: duplicate of CTRL-EXMPLR-6-LA-008 (kept): Identical question text; NCERT and exemplar are equal official tier; exemplar row is more complete (examples, feedback, 6 ste...
+  "CTRL-NCERT-6-LA-002",        // duplicate: duplicate of CTRL-EXMPLR-6-LA-001 (kept): Identical 5-mark question; equal official tier; exemplar row slightly more complete (myelin sheath, diagram hint).
+  "CIRC-N-NCERT-10-SA-001",     // duplicate: duplicate of PYQ-M-CIRC-015 (kept): Identical question; PYQ outranks NCERT and has a pending fix with clean steps; NCERT row has no answer.
+  "CIRC-N-NCERT-10-SA-002",     // duplicate: duplicate of PYQ-M-CIRC-012 (kept): Identical question text; PYQ outranks NCERT and the NCERT row has no answer.
+  "CBE-S-CHEM-C-003",           // duplicate: duplicate of CBE-S-CARB-C-003 (kept): Identical CBE item; equal tier; CARB row is cleaner (no redundant up-arrow with (g)) and is filed under the right chapter.
+  "RN-E09",                     // duplicate: duplicate of RN-E20 (kept): Same concept MCQ (non-zero rational times irrational); both LT-authored; E20 has stronger distractors and fuller explanation.
+  "PLE-M02",                    // duplicate: duplicate of PLE-N-NCERT-3-LA-002 (kept): Same digits problem (sum 66, difference 2); NCERT adds 'how many', which the full answer covers anyway; official wins over LT...
+  "APQ-M-AP-002",               // duplicate: duplicate of SQP-M-AP-001 (kept): Same AP MCQ; SQP outranks additional-practice official; SQP options are the official ones.
+  "CG-M01",                     // duplicate: duplicate of CG-N-NCERT-7-EX-005 (kept): Same y-axis equidistant point question; official NCERT wins over LT-authored; NCERT row has a full solution.
+  "CG-H11",                     // duplicate: duplicate of CG-N-NCERT-7-EX-010 (kept): Same parallelogram find-p question; official NCERT wins over LT-authored.
+  "CIR-H06",                    // duplicate: duplicate of PYQ-M-CIRC-014 (kept): Same tangent supplementary-angle theorem; PYQ outranks LT-authored (the PYQ text has trailing ' 3 10' noise that needs cleanup).
+  "APQ-M-CIRC-004",             // duplicate: duplicate of SP-M-2022-CIRC-C-001 (kept): Same inscribed-circle radius question (r = 11 cm); sample paper outranks additional-practice official.
+  "SAV-H05",                    // duplicate: duplicate of SAV-N-EXEM2-12-LA-006 (kept): Same pipe-and-pond question (same data); official exemplar wins over LT-authored.
+  "SAV2-R02",                   // duplicate: duplicate of SAV-N-NCERT-12-SA-005 (kept): Same hemisphere-and-cylinder vessel question; official NCERT wins over LT-authored.
+  "PROB-M04",                   // duplicate: duplicate of PROB-N-NCERT-14-SA-004 (kept): Same 90-discs probability question; official NCERT wins over LT-authored.
+  "CHEM-EXMPLR-1-MCQ-018",      // duplicate: duplicate of PYQ-S-2026-CHEMRXN-002 (kept): Same combination-reaction MCQ with the same options; PYQ outranks exemplar (the PYQ text has arrow glyph noise).
+  "SCO-S-METAL-003",            // duplicate: duplicate of METAL-NCERT-3-MCQ-003 (kept): Same MCQ with the same options; official NCERT wins over transcribed third-party.
+  "REP-E13",                    // duplicate: duplicate of REPR-NCERT-7-SA-010 (kept): Same puberty-changes-in-girls question; official NCERT wins over LT-authored.
+  "GDR-L-EQ-13",                // duplicate: duplicate of GDR-L-CBJ-028 (kept): Same five-part ray-diagram question; equal tier; CBJ-028 has cleaner wording and a diagram description.
+  "SCO-S-ACID-018",             // out-of-syllabus: Distinguishing Fe(II)/Fe(III) chloride by NaOH precipitate colours is qualitative cation analysis not in NCERT Class 10 2026-27; external (non-authored) row, so withhold.
+  "ARC-H03",                    // out-of-syllabus: Bending sectors into cones (slant = radius, arc = base circumference) is not in 2026-27 Areas Related to Circles or SA&V; cannot be naturally repaired within the chapt...
+  "CC2-023",                    // out-of-syllabus: Bond angle 109.5°, tetrahedral geometry and sp3 hybridisation are Class 11 content; no natural in-limit repair keeps this question (it would be a different question).
+  "CFPQ-S-CARB-015",            // out-of-syllabus: Not authored (CBSE CFPQ). Judging the list requires recognising 'methanoic acid' as a correct name — carboxylic-acid nomenclature is out of the 2026-27 syllabus (rulin...
+  "CI2-033",                    // out-of-syllabus: Number of common tangents of two circles is outside 2026-27 Circles (tangent at a point, two tangent theorems); also mis-tagged 3-mark MCQ. No natural in-limit repair...
+  "SCO-S-CTRL-001",             // out-of-syllabus: Brain stem composition (midbrain+pons+medulla), optic lobes and corpora striata are beyond NCERT Class 10. External source (cbjescco07), not authored. Its 'none of the...
+  "SCO-S-CTRL-002",             // out-of-syllabus: Pineal body as a vestige of the third eye is beyond NCERT Class 10 2026-27 content. External source (cbjescco07), not authored, so withhold instead of repairing.
+  "SCO-S-HERED-001",            // out-of-syllabus: Origin-of-life/early-atmosphere item belongs to evolution content excluded in 2026-27; not heredity.
+  "SCO-S-HERED-009",            // out-of-syllabus: Classification/taxonomy item belongs to the Evolution & classification portion excluded from 2026-27 board assessment.
+  "SCO-S-HERED-019",            // out-of-syllabus: Human/primate evolution item; evolution is excluded from the 2026-27 board syllabus.
+  "SCO-S-REPR-009",             // out-of-syllabus: Histology of seminiferous tubules (germinal epithelium) is beyond NCERT Class 10 2026-27; non-authored scraped row (also footer residue).
+  "SCO-S-REPR-018",             // out-of-syllabus: Stem mislabels seed/fruit dispersal as 'pollination'; seed dispersal is not in the Class 10 2026-27 syllabus; scraped, non-authored row with garbled explanation.
+  "SCO-S-EYE-010",              // out-of-syllabus: Dispersion without deviation using thin-prism combination (delta=(n-1)A) is Class 12; options also garbled.
+  "SCO-S-EYE-011",              // out-of-syllabus: Dew formation/saturation of air is not part of this chapter or the Class 10 2026-27 syllabus; option also truncated.
+  "EYE-EXMPLR-10-MCQ-004",      // out-of-syllabus: Sun appearing white at noon is taught within NCERT 'Colour of the Sun at sunrise and sunset', excluded for 2026-27; exemplar row (not authored).
+  "HEC2-007",                   // out-of-syllabus: Astigmatism/cylindrical lenses are not in the 2026-27 syllabus; also mis-tagged MCQ as 2-mark B. Repair would mean replacing the whole concept, not a natural fix.
+  "SCO-S-EYE-009",              // out-of-syllabus: Primary colours of light/colour mixing are not in NCERT Class 10 2026-27.
+  "SCO-S-EYE-014",              // out-of-syllabus: Infrared photography in fog (EM spectrum) is outside the Class 10 2026-27 syllabus.
+  "SCO-S-EYE-016",              // out-of-syllabus: Spherical aberration is not in the 2026-27 Class 10 Human Eye syllabus; stem is also vague. Non-authored source row.
+  "SCO-S-EYE-018",              // out-of-syllabus: Fraunhofer lines / absorption spectra are not in the 2026-27 Class 10 syllabus. Non-authored source row.
+  "SCO-S-LIGHT-001",            // out-of-syllabus: Atmospheric heat absorption of morning sun is not Class 10 content and borders on the excluded sunrise/sunset topic; option 'It is God gift' is also unserviceable. Non...
+  "LPX-A-063",                  // out-of-syllabus: Plasmolysis/exosmosis in hypertonic solution is Class 9 (Fundamental Unit of Life), not in the Class 10 2026-27 syllabus. Extracted (not authored) row; withhold.
+  "SCO-S-LIGHT-020",            // out-of-syllabus: Halving an equiconvex lens to get f=40 cm needs the lens-maker relation (f depends on surface radii), which is outside Class X 2026-27. Scraped row, not authored; cann...
+  "SCO-S-MAG-012",              // out-of-syllabus: Magnetic declination and ship-steering navigation are not in the Class X 2026-27 syllabus. The degree signs are also garbled ('8c', '18c'). Scraped, not authored.
+  "SCO-S-MAG-001",              // out-of-syllabus: Magnetic shielding by iron is not in NCERT Class 10 / CBSE 2026-27 content; third-party chapterwise row, not authored.
+  "SCO-S-MAG-002",              // out-of-syllabus: Induced magnetism / inducing magnet is not in NCERT Class 10 / CBSE 2026-27 content; third-party row.
+  "SCO-S-MAG-004",              // out-of-syllabus: Magnetic induction preceding attraction, magnetising an iron ring and demagnetisation by heating are not NCERT Class 10 content; third-party row.
+  "SCO-S-MAG-009",              // out-of-syllabus: Force between two parallel current-carrying conductors is not in NCERT Class 10 / CBSE 2026-27; third-party row.
+  "SCO-S-MAG-013",              // out-of-syllabus: Effective (magnetic) length of a magnet is not NCERT Class 10 content; third-party row.
+  "SCO-S-MAG-019",              // out-of-syllabus: Diamagnetism (bismuth bars aligning perpendicular to the field) is not NCERT Class 10 content; third-party row.
+  "SCO-S-ENV-002",              // out-of-syllabus: Ecosystem services is not part of the 2026-27 Class 10 Our Environment syllabus (ecosystem components, food chains/webs, ozone, waste management); non-authored source...
+  "SCO-S-ENV-003",              // out-of-syllabus: Global warming vs past natural climate change is not in Class 10 Our Environment (2026-27: ecosystem, food chains/webs, ozone, waste). External source (cbjescco15), no...
+  "SCO-S-ENV-006",              // out-of-syllabus: Greenhouse effect (CO2 absorbing radiated heat) is not part of Class 10 Our Environment 2026-27; external source row, cannot be retagged to another Class 10 chapter.
+  "SCO-S-ENV-007",              // out-of-syllabus: Carbon cycle/carbon reservoir is Class 9 Natural Resources (biogeochemical cycles), not Class 10 Our Environment; external row.
+  "SCO-S-ENV-013",              // out-of-syllabus: Hydrosphere/lithosphere definitions are Class 9 Natural Resources content, not Class 10 Our Environment; external row.
+  "SCO-S-ENV-016",              // out-of-syllabus: Population/biotic community definitions are not taught in NCERT Class 10 Our Environment (Class 12 Ecology); external row.
+  "SCO-S-ENV-019",              // out-of-syllabus: Human impact on the nitrogen cycle (acid rain, greenhouse gas) is outside Class 10 Our Environment 2026-27; external row.
+  "Z3-QE-003",                  // out-of-syllabus: Whole case is about a quadratic function's graph: y-/x-intercepts, vertex for maximum profit. Not 2026-27 Class 10 QE. Three of four answers are also 'pending verifica...
+  "APQ-M-RN-002",               // out-of-syllabus: Requires proving √6 (composite-surd) irrational - composite-surd irrationality is OUT for 2026-27 per syllabusGuard; row is official APQ (not authored), so not repaired.
+  "SAV-N-EXEM2-12-LA-010",      // out-of-syllabus: Transferring a bowl's liquid into bottles is the deleted 'conversion of solids' type; exemplar (not authored) row, cannot be naturally kept within scope. Also mis-tagg...
+  "SAV2-R06",                   // out-of-syllabus: Cistern-and-porous-bricks problem is from the deleted optional exercise (conversion/volume-transfer type); it is an NCERT copy, not naturally repairable within the 202...
+  "SAV2P1-R02",                 // out-of-syllabus: Hemispherical bowl → cylindrical bottles is the deleted conversion-of-solids type (same item as SAV-N-EXEM2-12-LA-010); repairing it would remove its entire content.
+  "TRI-N-NCERT-6-CB-002",       // out-of-syllabus: Built on NCERT Ex 6.5 Q10 (Pythagoras theorem section, deleted from 2026-27 Triangles); every part is pure Pythagoras with no Class 10 chapter home. Not LazyTopper-aut...
+  "AR-TRI-009",                 // out-of-syllabus: Assertion–Reason on RHS congruence of right triangles is Class 9 congruence content, not in Class 10 2026-27 syllabus; no natural repair within Triangles (similarity/B...
+  "PB-M-2-TRI-A-002",           // out-of-syllabus: Triangle-inequality / construction feasibility is Class 7/9 content with no home in the 2026-27 Class 10 syllabus; preboard row, not authored.
+  "REP2-046",                   // out-of-syllabus: double fertilisation is Class 12 content
+  "SCO-S-EYE-007",              // syllabus-excluded: Figure matches and key (II) is right, but the stem hinges on 'colour of the sun' = orange, i.e. reddened Sun at sunrise/sunset, which syllabusGuard marks OUT for human...
+  "CBE-S-MAGN-B-005",           // formative-only: Official CBE row framed on the input current to an electric motor; motor is formative-only (owner ruling R7). Also needs Fig. 1, and stating its description in text wo...
+  "CBE-S-MAGN-D-001",           // formative-only: Official CBE row asking the rule for the spin direction of an electric-motor coil; electric motor is formative-only (owner ruling R7). Not LazyTopper-authored, so not...
+  "HE-H04",                     // limit: X-linked colour-blindness inheritance (carriers, sex-linked crosses) is beyond the 'sex determination: brief introduction' limit; not naturally repairable without disc...
+  "HE2-019",                    // limit: ZW sex determination in birds is outside NCERT/CBSE scope (human XY only); repairing to humans would just duplicate standard items.
+  "HE2-040",                    // limit: X-linked recessive carrier cross is sex-linked inheritance, beyond the 2026-27 sex-determination limit; also an MCQ mistagged 2 marks.
+  "SCO-S-HERED-003",            // limit: Sex-linked (X-linked) eye-colour inheritance in Drosophila exceeds the 2026-27 'sex determination: brief introduction' limit; sourced (not authored).
+  "QE-N-EXMPLR-4-MCQ-005",      // limit: Scratch text not in served row and key (b) is right, but all four options have D < 0 (9−48, 9−12, 4.5−4√2, 9−36): it asks the sum of non-real roots, outside the 2026-2...
+  "PB-M-1-TRIG-C-001",          // limit: Transcribed preboard (not authored) using three sight-line right triangles (60° depression, 45°, 30° elevation) — breaches ≤2-triangle LIMIT; cannot be repaired as an...
+  "PB-M-2-TRIG-C-001",          // limit: Transcribed preboard (not authored) with three right triangles from one post (30°, 60°, 45°) — breaches ≤2-triangle LIMIT.
+  "CARB-EXMPLR-4-MCQ-011",      // garbled: Options (b)-(d) are placeholders ('different option'); original structures not recoverable from the row and would have to be invented.
+  "SCO-S-CTRL-013",             // garbled: Stem/options garbled (', , , P Q R S and T', ', P Q and T'), T's function missing, labels only in missing figure, and explanation contradicts the table; not reliably r...
+  "PYQ-S-2026-EYE-002",         // garbled: Figure matches (near point shifted N to N', rays converge behind retina = hypermetropia), but stem is garbled ('() () ,'), part (b) is absent, and 3 marks cannot be re...
+  "PYQ-M-2026-PLE-001",         // garbled: Options (a) "1 2 2 1 c c a a" and (c) "2 1 2 1 b b a a" are fraction extractions whose relation symbol (= or ≠) and order cannot be recovered; if either were an equali...
+  "CBE-M-RN-A-002",             // garbled: Premise is mathematically flawed: a cube of volume 15 m³ cannot fill a cube of 165/195/285 m³ with no space left; HCF of volumes is not a valid answer. Official CBSE i...
+  "PYQ-M-2025-TRIG-004",        // garbled: Sub-parts (i) and (ii) have no text (only mark residues); their wording and the figure labels B, C, D, E, h are not recoverable from the row without guessing. Cannot s...
+  // BANK-FIX-1 PR-2 phase B (2026-10-07): rows the independent re-solve could not confirm (ambiguous wording / two defensible keys)
+  "EL2-004",                    // ambiguous: the options are ambiguous; the independent re-solve could not single out one key (phase B, b03)
+  "SCO-S-HERED-002",            // ambiguous: two options are defensible keys (independent re-solve, phase B, b03)
+  "CBE-S-CTRL-A-005",           // ambiguous: the figure shows an upright seedling and no light source, so light vs gravity is undecidable (figure pass, phase B)
+  "PYQ-M-RN-002",               // ambiguous: R ("prime factorisation of 5 has only two factors") supports (c) literally and (a) by intent; key and re-solve disagree (phase B, b06)
+  // BANK-FIX-2 (2026-10-07, controller D24): exam-technique prompts, not board content (no fair MCQ; not a Class 10 question)
+  "2026-TRIG-P1-A-041",         // not-board-content: "from which side should you start a proof" is proof-writing advice, not a question on the syllabus
+  "2026-TRIG-P1-A-043",         // not-board-content: "what final phrase ends a proof" (Hence proved) is exam etiquette, not syllabus content
+  "2026-TRIG-P1-A-044",         // not-board-content: "what to do before part (i) of a case study" is exam technique, not syllabus content
 ]);
 
 /**

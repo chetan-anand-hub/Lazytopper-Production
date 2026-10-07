@@ -19,14 +19,15 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
 
   // REQUIRES-FIGURE: bar magnet with horizontal plane ABCD passing through it (Figure 13.1)
   { id: "MAG-EXMPLR-12-MCQ-002", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field Lines", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "A straight vertical copper wire passes through the centre O of a horizontal cardboard ABCD and is connected to a battery through a plug key (NCERT Exemplar Figure 13.1). If the key is taken out (the circuit is made open) and magnetic field lines are drawn over the horizontal plane ABCD, the lines are",
+    questionText: "A straight vertical copper wire passes through the centre O of a horizontal cardboard ABCD and is connected to a battery through a plug key K, as shown in the given figure. If the key is taken out (the circuit is made open) and magnetic field lines are drawn over the horizontal plane ABCD, the lines are",
     options: ["concentric circles", "elliptical in shape", "straight lines parallel to each other", "concentric circles near the point O but of elliptical shapes as we go away from it"],
     answer: "straight lines parallel to each other",
     solutionSteps: ["With the key open no current flows in the wire, so the wire produces no magnetic field; only the Earth's (nearly uniform) magnetic field acts on the plane ABCD, whose field lines are straight lines parallel to each other → option (c)."],
     finalAnswer: "Option (c).",
     ncertRef: "Exemplar MCQ Q2", isCompetencyBased: true,
     strategyHint: "Figure 13.1 is a straight vertical current-carrying wire through cardboard ABCD (no bar magnet); with the key open only the Earth's uniform field remains.",
-    sourceOverride: "others",},
+    sourceOverride: "others",
+  },
 
   // REQUIRES-FIGURE: circular loop perpendicular to plane of paper, current as seen from A anti-clockwise, from B clockwise
   { id: "MAG-EXMPLR-12-MCQ-003", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field due to Circular Loop", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Applying",
@@ -48,13 +49,14 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
 
   // REQUIRES-FIGURE: uniform B field pointing left to right; electron moving in one direction and proton in another (Figure 13.3)
   { id: "MAG-EXMPLR-12-MCQ-005", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Force on Moving Charge", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "A uniform magnetic field exists in the plane of paper pointing from left to right as shown in Figure 13.3. In the field an electron and a proton move as shown. The electron and the proton experience",
+    questionText: "A uniform magnetic field exists in the plane of paper pointing from left to right as shown in the given figure. In the field an electron and a proton move as shown. The electron and the proton experience",
     options: ["forces both pointing into the plane of paper", "forces both pointing out of the plane of paper", "forces pointing into the plane of paper and out of the plane of paper, respectively", "force pointing opposite and along the direction of the uniform magnetic field respectively"],
     answer: "forces both pointing into the plane of paper",
-    solutionSteps: ["Force on a moving charge: F = q v × B. Note the sign of charge.", "The proton (positive) and the electron (negative) move in opposite directions in the figure, but the negative sign of the electron's charge flips the cross-product direction.", "Working out v × B and multiplying by the respective sign of charge gives the same force direction for both — both INTO the plane of paper.", "Hence option (a) is correct."],
+    solutionSteps: ["Force on a moving charge: F = q(v × B). In the figure B points to the right, the proton moves up the page and the electron moves down the page.", "Proton (+e, moving up): (up) × (right) = into the page, so the force on the proton is into the page.", "Electron (−e, moving down): (down) × (right) = out of the page; the negative charge reverses it, so the force is into the page. (Equivalently, the electron's conventional current is upward, like the proton.)", "Both forces point into the plane of paper — option (a)."],
     finalAnswer: "Option (a): both forces point into the plane of paper.",
     ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: B field arrows left→right; electron and proton velocities as shown. Use F = qv × B with sign of charge." },
+    strategyHint: "REQUIRES-FIGURE: B field arrows left→right; electron and proton velocities as shown. Use F = qv × B with sign of charge.",
+    sourceOverride: "others", },
 
   { id: "MAG-EXMPLR-12-MCQ-006", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Electric Motor", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Commercial electric motors do not use",

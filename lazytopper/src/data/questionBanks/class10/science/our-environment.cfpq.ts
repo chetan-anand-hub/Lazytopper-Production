@@ -156,24 +156,25 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     subtopic: "Food Chains and Food Webs",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Applying",
     questionText:
-      VISION_STIM +
-      "Observe the following food web. Classify the animals into two groups - one that would need to have vision as Animal 1 and another as Animal 2 in the diagram above.",
-    answer: "Animal 1: lion, jackal, kite, wild cat and owl. Animal 2: mouse, goat, rabbit.",
+      "Two animals differ in how far they can see without turning their heads. Animal 1 has eyes towards the front of the head: a narrower field of view, but a large central part is seen by both eyes at once. Animal 2 has eyes on either side of the head: a much wider field of view, but only a narrow central part is seen by both eyes.\n\nAnimal 2 can see a broader area at any time. Animal 1 can judge depth (distance) better.\n\nObserve the food web in the figure. Which grouping is correct?",
+    answer: "Like Animal 1: lion, jackal, kite, wild cat, owl; like Animal 2: mouse, goat, rabbit",
     solutionSteps: [
-      "[1 mark] Animal 1: lion, jackal, kite, wild cat and owl. Animal 2: mouse, goat, rabbit.",
+      "[1 mark] Like Animal 1: lion, jackal, kite, wild cat, owl; like Animal 2: mouse, goat, rabbit — predators need depth judgement to catch prey; prey need a wide view to spot predators."
     ],
     finalAnswer:
-      "Predators (lion, jackal, kite, wild cat, owl) need Animal 1 vision; prey (mouse, goat, rabbit) need Animal 2 vision.",
+      "Like Animal 1: lion, jackal, kite, wild cat, owl; like Animal 2: mouse, goat, rabbit",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.15 — CFPQ_Science10.pdf, questions pdf pp.133–135 (printed folios 132–134)",
     requiresDiagram: true,
     diagramDescription:
       VISION_DESC +
       " A second figure shows a food web drawn with pictures joined by arrows: a green plant (producer) at the left feeds a goat, a rabbit and a mouse; the goat and rabbit are eaten by a jackal and a wild cat; the mouse is eaten by an owl and a wild cat; the jackal and wild cat are eaten by a lion; and the mouse also leads to a kite. Labels read Green Plant producer, Goat, Rabbit, Mouse, Jackal, Wild cat, Owl, Kite and Lion.",
+    sourceOverride: "others",
+    options: ["Like Animal 1: mouse, goat, rabbit; like Animal 2: lion, jackal, kite, wild cat, owl", "Like Animal 1: kite, owl; like Animal 2: lion, jackal, wild cat, mouse, goat, rabbit", "Like Animal 1: lion, goat, jackal; like Animal 2: mouse, rabbit, kite, wild cat, owl", "Like Animal 1: lion, jackal, kite, wild cat, owl; like Animal 2: mouse, goat, rabbit"],
   },
   // pdf-page 134 (folio 133) — Q6 [1]. Rubric row 6: pdf-page 137.
   {
@@ -183,17 +184,19 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     subtopic: "Biodegradable and Non-biodegradable Waste",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "bone | metal can | paper sheet | plastic bottle\n\nArrange the four objects given above according to the time they take to get biodegraded (LEAST time TO MOST time).",
+      "bone | metal can | paper sheet | plastic bottle\n\nWhich option arranges these objects by the time they take to biodegrade, from LEAST time to MOST time?",
     answer: "paper sheet, bone, metal can, plastic bottle",
-    solutionSteps: ["[1 mark] paper sheet, bone, metal can, plastic bottle"],
-    finalAnswer: "paper sheet → bone → metal can → plastic bottle",
+    solutionSteps: ["[1 mark] paper sheet, bone, metal can, plastic bottle — paper decomposes fastest, then bone, then a metal can; plastic takes the longest."],
+    finalAnswer: "paper sheet, bone, metal can, plastic bottle",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.15 — CFPQ_Science10.pdf, questions pdf pp.133–135 (printed folios 132–134)",
     requiresDiagram: false,
+    options: ["paper sheet, bone, metal can, plastic bottle", "bone, paper sheet, plastic bottle, metal can", "plastic bottle, metal can, bone, paper sheet", "paper sheet, metal can, bone, plastic bottle"],
+    sourceOverride: "others",
   },
   // pdf-page 134 (folio 133) — Q7 [3]. Rubric row 7: pdf-page 137.
   {
@@ -254,21 +257,23 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     subtopic: "Food Chains and Trophic Levels",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
-      "Lions have no known natural predators.\n\nBased on energy transfer in a food chain, what could be the most likely reason for the above statement?",
+      "Lions have no known natural predators. Based on energy transfer in a food chain, the most likely reason is that",
     answer:
-      "Lions generally occur at the tertiary or quaternary levels in a food chain and energy available after that trophic level is not sufficient for sustenance.",
+      "too little energy remains above the lion's trophic level to support another predator",
     solutionSteps: [
-      "[1 mark] Lions generally occur at the tertiary or quaternary levels in a food chain and energy available after that trophic level is not sufficient for sustenance.",
+      "[1 mark] too little energy remains above the lion's trophic level to support another predator — lions are at the tertiary/quaternary level; after the 10% loss at each step, too little energy is left for a higher level."
     ],
     finalAnswer:
-      "Too little energy remains above the lion's trophic level to sustain a further predator.",
+      "too little energy remains above the lion's trophic level to support another predator",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.15 — CFPQ_Science10.pdf, questions pdf pp.133–135 (printed folios 132–134)",
     requiresDiagram: false,
+    options: ["energy increases at each higher trophic level, so lions get the most", "too little energy remains above the lion's trophic level to support another predator", "lions are at the first trophic level of the food chain", "lions obtain energy directly from the sun"],
+    sourceOverride: "others",
   },
 ];
 

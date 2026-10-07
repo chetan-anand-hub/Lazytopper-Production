@@ -73,11 +73,12 @@ export const AREAS_RELATED_TO_CIRCLES_PACK1: CanonicalQuestion[] = [
       "△ is equilateral (r = r, θ = 60°): area = (√3/4) × 14² = 49√3 ≈ 84.87 cm² [1]",
       "Segment area = 102.67 − 84.87 ≈ 17.8 cm² [1]",
     ], finalAnswer: "≈ 17.8 cm²" , isCompetencyBased: true },
-  { id: "ARC-M02", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A round table cover has six equal designs as shown in figure. If the radius of the cover is 28 cm, find the cost of making the designs at the rate of ₹0.35 per cm². (Use √3 = 1.7)", solutionSteps: [
-      "The cover is divided into 6 equilateral triangles by radii; Central angle per sector = 60°; Area of each sector = (60/360) × (22/7) × 28² = (1/6) × 2464 = 410.67 cm² [1]",
-      "Area of equilateral triangle = (√3/4) × 28² = (1.7/4) × 784 = 333.2 cm²; Area of each design (segment) = 410.67 − 333.2 = 77.47 cm² [1]",
-      "Total area of 6 designs = 6 × 77.47 = 464.8 cm²; Cost = 464.8 × 0.35 = ₹162.68 [1]",
-    ], finalAnswer: "≈ ₹162.68" , isCompetencyBased: true },
+  { id: "ARC-M02", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A round table cover of radius 28 cm has six equal designs. Each design is a minor segment of the circle cut off by a chord that subtends an angle of 60° at the centre (the six chords form a regular hexagon inscribed in the circle). Find the cost of making the designs at the rate of ₹0.35 per cm². (Use π = 22/7 and √3 = 1.7)", solutionSteps: [
+      "[1 mark] Area of each sector of angle 60° = (60/360) × (22/7) × 28² = 1232/3 ≈ 410.67 cm².",
+      "[1 mark] Each chord forms an equilateral triangle with the radii: area = (√3/4) × 28² = (1.7/4) × 784 = 333.2 cm². Area of each design (segment) = 410.67 − 333.2 = 77.47 cm².",
+      "[1 mark] Total area of 6 designs = 6 × 77.47 ≈ 464.8 cm²; Cost = 464.8 × 0.35 ≈ ₹162.68."
+    ], finalAnswer: "≈ ₹162.68" , isCompetencyBased: true,
+      sourceOverride: "others", },
   { id: "ARC-M03", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sectors and Segments", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A chord of a circle of radius 12 cm subtends an angle of 120° at the centre. Find the area of the corresponding segment. (Use π = 3.14, √3 = 1.73)", solutionSteps: [
       "Area of sector = (120/360) × 3.14 × 144 = 150.72 cm² [1]",
       "Area of triangle = (1/2) × 12 × 12 × sin 120° = 72 × (√3/2) = 36√3 = 62.28 cm² [1]",
@@ -180,20 +181,17 @@ export const AREAS_RELATED_TO_CIRCLES_PACK1: CanonicalQuestion[] = [
       "Slant height = original radius = 7 cm [1]",
       "h = √(49 − 49/9) = √(392/9) = 14√2/3 cm [1]",
     ], finalAnswer: "r = 7/3 cm, h = 14√2/3 cm" , isCompetencyBased: true },
-  { id: "ARC-H04", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "In the given figure, OACB is a quadrant of a circle with centre O and radius 3.5 cm. If OD = 2 cm, find the area of the (i) quadrant OACB (ii) shaded region.", solutionSteps: [
-      "[1 mark] Given: quadrant OACB with centre O and radius r = 3.5 cm, and OD = 2 cm. Area of a quadrant = (1/4)πr².",
-      "[1 mark] (i) Quadrant OACB = (1/4) × (22/7) × (3.5)² = (1/4) × (22/7) × 12.25 = 77/8 = 9.625 cm².",
-      "[1 mark] (ii) Shaded region = quadrant − △OBD, where OB is a radius = 3.5 cm and OD = 2 cm are mutually perpendicular.",
-      "[1 mark] Area of △OBD = (1/2) × OB × OD = (1/2) × 3.5 × 2 = 3.5 cm².",
-      "[1 mark] Shaded area = 9.625 − 3.5 = 6.125 cm².",
-    ], finalAnswer: "(i) 9.625 cm² (ii) 6.125 cm²" , isCompetencyBased: true },
-  { id: "ARC-H05", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "AB and CD are two perpendicular diameters of a circle of radius 7 cm. Find the area of the shaded region formed by two opposite quadrants.", solutionSteps: [
-      "[1 mark] Given: circle of radius r = 7 cm with perpendicular diameters AB and CD; the shaded region is made of two opposite quadrants.",
-      "[1 mark] Each quadrant subtends 90° at the centre, so area of one quadrant = (90/360) × πr² = (1/4)πr².",
-      "[1 mark] Area of one quadrant = (1/4) × (22/7) × 7² = (1/4) × 22 × 7 = 38.5 cm².",
-      "[1 mark] The two opposite quadrants are congruent, so the shaded area = 2 × area of one quadrant.",
-      "[1 mark] Total shaded area = 2 × 38.5 = 77 cm².",
-    ], finalAnswer: "77 cm²" , isCompetencyBased: true },
+  { id: "ARC-H04", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "OACB is a quadrant of a circle with centre O and radius 3.5 cm, where OA and OB are perpendicular radii. D is a point on the radius OA such that OD = 2 cm. The region of the quadrant lying outside triangle OBD is shaded. Find the area of (i) the quadrant OACB (ii) the shaded region. (Use π = 22/7)", solutionSteps: [
+      "[1 mark] (i) Area of quadrant OACB = (1/4)πr² = (1/4) × (22/7) × (3.5)² = 77/8 = 9.625 cm².",
+      "[1 mark] (ii) Since OB ⊥ OA, △OBD is right-angled at O: area = (1/2) × OB × OD = (1/2) × 3.5 × 2 = 3.5 cm².",
+      "[1 mark] Shaded area = area of quadrant − area of △OBD = 9.625 − 3.5 = 6.125 cm²."
+    ], finalAnswer: "(i) 9.625 cm² (ii) 6.125 cm²" , isCompetencyBased: true,
+      sourceOverride: "others", },
+  { id: "ARC-H05", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "AB and CD are two perpendicular diameters of a circle of radius 7 cm. Find the area of the shaded region formed by two opposite quadrants.", solutionSteps: [
+      "[1 mark] Each quadrant subtends 90° at the centre: area of one quadrant = (90/360) × πr² = (1/4) × (22/7) × 7² = 38.5 cm².",
+      "[1 mark] Shaded region = two opposite quadrants = 2 × 38.5 = 77 cm²."
+    ], finalAnswer: "77 cm²" , isCompetencyBased: true,
+      sourceOverride: "others", },
   { id: "ARC-H06", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sectors and Segments", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "The perimeter of a sector of a circle of radius 5.2 cm is 16.4 cm. Find the area of the sector.", solutionSteps: [
       "Perimeter = 2r + arc = 16.4 [1]",
       "Arc = 16.4 − 10.4 = 6 cm [1]",
