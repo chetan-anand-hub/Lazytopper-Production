@@ -1941,10 +1941,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCO-S-CARB-010",             // figure: Stem relies on 'structures of three hydrocarbons given below' which are absent; the answer cannot be determined without them.
   "PYQ-S-2026-CHEMRXN-013",     // figure: Part (i) asks to identify 'P' in a leaf cross-section diagram not present; answer fields are also truncated ('photosynthesis.'). Also mis-chaptered (Life Processes).
   "APQ-M-CIRC-009",             // figure: Needs the figure: positions of P, Q, L, M are not recoverable from text; answer field contradicts finalAnswer (80°), and a text reconstruction gives neither key.
-  "APQ-M-CIRC-010",             // figure: Stem gives no angle; the 25° and the position of P exist only in the absent figure. Cannot be answered from text.
   "PYQ-M-2024-CIRC-003",        // figure: ∠x is defined only in the absent figure; the stem cannot be answered from text and the garble cannot reveal what x is.
   "PYQ-M-2024-CIRC-010a",       // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
-  "PYQ-M-CIRC-001",             // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "PYQ-M-CIRC-006",             // figure: x is an angle defined only in the missing figure; cannot be stated without inventing the figure.
   "PYQ-M-CIRC-007",             // figure: Point D and the angle COD are defined only by the figure; answer 30° cannot be reconstructed confidently from text.
   "PYQ-M-2026-CIRC-005",        // figure: Two-circle configuration (points P, A, S, positions of M,N,T) needs the figure; scheme itself notes ambiguity of TB (45 vs 56 cm).
@@ -1962,12 +1960,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "HERED-EXMPLR-8-LA-002",      // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "SCO-S-REPR-014",             // figure: Options are numbered labels 1-5 of a carpel diagram that is not provided; unanswerable.
   "SCO-S-REPR-015",             // figure: Options are bare letters A-D referring to a missing table of conditions; option content not recoverable.
-  "APQ-S-LIFE-002",             // figure: Options are graphs P/Q/R/S not described anywhere in the row; cannot be answered without the figure.
-  "APQ-S-LIFE-012",             // figure: All parts rely on chamber numbers 6-9 and structure 12 of a heart diagram that is not provided or described.
   "PYQ-S-LIFE-002",             // figure: Asks to identify cells I-IV in a diagram that is not provided or described; option (d) also garbled.
   "SCO-S-LIFE-003",             // figure: Asks which numbered cells (1-4) of a leaf diagram contain chloroplasts; diagram neither provided nor described.
   "SCO-S-LIFE-020",             // figure: Labels W, X, Y, Z exist only in the missing diagram of the gas-exchange system; stem is also garbled. Cannot be answered without inventing the figure.
-  "PYQ-S-2025-LIGHT-005",       // figure: Options are angle numbers 1-7 marked on an undescribed prism figure; no text in the row identifies which number is which angle - unanswerable without the figure.
   "PYQ-S-2026-MAG-001",         // figure: Part (a)(i) depends on an undrawn diagram of magnets X and Y, and the OR block is Hindi-stripped garble. The answer only covers part of the question. Not authored.
   "PYQ-S-MAG-002",              // figure: Answer depends on the alpha particle's direction 'as shown' (no figure or text given). The options are also generic Assertion-Reason residue, so neither options nor ke...
   "PYQ-S-MAG-003",              // figure: The directions of the field and the particle's entry exist only in the absent figure ('as shown'), so the direction of force cannot be derived from the row text.
@@ -1982,15 +1977,12 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SQP-M-POLY-001",             // figure: Question is entirely about a graph not present in the text ('The given linear polynomial y = f(x)'); answer cannot be determined without it.
   "APQ-M-STAT-003",             // figure: Needs the weight frequency table, which is absent; the row carries no table data (steps say REQUIRES-FIGURE), so it cannot be answered or reconstructed.
   "APQ-M-STAT-008",             // figure: Needs the pyramid graph of MP ages; the row carries only Σf/Σfx totals, not the age-group data, so the figure cannot be reconstructed from the row.
-  "APQ-M-TRI-003",              // figure: Rod lengths/positions exist only in the figure; row's text carries no data (step says only 'Per MS: 111/7'). Cannot be answered or reconstructed.
   "APQ-M-TRI-005",              // figure: x and y are undefined in the stem and the row carries no figure description ('REQUIRES-FIGURE' placeholder). Unanswerable.
   "APQ-M-TRI-008",              // figure: Figure matches (right angle B, PT∥AB, SR∥BC, QT = 8 cm) but gives no AB/BC or position of P; with only AC = 25 and QT = 8 the area of ΔPQR is not determined. Steps' RC...
-  "APQ-M-TRI-009",              // figure: p and r are defined only in the figure; row text never defines r. Unanswerable from text.
   "PYQ-M-2026-TRI-004",         // figure: Vertex coordinates exist only in the figure; stem gives none and the answer text is glyph-garbled, so B and C cannot be recovered with confidence. (Also belongs to coo...
   "PYQ-M-TRI-002",              // figure: Position of O relative to A, B, P, Q is only in the figure; row text (answer/steps) carries no configuration, so the stem cannot be made self-contained.
   "PYQ-M-TRI-003",              // figure: Positions of B, D, P relative to A and C are only in the figure; row text carries no configuration. Unanswerable from text.
   "PYQ-M-TRI-004",              // figure: No lengths/expressions for x appear in the row; all data is in the missing figure.
-  "SQP-M-TRI-003",              // figure: Part (b) depends on an unprovided figure (positions of A,B,D,E,F,C); no diagramDescription and the steps do not fix the configuration reliably.
   "APQ-M-TRIG-003",             // figure: The 'solved problem shown below' (its steps) is not included in the row; question cannot be answered.
   "PYQ-M-2026-TRIG-002",        // figure: Refers to 'the diagram given above'; d, y, h, x and point X are defined only in the figure (none bound), sub-parts depend on them, and answer omits parts. Not reconstr...
   "APQ-M-TRIG-017",             // figure: Row itself says REQUIRES-FIGURE; positions of planes relative to Anuja/Sarthak (e.g. C between them) are not in the text, and OR (iii) altitude of plane A (≈591 m) con...
