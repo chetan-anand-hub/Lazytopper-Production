@@ -983,12 +983,6 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // student dismiss it (✕ / dim / Escape) without fighting the derived trigger. Reset on
   // an explicit Finish tap and on every fresh build/regenerate.
   const [scorecardDismissed, setScorecardDismissed] = useState<boolean>(false);
-  // PRACTICE-HONESTY-1 · THE STICKY REVIEW FLAG. Solution steps are locked until a question
-  // is answered OR the session is finished. Every existing close path (✕, "Back to this set",
-  // the graded sheet's return) calls setSessionFinished(false), so steps would RELOCK the
-  // moment the student went back to review. This flag is set by the Finish tap and by every
-  // "Back to this set" action, and cleared ONLY on a fresh build/regenerate (the reset below).
-  const [reviewMode, setReviewMode] = useState<boolean>(false);
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
 
   useEffect(() => {
@@ -1822,7 +1816,6 @@ const packTopicKey = useMemo(() => {
           setQuestions(next);
           setSessionFinished(false);
           setScorecardDismissed(false);
-          setReviewMode(false);
           setExpandedAnswers({});
           setMcqSelections({});
           setMcqResults({});
@@ -2306,37 +2299,6 @@ const packTopicKey = useMemo(() => {
         }),
     [sessionAnswers],
   );
-
-  /** PRACTICE-HONESTY-1 — the MCQ marks the student has ALREADY earned, from the local
-   *  option compare (free, instant). CBSE never step-marks an MCQ, so each answered MCQ
-   *  contributes its whole mark or nothing. `total` is the marks on the MCQs ANSWERED —
-   *  an unanswered MCQ is not counted against the student. */
-  const mcqMarks = useMemo(() => {
-    let awarded = 0;
-    let total = 0;
-    for (const a of sessionAnswers) {
-      if (a.pickedCorrect == null) continue;
-      const marks = Number(a.marks) || 0;
-      total += marks;
-      if (a.pickedCorrect) awarded += marks;
-    }
-    return { awarded, total };
-  }, [sessionAnswers]);
-
-  /** PRACTICE-HONESTY-1 · THE STEPS LOCK. A question's solution steps stay locked until the
-   *  student has TRIED it (picked an option, saved working, or had working checked) or the
-   *  session is finished — and stay unlocked in review mode (see `reviewMode`). */
-  const isStepsLocked = useCallback(
-    (qId: string) =>
-      !(mcqResults[qId] || savedAnswers[qId] || gradedResults[qId]) && !sessionFinished && !reviewMode,
-    [mcqResults, savedAnswers, gradedResults, sessionFinished, reviewMode],
-  );
-  /** "Back to this set (see the steps)" — reopen the SAME set with every step unlocked. */
-  const backToSetForReview = useCallback(() => {
-    setReviewMode(true);
-    setSessionFinished(false);
-    setScorecardDismissed(false);
-  }, []);
 
   /** The post-grade split rows, under the heading RESULTS-1 shipped as "Ready to grade"
    *  and \u00a79a corrects to "Diagnosed from your working" \u2014 because by the time this renders
@@ -2991,7 +2953,6 @@ const packTopicKey = useMemo(() => {
           savedAnswers={savedAnswers}
           onSaveAnswer={handleSaveAnswer}
           onRemoveAnswer={handleRemoveAnswer}
-          isStepsLocked={isStepsLocked}
         />
         )}
 
@@ -3008,7 +2969,6 @@ const packTopicKey = useMemo(() => {
                 });
                 setScorecardDismissed(false);
                 setSessionFinished(true);
-                setReviewMode(true);
               }}
               style={{
                 width: "100%",
@@ -3148,7 +3108,7 @@ const packTopicKey = useMemo(() => {
           fourType: aggregateFourType(response),
           // PR-2 (B7) — "Where your marks went" in MARKS when the grade carries them.
           marksLost: aggregateMarksLost(response),
-          onKeepPracticing: () => { setBatchResult(null); backToSetForReview(); },
+          onKeepPracticing: () => { setBatchResult(null); setSessionFinished(false); },
           onFreshSet: () => buildFreshSet(),
           returnTicket: overlay
             ? { label: "Back to your tutor", onReturn: overlay.onClose }
@@ -3163,21 +3123,20 @@ const packTopicKey = useMemo(() => {
      \u2605 It earns its place because batching is ONE SHOT: a student who forgot a question
      would otherwise pay for a second call. The gaps are NAMED, not counted. */
   if (batchSelection.batch.length > 0) {
+    const n = batchSelection.batch.length;
     return (
       <div className="qp-cf" data-testid="qp-confirm">
         <style>{QP_CONFIRM_CSS}</style>
         <div className="qp-cf__top">
           <div className="qp-cf__k">Session scorecard</div>
           <div className="qp-cf__kk">Quick practice</div>
-          {/* PRACTICE-HONESTY-1 — the Chapter Test / Full Mock model: the big number is the
-              MCQ MARKS already scored; the written answers are not scored until checked. */}
-          <div className="qp-cf__big" data-testid="qp-mcq-marks">
-            {mcqMarks.awarded}<small>{` / ${mcqMarks.total} MCQ mark${mcqMarks.total === 1 ? "" : "s"}`}</small>
+          <div className="qp-cf__big">
+            {sessionStats.localMcqCorrect}<small>{` of ${sessionStats.localMcqAnswered}`}</small>
           </div>
           <p className="qp-cf__lede">
             {sessionStats.localMcqAnswered > 0
-              ? "Your MCQs are scored. Get your written answers checked for the full result."
-              : "Get your written answers checked for the full result."}
+              ? `MCQs marked instantly. ${n} answer${n === 1 ? "" : "s"} ready to grade.`
+              : `${n} answer${n === 1 ? "" : "s"} ready to grade.`}
           </p>
         </div>
         <div className="qp-cf__body">
@@ -3265,15 +3224,16 @@ const packTopicKey = useMemo(() => {
             disabled={batchGrading}
             onClick={() => { void handleGradeBatch(); }}
           >
-            {batchGrading ? "Grading your answers\u2026" : "Check my written answers"}
+            {batchGrading ? "Grading your answers\u2026" : `Grade my ${n} answer${n === 1 ? "" : "s"}`}
           </button>
           <button
             type="button"
             className="qp-cf__cta qp-cf__cta--sec"
-            data-testid="qp-back-to-set"
-            onClick={backToSetForReview}
+            onClick={() => { setSessionFinished(false); setScorecardDismissed(false); }}
           >
-            Back to this set (see the steps)
+            {unansweredLabels.length > 0
+              ? `Go back and add ${unansweredLabels.join(", ")}`
+              : "Keep practising this set"}
           </button>
           {overlay && (
             <button
@@ -3300,10 +3260,7 @@ const packTopicKey = useMemo(() => {
         mcqAnswered: sessionStats.localMcqAnswered,
         mcqCorrect: sessionStats.localMcqCorrect,
         allDone,
-        mcqMarksAwarded: mcqMarks.awarded,
-        mcqMarksTotal: mcqMarks.total,
         onKeepPracticing: () => setSessionFinished(false),
-        onReviewSet: backToSetForReview,
         onFreshSet: () => buildFreshSet(),
         onChapterTest: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, back),
         onPredicted: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, back),

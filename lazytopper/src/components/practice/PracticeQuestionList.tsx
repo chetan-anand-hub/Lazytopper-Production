@@ -37,12 +37,6 @@ export interface PracticeQuestionListProps {
   savedAnswers?: Record<string, SolutionCheckerSavedWorking>;
   onSaveAnswer?: (qId: string, working: SolutionCheckerSavedWorking) => void;
   onRemoveAnswer?: (qId: string) => void;
-  /**
-   * PRACTICE-HONESTY-1 — the host's per-question steps lock, passed straight through to
-   * `PracticeQuestionCard.stepsLocked`. The host owns the rule (it alone holds every attempt
-   * signal and the finished/review state). Omitted ⇒ nothing is locked (shipped behaviour).
-   */
-  isStepsLocked?: (qId: string) => boolean;
 }
 
 export function PracticeQuestionList(props: PracticeQuestionListProps) {
@@ -51,7 +45,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     expandedAnswers, mcqSelections, mcqResults,
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
-    collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked,
+    collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer,
   } = props;
 
   return (
@@ -165,7 +159,6 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               savedAnswer={savedAnswers ? savedAnswers[String(q.id)] ?? null : null}
               onSaveAnswer={onSaveAnswer}
               onRemoveAnswer={onRemoveAnswer}
-              stepsLocked={isStepsLocked ? isStepsLocked(String(q.id)) : false}
             />
           ))}
         </div>

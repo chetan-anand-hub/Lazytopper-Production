@@ -14,7 +14,6 @@ import { practiceCardAttemptIdentity } from "../../services/attemptDedupKey";
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
 // CBQ-1 PR-1: the visible "CBQ" label, shown iff isCbq(q) (the one classifier).
 import { CbqLabel } from "../../lib/cbq/CbqLabel";
-import { StepsLockedNote } from "./StepsLockedNote";
 
 const REPORT_TYPES = [
   "Wrong answer given",
@@ -77,15 +76,6 @@ export interface PracticeQuestionCardProps {
   onSaveAnswer?: (qId: string, working: SolutionCheckerSavedWorking) => void;
   /** Collect mode: the student dropped the working saved for this question. */
   onRemoveAnswer?: (qId: string) => void;
-  /**
-   * PRACTICE-HONESTY-1 — the solution steps are locked until the student has tried the
-   * question. The HOST decides (it alone knows every attempt signal and whether the
-   * session is finished): `!(mcqResult || savedAnswer || graded) && !sessionFinished`.
-   * While locked, "Show steps" is replaced by `StepsLockedNote` and NOTHING inside the
-   * steps panel renders (steps, figures, the report link). Omitted / false ⇒ the shipped
-   * behaviour, so a consumer that does not opt in is byte-identical.
-   */
-  stepsLocked?: boolean;
 }
 
 const DIFFICULTY_BADGE: Record<string, { color: string; bg: string; border: string }> = {
@@ -152,10 +142,7 @@ export function PracticeQuestionCard({
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
   onAskTutor,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
-  stepsLocked = false,
 }: PracticeQuestionCardProps) {
-  // The ONE gate every steps render reads: a host's stale `isOpen` cannot leak the panel.
-  const stepsOpen = isOpen && !stepsLocked;
   const [showChecker, setShowChecker] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
   const stepSolutionRef = useRef<HTMLDivElement>(null);
@@ -205,7 +192,6 @@ export function PracticeQuestionCard({
   }, [q.id, reportType, reportComment, topicLabel, subjectKey, user?.uid, getToken, reportedKey]);
 
   const handleRequestStepSolution = useCallback(() => {
-    if (stepsLocked) return;
     if (!isOpen) {
       onSetActiveQuestion(String(q.id));
       onToggleAnswer(q.id, q);
@@ -213,7 +199,7 @@ export function PracticeQuestionCard({
     setTimeout(() => {
       stepSolutionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 120);
-  }, [isOpen, stepsLocked, q, onSetActiveQuestion, onToggleAnswer]);
+  }, [isOpen, q, onSetActiveQuestion, onToggleAnswer]);
 
   const handleToggleCheck = useCallback(() => {
     const newShow = !showChecker;
@@ -605,9 +591,6 @@ export function PracticeQuestionCard({
             <span>{showChecker ? (collectMode ? "Hide answer box" : "Hide check") : collectMode ? "Answer this question" : "Check my answer"}</span>
           </button>
         )}
-        {stepsLocked ? (
-          <StepsLockedNote />
-        ) : (
         <button
           data-testid="practice-mentor-cta"
           type="button"
@@ -627,7 +610,6 @@ export function PracticeQuestionCard({
         >
           <span>{isOpen ? "Hide steps" : "Show steps"}</span>
         </button>
-        )}
         {hasStructuredOptions && (
           <button
             type="button"
@@ -685,7 +667,7 @@ export function PracticeQuestionCard({
         />
       )}
 
-      {stepsOpen && (
+      {isOpen && (
         <div
           ref={stepSolutionRef}
           style={{
@@ -842,7 +824,7 @@ export function PracticeQuestionCard({
         </div>
       )}
 
-      {stepsOpen && reportState === "done" && (
+      {isOpen && reportState === "done" && (
         <div style={{
           marginTop: 10, fontSize: "0.75rem", color: PRIMARY_GREEN_FG,
           padding: "6px 10px", background: PRIMARY_GREEN_SOFT,
@@ -852,7 +834,7 @@ export function PracticeQuestionCard({
         </div>
       )}
 
-      {stepsOpen && reportState !== "done" && (
+      {isOpen && reportState !== "done" && (
         <div style={{ marginTop: 10 }}>
           {reportState === "idle" && (
             <button
