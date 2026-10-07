@@ -50,9 +50,15 @@ import { buildUnionPool, drawFullMock, fullMockChapterWeights } from "../compone
 const T = { timeout: 120_000 };
 
 const GEN: CanonicalQuestion[] = canonicalQuestionBank.filter((q) => q.origin === "lt-generated");
-// Owner DEC-12 (2026-10-07): persistence of vision is not in the 2026-27 Human Eye content list, so these
-// generated rows are WITHHELD (kept in their pack, not served). No other generated row may be withheld.
-const OWNER_WITHHELD_GENERATED: ReadonlySet<string> = new Set(["LTG-S-EYE-202", "LTG-S-EYE-207", "LTG-S-EYE-212", "LTG-S-EYE-215"]);
+// Owner rulings (2026-10-07): these generated rows are WITHHELD (kept in their pack, not served). No other
+// generated row may be withheld.
+//  - DEC-12: persistence of vision is not in the 2026-27 Human Eye content list.
+//  - 03:07Z Option B: sex determination ("brief introduction") capped at 8 CBQs with no 5-mark rows.
+const OWNER_WITHHELD_GENERATED: ReadonlySet<string> = new Set([
+  "LTG-S-EYE-202", "LTG-S-EYE-207", "LTG-S-EYE-212", "LTG-S-EYE-215",
+  "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291", "LTG-S-HERED-292",
+  "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297", "LTG-S-HERED-298", "LTG-S-HERED-299",
+]);
 const BANK_BY_ID = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
 
 /** The five thin concepts (B-16's list), each with the subtopic label its generated rows
