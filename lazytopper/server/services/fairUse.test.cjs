@@ -370,6 +370,25 @@ test('U2 · checks are counted PER QUESTION — a 3-question grade spends 3 chec
   assert.deepEqual(r2.ledger.trialWrites, [{ uid: 'stu-1', counts: { checks: 2 } }]);
 });
 
+// TRIAL-PAPER-1 (owner ruling 2026-10-07 e): the client sends a trial C&I paper's FIRST R
+// questions; the SERVER stays the authority. A client that over-sends a whole paper — even
+// one dressed as a worksheet — is refused whole (409, nothing graded, nothing counted);
+// exactly the allowed first five are served and counted as five checks.
+test('TRIAL-PAPER-1 · a trial C&I paper over-sent (38 Q, 5 checks left) -> 409 remaining 5, nothing graded or counted; the first 5 -> served, 5 checks', async () => {
+  for (const surface of ['check-improve', 'worksheet', undefined]) {
+    const over = rig({ days: {} });
+    const out = await run(over, { path: GRADE_WORKSHEET_PATH, surface, body: { worksheetId: 'ci:CI-M-REAL-02', questions: questions(38) } });
+    assert.equal(out.answered, true, `${surface}: a 38-question trial paper must be refused, never graded past the trial`);
+    assert.equal(out.res.sent.status, 409);
+    assert.deepEqual(out.res.sent.body, { error: 'trial_limit', remaining: 5, resetAt: NEXT_IST_MIDNIGHT });
+    assert.equal(over.ledger.trialWrites.length, 0, 'a refused paper costs nothing');
+  }
+  const ok = rig({ days: {} });
+  const served = await run(ok, { path: GRADE_WORKSHEET_PATH, surface: 'check-improve', body: { worksheetId: 'ci:CI-M-REAL-02', questions: questions(5) } });
+  assert.equal(served.answered, false, 'exactly the first five are served');
+  assert.deepEqual(ok.ledger.trialWrites, [{ uid: 'stu-1', counts: { checks: 5 } }]);
+});
+
 test('U2 · a served grade is counted only on a 2xx — a failed or refused-downstream one costs nothing', async () => {
   const r = rig({ days: {} });
   await run(r, { serve: 500 });
