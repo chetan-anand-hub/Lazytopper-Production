@@ -11,9 +11,11 @@
  *      with a mutation proof that the detector fires on the original snippets and on an injected row.
  *   6. step marks: the re-balanced rows' "[N mark]" prefixes sum to the row's marks.
  *   7. the restored rows carry a mapped, in-syllabus volume label (never "Conversion of Solids").
+ *   8. PR-B: the nine official-text-repaired rows the bf3b blind re-solve agreed with are SERVED (served bank, served id
+ *      index, lazy chapter pool) with their bound figure; APQ-M-CIRC-009 (D37) and PYQ-M-2024-CIRC-011a stay withheld.
  * This file never reads the clock.
  */
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
   RAW_CANONICAL_QUESTION_BANK,
   WITHHELD_QUESTION_IDS,
@@ -24,8 +26,12 @@ import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { conceptForSubtopic } from "../concepts/conceptLabelMap";
 import { highlyProbableQuestions } from "../highlyProbableQuestions";
 import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix1Pr2Withholds";
-import { BANK_FIX_3, BANK_FIX_3_RESTORED_IDS, SCRATCH_TEXT_RE } from "./bankFix3Ledger";
+import { BANK_FIX_3, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS, SCRATCH_TEXT_RE } from "./bankFix3Ledger";
 import { getFiguresForQuestion } from "../visualConceptRegistry";
+import { BOUND_BUT_WITHHELD } from "../figures/mathsFigureVisuals";
+import { bankRowMeta } from "../bankChapters/bankIdIndex";
+import { ensureBankChapters, getBankRows } from "../bankChapters/loader";
+import { resolveCanonicalSlug } from "../bankQuery";
 
 type Row = Record<string, unknown> & { id: string };
 const raw = RAW_CANONICAL_QUESTION_BANK as unknown as Row[];
@@ -98,9 +104,11 @@ describe("BANK-FIX-3 · withheld and restored", () => {
       expect(servedIds.has(id), id).toBe(true);
     }
   });
-  it("APQ-M-CIRC-009 had its answer fixed; its figure is bound (#1015) but it stays withheld until the bf3b re-solve", () => {
+  it("APQ-M-CIRC-009 had its answer fixed; its figure is bound (#1015) but it stays withheld (D37: the official item is inconsistent)", () => {
     expect(WITHHELD_QUESTION_IDS.has("APQ-M-CIRC-009")).toBe(true);
     expect(servedIds.has("APQ-M-CIRC-009")).toBe(false);
+    expect(BANK_FIX_3.find((e) => e.id === "APQ-M-CIRC-009")?.resolve).toBe("official-inconsistent");
+    expect(BOUND_BUT_WITHHELD["APQ-M-CIRC-009"]).toMatch(/D37.*53.13°.*∠K = 50°/);
   });
 });
 
@@ -270,11 +278,40 @@ describe("BANK-FIX-3 PR-B · official-text repair of the figure-bound withheld r
       "PYQ-M-CIRC-006", "PYQ-M-CIRC-007", "PYQ-M-CIRC-013", "PYQ-M-TRI-002", "PYQ-M-TRI-003", "PYQ-M-TRI-004",
     ]);
   });
-  it("every row is still withheld and not served (un-withhold waits for the blind re-solve)", () => {
-    for (const e of repaired) {
-      expect(WITHHELD_QUESTION_IDS.has(e.id), e.id).toBe(true);
-      expect(servedIds.has(e.id), e.id).toBe(false);
+  const SERVED_NINE = [
+    "PYQ-M-2024-CIRC-003", "PYQ-M-2024-CIRC-010a", "PYQ-M-2026-TRI-004", "PYQ-M-CIRC-006", "PYQ-M-CIRC-007",
+    "PYQ-M-CIRC-013", "PYQ-M-TRI-002", "PYQ-M-TRI-003", "PYQ-M-TRI-004",
+  ];
+  const STILL_WITHHELD = ["APQ-M-CIRC-009", "PYQ-M-2024-CIRC-011a"];
+  beforeAll(async () => {
+    await ensureBankChapters(SERVED_NINE.map((id) => String(rawById.get(id)!.topicKey)));
+  });
+  it("the bf3b re-solve agreed on exactly nine rows; the ledger marks them agree", () => {
+    expect([...BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS].sort()).toEqual(SERVED_NINE);
+    expect(repaired.filter((e) => e.resolve === "agree").map((e) => e.id).sort()).toEqual(SERVED_NINE);
+  });
+  it("the nine are SERVED: out of every withhold list / category map / BOUND_BUT_WITHHELD, in the served id index and the chapter pool", () => {
+    const bad: string[] = [];
+    for (const id of SERVED_NINE) {
+      const q = rawById.get(id)!;
+      if (WITHHELD_QUESTION_IDS.has(id)) bad.push(`${id}: in WITHHELD_QUESTION_IDS`);
+      if (BANK_FIX_1_PR2_WITHHOLD_CATEGORY.has(id)) bad.push(`${id}: in the category map`);
+      if (Object.prototype.hasOwnProperty.call(BOUND_BUT_WITHHELD, id)) bad.push(`${id}: in BOUND_BUT_WITHHELD`);
+      if (!servedIds.has(id)) bad.push(`${id}: not in canonicalQuestionBank`);
+      if (bankRowMeta(id)?.topicKey !== q.topicKey) bad.push(`${id}: not in the served id index`);
+      const slug = resolveCanonicalSlug(String(q.topicKey));
+      if (!getBankRows([slug]).some((r) => r.id === id)) bad.push(`${id}: not in the ${slug} chapter pool`);
     }
+    expect(bad).toEqual([]);
+  });
+  it("APQ-M-CIRC-009 and PYQ-M-2024-CIRC-011a stay withheld and are not served", () => {
+    for (const id of STILL_WITHHELD) {
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(true);
+      expect(servedIds.has(id), id).toBe(false);
+      expect(bankRowMeta(id), id).toBeNull();
+    }
+    expect(BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get("APQ-M-CIRC-009")).toBe("figure");
+    expect(BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get("PYQ-M-2024-CIRC-011a")).toBe("duplicate");
   });
   it("stems carry the restored official symbols and no extraction residue", () => {
     const bad: string[] = [];
@@ -318,5 +355,8 @@ describe("BANK-FIX-3 PR-B · official-text repair of the figure-bound withheld r
     const q = rawById.get("PYQ-M-2026-TRI-004")!;
     expect([q.topicKey, q.subtopic]).toEqual(["coordinate-geometry", "Section Formula and Distance Formula"]);
     expect(conceptForSubtopic(String(q.topicKey), String(q.subtopic))).toBeTruthy();
+    // Served under coordinate geometry, never triangles.
+    expect(getBankRows(["coordinate-geometry"]).some((r) => r.id === q.id)).toBe(true);
+    expect(getBankRows(["triangles"]).some((r) => r.id === q.id)).toBe(false);
   });
 });

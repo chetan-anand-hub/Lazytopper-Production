@@ -62,7 +62,7 @@ import {
   BANK_FIX_1_PR2_SERVED_COUNTS,
   type BankFix1Pr2Entry,
 } from "./bankFix1Ledger";
-import { BANK_FIX_3_OFFICIAL_RESOURCED_IDS, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
+import { BANK_FIX_3_OFFICIAL_RESOURCED_IDS, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
 
 type Row = Record<string, unknown> & { id: string };
 const bankById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q as unknown as Row]));
@@ -128,7 +128,9 @@ describe("BANK-FIX-1 PR-2 · ids unchanged", () => {
 describe("BANK-FIX-1 PR-2 · withheld rows are withheld", () => {
   it("every 'withheld' ledger row is in its surface's withhold set and not served", () => {
     // BANK-FIX-3 (2026-10-07, owner ruling 10:21Z): the three SAV liquid-transfer rows are served again.
-    const bad = BANK_FIX_1_PR2.filter((e) => e.verdict === "withheld" && !(e.surface === "bank" && BANK_FIX_3_RESTORED_IDS.has(e.id))).filter((e) => {
+    // BANK-FIX-3 PR-B: nine figure-bound rows repaired to the official wording are served after the bf3b blind re-solve.
+    const servedAgain = (id: string) => BANK_FIX_3_RESTORED_IDS.has(id) || BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS.has(id);
+    const bad = BANK_FIX_1_PR2.filter((e) => e.verdict === "withheld" && !(e.surface === "bank" && servedAgain(e.id))).filter((e) => {
       const set = e.surface === "bank" ? WITHHELD_QUESTION_IDS : e.surface === "hpq" ? HPQ_WITHHELD_IDS : PROMPT_D_WITHHELD_IDS;
       return !set.has(e.id) || isServedOn(e) || !e.category;
     });

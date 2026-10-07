@@ -1938,15 +1938,10 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "CARB-EXMPLR-4-MCQ-024",      // figure: Structures (ii)-(iv) are a placeholder; answer depends on missing figure.
   "SCO-S-CARB-010",             // figure: Stem relies on 'structures of three hydrocarbons given below' which are absent; the answer cannot be determined without them.
   "PYQ-S-2026-CHEMRXN-013",     // figure: Part (i) asks to identify 'P' in a leaf cross-section diagram not present; answer fields are also truncated ('photosynthesis.'). Also mis-chaptered (Life Processes).
-  "APQ-M-CIRC-009",             // figure: Needs the figure: positions of P, Q, L, M are not recoverable from text; answer field contradicts finalAnswer (80°), and a text reconstruction gives neither key.
+  "APQ-M-CIRC-009",             // figure: the official APQ item is internally inconsistent (D37): KL = 6, KM = LM = 5 force ∠K ≈ 53.13°, but the figure labels ∠K = 50° and the key 80° relies on that label.
   "APQ-M-CIRC-010",             // figure: Stem gives no angle; the 25° and the position of P exist only in the absent figure. Cannot be answered from text.
-  "PYQ-M-2024-CIRC-003",        // figure: ∠x is defined only in the absent figure; the stem cannot be answered from text and the garble cannot reveal what x is.
-  "PYQ-M-2024-CIRC-010a",       // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "PYQ-M-CIRC-001",             // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
-  "PYQ-M-CIRC-006",             // figure: x is an angle defined only in the missing figure; cannot be stated without inventing the figure.
-  "PYQ-M-CIRC-007",             // figure: Point D and the angle COD are defined only by the figure; answer 30° cannot be reconstructed confidently from text.
   "PYQ-M-2026-CIRC-005",        // figure: Two-circle configuration (points P, A, S, positions of M,N,T) needs the figure; scheme itself notes ambiguity of TB (45 vs 56 cm).
-  "PYQ-M-CIRC-013",             // figure: Position of A and Q (and that A, O, Q are collinear, which the proof relies on) is fixed only by the figure; not stated in text.
   "CTRL-EXMPLR-6-SA-003",       // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "SCO-S-CTRL-012",             // figure: Positions of anaesthetic blocks X, Y, Z exist only in the missing figure; answer 'At Z' cannot be determined from text.
   "APQ-M-CG-005",               // figure: The ring radii and point values of the target board are figure-only. Parts (i)-(iii) depend on them, and the 2/3 boundary radii in the steps come from the unseen figure.
@@ -1984,17 +1979,13 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "APQ-M-TRI-005",              // figure: x and y are undefined in the stem and the row carries no figure description ('REQUIRES-FIGURE' placeholder). Unanswerable.
   "APQ-M-TRI-008",              // figure: Figure matches (right angle B, PT∥AB, SR∥BC, QT = 8 cm) but gives no AB/BC or position of P; with only AC = 25 and QT = 8 the area of ΔPQR is not determined. Steps' RC...
   "APQ-M-TRI-009",              // figure: p and r are defined only in the figure; row text never defines r. Unanswerable from text.
-  "PYQ-M-2026-TRI-004",         // figure: Vertex coordinates exist only in the figure; stem gives none and the answer text is glyph-garbled, so B and C cannot be recovered with confidence. (Also belongs to coo...
-  "PYQ-M-TRI-002",              // figure: Position of O relative to A, B, P, Q is only in the figure; row text (answer/steps) carries no configuration, so the stem cannot be made self-contained.
-  "PYQ-M-TRI-003",              // figure: Positions of B, D, P relative to A and C are only in the figure; row text carries no configuration. Unanswerable from text.
-  "PYQ-M-TRI-004",              // figure: No lengths/expressions for x appear in the row; all data is in the missing figure.
   "SQP-M-TRI-003",              // figure: Part (b) depends on an unprovided figure (positions of A,B,D,E,F,C); no diagramDescription and the steps do not fix the configuration reliably.
   "APQ-M-TRIG-003",             // figure: The 'solved problem shown below' (its steps) is not included in the row; question cannot be answered.
   "PYQ-M-2026-TRIG-002",        // figure: Refers to 'the diagram given above'; d, y, h, x and point X are defined only in the figure (none bound), sub-parts depend on them, and answer omits parts. Not reconstr...
   "APQ-M-TRIG-017",             // figure: Row itself says REQUIRES-FIGURE; positions of planes relative to Anuja/Sarthak (e.g. C between them) are not in the text, and OR (iii) altitude of plane A (≈591 m) con...
   "ARC-M06",                    // duplicate: Near-verbatim duplicate of ARC-M02 (same table cover, r = 28, ₹0.35). ARC-M02 is repaired and kept; this copy also depends on the missing figure.
   "CIR-M08",                    // duplicate: duplicate of CIRC-N-NCERT-10-SA-004 (kept): Same AB+CD=AD+BC proof; keep official NCERT over LT-authored (pending fix is a step edit, not a withhold).
-  "PYQ-M-2024-CIRC-011a",       // duplicate: Identical question to PYQ-M-2024-CIRC-010a (same garbled stem plus '3 OR' residue); 010a is repaired, this is the worse copy.
+  "PYQ-M-2024-CIRC-011a",       // duplicate: Identical question to PYQ-M-2024-CIRC-010a (CBSE 2024 30/2/2 Q26(a) = 30/2/1 Q28(a)); 010a is served with the bound figure, this copy has none.
   "LIFE-EXMPLR-5-MCQ-034",      // duplicate: Same item as LIFE-EXMPLR-5-MCQ-014 (path of urine, identical four options reordered, same answer). Keep MCQ-014 (now correctly tagged Excretion); withhold this later c...
   "LP2-054",                    // duplicate: Exact duplicate stem/options of LP2-001. Also weaker: 'Bacteria' distractor is arguable (some bacteria are autotrophic). Withhold this later copy, keep LP2-001.
   "PYQ-M-POLY-006",             // duplicate: Same question as PYQ-M-POLY-005 (other paper set) with SECTION–C header residue and the same truncated answer; 005 is the repaired copy, this is the worse duplicate.
@@ -2112,6 +2103,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "Z3-QE-005",                  // out-of-syllabus: maximisation (2026-27 QE has no maxima)
   "Z3-QE-006",                  // out-of-syllabus: maximisation (2026-27 QE has no maxima)
   "SAV2P1-R02",                 // duplicate: duplicate of SAV-N-EXEM2-12-LA-010 (official exemplar kept)
+  // BANK-FIX-3 PR-B (2026-10-07): nine figure-bound rows repaired to the official CBSE wording are served again after the
+  // bf3b blind re-solve agreed (ledger: bankFix3Ledger.ts); APQ-M-CIRC-009 and PYQ-M-2024-CIRC-011a stay withheld above.
 ]);
 
 /**
