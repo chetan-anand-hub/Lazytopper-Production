@@ -6,12 +6,13 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // reject-inadmissible-root-with-reason / answer-with-units — each solutionStep [N mark], summing to 5.
 
 export const QUADRATIC_EQUATIONS_EXPAND_LONG_D: CanonicalQuestion[] = [
-  { id: "BX-QUAD-D-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems on Quadratic Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+  { id: "BX-QUAD-D-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems on Quadratic Equations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The product of two consecutive positive odd integers is 483. Find the two integers.",
     answer: "The consecutive positive odd integers are 21 and 23.",
-    solutionSteps: ["[1 mark] Let the smaller odd integer be x; the next consecutive odd integer is x + 2. Given product: x(x + 2) = 483.", "[1 mark] Write in standard form: x² + 2x − 483 = 0.", "[1 mark] Split the middle term: x² + 23x − 21x − 483 = 0 ⇒ (x + 23)(x − 21) = 0.", "[1 mark] Roots x = 21 or x = −23. Reject x = −23 because the integers must be positive.", "[1 mark] So x = 21 and the integers are 21 and 23 (21 × 23 = 483 ✓)."],
+    solutionSteps: ["[1 mark] Let the smaller odd integer be x; the next is x + 2. x(x + 2) = 483 ⇒ x² + 2x − 483 = 0.", "[1 mark] Split the middle term: x² + 23x − 21x − 483 = 0 ⇒ (x + 23)(x − 21) = 0 ⇒ x = 21 or x = −23.", "[1 mark] Reject x = −23 (integers are positive). The integers are 21 and 23 (21 × 23 = 483 ✓)."],
     finalAnswer: "The integers are 21 and 23.",
-    isCompetencyBased: true, requiresDiagram: false },
+    isCompetencyBased: true, requiresDiagram: false,
+    sourceOverride: "others", },
 
   { id: "BX-QUAD-D-002", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems on Quadratic Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "One positive number is 3 more than twice another positive number. If their product is 90, find the two numbers.",
@@ -48,12 +49,13 @@ export const QUADRATIC_EQUATIONS_EXPAND_LONG_D: CanonicalQuestion[] = [
     finalAnswer: "Present age = 8 years.",
     isCompetencyBased: true, requiresDiagram: false },
 
-  { id: "BX-QUAD-D-008", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems on Quadratic Equations", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "BX-QUAD-D-008", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems on Quadratic Equations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A mother's age (in years) is the square of her daughter's age. If the sum of their present ages is 42 years, find their present ages.",
     answer: "The daughter is 6 years old and the mother is 36 years old.",
-    solutionSteps: ["[1 mark] Let the daughter's present age be x years; then the mother's age is x² years. Given x² + x = 42.", "[1 mark] Standard form: x² + x − 42 = 0.", "[1 mark] Factorise: (x + 7)(x − 6) = 0.", "[1 mark] Roots x = 6 or x = −7. Reject x = −7 because an age cannot be negative.", "[1 mark] So the daughter is 6 years and the mother is 6² = 36 years (sum 6 + 36 = 42 ✓)."],
+    solutionSteps: ["[1 mark] Let the daughter's age be x years; the mother's age is x² years. x² + x = 42 ⇒ x² + x − 42 = 0.", "[1 mark] Factorise: (x + 7)(x − 6) = 0 ⇒ x = 6 or x = −7.", "[1 mark] Reject x = −7 (age cannot be negative). Daughter 6 years, mother 6² = 36 years (6 + 36 = 42 ✓)."],
     finalAnswer: "Daughter 6 years, mother 36 years.",
-    isCompetencyBased: true, requiresDiagram: false },
+    isCompetencyBased: true, requiresDiagram: false,
+    sourceOverride: "others", },
 
   { id: "BX-QUAD-D-009", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Applications of Quadratic Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Two workers A and B, working together, can complete a piece of work in 6 days. A alone would take 5 days more than B alone to finish it. Find the number of days each takes to complete the work alone.",
@@ -62,12 +64,13 @@ export const QUADRATIC_EQUATIONS_EXPAND_LONG_D: CanonicalQuestion[] = [
     finalAnswer: "B: 10 days, A: 15 days.",
     isCompetencyBased: true, requiresDiagram: false },
 
-  { id: "BX-QUAD-D-010", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Applications of Quadratic Equations", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "BX-QUAD-D-010", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Applications of Quadratic Equations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The length of a rectangular hall is 5 m more than its breadth. If the area of the hall is 84 m², find its length and breadth.",
     answer: "Breadth = 7 m and length = 12 m.",
-    solutionSteps: ["[1 mark] Let the breadth be x m; then the length is (x + 5) m. Area: x(x + 5) = 84.", "[1 mark] Standard form: x² + 5x − 84 = 0.", "[1 mark] Factorise: (x + 12)(x − 7) = 0.", "[1 mark] Roots x = 7 or x = −12. Reject x = −12 because a breadth cannot be negative.", "[1 mark] So breadth = 7 m and length = 7 + 5 = 12 m (area 7 × 12 = 84 m² ✓)."],
+    solutionSteps: ["[1 mark] Let the breadth be x m; length = (x + 5) m. x(x + 5) = 84 ⇒ x² + 5x − 84 = 0.", "[1 mark] Factorise: (x + 12)(x − 7) = 0 ⇒ x = 7 or x = −12.", "[1 mark] Reject x = −12 (breadth cannot be negative). Breadth = 7 m, length = 12 m (7 × 12 = 84 m² ✓)."],
     finalAnswer: "Breadth 7 m, length 12 m.",
-    isCompetencyBased: true, requiresDiagram: false },
+    isCompetencyBased: true, requiresDiagram: false,
+    sourceOverride: "others", },
 
   { id: "BX-QUAD-D-011", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems on Quadratic Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "The sum of the reciprocals of two consecutive positive integers is 11/30. Find the two integers.",
@@ -118,12 +121,13 @@ export const QUADRATIC_EQUATIONS_EXPAND_LONG_D: CanonicalQuestion[] = [
     finalAnswer: "12 days.",
     isCompetencyBased: true, requiresDiagram: false },
 
-  { id: "BX-QUAD-D-020", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems on Quadratic Equations", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "BX-QUAD-D-020", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems on Quadratic Equations", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "The square of a natural number is 30 more than the number itself. Find the number.",
     answer: "The number is 6.",
-    solutionSteps: ["[1 mark] Let the natural number be x. The condition gives x² = x + 30.", "[1 mark] Standard form: x² − x − 30 = 0.", "[1 mark] Factorise: (x − 6)(x + 5) = 0.", "[1 mark] Roots x = 6 or x = −5. Reject x = −5 because a natural number is positive.", "[1 mark] So the number is 6 (6² = 36 = 6 + 30 ✓)."],
+    solutionSteps: ["[1 mark] Let the number be x: x² = x + 30 ⇒ x² − x − 30 = 0 ⇒ (x − 6)(x + 5) = 0.", "[1 mark] x = 6 or x = −5; reject −5 (not a natural number). The number is 6 (36 = 6 + 30 ✓)."],
     finalAnswer: "6.",
-    isCompetencyBased: true, requiresDiagram: false },
+    isCompetencyBased: true, requiresDiagram: false,
+    sourceOverride: "others", },
 
   { id: "BX-QUAD-D-021", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Applications of Quadratic Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "A cistern is filled by two pipes. The slower pipe alone takes 3 hours more than the faster pipe alone to fill the cistern. If both pipes together fill the cistern in 2 hours, find the time each pipe alone takes.",

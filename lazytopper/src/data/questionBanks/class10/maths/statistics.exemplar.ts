@@ -164,8 +164,9 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Creating-level question =====
   { id: "STAT-N-EXEM-13-CRE-001", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",
     questionText: "Design a grouped frequency distribution over four equal classes of width 10 (starting at 0) such that the mode is exactly 25. Specify the frequencies and verify using the mode formula.",
-    solutionSteps: ["Choose modal class 20-30 (so l = 20, h = 10) and target mode = 25.", "Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × h = 20 + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × 10 = 25.", "So (f₁ − f₀)/(2f₁ − f₀ − f₂) = 1/2 ⇒ 2(f₁ − f₀) = 2f₁ − f₀ − f₂ ⇒ −2f₀ = −f₀ − f₂ ⇒ f₂ = f₀.", "Pick f₀ = 5, f₂ = 5, f₁ = 12 (must be max). And another class 30-40 with f₃ = 4 (less than f₂ so modal class is unique). Final: 0-10 → 5, 10-20 → 5, 20-30 → 12, 30-40 → 4.", "Check: max freq 12 in 20-30 ⇒ modal class confirmed. Mode = 20 + ((12 − 5)/(24 − 5 − 4)) × 10 = 20 + (7/15) × 10 ≈ 24.67 — close to 25 but not exact. To get exactly 25, set f₂ = f₀ as derived above and try f₀ = 5, f₂ = 5, f₁ = 11: 2f₁ − f₀ − f₂ = 22 − 10 = 12; (f₁ − f₀) = 6; ratio 6/12 = 1/2 ⇒ Mode = 20 + 5 = 25. ✓ Final distribution: 0-10 → 0, 10-20 → 5, 20-30 → 11, 30-40 → 5."],
+    solutionSteps: ["Choose modal class 20-30 (so l = 20, h = 10) and target mode = 25.", "Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × h = 20 + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × 10 = 25.", "So (f₁ − f₀)/(2f₁ − f₀ − f₂) = 1/2 ⇒ 2(f₁ − f₀) = 2f₁ − f₀ − f₂ ⇒ f₂ = f₀.", "Pick f₀ = 5 (class 10-20), f₁ = 11 (class 20-30, the largest) and f₂ = 5 (class 30-40); give class 0-10 frequency 0. Distribution: 0-10 → 0, 10-20 → 5, 20-30 → 11, 30-40 → 5.", "Check: highest frequency 11 is in 20-30, so it is the modal class. Mode = 20 + ((11 − 5)/(22 − 5 − 5)) × 10 = 20 + (6/12) × 10 = 25. ✓"],
     finalAnswer: "Frequencies 0, 5, 11, 5 over classes 0-10, 10-20, 20-30, 30-40 give Mode = 25 exactly.",
     ncertRef: "Exemplar-style design task", isCompetencyBased: true,
-    strategyHint: "Symmetric flanking frequencies (f₀ = f₂) place the mode at l + h/2." },
+    strategyHint: "Symmetric flanking frequencies (f₀ = f₂) place the mode at l + h/2.",
+    sourceOverride: "others", },
 ];

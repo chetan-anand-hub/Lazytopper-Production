@@ -23,10 +23,11 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In the following circuits (Figure 12.2), heat produced in the resistor or combination of resistors connected to a 12 V battery will be",
     options: ["same in all the cases", "minimum in case (i)", "maximum in case (ii)", "maximum in case (iii)"],
     answer: "maximum in case (iii)",
-    solutionSteps: ["For the same supply voltage V, heat dissipated per unit time is P = V²/R; lower equivalent resistance means more heat.", "Case (iii) (per the figure) corresponds to the lowest equivalent resistance among the three.", "Hence the heat produced is maximum in case (iii)."],
+    solutionSteps: ["For the same supply voltage V = 12 V, heat produced per second is P = V²/R, so the lowest equivalent resistance gives the most heat.", "From the figure: (i) single 2 Ω → R = 2 Ω, P = 144/2 = 72 W; (ii) two 2 Ω in series → R = 4 Ω, P = 36 W; (iii) two 2 Ω in parallel → R = 1 Ω, P = 144 W.", "Hence heat produced is maximum in case (iii). Correct option (d)."],
     finalAnswer: "Option (d) — maximum in case (iii)",
     strategyHint: "REQUIRES-FIGURE: three different resistor combinations (single, series, parallel) on a 12 V battery.",
-    ncertRef: "Exemplar MCQ Q2", isCompetencyBased: true },
+    ncertRef: "Exemplar MCQ Q2", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   { id: "ELEC-EXMPLR-11-MCQ-003", subject: "Science", topicKey: "electricity", subtopic: "Resistivity Factors", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Electrical resistivity of a given metallic wire depends upon",
@@ -49,10 +50,11 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Identify the circuit (Figure 12.3) in which the electrical components have been properly connected.",
     options: ["(i)", "(ii)", "(iii)", "(iv)"],
     answer: "(ii)",
-    solutionSteps: ["A correct circuit requires: ammeter in series with the resistor, voltmeter in parallel across the resistor, key in series with the cell, and a closed loop.", "Option (ii) (per the figure) is the only arrangement that meets all these requirements.", "Hence option (b)."],
+    solutionSteps: ["A correct circuit needs the ammeter in series with its + terminal towards the cell's + side, and the voltmeter in parallel across R with its + terminal towards the cell's + side.", "In the figure: (i) has the voltmeter in series - wrong; (iii) has the ammeter in parallel with R and the voltmeter in series - wrong; (iv) has the ammeter in series but with its polarity reversed - wrong.", "Only (ii) has the voltmeter across R and the ammeter in series, both with correct polarity. Correct option (b)."],
     finalAnswer: "Option (b) — circuit (ii)",
     strategyHint: "REQUIRES-FIGURE: four candidate circuit diagrams with ammeter, voltmeter, resistor, key, cell.",
-    ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true },
+    ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   { id: "ELEC-EXMPLR-11-MCQ-006", subject: "Science", topicKey: "electricity", subtopic: "Maximum Resistance", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "What is the maximum resistance which can be made using five resistors each of 1/5 Ω?",
@@ -234,12 +236,13 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
 
   // REQUIRES-FIGURE — Q28 (iii) needs voltage from figure to compute numerical power; we give qualitative answers
   { id: "ELEC-EXMPLR-11-LA-004", subject: "Science", topicKey: "electricity", subtopic: "Bulbs in Parallel", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "B₁, B₂ and B₃ are three identical bulbs connected as shown in Figure 12.8. When all the three bulbs glow, a current of 3 A is recorded by the ammeter A. (i) What happens to the glow of the other two bulbs when the bulb B₁ gets fused? (ii) What happens to the reading of A₁, A₂, A₃ and A when the bulb B₂ gets fused? (iii) How much power is dissipated in the circuit when all the three bulbs glow together?",
-    answer: "From Figure 12.8 the three identical bulbs are in parallel across a 4.5 V battery; A is the main-line ammeter and A₁, A₂, A₃ are in series with B₁, B₂, B₃. With a total current of 3 A each bulb carries 1 A. (i) If B₁ fuses, only its branch breaks; B₂ and B₃ still receive the full 4.5 V and glow as before. (ii) If B₂ fuses, A₂ reads 0; A₁ and A₃ still read 1 A each; A drops from 3 A to 2 A. (iii) Power dissipated when all three glow, P = V × I = 4.5 V × 3 A = 13.5 W.",
-    solutionSteps: ["[1 mark] Three identical bulbs in parallel each receive the full supply voltage; the main ammeter A reads the total current (3 A), so each bulb carries 1 A.", "[1 mark] (i) If B₁ is fused, only the B₁ branch is broken. The other two branches still get full voltage and continue to glow as before (no change in brightness).", "[1 mark] (ii) If B₂ fuses: A₂ → 0; A₁ and A₃ remain 1 A each; the main ammeter A drops from 3 A to 1 + 1 = 2 A.", "[1 mark] (iii) Power dissipated when all three bulbs glow = V × I_total, where V = 4.5 V (the battery in Figure 12.8) and I_total = 3 A.", "[1 mark] P = 4.5 × 3 = 13.5 W."],
+    questionText: "Three identical bulbs B₁, B₂ and B₃ are connected in parallel across a 4.5 V battery. Ammeters A₁, A₂ and A₃ are connected in series with B₁, B₂ and B₃ respectively, and ammeter A is in the main line. When all the three bulbs glow, a current of 3 A is recorded by the ammeter A. (i) What happens to the glow of the other two bulbs when the bulb B₁ gets fused? (ii) What happens to the readings of A₁, A₂, A₃ and A when the bulb B₂ gets fused? (iii) How much power is dissipated in the circuit when all the three bulbs glow together?",
+    answer: "The three identical bulbs are in parallel across the 4.5 V battery, so with a total current of 3 A each bulb carries 1 A. (i) If B₁ fuses, only its branch breaks; B₂ and B₃ still receive the full 4.5 V and glow as before. (ii) If B₂ fuses, A₂ reads 0; A₁ and A₃ still read 1 A each; A drops from 3 A to 2 A. (iii) Power dissipated when all three glow, P = V × I = 4.5 V × 3 A = 13.5 W.",
+    solutionSteps: ["[1 mark] Three identical bulbs in parallel each receive the full supply voltage; the main ammeter A reads the total current (3 A), so each bulb carries 1 A.", "[1 mark] (i) If B₁ is fused, only the B₁ branch is broken. The other two branches still get full voltage and continue to glow as before (no change in brightness).", "[1 mark] (ii) If B₂ fuses: A₂ → 0; A₁ and A₃ remain 1 A each; the main ammeter A drops from 3 A to 1 + 1 = 2 A.", "[1 mark] (iii) Power dissipated when all three bulbs glow = V × I_total, with V = 4.5 V and I_total = 3 A.", "[1 mark] P = 4.5 × 3 = 13.5 W."],
     finalAnswer: "(i) The other two bulbs glow as before. (ii) A₂ = 0; A₁ = A₃ = 1 A; A = 2 A. (iii) P = 4.5 V × 3 A = 13.5 W.",
-    strategyHint: "REQUIRES-FIGURE: three identical bulbs B₁, B₂, B₃ in parallel with branch ammeters A₁, A₂, A₃ and main ammeter A; supply voltage shown in the figure.",
-    ncertRef: "Exemplar SA Q28", isCompetencyBased: true },
+    strategyHint: "Parallel branches each get the full battery voltage; the main-line current is the sum of the branch currents.",
+    ncertRef: "Exemplar SA Q28", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // ===== Long Answer Questions Q29-Q35 =====
   { id: "ELEC-EXMPLR-11-LA-005", subject: "Science", topicKey: "electricity", subtopic: "Bulbs in Series vs Parallel", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
@@ -287,10 +290,11 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
 
   // REQUIRES-FIGURE
   { id: "ELEC-EXMPLR-11-LA-011", subject: "Science", topicKey: "electricity", subtopic: "Circuit Analysis", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Find out the following in the electric circuit given in Figure 12.9: (a) Effective resistance of two 8 Ω resistors in the combination; (b) Current flowing through 4 Ω resistor; (c) Potential difference across 4 Ω resistance; (d) Power dissipated in 4 Ω resistor; (e) Difference in ammeter readings, if any.",
-    answer: "From Figure 12.9 the two 8 Ω resistors are in parallel and this combination is in series with the 4 Ω resistor and the 8 V battery. (a) R_p = (8 × 8)/(8 + 8) = 4 Ω. (b) Total resistance = 4 + 4 = 8 Ω, so I = 8 V / 8 Ω = 1 A through the 4 Ω resistor. (c) V across 4 Ω = 1 × 4 = 4 V. (d) P in 4 Ω = I²R = 1² × 4 = 4 W. (e) Both ammeters are in the same series line, so they read the same (1 A) — difference 0.",
-    solutionSteps: ["[0.5 mark] From Figure 12.9: the two 8 Ω resistors are in parallel; this block is in series with the 4 Ω resistor and the 8 V battery.", "[1 mark] (a) Effective resistance of the two 8 Ω resistors in parallel: R_p = (8 × 8)/(8 + 8) = 64/16 = 4 Ω.", "[1.5 marks] (b) Total resistance R = R_p + 4 = 4 + 4 = 8 Ω; current I = V/R = 8 V / 8 Ω = 1 A, and being in series the 4 Ω resistor carries this 1 A.", "[0.5 mark] (c) Potential difference across the 4 Ω resistor: V₄ = IR = 1 × 4 = 4 V.", "[0.5 mark] (d) Power dissipated in the 4 Ω resistor: P₄ = I²R = 1² × 4 = 4 W.", "[1 mark] (e) Both ammeters A₁ and A₂ are in the same series line and carry the same current (1 A), so the difference in their readings is 0."],
+    questionText: "In an electric circuit, an 8 V battery is connected in series with a 4 Ω resistor and a combination of two 8 Ω resistors connected in parallel. Two ammeters, A₁ and A₂, are connected in the main (series) line of the circuit. Find: (a) the effective resistance of the two 8 Ω resistors in the combination; (b) the current flowing through the 4 Ω resistor; (c) the potential difference across the 4 Ω resistor; (d) the power dissipated in the 4 Ω resistor; (e) the difference in the ammeter readings, if any.",
+    answer: "The two 8 Ω resistors are in parallel and this combination is in series with the 4 Ω resistor and the 8 V battery. (a) R_p = (8 × 8)/(8 + 8) = 4 Ω. (b) Total resistance = 4 + 4 = 8 Ω, so I = 8 V / 8 Ω = 1 A through the 4 Ω resistor. (c) V across 4 Ω = 1 × 4 = 4 V. (d) P in 4 Ω = I²R = 1² × 4 = 4 W. (e) Both ammeters are in the same series line, so they read the same (1 A) — difference 0.",
+    solutionSteps: ["[0.5 mark] The two 8 Ω resistors are in parallel; this block is in series with the 4 Ω resistor and the 8 V battery.", "[1 mark] (a) Effective resistance of the two 8 Ω resistors in parallel: R_p = (8 × 8)/(8 + 8) = 64/16 = 4 Ω.", "[1.5 marks] (b) Total resistance R = R_p + 4 = 4 + 4 = 8 Ω; current I = V/R = 8 V / 8 Ω = 1 A, and being in series the 4 Ω resistor carries this 1 A.", "[0.5 mark] (c) Potential difference across the 4 Ω resistor: V₄ = IR = 1 × 4 = 4 V.", "[0.5 mark] (d) Power dissipated in the 4 Ω resistor: P₄ = I²R = 1² × 4 = 4 W.", "[1 mark] (e) Both ammeters A₁ and A₂ are in the same series line and carry the same current (1 A), so the difference in their readings is 0."],
     finalAnswer: "(a) 4 Ω; (b) 1 A; (c) 4 V; (d) 4 W; (e) 0 — both ammeters read 1 A.",
-    strategyHint: "REQUIRES-FIGURE: battery in series with a 4 Ω resistor and two parallel 8 Ω resistors; two ammeters in the main line.",
-    ncertRef: "Exemplar LA Q35", isCompetencyBased: true },
+    strategyHint: "Reduce the parallel pair first, then add the series resistor; current is the same everywhere in a series line.",
+    ncertRef: "Exemplar LA Q35", isCompetencyBased: true,
+    sourceOverride: "others", },
 ];

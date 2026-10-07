@@ -48,12 +48,13 @@ export const TRI_SP: CanonicalQuestion[] = [
     ],
     "answer": "(b) 3",
     "solutionSteps": [
-      "[1 mark] By Basic Proportionality Theorem (ST || QR): PS/SQ = PT/TR → x/(x+3) = (x+1)/(x+5). Cross-multiply: x(x+5) = (x+1)(x+3) → x² + 5x = x² + 4x + 3 → x = 3. Answer: (b)."
+      "[1 mark] By Basic Proportionality Theorem (ST || QR): PS/SQ = PT/TR → x/(x+1) = (x+3)/(x+5). Cross-multiply: x(x+5) = (x+1)(x+3) → x² + 5x = x² + 4x + 3 → x = 3. Answer: (b)."
     ],
     "finalAnswer": "(b) 3",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Triangle PQR with point S on side PQ and point T on side PR, with segment ST parallel to base QR. Along PQ: PS = x and SQ = x + 3. Along PR: PT = x + 1 and TR = x + 5."
+    "diagramDescription": "Triangle PQR with point S on side PQ and point T on side PR, with segment ST parallel to base QR. Along PQ: PS = x and SQ = x + 1. Along PR: PT = x + 3 and TR = x + 5.",
+    sourceOverride: "others",
   },
   {
     "id": "SP-M-2022-TRI-A-003",

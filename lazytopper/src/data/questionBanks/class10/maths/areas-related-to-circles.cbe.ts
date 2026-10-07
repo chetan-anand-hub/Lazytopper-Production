@@ -22,17 +22,18 @@ export const ARC_CBE: CanonicalQuestion[] = [
     "subtopic": "Area of a Circle",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "The area of a circular playground is 9856 m². Find the radius of the circular field. (Use π = 22/7)",
-    "options": [],
+    "questionText": "The area of a circular playground is 9856 m². The radius of the circular field is (Use π = 22/7)",
+    "options": ["56 m", "28 m", "112 m", "64 m"],
     "answer": "56 m",
     "solutionSteps": [
-      "[1 mark] Area = πr² = 22/7 × r² = 9856 → r² = 9856 × 7/22 = 3136 → r = √3136 = 56 m."
+      "[1 mark] 56 m — πr² = 9856 ⇒ r² = 9856 × 7/22 = 3136 ⇒ r = 56 m."
     ],
     "finalAnswer": "56 m",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-ARC-A-002",

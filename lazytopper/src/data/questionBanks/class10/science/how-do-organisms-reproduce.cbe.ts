@@ -13,17 +13,18 @@ export const REPR_CBE: CanonicalQuestion[] = [
     "subtopic": "Contraception and STIs",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
     "questionText": "Which contraceptive method protects against sexually transmitted infections?",
-    "options": [],
+    "options": ["Oral contraceptive pills", "Copper-T", "Vasectomy", "Condom"],
     "answer": "Condom",
     "solutionSteps": [
-      "[1 mark] The condom is the contraceptive method that also protects against sexually transmitted infections."
+      "[1 mark] Condom — a condom is a barrier that prevents contact with body fluids, so it also protects against STIs."
     ],
     "finalAnswer": "Condom",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-REPR-A-002",

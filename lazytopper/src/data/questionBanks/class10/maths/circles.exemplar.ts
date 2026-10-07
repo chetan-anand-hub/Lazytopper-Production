@@ -158,9 +158,10 @@ export const CIRC_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 9.4 Q14", isCompetencyBased: true },
 
   // ===== Creating-level question =====
-  { id: "CIRC-N-EXEM-10-CRE-001", subject: "Maths", topicKey: "circles", subtopic: "Tangent Length Application", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",
-    questionText: "Construct a configuration consisting of a circle of radius 6 cm and an external point P from which the two tangents are perpendicular to each other. Find OP, the tangent length, and verify your construction.",
-    solutionSteps: ["If the two tangents are perpendicular, the angle between them is 90°. So the half-angle at P is 45°.", "In the right triangle formed by O, the point of contact and P: sin 45° = r/OP ⇒ OP = 6/sin 45° = 6√2 cm.", "Tangent length = OP × cos 45° = 6√2 × (√2/2) = 6 cm.", "Verification: r² + (tangent)² = OP² ⇒ 36 + 36 = 72 = (6√2)². ✓"],
-    finalAnswer: "Design: r = 6 cm, OP = 6√2 cm, tangent length = 6 cm.",
-    ncertRef: "Exemplar-style design task", isCompetencyBased: true },
+  { id: "CIRC-N-EXEM-10-CRE-001", subject: "Maths", topicKey: "circles", subtopic: "Tangent Length Application", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "A circle with centre O has radius 6 cm. From an external point P, two tangents PA and PB are drawn to the circle such that the tangents are perpendicular to each other. Find OP and the length of each tangent, and verify your answer.",
+    solutionSteps: ["Since ∠APB = 90° and OP bisects ∠APB, ∠OPA = 45°; also OA ⊥ PA (radius ⊥ tangent), so triangle OAP is right-angled at A.", "sin 45° = OA/OP ⇒ OP = 6/sin 45° = 6√2 cm.", "Tangent length PA = OP × cos 45° = 6√2 × (1/√2) = 6 cm (so PB = 6 cm too).", "Verification: OA² + PA² = 36 + 36 = 72 = (6√2)² = OP². ✓"],
+    finalAnswer: "OP = 6√2 cm; each tangent length = 6 cm.",
+    ncertRef: "Exemplar-style design task", isCompetencyBased: true,
+    sourceOverride: "others", },
 ];

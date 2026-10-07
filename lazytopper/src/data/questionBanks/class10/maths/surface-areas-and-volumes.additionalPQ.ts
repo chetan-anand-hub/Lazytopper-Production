@@ -35,12 +35,14 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
 
   // PQ1 Q24 (Section B, Short, 2 marks)
   { id: "APQ-M-SAV-004", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cone — Slant Height Angle", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Shown is a right circular cone of volume 13,600 cm^3. Find the angle which the slant height makes with the base radius. (Note: Take π as 3, √2 as 1.4 and √3 as 1.7.) OR Shown are two right triangles. Find the length of the unknown side marked '?'.",
-    answer: "60°. [OR] √2 cm.",
-    solutionSteps: ["Volume = (1/3)π r^2 h = (1/3)(3)(20)(20) h = 400h = 13600 ⟹ h = 34 cm.", "tan θ = h/r = 34/20 = 1.7 = √3 ⟹ θ = 60°.", "[OR] sin 45° = 2/hypotenuse ⟹ hyp = 2√2. cos 60° = base/(2√2) ⟹ base = 2√2 · (1/2) = √2 cm."],
-    finalAnswer: "60°. [OR] √2 cm.",
+    questionText: "A right circular cone has volume 13,600 cm³ and base radius 20 cm. Find the angle which the slant height makes with the base radius. (Take π = 3 and √3 = 1.7.)",
+    answer: "60°",
+    solutionSteps: ["[1 mark] Volume = (1/3)πr²h = (1/3)(3)(20)²h = 400h = 13600 ⟹ h = 34 cm.", "[1 mark] tan θ = h/r = 34/20 = 1.7 = √3 ⟹ θ = 60°."],
+    finalAnswer: "60°",
     ncertRef: "APQ PQ1 Q24", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE for both variants. Cone has base radius 20 cm." },
+    strategyHint: "Find h from the volume, then use tan θ = h/r in the right triangle formed by the height, radius and slant height.",
+    sourceOverride: "others",
+  },
 
   // PQ2 Q30 (Section C, Short, 3 marks)
   { id: "APQ-M-SAV-005", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "CSA Ratio — Cylinder and Cone", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
@@ -52,12 +54,14 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
 
   // PQ1 Q34 (Section D, Long, 5 marks)
   { id: "APQ-M-SAV-006", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinders from Folded Sheets", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "Two rectangular sheets of dimensions 45 cm × 155 cm are folded to make hollow right circular cylindrical pipes with exactly 1 cm overlap when sticking the ends. Sheet 1 is folded along its length, Sheet 2 along its width. Both pipes are closed on both ends. (i) Find the difference in curved surface areas of the two cylinders. (ii) Find the ratio of the volumes of the two cylinders formed. (Use π = 22/7.) OR (i) How many cylindrical cans (with the geometry shown) can be packed in a cubical container with no more cans fitting? (ii) If one can capacity = 539 ml, find the internal volume of the cubical container.",
-    answer: "(i) 110 cm^2 difference. (ii) Ratio V1:V2 from MS. [OR] (i) 32 cans. (ii) 21952 cm^3.",
-    solutionSteps: ["[1 mark] Variant 1 (i): Sheet 1 makes a pipe of height 155 cm; the 1 cm overlap wastes 155 × 1 = 155 cm². Sheet 2 makes a pipe of height 45 cm; overlap wastes 45 × 1 = 45 cm².", "[1 mark] Difference in curved surface area = 155 − 45 = 110 cm².", "[1 mark] (ii) Sheet 1 circumference = 45 − 1 = 44 cm ⟹ r₁ = 7 cm; Sheet 2 circumference = 155 − 1 = 154 cm ⟹ r₂ = 49/2 cm.", "[1 mark] (ii) Ratio of volumes V₁ : V₂ = (r₁²·h₁)/(r₂²·h₂) = (7²·155)/((49/2)²·45) = 124 : 441.", "[1 mark] OR variant: container side = 2p with 4 cans per direction ⟹ 4 × 4 × 2 = 32 cans; with can capacity 539 ml, p = 14 cm, cube side = 28 cm, internal volume = 28³ = 21952 cm³."],
-    finalAnswer: "(i) Δ CSA = 110 cm^2; ratio from formula. [OR] 32 cans; 21952 cm^3.",
+    questionText: "Two rectangular sheets, each of dimensions 45 cm × 155 cm, are folded to make hollow right circular cylindrical pipes, with exactly 1 cm overlap when sticking the ends. Sheet 1 is folded along its length (so its height is 155 cm) and Sheet 2 along its width (so its height is 45 cm). Both pipes are closed at both ends.\n(i) Find the difference in the curved surface areas of the two cylinders.\n(ii) Find the ratio of the volumes of the two cylinders formed. (Use π = 22/7.)",
+    answer: "(i) 110 cm² (ii) V₁ : V₂ = 124 : 441",
+    solutionSteps: ["[1 mark] Sheet 1: height h₁ = 155 cm, circumference = 45 − 1 = 44 cm. Sheet 2: height h₂ = 45 cm, circumference = 155 − 1 = 154 cm.", "[1 mark] (i) CSA = circumference × height: CSA₁ = 44 × 155 = 6820 cm², CSA₂ = 154 × 45 = 6930 cm²; difference = 6930 − 6820 = 110 cm².", "[1 mark] (ii) 2πr₁ = 44 ⟹ r₁ = 7 cm; 2πr₂ = 154 ⟹ r₂ = 49/2 cm.", "[1 mark] (ii) V₁ = πr₁²h₁ = (22/7)(49)(155) = 23870 cm³; V₂ = πr₂²h₂ = (22/7)(2401/4)(45) = 84892.5 cm³.", "[1 mark] (ii) V₁ : V₂ = 23870 : 84892.5 = 124 : 441."],
+    finalAnswer: "(i) 110 cm² (ii) 124 : 441",
     ncertRef: "APQ PQ1 Q34", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE for both variants." },
+    strategyHint: "The side along which the sheet is folded becomes the height; the other side minus the 1 cm overlap becomes the circumference.",
+    sourceOverride: "others",
+  },
 
   // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
 
