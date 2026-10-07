@@ -210,7 +210,7 @@ describe("BANK-FIX-1 PR-2 · the audit checks, re-run over the whole served set"
     const bad = served.filter(isObjectiveBankRow).filter((q) => q.marks !== 1 || q.section !== "A");
     expect(bad.map((q) => `${q.id}:${q.marks}${q.section}`)).toEqual([]);
   });
-  it("BANK-FIX-2 (owner ruling 2026-10-07, GUARD-3 G9): every served 1-mark bank row is an MCQ / A-R with >= 4 options and a key that is one of them", () => {
+  it("BANK-FIX-2 (owner ruling, GUARD-3 G9): every served 1-mark bank row is an MCQ / A-R with >= 4 options and a key that is one of them", () => {
     // The 1-mark population is the CBSE Section A: a written 1-mark answer has no fair auto-grade, so
     // every one is a 4-option MCQ or an Assertion-Reason row with the 4 standard options.
     const oneMark = served.filter((q) => Number(q.marks) === 1);
