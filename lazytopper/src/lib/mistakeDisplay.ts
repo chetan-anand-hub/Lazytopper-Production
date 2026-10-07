@@ -142,10 +142,15 @@ export const ANSWER_MISMATCH_COPY =
  * of the score ("X of Y graded"), no mistake recorded, no attempt. Absent / null = graded
  * normally, so this client is correct before AND after that server change ships.
  */
-export type NotGradedReason = "unreadable" | "withheld" | "timeout" | "error";
+export type NotGradedReason = "unreadable" | "withheld" | "timeout" | "error" | "interrupted";
 
 /** notGraded "timeout" / "error" — the owner-approved wording, verbatim. */
 export const NOT_GRADED_TRY_AGAIN_COPY = "We couldn't grade this question this time — please try again";
+
+/** notGraded "interrupted" (GRADING-JOBS-1 J2, contract v1.0 §5) — a background check stopped
+ *  (server restart) before this question was marked. Not charged; the page offers "grade the
+ *  remaining N". Wording from the contract's own example; owner wording check pending. */
+export const NOT_GRADED_INTERRUPTED_COPY = "Not graded — the check was interrupted before this question was marked. You have not been charged for it";
 
 /** notGraded "withheld" — the owner-approved wording, verbatim. */
 export const NOT_GRADED_WITHHELD_COPY = "We couldn't grade this answer reliably — please try again";
@@ -403,7 +408,7 @@ export interface GradedQuestionLike {
 export function notGradedReasonOf(q: GradedQuestionLike | null | undefined): NotGradedReason | null {
   const v: unknown = q ? (q as { notGraded?: unknown }).notGraded : undefined;
   if (v === undefined || v === null || v === false || v === "") return null;
-  return v === "unreadable" || v === "withheld" || v === "timeout" || v === "error" ? v : "error";
+  return v === "unreadable" || v === "withheld" || v === "timeout" || v === "error" || v === "interrupted" ? v : "error";
 }
 
 /* ── grade state: was this question GRADED at all? (PR-2 B8 + owner addendum) ──── */
@@ -449,7 +454,11 @@ export function gradeStateCopy(q: GradedQuestionLike | null | undefined): string
     case "could-not-read":
       return COULD_NOT_READ_COPY;
     case "not-graded":
-      return notGradedReasonOf(q) === "withheld" ? NOT_GRADED_WITHHELD_COPY : NOT_GRADED_TRY_AGAIN_COPY;
+      {
+      const reason = notGradedReasonOf(q);
+      if (reason === "interrupted") return NOT_GRADED_INTERRUPTED_COPY;
+      return reason === "withheld" ? NOT_GRADED_WITHHELD_COPY : NOT_GRADED_TRY_AGAIN_COPY;
+    }
     default:
       return null;
   }
