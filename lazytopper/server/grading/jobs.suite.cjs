@@ -246,6 +246,10 @@ function createJobsFor(fs, clock, fairUse, commits, maxInFlight) {
   });
 }
 
+// J3: the interruption / charging / erasure pins below were written for a 10-question paper graded as
+// TWO parts of 5 (questions 6-10 held). They pin semantics, not the chunk size, so they keep that plan
+// explicitly; the production chunk size (timing.JOB_CHUNK_QUESTIONS) is pinned by the D14 / J3 test.
+const TWO_PARTS_OF_5 = () => ({ wallMs: timingLib.JOB_WALL_MS, perCallMs: timingLib.JOB_PER_CALL_MS, chunkQuestions: 5 });
 const KEY = (n) => '7f9c2ba4-e88f-4d21-9a3b-' + String(n).padStart(12, '0');
 const jobIdFor = (key) => idempotencyAttemptId(GRADE_WORKSHEET_PATH, key);
 
@@ -314,7 +318,7 @@ test('J1 PIN 2 · CHARGE = GRADED, EXACTLY ONCE — across a retried submit, pol
 });
 
 test('J1 PIN 2 · RESTART — a job declared interrupted is charged once; its worker finishing later charges nothing', async () => {
-  const h = harness();
+  const h = harness({ jobTimingFor: TWO_PARTS_OF_5 });
   h.model.holdWhen((ids) => ids.includes(9)); // the second chunk (questions 6-10) never returns in time
   const res = await h.submit({ key: KEY(4), payload: typedPaper(10) });
   const { jobId } = JSON.parse(res.body);
@@ -374,7 +378,7 @@ test('J1 PIN 4 · INTERRUPTED — final rows stay; every other question is notGr
   const model = stubModel({
     inventoryOf: (ids) => ids.map((id) => ({ qNumber: id + 1, firstLine: id === 1 ? '(a)' : 'Answer ' + (id + 1) + ': the working is shown here' })),
   });
-  const h = harness({ model });
+  const h = harness({ model, jobTimingFor: TWO_PARTS_OF_5 });
   h.model.holdWhen((ids) => ids.includes(9));
   const paper = { ...typedPaper(10), imageBase64: 'JVBERi0xLjQK', imageMimeType: 'application/pdf' };
   for (const q of paper.questions) q.textAnswer = '';
@@ -405,7 +409,7 @@ test('J1 PIN 4 · INTERRUPTED — final rows stay; every other question is notGr
 });
 
 test('J1 PIN 4 · SIGTERM (best effort) — interruptAll ends a running job at once, final rows kept', async () => {
-  const h = harness();
+  const h = harness({ jobTimingFor: TWO_PARTS_OF_5 });
   h.model.holdWhen((ids) => ids.includes(9));
   const res = await h.submit({ key: KEY(7), payload: typedPaper(10) });
   const { jobId } = JSON.parse(res.body);
@@ -556,7 +560,7 @@ test('J1 PIN 6 · FINAL ROWS NEVER CHANGE AT DONE; done body == the synchronous 
 
 /* ════════════════════════════════════ PIN 7 ════════════════════════════════════ */
 test('J1 PIN 7 · ERASURE RACE — a record erased mid-job is never re-created, and nothing is charged', async () => {
-  const h = harness();
+  const h = harness({ jobTimingFor: TWO_PARTS_OF_5 });
   h.model.holdWhen((ids) => ids.includes(9));
   const res = await h.submit({ key: KEY(11), payload: typedPaper(10) });
   const { jobId } = JSON.parse(res.body);
@@ -646,7 +650,9 @@ test('J1b (d) · a BACKGROUND job records the same meter cost and the same real 
 });
 
 /* ════════════════════════ D14 · job timing (the synchronous timing unchanged) ════════════════════════ */
-test('J1 D14 · a job grades in chunks of 8 with the 120 s per-call cap; the sync path keeps 1 call / 45 s chunks', async () => {
+test('J1 D14 / J3 · a job grades in chunks of 8 with the 180 s per-call cap and a 270 s wall; the sync path keeps 1 call / 45 s chunks', async () => {
+  assert.deepEqual(timingLib.jobTiming(), { wallMs: 270000, perCallMs: 180000, chunkQuestions: 8 }, 'J3 (FU-GRADING-ABORTS): the job budget');
+  assert.ok(timingLib.JOB_WALL_MS - timingLib.JOB_PER_CALL_MS >= 90000, 'a chunk that hits its cap still leaves 90 s for the one-question retries');
   const h = harness();
   await h.submit({ key: KEY(40), payload: typedPaper(10) });
   await until(() => h.model.calls.length === 2, 'two job chunks');
