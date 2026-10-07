@@ -192,6 +192,24 @@
       "evidence": "HPQ inline options: (D) 'Induced current' is a distractor; key (B) magnetic field around a straight conductor (right-hand thumb rule, IN)"
     },
     {
+      "rule": "G4-BIMODAL",
+      "surface": "bank",
+      "rowId": "STAT2P1-R05",
+      "matched": "bimodal/multimodal data",
+      "verdict": "review",
+      "reason": "No bimodal data is given or computed; the solution names 'bimodal' once as an example of where the empirical relation fails. The limit is on problems set on bimodal data.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:844 ('Mean, median and mode of grouped data (bimodal situation to be avoided)'); empirical relation IN by owner ruling R4"
+    },
+    {
+      "rule": "G4-HD-ANGLE",
+      "surface": "bank",
+      "rowId": "TRIG-N-EXMPLR-9-LA-001",
+      "matched": "other angle in a heights-and-distances question 15°",
+      "verdict": "review",
+      "reason": "'increases by 15°' is a change: the angles of elevation are 30° and 30° + 15° = 45° (solution step 3), both allowed.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:706; the row's solutionSteps[2] 'angle is 30° + 15° = 45°'"
+    },
+    {
       "rule": "G4-HD-TRIANGLES",
       "surface": "bank",
       "rowId": "APQ-M-TRIG-009",
@@ -235,6 +253,15 @@
       "verdict": "review",
       "reason": "Case study with two independent parts: (i) one right triangle (45°), (ii) two right triangles (30° and 60° from the same top). No part uses more than two.",
       "evidence": "lazytopper/src/config/syllabus2026-27.ts:701"
+    },
+    {
+      "rule": "G4-R1-IRRATIONAL",
+      "surface": "bank",
+      "rowId": "RN-H01",
+      "matched": "two prime surds √2, √5",
+      "verdict": "review",
+      "reason": "Prove √2 + √5 irrational: an expression built from named-prime surds. It is provable with √2 alone (isolate √5 = r − √2 and square: √2 = (r² − 3)/(2r) rational), so no composite-surd proof is needed; R1's OUT form is the GENERAL √p + √q.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:264-266 (owner ruling R1, IN: same-method proofs for a named prime and expressions built from such surds)"
     },
     {
       "rule": "G4-R1-IRRATIONAL",
