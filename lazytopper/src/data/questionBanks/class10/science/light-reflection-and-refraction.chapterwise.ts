@@ -41,13 +41,14 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "(a) +24 cm",
     ncertRef: "cbjescco10 Q6", isCompetencyBased: true },
   // cbjescco10 Q7
-  { id: "SCO-S-LIGHT-005", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "Find the angle of incidence and angle of reflection from the diagram.",
+  { id: "SCO-S-LIGHT-005", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Laws of Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "In the given figure, a ray of light is incident on a plane mirror. Find the angle of incidence and the angle of reflection.",
     options: ["45°, 40°", "55°, 55°", "60°, 60°", "30°, 30°"],
     answer: "55°, 55°",
     solutionSteps: ["[1 mark] (b) 55°, 55° — in the diagram the incident ray makes 35° with the mirror surface, so the angle of incidence (measured from the normal) is 90° − 35° = 55°; by the law of reflection the angle of reflection is also 55°."],
     finalAnswer: "(b) 55°, 55°",
-    ncertRef: "cbjescco10 Q7", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram" },
+    ncertRef: "cbjescco10 Q7", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram",
+    sourceOverride: "others", },
   // cbjescco10 Q9
   { id: "SCO-S-LIGHT-006", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Focal length of a plane mirror is",

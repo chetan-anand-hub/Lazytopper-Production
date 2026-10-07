@@ -103,13 +103,14 @@ export const MAG_NCERT: CanonicalQuestion[] = [
 
   // REQUIRES-FIGURE: electron moving in plane of paper with magnetic field arrows
   { id: "MAG-NCERT-12-MCQ-004", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Fleming's Left-hand Rule", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "An electron enters a magnetic field at right angles to it (see Fig. 12.14). The direction of force acting on the electron will be",
+    questionText: "An electron enters a magnetic field at right angles to it, as shown in the given figure. The direction of force acting on the electron will be",
     options: ["to the right.", "to the left.", "out of the page.", "into the page."],
     answer: "into the page.",
-    solutionSteps: ["Conventional current direction is opposite to the direction of motion of electrons (since electrons carry negative charge).", "Apply Fleming's left-hand rule using the magnetic-field direction and the conventional current direction.", "The thumb then gives the direction of force — which works out to be INTO the page.", "Hence option (d) is correct."],
+    solutionSteps: ["In the figure the magnetic field points to the right and the electron moves down the page, so the conventional current is up the page.", "Fleming's left-hand rule: forefinger along the field (right), middle finger along the current (up the page).", "The thumb then points into the page — option (d)."],
     finalAnswer: "Option (d): into the page.",
     ncertRef: "Example 12.2", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: electron entering a horizontal magnetic field; apply Fleming's left-hand rule with current opposite to electron motion." },
+    strategyHint: "REQUIRES-FIGURE: electron entering a horizontal magnetic field; apply Fleming's left-hand rule with current opposite to electron motion.",
+    sourceOverride: "others", },
 
   // ===== Exercises (p.206) =====
   { id: "MAG-NCERT-12-MCQ-005", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field due to Straight Conductor", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",

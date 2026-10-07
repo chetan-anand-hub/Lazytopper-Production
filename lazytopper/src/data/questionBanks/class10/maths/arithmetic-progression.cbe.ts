@@ -19,17 +19,18 @@ export const AP_CBE: CanonicalQuestion[] = [
     "subtopic": "Sum of n Terms (Real-Life Application)",
     "section": "A",
     "marks": 1,
-    "format": "Case-Based",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Amrya's school organised a tree fest in the month of August. The authorities got 5 feet of area cleared up all along the school boundary. It was decided that every section of each class would plant twice as many as the class standard. There were 3 sections of each standard from 1 to 12. So, if there are three sections in class 1, say 1A, 1B, and 1C, then each section would plant 2 trees. Similarly, each section of class 2 would plant 4 trees and so on.\n\n(a) How many trees were planted by the students of all sections of class 8?",
-    "options": [],
-    "answer": "48 trees",
+    "questionText": "Amrya's school organised a tree fest in the month of August. The authorities got 5 feet of area cleared up all along the school boundary. It was decided that every section of each class would plant twice as many trees as the class standard. There were 3 sections of each standard from 1 to 12. So, if there are three sections in class 1, say 1A, 1B, and 1C, then each section would plant 2 trees. Similarly, each section of class 2 would plant 4 trees and so on.\n\nThe number of trees planted by the students of all sections of class 8 is",
+    "options": ["16", "24", "54", "48"],
+    "answer": "48",
     "solutionSteps": [
-      "[1 mark] One section of Class 8 plants 2 × 8 = 16 trees. There are 3 sections, so 16 × 3 = 48 trees."
+      "[1 mark] 48 — each section of class 8 plants 2 × 8 = 16 trees; 3 sections plant 3 × 16 = 48 trees."
     ],
-    "finalAnswer": "48 trees",
-    "isCompetencyBased": true
+    "finalAnswer": "48",
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-AP-A-002",
@@ -86,17 +87,18 @@ export const AP_CBE: CanonicalQuestion[] = [
     "subtopic": "Sum of n Terms (Real-Life Application)",
     "section": "A",
     "marks": 1,
-    "format": "Case-Based",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "My friend wants to buy a car and plans to take a loan from a bank for his car. He repays his loan starting with the first installment of Rs. 1000. If he increases his installment by Rs. 200 every month, then answer the following:\n\n(a) What is the amount paid by him in the 30th installment?",
-    "options": [],
+    "questionText": "My friend wants to buy a car and plans to take a loan from a bank for his car. He repays his loan starting with the first installment of Rs. 1000. If he increases his installment by Rs. 200 every month, the amount paid by him in the 30th installment is",
+    "options": ["Rs. 7000", "Rs. 6800", "Rs. 6600", "Rs. 5800"],
     "answer": "Rs. 6800",
     "solutionSteps": [
-      "[1 mark] aₙ = a + (n−1)d; a₃₀ = 1000 + (30−1)(200) = 1000 + 29 × 200 = 6800."
+      "[1 mark] Rs. 6800 — a₃₀ = a + 29d = 1000 + 29 × 200 = Rs. 6800."
     ],
     "finalAnswer": "Rs. 6800",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-AP-A-005",
@@ -105,17 +107,18 @@ export const AP_CBE: CanonicalQuestion[] = [
     "subtopic": "nth Term of an AP (Real-Life Application)",
     "section": "A",
     "marks": 1,
-    "format": "Case-Based",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "My friend wants to buy a car and plans to take a loan from a bank for his car. He repays his loan starting with the first installment of Rs. 1000. If he increases his installment by Rs. 200 every month, then answer the following:\n\n(c) If there are 40 installments in total, then what is the amount paid in the last installment?",
-    "options": [],
+    "questionText": "A person repays a car loan in monthly installments, starting with a first installment of Rs. 1000 and increasing the installment by Rs. 200 every month. If there are 40 installments in total, the amount paid in the last installment is:",
+    "options": ["Rs. 8600", "Rs. 8800", "Rs. 9000", "Rs. 7800"],
     "answer": "Rs. 8800",
     "solutionSteps": [
       "[1 mark] a₄₀ = 1000 + (40−1)(200) = 1000 + 39 × 200 = 8800."
     ],
     "finalAnswer": "Rs. 8800",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-AP-A-006",

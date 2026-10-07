@@ -43,9 +43,6 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
  * NOT WIRED — `canonicalQuestionBank.ts` is out of scope for this lane.
  */
 
-const FARPOINT_STIM =
-  "The far point and the near point refer to the visibility of objects close by and far away from the human eye respectively. These are the maximum and minimum distances at which an object is clearly visible to a person.\n\n";
-
 const IRIS_STIM =
   "The iris is a muscular diaphragm that controls the size of the pupil.\nIt consists of two layers: the front pigmented fibrovascular layer known as a stroma and, beneath the stroma, pigmented epithelial cells. The colour of the eye is defined by the pigmentation of the iris.\n\n";
 
@@ -87,7 +84,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText:
-      FARPOINT_STIM + "The near point and the far point are determined with regards to the function of which part of the eye?",
+      "The near point and the far point refer to the visibility of objects close by and far away from the human eye respectively. These are the minimum and maximum distances at which an object is clearly visible to a person.\n\nThe near point and the far point are determined with regards to the function of which part of the eye?",
     options: ["pupil", "retina", "eye-ball", "ciliary muscles"],
     answer: "ciliary muscles",
     solutionSteps: [
@@ -97,6 +94,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.11 — CFPQ_Science10.pdf, questions pdf pp.93–96 (printed folios 92–95)",
     requiresDiagram: false,
+    sourceOverride: "others",
   },
   // pdf-page 94 (folio 93) — Q3. Key: pdf-page 97, option 2.
   {
@@ -292,7 +290,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     difficulty: "Hard",
     bloomSkill: "Analysing",
     questionText:
-      "Nanda saw rays of sunlight entering into a dark room as shown below.\n\nHe then did something to the air in the room after which he was NOT able to see the rays of sunlight in the room.\n\nWhat is it that Nanda could have done to make the rays of sunlight invisible? Justify your answer.",
+      "Nanda saw shafts of sunlight entering a dark room through a window; the paths of the rays were clearly visible as bright beams in the air.\n\nHe then did something to the air in the room after which he was NOT able to see the rays of sunlight in the room.\n\nWhat is it that Nanda could have done to make the rays of sunlight invisible? Justify your answer.",
     answer:
       "Removing all the dust particles from the air in the room by passing the air through a very efficient filter. Filtering the air removes the suspended dust particles thus preventing the scattering of light which make the rays visible.",
     solutionSteps: [
@@ -305,6 +303,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     requiresDiagram: false,
     diagramDescription:
       "A photograph of a dim room with two tall windows. Shafts of sunlight slant down from the left-hand window to the floor, their paths clearly visible as bright beams through the dusty air. A radiator sits below each window and debris lies on the floor.",
+    sourceOverride: "others",
   },
   // pdf-page 96 (folio 95) — Q11 [1]. Rubric row 11: pdf-page 98.
   {
@@ -314,18 +313,19 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     subtopic: "Rainbow Formation",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Hard",
     bloomSkill: "Applying",
     questionText:
-      "Mars's atmosphere is composed mainly of carbon dioxide, nitrogen and argon and negligible amounts of oxygen, water vapour and methane.\n\nUsing the information given in the sentence above and knowledge about how rainbows are formed on Earth, explain why rainbow formation is impossible on Mars.",
-    answer: "There is negligible water vapour in Mars's atmosphere, so there are no water droplets to refract, disperse and internally reflect sunlight; hence no rainbow can form.",
-    solutionSteps: ["[1 mark] There is negligible water vapour in Mars's atmosphere, so there are no water droplets to refract, disperse and internally reflect sunlight; hence no rainbow can form."],
-    finalAnswer: "Mars has negligible water vapour, and water droplets are what disperse sunlight into a rainbow.",
+      "Mars's atmosphere is composed mainly of carbon dioxide, nitrogen and argon, with negligible amounts of oxygen, water vapour and methane. Using this and your knowledge of how rainbows form on Earth, why is rainbow formation impossible on Mars?",
+    answer: "There are no water droplets to refract, disperse and internally reflect sunlight",
+    solutionSteps: ["[1 mark] There are no water droplets to refract, disperse and internally reflect sunlight — a rainbow needs water droplets to disperse sunlight, and Mars has negligible water vapour."],
+    finalAnswer: "There are no water droplets to refract, disperse and internally reflect sunlight",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.11 — CFPQ_Science10.pdf, questions pdf pp.93–96 (printed folios 92–95)",
     requiresDiagram: false,
     sourceOverride: "others",
+    options: ["Carbon dioxide absorbs all the colours of sunlight", "Argon scatters all sunlight back into space", "Mars is too far from the Sun to receive white light", "There are no water droplets to refract, disperse and internally reflect sunlight"],
   },
   // pdf-page 96 (folio 95) — Q12 [2]. Rubric row 12: pdf-page 98.
   {

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "areas-related-to-circles" (Maths): 196 served rows from 16 source arrays, 31 withheld.
+// Chapter "areas-related-to-circles" (Maths): 189 served rows from 18 source arrays, 41 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -18,8 +18,10 @@ import { ARC_SP } from "../questionBanks/class10/maths/areas-related-to-circles.
 import { ARC_PREBOARD } from "../questionBanks/class10/maths/areas-related-to-circles.preboard";
 import { AREAS_RELATED_TO_CIRCLES_APQ } from "../questionBanks/class10/maths/areas-related-to-circles.additionalPQ";
 import { AREAS_RELATED_TO_CIRCLES_PYQ } from "../questionBanks/class10/maths/areas-related-to-circles.pyq";
+import { CIRCLES_PYQ_2026 } from "../questionBanks/class10/maths/circles.pyq2026";
 import { AREAS_RELATED_TO_CIRCLES_PYQ_2026 } from "../questionBanks/class10/maths/areas-related-to-circles.pyq2026";
 import { AREAS_RELATED_TO_CIRCLES_PYQ_2024 } from "../questionBanks/class10/maths/areas-related-to-circles.pyq2024";
+import { CIRCLES_PYQ_2025 } from "../questionBanks/class10/maths/circles.pyq2025";
 import { AREAS_RELATED_TO_CIRCLES_PYQ_2025 } from "../questionBanks/class10/maths/areas-related-to-circles.pyq2025";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 
@@ -36,17 +38,21 @@ export default defineChapter("areas-related-to-circles", [
   [252, ARC_PREBOARD, false],
   [265, AREAS_RELATED_TO_CIRCLES_APQ, false],
   [317, AREAS_RELATED_TO_CIRCLES_PYQ, false],
+  [329, CIRCLES_PYQ_2026, false],
   [330, AREAS_RELATED_TO_CIRCLES_PYQ_2026, false],
   [343, AREAS_RELATED_TO_CIRCLES_PYQ_2024, false],
+  [354, CIRCLES_PYQ_2025, false],
   [355, AREAS_RELATED_TO_CIRCLES_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
 ], [
   "ARC-E10",
+  "ARC-M06",
   "ARC-M14",
   "ARC-M15",
   "ARC-M18",
   "ARC-M20",
   "ARC-H01",
+  "ARC-H03",
   "ARC-H08",
   "ARC-H12",
   "ARC-H15",
@@ -65,10 +71,18 @@ export default defineChapter("areas-related-to-circles", [
   "ARC-N-NCERT-11-LA-002",
   "ARC-N-NCERT-11-CRE-001",
   "ARC-N-EXEM2-11-LA-001",
+  "Z3-ARC-004",
   "SQP-M-ARC-003",
   "CBE-M-ARC-C-001",
   "CBE-M-ARC-C-002",
   "CBE-M-ARC-E-001",
+  "APQ-M-ARC-001",
+  "APQ-M-ARC-002",
+  "APQ-M-ARC-003",
+  "APQ-M-ARC-004",
+  "APQ-M-ARC-006",
+  "APQ-M-ARC-008",
+  "APQ-M-ARC-010",
   "PYQ-M-ARC-002",
   "PYQ-M-ARC-003",
   "PYQ-M-ARC-005",

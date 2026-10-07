@@ -193,9 +193,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "k = -11, other zero = -11/3",
     "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.2"
+    "ncertRef": "Ex 2.2",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-010",
@@ -243,9 +242,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "x² - 8x + 15",
     "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.2"
+    "ncertRef": "Ex 2.2",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-012",
@@ -331,8 +329,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
-    "section": "C",
-    "marks": 3,
+    "section": "A",
+    "marks": 1,
     "format": "MCQ",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
@@ -352,9 +350,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "4ac",
     "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.2"
+    "ncertRef": "Ex 2.2",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-018",
@@ -403,9 +400,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "1/α + 1/β = 2, α² + β² = 6",
     "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.2"
+    "ncertRef": "Ex 2.2",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-021",
@@ -577,9 +573,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "Zeroes: 0, 4; Sum = 4; Product = 0",
     "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.1, Ex 2.2"
+    "ncertRef": "Ex 2.1, Ex 2.2",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-030",
@@ -684,9 +679,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "α² + β² = 10",
     "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
-    "pyqYear": "2019",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.2"
+    "ncertRef": "Ex 2.2",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-035",
@@ -740,9 +734,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "2p² = 9q",
     "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.2"
+    "ncertRef": "Ex 2.2",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-038",
@@ -751,7 +744,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "subtopic": "Zeroes of Polynomial",
     "section": "C",
     "marks": 3,
-    "format": "Long",
+    "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
     "questionText": "If α and β are zeroes of p(x) = x² - 5x + 6, form a new polynomial whose zeroes are 2α + β and α + 2β.",
@@ -821,9 +814,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "12x² - 7x + 1",
     "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.2"
+    "ncertRef": "Ex 2.2",
+    sourceOverride: "others",
   },
 {
     "id": "PL2-042",
@@ -855,8 +847,8 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
-    "section": "C",
-    "marks": 3,
+    "section": "A",
+    "marks": 1,
     "format": "MCQ",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
@@ -1061,14 +1053,15 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "The graph of a polynomial intersects the x-axis at -3, -1, and 2. Find the polynomial and the sum and product of all its zeroes.",
+    "questionText": "The graph of a quadratic polynomial p(x) intersects the x-axis at −3 and 2 and the y-axis at −12. Find p(x) and verify the relationship between its zeroes and coefficients.",
     "options": [],
-    "answer": "p(x) = (x+3)(x+1)(x-2); Sum = -2, Product = 6",
-    "solutionSteps": ["Zeroes: -3, -1, 2", "p(x) = (x+3)(x+1)(x-2)", "Sum = -3 + (-1) + 2 = -2", "Product = (-3)(-1)(2) = 6"],
-    "finalAnswer": "Sum = -2, Product = 6",
+    "answer": "p(x) = 2x² + 2x − 12; sum of zeroes = −1 = −b/a, product = −6 = c/a",
+    "solutionSteps": ["Zeroes are −3 and 2, so p(x) = k(x + 3)(x − 2) = k(x² + x − 6).", "p(0) = −6k = −12 ⇒ k = 2, so p(x) = 2x² + 2x − 12.", "Sum = −3 + 2 = −1 = −2/2 = −b/a; Product = (−3)(2) = −6 = −12/2 = c/a. Verified."],
+    "finalAnswer": "p(x) = 2x² + 2x − 12; sum −1 = −b/a, product −6 = c/a (verified).",
     "visualExplainerId": "maths-polynomials-graphical-meaning-of-zeroes",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 2.1, Ex 2.2"
+    "ncertRef": "Ex 2.1, Ex 2.2",
+    sourceOverride: "others",
   },
   {
     "id": "PL2-R11",
@@ -1162,13 +1155,10 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     ],
     sourceOverride: "others",
   },
-  { id: "PL2-R20", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If the product of zeros of x² + kx + 8 is −4, then k² − 32 = 0.\nReason (R): For ax² + bx + c, the product of zeros is c/a.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "A is false, R is true.", explanation: "Product = 8/1 = 8 (from the polynomial), not −4. So k²−32=0 is not implied. But R (product = c/a) is a true statement. A is false, R is true.", finalAnswer: "A is false, R is true.", isCompetencyBased: true,
+  { id: "PL2-R20", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The product of the zeros of the polynomial x² + kx + 8 is −8 for every value of k.\nReason (R): For a quadratic polynomial ax² + bx + c, the product of the zeros is c/a.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "A is false, R is true.", explanation: "By R, the product of the zeros of x² + kx + 8 is c/a = 8/1 = 8, whatever the value of k. So A (product −8) is false, while R is a true statement.", finalAnswer: "A is false, R is true.", isCompetencyBased: true,
     solutionSteps: [
-      "The question text for Assertion (A) and Reason (R) is missing, so a specific solution cannot be provided.",
-      "However, for a 1-mark Assertion-Reasoning question on 'Polynomials - Relationship Between Zeros', a student would typically:",
-      "1. Evaluate the truthfulness of Assertion (A) based on the given polynomial and zero relationships.",
-      "2. Evaluate the truthfulness of Reason (R) as a general mathematical statement.",
-      "3. Determine if Reason (R) is the correct explanation for Assertion (A).",
+      "Using c/a with a = 1 and c = 8, the product of the zeros is 8 for every k, not −8; so A is false, and R is a true standard result. Answer: A is false, R is true."
     ],
+    sourceOverride: "others",
   }
 ];

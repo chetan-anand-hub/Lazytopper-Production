@@ -267,7 +267,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
 
   // ─────────────────────── SECTION A — Assertion–Reason ───────────────────────
   {
-    id: "BX-ABS-EX-A-033", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Dilution of Acids", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
+    id: "BX-ABS-EX-A-033", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Dilution of Acids", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Assertion (A): On adding sulphuric acid to water, the resulting aqueous solution becomes corrosive. Reason (R): Hydronium ions are responsible for the corrosive action.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, and R is the correct explanation of A",
@@ -275,7 +275,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "Both A and R are true, and R is the correct explanation of A", isCompetencyBased: false,
   },
   {
-    id: "BX-ABS-EX-A-034", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Strong and Weak Acids", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    id: "BX-ABS-EX-A-034", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Strong and Weak Acids", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): H₂CO₃ is a strong acid. Reason (R): A strong acid dissociates completely or almost completely in water.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is false but R is true",
@@ -283,7 +283,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "A is false but R is true", isCompetencyBased: false,
   },
   {
-    id: "BX-ABS-EX-A-035", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions of Bases", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    id: "BX-ABS-EX-A-035", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions of Bases", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): Sodium hydroxide reacts with zinc to produce hydrogen gas. Reason (R): Acids react with active metals to produce hydrogen gas.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, but R is not the correct explanation of A",
@@ -291,7 +291,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "Both A and R are true, but R is not the correct explanation of A", isCompetencyBased: false,
   },
   {
-    id: "BX-ABS-EX-A-036", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Indicators", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    id: "BX-ABS-EX-A-036", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Indicators", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): Ammonia solution is an alkali. Reason (R): Ammonia solution turns blue litmus red.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is true but R is false",
@@ -299,7 +299,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "A is true but R is false", isCompetencyBased: false,
   },
   {
-    id: "BX-ABS-EX-A-037", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Antacids", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    id: "BX-ABS-EX-A-037", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Antacids", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): Baking soda creates acidity in the stomach. Reason (R): Baking soda is alkaline in nature.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is false but R is true",
@@ -307,7 +307,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "A is false but R is true", isCompetencyBased: false,
   },
   {
-    id: "BX-ABS-EX-A-038", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Common Salt", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
+    id: "BX-ABS-EX-A-038", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Common Salt", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Assertion (A): When common salt is kept open, it absorbs moisture from the air. Reason (R): Common salt contains magnesium chloride, which is deliquescent.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, and R is the correct explanation of A",
@@ -315,7 +315,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "Both A and R are true, and R is the correct explanation of A", isCompetencyBased: false,
   },
   {
-    id: "BX-ABS-EX-A-039", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Strong and Weak Acids", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    id: "BX-ABS-EX-A-039", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Strong and Weak Acids", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): Weak acids have low electrical conductivity. Reason (R): Strong acids and weak acids have equal concentration of hydrogen ions in their solutions.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is true but R is false",
@@ -323,7 +323,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "A is true but R is false", isCompetencyBased: false,
   },
   {
-    id: "BX-ABS-EX-A-040", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chlor-alkali Process", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    id: "BX-ABS-EX-A-040", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chlor-alkali Process", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): During electrolysis of concentrated sodium chloride solution, hydrogen is produced at the anode and chlorine at the cathode. Reason (R): Ions get attracted to oppositely charged electrodes.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is false but R is true",
@@ -331,7 +331,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "A is false but R is true", isCompetencyBased: false,
   },
   {
-    id: "BX-ABS-EX-A-041", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Salts", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
+    id: "BX-ABS-EX-A-041", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Salts", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Assertion (A): Salts are the products of an acid–base reaction. Reason (R): A salt may be acidic or basic in nature.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, but R is not the correct explanation of A",
@@ -339,7 +339,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     finalAnswer: "Both A and R are true, but R is not the correct explanation of A", isCompetencyBased: false,
   },
   {
-    id: "BX-ABS-EX-A-042", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "pH of Salts", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    id: "BX-ABS-EX-A-042", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "pH of Salts", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): The pH of an ammonium chloride solution lies in the acidic range. Reason (R): The solution of a salt of a weak base and a strong acid is acidic.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, and R is the correct explanation of A",

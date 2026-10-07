@@ -366,9 +366,8 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "B",
-    "ncertRef": "Ex 14.2"
+    "ncertRef": "Ex 14.2",
+    sourceOverride: "others",
   },
 {
     "id": "ST2-019",
@@ -599,8 +598,8 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
-    "section": "B",
-    "marks": 2,
+    "section": "A",
+    "marks": 1,
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
@@ -652,9 +651,8 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "20-30",
     "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.2"
+    "ncertRef": "Ex 14.2",
+    sourceOverride: "others",
   },
 {
     "id": "ST2-030",
@@ -691,8 +689,8 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
-    "section": "B",
-    "marks": 2,
+    "section": "A",
+    "marks": 1,
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
@@ -740,9 +738,8 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "20-30",
     "visualExplainerId": "maths-statistics-frequency-distribution-table",
     "isCompetencyBased": true,
-    "pyqYear": "2019",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.3"
+    "ncertRef": "Ex 14.3",
+    sourceOverride: "others",
   },
 {
     "id": "ST2-036",
@@ -754,26 +751,19 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A teacher computed the mean height of 40 students using grouped data method. If Σfi = 40 and Σ(fi × xi) = 1680, but later found an error where one frequency was recorded as 8 instead of 5, find the correct mean.",
+    "questionText": "A teacher computed the mean marks of 40 students from a grouped frequency distribution and obtained Σfi = 40 and Σfixi = 1680. Later she found that the frequencies of two classes had been interchanged: the class with class mark 45 had been recorded as 8 instead of 5, and the class with class mark 25 had been recorded as 5 instead of 8. Find the incorrect mean and the correct mean.",
     "options": [],
-    "answer": "Requires class midpoint; typically 39.75 to 41.25",
+    "answer": "Incorrect mean = 42; correct mean = 40.5",
     "solutionSteps": [
-      "Given: Mean = Σ(fi × xi) / Σfi = 1680 / 40 = 42",
-      "Error: frequency recorded as 8 instead of 5",
-      "Difference in frequency = 5 - 8 = -3",
-      "Assume class midpoint of error class = x",
-      "Correct Σ(fi × xi) = 1680 - 8x + 5x = 1680 - 3x",
-      "Need additional info about class or use: ",
-      "Impact on sum = -3x, if midpoint = 40: Σ = 1680 - 120 = 1560",
-      "Correct mean = 1560 / 40 = 39 (example with x=40)",
-      "Or with alternative: 42 - (3×3)/40 = 42 - 2.25 = 39.75"
+      "[1 mark] Incorrect mean = Σfixi/Σfi = 1680/40 = 42.",
+      "[1 mark] Correction: class mark 45 has 3 too many (remove 3 × 45 = 135); class mark 25 has 3 too few (add 3 × 25 = 75). Correct Σfixi = 1680 − 135 + 75 = 1620; Σfi stays 40.",
+      "[1 mark] Correct mean = 1620/40 = 40.5."
     ],
-    "finalAnswer": "Requires class midpoint; typically 39.75 to 41.25",
+    "finalAnswer": "Incorrect mean = 42; correct mean = 40.5",
     "visualExplainerId": "maths-statistics-mean-of-grouped-data",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.1"
+    "ncertRef": "Ex 14.1",
+    sourceOverride: "others",
   },
 {
     "id": "ST2-037",
@@ -803,9 +793,8 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "35",
     "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.2"
+    "ncertRef": "Ex 14.2",
+    sourceOverride: "others",
   },
 {
     "id": "ST2-038",
@@ -836,9 +825,8 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "46",
     "visualExplainerId": "maths-statistics-mode-of-grouped-data",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.3"
+    "ncertRef": "Ex 14.3",
+    sourceOverride: "others",
   },
 {
     "id": "ST2-040",
@@ -964,9 +952,8 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "(i) 20-30 (ii) 23.33 minutes (iii) 23.4 minutes (iv) Mode ≈ 23.2 minutes",
     "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.1, 14.2, 14.3"
+    "ncertRef": "Ex 14.1, 14.2, 14.3",
+    sourceOverride: "others",
   },
 {
     "id": "ST2-044",

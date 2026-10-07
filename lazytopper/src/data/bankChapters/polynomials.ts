@@ -2,12 +2,14 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "polynomials" (Maths): 344 served rows from 18 source arrays, 28 withheld.
+// Chapter "polynomials" (Maths): 345 served rows from 20 source arrays, 32 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
 import { POLYNOMIALS_PACK1 } from "../questionBanks/class10/maths/polynomials.pack1";
 import { PL2_PACK2 } from "../questionBanks/class10/maths/polynomials.pack2";
+import { QUADRATIC_EQUATIONS_PACK1 } from "../questionBanks/class10/maths/quadraticEquations.pack1";
+import { QE2_PACK2 } from "../questionBanks/class10/maths/quadraticEquations.pack2";
 import { POLYNOMIALS_EXPAND_EXTRACT } from "../questionBanks/class10/maths/polynomials.expand.extract";
 import { POLYNOMIALS_EXPAND_LONG_D } from "../questionBanks/class10/maths/polynomials.expand.longD";
 import { POLYNOMIALS_EXPAND_CASE_E } from "../questionBanks/class10/maths/polynomials.expand.caseE";
@@ -28,6 +30,8 @@ import { POLYNOMIALS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/pol
 export default defineChapter("polynomials", [
   [8, POLYNOMIALS_PACK1, true],
   [9, PL2_PACK2, true],
+  [12, QUADRATIC_EQUATIONS_PACK1, true],
+  [13, QE2_PACK2, true],
   [71, POLYNOMIALS_EXPAND_EXTRACT, false],
   [72, POLYNOMIALS_EXPAND_LONG_D, false],
   [73, POLYNOMIALS_EXPAND_CASE_E, false],
@@ -71,6 +75,10 @@ export default defineChapter("polynomials", [
   "POLY-N-EXEM-2-LA-001",
   "POLY-N-EXEM-2-LA-002",
   "POLY-N-EXEM-2-CRE-001",
+  "SQP-M-POLY-001",
+  "APQ-M-POLY-001",
   "PYQ-M-POLY-001",
+  "PYQ-M-POLY-006",
+  "PYQ-M-2026-POLY-005",
   "PYQ-M-2025-POLY-003",
 ]);

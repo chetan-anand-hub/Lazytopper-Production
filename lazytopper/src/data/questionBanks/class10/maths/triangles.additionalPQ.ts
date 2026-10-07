@@ -8,23 +8,27 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const TRIANGLES_APQ: CanonicalQuestion[] = [
   // PQ1 Q5 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRI-001", subject: "Maths", topicKey: "triangles", subtopic: "Similarity — Side Ratios", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "ΔPQR is shown. ST is drawn such that ∠PRQ = ∠STQ. If ST divides QR in a ratio of 2:3, then what is the length of ST?",
+    questionText: "In ΔPQR, S is a point on side PQ and T is a point on side QR such that ∠STQ = ∠PRQ. If QT : TR = 2 : 3 and PR = 20 cm, then what is the length of ST?",
     options: ["10/3 cm", "8 cm", "12 cm", "40/3 cm"],
     answer: "8 cm",
-    solutionSteps: ["∠PRQ = ∠STQ and ∠Q common ⟹ ΔQST ~ ΔQRP (AA).", "ST/PR = QT/QP = 2/5 (per ratio 2:3, so QT:TR = 2:3 ⟹ QT/QR = 2/5). With PR = 20 cm (from figure), ST = 2/5 × 20 = 8 cm."],
+    solutionSteps: ["In ΔQTS and ΔQRP: ∠STQ = ∠PRQ (given) and ∠Q is common ⟹ ΔQTS ∼ ΔQRP (AA similarity).", "QT : TR = 2 : 3 ⟹ QT/QR = 2/5. So ST/PR = QT/QR = 2/5 ⟹ ST = (2/5) × 20 = 8 cm."],
     finalAnswer: "(b) 8 cm",
     ncertRef: "APQ PQ1 Q5", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: triangle PQR with ST drawn." },
+    strategyHint: "Spot the AA similarity (common ∠Q) and use QT/QR, not QT/TR.",
+    sourceOverride: "others",
+  },
 
   // PQ1 Q6 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRI-002", subject: "Maths", topicKey: "triangles", subtopic: "Similarity vs Congruence", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "Two scalene triangles are given. Anas: ΔPQR is similar to ΔCBA. Rishi: ΔPQR is congruent to ΔCBA. Which of them is/are correct?",
+    questionText: "ΔPQR and ΔCBA are two scalene triangles in which ∠P = ∠C, ∠Q = ∠B and ∠R = ∠A, but their corresponding sides are of different lengths. Anas: ΔPQR is similar to ΔCBA. Rishi: ΔPQR is congruent to ΔCBA. Which of them is/are correct?",
     options: ["Only Anas", "Only Rishi", "Both Anas and Rishi", "Neither of them, as two scalene triangles can never be similar or congruent."],
     answer: "Only Anas",
-    solutionSteps: ["Per figure, the two scalene triangles have equal angles but different side lengths ⟹ similar but NOT congruent.", "Anas is correct. Note: order of vertices PQR ↔ CBA matches the angle correspondence."],
+    solutionSteps: ["Corresponding angles are equal (P↔C, Q↔B, R↔A) ⟹ ΔPQR ∼ ΔCBA by AA similarity, so Anas is correct.", "Corresponding sides are not equal in length ⟹ the triangles are not congruent, so Rishi is wrong. Answer: (a) Only Anas."],
     finalAnswer: "(a) Only Anas",
     ncertRef: "APQ PQ1 Q6", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: two scalene triangles with side measurements." },
+    strategyHint: "Similar = same shape (equal angles); congruent additionally needs equal sides.",
+    sourceOverride: "others",
+  },
 
   // PQ1 Q7 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRI-003", subject: "Maths", topicKey: "triangles", subtopic: "Basic Proportionality Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Applying",
@@ -95,13 +99,15 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
 
   // PQ_2022 Q6 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRI-010", subject: "Maths", topicKey: "triangles", subtopic: "Similarity — Sufficient Conditions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "Shown are two triangles such that length of two sides of each is known. Along with the given information, which of these is sufficient to conclude whether ΔKLM is similar to ΔPQR? (i) ∠KLM = ∠PQR (ii) Ratio of KM:PR",
-    options: ["only (i)", "only (ii)", "either (i) or (ii)", "(the given information is enough to conclude that ΔKLM ∼ ΔPQR as ratio of sides is known)"],
+    questionText: "For ΔKLM and ΔPQR, the lengths of sides KL, LM, PQ and QR are known, and KL/PQ = LM/QR. Along with this information, which of the following is sufficient to conclude whether ΔKLM is similar to ΔPQR?\n(i) ∠KLM = ∠PQR\n(ii) the ratio KM : PR",
+    options: ["only (i)", "only (ii)", "either (i) or (ii)", "the given information alone is enough, as the ratio of two pairs of sides is known"],
     answer: "either (i) or (ii)",
-    solutionSteps: ["With two sides known on each triangle, (i) included angle = SAS similarity criterion ⟹ sufficient.", "(ii) Third side ratio added to two known sides = SSS similarity criterion ⟹ sufficient.", "Either condition alone is sufficient."],
+    solutionSteps: ["(i) ∠KLM = ∠PQR is the angle included between the proportional sides ⟹ SAS similarity criterion ⟹ sufficient.", "(ii) Knowing KM : PR lets us check whether all three pairs of sides are in the same ratio ⟹ SSS similarity criterion ⟹ sufficient.", "Two proportional sides alone are not enough, so either (i) or (ii) is needed and each alone suffices."],
     finalAnswer: "(c) either (i) or (ii)",
     ncertRef: "APQ PQ_2022 Q6", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: two triangles ΔKLM and ΔPQR with side lengths." },
+    strategyHint: "SAS needs the INCLUDED angle; SSS needs the third pair of sides.",
+    sourceOverride: "others",
+  },
 
   // PQ_2022 Q34 (Section D, Long, 5 marks)
   { id: "APQ-M-TRI-011", subject: "Maths", topicKey: "triangles", subtopic: "Trapezium Area via Similar Triangles", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",

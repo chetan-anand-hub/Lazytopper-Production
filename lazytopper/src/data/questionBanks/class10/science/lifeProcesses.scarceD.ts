@@ -221,7 +221,7 @@ export const LP_SCARCE_D: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Air travels nostrils to trachea to bronchi to bronchioles to alveoli; the alveoli's large number, thin moist walls and rich capillary supply make gas exchange by diffusion highly efficient.",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Human respiratory system, front view: labelled nostrils and nasal passage, pharynx, larynx, trachea with C-shaped cartilage rings, the two bronchi entering the left and right lungs, branching bronchioles, and clusters of alveoli (with a magnified inset of an alveolus wrapped in blood capillaries), and the dome-shaped diaphragm beneath the lungs."
   },
   {
@@ -430,16 +430,17 @@ export const LP_SCARCE_D: CanonicalQuestion[] = [
     "options": [],
     "answer": "The heart has four chambers (two atria, two ventricles) separated by a septum; the right side handles deoxygenated blood (vena cava, pulmonary artery) and the left handles oxygenated blood (pulmonary vein, aorta); valves ensure one-way flow, and the left ventricle is thicker because it pumps blood to the whole body.",
     "solutionSteps": [
-      "[1 mark] The human heart is a muscular organ divided into four chambers — two upper thin-walled atria (right and left) and two lower thick-walled ventricles (right and left); a muscular septum separates the right side from the left side so that oxygenated and deoxygenated blood do not mix.",
-      "[1 mark] The right atrium receives deoxygenated blood from the body through the vena cava, and the right ventricle pumps this blood through the pulmonary artery to the lungs.",
-      "[1 mark] The left atrium receives oxygenated blood from the lungs through the pulmonary vein, and the left ventricle pumps this blood through the aorta to the whole body.",
-      "[1 mark] Valves — present between each atrium and its ventricle and at the bases of the aorta and pulmonary artery — allow blood to flow in only one direction and prevent it flowing backward when the chambers contract.",
-      "[1 mark] The left ventricle has a thicker muscular wall than the right ventricle because it has to pump blood at high pressure to the entire body (systemic circulation), whereas the right ventricle only pumps blood a short distance to the nearby lungs."
+      "[1 mark] Diagram: neat vertical section of the heart labelling the four chambers (right/left atrium, right/left ventricle), septum, vena cava, pulmonary artery, pulmonary vein, aorta and valves.",
+      "[1 mark] Structure: a muscular four-chambered organ — two upper thin-walled atria and two lower thick-walled ventricles; the septum keeps oxygenated and deoxygenated blood from mixing.",
+      "[1 mark] Vessels: right atrium receives deoxygenated blood from the body by the vena cava, right ventricle pumps it to the lungs by the pulmonary artery; left atrium receives oxygenated blood by the pulmonary vein, left ventricle pumps it to the body through the aorta.",
+      "[1 mark] Valves between atria and ventricles and at the bases of the aorta and pulmonary artery allow blood to flow in one direction only and prevent backflow when chambers contract.",
+      "[1 mark] The left ventricle wall is thicker because it pumps blood at high pressure to the whole body, whereas the right ventricle pumps only to the nearby lungs."
     ],
     "finalAnswer": "Four chambers separated by a septum, with vena cava/pulmonary artery on the right and pulmonary vein/aorta on the left; valves give one-way flow, and the left ventricle is thickest as it pumps to the whole body.",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
-    "diagramDescription": "Human heart in frontal (vertical) section showing the four chambers labelled right atrium, right ventricle, left atrium and left ventricle, separated by the septum; superior and inferior vena cava entering the right atrium, the pulmonary artery leaving the right ventricle towards the lungs, pulmonary veins entering the left atrium, and the aorta arching out of the left ventricle; atrioventricular (bicuspid and tricuspid) valves between atria and ventricles and the semilunar valves at the artery bases; the wall of the left ventricle drawn distinctly thicker than that of the right ventricle."
+    "requiresDiagram": false,
+    "diagramDescription": "Human heart in frontal (vertical) section showing the four chambers labelled right atrium, right ventricle, left atrium and left ventricle, separated by the septum; superior and inferior vena cava entering the right atrium, the pulmonary artery leaving the right ventricle towards the lungs, pulmonary veins entering the left atrium, and the aorta arching out of the left ventricle; atrioventricular (bicuspid and tricuspid) valves between atria and ventricles and the semilunar valves at the artery bases; the wall of the left ventricle drawn distinctly thicker than that of the right ventricle.",
+    sourceOverride: "others",
   },
   {
     "id": "LPSD-019",

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "arithmetic-progression" (Maths): 355 served rows from 21 source arrays, 5 withheld.
+// Chapter "arithmetic-progression" (Maths): 353 served rows from 21 source arrays, 7 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -52,8 +52,10 @@ export default defineChapter("arithmetic-progression", [
   [416, AP_LT_GENERATED, false],
 ], [
   "AP-E12",
+  "AP-M09",
   "AP2-017",
   "AP-N-EXEM2-5-MCQ-006",
+  "APQ-M-AP-002",
   "PYQ-M-AP-003",
   "PYQ-M-AP-007",
 ]);

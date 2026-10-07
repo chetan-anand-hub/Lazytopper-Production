@@ -8,21 +8,23 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const CHEMICAL_REACTIONS_APQ: CanonicalQuestion[] = [
   // Science-PQ Q1 (Section A, MCQ, 1 mark)
   { id: "APQ-S-CHEM-001", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Single Displacement Reactions", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "A single displacement reaction is represented below: PQ + R → PR + Q. Which of the following is true about the reactants and products? Option A: R = cation in product, PR more stable than PQ. Option B: R = cation in product, PR less stable. Option C: R = anion in product, PR more stable. Option D: R = anion in product, PR less stable.",
-    options: ["A", "B", "C", "D"],
-    answer: "C",
+    questionText: "A single displacement reaction is represented below: PQ + R → PR + Q. Which of the following is true about the reactants and products?",
+    options: ["R forms the cation in the product, and PR is more stable than PQ.", "R forms the cation in the product, and PR is less stable than PQ.", "R forms the anion in the product, and PR is more stable than PQ.", "R forms the anion in the product, and PR is less stable than PQ."],
+    answer: "R forms the anion in the product, and PR is more stable than PQ.",
     solutionSteps: ["[0.5 mark] Single displacement: R displaces Q from PQ ⟹ R bonds with P. For R to displace Q, R must form a more stable compound (PR) than PQ.", "[0.5 mark] R in original was free element; after reaction in PR, P is the cation (metal) and R becomes the anion (gained electrons from displacement). So R = anion, PR more stable."],
-    finalAnswer: "(c) C",
-    ncertRef: "APQ Science-PQ Q1", isCompetencyBased: true },
+    finalAnswer: "(c) R forms the anion in the product, and PR is more stable than PQ.",
+    ncertRef: "APQ Science-PQ Q1", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // Science-PQ Q2 (Section A, MCQ, 1 mark)
   { id: "APQ-S-CHEM-002", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Types of Chemical Reactions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "Some types of chemical reactions: decomposition, combination, displacement, double displacement. Which two of the following reactions are of the SAME type? P) AgNO3 + NaCl → AgCl + NaNO3; Q) Mg + 2 HCl → MgCl2 + H2; R) CH4 + 2 O2 → CO2 + 2 H2O; S) 2 KOH + H2SO4 → K2SO4 + H2O",
+    questionText: "Some types of chemical reactions: decomposition, combination, displacement, double displacement. Which two of the following reactions are of the SAME type? P) AgNO3 + NaCl → AgCl + NaNO3; Q) Mg + 2 HCl → MgCl2 + H2; R) CH4 + 2 O2 → CO2 + 2 H2O; S) 2 KOH + H2SO4 → K2SO4 + 2 H2O",
     options: ["P and Q", "Q and R", "R and S", "P and S"],
     answer: "P and S",
-    solutionSteps: ["P (AgNO3 + NaCl → AgCl + NaNO3): two compounds swap ions ⟹ double displacement.", "Q: single displacement (Mg displaces H). R: combustion (combination). S: KOH + H2SO4 → K2SO4 + H2O is acid-base neutralisation = double displacement.", "P and S are both double-displacement reactions."],
+    solutionSteps: ["P (AgNO3 + NaCl → AgCl + NaNO3): two compounds exchange ions ⟹ double displacement.", "Q: displacement (Mg displaces hydrogen from HCl). R: combustion (oxidation of methane) — two reactants give two products, so it is not a combination reaction. S: 2KOH + H2SO4 → K2SO4 + 2H2O is acid–base neutralisation, in which ions are exchanged ⟹ double displacement.", "P and S are both double-displacement reactions."],
     finalAnswer: "(d) P and S",
-    ncertRef: "APQ Science-PQ Q2", isCompetencyBased: true },
+    ncertRef: "APQ Science-PQ Q2", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
 

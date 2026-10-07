@@ -55,10 +55,11 @@ export const QE_CBE: CanonicalQuestion[] = [
     ],
     "answer": "B. No real roots",
     "solutionSteps": [
-      "[1 mark] Discriminant b² − 4ac = (−3)² − 4(1)(11) = 9 − 44 = −44 < 0, so there are no real roots. Answer: B."
+      "[1 mark] Discriminant b² − 4ac = (−3)² − 4(1)(11) = 9 − 44 = −35 < 0, so there are no real roots. Answer: B."
     ],
     "finalAnswer": "B. No real roots",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-QE-A-003",
@@ -171,21 +172,21 @@ export const QE_CBE: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "quadratic-equations",
     "subtopic": "Real-Life Quadratic Problems",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
-    "difficulty": "Hard",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
     "bloomSkill": "Applying",
     "questionText": "Kapoor Travel Agency has sent an AC bus and a minibus with passengers on a trip to Shimla. The AC bus travels at x km/hr while the minibus travels at a speed of 10 km/hr more than the AC bus. The AC bus took 2 hrs more than the minibus in covering 600 km. What is the speed of the AC bus?",
     "options": [],
     "answer": "50 km/hr",
     "solutionSteps": [
-      "[1 mark] Express the condition: speed of minibus = (x + 10) km/hr; AC bus time − minibus time = 2, i.e. 600/x − 600/(x + 10) = 2.",
-      "[1 mark] Frame the quadratic equation: 600(x + 10) − 600x = 2x(x + 10) → 6000 = 2x² + 20x → x² + 10x − 3000 = 0.",
-      "[1 mark] Factorise: x² + 60x − 50x − 3000 = 0 → (x + 60)(x − 50) = 0.",
-      "[1 mark] x = 50 or x = −60; reject the negative value, so the speed of the AC bus = 50 km/hr."
+      "[1 mark] Speed of minibus = (x + 10) km/hr; AC bus time − minibus time = 2 ⟹ 600/x − 600/(x + 10) = 2.",
+      "[1 mark] 600(x + 10) − 600x = 2x(x + 10) ⟹ 6000 = 2x² + 20x ⟹ x² + 10x − 3000 = 0.",
+      "[1 mark] (x + 60)(x − 50) = 0 ⟹ x = 50 or x = −60; reject the negative value, so the speed of the AC bus = 50 km/hr."
     ],
     "finalAnswer": "50 km/hr",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   }
 ];
