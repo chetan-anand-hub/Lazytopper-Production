@@ -1015,7 +1015,7 @@
           "marks": 1,
           "section": "A",
           "solutionSteps": [
-            "[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT = 90° − ∠UPQ, so sin ∠SPT = cos ∠UPQ = PU/PQ = 8/17."
+            "[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT + ∠UPQ = 90°; in right △PUQ, ∠PQU + ∠UPQ = 90°. So ∠SPT = ∠PQU, and sin ∠SPT = sin ∠PQU = PU/PQ = 8/17."
           ]
         },
         {

@@ -22,12 +22,22 @@ import {
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
 import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { conceptForSubtopic } from "../concepts/conceptLabelMap";
+import { highlyProbableQuestions } from "../highlyProbableQuestions";
 import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix1Pr2Withholds";
 import { BANK_FIX_3, BANK_FIX_3_RESTORED_IDS, SCRATCH_TEXT_RE } from "./bankFix3Ledger";
 
 type Row = Record<string, unknown> & { id: string };
 const raw = RAW_CANONICAL_QUESTION_BANK as unknown as Row[];
-const rawById = new Map(raw.map((q) => [q.id, q]));
+const bankById = new Map(raw.map((q) => [q.id, q]));
+// HPQ rows name their stem `question`; expose it as questionText so one text check covers both surfaces.
+const hpqById = new Map(
+  highlyProbableQuestions.flatMap((b) => b.questions).map((q) => {
+    const r = q as unknown as Row;
+    return [r.id, { ...r, questionText: r.question } as Row] as const;
+  }),
+);
+const rowOf = (e: { id: string; surface?: "hpq" }) => (e.surface === "hpq" ? hpqById.get(e.id) : bankById.get(e.id));
+const rawById = bankById;
 const served = canonicalQuestionBank as unknown as Row[];
 const servedIds = new Set(served.map((q) => q.id));
 const keyOf = (q: Row) => String(q.answer ?? q.finalAnswer ?? "");
@@ -52,14 +62,16 @@ function scratchHits(rows: readonly Row[]): string[] {
 describe("BANK-FIX-3 · ledger and ids", () => {
   it("is non-vacuous and covers every verdict the lane used", () => {
     const by = (v: string) => BANK_FIX_3.filter((e) => e.verdict === v).length;
-    expect(by("fixed")).toBe(10);
+    expect(by("fixed")).toBe(14);
     expect(by("withheld")).toBe(2);
     expect(by("restored")).toBe(3);
     expect(by("held-for-resolve")).toBe(2);
     expect(by("flag-rejected")).toBe(7);
+    expect(by("re-sourced-official")).toBe(1);
   });
-  it("every ledger id is still in the raw bank (ids are never changed or deleted); ids are unique", () => {
-    expect(BANK_FIX_3.filter((e) => !rawById.has(e.id)).map((e) => e.id)).toEqual([]);
+  it("every ledger id is still on its surface (ids are never changed or deleted); ids are unique", () => {
+    expect(BANK_FIX_3.filter((e) => !rowOf(e)).map((e) => e.id)).toEqual([]);
+    expect(BANK_FIX_3.filter((e) => e.surface === "hpq").map((e) => e.id)).toEqual(["qe-comp-01"]);
     expect(new Set(BANK_FIX_3.map((e) => e.id)).size).toBe(BANK_FIX_3.length);
   });
 });
@@ -91,7 +103,7 @@ describe("BANK-FIX-3 · withheld and restored", () => {
 describe("BANK-FIX-3 · changed rows are pinned to their final key / answer", () => {
   it("objective keys resolve (app resolver) to the pinned option", () => {
     const pinned = BANK_FIX_3.filter((e) => e.keyOptionIndex !== undefined);
-    expect(pinned.length).toBe(10);
+    expect(pinned.length).toBe(11);
     const bad: string[] = [];
     for (const e of pinned) {
       const q = rawById.get(e.id)!;
@@ -104,7 +116,7 @@ describe("BANK-FIX-3 · changed rows are pinned to their final key / answer", ()
   it("written keys carry their values; removed text is gone from the stem / answer / steps", () => {
     const bad: string[] = [];
     for (const e of BANK_FIX_3) {
-      const q = rawById.get(e.id)!;
+      const q = rowOf(e)!;
       const sol = textOf(q, ["answer", "finalAnswer"]);
       for (const v of e.keyMustContain ?? []) if (!sol.includes(v)) bad.push(`${e.id}: missing ${v}`);
       const all = textOf(q, ["questionText", "answer", "finalAnswer", "explanation", "solutionSteps"]);
@@ -131,7 +143,7 @@ describe("BANK-FIX-3 · changed rows are pinned to their final key / answer", ()
 describe("BANK-FIX-3 · ruling 2: Others rows are never PYQ / year-bearing", () => {
   it("every ledger row marked Others carries the override, no year / set / isPYQ, and is not PYQ", () => {
     const others = BANK_FIX_3.filter((e) => e.others);
-    expect(others.length).toBe(11);
+    expect(others.length).toBe(13);
     const bad: string[] = [];
     for (const e of others) {
       const q = rawById.get(e.id)!;
@@ -191,5 +203,45 @@ describe("BANK-FIX-3 · restored rows carry a mapped in-syllabus volume label", 
       expect(conceptForSubtopic(String(q.topicKey), String(q.subtopic)), id).toBeTruthy();
       expect(String(q.subtopic), id).not.toMatch(/conversion|recast|transformation/i);
     }
+  });
+});
+
+describe("BANK-FIX-3 · CI-1 sweep #1 rewrites", () => {
+  it("qe-comp-01 (HPQ): four [1 mark] steps summing to 4; (iii) asks only for the equal root", () => {
+    const q = hpqById.get("qe-comp-01")!;
+    const steps = q.solutionSteps as string[];
+    expect(steps.length).toBe(4);
+    expect(steps.every((t) => t.startsWith("[1 mark]"))).toBe(true);
+    expect(q.marks).toBe(4);
+    expect(String(q.question)).not.toMatch(/greatest|maxim|highest/i);
+  });
+  it("2026-TRIG-P1-E-010: only standard angles, and at most two of them (two right triangles)", () => {
+    const q = bankById.get("2026-TRIG-P1-E-010")!;
+    const angles = [...String(q.questionText).matchAll(/(\d+) deg/g)].map((m) => Number(m[1]));
+    expect(angles).toEqual([30, 60]);
+    expect(textOf(q, ["questionText", "answer", "finalAnswer", "solutionSteps"])).not.toMatch(/tan of the new angle|tan new angle/);
+  });
+  it("APQ-M-TRIG-002: no complementary-angle conversion in the solution", () => {
+    const q = bankById.get("APQ-M-TRIG-002")!;
+    expect(textOf(q, ["solutionSteps", "explanation"])).not.toMatch(/cos ∠|90° − ∠UPQ/);
+  });
+  it("ARC-H04: the shaded region is the quadrant minus its OWN triangle OAB", () => {
+    const q = bankById.get("ARC-H04")!;
+    expect(String(q.questionText)).toMatch(/triangle OAB/);
+    expect(String(q.finalAnswer)).toBe("(i) 9.625 cm² (ii) 3.5 cm²");
+  });
+});
+
+describe("BANK-FIX-3 · PYQ-M-2025-SAV-004 is official again (CBSE 2025, 30/3/1 Q35)", () => {
+  it("no override, official year / set, served as PYQ, steps on the official 1 + ½ + 1 + 1 + ½ + 1 scheme", () => {
+    const q = bankById.get("PYQ-M-2025-SAV-004")!;
+    expect(servedIds.has(q.id)).toBe(true);
+    expect(q.sourceOverride).toBeUndefined();
+    expect([q.pyqYear, q.pyqSet, q.ncertRef]).toEqual(["2025", "1", "PYQ 30/3/1 Q35"]);
+    expect(isPYQQuestion(q)).toBe(true);
+    const marks = (q.solutionSteps as string[]).map((t) => Number(/^\[(\d+(?:\.\d+)?) mark\]/.exec(t)?.[1]));
+    expect(marks).toEqual([1, 0.5, 1, 1, 0.5, 1]);
+    expect(q.marks).toBe(5);
+    expect(conceptForSubtopic(String(q.topicKey), String(q.subtopic))).toBeTruthy();
   });
 });

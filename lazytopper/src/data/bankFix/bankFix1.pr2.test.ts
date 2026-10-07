@@ -62,7 +62,7 @@ import {
   BANK_FIX_1_PR2_SERVED_COUNTS,
   type BankFix1Pr2Entry,
 } from "./bankFix1Ledger";
-import { BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
+import { BANK_FIX_3_OFFICIAL_RESOURCED_IDS, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
 
 type Row = Record<string, unknown> & { id: string };
 const bankById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q as unknown as Row]));
@@ -168,7 +168,8 @@ describe("BANK-FIX-1 PR-2 · every served content change was independently re-so
 });
 
 describe("BANK-FIX-1 PR-2 · ruling 2: Others rows are never PYQ / NCERT / year-bearing", () => {
-  const others = BANK_FIX_1_PR2.filter((e) => e.others && e.surface === "bank" && servedIds.has(e.id));
+  // BANK-FIX-3 (2026-10-07): PYQ-M-2025-SAV-004 verified verbatim against the official 30/3/1 paper — official again.
+  const others = BANK_FIX_1_PR2.filter((e) => e.others && e.surface === "bank" && servedIds.has(e.id) && !BANK_FIX_3_OFFICIAL_RESOURCED_IDS.has(e.id));
   it("has served Others rows (non-vacuous)", () => expect(others.length).toBeGreaterThan(800));
   it("no Others row is PYQ (either matcher), carries a year, or is offered as PYQ / NCERT", () => {
     const bad: string[] = [];
