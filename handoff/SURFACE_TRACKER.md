@@ -1,5 +1,34 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-07 — WAVE B-18 (GRADING CLIENT + PROGRESS, CONTROLLER B): J2a (`#979` `678b9811`), J2b (`#980` `480b619c`), FLAKE-PDF (`#995` `67b2873c`), ME PR-2d (`#997` `d8a7d2f4`); trunk `d8a7d2f4`. J2 is LIVE ON DEPLOY BUT DARK: `GRADING_JOBS` is OFF in production until Controller A's J3; `#995` and `#997` are live on deploy (no flag).**
+> ★ **FIVE SURFACES CAN NOW GRADE IN THE BACKGROUND (Check & Improve papers, Worksheets, Chapter Test, Full Mock, Quick Practice batch > 1) WHEN THE SERVER SWITCH IS ON; UNTIL THEN EVERY SUBMIT IS TODAY'S PATH.** Cells below flip only where a surface moved; Scope stays Settling for the grading surfaces (J3 and its live measurement are still to come). Rollouts and live records: `CURRENT_STATE.md`.
+
+### 🟡 Check & Improve papers (signed in) + Worksheets — **ONE SYNCHRONOUS GRADE REQUEST → OPT-IN BACKGROUND GRADING (202 + POLL, ROWS ONE BY ONE, PROVISIONAL UNTIL FINAL, RESUME AFTER A RELOAD, "GRADE THE REMAINING N"); TODAY'S PATH WHEN THE SWITCH IS OFF — MERGED, DARK (`#979`, `#980`)**
+- Live: `GRADING_JOBS` OFF → every submit 200, unchanged (smoke PASS) *(controller)*. The job path is **unmeasured live** → `[FU-B18-J3-LIVE-JOB-PATH]`. Open: `[FU-J2-OWNER-WORDING]`.
+
+### 🟡 Chapter Test + Full Mock — **SYNCHRONOUS UPLOAD GRADE → OPT-IN BACKGROUND GRADING; THE JOB STORES PAPER + OBJECTIVE + FROZEN SCORE + CODE (CT) / THE AWAITING-UPLOAD SESSION (FM); INTERRUPTED FINAL ROWS RECORDED — MERGED, DARK (`#980`)**
+- Live: as above (OFF = today's path). Open: `[FU-J2B-CI-INTERRUPTED-IDS-CONTRACT-6]`.
+
+### 🟡 Quick Practice (batch > 1) — **ONE GRADE PER BATCH → OPT-IN BACKGROUND GRADING WITH A RESUME STRIP; THE ONE RECORD WRITTEN AT DONE — MERGED, DARK (`#980`)**
+- Batch = 1, single checks, HPQ and the signed-out free check are **unchanged** (guard + runtime pins).
+
+### ✅ Check & Improve / Worksheet / Chapter Test / QR photo upload (page tray) — **A ONE-FRAME WINDOW WITH GRADE LIVE ON A STALE 1-PAGE PHOTO → THE PAYLOAD IS RETRACTED IN THE SAME COMMIT (LAYOUT EFFECT; FIVE HOSTS) — LIVE (`#995`)**
+- Live: 3/3 runs, ONE 2-page PDF, both pages graded *(agent-reported, PASS)*. `[FU-CI-FLAKE-CI-PDF-6MB]` closed.
+
+### ✅ Me / Progress (careless-marks card) — **SHOWN BELOW THE 6-GRADED-ANSWER GATE → GATED BY THE IMPORTED WEAKNESS RUNG — LIVE ON DEPLOY (`#997`); live check PENDING**
+
+### ✅ Weak Area Practice — **A TOPIC NAMED FROM ONE MISS, A RAW ID, "0% COMPLETE", A DEVICE-LOCAL STATUS, "CLOSED THIS WEEK" (MASTERY-SOURCED, ALWAYS 0) → NAMES / COUNT / BADGE / PATH / STATUS ONLY ABOVE THE GATE AND FROM THE SYNCED MODEL; "CLOSED THIS WEEK" REMOVED — LIVE ON DEPLOY (`#997`); live check PENDING**
+- Open: `[FU-B18-WEAKAREA-LOCAL-LIST]` (order, "Start Targeted Session" pick, learning-path generator, hidden below-gate path).
+
+### ✅ Second-device parity — **`#970` HYDRATION FIX UNMEASURED LIVE → MEASURED: DEVICE B SHOWED DEVICE A'S WRONG-ANSWER LOG ON FIRST LOAD (1273 MS) — PASS (live `#970` L1, 7 Oct)**
+- Flips the 🟡 cell recorded by the ME-ENGINE-1 block to ✅; `[FU-B18-L1-SECOND-DEVICE-PULL-LIVE]` closed.
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- No auth, pricing, Login, Landing, HPQ, free-check, Notes, Tutor or server file changed in these four PRs. Server grading was Controller A's (J0 / J1, not described here).
+
+### 📋 Scope discovered? — **YES (one item)** — logged in `DECISION_LOG.md` (2026-10-07, wave B-18 J2) and in §2a below; Scope = Settling for the grading surfaces.
+- **Stacked client PRs vs the required `lane-overlap` check:** a PR stacked on an open PR is lane-overlap RED on both while both are open (`#979` / `#980`); a large client lane must be split into independent merge units, or the second PR opened only after the first merges.
+
 > **2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B): ME-ENGINE-1 PR-1 (`#964` `dfb83379`), PR-2 (`#968` `bab5ad0d`), PR-2b (`#970` `d1a8e88f`), PR-2c (`#983` `984bd663`); trunk `984bd663`. LIVE on deploy (no flag); rollouts and OR-LIVE recorded in `CURRENT_STATE.md`.**
 > ★ **EVERY PROGRESS SURFACE NOW READS ONE SYNCED MODEL BEHIND ONE HONESTY GATE: ME / PROGRESS, THE MI WIDGET, THE TUTOR BRIEF, WEAK AREA PRACTICE; MISTAKES RESOLVE INSTEAD OF DISAPPEARING; A SECOND DEVICE MATCHES THE FIRST.** **No matrix cell value changes:** Me / Progress and Tutor / Learn already read Scope = Settling with their completion cells as recorded; this wave changes the data they read and what they withhold, not their recorded build / redesign / verify status. Me / Progress `Verified` stays as recorded: the second-device pull (L1) is OWED live (`[FU-B18-L1-SECOND-DEVICE-PULL-LIVE]`).
 
