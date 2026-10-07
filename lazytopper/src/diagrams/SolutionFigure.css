@@ -1,0 +1,61 @@
+/* SolutionFigure — the computed solution figure card (DIAGRAMS-1 PR-2).
+   The figure itself is a white card in both themes (its SVG carries its own styles);
+   only the frame lives here. */
+.lt-solfig-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.lt-solfig {
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #dfe5ee;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.lt-solfig__btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+.lt-solfig__btn:focus-visible {
+  outline: 3px solid hsl(152, 55%, 45%);
+  outline-offset: -3px;
+}
+.lt-solfig__svg,
+.lt-solfig__svg svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* A tall scene (a tower seen from close by) is capped in height and centred, so it
+   never pushes the solution steps a screen down. */
+.lt-solfig__svg svg {
+  max-height: 340px;
+}
+.lt-solfig__cap {
+  margin: 0;
+  padding: 6px 10px 8px;
+  border-top: 1px solid #eef2f7;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #475569;
+  background: #ffffff;
+}
+.lt-solfig__note {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+}
+.lt-solfig__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

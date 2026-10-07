@@ -66,3 +66,45 @@ describe("FIGURE-HONESTY-1 PR-2 — bound figures reach every stem surface", () 
     expect(mountsFigureWithId(read("components/question/SolutionChecker.tsx"))).toBe(false);
   });
 });
+
+// DIAGRAMS-1 PR-2a — every in-app surface where a student reveals a bank solution mounts
+// the computed SolutionFigure INSIDE that solution block, keyed by the row id, and loads
+// it lazily (the registry, builders and renderer stay out of first paint). HPQ also hands
+// QuestionVisualAid its questionId, like every other stem surface.
+
+/** Mounts <SolutionFigure questionId=…/> after `anchor` (inside the solution block). */
+function mountsSolutionFigureAfter(source: string, anchor: string): boolean {
+  const at = source.indexOf(anchor);
+  if (at === -1) return false;
+  const tag = source.indexOf("<SolutionFigure", at);
+  if (tag === -1) return false;
+  const close = source.indexOf("/>", tag);
+  return close !== -1 && /questionId=\{String\(/.test(source.slice(tag, close));
+}
+const LAZY_SOLUTION_FIGURE = /const SolutionFigure = lazyWithRetry\(\(\) => import\("[./]+diagrams\/SolutionFigure"\)\)/;
+
+describe("DIAGRAMS-1 PR-2a — computed solution figures reach every solution reveal", () => {
+  const SURFACES: Array<[string, string]> = [
+    ["components/practice/PracticeQuestionCard.tsx", "Solution steps (for comparison)"],
+    ["pages/desktop/DesktopPracticePage.tsx", "Solution / explanation from the real question row"],
+    ["pages/HighlyProbableQuestions.tsx", "solutionOpen[q.id] && ("],
+  ];
+  for (const [file, anchor] of SURFACES) {
+    it(`${file} mounts <SolutionFigure questionId> inside its solution block, lazily`, () => {
+      const src = read(file);
+      expect(mountsSolutionFigureAfter(src, anchor)).toBe(true);
+      expect(src).toMatch(LAZY_SOLUTION_FIGURE);
+      // never a static import of the figure stack into the page chunk
+      expect(src).not.toMatch(/import\s*\{?[^;]*\}?\s*from\s*"[./]+diagrams\//);
+    });
+  }
+
+  it("CONTROL: the probe does NOT match a file that renders no solution figure", () => {
+    expect(mountsSolutionFigureAfter(read("components/question/SolutionChecker.tsx"), "")).toBe(false);
+    expect(read("components/question/SolutionChecker.tsx")).not.toMatch(LAZY_SOLUTION_FIGURE);
+  });
+
+  it("HighlyProbableQuestions hands QuestionVisualAid the row id (was missing)", () => {
+    expect(mountsFigureWithId(read("pages/HighlyProbableQuestions.tsx"))).toBe(true);
+  });
+});
