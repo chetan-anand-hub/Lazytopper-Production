@@ -33,7 +33,9 @@ import {
 } from "./conceptLabelMap";
 
 // ── RATCHET PINS (fix round 1, on trunk f52f8116). Improve them; never loosen them. ─────────────────────────
-const MIN_MAPPED_LABELS = 1515;
+// CBQ-1 C3 (2026-10-07): two NEW served acids labels from the C3 science CBQs, both mapped (+2 -> 1517, tightened).
+// The third C3 label was re-labelled to the existing "Acids with Metal Oxides"; reviewed max stays 458.
+const MIN_MAPPED_LABELS = 1517;
 const MAX_REVIEWED_LABELS = 458;
 /** served rows whose label resolves to a concept / all served rows: 7722 / 9823. */
 const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.7861;

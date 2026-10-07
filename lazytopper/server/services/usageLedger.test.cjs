@@ -151,7 +151,7 @@ const settle = () => new Promise((r) => setImmediate(r));
 
 // MUTATION M-A: cost thoughtsTokens at inputUsdPerMillion -> RED (246400 !== 43120...).
 test('M2 · cost maths for a known usage — thinking tokens are costed at the OUTPUT rate', () => {
-  assert.deepEqual(MODEL_PRICES['gemini-2.5-flash'], { inputUsdPerMillion: 0.3, outputUsdPerMillion: 2.5 });
+  assert.deepEqual(MODEL_PRICES['gemini-2.5-flash'], { inputUsdPerMillion: 0.3, outputUsdPerMillion: 2.5, cachedInputUsdPerMillion: 0.03 });
   assert.equal(DEFAULT_USD_INR, 88);
 
   // 1000 prompt * $0.30/M = 300 micro-USD; (200 + 800) * $2.50/M = 2500 micro-USD.
@@ -241,7 +241,7 @@ test('J1b (a) · DATE-EFFECTIVE: the 2026 price through 2026-12-31 IST, double f
   const lastMs = IST_2027_01_01_MS - 1;
   assert.equal(buildLedgerIncrement(REC_38, { env: {}, nowMs: lastMs }).increment.costMicroInr, COST_38_2026, '23:59:59.999 IST on 2026-12-31');
   assert.equal(buildLedgerIncrement(REC_38, { env: {}, nowMs: IST_2027_01_01_MS }).increment.costMicroInr, COST_38_2027, '00:00 IST on 2027-01-01');
-  assert.deepEqual(priceFor('gemini-3.8-flash', IST_2027_01_01_MS), { inputUsdPerMillion: 1.5, outputUsdPerMillion: 7.5 });
+  assert.deepEqual(priceFor('gemini-3.8-flash', IST_2027_01_01_MS), { inputUsdPerMillion: 1.5, outputUsdPerMillion: 7.5, cachedInputUsdPerMillion: 0.15 });
   // CONTROL: a model with no scheduled change keeps its price across the boundary.
   assert.equal(buildLedgerIncrement({ ...REC_38, model: 'gemini-2.5-flash' }, { env: {}, nowMs: IST_2027_01_01_MS }).increment.costMicroInr, 246400);
   // Through the ledger's own clock (the test clock), on each side of the boundary.
@@ -256,6 +256,38 @@ test('J1b (a) · DATE-EFFECTIVE: the 2026 price through 2026-12-31 IST, double f
     } finally {
       f.restore();
     }
+  }
+});
+
+// METER-AUDIT-1 (FU-J1B-CACHED-INPUT-RATE). MUTATION MA-M1: price `cachedContentTokenCount` at the
+// full input rate in buildLedgerIncrement -> RED (396000 !== 360360). MUTATION MA-M2: drop the field from
+// buildTokenTelemetryRecord -> the end-to-end half RED (the cache hit never reaches the ledger).
+test('METER-AUDIT-1 · cached input is metered at the CACHED rate, not the full input rate — both sides of 2027 pinned', async () => {
+  const sep30 = Date.UTC(2026, 8, 27, 6, 0, 0);
+  // 1000 prompt of which 600 cached: 400 * $0.75 + 600 * $0.075 = 345 micro-USD; (200 + 800) * $3.75 = 3750.
+  // 4095 micro-USD * 88 = 360,360 micro-INR (vs 396,000 with no cache hit).
+  const cachedRec = { ...REC_38, cachedContentTokenCount: 600 };
+  const b = buildLedgerIncrement(cachedRec, { env: {}, nowMs: sep30 });
+  assert.equal(b.increment.costMicroInr, 360360);
+  assert.equal(b.increment.promptTokens, 1000, 'promptTokens stays the FULL prompt');
+  // 2027: 400 * $1.50 + 600 * $0.15 = 690; 1000 * $7.50 = 7500; 8190 * 88 = 720,720.
+  assert.equal(buildLedgerIncrement(cachedRec, { env: {}, nowMs: IST_2027_01_01_MS }).increment.costMicroInr, 720720);
+  // A cached count above the prompt is clamped to the prompt (never a negative uncached share).
+  assert.equal(buildLedgerIncrement({ ...REC_38, cachedContentTokenCount: 5000 }, { env: {}, nowMs: sep30 }).increment.costMicroInr,
+    Math.round((1000 * 0.075 + 1000 * 3.75) * 88));
+  // CONTROL: no cache hit -> exactly the uncached cost; a model with no cached rate keeps the full input rate.
+  assert.equal(buildLedgerIncrement(REC_38, { env: {}, nowMs: sep30 }).increment.costMicroInr, COST_38_2026);
+  assert.equal(buildLedgerIncrement({ ...cachedRec, model: 'gemini-x' }, { env: {} }).priced, false);
+  // End to end: a provider reply that reports a cache hit is metered at the cached rate.
+  const f = stubFetch({ ...USAGE, cachedContentTokenCount: 600 });
+  const { client, store } = rig({ now: () => sep30 });
+  try {
+    await asVerifiedStudent('stu-1', () => client.callGemini('gemini-3.8-flash', CONTENTS, {}), '/api/grade-worksheet');
+    await settle();
+    assert.deepEqual(store.writes[0].data.costMicroInr, { __increment: 360360 });
+    assert.deepEqual(store.writes[0].data.promptTokens, { __increment: 1000 });
+  } finally {
+    f.restore();
   }
 });
 

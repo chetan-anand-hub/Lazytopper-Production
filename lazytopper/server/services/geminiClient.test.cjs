@@ -144,6 +144,8 @@ test('a successful call emits a telemetry record with every token + metadata fie
       Object.keys(rec).sort(),
       [
         'attempts',
+        // METER-AUDIT-1: a NUMBER read from the named usageMetadata key (0 when absent) — no content.
+        'cachedContentTokenCount',
         'callClass',
         'candidatesTokenCount',
         'latencyMs',

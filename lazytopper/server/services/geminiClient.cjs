@@ -342,6 +342,9 @@ function buildTokenTelemetryRecord(input) {
     // The critical one: thinking bills at OUTPUT rates, and it is invisible in
     // every estimate derived from prompt structure.
     thoughtsTokenCount: toCount(usage.thoughtsTokenCount),
+    // METER-AUDIT-1: the share of the prompt served from the provider's cache (a number from a
+    // NAMED key, like the three above). The ledger prices it at the cached-input rate.
+    cachedContentTokenCount: toCount(usage.cachedContentTokenCount),
     totalTokenCount: toCount(usage.totalTokenCount),
     latencyMs: toCount(input && input.latencyMs),
     attempts,
