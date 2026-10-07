@@ -11,6 +11,7 @@
 //                         B = gemini-3.1-pro-preview default thinking (gemini-2.5-pro is refused for the eval key)
 //                         C = gemini-3.1-pro-preview thinkingBudget 2048 on the grading calls
 //   --model M --thinking N --config-id ID   a custom config instead of A/B/C
+//   --config PA8 --thinking N|default         a CORE preset at thinking ceiling N on grading calls (THINK-CAP-1)
 //   --runs N              repeats of the whole plan (default 3)
 //   --concurrency N       parallel jobs (default 4; capped at 4 unless --ramp is given)
 //   --ramp A,B,C          OWNER SPEED RULING 2 (2026-10-05): adaptive parallelism up to the key's
@@ -90,7 +91,15 @@ for (const m of ['log', 'warn', 'error', 'info']) {
 const DRY_REPLY = JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'dry', studentWork: 'dry', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'dry', mistakeType: null, correctedWorking: null, isDeparture: false, isReturn: false }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'dry', results: [{ qNumber: 1, couldNotRead: true }], summary: 'dry', detectedMarks: 1, questions: [] });
 
 async function main() {
-  const preset = CONFIGS[String(arg('--config', '')).toUpperCase()];
+  const basePreset = CONFIGS[String(arg('--config', '')).toUpperCase()];
+  // THINK-CAP-1: `--config PA8 --thinking N` runs a CORE preset at a thinking ceiling N on the grading
+  // calls ('default' = the shipped code default, grading/modelConfig.cjs). The id names the ceiling.
+  const thinkArg = arg('--thinking');
+  const thinkN = thinkArg == null ? null
+    : String(thinkArg).toLowerCase() === 'default' ? require('../../grading/modelConfig.cjs').DEFAULT_GRADING_THINKING_BUDGET : Number(thinkArg);
+  const preset = basePreset && basePreset.core && thinkArg != null
+    ? { ...basePreset, id: basePreset.id + '-think' + thinkN, thinkingBudget: thinkN, label: basePreset.label + ' + thinking ceiling ' + thinkN }
+    : basePreset;
   const cfg = preset || (arg('--model') ? { id: arg('--config-id', 'custom-' + arg('--model')), model: arg('--model'), thinkingBudget: arg('--thinking') != null ? Number(arg('--thinking')) : null, label: 'custom' } : null);
   if (!cfg) { out('usage: --config A|B|C (or --model M [--thinking N] --config-id ID)'); process.exit(2); }
   const runs = Number(arg('--runs', '3'));

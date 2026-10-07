@@ -1234,12 +1234,42 @@ test('§MODEL.3 a 403, and a 400 naming the thinking budget, also fall back; a p
 });
 
 test('§MODEL.4 resolveGradingModel reads the environment and falls back to the code defaults', () => {
-  // The shipped configuration, chosen by data (PR-2 live phase): gemini-3.8-flash, dynamic
-  // thinking, every question to it (single mode); the fallback model stays gemini-2.5-flash.
-  assert.deepEqual(resolveGradingModel({}), { model: 'gemini-3.8-flash', thinkingBudget: null, mode: 'single', lightModel: 'gemini-2.5-flash' });
+  // The shipped configuration, chosen by data (PR-2 live phase): gemini-3.8-flash, every question
+  // to it (single mode); the fallback model stays gemini-2.5-flash. THINK-CAP-1: thinking is capped
+  // by a CODE default (no settings change needed in production) — see §MODEL.5.
+  assert.deepEqual(resolveGradingModel({}), { model: 'gemini-3.8-flash', thinkingBudget: 2048, mode: 'single', lightModel: 'gemini-2.5-flash' });
   assert.equal(require('./modelConfig.cjs').GRADING_FALLBACK_MODEL, 'gemini-2.5-flash');
   assert.deepEqual(resolveGradingModel({ GRADING_MODEL: 'm', GRADING_THINKING_BUDGET: '2048', GRADING_MODE: 'ROUTER', GRADING_LIGHT_MODEL: 'l' }), { model: 'm', thinkingBudget: 2048, mode: 'router', lightModel: 'l' });
   assert.deepEqual([resolveGradingModel({ GRADING_THINKING_BUDGET: '-1' }).thinkingBudget, resolveGradingModel({ GRADING_MODE: 'fast' }).mode], [null, 'single']);
+});
+
+test('§MODEL.5 THINK-CAP-1: the code-default thinking ceiling reaches EVERY grading call; the env var still overrides it', async () => {
+  const { DEFAULT_GRADING_THINKING_BUDGET } = require('./modelConfig.cjs');
+  // The ceiling is a CODE default (production sets no GRADING_THINKING_BUDGET), pinned to the
+  // value the THINK-CAP-1 measurement chose.
+  assert.equal(DEFAULT_GRADING_THINKING_BUDGET, 2048);
+  const prod = resolveGradingModel({});
+  assert.equal(prod.thinkingBudget, DEFAULT_GRADING_THINKING_BUDGET);
+  // Wired as production wires it (serverConfig → index.cjs → route deps): the single call and every
+  // paper chunk carry the ceiling on the wire.
+  const deps = { GRADING_MODEL: prod.model, GRADING_THINKING_BUDGET: prod.thinkingBudget };
+  const h = harness({ replies: [REPLY(R(1, [S()]))], deps });
+  await h.single(single());
+  assert.deepEqual(h.calls[0].genConfig.thinkingConfig, { thinkingBudget: 2048 });
+  const p = harness({ replies: [REPLY(...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => R(n, [S()])))], deps });
+  await p.sheet(sheet([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => sq(n))));
+  assert.ok(p.calls.length >= 1);
+  for (const c of p.calls) assert.deepEqual(c.genConfig.thinkingConfig, { thinkingBudget: 2048 }, 'every paper call carries the ceiling');
+  // The environment still overrides it — a number sets another ceiling, "-1"/"dynamic" restores
+  // dynamic thinking (nothing sent), garbage keeps the code default.
+  assert.equal(resolveGradingModel({ GRADING_THINKING_BUDGET: '4096' }).thinkingBudget, 4096);
+  assert.equal(resolveGradingModel({ GRADING_THINKING_BUDGET: '0' }).thinkingBudget, 0);
+  assert.equal(resolveGradingModel({ GRADING_THINKING_BUDGET: '-1' }).thinkingBudget, null);
+  assert.equal(resolveGradingModel({ GRADING_THINKING_BUDGET: ' Dynamic ' }).thinkingBudget, null);
+  assert.equal(resolveGradingModel({ GRADING_THINKING_BUDGET: 'lots' }).thinkingBudget, 2048);
+  const dyn = harness({ replies: [REPLY(R(1, [S()]))], deps: { GRADING_MODEL: prod.model, GRADING_THINKING_BUDGET: resolveGradingModel({ GRADING_THINKING_BUDGET: 'dynamic' }).thinkingBudget } });
+  await dyn.single(single());
+  assert.equal(dyn.calls[0].genConfig.thinkingConfig, undefined, 'dynamic opt-out sends no thinkingConfig');
 });
 
 /* ══ §ROUTER · PER-QUESTION ROUTING (owner configuration (c)) ════════════════ */

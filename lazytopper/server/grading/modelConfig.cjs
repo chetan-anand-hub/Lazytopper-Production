@@ -22,7 +22,14 @@
 // student-month at the reference usage — over Rs 125 from that date unless thinking is capped
 // or the prompt is cached/trimmed (PR-2 report, owner decision).
 const DEFAULT_GRADING_MODEL = 'gemini-3.8-flash';
-const DEFAULT_GRADING_THINKING_BUDGET = null; // null = the model's dynamic thinking
+// THINK-CAP-1 (GRADING-JOBS-1 ruling 7, "no paper ever times out"; decisions D50/D57/D58): a
+// thinking CEILING on every grading call (singles and paper/job chunks). With dynamic thinking the
+// same request swung 6-12x in thinking tokens, and single calls / 7-question job chunks ran into the
+// 78 s / 120 s caps (A-17 R6-AB, J1-LIVE, GOLDEN-RERUN reports). Chosen by data on the eval key
+// (THINK-CAP-1 report): the smallest ceiling that met every golden floor on the sample.
+// GRADING_THINKING_BUDGET still overrides it: a number >= 0 sets the ceiling, "-1" / "dynamic"
+// restores the model's dynamic thinking (no settings change needed to ship; one env var reverts).
+const DEFAULT_GRADING_THINKING_BUDGET = 2048;
 // 'single' = every graded question goes to GRADING_MODEL. 'router' = the owner's routed
 // configuration (c): an objective question whose pick is already known is scored with NO
 // model call; 1–2-mark TYPED answers go to the light model; 3–5-mark answers, proofs and
@@ -41,8 +48,10 @@ function resolveGradingModel(env = process.env) {
   const rawBudget = env.GRADING_THINKING_BUDGET;
   let thinkingBudget = DEFAULT_GRADING_THINKING_BUDGET;
   if (rawBudget != null && String(rawBudget).trim() !== '') {
-    const n = Number(rawBudget);
-    thinkingBudget = Number.isFinite(n) && n >= 0 ? Math.floor(n) : DEFAULT_GRADING_THINKING_BUDGET;
+    const raw = String(rawBudget).trim().toLowerCase();
+    const n = Number(raw);
+    if (raw === 'dynamic' || n === -1) thinkingBudget = null; // explicit opt-out of the ceiling
+    else thinkingBudget = Number.isFinite(n) && n >= 0 ? Math.floor(n) : DEFAULT_GRADING_THINKING_BUDGET;
   }
   const rawMode = String(env.GRADING_MODE || '').trim().toLowerCase();
   const mode = rawMode === 'router' || rawMode === 'single' ? rawMode : DEFAULT_GRADING_MODE;
