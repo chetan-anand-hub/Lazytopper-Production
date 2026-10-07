@@ -72,9 +72,9 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In a science club activity, Farhana uses a 12 V battery to run one circuit and a 1.5 V cell to run another. She stops each circuit when its source has transferred exactly 30 J of energy to the charge flowing through it. Which statement is correct?",
     "options": [
-      "The 1.5 V cell has driven more charge, 20 C, compared with 2.5 C for the battery.",
       "The 12 V battery has driven more charge, 360 C, compared with 45 C for the cell.",
       "Both have driven the same charge, because both transferred the same energy.",
+      "The 1.5 V cell has driven more charge, 20 C, compared with 2.5 C for the battery.",
       "The 12 V battery has driven more charge, because a higher potential difference always pushes more charge."
     ],
     "answer": "The 1.5 V cell has driven more charge, 20 C, compared with 2.5 C for the battery.",
@@ -101,10 +101,10 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Before closing the key, Gurpreet notices that the pointer of her ammeter rests 2 small divisions to the right of the zero mark. The ammeter has a range of 0–5 A and its scale has 100 equal small divisions. After she closes the key, the pointer stands at the 26th small division. What is the actual current in the circuit?",
     "options": [
-      "1.20 A",
       "1.30 A",
       "1.40 A",
-      "0.24 A"
+      "0.24 A",
+      "1.20 A"
     ],
     "answer": "1.20 A",
     "solutionSteps": [
@@ -186,7 +186,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Neha's phone charger supplies a steady current of 2 A to her phone for 1.5 hours.\n(a) How much electric charge flows into the phone in this time?\n(b) Her friend Tenzin says that a charger supplying 1 A would deliver the same amount of charge if it were used for 3 hours. Is Tenzin right? Show your working.",
+    "questionText": "Neha's phone charger supplies a steady current of 2 A to her phone for 1.5 hours.\n(a) How much electric charge flows into the phone in this time? [1 mark]\n(b) Her friend Tenzin says that a charger supplying 1 A would deliver the same amount of charge if it were used for 3 hours. Is Tenzin right? Show your working. [1 mark]",
     "options": [],
     "answer": "(a) Q = It = 2 A × 5400 s = 10800 C. (b) Yes: 1 A × 10800 s = 10800 C, the same charge.",
     "solutionSteps": [
@@ -211,7 +211,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "During a power cut in Lucknow, an emergency lamp runs from its 6 V battery and draws a steady current of 0.5 A for 20 minutes. Calculate\n(a) the charge that flows through the lamp in this time, and\n(b) the energy transferred by the battery to this charge.",
+    "questionText": "During a power cut in Lucknow, an emergency lamp runs from its 6 V battery and draws a steady current of 0.5 A for 20 minutes. Calculate\n(a) the charge that flows through the lamp in this time, and [1 mark]\n(b) the energy transferred by the battery to this charge. [1 mark]",
     "options": [],
     "answer": "(a) Q = 0.5 A × 1200 s = 600 C. (b) W = VQ = 6 V × 600 C = 3600 J.",
     "solutionSteps": [
@@ -236,7 +236,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In a lab, the labels have come off two meters X and Y. Meter X is joined in the single loop that contains a battery, a key and a bulb. Meter Y is connected between the two ends of the bulb. After closing the key, X shows 0.25 and Y shows 3.0 (units not visible).\n(a) Identify meters X and Y, and write each reading with its correct unit.\n(b) Find the resistance of the bulb filament under these conditions.",
+    "questionText": "In a lab, the labels have come off two meters X and Y. Meter X is joined in the single loop that contains a battery, a key and a bulb. Meter Y is connected between the two ends of the bulb. After closing the key, X shows 0.25 and Y shows 3.0 (units not visible).\n(a) Identify meters X and Y, and write each reading with its correct unit. [1 mark]\n(b) Find the resistance of the bulb filament under these conditions. [1 mark]",
     "options": [],
     "answer": "(a) X is an ammeter (in series) reading 0.25 A; Y is a voltmeter (in parallel) reading 3.0 V. (b) R = V/I = 3.0 V ÷ 0.25 A = 12 Ω.",
     "solutionSteps": [
@@ -261,7 +261,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In a school lab, Lalitha connects a battery, a key, a resistor and an ammeter in a single loop, and a voltmeter between the two ends of the resistor. The ammeter has a range of 0–500 mA with 25 equal divisions; the voltmeter has a range of 0–5 V with 50 equal divisions. After she closes the key, the ammeter pointer stands at the 15th division and the voltmeter pointer at the 36th division.\n(a) Find the least count of each meter.\n(b) Write both readings in SI units.\n(c) Calculate the resistance of the resistor.",
+    "questionText": "In a school lab, Lalitha connects a battery, a key, a resistor and an ammeter in a single loop, and a voltmeter between the two ends of the resistor. The ammeter has a range of 0–500 mA with 25 equal divisions; the voltmeter has a range of 0–5 V with 50 equal divisions. After she closes the key, the ammeter pointer stands at the 15th division and the voltmeter pointer at the 36th division.\n(a) Find the least count of each meter. [1 mark]\n(b) Write both readings in SI units. [1 mark]\n(c) Calculate the resistance of the resistor. [1 mark]",
     "options": [],
     "answer": "(a) Ammeter 20 mA (0.02 A) per division; voltmeter 0.1 V per division. (b) I = 0.30 A, V = 3.6 V. (c) R = 12 Ω.",
     "solutionSteps": [
@@ -288,7 +288,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "At a jewellery workshop in Jaipur, a silver-plating bath is run with a steady current of 2.5 A for 16 minutes.\n(a) Calculate the charge that flows through the bath.\n(b) How many electrons does this charge correspond to? (Charge on an electron = 1.6 × 10⁻¹⁹ C)\n(c) The owner wants the same amount of charge to flow in only 10 minutes. What steady current is needed?",
+    "questionText": "At a jewellery workshop in Jaipur, a silver-plating bath is run with a steady current of 2.5 A for 16 minutes.\n(a) Calculate the charge that flows through the bath. [1 mark]\n(b) How many electrons does this charge correspond to? (Charge on an electron = 1.6 × 10⁻¹⁹ C) [1 mark]\n(c) The owner wants the same amount of charge to flow in only 10 minutes. What steady current is needed? [1 mark]",
     "options": [],
     "answer": "(a) 2400 C (b) 1.5 × 10²² electrons (c) 4 A",
     "solutionSteps": [
@@ -314,7 +314,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Tanvi's torch holds three 1.5 V cells placed one after another in series.\n(a) What potential difference does the cell combination provide when all three cells are inserted correctly?\n(b) Her younger brother puts the middle cell in the wrong way round. What is the potential difference of the combination now?\n(c) Calculate the energy given to 2 C of charge by the combination in each case, and use it to explain why the bulb glows more dimly in case (b).",
+    "questionText": "Tanvi's torch holds three 1.5 V cells placed one after another in series.\n(a) What potential difference does the cell combination provide when all three cells are inserted correctly? [1 mark]\n(b) Her younger brother puts the middle cell in the wrong way round. What is the potential difference of the combination now? [1 mark]\n(c) Calculate the energy given to 2 C of charge by the combination in each case, and use it to explain why the bulb glows more dimly in case (b). [1 mark]",
     "options": [],
     "answer": "(a) 4.5 V (b) 1.5 V (c) 9 J in (a) and 3 J in (b); each coulomb carries less energy to the bulb in (b), so it glows more dimly.",
     "solutionSteps": [
@@ -341,7 +341,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Read the passage and answer the questions that follow.\n\nDeepak, a Class 10 student in Guwahati, noticed that his power bank is labelled '10000 mAh'. His teacher explained that mAh (milliampere-hour) is actually a unit of electric charge, not of energy: 1 mAh is the charge carried by a current of 1 mA flowing for one hour. Deepak copied the labels of two devices at home:\nPower bank — capacity 10000 mAh, output current 2 A\nPhone battery — capacity 4000 mAh\nHe wondered how many coulombs these labels really stand for, and how long the power bank could keep supplying its full output current. Take the charge on an electron as 1.6 × 10⁻¹⁹ C and assume that the full capacity of the power bank can be used.\n\n(i) Express 1 mAh in coulombs.\n(ii) Find the charge stored in the power bank, in coulombs.\n(iii) (a) For how long can the power bank supply its rated output current of 2 A? (b) How many electrons in total flow out of it during this time?",
+    "questionText": "Read the passage and answer the questions that follow.\n\nDeepak, a Class 10 student in Guwahati, noticed that his power bank is labelled '10000 mAh'. His teacher explained that mAh (milliampere-hour) is actually a unit of electric charge, not of energy: 1 mAh is the charge carried by a current of 1 mA flowing for one hour. Deepak copied the labels of two devices at home:\nPower bank — capacity 10000 mAh, output current 2 A\nPhone battery — capacity 4000 mAh\nHe wondered how many coulombs these labels really stand for, and how long the power bank could keep supplying its full output current. Take the charge on an electron as 1.6 × 10⁻¹⁹ C and assume that the full capacity of the power bank can be used.\n\n(i) Express 1 mAh in coulombs. [1 mark]\n(ii) Find the charge stored in the power bank, in coulombs. [1 mark]\n(iii) (a) For how long can the power bank supply its rated output current of 2 A? (b) How many electrons in total flow out of it during this time? [2 marks]",
     "options": [],
     "answer": "(i) 1 mAh = 3.6 C (ii) 36000 C (iii)(a) 18000 s = 5 h (b) 2.25 × 10²³ electrons",
     "solutionSteps": [
@@ -368,7 +368,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Read the passage and answer the questions that follow.\n\nFor a science fair in Kochi, Sneha and Rohan light up a model railway station. They join a 12 V battery, a key, an ammeter, two identical small bulbs B1 and B2 and a resistor R one after another in a single loop. With the key closed, the ammeter reads 0.25 A. Using one voltmeter, they then measure the potential difference across each part of the circuit in turn, always connecting the voltmeter between the two ends of that part. Their record reads:\nAcross B1 — 4.5 V\nAcross B2 — 4.5 V\nAcross R — (reading smudged)\nAcross the battery terminals — 12 V\nThe connecting wires and the ammeter may be taken to have negligible resistance.\n\n(i) What should the voltmeter have read across R?\n(ii) How much energy does the battery give to each coulomb of charge that passes through it?\n(iii) In 2 minutes, (a) how much charge passes through R, and (b) how much electrical energy is transferred in R?",
+    "questionText": "Read the passage and answer the questions that follow.\n\nFor a science fair in Kochi, Sneha and Rohan light up a model railway station. They join a 12 V battery, a key, an ammeter, two identical small bulbs B1 and B2 and a resistor R one after another in a single loop. With the key closed, the ammeter reads 0.25 A. Using one voltmeter, they then measure the potential difference across each part of the circuit in turn, always connecting the voltmeter between the two ends of that part. Their record reads:\nAcross B1 — 4.5 V\nAcross B2 — 4.5 V\nAcross R — (reading smudged)\nAcross the battery terminals — 12 V\nThe connecting wires and the ammeter may be taken to have negligible resistance.\n\n(i) What should the voltmeter have read across R? [1 mark]\n(ii) How much energy does the battery give to each coulomb of charge that passes through it? [1 mark]\n(iii) In 2 minutes, (a) how much charge passes through R, and (b) how much electrical energy is transferred in R? [2 marks]",
     "options": [],
     "answer": "(i) 3 V (ii) 12 J per coulomb (iii)(a) 30 C (b) 90 J",
     "solutionSteps": [
@@ -395,7 +395,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Read the passage and answer the questions that follow.\n\nAt a hostel in Bhopal, the warden invites Class 10 students to study a 220 V demonstration board that a qualified electrician has prepared; the students only read the meters and never touch the wiring. On the board, a lamp A, a lamp B and a room heater H are each connected directly between the two supply wires, so they are in parallel. A separate ammeter is placed in series with each appliance, and one main ammeter is placed in the supply wire before the circuit divides. A voltmeter is connected across lamp A. With all three appliances switched on, the branch ammeters read:\nLamp A — 0.25 A\nLamp B — 0.50 A\nHeater H — 4.00 A\n\n(i) What will the voltmeter across lamp A read? Give a reason.\n(ii) What will the main ammeter read?\n(iii) The heater is now switched off. State the new reading of (a) the main ammeter, and (b) the ammeter in series with lamp B.",
+    "questionText": "Read the passage and answer the questions that follow.\n\nAt a hostel in Bhopal, the warden invites Class 10 students to study a 220 V demonstration board that a qualified electrician has prepared; the students only read the meters and never touch the wiring. On the board, a lamp A, a lamp B and a room heater H are each connected directly between the two supply wires, so they are in parallel. A separate ammeter is placed in series with each appliance, and one main ammeter is placed in the supply wire before the circuit divides. A voltmeter is connected across lamp A. With all three appliances switched on, the branch ammeters read:\nLamp A — 0.25 A\nLamp B — 0.50 A\nHeater H — 4.00 A\n\n(i) What will the voltmeter across lamp A read? Give a reason. [1 mark]\n(ii) What will the main ammeter read? [1 mark]\n(iii) The heater is now switched off. State the new reading of (a) the main ammeter, and (b) the ammeter in series with lamp B. [2 marks]",
     "options": [],
     "answer": "(i) 220 V, because each appliance in parallel gets the full supply p.d. (ii) 4.75 A (iii)(a) 0.75 A (b) 0.50 A (unchanged)",
     "solutionSteps": [
@@ -422,7 +422,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Read the passage and answer the questions that follow.\n\nMeera and Joseph study how the current through a nichrome wire depends on the potential difference across it. They connect a battery, a key, a rheostat, an ammeter and the nichrome wire one after another in a single loop, and connect a voltmeter between the two ends of the nichrome wire. By changing the rheostat setting they obtain four pairs of readings:\nReading 1 — 1.0 V, 0.20 A\nReading 2 — 2.0 V, 0.40 A\nReading 3 — 3.0 V, 0.72 A\nReading 4 — 4.0 V, 0.80 A\nThey switch off the key between readings, so the temperature of the wire stays nearly constant. Joseph suspects that one current reading was noted down wrongly.\n\n(i) Why must the voltmeter be connected between the two ends of the wire and not placed in the single loop?\n(ii) Using readings 1, 2 and 4, find the resistance of the nichrome wire.\n(iii) (a) Which reading does not fit the pattern? (b) What current should have been recorded for it?",
+    "questionText": "Read the passage and answer the questions that follow.\n\nMeera and Joseph study how the current through a nichrome wire depends on the potential difference across it. They connect a battery, a key, a rheostat, an ammeter and the nichrome wire one after another in a single loop, and connect a voltmeter between the two ends of the nichrome wire. By changing the rheostat setting they obtain four pairs of readings:\nReading 1 — 1.0 V, 0.20 A\nReading 2 — 2.0 V, 0.40 A\nReading 3 — 3.0 V, 0.72 A\nReading 4 — 4.0 V, 0.80 A\nThey switch off the key between readings, so the temperature of the wire stays nearly constant. Joseph suspects that one current reading was noted down wrongly.\n\n(i) Why must the voltmeter be connected between the two ends of the wire and not placed in the single loop? [1 mark]\n(ii) Using readings 1, 2 and 4, find the resistance of the nichrome wire. [1 mark]\n(iii) (a) Which reading does not fit the pattern? (b) What current should have been recorded for it? [2 marks]",
     "options": [],
     "answer": "(i) A voltmeter measures p.d. between two points, so it goes in parallel; its very high resistance would almost stop the current if placed in series. (ii) 5 Ω (iii)(a) Reading 3 (b) 0.60 A",
     "solutionSteps": [
@@ -449,7 +449,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Read the passage and answer the questions that follow.\n\nFor a puppet show at her school in Pune, Aisha builds a stage light whose brightness she can adjust. She joins a 6 V battery, a key, a torch bulb, an ammeter and a rheostat one after another in a single loop. The resistance of the bulb may be taken as 12 Ω at all settings, and the battery keeps a steady p.d. of 6 V. She notes the ammeter reading at two settings of the rheostat:\nSetting P (rheostat resistance 0 Ω) — 0.50 A\nSetting Q (rheostat resistance 12 Ω) — 0.25 A\nShe finds that the bulb is noticeably dimmer at setting Q, which suits the night scenes of the show, and bright at setting P for the daytime scenes.\n\n(i) What is the role of the rheostat in this circuit?\n(ii) What is the potential difference across the bulb at setting P?\n(iii) At setting Q, find (a) the total resistance of the circuit, and (b) the potential difference across the bulb.",
+    "questionText": "Read the passage and answer the questions that follow.\n\nFor a puppet show at her school in Pune, Aisha builds a stage light whose brightness she can adjust. She joins a 6 V battery, a key, a torch bulb, an ammeter and a rheostat one after another in a single loop. The resistance of the bulb may be taken as 12 Ω at all settings, and the battery keeps a steady p.d. of 6 V. She notes the ammeter reading at two settings of the rheostat:\nSetting P (rheostat resistance 0 Ω) — 0.50 A\nSetting Q (rheostat resistance 12 Ω) — 0.25 A\nShe finds that the bulb is noticeably dimmer at setting Q, which suits the night scenes of the show, and bright at setting P for the daytime scenes.\n\n(i) What is the role of the rheostat in this circuit? [1 mark]\n(ii) What is the potential difference across the bulb at setting P? [1 mark]\n(iii) At setting Q, find (a) the total resistance of the circuit, and (b) the potential difference across the bulb. [2 marks]",
     "options": [],
     "answer": "(i) It changes the resistance in the circuit and so changes the current (brightness). (ii) 6 V (iii)(a) 24 Ω (b) 3 V",
     "solutionSteps": [
@@ -476,7 +476,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A circuit is set up as follows. The + terminal of a 9 V battery is joined through a key and an ammeter to one end of a 1 Ω resistor. The other end of the 1 Ω resistor is joined to a point P. Between point P and a second point Q there are two branches: one branch contains a 6 Ω resistor and the other contains a 3 Ω resistor. Point Q is joined back to the − terminal of the battery. A voltmeter is connected between P and Q. Take the battery p.d. as 9 V, and treat the meters as ideal and the connecting wires as having negligible resistance.\n(a) Find the equivalent resistance between P and Q.\n(b) Find the reading of the ammeter.\n(c) Find the reading of the voltmeter.\n(d) Find the current in the 6 Ω resistor and in the 3 Ω resistor.\n(e) Ravi claims that if one ammeter were placed in the 6 Ω branch and another in the 3 Ω branch, their readings would add up to more than the reading of the main ammeter. Is he right? Justify.",
+    "questionText": "A circuit is set up as follows. The + terminal of a 9 V battery is joined through a key and an ammeter to one end of a 1 Ω resistor. The other end of the 1 Ω resistor is joined to a point P. Between point P and a second point Q there are two branches: one branch contains a 6 Ω resistor and the other contains a 3 Ω resistor. Point Q is joined back to the − terminal of the battery. A voltmeter is connected between P and Q. Take the battery p.d. as 9 V, and treat the meters as ideal and the connecting wires as having negligible resistance.\n(a) Find the equivalent resistance between P and Q. [1 mark]\n(b) Find the reading of the ammeter. [1 mark]\n(c) Find the reading of the voltmeter. [1 mark]\n(d) Find the current in the 6 Ω resistor and in the 3 Ω resistor. [1 mark]\n(e) Ravi claims that if one ammeter were placed in the 6 Ω branch and another in the 3 Ω branch, their readings would add up to more than the reading of the main ammeter. Is he right? Justify. [1 mark]",
     "options": [],
     "answer": "(a) 2 Ω (b) 3 A (c) 6 V (d) 1 A in 6 Ω, 2 A in 3 Ω (e) No — 1 A + 2 A = 3 A, equal to the main ammeter reading.",
     "solutionSteps": [
@@ -504,7 +504,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Riya removes the bulb and cells from her torch and sets them up on a lab bench so that she can add meters. Two 1.5 V cells in series, a key, the torch bulb and an ammeter are joined in a single loop, and a voltmeter is connected between the two ends of the bulb. With the key closed, the ammeter reads 0.3 A and the voltmeter reads 3.0 V. (Charge on an electron = 1.6 × 10⁻¹⁹ C.)\n(a) Calculate the charge that flows through the bulb in 10 minutes.\n(b) How many electrons pass through the bulb in this time?\n(c) Calculate the energy transferred to the bulb in this time.\n(d) Riya now adds a second, identical bulb into the loop, in series with the first. Assuming the resistance of each bulb and the p.d. of the cells stay the same, predict the new ammeter reading and the p.d. across each bulb.\n(e) She now wants to measure, with the same voltmeter, the p.d. across both bulbs together. State where she should connect it and what it should read.",
+    "questionText": "Riya removes the bulb and cells from her torch and sets them up on a lab bench so that she can add meters. Two 1.5 V cells in series, a key, the torch bulb and an ammeter are joined in a single loop, and a voltmeter is connected between the two ends of the bulb. With the key closed, the ammeter reads 0.3 A and the voltmeter reads 3.0 V. (Charge on an electron = 1.6 × 10⁻¹⁹ C.)\n(a) Calculate the charge that flows through the bulb in 10 minutes. [1 mark]\n(b) How many electrons pass through the bulb in this time? [1 mark]\n(c) Calculate the energy transferred to the bulb in this time. [1 mark]\n(d) Riya now adds a second, identical bulb into the loop, in series with the first. Assuming the resistance of each bulb and the p.d. of the cells stay the same, predict the new ammeter reading and the p.d. across each bulb. [1 mark]\n(e) She now wants to measure, with the same voltmeter, the p.d. across both bulbs together. State where she should connect it and what it should read. [1 mark]",
     "options": [],
     "answer": "(a) 180 C (b) 1.125 × 10²¹ electrons (c) 540 J (d) 0.15 A; 1.5 V across each bulb (e) Between the outer end of the first bulb and the outer end of the second (across the pair); 3.0 V.",
     "solutionSteps": [
@@ -563,8 +563,8 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Neha has two copper wires. Wire P is 1 m long with an area of cross-section of 2 mm²; wire Q is 3 m long with an area of cross-section of 0.5 mm². She connects each wire, one at a time, across the same cell. What is the ratio of the current through P to the current through Q?",
     "options": [
-      "12 : 1",
       "1 : 12",
+      "12 : 1",
       "6 : 1",
       "3 : 4"
     ],
@@ -592,9 +592,9 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Jaswinder has a 2 m long nichrome wire of uniform thickness whose resistance is 40 Ω. For a model hot-wire cutter he cuts off a 0.5 m piece. Which option correctly describes the cut piece?",
     "options": [
-      "Resistance 10 Ω; resistivity the same as that of the original wire",
       "Resistance 10 Ω; resistivity one-fourth of that of the original wire",
       "Resistance 40 Ω; resistivity one-fourth of that of the original wire",
+      "Resistance 10 Ω; resistivity the same as that of the original wire",
       "Resistance 160 Ω; resistivity the same as that of the original wire"
     ],
     "answer": "Resistance 10 Ω; resistivity the same as that of the original wire",
@@ -621,10 +621,10 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Kabir tests two resistors at 6 V: resistor X draws 0.3 A and resistor Y draws 0.6 A. He then connects each resistor, one at a time, to a 9 V battery. Assuming the resistors stay at the same temperature, what currents should he expect?",
     "options": [
-      "X: 0.45 A, Y: 0.90 A",
       "X: 0.90 A, Y: 0.45 A",
       "X: 0.30 A, Y: 0.60 A",
-      "X: 0.20 A, Y: 0.40 A"
+      "X: 0.20 A, Y: 0.40 A",
+      "X: 0.45 A, Y: 0.90 A"
     ],
     "answer": "X: 0.45 A, Y: 0.90 A",
     "solutionSteps": [
@@ -781,7 +781,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Ritika measures the current through a small torch bulb at different potential differences:\n0.5 V — 0.10 A; 1.5 V — 0.20 A; 3.0 V — 0.25 A.\n(a) Calculate the resistance of the bulb at each reading.\n(b) Does the bulb obey Ohm's law? Justify.\n(c) Explain the trend in its resistance.",
+    "questionText": "Ritika measures the current through a small torch bulb at different potential differences:\n0.5 V — 0.10 A; 1.5 V — 0.20 A; 3.0 V — 0.25 A.\n(a) Calculate the resistance of the bulb at each reading. [1 mark]\n(b) Does the bulb obey Ohm's law? Justify. [1 mark]\n(c) Explain the trend in its resistance. [1 mark]",
     "options": [],
     "answer": "(a) 5 Ω, 7.5 Ω, 12 Ω (b) No — V/I is not constant (c) The filament gets hotter as current increases and the resistance of a metal increases with temperature.",
     "solutionSteps": [
@@ -834,7 +834,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Pooja claims, \"A longer wire always has more resistance than a shorter wire.\" To test this, her brother takes two copper wires at the same temperature: wire X is 2 m long with an area of cross-section of 1 mm²; wire Y is 1 m long with an area of cross-section of 0.25 mm².\n(a) Find the ratio of the resistance of X to that of Y.\n(b) Is Pooja's claim correct? Use your result.\n(c) Under what condition would her claim be true?",
+    "questionText": "Pooja claims, \"A longer wire always has more resistance than a shorter wire.\" To test this, her brother takes two copper wires at the same temperature: wire X is 2 m long with an area of cross-section of 1 mm²; wire Y is 1 m long with an area of cross-section of 0.25 mm².\n(a) Find the ratio of the resistance of X to that of Y. [1 mark]\n(b) Is Pooja's claim correct? Use your result. [1 mark]\n(c) Under what condition would her claim be true? [1 mark]",
     "options": [],
     "answer": "(a) R_X : R_Y = 1 : 2 (b) No — the shorter wire Y has twice the resistance because it is much thinner (c) Only when the wires are of the same material, same area of cross-section and same temperature.",
     "solutionSteps": [
@@ -860,7 +860,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In a school laboratory in Shillong, Dorothy and her partner test two wires, A and B, made of the same alloy and having the same length. They connect each wire, one at a time, in a circuit with a battery, an ammeter, a voltmeter across the wire and a plug key. They keep the key closed only while taking a reading, so that the wires do not heat up. Their readings are:\nWire A — 1.0 V: 0.25 A; 2.0 V: 0.50 A; 3.0 V: 0.75 A\nWire B — 1.0 V: 0.50 A; 2.0 V: 1.00 A; 3.0 V: 1.50 A\nDorothy notices that for each wire the current rises in the same proportion as the potential difference. Her partner wonders why two wires of the same alloy and the same length allow such different currents.\n(i) Calculate the resistance of wire A. (1)\n(ii) Which wire is thicker? Give a reason. (1)\n(iii) Predict the current through wire B when the potential difference across it is 4.5 V, and find the ratio of the area of cross-section of wire B to that of wire A. (2)",
+    "questionText": "In a school laboratory in Shillong, Dorothy and her partner test two wires, A and B, made of the same alloy and having the same length. They connect each wire, one at a time, in a circuit with a battery, an ammeter, a voltmeter across the wire and a plug key. They keep the key closed only while taking a reading, so that the wires do not heat up. Their readings are:\nWire A — 1.0 V: 0.25 A; 2.0 V: 0.50 A; 3.0 V: 0.75 A\nWire B — 1.0 V: 0.50 A; 2.0 V: 1.00 A; 3.0 V: 1.50 A\nDorothy notices that for each wire the current rises in the same proportion as the potential difference. Her partner wonders why two wires of the same alloy and the same length allow such different currents.\n(i) Calculate the resistance of wire A. (1) [1 mark]\n(ii) Which wire is thicker? Give a reason. (1) [1 mark]\n(iii) Predict the current through wire B when the potential difference across it is 4.5 V, and find the ratio of the area of cross-section of wire B to that of wire A. (2) [2 marks]",
     "options": [],
     "answer": "(i) R_A = 4 Ω (ii) Wire B, as it has lower resistance (2 Ω) for the same material and length (iii) 2.25 A; A_B : A_A = 2 : 1",
     "solutionSteps": [
@@ -887,7 +887,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Sunita runs a small appliance-repair workshop in Nagpur. She is rebuilding a bread toaster and keeps this data card for four materials:\nCopper — resistivity 1.6 × 10⁻⁸ Ω m; melts at 1085 °C\nAluminium — resistivity 2.6 × 10⁻⁸ Ω m; melts at 660 °C\nTungsten — resistivity 5.2 × 10⁻⁸ Ω m; melts at 3422 °C, but combines quickly with the oxygen of the air when very hot\nNichrome — resistivity 100 × 10⁻⁸ Ω m; melts at about 1400 °C; does not oxidise readily even when very hot\nThe toaster needs a heating element of resistance 40 Ω, made from wire of area of cross-section 0.1 mm², and a flexible cord to connect it to the socket.\n(i) Which material should be used for the conductors of the connecting cord? Give a reason. (1)\n(ii) Her apprentice suggests tungsten for the element because it has the highest melting point. Why is this not a good choice? (1)\n(iii) Calculate the length of nichrome wire needed for the element, and the resistance of a copper wire of the same length and thickness. Hence state why copper cannot be used for the element. (2)",
+    "questionText": "Sunita runs a small appliance-repair workshop in Nagpur. She is rebuilding a bread toaster and keeps this data card for four materials:\nCopper — resistivity 1.6 × 10⁻⁸ Ω m; melts at 1085 °C\nAluminium — resistivity 2.6 × 10⁻⁸ Ω m; melts at 660 °C\nTungsten — resistivity 5.2 × 10⁻⁸ Ω m; melts at 3422 °C, but combines quickly with the oxygen of the air when very hot\nNichrome — resistivity 100 × 10⁻⁸ Ω m; melts at about 1400 °C; does not oxidise readily even when very hot\nThe toaster needs a heating element of resistance 40 Ω, made from wire of area of cross-section 0.1 mm², and a flexible cord to connect it to the socket.\n(i) Which material should be used for the conductors of the connecting cord? Give a reason. (1) [1 mark]\n(ii) Her apprentice suggests tungsten for the element because it has the highest melting point. Why is this not a good choice? (1) [1 mark]\n(iii) Calculate the length of nichrome wire needed for the element, and the resistance of a copper wire of the same length and thickness. Hence state why copper cannot be used for the element. (2) [2 marks]",
     "options": [],
     "answer": "(i) Copper — lowest resistivity, so least heating in the cord (ii) Tungsten oxidises quickly in air when very hot (and its resistivity is low) (iii) 4 m of nichrome; copper of same size = 0.64 Ω, far too low, so it would draw an excessively large current",
     "solutionSteps": [
@@ -914,7 +914,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "For a science exhibition in Gangtok, Tenzin investigates whether pencil leads, which are thin rods of graphite, conduct electricity. He breaks thin leads of the same thickness into pieces of different lengths and connects each piece, one at a time, across a 1.2 V cell with an ammeter in series. He presses the switch only for a moment for each reading and assumes the cell keeps a steady 1.2 V across every piece. His results are:\n3 cm piece — 0.40 A\n6 cm piece — 0.20 A\nHe has also bought a box of thick leads made of the same graphite, whose area of cross-section is double that of the thin leads. His teacher asks him to use his results to predict, before measuring, what the ammeter will show for new pieces.\n(i) Calculate the resistance of the 3 cm piece. (1)\n(ii) How does the resistance of the graphite piece depend on its length? Support your answer with his data. (1)\n(iii) Predict the current through (a) a 12 cm piece of thin lead and (b) a 6 cm piece of thick lead, each connected across the same 1.2 V cell. (2)",
+    "questionText": "For a science exhibition in Gangtok, Tenzin investigates whether pencil leads, which are thin rods of graphite, conduct electricity. He breaks thin leads of the same thickness into pieces of different lengths and connects each piece, one at a time, across a 1.2 V cell with an ammeter in series. He presses the switch only for a moment for each reading and assumes the cell keeps a steady 1.2 V across every piece. His results are:\n3 cm piece — 0.40 A\n6 cm piece — 0.20 A\nHe has also bought a box of thick leads made of the same graphite, whose area of cross-section is double that of the thin leads. His teacher asks him to use his results to predict, before measuring, what the ammeter will show for new pieces.\n(i) Calculate the resistance of the 3 cm piece. (1) [1 mark]\n(ii) How does the resistance of the graphite piece depend on its length? Support your answer with his data. (1) [1 mark]\n(iii) Predict the current through (a) a 12 cm piece of thin lead and (b) a 6 cm piece of thick lead, each connected across the same 1.2 V cell. (2) [2 marks]",
     "options": [],
     "answer": "(i) 3 Ω (ii) Directly proportional — doubling length from 3 cm to 6 cm doubles R from 3 Ω to 6 Ω (iii) (a) 0.10 A (b) 0.40 A",
     "solutionSteps": [
@@ -941,7 +941,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "During a safety talk at a school in Kochi, an electrician, Mr. Joseph, explains why switches and plugs must never be handled with wet hands. The human body offers resistance to the flow of current, and most of this resistance comes from the skin. He quotes typical values: dry skin, about 100 kΩ; wet skin, about 1 kΩ. Water on the skin usually contains dissolved salts from sweat or soap, and such water conducts electricity well. He adds that a current of only a few milliamperes through the body may cause just a tingle, but a current of about 0.1 A or more can be life-threatening. The mains supply in Indian homes is 220 V. He ends by reminding everyone to dry their hands and to ask an adult to switch off the mains before any repair.\n(i) Calculate the current that would pass through a body of resistance 100 kΩ if it accidentally came across 220 V. (1)\n(ii) Calculate the current for the wet-skin value of resistance. (1)\n(iii) By what factor does the current increase when the skin is wet? Use your answers to explain the safety rule. (2)",
+    "questionText": "During a safety talk at a school in Kochi, an electrician, Mr. Joseph, explains why switches and plugs must never be handled with wet hands. The human body offers resistance to the flow of current, and most of this resistance comes from the skin. He quotes typical values: dry skin, about 100 kΩ; wet skin, about 1 kΩ. Water on the skin usually contains dissolved salts from sweat or soap, and such water conducts electricity well. He adds that a current of only a few milliamperes through the body may cause just a tingle, but a current of about 0.1 A or more can be life-threatening. The mains supply in Indian homes is 220 V. He ends by reminding everyone to dry their hands and to ask an adult to switch off the mains before any repair.\n(i) Calculate the current that would pass through a body of resistance 100 kΩ if it accidentally came across 220 V. (1) [1 mark]\n(ii) Calculate the current for the wet-skin value of resistance. (1) [1 mark]\n(iii) By what factor does the current increase when the skin is wet? Use your answers to explain the safety rule. (2) [2 marks]",
     "options": [],
     "answer": "(i) 2.2 × 10⁻³ A (2.2 mA) (ii) 0.22 A (iii) 100 times; 0.22 A is above the 0.1 A danger level, so wet hands can make a shock life-threatening — handle switches only with dry hands",
     "solutionSteps": [
@@ -968,7 +968,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Gurpreet's family, in a village near Ludhiana, runs a water pump in their field from a socket at the farmhouse using a 50 m long two-core extension cable. The current goes to the pump through one core and returns through the other, so it flows through 100 m of copper in all. Each copper core has an area of cross-section of 1.0 mm², and the resistivity of copper is 1.6 × 10⁻⁸ Ω m. The pump draws a steady current of 5 A. Gurpreet notices that the cable feels warm after long use and that the pump seems to work a little more slowly than when it is plugged in close to the house. Her science teacher explains that part of the supply voltage is being lost across the cable itself, because the cable has resistance.\n(i) Calculate the total resistance of the copper in the cable. (1)\n(ii) Calculate the potential difference across the cable when the pump draws 5 A. (1)\n(iii) The family replaces it with a cable of the same length whose cores each have an area of cross-section of 2.0 mm². Find the new potential difference across the cable at the same current, and state one advantage of the thicker cable. (2)",
+    "questionText": "Gurpreet's family, in a village near Ludhiana, runs a water pump in their field from a socket at the farmhouse using a 50 m long two-core extension cable. The current goes to the pump through one core and returns through the other, so it flows through 100 m of copper in all. Each copper core has an area of cross-section of 1.0 mm², and the resistivity of copper is 1.6 × 10⁻⁸ Ω m. The pump draws a steady current of 5 A. Gurpreet notices that the cable feels warm after long use and that the pump seems to work a little more slowly than when it is plugged in close to the house. Her science teacher explains that part of the supply voltage is being lost across the cable itself, because the cable has resistance.\n(i) Calculate the total resistance of the copper in the cable. (1) [1 mark]\n(ii) Calculate the potential difference across the cable when the pump draws 5 A. (1) [1 mark]\n(iii) The family replaces it with a cable of the same length whose cores each have an area of cross-section of 2.0 mm². Find the new potential difference across the cable at the same current, and state one advantage of the thicker cable. (2) [2 marks]",
     "options": [],
     "answer": "(i) 1.6 Ω (ii) 8 V (iii) 4 V; less voltage is lost and less heat is produced in the cable, so more voltage reaches the pump",
     "solutionSteps": [
@@ -995,7 +995,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Harpreet studies a 50 cm long nichrome wire P using a battery, an ammeter, a voltmeter across the wire and a plug key. She records:\nV (in V): 0.6, 1.2, 1.8, 2.4\nI (in A): 0.15, 0.30, 0.45, 0.60\n(a) Show from her data that wire P obeys Ohm's law and find its resistance.\n(b) Her classmate Irfan says, \"Since R = V/I, doubling the potential difference will double the resistance of P.\" Evaluate his statement.\n(c) Predict the current at 2.4 V through a 100 cm long nichrome wire of the same thickness as P.\n(d) Predict the current at 1.2 V through a 50 cm long nichrome wire whose diameter is double that of P.\n(e) Her teacher asks her to open the plug key between readings. Explain why.",
+    "questionText": "Harpreet studies a 50 cm long nichrome wire P using a battery, an ammeter, a voltmeter across the wire and a plug key. She records:\nV (in V): 0.6, 1.2, 1.8, 2.4\nI (in A): 0.15, 0.30, 0.45, 0.60\n(a) Show from her data that wire P obeys Ohm's law and find its resistance. [1 mark]\n(b) Her classmate Irfan says, \"Since R = V/I, doubling the potential difference will double the resistance of P.\" Evaluate his statement. [1 mark]\n(c) Predict the current at 2.4 V through a 100 cm long nichrome wire of the same thickness as P. [1 mark]\n(d) Predict the current at 1.2 V through a 50 cm long nichrome wire whose diameter is double that of P. [1 mark]\n(e) Her teacher asks her to open the plug key between readings. Explain why. [1 mark]",
     "options": [],
     "answer": "(a) V/I = 4 Ω for every reading, so Ohm's law holds; R = 4 Ω (b) Wrong — R stays 4 Ω; doubling V doubles I (c) 0.30 A (d) 1.2 A (e) To stop the wire heating up, since a rise in temperature would change its resistance and spoil the readings",
     "solutionSteps": [
@@ -1023,7 +1023,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "An appliance designer in Pune is planning the heating element of an electric kettle that must draw a current of 5 A from the 220 V mains. She plans to use nichrome wire of resistivity 1.0 × 10⁻⁶ Ω m and area of cross-section 0.1 mm².\n(a) Calculate the resistance the element must have.\n(b) Calculate the length of nichrome wire needed.\n(c) A trainee suggests using copper wire (resistivity 1.6 × 10⁻⁸ Ω m) of the same length and area of cross-section instead. Calculate its resistance.\n(d) Calculate the current the copper element would try to draw from the 220 V mains, and comment on whether it is safe.\n(e) State two properties of nichrome that make it suitable for heating elements.",
+    "questionText": "An appliance designer in Pune is planning the heating element of an electric kettle that must draw a current of 5 A from the 220 V mains. She plans to use nichrome wire of resistivity 1.0 × 10⁻⁶ Ω m and area of cross-section 0.1 mm².\n(a) Calculate the resistance the element must have. [1 mark]\n(b) Calculate the length of nichrome wire needed. [1 mark]\n(c) A trainee suggests using copper wire (resistivity 1.6 × 10⁻⁸ Ω m) of the same length and area of cross-section instead. Calculate its resistance. [1 mark]\n(d) Calculate the current the copper element would try to draw from the 220 V mains, and comment on whether it is safe. [1 mark]\n(e) State two properties of nichrome that make it suitable for heating elements. [1 mark]",
     "options": [],
     "answer": "(a) 44 Ω (b) 4.4 m (c) 0.704 Ω (d) 312.5 A — dangerously large; it would overload the circuit (e) High resistivity; high melting point and does not oxidise readily at high temperature",
     "solutionSteps": [
@@ -1054,9 +1054,9 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "During a practical, Siddharth joins three resistors of 2 Ω, 4 Ω and 6 Ω one after another in a single chain and connects the chain to a 12 V battery. He touches the two leads of a voltmeter to two points of the chain and the voltmeter reads 10 V. Across which part of the chain were the leads placed?",
     "options": [
+      "Across the 4 Ω and 6 Ω resistors taken together",
       "Across the 2 Ω and 6 Ω resistors taken together",
       "Across the 6 Ω resistor alone",
-      "Across the 4 Ω and 6 Ω resistors taken together",
       "Across the 2 Ω and 4 Ω resistors taken together"
     ],
     "answer": "Across the 4 Ω and 6 Ω resistors taken together",
@@ -1084,9 +1084,9 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "Bhavna connects a 3 Ω resistor and a 6 Ω resistor side by side, both directly across the same battery. An ammeter placed only in the branch with the 6 Ω resistor reads 0.5 A. What will an ammeter placed in the main wire from the battery read?",
     "options": [
       "0.5 A",
+      "1.5 A",
       "0.75 A",
-      "1.0 A",
-      "1.5 A"
+      "1.0 A"
     ],
     "answer": "1.5 A",
     "solutionSteps": [
@@ -1113,8 +1113,8 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "Yusuf is repairing a toy and needs a total resistance of exactly 6 Ω, but his kit has only three identical 4 Ω resistors. Which way of joining all three resistors gives him 6 Ω?",
     "options": [
       "Join two of them in series, then connect this pair in parallel with the third",
-      "Join two of them in parallel, then connect this pair in series with the third",
       "Join all three in parallel",
+      "Join two of them in parallel, then connect this pair in series with the third",
       "Join all three in series"
     ],
     "answer": "Join two of them in parallel, then connect this pair in series with the third",
@@ -1143,8 +1143,8 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "6 Ω and 6 Ω",
       "3 Ω and 9 Ω",
-      "4 Ω and 8 Ω",
-      "2 Ω and 10 Ω"
+      "2 Ω and 10 Ω",
+      "4 Ω and 8 Ω"
     ],
     "answer": "4 Ω and 8 Ω",
     "solutionSteps": [
@@ -1226,7 +1226,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A bicycle mechanic wants to run a small lamp rated 6 V, 0.5 A from a 9 V battery. She decides to connect a resistor in series with the lamp so that the lamp gets exactly its rated voltage.\n(a) What potential difference must the resistor take up?\n(b) What resistance should the resistor have?",
+    "questionText": "A bicycle mechanic wants to run a small lamp rated 6 V, 0.5 A from a 9 V battery. She decides to connect a resistor in series with the lamp so that the lamp gets exactly its rated voltage.\n(a) What potential difference must the resistor take up? [1 mark]\n(b) What resistance should the resistor have? [1 mark]",
     "options": [],
     "answer": "(a) 3 V; (b) 6 Ω",
     "solutionSteps": [
@@ -1301,7 +1301,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Resistors A and B are connected in series to a 12 V battery. A voltmeter across A reads 4 V and an ammeter in the circuit reads 0.5 A.\n(a) What is the potential difference across B?\n(b) Find the resistances of A and B.\n(c) A third resistor, identical to B, is now connected in parallel with B only. Find the new current drawn from the battery.",
+    "questionText": "Resistors A and B are connected in series to a 12 V battery. A voltmeter across A reads 4 V and an ammeter in the circuit reads 0.5 A.\n(a) What is the potential difference across B? [1 mark]\n(b) Find the resistances of A and B. [1 mark]\n(c) A third resistor, identical to B, is now connected in parallel with B only. Find the new current drawn from the battery. [1 mark]",
     "options": [],
     "answer": "(a) 8 V; (b) A = 8 Ω, B = 16 Ω; (c) total resistance 16 Ω, current 0.75 A",
     "solutionSteps": [
@@ -1329,7 +1329,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Rekha notices that in her grandfather's old workshop, two identical bulbs, each rated 100 W, 220 V, are connected in series with each other across the 220 V supply, and both glow dimly.\n(a) Calculate the resistance of each bulb (assume it stays constant).\n(b) Calculate the power actually used by each bulb in this series arrangement.\n(c) State what would change if the bulbs were connected in parallel, and give one more advantage of parallel wiring at home.",
+    "questionText": "Rekha notices that in her grandfather's old workshop, two identical bulbs, each rated 100 W, 220 V, are connected in series with each other across the 220 V supply, and both glow dimly.\n(a) Calculate the resistance of each bulb (assume it stays constant). [1 mark]\n(b) Calculate the power actually used by each bulb in this series arrangement. [1 mark]\n(c) State what would change if the bulbs were connected in parallel, and give one more advantage of parallel wiring at home. [1 mark]",
     "options": [],
     "answer": "(a) 484 Ω; (b) 110 V each, 25 W each; (c) in parallel each gets 220 V and gives its full 100 W, and each bulb can be switched on/off independently.",
     "solutionSteps": [
@@ -1355,7 +1355,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Tanvir builds a circuit with three bulbs P, Q and R and a battery. Q and R are connected in parallel with each other, and this pair is connected in series with P. All three bulbs glow.\n(a) The filament of Q breaks. Will P and R still glow? Give a reason.\n(b) Instead, the filament of P breaks. What happens to Q and R? Give a reason.\n(c) Instead, a piece of thick copper wire accidentally touches both ends of bulb Q. What happens to the three bulbs?",
+    "questionText": "Tanvir builds a circuit with three bulbs P, Q and R and a battery. Q and R are connected in parallel with each other, and this pair is connected in series with P. All three bulbs glow.\n(a) The filament of Q breaks. Will P and R still glow? Give a reason. [1 mark]\n(b) Instead, the filament of P breaks. What happens to Q and R? Give a reason. [1 mark]\n(c) Instead, a piece of thick copper wire accidentally touches both ends of bulb Q. What happens to the three bulbs? [1 mark]",
     "options": [],
     "answer": "(a) Yes, P and R glow — a complete path remains through P and R. (b) Q and R go out — P is in the main line, the only path to the battery. (c) Q and R go out (both shorted by the wire); P glows brighter as it gets the full battery voltage.",
     "solutionSteps": [
@@ -1382,7 +1382,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Lakshmi's family in Madurai has a separate kitchen circuit fed by the 220 V household supply. All appliances on it are connected in parallel, and the circuit is protected by a 10 A circuit breaker (MCB) that switches the supply off if the total current goes above 10 A. The appliances and their ratings are:\nElectric kettle — 1100 W, 220 V\nRefrigerator — 220 W, 220 V\nLED tube light — 22 W, 220 V\nOne evening, all three are on together. Lakshmi then wants to plug a new toaster rated 880 W, 220 V into the same circuit while the other three keep running. Her brother says the toaster will be fine because \"each appliance in parallel works on its own\".\n(i) Calculate the current drawn by the kettle.\n(ii) Why does switching off the tube light make no difference to the working of the kettle?\n(iii) Calculate the total current with all four appliances on, and decide whether her brother is right.",
+    "questionText": "Lakshmi's family in Madurai has a separate kitchen circuit fed by the 220 V household supply. All appliances on it are connected in parallel, and the circuit is protected by a 10 A circuit breaker (MCB) that switches the supply off if the total current goes above 10 A. The appliances and their ratings are:\nElectric kettle — 1100 W, 220 V\nRefrigerator — 220 W, 220 V\nLED tube light — 22 W, 220 V\nOne evening, all three are on together. Lakshmi then wants to plug a new toaster rated 880 W, 220 V into the same circuit while the other three keep running. Her brother says the toaster will be fine because \"each appliance in parallel works on its own\".\n(i) Calculate the current drawn by the kettle. [1 mark]\n(ii) Why does switching off the tube light make no difference to the working of the kettle? [1 mark]\n(iii) Calculate the total current with all four appliances on, and decide whether her brother is right. [2 marks]",
     "options": [],
     "answer": "(i) 5 A; (ii) in parallel each appliance has its own branch with the full 220 V, so one branch being off does not affect another; (iii) total = 5 + 1 + 0.1 + 4 = 10.1 A, which exceeds 10 A, so the MCB will trip — her brother is wrong.",
     "solutionSteps": [
@@ -1409,7 +1409,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "The science club of a school in Imphal is building a lighting board for a model village. Members describe their circuit in words so that others can copy it: \"A 12 V battery is connected to resistor R1 = 2 Ω. From R1 the current splits into two branches, one containing R2 = 6 Ω and the other containing R3 = 3 Ω. The two branches join again and return to the battery.\" One member, Wanshan, says that if R2 is taken out, R3 will get less current because \"there is now less total current to share\". Another member, Ibha, disagrees and wants to check by calculation before they rebuild the board. Their teacher reminds them to treat the battery as giving a steady 12 V and to ignore the resistance of the connecting wires.\n(i) What is the equivalent resistance of the R2–R3 pair?\n(ii) Calculate the current drawn from the battery.\n(iii) Calculate the current through R3 before and after R2 is removed, and say whether Wanshan is right.",
+    "questionText": "The science club of a school in Imphal is building a lighting board for a model village. Members describe their circuit in words so that others can copy it: \"A 12 V battery is connected to resistor R1 = 2 Ω. From R1 the current splits into two branches, one containing R2 = 6 Ω and the other containing R3 = 3 Ω. The two branches join again and return to the battery.\" One member, Wanshan, says that if R2 is taken out, R3 will get less current because \"there is now less total current to share\". Another member, Ibha, disagrees and wants to check by calculation before they rebuild the board. Their teacher reminds them to treat the battery as giving a steady 12 V and to ignore the resistance of the connecting wires.\n(i) What is the equivalent resistance of the R2–R3 pair? [1 mark]\n(ii) Calculate the current drawn from the battery. [1 mark]\n(iii) Calculate the current through R3 before and after R2 is removed, and say whether Wanshan is right. [2 marks]",
     "options": [],
     "answer": "(i) 2 Ω; (ii) 3 A; (iii) before: PD across pair 6 V, I3 = 2 A; after: total 5 Ω, I = 2.4 A all through R3 — current in R3 increases, so Wanshan is wrong.",
     "solutionSteps": [
@@ -1436,7 +1436,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In a small workshop in Coimbatore, Selvam is making a heating pad for a seed-germination tray. He has two wires, A and B, made of the same alloy and of the same length, but wire A has twice the area of cross-section of wire B. He connects the two wires in parallel to a 6 V supply. An ammeter in the main wire reads 4.5 A. Selvam wants to know which wire will carry more current so that he can place it under the part of the tray that needs more warmth. His sister, who is in Class 10, reminds him that the resistance of a wire depends on its material, its length and its area of cross-section, and suggests he work it out before switching on.\n(i) Compare the resistances of wires A and B.\n(ii) Which wire carries the larger current, and in what ratio?\n(iii) Calculate the current in each wire and the resistance of each wire.",
+    "questionText": "In a small workshop in Coimbatore, Selvam is making a heating pad for a seed-germination tray. He has two wires, A and B, made of the same alloy and of the same length, but wire A has twice the area of cross-section of wire B. He connects the two wires in parallel to a 6 V supply. An ammeter in the main wire reads 4.5 A. Selvam wants to know which wire will carry more current so that he can place it under the part of the tray that needs more warmth. His sister, who is in Class 10, reminds him that the resistance of a wire depends on its material, its length and its area of cross-section, and suggests he work it out before switching on.\n(i) Compare the resistances of wires A and B. [1 mark]\n(ii) Which wire carries the larger current, and in what ratio? [1 mark]\n(iii) Calculate the current in each wire and the resistance of each wire. [2 marks]",
     "options": [],
     "answer": "(i) R_A : R_B = 1 : 2 (A has half the resistance of B); (ii) A carries more current, I_A : I_B = 2 : 1; (iii) I_A = 3 A, I_B = 1.5 A; R_A = 2 Ω, R_B = 4 Ω.",
     "solutionSteps": [
@@ -1463,7 +1463,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "In a school lab in Ranchi, Zoya connects three resistors R1, R2 and R3 one after another in a single loop with a battery of 6 V and a plug key. She moves one ammeter to three different places in the loop and then uses a voltmeter across each resistor. Her observation table reads:\nAmmeter between battery and R1 — 0.4 A\nAmmeter between R1 and R2 — 0.4 A\nAmmeter between R2 and R3 — 0.4 A\nVoltmeter across R1 — 1.2 V\nVoltmeter across R2 — 2.0 V\nVoltmeter across R3 — reading smudged\nHer partner Kunal wants to recover the missing reading and check whether the total resistance of the loop equals the sum of the three resistances.\n(i) What do the three ammeter readings show about current in a series circuit?\n(ii) Find the missing voltmeter reading across R3.\n(iii) Find R3, and check whether the total resistance equals R1 + R2 + R3.",
+    "questionText": "In a school lab in Ranchi, Zoya connects three resistors R1, R2 and R3 one after another in a single loop with a battery of 6 V and a plug key. She moves one ammeter to three different places in the loop and then uses a voltmeter across each resistor. Her observation table reads:\nAmmeter between battery and R1 — 0.4 A\nAmmeter between R1 and R2 — 0.4 A\nAmmeter between R2 and R3 — 0.4 A\nVoltmeter across R1 — 1.2 V\nVoltmeter across R2 — 2.0 V\nVoltmeter across R3 — reading smudged\nHer partner Kunal wants to recover the missing reading and check whether the total resistance of the loop equals the sum of the three resistances.\n(i) What do the three ammeter readings show about current in a series circuit? [1 mark]\n(ii) Find the missing voltmeter reading across R3. [1 mark]\n(iii) Find R3, and check whether the total resistance equals R1 + R2 + R3. [2 marks]",
     "options": [],
     "answer": "(i) The same current flows through every part of a series circuit; (ii) 2.8 V; (iii) R3 = 7 Ω; R1 = 3 Ω, R2 = 5 Ω; total = 6/0.4 = 15 Ω = 3 + 5 + 7 Ω — verified.",
     "solutionSteps": [
@@ -1490,7 +1490,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Before a festival in Patna, Rukhsana compares two strings of decorative lights for her balcony. Both plug into the 220 V household supply.\nString A — 20 identical small bulbs joined one after another in a single chain; each glowing bulb has a resistance of 55 Ω.\nString B — 20 identical bulbs, each designed to work at 220 V, each connected on its own separate branch between the two supply wires.\nThe shopkeeper tells her that one bulb in a string often fuses during long use, and that is when the difference between the two strings shows. Rukhsana decides to work out the current and voltage in string A before she chooses, and she plans to replace any fused bulb only after unplugging the string from the socket.\n(i) Calculate the current through string A.\n(ii) Calculate the potential difference across each bulb of string A.\n(iii) One bulb fuses in each string. Describe and explain what Rukhsana will see in string A and in string B.",
+    "questionText": "Before a festival in Patna, Rukhsana compares two strings of decorative lights for her balcony. Both plug into the 220 V household supply.\nString A — 20 identical small bulbs joined one after another in a single chain; each glowing bulb has a resistance of 55 Ω.\nString B — 20 identical bulbs, each designed to work at 220 V, each connected on its own separate branch between the two supply wires.\nThe shopkeeper tells her that one bulb in a string often fuses during long use, and that is when the difference between the two strings shows. Rukhsana decides to work out the current and voltage in string A before she chooses, and she plans to replace any fused bulb only after unplugging the string from the socket.\n(i) Calculate the current through string A. [1 mark]\n(ii) Calculate the potential difference across each bulb of string A. [1 mark]\n(iii) One bulb fuses in each string. Describe and explain what Rukhsana will see in string A and in string B. [2 marks]",
     "options": [],
     "answer": "(i) 0.2 A; (ii) 11 V; (iii) String A goes completely dark because its single series path is broken; in string B the other 19 bulbs keep glowing normally because each is on its own parallel branch with the full 220 V.",
     "solutionSteps": [
@@ -1517,7 +1517,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Jyoti sets up a circuit with a 9 V battery and three resistors X = 6 Ω, Y = 3 Ω and Z (value unknown). X and Y are connected side by side between the same two points, and this pair is connected in series with Z and the battery. An ammeter in the main wire reads 1.5 A.\n(a) Name the arrangement of X and Y and find their equivalent resistance.\n(b) Find the potential difference across the X–Y pair.\n(c) Find the potential difference across Z and the resistance of Z.\n(d) Find the current through X and through Y.\n(e) A classmate replaces Z with a thick copper wire of negligible resistance. Find the new current through Y and state why this change is unwise.",
+    "questionText": "Jyoti sets up a circuit with a 9 V battery and three resistors X = 6 Ω, Y = 3 Ω and Z (value unknown). X and Y are connected side by side between the same two points, and this pair is connected in series with Z and the battery. An ammeter in the main wire reads 1.5 A.\n(a) Name the arrangement of X and Y and find their equivalent resistance. [1 mark]\n(b) Find the potential difference across the X–Y pair. [1 mark]\n(c) Find the potential difference across Z and the resistance of Z. [1 mark]\n(d) Find the current through X and through Y. [1 mark]\n(e) A classmate replaces Z with a thick copper wire of negligible resistance. Find the new current through Y and state why this change is unwise. [1 mark]",
     "options": [],
     "answer": "(a) Parallel; 2 Ω; (b) 3 V; (c) 6 V, Z = 4 Ω; (d) X 0.5 A, Y 1 A; (e) the pair now gets the full 9 V, so Y carries 3 A (three times as much) and the resistors and battery may overheat.",
     "solutionSteps": [
@@ -1545,7 +1545,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Anjali wants to light two identical bulbs, each rated 6 V, 3 W, in a model house using a 12 V battery. She considers three plans (assume each bulb's resistance stays constant):\nPlan 1 — both bulbs in series across the 12 V battery.\nPlan 2 — both bulbs in parallel directly across the 12 V battery.\nPlan 3 — both bulbs in parallel, and this pair in series with a 6 Ω resistor across the 12 V battery.\n(a) Calculate the resistance of one bulb.\n(b) Show whether the bulbs glow normally in Plan 1.\n(c) Show what happens to the bulbs in Plan 2.\n(d) State one practical drawback of Plan 1.\n(e) Show whether the bulbs glow normally in Plan 3.",
+    "questionText": "Anjali wants to light two identical bulbs, each rated 6 V, 3 W, in a model house using a 12 V battery. She considers three plans (assume each bulb's resistance stays constant):\nPlan 1 — both bulbs in series across the 12 V battery.\nPlan 2 — both bulbs in parallel directly across the 12 V battery.\nPlan 3 — both bulbs in parallel, and this pair in series with a 6 Ω resistor across the 12 V battery.\n(a) Calculate the resistance of one bulb. [1 mark]\n(b) Show whether the bulbs glow normally in Plan 1. [1 mark]\n(c) Show what happens to the bulbs in Plan 2. [1 mark]\n(d) State one practical drawback of Plan 1. [1 mark]\n(e) Show whether the bulbs glow normally in Plan 3. [1 mark]",
     "options": [],
     "answer": "(a) 12 Ω; (b) Plan 1: 24 Ω, 0.5 A, 6 V across each — normal glow; (c) Plan 2: 12 V across each, 1 A, 12 W — four times the rating, so the filaments will fuse; (d) in Plan 1, if one bulb fuses the other goes off too and they cannot be switched separately; (e) Plan 3: 6 Ω + 6 Ω = 12 Ω, 1 A, 6 V across the pair, 0.5 A in each bulb — normal glow.",
     "solutionSteps": [
@@ -1575,9 +1575,9 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Meenakshi buys an induction cooktop whose label reads \"220 V, 2.2 kW\". The electrician has fuse wires of the following ratings for the kitchen socket circuit. Which fuse is the most suitable for protecting this cooktop?",
     "options": [
+      "12 A",
       "5 A",
       "8 A",
-      "12 A",
       "32 A"
     ],
     "answer": "12 A",
@@ -1634,8 +1634,8 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "questionText": "In a school lab, Sneha connects two small heating coils in series with a 12 V battery. Coil A is rated \"12 V, 24 W\" and coil B is rated \"12 V, 12 W\". Each coil is dipped in an identical beaker of water, and the resistance of each coil stays constant. Which statement correctly predicts what happens?",
     "options": [
       "Coil A produces more heat, because it has the higher power rating.",
-      "Coil B produces more heat, because it has the higher resistance and the same current flows through both coils.",
       "Both coils produce equal heat, because the same current flows through both of them.",
+      "Coil B produces more heat, because it has the higher resistance and the same current flows through both coils.",
       "Coil A produces more heat, because it has the lower resistance and so draws a larger current."
     ],
     "answer": "Coil B produces more heat, because it has the higher resistance and the same current flows through both coils.",
@@ -1664,8 +1664,8 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "options": [
       "₹1200",
       "₹1680",
-      "₹1480",
-      "₹1380"
+      "₹1380",
+      "₹1480"
     ],
     "answer": "₹1480",
     "solutionSteps": [
@@ -1747,7 +1747,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Aarav's hostel room socket in Dehradun is protected by a 5 A fuse. He wants to use an electric kettle rated \"1500 W, 220 V\" in it.\n(a) Show by calculation whether the kettle can be used safely on this socket circuit.\n(b) His roommate suggests replacing the fuse wire with a thick copper wire so that it \"never blows\". Explain why this is unsafe.",
+    "questionText": "Aarav's hostel room socket in Dehradun is protected by a 5 A fuse. He wants to use an electric kettle rated \"1500 W, 220 V\" in it.\n(a) Show by calculation whether the kettle can be used safely on this socket circuit. [1 mark]\n(b) His roommate suggests replacing the fuse wire with a thick copper wire so that it \"never blows\". Explain why this is unsafe. [1 mark]",
     "options": [],
     "answer": "(a) I = 1500/220 ≈ 6.8 A, more than 5 A, so the fuse will melt and the kettle cannot be used on this circuit. (b) Thick copper wire has a high melting point and low resistance, so it will not melt on overload; the wiring may overheat and catch fire.",
     "solutionSteps": [
@@ -1772,7 +1772,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A poultry farmer in Namakkal keeps chicks warm with two heaters, P rated \"220 V, 400 W\" and Q rated \"220 V, 1000 W\".\n(a) Find the ratio of the resistances of their heating elements, R_P : R_Q.\n(b) If both elements are made of the same nichrome wire of the same thickness, which heater needs the longer wire? Give a reason.",
+    "questionText": "A poultry farmer in Namakkal keeps chicks warm with two heaters, P rated \"220 V, 400 W\" and Q rated \"220 V, 1000 W\".\n(a) Find the ratio of the resistances of their heating elements, R_P : R_Q. [1 mark]\n(b) If both elements are made of the same nichrome wire of the same thickness, which heater needs the longer wire? Give a reason. [1 mark]",
     "options": [],
     "answer": "(a) R_P : R_Q = 5 : 2. (b) Heater P, because its resistance is greater and, for the same material and thickness, resistance is directly proportional to length.",
     "solutionSteps": [
@@ -1797,7 +1797,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Joseph measures the resistance of the filament of a table-lamp bulb with a multimeter when the bulb is cold and finds it to be 40 Ω. When the same bulb glows normally on the 220 V mains, it draws a current of 0.25 A.\n(a) Calculate the power consumed by the bulb while it glows normally.\n(b) Calculate the resistance of the filament while it glows and explain why it differs from the value Joseph measured.",
+    "questionText": "Joseph measures the resistance of the filament of a table-lamp bulb with a multimeter when the bulb is cold and finds it to be 40 Ω. When the same bulb glows normally on the 220 V mains, it draws a current of 0.25 A.\n(a) Calculate the power consumed by the bulb while it glows normally. [1 mark]\n(b) Calculate the resistance of the filament while it glows and explain why it differs from the value Joseph measured. [1 mark]",
     "options": [],
     "answer": "(a) 55 W. (b) 880 Ω; it is much larger than 40 Ω because the resistance of the tungsten filament increases as its temperature rises when it glows.",
     "solutionSteps": [
@@ -1822,7 +1822,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Shalini's family in Kolkata uses four 60 W filament bulbs for 5 hours every evening. They plan to replace them with four LED bulbs of 9 W each that give the same light.\n(a) Calculate the electrical energy used by the old bulbs and by the LED bulbs in 30 days, in kWh.\n(b) If electricity costs ₹6 per kWh, how much money will the family save in 30 days?",
+    "questionText": "Shalini's family in Kolkata uses four 60 W filament bulbs for 5 hours every evening. They plan to replace them with four LED bulbs of 9 W each that give the same light.\n(a) Calculate the electrical energy used by the old bulbs and by the LED bulbs in 30 days, in kWh. [2 marks]\n(b) If electricity costs ₹6 per kWh, how much money will the family save in 30 days? [1 mark]",
     "options": [],
     "answer": "(a) Filament bulbs: 36 kWh; LED bulbs: 5.4 kWh. (b) Energy saved = 30.6 kWh, money saved = ₹183.60.",
     "solutionSteps": [
@@ -1849,7 +1849,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A room heater used by Ritu in Srinagar has two identical nichrome coils of 110 Ω each and runs on the 220 V mains. On the \"Low\" setting the two coils are joined in series; on the \"High\" setting they are joined in parallel.\n(a) Calculate the power of the heater on each setting.\n(b) How many times faster is heat produced on \"High\" than on \"Low\"? Which setting should Ritu choose on a very cold night?",
+    "questionText": "A room heater used by Ritu in Srinagar has two identical nichrome coils of 110 Ω each and runs on the 220 V mains. On the \"Low\" setting the two coils are joined in series; on the \"High\" setting they are joined in parallel.\n(a) Calculate the power of the heater on each setting. [2 marks]\n(b) How many times faster is heat produced on \"High\" than on \"Low\"? Which setting should Ritu choose on a very cold night? [1 mark]",
     "options": [],
     "answer": "(a) Low: 220 W; High: 880 W. (b) Heat is produced 4 times faster on High; Ritu should choose High.",
     "solutionSteps": [
@@ -1902,7 +1902,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Read the passage and answer the questions that follow.\n\nThe canteen of a school in Shillong runs three heating appliances from one socket circuit of the 220 V mains. The appliances are connected in parallel, and the circuit is protected by a 10 A fuse. The canteen manager, Mr Lyngdoh, has noted the labels of the appliances:\nElectric kettle — 220 V, 1100 W\nToaster — 220 V, 880 W\nRice cooker — 220 V, 660 W\nOn busy mornings the staff want to switch on all three appliances together. Mr Lyngdoh has noticed that on such mornings the fuse sometimes melts and all three appliances stop working. He asks the Class 10 students of the school to work out the reason and to suggest a safe way of using the appliances.\n\n(i) Calculate the current drawn by the electric kettle when it works at its rated voltage.\n(ii) Calculate the resistance of the heating element of the toaster.\n(iii) Find the total current drawn when all three appliances are switched on together, and explain why the fuse melts. Show that any two of the appliances can be used together safely.",
+    "questionText": "Read the passage and answer the questions that follow.\n\nThe canteen of a school in Shillong runs three heating appliances from one socket circuit of the 220 V mains. The appliances are connected in parallel, and the circuit is protected by a 10 A fuse. The canteen manager, Mr Lyngdoh, has noted the labels of the appliances:\nElectric kettle — 220 V, 1100 W\nToaster — 220 V, 880 W\nRice cooker — 220 V, 660 W\nOn busy mornings the staff want to switch on all three appliances together. Mr Lyngdoh has noticed that on such mornings the fuse sometimes melts and all three appliances stop working. He asks the Class 10 students of the school to work out the reason and to suggest a safe way of using the appliances.\n\n(i) Calculate the current drawn by the electric kettle when it works at its rated voltage. [1 mark]\n(ii) Calculate the resistance of the heating element of the toaster. [1 mark]\n(iii) Find the total current drawn when all three appliances are switched on together, and explain why the fuse melts. Show that any two of the appliances can be used together safely. [2 marks]",
     "options": [],
     "answer": "(i) 5 A. (ii) 55 Ω. (iii) Total 2640 W draws 12 A, more than 10 A, so the fuse melts; any two can be used together safely: kettle + toaster 9 A, kettle + rice cooker 8 A, toaster + rice cooker 7 A, each below 10 A.",
     "solutionSteps": [
@@ -1929,7 +1929,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Read the passage and answer the questions that follow.\n\nWhile cleaning out an old store room in Varanasi, Divya finds a box of filament bulbs rated \"220 V, 60 W\". Her science teacher explains that in such a bulb a thin coiled tungsten filament is heated by the current until it glows white-hot, at about 2500 °C. Tungsten is chosen because it melts only at about 3400 °C, whereas copper melts at about 1085 °C. The glass bulb is filled with an inactive gas such as argon or nitrogen instead of air. The teacher adds that only about 10% of the electrical energy supplied to such a bulb comes out as light; the remaining 90% is given out as heat. This is why these bulbs feel very hot to the touch a few minutes after being switched on, and why they are now being replaced by LED bulbs in most homes.\n\n(i) Divya asks why the filament could not be made of copper, which is a better conductor. Using the passage, explain why a copper filament would fail.\n(ii) Using the passage, calculate how many joules of light and how many joules of heat the bulb gives out every second at its rated voltage.\n(iii) Calculate the electrical energy supplied to one such bulb when it glows for 1 hour at its rated voltage, and the part of this energy given out as heat.",
+    "questionText": "Read the passage and answer the questions that follow.\n\nWhile cleaning out an old store room in Varanasi, Divya finds a box of filament bulbs rated \"220 V, 60 W\". Her science teacher explains that in such a bulb a thin coiled tungsten filament is heated by the current until it glows white-hot, at about 2500 °C. Tungsten is chosen because it melts only at about 3400 °C, whereas copper melts at about 1085 °C. The glass bulb is filled with an inactive gas such as argon or nitrogen instead of air. The teacher adds that only about 10% of the electrical energy supplied to such a bulb comes out as light; the remaining 90% is given out as heat. This is why these bulbs feel very hot to the touch a few minutes after being switched on, and why they are now being replaced by LED bulbs in most homes.\n\n(i) Divya asks why the filament could not be made of copper, which is a better conductor. Using the passage, explain why a copper filament would fail. [1 mark]\n(ii) Using the passage, calculate how many joules of light and how many joules of heat the bulb gives out every second at its rated voltage. [1 mark]\n(iii) Calculate the electrical energy supplied to one such bulb when it glows for 1 hour at its rated voltage, and the part of this energy given out as heat. [2 marks]",
     "options": [],
     "answer": "(i) The filament must reach about 2500 °C to glow, but copper melts at about 1085 °C, so a copper filament would melt before glowing; tungsten (melting point about 3400 °C) does not. (ii) Light = 6 J per second; heat = 54 J per second. (iii) Energy = 216 000 J; heat = 194 400 J.",
     "solutionSteps": [
@@ -1956,7 +1956,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Read the passage and answer the questions that follow.\n\nFatima runs a small tailoring shop in Hyderabad. Her electric iron is labelled \"220 V, 1100 W\". The iron has a thermostat, a device that switches the heating element off when the sole plate becomes hot enough and switches it on again when the plate cools. Fatima's nephew watched the indicator lamp of the iron for one hour and found that the heating element was ON for a total of 36 minutes in every hour of ironing. Fatima irons clothes for 4 hours every working day and works 25 days a month. Her shop pays ₹5 for every kilowatt-hour (kWh) of electrical energy used. The heating element of the iron is made of a nichrome alloy and not of copper.\n\n(i) Calculate the current drawn by the iron when its heating element is ON.\n(ii) Give one reason why the heating element is made of nichrome and not of copper.\n(iii) Calculate the electrical energy used by the iron in one working day, and the monthly cost of this energy.",
+    "questionText": "Read the passage and answer the questions that follow.\n\nFatima runs a small tailoring shop in Hyderabad. Her electric iron is labelled \"220 V, 1100 W\". The iron has a thermostat, a device that switches the heating element off when the sole plate becomes hot enough and switches it on again when the plate cools. Fatima's nephew watched the indicator lamp of the iron for one hour and found that the heating element was ON for a total of 36 minutes in every hour of ironing. Fatima irons clothes for 4 hours every working day and works 25 days a month. Her shop pays ₹5 for every kilowatt-hour (kWh) of electrical energy used. The heating element of the iron is made of a nichrome alloy and not of copper.\n\n(i) Calculate the current drawn by the iron when its heating element is ON. [1 mark]\n(ii) Give one reason why the heating element is made of nichrome and not of copper. [1 mark]\n(iii) Calculate the electrical energy used by the iron in one working day, and the monthly cost of this energy. [2 marks]",
     "options": [],
     "answer": "(i) 5 A. (ii) Nichrome has a high resistivity (and high melting point, and does not oxidise easily when red hot), so it produces more heat. (iii) 2.64 kWh per day; 66 kWh per month costing ₹330.",
     "solutionSteps": [
@@ -1983,7 +1983,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Read the passage and answer the questions that follow.\n\nRaghav runs a woodwork shop in Mysuru. To use a hot-air paint stripper rated \"220 V, 2200 W\" at the far end of the shop, he needs an extension cord. He has two cords of the same length, both with copper conductors:\nCord X — total resistance of its conductors 0.4 Ω\nCord Y — total resistance of its conductors 0.1 Ω\nHe has noticed that after long use, one of the cords becomes warm and its plastic covering softens, while the other stays cool. His daughter, a Class 10 student, explains that the current that flows through the appliance also flows through the conductors of the cord, so heat is produced in the cord too. For the questions below, assume that the appliance draws its rated current through either cord.\n\n(i) Calculate the current drawn by the paint stripper.\n(ii) Which cord has the thicker copper conductors? Give a reason.\n(iii) Calculate the heat produced in each cord in 10 minutes of use, and state which cord Raghav should use.",
+    "questionText": "Read the passage and answer the questions that follow.\n\nRaghav runs a woodwork shop in Mysuru. To use a hot-air paint stripper rated \"220 V, 2200 W\" at the far end of the shop, he needs an extension cord. He has two cords of the same length, both with copper conductors:\nCord X — total resistance of its conductors 0.4 Ω\nCord Y — total resistance of its conductors 0.1 Ω\nHe has noticed that after long use, one of the cords becomes warm and its plastic covering softens, while the other stays cool. His daughter, a Class 10 student, explains that the current that flows through the appliance also flows through the conductors of the cord, so heat is produced in the cord too. For the questions below, assume that the appliance draws its rated current through either cord.\n\n(i) Calculate the current drawn by the paint stripper. [1 mark]\n(ii) Which cord has the thicker copper conductors? Give a reason. [1 mark]\n(iii) Calculate the heat produced in each cord in 10 minutes of use, and state which cord Raghav should use. [2 marks]",
     "options": [],
     "answer": "(i) 10 A. (ii) Cord Y, because for the same material and length a thicker conductor has lower resistance. (iii) Cord X: 24 000 J; Cord Y: 6000 J; he should use cord Y.",
     "solutionSteps": [
@@ -2010,7 +2010,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Read the passage and answer the questions that follow.\n\nArjun's family in Shimla has bought a new storage water heater for the bathroom. Its rating plate reads:\n\"220 V ~ 50 Hz | 2200 W | Capacity 25 L\"\nArjun's mother asks him what the numbers on the plate mean and how much the heater will add to the family's electricity bill. The family plans to switch the heater on for 1 hour every morning during the 31 days of December, which is the coldest month of the year in Shimla. Their supply company charges ₹7 for every unit of electrical energy, where one unit is one kilowatt-hour (kWh). Arjun also notices that the wiring for the heater uses thicker wires than the wiring for the bathroom light, and he wants to find out how large a current the heater draws.\n\n(i) What does \"2200 W\" on the rating plate tell Arjun about the heater?\n(ii) Calculate the current drawn by the heater when it works at its rated voltage.\n(iii) Calculate the electrical energy used by the heater in December and the cost of this energy.",
+    "questionText": "Read the passage and answer the questions that follow.\n\nArjun's family in Shimla has bought a new storage water heater for the bathroom. Its rating plate reads:\n\"220 V ~ 50 Hz | 2200 W | Capacity 25 L\"\nArjun's mother asks him what the numbers on the plate mean and how much the heater will add to the family's electricity bill. The family plans to switch the heater on for 1 hour every morning during the 31 days of December, which is the coldest month of the year in Shimla. Their supply company charges ₹7 for every unit of electrical energy, where one unit is one kilowatt-hour (kWh). Arjun also notices that the wiring for the heater uses thicker wires than the wiring for the bathroom light, and he wants to find out how large a current the heater draws.\n\n(i) What does \"2200 W\" on the rating plate tell Arjun about the heater? [1 mark]\n(ii) Calculate the current drawn by the heater when it works at its rated voltage. [1 mark]\n(iii) Calculate the electrical energy used by the heater in December and the cost of this energy. [2 marks]",
     "options": [],
     "answer": "(i) The heater uses electrical energy at the rate of 2200 J every second (2.2 kW) when connected to 220 V. (ii) 10 A. (iii) 68.2 kWh; ₹477.40.",
     "solutionSteps": [
@@ -2065,7 +2065,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Students in a school laboratory in Kochi pass a steady current through a heating coil of fixed resistance and use a method to measure the heat produced in it. Their results are:\nTrial 1 — current 1 A, time 60 s: heat 240 J\nTrial 2 — current 2 A, time 60 s: heat 960 J\nTrial 3 — current 2 A, time 120 s: heat 1920 J\nTrial 4 — current 3 A, time 60 s: heat not yet measured\n(a) Compare Trials 1 and 2 and state how the heat produced depends on the current.\n(b) Compare Trials 2 and 3 and state how the heat produced depends on the time.\n(c) Use the data of Trial 1 to find the resistance of the coil.\n(d) Predict the heat produced in Trial 4.\n(e) Find the potential difference across the coil and the power of the coil in Trial 4.",
+    "questionText": "Students in a school laboratory in Kochi pass a steady current through a heating coil of fixed resistance and use a method to measure the heat produced in it. Their results are:\nTrial 1 — current 1 A, time 60 s: heat 240 J\nTrial 2 — current 2 A, time 60 s: heat 960 J\nTrial 3 — current 2 A, time 120 s: heat 1920 J\nTrial 4 — current 3 A, time 60 s: heat not yet measured\n(a) Compare Trials 1 and 2 and state how the heat produced depends on the current. [1 mark]\n(b) Compare Trials 2 and 3 and state how the heat produced depends on the time. [1 mark]\n(c) Use the data of Trial 1 to find the resistance of the coil. [1 mark]\n(d) Predict the heat produced in Trial 4. [1 mark]\n(e) Find the potential difference across the coil and the power of the coil in Trial 4. [1 mark]",
     "options": [],
     "answer": "(a) Doubling the current makes the heat 4 times, so H ∝ I². (b) Doubling the time doubles the heat, so H ∝ t. (c) 4 Ω. (d) 2160 J. (e) 12 V; 36 W.",
     "solutionSteps": [
@@ -2095,8 +2095,8 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "While inspecting an old house in Panaji, an electrician finds that the fuse of the bathroom geyser circuit has been fitted in the neutral wire instead of the live wire. Later, a fault in the geyser makes a large current flow and this fuse melts. Which statement correctly describes the situation after the fuse has melted?",
     "options": [
-      "The geyser stops working, and its heating element is fully disconnected from the supply, so it is safe.",
       "The geyser stops working, but its heating element is still connected to the live wire, so it can still give a shock.",
+      "The geyser stops working, and its heating element is fully disconnected from the supply, so it is safe.",
       "The geyser keeps working, because the current can return to the supply through the live wire.",
       "The geyser keeps working at half its power, because the neutral wire carries only half the current."
     ],
@@ -2124,8 +2124,8 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The staircase lamp of an apartment block in Surat stays on for 10 hours every night. The residents' committee compares three lamps that give about the same amount of light: filament bulb — 60 W; CFL — 15 W; LED bulb — 9 W. The staircase now has the CFL. How much electrical energy will be saved in 30 days if the CFL is replaced by the LED bulb?",
     "options": [
-      "1.8 kWh",
       "4.5 kWh",
+      "1.8 kWh",
       "15.3 kWh",
       "18 kWh"
     ],
@@ -2182,10 +2182,10 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "For a model street light, Wangchuk joins a 6 V battery, a key and three identical bulbs P, Q and R one after another in a single loop. When he closes the key, none of the bulbs glows. Keeping the key closed, he connects a voltmeter across each bulb in turn and notes: across P — 0 V; across Q — 6 V; across R — 0 V. What is the most likely fault?",
     "options": [
-      "The filament of bulb Q is broken.",
       "Bulb Q is short-circuited.",
       "The battery has run down completely.",
-      "The filaments of bulbs P and R are both broken."
+      "The filaments of bulbs P and R are both broken.",
+      "The filament of bulb Q is broken."
     ],
     "answer": "The filament of bulb Q is broken.",
     "solutionSteps": [
@@ -2267,7 +2267,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Oindrila compares two electric kettles in her hostel in Kozhikode. Kettle P, rated \"220 V, 1500 W\", brings 1 litre of water from room temperature to the boil in 4 minutes. Kettle Q, rated \"220 V, 1000 W\", takes 7 minutes for the same job. (a) Calculate the electrical energy used by each kettle for one boiling. (b) Which kettle is more economical for boiling water? Suggest one reason why the lower-power kettle uses more energy for the same job.",
+    "questionText": "Oindrila compares two electric kettles in her hostel in Kozhikode. Kettle P, rated \"220 V, 1500 W\", brings 1 litre of water from room temperature to the boil in 4 minutes. Kettle Q, rated \"220 V, 1000 W\", takes 7 minutes for the same job. (a) Calculate the electrical energy used by each kettle for one boiling. (b) Which kettle is more economical for boiling water? Suggest one reason why the lower-power kettle uses more energy for the same job.\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) P: 1500 W × 240 s = 360000 J (0.1 kWh); Q: 1000 W × 420 s = 420000 J. (b) Kettle P is more economical; Q heats for longer, so more heat is lost to the surroundings during heating.",
     "solutionSteps": [
@@ -2292,7 +2292,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "A repair technician in Vadodara is checking two room heaters, each rated \"220 V, 1000 W\". With both heaters unplugged from the mains, she measures the resistance between the two pins of each plug. Heater X gives 48.4 Ω. For heater Y the meter shows no reading at all, meaning there is no complete conducting path between the pins. (a) Show by calculation that heater X's reading is what is expected for a working heater. (b) What is the fault in heater Y, and what will happen when it is switched on?",
+    "questionText": "A repair technician in Vadodara is checking two room heaters, each rated \"220 V, 1000 W\". With both heaters unplugged from the mains, she measures the resistance between the two pins of each plug. Heater X gives 48.4 Ω. For heater Y the meter shows no reading at all, meaning there is no complete conducting path between the pins. (a) Show by calculation that heater X's reading is what is expected for a working heater. (b) What is the fault in heater Y, and what will happen when it is switched on?\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) R = V²/P = (220 V)² ÷ 1000 W = 48.4 Ω, matching heater X. (b) Heater Y's element (or its connection) is broken — an open circuit — so no current flows and it will not heat at all.",
     "solutionSteps": [
@@ -2317,7 +2317,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "During power cuts, Sukhmani's home in Amritsar runs on an inverter whose maximum output power is 800 W. The appliances in the house are: 3 ceiling fans — 75 W each; 6 LED bulbs — 10 W each; a television — 120 W; a mixer-grinder — 500 W. (a) What total power is needed to run all the fans, all the bulbs and the television together? (b) Can the mixer-grinder also be used at the same time? Justify with a calculation.",
+    "questionText": "During power cuts, Sukhmani's home in Amritsar runs on an inverter whose maximum output power is 800 W. The appliances in the house are: 3 ceiling fans — 75 W each; 6 LED bulbs — 10 W each; a television — 120 W; a mixer-grinder — 500 W. (a) What total power is needed to run all the fans, all the bulbs and the television together? (b) Can the mixer-grinder also be used at the same time? Justify with a calculation.\n[Marks: (a) 1 mark, (b) 1 mark]",
     "options": [],
     "answer": "(a) 225 W + 60 W + 120 W = 405 W. (b) No — 405 W + 500 W = 905 W, which is more than the 800 W the inverter can supply.",
     "solutionSteps": [
@@ -2396,7 +2396,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "A school in Aizawl has 50 fluorescent tube lights of 40 W each. Each tube is on for 8 hours a day, for 25 days a month. The school plans to replace them with LED tubes of 18 W each that give the same light. Electricity costs ₹10 per kWh, and each LED tube costs ₹440. (a) Calculate the electrical energy saved per month. (b) Calculate the money saved per month. (c) After how many months will the savings pay back the cost of the LED tubes?",
+    "questionText": "A school in Aizawl has 50 fluorescent tube lights of 40 W each. Each tube is on for 8 hours a day, for 25 days a month. The school plans to replace them with LED tubes of 18 W each that give the same light. Electricity costs ₹10 per kWh, and each LED tube costs ₹440. (a) Calculate the electrical energy saved per month. (b) Calculate the money saved per month. (c) After how many months will the savings pay back the cost of the LED tubes?\n[Marks: (a) 1 mark, (b) 1 mark, (c) 1 mark]",
     "options": [],
     "answer": "(a) 220 kWh per month. (b) ₹2200 per month. (c) LED tubes cost ₹22000, so the savings pay this back in 10 months.",
     "solutionSteps": [
@@ -2422,7 +2422,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Read the passage and answer the questions that follow.\n\nThe Mohanty family in Bhubaneswar is buying a new refrigerator. Two models of the same size are available, and both work on the 220 V, 50 Hz mains. Their energy labels read:\nModel A — rated power 150 W; energy used in one year: 219 kWh; price ₹30,000\nModel B — rated power 200 W; energy used in one year: 365 kWh; price ₹24,000\nTheir son Debashish notices that a refrigerator does not run its cooling unit all the time. The unit switches on and off by itself to keep the inside cold, so the yearly energy cannot be found simply by multiplying the rated power by 24 hours a day. The family pays ₹6 for every kWh (unit) of electrical energy, and they expect a refrigerator to last at least 10 years.\n\n(i) What is the average electrical energy used per day by Model B?\n(ii) For how many hours a day, on average, does the cooling unit of Model B run at its rated power?\n(iii) How much money will Model A save in electricity bills each year compared with Model B? Is it worth paying the higher price for Model A over 10 years? Justify. (2 marks)",
+    "questionText": "Read the passage and answer the questions that follow.\n\nThe Mohanty family in Bhubaneswar is buying a new refrigerator. Two models of the same size are available, and both work on the 220 V, 50 Hz mains. Their energy labels read:\nModel A — rated power 150 W; energy used in one year: 219 kWh; price ₹30,000\nModel B — rated power 200 W; energy used in one year: 365 kWh; price ₹24,000\nTheir son Debashish notices that a refrigerator does not run its cooling unit all the time. The unit switches on and off by itself to keep the inside cold, so the yearly energy cannot be found simply by multiplying the rated power by 24 hours a day. The family pays ₹6 for every kWh (unit) of electrical energy, and they expect a refrigerator to last at least 10 years.\n\n(i) What is the average electrical energy used per day by Model B? [1 mark]\n(ii) For how many hours a day, on average, does the cooling unit of Model B run at its rated power? [1 mark]\n(iii) How much money will Model A save in electricity bills each year compared with Model B? Is it worth paying the higher price for Model A over 10 years? Justify. (2 marks)",
     "options": [],
     "answer": "(i) 1 kWh per day. (ii) 5 hours a day. (iii) ₹876 a year; over 10 years ₹8760, which is more than the ₹6000 extra price, so Model A is worth buying.",
     "solutionSteps": [
@@ -2449,7 +2449,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Read the passage and answer the questions that follow.\n\nIn a bakery in Belagavi, the kitchen socket circuit is protected by a 16 A miniature circuit breaker (MCB). One morning, the MCB switched the supply off the moment the owner, Mr. Kulkarni, plugged in a bread toaster rated \"220 V, 1100 W\". With the toaster unplugged, the MCB could be switched on again and every other appliance on the circuit worked normally. A qualified electrician disconnected the toaster from the mains and measured the resistance between the two pins of its plug. Instead of the value expected for its heating element, the meter showed only 0.5 Ω. On opening the toaster, he found that the insulation on its internal wires had worn off and the live and neutral wires were touching each other. He repaired the wiring and advised the owner never to fit an MCB of a higher rating just to stop it from switching off.\n\n(i) What resistance should the electrician have measured for a toaster in good condition?\n(ii) What current would the faulty toaster try to draw from the 220 V supply?\n(iii) Name the fault found in the toaster and explain why the MCB switched off. Why would fitting a higher-rated MCB be dangerous? (2 marks)",
+    "questionText": "Read the passage and answer the questions that follow.\n\nIn a bakery in Belagavi, the kitchen socket circuit is protected by a 16 A miniature circuit breaker (MCB). One morning, the MCB switched the supply off the moment the owner, Mr. Kulkarni, plugged in a bread toaster rated \"220 V, 1100 W\". With the toaster unplugged, the MCB could be switched on again and every other appliance on the circuit worked normally. A qualified electrician disconnected the toaster from the mains and measured the resistance between the two pins of its plug. Instead of the value expected for its heating element, the meter showed only 0.5 Ω. On opening the toaster, he found that the insulation on its internal wires had worn off and the live and neutral wires were touching each other. He repaired the wiring and advised the owner never to fit an MCB of a higher rating just to stop it from switching off.\n\n(i) What resistance should the electrician have measured for a toaster in good condition? [1 mark]\n(ii) What current would the faulty toaster try to draw from the 220 V supply? [1 mark]\n(iii) Name the fault found in the toaster and explain why the MCB switched off. Why would fitting a higher-rated MCB be dangerous? (2 marks)",
     "options": [],
     "answer": "(i) 44 Ω. (ii) 440 A. (iii) Short circuit — the current far exceeds 16 A, so the MCB trips; a higher-rated MCB would let a very large current flow, overheating the wires and possibly causing a fire.",
     "solutionSteps": [
@@ -2476,7 +2476,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Read the passage and answer the questions that follow.\n\nOn cold winter mornings in Jammu, the rear windscreen of Mr. Sharma's car mists up. The car has a demister to clear it: ten thin, flat heating strips printed across the glass. Each strip has a resistance of 24 Ω, and all ten strips are connected in parallel across the car's 12 V battery. When the demister switch is pressed, the strips warm the glass gently and the mist evaporates within a few minutes. The strips are printed as very thin lines so that the driver's view through the glass is not blocked. One day, while luggage is being loaded, a sharp box scratches the glass and cuts one of the strips completely, so no current can pass through that strip. The other nine strips are undamaged.\n\n(i) What is the current through each strip when the demister is on?\n(ii) What is the total power of the demister when all ten strips are working?\n(iii) After the accident, (a) will the other strips still clear the mist? Give a reason. (b) Calculate the heat produced by the remaining strips in 5 minutes. (2 marks)",
+    "questionText": "Read the passage and answer the questions that follow.\n\nOn cold winter mornings in Jammu, the rear windscreen of Mr. Sharma's car mists up. The car has a demister to clear it: ten thin, flat heating strips printed across the glass. Each strip has a resistance of 24 Ω, and all ten strips are connected in parallel across the car's 12 V battery. When the demister switch is pressed, the strips warm the glass gently and the mist evaporates within a few minutes. The strips are printed as very thin lines so that the driver's view through the glass is not blocked. One day, while luggage is being loaded, a sharp box scratches the glass and cuts one of the strips completely, so no current can pass through that strip. The other nine strips are undamaged.\n\n(i) What is the current through each strip when the demister is on? [1 mark]\n(ii) What is the total power of the demister when all ten strips are working? [1 mark]\n(iii) After the accident, (a) will the other strips still clear the mist? Give a reason. (b) Calculate the heat produced by the remaining strips in 5 minutes. (2 marks)",
     "options": [],
     "answer": "(i) 0.5 A. (ii) 60 W. (iii) (a) Yes — in parallel each remaining strip still gets the full 12 V and carries its own current. (b) 9 × 6 W × 300 s = 16200 J.",
     "solutionSteps": [
@@ -2503,7 +2503,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Read the passage and answer the questions that follow.\n\nThe chemistry laboratory of a school in Puducherry has an electric hot plate that runs on the 220 V mains. Inside it are two heating elements, A and B. A selector knob has three settings: 'Low' — only element A is connected across the mains; 'Medium' — only element B is connected across the mains; 'High' — A and B are both connected, in parallel with each other, across the mains. The lab assistant, Ms. Selvi, wanted to know how much current each setting draws, so a qualified electrician connected an ammeter in the supply line and noted the steady readings. On 'Low' the ammeter read 2 A, and on 'Medium' it read 4 A. The resistance of each element can be taken as constant once it is hot. Ms. Selvi now uses these results to decide which setting to choose for warming a solution gently and which for boiling water quickly.\n\n(i) Calculate the resistance of element A.\n(ii) Calculate the power of the hot plate on the 'Medium' setting.\n(iii) Find the ammeter reading and the power of the hot plate on the 'High' setting. (2 marks)",
+    "questionText": "Read the passage and answer the questions that follow.\n\nThe chemistry laboratory of a school in Puducherry has an electric hot plate that runs on the 220 V mains. Inside it are two heating elements, A and B. A selector knob has three settings: 'Low' — only element A is connected across the mains; 'Medium' — only element B is connected across the mains; 'High' — A and B are both connected, in parallel with each other, across the mains. The lab assistant, Ms. Selvi, wanted to know how much current each setting draws, so a qualified electrician connected an ammeter in the supply line and noted the steady readings. On 'Low' the ammeter read 2 A, and on 'Medium' it read 4 A. The resistance of each element can be taken as constant once it is hot. Ms. Selvi now uses these results to decide which setting to choose for warming a solution gently and which for boiling water quickly.\n\n(i) Calculate the resistance of element A. [1 mark]\n(ii) Calculate the power of the hot plate on the 'Medium' setting. [1 mark]\n(iii) Find the ammeter reading and the power of the hot plate on the 'High' setting. (2 marks)",
     "options": [],
     "answer": "(i) 110 Ω. (ii) 880 W. (iii) 6 A; 1320 W.",
     "solutionSteps": [
@@ -2530,7 +2530,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Evaluating",
-    "questionText": "Read the passage and answer the questions that follow.\n\nThe eco-club of a school in Tirunelveli carried out an energy audit of one classroom. The students read the rating plates of the electrical appliances and asked the teachers how long each one is used on a school day. Their record:\nCeiling fans — 6 fans, 60 W each, used 6 hours a day\nFluorescent tube lights — 8 tubes, 40 W each, used 6 hours a day\nProjector — 1 projector, 200 W, used 2 hours a day\nThe club then proposed replacing the fans with energy-efficient fans of 30 W each and the tube lights with LED tubes of 20 W each, which give the same air flow and the same light. The projector would be kept as it is. The school is open for 25 days in a month, and the electricity board charges ₹8 per kWh (unit). The principal asked the club to show how much the change would save before approving it.\n\n(i) How much electrical energy do the six fans use in one school day at present?\n(ii) What is the total electrical energy used by the classroom in one school day at present?\n(iii) Calculate the energy saved in one month by the proposed change, and the money saved per month. (2 marks)",
+    "questionText": "Read the passage and answer the questions that follow.\n\nThe eco-club of a school in Tirunelveli carried out an energy audit of one classroom. The students read the rating plates of the electrical appliances and asked the teachers how long each one is used on a school day. Their record:\nCeiling fans — 6 fans, 60 W each, used 6 hours a day\nFluorescent tube lights — 8 tubes, 40 W each, used 6 hours a day\nProjector — 1 projector, 200 W, used 2 hours a day\nThe club then proposed replacing the fans with energy-efficient fans of 30 W each and the tube lights with LED tubes of 20 W each, which give the same air flow and the same light. The projector would be kept as it is. The school is open for 25 days in a month, and the electricity board charges ₹8 per kWh (unit). The principal asked the club to show how much the change would save before approving it.\n\n(i) How much electrical energy do the six fans use in one school day at present? [1 mark]\n(ii) What is the total electrical energy used by the classroom in one school day at present? [1 mark]\n(iii) Calculate the energy saved in one month by the proposed change, and the money saved per month. (2 marks)",
     "options": [],
     "answer": "(i) 2.16 kWh. (ii) 4.48 kWh. (iii) 51 kWh per month; ₹408 per month.",
     "solutionSteps": [
@@ -2557,7 +2557,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Prakriti builds a model house for a science exhibition in Udaipur. A 12 V battery is connected through a fuse and an ammeter (in the main line) to two bulbs: L1, rated \"12 V, 6 W\", and L2, rated \"12 V, 12 W\". Each bulb is connected directly across the battery, in parallel with the other, through its own switch. Assume that the resistance of each bulb stays constant.\n(a) Calculate the resistance of each bulb.\n(b) What should the ammeter read when both switches are closed?\n(c) One day, with both switches closed, L2 does not glow, the ammeter reads 0.5 A, and a voltmeter connected across the two terminals of L2's holder reads 12 V. What is the fault? Justify using both readings.\n(d) On another day, a loose wire touches both terminals of L1's holder; at once both bulbs go off and the fuse melts. Name this fault and explain why the fuse melted.\n(e) Calculate the electrical energy used by both bulbs together in 2 hours of normal working.",
+    "questionText": "Prakriti builds a model house for a science exhibition in Udaipur. A 12 V battery is connected through a fuse and an ammeter (in the main line) to two bulbs: L1, rated \"12 V, 6 W\", and L2, rated \"12 V, 12 W\". Each bulb is connected directly across the battery, in parallel with the other, through its own switch. Assume that the resistance of each bulb stays constant.\n(a) Calculate the resistance of each bulb. [1 mark]\n(b) What should the ammeter read when both switches are closed? [1 mark]\n(c) One day, with both switches closed, L2 does not glow, the ammeter reads 0.5 A, and a voltmeter connected across the two terminals of L2's holder reads 12 V. What is the fault? Justify using both readings. [1 mark]\n(d) On another day, a loose wire touches both terminals of L1's holder; at once both bulbs go off and the fuse melts. Name this fault and explain why the fuse melted. [1 mark]\n(e) Calculate the electrical energy used by both bulbs together in 2 hours of normal working. [1 mark]",
     "options": [],
     "answer": "(a) L1: 24 Ω; L2: 12 Ω. (b) 1.5 A. (c) L2's filament is broken (open circuit): 12 V reaches its holder but the 0.5 A is only L1's current. (d) Short circuit — a near-zero resistance path draws a very large current that heats and melts the fuse wire. (e) 129600 J (0.036 kWh).",
     "solutionSteps": [

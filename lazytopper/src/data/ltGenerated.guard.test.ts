@@ -50,6 +50,9 @@ import { buildUnionPool, drawFullMock, fullMockChapterWeights } from "../compone
 const T = { timeout: 120_000 };
 
 const GEN: CanonicalQuestion[] = canonicalQuestionBank.filter((q) => q.origin === "lt-generated");
+// Owner DEC-12 (2026-10-07): persistence of vision is not in the 2026-27 Human Eye content list, so these
+// generated rows are WITHHELD (kept in their pack, not served). No other generated row may be withheld.
+const OWNER_WITHHELD_GENERATED: ReadonlySet<string> = new Set(["LTG-S-EYE-202", "LTG-S-EYE-207", "LTG-S-EYE-212", "LTG-S-EYE-215"]);
 const BANK_BY_ID = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
 
 /** The five thin concepts (B-16's list), each with the subtopic label its generated rows
@@ -88,13 +91,14 @@ const stepValue = (s: string) => {
 const asPQ = (q: CanonicalQuestion) => q as unknown as PracticeQuestion;
 
 describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped", () => {
-  it("the population is real and the id-set matches the tag (served = raw: none withheld)", () => {
+  it("the population is real and the id-set matches the tag (served = raw, except owner-ruled withholds)", () => {
     expect(GEN.length).toBeGreaterThanOrEqual(144); // 50 (PR-1) + 94 (PR-2)
-    expect([...LT_GENERATED_QUESTION_IDS].sort()).toEqual(GEN.map((q) => q.id).sort());
-    // P1: a generated id never collides with the withhold list.
+    // P1: a generated id is withheld ONLY by an explicit owner ruling listed in OWNER_WITHHELD_GENERATED.
     for (const q of GEN) expect(WITHHELD_QUESTION_IDS.has(q.id), q.id).toBe(false);
+    for (const id of OWNER_WITHHELD_GENERATED) expect(WITHHELD_QUESTION_IDS.has(id), `${id} must be withheld`).toBe(true);
     const rawGen = RAW_CANONICAL_QUESTION_BANK.filter((q) => q.origin === "lt-generated");
-    expect(rawGen.length).toBe(GEN.length);
+    expect(rawGen.filter((q) => !OWNER_WITHHELD_GENERATED.has(q.id)).map((q) => q.id).sort()).toEqual(GEN.map((q) => q.id).sort());
+    expect([...LT_GENERATED_QUESTION_IDS].filter((id) => !OWNER_WITHHELD_GENERATED.has(id)).sort()).toEqual(GEN.map((q) => q.id).sort());
   });
 
   it("every row: authored + origin + a real, non-generated, non-AI template + a paper/question citation", () => {
