@@ -441,7 +441,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "id": "LTG-M-POLY-216",
     "subject": "Maths",
     "topicKey": "polynomials",
-    "subtopic": "Zeroes of a Linear Polynomial",
+    "subtopic": "Zeroes of Linear Polynomial",
     "section": "A",
     "marks": 1,
     "format": "MCQ",
