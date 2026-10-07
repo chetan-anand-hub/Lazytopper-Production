@@ -188,7 +188,7 @@ export function withinCurriculum(spec: Pick<FigureSpec, "elements">): boolean {
 const CROP_PAD = { l: 50, r: 50, t: 22, b: 38 };
 export const MIN_LABELLED_SEGMENT = 14;
 /** A segment labelled BESIDE it (l/r — e.g. a 1.5 m eye height drawn to scale) must still be visible. */
-export const MIN_SIDE_LABELLED_SEGMENT = 1.5;
+export const MIN_SIDE_LABELLED_SEGMENT = 6;
 
 // ───────────────────────── scene assembly ─────────────────────────
 
@@ -319,7 +319,7 @@ function finish(
     transform: t,
     title,
     desc,
-    note: p.scaleFree ? "Not to scale: the question gives no length, so only the angles are exact." : undefined,
+    note: p.scaleFree ? "Not to scale: only the angles are drawn exactly." : undefined,
     points,
     elements: [...scene.els, ...letters],
   };

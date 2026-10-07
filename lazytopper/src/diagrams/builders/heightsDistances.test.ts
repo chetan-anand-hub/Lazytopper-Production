@@ -131,16 +131,20 @@ describe("heights & distances — one fixture per remaining template", () => {
     const r = build({ template: "twoPointsSameSide", view: "depression", unit: "m", far: 30, near: 45, h: "75" });
     expect(near(r.model.gap, 75 * (Math.sqrt(3) - 1))).toBe(true);
   });
-  it("twoPointsSameSide (moving object): 88.2 m, eye 1.2 m, 60° -> 30° -> 58√3 m", () => {
-    const r = build({ template: "twoPointsSameSide", view: "elevation", subject: "object", unit: "m", far: 30, near: 60, h: "88.2", eye: "1.2" });
-    expect(near(r.model.gap, 58 * Math.sqrt(3))).toBe(true);
+  it("twoPointsSameSide (moving object): 20 m, eye 1.5 m, 60° -> 30° gives the 2/√3 × 18.5 m drift", () => {
+    const r = build({ template: "twoPointsSameSide", view: "elevation", subject: "object", unit: "m", far: 30, near: 60, h: "20", eye: "1.5" });
+    expect(near(r.model.gap, 18.5 * (Math.sqrt(3) - 1 / Math.sqrt(3)))).toBe(true);
+  });
+  it("REFUSES rather than float a label: a 1.2 m eye height against 88.2 m (TRIG-N-NCERT-9-LA-006) is under 6 view units", () => {
+    expect(buildHeightsDistances({ template: "twoPointsSameSide", view: "elevation", subject: "object", unit: "m", far: 30, near: 60, h: "88.2", eye: "1.2" })).toBeNull();
   });
   it("scale-free (D6, speed/time with no length): exact angles, no number on any length", () => {
     const r = build({ template: "twoPointsSameSide", view: "depression", unit: "m", far: 30, near: 60, scaleFree: true }, { "q.h": "h" });
     // 6 s for the gap -> 3 s for the rest (TRIG-N-NCERT-9-CB-002).
     expect(near(r.model.nearOverGap * 6, 3)).toBe(true);
     expect(r.spec.transform.unit).toBe("none");
-    expect(r.spec.note).toBeTruthy();
+    // True for every scale-free row (a speed × time row may still imply a length).
+    expect(r.spec.note).toBe("Not to scale: only the angles are drawn exactly.");
   });
   it("rising object: 3 km, 30° -> 60° -> rose 2√3 km", () => {
     const r = build({ template: "objectOnObject", style: "rising", unit: "km", lower: 30, upper: 60, d: "3" });
@@ -163,7 +167,7 @@ describe("heights & distances — REFUSES rather than draws a wrong figure", () 
     ["two vertical points with upper ≥ ground angle", { template: "twoVerticalPoints", unit: "m", ground: 30, upper: 45, k: "10" }],
     ["a length that is not a number", { template: "single", view: "elevation", unit: "m", theta: 30, d: "x" }],
     ["eye at or above the top", { template: "single", view: "elevation", unit: "m", theta: 30, h: "1.5", eye: "1.5" }],
-    ["illegible: a labelled eye height under 1.5 view units", { template: "single", view: "elevation", unit: "m", theta: 45, d: "100", eye: "0.01" }],
+    ["illegible: a labelled eye height under 6 view units", { template: "single", view: "elevation", unit: "m", theta: 45, d: "100", eye: "1" }],
   ];
   for (const [name, p] of refusals) {
     it(`refuses: ${name}`, () => {
