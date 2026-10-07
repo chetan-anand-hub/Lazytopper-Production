@@ -275,7 +275,14 @@ export const SCIENCE_FIGURE_VISUALS: VisualConcept[] = [
   { id: "science-life-processes-fig-pyq-s-2024-lifep-007", title: "Two lime-water test tubes: (I) with a syringe, (II) with a person blowing through a tube", chapter: "Life Processes", subject: "science", filePath: "/figures/pyq-science/life-processes/PYQ-S-2024-LIFEP-007.webp", keywords: [], isInteractive: false, questionId: "PYQ-S-2024-LIFEP-007" }, // 31_5_1_Science.pdf (2024) p21 Q35(b) — syringe and exhaled-air lime-water set-ups (I), (II)
   { id: "science-life-processes-fig-apq-s-life-002", title: "Four graphs P, Q, R and S of oxygen saturation against altitude", chapter: "Life Processes", subject: "science", filePath: "/figures/other-science/life-processes/APQ-S-LIFE-002.webp", keywords: [], isInteractive: false, questionId: "APQ-S-LIFE-002" }, // Science-PQ.pdf (APQ 2023-24) p4 Q9 — four graphs P, Q, R, S of oxygen saturation vs altitude (the options)
   { id: "science-life-processes-fig-apq-s-life-012", title: "Diagram of the human heart with parts numbered 1 to 13", chapter: "Life Processes", subject: "science", filePath: "/figures/other-science/life-processes/APQ-S-LIFE-012.webp", keywords: [], isInteractive: false, questionId: "APQ-S-LIFE-012" }, // Science-PQ2.pdf (APQ 2023-24) p9 Q38 — human heart with parts 1-13 (first variant; APQ-S-LIFE-013 is the OR variant)
-
+  // ── DIAGRAMS-1 PR-4: Science question figures, the four biology chapters C&C / Reproduction / Heredity / Our Environment (2026-10-07) ──
+  // Official crops only (CBSE board paper 2026, NCERT Exemplar), each
+  // eye-confirmed against its row's text; each title names only what the figure shows. Booklet-sourced SCO/SCQ rows are
+  // bound only when the identical item is in an official paper. NCERT Exemplar pages carry a "not to be republished"
+  // watermark drawn as one separate paint operation over the whole page; that operation was dropped in memory before
+  // rendering (the PDF on disk is untouched; no figure pixel is edited). Manifest: Desktop/diff/b20/pr4/manifest.csv.
+  { id: "science-control-and-coordination-fig-ctrl-exmplr-6-mcq-025", title: "Four pairs of neurons labelled (a) to (d), each with arrows showing a proposed direction of impulse flow (Fig. 7.1)", chapter: "Control and Coordination", subject: "science", filePath: "/figures/exemplar-science/control-and-coordination/CTRL-EXMPLR-6-MCQ-025.webp", keywords: [], isInteractive: false, questionId: "CTRL-EXMPLR-6-MCQ-025" }, // jeep107.pdf (NCERT Exemplar Ch 7) p5 Q25 — Fig. 7.1, options (a)-(d) are the drawings
+  { id: "science-our-environment-fig-pyq-s-2026-env-001", title: "Pyramid of five stacked levels labelled T1 at the base up to T5 at the top", chapter: "Our Environment", subject: "science", filePath: "/figures/pyq-science/our-environment/PYQ-S-2026-ENV-001.webp", keywords: [], isInteractive: false, questionId: "PYQ-S-2026-ENV-001" }, // 31-2-1.pdf (2026) p7 Q6 — pyramid T1-T5
   // ── C3 DIAGRAMS PR-S1: Electricity / Human Eye / Magnetic Effects / Acids question figures (2026-10-07) ──
   // Official crops only (CBSE board papers 2023-2026, CBSE Additional Practice Questions 2023-24, CBSE CFPQ Science),
   // 200 dpi clips, each eye-confirmed against its SERVED row's text; each title names only what the figure shows.
@@ -304,4 +311,7 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
   "APQ-S-LIFE-002": "withheld by BANK-FIX for its missing figure; stem clean, options P-S are the bound graphs - un-withhold candidate",
   "APQ-S-LIFE-012": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate",
   "PYQ-S-LIFE-002": "stays withheld: option (d) is garbled ('II I II III IV')",
+  // DIAGRAMS-1 PR-4
+  "CTRL-EXMPLR-6-MCQ-025": "withheld for its missing figure; options (a)-(d) are the bound Fig. 7.1 drawings, but the key names no option letter ('Option showing: Dendrite -> Cell body -> Axon -> Axonal end') - fix the key, then un-withhold",
+  "PYQ-S-2026-ENV-001": "withheld by BANK-FIX for its missing figure; stem and options T1/T5/T4/T3 clean, figure bound - un-withhold candidate",
 };

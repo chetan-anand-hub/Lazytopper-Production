@@ -86,7 +86,8 @@ describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-
     expect(undeclared).toEqual([]);
     const stale = BOUND_BUT_WITHHELD.filter((q) => served.has(q) || !WITHHELD_QUESTION_IDS.has(q));
     expect(stale).toEqual([]); // declared withheld but actually served (or not withheld at all)
-    expect(BOUND_BUT_WITHHELD.filter((q) => !PR3_BINDINGS.some(([b]) => b === q))).toEqual([]);
+    // every declared row is bound by PR-3 or PR-4 (the PR-4 rows are pinned in the PR-4 block below)
+    expect(BOUND_BUT_WITHHELD.filter((q) => ![...PR3_BINDINGS, ...PR4_BINDINGS].some(([b]) => b === q))).toEqual([]);
   });
 
   it("every binding's chapter matches its row's chapter and asset folder (served or withheld)", () => {
@@ -143,5 +144,107 @@ describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-
 
   it("control: a bogus id resolves to nothing", () => {
     expect(getFiguresForQuestion("DIAGRAMS-1-PR3-NO-SUCH-ID")).toEqual([]);
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// DIAGRAMS-1 PR-4 — Science question figures for the four biology chapters (Control & Coordination, Reproduction,
+// Heredity, Our Environment; scope set by the controller 2026-10-07). Same contract as PR-3 above.
+// Source + page + what was matched for every row: Desktop/diff/b20/pr4/manifest.csv + eye-confirm.md.
+// ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// [questionId, filePath] in source order (a row with two printed figures has two consecutive pins).
+const PR4_BINDINGS: ReadonlyArray<readonly [string, string]> = [
+  ["CTRL-EXMPLR-6-MCQ-025", "/figures/exemplar-science/control-and-coordination/CTRL-EXMPLR-6-MCQ-025.webp"], // jeep107.pdf (Exemplar) p5 Fig. 7.1
+  ["PYQ-S-2026-ENV-001", "/figures/pyq-science/our-environment/PYQ-S-2026-ENV-001.webp"], // 31-2-1.pdf (2026) p7 Q6
+];
+
+// Not bound on purpose — must resolve to no figure. Reasons in the manifest (SKIP-BOOKLET / NOT-FOUND / SKIP-BROKEN / WRONG list).
+const PR4_NOT_BOUND = [
+  // third-party chapter-wise booklet rows with no identical item in any official source on disk (owner ruling 13:0xZ)
+  "SCO-S-CTRL-011", "SCQ-S-CTRL-027", "SCO-S-CTRL-012", "SCQ-S-REPR-041", "SCO-S-REPR-014", "SCO-S-REPR-015",
+  "SCQ-S-HERED-043", "SCQ-S-HERED-042", "SCO-S-ENV-015", "SCO-S-ENV-017",
+  "HERED-EXMPLR-8-LA-002", // NOT-FOUND: Exemplar Q44 prints the cross as typeset text, already carried in the stem; no drawing exists
+  "CTRL-EXMPLR-6-SA-003", // census Appendix 3 WRONG id: never re-bound
+];
+
+const PR4_CHAPTER_FOR_SLUG: Record<string, string> = {
+  "control-and-coordination": "Control and Coordination",
+  "how-do-organisms-reproduce": "How do Organisms Reproduce?",
+  heredity: "Heredity",
+  "our-environment": "Our Environment",
+};
+
+const pr4Paths = new Set(PR4_BINDINGS.map(([, p]) => p));
+const pr4Entries = SCIENCE_FIGURE_VISUALS.filter((f) => pr4Paths.has(f.filePath));
+const pr4Ids = [...new Set(PR4_BINDINGS.map(([q]) => q))];
+// file name = <questionId>.webp for a row's first figure, <questionId>-<n>.webp for its n-th
+const fileStemOk = (q: string, p: string) =>
+  /^[A-Z0-9-]+$/.test(q) && ["", "-2", "-3", "-4"].some((n) => p.endsWith(`/${q}${n}.webp`));
+
+describe("DIAGRAMS-1 PR-4 bindings (C&C, Reproduction, Heredity, Our Environment) are exactly the eye-confirmed set", () => {
+  it("the pinned set is the size this PR shipped", () => {
+    expect(PR4_BINDINGS).toHaveLength(2);
+    expect(pr4Ids).toHaveLength(2);
+    expect(pr4Paths.size).toBe(PR4_BINDINGS.length); // no crop is reused for two bindings
+    expect(pr4Entries).toHaveLength(PR4_BINDINGS.length); // each pinned file is bound exactly once in the registry
+    expect(pr4Ids.filter((q) => PR3_BINDINGS.some(([b]) => b === q))).toEqual([]); // no overlap with PR-3
+  });
+
+  it("each pinned question resolves to exactly its pinned figures, in source order", () => {
+    const wrong = pr4Ids.filter((q) => {
+      const want = PR4_BINDINGS.filter(([b]) => b === q).map(([, p]) => p);
+      return JSON.stringify(getFiguresForQuestion(q).map((f) => f.filePath)) !== JSON.stringify(want);
+    });
+    expect(wrong).toEqual([]);
+  });
+
+  it("every pinned question EXISTS in the bank and is served, or is declared in BOUND_BUT_WITHHELD", () => {
+    expect(pr4Ids.filter((q) => !inBank.has(q))).toEqual([]);
+    expect(pr4Ids.filter((q) => !served.has(q) && !BOUND_BUT_WITHHELD.includes(q))).toEqual([]);
+  });
+
+  it("every binding's chapter matches its row's chapter and asset folder (served or withheld)", () => {
+    const mismatched = pr4Entries.filter((f) => {
+      const row = inBank.get(f.questionId ?? "");
+      if (!row) return true;
+      const s = resolveCanonicalSlug(row.topicKey);
+      return PR4_CHAPTER_FOR_SLUG[s] !== f.chapter || f.filePath.split("/")[3] !== s;
+    });
+    expect(mismatched.map((f) => `${f.questionId}:${f.chapter}:${f.filePath}`)).toEqual([]);
+  });
+
+  it("every entry has the registry's raster-figure shape and a descriptive alt text", () => {
+    const bad = pr4Entries.filter(
+      (f) => f.subject !== "science" || f.isInteractive !== false || f.keywords.length !== 0 || !isDescriptiveAlt(f.title)
+        || !f.filePath.startsWith("/figures/") || !f.filePath.endsWith(".webp") || !fileStemOk(f.questionId ?? "", f.filePath)
+        || f.filePath.includes("/chapterwise-science/") || f.filePath.includes("/foundation-science/"),
+    );
+    expect(bad.map((f) => f.id)).toEqual([]);
+  });
+
+  it("every asset exists under lazytopper/public, is a real WebP file, and is at most 80 KB", () => {
+    const problems: string[] = [];
+    for (const [, p] of PR4_BINDINGS) {
+      const abs = path.join(PUBLIC, p.replace(/^\//, ""));
+      if (!fs.existsSync(abs)) { problems.push(`missing ${p}`); continue; }
+      const buf = fs.readFileSync(abs);
+      if (buf.subarray(0, 4).toString("latin1") !== "RIFF" || buf.subarray(8, 12).toString("latin1") !== "WEBP") problems.push(`not webp ${p}`);
+      if (buf.length > 80 * 1024) problems.push(`too big ${p} ${buf.length}`);
+    }
+    expect(problems).toEqual([]);
+  });
+
+  it("rows deliberately left unbound resolve to no figure", () => {
+    expect(PR4_NOT_BOUND.filter((q) => getFiguresForQuestion(q).length > 0)).toEqual([]);
+    expect(PR4_NOT_BOUND.filter((q) => pr4Ids.includes(q))).toEqual([]);
+  });
+
+  it("no PR-4 binding re-binds a census WRONG id, a Z3 decorative row, or a booklet-only SCO/SCQ row", () => {
+    expect(pr4Ids.filter((q) => CENSUS_WRONG_IDS.includes(q))).toEqual([]);
+    expect(pr4Ids.filter((q) => q.startsWith("Z3-"))).toEqual([]);
+    expect([...pr4Paths].filter((p) => p.startsWith("/visuals/"))).toEqual([]);
+    // an SCO/SCQ row may be bound only through an OFFICIAL paper's crop, never from the booklet folder
+    expect(pr4Entries.filter((f) => /^SC[OQ]-/.test(f.questionId ?? "") && !/\/(pyq|sqp|other|exemplar|ncert|itembank|cfpq)-science\//.test(f.filePath)).map((f) => f.id)).toEqual([]);
   });
 });
