@@ -4,7 +4,8 @@
  * Run: `node --test server/services/fairUse.thirtyDay.test.cjs`
  * Wired into `lazytopper` test:matrix:all as `test:server:fair-use-30day`.
  *
- * Ruling (owner + cofounder, board 16:38Z item 2): env FAIR_USE_PREMIUM_30DAY_INR, resolved
+ * Ruling (owner + cofounder, board 16:38Z item 2; NO-DEFAULT amendment 19:17Z: unset / empty /
+ * invalid = NO 30-day limit, zero behaviour change): env FAIR_USE_PREMIUM_30DAY_INR, resolved
  * like the 5-hour / day / week caps; rolling 30 IST days on the SAME day-bucket mechanism as
  * the week; at the cap -> 429 { error: "usage_limit", window: "thirtyDay", resetAt }, checked
  * BEFORE the model call; /api/usage/me gains thirtyDayPct + resets.thirtyDay (additive);
@@ -18,6 +19,8 @@
  *   M30-3  resolveLimits(): ignore FAIR_USE_PREMIUM_30DAY_INR    -> "env sets the cap" RED
  *   M30-4  windowDayKeysFor(): premium reads 7 days              -> "premium read covers 30" RED
  *   M30-5  windowDayKeysFor(): trial reads 30 days               -> "trial untouched" RED
+ *   M30-6  unset -> a ₹1,140 default (the pre-amendment build)   -> "unset never refuses" + "unset no bar" RED
+ *   M30-7  premiumState(): send thirtyDayPct even when OFF       -> "unset no bar" RED
  */
 
 const test = require('node:test');
@@ -66,39 +69,60 @@ function spread(from, to, perDay) {
 
 /* ── Limits ───────────────────────────────────────────────────────────────── */
 
-test('CAP-30DAY · the env name is exact and the default is ₹1,140 (30 x the day default)', () => {
+const SET_400 = Object.freeze({ FAIR_USE_PREMIUM_30DAY_INR: '400' });
+
+test('CAP-30DAY · the env name is exact; NO default: unset / empty / invalid -> the window is OFF (null)', () => {
   assert.equal(LIMIT_ENV.premiumThirtyDayInr, 'FAIR_USE_PREMIUM_30DAY_INR');
-  assert.equal(DEFAULT_LIMITS.premiumThirtyDayInr, 1140);
-  assert.equal(DEFAULT_LIMITS.premiumThirtyDayInr, 30 * DEFAULT_LIMITS.premiumDayInr);
-  assert.equal(resolveLimits({}).premium.thirtyDayMicroInr, 1140 * INR, 'env unset -> the default');
-  assert.equal(resolveLimits({ FAIR_USE_PREMIUM_30DAY_INR: '' }).premium.thirtyDayMicroInr, 1140 * INR);
-  assert.equal(resolveLimits({ FAIR_USE_PREMIUM_30DAY_INR: 'junk' }).premium.thirtyDayMicroInr, 1140 * INR);
-  assert.equal(resolveLimits({ FAIR_USE_PREMIUM_30DAY_INR: '-5' }).premium.thirtyDayMicroInr, 1140 * INR);
+  assert.equal(DEFAULT_LIMITS.premiumThirtyDayInr, null);
+  for (const v of [undefined, '', '   ', 'junk', '0', '-5', 'NaN', 'Infinity']) {
+    const env = v === undefined ? {} : { FAIR_USE_PREMIUM_30DAY_INR: v };
+    assert.equal(resolveLimits(env).premium.thirtyDayMicroInr, null, `env ${JSON.stringify(v)} must be OFF`);
+  }
 });
 
 // MUTATION M30-3 target.
 test('CAP-30DAY · the env sets the cap (owner go-live value 400)', () => {
-  assert.equal(resolveLimits({ FAIR_USE_PREMIUM_30DAY_INR: '400' }).premium.thirtyDayMicroInr, 400 * INR);
-  // The other caps are untouched by the new variable.
-  const both = resolveLimits({ FAIR_USE_PREMIUM_30DAY_INR: '400' }).premium;
+  assert.equal(resolveLimits(SET_400).premium.thirtyDayMicroInr, 400 * INR);
+  const both = resolveLimits(SET_400).premium;
   const base = resolveLimits({}).premium;
   assert.equal(both.weekMicroInr, base.weekMicroInr);
   assert.equal(both.dayMicroInr, base.dayMicroInr);
   assert.equal(both.fiveHourMicroInr, base.fiveHourMicroInr);
 });
 
-test('CAP-30DAY · the default never binds before the shorter defaults: a steady ₹84/week for 30 days is under it', () => {
-  // ₹12 a day = ₹84 a week (exactly the week default) for all 30 days -> ₹360.
-  const st = premiumState(ledgerDays(spread(0, 29, 12)), NOW, resolveLimits({}));
-  assert.equal(st.atCap, 'week', 'the week cap is the one that binds, not the 30-day cap');
-  assert.equal(st.view.thirtyDayPct, Math.floor((360 * 100) / 1140));
+// MUTATION M30-6 target.
+test('CAP-30DAY · unset -> NEVER refuses on the 30-day window, even with huge spend', () => {
+  const limits = resolveLimits({});
+  // ₹110,000 across days 8..29: outside the week, so only a 30-day window could refuse.
+  const huge = ledgerDays(spread(8, 29, 5000));
+  const d = decide({ tier: 'premium', surface: 'check-improve', questionCount: 1, days: huge, nowMs: NOW, limits });
+  assert.equal(d.allowed, true);
+  assert.equal(premiumState(huge, NOW, limits).atCap, null);
+  // CONTROL: the SAME spend with the env set -> refused on thirtyDay.
+  const on = decide({ tier: 'premium', surface: 'check-improve', questionCount: 1, days: huge, nowMs: NOW, limits: resolveLimits(SET_400) });
+  assert.equal(on.allowed, false);
+  assert.equal(on.body.window, 'thirtyDay');
+  // Unset, the shorter caps decide exactly as before: a full week is still 'week'.
+  const week = decide({ tier: 'premium', surface: 'check-improve', questionCount: 1, days: ledgerDays({ 1: 90 }), nowMs: NOW, limits });
+  assert.equal(week.body.window, 'week');
+});
+
+// MUTATION M30-6 / M30-7 target.
+test('CAP-30DAY · unset -> the usage view has NO thirtyDayPct / resets.thirtyDay key (no bar), exactly the old shape', () => {
+  const view = premiumState(ledgerDays({ 0: 19, 1: 23, 20: 58 }), NOW, resolveLimits({})).view;
+  assert.deepEqual(Object.keys(view).sort(), ['dayPct', 'fiveHourPct', 'resets', 'weekPct']);
+  assert.deepEqual(Object.keys(view.resets).sort(), ['day', 'fiveHour', 'week']);
+  // CONTROL: set -> both keys present.
+  const onView = premiumState(ledgerDays({ 0: 19, 1: 23, 20: 58 }), NOW, resolveLimits(SET_400)).view;
+  assert.equal(onView.thirtyDayPct, 25);
+  assert.ok('thirtyDay' in onView.resets);
 });
 
 /* ── The 30-day sum ───────────────────────────────────────────────────────── */
 
 // MUTATION M30-1 target.
 test('CAP-30DAY · 30-day sum covers all 30 IST day documents (today + 29 before), and not the 31st', () => {
-  const limits = resolveLimits({ FAIR_USE_PREMIUM_30DAY_INR: '400' });
+  const limits = resolveLimits(SET_400);
   // ₹10 on each of the 30 days in the window = ₹300 = 75 %; ₹1000 on day 30 (outside) is ignored.
   const days = ledgerDays({ ...spread(0, 29, 10), 30: 1000 });
   const st = premiumState(days, NOW, limits);
@@ -113,7 +137,7 @@ test('CAP-30DAY · 30-day sum covers all 30 IST day documents (today + 29 before
 
 // MUTATION M30-2 target.
 test('CAP-30DAY · refuses AT the limit with 429 usage_limit / window thirtyDay / resetAt; one rupee under is served', () => {
-  const limits = resolveLimits({ FAIR_USE_PREMIUM_30DAY_INR: '400' });
+  const limits = resolveLimits(SET_400);
   // ₹400 spread over days 8..27 (₹20 each): outside the week, so ONLY the 30-day cap is reached.
   const at = decide({ tier: 'premium', surface: 'check-improve', questionCount: 1, days: ledgerDays(spread(8, 27, 20)), nowMs: NOW, limits });
   assert.equal(at.allowed, false);
@@ -130,7 +154,7 @@ test('CAP-30DAY · refuses AT the limit with 429 usage_limit / window thirtyDay 
 });
 
 test('CAP-30DAY · longest window first: 30-day and week both full -> the 30-day window is reported', () => {
-  const limits = resolveLimits({ FAIR_USE_PREMIUM_30DAY_INR: '400' });
+  const limits = resolveLimits(SET_400);
   const d = decide({ tier: 'premium', surface: 'check-improve', questionCount: 1, days: ledgerDays({ 1: 450 }), nowMs: NOW, limits });
   assert.equal(d.body.window, 'thirtyDay');
   // CONTROL: only the week full -> week, as before.
@@ -139,7 +163,7 @@ test('CAP-30DAY · longest window first: 30-day and week both full -> the 30-day
 });
 
 test('CAP-30DAY · resetAt is the IST midnight the deciding day leaves the 30-day window, across IST midnight', () => {
-  const limits = resolveLimits({ FAIR_USE_PREMIUM_30DAY_INR: '400' });
+  const limits = resolveLimits(SET_400);
   // ₹300 on day 29 + ₹100 on day 10: at the cap. Dropping day 29 frees room -> it leaves at
   // the IST midnight 30 days after its own start, i.e. the start of TOMORROW (IST).
   const days = ledgerDays({ 29: 300, 10: 100 });
@@ -167,12 +191,14 @@ test('CAP-30DAY · resetAt is the IST midnight the deciding day leaves the 30-da
 /* ── The ledger read ──────────────────────────────────────────────────────── */
 
 // MUTATION M30-4 / M30-5 targets.
-test('CAP-30DAY · premium reads 30 day documents; trial still reads 7 (trial untouched)', () => {
-  const p = windowDayKeysFor('premium', NOW);
+test('CAP-30DAY · premium reads 30 day documents only when ON; unset premium and trial read 7 (unchanged)', () => {
+  const on = resolveLimits(SET_400);
+  const p = windowDayKeysFor('premium', NOW, on);
   assert.equal(p.length, 30);
   assert.equal(p[0], dayOf(29));
   assert.equal(p[29], dayOf(0));
-  assert.deepEqual(windowDayKeysFor('trial', NOW), windowDayKeys(NOW));
+  assert.deepEqual(windowDayKeysFor('premium', NOW, resolveLimits({})), windowDayKeys(NOW), 'unset: no extra reads');
+  assert.deepEqual(windowDayKeysFor('trial', NOW, on), windowDayKeys(NOW));
   assert.equal(windowDayKeys(NOW).length, 7);
 });
 
@@ -226,6 +252,13 @@ test('CAP-30DAY · route boundary: a premium grade at the 30-day cap is refused 
   assert.equal(res.sent.body.window, 'thirtyDay');
   assert.equal(r.ledger.reads[0].length, 30);
 
+  // Unset 30-day env, enforced, huge spend outside the week: served, and 7 days read.
+  const off = rig({ tier: 'premium', days: keyed(spread(8, 29, 5000)) });
+  const offRes = fakeRes();
+  assert.equal(await off.fu.applyToRequest({ headers: {} }, offRes, CHECK_SOLUTION_PATH, 'stu-1'), false);
+  assert.equal(offRes.sent, null);
+  assert.equal(off.ledger.reads[0].length, 7);
+
   // Dark (FAIR_USE_ENFORCE unset): served, as every other window.
   const dark = rig({ tier: 'premium', days: keyed(spread(8, 27, 20)), env: { FAIR_USE_PREMIUM_30DAY_INR: '400' } });
   const dres = fakeRes();
@@ -255,6 +288,13 @@ test('CAP-30DAY · /api/usage/me premium view: thirtyDayPct + resets.thirtyDay, 
   assert.equal(p.resets.thirtyDay, new Date(istDayStart(20) + THIRTY_DAYS * DAY).toISOString());
   assert.equal(r.ledger.reads[0].length, 30);
   assert.doesNotMatch(JSON.stringify(res.sent.body), /inr|cost|micro|rupee|₹/i);
+
+  // Unset: the premium body has NO 30-day key and reads 7 days.
+  const off = rig({ tier: 'premium', days: keyed({ 0: 19, 1: 23, 20: 5000 }) });
+  const ores = fakeRes();
+  await off.fu.handleUsageMe({ headers: {} }, ores);
+  assert.doesNotMatch(JSON.stringify(ores.sent.body), /thirty/i);
+  assert.equal(off.ledger.reads[0].length, 7);
 
   // Trial view: unchanged, no 30-day field anywhere.
   const t = rig({ tier: 'trial' });

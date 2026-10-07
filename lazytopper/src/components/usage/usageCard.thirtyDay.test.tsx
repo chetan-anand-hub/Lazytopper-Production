@@ -63,7 +63,7 @@ describe("CAP-30DAY · usage card 30-day bar", () => {
     expect(screen.getByTestId("usage-card").textContent).not.toMatch(NO_RUPEES_OR_CODES);
   });
 
-  it("★ an older server (no thirtyDayPct) -> exactly the three bars as before", () => {
+  it("★ env unset (server omits thirtyDayPct) or an older server -> no 30-day bar, exactly the three bars as before", () => {
     const body = premiumBody();
     delete (body.premium as Record<string, unknown>).thirtyDayPct;
     (body.premium as { resets: Record<string, unknown> }).resets = { fiveHour: null, day: null, week: null };

@@ -844,12 +844,10 @@ test('U5 · /api/usage/me — premium shape: whole percentages, clamped at 100, 
     fiveHourPct: 40, // ₹10 of ₹25
     dayPct: 50, // ₹19 of ₹38
     weekPct: 50, // ₹42 of ₹84
-    thirtyDayPct: 3, // ₹42 of ₹1,140 (CAP-30DAY default)
     resets: {
       fiveHour: '2026-09-27T09:30:00.000Z', // hour 10 IST (04:30Z) + 5 h
       day: NEXT_IST_MIDNIGHT,
       week: '2026-10-02T18:30:00.000Z', // yesterday (09-26) leaves at 10-03 00:00 IST
-      thirtyDay: '2026-10-25T18:30:00.000Z', // yesterday leaves the 30-day window at 10-26 00:00 IST
     },
   });
   assert.doesNotMatch(JSON.stringify(out.body), NO_RUPEES);
