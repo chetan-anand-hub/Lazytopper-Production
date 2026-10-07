@@ -51,7 +51,7 @@ export default defineChapter("real-numbers", [
   [347, REAL_NUMBERS_PYQ_2025, false],
   [407, REAL_NUMBERS_CFPQ, false],
   [428, REAL_NUMBERS_CBQ_LT_GENERATED, false],
-  [440, REAL_NUMBERS_C3_CBQ_LT_GENERATED, false],
+  [443, REAL_NUMBERS_C3_CBQ_LT_GENERATED, false],
 ], [
   "RN-E09",
   "RN-E14",

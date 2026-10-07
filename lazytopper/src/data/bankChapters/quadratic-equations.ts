@@ -51,7 +51,7 @@ export default defineChapter("quadratic-equations", [
   [337, QUADRATIC_EQUATIONS_PYQ_2024, false],
   [350, QUADRATIC_EQUATIONS_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
-  [450, QUADRATIC_EQUATIONS_CBQ_LT_GENERATED, false],
+  [453, QUADRATIC_EQUATIONS_CBQ_LT_GENERATED, false],
 ], [
   "QE-E13",
   "QE-M06",

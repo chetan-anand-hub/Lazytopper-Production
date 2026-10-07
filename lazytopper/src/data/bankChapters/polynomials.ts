@@ -47,7 +47,7 @@ export default defineChapter("polynomials", [
   [335, POLYNOMIALS_PYQ_2024, false],
   [348, POLYNOMIALS_PYQ_2025, false],
   [408, POLYNOMIALS_CFPQ, false],
-  [439, POLYNOMIALS_CBQ_LT_GENERATED, false],
+  [442, POLYNOMIALS_CBQ_LT_GENERATED, false],
 ], [
   "POLY-M04",
   "POLY-M06",

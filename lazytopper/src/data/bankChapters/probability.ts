@@ -39,7 +39,7 @@ export default defineChapter("probability", [
   [346, PROBABILITY_PYQ_2024, false],
   [358, PROBABILITY_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
-  [438, PROBABILITY_CBQ_LT_GENERATED, false],
+  [441, PROBABILITY_CBQ_LT_GENERATED, false],
 ], [
   "PROB-E06",
   "PROB-M04",

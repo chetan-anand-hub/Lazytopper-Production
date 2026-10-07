@@ -2,21 +2,21 @@
  "targetYear": "2026",
  "chapters": {
   "real-numbers": {
-   "n": 231,
-   "sha256": "bc929839ad4bc465b1904a91f07102f9b6c571dd06e2c351eb129eb0fd28aee5",
+   "n": 337,
+   "sha256": "f390de8941eac13909472bf538a2769ed9a6fb444fea532ae38cb24f702729bd",
    "head": [
-    "RNX2-A-003",
-    "RN-N-NCERT-1-MCQ-004",
-    "CFPQ-M-REALNUM-001"
+    "LTG-M-RN-285",
+    "LTG-M-RN-292",
+    "LTG-M-RN-301"
    ]
   },
   "polynomials": {
-   "n": 249,
-   "sha256": "8557d5ee7fefd44a2dadf60a4e227212098c40752d241530dd00572039a1a1f2",
+   "n": 353,
+   "sha256": "9c0d2eaf07f49b3f9963211fd438087933b9923846901b073bcf83a42050f802",
    "head": [
     "BX-POLY-E-024",
-    "BX-POLY-E-023",
-    "BX-POLY-E-019"
+    "LTG-M-POLY-274",
+    "LTG-M-POLY-278"
    ]
   },
   "pair-of-linear-equations": {
@@ -38,8 +38,8 @@
    ]
   },
   "arithmetic-progression": {
-   "n": 364,
-   "sha256": "431ea1a2a135926150a22e2a0e9f117b239b94f6db4c037094efcdd7cc200b40",
+   "n": 466,
+   "sha256": "f2b7fc89f90cbeb087d412822c5c9e2ee46a56284f4cc14e0adcd2868a2178ce",
    "head": [
     "Z3-AP-010",
     "BX-AP-E-022",
@@ -74,21 +74,21 @@
    ]
   },
   "circles": {
-   "n": 222,
-   "sha256": "9af38bc5e5d97e2d291b347b41fc8e49ef59193fb5cf9b39f881ddf67cfb360b",
+   "n": 318,
+   "sha256": "73a9535c72832913ac4f4daee5da6656ac9b0fc3d1e073934cabb5dee4ee7169",
    "head": [
-    "LTG-M-CIRC-109",
-    "LTG-M-CIRC-110",
-    "CIRC-N-NCERT-10-CB-001"
+    "LTG-M-CIRC-271",
+    "LTG-M-CIRC-272",
+    "LTG-M-CIRC-279"
    ]
   },
   "areas-related-to-circles": {
-   "n": 192,
-   "sha256": "55506ab38fa5caef2249b37b83ea26539bfb593c762540259518c1761843d0d2",
+   "n": 294,
+   "sha256": "f8ee554f739a9019f34e01fdd0a1c82eda0e4249ea90737c8c833463adbe69d7",
    "head": [
     "Z3-ARC-001",
-    "Z3-ARC-003",
-    "ARC-N-NCERT-11-CB-001"
+    "LTG-M-ARC-297",
+    "LTG-M-ARC-228"
    ]
   },
   "surface-areas-and-volumes": {
@@ -110,12 +110,12 @@
    ]
   },
   "probability": {
-   "n": 217,
-   "sha256": "c2011fee27b69bc2d219ef4ff5d5717328cf897d05e28d4dcd82f1accc4e24fa",
+   "n": 330,
+   "sha256": "01c6ef36786a6dcdc69eed34f658b6c02560f5b761fca42ed40bcab4e88a10b3",
    "head": [
-    "PROB-N-NCERT-14-CB-001",
-    "PROB-N-EXEM-14-CB-001",
-    "Z3-PR-001"
+    "LTG-M-PROB-297",
+    "LTG-M-PROB-308",
+    "LTG-M-PROB-302"
    ]
   },
   "chemical-reactions-and-equations": {
@@ -239,7 +239,7 @@
  "concepts": {
   "real-numbers": {
    "n": 33,
-   "sha256": "1fc258dfda0794a7f4d9573507d78d3bfb72ee4f9bd85d73d4905fb9d2edc827",
+   "sha256": "73a1d8005bad1fdef21bd9ad1bd3978a45c812f97e8a8c64640d85b658e4f9f7",
    "head": [
     "Assertion-Reasoning\tRN2-040",
     "Divisibility\tSP-M-2022-RN-A-002,PB-M-2-RN-A-001,PYQ-M-RN-004,PYQ-M-2024-REALNUM-002",
@@ -248,10 +248,10 @@
   },
   "polynomials": {
    "n": 41,
-   "sha256": "9b64e6c0613727e01dfed1ea6efb1d6c20a270dba7699fcaeaad7ff6ad0a9586",
+   "sha256": "cc29f935307291182993d39c88876d7521f1b9dec1add31742e03efb4ac4b7ad",
    "head": [
-    "Coefficient–root Relations\tCFPQ-M-POLY-008,CFPQ-M-POLY-006,CFPQ-M-POLY-010,CFPQ-M-POLY-003,POLY-H10,POLY-M05,POLY-M14,POLY-M12,POLY-M20,POLY-E14,POLY-H04,POLY-H06,POLY-H08,POLY-M01,POLY-M03,POLY-M07,POLY-M10,POLY-M16,POLY-M19,POLY-H07-R,POLY-E11,POLY-E20,POLY-E02,POLY-E05,POLY-E08,POLY-E17,POLY-H15,POLY-H13",
-    "Constructing a Polynomial\tBX-POLY-E-005,BX-POLY-E-007,BX-POLY-E-009,BX-POLY-E-021,BX-POLY-E-022,POLY-N-NCERT-2-CB-001,BX-POLY-E-008,BX-POLY-E-025,BX-POLY-E-006,BX-POLY-EX-A-007,POLY-N-EXEM-2-MCQ-002,BX-POLY-EX-C-003,POLY-N-NCERT-2-SA-003,POLY-N-NCERT-2-SA-004,POLY-N-EXEM-2-SA-004,POLY-N-NCERT-2-VSA-003,POLY-N-NCERT-2-CRE-001,BX-POLY-D-017,BX-POLY-D-019,BX-POLY-D-020,BX-POLY-D-021,BX-POLY-D-022",
+    "Coefficient–root Relations\tLTG-M-POLY-240,LTG-M-POLY-260,CFPQ-M-POLY-008,LTG-M-POLY-251,CFPQ-M-POLY-006,CFPQ-M-POLY-010,LTG-M-POLY-238,LTG-M-POLY-244,CFPQ-M-POLY-003,POLY-H10,POLY-M05,POLY-M14,POLY-M12,POLY-M20,POLY-E14,POLY-H04,POLY-H06,POLY-H08,POLY-M01,POLY-M03,POLY-M07,POLY-M10,POLY-M16,POLY-M19,POLY-H07-R,POLY-E11,POLY-E20,POLY-E02,POLY-E05,POLY-E08,POLY-E17,POLY-H15,POLY-H13",
+    "Constructing a Polynomial\tLTG-M-POLY-269,BX-POLY-E-005,BX-POLY-E-007,BX-POLY-E-009,BX-POLY-E-021,BX-POLY-E-022,POLY-N-NCERT-2-CB-001,LTG-M-POLY-266,LTG-M-POLY-272,BX-POLY-E-008,BX-POLY-E-025,BX-POLY-E-006,LTG-M-POLY-293,BX-POLY-EX-A-007,POLY-N-EXEM-2-MCQ-002,BX-POLY-EX-C-003,POLY-N-NCERT-2-SA-003,POLY-N-NCERT-2-SA-004,POLY-N-EXEM-2-SA-004,LTG-M-POLY-246,POLY-N-NCERT-2-VSA-003,LTG-M-POLY-235,LTG-M-POLY-263,LTG-M-POLY-296,LTG-M-POLY-298,LTG-M-POLY-255,POLY-N-NCERT-2-CRE-001,BX-POLY-D-017,BX-POLY-D-019,BX-POLY-D-020,BX-POLY-D-021,BX-POLY-D-022",
     "Counting Polynomials with Given Zeroes\tPOLY-N-EXEM-2-MCQ-004"
    ]
   },
@@ -275,10 +275,10 @@
   },
   "arithmetic-progression": {
    "n": 68,
-   "sha256": "cf93b90ecafcfc38a30c440e75ac9310b0e49aeae3926f11d5964c984d07c2cf",
+   "sha256": "3b4d1d23f826087b90fed470973e2ca58edd005de81249a4b078331d47fe0cca",
    "head": [
     "AP from Sum Formula\tAP-N-EXEM2-5-SA-007",
-    "AP from nth Term\tPYQ-M-2026-AP-001,PYQ-M-AP-001,PYQ-M-AP-004,AP-N-EXEM-5-VSA-003,2026-AP-MCQ-05,2026-AP-SA-07,AP-M05,AP-AR05,AP2-055,AP-E09,AP-E14,AP-E19,AP-H03,AP-H08,AP-H13,AP-M01,AP-M14,AP-M17,AP-E05,AP-E15,AP-E04,AP-E07,AP-E01,AP-E02,AP-E11,AP-N01,AP2-044,AP2-047,AP2-051,AP2-053",
+    "AP from nth Term\tPYQ-M-2026-AP-001,PYQ-M-AP-001,PYQ-M-AP-004,LTG-M-AP-296,LTG-M-AP-300,AP-N-EXEM-5-VSA-003,2026-AP-MCQ-05,2026-AP-SA-07,AP-M05,AP-AR05,AP2-055,AP-E09,AP-E14,AP-E19,AP-H03,AP-H08,AP-H13,AP-M01,AP-M14,AP-M17,AP-E05,AP-E15,AP-E04,AP-E07,AP-E01,AP-E02,AP-E11,AP-N01,AP2-044,AP2-047,AP2-051,AP2-053",
     "AP in History of Mathematics\tAP-N-EXEM2-5-MCQ-008"
    ]
   },
@@ -311,20 +311,20 @@
   },
   "circles": {
    "n": 62,
-   "sha256": "ad2902a7d71af73376f852bf9741a0145f294f2f2f1ae10bbf763b476eb8d755",
+   "sha256": "362d52b2e41d6e55e00cce8ce86918d46fbb97464c23bfdcb534a2c1e70293e5",
    "head": [
-    "Angle Between Tangents\tCIRC-N-EXEM-10-AR-001,CIRC-N-EXEM-10-AR-002,CIRC-N-NCERT-10-MCQ-003,CIRC-N-NCERT-10-MCQ-004,CIRC-N-EXEM-10-MCQ-002",
-    "Angle at Centre and Tangent\tCIRC-N-EXEM-10-MCQ-006",
+    "Angle Between Tangents\tLTG-M-CIRC-279,LTG-M-CIRC-264,LTG-M-CIRC-263,LTG-M-CIRC-224,CIRC-N-EXEM-10-AR-001,CIRC-N-EXEM-10-AR-002,CIRC-N-NCERT-10-MCQ-003,CIRC-N-NCERT-10-MCQ-004,CIRC-N-EXEM-10-MCQ-002,LTG-M-CIRC-202,LTG-M-CIRC-212,LTG-M-CIRC-248,LTG-M-CIRC-255,LTG-M-CIRC-289,LTG-M-CIRC-293",
+    "Angle at Centre and Tangent\tLTG-M-CIRC-210,CIRC-N-EXEM-10-MCQ-006",
     "Bisecting Arc\tCIRC-N-EXEM-10-SA-004"
    ]
   },
   "areas-related-to-circles": {
    "n": 85,
-   "sha256": "15ee0eed69392b329ce5084e1c6ab1a9c75bbad4677df9b704cd538f3f01a471",
+   "sha256": "cb21b3bade9d307da7036e2c8f823f79fba727e79e4177d8ae369cc32d8e8984",
    "head": [
-    "Arc Length\tPYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,ARC-N-NCERT-11-SA-001,ARC-N-EXEM-11-SA-006,APQ-M-ARC-009,PYQ-M-2024-ARC-006b,ARC-N-EXEM2-11-SA-006,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
-    "Arc Length from Bent Wire\tPYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,ARC-N-EXEM-11-SA-006,PYQ-M-2024-ARC-006b,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
-    "Arc Length — Chord Subtending 60°\tPYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,APQ-M-ARC-009,PYQ-M-2024-ARC-006b,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055"
+    "Arc Length\tLTG-M-ARC-300,LTG-M-ARC-278,LTG-M-ARC-224,LTG-M-ARC-230,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,LTG-M-ARC-204,LTG-M-ARC-208,LTG-M-ARC-218,LTG-M-ARC-201,LTG-M-ARC-207,LTG-M-ARC-241,LTG-M-ARC-249,LTG-M-ARC-264,LTG-M-ARC-267,LTG-M-ARC-268,ARC-N-NCERT-11-SA-001,ARC-N-EXEM-11-SA-006,APQ-M-ARC-009,PYQ-M-2024-ARC-006b,LTG-M-ARC-234,LTG-M-ARC-238,LTG-M-ARC-239,LTG-M-ARC-240,LTG-M-ARC-257,LTG-M-ARC-258,LTG-M-ARC-272,ARC-N-EXEM2-11-SA-006,LTG-M-ARC-231,LTG-M-ARC-233,LTG-M-ARC-266,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
+    "Arc Length from Bent Wire\tLTG-M-ARC-300,LTG-M-ARC-278,LTG-M-ARC-224,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,LTG-M-ARC-208,LTG-M-ARC-218,LTG-M-ARC-201,LTG-M-ARC-207,ARC-N-EXEM-11-SA-006,PYQ-M-2024-ARC-006b,LTG-M-ARC-234,LTG-M-ARC-239,LTG-M-ARC-240,LTG-M-ARC-257,LTG-M-ARC-258,LTG-M-ARC-272,LTG-M-ARC-231,LTG-M-ARC-233,LTG-M-ARC-266,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
+    "Arc Length — Chord Subtending 60°\tLTG-M-ARC-300,LTG-M-ARC-278,LTG-M-ARC-224,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,LTG-M-ARC-208,LTG-M-ARC-218,LTG-M-ARC-201,LTG-M-ARC-207,APQ-M-ARC-009,PYQ-M-2024-ARC-006b,LTG-M-ARC-234,LTG-M-ARC-239,LTG-M-ARC-240,LTG-M-ARC-257,LTG-M-ARC-258,LTG-M-ARC-272,LTG-M-ARC-231,LTG-M-ARC-233,LTG-M-ARC-266,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055"
    ]
   },
   "surface-areas-and-volumes": {
@@ -347,9 +347,9 @@
   },
   "probability": {
    "n": 62,
-   "sha256": "66db7708f3c905a5942debba9f01cc3fec08ab87d664cbc33ca2cb4c41fa3afa",
+   "sha256": "1e27d48624a69f8f9fe847453b14c8e560e95448df89207cbca4bfe3fd9aa2da",
    "head": [
-    "Ball Probability\t2026-PROB-SA-01,PYQ-M-PROB-007,PYQ-M-2026-PROB-001,PYQ-M-2026-PROB-002",
+    "Ball Probability\t2026-PROB-SA-01,PYQ-M-PROB-007,LTG-M-PROB-206,LTG-M-PROB-215,LTG-M-PROB-256,PYQ-M-2026-PROB-001,LTG-M-PROB-249,LTG-M-PROB-239,PYQ-M-2026-PROB-002",
     "Basic Probability\t2026-PROB-SA-01,PR2-055,PROB-N01,PR2-046,PR2-047,PR2-049,PR2-050,PR2-051,PR2-052,PR2-053",
     "Birthdays\tPROB-N-NCERT-14-LA-002"
    ]
@@ -475,56 +475,56 @@
  "practice": {
   "real-numbers::seed1": {
    "n": 10,
-   "sha256": "fd52866c1048ecb1852b2b41deb14683a0d1e93841170b0b7a80d84c74cbd6b9",
+   "sha256": "b4ba62713d0105206b7089fc7caa1cebf49781450d52a0b968f7160fe370dfd8",
    "head": [
-    "CFPQ-M-REALNUM-002",
-    "CFPQ-M-REALNUM-013",
-    "CFPQ-M-REALNUM-014"
+    "CFPQ-M-REALNUM-001",
+    "LTG-M-RN-285",
+    "LTG-M-RN-221"
    ]
   },
   "real-numbers::seed2": {
    "n": 10,
-   "sha256": "4fc0e3e9576de9dc05507d645a84ccfcba7caa1619831e2908d91af1ef5f64ff",
+   "sha256": "4b2508a0db236edcd12c62c509fbd98875894b4ed5de0de0c5b9272af75e92d9",
    "head": [
-    "CBE-M-RN-A-001",
-    "RNX-C-001",
-    "RNX2-A-003"
+    "LTG-M-RN-229",
+    "LTG-M-RN-292",
+    "LTG-M-RN-227"
    ]
   },
   "real-numbers::seed3": {
    "n": 10,
-   "sha256": "6efbc30ce749209f5b583b7610011fa4e40b4b6c9e68a8de3e823c727844f9ea",
+   "sha256": "57d9ddbddc7402729a36795208e300065339faf6da91b3851f011a503a18e1a1",
    "head": [
-    "RNX-C-001",
-    "RN-N-NCERT-1-MCQ-004",
-    "CFPQ-M-REALNUM-001"
+    "LTG-M-RN-292",
+    "RNX2-A-003",
+    "RN-N-NCERT-1-MCQ-004"
    ]
   },
   "polynomials::seed1": {
    "n": 10,
-   "sha256": "6039d29b2010f1b12d08a0952a691428bd9e8915e51293442eddfaeeeb61b267",
+   "sha256": "9bac931ac329c7f06f2ddc606edb3d6c4b4ad7f98ed12fb7987230ebc555a18c",
    "head": [
-    "BX-POLY-E-004",
+    "BX-POLY-E-023",
     "BX-POLY-E-019",
-    "POLY-N-EXEM-2-MCQ-002"
+    "LTG-M-POLY-231"
    ]
   },
   "polynomials::seed2": {
    "n": 10,
-   "sha256": "ec956172dda4965fc0618e33bd9c7f6cd8ecb9617d709d6fdb2a263e5b3f4d15",
+   "sha256": "ff4c03d2e935e788e9cb9efbcb8d42e54383690d4af10445bdd1b401a423ce62",
    "head": [
-    "POLY-N-NCERT-2-MCQ-001",
-    "BX-POLY-E-008",
+    "LTG-M-POLY-285",
+    "LTG-M-POLY-269",
     "BX-POLY-E-024"
    ]
   },
   "polynomials::seed3": {
    "n": 10,
-   "sha256": "4e88ae83de214d2ee5ee355039db8cd76e64dbcfe8ab24dd7fcffa1bd77a57e4",
+   "sha256": "0d5e76b13d07c4343d4692adde4335f62852d08e34d3145e386e0973ffd112bc",
    "head": [
-    "BX-POLY-E-008",
-    "BX-POLY-E-023",
-    "BX-POLY-E-003"
+    "LTG-M-POLY-269",
+    "LTG-M-POLY-274",
+    "LTG-M-POLY-278"
    ]
   },
   "pair-of-linear-equations::seed1": {
@@ -583,25 +583,25 @@
   },
   "arithmetic-progression::seed1": {
    "n": 10,
-   "sha256": "3d6f51f7191ffd959d5f59a9499e2e0f7c0458ec55c9c47b3314087fe1f645e1",
+   "sha256": "8fece3c4472a6c69d3db8a5c4e4b3f78aa8610aca8373d565517da918b6af00f",
    "head": [
-    "Z3-AP-001",
+    "LTG-M-AP-274",
     "Z3-AP-010",
-    "AP-N-EXEM-5-MCQ-007"
+    "BX-AP-E-033"
    ]
   },
   "arithmetic-progression::seed2": {
    "n": 10,
-   "sha256": "300b5e74b26224c9ee24e8cd6b78190e078f7ab0b69f051a366044be127fb76f",
+   "sha256": "70af3728764fceedcca6b215d43fad09f1766dee87f48f54d27c50af4488f9e9",
    "head": [
-    "BX-AP-E-021",
+    "LTG-M-AP-264",
     "BX-AP-E-012",
     "BX-AP-E-022"
    ]
   },
   "arithmetic-progression::seed3": {
    "n": 10,
-   "sha256": "40c11772a68b7fb6b3c19df8f987fc4d5d0823a2006e6ef91149521db5d08016",
+   "sha256": "a6d81df8b6eded1f70795904e1c1c5c68c1a18575fc53b0ba33a974c0c090c1d",
    "head": [
     "BX-AP-E-012",
     "BX-AP-E-024",
@@ -691,56 +691,56 @@
   },
   "circles::seed1": {
    "n": 10,
-   "sha256": "4d6724d270553ac9c5c6c1d015951e3cbe0185b8b9861fbf5f69de38f2dbaeaf",
+   "sha256": "8d975dd971eaa59b7efdf6dea10682fb494358222c9141cc623bb2175a97ab7c",
    "head": [
-    "LTG-M-CIRC-107",
+    "LTG-M-CIRC-284",
     "LTG-M-CIRC-109",
-    "CIRC-N-EXEM-10-MCQ-005"
+    "LTG-M-CIRC-281"
    ]
   },
   "circles::seed2": {
    "n": 10,
-   "sha256": "422dbadd79d88cb5d24969f11a6d57bfc3e543f4a806da2caba6fb0e662951c1",
+   "sha256": "bdb838098796db8b61662669cf851eac22b36c600d6cdd7260f186cacb44d179",
    "head": [
-    "LTG-M-CIRC-102",
+    "LTG-M-CIRC-263",
     "LTG-M-CIRC-110",
-    "CIRC-N-NCERT-10-CB-001"
+    "LTG-M-CIRC-271"
    ]
   },
   "circles::seed3": {
    "n": 10,
-   "sha256": "085680f2928c9969c362ef7b28fcf715521c519f3af3f668ab52b52e55d76f69",
+   "sha256": "a30046378ac6e452052dc31da2c6ae10f85334f56b04072a7ecf4d33bf544e50",
    "head": [
     "LTG-M-CIRC-110",
-    "Z3-CI-001",
-    "LTG-M-CIRC-106"
+    "LTG-M-CIRC-272",
+    "LTG-M-CIRC-279"
    ]
   },
   "areas-related-to-circles::seed1": {
    "n": 10,
-   "sha256": "1f2de28f77c7cecd4e24cb2595c29f93d606e8f7462e5c8adb0a07aa4cf5c22c",
+   "sha256": "4b2581b31da2474a1368c28707cce8463eaa93dd27c99e7470249e9c3797db05",
    "head": [
-    "SP-M-2022-ARC-E-001",
+    "LTG-M-ARC-277",
     "Z3-ARC-003",
-    "ARC-N-NCERT-11-MCQ-005"
+    "LTG-M-ARC-290"
    ]
   },
   "areas-related-to-circles::seed2": {
    "n": 10,
-   "sha256": "590205e1b4110ae1995f80a82fa89302225a786a986c34db987b0c1fe80199a0",
+   "sha256": "5a83748dc1bef3d020b1e6b82ac2862f52c4083df4df8eee479bc1209cdd465d",
    "head": [
-    "ARC-N-NCERT-11-MCQ-001",
-    "Z3-ARC-002",
+    "LTG-M-ARC-278",
+    "LTG-M-ARC-283",
     "Z3-ARC-001"
    ]
   },
   "areas-related-to-circles::seed3": {
    "n": 10,
-   "sha256": "2a1d909563f4531402029804006c956887721ea13e314f1298e73cf96a67ea41",
+   "sha256": "56d02a0da18572703dc10c3e1062b1dad9e70daa40e2b134b12b9b73601c391d",
    "head": [
-    "Z3-ARC-002",
-    "ARC-N-NCERT-11-CB-001",
-    "ARC-N-EXEM-11-CB-001"
+    "LTG-M-ARC-283",
+    "LTG-M-ARC-297",
+    "LTG-M-ARC-228"
    ]
   },
   "surface-areas-and-volumes::seed1": {
@@ -799,29 +799,29 @@
   },
   "probability::seed1": {
    "n": 10,
-   "sha256": "89da35d96c239661deaf219280ccfc60667d2b7f24e4e92594217752f17d2d62",
+   "sha256": "09d1c98d046ec29652aa46936b03b337b932251eabc7b6e9d7de514b5436a549",
    "head": [
-    "Z3-PR-002",
-    "PYQ-M-PROB-012",
-    "PROB-N-NCERT-14-MCQ-003"
+    "LTG-M-PROB-286",
+    "LTG-M-PROB-302",
+    "LTG-M-PROB-232"
    ]
   },
   "probability::seed2": {
    "n": 10,
-   "sha256": "981eb75edc095e0176710ea578796715c9649f951c4ebe7dc5c0ffcee850b96c",
+   "sha256": "3f38672943eaef70047c49c9124e552eb0b4df229d4f2aab40692e4d00e2b449",
    "head": [
-    "PROB-N-NCERT-14-AR-001",
-    "PYQ-M-2026-PROB-003",
-    "PROB-N-NCERT-14-CB-001"
+    "LTG-M-PROB-224",
+    "LTG-M-PROB-293",
+    "LTG-M-PROB-297"
    ]
   },
   "probability::seed3": {
    "n": 10,
-   "sha256": "89af691b255381005cb23339daea72656f0674179f30842b6669e4c3cf7f49c9",
+   "sha256": "53f90b400cb811ca2312d4f86ea5927d429eb1d38764469eb6c643e7ab810a6d",
    "head": [
-    "PYQ-M-2026-PROB-003",
-    "PROB-N-EXEM-14-CB-001",
-    "Z3-PR-001"
+    "LTG-M-PROB-293",
+    "LTG-M-PROB-308",
+    "LTG-M-PROB-290"
    ]
   },
   "chemical-reactions-and-equations::seed1": {
