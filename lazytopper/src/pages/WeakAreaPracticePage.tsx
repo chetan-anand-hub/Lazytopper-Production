@@ -83,6 +83,39 @@ export function emptyListGateMet(model: StudyReadModel | null, subjectFilter: "A
   return rungNamesWeakness(subjectRungOf(model.progress, subjectFilter === "Maths" ? "maths" : "science"));
 }
 
+/**
+ * ME-ENGINE-1 PR-2d [WEAKAREA-NAMES-BELOW-GATE] — the weak areas this tab may NAME. A topic is
+ * named only when Me's gate for the paper on screen is met (`emptyListGateMet`) AND its own
+ * paper's rung passes (`rungNamesWeakness`, imported, never copied); below it, none — the tab
+ * shows the honest "Not Enough Graded Yet" state instead of a topic from one miss.
+ */
+export function namedWeakAreas(
+  model: StudyReadModel | null,
+  subjectFilter: "All" | "Maths" | "Science",
+  areas: readonly WeakArea[],
+): WeakArea[] {
+  if (!model || !emptyListGateMet(model, subjectFilter)) return [];
+  return areas.filter((a) => rungNamesWeakness(subjectRungOf(model.progress, a.subject === "Science" ? "science" : "maths")));
+}
+
+export type AreaStatus = "Critical" | "Needs Work" | "Review";
+
+/**
+ * ME-ENGINE-1 PR-2d [WEAKAREA-STATUS-DEVICE-LOCAL] — a weak area's status label from the SHARED,
+ * synced read model only (the chapter's graded marks lost — the same figure on every device; the
+ * same cut-offs that set the practice difficulty). The old label read `confidenceScore`, which
+ * adds +15 when THIS device has no local attempts, so two devices disagreed. No evidence above
+ * the gate → no status (null): never a device-only label.
+ */
+export function areaStatus(evidence: AreaEvidence | null): AreaStatus | null {
+  if (!evidence) return null;
+  if (evidence.lostShare >= 0.6) return "Critical";
+  if (evidence.lostShare >= 0.3) return "Needs Work";
+  return "Review";
+}
+
+const STATUS_COLOR: Record<AreaStatus, string> = { Critical: "#ef4444", "Needs Work": "#f59e0b", Review: "#3b82f6" };
+
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
@@ -109,7 +142,8 @@ function WeakAreaCard({
   evidence: AreaEvidence | null;
   onPractice: (area: WeakArea) => void;
 }) {
-  const urgencyColor = area.confidenceScore >= 40 ? "#ef4444" : area.confidenceScore >= 20 ? "#f59e0b" : "#3b82f6";
+  const status = areaStatus(evidence);
+  const urgencyColor = status ? STATUS_COLOR[status] : "#3b82f6";
   return (
     <div
       style={{
@@ -125,18 +159,21 @@ function WeakAreaCard({
           <div style={{ fontWeight: 700, fontSize: 15 }}>{area.topicName}</div>
           <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{area.subject}</div>
         </div>
-        <div
-          style={{
-            padding: "4px 10px",
-            borderRadius: 20,
-            background: `${urgencyColor}15`,
-            color: urgencyColor,
-            fontWeight: 700,
-            fontSize: 12,
-          }}
-        >
-          {area.confidenceScore >= 40 ? "Critical" : area.confidenceScore >= 20 ? "Needs Work" : "Review"}
-        </div>
+        {status ? (
+          <div
+            data-testid="weak-area-status"
+            style={{
+              padding: "4px 10px",
+              borderRadius: 20,
+              background: `${urgencyColor}15`,
+              color: urgencyColor,
+              fontWeight: 700,
+              fontSize: 12,
+            }}
+          >
+            {status}
+          </div>
+        ) : null}
       </div>
 
       {evidence ? (
@@ -221,18 +258,29 @@ function LearningPathView({
             <div style={{ fontWeight: 800, fontSize: 18 }}>
               {path.status === "completed" ? "Path Completed!" : `Day ${path.daysCompleted + 1} of ${path.totalDays}`}
             </div>
-            <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
-              {path.weakAreasAtStart} weak areas targeted
-            </div>
+            {/* ME-ENGINE-1 PR-2d — no "0 weak areas targeted": the count shows only when the path
+                was built from at least one weak area. */}
+            {path.weakAreasAtStart > 0 ? (
+              <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }} data-testid="wap-path-targeted">
+                {path.weakAreasAtStart} weak area{path.weakAreasAtStart === 1 ? "" : "s"} targeted
+              </div>
+            ) : null}
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 28, fontWeight: 900, color: "#58cc02" }}>
-              {Math.round((path.daysCompleted / path.totalDays) * 100)}%
+          {/* ME-ENGINE-1 PR-2d — no fake 0%: the percent and the bar appear only once a day is done. */}
+          {path.daysCompleted > 0 ? (
+            <div style={{ textAlign: "right" }} data-testid="wap-path-progress">
+              <div style={{ fontSize: 28, fontWeight: 900, color: "#58cc02" }}>
+                {Math.round((path.daysCompleted / path.totalDays) * 100)}%
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>complete</div>
             </div>
-            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>complete</div>
-          </div>
+          ) : (
+            <div style={{ fontSize: 12, color: "var(--text-muted)" }} data-testid="wap-path-not-started">
+              Not started yet
+            </div>
+          )}
         </div>
-        <ProgressBar value={path.daysCompleted} max={path.totalDays} color="#58cc02" />
+        {path.daysCompleted > 0 ? <ProgressBar value={path.daysCompleted} max={path.totalDays} color="#58cc02" /> : null}
       </div>
 
       {path.days.map((day, idx) => {
@@ -380,7 +428,6 @@ export default function WeakAreaPracticePage() {
   const [summary, setSummary] = useState<WeakAreaSummary | null>(null);
   const [learningPath, setLearningPath] = useState<LearningPath | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showCelebration, setShowCelebration] = useState(false);
   const { user } = useAuth();
   const uid = user?.uid ?? null;
   const [model, setModel] = useState<StudyReadModel | null>(null);
@@ -419,6 +466,13 @@ export default function WeakAreaPracticePage() {
 
   const srStats = useMemo(() => getSRStats(), [refreshKey]);
 
+  // ME-ENGINE-1 PR-2d — only what Me's gate lets this tab name (see `namedWeakAreas`).
+  const gateMet = emptyListGateMet(model, subjectFilter);
+  const shownAreas = useMemo(
+    () => namedWeakAreas(model, subjectFilter, summary?.weakAreas ?? []),
+    [model, subjectFilter, summary],
+  );
+
   // No `isGenerating` state: `generateLearningPath` is synchronous, so React
   // batches any set-true/set-false pair inside one handler and no render ever
   // observes the flag. A spinner that provably cannot appear is a no-op, not a
@@ -430,8 +484,8 @@ export default function WeakAreaPracticePage() {
   };
 
   const handleStartTargetedSession = () => {
-    if (!summary || summary.weakAreas.length === 0) return;
-    const weakest = summary.weakAreas[0];
+    if (shownAreas.length === 0) return;
+    const weakest = shownAreas[0];
     navigate(`/practice/10/${weakest.subject}?topic=${encodeURIComponent(weakest.topicKey)}&count=15&difficulty=Easy&weakMode=1`, { state: { back: "/weak-area-practice", backLabel: "Back to Weak Areas" } });
   };
 
@@ -449,14 +503,6 @@ export default function WeakAreaPracticePage() {
     setLearningPath(generateLearningPath({ subject: subj, daysAvailable: 14, minutesPerDay: 60 }));
     setTab("learning-path");
   };
-
-  useEffect(() => {
-    if (summary && summary.closedThisWeek > 0) {
-      setShowCelebration(true);
-      const timer = setTimeout(() => setShowCelebration(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [summary?.closedThisWeek]);
 
   return (
     <div className="lt-page" style={{ paddingTop: 8 }}>
@@ -482,41 +528,23 @@ export default function WeakAreaPracticePage() {
         Targeted practice to close your gaps and boost your score.
       </p>
 
-      {showCelebration && summary && summary.closedThisWeek > 0 && (
-        <div
-          style={{
-            padding: "12px 16px",
-            borderRadius: 14,
-            background: "linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(34,197,94,0.1) 100%)",
-            border: "2px solid rgba(245,158,11,0.4)",
-            marginBottom: 16,
-            textAlign: "center",
-            animation: "fadeIn 0.5s ease",
-          }}
-        >
-          <div style={{ fontSize: 32 }}>&#127881;</div>
-          <div style={{ fontWeight: 800, fontSize: 16, color: "#f59e0b" }}>
-            {summary.closedThisWeek} weak area{summary.closedThisWeek > 1 ? "s" : ""} closed this week!
-          </div>
-        </div>
-      )}
-
-      {summary && (
+      {/* ME-ENGINE-1 PR-2d — "Closed This Week" (tile and celebration banner) is REMOVED: it was
+          computed from the retired mastery score (`computeTopicMastery`, no writer), so it could
+          only ever be 0 — a figure that can never be real (CLAUDE.md §5).
+          The counts show only above the gate (below it, "1 weak area" from one
+          miss — or a "0" — would be a figure Me withholds). */}
+      {summary && gateMet && (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            gridTemplateColumns: "1fr",
             gap: 10,
             marginBottom: 16,
           }}
         >
           <div style={{ padding: "12px 8px", borderRadius: 12, background: "rgba(239,68,68,0.08)", textAlign: "center" }}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#ef4444" }}>{summary.totalWeak}</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "#ef4444" }}>{shownAreas.length}</div>
             <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Weak Areas</div>
-          </div>
-          <div style={{ padding: "12px 8px", borderRadius: 12, background: "rgba(34,197,94,0.08)", textAlign: "center" }}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#22c55e" }}>{summary.closedThisWeek}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Closed This Week</div>
           </div>
         </div>
       )}
@@ -544,7 +572,7 @@ export default function WeakAreaPracticePage() {
 
       <div style={{ display: "flex", gap: 6, marginBottom: 16, overflowX: "auto" }}>
         {([
-          { id: "weak-areas" as ViewTab, label: "Weak Areas", count: summary?.totalWeak },
+          { id: "weak-areas" as ViewTab, label: "Weak Areas", count: shownAreas.length },
           { id: "learning-path" as ViewTab, label: "Learning Path" },
           { id: "reviews" as ViewTab, label: "Reviews", count: srStats.dueToday },
         ]).map((t) => (
@@ -584,8 +612,8 @@ export default function WeakAreaPracticePage() {
               is not proof that no topic is weak (FU-B18-WEAKAREA-LOCAL-LIST). The copy follows the
               gate of the paper ON SCREEN (`emptyListGateMet`): below it — no graded answers in that
               paper, signed out, a failed read — "not enough graded yet"; above it, a neutral line. */}
-          {!summary || summary.weakAreas.length === 0 ? (
-            emptyListGateMet(model, subjectFilter) ? (
+          {shownAreas.length === 0 ? (
+            gateMet ? (
               <div className="wap-empty" data-testid="weak-area-empty-none">
                 <div className="wap-empty__icon" aria-hidden="true">&#128218;</div>
                 <h3 className="wap-empty__title">No Topic to Suggest Right Now</h3>
@@ -626,9 +654,9 @@ export default function WeakAreaPracticePage() {
                   boxShadow: "0 4px 12px rgba(255,150,0,0.3)",
                 }}
               >
-                Start Targeted Session — {summary.weakAreas[0]?.topicName} (15 questions, Easy → Hard)
+                Start Targeted Session — {shownAreas[0]?.topicName} (15 questions, Easy → Hard)
               </button>
-              {summary.weakAreas.map((area) => (
+              {shownAreas.map((area) => (
                 <WeakAreaCard
                   key={area.topicKey}
                   area={area}
@@ -639,7 +667,7 @@ export default function WeakAreaPracticePage() {
             </>
           )}
 
-          {summary && summary.weakAreas.length > 0 && (
+          {shownAreas.length > 0 && (
             <button
               onClick={handleGeneratePath}
               style={{
@@ -661,7 +689,21 @@ export default function WeakAreaPracticePage() {
         </div>
       )}
 
-      {tab === "learning-path" && learningPath && (
+      {/* ME-ENGINE-1 PR-2d — the path names topics, so below the gate it names none either. */}
+      {tab === "learning-path" && !gateMet && (
+        <div className="wap-empty" data-testid="wap-path-thin">
+          <div className="wap-empty__icon" aria-hidden="true">&#128218;</div>
+          <h3 className="wap-empty__title">Not Enough Graded Yet</h3>
+          <p className="wap-empty__text">
+            Your learning path appears once enough of your answers have been graded to suggest a topic.
+          </p>
+          <button type="button" className="wap-empty__cta" onClick={() => navigate("/practice-hub")}>
+            Go to Practice
+          </button>
+        </div>
+      )}
+
+      {tab === "learning-path" && gateMet && learningPath && (
         <LearningPathView
           path={learningPath}
           onRefresh={() => {
