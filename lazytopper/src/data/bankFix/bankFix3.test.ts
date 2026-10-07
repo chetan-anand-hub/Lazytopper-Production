@@ -69,7 +69,7 @@ function scratchHits(rows: readonly Row[]): string[] {
 describe("BANK-FIX-3 · ledger and ids", () => {
   it("is non-vacuous and covers every verdict the lane used", () => {
     const by = (v: string) => BANK_FIX_3.filter((e) => e.verdict === v).length;
-    expect(by("fixed")).toBe(18);
+    expect(by("fixed")).toBe(19);
     expect(by("withheld")).toBe(3);
     expect(by("restored")).toBe(2);
     expect(by("held-for-resolve")).toBe(0);
@@ -252,6 +252,16 @@ describe("BANK-FIX-3 · CI-1 sweep #1 rewrites", () => {
     const q = bankById.get("ARC-H04")!;
     expect(String(q.questionText)).toMatch(/triangle OAB/);
     expect(String(q.finalAnswer)).toBe("(i) 9.625 cm² (ii) 3.5 cm²");
+  });
+});
+
+describe("BANK-FIX-3 · PYQ-M-2026-AP-001 answer field (CI-1 FU 16:08Z)", () => {
+  it("the answer no longer carries another question's mode formula and agrees with finalAnswer; served, official", () => {
+    const q = bankById.get("PYQ-M-2026-AP-001")!;
+    expect(String(q.answer)).not.toMatch(/Mode|51.4/);
+    expect(q.answer).toBe(q.finalAnswer);
+    expect(servedIds.has(q.id)).toBe(true);
+    expect(q.sourceOverride).toBeUndefined();
   });
 });
 
