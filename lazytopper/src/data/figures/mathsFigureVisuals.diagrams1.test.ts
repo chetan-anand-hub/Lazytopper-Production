@@ -65,8 +65,8 @@ const PR1_BINDINGS: ReadonlyArray<readonly [string, string]> = [
   ["APQ-M-CIRC-011", "/figures/apq-maths/circles/APQ-M-CIRC-011.webp"], // Mathematics-PQ_2022.pdf p12
   ["SQP-M-TRI-003", "/figures/sqp-maths/triangles/SQP-M-TRI-003.webp"], // MathsStandard-SQP.pdf p7 (embedded image)
   ["CIRC-N-NCERT-10-MCQ-003", "/figures/ncert-maths/circles/CIRC-N-NCERT-10-MCQ-003.webp"], // jemh110.pdf p8
-  ["TRI-N-EXMPLR-6-SA-011", "/figures/exemplar-maths/triangles/TRI-N-EXMPLR-6-SA-011.webp"], // jeep206.pdf p11 (embedded image)
-  ["CIR-M05", "/figures/ncert-maths/circles/CIR-M05.webp"], // jemh110.pdf p9 (embedded image)
+  ["TRI-N-EXMPLR-6-SA-011", "/figures/exemplar-maths/triangles/TRI-N-EXMPLR-6-SA-011.webp"], // jeep206.pdf p11 (vector render, watermark layer removed)
+  ["CIR-M05", "/figures/ncert-maths/circles/CIR-M05.webp"], // jemh110.pdf p9 (vector render, watermark layer removed)
 ];
 
 // Not bound on purpose — must resolve to no figure.
