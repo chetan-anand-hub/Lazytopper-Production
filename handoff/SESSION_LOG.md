@@ -1,3 +1,35 @@
+## 2026-10-07 — WAVE B-18 (GRADING CLIENT + PROGRESS, CONTROLLER B) — **J2: PAPERS, TESTS, MOCKS, WORKSHEETS AND MULTI-QUESTION PRACTICE CAN GRADE IN THE BACKGROUND (SWITCH OFF UNTIL J3); THE TWO-PHOTO UPLOAD RACE FIXED; NO WEAKNESS, FIGURE OR STATUS BEFORE EVIDENCE** — `#979` + `#980` + `#995` + `#997` MERGED — trunk `d8a7d2f4`
+
+★ **PROVENANCE.** Controller B, wave B-18 (same session as B-17 / ME-ENGINE-1; owner-assigned). Builders claude-opus-5-5 (J2 split into J2a / J2b by the controller), an independent read-only verifier sub-agent before every merge (owner Round 4), OR-LIVE / smoke agents after. Written by a separate docs builder in `C:/Projects/LT-worktrees/b18-j2-docs` from `WAVE_STATE_B18.md` (D30–D79), `OWNER_RULINGS_B18_ME.md` (Rounds 4–9), `COORD/BOARD.md` and the builder / verifier / live reports; every merge SHA and time re-checked with `gh pr view`.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| ME PR-2d | `#997` `d8a7d2f4` | Me's careless card, Weak Area's named topics, count tile, path progress and status label all wait for evidence; no raw question id; "Closed This Week" removed | "`#970` made both surfaces honest below the gate" (live found three gaps) |
+| J2b | `#980` `480b619c` | Chapter Test, Full Mock and Quick Practice batch > 1 grade in the background; interrupted final rows recorded; honest "job gone" copy; a kept job dropped on new content | "the interrupted rows can stay unrecorded" (they were charged, so they are recorded — D30) |
+| J2a | `#979` `678b9811` | shared job client + rows + resume; Check & Improve papers and Worksheets opt in | "reuse the idempotency key after a 404" (the server would replay the gone job's 202) |
+| FLAKE-PDF | `#995` `67b2873c` | `usePageTray` payload in a layout effect | "the flaky test is slow" (a product race: Grade live on a stale 1-page photo for one commit) |
+
+**Timeline (UTC).**
+- 6 Oct: J2 dispatched after A-17 published the contract; split J2a / J2b (27 files; a stacked pair is lane-overlap red); CI-1 approved the new copy 21:35Z; J2a verifier PASS-WITH-NOTES. 21:24Z `[PROD-AI-500]`: J2a held (D31 / D34).
+- 7 Oct 01:58Z merge hold (Railway deploy) → owner restart plan (Round 6) → usage budget (Round 7) superseded 02:46Z (Round 8: nothing deferred).
+- 03:02Z the owner restored production AI (Round 9). 03:12Z `#970` L1 live PASS. 03:25:20Z `#995` merged; 03:40Z live 2-photo PASS.
+- 03:49Z CI-1 confirmed the `railway-build` setup failure on J2a as an infra flake (fix `#998`, merged 04:26:44Z). 04:01:01Z `#979` merged.
+- 04:40Z B-18 asked for a merge slot; 04:45Z granted; 05:02:01Z `#980` merged inside it. J2 client complete for Controller A's J3.
+- 05:15:12Z `#997` merged (after the controller's "Closed This Week" removal). 05:18Z the handoff lock; this docs PR. The `#997` live check is pending.
+
+**Lessons.**
+- **(a) A test flake can be the symptom of a product race** — `#995`.
+- **(b) A strict up-to-date rule makes "verified" perishable** — byte-identity proof after each `update-branch`; ask for a merge slot.
+- **(c) A figure fed by a retired source is a fake figure** — "Closed This Week" could only show 0.
+- **(d) An owed live check stays owed until its precondition exists** — `#970` L1 PASS only after production AI was restored.
+- **(e) A verifier's PASS covers only the diff it read** — the `#997` follow-up was re-checked by diff, pin, mutation and CI.
+
+**Slip, stated honestly (D76):** inside CI-1's merge slot the controller used a bounded 2-minute poll (after a 10-minute first wait) for `#980`'s CI instead of the 10–15-minute rule. D9 / D25 are already in the `#990` addendum.
+
+**Owner-owed:** nothing blocking; optional rewording of the J2 copy / re-tune of the D26 bands / D30 overrides; ME-REPORT-1 and a won-back re-attempt path when scheduled. **Next:** Controller A's J3 (switch ON + OR-LIVE R0 proving 202) on J2a `678b9811` + J2b `480b619c`; the pending `#997` live result; ME-ENGINE-1 PR-3 when C1's concept map lands.
+
 ## 2026-10-07 — WAVE B-18 (PROGRESS + TUTOR, CONTROLLER B) — **ME-ENGINE-1: ME / PROGRESS, THE TUTOR BRIEF AND THE MI WIDGET READ ONE SYNCED MODEL BEHIND ONE HONESTY GATE; MISTAKES RESOLVE, NOT DELETE; WON BACK = A LATER CORRECT ATTEMPT ONLY; WEAK AREA PRACTICE WITHOUT MASTERY OR UNEARNED PRAISE** — `#964` + `#968` + `#970` + `#983` MERGED — trunk `984bd663` — LIVE; PR-3 SKIPPED (owner)
 
 ★ **PROVENANCE.** Controller B, wave B-18 (same session as B-17; owner-assigned). Spec ME-ENGINE-1 v1.0 `82C7034D6DF2` (owner-authored). Four builders (claude-opus-5-5; PR-1 high, the rest medium), an independent read-only verifier sub-agent on `#970` and `#983` (owner Round 4), OR-LIVE / smoke agents after each merge. Written by a separate docs builder in `C:/Projects/LT-worktrees/b18-me-docs` from `WAVE_STATE_B18.md`, `OWNER_RULINGS_B18_ME.md`, the builder / verifier / live reports and `COORD/BOARD.md`; every merge SHA and time re-checked with `gh pr view`.

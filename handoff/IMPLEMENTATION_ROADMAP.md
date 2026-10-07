@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-07 — GRADING CLIENT + PROGRESS: **WAVE B-18 — J2a + J2b + FLAKE-PDF + ME PR-2d** (`#979` + `#980` + `#995` + `#997`) — trunk `d8a7d2f4` — ✅ COMPLETE (J2 dark behind `GRADING_JOBS` OFF until J3; `#995` live PASS; `#970` L1 live PASS; `#997` live PENDING; `[PROD-AI-500]` resolved)
+
+- ✅ **Background-grading client (J2)** — shared `src/ai/gradingJobs.ts`, rows one by one, provisional until final, resume after a reload, today's path when jobs are off or fail. Surfaces: Check & Improve papers + Worksheets (`#979`); Chapter Test, Full Mock, Quick Practice batch > 1 (`#980`). Unchanged: single checks, HPQ, the signed-out free check.
+- ✅ **Interrupted jobs record their final rows;** "Grade the remaining N" offered, never auto-run (D30).
+- ✅ **Two-photo upload race fixed** (`usePageTray` layout effect, five hosts) — `[FU-CI-FLAKE-CI-PDF-6MB]` closed; live 3/3 one 2-page PDF — `#995`.
+- ✅ **No weakness, figure or status before evidence** — Me careless card gated; Weak Area names / counts / progress / status gated; "Closed This Week" removed — `#997`.
+- ✅ **Second-device pull live-verified** (`#970` L1, owed since `#970`).
+- ⬜ **J3 (Controller A): switch `GRADING_JOBS` ON + OR-LIVE R0** — draft `#1002`, not merged when written. The owner live-verify of the job path is owed.
+- ⬜ **`#997` live check** pending (`live-997-2026-10-07.md`).
+- ⏸ **ME-ENGINE-1 PR-3 (concepts)** waits on C1's BANK-FIX-2 PR-3 (the concept map).
+- ⬜ **Next B lanes:** `[FU-B18-WEAKAREA-LOCAL-LIST]`, ME-REPORT-1 (owner to schedule).
+
 ## 2026-10-07 — PROGRESS + TUTOR: **WAVE B-18 — ME-ENGINE-1 PR-1 + PR-2 + PR-2b + PR-2c** (`#964` + `#968` + `#970` + `#983`) — trunk `984bd663` — ✅ COMPLETE (PR-3 ⏸ SKIPPED by the owner; OR-LIVE PARTIAL ×3 + PASS ×1, no rollback; L1 second-device pull OWED; owner-owed: `[PROD-AI-500]`)
 
 - ✅ **One shared read model** `progressReadModel.ts` (IST today, 7 / 14 / 30 / 120 days, 26 board chapters, graded-only tests, paginated reads) — `#964`.
