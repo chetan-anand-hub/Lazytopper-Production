@@ -137,12 +137,12 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 425,
-   "sha256": "ec677fd45fc3743470475cac97f37bc0d5aa71b4a6dc4e48e3eae322e456e3dc",
+   "n": 520,
+   "sha256": "710d5dc3c77e4b512d6c79b695c9fdff11843c832b0c93b34d025418fc3f85ae",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
-    "BX-MNM-E-017"
+    "LTG-S-METAL-236"
    ]
   },
   "carbon-and-its-compounds": {
@@ -164,12 +164,12 @@
    ]
   },
   "human-eye-and-colourful-world": {
-   "n": 218,
-   "sha256": "142b654f6b4aca6294e897b8724c1b48aee144aa3399a34b7d5834bfdb914099",
+   "n": 313,
+   "sha256": "341c5d0c2cf2a3e5b81237d4673cb1ea7e0b8333e80445fd418c2df2c3bac733",
    "head": [
     "LTG-S-EYE-104",
-    "CBE-S-HEYE-E-002",
-    "LTG-S-EYE-101"
+    "LTG-S-EYE-233",
+    "CBE-S-HEYE-E-002"
    ]
   },
   "electricity": {
@@ -218,12 +218,12 @@
    ]
   },
   "heredity": {
-   "n": 233,
-   "sha256": "02313b42ad621b9d7215dbad6944825feae858d338027b573fafbd70bf91a2b9",
+   "n": 328,
+   "sha256": "31db3556e680056c6b1a80b360233ee30415c76eea5643cbb07a9a4eaf37a361",
    "head": [
-    "SQP-S-HER-003",
-    "LTG-S-HERED-107",
-    "LTG-S-HERED-108"
+    "LTG-S-HERED-234",
+    "LTG-S-HERED-225",
+    "SQP-S-HER-003"
    ]
   },
   "our-environment": {
@@ -373,8 +373,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 108,
-   "sha256": "ff49cf814327305d510557324e546d1f8efb457f6acab8aa63a695f43d394aaa",
+   "n": 112,
+   "sha256": "d489c622d61d7a0f6bea897ac4abf68d303cc79a9d7682137ddf9b714793ee8c",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
@@ -400,12 +400,12 @@
    ]
   },
   "human-eye-and-colourful-world": {
-   "n": 47,
-   "sha256": "8d8a69150024a22b4a7c145f855b933dda7d51fd0db9a09064bdafea66c395d2",
+   "n": 50,
+   "sha256": "b5973cd98f0f9eaf9ad3e12b990bab33ec25616980743da5ab7816e12ad88694",
    "head": [
     "Accommodation of Eye\tPYQ-S-2024-EYE-004",
     "Accommodation of the Eye\tCFPQ-S-EYE-008,CFPQ-S-EYE-002",
-    "Atmospheric Refraction\tEYE-NCERT-10-SA-011,EYE-EXMPLR-10-SA-007,EYE-EXMPLR-10-LA-006,EYE-EXMPLR-10-MCQ-006,LTG-S-EYE-107,APQ-S-EYE-004,EYE-NCERT-10-SA-010,HEC2-045,HEC2-036,HEC2-016,HEC2-008,HEC2-009,HEC2-034,HEC2-035"
+    "Atmospheric Refraction\tLTG-S-EYE-273,LTG-S-EYE-276,LTG-S-EYE-277,LTG-S-EYE-274,LTG-S-EYE-275,LTG-S-EYE-265,LTG-S-EYE-266,LTG-S-EYE-261,LTG-S-EYE-263,LTG-S-EYE-264,LTG-S-EYE-262,EYE-NCERT-10-SA-011,EYE-EXMPLR-10-SA-007,LTG-S-EYE-267,LTG-S-EYE-270,LTG-S-EYE-271,EYE-EXMPLR-10-LA-006,EYE-EXMPLR-10-MCQ-006,LTG-S-EYE-268,LTG-S-EYE-269,LTG-S-EYE-272,LTG-S-EYE-278,LTG-S-EYE-107,APQ-S-EYE-004,LTG-S-EYE-279,EYE-NCERT-10-SA-010,HEC2-045,HEC2-036,HEC2-016,HEC2-008,HEC2-009,HEC2-034,HEC2-035"
    ]
   },
   "electricity": {
@@ -454,12 +454,12 @@
    ]
   },
   "heredity": {
-   "n": 61,
-   "sha256": "01a43db18f7751241fae8b220b7aa0740e98e2591edfcfdf51894d2b05303b08",
+   "n": 64,
+   "sha256": "ae75caa5768ac2cd8032d4c05acaa06e1ba3d9c70694c79610b0c9a373bdaf86",
    "head": [
     "Alleles\tBX-HER-EX-A-002,CBE-S-HERD-A-002",
     "Case-Based — Monohybrid Inheritance of Earlobe Type\tSQP-S-HER-003,HERED-NCERT-8-SA-007,HERED-NCERT-8-SA-005,HERED-EXMPLR-8-MCQ-011,HERED-EXMPLR-8-LA-004",
-    "Chapter Practice — Heredity\tSCO-S-HERED-001,SCO-S-HERED-002,SCO-S-HERED-003,SCO-S-HERED-006,SCO-S-HERED-007,SCO-S-HERED-009,SCO-S-HERED-010,SCO-S-HERED-011,SCO-S-HERED-012,SCO-S-HERED-013,SCO-S-HERED-014,SCO-S-HERED-015,SCO-S-HERED-016,SCO-S-HERED-017,SCO-S-HERED-019,SCO-S-HERED-020,SCQ-S-HERED-023,SCQ-S-HERED-025,SCQ-S-HERED-026,SCQ-S-HERED-030,SCQ-S-HERED-032,sci-bio-heredity-3m-2026-01,SCQ-S-HERED-033,SCQ-S-HERED-034,SCQ-S-HERED-035,SCQ-S-HERED-036,SCQ-S-HERED-039,SCQ-S-HERED-040,SCQ-S-HERED-043,SCQ-S-HERED-021,SCQ-S-HERED-022,SCQ-S-HERED-024,SCQ-S-HERED-027,SCQ-S-HERED-028,SCQ-S-HERED-031,SCQ-S-HERED-038,SCQ-S-HERED-042"
+    "Chapter Practice — Heredity\tLTG-S-HERED-295,LTG-S-HERED-216,SCO-S-HERED-001,SCO-S-HERED-002,SCO-S-HERED-003,SCO-S-HERED-006,SCO-S-HERED-007,SCO-S-HERED-009,SCO-S-HERED-010,SCO-S-HERED-011,SCO-S-HERED-012,SCO-S-HERED-013,SCO-S-HERED-014,SCO-S-HERED-015,SCO-S-HERED-016,SCO-S-HERED-017,SCO-S-HERED-019,SCO-S-HERED-020,LTG-S-HERED-204,LTG-S-HERED-219,SCQ-S-HERED-023,SCQ-S-HERED-025,SCQ-S-HERED-026,SCQ-S-HERED-030,SCQ-S-HERED-032,sci-bio-heredity-3m-2026-01,SCQ-S-HERED-033,SCQ-S-HERED-034,SCQ-S-HERED-035,SCQ-S-HERED-036,LTG-S-HERED-208,SCQ-S-HERED-039,SCQ-S-HERED-040,SCQ-S-HERED-043,SCQ-S-HERED-021,SCQ-S-HERED-022,SCQ-S-HERED-024,SCQ-S-HERED-027,SCQ-S-HERED-028,SCQ-S-HERED-031,SCQ-S-HERED-038,SCQ-S-HERED-042"
    ]
   },
   "our-environment": {
@@ -880,16 +880,16 @@
   },
   "metals-and-non-metals::seed1": {
    "n": 10,
-   "sha256": "be06a8894d02de6264bc379b1ec0c4ca56289e96a2320c9171b990123804e2bc",
+   "sha256": "253c363d9373da7bdcddd9825bba92724a56e7e0f9d895c7e9a1cb122a7a6490",
    "head": [
-    "BX-MNM-E-023",
+    "BX-MNM-E-021",
     "BX-MNM-E-017",
-    "METAL-NCERT-3-MCQ-002"
+    "LTG-S-METAL-224"
    ]
   },
   "metals-and-non-metals::seed2": {
    "n": 10,
-   "sha256": "110f08cf36677eb945bd1a19d154b10967ae1bfc122f0f50fcd43826b97a96c6",
+   "sha256": "5030816f189347bce49719bb59605a955325232008470aca04141dd158d773b1",
    "head": [
     "BX-MNM-E-019",
     "BX-MNM-E-048",
@@ -898,11 +898,11 @@
   },
   "metals-and-non-metals::seed3": {
    "n": 10,
-   "sha256": "6d3fe7f28c972b29ddee1cdfa298dc119243b75c03e5e75334e287a77b07834d",
+   "sha256": "2cec9106b42ef4482928b11ce3ad85dd693ac512b12a4990efde9df4af773251",
    "head": [
     "BX-MNM-E-048",
     "SQP-S-2023-MNM-E-001",
-    "BX-MNM-E-021"
+    "LTG-S-METAL-236"
    ]
   },
   "carbon-and-its-compounds::seed1": {
@@ -961,29 +961,29 @@
   },
   "human-eye-and-colourful-world::seed1": {
    "n": 10,
-   "sha256": "350b4f546dbfcd9ef9760632754f63aeeab16e59016b72aa0b4653dd4d65f025",
+   "sha256": "8695c72306bf6d85b7d798b5b5782a4ec03ce78b37b242369b12275ee3d8529a",
    "head": [
-    "CBE-S-HEYE-E-001",
+    "LTG-S-EYE-277",
     "CBE-S-HEYE-E-002",
-    "EYE-NCERT-10-MCQ-001"
+    "EYE-EXMPLR-10-MCQ-014"
    ]
   },
   "human-eye-and-colourful-world::seed2": {
    "n": 10,
-   "sha256": "9c0c44b1139afe3ac42f0bf7d563e52b054b405f112911c7ae77556b0c791d29",
+   "sha256": "11e00dc4ada62681519601f3a330b1d538dbcb7d8cf0340a7a58f6912c5e1b65",
    "head": [
-    "EYE-EXMPLR-10-MCQ-014",
-    "LTG-S-EYE-103",
+    "LTG-S-EYE-226",
+    "LTG-S-EYE-276",
     "LTG-S-EYE-104"
    ]
   },
   "human-eye-and-colourful-world::seed3": {
    "n": 10,
-   "sha256": "cdd6b6adcc1429e45eeef81290c268e58b0e72507b8150ad49650dcaa594cc83",
+   "sha256": "582f9e1f06809474f368ecdb0edc4dd15648fe4807ea9aef934f0a18dba88244",
    "head": [
-    "LTG-S-EYE-103",
-    "LTG-S-EYE-101",
-    "LTG-S-EYE-102"
+    "LTG-S-EYE-276",
+    "LTG-S-EYE-233",
+    "LTG-S-EYE-273"
    ]
   },
   "electricity::seed1": {
@@ -1123,29 +1123,29 @@
   },
   "heredity::seed1": {
    "n": 10,
-   "sha256": "a99b9f1cbe5b88dd938e9ee7937684192536f1342aff2dc8cde31e252b5f10ae",
+   "sha256": "694a23af88b39449d15493e560d85db23503db156304cc3e38287929d46b6c8e",
    "head": [
-    "LTG-S-HERED-106",
+    "LTG-S-HERED-108",
     "SP-S-2023-HERD-E-001",
-    "HERED-EXMPLR-8-MCQ-008"
+    "LTG-S-HERED-285"
    ]
   },
   "heredity::seed2": {
    "n": 10,
-   "sha256": "f1c2626ec3b7e6df6a36aed4969a4f7230f14fcaef13a3da73a13ea88ca87b83",
+   "sha256": "79dd5e78f5bf33fb43587fc08ae397408f96146cd989ceaab072f50befe1e52d",
    "head": [
-    "BX-HER-EX-A-005",
+    "LTG-S-HERED-225",
     "APQ-S-HERED-004",
-    "SQP-S-HER-003"
+    "LTG-S-HERED-234"
    ]
   },
   "heredity::seed3": {
    "n": 10,
-   "sha256": "76fe75d362fb0ef4116510a4cefa2bcd28a36687e1527625695c14c8cbe5a899",
+   "sha256": "8b26e526208fb18d49dba61fbb961e1b0fe2152f4786fd0b2b48ee8a73f8b6cf",
    "head": [
     "APQ-S-HERED-004",
-    "LTG-S-HERED-107",
-    "LTG-S-HERED-108"
+    "SQP-S-HER-003",
+    "LTG-S-HERED-107"
    ]
   },
   "our-environment::seed1": {
