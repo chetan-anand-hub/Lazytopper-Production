@@ -1836,7 +1836,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "Priyanka builds a simple box camera for a science fair: a convex lens of focal length 5.0 cm at the front and a light sensor fixed 6.0 cm behind the lens.\n(a) How far in front of the lens must a flower vase be kept to get a sharp image on the sensor? [1½ marks] [1.5 marks]\n(b) The vase is 15 cm tall. Find the height of its image on the sensor and state the nature of the image. [1½ marks] [1.5 marks]",
+    "questionText": "Priyanka builds a simple box camera for a science fair: a convex lens of focal length 5.0 cm at the front and a light sensor fixed 6.0 cm behind the lens.\n(a) How far in front of the lens must a flower vase be kept to get a sharp image on the sensor? [1½ marks]\n(b) The vase is 15 cm tall. Find the height of its image on the sensor and state the nature of the image. [1½ marks]",
     "options": [],
     "answer": "(a) u = −30 cm: the vase must be 30 cm in front of the lens. (b) m = −0.2, image height 3.0 cm (−3.0 cm); real, inverted and diminished.",
     "solutionSteps": [

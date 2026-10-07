@@ -780,7 +780,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A tram in Kolkata draws a steady direct current from a straight overhead wire. On one stretch, the current in the wire flows from west to east.\n(a) Using the appropriate rule, find the direction of the magnetic field due to the wire at a point on the road directly below it and at a point directly above it. [2 marks]\n(b) How would the field at the road change if the wire were raised to twice its height? [½ mark] [0.5 marks]\n(c) How would it change at peak hours, when the current in the wire is doubled? [½ mark] [0.5 marks]",
+    "questionText": "A tram in Kolkata draws a steady direct current from a straight overhead wire. On one stretch, the current in the wire flows from west to east.\n(a) Using the appropriate rule, find the direction of the magnetic field due to the wire at a point on the road directly below it and at a point directly above it. [2 marks]\n(b) How would the field at the road change if the wire were raised to twice its height? [½ mark]\n(c) How would it change at peak hours, when the current in the wire is doubled? [½ mark]",
     "options": [],
     "answer": "(a) Below: towards the north; above: towards the south (right-hand thumb rule). (b) It becomes weaker (about half). (c) It becomes stronger (about double).",
     "solutionSteps": [
