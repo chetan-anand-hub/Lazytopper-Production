@@ -101,8 +101,10 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // /figures/pyq-science/, 2 APQ 2023-24 under /figures/other-science/); counted from the registry after the merge with
     // BANK-FIX. 4 of the 9 are bound but withheld (BOUND_BUT_WITHHELD in scienceFigureVisuals.ts). Each binding is pinned
     // one by one in scienceFigureVisuals.diagrams1.test.ts.
-    expect(batch2).toHaveLength(48);
-    expect(batch).toHaveLength(99 + 48);
+    // 48 -> 39 at DIAGRAMS-1 PR-3 (2026-10-07): -9 at DIAGRAMS-1 PR-3 (2026-10-07): third-party chapter-wise booklet figures unbound (owner ruling)
+    expect(batch2).toHaveLength(39);
+    // 147 -> 138: -9 at DIAGRAMS-1 PR-3 (2026-10-07): third-party chapter-wise booklet figures unbound (owner ruling)
+    expect(batch).toHaveLength(99 + 39);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);
@@ -163,9 +165,8 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // (foundation-science: FND-L-SPX-003 was the control until LIGHT-FIX-1 stage 2 withheld it and
     // removed its binding — the family now has no entries, so the control is that the id resolves to NOTHING)
     expect(getFiguresForQuestion("FND-L-SPX-003")).toEqual([]);
-    expect(getFiguresForQuestion("SCO-S-ELEC-012").map((f) => f.filePath)).toEqual([
-      "/figures/chapterwise-science/electricity/SCO-S-ELEC-012.webp",
-    ]);
+    // SCO-S-ELEC-012 resolves to nothing since DIAGRAMS-1 PR-3 (2026-10-07): the chapter-wise booklet figures are unbound (owner ruling)
+    expect(getFiguresForQuestion("SCO-S-ELEC-012")).toEqual([]);
     // probe PYQ-S-2025-ELEC-009 -> PYQ-S-2026-ELEC-012 at ELEC-FIX-1 (2026-09-11): -009 is withheld and unbound.
     expect(getFiguresForQuestion("PYQ-S-2026-ELEC-012").map((f) => f.filePath)).toEqual([
       "/figures/pyq-science/electricity/PYQ-S-2026-ELEC-012.webp",

@@ -132,6 +132,15 @@ describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-
     expect([...pr3Paths].filter((p) => p.startsWith("/visuals/"))).toEqual([]); // Z3 stock photos live under /visuals/
   });
 
+  it("the 9 third-party chapter-wise booklet figures are unbound (owner ruling)", () => {
+    const ids = [
+      "SCO-S-CTRL-011", "SCO-S-ELEC-012", "SCO-S-ELEC-013", "SCQ-S-ELEC-032", "SCQ-S-REPR-041",
+      "SCQ-S-EYE-036", "SCO-S-LIFE-009", "SCO-S-LIGHT-005", "SCQ-S-MAG-029",
+    ];
+    expect(ids.filter((q) => getFiguresForQuestion(q).length > 0)).toEqual([]);
+    expect(SCIENCE_FIGURE_VISUALS.filter((f) => f.filePath.includes("/chapterwise-science/"))).toEqual([]);
+  });
+
   it("control: a bogus id resolves to nothing", () => {
     expect(getFiguresForQuestion("DIAGRAMS-1-PR3-NO-SUCH-ID")).toEqual([]);
   });
