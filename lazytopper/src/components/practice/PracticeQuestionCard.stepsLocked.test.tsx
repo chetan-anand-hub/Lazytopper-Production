@@ -10,7 +10,7 @@
 // PracticePage.finishReview.test.tsx drives it on the real page.
 
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, within, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: null }) }));
@@ -27,6 +27,13 @@ vi.mock("../../services/mistakeIntelligence", () => ({
 }));
 vi.mock("../qr/QrAnswerHandoff", () => ({ default: () => null }));
 vi.mock("../question/QuestionVisualAid", () => ({ QuestionVisualAid: () => null }));
+// DIAGRAMS-1 PR-2a's lazy solution figure lives INSIDE the steps panel. A stub that always
+// mounts, so the lock (not the figure registry) decides whether it appears.
+vi.mock("../../diagrams/SolutionFigure", () => ({
+  default: ({ questionId }: { questionId: string }) => (
+    <div data-testid="solution-figure-mount" data-question-id={questionId} />
+  ),
+}));
 
 import { PracticeQuestionCard } from "./PracticeQuestionCard";
 import { STEPS_LOCKED_COPY } from "./StepsLockedNote";
@@ -100,6 +107,17 @@ describe("PracticeQuestionCard — stepsLocked", () => {
     expect(screen.queryByText("Solution steps (for comparison)")).toBeNull();
     expect(document.body.textContent).not.toMatch(STEP_TEXT);
     expect(screen.queryByText(/Report/i)).toBeNull();
+  });
+
+  it("★★ DIAGRAMS PR-2a: the solution figure never mounts while locked, and mounts once unlocked", async () => {
+    const locked = renderCard({ isOpen: true, stepsLocked: true });
+    // Let any lazy import settle — a figure that WOULD mount has had its chance.
+    await act(async () => { await new Promise((r) => setTimeout(r, 50)); });
+    expect(screen.queryByTestId("solution-figure-mount")).toBeNull();
+    locked.unmount();
+    renderCard({ isOpen: true, stepsLocked: false });
+    const fig = await screen.findByTestId("solution-figure-mount", {}, { timeout: 10000 });
+    expect(fig.getAttribute("data-question-id")).toBe("Q1");
   });
 
   it("CONTROL — unlocked + open: the steps DO render (the probe can see them)", () => {
