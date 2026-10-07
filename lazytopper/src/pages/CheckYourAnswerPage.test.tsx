@@ -153,7 +153,8 @@ describe("/check-your-answer — advertised, self-canonical, headed and routed (
 
   it("is routed in App.tsx through withRouteSuspense, as a lazy page module", () => {
     const app = readFileSync(resolve(LAZYTOPPER, "src", "App.tsx"), "utf8");
-    expect(app).toContain('const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));');
+    // LOW-END-3 PR-2: hydrated page families are declared with lazyWithPreload (same import, same retry).
+    expect(app).toContain('const CheckYourAnswerPage = lazyWithPreload(() => import("./pages/CheckYourAnswerPage"));');
     expect(app).toContain(
       '<Route path="/check-your-answer" element={withRouteSuspense(<CheckYourAnswerPage />)} />',
     );

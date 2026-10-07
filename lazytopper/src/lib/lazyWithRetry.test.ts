@@ -200,7 +200,19 @@ describe("wiring — App.tsx's lazy routes actually go through lazyWithRetry", (
   });
 
   it("every lazy route in App.tsx is a `lazy(() => import(...))` call (31 at CHUNK-RESILIENCE-1)", () => {
-    const calls = appSource.match(/\blazy\(\s*\(\)\s*=>\s*import\(/g) ?? [];
+    // LOW-END-3 PR-2: the five hydrated page families use `lazyWithPreload`, which loads through
+    // the same importWithRetry (pinned below), so they still count.
+    const calls = appSource.match(/\b(?:lazy|lazyWithPreload)\(\s*\(\)\s*=>\s*import\(/g) ?? [];
     expect(calls.length).toBeGreaterThanOrEqual(31);
+  });
+
+  it("lazyWithPreload (lib/prerenderHydration.ts) loads through importWithRetry, like lazyWithRetry", () => {
+    const source = readFileSync(
+      path.resolve(path.dirname(fileURLToPath(import.meta.url)), "prerenderHydration.ts"),
+      "utf8",
+    );
+    expect(source).toMatch(/import\s*\{\s*importWithRetry\s*\}\s*from\s*"\.\/lazyWithRetry"/);
+    expect(source).toContain("pending = importWithRetry(factory)");
+    expect(appSource).toMatch(/import\s*\{\s*lazyWithPreload,\s*useHydrated\s*\}\s*from\s*"\.\/lib\/prerenderHydration"/);
   });
 });
