@@ -21,7 +21,8 @@
 //
 // Mapping decisions: controller decision D27 (mapper run on cfaa8e57, re-run on 1b0f3f74
 // after BANK-FIX PR #1007; one new label, heredity "Mendel's Contribution", decided by the
-// same rules).
+// same rules). Fix round 1 (independent verifier, controller C1): the Salts family re-checked
+// row by row, the AP dual label and two reasons corrected — see each "(fix round 1)" note.
 //
 // Bank-free on purpose: the trends files import nothing, the chapter slug is a type-only
 // import, and isChapterEchoSubtopic comes from progressBankShape — the bank-free module
@@ -290,7 +291,6 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Common Terms of two APs": "nth Term",
     "Consecutive Terms in AP": "nth Term",
     "Consecutive Terms of an AP": "nth Term",
-    "Derivation of nth Term and Sum of n Terms": "Sum of n Terms",
     "Difference of Corresponding Terms": "nth Term",
     "Difference of Terms": "nth Term",
     "Difference of Terms without Computing Them": "nth Term",
@@ -817,11 +817,9 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Effect of Dilution on pH": "pH, Indicators & Strength",
     "Efflorescence and Deliquescence": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Hardness of Water": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
-    "Hydrated Salts (Copper Sulfate)": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Identification of Acids and Bases": "pH, Indicators & Strength",
     "Identifying Acids and Bases": "pH, Indicators & Strength",
     "Identifying Compounds": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
-    "Identifying Salts": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Identifying Salts and Compounds": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Identifying a Base from Clues": "pH, Indicators & Strength",
     "Important Chemical Salts": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
@@ -845,9 +843,9 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Properties of Acids and Bases": "pH, Indicators & Strength",
     "Properties of Bases": "pH, Indicators & Strength",
     "Salt Solutions and Litmus": "pH, Indicators & Strength",
-    "Salts": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
+    "Salts": "pH, Indicators & Strength",
     "Salts and Their Families": "pH, Indicators & Strength",
-    "Salts and their Properties": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
+    "Salts and their Properties": "pH, Indicators & Strength",
     "Sodium Bicarbonate": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Sodium Carbonate and Washing Soda": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
     "Sodium Hydrogencarbonate - Identification": "Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",
@@ -1695,6 +1693,7 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Word Problems (Projectile Height)": { reason: "off-syllabus", note: "off-syllabus: row Z3-QE-002 part (iv) asks maximum height (vertex/optimisation)" },
   },
   "arithmetic-progression": {
+    "Derivation of nth Term and Sum of n Terms": { reason: "spans-concepts", note: "spans-concepts: rows derive BOTH the nth-term and the sum formula (fix round 1, controller C1; same treatment as the other dual label)" },
     "AP in History of Mathematics": { reason: "concept-gap", note: "audit (verified): history trivia (Gauss) — fold into proposed \"Recognising an AP\" (motivation for AP)" },
     "Arithmetic Progressions": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
     "Compound Interest vs AP": { reason: "concept-gap", note: "audit (verified): recognising/testing whether a list is an AP (definition, common difference) — propose concept \"Recognising an AP\"" },
@@ -1707,7 +1706,7 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
   },
   "triangles": {
     "Right-Triangle Lengths (a² + b² = c² as a tool)": { reason: "concept-gap", note: "audit (verified): Pythagoras used as a numeric tool (allowed in syllabus) - propose concept \"Right-Triangle Lengths (a²+b²=c² as a tool)\"" },
-    "Similarity / Area Relations in Right Triangle": { reason: "off-syllabus", note: "audit (verified): OUT: area relations/area theorem of similar triangles excluded for 2026-27 (verify item; if only lengths, map to Similarity Criteria)" },
+    "Similarity / Area Relations in Right Triangle": { reason: "concept-gap", note: "concept-gap: the one row proves 1/p² = 1/a² + 1/b² (lengths in a right triangle, no area theorem) — in syllabus, but no Triangles concept (Similarity Criteria / BPT) covers it (fix round 1)" },
   },
   "coordinate-geometry": {
     "Coordinate Geometry": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
@@ -1788,6 +1787,8 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Reactivity Series": { reason: "other-chapter", note: "audit (verified): OTHER-CHAPTER: metals-and-non-metals" },
   },
   "acids-bases-and-salts": {
+    "Hydrated Salts (Copper Sulfate)": { reason: "concept-gap", note: "concept-gap: water of crystallisation of CuSO4 — not one of the Important Salts concept's named salts, not pH (fix round 1)" },
+    "Identifying Salts": { reason: "spans-concepts", note: "spans-concepts: 1 of 2 rows identifies baking soda -> washing soda (Important Salts), 1 of 2 asks parent acid/base of salts (neutralisation / pH) (fix round 1)" },
     "Acids and Bases": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
     "Acids and Hydrogen Ions": { reason: "concept-gap", note: "audit (verified): ions in water, conductivity, dilution — propose concept \"Acids & Bases in Water (H⁺/H₃O⁺, OH⁻, conductivity, dilution)\"" },
     "Acids in Daily Life": { reason: "concept-gap", note: "audit (verified): sources/types/everyday examples of acids & bases — propose concept \"Acids & Bases: Sources, Types & Everyday Examples\"" },
@@ -1985,7 +1986,7 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Versatility of Carbon": { reason: "concept-gap", note: "audit (verified): propose \"Covalent Bonding & Versatility of Carbon\"" },
   },
   "light-reflection-and-refraction": {
-    "Laws of Reflection": { reason: "concept-gap", note: "audit (verified): laws of reflection / plane mirror not covered - propose 'Reflection & Plane Mirrors'" },
+    "Laws of Reflection": { reason: "concept-gap", note: "concept-gap: 16 of 17 rows are plane-mirror basics (angle of incidence = reflection, plane-mirror images); no Light concept covers plane mirrors. Sibling label \"Reflection\" stays mapped to Mirror / Lens Formula & Ray Diagrams because 16 of its 19 rows are spherical-mirror / mirror-formula / ray-diagram items (fix round 1)" },
     "Light – Reflection and Refraction": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
     "Plane Mirror": { reason: "concept-gap", note: "audit (verified): laws of reflection / plane mirror not covered - propose 'Reflection & Plane Mirrors'" },
     "Plane Mirror Magnification": { reason: "concept-gap", note: "audit (verified): laws of reflection / plane mirror not covered - propose 'Reflection & Plane Mirrors'" },
