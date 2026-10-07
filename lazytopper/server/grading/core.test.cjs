@@ -1807,6 +1807,65 @@ test('§D43.1 ★ a chunked paper\'s page inventory is the UNION of every chunk\
   assert.deepEqual([none.results[N - 1].couldNotRead, none.results[N - 1].note], [true, grading.NOT_FOUND_ON_PAGE_NOTE]);
 });
 
+/* ══ COST-1 step (i) · CONCISE FEEDBACK OUTPUT ═══════════════════════════════════
+   The model is asked for COMPACT JSON and SHORT feedback strings; thinking, the schema and every
+   field are unchanged, and the quotes the post-processing reads stay verbatim (owner order 2026-10-07). */
+const P = require('./prompt.cjs');
+
+test('§COST1.1 every grading request on every transport asks for compact JSON and short feedback, with the verbatim quotes exempt', async () => {
+  const h = harness({ replies: [REPLY(R(1, [S()]))] });
+  await h.single(single());
+  await h.single(single({ textAnswer: '', ...PHOTO }));
+  await h.sheet(sheet([sq(1, { textAnswer: '' })], { imageBase64: 'UERG', imageMimeType: 'application/pdf' }));
+  await h.sheet(sheet([sq(1), sq(2)]));
+  assert.equal(h.calls.length, 4);
+  for (let i = 0; i < 4; i += 1) {
+    const p = h.prompt(i);
+    assert.ok(p.includes(P.COMPACT_JSON_PROMPT), 'compact JSON missing from call ' + i);
+    assert.ok(p.includes(P.CONCISE_FEEDBACK_PROMPT), 'concise feedback rule missing from call ' + i);
+    for (const cap of ['"point": "<what earns this mark, at most 8 words>"', '"description": "what this step checks, at most 6 words"', '(one short phrase, at most 12 words)', '"teacherNote": "1-2 short sentences (at most 25 words)', '"summary": "1-2 sentence (at most 25 words)']) {
+      assert.ok(p.includes(cap), cap + ' missing from call ' + i);
+    }
+    // the verbatim-quote rules are untouched and still ship
+    assert.ok(p.includes('"studentWork": "<verbatim quote of what the student wrote>"'), 'studentWork stays a verbatim quote');
+    assert.ok(p.includes(grading.READING_FIDELITY_PROMPT), 'reading fidelity rule still ships');
+    // CONTROL: the old, longer wording is gone (the caps are not appended beside it)
+    assert.ok(!p.includes('1-3 sentences to the student') && !p.includes('2-3 sentence encouraging') && !p.includes('1–3 short plain-English sentences'), 'old wording left in call ' + i);
+  }
+  assert.match(P.CONCISE_FEEDBACK_PROMPT, /never shortens a "studentWork", "studentFinalAnswer" or "firstLine" quote/);
+  assert.match(P.CONCISE_FEEDBACK_PROMPT, /never leaves "description", "teacherNote" or "summary" empty, and never changes a mark/);
+});
+
+test('§COST1.2 the response schema is unchanged by the concise output: every feedback field is still requested', () => {
+  for (const sc of [grading.GRADING_RESPONSE_SCHEMA || require('./schema.cjs').GRADING_RESPONSE_SCHEMA, require('./schema.cjs').GRADING_RESPONSE_SCHEMA_INVENTORY]) {
+    const res = sc.properties.results.items;
+    for (const k of ['rubric', 'annotatedSteps', 'teacherNote']) assert.ok(res.propertyOrdering.includes(k), k);
+    const step = res.properties.annotatedSteps.items;
+    for (const k of ['description', 'studentWork', 'teacherAnnotation', 'correctedWorking']) assert.ok(step.propertyOrdering.includes(k), k);
+    assert.ok(sc.propertyOrdering.includes('summary'));
+  }
+});
+
+test('§COST1.3 a COMPACT reply with SHORT feedback grades exactly like a pretty-printed verbose one, and no student-facing field comes back empty', async () => {
+  const steps = (long) => [
+    S({ description: long ? 'Forms the quadratic equation from the given information' : 'Forms the equation', studentWork: 'x^2 - 2x - 8 = 0', teacherAnnotation: long ? '✓ Correctly formed the quadratic equation from the conditions given in the question.' : '✓ Correct equation' }),
+    S({ description: long ? 'Solves the quadratic equation by splitting the middle term' : 'Solves the equation', studentWork: 'x = 5', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation', teacherAnnotation: long ? '× The factorisation is wrong, so the roots that follow are not correct.' : '× Wrong factorisation', correctedWorking: long ? '(x - 4)(x + 2) = 0, so x = 4 or x = -2, because -4 × 2 = -8 and -4 + 2 = -2.' : '(x - 4)(x + 2) = 0, x = 4 or -2' }),
+  ];
+  const verbose = { results: [R(1, steps(true), { teacherNote: 'You formed the equation well. The factorisation went wrong, so re-check that the two numbers multiply to the constant term and add to the middle coefficient.' })], summary: 'A good start: the equation is right. Check every factorisation by multiplying it back out before you solve, and always state both roots.' };
+  const concise = { results: [R(1, steps(false), { teacherNote: 'Equation right; re-check the factorisation.' })], summary: 'Good setup; multiply factors back to check.' };
+  const hv = harness({ reply: () => JSON.stringify(verbose, null, 2) });
+  const hc = harness({ reply: () => JSON.stringify(concise) });
+  const v = (await hv.sheet(sheet([sq(1, { marks: 2 })]))).body;
+  const c = (await hc.sheet(sheet([sq(1, { marks: 2 })]))).body;
+  assert.equal(v.ok, true); assert.equal(c.ok, true);
+  assert.deepEqual(c.results[0].annotatedSteps.map((x) => [x.status, x.marksAwarded, x.marksDeducted, x.mistakeType]), v.results[0].annotatedSteps.map((x) => [x.status, x.marksAwarded, x.marksDeducted, x.mistakeType]));
+  assert.deepEqual([c.results[0].marksAwarded, c.results[0].mistakeSummary], [v.results[0].marksAwarded, v.results[0].mistakeSummary]);
+  // no student-facing field is empty
+  assert.ok(c.summary && c.results[0].teacherNote);
+  for (const st of c.results[0].annotatedSteps) assert.ok(st.description && st.teacherAnnotation, 'empty step field');
+  assert.equal(c.results[0].annotatedSteps.length, 2, 'no step dropped');
+});
+
 /* ══ A17 OWNER RULINGS 1-5 ON EVERY GRADING SURFACE (GRADING-JOBS-1 J0) ══════════════
    The per-surface proofs live beside this file; loading them here runs them in CI under
    test:server:grading-core (package.json is outside the J0 lane). */

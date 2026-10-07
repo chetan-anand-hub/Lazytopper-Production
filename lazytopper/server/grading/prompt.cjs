@@ -23,6 +23,14 @@ const WORK_FENCE = 'STUDENT WORK';
 const OPTION_FENCE = 'CHOSEN OPTION';
 const INDENT = '     ';
 
+// COST-1 step (i) — CONCISE FEEDBACK OUTPUT (owner order 2026-10-07). Visible output is ~37 % of a
+// grading call's cost (METER-AUDIT-1); a quarter of its characters were JSON indentation. The model
+// is asked for COMPACT JSON and for short FEEDBACK strings only. Thinking is untouched, every field
+// stays in the shape and the schema, and the quotes the post-processing reads (studentWork,
+// studentFinalAnswer, firstLine) are explicitly exempt — they stay verbatim and complete.
+const COMPACT_JSON_PROMPT = 'Respond ONLY with valid JSON, no markdown fences, written COMPACT: no indentation and no line breaks between fields.';
+const CONCISE_FEEDBACK_PROMPT = 'KEEP THE FEEDBACK SHORT — but brevity applies ONLY to the feedback strings ("point", "description", "teacherAnnotation", "correctedWorking", "teacherNote", "summary"): it never shortens a "studentWork", "studentFinalAnswer" or "firstLine" quote, never merges or skips a step, never leaves "description", "teacherNote" or "summary" empty, and never changes a mark. A wording a rule above prescribes EXACTLY is written in full, whatever its length.';
+
 function transportOf({ uploadByNumber, document }) {
   const hasUploads = uploadByNumber && uploadByNumber.size > 0;
   const hasDocument = Boolean(document && String(document.imageBase64 || '').trim());
@@ -42,7 +50,7 @@ function roleSentence(transport, documentMime, autoDetect) {
   return head + where +
     'Grade EACH question against ITS OWN marking scheme, exactly as a CBSE examiner marking with a red pen. ' +
     R.MISTAKE_CAUSE_REASONING_PROMPT + ' ' +
-    'Respond ONLY with valid JSON, no markdown fences.';
+    COMPACT_JSON_PROMPT;
 }
 
 function questionBlock(q, nonce) {
@@ -97,21 +105,21 @@ function jsonShape(transport, autoDetect) {
     '      "couldNotRead": false,\n' +
     '      "addressesQuestion": "yes" | "partly" | "no" | "unknown",\n' +
     '      "mismatchEvidence": null | { "question": "<short verbatim quote from the question>", "work": "<short verbatim quote from the student\'s work>" },\n' +
-    '      "rubric": [ { "point": "<what earns this mark>", "marks": <number> } ],\n' +
+    '      "rubric": [ { "point": "<what earns this mark, at most 8 words>", "marks": <number> } ],\n' +
     '      "marksAwarded": <number>,\n' +
     '      "annotatedSteps": [\n' +
-    '        { "stepNumber": 1, "part": null | "(i)", "description": "what this step checks", "studentWork": "<verbatim quote of what the student wrote>", "status": "correct" | "partial" | "incorrect" | "missing" | "unattempted" | "withdrawn", "marksAvailable": <number>, "marksAwarded": <number>, "marksDeducted": <number>, "teacherAnnotation": "✓ … / × … / ½ …", "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation", "correctedWorking": null | "…", "isDeparture": false | true, "departureKind": null | "different-problem" | "invalid-method", "isReturn": false | true }\n' +
+    '        { "stepNumber": 1, "part": null | "(i)", "description": "what this step checks, at most 6 words", "studentWork": "<verbatim quote of what the student wrote>", "status": "correct" | "partial" | "incorrect" | "missing" | "unattempted" | "withdrawn", "marksAvailable": <number>, "marksAwarded": <number>, "marksDeducted": <number>, "teacherAnnotation": "✓ … / × … / ½ … (one short phrase, at most 12 words)", "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation", "correctedWorking": null | "<only the corrected line(s), no explanation>", "isDeparture": false | true, "departureKind": null | "different-problem" | "invalid-method", "isReturn": false | true }\n' +
     '      ],\n' +
     '      "mistakeSummary": { "conceptual": 0, "calculation": 0, "silly": 0, "presentation": 0 },\n' +
     '      "studentFinalAnswer": null | "<verbatim quote of the student\'s final answer>",\n' +
     '      "finalAnswerCorrect": true | false,\n' +
-    '      "teacherNote": "1-3 sentences to the student about this answer"\n' +
+    '      "teacherNote": "1-2 short sentences (at most 25 words) to the student about this answer"\n' +
     '    }\n' +
     (transport === 'typedOnly'
       ? '    // ...one object per question. Every answer here is typed text, so EVERY question gets a real grade — never { "couldNotRead": true }.\n'
       : '    // ...one object per question. For an unreadable answer: { "qNumber": N, "couldNotRead": true, "note": "<why>" }\n') +
     '  ],\n' +
-    '  "summary": "2-3 sentence encouraging summary of the whole set"\n' +
+    '  "summary": "1-2 sentence (at most 25 words) encouraging summary of the whole set"\n' +
     '}';
 }
 
@@ -153,7 +161,8 @@ function rulesText({ transport, hasAnyTyped, anyScheme, subjectMode, nonce, docM
     R.CBSE_GENERAL_INSTRUCTIONS_PROMPT,
     R.subjectChecklistBody(subjectMode),
     R.COMMENTS_TRUTH_PROMPT,
-    'teacherNote per question: 1–3 short plain-English sentences — what was done well and the single most important thing to fix, true of the page and of the marks. "summary": 2–3 encouraging, exam-useful sentences about the whole set (answer-writing tips where relevant).' +
+    'teacherNote per question: 1–2 short plain-English sentences, at most 25 words — what was done well and the single most important thing to fix, true of the page and of the marks. "summary": 1–2 encouraging, exam-useful sentences about the whole set, at most 25 words (an answer-writing tip where relevant). ' +
+      CONCISE_FEEDBACK_PROMPT +
       (transport === 'typedOnly' ? ' The student TYPED these answers, so the summary must NEVER mention handwriting, legibility, clarity of writing, scanning, photographing or re-uploading — advise on the MATHS/SCIENCE and on answer structure only.' : ''),
     R.IDENTIFY_EVERY_STEP_PROMPT + ' ' + R.PER_STEP_ATTRIBUTION_PROMPT + ' ' + R.NO_MANUFACTURED_MISSING_STEPS_PROMPT,
     // PR-3 (D31): the rulebook is the SHARED PREFIX of every request, so it carries no nonce —
@@ -244,4 +253,4 @@ function buildGradingContents(input) {
   return { contents: [{ role: 'user', parts }], transport, hasAnyTyped, rulebook };
 }
 
-module.exports = { buildGradingContents, transportOf, questionBlock, rulesText, QUESTION_FENCE, WORK_FENCE, OPTION_FENCE };
+module.exports = { COMPACT_JSON_PROMPT, CONCISE_FEEDBACK_PROMPT, buildGradingContents, transportOf, questionBlock, rulesText, QUESTION_FENCE, WORK_FENCE, OPTION_FENCE };
