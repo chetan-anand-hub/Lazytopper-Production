@@ -49,7 +49,7 @@ export default defineChapter("how-do-organisms-reproduce", [
   [403, REPR_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [421, REPRODUCTION_CBQ_LT_GENERATED, false],
-  [440, REPRODUCTION_CBQ_B1_LT_GENERATED, false],
+  [446, REPRODUCTION_CBQ_B1_LT_GENERATED, false],
 ], [
   "REP-E13",
   "REP-H10",

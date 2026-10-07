@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "real-numbers" (Maths): 227 served rows from 21 source arrays, 30 withheld.
+// Chapter "real-numbers" (Maths): 333 served rows from 22 source arrays, 30 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -27,6 +27,7 @@ import { REAL_NUMBERS_PYQ_2024 } from "../questionBanks/class10/maths/real-numbe
 import { REAL_NUMBERS_PYQ_2025 } from "../questionBanks/class10/maths/real-numbers.pyq2025";
 import { REAL_NUMBERS_CFPQ } from "../questionBanks/class10/maths/real-numbers.cfpq";
 import { REAL_NUMBERS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/real-numbers.cbq.ltgen";
+import { REAL_NUMBERS_C3_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/real-numbers.c3.cbq.ltgen";
 
 export default defineChapter("real-numbers", [
   [6, REAL_NUMBERS_PACK1, true],
@@ -50,6 +51,7 @@ export default defineChapter("real-numbers", [
   [347, REAL_NUMBERS_PYQ_2025, false],
   [407, REAL_NUMBERS_CFPQ, false],
   [428, REAL_NUMBERS_CBQ_LT_GENERATED, false],
+  [443, REAL_NUMBERS_C3_CBQ_LT_GENERATED, false],
 ], [
   "RN-E09",
   "RN-E14",

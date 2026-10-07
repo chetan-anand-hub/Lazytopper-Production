@@ -544,6 +544,12 @@ import { ACIDS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/acids
 import { CARBON_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/carbon-and-its-compounds.b1.cbq.ltgen';
 import { TRIGONOMETRY_CBQ_LT_GENERATED } from './questionBanks/class10/maths/trigonometry.cbq.ltgen';
 import { TRIANGLES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/triangles.cbq.ltgen';
+import { ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED } from './questionBanks/class10/maths/arithmetic-progression.cbq.ltgen';
+import { CIRCLES_C3_CBQ_LT_GENERATED } from './questionBanks/class10/maths/circles.c3.cbq.ltgen';
+import { AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED } from './questionBanks/class10/maths/areas-related-to-circles.cbq.ltgen';
+import { PROBABILITY_CBQ_LT_GENERATED } from './questionBanks/class10/maths/probability.cbq.ltgen';
+import { POLYNOMIALS_CBQ_LT_GENERATED } from './questionBanks/class10/maths/polynomials.cbq.ltgen';
+import { REAL_NUMBERS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/maths/real-numbers.c3.cbq.ltgen';
 // CBQ-1 C2 PR-4 — Chemical Reactions, Control, Reproduction CBQs of every mark (blind-solved; internal provenance).
 import { CHEM_REACTIONS_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/chemical-reactions-and-equations.b1.cbq.ltgen';
 import { CONTROL_CBQ_B1_LT_GENERATED } from './questionBanks/class10/science/control-and-coordination.b1.cbq.ltgen';
@@ -1066,6 +1072,12 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...CARBON_CBQ_B1_LT_GENERATED,
   ...TRIGONOMETRY_CBQ_LT_GENERATED,
   ...TRIANGLES_CBQ_LT_GENERATED,
+  ...ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED,
+  ...CIRCLES_C3_CBQ_LT_GENERATED,
+  ...AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED,
+  ...PROBABILITY_CBQ_LT_GENERATED,
+  ...POLYNOMIALS_CBQ_LT_GENERATED,
+  ...REAL_NUMBERS_C3_CBQ_LT_GENERATED,
   // CBQ-1 C2 PR-4 — Chemical Reactions, Control, Reproduction CBQs of every mark.
   ...CHEM_REACTIONS_CBQ_B1_LT_GENERATED,
   ...CONTROL_CBQ_B1_LT_GENERATED,
