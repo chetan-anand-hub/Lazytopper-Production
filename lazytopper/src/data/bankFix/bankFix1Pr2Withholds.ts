@@ -209,4 +209,6 @@ export const BANK_FIX_1_PR2_WITHHOLD_CATEGORY: ReadonlyMap<string, BankFix1Pr2Wi
   // were removed from this map by the owner ruling of 10:21Z (rate of flow / liquid transfer is IN) — bankFix3Ledger.ts.
   ["Z3-QE-005", "out-of-syllabus"],
   ["Z3-QE-006", "out-of-syllabus"],
+  // BANK-FIX-3 D32: the LazyTopper pack copy of the official exemplar item (restored, then withheld as its duplicate).
+  ["SAV2P1-R02", "duplicate"],
 ]);

@@ -62,9 +62,9 @@ function scratchHits(rows: readonly Row[]): string[] {
 describe("BANK-FIX-3 · ledger and ids", () => {
   it("is non-vacuous and covers every verdict the lane used", () => {
     const by = (v: string) => BANK_FIX_3.filter((e) => e.verdict === v).length;
-    expect(by("fixed")).toBe(14);
-    expect(by("withheld")).toBe(2);
-    expect(by("restored")).toBe(3);
+    expect(by("fixed")).toBe(17);
+    expect(by("withheld")).toBe(3);
+    expect(by("restored")).toBe(2);
     expect(by("held-for-resolve")).toBe(2);
     expect(by("flag-rejected")).toBe(7);
     expect(by("re-sourced-official")).toBe(1);
@@ -79,15 +79,17 @@ describe("BANK-FIX-3 · ledger and ids", () => {
 describe("BANK-FIX-3 · withheld and restored", () => {
   it("withheld rows are in WITHHELD_QUESTION_IDS, categorised, and not served", () => {
     const w = BANK_FIX_3.filter((e) => e.verdict === "withheld");
-    expect(w.map((e) => e.id)).toEqual(["Z3-QE-005", "Z3-QE-006"]);
+    expect(w.map((e) => e.id)).toEqual(["Z3-QE-005", "Z3-QE-006", "SAV2P1-R02"]);
     for (const e of w) {
       expect(WITHHELD_QUESTION_IDS.has(e.id), e.id).toBe(true);
       expect(servedIds.has(e.id), e.id).toBe(false);
-      expect(BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(e.id), e.id).toBe("out-of-syllabus");
+      expect(BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(e.id), e.id).toBe(e.category);
     }
+    // D32: the kept official twin is served.
+    expect(servedIds.has("SAV-N-EXEM2-12-LA-010")).toBe(true);
   });
   it("restored rows are served and in no withhold list or category map", () => {
-    expect([...BANK_FIX_3_RESTORED_IDS].sort()).toEqual(["SAV-N-EXEM2-12-LA-010", "SAV2-R06", "SAV2P1-R02"]);
+    expect([...BANK_FIX_3_RESTORED_IDS].sort()).toEqual(["SAV-N-EXEM2-12-LA-010", "SAV2-R06"]);
     for (const id of BANK_FIX_3_RESTORED_IDS) {
       expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(false);
       expect(BANK_FIX_1_PR2_WITHHOLD_CATEGORY.has(id), id).toBe(false);
@@ -215,10 +217,15 @@ describe("BANK-FIX-3 · CI-1 sweep #1 rewrites", () => {
     expect(q.marks).toBe(4);
     expect(String(q.question)).not.toMatch(/greatest|maxim|highest/i);
   });
-  it("2026-TRIG-P1-E-010: only standard angles, and at most two of them (two right triangles)", () => {
-    const q = bankById.get("2026-TRIG-P1-E-010")!;
+  it.each([
+    ["2026-TRIG-P1-E-010", [30, 60]],
+    ["2026-TRIG-P1-E-001", [45, 30]],
+    ["2026-TRIG-P1-E-005", [60, 30]],
+    ["2026-TRIG-P1-E-008", [45, 30]],
+  ] as const)("%s: only standard angles, and at most two of them (two right triangles)", (id, want) => {
+    const q = bankById.get(id)!;
     const angles = [...String(q.questionText).matchAll(/(\d+) deg/g)].map((m) => Number(m[1]));
-    expect(angles).toEqual([30, 60]);
+    expect(angles).toEqual([...want]);
     expect(textOf(q, ["questionText", "answer", "finalAnswer", "solutionSteps"])).not.toMatch(/tan of the new angle|tan new angle/);
   });
   it("APQ-M-TRIG-002: no complementary-angle conversion in the solution", () => {

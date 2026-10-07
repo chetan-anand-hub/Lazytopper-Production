@@ -2099,6 +2099,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // BANK-FIX-3 (2026-10-07): out of syllabus — the case asks for a MAXIMUM; 2026-27 Quadratic Equations has no maxima
   "Z3-QE-005",                  // out-of-syllabus: maximisation (2026-27 QE has no maxima)
   "Z3-QE-006",                  // out-of-syllabus: maximisation (2026-27 QE has no maxima)
+  "SAV2P1-R02",                 // duplicate: duplicate of SAV-N-EXEM2-12-LA-010 (official exemplar kept)
 ]);
 
 /**
