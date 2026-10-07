@@ -71,7 +71,7 @@ export const PLE_SP: CanonicalQuestion[] = [
     "isCompetencyBased": true
   },
   {
-    "id": "SP-M-2022-PLE-C-002",
+    "id": "SP-M-2022-PLE-C-002", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems (Fixed and Variable Charges)",
