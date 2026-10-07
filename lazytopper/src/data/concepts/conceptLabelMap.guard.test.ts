@@ -33,8 +33,12 @@ import {
 } from "./conceptLabelMap";
 
 // ── RATCHET PINS (fix round 1, on trunk f52f8116). Improve them; never loosen them. ─────────────────────────
-const MIN_MAPPED_LABELS = 1515;
-const MAX_REVIEWED_LABELS = 458;
+// CBQ-1 C3 (2026-10-07): three NEW served acids labels from the C3 science CBQs — two mapped
+// (+2 -> 1517, tightened), one reviewed concept-gap ("Reactions of Metal Oxides with Acids", same reason
+// as the existing "Acids with Metal Oxides"; no Exam Trends concept covers it) -> reviewed 458 -> 459.
+// The cap moves only by the one new label; no existing label was moved to reviewed.
+const MIN_MAPPED_LABELS = 1517;
+const MAX_REVIEWED_LABELS = 459;
 /** served rows whose label resolves to a concept / all served rows: 7722 / 9823. */
 const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.7861;
 
