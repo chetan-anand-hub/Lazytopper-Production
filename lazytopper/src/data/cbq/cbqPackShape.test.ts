@@ -21,8 +21,10 @@ import type { CanonicalQuestion } from "../predictionTypes";
 const LAB = "(?:[a-h]|i{1,3}|iv|v|vi)";
 const PART = new RegExp(`^\\((${LAB})\\)\\s`);
 const STEP = new RegExp(`^\\[(\\d+(?:\\.\\d+)?)\\s*marks?\\]\\s*(?:\\((${LAB})\\))?`, "i");
-const MARK = /[[(]\s*(\d+(?:\.5)?)\s*marks?\s*[\])]/i;
-const EACH_VALUE = /[[(]\s*(\d+(?:\.5)?)\s*marks?\s+each\s*[\])]/i;
+// "½" forms count too ("[1½ marks]", "[½ mark]").
+const MARK = /[[(]\s*(\d*½|\d+(?:\.5)?)\s*marks?\s*[\])]/i;
+const EACH_VALUE = /[[(]\s*(\d*½|\d+(?:\.5)?)\s*marks?\s+each\s*[\])]/i;
+const markValue = (s: string) => (s.includes("½") ? Number(s.replace("½", "") || 0) + 0.5 : Number(s));
 
 /** Max − min of correct-option positions across A–D. */
 function keySpread(mcq: readonly Pick<CanonicalQuestion, "options" | "answer">[]): number {
@@ -48,14 +50,14 @@ function partMarkProblems(q: Pick<CanonicalQuestion, "id" | "marks" | "questionT
   const each = q.questionText.match(EACH_VALUE);
   if (each) {
     // "N mark(s) each": every labelled part's steps must sum to N (verifier FU on #996 — the stem is not trusted blindly)
-    const n = Number(each[1]);
+    const n = markValue(each[1]);
     return [...sums].filter(([, v]) => Math.abs(v - n) > 1e-9).map(([lab, v]) => `${q.id} (${lab}): stem says ${n} each, steps ${v}`);
   }
   const out: string[] = [];
   for (const [lab, i] of parts) {
     const m = lines[i].match(MARK);
     if (!m) out.push(`${q.id} (${lab}): no marks printed`);
-    else if (sums.has(lab) && Math.abs(Number(m[1]) - (sums.get(lab) ?? 0)) > 1e-9) out.push(`${q.id} (${lab}): printed ${m[1]} ≠ steps ${sums.get(lab)}`);
+    else if (sums.has(lab) && Math.abs(markValue(m[1]) - (sums.get(lab) ?? 0)) > 1e-9) out.push(`${q.id} (${lab}): printed ${m[1]} ≠ steps ${sums.get(lab)}`);
   }
   return out;
 }
