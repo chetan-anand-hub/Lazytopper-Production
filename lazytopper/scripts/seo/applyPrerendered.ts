@@ -426,7 +426,17 @@ export function dynamicImportCssOf(entryCode: string, chunkFile: string): string
   return css;
 }
 
-/** The CSS files that the route chunk(s) of `path` inject, in order. */
+/**
+ * LOW-END-3 PR-1 (d), controller D63a: the ONLY route whose own CSS is inlined.
+ *
+ * ★ WHY AN ALLOWLIST. Inlining every route's CSS also put `katex-*.css` (~8 KB br) into each
+ * Notes and HPQ page and measurably delayed their first paint (B FCP +0.18–0.30 s, C FCP
+ * +0.02–0.08 s). /check-your-answer is the one page whose layout shifts without its route CSS
+ * (#963 §4.5), so it is the one page that gets it.
+ */
+export const INLINE_ROUTE_CSS_MODULES: readonly string[] = ["CheckYourAnswerPage"];
+
+/** The allowlisted route's own CSS files (never shared deps such as KaTeX) for `path`, in order. */
 export function routeCssFor(
   path: string,
   assetsDir: string,
@@ -437,8 +447,9 @@ export function routeCssFor(
   const entryCode = readFileSync(join(assetsDir, entry), "utf8");
   const css: string[] = [];
   for (const moduleName of routeChunkModulesFor(path)) {
+    if (!INLINE_ROUTE_CSS_MODULES.includes(moduleName)) continue;
     for (const file of dynamicImportCssOf(entryCode, resolveRouteChunk(moduleName, assetFiles))) {
-      if (!css.includes(file)) css.push(file);
+      if (file.startsWith(`${moduleName}-`) && !css.includes(file)) css.push(file);
     }
   }
   return css;

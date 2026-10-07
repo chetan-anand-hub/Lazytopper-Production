@@ -22,6 +22,8 @@ import {
   inlinableCss,
   inlinedStylesIn,
   modulepreloadHrefsIn,
+  routeCssFor,
+  INLINE_ROUTE_CSS_MODULES,
   verifyBuiltPages,
   withRouteStyles,
 } from "../../scripts/seo/applyPrerendered";
@@ -60,13 +62,15 @@ const ASSETS: Record<string, string> = {
   // The entry imports the CYA route through Vite's dependency table (JS + its CSS), and the
   // Notes route with no table entry (no CSS).
   "index-AAAAAAAA.js":
-    'const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/CheckYourAnswerPage-CCCCCCCC.js","assets/CheckYourAnswerPage-RRRRRRRR.css"])))=>i.map(i=>d[i]);' +
+    'const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/CheckYourAnswerPage-CCCCCCCC.js","assets/CheckYourAnswerPage-RRRRRRRR.css","assets/DesktopNotesPage-FFFFFFFF.js","assets/katex-KKKKKKKK.css"])))=>i.map(i=>d[i]);' +
     'const a=()=>__vitePreload(()=>import("./CheckYourAnswerPage-CCCCCCCC.js"),__vite__mapDeps([0,1]));' +
-    'const b=()=>import("./DesktopNotesPage-FFFFFFFF.js");',
+    'const b=()=>__vitePreload(()=>import("./DesktopNotesPage-FFFFFFFF.js"),__vite__mapDeps([2,3]));',
   "CheckYourAnswerPage-CCCCCCCC.js": "export default 1;",
   "DesktopNotesPage-FFFFFFFF.js": "export default 2;",
   "index-SSSSSSSS.css": ".lt-a{color:red}",
   "CheckYourAnswerPage-RRRRRRRR.css": ROUTE_CSS,
+  // A SHARED lazy CSS (Notes/HPQ import KaTeX): it must never be inlined (D63a).
+  "katex-KKKKKKKK.css": ".katex{font:normal 1.21em KaTeX_Main}",
 };
 
 function build(): { out: string; art: string; cleanup: () => void } {
@@ -146,8 +150,26 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
           file,
         ).toEqual(["/assets/CheckYourAnswerPage-CCCCCCCC.js"]);
       }
-      // ★ CONTROL: a route with no CSS of its own, the root and the SPA shell get nothing inlined.
-      expect(inlinedStylesIn(read(out, "notes/electricity.html"))).toEqual([]);
+      // ★ CONTROL (D63a): the Notes route DOES import a lazy CSS (KaTeX), and it is NOT inlined:
+      // only the allowlisted CheckYourAnswerPage route's own CSS is. The Notes page is
+      // byte-identical to what it would be without this step's CSS work.
+      expect(
+        routeCssFor(
+          "/notes/electricity",
+          join(out, "assets"),
+          SHELL,
+          Object.keys(ASSETS),
+        ),
+      ).toEqual([]);
+      for (const file of [
+        "notes/electricity.html",
+        "notes/electricity/index.html",
+        "__desktop/notes/electricity.html",
+      ]) {
+        expect(inlinedStylesIn(read(out, file)), file).toEqual([]);
+        expect(read(out, file), file).not.toContain("KaTeX_Main");
+      }
+      expect(INLINE_ROUTE_CSS_MODULES).toEqual(["CheckYourAnswerPage"]);
       expect(inlinedStylesIn(read(out, "index.html"))).toEqual([]);
       expect(inlinedStylesIn(read(out, "__shell.html"))).toEqual([]);
       expect(verifyBuiltPages(out, PATHS).failures).toEqual([]);
@@ -161,9 +183,10 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
     expect(
       dynamicImportCssOf(entry, "CheckYourAnswerPage-CCCCCCCC.js"),
     ).toEqual(["CheckYourAnswerPage-RRRRRRRR.css"]);
-    expect(dynamicImportCssOf(entry, "DesktopNotesPage-FFFFFFFF.js")).toEqual(
-      [],
-    );
+    expect(dynamicImportCssOf(entry, "DesktopNotesPage-FFFFFFFF.js")).toEqual([
+      "katex-KKKKKKKK.css",
+    ]);
+    expect(dynamicImportCssOf(entry, "Missing-ZZZZZZZZ.js")).toEqual([]);
     // A table that is referenced but unreadable fails the build; it does not inline nothing.
     expect(() =>
       dynamicImportCssOf(
