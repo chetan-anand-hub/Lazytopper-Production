@@ -832,12 +832,12 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Applying",
         question:
-          "A ball is thrown upwards and its height h (in metres) after t seconds is given by h = −5t² + 20t.\n(i) After how many seconds does the ball hit the ground?\n(ii) At what times is the ball at a height of 15 m?\n(iii) For what value of k will −5t² + 20t = k have equal roots? Hence find the greatest height reached by the ball and the time at which it is reached.",
+          "A ball is thrown upwards and its height h (in metres) after t seconds is given by h = −5t² + 20t.\n(i) After how many seconds does the ball hit the ground?\n(ii) At what times is the ball at a height of 15 m?\n(iii) For what value of k will −5t² + 20t = k have equal roots? For this value of k, find the time at which the ball is at height k.",
         answer:
-          "(i) t = 4 s. (ii) t = 1 s and t = 3 s. (iii) k = 20; greatest height 20 m, reached at t = 2 s.",
-        explanation: "Each part is solved as a quadratic equation: h = 0 for landing, h = 15 for the given height, and equal roots (D = 0) for the single highest point.",
-        solutionSteps: ["[1 mark] (i) h = 0 ⟹ −5t² + 20t = 0 ⟹ 5t(4 − t) = 0 ⟹ t = 0 (launch) or t = 4. The ball hits the ground after 4 s.", "[1 mark] (ii) −5t² + 20t = 15 ⟹ t² − 4t + 3 = 0 ⟹ (t − 1)(t − 3) = 0 ⟹ t = 1 s (going up) and t = 3 s (coming down).", "[1 mark] (iii) 5t² − 20t + k = 0 has equal roots when D = (−20)² − 4(5)(k) = 400 − 20k = 0 ⟹ k = 20.", "[1 mark] (iii) With k = 20 the ball reaches that height only once, so it is the greatest height, 20 m; the equal root t = 20/(2 × 5) = 2 s."],
-        finalAnswer: "(i) 4 s; (ii) 1 s and 3 s; (iii) k = 20; greatest height 20 m at t = 2 s.",
+          "(i) t = 4 s. (ii) t = 1 s and t = 3 s. (iii) k = 20; the ball is at height 20 m at t = 2 s.",
+        explanation: "Each part is solved as a quadratic equation: h = 0 for landing, h = 15 for the given height, and equal roots (D = 0) for part (iii), whose single (repeated) root gives the time.",
+        solutionSteps: ["[1 mark] (i) h = 0 ⟹ −5t² + 20t = 0 ⟹ 5t(4 − t) = 0 ⟹ t = 0 (launch) or t = 4. The ball hits the ground after 4 s.", "[1 mark] (ii) −5t² + 20t = 15 ⟹ t² − 4t + 3 = 0 ⟹ (t − 1)(t − 3) = 0 ⟹ t = 1 s (going up) and t = 3 s (coming down).", "[1 mark] (iii) 5t² − 20t + k = 0 has equal roots when D = (−20)² − 4(5)(k) = 400 − 20k = 0 ⟹ k = 20.", "[1 mark] (iii) With k = 20: 5t² − 20t + 20 = 0 ⟹ t² − 4t + 4 = 0 ⟹ (t − 2)² = 0 ⟹ t = 2 s (equal roots). The ball is at height 20 m at t = 2 s."],
+        finalAnswer: "(i) 4 s; (ii) 1 s and 3 s; (iii) k = 20; t = 2 s.",
       },
     ],
   },
