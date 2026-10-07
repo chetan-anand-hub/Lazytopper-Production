@@ -36,7 +36,7 @@ export const CG_CBE: CanonicalQuestion[] = [
     "isCompetencyBased": false
   },
   {
-    "id": "CBE-M-CG-C-002",
+    "id": "CBE-M-CG-C-002", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "coordinate-geometry",
     "subtopic": "Distance Formula (Real-Life Context)",
@@ -110,18 +110,19 @@ export const CG_CBE: CanonicalQuestion[] = [
     "subtopic": "Distance Formula (Distance Between Two Points)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "On Bhigu's classroom seating grid, point B is at (−1, −2) and point C is at (3, 0). What is the distance between B and C?",
-    "options": [],
+    "questionText": "On Bhigu's classroom seating grid, point B is at (−1, −2) and point C is at (3, 0). The distance between B and C is",
+    "options": ["2√2 units", "6 units", "20 units", "2√5 units"],
     "answer": "2√5 units",
     "solutionSteps": [
-      "[1 mark] BC = √[(3 − (−1))² + (0 − (−2))²] = √[4² + 2²] = √(16 + 4) = √20 = 2√5 units."
+      "[1 mark] 2√5 units — BC = √[(3 + 1)² + (0 + 2)²] = √(16 + 4) = √20 = 2√5 units."
     ],
     "finalAnswer": "2√5 units",
     "isCompetencyBased": true,
     "requiresDiagram": true,
-    "diagramDescription": "Coordinate grid with origin at the centre of the classroom showing seating positions, with point B at (−1, −2) and point C at (3, 0)."
+    "diagramDescription": "Coordinate grid with origin at the centre of the classroom showing seating positions, with point B at (−1, −2) and point C at (3, 0).",
+    sourceOverride: "others",
   }
 ];

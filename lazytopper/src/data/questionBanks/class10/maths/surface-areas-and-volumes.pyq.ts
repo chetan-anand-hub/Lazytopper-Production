@@ -10,12 +10,13 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const SURFACE_AREAS_AND_VOLUMES_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-SAV-001", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If the area of the base of a cone is 51 cm2 and its volume is 85 cm3, then the vertical height of the cone is given as :",
-    options: ["6 5 cm", "3 5 cm", "2 5 cm", "5 cm"],
+    options: ["6/5 cm", "3/5 cm", "2/5 cm", "5 cm"],
     answer: "5 cm",
-    solutionSteps: ["Correct option: (d) 5 cm."],
+    solutionSteps: ["Correct option: (d). Volume of cone = (1/3) × base area × h ⇒ 85 = (1/3) × 51 × h ⇒ h = 255/51 = 5 cm."],
     finalAnswer: "(d) 5 cm",
     ncertRef: "PYQ 30/2/3 Q6", isCompetencyBased: true,
-    pyqYear: "2023", pyqSet: "3" },
+    sourceOverride: "others",
+  },
   { id: "PYQ-M-SAV-002", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination of Solids", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     // answer reflowed from MS 041_30-4-1 Mathematics 2022-23, p.17. Stacked fractions restored (3/2, 2/3, 22/7, 9/4, 28/3), the dropped pi symbols reinstated, and the trailing mark-column bleed dropped. Final value 66 cm3 unchanged.
     questionText: "A student was asked to make a model shaped like a cylinder with two cones attached to its ends by using a thin aluminium sheet. The diameter of the model is 3 cm and its total length is 12 cm. If each cone has a height of 2 cm, find the volume of air contained in the model.",
@@ -59,8 +60,8 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/4/3 Q33", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "3" },
   { id: "PYQ-M-SAV-005", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Surface Area of Solids", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "In a coffee shop, coffee is served in two types of cups. One is cylindrical in shape with diameter 7 cm and height 14 cm and the other is hemispherical with diameter 21 cm. Based on the above, answer the following questions : (i) Find the area of the base of the cylindrical cup. 1 (ii) (a) What is the capacity of the hemispherical cup ? 2 OR (ii) (b) Find the capacity of the cylindrical cup. 2 (iii) What is the curved surface area of the cylindrical cup ? 1 àH$aU AÜ``Z",
-    answer: "(i) Area of base of the cylindrical cup = 22 7 × 7 2 × 7 2 = 77 2 or 38.5 ∴ Area of base of the cylindrical cup is 77 2 or 38.5 cm2 (ii) (a) Capacity of hemispherical cup = 2 3 × 22 7 × 21 2 × 21 2 × 21 2 = 4851 2 or 2425.5 ∴ Capacity of hemispherical cup is 4851 2 cm3 or 2425.5 cm3 OR (ii) (b) Capacity of cylindrical cup = 22 7 × (7)2 × 14 = 539 ∴ Capacity of cylindrical cup is 539 cm3 (iii) External Curved surface area of cylindrical cup = 2 × 22 7 × 7 2 ×14 = 308 ∴ External Curved surface area of cylindrical cup is 308 cm2",
+    questionText: "In a coffee shop, coffee is served in two types of cups. One is cylindrical in shape with diameter 7 cm and height 14 cm and the other is hemispherical with diameter 21 cm. Based on the above, answer the following questions (use π = 22/7):\n(i) Find the area of the base of the cylindrical cup.\n(ii) (a) What is the capacity of the hemispherical cup?\nOR\n(ii) (b) Find the capacity of the cylindrical cup.\n(iii) What is the curved surface area of the cylindrical cup?",
+    answer: "(i) Base area of cylindrical cup = (22/7) × (7/2) × (7/2) = 77/2 = 38.5 cm². (ii)(a) Capacity of hemispherical cup = (2/3) × (22/7) × (21/2)³ = 4851/2 = 2425.5 cm³. OR (ii)(b) Capacity of cylindrical cup = (22/7) × (7/2)² × 14 = 539 cm³. (iii) Curved surface area of cylindrical cup = 2 × (22/7) × (7/2) × 14 = 308 cm².",
     solutionSteps: [
       "[1 mark] (i) Base area of cylindrical cup (r = 7/2 cm) = πr² = (22/7) × (7/2) × (7/2) = 77/2 = 38.5 cm².",
       "[1 mark] (ii)(a) Capacity of hemispherical cup (r = 21/2 cm) = (2/3)πr³ = (2/3) × (22/7) × (21/2) × (21/2) × (21/2).",
@@ -69,5 +70,6 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) 38.5 cm²; (ii)(a) 2425.5 cm³ [OR (ii)(b) 539 cm³]; (iii) 308 cm²",
     ncertRef: "PYQ 30/2/1 Q37", isCompetencyBased: true,
-    pyqYear: "2023", pyqSet: "1" },
+    sourceOverride: "others",
+  },
 ];

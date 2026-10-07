@@ -20,10 +20,11 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "In the figure, PQRS is a square. What is the value of sin ∠SPT?",
     options: ["8/17", "8/15", "15/17", "(cannot be found with the given information)"],
     answer: "8/17",
-    solutionSteps: ["From figure: triangle SPT with given sides yields a 8-15-17 right-triangle relation.", "Per MS: sin ∠SPT = 8/17."],
+    solutionSteps: ["[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT = 90° − ∠UPQ, so sin ∠SPT = cos ∠UPQ = PU/PQ = 8/17."],
     finalAnswer: "(a) 8/17",
     ncertRef: "APQ PQ1 Q11", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: square PQRS with diagonals or auxiliary point T." },
+    strategyHint: "REQUIRES-FIGURE: square PQRS with diagonals or auxiliary point T.",
+    sourceOverride: "others", },
 
   // PQ1 Q12 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRIG-003", subject: "Maths", topicKey: "trigonometry", subtopic: "Identifying Error in Trig Proof", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
@@ -84,7 +85,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     strategyHint: "REQUIRES-FIGURE: semicircle with radius 1 and constructed angle θ." },
 
   // PQ2 Q34 (Section D, Long, 5 marks)
-  { id: "APQ-M-TRIG-009", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances — Angle of Depression", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+  { id: "APQ-M-TRIG-009", competencyVerified: true, subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances — Angle of Depression", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "A man on the top of a vertical tower observes a car moving at a uniform speed coming directly towards it. If it takes 12 minutes for the angle of depression to change from 30° to 45°, how soon after this will the car reach the tower? Give your answer to nearest minutes. (Use √3 = 1.73). OR If the angle of elevation of a cloud from a point 10 metres above a lake is 30° and the angle of depression of its reflection in the lake is 60°, find the height of the cloud from the surface of the lake.",
     answer: "~16 minutes. [OR] 20 m.",
     solutionSteps: ["[1 mark] Let AB be the tower of height h and let the car move from D (angle of depression 30°) to C (angle of depression 45°) in 12 minutes; let the uniform speed give distance DC covered in 12 minutes.", "[1 mark] In ΔABC (depression 45°): tan 45° = AB/BC ⟹ BC = AB.", "[1 mark] In ΔABD (depression 30°): tan 30° = AB/BD ⟹ BD = √3·AB.", "[1 mark] DC = BD − BC = (√3 − 1)·AB, and this is covered in 12 minutes; time to cover BC = AB at the same speed = 12 × BC/DC = 12/(√3 − 1).", "[1 mark] Time = 12/(√3 − 1) = 6(√3 + 1) = 6(2.73) ≈ 16 minutes. [OR variant — cloud over a lake: observer 10 m above lake, horizontal distance x. tan 30° = (h − 10)/x and tan 60° = (h + 10)/x; dividing, 3 = (h + 10)/(h − 10) ⟹ 3h − 30 = h + 10 ⟹ h = 20 m.]"],
@@ -124,13 +125,14 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
 
   // PQ_2022 Q16 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRIG-013", subject: "Maths", topicKey: "trigonometry", subtopic: "Simplifying Trig Expression", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Which of the following is equal to the given expression (as shown in the figure)?",
+    questionText: "Which of the following is equal to the expression shown in the given figure?",
     options: ["sec θ", "cosec θ", "(cot^2 θ)(sec θ)", "(cot^2 θ)(cosec θ)"],
-    answer: "(cot^2 θ)(sec θ)",
-    solutionSteps: ["Per MS answer key: option (c) (cot^2 θ)(sec θ)."],
-    finalAnswer: "(c) (cot^2 θ)(sec θ)",
+    answer: "sec θ",
+    solutionSteps: ["(cot θ · sec² θ)/cosec θ = (cos θ/sin θ) × (1/cos² θ) × sin θ = 1/cos θ = sec θ. So option (a) sec θ."],
+    finalAnswer: "(a) sec θ",
     ncertRef: "APQ PQ_2022 Q16", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: trig expression shown in PDF only as image." },
+    strategyHint: "REQUIRES-FIGURE: trig expression shown in PDF only as image.",
+    sourceOverride: "others", },
 
   // PQ_2022 Q24 first variant (Section B, Short, 2 marks)
   { id: "APQ-M-TRIG-014", subject: "Maths", topicKey: "trigonometry", subtopic: "Trig Equations — Standard Angles", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

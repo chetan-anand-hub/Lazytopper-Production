@@ -248,20 +248,21 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
     bloomSkill: "Creating",
     questionText:
       "Write a quadratic polynomial whose sum of zeros is less than that of the polynomial shown in the graph above.",
-    answer: "Any quadratic whose zeroes sum to less than 1 — for example x² + 3x - 5.",
+    answer: "The graph cuts the x-axis at −2 and 3, so the sum of its zeroes is −2 + 3 = 1. Any quadratic polynomial whose zeroes sum to less than 1 — for example x² + 3x − 5, whose zeroes sum to −3.",
     solutionSteps: [
-      "[1 mark] Identifies the sum of the zeroes of the given polynomial as 3 - 2 = 1, reading the two x-intercepts off the graph.",
-      "[1 mark] Writes a quadratic polynomial whose sum of zeroes is less than 1. For example, x² + 3x - 5 = 0.",
+      "[1 mark] Reads the zeroes off the graph: x = −2 and x = 3, so the sum of the zeroes of the given polynomial is −2 + 3 = 1.",
+      "[1 mark] Writes a quadratic polynomial whose sum of zeroes is less than 1. For example, x² + 3x − 5, whose zeroes sum to −b/a = −3."
     ],
-    finalAnswer: "For example x² + 3x - 5, whose zeroes sum to -3, which is less than 1.",
+    finalAnswer: "For example x² + 3x − 5 (sum of zeroes −3), which is less than 1, the sum of the zeroes of the polynomial in the graph (−2 + 3 = 1).",
     isCompetencyBased: true,
     ncertRef: POLY_CFPQ_REF,
     requiresDiagram: true,
     diagramDescription: GRID_PARABOLA_DESC,
+    sourceOverride: "others",
   },
   // pdf-page 15 (folio 14) — Q4, margin [2]. Rubric: pdf-page 21 (folio 20), 1 + 1.
   {
-    id: "CFPQ-M-POLY-004",
+    id: "CFPQ-M-POLY-004", competencyVerified: true,
     subject: "Maths",
     topicKey: "polynomials",
     subtopic: "Zeros & Factorisation",
@@ -289,21 +290,22 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
     subtopic: "Graph & Type of Polynomial",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "Two polynomials are shown in the graph below.\n\nFind the number of zeroes that are common to both the polynomials. Explain your answer.",
+      "Two polynomials are shown in the graph. How many zeroes are common to both the polynomials?",
     answer: "1",
     solutionSteps: [
-      "[0.5 mark] Finds the number of zeroes that are common to both the polynomials as 1.",
-      "[0.5 mark] Explains the answer. For example, the two polynomials intersect at 2 points but only 1 of them lies on the x-axis, and a common zero requires a shared point that is on the x-axis.",
+      "[1 mark] 1 — the curves meet at two points, but only one of them lies on the x-axis, so they share one zero."
     ],
-    finalAnswer: "1 common zero — the curves meet at two points but only one of those lies on the x-axis.",
+    finalAnswer: "1",
     isCompetencyBased: true,
     ncertRef: POLY_CFPQ_REF,
     requiresDiagram: true,
     diagramDescription: TWO_POLY_DESC,
+    options: ["0", "1", "2", "3"],
+    sourceOverride: "others",
   },
   // pdf-page 16 (folio 15) — Q6, margin [2]. Rubric: pdf-page 21 (folio 20), 0.5 × 4.
   {
@@ -355,7 +357,7 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
   },
   // pdf-page 17 (folio 16) — Q9, margin [5]. Rubric: pdf-page 22 (folio 21), 0.5 + 1 + 1.5 + 1 + 1.
   {
-    id: "CFPQ-M-POLY-009",
+    id: "CFPQ-M-POLY-009", competencyVerified: true,
     subject: "Maths",
     topicKey: "polynomials",
     subtopic: "Zeros & Factorisation",
@@ -484,21 +486,22 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
     subtopic: "Graph & Type of Polynomial",
     section: "A",
     marks: 1,
-    format: "VSA",
+    format: "MCQ",
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "Students of a class were shown the graph below.\n\nBased on their answers, they were divided into two groups. Group 1 said the graph represented a quadratic polynomial whereas group 2 said the graph represented a cubic polynomial.\n\ni) Which group was correct?\nii) Write the polynomial represented by the graph.",
-    answer: "i) Group 2. ii) (x - 2)²(x + 2)",
+      "Students of a class were shown the graph. Group 1 said the graph represents a quadratic polynomial, whereas group 2 said it represents a cubic polynomial. Which option gives the correct group and the polynomial represented by the graph?",
+    answer: "Group 2; p(x) = (x − 2)²(x + 2)",
     solutionSteps: [
-      "[0.5 mark] i) Writes that group 2 was correct.",
-      "[0.5 mark] ii) Writes the polynomial represented by the graph as (x - 2)²(x + 2).",
+      "[1 mark] Group 2; p(x) = (x − 2)²(x + 2) — the curve crosses at x = −2, touches at x = 2 and has p(0) = 8; (−2)²(2) = 8 fits, and the turning shape shows degree 3."
     ],
-    finalAnswer: "Group 2 was correct; the polynomial is (x - 2)²(x + 2).",
+    finalAnswer: "Group 2; p(x) = (x − 2)²(x + 2)",
     isCompetencyBased: true,
     ncertRef: POLY_CFPQ_REF,
     requiresDiagram: true,
     diagramDescription: CUBIC_GRAPH_DESC,
+    options: ["Group 1; p(x) = (x − 2)(x + 2)", "Group 2; p(x) = (x + 2)²(x − 2)", "Group 2; p(x) = (x − 2)²(x + 2)", "Group 2; p(x) = (x − 2)(x + 2)²"],
+    sourceOverride: "others",
   },
   // pdf-page 19 (folio 18) — Q17, margin [2]. Rubric: pdf-page 26 (folio 25), 0.5 + 1 + 0.5.
   {

@@ -13,19 +13,20 @@ export const HEYE_CBE: CanonicalQuestion[] = [
     "subtopic": "Dispersion of White Light by a Prism",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Fig. 1 shows the effect of a prism on white light. State the name of the process shown in Fig. 1.",
-    "options": [],
-    "answer": "Dispersion / dispersal.",
+    "questionText": "Fig. 1 shows the effect of a prism on white light. The process shown in Fig. 1 is called",
+    "options": ["scattering", "reflection followed by scattering", "reflection", "dispersion"],
+    "answer": "dispersion",
     "solutionSteps": [
-      "[1 mark] The splitting of white light into its colours by a prism is called dispersion."
+      "[1 mark] dispersion — splitting of white light into its component colours by a prism is dispersion."
     ],
-    "finalAnswer": "Dispersion",
+    "finalAnswer": "dispersion",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Fig. 1 — a glass prism splitting a beam of white light into a spectrum of colours."
+    "diagramDescription": "Fig. 1 — a glass prism splitting a beam of white light into a spectrum of colours.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-HEYE-A-002",
@@ -119,45 +120,45 @@ export const HEYE_CBE: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Long-Sightedness (Hypermetropia) and Its Correction",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Fig. 2 shows the effect of long-sightedness in an eye. Explain what causes long-sightedness and what can be done to correct it.",
+    "questionText": "Explain what causes long-sightedness (hypermetropia) and what can be done to correct it.",
     "options": [],
     "answer": "Causes: the eye lens has too little curvature / the eyeball is too short, so the image of a near object is formed behind the retina. Correction: use a convex (converging) lens in spectacles or contact lenses (or surgery).",
     "solutionSteps": [
-      "[1 mark] Cause: the focal length of the eye lens is too long (decreased curvature of the lens / lens dislocation).",
-      "[1 mark] Cause: the eyeball is too short, so the image of a near object forms behind the retina rather than on it.",
-      "[1 mark] Correction: use a convex (converging) lens.",
-      "[1 mark] This convex lens is fitted in spectacles or contact lenses (surgery is also possible) to bring the image onto the retina."
+      "[1 mark] Cause: the focal length of the eye lens is too long (lens curvature is too small).",
+      "[1 mark] Cause: the eyeball has become too short, so the image of a near object forms behind the retina instead of on it.",
+      "[1 mark] Correction: use a convex (converging) lens of suitable power in spectacles or contact lenses (surgery is also possible) to bring the image onto the retina."
     ],
     "finalAnswer": "Long-sightedness is caused by a short eyeball / low lens curvature forming the image behind the retina; it is corrected with a convex (converging) lens in spectacles or contact lenses.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
-    "diagramDescription": "Fig. 2: a long-sighted (hypermetropic) eye in which rays from a near point N' converge to form an image behind the retina."
+    "requiresDiagram": false,
+    "diagramDescription": "Fig. 2: a long-sighted (hypermetropic) eye in which rays from a near point N' converge to form an image behind the retina.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-HEYE-E-002",
     "subject": "Science",
     "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision and Their Correction",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
     "questionText": "Eye defects affect many people. Discuss eye defects, their causes and how they may be corrected.",
     "options": [],
     "answer": "Defects include long sightedness (hypermetropia), short sightedness (myopia) and cataracts. Causes include a change in the shape of the lens, a change in the shape of the eyeball, a change in the position of the lens, exposure to UV/light, or genetic predisposition. Corrections include spectacles/glasses/contact lenses, surgery, and organ (e.g. cornea) donation.",
     "solutionSteps": [
-      "[1 mark] Name eye defects: long sightedness (hypermetropia), short sightedness (myopia) and cataracts.",
-      "[1 mark] State causes such as a change in lens shape or eye shape, or a change in the position of the lens.",
-      "[1 mark] State further causes such as exposure to UV/light or genetic predisposition.",
-      "[1 mark] Describe corrections: spectacles/contact lenses, surgery, or organ donation (e.g. cornea)."
+      "[1 mark] Eye defects: short-sightedness (myopia), long-sightedness (hypermetropia), presbyopia and cataract.",
+      "[1 mark] Causes: change in shape/curvature of the eye lens, change in length of the eyeball, or change in position/flexibility of the lens; cataract is clouding of the lens (age, UV exposure, genetics).",
+      "[1 mark] Corrections: concave lens for myopia, convex lens for hypermetropia, spectacles/contact lenses, and surgery (e.g. cataract surgery or corneal transplant from eye donation)."
     ],
     "finalAnswer": "Defects: long/short sightedness, cataracts; causes: lens/eye shape change, lens position, UV exposure, genetics; corrections: spectacles/contact lenses, surgery, cornea donation.",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   }
 ];

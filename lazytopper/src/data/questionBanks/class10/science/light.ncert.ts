@@ -87,11 +87,12 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     ncertRef: "In-text Q2 §9.3", isCompetencyBased: true },
 
   { id: "LIGHT-NCERT-9-SA-008", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Optical Density", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
-    questionText: "Find out, from Table 9.3, the medium having highest optical density. Also find the medium with lowest optical density.",
+    questionText: "The absolute refractive indices of some media are: Air 1.0003, Ice 1.31, Water 1.33, Alcohol 1.36, Kerosene 1.44, Turpentine oil 1.47, Crown glass 1.52, Rock salt 1.54, Carbon disulphide 1.63, Dense flint glass 1.65, Ruby 1.71, Sapphire 1.77, Diamond 2.42. From these values, find the medium having the highest optical density and the medium having the lowest optical density.",
     answer: "Highest optical density: Diamond (n = 2.42). Lowest optical density: Air (n = 1.0003).",
-    solutionSteps: ["[0.5 mark] Optical density is measured by the refractive index — higher n means optically denser.", "[0.5 mark] From the NCERT Table 9.3 of absolute refractive indices, scan for highest and lowest values.", "[0.5 mark] Highest n = 2.42 → Diamond. Lowest n = 1.0003 → Air.", "[0.5 mark] Therefore: highest optical density = Diamond; lowest = Air."],
+    solutionSteps: ["[0.5 mark] Optical density is indicated by the refractive index - higher n means optically denser.", "[0.5 mark] Compare the given absolute refractive indices for the highest and lowest values.", "[0.5 mark] Highest n = 2.42 → Diamond. Lowest n = 1.0003 → Air.", "[0.5 mark] Therefore: highest optical density = Diamond; lowest = Air."],
     finalAnswer: "Highest: Diamond (n=2.42); Lowest: Air (n=1.0003).",
-    ncertRef: "In-text Q3 §9.3", isCompetencyBased: false },
+    ncertRef: "In-text Q3 §9.3", isCompetencyBased: false,
+    sourceOverride: "others", },
 
   { id: "LIGHT-NCERT-9-SA-009", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Speed and Refractive Index", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Analysing",
     questionText: "You are given kerosene, turpentine and water. In which of these does the light travel fastest? Use the information given in Table 9.3.",

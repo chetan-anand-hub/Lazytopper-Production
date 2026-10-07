@@ -8,23 +8,27 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const CIRCLES_APQ: CanonicalQuestion[] = [
   // PQ1 Q8 (Section A, MCQ, 1 mark)
   { id: "APQ-M-CIRC-001", subject: "Maths", topicKey: "circles", subtopic: "Tangent and Two Circles", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Two circles with centres O and N touch each other at point P as shown. O, P and N are collinear. The radius of the circle with centre O is twice that of the circle with centre N. OX is a tangent to the circle with centre N, and OX = 18 cm. What is the radius of the circle with centre N?",
+    questionText: "Two circles with centres O and N touch each other externally at point P, so that O, P and N are collinear. The radius of the circle with centre O is twice that of the circle with centre N. OX is a tangent from O to the circle with centre N, touching it at X, and OX = 18 cm. What is the radius of the circle with centre N?",
     options: ["18/√2 cm", "9 cm", "9/√2 cm", "18/√10 cm"],
     answer: "9/√2 cm",
-    solutionSteps: ["Let radius of N = r ⟹ radius of O = 2r. Distance ON = 2r + r = 3r (touching externally). Wait: per figure, NX ⊥ OX (tangent). In right ΔONX with hypotenuse ON = 3r, side NX = r, OX = 18.", "By Pythagoras: ON^2 = OX^2 + NX^2 ⟹ (3r)^2 = 18^2 + r^2 ⟹ 9r^2 − r^2 = 324 ⟹ 8r^2 = 324 ⟹ r^2 = 81/2 ⟹ r = 9/√2 cm."],
+    solutionSteps: ["Let radius of circle N = r, so radius of circle O = 2r; touching externally, ON = 2r + r = 3r. Radius NX ⊥ tangent OX, so in right ΔOXN: ON² = OX² + NX² ⟹ 9r² = 324 + r² ⟹ 8r² = 324 ⟹ r² = 81/2 ⟹ r = 9/√2 cm → option (c)."],
     finalAnswer: "(c) 9/√2 cm",
     ncertRef: "APQ PQ1 Q8", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: two touching circles with tangent OX." },
+    strategyHint: "Radius ⊥ tangent at X; apply Pythagoras in ΔOXN with ON = 3r.",
+    sourceOverride: "others",
+  },
 
   // PQ1 Q9 (Section A, MCQ, 1 mark)
   { id: "APQ-M-CIRC-002", subject: "Maths", topicKey: "circles", subtopic: "Tangents — Perimeter of Polygon", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Shown below is a circle with centre O having tangents at points P, T and S. If QR = 12 cm and the radius of the circle is 7 cm, what is the perimeter of the polygon PQTRSO?",
+    questionText: "A circle with centre O and radius 7 cm has tangents drawn at points P, T and S on it. The tangents at P and T meet at Q, and the tangents at T and S meet at R, so that T lies on QR. If QR = 12 cm, what is the perimeter of the polygon PQTRSO?",
     options: ["26 cm", "31 cm", "38 cm", "(cannot say with the given information.)"],
     answer: "38 cm",
-    solutionSteps: ["OP = OS = 7 cm (radii). Tangents from external Q: QP = QT; from R: RT = RS. So QP + QT + RT + RS = QR + (QT + RT) where QT + RT = QR = 12.", "Hmm: QT and RT are along the same tangent line through T; QT + RT = QR = 12. Per MS: perimeter = OP + PQ + QT + TR + RS + SO = 7 + PQ + 12 + RS + 7 = 26 + (PQ + RS). With tangent lengths summing to QR = 12, total = 38."],
+    solutionSteps: ["OP = OS = 7 cm (radii). Tangents from an external point are equal: QP = QT and RS = RT. Perimeter = OP + PQ + QT + TR + RS + SO = 7 + QT + QT + TR + TR + 7 = 14 + 2(QT + TR) = 14 + 2 × 12 = 38 cm → option (c)."],
     finalAnswer: "(c) 38 cm",
     ncertRef: "APQ PQ1 Q9", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: circle with tangents at P, T, S and points Q, R outside." },
+    strategyHint: "Equal tangents from Q and from R; QT + TR = QR.",
+    sourceOverride: "others",
+  },
 
   // PQ2 Q9 (Section A, MCQ, 1 mark)
   { id: "APQ-M-CIRC-003", subject: "Maths", topicKey: "circles", subtopic: "Tangent Length", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
@@ -64,12 +68,14 @@ export const CIRCLES_APQ: CanonicalQuestion[] = [
 
   // PQ1 Q29 (Section C, Short, 3 marks)
   { id: "APQ-M-CIRC-007", subject: "Maths", topicKey: "circles", subtopic: "Tangent Proof via Congruence", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "In the given figure, PQ is the diameter of the circle with centre O. R is a point on the boundary of the circle, at which a tangent is drawn. A line segment is drawn parallel to PR through O, such that it intersects the tangent at S. Show that SQ is a tangent to the circle. OR Shown below is a circle with centre O. Tangents are drawn at points A and C, such that they intersect at point B. If OA ⊥ OC, then show that quadrilateral OABC is a square.",
+    questionText: "PQ is a diameter of a circle with centre O. R is a point on the circle at which a tangent is drawn. A line through O parallel to PR meets this tangent at S. Show that SQ is a tangent to the circle.\nOR\nA circle has centre O. Tangents drawn at points A and C of the circle intersect at B. If OA ⊥ OC, show that quadrilateral OABC is a square.",
     answer: "Both proven.",
-    solutionSteps: ["[Variant 1] Since OR is the radius and RS is tangent: OR ⊥ RS. OS ∥ PR ⟹ ∠OPR = ∠ROS (corresponding angles); also ∠OPR = ∠ORP (isosceles OP = OR).", "ΔORS ≅ ΔOQS by SAS (OS = OS common, OR = OQ radii, ∠ROS = ∠QOS by exterior-angle relation). Hence ∠OQS = ∠ORS = 90°, so SQ is tangent to the circle at Q.", "[Variant 2] AB = BC (tangents from external point). OA = OC (radii). ∠BAO = ∠BCO = 90° (tangent ⊥ radius). With OA ⊥ OC (∠AOC = 90°), quadrilateral OABC has all four 90° angles and OA = AB = BC = OC ⟹ square."],
+    solutionSteps: ["[Variant 1] OR ⊥ RS (tangent ⊥ radius). OP = OR ⇒ ∠OPR = ∠ORP. Since OS ∥ PR: ∠ROS = ∠ORP (alternate angles) and ∠QOS = ∠OPR (corresponding angles) ⇒ ∠ROS = ∠QOS.", "In △ORS and △OQS: OR = OQ (radii), ∠ROS = ∠QOS, OS common ⇒ △ORS ≅ △OQS (SAS) ⇒ ∠OQS = ∠ORS = 90°.", "OQ ⊥ SQ at Q, which lies on the circle ⇒ SQ is a tangent at Q.", "[Variant 2] ∠OAB = ∠OCB = 90° (tangent ⊥ radius) and ∠AOC = 90° (given) ⇒ ∠ABC = 360° − 270° = 90°, so OABC is a rectangle.", "OA = OC (radii) — adjacent sides of the rectangle are equal (also BA = BC, tangents from B) ⇒ OABC is a square."],
     finalAnswer: "SQ is a tangent. [OR] OABC is a square.",
     ncertRef: "APQ PQ1 Q29", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE for both variants." },
+    strategyHint: "Use tangent ⊥ radius and congruence (SAS) for Variant 1; for Variant 2 show all angles 90° and adjacent sides equal.",
+    sourceOverride: "others",
+  },
 
   // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
 

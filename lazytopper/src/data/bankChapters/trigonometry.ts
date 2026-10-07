@@ -2,10 +2,11 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "trigonometry" (Maths): 496 served rows from 19 source arrays, 38 withheld.
+// Chapter "trigonometry" (Maths): 485 served rows from 20 source arrays, 51 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
+import { TR3_PACK3 } from "../questionBanks/class10/maths/triangles.pack3";
 import { TRIG_PACK1_QUESTIONS } from "../questionBanks/class10/maths/trigonometry.pack1";
 import { trigonometryPack2Questions } from "../questionBanks/class10/maths/trigonometry.pack2";
 import { TG3_PACK3 } from "../questionBanks/class10/maths/trigonometry.pack3";
@@ -27,6 +28,7 @@ import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline
 import { TRIGONOMETRY_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/trigonometry.cbq.ltgen";
 
 export default defineChapter("trigonometry", [
+  [2, TR3_PACK3, true],
   [3, TRIG_PACK1_QUESTIONS, true],
   [4, trigonometryPack2Questions, true],
   [5, TG3_PACK3, true],
@@ -47,7 +49,14 @@ export default defineChapter("trigonometry", [
   [415, CURATED_INLINE_QUESTIONS, false],
   [436, TRIGONOMETRY_CBQ_LT_GENERATED, false],
 ], [
+  "2026-TRIG-P1-A-041",
+  "2026-TRIG-P1-A-043",
+  "2026-TRIG-P1-A-044",
   "TRIG2-E08",
+  "TRIG2-E09",
+  "TRIG2-M01",
+  "TRIG2-M05",
+  "TRIG2-M07",
   "TRIG2-H02",
   "TRIG2-H06",
   "TRIG2-H09",
@@ -69,15 +78,20 @@ export default defineChapter("trigonometry", [
   "AR-TRIG-001",
   "TRIG-PRF-D-005",
   "TRIG-PRF-C-005",
+  "PB-M-1-TRIG-C-001",
   "PB-M-1-TRIG-C-002",
+  "PB-M-2-TRIG-C-001",
   "PB-M-2-TRIG-C-002",
   "APQ-M-TRIG-001",
+  "APQ-M-TRIG-003",
   "APQ-M-TRIG-010",
+  "APQ-M-TRIG-017",
   "PYQ-M-TRIG-002",
   "PYQ-M-TRIG-003",
   "PYQ-M-TRIG-005",
   "PYQ-M-TRIG-006",
   "PYQ-M-TRIG-007",
+  "PYQ-M-2026-TRIG-002",
   "PYQ-M-2024-TRIG-010a",
   "PYQ-M-2024-TRIG-010b",
   "PYQ-M-2024-TRIG-011a",
@@ -85,4 +99,5 @@ export default defineChapter("trigonometry", [
   "PYQ-M-2024-TRIG-013",
   "PYQ-M-2024-TRIG-019",
   "PYQ-M-2025-TRIG-001",
+  "PYQ-M-2025-TRIG-004",
 ]);

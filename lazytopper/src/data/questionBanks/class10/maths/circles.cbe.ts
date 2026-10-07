@@ -177,7 +177,7 @@ export const CIRC_CBE: CanonicalQuestion[] = [
     "diagramDescription": "A circle with centre O. Line l is tangent to the circle at point P, so radius OP is perpendicular to l. Q is the mid-point of OP. A chord RS passes through Q parallel to line l (and hence perpendicular to OP), with RS = 12 cm, so Q bisects RS. Right triangle OQS is formed. Diagram not drawn to scale."
   },
   {
-    "id": "CBE-M-CIRC-D-001",
+    "id": "CBE-M-CIRC-D-001", "competencyVerified": true,
     "subject": "Maths",
     "topicKey": "circles",
     "subtopic": "Equal Tangents from an External Point",

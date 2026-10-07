@@ -476,7 +476,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Peacock",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-021",
@@ -510,19 +510,19 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Ecosystem — producers, consumers, decomposers",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Name any two decomposers that operate in an ecosystem.",
-    "options": [],
+    "questionText": "Which of the following are two decomposers in an ecosystem?",
+    "options": ["Bacteria and fungi", "Grass and algae", "Green plants and fungi", "Deer and bacteria"],
     "answer": "Bacteria and fungi",
     "solutionSteps": [
-      "[1 mark] Bacteria and fungi are the two main decomposers; they break down dead organic remains into simple inorganic substances."
+      "[1 mark] Bacteria and fungi — bacteria and fungi break down dead organic remains into simple inorganic substances."
     ],
     "finalAnswer": "Bacteria and fungi",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-023",
@@ -531,19 +531,19 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Ecosystem — natural and artificial",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "List two examples of man-made (artificial) ecosystems.",
-    "options": [],
-    "answer": "Aquarium and crop field (garden)",
+    "questionText": "Which of the following are two examples of man-made (artificial) ecosystems?",
+    "options": ["Forest and pond", "Lake and grassland", "Ocean and desert", "Aquarium and crop field"],
+    "answer": "Aquarium and crop field",
     "solutionSteps": [
-      "[1 mark] Aquarium and crop field (or garden) are artificial ecosystems, since they are created and maintained by humans."
+      "[1 mark] Aquarium and crop field — aquariums and crop fields are created and maintained by humans."
     ],
-    "finalAnswer": "Aquarium and crop field (garden)",
+    "finalAnswer": "Aquarium and crop field",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-024",
@@ -552,19 +552,19 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Waste — biodegradable and non-biodegradable",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Why are plastics classified as non-biodegradable substances?",
-    "options": [],
-    "answer": "Micro-organisms cannot break them down as they lack the enzymes to decompose plastics.",
+    "questionText": "Plastics are classified as non-biodegradable because",
+    "options": ["They are made from natural raw materials", "They dissolve completely in water", "Micro-organisms lack the enzymes needed to break them down", "Sunlight breaks them down within a few days"],
+    "answer": "Micro-organisms lack the enzymes needed to break them down",
     "solutionSteps": [
-      "[1 mark] Plastics are non-biodegradable because decomposers such as bacteria and fungi do not possess the enzymes needed to break them down, so they persist in the environment."
+      "[1 mark] Micro-organisms lack the enzymes needed to break them down — decomposers such as bacteria and fungi do not possess enzymes to break down plastics, so they persist."
     ],
-    "finalAnswer": "Micro-organisms lack the enzymes required to decompose plastics.",
+    "finalAnswer": "Micro-organisms lack the enzymes needed to break them down",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-025",
@@ -573,19 +573,19 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Food chains and trophic levels",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Draw a food chain that operates in a forest ecosystem.",
-    "options": [],
+    "questionText": "Which of the following is a correct food chain in a forest ecosystem?",
+    "options": ["Tiger → Deer → Grass", "Grass → Deer → Tiger", "Grass → Tiger → Deer", "Deer → Grass → Tiger"],
     "answer": "Grass → Deer → Tiger",
     "solutionSteps": [
-      "[1 mark] Grass (producer) → Deer (primary consumer) → Tiger (secondary consumer) is a valid forest food chain."
+      "[1 mark] Grass → Deer → Tiger — grass (producer) is eaten by deer (primary consumer), which is eaten by tiger (secondary consumer)."
     ],
     "finalAnswer": "Grass → Deer → Tiger",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-026",
@@ -594,19 +594,19 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "subtopic": "Flow of energy (10% law)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Flow of energy in an ecosystem is unidirectional. Name the first two components of the environment involved in this flow of energy starting from the Sun.",
-    "options": [],
+    "questionText": "Flow of energy in an ecosystem is unidirectional. The first two components involved in this flow, starting from the Sun, are",
+    "options": ["Producers and primary consumers", "Producers and decomposers", "Primary and secondary consumers", "Decomposers and primary consumers"],
     "answer": "Producers and primary consumers",
     "solutionSteps": [
-      "[1 mark] Energy from the Sun is first captured by producers and then passed to primary consumers, so these are the first two components in the unidirectional flow."
+      "[1 mark] Producers and primary consumers — solar energy is first captured by producers and then passed to primary consumers."
     ],
     "finalAnswer": "Producers and primary consumers",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-A-028",
@@ -878,8 +878,8 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Carnivores die out; autotrophs increase in number.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-002",
     "subject": "Science",
@@ -900,8 +900,8 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Algal bloom followed by oxygen depletion reduces the fish population.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-003",
     "subject": "Science",
@@ -922,7 +922,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Wash produce well; prefer organically grown food to cut pesticide use.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-004",
@@ -944,7 +944,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Alternative feeding pathways in a food web prevent collapse, giving stability.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-005",
@@ -966,7 +966,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "First level: autotroph producers; second level: herbivore primary consumers.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-006",
@@ -988,7 +988,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Recycle non-biodegradable waste; reduce its use (e.g. cloth bags for plastic).",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-007",
@@ -1010,7 +1010,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Interconnected food chains; they maintain ecological balance and stability.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2014"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-008",
@@ -1032,8 +1032,8 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Herbivores overpopulate; overgrazing depletes producers and unbalances the ecosystem.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2013"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-009",
     "subject": "Science",
@@ -1054,7 +1054,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Unidirectional (producer to top carnivore); it cannot return, as energy is lost as heat.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2013"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-012",
@@ -1076,7 +1076,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "O3 (three oxygen atoms); formed by UV splitting O2, then O combining with O2.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-B-013",
@@ -1098,8 +1098,8 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Decomposers break the bodies down and recycle the nutrients into the soil.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-014",
     "subject": "Science",
@@ -1120,8 +1120,8 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Peacock population falls; rat population increases sharply.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
-  },
+    sourceOverride: "others",
+    },
   {
     "id": "OEX-B-015",
     "subject": "Science",
@@ -1142,7 +1142,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Second level: rabbit; third level: frog (or fox).",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2012"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-C-001",
@@ -1165,7 +1165,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Phytoplankton → zooplankton → small fish → large fish; pesticide maximum at the top (tertiary) level due to biomagnification.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2010"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-C-002",
@@ -1188,7 +1188,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Grouped by mode of nutrition — producers make food, consumers eat others, decomposers recycle dead matter.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2016"
+    sourceOverride: "others",
   },
   {
     "id": "OEX-C-003",
@@ -1211,6 +1211,6 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "finalAnswer": "Dead matter piles up and soil is not replenished, disrupting the ecosystem.",
     "isCompetencyBased": false,
     "requiresDiagram": false,
-    "pyqYear": "2015"
-  },
+    sourceOverride: "others",
+    },
 ];

@@ -20,7 +20,9 @@ import { Z3_COMPETENCY_QUESTIONS } from "./questionBanks/class10/maths/competenc
 const Z3_EXPECTED_COUNT = 102;
 // SYLLABUS-FIX-CONTENT PR-1 (2026-10-06, owner: "Yes, all of it"): Z3-TG-110 (symbolic elevation angles;
 // CBSE 2026-27 allows only 30/45/60) is withheld. It stays in the source array; it is not served.
-const Z3_SYLLABUS_WITHHELD = ["Z3-TG-110"];
+// BANK-FIX-1 PR-2 (2026-10-07): Z3-QE-003 (a quadratic-function graph case: intercepts/vertex, not 2026-27
+// Class 10 QE) and Z3-ARC-004 (its figure contradicts the text; no honest fix) are withheld too.
+const Z3_SYLLABUS_WITHHELD = ["Z3-ARC-004", "Z3-QE-003", "Z3-TG-110"];
 // Conservative absolute floor: the bank serves several thousand questions, so
 // this only fires on a catastrophic collapse. Kept well below the true count so
 // it never false-fails as the bank grows.
@@ -34,7 +36,7 @@ describe("Z3 Competency — bank floor / silent-zero spread guard", () => {
   it("every Z3 question reaches the served bank (spread wired, only the syllabus-withheld row missing)", () => {
     const servedIds = new Set(canonicalQuestionBank.map((q) => q.id));
     const missing = Z3_COMPETENCY_QUESTIONS.filter((q) => !servedIds.has(q.id));
-    expect(missing.map((q) => q.id)).toEqual(Z3_SYLLABUS_WITHHELD);
+    expect(missing.map((q) => q.id).sort()).toEqual(Z3_SYLLABUS_WITHHELD);
   });
 
   it("Z3 contributes exactly its count and the bank does not silently collapse", () => {

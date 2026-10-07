@@ -2,10 +2,11 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "heredity" (Science): 319 served rows from 20 source arrays, 34 withheld.
+// Chapter "heredity" (Science): 310 served rows from 22 source arrays, 45 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
+import { REPRODUCTION_PACK1 } from "../questionBanks/class10/science/reproduction.pack1";
 import { HEREDITY_PACK1 } from "../questionBanks/class10/science/heredity.pack1";
 import { HE2_PACK2 } from "../questionBanks/class10/science/heredity.pack2";
 import { HEREDITY_EXPAND_EXTRACT } from "../questionBanks/class10/science/heredity.expand.extract";
@@ -20,6 +21,7 @@ import { HERD_SP } from "../questionBanks/class10/science/heredity.sp";
 import { HEREDITY_APQ } from "../questionBanks/class10/science/heredity.additionalPQ";
 import { HEREDITY_CHAPTERWISE } from "../questionBanks/class10/science/heredity.chapterwise";
 import { HEREDITY_PYQ } from "../questionBanks/class10/science/heredity.pyq";
+import { howOrganismsReproducePYQ2026 } from "../questionBanks/class10/science/howOrganismsReproduce.pyq2026";
 import { heredityPYQ2026 } from "../questionBanks/class10/science/heredity.pyq2026";
 import { heredityPYQ2025 } from "../questionBanks/class10/science/heredity.pyq2025";
 import { heredityPYQ2024 } from "../questionBanks/class10/science/heredity.pyq2024";
@@ -28,6 +30,7 @@ import { HEREDITY_CBQ_LT_GENERATED } from "../questionBanks/class10/science/here
 import { HEREDITY_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/heredity.b1.cbq.ltgen";
 
 export default defineChapter("heredity", [
+  [40, REPRODUCTION_PACK1, true],
   [42, HEREDITY_PACK1, true],
   [43, HE2_PACK2, true],
   [61, HEREDITY_EXPAND_EXTRACT, false],
@@ -42,15 +45,19 @@ export default defineChapter("heredity", [
   [276, HEREDITY_APQ, false],
   [289, HEREDITY_CHAPTERWISE, false],
   [302, HEREDITY_PYQ, false],
+  [365, howOrganismsReproducePYQ2026, false],
   [366, heredityPYQ2026, false],
   [379, heredityPYQ2025, false],
   [392, heredityPYQ2024, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [425, HEREDITY_CBQ_LT_GENERATED, false],
-  [442, HEREDITY_CBQ_B1_LT_GENERATED, false],
+  [448, HEREDITY_CBQ_B1_LT_GENERATED, false],
 ], [
+  "HE-H04",
   "HE2-008",
+  "HE2-019",
   "HE2-032",
+  "HE2-040",
   "HE2-041",
   "HE2-046",
   "HE2-054",
@@ -60,13 +67,21 @@ export default defineChapter("heredity", [
   "BX-HER-D-008",
   "BX-HER-E1-004",
   "BX-HER-E2-003",
+  "HERED-EXMPLR-8-LA-002",
+  "SCO-S-HERED-001",
+  "SCO-S-HERED-002",
+  "SCO-S-HERED-003",
   "SCO-S-HERED-004",
   "SCO-S-HERED-005",
   "SCO-S-HERED-008",
+  "SCO-S-HERED-009",
   "SCO-S-HERED-018",
+  "SCO-S-HERED-019",
   "SCQ-S-HERED-029",
   "SCQ-S-HERED-037",
   "SCQ-S-HERED-041",
+  "SCQ-S-HERED-042",
+  "SCQ-S-HERED-043",
   "PYQ-S-2026-HERED-006",
   "PYQ-S-2026-HERED-007",
   "PYQ-S-2026-HERED-011",

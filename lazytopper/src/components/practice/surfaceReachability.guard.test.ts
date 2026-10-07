@@ -275,7 +275,14 @@ describe("surface reachability — every served human row can be drawn on a test
     // taking them), CEILING on the residual (shrink-only, CLEAN-1).
     // 146 -> 144 at CLEAN-1 (2026-09-11): sci-chem-chemreactions-1m-2023-01 and 2026-MNM-01 re-shaped into real MCQs, so they left the 1-mark-written set
     // 144 -> 143 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): CBE-S-MAGN-A-002 (electromagnetic induction, formative-only) withheld; no other freed row moved
-    expect(freed.length).toBeGreaterThanOrEqual(143);
+    // 143 -> 141 at BANK-FIX-1 PR-2 (2026-10-07): CBE-M-AP-A-005 (now a keyed 1-mark MCQ) and CBE-M-PLE-A-004 (re-marked to a
+    // 2-mark VSA) are no longer 1-mark WRITTEN rows, so they left the freed class; both are still served and drawable. No other freed row moved.
+    // 141 -> 140 at BANK-FIX-1 PR-2 phase B (2026-10-07): CBE-S-CTRL-A-005 withheld (ambiguous: its figure cannot decide light vs
+    // gravity). No other freed row moved.
+    // 140 -> 0 at BANK-FIX-2 (2026-10-07, owner ruling: every 1-mark row is a 4-option MCQ or A-R; GUARD-3 G9): the
+    // 1-mark WRITTEN class is gone (185 rows became MCQs, 1 a 2-mark Short, 3 withheld), so the widened CT band frees
+    // nothing any more. bankFix1.pr2.test.ts pins the class empty; the set identities above still hold.
+    expect(freed.length).toBe(0);
     expect(gapABar.length).toBe(gapBefore.length + newlyLost.length);
     expect(gapAfter.length).toBeLessThanOrEqual(GAP_CEILING);
   });

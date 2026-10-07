@@ -202,21 +202,23 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
   // Examples 11.8-11.9
   // REQUIRES-FIGURE
   { id: "ELEC-NCERT-11-LA-006", subject: "Science", topicKey: "electricity", subtopic: "Parallel Combination Calculation", section: "D", marks: 5, format: "Long", difficulty: "Easy", bloomSkill: "Applying",
-    questionText: "In the circuit diagram given in Fig. 11.10, suppose the resistors R₁, R₂ and R₃ have the values 5 Ω, 10 Ω, 30 Ω, respectively, which have been connected to a battery of 12 V. Calculate (a) the current through each resistor, (b) the total current in the circuit, and (c) the total circuit resistance.",
+    questionText: "In the circuit diagram given in the figure, suppose the resistors R₁, R₂ and R₃ have the values 5 Ω, 10 Ω, 30 Ω, respectively, which have been connected to a battery of 12 V. Calculate (a) the current through each resistor, (b) the total current in the circuit, and (c) the total circuit resistance.",
     answer: "Three resistors are in parallel with a 12 V battery, so each has 12 V across it. (a) I₁ = 12/5 = 2.4 A; I₂ = 12/10 = 1.2 A; I₃ = 12/30 = 0.4 A. (b) I = I₁ + I₂ + I₃ = 2.4 + 1.2 + 0.4 = 4 A. (c) 1/R_p = 1/5 + 1/10 + 1/30 = 6/30 + 3/30 + 1/30 = 10/30 = 1/3 ⇒ R_p = 3 Ω.",
     solutionSteps: ["[0.5 mark] In parallel each resistor has the full battery voltage V = 12 V across it.", "[1.5 marks] (a) I₁ = V/R₁ = 12/5 = 2.4 A; I₂ = V/R₂ = 12/10 = 1.2 A; I₃ = V/R₃ = 12/30 = 0.4 A.", "[1 mark] (b) Total current I = I₁ + I₂ + I₃ = 2.4 + 1.2 + 0.4 = 4 A.", "[1.5 marks] (c) 1/R_p = 1/5 + 1/10 + 1/30 = 6/30 + 3/30 + 1/30 = 10/30 = 1/3, so R_p = 3 Ω.", "[0.5 mark] Cross-check: I = V/R_p = 12/3 = 4 A. Consistent."],
     finalAnswer: "I₁ = 2.4 A, I₂ = 1.2 A, I₃ = 0.4 A; I = 4 A; R_p = 3 Ω.",
     strategyHint: "REQUIRES-FIGURE: 12 V battery with 5 Ω, 10 Ω, 30 Ω in parallel.",
-    ncertRef: "Example 11.8", isCompetencyBased: true },
+    ncertRef: "Example 11.8", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // REQUIRES-FIGURE
   { id: "ELEC-NCERT-11-LA-007", subject: "Science", topicKey: "electricity", subtopic: "Series-Parallel Combination", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "If in Fig. 11.12, R₁ = 10 Ω, R₂ = 40 Ω, R₃ = 30 Ω, R₄ = 20 Ω, R₅ = 60 Ω, and a 12 V battery is connected to the arrangement. Calculate (a) the total resistance in the circuit, and (b) the total current flowing in the circuit.",
+    questionText: "In the given figure, R₁ = 10 Ω, R₂ = 40 Ω, R₃ = 30 Ω, R₄ = 20 Ω, R₅ = 60 Ω, and a 12 V battery is connected to the arrangement. Calculate (a) the total resistance in the circuit, and (b) the total current flowing in the circuit.",
     answer: "R₁ and R₂ are in parallel: 1/R' = 1/10 + 1/40 = 5/40 ⇒ R' = 8 Ω. R₃, R₄ and R₅ are in parallel: 1/R'' = 1/30 + 1/20 + 1/60 = 2/60 + 3/60 + 1/60 = 6/60 = 1/10 ⇒ R'' = 10 Ω. The two combinations are then in series: R = R' + R'' = 8 + 10 = 18 Ω. (a) Total resistance = 18 Ω. (b) Total current I = V/R = 12/18 = 0.67 A.",
     solutionSteps: ["[1 mark] First parallel group (R₁, R₂): 1/R' = 1/10 + 1/40 = 4/40 + 1/40 = 5/40 ⇒ R' = 40/5 = 8 Ω.", "[1.5 marks] Second parallel group (R₃, R₄, R₅): 1/R'' = 1/30 + 1/20 + 1/60. With LCM 60: = 2/60 + 3/60 + 1/60 = 6/60 = 1/10 ⇒ R'' = 10 Ω.", "[0.5 mark] These two equivalent resistors R' and R'' are in series.", "[1 mark] Total resistance: R = R' + R'' = 8 + 10 = 18 Ω.", "[1 mark] Total current: I = V/R = 12 / 18 = 2/3 ≈ 0.67 A."],
     finalAnswer: "R = 18 Ω; I ≈ 0.67 A.",
     strategyHint: "REQUIRES-FIGURE: 12 V battery driving (R₁ ∥ R₂) in series with (R₃ ∥ R₄ ∥ R₅).",
-    ncertRef: "Example 11.9", isCompetencyBased: true },
+    ncertRef: "Example 11.9", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // ===== §11.7 In-text =====
   { id: "ELEC-NCERT-11-SA-021", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",

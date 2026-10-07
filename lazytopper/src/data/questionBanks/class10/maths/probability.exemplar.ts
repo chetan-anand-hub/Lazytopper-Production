@@ -149,7 +149,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 13.3 Q32", isCompetencyBased: true },
 
   // ===== Section D — Long Answer (5 marks) =====
-  { id: "PROB-N-EXEM-14-LA-001", subject: "Maths", topicKey: "probability", subtopic: "Coins", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+  { id: "PROB-N-EXEM-14-LA-001", competencyVerified: true, subject: "Maths", topicKey: "probability", subtopic: "Coins", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "In a game the entry fee is ₹5. The game consists of tossing a coin 3 times. If one or two heads show, Sweta gets her entry fee back; if she throws 3 heads she gets double the entry fee; otherwise she loses. For tossing a coin three times, find the probability that she (i) loses the entry fee, (ii) gets double the entry fee, (iii) just gets her entry fee back.",
     solutionSteps: ["[1 mark] The coin is tossed 3 times, so the sample space has 2³ = 8 equally likely outcomes: HHH, HHT, HTH, THH, HTT, THT, TTH, TTT.", "[1 mark] (i) She loses only when no head shows (0 heads) — outcome TTT, i.e. 1 favourable outcome.", "[1 mark] (i) P(loses the entry fee) = 1/8.", "[1 mark] (ii) She gets double the fee only on 3 heads (HHH) — 1 outcome, so P(gets double) = 1/8.", "[1 mark] (iii) She gets her fee back on exactly 1 or 2 heads = 8 − 1(HHH) − 1(TTT) = 6 outcomes, so P = 6/8 = 3/4."],
     finalAnswer: "(i) 1/8; (ii) 1/8; (iii) 3/4.",
@@ -163,11 +163,12 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 13.3 Q41", isCompetencyBased: true },
 
   // ===== Section E — Case-Based (4 marks) =====
-  { id: "PROB-N-EXEM-14-CB-001", subject: "Maths", topicKey: "probability", subtopic: "Defective Items", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A carton has 24 bulbs of which 6 are defective. One bulb is drawn at random; this bulb is NOT replaced. Then a second bulb is drawn at random from the remainder.\n(i) What is the probability that the FIRST bulb drawn is NOT defective?\n(ii) Given that the first bulb is defective, what is the probability that the second bulb is also defective?\n(iii) Given that the first bulb is defective, how many bulbs remain and how many are defective?\n(iv) Why is the second probability conditional on the first event?",
-    solutionSteps: ["(i) Good bulbs = 24 − 6 = 18. P(first bulb good) = 18/24 = 3/4.", "(ii) After removing one defective, 23 bulbs remain with 5 defective. P(second defective) = 5/23.", "(iii) Remaining bulbs = 23; defective bulbs remaining = 5.", "(iv) Because the first bulb is NOT replaced, the sample space for the second draw depends on what happened in the first draw — that's the definition of conditional probability."],
-    finalAnswer: "(i) 3/4; (ii) 5/23; (iii) 23 bulbs, 5 defective; (iv) Because the first bulb is not replaced.",
-    ncertRef: "Exemplar Ex 13.3 Q36", isCompetencyBased: true },
+  { id: "PROB-N-EXEM-14-CB-001", subject: "Maths", topicKey: "probability", subtopic: "Simple Events — Drawing Items", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A carton has 24 bulbs, of which 6 are defective. One bulb is drawn at random.\n(i) What is the probability that the bulb drawn is NOT defective? (1 mark)\n(ii) Suppose the bulb drawn is defective and it is not put back. How many bulbs are now left in the carton, and how many of them are defective? (1 mark)\n(iii) A second bulb is now drawn at random from the bulbs left in the carton (as in part (ii)). What is the probability that this second bulb is defective? (2 marks)",
+    solutionSteps: ["(i) Non-defective bulbs = 24 − 6 = 18. P(not defective) = 18/24 = 3/4.", "(ii) One defective bulb is removed: bulbs left = 24 − 1 = 23; defective bulbs left = 6 − 1 = 5.", "(iii) Total possible outcomes for the second draw = 23 (all equally likely); favourable outcomes (defective) = 5.", "(iii) P(second bulb defective) = 5/23."],
+    finalAnswer: "(i) 3/4; (ii) 23 bulbs left, of which 5 are defective; (iii) 5/23",
+    ncertRef: "Exemplar Ex 13.3 Q36", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // ===== Creating-level question =====
   { id: "PROB-N-EXEM-14-CRE-001", subject: "Maths", topicKey: "probability", subtopic: "Word Problem", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",

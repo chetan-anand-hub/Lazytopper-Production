@@ -83,17 +83,18 @@ export const LIGHT_REFLECTION_SQP: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "The image shows a thin lens of focal length 5 m.\n(i) What is the kind of lens shown in the above figure?\n(ii) If a real inverted image is to be formed by this lens at a distance of 7 m from the optical centre, then show with calculation where should the object be placed?\n(iii) Draw a neatly labelled diagram of the image formation mentioned in (ii).\n\n[OR]\n\nA 10 cm long pencil is placed 5 cm in front of a concave mirror having a radius of curvature of 40 cm.\n(i) Determine the position of the image formed by this mirror.\n(ii) What is the size of the image?\n(iii) Draw a ray diagram to show the formation of the image as mentioned in part (i).",
+    "questionText": "A thin lens has a focal length of magnitude 5 m. A real, inverted image is to be formed by this lens at a distance of 7 m from its optical centre.\n(i) What kind of lens is it? Give a reason.\n(ii) Show with calculation where the object should be placed.\n(iii) Draw a neatly labelled ray diagram of the image formation mentioned in (ii).\n\n[OR]\n\nA 10 cm long pencil is placed 5 cm in front of a concave mirror having a radius of curvature of 40 cm.\n(i) Determine the position of the image formed by this mirror.\n(ii) What is the size of the image?\n(iii) Draw a ray diagram to show the formation of the image as mentioned in part (i).",
     "options": [],
-    "answer": "Main: (i) Convex lens. (ii) Object at u = −17.5 m (17.5 m on the left). (iii) Diagram with object beyond 2F. OR Alt: (i) Image at v = +6.67 cm behind mirror (virtual). (ii) Image size = (4/3)·10 ≈ 13.33 cm. (iii) Ray diagram with object between pole and focus.",
+    "answer": "Main: (i) Convex lens. (ii) u = −17.5 m (object 17.5 m in front of the lens, beyond 2F). (iii) Ray diagram with object beyond 2F and real, inverted, diminished image. OR: (i) v = +6.67 cm (virtual image behind the mirror). (ii) Image size ≈ 13.3 cm (erect, enlarged). (iii) Ray diagram with object between P and F.",
     "solutionSteps": [
-      "[1 mark] Main (i): A real inverted image is produced only by a converging lens — hence the lens is a Convex lens.",
-      "[1 mark] Main (ii): Lens formula: 1/f = 1/v − 1/u, with f = +5 m and v = +7 m (real image on opposite side). 1/u = 1/v − 1/f = 1/7 − 1/5 = (5 − 7)/35 = −2/35. So u = −35/2 = −17.5 m. Object is placed 17.5 m on the left of the convex lens.",
-      "[1 mark] Main (iii): Ray diagram (two rays from object): one ray parallel to principal axis refracts through F on the other side; second ray through optical centre passes undeviated. Both meet to form a real, inverted, diminished image at v = +7 m. Object placed beyond 2F (since |u| = 17.5 > 2f = 10).",
-      "[1 mark] OR (alternative i): Mirror formula 1/f = 1/v + 1/u with f = −20 cm (concave, half of R = 40 cm) and u = −5 cm. 1/v = 1/f − 1/u = −1/20 + 1/5 = (−1 + 4)/20 = 3/20. v = 20/3 ≈ +6.67 cm. Positive v → image is behind the mirror, so virtual and erect.",
-      "[1 mark] OR (ii–iii): Magnification m = −v/u = −(20/3)/(−5) = 4/3. h₂ = m·h₁ = (4/3)·10 = 13.33 cm — image is enlarged (and erect). Ray diagram: object between pole P and focus F; two rays — one parallel (reflects through F), one through C (reflects back); diverging reflected rays appear to meet behind the mirror, giving virtual, erect, enlarged image."
+      "[1 mark] (i) Convex lens — only a converging lens forms a real, inverted image. [OR (i) working: f = −R/2 = −20 cm, u = −5 cm; mirror formula 1/v + 1/u = 1/f gives 1/v = −1/20 + 1/5 = 3/20.]",
+      "[1 mark] (ii) Lens formula 1/f = 1/v − 1/u with f = +5 m, v = +7 m: 1/u = 1/7 − 1/5 = −2/35. [OR (i) result: v = +20/3 ≈ +6.67 cm, i.e. 6.67 cm behind the mirror — virtual and erect.]",
+      "[1 mark] (ii) u = −35/2 = −17.5 m: the object is placed 17.5 m in front of the lens (beyond 2F, since 2f = 10 m). [OR (ii) m = −v/u = −(20/3)/(−5) = +4/3; image size h′ = (4/3) × 10 ≈ 13.3 cm (erect, enlarged).]",
+      "[1 mark] (iii) Diagram: object beyond 2F₁; a ray parallel to the principal axis refracts through F₂ and a ray through the optical centre passes undeviated; they meet between F₂ and 2F₂ on the other side. [OR (iii) Diagram: object between P and F; a ray parallel to the axis reflects through F and a ray directed towards C reflects back along itself.]",
+      "[1 mark] (iii) Correct arrows and labels (O, F, 2F, principal axis); image shown real, inverted, diminished. [OR (iii) reflected rays diverge; produced backwards (dotted) they meet behind the mirror — virtual, erect, enlarged image labelled.]"
     ],
     "finalAnswer": "Main: (i) Convex lens; (ii) u = −17.5 m; (iii) diagram. OR Alt: (i) v = +6.67 cm; (ii) image size ≈ 13.33 cm; (iii) ray diagram.",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   }
 ];
