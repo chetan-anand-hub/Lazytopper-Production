@@ -47,20 +47,41 @@ describe("D74 — deferred boot on exactly the hydrated files", () => {
   });
 });
 
-/** Run BOOT_LOADER against fakes: `import(` is the only token rewritten, to observe the call. */
-function runLoader(boot: "narrow" | "any", wideViewport: boolean, visibility: "visible" | "hidden" = "visible") {
+/**
+ * Run BOOT_LOADER against fakes: `import(` is the only token rewritten, to observe the call.
+ * `paint`: whether the fake browser has paint timing (a `paint` PerformanceObserver).
+ */
+function runLoader(
+  boot: "narrow" | "any",
+  wideViewport: boolean,
+  visibility: "visible" | "hidden" = "visible",
+  paint = true,
+) {
   const imports: string[] = [];
   const links: string[] = [];
   const frames: Array<() => void> = [];
   const visibilityListeners: Array<() => void> = [];
   const timers: Array<{ ms: number; fn: () => void }> = [];
+  const observers: Array<{ cb: (list: { getEntries: () => Array<{ name: string }> }, o: { disconnect: () => void }) => void; options: unknown; on: boolean }> = [];
   const script = {
     getAttribute: (name: string) =>
       ({ "data-boot": boot, "data-entry": "/assets/index-EEEEEEEE.js", "data-preload": "/assets/A.js /assets/B.js" })[name] ?? null,
   };
+  class FakeObserver {
+    static supportedEntryTypes = paint ? ["paint", "largest-contentful-paint"] : ["mark"];
+    private entry: (typeof observers)[number];
+    constructor(cb: (typeof observers)[number]["cb"]) {
+      this.entry = { cb, options: null, on: true };
+      observers.push(this.entry);
+    }
+    observe(options: unknown) {
+      this.entry.options = options;
+    }
+  }
   const fakeWindow = {
     requestAnimationFrame: (fn: () => void) => frames.push(fn),
     matchMedia: (query: string) => ({ matches: wideViewport && query === "(min-width: 1024px)" }),
+    PerformanceObserver: FakeObserver,
   };
   const fakeDocument = {
     currentScript: script,
@@ -85,34 +106,56 @@ function runLoader(boot: "narrow" | "any", wideViewport: boolean, visibility: "v
     fakeDocument.visibilityState = "hidden";
     visibilityListeners.forEach((fn) => fn());
   };
-  return { imports, links, frames, timers, hide };
+  /** The browser reports a paint entry to every live observer. */
+  const report = (name: string) => {
+    for (const entry of observers) {
+      if (!entry.on) continue;
+      entry.cb({ getEntries: () => [{ name }] }, { disconnect: () => { entry.on = false; } });
+    }
+  };
+  const runTimer = (ms: number) => timers.filter((timer) => timer.ms === ms).forEach((timer) => timer.fn());
+  return { imports, links, frames, timers, observers, hide, report, runTimer };
 }
 
 describe("D74 — the boot loader", () => {
-  it("starts nothing before the first frame, then preloads + imports the entry ONCE", () => {
+  it("starts nothing before the FIRST CONTENTFUL PAINT, then preloads + imports the entry ONCE", () => {
     const state = runLoader("any", false);
+    expect(state.observers.map((o) => o.options)).toEqual([{ type: "paint", buffered: true }]);
+    // A frame is not enough: on a busy device the frame is presented much later than its rAF.
+    state.frames.splice(0).forEach((fn) => fn());
+    state.report("first-paint");
+    state.runTimer(0);
     expect(state.imports).toEqual([]);
     expect(state.links).toEqual([]);
-    // First frame, then a task.
-    state.frames.splice(0).forEach((fn) => fn());
+    state.report("first-contentful-paint");
     expect(state.imports).toEqual([]);
-    const afterFrame = state.timers.find((timer) => timer.ms === 0);
-    afterFrame?.fn();
+    state.runTimer(0);
     expect(state.imports).toEqual(["/assets/index-EEEEEEEE.js"]);
     expect(state.links).toEqual(["modulepreload /assets/A.js", "modulepreload /assets/B.js"]);
     // The safety-net timer (or the tab being hidden) later does not start the app twice.
-    state.timers.find((timer) => timer.ms === 3000)?.fn();
+    state.runTimer(10000);
     state.hide();
     expect(state.imports).toHaveLength(1);
   });
 
-  it("no early timer: nothing starts before the first frame, however long it takes (PR-1 had 200 ms)", () => {
+  it("no early timer: nothing starts before first paint, however long it takes (PR-1 had 200 ms)", () => {
     const state = runLoader("any", false);
-    expect(state.timers.map((timer) => timer.ms)).toEqual([3000]);
+    expect(state.timers.map((timer) => timer.ms)).toEqual([10000]);
+    expect(state.frames).toEqual([]);
     expect(state.imports).toEqual([]);
   });
 
-  it("a hidden page (no frames ever) starts at once; a page hidden before its first frame starts then", () => {
+  it("without paint timing it falls back to the first frame, then a task", () => {
+    const state = runLoader("any", false, "visible", false);
+    expect(state.observers).toEqual([]);
+    expect(state.imports).toEqual([]);
+    state.frames.splice(0).forEach((fn) => fn());
+    expect(state.imports).toEqual([]);
+    state.runTimer(0);
+    expect(state.imports).toEqual(["/assets/index-EEEEEEEE.js"]);
+  });
+
+  it("a hidden page (it never paints) starts at once; a page hidden before its first paint starts then", () => {
     expect(runLoader("any", false, "hidden").imports).toEqual(["/assets/index-EEEEEEEE.js"]);
     const state = runLoader("any", false);
     expect(state.imports).toEqual([]);

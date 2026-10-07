@@ -414,13 +414,17 @@ export function deferredBootFor(path: string, variant: "mobile" | "desktop"): De
 }
 
 /**
- * The deferred boot loader: a classic inline script, ES5, no dependencies. After the first frame
- * (requestAnimationFrame, then a task) it adds the page's route `modulepreload` links and imports
- * the entry module, once. A HIDDEN page never runs requestAnimationFrame, so it starts at once, and
- * so does a page that becomes hidden before its first frame. PR-1's 200 ms timer is gone: on a busy
- * phone (and on the measuring host) the first frame came later than 200 ms, so the timer started
- * the entry BEFORE first paint, the exact thing this loader exists to prevent. A 3 s timer remains
- * only as a safety net. A "narrow" page on a viewport >= 1024 px is not hydrated: it starts at once.
+ * The deferred boot loader: a classic inline script, ES5, no dependencies. Once the browser reports
+ * the FIRST CONTENTFUL PAINT (a `paint` PerformanceObserver; then a task) it adds the page's route
+ * `modulepreload` links and imports the entry module, once. Where paint timing is not available it
+ * falls back to the first animation frame.
+ *
+ * WHY THE PAINT AND NOT THE FRAME (measured, /check-your-answer): on a busy phone, and on the
+ * measuring host, a requestAnimationFrame callback ran ~300 ms before that frame was presented, so
+ * the entry started BEFORE first paint and Lighthouse charged it to FCP and LCP (B LCP +0.5 s in 3 of
+ * 5 runs). PR-1's 200 ms timer had the same flaw. A HIDDEN page never paints, so it starts at once, as
+ * does a page hidden before its first paint. A 10 s timer is only a safety net. A "narrow" page on a
+ * viewport >= 1024 px is not hydrated: it starts at once.
  */
 export const BOOT_LOADER =
   "(function(s){var d=0;function go(){if(d)return;d=1;" +
@@ -429,10 +433,14 @@ export const BOOT_LOADER =
   'l.rel="modulepreload";l.crossOrigin="anonymous";l.href=p[i];document.head.appendChild(l);}' +
   'import(s.getAttribute("data-entry"));}' +
   'if(s.getAttribute("data-boot")==="narrow"&&window.matchMedia&&window.matchMedia("(min-width: 1024px)").matches){go();return;}' +
-  'if(document.visibilityState==="hidden"||!window.requestAnimationFrame){go();return;}' +
+  'if(document.visibilityState==="hidden"){go();return;}' +
   'document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")go();});' +
-  "requestAnimationFrame(function(){setTimeout(go,0);});" +
-  "setTimeout(go,3000);})(document.currentScript);";
+  "var P=window.PerformanceObserver,w=0;" +
+  'try{if(P&&P.supportedEntryTypes&&P.supportedEntryTypes.indexOf("paint")>=0){' +
+  'new P(function(l,o){var e=l.getEntries();for(var i=0;i<e.length;i++){if(e[i].name==="first-contentful-paint"){o.disconnect();setTimeout(go,0);}}})' +
+  '.observe({type:"paint",buffered:true});w=1;}}catch(x){}' +
+  "if(!w){if(window.requestAnimationFrame)requestAnimationFrame(function(){setTimeout(go,0);});else go();}" +
+  "setTimeout(go,10000);})(document.currentScript);";
 
 /**
  * Move the entry `<script type="module">` and the route preloads out of the markup into one
