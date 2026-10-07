@@ -206,8 +206,198 @@ function estimateCostUsd(row, outputRate, inputRate) {
   };
 }
 
+/* ═════════════════════════════════════════════════════════════════════════════
+   HARDEN-1 PR-2 · THE "GRADER HEALTH" CARD — GET /api/admin/token-telemetry?view=grader-health
+
+   READ-ONLY, behind the same requireFirebaseAdmin gate as the rest of this file. It is
+   served from THIS path (a query view) so no route has to be added to index.cjs.
+
+   ★ EVERY NUMBER COMES FROM SOMETHING THE SERVER ALREADY STORES OR COUNTS. Nothing is
+   estimated, and nothing new is recorded by this lane:
+     • per-day numbers (grades by model, grades not completed, answer–question mismatches)
+       are read from the stored grade records, gradingResults/{uid}/attempts/{id}
+       (services/fairUse.cjs idempotency + grading/jobs.cjs). Each stored reply already
+       carries `model` and, per question, `notGraded` / `couldNotRead` / `answerMismatch`.
+     • `grading.model_fallback` and the sign-in refresh denials are the existing in-process
+       counters. They are cumulative since the server process started, never per day, and
+       the payload says so (uptimeSeconds).
+   ★ WHAT THE RECORDS CANNOT SEE, SAID ON THE CARD: only a grade sent with an
+   Idempotency-Key by a signed-in student is stored (never the signed-out free check);
+   only a 2xx reply is stored (a 500 is not); and every record carries a 24 h expiry
+   (`expiresAt`), so a Firestore TTL policy may already have deleted older ones. The 7-day
+   column therefore counts the records still stored, and says so.
+   ★ IST DAY BOUNDARIES. A record belongs to the IST calendar day of its completion time
+   (rateLimiter.istDayKey): 18:29Z and 18:31Z are different IST days.
+   ★ BOUNDED READS. Auth listUsers (not a Firestore read) up to GH_MAX_AUTH_PAGES x 1000;
+   then ONE query per student whose last token refresh is inside the window (a student
+   who graded must have held a fresh ID token), at most GH_MAX_STUDENTS students x
+   GH_PER_STUDENT_LIMIT records. The response says when either cap was hit.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+const GRADER_HEALTH_VIEW = 'grader-health';
+const GH_WINDOW_DAYS = 7;
+const GH_MAX_STUDENTS = 500;
+const GH_PER_STUDENT_LIMIT = 100;
+const GH_MAX_AUTH_PAGES = 10;
+const GH_AUTH_PAGE_SIZE = 1000;
+const GH_DAY_MS = 24 * 60 * 60 * 1000;
+const GH_HOUR_MS = 60 * 60 * 1000;
+const GH_IST_OFFSET_MS = 5.5 * GH_HOUR_MS;
+/** A grade not completed, by reason. The card shows each with "charged: 0". */
+const NOT_COMPLETED_REASONS = Object.freeze(['timeout', 'unreadable', 'error', 'interrupted']);
+/**
+ * ★ "charged: 0" is the CHARGING RULE, not a guess: grading/charge.cjs `isChargeable` is
+ * false for every result that was not graded (couldn't read, timed out, failed,
+ * interrupted), and the meter writes nothing for a share of 0 (usageLedger meter groups).
+ * The stored reply cannot carry the non-enumerable `_reason` charge.cjs reads, so the
+ * value is stated from the rule, and pinned by a test.
+ */
+const NOT_COMPLETED_CHARGED = 0;
+const UNRECORDED_MODEL = 'not-recorded';
+const OTHER_MODEL = 'other';
+
+const { istDayKey } = require('../services/rateLimiter.cjs');
+const {
+  GRADING_RESULTS_COLLECTION,
+  GRADING_RESULTS_SEGMENTS,
+} = require('../services/fairUse.cjs');
+const { resolveGradingModel, GRADING_FALLBACK_MODEL } = require('../grading/modelConfig.cjs');
+
+/** The UTC instant at which IST day `key` (yyyy-mm-dd) began. */
+function ghIstDayStartMs(key) {
+  return Date.parse(`${key}T00:00:00.000Z`) - GH_IST_OFFSET_MS;
+}
+
+function ghAddIstDays(key, n) {
+  return new Date(Date.parse(`${key}T00:00:00.000Z`) + n * GH_DAY_MS).toISOString().slice(0, 10);
+}
+
+function safeJson(text) {
+  if (typeof text !== 'string' || text === '') return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function modelLabelOf(value) {
+  if (typeof value !== 'string' || value === '') return UNRECORDED_MODEL;
+  return MODEL_LABEL_RE.test(value) ? value : OTHER_MODEL;
+}
+
+/** One stored per-question result -> its not-completed reason, or null when it was graded. */
+function notCompletedReasonOf(r) {
+  if (!r || typeof r !== 'object') return null;
+  if (r.notGraded === 'timeout' || r.notGraded === 'error' || r.notGraded === 'interrupted') return r.notGraded;
+  if (r.notGraded === 'unreadable' || r.couldNotRead === true) return 'unreadable';
+  return null;
+}
+
+/**
+ * ONE stored grade record -> what the card counts. Pure. Reads only named fields; nothing
+ * from a reply (no question, answer, note or summary text) is ever returned.
+ *
+ *   null                              — not a finished grade (a pending marker, a job still
+ *                                       running, an unparseable or unknown shape)
+ *   { atMs, model, notCompleted, mismatches, questions }
+ *
+ * Shapes (services/fairUse.cjs settle + grading/jobs.cjs):
+ *   synchronous grade : { state:'done', status, body:<JSON reply>, completedAtMs }
+ *   background job    : { ..., job:{ state:'done', final:<JSON reply>, model, doneAtMs } }
+ *                       { ..., job:{ state:'interrupted', results:[<JSON row>], interruptedAtMs } }
+ * A reply `{ ok:false }` (the grader's reply could not be used, or the job failed) is one
+ * grade not completed with reason "error".
+ */
+function summariseGradeRecord(data) {
+  if (!data || typeof data !== 'object') return null;
+  const notCompleted = { timeout: 0, unreadable: 0, error: 0, interrupted: 0 };
+  let mismatches = 0;
+  let questions = 0;
+  const addRow = (r) => {
+    if (!r || typeof r !== 'object') return;
+    questions += 1;
+    const reason = notCompletedReasonOf(r);
+    if (reason) notCompleted[reason] += 1;
+    else if (r.answerMismatch === true) mismatches += 1;
+  };
+  const addReply = (reply) => {
+    if (!reply || typeof reply !== 'object') return false;
+    if (reply.ok !== true) {
+      questions += 1;
+      notCompleted.error += 1;
+      return true;
+    }
+    if (Array.isArray(reply.results)) reply.results.forEach(addRow);
+    else addRow(reply); // a single check: the reply IS the one question's result
+    return true;
+  };
+
+  const job = data.job && typeof data.job === 'object' ? data.job : null;
+  if (job) {
+    if (job.state === 'done') {
+      const atMs = Number(job.doneAtMs);
+      if (!Number.isFinite(atMs)) return null;
+      const reply = safeJson(job.final);
+      if (!addReply(reply)) return null;
+      const model = job.model || (reply && reply.model) || null;
+      return { atMs, model: modelLabelOf(model), notCompleted, mismatches, questions };
+    }
+    if (job.state === 'interrupted') {
+      const atMs = Number(job.interruptedAtMs);
+      if (!Number.isFinite(atMs) || !Array.isArray(job.results)) return null;
+      for (const raw of job.results) addRow(safeJson(raw));
+      return { atMs, model: modelLabelOf(job.model), notCompleted, mismatches, questions };
+    }
+    return null; // queued / running: not finished, not counted
+  }
+
+  if (data.state !== 'done') return null;
+  const atMs = Number(data.completedAtMs);
+  if (!Number.isFinite(atMs)) return null;
+  const reply = safeJson(data.body);
+  if (!addReply(reply)) return null;
+  return { atMs, model: modelLabelOf(reply.model), notCompleted, mismatches, questions };
+}
+
+function emptyWindow() {
+  const notCompleted = {};
+  for (const reason of NOT_COMPLETED_REASONS) notCompleted[reason] = { count: 0, charged: NOT_COMPLETED_CHARGED };
+  return { records: 0, questions: 0, gradesByModel: {}, notCompleted, answerMismatches: 0 };
+}
+
+function addToWindow(win, s) {
+  win.records += 1;
+  win.questions += s.questions;
+  win.gradesByModel[s.model] = (win.gradesByModel[s.model] || 0) + 1;
+  for (const reason of NOT_COMPLETED_REASONS) win.notCompleted[reason].count += s.notCompleted[reason] || 0;
+  win.answerMismatches += s.mismatches;
+}
+
+/**
+ * Fold summarised records into the two IST windows. Pure (now is passed in).
+ * `today` = the IST calendar day of `nowMs`; `last7Days` = today and the 6 IST days before.
+ */
+function foldGradeWindows(summaries, nowMs) {
+  const todayKey = istDayKey(nowMs);
+  const windowStartKey = ghAddIstDays(todayKey, -(GH_WINDOW_DAYS - 1));
+  const today = emptyWindow();
+  const last7Days = emptyWindow();
+  let oldestRecordMs = null;
+  for (const s of summaries) {
+    if (!s) continue;
+    const key = istDayKey(s.atMs);
+    if (key < windowStartKey || key > todayKey) continue;
+    addToWindow(last7Days, s);
+    if (key === todayKey) addToWindow(today, s);
+    if (oldestRecordMs === null || s.atMs < oldestRecordMs) oldestRecordMs = s.atMs;
+  }
+  return { todayKey, windowStartKey, today, last7Days, oldestRecordMs };
+}
+
 function createAdminTelemetryRoutes(deps) {
   const { sendJson, firebaseAdmin, telemetry, getTokenTelemetry } = deps;
+  const now = typeof deps.now === 'function' ? deps.now : () => Date.now();
 
   function adminUids() {
     return String(process.env.ADMIN_FIREBASE_UIDS || '')
@@ -465,14 +655,152 @@ function createAdminTelemetryRoutes(deps) {
     };
   }
 
-  // GET /api/admin/token-telemetry
+  /* ── HARDEN-1 PR-2 · grader health (read-only) ─────────────────────────── */
+
+  function graderHealthFirestore() {
+    if (deps.adminFirestore) return deps.adminFirestore;
+    try {
+      return firebaseAdmin && typeof firebaseAdmin.firestore === 'function' ? firebaseAdmin.firestore() : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * The stored grade records of the window, read-only. Returns
+   * { summaries, studentsScanned, studentsInWindow, studentsTruncated, recordsTruncated,
+   *   readsFailed, authTruncated } — or null when Auth or Firestore is unavailable.
+   */
+  async function readGradeRecords(nowMs, windowStartKey) {
+    const db = graderHealthFirestore();
+    if (!db || !firebaseAdmin || typeof firebaseAdmin.auth !== 'function') return null;
+    const sinceMs = ghIstDayStartMs(windowStartKey);
+    // A student who graded inside the window held an ID token refreshed within the hour
+    // before that grade. An account with no refresh time on record is kept (never dropped).
+    const refreshFloorMs = sinceMs - GH_HOUR_MS;
+
+    const candidates = [];
+    let pageToken;
+    let pages = 0;
+    do {
+      const result = await firebaseAdmin.auth().listUsers(GH_AUTH_PAGE_SIZE, pageToken);
+      for (const u of (result && result.users) || []) {
+        const uid = u && typeof u.uid === 'string' ? u.uid : '';
+        if (!uid) continue;
+        const refreshed = Date.parse(String((u.metadata && u.metadata.lastRefreshTime) || ''));
+        const refreshedMs = Number.isFinite(refreshed) ? refreshed : null;
+        if (refreshedMs !== null && refreshedMs < refreshFloorMs) continue;
+        candidates.push({ uid, refreshedMs });
+      }
+      pageToken = result && result.pageToken ? result.pageToken : undefined;
+      pages += 1;
+    } while (pageToken && pages < GH_MAX_AUTH_PAGES);
+    candidates.sort((a, b) => (b.refreshedMs === null ? -Infinity : b.refreshedMs) - (a.refreshedMs === null ? -Infinity : a.refreshedMs));
+    const scanned = candidates.slice(0, GH_MAX_STUDENTS);
+
+    const summaries = [];
+    let readsFailed = 0;
+    let recordsTruncated = 0;
+    await Promise.all(
+      scanned.map(async ({ uid }) => {
+        try {
+          const snap = await db
+            .collection(GRADING_RESULTS_COLLECTION)
+            .doc(uid)
+            .collection(GRADING_RESULTS_SEGMENTS.attempts)
+            .where('completedAtMs', '>=', sinceMs)
+            .orderBy('completedAtMs', 'desc')
+            .limit(GH_PER_STUDENT_LIMIT)
+            .get();
+          const docs = snap && Array.isArray(snap.docs) ? snap.docs : [];
+          if (docs.length >= GH_PER_STUDENT_LIMIT) recordsTruncated += 1;
+          for (const d of docs) summaries.push(summariseGradeRecord(typeof d.data === 'function' ? d.data() : null));
+        } catch {
+          readsFailed += 1;
+        }
+      })
+    );
+    return {
+      summaries,
+      studentsInWindow: candidates.length,
+      studentsScanned: scanned.length,
+      studentsTruncated: candidates.length > scanned.length,
+      recordsTruncated,
+      readsFailed,
+      authTruncated: Boolean(pageToken),
+    };
+  }
+
+  /** The card's payload. Counts only; no student identity, no reply text. */
+  async function buildGraderHealthPayload() {
+    const nowMs = now();
+    const counters =
+      telemetry && typeof telemetry.snapshot === 'function' ? telemetry.snapshot() || {} : {};
+    const todayKey = istDayKey(nowMs);
+    const windowStartKey = ghAddIstDays(todayKey, -(GH_WINDOW_DAYS - 1));
+
+    let read = null;
+    try {
+      read = await readGradeRecords(nowMs, windowStartKey);
+    } catch {
+      read = null;
+    }
+    let records;
+    if (read === null) {
+      records = { available: false };
+    } else {
+      const folded = foldGradeWindows(read.summaries, nowMs);
+      records = {
+        available: true,
+        today: folded.today,
+        last7Days: folded.last7Days,
+        oldestRecordMs: folded.oldestRecordMs,
+        studentsInWindow: read.studentsInWindow,
+        studentsScanned: read.studentsScanned,
+        studentsTruncated: read.studentsTruncated,
+        studentsWithRecordsTruncated: read.recordsTruncated,
+        perStudentLimit: GH_PER_STUDENT_LIMIT,
+        readsFailed: read.readsFailed,
+        authTruncated: read.authTruncated,
+      };
+    }
+
+    return {
+      ok: true,
+      view: GRADER_HEALTH_VIEW,
+      generatedAtMs: nowMs,
+      timeZone: 'Asia/Kolkata',
+      todayKey,
+      windowStartKey,
+      windowDays: GH_WINDOW_DAYS,
+      models: {
+        configured: modelLabelOf(resolveGradingModel().model),
+        fallback: modelLabelOf(GRADING_FALLBACK_MODEL),
+      },
+      records,
+      counters: {
+        uptimeSeconds: Math.floor(process.uptime()),
+        gradingModelFallback: toNumber(counters['grading.model_fallback']),
+        signInRefreshDenials: toNumber(counters[DENY_REAUTH_REQUIRED]),
+      },
+    };
+  }
+
+  // GET /api/admin/token-telemetry  (and ?view=grader-health — HARDEN-1 PR-2)
   async function handleGetTokenTelemetry(req, res) {
     const auth = await requireFirebaseAdmin(req);
     if (!auth.ok) return sendJson(res, auth.status, { ok: false, error: auth.error });
+    let view = '';
+    try {
+      view = new URL(String((req && req.url) || ''), 'http://local').searchParams.get('view') || '';
+    } catch {
+      view = '';
+    }
+    if (view === GRADER_HEALTH_VIEW) return sendJson(res, 200, await buildGraderHealthPayload());
     return sendJson(res, 200, buildTelemetryPayload());
   }
 
-  return { handleGetTokenTelemetry, buildTelemetryPayload, requireFirebaseAdmin };
+  return { handleGetTokenTelemetry, buildTelemetryPayload, buildGraderHealthPayload, requireFirebaseAdmin };
 }
 
 module.exports = {
@@ -483,4 +811,8 @@ module.exports = {
   RATE_LIMIT_METRICS,
   REPORTED_WORKLOAD_CLASSES,
   estimateCostUsd,
+  GRADER_HEALTH_VIEW,
+  NOT_COMPLETED_REASONS,
+  summariseGradeRecord,
+  foldGradeWindows,
 };
