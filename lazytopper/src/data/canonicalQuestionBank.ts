@@ -2107,9 +2107,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "2026-TRIG-P1-A-041",         // not-board-content: "from which side should you start a proof" is proof-writing advice, not a question on the syllabus
   "2026-TRIG-P1-A-043",         // not-board-content: "what final phrase ends a proof" (Hence proved) is exam etiquette, not syllabus content
   "2026-TRIG-P1-A-044",         // not-board-content: "what to do before part (i) of a case study" is exam technique, not syllabus content
-  // ---- CBQ-1 C2 (owner ruling via CI-1 05:47Z, 2026-10-07): water displacement by a dropped solid is the deleted
-  // "conversion of solids" family — withheld (kept in the pack, not served) ----
-  "LTG-M-SAV-250", "LTG-M-SAV-259",
 ]);
 
 /**
