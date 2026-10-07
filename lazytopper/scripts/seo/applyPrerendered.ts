@@ -396,10 +396,10 @@ export const BOOT_SCRIPT_ID = "lt-boot";
 export type DeferredBoot = "narrow" | "any";
 
 /**
- * LOW-END-3 PR-2 (D74): the files whose app start waits for the first frame — exactly the files
+ * LOW-END-3 PR-2 (D74): the files whose app start waits for first contentful paint — exactly the files
  * `main.tsx` HYDRATES (`hydratableRoutePreload` in src/App.tsx; `deferredBoot.guard.test.ts`
  * pins the two lists to each other). On these, React adopts the painted DOM and changes nothing,
- * so starting the app after the first frame cannot move LCP to a re-render (the cause of PR-1's
+ * so starting the app after first contentful paint cannot move LCP to a re-render (the cause of PR-1's
  * C LCP regression); every other file keeps today's head module script and preloads.
  *   - "any": /check-your-answer, which hydrates at every width (no DesktopShell).
  *   - "narrow": the MOBILE file of Notes, Topic Hub, Exam Trends and Predicted Questions. Those
@@ -647,16 +647,16 @@ export function verifyBuiltPages(
       }
       const html = readFileSync(absolute, "utf8");
       if (html.includes(EMPTY_ROOT)) failures.push(`${path}: the ${variant} file ${file} has an EMPTY body`);
-      // LOW-END-3 PR-2 (D74): a hydrated file boots after the first frame, every other file as
+      // LOW-END-3 PR-2 (D74): a hydrated file boots after first contentful paint, every other file as
       // before. Its route preloads then live in the boot script, and are checked below as links.
       const boot = bootScriptIn(html);
       const wantBoot = deferredBootFor(path, variant);
       if (wantBoot !== null && entrySrc !== null) {
         if (!boot || boot.boot !== wantBoot || boot.entry !== entrySrc || html.split(`id="${BOOT_SCRIPT_ID}"`).length !== 2) {
-          failures.push(`${path}: the ${variant} file ${file} does not boot the entry ${entrySrc} once, after the first frame ("${wantBoot}")`);
+          failures.push(`${path}: the ${variant} file ${file} does not boot the entry ${entrySrc} once, after first contentful paint ("${wantBoot}")`);
         }
         if (/<script\b[^>]*\btype="module"/.test(html) || modulepreloadHrefsIn(html).length > 0) {
-          failures.push(`${path}: the ${variant} file ${file} still starts JS before the first frame (module script or modulepreload in the markup)`);
+          failures.push(`${path}: the ${variant} file ${file} still starts JS before first contentful paint (module script or modulepreload in the markup)`);
         }
       } else if (boot) {
         failures.push(`${path}: the ${variant} file ${file} defers its boot but is not hydrated (deferredBootFor is null)`);
@@ -844,7 +844,7 @@ export function applyArtifact(
       );
     }
   }
-  // LOW-END-3 PR-2 (D74): hydrated files start the app after the first frame.
+  // LOW-END-3 PR-2 (D74): hydrated files start the app after first contentful paint.
   const entryScript = options.preloads !== false ? entryScriptTagOf(cleanShell) : null;
   const finish = (path: string, html: string, hrefs: readonly string[], variant: "mobile" | "desktop"): string => {
     const styled = withRouteStyles(html, routeStyles.get(path) ?? []);

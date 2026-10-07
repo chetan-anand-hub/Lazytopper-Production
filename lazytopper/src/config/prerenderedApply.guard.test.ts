@@ -416,7 +416,7 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
         "/assets/tokens-GGGGGGGG.js",
       ];
       // LOW-END-3 PR-2 (D74): the MOBILE Notes file is hydrated, so the same preloads start from
-      // the deferred boot script after the first frame; the desktop file keeps them in the head.
+      // the deferred boot script after first contentful paint; the desktop file keeps them in the head.
       expect(modulepreloadHrefsIn(readFileSync(join(out, "notes", "electricity.html"), "utf8"))).toEqual([]);
       expect(bootScriptIn(readFileSync(join(out, "notes", "electricity.html"), "utf8"))?.preloads).toEqual(notesPreloads);
       expect(modulepreloadHrefsIn(readFileSync(join(out, "__desktop", "notes", "electricity.html"), "utf8"))).toEqual(notesPreloads);
@@ -475,7 +475,7 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
     }
   });
 
-  it("LOW-END-3 PR-2 (D74): the hydrated mobile Notes file boots the entry once, after the first frame", () => {
+  it("LOW-END-3 PR-2 (D74): the hydrated mobile Notes file boots the entry once, after first contentful paint", () => {
     const { out, art, cleanup } = build();
     try {
       applyArtifact(out, art, PATHS);
@@ -497,7 +497,7 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
     }
   });
 
-  it("pin (D74) RED: a hydrated file that starts the entry before the first frame", () => {
+  it("pin (D74) RED: a hydrated file that starts the entry before first contentful paint", () => {
     const { out, art, cleanup } = build();
     try {
       applyArtifact(out, art, PATHS);
@@ -509,8 +509,8 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
         "utf8",
       );
       const failures = verifyBuiltPages(out, PATHS).failures.join(" ");
-      expect(failures).toContain("does not boot the entry /assets/index-AAAAAAAA.js once, after the first frame");
-      expect(failures).toContain("still starts JS before the first frame");
+      expect(failures).toContain("does not boot the entry /assets/index-AAAAAAAA.js once, after first contentful paint");
+      expect(failures).toContain("still starts JS before first contentful paint");
     } finally {
       cleanup();
     }

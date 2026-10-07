@@ -1,11 +1,12 @@
 /**
  * LOW-END-3 PR-2 — guards for the two build-side halves of hydration.
  *
- *   1. D74 deferred boot: the files `applyPrerendered` boots after the first frame are EXACTLY the
+ *   1. D74 deferred boot: the files `applyPrerendered` boots after first contentful paint are EXACTLY the
  *      files `main.tsx` hydrates. A file that boots late but is then rebuilt by `createRoot` moves
  *      LCP to the re-render (PR-1's C regression); a hydrated file that boots early loses the FCP
  *      gain. Both lists are walked over every advertised path, at both widths.
- *   2. The boot loader itself: nothing starts before the first frame; it starts once; a "narrow"
+ *   2. The boot loader itself: nothing starts before the first contentful paint (first frame only
+ *      where paint timing is missing); it starts once; a "narrow"
  *      page on a wide viewport (not hydrated) starts at once.
  *   3. `separateAdjacentText` (the capture): React's text-node boundaries survive serialization,
  *      so the served markup can hydrate.
@@ -56,7 +57,19 @@ function runLoader(
   wideViewport: boolean,
   visibility: "visible" | "hidden" = "visible",
   paint = true,
+  env: {
+    /** "none": no PerformanceObserver at all; "throw-construct" / "throw-observe": it throws there. */
+    observer?: "fake" | "none" | "throw-construct" | "throw-observe";
+    /** false: no requestAnimationFrame. */
+    raf?: boolean;
+    /** false: no matchMedia. */
+    matchMedia?: boolean;
+    /** Paint entries the browser recorded BEFORE the script ran (delivered only to a buffered observer). */
+    pastPaints?: string[];
+  } = {},
 ) {
+  const { observer = "fake", raf = true, matchMedia = true, pastPaints = [] } = env;
+  const buffered: Array<() => void> = [];
   const imports: string[] = [];
   const links: string[] = [];
   const frames: Array<() => void> = [];
@@ -71,17 +84,30 @@ function runLoader(
     static supportedEntryTypes = paint ? ["paint", "largest-contentful-paint"] : ["mark"];
     private entry: (typeof observers)[number];
     constructor(cb: (typeof observers)[number]["cb"]) {
+      if (observer === "throw-construct") throw new Error("PerformanceObserver: not allowed here");
       this.entry = { cb, options: null, on: true };
       observers.push(this.entry);
     }
     observe(options: unknown) {
+      if (observer === "throw-observe") throw new Error("observe: unsupported options");
       this.entry.options = options;
+      // A real browser queues buffered entries and delivers them asynchronously after observe().
+      if ((options as { buffered?: boolean }).buffered) {
+        const entry = this.entry;
+        for (const name of pastPaints) {
+          buffered.push(() => {
+            if (entry.on) entry.cb({ getEntries: () => [{ name }] }, { disconnect: () => { entry.on = false; } });
+          });
+        }
+      }
     }
   }
   const fakeWindow = {
-    requestAnimationFrame: (fn: () => void) => frames.push(fn),
-    matchMedia: (query: string) => ({ matches: wideViewport && query === "(min-width: 1024px)" }),
-    PerformanceObserver: FakeObserver,
+    requestAnimationFrame: raf ? (fn: () => void) => frames.push(fn) : undefined,
+    matchMedia: matchMedia
+      ? (query: string) => ({ matches: wideViewport && query === "(min-width: 1024px)" })
+      : undefined,
+    PerformanceObserver: observer === "none" ? undefined : FakeObserver,
   };
   const fakeDocument = {
     currentScript: script,
@@ -114,7 +140,8 @@ function runLoader(
     }
   };
   const runTimer = (ms: number) => timers.filter((timer) => timer.ms === ms).forEach((timer) => timer.fn());
-  return { imports, links, frames, timers, observers, hide, report, runTimer };
+  const flushBuffered = () => buffered.splice(0).forEach((fn) => fn());
+  return { imports, links, frames, timers, observers, hide, report, runTimer, flushBuffered };
 }
 
 describe("D74 — the boot loader", () => {
@@ -136,6 +163,7 @@ describe("D74 — the boot loader", () => {
     state.runTimer(10000);
     state.hide();
     expect(state.imports).toHaveLength(1);
+    expect(state.links).toHaveLength(2);
   });
 
   it("no early timer: nothing starts before first paint, however long it takes (PR-1 had 200 ms)", () => {
@@ -151,6 +179,68 @@ describe("D74 — the boot loader", () => {
     expect(state.imports).toEqual([]);
     state.frames.splice(0).forEach((fn) => fn());
     expect(state.imports).toEqual([]);
+    state.runTimer(0);
+    expect(state.imports).toEqual(["/assets/index-EEEEEEEE.js"]);
+  });
+
+  it("a FCP that happened BEFORE the script ran (buffered entry) still starts the app, after a task", () => {
+    const state = runLoader("any", false, "visible", true, { pastPaints: ["first-paint", "first-contentful-paint"] });
+    expect(state.imports).toEqual([]);
+    state.flushBuffered();
+    expect(state.imports).toEqual([]);
+    state.runTimer(0);
+    expect(state.imports).toEqual(["/assets/index-EEEEEEEE.js"]);
+  });
+
+  it("the paint observer disconnects at the FCP (no second scheduling from later paint entries)", () => {
+    const state = runLoader("any", false);
+    state.report("first-contentful-paint");
+    expect(state.observers.map((o) => o.on)).toEqual([false]);
+    expect(state.timers.filter((timer) => timer.ms === 0)).toHaveLength(1);
+  });
+
+  for (const where of ["throw-construct", "throw-observe"] as const) {
+    it(`a PerformanceObserver that throws (${where}) falls back to the first frame, then a task`, () => {
+      const state = runLoader("any", false, "visible", true, { observer: where });
+      expect(state.imports).toEqual([]);
+      expect(state.frames).toHaveLength(1);
+      state.frames.splice(0).forEach((fn) => fn());
+      expect(state.imports).toEqual([]);
+      state.runTimer(0);
+      expect(state.imports).toEqual(["/assets/index-EEEEEEEE.js"]);
+    });
+  }
+
+  it("no PerformanceObserver at all: the first frame, then a task", () => {
+    const state = runLoader("any", false, "visible", true, { observer: "none" });
+    expect(state.observers).toEqual([]);
+    expect(state.frames).toHaveLength(1);
+    state.frames.splice(0).forEach((fn) => fn());
+    state.runTimer(0);
+    expect(state.imports).toEqual(["/assets/index-EEEEEEEE.js"]);
+  });
+
+  it("neither paint timing nor requestAnimationFrame: starts at once", () => {
+    const state = runLoader("any", false, "visible", false, { raf: false });
+    expect(state.imports).toEqual(["/assets/index-EEEEEEEE.js"]);
+    expect(state.links).toHaveLength(2);
+  });
+
+  it("the 10 s safety net starts the app when no paint is ever reported", () => {
+    const state = runLoader("any", false);
+    state.runTimer(10000);
+    expect(state.imports).toEqual(["/assets/index-EEEEEEEE.js"]);
+    // ...and a late FCP after it does not start it twice.
+    state.report("first-contentful-paint");
+    state.runTimer(0);
+    expect(state.imports).toHaveLength(1);
+    expect(state.links).toHaveLength(2);
+  });
+
+  it('a "narrow" page where matchMedia is missing waits for the paint (no crash, no early start)', () => {
+    const state = runLoader("narrow", true, "visible", true, { matchMedia: false });
+    expect(state.imports).toEqual([]);
+    state.report("first-contentful-paint");
     state.runTimer(0);
     expect(state.imports).toEqual(["/assets/index-EEEEEEEE.js"]);
   });

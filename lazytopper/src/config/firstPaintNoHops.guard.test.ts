@@ -149,7 +149,7 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
         );
         // Unchanged: the entry stylesheet link. LOW-END-3 PR-2 (D74): /check-your-answer is
         // hydrated at every width, so its route preload moved from the head into the deferred
-        // boot script, which starts it after the first frame.
+        // boot script, which starts it after first contentful paint.
         expect(html, file).toContain(ENTRY_LINK);
         expect(modulepreloadHrefsIn(html), file).toEqual([]);
         expect(bootScriptIn(html)?.preloads, file).toEqual(["/assets/CheckYourAnswerPage-CCCCCCCC.js"]);
