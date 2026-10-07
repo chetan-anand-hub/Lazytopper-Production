@@ -51,6 +51,12 @@ vi.mock("./pages/HighlyProbableQuestions", async () => {
 type Prerendered = { path: string; html: string } | null;
 
 /**
+ * The real Notes page renders the whole chapter (KaTeX included) twice per test, in two fresh module
+ * graphs. On a loaded host that measured 57-65 s, over the 60 s default, so these tests get 3 min.
+ */
+const HEAVY_TEST_TIMEOUT_MS = 180_000;
+
+/**
  * ★ A FRESH MODULE GRAPH PER PAGE LOAD. The capture and the boot are two different page loads,
  * so each gets its own App, providers and caches (lazy components, the note-spec cache). Reusing
  * one graph would let the boot find the chapter spec the capture already loaded, and a missing
@@ -116,7 +122,7 @@ async function capture(path: string): Promise<{ served: string; settled: string 
   });
   const testId = PAGES.find((page) => page.path === path)?.testId ?? "";
   const ready = testId ? `[data-testid="${testId}"]` : ".lt-note";
-  await waitFor(() => expect(host.querySelector(ready)).not.toBeNull(), { timeout: 15000 });
+  await waitFor(() => expect(host.querySelector(ready)).not.toBeNull(), { timeout: 60000 });
   const settled = normalized(host);
   stripAuthChrome(host);
   separateAdjacentText(host);
@@ -186,7 +192,7 @@ describe("LOW-END-3 PR-2 (e) — the five named pages hydrate the served markup 
       // D76: the hydrated page settles to exactly what the createRoot path shows (including the
       // signed-out "Log in" button the capture stripped, which appears right after hydration).
       expect(normalized(result.host)).toBe(settled);
-    });
+    }, HEAVY_TEST_TIMEOUT_MS);
   }
 });
 
@@ -236,5 +242,5 @@ describe("LOW-END-3 PR-2 (e) — createRoot is kept where hydration cannot match
     // The control for the hydrated cases: on the createRoot path the served nodes ARE removed,
     // so an empty `removed` list above is a measurement, not an instrument that cannot fire.
     expect(result.removed.length).toBeGreaterThan(0);
-  });
+  }, HEAVY_TEST_TIMEOUT_MS);
 });
