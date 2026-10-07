@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, Suspense } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
@@ -14,6 +14,10 @@ import { practiceCardAttemptIdentity } from "../../services/attemptDedupKey";
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
 // CBQ-1 PR-1: the visible "CBQ" label, shown iff isCbq(q) (the one classifier).
 import { CbqLabel } from "../../lib/cbq/CbqLabel";
+import { lazyWithRetry } from "../../lib/lazyWithRetry";
+// DIAGRAMS-1 PR-2a — a solution figure drawn from the question's own numbers; lazy, so it
+// loads only when a solution is opened (null when the row has no bound figure).
+const SolutionFigure = lazyWithRetry(() => import("../../diagrams/SolutionFigure"));
 
 const REPORT_TYPES = [
   "Wrong answer given",
@@ -689,6 +693,9 @@ export function PracticeQuestionCard({
               ? "Use this CBSE-style marking guide to compare your written answer. This is not grading of your work."
               : "Compare your working with these steps. This is learning help, not grading."}
           </div>
+          <Suspense fallback={null}>
+            <SolutionFigure questionId={String(q.id)} />
+          </Suspense>
           {hasUnsafeWrittenStepMarks && (
             <div style={{
               marginBottom: 8,

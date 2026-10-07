@@ -123,6 +123,14 @@ describe("DIAGRAMS-1 PR-1 bindings (Circles + Triangles) are exactly the eye-con
     expect(mismatched.map((f) => `${f.questionId}:${f.chapter}`)).toEqual([]);
   });
 
+  it("BANK-FIX-3 PR-B: PYQ-M-2026-TRI-004 (section formula + distance) is filed under Coordinate Geometry; crop and id unchanged", () => {
+    const f = pr1Entries.filter((e) => e.questionId === "PYQ-M-2026-TRI-004");
+    expect(f.map((e) => [e.id, e.chapter, e.filePath])).toEqual([
+      ["maths-triangles-fig-pyq-m-2026-tri-004", "Coordinate Geometry", "/figures/pyq-maths/triangles/PYQ-M-2026-TRI-004.webp"],
+    ]);
+    expect(inBank.get("PYQ-M-2026-TRI-004")?.topicKey).toBe("coordinate-geometry");
+  });
+
   it("every entry has the registry's raster-figure shape", () => {
     const bad = pr1Entries.filter(
       (f) => f.subject !== "maths" || f.isInteractive !== false || f.keywords.length !== 0 || !isDescriptiveAlt(f.title)

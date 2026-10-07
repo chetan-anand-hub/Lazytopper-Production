@@ -267,7 +267,7 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
   { id: "maths-circles-fig-pyq-m-2024-circ-010a", title: "Circle with centre O; diameter AB extended to P; tangent at Q passes through P; AQ and BQ drawn; angle BAQ marked 30°", chapter: "Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2024-CIRC-010a.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2024-CIRC-010a" }, // 30-2-1(Mathematics Standard).pdf p17 (embedded image)
   { id: "maths-circles-fig-pyq-m-2025-circ-006", title: "Circle with centre O; diameter AB extended to P; tangent PC touches the circle at C; CA, CB and OC drawn", chapter: "Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2025-CIRC-006.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2025-CIRC-006" }, // 30-3-1_Mathematics Standard.pdf p15
   { id: "maths-circles-fig-pyq-m-2025-circ-007", title: "Circle with centre O; chord AB with OM perpendicular to it at M; tangent PB touches the circle at B; OP drawn", chapter: "Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2025-CIRC-007.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2025-CIRC-007" }, // 30-3-3_Mathematics Standard.pdf p15
-  { id: "maths-triangles-fig-pyq-m-2026-tri-004", title: "Triangle with vertices A(1, 5), B(-2, 1) and C(4, 2); D on BC joined to A", chapter: "Triangles", subject: "maths", filePath: "/figures/pyq-maths/triangles/PYQ-M-2026-TRI-004.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2026-TRI-004" }, // 1172-3_30-5-3  (Mathematics Standard).pdf p13
+  { id: "maths-triangles-fig-pyq-m-2026-tri-004", title: "Triangle with vertices A(1, 5), B(-2, 1) and C(4, 2); D on BC joined to A", chapter: "Coordinate Geometry", subject: "maths", filePath: "/figures/pyq-maths/triangles/PYQ-M-2026-TRI-004.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2026-TRI-004" }, // 1172-3_30-5-3  (Mathematics Standard).pdf p13
   { id: "maths-circles-fig-pyq-m-2026-circ-002", title: "Circle with centre O; chord AB; angle AOB marked 120°; minor segment shaded", chapter: "Areas Related to Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2026-CIRC-002.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2026-CIRC-002" }, // 1171-1_30-4-1  (Mathematics Standard).pdf p15
   { id: "maths-circles-fig-pyq-m-2026-circ-005", title: "Circles with centres M and N; line T-A-P touches them at A and P; line T-B-Q touches them at B and Q; MQ = 13, NB = 8, QB = 35 cm; MN drawn; right angles marked", chapter: "Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2026-CIRC-005.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2026-CIRC-005" }, // 1171-1_30-4-1  (Mathematics Standard).pdf p17
   { id: "maths-triangles-fig-apq-m-tri-001", title: "Triangle PQR with S on PQ and T on QR; ST drawn; angles at R and at T marked; PR = 20 cm", chapter: "Triangles", subject: "maths", filePath: "/figures/apq-maths/triangles/APQ-M-TRI-001.webp", keywords: [], isInteractive: false, questionId: "APQ-M-TRI-001" }, // Mathematics-PQ1.pdf p5
@@ -318,16 +318,7 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
   "APQ-M-CIRC-010": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
   "PYQ-M-CIRC-001": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
   "APQ-M-TRI-005": "stays withheld: solutionSteps[0] is a 'REQUIRES-FIGURE' placeholder",
-  "APQ-M-CIRC-009": "stays withheld: answer '(cannot be uniquely determined ...)' contradicts finalAnswer '(c) 80°'",
-  "PYQ-M-TRI-002": "stays withheld: stem 'AB PQ' lost its parallel sign",
-  "PYQ-M-TRI-003": "stays withheld: stem 'A = C' lost its angle signs",
-  "PYQ-M-TRI-004": "stays withheld: stem 'DE BC' lost its parallel sign",
-  "PYQ-M-CIRC-006": "stays withheld: '25o' / '65 o' degree signs garbled",
-  "PYQ-M-CIRC-007": "stays withheld: 'COD = 120 , then BAO' lost angle and degree signs",
-  "PYQ-M-CIRC-013": "stays withheld: 'QAP + APR = 90 .' lost angle and degree signs",
-  "PYQ-M-2024-CIRC-003": "stays withheld: run-together stem with the angle sign garbled to a stray glyph",
-  "PYQ-M-2024-CIRC-010a": "stays withheld: run-together garbled stem; answer and steps are digit garbage",
-  "PYQ-M-2026-TRI-004": "stays withheld: answer/steps glyph-garbled (also a coordinate-geometry item tagged triangles)",
+  "APQ-M-CIRC-009": "stays withheld (D37): the official APQ item is internally inconsistent - KL = 6, KM = LM = 5 force ∠K ≈ 53.13°, but the figure labels ∠K = 50° and the key 80° relies on that label",
   "PYQ-M-2026-CIRC-005": "stays withheld: mark residues inside the stem; finalAnswer covers part (ii) only",
 
   // DIAGRAMS-1 PR-6 — maths rows BANK-FIX withheld for their missing figure, now bound.
