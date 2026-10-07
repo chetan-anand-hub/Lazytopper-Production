@@ -117,8 +117,14 @@ function fixtureRows(label: string, n: number, duplicateLast = false) {
   });
 }
 
+/** Every bank chapter's student-visible CBQ count, taken once (the pool build is the slow part). */
+const VISIBLE: Record<string, number> = {};
+
 beforeAll(async () => {
   await ensureAllBankChapters();
+  for (const slug of BANK_CHAPTER_SLUGS) {
+    VISIBLE[slug] = visibleCbqCount(subjectOf(slug), practiceTopicLabel(subjectOf(slug), slug));
+  }
 }, 600_000);
 
 describe("CBQ-1 C3 · per-chapter ≥100 student-visible CBQ ratchet", () => {
@@ -130,20 +136,19 @@ describe("CBQ-1 C3 · per-chapter ≥100 student-visible CBQ ratchet", () => {
 
   it("the counter is the chooser's: buildCbqPracticePool equals chapterCbqCounts on every chapter", () => {
     for (const slug of BANK_CHAPTER_SLUGS) {
-      const subject = subjectOf(slug);
-      expect(visibleCbqCount(subject, practiceTopicLabel(subject, slug)), slug).toBe(chapterCbqCounts(subject, slug).total);
+      expect(VISIBLE[slug], slug).toBe(chapterCbqCounts(subjectOf(slug), slug).total);
     }
-  });
+  }, 600_000);
 
   it("★ every PINNED chapter has >= 100 student-visible CBQs", () => {
     const counts: Record<string, number> = {};
-    for (const slug of PINNED) counts[slug] = visibleCbqCount(subjectOf(slug), practiceTopicLabel(subjectOf(slug), slug));
+    for (const slug of PINNED) counts[slug] = VISIBLE[slug];
     expect(belowFloor(counts), JSON.stringify(counts)).toEqual([]);
   });
 
   it("★ RATCHET: no KNOWN_BELOW chapter has reached 100 (if one has, move it into PINNED)", () => {
     for (const slug of KNOWN_BELOW) {
-      const n = visibleCbqCount(subjectOf(slug), practiceTopicLabel(subjectOf(slug), slug));
+      const n = VISIBLE[slug];
       expect(n, `${slug} has ${n} student-visible CBQs — move it into PINNED`).toBeLessThan(FLOOR);
     }
   });
