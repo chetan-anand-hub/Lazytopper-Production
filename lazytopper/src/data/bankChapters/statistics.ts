@@ -41,7 +41,7 @@ export default defineChapter("statistics", [
   [345, STATISTICS_PYQ_2024, false],
   [357, STATISTICS_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
-  [445, STATISTICS_CBQ_LT_GENERATED, false],
+  [448, STATISTICS_CBQ_LT_GENERATED, false],
 ], [
   "STAT-M17",
   "APQ-M-STAT-003",
