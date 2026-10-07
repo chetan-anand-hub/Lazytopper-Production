@@ -61,7 +61,6 @@ export const SCIENCE_CASE_BASED_QUESTIONS: CanonicalQuestion[] = [
   },
   {
     "id": "CASE-SCI-EL-002",
-    "competencyVerified": true,
     "subject": "Science",
     "topicKey": "electricity",
     "subtopic": "Resistance",
