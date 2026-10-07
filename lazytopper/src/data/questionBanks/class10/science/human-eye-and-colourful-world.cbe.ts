@@ -17,7 +17,7 @@ export const HEYE_CBE: CanonicalQuestion[] = [
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
     "questionText": "Fig. 1 shows the effect of a prism on white light. The process shown in Fig. 1 is called",
-    "options": ["scattering", "total internal reflection", "reflection", "dispersion"],
+    "options": ["scattering", "reflection followed by scattering", "reflection", "dispersion"],
     "answer": "dispersion",
     "solutionSteps": [
       "[1 mark] dispersion — splitting of white light into its component colours by a prism is dispersion."

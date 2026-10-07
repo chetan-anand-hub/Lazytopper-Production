@@ -1177,10 +1177,10 @@ describe("GUARD-3 G1 — the ratchet: baseline + reviewed, both can only shrink"
     assert.equal(G3.applyRatchet([f("X")], { baseline: [b("X"), b("X")], reviewed: [] }).errors.length, 1);
     assert.equal(G3.applyRatchet([f("X")], { baseline: [b("X")], reviewed: [r("X")] }).errors.length, 1);
   });
-  test("RATCHET PIN: the lists never grow (baseline <= 0, reviewed <= 31); lower these numbers as rows are fixed", () => {
+  test("RATCHET PIN: the lists never grow (baseline <= 0, reviewed <= 29); lower these numbers as rows are fixed", () => {
     const files = G3.loadRatchetFiles();
     assert.ok(files.baseline.length <= 0, `baseline has ${files.baseline.length} entries`);
-    assert.ok(files.reviewed.length <= 31, `reviewed has ${files.reviewed.length} entries`);
+    assert.ok(files.reviewed.length <= 29, `reviewed has ${files.reviewed.length} entries`);
     for (const e of files.baseline) assert.ok(["C1", "C2", "C3"].includes(e.lane) && e.fu && e.file, JSON.stringify(e));
     for (const e of files.reviewed) assert.ok(e.reason.trim() && e.evidence.trim(), JSON.stringify(e));
   });
