@@ -22,7 +22,8 @@ const Z3_EXPECTED_COUNT = 102;
 // CBSE 2026-27 allows only 30/45/60) is withheld. It stays in the source array; it is not served.
 // BANK-FIX-1 PR-2 (2026-10-07): Z3-QE-003 (a quadratic-function graph case: intercepts/vertex, not 2026-27
 // Class 10 QE) and Z3-ARC-004 (its figure contradicts the text; no honest fix) are withheld too.
-const Z3_SYLLABUS_WITHHELD = ["Z3-ARC-004", "Z3-QE-003", "Z3-TG-110"];
+// BANK-FIX-3 (2026-10-07): Z3-QE-005 and Z3-QE-006 ask for a MAXIMUM area (2026-27 QE has no maxima) — withheld.
+const Z3_SYLLABUS_WITHHELD = ["Z3-ARC-004", "Z3-QE-003", "Z3-QE-005", "Z3-QE-006", "Z3-TG-110"];
 // Conservative absolute floor: the bank serves several thousand questions, so
 // this only fires on a catastrophic collapse. Kept well below the true count so
 // it never false-fails as the bank grows.

@@ -309,11 +309,9 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "Reason (R) correctly states that this condition of ratios (a₁/a₂ = b₁/b₂ = c₁/c₂) indicates coincident lines, which explains Assertion (A).",
     ],
   },
-  { id: "PLE-N01", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For a pair of linear equations to have no solution, their graphs must be:", options: ["Parallel lines","Intersecting lines","Coincident lines","Perpendicular lines"], answer: "Parallel lines", explanation: "The correct answer is Parallel lines. No solution means the lines are parallel (same slope, different intercepts).", finalAnswer: "No solution means the lines are parallel (same slope, different intercepts).", isCompetencyBased: false,
+  { id: "PLE-N01", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For a pair of linear equations to have no solution, their graphs must be:", options: ["Parallel lines","Intersecting lines","Coincident lines","Perpendicular lines"], answer: "Parallel lines", explanation: "The correct answer is Parallel lines. No solution means the lines are parallel (same slope, different intercepts).", finalAnswer: "Parallel lines", isCompetencyBased: false,
     solutionSteps: [
-      "A linear equation in two variables is typically represented in the form ax + by + c = 0, where a, b, c are real numbers and a, b are not both zero.",
-      "By definition and fundamental properties of linear equations, their graphical representation on a Cartesian plane is always a straight line.",
-      "Therefore, the correct option is (C) Straight line.",
+      "[1 mark] (a) Parallel lines — no solution means the two lines never meet, i.e. a₁/a₂ = b₁/b₂ ≠ c₁/c₂, so their graphs are parallel.",
     ],
   }
 ];
