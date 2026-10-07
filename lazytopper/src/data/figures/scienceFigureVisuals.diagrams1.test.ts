@@ -2,24 +2,27 @@
  * scienceFigureVisuals.diagrams1.test.ts — pins every DIAGRAMS-1 PR-3 binding (Light + Life Processes) one by one.
  *
  * ★ WHY. The figure binder is id-keyed and exact, and a WRONG figure is worse than none. Each entry below was cropped
- * from an official source (CBSE board paper 2023-2026 / CBSE SQP 2023-24 / CBSE Additional Practice Questions 2023-24 /
- * the chapter-wise booklet the row was transcribed from) and eye-confirmed against its own row before it was written.
+ * from an official source (CBSE board paper 2023-2026 / CBSE Additional Practice Questions 2023-24) and eye-confirmed against its own row before it was written.
  * This file makes a silent re-point, a typo, a missing or oversized asset, a non-WebP file, a chapter mismatch, or a
  * re-bound WRONG / decorative id fail loudly. The eye-confirm table (source PDF, page, clip, what was matched) lives
  * with the PR evidence; the trailing comment on each pin repeats source + page.
  *
- * Rows deliberately NOT bound are pinned too (no official printed figure exists for them); they must keep resolving
- * to NO figure until someone finds one and eye-confirms it.
+ * Rows deliberately NOT bound are pinned too (no official printed figure, a non-official source, or a figure that would
+ * give the answer away); they must keep resolving to NO figure. Bound rows that BANK-FIX withholds are declared, with a
+ * reason, in BOUND_BUT_WITHHELD (scienceFigureVisuals.ts); a declared row that is in fact served fails.
  */
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { canonicalQuestionBank } from "../canonicalQuestionBank";
+import { canonicalQuestionBank, RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 import { SCIENCE_FIGURE_VISUALS, getFiguresForQuestion } from "../visualConceptRegistry";
 import { resolveCanonicalSlug } from "../bankQuery";
+import { BOUND_BUT_WITHHELD as BOUND_BUT_WITHHELD_REASONS } from "./scienceFigureVisuals";
 
 const PUBLIC = path.resolve(__dirname, "..", "..", "..", "public");
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
+const inBank = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
+const BOUND_BUT_WITHHELD: readonly string[] = Object.keys(BOUND_BUT_WITHHELD_REASONS);
 
 // [questionId, filePath] in source order.
 const PR3_BINDINGS: ReadonlyArray<readonly [string, string]> = [
@@ -27,15 +30,11 @@ const PR3_BINDINGS: ReadonlyArray<readonly [string, string]> = [
   ["PYQ-S-2026-LIGHT-006", "/figures/pyq-science/light-reflection-and-refraction/PYQ-S-2026-LIGHT-006.webp"], // 31-2-2.pdf p27
   ["PYQ-S-2026-LIGHT-007", "/figures/pyq-science/light-reflection-and-refraction/PYQ-S-2026-LIGHT-007.webp"], // 31-3-1.pdf p25
   ["PYQ-S-2025-LIGHT-005", "/figures/pyq-science/light-reflection-and-refraction/PYQ-S-2025-LIGHT-005.webp"], // 31-2-1_Science.pdf (2025) p9
-  ["SQP-S-LIGHT-004", "/figures/sqp-science/light-reflection-and-refraction/SQP-S-LIGHT-004.webp"], // Science-SQP.pdf (2023-24) p6
   ["PYQ-S-2026-LIFEP-004", "/figures/pyq-science/life-processes/PYQ-S-2026-LIFEP-004.webp"], // 1190-1_31-4-1_Science.pdf p5
   ["PYQ-S-LIFE-002", "/figures/pyq-science/life-processes/PYQ-S-LIFE-002.webp"], // 31_2_1_Science.pdf (2023) p7
   ["PYQ-S-2024-LIFEP-007", "/figures/pyq-science/life-processes/PYQ-S-2024-LIFEP-007.webp"], // 31_5_1_Science.pdf (2024) p21
   ["APQ-S-LIFE-002", "/figures/other-science/life-processes/APQ-S-LIFE-002.webp"], // Science-PQ.pdf p4
   ["APQ-S-LIFE-012", "/figures/other-science/life-processes/APQ-S-LIFE-012.webp"], // Science-PQ2.pdf p9
-  ["SCO-S-LIFE-003", "/figures/chapterwise-science/life-processes/SCO-S-LIFE-003.webp"], // cbjescco06.pdf p1
-  ["SCO-S-LIFE-011", "/figures/chapterwise-science/life-processes/SCO-S-LIFE-011.webp"], // cbjescco06.pdf p2
-  ["SCO-S-LIFE-020", "/figures/chapterwise-science/life-processes/SCO-S-LIFE-020.webp"], // cbjescco06.pdf p3
 ];
 
 // Not bound on purpose — must resolve to no figure.
@@ -43,6 +42,8 @@ const PR3_NOT_BOUND = [
   "PYQ-S-2024-LIGHT-009", // NOT-FOUND: 31_4_3_Science.pdf (2024) p21 Q36 prints no figure; the OR part asks the student to DRAW
   "FND-L-QB-130", // OUT: Foundation study-package row (not an official source)
   "LP-M11", // OUT: AI-pack row; no official figure exists
+  "SQP-S-LIGHT-004", // DROPPED: BANK-FIX made the stem self-contained and the SQP lens figure gives away part (i) 'what kind of lens'
+  "SCO-S-LIFE-003", "SCO-S-LIFE-011", "SCO-S-LIFE-020", // DROPPED: only source is the cbse.online / rava.org.in booklet, not official
 ];
 
 // Census 2026-10-07 Appendix 3: bound figures BANK-FIX-1 PR-2 found WRONG. PR-3 must never bind any of them.
@@ -58,15 +59,17 @@ const CHAPTER_FOR_SLUG: Record<string, string> = {
   "life-processes": "Life Processes",
 };
 
+// The title is the image alt text: it must describe the figure, never the generic "Source figure".
+const isDescriptiveAlt = (t: string) => t.length >= 20 && !/^Source figure/i.test(t) && !t.includes('"');
 const pr3Paths = new Set(PR3_BINDINGS.map(([, p]) => p));
 const pr3Entries = SCIENCE_FIGURE_VISUALS.filter((f) => pr3Paths.has(f.filePath));
 
 describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-confirmed set", () => {
-  it("the pinned set is the size this PR shipped: 13 figures for 13 rows", () => {
-    expect(PR3_BINDINGS).toHaveLength(13);
-    expect(new Set(PR3_BINDINGS.map(([q]) => q)).size).toBe(13);
-    expect(pr3Paths.size).toBe(13); // no crop is reused for two bindings
-    expect(pr3Entries).toHaveLength(13); // each pinned file is bound exactly once in the registry
+  it("the pinned set is the size this PR shipped: 9 figures for 9 rows (after the BANK-FIX merge)", () => {
+    expect(PR3_BINDINGS).toHaveLength(9);
+    expect(new Set(PR3_BINDINGS.map(([q]) => q)).size).toBe(9);
+    expect(pr3Paths.size).toBe(9); // no crop is reused for two bindings
+    expect(pr3Entries).toHaveLength(9); // each pinned file is bound exactly once in the registry
   });
 
   it("each pinned question resolves to exactly its pinned figure", () => {
@@ -76,11 +79,18 @@ describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-
     expect(wrong.map(([q]) => q)).toEqual([]);
   });
 
-  it("every pinned question is a SERVED row whose chapter matches the binding's chapter and asset folder", () => {
-    const missing = PR3_BINDINGS.filter(([q]) => !served.has(q)).map(([q]) => q);
-    expect(missing).toEqual([]);
+  it("every pinned question EXISTS in the bank and is served, or is declared in BOUND_BUT_WITHHELD", () => {
+    expect(PR3_BINDINGS.filter(([q]) => !inBank.has(q)).map(([q]) => q)).toEqual([]);
+    const undeclared = PR3_BINDINGS.filter(([q]) => !served.has(q) && !BOUND_BUT_WITHHELD.includes(q)).map(([q]) => q);
+    expect(undeclared).toEqual([]);
+    const stale = BOUND_BUT_WITHHELD.filter((q) => served.has(q) || !WITHHELD_QUESTION_IDS.has(q));
+    expect(stale).toEqual([]); // declared withheld but actually served (or not withheld at all)
+    expect(BOUND_BUT_WITHHELD.filter((q) => !PR3_BINDINGS.some(([b]) => b === q))).toEqual([]);
+  });
+
+  it("every binding's chapter matches its row's chapter and asset folder (served or withheld)", () => {
     const mismatched = pr3Entries.filter((f) => {
-      const row = served.get(f.questionId ?? "");
+      const row = inBank.get(f.questionId ?? "");
       if (!row) return true;
       const s = resolveCanonicalSlug(row.topicKey);
       return CHAPTER_FOR_SLUG[s] !== f.chapter || f.filePath.split("/")[3] !== s;
@@ -90,7 +100,7 @@ describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-
 
   it("every entry has the registry's raster-figure shape", () => {
     const bad = pr3Entries.filter(
-      (f) => f.subject !== "science" || f.isInteractive !== false || f.keywords.length !== 0 || f.title !== "Source figure"
+      (f) => f.subject !== "science" || f.isInteractive !== false || f.keywords.length !== 0 || !isDescriptiveAlt(f.title)
         || !f.filePath.startsWith("/figures/") || !f.filePath.endsWith(".webp")
         || f.filePath.split("/").pop() !== `${f.questionId}.webp`,
     );

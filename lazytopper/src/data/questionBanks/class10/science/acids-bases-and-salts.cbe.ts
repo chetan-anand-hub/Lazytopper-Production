@@ -61,17 +61,18 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "subtopic": "Nature of Salts (Acidic Salt)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "State the nature of ammonium nitrate.",
-    "options": [],
-    "answer": "Acidic.",
+    "questionText": "The nature of ammonium nitrate (an aqueous solution of the salt) is",
+    "options": ["basic", "neutral", "amphoteric", "acidic"],
+    "answer": "acidic",
     "solutionSteps": [
-      "[1 mark] Ammonium nitrate is acidic (salt of a strong acid and a weak base)."
+      "[1 mark] acidic — NH₄NO₃ is a salt of a strong acid (HNO₃) and a weak base (NH₄OH), so it is acidic."
     ],
-    "finalAnswer": "Acidic",
-    "isCompetencyBased": false
+    "finalAnswer": "acidic",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ACID-A-004",
@@ -80,18 +81,18 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "subtopic": "Hydrated Salts (Copper Sulfate)",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "State the name and chemical formula of the hydrated salt that changes from blue to white when it is heated.",
-    "options": [],
-    "answer": "Hydrated copper sulfate; CuSO4·5H2O",
+    "questionText": "The hydrated salt that changes from blue to white when it is heated is",
+    "options": ["copper sulfate pentahydrate, CuSO₄·5H₂O", "iron(II) sulfate heptahydrate, FeSO₄·7H₂O", "sodium carbonate decahydrate, Na₂CO₃·10H₂O", "calcium sulfate dihydrate, CaSO₄·2H₂O"],
+    "answer": "copper sulfate pentahydrate, CuSO₄·5H₂O",
     "solutionSteps": [
-      "[0.5 mark] Name: (hydrated) copper sulfate.",
-      "[0.5 mark] Formula: CuSO4·5H2O."
+      "[1 mark] copper sulfate pentahydrate, CuSO₄·5H₂O — blue CuSO₄·5H₂O loses its water of crystallisation on heating and becomes white anhydrous CuSO₄."
     ],
-    "finalAnswer": "Copper sulfate, CuSO4·5H2O",
-    "isCompetencyBased": false
+    "finalAnswer": "copper sulfate pentahydrate, CuSO₄·5H₂O",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ACID-A-005",
@@ -100,17 +101,18 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "subtopic": "Water of Crystallisation",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Explain why this salt changes colour from blue to white when it is heated.",
-    "options": [],
-    "answer": "The water of crystallisation is lost on heating.",
+    "questionText": "Blue hydrated copper sulfate crystals turn white when heated because",
+    "options": ["they decompose into copper and sulfur", "they react with oxygen in the air", "they lose their water of crystallisation", "they absorb moisture from the air"],
+    "answer": "they lose their water of crystallisation",
     "solutionSteps": [
-      "[1 mark] On heating, the water (of crystallisation) is lost, so the salt turns from blue to white."
+      "[1 mark] they lose their water of crystallisation — heating removes the water of crystallisation, leaving white anhydrous CuSO₄."
     ],
-    "finalAnswer": "Water of crystallisation is lost.",
-    "isCompetencyBased": false
+    "finalAnswer": "they lose their water of crystallisation",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ACID-A-006",
@@ -119,17 +121,18 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "subtopic": "pH of Strong Bases",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Suggest the pH of sodium hydroxide.",
-    "options": [],
+    "questionText": "The pH of a sodium hydroxide solution is likely to be",
+    "options": ["1 – 2", "5 – 6", "12 – 14", "7"],
     "answer": "12 – 14",
     "solutionSteps": [
-      "[1 mark] Sodium hydroxide is a strong base, so its pH is in the range 12 – 14."
+      "[1 mark] 12 – 14 — NaOH is a strong alkali, so its solution has a high pH of about 12 – 14."
     ],
-    "finalAnswer": "pH 12 – 14",
-    "isCompetencyBased": false
+    "finalAnswer": "12 – 14",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ACID-A-007",
@@ -138,17 +141,18 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "subtopic": "Effect of Dilution on pH",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "What happens to the pH of sodium hydroxide when it is diluted?",
-    "options": [],
-    "answer": "It decreases.",
+    "questionText": "When sodium hydroxide solution is diluted with water, its pH",
+    "options": ["decreases towards 7", "increases above 14", "remains unchanged", "falls below 7"],
+    "answer": "decreases towards 7",
     "solutionSteps": [
-      "[1 mark] On dilution the pH of sodium hydroxide decreases (moves towards 7)."
+      "[1 mark] decreases towards 7 — dilution lowers the OH⁻ concentration, so the solution becomes less basic and pH decreases towards 7."
     ],
-    "finalAnswer": "pH decreases",
-    "isCompetencyBased": false
+    "finalAnswer": "decreases towards 7",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ACID-A-008",
@@ -157,17 +161,18 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "subtopic": "Effect of Dilution on OH- Concentration",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "What happens to the concentration of OH- ions when sodium hydroxide is diluted?",
-    "options": [],
-    "answer": "It decreases.",
+    "questionText": "When sodium hydroxide solution is diluted with water, the concentration of OH⁻ ions",
+    "options": ["increases", "remains unchanged", "becomes zero", "decreases"],
+    "answer": "decreases",
     "solutionSteps": [
-      "[1 mark] On dilution the concentration of OH- ions decreases."
+      "[1 mark] decreases — the same number of OH⁻ ions is spread through a larger volume, so their concentration decreases."
     ],
-    "finalAnswer": "OH- concentration decreases",
-    "isCompetencyBased": false
+    "finalAnswer": "decreases",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ACID-A-009",
@@ -176,17 +181,18 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "subtopic": "Definition of pH",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Define pH.",
-    "options": [],
-    "answer": "pH is a measure of the concentration of hydrogen ions (H+) in a solution.",
+    "questionText": "pH of a solution is a measure of the concentration of",
+    "options": ["hydroxide ions (OH⁻)", "hydrogen ions (H⁺)", "dissolved oxygen (O₂)", "sodium ions (Na⁺)"],
+    "answer": "hydrogen ions (H⁺)",
     "solutionSteps": [
-      "[1 mark] pH is a measure of the concentration of hydrogen ions in a solution."
+      "[1 mark] hydrogen ions (H⁺) — pH is a measure of the hydrogen ion concentration of a solution."
     ],
-    "finalAnswer": "A measure of the concentration of hydrogen ions in a solution.",
-    "isCompetencyBased": false
+    "finalAnswer": "hydrogen ions (H⁺)",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ACID-A-010",
@@ -195,17 +201,18 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "subtopic": "Indicators for Measuring pH",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Universal indicator is a chemical substance used to measure pH. Name one other chemical substance that can be used to measure pH.",
-    "options": [],
-    "answer": "Litmus.",
+    "questionText": "Universal indicator is a chemical substance used to measure pH. Another chemical substance that can be used to test the pH (acidic or basic nature) of a solution is",
+    "options": ["lime water", "litmus", "common salt", "baking soda"],
+    "answer": "litmus",
     "solutionSteps": [
-      "[1 mark] Litmus (or any other acceptable pH indicator)."
+      "[1 mark] litmus — litmus changes colour (red in acid, blue in base) and is used as an acid–base indicator."
     ],
-    "finalAnswer": "Litmus",
-    "isCompetencyBased": false
+    "finalAnswer": "litmus",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-ACID-B-001",

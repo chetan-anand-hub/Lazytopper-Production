@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "circles" (Maths): 235 served rows from 18 source arrays, 14 withheld.
+// Chapter "circles" (Maths): 311 served rows from 22 source arrays, 33 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -13,17 +13,21 @@ import { CIRC_EXEMPLAR } from "../questionBanks/class10/maths/circles.exemplar";
 import { Z3_COMPETENCY_QUESTIONS } from "../questionBanks/class10/maths/competency.z3";
 import { CIRCLES_PROOF_QUESTIONS } from "../questionBanks/class10/maths/circles.proof";
 import { CIRCLES_SQP } from "../questionBanks/class10/maths/circles.sqp";
+import { TRI_CBE } from "../questionBanks/class10/maths/triangles.cbe";
 import { CIRC_CBE } from "../questionBanks/class10/maths/circles.cbe";
 import { CIRC_SP } from "../questionBanks/class10/maths/circles.sp";
 import { CIRC_PREBOARD } from "../questionBanks/class10/maths/circles.preboard";
 import { CIRCLES_APQ } from "../questionBanks/class10/maths/circles.additionalPQ";
 import { CIRCLES_PYQ } from "../questionBanks/class10/maths/circles.pyq";
+import { TRIANGLES_PYQ_2026 } from "../questionBanks/class10/maths/triangles.pyq2026";
 import { CIRCLES_PYQ_2026 } from "../questionBanks/class10/maths/circles.pyq2026";
+import { TRIANGLES_PYQ_2024 } from "../questionBanks/class10/maths/triangles.pyq2024";
 import { CIRCLES_PYQ_2024 } from "../questionBanks/class10/maths/circles.pyq2024";
 import { CIRCLES_PYQ_2025 } from "../questionBanks/class10/maths/circles.pyq2025";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
 import { CIRCLES_LT_GENERATED } from "../questionBanks/class10/maths/circles.ltgen";
 import { CIRCLES_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/circles.cbq.ltgen";
+import { CIRCLES_C3_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/circles.c3.cbq.ltgen";
 
 export default defineChapter("circles", [
   [18, CIRCLES_PACK1, true],
@@ -33,30 +37,53 @@ export default defineChapter("circles", [
   [153, Z3_COMPETENCY_QUESTIONS, false],
   [165, CIRCLES_PROOF_QUESTIONS, false],
   [174, CIRCLES_SQP, false],
+  [196, TRI_CBE, false],
   [197, CIRC_CBE, false],
   [225, CIRC_SP, false],
   [251, CIRC_PREBOARD, false],
   [264, CIRCLES_APQ, false],
   [316, CIRCLES_PYQ, false],
+  [326, TRIANGLES_PYQ_2026, false],
   [329, CIRCLES_PYQ_2026, false],
+  [339, TRIANGLES_PYQ_2024, false],
   [342, CIRCLES_PYQ_2024, false],
   [354, CIRCLES_PYQ_2025, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [418, CIRCLES_LT_GENERATED, false],
   [423, CIRCLES_CBQ_LT_GENERATED, false],
+  [439, CIRCLES_C3_CBQ_LT_GENERATED, false],
 ], [
+  "CIR-M03",
+  "CIR-M08",
+  "CIR-M10",
   "CIR-M12",
   "CIR-M17",
+  "CIR-M19",
+  "CIR-H06",
   "CIR-H10",
   "CIR-H11",
   "CI2-019",
+  "CI2-033",
   "CI2-034",
   "CI2-037",
   "CI2-039",
   "CI2-045",
   "CI2-050",
+  "CIRC-N-NCERT-10-SA-001",
+  "CIRC-N-NCERT-10-SA-002",
   "PB-M-1-CIRC-A-001",
+  "APQ-M-CIRC-004",
+  "APQ-M-CIRC-009",
+  "APQ-M-CIRC-010",
+  "PYQ-M-CIRC-001",
   "PYQ-M-CIRC-004",
+  "PYQ-M-CIRC-006",
+  "PYQ-M-CIRC-007",
   "PYQ-M-CIRC-011",
+  "PYQ-M-CIRC-013",
   "PYQ-M-2026-CIRC-003",
+  "PYQ-M-2026-CIRC-005",
+  "PYQ-M-2024-CIRC-003",
+  "PYQ-M-2024-CIRC-010a",
+  "PYQ-M-2024-CIRC-011a",
 ]);

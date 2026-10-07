@@ -56,9 +56,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Ohm's Law (V = IR, R constant) directly explains the proportional relationship between I and V stated in A.",
     "isCompetencyBased": false,
-    "pyqYear": "2024",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch12 InText, Ex 12.1"
+    "ncertRef": "NCERT Ch12 InText, Ex 12.1",
+    sourceOverride: "others",
   },
 
   {
@@ -88,9 +87,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(C)",
     "explanation": "A is true — longer conductor has higher resistance. R is false — R is DIRECTLY proportional to length (R = ρL/A), not inversely proportional. Classic CBSE trap.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch12 Ex 12.2"
+    "ncertRef": "NCERT Ch12 Ex 12.2",
+    sourceOverride: "others",
   },
 
   {
@@ -120,9 +118,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. In series circuits, the single current path means one failure stops everything. R (single path, same current) is the direct explanation of A.",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch12 Ex 12.4"
+    "ncertRef": "NCERT Ch12 Ex 12.4",
+    sourceOverride: "others",
   },
 
   {
@@ -152,9 +149,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Household appliances in parallel (A) because each gets full voltage and operates independently (R). R is the correct explanation.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/3/1",
-    "ncertRef": "NCERT Ch12 Ex 12.5"
+    "ncertRef": "NCERT Ch12 Ex 12.5",
+    sourceOverride: "others",
   },
 
   {
@@ -184,9 +180,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Tungsten filament (A) is used because of its high melting point and resistivity (R) — it glows white-hot without melting.",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch12 Heating Effect section"
+    "ncertRef": "NCERT Ch12 Heating Effect section",
+    sourceOverride: "others",
   },
 
   {
@@ -218,9 +213,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(D)",
     "explanation": "A is false — in series, 60W bulb (higher resistance) glows brighter than 100W bulb (lower resistance). R is true: P = I²R in series, so higher R = more power = brighter. Classic CBSE conceptual trap.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch12 Ex 12.6"
+    "ncertRef": "NCERT Ch12 Ex 12.6",
+    sourceOverride: "others",
   },
 
   {
@@ -282,9 +276,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Thick wires (larger area A) have lower resistance R. By P = I²R, lower R means less heat loss. R explains A perfectly.",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch12 Power section"
+    "ncertRef": "NCERT Ch12 Power section",
+    sourceOverride: "others",
   },
 
   {
@@ -314,9 +307,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(C)",
     "explanation": "A is true — a fuse is in series so the whole current passes through it. R is false — a fuse wire has a LOW melting point (an alloy of lead and tin) so that it melts and breaks the circuit when the current exceeds its rating.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch12 Safety devices section"
+    "ncertRef": "NCERT Ch12 Safety devices section",
+    sourceOverride: "others",
   },
 
   {
@@ -346,9 +338,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Resistance is an intrinsic property (material, length, area, temperature) — not affected by voltage. R correctly explains why A holds.",
     "isCompetencyBased": false,
-    "pyqYear": "2025",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch12 Resistance section"
+    "ncertRef": "NCERT Ch12 Resistance section",
+    sourceOverride: "others",
   },
 
   // ═══════════════════════════════════════════════
@@ -382,9 +373,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Leaves are the primary photosynthesis site (A) because of their large surface, chlorophyll content and stomata (R). R explains A.",
     "isCompetencyBased": false,
-    "pyqYear": "2023",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch6 Photosynthesis section"
+    "ncertRef": "NCERT Ch6 Photosynthesis section",
+    sourceOverride: "others",
   },
 
   {
@@ -414,9 +404,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. O₂ in photosynthesis comes from water (A) via photolysis in the light reaction (R). This is a key CBSE concept — the source of oxygen is water, not CO₂.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch6 Photosynthesis section"
+    "ncertRef": "NCERT Ch6 Photosynthesis section",
+    sourceOverride: "others",
   },
 
   {
@@ -446,9 +435,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Yeast survives in both conditions (A) because it switches between aerobic and anaerobic pathways (R). R is the mechanism explaining A.",
     "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch6 Respiration section"
+    "ncertRef": "NCERT Ch6 Respiration section",
+    sourceOverride: "others",
   },
 
   {
@@ -478,9 +466,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Vigorous exercise → insufficient O₂ → anaerobic respiration → lactic acid accumulation → cramps. R is the complete mechanism explaining A.",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch6 Respiration section"
+    "ncertRef": "NCERT Ch6 Respiration section",
+    sourceOverride: "others",
   },
 
   {
@@ -510,9 +497,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(D)",
     "explanation": "A is false — the pulmonary artery is a key exception that carries deoxygenated blood. R is true — pulmonary artery takes deoxygenated blood to lungs, pulmonary vein returns oxygenated blood. Classic CBSE board trap.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/3/1",
-    "ncertRef": "NCERT Ch6 Transportation section"
+    "ncertRef": "NCERT Ch6 Transportation section",
+    sourceOverride: "others",
   },
 
   {
@@ -542,9 +528,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Left ventricle is thicker (A) because it must pump blood throughout the whole body against higher resistance (R). R correctly explains A.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch6 Transportation section"
+    "ncertRef": "NCERT Ch6 Transportation section",
+    sourceOverride: "others",
   },
 
   {
@@ -574,9 +559,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Tubular reabsorption (A) is necessary because glomerular filtration non-selectively removes both useful and waste substances (R). R explains the need for A.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "30/1/1",
-    "ncertRef": "NCERT Ch6 Excretion section"
+    "ncertRef": "NCERT Ch6 Excretion section",
+    sourceOverride: "others",
   },
 
   {
@@ -606,9 +590,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(C)",
     "explanation": "A is true — plants lack specialised excretory organs. R is false — plants excrete through multiple pathways (stomata, leaf fall, vacuole storage, soil excretion) not through stomata alone.",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/3/1",
-    "ncertRef": "NCERT Ch6 Excretion section"
+    "ncertRef": "NCERT Ch6 Excretion section",
+    sourceOverride: "others",
   },
 
   {
@@ -638,9 +621,8 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Villi in small intestine (A) exist to maximise surface area for nutrient absorption (R). R is the direct functional explanation of the structural feature in A.",
     "isCompetencyBased": false,
-    "pyqYear": "2022",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch6 Nutrition section"
+    "ncertRef": "NCERT Ch6 Nutrition section",
+    sourceOverride: "others",
   },
 
   {
@@ -670,8 +652,7 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. Aerobic respiration yields more energy (A) because glucose is completely oxidised producing 38 ATP vs only 2 ATP in anaerobic respiration (R). R is the quantitative explanation of A.",
     "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "30/2/1",
-    "ncertRef": "NCERT Ch6 Respiration section"
+    "ncertRef": "NCERT Ch6 Respiration section",
+    sourceOverride: "others",
   }
 ];

@@ -44,11 +44,12 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
 
   // PQ2 Q32 (Section D, Long, 5 marks)
   { id: "APQ-M-STAT-005", subject: "Maths", topicKey: "statistics", subtopic: "Median and Mode of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "The marks obtained by 80 students of Class X in a mock test of Mathematics are given in the table (cumulative 'and above' format from 0 to 100, total 80 students). Find the median and the mode of the data. OR If the mean of the following frequency distribution is 91, find the missing frequencies x and y. (Classes 0-30: 12, 30-60: 21, 60-90: x, 90-120: 52, 120-150: y, 150-180: 11; Total = 150.)",
+    questionText: "The marks obtained by 80 students of Class X in a mock test of Mathematics are given below:\nMarks 0 and above: 80; 10 and above: 77; 20 and above: 72; 30 and above: 65; 40 and above: 55; 50 and above: 43; 60 and above: 28; 70 and above: 16; 80 and above: 10; 90 and above: 8 (maximum marks 100).\nFind the median and the mode of the data.\nOR\nIf the mean of the following frequency distribution is 91, find the missing frequencies x and y. (Classes 0-30: 12, 30-60: 21, 60-90: x, 90-120: 52, 120-150: y, 150-180: 11; Total = 150.)",
     answer: "Median = 52, Mode = 55. [OR] x = 34, y = 20.",
     solutionSteps: ["Convert 'and above' to class-frequencies: 0-10:3, 10-20:5, 20-30:7, 30-40:10, 40-50:12, 50-60:15, 60-70:12, 70-80:6, 80-90:2, 90-100:8. n = 80 ⟹ n/2 = 40. Cumulative frequencies build up to 37 (at 40-50), then 52 (at 50-60). Median class = 50-60.", "Median = 50 + [(40 − 37)/15] × 10 = 50 + 2 = 52.", "Modal class = 50-60 (highest frequency 15). Mode = 50 + [(15 − 12)/(2·15 − 12 − 12)] × 10 = 50 + 30/6 = 55.", "[OR] Class marks: 15, 45, 75, 105, 135, 165. Σfi·xi = 12·15 + 21·45 + 75x + 52·105 + 135y + 11·165 = 180 + 945 + 75x + 5460 + 135y + 1815 = 8400 + 75x + 135y. Σfi = 96 + x + y = 150 ⟹ x + y = 54.", "Mean = 91: (8400 + 75x + 135y)/150 = 91 ⟹ 75x + 135y = 5250 ⟹ 5x + 9y = 350. Solving with x + y = 54: x = 34, y = 20."],
     finalAnswer: "Median = 52, Mode = 55. [OR] x = 34, y = 20.",
-    ncertRef: "APQ PQ2 Q32", isCompetencyBased: true },
+    ncertRef: "APQ PQ2 Q32", isCompetencyBased: true,
+    sourceOverride: "others", },
 
   // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
 

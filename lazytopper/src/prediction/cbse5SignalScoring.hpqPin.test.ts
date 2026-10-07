@@ -93,7 +93,9 @@ const FROZEN_HPQ_RANKING: string[] = [
   "prob-hpq-101|0.9111111111|0.9533333333",
   "prob-hpq-102|0.9111111111|0.8633333333",
   "prob-hpq-103|0.3222222222|0.5216666667",
-  "prob-hpq-104|0.3222222222|0.4916666667",
+  // BANK-FIX-1 PR-2 (2026-10-07): DATA moved, not the scorer — prob-hpq-104 (P(sum of two dice = 8)) is a
+  // two-step item re-marked 3 -> 2 (Section B, VeryShort); only its composite moved. Was 0.4916666667.
+  "prob-hpq-104|0.3222222222|0.4816666667",
   "qe-comp-01|0.9111111111|0.9008333333",
   "qe-hpq-101|0.9111111111|0.9533333333",
   "qe-hpq-102|0.9111111111|0.6583333333",
@@ -134,7 +136,6 @@ const FROZEN_HPQ_RANKING: string[] = [
   "sci-elec-hpq-3|0.3222222222|0.4916666667",
   "sci-elec-hpq-4|0.9111111111|0.7008333333",
   "sci-env-comp-01|0.3222222222|0.5141666667",
-  "sci-eye-comp-01|0.9111111111|0.6933333333",
   "sci-eye-hpq-1|0.3222222222|0.4741666667",
   "sci-eye-hpq-2|0.3222222222|0.4841666667",
   "sci-hdor-hpq-1|0.9111111111|0.7458333333",
@@ -191,8 +192,10 @@ describe("HPQ ranking pin", () => {
     // removed (cg-comp-01, math-tri-hpq-3, prob-hpq-105, rn-hpq-3, rn-hpq-5, sav-comp-01, sav-comp-02, sci-eye-hpq-3, tri-comp-01, tri-hpq-102, tri-hpq-105); their frozen lines deleted, every other line unchanged.
     // 129 -> 128 at QUICK-FIXES-1 PR-2 (owner ruling R1 + evidence rule, 2026-10-06): rn-comp-02 removed (its A-R
     // reason "the square root of any prime number is irrational" is OUT); its frozen line deleted, every other line unchanged.
-    expect(FROZEN_HPQ_RANKING.length).toBe(128);
-    expect(currentRanking().length).toBe(128);
+    // 128 -> 127 at BANK-FIX-1 PR-2 phase B (2026-10-07): sci-eye-comp-01 withheld (HPQ_WITHHELD_IDS: "cannot see nearby
+    // objects" + convex lens fits hypermetropia AND presbyopia, two defensible causes); its frozen line deleted, every other line unchanged.
+    expect(FROZEN_HPQ_RANKING.length).toBe(127);
+    expect(currentRanking().length).toBe(127);
   });
 
   it("CONTROL: the frozen snapshot is discriminating, not uniform", () => {

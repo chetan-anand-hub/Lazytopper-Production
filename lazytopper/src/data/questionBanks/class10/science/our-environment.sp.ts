@@ -63,7 +63,7 @@ export const ENVI_SP: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): Ozone hole indicates a region of ozone layer that has become thinner. Reason (R): Destruction of ozone layer is mainly due to fluorine atoms present in chlorofluorocarbons. Options: a. Both A and R are true, and R is the correct explanation of A. b. Both A and R are true, and R is not the correct explanation of A. c. A is true but R is false. d. A is false but R is true.",
+    "questionText": "Assertion (A): Ozone hole indicates a region of ozone layer that has become thinner. Reason (R): Destruction of ozone layer is mainly due to fluorine atoms present in chlorofluorocarbons.",
     "options": [
       "a. Both A and R are true, and R is the correct explanation of A.",
       "b. Both A and R are true, and R is not the correct explanation of A.",
@@ -75,7 +75,8 @@ export const ENVI_SP: CanonicalQuestion[] = [
       "[1 mark] Correct option is (c). Assertion is true: an ozone hole is a region of thinned ozone layer. Reason is false: ozone destruction is mainly caused by chlorine (not fluorine) atoms released from chlorofluorocarbons (CFCs)."
     ],
     "finalAnswer": "c. A is true but R is false.",
-    "isCompetencyBased": true
+    "isCompetencyBased": true,
+    sourceOverride: "others",
   },
   {
     "id": "SP-S-2023-ENVI-B-001",

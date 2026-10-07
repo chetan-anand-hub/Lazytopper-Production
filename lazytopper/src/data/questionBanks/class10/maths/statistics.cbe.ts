@@ -47,7 +47,7 @@ export const STAT_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "The table below gives the heights of 100 students (in cm) of a class.\nHeight : Number of students\n140–145 : 5\n150–155 : 15\n155–160 : 25\n160–165 : 30\n165–170 : 15\n170–175 : 10\nFind the modal class of the given data.",
+    "questionText": "The table below gives the heights of 100 students (in cm) of a class.\nHeight : Number of students\n145–150 : 5\n150–155 : 15\n155–160 : 25\n160–165 : 30\n165–170 : 15\n170–175 : 10\nFind the modal class of the given data.",
     "options": [],
     "answer": "Modal class: 160–165",
     "solutionSteps": [
@@ -55,7 +55,8 @@ export const STAT_CBE: CanonicalQuestion[] = [
       "[1 mark] The class 160–165 has the largest frequency (30), so the modal class is 160–165."
     ],
     "finalAnswer": "160–165",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-STAT-C-001",
@@ -67,7 +68,7 @@ export const STAT_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The table below gives the heights of 100 students (in cm) of a class.\nHeight : Number of students\n140–145 : 5\n150–155 : 15\n155–160 : 25\n160–165 : 30\n165–170 : 15\n170–175 : 10\nFind the median height of the students.",
+    "questionText": "The table below gives the heights of 100 students (in cm) of a class.\nHeight : Number of students\n145–150 : 5\n150–155 : 15\n155–160 : 25\n160–165 : 30\n165–170 : 15\n170–175 : 10\nFind the median height of the students.",
     "options": [],
     "answer": "Median = 160.83 cm",
     "solutionSteps": [
@@ -76,7 +77,8 @@ export const STAT_CBE: CanonicalQuestion[] = [
       "[1 mark] Median = 160 + 0.83 = 160.83 cm."
     ],
     "finalAnswer": "160.83 cm",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-STAT-C-002",

@@ -19,17 +19,18 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "subtopic": "Complement of an Event",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "In the large box full of doughnuts, 13 of the 52 doughnuts are chocolate, and the rest are strawberry doughnuts. Leena takes a doughnut from the box at random. Find the probability that Leena's doughnut is not chocolate.",
-    "options": [],
+    "questionText": "In a large box full of doughnuts, 13 of the 52 doughnuts are chocolate, and the rest are strawberry doughnuts. Leena takes a doughnut from the box at random. The probability that Leena's doughnut is not chocolate is",
+    "options": ["1/4", "1/3", "3/4", "1/13"],
     "answer": "3/4",
     "solutionSteps": [
-      "[1 mark] Number not chocolate = 52 − 13 = 39, so P(not chocolate) = 39/52 = 3/4. (Accept 39/52.)"
+      "[1 mark] 3/4 — P(not chocolate) = 1 − 13/52 = 39/52 = 3/4."
     ],
     "finalAnswer": "3/4",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-PROB-A-002",
@@ -86,17 +87,18 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "subtopic": "Probability with a Deck of Cards",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "From a well-shuffled deck of playing cards a card is drawn at random. What is the probability for the card to be a face card?",
-    "options": [],
+    "questionText": "A card is drawn at random from a well-shuffled deck of 52 playing cards. The probability that the card is a face card is",
+    "options": ["16/52", "4/52", "12/52", "13/52"],
     "answer": "12/52",
     "solutionSteps": [
-      "[1 mark] There are 12 face cards in a standard deck, so P(a face card) = 12/52."
+      "[1 mark] 12/52 — there are 12 face cards (J, Q, K of 4 suits), so P = 12/52."
     ],
     "finalAnswer": "12/52",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-PROB-A-005",
@@ -129,17 +131,18 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "subtopic": "Probability with a Deck of Cards",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "If all cards of diamond are removed from the deck, find the probability that a card drawn at random from the deck is a red jack.",
-    "options": [],
+    "questionText": "All the cards of diamond are removed from a deck of 52 playing cards. A card is then drawn at random from the remaining deck. The probability that it is a red jack is",
+    "options": ["1/39", "2/39", "2/52", "1/52"],
     "answer": "1/39",
     "solutionSteps": [
-      "[1 mark] After removing all 13 diamond cards: 52 − 13 = 39 cards remain. Only 1 red jack remains (jack of hearts), so P(a red jack) = 1/39."
+      "[1 mark] 1/39 — 39 cards remain and the only red jack left is the jack of hearts, so P = 1/39."
     ],
     "finalAnswer": "1/39",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-PROB-A-007",
@@ -148,17 +151,18 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "subtopic": "Probability with a Deck of Cards",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "From a well-shuffled deck of playing cards a card is drawn at random. What is the probability that the card drawn is a jack or an ace?",
-    "options": [],
+    "questionText": "A card is drawn at random from a well-shuffled deck of 52 playing cards. The probability that the card drawn is a jack or an ace is",
+    "options": ["4/52", "2/52", "16/52", "8/52"],
     "answer": "8/52",
     "solutionSteps": [
-      "[1 mark] There are 4 aces and 4 jacks, so 8 favourable cards. P(a jack or an ace) = 8/52."
+      "[1 mark] 8/52 — there are 4 jacks and 4 aces, so P = 8/52."
     ],
     "finalAnswer": "8/52",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-PROB-A-008",
@@ -239,17 +243,18 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "subtopic": "Probability from Number Cards",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "A bag contains 10 cards. Each card is labelled with a different number from 1 to 10. A card is chosen from the bag at random. Write down the probability that the chosen card is of a prime number.",
-    "options": [],
+    "questionText": "A bag contains 10 cards, each labelled with a different number from 1 to 10. A card is chosen from the bag at random. The probability that the chosen card is of a prime number is",
+    "options": ["1/2", "2/5", "3/10", "3/5"],
     "answer": "2/5",
     "solutionSteps": [
-      "[1 mark] Primes from 1 to 10 are 2, 3, 5, 7 → 4 favourable out of 10. P(prime) = 4/10 = 2/5."
+      "[1 mark] 2/5 — primes from 1 to 10 are 2, 3, 5, 7, so P = 4/10 = 2/5."
     ],
     "finalAnswer": "2/5",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-PROB-A-012",
