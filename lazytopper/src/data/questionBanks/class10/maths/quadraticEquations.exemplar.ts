@@ -228,9 +228,9 @@ export const QE_EXEMPLAR: CanonicalQuestion[] = [
   { id: "QE-N-EXMPLR-4-LA-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "A train, travelling at a uniform speed for 360 km, would have taken 48 minutes less to travel the same distance if its speed were 5 km/h more. Find the original speed of the train.",
     answer: "The original speed of the train is 45 km/h.",
-    solutionSteps: ["Let the original speed be x km/h (x > 0).", "Time at original speed = 360/x hours; at increased speed = 360/(x + 5) hours.", "48 minutes = 48/60 hours = 4/5 hours. Given: 360/x − 360/(x + 5) = 4/5.", "Cross-multiply: 360·5·[(x + 5) − x] = 4·x(x + 5) ⇒ 1800·5 = 4x² + 20x ⇒ wait: 360·[(x + 5) − x]/[x(x + 5)] = 4/5 ⇒ 360·5/[x(x + 5)] = 4/5 ⇒ 1800·5 = 4x(x + 5) ⇒ 9000 = 4x² + 20x ⇒ 4x² + 20x − 9000 = 0 ⇒ x² + 5x − 2250 = 0.", "Quadratic formula: x = (−5 ± √(25 + 9000))/2 = (−5 ± √9025)/2 = (−5 ± 95)/2 = 45 or −50.", "Reject negative; original speed = 45 km/h. Verify: 360/45 − 360/50 = 8 − 7.2 = 0.8 h = 48 min ✓"],
+    solutionSteps: ["Let the original speed be x km/h (x > 0).", "Time at original speed = 360/x hours; at increased speed = 360/(x + 5) hours.", "48 minutes = 48/60 hours = 4/5 hours. Given: 360/x − 360/(x + 5) = 4/5.", "Simplify: 360·[(x + 5) − x]/[x(x + 5)] = 4/5 ⇒ 1800/[x(x + 5)] = 4/5 ⇒ 4x(x + 5) = 9000 ⇒ 4x² + 20x − 9000 = 0 ⇒ x² + 5x − 2250 = 0.", "Quadratic formula: x = (−5 ± √(25 + 9000))/2 = (−5 ± √9025)/2 = (−5 ± 95)/2 = 45 or −50.", "Reject negative; original speed = 45 km/h. Verify: 360/45 − 360/50 = 8 − 7.2 = 0.8 h = 48 min ✓"],
     finalAnswer: "Original speed of the train = 45 km/h.",
-    ncertRef: "Exemplar Ex 4.4 Q4", isCompetencyBased: true,
+    ncertRef: "Exemplar Ex 4.4 Q4", isCompetencyBased: true, sourceOverride: "others",
     strategyHint: "Convert minutes to hours before equating times; use d/s = t framework." },
 
   { id: "QE-N-EXMPLR-4-LA-002", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
