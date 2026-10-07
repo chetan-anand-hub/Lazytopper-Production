@@ -59,18 +59,21 @@ const SHELL =
   '</head><body><div id="root"></div></body></html>';
 const PATHS = ["/", "/check-your-answer", "/notes/electricity"];
 const ASSETS: Record<string, string> = {
-  // The entry imports the CYA route through Vite's dependency table (JS + its CSS), and the
-  // Notes route with no table entry (no CSS).
+  // The entry imports the CYA route through Vite's dependency table (JS + its own CSS + the shared
+  // KaTeX CSS, of which only its own CSS is inlined), and the
+  // Notes route with two CSS deps: the shared KaTeX CSS and the route's own CSS (neither is inlined).
   "index-AAAAAAAA.js":
-    'const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/CheckYourAnswerPage-CCCCCCCC.js","assets/CheckYourAnswerPage-RRRRRRRR.css","assets/DesktopNotesPage-FFFFFFFF.js","assets/katex-KKKKKKKK.css"])))=>i.map(i=>d[i]);' +
-    'const a=()=>__vitePreload(()=>import("./CheckYourAnswerPage-CCCCCCCC.js"),__vite__mapDeps([0,1]));' +
-    'const b=()=>__vitePreload(()=>import("./DesktopNotesPage-FFFFFFFF.js"),__vite__mapDeps([2,3]));',
+    'const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/CheckYourAnswerPage-CCCCCCCC.js","assets/CheckYourAnswerPage-RRRRRRRR.css","assets/DesktopNotesPage-FFFFFFFF.js","assets/katex-KKKKKKKK.css","assets/DesktopNotesPage-NNNNNNNN.css"])))=>i.map(i=>d[i]);' +
+    'const a=()=>__vitePreload(()=>import("./CheckYourAnswerPage-CCCCCCCC.js"),__vite__mapDeps([0,1,3]));' +
+    'const b=()=>__vitePreload(()=>import("./DesktopNotesPage-FFFFFFFF.js"),__vite__mapDeps([2,3,4]));',
   "CheckYourAnswerPage-CCCCCCCC.js": "export default 1;",
   "DesktopNotesPage-FFFFFFFF.js": "export default 2;",
   "index-SSSSSSSS.css": ".lt-a{color:red}",
   "CheckYourAnswerPage-RRRRRRRR.css": ROUTE_CSS,
   // A SHARED lazy CSS (Notes/HPQ import KaTeX): it must never be inlined (D63a).
   "katex-KKKKKKKK.css": ".katex{font:normal 1.21em KaTeX_Main}",
+  // The Notes route's OWN CSS: also never inlined, because only CheckYourAnswerPage is allowlisted.
+  "DesktopNotesPage-NNNNNNNN.css": ".lt-notes-own{margin:0}",
 };
 
 function build(): { out: string; art: string; cleanup: () => void } {
@@ -168,6 +171,7 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
       ]) {
         expect(inlinedStylesIn(read(out, file)), file).toEqual([]);
         expect(read(out, file), file).not.toContain("KaTeX_Main");
+        expect(read(out, file), file).not.toContain(".lt-notes-own");
       }
       expect(INLINE_ROUTE_CSS_MODULES).toEqual(["CheckYourAnswerPage"]);
       expect(inlinedStylesIn(read(out, "index.html"))).toEqual([]);
@@ -182,9 +186,10 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
     const entry = ASSETS["index-AAAAAAAA.js"];
     expect(
       dynamicImportCssOf(entry, "CheckYourAnswerPage-CCCCCCCC.js"),
-    ).toEqual(["CheckYourAnswerPage-RRRRRRRR.css"]);
+    ).toEqual(["CheckYourAnswerPage-RRRRRRRR.css", "katex-KKKKKKKK.css"]);
     expect(dynamicImportCssOf(entry, "DesktopNotesPage-FFFFFFFF.js")).toEqual([
       "katex-KKKKKKKK.css",
+      "DesktopNotesPage-NNNNNNNN.css",
     ]);
     expect(dynamicImportCssOf(entry, "Missing-ZZZZZZZZ.js")).toEqual([]);
     // A table that is referenced but unreadable fails the build; it does not inline nothing.
