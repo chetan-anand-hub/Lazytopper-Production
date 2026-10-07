@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "metals-and-non-metals" (Science): 513 served rows from 19 source arrays, 15 withheld.
+// Chapter "metals-and-non-metals" (Science): 513 served rows from 22 source arrays, 17 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -18,8 +18,11 @@ import { MNM_CBE } from "../questionBanks/class10/science/metals-and-non-metals.
 import { MNM_SP } from "../questionBanks/class10/science/metals-and-non-metals.sp";
 import { METALS_NON_METALS_APQ } from "../questionBanks/class10/science/metals-and-non-metals.additionalPQ";
 import { METALS_NON_METALS_CHAPTERWISE } from "../questionBanks/class10/science/metals-and-non-metals.chapterwise";
+import { ACIDS_BASES_SALTS_PYQ } from "../questionBanks/class10/science/acids-bases-and-salts.pyq";
 import { METALS_NON_METALS_PYQ } from "../questionBanks/class10/science/metals-and-non-metals.pyq";
+import { acidsBasesSaltsPYQ2026 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2026";
 import { metalsNonMetalsPYQ2026 } from "../questionBanks/class10/science/metalsNonMetals.pyq2026";
+import { chemicalReactionsPYQ2025 } from "../questionBanks/class10/science/chemicalReactions.pyq2025";
 import { metalsNonMetalsPYQ2025 } from "../questionBanks/class10/science/metalsNonMetals.pyq2025";
 import { metalsNonMetalsPYQ2024 } from "../questionBanks/class10/science/metalsNonMetals.pyq2024";
 import { MNM_CFPQ } from "../questionBanks/class10/science/metals-and-non-metals.cfpq";
@@ -39,18 +42,23 @@ export default defineChapter("metals-and-non-metals", [
   [232, MNM_SP, false],
   [271, METALS_NON_METALS_APQ, false],
   [284, METALS_NON_METALS_CHAPTERWISE, false],
+  [296, ACIDS_BASES_SALTS_PYQ, false],
   [297, METALS_NON_METALS_PYQ, false],
+  [360, acidsBasesSaltsPYQ2026, false],
   [361, metalsNonMetalsPYQ2026, false],
+  [372, chemicalReactionsPYQ2025, false],
   [374, metalsNonMetalsPYQ2025, false],
   [387, metalsNonMetalsPYQ2024, false],
   [399, MNM_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
   [441, METALS_CBQ_B1_LT_GENERATED, false],
 ], [
+  "METAL-EXMPLR-3-MCQ-036",
   "METAL-EXMPLR-3-SA-014",
   "METAL-EXMPLR-3-LONG-001",
   "CBE-S-MNM-B-006",
   "SCO-S-METAL-002",
+  "SCO-S-METAL-003",
   "SCO-S-METAL-016",
   "SCQ-S-METAL-034",
   "SCQ-S-METAL-044",

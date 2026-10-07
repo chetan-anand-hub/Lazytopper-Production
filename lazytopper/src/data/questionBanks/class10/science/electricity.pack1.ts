@@ -256,11 +256,12 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "Since R is directly proportional to L, an increase in length directly causes an increase in resistance. Therefore, Reason (R) correctly explains Assertion (A).",
     ],
   },
-  { id: "EL-D04", subject: "Science", topicKey: "electricity", subtopic: "Electric Power", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A circuit has a 60 W bulb and an 100 W bulb connected to a 220 V supply. (i) Which bulb has higher resistance? (ii) Calculate the resistance of each. (iii) If used for 5 hours per day for 30 days, calculate the energy consumed by each bulb in kWh and the cost at Rs 6 per unit.", solutionSteps: [
-      "Circuit Diagram: Draw the circuit for the given setup using standard symbols for all components mentioned. [1]",
-      "(i) P = V2/R; so R = V2/P. Higher resistance for lower power — the 60 W bulb has higher resistance [1]",
-      "(ii) R(60W) = 220^2/60 = 48400/60 = 806.7 O; R(100W) = 220^2/100 = 48400/100 = 484 O [1]",
-      "(iii) Energy (60W bulb) = 0.060 kW x 5h x 30 = 9 kWh; Energy (100W bulb) = 0.100 x 5 x 30 = 15 kWh [1]",
-      "Cost(60W) = 9 x Rs6 = Rs54; Cost(100W) = 15 x Rs6 = Rs90; Total = Rs144 [1]",
-    ], explanation: "Refer to solution steps.", finalAnswer: "60W bulb has higher resistance (807 O vs 484 O); 60W uses 9 kWh (Rs54), 100W uses 15 kWh (Rs90) in 30 days", visualExplainerId: "science-electricity-electric-power-and-energy", isCompetencyBased: true }
+  { id: "EL-D04", subject: "Science", topicKey: "electricity", subtopic: "Electric Power", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A 60 W bulb and a 100 W bulb, each rated for 220 V, are connected in parallel to a 220 V supply. (i) Which bulb has the higher resistance? (ii) Calculate the resistance of each bulb. (iii) If each bulb is used for 5 hours per day for 30 days, calculate the energy consumed by each bulb in kWh and its cost at Rs 6 per unit.", solutionSteps: [
+      "[1 mark] (i) P = V²/R, so R = V²/P. At the same voltage, lower power means higher resistance - the 60 W bulb has the higher resistance.",
+      "[1 mark] (ii) R(60 W) = 220²/60 = 48400/60 ≈ 806.7 Ω",
+      "[1 mark] R(100 W) = 220²/100 = 48400/100 = 484 Ω",
+      "[1 mark] (iii) Energy (60 W) = 0.060 kW × 5 h × 30 = 9 kWh; Energy (100 W) = 0.100 kW × 5 h × 30 = 15 kWh",
+      "[1 mark] Cost (60 W) = 9 × Rs 6 = Rs 54; Cost (100 W) = 15 × Rs 6 = Rs 90 (total Rs 144)"
+    ], explanation: "Using R = V²/P at 220 V: 60 W bulb ≈ 806.7 Ω, 100 W bulb = 484 Ω, so the lower-power bulb has the higher resistance. Energy = P × t: 9 kWh and 15 kWh over 30 days, costing Rs 54 and Rs 90.", finalAnswer: "60 W bulb has higher resistance (≈ 806.7 Ω vs 484 Ω); 60 W uses 9 kWh (Rs 54), 100 W uses 15 kWh (Rs 90) in 30 days", visualExplainerId: "science-electricity-electric-power-and-energy", isCompetencyBased: true,
+      sourceOverride: "others", }
 ];

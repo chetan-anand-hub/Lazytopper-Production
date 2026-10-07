@@ -17,17 +17,18 @@ export const POLY_CBE: CanonicalQuestion[] = [
     "subtopic": "Relationship Between Zeroes and Coefficients",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "The product of the zeroes of a quadratic polynomial 2x² − 5x + m is 4. Find the value of m.",
-    "options": [],
-    "answer": "m = 8",
+    "questionText": "The product of the zeroes of the quadratic polynomial 2x² − 5x + m is 4. The value of m is",
+    "options": ["2", "−8", "8", "4"],
+    "answer": "8",
     "solutionSteps": [
-      "[1 mark] Product of zeroes = c/a = m/2. Given product = 4, so m/2 = 4 → m = 8."
+      "[1 mark] 8 — product of zeroes = c/a = m/2 = 4, so m = 8."
     ],
-    "finalAnswer": "m = 8",
-    "isCompetencyBased": false
+    "finalAnswer": "8",
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-POLY-A-002",
@@ -116,14 +117,15 @@ export const POLY_CBE: CanonicalQuestion[] = [
       "A. 3x² − 3√2·x + 1",
       "B. 3x² + 3√2·x + 1",
       "C. 2x² + 3√2·x − 1",
-      "D. 2x² + 3√2·x − 1"
+      "D. 3x² − 3√2·x − 1"
     ],
     "answer": "A. 3x² − 3√2·x + 1",
     "solutionSteps": [
       "[1 mark] Polynomial with sum √2 and product ⅓ is k[x²−√2x+⅓]; taking k=3 gives 3x²−3√2x+1. Answer: A."
     ],
     "finalAnswer": "A. 3x² − 3√2·x + 1",
-    "isCompetencyBased": false
+    "isCompetencyBased": false,
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-POLY-B-001",

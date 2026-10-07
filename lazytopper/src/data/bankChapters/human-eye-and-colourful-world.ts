@@ -2,10 +2,11 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "human-eye-and-colourful-world" (Science): 309 served rows from 23 source arrays, 27 withheld.
+// Chapter "human-eye-and-colourful-world" (Science): 304 served rows from 25 source arrays, 38 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
+import { LT2_PACK2 } from "../questionBanks/class10/science/light.pack2";
 import { HUMAN_EYE_PACK1 } from "../questionBanks/class10/science/humanEyeAndColourfulWorld.pack1";
 import { HEC2_PACK2 } from "../questionBanks/class10/science/humanEyeAndColourfulWorld.pack2";
 import { EYE_NCERT } from "../questionBanks/class10/science/humanEye.ncert";
@@ -18,6 +19,7 @@ import { LIGHT_REFLECTION_CHAPTERWISE } from "../questionBanks/class10/science/l
 import { HUMAN_EYE_CHAPTERWISE } from "../questionBanks/class10/science/human-eye-and-colourful-world.chapterwise";
 import { LIGHT_REFLECTION_PYQ } from "../questionBanks/class10/science/light-reflection-and-refraction.pyq";
 import { HUMAN_EYE_PYQ } from "../questionBanks/class10/science/human-eye-and-colourful-world.pyq";
+import { controlCoordinationPYQ2026 } from "../questionBanks/class10/science/controlCoordination.pyq2026";
 import { lightReflectionPYQ2026 } from "../questionBanks/class10/science/lightReflection.pyq2026";
 import { humanEyePYQ2026 } from "../questionBanks/class10/science/humanEye.pyq2026";
 import { lightReflectionPYQ2025 } from "../questionBanks/class10/science/lightReflection.pyq2025";
@@ -31,6 +33,7 @@ import { HUMAN_EYE_CBQ_LT_GENERATED } from "../questionBanks/class10/science/hum
 import { HUMAN_EYE_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/human-eye-and-colourful-world.b1.cbq.ltgen";
 
 export default defineChapter("human-eye-and-colourful-world", [
+  [45, LT2_PACK2, true],
   [46, HUMAN_EYE_PACK1, true],
   [47, HEC2_PACK2, true],
   [101, EYE_NCERT, false],
@@ -43,6 +46,7 @@ export default defineChapter("human-eye-and-colourful-world", [
   [291, HUMAN_EYE_CHAPTERWISE, false],
   [303, LIGHT_REFLECTION_PYQ, false],
   [304, HUMAN_EYE_PYQ, false],
+  [364, controlCoordinationPYQ2026, false],
   [367, lightReflectionPYQ2026, false],
   [368, humanEyePYQ2026, false],
   [380, lightReflectionPYQ2025, false],
@@ -59,23 +63,34 @@ export default defineChapter("human-eye-and-colourful-world", [
   "HEY-M08",
   "HEY-H03",
   "HEY-H07",
+  "HEC2-007",
   "HEC2-013",
   "HEC2-021",
   "HEC2-023",
   "HEC2-041",
   "HEC2-046",
   "HEC2-048",
+  "EYE-EXMPLR-10-MCQ-004",
   "EYE-EXMPLR-10-MCQ-010",
   "EYE-EXMPLR-10-SA-010",
   "EYE-EXMPLR-10-LA-004",
+  "SCO-S-LIGHT-001",
   "SCO-S-EYE-001",
   "SCO-S-EYE-002",
   "SCO-S-EYE-006",
+  "SCO-S-EYE-007",
+  "SCO-S-EYE-009",
+  "SCO-S-EYE-010",
+  "SCO-S-EYE-011",
+  "SCO-S-EYE-014",
+  "SCO-S-EYE-016",
+  "SCO-S-EYE-018",
   "SCO-S-EYE-019",
   "SCQ-S-EYE-034",
   "SCQ-S-EYE-038",
   "PYQ-S-EYE-002",
   "PYQ-S-EYE-005",
+  "PYQ-S-2026-EYE-002",
   "PYQ-S-2026-EYE-003",
   "PYQ-S-2025-EYE-002",
   "LTG-S-EYE-202",

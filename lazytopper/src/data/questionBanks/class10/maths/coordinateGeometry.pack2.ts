@@ -86,9 +86,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "Triangle ABC is isosceles with AB = BC = 2√5",
     "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": "I",
-    "ncertRef": "Ex 7.1"
+    "ncertRef": "Ex 7.1",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-004",
@@ -174,9 +173,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "(5, 6)",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "II",
-    "ncertRef": "Ex 7.3"
+    "ncertRef": "Ex 7.3",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-007",
@@ -327,23 +325,19 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "A rectangular plot of land has corners at A(0, 0), B(8, 0), C(8, 6), and D(0, 6). A person starts at A and walks to different points on the boundary. (i) Find distance from A to midpoint of BC. (ii) If a path goes from A to the center of rectangle, find distance. (iii) Is the diagonal path from A to C equal to the perimeter divided by some factor?",
+    "questionText": "A rectangular plot of land has corners at A(0, 0), B(8, 0), C(8, 6) and D(0, 6). A person starts at corner A and walks along straight paths to different points of the plot.\n(i) Find the distance from A to the midpoint of BC.\n(ii) Find the distance from A to the centre of the rectangle.\n(iii) Find the length of the diagonal path AC. How much shorter is it than walking along the boundary from A to B to C?",
     "options": [],
-    "answer": "(i) √73 units (ii) 5 units (iii) Diagonal ≠ simple perimeter ratio",
+    "answer": "(i) √73 units (ii) 5 units (iii) AC = 10 units; it is 4 units shorter than A→B→C (14 units).",
     "solutionSteps": [
-      "(i) Midpoint of BC = (8, 3)",
-      "Distance = √[(8-0)² + (3-0)²] = √[64+9] = √73",
-      "(ii) Center = (4, 3)",
-      "Distance = √[(4-0)² + (3-0)²] = √[16+9] = √25 = 5",
-      "(iii) Diagonal AC = √[(8-0)² + (6-0)²] = √[64+36] = √100 = 10",
-      "Perimeter = 2(8+6) = 28",
-      "Ratio = 10:28 = 5:14 (not a simple factor)"
+      "[1 mark] (i) Midpoint of BC = (8, 3); distance = √[(8−0)² + (3−0)²] = √(64 + 9) = √73 units.",
+      "[1 mark] (ii) Centre = midpoint of AC = (4, 3); distance = √[(4−0)² + (3−0)²] = √25 = 5 units.",
+      "[1 mark] (iii) AC = √[(8−0)² + (6−0)²] = √100 = 10 units.",
+      "[1 mark] A→B→C = AB + BC = 8 + 6 = 14 units; the diagonal is 14 − 10 = 4 units shorter."
     ],
-    "finalAnswer": "(i) √73 units (ii) 5 units (iii) Diagonal ≠ simple perimeter ratio",
+    "finalAnswer": "(i) √73 units (ii) 5 units (iii) AC = 10 units, 4 units shorter than A→B→C.",
     "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "I",
-    "ncertRef": "Ex 7.1, Ex 7.2"
+    "ncertRef": "Ex 7.1, Ex 7.2",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-018",
@@ -375,9 +369,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "(i) (x-3)² + (y-4)² = 25 (ii) y = 0 or 8 (iii) All points on circle equidistant from center (iv) 10 units",
     "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "I",
-    "ncertRef": "Ex 7.1"
+    "ncertRef": "Ex 7.1",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-019",
@@ -460,9 +453,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "finalAnswer": "10",
     "explanation": "O = (0, 0), A = (8, 0), B = (0, 6). Therefore, the correct answer is 10.",
     "isCompetencyBased": true,
-    "pyqYear": "2019",
-    "pyqSet": "II",
-    "ncertRef": "Ex 7.1"
+    "ncertRef": "Ex 7.1",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-023",
@@ -715,8 +707,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "coordinate-geometry",
     "subtopic": "Section Formula",
-    "section": "C",
-    "marks": 3,
+    "section": "A",
+    "marks": 1,
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
@@ -745,8 +737,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "coordinate-geometry",
     "subtopic": "Midpoint Formula",
-    "section": "C",
-    "marks": 3,
+    "section": "A",
+    "marks": 1,
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
@@ -776,8 +768,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "coordinate-geometry",
     "subtopic": "Distance Formula",
-    "section": "C",
-    "marks": 3,
+    "section": "A",
+    "marks": 1,
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
@@ -858,9 +850,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "0 or 7",
     "isCompetencyBased": true,
-    "pyqYear": "2019",
-    "pyqSet": "I",
-    "ncertRef": "Ex 7.1"
+    "ncertRef": "Ex 7.1",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-042",
@@ -891,9 +882,8 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Isosceles right-angled",
     "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "I",
-    "ncertRef": "Ex 7.1"
+    "ncertRef": "Ex 7.1",
+    sourceOverride: "others",
   },
   {
     "id": "CG2-044",

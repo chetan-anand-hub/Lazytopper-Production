@@ -46,7 +46,13 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // CBE-M-TRI-A-004, CBE-M-TRI-C-006, SP-M-2022-TRI-A-003; Z3-TG-110 is outside this batch). Crops kept on disk.
     // 86 -> 82 at QUICK-FIXES-1 PR-2 (2026-10-06): bindings of 4 withheld rows removed (CBE-M-ARC-C-001, CBE-M-ARC-C-002,
     // CBE-M-ARC-E-001, PYQ-M-ARC-005; owner ruling R3). Crops kept on disk.
-    expect(batch).toHaveLength(82); // +2: CBE-M-CG-A-001 / CBE-M-CG-B-002 (Item Bank p230, rulings 1-4 PR)
+    // 82 -> 79 at BANK-FIX-1 PR-2 (2026-10-07): bindings removed for APQ-M-TRI-008, PB-M-1-TRIG-C-001 and
+    // PYQ-M-2026-POLY-005 (rows withheld: figure / limit). Z3-ARC-004 (withheld, figure) is also
+    // unbound but sits outside this batch (/visuals/). Crops kept on disk.
+    // 79 -> 77 at BANK-FIX-1 PR-2 phase B (2026-10-07): CBE-M-STAT-B-001 and CBE-M-STAT-C-001 unbound (figure pass: the stem
+    // is self-contained and the figure contradicts it or is decorative; rows stay served). Z3-CG-004's two figures are
+    // unbound too, outside this batch (/visuals/). Crops kept on disk.
+    expect(batch).toHaveLength(77); // +2: CBE-M-CG-A-001 / CBE-M-CG-B-002 (Item Bank p230, rulings 1-4 PR)
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {

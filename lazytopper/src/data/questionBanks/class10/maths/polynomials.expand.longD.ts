@@ -141,18 +141,16 @@ export const POLYNOMIALS_EXPAND_LONG_D: CanonicalQuestion[] = [
     isCompetencyBased: true },
 
   // ===== Proving symmetric-function / coefficient identities (general ax²+bx+c) =====
-  { id: "BX-POLY-D-011", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
+  { id: "BX-POLY-D-011", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
     questionText: "Let α and β be the zeroes of the general quadratic p(x) = ax² + bx + c, a ≠ 0. Establish that the sum of the squares of the zeroes satisfies α² + β² = (b² − 2ac)/a².",
     options: [],
     solutionSteps: [
-      "[1 mark] By the zero–coefficient relationship, α + β = −b/a and αβ = c/a.",
-      "[1 mark] Use the identity α² + β² = (α + β)² − 2αβ.",
-      "[1 mark] Substitute: α² + β² = (−b/a)² − 2(c/a).",
-      "[1 mark] Simplify: (−b/a)² = b²/a², so α² + β² = b²/a² − 2c/a.",
-      "[1 mark] Take LCM a²: = (b² − 2ac)/a². Hence proved."
+      "[1 mark] α + β = −b/a, αβ = c/a, and α² + β² = (α + β)² − 2αβ.",
+      "[1 mark] = b²/a² − 2c/a = (b² − 2ac)/a². Hence proved."
     ],
     finalAnswer: "α² + β² = (b² − 2ac)/a².",
-    isCompetencyBased: false },
+    isCompetencyBased: false,
+    sourceOverride: "others", },
 
   { id: "BX-POLY-D-012", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "For the general quadratic ax² + bx + c with zeroes α and β, show that the squared difference of the zeroes can be written as (α − β)² = (b² − 4ac)/a².",
@@ -167,18 +165,16 @@ export const POLYNOMIALS_EXPAND_LONG_D: CanonicalQuestion[] = [
     finalAnswer: "(α − β)² = (b² − 4ac)/a².",
     isCompetencyBased: false },
 
-  { id: "BX-POLY-D-013", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
+  { id: "BX-POLY-D-013", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
     questionText: "Take α and β as the zeroes of ax² + bx + c (a ≠ 0, c ≠ 0). Demonstrate that the sum of the reciprocals of the zeroes reduces to 1/α + 1/β = −b/c.",
     options: [],
     solutionSteps: [
-      "[1 mark] By the relationship, α + β = −b/a and αβ = c/a; since c ≠ 0, neither zero is 0.",
-      "[1 mark] Combine the fractions: 1/α + 1/β = (α + β)/(αβ).",
-      "[1 mark] Substitute: = (−b/a) ÷ (c/a).",
-      "[1 mark] Divide the fractions: = (−b/a) × (a/c) = −ab/(ac).",
-      "[1 mark] Cancel a: = −b/c. Hence proved."
+      "[1 mark] α + β = −b/a, αβ = c/a (c ≠ 0, so α, β ≠ 0); 1/α + 1/β = (α + β)/(αβ).",
+      "[1 mark] = (−b/a) ÷ (c/a) = −b/c. Hence proved."
     ],
     finalAnswer: "1/α + 1/β = −b/c.",
-    isCompetencyBased: false },
+    isCompetencyBased: false,
+    sourceOverride: "others", },
 
   { id: "BX-POLY-D-014", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "With α and β as zeroes of ax² + bx + c, derive an expression for the sum of the cubes of the zeroes in terms of a, b and c, and prove it equals α³ + β³ = (3abc − b³)/a³.",
@@ -193,18 +189,17 @@ export const POLYNOMIALS_EXPAND_LONG_D: CanonicalQuestion[] = [
     finalAnswer: "α³ + β³ = (3abc − b³)/a³.",
     isCompetencyBased: false },
 
-  { id: "BX-POLY-D-015", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
+  { id: "BX-POLY-D-015", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
     questionText: "For zeroes α and β of ax² + bx + c (c ≠ 0), verify the identity connecting the reciprocals of the squared zeroes to the coefficients: 1/α² + 1/β² = (b² − 2ac)/c².",
     options: [],
     solutionSteps: [
-      "[1 mark] By the relationship, α + β = −b/a and αβ = c/a (c ≠ 0 so α, β ≠ 0).",
-      "[1 mark] Write 1/α² + 1/β² = (α² + β²)/(αβ)² = ((α + β)² − 2αβ)/(αβ)².",
-      "[1 mark] Numerator: (−b/a)² − 2(c/a) = b²/a² − 2c/a = (b² − 2ac)/a².",
-      "[1 mark] Denominator: (αβ)² = (c/a)² = c²/a².",
-      "[1 mark] Divide: [(b² − 2ac)/a²] ÷ [c²/a²] = (b² − 2ac)/c². Hence proved."
+      "[1 mark] α + β = −b/a, αβ = c/a (c ≠ 0 so α, β ≠ 0); 1/α² + 1/β² = (α² + β²)/(αβ)².",
+      "[1 mark] Numerator: (α + β)² − 2αβ = b²/a² − 2c/a = (b² − 2ac)/a²; denominator (αβ)² = c²/a².",
+      "[1 mark] Divide: (b² − 2ac)/c². Hence proved."
     ],
     finalAnswer: "1/α² + 1/β² = (b² − 2ac)/c².",
-    isCompetencyBased: false },
+    isCompetencyBased: false,
+    sourceOverride: "others", },
 
   // ===== Forming a new quadratic from transformed zeros of a given quadratic =====
   { id: "BX-POLY-D-017", subject: "Maths", topicKey: "polynomials", subtopic: "Constructing a Polynomial", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Creating",

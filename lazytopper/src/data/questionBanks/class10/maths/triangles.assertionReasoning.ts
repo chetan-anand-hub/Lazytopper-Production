@@ -37,9 +37,8 @@ export const TRIANGLES_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both A and R are true. R is the BPT which directly explains A.",
     "isCompetencyBased": false,
-    "pyqYear": "2024",
-    "pyqSet": "30/1/1",
-    "ncertRef": "Theorem 6.1"
+    "ncertRef": "Theorem 6.1",
+    sourceOverride: "others",
   },
 
 {
@@ -103,9 +102,8 @@ export const TRIANGLES_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(C)",
     "explanation": "A is true: congruent ⟹ similar (sides in ratio 1:1). R is false: similar does NOT imply congruent (e.g., triangles with sides 3,4,5 and 6,8,10 are similar but not congruent).",
     "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "30/2/1",
-    "ncertRef": "Ex 6.1"
+    "ncertRef": "Ex 6.1",
+    sourceOverride: "others",
   },
 
 {
@@ -230,9 +228,8 @@ export const TRIANGLES_AR_QUESTIONS: CanonicalQuestion[] = [
     "finalAnswer": "(A)",
     "explanation": "Both true. R (Midpoint Theorem) directly explains A — midpoints of two sides give a parallel segment half the third side.",
     "isCompetencyBased": false,
-    "pyqYear": "2023",
-    "pyqSet": "30/1/1",
-    "ncertRef": "Ex 6.2"
+    "ncertRef": "Ex 6.2",
+    sourceOverride: "others",
   },
 
 {

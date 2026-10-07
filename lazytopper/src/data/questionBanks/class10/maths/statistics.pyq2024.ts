@@ -10,12 +10,13 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const STATISTICS_PYQ_2024: CanonicalQuestion[] = [
   { id: "PYQ-M-2024-STAT-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Calculate the mean of the following data : Class : 4 – 6 7 – 9 10 – 12 13 – 15 Frequency : 5 4 9 10",
-    answer: "Class 4 – 6 7 – 9 10 – 12 13 – 15 Total fi 5 4 9 10 28 xi 5 8 11 14 fixi 25 32 99 140 296 Correct table Mean = 296 28 = 74 7 or 10.57 approx.",
-    solutionSteps: ["Class 4 – 6 7 – 9 10 – 12 13 – 15 Total fi 5 4 9 10 28 xi 5 8 11 14 fixi 25 32 99 140 296 Correct table Mean = 296 28 = 74 7 or 10.57 approx."],
-    finalAnswer: "Class 4 – 6 7 – 9 10 – 12 13 – 15 Total fi 5 4 9 10 28 xi 5 8 11 14 fixi 25 32 99 140 296 Correct table Mean = 296 28 = 74 7 or 10.57 approx.",
+    questionText: "Calculate the mean of the following data:\nClass : Frequency\n4–6 : 5\n7–9 : 4\n10–12 : 9\n13–15 : 10",
+    answer: "Mean = 296/28 = 74/7 ≈ 10.57",
+    solutionSteps: ["[1 mark] Class marks xi: 5, 8, 11, 14; frequencies fi: 5, 4, 9, 10; Σfi = 28.", "[1 mark] fixi: 25, 32, 99, 140; Σfixi = 296.", "[1 mark] Mean = Σfixi/Σfi = 296/28 = 74/7 ≈ 10.57."],
+    finalAnswer: "Mean = 74/7 ≈ 10.57",
     ncertRef: "PYQ 30(B) Q31", isCompetencyBased: true,
-    pyqYear: "2024", pyqSet: "1" },
+    sourceOverride: "others",
+  },
   { id: "PYQ-M-2024-STAT-002", subject: "Maths", topicKey: "statistics", subtopic: "Mode", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "The following table shows the ages of the patients admitted in a hospital during a year : Age (in years) 5 – 15 15 – 25 25 – 35 35 – 45 45 – 55 55 – 65 Number of patients 6 11 21 23 14 5 Find the mode and mean of the data given above.",
     answer: "Therefore, mode and mean of given data are 36.81 years and 35.375 years respectively.",

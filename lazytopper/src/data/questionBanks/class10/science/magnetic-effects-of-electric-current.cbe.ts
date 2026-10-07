@@ -16,20 +16,22 @@ export const MAGN_CBE: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Which diagram, A, B or C, shows the shape of the magnetic field around a current-carrying conductor?",
+    "questionText": "Which diagram, A, B or C, in the given figure shows the shape of the magnetic field around a straight current-carrying conductor?",
     "options": [
-      "A. Concentric circles around the straight wire",
-      "B. (alternative field pattern shown)",
-      "C. (alternative field pattern shown)"
+      "Diagram A",
+      "Diagram B",
+      "Diagram C",
+      "None of A, B or C"
     ],
-    "answer": "A. Concentric circles around the straight wire",
+    "answer": "Diagram A",
     "solutionSteps": [
-      "[1 mark] The magnetic field around a straight current-carrying conductor consists of concentric circles centred on the wire - diagram A."
+      "[1 mark] The magnetic field around a straight current-carrying conductor consists of concentric circles centred on the wire, as in diagram A. Diagram B shows a bar-magnet-like pattern and diagram C shows straight parallel lines, so both are wrong."
     ],
-    "finalAnswer": "A (concentric circular field lines around the wire).",
+    "finalAnswer": "Diagram A (concentric circular field lines around the wire).",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Three candidate diagrams A, B and C of magnetic field patterns around a straight current-carrying wire; A shows concentric circular field lines around the conductor."
+    "diagramDescription": "Three candidate diagrams A, B and C of magnetic field patterns around a straight current-carrying wire; A shows concentric circular field lines around the conductor.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-S-MAGN-A-002",

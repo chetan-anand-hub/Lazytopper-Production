@@ -14,16 +14,16 @@ export const POLY_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Relationship Between Zeroes and Coefficients",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "If α and β are the zeroes of the quadratic polynomial ax² + bx + c, then α + β = −b/______ and αβ = c/______.",
-    "options": [],
+    "questionText": "If α and β are the zeroes of the quadratic polynomial ax² + bx + c, then",
+    "options": ["α + β = b/a and αβ = c/a", "α + β = −b/c and αβ = a/c", "α + β = −b/a and αβ = c/a", "α + β = −c/a and αβ = b/a"],
     "answer": "α + β = −b/a and αβ = c/a",
     "solutionSteps": [
-      "[1 mark] For a quadratic polynomial ax² + bx + c, sum of zeroes α + β = −b/a and product of zeroes αβ = c/a. Both blanks are filled by 'a'."
+      "[1 mark] α + β = −b/a and αβ = c/a — for ax² + bx + c, sum of zeroes = −b/a and product = c/a."
     ],
-    "finalAnswer": "−b/a and c/a",
+    "finalAnswer": "α + β = −b/a and αβ = c/a",
     "isCompetencyBased": false
   },
   {
@@ -54,16 +54,16 @@ export const POLY_PREBOARD: CanonicalQuestion[] = [
     "subtopic": "Number of Zeroes of a Polynomial",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "A quadratic polynomial can have at most 2 zeroes and a cubic polynomial can have at most __________ zeroes.",
-    "options": [],
-    "answer": "3",
+    "questionText": "A quadratic polynomial can have at most 2 zeroes. A cubic polynomial can have at most",
+    "options": ["2 zeroes", "4 zeroes", "6 zeroes", "3 zeroes"],
+    "answer": "3 zeroes",
     "solutionSteps": [
-      "[1 mark] The number of zeroes of a polynomial cannot exceed its degree. A cubic polynomial has degree 3, so it can have at most 3 zeroes."
+      "[1 mark] 3 zeroes — the number of zeroes cannot exceed the degree, which is 3 for a cubic."
     ],
-    "finalAnswer": "3",
+    "finalAnswer": "3 zeroes",
     "isCompetencyBased": false
   },
   {

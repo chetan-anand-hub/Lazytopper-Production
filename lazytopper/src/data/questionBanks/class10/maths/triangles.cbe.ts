@@ -72,19 +72,20 @@ export const TRI_CBE: CanonicalQuestion[] = [
     "subtopic": "Basic Proportionality Theorem",
     "section": "A",
     "marks": 1,
-    "format": "VSA",
+    "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "In the figure, AB ∥ CD ∥ EF, with AC = 12 cm, BD = 9 cm, DF = 6 cm and CE = x. Given that x = 8 cm, find AE.",
-    "options": [],
-    "answer": "AE = 20 cm",
+    "questionText": "In the figure, AB ∥ CD ∥ EF, with AC = 12 cm, BD = 9 cm, DF = 6 cm and CE = x. Given that x = 8 cm, the length of AE is",
+    "options": ["18 cm", "20 cm", "15 cm", "21 cm"],
+    "answer": "20 cm",
     "solutionSteps": [
-      "[1 mark] AE = AC + CE = 12 + 8 = 20 cm."
+      "[1 mark] 20 cm — AE = AC + CE = 12 + 8 = 20 cm (consistent with 9/6 = 12/x, x = 8 cm)."
     ],
-    "finalAnswer": "AE = 20 cm",
+    "finalAnswer": "20 cm",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "Three parallel lines AB ∥ CD ∥ EF cut by two transversals. On one transversal the points are A, C, E (with AC = 12 cm, CE = x = 8 cm); on the other transversal the points are B, D, F (with BD = 9 cm, DF = 6 cm). AE is to be found. This is part (b) of the item; part (a) establishes x = 8 cm."
+    "diagramDescription": "Three parallel lines AB ∥ CD ∥ EF cut by two transversals. On one transversal the points are A, C, E (with AC = 12 cm, CE = x = 8 cm); on the other transversal the points are B, D, F (with BD = 9 cm, DF = 6 cm). AE is to be found. This is part (b) of the item; part (a) establishes x = 8 cm.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRI-A-004",
@@ -181,7 +182,7 @@ export const TRI_CBE: CanonicalQuestion[] = [
   {
     "id": "CBE-M-TRI-B-004",
     "subject": "Maths",
-    "topicKey": "triangles",
+    "topicKey": "circles",
     "subtopic": "Tangent Perpendicular to Radius",
     "section": "B",
     "marks": 2,
@@ -299,7 +300,7 @@ export const TRI_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In the figure, BA, FE and CD are parallel lines. Given that EG = 5 cm, GC = 10 cm, AB = 15 cm and DC = 18 cm, calculate EF.",
+    "questionText": "BA, FE and CD are parallel lines. Line segments EC and FD intersect at G. Given that EG = 5 cm, GC = 10 cm, AB = 15 cm and DC = 18 cm, calculate EF.",
     "options": [],
     "answer": "EF = 9 cm",
     "solutionSteps": [
@@ -309,8 +310,9 @@ export const TRI_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "EF = 9 cm",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
-    "diagramDescription": "Three parallel lines BA ∥ FE ∥ CD. Segments AB and DC act as the parallel sides; E, F, G, C, D are configured so that EF and CD are corresponding sides of similar triangles △EFG and △CDG meeting at G. Marked: EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm. Diagram not to scale."
+    "requiresDiagram": false,
+    "diagramDescription": "Three parallel lines BA ∥ FE ∥ CD. Segments AB and DC act as the parallel sides; E, F, G, C, D are configured so that EF and CD are corresponding sides of similar triangles △EFG and △CDG meeting at G. Marked: EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm. Diagram not to scale.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRI-C-005",
@@ -322,7 +324,7 @@ export const TRI_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "In the figure, BA, FE and CD are parallel lines. Given that EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm and EF = 9 cm, calculate AC.",
+    "questionText": "In ΔABC, E is a point on side AC and F is a point on side BC such that EF ∥ AB. G is a point on EC such that EG = 5 cm and GC = 10 cm. If AB = 15 cm and EF = 9 cm, calculate AC.",
     "options": [],
     "answer": "AC = 25 cm",
     "solutionSteps": [
@@ -332,8 +334,9 @@ export const TRI_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "AC = 25 cm",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
-    "diagramDescription": "Three parallel lines BA ∥ FE ∥ CD (same figure as the previous part). Triangles △CAB and △CEF share vertex C with AB ∥ EF. Marked: EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm, EF = 9 cm (from part a), CE = 15 cm. Diagram not to scale."
+    "requiresDiagram": false,
+    "diagramDescription": "Three parallel lines BA ∥ FE ∥ CD (same figure as the previous part). Triangles △CAB and △CEF share vertex C with AB ∥ EF. Marked: EG = 5 cm, GC = 10 cm, AB = 15 cm, DC = 18 cm, EF = 9 cm (from part a), CE = 15 cm. Diagram not to scale.",
+    sourceOverride: "others",
   },
   {
     "id": "CBE-M-TRI-C-006",
