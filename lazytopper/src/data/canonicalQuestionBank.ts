@@ -1894,6 +1894,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "CG2-046",                    // answer-mismatch: diagonals cannot be found from two side mid-points; key was "insufficient information"
   "LP2-043",                    // out-of-syllabus: clinical pathology (BP vs pulse) not derivable from NCERT Class 10
   "OEX-A-005",                  // answer-mismatch: "most stable ecosystem" has no NCERT basis; the key is not provable
+  // ---- CBQ-1 C2 (owner DEC-12, 2026-10-07): persistence of vision is not in the 2026-27 Human Eye content list ----
+  "LTG-S-EYE-202",              // persistence of vision (generated CBQ; withheld, not deleted)
+  "LTG-S-EYE-207",              // persistence of vision
+  "LTG-S-EYE-212",              // persistence of vision
+  "LTG-S-EYE-215",              // persistence of vision
 ]);
 
 /**
