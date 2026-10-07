@@ -1,14 +1,15 @@
 /**
- * c3CbqPacks.maths.test.ts — CBQ-1 C3 PR-1: the Trigonometry + Triangles competency packs.
+ * c3CbqPacks.maths.test.ts — CBQ-1 C3: the Maths competency packs (PR-1 Trigonometry + Triangles;
+ * PR-2 Statistics + Pair of Linear Equations + Quadratic Equations).
  *
  * Pins what this PR ships, as FLOORS (a later PR may add rows; none may silently vanish):
  *   - per chapter × marks counts of competency-verified rows in the SERVED bank;
  *   - every row registered in the served bank (a dropped spread turns this red);
  *   - a full CBSE step scheme on every row (leading [N mark] steps summing to marks;
  *     case studies 1 + 1 + 2 as four one-mark steps);
- *   - ids LTG-M-TRIG-/TRI- numbered 2NN and up — never -1NN, which the GEN-THIN-1 PR-2
+ *   - ids LTG-M-<CODE>- numbered 2NN and up — never -1NN, which the GEN-THIN-1 PR-2
  *     pin (`pr2.length === 94` in ltGenerated.guard.test.ts) owns.
- * Reads no clock: it imports only the two packs and the assembled bank.
+ * Reads no clock: it imports only the packs and the assembled bank.
  */
 
 import { describe, it, expect } from "vitest";
@@ -17,10 +18,16 @@ import type { CanonicalQuestion } from "../predictionTypes";
 import { canonicalQuestionBank } from "../canonicalQuestionBank";
 import { TRIGONOMETRY_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/trigonometry.cbq.ltgen";
 import { TRIANGLES_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/triangles.cbq.ltgen";
+import { STATISTICS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/statistics.cbq.ltgen";
+import { PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/pair-of-linear-equations.cbq.ltgen";
+import { QUADRATIC_EQUATIONS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/quadratic-equations.cbq.ltgen";
 
 const PACKS = [
   { slug: "trigonometry", code: "TRIG", rows: TRIGONOMETRY_CBQ_LT_GENERATED, floor: { 1: 32, 2: 17, 3: 14, 4: 29, 5: 11 } },
   { slug: "triangles", code: "TRI", rows: TRIANGLES_CBQ_LT_GENERATED, floor: { 1: 32, 2: 16, 3: 17, 4: 31, 5: 10 } },
+  { slug: "statistics", code: "STAT", rows: STATISTICS_CBQ_LT_GENERATED, floor: { 1: 34, 2: 17, 3: 17, 4: 31, 5: 10 } },
+  { slug: "pair-of-linear-equations", code: "PLE", rows: PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED, floor: { 1: 32, 2: 17, 3: 17, 4: 27, 5: 10 } },
+  { slug: "quadratic-equations", code: "QE", rows: QUADRATIC_EQUATIONS_CBQ_LT_GENERATED, floor: { 1: 33, 2: 23, 3: 17, 4: 24, 5: 10 } },
 ] as const;
 
 const STEP = /^\[(\d+(?:\.5)?|½) marks?\]\s/;
@@ -29,7 +36,7 @@ const stepValue = (s: string) => {
   return m ? (m[1] === "½" ? 0.5 : Number(m[1])) : NaN;
 };
 
-describe("CBQ-1 C3 PR-1 · Trigonometry + Triangles competency packs", () => {
+describe("CBQ-1 C3 · Maths competency packs (Trigonometry, Triangles, Statistics, Pair of Linear Equations, Quadratic Equations)", () => {
   it("every pack row is served, and served competency-verified counts per marks meet the shipped floor", () => {
     const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
     for (const p of PACKS) {

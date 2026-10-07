@@ -27,6 +27,8 @@
 //   • a session where NOTHING was attempted writes NO record — no fabricated history.
 
 import type { AuthUser } from "../context/AuthContext";
+import type { GradingJobInterruptedError, GradingJobOptions } from "../ai/gradingJobs";
+import { isInterruptedJobError, recordableInterruptedRows, recordedQNumbersOf } from "../ai/gradingJobRecords";
 import {
   gradeWorksheet,
   type CheckSolutionResponse,
@@ -688,6 +690,9 @@ export interface QuickPracticeBatchResult {
    *  nothing was thrown (a malformed response). */
   errorName?: string;
   error?: string;
+  /** GRADING-JOBS-1 J2 — on a background grade the server interrupted (contract §6): its final
+   *  rows and the questions to offer back as "grade the remaining N". Only with `skipped-error`. */
+  jobInterrupted?: GradingJobInterruptedError;
 }
 
 /**
@@ -713,6 +718,9 @@ export async function gradeQuickPracticeBatch(args: {
   user?: AuthUser | null;
   /** Test seam. Production omits it and gets `gradeWorksheet`. */
   grade?: QuickPracticeBatchGrader;
+  /** GRADING-JOBS-1 J2 — a background job, used ONLY for a batch of MORE THAN ONE question
+   *  (contract §11: a one-question batch is graded exactly as today). */
+  job?: GradingJobOptions;
 }): Promise<QuickPracticeBatchResult> {
   const { worksheetId, subject, answers, user } = args;
   const grade = args.grade ?? gradeWorksheet;
@@ -784,9 +792,63 @@ export async function gradeQuickPracticeBatch(args: {
     }));
   const sentQNumbers = questions.map((q) => q.qNumber);
 
+  const miOutcomes: QuickPracticeMiOutcome[] = [];
+  // J2b (D30-2): rows already recorded from the interruption this grade continues.
+  const alreadyRecorded = recordedQNumbersOf(args.job?.continueFrom);
+  /** ONE graded answer → the MI front door + its score twin (see §4a below). */
+  const feedMi = async (answer: QuickPracticeSavedAnswer, result: WorksheetQuestionGrade): Promise<void> => {
+    // ★★★ SITE 2 of 2 — WHAT MISTAKE INTELLIGENCE STORES. This loop re-derives its own
+    // grade rather than reading `entries`, so the local objective mark MUST be applied
+    // here too or `recordAttempt` writes the model's wrong number into the store the
+    // tutor reads — invisibly, and forever. A RENDER SITE IS NOT A PRODUCTION SITE.
+    const rawCsr = batchGradeToCheckSolution(result);
+    const csr = rawCsr ? applyLocalObjectiveMark(answer, rawCsr) : null;
+    // Unresolvable objective pick ⇒ no grade ⇒ NO MI WRITE, exactly as couldNotRead does.
+    // Recording a 0 would be the fabrication this module's header forbids.
+    if (!csr) return;
+    const questionId = String(answer.questionId);
+    const topic = String(answer.topicLabel || "");
+    // eslint-disable-next-line no-await-in-loop
+    const rec = await recordMistake(user ?? null, csr, {
+      subject: String(subject || ""),
+      topic,
+      topicKey: answer.topicKey ?? undefined,
+      question: String(answer.questionText || ""),
+      questionId,
+      // SCORECARD-MI-1 (D5 / A2) — this practice session is the submission: re-grading the
+      // same session replaces; a new session (a genuine retry) is a new entry.
+      surface: "quick-practice",
+      submissionId: worksheetId,
+    });
+    recordAttempt(user ?? null, {
+      subject: String(subject || ""),
+      topic,
+      topicKey: answer.topicKey ?? undefined,
+      question: String(answer.questionText || ""),
+      questionId,
+      marksScored: csr.marksAwarded,
+      marksAvailable: csr.totalMarks,
+      mode: "graded",
+      // H1 — the same submission identity as the MI entry: this practice session is the
+      // submission; re-grading it replaces, a new session is a new attempt.
+      surface: "quick-practice",
+      submissionId: worksheetId,
+      grade: csr,
+    });
+    miOutcomes.push({
+      qNumber: answer.qNumber,
+      questionId,
+      mistakeOutcome: rec.outcome,
+      bridged: rec.bridged,
+    });
+  };
+
   let response: WorksheetGradeResponse;
   try {
-    response = await grade({ worksheetId, subject, questions, uploads }, { surface: "quick-practice" });
+    response = await grade(
+      { worksheetId, subject, questions, uploads },
+      { surface: "quick-practice", ...(args.job && questions.length > 1 ? { job: args.job } : {}) },
+    );
   } catch (error) {
     // ★★ §4b · THE 402 IS NOT AN ERROR AND MUST NOT BE SWALLOWED HERE. The catch used
     // to be unconditional, so a free-past-trial student pressing Finish got
@@ -819,6 +881,23 @@ export async function gradeQuickPracticeBatch(args: {
         error: error.message,
       };
     }
+    // J2b (D30-2) — an interrupted background grade: its FINAL graded rows feed MI now, through
+    // the same per-answer path as a graded batch (same ids, so idempotent). Not-graded rows
+    // feed nothing; the batch result stays skipped-error (no paper totals exist, §6).
+    if (isInterruptedJobError(error)) {
+      const sentSet = new Set(sentQNumbers);
+      const answerByQ = new Map(selection.batch.map((a) => [a.qNumber, a]));
+      try {
+        for (const { row } of recordableInterruptedRows(error)) {
+          const answer = answerByQ.get(Number(row.qNumber));
+          if (!answer || !sentSet.has(answer.qNumber) || alreadyRecorded.has(answer.qNumber)) continue;
+          // eslint-disable-next-line no-await-in-loop
+          await feedMi(answer, row);
+        }
+      } catch (recordErr) {
+        console.warn("[quickPracticeSessionService] interrupted-row record failed", recordErr);
+      }
+    }
     console.warn("[quickPracticeSessionService] batched grade failed", error);
     return {
       outcome: "skipped-error",
@@ -827,12 +906,16 @@ export async function gradeQuickPracticeBatch(args: {
       sentQNumbers,
       unsolicitedQNumbers: [],
       overCapQNumbers,
-      miOutcomes: [],
+      miOutcomes,
       error: error instanceof Error ? error.message : String(error),
       // BUGFIX-1 (P3): the thrown error's NAME, carried so the page can tell a
       // SignInAgainError apart by name. Read as a plain field, not by `instanceof`.
       ...(typeof (error as { name?: unknown } | null)?.name === "string"
         ? { errorName: (error as { name: string }).name }
+        : {}),
+      // J2 — read by NAME, like the errors above (aiClient is mocked whole in some suites).
+      ...((error as { name?: unknown } | null)?.name === "GradingJobInterruptedError"
+        ? { jobInterrupted: error as GradingJobInterruptedError }
         : {}),
     };
   }
@@ -919,54 +1002,13 @@ export async function gradeQuickPracticeBatch(args: {
      ★ couldNotRead ⇒ NO MI WRITE. The grader could not read that answer, so there is
      no grade and nothing to classify. `batchGradeToCheckSolution` already returns null
      for it; recording a 0 would be the fabrication this module's header forbids. */
-  const miOutcomes: QuickPracticeMiOutcome[] = [];
   for (const answer of selection.batch) {
     const result = byQNumber.get(answer.qNumber);
     if (!result) continue;
-    // ★★★ SITE 2 of 2 — WHAT MISTAKE INTELLIGENCE STORES. This loop re-derives its own
-    // grade rather than reading `entries`, so the local objective mark MUST be applied
-    // here too or `recordAttempt` writes the model's wrong number into the store the
-    // tutor reads — invisibly, and forever. A RENDER SITE IS NOT A PRODUCTION SITE.
-    const rawCsr = batchGradeToCheckSolution(result);
-    const csr = rawCsr ? applyLocalObjectiveMark(answer, rawCsr) : null;
-    // Unresolvable objective pick ⇒ no grade ⇒ NO MI WRITE, exactly as couldNotRead does.
-    // Recording a 0 would be the fabrication this module's header forbids.
-    if (!csr) continue;
-    const questionId = String(answer.questionId);
-    const topic = String(answer.topicLabel || "");
+    // J2b (D30-2): a row recorded when the job was interrupted is not recorded twice.
+    if (alreadyRecorded.has(answer.qNumber)) continue;
     // eslint-disable-next-line no-await-in-loop
-    const rec = await recordMistake(user ?? null, csr, {
-      subject: String(subject || ""),
-      topic,
-      topicKey: answer.topicKey ?? undefined,
-      question: String(answer.questionText || ""),
-      questionId,
-      // SCORECARD-MI-1 (D5 / A2) — this practice session is the submission: re-grading the
-      // same session replaces; a new session (a genuine retry) is a new entry.
-      surface: "quick-practice",
-      submissionId: worksheetId,
-    });
-    recordAttempt(user ?? null, {
-      subject: String(subject || ""),
-      topic,
-      topicKey: answer.topicKey ?? undefined,
-      question: String(answer.questionText || ""),
-      questionId,
-      marksScored: csr.marksAwarded,
-      marksAvailable: csr.totalMarks,
-      mode: "graded",
-      // H1 — the same submission identity as the MI entry: this practice session is the
-      // submission; re-grading it replaces, a new session is a new attempt.
-      surface: "quick-practice",
-      submissionId: worksheetId,
-      grade: csr,
-    });
-    miOutcomes.push({
-      qNumber: answer.qNumber,
-      questionId,
-      mistakeOutcome: rec.outcome,
-      bridged: rec.bridged,
-    });
+    await feedMi(answer, result);
   }
 
   return {

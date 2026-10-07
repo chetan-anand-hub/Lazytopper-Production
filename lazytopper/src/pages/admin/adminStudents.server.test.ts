@@ -598,7 +598,8 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
         feed: null,
         feedTruncated: false,
       });
-      expect(day2.ai).toEqual({ calls: 4, costInr: 1.23, checks: 1, chapterTests: 0, mocks: 0, worksheets: 0 });
+      // HARDEN-1 PR-2: this ledger day has no providerSpendMicroInr (a pre-#957 day) -> null = not recorded.
+      expect(day2.ai).toEqual({ calls: 4, costInr: 1.23, providerSpendInr: null, checks: 1, chapterTests: 0, mocks: 0, worksheets: 0 });
 
       const day3 = tl[2] as unknown as { sessions: Data[]; practice: Data; mocks: Data[]; plan: Data[] };
       expect(day3.sessions).toEqual([
@@ -713,5 +714,248 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       // CONTROL: the same scan DOES see a write when one is present.
       expect([..."db.collection('x').doc('y').set({})".matchAll(writeCall)].map((m) => m[0])).toEqual([".set("]);
     });
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HARDEN-1 PR-2 — the read-only "Grader health" payload
+   (GET /api/admin/token-telemetry?view=grader-health, server/routes/adminTelemetry.cjs)
+   and the two spend numbers on the student detail (FU-A17-ADMIN-SPEND-FIELD).
+   Same fakes as above: Firestore and Auth writes THROW. The clock is injected.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const ghMod = requireCjs("../../../server/routes/adminTelemetry.cjs") as {
+  createAdminTelemetryRoutes: (deps: Record<string, unknown>) => {
+    handleGetTokenTelemetry: (req: FakeReq, res: FakeRes) => Promise<void>;
+  };
+  NOT_COMPLETED_REASONS: string[];
+};
+
+const CONFIGURED = "gemini-3.8-flash";
+const FALLBACK = "gemini-2.5-flash";
+/** 00:05 IST on 15 Dec 2026 — five minutes after an IST midnight. */
+const GH_NOW = Date.parse("2026-12-14T18:35:00.000Z");
+
+function reply(model: string | null, results?: Data[], extra: Data = {}) {
+  return JSON.stringify({ ok: true, ...(model ? { model } : {}), ...(results ? { results } : {}), teacherNote: "POISON-NOTE", ...extra });
+}
+function syncRecord(atMs: number, body: string): Data {
+  return { state: "done", status: 200, claimId: "POISON-CLAIM", body, completedAtMs: atMs, expiresAtMs: atMs + DAY };
+}
+
+function ghWorld(store: Record<string, Data>): World {
+  return { now: GH_NOW, users: [user(STUDENT_TOKEN_UID, GH_NOW - 30 * DAY), user("otherUid0002", GH_NOW - 40 * DAY)], store };
+}
+
+function ghRoutes(world: World, counters: Record<string, number> = {}) {
+  const fs = makeFirestore(world.store);
+  const fa = makeAdmin(world.users, { "admin-token": ADMIN_UID, "student-token": STUDENT_TOKEN_UID });
+  const routes = ghMod.createAdminTelemetryRoutes({
+    sendJson,
+    firebaseAdmin: fa.admin,
+    adminFirestore: fs.db,
+    telemetry: { snapshot: () => ({ ...counters }) },
+    getTokenTelemetry: () => [],
+    now: () => world.now,
+  });
+  async function get(url: string, token?: string) {
+    const res = makeRes();
+    const req: FakeReq = { method: "GET", url, headers: token ? { authorization: `Bearer ${token}` } : {} };
+    await routes.handleGetTokenTelemetry(req, res);
+    return { status: res.status, body: JSON.parse(res.body || "{}"), raw: res.body };
+  }
+  return { get, fs, fa };
+}
+
+const GH_URL = "/api/admin/token-telemetry?view=grader-health";
+const at = (iso: string) => Date.parse(iso);
+const att = (uid: string, id: string) => `gradingResults/${uid}/attempts/${id}`;
+
+describe("HARDEN-1 PR-2 · grader health — access (the existing ADMIN_FIREBASE_UIDS gate)", () => {
+  it("★ a non-admin gets 403 and NO payload, and nothing is read", async () => {
+    const w = ghRoutes(ghWorld({ [att(STUDENT_TOKEN_UID, "a1")]: syncRecord(GH_NOW - 60_000, reply(CONFIGURED)) }));
+    const r = await w.get(GH_URL, "student-token");
+    expect(r.status).toBe(403);
+    expect(Object.keys(r.body).sort()).toEqual(["error", "ok"]);
+    expect(r.raw).not.toMatch(/records|counters|gradesByModel/);
+    expect(w.fs.calls).toEqual([]);
+    expect(w.fa.calls).toEqual(["verifyIdToken"]);
+  });
+
+  it("no token -> 401; a bad token -> 401; both with no payload", async () => {
+    const w = ghRoutes(ghWorld({}));
+    for (const token of [undefined, "forged-token"]) {
+      const r = await w.get(GH_URL, token);
+      expect(r.status).toBe(401);
+      expect(Object.keys(r.body).sort()).toEqual(["error", "ok"]);
+    }
+    expect(w.fs.calls).toEqual([]);
+  });
+});
+
+describe("HARDEN-1 PR-2 · grader health — payload (counts from stored records + existing counters)", () => {
+  function fullWorld(): World {
+    const u = STUDENT_TOKEN_UID;
+    const today1 = GH_NOW - 2 * 60_000; // 00:03 IST, 15 Dec
+    const twoDaysAgo = GH_NOW - 2 * DAY;
+    return ghWorld({
+      // configured model: a graded single check, and a single check whose answer could not be read
+      [att(u, "c1")]: syncRecord(today1, reply(CONFIGURED, undefined, { marksAwarded: 2, totalMarks: 3, answerMismatch: false })),
+      [att(u, "c2")]: syncRecord(twoDaysAgo, reply(CONFIGURED, undefined, { couldNotRead: true, answerMismatch: null })),
+      // fallback model: a worksheet with a timeout, an unreadable, an error, a mismatch and a grade
+      [att(u, "w1")]: syncRecord(today1, reply(FALLBACK, [
+        { notGraded: "timeout", couldNotRead: true, note: "POISON-ROW" },
+        { notGraded: "unreadable", couldNotRead: true },
+        { notGraded: "error", couldNotRead: true },
+        { notGraded: null, answerMismatch: true },
+        { notGraded: null, answerMismatch: false, marksAwarded: 1 },
+      ])),
+      // a background job that finished on the fallback model
+      [att("otherUid0002", "j1")]: {
+        state: "done", status: 202, body: JSON.stringify({ ok: true, jobId: "j1" }), completedAtMs: twoDaysAgo,
+        job: { state: "done", doneAtMs: twoDaysAgo + 60_000, model: FALLBACK, final: reply(FALLBACK, [{ notGraded: null, answerMismatch: true }]) },
+      },
+      // an interrupted job (model never recorded)
+      [att("otherUid0002", "j2")]: {
+        state: "done", status: 202, body: JSON.stringify({ ok: true, jobId: "j2" }), completedAtMs: twoDaysAgo,
+        job: { state: "interrupted", interruptedAtMs: twoDaysAgo + 120_000, model: null, results: [JSON.stringify({ notGraded: "interrupted", couldNotRead: true }), JSON.stringify({ notGraded: null })] },
+      },
+      // a reply the grader could not use ({ ok:false }) -> one "error"
+      [att(u, "e1")]: syncRecord(twoDaysAgo, JSON.stringify({ ok: false, error: "POISON-ERROR" })),
+      // NOT counted: a pending marker, a job still running, a record older than 7 IST days
+      [att(u, "p1")]: { state: "pending", claimedAtMs: GH_NOW - 1000 },
+      [att(u, "r1")]: { state: "done", status: 202, body: "{}", completedAtMs: GH_NOW - 5000, job: { state: "running" } },
+      [att(u, "old")]: syncRecord(GH_NOW - 9 * DAY, reply(CONFIGURED)),
+    });
+  }
+
+  it("★ admin gets the card payload shape: IST windows, models, records, counters", async () => {
+    const w = ghRoutes(fullWorld(), { "grading.model_fallback": 3, "entitlement.deny.reauth_required": 2, "grading.something_else": 99 });
+    const r = await w.get(GH_URL, "admin-token");
+    expect(r.status).toBe(200);
+    expect(Object.keys(r.body).sort()).toEqual(
+      ["counters", "generatedAtMs", "models", "ok", "records", "timeZone", "todayKey", "view", "windowDays", "windowStartKey"].sort()
+    );
+    expect(r.body).toMatchObject({ ok: true, view: "grader-health", timeZone: "Asia/Kolkata", todayKey: "2026-12-15", windowStartKey: "2026-12-09", windowDays: 7, generatedAtMs: GH_NOW });
+    expect(r.body.models).toEqual({ configured: CONFIGURED, fallback: FALLBACK });
+    expect(Object.keys(r.body.records.today).sort()).toEqual(["answerMismatches", "gradesByModel", "notCompleted", "questions", "records"]);
+    expect(Object.keys(r.body.counters).sort()).toEqual(["gradingModelFallback", "signInRefreshDenials", "uptimeSeconds"]);
+    expect(r.body.counters.gradingModelFallback).toBe(3);
+    expect(r.body.counters.signInRefreshDenials).toBe(2);
+    expect(r.body.records.available).toBe(true);
+    expect(r.body.records.studentsScanned).toBe(2);
+    // names and counts only: no reply text, no uid, no claim id leaves
+    expect(r.raw).not.toMatch(/POISON|studentUid01|otherUid0002/);
+  });
+
+  it("★ grades by model: the fallback count is the fallback records ONLY", async () => {
+    const w = ghRoutes(fullWorld());
+    const r = await w.get(GH_URL, "admin-token");
+    const { today, last7Days } = r.body.records;
+    expect(last7Days.gradesByModel).toEqual({ [CONFIGURED]: 2, [FALLBACK]: 2, "not-recorded": 2 });
+    expect(today.gradesByModel).toEqual({ [CONFIGURED]: 1, [FALLBACK]: 1 });
+    expect(last7Days.records).toBe(6); // the pending marker, the running job and the 9-day-old record are not counted
+  });
+
+  it("★ grades not completed: timeout / couldn't read / error / interrupted, each with charged 0", async () => {
+    const w = ghRoutes(fullWorld());
+    const r = await w.get(GH_URL, "admin-token");
+    const { today, last7Days } = r.body.records;
+    expect(Object.keys(last7Days.notCompleted).sort()).toEqual([...ghMod.NOT_COMPLETED_REASONS].sort());
+    expect(last7Days.notCompleted).toEqual({
+      timeout: { count: 1, charged: 0 },
+      unreadable: { count: 2, charged: 0 },
+      error: { count: 2, charged: 0 },
+      interrupted: { count: 1, charged: 0 },
+    });
+    expect(today.notCompleted).toEqual({
+      timeout: { count: 1, charged: 0 },
+      unreadable: { count: 1, charged: 0 },
+      error: { count: 1, charged: 0 },
+      interrupted: { count: 0, charged: 0 },
+    });
+    expect(last7Days.answerMismatches).toBe(2);
+    expect(today.answerMismatches).toBe(1);
+  });
+
+  it("★ IST day boundary: a record at 18:29Z and one at 18:31Z land on different IST days", async () => {
+    const u = STUDENT_TOKEN_UID;
+    const w = ghRoutes(ghWorld({
+      [att(u, "before")]: syncRecord(at("2026-12-14T18:29:00.000Z"), reply(CONFIGURED)), // 23:59 IST, 14 Dec
+      [att(u, "after")]: syncRecord(at("2026-12-14T18:31:00.000Z"), reply(FALLBACK)), // 00:01 IST, 15 Dec
+    }));
+    const r = await w.get(GH_URL, "admin-token");
+    expect(r.body.todayKey).toBe("2026-12-15");
+    expect(r.body.records.today.gradesByModel).toEqual({ [FALLBACK]: 1 });
+    expect(r.body.records.last7Days.gradesByModel).toEqual({ [CONFIGURED]: 1, [FALLBACK]: 1 });
+  });
+
+  it("honest empty state: no stored records -> zero records (the card says no data yet), counters still read", async () => {
+    const w = ghRoutes(ghWorld({}), { "grading.model_fallback": 0 });
+    const r = await w.get(GH_URL, "admin-token");
+    expect(r.status).toBe(200);
+    expect(r.body.records.available).toBe(true);
+    expect(r.body.records.last7Days.records).toBe(0);
+    expect(r.body.records.oldestRecordMs).toBeNull();
+  });
+
+  it("Firestore unavailable -> records.available false (never zero-filled numbers)", async () => {
+    const world = ghWorld({});
+    const fa = makeAdmin(world.users, { "admin-token": ADMIN_UID });
+    const routes = ghMod.createAdminTelemetryRoutes({ sendJson, firebaseAdmin: fa.admin, telemetry: { snapshot: () => ({}) }, now: () => GH_NOW });
+    const res = makeRes();
+    await routes.handleGetTokenTelemetry({ method: "GET", url: GH_URL, headers: { authorization: "Bearer admin-token" } }, res);
+    const body = JSON.parse(res.body);
+    expect(body.records).toEqual({ available: false });
+  });
+
+  it("★★ NO WRITES: the grader-health read calls only read methods", async () => {
+    const w = ghRoutes(fullWorld());
+    expect((await w.get(GH_URL, "admin-token")).status).toBe(200);
+    expect(w.fs.writes).toEqual([]);
+    expect(w.fa.writes).toEqual([]);
+    expect([...new Set(w.fs.calls)].filter((m) => !FS_READ_METHODS.has(m))).toEqual([]);
+    expect([...new Set(w.fa.calls)].sort()).toEqual(["listUsers", "verifyIdToken"]);
+  });
+
+  it("the plain token-telemetry payload is unchanged by the view (no records read without ?view=grader-health)", async () => {
+    const w = ghRoutes(fullWorld());
+    const r = await w.get("/api/admin/token-telemetry", "admin-token");
+    expect(r.status).toBe(200);
+    expect(r.body.view).toBeUndefined();
+    expect(r.body.gradingModelFallback).toBeDefined();
+    expect(w.fs.calls).toEqual([]);
+  });
+});
+
+describe("HARDEN-1 PR-2 · student detail — usage meter vs actual AI spend (FU-A17-ADMIN-SPEND-FIELD)", () => {
+  async function dayAi(ledger: Data) {
+    const created = GH_NOW - 3 * DAY;
+    const d = istDayKey(created + DAY);
+    const world: World = {
+      now: GH_NOW,
+      users: [user(STUDENT_TOKEN_UID, created)],
+      store: { [`usageLedger/${STUDENT_TOKEN_UID}/days/${d}`]: ledger },
+    };
+    const r = await buildRoutes(world).get(`/api/admin/students/${STUDENT_TOKEN_UID}`, "admin-token");
+    expect(r.status).toBe(200);
+    return (r.body.timeline as Array<{ day: string; ai: Data | null }>).find((x) => x.day === d)!.ai!;
+  }
+
+  it("★ meter and spend are two separate numbers, never swapped", async () => {
+    const ai = await dayAi({ calls: 3, costMicroInr: 1_234_567, providerSpendMicroInr: 4_560_000 });
+    expect(ai.costInr).toBe(1.23); // the usage meter (graded)
+    expect(ai.providerSpendInr).toBe(4.56); // what the provider billed
+  });
+
+  it("★ a pre-#957 day (no providerSpendMicroInr) -> null = not recorded, never 0 and never the meter", async () => {
+    const ai = await dayAi({ calls: 3, costMicroInr: 1_234_567 });
+    expect(ai.providerSpendInr).toBeNull();
+    expect(ai.costInr).toBe(1.23);
+  });
+
+  it("a recorded zero spend stays 0 (a real zero is not not-recorded)", async () => {
+    const ai = await dayAi({ calls: 1, costMicroInr: 0, providerSpendMicroInr: 0 });
+    expect(ai.providerSpendInr).toBe(0);
   });
 });

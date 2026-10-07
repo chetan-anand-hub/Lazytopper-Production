@@ -29,6 +29,7 @@ import {
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
+import { recordableInterruptedRows, recordedQNumbersOf } from "../ai/gradingJobRecords";
 import { saveWorksheetGrade, listStoredWorksheetsLite } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
 import { isGradedQuestion, v2GradeFields, withEffectiveCounts } from "../lib/mistakeDisplay";
@@ -101,53 +102,20 @@ export async function gradeWorksheetAndRecord(
   worksheet: PersistedWorksheet,
   upload: { imageBase64: string; imageMimeType: string },
   /** LOW-END-1 R2: the panel's stage listener (Uploading NN% -> Sent ✓ -> Grading… -> Done). */
-  opts?: { onStage?: PaidCallOptions["onStage"] },
+  opts?: { onStage?: PaidCallOptions["onStage"]; job?: PaidCallOptions["job"] },
 ): Promise<WorksheetGradeOutcome> {
-  const rawResponse = await gradeWorksheet({
-    worksheetId: worksheet.worksheetId,
-    subject: worksheet.subject,
-    questions: worksheet.questions.map((q) => ({
-      qNumber: q.qNumber,
-      marks: q.marks,
-      topic: q.topicLabel,
-      topicLabel: q.topicLabel,
-      questionText: q.questionText,
-      // Objective signals for the server's deterministic 0/full clamp + honesty guard.
-      // `section` ("A" for MCQ/AR) classifies the question; `answer` is the canonical
-      // bank answer key — the correct OPTION TEXT — and `options` is the option list,
-      // so the server can bridge a letter pick to that text and score the MCQ
-      // deterministically (0 or full, never fractional). All three are declared on
-      // PersistedWorksheetQuestion, so this read is type-checked. This REPLACES the old
-      // `correctOption` cast (`as unknown as`), which asserted a field the canonical /
-      // persisted type never declares and so resolved to `undefined` for every real
-      // bank MCQ — leaving the server's objective guard dead code.
-      section: q.section,
-      answer: q.answer,
-      options: q.options,
-      solutionSteps: q.solutionSteps,
-      finalAnswer: q.finalAnswer,
-    })),
-    imageBase64: upload.imageBase64,
-    imageMimeType: upload.imageMimeType,
-  }, { surface: "worksheet", paperKey: worksheet.worksheetId, ...(opts?.onStage ? { onStage: opts.onStage } : {}) });
-
-  if (!rawResponse.ok) return { response: rawResponse, miOutcomes: [] };
-  // SCORECARD-MI-1 — ONE set of counts for every reader of this grade (scorecard, PDF,
-  // session record, MI): no type on a full-mark question (owner ruling).
-  const response = withEffectiveCounts(rawResponse);
-
-  // Persist so the student can revisit the grade later.
-  saveWorksheetGrade(worksheet.worksheetId, response);
-
   const qByNumber = new Map(worksheet.questions.map((q) => [q.qNumber, q]));
   const miOutcomes: WorksheetMiOutcome[] = [];
+  // J2b (D30-2): rows already recorded from the interruption this grade continues.
+  const alreadyRecorded = recordedQNumbersOf(opts?.job?.continueFrom);
 
-  for (const g of response.results) {
+  /** ONE graded question → the MI front door + its score twin (the one per-question path). */
+  const recordGraded = async (g: WorksheetQuestionGrade): Promise<void> => {
     // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
     // nothing: no MI entry, no attempt, never a 0.
-    if (!isGradedQuestion(g)) continue;
+    if (!isGradedQuestion(g)) return;
     const q = qByNumber.get(g.qNumber);
-    if (!q) continue;
+    if (!q) return;
 
     const csr = toCheckSolutionResponse(g);
     const questionId = worksheetQuestionId(worksheet.worksheetId, g.qNumber);
@@ -192,6 +160,73 @@ export async function gradeWorksheetAndRecord(
     });
 
     miOutcomes.push({ qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged });
+  };
+
+  let rawResponse: WorksheetGradeResponse;
+  try {
+    rawResponse = await gradeWorksheet({
+    worksheetId: worksheet.worksheetId,
+    subject: worksheet.subject,
+    questions: worksheet.questions.map((q) => ({
+      qNumber: q.qNumber,
+      marks: q.marks,
+      topic: q.topicLabel,
+      topicLabel: q.topicLabel,
+      questionText: q.questionText,
+      // Objective signals for the server's deterministic 0/full clamp + honesty guard.
+      // `section` ("A" for MCQ/AR) classifies the question; `answer` is the canonical
+      // bank answer key — the correct OPTION TEXT — and `options` is the option list,
+      // so the server can bridge a letter pick to that text and score the MCQ
+      // deterministically (0 or full, never fractional). All three are declared on
+      // PersistedWorksheetQuestion, so this read is type-checked. This REPLACES the old
+      // `correctOption` cast (`as unknown as`), which asserted a field the canonical /
+      // persisted type never declares and so resolved to `undefined` for every real
+      // bank MCQ — leaving the server's objective guard dead code.
+      section: q.section,
+      answer: q.answer,
+      options: q.options,
+      solutionSteps: q.solutionSteps,
+      finalAnswer: q.finalAnswer,
+    })),
+    imageBase64: upload.imageBase64,
+    imageMimeType: upload.imageMimeType,
+  }, {
+    surface: "worksheet",
+    paperKey: worksheet.worksheetId,
+    ...(opts?.onStage ? { onStage: opts.onStage } : {}),
+    // GRADING-JOBS-1 J2 — a background job when the panel opted in (rows land one by one).
+    ...(opts?.job ? { job: opts.job } : {}),
+  });
+  } catch (err) {
+    // J2b (D30-2) — an interrupted background grade: its FINAL graded rows are recorded now,
+    // exactly as a normal graded row (same ids, so idempotent), then the interruption goes on
+    // to the panel ("Grade the remaining N"). No paper-level record: there are no totals (§6).
+    try {
+      for (const { row } of recordableInterruptedRows(err)) {
+        if (alreadyRecorded.has(row.qNumber)) continue;
+        // eslint-disable-next-line no-await-in-loop
+        await recordGraded(row);
+      }
+    } catch (recordErr) {
+      // A recording miss never hides the interruption from the student.
+      console.warn("[worksheetGradeService] interrupted-row record failed", recordErr);
+    }
+    throw err;
+  }
+
+  if (!rawResponse.ok) return { response: rawResponse, miOutcomes: [] };
+  // SCORECARD-MI-1 — ONE set of counts for every reader of this grade (scorecard, PDF,
+  // session record, MI): no type on a full-mark question (owner ruling).
+  const response = withEffectiveCounts(rawResponse);
+
+  // Persist so the student can revisit the grade later.
+  saveWorksheetGrade(worksheet.worksheetId, response);
+
+  for (const g of response.results) {
+    // J2b (D30-2): a row recorded when the job was interrupted is not recorded twice.
+    if (alreadyRecorded.has(g.qNumber)) continue;
+    // eslint-disable-next-line no-await-in-loop
+    await recordGraded(g);
   }
 
   // ── Progress-Journey PR-1: write ONE durable session record ────────────────
