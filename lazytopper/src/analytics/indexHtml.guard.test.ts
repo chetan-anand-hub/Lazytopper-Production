@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { ga4PageLocation, ga4PageReferrer, normalisePath, routerPathOf } from "./analytics";
@@ -559,5 +559,162 @@ describe("index.html + styles.css — fonts (LOW-END-1 L1)", () => {
     const removed =
       '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />';
     expect(removed).toMatch(/fonts\.googleapis\.com/);
+  });
+});
+
+/**
+ * META-PIXEL-1 PR-1 — the Meta Pixel block. Run, not grepped: the block must define `fbq`
+ * (init only, no PageView), load fbevents.js deferred, and stay silent exactly where the
+ * GA4 block does (`/u/` hand-off links, automated contexts).
+ */
+const META_ID = "2018097265518900";
+const FBEVENTS_SRC = "https://connect.facebook.net/en_US/fbevents.js";
+
+function metaBlocks(): Array<{ index: number; body: string }> {
+  return inlineScripts(html).filter((s) => s.body.includes(META_ID));
+}
+
+function runMetaBlock(
+  href: string,
+  opts: { referrer?: string; webdriver?: boolean; readyState?: string; noIdle?: boolean } = {},
+) {
+  const url = new URL(href);
+  const appended: Appended[] = [];
+  const listeners = new Map<string, Array<() => void>>();
+  const timers: Array<{ ms: number; fn: () => void }> = [];
+  const idles: Array<{ timeout?: number; fn: () => void }> = [];
+  const win: Record<string, unknown> = {
+    location: {
+      href,
+      origin: url.origin,
+      hostname: url.hostname,
+      pathname: url.pathname,
+      search: url.search,
+      hash: url.hash,
+    },
+    navigator: { webdriver: opts.webdriver === true },
+    addEventListener: (type: string, fn: () => void) => {
+      listeners.set(type, [...(listeners.get(type) ?? []), fn]);
+    },
+    removeEventListener: (type: string, fn: () => void) => {
+      listeners.set(type, (listeners.get(type) ?? []).filter((f) => f !== fn));
+    },
+    setTimeout: (fn: () => void, ms: number) => {
+      timers.push({ ms, fn });
+      return timers.length;
+    },
+  };
+  if (!opts.noIdle) {
+    win.requestIdleCallback = (fn: () => void, o?: { timeout?: number }) => {
+      idles.push({ timeout: o?.timeout, fn });
+      return idles.length;
+    };
+  }
+  const doc = {
+    referrer: opts.referrer ?? "",
+    readyState: opts.readyState ?? "interactive",
+    createElement: (tagName: string): Appended => ({ tagName }),
+    head: { appendChild: (el: Appended) => appended.push(el) },
+  };
+  const [block] = metaBlocks();
+  new Function("window", "document", block.body)(win, doc);
+  const fbq = win.fbq as (((...a: unknown[]) => void) & { queue?: ArrayLike<unknown>[] }) | undefined;
+  return {
+    appended,
+    fbq,
+    get queue(): unknown[][] {
+      return (fbq?.queue ?? []).map((e) => Array.from(e));
+    },
+    fire: (event: string) => [...(listeners.get(event) ?? [])].forEach((fn) => fn()),
+    runIdle: () => idles.splice(0).forEach((i) => i.fn()),
+    runTimers: () => timers.splice(0).forEach((t) => t.fn()),
+    listeners: () => [...listeners.entries()].filter(([, fns]) => fns.length > 0).map(([type]) => type).sort(),
+    win,
+  };
+}
+
+describe("index.html — the Meta Pixel block (META-PIXEL-1)", () => {
+  it("is ONE inline block, after GA4 and before the module script; no static fbevents tag", () => {
+    const blocks = metaBlocks();
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].index).toBeGreaterThan(ga4Blocks()[0].index);
+    expect(blocks[0].index).toBeLessThan(html.indexOf('<script type="module"'));
+    expect(html).not.toMatch(/<script[^>]*src=["']https:\/\/connect\.facebook\.net/i);
+  });
+
+  it("has no <noscript> pixel image", () => {
+    const noscripts = [...html.matchAll(/<noscript>([\s\S]*?)<\/noscript>/gi)].map((m) => m[1]);
+    expect(noscripts.some((n) => n.includes("facebook.com/tr"))).toBe(false);
+  });
+
+  it("★ queues only set autoConfig + init (no PageView) and disables pushState tracking", () => {
+    const run = runMetaBlock("https://www.lazytopper.com/practice-hub?cbq=1");
+    expect(run.queue).toEqual([
+      ["set", "autoConfig", false, META_ID],
+      ["init", META_ID],
+    ]);
+    const fbq = run.fbq as { disablePushState?: unknown; allowDuplicatePageViews?: unknown };
+    expect([fbq.disablePushState, fbq.allowDuplicatePageViews]).toEqual([true, true]);
+    expect(run.appended).toEqual([]);
+  });
+
+  it("loads fbevents.js once, after load + idle", () => {
+    const run = runMetaBlock("https://www.lazytopper.com/practice-hub");
+    run.fire("load");
+    run.runIdle();
+    expect(run.appended).toEqual([{ tagName: "script", async: true, src: FBEVENTS_SRC }]);
+    run.runTimers();
+    run.fire("pointerdown");
+    run.fire("load");
+    expect(run.appended).toHaveLength(1);
+  });
+
+  it.each(["pointerdown", "keydown", "touchstart", "scroll"])("loads at once on a first %s", (cue) => {
+    const run = runMetaBlock("https://www.lazytopper.com/practice-hub");
+    run.fire(cue);
+    expect(run.appended).toEqual([{ tagName: "script", async: true, src: FBEVENTS_SRC }]);
+  });
+
+  it.each(["/u/abc", "/app/u/abc", "/u"])("★ defines nothing and loads nothing on %s", (path) => {
+    const run = runMetaBlock(`https://www.lazytopper.com${path}`);
+    run.fire("load");
+    run.runIdle();
+    run.runTimers();
+    run.fire("pointerdown");
+    expect(run.fbq).toBeUndefined();
+    expect(run.appended).toEqual([]);
+  });
+
+  it.each([
+    ["127.0.0.1", false],
+    ["localhost", false],
+    ["studio.local", false],
+    ["www.lazytopper.com", true],
+  ])("★ is silent in an automated context (%s, webdriver=%s)", (host, webdriver) => {
+    const run = runMetaBlock(`https://${host}/practice-hub`, { webdriver });
+    run.fire("load");
+    run.runIdle();
+    run.fire("pointerdown");
+    expect(run.fbq).toBeUndefined();
+    expect(run.appended).toEqual([]);
+  });
+
+  it.each([
+    ["https://www.lazytopper.com/practice-hub", {}],
+    ["https://www.lazytopper.com/u/abc", {}],
+    ["https://www.lazytopper.com/app/u/abc", {}],
+    ["https://127.0.0.1/practice-hub", {}],
+    ["https://www.lazytopper.com/practice-hub", { webdriver: true }],
+  ] as Array<[string, { webdriver?: boolean }]>)("defines fbq exactly when GA4 defines gtag: %s %j", (href, opts) => {
+    expect(typeof runMetaBlock(href, opts).fbq === "function").toBe(runGa4Block(href, opts).gtagDefined);
+  });
+
+  it("routes calls to callMethod once the library has arrived", () => {
+    const run = runMetaBlock("https://www.lazytopper.com/practice-hub");
+    const callMethod = vi.fn();
+    (run.fbq as unknown as { callMethod: unknown }).callMethod = callMethod;
+    run.fbq!("track", "X");
+    expect(callMethod).toHaveBeenCalledTimes(1);
+    expect(run.queue).toHaveLength(2);
   });
 });
