@@ -794,6 +794,8 @@ export interface StoredWorksheetVariantInput {
    *  otherwise, so the affordance never promises a sheet it can't produce (honest, §3a). */
   onDownload?: () => void;
   downloading?: boolean;
+  /** PENDING-UPLOAD-1: a pending record offers "Upload answer sheet" when the host can open it. */
+  onUploadSheet?: () => void;
 }
 
 /**
@@ -809,7 +811,7 @@ export function storedWorksheetScorecardVariant(
   record: SessionRecord,
   input: StoredWorksheetVariantInput,
 ): ScorecardVariant {
-  const { gradedDateLabel, onDone, onDownload, downloading = false } = input;
+  const { gradedDateLabel, onDone, onDownload, onUploadSheet, downloading = false } = input;
   const totalQuestions = record.questionIds?.length ?? 0;
   const pendingUpload = record.status === "pending-upload";
   const partial = record.status === "partial";
@@ -827,12 +829,20 @@ export function storedWorksheetScorecardVariant(
       score: { kind: "marks", awarded: 0, total: 0 }, // not rendered — allPending below
       fourType: null,
       pending: null,
-      allPending: {
-        title: "We couldn’t read any answers",
-        detail:
-          "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
-      },
-      actions: [doneAction],
+      allPending: onUploadSheet
+        ? {
+            title: "Waiting for your answer sheet",
+            detail:
+              "Upload photos or a PDF of your written work and we’ll grade it. Nothing has been scored 0.",
+          }
+        : {
+            title: "We couldn’t read any answers",
+            detail:
+              "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
+          },
+      actions: onUploadSheet
+        ? [{ label: "Upload answer sheet", tone: "primary", onClick: onUploadSheet }, doneAction]
+        : [doneAction],
     };
   }
 
