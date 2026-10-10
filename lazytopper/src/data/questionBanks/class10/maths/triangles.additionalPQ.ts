@@ -35,10 +35,10 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
     questionText: "Harsha made a wind chime using a frame and metal rods. She punched 8 holes in the frame, each 2 cm apart, and then hung 6 metal rods from the frame. The ends of the metal rods are aligned over a line shown by the dotted line. If all of the rods are straight and not swaying, then what is the length of Rod P?",
     options: ["69/7 cm", "53/5 cm", "76/5 cm", "111/7 cm"],
     answer: "111/7 cm",
-    solutionSteps: ["The setup forms similar triangles where the rod lengths increase linearly across the frame. Using basic proportionality with the dotted line meeting the rod ends.", "Per MS: Rod P = 111/7 cm."],
+    solutionSteps: ["[1 mark] The 8 holes are 2 cm apart, so the first and last holes are 7 × 2 = 14 cm apart: the 29 cm rod hangs from the first hole, the 6 cm rod from the last, and Rod P from the 5th hole, 4 × 2 = 8 cm from the first. The rods hang from the straight frame edge and their ends lie on the straight dotted line, so by similar triangles (BPT) the length falls evenly across the frame: Rod P = 29 − (29 − 6) × 8/14 = 29 − 92/7 = 111/7 cm. Answer: (d) 111/7 cm."],
     finalAnswer: "(d) 111/7 cm",
     ncertRef: "APQ PQ1 Q7", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: wind chime with 8 holes and 6 rods aligned on a dotted line." },
+  },
 
   // PQ2 Q7 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRI-004", subject: "Maths", topicKey: "triangles", subtopic: "Similarity — Side Ratios", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
@@ -95,7 +95,7 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Similar triangles from observed sight-lines: ratio of corresponding sides gives D/(p + 7) = r/p (where p is the distance from Sonali to the road and (p + 7) is her distance to the far poles).", "Solve: D = r(p + 7)/p m."],
     finalAnswer: "(d) r(p+7)/p m",
     ncertRef: "APQ PQ_2022 Q5", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Sonali across 7 m road from light poles." },
+  },
 
   // PQ_2022 Q6 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRI-010", subject: "Maths", topicKey: "triangles", subtopic: "Similarity — Sufficient Conditions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
