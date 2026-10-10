@@ -34,10 +34,13 @@ vi.mock("../services/adaptivePracticeEngine", () => ({
   recordWrongAnswer: () => {},
 }));
 vi.mock("../services/guidedJourneyService", () => ({ recordDetour: () => {} }));
+// PRACTICE-REVIEW-HONEST-1 — a passthrough spy (same return as before) so review mode can
+// prove an MCQ pick after Finish never reaches the attempts front door.
+const { recordAttemptSpy } = vi.hoisted(() => ({ recordAttemptSpy: vi.fn(() => "recorded") }));
 vi.mock("../services/practiceInsights", () => ({
   getAttempts: () => [],
   getAttemptsFromCloud: async () => [],
-  recordAttempt: () => "recorded",
+  recordAttempt: recordAttemptSpy,
 }));
 vi.mock("../services/sessionRecords", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../services/sessionRecords")>();
@@ -49,9 +52,19 @@ vi.mock("../ai/aiClient", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../ai/aiClient")>();
   return { ...actual, gradeWorksheet, checkSolutionImage: vi.fn() };
 });
+// PRACTICE-REVIEW-HONEST-1 — passthrough spies (the REAL functions still run) so review
+// mode can read the batch's `record` flag and the persisted session entries.
+const { batchSpy, persistSpy } = vi.hoisted(() => ({ batchSpy: vi.fn(), persistSpy: vi.fn() }));
 vi.mock("../services/quickPracticeSessionService", async (importActual) => {
   const actual = await importActual<typeof import("../services/quickPracticeSessionService")>();
-  return { ...actual, sessionRotationOffset: () => 0 };
+  batchSpy.mockImplementation(actual.gradeQuickPracticeBatch);
+  persistSpy.mockImplementation(actual.persistQuickPracticeSession);
+  return {
+    ...actual,
+    sessionRotationOffset: () => 0,
+    gradeQuickPracticeBatch: batchSpy,
+    persistQuickPracticeSession: persistSpy,
+  };
 });
 vi.mock("../components/practice/practiceQuestionBuilder", async (importActual) => {
   const actual = await importActual<typeof import("../components/practice/practiceQuestionBuilder")>();
@@ -408,5 +421,147 @@ describe("QP-GUEST-SIGNIN-1 · restored score for a signed-in arrival", () => {
     seed(over);
     await mount();
     expect(screen.queryByTestId("qp-guest-score-restored")).toBeNull();
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// PRACTICE-REVIEW-HONEST-1 (cofounder DECISION 27a, owner-approved; scope 30b) —
+// "An answer given after the student has seen the steps is not a real attempt."
+// ════════════════════════════════════════════════════════════════════════════
+const REVIEW_LINE = "Review mode: answers here aren't added to your score.";
+const reviewLine = () => screen.queryByTestId("qp-review-mode-line");
+const backToSet = async () =>
+  fireEvent.click(await screen.findByRole("button", { name: (n: string) => n.includes(BACK_TO_SET) }));
+type QpService = typeof import("../services/quickPracticeSessionService");
+type BatchArgs = Parameters<QpService["gradeQuickPracticeBatch"]>[0];
+type PersistArgs = Parameters<QpService["persistQuickPracticeSession"]>[0];
+const lastBatchArgs = () => batchSpy.mock.calls[batchSpy.mock.calls.length - 1][0] as BatchArgs;
+const lastPersisted = () => persistSpy.mock.calls[persistSpy.mock.calls.length - 1][0] as PersistArgs;
+const entryFor = (id: string) => lastPersisted().entries.find((e) => e.questionId === id);
+
+describe("PRACTICE-REVIEW-HONEST-1 · review-mode answers are not counted", () => {
+  beforeEach(() => {
+    authUser.current = STUDENT;
+    recordAttemptSpy.mockClear();
+    batchSpy.mockClear();
+    persistSpy.mockClear();
+  });
+
+  it("(a) the muted line shows ONLY in review mode, verbatim", async () => {
+    await buildSet([mkItem(1, true), mkItem(2, true)]);
+    expect(reviewLine()).toBeNull();
+    fireEvent.click(screen.getByText("q1-correct"));
+    expect(reviewLine()).toBeNull();
+    finish();
+    await backToSet();
+    await waitFor(() => expect(cards()).toHaveLength(2));
+    expect(reviewLine()?.textContent).toBe(REVIEW_LINE);
+  });
+
+  it("(b)+(c) an MCQ answered BEFORE Finish counts (CONTROL); one answered in review shows right/wrong but changes no number and records nothing", async () => {
+    await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, false)]);
+    fireEvent.click(screen.getByText("q1-correct"));
+    await saveTypedFor(3);
+    // (c) CONTROL — the pre-Finish pick went through the attempts front door.
+    expect(recordAttemptSpy).toHaveBeenCalledTimes(1);
+    finish();
+    expect((await screen.findByTestId("qp-mcq-marks")).textContent).toBe("1 / 1 MCQ mark");
+    fireEvent.click(screen.getByTestId("qp-back-to-set"));
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    // (b) the review pick: the card still marks it…
+    fireEvent.click(screen.getByText("q2-correct"));
+    expect(screen.getByText("q2-correct").closest("button")?.getAttribute("aria-pressed")).toBe("true");
+    // …but it never reaches recordAttempt / MI…
+    expect(recordAttemptSpy).toHaveBeenCalledTimes(1);
+    finish();
+    // …and the scorecard numbers are unchanged.
+    const confirm = await screen.findByTestId("qp-confirm");
+    expect(within(confirm).getByTestId("qp-mcq-marks").textContent).toBe("1 / 1 MCQ mark");
+    expect(confirm.textContent).toContain("Review attempt");
+  });
+
+  it("(b) the MCQ-only scorecard's attempted / correct numbers ignore a review pick", async () => {
+    window.sessionStorage.clear();
+    authUser.current = GUEST;
+    await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, true)]);
+    fireEvent.click(screen.getByText("q1-correct"));
+    finish();
+    await backToSet();
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    fireEvent.click(screen.getByText("q2-correct"));
+    finish();
+    // The guest stash carries sessionStats verbatim: 1 attempted, 1 correct — not 2 / 2.
+    fireEvent.click(await screen.findByTestId("qp-guest-signin"));
+    expect(JSON.parse(window.sessionStorage.getItem(KEY)!)).toMatchObject({ attempted: 1, correct: 1, total: 3 });
+    window.sessionStorage.clear();
+  });
+
+  it("(d) a written answer graded in review mode: record:false, labelled 'Review attempt', NOT in the persisted record", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, true)]);
+    fireEvent.click(screen.getByText("q2-correct"));
+    finish();
+    await backToSet();
+    await waitFor(() => expect(cards()).toHaveLength(2));
+    await saveTypedFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    expect(lastBatchArgs().record).toBe(false);
+    expect(await screen.findByText(/Question 1 · Review attempt/)).toBeInTheDocument();
+    await waitFor(() => expect(persistSpy).toHaveBeenCalled());
+    expect(entryFor("q-1")?.graded).toBeUndefined();
+    expect(entryFor("q-2")?.mcq).toBe("correct");
+  });
+
+  it("(d) MIXED batch: the pre-Finish answer is recorded and persisted, the review answer is neither", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1), okGrade(2)]));
+    await buildSet([mkItem(1, false), mkItem(2, false)]);
+    await saveTypedFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-back-to-set"));
+    await waitFor(() => expect(cards()).toHaveLength(2));
+    await saveTypedFor(2);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    const { record, answers } = lastBatchArgs();
+    expect(typeof record).toBe("function");
+    const rec = record as (a: BatchArgs["answers"][number]) => boolean;
+    expect(rec(answers.find((a) => a.questionId === "q-1")!)).toBe(true);
+    expect(rec(answers.find((a) => a.questionId === "q-2")!)).toBe(false);
+    expect(await screen.findByText(/Question 2 · Review attempt/)).toBeInTheDocument();
+    expect(screen.queryByText(/Question 1 · Review attempt/)).toBeNull();
+    await waitFor(() => expect(persistSpy).toHaveBeenCalled());
+    expect(entryFor("q-1")?.graded).toBeDefined();
+    expect(entryFor("q-2")?.graded).toBeUndefined();
+  });
+
+  it("(d) CONTROL: a written answer saved BEFORE Finish is graded with recording on and no label", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false)]);
+    await saveTypedFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    expect(lastBatchArgs().record).toBeUndefined();
+    await waitFor(() => expect(persistSpy).toHaveBeenCalled());
+    expect(entryFor("q-1")?.graded).toBeDefined();
+    expect(screen.queryByText(/Review attempt/)).toBeNull();
+  });
+
+  it("(e) a fresh set clears review mode: the line goes and picks count again", async () => {
+    await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, true)]);
+    fireEvent.click(screen.getByText("q1-correct"));
+    finish();
+    await backToSet();
+    await waitFor(() => expect(reviewLine()).not.toBeNull());
+    fireEvent.click(screen.getByText("q2-correct"));
+    expect(recordAttemptSpy).toHaveBeenCalledTimes(1);
+    fireEvent.click(await screen.findByRole("button", { name: /^Refresh set$/ }));
+    await waitFor(() => expect(reviewLine()).toBeNull());
+    await screen.findAllByTestId("practice-question-card");
+    fireEvent.click(screen.getByText("q2-correct"));
+    expect(recordAttemptSpy).toHaveBeenCalledTimes(2);
   });
 });
