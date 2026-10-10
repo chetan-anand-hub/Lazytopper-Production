@@ -89,7 +89,7 @@ describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-
     // every declared row is bound by PR-3 or PR-4 (the PR-4 rows are pinned in the PR-4 block below), or is a C3 PR-S1
     // row pinned in scienceFigureVisuals.c3.test.ts. 2026-10-10 (B-21, LANE_RULES §8 amendment, +1 id):
     // PYQ-S-2025-MAG-006, withheld by BANK-FIX-5 (#1041) after C3 bound it.
-    const C3_DECLARED: string[] = []; // BANK-UNWITHHOLD-1 (2026-10-10): MAG-006 is served again
+    const C3_DECLARED: string[] = []; // BANK-UNWITHHOLD-1 (10 Oct): MAG-006 is served again
     // 2026-10-10 (B-21, DIAGRAMS-RESUME-B step 3, +11 ids): the census rows are pinned in the CENSUS block at the end of
     // this file (CENSUS_BINDINGS) and count as bound here.
     expect(BOUND_BUT_WITHHELD.filter((q) => ![...PR3_BINDINGS, ...PR4_BINDINGS, ...CENSUS_BINDINGS].some(([b]) => b === q) && !C3_DECLARED.includes(q))).toEqual([]);
