@@ -2,6 +2,7 @@
 // server/services/gracefulDrain.cjs — A REDEPLOY LOSES NO GRADING WORK (GRACEFUL-DEPLOY, owner 2026-10-07).
 // Live proof: a grading job in flight on the old instance at SIGTERM still ends `done` (#1016 OR-LIVE).
 // The job must still be running ~15 s after Railway reports success (the overlap), or the drain is not exercised.
+// Proof evidence: the OLD deployment's log line "[graceful-drain] SIGTERM: ... N job(s) in flight" with N >= 1.
 //
 // WHAT HAPPENS ON A RAILWAY REDEPLOY. The new deployment passes its healthcheck and takes the traffic;
 // then (after `deploy.overlapSeconds`) the OLD one gets SIGTERM, and SIGKILL `deploy.drainingSeconds`

@@ -57,9 +57,11 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // papers, APQ, SQP, NCERT, Exemplar). PYQ-M-2024-CIRC-011a's binding was dropped (BANK-FIX withholds it as a
     // duplicate of 010a). They share the /figures/<source>-maths/ prefixes this batch filters on; each binding is pinned one by one in
     // mathsFigureVisuals.diagrams1.test.ts. APQ-M-CIRC-007 carries two figures (main + OR part).
-    // 116 -> 120 at DIAGRAMS-1 C3 PR-D1 (2026-10-07): +4 Surface Areas and Volumes / Arithmetic Progression crops for 4
+    // 116 -> 123 at DIAGRAMS-1 PR-6 (2026-10-07): +7 Trigonometry / Coordinate Geometry crops for 5 rows (APQ, board paper),
+    // pinned one by one in mathsFigureVisuals.diagrams1.test.ts. APQ-M-TRIG-010 carries three figures (parts i, iii, OR iii).
+    // 123 -> 127 at DIAGRAMS-1 C3 PR-D1 (2026-10-07): +4 Surface Areas and Volumes / Arithmetic Progression crops for 4
     // served rows (APQ, board paper 2026), pinned one by one in mathsFigureVisuals.c3.test.ts.
-    expect(batch).toHaveLength(120); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
+    expect(batch).toHaveLength(127); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {
@@ -101,7 +103,8 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // a bound row must resolve to ONE figure — a duplicate entry would draw the same figure twice.
     // Declared exception (DIAGRAMS-1 PR-1): APQ-M-CIRC-007's stem carries an OR part with its own printed figure, so
     // it binds two DIFFERENT crops in source order. Any other multi-figure row must be declared here deliberately.
-    const MULTI_FIGURE: Record<string, number> = { "APQ-M-CIRC-007": 2 };
+    // DIAGRAMS-1 PR-6: APQ-M-TRIG-010 prints a separate figure for part (i), part (iii) and the OR part (iii).
+    const MULTI_FIGURE: Record<string, number> = { "APQ-M-CIRC-007": 2, "APQ-M-TRIG-010": 3 };
     const dup = batch.filter((f) => getFiguresForQuestion(f.questionId).length !== (MULTI_FIGURE[f.questionId ?? ""] ?? 1));
     expect(dup.map((f) => f.questionId)).toEqual([]);
     for (const qid of Object.keys(MULTI_FIGURE)) {
