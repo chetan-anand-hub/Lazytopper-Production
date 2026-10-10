@@ -119,13 +119,14 @@ export const SAV_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The area of the base of a rectangular tank is 7200 cm² and the volume of water contained in it is 3 m³. Find the height of water in the tank.",
     "options": [],
-    "answer": "4.16 m (or 416.67 cm)",
+    "answer": "Volume of water = 3 m³ = 3 × 10⁶ cm³ = 3000000 cm³. Height of water = Volume ÷ Base area = 3000000 ÷ 7200 = 1250/3 cm ≈ 416.67 cm (≈ 4.17 m).",
     "solutionSteps": [
-      "[1 mark] Convert volume to cm³: 3 m³ = 3 × 100 × 100 × 100 = 3,000,000 cm³.",
-      "[1 mark] Height = volume / base area = 3,000,000 / 7200 = 416.67 cm = 4.16 m."
+      "[1 mark] Convert volume: 3 m³ = 3 × 10⁶ cm³; use h = Volume ÷ Area of base",
+      "[1 mark] h = 3000000 ÷ 7200 = 1250/3 cm ≈ 416.67 cm (≈ 4.17 m)"
     ],
-    "finalAnswer": "4.16 m (or 416.67 cm)",
-    "isCompetencyBased": true
+    "finalAnswer": "Volume of water = 3 m³ = 3 × 10⁶ cm³ = 3000000 cm³. Height of water = Volume ÷ Base area = 3000000 ÷ 7200 = 1250/3 cm ≈ 416.67 cm (≈ 4.17 m).",
+    "isCompetencyBased": true,
+    "sourceOverride": "others"
   },
   {
     "id": "CBE-M-SAV-C-001", "competencyVerified": true,
