@@ -83,8 +83,8 @@ export function lensPath(at: FigurePoint, el: Pick<LensEl, "half" | "kind">): st
   return `M ${r2(at.x - w)} ${r2(top)} L ${r2(at.x + w)} ${r2(top)} Q ${r2(2 * (at.x + xin) - (at.x + w))} ${r2(at.y)} ${r2(at.x + w)} ${r2(bot)} L ${r2(at.x - w)} ${r2(bot)} Q ${r2(2 * (at.x - xin) - (at.x - w))} ${r2(at.y)} ${r2(at.x - w)} ${r2(top)} Z`;
 }
 
-function segLabelPos(a: FigurePoint, b: FigurePoint, side: "l" | "r" | "a" | "b"): { x: number; y: number; anchor: "start" | "middle" | "end" } {
-  const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+function segLabelPos(a: FigurePoint, b: FigurePoint, side: "l" | "r" | "a" | "b", at = 0.5): { x: number; y: number; anchor: "start" | "middle" | "end" } {
+  const m = { x: a.x + (b.x - a.x) * at, y: a.y + (b.y - a.y) * at };
   if (side === "l") return { x: m.x - 8, y: m.y + 4, anchor: "end" };
   if (side === "r") return { x: m.x + 8, y: m.y + 4, anchor: "start" };
   const u = unit(a, b);
@@ -152,11 +152,25 @@ function arcPath(at: FigurePoint, from: FigurePoint, to: FigurePoint, lay: ArcLa
   };
 }
 
+/**
+ * The outline of a shaded sector / segment. The region is swept counter-clockwise IN
+ * THE WORLD (y up) from `from` to `to`; on screen (y down) that is the SVG negative
+ * direction, so sweep-flag = 0. large-arc = the sweep exceeds 180°.
+ */
+export function regionPath(c: FigurePoint, from: FigurePoint, to: FigurePoint, r: number, ccwDeg: number, kind: "sector" | "segment"): string {
+  const large = ccwDeg > 180 ? 1 : 0;
+  const arc = `A ${r2(r)} ${r2(r)} 0 ${large} 0 ${r2(to.x)} ${r2(to.y)}`;
+  return kind === "sector"
+    ? `M ${r2(c.x)} ${r2(c.y)} L ${r2(from.x)} ${r2(from.y)} ${arc} Z`
+    : `M ${r2(from.x)} ${r2(from.y)} ${arc} Z`;
+}
+
 export function FigureSvg({ spec, idPrefix }: Props) {
   const P = spec.points;
   const arcs = arcLayouts(spec);
   const titleId = `${idPrefix}-t`;
   const descId = `${idPrefix}-d`;
+  const regions: ReactElement[] = [];
   const lines: ReactElement[] = [];
   const marks: ReactElement[] = [];
   const texts: ReactElement[] = [];
@@ -184,7 +198,7 @@ export function FigureSvg({ spec, idPrefix }: Props) {
         );
       }
       if (s.label) {
-        const pos = segLabelPos(a, b, s.label.side);
+        const pos = segLabelPos(a, b, s.label.side, s.label.at);
         texts.push(
           <text key={`${key}-l`} className="lt-fig__len-label" x={r2(pos.x)} y={r2(pos.y)} textAnchor={pos.anchor}>
             {s.label.text}
@@ -225,6 +239,18 @@ export function FigureSvg({ spec, idPrefix }: Props) {
     } else if (el.t === "dot") {
       const at = P[el.at];
       marks.push(<circle key={key} className="lt-fig__dot" cx={at.x} cy={at.y} r={2.6} />);
+    } else if (el.t === "circle") {
+      const c = P[el.c];
+      lines.push(<circle key={key} className={`lt-fig__circle lt-fig__circle--${el.role}`} cx={c.x} cy={c.y} r={r2(el.r)} />);
+    } else if (el.t === "region") {
+      regions.push(<path key={key} className="lt-fig__region" d={regionPath(P[el.c], P[el.from], P[el.to], el.r, el.ccwDeg, el.kind)} />);
+    } else if (el.t === "text") {
+      const at = P[el.at];
+      texts.push(
+        <text key={key} className={`lt-fig__${el.kind}`} x={r2(at.x + el.dx)} y={r2(at.y + el.dy)} textAnchor={el.anchor ?? "middle"}>
+          {el.text}
+        </text>,
+      );
     } else if (el.t === "label") {
       const at = P[el.at];
       texts.push(
@@ -247,6 +273,7 @@ export function FigureSvg({ spec, idPrefix }: Props) {
       <desc id={descId}>{spec.desc}</desc>
       <style>{FIGURE_SVG_CSS}</style>
       <rect className="lt-fig__bg" x={0} y={0} width={spec.viewBox.w} height={spec.viewBox.h} />
+      {regions.length > 0 ? <g>{regions}</g> : null}
       <g>{lines}</g>
       <g>{marks}</g>
       <g>{texts}</g>
