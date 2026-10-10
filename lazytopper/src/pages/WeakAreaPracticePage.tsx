@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { getWeakAreas, type WeakArea, type WeakAreaSummary } from "../services/weakAreaAggregator";
 import { useAuth } from "../context/AuthContext";
 import {
   ME_DEFAULT_WINDOW,
@@ -11,6 +10,11 @@ import {
   subjectRungOf,
   type StudyReadModel,
 } from "../services/progressReadModel";
+import type { RungTrend } from "../services/progressStore";
+import type { BankRowMeta } from "../data/bankChapters/bankIdIndex";
+import type { ConceptRowRef } from "../services/progressBankShape";
+import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
+import { chapterUnit } from "../config/syllabus2026-27";
 import { getDueReviews, getSRStats, type SRConceptCard } from "../services/spacedRepetitionEngine";
 import {
   generateLearningPath,
@@ -18,6 +22,7 @@ import {
   markDayCompleted,
   checkAndAdaptPath,
   type LearningPath,
+  type LearningPathArea,
 } from "../services/learningPathGenerator";
 import "./WeakAreaPracticePage.css";
 
@@ -31,7 +36,145 @@ type ViewTab = "weak-areas" | "learning-path" | "reviews";
  * (`rungNamesWeakness`, the gate Me and the Tutor brief use): below it, NO number is shown. The
  * practice difficulty follows the student's GRADED MARKS LOST in that chapter (the graded stream
  * Me's "marks on the table" reads), not mastery.
+ *
+ * ME-CONCEPT-1 PR-B ([FU-B18-WEAKAREA-LOCAL-LIST]) — the LIST itself, its ORDER, "Start Targeted
+ * Session" and the Learning Path now come from the same read model too (`weakAreasFromModel`):
+ * the chapters Me lists (marks lost, worst first) with their weakest Exam Trends concepts, at
+ * Me's gate. The device-local `getWeakAreas` (weakAreaAggregator) is no longer read here, so a
+ * second device shows the same list. Below the gate: the existing honest empty state, and no
+ * Learning Path is built or saved.
  */
+
+/** A weak area named from the shared read model (never device-local data). */
+export interface WeakArea {
+  /** Board chapter key (one of the 26). */
+  topicKey: string;
+  topicName: string;
+  subject: "Maths" | "Science";
+  /** The chapter's graded marks lost in the window (Me's "marks on the table"). Ordering only. */
+  marksLost: number;
+  /** The chapter's weakest Exam Trends concept rows (≤ 3), weakest first. Names only. */
+  weakConcepts: Array<{ key: string; label: string }>;
+}
+
+const round1 = (n: number): number => Math.round(n * 10) / 10;
+
+/** Marks lost on a marks rung, or null without a marks base — Me's `lostMarksOf` rule. */
+function rungMarksLost(rung: RungTrend): number | null {
+  const available = rung.marksAvailable;
+  const scored = rung.marksScored;
+  if (typeof available !== "number" || typeof scored !== "number") return null;
+  if (!Number.isFinite(available) || !Number.isFinite(scored)) return null;
+  return Math.max(0, round1(available - scored));
+}
+
+/** The paper of a board chapter key, or null when it resolves to none. */
+function chapterSubject(key: string): "Maths" | "Science" | null {
+  const meta = desktopTopicForWeakAreaKey(key);
+  if (meta?.subject) return meta.subject;
+  const unit = chapterUnit(key)?.subject;
+  return unit === "science" ? "Science" : unit === "maths" ? "Maths" : null;
+}
+
+/** At most this many weakest concepts are named per chapter (the Tutor brief's cap). */
+export const MAX_WEAK_CONCEPTS = 3;
+
+/**
+ * ME-CONCEPT-1 PR-B — THE weak-area list, from the shared read model only:
+ *   - nothing unless Me's gate for the paper on screen is met (`emptyListGateMet`) — below it the
+ *     page shows its honest empty state;
+ *   - a chapter is listed when its own paper's rung passes (`rungNamesWeakness`), it has a gated
+ *     topic rung, and that rung lost marks — the chapters Me's chapter list shows, in Me's ORDER
+ *     (marks lost, most first; the chapter key breaks a tie — `buildChapters`);
+ *   - each chapter's weakest concepts are its EXAM TRENDS concept rows (`progress.concepts`, keyed
+ *     through the one resolver in PR-A), by the marks they lost, most first (label breaks a tie). A
+ *     kept, unmapped subtopic row is a bank label, never named here (as in the Tutor brief).
+ * No mastery figure, no device-local input.
+ */
+export function weakAreasFromModel(
+  model: StudyReadModel | null,
+  subjectFilter: "All" | "Maths" | "Science",
+): WeakArea[] {
+  if (!model || !emptyListGateMet(model, subjectFilter)) return [];
+  const progress = model.progress;
+  const out: WeakArea[] = [];
+  for (const rung of progress.topics ?? []) {
+    const key = boardChapterKey(rung.key);
+    if (!key) continue;
+    const subject = chapterSubject(key);
+    if (!subject) continue;
+    if (subjectFilter !== "All" && subject !== subjectFilter) continue;
+    if (!rungNamesWeakness(subjectRungOf(progress, subject === "Science" ? "science" : "maths"))) continue;
+    const lost = rungMarksLost(rung);
+    if (lost === null || lost <= 0) continue;
+    const weakConcepts = (progress.concepts ?? [])
+      .filter((c) => c.examConcept === true && boardChapterKey(c.chapter) === key)
+      .map((c) => ({ key: c.key, label: c.label, lost: rungMarksLost(c) ?? 0 }))
+      .filter((c) => c.lost > 0)
+      .sort((a, b) => b.lost - a.lost || a.label.localeCompare(b.label))
+      .slice(0, MAX_WEAK_CONCEPTS)
+      .map(({ key: k, label }) => ({ key: k, label }));
+    out.push({
+      topicKey: key,
+      topicName: desktopTopicForWeakAreaKey(key)?.name || rung.label || key,
+      subject,
+      marksLost: lost,
+      weakConcepts,
+    });
+  }
+  return out.sort((a, b) => (b.marksLost !== a.marksLost ? b.marksLost - a.marksLost : a.topicKey.localeCompare(b.topicKey)));
+}
+
+/** The Learning Path's input: each area with its MARKS-LOST difficulty (never a mastery %). */
+export function learningPathAreas(model: StudyReadModel | null, areas: readonly WeakArea[]): LearningPathArea[] {
+  return areas.map((a) => ({
+    topicKey: a.topicKey,
+    topicName: a.topicName,
+    subject: a.subject,
+    difficulty: difficultyFromMarksLost(areaEvidence(model, a.topicKey)),
+    focusConcepts: a.weakConcepts.map((c) => c.label),
+  }));
+}
+
+/** Questions in a targeted session. */
+export const TARGETED_SESSION_COUNT = 15;
+
+/**
+ * ME-CONCEPT-1 PR-B (step 7) — the targeted session's question ids: the chosen concept's served
+ * bank rows FIRST (rows whose concept row — the ONE resolver, `conceptRowOf` — is the chosen
+ * row), then the chapter's other served rows, up to `count`, each in the bank's own order (no
+ * shuffle). Only rows of the served index count, so withheld rows never appear; the 2026-27
+ * syllabus guard is enforced on those rows by the root guard matrix. Pure; the page passes the
+ * real index and resolver.
+ */
+export function pickTargetedIds(
+  rows: Iterable<[string, BankRowMeta]>,
+  chapterKey: string,
+  conceptRowKey: string | null,
+  rowOf: (id: string) => ConceptRowRef | null,
+  count = TARGETED_SESSION_COUNT,
+): string[] {
+  if (!chapterKey) return [];
+  const conceptIds: string[] = [];
+  const chapterIds: string[] = [];
+  for (const [id, meta] of rows) {
+    if (boardChapterKey(meta.topicKey) !== chapterKey) continue;
+    if (conceptRowKey && rowOf(id)?.key === conceptRowKey) conceptIds.push(id);
+    else chapterIds.push(id);
+  }
+  return [...conceptIds, ...chapterIds].slice(0, Math.max(0, count));
+}
+
+/** `pickTargetedIds` over the served bank index and the app's concept resolver, both loaded on
+ *  demand (BANK-LEAN-1: neither enters this page's static chunk). */
+export async function targetedSessionIds(chapterKey: string, conceptRowKey: string | null): Promise<string[]> {
+  const [{ bankIndexEntries }, { loadExamConceptResolvers }] = await Promise.all([
+    import("../data/bankChapters/bankIdIndex"),
+    import("../services/mistakeConcept"),
+  ]);
+  const { conceptRowForBankQuestionId } = await loadExamConceptResolvers();
+  return pickTargetedIds(bankIndexEntries(), chapterKey, conceptRowKey, conceptRowForBankQuestionId);
+}
 
 /** A weak area's evidence from the shared model, or null below Me's threshold (show no number). */
 export interface AreaEvidence {
@@ -81,21 +224,6 @@ export function emptyListGateMet(model: StudyReadModel | null, subjectFilter: "A
   if (!model) return false;
   if (subjectFilter === "All") return modelNamesWeakness(model);
   return rungNamesWeakness(subjectRungOf(model.progress, subjectFilter === "Maths" ? "maths" : "science"));
-}
-
-/**
- * ME-ENGINE-1 PR-2d [WEAKAREA-NAMES-BELOW-GATE] — the weak areas this tab may NAME. A topic is
- * named only when Me's gate for the paper on screen is met (`emptyListGateMet`) AND its own
- * paper's rung passes (`rungNamesWeakness`, imported, never copied); below it, none — the tab
- * shows the honest "Not Enough Graded Yet" state instead of a topic from one miss.
- */
-export function namedWeakAreas(
-  model: StudyReadModel | null,
-  subjectFilter: "All" | "Maths" | "Science",
-  areas: readonly WeakArea[],
-): WeakArea[] {
-  if (!model || !emptyListGateMet(model, subjectFilter)) return [];
-  return areas.filter((a) => rungNamesWeakness(subjectRungOf(model.progress, a.subject === "Science" ? "science" : "maths")));
 }
 
 export type AreaStatus = "Critical" | "Needs Work" | "Review";
@@ -197,7 +325,8 @@ function WeakAreaCard({
         <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
           {area.weakConcepts.map((c) => (
             <span
-              key={c}
+              key={c.key}
+              data-testid="weak-area-concept"
               style={{
                 fontSize: 11,
                 padding: "2px 8px",
@@ -206,7 +335,7 @@ function WeakAreaCard({
                 color: "var(--text-muted)",
               }}
             >
-              {c}
+              {c.label}
             </span>
           ))}
         </div>
@@ -425,7 +554,6 @@ export default function WeakAreaPracticePage() {
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const [tab, setTab] = useState<ViewTab>("weak-areas");
   const [subjectFilter, setSubjectFilter] = useState<"All" | "Maths" | "Science">("All");
-  const [summary, setSummary] = useState<WeakAreaSummary | null>(null);
   const [learningPath, setLearningPath] = useState<LearningPath | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const { user } = useAuth();
@@ -452,13 +580,6 @@ export default function WeakAreaPracticePage() {
     };
   }, [uid, refreshKey]);
 
-  useEffect(() => {
-    const subj = subjectFilter === "All" ? undefined : subjectFilter;
-    setSummary(getWeakAreas({ subject: subj }));
-    const adaptedPath = checkAndAdaptPath();
-    setLearningPath(adaptedPath || loadLearningPath());
-  }, [subjectFilter, refreshKey]);
-
   const dueReviews = useMemo(() => {
     const subj = subjectFilter === "All" ? undefined : subjectFilter;
     return getDueReviews({ subject: subj, limit: 20 });
@@ -466,12 +587,18 @@ export default function WeakAreaPracticePage() {
 
   const srStats = useMemo(() => getSRStats(), [refreshKey]);
 
-  // ME-ENGINE-1 PR-2d — only what Me's gate lets this tab name (see `namedWeakAreas`).
+  // ME-CONCEPT-1 PR-B — the list, its order and its concepts come from the shared read model at
+  // Me's gate (`weakAreasFromModel`); below it, none.
   const gateMet = emptyListGateMet(model, subjectFilter);
-  const shownAreas = useMemo(
-    () => namedWeakAreas(model, subjectFilter, summary?.weakAreas ?? []),
-    [model, subjectFilter, summary],
-  );
+  const shownAreas = useMemo(() => weakAreasFromModel(model, subjectFilter), [model, subjectFilter]);
+  const pathAreas = useMemo(() => learningPathAreas(model, shownAreas), [model, shownAreas]);
+
+  // The stored path is SHOWN as it is; it is re-tuned (and re-saved) only from model-backed areas
+  // above the gate — `checkAndAdaptPath(null)` changes and saves nothing.
+  useEffect(() => {
+    const adaptedPath = checkAndAdaptPath(gateMet ? pathAreas : null);
+    setLearningPath(adaptedPath || loadLearningPath());
+  }, [gateMet, pathAreas, refreshKey]);
 
   // No `isGenerating` state: `generateLearningPath` is synchronous, so React
   // batches any set-true/set-false pair inside one handler and no render ever
@@ -483,10 +610,32 @@ export default function WeakAreaPracticePage() {
     navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=${diff}&weakMode=1`, { state: { back: "/weak-area-practice", backLabel: "Back to Weak Areas" } });
   };
 
-  const handleStartTargetedSession = () => {
-    if (shownAreas.length === 0) return;
+  /**
+   * ME-CONCEPT-1 PR-B (step 7) — the weakest chapter's session: its weakest Exam Trends concept's
+   * served rows first, then the chapter's (`targetedSessionIds`), handed to Practice through its
+   * existing `focusBankIds` + `strictFocus` parameters. No difficulty is forced: an "Easy" filter
+   * would drop the chosen rows of any other difficulty. A failed id load starts the chapter
+   * session without ids (the chapter, never a guess).
+   */
+  const handleStartTargetedSession = async () => {
     const weakest = shownAreas[0];
-    navigate(`/practice/10/${weakest.subject}?topic=${encodeURIComponent(weakest.topicKey)}&count=15&difficulty=Easy&weakMode=1`, { state: { back: "/weak-area-practice", backLabel: "Back to Weak Areas" } });
+    if (!weakest) return;
+    let ids: string[] = [];
+    try {
+      ids = await targetedSessionIds(weakest.topicKey, weakest.weakConcepts[0]?.key ?? null);
+    } catch {
+      ids = [];
+    }
+    const params = new URLSearchParams({
+      topic: weakest.topicKey,
+      count: String(TARGETED_SESSION_COUNT),
+      weakMode: "1",
+    });
+    if (ids.length > 0) {
+      params.set("focusBankIds", ids.join(","));
+      params.set("strictFocus", "true");
+    }
+    navigate(`/practice/10/${weakest.subject}?${params.toString()}`, { state: { back: "/weak-area-practice", backLabel: "Back to Weak Areas" } });
   };
 
   /**
@@ -497,10 +646,16 @@ export default function WeakAreaPracticePage() {
    * guaranteed-failing network round trip before its `catch` fell back to
    * exactly the local call below. The fallback was the only branch that ever
    * produced a path, so it is now the only branch there is.
+   *
+   * ME-CONCEPT-1 PR-B — built ONLY above Me's gate, from the model-backed areas on screen. Below
+   * the gate (or with no weak chapter) nothing is built and nothing is saved; the tab shows its
+   * honest empty state.
    */
   const handleGeneratePath = () => {
-    const subj = subjectFilter === "All" ? undefined : subjectFilter;
-    setLearningPath(generateLearningPath({ subject: subj, daysAvailable: 14, minutesPerDay: 60 }));
+    if (gateMet && pathAreas.length > 0) {
+      const built = generateLearningPath({ areas: pathAreas, daysAvailable: 14, minutesPerDay: 60 });
+      if (built) setLearningPath(built);
+    }
     setTab("learning-path");
   };
 
@@ -533,7 +688,7 @@ export default function WeakAreaPracticePage() {
           only ever be 0 — a figure that can never be real (CLAUDE.md §5).
           The counts show only above the gate (below it, "1 weak area" from one
           miss — or a "0" — would be a figure Me withholds). */}
-      {summary && gateMet && (
+      {gateMet && (
         <div
           style={{
             display: "grid",
@@ -607,9 +762,8 @@ export default function WeakAreaPracticePage() {
 
       {tab === "weak-areas" && (
         <div>
-          {/* ME-ENGINE-1 PR-2c [WEAKAREA-EMPTY-PRAISE]: an empty list NEVER praises. The list comes
-              from `getWeakAreas`, which still reads device-local practice data, so an empty list
-              is not proof that no topic is weak (FU-B18-WEAKAREA-LOCAL-LIST). The copy follows the
+          {/* ME-ENGINE-1 PR-2c [WEAKAREA-EMPTY-PRAISE]: an empty list NEVER praises — a window
+              with no chapter losing marks is not proof that no topic is weak. The copy follows the
               gate of the paper ON SCREEN (`emptyListGateMet`): below it — no graded answers in that
               paper, signed out, a failed read — "not enough graded yet"; above it, a neutral line. */}
           {shownAreas.length === 0 ? (
@@ -639,7 +793,7 @@ export default function WeakAreaPracticePage() {
           ) : (
             <>
               <button
-                onClick={handleStartTargetedSession}
+                onClick={() => void handleStartTargetedSession()}
                 style={{
                   width: "100%",
                   padding: "14px 0",
@@ -654,7 +808,8 @@ export default function WeakAreaPracticePage() {
                   boxShadow: "0 4px 12px rgba(255,150,0,0.3)",
                 }}
               >
-                Start Targeted Session — {shownAreas[0]?.topicName} (15 questions, Easy → Hard)
+                Start Targeted Session — {shownAreas[0]?.topicName}
+                {shownAreas[0]?.weakConcepts[0] ? `: ${shownAreas[0].weakConcepts[0].label}` : ""} ({TARGETED_SESSION_COUNT} questions)
               </button>
               {shownAreas.map((area) => (
                 <WeakAreaCard

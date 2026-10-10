@@ -1,3 +1,10 @@
+// ME-CONCEPT-1 PR-B ([FU-B18-WEAKAREA-LOCAL-LIST]) — NARROWED: this DEVICE-LOCAL aggregator no
+// longer feeds Weak Area Practice (its list, order and "Start Targeted Session") or the Learning
+// Path; both read the shared model (`readStudyModel`) now, so a second device shows the same list.
+// No product route calls `getWeakAreas` any more (the Tutor brief left it in ME-ENGINE-1 PR-2).
+// The module is KEPT, unchanged in behaviour, because the ops guards still read it (GA-21 in
+// check_improve_convergence_acceptance.mjs; Guard D in topickey_guard_acceptance.mjs) and its
+// own tests pin the weak-area evidence rules; deleting it needs those guards moved first.
 import { doc, setDoc } from "firebase/firestore";
 import { loadInsights, type PracticeAttempt } from "./practiceInsights";
 import { loadWrongAnswerLog, type WrongAnswerEntry } from "./adaptivePracticeEngine";

@@ -8,15 +8,17 @@
  *   > "mastery" or a fake 0%.
  *
  * Only the CLOUD streams are mocked (attempts, session records, mistake history, Tutor turns);
- * the read model is REAL. The weak-area LIST (`getWeakAreas`) is mocked to carry DEVICE-LOCAL
- * figures that differ per "device" (and a mastery of 0), so any read of them shows up.
+ * the read model is REAL. ME-CONCEPT-1 PR-B: the weak-area LIST now comes from that model too
+ * (`weakAreasFromModel`), so the device-local `getWeakAreas` mock this file used to carry is gone
+ * (the page no longer imports it); "device A / B" differ only in their local storage.
  *
  * Mutations this file turns RED: A1 — a mastery label comes back; A2 — a 0% is shown below the
  * threshold (the old `area.accuracy` with no evidence); A3 — Accuracy/Attempts read the
  * device-local weak-area figures again; A4 — difficulty from mastery again.
  *
- * ME-ENGINE-1 PR-2c [WEAKAREA-EMPTY-PRAISE] — an empty list never praises (the list is still
- * device-local: FU-B18-WEAKAREA-LOCAL-LIST), and its copy follows the gate of the paper ON SCREEN:
+ * ME-ENGINE-1 PR-2c [WEAKAREA-EMPTY-PRAISE] — an empty list never praises, and its copy follows
+ * the gate of the paper ON SCREEN (an "empty list above the gate" is now a window whose graded
+ * answers lost no mark — the model lists no chapter):
  *   E1 — drop the gate (always the above-gate line) → the 0-graded + below-gate pins;
  *   E2 — the subject tab judged on the BOTH-papers gate again → the Science-tab pin;
  *   E3 — the old praise comes back above the gate → the "no praise in any state" pin.
@@ -32,9 +34,7 @@ const NOW = Date.now();
 const H = vi.hoisted(() => ({
   attempts: [] as PracticeAttempt[],
   navigate: [] as string[],
-  emptyList: false,
   path: null as unknown,
-  closed: 0,
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => ({
@@ -64,30 +64,9 @@ vi.mock("../services/progressBankIndex", () => ({ conceptForQuestionId: () => nu
 vi.mock("../context/AuthContext", () => ({
   useAuth: () => ({ user: { uid: "u-wa" }, loading: false, mistakeLogsHydrated: 0 }),
 }));
-/** Device-local figures: device A has some, device B (fresh) has none — mastery is always 0. */
+/** Device A carries a device-local marker; device B is fresh. ME-CONCEPT-1 PR-B: the page reads no
+ *  device-local weak-area source at all (the old `getWeakAreas` mock is gone with its import). */
 const DEVICE_KEY = "test.device";
-vi.mock("../services/weakAreaAggregator", () => ({
-  getWeakAreas: () => {
-    if (H.emptyList) return { weakAreas: [], totalWeak: 0, closedThisWeek: H.closed, overallMasteryPercent: 0 };
-    const deviceA = window.localStorage.getItem("test.device") === "A";
-    const area = {
-      topicKey: "arithmetic-progression",
-      topicName: "Arithmetic Progression",
-      subject: "Maths" as const,
-      // PR-2d (F3): the device-local score differs per device exactly as live #970-L1 saw it —
-      // A has local attempts (5 → the old "Review"), B has none (+15 → 20, the old "Needs Work").
-      confidenceScore: deviceA ? 5 : 20,
-      accuracy: deviceA ? 13 : 0,
-      totalAttempts: deviceA ? 2 : 0,
-      wrongCount: 2,
-      masteryPercent: 0,
-      masteryState: "unseen",
-      lastPracticedAt: 0,
-      weakConcepts: [],
-    };
-    return { weakAreas: [area], totalWeak: 1, closedThisWeek: H.closed, overallMasteryPercent: 0 };
-  },
-}));
 vi.mock("../services/spacedRepetitionEngine", () => ({
   getDueReviews: () => [],
   getSRStats: () => ({ total: 0, newCount: 0, learning: 0, review: 0, mastered: 0, dueToday: 0 }),
@@ -104,7 +83,7 @@ import WeakAreaPracticePage, {
   areaStatus,
   difficultyFromMarksLost,
   emptyListGateMet,
-  namedWeakAreas,
+  weakAreasFromModel,
 } from "./WeakAreaPracticePage";
 import {
   ME_DEFAULT_WINDOW,
@@ -149,9 +128,7 @@ beforeEach(() => {
   cleanup();
   n = 0;
   H.navigate = [];
-  H.emptyList = false;
   H.path = null;
-  H.closed = 0;
 });
 
 describe("Weak Area Practice — no mastery, and Accuracy/Attempts from the shared model (OWNER RULING 2026-10-06)", () => {
@@ -175,8 +152,10 @@ describe("Weak Area Practice — no mastery, and Accuracy/Attempts from the shar
     }
   });
 
-  it("above the Maths gate, a chapter with no rung of its own: the card shows no number, no status, and Practice starts Easy", async () => {
+  it("above the Maths gate, a chapter with no rung of its own is NOT listed (ME-CONCEPT-1 PR-B: no device-local stand-in)", async () => {
     // 8 graded answers on ANOTHER chapter — the Maths paper passes, the AP chapter has no rung.
+    // Before PR-B the device-local list still named AP here (with no number); now the list is the
+    // model's, so only the chapter with graded evidence (Triangles) is named.
     H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h, i) => ({
       ...attempt(h * HOUR, i % 2 ? 2 : 0, 2),
       topicKey: "triangles",
@@ -187,13 +166,18 @@ describe("Weak Area Practice — no mastery, and Accuracy/Attempts from the shar
     expect(areaEvidence(model, "arithmetic-progression")).toBeNull(); // precondition
     for (const d of ["A", "B"] as const) {
       device(d);
-      await renderPage();
-      await screen.findByTestId("weak-area-evidence-thin");
-      expect(screen.queryByTestId("weak-area-evidence")).toBeNull();
-      expect(screen.queryByTestId("weak-area-status")).toBeNull();
+      render(
+        <MemoryRouter>
+          <WeakAreaPracticePage />
+        </MemoryRouter>,
+      );
+      await screen.findByText("Triangles");
+      expect(document.body.textContent).not.toMatch(/Arithmetic Progression/);
+      expect(screen.queryByTestId("weak-area-evidence-thin")).toBeNull();
       expect(document.body.textContent).not.toMatch(/(^|[^\d.])0%/);
       fireEvent.click(screen.getByRole("button", { name: "Practice Now" }));
-      expect(H.navigate.at(-1)).toMatch(/difficulty=Easy/);
+      // 8 of 16 marks lost → half lost → Medium (graded marks lost, never mastery).
+      expect(H.navigate.at(-1)).toMatch(/topic=triangles&.*difficulty=Medium/);
       cleanup();
     }
   });
@@ -247,7 +231,6 @@ describe("Weak Area Practice — an empty list never praises, and follows the ga
   const aboveGateMaths = () => [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(h * HOUR, 2, 2));
 
   it("★ 0 graded answers: no praise — the honest 'not enough graded yet' state, pointing to Practice", async () => {
-    H.emptyList = true;
     H.attempts = [];
     device("B");
     await renderEmpty();
@@ -261,7 +244,6 @@ describe("Weak Area Practice — an empty list never praises, and follows the ga
   });
 
   it("below the gate (2 graded answers): still 'not enough graded yet', no praise", async () => {
-    H.emptyList = true;
     H.attempts = [attempt(0.5 * HOUR, 2, 2), attempt(0.5 * HOUR, 2, 2)];
     device("B");
     await renderEmpty();
@@ -271,7 +253,6 @@ describe("Weak Area Practice — an empty list never praises, and follows the ga
   });
 
   it("★ above the gate with no weak topic listed: a NEUTRAL line — no praise in any state", async () => {
-    H.emptyList = true;
     H.attempts = aboveGateMaths();
     expect(modelNamesWeakness(await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW }))).toBe(true); // precondition
     device("B");
@@ -288,7 +269,6 @@ describe("Weak Area Practice — an empty list never praises, and follows the ga
   });
 
   it("★ Maths above the gate, Science tab with 0 Science answers → the Science paper's own gate: 'not enough graded yet'", async () => {
-    H.emptyList = true;
     H.attempts = aboveGateMaths(); // every attempt is maths
     const model = await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW });
     expect(modelNamesWeakness(model)).toBe(true); // precondition: the both-papers gate PASSES
@@ -316,7 +296,7 @@ describe("Weak Area Practice — an empty list never praises, and follows the ga
 /*
  * ME-ENGINE-1 PR-2d — honesty follow-ups from live #970-L1 (2026-10-07). Mutations this block
  * turns RED:
- *   W1 — the list ignores the gate again (`namedWeakAreas` returns every area) → the ★ below-gate
+ *   W1 — the list ignores the gate again (`weakAreasFromModel` skips its gate) → the ★ below-gate
  *        pins on All AND Maths (a topic named from ONE miss, the header "1 Weak Areas");
  *   W2 — the Learning Path shows its "0% complete" / "0 weak areas targeted" again;
  *   W3 — the status label reads the DEVICE-LOCAL `confidenceScore` again → the two-device pin.
@@ -364,28 +344,20 @@ describe("Weak Area Practice — nothing named, counted or labelled before there
     expect(document.body.textContent).toMatch(/1Weak Areas/);
   });
 
-  it("namedWeakAreas: no model → none; below the paper's gate → none; above → the list", async () => {
-    const area = {
-      topicKey: "arithmetic-progression",
-      topicName: "Arithmetic Progression",
-      subject: "Maths" as const,
-      confidenceScore: 20,
-      accuracy: 0,
-      totalAttempts: 0,
-      wrongCount: 1,
-      masteryPercent: 0,
-      masteryState: "unseen" as const,
-      lastPracticedAt: 0,
-      weakConcepts: [],
-    };
-    expect(namedWeakAreas(null, "All", [area])).toEqual([]);
+  it("weakAreasFromModel (ME-CONCEPT-1 PR-B): no model → none; below the paper's gate → none; above → the chapters that lost marks", async () => {
+    expect(weakAreasFromModel(null, "All")).toEqual([]);
     H.attempts = oneMiss();
-    expect(namedWeakAreas(await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW }), "All", [area])).toEqual([]);
-    H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(h * HOUR, 2, 2));
+    expect(weakAreasFromModel(await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW }), "All")).toEqual([]);
+    H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h, i) => attempt(h * HOUR, i % 2 ? 2 : 0, 2));
     const above = await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW });
-    expect(namedWeakAreas(above, "All", [area])).toEqual([area]);
-    // a Science area under an "All" read whose only graded paper is Maths: its own paper is below → not named
-    expect(namedWeakAreas(above, "All", [{ ...area, subject: "Science" as const }])).toEqual([]);
+    expect(weakAreasFromModel(above, "All")).toEqual([
+      { topicKey: "arithmetic-progression", topicName: "Arithmetic Progression", subject: "Maths", marksLost: 8, weakConcepts: [] },
+    ]);
+    // …the Science tab names nothing (no Science answer: its own rung is below the gate)
+    expect(weakAreasFromModel(above, "Science")).toEqual([]);
+    // above the gate with no mark lost → no chapter to name
+    H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(h * HOUR, 2, 2));
+    expect(weakAreasFromModel(await readStudyModel("u-wa", { window: ME_DEFAULT_WINDOW }), "All")).toEqual([]);
   });
 
   it("★ W1 — below the gate the Learning Path tab names no topic either", async () => {
@@ -459,21 +431,22 @@ describe("Weak Area Practice — nothing named, counted or labelled before there
  * ME-ENGINE-1 PR-2d (controller addition) — "Closed This Week" was computed from the RETIRED mastery
  * score (`computeTopicMastery`, a store with no writer), so it could only ever be 0: a figure that
  * can never be real. The tile and the "N weak areas closed this week!" banner are removed. The pin
- * feeds a NON-ZERO mastery-based closure count (2) so a resurrected tile or banner would render it.
- * Mutation this block turns RED: C1 — put the tile back.
+ * used to feed a NON-ZERO closure count (2) through the device-local `getWeakAreas` mock; since
+ * ME-CONCEPT-1 PR-B the page reads no such source (the read model has no closure figure at all), so
+ * the pin now asserts the tile's ABSENCE in every state, with the CONTROL below proving the stat row
+ * renders. Mutation this block turns RED: C1 — put the tile back (any text matching CLOSURE).
  */
 describe("Weak Area Practice — no mastery-based closure figure in any state (PR-2d)", () => {
   const settle = () => new Promise((r) => setTimeout(r, 30));
   const CLOSURE = /closed this week/i;
   const states: Array<[string, () => void]> = [
-    ["0 graded answers, empty list", () => { H.emptyList = true; H.attempts = []; }],
+    ["0 graded answers, empty list", () => { H.attempts = []; }],
     ["below the gate, one weak area", () => { H.attempts = [attempt(0.5 * HOUR, 1, 2), attempt(0.5 * HOUR, 0.5, 2)]; }],
     ["above the gate, one weak area", () => { H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h, i) => attempt(h * HOUR, i % 2 ? 2 : 0, 2)); }],
-    ["above the gate, empty list", () => { H.emptyList = true; H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(h * HOUR, 2, 2)); }],
+    ["above the gate, empty list", () => { H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(h * HOUR, 2, 2)); }],
   ];
   for (const [name, arrange] of states) {
     it(`★ ${name}: no 'Closed This Week' tile, no closure banner`, async () => {
-      H.closed = 2;
       arrange();
       device("B");
       render(
@@ -488,7 +461,6 @@ describe("Weak Area Practice — no mastery-based closure figure in any state (P
   }
 
   it("★ CONTROL: above the gate the stat row IS on screen (so the absence above is not an absent row)", async () => {
-    H.closed = 2;
     H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h, i) => attempt(h * HOUR, i % 2 ? 2 : 0, 2));
     device("B");
     render(

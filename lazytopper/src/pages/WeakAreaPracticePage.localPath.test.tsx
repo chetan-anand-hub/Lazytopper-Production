@@ -21,44 +21,25 @@ import { join, resolve, relative, sep } from "node:path";
  * instrument can see the thing it is asserting is missing.
  */
 
-const weakArea = {
-  topicKey: "quadratic-equations",
-  topicName: "Quadratic Equations",
-  subject: "Maths" as const,
-  confidenceScore: 30,
-  accuracy: 40,
-  totalAttempts: 10,
-  wrongCount: 6,
-  masteryPercent: 25,
-  masteryState: "developing",
-  lastPracticedAt: Date.now(),
-  weakConcepts: ["factorisation"],
-};
-
-const summary = {
-  weakAreas: [weakArea],
-  totalWeak: 1,
-  closedThisWeek: 0,
-  overallMasteryPercent: 25,
-};
-
-vi.mock("../services/weakAreaAggregator", () => ({
-  getWeakAreas: vi.fn(() => summary),
-}));
-
 // ME-ENGINE-1 PR-2b — the page reads the shared model for the signed-in student. ME-ENGINE-1 PR-2d:
 // the page names a weak area (and offers the path) only ABOVE Me's gate, so this file signs a
 // student in and stubs the shared read with a Maths paper that passes the REAL gate
 // (`rungNamesWeakness` / `modelNamesWeakness` stay real). The stub makes no network call, so the
 // "no network" pin below still measures the path generation alone.
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u-lp" }, loading: false }) }));
+// ME-CONCEPT-1 PR-B: the weak-area list (and so the path's input) comes from that model too — the
+// stub carries one Quadratic Equations chapter rung that lost marks (the device-local
+// `getWeakAreas` mock this file used to carry is gone with the page's import of it).
 vi.mock("../services/progressReadModel", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../services/progressReadModel")>()),
   readStudyModel: async () => ({
     progress: {
       subjects: [{ key: "maths", label: "Maths", marksAvailable: 16, marksScored: 8 }],
       subjectTotals: { maths: { answers: 8 } },
-      topics: [],
+      topics: [
+        { key: "quadratic-equations", label: "Quadratic Equations", marksAvailable: 16, marksScored: 8, sampleBefore: 4, sampleNow: 4 },
+      ],
+      concepts: [],
     },
   }),
 }));

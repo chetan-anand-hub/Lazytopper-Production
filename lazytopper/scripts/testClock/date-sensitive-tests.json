@@ -252,6 +252,7 @@
     "src/pages/SignUpPage.phone.test.tsx",
     "src/pages/SignUpPage.redirect.test.tsx",
     "src/pages/WeakAreaPracticePage.localPath.test.tsx",
+    "src/pages/WeakAreaPracticePage.modelList.test.tsx",
     "src/pages/WeakAreaPracticePage.sharedModel.test.tsx",
     "src/pages/Welcome.addendumA.test.tsx",
     "src/pages/Welcome.cbqCta.test.tsx",
