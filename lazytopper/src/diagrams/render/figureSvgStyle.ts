@@ -29,4 +29,16 @@ export const FIGURE_SVG_CSS = `
 .lt-fig .lt-fig__angle-label { fill: #2b8a3e; font-weight: 600; }
 .lt-fig .lt-fig__len-label { font-weight: 600; }
 .lt-fig .lt-fig__pt { font-weight: 700; font-style: italic; }
+.lt-fig .lt-fig__seg--axis { stroke: #475569; stroke-width: 1.1; }
+.lt-fig .lt-fig__seg--ray { stroke: #c2410c; stroke-width: 1.5; }
+.lt-fig .lt-fig__seg--ray-virtual { stroke: #c2410c; stroke-width: 1.2; stroke-dasharray: 5 4; }
+.lt-fig .lt-fig__seg--object { stroke: #1e2a4a; stroke-width: 2.6; }
+.lt-fig .lt-fig__seg--image { stroke: #2b8a3e; stroke-width: 2.6; }
+.lt-fig .lt-fig__seg--image-virtual { stroke: #2b8a3e; stroke-width: 2.2; stroke-dasharray: 5 3; }
+.lt-fig .lt-fig__head { fill: #1e2a4a; stroke: none; }
+.lt-fig .lt-fig__head--ray { fill: #c2410c; }
+.lt-fig .lt-fig__head--image, .lt-fig .lt-fig__head--image-virtual { fill: #2b8a3e; }
+.lt-fig .lt-fig__mirror { stroke: #1e2a4a; stroke-width: 2.6; fill: none; }
+.lt-fig .lt-fig__hatch { stroke: #64748b; stroke-width: 1; fill: none; }
+.lt-fig .lt-fig__lens { stroke: #1e2a4a; stroke-width: 1.6; fill: #dbeafe; }
 `;
