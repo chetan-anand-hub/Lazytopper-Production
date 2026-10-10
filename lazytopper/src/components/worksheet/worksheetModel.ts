@@ -41,6 +41,7 @@ import type { LTSubjectKey } from "../../data/predictionTypes";
 import { class10TopicByName } from "../../data/class10MathTopicWeights";
 import { class10ScienceTopicTrends } from "../../data/class10ScienceTopicTrends";
 import { questionKey } from "../../utils/questionKey";
+import { needsMissingFigure } from "../../lib/figureSafe";
 
 export type PaperScope = "topic" | "multi-topic" | "full-subject";
 export type ScienceStream = "All" | "Physics" | "Chemistry" | "Biology";
@@ -458,7 +459,7 @@ function buildPools(params: WorksheetPlanParams): Map<string, PracticeQuestion[]
           : undefined,
       sections: params.sections,
       allowRepeats: false,
-    });
+    }).filter((q) => !needsMissingFigure(q)); // FIGURES-ALL-SURFACES-1: no unbound demanded figure
     // ADDITIVE (Stage-2 P-A): narrow toward the concept focus when the tutor supplies
     // one; a no-op (pool unchanged) for every existing worksheet entry.
     pools.set(t.key, narrowToConcept(pool, params.focus));
