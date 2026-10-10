@@ -524,6 +524,7 @@ import { QP_ENTRY_CSS } from "../components/practice/quickPracticeEntryStyles";
 import { PracticeHero } from "../components/practice/PracticeHero";
 import { WhyThisQuestionPanel } from "../components/practice/WhyThisQuestionPanel";
 import { PracticeQuestionList } from "../components/practice/PracticeQuestionList";
+import { PracticeAttemptCountingProvider } from "../components/practice/PracticeQuestionCard";
 import type { SessionStats } from "../components/practice/SessionProgressBar";
 import { downloadWorksheet } from "../components/practice/worksheetGenerator";
 import ResultsScorecard from "../components/results/ResultsScorecard";
@@ -545,6 +546,11 @@ import { UpgradeSheet, labelForFeature } from "../components/subscription/Upgrad
  * new work — without adding a file outside this lane's allowlist. Tokens are the product's
  * own: green hsl(152,55%,45%), navy hsl(219,44%,17%).
  */
+/** PRACTICE-REVIEW-HONEST-1 — the one muted line at the top of review mode. */
+const QP_REVIEW_LINE_CSS = `
+.qp-review-line{margin:0 0 12px;font-size:0.8rem;line-height:1.5;color:hsl(220,15%,42%)}
+`;
+
 const QP_CONFIRM_CSS = `
 .qp-cf{border:1px solid hsl(220,18%,90%);border-radius:15px;overflow:hidden;margin-top:20px;background:#fff}
 .qp-cf__top{background:hsl(219,44%,17%);color:#fff;padding:22px}
@@ -990,6 +996,13 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // moment the student went back to review. This flag is set by the Finish tap and by every
   // "Back to this set" action, and cleared ONLY on a fresh build/regenerate (the reset below).
   const [reviewMode, setReviewMode] = useState<boolean>(false);
+  // PRACTICE-REVIEW-HONEST-1 (cofounder DECISION 27a, owner-approved; scope 30b) — "An answer
+  // given after the student has seen the steps is not a real attempt. Counting it would put
+  // invented accuracy into Mistake Intelligence (CLAUDE.md §5, no fake data)." The ids of the
+  // questions answered IN review mode: an MCQ picked, or working saved. Shown, never scored or
+  // recorded. Cleared with `reviewMode` on a fresh build/regenerate only.
+  const [reviewMcqIds, setReviewMcqIds] = useState<Record<string, true>>({});
+  const [reviewSavedIds, setReviewSavedIds] = useState<Record<string, true>>({});
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
 
   useEffect(() => {
@@ -1839,6 +1852,8 @@ const packTopicKey = useMemo(() => {
           setSessionFinished(false);
           setScorecardDismissed(false);
           setReviewMode(false);
+          setReviewMcqIds({});
+          setReviewSavedIds({});
           setExpandedAnswers({});
           setMcqSelections({});
           setMcqResults({});
@@ -2195,11 +2210,13 @@ const packTopicKey = useMemo(() => {
     // nothing. That is backwards: working a question out is the BETTER behaviour, and
     // it was the only one we discarded. (The attempts stream already recorded it; only
     // this local scorecard was blind.)
+    // PRACTICE-REVIEW-HONEST-1 — a pick made in review mode is not an attempt: no number moves.
+    const countedMcqIds = Object.keys(mcqSelections).filter((id) => !reviewMcqIds[id]);
     const attemptedIds = new Set<string>([
-      ...Object.keys(mcqSelections),
+      ...countedMcqIds,
       ...Object.keys(gradedResults),
     ]);
-    const localMcqAnswered = Object.keys(mcqSelections).length;
+    const localMcqAnswered = countedMcqIds.length;
     return {
       // The set the student WORKS is `filteredQuestions` (the committed pool sliced to
       // the chosen count), NOT the raw `questions` pool. The engine deliberately
@@ -2211,9 +2228,9 @@ const packTopicKey = useMemo(() => {
       total: filteredQuestions.length,
       attemptedInSet: attemptedIds.size,
       localMcqAnswered,
-      localMcqCorrect: Object.values(mcqResults).filter((r) => r === "correct").length,
+      localMcqCorrect: Object.entries(mcqResults).filter(([id, r]) => r === "correct" && !reviewMcqIds[id]).length,
     };
-  }, [filteredQuestions.length, mcqSelections, gradedResults, mcqResults]);
+  }, [filteredQuestions.length, mcqSelections, gradedResults, mcqResults, reviewMcqIds]);
 
   // Scorecard trigger. `sessionFinished` (the explicit "Finish session" tap) is
   // the primary, always-available trigger; `allDone` (every question attempted)
@@ -2251,8 +2268,13 @@ const packTopicKey = useMemo(() => {
       const saved = savedAnswers[qId];
       const opts = Array.isArray(q.options) ? q.options.map(String) : null;
       const pickedIdx = mcqSelections[qId];
+      // PRACTICE-REVIEW-HONEST-1 (verifier FU) — a pick made in review mode must not set the
+      // mark of working saved BEFORE Finish (a recorded answer): `applyLocalObjectiveMark`
+      // reads `pickedOption`, so it is withheld there and the answer is marked as it stood
+      // at Finish. A review pick on a review answer (or with no working) is unaffected.
+      const reviewPickOnRecordedAnswer = !!reviewMcqIds[qId] && !!saved && !reviewSavedIds[qId];
       const pickedOption =
-        opts && pickedIdx != null && pickedIdx >= 0 ? opts[pickedIdx] ?? null : null;
+        !reviewPickOnRecordedAnswer && opts && pickedIdx != null && pickedIdx >= 0 ? opts[pickedIdx] ?? null : null;
       const mcq = mcqResults[qId];
       return {
         questionId: qId,
@@ -2280,7 +2302,7 @@ const packTopicKey = useMemo(() => {
         textAnswer: saved?.textAnswer ?? null,
       };
     });
-  }, [committedPoolSelection.displayed, savedAnswers, mcqSelections, mcqResults, topicLabel, canonicalTopicKey, topicParam]);
+  }, [committedPoolSelection.displayed, savedAnswers, mcqSelections, mcqResults, topicLabel, canonicalTopicKey, topicParam, reviewMcqIds, reviewSavedIds]);
 
   /** \u2605\u2605 INCLUSION IS BY WORKING, NEVER BY TYPE \u2014 and the decision is the SERVICE's, not
    *  this page's. `selectQuickPracticeBatch` inspects only what the student produced. */
@@ -2310,17 +2332,19 @@ const packTopicKey = useMemo(() => {
           const marks = Number(a.marks) || 0;
           const picked = optionLetter(a.options, a.pickedOption);
           const correct = optionLetter(a.options, a.answer);
+          const detail = a.pickedCorrect
+            ? `Correct \u00b7 ${marks} mark${marks === 1 ? "" : "s"}`
+            : picked && correct
+              ? `Chose (${picked}) \u00b7 answer is (${correct}) \u00b7 0 / ${marks}`
+              : `Not quite \u00b7 0 / ${marks}`;
           return {
             tag: `Q${a.qNumber}`,
-            detail: a.pickedCorrect
-              ? `Correct \u00b7 ${marks} mark${marks === 1 ? "" : "s"}`
-              : picked && correct
-                ? `Chose (${picked}) \u00b7 answer is (${correct}) \u00b7 0 / ${marks}`
-                : `Not quite \u00b7 0 / ${marks}`,
+            // PRACTICE-REVIEW-HONEST-1 — shown, labelled, and left out of `mcqMarks` below.
+            detail: reviewMcqIds[String(a.questionId)] ? `Review attempt \u00b7 ${detail}` : detail,
             tone: a.pickedCorrect ? "good" : "miss",
           } as ScorecardSplitRow;
         }),
-    [sessionAnswers],
+    [sessionAnswers, reviewMcqIds],
   );
 
   /** PRACTICE-HONESTY-1 — the MCQ marks the student has ALREADY earned, from the local
@@ -2332,12 +2356,13 @@ const packTopicKey = useMemo(() => {
     let total = 0;
     for (const a of sessionAnswers) {
       if (a.pickedCorrect == null) continue;
+      if (reviewMcqIds[String(a.questionId)]) continue; // PRACTICE-REVIEW-HONEST-1
       const marks = Number(a.marks) || 0;
       total += marks;
       if (a.pickedCorrect) awarded += marks;
     }
     return { awarded, total };
-  }, [sessionAnswers]);
+  }, [sessionAnswers, reviewMcqIds]);
 
   /** PRACTICE-HONESTY-1 · THE STEPS LOCK. A question's solution steps stay locked until the
    *  student has TRIED it (picked an option, saved working, or had working checked) or the
@@ -2368,22 +2393,47 @@ const packTopicKey = useMemo(() => {
       const graded = batchResult.entries[saved.qNumber - 1]?.graded;
       if (!graded) continue;
       const kind = dominantMistakeKind(graded);
+      const reviewPrefix = reviewSavedIds[String(saved.questionId)] ? "Review attempt \u00b7 " : "";
       rows.push({
         tag: `Q${saved.qNumber}`,
-        detail: saved.objective
+        detail: reviewPrefix + (saved.objective
           ? kind
             ? `${MISTAKE_KIND_LABEL[kind]} \u2014 read from your working`
             : "Working read \u2014 no mistake type found"
-          : `${graded.marksAwarded} / ${graded.totalMarks}${kind ? ` \u00b7 ${MISTAKE_KIND_LABEL[kind]}` : ""}`,
+          : `${graded.marksAwarded} / ${graded.totalMarks}${kind ? ` \u00b7 ${MISTAKE_KIND_LABEL[kind]}` : ""}`),
         tone: saved.objective ? "diagnose" : "pending",
       });
     }
     return rows;
-  }, [batchResult, batchSelection.batch]);
+  }, [batchResult, batchSelection.batch, reviewSavedIds]);
+
+  /** PRACTICE-REVIEW-HONEST-1 — the batch's entries with every review-mode outcome removed:
+   *  a review answer's `graded` (working saved in review) and a review pick's `mcq`. What is
+   *  left is what the student did BEFORE seeing the steps. Feeds the persisted session record
+   *  and the graded sheet's totals; a stripped entry carries no outcome, so it is omitted
+   *  from the record's results exactly like an unanswered question (never a fabricated 0). */
+  const scoredBatchEntries = useMemo<QuickPracticeEntry[] | null>(() => {
+    if (!batchResult) return null;
+    return batchResult.entries.map((e) => {
+      const id = String(e.questionId);
+      if (!reviewSavedIds[id] && !reviewMcqIds[id]) return e;
+      const next: QuickPracticeEntry = { ...e };
+      if (reviewSavedIds[id]) {
+        delete next.graded;
+        delete next.notGraded;
+        delete next.notGradedReason;
+      }
+      if (reviewMcqIds[id]) delete next.mcq;
+      return next;
+    });
+  }, [batchResult, reviewSavedIds, reviewMcqIds]);
 
   const handleSaveAnswer = useCallback((qId: string, working: SolutionCheckerSavedWorking) => {
     setSavedAnswers((prev) => ({ ...prev, [qId]: working }));
-  }, []);
+    // PRACTICE-REVIEW-HONEST-1 — working saved after the steps were seen is a review attempt
+    // (a pre-Finish answer RE-saved in review becomes one too: the working sent is post-steps).
+    if (reviewMode) setReviewSavedIds((prev) => (prev[qId] ? prev : { ...prev, [qId]: true }));
+  }, [reviewMode]);
   const handleRemoveAnswer = useCallback((qId: string) => {
     setSavedAnswers((prev) => {
       if (!(qId in prev)) return prev;
@@ -2446,11 +2496,24 @@ const packTopicKey = useMemo(() => {
         startedAt: sessionStartedAt,
       },
     };
+    // PRACTICE-REVIEW-HONEST-1 — review-mode working is graded but never recorded. All
+    // review → `record: false`; none → omitted (today's call, byte-identical); MIXED (answers
+    // saved before Finish AND in review, e.g. after "Keep practicing") → a per-answer
+    // predicate, so the real attempts are still recorded and the review ones are not.
+    const batchIds = batchSelection.batch.map((a) => String(a.questionId));
+    const reviewInBatch = batchIds.filter((id) => reviewSavedIds[id]).length;
+    const record =
+      reviewInBatch === 0
+        ? undefined
+        : reviewInBatch === batchIds.length
+          ? false
+          : (a: QuickPracticeSavedAnswer) => !reviewSavedIds[String(a.questionId)];
     const result = await gradeQuickPracticeBatch({
       worksheetId,
       subject: subjectKey,
       answers: answersToSend,
       user: authUserForJourney,
+      ...(record === undefined ? {} : { record }),
       job: {
         store: qpJobStore,
         paperKey: worksheetId,
@@ -2495,7 +2558,7 @@ const packTopicKey = useMemo(() => {
           : "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
       );
     }
-  }, [batchGrading, batchResult, batchSelection.batch, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney, isMultiTopic, multiTopics, isFullSubject, topicLabel, canonicalTopicKey, topicParam, qpJobStore, qpJob.reset, qpJob.onProgress, qpJob.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
+  }, [batchGrading, batchResult, batchSelection.batch, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney, isMultiTopic, multiTopics, isFullSubject, topicLabel, canonicalTopicKey, topicParam, qpJobStore, qpJob.reset, qpJob.onProgress, qpJob.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal, reviewSavedIds]);
 
   /** The student's "Grade my N answers" tap. FAIR-USE-UI-1 (UI2): with fewer checks left
    *  than answers, ask first; with none left, show the limit panel and send nothing.
@@ -2554,8 +2617,9 @@ const packTopicKey = useMemo(() => {
        order (its `baseEntries` are built from the same array this page passed in), with
        the local MCQ outcome already folded in — so the record shape is identical to what
        the per-question path produced, and the latch below still fires exactly once. */
-    const entries: QuickPracticeEntry[] = batchResult
-      ? batchResult.entries
+    // PRACTICE-REVIEW-HONEST-1 — review-mode outcomes are never persisted (both branches).
+    const entries: QuickPracticeEntry[] = scoredBatchEntries
+      ? scoredBatchEntries
       : displayed.map((q) => {
           const qId = String(q.id);
           return {
@@ -2564,8 +2628,8 @@ const packTopicKey = useMemo(() => {
             // A graded result carries real working; a bare MCQ click carries none. Keyed
             // off which INTERACTION produced the outcome, never off `format === "mcq"` —
             // a student can submit written working for an MCQ, and that working is real.
-            ...(gradedResults[qId] ? { graded: gradedResults[qId] } : {}),
-            ...(mcqResults[qId] ? { mcq: mcqResults[qId] } : {}),
+            ...(gradedResults[qId] && !reviewSavedIds[qId] ? { graded: gradedResults[qId] } : {}),
+            ...(mcqResults[qId] && !reviewMcqIds[qId] ? { mcq: mcqResults[qId] } : {}),
           };
         });
 
@@ -2600,7 +2664,7 @@ const packTopicKey = useMemo(() => {
     showScorecard, committedPoolSelection.displayed, gradedResults, mcqResults,
     authUserForJourney, topicLabel, subjectKey, canonicalTopicKey, topicParam,
     filterSignature, sessionStartedAt, isMultiTopic, isFullSubject, multiTopics,
-    batchResult, batchSelection.batch.length,
+    batchResult, batchSelection.batch.length, scoredBatchEntries, reviewSavedIds, reviewMcqIds,
   ]);
 
   const activeQuestionStrategyDetails = useMemo(
@@ -2992,7 +3056,17 @@ const packTopicKey = useMemo(() => {
         </section>
         )}
 
+        {isBuilt && reviewMode && (
+          <>
+            <style>{QP_REVIEW_LINE_CSS}</style>
+            <p className="qp-review-line" data-testid="qp-review-mode-line">
+              {"Review mode: answers here aren't added to your score."}
+            </p>
+          </>
+        )}
+
         {isBuilt && (
+        <PracticeAttemptCountingProvider value={!reviewMode}>
         <PracticeQuestionList
           isLoading={isLoading}
           error={error}
@@ -3009,7 +3083,11 @@ const packTopicKey = useMemo(() => {
           practiceSolutionData={practiceSolutionData}
           onSetActiveQuestion={setActiveQuestionId}
           onToggleAnswer={handleToggleAnswer}
-          onMcqSelect={(qId, oi) => setMcqSelections((prev) => ({ ...prev, [qId]: oi }))}
+          onMcqSelect={(qId, oi) => {
+            setMcqSelections((prev) => ({ ...prev, [qId]: oi }));
+            // PRACTICE-REVIEW-HONEST-1 — a pick after the steps were seen: shown, not counted.
+            if (reviewMode) setReviewMcqIds((prev) => ({ ...prev, [qId]: true }));
+          }}
           onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
           onGraded={(qId, result) => setGradedResults((prev) => ({ ...prev, [qId]: result }))}
           onAskTutor={overlay ? undefined : askTutorAboutQuestion}
@@ -3021,6 +3099,7 @@ const packTopicKey = useMemo(() => {
           onRemoveAnswer={handleRemoveAnswer}
           isStepsLocked={isStepsLocked}
         />
+        </PracticeAttemptCountingProvider>
         )}
 
         {isBuilt && filteredQuestions.length > 0 && !showScorecard && (
@@ -3071,13 +3150,16 @@ const packTopicKey = useMemo(() => {
 
   /* \u2550\u2550 1 \u00b7 THE GRADED ANSWER SHEET (RESULTS-1's surface, now reachable) \u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
   if (batchResult && batchResult.outcome === "graded") {
-    const response = buildQuickPracticeResponse(batchResult.entries);
+    // PRACTICE-REVIEW-HONEST-1 — the totals exclude review attempts; their rows still show.
+    const response = buildQuickPracticeResponse(scoredBatchEntries ?? batchResult.entries);
     const answers: ScorecardGradedAnswer[] = [];
     for (const saved of batchSelection.batch) {
       const entry = batchResult.entries[saved.qNumber - 1];
       const graded = entry?.graded;
       const marks = Number(saved.marks) || 0;
-      const label = `Question ${saved.qNumber}`;
+      const label = reviewSavedIds[String(saved.questionId)]
+        ? `Question ${saved.qNumber} \u00b7 Review attempt`
+        : `Question ${saved.qNumber}`;
       const objective = saved.objective === true;
       const descriptor = marksDescriptor(marks, objective);
       if (!graded && entry?.notGraded) {
