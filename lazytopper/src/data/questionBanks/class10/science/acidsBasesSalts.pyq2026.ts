@@ -158,4 +158,10 @@ export const acidsBasesSaltsPYQ2026: CanonicalQuestion[] = [
     finalAnswer: "(iii) Soaps reacts with calcium and magnesium salts present in hard water to form scum (insoluble substance).",
     ncertRef: "PYQ 31/4/3 Q29", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "3" },
+  { id: "PYQ-S-2026-CHEMRXN-011", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Write the balanced chemical equations involved in the preparation of (a) Bleaching powder (b) Baking soda",
+    answer: "(a) Bleaching powder: Ca(OH)₂(s) + Cl₂(g) → CaOCl₂(s) + H₂O(l). (b) Baking soda: NaCl(aq) + H₂O(l) + CO₂(g) + NH₃(g) → NH₄Cl(aq) + NaHCO₃(s).",
+    solutionSteps: ["[1 mark] (a) Ca(OH)₂(s) + Cl₂(g) → CaOCl₂(s) + H₂O(l).", "[1 mark] (b) NaCl(aq) + H₂O(l) + CO₂(g) + NH₃(g) → NH₄Cl(aq) + NaHCO₃(s)."],
+    finalAnswer: "(a) Bleaching powder: Ca(OH)₂(s) + Cl₂(g) → CaOCl₂(s) + H₂O(l). (b) Baking soda: NaCl(aq) + H₂O(l) + CO₂(g) + NH₃(g) → NH₄Cl(aq) + NaHCO₃(s).",
+    ncertRef: "PYQ 31/4/2 Q25", isCompetencyBased: true, sourceOverride: "others" },
 ];
