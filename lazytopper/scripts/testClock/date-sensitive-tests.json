@@ -197,6 +197,7 @@
     "src/components/worksheet/worksheetMiSelector.test.ts",
     "src/components/worksheet/worksheetModel.test.ts",
     "src/components/worksheet/worksheetModel.topickey.test.ts",
+    "src/components/worksheet/worksheetPrintFigures.test.tsx",
     "src/config/agentsMd.guard.test.ts",
     "src/config/boardDate.parity.test.ts",
     "src/config/crawlerReachability.guard.test.ts",
