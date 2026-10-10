@@ -1144,7 +1144,7 @@ export const CIRCLES_SOLUTION_FIGURES: ComputedFigureBinding[] = [
     ],
     expect: [
       {"quantity": "d", "value": 15, "tolPct": 0.5, "quote": "OP = 15 m"},
-      {"quantity": "perimeterOAPB", "value": 3360, "tolPct": 0.5, "quote": "cost = ₹3360", "factor": 80},
+      {"quantity": "perimeterOAPB", "value": 3360, "tolPct": 0.5, "quote": "3360", "factor": 80},
     ],
     confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
   },

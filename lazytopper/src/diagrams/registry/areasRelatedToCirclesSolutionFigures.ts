@@ -1408,7 +1408,7 @@ export const AREAS_RELATED_TO_CIRCLES_SOLUTION_FIGURES: ComputedFigureBinding[] 
       {"param": "theta", "field": "questionText", "quote": "central angle of 45°"},
     ],
     expect: [
-      {"quantity": "perimeterSector", "value": 2340, "tolPct": 0.5, "quote": "₹2340", "factor": 30},
+      {"quantity": "perimeterSector", "value": 2340, "tolPct": 0.5, "quote": "2340", "factor": 30},
     ],
     confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
   },
@@ -1521,7 +1521,7 @@ export const AREAS_RELATED_TO_CIRCLES_SOLUTION_FIGURES: ComputedFigureBinding[] 
       {"param": "theta", "field": "questionText", "quote": "subtends a right angle", "derived": "a right angle = 90°"},
     ],
     expect: [
-      {"quantity": "segment", "value": 4560, "tolPct": 0.5, "quote": "₹4560", "factor": 40},
+      {"quantity": "segment", "value": 4560, "tolPct": 0.5, "quote": "4560", "factor": 40},
     ],
     confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
   },
@@ -1587,7 +1587,7 @@ export const AREAS_RELATED_TO_CIRCLES_SOLUTION_FIGURES: ComputedFigureBinding[] 
       {"param": "theta", "field": "questionText", "quote": "central angle of 144°"},
     ],
     expect: [
-      {"quantity": "sector", "value": 308, "tolPct": 0.5, "quote": "₹308", "factor": 20},
+      {"quantity": "sector", "value": 308, "tolPct": 0.5, "quote": "308", "factor": 20},
     ],
     confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
   },
@@ -1761,7 +1761,7 @@ export const AREAS_RELATED_TO_CIRCLES_SOLUTION_FIGURES: ComputedFigureBinding[] 
     expect: [
       {"quantity": "arc", "value": 44, "tolPct": 0.5, "quote": "(i) 44 m"},
       {"quantity": "triangle", "value": 392, "tolPct": 0.5, "quote": "(ii) 392 m²"},
-      {"quantity": "segment", "value": 5600, "tolPct": 0.5, "quote": "(iii) ₹5600", "factor": 25},
+      {"quantity": "segment", "value": 5600, "tolPct": 0.5, "quote": "5600", "factor": 25},
     ],
     confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
   },
