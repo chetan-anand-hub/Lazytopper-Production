@@ -4,7 +4,7 @@ import "../../test/preloadBankChapters";
 import { matchPath } from "react-router-dom";
 import { chapterTestLandingPath } from "./ChapterTestPicker";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
-import { drawChapterTest } from "../chapterTest/chapterTestBlueprint";
+import { drawChapterTest } from "../chaptertest/chapterTestBlueprint";
 import { normalizeTopicKey, resolveTopicDisplayName } from "../../utils/topicResolver";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 
