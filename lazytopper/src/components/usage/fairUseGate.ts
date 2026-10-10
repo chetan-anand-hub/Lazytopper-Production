@@ -58,6 +58,8 @@ export const PREMIUM_WINDOW_LABEL: Record<PremiumWindow, string> = {
   fiveHour: "5-hour",
   day: "day",
   week: "week",
+  // CAP-30DAY: only ever sent when the server has the optional 30-day cap switched on.
+  thirtyDay: "30-day",
 };
 
 const PAPER_NOUN: Record<Exclude<LimitScope, "checks">, { when: string; one: string; many: string }> = {
@@ -139,6 +141,7 @@ const inFuture = (iso: string | null, nowMs: number) => iso !== null && Date.par
 export function fullPremiumWindow(snapshot: UsageSnapshot): PremiumWindow | null {
   const p = snapshot.premium;
   if (!p) return null;
+  if (p.thirtyDayPct !== null && p.thirtyDayPct >= 100) return "thirtyDay";
   if (p.weekPct >= 100) return "week";
   if (p.dayPct >= 100) return "day";
   if (p.fiveHourPct >= 100) return "fiveHour";

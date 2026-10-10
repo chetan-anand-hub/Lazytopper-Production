@@ -269,7 +269,7 @@ export interface FairUseLimitInfo {
 
 export const FAIR_USE_LIMIT_ERROR_NAME = "FairUseLimitError";
 
-const WINDOWS: readonly PremiumWindow[] = ["fiveHour", "day", "week"];
+const WINDOWS: readonly PremiumWindow[] = ["fiveHour", "day", "week", "thirtyDay"];
 
 /** PURE. The refusal's fields, or null when `err` is not a fair-use refusal. Accepts a
  *  thrown error, or a `{ name }`-only record (a service that carried only the name). */
