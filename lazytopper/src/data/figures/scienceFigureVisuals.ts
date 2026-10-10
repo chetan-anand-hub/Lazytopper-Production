@@ -323,9 +323,6 @@ export const SCIENCE_FIGURE_VISUALS: VisualConcept[] = [
 // listed here that is in fact served fails, so the list cannot go stale. NOT parsed by tutor_visual_catalogue_acceptance.mjs
 // (no filePath here).
 export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
-  "PYQ-S-2025-LIGHT-005": "withheld by BANK-FIX for its missing figure; stem and options clean, figure bound - un-withhold candidate",
-  "APQ-S-LIFE-002": "withheld by BANK-FIX for its missing figure; stem clean, options P-S are the bound graphs - un-withhold candidate",
-  "APQ-S-LIFE-012": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate",
   "PYQ-S-LIFE-002": "stays withheld: option (d) is garbled ('II I II III IV')",
   // DIAGRAMS-1 PR-4
   "CTRL-EXMPLR-6-MCQ-025": "withheld for its missing figure; options (a)-(d) are the bound Fig. 7.1 drawings, but the key names no option letter ('Option showing: Dendrite -> Cell body -> Axon -> Axonal end') - fix the key, then un-withhold",
