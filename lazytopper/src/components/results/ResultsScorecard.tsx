@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
 import { MathText } from "../question/MathText";
 import {
@@ -51,6 +52,9 @@ import type {
 interface ResultsScorecardProps {
   variant: ScorecardVariant;
   onClose: () => void;
+  /** QP-GUEST-SIGNIN-1 — optional content shown right under the score (a guest's sign-in
+   *  card). Absent on every other caller, so their scorecards are unchanged. */
+  belowScore?: ReactNode;
 }
 
 /** The score hero + descriptor — marks (worksheet/tests) or attempts (quick practice). */
@@ -501,7 +505,7 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
   );
 }
 
-export default function ResultsScorecard({ variant, onClose }: ResultsScorecardProps) {
+export default function ResultsScorecard({ variant, onClose, belowScore }: ResultsScorecardProps) {
   // Close on Escape — modal etiquette without a modal library.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -517,7 +521,7 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
   const allPending = variant.allPending;
   const ariaLabel = variant.surface === "worksheet" ? "Worksheet scorecard" : "Session scorecard";
 
-  return (
+  const sheet = (
     <div
       className="lt-sc__dim"
       role="dialog"
@@ -545,6 +549,7 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
           ) : (
             <>
               <ScoreHero score={variant.score} />
+              {belowScore}
 
               {variant.pending && (() => {
                 // SCORECARD-MI-1 PR-2 — an answer that does not match its question is NOT an
@@ -669,6 +674,11 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
       </div>
     </div>
   );
+  // SCORECARD-MOBILE-1 (DECISION 30c): portal to <body>. At 390 px a page wrapper keeps a
+  // computed transform (an entry animation's end state), and a transformed ancestor is the
+  // containing block for position:fixed — the sheet was laid out ~3,100 px down the page.
+  // On <body> no ancestor can capture it; on desktop nothing moves.
+  return typeof document === "undefined" ? sheet : createPortal(sheet, document.body);
 }
 
 const SC_CSS = `

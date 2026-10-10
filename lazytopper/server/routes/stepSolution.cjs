@@ -24,7 +24,51 @@ function __setPoolForTests(pool) {
 }
 
 // Increment this when the prompt structure changes to automatically bypass stale cache entries.
-const CACHE_VERSION = 'v2';
+// v3 (CI-CACHE-BANKMATCH-1 PR-1): the key text is normalised (normalizeQuestionForKey); old v2
+// entries simply miss and regenerate under the new key.
+const CACHE_VERSION = 'v3';
+
+// CI-CACHE-BANKMATCH-1 PR-1 — the same question typed or photographed with different spacing,
+// width/ligature forms, minus/hyphen or times glyphs, or sentence case hits the same cache entry.
+// ★ It must NEVER merge two different questions: digits, decimal points, signs, variables,
+// units, exponents, genotypes and chemical formulas are never changed. So EVERY fold is an
+// ALLOWLIST — no blanket rule (independent verifier, round 1, found each of these false hits):
+//   * NO blanket NFKC: it turns x² / x₂ / 2ˣ / aᵐ into x2 / x2 / 2x / am (exponent loss).
+//     Only the folds in KEY_CHAR_FOLDS plus full-width ASCII (Ｆ７ → F7) are applied.
+//   * NO blanket lower-casing: "Rryy" vs "rryy" (genotypes), R vs r, mA vs MA, Hz… differ.
+//     Only the instruction / function words in KEY_LOWER_WORDS are lower-cased.
+//   * minus sign and hyphens → "-", but NOT en/em dashes ("10–3" may be a range);
+//     "*", "∗", "✕", "✖" → "×", but NOT "⋅" (CuSO₄⋅5H₂O, or an OCR'd decimal point).
+const KEY_CHAR_FOLDS = Object.freeze({
+  '\u2212': '-', '\u2010': '-', '\u2011': '-', // minus sign, hyphen, non-breaking hyphen
+  '*': '\u00D7', '\u2217': '\u00D7', '\u2715': '\u00D7', '\u2716': '\u00D7', // * ∗ ✕ ✖ → ×
+  '\u2126': '\u03A9', // ohm sign → Greek capital omega (same glyph)
+  '\u00B5': '\u03BC', // micro sign → Greek small mu (same glyph)
+  '\u212A': 'K', // kelvin sign → K
+  '\uFB00': 'ff', '\uFB01': 'fi', '\uFB02': 'fl', '\uFB03': 'ffi', '\uFB04': 'ffl', // ligatures
+});
+const KEY_LOWER_WORDS = new Set([
+  'find', 'prove', 'show', 'calculate', 'solve', 'evaluate', 'determine', 'simplify', 'explain',
+  'state', 'define', 'write', 'draw', 'name', 'give', 'list', 'describe', 'compare', 'identify',
+  'what', 'which', 'why', 'how', 'when', 'where', 'who', 'the', 'this', 'that', 'these', 'those',
+  'if', 'is', 'are', 'was', 'were', 'an', 'and', 'or', 'of', 'for', 'from', 'with', 'using', 'also',
+  'hence', 'then', 'given', 'consider', 'answer', 'question', 'statement', 'assertion', 'reason',
+  'read', 'study', 'observe', 'look', 'based', 'following', 'choose', 'select', 'correct',
+]);
+function normalizeQuestionForKey(question) {
+  let out = '';
+  for (const ch of String(question == null ? '' : question)) {
+    const cp = ch.codePointAt(0);
+    if (cp >= 0xff01 && cp <= 0xff5e) out += String.fromCodePoint(cp - 0xfee0); // full-width ASCII
+    else if (Object.prototype.hasOwnProperty.call(KEY_CHAR_FOLDS, ch)) out += KEY_CHAR_FOLDS[ch];
+    else out += ch;
+  }
+  return out
+    .replace(/\s+/g, ' ')
+    .trim()
+    // Only lower-case or Title-case tokens fold; ALL-CAPS tokens are labels (OR, AN, OF, WHO) and keep their case.
+    .replace(/\b[A-Za-z]+\b/g, (w) => (/^[A-Z]?[a-z]+$/.test(w) && KEY_LOWER_WORDS.has(w.toLowerCase()) ? w.toLowerCase() : w));
+}
 
 // The version prefix applies to EVERY hash (objective and multi-mark alike) so a
 // CACHE_VERSION bump genuinely busts ALL stale entries. Pre-PR-3 only objective
@@ -32,7 +76,10 @@ const CACHE_VERSION = 'v2';
 // latent staleness bug. Extending it cold-starts the old unprefixed subjective
 // entries: they simply miss, regenerate and re-cache under the versioned key.
 function computeQuestionHash(question, marks) {
-  return crypto.createHash('sha256').update(CACHE_VERSION + '|' + question + '|' + marks).digest('hex');
+  return crypto
+    .createHash('sha256')
+    .update(CACHE_VERSION + '|' + normalizeQuestionForKey(question) + '|' + marks)
+    .digest('hex');
 }
 
 async function getCachedSolution(hash) {
@@ -628,6 +675,7 @@ module.exports = {
   saveSolutionForce,
   // C&I PR-3 — the shared solution-cache surface (grader hook + admin Gate-2b):
   computeQuestionHash,
+  normalizeQuestionForKey,
   getCachedSolution,
   saveSolution,
   deleteSolution,

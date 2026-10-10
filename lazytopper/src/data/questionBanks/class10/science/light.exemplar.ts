@@ -46,7 +46,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "greater than unity",
     solutionSteps: ["[1 mark] (a) greater than unity - the ray bends TOWARDS the normal on entering B, so B is optically denser than A; the angle of refraction is smaller than the angle of incidence, so n(B/A) = sin i / sin r > 1."],
     finalAnswer: "Greater than unity — option (a)",
-    strategyHint: "REQUIRES-FIGURE: Ray bending TOWARDS the normal when entering medium B from A.",
     ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true,
     sourceOverride: "others", },
 
@@ -57,7 +56,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "A rectangular glass slab",
     solutionSteps: ["The emergent rays are parallel to the corresponding incident rays but laterally shifted.", "Only a rectangular glass slab causes lateral displacement WITHOUT changing the direction of the ray.", "A convex/concave lens would converge/diverge the rays; a prism would deviate them at an angle.", "Hence a rectangular glass slab is inside the box."],
     finalAnswer: "Rectangular glass slab — option (a)",
-    strategyHint: "REQUIRES-FIGURE: Two parallel rays in, emerging shifted but parallel out of box (Fig. 10.3).",
     ncertRef: "Exemplar MCQ Q6", isCompetencyBased: true,
     sourceOverride: "others", },
 
@@ -68,7 +66,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Convex lens",
     solutionSteps: ["The parallel incident beam converges to a point and then diverges on emerging.", "Only a convex (converging) lens makes parallel rays meet at a focus.", "A concave lens diverges; a slab gives parallel emergent rays; a prism just deviates the beam without focusing.", "Hence a convex lens is inside the box."],
     finalAnswer: "Convex lens — option (d)",
-    strategyHint: "REQUIRES-FIGURE: Parallel rays in, converging to a point inside box, then diverging out (Fig. 10.4).",
     ncertRef: "Exemplar MCQ Q7", isCompetencyBased: true,
     sourceOverride: "others", },
 
@@ -121,7 +118,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "B",
     solutionSteps: ["At the air→glass interface, the ray bends TOWARDS the normal (glass is denser).", "Inside the slab the refracted ray travels in a straight line.", "At the glass→air interface, the ray bends AWAY from the normal.", "The emergent ray is PARALLEL to the incident ray but laterally shifted. Only the diagram showing this geometry (option B in the textbook) is correct."],
     finalAnswer: "Option (b) — figure B",
-    strategyHint: "REQUIRES-FIGURE: Four candidate ray paths through a glass slab (Fig. 10.5).",
     ncertRef: "Exemplar MCQ Q14", isCompetencyBased: true },
 
   { id: "LIGHT-EXMPLR-9-MCQ-015", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refractive Index — Bending of Light", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
@@ -138,7 +134,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Fig. D",
     solutionSteps: ["Recall the rules for concave-mirror ray diagrams.", "A ray parallel to the principal axis reflects through the focus; a ray through the focus reflects parallel to the axis; a ray through C retraces its path.", "Compare each candidate (A, B, C, D) with these rules.", "The diagram that obeys all the rules consistently with the incident ray shown is Fig. D."],
     finalAnswer: "Fig. D — option (d)",
-    strategyHint: "REQUIRES-FIGURE: Four candidate reflected-ray diagrams for a concave mirror (Fig. 10.6).",
     ncertRef: "Exemplar MCQ Q16", isCompetencyBased: true },
 
   // REQUIRES-FIGURE
@@ -148,7 +143,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Fig. A",
     solutionSteps: ["Rules for lens ray diagrams: a ray parallel to the principal axis refracts through the focus (convex) or appears to come from the focus (concave); a ray through the optical centre passes undeviated; a ray through the focus emerges parallel to the axis.", "Each of A, B, C, D shows a candidate refracted ray.", "Applying the rules to the incident ray in Fig. 10.7, only Fig. A is consistent with the geometric construction.", "Hence option (a)."],
     finalAnswer: "Fig. A — option (a)",
-    strategyHint: "REQUIRES-FIGURE: Four candidate refracted-ray diagrams for a lens (Fig. 10.7).",
     ncertRef: "Exemplar MCQ Q17", isCompetencyBased: true },
 
   { id: "LIGHT-EXMPLR-9-MCQ-018", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Mirrors — Image Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
@@ -178,7 +172,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Because both refracting surfaces of the slab are parallel; the bending at the first surface (rarer→denser) is exactly reversed at the second surface (denser→rarer), so the emergent ray is parallel to the incident ray but laterally shifted.",
     solutionSteps: ["[0.5 mark] At the first surface, the ray bends towards the normal as it enters the denser glass — angle of refraction r₁ < angle of incidence i₁.", "[0.5 mark] Inside the slab the ray travels in a straight line and meets the second (parallel) surface.", "[0.5 mark] At the second surface, by Snell's law and because the two faces are parallel, the angle of incidence inside glass equals r₁; the emergent angle equals i₁.", "[0.5 mark] Hence the emergent ray is parallel to the incident ray with a lateral displacement."],
     finalAnswer: "Emergent ray is parallel to incident ray due to parallel faces of the slab.",
-    strategyHint: "REQUIRES-FIGURE: Draw a glass slab with incident, refracted (inside) and emergent rays, marking i, r at both surfaces.",
     ncertRef: "Exemplar SA Q21", isCompetencyBased: true },
 
   { id: "LIGHT-EXMPLR-9-SA-003", competencyVerified: true, subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refractive Index Comparison", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -228,7 +221,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "The two plane mirrors must be placed at right angles (90°) to each other. For any angle of incidence on the first mirror, the ray after two successive reflections from the two mirrors emerges parallel to the original incident ray (but in the opposite direction).",
     solutionSteps: ["[1 mark] Place two plane mirrors at right angles (90°) to each other.", "[0.5 mark] Let an incident ray strike the first mirror at angle of incidence θ; it reflects at angle θ.", "[0.5 mark] This reflected ray then strikes the second mirror; using the laws of reflection and the 90° geometry, the second reflection turns the ray by another (90° – θ) on each side.", "[1 mark] Net result: the final emergent ray is anti-parallel (parallel and opposite) to the incident ray, irrespective of θ. This is the principle of a right-angled corner reflector (used in periscopes/retroreflectors)."],
     finalAnswer: "Mirrors at 90° to each other → emergent ray is parallel (anti-parallel) to incident ray for any angle of incidence.",
-    strategyHint: "REQUIRES-FIGURE: Two plane mirrors at right angles with an incident ray and two successive reflections producing a parallel emergent ray.",
     ncertRef: "Exemplar SA Q28", isCompetencyBased: true },
 
   { id: "LIGHT-EXMPLR-9-SA-010", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction at Plane Surfaces", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
@@ -236,7 +228,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "(i) From air into water (rarer to denser): the ray bends TOWARDS the normal at the interface. (ii) From water into air (denser to rarer): the ray bends AWAY from the normal at the interface.",
     solutionSteps: ["[0.5 mark] (i) Air → water: water is optically denser. The refracted ray bends towards the normal; angle of refraction < angle of incidence.", "[0.5 mark] (ii) Water → air: air is optically rarer. The refracted ray bends away from the normal; angle of refraction > angle of incidence.", "[1 mark] Both diagrams must show the incident ray, the interface (horizontal line), the normal (dashed line perpendicular to interface) and the refracted ray, with the appropriate bending."],
     finalAnswer: "Air→water: bends towards normal. Water→air: bends away from normal.",
-    strategyHint: "REQUIRES-FIGURE: Two ray diagrams showing oblique refraction at an air-water interface in both directions.",
     ncertRef: "Exemplar SA Q29", isCompetencyBased: false },
 
   // ===== Long Answer Questions (Q30-Q38) =====
@@ -245,7 +236,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "(a) Virtual, erect, enlarged, behind the mirror. (b) Real, inverted, enlarged, beyond C. (c) Real, inverted, same size, at C. (d) Real, inverted, diminished, between F and C. (e) Real, inverted, highly diminished, point-sized, at F.",
     solutionSteps: ["[1 mark] (a) Object between P and F: rays diverge after reflection; trace them backwards to get a VIRTUAL, erect, enlarged image behind the mirror.", "[1 mark] (b) Object between F and C: image is REAL, inverted, enlarged, formed BEYOND C.", "[1 mark] (c) Object at C: image is REAL, inverted, of the SAME size, formed at C itself.", "[1 mark] (d) Object a little beyond C: image is REAL, inverted, DIMINISHED, formed between F and C.", "[1 mark] (e) Object at infinity: parallel rays converge at F → image is REAL, inverted, highly diminished and point-sized at the focus."],
     finalAnswer: "Five ray diagrams as above showing image properties for each object position.",
-    strategyHint: "REQUIRES-FIGURE: Five concave-mirror ray diagrams for object positions (a)-(e).",
     ncertRef: "Exemplar LA Q30", isCompetencyBased: true },
 
   { id: "LIGHT-EXMPLR-9-LA-002", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Convex Lens — All Object Positions", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
@@ -253,7 +243,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "(a) Virtual, erect, enlarged, on same side as object. (b) Real, inverted, enlarged, beyond 2F on the other side. (c) Real, inverted, same size, at 2F on the other side. (d) Real, inverted, highly diminished, point-sized at F. (e) Real, inverted, highly enlarged, at infinity.",
     solutionSteps: ["[1 mark] (a) Object between optical centre O and F: image is VIRTUAL, erect, enlarged, on the same side as the object (used in a magnifying glass).", "[1 mark] (b) Object between F and 2F: image is REAL, inverted, enlarged, formed BEYOND 2F on the other side.", "[1 mark] (c) Object at 2F: image is REAL, inverted, of the SAME size, at 2F on the other side.", "[1 mark] (d) Object at infinity: parallel rays converge at F → image is REAL, inverted, highly diminished, point-sized at F.", "[1 mark] (e) Object at F: refracted rays emerge PARALLEL to the principal axis → image is REAL, inverted, highly enlarged, at infinity."],
     finalAnswer: "Five convex-lens ray diagrams with corresponding image properties.",
-    strategyHint: "REQUIRES-FIGURE: Five convex-lens ray diagrams for object positions (a)-(e).",
     ncertRef: "Exemplar LA Q31", isCompetencyBased: true },
 
   { id: "LIGHT-EXMPLR-9-LA-003", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Laws of Refraction", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
@@ -261,7 +250,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Laws of refraction: (1) The incident ray, the refracted ray and the normal at the point of incidence all lie in the same plane. (2) Snell's law: sin i / sin r = constant = refractive index of the second medium with respect to the first.",
     solutionSteps: ["[1 mark] State Law 1: incident ray, refracted ray and normal at the point of incidence are coplanar.", "[1 mark] State Law 2 (Snell's law): for a given pair of media and a given colour of light, sin i / sin r = n₂₁ (a constant).", "[1 mark] Draw a rectangular glass slab. Show the incident ray hitting the first face at angle i₁; mark the normal; show the refracted ray inside the slab bending towards the normal (angle r₁ < i₁).", "[1 mark] At the second face the ray hits at angle i₂ = r₁ (since the two faces are parallel) and refracts away from the normal, emerging at angle r₂ = i₁.", "[1 mark] Hence the emergent ray is parallel to the incident ray with a lateral displacement; both refractions obey the two laws of refraction."],
     finalAnswer: "Two laws stated; ray diagram through a glass slab illustrates them with i₁ = r₂ and the emergent ray parallel to the incident ray.",
-    strategyHint: "REQUIRES-FIGURE: Glass slab with incident, refracted, and emergent rays; angles i₁, r₁, i₂, r₂ and normals marked.",
     ncertRef: "Exemplar LA Q32", isCompetencyBased: false },
 
   { id: "LIGHT-EXMPLR-9-LA-004", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Concave Lens — Image Formation", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
@@ -269,7 +257,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "For all three positions, a concave lens forms a virtual, erect, diminished image on the same side as the object, between the optical centre and the focus.",
     solutionSteps: ["[1 mark] A concave lens is a diverging lens; for any real object it always forms a VIRTUAL, erect, DIMINISHED image on the same side as the object, between the optical centre and the focus.", "[1 mark] (a) Object at F: image is virtual, erect, diminished, between O and F (closer to lens than F).", "[1 mark] (b) Object between F and 2F: image is virtual, erect, diminished, between O and F (somewhat closer to lens).", "[1 mark] (c) Object beyond 2F: image is virtual, erect, very diminished, very close to F on the same side as the object.", "[1 mark] Construction: draw a ray parallel to the principal axis — refracts as if coming from F on the object side; draw a ray through optical centre — passes undeviated. Their backward extensions meet to give the virtual image."],
     finalAnswer: "All three give virtual, erect, diminished images on the same side as the object.",
-    strategyHint: "REQUIRES-FIGURE: Three concave-lens ray diagrams for object at F, between F and 2F, beyond 2F.",
     ncertRef: "Exemplar LA Q33", isCompetencyBased: true },
 
   { id: "LIGHT-EXMPLR-9-LA-005", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Convex Mirror — Image Formation", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
@@ -277,7 +264,6 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "(a) Object at infinity: image is virtual, erect, highly diminished (point-sized) at the focus F (behind the mirror). (b) Object at a finite distance: image is virtual, erect, diminished, formed between P and F behind the mirror.",
     solutionSteps: ["[1 mark] A convex mirror is a diverging mirror; the focus F and centre of curvature C are BEHIND the reflecting surface.", "[1 mark] (a) Object at infinity: a parallel beam from infinity, after reflection, appears to diverge from the focus F behind the mirror → image is virtual, erect, highly diminished (point-sized) at F.", "[1 mark] (b) Object at a finite distance in front: take a ray parallel to the axis (reflects as if diverging from F behind the mirror) and a ray directed towards C (retraces its path). Their backward extensions meet behind the mirror.", "[1 mark] Image is virtual, erect and DIMINISHED, formed between the pole P and the focus F behind the mirror.", "[1 mark] This wide field of view and erect diminished image is why convex mirrors are used as rear-view mirrors in vehicles."],
     finalAnswer: "(a) Virtual, erect, point-sized at F. (b) Virtual, erect, diminished between P and F behind the mirror.",
-    strategyHint: "REQUIRES-FIGURE: Two convex-mirror ray diagrams for object at infinity and at a finite distance.",
     ncertRef: "Exemplar LA Q34", isCompetencyBased: true },
 
   { id: "LIGHT-EXMPLR-9-LA-006", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Lens Formula & Magnification", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
@@ -306,6 +292,5 @@ export const LIGHT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "(i) f = 19 cm. (ii) The candle at 31.0 cm is 19 cm from the lens, i.e. at the principal focus (|u| = f), so the refracted rays emerge parallel and the image is formed at infinity. (iii) When the candle is shifted further towards the lens it lies between the lens and the focus (u < f): the image becomes virtual, erect and magnified, on the same side as the candle. (iv) Ray diagram for an object between O and F of a convex lens.",
     solutionSteps: ["[1 mark] (i) Object distance u = 12.0 – 50.0 = –38.0 cm; image distance v = 88.0 – 50.0 = +38.0 cm. Lens formula 1/f = 1/v – 1/u = 1/38 – 1/(–38) = 2/38 = 1/19 ⇒ f = 19 cm.", "[1 mark] (ii) New candle position 31.0 cm ⇒ u = 31.0 – 50.0 = –19 cm, so |u| = f: the candle is at the principal focus. The refracted rays emerge parallel to one another and the image is formed at infinity.", "[1 mark] (iii) If the candle is shifted FURTHER towards the lens (|u| < f), the object lies between the optical centre and the focus → the image is VIRTUAL, erect and MAGNIFIED, formed on the same side as the object.", "[2 marks] (iv) Ray diagram: object between O and F of the convex lens; a ray parallel to the principal axis refracts through F₂ on the other side; a ray through the optical centre goes undeviated; the two refracted rays diverge, and their backward extensions meet on the same side as the object to give a virtual, erect, enlarged image (O, F₁, F₂ and the direction of the rays marked)."],
     finalAnswer: "(i) f ≈ 19 cm. (ii) Image at infinity (candle is at focus). (iii) Virtual, erect, magnified image on same side as object. (iv) Ray diagram drawn as described.",
-    strategyHint: "REQUIRES-FIGURE: Ray diagram for a convex lens with object between optical centre and focus, showing a virtual, erect, magnified image.",
     ncertRef: "Exemplar LA Q38", isCompetencyBased: true },
 ];

@@ -16,16 +16,16 @@
     "lastmod": "2026-10-06"
   },
   "/highly-probable/10/Maths": {
-    "sha256": "09b96e04d535bce0203f9ff101a53ee92e98d4ade97ad32cb7b2f2d9c7517e63",
-    "lastmod": "2026-10-08"
+    "sha256": "ff335f2923d6a6fe5e5e8fa253a44bb33c4aad9ff88028f6064ce58016212720",
+    "lastmod": "2026-10-10"
   },
   "/highly-probable/10/Science": {
-    "sha256": "0f75beb6f4ef3907e56d00e74346eaad99d4c6a3f0471414465ee2d017f16daa",
-    "lastmod": "2026-10-08"
+    "sha256": "9ef58d5b124b5ad35db3458b094145f0f01034186966f35390bdddb7a9664860",
+    "lastmod": "2026-10-10"
   },
   "/legal/privacy": {
-    "sha256": "b235838982fc17b26bd861e418eb0d8f5eb815400c18bb32541e343ef13c060c",
-    "lastmod": "2026-10-06"
+    "sha256": "66efbb36e7662b75e4351f705350ae6def725182a1276ae7fb5c65441af468b7",
+    "lastmod": "2026-10-10"
   },
   "/legal/refund": {
     "sha256": "4fbcc45430c77f40cb00694b3b147e5271eb0443a6faf3aca2f9f0adf417c76e",
@@ -40,8 +40,8 @@
     "lastmod": "2026-10-06"
   },
   "/notes/areas-related-to-circles": {
-    "sha256": "04836329e9ebd859dba27fc4a6dafe4cdf1e3789613310321643c11a98c3f7b5",
-    "lastmod": "2026-10-06"
+    "sha256": "b67c26769ab7287ca48ab7c6d92ccacc1676972a3937fcf7d84017a1ba7fc519",
+    "lastmod": "2026-10-10"
   },
   "/notes/arithmetic-progression": {
     "sha256": "0b05ec69d868db22e94fbc143995b3d9e25e58ffe81e81204684292e2f0a0587",
@@ -64,8 +64,8 @@
     "lastmod": "2026-10-07"
   },
   "/notes/coordinate-geometry": {
-    "sha256": "5fe86376f9605802fefb3d34f9994ea9f77d9baed3b3001ecf6f4ed1f3799b1b",
-    "lastmod": "2026-10-07"
+    "sha256": "f74309dc03844c3b2b440fffbbc644d204a9e5395d04fb732b68b29e197ac9e1",
+    "lastmod": "2026-10-10"
   },
   "/notes/electricity": {
     "sha256": "c965085cc4ba96846fabf19b3310d1048ecd121a6fadd11c4206d6937bb0cec9",
@@ -84,8 +84,8 @@
     "lastmod": "2026-10-06"
   },
   "/notes/life-processes": {
-    "sha256": "5afa330e694de4ee4cb72aedf2fb9593b44265730e08920379243d7ad1871f5a",
-    "lastmod": "2026-10-07"
+    "sha256": "a7a30bc4939e3e3930402a28669f10edd9396b6cd2df43b409fce3e06cb70392",
+    "lastmod": "2026-10-10"
   },
   "/notes/light-reflection-and-refraction": {
     "sha256": "3dc0223f939e121271cd05862a7b67aeea754b0820b82da4442bb938e9a8ae36",
@@ -124,24 +124,24 @@
     "lastmod": "2026-10-07"
   },
   "/notes/statistics": {
-    "sha256": "533e7443f59e35f1e32d2166bdfa40ff8aab33a4e34a13d76ff6e9e3f1f7daad",
-    "lastmod": "2026-10-07"
+    "sha256": "4d1a1bcf74b7a7dbf6760b815c5c93b3aabfa45784700bd586771ca88b386b4d",
+    "lastmod": "2026-10-10"
   },
   "/notes/surface-areas-and-volumes": {
     "sha256": "1d942f918cc47aaa6e83378bfeaca4d664541f89754bbc8479de802280136a44",
     "lastmod": "2026-10-07"
   },
   "/notes/triangles": {
-    "sha256": "32347594c246737ffd4da5aa774fecab3ec650d95a941b1287d633cc9546ebc1",
-    "lastmod": "2026-10-07"
+    "sha256": "0eb58ed8408e4f36ad1534e1b5f78f0a53210c7ddfb3216416eab265d785690f",
+    "lastmod": "2026-10-10"
   },
   "/notes/trigonometry": {
     "sha256": "05c6348261cacbf2183335b5a63a015dba60f219ac9fb3094f42da7c26db86f1",
     "lastmod": "2026-10-07"
   },
   "/practice-hub": {
-    "sha256": "9a5da1ffa170c8eed338d6ef2662f1a8247b11bf5311caa4cc4b2c96d4898a56",
-    "lastmod": "2026-10-06"
+    "sha256": "5bc7cabdba7e5cfd6ff5fcac2af8ea7f31ad78e820d571bb7b132ad9e34fc126",
+    "lastmod": "2026-10-10"
   },
   "/pricing": {
     "sha256": "6aa62c2dc92195f9ce22b824cee31d38ae0c366ebb2c7a5ba6fc5e872c82be07",

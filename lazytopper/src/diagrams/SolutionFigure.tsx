@@ -23,7 +23,10 @@ import { FigureSvg } from "./render/FigureSvg";
 import "./SolutionFigure.css";
 
 export const SOLUTION_FIGURE_CAPTION = "Figure drawn from this question's numbers";
-export const SOLUTION_CROP_CAPTION = "Figure from the official answer";
+/** A crop names its official source (e.g. an NCERT textbook figure), never "the answer" it may not be. */
+export const SOLUTION_CROP_CAPTION = "Official figure";
+/** An optics.case figure: the row states an object POSITION, not numbers (DIAGRAMS-1 PR-2b). */
+export const SOLUTION_CASE_CAPTION = "Standard ray diagram for the position this question states";
 
 const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
 
@@ -78,7 +81,7 @@ function ComputedFigure({ binding, spec, idPrefix }: { binding: ComputedFigureBi
           <FigureSvg spec={spec} idPrefix={idPrefix} />
         </span>
       </button>
-      <Caption main={SOLUTION_FIGURE_CAPTION} part={binding.part} extra={extra} />
+      <Caption main={binding.builder === "opticsCase" ? SOLUTION_CASE_CAPTION : SOLUTION_FIGURE_CAPTION} part={binding.part} extra={extra} />
       {src ? (
         <ToBody>
           <NoteFigureLightbox src={src} alt={spec.desc} label={spec.title} onClose={() => setSrc(null)} />
@@ -96,7 +99,7 @@ function CropFigure({ binding }: { binding: CropFigureBinding }) {
       <button type="button" className="lt-solfig__btn" aria-label={`Enlarge figure: ${binding.alt}`} onClick={() => setOpen(true)}>
         <img className="lt-solfig__img" src={src} alt={binding.alt} loading="lazy" decoding="async" />
       </button>
-      <Caption main={SOLUTION_CROP_CAPTION} part={binding.part} extra={binding.caption} />
+      <Caption main={`${SOLUTION_CROP_CAPTION}: ${binding.source.figure}`} part={binding.part} extra={binding.caption} />
       {open ? (
         <ToBody>
           <NoteFigureLightbox src={src} alt={binding.alt} label={binding.alt} onClose={() => setOpen(false)} />

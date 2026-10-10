@@ -35,10 +35,10 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
     questionText: "Harsha made a wind chime using a frame and metal rods. She punched 8 holes in the frame, each 2 cm apart, and then hung 6 metal rods from the frame. The ends of the metal rods are aligned over a line shown by the dotted line. If all of the rods are straight and not swaying, then what is the length of Rod P?",
     options: ["69/7 cm", "53/5 cm", "76/5 cm", "111/7 cm"],
     answer: "111/7 cm",
-    solutionSteps: ["The setup forms similar triangles where the rod lengths increase linearly across the frame. Using basic proportionality with the dotted line meeting the rod ends.", "Per MS: Rod P = 111/7 cm."],
+    solutionSteps: ["[1 mark] The 8 holes are 2 cm apart, so the first and last holes are 7 × 2 = 14 cm apart: the 29 cm rod hangs from the first hole, the 6 cm rod from the last, and Rod P from the 5th hole, 4 × 2 = 8 cm from the first. The rods hang from the straight frame edge and their ends lie on the straight dotted line, so by similar triangles (BPT) the length falls evenly across the frame: Rod P = 29 − (29 − 6) × 8/14 = 29 − 92/7 = 111/7 cm. Answer: (d) 111/7 cm."],
     finalAnswer: "(d) 111/7 cm",
     ncertRef: "APQ PQ1 Q7", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: wind chime with 8 holes and 6 rods aligned on a dotted line." },
+  },
 
   // PQ2 Q7 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRI-004", subject: "Maths", topicKey: "triangles", subtopic: "Similarity — Side Ratios", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
@@ -66,7 +66,7 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[Variant 1] ∠DEB = ∠ACB = 90°. ∠ABC = 90° − ∠DBE; ∠BDE = 90° − ∠DBE ⟹ ∠ABC = ∠BDE. So ΔBDE ~ ΔABC (AA) ⟹ BE/AC = DE/BC ⟹ BE/DE = AC/BC.", "[Variant 2] ΔABC ~ ΔPQR ⟹ AB/PQ = BC/QR and ∠B = ∠Q. AD and PM are medians, so D and M are the mid-points of BC and QR: BD = ½BC and QM = ½QR ⟹ BD/QM = BC/QR = AB/PQ. In ΔABD and ΔPQM, AB/PQ = BD/QM and ∠B = ∠Q, so ΔABD ~ ΔPQM (SAS similarity), hence AB/PQ = AD/PM."],
     finalAnswer: "Both variants proved.",
     ncertRef: "APQ PQ2 Q23", isCompetencyBased: true, sourceOverride: "others",
-    strategyHint: "REQUIRES-FIGURE for both variants." },
+ },
 
   // PQ2 Q33 (Section D, Long, 5 marks)
   { id: "APQ-M-TRI-007", subject: "Maths", topicKey: "triangles", subtopic: "Basic Proportionality Theorem — Statement and Application", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
@@ -95,7 +95,7 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Similar triangles from observed sight-lines: ratio of corresponding sides gives D/(p + 7) = r/p (where p is the distance from Sonali to the road and (p + 7) is her distance to the far poles).", "Solve: D = r(p + 7)/p m."],
     finalAnswer: "(d) r(p+7)/p m",
     ncertRef: "APQ PQ_2022 Q5", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Sonali across 7 m road from light poles." },
+  },
 
   // PQ_2022 Q6 (Section A, MCQ, 1 mark)
   { id: "APQ-M-TRI-010", subject: "Maths", topicKey: "triangles", subtopic: "Similarity — Sufficient Conditions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
@@ -116,5 +116,5 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["In ΔPQR and ΔSTR: ∠PRQ = ∠SRT (common); ∠PQR = ∠STR (corresponding angles, ST || PQ). So ΔPQR ~ ΔSTR by AA criterion.", "Area of ΔPQR = (1/2)·b·(H + h); Area of ΔSTR = (1/2)·a·H.", "Area of trapezium PQTS = ΔPQR − ΔSTR = (1/2)·b·(H + h) − (1/2)·a·H = (1/2)·[(b − a)H + b·h].", "From similarity: (H + h)/H = b/a ⟹ H = a·h/(b − a).", "Substitute: Area = (1/2)·[(b − a)·a·h/(b − a) + b·h] = (1/2)·[a·h + b·h] = (1/2)·(a + b)·h. QED."],
     finalAnswer: "Area of trapezium PQTS = (1/2)(a + b)h.",
     ncertRef: "APQ PQ_2022 Q34", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: triangle PQR with parallel line ST inside." },
+ },
 ];

@@ -71,7 +71,7 @@ export const HUMAN_EYE_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "60°",
     solutionSteps: ["The ray falls normally on face PQ, so its angle of incidence there is 0° and it passes undeviated, perpendicular to PQ. Since the angle between faces PQ and PR of an equilateral prism is 60°, the normal to PR makes 60° with the normal to PQ, so the angle of incidence at face PR is 60°. Hence option (a)."],
     finalAnswer: "(a) 60°",
-    ncertRef: "cbjescco11 Q12", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references figure",
+    ncertRef: "cbjescco11 Q12", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjescco11 Q13
   { id: "SCO-S-EYE-009", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -240,7 +240,7 @@ export const HUMAN_EYE_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "A child sitting in a classroom is not able to read clearly the writing on the blackboard. a. Name the type of defect from which his eye is suffering. b. With the help of a ray diagram show how this defect can be remedied.",
     answer: "[Delhi 2015] a. Myopia b. Myopia can be remedied by using concave lens. Chap 11 : Human Eye and The Colorful World",
     solutionSteps: ["[Delhi 2015] a. Myopia b. Myopia can be remedied by using concave lens. Chap 11 : Human Eye and The Colorful World"],
-    ncertRef: "cbjesccq11 Q33", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq11 Q33", isCompetencyBased: true, },
   // cbjesccq11 Q34 (Section B, 2mk)
   { id: "SCQ-S-EYE-032", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What is meant by persistence of vision?",
@@ -267,21 +267,21 @@ export const HUMAN_EYE_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "(a) The duration of the day becomes approximately 4 minutes longer due to atmospheric refraction. We can see the sun when it is below the horizon in the morning. The rays of light from the sun below the horizon(s) reach to our eyes due to refraction of light 2 minutes before it a",
     solutionSteps: ["[1 mark] (a) Diagram: the Sun actually below the horizon; a ray from the Sun bends gradually towards the Earth as it passes through denser and denser atmospheric layers and reaches the observer, who sees the Sun at its raised apparent position above the horizon.", "[1 mark] Cause: atmospheric refraction — the optical density (refractive index) of air increases towards the Earth's surface, so light from the Sun is refracted continuously along a curved path.", "[1 mark] Because of this bending, the Sun becomes visible about 2 minutes before the actual sunrise, while it is still below the horizon.", "[1 mark] Similarly, the Sun remains visible for about 2 minutes after the actual sunset; hence the apparent duration of the day increases by about 4 minutes (2 minutes at sunrise + 2 minutes at sunset).", "[1 mark] (b) The apparent flattening of the Sun's disc at sunrise and sunset is also due to atmospheric refraction."],
     finalAnswer: "(a) Atmospheric refraction makes the Sun visible ~2 minutes before actual sunrise and ~2 minutes after actual sunset (day lengthened by ~4 minutes). (b) Atmospheric refraction causes the apparent flattening of the Sun's disc.",
-    ncertRef: "cbjesccq11 Q58", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram" },
+    ncertRef: "cbjesccq11 Q58", isCompetencyBased: true, },
   // cbjesccq11 Q59 (Section D, 5mk)
   { id: "SCQ-S-EYE-036", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Study the diagram and answer the questions the follows :",
     answer: "a. Identify the defect of vision represented by this diagram. b. List the two possible causes of this defect. c. With the help of ray diagram explain how this defect can be corrected. Ans : [Delhi 2016] a. The defect of vision is hypermetropia. b. (i) increase in focal length of ",
     solutionSteps: ["[1 mark] (a) The defect of vision represented in the diagram is hypermetropia (far-sightedness) — light from a nearby object is focused behind the retina.", "[1 mark] (b) Cause (i): increase in the focal length of the eye lens.", "[1 mark] Cause (ii): shortening (smallness) of the eyeball.", "[1 mark] (c) Correction: a convex (converging) lens of suitable power provides the additional converging power needed, so the image of a nearby object is formed on the retina.", "[1 mark] Diagram: hypermetropic eye — rays from the near point converge behind the retina; corrected eye — the convex lens first converges the rays so the eye lens forms the image exactly on the retina."],
     finalAnswer: "(a) Hypermetropia; (b) increased focal length of the eye lens / shortened eyeball; (c) corrected using a convex lens of suitable power.",
-    ncertRef: "cbjesccq11 Q59", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references diagram" },
+    ncertRef: "cbjesccq11 Q59", isCompetencyBased: false, },
   // cbjesccq11 Q60 (Section D, 5mk)
   { id: "SCQ-S-EYE-037", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "A person can see distant signboards clearly but cannot read clearly a book which is at 25 cm from his eye. Giving reason identify the defect. Draw a labelled ray diagram to illustrate this defect and its correction.",
     answer: "Eyes defect is hypermetropia. Its causes are due to a. shortening the eye ball b. increase in focal length of eye lens.",
     solutionSteps: ["[1 mark] The defect is hypermetropia (far-sightedness): the person sees distant signboards clearly but cannot read a book at 25 cm, i.e. the near point of the eye has shifted farther than 25 cm.", "[1 mark] Reason: light from the nearby object (book) is focused at a point behind the retina, so a sharp image is not formed on the retina.", "[1 mark] Causes: (a) shortening of the eyeball, (b) increase in the focal length of the eye lens.", "[1 mark] Diagram: hypermetropic eye — rays from an object at 25 cm (normal near point N) converge behind the retina.", "[1 mark] Diagram: correction — a convex lens of suitable power converges the rays before they enter the eye, so the final image is formed on the retina."],
     finalAnswer: "The defect is hypermetropia; it is corrected with a convex lens of suitable power.",
-    ncertRef: "cbjesccq11 Q60", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq11 Q60", isCompetencyBased: true, },
   // cbjesccq11 Q61 (Section D, 5mk)
   { id: "SCQ-S-EYE-038", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "What is meant by scattering of light? Use this phenomenon to explain why the clear sky appears blue or the sun appears reddish at sunrise.",

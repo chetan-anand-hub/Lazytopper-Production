@@ -477,7 +477,7 @@ describe("(v) 'X of Y graded' — not-graded questions are listed, never folded 
     ];
     const response: WorksheetGradeResponse = { ok: true, results: rs, totalQuestions: 3, gradedCount: 1, pendingCount: 2, gradedMarksAwarded: 2, gradedMarksTotal: 3, worksheetTotalMarks: 5 };
     const variant = worksheetScorecardVariant({ name: "Real Numbers · Worksheet 2", code: "WS-M-RN-02", response, downloading: false, onRead: () => {}, onDownload: () => {} });
-    const { container } = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
+    const { baseElement: container } = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
     expect(container.querySelector(".lt-sc__big")!.textContent!.replace(/\s+/g, " ").trim()).toBe("2 / 3");
     const items = Array.from(container.querySelectorAll(".lt-sc__pend--item")).map((e) => [e.getAttribute("data-grade-state"), e.textContent]);
     expect(items).toEqual([
@@ -503,7 +503,7 @@ describe("(v) 'X of Y graded' — not-graded questions are listed, never folded 
       worksheetTotalMarks: 8,
     };
     const variant = worksheetScorecardVariant({ name: "Real Numbers · Worksheet 1", code: "WS-M-RN-01", response, downloading: false, onRead: () => {}, onDownload: () => {} });
-    const { container } = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
+    const { baseElement: container } = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
     const big = container.querySelector(".lt-sc__big")!.textContent!.replace(/\s+/g, " ").trim();
     expect(big).toBe("2 / 3");
     expect(container.querySelector(".lt-sc__desc")!.textContent).toContain("across 1 of 3");
@@ -573,7 +573,7 @@ describe("(vi) notGraded — out of the score, the owner's words, nothing record
     ];
     const response: WorksheetGradeResponse = { ok: true, results: rs, totalQuestions: 3, gradedCount: 1, pendingCount: 2, gradedMarksAwarded: 3, gradedMarksTotal: 4, worksheetTotalMarks: 10 };
     const variant = worksheetScorecardVariant({ name: "Real Numbers · Worksheet 3", code: "WS-M-RN-03", response, downloading: false, onRead: () => {}, onDownload: () => {} });
-    const { container } = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
+    const { baseElement: container } = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
     expect(container.querySelector(".lt-sc__big")!.textContent!.replace(/\s+/g, " ").trim()).toBe("3 / 4");
     expect(container.querySelector(".lt-sc__desc")!.textContent).toContain("across 1 of 3");
     const pend = Array.from(container.querySelectorAll(".lt-sc__pend")).map((e) => [e.getAttribute("data-grade-state"), e.textContent]);
