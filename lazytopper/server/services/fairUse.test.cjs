@@ -814,6 +814,31 @@ test('U4 / FU-GLOBAL-SHED · the tier is read for EVERY paid class at or past 80
   assert.equal(at10.needsTierRead('/api/tutor'), false, 'below 80% nobody pays for a tier read');
 });
 
+// FU-GLOBAL-SHED (D58b-4): a NOT-premium verdict is remembered 5 minutes for the shed question; premium and
+// unknown are never remembered, so a paying student is recognised at once and a Firestore blip is not sticky.
+test('U4 / FU-GLOBAL-SHED · a free or trial verdict is cached 5 min (a hit adds no read); premium and unknown are not', async () => {
+  for (const tier of ['free', 'trial']) {
+    const { gate, tierReads, clock } = rig({ tier });
+    assert.equal(await gate.isPremium('stu-1', { headers: {} }), false);
+    assert.equal(await gate.isPremium('stu-1', { headers: {} }), false);
+    assert.equal(tierReads(), 1, tier + ': the second call is a cache hit - no read');
+    clock.now += 5 * 60 * 1000 - 1;
+    await gate.isPremium('stu-1', { headers: {} });
+    assert.equal(tierReads(), 1, tier + ': still cached just inside 5 minutes');
+    clock.now += 2;
+    await gate.isPremium('stu-1', { headers: {} });
+    assert.equal(tierReads(), 2, tier + ': re-read after the TTL');
+  }
+  const prem = rig({ tier: 'premium' });
+  assert.equal(await prem.gate.isPremium('stu-1', { headers: {} }), true);
+  assert.equal(await prem.gate.isPremium('stu-1', { headers: {} }), true);
+  assert.equal(prem.tierReads(), 2, 'premium is read each time (the entitlement gate has its own positive cache)');
+  const unknown = rig({ tier: null });
+  await unknown.gate.isPremium('stu-1', { headers: {} });
+  await unknown.gate.isPremium('stu-1', { headers: {} });
+  assert.equal(unknown.tierReads(), 2, 'an unknown tier is never cached');
+});
+
 test('U4 · isPremium is true only for a verified uid whose effective tier is premium', async () => {
   for (const [tier, want] of [['premium', true], ['trial', false], ['free', false], [null, false]]) {
     const { gate } = rig({ tier });

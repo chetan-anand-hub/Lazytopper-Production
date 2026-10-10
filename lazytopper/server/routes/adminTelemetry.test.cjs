@@ -160,6 +160,8 @@ const SAMPLE = {
   "rate_limit.hard_block.anonymous": 3,
   "rate_limit.call.total": 14,
   "rate_limit.shed.vision": 1,
+  "rate_limit.global_overflow.premium": 4,
+  "rate_limit.hard_block.global": 2,
   "rate_limit.anon_key.loopback": 7,
   "rate_limit.anon_key.client": 2,
 };
@@ -221,6 +223,9 @@ test("rate-limit blocks and sheds are surfaced", () => {
   const p = payloadFor(SAMPLE);
   assert.equal(p.rateLimit.byClass.anonymous.hardBlocks, 3);
   assert.equal(p.rateLimit.shedVision, 1);
+  // FU-GLOBAL-SHED (D58b-3): the owner can see how much of the P margin paying students used
+  assert.equal(p.rateLimit.globalOverflowPremium, 4);
+  assert.equal(p.rateLimit.hardBlockGlobal, 2);
   assert.equal(p.rateLimit.totalCalls, 14);
 });
 

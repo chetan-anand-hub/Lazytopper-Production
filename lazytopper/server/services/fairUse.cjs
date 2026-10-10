@@ -791,11 +791,36 @@ function createFairUse(deps = {}) {
     }
   }
 
-  /** U4: is this VERIFIED caller premium? Asked by index.cjs only when the shed is about to fire. */
+  /**
+   * FU-GLOBAL-SHED (D58b-4): the tier is now read for EVERY paid class once the day is at 80%, so a busy day
+   * would otherwise read one Firestore doc per free-student request (the entitlement gate caches only
+   * ENTITLED answers, on purpose - nobody who just paid should wait out a TTL there). A NOT-premium verdict
+   * (free or trial) is remembered here for 5 minutes, ONLY for this shed/overflow question, never for
+   * entitlement itself. Cost of being wrong: a student who upgrades within 5 minutes of a busy-day refusal
+   * is refused for up to 5 more minutes at the SITE-WIDE ceiling; every per-student limit is unaffected.
+   * An unknown tier (null) is never cached. Bounded; a hit adds no read.
+   */
+  const NOT_PREMIUM_TTL_MS = 5 * 60 * 1000;
+  const NOT_PREMIUM_MAX = 5000;
+  const notPremiumUntil = new Map();
+
+  /** U4: is this VERIFIED caller premium? Asked by index.cjs only when a tier read is needed (>= 80%). */
   async function isPremium(verifiedUid, req) {
     const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
     if (!uid) return false;
-    return (await tierFor(uid, req)) === 'premium';
+    const nowMs = now();
+    const until = notPremiumUntil.get(uid);
+    if (until !== undefined) {
+      if (until > nowMs) return false;
+      notPremiumUntil.delete(uid);
+    }
+    const tier = await tierFor(uid, req);
+    if (tier === 'premium') return true;
+    if (tier === 'free' || tier === 'trial') {
+      if (notPremiumUntil.size >= NOT_PREMIUM_MAX) notPremiumUntil.delete(notPremiumUntil.keys().next().value);
+      notPremiumUntil.set(uid, nowMs + NOT_PREMIUM_TTL_MS);
+    }
+    return false;
   }
 
   /**

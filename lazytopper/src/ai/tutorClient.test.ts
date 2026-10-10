@@ -76,6 +76,15 @@ describe("BUGFIX-1 · B3 · the tutor's 402 is a typed branch", () => {
     expect(err.message).toBe("The tutor is busy. Try again in a minute.");
   });
 
+  it("★★ FU-GLOBAL-SHED: a 429 busy_today shows the server's calm sentence (+ 'See plans.' for cta plans), never a raw code or 'free AI checking'", async () => {
+    const base = { error: "busy_today", message: "LazyTopper is very busy today. Come back after midnight, or subscribe for priority access.", class: "global", scope: "free" };
+    respond(429, { ...base, cta: "plans" });
+    expect((await thrown()).message).toBe(`${base.message} See plans.`);
+    respond(429, { ...base, message: "LazyTopper is very busy today. Come back after midnight.", cta: null });
+    const quiet = (await thrown()).message;
+    expect(quiet).toBe("LazyTopper is very busy today. Come back after midnight.");
+    expect(quiet).not.toMatch(/busy_today|free AI checking|trial|plans/i);
+  });
   it("★ CONTROL: with no `message`, the `error` code is still surfaced rather than swallowed", async () => {
     respond(500, { error: "tutor_upstream_failed" });
     expect((await thrown()).message).toBe("tutor_upstream_failed");
