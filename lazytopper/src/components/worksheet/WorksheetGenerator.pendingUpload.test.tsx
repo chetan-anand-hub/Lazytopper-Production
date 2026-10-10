@@ -15,9 +15,49 @@ vi.mock("../auth/RequireAuth", () => ({
   RequirePremium: ({ children }: { children: React.ReactNode }) => children,
   RequireAuth: ({ children }: { children: React.ReactNode }) => children,
 }));
-vi.mock("./WorksheetGradePanel", () => ({
-  default: ({ ws }: { ws: PersistedWorksheet }) => <div data-testid="grade-panel">{ws.code}</div>,
+// The panel is a light stub in the routing tests; the "upload immediately" pin turns the REAL one on.
+const panel = vi.hoisted(() => ({ real: false }));
+vi.mock("./WorksheetGradePanel", async (importOriginal) => {
+  const Real = (await importOriginal<typeof import("./WorksheetGradePanel")>()).default;
+  return {
+    default: (props: { ws: PersistedWorksheet }) =>
+      panel.real ? <Real {...props} /> : <div data-testid="grade-panel">{props.ws.code}</div>,
+  };
+});
+vi.mock("../usage/useFairUse", () => ({
+  useFairUse: () => ({ limit: null, clearLimit: () => {}, noteGraded: () => {}, handleRefusal: async () => false, blockPaperStart: () => false }),
 }));
+// The QR hand-off fills the SAME state the file input fills - the shortest honest way to put a file on the panel.
+vi.mock("../qr/QrAnswerHandoff", () => ({
+  default: ({ onImageReceived }: { onImageReceived: (v: { imageBase64: string; imageMimeType: string }) => void }) => (
+    <button type="button" onClick={() => onImageReceived({ imageBase64: "JVBERi0xLjQ=", imageMimeType: "application/pdf" })}>
+      qr-deliver
+    </button>
+  ),
+}));
+vi.mock("./worksheetPdfExport", () => ({ exportWorksheetPdf: async () => {}, exportGradedWorksheetPdf: async () => {} }));
+const gradeCalls = vi.hoisted(() => ({ reqs: [] as Array<{ worksheetId: string; questions: Array<{ qNumber: number; marks: number }> }> }));
+vi.mock("../../ai/aiClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../ai/aiClient")>();
+  return {
+    ...actual,
+    gradeWorksheet: async (req: { worksheetId: string; questions: Array<{ qNumber: number; marks: number }> }) => {
+      gradeCalls.reqs.push(req);
+      return {
+        ok: true,
+        worksheetId: req.worksheetId,
+        results: req.questions.map((q) => ({
+          qNumber: q.qNumber, ok: true, couldNotRead: false, totalMarks: q.marks, marksAwarded: q.marks, percentage: 100,
+          annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "",
+        })),
+        totalQuestions: req.questions.length, gradedCount: req.questions.length, pendingCount: 0,
+        gradedMarksAwarded: req.questions.reduce((a, q) => a + q.marks, 0),
+        gradedMarksTotal: req.questions.reduce((a, q) => a + q.marks, 0),
+        worksheetTotalMarks: req.questions.reduce((a, q) => a + q.marks, 0),
+      };
+    },
+  };
+});
 
 const fs = vi.hoisted(() => ({
   docs: {} as Record<string, unknown>,
@@ -111,6 +151,8 @@ beforeEach(() => {
   fs.writes = [];
   fs.deleted = [];
   cloud.list = [];
+  panel.real = false;
+  gradeCalls.reqs = [];
 });
 afterEach(() => cleanup());
 
@@ -239,4 +281,45 @@ describe("PENDING-UPLOAD-1 PR-2 · history row -> the same paper's upload step",
     await waitFor(() => expect(document.body.textContent).toContain("We couldn’t find the saved copy of this worksheet"));
     expect(screen.queryByTestId("grade-panel")).toBeNull();
   });
+});
+
+describe("PENDING-UPLOAD-1 PR-2 · D56a pin: generate -> download -> upload IMMEDIATELY -> graded on the SAME code", () => {
+  // RED if the WorksheetGradePanel mount is removed from the generated view (no 'Grade my answers'), or if
+  // gradeWorksheetAndRecord stops writing the record (the pending record never becomes graded).
+  it("★★ the student who does not 'upload later' grades through the real panel and the record the download wrote becomes graded under the SAME code and worksheetId", async () => {
+    panel.real = true;
+    render(
+      <MemoryRouter initialEntries={["/practice/worksheets?subject=Maths&scope=topic&topic=real-numbers"]}>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(screen.queryByText("Loading questions…")).toBeNull(), { timeout: 60000 });
+    const preview = screen.getAllByRole("button", { name: /Preview worksheet/i })[0];
+    await waitFor(() => expect(preview).not.toBeDisabled());
+    fireEvent.click(preview);
+    fireEvent.click(await screen.findByRole("button", { name: /Generate worksheet/i }, { timeout: 60000 }));
+    fireEvent.click(await screen.findByRole("button", { name: /Worksheet \(questions\)/ }));
+    // the download wrote the pending record under the frozen code
+    let code = "";
+    await waitFor(() => {
+      const rec = loadLocalSessionRecords("student-1").filter((r) => r.surface === "worksheet");
+      expect(rec).toHaveLength(1);
+      expect(rec[0].status).toBe("pending-upload");
+      code = rec[0].id;
+    }, { timeout: 20000 });
+    const worksheetId = loadLocalSessionRecords("student-1").find((r) => r.id === code)!.worksheetId;
+
+    // ...and the student uploads straight away, through the panel mounted in the generated view
+    fireEvent.click(await screen.findByRole("button", { name: "qr-deliver" }));
+    fireEvent.click(await screen.findByRole("button", { name: /Grade my answers/ }));
+    await waitFor(() => {
+      const rec = loadLocalSessionRecords("student-1").filter((r) => r.surface === "worksheet");
+      expect(rec).toHaveLength(1); // the SAME record, not a second one
+      expect(rec[0].id).toBe(code);
+      expect(rec[0].status).toBe("graded");
+      expect(rec[0].marksAwarded).toBeGreaterThan(0);
+    }, { timeout: 30000 });
+    expect(gradeCalls.reqs).toHaveLength(1);
+    expect(gradeCalls.reqs[0].worksheetId).toBe(worksheetId);
+  }, 120000);
 });
