@@ -35,7 +35,9 @@ import {
 // ── RATCHET PINS (fix round 1, on trunk f52f8116). Improve them; never loosen them. ─────────────────────────
 // CBQ-1 C3 (2026-10-07): two NEW served acids labels from the C3 science CBQs, both mapped (+2 -> 1517, tightened).
 // The third C3 label was re-labelled to the existing "Acids with Metal Oxides"; reviewed max stays 458.
-const MIN_MAPPED_LABELS = 1517;
+// 2026-10-10 BANK-FIX-5 (owner ruling): 1517 -> 1516. 'Current-Carrying Conductors' is unmapped while PYQ-S-2025-MAG-006
+// is withheld (its figures are not bound); a DIAGRAMS lane that serves it again restores the line and 1517.
+const MIN_MAPPED_LABELS = 1516;
 const MAX_REVIEWED_LABELS = 458;
 /** served rows whose label resolves to a concept / all served rows: 7722 / 9823. */
 const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.7861;

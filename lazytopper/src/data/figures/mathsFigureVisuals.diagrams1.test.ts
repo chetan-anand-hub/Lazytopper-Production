@@ -111,7 +111,8 @@ describe("DIAGRAMS-1 PR-1 bindings (Circles + Triangles) are exactly the eye-con
     expect(undeclared).toEqual([]);
     const stale = BOUND_BUT_WITHHELD.filter((q) => served.has(q) || !WITHHELD_QUESTION_IDS.has(q));
     expect(stale).toEqual([]); // declared withheld but actually served (or not withheld at all)
-    expect(BOUND_BUT_WITHHELD.filter((q) => !PR1_BINDINGS.some(([b]) => b === q))).toEqual([]);
+    // every declared row is bound by PR-1 or by PR-6 (the PR-6 block below pins its own rows)
+    expect(BOUND_BUT_WITHHELD.filter((q) => !PR1_BINDINGS.some(([b]) => b === q) && !PR6_BINDINGS.some(([b]) => b === q))).toEqual([]);
   });
 
   it("every binding's chapter matches its row's chapter (served or withheld)", () => {
@@ -165,5 +166,101 @@ describe("DIAGRAMS-1 PR-1 bindings (Circles + Triangles) are exactly the eye-con
 
   it("control: a bogus id resolves to nothing", () => {
     expect(getFiguresForQuestion("DIAGRAMS-1-NO-SUCH-ID")).toEqual([]);
+  });
+});
+
+// =====================================================================================================================
+// DIAGRAMS-1 PR-6 — Maths question figures for Trigonometry + Coordinate Geometry (scope ruling 2026-10-07: the
+// other maths chapters went to another lane). Same pins as PR-1, one by one: a silent re-point, a typo, a missing / oversized / non-WebP asset, a chapter
+// mismatch, a re-bound WRONG or Z3 decorative id, or a skipped row that quietly gains a figure all fail here. The
+// eye-confirm table (source PDF, page, clip, what was matched, verdict for every row incl. NO-MATCH / SKIP) is the
+// PR-6 evidence; the trailing comment on each pin repeats source + page.
+// =====================================================================================================================
+
+// [questionId, filePath] in source order (a row with several figures lists them in the order the paper prints them).
+const PR6_BINDINGS: ReadonlyArray<readonly [string, string]> = [
+  ["APQ-M-TRIG-003", "/figures/apq-maths/trigonometry/APQ-M-TRIG-003.webp"], // Mathematics-PQ1.pdf p9 (the worked steps)
+  ["APQ-M-TRIG-010", "/figures/apq-maths/trigonometry/APQ-M-TRIG-010.webp"], // Mathematics-PQ1.pdf p26 (part i)
+  ["APQ-M-TRIG-010", "/figures/apq-maths/trigonometry/APQ-M-TRIG-010-2.webp"], // Mathematics-PQ1.pdf p27 (part iii)
+  ["APQ-M-TRIG-010", "/figures/apq-maths/trigonometry/APQ-M-TRIG-010-3.webp"], // Mathematics-PQ1.pdf p27 (OR part iii)
+  ["APQ-M-TRIG-017", "/figures/apq-maths/trigonometry/APQ-M-TRIG-017.webp"], // Mathematics-PQ_2022.pdf p19
+  ["APQ-M-CG-005", "/figures/apq-maths/coordinate-geometry/APQ-M-CG-005.webp"], // Mathematics-PQ1.pdf p24
+  ["PYQ-M-2024-CG-006", "/figures/pyq-maths/coordinate-geometry/PYQ-M-2024-CG-006.webp"], // 30-4-3(Mathematics Standard).pdf p23
+];
+
+// Looked at and deliberately NOT bound (SKIP-BROKEN / NO-MATCH / NOT-FOUND / computed-figure rows / WRONG ids) — must
+// keep resolving to NO figure. Reasons are in the PR-6 eye-confirm table.
+const PR6_NOT_BOUND = [
+  "PYQ-M-2026-TRIG-002", // SKIP-BROKEN: stem lost its degree signs ('is 45 and ... is 30'); answer glyph-garbled
+  "PYQ-M-2025-TRIG-004", // withheld as garbled (sub-parts have no text), not for a figure
+  "PYQ-M-2024-CG-007", // SKIP-BROKEN: 'D PQR' lost the triangle sign; Hindi page-header junk in the stem; answer garbled
+];
+
+const pr6Paths = new Set(PR6_BINDINGS.map(([, p]) => p));
+const pr6Entries = MATHS_FIGURE_VISUALS.filter((f) => pr6Paths.has(f.filePath));
+
+describe("DIAGRAMS-1 PR-6 bindings (Trigonometry + Coordinate Geometry) are exactly the eye-confirmed set", () => {
+  it("the pinned set is the size this PR shipped", () => {
+    expect(PR6_BINDINGS).toHaveLength(7);
+    expect(new Set(PR6_BINDINGS.map(([q]) => q)).size).toBe(5);
+    expect(pr6Paths.size).toBe(PR6_BINDINGS.length); // no crop is reused for two bindings
+    expect(pr6Entries).toHaveLength(PR6_BINDINGS.length); // each pinned file is bound exactly once in the registry
+    expect(PR6_BINDINGS.filter(([, p]) => pr1Paths.has(p))).toEqual([]); // disjoint from PR-1
+  });
+
+  it("each pinned question resolves to exactly its pinned figures, in source order", () => {
+    const byQid = new Map<string, string[]>();
+    for (const [q, p] of PR6_BINDINGS) byQid.set(q, [...(byQid.get(q) ?? []), p]);
+    const wrong = [...byQid].filter(([q, ps]) => JSON.stringify(getFiguresForQuestion(q).map((f) => f.filePath)) !== JSON.stringify(ps));
+    expect(wrong.map(([q]) => q)).toEqual([]);
+  });
+
+  it("every pinned question EXISTS in the bank and is served, or is declared in BOUND_BUT_WITHHELD", () => {
+    expect(PR6_BINDINGS.filter(([q]) => !inBank.has(q)).map(([q]) => q)).toEqual([]);
+    const undeclared = PR6_BINDINGS.filter(([q]) => !served.has(q) && !BOUND_BUT_WITHHELD.includes(q)).map(([q]) => q);
+    expect(undeclared).toEqual([]);
+  });
+
+  it("every binding's chapter matches its row's chapter (served or withheld)", () => {
+    const mismatched = pr6Entries.filter((f) => {
+      const row = inBank.get(f.questionId ?? "");
+      return !row || resolveCanonicalSlug(row.topicKey) !== slug(f.chapter);
+    });
+    expect(mismatched.map((f) => `${f.questionId}:${f.chapter}`)).toEqual([]);
+  });
+
+  it("every entry has the registry's raster-figure shape and a descriptive alt", () => {
+    const bad = pr6Entries.filter(
+      (f) => f.subject !== "maths" || f.isInteractive !== false || f.keywords.length !== 0 || !isDescriptiveAlt(f.title)
+        || !f.filePath.startsWith("/figures/") || !f.filePath.endsWith(".webp"),
+    );
+    expect(bad.map((f) => f.id)).toEqual([]);
+    expect(new Set(pr6Entries.map((f) => f.id)).size).toBe(pr6Entries.length);
+  });
+
+  it("every asset exists under lazytopper/public, is a real WebP file, and is at most 80 KB", () => {
+    const problems: string[] = [];
+    for (const [, p] of PR6_BINDINGS) {
+      const abs = path.join(PUBLIC, p.replace(/^\//, ""));
+      if (!fs.existsSync(abs)) { problems.push(`missing ${p}`); continue; }
+      const buf = fs.readFileSync(abs);
+      if (buf.subarray(0, 4).toString("latin1") !== "RIFF" || buf.subarray(8, 12).toString("latin1") !== "WEBP") problems.push(`not webp ${p}`);
+      if (buf.length > 80 * 1024) problems.push(`too big ${p} ${buf.length}`);
+    }
+    expect(problems).toEqual([]);
+  });
+
+  it("rows looked at and deliberately left unbound resolve to no figure", () => {
+    expect(PR6_NOT_BOUND.filter((q) => getFiguresForQuestion(q).length > 0)).toEqual([]);
+  });
+
+  it("no PR-6 binding re-binds a census WRONG id or a Z3 decorative-photo row", () => {
+    const qids = PR6_BINDINGS.map(([q]) => q);
+    expect(qids.filter((q) => CENSUS_WRONG_IDS.includes(q))).toEqual([]);
+    expect(qids.filter((q) => q.startsWith("Z3-"))).toEqual([]);
+    expect([...pr6Paths].filter((p) => p.startsWith("/visuals/"))).toEqual([]);
+    // the WRONG ids stay unbound everywhere in the maths registry
+    const maths = new Set(MATHS_FIGURE_VISUALS.map((f) => f.questionId));
+    expect(CENSUS_WRONG_IDS.filter((q) => maths.has(q))).toEqual([]);
   });
 });

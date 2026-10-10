@@ -1247,7 +1247,6 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
   },
   "magnetic-effects-of-electric-current": {
     "Bar Magnet": "Right-hand Rules & Field Lines",
-    "Current-Carrying Conductors": "Right-hand Rules & Field Lines",
     "Electromagnet": "Right-hand Rules & Field Lines",
     "Electromagnets — core material": "Right-hand Rules & Field Lines",
     "Magnetic Field": "Right-hand Rules & Field Lines",
