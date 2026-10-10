@@ -1086,6 +1086,18 @@ function ThirdTabPanel({
 
 /* ── the component ─────────────────────────────────────────────────── */
 
+/** Some bank rows store their options already lettered ("A. 6"). The panel adds its own (A)-(D), so when EVERY option carries
+ *  its own sequential label the label is dropped for display; any other option text is shown untouched. */
+export function stripOwnOptionLabels(options: readonly string[]): string[] {
+  const own = options.every((o, i) => new RegExp("^\\s*\\(?" + String.fromCharCode(65 + i) + "[.)]\\s+", "i").test(o));
+  return own ? options.map((o) => o.replace(/^\s*\(?[A-Da-d][.)]\s+/, "")) : [...options];
+}
+
+/** The registry's generic title tells a screen-reader user nothing; describe the figure by its question instead. */
+export function boardFigureAlt(alt: string, questionText: string): string {
+  return alt === "Source figure" ? `Figure from the question paper for: ${questionText.slice(0, 90).trim()}` : alt;
+}
+
 /** The app's base path, for the public figure files a board question can carry. */
 const BQ_BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
 
@@ -1163,7 +1175,7 @@ function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: str
             <div className="lt-note__bq-figs">
               {q.figures.map((f) => (
                 <figure className="lt-note__bq-fig" key={f.src}>
-                  <img className="lt-note__bq-img" src={`${BQ_BASE}${f.src}`} alt={f.alt} loading="lazy" decoding="async" />
+                  <img className="lt-note__bq-img" src={`${BQ_BASE}${f.src}`} alt={boardFigureAlt(f.alt, q.questionText)} loading="lazy" decoding="async" />
                 </figure>
               ))}
             </div>
@@ -1171,7 +1183,7 @@ function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: str
 
           {q.options && q.options.length > 0 ? (
             <ol className="lt-note__bq-opts">
-              {q.options.map((opt, oi) => (
+              {stripOwnOptionLabels(q.options).map((opt, oi) => (
                 <li key={oi}>
                   <span className="lt-note__bq-optl">({String.fromCharCode(65 + oi)})</span> {opt}
                 </li>

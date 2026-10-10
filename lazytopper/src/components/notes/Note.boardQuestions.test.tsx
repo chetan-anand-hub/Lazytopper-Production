@@ -12,7 +12,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-import { Note } from "./Note";
+import { Note, boardFigureAlt, stripOwnOptionLabels } from "./Note";
 import { ensureAllNoteSpecs, getNoteSpecForTopic } from "./noteSpecRegistry";
 
 // LOW-END-1 (L4): specs are per-chapter chunks now; this suite reads them synchronously.
@@ -251,5 +251,31 @@ describe("Competency-based questions tab — options and figures reach the page"
       expect(figs, `${topic} figures`).toBe(rowsOf(topic).reduce((n, q) => n + (q.figures?.length ?? 0), 0));
       unmount();
     }
+  });
+});
+
+describe("board question options and figure alt — display polish", () => {
+  it("drops a label the bank row already carries only when EVERY option has its own sequential one", () => {
+    expect(stripOwnOptionLabels(["A. 6", "B. 12", "C. 18", "D. 24"])).toEqual(["6", "12", "18", "24"]);
+    expect(stripOwnOptionLabels(["(a) x", "(b) y", "(c) z", "(d) w"])).toEqual(["x", "y", "z", "w"]);
+    // CONTROL: mixed or out-of-order labels, and ordinary options, are untouched.
+    expect(stripOwnOptionLabels(["A. 6", "12", "C. 18", "24"])).toEqual(["A. 6", "12", "C. 18", "24"]);
+    expect(stripOwnOptionLabels(["B. 6", "A. 12", "C. 18", "D. 24"])).toEqual(["B. 6", "A. 12", "C. 18", "D. 24"]);
+    expect(stripOwnOptionLabels(["Ravi", "Anita", "Charu", "Dev"])).toEqual(["Ravi", "Anita", "Charu", "Dev"]);
+  });
+
+  it("a row stored with lettered options renders one label, not two ('(A) 6', never '(A) A. 6')", () => {
+    const hit = Object.entries(BOARD_QUESTIONS).flatMap(([topic, t]) => t.questions.filter((q) => q.options?.[0] && /^A\.\s/.test(q.options[0])).map((q) => ({ topic, q })))[0];
+    expect(hit, "premise: a published row stores lettered options (real-numbers CBE-M-RN-A-xxx)").toBeDefined();
+    const { container } = mountNote(hit.topic);
+    const li = container.querySelector(".lt-note__bq-opts li")!;
+    expect((li.textContent || "").trim()).toMatch(/^\(A\) \S/);
+    expect(container.textContent).not.toMatch(/\(A\) A\. /);
+  });
+
+  it("the generic registry title is replaced by a description of the question; a descriptive alt is kept", () => {
+    expect(boardFigureAlt("Source figure", "In the given figure, find the area")).toContain("In the given figure");
+    expect(boardFigureAlt("Source figure", "x")).not.toBe("Source figure");
+    expect(boardFigureAlt("Regular pentagon inscribed in a circle", "x")).toBe("Regular pentagon inscribed in a circle");
   });
 });
