@@ -1696,7 +1696,10 @@ export default function DesktopPracticePage() {
   // CBQ-ENTRY-1 — the "Competency-based questions" card's chooser. `?cbq=1` (the ad
   // link, and the landing's "Practise CBQs") arrives with it already open (E4).
   const [cbqPickerOpen, setCbqPickerOpen] = useState(() => params.get(CBQ_HUB_PARAM) === "1");
-  const [ctPickerOpen, setCtPickerOpen] = useState(() => params.get(CT_HUB_PARAM) === "1");
+  // `?cbq=1` (the ad landing) wins over `?ct=1`: never two dialogs stacked.
+  const [ctPickerOpen, setCtPickerOpen] = useState(
+    () => params.get(CT_HUB_PARAM) === "1" && params.get(CBQ_HUB_PARAM) !== "1",
+  );
 
   // Map the legacy subject string from useSubjectContext onto the
   // L2 DesktopSubject union. Default to "Maths" when uncertain — this only

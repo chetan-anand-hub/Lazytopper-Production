@@ -90,6 +90,12 @@ describe("Practice hub — Chapter Tests entry (CT-ENTRY-1)", () => {
     expect(screen.queryByTestId("ct-picker")).toBeNull();
   });
 
+  it("?cbq=1&ct=1 opens only the CBQ picker (the ad landing wins; never two dialogs stacked)", async () => {
+    await renderHub(`${HUB}?cbq=1&ct=1`);
+    expect(screen.getByTestId("cbq-picker")).toBeInTheDocument();
+    expect(screen.queryByTestId("ct-picker")).toBeNull();
+  });
+
   it("control: the CBQ button still opens cbq-picker", async () => {
     await renderHub(HUB);
     fireEvent.click(cbqButton());
