@@ -2268,8 +2268,13 @@ const packTopicKey = useMemo(() => {
       const saved = savedAnswers[qId];
       const opts = Array.isArray(q.options) ? q.options.map(String) : null;
       const pickedIdx = mcqSelections[qId];
+      // PRACTICE-REVIEW-HONEST-1 (verifier FU) — a pick made in review mode must not set the
+      // mark of working saved BEFORE Finish (a recorded answer): `applyLocalObjectiveMark`
+      // reads `pickedOption`, so it is withheld there and the answer is marked as it stood
+      // at Finish. A review pick on a review answer (or with no working) is unaffected.
+      const reviewPickOnRecordedAnswer = !!reviewMcqIds[qId] && !!saved && !reviewSavedIds[qId];
       const pickedOption =
-        opts && pickedIdx != null && pickedIdx >= 0 ? opts[pickedIdx] ?? null : null;
+        !reviewPickOnRecordedAnswer && opts && pickedIdx != null && pickedIdx >= 0 ? opts[pickedIdx] ?? null : null;
       const mcq = mcqResults[qId];
       return {
         questionId: qId,
@@ -2297,7 +2302,7 @@ const packTopicKey = useMemo(() => {
         textAnswer: saved?.textAnswer ?? null,
       };
     });
-  }, [committedPoolSelection.displayed, savedAnswers, mcqSelections, mcqResults, topicLabel, canonicalTopicKey, topicParam]);
+  }, [committedPoolSelection.displayed, savedAnswers, mcqSelections, mcqResults, topicLabel, canonicalTopicKey, topicParam, reviewMcqIds, reviewSavedIds]);
 
   /** \u2605\u2605 INCLUSION IS BY WORKING, NEVER BY TYPE \u2014 and the decision is the SERVICE's, not
    *  this page's. `selectQuickPracticeBatch` inspects only what the student produced. */

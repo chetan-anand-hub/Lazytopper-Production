@@ -565,3 +565,64 @@ describe("PRACTICE-REVIEW-HONEST-1 · review-mode answers are not counted", () =
     expect(recordAttemptSpy).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("PRACTICE-REVIEW-HONEST-1 · verifier follow-ups", () => {
+  beforeEach(() => {
+    authUser.current = STUDENT;
+    recordAttemptSpy.mockClear();
+    batchSpy.mockClear();
+    persistSpy.mockClear();
+  });
+
+  it("(FU2) a review pick never marks a RECORDED pre-Finish answer: its pickedOption is not sent", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, true), mkItem(2, false)]);
+    await saveTypedFor(1); // working on the MCQ BEFORE Finish, no pick
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-back-to-set"));
+    await waitFor(() => expect(cards()).toHaveLength(2));
+    fireEvent.click(screen.getByText("q1-correct")); // the pick comes AFTER the steps were seen
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    const { record, answers } = lastBatchArgs();
+    expect(record).toBeUndefined(); // q1's working is a real (pre-Finish) attempt…
+    expect(answers.find((a) => a.questionId === "q-1")?.pickedOption ?? null).toBeNull(); // …marked without the review pick
+  });
+
+  it("(FU3) a review MCQ's outcome is left out of the persisted record — batch branch", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, true)]);
+    await saveTypedFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-back-to-set"));
+    await waitFor(() => expect(cards()).toHaveLength(2));
+    fireEvent.click(screen.getByText("q2-correct"));
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(persistSpy).toHaveBeenCalled());
+    expect(entryFor("q-1")?.graded).toBeDefined();
+    expect(entryFor("q-2")?.mcq).toBeUndefined();
+  });
+
+  // ⚠ On the MCQ-only path the record is written ONCE, at the first scorecard, and the
+  // `filterSignature::ids::none` latch blocks any rewrite — so the fallback branch's
+  // `!reviewMcqIds[qId]` guard is defence-in-depth a mutation cannot reach today. This pins
+  // the OBSERVABLE outcome: no persisted record ever carries the review pick.
+  it("(FU3) a review MCQ's outcome is left out of the persisted record — MCQ-only branch", async () => {
+    await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, true)]);
+    fireEvent.click(screen.getByText("q1-correct"));
+    finish();
+    await backToSet();
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    fireEvent.click(screen.getByText("q2-correct"));
+    finish();
+    await screen.findByRole("button", { name: (n: string) => n.includes(BACK_TO_SET) });
+    for (const call of persistSpy.mock.calls) {
+      const e = (call[0] as PersistArgs).entries;
+      expect(e.find((x) => x.questionId === "q-1")?.mcq).toBe("correct");
+      expect(e.find((x) => x.questionId === "q-2")?.mcq).toBeUndefined();
+    }
+    expect(persistSpy).toHaveBeenCalled();
+  });
+});
