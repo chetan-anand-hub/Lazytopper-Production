@@ -67,6 +67,9 @@ const BOUND_CONTROLS = SUBJECTS.flatMap((s) =>
   ),
 );
 
+/** Passed so the draws never read the clock (CLOCK_GUARD): this test is not date-sensitive. */
+const FIXED_CREATED_AT = "2026-01-01T00:00:00.000Z";
+
 const hits = (ids: Iterable<string>, banned: Set<string>) => [...ids].filter((id) => banned.has(id));
 
 describe("needsMissingFigure — the computed rule-5 set", () => {
@@ -111,6 +114,7 @@ describe("Chapter Test never serves a rule-5 row", () => {
         topicKey: slug,
         topicLabel: slug,
         worksheetId: "ct-fig",
+        createdAt: FIXED_CREATED_AT,
         seed,
       });
       expect(hits(t.paper.questions.map((q) => q.id), RULE5_IDS), `seed ${seed}`).toEqual([]);
@@ -134,7 +138,7 @@ describe("Full Mock never serves a rule-5 row", () => {
 
   it.each(SUBJECTS)("%s — no rule-5 row in a seeded draw (many seeds)", (subject) => {
     for (const seed of FM_SEEDS) {
-      const m = drawFullMock({ subject, worksheetId: "fm-fig", code: "FM-T", name: "t", seed });
+      const m = drawFullMock({ subject, worksheetId: "fm-fig", code: "FM-T", name: "t", seed, createdAt: FIXED_CREATED_AT });
       expect(hits(m.paper.questions.map((q) => q.id), FM_RULE5_IDS), `seed ${seed}`).toEqual([]);
     }
   });
@@ -154,7 +158,7 @@ describe("Full Mock never serves a rule-5 row", () => {
 describe("Worksheet never serves a rule-5 row", () => {
   it.each(SUBJECTS)("%s — no rule-5 row in any topic pool", (subject) => {
     for (const t of getTopics(subject)) {
-      const plan = planWorksheet({ subject, scope: "single-topic", topics: [t], requested: 10 });
+      const plan = planWorksheet({ subject, scope: "topic", topics: [t], requested: 10 });
       const ids = (plan.pools.get(t.key) ?? []).map((q) => q.id);
       expect(hits(ids, RULE5_IDS), t.key).toEqual([]);
     }
@@ -164,7 +168,7 @@ describe("Worksheet never serves a rule-5 row", () => {
     const topics = getTopics(subject);
     let kept = 0;
     for (const t of topics) {
-      const plan = planWorksheet({ subject, scope: "single-topic", topics: [t], requested: 10 });
+      const plan = planWorksheet({ subject, scope: "topic", topics: [t], requested: 10 });
       const ids = new Set((plan.pools.get(t.key) ?? []).map((q) => q.id));
       kept += BOUND_CONTROLS.filter((q) => ids.has(q.id)).length;
     }
