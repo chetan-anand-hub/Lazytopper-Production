@@ -246,3 +246,73 @@ test('6 — index.cjs requires the helper and calls it at startup inside the DAT
   assert.match(branch[1], /ensureGeneratedQuestionsTable\(\)\.catch\(/, 'CONTROL: the matcher sees the sibling call');
   assert.match(branch[1], /ensureStepSolutionsTable\(\)\.catch\(/, 'the call is fail-open (.catch) and in this branch');
 });
+
+/* ── CI-CACHE-BANKMATCH-1 PR-1 · the normalised cache key ─────────────────────────────────────
+ * The same question with different spacing / Unicode forms / dash or multiplication glyphs /
+ * sentence case MUST share a key; a question that differs in a digit, decimal point, sign,
+ * variable, unit, exponent or word MUST NOT. RED before PR-1: every MUST-HIT row failed (the
+ * key was the exact text). Table-driven (LANE_RULES §3). */
+const KEY_MUST_HIT = [
+  ['Find the roots of x² − 5x + 6 = 0.', 'Find the roots of x² - 5x + 6 = 0.'], // minus sign vs hyphen
+  ['Find  the roots of\nx² - 5x + 6 = 0.', 'Find the roots of x² - 5x + 6 = 0.'], // whitespace runs / newline
+  ['  Prove that √2 is irrational.  ', 'Prove that √2 is irrational.'], // trim
+  ['Find the value of 3 × 4.', 'Find the value of 3 * 4.'], // × vs *
+  ['Find the value of 3 ✕ 4.', 'Find the value of 3 × 4.'], // ✕ vs ×
+  ['Find the HCF of 96 and 404.', 'find the HCF of 96 and 404.'], // sentence case; HCF kept
+  ['The resistance of a wire is 5 Ω.', 'the resistance of a wire is 5 Ω.'], // ohm sign vs Greek omega + case
+  ['Ｆind the value of ７ + ２.', 'Find the value of 7 + 2.'], // full-width forms (NFKC)
+  ['Show that 5‑x is a factor.', 'Show that 5-x is a factor.'], // non-breaking hyphen
+  ['A current of 20 µA flows.', 'A current of 20 μA flows.'], // micro sign vs Greek mu
+  ['Determine the power of a lens of focal length 25 cm.', 'determine the power of a lens of focal length 25 cm.'], // instruction word
+  ['Show that 5 − √3 is irrational.', 'Show that 5 - √3 is irrational.'],
+  ['Solve 2x + 3y = 11\tand 2x − 4y = −24.', 'Solve 2x + 3y = 11 and 2x - 4y = -24.'], // tab + two minus signs
+  ['An object is placed at 30 cm\u00A0from a concave mirror.', 'An object is placed at 30 cm from a concave mirror.'], // NBSP
+  ['Write the formula of ﬁnding the area of a sector.', 'Write the formula of finding the area of a sector.'], // fi ligature
+];
+const KEY_MUST_NOT_HIT = [
+  ['Find the roots of x² − 5x + 6 = 0.', 'Find the roots of x³ − 5x + 6 = 0.'], // exponent
+  ['Find the roots of x² + 5x + 6 = 0.', 'Find the roots of x2 + 5x + 6 = 0.'], // superscript is not a digit
+  ['Find x₂ if x₁ = 3.', 'Find x2 if x1 = 3.'], // subscript is not a digit
+  ['Find the HCF of 96 and 404.', 'Find the HCF of 96 and 405.'], // digit
+  ['A wire of length 2.5 m.', 'A wire of length 25 m.'], // decimal point
+  ['Solve x − 3 = 0.', 'Solve x + 3 = 0.'], // sign
+  ['A wire of length 2 cm.', 'A wire of length 2 m.'], // unit
+  ['A current of 5 mA flows.', 'A current of 5 MA flows.'], // unit prefix case (milli vs mega)
+  ['If R = 2r, find the area.', 'If R = 2R, find the area.'], // variable case
+  ['The speed v is 3 m/s and V is 3 V.', 'The speed v is 3 m/s and v is 3 V.'], // variable case
+  ['Which of these is a metal?', 'Which of these is not a metal?'], // "not" removed
+  ['Find the value of 3 × 4.', 'Find the value of 3 + 4.'], // operator
+  ['Find the value of ½ of 10.', 'Find the value of 1/2 of 10.'], // vulgar fraction kept out of NFKC
+  ['A signal of 5 MHz.', 'A signal of 5 mHz.'], // mixed-case unit
+  ['Find the area of triangle ABC.', 'Find the area of triangle abc.'], // all-caps labels keep case
+  // verifier round 1 (2026-10-10) found each of these as a FALSE HIT of the first normaliser:
+  ['A plant of genotype Rryy is crossed with rryy.', 'A plant of genotype rryy is crossed with rryy.'], // genotype case
+  ['Cross Ttrr with ttrr.', 'Cross ttrr with ttrr.'], // genotype case
+  ['Solve 2ˣ = 16.', 'Solve 2x = 16.'], // superscript letter exponent
+  ['Simplify aᵐ × aⁿ.', 'Simplify am × aⁿ.'], // superscript letter exponent
+  ['Find vᵢ for the body.', 'Find vi for the body.'], // subscript letter
+  ['Write the formula CuSO₄⋅5H₂O.', 'Write the formula CuSO₄×5H₂O.'], // ⋅ is not × here
+  ['Evaluate 10–3.', 'Evaluate 10-3.'], // an en dash may be a range
+  ['Find OR if OP = 5 cm.', 'Find or if OP = 5 cm.'], // verifier round 2: an ALL-CAPS label keeps its case
+];
+
+test('PR-1 — MUST-HIT: the same question in a different form shares one cache key', () => {
+  for (const [a, b] of KEY_MUST_HIT) {
+    assert.equal(stepSolution.computeQuestionHash(a, 3), stepSolution.computeQuestionHash(b, 3), `${a}  ≡  ${b}`);
+  }
+  assert.equal(KEY_MUST_HIT.length, 15);
+});
+
+test('PR-1 — MUST-NOT-HIT: a different digit, sign, variable, unit, exponent or word never shares a key', () => {
+  for (const [a, b] of KEY_MUST_NOT_HIT) {
+    assert.notEqual(stepSolution.computeQuestionHash(a, 3), stepSolution.computeQuestionHash(b, 3), `${a}  ≠  ${b}`);
+  }
+  assert.equal(KEY_MUST_NOT_HIT.length, 23);
+});
+
+test('PR-1 — marks stay in the key, and the version is bumped so old v2 entries miss', () => {
+  assert.notEqual(stepSolution.computeQuestionHash('Prove that √2 is irrational.', 2), stepSolution.computeQuestionHash('Prove that √2 is irrational.', 3));
+  const crypto = require('node:crypto');
+  const v2 = crypto.createHash('sha256').update('v2|Prove that √2 is irrational.|3').digest('hex');
+  assert.notEqual(stepSolution.computeQuestionHash('Prove that √2 is irrational.', 3), v2);
+});

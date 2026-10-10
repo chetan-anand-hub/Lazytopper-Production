@@ -101,7 +101,8 @@ const FIELDS = { question: "Solve 2x^2 - 5x + 3 = 0", marks: 3, subject: "Maths"
 
 describe("computeQuestionHash — uniform CACHE_VERSION prefix", () => {
   it("prefixes EVERY hash with the version (a bump busts all entries, subjective included)", () => {
-    const expected = createHash("sha256").update("v2|Solve x|3").digest("hex");
+    // CI-CACHE-BANKMATCH-1 PR-1 (2026-10-10): v3, and the key text is normalised ("Solve" → "solve").
+    const expected = createHash("sha256").update("v3|solve x|3").digest("hex");
     expect(computeQuestionHash("Solve x", 3)).toBe(expected);
     // Different marks → different hash (marks are part of the key).
     expect(computeQuestionHash("Solve x", 2)).not.toBe(expected);
