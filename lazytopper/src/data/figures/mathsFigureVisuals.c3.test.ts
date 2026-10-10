@@ -8,10 +8,9 @@
  * figure all fail here. Same checks as mathsFigureVisuals.diagrams1.test.ts (B's PR-1 pin), kept in a separate file so
  * neither lane edits the other's counts.
  *
- * BOUND_BUT_WITHHELD (C3): rows that would carry a bound figure while the bank withholds them. EMPTY in PR-D1: the 11
- * withheld C3 rows (areas-related-to-circles, polynomials, statistics) were cropped and eye-confirmed but NOT bound,
- * because the shared BOUND_BUT_WITHHELD list is closed over PR-1's pins by diagrams1.test.ts. They are pinned below as
- * C3_NOT_BOUND until that list can take them.
+ * BOUND_BUT_WITHHELD (C3): rows that carry a bound figure while the bank withholds them. B-21 census step (2026-10-10):
+ * the 11 withheld C3 rows (areas-related-to-circles, polynomials, statistics; 13 figures) are bound and declared, each
+ * with its reason, in the shared BOUND_BUT_WITHHELD list (diagrams1.test.ts accepts them via its C3 table).
  */
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
@@ -31,17 +30,39 @@ const C3_BINDINGS: ReadonlyArray<readonly [string, string]> = [
   ["APQ-M-SAV-007", "/figures/apq-maths/surface-areas-and-volumes/APQ-M-SAV-007.webp"], // Mathematics-PQ_2022.pdf p7 (xref 50)
   ["PYQ-M-2026-SAV-003", "/figures/pyq-maths/surface-areas-and-volumes/PYQ-M-2026-SAV-003.webp"], // 1172-2_30-5-2 p21 (xref 200)
   ["PYQ-M-2026-AP-001", "/figures/pyq-maths/arithmetic-progression/PYQ-M-2026-AP-001.webp"], // 1171-1_30-4-1 p21 (xref 193)
+  // B-21 census step (2026-10-10): withheld rows, bound and declared in BOUND_BUT_WITHHELD
+  ["APQ-M-ARC-001", "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-001.webp"], // Mathematics-PQ1.pdf p10 (xref 76)
+  ["APQ-M-ARC-002", "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-002.webp"], // Mathematics-PQ1.pdf p10 (xref 77)
+  ["APQ-M-ARC-003", "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-003.webp"], // Mathematics-PQ2.pdf p2 (xref 44)
+  ["APQ-M-ARC-004", "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-004.webp"], // Mathematics-PQ1.pdf p16 (xref 101)
+  ["APQ-M-ARC-004", "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-004-2.webp"], // Mathematics-PQ1.pdf p16 (xref 102, OR part)
+  ["APQ-M-ARC-006", "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-006.webp"], // Mathematics-PQ_2022.pdf p4 (xref 39)
+  ["APQ-M-ARC-008", "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-008.webp"], // Mathematics-PQ_2022.pdf p7 (xref 49)
+  ["APQ-M-ARC-010", "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-010.webp"], // Mathematics-PQ_2022.pdf p10 (xref 64, OR part)
+  ["SQP-M-POLY-001", "/figures/sqp-maths/polynomials/SQP-M-POLY-001.webp"], // MathsStandard-SQP.pdf p1 (xref 44)
+  ["APQ-M-POLY-001", "/figures/apq-maths/polynomials/APQ-M-POLY-001.webp"], // Mathematics-PQ1.pdf p2 (clip, options a-b)
+  ["APQ-M-POLY-001", "/figures/apq-maths/polynomials/APQ-M-POLY-001-2.webp"], // Mathematics-PQ1.pdf p3 (clip, options c-d)
+  ["APQ-M-STAT-003", "/figures/apq-maths/statistics/APQ-M-STAT-003.webp"], // Mathematics-PQ1.pdf p12 (xref 83)
+  ["APQ-M-STAT-008", "/figures/apq-maths/statistics/APQ-M-STAT-008.webp"], // Mathematics-PQ_2022.pdf p16 (xref 88)
 ];
 
-// C3 rows bound while withheld (each must also be a key of the shared BOUND_BUT_WITHHELD). None in PR-D1.
-const C3_BOUND_BUT_WITHHELD: readonly string[] = [];
+// C3 rows bound while withheld (each must also be a key of the shared BOUND_BUT_WITHHELD).
+const C3_BOUND_BUT_WITHHELD: readonly string[] = [
+  "APQ-M-ARC-001", "APQ-M-ARC-002", "APQ-M-ARC-003", "APQ-M-ARC-004", "APQ-M-ARC-006", "APQ-M-ARC-008", "APQ-M-ARC-010",
+  "SQP-M-POLY-001", "APQ-M-POLY-001", "APQ-M-STAT-003", "APQ-M-STAT-008",
+];
 
 // Looked at and deliberately NOT bound in PR-D1 — must keep resolving to NO figure.
 const C3_NOT_BOUND = [
   "APQ-M-QE-003", // NO-MATCH: the printed figure (cuboid with water, two orientations) belongs to the OR part; the served row has no OR part
-  // Withheld rows: cropped + eye-confirmed MATCH, binding held (the shared BOUND_BUT_WITHHELD list is closed over PR-1's pins)
-  "APQ-M-ARC-001", "APQ-M-ARC-002", "APQ-M-ARC-003", "APQ-M-ARC-004", "APQ-M-ARC-006", "APQ-M-ARC-008", "APQ-M-ARC-010",
-  "SQP-M-POLY-001", "APQ-M-POLY-001", "APQ-M-STAT-003", "APQ-M-STAT-008",
+  "TRI-N-EXMPLR-6-LA-002", // NO-MATCH (B-21): values match Exemplar Fig. 6.16, but the served stem is reworded and self-contained - not an exact official match
+];
+
+// Census 2026-10-07 Appendix 3: bound figures BANK-FIX-1 PR-2 found WRONG. C3 must never bind any of them.
+const CENSUS_WRONG_IDS = [
+  "CTRL-EXMPLR-6-SA-003", "Z3-CG-004", "Z3-ARC-004", "CBE-M-STAT-B-001", "CBE-M-STAT-C-001", "CBE-S-CTRL-A-005",
+  "CBE-S-CTRL-E-001", "CBE-S-MAGN-B-005", "PB-M-1-TRIG-C-001", "APQ-M-TRI-008", "SCO-S-CTRL-013", "SCO-S-EYE-007",
+  "PYQ-M-2026-POLY-005", "PYQ-S-2026-EYE-002",
 ];
 
 // `title` is rendered as the figure's <img alt>: it must DESCRIBE the figure, never be the generic placeholder.
@@ -51,9 +72,10 @@ const c3Paths = new Set(C3_BINDINGS.map(([, p]) => p));
 const c3Entries = MATHS_FIGURE_VISUALS.filter((f) => c3Paths.has(f.filePath));
 
 describe("DIAGRAMS-1 C3 PR-D1 bindings are exactly the eye-confirmed set", () => {
-  it("the pinned set is the size this PR shipped: 4 figures for 4 rows", () => {
-    expect(C3_BINDINGS).toHaveLength(4);
-    expect(new Set(C3_BINDINGS.map(([q]) => q)).size).toBe(4);
+  it("the pinned set is the size this PR shipped: 17 figures for 15 rows (4 served + 11 withheld)", () => {
+    expect(C3_BINDINGS).toHaveLength(17);
+    expect(new Set(C3_BINDINGS.map(([q]) => q)).size).toBe(15);
+    expect(C3_BOUND_BUT_WITHHELD).toHaveLength(11);
     expect(c3Paths.size).toBe(C3_BINDINGS.length); // no crop is reused for two bindings
     expect(c3Entries).toHaveLength(C3_BINDINGS.length); // each pinned file is bound exactly once in the registry
   });
@@ -109,7 +131,8 @@ describe("DIAGRAMS-1 C3 PR-D1 bindings are exactly the eye-confirmed set", () =>
     expect(C3_NOT_BOUND.filter((q) => C3_BINDINGS.some(([b]) => b === q))).toEqual([]);
   });
 
-  it("no C3 binding is a Z3 decorative-photo row or a /visuals/ asset", () => {
+  it("no C3 binding is a census WRONG id, a Z3 decorative-photo row or a /visuals/ asset", () => {
+    expect(C3_BINDINGS.map(([q]) => q).filter((q) => CENSUS_WRONG_IDS.includes(q))).toEqual([]);
     expect(C3_BINDINGS.map(([q]) => q).filter((q) => q.startsWith("Z3-"))).toEqual([]);
     expect([...c3Paths].filter((p) => p.startsWith("/visuals/"))).toEqual([]);
   });
