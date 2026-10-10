@@ -71,10 +71,10 @@ export const AREAS_RELATED_TO_CIRCLES_APQ: CanonicalQuestion[] = [
     questionText: "In the figure below, a unit square ROST is inscribed in a circular sector with centre O. Along with the above information, which of these is SUFFICIENT to find the area of sector POQ?",
     options: ["area of the square ROST", "radius of sector POQ", "arc length PQ", "(the given information is sufficient)"],
     answer: "arc length PQ",
-    solutionSteps: ["Per MS answer key: option (c). The arc length PQ (combined with known geometric relations to the inscribed unit square) suffices to determine both radius and angle, hence sector area."],
+    solutionSteps: ["[1 mark] The unit square ROST is inscribed with its vertex O at the centre, so the opposite vertex T lies on the arc and the radius OT = diagonal = √(1² + 1²) = √2 units. The radius is therefore already known, so the area of the square (A, which is 1 sq unit) or the radius (B) adds nothing new; what is still unknown is the sector angle ∠POQ. If arc PQ = l is known, then l = (θ/360°) × 2πr fixes θ, and area of sector POQ = ½ × l × r = l/√2 sq units. Hence option (c)."],
     finalAnswer: "(c) arc length PQ",
     ncertRef: "APQ PQ_2022 Q13", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: unit square inscribed in circular sector." },
+ },
 
   // PQ_2022 Q14 (Section A, MCQ, 1 mark)
   { id: "APQ-M-ARC-008", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area — Fibonacci Grid", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",

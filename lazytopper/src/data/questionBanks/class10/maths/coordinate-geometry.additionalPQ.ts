@@ -35,7 +35,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "The distance between two points A and B, on a graph is given as √(10^2 + 7^2). The coordinates of A are (−4, 3). Given that the point B lies in the first quadrant, then all the possible x-coordinates of point B are",
     options: ["multiple of 2", "multiple of 3", "multiple of 5", "multiple of 6"],
     answer: "multiple of 3",
-    solutionSteps: ["AB^2 = 10^2 + 7^2 = 149. For B = (x, y) in first quadrant, (x − (−4))^2 + (y − 3)^2 = 149.", "Testing integer solutions with x > 0, y > 0: pairs like (x+4, y−3) summing of squares to 149. Per MS, the valid x-values are multiples of 3."],
+    solutionSteps: ["[1 mark] AB² = 10² + 7² = 149, and for grid points the only way to write 149 as a sum of two squares is 10² + 7². So for B(x, y), (x + 4)² + (y − 3)² = 149 means the gaps from A(−4, 3) are 10 and 7 in some order: x + 4 = ±10 or ±7. In the first quadrant x > 0, so x = 6 (then y − 3 = 7, y = 10) or x = 3 (then y − 3 = 10, y = 13). Both possible x-coordinates, 3 and 6, are multiples of 3 (3 is not a multiple of 2, 5 or 6). Hence option (b)."],
     finalAnswer: "(b) multiple of 3",
     ncertRef: "APQ PQ2 Q14", isCompetencyBased: true },
 

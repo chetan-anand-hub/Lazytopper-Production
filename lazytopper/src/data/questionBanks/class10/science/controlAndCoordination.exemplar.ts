@@ -247,11 +247,11 @@ export const CONTROL_COORDINATION_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Short Answers Q34–Q44 =====
   { id: "CTRL-EXMPLR-6-SA-001", subject: "Science", topicKey: "control-and-coordination", subtopic: "Reflex Arc Labelling", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Label the parts (a), (b), (c) and (d) and show the direction of flow of electrical signals in Figure 7.2.",
-    answer: "Typical labels: (a) Receptor (skin/sense organ); (b) Sensory neuron; (c) Spinal cord (with interneuron); (d) Motor neuron leading to effector (muscle/gland). Direction of impulse: Receptor → Sensory neuron → Spinal cord → Motor neuron → Effector.",
-    solutionSteps: ["REQUIRES-FIGURE: refer to Fig. 7.2 (reflex arc).", "Label the 4 parts as per standard reflex arc.", "Show arrows from receptor → effector via spinal cord."],
-    finalAnswer: "(a) Receptor (b) Sensory neuron (c) Spinal cord (d) Motor neuron. Flow: Receptor → Sensory → Spinal cord → Motor → Effector.",
+    answer: "(a) Sensory neuron; (b) Spinal cord (CNS); (c) Motor neuron; (d) Effector — muscle in the arm. Direction of electrical signals: receptor → sensory neuron (a) → spinal cord (b) → motor neuron (c) → effector muscle (d).",
+    solutionSteps: ["[0.5 mark] (a) Sensory neuron — carries the impulse from the receptor in the skin to the spinal cord; (b) Spinal cord (CNS) — where the relay neuron connects the sensory neuron to the motor neuron.", "[0.5 mark] (c) Motor neuron — carries the impulse away from the spinal cord; (d) Effector — the muscle in the arm, which contracts in response.", "[1 mark] Direction of flow of electrical signals (mark with arrows): receptor → sensory neuron (a) → spinal cord (b) → motor neuron (c) → effector muscle (d); the signal travels in one direction only."],
+    finalAnswer: "(a) Sensory neuron (b) Spinal cord (CNS) (c) Motor neuron (d) Effector (muscle in arm). Flow: receptor → (a) → (b) → (c) → (d).",
     ncertRef: "Exemplar Q34", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: standard reflex arc diagram." },
+ },
 
   { id: "CTRL-EXMPLR-6-SA-002", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Name the plant hormones responsible for the following: (a) elongation of cells; (b) growth of stem; (c) promotion of cell division; (d) falling of senescent leaves.",
@@ -278,11 +278,11 @@ export const CONTROL_COORDINATION_EXEMPLAR: CanonicalQuestion[] = [
 
   { id: "CTRL-EXMPLR-6-SA-005", subject: "Science", topicKey: "control-and-coordination", subtopic: "Neuron Labelling", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Label the parts of a neuron in Figure 7.5.",
-    answer: "Parts: Dendrites (branching tips on cell body), Cell body (cyton — contains nucleus), Axon (long fibre), Myelin sheath (around axon), Nodes of Ranvier (gaps in sheath), Axon terminals / Schwann cells, Synaptic knob.",
-    solutionSteps: ["REQUIRES-FIGURE: refer to Fig. 7.5.", "Standard parts to label: dendrites, cell body, nucleus, axon, myelin sheath, axon terminal."],
-    finalAnswer: "Dendrites, cell body (cyton), nucleus, axon, myelin sheath, nodes of Ranvier, axon terminals.",
+    answer: "(a) Dendrite; (b) Cell body; (c) Axon; (d) Nerve ending.",
+    solutionSteps: ["[0.5 mark] (a) Dendrite — short branched processes at the receiving end, where information (stimulus) is picked up.", "[0.5 mark] (b) Cell body — contains the nucleus; the impulse from the dendrites travels through it.", "[0.5 mark] (c) Axon — the long fibre along which the electrical impulse travels away from the cell body.", "[0.5 mark] (d) Nerve ending — the end of the axon, where the electrical impulse releases chemicals that carry the signal across the synapse to the next neuron."],
+    finalAnswer: "(a) Dendrite (b) Cell body (c) Axon (d) Nerve ending.",
     ncertRef: "Exemplar Q38", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: standard neuron diagram." },
+ },
 
   { id: "CTRL-EXMPLR-6-SA-006", subject: "Science", topicKey: "control-and-coordination", subtopic: "Receptors Matching", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Match the terms of Column (A) with those of Column (B): (a) Olfactory receptors (b) Thermo receptors (c) Gustatoreceptors (d) Photoreceptors  |  (i) Tongue (ii) Eye (iii) Nose (iv) Skin.",

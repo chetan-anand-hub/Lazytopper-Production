@@ -67,7 +67,7 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
     questionText: "The heights of plants in Dipti's garden are recorded in the table given below. Classes: 0-20 (2x), 20-40 (4), 40-60 (4x), 60-80 (8), 80-100 (4). Median = 55 cm. Which of the following is the value of x?",
     options: ["1", "2", "8", "(the value of x cannot be found without knowing the total number of plants)"],
     answer: "2",
-    solutionSteps: ["Per MS answer key: x = 2."],
+    solutionSteps: ["[1 mark] N = 2x + 4 + 4x + 8 + 4 = 6x + 16, so N/2 = 3x + 8. Median 55 lies in class 40–60: l = 40, cf = 2x + 4, f = 4x, h = 20. Median = l + ((N/2 − cf)/f) × h gives 55 = 40 + ((3x + 8 − 2x − 4)/4x) × 20, so 15 = 5(x + 4)/x, 15x = 5x + 20, x = 2. Hence option (b)."],
     finalAnswer: "(b) 2",
     ncertRef: "APQ PQ_2022 Q17", isCompetencyBased: true },
 
