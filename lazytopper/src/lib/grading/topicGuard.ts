@@ -28,13 +28,13 @@ export interface GuardRule {
 
 /** Words that mark a SCIENCE question: a Maths rule never fires on text carrying any of them. */
 const SCIENCE_MARKERS =
-  /\b(light|glass|water|medium|speed|wavelength|prism|dispersion|refraction|refractive|reflection|incidence|ray|lens|mirror|snell|optic|prism|eye|retina|current|charge|resistan\w*|ohm|circuit|joule|voltage|battery|heat produced|galvanometer|solenoid|magnet\w*|cross|F1|F2|gene|genes|trait|inherit\w*|mendel|chromosome|dominant|recessive|sex|child|children|son|daughter|boy|girl|offspring|acid|base|salt|metal|reaction|carbon|hormone|enzyme|digest\w*|photosynthesis|cell|plant|organism|ecosystem|food chain)\b/i;
+  /\b(light|glass|water|medium|speed|wavelength|prism|dispersion|refraction|refractive|reflection|incidence|ray|lens|mirror|snell|optic|prism|eye|retina|current|charge|resistan\w*|ohm|circuit|joule|voltage|battery|heat produced|galvanometer|solenoid|magnet\w*|cross|F1|F2|gene|genes|trait|inherit\w*|mendel|chromosome|dominant|recessive|sex|child|children|son|daughter|boy|girl|offspring|acid|base|salt|metal|reaction|carbon|hormone|enzyme|digest\w*|photosynthesis|cell|plant|organism|ecosystem|food chains?)s?\b/i;
 
 // A trig RATIO is a whole word (lower-case or Capitalised) followed by its ANGLE: a single capital letter or
 // a Greek letter ("sin θ", "tan A", "cos²A", "sec A"). A digit or a bracket is NOT enough - "sin 30" is Snell's
 // law, "5 sec (t = 5 s)" is seconds - and a ratio directly after a number is a unit, never a ratio.
 const TRIG_RATIO =
-  /(?<![\d.]\s?)\b(?:[Ss]in|[Cc]os|[Tt]an|[Cc]ot|[Ss]ec|[Cc]osec|[Cc]sc)(?:[²³]|\^\s?\d)?\s?(?:[θαβ]|[A-Z]\b)/;
+  /(?<![\d.]\s?)\b(?:[Ss]in|[Cc]os|[Tt]an|[Cc]ot|sec|[Cc]osec|[Cc]sc)(?:[²³]|\^\s?\d)?\s?(?:[θαβ]|[A-Z]\b)/;
 
 export const GUARD_RULES: readonly GuardRule[] = [
   // Trigonometry: a ratio + its angle, in an IDENTITY / PROOF context or with two DIFFERENT ratios (checked in
@@ -66,9 +66,12 @@ function fires(rule: GuardRule, text: string): boolean {
   return true;
 }
 
+/** A board paper's section heading ("Sec B Q24.", "Section C") is not a trig ratio nor any other signal. */
+const SECTION_HEADING = /\b(?:Sec(?:tion)?|SECTION)\.?\s?[A-E]\b\.?(?:\s*Q\.?\s?\d+\.?)?/g;
+
 /** The slug the guard would file this text under, or null (no rule, or two rules disagree). */
 export function guardSlugFor(questionText: string | null | undefined): string | null {
-  const text = String(questionText ?? "");
+  const text = String(questionText ?? "").replace(SECTION_HEADING, " ");
   if (!text.trim()) return null;
   const hits = GUARD_RULES.filter((r) => fires(r, text)).map((r) => r.slug);
   return hits.length === 1 ? hits[0] : null; // ambiguous -> the model decides

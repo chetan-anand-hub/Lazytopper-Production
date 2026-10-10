@@ -48,6 +48,24 @@ describe("topicGuard · rules", () => {
       "In a food chain, energy transfer has a class interval of 10%.",
     ]) expect(guardSlugFor(t)).toBeNull();
   });
+  it("★★ round-3 negatives: 'Sec B Q24.' section headings never read as a trig ratio, with or without a proof verb", () => {
+    for (const t of [
+      "Sec B Q24. Evaluate the role of hormones in plants.",
+      "Sec C Q27. Show that saliva breaks down starch; describe the experiment.",
+      "Sec B Q22. Show that ozone depletion is harmful; evaluate the role of CFCs.",
+      "Sec A Q4. Evaluate the statement: rusting of iron is a combustion.",
+      "Sec D Q35. Show that the field of a straight wire forms concentric circles; evaluate with Fleming's rule.",
+      "Sec A Q1. Prove that √2 is irrational.",
+      "Sec B Q22. Show that 5 + 2√3 is irrational.",
+      "Sec C Q28. Prove that the ratio of areas of two similar triangles is the square of the ratio of their sides.",
+      "Section D Q33. Prove that the lengths of tangents drawn from an external point are equal.",
+      "Sec B Q23. Show that the points (1,7), (4,2), (-1,-1) are vertices of a right triangle.",
+      "Sec A Q2. If α, β are zeroes of x²-5x+6, evaluate α² + β².",
+      "Sec B Q21. Show that x² + x + 1 = 0 has no real roots.",
+    ]) expect(guardSlugFor(t)).toBeNull();
+    // ...while a real proof under a heading still fires
+    expect(guardSlugFor("Sec C Q29. Prove that (1 + tan²A)/(1 + cot²A) = tan²A")).toBe("trigonometry");
+  });
   it("★★ verifier negatives: geometry segment names are not an AP; light vs human eye are not mixed", () => {
     for (const t of ["AP and AQ are tangents from an external point A to a circle with centre O.", "In triangle ABC, AP is the median and AP : PB = 2 : 3.", "Find the ratio AP : PB when P divides the line segment AB."]) {
       expect(guardSlugFor(t)).not.toBe("arithmetic-progression");
