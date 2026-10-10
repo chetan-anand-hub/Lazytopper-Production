@@ -472,6 +472,12 @@ const NOTE_CSS = `
   background: var(--lt-note-green-tint); color: var(--lt-note-green-deep);
 }
 .lt-note__bq-q { font-size: 0.95rem; line-height: 1.55; margin: 0 0 10px; white-space: pre-wrap; }
+.lt-note__bq-figs { margin: 0 0 10px; }
+.lt-note__bq-fig { margin: 0 0 8px; text-align: center; }
+.lt-note__bq-img { max-width: 100%; max-height: 260px; width: auto; height: auto; border: 1px solid var(--lt-note-line); border-radius: 8px; background: #fff; }
+.lt-note__bq-opts { list-style: none; margin: 0 0 10px; padding: 0; }
+.lt-note__bq-opts li { font-size: 0.9rem; line-height: 1.5; margin-bottom: 4px; white-space: pre-wrap; }
+.lt-note__bq-optl { font-weight: 700; color: var(--lt-note-green-deep); }
 .lt-note__bq-sol-label {
   font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.04em; color: var(--lt-note-green-deep); margin-bottom: 6px;
@@ -1080,6 +1086,9 @@ function ThirdTabPanel({
 
 /* ── the component ─────────────────────────────────────────────────── */
 
+/** The app's base path, for the public figure files a board question can carry. */
+const BQ_BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+
 /**
  * BoardQuestionsPanel — the published board questions for this topic (CBQ-TAB-1).
  *
@@ -1149,6 +1158,26 @@ function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: str
           </div>
 
           <p className="lt-note__bq-q">{q.questionText}</p>
+
+          {q.figures && q.figures.length > 0 ? (
+            <div className="lt-note__bq-figs">
+              {q.figures.map((f) => (
+                <figure className="lt-note__bq-fig" key={f.src}>
+                  <img className="lt-note__bq-img" src={`${BQ_BASE}${f.src}`} alt={f.alt} loading="lazy" decoding="async" />
+                </figure>
+              ))}
+            </div>
+          ) : null}
+
+          {q.options && q.options.length > 0 ? (
+            <ol className="lt-note__bq-opts">
+              {q.options.map((opt, oi) => (
+                <li key={oi}>
+                  <span className="lt-note__bq-optl">({String.fromCharCode(65 + oi)})</span> {opt}
+                </li>
+              ))}
+            </ol>
+          ) : null}
 
           <div className="lt-note__bq-sol-label">Step-marked solution</div>
           <ol className="lt-note__bq-steps">
