@@ -190,7 +190,7 @@ describe("heights & distances — determinism and the registry", () => {
   it("EVERY registered binding builds and draws its own numbers", () => {
     expect(ALL_COMPUTED_FIGURE_BINDINGS.length).toBeGreaterThan(0);
     for (const b of ALL_COMPUTED_FIGURE_BINDINGS) {
-      if (b.builder !== "heightsDistances") continue; // other families have their own builder tests
+      if (b.builder !== "heightsDistances") continue; // other families (PR-2b optics, PR-2d geometry) have their own builder tests
       const r = buildComputedFigure(b);
       expect(r, b.questionId).not.toBeNull();
       assertDrawsItsOwnNumbers(r!.spec, b.params);
