@@ -303,6 +303,7 @@
     "src/services/practiceInsights.loopclose.test.ts",
     "src/services/practiceInsights.uidOnly.test.ts",
     "src/services/progressReadModel.briefGate.test.tsx",
+    "src/services/progressReadModel.conceptRows.test.tsx",
     "src/services/progressReadModel.consistency.test.tsx",
     "src/services/progressReadModel.istMidnight.test.ts",
     "src/services/progressReadModel.test.ts",

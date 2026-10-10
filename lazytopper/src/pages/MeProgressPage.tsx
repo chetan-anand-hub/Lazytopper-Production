@@ -6,6 +6,7 @@ import { useIsDesktop } from "../hooks/useIsDesktop";
 import { useSubscription } from "../hooks/useSubscription";
 import {
   isShortSpan,
+  type ConceptMistakes,
   type ProgressWindow,
   type WindowedProgress,
   type RungTrend,
@@ -376,6 +377,22 @@ export interface ViewRow {
   lost: number;
 }
 
+/**
+ * ME-CONCEPT-1 — the small note on a concept row: its live mistakes by type (COUNTS, as the
+ * grader wrote them — never a %) and how many were won back. Null when the row carries no
+ * per-concept mistakes (below Me's weakness gate the read model fills none) or none to print.
+ */
+export function conceptMistakesNote(m: ConceptMistakes | null | undefined): string | null {
+  if (!m || !(m.live > 0)) return null;
+  const parts: string[] = [];
+  for (const t of ["conceptual", "calculation", "silly", "presentation"] as const) {
+    const n = Number(m.byType?.[t]) || 0;
+    if (n > 0) parts.push(`${MISTAKE_TYPE_LABEL[t]} ${n}`);
+  }
+  if (m.wonBack.count > 0) parts.push(`${m.wonBack.count} won back`);
+  return parts.length ? parts.join(" · ") : null;
+}
+
 /** A deeper-analysis view: rungs with real lost marks, worst first. */
 export function viewRowsFrom(rungs: RungTrend[]): ViewRow[] {
   const rows: ViewRow[] = [];
@@ -720,9 +737,10 @@ export default function MeProgressPage() {
     };
   }, [realUid, windowSel, paper]);
 
-  /* -- the open chapter's concepts. Concept rungs are keyed by subtopic alone and
-        carry no topic reference, so they cannot be filtered to a chapter after the
-        fact - the scope must go INTO the read. -- */
+  /* -- the open chapter's concepts. ME-CONCEPT-1: an Exam Trends concept row now carries its
+        chapter, but an UNMAPPED label keeps its subtopic row (keyed by the label alone, and
+        with no chapter when two chapters share it), so this view still puts the scope INTO
+        the read rather than filtering afterwards. Kept deliberately. -- */
   useEffect(() => {
     if (!openChapter) {
       setOpenConcepts([]);
@@ -802,6 +820,16 @@ export default function MeProgressPage() {
   );
 
   const conceptRows = useMemo(() => viewRowsFrom(data?.concepts ?? []), [data]);
+  // ME-CONCEPT-1 — the per-concept mistakes the read model put on the SAME rows (above Me's
+  // weakness gate only; below it no row carries any, and no note is printed).
+  const conceptNotes = useMemo(() => {
+    const out = new Map<string, string>();
+    for (const r of data?.concepts ?? []) {
+      const note = conceptMistakesNote(r.mistakes);
+      if (note) out.set(r.key, note);
+    }
+    return out;
+  }, [data]);
   const sectionRows = useMemo(() => viewRowsFrom(data?.sections ?? []), [data]);
   const chapterRows = useMemo<ViewRow[]>(
     () => chapters.map((c) => ({ key: c.key, label: c.label, lost: c.lost })).filter((r) => r.lost > 0),
@@ -1362,7 +1390,17 @@ export default function MeProgressPage() {
                 <ul className="lt-me__rows" data-testid="me-view-concepts">
                   {conceptRows.map((row) => (
                     <li key={row.key} className="lt-me__row">
-                      <span className="lt-me__row-name">{row.label}</span>
+                      <span className="lt-me__row-name">
+                        {row.label}
+                        {conceptNotes.get(row.key) ? (
+                          <>
+                            {" "}
+                            <span className="lt-me__row-note" data-testid={`me-concept-note-${row.key}`}>
+                              {conceptNotes.get(row.key)}
+                            </span>
+                          </>
+                        ) : null}
+                      </span>
                       <span className="lt-me__row-marks">
                         <MarksWord value={row.lost} />
                       </span>

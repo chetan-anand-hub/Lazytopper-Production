@@ -35,7 +35,14 @@ vi.mock("../../services/mistakeLogService", async (importOriginal) => ({
   getMistakeLogs: async () => [],
   getMistakeLogHistoryFromCloud: async () => ({ entries: h.mistakes, complete: true }),
 }));
-vi.mock("../../services/progressBankIndex", () => ({ conceptForQuestionId: () => null }));
+// ME-CONCEPT-1 — two served bank rows the mistakes point at (rolled up by the concept map).
+const BANK: Record<string, { subtopic: string; section: string; topicKey: string }> = vi.hoisted(() => ({
+  "rn-1": { subtopic: "HCF and LCM by Prime Factorisation", section: "B", topicKey: "real-numbers" },
+  "rn-2": { subtopic: "Irrationality Proof", section: "C", topicKey: "real-numbers" },
+}));
+vi.mock("../../services/progressBankIndex", () => ({
+  conceptForQuestionId: (id: string | null | undefined) => (id ? BANK[String(id)] ?? null : null),
+}));
 
 import { assembleTutorBrief } from "./tutorContextBrief";
 import { READ_WINDOWS } from "../../services/progressReadModel";
@@ -79,8 +86,8 @@ beforeEach(() => {
   // A rich student: a gated Maths rung, a chapter rung, named concepts — every field fires.
   h.attempts = [0.5, 2, 5, 9, 14, 20, 30, 44].map((agoH, i) => attempt(agoH, i % 3, 3));
   h.mistakes = [
-    mistake("quick-practice::A::q1", 1, { concept: "HCF by prime factorisation" }),
-    mistake("quick-practice::A::q2", 6, { concept: "Irrationality proofs", marksLost: 1 }),
+    mistake("quick-practice::A::q1", 1, { concept: "HCF by prime factorisation", questionId: "rn-1" }),
+    mistake("quick-practice::A::q2", 6, { concept: "Irrationality proofs", marksLost: 1, questionId: "rn-2" }),
   ];
 });
 
@@ -108,7 +115,8 @@ describe("ruling 6 + ME-ENGINE-1 PR-2 — no mastery or percentage field reaches
 
   it("CONTROL — the same rich fixture DOES produce real figures (the guard is not vacuous)", async () => {
     const brief = await assembleTutorBrief({ uid: "u-1", topicKey: "real-numbers", subject: "maths", window: "week", nowMs: NOW });
-    expect(brief.topic.weakConcepts).toEqual(["HCF by prime factorisation", "Irrationality proofs"]);
+    // ME-CONCEPT-1 — Exam Trends concepts, resolved through each mistake's questionId.
+    expect(brief.topic.weakConcepts).toEqual(["Fundamental Theorem of Arithmetic", "Irrationality Proofs"]);
     expect(brief.topic.trend).toBeDefined();
     expect(brief.mistakes.topType).toBe("knowledge gap");
     expect(typeof brief.mistakes.marksLostRecent).toBe("number");

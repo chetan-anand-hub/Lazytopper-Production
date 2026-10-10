@@ -54,7 +54,7 @@ import { getActiveProgressUser } from "./studentProgressStore";
 // `await import("./progressBankIndex")` inside the two async reads below (see
 // `loadBankLookup`), so a page that only renders a trend (Topic Hub) no longer ships
 // the question bank on first load. Every number is unchanged: the same function runs.
-import { isChapterEchoSubtopic, normalizeSection, type BankConcept } from "./progressBankShape";
+import { normalizeSection, type BankConcept, type ConceptRowRef } from "./progressBankShape";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { isBoardChapterKey } from "../config/syllabus2026-27";
 import { MISTAKE_TYPE_LABEL, isGradedQuestion, isLossOnlyNotAttempted } from "../lib/mistakeDisplay";
@@ -535,6 +535,59 @@ export interface WindowTotal {
   answers: number;
 }
 
+/**
+ * ME-CONCEPT-1 — a concept's live mistakes in the window (the read model fills it, ABOVE Me's
+ * weakness gate only — `modelNamesWeakness`; below it the field is absent). Counts, never a %.
+ */
+export interface ConceptMistakes {
+  /** Live mistakes in the window whose question resolved to this concept. */
+  live: number;
+  /** Σ the entries' typed mistake counts, per stored type (counts as the grader wrote them). */
+  byType: Record<MistakeType, number>;
+  /** Σ the entries' own `marksLost`, as stored. */
+  marksLost: number;
+  /** Of `live`, those WON BACK: the student LATER answered a DIFFERENT question of the same
+   *  concept fully correct, in a separate attempt (computed on read; never writes resolvedAt). */
+  wonBack: { count: number; marks: number };
+}
+
+/**
+ * ME-CONCEPT-1 — the concept rung's row: (chapter, Exam Trends concept) when the concept map
+ * resolves the bank label, else the bank subtopic row exactly as before (see `conceptRowRef`).
+ */
+export interface ConceptRung extends RungTrend {
+  /** The row's chapter (board chapter key) — absent only for an unmapped subtopic row whose
+   *  points came from more than one chapter (such a row is keyed by its label alone, as before). */
+  chapter?: string;
+  /** True when `label` is an Exam Trends concept name; false for a kept (unmapped) subtopic row.
+   *  (Optional in the type only so a hand-built row stays valid; the builder always sets it.) */
+  examConcept?: boolean;
+  /** Per-concept live mistakes + won back — present only above Me's weakness gate. */
+  mistakes?: ConceptMistakes;
+}
+
+/** ME-CONCEPT-1 — one fully-correct graded answer on a concept row (won-back evidence). */
+export interface ConceptCorrectAnswer {
+  ts: number;
+  /** The BANK question id answered. */
+  questionId: string;
+  /** The attempt it was answered in: `qp:{attemptId}` for a per-question attempt,
+   *  `{ws|ct|fm}:{worksheetId}` for a paper (every question of one paper shares it). */
+  attemptRef: string;
+}
+
+/**
+ * ME-CONCEPT-1 — read-time evidence the read model needs to put mistakes on concept rows. Never
+ * rendered. Built from the SAME bank lookup and the SAME counting records as the concept rung.
+ */
+export interface ConceptEvidence {
+  /** A paper surface's synthetic per-question id (`ws:/ct:/fm:{worksheetId}:q{n}`, the id a
+   *  mistake entry carries) → the bank id at that position — aligned records only. */
+  bankIdBySessionQid: Record<string, string>;
+  /** Fully-correct graded answers per concept row key. */
+  fullyCorrect: Record<string, ConceptCorrectAnswer[]>;
+}
+
 /** The ONE cross-device windowed aggregation, read at altitudes. Every array is
  *  honest-or-silent: empty when the window is too thin for a data-backed trend. */
 export interface WindowedProgress {
@@ -548,8 +601,12 @@ export interface WindowedProgress {
   subjects: RungTrend[];
   /** Per-topic marks before→now (Topic Hub). */
   topics: RungTrend[];
-  /** Bank-matched subtopics — resolvable rows only (C&I / chapter-echo silent). */
-  concepts: RungTrend[];
+  /** Bank-matched concepts — resolvable rows only (C&I / chapter-echo silent). ME-CONCEPT-1:
+   *  keyed (chapter, Exam Trends concept); an unmapped label keeps its subtopic row. */
+  concepts: ConceptRung[];
+  /** ME-CONCEPT-1 — won-back / mistake-resolution evidence for the read model (absent on an
+   *  empty read). Not a figure; never rendered. */
+  conceptEvidence?: ConceptEvidence;
   /** CBSE A–E marks before→now. */
   sections: RungTrend[];
   /** Four-type mistake COMPOSITION share (%) before→now (idempotent, fully-graded). */
@@ -666,9 +723,19 @@ const PROGRESS_COUNTING_SURFACES: SessionSurface[] = [
 /** The bank-backed id → concept lookup, passed into the two builders that need it. */
 type BankLookup = (id: string | null | undefined) => BankConcept | null;
 
+/** ME-CONCEPT-1 — a bank row → its concept ROW (mistakeConcept.conceptRowOf: the ONE Exam Trends
+ *  resolver over the ONE row-key rule). Loaded with the lookup, lazily. */
+type ConceptRowOf = (c: BankConcept | null | undefined) => ConceptRowRef | null;
+
 /** Stands in for the bank when NEITHER builder can reach a lookup (see the two
  *  predicates below) — so it is never actually called, and no number can differ. */
 const NO_BANK_LOOKUP: BankLookup = () => null;
+const NO_CONCEPT_ROW: ConceptRowOf = () => null;
+
+interface BankResolvers {
+  lookup: BankLookup;
+  rowOf: ConceptRowOf;
+}
 
 /** True when `buildUnifiedGradedPoints` CAN call the bank lookup: only for a record on
  *  a SURFACE_QID_PREFIX surface that carries questionIds. A SUPERSET of its real call
@@ -703,6 +770,19 @@ async function loadBankLookup(needed: boolean): Promise<BankLookup> {
   if (!needed) return NO_BANK_LOOKUP;
   const { conceptForQuestionId } = await import("./progressBankIndex");
   return conceptForQuestionId;
+}
+
+/**
+ * ME-CONCEPT-1 — the lookup plus the concept-row resolver, both ON DEMAND (BANK-LEAN-1: the
+ * Exam Trends concept map stays out of the Me / Topic Hub chunks, in the lazily-loaded
+ * mistakeConcept chunk beside the id index). Only the concept builder needs the row resolver.
+ */
+async function loadBankResolvers(needed: boolean, conceptNeeded: boolean): Promise<BankResolvers> {
+  const lookup = await loadBankLookup(needed);
+  if (!conceptNeeded) return { lookup, rowOf: NO_CONCEPT_ROW };
+  const { loadExamConceptResolvers } = await import("./mistakeConcept");
+  const { conceptRowOf } = await loadExamConceptResolvers();
+  return { lookup, rowOf: conceptRowOf };
 }
 
 /**
@@ -820,29 +900,48 @@ function buildTopicRung(points: GradedPoint[]): RungTrend[] {
   return out.sort((a, b) => b.sampleNow + b.sampleBefore - (a.sampleNow + a.sampleBefore));
 }
 
-/** Concept (subtopic) + section rungs — bank-matched only. Two non-overlapping
+/** Concept + section rungs — bank-matched only. Two non-overlapping
  *  sources (QP/HPQ attempts with a real bank id; worksheet/CT/FM records+payloads).
- *  Synthetic-id attempts and C&I records resolve to nothing → silent by construction. */
+ *  Synthetic-id attempts and C&I records resolve to nothing → silent by construction.
+ *
+ *  ME-CONCEPT-1 — a concept row is (chapter, Exam Trends concept) through `rowOf` (the ONE
+ *  resolver, mistakeConcept.conceptRowOf); a label the concept map leaves unmapped keeps its
+ *  subtopic row exactly as before. The same pass collects the read-time won-back evidence
+ *  (fully-correct answers per row) and the paper questions' bank ids (`ConceptEvidence`). */
 function buildConceptSectionRungs(
   attempts: PracticeAttempt[],
   records: SessionRecord[],
   payloads: SessionPerQuestionPayload[],
   conceptForQuestionId: BankLookup,
+  rowOf: ConceptRowOf,
   topicFilter?: string,
-): { concepts: RungTrend[]; sections: RungTrend[] } {
-  const conceptPts = new Map<string, MarkPoint[]>();
+): { concepts: ConceptRung[]; sections: RungTrend[]; evidence: ConceptEvidence } {
+  const conceptPts = new Map<string, { ref: ConceptRowRef; chapters: Set<string>; pts: MarkPoint[] }>();
   const sectionPts = new Map<string, MarkPoint[]>();
+  const evidence: ConceptEvidence = { bankIdBySessionQid: {}, fullyCorrect: {} };
 
-  const add = (c: BankConcept, ts: number, scored: number, available: number): void => {
+  const add = (
+    c: BankConcept,
+    ts: number,
+    scored: number,
+    available: number,
+    answer: { questionId: string; attemptRef: string },
+  ): void => {
     if (!(Number(available) > 0)) return;
     // Topic-scoped read (Topic Hub): keep the concept EXACT per question — never let
     // another topic's subtopic (e.g. from a multi-topic worksheet, same subject) leak
     // into a per-topic view. Canonical compare on BOTH sides (one vocabulary).
     if (topicFilter && canonicalKey(c.topicKey) !== topicFilter) return;
-    if (c.subtopic && !isChapterEchoSubtopic(c.subtopic)) {
-      const arr = conceptPts.get(c.subtopic) ?? [];
-      arr.push({ ts, scored, available });
-      conceptPts.set(c.subtopic, arr);
+    const ref = rowOf(c);
+    if (ref) {
+      const g = conceptPts.get(ref.key) ?? { ref, chapters: new Set<string>(), pts: [] };
+      g.chapters.add(canonicalKey(ref.chapter) || ref.chapter);
+      g.pts.push({ ts, scored, available });
+      conceptPts.set(ref.key, g);
+      // Won-back evidence: a FULLY correct graded answer (no mark lost).
+      if (scored >= available) {
+        (evidence.fullyCorrect[ref.key] ??= []).push({ ts, ...answer });
+      }
     }
     const sec = normalizeSection(c.section);
     if (sec) {
@@ -858,7 +957,10 @@ function buildConceptSectionRungs(
   for (const a of attempts) {
     const c = conceptForQuestionId(a.questionId);
     if (!c) continue;
-    add(c, a.timestamp, Number(a.marksScored) || 0, Number(a.marksAvailable) || 0);
+    add(c, a.timestamp, Number(a.marksScored) || 0, Number(a.marksAvailable) || 0, {
+      questionId: String(a.questionId || "").trim(),
+      attemptRef: `qp:${a.id || a.timestamp}`,
+    });
   }
 
   // (2) worksheet/CT/FM records: paper-order questionIds (bank ids) + payload marks.
@@ -873,23 +975,33 @@ function buildConceptSectionRungs(
     // Alignment guard (existing re-open doctrine): a dropped/empty id shifts the
     // index → omit the whole record rather than mis-attribute a concept.
     if (results.length !== r.questionIds.length) continue;
+    const prefix = SURFACE_QID_PREFIX[r.surface];
     for (const res of results) {
+      const idx = Number(res.qNumber) - 1;
+      if (idx < 0 || idx >= r.questionIds.length) continue;
+      const bankId = String(r.questionIds[idx] || "").trim();
+      // The synthetic id a mistake entry of this paper question carries → its bank id (aligned
+      // records only — the guard above), so the read model can resolve the entry's concept.
+      if (prefix && bankId) evidence.bankIdBySessionQid[`${prefix}:${r.worksheetId}:q${res.qNumber}`] = bankId;
       // A question that was NOT graded (could not be read, option unread, answer does not match,
       // or the server's notGraded) is never a 0 on a concept or a section — the same one
       // predicate as the topic rungs above.
       if (!isGradedQuestion(res)) continue;
-      const idx = Number(res.qNumber) - 1;
-      if (idx < 0 || idx >= r.questionIds.length) continue;
       const c = conceptForQuestionId(r.questionIds[idx]);
       if (!c) continue;
-      add(c, r.gradedAt, Number(res.marksAwarded) || 0, Number(res.totalMarks) || 0);
+      add(c, r.gradedAt, Number(res.marksAwarded) || 0, Number(res.totalMarks) || 0, {
+        questionId: bankId,
+        attemptRef: `${prefix ?? r.surface}:${r.worksheetId}`,
+      });
     }
   }
 
-  const concepts: RungTrend[] = [];
-  for (const [subtopic, pts] of conceptPts) {
-    const t = marksTrend(pts, subtopic, subtopic);
-    if (t) concepts.push(t);
+  const concepts: ConceptRung[] = [];
+  for (const [key, g] of conceptPts) {
+    const t = marksTrend(g.pts, key, g.ref.label);
+    if (!t) continue;
+    const chapter = g.chapters.size === 1 ? [...g.chapters][0] : "";
+    concepts.push({ ...t, ...(chapter ? { chapter } : {}), examConcept: g.ref.examConcept });
   }
   concepts.sort((a, b) => b.sampleNow + b.sampleBefore - (a.sampleNow + a.sampleBefore));
 
@@ -900,7 +1012,7 @@ function buildConceptSectionRungs(
   }
   sections.sort((a, b) => a.key.localeCompare(b.key));
 
-  return { concepts, sections };
+  return { concepts, sections, evidence };
 }
 
 /** Four-type mistake COMPOSITION share (%) before→now, from the IDEMPOTENT
@@ -1074,15 +1186,18 @@ export async function getWindowedProgress(
       (!subjFilter || r.subject === subjFilter),
   );
 
-  const bankLookup = await loadBankLookup(
-    unifiedNeedsBank(winRecords) || conceptNeedsBank(winAttempts, winRecords),
+  const conceptNeeded = conceptNeedsBank(winAttempts, winRecords);
+  const { lookup: bankLookup, rowOf } = await loadBankResolvers(
+    unifiedNeedsBank(winRecords) || conceptNeeded,
+    conceptNeeded,
   );
   const unified = buildUnifiedGradedPoints(winAttempts, winRecords, payloads, bankLookup, topicFilter);
-  const { concepts, sections } = buildConceptSectionRungs(
+  const { concepts, sections, evidence } = buildConceptSectionRungs(
     winAttempts,
     winRecords,
     payloads,
     bankLookup,
+    rowOf,
     topicFilter,
   );
 
@@ -1101,6 +1216,7 @@ export async function getWindowedProgress(
     subjects: buildSubjectRung(unified),
     topics: buildTopicRung(unified),
     concepts,
+    conceptEvidence: evidence,
     sections,
     mistakeTypes: buildMistakeTypeRung(winRecords),
     activity: {

@@ -28,6 +28,12 @@ const NOW = Date.now();
 const H = vi.hoisted(() => ({
   attempts: [] as PracticeAttempt[],
   mistakes: [] as MistakeLogEntry[],
+  // ME-CONCEPT-1 — the two mistakes' BANK rows (served labels the concept map rolls up to the
+  // Exam Trends concepts "nth Term" and "Sum of n Terms"); every other id resolves to nothing.
+  bank: {
+    "AP-N-EXEM-5-VSA-001": { subtopic: "AP from nth Term", section: "B", topicKey: "arithmetic-progression" },
+    "AP-E16": { subtopic: "AP from Sum Formula", section: "C", topicKey: "arithmetic-progression" },
+  } as Record<string, { subtopic: string; section: string; topicKey: string }>,
 }));
 
 vi.mock("./practiceInsights", async (importOriginal) => ({
@@ -52,7 +58,9 @@ vi.mock("./tutorSessionStore", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./tutorSessionStore")>()),
   getTutorTurnsFromCloud: async () => ({ events: [], complete: true }),
 }));
-vi.mock("./progressBankIndex", () => ({ conceptForQuestionId: () => null }));
+vi.mock("./progressBankIndex", () => ({
+  conceptForQuestionId: (id: string | null | undefined) => (id ? H.bank[String(id)] ?? null : null),
+}));
 vi.mock("../components/subscription/UpgradeSheet", () => ({ UpgradeSheet: () => null }));
 vi.mock("../hooks/useIsDesktop", () => ({ useIsDesktop: () => true }));
 vi.mock("../hooks/useSubscription", () => ({ useSubscription: () => ({ isPremium: true }) }));
@@ -85,9 +93,10 @@ function attempt(agoMs: number, scored: number, available: number): PracticeAtte
     mode: "graded",
   } as unknown as PracticeAttempt;
 }
-function mistake(id: string, agoMs: number, concept: string): MistakeLogEntry {
+function mistake(id: string, agoMs: number, concept: string, questionId: string): MistakeLogEntry {
   return {
     id,
+    questionId,
     timestamp: new Date(NOW - agoMs).toISOString(),
     questionText: "Q",
     topic: "Arithmetic Progression",
@@ -102,8 +111,8 @@ function mistake(id: string, agoMs: number, concept: string): MistakeLogEntry {
   } as MistakeLogEntry;
 }
 const MISTAKES = () => [
-  mistake("quick-practice::AP1::AP-N-EXEM-5-VSA-001", 0.5 * HOUR, "Identification of AP"),
-  mistake("quick-practice::AP1::AP-E16", 0.5 * HOUR, "Sum of n Terms"),
+  mistake("quick-practice::AP1::AP-N-EXEM-5-VSA-001", 0.5 * HOUR, "Identification of AP", "AP-N-EXEM-5-VSA-001"),
+  mistake("quick-practice::AP1::AP-E16", 0.5 * HOUR, "Sum of n Terms", "AP-E16"),
 ];
 
 async function renderMe(): Promise<void> {
@@ -138,6 +147,8 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
     expect(brief.topic.weakConcepts).toBeUndefined();
     expect(brief.mistakes).toEqual({});
     expect(brief).toEqual(briefFromModel(m, CHAPTER));
+    // ME-CONCEPT-1 — below the gate the model fills NO per-concept mistakes either.
+    expect(m.mistakes.byConcept).toEqual({});
 
     // The RENDERED Me says so.
     await renderMe();
@@ -171,7 +182,9 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
     expect(weaknessNamingRung(m)).not.toBeNull();
 
     const brief = await assembleTutorBrief({ uid: UID, topicKey: CHAPTER, subject: "maths", nowMs: NOW });
-    expect(brief.topic.weakConcepts).toEqual(["Identification of AP", "Sum of n Terms"]);
+    // ME-CONCEPT-1 — the brief names the EXAM TRENDS concepts each mistake's questionId resolves
+    // to (never the stored labels "Identification of AP" / "Sum of n Terms").
+    expect(brief.topic.weakConcepts).toEqual(["nth Term", "Sum of n Terms"]);
     expect(brief.mistakes.marksLostRecent).toBe(split!.lost);
     expect(brief.mistakes.topType).toBe("knowledge gap");
 

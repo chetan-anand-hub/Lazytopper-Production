@@ -30,8 +30,22 @@
 //      Suppressed here for the same reason, by the SAME predicate.
 //      (Recoverable either way: the entry also persists `questionId`, so a reader
 //      can always re-resolve.)
+//
+// ME-CONCEPT-1 — THE ONE EXAM TRENDS RESOLVER. `examConceptOf` is the ONLY place a bank row's
+// (topicKey, subtopic) becomes an Exam Trends concept (`conceptForSubtopic`, the reviewed map).
+// The progress concept rung (progressStore, through its lazy bank lookup), the read model's
+// per-concept mistakes and the Tutor brief all resolve through it. It is READ-TIME only: the
+// `concept` string a writer stored on a mistake entry (the verbatim subtopic above) is never
+// rewritten. `conceptForBankQuestionId` — the WRITE-side rule — is unchanged.
+//
+// BANK-LEAN-1: progressStore and progressReadModel reach this module ONLY with `await import()`.
 
 import { conceptForQuestionId, isChapterEchoSubtopic } from "./progressBankIndex";
+import { conceptRowRef, type BankConcept, type ConceptRowRef } from "./progressBankShape";
+// TYPE-ONLY (erased): the concept map itself is loaded with `import()` — see loadExamConceptResolvers.
+import type { conceptForSubtopic as ConceptForSubtopicFn } from "../data/concepts/conceptLabelMap";
+
+type ConceptForSubtopic = typeof ConceptForSubtopicFn;
 
 /**
  * Resolve a BANK question id → its concept (the bank row's `subtopic`), verbatim.
@@ -51,4 +65,55 @@ export function conceptForBankQuestionId(id: string | null | undefined): string 
   if (!subtopic) return undefined;
   if (isChapterEchoSubtopic(subtopic)) return undefined;
   return subtopic;
+}
+
+/** ME-CONCEPT-1 — the Exam Trends resolvers, built over the concept map once it is loaded. */
+export interface ExamConceptResolvers {
+  /**
+   * THE resolver: the Exam Trends concept of a bank row — (topicKey, subtopic) through the
+   * reviewed concept map, VERBATIM. `undefined` — never a fallback — for an unmapped label, a
+   * chapter-echo, or no row. The only place this resolution happens.
+   */
+  examConceptOf: (c: Pick<BankConcept, "topicKey" | "subtopic"> | null | undefined) => string | undefined;
+  /** `examConceptOf` for a BANK question id (synthetic ids never resolve). */
+  examConceptForBankQuestionId: (id: string | null | undefined) => string | undefined;
+  /** The concept ROW of a bank row (`conceptRowRef` over `examConceptOf`). */
+  conceptRowOf: (c: BankConcept | null | undefined) => ConceptRowRef | null;
+  /** The concept ROW of a BANK question id, or null (synthetic / unknown id). */
+  conceptRowForBankQuestionId: (id: string | null | undefined) => ConceptRowRef | null;
+}
+
+/** Build the resolvers over a `conceptForSubtopic` (the concept map's verbatim lookup). */
+export function examConceptResolvers(conceptForSubtopic: ConceptForSubtopic): ExamConceptResolvers {
+  const examConceptOf: ExamConceptResolvers["examConceptOf"] = (c) =>
+    c ? conceptForSubtopic(c.topicKey, c.subtopic) : undefined;
+  const conceptRowOf: ExamConceptResolvers["conceptRowOf"] = (c) => conceptRowRef(c, examConceptOf(c));
+  return {
+    examConceptOf,
+    examConceptForBankQuestionId: (id) => examConceptOf(conceptForQuestionId(id)),
+    conceptRowOf,
+    conceptRowForBankQuestionId: (id) => conceptRowOf(conceptForQuestionId(id)),
+  };
+}
+
+let _resolvers: Promise<ExamConceptResolvers> | null = null;
+
+/**
+ * ME-CONCEPT-1 — load the Exam Trends resolvers ON DEMAND. BANK-LEAN-1: this module sits in the
+ * Me chunk (MeProgressPage → mistakeRetry → here) and in the three grade services; the concept
+ * map (~195 KB of labels and review notes) is fetched with `import()` only by a READ that needs
+ * a concept row, never by a page that merely imports this file. Memoised; a failed load REJECTS
+ * (every caller degrades to naming no concept) and is retried on the next call.
+ */
+export function loadExamConceptResolvers(): Promise<ExamConceptResolvers> {
+  if (!_resolvers) {
+    _resolvers = import("../data/concepts/conceptLabelMap").then(
+      (m) => examConceptResolvers(m.conceptForSubtopic),
+      (err: unknown) => {
+        _resolvers = null;
+        throw err;
+      },
+    );
+  }
+  return _resolvers;
 }

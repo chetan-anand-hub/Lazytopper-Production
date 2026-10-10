@@ -22,6 +22,35 @@ export interface BankConcept {
 }
 
 /**
+ * ME-CONCEPT-1 — the concept ROW a bank question counts on (Me's Concepts tab, the read
+ * model's per-concept mistakes, the Tutor brief).
+ *   - MAPPED (the Exam Trends concept map gave one): key `${topicKey}|${concept}`, label = the
+ *     Exam Trends concept name. Chapter-scoped, so "Corrosion" in Chemical Reactions and
+ *     "Corrosion" in Metals no longer merge into one row.
+ *   - UNMAPPED: the row stays EXACTLY as before ME-CONCEPT-1 — key = label = the subtopic — so
+ *     nothing disappears from Me. `examConcept: false` keeps it out of the Tutor brief.
+ *   - Chapter-echo / empty subtopic → null (not a concept, as before).
+ */
+export interface ConceptRowRef {
+  key: string;
+  label: string;
+  /** The bank row's topicKey (lower-case canonical slug), "" when absent. */
+  chapter: string;
+  /** True when `label` is an Exam Trends concept name (mapped); false for a kept subtopic row. */
+  examConcept: boolean;
+}
+
+/** The ONE row-key rule. `examConcept` is what `examConceptOf` (mistakeConcept.ts) resolved. */
+export function conceptRowRef(c: BankConcept | null | undefined, examConcept: string | undefined): ConceptRowRef | null {
+  if (!c || !c.subtopic || isChapterEchoSubtopic(c.subtopic)) return null;
+  const chapter = String(c.topicKey || "");
+  if (examConcept && chapter) {
+    return { key: `${chapter}|${examConcept}`, label: examConcept, chapter, examConcept: true };
+  }
+  return { key: c.subtopic, label: c.subtopic, chapter, examConcept: false };
+}
+
+/**
  * True when a subtopic string is a degenerate chapter-echo / catch-all placeholder
  * that must NOT be shown as a distinct concept. Suppressing these keeps the concept
  * rung honest — a single whole-chapter bucket is not a concept.

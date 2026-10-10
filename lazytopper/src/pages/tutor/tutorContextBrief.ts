@@ -11,15 +11,18 @@
 // canonicaliser (`boardChapterKey`, the 26 board chapters) and its honesty gates. So the Tutor
 // and Me can no longer disagree. Gone: the DEVICE-LOCAL weak areas (`getWeakAreas`, which also
 // WROTE two Firestore docs on every build), the 120-day trend read, and the 14-day both-papers
-// MI insight. No mastery or per-concept percentage is sent (A-17 ruling 6): a real per-concept
-// STATE needs the concept mapping (ME-ENGINE-1 PR-3); until then the brief names only the
-// concepts of the chapter's real, synced mistakes — and only above Me's weakness gate (PR-2b) — or nothing.
+// MI insight. No mastery or per-concept percentage is sent (A-17 ruling 6). ME-CONCEPT-1 (PR-3):
+// the brief names at most 3 of the chapter's weakest EXAM TRENDS concepts — the concepts of its
+// real, synced live mistakes, each resolved through the mistake's questionId by the read model
+// (`weakestExamConcepts` over `mistakes.byConcept`; an unresolvable mistake names nothing, never
+// its raw label) — and only above Me's weakness gate (PR-2b), or nothing. Names only, no figure.
 
 import {
   ME_DEFAULT_WINDOW,
   boardChapterKey,
   readStudyModel,
   topLossGroup,
+  weakestExamConcepts,
   weaknessNamingRung,
   type ReadWindow,
   type StudyReadModel,
@@ -85,9 +88,10 @@ export interface AssembleBriefArgs {
  *     Me names a weakness (`weaknessNamingRung`, Me's gate); below that gate, nothing;
  *   - `topic.trend` = the direction of the chapter's gated rung (±2 points dead-band), the rung
  *     Me's chapter list prints; no rung → no trend;
- *   - `topic.weakConcepts` = the recorded concepts of the chapter's LIVE synced mistakes, by
- *     marks lost (≤ 3) — under the SAME gate (PR-2b): below it, none. Only labels the grading
- *     wrote; never a percentage, never invented.
+ *   - `topic.weakConcepts` = the chapter's weakest Exam Trends concepts (≤ 3) — the concepts of
+ *     its LIVE synced mistakes, resolved through each mistake's questionId, by the marks not yet
+ *     won back (ME-CONCEPT-1) — under the SAME gate (PR-2b): below it, none. Never a percentage,
+ *     never invented, never a raw bank label.
  */
 export function briefFromModel(model: StudyReadModel, chapterKey: string): TutorBrief {
   const brief: TutorBrief = { hasData: false, topic: {}, mistakes: {} };
@@ -104,17 +108,9 @@ export function briefFromModel(model: StudyReadModel, chapterKey: string): Tutor
   // are real, but naming them is naming a weakness) [FU-ME2-BRIEF-CONCEPTS-BELOW-GATE].
   const namingRung = weaknessNamingRung(model);
   if (namingRung) {
-    const chapterMistakes = chapterKey ? model.mistakes.byChapter[chapterKey] ?? [] : [];
-    const byConcept = new Map<string, number>();
-    for (const e of chapterMistakes) {
-      const c = typeof e.concept === "string" ? e.concept.trim() : "";
-      if (!c) continue;
-      byConcept.set(c, (byConcept.get(c) ?? 0) + Math.max(0, Number(e.marksLost) || 0));
-    }
-    const weak = [...byConcept.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .slice(0, MAX_WEAK_CONCEPTS)
-      .map(([c]) => c);
+    // ME-CONCEPT-1 — the chapter's weakest Exam Trends concepts from the model's per-concept
+    // mistakes (the same rows Me's Concepts tab carries). Names only — no percentage, no mastery.
+    const weak = weakestExamConcepts(model.mistakes, chapterKey, MAX_WEAK_CONCEPTS);
     if (weak.length) brief.topic.weakConcepts = weak;
 
     if (model.progress.totals) {

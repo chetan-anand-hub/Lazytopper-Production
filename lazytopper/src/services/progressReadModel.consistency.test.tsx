@@ -14,6 +14,9 @@
  * ★ The sidebar MI widget JOINED in ME-ENGINE-1 PR-2b (OWNER RULING 2026-10-06, Round 2 — the CI
  *   ops gate MIC (H3) lines that pinned its OLD source were amended under the four standing
  *   conditions): widget == Me == brief == the model, the last slot filled.
+ * ★ ME-CONCEPT-1 extended it to CONCEPTS: the brief's named concepts are the model's Exam Trends
+ *   concepts (each mistake resolved through its questionId), and Me's rendered Concepts tab prints
+ *   the model's rows and their per-concept notes.
  *
  * Mutations this file turns RED: M3 — a reader with its own canonicaliser (Me's chapter list
  * grouping mistakes by `normalizeTopicKey` again, the topicAliasMap vocabulary); PR-2 W — the
@@ -21,7 +24,7 @@
  * PR-2b G — the brief names concept labels without Me's weakness gate (`weaknessNamingRung`).
  */
 import { describe, it, expect, vi, beforeAll } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import type { PracticeAttempt } from "./practiceInsights";
@@ -50,6 +53,11 @@ const H = vi.hoisted(() => ({
   records: [] as SessionRecord[],
   mistakes: [] as MistakeLogEntry[],
   turns: [] as TutorTurnEvent[],
+  // ME-CONCEPT-1 — the served bank rows two mistakes point at (every other id resolves to nothing).
+  bank: {
+    "b-rn-hcf": { subtopic: "HCF and LCM", section: "B", topicKey: "real-numbers" },
+    "b-her-alleles": { subtopic: "Alleles", section: "A", topicKey: "heredity" },
+  } as Record<string, { subtopic: string; section: string; topicKey: string }>,
 }));
 
 vi.mock("./practiceInsights", async (importOriginal) => ({
@@ -79,7 +87,9 @@ vi.mock("./tutorSessionStore", async (importOriginal) => ({
     complete: true,
   }),
 }));
-vi.mock("./progressBankIndex", () => ({ conceptForQuestionId: () => null }));
+vi.mock("./progressBankIndex", () => ({
+  conceptForQuestionId: (id: string | null | undefined) => (id ? H.bank[String(id)] ?? null : null),
+}));
 vi.mock("../components/subscription/UpgradeSheet", () => ({ UpgradeSheet: () => null }));
 vi.mock("../hooks/useIsDesktop", () => ({ useIsDesktop: () => true }));
 vi.mock("../hooks/useSubscription", () => ({ useSubscription: () => ({ isPremium: true }) }));
@@ -95,11 +105,12 @@ import {
   type ReadSubject,
   type StudyReadModel,
 } from "./progressReadModel";
-import MeProgressPage, { buildChapters, splitPaperMarks } from "../pages/MeProgressPage";
+import MeProgressPage, { buildChapters, conceptMistakesNote, splitPaperMarks } from "../pages/MeProgressPage";
 import { MistakeIntelCard, computeMiCardSummary } from "../components/desktop/MistakeIntelCard";
 import { assembleTutorBrief, briefFromModel } from "../pages/tutor/tutorContextBrief";
 import { mistakeGroupByKey } from "../lib/mistakeDisplay";
 import { zeroMarksLost } from "../lib/mistakeDisplay";
+import { loadExamConceptResolvers, type ExamConceptResolvers } from "./mistakeConcept";
 
 const UID = "u-g3";
 
@@ -129,7 +140,11 @@ const v2 = (m: Partial<ReturnType<typeof zeroMarksLost>>) => ({
   marksLostByTypeVersion: 1,
 });
 
-beforeAll(() => {
+/** ME-CONCEPT-1 — the app's own Exam Trends resolver (loaded once, as the app loads it). */
+let resolvers: ExamConceptResolvers;
+
+beforeAll(async () => {
+  resolvers = await loadExamConceptResolvers();
   // Sub-hour offsets are "today" activity — kept inside the current IST day (see TODAY_SPAN_MS).
   const at = (h: number) => (h < 1 ? h * TODAY_SPAN_MS : h * HOUR);
   H.attempts = [
@@ -153,16 +168,21 @@ beforeAll(() => {
     attempt(at(2), "science", "heredity", 0, 1, "mcq"), // an MCQ click — not a checked answer
     attempt(40 * DAY, "science", "electricity", 1, 5),
   ];
+  // ME-CONCEPT-1 — the Real Numbers answers are bank questions labelled "HCF and LCM" (the concept
+  // map rolls that up to "Fundamental Theorem of Arithmetic"), so Me's Concepts tab has a row.
+  for (const a of H.attempts) {
+    if (a.topicKey === "real-numbers") H.bank[a.questionId] = { subtopic: "HCF and LCM", section: "B", topicKey: "real-numbers" };
+  }
   H.records = [];
   H.mistakes = [
     // Maths — "Mathematics" is the same paper (one subject split)
-    mistake("quick-practice::M1::q1", at(0.2), { subject: "Mathematics", marksLost: 2, concept: "Euclid's division lemma", ...v2({ conceptual: 1, calculation: 0.5, untyped: 0.5 }) }),
+    mistake("quick-practice::M1::q1", at(0.2), { subject: "Mathematics", marksLost: 2, concept: "Euclid's division lemma", questionId: "b-rn-hcf", mistakeCounts: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 }, ...v2({ conceptual: 1, calculation: 0.5, untyped: 0.5 }) }),
     mistake("1727000000000-legacy1", at(20), { marksLost: 2, mistakeCounts: { conceptual: 0, calculation: 0, silly: 1, presentation: 0 }, stepDetails: [{ stepNumber: 1, mistakeType: "silly", marksDeducted: 1 }] }),
     mistake("quick-practice::M2::q8", at(130), { topic: "Polynomials", marksLost: 3, ...v2({ presentation: 1, conceptual: 2 }) }),
     // re-graded away — history only, never a live number
     mistake("quick-practice::M3::q4", at(30), { marksLost: 3, ...v2({ conceptual: 3 }), resolvedAt: new Date(NOW - at(29)).toISOString(), resolvedBy: "re-grade" }),
     // Science — the topic LABELS are the spellings a second canonicaliser splits differently
-    mistake("quick-practice::S1::q13", at(0.3), { subject: "Science", topic: "Heredity and Evolution", marksLost: 2, concept: "Mendel's contribution", ...v2({ conceptual: 2 }) }),
+    mistake("quick-practice::S1::q13", at(0.3), { subject: "Science", topic: "Heredity and Evolution", marksLost: 2, concept: "Mendel's contribution", questionId: "b-her-alleles", ...v2({ conceptual: 2 }) }),
     mistake("1727000000000-legacy2", at(10), { subject: "Science", topic: "How do Organisms Reproduce", marksLost: 1, mistakeCounts: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 }, stepDetails: [{ stepNumber: 1, mistakeType: "conceptual", marksDeducted: 1 }] }),
     // won back later — still a live mistake where it happened, and counted as won back
     mistake("quick-practice::S2::q14", at(25), { subject: "Science", topic: "Heredity", marksLost: 2, ...v2({ calculation: 2 }), resolvedAt: new Date(NOW - at(2)).toISOString(), resolvedBy: "later-correct-attempt" }),
@@ -285,15 +305,41 @@ describe("G3 — the rendered surfaces print the model's numbers", () => {
     await waitFor(async () => expect(await heroLost()).toBe(weekScience), WAIT);
     cleanup();
   });
+
+  it("★ ME-CONCEPT-1 — Me's Concepts tab prints the model's Exam Trends rows and each row's per-concept note", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={["/me"]}>
+        <MeProgressPage />
+      </MemoryRouter>,
+    );
+    await user.click(await screen.findByTestId("me-paper-maths"));
+    // Me opens on Month (Me's default) — the model for the same read.
+    const m = await readStudyModel(UID, { window: "month", subject: "maths" });
+    const row = m.progress.concepts.find((r) => r.key === "real-numbers|Fundamental Theorem of Arithmetic");
+    expect(row, "precondition: the fixture has the FTA concept row").toBeDefined();
+    expect(row!.mistakes).toEqual(m.mistakes.byConcept[row!.key]);
+    const note = conceptMistakesNote(row!.mistakes);
+    expect(note).toBe("Concept gap 1");
+    const view = await screen.findByTestId("me-view-concepts", {}, { timeout: 8000 });
+    await waitFor(() => expect(within(view).getByTestId(`me-concept-note-${row!.key}`).textContent).toBe(note), { timeout: 8000 });
+    expect(within(view).getByText("Fundamental Theorem of Arithmetic")).toBeTruthy();
+    expect(within(view).queryByText("HCF and LCM")).toBeNull(); // the bank label is not shown
+    // == the brief: the chapter's weakest Exam Trends concept is the row Me prints.
+    expect(briefFromModel(m, "real-numbers").topic.weakConcepts).toEqual(["Fundamental Theorem of Arithmetic"]);
+    cleanup();
+  });
 });
 
 /* ───────────────────────────── the Tutor brief (PR-2) ───────────────────────────── */
 
-/** The chapter's live recorded concepts by marks lost (≤ 3) — the brief's rule above the gate. */
+/** The chapter's live mistakes' EXAM TRENDS concepts by marks lost (≤ 3) — the brief's rule above
+ *  the gate (ME-CONCEPT-1), recomputed here through the app's own resolver from each mistake's
+ *  questionId (this fixture has no later correct answers, so nothing is won back). */
 function liveConcepts(m: StudyReadModel, chapter: string): string[] {
   const by = new Map<string, number>();
   for (const e of m.mistakes.byChapter[chapter] ?? []) {
-    const c = typeof e.concept === "string" ? e.concept.trim() : "";
+    const c = resolvers.examConceptForBankQuestionId(e.questionId) ?? "";
     if (c) by.set(c, (by.get(c) ?? 0) + Math.max(0, Number(e.marksLost) || 0));
   }
   return [...by.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3).map(([c]) => c);
@@ -334,7 +380,8 @@ describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every 
             expect(brief.topic.weakConcepts ?? []).toEqual(liveConcepts(m, chapter));
           }
           if (brief.topic.weakConcepts) {
-            const live = new Set((m.mistakes.byChapter[chapter] ?? []).map((e) => e.concept));
+            // ME-CONCEPT-1 — every named concept is one of the model's per-concept rows for the chapter.
+            const live = new Set(Object.values(m.mistakes.byConcept).filter((r) => r.chapter === chapter).map((r) => r.label));
             for (const c of brief.topic.weakConcepts) expect(live.has(c)).toBe(true);
             const meChapter = buildChapters(m.progress.topics, PAPER_LABEL[subject], m.mistakes.byChapter).find((c) => c.key === chapter);
             if (meChapter) expect(meChapter.retryEntry).not.toBeNull();
@@ -349,9 +396,9 @@ describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every 
     expect(maths.mistakes.marksLostRecent).toBeGreaterThan(0);
     expect(maths.mistakes.topType).toBeTruthy();
     expect(maths.topic.trend).toBeTruthy();
-    expect(maths.topic.weakConcepts).toEqual(["Euclid's division lemma"]);
+    expect(maths.topic.weakConcepts).toEqual(["Fundamental Theorem of Arithmetic"]);
     const science = await assembleTutorBrief({ uid: UID, topicKey: "Heredity and Evolution", subject: "science", window: "week", nowMs: NOW });
-    expect(science.topic.weakConcepts).toEqual(["Mendel's contribution"]);
+    expect(science.topic.weakConcepts).toEqual(["Mendel's Experiments & Ratios"]);
     // The window is honoured: today has no gated rung, so no trend and no hero figure.
     const today = await assembleTutorBrief({ uid: UID, topicKey: "real-numbers", subject: "maths", window: "today", nowMs: NOW });
     expect(today.topic.trend).toBeUndefined();
@@ -359,7 +406,7 @@ describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every 
     // PR-2b — today the chapter HAS a live mistake with a recorded concept, but Me names no
     // weakness (no hero split), so the brief names no concept (the gate is not vacuous here).
     const todayModel = await model("today", "maths");
-    expect(liveConcepts(todayModel, "real-numbers")).toEqual(["Euclid's division lemma"]);
+    expect(liveConcepts(todayModel, "real-numbers")).toEqual(["Fundamental Theorem of Arithmetic"]);
     expect(splitPaperMarks(subjectRungOf((await model("today", null)).progress, "maths"), todayModel.mistakes.entries)).toBeNull();
     expect(today.topic.weakConcepts).toBeUndefined();
   });

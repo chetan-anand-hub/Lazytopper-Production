@@ -32,6 +32,11 @@
 //     come from `resolvedAt` and count ONLY a later correct attempt (owner ruling 2026-10-06): a
 //     re-grade resolution leaves the live numbers and is never won back, never improvement. Old count-only entries are LEGACY: read exactly as stored, never
 //     converted, never given invented marks.
+//   · CONCEPTS (ME-CONCEPT-1). The concept rows are (chapter, Exam Trends concept) through the ONE
+//     resolver (`mistakeConcept.examConceptOf`); an unmapped bank label keeps its subtopic row. A
+//     live mistake's concept is resolved through its questionId on read (`byConcept`), never from
+//     the stored label; per-concept "won back" is computed on read (a later, different question of
+//     the concept fully correct in a separate attempt) and never writes `resolvedAt`.
 //
 // Read-only: no writes, ever. Honest-or-silent: signed out / no data / a failed read → empty,
 // and a mistake read that could not be completed says so (`mistakes.complete: false`).
@@ -41,12 +46,15 @@ import {
   emptyWindowed,
   getWindowedProgress,
   windowRange,
+  type ConceptEvidence,
+  type ConceptMistakes,
   type ProgressWindow,
   type ReadWindow,
   type RungTrend,
   type WindowedProgress,
   type WindowTotal,
 } from "./progressStore";
+import type { ConceptRowRef } from "./progressBankShape";
 import {
   getMistakeLogHistoryFromCloud,
   isSupersededByRegrade,
@@ -126,6 +134,16 @@ export interface WonBack {
   marks: number;
 }
 
+/** ME-CONCEPT-1 — one concept's live mistakes (the row identity + the per-concept fields). */
+export interface ConceptMistakeRow extends ConceptMistakes {
+  key: string;
+  label: string;
+  /** Board chapter key of the row ("" when the bank row carried none). */
+  chapter: string;
+  /** True for an Exam Trends concept; false for a kept (unmapped) subtopic row. */
+  examConcept: boolean;
+}
+
 export interface MistakeView {
   /** LIVE mistakes logged in the window (newest first), scoped to the subject / chapter. A
    *  mistake a later attempt won back is still here — that loss happened in this window and
@@ -143,6 +161,11 @@ export interface MistakeView {
   byChapter: Record<string, MistakeLogEntry[]>;
   /** Mistakes RESOLVED as won back inside the window (resolvedAt in range) — whenever logged. */
   wonBack: WonBack;
+  /** ME-CONCEPT-1 — `entries` per concept row key (`conceptRowRef`), each entry's concept
+   *  resolved through its questionId ON READ (never the stored `concept` string, never a guess),
+   *  with read-time won back. Filled ONLY above Me's weakness gate (`modelNamesWeakness`) and only
+   *  when the mistakes were read; otherwise empty. */
+  byConcept: Record<string, ConceptMistakeRow>;
   /** False when the history read failed or was cut short: the figures may be partial. */
   complete: boolean;
 }
@@ -295,6 +318,15 @@ export function modelNamesWeakness(model: Pick<StudyReadModel, "progress" | "sub
   return papers.length > 0 && papers.every((s) => rungNamesWeakness(subjectRungOf(model.progress, s)));
 }
 
+/** `modelNamesWeakness`, but a progress read missing a field (a degraded read) names nothing. */
+function namesWeaknessOrFalse(model: Pick<StudyReadModel, "progress" | "subject">): boolean {
+  try {
+    return modelNamesWeakness(model);
+  } catch {
+    return false;
+  }
+}
+
 function inRange(iso: unknown, start: number, end: number): boolean {
   const ts = Date.parse(String(iso ?? ""));
   return Number.isFinite(ts) && ts >= start && ts <= end;
@@ -347,8 +379,104 @@ export function buildMistakeView(
     legacyCount: entries.filter(isLegacyMistakeEntry).length,
     byChapter,
     wonBack,
+    byConcept: {},
     complete,
   };
+}
+
+/* ─────────────────────── ME-CONCEPT-1 — per-concept mistakes (read-time) ─────────────────────── */
+
+/** A paper surface's synthetic per-question id (`ws:/ct:/fm:/ci:{id}:q{n}[#k]`). */
+const SYNTHETIC_QID = /^(ws|ct|fm|ci):(.+):q\d+(?:#\d+)?$/;
+
+/** The bank id a mistake entry's questionId stands for: a bare bank id as is; a paper's synthetic
+ *  id through the aligned record (`ConceptEvidence.bankIdBySessionQid`); otherwise null — a
+ *  free-typed C&I answer, an old entry without a questionId, or a paper outside the read. */
+export function bankIdOfMistake(entry: Pick<MistakeLogEntry, "questionId">, evidence: ConceptEvidence | undefined): string | null {
+  const qid = String(entry.questionId ?? "").trim();
+  if (!qid) return null;
+  if (SYNTHETIC_QID.test(qid)) return evidence?.bankIdBySessionQid[qid] ?? null;
+  return qid;
+}
+
+/** The attempt a mistake was made in — a paper (`ws:{id}`) or the entry itself (one QP answer). */
+function attemptRefOfMistake(entry: Pick<MistakeLogEntry, "questionId" | "id">): string {
+  const qid = String(entry.questionId ?? "").trim();
+  const m = SYNTHETIC_QID.exec(qid);
+  return m ? `${m[1]}:${m[2]}` : `mistake:${entry.id}`;
+}
+
+/**
+ * ME-CONCEPT-1 — the live mistakes per concept row. Pure: the pins call it on the same entries.
+ *   - Each entry's concept comes from its questionId through `rowForBankId` (the app's ONE
+ *     resolver, mistakeConcept.conceptRowForBankQuestionId). An entry that does not resolve sits
+ *     on NO row — the stored `concept` label is never used as a fallback.
+ *   - WON BACK (read-time only, never writes resolvedAt): a mistake is won back for its concept
+ *     when the student LATER answered a DIFFERENT question of the same concept fully correct, in
+ *     a SEPARATE attempt. A re-grade of the same paper or a re-answer of the same question never
+ *     counts (the owner rule, as for questions).
+ */
+export function buildConceptMistakes(
+  entries: readonly MistakeLogEntry[],
+  evidence: ConceptEvidence | undefined,
+  rowForBankId: (id: string) => ConceptRowRef | null,
+): Record<string, ConceptMistakeRow> {
+  const out: Record<string, ConceptMistakeRow> = {};
+  for (const e of entries) {
+    const bankId = bankIdOfMistake(e, evidence);
+    if (!bankId) continue;
+    const ref = rowForBankId(bankId);
+    if (!ref) continue;
+    const row = (out[ref.key] ??= {
+      key: ref.key,
+      label: ref.label,
+      chapter: boardChapterKey(ref.chapter) || ref.chapter,
+      examConcept: ref.examConcept,
+      live: 0,
+      byType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+      marksLost: 0,
+      wonBack: { count: 0, marks: 0 },
+    });
+    const marks = Math.max(0, Number(e.marksLost) || 0);
+    row.live += 1;
+    row.marksLost += marks;
+    for (const t of ["conceptual", "calculation", "silly", "presentation"] as const) {
+      row.byType[t] += Math.max(0, Number(e.mistakeCounts?.[t]) || 0);
+    }
+    const at = Date.parse(e.timestamp);
+    const ownAttempt = attemptRefOfMistake(e);
+    const wonBack =
+      Number.isFinite(at) &&
+      (evidence?.fullyCorrect[ref.key] ?? []).some(
+        (c) => c.ts > at && c.questionId !== bankId && c.attemptRef !== ownAttempt,
+      );
+    if (wonBack) {
+      row.wonBack.count += 1;
+      row.wonBack.marks += marks;
+    }
+  }
+  for (const row of Object.values(out)) {
+    row.marksLost = round1(row.marksLost);
+    row.wonBack.marks = round1(row.wonBack.marks);
+  }
+  return out;
+}
+
+/**
+ * ME-CONCEPT-1 — the chapter's WEAKEST Exam Trends concepts (≤ `max`), the Tutor brief's list:
+ * by the marks their live mistakes cost and have NOT been won back, most first (label breaks a
+ * tie). Only Exam Trends concepts (a kept subtopic row is never named to the Tutor), only what
+ * the model filled — which is nothing below Me's weakness gate. Names only, never a figure.
+ */
+export function weakestExamConcepts(view: Pick<MistakeView, "byConcept">, chapterKey: string, max = 3): string[] {
+  if (!chapterKey) return [];
+  return Object.values(view.byConcept)
+    .filter((r) => r.examConcept && r.chapter === chapterKey)
+    .map((r) => ({ label: r.label, open: round1(r.marksLost - r.wonBack.marks), live: r.live - r.wonBack.count }))
+    .filter((r) => r.live > 0 && r.open > 0)
+    .sort((a, b) => b.open - a.open || a.label.localeCompare(b.label))
+    .slice(0, max)
+    .map((r) => r.label);
 }
 
 /**
@@ -442,14 +570,41 @@ export async function readStudyModel(
         })),
   ]);
   const fullScope = { start: range.start, end: range.end, subject: query.subject ?? null, topicKey };
+  const mistakes = buildMistakeView(history.entries, fullScope, history.complete);
+
+  // ME-CONCEPT-1 — per-concept mistakes + won back, ABOVE Me's weakness gate only (the gate is
+  // `modelNamesWeakness`, unchanged and not lowered). The concept resolver is loaded on demand
+  // (BANK-LEAN-1: the concept map stays out of the Me / Tutor chunks).
+  let withConcepts = progress;
+  if (
+    query.mistakes !== false &&
+    mistakes.entries.some((e) => String(e.questionId ?? "").trim()) &&
+    namesWeaknessOrFalse({ progress, subject: query.subject ?? null })
+  ) {
+    try {
+      const { loadExamConceptResolvers } = await import("./mistakeConcept");
+      const { conceptRowForBankQuestionId } = await loadExamConceptResolvers();
+      const byConcept = buildConceptMistakes(mistakes.entries, progress.conceptEvidence, conceptRowForBankQuestionId);
+      // The SAME objects ride on Me's concept rows (one source: Me == brief == the model).
+      withConcepts = {
+        ...progress,
+        concepts: (progress.concepts ?? []).map((r) => (byConcept[r.key] ? { ...r, mistakes: byConcept[r.key] } : r)),
+      };
+      mistakes.byConcept = byConcept;
+    } catch {
+      // A failed concept-chunk load names no concept (honest-or-silent); every other figure stands.
+      withConcepts = progress;
+      mistakes.byConcept = {};
+    }
+  }
 
   return {
     window: query.window,
     subject: query.subject ?? null,
     topicKey,
     range,
-    progress,
-    mistakes: buildMistakeView(history.entries, fullScope, history.complete),
+    progress: withConcepts,
+    mistakes,
     activity: buildStudyActivity(progress, tutor.events, fullScope, tutor.complete),
   };
 }
