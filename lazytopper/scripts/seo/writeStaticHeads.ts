@@ -274,7 +274,8 @@ export function headForPath(path: string): PageHead | null {
     return {
       // SEO-3 — the notes pages carry step-marked board questions (CBQ-TAB-1), so
       // the title says so. The visible h1 in DesktopNotesPage is unchanged.
-      title: `${label} — Class 10 Notes & Board Questions | LazyTopper`,
+      // SEO-NOTES-LINK-2 — the title (only) adds the NCERT file code: ncertTitleLabel.
+      title: `${ncertTitleLabel(slug)} — Class 10 Notes & Board Questions | LazyTopper`,
       description,
     };
   }
@@ -331,6 +332,147 @@ export function ncertLabel(slug: string, specsDir: string = NOTE_SPECS_DIR): str
     throw new Error(`writeStaticHeads: ${file} has no meta.title`);
   }
   return `NCERT Ch. ${chapter} · ${title.trim()}`;
+}
+
+/** NCERT 2026-27 Class 10 file-name prefixes, keyed by the book named in `source_edition`. */
+const NCERT_FILE_PREFIX: Readonly<Record<string, string>> = {
+  Mathematics: "jemh",
+  Science: "jesc",
+};
+
+/** Every string value under a `pdf` key, anywhere in a parsed spec. */
+function citationPdfs(value: unknown, out: string[] = []): string[] {
+  if (Array.isArray(value)) value.forEach((v) => citationPdfs(v, out));
+  else if (value && typeof value === "object") {
+    for (const [key, v] of Object.entries(value)) {
+      if (key === "pdf" && typeof v === "string") out.push(v);
+      else citationPdfs(v, out);
+    }
+  }
+  return out;
+}
+
+/**
+ * SEO-NOTES-LINK-2 — the NCERT file code of the chapter a note covers, e.g. `jemh102`.
+ *
+ * ★ READ FROM THE NOTE'S OWN SPEC, never restated (the same source as ncertLabel):
+ *   1. the `(jXXX1NN.pdf` code in `meta.source_edition`, when it names one;
+ *   2. otherwise the ONE distinct `j(emh|esc)1NN` code in the spec's citation `pdf`
+ *      fields.
+ * Either way the code must equal the book's prefix (Mathematics → jemh, Science → jesc)
+ * + "1" + the 2026-27 chapter number `source_edition` names first ("Ch N"), zero-padded.
+ *
+ * ⚠ ANYTHING ELSE THROWS — no code, two codes, or a code for another chapter. A title
+ * naming the wrong NCERT file is worse than none, so this never guesses.
+ */
+export function ncertFileCode(slug: string, specsDir: string = NOTE_SPECS_DIR): string {
+  const file = join(specsDir, `${slug}.json`);
+  if (!existsSync(file)) {
+    throw new Error(`writeStaticHeads: no note spec at ${file} for /notes/${slug}`);
+  }
+  const spec = JSON.parse(readFileSync(file, "utf8")) as { meta?: Record<string, unknown> };
+  const edition = spec.meta?.source_edition;
+  const fail = (why: string): never => {
+    throw new Error(`writeStaticHeads: ${file} has no resolvable NCERT file code (${why})`);
+  };
+  if (typeof edition !== "string") return fail("no meta.source_edition");
+  const book = /Class 10 (Mathematics|Science)\b/.exec(edition)?.[1];
+  const chapter = /\bCh (\d{1,2})\b/.exec(edition)?.[1];
+  if (!book || !chapter) return fail(`source_edition names no Class 10 book + "Ch N": ${edition}`);
+  const expected = `${NCERT_FILE_PREFIX[book]}1${chapter.padStart(2, "0")}`;
+
+  const fromEdition = /\((j(?:emh|esc)1\d{2})\.pdf/.exec(edition)?.[1];
+  if (fromEdition) {
+    if (fromEdition !== expected) return fail(`source_edition code ${fromEdition} is not ${expected}`);
+    return fromEdition;
+  }
+  const codes = [
+    ...new Set(
+      citationPdfs(spec)
+        .map((p) => /j(?:emh|esc)1\d{2}/.exec(p)?.[0])
+        .filter((c): c is string => Boolean(c)),
+    ),
+  ];
+  if (codes.length !== 1) return fail(`${codes.length} distinct citation codes: ${codes.join(", ")}`);
+  if (codes[0] !== expected) return fail(`citation code ${codes[0]} is not ${expected}`);
+  return codes[0];
+}
+
+/** "NCERT Ch. 2 (jemh102) · Polynomials" — ncertLabel with the file code; the TITLE only. */
+export function ncertTitleLabel(slug: string, specsDir: string = NOTE_SPECS_DIR): string {
+  const label = ncertLabel(slug, specsDir);
+  const code = ncertFileCode(slug, specsDir);
+  return label.replace(/^(NCERT Ch\. \d+) · /, (_m, head: string) => `${head} (${code}) · `);
+}
+
+/**
+ * SEO-NOTES-LINK-2 — the JSON-LD for one notes page: a `BreadcrumbList`
+ * (Home › Class 10 › Maths|Science › chapter) and one `LearningResource`, in one
+ * `@graph`. Every URL comes from `canonicalFor`, so each is a canonical address with no
+ * query. The subject crumb names `/exam-trends`, the page that lists every chapter of
+ * both subjects (there is no per-subject page). `null` for any other path.
+ */
+export function notesJsonLd(path: string, basename: string): Record<string, unknown> | null {
+  const notesPrefix = "/notes/";
+  if (!path.startsWith(notesPrefix)) return null;
+  const slug = path.slice(notesPrefix.length);
+  const topic = allDesktopTopics().find((candidate) => candidate.slug === slug);
+  if (!topic) return null;
+  const home = canonicalFor("/", basename);
+  const url = canonicalFor(path, basename);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: home },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Class 10",
+            item: canonicalFor("/cbse/class-10", basename),
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: topic.subject,
+            item: canonicalFor("/exam-trends", basename),
+          },
+          { "@type": "ListItem", position: 4, name: topic.name, item: url },
+        ],
+      },
+      {
+        "@type": "LearningResource",
+        name: `${topic.name} — Class 10 Notes`,
+        url,
+        educationalLevel: "Class 10",
+        about: [
+          { "@type": "Thing", name: topic.name },
+          { "@type": "Thing", name: topic.subject === "Maths" ? "Mathematics" : topic.subject },
+        ],
+        inLanguage: "en",
+        isPartOf: { "@type": "WebSite", name: "LazyTopper", url: home },
+        provider: { "@type": "Organization", name: "LazyTopper", url: home },
+      },
+    ],
+  };
+}
+
+/**
+ * Insert one `<script type="application/ld+json">` block just before `</head>`.
+ * `<` is written as `<`, so no value can close the script element early. Throws
+ * unless the html has exactly one `</head>`.
+ */
+export function applyJsonLd(html: string, data: object, page: string): string {
+  const closes = html.match(/<\/head>/gi)?.length ?? 0;
+  if (closes !== 1) {
+    throw new Error(
+      `writeStaticHeads: expected exactly ONE </head> while writing JSON-LD for ${page}, found ${closes}.`,
+    );
+  }
+  const json = JSON.stringify(data).replace(/</g, "\\u003c");
+  return html.replace(/<\/head>/i, () => `<script type="application/ld+json">${json}</script>\n</head>`);
 }
 
 /* ------------------------------------------------------------------------- *
@@ -539,7 +681,7 @@ async function main(): Promise<void> {
     const head = headForPath(path);
     if (!head) noHonestDescription.push(path);
 
-    const html = applyHead(template, {
+    const stamped = applyHead(template, {
       path,
       url,
       // No honest copy for this page: keep what the shell already says rather
@@ -547,6 +689,9 @@ async function main(): Promise<void> {
       title: head ? head.title : templateTitle(template),
       description: head ? head.description : templateDescription(template),
     });
+    // SEO-NOTES-LINK-2 — notes pages also carry their BreadcrumbList + LearningResource.
+    const jsonLd = head ? notesJsonLd(path, basename) : null;
+    const html = jsonLd ? applyJsonLd(stamped, jsonLd, path) : stamped;
 
     const relative = path.replace(/^\//, "");
     for (const target of [`${relative}.html`, join(relative, "index.html")]) {

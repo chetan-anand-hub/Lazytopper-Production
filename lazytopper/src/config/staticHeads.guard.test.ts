@@ -9,7 +9,9 @@ import {
   escapeAttr,
   escapeText,
   headForPath,
+  ncertFileCode,
   ncertLabel,
+  ncertTitleLabel,
   templateDescription,
   templateTitle,
 } from "../../scripts/seo/writeStaticHeads";
@@ -454,8 +456,9 @@ describe("static heads — the writer refuses to no-op silently", () => {
       const topic = allDesktopTopics().find((t) => t.slug === slug);
       const head = headForPath(path);
       expect(head, `${path} has no head`).not.toBeNull();
+      // SEO-NOTES-LINK-2 — the title adds the NCERT file code after the chapter number.
       expect(head?.title).toBe(
-        `${ncertLabel(slug)} — Class 10 Notes & Board Questions | LazyTopper`,
+        `${ncertTitleLabel(slug)} — Class 10 Notes & Board Questions | LazyTopper`,
       );
       // Two blurbs are shortened for the 155 cap (NOTES_BLURB_SHORTENED); each shortened
       // text must be the original with words DELETED, never added (checked below).
@@ -551,7 +554,8 @@ describe("SEO-4 S2 — every notes page title and description names its NCERT ch
       const expected = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} · ${spec.meta.title}`;
       const head = headForPath(path);
       expect(head, `${path} has no head`).not.toBeNull();
-      expect(head?.title.startsWith(`${expected} — `), `${path} title: ${head?.title}`).toBe(true);
+      const expectedTitle = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} (${ncertFileCode(slug)}) · ${spec.meta.title}`;
+      expect(head?.title.startsWith(`${expectedTitle} — `), `${path} title: ${head?.title}`).toBe(true);
       expect(head?.description.startsWith(`${expected} — `), `${path} desc: ${head?.description}`).toBe(true);
 
       const html = applyHead(SHELL, {
@@ -570,8 +574,8 @@ describe("SEO-4 S2 — every notes page title and description names its NCERT ch
 
   it("CONTROL — a wrong chapter number is caught", () => {
     const head = headForPath("/notes/trigonometry");
-    expect(head?.title.startsWith("NCERT Ch. 9 · ")).toBe(false);
-    expect(head?.title.startsWith("NCERT Ch. 8 · Trigonometry: ratios, identities and heights & distances — ")).toBe(true);
+    expect(head?.title.startsWith("NCERT Ch. 9 ")).toBe(false);
+    expect(head?.title.startsWith("NCERT Ch. 8 (jemh108) · Trigonometry: ratios, identities and heights & distances — ")).toBe(true);
   });
 
   it("ncertLabel throws for a slug with no spec, rather than dropping the chapter", () => {

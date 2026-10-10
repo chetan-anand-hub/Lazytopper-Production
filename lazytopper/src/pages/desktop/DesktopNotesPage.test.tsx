@@ -1,9 +1,11 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import DesktopNotesPage from "./DesktopNotesPage";
 import { sitemapPaths } from "../../config/sitemapUrls";
+import { desktopTopicBySlug, desktopTopicsBySubject } from "../../lib/desktop/topics";
+import { related } from "../../seo/notesLinks";
 import { ensureAllNoteSpecs } from "../../components/notes/noteSpecRegistry";
 
 // LOW-END-1 (L4): each spec is its own chunk now. These cases assert the LOADED page, so
@@ -83,6 +85,43 @@ describe("DesktopNotesPage", () => {
       expect(screen.queryByText(/Notes not found/), `${path} is a soft 404`).toBeNull();
       // SEO-5 PR-4 — EVERY notes page carries the guide link at its end.
       expectGuideLinkAtEnd(container, path);
+      cleanup();
+    }
+  });
+
+  it("SEO-NOTES-LINK-2 — every notes page: Related notes + previous/next links, clean, h1 unchanged", { timeout: 120_000 }, () => {
+    const notes = sitemapPaths().filter((p) => p.startsWith("/notes/"));
+    expect(notes.length).toBe(26);
+    for (const path of notes) {
+      const slug = path.slice("/notes/".length);
+      const topic = desktopTopicBySlug(slug)!;
+      const order = desktopTopicsBySubject(topic.subject).map((t) => t.slug);
+      const at = order.indexOf(slug);
+      renderAt(path);
+      // P3 — the h1 is byte-identical.
+      expect(screen.getByRole("heading", { level: 1 }).textContent, path).toBe(`${topic.name} — Class 10 Notes`);
+
+      const relatedNav = screen.getByRole("navigation", { name: "Related notes" });
+      const relatedHrefs = within(relatedNav).getAllByRole("link").map((a) => a.getAttribute("href"));
+      expect(relatedHrefs.length, path).toBeGreaterThanOrEqual(2);
+      expect(relatedHrefs.length, path).toBeLessThanOrEqual(3);
+      expect(relatedHrefs, path).toEqual(related(slug).map((l) => l.href));
+
+      const chapterNav = screen.getByRole("navigation", { name: "Chapter navigation" });
+      const prev = within(chapterNav).queryByRole("link", { name: /^Previous chapter/ });
+      const next = within(chapterNav).queryByRole("link", { name: /^Next chapter/ });
+      if (at === 0) expect(prev, `${path}: first chapter has a previous link`).toBeNull();
+      else expect(prev, path).toHaveAttribute("href", `/notes/${order[at - 1]}`);
+      if (at === order.length - 1) expect(next, `${path}: last chapter has a next link`).toBeNull();
+      else expect(next, path).toHaveAttribute("href", `/notes/${order[at + 1]}`);
+
+      // Every link this lane adds is a clean path — no query, no hash.
+      for (const a of [...within(relatedNav).getAllByRole("link"), ...within(chapterNav).getAllByRole("link")]) {
+        expect(a.getAttribute("href"), path).toMatch(/^\/notes\/[a-z0-9-]+$/);
+      }
+      // Navigation only — no paragraphs added inside the new blocks.
+      expect(relatedNav.querySelector("p"), path).toBeNull();
+      expect(chapterNav.querySelector("p"), path).toBeNull();
       cleanup();
     }
   });
