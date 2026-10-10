@@ -137,7 +137,7 @@ const UNWITHHELD_BY_DIAGRAMS1_PR1B: ReadonlySet<string> = new Set([
 // BANK-UNWITHHOLD-1 (2026-10-10, B): 20 more PR-2 "figure" withholds are served again. Each one has its official figure bound
 // (DIAGRAMS-1 / C3 / DIAGRAMS-RESUME-B), a key that agrees with the official marking scheme (BANK-FIX-6 re-keyed the Exemplar
 // carbon rows), no placeholder text in any student-visible field, and an independent blind re-solve from stem + figure alone that
-// matched the stored answer (20/20). PYQ-S-MAG-003 is NOT in this set: its official stem asks the direction of motion while
+// matched the stored answer (20/20). PYQ-S-MAG-003 is NOT in this set: its official stem asks the direction of motion (cofounder D58c: stays withheld, reason official-key-mismatch) while
 // the marking scheme answers the direction of force, so it stays withheld pending a cofounder ruling.
 const UNWITHHELD_BY_BANK_UNWITHHOLD_1: ReadonlySet<string> = new Set([
   "PYQ-S-ACID-001", "APQ-S-CARB-005", "CARB-EXMPLR-4-MCQ-005", "CARB-EXMPLR-4-MCQ-010", "CARB-EXMPLR-4-MCQ-016",

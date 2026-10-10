@@ -329,5 +329,5 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
   "PYQ-S-2026-ENV-001": "withheld by BANK-FIX for its missing figure; stem and options T1/T5/T4/T3 clean, figure bound - un-withhold candidate",
   // C3 DIAGRAMS PR-S1 (2026-10-10, B-21): BANK-FIX-5 (#1041) withheld this row after C3 bound it
   // DIAGRAMS-RESUME-B step 3 (Science census)
-  "PYQ-S-MAG-003": "withheld by BANK-FIX for its missing figure; stem and options clean, key (d) agrees with the 31/4/3 MS, figure bound - un-withhold candidate",
+  "PYQ-S-MAG-003": "stays withheld (cofounder D58c, reason official-key-mismatch): figure bound, key (d) agrees with the 31/4/3 MS, but the official stem asks the direction of MOTION while the MS key is the direction of FORCE",
 };
