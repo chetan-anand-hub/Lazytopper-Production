@@ -1266,7 +1266,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         ],
         correctOption: "B",
         answer: "B",
-        explanation: "2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂ is a classic thermal decomposition reaction.",
+        explanation: "2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂ is a thermal decomposition reaction. The Assertion states the products; the Reason only names the reaction type and does not explain why these products form, so both are true but the Reason is not the explanation.",
         solutionSteps: [
           "[1 mark] (B) Both Assertion and Reason are true but Reason is not the correct explanation: lead nitrate on heating gives PbO, NO₂ and O₂ (2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂), and heating-induced decomposition is called thermal decomposition, but that label only names the reaction type; it does not explain why these particular products form.",
         ],

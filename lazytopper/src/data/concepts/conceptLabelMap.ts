@@ -440,7 +440,6 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Standard values and quick recall": "Trig Ratios/Values",
     "Trig Equations — Standard Angles": "Trig Ratios/Values",
     "Trig Identity Proof": "Trig Identities/Proofs",
-    "Trig Identity Proof — Multi-step": "Trig Identities/Proofs",
     "Trig Ratios Manipulation": "Trig Ratios/Values",
     "Trigonometric Identities": "Trig Identities/Proofs",
     "Trigonometric Identities (Proofs)": "Trig Identities/Proofs",
@@ -454,7 +453,6 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Trigonometric identities": "Trig Identities/Proofs",
     "True/False Trig Statements with Justification": "Trig Ratios/Values",
     "Values of Standard Angles": "Trig Ratios/Values",
-    "cos θ from Similar Right Triangles": "Trig Ratios/Values",
   },
   "circles": {
     "Angle Between Tangents": "Tangent Properties",

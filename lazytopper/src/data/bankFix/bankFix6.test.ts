@@ -34,7 +34,7 @@ const rowOf = (e: (typeof BANK_FIX_6)[number]) =>
 const group = (g: string) => BANK_FIX_6.filter((e) => e.group === g && e.verdict === "fixed");
 const steps = (q: Row) => ((q.solutionSteps as string[] | undefined) ?? []).map(String);
 
-const LEAD = /^(OR\s+)?\[([^\]]*?)\s*marks?\]/i;
+const LEAD = /^\[([^\]]*?)\s*marks?\]\s*(OR\b)?/i;
 const ANY_MARK_TOKEN = /\[[\d.½ +]+\s*marks?\]/gi;
 const markValue = (t: string) => t.replace(/½/g, "0.5").split("+").reduce((a, x) => a + parseFloat(x), 0);
 
@@ -98,8 +98,8 @@ describe("BANK-FIX-6 step marks (groups D / E / H)", () => {
       const m = LEAD.exec(s);
       expect(m, `${id}: step without a leading mark token: ${s.slice(0, 60)}`).not.toBeNull();
       expect((s.match(ANY_MARK_TOKEN) ?? []).length, `${id}: extra mark token in: ${s.slice(0, 60)}`).toBe(1);
-      if (m?.[1]) alt += markValue(m[2]);
-      else main += markValue(m?.[2] ?? "0");
+      if (m?.[2]) alt += markValue(m[1]);
+      else main += markValue(m?.[1] ?? "0");
     }
     expect(main, `${id}: non-OR steps`).toBeCloseTo(marks, 5);
     expect(alt, `${id}: OR steps`).toBeLessThanOrEqual(marks + 1e-9);
