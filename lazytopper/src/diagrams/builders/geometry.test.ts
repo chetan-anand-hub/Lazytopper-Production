@@ -361,7 +361,8 @@ describe("areas related to circles — sectors and segments", () => {
 
 // ───────────────────────── every registered geometry binding ─────────────────────────
 
-const GEOMETRY = ALL_COMPUTED_FIGURE_BINDINGS.filter((b) => b.builder !== "heightsDistances");
+const GEOMETRY_BUILDERS = new Set(["circleTangents", "triangleBpt", "coordinatePlot", "circleSector"]);
+const GEOMETRY = ALL_COMPUTED_FIGURE_BINDINGS.filter((b) => GEOMETRY_BUILDERS.has(b.builder));
 
 describe("geometry registry — EVERY binding builds and draws its own numbers", () => {
   it("the four chapter tables are registered", () => {

@@ -16,6 +16,7 @@ import type { CircleDraw, CircleParams } from "../builders/circleTangents";
 import type { BptParams } from "../builders/triangleBpt";
 import type { CoordDraw, CoordParams } from "../builders/coordinatePlot";
 import type { SectorDraw, SectorParams } from "../builders/circleSector";
+import type { OpticsCaseParams, OpticsImageParams } from "../builders/optics";
 
 export type FigureSlot = "solution" | "question";
 
@@ -93,8 +94,29 @@ export interface SectorFigureBinding extends ComputedFigureBindingBase {
   labels?: Record<string, string>;
 }
 
+/** Ray optics (PR-2b). */
+export interface OpticsImageFigureBinding extends ComputedFigureBindingBase {
+  builder: "opticsImage";
+  params: OpticsImageParams;
+}
+export interface OpticsCaseFigureBinding extends ComputedFigureBindingBase {
+  builder: "opticsCase";
+  params: OpticsCaseParams;
+}
+
+/**
+ * One computed figure. `builder` picks the pure builder; `params` is that builder's
+ * input (a discriminated union, so a binding can never hand one builder another's params).
+ *   - "heightsDistances": Trigonometry heights & distances (PR-2a).
+ *   - "opticsImage": a mirror / lens ray diagram from the row's own f, u, v, m (PR-2b).
+ *   - "opticsCase": the standard ray diagram for an object position the row STATES
+ *     (no numbers) — captioned as a standard construction, never as "from the numbers".
+ *   - "circleTangents" / "triangleBpt" / "coordinatePlot" / "circleSector": geometry (PR-2d).
+ */
 export type ComputedFigureBinding =
   | HdFigureBinding
+  | OpticsImageFigureBinding
+  | OpticsCaseFigureBinding
   | CircleFigureBinding
   | TriangleFigureBinding
   | CoordinateFigureBinding

@@ -26,7 +26,13 @@ export type FigureRole =
   | "radius" // a radius or a line through the centre
   | "chord" // a chord of a circle
   | "edge" // a side of a triangle / polygon, a plotted segment
-  | "axis"; // a coordinate axis or an axis tick
+  | "axis" // a coordinate axis or an axis tick; in ray optics (PR-2b), the principal axis
+  // Ray optics (PR-2b) — additive; the H&D roles above are unchanged.
+  | "ray" // a real light ray (solid)
+  | "ray-virtual" // a backward extension of a ray, behind a mirror / lens (dashed)
+  | "object" // the object arrow (solid, arrowhead at its tip)
+  | "image" // a REAL image arrow (solid, arrowhead at its tip)
+  | "image-virtual"; // a VIRTUAL image arrow (dashed, arrowhead at its tip)
 
 export type LabelSide = "l" | "r" | "a" | "b";
 
@@ -43,6 +49,9 @@ export type FigureElement =
       role: FigureRole;
       /** `at`: where along a->b the label sits (0..1, default 0.5 — the midpoint). */
       label?: { text: string; side: LabelSide; at?: number };
+      /** Ray optics (PR-2b): "end" draws an arrowhead at b (object/image arrows); "mid" a
+       *  direction chevron at the midpoint (the way the light travels, a -> b). */
+      arrow?: "mid" | "end";
     }
   | {
       /** An angle arc at `at`, swept from ray at->from to ray at->to (the smaller angle). */
@@ -66,7 +75,25 @@ export type FigureElement =
    */
   | { t: "region"; kind: "sector" | "segment"; c: string; from: string; to: string; r: number; ccwDeg: number }
   /** Plain (not italic) text: axis tick numbers, coordinates, ratio marks. */
-  | { t: "text"; at: string; text: string; dx: number; dy: number; kind: "tick" | "coord"; anchor?: "start" | "middle" | "end" };
+  | { t: "text"; at: string; text: string; dx: number; dy: number; kind: "tick" | "coord"; anchor?: "start" | "middle" | "end" }
+  | {
+      /** Ray optics (PR-2b): a spherical-mirror SYMBOL at the pole `at`. A shallow arc of
+       *  half-height `half` whose edges are `sag` view units off the pole plane (towards
+       *  the reflecting side for concave, away from it for convex), hatched on its back.
+       *  Light comes from the left; the reflecting face is the left face. */
+      t: "mirror";
+      at: string;
+      half: number;
+      sag: number;
+      kind: "concave" | "convex";
+    }
+  | {
+      /** Ray optics (PR-2b): a thin-lens SYMBOL centred on the optical centre `at`. */
+      t: "lens";
+      at: string;
+      half: number;
+      kind: "convex" | "concave";
+    };
 
 export interface FigureTransform {
   /** view = (world.x * sx + ox, oy - world.y * sy). H&D always has sx === sy. */

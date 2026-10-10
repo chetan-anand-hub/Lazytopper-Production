@@ -10,8 +10,10 @@ import { buildBpt } from "../builders/triangleBpt";
 import { buildCoordinatePlot } from "../builders/coordinatePlot";
 import { buildSector } from "../builders/circleSector";
 import type { FigureSpec } from "../figureSpec";
+import { buildOptics } from "../builders/optics";
 import type { ComputedFigureBinding, CropFigureBinding, FigureSlot, SolutionFigureBinding } from "./computedFigureTypes";
 import { SOLUTION_FIGURE_CROPS } from "./solutionFigureCrops";
+import { LIGHT_SOLUTION_FIGURES } from "./lightSolutionFigures";
 import { TRIGONOMETRY_SOLUTION_FIGURES } from "./trigonometrySolutionFigures";
 import { CIRCLES_SOLUTION_FIGURES } from "./circlesSolutionFigures";
 import { TRIANGLES_SOLUTION_FIGURES } from "./trianglesSolutionFigures";
@@ -24,6 +26,7 @@ export const ALL_COMPUTED_FIGURE_BINDINGS: readonly ComputedFigureBinding[] = [
   ...TRIANGLES_SOLUTION_FIGURES,
   ...COORDINATE_GEOMETRY_SOLUTION_FIGURES,
   ...AREAS_RELATED_TO_CIRCLES_SOLUTION_FIGURES,
+  ...LIGHT_SOLUTION_FIGURES,
 ];
 export const ALL_CROP_FIGURE_BINDINGS: readonly CropFigureBinding[] = [...SOLUTION_FIGURE_CROPS];
 export const ALL_SOLUTION_FIGURE_BINDINGS: readonly SolutionFigureBinding[] = [
@@ -55,6 +58,9 @@ export function buildComputedFigure(b: ComputedFigureBinding): { spec: FigureSpe
       return buildCoordinatePlot(b.params, b.labels ?? {}, b.draw ?? {});
     case "circleSector":
       return buildSector(b.params, b.labels ?? {}, b.draw ?? {});
+    case "opticsImage":
+    case "opticsCase":
+      return buildOptics(b.params);
     default:
       return null;
   }

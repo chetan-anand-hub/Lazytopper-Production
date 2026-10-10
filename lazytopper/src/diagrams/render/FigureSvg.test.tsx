@@ -6,8 +6,9 @@ import { afterEach, describe, expect, it } from "vitest";
 import { buildHeightsDistances } from "../builders/heightsDistances";
 import { buildSector } from "../builders/circleSector";
 import { buildCoordinatePlot } from "../builders/coordinatePlot";
+import { MAX_MIRROR_SAG, buildOptics } from "../builders/optics";
 import type { FigureSpec } from "../figureSpec";
-import { FigureSvg, arcLayouts, regionPath } from "./FigureSvg";
+import { FigureSvg, arcLayouts, lensPath, mirrorPath, regionPath } from "./FigureSvg";
 import { FIGURE_SVG_CSS } from "./figureSvgStyle";
 
 afterEach(cleanup);
@@ -73,6 +74,39 @@ describe("FigureSvg", () => {
     cleanup();
     const b = render(<FigureSvg spec={s} idPrefix="same" />).container.innerHTML;
     expect(a).toBe(b);
+  });
+
+  // ── ray optics (PR-2b): additive element kinds ──
+  it("ray optics: draws the mirror symbol (hatched back), solid real rays with chevrons, arrowheads at object and image tips", () => {
+    const r = buildOptics({ template: "image", device: "concave mirror", unit: "cm", f: "10", u: "15", ho: "5" })!;
+    const { container } = render(<FigureSvg spec={r.spec} idPrefix="o1" />);
+    expect(container.querySelectorAll("path.lt-fig__mirror--concave").length).toBe(1);
+    expect(container.querySelectorAll("path.lt-fig__hatch").length).toBe(1);
+    expect(container.querySelectorAll("line.lt-fig__seg--ray").length).toBeGreaterThanOrEqual(4);
+    expect(container.querySelectorAll("polygon[data-arrow='mid']").length).toBe(container.querySelectorAll("line.lt-fig__seg--ray").length);
+    expect(container.querySelectorAll("polygon[data-arrow='end']").length).toBe(2);
+    expect(container.querySelectorAll("line.lt-fig__seg--image").length).toBe(1);
+    expect(container.querySelectorAll("line.lt-fig__seg--ray-virtual").length).toBe(0);
+    expect(container.querySelectorAll("[style]").length).toBe(0);
+  });
+  it("ray optics: a virtual image is the dashed class, with dashed ray extensions", () => {
+    const r = buildOptics({ template: "image", device: "convex lens", unit: "cm", f: "10", u: "8" })!;
+    const { container } = render(<FigureSvg spec={r.spec} idPrefix="o2" />);
+    expect(container.querySelectorAll("path.lt-fig__lens--convex").length).toBe(1);
+    expect(container.querySelectorAll("line.lt-fig__seg--image-virtual").length).toBe(1);
+    expect(container.querySelectorAll("line.lt-fig__seg--ray-virtual").length).toBeGreaterThanOrEqual(1);
+    expect(FIGURE_SVG_CSS).toMatch(/lt-fig__seg--ray-virtual \{[^}]*stroke-dasharray/);
+    expect(FIGURE_SVG_CSS).toMatch(/lt-fig__seg--image-virtual \{[^}]*stroke-dasharray/);
+  });
+  it("mirror symbol: the arc passes through the pole and its edges sit exactly `sag` off the pole plane (concave towards the light)", () => {
+    const at = { x: 100, y: 100 };
+    const cc = mirrorPath(at, { half: 50, sag: MAX_MIRROR_SAG, kind: "concave" }).d;
+    const cv = mirrorPath(at, { half: 50, sag: MAX_MIRROR_SAG, kind: "convex" }).d;
+    expect(cc).toBe("M 97 50 Q 103 100 97 150");
+    expect(cv).toBe("M 103 50 Q 97 100 103 150");
+    // quadratic midpoint = (start + 2·control + end) / 4 = the pole
+    expect((97 + 2 * 103 + 97) / 4).toBe(100);
+    expect(lensPath(at, { half: 50, kind: "convex" })).toMatch(/^M 100 50 Q/);
   });
 });
 
