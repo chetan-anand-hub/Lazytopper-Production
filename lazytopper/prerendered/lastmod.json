@@ -16,12 +16,12 @@
     "lastmod": "2026-10-10"
   },
   "/highly-probable/10/Maths": {
-    "sha256": "09b96e04d535bce0203f9ff101a53ee92e98d4ade97ad32cb7b2f2d9c7517e63",
-    "lastmod": "2026-10-08"
+    "sha256": "ff335f2923d6a6fe5e5e8fa253a44bb33c4aad9ff88028f6064ce58016212720",
+    "lastmod": "2026-10-10"
   },
   "/highly-probable/10/Science": {
-    "sha256": "0f75beb6f4ef3907e56d00e74346eaad99d4c6a3f0471414465ee2d017f16daa",
-    "lastmod": "2026-10-08"
+    "sha256": "9ef58d5b124b5ad35db3458b094145f0f01034186966f35390bdddb7a9664860",
+    "lastmod": "2026-10-10"
   },
   "/legal/privacy": {
     "sha256": "66efbb36e7662b75e4351f705350ae6def725182a1276ae7fb5c65441af468b7",
@@ -40,7 +40,7 @@
     "lastmod": "2026-10-10"
   },
   "/notes/areas-related-to-circles": {
-    "sha256": "b202ab02d025e35b6791b8d981533b9d4eb0eb54aeaabd747cf99428ccbf4e95",
+    "sha256": "686888bf7015df8cd243051134e2e32d1ea19def19b979d9503641d739a8ada0",
     "lastmod": "2026-10-10"
   },
   "/notes/arithmetic-progression": {
@@ -64,7 +64,7 @@
     "lastmod": "2026-10-10"
   },
   "/notes/coordinate-geometry": {
-    "sha256": "3df183fa97f07dcef0509051c62cb14e70f28d3048eb94d6694f527de2f1ce38",
+    "sha256": "8f0cbd8de30ef8f7b38258e0fd9e9e7eb71a8d6ff937254cc2293ddba5402f19",
     "lastmod": "2026-10-10"
   },
   "/notes/electricity": {
@@ -124,7 +124,7 @@
     "lastmod": "2026-10-10"
   },
   "/notes/statistics": {
-    "sha256": "9f0344df22173bef51cbfc2ce1d38fe06713863936b71efe58a7df0a5e70cef9",
+    "sha256": "306543670e11b4f064185a8d3074c784033c61bcb42d4f3dca92b6f2dc9a5ba3",
     "lastmod": "2026-10-10"
   },
   "/notes/surface-areas-and-volumes": {
