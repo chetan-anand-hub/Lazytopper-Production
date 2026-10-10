@@ -29,36 +29,44 @@ function __setPoolForTests(pool) {
 const CACHE_VERSION = 'v3';
 
 // CI-CACHE-BANKMATCH-1 PR-1 — the same question typed or photographed with different spacing,
-// Unicode forms, dash/multiplication glyphs or sentence-case hits the same cache entry.
+// width/ligature forms, minus/hyphen or times glyphs, or sentence case hits the same cache entry.
 // ★ It must NEVER merge two different questions: digits, decimal points, signs, variables,
-// units and exponents are never changed. Hence two deliberate departures from a naive
-// "NFKC + lower-case everything":
-//   * superscripts/subscripts and vulgar fractions are kept OUT of NFKC — NFKC turns x² and
-//     x₂ both into "x2", which would merge x² with x₂ (and with a literal x2);
-//   * only English-looking words (a capital followed by 2+ lower-case letters, e.g. "Find",
-//     "The") are lower-cased. Single letters and mixed-case tokens are variables or units —
-//     R vs r, V vs v, mA vs MA, MHz vs mHz — and keep their case.
-const KEY_PROTECTED_CHAR = /[²³¹¼-¾⁰-₟⅐-⅟]/;
-const KEY_DASHES = /[‐-―−﹘﹣－]/g; // hyphens, en/em dashes, minus sign → "-"
-const KEY_TIMES = /[*∗⋅✕✖]/g; // *, ∗, ⋅, ✕, ✖ → "×"
+// units, exponents, genotypes and chemical formulas are never changed. So EVERY fold is an
+// ALLOWLIST — no blanket rule (independent verifier, round 1, found each of these false hits):
+//   * NO blanket NFKC: it turns x² / x₂ / 2ˣ / aᵐ into x2 / x2 / 2x / am (exponent loss).
+//     Only the folds in KEY_CHAR_FOLDS plus full-width ASCII (Ｆ７ → F7) are applied.
+//   * NO blanket lower-casing: "Rryy" vs "rryy" (genotypes), R vs r, mA vs MA, Hz… differ.
+//     Only the instruction / function words in KEY_LOWER_WORDS are lower-cased.
+//   * minus sign and hyphens → "-", but NOT en/em dashes ("10–3" may be a range);
+//     "*", "∗", "✕", "✖" → "×", but NOT "⋅" (CuSO₄⋅5H₂O, or an OCR'd decimal point).
+const KEY_CHAR_FOLDS = Object.freeze({
+  '\u2212': '-', '\u2010': '-', '\u2011': '-', // minus sign, hyphen, non-breaking hyphen
+  '*': '\u00D7', '\u2217': '\u00D7', '\u2715': '\u00D7', '\u2716': '\u00D7', // * ∗ ✕ ✖ → ×
+  '\u2126': '\u03A9', // ohm sign → Greek capital omega (same glyph)
+  '\u00B5': '\u03BC', // micro sign → Greek small mu (same glyph)
+  '\u212A': 'K', // kelvin sign → K
+  '\uFB00': 'ff', '\uFB01': 'fi', '\uFB02': 'fl', '\uFB03': 'ffi', '\uFB04': 'ffl', // ligatures
+});
+const KEY_LOWER_WORDS = new Set([
+  'find', 'prove', 'show', 'calculate', 'solve', 'evaluate', 'determine', 'simplify', 'explain',
+  'state', 'define', 'write', 'draw', 'name', 'give', 'list', 'describe', 'compare', 'identify',
+  'what', 'which', 'why', 'how', 'when', 'where', 'who', 'the', 'this', 'that', 'these', 'those',
+  'if', 'is', 'are', 'was', 'were', 'an', 'and', 'or', 'of', 'for', 'from', 'with', 'using', 'also',
+  'hence', 'then', 'given', 'consider', 'answer', 'question', 'statement', 'assertion', 'reason',
+  'read', 'study', 'observe', 'look', 'based', 'following', 'choose', 'select', 'correct',
+]);
 function normalizeQuestionForKey(question) {
   let out = '';
-  let run = '';
   for (const ch of String(question == null ? '' : question)) {
-    if (KEY_PROTECTED_CHAR.test(ch)) {
-      out += run.normalize('NFKC') + ch;
-      run = '';
-    } else {
-      run += ch;
-    }
+    const cp = ch.codePointAt(0);
+    if (cp >= 0xff01 && cp <= 0xff5e) out += String.fromCodePoint(cp - 0xfee0); // full-width ASCII
+    else if (Object.prototype.hasOwnProperty.call(KEY_CHAR_FOLDS, ch)) out += KEY_CHAR_FOLDS[ch];
+    else out += ch;
   }
-  out += run.normalize('NFKC');
   return out
-    .replace(KEY_DASHES, '-')
-    .replace(KEY_TIMES, '×')
     .replace(/\s+/g, ' ')
     .trim()
-    .replace(/\b[A-Z][a-z]{2,}\b/g, (w) => w.toLowerCase());
+    .replace(/\b[A-Za-z]+\b/g, (w) => (KEY_LOWER_WORDS.has(w.toLowerCase()) ? w.toLowerCase() : w));
 }
 
 // The version prefix applies to EVERY hash (objective and multi-mark alike) so a
