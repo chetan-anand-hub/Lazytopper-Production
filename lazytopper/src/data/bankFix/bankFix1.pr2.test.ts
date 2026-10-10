@@ -285,7 +285,9 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCQ-S-CTRL-037 stored key and steps belong to another question.
   //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCO-S-CTRL-011 stem needs a labelled diagram; no figure bound.
   //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): PYQ-S-2025-MAG-006 needs three unbound diagrams; key carries another question's text.
+  //   2026-10-10 BANK-FIX-6 (C2): APQ-M-TRIG-011 and APQ-M-TRIG-016 are defined only by an image (figure); no working can be derived from the text.
   const LATER_WITHHOLDS: Record<string, readonly string[]> = {
+    "trigonometry": ["APQ-M-TRIG-011", "APQ-M-TRIG-016"],
     "quadratic-equations": ["LTG-M-QE-284"],
     "control-and-coordination": ["SCQ-S-CTRL-029", "SCQ-S-CTRL-037", "SCO-S-CTRL-011"],
     "magnetic-effects-of-electric-current": ["PYQ-S-2025-MAG-006"],

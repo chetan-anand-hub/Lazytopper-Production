@@ -33,6 +33,5 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ_2026: CanonicalQuestion[] = [
     finalAnswer: "(i) 154 cm²; (ii) 10 cm; (iii)(a) 1512 cm² OR (iii)(b) 14149/3 cm³ ≈ 4716.3 cm³",
     ncertRef: "PYQ 30/5/2 Q38", isCompetencyBased: true,
     sourceOverride: "others",
-    pyqYear: "2026",
   },
 ];
