@@ -78,6 +78,7 @@ import {
 } from "../fullmock/fullMockBlueprint";
 import { isAutoGradeableObjective, isMcqShaped } from "./autoGradeableObjective";
 import { isCbq } from "../../lib/cbq/cbqClassification";
+import { needsMissingFigure } from "../../lib/figureSafe";
 import { questionMatchesFilters } from "../../pages/PracticePage";
 import type { PracticeQuestion } from "../../data/predictionDataService";
 
@@ -91,6 +92,17 @@ const T = { timeout: 60_000 };
 
 const AI = AI_GENERATED_QUESTION_IDS;
 const HUMAN: CanonicalQuestion[] = canonicalQuestionBank.filter((q) => !AI.has(q.id));
+
+/**
+ * FIGURES-ALL-SURFACES-1 (2026-10-10, decision 40a.3): a row whose stem demands a SUPPLIED
+ * figure that no binder entry supplies (publishability Rule 5, the imported
+ * `needsMissingFigure`) is withheld from BOTH tests and Worksheets by design — it is not a
+ * blueprint gap. COMPUTED from the bank, never listed: binding a figure to one of these ids
+ * returns it to the drawable population with no edit here. The gap/identity assertions below
+ * run over `DRAWABLE` (HUMAN minus these); the withheld set is asserted separately.
+ */
+const FIGURE_WITHHELD: CanonicalQuestion[] = HUMAN.filter((q) => needsMissingFigure(q));
+const DRAWABLE: CanonicalQuestion[] = HUMAN.filter((q) => !needsMissingFigure(q));
 
 /** PRACTICE (restated — no exported predicate; see the header for the lines).
  *  Practice applies subject + topic only; a `?section=` deep link maps to board
@@ -140,6 +152,8 @@ const fullMockSectionFor = (q: CanonicalQuestion): FMSection | null => {
 };
 const fullMockEligible = (q: CanonicalQuestion): boolean =>
   FM_SLUGS[q.subject]?.has(resolveCanonicalSlug(q.topicKey)) === true &&
+  // FIGURES-ALL-SURFACES-1 (2026-10-10): `buildUnionPool` drops rule-5 rows before mapping.
+  !needsMissingFigure(q) &&
   fullMockSectionFor(q) !== null;
 
 /** CHAPTER TEST — imported, the real sourcing predicate. */
@@ -201,7 +215,8 @@ describe("surface reachability — every served human row can be drawn on a test
   });
 
   it("P ∧ WS ∧ (CT ∨ FM) for every human row — the gap is pinned by id, shrink-only (CLEAN-1 empties it)", T, () => {
-    const gap = HUMAN.filter(
+    // FIGURES-ALL-SURFACES-1 (2026-10-10): over DRAWABLE — the figure-withheld rows are design.
+    const gap = DRAWABLE.filter(
       (q) => practiceEligible(q) && worksheetsEligible(q) && !(chapterTestEligible(q) || fullMockEligible(q)),
     );
     // A NEW id here is the red this file exists for. Name it, find its cause, and
@@ -221,10 +236,16 @@ describe("surface reachability — every served human row can be drawn on a test
     // 2026-09-11 it is board-pure, so its own residual is the 146 one-mark written
     // rows plus the 15 mis-keys (≈ 161 at the pin; text-dedup ignored). That number
     // is design, not a defect: it is explained row-by-row below, never pinned.
-    const notCT = HUMAN.filter((q) => !chapterTestEligible(q));
+    // FIGURES-ALL-SURFACES-1 (2026-10-10): over DRAWABLE; the figure-withheld rows (computed,
+    // 21 human rows at the lane's base) are asserted ineligible on BOTH tests just below.
+    const notCT = DRAWABLE.filter((q) => !chapterTestEligible(q));
     expect(unexpected(notCT), "rows no Chapter Test section admits").toEqual([]);
     expect(notCT.length).toBeLessThanOrEqual(GAP_CEILING);
-    const notFM = HUMAN.filter((q) => !fullMockEligible(q));
+    for (const q of FIGURE_WITHHELD) {
+      expect(chapterTestEligible(q), `${q.id} demands an unbound figure but CT admits it`).toBe(false);
+      expect(fullMockEligible(q), `${q.id} demands an unbound figure but FM admits it`).toBe(false);
+    }
+    const notFM = DRAWABLE.filter((q) => !fullMockEligible(q));
     // Informational only (board-pure FM): every FM-only miss is a 1-mark written row
     // or a known mis-key — i.e. it IS covered by Chapter Test.
     for (const q of notFM) {
@@ -254,8 +275,10 @@ describe("surface reachability — every served human row can be drawn on a test
     // The A bar alone (new A, OLD B band) — the intermediate the spec's "146 + 15" names.
     const aBarOnlyCT = (q: CanonicalQuestion): boolean =>
       isMcq(q) ? isAutoGradeableObjective(q) : q.marks >= 2 && q.marks <= 99;
+    // FIGURES-ALL-SURFACES-1 (2026-10-10): over DRAWABLE, so both sides exclude the same
+    // figure-withheld rows and the set identities below are unchanged.
     const gapUnder = (ct: (q: CanonicalQuestion) => boolean) =>
-      HUMAN.filter((q) => practiceEligible(q) && worksheetsEligible(q) && !(ct(q) || fullMockEligible(q)));
+      DRAWABLE.filter((q) => practiceEligible(q) && worksheetsEligible(q) && !(ct(q) || fullMockEligible(q)));
     const gapBefore = gapUnder(oldCT);
     const gapABar = gapUnder(aBarOnlyCT);
     const gapAfter = gapUnder(chapterTestEligible);
@@ -425,12 +448,18 @@ describe("surface reachability — GEN-THIN-1 generated rows reach every surface
     expect(ids(under("ncert")), "generated rows under the NCERT filter").toEqual([]);
   });
 
-  it("CHAPTER TEST — every generated row is drawable", T, () => {
-    expect(ids(GEN.filter((q) => !chapterTestEligible(q)))).toEqual([]);
+  // FIGURES-ALL-SURFACES-1 (2026-10-10): a generated row whose stem demands an unbound figure
+  // is withheld from both tests (computed via `needsMissingFigure`, never listed).
+  const GEN_DRAWABLE = GEN.filter((q) => !needsMissingFigure(q));
+
+  it("CHAPTER TEST — every generated row is drawable (except the computed figure-withheld rows)", T, () => {
+    expect(ids(GEN_DRAWABLE.filter((q) => !chapterTestEligible(q)))).toEqual([]);
+    for (const q of GEN.filter((g) => needsMissingFigure(g))) expect(chapterTestEligible(q), q.id).toBe(false);
   });
 
-  it("FULL MOCK — every generated row is drawable (none is a 1-mark written row)", T, () => {
-    expect(ids(GEN.filter((q) => !fullMockEligible(q)))).toEqual([]);
+  it("FULL MOCK — every generated row is drawable (none is a 1-mark written row; figure-withheld rows excepted)", T, () => {
+    expect(ids(GEN_DRAWABLE.filter((q) => !fullMockEligible(q)))).toEqual([]);
+    for (const q of GEN.filter((g) => needsMissingFigure(g))) expect(fullMockEligible(q), q.id).toBe(false);
     // Each lands in the section its marks name — the slot it is authored for.
     const slot: Record<number, FMSection> = { 1: "A", 2: "B", 3: "C", 5: "D", 4: "E" };
     for (const q of GEN) expect(fullMockSectionFor(q), q.id).toBe(slot[q.marks]);
