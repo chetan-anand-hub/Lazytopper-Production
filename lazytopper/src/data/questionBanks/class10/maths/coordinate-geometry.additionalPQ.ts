@@ -14,7 +14,6 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["From the figure, O(−4, 3) and N(−2.4, 1.8). Radius = ON = √[(−2.4 − (−4))² + (1.8 − 3)²] = √[(1.6)² + (−1.2)²].", "= √(2.56 + 1.44) = √4 = 2 units. Correct option (b)."],
     finalAnswer: "(b) 2 units",
     ncertRef: "APQ PQ1 Q4", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: coordinates of O and N from PDF.",
     sourceOverride: "others", },
 
   // PQ1 Q20 (Section A, Assertion-Reasoning, 1 mark)
@@ -77,7 +76,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Area ratio 1:9 ⟹ radius ratio 1:3. So OA = (1/3)·OB.", "If A lies on segment OB (same direction from centre as B), A divides OB internally in ratio 1:2 (from O).", "A = O + (1/3)·(B − O) = (−4 + (1/3)·7, 3 + (1/3)·2) = (−4 + 7/3, 3 + 2/3) = (−5/3, 11/3)."],
     finalAnswer: "(b) (−5/3, 11/3)",
     ncertRef: "APQ PQ_2022 Q4", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: concentric circles with A inside and B outside." },
+ },
 
   // PQ_2022 Q20 (Section A, Assertion-Reasoning, 1 mark)
   { id: "APQ-M-CG-008", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Equidistant Points — Perpendicular Bisector", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Hard", bloomSkill: "Analysing",
@@ -100,6 +99,5 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (i) GP4 = √((9−7)² + (3−1)²) = √(4 + 4) = √8 = 2√2 units.", "[1 mark] (ii) Midpoint of W(−3, −2) and G(7, 1) = ((−3+7)/2, (−2+1)/2) = (2, −1/2).", "[1 mark] (iii) Let the striking point be S(c, 3). X divides S→P2 in ratio 3 : 4, so x-coordinate: (3·2 + 4·c)/7 = 2/7.", "[1 mark] 6 + 4c = 2 ⟹ c = −1 (check y: (3·(−4) + 4·3)/7 = 0 ✓). Striking point = (−1, 3)."],
     finalAnswer: "(i) 2√2 units; (ii) (2, −1/2); (iii) (−1, 3).",
     ncertRef: "APQ PQ_2022 Q37", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: snooker table coordinate map with pockets and balls.",
     sourceOverride: "others", },
 ];

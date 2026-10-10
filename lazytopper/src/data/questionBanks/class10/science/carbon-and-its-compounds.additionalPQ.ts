@@ -29,7 +29,7 @@ export const CARBON_COMPOUNDS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a)(i) Saturated hydrocarbon with 4 carbons: butane, CH3-CH2-CH2-CH3 (C4H10), with all single bonds.", "[1 mark] (a)(ii) Unsaturated hydrocarbon: butene CH2=CH-CH2-CH3 (C4H8) with a C=C double bond (or butyne CH≡C-CH2-CH3, C4H6).", "[1 mark] (b) First straight-chain alkene: But-1-ene, CH2=CH-CH2-CH3, with the double bond at position 1.", "[1 mark] (b) Second straight-chain alkene: But-2-ene, CH3-CH=CH-CH3, with the double bond at position 2."],
     finalAnswer: "(a) Butane / Butene or Butyne; (b) But-1-ene and But-2-ene.",
     ncertRef: "APQ Science-PQ Q37 (first variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: 4-carbon skeleton and structural drawings." },
+ },
 
   // Science-PQ Q37 OR variant (Section E, Case-Based, 4 marks)
   { id: "APQ-S-CARB-004", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Alkynes — Triple Bond", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
@@ -59,7 +59,7 @@ export const CARBON_COMPOUNDS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Each N atom has 5 valence electrons. To complete an octet, both atoms share THREE electron pairs ⟹ triple bond (N≡N).", "After triple-bond sharing, each N has ONE lone pair left. Correct electron-dot structure: :N⫶⫶⫶N: (triple bond between the two N, one lone pair on each)."],
     finalAnswer: "Electron-dot N2: triple bond (3 shared pairs) + one lone pair on each nitrogen.",
     ncertRef: "APQ Science-PQ2 Q6", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: four candidate electron-dot structures of N2 to choose from." },
+ },
 
   // Science-PQ2 Q34 first variant (Section D, Long, 5 marks)
   { id: "APQ-S-CARB-007", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Ethanol — Oxidation, Sodium Reaction, Dehydration", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",

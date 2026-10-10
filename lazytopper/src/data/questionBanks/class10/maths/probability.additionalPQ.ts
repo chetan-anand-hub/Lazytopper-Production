@@ -75,5 +75,5 @@ export const PROBABILITY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Composite numbers in 1-12: {4, 6, 8, 9, 10, 12}. Among small (1-8): 4, 6, 8 → 3 × (1/16). Among large (9-12): 9, 10, 12 → 3 × (1/8). P(Arya) = 3/16 + 3/8 = 3/16 + 6/16 = 9/16.", "Even numbers: {2, 4, 6, 8, 10, 12}. Small: 4 × (1/16); Large: 2 × (1/8). P(Bashir) = 4/16 + 2/8 = 4/16 + 4/16 = 8/16 = 1/2.", "Factors of 12: {1, 2, 3, 4, 6, 12}. Small: 5 × (1/16); Large: 1 × (1/8). P(Cathy) = 5/16 + 1/8 = 5/16 + 2/16 = 7/16.", "Compare: 9/16 > 8/16 > 7/16 ⟹ Arya wins."],
     finalAnswer: "Arya 9/16, Bashir 1/2, Cathy 7/16. Arya highest chance.",
     ncertRef: "APQ PQ_2022 Q31", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: square dartboard with sections numbered 1-12." },
+ },
 ];

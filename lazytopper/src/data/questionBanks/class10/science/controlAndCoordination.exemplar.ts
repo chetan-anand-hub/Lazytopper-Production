@@ -274,7 +274,7 @@ export const CONTROL_COORDINATION_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Auxin is produced at the shoot APEX.", "It diffuses to the SHADED side and moves DOWN to the elongation zone.", "Elongation zone is just below the apex.", "So the BEND is in the elongation zone, not at tip — Figure (c) is correct."],
     finalAnswer: "Figure (c) — bend occurs in the elongation zone (below tip), matching the auxin mechanism.",
     ncertRef: "Exemplar Q37", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: needs Fig. 7.4 to compare three options." },
+ },
 
   { id: "CTRL-EXMPLR-6-SA-005", subject: "Science", topicKey: "control-and-coordination", subtopic: "Neuron Labelling", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Label the parts of a neuron in Figure 7.5.",
@@ -333,7 +333,7 @@ export const CONTROL_COORDINATION_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Draw a labelled neuron: dendrites, cell body with nucleus, axon (long, myelinated), nodes of Ranvier, axon terminals, synapse.", "Dendrites: receive electrical signals.", "Cell body: integrates inputs, contains nucleus and organelles.", "Axon: conducts impulse along its length.", "Myelin sheath: insulates and speeds up signal.", "Axon terminal: releases neurotransmitters at synapse → next cell."],
     finalAnswer: "Neuron = dendrites + cell body + axon + axon terminals. Function: receive, integrate, conduct and transmit nerve impulses.",
     ncertRef: "Exemplar Q45", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: must include labelled neuron diagram." },
+ },
 
   { id: "CTRL-EXMPLR-6-LA-002", subject: "Science", topicKey: "control-and-coordination", subtopic: "Brain Parts", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What are the major parts of the brain? Mention the functions of different parts.",
@@ -369,7 +369,7 @@ export const CONTROL_COORDINATION_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Reflex = quick, automatic, involuntary response to stimulus.", "Examples: hand withdrawal from heat; blinking; knee jerk; sneezing.", "Reflex arc components: Receptor → Sensory neuron → Spinal cord → Motor neuron → Effector.", "Receptor detects stimulus → sensory neuron carries impulse to spinal cord.", "Spinal cord processes (via interneuron) and immediately sends motor signal.", "Motor neuron triggers effector (muscle contraction or gland secretion)."],
     finalAnswer: "Reflex action = involuntary spinal-cord controlled response. Arc: Receptor → Sensory → Spinal cord → Motor → Effector.",
     ncertRef: "Exemplar Q50", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: include labelled reflex arc diagram for full marks." },
+ },
 
   { id: "CTRL-EXMPLR-6-LA-007", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous + Hormonal", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "\"Nervous and hormonal systems together perform the function of control and coordination in human beings.\" Justify the statement.",

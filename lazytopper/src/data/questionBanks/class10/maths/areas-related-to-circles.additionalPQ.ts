@@ -52,7 +52,7 @@ export const AREAS_RELATED_TO_CIRCLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["(i) tan ∠DOA = AD/AO = √3/1 ⟹ ∠DOA = 60°. By symmetry ∠COB = 60°, so ∠DOC = 180° − 120° = 60°.", "(ii) Each wooden triangle: ½ × 7 × 7√3 = 49√3/2 ≈ 42.385. Two triangles: ~84.77 cm^2.", "(iii) DO: cos 60° = AO/DO ⟹ DO = 14 cm. Area of sector DOC = (60/360) · π · 14^2 = 196π/6 ≈ 102.67 cm^2.", "[OR] Tape = arc DC + DO + OC = (60/360)(2π·14) + 14 + 14 = 14π/3 + 28 ≈ 14.67 + 28 = 42.67 cm."],
     finalAnswer: "(i) 60°; (ii) 84.77 cm^2; (iii) 102.67 cm^2 [or] 42.67 cm.",
     ncertRef: "APQ PQ2 Q36", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: trophy shield with sector DOC and triangles." },
+ },
 
   // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
 

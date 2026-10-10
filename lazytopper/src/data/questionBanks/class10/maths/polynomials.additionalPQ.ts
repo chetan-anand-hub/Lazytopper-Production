@@ -41,7 +41,6 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Let polynomial be ax^2 + bx + c with zeroes α, β. Given α + β = 1, α^2 + β^2 = 25. Use (α+β)^2 = α^2 + β^2 + 2αβ ⟹ 1 = 25 + 2αβ ⟹ αβ = −12.", "By relations: b/a = −(α+β) = −1, c/a = αβ = −12. Take a = 1: polynomial = x^2 − x − 12 = (x − 4)(x + 3). Zeroes: x = 4 and x = −3.", "So P = (4, 0) and Q = (−3, 0). From the graph, Riddhi stands at x = −2, and the stone lands at P, x = 4. Horizontal distance = 4 − (−2) = 6 units = 6 × 25 m = 150 m."],
     finalAnswer: "P = (4, 0), Q = (−3, 0); distance = 150 m.",
     ncertRef: "APQ PQ1 Q27", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Parabolic graph showing stone trajectory; Q is launch point, P is landing point.",
     sourceOverride: "others", },
 
   // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
