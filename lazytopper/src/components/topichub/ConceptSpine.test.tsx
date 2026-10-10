@@ -3,7 +3,7 @@ import { render, screen, cleanup, within, fireEvent, act } from "@testing-librar
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 import { ConceptSpine } from "./ConceptSpine";
-import { desktopTopicBySlug, type DesktopTopicSummary } from "../../lib/desktop/topics";
+import { allDesktopTopics, desktopTopicBySlug, type DesktopTopicSummary } from "../../lib/desktop/topics";
 import { buildActionableDesktopTopicHubContent } from "../../lib/desktop/topicHubContent";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import { ensureAllNoteSpecs, getNoteSpecForTopic } from "../notes/noteSpecRegistry";
@@ -325,13 +325,12 @@ describe("ConceptSpine — Examiner's tips (expandable container, no fabrication
     renderSpine();
     const toggle = screen.getByRole("button", { name: /Examiner.s tips/ });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-    // SEO-HUB-1 H2 — collapsed means HIDDEN, not unrendered: the text is in the DOM.
-    expect(screen.getByText(/More examiner.s tips/)).not.toBeVisible();
+    // SEO-HUB-1 H2 — collapsed means HIDDEN, not unrendered: the seeded tip is in the DOM.
+    expect(screen.getByText(trigContent.examinerWarning)).not.toBeVisible();
 
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    // Honest "coming soon" — the full tip set is a later stage, not fabricated here.
-    expect(screen.getByText(/More examiner.s tips/)).toBeVisible();
+    expect(screen.getByText(trigContent.examinerWarning)).toBeVisible();
   });
 
   it("seeds the one real examinerWarning as a preview tip on a seeded topic", () => {
@@ -340,14 +339,50 @@ describe("ConceptSpine — Examiner's tips (expandable container, no fabrication
     expect(screen.getByText(trigContent.examinerWarning)).toBeInTheDocument();
   });
 
-  it("does NOT seed the sample-preview placeholder as if it were a real tip", () => {
+  it("does NOT seed the sample-preview placeholder as if it were a real tip — and opens no empty panel", () => {
     // The synthetic fixture is a sample-preview topic; its examinerWarning is a placeholder.
     expect(previewContent.isSamplePreview).toBe(true);
-    renderSpine(previewTopic, previewContent);
-    fireEvent.click(screen.getByRole("button", { name: /Examiner.s tips/ }));
+    const { container } = renderSpine(previewTopic, previewContent);
     expect(screen.queryByText(previewContent.examinerWarning)).toBeNull();
-    // Still shows the honest "coming soon" line.
-    expect(screen.getByText(/More examiner.s tips/)).toBeInTheDocument();
+    // SEO-NOTES-LINK-2 — with no seeded tip there is nothing to open: no toggle, no panel.
+    expect(screen.queryByRole("button", { name: /Examiner.s tips/ })).toBeNull();
+    expect(container.querySelector("#lt-spine-tips-panel")).toBeNull();
+  });
+
+  it("SEO-NOTES-LINK-2 — the 'coming soon' placeholder is gone (markup and CSS)", () => {
+    const { container } = renderSpine();
+    expect(container.textContent ?? "").not.toMatch(/More examiner.s tips/);
+    expect(container.querySelector(".lt-spine__tips-soon")).toBeNull();
+    expect(container.innerHTML).not.toContain("lt-spine__tips-soon");
+  });
+
+  it("SEO-NOTES-LINK-2 — every real topic: toggle + panel iff it has a seeded tip (P12 runtime count)", () => {
+    const rows = allDesktopTopics().map((t) => {
+      const content = buildActionableDesktopTopicHubContent(t)!;
+      const seeded = !content.isSamplePreview && content.examinerWarning ? content.examinerWarning : null;
+      return { t, content, seeded };
+    });
+    const unseeded = rows.filter((r) => r.seeded === null).map((r) => r.t.slug);
+    // eslint-disable-next-line no-console
+    console.log(
+      `P12_SEEDED_TIP_COUNT: topics=${rows.length} without_seeded_tip=${unseeded.length}` +
+        ` -> ${unseeded.join(", ") || "(none)"}`,
+    );
+    expect(rows.length).toBe(26);
+    for (const { t, content, seeded } of rows) {
+      const { container } = renderSpine(t, content);
+      const toggle = screen.queryByRole("button", { name: /Examiner.s tips/ });
+      const panel = container.querySelector("#lt-spine-tips-panel");
+      if (seeded) {
+        expect(toggle, `${t.slug}: seeded tip but no toggle`).not.toBeNull();
+        expect(panel?.textContent, `${t.slug}: panel lost the seeded tip`).toContain(seeded);
+      } else {
+        expect(toggle, `${t.slug}: no seeded tip but a toggle`).toBeNull();
+        expect(panel, `${t.slug}: no seeded tip but a panel`).toBeNull();
+      }
+      expect(container.textContent ?? "", t.slug).not.toMatch(/More examiner.s tips/);
+      cleanup();
+    }
   });
 });
 

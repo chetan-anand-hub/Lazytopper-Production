@@ -296,6 +296,61 @@ describe("ExamTrendsRanked — crawlable chapter links (SEO-NOTES-AND-LINKS-1)",
     expect(screen.queryByTestId("probe")).toBeNull();
   });
 
+  it("SEO-NOTES-LINK-2 — every chapter row in All chapters also links to its notes, clean path", async () => {
+    await renderPage();
+    const list = screen.getByRole("navigation", { name: "All chapters" });
+    const ordered = [...desktopTopicsBySubject("Maths"), ...desktopTopicsBySubject("Science")];
+    const rows = Array.from(list.querySelectorAll("li"));
+    expect(rows.length).toBe(26);
+    rows.forEach((row, i) => {
+      const t = ordered[i];
+      const hub = row.querySelector<HTMLAnchorElement>('a[href^="/topic-hub/"]');
+      expect(hub?.getAttribute("href"), t.slug).toBe(`/topic-hub/${t.slug}`);
+      const notes = Array.from(row.querySelectorAll<HTMLAnchorElement>('a[href^="/notes/"]'));
+      expect(notes.length, `${t.slug}: expected one notes link`).toBe(1);
+      expect(notes[0].getAttribute("href")).toBe(`/notes/${t.slug}`);
+      expect(notes[0].getAttribute("href")).not.toMatch(/[?#]/);
+      expect(notes[0]).toHaveTextContent("Notes");
+      // The accessible name identifies the chapter (26 links all called "Notes" would not).
+      expect(within(row).getByRole("link", { name: `${t.name} notes` })).toBe(notes[0]);
+    });
+    // No notes link anywhere on the page carries a query or hash.
+    for (const a of Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="/notes/"]'))) {
+      expect(a.getAttribute("href")).toMatch(/^\/notes\/[a-z0-9-]+$/);
+    }
+  });
+
+  it("SEO-NOTES-LINK-2 — EVERY hub-linked chapter on the page (ranked cards too) has its notes link", async () => {
+    await renderPage();
+    // Ranked cards: each card's Learn hub link is paired with a Notes link to the same chapter.
+    const cards = Array.from(document.querySelectorAll<HTMLElement>("article[data-topic-slug]"));
+    expect(cards.length).toBeGreaterThan(0);
+    for (const card of cards) {
+      const slug = card.getAttribute("data-topic-slug") as string;
+      const t = desktopTopicBySlug(slug)!;
+      expect(within(card).getByRole("link", { name: /Learn/ })).toHaveAttribute("href", `/topic-hub/${slug}`);
+      const notes = within(card).getByRole("link", { name: `${t.name} notes` });
+      expect(notes, slug).toHaveAttribute("href", `/notes/${slug}`);
+      expect(notes).toHaveTextContent("Notes");
+    }
+    // Page-wide: every chapter reached by a hub link is also reached by a clean notes link.
+    const hubSlugs = new Set(
+      Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="/topic-hub/"]')).map((a) =>
+        (a.getAttribute("href") as string).slice("/topic-hub/".length),
+      ),
+    );
+    const notesSlugs = new Set(
+      Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="/notes/"]')).map((a) =>
+        (a.getAttribute("href") as string).slice("/notes/".length),
+      ),
+    );
+    for (const slug of hubSlugs) expect(notesSlugs.has(slug), `${slug}: hub link without notes link`).toBe(true);
+    // Card-level pairing is exact: as many notes links inside cards as cards.
+    const inCards = cards.flatMap((c) => Array.from(c.querySelectorAll('a[href^="/notes/"]')));
+    expect(inCards.length).toBe(cards.length);
+    for (const a of inCards) expect(a.getAttribute("href")).toMatch(/^\/notes\/[a-z0-9-]+$/);
+  });
+
   it("the All chapters list routes client-side on click", async () => {
     await renderPage();
     const list = screen.getByRole("navigation", { name: "All chapters" });

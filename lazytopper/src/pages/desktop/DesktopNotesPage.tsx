@@ -5,6 +5,7 @@ import { useReturnTicket } from "../../components/navigation/ReturnTicket";
 import { Note, type NoteInitialTab } from "../../components/notes/Note";
 import { useNoteSpec } from "../../components/notes/noteSpecRegistry";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
+import { prevNext, related } from "../../seo/notesLinks";
 
 /**
  * DesktopNotesPage — `/notes/:topicSlug`, the chapter note on a URL of its own
@@ -81,6 +82,49 @@ const NOTES_PAGE_CSS = `
   line-height: 1.6;
   color: hsl(220, 15%, 42%);
 }
+/* SEO-NOTES-LINK-2 — navigation to the neighbouring chapters. Links only, no copy. */
+.lt-notes-page__related {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: 20px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid hsl(220, 15%, 88%);
+  font-size: 13px;
+}
+.lt-notes-page__related-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: hsl(220, 15%, 42%);
+}
+.lt-notes-page__related-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lt-notes-page__related a,
+.lt-notes-page__pager a {
+  color: hsl(152, 60%, 28%);
+  font-weight: 600;
+  text-decoration: none;
+}
+.lt-notes-page__related a:hover,
+.lt-notes-page__pager a:hover { text-decoration: underline; }
+.lt-notes-page__pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0 16px;
+  font-size: 13px;
+}
+.lt-notes-page__pager-next { margin-left: auto; }
 `;
 
 /**
@@ -91,6 +135,50 @@ const NOTES_PAGE_CSS = `
  */
 export function noteTabFromParam(raw: string | null): NoteInitialTab | undefined {
   return raw === "questions" ? "questions" : undefined;
+}
+
+/**
+ * SEO-NOTES-LINK-2 — "Related notes" (the nearest chapters of the same subject) and
+ * previous / next chapter, as plain crawlable links on clean paths. Navigation only:
+ * no paragraphs or blurbs (owner ruling). The link data is `seo/notesLinks`.
+ */
+function NotesNav({ slug }: { slug: string }) {
+  const links = related(slug);
+  const { prev, next } = prevNext(slug);
+  return (
+    <>
+      {links.length > 0 && (
+        <nav className="lt-notes-page__related" aria-label="Related notes">
+          <h2 className="lt-notes-page__related-title">Related notes</h2>
+          <ul className="lt-notes-page__related-list">
+            {links.map((l) => (
+              <li key={l.slug}>
+                <Link to={l.href}>{l.name}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+      {(prev || next) && (
+        <nav className="lt-notes-page__pager" aria-label="Chapter navigation">
+          {prev && (
+            <Link to={prev.href} aria-label={`Previous chapter: ${prev.name}`}>
+              ← {prev.name}
+            </Link>
+          )}
+          {next && (
+            <Link
+              to={next.href}
+              className="lt-notes-page__pager-next"
+              aria-label={`Next chapter: ${next.name}`}
+            >
+              {next.name} →
+            </Link>
+          )}
+        </nav>
+      )}
+    </>
+  );
 }
 
 export default function DesktopNotesPage() {
@@ -141,6 +229,7 @@ export default function DesktopNotesPage() {
       {spec ? (
         <>
           <Note spec={spec} initialTab={noteTabFromParam(params.get("tab"))} />
+          <NotesNav slug={topic.slug} />
           {/* SEO-5 PR-4 — the end of every notes page links to the answer-marking guide. */}
           <Link to="/check-your-answer" className="lt-notes-page__cbse">
             Practise writing answers the way examiners mark them → Guide
