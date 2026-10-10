@@ -293,20 +293,21 @@ const KEY_MUST_NOT_HIT = [
   ['Find vᵢ for the body.', 'Find vi for the body.'], // subscript letter
   ['Write the formula CuSO₄⋅5H₂O.', 'Write the formula CuSO₄×5H₂O.'], // ⋅ is not × here
   ['Evaluate 10–3.', 'Evaluate 10-3.'], // an en dash may be a range
+  ['Find OR if OP = 5 cm.', 'Find or if OP = 5 cm.'], // verifier round 2: an ALL-CAPS label keeps its case
 ];
 
 test('PR-1 — MUST-HIT: the same question in a different form shares one cache key', () => {
   for (const [a, b] of KEY_MUST_HIT) {
     assert.equal(stepSolution.computeQuestionHash(a, 3), stepSolution.computeQuestionHash(b, 3), `${a}  ≡  ${b}`);
   }
-  assert.ok(KEY_MUST_HIT.length >= 15);
+  assert.equal(KEY_MUST_HIT.length, 15);
 });
 
 test('PR-1 — MUST-NOT-HIT: a different digit, sign, variable, unit, exponent or word never shares a key', () => {
   for (const [a, b] of KEY_MUST_NOT_HIT) {
     assert.notEqual(stepSolution.computeQuestionHash(a, 3), stepSolution.computeQuestionHash(b, 3), `${a}  ≠  ${b}`);
   }
-  assert.ok(KEY_MUST_NOT_HIT.length >= 15);
+  assert.equal(KEY_MUST_NOT_HIT.length, 23);
 });
 
 test('PR-1 — marks stay in the key, and the version is bumped so old v2 entries miss', () => {

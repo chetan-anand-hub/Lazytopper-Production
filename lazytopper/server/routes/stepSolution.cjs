@@ -66,7 +66,8 @@ function normalizeQuestionForKey(question) {
   return out
     .replace(/\s+/g, ' ')
     .trim()
-    .replace(/\b[A-Za-z]+\b/g, (w) => (KEY_LOWER_WORDS.has(w.toLowerCase()) ? w.toLowerCase() : w));
+    // Only lower-case or Title-case tokens fold; ALL-CAPS tokens are labels (OR, AN, OF, WHO) and keep their case.
+    .replace(/\b[A-Za-z]+\b/g, (w) => (/^[A-Z]?[a-z]+$/.test(w) && KEY_LOWER_WORDS.has(w.toLowerCase()) ? w.toLowerCase() : w));
 }
 
 // The version prefix applies to EVERY hash (objective and multi-mark alike) so a
