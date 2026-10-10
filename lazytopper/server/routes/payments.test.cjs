@@ -155,7 +155,7 @@ function fakeRazorpay() {
 }
 
 /* ── the routes behind a real HTTP server, so bodies arrive as real bytes ────────── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), now = () => NOW, telemetry } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), now = () => NOW, telemetry, topupBonus } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const tele = telemetry || { increment: (e) => events.push(e) };
@@ -168,6 +168,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
   const routes = createPaymentRoutes({
     sendJson, verifiedCaller, adminFirestore: db, telemetry: tele, env, fetchImpl: rzp.fetchImpl, now,
     foundingOfferOpen: true,
+    ...(topupBonus ? { topupBonus } : {}),
   });
   const server = http.createServer((req, res) => {
     const p = String(req.url).split('?')[0];
@@ -618,4 +619,236 @@ test('Z1 · REAL index.cjs, switch ON: the routes are mounted (unauthenticated o
   const hook = await request(port, PAY_WEBHOOK_PATH, { raw: '{"event":"payment.captured"}', headers: { 'X-Razorpay-Signature': 'bad' } });
   assert.equal(hook.status, 400, hook.text);
   assert.equal(hook.json.reason, 'bad_signature');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TOPUP-1 - extra-usage packs. DARK behind PAYMENTS_ENABLED AND TOPUP_ENABLED; premium only; the amount is
+   always the SERVER table; the grant is one idempotent transaction on the payment id.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const usageCredit = require('../services/usageCredit.cjs');
+const ENV_TOPUP = { ...ENV_ON, TOPUP_ENABLED: '1' };
+const premiumDb = () => memoryFirestore({
+  'subscriptions/u1': { tier: 'premium', plan: 'month', premiumSince: new Date(NOW - DAY).toISOString(), passEnd: new Date(NOW + 10 * DAY).toISOString() },
+});
+const MICRO = 1_000_000;
+
+test('TOPUP dark · TOPUP_ENABLED unset (payments ON): a top-up key is answered 404, Razorpay is never called, nothing is written', async (t) => {
+  const rzp = fakeRazorpay();
+  const db = premiumDb();
+  const srv = await startRoutes({ env: ENV_ON, rzp, db });
+  t.after(srv.close);
+  for (const passType of ['topup_49', 'topup_149']) {
+    const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType }, headers: asUid('u1') });
+    assert.equal(r.status, 404, passType);
+    assert.deepEqual(r.json, { error: 'Not Found' });
+  }
+  assert.equal(rzp.calls.length, 0);
+  assert.equal([...db.docs.keys()].filter((k) => k.startsWith('payOrders/') || k.startsWith('usageCredits/')).length, 0);
+});
+
+test('TOPUP dark · TOPUP_ENABLED on but PAYMENTS_ENABLED unset: every route is the gateway 404 (the flags AND)', async (t) => {
+  const srv = await startRoutes({ env: { ...ENV_TOPUP, PAYMENTS_ENABLED: '' }, db: premiumDb() });
+  t.after(srv.close);
+  const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'topup_49' }, headers: asUid('u1') });
+  assert.equal(r.status, 404);
+  assert.equal(srv.rzp.calls.length, 0);
+  const { isTopupEnabled } = require('./payments.cjs');
+  assert.equal(isTopupEnabled({ TOPUP_ENABLED: '1' }), false);
+  assert.equal(isTopupEnabled({ PAYMENTS_ENABLED: '1' }), false);
+  assert.equal(isTopupEnabled({ PAYMENTS_ENABLED: '1', TOPUP_ENABLED: '1' }), true);
+});
+
+test('TOPUP · forged amount: the client sends 1 rupee, the server prices 49 (and 149)', async (t) => {
+  const srv = await startRoutes({ env: ENV_TOPUP, db: premiumDb() });
+  t.after(srv.close);
+  const a = await createOrder(srv, 'u1', 'topup_49', { amount: 100, amountPaise: 100, price: 1, pricePaidInr: 1, creditInr: 9999 });
+  assert.equal(a.amountPaise, 4900);
+  const sent = srv.rzp.calls.find((c) => c.method === 'POST' && c.url.endsWith('/v1/orders'));
+  assert.equal(sent.body.amount, 4900);
+  assert.deepEqual(sent.body.notes, { uid: 'u1', passType: 'topup_49' });
+  const b = await createOrder(srv, 'u1', 'topup_149', { amount: 1 });
+  assert.equal(b.amountPaise, 14900);
+  const stored = srv.db.read(`payOrders/${a.orderId}`);
+  assert.equal(stored.passType, 'topup_49');
+  assert.equal(stored.amountPaise, 4900);
+});
+
+test('TOPUP · premium only: a free / trial / expired / no-subscription student is refused (403) before Razorpay is called', async (t) => {
+  const db = memoryFirestore({
+    'subscriptions/free1': { tier: 'free' },
+    'subscriptions/trial1': { tier: 'trial', trialStartDate: new Date(NOW - DAY) },
+    'subscriptions/expired1': { tier: 'premium', passEnd: new Date(NOW - DAY).toISOString() },
+  });
+  const srv = await startRoutes({ env: ENV_TOPUP, db });
+  t.after(srv.close);
+  for (const uid of ['free1', 'trial1', 'expired1', 'nobody']) {
+    const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'topup_49' }, headers: asUid(uid) });
+    assert.equal(r.status, 403, uid);
+    assert.equal(r.json.error, 'premium_required', uid);
+  }
+  assert.equal(srv.rzp.calls.length, 0);
+});
+
+async function payTopup(srv, passType = 'topup_49', uid = 'u1') {
+  const { orderId } = await createOrder(srv, uid, passType);
+  const p = srv.rzp.pay(orderId);
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid(uid) });
+  return { orderId, p, r };
+}
+
+test('TOPUP · verify credits the BASE in ONE transaction (bonus OFF at launch): 49 -> 20, 149 -> 65, bonus recorded as 0', async (t) => {
+  const srv = await startRoutes({ env: ENV_TOPUP, db: premiumDb() });
+  t.after(srv.close);
+  const a = await payTopup(srv, 'topup_49');
+  assert.equal(a.r.status, 200, JSON.stringify(a.r.json));
+  assert.deepEqual({ ok: a.r.json.ok, replayed: a.r.json.replayed, topup: a.r.json.topup }, { ok: true, replayed: false, topup: true });
+  const doc = srv.db.read('usageCredits/u1');
+  assert.equal(doc.balanceMicroInr, 20 * MICRO);
+  assert.equal(doc.boughtBaseMicroInr, 20 * MICRO);
+  assert.equal(doc.boughtBonusMicroInr, 0);
+  const grant = srv.db.read(`usageCredits/u1/grants/${a.p.id}`);
+  assert.deepEqual(
+    { k: grant.productKey, base: grant.baseMicroInr, bonus: grant.bonusMicroInr, pct: grant.bonusPercent, price: grant.priceInr },
+    { k: 'topup_49', base: 20 * MICRO, bonus: 0, pct: 0, price: 49 },
+  );
+  assert.equal(srv.db.read(`payOrders/${a.orderId}`).status, 'paid');
+  assert.equal(srv.db.read('subscriptions/u1').lastPaymentRef, undefined, 'a top-up must not touch the pass');
+  const b = await payTopup(srv, 'topup_149');
+  assert.equal(b.r.status, 200);
+  const doc2 = srv.db.read('usageCredits/u1');
+  assert.equal(doc2.balanceMicroInr, (20 + 65) * MICRO);
+  assert.equal(doc2.boughtBonusMicroInr, 0);
+});
+
+test('TOPUP · IDEMPOTENT: verify twice, verify then webhook, webhook twice -> the credit is added exactly once', async (t) => {
+  const srv = await startRoutes({ env: ENV_TOPUP, db: premiumDb() });
+  t.after(srv.close);
+  const { orderId, p, r } = await payTopup(srv);
+  assert.equal(r.json.replayed, false);
+  const again = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(again.json.replayed, true);
+  const raw = webhookBody({ ...p, status: 'captured' });
+  const hook = (body) => request(srv.port, PAY_WEBHOOK_PATH, { raw: body, headers: { 'x-razorpay-signature': hmac(WEBHOOK_SECRET, body) } });
+  assert.equal((await hook(raw)).json.replayed, true);
+  assert.equal((await hook(raw)).json.replayed, true);
+  assert.equal(srv.db.read('usageCredits/u1').balanceMicroInr, 20 * MICRO, 'a replay added credit');
+  assert.equal([...srv.db.docs.keys()].filter((k) => k.startsWith('usageCredits/u1/grants/')).length, 1);
+});
+
+test('TOPUP · webhook first, then verify: still once', async (t) => {
+  const srv = await startRoutes({ env: ENV_TOPUP, db: premiumDb() });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv, 'u1', 'topup_49');
+  const p = srv.rzp.pay(orderId);
+  const body = webhookBody({ ...p, status: 'captured' });
+  const h = await request(srv.port, PAY_WEBHOOK_PATH, { raw: body, headers: { 'x-razorpay-signature': hmac(WEBHOOK_SECRET, body) } });
+  assert.equal(h.json.replayed, false);
+  const v = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(v.json.replayed, true);
+  assert.equal(srv.db.read('usageCredits/u1').balanceMicroInr, 20 * MICRO);
+});
+
+test('TOPUP · a paid pack is credited even if TOPUP_ENABLED was switched off after the order was made', async (t) => {
+  const db = premiumDb();
+  const rzp = fakeRazorpay();
+  const on = await startRoutes({ env: ENV_TOPUP, db, rzp });
+  const { orderId } = await createOrder(on, 'u1', 'topup_49');
+  await on.close();
+  const off = await startRoutes({ env: ENV_ON, db, rzp });
+  t.after(off.close);
+  const p = rzp.pay(orderId);
+  const r = await request(off.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(r.status, 200);
+  assert.equal(db.read('usageCredits/u1').balanceMicroInr, 20 * MICRO);
+});
+
+test('TOPUP · TAMPERED amount on a top-up order is refused like any pass (no credit)', async (t) => {
+  const srv = await startRoutes({ env: ENV_TOPUP, db: premiumDb() });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv, 'u1', 'topup_149');
+  const p = srv.rzp.pay(orderId, { amount: 100 });
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(r.status, 400);
+  assert.equal(srv.db.read('usageCredits/u1'), undefined);
+});
+
+test('TOPUP · another student cannot verify your order (uid mismatch) and gets nothing', async (t) => {
+  const srv = await startRoutes({ env: ENV_TOPUP, db: premiumDb() });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv, 'u1', 'topup_49');
+  const p = srv.rzp.pay(orderId);
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u2') });
+  assert.equal(r.status, 400);
+  assert.equal(srv.db.read('usageCredits/u2'), undefined);
+  assert.equal(srv.db.read('usageCredits/u1'), undefined);
+});
+
+test('TOPUP · the bonus is built but OFF (0%): no offer by default; on it adds 25% (49 -> 25, 149 -> 81), recorded separately, stops after its end date, and ignores FOUNDING_OFFER_OPEN', () => {
+  const { topupCreditFor, topupBonusActive, TOPUP_BONUS_PERCENT, TOPUP_BONUS_ENDS_ISO } = pricing;
+  assert.equal(TOPUP_BONUS_PERCENT, 0, 'launch: no bonus');
+  assert.equal(TOPUP_BONUS_ENDS_ISO, null);
+  assert.deepEqual(topupCreditFor('topup_49', NOW), { baseMicroInr: 20 * MICRO, bonusMicroInr: 0, totalMicroInr: 20 * MICRO, bonusPercent: 0 });
+  assert.deepEqual(topupCreditFor('topup_149', NOW), { baseMicroInr: 65 * MICRO, bonusMicroInr: 0, totalMicroInr: 65 * MICRO, bonusPercent: 0 });
+  const on = { percent: 25 };
+  assert.deepEqual(topupCreditFor('topup_49', NOW, on), { baseMicroInr: 20 * MICRO, bonusMicroInr: 5 * MICRO, totalMicroInr: 25 * MICRO, bonusPercent: 25 });
+  assert.deepEqual(topupCreditFor('topup_149', NOW, on), { baseMicroInr: 65 * MICRO, bonusMicroInr: 16 * MICRO, totalMicroInr: 81 * MICRO, bonusPercent: 25 });
+  const until = { percent: 25, endsIso: '2026-12-31' };
+  assert.equal(topupCreditFor('topup_49', istNoon('2026-12-31'), until).bonusMicroInr, 5 * MICRO, 'the last day still counts');
+  assert.equal(topupCreditFor('topup_49', istNoon('2027-01-01'), until).bonusMicroInr, 0, 'after the end date: base only');
+  assert.equal(topupBonusActive(NOW, 0), false);
+  assert.equal(topupCreditFor('month', NOW), null);
+  // FOUNDING_OFFER_OPEN has no effect on it: the function takes no such input and the founding switch is not read.
+  assert.ok(!/FOUNDING_OFFER_OPEN/.test(topupCreditFor.toString()));
+});
+
+test('TOPUP · bonus ON through the routes: verify credits base + bonus and records them separately', async (t) => {
+  const srv = await startRoutes({ env: ENV_TOPUP, db: premiumDb(), topupBonus: { percent: 25 } });
+  t.after(srv.close);
+  const a = await payTopup(srv, 'topup_149');
+  assert.equal(a.r.status, 200);
+  const doc = srv.db.read('usageCredits/u1');
+  assert.equal(doc.balanceMicroInr, 81 * MICRO);
+  assert.equal(doc.boughtBaseMicroInr, 65 * MICRO);
+  assert.equal(doc.boughtBonusMicroInr, 16 * MICRO);
+  const grant = srv.db.read(`usageCredits/u1/grants/${a.p.id}`);
+  assert.deepEqual({ base: grant.baseMicroInr, bonus: grant.bonusMicroInr, pct: grant.bonusPercent }, { base: 65 * MICRO, bonus: 16 * MICRO, pct: 25 });
+});
+
+test('TOPUP · expiry: credit counts until the predicted board day, then is IGNORED (kept, never deleted); a new pack restarts it', async () => {
+  const db = memoryFirestore();
+  const order = (id, key) => db.collection('payOrders').doc(id).set({ uid: 'u9', passType: key, amountPaise: 4900, status: 'created' });
+  await order('o1', 'topup_49');
+  const g1 = await usageCredit.grantTopup({ uid: 'u9', productKey: 'topup_49', paymentRef: 'pay1', orderId: 'o1', nowMs: NOW }, { firestore: db });
+  assert.equal(g1.credit.balanceMicroInr, 20 * MICRO);
+  const expiresAt = db.read('usageCredits/u9').expiresAtMs;
+  assert.equal(expiresAt, usageCredit.creditExpiryMs(NOW));
+  assert.ok(expiresAt > NOW);
+  assert.equal((await usageCredit.readCredit(db, 'u9', expiresAt)).balanceMicroInr, 20 * MICRO, 'still counts on the board day');
+  const after = await usageCredit.readCredit(db, 'u9', expiresAt + 1);
+  assert.equal(after.balanceMicroInr, 0);
+  assert.equal(after.expired, true);
+  assert.equal(after.expiredMicroInr, 20 * MICRO, 'the expired remainder stays visible to admin');
+  assert.equal(db.read('usageCredits/u9').balanceMicroInr, 20 * MICRO, 'not deleted silently');
+  assert.deepEqual(await usageCredit.chargeCredit({ uid: 'u9', amountMicroInr: 5 * MICRO, nowMs: expiresAt + 1 }, { firestore: db }), { charged: 0 });
+  await order('o2', 'topup_49');
+  const g2 = await usageCredit.grantTopup({ uid: 'u9', productKey: 'topup_49', paymentRef: 'pay2', orderId: 'o2', nowMs: expiresAt + 1 }, { firestore: db });
+  assert.equal(g2.credit.balanceMicroInr, 20 * MICRO, 'expired credit did not carry into the new pack');
+  assert.equal(g2.credit.expiredMicroInr, 20 * MICRO);
+});
+
+test('TOPUP · chargeCredit: the ACTUAL cost is taken, never more than the balance, never below zero; creditCovers needs a positive balance', async () => {
+  const db = memoryFirestore();
+  await db.collection('payOrders').doc('o1').set({ uid: 'u8', passType: 'topup_49', amountPaise: 4900, status: 'created' });
+  await usageCredit.grantTopup({ uid: 'u8', productKey: 'topup_49', paymentRef: 'p1', orderId: 'o1', nowMs: NOW }, { firestore: db });
+  assert.deepEqual(await usageCredit.chargeCredit({ uid: 'u8', amountMicroInr: 3 * MICRO, nowMs: NOW }, { firestore: db }), { charged: 3 * MICRO });
+  assert.equal(db.read('usageCredits/u8').balanceMicroInr, 17 * MICRO);
+  assert.equal(db.read('usageCredits/u8').spentMicroInr, 3 * MICRO);
+  assert.deepEqual(await usageCredit.chargeCredit({ uid: 'u8', amountMicroInr: 100 * MICRO, nowMs: NOW }, { firestore: db }), { charged: 17 * MICRO });
+  assert.equal(db.read('usageCredits/u8').balanceMicroInr, 0);
+  assert.deepEqual(await usageCredit.chargeCredit({ uid: 'u8', amountMicroInr: MICRO, nowMs: NOW }, { firestore: db }), { charged: 0 });
+  assert.deepEqual(await usageCredit.chargeCredit({ uid: 'nobody', amountMicroInr: MICRO, nowMs: NOW }, { firestore: db }), { charged: 0 });
+  assert.equal(usageCredit.creditCovers(0, 0), false);
+  assert.equal(usageCredit.creditCovers(5, 6), false);
+  assert.equal(usageCredit.creditCovers(6, 6), true);
 });

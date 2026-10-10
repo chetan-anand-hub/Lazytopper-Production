@@ -157,7 +157,69 @@ function endOfIstDayMs(iso) {
   return Date.UTC(date.y, date.m, date.d + 1) - IST_OFFSET_MS - 1;
 }
 
+/* ── TOPUP-1 · extra-usage packs (the SERVER's price table; the client never sends an amount) ──────────
+   A pack is a one-time payment that adds AI-usage CREDIT, spent only after the plan's own window is at cap.
+   `priceInr` is what the student pays (GST included). `creditInr` is the BASE credit in rupees of AI COST (a launch bonus is added by topupCreditFor).
+   THE ARITHMETIC (owner-agreed 10 Oct; the credit amounts are PENDING the owner's OK - they are constants here):
+     49  incl. 18% GST -> 49 / 1.18  = 41.53 net;  less the Razorpay fee (~2% + 18% GST ~ 2.4%) ~ 40.5;
+         about half of that goes to AI cost                                   ->  credit 20  (49% of net)
+     149 incl. 18% GST -> 149 / 1.18 = 126.27 net; less the fee ~ 123.3;
+         the bigger pack is slightly better value (credit 65 = 51% of net)   ->  credit 65
+   Credit is held in MICRO-INR (1 rupee = 1,000,000), the unit usageLedger.cjs already meters in. */
+const MICRO_INR_PER_INR = 1_000_000;
+const TOPUP_PRODUCTS = Object.freeze({
+  topup_49: Object.freeze({ priceInr: 49, creditInr: 20 }),
+  topup_149: Object.freeze({ priceInr: 149, creditInr: 65 }),
+});
+
+/**
+ * BONUS OFFER (owner 11 Oct 00:13 IST, TOPUP-1 v1.3): BUILT BUT OFF at launch. `TOPUP_BONUS_PERCENT` is 0, so
+ * a pack credits its base amount and no offer text exists anywhere. The owner plans +25% near the boards
+ * (around December) as a one-constant change in a later small PR - never an env var set by an agent.
+ * `TOPUP_BONUS_ENDS_ISO` is an optional last day (IST, "YYYY-MM-DD") after which the bonus stops by itself.
+ * It is NOT tied to FOUNDING_OFFER_OPEN: the founding price is a different thing and is untouched here.
+ * When on: 49 -> 25, 149 -> 81 (the bonus is floored to a whole rupee), recorded SEPARATELY from the base.
+ */
+const TOPUP_BONUS_PERCENT = 0;
+const TOPUP_BONUS_ENDS_ISO = null;
+
+/** Is the bonus running at `nowMs`? (percent > 0, and not past its optional last IST day) */
+function topupBonusActive(nowMs, percent = TOPUP_BONUS_PERCENT, endsIso = TOPUP_BONUS_ENDS_ISO) {
+  if (!(Number.isFinite(percent) && percent > 0)) return false;
+  if (endsIso == null) return true;
+  const end = endOfIstDayMs(endsIso);
+  return end !== null && Number.isFinite(nowMs) && nowMs <= end;
+}
+
+/**
+ * What a pack credits at `nowMs`: `{ baseMicroInr, bonusMicroInr, totalMicroInr, bonusPercent }`. Null for an
+ * unknown product. `bonus` overrides the two constants (a test seam; production passes nothing).
+ */
+function topupCreditFor(key, nowMs, bonus) {
+  if (!isTopupProduct(key)) return null;
+  const p = TOPUP_PRODUCTS[key];
+  const percent = bonus && bonus.percent !== undefined ? bonus.percent : TOPUP_BONUS_PERCENT;
+  const endsIso = bonus && bonus.endsIso !== undefined ? bonus.endsIso : TOPUP_BONUS_ENDS_ISO;
+  const pct = topupBonusActive(nowMs, percent, endsIso) ? percent : 0;
+  const bonusInr = Math.floor((p.creditInr * pct) / 100);
+  const baseMicroInr = p.creditInr * MICRO_INR_PER_INR;
+  const bonusMicroInr = bonusInr * MICRO_INR_PER_INR;
+  return { baseMicroInr, bonusMicroInr, totalMicroInr: baseMicroInr + bonusMicroInr, bonusPercent: pct };
+}
+
+/** True for a key of the closed top-up table. */
+function isTopupProduct(key) {
+  return typeof key === 'string' && Object.prototype.hasOwnProperty.call(TOPUP_PRODUCTS, key);
+}
+
 module.exports = {
+  MICRO_INR_PER_INR,
+  TOPUP_PRODUCTS,
+  TOPUP_BONUS_PERCENT,
+  TOPUP_BONUS_ENDS_ISO,
+  topupBonusActive,
+  topupCreditFor,
+  isTopupProduct,
   PRICE_MONTHLY_LIST_INR,
   PRICE_MONTHLY_FOUNDING_INR,
   FOUNDING_OFFER_OPEN,
