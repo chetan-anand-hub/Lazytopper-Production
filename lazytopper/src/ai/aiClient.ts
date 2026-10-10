@@ -325,6 +325,8 @@ export const MENTOR_ENDPOINT = `${API_BASE}/mentor`;
  * resets tomorrow", and for an Indian student that is only true on an IST
  * boundary.
  */
+const BUSY_TODAY_FALLBACK = "LazyTopper is very busy today. Come back after midnight.";
+
 export class DailyLimitError extends Error {
   readonly limitClass: string;
   readonly resetAt: string | null;
@@ -454,6 +456,20 @@ async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text
       throw new DailyLimitError(
         details.message || "You've hit today's limit for this. It resets tomorrow.",
         details.class || "unknown",
+        details.resetAt || null,
+      );
+    }
+
+    // ── Site-wide ceiling (FU-GLOBAL-SHED). A 429 whose body says `busy_today` is NOT a fault and not the
+    //    student's doing: it becomes the SAME typed limit error every surface already renders (name
+    //    "DailyLimitError", so gradingErrorMessage keeps the server's own words), with the owner's
+    //    sentence + the one call to action the server chose. Never the generic "AI API request failed".
+    if (res.status === 429 && details?.error === "busy_today") {
+      const rawCta = (details as { cta?: unknown }).cta;
+      const cta = rawCta === "plans" ? " See plans." : "";
+      throw new DailyLimitError(
+        `${details.message || BUSY_TODAY_FALLBACK}${cta}`,
+        details.class || "global",
         details.resetAt || null,
       );
     }

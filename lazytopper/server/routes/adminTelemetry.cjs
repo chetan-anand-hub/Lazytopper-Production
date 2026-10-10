@@ -609,6 +609,10 @@ function createAdminTelemetryRoutes(deps) {
       rateLimit: {
         byClass: rateLimitByClass,
         shedVision: toNumber(counters['rate_limit.shed.vision']),
+        // FU-GLOBAL-SHED: how much of the P = 0.25 margin paying students actually used, and how often the
+        // site-wide ceiling refused anyone (busy_today). Read these before raising the monthly budget.
+        globalOverflowPremium: toNumber(counters['rate_limit.global_overflow.premium']),
+        hardBlockGlobal: toNumber(counters['rate_limit.hard_block.global']),
         totalCalls: toNumber(counters['rate_limit.call.total']),
         // ★ The anon-key shape diagnostic (see rateLimiter.cjs). `loopback` means
         // x-forwarded-for did NOT survive the Vercel -> Railway -> proxy hops, so

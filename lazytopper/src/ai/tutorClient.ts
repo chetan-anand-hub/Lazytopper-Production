@@ -222,6 +222,12 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
         details.trialEndedAt || null,
       );
     }
+    // FU-GLOBAL-SHED (D58b-2) - the site-wide ceiling is its own calm message, not a fault: the server's
+    // sentence (no "free AI checking" wording on the Tutor) + "See plans." when the server chose that call to action.
+    if (res.status === 429 && details?.error === "busy_today") {
+      const cta = (details as { cta?: unknown }).cta === "plans" ? " See plans." : "";
+      throw new Error(`${details.message || "LazyTopper is very busy today. Come back after midnight."}${cta}`);
+    }
     // Every other failure: the server's student-facing `message` first, the machine
     // `error` code only when there is no message.
     throw new Error(details.message || details.error || "The tutor request failed.");

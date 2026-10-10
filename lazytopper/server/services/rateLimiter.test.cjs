@@ -20,6 +20,7 @@ const {
   SPEND_MODEL,
   OFFERED_VISION_DAILY_SUBCAP,
   VISION_SHED_FRACTION,
+  PREMIUM_GLOBAL_OVERFLOW,
   MAX_SINGLE_UID_SHARE_OF_GLOBAL,
   CHECK_IMPROVE_FLOW_ENDPOINTS,
   VISION_CALLS_PER_OFFERED_CHECK,
@@ -270,8 +271,21 @@ test("the global ceiling 429s a caller who is still under their own per-uid cap"
   const blocked = rl.check(reqWithUid("d"), "/api/tutor");
   assert.equal(blocked.allowed, false, "the circuit breaker fires regardless of per-uid state");
   assert.equal(blocked.body.class, "global");
+  // FU-GLOBAL-SHED: the site-wide ceiling is its own error - never the generic per-student
+  // "you've hit today's limit" (the student may have used nothing) and never a fault.
+  assert.equal(blocked.status, 429);
+  assert.equal(blocked.body.error, "busy_today", "the global ceiling refuses with busy_today");
+  assert.equal(blocked.body.message, "LazyTopper is very busy today. Come back after midnight, or subscribe for priority access.");
+  assert.equal(blocked.body.scope, "free");
+  assert.equal(blocked.body.cta, "plans", "a signed-in caller is pointed to the plans");
+  assert.ok(blocked.body.resetAt, "it carries the next IST midnight");
   assert.equal(telemetry.count("rate_limit.hard_block.global"), 1, "the breaker is loud");
   assert.equal(telemetry.count("rate_limit.soft_breach.global"), 1);
+  // a signed-out visitor: the same sentence WITHOUT the subscribe part, and no call to action (D59a)
+  const anon = rl.check({ headers: {} }, "/api/tutor");
+  assert.equal(anon.allowed, false);
+  assert.equal(anon.body.message, "LazyTopper is very busy today. Come back after midnight.");
+  assert.equal(anon.body.cta, null);
 });
 
 /* ── 8 · Provider-agnostic (§1.2) ─────────────────────────────────────────── */
@@ -377,6 +391,21 @@ test("a full day at the effective ceiling costs less than the budget, even at th
   // Stress at ₹90/USD: the same rupee budget buys fewer dollars, so this is the
   // tightest case the FX headroom exists to survive.
   const stressedBudget = SPEND_MODEL.dailyUsdAt(SPEND_MODEL.FX_STRESS_INR_PER_USD);
+
+  // FU-GLOBAL-SHED - amended by EXACTLY P (owner 0.25): a verified premium caller may pass the ceiling
+  // up to floor(hard x (1 + P)), so a full overflow day costs more than the daily budget by at most P of
+  // it. The non-premium assertion below is unchanged; this one bounds the overflow.
+  const overflowCalls = Math.floor(effectiveCeiling * (1 + PREMIUM_GLOBAL_OVERFLOW));
+  const overflowSpend = overflowCalls * SPEND_MODEL.BLENDED_USD_PER_CALL;
+  assert.equal(PREMIUM_GLOBAL_OVERFLOW, 0.25, "P is the owner's money call (DECISION 32d)");
+  // Honest scope: this bounds the overflow day by (1 + P) x the daily budget, which follows from the
+  // non-premium assertion below times (1 + P). What it ADDS is the pin: P cannot be raised (the equality
+  // above) and the overflow arithmetic cannot drift without this test going red.
+  assert.ok(
+    overflowSpend - stressedBudget <= PREMIUM_GLOBAL_OVERFLOW * stressedBudget,
+    `a full premium-overflow day (${overflowCalls} calls, $${overflowSpend.toFixed(2)}) must overshoot the stressed ` +
+      `daily budget ($${stressedBudget.toFixed(2)}) by at most P x that budget.`,
+  );
 
   assert.ok(
     worstCaseSpend <= stressedBudget,
