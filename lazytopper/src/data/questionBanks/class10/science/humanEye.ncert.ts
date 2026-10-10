@@ -95,7 +95,6 @@ export const EYE_NCERT: CanonicalQuestion[] = [
     solutionSteps: ["Hypermetropia is corrected by a CONVEX (converging) lens (see ray diagram: parallel rays from near object converge after refraction through convex lens, then focus on retina).", "Given: normal near point u = -25 cm = -0.25 m; defective near point v = -100 cm = -1.0 m.", "Apply lens formula: 1/v - 1/u = 1/f → 1/(-1.0) - 1/(-0.25) = -1 + 4 = +3.", "Hence f = +1/3 m ≈ +33.3 cm.", "Power P = 1/f (in m) = +3.0 D. So required lens: convex of power +3.0 D."],
     finalAnswer: "Convex lens of focal length ≈ +33.3 cm and power = +3.0 D.",
     ncertRef: "Exercise Q7", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Ray diagram of hypermetropic eye + convex lens correction (rays from object at 25 cm refract through convex lens to form virtual image at 1 m).",
     },
 
   { id: "EYE-NCERT-10-SA-008", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Power of Accommodation", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",

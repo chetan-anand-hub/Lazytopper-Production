@@ -140,5 +140,5 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (i) Oxygen-rich blood from the lungs returns to the heart via the PULMONARY VEINS.", "[1 mark] (i) It enters the LEFT ATRIUM (chamber 8), from where it passes into the left ventricle.", "[1 mark] (ii) The septum (muscular wall) separating the right and left sides of the heart prevents the mixing of oxygenated blood (left side) and deoxygenated blood (right side).", "[1 mark] (ii) This complete separation ensures the body receives fully oxygenated blood, supporting the high metabolic rate of birds and mammals."],
     finalAnswer: "(i) Left atrium → pulmonary veins; (ii) septum prevents mixing of O2-rich and O2-poor blood.",
     ncertRef: "APQ Science-PQ2 Q38 (OR variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: labelled heart diagram." },
+ },
 ];

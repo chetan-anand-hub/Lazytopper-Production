@@ -14,7 +14,6 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["From the figure, O(−4, 3) and N(−2.4, 1.8). Radius = ON = √[(−2.4 − (−4))² + (1.8 − 3)²] = √[(1.6)² + (−1.2)²].", "= √(2.56 + 1.44) = √4 = 2 units. Correct option (b)."],
     finalAnswer: "(b) 2 units",
     ncertRef: "APQ PQ1 Q4", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: coordinates of O and N from PDF.",
     sourceOverride: "others", },
 
   // PQ1 Q20 (Section A, Assertion-Reasoning, 1 mark)
@@ -36,7 +35,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "The distance between two points A and B, on a graph is given as √(10^2 + 7^2). The coordinates of A are (−4, 3). Given that the point B lies in the first quadrant, then all the possible x-coordinates of point B are",
     options: ["multiple of 2", "multiple of 3", "multiple of 5", "multiple of 6"],
     answer: "multiple of 3",
-    solutionSteps: ["AB^2 = 10^2 + 7^2 = 149. For B = (x, y) in first quadrant, (x − (−4))^2 + (y − 3)^2 = 149.", "Testing integer solutions with x > 0, y > 0: pairs like (x+4, y−3) summing of squares to 149. Per MS, the valid x-values are multiples of 3."],
+    solutionSteps: ["[1 mark] AB² = 10² + 7² = 149, and for grid points the only way to write 149 as a sum of two squares is 10² + 7². So for B(x, y), (x + 4)² + (y − 3)² = 149 means the gaps from A(−4, 3) are 10 and 7 in some order: x + 4 = ±10 or ±7. In the first quadrant x > 0, so x = 6 (then y − 3 = 7, y = 10) or x = 3 (then y − 3 = 10, y = 13). Both possible x-coordinates, 3 and 6, are multiples of 3 (3 is not a multiple of 2, 5 or 6). Hence option (b)."],
     finalAnswer: "(b) multiple of 3",
     ncertRef: "APQ PQ2 Q14", isCompetencyBased: true },
 
@@ -77,7 +76,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Area ratio 1:9 ⟹ radius ratio 1:3. So OA = (1/3)·OB.", "If A lies on segment OB (same direction from centre as B), A divides OB internally in ratio 1:2 (from O).", "A = O + (1/3)·(B − O) = (−4 + (1/3)·7, 3 + (1/3)·2) = (−4 + 7/3, 3 + 2/3) = (−5/3, 11/3)."],
     finalAnswer: "(b) (−5/3, 11/3)",
     ncertRef: "APQ PQ_2022 Q4", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: concentric circles with A inside and B outside." },
+ },
 
   // PQ_2022 Q20 (Section A, Assertion-Reasoning, 1 mark)
   { id: "APQ-M-CG-008", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Equidistant Points — Perpendicular Bisector", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Hard", bloomSkill: "Analysing",
@@ -100,6 +99,5 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (i) GP4 = √((9−7)² + (3−1)²) = √(4 + 4) = √8 = 2√2 units.", "[1 mark] (ii) Midpoint of W(−3, −2) and G(7, 1) = ((−3+7)/2, (−2+1)/2) = (2, −1/2).", "[1 mark] (iii) Let the striking point be S(c, 3). X divides S→P2 in ratio 3 : 4, so x-coordinate: (3·2 + 4·c)/7 = 2/7.", "[1 mark] 6 + 4c = 2 ⟹ c = −1 (check y: (3·(−4) + 4·3)/7 = 0 ✓). Striking point = (−1, 3)."],
     finalAnswer: "(i) 2√2 units; (ii) (2, −1/2); (iii) (−1, 3).",
     ncertRef: "APQ PQ_2022 Q37", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: snooker table coordinate map with pockets and balls.",
     sourceOverride: "others", },
 ];

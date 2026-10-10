@@ -204,8 +204,8 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) Rust on the plastic coated and painted pieces; no rust on the zinc coated piece. (b) The iron rod is in contact with air and moisture in (i) and (ii); zinc is more reactive than iron and gets oxidised in preference to it in (iii). (c) galvanisation",
     solutionSteps: [
-      "[2 marks] (a) (i) Rust will be seen on the plastic coated iron piece. [0.5 marks] (ii) Rust will be seen on the painted iron piece. [0.5 marks] (iii) No rust will be seen on the zinc coated iron piece. [1 mark]",
-      "[2 marks] (b) (i) The iron rod is in contact with air and moisture. [0.5 marks] (ii) The iron rod is in contact with air and moisture. [0.5 marks] (iii) Zinc is more reactive than iron and gets oxidised in preference to the iron object. [1 mark]",
+      "[2 marks] (a) (i) Rust will be seen on the plastic coated iron piece. (0.5 mark) (ii) Rust will be seen on the painted iron piece. (0.5 mark) (iii) No rust will be seen on the zinc coated iron piece. (1 mark)",
+      "[2 marks] (b) (i) The iron rod is in contact with air and moisture. (0.5 mark) (ii) The iron rod is in contact with air and moisture. (0.5 mark) (iii) Zinc is more reactive than iron and gets oxidised in preference to the iron object. (1 mark)",
       "[1 mark] (c) galvanisation",
     ],
     finalAnswer:

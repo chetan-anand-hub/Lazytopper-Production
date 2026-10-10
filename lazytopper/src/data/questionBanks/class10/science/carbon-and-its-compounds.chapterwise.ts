@@ -97,7 +97,7 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "17",
     solutionSteps: ["Correct option is (c) 17. Count bonds in CH3CH2–CO–O–CH2CH3: 10 C–H bonds (10 pairs); 3 C–C single bonds (3 pairs); 2 C–O single bonds (2 pairs); 1 C=O double bond (2 pairs). Total = 10 + 3 + 2 + 2 = 17 shared pairs."],
     finalAnswer: "(c) 17",
-    ncertRef: "cbjescco04 Q18", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram",
+    ncertRef: "cbjescco04 Q18", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjescco04 Q22
   { id: "SCO-S-CARB-012", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",

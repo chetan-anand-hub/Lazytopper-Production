@@ -140,7 +140,6 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     answer: "The schematic must show three cells of 2 V each (total 6 V) connected in series, then a 5 Ω resistor, an 8 Ω resistor, a 12 Ω resistor and a plug key all joined end-to-end to form a single closed loop. Symbols: long-and-short parallel lines for each cell, rectangular box (or zigzag) for each resistor, and the standard open/closed-switch symbol for the plug key.",
     solutionSteps: ["[1 mark] Draw three cells in series (long line +, short line −) so terminals add: total EMF = 3 × 2 V = 6 V.", "[1 mark] From the positive terminal of the battery, draw a wire to the 5 Ω resistor, then to the 8 Ω resistor, then to the 12 Ω resistor.", "[0.5 mark] From the 12 Ω resistor connect through a plug key back to the negative terminal of the battery to close the loop.", "[0.5 mark] Use standard symbols: cell (long-short lines), resistor (rectangle), plug key (open/closed switch)."],
     finalAnswer: "Closed series loop: 6 V battery → 5 Ω → 8 Ω → 12 Ω → plug key → back to battery.",
-    strategyHint: "REQUIRES-FIGURE: a single-loop schematic showing 3 cells (2 V each) in series with 5 Ω, 8 Ω, 12 Ω resistors and a plug key.",
     ncertRef: "In-text Q1 §11.6.1", isCompetencyBased: true },
 
   // REQUIRES-FIGURE
@@ -149,7 +148,6 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     answer: "Ammeter is connected in series anywhere in the loop; voltmeter is connected in parallel across the 12 Ω resistor only. Total EMF V = 3 × 2 = 6 V. Total resistance R = 5 + 8 + 12 = 25 Ω. Current I = V/R = 6/25 = 0.24 A (ammeter reading). Voltage across the 12 Ω resistor V₁₂ = I × 12 = 0.24 × 12 = 2.88 V (voltmeter reading).",
     solutionSteps: ["[1 mark] EMF of battery: V = 3 × 2 V = 6 V.", "[1 mark] Total series resistance: R = 5 + 8 + 12 = 25 Ω.", "[1 mark] Series current (same everywhere): I = V/R = 6 / 25 = 0.24 A. This is the ammeter reading.", "[1 mark] Voltage across 12 Ω resistor: V₁₂ = I × 12 = 0.24 × 12 = 2.88 V. This is the voltmeter reading.", "[1 mark] Ammeter is connected in series; voltmeter is connected in parallel across the 12 Ω resistor only."],
     finalAnswer: "Ammeter reads 0.24 A; voltmeter reads 2.88 V.",
-    strategyHint: "REQUIRES-FIGURE: the previous series circuit with an ammeter in series and a voltmeter in parallel across the 12 Ω resistor.",
     ncertRef: "In-text Q2 §11.6.1", isCompetencyBased: true },
 
   // Example 11.7
@@ -159,7 +157,6 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     answer: "(a) Series: R = 20 + 4 = 24 Ω. (b) I = V/R = 6/24 = 0.25 A. (c) V_lamp = I × 20 = 5 V; V_conductor = I × 4 = 1 V (sum = 6 V, consistent).",
     solutionSteps: ["[0.5 mark] The lamp (20 Ω) and the conductor (4 Ω) are in series with a 6 V battery.", "[1 mark] (a) Total resistance: R_s = R₁ + R₂ = 20 + 4 = 24 Ω.", "[1.5 marks] (b) Current in the circuit (same everywhere in series): I = V/R_s = 6 V / 24 Ω = 0.25 A.", "[1.5 marks] (c) Voltage across lamp: V₁ = I × R₁ = 0.25 × 20 = 5 V. Voltage across conductor: V₂ = I × R₂ = 0.25 × 4 = 1 V.", "[0.5 mark] Check: V₁ + V₂ = 5 + 1 = 6 V = battery EMF."],
     finalAnswer: "R = 24 Ω; I = 0.25 A; V_lamp = 5 V; V_conductor = 1 V.",
-    strategyHint: "REQUIRES-FIGURE: 6 V battery in series with a 20 Ω lamp and a 4 Ω resistor.",
     ncertRef: "Example 11.7", isCompetencyBased: true },
 
   // ===== §11.6 In-text (Parallel) =====
@@ -206,7 +203,6 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     answer: "Three resistors are in parallel with a 12 V battery, so each has 12 V across it. (a) I₁ = 12/5 = 2.4 A; I₂ = 12/10 = 1.2 A; I₃ = 12/30 = 0.4 A. (b) I = I₁ + I₂ + I₃ = 2.4 + 1.2 + 0.4 = 4 A. (c) 1/R_p = 1/5 + 1/10 + 1/30 = 6/30 + 3/30 + 1/30 = 10/30 = 1/3 ⇒ R_p = 3 Ω.",
     solutionSteps: ["[0.5 mark] In parallel each resistor has the full battery voltage V = 12 V across it.", "[1.5 marks] (a) I₁ = V/R₁ = 12/5 = 2.4 A; I₂ = V/R₂ = 12/10 = 1.2 A; I₃ = V/R₃ = 12/30 = 0.4 A.", "[1 mark] (b) Total current I = I₁ + I₂ + I₃ = 2.4 + 1.2 + 0.4 = 4 A.", "[1.5 marks] (c) 1/R_p = 1/5 + 1/10 + 1/30 = 6/30 + 3/30 + 1/30 = 10/30 = 1/3, so R_p = 3 Ω.", "[0.5 mark] Cross-check: I = V/R_p = 12/3 = 4 A. Consistent."],
     finalAnswer: "I₁ = 2.4 A, I₂ = 1.2 A, I₃ = 0.4 A; I = 4 A; R_p = 3 Ω.",
-    strategyHint: "REQUIRES-FIGURE: 12 V battery with 5 Ω, 10 Ω, 30 Ω in parallel.",
     ncertRef: "Example 11.8", isCompetencyBased: true,
     sourceOverride: "others", },
 
@@ -216,7 +212,6 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     answer: "R₁ and R₂ are in parallel: 1/R' = 1/10 + 1/40 = 5/40 ⇒ R' = 8 Ω. R₃, R₄ and R₅ are in parallel: 1/R'' = 1/30 + 1/20 + 1/60 = 2/60 + 3/60 + 1/60 = 6/60 = 1/10 ⇒ R'' = 10 Ω. The two combinations are then in series: R = R' + R'' = 8 + 10 = 18 Ω. (a) Total resistance = 18 Ω. (b) Total current I = V/R = 12/18 = 0.67 A.",
     solutionSteps: ["[1 mark] First parallel group (R₁, R₂): 1/R' = 1/10 + 1/40 = 4/40 + 1/40 = 5/40 ⇒ R' = 40/5 = 8 Ω.", "[1.5 marks] Second parallel group (R₃, R₄, R₅): 1/R'' = 1/30 + 1/20 + 1/60. With LCM 60: = 2/60 + 3/60 + 1/60 = 6/60 = 1/10 ⇒ R'' = 10 Ω.", "[0.5 mark] These two equivalent resistors R' and R'' are in series.", "[1 mark] Total resistance: R = R' + R'' = 8 + 10 = 18 Ω.", "[1 mark] Total current: I = V/R = 12 / 18 = 2/3 ≈ 0.67 A."],
     finalAnswer: "R = 18 Ω; I ≈ 0.67 A.",
-    strategyHint: "REQUIRES-FIGURE: 12 V battery driving (R₁ ∥ R₂) in series with (R₃ ∥ R₄ ∥ R₅).",
     ncertRef: "Example 11.9", isCompetencyBased: true,
     sourceOverride: "others", },
 
@@ -340,7 +335,6 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     answer: "Plot V (y-axis) vs I (x-axis): all points lie approximately on a straight line through the origin, confirming Ohm's law. The slope of the line gives the resistance. V/I values: 1.6/0.5 = 3.2; 3.4/1.0 = 3.4; 6.7/2.0 = 3.35; 10.2/3.0 = 3.4; 13.2/4.0 = 3.3. Average slope ≈ 3.35 Ω. Hence R ≈ 3.4 Ω.",
     solutionSteps: ["[1 mark] Plot V on the y-axis and I on the x-axis using the given data.", "[1 mark] Points lie on a straight line through the origin → linear V–I relation (Ohm's law).", "[1 mark] Compute V/I ratios: 1.6/0.5 = 3.2; 3.4/1.0 = 3.4; 6.7/2.0 = 3.35; 10.2/3.0 = 3.4; 13.2/4.0 = 3.30.", "[1 mark] Average V/I = (3.2 + 3.4 + 3.35 + 3.4 + 3.30)/5 ≈ 3.33 Ω.", "[1 mark] Therefore the slope of V–I graph, R ≈ 3.3–3.4 Ω."],
     finalAnswer: "R ≈ 3.4 Ω (slope of straight-line V-I graph).",
-    strategyHint: "REQUIRES-FIGURE: V vs I straight-line graph passing through origin.",
     ncertRef: "Exercise Q7", isCompetencyBased: true },
 
   { id: "ELEC-NCERT-11-SA-028", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",

@@ -55,7 +55,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "40",
     solutionSteps: ["[1 mark] Correct option is (b) 40."],
     finalAnswer: "(b) 40",
-    ncertRef: "cbjescco12 Q7", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references circuit" },
+    ncertRef: "cbjescco12 Q7", isCompetencyBased: true, },
   // cbjescco12 Q8
   { id: "SCO-S-ELEC-007", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "A cylindrical rod is reformed to twice its length with no change in its volume. If the resistance of the rod was R, the new resistance will be",
@@ -103,7 +103,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "0.55 A",
     solutionSteps: ["[1 mark] Two identical 3 V cells in parallel give an emf of 3 V. 4 Ω ∥ 2 Ω = (4×2)/(4+2) = 4/3 Ω; total R = 0.5 + 4/3 = 11/6 Ω; I = 3 ÷ (11/6) = 18/11 ≈ 1.64 A. Current through 4 Ω = I × 2/(4+2) = 6/11 ≈ 0.55 A. Correct option (b) 0.55 A."],
     finalAnswer: "(b) 0.55 A",
-    ncertRef: "cbjescco12 Q17", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references shown in fig",
+    ncertRef: "cbjescco12 Q17", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjescco12 Q18
   { id: "SCO-S-ELEC-013", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -112,7 +112,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "28 J",
     solutionSteps: ["[1 mark] H = I²Rt for each 1 s interval: 3²×2×1 = 18 J; (−2)²×2×1 = 8 J; 1²×2×1 = 2 J. Total H = 18 + 8 + 2 = 28 J (the sign of the current does not matter as I² is used). Correct option (c) 28 J."],
     finalAnswer: "(c) 28 J",
-    ncertRef: "cbjescco12 Q18", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references shown in fig",
+    ncertRef: "cbjescco12 Q18", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjescco12 Q22
   { id: "SCO-S-ELEC-014", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -175,13 +175,13 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "(a) Name the instrument/device used to measure electric current in a circuit. (b) How is an ammeter connected in a circuit to measure current flowing through it?",
     answer: "(a) An ammeter is used to measure electric current. (b) An ammeter is connected in series in the electric circuit so that the whole current to be measured passes through it.",
     solutionSteps: ["[1 mark] (a) An ammeter is used to measure electric current in a circuit.", "[1 mark] (b) An ammeter is connected in series in the circuit so that the whole current to be measured passes through it."],
-    ncertRef: "cbjesccq12 Q7", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references circuit" },
+    ncertRef: "cbjesccq12 Q7", isCompetencyBased: true, },
   // cbjesccq12 Q8 (Section A, 1mk)
   { id: "SCQ-S-ELEC-023", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "In an electric circuit, state the relationship between the direction of conventional current and the direction of flow of electrons.",
     answer: "Electrons flows from negative terminal to positive terminal where as current flows from +ve terminal to ve - terminal in external circuit i.e. Conventional current and electrons flow are opposite to each other.",
     solutionSteps: ["[2 marks] Electrons flows from negative terminal to positive terminal where as current flows from +ve terminal to ve - terminal in external circuit i.e. Conventional current and electrons flow are opposite to each other."],
-    ncertRef: "cbjesccq12 Q8", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references circuit" },
+    ncertRef: "cbjesccq12 Q8", isCompetencyBased: false, },
   // cbjesccq12 Q29 (Section B, 2mk)
   { id: "SCQ-S-ELEC-024", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The amount of charge passing through a cell in four second is 12 C. Find the current supplied by cell.",
@@ -199,7 +199,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "Name the device/instrument used to measure potential difference. How is it connected in an electric circuit?",
     answer: "The device which is used to measure potential difference is voltmeter. Voltmeter is connected in parallel in an electric circuit.",
     solutionSteps: ["[2 marks] The device which is used to measure potential difference is voltmeter. Voltmeter is connected in parallel in an electric circuit."],
-    ncertRef: "cbjesccq12 Q31", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references circuit" },
+    ncertRef: "cbjesccq12 Q31", isCompetencyBased: true, },
   // cbjesccq12 Q32 (Section B, 2mk)
   { id: "SCQ-S-ELEC-027", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "How much current will an electric bulb of resistance 1100 Ω draw from a 220 V source? If a heater of resistance 100 Ω is connected to the same source instead of the bulb, calculate the current drawn by the heater.",
@@ -235,7 +235,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "V-I graphs for two wires A and B are shown in the figure. If both the wires are made of the same material and are of equal thickness, which of the two is of more length? Give justification for your answer.",
     answer: "We know for identical wire more length more resistance and vice versa slope of wire A is more than B. Hence resistance of A is more and its length also.",
     solutionSteps: ["[3 marks] We know for identical wire more length more resistance and vice versa slope of wire A is more than B. Hence resistance of A is more and its length also."],
-    ncertRef: "cbjesccq12 Q65", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references shown in the figure" },
+    ncertRef: "cbjesccq12 Q65", isCompetencyBased: false, },
   // cbjesccq12 Q66 (Section C, 3mk)
   { id: "SCQ-S-ELEC-033", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "What is meant by \"electrical resistance\" of a conductor? State how resistance of a conductor is affected when a. a low current passes through it for a short duration; b. a heavy current passes through it for about 30 seconds.",
@@ -331,5 +331,5 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] (iv) In circuit I (series) more heat is produced in R1 than in the other two: the same current flows through all resistors and H = I²Rt, so with R1 > R2 > R3 the largest resistance R1 produces the most heat."
     ],
     finalAnswer: "a. Voltmeter; V = W/Q (1 V = 1 J/C). b. (i) Circuit I; (ii) circuit II; (iii) circuit II; (iv) circuit I — R1 produces the most heat (H = I²Rt).",
-    ncertRef: "cbjesccq12 Q102", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references circuit" },
+    ncertRef: "cbjesccq12 Q102", isCompetencyBased: true, },
 ];
