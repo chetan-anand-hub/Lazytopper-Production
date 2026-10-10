@@ -138,7 +138,20 @@ export interface MountOptions {
  * `createRoot`, which is today's behaviour, not a broken page.
  */
 export async function mountApp(container: Element, options: MountOptions): Promise<"hydrated" | "created"> {
-  const preload = routeRegionOf(container) ? options.preloadFor(options.path, options.isDesktopViewport) : null;
+  // Hydrate only a URL the capture could have produced: no query and no router state.
+  // The prerender file is captured with neither, and React 19 does NOT repair a mismatched
+  // attribute while hydrating — `/notes/x?tab=questions` would keep the capture's active-tab
+  // classes against a client state of "questions" (verifier, round 1). Such loads use createRoot.
+  const pristineUrl = isPristineBootUrl();
+  // Decide by the FILE that was served, not only the viewport: the middleware serves the
+  // DesktopShell file to any desktop user agent, so a narrow desktop window would otherwise
+  // hydrate mobile chrome against desktop markup. Only the mobile file carries MobileShell's
+  // `.phone-shell`; markup without it is treated as the desktop file.
+  const servedDesktopFile = !container.querySelector(".phone-shell");
+  const preload =
+    pristineUrl && routeRegionOf(container)
+      ? options.preloadFor(options.path, options.isDesktopViewport || servedDesktopFile)
+      : null;
   if (preload) {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const ready = await Promise.race([
@@ -162,6 +175,14 @@ export async function mountApp(container: Element, options: MountOptions): Promi
   }
   createRoot(container).render(options.create());
   return "created";
+}
+
+/** True when the boot URL has no query string and the history entry carries no router state. */
+export function isPristineBootUrl(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.location.search !== "") return false;
+  const state = window.history.state as { usr?: unknown } | null;
+  return !(state && state.usr != null);
 }
 
 const subscribeNever = () => () => {};

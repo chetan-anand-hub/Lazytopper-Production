@@ -39,7 +39,12 @@ vi.mock("./pages/desktop/DesktopTopicHubPage", async () => {
 });
 vi.mock("./pages/ExamTrendsRanked", async () => {
   const { createElement: h } = await import("react");
-  return { default: () => h("div", { "data-testid": "page-trends" }, h("h1", null, "Exam Trends"), h("p", null, 26, " chapters ranked")) };
+  // The real page renders its OWN MobileShell (ExamTrendsRanked.tsx, `<MobileShell title="Exam Trends"`),
+  // so its mobile markup carries `.phone-shell` like the other families; the mock mirrors that.
+  return {
+    default: () =>
+      h("div", { className: "phone-shell" }, h("div", { "data-testid": "page-trends" }, h("h1", null, "Exam Trends"), h("p", null, 26, " chapters ranked"))),
+  };
 });
 vi.mock("./pages/HighlyProbableQuestions", async () => {
   const { createElement: h } = await import("react");
@@ -233,6 +238,63 @@ describe("LOW-END-3 PR-2 (e) — createRoot is kept where hydration cannot match
     expect(hydratableRoutePreload("/", false)).toBeNull();
     expect(hydratableRoutePreload("/practice-hub", false)).toBeNull();
   });
+
+  // mountApp tells the served FILE apart by MobileShell's `.phone-shell`. Pin that on the REAL
+  // committed captures: every mobile file of the four shelled families has it; no desktop file does.
+  it("GUARD: the committed mobile captures carry .phone-shell and the __desktop captures never do", async () => {
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const { PRERENDERED_DIR } = await import("../scripts/seo/applyPrerendered");
+    const dir = PRERENDERED_DIR.replace(/[\\/]?$/, "/");
+    const files = [
+      "exam-trends.html",
+      ...readdirSync(dir + "notes").map((f) => "notes/" + f),
+      ...readdirSync(dir + "topic-hub").map((f) => "topic-hub/" + f),
+      ...readdirSync(dir + "highly-probable/10").map((f) => "highly-probable/10/" + f),
+    ];
+    expect(files.length).toBeGreaterThan(50);
+    for (const f of files) {
+      expect(readFileSync(dir + f, "utf8"), f).toContain('class="phone-shell"');
+      expect(readFileSync(dir + "__desktop/" + f, "utf8"), "__desktop/" + f).not.toContain("phone-shell");
+    }
+  });
+
+  // Verifier round 1 (2026-10-10): React 19 keeps a mismatched ATTRIBUTE while hydrating, so a URL
+  // the capture never produced must not hydrate. `/notes/x?tab=questions` would keep the capture's
+  // active-tab classes against a client state of "questions" (the tab then ignores its tap).
+  it("a query string (/notes/electricity?tab=questions): createRoot", async () => {
+    const { served } = await capture("/notes/electricity");
+    const result = await boot("/notes/electricity?tab=questions", served, false);
+    expect(result.mode).toBe("created");
+  }, HEAVY_TEST_TIMEOUT_MS);
+
+  it("router state on the history entry (a back-link's location.state): createRoot", async () => {
+    const { served } = await capture("/exam-trends");
+    const { tree, mountApp, extractPrerenderedRoute, hydratableRoutePreload } = await pageLoad();
+    window.history.replaceState({ usr: { returnTo: "/practice-hub" }, key: "k1" }, "", "/exam-trends");
+    const host = document.createElement("div");
+    host.innerHTML = served;
+    document.body.appendChild(host);
+    let mode: string | null = null;
+    await act(async () => {
+      mode = await mountApp(host, {
+        path: "/exam-trends",
+        isDesktopViewport: false,
+        preloadFor: hydratableRoutePreload,
+        hydrate: () => tree(null),
+        create: () => tree(extractPrerenderedRoute(host, "/exam-trends")),
+      });
+    });
+    expect(mode).toBe("created");
+  }, HEAVY_TEST_TIMEOUT_MS);
+
+  it("the DESKTOP file in a narrow desktop window (Notes, served without .phone-shell): createRoot", async () => {
+    setMatchMediaMatches(true);
+    const { served } = await capture("/notes/electricity");
+    expect(served).not.toContain("phone-shell");
+    setMatchMediaMatches(false);
+    const result = await boot("/notes/electricity", served, false);
+    expect(result.mode).toBe("created");
+  }, HEAVY_TEST_TIMEOUT_MS);
 
   it("the DesktopShell layout at >= 1024 px (Notes): createRoot, and it replaces the markup as before", async () => {
     setMatchMediaMatches(true);
