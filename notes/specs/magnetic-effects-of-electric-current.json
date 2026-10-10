@@ -663,21 +663,27 @@
     },
     "fig_domestic_circuit_1215": {
       "bucket": "ncert",
-      "tag": "NCERT Fig 12.15 (redrawn)",
+      "tag": "NCERT Fig 12.15",
       "caption": "A common domestic circuit — live (red) and neutral (black) come from the mains through the Electricity Board's fuse, the electricity meter and the distribution box (main switch plus a fuse for each circuit); every socket sits across the 220 V live–neutral pair, in parallel; the earth wire (green) runs to the earth pin of each socket.",
-      "legend": "Follow the red wire left to right: fuse → meter → distribution box → top rail. Each socket hangs between the red and black rails (parallel, so each gets the full 220 V and its own switch); the green wire crosses the live rail without joining it (the small jump) and ends on the socket's earth pin.",
+      "legend": "Follow the red wire left to right: fuse → meter → distribution box → top rail. Each socket hangs between the red and black rails (parallel, so each gets the full 220 V); the green wire crosses the live rail without joining it (the small jump) and ends on the socket's earth pin.",
       "source": {
         "pdf": "jesc112",
         "edition": "2026-27",
         "ncert_fig": "12.15",
         "page_pdf": 11,
         "printed_page": 205,
-        "crop": null,
-        "clean": "none",
-        "dpi": null,
-        "note": "NOT a crop: redrawn as a labelled SVG (QUICK-FIXES-1 Q4) from NCERT Reprint 2026-27 jesc112.pdf, printed p.205 (page_pdf 11, the same 1-indexed convention as the other figures here): Figure 12.15 'A schematic diagram of one of the common domestic circuits' — the figure number was confirmed on the page of the 2026-27 reprint. Topology and labels as NCERT's (earth wire along the top to each socket with jump-arcs over the live rail; Electricity Board's fuse, electricity meter, distribution box containing main switch and fuses for each circuit, 220 V, three sockets in parallel); wire colours as the text states them on p.204. Eye-confirmed at 390 px and 1440 px."
+        "crop": [
+          90,
+          63,
+          500,
+          236
+        ],
+        "crop_units": "PDF points (page 576x784.8)",
+        "clean": "watermark layer dropped in memory before rendering (the page's /Artifact /Watermark marked-content block removed from the content stream; PDF on disk untouched); no pixel cleaning",
+        "render_matrix": 2.15,
+        "note": "crop from NCERT Reprint 2026-27 jesc112.pdf, printed p.205 (page_pdf 11, 1-indexed as the other figures here), Figure 12.15 'A schematic diagram of one of the common domestic circuits' (NOTES-SVG-REPLACE-1: replaces the earlier hand-drawn SVG). Rendered with pymupdf at 2.15x, saved WebP 882x373 q80; the figure-caption line is below the clip, no body text. Eye-confirmed: earth (green), live (red) and neutral (black) wires; Electricity Board's fuse; electricity meter; distribution box containing main switch and fuses for each circuit; 220 V; three sockets in parallel with the earth wire jumping the live rail to each socket's earth pin."
       },
-      "asset": "magnetic-effects-of-electric-current/fig_domestic_circuit_1215.svg"
+      "asset": "magnetic-effects-of-electric-current/fig_domestic_circuit_1215.webp"
     }
   },
   "mindmap": {
