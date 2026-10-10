@@ -808,8 +808,8 @@ export default function WeakAreaPracticePage() {
                   boxShadow: "0 4px 12px rgba(255,150,0,0.3)",
                 }}
               >
-                Start Targeted Session — {shownAreas[0]?.topicName}
-                {shownAreas[0]?.weakConcepts[0] ? `: ${shownAreas[0].weakConcepts[0].label}` : ""} ({TARGETED_SESSION_COUNT} questions)
+                {/* DECISION 61b — the session is best-effort (focusBankIds): the copy promises no count and no difficulty order. */}
+                {`Practise ${shownAreas[0]?.topicName ?? ""}${shownAreas[0]?.weakConcepts[0] ? `, starting with ${shownAreas[0].weakConcepts[0].label}` : ""}`}
               </button>
               {shownAreas.map((area) => (
                 <WeakAreaCard

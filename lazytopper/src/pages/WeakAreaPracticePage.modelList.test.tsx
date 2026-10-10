@@ -309,7 +309,11 @@ describe("D3 — the targeted session: the chosen concept's served rows first, t
     const fx = aboveGateFixture();
     device("B");
     await renderPage();
-    const button = await screen.findByRole("button", { name: /Start Targeted Session/ });
+    // DECISION 61b — the exact label: chapter + weakest concept, no count, no difficulty order.
+    const weakLabel = conceptGroups(AP).find((g) => g.key === fx.apWeak)!.label;
+    const button = await screen.findByRole("button", { name: `Practise Arithmetic Progression, starting with ${weakLabel}` });
+    expect(button.textContent).toBe(`Practise Arithmetic Progression, starting with ${weakLabel}`);
+    expect(document.body.textContent ?? "").not.toMatch(/\b15 questions\b|\(\d+ questions\)|Easy\s*(→|->)\s*Hard|Start Targeted Session/);
     fireEvent.click(button);
     await waitFor(() => expect(H.navigate.length).toBe(1));
     const url = new URL(H.navigate[0], "https://x.test");

@@ -327,7 +327,7 @@ describe("Weak Area Practice — nothing named, counted or labelled before there
         expect(screen.queryByTestId("weak-area-empty-thin")).not.toBeNull();
         const text = document.body.textContent ?? "";
         expect(text).not.toMatch(/Arithmetic Progression/);
-        expect(text).not.toMatch(/Start Targeted Session/);
+        expect(text).not.toMatch(/Start Targeted Session|, starting with /);
         expect(text).not.toMatch(/Weak Areas\s*\(1\)|1Weak Areas/);
         expect(screen.queryByRole("button", { name: "Generate Learning Path" })).toBeNull();
       }
@@ -340,7 +340,10 @@ describe("Weak Area Practice — nothing named, counted or labelled before there
     device("B");
     await renderAndSettle();
     await screen.findByText("Arithmetic Progression");
-    expect(screen.getByText(/Start Targeted Session — Arithmetic Progression/)).toBeTruthy();
+    // DECISION 61b — "Practise {chapter}, starting with {concept}": no count, no difficulty order.
+    const start = screen.getByRole("button", { name: /^Practise Arithmetic Progression(, starting with [^()]+)?$/ });
+    expect(start.textContent).toMatch(/^Practise Arithmetic Progression(, starting with [^()]+)?$/);
+    expect(document.body.textContent ?? "").not.toMatch(/\b15 questions\b|\(\d+ questions\)|Easy\s*(→|->)\s*Hard/);
     expect(document.body.textContent).toMatch(/1Weak Areas/);
   });
 
