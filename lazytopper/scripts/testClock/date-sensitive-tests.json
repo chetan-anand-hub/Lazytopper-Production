@@ -213,6 +213,7 @@
     "src/data/bankFix/bankFix1.pr1.test.ts",
     "src/data/cbq/c3CbqPacks.maths.test.ts",
     "src/data/cbq/cbqChapterFloor.test.ts",
+    "src/data/figures/scienceFigureVisuals.diagrams1.test.ts",
     "src/data/ltGenerated.guard.test.ts",
     "src/data/predictionCore.pastboardyear.test.ts",
     "src/data/predictionCore.source.test.ts",
