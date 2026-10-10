@@ -179,7 +179,7 @@ describe("FAIR-USE-WARN-1 · the banner is mounted on every surface", () => {
     render(page());
     const banner = await screen.findByTestId("usage-warning", {}, { timeout: 30000 });
     expect(banner.textContent).toContain(BANNER);
-    expect(screen.getByTestId("usage-warning-link").getAttribute("href")).toBe("/me");
+    expect(screen.getByTestId("usage-warning-link").getAttribute("href")).toBe("/me#usage");
   }, 60000);
 
   it.each(SURFACES)("★ %s DARK: enforced:false → no banner", async (_name, page) => {

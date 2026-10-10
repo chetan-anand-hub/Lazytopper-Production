@@ -48,22 +48,28 @@ describe("32e · trial daily-checks limit → a dialog", () => {
     const dialog = screen.getByRole("dialog");
     expect(dialog.getAttribute("aria-modal")).toBe("true");
     expect(dialog.getAttribute("aria-labelledby")).toBeTruthy();
-    // the existing used/reset line, unchanged
-    expect(dialog.querySelector("p")?.textContent).toBe(
-      "You've used today's 5 answer checks. They reset at 12:00 am on Tue 29 Sep. Premium removes the daily limit.",
+    // owner copy change (10 Oct): the BOLD line says the allowance once, the GREY line says when - no reset time twice
+    expect(screen.getByTestId("fair-use-used-line").textContent).toBe(
+      "You've used today's 5 answer checks. Premium removes the daily limit.",
     );
-    // PLUS exactly the 32e sentence
     expect(screen.getByTestId("fair-use-come-back").textContent).toBe(
-      "Come back tomorrow: your free checks reset at 12:00 am on Tue 29 Sep. Practice, MCQs, CBQs and notes still work now.",
+      "Come back after midnight for 5 more. Practice, MCQs, CBQs and notes still work now.",
     );
+    expect(dialog.textContent).not.toMatch(/12:00 am|They reset at/);
     // the upgrade link is kept, internal, never /app/
     expect(screen.getByTestId("fair-use-see-plans").getAttribute("href")).toBe("/pricing");
     expect(dialog.textContent).not.toMatch(/₹|INR|rupee|trial_limit|usage_limit/i);
   });
 
-  it("the copy function is word for word", () => {
-    expect(trialComeBackLine("12:00 am on Tue 29 Sep")).toBe(
-      "Come back tomorrow: your free checks reset at 12:00 am on Tue 29 Sep. Practice, MCQs, CBQs and notes still work now.",
+  it("the copy function: midnight IST says 'after midnight'; any other reset keeps the exact time; unknown allowance omits the number", () => {
+    expect(trialComeBackLine(MIDNIGHT, "12:00 am on Tue 29 Sep", 5)).toBe(
+      "Come back after midnight for 5 more. Practice, MCQs, CBQs and notes still work now.",
+    );
+    expect(trialComeBackLine("2026-09-28T12:00:00.000Z", "5:30 pm", 5)).toBe(
+      "Come back at 5:30 pm for 5 more. Practice, MCQs, CBQs and notes still work now.",
+    );
+    expect(trialComeBackLine(MIDNIGHT, "12:00 am", null)).toBe(
+      "Come back after midnight for more. Practice, MCQs, CBQs and notes still work now.",
     );
   });
 

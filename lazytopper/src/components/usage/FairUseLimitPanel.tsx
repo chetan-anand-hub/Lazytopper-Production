@@ -141,9 +141,12 @@ export default function FairUseLimitPanel({
         <div className="lt-usage__eyebrow" id={headingId}>
           Fair use
         </div>
-        {lead}
+        <p className="lt-usage__lead" data-testid="fair-use-used-line">
+          {copy.lead}
+          {copy.tail ? <> {copy.tail}</> : null}
+        </p>
         <p className="lt-usage__body" data-testid="fair-use-come-back">
-          {trialComeBackLine(when)}
+          {trialComeBackLine(limit.resetAt ?? "", when, limit.allowance)}
         </p>
         <div className="lt-usage__actions">
           <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="fair-use-see-plans">

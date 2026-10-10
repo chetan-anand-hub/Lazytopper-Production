@@ -127,7 +127,7 @@ export function warningBannerCopy(w: UsageWarningState, nowMs: number): string {
 
 /** PURE. The banner's link: Premium → the usage card on Me; trial → pricing. */
 export function warningLink(w: UsageWarningState): { label: string; to: string } {
-  return w.tier === "premium" ? { label: "See usage", to: "/me" } : { label: "Upgrade", to: "/pricing" };
+  return w.tier === "premium" ? { label: "See usage", to: "/me#usage" } : { label: "Upgrade", to: "/pricing" };
 }
 
 /** PURE. The muted note under an AI action. */
