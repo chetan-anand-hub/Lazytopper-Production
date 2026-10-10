@@ -12,17 +12,16 @@
 //
 // ★ ONE router (the seed-location harness of PracticePage.batchGrading.test.tsx).
 
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor, within, act } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
+const { authUser } = vi.hoisted(() => ({
+  authUser: { current: null as null | { uid: string; isLocalSession: boolean; email?: string } },
+}));
 vi.mock("../context/AuthContext", () => ({
-  useAuth: () => ({
-    user: { uid: "student-1", isLocalSession: false, email: "s@x.com" },
-    loading: false,
-    getToken: async () => "tok",
-  }),
+  useAuth: () => ({ user: authUser.current, loading: false, getToken: async () => "tok" }),
 }));
 vi.mock("../hooks/useSubscription", () => ({
   useSubscription: () => ({ isPremium: true, status: { tier: "premium" }, loading: false }),
@@ -63,6 +62,7 @@ import PracticePage from "./PracticePage";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
 import { STEPS_LOCKED_COPY } from "../components/practice/StepsLockedNote";
 
+authUser.current = { uid: "student-1", isLocalSession: false, email: "s@x.com" };
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
 type PQ = import("../data/predictionDataService").PracticeQuestion;
 
@@ -107,6 +107,7 @@ const okBatch = (results: ReturnType<typeof okGrade>[]) => ({
 });
 
 afterEach(() => {
+  authUser.current = { uid: "student-1", isLocalSession: false, email: "s@x.com" };
   cleanup();
   mockBuild.mockReset();
   gradeWorksheet.mockReset();
@@ -271,5 +272,122 @@ describe("PRACTICE-HONESTY-1 §2 + §5 · Finish → scorecard → Back to this 
     expect(await screen.findByText(/You finished without attempting any questions yet/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Keep practicing this set/ })).toBeInTheDocument();
     expect(screen.queryByTestId("qp-confirm")).toBeNull();
+  });
+});
+
+const KEY = "lt:qp-guest-score";
+const PATH = "/practice/10/maths?topic=real-numbers&count=3";
+const GUEST = { uid: "", isLocalSession: true };
+const STUDENT = { uid: "student-1", isLocalSession: false, email: "s@x.com" };
+
+function Probe() {
+  const loc = useLocation();
+  return <div data-testid="login-probe">{String((loc.state as { from?: string } | null)?.from)}</div>;
+}
+
+async function mount() {
+  mockBuild.mockResolvedValue([mkItem(1, true), mkItem(2, true), mkItem(3, true)]);
+  setMatchMediaMatches(true);
+  render(
+    <MemoryRouter initialEntries={[PATH]}>
+      <Routes>
+        <Route path="/practice/:grade/:subject" element={<PracticePage />} />
+        <Route path="/login" element={<Probe />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+  await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
+}
+
+/** One right, one wrong, then Finish -> the MCQ-only scorecard. */
+async function reachScorecard() {
+  await mount();
+  fireEvent.click(screen.getByText("q1-correct"));
+  fireEvent.click(screen.getByText("q2-wrong"));
+  fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+  await screen.findByRole("button", { name: (n: string) => n.includes(BACK_TO_SET) });
+}
+
+
+describe("QP-GUEST-SIGNIN-1 · sign-in card on the signed-out MCQ-only scorecard", () => {
+  beforeEach(() => { window.sessionStorage.clear(); authUser.current = GUEST; });
+  afterEach(() => { window.sessionStorage.clear(); });
+  it("guest sees the card with the exact copy", async () => {
+    await reachScorecard();
+    const card = await screen.findByTestId("qp-guest-signin-card");
+    expect(card.textContent).toContain("Want to keep going?");
+    expect(card.textContent).toContain(
+      "Sign in free: your practice from now on is saved, and the 7-day trial marks your written answers the way a CBSE examiner does.",
+    );
+    expect(screen.getByTestId("qp-guest-signin").textContent).toBe("Sign in free");
+    expect(screen.getByRole("button", { name: "Not now" })).toBeInTheDocument();
+  });
+
+  it("CONTROL: a signed-in student gets no card", async () => {
+    authUser.current = STUDENT;
+    await reachScorecard();
+    expect(screen.queryByTestId("qp-guest-signin-card")).toBeNull();
+  });
+
+  it("the scorecard's own review action is still present and works with the card shown", async () => {
+    await reachScorecard();
+    expect(screen.getByTestId("qp-guest-signin-card")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: (n: string) => n.includes(BACK_TO_SET) }));
+    expect(await screen.findAllByTestId("practice-question-card")).toHaveLength(3);
+  });
+
+  it("the link goes to /login carrying state.from = pathname+search", async () => {
+    await reachScorecard();
+    const link = screen.getByTestId("qp-guest-signin");
+    expect(link.getAttribute("href")).toBe("/login");
+    fireEvent.click(link);
+    expect((await screen.findByTestId("login-probe")).textContent).toBe(PATH);
+  });
+
+  it("'Not now' hides the card", async () => {
+    await reachScorecard();
+    fireEvent.click(screen.getByRole("button", { name: "Not now" }));
+    expect(screen.queryByTestId("qp-guest-signin-card")).toBeNull();
+  });
+
+  it("tapping 'Sign in free' stashes exactly one entry with the right numbers", async () => {
+    await reachScorecard();
+    fireEvent.click(screen.getByTestId("qp-guest-signin"));
+    const raw = window.sessionStorage.getItem(KEY);
+    expect(window.sessionStorage.length).toBe(1);
+    const parsed = JSON.parse(raw!);
+    expect(Object.keys(parsed).sort()).toEqual(["at", "attempted", "correct", "path", "total", "v"]);
+    expect(parsed).toMatchObject({ v: 1, path: PATH, attempted: 2, correct: 1, total: 3 });
+  });
+});
+
+describe("QP-GUEST-SIGNIN-1 · restored score for a signed-in arrival", () => {
+  beforeEach(() => { window.sessionStorage.clear(); });
+  afterEach(() => { window.sessionStorage.clear(); });
+  const seed = (over: object = {}) =>
+    window.sessionStorage.setItem(
+      KEY, JSON.stringify({ v: 1, path: PATH, attempted: 2, correct: 1, total: 3, at: Date.now(), ...over }),
+    );
+
+  it("fresh entry for this path shows once and is consumed", async () => {
+    authUser.current = STUDENT;
+    seed();
+    await mount();
+    const card = await screen.findByTestId("qp-guest-score-restored");
+    expect(card.textContent).toContain("Your set before you signed in: 1 / 2 correct.");
+    expect(window.sessionStorage.getItem(KEY)).toBeNull();
+    cleanup();
+    await mount();
+    expect(screen.queryByTestId("qp-guest-score-restored")).toBeNull();
+  });
+
+  it.each([
+    ["stale", { at: Date.now() - 31 * 60 * 1000 }],
+    ["wrong path", { path: "/practice/10/science" }],
+  ])("%s entry shows no restored card", async (_n, over) => {
+    authUser.current = STUDENT;
+    seed(over);
+    await mount();
+    expect(screen.queryByTestId("qp-guest-score-restored")).toBeNull();
   });
 });

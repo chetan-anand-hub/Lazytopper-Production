@@ -431,6 +431,7 @@ export const shouldResetBuiltOnPop = (
 // PracticePage.strategyLazy.test.tsx.
 type StrategyResolver = typeof import("../services/questionTypeFirstResolver");
 import { trackUxEvent } from "../services/uxTelemetry";
+import { stashGuestScore, takeGuestScore, type GuestScore } from "../services/guestScoreStash";
 import { mistakeTypeLabel } from "../lib/mistakeDisplay";
 import {
   MISTAKE_KIND_LABEL,
@@ -1265,6 +1266,21 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
    *  `premiumBlock`, never the same state: one needs an upgrade, the other needs the door
    *  and may be fully entitled once through it. */
   const [signInToGrade, setSignInToGrade] = useState(false);
+  /** ★ QP-GUEST-SIGNIN-1 · a signed-out student who answered only MCQs reaches the scorecard
+   *  and, before this, was never asked to sign in (663 CBQ ad clicks, 0 sign-ups). A
+   *  non-blocking card under the score asks once per set; "Not now" hides it for THIS set
+   *  (keyed on `freshSetNonce`, so a fresh set may ask again). After a same-tab sign-in the
+   *  set's score is shown once from a tab-scoped note (guestScoreStash) — nothing saved. */
+  const isGuest = !authUserForJourney?.uid || !!authUserForJourney?.isLocalSession;
+  const [guestCardDismissedForSet, setGuestCardDismissedForSet] = useState<number | null>(null);
+  const [restoredGuestScore, setRestoredGuestScore] = useState<GuestScore | null>(null);
+  const guestScoreCheckedRef = useRef(false);
+  useEffect(() => {
+    if (isGuest || guestScoreCheckedRef.current) return;
+    guestScoreCheckedRef.current = true;
+    setRestoredGuestScore(takeGuestScore(`${location.pathname}${location.search}`));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGuest]);
   /** FAIR-USE-UI-1 - fair limits on the batched grade (dark unless enforced). */
   const fairUse = useFairUse("checks", !!authUserForJourney?.uid && !authUserForJourney?.isLocalSession);
   /** UI2 - R, while the student is being asked "we'll mark the first R". */
@@ -2612,6 +2628,15 @@ const packTopicKey = useMemo(() => {
     >
       {/* J2 — a background grade of the last practice set, still running after a reload. */}
       <QuickPracticeJobResume user={authUserForJourney} />
+      {/* QP-GUEST-SIGNIN-1 — the set's score from before a same-tab sign-in, shown once. */}
+      {restoredGuestScore && (
+        <div className="lt-qp-signin lt-qp-signin--restored" data-testid="qp-guest-score-restored">
+          <style>{QP_SIGNIN_CSS}</style>
+          <p className="lt-qp-signin__p">
+            Your set before you signed in: {restoredGuestScore.correct} / {restoredGuestScore.attempted} correct.
+          </p>
+        </div>
+      )}
       {/* Overlay-mode pinned close-bar (tutor⇄QP overlay). Sticky to the panel top; its ✕
           returns to the tutor via overlayReturn. overlay-GATED — absent on a direct visit, so
           the page is byte-identical there (additive guarantee). */}
@@ -3320,6 +3345,41 @@ const packTopicKey = useMemo(() => {
           : undefined,
       })}
       onClose={closeScorecard}
+      belowScore={
+        isGuest && !overlay && guestCardDismissedForSet !== freshSetNonce ? (
+          <div className="lt-qp-signin lt-qp-signin--sc" data-testid="qp-guest-signin-card">
+            <style>{QP_SIGNIN_CSS}</style>
+            <h3 className="lt-qp-signin__t">Want to keep going?</h3>
+            <p className="lt-qp-signin__p">
+              Sign in free: your practice from now on is saved, and the 7-day trial marks your
+              written answers the way a CBSE examiner does.
+            </p>
+            <Link
+              className="lt-qp-signin__cta"
+              data-testid="qp-guest-signin"
+              to="/login"
+              state={{ from: `${location.pathname}${location.search}` }}
+              onClick={() =>
+                stashGuestScore({
+                  path: `${location.pathname}${location.search}`,
+                  attempted: sessionStats.localMcqAnswered,
+                  correct: sessionStats.localMcqCorrect,
+                  total: filteredQuestions.length,
+                })
+              }
+            >
+              Sign in free
+            </Link>
+            <button
+              type="button"
+              className="lt-qp-signin__dismiss"
+              onClick={() => setGuestCardDismissedForSet(freshSetNonce)}
+            >
+              Not now
+            </button>
+          </div>
+        ) : undefined
+      }
     />
   );
 })()}
@@ -3390,6 +3450,11 @@ const QP_SIGNIN_CSS = `
     font: inherit; font-size: 0.76rem; font-weight: 600; color: #49627f;
     text-decoration: underline; cursor: pointer;
   }
+  /* QP-GUEST-SIGNIN-1 — inside the scorecard's navy body the card needs its own solid
+     surface for the dark text to read; the restored-score note is a slim top banner. */
+  .lt-qp-signin--sc { margin: 14px 0 4px; background: #f3fbf7; border-color: rgba(22, 185, 106, 0.4); }
+  .lt-qp-signin--restored { margin: 12px 16px 0; padding: 10px 14px; }
+  .lt-qp-signin--restored .lt-qp-signin__p { font-size: 0.85rem; font-weight: 600; color: #0f2743; }
 `;
 
 export default PracticePage;
