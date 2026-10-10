@@ -277,15 +277,16 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq04 Q155 (Section D, 5mk)
   { id: "SCQ-S-CARB-038", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "You are given balls and stick model of six carbon atoms and fourteen hydrogen atoms and sufficient number of sticks. In how many ways one can join the models of six carbon atoms and fourteen hydrogen atoms to form different molecules of C6H14.",
-    answer: "There are five ways in which six carbons can be joined with 14 hydrogen atoms. i. ii. Chap 4 : Carbon and Its Compounds iii. iv. v. Check Anser :",
+    answer: "Five different molecules (structural isomers) of C₆H₁₄ can be made: (1) n-hexane CH₃–CH₂–CH₂–CH₂–CH₂–CH₃; (2) 2-methylpentane CH₃–CH(CH₃)–CH₂–CH₂–CH₃; (3) 3-methylpentane CH₃–CH₂–CH(CH₃)–CH₂–CH₃; (4) 2,2-dimethylbutane CH₃–C(CH₃)₂–CH₂–CH₃; (5) 2,3-dimethylbutane CH₃–CH(CH₃)–CH(CH₃)–CH₃. Hence the models can be joined in 5 ways.",
+    finalAnswer: "Five different molecules (structural isomers) of C₆H₁₄ can be made: (1) n-hexane CH₃–CH₂–CH₂–CH₂–CH₂–CH₃; (2) 2-methylpentane CH₃–CH(CH₃)–CH₂–CH₂–CH₃; (3) 3-methylpentane CH₃–CH₂–CH(CH₃)–CH₂–CH₃; (4) 2,2-dimethylbutane CH₃–C(CH₃)₂–CH₂–CH₃; (5) 2,3-dimethylbutane CH₃–CH(CH₃)–CH(CH₃)–CH₃. Hence the models can be joined in 5 ways.",
     solutionSteps: [
-      "[1 mark] C6H14 is a saturated hydrocarbon (alkane) and has five structural isomers; the first is the straight chain n-hexane: CH3–CH2–CH2–CH2–CH2–CH3.",
-      "[1 mark] Second isomer — 2-methylpentane: a 5-carbon chain with a –CH3 branch on C2, CH3–CH(CH3)–CH2–CH2–CH3.",
-      "[1 mark] Third isomer — 3-methylpentane: a 5-carbon chain with a –CH3 branch on C3, CH3–CH2–CH(CH3)–CH2–CH3.",
-      "[1 mark] Fourth isomer — 2,2-dimethylbutane: a 4-carbon chain with two –CH3 branches on C2, CH3–C(CH3)2–CH2–CH3.",
-      "[1 mark] Fifth isomer — 2,3-dimethylbutane: a 4-carbon chain with one –CH3 branch each on C2 and C3, CH3–CH(CH3)–CH(CH3)–CH3. Hence there are five ways (five isomers) to build C6H14."
+      "[1 mark] Straight chain of six C atoms: n-hexane, CH₃–CH₂–CH₂–CH₂–CH₂–CH₃",
+      "[1 mark] Five-carbon chain with –CH₃ on C-2: 2-methylpentane, CH₃–CH(CH₃)–CH₂–CH₂–CH₃",
+      "[1 mark] Five-carbon chain with –CH₃ on C-3: 3-methylpentane, CH₃–CH₂–CH(CH₃)–CH₂–CH₃",
+      "[1 mark] Four-carbon chain with two –CH₃ on C-2: 2,2-dimethylbutane, CH₃–C(CH₃)₂–CH₂–CH₃",
+      "[1 mark] Four-carbon chain with –CH₃ on C-2 and C-3: 2,3-dimethylbutane, CH₃–CH(CH₃)–CH(CH₃)–CH₃; total = 5 ways (structural isomers)"
     ],
-    ncertRef: "cbjesccq04 Q155", isCompetencyBased: true },
+    ncertRef: "cbjesccq04 Q155", isCompetencyBased: true, sourceOverride: "others" },
   // cbjesccq04 Q156 (Section D, 5mk)
   { id: "SCQ-S-CARB-039", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Soaps and detergents are both types of salts. State the difference between the two. Write the mechanism of the cleansing action of soaps. Why do soaps not form lather (foam) with hard water? Mention any two problems that arise due to the use of detergents instead of soaps.",

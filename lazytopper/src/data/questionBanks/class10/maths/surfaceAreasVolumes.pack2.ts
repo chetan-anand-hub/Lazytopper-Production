@@ -621,7 +621,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "id": "SAV2-R06",
     "subject": "Maths",
     "topicKey": "surface-areas-and-volumes",
-    "subtopic": "Combination/Transformation",
+    "subtopic": "Volume of Solids",
     "section": "D",
     "marks": 5,
     "format": "Long",
@@ -630,11 +630,12 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "questionText": "A cistern, internally measuring 150 cm × 120 cm × 110 cm, has 129,600 cm³ of water in it. Porous bricks are placed in the water until the cistern is full to the brim. Each brick absorbs one-seventeenth of its own volume of water. How many bricks of dimensions 22.5 cm × 7.5 cm × 6.5 cm can be put in without overflow?",
     "options": [],
     "answer": "1792 bricks",
-    "solutionSteps": ["Volume of cistern = 150×120×110 = 1,980,000 cm³", "Empty space = 1,980,000 - 129,600 = 1,850,400 cm³", "Volume of one brick = 22.5×7.5×6.5 = 1096.875 cm³", "Let n = number of bricks. Volume occupied = n×1096.875, water absorbed = n×1096.875/17", "n×1096.875 - n×1096.875/17 = 1,850,400", "n×1096.875×(16/17) = 1,850,400 → n = 1792"],
+    "solutionSteps": ["Volume of cistern = 150×120×110 = 1,980,000 cm³", "Empty space = 1,980,000 - 129,600 = 1,850,400 cm³", "Volume of one brick = 22.5×7.5×6.5 = 1096.875 cm³", "Let n = number of bricks. Volume occupied by the bricks = n×1096.875 cm³; water they absorb = n×1096.875/17 cm³", "No overflow: n×1096.875 − n×1096.875/17 ≤ 1,850,400 ⇒ n×1096.875×(16/17) ≤ 1,850,400", "n ≤ (1,850,400 × 17)/(16 × 1096.875) = 31,456,800/17,550 ≈ 1792.4, so at most 1792 bricks can be put in"],
     "finalAnswer": "1792 bricks",
     "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.2"
+    "ncertRef": "Ex 13.2",
+    sourceOverride: "others",
   },
   {
     "id": "SAV2-R07",

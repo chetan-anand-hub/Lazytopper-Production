@@ -16,12 +16,12 @@
     "lastmod": "2026-10-06"
   },
   "/highly-probable/10/Maths": {
-    "sha256": "e3dd3a643ff870bc3cfc18780470756f7f1502be25b25081918c813c788711fb",
-    "lastmod": "2026-10-07"
+    "sha256": "09b96e04d535bce0203f9ff101a53ee92e98d4ade97ad32cb7b2f2d9c7517e63",
+    "lastmod": "2026-10-08"
   },
   "/highly-probable/10/Science": {
-    "sha256": "812bc8dc6b141a6418e974d077649ea677cc301f15c61f4c2580811da40d33ab",
-    "lastmod": "2026-10-07"
+    "sha256": "0f75beb6f4ef3907e56d00e74346eaad99d4c6a3f0471414465ee2d017f16daa",
+    "lastmod": "2026-10-08"
   },
   "/legal/privacy": {
     "sha256": "b235838982fc17b26bd861e418eb0d8f5eb815400c18bb32541e343ef13c060c",
@@ -56,7 +56,7 @@
     "lastmod": "2026-10-07"
   },
   "/notes/circles": {
-    "sha256": "f6e0150bb3ffca09ed9f11108f92646c0d1234fd81fb4306c44dcdf13789e21c",
+    "sha256": "fd4877c97d529fb11ec83d604710edf3602f393c51f41d0e89a47f30d04ebfad",
     "lastmod": "2026-10-07"
   },
   "/notes/control-and-coordination": {
@@ -136,7 +136,7 @@
     "lastmod": "2026-10-07"
   },
   "/notes/trigonometry": {
-    "sha256": "d0f6d2ad77401b7db9c70ade304c9a4f51917534669f122768ee5ec7e4a3189b",
+    "sha256": "05c6348261cacbf2183335b5a63a015dba60f219ac9fb3094f42da7c26db86f1",
     "lastmod": "2026-10-07"
   },
   "/practice-hub": {

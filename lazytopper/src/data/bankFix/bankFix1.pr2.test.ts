@@ -62,6 +62,7 @@ import {
   BANK_FIX_1_PR2_SERVED_COUNTS,
   type BankFix1Pr2Entry,
 } from "./bankFix1Ledger";
+import { BANK_FIX_3_OFFICIAL_RESOURCED_IDS, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
 
 type Row = Record<string, unknown> & { id: string };
 const bankById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q as unknown as Row]));
@@ -126,7 +127,10 @@ describe("BANK-FIX-1 PR-2 · ids unchanged", () => {
 
 describe("BANK-FIX-1 PR-2 · withheld rows are withheld", () => {
   it("every 'withheld' ledger row is in its surface's withhold set and not served", () => {
-    const bad = BANK_FIX_1_PR2.filter((e) => e.verdict === "withheld").filter((e) => {
+    // BANK-FIX-3 (2026-10-07, owner ruling 10:21Z): the three SAV liquid-transfer rows are served again.
+    // BANK-FIX-3 PR-B: nine figure-bound rows repaired to the official wording are served after the bf3b blind re-solve.
+    const servedAgain = (id: string) => BANK_FIX_3_RESTORED_IDS.has(id) || BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS.has(id);
+    const bad = BANK_FIX_1_PR2.filter((e) => e.verdict === "withheld" && !(e.surface === "bank" && servedAgain(e.id))).filter((e) => {
       const set = e.surface === "bank" ? WITHHELD_QUESTION_IDS : e.surface === "hpq" ? HPQ_WITHHELD_IDS : PROMPT_D_WITHHELD_IDS;
       return !set.has(e.id) || isServedOn(e) || !e.category;
     });
@@ -166,7 +170,8 @@ describe("BANK-FIX-1 PR-2 · every served content change was independently re-so
 });
 
 describe("BANK-FIX-1 PR-2 · ruling 2: Others rows are never PYQ / NCERT / year-bearing", () => {
-  const others = BANK_FIX_1_PR2.filter((e) => e.others && e.surface === "bank" && servedIds.has(e.id));
+  // BANK-FIX-3 (2026-10-07): PYQ-M-2025-SAV-004 verified verbatim against the official 30/3/1 paper — official again.
+  const others = BANK_FIX_1_PR2.filter((e) => e.others && e.surface === "bank" && servedIds.has(e.id) && !BANK_FIX_3_OFFICIAL_RESOURCED_IDS.has(e.id));
   it("has served Others rows (non-vacuous)", () => expect(others.length).toBeGreaterThan(800));
   it("no Others row is PYQ (either matcher), carries a year, or is offered as PYQ / NCERT", () => {
     const bad: string[] = [];
@@ -255,8 +260,14 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   // Later lanes' owner-ordered withholds, by chapter: each lowers that chapter's floor by exactly one
   // row, and is pinned below as withheld, not served and in that chapter (dated, never a bare number).
   //   2026-10-07 CBQ-1 C3 (owner ruling CI-1 13:0xZ): LTG-M-QE-284 part (iii) maxima via equal roots, OUT.
+  //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCQ-S-CTRL-029 key and steps are only a table header.
+  //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCQ-S-CTRL-037 stored key and steps belong to another question.
+  //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCO-S-CTRL-011 stem needs a labelled diagram; no figure bound.
+  //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): PYQ-S-2025-MAG-006 needs three unbound diagrams; key carries another question's text.
   const LATER_WITHHOLDS: Record<string, readonly string[]> = {
     "quadratic-equations": ["LTG-M-QE-284"],
+    "control-and-coordination": ["SCQ-S-CTRL-029", "SCQ-S-CTRL-037", "SCO-S-CTRL-011"],
+    "magnetic-effects-of-electric-current": ["PYQ-S-2025-MAG-006"],
   };
   it("every later-lane withhold is withheld, not served, and in its chapter", () => {
     const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>
@@ -266,7 +277,10 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   it("today's served bank count per chapter is at least the lane's 'after' (minus later-lane withholds)", () => {
     const now = new Map<string, number>();
     for (const q of served) now.set(String(q.topicKey), (now.get(String(q.topicKey)) ?? 0) + 1);
-    const floor = (c: { chapter: string; bank: readonly number[] }) => c.bank[1] - (LATER_WITHHOLDS[c.chapter]?.length ?? 0);
+    // BANK-FIX-3 (2026-10-07): Z3-QE-005 / Z3-QE-006 withheld (maximisation) lower the quadratic-equations floor by 2;
+    // later-lane withholds (LATER_WITHHOLDS) lower their chapter floors too.
+    const floor = (c: { chapter: string; bank: readonly number[] }) =>
+      c.bank[1] - (BANK_FIX_3_WITHHELD_BY_CHAPTER[c.chapter] ?? 0) - (LATER_WITHHOLDS[c.chapter]?.length ?? 0);
     const short = BANK_FIX_1_PR2_SERVED_COUNTS.filter((c) => (now.get(c.chapter) ?? 0) < floor(c));
     expect(short.map((c) => `${c.chapter}: ${now.get(c.chapter) ?? 0} < ${floor(c)}`)).toEqual([]);
   });
