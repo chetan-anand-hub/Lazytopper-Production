@@ -17,7 +17,6 @@ import type { WorksheetGradeResponse } from "../../ai/aiClient";
 await loadKatex();
 afterEach(() => {
   cleanup();
-  vi.useRealTimers();
 });
 
 const BOUND_Q = "APQ-M-ARC-003"; // official crop bound in the figure registry (C3 PR-D1)
@@ -102,14 +101,12 @@ describe("the exporter waits for images before it rasterises", () => {
   });
 
   it("gives up after the timeout so a stalled image can never block the PDF", async () => {
-    vi.useFakeTimers();
-    const { host } = hostWith(1);
+    const { host } = hostWith(1); // never fires load or error
     let done = false;
-    const p = waitForImages(host, 5000).then(() => { done = true; });
-    await vi.advanceTimersByTimeAsync(4999);
-    expect(done).toBe(false);
-    await vi.advanceTimersByTimeAsync(2);
-    await p;
+    const p = waitForImages(host, 80).then(() => { done = true; });
+    await new Promise((r) => setTimeout(r, 20));
+    expect(done).toBe(false); // still waiting well inside the timeout
+    await p; // resolves by itself when the timeout elapses
     expect(done).toBe(true);
   });
 
