@@ -162,7 +162,8 @@ describe("SEO-NOTES-LINK-2 — JSON-LD in every notes page's built head", () => 
     const urls = urlsIn(parsed);
     expect(urls.length).toBeGreaterThanOrEqual(5);
     for (const u of urls) {
-      expect(u.startsWith(ORIGIN), `${path}: ${u}`).toBe(true);
+      // Parse, never prefix-match: "https://www.lazytopper.com.evil.com" must not pass.
+      expect(new URL(u).origin, `${path}: ${u}`).toBe(ORIGIN);
       expect(u, path).not.toMatch(/[?#]/);
       expect(canonicalFor(u.slice(ORIGIN.length) || "/", BASENAME), `${path}: ${u} is not canonical`).toBe(u);
     }
