@@ -317,3 +317,27 @@ describe("TRIAL-PAPER-1 · a trial paper grades its FIRST questions, honestly", 
     expect(screen.queryByTestId("trial-paper-note")).toBeNull();
   });
 });
+
+describe("FAIR-USE-WARN-1 · the usage banner is mounted on Check & Improve (one component at every width)", () => {
+  const mountInput = () =>
+    render(
+      <MemoryRouter initialEntries={["/check-improve"]}>
+        <Routes>
+          <Route path="/check-improve" element={<DesktopCheckImprovePage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  it("★★ enforced trial, 4 of 5 checks used → the banner on the input view", async () => {
+    stubUsage(usageBody(true, 1));
+    mountInput();
+    const banner = await screen.findByTestId("usage-warning");
+    expect(banner.textContent).toContain("You've used 4 of today's 5 answer checks. They reset at midnight.");
+  });
+  it("★ DARK: enforced:false → no banner", async () => {
+    stubUsage(usageBody(false, 1));
+    mountInput();
+    await waitFor(() => expect(usageFetch).toHaveBeenCalled());
+    await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+    expect(screen.queryByTestId("usage-warning")).toBeNull();
+  });
+});

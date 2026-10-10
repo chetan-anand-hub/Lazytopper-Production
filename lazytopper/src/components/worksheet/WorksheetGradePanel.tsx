@@ -29,6 +29,7 @@ import { MathText } from "../question/MathText";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 // FAIR-USE-UI-1 (UI1) — dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
+import UsageWarning from "../usage/UsageWarning";
 import { useFairUse } from "../usage/useFairUse";
 import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../upload/PageTray";
@@ -440,6 +441,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
   return (
     <div className="lt-wg">
       <style>{WG_CSS}</style>
+      <UsageWarning scope="worksheet-grade" snapshot={fairUse.snapshot} />
 
       <h2 className="lt-wg__h">Check your answers</h2>
       <p className="lt-wg__lead">

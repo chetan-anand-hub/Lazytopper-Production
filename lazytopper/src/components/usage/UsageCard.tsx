@@ -128,5 +128,13 @@ export default function UsageCard() {
       cancelled = true;
     };
   }, []);
-  return <UsageCardView snapshot={snapshot} />;
+  // FAIR-USE-WARN-1 §2.5 — under the card (only when the card shows): what a limit never touches.
+  return (
+    <>
+      <UsageCardView snapshot={snapshot} />
+      {snapshot && (snapshot.tier === "trial" || snapshot.tier === "premium") ? (
+        <p className="lt-usage-always" data-testid="usage-always-works">Practice, MCQs, CBQs, notes, Topic Hub and saved solutions always work, even at 100%.</p>
+      ) : null}
+    </>
+  );
 }

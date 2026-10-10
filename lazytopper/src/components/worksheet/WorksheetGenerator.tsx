@@ -42,6 +42,7 @@ import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
 import WorksheetPendingBanner from "./WorksheetPendingBanner";
 // FAIR-USE-UI-1 (UI3) — dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
+import UsageWarning from "../usage/UsageWarning";
 import { useFairUse } from "../usage/useFairUse";
 
 /**
@@ -807,6 +808,7 @@ function WorksheetGeneratorInner() {
   return (
     <div className="lt-ws">
       <style>{WS_CSS}</style>
+      <UsageWarning scope="worksheet" snapshot={fairUse.snapshot} />
 
       {/* View-aware Back: generated/preview return within the component; build follows returnTo. */}
       {view === "generated" ? (

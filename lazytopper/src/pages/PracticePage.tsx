@@ -482,6 +482,7 @@ import { toSessionSubject } from "../services/checkImproveGradeService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R) on
 // the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
+import UsageWarning from "../components/usage/UsageWarning";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
 import { useFairUse } from "../components/usage/useFairUse";
 import { useAuth } from "../context/AuthContext";
@@ -2628,6 +2629,7 @@ const packTopicKey = useMemo(() => {
     >
       {/* J2 — a background grade of the last practice set, still running after a reload. */}
       <QuickPracticeJobResume user={authUserForJourney} />
+      <UsageWarning scope="practice" snapshot={fairUse.snapshot} />
       {/* QP-GUEST-SIGNIN-1 — the set's score from before a same-tab sign-in, shown once. */}
       {restoredGuestScore && (
         <div className="lt-qp-signin lt-qp-signin--restored" data-testid="qp-guest-score-restored">

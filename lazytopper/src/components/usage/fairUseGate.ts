@@ -124,6 +124,15 @@ export function limitCopy(limit: LimitState): LimitCopy {
   };
 }
 
+/**
+ * PURE. DECISION 32e — the second sentence of the trial daily-checks dialog, word for
+ * word. `when` is the panel's own reset time, formatted as the used/reset line formats
+ * it (formatResetIst). No rupees, no premium claimed.
+ */
+export function trialComeBackLine(when: string): string {
+  return `Come back tomorrow: your free checks reset at ${when}. Practice, MCQs, CBQs and notes still work now.`;
+}
+
 /** PURE. UI2's confirm sentence. The spec's copy, with the one grammatical change a
  *  single check needs ("1 check", not "1 checks"). */
 export function confirmCopy(remaining: number): string {
