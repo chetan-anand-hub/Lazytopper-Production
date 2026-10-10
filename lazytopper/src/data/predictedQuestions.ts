@@ -173,14 +173,15 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     bloomSkill: "Understanding",
     questionText:
       "Solve the following pair of equations using substitution: x + 2y = 7, 3x − y = 8.",
-    answer: "x = 3, y = 2.",
-    finalAnswer: "x = 3, y = 2.",
+    answer: "x = 23/7, y = 13/7.",
+    finalAnswer: "x = 23/7, y = 13/7.",
     explanation:
-      "From x + 2y = 7, x = 7 − 2y. Substitute into 3x − y = 8 and solve.",
+      "From x + 2y = 7, x = 7 − 2y. Substitute into 3x − y = 8: 21 − 7y = 8 ⇒ y = 13/7, and x = 7 − 26/7 = 23/7.",
     solutionSteps: [
-      "Make x the subject from x + 2y = 7.; Substitute into the second equation. [½]",
-      "Simplify to get an equation in y. [½]",
-      "Find y and then back-substitute to get x. [1]",
+      "[0.5 mark] From x + 2y = 7, x = 7 − 2y.",
+      "[0.5 mark] Substitute in 3x − y = 8: 3(7 − 2y) − y = 8 ⇒ 21 − 7y = 8.",
+      "[0.5 mark] 7y = 13 ⇒ y = 13/7.",
+      "[0.5 mark] x = 7 − 2(13/7) = 7 − 26/7 = 23/7. Check: 3(23/7) − 13/7 = 56/7 = 8 ✓",
     ],
     strategyHint: "Always isolate a variable from the simpler equation.",
     policyTag: "Basic substitution method/1–2 mark pattern",
@@ -354,15 +355,15 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "How many terms of the AP 5, 8, 11, ... must be taken so that the sum is 155?",
+      "How many terms of the AP 5, 8, 11, ... must be taken so that the sum is 185?",
     answer: "10 terms.",
     finalAnswer: "10 terms of the AP are needed.",
     explanation:
-      "Here a = 5, d = 3. Let n terms have sum 155. Sₙ = n/2[2a + (n − 1)d] = 155. Solve n/2[10 + 3(n − 1)] = 155 ⇒ n(3n + 7) = 310 ⇒ 3n² + 7n − 310 = 0 ⇒ n = 10.",
+      "Here a = 5, d = 3. Sₙ = n/2[2a + (n − 1)d] = n(3n + 7)/2 = 185 ⇒ 3n² + 7n − 370 = 0 ⇒ (n − 10)(3n + 37) = 0 ⇒ n = 10 (n = −37/3 rejected).",
     solutionSteps: [
-      "Identify a = 5, d = 3.; Use Sₙ = n/2[2a + (n − 1)d]. [1]",
-      "Substitute Sₙ = 155 and simplify to get a quadratic in n.; Solve the quadratic equation. [1]",
-      "Reject negative root and keep positive integer n. [1]",
+      "[1 mark] a = 5, d = 3; Sₙ = n/2[2a + (n − 1)d] = n/2[10 + 3(n − 1)] = n(3n + 7)/2.",
+      "[1 mark] n(3n + 7)/2 = 185 ⇒ 3n² + 7n − 370 = 0 ⇒ (n − 10)(3n + 37) = 0.",
+      "[1 mark] n = 10 or n = −37/3; n must be a positive integer, so n = 10 terms.",
     ],
     strategyHint:
       "Sum questions often reduce to a quadratic; check that n is a positive integer.",
@@ -802,17 +803,17 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     questionText:
       "A school canteen sells samosas and idlis. On a day, 120 items were sold for ₹1,020. A samosa costs ₹9 and an idli costs ₹6. (i) Form linear equations. (ii) Solve to find quantities sold of each.",
     answer:
-      "Let x,y be samosas,idlis: x+y=120; 9x+6y=1020 ⇒ x=60, y=60.",
+      "(i) Let x = samosas, y = idlis: x + y = 120; 9x + 6y = 1020. (ii) x = 100 samosas, y = 20 idlis.",
     explanation:
-      "Solve the linear pair using elimination/substitution.",
+      "x + y = 120 and 9x + 6y = 1020. Substituting y = 120 − x gives 3x = 300, so x = 100 and y = 20.",
     policyTag: "Contextual/standard pair",
     solutionSteps: [
-      "(i) Let x be the number of samosas and y be the number of idlis.; Total items sold: x + y = 120 (Equation 1). [1]",
-      "Total cost: 9x + 6y = 1020 (Equation 2).; (ii) From Equation 1, y = 120 - x. Substitute into Equation 2. [1]",
-      "9x + 6(120 - x) = 1020 => 9x + 720 - 6x = 1020.; 3x = 1020 - 720 => 3x = 300 => x = 100. [1]",
-      "Substitute x=100 into y = 120 - x => y = 120 - 100 = 20. [1]",
+      "[1 mark] (i) Let x = number of samosas, y = number of idlis. Total items: x + y = 120 … (1)",
+      "[1 mark] Total amount: 9x + 6y = 1020 … (2)",
+      "[1 mark] (ii) From (1), y = 120 − x. Substitute in (2): 9x + 720 − 6x = 1020 ⇒ 3x = 300 ⇒ x = 100.",
+      "[1 mark] y = 120 − 100 = 20. So 100 samosas and 20 idlis were sold (check: 900 + 120 = ₹1,020).",
     ],
-    finalAnswer: "Let x,y be samosas,idlis: x+y=120; 9x+6y=1020 ⇒ x=60, y=60.",
+    finalAnswer: "(i) Let x = samosas, y = idlis: x + y = 120; 9x + 6y = 1020. (ii) x = 100 samosas, y = 20 idlis.",
   },
 
   // ===== MORE: QUADRATIC EQUATIONS =====
@@ -1775,18 +1776,18 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     questionText:
       "A rectangular garden measures 40 m by 30 m. A path of uniform width runs around the inside of the garden. The area of the path is 476 m². Let x metres be the width of the path.\n(a) Write a quadratic equation in x that models the situation.\n(b) Solve the equation to find the width of the path (give your answer correct to two decimal places).",
     answer:
-      "The quadratic equation is 4x² − 140x + 476 = 0 and the path is approximately 3.81 m wide.",
+      "(a) 4x² − 140x + 476 = 0 (i.e. x² − 35x + 119 = 0). (b) Width of path ≈ 3.82 m.",
     explanation:
-      "Area of garden = 40 × 30 = 1200 m²; area of inner rectangle = (40 − 2x)(30 − 2x). Difference = 476 ⇒ 1200 − (40 − 2x)(30 − 2x) = 476. Simplifying yields 4x² − 140x + 476 = 0. Solving gives x ≈ 3.81 m.",
+      "Area of garden = 40 × 30 = 1200 m²; inner rectangle = (40 − 2x)(30 − 2x). 1200 − (40 − 2x)(30 − 2x) = 476 ⇒ 4x² − 140x + 476 = 0 ⇒ x² − 35x + 119 = 0 ⇒ x = (35 − √749)/2 ≈ 3.82 m (the other root, ≈ 31.18 m, is too wide).",
     solutionSteps: [
-      "Let inner dimensions be (40 − 2x) and (30 − 2x).; Set 40×30 − (40 − 2x)(30 − 2x) = 476. [1]",
-      "Expand and rearrange to 4x² − 140x + 476 = 0. [1]",
-      "Use the quadratic formula: x = [140 ± √(140² − 4·4·476)]/(8). [1]",
-      "Choose the positive root and round to two decimal places (≈ 3.81 m). [1]",
+      "[1 mark] Inner rectangle is (40 − 2x) m by (30 − 2x) m; 40 × 30 − (40 − 2x)(30 − 2x) = 476.",
+      "[1 mark] 1200 − (1200 − 140x + 4x²) = 476 ⇒ 4x² − 140x + 476 = 0 ⇒ x² − 35x + 119 = 0.",
+      "[1 mark] x = [35 ± √(35² − 4·119)]/2 = (35 ± √749)/2, √749 ≈ 27.368.",
+      "[1 mark] x ≈ 31.18 rejected (needs 2x < 30); x = (35 − 27.368)/2 ≈ 3.816 ≈ 3.82 m.",
     ],
     strategyHint:
       "Express areas in terms of x and apply the quadratic formula.",
-    finalAnswer: "The quadratic equation is 4x² − 140x + 476 = 0 and the path is approximately 3.81 m wide.",
+    finalAnswer: "(a) 4x² − 140x + 476 = 0 (i.e. x² − 35x + 119 = 0). (b) Width of path ≈ 3.82 m.",
   },
 
   // ===== Triangles (must‑crack) =====
@@ -2593,18 +2594,18 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     bloomSkill: "Analysing",
     questionText:
       "A cylindrical water tank of radius 1.5 m and height 5 m has to be painted both inside and outside, leaving the top open. The cost of painting is ₹120 per square metre. Calculate the total cost.",
-    answer: "Approximately ₹13,020.",
+    answer: "Total area = 34.5π ≈ 108.33 m²; cost ≈ ₹13,000 (₹12,999.60, taking π = 3.14).",
     explanation:
-      "Outer curved surface area + base = 2πrh + πr² = 17.25π m². Inner curved surface area + base = 17.25π m². Total area = 34.5π m² ≈ 108.5 m² (taking π ≈ 3.14). Cost ≈ 108.5 × 120 ≈ ₹13,020.",
+      "Outer curved surface + base = 2πrh + πr² = 17.25π m²; inner curved surface + base = 17.25π m². Total = 34.5π m² ≈ 108.33 m² (π = 3.14). Cost = 108.33 × 120 ≈ ₹13,000.",
     solutionSteps: [
-      "Calculate outer curved surface: 2πrh = 2π×1.5×5 = 15π. [1]",
-      "Calculate area of base: πr² = 2.25π. [1]",
-      "Total outer + inner surface (excluding top) = 2 × (15π + 2.25π) = 34.5π. [1]",
-      "Convert to decimal using π ≈ 3.14 and multiply by ₹120. [1]",
+      "[1 mark] Curved surface area = 2πrh = 2π × 1.5 × 5 = 15π m².",
+      "[1 mark] Area of base = πr² = π × 1.5² = 2.25π m².",
+      "[1 mark] Inside + outside (top open) = 2 × (15π + 2.25π) = 34.5π ≈ 34.5 × 3.14 = 108.33 m².",
+      "[1 mark] Cost = 108.33 × ₹120 = ₹12,999.60 ≈ ₹13,000.",
     ],
     strategyHint:
       "Paint both inner and outer surfaces except the open top.",
-    finalAnswer: "Approximately ₹13,020.",
+    finalAnswer: "Total area = 34.5π ≈ 108.33 m²; cost ≈ ₹13,000 (₹12,999.60, taking π = 3.14).",
   },
 
   // ===== Areas Related to Circles (good‑to‑do) =====
