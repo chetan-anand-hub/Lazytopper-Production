@@ -98,3 +98,11 @@ Most of the "fixed" rows were fixed by the DIAGRAMS / step-mark lanes after #960
 ## Phase C — progress checkpoint (C1 complete; C2 in progress)
 
 C1 (all 209 predicted + 127 HPQ = 336 rows) is solved. `wrong-answers.csv` and `broken-rows.csv` are regenerated as each C2 batch lands; the final Phase C section below replaces this checkpoint.
+
+## Phase C — solve-check (complete)
+
+- **C1:** all 336 predicted + HPQ rows (10 batches). **C2:** 500 written bank rows (17 batches), stratified round-robin over 104 chapter × marks (2/3/4/5) cells, `random.seed(20261010)`, from a pool of 4,400 rows: served, marks ≥ 2, not MCQ/A-R, **not added after `613d8996` (P9)**, not one of the 55 Phase B ids, and not an id in #960's `wrong-answers.csv` / `broken-rows.csv`. Marks mix: 127 × 2, 126 × 3, 121 × 4, 126 × 5.
+- **#960's 390 sampled ids could not be excluded exactly:** BANK-AUDIT-1 published its seed and method (`random.seed(20261006)` round-robin) but not the id list or the script, and its CSVs only hold the rows it flagged. The ids it flagged are excluded; a sampled row that passed in #960 may have been re-solved here. Stated as a fact not established (§7).
+- Solved: **836 rows** (C1 336 + C2 500); verdicts `pass` 677 / `flag` 159 (C1 266/70, C2 411/89). Coverage check: 500 of 500 C2 ids returned, 0 duplicate ids.
+- `wrong-answers.csv` = **36 rows** with `wrong-key` (24 high, 12 medium confidence). `broken-rows.csv` = **123 rows** flagged otherwise. Flag totals over both files: wrong-steps 125, wrong-key 36, ambiguous-stem 20, off-syllabus 4, needs-figure 3.
+- **Running total of rows solved: 55 (B) + 836 (C) = 891 of the 1,100 cap.**
