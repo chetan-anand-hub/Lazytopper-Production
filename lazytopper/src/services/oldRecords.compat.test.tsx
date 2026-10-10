@@ -220,7 +220,7 @@ describe("G5 · every stored record version renders on every surface, with no in
     for (const [pv, response] of Object.entries({ none: null, ...RESPONSES })) {
       it(`stored C&I scorecard · record ${rv} × payload ${pv}`, () => {
         const variant = storedCheckImproveScorecardVariant(record, { gradedDateLabel: "1 Jul 2026", onDone: () => {}, response: response as WorksheetGradeResponse | null });
-        const { container } = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
+        const { baseElement: container } = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
         const text = container.textContent || "";
         expect(text).toContain(`${record.marksAwarded}`);
         if (MARKS_PAYLOADS.has(pv)) {

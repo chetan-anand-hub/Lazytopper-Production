@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
 import { MathText } from "../question/MathText";
 import {
@@ -520,7 +521,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore }: Resul
   const allPending = variant.allPending;
   const ariaLabel = variant.surface === "worksheet" ? "Worksheet scorecard" : "Session scorecard";
 
-  return (
+  const sheet = (
     <div
       className="lt-sc__dim"
       role="dialog"
@@ -673,6 +674,11 @@ export default function ResultsScorecard({ variant, onClose, belowScore }: Resul
       </div>
     </div>
   );
+  // SCORECARD-MOBILE-1 (DECISION 30c): portal to <body>. At 390 px a page wrapper keeps a
+  // computed transform (an entry animation's end state), and a transformed ancestor is the
+  // containing block for position:fixed — the sheet was laid out ~3,100 px down the page.
+  // On <body> no ancestor can capture it; on desktop nothing moves.
+  return typeof document === "undefined" ? sheet : createPortal(sheet, document.body);
 }
 
 const SC_CSS = `
