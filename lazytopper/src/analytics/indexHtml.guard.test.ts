@@ -613,7 +613,7 @@ function runMetaBlock(
   const doc = {
     referrer: opts.referrer ?? "",
     readyState: opts.readyState ?? "interactive",
-    createElement: (tagName: string): Appended => ({ tagName }),
+    createElement: (tagName: string): Appended & { onload?: () => void } => ({ tagName }),
     head: { appendChild: (el: Appended) => appended.push(el) },
   };
   const [block] = metaBlocks();
@@ -662,20 +662,32 @@ describe("index.html — the Meta Pixel block (META-PIXEL-1)", () => {
     const run = runMetaBlock("https://www.lazytopper.com/practice-hub");
     run.fire("load");
     run.runIdle();
-    expect(run.appended).toEqual([{ tagName: "script", async: true, src: FBEVENTS_SRC }]);
+    expect(run.appended).toMatchObject([{ tagName: "script", async: true, src: FBEVENTS_SRC }]);
     run.runTimers();
     run.fire("pointerdown");
     run.fire("load");
     expect(run.appended).toHaveLength(1);
   });
 
+  it("★ the appended script's onload dispatches exactly one lt:fbq-ready", () => {
+    const run = runMetaBlock("https://www.lazytopper.com/practice-hub");
+    const events: Event[] = [];
+    run.win.dispatchEvent = (e: Event) => void events.push(e);
+    run.fire("load");
+    run.runIdle();
+    const onload = (run.appended[0] as { onload?: () => void }).onload;
+    expect(typeof onload).toBe("function");
+    onload?.();
+    expect(events.map((e) => e.type)).toEqual(["lt:fbq-ready"]);
+  });
+
   it.each(["pointerdown", "keydown", "touchstart", "scroll"])("loads at once on a first %s", (cue) => {
     const run = runMetaBlock("https://www.lazytopper.com/practice-hub");
     run.fire(cue);
-    expect(run.appended).toEqual([{ tagName: "script", async: true, src: FBEVENTS_SRC }]);
+    expect(run.appended).toMatchObject([{ tagName: "script", async: true, src: FBEVENTS_SRC }]);
   });
 
-  it.each(["/u/abc", "/app/u/abc", "/u"])("★ defines nothing and loads nothing on %s", (path) => {
+  it.each(["/u/abc", `${RETIRED_BASE}/u/abc`, "/u"])("★ defines nothing and loads nothing on %s", (path) => {
     const run = runMetaBlock(`https://www.lazytopper.com${path}`);
     run.fire("load");
     run.runIdle();
@@ -702,7 +714,7 @@ describe("index.html — the Meta Pixel block (META-PIXEL-1)", () => {
   it.each([
     ["https://www.lazytopper.com/practice-hub", {}],
     ["https://www.lazytopper.com/u/abc", {}],
-    ["https://www.lazytopper.com/app/u/abc", {}],
+    [`https://www.lazytopper.com${RETIRED_BASE}/u/abc`, {}],
     ["https://127.0.0.1/practice-hub", {}],
     ["https://www.lazytopper.com/practice-hub", { webdriver: true }],
   ] as Array<[string, { webdriver?: boolean }]>)("defines fbq exactly when GA4 defines gtag: %s %j", (href, opts) => {

@@ -428,10 +428,47 @@ function dropQueuedMetaEvents(fbq: Fbq): void {
   }
 }
 
+/**
+ * ★ BEFORE fbevents.js ARRIVES, A CALL WAITS HERE, NOT IN THE STUB QUEUE. The library
+ * replays its queue with the address at the moment it arrives, and the address can change
+ * with no route change (a query or hash), which never reaches this module. So a call made
+ * before the library loads is held, and sent on `lt:fbq-ready` (dispatched by the script
+ * tag's onload in index.html) only if the address is clean THEN; otherwise it is dropped.
+ * The library has loaded once it has put `callMethod` on the stub.
+ */
+const META_PENDING_CAP = 20;
+const metaPending: MetaCall[] = [];
+let metaReadyListening = false;
+
+function metaLibraryLoaded(fbq: Fbq): boolean {
+  return typeof (fbq as { callMethod?: unknown }).callMethod === "function";
+}
+
+function flushMetaPending(): void {
+  const calls = metaPending.splice(0);
+  try {
+    const fbq = resolveFbq();
+    if (!fbq || !metaAddressIsClean(window.location, document.referrer)) return;
+    for (const call of calls) fbq(call[0], call[1]);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+function holdMetaCall(call: MetaCall): void {
+  metaPending.push(call);
+  if (metaPending.length > META_PENDING_CAP) metaPending.shift();
+  if (!metaReadyListening) {
+    metaReadyListening = true;
+    window.addEventListener("lt:fbq-ready", flushMetaPending);
+  }
+}
+
 function sendToMeta(kind: "pageview" | "event", payload: Record<string, unknown>): void {
   const fbq = resolveFbq();
   if (!fbq) return;
   if (!metaAddressIsClean(window.location, document.referrer)) {
+    metaPending.length = 0;
     dropQueuedMetaEvents(fbq);
     return;
   }
@@ -443,7 +480,8 @@ function sendToMeta(kind: "pageview" | "event", payload: Record<string, unknown>
         ? META_EVENTS[name as keyof typeof META_EVENTS]
         : undefined;
   if (!call) return;
-  fbq(call[0], call[1]);
+  if (metaLibraryLoaded(fbq)) fbq(call[0], call[1]);
+  else holdMetaCall(call);
 }
 
 /**

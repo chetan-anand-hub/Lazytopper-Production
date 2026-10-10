@@ -291,6 +291,9 @@
           var tag = document.createElement("script");
           tag.async = true;
           tag.src = "https://connect.facebook.net/en_US/fbevents.js";
+          tag.onload = function () {
+            window.dispatchEvent(new Event("lt:fbq-ready"));
+          };
           document.head.appendChild(tag);
         }
         function afterLoad() {

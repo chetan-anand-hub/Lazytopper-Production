@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const { getAdditionalUserInfo } = vi.hoisted(() => ({
   getAdditionalUserInfo: vi.fn(),
@@ -8,6 +10,13 @@ vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
 import { META_EVENTS, metaAddressIsClean, trackNamedEvent, trackPageview, trackSignUp } from "./analytics";
 import type { NamedAnalyticsEvent } from "./analytics";
+
+/** The retired base (ROOT-URL-1), read from vercel.json's redirect to the root so this file holds no literal of it. */
+const RETIRED_BASE: string = (
+  JSON.parse(readFileSync(resolve(__dirname, "../../../vercel.json"), "utf-8")) as {
+    redirects: Array<{ source: string; destination: string }>;
+  }
+).redirects.find((r) => r.destination === "/")!.source;
 
 /**
  * META-PIXEL-1 PR-1 — the Meta half of `send()`. Pins the decision that Meta receives only
@@ -38,17 +47,31 @@ function setReferrer(referrer: string): void {
   Object.defineProperty(document, "referrer", { configurable: true, get: () => referrer });
 }
 
-type Fbq = { (...args: unknown[]): void; queue: unknown[] };
+type Fbq = { (...args: unknown[]): void; queue: unknown[]; callMethod?: (...a: unknown[]) => void };
 type Win = { fbq?: unknown; gtag?: unknown; va?: unknown };
 const w = window as unknown as Win;
 
-function installFbq(): void {
+let calls: unknown[][];
+
+function installFbq(loaded = true): void {
+  calls = [];
   const fbq = function () {
     // eslint-disable-next-line prefer-rest-params
-    fbq.queue.push(arguments);
+    if (fbq.callMethod) fbq.callMethod.apply(fbq, arguments as unknown as unknown[]);
+    // eslint-disable-next-line prefer-rest-params
+    else fbq.queue.push(arguments);
   } as Fbq;
   fbq.queue = [["set", "autoConfig", false, PIXEL], ["init", PIXEL]];
+  if (loaded) setLoaded(fbq);
   w.fbq = fbq;
+}
+
+function setLoaded(fbq: Fbq = w.fbq as Fbq): void {
+  fbq.callMethod = (...a: unknown[]) => void calls.push(a);
+}
+
+function ready(): void {
+  window.dispatchEvent(new Event("lt:fbq-ready"));
 }
 
 function queue(): unknown[][] {
@@ -56,7 +79,7 @@ function queue(): unknown[][] {
 }
 
 function added(): unknown[][] {
-  return queue().slice(2);
+  return calls;
 }
 
 beforeEach(() => {
@@ -69,6 +92,7 @@ beforeEach(() => {
 
 afterEach(() => {
   delete w.fbq;
+  ready();
   delete w.gtag;
   delete w.va;
   Object.defineProperty(window, "location", { configurable: true, writable: true, value: originalLocation });
@@ -98,7 +122,7 @@ describe("Meta — page views", () => {
     "/login?oobCode=x",
     "/admin/students/AbCdEfGhIjKlMnOpQrStUvWx12Yz",
     "/u/abc",
-    "/app/u/abc",
+    `${RETIRED_BASE}/u/abc`,
     "/notes/circles#t=1",
     "/pricing?next=%2Fhome",
     "/me/a@b.com",
@@ -141,14 +165,51 @@ describe("Meta — referrer", () => {
 
 describe("Meta — purge on an unclean address", () => {
   it("removes queued track entries but keeps set + init in order", () => {
-    trackPageview("/practice-hub");
-    expect(added()).toEqual([["track", "PageView"]]);
+    (w.fbq as Fbq).queue.push(["track", "PageView"] as unknown as ArrayLike<unknown>);
     setLocation("/login?next=x");
     trackPageview("/login");
     expect(queue()).toEqual([
       ["set", "autoConfig", false, PIXEL],
       ["init", PIXEL],
     ]);
+    expect(added()).toEqual([]);
+  });
+});
+
+describe("Meta — before the library loads", () => {
+  beforeEach(() => installFbq(false));
+
+  it("holds a clean call out of the queue, then sends it on lt:fbq-ready", () => {
+    trackPageview("/practice-hub");
+    expect(queue().filter((e) => e[0] === "track")).toEqual([]);
+    setLoaded();
+    ready();
+    expect(calls).toEqual([["track", "PageView"]]);
+  });
+
+  it("★ discards pending calls if the address became unclean before ready", () => {
+    trackPageview("/practice-hub");
+    setLocation("/practice-hub?x=1");
+    setLoaded();
+    ready();
+    expect(calls).toEqual([]);
+  });
+
+  it("an unclean call empties the pending list", () => {
+    trackPageview("/practice-hub");
+    setLocation("/login?next=x");
+    trackPageview("/login");
+    setLocation("/practice-hub");
+    setLoaded();
+    ready();
+    expect(calls).toEqual([]);
+  });
+
+  it("holds sign_up and sends CompleteRegistration on ready", () => {
+    trackSignUp();
+    setLoaded();
+    ready();
+    expect(calls).toEqual([["track", "CompleteRegistration"]]);
   });
 });
 
