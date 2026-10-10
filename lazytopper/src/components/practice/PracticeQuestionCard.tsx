@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, Suspense } from "react";
+import { useState, useRef, useCallback, Suspense, createContext, useContext, type ReactNode } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
@@ -90,6 +90,22 @@ export interface PracticeQuestionCardProps {
    * behaviour, so a consumer that does not opt in is byte-identical.
    */
   stepsLocked?: boolean;
+  /**
+   * PRACTICE-REVIEW-HONEST-1 (DECISION 27a / 30b) — whether an MCQ pick here is a real
+   * attempt. false ⇒ the pick still reports right/wrong (onMcqSelect / onMcqResult) but is
+   * NOT sent to `recordAttempt`: an answer given after the steps were seen (Quick Practice
+   * review mode) is not an attempt. Omitted ⇒ `PracticeAttemptCountingProvider`'s value,
+   * which defaults to true, so every other host is byte-identical.
+   */
+  countsAsAttempt?: boolean;
+}
+
+/** PRACTICE-REVIEW-HONEST-1 — the host's default for `countsAsAttempt`, for a host that
+ *  renders the card through an intermediate list it does not own (PracticePage →
+ *  PracticeQuestionList → card). True unless a provider says otherwise. */
+const AttemptCountingContext = createContext<boolean>(true);
+export function PracticeAttemptCountingProvider({ value, children }: { value: boolean; children: ReactNode }) {
+  return <AttemptCountingContext.Provider value={value}>{children}</AttemptCountingContext.Provider>;
 }
 
 const DIFFICULTY_BADGE: Record<string, { color: string; bg: string; border: string }> = {
@@ -157,7 +173,10 @@ export function PracticeQuestionCard({
   onAskTutor,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
   stepsLocked = false,
+  countsAsAttempt: countsAsAttemptProp,
 }: PracticeQuestionCardProps) {
+  const countsAsAttemptDefault = useContext(AttemptCountingContext);
+  const countsAsAttempt = countsAsAttemptProp ?? countsAsAttemptDefault;
   // The ONE gate every steps render reads: a host's stale `isOpen` cannot leak the panel.
   const stepsOpen = isOpen && !stepsLocked;
   const [showChecker, setShowChecker] = useState(false);
@@ -309,6 +328,8 @@ export function PracticeQuestionCard({
       if (correctIdx >= 0) {
         const resultStatus = oi === correctIdx ? "correct" : "wrong";
         onMcqResult(qId, resultStatus);
+        // PRACTICE-REVIEW-HONEST-1 — right/wrong is shown above; a review pick stops here.
+        if (!countsAsAttempt) return;
 
         // MI-Loop Stage 2 PR 3 — MCQ honest capture. An MCQ click is a real
         // answer attempt, so route it through the SAME front door graded answers

@@ -371,8 +371,8 @@ export const META_EVENTS: Readonly<Partial<Record<"sign_up" | NamedAnalyticsEven
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
 
-/** `utm_*` and the ad click ids, plus `cbq` — the ad landing's boolean flag. Nothing else. */
-const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq)$/;
+/** `utm_*` and the ad click ids, plus `cbq` and `ct` — the CBQ and Chapter Test ad landings' boolean flags (META-CT-PARAM-1). Nothing else. */
+const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq|ct)$/;
 const HANDOFF_PATH = /^(?:\/app)?\/u(?:\/|$)/;
 
 function metaQueryAndHashAreClean(search: string, hash: string): boolean {
@@ -395,7 +395,7 @@ const siteOf = (host: string): string => String(host || "").toLowerCase().replac
 /**
  * The address is CLEAN when redaction would not change it: not a hand-off path,
  * `normalisePath(path) === path` (no email or opaque-id segment, no trailing slash), no
- * hash, and only `utm_*` / `fbclid` / `gclid` / `cbq` in the query. A same-site referrer
+ * hash, and only `utm_*` / `fbclid` / `gclid` / `cbq` / `ct` in the query. A same-site referrer
  * (`www.` ignored) must pass the same test; a cross-site one may carry no other query
  * parameter and no hash. An unparseable referrer is not clean.
  */
