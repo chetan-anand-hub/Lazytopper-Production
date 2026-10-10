@@ -8,8 +8,13 @@
  * typo, a missing or oversized asset, a non-WebP file, a chapter mismatch, or a binding on a row that stopped being
  * served fail loudly. Source PDF + page are repeated on each pin; the eye-confirm table lives with the PR evidence.
  *
- * Every C3 row is SERVED: none is declared in BOUND_BUT_WITHHELD, and none may be. Rows deliberately NOT bound are
- * pinned too (the served part prints no figure); they must keep resolving to NO figure.
+ * Every C3 row is SERVED except the ids in C3_BOUND_BUT_WITHHELD, which must be withheld AND declared in
+ * BOUND_BUT_WITHHELD. Rows deliberately NOT bound are pinned too (the served part prints no figure); they must keep
+ * resolving to NO figure.
+ *
+ * 2026-10-10 (B-21, LANE_RULES §8 amendment, delta exactly 1 id): BANK-FIX-5 (#1041) withheld PYQ-S-2025-MAG-006 for
+ * a key copied from another question. Its figure stays bound (CI-1's Opus verifier passed it) and the row moves from
+ * "served" to C3_BOUND_BUT_WITHHELD. Still 11 figures for 11 rows.
  */
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
@@ -36,6 +41,10 @@ const C3_BINDINGS: ReadonlyArray<readonly [string, string]> = [
   ["PYQ-S-2025-MAG-007", "/figures/pyq-science/magnetic-effects-of-electric-current/PYQ-S-2025-MAG-007.webp"], // 31-2-1_Science.pdf (2025) p21 Q36(a)
   ["CFPQ-S-ABS-013", "/figures/cfpq-science/acids-bases-and-salts/CFPQ-S-ABS-013.webp"], // CFPQ_Science10.pdf p14 Q13
 ];
+
+// Bound, but the row is withheld by a bank lane for a reason other than the figure (2026-10-10, see header).
+const C3_BOUND_BUT_WITHHELD: readonly string[] = ["PYQ-S-2025-MAG-006"];
+const isC3Withheld = (q: string) => C3_BOUND_BUT_WITHHELD.includes(q);
 
 // Not bound on purpose — must resolve to no figure.
 const C3_NOT_BOUND = [
@@ -72,14 +81,29 @@ describe("C3 DIAGRAMS PR-S1 bindings (Electricity, Human Eye, Magnetic Effects, 
   });
 
   it("every pinned question is SERVED (in the bank, not withheld) and none is declared bound-but-withheld", () => {
-    expect(C3_BINDINGS.filter(([q]) => !served.has(q)).map(([q]) => q)).toEqual([]);
-    expect(C3_BINDINGS.filter(([q]) => WITHHELD_QUESTION_IDS.has(q)).map(([q]) => q)).toEqual([]);
+    const servedPins = C3_BINDINGS.filter(([q]) => !isC3Withheld(q));
+    expect(servedPins.filter(([q]) => !served.has(q)).map(([q]) => q)).toEqual([]);
+    expect(servedPins.filter(([q]) => WITHHELD_QUESTION_IDS.has(q)).map(([q]) => q)).toEqual([]);
     const declared = Object.keys(BOUND_BUT_WITHHELD);
-    expect(C3_BINDINGS.filter(([q]) => declared.includes(q)).map(([q]) => q)).toEqual([]);
+    expect(servedPins.filter(([q]) => declared.includes(q)).map(([q]) => q)).toEqual([]);
+  });
+
+  it("each C3 bound-but-withheld row is pinned, withheld, not served, and declared in BOUND_BUT_WITHHELD", () => {
+    const pinned = new Set(C3_BINDINGS.map(([q]) => q));
+    const declared = Object.keys(BOUND_BUT_WITHHELD);
+    const bad = C3_BOUND_BUT_WITHHELD.filter(
+      (q) => !pinned.has(q) || !WITHHELD_QUESTION_IDS.has(q) || served.has(q) || !declared.includes(q),
+    );
+    expect(bad).toEqual([]);
   });
 
   it("every binding's chapter matches its row's chapter and asset folder", () => {
-    const mismatched = c3Entries.filter((f) => {
+    // A withheld row is not in the served bank: its chapter is checked against its asset folder only.
+    const withheldMismatch = c3Entries
+      .filter((f) => isC3Withheld(f.questionId ?? ""))
+      .filter((f) => CHAPTER_FOR_SLUG[f.filePath.split("/")[3]] !== f.chapter);
+    expect(withheldMismatch.map((f) => `${f.questionId}:${f.chapter}:${f.filePath}`)).toEqual([]);
+    const mismatched = c3Entries.filter((f) => !isC3Withheld(f.questionId ?? "")).filter((f) => {
       const row = served.get(f.questionId ?? "");
       if (!row) return true;
       const s = resolveCanonicalSlug(row.topicKey);
