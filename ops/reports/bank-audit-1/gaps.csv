@@ -1,0 +1,681 @@
+subject,chapter,concept,marks,format,served_count,flag
+Maths,real-numbers,Fundamental Theorem of Arithmetic,1,MCQ,45,
+Maths,real-numbers,Fundamental Theorem of Arithmetic,1,AR,7,<10
+Maths,real-numbers,Fundamental Theorem of Arithmetic,2,SHORT,42,
+Maths,real-numbers,Fundamental Theorem of Arithmetic,3,SHORT,33,
+Maths,real-numbers,Fundamental Theorem of Arithmetic,5,LONG,10,
+Maths,real-numbers,Fundamental Theorem of Arithmetic,4,CASE,23,
+Maths,real-numbers,Irrationality Proofs,1,MCQ,9,<10
+Maths,real-numbers,Irrationality Proofs,1,AR,5,<10
+Maths,real-numbers,Irrationality Proofs,2,SHORT,17,
+Maths,real-numbers,Irrationality Proofs,3,SHORT,21,
+Maths,real-numbers,Irrationality Proofs,5,LONG,10,
+Maths,real-numbers,Irrationality Proofs,4,CASE,0,ZERO
+Maths,real-numbers,UNMAPPED,1,MCQ,0,
+Maths,real-numbers,UNMAPPED,1,AR,2,
+Maths,real-numbers,UNMAPPED,2,SHORT,0,
+Maths,real-numbers,UNMAPPED,3,SHORT,0,
+Maths,real-numbers,UNMAPPED,5,LONG,0,
+Maths,real-numbers,UNMAPPED,4,CASE,0,
+Maths,real-numbers,(chapter total CBQ / case),4,CASE,23,
+Maths,polynomials,Coefficient–root Relations,1,MCQ,34,
+Maths,polynomials,Coefficient–root Relations,1,AR,10,
+Maths,polynomials,Coefficient–root Relations,2,SHORT,19,
+Maths,polynomials,Coefficient–root Relations,3,SHORT,29,
+Maths,polynomials,Coefficient–root Relations,5,LONG,24,
+Maths,polynomials,Coefficient–root Relations,4,CASE,20,
+Maths,polynomials,Zeros & Factorisation,1,MCQ,21,
+Maths,polynomials,Zeros & Factorisation,1,AR,4,<10
+Maths,polynomials,Zeros & Factorisation,2,SHORT,24,
+Maths,polynomials,Zeros & Factorisation,3,SHORT,9,<10
+Maths,polynomials,Zeros & Factorisation,5,LONG,1,<10
+Maths,polynomials,Zeros & Factorisation,4,CASE,10,
+Maths,polynomials,Graph & Type of Polynomial,1,MCQ,13,
+Maths,polynomials,Graph & Type of Polynomial,1,AR,2,<10
+Maths,polynomials,Graph & Type of Polynomial,2,SHORT,1,<10
+Maths,polynomials,Graph & Type of Polynomial,3,SHORT,2,<10
+Maths,polynomials,Graph & Type of Polynomial,5,LONG,2,<10
+Maths,polynomials,Graph & Type of Polynomial,4,CASE,8,<10
+Maths,polynomials,UNMAPPED,1,MCQ,0,
+Maths,polynomials,UNMAPPED,1,AR,1,
+Maths,polynomials,UNMAPPED,2,SHORT,2,
+Maths,polynomials,UNMAPPED,3,SHORT,0,
+Maths,polynomials,UNMAPPED,5,LONG,0,
+Maths,polynomials,UNMAPPED,4,CASE,0,
+Maths,polynomials,(chapter total CBQ / case),4,CASE,38,
+Maths,pair-of-linear-equations,Algebraic Solution Methods,1,MCQ,18,
+Maths,pair-of-linear-equations,Algebraic Solution Methods,1,AR,4,<10
+Maths,pair-of-linear-equations,Algebraic Solution Methods,2,SHORT,22,
+Maths,pair-of-linear-equations,Algebraic Solution Methods,3,SHORT,12,
+Maths,pair-of-linear-equations,Algebraic Solution Methods,5,LONG,2,<10
+Maths,pair-of-linear-equations,Algebraic Solution Methods,4,CASE,10,
+Maths,pair-of-linear-equations,Word & Application Problems,1,MCQ,9,<10
+Maths,pair-of-linear-equations,Word & Application Problems,1,AR,0,ZERO
+Maths,pair-of-linear-equations,Word & Application Problems,2,SHORT,11,
+Maths,pair-of-linear-equations,Word & Application Problems,3,SHORT,46,
+Maths,pair-of-linear-equations,Word & Application Problems,5,LONG,60,
+Maths,pair-of-linear-equations,Word & Application Problems,4,CASE,47,
+Maths,pair-of-linear-equations,Graphical Solutions/Nature,1,MCQ,50,
+Maths,pair-of-linear-equations,Graphical Solutions/Nature,1,AR,9,<10
+Maths,pair-of-linear-equations,Graphical Solutions/Nature,2,SHORT,9,<10
+Maths,pair-of-linear-equations,Graphical Solutions/Nature,3,SHORT,14,
+Maths,pair-of-linear-equations,Graphical Solutions/Nature,5,LONG,3,<10
+Maths,pair-of-linear-equations,Graphical Solutions/Nature,4,CASE,10,
+Maths,pair-of-linear-equations,UNMAPPED,1,MCQ,6,
+Maths,pair-of-linear-equations,UNMAPPED,1,AR,1,
+Maths,pair-of-linear-equations,UNMAPPED,2,SHORT,0,
+Maths,pair-of-linear-equations,UNMAPPED,3,SHORT,1,
+Maths,pair-of-linear-equations,UNMAPPED,5,LONG,0,
+Maths,pair-of-linear-equations,UNMAPPED,4,CASE,1,
+Maths,pair-of-linear-equations,(chapter total CBQ / case),4,CASE,68,
+Maths,quadratic-equations,Algebraic Solution,1,MCQ,26,
+Maths,quadratic-equations,Algebraic Solution,1,AR,3,<10
+Maths,quadratic-equations,Algebraic Solution,2,SHORT,11,
+Maths,quadratic-equations,Algebraic Solution,3,SHORT,18,
+Maths,quadratic-equations,Algebraic Solution,5,LONG,2,<10
+Maths,quadratic-equations,Algebraic Solution,4,CASE,2,<10
+Maths,quadratic-equations,Nature of Roots (Discriminant),1,MCQ,35,
+Maths,quadratic-equations,Nature of Roots (Discriminant),1,AR,8,<10
+Maths,quadratic-equations,Nature of Roots (Discriminant),2,SHORT,13,
+Maths,quadratic-equations,Nature of Roots (Discriminant),3,SHORT,12,
+Maths,quadratic-equations,Nature of Roots (Discriminant),5,LONG,7,<10
+Maths,quadratic-equations,Nature of Roots (Discriminant),4,CASE,2,<10
+Maths,quadratic-equations,Word/Application Problems,1,MCQ,1,<10
+Maths,quadratic-equations,Word/Application Problems,1,AR,0,ZERO
+Maths,quadratic-equations,Word/Application Problems,2,SHORT,7,<10
+Maths,quadratic-equations,Word/Application Problems,3,SHORT,22,
+Maths,quadratic-equations,Word/Application Problems,5,LONG,69,
+Maths,quadratic-equations,Word/Application Problems,4,CASE,59,
+Maths,quadratic-equations,UNMAPPED,1,MCQ,12,
+Maths,quadratic-equations,UNMAPPED,1,AR,1,
+Maths,quadratic-equations,UNMAPPED,2,SHORT,3,
+Maths,quadratic-equations,UNMAPPED,3,SHORT,4,
+Maths,quadratic-equations,UNMAPPED,5,LONG,0,
+Maths,quadratic-equations,UNMAPPED,4,CASE,5,
+Maths,quadratic-equations,(chapter total CBQ / case),4,CASE,68,
+Maths,arithmetic-progression,nth Term,1,MCQ,46,
+Maths,arithmetic-progression,nth Term,1,AR,6,<10
+Maths,arithmetic-progression,nth Term,2,SHORT,22,
+Maths,arithmetic-progression,nth Term,3,SHORT,28,
+Maths,arithmetic-progression,nth Term,5,LONG,15,
+Maths,arithmetic-progression,nth Term,4,CASE,17,
+Maths,arithmetic-progression,Sum of n Terms,1,MCQ,21,
+Maths,arithmetic-progression,Sum of n Terms,1,AR,2,<10
+Maths,arithmetic-progression,Sum of n Terms,2,SHORT,7,<10
+Maths,arithmetic-progression,Sum of n Terms,3,SHORT,25,
+Maths,arithmetic-progression,Sum of n Terms,5,LONG,29,
+Maths,arithmetic-progression,Sum of n Terms,4,CASE,28,
+Maths,arithmetic-progression,Application Problems,1,MCQ,3,<10
+Maths,arithmetic-progression,Application Problems,1,AR,1,<10
+Maths,arithmetic-progression,Application Problems,2,SHORT,2,<10
+Maths,arithmetic-progression,Application Problems,3,SHORT,15,
+Maths,arithmetic-progression,Application Problems,5,LONG,28,
+Maths,arithmetic-progression,Application Problems,4,CASE,25,
+Maths,arithmetic-progression,UNMAPPED,1,MCQ,3,
+Maths,arithmetic-progression,UNMAPPED,1,AR,5,
+Maths,arithmetic-progression,UNMAPPED,2,SHORT,3,
+Maths,arithmetic-progression,UNMAPPED,3,SHORT,3,
+Maths,arithmetic-progression,UNMAPPED,5,LONG,0,
+Maths,arithmetic-progression,UNMAPPED,4,CASE,1,
+Maths,arithmetic-progression,(chapter total CBQ / case),4,CASE,76,
+Maths,triangles,Similarity Criteria,1,MCQ,34,
+Maths,triangles,Similarity Criteria,1,AR,8,<10
+Maths,triangles,Similarity Criteria,2,SHORT,24,
+Maths,triangles,Similarity Criteria,3,SHORT,28,
+Maths,triangles,Similarity Criteria,5,LONG,34,
+Maths,triangles,Similarity Criteria,4,CASE,24,
+Maths,triangles,BPT (Basic Proportionality Theorem),1,MCQ,13,
+Maths,triangles,BPT (Basic Proportionality Theorem),1,AR,4,<10
+Maths,triangles,BPT (Basic Proportionality Theorem),2,SHORT,15,
+Maths,triangles,BPT (Basic Proportionality Theorem),3,SHORT,17,
+Maths,triangles,BPT (Basic Proportionality Theorem),5,LONG,13,
+Maths,triangles,BPT (Basic Proportionality Theorem),4,CASE,4,<10
+Maths,triangles,UNMAPPED,1,MCQ,24,
+Maths,triangles,UNMAPPED,1,AR,3,
+Maths,triangles,UNMAPPED,2,SHORT,17,
+Maths,triangles,UNMAPPED,3,SHORT,15,
+Maths,triangles,UNMAPPED,5,LONG,24,
+Maths,triangles,UNMAPPED,4,CASE,12,
+Maths,triangles,(chapter total CBQ / case),4,CASE,40,
+Maths,coordinate-geometry,Distance Formula,1,MCQ,40,
+Maths,coordinate-geometry,Distance Formula,1,AR,4,<10
+Maths,coordinate-geometry,Distance Formula,2,SHORT,24,
+Maths,coordinate-geometry,Distance Formula,3,SHORT,33,
+Maths,coordinate-geometry,Distance Formula,5,LONG,10,
+Maths,coordinate-geometry,Distance Formula,4,CASE,38,
+Maths,coordinate-geometry,Section Formula,1,MCQ,26,
+Maths,coordinate-geometry,Section Formula,1,AR,6,<10
+Maths,coordinate-geometry,Section Formula,2,SHORT,22,
+Maths,coordinate-geometry,Section Formula,3,SHORT,27,
+Maths,coordinate-geometry,Section Formula,5,LONG,7,<10
+Maths,coordinate-geometry,Section Formula,4,CASE,29,
+Maths,coordinate-geometry,UNMAPPED,1,MCQ,1,
+Maths,coordinate-geometry,UNMAPPED,1,AR,0,
+Maths,coordinate-geometry,UNMAPPED,2,SHORT,0,
+Maths,coordinate-geometry,UNMAPPED,3,SHORT,1,
+Maths,coordinate-geometry,UNMAPPED,5,LONG,0,
+Maths,coordinate-geometry,UNMAPPED,4,CASE,0,
+Maths,coordinate-geometry,(chapter total CBQ / case),4,CASE,67,
+Maths,trigonometry,Trig Ratios/Values,1,MCQ,69,
+Maths,trigonometry,Trig Ratios/Values,1,AR,9,<10
+Maths,trigonometry,Trig Ratios/Values,2,SHORT,45,
+Maths,trigonometry,Trig Ratios/Values,3,SHORT,18,
+Maths,trigonometry,Trig Ratios/Values,5,LONG,3,<10
+Maths,trigonometry,Trig Ratios/Values,4,CASE,2,<10
+Maths,trigonometry,Trig Identities/Proofs,1,MCQ,30,
+Maths,trigonometry,Trig Identities/Proofs,1,AR,8,<10
+Maths,trigonometry,Trig Identities/Proofs,2,SHORT,18,
+Maths,trigonometry,Trig Identities/Proofs,3,SHORT,41,
+Maths,trigonometry,Trig Identities/Proofs,5,LONG,21,
+Maths,trigonometry,Trig Identities/Proofs,4,CASE,1,<10
+Maths,trigonometry,Application/Heights & Distances,1,MCQ,13,
+Maths,trigonometry,Application/Heights & Distances,1,AR,3,<10
+Maths,trigonometry,Application/Heights & Distances,2,SHORT,16,
+Maths,trigonometry,Application/Heights & Distances,3,SHORT,26,
+Maths,trigonometry,Application/Heights & Distances,5,LONG,29,
+Maths,trigonometry,Application/Heights & Distances,4,CASE,35,
+Maths,trigonometry,UNMAPPED,1,MCQ,2,
+Maths,trigonometry,UNMAPPED,1,AR,0,
+Maths,trigonometry,UNMAPPED,2,SHORT,2,
+Maths,trigonometry,UNMAPPED,3,SHORT,2,
+Maths,trigonometry,UNMAPPED,5,LONG,0,
+Maths,trigonometry,UNMAPPED,4,CASE,0,
+Maths,trigonometry,(chapter total CBQ / case),4,CASE,38,
+Maths,circles,Tangent Properties,1,MCQ,51,
+Maths,circles,Tangent Properties,1,AR,9,<10
+Maths,circles,Tangent Properties,2,SHORT,32,
+Maths,circles,Tangent Properties,3,SHORT,42,
+Maths,circles,Tangent Properties,5,LONG,17,
+Maths,circles,Tangent Properties,4,CASE,7,<10
+Maths,circles,Tangent Theorems & Proofs,1,MCQ,3,<10
+Maths,circles,Tangent Theorems & Proofs,1,AR,4,<10
+Maths,circles,Tangent Theorems & Proofs,2,SHORT,3,<10
+Maths,circles,Tangent Theorems & Proofs,3,SHORT,9,<10
+Maths,circles,Tangent Theorems & Proofs,5,LONG,6,<10
+Maths,circles,Tangent Theorems & Proofs,4,CASE,1,<10
+Maths,circles,Number/Type of Tangents,1,MCQ,9,<10
+Maths,circles,Number/Type of Tangents,1,AR,0,ZERO
+Maths,circles,Number/Type of Tangents,2,SHORT,3,<10
+Maths,circles,Number/Type of Tangents,3,SHORT,0,ZERO
+Maths,circles,Number/Type of Tangents,5,LONG,0,ZERO
+Maths,circles,Number/Type of Tangents,4,CASE,1,<10
+Maths,circles,UNMAPPED,1,MCQ,3,
+Maths,circles,UNMAPPED,1,AR,1,
+Maths,circles,UNMAPPED,2,SHORT,2,
+Maths,circles,UNMAPPED,3,SHORT,6,
+Maths,circles,UNMAPPED,5,LONG,0,
+Maths,circles,UNMAPPED,4,CASE,0,
+Maths,circles,(chapter total CBQ / case),4,CASE,9,
+Maths,areas-related-to-circles,Sectors and Segments,1,MCQ,46,
+Maths,areas-related-to-circles,Sectors and Segments,1,AR,11,
+Maths,areas-related-to-circles,Sectors and Segments,2,SHORT,19,
+Maths,areas-related-to-circles,Sectors and Segments,3,SHORT,25,
+Maths,areas-related-to-circles,Sectors and Segments,5,LONG,3,<10
+Maths,areas-related-to-circles,Sectors and Segments,4,CASE,7,<10
+Maths,areas-related-to-circles,Composite Figures,1,MCQ,11,
+Maths,areas-related-to-circles,Composite Figures,1,AR,0,ZERO
+Maths,areas-related-to-circles,Composite Figures,2,SHORT,7,<10
+Maths,areas-related-to-circles,Composite Figures,3,SHORT,10,
+Maths,areas-related-to-circles,Composite Figures,5,LONG,8,<10
+Maths,areas-related-to-circles,Composite Figures,4,CASE,4,<10
+Maths,areas-related-to-circles,UNMAPPED,1,MCQ,14,
+Maths,areas-related-to-circles,UNMAPPED,1,AR,1,
+Maths,areas-related-to-circles,UNMAPPED,2,SHORT,6,
+Maths,areas-related-to-circles,UNMAPPED,3,SHORT,7,
+Maths,areas-related-to-circles,UNMAPPED,5,LONG,0,
+Maths,areas-related-to-circles,UNMAPPED,4,CASE,2,
+Maths,areas-related-to-circles,(chapter total CBQ / case),4,CASE,13,
+Maths,surface-areas-and-volumes,Cylinder/Cone/Sphere,1,MCQ,24,
+Maths,surface-areas-and-volumes,Cylinder/Cone/Sphere,1,AR,5,<10
+Maths,surface-areas-and-volumes,Cylinder/Cone/Sphere,2,SHORT,9,<10
+Maths,surface-areas-and-volumes,Cylinder/Cone/Sphere,3,SHORT,7,<10
+Maths,surface-areas-and-volumes,Cylinder/Cone/Sphere,5,LONG,6,<10
+Maths,surface-areas-and-volumes,Cylinder/Cone/Sphere,4,CASE,4,<10
+Maths,surface-areas-and-volumes,Combination of Solids,1,MCQ,26,
+Maths,surface-areas-and-volumes,Combination of Solids,1,AR,7,<10
+Maths,surface-areas-and-volumes,Combination of Solids,2,SHORT,9,<10
+Maths,surface-areas-and-volumes,Combination of Solids,3,SHORT,25,
+Maths,surface-areas-and-volumes,Combination of Solids,5,LONG,25,
+Maths,surface-areas-and-volumes,Combination of Solids,4,CASE,16,
+Maths,surface-areas-and-volumes,UNMAPPED,1,MCQ,1,
+Maths,surface-areas-and-volumes,UNMAPPED,1,AR,0,
+Maths,surface-areas-and-volumes,UNMAPPED,2,SHORT,1,
+Maths,surface-areas-and-volumes,UNMAPPED,3,SHORT,2,
+Maths,surface-areas-and-volumes,UNMAPPED,5,LONG,10,
+Maths,surface-areas-and-volumes,UNMAPPED,4,CASE,0,
+Maths,surface-areas-and-volumes,(chapter total CBQ / case),4,CASE,20,
+Maths,statistics,Mean (Step Deviation),1,MCQ,15,
+Maths,statistics,Mean (Step Deviation),1,AR,4,<10
+Maths,statistics,Mean (Step Deviation),2,SHORT,9,<10
+Maths,statistics,Mean (Step Deviation),3,SHORT,29,
+Maths,statistics,Mean (Step Deviation),5,LONG,8,<10
+Maths,statistics,Mean (Step Deviation),4,CASE,7,<10
+Maths,statistics,Median of Grouped Data,1,MCQ,20,
+Maths,statistics,Median of Grouped Data,1,AR,6,<10
+Maths,statistics,Median of Grouped Data,2,SHORT,11,
+Maths,statistics,Median of Grouped Data,3,SHORT,17,
+Maths,statistics,Median of Grouped Data,5,LONG,12,
+Maths,statistics,Median of Grouped Data,4,CASE,5,<10
+Maths,statistics,Mode of Grouped Data,1,MCQ,15,
+Maths,statistics,Mode of Grouped Data,1,AR,4,<10
+Maths,statistics,Mode of Grouped Data,2,SHORT,5,<10
+Maths,statistics,Mode of Grouped Data,3,SHORT,13,
+Maths,statistics,Mode of Grouped Data,5,LONG,5,<10
+Maths,statistics,Mode of Grouped Data,4,CASE,1,<10
+Maths,statistics,UNMAPPED,1,MCQ,5,
+Maths,statistics,UNMAPPED,1,AR,1,
+Maths,statistics,UNMAPPED,2,SHORT,1,
+Maths,statistics,UNMAPPED,3,SHORT,3,
+Maths,statistics,UNMAPPED,5,LONG,2,
+Maths,statistics,UNMAPPED,4,CASE,9,
+Maths,statistics,(chapter total CBQ / case),4,CASE,22,
+Maths,probability,Single Event Probability,1,MCQ,56,
+Maths,probability,Single Event Probability,1,AR,12,
+Maths,probability,Single Event Probability,2,SHORT,25,
+Maths,probability,Single Event Probability,3,SHORT,27,
+Maths,probability,Single Event Probability,5,LONG,5,<10
+Maths,probability,Single Event Probability,4,CASE,13,
+Maths,probability,Combined/Word Problem Probability,1,MCQ,13,
+Maths,probability,Combined/Word Problem Probability,1,AR,2,<10
+Maths,probability,Combined/Word Problem Probability,2,SHORT,5,<10
+Maths,probability,Combined/Word Problem Probability,3,SHORT,19,
+Maths,probability,Combined/Word Problem Probability,5,LONG,10,
+Maths,probability,Combined/Word Problem Probability,4,CASE,9,<10
+Maths,probability,UNMAPPED,1,MCQ,0,
+Maths,probability,UNMAPPED,1,AR,0,
+Maths,probability,UNMAPPED,2,SHORT,0,
+Maths,probability,UNMAPPED,3,SHORT,0,
+Maths,probability,UNMAPPED,5,LONG,0,
+Maths,probability,UNMAPPED,4,CASE,0,
+Maths,probability,(chapter total CBQ / case),4,CASE,22,
+Science,chemical-reactions-and-equations,Balancing Equations & Types of Reactions,1,MCQ,127,
+Science,chemical-reactions-and-equations,Balancing Equations & Types of Reactions,1,AR,9,<10
+Science,chemical-reactions-and-equations,Balancing Equations & Types of Reactions,2,SHORT,51,
+Science,chemical-reactions-and-equations,Balancing Equations & Types of Reactions,3,SHORT,72,
+Science,chemical-reactions-and-equations,Balancing Equations & Types of Reactions,5,LONG,57,
+Science,chemical-reactions-and-equations,Balancing Equations & Types of Reactions,4,CASE,53,
+Science,chemical-reactions-and-equations,Applications & Daily-life Context,1,MCQ,4,<10
+Science,chemical-reactions-and-equations,Applications & Daily-life Context,1,AR,2,<10
+Science,chemical-reactions-and-equations,Applications & Daily-life Context,2,SHORT,4,<10
+Science,chemical-reactions-and-equations,Applications & Daily-life Context,3,SHORT,5,<10
+Science,chemical-reactions-and-equations,Applications & Daily-life Context,5,LONG,4,<10
+Science,chemical-reactions-and-equations,Applications & Daily-life Context,4,CASE,15,
+Science,chemical-reactions-and-equations,UNMAPPED,1,MCQ,0,
+Science,chemical-reactions-and-equations,UNMAPPED,1,AR,0,
+Science,chemical-reactions-and-equations,UNMAPPED,2,SHORT,0,
+Science,chemical-reactions-and-equations,UNMAPPED,3,SHORT,2,
+Science,chemical-reactions-and-equations,UNMAPPED,5,LONG,1,
+Science,chemical-reactions-and-equations,UNMAPPED,4,CASE,0,
+Science,chemical-reactions-and-equations,(chapter total CBQ / case),4,CASE,68,
+Science,acids-bases-and-salts,"pH, Indicators & Strength",1,MCQ,70,
+Science,acids-bases-and-salts,"pH, Indicators & Strength",1,AR,4,<10
+Science,acids-bases-and-salts,"pH, Indicators & Strength",2,SHORT,27,
+Science,acids-bases-and-salts,"pH, Indicators & Strength",3,SHORT,20,
+Science,acids-bases-and-salts,"pH, Indicators & Strength",5,LONG,18,
+Science,acids-bases-and-salts,"pH, Indicators & Strength",4,CASE,26,
+Science,acids-bases-and-salts,"Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",1,MCQ,22,
+Science,acids-bases-and-salts,"Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",1,AR,0,ZERO
+Science,acids-bases-and-salts,"Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",2,SHORT,12,
+Science,acids-bases-and-salts,"Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",3,SHORT,15,
+Science,acids-bases-and-salts,"Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",5,LONG,16,
+Science,acids-bases-and-salts,"Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)",4,CASE,20,
+Science,acids-bases-and-salts,UNMAPPED,1,MCQ,76,
+Science,acids-bases-and-salts,UNMAPPED,1,AR,4,
+Science,acids-bases-and-salts,UNMAPPED,2,SHORT,34,
+Science,acids-bases-and-salts,UNMAPPED,3,SHORT,23,
+Science,acids-bases-and-salts,UNMAPPED,5,LONG,24,
+Science,acids-bases-and-salts,UNMAPPED,4,CASE,28,
+Science,acids-bases-and-salts,(chapter total CBQ / case),4,CASE,74,
+Science,metals-and-non-metals,Reactivity Series & Displacement,1,MCQ,19,
+Science,metals-and-non-metals,Reactivity Series & Displacement,1,AR,2,<10
+Science,metals-and-non-metals,Reactivity Series & Displacement,2,SHORT,13,
+Science,metals-and-non-metals,Reactivity Series & Displacement,3,SHORT,12,
+Science,metals-and-non-metals,Reactivity Series & Displacement,5,LONG,7,<10
+Science,metals-and-non-metals,Reactivity Series & Displacement,4,CASE,10,
+Science,metals-and-non-metals,Corrosion & Prevention,1,MCQ,14,
+Science,metals-and-non-metals,Corrosion & Prevention,1,AR,2,<10
+Science,metals-and-non-metals,Corrosion & Prevention,2,SHORT,7,<10
+Science,metals-and-non-metals,Corrosion & Prevention,3,SHORT,3,<10
+Science,metals-and-non-metals,Corrosion & Prevention,5,LONG,5,<10
+Science,metals-and-non-metals,Corrosion & Prevention,4,CASE,11,
+Science,metals-and-non-metals,UNMAPPED,1,MCQ,113,
+Science,metals-and-non-metals,UNMAPPED,1,AR,10,
+Science,metals-and-non-metals,UNMAPPED,2,SHORT,44,
+Science,metals-and-non-metals,UNMAPPED,3,SHORT,54,
+Science,metals-and-non-metals,UNMAPPED,5,LONG,37,
+Science,metals-and-non-metals,UNMAPPED,4,CASE,37,
+Science,metals-and-non-metals,(chapter total CBQ / case),4,CASE,58,
+Science,carbon-and-its-compounds,Homologous Series & Nomenclature,1,MCQ,21,
+Science,carbon-and-its-compounds,Homologous Series & Nomenclature,1,AR,2,<10
+Science,carbon-and-its-compounds,Homologous Series & Nomenclature,2,SHORT,9,<10
+Science,carbon-and-its-compounds,Homologous Series & Nomenclature,3,SHORT,10,
+Science,carbon-and-its-compounds,Homologous Series & Nomenclature,5,LONG,3,<10
+Science,carbon-and-its-compounds,Homologous Series & Nomenclature,4,CASE,0,ZERO
+Science,carbon-and-its-compounds,Properties of Ethanol & Ethanoic Acid,1,MCQ,7,<10
+Science,carbon-and-its-compounds,Properties of Ethanol & Ethanoic Acid,1,AR,2,<10
+Science,carbon-and-its-compounds,Properties of Ethanol & Ethanoic Acid,2,SHORT,3,<10
+Science,carbon-and-its-compounds,Properties of Ethanol & Ethanoic Acid,3,SHORT,17,
+Science,carbon-and-its-compounds,Properties of Ethanol & Ethanoic Acid,5,LONG,10,
+Science,carbon-and-its-compounds,Properties of Ethanol & Ethanoic Acid,4,CASE,2,<10
+Science,carbon-and-its-compounds,UNMAPPED,1,MCQ,72,
+Science,carbon-and-its-compounds,UNMAPPED,1,AR,6,
+Science,carbon-and-its-compounds,UNMAPPED,2,SHORT,32,
+Science,carbon-and-its-compounds,UNMAPPED,3,SHORT,30,
+Science,carbon-and-its-compounds,UNMAPPED,5,LONG,20,
+Science,carbon-and-its-compounds,UNMAPPED,4,CASE,10,
+Science,carbon-and-its-compounds,(chapter total CBQ / case),4,CASE,12,
+Science,life-processes,Nutrition & Respiration (Human + Plants),1,MCQ,87,
+Science,life-processes,Nutrition & Respiration (Human + Plants),1,AR,14,
+Science,life-processes,Nutrition & Respiration (Human + Plants),2,SHORT,30,
+Science,life-processes,Nutrition & Respiration (Human + Plants),3,SHORT,49,
+Science,life-processes,Nutrition & Respiration (Human + Plants),5,LONG,29,
+Science,life-processes,Nutrition & Respiration (Human + Plants),4,CASE,31,
+Science,life-processes,Transportation & Excretion in Humans,1,MCQ,50,
+Science,life-processes,Transportation & Excretion in Humans,1,AR,10,
+Science,life-processes,Transportation & Excretion in Humans,2,SHORT,23,
+Science,life-processes,Transportation & Excretion in Humans,3,SHORT,21,
+Science,life-processes,Transportation & Excretion in Humans,5,LONG,19,
+Science,life-processes,Transportation & Excretion in Humans,4,CASE,22,
+Science,life-processes,UNMAPPED,1,MCQ,38,
+Science,life-processes,UNMAPPED,1,AR,1,
+Science,life-processes,UNMAPPED,2,SHORT,26,
+Science,life-processes,UNMAPPED,3,SHORT,17,
+Science,life-processes,UNMAPPED,5,LONG,8,
+Science,life-processes,UNMAPPED,4,CASE,3,
+Science,life-processes,(chapter total CBQ / case),4,CASE,56,
+Science,control-and-coordination,Nervous System & Reflex Actions,1,MCQ,39,
+Science,control-and-coordination,Nervous System & Reflex Actions,1,AR,3,<10
+Science,control-and-coordination,Nervous System & Reflex Actions,2,SHORT,22,
+Science,control-and-coordination,Nervous System & Reflex Actions,3,SHORT,11,
+Science,control-and-coordination,Nervous System & Reflex Actions,5,LONG,11,
+Science,control-and-coordination,Nervous System & Reflex Actions,4,CASE,3,<10
+Science,control-and-coordination,Plant Hormones & Movements,1,MCQ,25,
+Science,control-and-coordination,Plant Hormones & Movements,1,AR,2,<10
+Science,control-and-coordination,Plant Hormones & Movements,2,SHORT,15,
+Science,control-and-coordination,Plant Hormones & Movements,3,SHORT,5,<10
+Science,control-and-coordination,Plant Hormones & Movements,5,LONG,2,<10
+Science,control-and-coordination,Plant Hormones & Movements,4,CASE,4,<10
+Science,control-and-coordination,UNMAPPED,1,MCQ,48,
+Science,control-and-coordination,UNMAPPED,1,AR,1,
+Science,control-and-coordination,UNMAPPED,2,SHORT,29,
+Science,control-and-coordination,UNMAPPED,3,SHORT,22,
+Science,control-and-coordination,UNMAPPED,5,LONG,17,
+Science,control-and-coordination,UNMAPPED,4,CASE,5,
+Science,control-and-coordination,(chapter total CBQ / case),4,CASE,12,
+Science,how-do-organisms-reproduce,Asexual Reproduction & Diagrams,1,MCQ,38,
+Science,how-do-organisms-reproduce,Asexual Reproduction & Diagrams,1,AR,4,<10
+Science,how-do-organisms-reproduce,Asexual Reproduction & Diagrams,2,SHORT,18,
+Science,how-do-organisms-reproduce,Asexual Reproduction & Diagrams,3,SHORT,10,
+Science,how-do-organisms-reproduce,Asexual Reproduction & Diagrams,5,LONG,14,
+Science,how-do-organisms-reproduce,Asexual Reproduction & Diagrams,4,CASE,26,
+Science,how-do-organisms-reproduce,Sexual Reproduction in Humans & Plants,1,MCQ,59,
+Science,how-do-organisms-reproduce,Sexual Reproduction in Humans & Plants,1,AR,7,<10
+Science,how-do-organisms-reproduce,Sexual Reproduction in Humans & Plants,2,SHORT,37,
+Science,how-do-organisms-reproduce,Sexual Reproduction in Humans & Plants,3,SHORT,22,
+Science,how-do-organisms-reproduce,Sexual Reproduction in Humans & Plants,5,LONG,34,
+Science,how-do-organisms-reproduce,Sexual Reproduction in Humans & Plants,4,CASE,43,
+Science,how-do-organisms-reproduce,UNMAPPED,1,MCQ,34,
+Science,how-do-organisms-reproduce,UNMAPPED,1,AR,1,
+Science,how-do-organisms-reproduce,UNMAPPED,2,SHORT,29,
+Science,how-do-organisms-reproduce,UNMAPPED,3,SHORT,12,
+Science,how-do-organisms-reproduce,UNMAPPED,5,LONG,14,
+Science,how-do-organisms-reproduce,UNMAPPED,4,CASE,3,
+Science,how-do-organisms-reproduce,(chapter total CBQ / case),4,CASE,72,
+Science,heredity,Mendel's Experiments & Ratios,1,MCQ,36,
+Science,heredity,Mendel's Experiments & Ratios,1,AR,7,<10
+Science,heredity,Mendel's Experiments & Ratios,2,SHORT,17,
+Science,heredity,Mendel's Experiments & Ratios,3,SHORT,31,
+Science,heredity,Mendel's Experiments & Ratios,5,LONG,22,
+Science,heredity,Mendel's Experiments & Ratios,4,CASE,16,
+Science,heredity,Sex Determination,1,MCQ,7,<10
+Science,heredity,Sex Determination,1,AR,1,<10
+Science,heredity,Sex Determination,2,SHORT,5,<10
+Science,heredity,Sex Determination,3,SHORT,9,<10
+Science,heredity,Sex Determination,5,LONG,2,<10
+Science,heredity,Sex Determination,4,CASE,1,<10
+Science,heredity,UNMAPPED,1,MCQ,25,
+Science,heredity,UNMAPPED,1,AR,1,
+Science,heredity,UNMAPPED,2,SHORT,19,
+Science,heredity,UNMAPPED,3,SHORT,10,
+Science,heredity,UNMAPPED,5,LONG,6,
+Science,heredity,UNMAPPED,4,CASE,3,
+Science,heredity,(chapter total CBQ / case),4,CASE,20,
+Science,light-reflection-and-refraction,Mirror / Lens Formula & Ray Diagrams,1,MCQ,171,
+Science,light-reflection-and-refraction,Mirror / Lens Formula & Ray Diagrams,1,AR,4,<10
+Science,light-reflection-and-refraction,Mirror / Lens Formula & Ray Diagrams,2,SHORT,61,
+Science,light-reflection-and-refraction,Mirror / Lens Formula & Ray Diagrams,3,SHORT,106,
+Science,light-reflection-and-refraction,Mirror / Lens Formula & Ray Diagrams,5,LONG,56,
+Science,light-reflection-and-refraction,Mirror / Lens Formula & Ray Diagrams,4,CASE,8,<10
+Science,light-reflection-and-refraction,Refraction through Glass Slab / Prism,1,MCQ,22,
+Science,light-reflection-and-refraction,Refraction through Glass Slab / Prism,1,AR,0,ZERO
+Science,light-reflection-and-refraction,Refraction through Glass Slab / Prism,2,SHORT,3,<10
+Science,light-reflection-and-refraction,Refraction through Glass Slab / Prism,3,SHORT,5,<10
+Science,light-reflection-and-refraction,Refraction through Glass Slab / Prism,5,LONG,1,<10
+Science,light-reflection-and-refraction,Refraction through Glass Slab / Prism,4,CASE,1,<10
+Science,light-reflection-and-refraction,UNMAPPED,1,MCQ,96,
+Science,light-reflection-and-refraction,UNMAPPED,1,AR,7,
+Science,light-reflection-and-refraction,UNMAPPED,2,SHORT,69,
+Science,light-reflection-and-refraction,UNMAPPED,3,SHORT,43,
+Science,light-reflection-and-refraction,UNMAPPED,5,LONG,16,
+Science,light-reflection-and-refraction,UNMAPPED,4,CASE,6,
+Science,light-reflection-and-refraction,(chapter total CBQ / case),4,CASE,15,
+Science,human-eye-and-colourful-world,Structure & Defects of Vision,1,MCQ,37,
+Science,human-eye-and-colourful-world,Structure & Defects of Vision,1,AR,4,<10
+Science,human-eye-and-colourful-world,Structure & Defects of Vision,2,SHORT,17,
+Science,human-eye-and-colourful-world,Structure & Defects of Vision,3,SHORT,12,
+Science,human-eye-and-colourful-world,Structure & Defects of Vision,5,LONG,7,<10
+Science,human-eye-and-colourful-world,Structure & Defects of Vision,4,CASE,5,<10
+Science,human-eye-and-colourful-world,Atmospheric Refraction Phenomena,1,MCQ,1,<10
+Science,human-eye-and-colourful-world,Atmospheric Refraction Phenomena,1,AR,0,ZERO
+Science,human-eye-and-colourful-world,Atmospheric Refraction Phenomena,2,SHORT,0,ZERO
+Science,human-eye-and-colourful-world,Atmospheric Refraction Phenomena,3,SHORT,6,<10
+Science,human-eye-and-colourful-world,Atmospheric Refraction Phenomena,5,LONG,1,<10
+Science,human-eye-and-colourful-world,Atmospheric Refraction Phenomena,4,CASE,0,ZERO
+Science,human-eye-and-colourful-world,UNMAPPED,1,MCQ,50,
+Science,human-eye-and-colourful-world,UNMAPPED,1,AR,4,
+Science,human-eye-and-colourful-world,UNMAPPED,2,SHORT,25,
+Science,human-eye-and-colourful-world,UNMAPPED,3,SHORT,15,
+Science,human-eye-and-colourful-world,UNMAPPED,5,LONG,10,
+Science,human-eye-and-colourful-world,UNMAPPED,4,CASE,3,
+Science,human-eye-and-colourful-world,(chapter total CBQ / case),4,CASE,8,
+Science,electricity,Ohm’s Law & Circuit Numericals,1,MCQ,34,
+Science,electricity,Ohm’s Law & Circuit Numericals,1,AR,7,<10
+Science,electricity,Ohm’s Law & Circuit Numericals,2,SHORT,15,
+Science,electricity,Ohm’s Law & Circuit Numericals,3,SHORT,26,
+Science,electricity,Ohm’s Law & Circuit Numericals,5,LONG,25,
+Science,electricity,Ohm’s Law & Circuit Numericals,4,CASE,8,<10
+Science,electricity,Heating Effect & Power Calculations,1,MCQ,21,
+Science,electricity,Heating Effect & Power Calculations,1,AR,6,<10
+Science,electricity,Heating Effect & Power Calculations,2,SHORT,20,
+Science,electricity,Heating Effect & Power Calculations,3,SHORT,19,
+Science,electricity,Heating Effect & Power Calculations,5,LONG,11,
+Science,electricity,Heating Effect & Power Calculations,4,CASE,3,<10
+Science,electricity,UNMAPPED,1,MCQ,25,
+Science,electricity,UNMAPPED,1,AR,4,
+Science,electricity,UNMAPPED,2,SHORT,35,
+Science,electricity,UNMAPPED,3,SHORT,18,
+Science,electricity,UNMAPPED,5,LONG,12,
+Science,electricity,UNMAPPED,4,CASE,7,
+Science,electricity,(chapter total CBQ / case),4,CASE,18,
+Science,magnetic-effects-of-electric-current,Right-hand Rules & Field Lines,1,MCQ,22,
+Science,magnetic-effects-of-electric-current,Right-hand Rules & Field Lines,1,AR,3,<10
+Science,magnetic-effects-of-electric-current,Right-hand Rules & Field Lines,2,SHORT,15,
+Science,magnetic-effects-of-electric-current,Right-hand Rules & Field Lines,3,SHORT,15,
+Science,magnetic-effects-of-electric-current,Right-hand Rules & Field Lines,5,LONG,7,<10
+Science,magnetic-effects-of-electric-current,Right-hand Rules & Field Lines,4,CASE,0,ZERO
+Science,magnetic-effects-of-electric-current,UNMAPPED,1,MCQ,32,
+Science,magnetic-effects-of-electric-current,UNMAPPED,1,AR,3,
+Science,magnetic-effects-of-electric-current,UNMAPPED,2,SHORT,26,
+Science,magnetic-effects-of-electric-current,UNMAPPED,3,SHORT,21,
+Science,magnetic-effects-of-electric-current,UNMAPPED,5,LONG,10,
+Science,magnetic-effects-of-electric-current,UNMAPPED,4,CASE,4,
+Science,magnetic-effects-of-electric-current,(chapter total CBQ / case),4,CASE,4,<8
+Science,our-environment,"Food Chains, Trophic Levels & Energy Flow",1,MCQ,31,
+Science,our-environment,"Food Chains, Trophic Levels & Energy Flow",1,AR,7,<10
+Science,our-environment,"Food Chains, Trophic Levels & Energy Flow",2,SHORT,18,
+Science,our-environment,"Food Chains, Trophic Levels & Energy Flow",3,SHORT,11,
+Science,our-environment,"Food Chains, Trophic Levels & Energy Flow",5,LONG,5,<10
+Science,our-environment,"Food Chains, Trophic Levels & Energy Flow",4,CASE,12,
+Science,our-environment,"Pollution, Waste Management & Ozone Depletion",1,MCQ,24,
+Science,our-environment,"Pollution, Waste Management & Ozone Depletion",1,AR,10,
+Science,our-environment,"Pollution, Waste Management & Ozone Depletion",2,SHORT,14,
+Science,our-environment,"Pollution, Waste Management & Ozone Depletion",3,SHORT,8,<10
+Science,our-environment,"Pollution, Waste Management & Ozone Depletion",5,LONG,7,<10
+Science,our-environment,"Pollution, Waste Management & Ozone Depletion",4,CASE,14,
+Science,our-environment,UNMAPPED,1,MCQ,39,
+Science,our-environment,UNMAPPED,1,AR,4,
+Science,our-environment,UNMAPPED,2,SHORT,17,
+Science,our-environment,UNMAPPED,3,SHORT,12,
+Science,our-environment,UNMAPPED,5,LONG,5,
+Science,our-environment,UNMAPPED,4,CASE,6,
+Science,our-environment,(chapter total CBQ / case),4,CASE,32,
+Maths,real-numbers,IN-item (keyword): FTA / prime factorisation,all,all,34,
+Maths,real-numbers,IN-item (keyword): HCF/LCM application,all,all,59,
+Maths,real-numbers,IN-item (keyword): irrationality √2/√3/√5,all,all,49,
+Maths,real-numbers,"IN-item (keyword): irrationality √prime (√7, √11)",all,all,3,<10
+Maths,polynomials,IN-item (keyword): zeros graphically,all,all,37,
+Maths,polynomials,IN-item (keyword): zero-coefficient relation (quadratic),all,all,74,
+Maths,polynomials,IN-item (keyword): form quadratic from sum/product,all,all,8,<10
+Maths,pair-of-linear-equations,IN-item (keyword): graphical method,all,all,20,
+Maths,pair-of-linear-equations,IN-item (keyword): consistency conditions a1/a2,all,all,62,
+Maths,pair-of-linear-equations,IN-item (keyword): substitution,all,all,16,
+Maths,pair-of-linear-equations,IN-item (keyword): elimination,all,all,12,
+Maths,pair-of-linear-equations,IN-item (keyword): situational problems,all,all,169,
+Maths,quadratic-equations,IN-item (keyword): standard form,all,all,34,
+Maths,quadratic-equations,IN-item (keyword): factorisation,all,all,12,
+Maths,quadratic-equations,IN-item (keyword): quadratic formula,all,all,15,
+Maths,quadratic-equations,IN-item (keyword): discriminant / nature of roots,all,all,72,
+Maths,quadratic-equations,IN-item (keyword): situational problems,all,all,113,
+Maths,arithmetic-progression,IN-item (keyword): nth term,all,all,97,
+Maths,arithmetic-progression,IN-item (keyword): sum of n terms,all,all,122,
+Maths,arithmetic-progression,IN-item (keyword): daily-life application,all,all,226,
+Maths,coordinate-geometry,IN-item (keyword): distance formula,all,all,121,
+Maths,coordinate-geometry,IN-item (keyword): section formula (internal),all,all,70,
+Maths,coordinate-geometry,IN-item (keyword): mid-point,all,all,45,
+Maths,triangles,IN-item (keyword): similar triangles definition/criteria,all,all,76,
+Maths,triangles,IN-item (keyword): BPT proof,all,all,4,<10
+Maths,triangles,IN-item (keyword): BPT application,all,all,90,
+Maths,triangles,IN-item (keyword): converse of BPT,all,all,2,<10
+Maths,circles,IN-item (keyword): tangent ⟂ radius,all,all,31,
+Maths,circles,IN-item (keyword): tangents from external point equal,all,all,65,
+Maths,circles,IN-item (keyword): number of tangents,all,all,9,<10
+Maths,circles,IN-item (keyword): tangent applications,all,all,181,
+Maths,trigonometry,IN-item (keyword): ratios of acute angle,all,all,245,
+Maths,trigonometry,IN-item (keyword): values at 0/90,all,all,9,<10
+Maths,trigonometry,IN-item (keyword): values at 30/45/60,all,all,91,
+Maths,trigonometry,IN-item (keyword): identities,all,all,91,
+Maths,trigonometry,IN-item (keyword): heights & distances,all,all,102,
+Maths,areas-related-to-circles,IN-item (keyword): sector area,all,all,81,
+Maths,areas-related-to-circles,IN-item (keyword): segment area,all,all,26,
+Maths,areas-related-to-circles,IN-item (keyword): arc length / perimeter,all,all,72,
+Maths,areas-related-to-circles,IN-item (keyword): vertex-sectors in triangle/square,all,all,7,<10
+Maths,areas-related-to-circles,IN-item (keyword): ring / annulus,all,all,8,<10
+Maths,areas-related-to-circles,IN-item (keyword): inscribed circle/square,all,all,11,
+Maths,surface-areas-and-volumes,IN-item (keyword): surface area of combination,all,all,88,
+Maths,surface-areas-and-volumes,IN-item (keyword): volume of combination,all,all,78,
+Maths,statistics,IN-item (keyword): mean (direct/assumed/step-deviation),all,all,109,
+Maths,statistics,IN-item (keyword): median grouped,all,all,94,
+Maths,statistics,IN-item (keyword): mode grouped,all,all,89,
+Maths,statistics,IN-item (keyword): empirical relation,all,all,14,
+Maths,probability,IN-item (keyword): coin,all,all,25,
+Maths,probability,IN-item (keyword): dice,all,all,41,
+Maths,probability,IN-item (keyword): cards,all,all,38,
+Maths,probability,IN-item (keyword): balls/bag,all,all,37,
+Maths,probability,IN-item (keyword): other simple events,all,all,183,
+Science,chemical-reactions-and-equations,IN-item (keyword): balancing,all,all,141,
+Science,chemical-reactions-and-equations,IN-item (keyword): combination,all,all,24,
+Science,chemical-reactions-and-equations,IN-item (keyword): decomposition,all,all,45,
+Science,chemical-reactions-and-equations,IN-item (keyword): displacement,all,all,19,
+Science,chemical-reactions-and-equations,IN-item (keyword): double displacement / precipitation,all,all,38,
+Science,chemical-reactions-and-equations,IN-item (keyword): endo/exothermic,all,all,42,
+Science,chemical-reactions-and-equations,IN-item (keyword): oxidation-reduction,all,all,65,
+Science,chemical-reactions-and-equations,IN-item (keyword): corrosion (in Ch1 context),all,all,33,
+Science,acids-bases-and-salts,IN-item (keyword): indicators,all,all,80,
+Science,acids-bases-and-salts,IN-item (keyword): acid/base reactions with metals/carbonates,all,all,19,
+Science,acids-bases-and-salts,IN-item (keyword): neutralisation,all,all,26,
+Science,acids-bases-and-salts,IN-item (keyword): pH scale,all,all,102,
+Science,acids-bases-and-salts,IN-item (keyword): NaOH / chlor-alkali,all,all,73,
+Science,acids-bases-and-salts,IN-item (keyword): bleaching powder,all,all,13,
+Science,acids-bases-and-salts,IN-item (keyword): baking soda,all,all,36,
+Science,acids-bases-and-salts,IN-item (keyword): washing soda,all,all,23,
+Science,acids-bases-and-salts,IN-item (keyword): plaster of Paris,all,all,16,
+Science,metals-and-non-metals,IN-item (keyword): physical properties,all,all,22,
+Science,metals-and-non-metals,IN-item (keyword): chemical properties (O2/water/acid),all,all,52,
+Science,metals-and-non-metals,IN-item (keyword): reactivity series / displacement,all,all,38,
+Science,metals-and-non-metals,IN-item (keyword): ionic compounds,all,all,18,
+Science,metals-and-non-metals,"IN-item (keyword): metallurgy (ores, roasting, calcination, refining)",all,all,82,
+Science,metals-and-non-metals,IN-item (keyword): corrosion & prevention,all,all,69,
+Science,carbon-and-its-compounds,IN-item (keyword): covalent bonding / electron dot,all,all,27,
+Science,carbon-and-its-compounds,IN-item (keyword): versatile nature (catenation/tetravalency),all,all,4,<10
+Science,carbon-and-its-compounds,IN-item (keyword): saturated/unsaturated,all,all,24,
+Science,carbon-and-its-compounds,IN-item (keyword): homologous series,all,all,31,
+Science,carbon-and-its-compounds,IN-item (keyword): nomenclature,all,all,18,
+Science,carbon-and-its-compounds,IN-item (keyword): combustion/oxidation,all,all,25,
+Science,carbon-and-its-compounds,IN-item (keyword): addition / substitution,all,all,21,
+Science,carbon-and-its-compounds,IN-item (keyword): ethanol properties/uses,all,all,47,
+Science,carbon-and-its-compounds,IN-item (keyword): ethanoic acid properties/uses,all,all,28,
+Science,carbon-and-its-compounds,IN-item (keyword): soaps & detergents,all,all,30,
+Science,life-processes,IN-item (keyword): autotrophic nutrition / photosynthesis,all,all,68,
+Science,life-processes,IN-item (keyword): human digestion,all,all,86,
+Science,life-processes,IN-item (keyword): respiration,all,all,76,
+Science,life-processes,IN-item (keyword): transport in humans (heart/blood),all,all,98,
+Science,life-processes,IN-item (keyword): transport in plants,all,all,21,
+Science,life-processes,IN-item (keyword): excretion in humans,all,all,61,
+Science,life-processes,IN-item (keyword): excretion in plants,all,all,9,<10
+Science,control-and-coordination,IN-item (keyword): neurons / nervous tissue,all,all,41,
+Science,control-and-coordination,IN-item (keyword): reflex action,all,all,29,
+Science,control-and-coordination,IN-item (keyword): brain,all,all,70,
+Science,control-and-coordination,IN-item (keyword): plant movements / tropism,all,all,20,
+Science,control-and-coordination,IN-item (keyword): plant hormones,all,all,24,
+Science,control-and-coordination,IN-item (keyword): animal hormones / glands,all,all,91,
+Science,how-do-organisms-reproduce,IN-item (keyword): fission,all,all,21,
+Science,how-do-organisms-reproduce,IN-item (keyword): budding/fragmentation/regeneration,all,all,22,
+Science,how-do-organisms-reproduce,IN-item (keyword): spore formation,all,all,14,
+Science,how-do-organisms-reproduce,IN-item (keyword): vegetative propagation,all,all,30,
+Science,how-do-organisms-reproduce,IN-item (keyword): flower / pollination / fertilisation (plants),all,all,88,
+Science,how-do-organisms-reproduce,IN-item (keyword): human reproductive system,all,all,82,
+Science,how-do-organisms-reproduce,IN-item (keyword): reproductive health / contraception / STIs,all,all,80,
+Science,how-do-organisms-reproduce,IN-item (keyword): DNA copying / variation,all,all,25,
+Science,heredity,IN-item (keyword): Mendel monohybrid,all,all,74,
+Science,heredity,IN-item (keyword): dihybrid / independent assortment,all,all,31,
+Science,heredity,IN-item (keyword): dominant/recessive,all,all,48,
+Science,heredity,IN-item (keyword): genes / chromosomes / DNA,all,all,108,
+Science,heredity,IN-item (keyword): sex determination,all,all,11,
+Science,light-reflection-and-refraction,IN-item (keyword): spherical mirror terms,all,all,310,
+Science,light-reflection-and-refraction,IN-item (keyword): mirror image formation / ray diagrams,all,all,177,
+Science,light-reflection-and-refraction,IN-item (keyword): mirror formula & magnification,all,all,92,
+Science,light-reflection-and-refraction,IN-item (keyword): laws of refraction / refractive index,all,all,59,
+Science,light-reflection-and-refraction,IN-item (keyword): glass slab,all,all,30,
+Science,light-reflection-and-refraction,IN-item (keyword): lens images,all,all,154,
+Science,light-reflection-and-refraction,IN-item (keyword): lens formula & magnification,all,all,14,
+Science,light-reflection-and-refraction,IN-item (keyword): power of lens,all,all,55,
+Science,light-reflection-and-refraction,IN-item (keyword): lenses in contact,all,all,15,
+Science,human-eye-and-colourful-world,IN-item (keyword): structure / accommodation,all,all,33,
+Science,human-eye-and-colourful-world,IN-item (keyword): myopia,all,all,13,
+Science,human-eye-and-colourful-world,IN-item (keyword): hypermetropia,all,all,10,
+Science,human-eye-and-colourful-world,IN-item (keyword): presbyopia,all,all,5,<10
+Science,human-eye-and-colourful-world,IN-item (keyword): prism refraction,all,all,25,
+Science,human-eye-and-colourful-world,IN-item (keyword): dispersion / spectrum / rainbow,all,all,29,
+Science,human-eye-and-colourful-world,"IN-item (keyword): atmospheric refraction (twinkling, advance sunrise)",all,all,13,
+Science,human-eye-and-colourful-world,"IN-item (keyword): scattering (sky blue, Tyndall, danger signal)",all,all,12,
+Science,electricity,IN-item (keyword): current / charge,all,all,134,
+Science,electricity,IN-item (keyword): potential difference,all,all,71,
+Science,electricity,IN-item (keyword): Ohm’s law,all,all,19,
+Science,electricity,IN-item (keyword): resistivity / factors,all,all,28,
+Science,electricity,IN-item (keyword): series combination,all,all,53,
+Science,electricity,IN-item (keyword): parallel combination,all,all,67,
+Science,electricity,IN-item (keyword): heating effect,all,all,48,
+Science,electricity,IN-item (keyword): electric power / energy,all,all,36,
+Science,magnetic-effects-of-electric-current,IN-item (keyword): field lines / compass,all,all,92,
+Science,magnetic-effects-of-electric-current,IN-item (keyword): straight conductor (RH thumb),all,all,11,
+Science,magnetic-effects-of-electric-current,IN-item (keyword): circular loop,all,all,12,
+Science,magnetic-effects-of-electric-current,IN-item (keyword): solenoid,all,all,37,
+Science,magnetic-effects-of-electric-current,IN-item (keyword): force on conductor / Fleming LHR,all,all,21,
+Science,magnetic-effects-of-electric-current,IN-item (keyword): AC/DC,all,all,11,
+Science,magnetic-effects-of-electric-current,IN-item (keyword): domestic circuits,all,all,20,
+Science,our-environment,IN-item (keyword): ecosystem components,all,all,99,
+Science,our-environment,IN-item (keyword): food chain / web,all,all,83,
+Science,our-environment,IN-item (keyword): trophic levels / 10% law,all,all,61,
+Science,our-environment,IN-item (keyword): biological magnification,all,all,19,
+Science,our-environment,IN-item (keyword): ozone depletion,all,all,31,
+Science,our-environment,IN-item (keyword): waste: biodegradable / non-biodegradable,all,all,44,
