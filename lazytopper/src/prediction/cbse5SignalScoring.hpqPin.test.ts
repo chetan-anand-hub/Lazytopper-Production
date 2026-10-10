@@ -120,7 +120,6 @@ const FROZEN_HPQ_RANKING: string[] = [
   "sci-cc-hpq-1|0.9111111111|0.7533333333",
   "sci-cc-hpq-2|0.3222222222|0.4916666667",
   "sci-cc-hpq-3|0.3222222222|0.4816666667",
-  "sci-chem-comp-02|0.9111111111|0.8833333333",
   "sci-cic-hpq-1|0.3222222222|0.4816666667",
   "sci-cic-hpq-2|0.9111111111|0.6633333333",
   "sci-cic-hpq-3|0.9111111111|0.6633333333",
@@ -194,8 +193,9 @@ describe("HPQ ranking pin", () => {
     // reason "the square root of any prime number is irrational" is OUT); its frozen line deleted, every other line unchanged.
     // 128 -> 127 at BANK-FIX-1 PR-2 phase B (2026-10-07): sci-eye-comp-01 withheld (HPQ_WITHHELD_IDS: "cannot see nearby
     // objects" + convex lens fits hypermetropia AND presbyopia, two defensible causes); its frozen line deleted, every other line unchanged.
-    expect(FROZEN_HPQ_RANKING.length).toBe(127);
-    expect(currentRanking().length).toBe(127);
+    // 127 -> 126 at BANK-FIX-6 (2026-10-10): sci-chem-comp-02 withheld (HPQ_WITHHELD_IDS; A-R key ambiguous between A and B); its frozen line deleted, every other line unchanged.
+    expect(FROZEN_HPQ_RANKING.length).toBe(126);
+    expect(currentRanking().length).toBe(126);
   });
 
   it("CONTROL: the frozen snapshot is discriminating, not uniform", () => {

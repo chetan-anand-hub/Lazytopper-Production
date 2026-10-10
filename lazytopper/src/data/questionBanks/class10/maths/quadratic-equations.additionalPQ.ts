@@ -69,5 +69,5 @@ export const QUADRATIC_EQUATIONS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Tiled area = (5 − 2x)(4 − 2x); painted area = 20 − (5 − 2x)(4 − 2x).", "Budget equation: 500·(5 − 2x)(4 − 2x) + 200·[20 − (5 − 2x)(4 − 2x)] = 5800.", "Simplify: 300·(5 − 2x)(4 − 2x) + 4000 = 5800 ⟹ (5 − 2x)(4 − 2x) = 6 ⟹ 20 − 18x + 4x^2 = 6 ⟹ 4x^2 − 18x + 14 = 0 ⟹ 2x^2 − 9x + 7 = 0.", "Solve: (2x − 7)(x − 1) = 0 ⟹ x = 1 or x = 3.5.", "Reject x = 3.5 (exceeds height/2 = 2). Accept x = 1 m."],
     finalAnswer: "x = 1 m.",
     ncertRef: "APQ PQ_2022 Q32 (OR variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: wall with painted border of width x." },
+ },
 ];

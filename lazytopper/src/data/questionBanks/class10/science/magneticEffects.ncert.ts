@@ -24,7 +24,7 @@ export const MAG_NCERT: CanonicalQuestion[] = [
     solutionSteps: ["Apply the right-hand thumb rule: curl the fingers of the right hand in the direction of current flow.", "Current is clockwise as seen from above the table, so when fingers curl clockwise, the thumb points downwards (into the table).", "Hence inside the loop the magnetic field points downwards (into the table).", "Field lines are closed curves, so outside the loop the field points upwards (out of the table)."],
     finalAnswer: "Inside the loop: into the table (downwards). Outside the loop: out of the table (upwards).",
     ncertRef: "In-text Q1 §12.2.4", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: circular loop in plane of table with clockwise current arrows" },
+ },
 
   // REQUIRES-FIGURE: diagram showing uniform magnetic field as equispaced parallel lines
   { id: "MAG-NCERT-12-SA-003", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Uniform Magnetic Field", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
@@ -33,7 +33,7 @@ export const MAG_NCERT: CanonicalQuestion[] = [
     solutionSteps: ["A uniform magnetic field has the same magnitude and direction at every point.", "Magnitude same → field lines must be equally spaced (closeness shows strength).", "Direction same → field lines must be parallel and pointing the same way.", "Diagram: draw several straight, equispaced, parallel arrows (e.g., horizontal arrows pointing right). The interior of a long solenoid shows this pattern."],
     finalAnswer: "Equally spaced parallel straight arrows pointing in the same direction.",
     ncertRef: "In-text Q2 §12.2.4", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: uniform-field diagram with parallel equispaced arrows" },
+ },
 
   { id: "MAG-NCERT-12-MCQ-001", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field due to Solenoid", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Choose the correct option. The magnetic field inside a long straight solenoid-carrying current",
@@ -109,7 +109,6 @@ export const MAG_NCERT: CanonicalQuestion[] = [
     solutionSteps: ["In the figure the magnetic field points to the right and the electron moves down the page, so the conventional current is up the page.", "Fleming's left-hand rule: forefinger along the field (right), middle finger along the current (up the page).", "The thumb then points into the page — option (d)."],
     finalAnswer: "Option (d): into the page.",
     ncertRef: "Example 12.2", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: electron entering a horizontal magnetic field; apply Fleming's left-hand rule with current opposite to electron motion.",
     sourceOverride: "others", },
 
   // ===== Exercises (p.206) =====

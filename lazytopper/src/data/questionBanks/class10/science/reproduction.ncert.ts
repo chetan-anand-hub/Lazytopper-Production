@@ -149,7 +149,7 @@ export const REPRODUCTION_NCERT: CanonicalQuestion[] = [
     solutionSteps: ["Draw the receptacle at the base.", "From outside in: sepals (green, outermost), petals (coloured, attractive).", "Stamens (male): filament + anther (with pollen).", "Pistil (female, central): stigma at top + style + ovary at bottom containing ovules.", "Label all parts clearly: sepal, petal, anther, filament, stigma, style, ovary, ovule, receptacle.", "Show inside the ovary with ovules visible."],
     finalAnswer: "Diagram should show: sepals, petals, stamens (anther + filament), pistil (stigma + style + ovary with ovules), receptacle.",
     ncertRef: "Exercise Q7", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: standard flower longitudinal section diagram." },
+ },
 
   { id: "REPR-NCERT-7-SA-016", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Family Planning", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What are the different methods of contraception?",

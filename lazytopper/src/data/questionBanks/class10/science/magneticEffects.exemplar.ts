@@ -37,7 +37,7 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Apply the right-hand thumb rule for a circular current loop: curl the fingers along the direction of current and the thumb gives the direction of the magnetic field (and the N-pole).", "As seen from A, current is anti-clockwise — so curling the right-hand fingers anti-clockwise (when looking from A) makes the thumb point OUT towards A.", "Hence on the face near A, magnetic field emerges → this face acts as the N-pole.", "This is consistent with the field lines pointing from B to A externally (S to N inside, N to S outside is the convention)."],
     finalAnswer: "Option (a): A.",
     ncertRef: "Exemplar MCQ Q3", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: circular loop with current sense viewed from A and B; right-hand rule." },
+ },
 
   { id: "MAG-EXMPLR-12-MCQ-004", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field due to Solenoid", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "For a current in a long straight solenoid N- and S-poles are created at the two ends. Among the following statements, the incorrect statement is",
@@ -55,7 +55,6 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Force on a moving charge: F = q(v × B). In the figure B points to the right, the proton moves up the page and the electron moves down the page.", "Proton (+e, moving up): (up) × (right) = into the page, so the force on the proton is into the page.", "Electron (−e, moving down): (down) × (right) = out of the page; the negative charge reverses it, so the force is into the page. (Equivalently, the electron's conventional current is upward, like the proton.)", "Both forces point into the plane of paper — option (a)."],
     finalAnswer: "Option (a): both forces point into the plane of paper.",
     ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: B field arrows left→right; electron and proton velocities as shown. Use F = qv × B with sign of charge.",
     sourceOverride: "others", },
 
   { id: "MAG-EXMPLR-12-MCQ-006", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Electric Motor", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -93,7 +92,7 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Apply the right-hand thumb rule: thumb points along the current direction (east → west).", "The fingers curl around the wire — above the wire they point from south to north, below the wire they point from NORTH to SOUTH.", "So at a point directly BELOW the wire the magnetic field is directed from North to South.", "(Above the wire it is South → North; in the plane of the paper on either side, the field is into/out of the page — not N→S.)"],
     finalAnswer: "Option (b): directly below the wire.",
     ncertRef: "Exemplar MCQ Q9", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: horizontal wire E→W in plane of paper. Use right-hand thumb rule." },
+ },
 
   { id: "MAG-EXMPLR-12-MCQ-010", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field due to Solenoid", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The strength of magnetic field inside a long current carrying straight solenoid is",
@@ -121,7 +120,7 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["The magnetic field of a straight current-carrying wire consists of concentric circles in a plane perpendicular to the wire.", "If the wire is placed in the plane of the paper passing through A, its field lines lie perpendicular to the paper — they do not deflect the compass needle in the plane of the paper.", "Hence the conductor should be placed IN the plane of the paper through A → no change in deflection.", "Deflection is MAXIMUM when the wire is perpendicular to the plane of paper at A — the field lines are then circles in the plane of paper, fully acting on the needle.", "Reason: the deflection depends on the component of B in the plane of the needle's rotation."],
     finalAnswer: "Place wire in the plane of paper → no deflection. Perpendicular to paper at A → maximum deflection.",
     ncertRef: "Exemplar Q13", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: compass near point A (Figure 13.6). Think about plane of field lines vs plane of compass." },
+ },
 
   { id: "MAG-EXMPLR-12-SA-002", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Electromagnet", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Under what conditions permanent electromagnet is obtained if a current carrying solenoid is used? Support your answer with the help of a labelled circuit diagram.",
@@ -129,7 +128,7 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["A solenoid carrying a current produces a strong magnetic field along its axis.", "If a piece of magnetic material is placed inside, the field magnetises it.", "If the material is SOFT iron, it loses magnetism when the current stops → temporary electromagnet.", "If the material is STEEL (or other hard magnetic material), it retains the magnetisation after the current stops → PERMANENT magnet.", "Circuit: solenoid + steel rod inside, connected via key, rheostat, ammeter to a battery — labelled diagram required."],
     finalAnswer: "Place a STEEL rod inside the solenoid and pass current; after removing the current the steel retains its magnetism → permanent magnet.",
     ncertRef: "Exemplar Q14", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: labelled circuit of solenoid with steel rod, battery, key, rheostat." },
+ },
 
   // REQUIRES-FIGURE: current-carrying conductor AB in plane of paper with points P (distance r1) and Q (distance r2), r1 > r2 (Figure 13.7)
   { id: "MAG-EXMPLR-12-SA-003", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field due to Straight Conductor", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -138,7 +137,7 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Use the right-hand thumb rule: thumb along the current in AB, fingers curl around the wire giving field direction at any point.", "At points on opposite sides of the wire the field directions are opposite — at P it is into the page and at Q it is out of the page (or vice versa, per Figure 13.7).", "Magnitude of B around a long straight wire varies as 1/r (inverse distance).", "Given r₁ > r₂, the closer point Q has the stronger field: B(Q) > B(P)."],
     finalAnswer: "Field at P and Q point in opposite directions (one into, one out of the page). Field is stronger at Q because r₂ < r₁.",
     ncertRef: "Exemplar Q15", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: conductor AB with points P, Q (Figure 13.7); B ∝ 1/r." },
+ },
 
   { id: "MAG-EXMPLR-12-SA-004", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field due to Straight Conductor", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "A magnetic compass shows a deflection when placed near a current carrying wire. How will the deflection of the compass get affected if the current in the wire is increased? Support your answer with a reason.",
@@ -219,7 +218,7 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Set up: thick straight copper wire passed vertically through a horizontal cardboard; cardboard sprinkled with iron filings; wire connected in series with a battery, key and rheostat.", "On passing the current, iron filings arrange themselves in CONCENTRIC CIRCLES around the wire — these represent the magnetic-field lines.", "As we move away from the wire, the circles become more widely spaced → field strength decreases with distance.", "Labelled circuit diagram must include: straight wire (vertical), cardboard, iron filings, battery, key, rheostat, ammeter.", "Right-hand thumb rule: hold the wire in the right hand, thumb along the conventional current direction; the curled fingers indicate the direction of the magnetic-field lines.", "This lets us find the direction of B at any point around a straight current-carrying conductor."],
     finalAnswer: "Field lines are concentric circles around the wire (decreasing with distance). Right-hand thumb rule: thumb = current direction, curled fingers = B direction.",
     ncertRef: "Exemplar Q26 (LA)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: labelled circuit with iron filings showing concentric circles around vertical wire." },
+ },
 
   { id: "MAG-EXMPLR-12-LA-003", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field due to Circular Loop", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Explain with the help of a labelled diagram the distribution of magnetic field due to a current through a circular loop. Why is it that if a current carrying coil has n turns the field produced at any point is n times as large as that produced by a single turn?",
@@ -227,7 +226,7 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Each tiny element of a current-carrying circular loop creates concentric field circles around itself (right-hand thumb rule).", "Near the centre of the loop, these circles become large and appear as nearly straight, parallel lines perpendicular to the plane of the loop.", "Labelled diagram: circular loop with current direction marked; field lines passing through the loop, emerging on one face (N-pole) and entering on the other (S-pole).", "n-turn coil: all turns carry the same current in the same direction and lie almost at the same location.", "Each turn contributes equally to the field at any point; since the contributions are in the same direction, they ADD.", "Therefore B(n turns) = n × B(1 turn) — the field is n times that of a single turn."],
     finalAnswer: "Field through the loop is nearly uniform near the centre; each face acts as N/S pole. n turns → fields add → total field is n times a single turn's field.",
     ncertRef: "Exemplar Q27 (LA)", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: circular loop with field lines through it." },
+ },
 
   { id: "MAG-EXMPLR-12-LA-004", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Force on Current-carrying Conductor", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Describe the activity that shows that a current-carrying conductor experiences a force perpendicular to its length and the external magnetic field. How does Fleming's left-hand rule help us to find the direction of the force acting on the current carrying conductor?",
@@ -235,7 +234,7 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Suspend an aluminium rod AB horizontally from a stand using two flexible wires; connect AB in series with a battery, a key and a rheostat.", "Place a strong horse-shoe magnet around AB so that the magnetic field is vertical and the rod lies in the field.", "When the key is closed, current flows through the rod and the rod is displaced sideways → shows a force acts on the rod.", "Reversing current reverses the displacement; reversing the field (by interchanging poles) also reverses the displacement → confirms force depends on both current and field direction.", "Fleming's left-hand rule: forefinger = B, middle finger = I, thumb = F; these three fingers are kept mutually perpendicular on the LEFT hand.", "This rule gives the direction of the force on a current-carrying conductor placed in a magnetic field."],
     finalAnswer: "Aluminium-rod activity shows a sideways force on a current-carrying conductor in a magnetic field; reversing I or B reverses the force. Fleming's left-hand rule (forefinger = B, middle = I, thumb = F) gives the direction.",
     ncertRef: "Exemplar Q28 (LA)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: aluminium rod between poles of horse-shoe magnet (Activity 12.7)." },
+ },
 
   { id: "MAG-EXMPLR-12-LA-005", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Electric Motor", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Draw a labelled circuit diagram of a simple electric motor and explain its working. In what way these simple electric motors are different from commercial motors?",
@@ -261,5 +260,5 @@ export const MAG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Schematic of domestic circuit: live wire (red, 220 V) and neutral wire (black) enter through the main fuse and meter, then through the main switch.", "Two separate sub-circuits — 15 A for high-power appliances, 5 A for lights/fans. All appliances connected in parallel across live and neutral.", "Earth wire (green) is connected to a buried metal plate and to the metal bodies of appliances.", "Importance of fuse: thin wire of low melting point in series with the live wire; melts when current exceeds safe value (short circuit / overloading) and breaks the circuit.", "This protects the appliance and wiring from damage and fire.", "A burnt fuse must be replaced by one of the SAME rating — a higher-rating fuse won't trip in time → high currents flow → damage; a lower-rating fuse will trip unnecessarily during normal use."],
     finalAnswer: "Domestic circuit: parallel appliances across live and neutral, fuses in series with the live wire, earthing for safety. Replace a fuse with an identical rating because that rating matches the safe current of the circuit — otherwise risk of fire or unwanted disconnection.",
     ncertRef: "Exemplar Q32 (LA)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: schematic of domestic circuit with live/neutral/earth wires, fuses, parallel appliances." },
+ },
 ];

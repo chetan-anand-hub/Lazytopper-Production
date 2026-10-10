@@ -336,6 +336,8 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
 // withheld for a text defect BANK-FIX did not repair. The figure tests read this list: a row listed here that is in fact
 // served fails, so the list cannot go stale. NOT parsed by tutor_visual_catalogue_acceptance.mjs (no filePath here).
 export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
+  "APQ-M-TRIG-011": "withheld by BANK-FIX-6 (2026-10-10): the answer is defined only by lengths labelled in the figure; no working could be derived from the text. Un-withhold candidate for B once real working is written against the bound figure",
+  "APQ-M-TRIG-016": "withheld by BANK-FIX-6 (2026-10-10): the identity to prove exists only as an image in PQ_2022 Q30 and the stem does not state it. Un-withhold candidate for B once the stem carries the identity from the bound figure",
   "APQ-M-TRI-005": "stays withheld: solutionSteps[0] is a 'REQUIRES-FIGURE' placeholder",
   "APQ-M-CIRC-009": "stays withheld (D37): the official APQ item is internally inconsistent - KL = 6, KM = LM = 5 force ∠K ≈ 53.13°, but the figure labels ∠K = 50° and the key 80° relies on that label",
   "PYQ-M-2026-CIRC-005": "stays withheld: mark residues inside the stem; finalAnswer covers part (ii) only",
