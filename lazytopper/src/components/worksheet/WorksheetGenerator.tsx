@@ -894,7 +894,7 @@ function WorksheetGeneratorInner() {
           {pending.length > 0 && !bannerDismissed && (
             <WorksheetPendingBanner
               pending={pending}
-              onUpload={openUploadFor}
+              onUpload={(r) => void openUploadFor(r).then((handled) => { if (!handled) openHistory(true); })}
               onSeeAll={() => openHistory(true)}
               onDismiss={() => setBannerDismissed(true)}
             />

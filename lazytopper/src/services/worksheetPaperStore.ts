@@ -186,6 +186,8 @@ export async function recordWorksheetDownload(
   if (firestoreDb) {
     try {
       const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "records", nomen.code.replace(/[/.#$[\]\s]/g, "_")));
+      // A cache-only answer (offline) cannot prove another device has not graded it: write nothing.
+      if (snap.metadata && snap.metadata.fromCache) return;
       existing = snap.exists() ? (snap.data() as SessionRecord) : undefined;
     } catch (error) {
       console.warn("[worksheetPaperStore] record read failed; pending record not written", error);

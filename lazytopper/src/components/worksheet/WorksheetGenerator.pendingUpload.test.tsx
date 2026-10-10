@@ -22,6 +22,7 @@ vi.mock("./WorksheetGradePanel", () => ({
 const fs = vi.hoisted(() => ({
   docs: {} as Record<string, unknown>,
   failRecordRead: false,
+  fromCache: false,
   writes: [] as Array<{ path: string; data: unknown }>,
   deleted: [] as string[],
 }));
@@ -34,7 +35,7 @@ vi.mock("firebase/firestore", () => ({
   getDoc: vi.fn(async (ref: { path: string }) => {
     if (fs.failRecordRead && ref.path.includes("/records/")) throw new Error("offline");
     const d = fs.docs[ref.path];
-    return { exists: () => d != null, data: () => d };
+    return { exists: () => d != null, data: () => d, metadata: { fromCache: fs.fromCache } };
   }),
   deleteDoc: vi.fn(async (ref: { path: string }) => {
     fs.deleted.push(ref.path);
@@ -105,6 +106,7 @@ beforeEach(() => {
   localStorage.clear();
   fs.docs = {};
   fs.failRecordRead = false;
+  fs.fromCache = false;
   cloud.mirrorOnRead = false;
   fs.writes = [];
   fs.deleted = [];
@@ -149,6 +151,10 @@ describe("PENDING-UPLOAD-1 PR-2 · download writes the pending record + snapshot
     expect(fs.writes.length).toBe(before);
     fs.docs = {};
     fs.failRecordRead = true; // offline: cannot prove there is no grade -> write nothing
+    await seedPending(p);
+    expect(fs.writes.length).toBe(before);
+    fs.failRecordRead = false;
+    fs.fromCache = true; // a cache-only (offline) answer proves nothing either
     await seedPending(p);
     expect(fs.writes.length).toBe(before);
   });
