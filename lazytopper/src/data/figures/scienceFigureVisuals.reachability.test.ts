@@ -91,7 +91,9 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // Each PR-4 binding is pinned one by one in scienceFigureVisuals.diagrams1.test.ts.
     // 100 -> 102 at C3 DIAGRAMS PR-S1 (2026-10-07): +2 CFPQ Science crops (CFPQ-S-EYE-010, CFPQ-S-ABS-013), both rows
     // served; pinned one by one in scienceFigureVisuals.c3.test.ts.
-    expect(batch1).toHaveLength(102);
+    // 102 -> 109 at DIAGRAMS-RESUME-B step 3 (2026-10-10): +7 NCERT Exemplar crops (CARB-EXMPLR-4-MCQ-005/-010/-016/-022/
+    // -023/-024, METAL-EXMPLR-3-MCQ-036), all bound but withheld; pinned one by one in scienceFigureVisuals.diagrams1.test.ts.
+    expect(batch1).toHaveLength(109);
     // 49 = 3 Foundation + 12 chapter-wise + 17 board-paper (16 rows, ELEC-011 twice) + 13 preboard + 2 SQP + 2 APQ (FIG-SCI-2)
     // 49 -> 46 at LIGHT-FIX-1 stage 2 (2026-09-11): the 3 Foundation rows (FND-L-SPX-003/-004/-043) are
     // withheld as out-of-syllabus (beyond-board tier) and their bindings removed
@@ -110,10 +112,13 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // 40 -> 49 at C3 DIAGRAMS PR-S1 (2026-10-07): +9 Electricity / Human Eye / Magnetic Effects crops (7 board-paper
     // 2023-2026 under /figures/pyq-science/, 2 APQ 2023-24 under /figures/other-science/), all rows served; pinned one by
     // one in scienceFigureVisuals.c3.test.ts.
-    expect(batch2).toHaveLength(49);
+    // 49 -> 53 at DIAGRAMS-RESUME-B step 3 (2026-10-10): +3 board-paper 2023 crops (PYQ-S-ACID-001, PYQ-S-ELEC-003,
+    // PYQ-S-MAG-003) + 1 APQ 2023-24 crop (APQ-S-CARB-005), all bound but withheld; pinned in the diagrams1 test.
+    expect(batch2).toHaveLength(53);
     // 147 -> 138: -9 at DIAGRAMS-1 PR-3 (2026-10-07): third-party chapter-wise booklet figures unbound (owner ruling)
     // 140 -> 151: +11 at C3 DIAGRAMS PR-S1 (2026-10-07)
-    expect(batch).toHaveLength(102 + 49);
+    // 151 -> 162: +11 at DIAGRAMS-RESUME-B step 3 (2026-10-10)
+    expect(batch).toHaveLength(109 + 53);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);
