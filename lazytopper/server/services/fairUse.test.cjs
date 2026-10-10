@@ -772,11 +772,45 @@ test('U4 · below 80% nobody is shed and wouldShed() is false — no tier read i
   assert.equal(limiter.check({ headers: {} }, '/api/check-solution', 'trial-uid').allowed, true);
 });
 
-test('U4 · only the global HARD ceiling can refuse a premium caller', () => {
-  const { limiter } = limiterAt(100);
+// FU-GLOBAL-SHED (owner P = 0.25): the global HARD ceiling no longer refuses a VERIFIED premium caller at
+// 100% - it refuses past floor(hard x 1.25). A free / trial caller is refused at 100% exactly as before.
+test('U4 / FU-GLOBAL-SHED · a premium caller rides the margin above the global HARD ceiling, and is refused only past it', () => {
+  const { limiter, telemetry } = limiterAt(100);
+  const hardFree = limiter.check({ headers: {} }, '/api/check-solution', 'trial-uid');
+  assert.equal(hardFree.allowed, false, 'CONTROL: the free caller is refused at 100%');
+  assert.equal(hardFree.body.error, 'busy_today');
+  assert.equal(hardFree.body.class, 'global');
+  assert.equal(hardFree.body.scope, 'free');
+
   const v = limiter.check({ headers: {} }, '/api/check-solution', 'premium-uid', { premium: true });
-  assert.equal(v.allowed, false);
-  assert.equal(v.body.class, 'global');
+  assert.equal(v.allowed, true, 'a paying student is served past the ceiling');
+  assert.equal(telemetry.count('rate_limit.global_overflow.premium'), 1);
+
+  // fill the margin: 25 calls above 100 (101..125), then the 126th is refused for premium too
+  for (let i = 1; i < 25; i += 1) {
+    assert.equal(limiter.check({ headers: {} }, '/api/tutor', `p-${i}`, { premium: true }).allowed, true, `overflow call ${i + 1}`);
+  }
+  const past = limiter.check({ headers: {} }, '/api/tutor', 'p-last', { premium: true });
+  assert.equal(past.allowed, false, 'past floor(hard x 1.25) even premium is refused');
+  assert.equal(past.body.error, 'busy_today');
+  assert.equal(past.body.scope, 'all', 'and is not told it is a free-account matter');
+});
+
+test('U4 / FU-GLOBAL-SHED · the premium margin needs a VERIFIED caller (a header-only uid cannot earn it)', () => {
+  const { limiter } = limiterAt(100);
+  const forged = limiter.check({ headers: { 'x-lazytopper-uid': 'premium-uid' } }, '/api/tutor', '', { premium: true });
+  assert.equal(forged.allowed, false);
+  assert.equal(forged.body.error, 'busy_today');
+});
+
+test('U4 / FU-GLOBAL-SHED · the tier is read for EVERY paid class at or past 80% (Gap 2), and for none below it', () => {
+  const at85 = limiterAt(85).limiter;
+  for (const path of ['/api/tutor', '/api/check-solution', '/api/grade-worksheet', '/api/generate-visual']) {
+    assert.equal(at85.needsTierRead(path), true, path);
+  }
+  assert.equal(at85.needsTierRead('/api/health'), false, 'an unpaid path never needs a tier read');
+  const at10 = limiterAt(10).limiter;
+  assert.equal(at10.needsTierRead('/api/tutor'), false, 'below 80% nobody pays for a tier read');
 });
 
 test('U4 · isPremium is true only for a verified uid whose effective tier is premium', async () => {
