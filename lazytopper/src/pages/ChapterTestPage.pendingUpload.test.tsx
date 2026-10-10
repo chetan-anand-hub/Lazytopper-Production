@@ -7,7 +7,8 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import type { SessionRecord } from "../services/sessionRecords";
+import { buildChapterTestSessionRecord, type SessionRecord } from "../services/sessionRecords";
+import { buildChapterTestResponse } from "../services/chapterTestGradeService";
 import type { PersistedWorksheet } from "../services/worksheetSessionStore";
 import type { ObjectiveScore } from "../services/chapterTestGradeService";
 
@@ -27,12 +28,13 @@ vi.mock("firebase/firestore", () => ({
 }));
 
 const records = vi.hoisted(() => ({ list: [] as unknown[] }));
+const sessionPayload = vi.hoisted(() => ({ response: null as unknown }));
 vi.mock("../services/sessionRecords", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../services/sessionRecords")>();
   return {
     ...actual,
     getSessionRecordsFromCloud: async () => records.list,
-    getSessionPerQuestion: async () => null,
+    getSessionPerQuestion: async () => (sessionPayload.response ? { response: sessionPayload.response } : null),
   };
 });
 
@@ -67,6 +69,22 @@ const objective: ObjectiveScore = {
   answeredCount: 1,
   totalQuestions: 1,
 };
+/** The record the REAL submit writes (builder, not a hand-set status): objective graded, written pending. */
+function submittedRecord(): SessionRecord {
+  return buildChapterTestSessionRecord({
+    paper,
+    code: CODE,
+    subject: "maths",
+    topicKey: "real-numbers",
+    uid: "student-1",
+    response: buildChapterTestResponse({
+      paper,
+      objective,
+      subjectiveQuestions: paper.questions.filter((q) => q.section !== "A"),
+      subjectiveResponse: null,
+    }),
+  });
+}
 function record(status: SessionRecord["status"]): SessionRecord {
   return {
     id: CODE,
@@ -107,7 +125,8 @@ afterEach(() => cleanup());
 
 describe("PENDING-UPLOAD-1 · Chapter Test pending card -> upload step", () => {
   it("★ pending card with this device's copy opens the upload step on the SAME paper (same code, no new record)", async () => {
-    records.list = [record("pending-upload")];
+    records.list = [submittedRecord()];
+    expect(records.list[0] as SessionRecord).toMatchObject({ status: "partial" }); // what real submit writes
     saveChapterTestPaper(USER as never, snap());
     await mount();
     fireEvent.click(await screen.findByText(/Awaiting sheet/));
@@ -127,15 +146,25 @@ describe("PENDING-UPLOAD-1 · Chapter Test pending card -> upload step", () => {
   });
 
   it("★ no copy anywhere -> the honest message, never a rebuilt paper", async () => {
-    records.list = [record("pending-upload")];
+    records.list = [submittedRecord()];
     await mount();
     fireEvent.click(await screen.findByText(/Awaiting sheet/));
-    await waitFor(() =>
-      expect(document.body.textContent).toContain(
-        "This paper was opened on another device before we saved papers online. Open it there, or start a new one.",
-      ),
-    );
-    expect(screen.queryByRole("button", { name: /Upload answer sheet/ })).toBeNull();
+    await waitFor(() => expect(document.body.textContent).toContain("We couldn’t find the saved copy of this paper"));
+    // The action is a retry: once the copy exists, it opens the upload step.
+    saveChapterTestPaper(USER as never, snap());
+    fireEvent.click(await screen.findByRole("button", { name: /Upload answer sheet/ }));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Done" })).toBeNull());
+    expect(document.body.textContent).toContain(CODE);
+  });
+
+  it("★ a partial record that already has graded written work still opens read-only", async () => {
+    records.list = [submittedRecord()];
+    sessionPayload.response = { ...buildChapterTestResponse({ paper, objective, subjectiveQuestions: [], subjectiveResponse: null }) };
+    saveChapterTestPaper(USER as never, snap());
+    await mount();
+    fireEvent.click(await screen.findByText(/Awaiting sheet/));
+    await screen.findByRole("button", { name: "Done" });
+    sessionPayload.response = null;
   });
 
   it("★ a graded record still opens read-only (no upload step)", async () => {

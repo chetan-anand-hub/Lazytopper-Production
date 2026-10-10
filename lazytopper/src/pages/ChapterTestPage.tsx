@@ -577,7 +577,7 @@ export default function ChapterTestPage() {
         record,
         response: null,
         awaitingDetail:
-          "This paper was opened on another device before we saved papers online. Open it there, or start a new one.",
+          "We couldn’t find the saved copy of this paper on this device or online. Open it on the device you sat it on, or start a new one.",
       });
     },
     [user],
@@ -585,11 +585,18 @@ export default function ChapterTestPage() {
 
   const openStored = useCallback(
     async (record: SessionRecord) => {
+      // A submitted-but-not-uploaded test is stored as "partial" (its objective rows count as
+      // graded) with NO per-question payload; "pending-upload" is the zero-graded case. Either,
+      // with nothing graded from the sheet yet, goes back to the upload step.
       if (record.status === "pending-upload") {
         await openPendingUpload(record);
         return;
       }
       const payload = await getSessionPerQuestion(user?.uid, record.perQuestionRef);
+      if (record.status === "partial" && !payload?.response) {
+        await openPendingUpload(record);
+        return;
+      }
       setReopen({ record, response: payload?.response ?? null });
     },
     [user?.uid, openPendingUpload],
@@ -617,8 +624,9 @@ export default function ChapterTestPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
+            // Awaiting-sheet records offer "Upload answer sheet" (also a retry after a failed read).
             onUploadSheet:
-              reopen.record.status === "pending-upload" && !reopen.awaitingDetail
+              reopen.record.status !== "graded" && !reopen.response
                 ? () => void openPendingUpload(reopen.record)
                 : undefined,
             onDone: () => setReopen(null),
