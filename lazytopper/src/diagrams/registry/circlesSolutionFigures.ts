@@ -1855,22 +1855,6 @@ export const CIRCLES_SOLUTION_FIGURES: ComputedFigureBinding[] = [
   },
   {
     kind: "computed",
-    questionId: "LTG-M-CIRC-250",
-    slot: "solution",
-    builder: "circleTangents",
-    params: {"template": "parallelChord", "unit": "cm", "chord": "48", "h": "16"},
-    labels: {"O": "O", "P": "P", "M": "M", "C": "R", "D": "S"},
-    provenance: [
-      {"param": "chord", "field": "questionText", "quote": "The bar is 48 cm long"},
-      {"param": "h", "field": "questionText", "quote": "at a height of 16 cm above P"},
-    ],
-    expect: [
-      {"quantity": "r", "value": 26, "tolPct": 0.5, "quote": "Radius = 26 cm"},
-    ],
-    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
-  },
-  {
-    kind: "computed",
     questionId: "LTG-M-CIRC-252",
     slot: "solution",
     builder: "circleTangents",
