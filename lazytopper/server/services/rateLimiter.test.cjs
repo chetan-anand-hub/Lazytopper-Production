@@ -393,6 +393,9 @@ test("a full day at the effective ceiling costs less than the budget, even at th
   const overflowCalls = Math.floor(effectiveCeiling * (1 + PREMIUM_GLOBAL_OVERFLOW));
   const overflowSpend = overflowCalls * SPEND_MODEL.BLENDED_USD_PER_CALL;
   assert.equal(PREMIUM_GLOBAL_OVERFLOW, 0.25, "P is the owner's money call (DECISION 32d)");
+  // Honest scope: this bounds the overflow day by (1 + P) x the daily budget, which follows from the
+  // non-premium assertion below times (1 + P). What it ADDS is the pin: P cannot be raised (the equality
+  // above) and the overflow arithmetic cannot drift without this test going red.
   assert.ok(
     overflowSpend - stressedBudget <= PREMIUM_GLOBAL_OVERFLOW * stressedBudget,
     `a full premium-overflow day (${overflowCalls} calls, $${overflowSpend.toFixed(2)}) must overshoot the stressed ` +

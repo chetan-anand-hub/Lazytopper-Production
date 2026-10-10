@@ -405,7 +405,8 @@ function createRateLimiter(options = {}) {
         scope,
         // Whom the refusal can still win: a signed-out visitor can start the free 7-day trial (every
         // new account gets one at sign-up); anyone else is pointed to the plans.
-        cta,
+        // A premium caller past the margin is never pointed to "plans": no call to action at all.
+        cta: scope === "all" ? null : cta,
         resetAt: nextIstMidnightIso(nowMs),
       },
     };

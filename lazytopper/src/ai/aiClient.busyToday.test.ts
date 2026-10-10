@@ -38,6 +38,10 @@ describe("FU-GLOBAL-SHED · busy_today on the client", () => {
     const err = await refused(BODY("plans"));
     expect(err.message.endsWith(" See plans.")).toBe(true);
   });
+  it("★ a null cta (premium past the margin) adds no call to action", async () => {
+    const err = await refused({ ...BODY("plans"), cta: null, scope: "all" });
+    expect(err.message).toBe(BODY("plans").message);
+  });
   it("CONTROL: the per-student daily_limit is untouched", async () => {
     const err = await refused({ error: "daily_limit", message: "You've hit today's limit for this. It resets tomorrow.", class: "vision", resetAt: null });
     expect(isDailyLimitError(err)).toBe(true);

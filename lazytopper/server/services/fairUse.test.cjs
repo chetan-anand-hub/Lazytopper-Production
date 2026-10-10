@@ -794,6 +794,7 @@ test('U4 / FU-GLOBAL-SHED · a premium caller rides the margin above the global 
   assert.equal(past.allowed, false, 'past floor(hard x 1.25) even premium is refused');
   assert.equal(past.body.error, 'busy_today');
   assert.equal(past.body.scope, 'all', 'and is not told it is a free-account matter');
+  assert.equal(past.body.cta, null, 'a paying student is never pointed to the plans');
 });
 
 test('U4 / FU-GLOBAL-SHED · the premium margin needs a VERIFIED caller (a header-only uid cannot earn it)', () => {

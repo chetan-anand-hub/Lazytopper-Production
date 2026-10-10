@@ -467,9 +467,10 @@ async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text
     //    "DailyLimitError", so gradingErrorMessage keeps the server's own words), with the owner's
     //    sentence + the one call to action the server chose. Never the generic "AI API request failed".
     if (res.status === 429 && details?.error === "busy_today") {
-      const cta = (details as { cta?: unknown }).cta === "trial" ? "Start your free 7-day trial." : "See plans.";
+      const rawCta = (details as { cta?: unknown }).cta;
+      const cta = rawCta === "trial" ? " Start your free 7-day trial." : rawCta === "plans" ? " See plans." : "";
       throw new DailyLimitError(
-        `${details.message || BUSY_TODAY_FALLBACK} ${cta}`,
+        `${details.message || BUSY_TODAY_FALLBACK}${cta}`,
         details.class || "global",
         details.resetAt || null,
       );
