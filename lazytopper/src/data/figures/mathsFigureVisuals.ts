@@ -336,11 +336,6 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
 // withheld for a text defect BANK-FIX did not repair. The figure tests read this list: a row listed here that is in fact
 // served fails, so the list cannot go stale. NOT parsed by tutor_visual_catalogue_acceptance.mjs (no filePath here).
 export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
-  "SQP-M-TRI-003": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
-  "APQ-M-TRI-003": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
-  "APQ-M-TRI-009": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
-  "APQ-M-CIRC-010": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
-  "PYQ-M-CIRC-001": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
   "APQ-M-TRI-005": "stays withheld: solutionSteps[0] is a 'REQUIRES-FIGURE' placeholder",
   "APQ-M-CIRC-009": "stays withheld (D37): the official APQ item is internally inconsistent - KL = 6, KM = LM = 5 force ∠K ≈ 53.13°, but the figure labels ∠K = 50° and the key 80° relies on that label",
   "PYQ-M-2026-CIRC-005": "stays withheld: mark residues inside the stem; finalAnswer covers part (ii) only",

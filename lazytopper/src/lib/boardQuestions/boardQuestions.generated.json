@@ -502,6 +502,15 @@
       "subject": "science",
       "questions": [
         {
+          "id": "APQ-S-LIFE-002",
+          "questionText": "Oxygen saturation levels refer to the extent haemoglobin is bound to oxygen. As altitude increases, the atmospheric pressure decreases. Which of the following graphs correctly represents the oxygen saturation levels as altitude increases?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] At higher altitude, atmospheric pressure (and pO2) is lower ⟹ less O2 binds to haemoglobin ⟹ O2 saturation decreases as altitude increases. Graph Q shows a decreasing trend matching this physiology."
+          ]
+        },
+        {
           "id": "APQ-S-LIFE-003",
           "questionText": "Patient X was suffering from a pancreatic condition due to which the pancreas was not functioning adequately. Which of the following is a doctor likely to suggest to such an individual?",
           "marks": 1,
@@ -518,16 +527,6 @@
           "solutionSteps": [
             "[1 mark] Lizards respire and release CO2 inside the jar, increasing CO2 concentration around plant X.",
             "[1 mark] Higher CO2 availability + adequate light ⟹ higher rate of photosynthesis in X compared to Y (which has limited CO2 in the closed jar)."
-          ]
-        },
-        {
-          "id": "APQ-S-LIFE-005",
-          "questionText": "Proteinuria is a condition in which significant amounts of protein can be detected in urine. Which process in the nephron is likely to be affected causing proteinuria? Justify.",
-          "marks": 2,
-          "section": "B",
-          "solutionSteps": [
-            "[1 mark] Filtration: normally large proteins are too big to pass through the glomerular filter. If filtration becomes leaky, proteins enter the filtrate.",
-            "[1 mark] Selective reabsorption: even if small amounts pass through, they're normally reabsorbed back into blood. If reabsorption fails, proteins remain in urine ⟹ proteinuria."
           ]
         }
       ]
