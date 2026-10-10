@@ -86,8 +86,11 @@ describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-
     expect(undeclared).toEqual([]);
     const stale = BOUND_BUT_WITHHELD.filter((q) => served.has(q) || !WITHHELD_QUESTION_IDS.has(q));
     expect(stale).toEqual([]); // declared withheld but actually served (or not withheld at all)
-    // every declared row is bound by PR-3 or PR-4 (the PR-4 rows are pinned in the PR-4 block below)
-    expect(BOUND_BUT_WITHHELD.filter((q) => ![...PR3_BINDINGS, ...PR4_BINDINGS].some(([b]) => b === q))).toEqual([]);
+    // every declared row is bound by PR-3 or PR-4 (the PR-4 rows are pinned in the PR-4 block below), or is a C3 PR-S1
+    // row pinned in scienceFigureVisuals.c3.test.ts. 2026-10-10 (B-21, LANE_RULES §8 amendment, +1 id):
+    // PYQ-S-2025-MAG-006, withheld by BANK-FIX-5 (#1041) after C3 bound it.
+    const C3_DECLARED = ["PYQ-S-2025-MAG-006"];
+    expect(BOUND_BUT_WITHHELD.filter((q) => ![...PR3_BINDINGS, ...PR4_BINDINGS].some(([b]) => b === q) && !C3_DECLARED.includes(q))).toEqual([]);
   });
 
   it("every binding's chapter matches its row's chapter and asset folder (served or withheld)", () => {

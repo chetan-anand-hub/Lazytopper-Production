@@ -314,4 +314,6 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
   // DIAGRAMS-1 PR-4
   "CTRL-EXMPLR-6-MCQ-025": "withheld for its missing figure; options (a)-(d) are the bound Fig. 7.1 drawings, but the key names no option letter ('Option showing: Dendrite -> Cell body -> Axon -> Axonal end') - fix the key, then un-withhold",
   "PYQ-S-2026-ENV-001": "withheld by BANK-FIX for its missing figure; stem and options T1/T5/T4/T3 clean, figure bound - un-withhold candidate",
+  // C3 DIAGRAMS PR-S1 (2026-10-10, B-21): BANK-FIX-5 (#1041) withheld this row after C3 bound it
+  "PYQ-S-2025-MAG-006": "withheld by BANK-FIX-5 (#1041): its key carries heart-circulation text from another question; the bound figure (31-3-3 2025 Q32(b)) is right - fix the key in a bank lane, then un-withhold",
 };
