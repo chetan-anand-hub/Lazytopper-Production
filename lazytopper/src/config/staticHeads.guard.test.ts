@@ -9,9 +9,7 @@ import {
   escapeAttr,
   escapeText,
   headForPath,
-  ncertFileCode,
   ncertLabel,
-  ncertTitleLabel,
   templateDescription,
   templateTitle,
 } from "../../scripts/seo/writeStaticHeads";
@@ -456,10 +454,12 @@ describe("static heads — the writer refuses to no-op silently", () => {
       const topic = allDesktopTopics().find((t) => t.slug === slug);
       const head = headForPath(path);
       expect(head, `${path} has no head`).not.toBeNull();
-      // SEO-NOTES-LINK-2 — the title adds the NCERT file code after the chapter number.
-      expect(head?.title).toBe(
-        `${ncertTitleLabel(slug)} — Class 10 Notes & Board Questions | LazyTopper`,
-      );
+      // SEO-NOTES-LINK-2 — the title adds the NCERT file code after the chapter number. Checked
+      // independently of the code under test: the chapter from NCERT_CHAPTER_PIN and the code
+      // rebuilt from subject + chapter (pinnedFileCode), never from ncertTitleLabel.
+      const titlePrefix = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} (${pinnedFileCode(slug)}) · `;
+      expect(head?.title.startsWith(titlePrefix), `${path} title: ${head?.title}`).toBe(true);
+      expect(head?.title.endsWith(" — Class 10 Notes & Board Questions | LazyTopper")).toBe(true);
       // Two blurbs are shortened for the 155 cap (NOTES_BLURB_SHORTENED); each shortened
       // text must be the original with words DELETED, never added (checked below).
       const shortened = NOTES_BLURB_SHORTENED[slug];
@@ -503,6 +503,12 @@ describe("static heads — the writer refuses to no-op silently", () => {
  *   2. a pinned table of the NCERT 2026-27 chapter numbers (rationalised Class 10
  *      Mathematics and Science textbooks), which the spec must agree with.
  */
+/** SEO-NOTES-LINK-2 — the NCERT file code rebuilt from the pin alone (jemh1NN Maths, jesc1NN Science). */
+function pinnedFileCode(slug: string): string {
+  const subject = allDesktopTopics().find((t) => t.slug === slug)?.subject;
+  return `${subject === "Maths" ? "jemh1" : "jesc1"}${String(NCERT_CHAPTER_PIN[slug]).padStart(2, "0")}`;
+}
+
 const NCERT_CHAPTER_PIN: Readonly<Record<string, number>> = {
   "real-numbers": 1,
   polynomials: 2,
@@ -554,7 +560,7 @@ describe("SEO-4 S2 — every notes page title and description names its NCERT ch
       const expected = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} · ${spec.meta.title}`;
       const head = headForPath(path);
       expect(head, `${path} has no head`).not.toBeNull();
-      const expectedTitle = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} (${ncertFileCode(slug)}) · ${spec.meta.title}`;
+      const expectedTitle = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} (${pinnedFileCode(slug)}) · ${spec.meta.title}`;
       expect(head?.title.startsWith(`${expectedTitle} — `), `${path} title: ${head?.title}`).toBe(true);
       expect(head?.description.startsWith(`${expected} — `), `${path} desc: ${head?.description}`).toBe(true);
 

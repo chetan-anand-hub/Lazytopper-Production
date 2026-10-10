@@ -911,6 +911,10 @@ const STYLES = `
 .lt-et-all-list .lt-et-all-notes { margin-left: 4px; opacity: 0.85; }
 .lt-et-notes {
   align-self: center;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 6px;
   font-size: 12px;
   font-weight: 600;
   color: var(--muted);
