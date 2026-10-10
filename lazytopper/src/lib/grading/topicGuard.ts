@@ -67,7 +67,8 @@ function fires(rule: GuardRule, text: string): boolean {
 }
 
 /** A board paper's section heading ("Sec B Q24.", "Section C") is not a trig ratio nor any other signal. */
-const SECTION_HEADING = /\b(?:Sec(?:tion)?|SECTION)\.?\s?[A-E]\b\.?(?:\s*Q\.?\s?\d+\.?)?/g;
+const SECTION_HEADING =
+  /(?:^|\n)\s*(?:sec(?:tion)?)\.?[ \t-]?[A-E]\b\.?|\b(?:sec(?:tion)?)\.?[ \t-]?[A-E]\b\.?(?=[\s]*Q\.?\s?\d)/gi;
 
 /** The slug the guard would file this text under, or null (no rule, or two rules disagree). */
 export function guardSlugFor(questionText: string | null | undefined): string | null {

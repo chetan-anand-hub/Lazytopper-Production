@@ -63,7 +63,12 @@ describe("topicGuard · rules", () => {
       "Sec A Q2. If α, β are zeroes of x²-5x+6, evaluate α² + β².",
       "Sec B Q21. Show that x² + x + 1 = 0 has no real roots.",
     ]) expect(guardSlugFor(t)).toBeNull();
-    // ...while a real proof under a heading still fires
+    // typed in lower case / with a dash / a full word (the form a student or OCR actually produces)
+    for (const t of ["sec A Q1. Prove that √2 is irrational.", "sec C Q27. Show that saliva breaks down starch.", "sec B Q22. Show that ozone depletion is harmful.", "Sec-A Q1. Show that 3 + √5 is irrational.", "SEC. B Q.21 Evaluate the role of enzymes."]) {
+      expect(guardSlugFor(t)).toBeNull();
+    }
+    // ...while a real proof under a heading still fires, and a real 'sec A' in a stem is never stripped
+    expect(guardSlugFor("Prove that sec A - tan A = 1/(sec A + tan A)")).toBe("trigonometry");
     expect(guardSlugFor("Sec C Q29. Prove that (1 + tan²A)/(1 + cot²A) = tan²A")).toBe("trigonometry");
   });
   it("★★ verifier negatives: geometry segment names are not an AP; light vs human eye are not mixed", () => {
