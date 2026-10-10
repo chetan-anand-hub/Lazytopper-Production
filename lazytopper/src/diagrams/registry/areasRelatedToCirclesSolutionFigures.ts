@@ -266,6 +266,24 @@ export const AREAS_RELATED_TO_CIRCLES_SOLUTION_FIGURES: ComputedFigureBinding[] 
   },
   {
     kind: "computed",
+    questionId: "ARC-H04",
+    slot: "solution",
+    builder: "circleSector",
+    params: {"template": "sector", "unit": "cm", "r": "3.5", "theta": 90},
+    draw: {"shade": "segment"},
+    provenance: [
+      {"param": "r", "field": "questionText", "quote": "radius 3.5 cm"},
+      {"param": "theta", "field": "questionText", "quote": "OA and OB are perpendicular radii", "derived": "perpendicular radii = 90°"},
+    ],
+    expect: [
+      {"quantity": "sector", "value": 9.625, "tolPct": 0.5, "quote": "(i) 9.625 cm²"},
+      {"quantity": "triangle", "value": 6.125, "tolPct": 0.5, "quote": "6.125 cm²"},
+      {"quantity": "segment", "value": 3.5, "tolPct": 0.5, "quote": "(ii) 3.5 cm²"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
     questionId: "ARC-H06",
     slot: "solution",
     builder: "circleSector",
