@@ -8,6 +8,7 @@
 // real `topics.ts` key instead of a free-text label.
 
 import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
+import { guardTopic } from "../lib/grading/topicGuard";
 import type { DesktopSubject } from "../lib/desktop/navigation";
 import {
   detectQuestion,
@@ -70,17 +71,47 @@ export function buildConfirmedDetection(
     DetectQuestionResponse,
     "detectedMarks" | "detectedSubject" | "detectedTopic" | "marksSource"
   >,
+  /** TOPIC-FIX-1: the question text, so the deterministic guard can fill a MISSING chapter. */
+  questionText?: string | null,
 ): ConfirmedDetection {
-  const { subject, topicName, topicSlug } = resolveDetectedGradeTopic({
-    detectedTopic: d.detectedTopic ?? null,
-    detectedSubject: d.detectedSubject ?? null,
-  });
+  const { subject, topicName, topicSlug } = resolveDetectedGradeTopic(
+    guardedDetection(d.detectedTopic ?? null, d.detectedSubject ?? null, questionText),
+  );
   return {
     marks: clampDetectedMarks(d.detectedMarks),
     subject,
     topicName,
     topicSlug,
     marksSource: d.marksSource ?? null,
+  };
+}
+
+/**
+ * TOPIC-FIX-1: the student flips the subject on "Looks right? Change". The chapter becomes EMPTY ("(no
+ * specific topic)": filed subject-only) until they pick one - it used to be seeded with the subject's FIRST
+ * chapter, a guess the student never made that then filed as their weak area.
+ */
+export function withSubjectCorrected(c: ConfirmedDetection, next: DesktopSubject): ConfirmedDetection {
+  return { ...c, subject: next, topicSlug: "", topicName: "" };
+}
+
+/**
+ * TOPIC-FIX-1 (c): run the model's answer through the deterministic guard (lib/grading/topicGuard).
+ * It fills a MISSING chapter and replaces one from the OTHER subject; every other answer is untouched.
+ */
+export function guardedDetection(
+  detectedTopic: string | null,
+  detectedSubject: string | null,
+  questionText?: string | null,
+): { detectedTopic: string | null; detectedSubject: "Maths" | "Science" | null } {
+  const named = detectedSubject === "Science" || detectedSubject === "Maths" ? detectedSubject : null;
+  const modelSubject = detectedTopic
+    ? ((desktopTopicForWeakAreaKey(detectedTopic)?.subject as DesktopSubject | undefined) ?? null)
+    : null;
+  const g = guardTopic({ detectedTopic, detectedSubject: named, questionText, subjectOfDetectedTopic: modelSubject });
+  return {
+    detectedTopic: g.detectedTopic,
+    detectedSubject: g.detectedSubject === "Science" || g.detectedSubject === "Maths" ? g.detectedSubject : null,
   };
 }
 
@@ -131,16 +162,14 @@ export async function resolvePerQuestionGradeTopics(
         const d = callOpts
           ? await detectQuestion({ question: text, topicVocabulary }, callOpts)
           : await detectQuestion({ question: text, topicVocabulary });
-        const { topicSlug, topicName, subject } = resolveDetectedGradeTopic({
-          detectedTopic: d.detectedTopic ?? null,
-          detectedSubject: d.detectedSubject ?? null,
-        });
+        const guarded = guardedDetection(d.detectedTopic ?? null, d.detectedSubject ?? null, text);
+        const { topicSlug, topicName, subject } = resolveDetectedGradeTopic(guarded);
         // The subject is KNOWN when the topic resolved (it comes from topics.ts). When it did
         // not, only a subject this question's own detect NAMED is kept (W4) — never the
         // resolver's "Maths" fallback — so an unresolved question stays honestly unknown
         // unless the detector said which subject it is.
         const named: DesktopSubject | "" =
-          d.detectedSubject === "Science" || d.detectedSubject === "Maths" ? d.detectedSubject : "";
+          guarded.detectedSubject === "Science" || guarded.detectedSubject === "Maths" ? guarded.detectedSubject : "";
         return { qNumber: q.questionNumber, topicSlug, topicName, subject: topicSlug ? subject : named };
       } catch (error) {
         console.warn("[checkImproveDetection] per-question topic detect failed", error);

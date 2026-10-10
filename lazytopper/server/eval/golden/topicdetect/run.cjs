@@ -16,6 +16,9 @@ const concurrency = Number(arg('--concurrency', 4));
 const cap = Number(arg('--cap', 400));
 const only = arg('--only', null);
 const photos = process.argv.includes('--photos');
+// --grade: the SAME items through the single-question GRADE call (handleCheckSolution with detectMarks),
+// whose own `detectedTopic` files a typed question that skipped detection (D58a-1).
+const grade = process.argv.includes('--grade');
 const outDir = path.join(__dirname, 'results');
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -26,7 +29,7 @@ const subjectOf = Object.fromEntries(vocab.map((v) => [v.slug, v.subject]));
 (async () => {
   const ledger = path.join(outDir, label + '.ledger.jsonl');
   const client = createLiveClient({ model, thinkingBudget: null, ledgerFile: ledger, cap, configId: 'TOPIC-' + label, pr: 'TOPIC-FIX-1' });
-  const driver = createDriver({ callGemini: client.callGemini, model });
+  const driver = createDriver({ callGemini: client.callGemini, model, ...(grade ? { gradingModel: model, gradingThinkingBudget: null } : {}) });
   let todo = items.filter((i) => !only || i.kind === only);
   if (photos) {
     const ids = new Set(JSON.parse(fs.readFileSync(path.join(__dirname, 'images', 'manifest.json'), 'utf8')));
@@ -39,9 +42,9 @@ const subjectOf = Object.fromEntries(vocab.map((v) => [v.slug, v.subject]));
       const k = next++;
       if (k >= todo.length) return;
       const it = todo[k];
-      const r = await driver.run({ handler: 'handleDetectQuestion', request: photos ? { imageBase64: fs.readFileSync(path.join(__dirname, 'images', it.id + '.jpg')).toString('base64'), imageMimeType: 'image/jpeg', topicVocabulary: vocab } : { question: it.text, topicVocabulary: vocab } });
+      const r = await driver.run({ handler: grade ? 'handleCheckSolution' : 'handleDetectQuestion', request: grade ? { question: it.text, subject: it.subject, marks: it.marks, detectMarks: true, topicVocabulary: vocab, textAnswer: 'I will attempt this step by step.' } : photos ? { imageBase64: fs.readFileSync(path.join(__dirname, 'images', it.id + '.jpg')).toString('base64'), imageMimeType: 'image/jpeg', topicVocabulary: vocab } : { question: it.text, topicVocabulary: vocab } });
       const b = r.body || {};
-      results[k] = { id: it.id, kind: it.kind, want: it.topicKey, got: b.ok ? (b.detectedTopic || null) : 'ok=' + b.ok, subjectGot: b.detectedSubject || null,
+      results[k] = { id: it.id, kind: it.kind, want: it.topicKey, got: b.ok === false ? 'ok=false' : (b.detectedTopic || null), subjectGot: b.detectedSubject || null,
         subjectWant: subjectOf[it.topicKey], wallMs: r.wallMs };
     }
   }

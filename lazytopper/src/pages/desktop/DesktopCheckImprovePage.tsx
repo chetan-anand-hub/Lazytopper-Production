@@ -32,6 +32,7 @@ import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
   buildConfirmedDetection,
+  withSubjectCorrected,
   ciQuestionIds,
   clampDetectedMarks,
   isMixedPaper,
@@ -1401,7 +1402,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         setDetectError(d?.error ?? "We couldn't read the question — please try again.");
         return;
       }
-      const cd = buildConfirmedDetection(d);
+      const cd = buildConfirmedDetection(d, q || d.questions?.[0]?.questionText);
       setDetected(cd);
       setConfirmed(cd);
       const image = questionTab === "upload" ? qImageBase64 : null;
@@ -1426,14 +1427,10 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
 
   // Constrained corrections — topic stays a canonical key; marks 1–6; subject
-  // toggle re-seeds the topic. A corrected mark is flagged marksSource "user".
+  // toggle CLEARS the topic ("(no specific topic)" - TOPIC-FIX-1: it used to seed the subject's FIRST chapter, a
+  // guess the student never made, filed as their weak area). A corrected mark is flagged marksSource "user".
   function correctSubject(next: DesktopSubject) {
-    const first = CANONICAL_TOPIC_VOCAB.find((t) => t.subject === next);
-    setConfirmed((c) =>
-      c
-        ? { ...c, subject: next, topicSlug: first?.slug ?? "", topicName: first?.name ?? "" }
-        : c,
-    );
+    setConfirmed((c) => (c ? withSubjectCorrected(c, next) : c));
     setTopicTouched(true); // provenance tag: the student engaged the topic (C&I PR-1)
   }
   function correctTopic(slug: string) {
