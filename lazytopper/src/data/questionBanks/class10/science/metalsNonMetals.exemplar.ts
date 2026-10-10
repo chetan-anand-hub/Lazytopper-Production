@@ -225,7 +225,6 @@ export const METALS_NON_METALS_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Which one of the following figures correctly describes the process of electrolytic refining?",
     options: ["(a)", "(b)", "(c)", "(d)"],
     answer: "(c)",
-    strategyHint: "Figure required: 4 cell diagrams (a)-(d) of electrolytic refining; correct setup is impure-metal-as-anode (+), pure-strip-as-cathode (-), salt solution of the metal as electrolyte",
     solutionSteps: ["In electrolytic refining, the IMPURE metal block is the ANODE (positive); a thin strip of PURE metal is the CATHODE (negative).", "Electrolyte is a soluble salt of the metal.", "The diagram showing this exact setup is the correct answer; per NCERT key the answer is option (c)."],
     finalAnswer: "Option (c)", ncertRef: "Exemplar Ex 3.1 Q36 (MCQ)", isCompetencyBased: true },
 
