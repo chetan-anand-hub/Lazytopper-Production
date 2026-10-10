@@ -128,7 +128,8 @@ async function buildSet() {
       </Routes>
     </MemoryRouter>,
   );
-  await screen.findAllByText(/^Question \d+: solve it\.$/);
+  // (30 s: the page's lazy bank build can exceed the 1 s default on a loaded machine.)
+  await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
 }
 const triggers = () => screen.getAllByRole("button", { name: /^(Answer this question|Hide answer box)$/ });
 async function saveTypedFor(n: number) {

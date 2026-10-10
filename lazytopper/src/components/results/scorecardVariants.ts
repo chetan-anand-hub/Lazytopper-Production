@@ -430,6 +430,15 @@ export interface QuickPracticeVariantInput {
    *  (D-PROG-2). Today Quick Practice's "check" flow is the tutor drawer and produces
    *  none, so hosts pass undefined and no MI block renders (honest). */
   fourType?: ScorecardFourType | null;
+  /** PRACTICE-HONESTY-1 — the MCQ MARKS earned and available across the MCQs answered
+   *  (each MCQ is whole mark or nothing). Omitted ⇒ one mark per MCQ (`mcqCorrect` /
+   *  `mcqAnswered`), so an older caller still renders an honest figure. */
+  mcqMarksAwarded?: number;
+  mcqMarksTotal?: number;
+  /** PRACTICE-HONESTY-1 — "Back to this set (see the steps)": reopen the SAME set with every
+   *  step unlocked. The ONLY action on an attempted (MCQ-only) session. Omitted ⇒ falls back
+   *  to `onKeepPracticing`. */
+  onReviewSet?: () => void;
   /** What-next action closures the host wires (navigation / regenerate). */
   onKeepPracticing?: () => void;
   onFreshSet: () => void;
@@ -451,6 +460,10 @@ export interface QuickPracticeVariantInput {
 
 type MenuId = "keep" | "fresh" | "chapter" | "predicted" | "study";
 
+/** PRACTICE-HONESTY-1 — the owner's label for the review action, shared by both Quick
+ *  Practice variants so the two cannot drift. */
+export const QUICK_PRACTICE_REVIEW_LABEL = "Back to this set (see the steps)";
+
 /**
  * Build the quick-practice variant: "X of N attempted" (never marks/total), an honest
  * MCQ-accuracy line, a 0-attempted empty state, NO graded-sheet download, and a what-next
@@ -467,6 +480,9 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     mcqCorrect,
     allDone,
     fourType,
+    mcqMarksAwarded,
+    mcqMarksTotal,
+    onReviewSet,
     onKeepPracticing,
     onFreshSet,
     onChapterTest,
@@ -475,6 +491,48 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     overlayMode = false,
     returnTicket,
   } = input;
+
+  // ── PRACTICE-HONESTY-1 · an ATTEMPTED session reaching this variant is MCQ-only (any
+  // saved written answer routes the host to the confirm card instead). On the Chapter Test /
+  // Full Mock model it shows JUST the MCQ marks scored and ONE action: "Back to this set
+  // (see the steps)" — ALWAYS offered, even when every question was attempted. The empty
+  // state (0 attempted) falls through to the shipped menu, unchanged.
+  if (attempted > 0) {
+    const review = onReviewSet ?? onKeepPracticing;
+    return {
+      surface: "quick-practice",
+      title: "Session scorecard",
+      subtitle: "Quick practice",
+      score: {
+        kind: "marks",
+        awarded: mcqMarksAwarded ?? mcqCorrect,
+        total: mcqMarksTotal ?? mcqAnswered,
+        gradedCount: mcqAnswered,
+        totalQuestions: totalInSet,
+      },
+      message: null,
+      note: null,
+      // The MI block stays honest-or-silent exactly as before: shown only when typed
+      // mistakes are supplied (none are today), never invented.
+      fourType: fourType && (fourType.conceptual || fourType.calculation || fourType.silly || fourType.presentation) ? fourType : null,
+      pending: null,
+      allPending: null,
+      actionsHeading: "What next?",
+      stackActions: true,
+      footnote:
+        "MCQ results and answers you check are saved to your progress. Self-marked notes stay in this session.",
+      actions: [
+        {
+          label: QUICK_PRACTICE_REVIEW_LABEL,
+          tag: "Set",
+          tone: "primary",
+          onClick: review ?? (() => {}),
+          disabled: !review,
+        },
+        ...(returnTicket ? [returnTicketAction(returnTicket)] : []),
+      ],
+    };
+  }
 
   const mcqMissed = Math.max(0, mcqAnswered - mcqCorrect);
   const accuracy = mcqAnswered > 0 ? mcqCorrect / mcqAnswered : null;
@@ -667,7 +725,7 @@ export function quickPracticeGradedScorecardVariant(
     // that variant is live and its menu is guaranteed byte-identical for existing callers.
     // [FU-QP-DOUBLE-BACK-TAG]
     ...(onKeepPracticing
-      ? [{ label: "Keep practising this set", tag: "Set", tone: "primary", onClick: onKeepPracticing } as ScorecardAction]
+      ? [{ label: QUICK_PRACTICE_REVIEW_LABEL, tag: "Set", tone: "primary", onClick: onKeepPracticing } as ScorecardAction]
       : []),
     ...(onFreshSet
       ? [

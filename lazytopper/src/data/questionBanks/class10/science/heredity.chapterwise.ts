@@ -182,9 +182,10 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq09 Q3 (Section A, 1mk)
   { id: "SCQ-S-HERED-022", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What indication do we get by reappearance of dwarf plant in F2 generation?",
-    answer: "After obtaining progeny in F2 generation in a dihybrid cross, Mendel concluded that when two pairs of traits are combined in a hybrid, one pair of character segregates independently of the other pair of character.",
-    solutionSteps: ["After obtaining progeny in F2 generation in a dihybrid cross, Mendel concluded that when two pairs of traits are combined in a hybrid, one pair of character segregates independently of the other pair of character."],
-    ncertRef: "cbjesccq09 Q3", isCompetencyBased: false },
+    answer: "Reappearance of dwarf plants in the F2 generation indicates that the dwarf (recessive) trait was present in the F1 plants but was not expressed, i.e. it was masked by the dominant tall trait. Thus each trait is controlled by two factors (genes); the factors are not lost or blended but separate during gamete formation and are inherited independently, so the recessive trait reappears in F2 when two recessive factors (tt) come together.",
+    finalAnswer: "Reappearance of dwarf plants in the F2 generation indicates that the dwarf (recessive) trait was present in the F1 plants but was not expressed, i.e. it was masked by the dominant tall trait. Thus each trait is controlled by two factors (genes); the factors are not lost or blended but separate during gamete formation and are inherited independently, so the recessive trait reappears in F2 when two recessive factors (tt) come together.",
+    solutionSteps: ["[1 mark] The dwarf (recessive) trait was inherited by F1 plants but not expressed — it was masked by the dominant tall trait", "[1 mark] Traits/factors are not lost or blended; the two factors separate during gamete formation, so tt plants (dwarf) reappear in F2"],
+    ncertRef: "cbjesccq09 Q3", isCompetencyBased: false, sourceOverride: "others" },
   // cbjesccq09 Q4 (Section A, 1mk)
   { id: "SCQ-S-HERED-023", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "How many pairs of chromosomes are present in human beings?",
@@ -285,15 +286,16 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq09 Q109 (Section D, 5mk)
   { id: "SCQ-S-HERED-039", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "How do Mendel's experiment show that traits are inherited independently?",
-    answer: "[All India 2016] Mendel carried out dihybrid crosses by crossing two pea plants differing in contrasting traits of two characters. For example, he crossed a pea plant having yellow colour and round seed characters with another pea plant bearing green colour and wrinkled seed char",
+    answer: "Mendel performed a dihybrid cross between a pea plant with round, yellow seeds (RRYY) and one with wrinkled, green seeds (rryy). All F1 plants had round, yellow seeds (RrYy), showing round and yellow are dominant. On self-pollination of F1 plants, the F2 generation showed four types of plants: round-yellow, round-green, wrinkled-yellow and wrinkled-green in the ratio 9 : 3 : 3 : 1. The appearance of new combinations (round-green and wrinkled-yellow) not present in either parent shows that seed shape and seed colour are inherited independently of each other.",
+    finalAnswer: "Mendel performed a dihybrid cross between a pea plant with round, yellow seeds (RRYY) and one with wrinkled, green seeds (rryy). All F1 plants had round, yellow seeds (RrYy), showing round and yellow are dominant. On self-pollination of F1 plants, the F2 generation showed four types of plants: round-yellow, round-green, wrinkled-yellow and wrinkled-green in the ratio 9 : 3 : 3 : 1. The appearance of new combinations (round-green and wrinkled-yellow) not present in either parent shows that seed shape and seed colour are inherited independently of each other.",
     solutionSteps: [
-      "[1 mark] Mendel performed a dihybrid cross — crossing two pea plants differing in two pairs of contrasting characters at once, e.g. round-yellow seeds (RRYY) with wrinkled-green seeds (rryy).",
-      "[1 mark] F₁ generation: All the F₁ plants had round and yellow seeds (RrYy), showing that round shape and yellow colour are the dominant traits.",
-      "[1 mark] F₂ generation: On self-pollinating the F₁ plants, the F₂ generation showed four phenotypes — round-yellow, round-green, wrinkled-yellow and wrinkled-green — in the ratio 9 : 3 : 3 : 1.",
-      "[1 mark] New combinations: Besides the two parental types (round-yellow and wrinkled-green), two new recombinant types appeared — round-green and wrinkled-yellow — so seed shape and seed colour did not stay linked together.",
-      "[1 mark] Conclusion: Since the traits reassorted into new combinations independently of one another, each pair of traits is inherited independently — this is Mendel's Law of Independent Assortment."
+      "[1 mark] Cross: round yellow seeds (RRYY) × wrinkled green seeds (rryy)",
+      "[1 mark] F1: all round yellow (RrYy) — round and yellow are dominant traits",
+      "[1 mark] F1 self-pollinated to produce F2 generation",
+      "[1 mark] F2: round-yellow 9 : round-green 3 : wrinkled-yellow 3 : wrinkled-green 1",
+      "[1 mark] New combinations (round-green, wrinkled-yellow) appear, so the traits of seed shape and seed colour are inherited independently"
     ],
-    ncertRef: "cbjesccq09 Q109", isCompetencyBased: true },
+    ncertRef: "cbjesccq09 Q109", isCompetencyBased: true, sourceOverride: "others" },
   // cbjesccq09 Q113 (Section D, 5mk)
   { id: "SCQ-S-HERED-040", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. What are monohybrid and dihybrid cross? b. How Mendel proved that tallness is the dominant trait and dwarfness is recessive in a pea plant?. Explain with the help of a monohybrid cross.",

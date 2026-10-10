@@ -28,6 +28,7 @@ import { buildTopicHubUrl } from "../utils/buildUrl";
 
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { MathText } from "../components/question/MathText";
+import { StepsLockedNote } from "../components/practice/StepsLockedNote";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
 import "../components/question/katexEager";
 import { lazyWithRetry } from "../lib/lazyWithRetry";
@@ -51,6 +52,8 @@ import { trackUxEvent } from "../services/uxTelemetry";
 const SolutionChecker = lazyWithRetry(() =>
   import("../components/question/SolutionChecker").then((m) => ({ default: m.SolutionChecker })),
 );
+// DIAGRAMS-1 PR-2a — solution figure drawn from the question's own numbers (lazy; null when unbound).
+const SolutionFigure = lazyWithRetry(() => import("../diagrams/SolutionFigure"));
 
 // ---------- Local types / helpers ----------
 
@@ -505,6 +508,12 @@ const HighlyProbableQuestionsPage: React.FC = () => {
   );
   const [answerCheckOpen, setAnswerCheckOpen] = useState<Record<string, boolean>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  // PRACTICE-HONESTY-1 — steps/logic unlock after an ATTEMPT on that question: an option
+  // pick (`selectedOptions`) or a written answer the checker actually marked
+  // (`checkedAnswers`, set from SolutionChecker's onResult). "Show all solutions" at the end
+  // of the list unlocks every row at once (`allSolutionsUnlocked`).
+  const [checkedAnswers, setCheckedAnswers] = useState<Record<string, boolean>>({});
+  const [allSolutionsUnlocked, setAllSolutionsUnlocked] = useState<boolean>(false);
   const previousSubjectKeyRef = useRef(subjectKey);
 
   // If the route subject changes (Maths <-> Science), React Router may reuse the
@@ -526,6 +535,8 @@ const HighlyProbableQuestionsPage: React.FC = () => {
     setSolutionOpen({});
     setAnswerCheckOpen({});
     setSelectedOptions({});
+    setCheckedAnswers({});
+    setAllSolutionsUnlocked(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subjectKey]);
 
@@ -1587,6 +1598,8 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                         const hasOptions = questionOptions.length > 0;
                         const isObjective = isObjectiveQuestion(q, questionOptions);
                         const canCheckAnswer = !isObjective;
+                        const stepsLocked =
+                          !(selectedOption || checkedAnswers[q.id]) && !allSolutionsUnlocked;
                         const solution = solutionData[q.id];
                         const visibleSolutionSteps = getVisibleSolutionSteps(
                           solution,
@@ -1655,6 +1668,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                             questionText={q.question}
                             kind={q.type}
                             marks={q.marks}
+                            questionId={q.id ? String(q.id) : undefined}
                           />
                           {hasOptions && (
                             <div
@@ -1797,6 +1811,9 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                   {answerCheckOpen[q.id] ? "Hide check" : "Check my answer"}
                                 </button>
                               )}
+                              {stepsLocked ? (
+                                <StepsLockedNote copy={HPQ_STEPS_LOCKED_COPY} />
+                              ) : (
                               <button
                                 onClick={() => handleInlineSolution(bucket, q, "solve")}
                                 style={{
@@ -1821,6 +1838,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                     ? "Show logic"
                                     : "Show steps"}
                               </button>
+                              )}
                               <button
                                 onClick={() => handleMoreLikeThisPractice(bucket, q)}
                                 style={{
@@ -1862,13 +1880,18 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                     questionId={q.id ? String(q.id) : undefined}
                                     solutionSteps={q.solutionSteps}
                                     finalAnswer={q.finalAnswer}
+                                    // PRACTICE-HONESTY-1 — a checked written answer is an
+                                    // attempt: it unlocks this row's steps.
+                                    onResult={() =>
+                                      setCheckedAnswers((prev) => (prev[q.id] ? prev : { ...prev, [q.id]: true }))
+                                    }
                                   />
                                 </Suspense>
                                 )}
                               </div>
                             )}
 
-                            {solutionOpen[q.id] && (
+                            {solutionOpen[q.id] && !stepsLocked && (
                               <div
                                 style={{
                                   marginTop: 10,
@@ -1921,6 +1944,12 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                     Close
                                   </button>
                                 </div>
+
+                                {q.id && (
+                                  <Suspense fallback={null}>
+                                    <SolutionFigure questionId={String(q.id)} />
+                                  </Suspense>
+                                )}
 
                                 {solutionLoading[q.id] && (
                                   <div style={{ fontSize: "0.82rem", color: "#1cb0f6", padding: "8px 0" }}>
@@ -2119,12 +2148,36 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                 );
               })}
             </div>
+            {/* PRACTICE-HONESTY-1 — the end of the list: unlock every row's steps/logic at
+                once. It UNLOCKS, it does not open them all — a row without authored steps
+                is fetched from the paid step-solution route, so each stays one tap away. */}
+            <div className="lt-show-all">
+              {allSolutionsUnlocked ? (
+                <p className="lt-show-all__done" role="status">
+                  All solutions are unlocked. Open the steps on any question above.
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  className="lt-show-all__btn"
+                  data-testid="hpq-show-all-solutions"
+                  onClick={() => setAllSolutionsUnlocked(true)}
+                >
+                  Show all solutions
+                </button>
+              )}
+            </div>
           </section>
         )}
       </div>
     </div>
   );
 };
+
+/** PRACTICE-HONESTY-1 — Predicted Questions has no session to finish; the alternative to
+ *  answering is the "Show all solutions" control at the end of the list. */
+const HPQ_STEPS_LOCKED_COPY =
+  "Try it first: answer this question (or tap Show all solutions at the end) to see the steps.";
 
 /**
  * BANK-LEAN-1 (H3) — ONE URL per subject. The page used to render the same content at

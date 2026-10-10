@@ -156,11 +156,20 @@ describe("quickPracticeScorecardVariant", () => {
     onKeepPracticing: noop,
   };
 
-  it("uses the attempts score model, never marks/total", () => {
+  // PRACTICE-HONESTY-1 (owner spec §5) — an attempted session reaching this variant is
+  // MCQ-only; on the Chapter Test / Full Mock model its big number is the MCQ MARKS scored.
+  // (Supersedes "attempts score model, never marks/total" — the owner's ruling, 2026-10-07.)
+  it("an attempted (MCQ-only) session uses the MCQ MARKS score model", () => {
     const v = quickPracticeScorecardVariant({ ...base, attempted: 4, totalInSet: 8, mcqAnswered: 3, mcqCorrect: 2, allDone: false });
-    expect(v.score).toEqual({ kind: "attempts", attempted: 4, ofN: 8, mcqAnswered: 3, mcqCorrect: 2 });
+    // No marks supplied ⇒ one mark per MCQ (each MCQ is whole mark or nothing).
+    expect(v.score).toEqual({ kind: "marks", awarded: 2, total: 3, gradedCount: 3, totalQuestions: 8 });
     expect(v.stackActions).toBe(true);
     expect(v.footnote).toMatch(/saved to your progress/);
+    const withMarks = quickPracticeScorecardVariant({
+      ...base, attempted: 4, totalInSet: 8, mcqAnswered: 3, mcqCorrect: 2, allDone: false,
+      mcqMarksAwarded: 4, mcqMarksTotal: 6,
+    });
+    expect(withMarks.score).toEqual({ kind: "marks", awarded: 4, total: 6, gradedCount: 3, totalQuestions: 8 });
   });
 
   // ── The way home (tutor⇄QP overlay). Closing the panel already returned the student; these
@@ -184,13 +193,14 @@ describe("quickPracticeScorecardVariant", () => {
     expect(v.actions.map((a) => a.label)).not.toContain("Chapter Test");
   });
 
-  it("a normal (direct/hub) visit gets NO return row — the menu is unchanged", () => {
+  it("a normal (direct/hub) visit gets NO return row — just the review action", () => {
     const v = quickPracticeScorecardVariant({
       ...base,
       attempted: 5, totalInSet: 5, mcqAnswered: 3, mcqCorrect: 3, allDone: true,
     });
     expect(v.actions.find((a) => a.tag === "Back")).toBeUndefined();
-    expect(v.actions.map((a) => a.label)).toContain("Chapter Test");
+    // PRACTICE-HONESTY-1 — MCQ-only: just the marks + "Back to this set (see the steps)".
+    expect(v.actions.map((a) => a.label)).toEqual(["Back to this set (see the steps)"]);
   });
 
   it("0-attempted shows the honest empty state and the floor menu (no-signal → keep)", () => {
@@ -203,25 +213,29 @@ describe("quickPracticeScorecardVariant", () => {
     expect(v.actions[0].label).toBe("Keep practicing this set");
   });
 
-  it("partial session shows the 'didn't reach' framing + MCQ nudge", () => {
+  // PRACTICE-HONESTY-1 (owner spec §5) — "MCQ-only sessions: just the marks + the review
+  // button". These two pinned the OLD personalised menu (framing line, MCQ nudge, Chapter
+  // Test / Study elevation); the owner's spec replaces that menu, so they now pin the new one.
+  it("partial MCQ-only session: just the marks — no framing line, no nudge", () => {
     const v = quickPracticeScorecardVariant({ ...base, attempted: 3, totalInSet: 10, mcqAnswered: 2, mcqCorrect: 1, allDone: false });
-    expect(v.message).toMatch(/The 7 you didn't reach aren't counted/);
-    expect(v.note).toMatch(/You missed 1 MCQ/);
+    expect(v.message).toBeNull();
+    expect(v.note).toBeNull();
+    expect(v.score).toEqual({ kind: "marks", awarded: 1, total: 2, gradedCount: 2, totalQuestions: 10 });
   });
 
-  it("strong session (≥3 MCQs, ≥80%) elevates the Chapter Test to primary; keep omitted when allDone", () => {
-    const v = quickPracticeScorecardVariant({ ...base, attempted: 5, totalInSet: 5, mcqAnswered: 4, mcqCorrect: 4, allDone: true });
-    expect(v.actions[0].label).toBe("Chapter Test");
+  it("★ 'Back to this set (see the steps)' is ALWAYS offered — even when every question was attempted", () => {
+    const onReviewSet = vi.fn();
+    const v = quickPracticeScorecardVariant({
+      ...base, attempted: 5, totalInSet: 5, mcqAnswered: 4, mcqCorrect: 4, allDone: true, onReviewSet,
+    });
+    expect(v.actions).toHaveLength(1);
+    expect(v.actions[0].label).toBe("Back to this set (see the steps)");
     expect(v.actions[0].tone).toBe("primary");
-    expect(v.note).toMatch(/All 4 MCQs correct/);
-    // allDone → the "Keep practicing this set" floor item is not present.
-    expect(v.actions.some((a) => a.label === "Keep practicing this set")).toBe(false);
-  });
-
-  it("dipping session (≥3 MCQs, <50%) elevates Study this chapter to primary", () => {
-    const v = quickPracticeScorecardVariant({ ...base, attempted: 5, totalInSet: 5, mcqAnswered: 4, mcqCorrect: 1, allDone: true });
-    expect(v.actions[0].label).toBe("Study this chapter");
-    expect(v.actions[0].tone).toBe("primary");
+    v.actions[0].onClick();
+    expect(onReviewSet).toHaveBeenCalledTimes(1);
+    // CONTROL — the same session with a dipping score gets the SAME single action.
+    const dipping = quickPracticeScorecardVariant({ ...base, attempted: 5, totalInSet: 5, mcqAnswered: 4, mcqCorrect: 1, allDone: true });
+    expect(dipping.actions.map((a) => a.label)).toEqual(["Back to this set (see the steps)"]);
   });
 
   it("renders an MI four-type block ONLY when typed mistakes are supplied", () => {

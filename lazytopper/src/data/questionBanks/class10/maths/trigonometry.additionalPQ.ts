@@ -20,7 +20,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "In the figure, PQRS is a square. What is the value of sin ∠SPT?",
     options: ["8/17", "8/15", "15/17", "(cannot be found with the given information)"],
     answer: "8/17",
-    solutionSteps: ["[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT = 90° − ∠UPQ, so sin ∠SPT = cos ∠UPQ = PU/PQ = 8/17."],
+    solutionSteps: ["[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT + ∠UPQ = 90°; in right △PUQ, ∠PQU + ∠UPQ = 90°. So ∠SPT = ∠PQU, and sin ∠SPT = sin ∠PQU = PU/PQ = 8/17."],
     finalAnswer: "(a) 8/17",
     ncertRef: "APQ PQ1 Q11", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: square PQRS with diagonals or auxiliary point T.",
