@@ -310,6 +310,25 @@ describe("ME-CONCEPT-1 · WON BACK by concept (owner rule: a later, different qu
     });
   }
 
+  it("★ X — an UNMAPPED label shared by two chapters: a later fully-correct answer in the OTHER chapter does NOT win it back (verifier finding 1)", async () => {
+    const LABEL = "Zq Shared Unmapped";
+    H.bank["x-rn"] = { subtopic: LABEL, section: "B", topicKey: RN };
+    H.bank["x-po"] = { subtopic: LABEL, section: "B", topicKey: "polynomials" };
+    H.attempts.push(attempt("x-po", 2, 4, 4, "polynomials"));
+    const entry = mistake("qp-x", "x-rn", 20);
+    H.mistakes = [entry];
+    const m = await mathsModel();
+    const row = m.mistakes.byConcept[LABEL];
+    expect(row, "the unmapped mistake keeps its subtopic row key").toBeDefined();
+    expect(row.live).toBe(1);
+    expect(row.wonBack.count).toBe(0);
+    // control: the SAME chapter's later, different, fully-correct answer does win it back
+    H.bank["x-rn2"] = { subtopic: LABEL, section: "B", topicKey: RN };
+    H.attempts.push(attempt("x-rn2", 1, 4));
+    const again = await mathsModel();
+    expect(again.mistakes.byConcept[LABEL].wonBack.count).toBe(1);
+  });
+
   it("a mistake resolved by a RE-GRADE is not live: it sits on no concept row and is never won back", async () => {
     H.attempts.push(attempt("fta-2", 2, 4));
     H.mistakes = [mistake("qp-r", "fta-1", 20, { resolvedAt: new Date(NOW - 19 * DAY).toISOString(), resolvedBy: "re-grade" })];

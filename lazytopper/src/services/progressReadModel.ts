@@ -54,7 +54,7 @@ import {
   type WindowedProgress,
   type WindowTotal,
 } from "./progressStore";
-import type { ConceptRowRef } from "./progressBankShape";
+import { conceptEvidenceKey, type ConceptRowRef } from "./progressBankShape";
 import {
   getMistakeLogHistoryFromCloud,
   isSupersededByRegrade,
@@ -447,7 +447,7 @@ export function buildConceptMistakes(
     const ownAttempt = attemptRefOfMistake(e);
     const wonBack =
       Number.isFinite(at) &&
-      (evidence?.fullyCorrect[ref.key] ?? []).some(
+      (evidence?.fullyCorrect[conceptEvidenceKey(ref)] ?? []).some(
         (c) => c.ts > at && c.questionId !== bankId && c.attemptRef !== ownAttempt,
       );
     if (wonBack) {
