@@ -20,7 +20,14 @@ export type FigureRole =
   | "horizontal-ref" // the dashed horizontal at an observer's eye (depression angles)
   | "path" // the dashed path of a moving thing (balloon, bird) or a rise
   | "construction" // a dashed helper (eye-level line, perpendicular)
-  | "measure"; // a dimension line that only carries a length label
+  | "measure" // a dimension line that only carries a length label
+  // Ray optics (PR-2b) — additive; the H&D roles above are unchanged.
+  | "axis" // the principal axis
+  | "ray" // a real light ray (solid)
+  | "ray-virtual" // a backward extension of a ray, behind a mirror / lens (dashed)
+  | "object" // the object arrow (solid, arrowhead at its tip)
+  | "image" // a REAL image arrow (solid, arrowhead at its tip)
+  | "image-virtual"; // a VIRTUAL image arrow (dashed, arrowhead at its tip)
 
 export type LabelSide = "l" | "r" | "a" | "b";
 
@@ -36,6 +43,9 @@ export type FigureElement =
       b: string;
       role: FigureRole;
       label?: { text: string; side: LabelSide };
+      /** Ray optics (PR-2b): "end" draws an arrowhead at b (object/image arrows); "mid" a
+       *  direction chevron at the midpoint (the way the light travels, a -> b). */
+      arrow?: "mid" | "end";
     }
   | {
       /** An angle arc at `at`, swept from ray at->from to ray at->to (the smaller angle). */
@@ -49,7 +59,25 @@ export type FigureElement =
     }
   | { t: "right"; at: string; a: string; b: string }
   | { t: "label"; at: string; text: string; dx: number; dy: number }
-  | { t: "dot"; at: string };
+  | { t: "dot"; at: string }
+  | {
+      /** Ray optics (PR-2b): a spherical-mirror SYMBOL at the pole `at`. A shallow arc of
+       *  half-height `half` whose edges are `sag` view units off the pole plane (towards
+       *  the reflecting side for concave, away from it for convex), hatched on its back.
+       *  Light comes from the left; the reflecting face is the left face. */
+      t: "mirror";
+      at: string;
+      half: number;
+      sag: number;
+      kind: "concave" | "convex";
+    }
+  | {
+      /** Ray optics (PR-2b): a thin-lens SYMBOL centred on the optical centre `at`. */
+      t: "lens";
+      at: string;
+      half: number;
+      kind: "convex" | "concave";
+    };
 
 export interface FigureTransform {
   /** view = (world.x * sx + ox, oy - world.y * sy). H&D always has sx === sy. */
