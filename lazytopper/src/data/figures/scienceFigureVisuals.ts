@@ -328,17 +328,6 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
   "CTRL-EXMPLR-6-MCQ-025": "withheld for its missing figure; options (a)-(d) are the bound Fig. 7.1 drawings, but the key names no option letter ('Option showing: Dendrite -> Cell body -> Axon -> Axonal end') - fix the key, then un-withhold",
   "PYQ-S-2026-ENV-001": "withheld by BANK-FIX for its missing figure; stem and options T1/T5/T4/T3 clean, figure bound - un-withhold candidate",
   // C3 DIAGRAMS PR-S1 (2026-10-10, B-21): BANK-FIX-5 (#1041) withheld this row after C3 bound it
-  "PYQ-S-2025-MAG-006": "withheld by BANK-FIX-5 (#1041): its key carries heart-circulation text from another question; the bound figure (31-3-3 2025 Q32(b)) is right - fix the key in a bank lane, then un-withhold",
   // DIAGRAMS-RESUME-B step 3 (Science census)
-  "PYQ-S-ACID-001": "withheld by BANK-FIX for its missing figure; stem and options clean, key (c) agrees with the 31/2/1 MS, figure bound - un-withhold candidate",
-  "APQ-S-CARB-005": "withheld by BANK-FIX for its missing figure; stem and options clean, key Ethene agrees with the APQ MS2, figure bound - un-withhold candidate",
-  "CARB-EXMPLR-4-MCQ-005": "withheld for its missing figure; structures (i)-(iv) bound, but the stored key (a) '(i) and (iii)' disagrees with the Exemplar key (c) '(i) and (ii)' - fix the key, then un-withhold",
-  "CARB-EXMPLR-4-MCQ-010": "withheld for its missing figure; options (a)-(d) are the bound drawings, but the stored key (c) disagrees with the Exemplar key (d) - fix the key, then un-withhold",
-  "CARB-EXMPLR-4-MCQ-016": "withheld for its missing figure; options (a)-(d) are the bound drawings, but the stored key (a) disagrees with the Exemplar key (c) - fix the key, then un-withhold",
-  "CARB-EXMPLR-4-MCQ-022": "withheld for its missing figure; options (a)-(d) are the bound drawings, key (c) agrees with the Exemplar key - un-withhold candidate",
-  "CARB-EXMPLR-4-MCQ-023": "withheld for its missing figure; options (a)-(d) are the bound drawings, but the stored key (c) disagrees with the Exemplar key (d) - fix the key, then un-withhold",
-  "CARB-EXMPLR-4-MCQ-024": "withheld for its missing figure; structures (i)-(iv) bound and key (c) agrees with the Exemplar key, but the stem still carries the placeholder line '(ii)-(iv) Various other structures' - fix the stem, then un-withhold",
-  "PYQ-S-ELEC-003": "withheld by BANK-FIX for its missing figure; stem clean, part (iii) key (series A, parallel B) agrees with the 31/4/2 MS, figure bound - un-withhold candidate",
   "PYQ-S-MAG-003": "withheld by BANK-FIX for its missing figure; stem and options clean, key (d) agrees with the 31/4/3 MS, figure bound - un-withhold candidate",
-  "METAL-EXMPLR-3-MCQ-036": "withheld for its missing figure; options (a)-(d) are the bound Fig. 3.1 drawings, key (c) agrees with the Exemplar key - un-withhold candidate",
 };

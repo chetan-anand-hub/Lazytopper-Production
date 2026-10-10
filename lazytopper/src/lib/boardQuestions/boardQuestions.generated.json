@@ -55,38 +55,31 @@
       "subject": "maths",
       "questions": [
         {
-          "id": "APQ-M-ARC-007",
-          "questionText": "In the figure below, a unit square ROST is inscribed in a circular sector with centre O. Along with the above information, which of these is SUFFICIENT to find the area of sector POQ?",
+          "id": "APQ-M-ARC-002",
+          "questionText": "A regular pentagon is inscribed in a circle with centre O, of radius 5 cm. What is the area of the shaded part of the circle?",
           "marks": 1,
           "section": "A",
           "solutionSteps": [
-            "[1 mark] The unit square ROST is inscribed with its vertex O at the centre, so the opposite vertex T lies on the arc and the radius OT = diagonal = √(1² + 1²) = √2 units. The radius is therefore already known, so the area of the square (A, which is 1 sq unit) or the radius (B) adds nothing new; what is still unknown is the sector angle ∠POQ. If arc PQ = l is known, then l = (θ/360°) × 2πr fixes θ, and area of sector POQ = ½ × l × r = l/√2 sq units. Hence option (c)."
+            "[1 mark] The radii to the 5 vertices of the regular pentagon divide the circle into 5 congruent sectors, each of area (1/5)·π·5² = 5π cm². From the figure, the shaded part is one complete sector, plus the triangle of a second sector and the segment of a third sector; a triangle and a segment from congruent sectors together make one full sector. So shaded area = 2 × 5π = 10π cm²."
           ]
         },
         {
-          "id": "ARC-N-EXEM-11-LA-001",
-          "questionText": "A chord of a circle of radius 10 cm subtends an angle of 90° at the centre. Find the area of the corresponding major segment. (Use π = 3.14.)",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-ARC-003",
+          "questionText": "In the given figure, the area of the segment ACB is",
+          "marks": 1,
+          "section": "A",
           "solutionSteps": [
-            "[1 mark] Setup: chord AB subtends 90° at centre O, radius r = 10 cm, so the major sector angle = 360° − 90° = 270°.",
-            "[1 mark] Area of major sector = (270/360) × πr² = (3/4) × π × 100.",
-            "[1 mark] = (3/4) × 3.14 × 100 = 235.5 cm².",
-            "[1 mark] Triangle OAB (right-angled at O): area = (1/2) × 10 × 10 = 50 cm².",
-            "[1 mark] Area of major segment = area of major sector + area of triangle = 235.5 + 50 = 285.5 cm²."
+            "[1 mark] From the figure, ∠AOB = 90° and OA = OB = r. Area of segment ACB = area of sector OACB − area of △OAB = (90°/360°)πr² − (1/2)·r·r = πr²/4 − r²/2 = (r²/4)(π − 2)."
           ]
         },
         {
-          "id": "ARC-N-EXEM-11-LA-002",
-          "questionText": "With vertices A, B and C of a right triangle ABC (right-angled at B) as centres, arcs of radius 5 cm each are drawn. If AB = 14 cm, BC = 48 cm and CA = 50 cm, find the area of the shaded region inside the triangle but outside the three sectors.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-ARC-004",
+          "questionText": "ABCD is a rhombus with side 3 cm. Two arcs are drawn from points A and C respectively such that the radius equals the side of the rhombus. If BD is a line of symmetry for the figure, then find the area of the shaded part of the figure in terms of π. OR Wasim made a model of Pac-Man with area 120π cm^2 and mouth angle 60° at the centre. Find the minimum length of ribbon needed for the entire boundary in terms of π.",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] Verification: 14² + 48² = 196 + 2304 = 2500 = 50², so ΔABC is right-angled at B.",
-            "[1 mark] Area of ΔABC = (1/2) × AB × BC = (1/2) × 14 × 48 = 336 cm².",
-            "[1 mark] Each sector contributes (∠/360) × π × 5², and the total angle = ∠A + ∠B + ∠C = 180° (angle sum of a triangle).",
-            "[1 mark] Total sector area = (180/360) × π × 25 = (1/2) × π × 25 = 12.5 × 3.14 = 39.25 cm².",
-            "[1 mark] Shaded area = area of triangle − total sector area = 336 − 39.25 = 296.75 cm²."
+            "[1 mark] From the figure, ∠DAB = 60° and the arc through D and B is drawn with centre A, radius 3 cm. Area of sector ABD = (60/360) × π × 3² = 3π/2 cm²; △ABD has AB = AD = 3 cm and ∠A = 60°, so it is equilateral: area = (√3/4) × 3² = 9√3/4 cm². [OR Let the radius be r cm; the model is a sector of angle 360° − 60° = 300°: 120π = (300/360) × π × r² ⇒ r² = 144 ⇒ r = 12 cm.]",
+            "[1 mark] BD is a line of symmetry, so the shaded part = 2 × (area of sector ABD − area of △ABD) = 2 × (3π/2 − 9√3/4) = (3π − 9√3/2) cm². [OR Ribbon length = arc length + 2 radii = (300/360) × 2 × π × 12 + 24 = (20π + 24) cm.]"
           ]
         }
       ]
@@ -722,6 +715,15 @@
       "subject": "maths",
       "questions": [
         {
+          "id": "APQ-M-POLY-001",
+          "questionText": "Which of the following could be the graph of the polynomial (x − 1)^2(x + 2)?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Zeroes of (x − 1)²(x + 2) are x = 1 (repeated, so the graph touches the x-axis there without crossing) and x = −2 (crosses the x-axis); p(0) = (1)(2) = 2. Graph (a) crosses at both −2 and 1, graphs (b) and (d) touch the x-axis at a negative x and do not pass through (0, 2). Graph (c) crosses at −2, touches at 1 and passes through (0, 2), so it is the graph of the polynomial."
+          ]
+        },
+        {
           "id": "BX-POLY-D-001",
           "questionText": "One condition on the zeroes α and β of p(x) = x² − 6x + k is that the sum of their squares (α² + β²) equals 20. Determine the value of k, then obtain the two zeroes.",
           "marks": 5,
@@ -745,19 +747,6 @@
             "[1 mark] So 8/k = 2/3.",
             "[1 mark] Cross-multiply: 2k = 24 ⇒ k = 12.",
             "[1 mark] Then p(x) = x² − 8x + 12 = (x − 2)(x − 6), zeroes 2 and 6; check 1/2 + 1/6 = 2/3. ✓"
-          ]
-        },
-        {
-          "id": "BX-POLY-D-003",
-          "questionText": "The zeroes α, β of p(x) = x² − 5x + k, where k is an integer, satisfy 1/α² + 1/β² = 13/36 — the sum of the reciprocals of their squares. Calculate k and identify the zeroes.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] For x² − 5x + k: α + β = 5 and αβ = k; and 1/α² + 1/β² = (α² + β²)/(αβ)².",
-            "[1 mark] α² + β² = (α + β)² − 2αβ = 25 − 2k, so the expression = (25 − 2k)/k².",
-            "[1 mark] Set (25 − 2k)/k² = 13/36 ⇒ 36(25 − 2k) = 13k².",
-            "[1 mark] 13k² + 72k − 900 = 0 ⇒ (k − 6)(13k + 150) = 0 ⇒ k = 6 or k = −150/13; since k is an integer, k = 6.",
-            "[1 mark] Then p(x) = x² − 5x + 6 = (x − 2)(x − 3), zeroes 2 and 3; check 1/4 + 1/9 = 13/36. ✓"
           ]
         }
       ]
@@ -878,6 +867,15 @@
       "subject": "maths",
       "questions": [
         {
+          "id": "APQ-M-STAT-003",
+          "questionText": "The table depicts the weight of the students of class 6. There are 18 students that weigh above the median weight. If there are no students with the same weight as median weight, how many students weigh between the range of 37 - 40 kgs?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] No student weighs exactly the median weight and 18 students weigh above it, so 18 weigh below it: total = 36 students. From the table, 25-28: 6, 28-31: 8, 31-34: 7, 34-37: 10, so 6 + 8 + 7 + 10 = 31 students weigh 25-37 kg. Students weighing 37-40 kg = 36 − 31 = 5."
+          ]
+        },
+        {
           "id": "APQ-M-STAT-004",
           "questionText": "A car assembly unit assembles a limited number of cars daily, depending on the prevailing demand. The table presents an analysis: cars assembled per day (0-4: 33 days, 4-8: 18 days, 8-12: 21 days, 12-16: 11 days, 16-20: 7 days). (i) If the demand of the cars is doubled, estimate how many cars on an average should be assembled per day to meet the increased demand? (ii) At least on how many days, less than average number of cars were assembled?",
           "marks": 5,
@@ -897,15 +895,6 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] N = 2x + 4 + 4x + 8 + 4 = 6x + 16, so N/2 = 3x + 8. Median 55 lies in class 40–60: l = 40, cf = 2x + 4, f = 4x, h = 20. Median = l + ((N/2 − cf)/f) × h gives 55 = 40 + ((3x + 8 − 2x − 4)/4x) × 20, so 15 = 5(x + 4)/x, 15x = 5x + 20, x = 2. Hence option (b)."
-          ]
-        },
-        {
-          "id": "CBE-M-STAT-A-001",
-          "questionText": "The Indian Council of Medical Research wants to analyse the age group of people affected by a certain disease. The table below shows the age distribution of patients with a certain disease admitted to a hospital.\nAge (in years) : Number of cases\n5–14 : 6\n15–24 : 11\n25–34 : 21\n35–44 : 23\n45–54 : 14\n55–64 : 5\nThe most highly affected age group is:",
-          "marks": 1,
-          "section": "A",
-          "solutionSteps": [
-            "[1 mark] The most highly affected age group is the class with the highest frequency. The class 35–44 has the highest frequency (23), so the answer is (iii) 35–44."
           ]
         }
       ]

@@ -89,7 +89,7 @@ describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-
     // every declared row is bound by PR-3 or PR-4 (the PR-4 rows are pinned in the PR-4 block below), or is a C3 PR-S1
     // row pinned in scienceFigureVisuals.c3.test.ts. 2026-10-10 (B-21, LANE_RULES §8 amendment, +1 id):
     // PYQ-S-2025-MAG-006, withheld by BANK-FIX-5 (#1041) after C3 bound it.
-    const C3_DECLARED = ["PYQ-S-2025-MAG-006"];
+    const C3_DECLARED: string[] = []; // BANK-UNWITHHOLD-1 (2026-10-10): MAG-006 is served again
     // 2026-10-10 (B-21, DIAGRAMS-RESUME-B step 3, +11 ids): the census rows are pinned in the CENSUS block at the end of
     // this file (CENSUS_BINDINGS) and count as bound here.
     expect(BOUND_BUT_WITHHELD.filter((q) => ![...PR3_BINDINGS, ...PR4_BINDINGS, ...CENSUS_BINDINGS].some(([b]) => b === q) && !C3_DECLARED.includes(q))).toEqual([]);
@@ -313,11 +313,23 @@ describe("DIAGRAMS-RESUME-B Science census bindings are exactly the eye-confirme
     expect(getFiguresForQuestion(q).map((f) => f.filePath)).toEqual([p]);
   });
 
-  it.each(CENSUS_BINDINGS)("%s exists in the bank, is withheld, and is declared in BOUND_BUT_WITHHELD", (q) => {
+  // BANK-UNWITHHOLD-1 (2026-10-10): 10 of these 11 are served again (blind re-solve from stem + figure agreed). A census row is
+  // either served and NOT declared, or withheld and declared; PYQ-S-MAG-003 stays withheld (its official stem asks the
+  // "direction of motion" while the marking scheme key is the direction of force - cofounder ruling pending).
+  it.each(CENSUS_BINDINGS)("%s exists in the bank and is either served, or withheld and declared in BOUND_BUT_WITHHELD", (q) => {
     expect(inBank.has(q)).toBe(true);
-    expect(served.has(q)).toBe(false);
-    expect(WITHHELD_QUESTION_IDS.has(q)).toBe(true);
-    expect(BOUND_BUT_WITHHELD).toContain(q);
+    if (served.has(q)) {
+      expect(WITHHELD_QUESTION_IDS.has(q)).toBe(false);
+      expect(BOUND_BUT_WITHHELD).not.toContain(q);
+    } else {
+      expect(WITHHELD_QUESTION_IDS.has(q)).toBe(true);
+      expect(BOUND_BUT_WITHHELD).toContain(q);
+    }
+  });
+
+  it("BANK-UNWITHHOLD-1: exactly the ten verified census rows are served, PYQ-S-MAG-003 is not", () => {
+    const STILL_WITHHELD = ["PYQ-S-MAG-003"];
+    expect(censusIds.filter((q) => !served.has(q)).sort()).toEqual(STILL_WITHHELD);
   });
 
   it.each(CENSUS_BINDINGS)("%s asset exists under lazytopper/public, is a real WebP file, and is at most 80 KB", (_q, p) => {

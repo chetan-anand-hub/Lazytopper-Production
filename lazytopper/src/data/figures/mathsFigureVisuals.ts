@@ -351,14 +351,4 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
 
   // DIAGRAMS-1 C3 PR-D1 (B-21 census step) — maths rows BANK-FIX withheld for their missing figure, now bound.
   "APQ-M-ARC-001": "stays withheld: the stem reads '(some fraction)' - the official APQ PDF itself prints no fraction there, so the row is unanswerable; 'REQUIRES-FIGURE' placeholder in strategyHint",
-  "APQ-M-ARC-002": "stays withheld: stem and key (d) 10π agree with the MS, but solutionSteps[0] is a 'Per MS' placeholder and strategyHint a 'REQUIRES-FIGURE' placeholder",
-  "APQ-M-ARC-003": "withheld for its missing figure; stem clean, key (a) agrees with the MS - un-withhold needs only the 'REQUIRES-FIGURE' strategyHint placeholder replaced",
-  "APQ-M-ARC-004": "withheld for its missing figure (both figures bound); key agrees with the MS - un-withhold needs only the 'REQUIRES-FIGURE' strategyHint placeholder replaced",
-  "APQ-M-ARC-006": "stays withheld: the stored key (c) 4 cm is WRONG - the official MS key is (D) 4.5 cm (PE = 6 × 3/4 from the figure); 'Per MS' placeholder step",
-  "APQ-M-ARC-008": "stays withheld: key (b) 16π agrees with the MS, but solutionSteps[0] opens 'Per MS answer key' and strategyHint is a 'REQUIRES-FIGURE' placeholder",
-  "APQ-M-ARC-010": "withheld for its missing figure; stem (the OR part) clean, key 9(π − 2) agrees with the MS - un-withhold needs only the 'REQUIRES-FIGURE' strategyHint placeholder replaced",
-  "SQP-M-POLY-001": "withheld by BANK-FIX for its missing figure; stem clean, key (b) agrees with the SQP MS, figure bound - un-withhold candidate",
-  "APQ-M-POLY-001": "stays withheld: key (c) agrees with the MS, but strategyHint is a 'REQUIRES-FIGURE' placeholder that also states the answer",
-  "APQ-M-STAT-003": "stays withheld: solutionSteps[0] is a 'REQUIRES-FIGURE' placeholder (key (a) 5 agrees with the MS)",
-  "APQ-M-STAT-008": "withheld for its missing figure; key ≈ 6 years agrees with the MS - un-withhold needs only the 'REQUIRES-FIGURE' strategyHint placeholder replaced",
 };

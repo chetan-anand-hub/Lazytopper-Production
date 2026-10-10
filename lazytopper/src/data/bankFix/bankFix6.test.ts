@@ -154,7 +154,8 @@ describe("BANK-FIX-6 placeholders and decisions", () => {
 
   it("rows marked 'figure binding needed' stay WITHHELD and are not served (DECISION 44b.3)", () => {
     const NEEDS_FIGURE = [
-      "CARB-EXMPLR-4-MCQ-010", "CARB-EXMPLR-4-MCQ-016", "CARB-EXMPLR-4-MCQ-022", "CARB-EXMPLR-4-MCQ-023",
+      // BANK-UNWITHHOLD-1 (2026-10-10): CARB-EXMPLR-4-MCQ-010/-016/-022/-023 left this list. Their figures are bound
+      // (DIAGRAMS-RESUME-B Science census, eye-confirmed) and a blind re-solve from stem + figure matched the key.
       "PYQ-S-2026-ACID-012", "PYQ-S-MAG-002", "PYQ-S-ELEC-001", "PYQ-S-2026-MAG-001", "PYQ-S-2026-CHEMRXN-013",
       "PYQ-M-2024-CG-007", "PYQ-M-2026-TRIG-002", "TRI-N-EXMPLR-6-LA-002", "APQ-M-TRIG-011", "APQ-M-TRIG-016",
     ];

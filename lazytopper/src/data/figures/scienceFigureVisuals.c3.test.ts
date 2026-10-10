@@ -43,7 +43,8 @@ const C3_BINDINGS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 // Bound, but the row is withheld by a bank lane for a reason other than the figure (2026-10-10, see header).
-const C3_BOUND_BUT_WITHHELD: readonly string[] = ["PYQ-S-2025-MAG-006"];
+// B (2026-10-10, BANK-UNWITHHOLD-1): PYQ-S-2025-MAG-006 is served again (key re-keyed by BANK-FIX-6, blind re-solve agreed): no C3 row is withheld now.
+const C3_BOUND_BUT_WITHHELD: readonly string[] = [];
 const isC3Withheld = (q: string) => C3_BOUND_BUT_WITHHELD.includes(q);
 
 // Not bound on purpose — must resolve to no figure.

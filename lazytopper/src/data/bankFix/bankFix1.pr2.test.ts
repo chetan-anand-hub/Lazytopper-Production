@@ -134,7 +134,31 @@ const UNWITHHELD_BY_DIAGRAMS1_PR1B: ReadonlySet<string> = new Set([
   "PYQ-S-2025-LIGHT-005", "APQ-S-LIFE-002", "APQ-S-LIFE-012",
 ]);
 
+// BANK-UNWITHHOLD-1 (2026-10-10, B): 20 more PR-2 "figure" withholds are served again. Each one has its official figure bound
+// (DIAGRAMS-1 / C3 / DIAGRAMS-RESUME-B), a key that agrees with the official marking scheme (BANK-FIX-6 re-keyed the Exemplar
+// carbon rows), no placeholder text in any student-visible field, and an independent blind re-solve from stem + figure alone that
+// matched the stored answer (20/20). PYQ-S-MAG-003 is NOT in this set: its official stem asks the direction of motion while
+// the marking scheme answers the direction of force, so it stays withheld pending a cofounder ruling.
+const UNWITHHELD_BY_BANK_UNWITHHOLD_1: ReadonlySet<string> = new Set([
+  "PYQ-S-ACID-001", "APQ-S-CARB-005", "CARB-EXMPLR-4-MCQ-005", "CARB-EXMPLR-4-MCQ-010", "CARB-EXMPLR-4-MCQ-016",
+  "CARB-EXMPLR-4-MCQ-022", "CARB-EXMPLR-4-MCQ-023", "CARB-EXMPLR-4-MCQ-024", "PYQ-S-ELEC-003",
+  "METAL-EXMPLR-3-MCQ-036", "APQ-M-ARC-002", "APQ-M-ARC-003", "APQ-M-ARC-004", "APQ-M-ARC-006", "APQ-M-ARC-008",
+  "APQ-M-ARC-010", "APQ-M-POLY-001", "APQ-M-STAT-003", "APQ-M-STAT-008", "SQP-M-POLY-001",
+]);
+
 describe("BANK-FIX-1 PR-2 · withheld rows are withheld", () => {
+  it("BANK-UNWITHHOLD-1: each un-withheld id was a PR-2 figure withhold and is now served; PYQ-S-MAG-003 is not", () => {
+    expect(UNWITHHELD_BY_BANK_UNWITHHOLD_1.size).toBe(20);
+    for (const id of UNWITHHELD_BY_BANK_UNWITHHOLD_1) {
+      const e = BANK_FIX_1_PR2.find((x) => x.id === id && x.surface === "bank");
+      expect(e?.verdict, id).toBe("withheld");
+      expect(e?.category, id).toBe("figure");
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(false);
+      expect(servedIds.has(id), id).toBe(true);
+    }
+    expect(WITHHELD_QUESTION_IDS.has("PYQ-S-MAG-003")).toBe(true);
+    expect(servedIds.has("PYQ-S-MAG-003")).toBe(false);
+  });
   it("DIAGRAMS-1 PR-1b: each un-withheld id was a PR-2 'figure' withhold and is now served", () => {
     for (const id of UNWITHHELD_BY_DIAGRAMS1_PR1B) {
       const e = BANK_FIX_1_PR2.find((x) => x.id === id && x.surface === "bank");
@@ -150,7 +174,9 @@ describe("BANK-FIX-1 PR-2 · withheld rows are withheld", () => {
     // BANK-FIX-3 PR-B: nine figure-bound rows repaired to the official wording are served after the bf3b blind re-solve.
     const servedAgain = (id: string) => BANK_FIX_3_RESTORED_IDS.has(id) || BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS.has(id)
       // DIAGRAMS-1 PR-1b: eight figure-withheld rows served again once their official figure is bound.
-      || UNWITHHELD_BY_DIAGRAMS1_PR1B.has(id);
+      || UNWITHHELD_BY_DIAGRAMS1_PR1B.has(id)
+      // BANK-UNWITHHOLD-1: twenty more figure-withheld rows served again after a blind re-solve.
+      || UNWITHHELD_BY_BANK_UNWITHHOLD_1.has(id);
     const bad = BANK_FIX_1_PR2.filter((e) => e.verdict === "withheld" && !(e.surface === "bank" && servedAgain(e.id))).filter((e) => {
       const set = e.surface === "bank" ? WITHHELD_QUESTION_IDS : e.surface === "hpq" ? HPQ_WITHHELD_IDS : PROMPT_D_WITHHELD_IDS;
       return !set.has(e.id) || isServedOn(e) || !e.category;
@@ -284,13 +310,12 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCQ-S-CTRL-029 key and steps are only a table header.
   //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCQ-S-CTRL-037 stored key and steps belong to another question.
   //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCO-S-CTRL-011 stem needs a labelled diagram; no figure bound.
-  //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): PYQ-S-2025-MAG-006 needs three unbound diagrams; key carries another question's text.
+  //   (PYQ-S-2025-MAG-006, withheld by BANK-FIX-5, is served again from 2026-10-10 BANK-UNWITHHOLD-1: BANK-FIX-6 re-keyed it, its figure is bound, blind re-solve agreed.)
   //   2026-10-10 BANK-FIX-6 (C2): APQ-M-TRIG-011 and APQ-M-TRIG-016 are defined only by an image (figure); no working can be derived from the text.
   const LATER_WITHHOLDS: Record<string, readonly string[]> = {
     "trigonometry": ["APQ-M-TRIG-011", "APQ-M-TRIG-016"],
     "quadratic-equations": ["LTG-M-QE-284"],
     "control-and-coordination": ["SCQ-S-CTRL-029", "SCQ-S-CTRL-037", "SCO-S-CTRL-011"],
-    "magnetic-effects-of-electric-current": ["PYQ-S-2025-MAG-006"],
   };
   it("every later-lane withhold is withheld, not served, and in its chapter", () => {
     const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>

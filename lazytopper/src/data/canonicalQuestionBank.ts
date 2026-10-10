@@ -1931,22 +1931,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LTG-S-HERED-102", "LTG-S-HERED-106",
   // ---- BANK-FIX-1 PR-2 (2026-10-07): broken tagging, duplicates, missing figures, out-of-syllabus (withholds2.json) ----
   "PYQ-S-2026-ACID-012",        // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
-  "PYQ-S-ACID-001",             // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "APQ-M-ARC-001",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
-  "APQ-M-ARC-002",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
-  "APQ-M-ARC-003",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
-  "APQ-M-ARC-004",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
-  "APQ-M-ARC-006",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
-  "APQ-M-ARC-008",              // figure: Shaded sector is defined only by the Fibonacci-grid figure, which is missing (strategyHint says REQUIRES-FIGURE). The stem cannot identify which sector or radius is me...
-  "APQ-M-ARC-010",              // figure: The shaded segment and angle MON = 90 deg come only from the missing figure. The stem does not define the region. APQ source, not authored.
   "Z3-ARC-004",                 // figure: Figure shows a rounded-corner table but the inset corner looks square and no corner radius is given; text describes a plain rectangle (no circle content). Key still ca...
-  "APQ-S-CARB-005",             // figure: Stem depends on a reaction-scheme figure ('chemical changes shown') absent from text; X cannot be identified without it.
-  "CARB-EXMPLR-4-MCQ-005",      // figure: Options (i)-(iv) refer to NCERT structure figures not in the row; unanswerable without them.
-  "CARB-EXMPLR-4-MCQ-010",      // figure: Options are bare labels for missing electron-dot diagrams; option content not recoverable.
-  "CARB-EXMPLR-4-MCQ-016",      // figure: Options are bare labels for missing benzene structure drawings.
-  "CARB-EXMPLR-4-MCQ-022",      // figure: Options are bare labels for missing water electron-dot drawings.
-  "CARB-EXMPLR-4-MCQ-023",      // figure: Options are bare labels for missing hydrocarbon structures.
-  "CARB-EXMPLR-4-MCQ-024",      // figure: Structures (ii)-(iv) are a placeholder; answer depends on missing figure.
   "SCO-S-CARB-010",             // figure: Stem relies on 'structures of three hydrocarbons given below' which are absent; the answer cannot be determined without them.
   "PYQ-S-2026-CHEMRXN-013",     // figure: Part (i) asks to identify 'P' in a leaf cross-section diagram not present; answer fields are also truncated ('photosynthesis.'). Also mis-chaptered (Life Processes).
   "APQ-M-CIRC-009",             // figure: the official APQ item is internally inconsistent (D37): KL = 6, KM = LM = 5 force ∠K ≈ 53.13°, but the figure labels ∠K = 50° and the key 80° relies on that label.
@@ -1958,7 +1944,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-CG-007",          // figure: Case asks for P, Q, R read off the chart figure (not in text); stem also has Hindi page-header junk and the answer is garbled.
   "SCO-S-ELEC-011",             // figure: Depends on three circuit diagrams (I, II, III) whose topology is not in the text; cannot be answered or reconstructed without them.
   "PYQ-S-ELEC-001",             // figure: Which wire (A or B) has higher resistivity depends entirely on the slopes in the V-I graph, which is not in the text; answer is also mojibake-damaged.
-  "PYQ-S-ELEC-003",             // figure: Part (iii) asks which of graphs A/B is series vs parallel; the answer depends on the graph slopes, which are not given and cannot be reconstructed without inventing fi...
   "SCQ-S-HERED-043",            // figure: Part (a) 'Fill in the boxes' depends on a cross diagram not present in the text; boxes cannot be answered without inventing the figure.
   "SCQ-S-HERED-042",            // figure: Asks to identify male/female 'in the figures' and fill blanks 3 to 8 that exist only in the absent figure; cannot be answered from text.
   "HERED-EXMPLR-8-LA-002",      // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
@@ -1972,15 +1957,10 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-MAG-003",              // figure: The directions of the field and the particle's entry exist only in the absent figure ('as shown'), so the direction of force cannot be derived from the row text.
   "SCQ-S-MAG-024",              // figure: 'Identify the poles of the magnet in the given figure' — the figure (labels A1, B1, field-line directions) is not in the row's text and cannot be reconstructed from it.
   "SCQ-S-MAG-041",              // figure: Part (b) asks the direction of the alpha-particle's deflection 'as shown below'; field and velocity directions exist only in the unbound figure, and the row's steps ju...
-  "METAL-EXMPLR-3-MCQ-036",     // figure: Options (a)-(d) are four cell diagrams that are not in the row; only the correct set-up is hinted, the three wrong figures are unknown. Cannot be answered or reconstru...
   "PYQ-S-2026-ENV-001",         // figure: Stem relies on 'the given figure' of trophic levels T1–T5; no figure or description is carried by the row, so which label is the top level cannot be determined from text.
   "SCO-S-ENV-015",              // figure: Needs the river/sewage diagram and graph locating points A-D; row carries no description of where A-D are, so the answer cannot be determined.
   "SCO-S-ENV-017",              // figure: Needs the numbered energy-flow arrow diagram; row does not say which arrow is which, so options '4 3', '2 1' etc. are unanswerable.
-  "APQ-M-POLY-001",             // figure: Options are 'Graph (a)'-'Graph (d)' with no diagramDescription; the four graphs are not in the row, so the MCQ cannot be answered.
   "PYQ-M-2026-POLY-005",        // figure: Bound figure is a cuboidal lamp shade (24×12×17 cm), not the Chenab parabolic arch with A, P, Q. Zeroes/span must be read from the arch diagram, so the row is unanswer...
-  "SQP-M-POLY-001",             // figure: Question is entirely about a graph not present in the text ('The given linear polynomial y = f(x)'); answer cannot be determined without it.
-  "APQ-M-STAT-003",             // figure: Needs the weight frequency table, which is absent; the row carries no table data (steps say REQUIRES-FIGURE), so it cannot be answered or reconstructed.
-  "APQ-M-STAT-008",             // figure: Needs the pyramid graph of MP ages; the row carries only Σf/Σfx totals, not the age-group data, so the figure cannot be reconstructed from the row.
   "APQ-M-TRI-005",              // figure: x and y are undefined in the stem and the row carries no figure description ('REQUIRES-FIGURE' placeholder). Unanswerable.
   "APQ-M-TRI-008",              // figure: Figure matches (right angle B, PT∥AB, SR∥BC, QT = 8 cm) but gives no AB/BC or position of P; with only AC = 25 and QT = 8 the area of ΔPQR is not determined. Steps' RC...
   "APQ-M-TRIG-003",             // figure: The 'solved problem shown below' (its steps) is not included in the row; question cannot be answered.
@@ -2112,7 +2092,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LTG-M-QE-284",               // owner ruling 2026-10-07 (CI-1 13:0xZ): part (iii) 'greatest height' via equal roots = maxima, OUT (generated CBQ; withheld, not deleted)
   // BANK-FIX-5 (2026-10-10): BANK-AUDIT-2 wrong-key rows that cannot be re-keyed from the row (ledger: bankFix5Ledger.ts)
   "PYQ-S-2026-CHEMRXN-019",     // wrong-key: garbled multi-part item from another chapter that needs diagrams; the key covers only (B)(c)
-  "PYQ-S-2025-MAG-006",         // wrong-key: needs three unbound diagrams; the key carries heart-circulation text from another question
   "SCQ-S-CTRL-029",             // wrong-key: the key and steps are only a table header; no answer to recover from the row
   "SCQ-S-CTRL-037",             // wrong-key: the stored key and steps belong to another question
   "SCO-S-CTRL-011",             // needs-figure: the stem needs a labelled diagram and no figure is bound (a later DIAGRAMS item)

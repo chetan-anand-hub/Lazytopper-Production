@@ -48,8 +48,7 @@ export const CARBON_COMPOUNDS_APQ: CanonicalQuestion[] = [
     answer: "Ethene",
     solutionSteps: ["Based on the marking scheme, the chemical transformations shown lead to ethene (C2H4) — an unsaturated hydrocarbon with one C=C double bond.", "Ethene decolourises bromine water and is the immediate dehydration product of ethanol."],
     finalAnswer: "(b) Ethene",
-    ncertRef: "APQ Science-PQ2 Q5", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: chemical-change diagram showing conversions leading to compound X." },
+    ncertRef: "APQ Science-PQ2 Q5", isCompetencyBased: true },
 
   // Science-PQ2 Q6 (Section A, MCQ, 1 mark)
   { id: "APQ-S-CARB-006", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Electron Dot Structure — Nitrogen Molecule", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Remembering",
