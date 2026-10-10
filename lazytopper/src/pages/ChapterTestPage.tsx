@@ -54,6 +54,11 @@ import {
   gradeChapterTestUpload,
   type ObjectiveScore,
 } from "../services/chapterTestGradeService";
+import {
+  saveChapterTestPaper,
+  loadChapterTestPaper,
+  deleteChapterTestPaper,
+} from "../services/chapterTestPaperStore";
 // BANK-LEAN-1 (C3): the chapter-test variants join to the question bank (by-concept
 // lens), so they live in scorecardBankLenses — scorecardVariants stays bank-free.
 import {
@@ -243,7 +248,11 @@ export default function ChapterTestPage() {
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
-  const [reopen, setReopen] = useState<{ record: SessionRecord; response: WorksheetGradeResponse | null } | null>(null);
+  const [reopen, setReopen] = useState<{
+    record: SessionRecord;
+    response: WorksheetGradeResponse | null;
+    awaitingDetail?: string;
+  } | null>(null);
 
   // GRADING-JOBS-1 J2 — a background grade of this chapter's test survives a reload: the paper,
   // its frozen objective score and its code are stored WITH the job (the answers were already
@@ -307,6 +316,16 @@ export default function ChapterTestPage() {
       topicKey,
       response: partialResponse,
     });
+    // PENDING-UPLOAD-1: keep the SAME paper + frozen objective so "Upload later" can come
+    // back to it, on this device or any other signed-in one (text only, never an image).
+    saveChapterTestPaper(user, {
+      code: nomen.code,
+      name: nomen.name,
+      subject,
+      topicKey,
+      paper,
+      objective: obj,
+    });
     if (progressKey && typeof window !== "undefined") {
       try {
         window.sessionStorage.removeItem(progressKey);
@@ -318,7 +337,7 @@ export default function ChapterTestPage() {
     setScorecardOpen(true);
     setPhase("results");
     void loadRecords();
-  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, topicKey, progressKey, loadRecords]);
+  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, subject, topicKey, progressKey, loadRecords]);
 
   // Keep a LIVE ref to the latest finishToPartial so the timer's auto-submit scores
   // with CURRENT answers — the interval effect must NOT re-subscribe on every keystroke
@@ -443,6 +462,8 @@ export default function ChapterTestPage() {
           setResultsPhase("full");
           setScorecardOpen(true);
           fairUse.noteGraded();
+          // Fully graded: the record + per-question payload are the durable copy now.
+          if (outcome.response.pendingCount === 0) deleteChapterTestPaper(user, nomen.code);
           trackUxEvent("chapter_test_complete", "ChapterTestPage", {
             topicKey,
             score: `${outcome.response.gradedMarksAwarded}/${outcome.response.gradedMarksTotal}`,
@@ -535,16 +556,51 @@ export default function ChapterTestPage() {
   }, [navigate, grade, subject, topicKey]);
 
   // ── Re-open a stored test read-only ──────────────────────────────────────────
+  // PENDING-UPLOAD-1: a pending test re-opens ITS OWN paper on the upload step (this device's
+  // copy, else the server snapshot). The grade then attaches to the existing record: same code,
+  // same worksheetId (so the fair-use paper pass and MI identity are the same paper's).
+  const openPendingUpload = useCallback(
+    async (record: SessionRecord) => {
+      const snap = await loadChapterTestPaper(user, record.id);
+      if (snap) {
+        setReopen(null);
+        setFullResponse(null);
+        setGradeError(null);
+        setResumedCt({ paper: snap.paper, objective: snap.objective, code: snap.code, name: snap.name });
+        setNomen({ code: snap.code, name: snap.name });
+        setObjective(snap.objective);
+        setResultsPhase("partial");
+        setScorecardOpen(false);
+        setPhase("results");
+        return;
+      }
+      setReopen({
+        record,
+        response: null,
+        awaitingDetail:
+          "We couldn’t find the saved copy of this paper on this device or online. Open it on the device you sat it on, or start a new one.",
+      });
+    },
+    [user],
+  );
+
   const openStored = useCallback(
     async (record: SessionRecord) => {
-      let response: WorksheetGradeResponse | null = null;
-      if (record.status !== "pending-upload") {
-        const payload = await getSessionPerQuestion(user?.uid, record.perQuestionRef);
-        response = payload?.response ?? null;
+      // A submitted-but-not-uploaded test is stored as "partial" (its objective rows count as
+      // graded) with NO per-question payload; "pending-upload" is the zero-graded case. Either,
+      // with nothing graded from the sheet yet, goes back to the upload step.
+      if (record.status === "pending-upload") {
+        await openPendingUpload(record);
+        return;
       }
-      setReopen({ record, response });
+      const payload = await getSessionPerQuestion(user?.uid, record.perQuestionRef);
+      if (record.status === "partial" && !payload?.response) {
+        await openPendingUpload(record);
+        return;
+      }
+      setReopen({ record, response: payload?.response ?? null });
     },
-    [user?.uid],
+    [user?.uid, openPendingUpload],
   );
 
   const currentQuestion = paper?.questions.find((q) => q.qNumber === currentQNumber) ?? null;
@@ -569,6 +625,12 @@ export default function ChapterTestPage() {
               year: "numeric",
             }),
             response: reopen.response,
+            awaitingDetail: reopen.awaitingDetail,
+            // Awaiting-sheet records offer "Upload answer sheet" (also a retry after a failed read).
+            onUploadSheet:
+              reopen.record.status !== "graded" && !reopen.response
+                ? () => void openPendingUpload(reopen.record)
+                : undefined,
             onDone: () => setReopen(null),
           })}
           onClose={() => setReopen(null)}
