@@ -1249,7 +1249,6 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
   },
   "magnetic-effects-of-electric-current": {
     "Bar Magnet": "Right-hand Rules & Field Lines",
-    "Current-Carrying Conductors": "Right-hand Rules & Field Lines",
     "Electromagnet": "Right-hand Rules & Field Lines",
     "Electromagnets — core material": "Right-hand Rules & Field Lines",
     "Magnetic Field": "Right-hand Rules & Field Lines",
@@ -1695,8 +1694,6 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Quadratic Equations": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
     "Standard Form": { reason: "concept-gap", note: "audit (verified): identifying/reducing to standard form ax^2+bx+c=0 (propose concept \"Standard Form & Forming Quadratic Equations\")" },
     "Sum and Product of Roots": { reason: "other-chapter", note: "audit (verified): OTHER-CHAPTER: polynomials (zeroes-coefficient relation)" },
-    "Word Problems (Discriminant – Area Applications)": { reason: "off-syllabus", note: "off-syllabus: rows (Z3-QE-005/006) ask for MAXIMUM area — vertex/optimisation is outside 2026-27 QE" },
-    "Word Problems (Projectile Height)": { reason: "off-syllabus", note: "off-syllabus: row Z3-QE-002 part (iv) asks maximum height (vertex/optimisation)" },
   },
   "arithmetic-progression": {
     "Derivation of nth Term and Sum of n Terms": { reason: "spans-concepts", note: "spans-concepts: rows derive BOTH the nth-term and the sum formula (fix round 1, controller C1; same treatment as the other dual label)" },

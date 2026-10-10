@@ -371,7 +371,7 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(a) Ca(OH)₂ + CO₂ → CaCO₃ + H₂O\n(b) Zn + 2AgNO₃ → Zn(NO₃)₂ + 2Ag\n(c) 2Al + 3CuCl₂ → 2AlCl₃ + 3Cu\n(d) BaCl₂ + K₂SO₄ → BaSO₄ + 2KCl",
     solutionSteps: [
-      "[1 mark] (a) Ca 1=1, O 2+2=3+1 wait: Ca(OH)₂ has 2 O; CO₂ has 2 O; CaCO₃ has 3 O; H₂O has 1 O. Total LHS O = 4, RHS O = 4 ✓. H 2=2 ✓. C 1=1 ✓. Balanced as written.",
+      "[1 mark] (a) Ca(OH)₂ + CO₂ → CaCO₃ + H₂O. Count atoms: Ca 1 = 1; C 1 = 1; O: 2 (Ca(OH)₂) + 2 (CO₂) = 4 on the left, 3 (CaCO₃) + 1 (H₂O) = 4 on the right; H 2 = 2. Balanced as written.",
       "[0.5 mark] (b) NO₃: 1 vs 2 → put 2 AgNO₃ and Zn(NO₃)₂. Ag: 2 → put 2 Ag. Zn 1=1 ✓.",
       "[0.5 mark] (c) Cl: 2 (CuCl₂) vs 3 (AlCl₃). LCM=6. Put 3 CuCl₂ and 2 AlCl₃. Al: 2 LHS = 2 RHS. Cu: 3 LHS = 3 RHS.",
       "[1 mark] (d) Cl 2=2 → put 2 KCl. K: 2=2. Ba 1=1, SO₄ 1=1 ✓.",
@@ -380,6 +380,7 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
       "(a) Ca(OH)₂+CO₂→CaCO₃+H₂O (b) Zn+2AgNO₃→Zn(NO₃)₂+2Ag (c) 2Al+3CuCl₂→2AlCl₃+3Cu (d) BaCl₂+K₂SO₄→BaSO₄+2KCl",
     ncertRef: "Exercise Q7",
     isCompetencyBased: false,
+    sourceOverride: "others",
   },
   {
     id: "CHEM-NCERT-1-LONG-001",

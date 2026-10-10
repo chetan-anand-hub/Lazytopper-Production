@@ -211,7 +211,8 @@ async function buildSet(pool: PQ[], opts: { overlay?: () => void; count?: number
   // ★ The AUTO-BUILD entry (a topic in the URL), not the preset chooser: "Quick drill"
   // commits marks=1, which would filter out every 3-mark written question this suite is
   // about. Same page, same code path for everything under test.
-  await screen.findAllByText(/^Question \d+: solve it\.$/);
+  // (30 s: the page's lazy bank build can exceed the 1 s default on a loaded machine.)
+  await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
   return view;
 }
 
@@ -258,6 +259,15 @@ async function saveTypedFor(n: number, text = "x = 4 and x = -2") {
 function finish() {
   fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
 }
+
+/** PRACTICE-HONESTY-1 — the confirm CTA reads "Check my written answers" (no count in the
+ *  label any more), so the COUNT these tests pinned is read from the "Ready to grade" rows:
+ *  one row per answer that will be sent. (Over-cap rows carry no tone modifier.) */
+function readyToGradeCount(confirm: HTMLElement): number {
+  return confirm.querySelectorAll(".qp-cf__row--pending, .qp-cf__row--diagnose").length;
+}
+const CHECK_CTA = "Check my written answers";
+const BACK_TO_SET = "Back to this set (see the steps)";
 
 // ---------------------------------------------------------------------------
 // 1 + 2 · SAVING COSTS NOTHING, AND NEITHER DOES AN MCQ
@@ -356,10 +366,11 @@ describe("4-6 · confirm once, call once", () => {
     const confirm = await screen.findByTestId("qp-confirm");
     // NAMED, not counted — a student who forgot one would otherwise pay for a second call.
     expect(within(confirm).getByText(/Q2 and Q3 have nothing saved/)).toBeInTheDocument();
-    expect(
-      within(confirm).getByRole("button", { name: "Go back and add Q2, Q3" }),
-    ).toBeInTheDocument();
-    expect(within(confirm).getByRole("button", { name: "Grade my 1 answer" })).toBeInTheDocument();
+    // PRACTICE-HONESTY-1 — the way back is "Back to this set (see the steps)"; the gaps stay
+    // NAMED in the note above.
+    expect(within(confirm).getByRole("button", { name: BACK_TO_SET })).toBeInTheDocument();
+    expect(within(confirm).getByRole("button", { name: CHECK_CTA })).toBeInTheDocument();
+    expect(readyToGradeCount(confirm)).toBe(1);
   });
 
   it("★★ EXACTLY ONE grade call for a session with THREE written answers", async () => {
@@ -371,7 +382,8 @@ describe("4-6 · confirm once, call once", () => {
     finish();
 
     const cta = await screen.findByTestId("qp-grade-batch");
-    expect(cta.textContent).toContain("Grade my 3 answers");
+    expect(cta.textContent).toContain(CHECK_CTA);
+    expect(readyToGradeCount(screen.getByTestId("qp-confirm"))).toBe(3);
     fireEvent.click(cta);
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
 
@@ -585,16 +597,18 @@ describe("12 · typed working rides the batch (AMEND-621)", () => {
     expect(sent.uploads ?? []).toEqual([]);
   });
 
-  it("★ it is COUNTED in 'Grade my N answers'", async () => {
+  it("★ it is COUNTED in the answers ready to be checked", async () => {
     await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
     await saveTypedFor(1);
     finish();
-    expect(await screen.findByRole("button", { name: "Grade my 1 answer" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: CHECK_CTA })).toBeInTheDocument();
+    expect(readyToGradeCount(screen.getByTestId("qp-confirm"))).toBe(1);
     // CONTROL — a SECOND typed answer moves the count, so the "1" was not a constant.
-    fireEvent.click(screen.getByRole("button", { name: /^(Keep practising this set|Go back and add )/ }));
+    fireEvent.click(screen.getByRole("button", { name: BACK_TO_SET }));
     await saveTypedFor(2, "y = 9");
     finish();
-    expect(await screen.findByRole("button", { name: "Grade my 2 answers" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: CHECK_CTA })).toBeInTheDocument();
+    expect(readyToGradeCount(screen.getByTestId("qp-confirm"))).toBe(2);
   });
 
   it("★★ the typed answer comes back MARKED on the graded sheet — not 'not graded'", async () => {
@@ -683,8 +697,8 @@ describe("13 · above the photo cap the excluded set is named, never a bare 400"
       new RegExp("One grade takes up to " + MAX_BATCH_UPLOADS + " answer photos\\. Q" +
         (MAX_BATCH_UPLOADS + 1) + " and Q" + (MAX_BATCH_UPLOADS + 2) + " are saved and not included"),
     )).toBeInTheDocument();
-    expect(within(confirm).getByRole("button", { name: "Grade my " + MAX_BATCH_UPLOADS + " answers" }))
-      .toBeInTheDocument();
+    expect(within(confirm).getByRole("button", { name: CHECK_CTA })).toBeInTheDocument();
+    expect(readyToGradeCount(confirm)).toBe(MAX_BATCH_UPLOADS);
 
     fireEvent.click(screen.getByTestId("qp-grade-batch"));
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
@@ -706,8 +720,8 @@ describe("13 · above the photo cap the excluded set is named, never a bare 400"
     finish();
     const confirm = await screen.findByTestId("qp-confirm");
     expect(confirm.textContent).not.toMatch(/not included/i);
-    expect(within(confirm).getByRole("button", { name: "Grade my " + MAX_BATCH_UPLOADS + " answers" }))
-      .toBeInTheDocument();
+    expect(within(confirm).getByRole("button", { name: CHECK_CTA })).toBeInTheDocument();
+    expect(readyToGradeCount(confirm)).toBe(MAX_BATCH_UPLOADS);
   }, 120_000);
 });
 
@@ -979,9 +993,9 @@ describe("15 · BUGFIX-1 · a failed grade is retryable", () => {
     fireEvent.click(screen.getByTestId("qp-grade-batch"));
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(2));
     await screen.findByRole("alert");
-    // Still the confirmation step, still showing the free MCQ mark (1 of 1).
+    // Still the confirmation step, still showing the free MCQ mark (1 / 1 MCQ mark).
     const confirm = screen.getByTestId("qp-confirm");
-    expect(confirm.querySelector(".qp-cf__big")?.textContent).toBe("1 of 1");
+    expect(confirm.querySelector(".qp-cf__big")?.textContent).toBe("1 / 1 MCQ mark");
 
     fireEvent.click(screen.getByTestId("qp-grade-batch"));
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(3));

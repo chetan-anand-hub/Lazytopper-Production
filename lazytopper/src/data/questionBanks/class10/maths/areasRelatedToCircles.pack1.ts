@@ -181,11 +181,11 @@ export const AREAS_RELATED_TO_CIRCLES_PACK1: CanonicalQuestion[] = [
       "Slant height = original radius = 7 cm [1]",
       "h = √(49 − 49/9) = √(392/9) = 14√2/3 cm [1]",
     ], finalAnswer: "r = 7/3 cm, h = 14√2/3 cm" , isCompetencyBased: true },
-  { id: "ARC-H04", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "OACB is a quadrant of a circle with centre O and radius 3.5 cm, where OA and OB are perpendicular radii. D is a point on the radius OA such that OD = 2 cm. The region of the quadrant lying outside triangle OBD is shaded. Find the area of (i) the quadrant OACB (ii) the shaded region. (Use π = 22/7)", solutionSteps: [
+  { id: "ARC-H04", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Minor Segment", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "OACB is a quadrant of a circle with centre O and radius 3.5 cm, where OA and OB are perpendicular radii. The chord AB is drawn, and the region of the quadrant lying outside triangle OAB (the minor segment ACB) is shaded. Find the area of (i) the quadrant OACB (ii) the shaded segment. (Use π = 22/7)", solutionSteps: [
       "[1 mark] (i) Area of quadrant OACB = (1/4)πr² = (1/4) × (22/7) × (3.5)² = 77/8 = 9.625 cm².",
-      "[1 mark] (ii) Since OB ⊥ OA, △OBD is right-angled at O: area = (1/2) × OB × OD = (1/2) × 3.5 × 2 = 3.5 cm².",
-      "[1 mark] Shaded area = area of quadrant − area of △OBD = 9.625 − 3.5 = 6.125 cm²."
-    ], finalAnswer: "(i) 9.625 cm² (ii) 6.125 cm²" , isCompetencyBased: true,
+      "[1 mark] (ii) Since OA ⊥ OB, △OAB is right-angled at O: area = (1/2) × OA × OB = (1/2) × 3.5 × 3.5 = 6.125 cm².",
+      "[1 mark] Area of segment ACB = area of quadrant − area of △OAB = 9.625 − 6.125 = 3.5 cm²."
+    ], finalAnswer: "(i) 9.625 cm² (ii) 3.5 cm²" , isCompetencyBased: true,
       sourceOverride: "others", },
   { id: "ARC-H05", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "AB and CD are two perpendicular diameters of a circle of radius 7 cm. Find the area of the shaded region formed by two opposite quadrants.", solutionSteps: [
       "[1 mark] Each quadrant subtends 90° at the centre: area of one quadrant = (90/360) × πr² = (1/4) × (22/7) × 7² = 38.5 cm².",
