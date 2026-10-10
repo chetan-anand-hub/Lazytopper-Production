@@ -8,8 +8,11 @@
  * Here, for the SAME student and window (Month, Me's default and the brief's):
  *   - at 2 graded answers Me's RENDERED page withholds and the brief names nothing — no concept,
  *     no figure, no mistake group;
- *   - above the gate (8 graded answers) Me names (its hero split renders) and the brief names the
- *     same student's real recorded concepts and Me's "marks on the table".
+ *   - above the gate (12 graded answers, 6 on each concept's bank questions) Me names (its hero
+ *     split renders) and the brief names the same student's real concepts and Me's "marks on the
+ *     table" — and, under COFOUNDER DECISION 61a (the STRICT brief), only concepts that HAVE a row
+ *     on Me's Concepts tab for the same window, so each concept carries ≥ MIN_HALF_SAMPLE (3)
+ *     graded answers in each half.
  *
  * Mutations this file turns RED: G — `briefFromModel` names concepts without asking
  * `weaknessNamingRung` (the #968 rule); WG (PR-2b, C-W1) — the MI widget names a group without
@@ -79,7 +82,7 @@ const CHAPTER = "arithmetic-progression";
 const WITHHOLD = /We will not name a weakness from one or two questions/;
 
 let n = 0;
-function attempt(agoMs: number, scored: number, available: number): PracticeAttempt {
+function attempt(agoMs: number, scored: number, available: number, questionId?: string): PracticeAttempt {
   n += 1;
   return {
     id: `a${n}`,
@@ -87,7 +90,7 @@ function attempt(agoMs: number, scored: number, available: number): PracticeAtte
     subject: "maths",
     topicKey: CHAPTER,
     topicName: "Arithmetic Progression",
-    questionId: `q${n}`,
+    questionId: questionId ?? `q${n}`,
     marksScored: scored,
     marksAvailable: available,
     mode: "graded",
@@ -171,8 +174,15 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
     cleanup();
   });
 
-  it("★ above the gate (8 graded answers): Me names, and the brief names the same student's real concepts and Me's figure", async () => {
-    H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h, i) => attempt(h * HOUR, i % 2, 2));
+  it("★ above the gate (12 graded answers): Me names, and the brief names the same student's real concepts and Me's figure", async () => {
+    // COFOUNDER DECISION 61a — the answers are on bank questions of the two concepts (6 each, so each
+    // concept has a Me row: ≥ 3 per half in the Month), never a full mark (nothing is won back).
+    const ROWS = ["AP from nth Term", "AP from Sum Formula"] as const;
+    H.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130, 160, 200, 250, 300].map((h, i) => {
+      const qid = `AP-GATE-${i % 2}-${i}`;
+      H.bank[qid] = { subtopic: ROWS[i % 2], section: "B", topicKey: CHAPTER };
+      return attempt(h * HOUR, Math.floor(i / 2) % 2, 2, qid);
+    });
     H.mistakes = MISTAKES();
 
     const m = await readStudyModel(UID, { window: TUTOR_BRIEF_WINDOW, subject: "maths", nowMs: NOW });
@@ -185,6 +195,9 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
     // ME-CONCEPT-1 — the brief names the EXAM TRENDS concepts each mistake's questionId resolves
     // to (never the stored labels "Identification of AP" / "Sum of n Terms").
     expect(brief.topic.weakConcepts).toEqual(["nth Term", "Sum of n Terms"]);
+    // == Me: each named concept is a row on Me's Concepts tab for the same subject and window.
+    const meRows = m.progress.concepts.filter((r) => r.examConcept).map((r) => r.label).sort();
+    expect(meRows).toEqual(["Sum of n Terms", "nth Term"]);
     expect(brief.mistakes.marksLostRecent).toBe(split!.lost);
     expect(brief.mistakes.topType).toBe("knowledge gap");
 

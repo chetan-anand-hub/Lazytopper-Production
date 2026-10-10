@@ -54,7 +54,7 @@ import { getActiveProgressUser } from "./studentProgressStore";
 // `await import("./progressBankIndex")` inside the two async reads below (see
 // `loadBankLookup`), so a page that only renders a trend (Topic Hub) no longer ships
 // the question bank on first load. Every number is unchanged: the same function runs.
-import { normalizeSection, type BankConcept, type ConceptRowRef } from "./progressBankShape";
+import { conceptEvidenceKey, normalizeSection, type BankConcept, type ConceptRowRef } from "./progressBankShape";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { isBoardChapterKey } from "../config/syllabus2026-27";
 import { MISTAKE_TYPE_LABEL, isGradedQuestion, isLossOnlyNotAttempted } from "../lib/mistakeDisplay";
@@ -940,7 +940,7 @@ function buildConceptSectionRungs(
       conceptPts.set(ref.key, g);
       // Won-back evidence: a FULLY correct graded answer (no mark lost).
       if (scored >= available) {
-        (evidence.fullyCorrect[ref.key] ??= []).push({ ts, ...answer });
+        (evidence.fullyCorrect[conceptEvidenceKey(ref)] ??= []).push({ ts, ...answer });
       }
     }
     const sec = normalizeSection(c.section);

@@ -51,6 +51,15 @@ export function conceptRowRef(c: BankConcept | null | undefined, examConcept: st
 }
 
 /**
+ * Won-back evidence key. A mapped row key already carries its chapter; an UNMAPPED row key is the bare subtopic
+ * (kept so nothing disappears), so the evidence is filed under chapter + subtopic: a same-named label in another chapter
+ * is a different concept and must never win this one back.
+ */
+export function conceptEvidenceKey(ref: ConceptRowRef): string {
+  return ref.examConcept ? ref.key : `${ref.chapter}|${ref.key}`;
+}
+
+/**
  * True when a subtopic string is a degenerate chapter-echo / catch-all placeholder
  * that must NOT be shown as a distinct concept. Suppressing these keeps the concept
  * rung honest — a single whole-chapter bucket is not a concept.

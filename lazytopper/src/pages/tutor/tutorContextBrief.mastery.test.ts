@@ -115,8 +115,10 @@ describe("ruling 6 + ME-ENGINE-1 PR-2 — no mastery or percentage field reaches
 
   it("CONTROL — the same rich fixture DOES produce real figures (the guard is not vacuous)", async () => {
     const brief = await assembleTutorBrief({ uid: "u-1", topicKey: "real-numbers", subject: "maths", window: "week", nowMs: NOW });
-    // ME-CONCEPT-1 — Exam Trends concepts, resolved through each mistake's questionId.
-    expect(brief.topic.weakConcepts).toEqual(["Fundamental Theorem of Arithmetic", "Irrationality Proofs"]);
+    // ME-CONCEPT-1 + D61a (strict): a concept is named only if it has a row on Me. This fixture's attempts are not on
+    // bank ids, so no concept has a Me row and the brief names none (the positive control is pin S in
+    // progressReadModel.conceptRows.test.tsx).
+    expect(brief.topic.weakConcepts).toBeUndefined();
     expect(brief.topic.trend).toBeDefined();
     expect(brief.mistakes.topType).toBe("knowledge gap");
     expect(typeof brief.mistakes.marksLostRecent).toBe("number");
