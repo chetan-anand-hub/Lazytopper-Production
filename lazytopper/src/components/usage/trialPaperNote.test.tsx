@@ -26,21 +26,21 @@ describe("trialPaperCut", () => {
 describe("trialPaperNoteCopy", () => {
   it("full allowance: 'we graded the first 5 questions' + the plain upgrade line", () => {
     const c = trialPaperNoteCopy(trialPaperCut(38, 5)!, 5);
-    expect(c.lead).toBe("Free plan: we graded the first 5 questions.");
+    expect(c.lead).toBe("Free trial: we graded the first 5 questions.");
     expect(c.body).toBe("The other 33 questions were not graded — no marks, and nothing added to your score, progress or mistakes.");
     expect(c.upgrade).toBe("Premium grades the whole paper.");
   });
   it("fewer checks left than the allowance: says so with the real number", () => {
     expect(trialPaperNoteCopy(trialPaperCut(38, 3)!, 5).lead).toBe(
-      "Free plan: you had 3 checks left today, so we graded the first 3 questions.",
+      "Free trial: you had 3 checks left today, so we graded the first 3 questions.",
     );
     expect(trialPaperNoteCopy(trialPaperCut(2, 1)!, 5).lead).toBe(
-      "Free plan: you had 1 check left today, so we graded the first question.",
+      "Free trial: you had 1 check left today, so we graded the first question.",
     );
     expect(trialPaperNoteCopy(trialPaperCut(2, 1)!, 5).body).toContain("The other 1 question was not graded");
   });
   it("unknown allowance: no guessed number", () => {
-    expect(trialPaperNoteCopy(trialPaperCut(38, 3)!, null).lead).toBe("Free plan: we graded the first 3 questions.");
+    expect(trialPaperNoteCopy(trialPaperCut(38, 3)!, null).lead).toBe("Free trial: we graded the first 3 questions.");
   });
   it("no urgency, discount or premium claim in any sentence", () => {
     const c = trialPaperNoteCopy(trialPaperCut(38, 5)!, 5);

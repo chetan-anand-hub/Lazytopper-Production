@@ -251,7 +251,7 @@ describe("TRIAL-PAPER-1 · a trial paper grades its FIRST questions, honestly", 
     expect(sentQNumbers()).toEqual([1, 2, 3, 4, 5]);
 
     const note = await screen.findByTestId("trial-paper-note");
-    expect(note.textContent).toContain("Free plan: we graded the first 5 questions.");
+    expect(note.textContent).toContain("Free trial: we graded the first 5 questions.");
     expect(note.textContent).toContain(
       "The other 33 questions were not graded — no marks, and nothing added to your score, progress or mistakes.",
     );
@@ -264,7 +264,7 @@ describe("TRIAL-PAPER-1 · a trial paper grades its FIRST questions, honestly", 
     expect(document.body.textContent).toContain("5/38 graded");
     const dialog = screen.getByRole("dialog");
     expect(dialog.textContent).toMatch(/5\s*of\s*38/);
-    expect(dialog.textContent).toContain("Free plan: we graded the first 5 questions. Premium grades the whole paper.");
+    expect(dialog.textContent).toContain("Free trial: we graded the first 5 questions. Premium grades the whole paper.");
 
     // Nothing after Q5 is ever recorded as a mistake.
     await waitFor(() => expect(H.recordMistake.mock.calls.length).toBeGreaterThan(0));
@@ -281,7 +281,7 @@ describe("TRIAL-PAPER-1 · a trial paper grades its FIRST questions, honestly", 
     await confirmFirst(3);
     expect(sentQNumbers()).toEqual([1, 2, 3]);
     const note = await screen.findByTestId("trial-paper-note");
-    expect(note.textContent).toContain("Free plan: you had 3 checks left today, so we graded the first 3 questions.");
+    expect(note.textContent).toContain("Free trial: you had 3 checks left today, so we graded the first 3 questions.");
     expect(note.textContent).toContain("The other 35 questions were not graded");
     expect(notGradedLabels()).toEqual(range(4, 38).map((n) => `Q${n}`));
   });
@@ -305,7 +305,7 @@ describe("TRIAL-PAPER-1 · a trial paper grades its FIRST questions, honestly", 
     expect(screen.queryByTestId("fair-use-confirm")).toBeNull();
     expect(screen.queryByTestId("trial-paper-note")).toBeNull();
     expect(document.body.textContent).toContain("38/38 graded");
-    expect(document.body.textContent).not.toContain("Free plan");
+    expect(document.body.textContent).not.toContain("Free trial");
   });
 
   it("★★ DARK control (enforced:false) -> the whole paper, no note", async () => {

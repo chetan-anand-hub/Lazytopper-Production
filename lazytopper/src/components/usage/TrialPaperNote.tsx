@@ -26,7 +26,7 @@ export default function TrialPaperNote({
   const copy = trialPaperNoteCopy(cut, allowance);
   return (
     <section className="lt-usage lt-usage--paper" role="status" aria-live="polite" data-testid="trial-paper-note">
-      <div className="lt-usage__eyebrow">Free plan</div>
+      <div className="lt-usage__eyebrow">Free trial</div>
       <p className="lt-usage__lead">{copy.lead}</p>
       <p className="lt-usage__body">{copy.body}</p>
       <ul className="lt-usage__notgraded" aria-label="Questions not graded" data-testid="trial-paper-not-graded">

@@ -297,8 +297,8 @@ export function trialPaperNoteCopy(cut: TrialPaperCut, allowance: number | null 
   const g = cut.graded;
   const lead =
     n !== null && g < n
-      ? `Free plan: you had ${g} ${g === 1 ? "check" : "checks"} left today, so we graded the first ${questionsPhrase(g)}.`
-      : `Free plan: we graded the first ${questionsPhrase(g)}.`;
+      ? `Free trial: you had ${g} ${g === 1 ? "check" : "checks"} left today, so we graded the first ${questionsPhrase(g)}.`
+      : `Free trial: we graded the first ${questionsPhrase(g)}.`;
   const rest = cut.total - g;
   const body = `The other ${rest} ${rest === 1 ? "question was" : "questions were"} not graded — no marks, and nothing added to your score, progress or mistakes.`;
   return { lead, body, upgrade: "Premium grades the whole paper." };
