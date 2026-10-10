@@ -502,6 +502,15 @@
       "subject": "science",
       "questions": [
         {
+          "id": "APQ-S-LIFE-002",
+          "questionText": "Oxygen saturation levels refer to the extent haemoglobin is bound to oxygen. As altitude increases, the atmospheric pressure decreases. Which of the following graphs correctly represents the oxygen saturation levels as altitude increases?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] At higher altitude, atmospheric pressure (and pO2) is lower ⟹ less O2 binds to haemoglobin ⟹ O2 saturation decreases as altitude increases. Graph Q shows a decreasing trend matching this physiology."
+          ]
+        },
+        {
           "id": "APQ-S-LIFE-003",
           "questionText": "Patient X was suffering from a pancreatic condition due to which the pancreas was not functioning adequately. Which of the following is a doctor likely to suggest to such an individual?",
           "marks": 1,
@@ -518,16 +527,6 @@
           "solutionSteps": [
             "[1 mark] Lizards respire and release CO2 inside the jar, increasing CO2 concentration around plant X.",
             "[1 mark] Higher CO2 availability + adequate light ⟹ higher rate of photosynthesis in X compared to Y (which has limited CO2 in the closed jar)."
-          ]
-        },
-        {
-          "id": "APQ-S-LIFE-005",
-          "questionText": "Proteinuria is a condition in which significant amounts of protein can be detected in urine. Which process in the nephron is likely to be affected causing proteinuria? Justify.",
-          "marks": 2,
-          "section": "B",
-          "solutionSteps": [
-            "[1 mark] Filtration: normally large proteins are too big to pass through the glomerular filter. If filtration becomes leaky, proteins enter the filtrate.",
-            "[1 mark] Selective reabsorption: even if small amounts pass through, they're normally reabsorbed back into blood. If reabsorption fails, proteins remain in urine ⟹ proteinuria."
           ]
         }
       ]
@@ -965,6 +964,15 @@
       "subject": "maths",
       "questions": [
         {
+          "id": "APQ-M-TRI-003",
+          "questionText": "Harsha made a wind chime using a frame and metal rods. She punched 8 holes in the frame, each 2 cm apart, and then hung 6 metal rods from the frame. The ends of the metal rods are aligned over a line shown by the dotted line. If all of the rods are straight and not swaying, then what is the length of Rod P?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] The 8 holes are 2 cm apart, so the first and last holes are 7 × 2 = 14 cm apart: the 29 cm rod hangs from the first hole, the 6 cm rod from the last, and Rod P from the 5th hole, 4 × 2 = 8 cm from the first. The rods hang from the straight frame edge and their ends lie on the straight dotted line, so by similar triangles (BPT) the length falls evenly across the frame: Rod P = 29 − (29 − 6) × 8/14 = 29 − 92/7 = 111/7 cm. Answer: (d) 111/7 cm."
+          ]
+        },
+        {
           "id": "APQ-M-TRI-007",
           "questionText": "State and prove Basic proportionality theorem. In ΔABC, if DE ∥ BC, AD = x, DB = x − 2, AE = x + 2 and EC = x − 1, then using the above result, find the value of x.",
           "marks": 5,
@@ -988,19 +996,6 @@
             "[1 mark] Cross-multiply: x(x + 1) = (x − 1)(x + 3) ⇒ x² + x = x² + 2x − 3.",
             "[1 mark] The x² terms cancel: x = 2x − 3 ⇒ x = 3.",
             "[1 mark] Hence AD = x + 1 = 4 cm and AE = x + 3 = 6 cm (with DB = 2 cm, EC = 3 cm; ratios 4/2 = 6/3 ✓)."
-          ]
-        },
-        {
-          "id": "BX-TRI-D-002",
-          "questionText": "In △PQR, points A and B lie on PQ (A between P and B) and points C and D lie on PR such that AC ∥ BD ∥ QR. Given PA = 2 cm, AB = 3 cm, BQ = 4 cm and PC = 3 cm, find the lengths CD and DR.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] Parallel lines cut the two transversals PQ and PR in the same ratio (BPT applied repeatedly).",
-            "[1 mark] Along PQ the intercepts are PA : AB : BQ = 2 : 3 : 4.",
-            "[1 mark] Hence along PR, PC : CD : DR = 2 : 3 : 4.",
-            "[1 mark] PC corresponds to 2 parts and PC = 3 cm, so one part = 1.5 cm.",
-            "[1 mark] Therefore CD = 3 × 1.5 = 4.5 cm and DR = 4 × 1.5 = 6 cm."
           ]
         }
       ]

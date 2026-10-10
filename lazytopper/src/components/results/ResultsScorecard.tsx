@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
 import { MathText } from "../question/MathText";
 import {
@@ -51,6 +51,9 @@ import type {
 interface ResultsScorecardProps {
   variant: ScorecardVariant;
   onClose: () => void;
+  /** QP-GUEST-SIGNIN-1 — optional content shown right under the score (a guest's sign-in
+   *  card). Absent on every other caller, so their scorecards are unchanged. */
+  belowScore?: ReactNode;
 }
 
 /** The score hero + descriptor — marks (worksheet/tests) or attempts (quick practice). */
@@ -501,7 +504,7 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
   );
 }
 
-export default function ResultsScorecard({ variant, onClose }: ResultsScorecardProps) {
+export default function ResultsScorecard({ variant, onClose, belowScore }: ResultsScorecardProps) {
   // Close on Escape — modal etiquette without a modal library.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -545,6 +548,7 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
           ) : (
             <>
               <ScoreHero score={variant.score} />
+              {belowScore}
 
               {variant.pending && (() => {
                 // SCORECARD-MI-1 PR-2 — an answer that does not match its question is NOT an

@@ -837,7 +837,12 @@ function createGeminiClient(cfg) {
     // METER-1 (M3): the SAME firewalled record, handed to the ledger. NOT awaited.
     recordLedgerUsage(tokenRecord);
 
-    return { text, raw: data };
+    // TUTOR-FIX-1: ADDITIVE — the candidate's finish reason ('STOP', 'MAX_TOKENS', …) or null,
+    // so a caller can tell a complete reply from one the token budget cut off.
+    const finishReason =
+      (data && data.candidates && data.candidates[0] && data.candidates[0].finishReason) || null;
+
+    return { text, raw: data, finishReason };
   }
 
   async function* callGeminiStream(model, finalContents, config) {

@@ -28,6 +28,7 @@ import {
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
+import { ChapterTestPicker, CT_HUB_PARAM } from "../../components/practice/ChapterTestPicker";
 import { appendFullSubjectScope } from "../../components/practice/fullSubjectPractice";
 // BANK-LEAN-1 (P18): `import type`, NOT `import { type … }`. Under this repo's
 // `verbatimModuleSyntax`, the inline form is emitted as `import {} from "…"` — a
@@ -1695,6 +1696,10 @@ export default function DesktopPracticePage() {
   // CBQ-ENTRY-1 — the "Competency-based questions" card's chooser. `?cbq=1` (the ad
   // link, and the landing's "Practise CBQs") arrives with it already open (E4).
   const [cbqPickerOpen, setCbqPickerOpen] = useState(() => params.get(CBQ_HUB_PARAM) === "1");
+  // `?cbq=1` (the ad landing) wins over `?ct=1`: never two dialogs stacked.
+  const [ctPickerOpen, setCtPickerOpen] = useState(
+    () => params.get(CT_HUB_PARAM) === "1" && params.get(CBQ_HUB_PARAM) !== "1",
+  );
 
   // Map the legacy subject string from useSubjectContext onto the
   // L2 DesktopSubject union. Default to "Maths" when uncertain — this only
@@ -2249,28 +2254,53 @@ export default function DesktopPracticePage() {
         </div>
 
         {/* CBQ-ENTRY-1 (E1) — straight to a chapter's competency-based questions. Above
-            the scope card so it is in view without scrolling at 390px and on desktop. */}
-        <button
-          type="button"
-          className="lt-cbq-card"
-          aria-haspopup="dialog"
-          onClick={() => setCbqPickerOpen(true)}
-        >
-          <span className="lt-cbq-spine" aria-hidden />
-          <span className="lt-cbq-icon" aria-hidden>
-            <IconTarget size={20} />
-          </span>
-          <span className="lt-cbq-text">
-            <span className="lt-cbq-title">Competency-based questions (CBQs)</span>
-            <span className="lt-cbq-line">
-              Case-based questions like the board paper's Section E — pick a chapter
+            the scope card so it is in view without scrolling at 390px and on desktop.
+            CT-ENTRY-1 — the Chapter Test entry sits beside it: two columns from 1024px,
+            two compact tiles in one row below that (icon, title, "Pick a chapter"). */}
+        <div className="lt-entry-pair">
+          <button
+            type="button"
+            className="lt-cbq-card"
+            aria-haspopup="dialog"
+            onClick={() => setCbqPickerOpen(true)}
+          >
+            <span className="lt-cbq-spine" aria-hidden />
+            <span className="lt-cbq-icon" aria-hidden>
+              <IconTarget size={20} />
             </span>
-          </span>
-          <span className="lt-cbq-go" aria-hidden>
-            <IconArrowRight size={16} />
-          </span>
-        </button>
+            <span className="lt-cbq-text">
+              <span className="lt-cbq-title">Competency-based questions (CBQs)</span>
+              <span className="lt-cbq-line">
+                Case-based questions like the board paper's Section E — pick a chapter
+              </span>
+              <span className="lt-entry-short">Pick a chapter</span>
+            </span>
+            <span className="lt-cbq-go" aria-hidden>
+              <IconArrowRight size={16} />
+            </span>
+          </button>
+          <button
+            type="button"
+            className="lt-cbq-card lt-ct-card"
+            aria-haspopup="dialog"
+            onClick={() => setCtPickerOpen(true)}
+          >
+            <span className="lt-cbq-spine" aria-hidden />
+            <span className="lt-cbq-icon" aria-hidden>
+              <IconTimer size={20} />
+            </span>
+            <span className="lt-cbq-text">
+              <span className="lt-cbq-title">Chapter Tests</span>
+              <span className="lt-cbq-line">A timed test on one chapter, board-style — pick a chapter</span>
+              <span className="lt-entry-short">Pick a chapter</span>
+            </span>
+            <span className="lt-cbq-go" aria-hidden>
+              <IconArrowRight size={16} />
+            </span>
+          </button>
+        </div>
         <CbqChapterPicker open={cbqPickerOpen} onClose={() => setCbqPickerOpen(false)} />
+        <ChapterTestPicker open={ctPickerOpen} onClose={() => setCtPickerOpen(false)} />
 
         {topicHubFocusContext ? (
           <section
@@ -3157,6 +3187,59 @@ export default function DesktopPracticePage() {
             display: flex;
             flex: 0 0 auto;
             color: hsl(222, 47%, 24%);
+          }
+          /* ── CT-ENTRY-1 — the CBQ card and the Chapter Test card as one row: two
+             columns from 1024px; below that two compact tiles (icon over title, then
+             "Pick a chapter"), so both stay in view without a swipe. ───────────────── */
+          .lt-entry-pair {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 12px;
+          }
+          .lt-entry-short {
+            display: none;
+          }
+          .lt-ct-card .lt-cbq-spine {
+            background: hsl(152, 55%, 32%);
+          }
+          .lt-ct-card .lt-cbq-icon {
+            background: hsl(152, 45%, 94%);
+            color: hsl(152, 55%, 28%);
+          }
+          .lt-ct-card .lt-cbq-go {
+            color: hsl(152, 55%, 28%);
+          }
+          .lt-ct-card:hover {
+            border-color: hsl(152, 55%, 32%);
+          }
+          @media (max-width: 1023px) {
+            .lt-entry-pair {
+              gap: 10px;
+            }
+            .lt-entry-pair .lt-cbq-card {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 8px;
+              min-height: 44px;
+              padding: 12px 12px 12px 16px;
+            }
+            .lt-entry-pair .lt-cbq-icon {
+              width: 34px;
+              height: 34px;
+            }
+            .lt-entry-pair .lt-cbq-title {
+              font-size: 0.95rem;
+              line-height: 1.25;
+            }
+            .lt-entry-pair .lt-cbq-line,
+            .lt-entry-pair .lt-cbq-go {
+              display: none;
+            }
+            .lt-entry-pair .lt-entry-short {
+              display: block;
+              font-size: 12px;
+              color: hsl(220, 15%, 42%);
+            }
           }
           @media (min-width: 1024px) {
             .lt-practice-main-grid {
