@@ -260,8 +260,14 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   // Later lanes' owner-ordered withholds, by chapter: each lowers that chapter's floor by exactly one
   // row, and is pinned below as withheld, not served and in that chapter (dated, never a bare number).
   //   2026-10-07 CBQ-1 C3 (owner ruling CI-1 13:0xZ): LTG-M-QE-284 part (iii) maxima via equal roots, OUT.
+  //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCQ-S-CTRL-029 key and steps are only a table header.
+  //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCQ-S-CTRL-037 stored key and steps belong to another question.
+  //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): SCO-S-CTRL-011 stem needs a labelled diagram; no figure bound.
+  //   2026-10-10 BANK-FIX-5 (BANK-AUDIT-2 #1040): PYQ-S-2025-MAG-006 needs three unbound diagrams; key carries another question's text.
   const LATER_WITHHOLDS: Record<string, readonly string[]> = {
     "quadratic-equations": ["LTG-M-QE-284"],
+    "control-and-coordination": ["SCQ-S-CTRL-029", "SCQ-S-CTRL-037", "SCO-S-CTRL-011"],
+    "magnetic-effects-of-electric-current": ["PYQ-S-2025-MAG-006"],
   };
   it("every later-lane withhold is withheld, not served, and in its chapter", () => {
     const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>
