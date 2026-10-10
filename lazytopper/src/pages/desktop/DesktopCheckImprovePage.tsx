@@ -147,6 +147,10 @@ import { TRIAL_DAYS } from "../../services/subscriptionService";
 import FairUseLimitPanel from "../../components/usage/FairUseLimitPanel";
 import FairUseConfirm from "../../components/usage/FairUseConfirm";
 import { useFairUse } from "../../components/usage/useFairUse";
+// TRIAL-PAPER-1 - a trial paper graded only up to today's checks: the rest listed as
+// not graded, with an honest upgrade note.
+import TrialPaperNote from "../../components/usage/TrialPaperNote";
+import { trialPaperCut, trialPaperNoteCopy } from "../../components/usage/fairUseGate";
 import { prefetchKatexWhenIdle } from "../../components/question/MathText";
 
 // CT-KATEX-2: KaTeX's background idle prefetch is no longer armed by MathText for every
@@ -1112,6 +1116,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   const ciJob = useGradingJob();
   const ciJobStore = useMemo(() => sessionJobStore("check-improve-paper"), []);
   const ciLastLimitRef = useRef<number | null>(null);
+  // TRIAL-PAPER-1 — the R the paper on screen was graded with (null = the whole paper).
+  const [ciPaperLimit, setCiPaperLimit] = useState<number | null>(null);
 
   // ── OVERLAY RETURN (tutor⇄C&I overlay, build v1.1) — present only when hosted ──────
   // Build the just-graded SessionRecord IN-PROCESS with the SAME builder the persist path
@@ -1717,6 +1723,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     setGradeStage(null);
     setSaveStatus("idle");
     ciLastLimitRef.current = limitTo;
+    setCiPaperLimit(limitTo);
     if (!mode.continueFrom) ciJob.reset();
     // FAIR-USE-UI-1 (UI2): the student agreed to "we'll mark the first R" - EXACTLY the
     // first R questions of the paper, in its own order, are sent. Null = all, as before.
@@ -3173,6 +3180,11 @@ const DesktopCheckImprovePageInner: React.FC<{
 
   if (wsResult) {
     const ws = wsResult;
+    // TRIAL-PAPER-1 — a trial paper sent with "the first R": the questions after R were
+    // never sent (never graded, charged or counted). Null for every whole-paper grade.
+    const paperCut = detectedQuestions ? trialPaperCut(detectedQuestions.length, ciPaperLimit) : null;
+    const paperAllowance = fairUse.snapshot?.trial?.limits.checksPerDay ?? null;
+    const paperNote = paperCut ? trialPaperNoteCopy(paperCut, paperAllowance) : null;
     return withChrome(
       <div
         style={{
@@ -3194,7 +3206,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           showBack
           onBack={resetToInput}
           eyebrow="Check & Improve · Graded paper"
-          title={`${ciCode ?? "Graded paper"} · ${ws.gradedCount}/${ws.totalQuestions} graded`}
+          title={`${ciCode ?? "Graded paper"} · ${ws.gradedCount}/${paperCut ? paperCut.total : ws.totalQuestions} graded`}
           description="Examiner-style grading of your whole question paper. Any page we couldn't read is marked pending — it is never scored 0."
           actions={
             <>
@@ -3223,6 +3235,9 @@ const DesktopCheckImprovePageInner: React.FC<{
               response: ws,
               saved: ciSaved,
               ...(isFreeMode ? { signUpToSave: freeSignUpToSave } : {}),
+              ...(paperCut && paperNote
+                ? { trialPaper: { total: paperCut.total, line: `${paperNote.lead} ${paperNote.upgrade}` } }
+                : {}),
               downloading,
               onReadSheet: () => setScorecardOpen(false),
               onDownloadGraded: () => void downloadGraded(buildMultiPrintProps()),
@@ -3258,6 +3273,13 @@ const DesktopCheckImprovePageInner: React.FC<{
           {/* PR-2 — "X of Y graded", every question that was not graded listed with its
               honest state (never folded into the score). */}
           <NotGradedList results={ws.results} />
+          {paperCut && detectedQuestions ? (
+            <TrialPaperNote
+              cut={paperCut}
+              allowance={paperAllowance}
+              labels={detectedQuestions.map((q) => `Q${q.questionNumber}`)}
+            />
+          ) : null}
           {ws.summary && (
             <p style={{ margin: "12px 0 0", fontSize: 13.5, color: TEXT_FG, lineHeight: 1.6 }}>
               {ws.summary}
