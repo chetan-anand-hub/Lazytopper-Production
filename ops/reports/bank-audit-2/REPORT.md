@@ -81,3 +81,16 @@ Checking every SERVED row's text, options and solutions (GUARD-3: 10928 rows, 29
 Syllabus guard passed — all banks and surfaces are clean.
 ```
 A second pass matched the guard's banned sub-topic list (copied from its live output) against every stem as whole words, skipping single generic words (Fossil, Darwin, Evolution, Biogas, Solar Energy, Constructions, Division Algorithm): **0 hits.**
+
+## Phase B — the 55 open findings of BANK-AUDIT-1 (`audit1-followup.csv`, 55 data rows)
+
+Status at the tip (runtime import): **all 55 are still served; none is withheld; none is in the BANK-FIX-1 ledger** (`BANK_FIX_1_PR1` + `BANK_FIX_1_PR2`); **42 of 55 now have a figure bound** by `getFiguresForQuestion`.
+Two Opus solver sub-agents (medium effort) re-solved each row as stored now:
+
+| verdict | rows |
+|---|---|
+| now-fine (old finding no longer applies; row correct) | **50** |
+| new-problem (old finding fixed, something else wrong) | **4** — `SQP-S-2023-CTRL-B-001` (½-marks unevenly split across brain parts), `PYQ-S-2026-ELEC-011` and `PYQ-S-2026-ELEC-012` (OR alternatives' step marks do not each total 5), `FND-L-QB-098` (low confidence: the step's justification may not match the bound figure) |
+| still-broken | **1** — `SCO-S-CTRL-011`: stem says "given diagram … labelled", no figure bound, unanswerable text-only; steps garbled → **withhold or bind the figure** |
+
+Most of the "fixed" rows were fixed by the DIAGRAMS / step-mark lanes after #960 (figures bound, `[N mark]` sums corrected); the CSV records each one.
