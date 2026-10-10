@@ -27,11 +27,14 @@ const { createTutorRoute } = require(path.join(SERVER, 'routes', 'tutor.cjs'));
 const { buildLedgerIncrement } = require(path.join(SERVER, 'services', 'usageLedger.cjs'));
 
 const OPTIONS = {
-  baseline: (cfg) => ({ ...cfg }), // today's route config, forced: no thinkingConfig, 900
+  // the PRE-FIX Tutor config, forced (no thinkingConfig, 900) — independent of what tutor.cjs passes now
+  baseline: (cfg) => { const { thinkingConfig, ...rest } = cfg; return { ...rest, temperature: 0.55, maxOutputTokens: 900 }; },
   A: (cfg) => ({ ...cfg, maxOutputTokens: 900, thinkingConfig: { thinkingBudget: 0 } }),
   B: (cfg) => ({ ...cfg, maxOutputTokens: 1600, thinkingConfig: { thinkingBudget: 512 } }),
   product: (cfg) => cfg, // whatever the route passes now (post-fix verification)
 };
+
+function MODEL_ARG() { return arg('model', 'gemini-2.5-flash'); }
 
 function arg(name, dflt) {
   const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
@@ -49,14 +52,10 @@ function loadEvalKey() {
 async function main() {
   const option = arg('option', 'baseline');
   const set = arg('set', 'sample');
-  const out = arg('out', path.join(__dirname, 'out', `${option}-${set}.json`));
+  // Default output OUTSIDE the repo: rows hold model replies and must never be swept into a commit.
+  const out = arg('out', path.join(os.tmpdir(), 'tutor-fix-1', `${MODEL_ARG()}-${option}-${set}.json`));
   const concurrency = Number(arg('concurrency', '5'));
   if (!OPTIONS[option]) throw new Error(`unknown --option=${option}`);
-  if (option === 'baseline') {
-    // Baseline must reflect today's product config exactly; refuse if the route already sets thinking.
-    const src = fs.readFileSync(path.join(SERVER, 'routes', 'tutor.cjs'), 'utf8');
-    if (/thinkingConfig/.test(src)) console.warn('[eval] note: tutor.cjs already sets thinkingConfig; baseline = route config as-is');
-  }
 
   const key = loadEvalKey();
   const MODEL = arg('model', 'gemini-2.5-flash');
