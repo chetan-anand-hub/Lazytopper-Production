@@ -170,8 +170,14 @@ beforeAll(async () => {
   ];
   // ME-CONCEPT-1 — the Real Numbers answers are bank questions labelled "HCF and LCM" (the concept
   // map rolls that up to "Fundamental Theorem of Arithmetic"), so Me's Concepts tab has a row.
+  // COFOUNDER DECISION 61a (the STRICT brief: a concept is named only if Me has its row) — the
+  // seven graded Heredity answers are likewise bank questions labelled "Alleles" (the S1 mistake's
+  // own bank row, which the concept map rolls up to "Mendel's Experiments & Ratios"), so Me's
+  // Concepts tab has that row (≥ MIN_HALF_SAMPLE per half) in every window where the brief names it.
+  // The MCQ click stays off the bank — it is not a checked answer.
   for (const a of H.attempts) {
     if (a.topicKey === "real-numbers") H.bank[a.questionId] = { subtopic: "HCF and LCM", section: "B", topicKey: "real-numbers" };
+    if (a.topicKey === "heredity" && a.mode === "graded") H.bank[a.questionId] = { subtopic: "Alleles", section: "A", topicKey: "heredity" };
   }
   H.records = [];
   H.mistakes = [
