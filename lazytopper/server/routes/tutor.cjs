@@ -20,6 +20,16 @@ const { buildTutorSystemPrompt } = require('../prompts/tutorSystemPrompt.cjs');
 const MAX_TURNS = 24;
 const MAX_TURN_CHARS = 4000;
 
+// TUTOR-FIX-1: the Tutor's one model call. With no thinkingConfig, gemini's thinking tokens come
+// out of the same 900-token budget and cut replies off mid-sentence. thinkingBudget 0 turns
+// thinking off (eval, ops/evals/tutor-fix-1: 8/30 MAX_TOKENS → 0/30, judged correct 21 → 29 of
+// 30, lower cost per reply). Temperature and the 900 budget are unchanged.
+const TUTOR_CALL_CONFIG = Object.freeze({
+  temperature: 0.55,
+  maxOutputTokens: 900,
+  thinkingConfig: Object.freeze({ thinkingBudget: 0 }),
+});
+
 /**
  * Merge consecutive same-role turns so the contents array strictly alternates,
  * which Gemini requires. The leading system turn is role:user; the primer is
@@ -276,7 +286,8 @@ function createTutorRoute(deps) {
     ]);
 
     try {
-      const reply = await callGemini(MODEL, contents, { temperature: 0.55, maxOutputTokens: 900 });
+      // TUTOR-FIX-1: thinking OFF (see TUTOR_CALL_CONFIG).
+      const reply = await callGemini(MODEL, contents, TUTOR_CALL_CONFIG);
       const raw = String((reply && reply.text) || '').trim();
       if (!raw) {
         return sendJson(res, 502, { error: 'The tutor returned an empty reply. Please try again.' });
@@ -295,7 +306,9 @@ function createTutorRoute(deps) {
       if (!text) {
         return sendJson(res, 502, { error: 'The tutor returned an empty reply. Please try again.' });
       }
-      return sendJson(res, 200, { reply: text, offer, figure, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
+      // TUTOR-FIX-1: honest cut-off signal — true only when the model stopped at its token limit.
+      const truncated = Boolean(reply && reply.finishReason === 'MAX_TOKENS');
+      return sendJson(res, 200, { reply: text, offer, figure, truncated, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
     } catch (err) {
       console.error('[tutor] generation failed:', err && err.message);
       const status = err && err.status === 504 ? 504 : 500;
@@ -310,6 +323,7 @@ function createTutorRoute(deps) {
 
 module.exports = {
   createTutorRoute,
+  TUTOR_CALL_CONFIG,
   coalesceTurns,
   extractOfferTag,
   extractFigureTag,
