@@ -457,14 +457,14 @@ describe("variant-set openness — this suite does NOT pin which variants exist"
     // predecessor against C&I after a PRACTICE-SIDE predecessor.
     render(<ResultsScorecard variant={ci()} onClose={() => {}} />); // warm-up predecessor
     cleanup();
-    const afterCi = render(<ResultsScorecard variant={ci()} onClose={() => {}} />).container.innerHTML;
+    const afterCi = render(<ResultsScorecard variant={ci()} onClose={() => {}} />).baseElement.innerHTML;
     cleanup();
 
     // …the batching lane's NEW variant renders in between…
-    const between = render(<ResultsScorecard variant={batch()} onClose={() => {}} />).container.innerHTML;
+    const between = render(<ResultsScorecard variant={batch()} onClose={() => {}} />).baseElement.innerHTML;
     cleanup();
 
-    const afterBatch = render(<ResultsScorecard variant={ci()} onClose={() => {}} />).container.innerHTML;
+    const afterBatch = render(<ResultsScorecard variant={ci()} onClose={() => {}} />).baseElement.innerHTML;
 
     expect(afterCi).toContain("Checked paper"); // CONTROL: the capture is not empty
     expect(between).toContain("Batch scorecard"); // CONTROL: the middle step really rendered

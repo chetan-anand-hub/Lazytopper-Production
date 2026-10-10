@@ -1095,3 +1095,21 @@ test('§10.4 timeoutMs / deadlineAt / chunkKey / attempt never reach the wire; a
     h.restore();
   }
 });
+
+/* ── TUTOR-FIX-1 · finishReason is returned (additively) ─────────────────── */
+// RED before the fix: the returned object was { text, raw } only.
+test('TUTOR-FIX-1: callGemini returns the candidate finishReason, null when absent', async () => {
+  const cut = okBody(OK_USAGE, 'half a rep');
+  cut.candidates[0].finishReason = 'MAX_TOKENS';
+  const f = stubFetch([jsonResponse(cut), jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    const r1 = await client.callGemini('gemini-2.5-flash', CONTENTS, {});
+    assert.equal(r1.finishReason, 'MAX_TOKENS');
+    assert.equal(r1.text, 'half a rep');
+    const r2 = await client.callGemini('gemini-2.5-flash', CONTENTS, {});
+    assert.equal(r2.finishReason, null);
+  } finally {
+    f.restore();
+  }
+});
