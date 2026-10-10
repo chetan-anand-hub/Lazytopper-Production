@@ -28,10 +28,7 @@ export interface GuardRule {
 
 /** Words that mark a SCIENCE question: a Maths rule never fires on text carrying any of them. */
 const SCIENCE_MARKERS =
-  /\b(refraction|refractive|reflection|incidence|ray|lens|mirror|snell|optic|prism|eye|retina|current|charge|resistan\w*|ohm|circuit|joule|voltage|battery|heat produced|galvanometer|solenoid|magnet\w*|cross|F1|F2|gene|genes|trait|inherit\w*|mendel|chromosome|dominant|recessive|sex|child|children|son|daughter|boy|girl|offspring|acid|base|salt|metal|reaction|carbon|hormone|enzyme|digest\w*|photosynthesis|cell|plant|organism|ecosystem|food chain)\b/i;
-
-/** Dice, cards, coins, bags, balls: the real-world props of a MATHS probability question. */
-const MATHS_PROBABILITY_PROPS = /\b(dice|die|coin|coins|card|cards|pack of|bag|marble|marbles|ball|balls|spinner|lottery|ticket|tickets|drawn at random|selected at random|chosen at random)\b/i;
+  /\b(light|glass|water|medium|speed|wavelength|prism|dispersion|refraction|refractive|reflection|incidence|ray|lens|mirror|snell|optic|prism|eye|retina|current|charge|resistan\w*|ohm|circuit|joule|voltage|battery|heat produced|galvanometer|solenoid|magnet\w*|cross|F1|F2|gene|genes|trait|inherit\w*|mendel|chromosome|dominant|recessive|sex|child|children|son|daughter|boy|girl|offspring|acid|base|salt|metal|reaction|carbon|hormone|enzyme|digest\w*|photosynthesis|cell|plant|organism|ecosystem|food chain)\b/i;
 
 // A trig RATIO is a whole word (lower-case or Capitalised) followed by its ANGLE: a single capital letter or
 // a Greek letter ("sin θ", "tan A", "cos²A", "sec A"). A digit or a bracket is NOT enough - "sin 30" is Snell's
@@ -40,27 +37,33 @@ const TRIG_RATIO =
   /(?<![\d.]\s?)\b(?:[Ss]in|[Cc]os|[Tt]an|[Cc]ot|[Ss]ec|[Cc]osec|[Cc]sc)(?:[²³]|\^\s?\d)?\s?(?:[θαβ]|[A-Z]\b)/;
 
 export const GUARD_RULES: readonly GuardRule[] = [
+  // Trigonometry: a ratio + its angle, in an IDENTITY / PROOF context or with two DIFFERENT ratios (checked in
+  // fires()). One ratio name alone ("sin I / sin R" in Snell's law, a "Sec A" section heading) is not enough.
   { slug: "trigonometry", subject: "Maths", test: TRIG_RATIO, unless: SCIENCE_MARKERS },
   // AP: its own words only. The bare letters "AP" are a geometry SEGMENT name (AP and AQ are tangents), so they
   // are not a signal; neither is a "sum of first n terms" (a series is not necessarily an AP).
   { slug: "arithmetic-progression", subject: "Maths", test: /\b(common difference|arithmetic progression|nth term)\b/i, unless: SCIENCE_MARKERS },
-  // Probability: the word WITH a Maths prop, and never with genetics / sex-determination vocabulary.
-  { slug: "probability", subject: "Maths", test: /\bprobabilit(?:y|ies)\b/i, unless: SCIENCE_MARKERS },
-  { slug: "statistics", subject: "Maths", test: /\b(cumulative frequency|class interval|ogive|modal class|median class|frequency distribution)\b/i },
-  // Light: mirrors and refraction vocabulary only - "focal length" and "lens" are shared with the Human Eye chapter.
-  { slug: "light-reflection-and-refraction", subject: "Science", test: /\b(concave mirror|convex mirror|spherical mirror|plane mirror|angle of incidence|angle of reflection|principal axis|snell)/i, unless: /\b(retina|cornea|iris|myopia|hypermetropia|presbyopia|cataract|human eye|eye lens|ciliary)\b/i },
-  // Electricity: its laws only - "potential difference" / "electric power" also appear in magnetism questions.
-  { slug: "electricity", subject: "Science", test: /\b(ohm'?s law|resistivity|resistors? (?:are |is )?(?:connected )?in (?:series|parallel))/i, unless: /\b(solenoid|magnetic|compass|galvanometer|motor|generator|fleming)\b/i },
-  { slug: "heredity", subject: "Science", test: /\b(mendel|dominant trait|recessive trait|F1 generation|F2 generation|monohybrid|dihybrid)\b/i },
 ];
 
 const SUBJECT_OF = (slug: string): "Maths" | "Science" | null => GUARD_RULES.find((r) => r.slug === slug)?.subject ?? null;
 
-/** True when a rule's own pattern matches and no step-aside vocabulary is present. */
+/** The distinct trig ratio names a text carries (lower-cased). */
+function trigNames(text: string): Set<string> {
+  const out = new Set<string>();
+  const re = new RegExp(TRIG_RATIO.source, "g");
+  for (let m = re.exec(text); m; m = re.exec(text)) out.add(m[0].match(/^[A-Za-z]+/)![0].toLowerCase());
+  return out;
+}
+
+/** True when a rule's own pattern matches, no step-aside vocabulary is present, and (trig) the context is strong. */
 function fires(rule: GuardRule, text: string): boolean {
   if (!rule.test.test(text)) return false;
-  if (rule.slug === "probability" && !MATHS_PROBABILITY_PROPS.test(text)) return false;
-  return !(rule.unless && rule.unless.test(text));
+  if (rule.unless && rule.unless.test(text)) return false;
+  if (rule.slug === "trigonometry") {
+    const proofContext = /\b(prove|show that|identity|identities|evaluate)\b/i.test(text);
+    return proofContext || trigNames(text).size >= 2;
+  }
+  return true;
 }
 
 /** The slug the guard would file this text under, or null (no rule, or two rules disagree). */
