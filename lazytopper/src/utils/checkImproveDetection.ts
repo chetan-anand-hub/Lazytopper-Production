@@ -97,7 +97,7 @@ export function withSubjectCorrected(c: ConfirmedDetection, next: DesktopSubject
 
 /**
  * TOPIC-FIX-1 (c): run the model's answer through the deterministic guard (lib/grading/topicGuard).
- * It fills a MISSING chapter and replaces one from the OTHER subject; every other answer is untouched.
+ * It fills a MISSING chapter only; every named chapter is untouched.
  */
 export function guardedDetection(
   detectedTopic: string | null,

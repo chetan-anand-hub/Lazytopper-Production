@@ -151,3 +151,18 @@ describe("topicGuard · precision 1.0 on the eval set", () => {
     expect(trig.every((i) => [null, "trigonometry"].includes(guardSlugFor(i.text)))).toBe(true);
   });
 });
+
+describe("topicGuard · round-5 verifier negatives", () => {
+  it("★★ segment-area stems with sin/cos θ are Areas Related to Circles, not trigonometry; refraction / hydrocarbon stems without a marker word never fire", () => {
+    for (const t of [
+      "Find the area of the segment: r = 21 cm, θ = 120°. (sin θ = √3/2, cos θ = -1/2)",
+      "Find the area of the minor segment of a circle of radius 14 cm, angle 60°. Use sin θ = √3/2 and cos θ = 1/2.",
+      "A chord subtends an angle θ = 120° at the centre of a circle of radius 12 cm. Find the area of the segment, using sin θ/2 and cos θ/2.",
+      "A beam enters at A and exits at B. Show that sin A / sin B equals the index.",
+      "Write the nth term formula for the hydrocarbons methane, ethane, propane.",
+      "Show that ΔABC ~ ΔDEF and evaluate the ratio of areas: sin B / sin E.",
+      "From a point Q, the length of the tangent to a circle is 24 cm. Show that sin Q = 7/25.",
+    ]) expect(guardSlugFor(t)).toBeNull();
+    expect(guardSlugFor("Prove that (1 + tan²A)/(1 + cot²A) = tan²A")).toBe("trigonometry");
+  });
+});
