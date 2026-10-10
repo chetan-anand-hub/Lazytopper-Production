@@ -30,14 +30,12 @@ import {
  * paper surfaces (Worksheet, Chapter Test, Full Mock) only; the SEO publishability gate keeps its own Rule 5.
  */
 export const RULE5_REVIEWED_NOT_NEEDED: Readonly<Record<string, string>> = {
-  "LP-M11": "2026-10-10 B/D47c: \"Study the diagram\" but every part (atrium, vein, ventricle, valve) is answerable from the text; blind re-solve agreed",
   "EYE-EXMPLR-10-SA-005": "2026-10-10 B/D47c: \"figure\" only in the marking-scheme answer (student draws the two-prism set-up); blind re-solve agreed",
   "EYE-EXMPLR-10-LA-005": "2026-10-10 B/D47c: \"figure\" only in the marking-scheme answer (student draws the dispersion diagram); blind re-solve agreed",
   "Z3-CG-004": "2026-10-10 B/D47c: requiresDiagram set, but both distances and the route are printed (6 + 8 = 14 km vs 10 km); blind re-solve agreed",
   "CBE-M-STAT-B-001": "2026-10-10 B/D47c: the frequency table is printed in the stem; blind re-solve agreed (160-165)",
   "CBE-M-STAT-C-001": "2026-10-10 B/D47c: the frequency table is printed in the stem; blind re-solve agreed (160.83 cm)",
   "CBE-M-STAT-C-004": "2026-10-10 B/D47c: the frequency table is printed in the stem; blind re-solve agreed (37.5 years)",
-  "SCQ-S-MAG-040": "2026-10-10 B/D47c: \"figure\" only in the marking-scheme answer (student draws the iron-filings pattern); blind re-solve agreed",
   "PYQ-M-CIRC-012": "2026-10-10 B/D47c: \"figure\" only in the marking-scheme answer (\"Correct figure 1 Mark\"); the proof needs no printed figure; blind re-solve agreed",
   "PYQ-S-2024-LIGHT-009": "2026-10-10 B/D47c: object and mirror data are printed; part (b) asks the student to draw the ray; blind re-solve agreed",
   "LTG-S-MAG-209": "2026-10-10 B/D47c: compass and magnet set-up described in words; blind re-solve agreed",

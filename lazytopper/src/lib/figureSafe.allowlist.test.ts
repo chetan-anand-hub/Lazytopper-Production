@@ -18,6 +18,8 @@ const flagsByText = (q: CanonicalQuestion) =>
 /** Reviewed and KEPT blocked: the question really depends on a figure (or its text is damaged) — a blind re-solve could not
  *  answer it from the printed text, or the printed text is not complete. They stay out of Worksheets, Chapter Tests, Full Mocks. */
 const STILL_BLOCKED = [
+  "LP-M11", // answerable, but the stem says "Study the diagram of the human heart" with no diagram on the page (verifier, 10 Oct)
+  "SCQ-S-MAG-040", // answerable, but the stem has a typo ("field fines") and the stored answer is cut off mid-word, no finalAnswer (verifier, 10 Oct)
   "METAL-NCERT-3-VSA-006", // NCERT metal/salt-solution table not printed
   "SCO-S-LIFE-009", // parts Q and R only in the missing diagram
   "SCQ-S-REPR-041", // part (b) labels A-D only in the diagram
@@ -33,8 +35,8 @@ const STILL_BLOCKED = [
 describe("D47c — Rule 5 reviewed allow-list", () => {
   const ids = Object.keys(RULE5_REVIEWED_NOT_NEEDED);
 
-  it("has the 12 reviewed rows, each with a dated, attributed reason", () => {
-    expect(ids).toHaveLength(12);
+  it("has the 10 reviewed rows, each with a dated, attributed reason", () => {
+    expect(ids).toHaveLength(10);
     for (const id of ids) expect(RULE5_REVIEWED_NOT_NEEDED[id], id).toMatch(/^\d{4}-\d{2}-\d{2} B\/D47c: .{20,}/);
   });
 
@@ -56,7 +58,7 @@ describe("D47c — Rule 5 reviewed allow-list", () => {
     }
   });
 
-  it("the ten reviewed-and-kept rows stay blocked (and are not on the list)", () => {
+  it("the twelve reviewed-and-kept rows stay blocked (and are not on the list)", () => {
     for (const id of STILL_BLOCKED) {
       expect(ids.includes(id), id).toBe(false);
       expect(needsMissingFigure(BY_ID.get(id)!), id).toBe(true);
