@@ -46,7 +46,7 @@ export function UsageCardView({ snapshot, nowMs = Date.now() }: { snapshot: Usag
   if (snapshot.tier === "trial") {
     const t = snapshot.trial;
     return (
-      <section className="lt-usage lt-usage--card" aria-label="Your limits" data-testid="usage-card">
+      <section id="usage" className="lt-usage lt-usage--card" aria-label="Your limits" data-testid="usage-card">
         {heading}
         {t ? (
           <ul className="lt-usage__rows">
@@ -89,7 +89,7 @@ export function UsageCardView({ snapshot, nowMs = Date.now() }: { snapshot: Usag
       ]
     : [];
   return (
-    <section className="lt-usage lt-usage--card" aria-label="Your limits" data-testid="usage-card">
+    <section id="usage" className="lt-usage lt-usage--card" aria-label="Your limits" data-testid="usage-card">
       {heading}
       {p ? (
         <ul className="lt-usage__rows">
@@ -128,5 +128,19 @@ export default function UsageCard() {
       cancelled = true;
     };
   }, []);
-  return <UsageCardView snapshot={snapshot} />;
+  // "See usage" (/me#usage) lands ON the card: once the card has rendered, scroll it into view.
+  const showCard = Boolean(snapshot && snapshot.enforced === true && (snapshot.tier === "trial" || snapshot.tier === "premium"));
+  useEffect(() => {
+    if (!showCard || typeof window === "undefined" || window.location.hash !== "#usage") return;
+    document.getElementById("usage")?.scrollIntoView?.({ block: "start" });
+  }, [showCard]);
+  // FAIR-USE-WARN-1 §2.5 — under the card (only when the card shows): what a limit never touches.
+  return (
+    <>
+      <UsageCardView snapshot={snapshot} />
+      {snapshot && (snapshot.tier === "trial" || snapshot.tier === "premium") ? (
+        <p className="lt-usage-always" data-testid="usage-always-works">Practice, MCQs, CBQs, notes, Topic Hub and saved solutions always work, even at 100%.</p>
+      ) : null}
+    </>
+  );
 }
