@@ -193,7 +193,7 @@ describe("4 · copy (draft for the owner)", () => {
     const w = usageWarning(trial(1, 5), NOW, "practice")!;
     expect(warningBannerCopy(w, NOW)).toBe("You've used 4 of today's 5 answer checks. They reset at midnight.");
   });
-  it("links: premium → See usage (/me#usage, lands ON the usage card); trial → Upgrade (/pricing); never /app/", () => {
+  it("links: premium → See usage (/me#usage, lands ON the usage card); trial → Upgrade (/pricing); never the retired base", () => {
     expect(warningLink(usageWarning(premium(80, 10, 10), NOW, "practice")!)).toEqual({ label: "See usage", to: "/me#usage" });
     expect(warningLink(usageWarning(trial(1, 5), NOW, "practice")!)).toEqual({ label: "Upgrade", to: "/pricing" });
   });
