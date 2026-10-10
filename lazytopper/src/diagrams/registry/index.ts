@@ -6,11 +6,16 @@
  */
 import { buildHeightsDistances } from "../builders/heightsDistances";
 import type { BuildResult, HdModel } from "../builders/heightsDistances";
+import { buildOptics } from "../builders/optics";
 import type { ComputedFigureBinding, CropFigureBinding, FigureSlot, SolutionFigureBinding } from "./computedFigureTypes";
 import { SOLUTION_FIGURE_CROPS } from "./solutionFigureCrops";
+import { LIGHT_SOLUTION_FIGURES } from "./lightSolutionFigures";
 import { TRIGONOMETRY_SOLUTION_FIGURES } from "./trigonometrySolutionFigures";
 
-export const ALL_COMPUTED_FIGURE_BINDINGS: readonly ComputedFigureBinding[] = [...TRIGONOMETRY_SOLUTION_FIGURES];
+export const ALL_COMPUTED_FIGURE_BINDINGS: readonly ComputedFigureBinding[] = [
+  ...TRIGONOMETRY_SOLUTION_FIGURES,
+  ...LIGHT_SOLUTION_FIGURES,
+];
 export const ALL_CROP_FIGURE_BINDINGS: readonly CropFigureBinding[] = [...SOLUTION_FIGURE_CROPS];
 export const ALL_SOLUTION_FIGURE_BINDINGS: readonly SolutionFigureBinding[] = [
   ...ALL_COMPUTED_FIGURE_BINDINGS,
@@ -33,6 +38,9 @@ export function buildComputedFigure(b: ComputedFigureBinding): BuildResult<HdMod
   switch (b.builder) {
     case "heightsDistances":
       return buildHeightsDistances(b.params, b.labels ?? {});
+    case "opticsImage":
+    case "opticsCase":
+      return buildOptics(b.params);
     default:
       return null;
   }
