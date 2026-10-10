@@ -285,13 +285,13 @@ function Probe() {
   return <div data-testid="login-probe">{String((loc.state as { from?: string } | null)?.from)}</div>;
 }
 
-async function mount() {
+async function mount(overlay?: { onClose: () => void }) {
   mockBuild.mockResolvedValue([mkItem(1, true), mkItem(2, true), mkItem(3, true)]);
   setMatchMediaMatches(true);
   render(
     <MemoryRouter initialEntries={[PATH]}>
       <Routes>
-        <Route path="/practice/:grade/:subject" element={<PracticePage />} />
+        <Route path="/practice/:grade/:subject" element={<PracticePage overlay={overlay} />} />
         <Route path="/login" element={<Probe />} />
       </Routes>
     </MemoryRouter>,
@@ -300,8 +300,12 @@ async function mount() {
 }
 
 /** One right, one wrong, then Finish -> the MCQ-only scorecard. */
-async function reachScorecard() {
-  await mount();
+async function reachScorecard(overlay?: { onClose: () => void }) {
+  await mount(overlay);
+  await answerAndFinish();
+}
+
+async function answerAndFinish() {
   fireEvent.click(screen.getByText("q1-correct"));
   fireEvent.click(screen.getByText("q2-wrong"));
   fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
@@ -347,6 +351,21 @@ describe("QP-GUEST-SIGNIN-1 · sign-in card on the signed-out MCQ-only scorecard
   it("'Not now' hides the card", async () => {
     await reachScorecard();
     fireEvent.click(screen.getByRole("button", { name: "Not now" }));
+    expect(screen.queryByTestId("qp-guest-signin-card")).toBeNull();
+  });
+
+  it("'Not now' is for THIS set only: after 'Refresh set' the next scorecard asks again", async () => {
+    await reachScorecard();
+    fireEvent.click(screen.getByRole("button", { name: "Not now" }));
+    fireEvent.click(screen.getByRole("button", { name: (n: string) => n.includes(BACK_TO_SET) }));
+    fireEvent.click(await screen.findByRole("button", { name: /^Refresh set$/ }));
+    await screen.findAllByTestId("practice-question-card");
+    await answerAndFinish();
+    expect(await screen.findByTestId("qp-guest-signin-card")).toBeInTheDocument();
+  });
+
+  it("a guest inside the Tutor overlay gets no card", async () => {
+    await reachScorecard({ onClose: () => undefined });
     expect(screen.queryByTestId("qp-guest-signin-card")).toBeNull();
   });
 
