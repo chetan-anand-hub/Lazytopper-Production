@@ -452,8 +452,8 @@ function createRateLimiter(options = {}) {
    * included — was read as `premium` for a VERIFIED uid. It is honoured only for a
    * VERIFIED caller (a spoofable header uid can never earn it), and it skips exactly
    * one thing: the 80% vision shed. A paying student is never paused by the day's
-   * budget. The per-caller hard caps and the global HARD ceiling still apply, and the
-   * request still commits to `global:<day>`. Free and trial callers never carry it,
+   * budget. The per-caller hard caps still apply. FU-GLOBAL-SHED: it also lets a verified
+   * premium caller pass the global HARD ceiling up to floor(hard x 1.25); the request still commits to `global:<day>`. Free and trial callers never carry it,
    * so they keep the shed exactly as before.
    */
   function check(req, reqPath, verifiedUid, options) {
