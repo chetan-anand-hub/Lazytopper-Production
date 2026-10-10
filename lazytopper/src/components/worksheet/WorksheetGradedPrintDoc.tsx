@@ -25,6 +25,7 @@ import {
 } from "../../lib/mistakeDisplay";
 import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
+import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
 import type {
   CheckSolutionAnnotatedStep,
   WorksheetGradeResponse,
@@ -107,7 +108,6 @@ function isBinaryScored(g: WorksheetQuestionGrade, q?: PersistedWorksheetQuestio
   return Number(q?.marks) === 1 || Number(g.totalMarks) === 1;
 }
 
-import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
 
 export interface WorksheetGradedPrintDocProps {
   /** FIGURES-ALL-SURFACES-1 PR-2 — draws a question's solution figure in "Model answer". Injected by the PDF exporter
