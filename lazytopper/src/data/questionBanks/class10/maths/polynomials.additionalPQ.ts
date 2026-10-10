@@ -12,10 +12,10 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
     questionText: "Which of the following could be the graph of the polynomial (x − 1)^2(x + 2)?",
     options: ["Graph (a)", "Graph (b)", "Graph (c)", "Graph (d)"],
     answer: "Graph (c)",
-    solutionSteps: ["Zeroes of (x − 1)^2(x + 2): x = 1 (double, touches x-axis but does not cross) and x = −2 (simple, crosses x-axis).", "Leading coefficient is +1 (cubic, positive) → graph rises to +∞ as x → +∞ and falls to −∞ as x → −∞. Hence graph (c)."],
+    solutionSteps: ["[1 mark] Zeroes of (x − 1)²(x + 2) are x = 1 (repeated, so the graph touches the x-axis there without crossing) and x = −2 (crosses the x-axis); p(0) = (1)(2) = 2. Graph (a) crosses at both −2 and 1, graphs (b) and (d) touch the x-axis at a negative x and do not pass through (0, 2). Graph (c) crosses at −2, touches at 1 and passes through (0, 2), so it is the graph of the polynomial."],
     finalAnswer: "(c)",
     ncertRef: "APQ PQ1 Q1", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: 4 graph options shown in PDF. Choose the cubic touching x-axis at x=1 and crossing at x=−2." },
+ },
 
   // PQ2 Q1 (Section A, MCQ, 1 mark)
   { id: "APQ-M-POLY-002", subject: "Maths", topicKey: "polynomials", subtopic: "Quadratic from Zeroes", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",

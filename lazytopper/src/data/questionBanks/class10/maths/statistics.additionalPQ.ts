@@ -29,10 +29,10 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
     questionText: "The table depicts the weight of the students of class 6. There are 18 students that weigh above the median weight. If there are no students with the same weight as median weight, how many students weigh between the range of 37 - 40 kgs?",
     options: ["5", "7", "18", "31"],
     answer: "5",
-    solutionSteps: ["REQUIRES-FIGURE: Original table from PDF needed for full reasoning.", "Per MS: 5 students lie in 37-40 kg range."],
+    solutionSteps: ["[1 mark] No student weighs exactly the median weight and 18 students weigh above it, so 18 weigh below it: total = 36 students. From the table, 25-28: 6, 28-31: 8, 31-34: 7, 34-37: 10, so 6 + 8 + 7 + 10 = 31 students weigh 25-37 kg. Students weighing 37-40 kg = 36 − 31 = 5."],
     finalAnswer: "(a) 5",
     ncertRef: "APQ PQ1 Q17", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Original frequency distribution table." },
+ },
 
   // PQ1 Q35 (Section D, Long, 5 marks)
   { id: "APQ-M-STAT-004", competencyVerified: true, subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
@@ -75,8 +75,8 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-STAT-008", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data — Two Groups Comparison", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "The pyramid graph shows the ages of 548 Members of Parliament (MPs) in the 17th Lok Sabha. On an average, how much younger is a female MP than a male MP? Round your answer to the nearest whole number.",
     answer: "Female MPs are on average 6 years younger.",
-    solutionSteps: ["[1 mark] From the pyramid graph, construct grouped frequency distribution tables (class marks × frequencies) of ages for male and female MPs separately.", "[1 mark] Female MPs: Σfᵢ = 80, Σfᵢxᵢ = 4280 ⇒ mean age = 4280/80 = 53.5 years.", "[1 mark] Male MPs: Σfᵢ = 468, Σfᵢxᵢ = 27980 ⇒ mean age = 27980/468 ≈ 59.8 years.", "[1 mark] Difference of mean ages = 59.8 − 53.5 = 6.3 years.", "[1 mark] Rounded to the nearest whole number, a female MP is on average ≈ 6 years younger than a male MP."],
+    solutionSteps: ["[3.5 mark] From the pyramid graph, class marks xᵢ = 30, 40, 50, 60, 70, 80, 90 for 25-35 ... 85-95. Female MPs fᵢ = 4, 17, 24, 20, 12, 3, 0 (Σfᵢ = 80), fᵢxᵢ = 120, 680, 1200, 1200, 840, 240, 0 (Σfᵢxᵢ = 4280). Male MPs mᵢ = 7, 42, 114, 143, 125, 27, 10 (Σmᵢ = 468), mᵢxᵢ = 210, 1680, 5700, 8580, 8750, 2160, 900 (Σmᵢxᵢ = 27980).", "[0.5 mark] Mean age of female MPs = 4280/80 = 53.5 years.", "[0.5 mark] Mean age of male MPs = 27980/468 ≈ 59.8 years.", "[0.5 mark] Difference = 59.8 − 53.5 = 6.3 years, which rounds to 6 years; a female MP is on average about 6 years younger than a male MP."],
     finalAnswer: "≈ 6 years.",
     ncertRef: "APQ PQ_2022 Q35", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: pyramid graph of MP ages by gender." },
+ },
 ];
