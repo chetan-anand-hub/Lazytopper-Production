@@ -94,3 +94,7 @@ Two Opus solver sub-agents (medium effort) re-solved each row as stored now:
 | still-broken | **1** — `SCO-S-CTRL-011`: stem says "given diagram … labelled", no figure bound, unanswerable text-only; steps garbled → **withhold or bind the figure** |
 
 Most of the "fixed" rows were fixed by the DIAGRAMS / step-mark lanes after #960 (figures bound, `[N mark]` sums corrected); the CSV records each one.
+
+## Phase C — progress checkpoint (C1 complete; C2 in progress)
+
+C1 (all 209 predicted + 127 HPQ = 336 rows) is solved. `wrong-answers.csv` and `broken-rows.csv` are regenerated as each C2 batch lands; the final Phase C section below replaces this checkpoint.
