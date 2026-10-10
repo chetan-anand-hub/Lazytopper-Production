@@ -96,3 +96,27 @@
 .lt-usage__bar::-webkit-progress-bar { background: var(--lt-usage-track); border-radius: 999px; }
 .lt-usage__bar::-webkit-progress-value { background: var(--lt-usage-green); border-radius: 999px; }
 .lt-usage__bar::-moz-progress-bar { background: var(--lt-usage-green); border-radius: 999px; }
+
+/* TRIAL-PAPER-1 — the note under a trial paper graded only up to today's checks. */
+.lt-usage--paper { max-width: none; margin: 16px 0 0; }
+.lt-usage__notgraded {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.lt-usage__notgraded-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--lt-usage-border);
+  background: #fff;
+  font-size: 12.5px;
+}
+.lt-usage__notgraded-q { font-weight: 700; }
+.lt-usage__notgraded-chip { color: var(--lt-usage-muted); }

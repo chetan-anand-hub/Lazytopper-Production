@@ -108,7 +108,7 @@ describe("CASE 1 — a graded answer carrying steps renders a per-step block", (
 
 describe("CASE 2 — a graded answer carrying NO steps renders exactly as before (honest empty state)", () => {
   it("renders NOTHING extra: no heading, no panel, no zeros", () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ResultsScorecard
         variant={variant({ gradedAnswers: [answer({ steps: null, lostLabel: "Where the mark went:", lostDetail: "Unit missing." })] })}
         onClose={() => {}}
@@ -123,7 +123,7 @@ describe("CASE 2 — a graded answer carrying NO steps renders exactly as before
   });
 
   it("an EMPTY steps array is indistinguishable from absent — never an empty panel", () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ResultsScorecard variant={variant({ gradedAnswers: [answer({ steps: [] })] })} onClose={() => {}} />,
     );
     expect(container.querySelectorAll(".lt-sc__gsteps")).toHaveLength(0);
@@ -165,7 +165,7 @@ describe("CASE 6 — a half mark renders as a HALF: no rounding, no throw", () =
 
 describe("★★ OBJECTIVE — the per-step mark chip is suppressed, the annotations survive", () => {
   it("an objective answer shows no misleading per-step 0, but keeps the working and the note", () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ResultsScorecard
         variant={variant({
           gradedAnswers: [answer({
@@ -182,7 +182,7 @@ describe("★★ OBJECTIVE — the per-step mark chip is suppressed, the annotat
   });
 
   it("★ CONTROL — the same step on a NON-objective answer DOES show the chip", () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ResultsScorecard
         variant={variant({
           gradedAnswers: [answer({ objective: false, steps: [step({ marksAwarded: 0, marksDeducted: 0 })] })],
@@ -253,7 +253,7 @@ describe("CASE 3 — the read-sheet action SHOWS the block instead of closing th
       name: "Light · Test #1", code: "CT-S-LIGHT-01", phase: "full",
       response: gradeResponse(), onReadSheet: revealGradedSheet,
     });
-    const { container } = render(<ResultsScorecard variant={v} onClose={onClose} />);
+    const { baseElement: container } = render(<ResultsScorecard variant={v} onClose={onClose} />);
 
     const anchor = container.querySelector(`#${GRADED_SHEET_ANCHOR_ID}`);
     expect(anchor).not.toBeNull();

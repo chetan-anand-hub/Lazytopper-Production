@@ -654,14 +654,14 @@ async function replay(b: Body) {
   const pm = paperMarksLost(results);
   check(S, "scorecard.marksLost=paperMarksLost=oracle", allPending ? variant.marksLost === null : !!pm && sameMarks(variant.marksLost?.byType, pm.byType) && sameMarks(pm.byType, o.byType) && variant.marksLost?.lost === o.lost, `${JSON.stringify(variant.marksLost?.byType)} vs grader ${JSON.stringify(o.byType)}`);
   const sc = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
-  const block = sc.container.querySelector('[data-testid="sc-marks-lost"]');
+  const block = sc.baseElement.querySelector('[data-testid="sc-marks-lost"]');
   if (!allPending && o.lost > 0) {
     const groups = Array.from(block?.querySelectorAll("[data-marks]") ?? []).reduce((s, e) => s + Number(e.getAttribute("data-marks")), 0);
-    const rows = Array.from(sc.container.querySelectorAll('[data-group="not-attempted"][data-marks], [data-group="untyped"][data-marks]'))
+    const rows = Array.from(sc.baseElement.querySelectorAll('[data-group="not-attempted"][data-marks], [data-group="untyped"][data-marks]'))
       .filter((e) => !block?.contains(e))
       .reduce((s, e) => s + Number(e.getAttribute("data-marks")), 0);
     check(S, "scorecard.rendered.sumsToLost", !!block && Math.abs(r2(groups + rows) - o.lost) <= EPS, `groups ${groups} + rows ${rows} vs lost ${o.lost}`);
-    const text = sc.container.textContent || "";
+    const text = sc.baseElement.textContent || "";
     check(S, "scorecard.rendered.inMarks", text.includes(MARKS_HEADING) && !text.includes(MISTAKES_BY_KIND_HEADING), "");
   } else {
     check(S, "scorecard.rendered.noMarksBlockWithoutLoss", block === null, "");
@@ -877,9 +877,9 @@ describe("G3-v2 · (d) curated v2 fixtures", () => {
     // the scorecard and the PDF: "reason not recorded" 2, exam technique 0.5, and NO "Not attempted"
     const variant = worksheetScorecardVariant({ name: "Missing steps", code: "WS-MS", response: out.response, downloading: false, onRead: () => {}, onDownload: () => {} });
     const sc = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
-    const ut = sc.container.querySelector('[data-group="untyped"][data-marks]');
-    const tech = sc.container.querySelector('[data-testid="sc-marks-lost"] [data-group="technique"]');
-    check(S, "scorecard.untyped=2.technique=0.5.noNotAttempted", Number(ut?.getAttribute("data-marks")) === 2 && Number(tech?.getAttribute("data-marks")) === 0.5 && sc.container.querySelector('[data-group="not-attempted"][data-marks]') === null, `${ut?.getAttribute("data-marks")} · ${tech?.getAttribute("data-marks")}`);
+    const ut = sc.baseElement.querySelector('[data-group="untyped"][data-marks]');
+    const tech = sc.baseElement.querySelector('[data-testid="sc-marks-lost"] [data-group="technique"]');
+    check(S, "scorecard.untyped=2.technique=0.5.noNotAttempted", Number(ut?.getAttribute("data-marks")) === 2 && Number(tech?.getAttribute("data-marks")) === 0.5 && sc.baseElement.querySelector('[data-group="not-attempted"][data-marks]') === null, `${ut?.getAttribute("data-marks")} · ${tech?.getAttribute("data-marks")}`);
     sc.unmount();
     const pdf = render(createElement(WorksheetGradedPrintDoc, { ws, response: out.response, name: "Missing steps", code: "WS-MS", coaching: "" }));
     const chip = pdf.container.querySelector('[data-testid="gp-marks-chips"] [data-group="untyped"]');
@@ -966,12 +966,12 @@ describe("G3-v2 · (e) nothing recorded anywhere for a question that was not gra
     // and named — R3: Q2 (couldNotRead + objectiveResolved:false) says "retake the photo"
     const variant = worksheetScorecardVariant({ name: "Owner paper", code: "WS-NR", response: out.response, downloading: false, onRead: () => {}, onDownload: () => {} });
     const sc = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
-    const named = Array.from(sc.container.querySelectorAll('[data-grade-state="answer-mismatch"]')).map((e) => e.textContent);
+    const named = Array.from(sc.baseElement.querySelectorAll('[data-grade-state="answer-mismatch"]')).map((e) => e.textContent);
     check(S, "scorecard.mismatch.namedVerbatim", JSON.stringify(named) === JSON.stringify([`Q4: ${OWNER_COPY["answer-mismatch"]}`]), JSON.stringify(named));
-    check(S, "scorecard.unread.counted", (sc.container.textContent || "").includes("1 question couldn’t be read"), "");
-    const q2pend = Array.from(sc.container.querySelectorAll(".lt-sc__pend--item")).map((e) => [e.getAttribute("data-grade-state"), e.textContent]);
+    check(S, "scorecard.unread.counted", (sc.baseElement.textContent || "").includes("1 question couldn’t be read"), "");
+    const q2pend = Array.from(sc.baseElement.querySelectorAll(".lt-sc__pend--item")).map((e) => [e.getAttribute("data-grade-state"), e.textContent]);
     check(S, "scorecard.Q2.couldNotRead(R3)", JSON.stringify(q2pend) === JSON.stringify([["could-not-read", `Q2: ${OWNER_COPY["could-not-read"]}`]]), JSON.stringify(q2pend));
-    check(S, "scorecard.noUnreadOptionCopy(R3)", !(sc.container.textContent || "").includes(OWNER_COPY["unread-option"]), "");
+    check(S, "scorecard.noUnreadOptionCopy(R3)", !(sc.baseElement.textContent || "").includes(OWNER_COPY["unread-option"]), "");
     sc.unmount();
     // the graded sheet / PDF: each not-graded question named, with its state and the owner's sentence
     const pdf = render(createElement(WorksheetGradedPrintDoc, { ws, response: out.response, name: "Owner paper", code: "WS-NR", coaching: "" }));
@@ -1040,10 +1040,10 @@ describe("G3-v2 · (e) nothing recorded anywhere for a question that was not gra
       check(S, "allPending", out.response.gradedCount === 0 && out.response.pendingCount === 1 && out.response.gradedMarksTotal === 0, JSON.stringify({ g: out.response.gradedCount, p: out.response.pendingCount }));
       const variant = worksheetScorecardVariant({ name: "Single", code: "CI-NR", response: out.response, downloading: false, onRead: () => {}, onDownload: () => {} });
       const sc = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
-      const text = sc.container.textContent || "";
+      const text = sc.baseElement.textContent || "";
       if (fx.body.answerMismatch === true) check(S, "scorecard.allPending.mismatchVerbatim", variant.allPending?.title === OWNER_COPY["answer-mismatch"] && text.includes(OWNER_COPY["answer-mismatch"]), String(variant.allPending?.title));
       else check(S, "scorecard.allPending.unreadable", !!variant.allPending && !text.includes(OWNER_COPY["answer-mismatch"]), String(variant.allPending?.title));
-      check(S, "scorecard.noScoreNoMarks", sc.container.querySelector('[data-testid="sc-marks-lost"]') === null && sc.container.querySelector(".lt-sc__big") === null, "");
+      check(S, "scorecard.noScoreNoMarks", sc.baseElement.querySelector('[data-testid="sc-marks-lost"]') === null && sc.baseElement.querySelector(".lt-sc__big") === null, "");
       sc.unmount();
       expect(failedSince(i0)).toEqual([]);
     }
