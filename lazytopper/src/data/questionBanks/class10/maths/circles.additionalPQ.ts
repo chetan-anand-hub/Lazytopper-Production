@@ -110,7 +110,7 @@ export const CIRCLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Inscribed-angle theorem: angle at centre = 2 × angle at circumference. So ∠NOP = 2 × 25° = 50°.", "Radius ⊥ tangent: ∠ONQ = 90°. In ΔONQ: ∠OQN = 180° − (50° + 90°) = 40°."],
     finalAnswer: "∠OQN = 40°.",
     ncertRef: "APQ PQ_2022 Q22", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: circle with tangent NQ and angle 25° at circumference." },
+  },
 
   // PQ_2022 Q29 first variant (Section C, Short, 3 marks)
   { id: "APQ-M-CIRC-011", subject: "Maths", topicKey: "circles", subtopic: "Circle Inscribed in Two Squares — Radius", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
