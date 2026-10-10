@@ -1567,12 +1567,12 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Brings together concepts of parallel wiring, electric shock, earthing, and safety devices.",
     policyTag: "Domestic wiring case",
     solutionSteps: [
-      "(i) Devices should be connected in parallel.; This ensures each appliance receives the full supply voltage and can be operated independently. [1]",
-      "(ii) Touching a live wire is dangerous because it carries high potential, causing a large current to flow through the body to the ground, which can be fatal. [1]",
-      "(iii) The earth wire provides a low-resistance path for leakage current from faulty appliances to the ground, preventing electric shock. [1]",
-      "(iv) A safety device used is a fuse. Its function is to break the circuit when current exceeds a safe limit, protecting appliances. [1]",
+      "[1 mark] (i) Parallel — each appliance gets the full supply voltage and can be switched on/off independently.",
+      "[1 mark] (ii) The live wire is at high potential (220 V); touching it lets a large current flow through the body to the earth, which can be fatal.",
+      "[1 mark] (iii) The earth wire gives a low-resistance path for leakage current from a faulty appliance's metal body to the ground, preventing electric shock.",
+      "[1 mark] (iv) Fuse (or MCB): it breaks the circuit when the current exceeds the safe limit (overloading/short circuit), protecting wiring and appliances.",
     ],
-    finalAnswer: "(i) Devices are connected in parallel so that each gets the same voltage and works independently.\n(ii) Live wire carries high potential; touching it allows current to flow through the body, which can be fatal.\n(iii) Earth wire provides a low-resistance path to the ground for leakage current, prevent",
+    finalAnswer: "(i) Devices are connected in parallel so that each gets the same voltage and works independently.\n(ii) Live wire carries high potential; touching it allows current to flow through the body, which can be fatal.\n(iii) Earth wire provides a low-resistance path to the ground for leakage current, preventing electric shock.\n(iv) Fuse or MCB – cuts off current when it exceeds the safe limit.",
   },
 
   {
@@ -1841,18 +1841,17 @@ Use: electric bell, crane to lift scrap iron, etc.`,
 (a) Why are electromagnets preferred over permanent magnets in such cranes?
 (b) Suggest two safety precautions workers should take while working near such electromagnets.`,
     answer:
-      `(a) Electromagnets can be switched ON and OFF and their strength can be controlled by changing current; this allows easy release and better control of iron scrap compared to permanent magnets.
-(b) Workers should avoid standing under suspended loads, ensure power is switched off before maintenance, and keep electronic devices away from strong magnetic fields (any two).`,
+      "(a) Electromagnets can be switched ON and OFF and their strength can be controlled by changing current; this allows easy release and better control of iron scrap compared to permanent magnets.\n(b) Workers should avoid standing under suspended loads, ensure power is switched off before maintenance, and keep electronic devices away from strong magnetic fields (any two).",
     explanation:
       "Shows advantages of electromagnets (controllability) and connects with safety in industrial use.",
     policyTag: "Magnetic effects case-study – electromagnets in industry",
     solutionSteps: [
-      "Identify the working principle: Electromagnets are temporary magnets formed when current flows through a coil.; Explain the application: In devices like an electric bell, an electromagnet attracts an armature when current flows. [1]",
-      "Describe the mechanism: This attraction causes a hammer to strike a gong, producing sound.; Detail the circuit break: The armature movement simultaneously breaks the circuit, de-energizing the electromagnet. [1]",
-      "Explain re-establishment: The armature springs back, re-establishing the circuit, and the cycle repeats. [1]",
-      "Mention factors affecting strength: The strength depends on the number of turns, current, and core material. [1]",
+      "[1 mark] (a) An electromagnet can be switched ON to lift iron scrap and OFF to release it at the desired place; a permanent magnet cannot release its load.",
+      "[1 mark] Its strength can be controlled by changing the current, so loads of different weights can be handled.",
+      "[1 mark] (b) Precaution 1: do not stand under a suspended load, as switching off/power failure releases it.",
+      "[1 mark] Precaution 2: switch off the power before maintenance, and keep electronic devices/pacemakers away from the strong magnetic field.",
     ],
-    finalAnswer: "Electromagnets are temporary magnets created by passing current through a coil. They are used in devices like electric bells, where current energizes the electromagnet, attracting an armature. This causes a hammer to strike a gong, producing sound. Simultaneously, the circuit is broken, de-energizing the electromagnet and allowing the armature to spring back, re-establishing the circuit and repeating the process. The strength of an electromagnet can be increased by increasing the number of turns in the coil, increasing the current, or using a soft iron core.",
+    finalAnswer: "(a) Electromagnets can be switched ON and OFF and their strength can be controlled by changing current; this allows easy release and better control of iron scrap compared to permanent magnets.\n(b) Workers should avoid standing under suspended loads, ensure power is switched off before maintenance, and keep electronic devices away from strong magnetic fields (any two).",
   },
 
   // ------------------------ HUMAN EYE & THE COLOURFUL WORLD ------------------------
@@ -2059,18 +2058,17 @@ Function of kidneys: filtration of blood to remove nitrogenous wastes like urea 
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "Explain why it is dangerous to touch the solution of a strong acid or strong base with bare hands, even if its pH value is close to 7.",
+      "A colourless liquid in an unlabelled beaker looks like plain water. Explain why you should not touch it with bare hands, and state how you can safely find out whether it is acidic or basic.",
     answer:
-      "A solution of strong acid/base may have been heavily diluted to show pH close to 7, but it still contains corrosive species which can damage the skin. pH value alone does not tell us about the nature of solute or its corrosive action.",
+      "It could be a solution of a strong acid or a strong base, which looks like water but is corrosive and can cause chemical burns, so it must never be touched. To test it safely, take a drop with a dropper or glass rod and put it on blue/red litmus paper or universal indicator (pH) paper: an acid turns blue litmus red (pH below 7) and a base turns red litmus blue (pH above 7).",
     explanation:
-      "Tests understanding that pH is related to H⁺ concentration but safety depends also on the nature and concentration of the solute.",
+      "Acids and bases cannot be identified by sight; strong ones are corrosive. Indicators (litmus, universal indicator) identify them safely without touching.",
     policyTag: "Acids, bases & salts – safety and pH concept",
     solutionSteps: [
-      "A strong acid or strong base, even when highly diluted, retains its fundamental corrosive chemical nature.; Dilution reduces the concentration of H+ or OH- ions, causing the pH value to shift closer to 7. [½]",
-      "However, the specific corrosive molecules or ions of the strong acid/base are still present in the solution. [½]",
-      "These inherent corrosive species can cause severe chemical burns and damage to the skin upon contact, irrespective of the high dilution. [1]",
+      "[1 mark] It may be a strong acid or strong base; it looks like water but is corrosive and can cause chemical burns, so do not touch it.",
+      "[1 mark] Test a drop with a dropper or glass rod on litmus or universal indicator (pH) paper: acid turns blue litmus red / pH < 7; base turns red litmus blue / pH > 7.",
     ],
-    finalAnswer: "A solution of strong acid/base may have been heavily diluted to show pH close to 7, but it still contains corrosive species which can damage the skin. pH value alone does not tell us about the nature of solute or its corrosive action.",
+    finalAnswer: "It could be a solution of a strong acid or a strong base, which looks like water but is corrosive and can cause chemical burns, so it must never be touched. To test it safely, take a drop with a dropper or glass rod and put it on blue/red litmus paper or universal indicator (pH) paper: an acid turns blue litmus red (pH below 7) and a base turns red litmus blue (pH above 7).",
   },
 
   {
@@ -2088,19 +2086,18 @@ Function of kidneys: filtration of blood to remove nitrogenous wastes like urea 
 (b) Mention one use of each in everyday life.
 (c) Why should POP bandages be used carefully?`,
     answer:
-      `(a) Washing soda: Na₂CO₃·10H₂O, baking soda: NaHCO₃, POP: CaSO₄·½H₂O.
-(b) Washing soda: used in detergents / softening hard water; baking soda: antacid / baking; POP: making casts, toys, statues.
-(c) POP sets quickly with evolution of heat, so it should not be applied directly on skin in thick layers as it may cause burns or restrict blood circulation.`,
+      "(a) Washing soda: Na₂CO₃·10H₂O; baking soda: NaHCO₃; Plaster of Paris: CaSO₄·½H₂O.\n(b) Washing soda: softening hard water / cleaning; baking soda: baking powder for cakes / antacid; POP: plaster for supporting fractured bones, making toys and decorative materials.\n(c) POP mixed with water sets quickly into hard gypsum (CaSO₄·2H₂O) with release of heat, so it must be applied carefully (not too tight or thick on the skin) and quickly, and must be stored in a moisture-proof container.",
     explanation:
-      "Connects formulas and common uses of important salts and asks for reasoning linked to POP setting property.",
+      "Recalls the formulas and everyday uses of washing soda, baking soda and Plaster of Paris, and links the careful use of POP bandages to its quick, heat-releasing setting with water to form gypsum.",
     policyTag: "Acids, bases & salts – important salts and applications",
     solutionSteps: [
-      "Common salt (NaCl) is used as a food preservative and in cooking. [1]",
-      "Baking soda (NaHCO₃) is used in baking and as an antacid. [1]",
-      "Washing soda (Na₂CO₃·10H₂O) is used for cleaning and softening hard water. [1]",
-      "Bleaching powder (CaOCl₂) is used as a disinfectant and for bleaching cotton. [1]",
+      "[1 mark] (a) Washing soda: Na₂CO₃·10H₂O; baking soda: NaHCO₃; Plaster of Paris: CaSO₄·½H₂O.",
+      "[0.5 mark] (b) Washing soda is used to soften hard water and for cleaning; baking soda is used in baking powder and as an antacid.",
+      "[0.5 mark] (b) Plaster of Paris is used by doctors as plaster for supporting fractured bones and for making toys and decorative materials.",
+      "[1 mark] (c) POP reacts with water and sets quickly into a hard mass of gypsum: CaSO₄·½H₂O + 1½H₂O → CaSO₄·2H₂O, releasing heat.",
+      "[1 mark] (c) Hence the bandage must be applied quickly and not too tight or thick (it hardens rigidly and warms the skin), and POP must be stored in a moisture-proof container.",
     ],
-    finalAnswer: "Question text is missing, cannot provide an answer.",
+    finalAnswer: "(a) Washing soda: Na₂CO₃·10H₂O; baking soda: NaHCO₃; Plaster of Paris: CaSO₄·½H₂O.\n(b) Washing soda: softening hard water / cleaning; baking soda: baking powder for cakes / antacid; POP: plaster for supporting fractured bones, making toys and decorative materials.\n(c) POP mixed with water sets quickly into hard gypsum (CaSO₄·2H₂O) with release of heat, so it must be applied carefully (not too tight or thick on the skin) and quickly, and must be stored in a moisture-proof container.",
   },
 
   // ------------------------ METALS & NON-METALS ------------------------
@@ -2145,19 +2142,18 @@ Fe + CuSO₄ → FeSO₄ + Cu`,
 (b) State two conditions necessary for this phenomenon.
 (c) Suggest two methods (other than painting) to protect iron from this damage.`,
     answer:
-      `(a) Corrosion / rusting of iron.
-(b) Presence of moisture (water) and air (oxygen).
-(c) Methods: galvanisation, oiling/greasing, alloying to form stainless steel, etc. (any two).`,
+      "(a) Corrosion of iron, called rusting.\n(b) Presence of air (oxygen) and water (moisture).\n(c) Any two: galvanisation (coating with zinc), oiling/greasing, electroplating/chrome plating, alloying (e.g. stainless steel).",
     explanation:
-      "Relates real-life example of iron structures with the concept of rusting and its prevention methods.",
+      "Relates the protection of an iron bridge to rusting, the two conditions it needs, and methods other than painting that prevent it.",
     policyTag: "Metals & non-metals – corrosion and its prevention",
     solutionSteps: [
-      "Corrosion is the slow eating up of metals due to reaction with air, moisture, acids. [1]",
-      "Rusting of iron requires both oxygen and water (moisture). [1]",
-      "Prevention methods include painting, oiling, greasing, galvanising, electroplating. [1]",
-      "Galvanising involves coating iron with a layer of zinc to protect it. [1]",
+      "[1 mark] (a) Unprotected iron slowly gets coated with a reddish-brown flaky substance; this corrosion of iron is called rusting.",
+      "[0.5 mark] (b) Condition 1: presence of air (oxygen).",
+      "[0.5 mark] (b) Condition 2: presence of water (moisture).",
+      "[1 mark] (c) Method 1: galvanisation — coating iron with a thin layer of zinc, which protects iron even if the coating is broken.",
+      "[1 mark] (c) Method 2: oiling/greasing, or alloying iron with chromium and nickel to make stainless steel (also accepted: electroplating).",
     ],
-    finalAnswer: "Question text is missing, cannot provide an answer.",
+    finalAnswer: "(a) Corrosion of iron, called rusting.\n(b) Presence of air (oxygen) and water (moisture).\n(c) Any two: galvanisation (coating with zinc), oiling/greasing, electroplating/chrome plating, alloying (e.g. stainless steel).",
   },
 
   // ------------------------ CARBON & ITS COMPOUNDS ------------------------
@@ -2260,19 +2256,21 @@ They protect the body from injury and enable quick responses without involving t
 (b) How can hormones in animals bring about long-term changes in the body?
 (c) Why should hormones be used carefully in agriculture and medicine?`,
     answer:
-      `(a) Auxin – cell elongation / rooting; gibberellin – stem elongation / breaking seed dormancy; cytokinin – cell division; (any two with functions).
-(b) Animal hormones like thyroxine, insulin, sex hormones regulate metabolism, growth and reproduction; long-term over/under secretion leads to disorders.
-(c) Excessive hormones may enter food chains, disturb ecosystems and cause health problems; in medicine wrong dose can cause serious side effects.`,
+      "(a) Any two: auxin – promotes cell elongation (growth of shoot tip, bending towards light); gibberellin – promotes growth of the stem; cytokinin – promotes cell division (e.g. in fruits and seeds); abscisic acid – inhibits growth, causes wilting of leaves.\n(b) Endocrine glands secrete hormones into the blood, which carries them to target organs; hormones act slowly but have long-lasting effects, e.g. growth hormone controls growth, thyroxine regulates metabolism, testosterone/oestrogen bring changes at puberty. Too little or too much secretion causes long-term disorders (dwarfism, gigantism, goitre, diabetes).\n(c) Hormones act in very small amounts, so excess or wrong doses disturb normal growth and body functions; synthetic hormone residues in crops may enter food chains and harm health and the ecosystem; in medicine an incorrect dose causes serious side effects.",
     explanation:
-      "Connects roles of hormones in plants and animals with real-life concerns over their excessive or improper use.",
+      "Connects the roles of hormones in plants and animals with real-life concerns over their excessive or improper use.",
     policyTag: "Control & coordination – hormones and regulation",
     solutionSteps: [
-      "Identify Auxin as the plant hormone causing the plant to bend towards light (phototropism). [1]",
-      "State Auxin's function: it promotes cell elongation in shoots, leading to bending. [1]",
-      "Identify Growth hormone deficiency (from Pituitary gland) as the cause of short stature. [1]",
-      "Identify Goitre as the swollen neck condition, caused by Iodine deficiency. [1]",
+      "[0.5 mark] (a) Auxin: synthesised at the shoot tip, promotes cell elongation (helps the shoot bend towards light).",
+      "[0.5 mark] (a) Gibberellin: promotes growth of the stem (cytokinin – promotes cell division, also accepted).",
+      "[0.5 mark] (b) Endocrine glands secrete hormones directly into the blood, which carries them to target organs all over the body.",
+      "[0.5 mark] (b) Hormones act slowly but have long-lasting effects, e.g. growth hormone controls growth, thyroxine regulates metabolism of carbohydrates, fats and proteins.",
+      "[0.5 mark] (b) Sex hormones (testosterone, oestrogen) bring about the long-term changes of puberty.",
+      "[0.5 mark] (b) The timing and amount of secretion are regulated by feedback; deficiency or excess causes lasting disorders (dwarfism, gigantism, goitre, diabetes).",
+      "[0.5 mark] (c) Hormones are effective in very small amounts, so excess use disturbs normal growth and functions; residues in crops can enter food chains and harm health and the ecosystem.",
+      "[0.5 mark] (c) In medicine, a wrong dose of a hormone can cause serious side effects, so it must be given only under medical supervision.",
     ],
-    finalAnswer: "(a) Auxin (b) Promotes cell elongation in shoots, causing the plant to bend towards light (phototropism). (c) Growth hormone deficiency; Pituitary gland. (d) Goitre; Iodine deficiency.",
+    finalAnswer: "(a) Any two: auxin – promotes cell elongation (growth of shoot tip, bending towards light); gibberellin – promotes growth of the stem; cytokinin – promotes cell division (e.g. in fruits and seeds); abscisic acid – inhibits growth, causes wilting of leaves.\n(b) Endocrine glands secrete hormones into the blood, which carries them to target organs; hormones act slowly but have long-lasting effects, e.g. growth hormone controls growth, thyroxine regulates metabolism, testosterone/oestrogen bring changes at puberty. Too little or too much secretion causes long-term disorders (dwarfism, gigantism, goitre, diabetes).\n(c) Hormones act in very small amounts, so excess or wrong doses disturb normal growth and body functions; synthetic hormone residues in crops may enter food chains and harm health and the ecosystem; in medicine an incorrect dose causes serious side effects.",
   },
 
   // ------------------------ REPRODUCTION ------------------------
