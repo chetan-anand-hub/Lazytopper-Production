@@ -315,15 +315,16 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq06 Q81 (Section D, 5mk)
   { id: "SCQ-S-LIFE-041", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "What are the differences between Aerobic and Anaerobic respiration? Name some organisms which use the anaerobic mode of respiration.",
-    answer: "[All India 2008] Chap 6 : Life Process Aerobic respiration Anaerobic respiration",
+    answer: "Differences: (1) Aerobic respiration occurs in the presence of oxygen; anaerobic respiration occurs in the absence of oxygen. (2) Aerobic: first step in cytoplasm, pyruvate broken down in mitochondria; anaerobic: occurs in the cytoplasm only. (3) Aerobic: glucose is completely broken down to carbon dioxide and water; anaerobic: incomplete breakdown to ethanol and carbon dioxide (yeast) or lactic acid (muscle cells). (4) Aerobic releases much more energy (ATP); anaerobic releases much less energy. Organisms using anaerobic respiration: yeast, some bacteria (e.g. Lactobacillus), parasitic worms such as tapeworm/Ascaris (also human muscle cells during vigorous exercise).",
+    finalAnswer: "Differences: (1) Aerobic respiration occurs in the presence of oxygen; anaerobic respiration occurs in the absence of oxygen. (2) Aerobic: first step in cytoplasm, pyruvate broken down in mitochondria; anaerobic: occurs in the cytoplasm only. (3) Aerobic: glucose is completely broken down to carbon dioxide and water; anaerobic: incomplete breakdown to ethanol and carbon dioxide (yeast) or lactic acid (muscle cells). (4) Aerobic releases much more energy (ATP); anaerobic releases much less energy. Organisms using anaerobic respiration: yeast, some bacteria (e.g. Lactobacillus), parasitic worms such as tapeworm/Ascaris (also human muscle cells during vigorous exercise).",
     solutionSteps: [
-      "[1 mark] Presence of oxygen: Aerobic respiration takes place in the presence of oxygen, whereas anaerobic respiration occurs in the absence of oxygen.",
-      "[1 mark] Site in the cell: Aerobic respiration is completed partly in the cytoplasm (glycolysis) and partly in the mitochondria; anaerobic respiration is completed entirely in the cytoplasm.",
-      "[1 mark] End products: In aerobic respiration glucose is completely oxidised to carbon dioxide and water; in anaerobic respiration glucose is incompletely broken down to ethanol and carbon dioxide (in yeast) or to lactic acid (in muscles).",
-      "[1 mark] Energy released: Aerobic respiration releases a large amount of energy (more ATP), while anaerobic respiration releases much less energy.",
-      "[1 mark] Examples of anaerobic organisms: Yeast and some bacteria such as Lactobacillus respire anaerobically."
+      "[1 mark] Oxygen: aerobic – presence of oxygen; anaerobic – absence of oxygen.",
+      "[1 mark] Site: aerobic – cytoplasm and mitochondria; anaerobic – cytoplasm only.",
+      "[1 mark] Products: aerobic – CO₂ + H₂O (complete breakdown); anaerobic – ethanol + CO₂ or lactic acid (incomplete breakdown).",
+      "[1 mark] Energy: aerobic – large amount released; anaerobic – much less energy released.",
+      "[1 mark] Organisms: yeast, some bacteria (Lactobacillus), tapeworm/parasitic worms."
     ],
-    ncertRef: "cbjesccq06 Q81", isCompetencyBased: false },
+    ncertRef: "cbjesccq06 Q81", isCompetencyBased: false, sourceOverride: "others" },
   // cbjesccq06 Q1 (Section D, 5mk)
   { id: "SCQ-S-LIFE-042", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Presence of air required. Presence of air not required 2. Occur in two steps: 1st Glycolysis in cytoplasm. 2nd in mitochondria. Complete process occurs in cytoplasm. 3. Glucose completely oxidized to CO, and H2O. Glucose incompletely oxidized to either an organic acid or alcohol with CO2. 4. Large amount of energy produced Less energy produced 5 E.g., man, higher plants E.g., yeast, lactobacillus 82. a. Mention any two components of blood. b. Trace the movement of oxygenated blood in the body. c. Write the function of valves present in between atria and ventricles. d. Write one structural difference between the composition of artery and veins. [All India 2018]",

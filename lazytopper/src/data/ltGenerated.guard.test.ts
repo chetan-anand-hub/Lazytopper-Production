@@ -34,6 +34,7 @@ import {
 } from "./canonicalQuestionBank";
 import type { CanonicalQuestion } from "./predictionTypes";
 import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix/bankFix1Pr2Withholds";
+import { BANK_FIX_5, type BankFix5Entry } from "./bankFix/bankFix5Ledger";
 import { resolveCanonicalSlug } from "./syllabus/canonicalTopicSlug";
 import { PredictionCore } from "./predictionCore";
 import { generatePracticeSet } from "./practiceSetGenerator";
@@ -54,13 +55,15 @@ const GEN: CanonicalQuestion[] = canonicalQuestionBank.filter((q) => q.origin ==
 // Owner rulings (2026-10-07): these generated rows are WITHHELD (kept in their pack, not served). No other
 // generated row may be withheld.
 //  - DEC-12: persistence of vision is not in the 2026-27 Human Eye content list.
-//  - 03:07Z Option B: sex determination ("brief introduction") capped at 8 CBQs with no 5-mark rows.
+//  - 03:07Z Option B: sex determination ("brief introduction") capped at 8 CBQs with no 5-mark rows;
+//    10:25Z cap = A: the 8 covers every generated row, so GEN-THIN LTG-S-HERED-102/106 are withheld too.
 //  - CI-1 13:0xZ: LTG-M-QE-284 part (iii) maxima via equal roots is out.
 const OWNER_WITHHELD_GENERATED: ReadonlySet<string> = new Set([
   "LTG-S-EYE-202", "LTG-S-EYE-207", "LTG-S-EYE-212", "LTG-S-EYE-215",
   "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291", "LTG-S-HERED-292",
   "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297", "LTG-S-HERED-298", "LTG-S-HERED-299",
   "LTG-M-QE-284", // 2026-10-07 CI-1 13:0xZ: part (iii) maxima via equal roots, OUT
+  "LTG-S-HERED-102", "LTG-S-HERED-106",
 ]);
 const BANK_BY_ID = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
 const RAW_BY_ID = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
@@ -78,10 +81,12 @@ const TEMPLATE_MAY_BE_WITHHELD = new Set(["figure", "duplicate", "garbled"]);
 //   LTG-M-TRIG-251 drone 60 m up, depression 30° -> 60°; LTG-M-TRIG-253 10 m ladder slipping 60° -> 30°;
 //   LTG-M-TRIG-255 helicopter 300 m up, lifeboat at 45° and swimmer at 30°.
 export const LIMIT_TEMPLATE_REVIEWED: ReadonlySet<string> = new Set(["LTG-M-TRIG-251", "LTG-M-TRIG-253", "LTG-M-TRIG-255"]);
-const templateOf = (q: CanonicalQuestion): CanonicalQuestion | undefined => {
+// BANK-FIX-5 (2026-10-10): a withhold's category comes from the BANK-FIX-1 PR-2 map OR the BANK-FIX-5 ledger, and both
+// go through the same TEMPLATE_MAY_BE_WITHHELD set. `ledger` is a parameter only so the CONTROL test can inject an entry.
+const templateOf = (q: CanonicalQuestion, ledger: readonly BankFix5Entry[] = BANK_FIX_5): CanonicalQuestion | undefined => {
   const id = String(q.shapedFrom);
   if (BANK_BY_ID.has(id)) return BANK_BY_ID.get(id);
-  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id);
+  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id) ?? ledger.find((e) => e.id === id && e.verdict === "withheld")?.category;
   const allowed = cat !== undefined && (TEMPLATE_MAY_BE_WITHHELD.has(cat) || (cat === "limit" && LIMIT_TEMPLATE_REVIEWED.has(q.id)));
   return allowed && WITHHELD_QUESTION_IDS.has(id) ? RAW_BY_ID.get(id) : undefined;
 };
@@ -178,6 +183,15 @@ describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped"
     expect(templateOf({ id: "LTG-M-TRIG-251", shapedFrom: "PB-M-2-TRIG-C-001" } as CanonicalQuestion)?.id).toBe("PB-M-2-TRIG-C-001");
     expect(templateOf({ id: "LTG-M-TRIG-999", shapedFrom: "PB-M-2-TRIG-C-001" } as CanonicalQuestion)).toBeUndefined();
     expect(templateOf({ shapedFrom: oos } as CanonicalQuestion)).toBeUndefined();
+    // BANK-FIX-5 (2026-10-10): the ledger's category feeds the SAME allowed set. Its "figure" withhold is accepted
+    // (PYQ-S-2025-MAG-006, template of LTG-S-MAG-277); a "wrong-key" withhold, or a made-up out-of-syllabus one, is a red.
+    const f5 = BANK_FIX_5.find((e) => e.verdict === "withheld" && e.category === "figure")!.id;
+    expect(f5).toBe("PYQ-S-2025-MAG-006");
+    expect(templateOf({ shapedFrom: f5 } as CanonicalQuestion)?.id).toBe(f5);
+    const wk = BANK_FIX_5.find((e) => e.verdict === "withheld" && e.category === "wrong-key")!.id;
+    expect(templateOf({ shapedFrom: wk } as CanonicalQuestion)).toBeUndefined();
+    const madeUp: readonly BankFix5Entry[] = [{ ...BANK_FIX_5.find((e) => e.id === f5)!, category: "out-of-syllabus" }];
+    expect(templateOf({ shapedFrom: f5 } as CanonicalQuestion, madeUp)).toBeUndefined();
     // every categorised id IS withheld (the map and the withhold block agree)
     expect([...BANK_FIX_1_PR2_WITHHOLD_CATEGORY.keys()].filter((id) => !WITHHELD_QUESTION_IDS.has(id))).toEqual([]);
   });
@@ -428,8 +442,12 @@ describe("GEN-THIN-1 PR-2 · CBQs of every mark", () => {
         expect(AI_GENERATED_QUESTION_IDS.has(q.id), `${q.id} is an AI-pack row`).toBe(false);
       }
     }
+    // 94 PR-2 rows exist; owner ruling 10:25Z (cap = A) withholds two of them (LTG-S-HERED-102/106), so 92 are served.
+    const rawPr2 = RAW_CANONICAL_QUESTION_BANK.filter((q) => q.origin === "lt-generated" && /-1\d\d$/.test(q.id));
+    expect(rawPr2.length).toBe(94);
     const pr2 = GEN.filter((q) => /-1\d\d$/.test(q.id));
-    expect(pr2.length).toBe(94);
+    expect(pr2.length).toBe(94 - rawPr2.filter((q) => OWNER_WITHHELD_GENERATED.has(q.id)).length);
+    expect(pr2.length).toBe(92);
     for (const q of pr2) expect(q.competencyVerified, q.id).toBe(true);
   });
 });

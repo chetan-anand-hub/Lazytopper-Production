@@ -239,8 +239,12 @@ function toCount(value) {
 /**
  * The five numbers one call adds to the ledger, plus whether its model was priced.
  *
- * costMicroInr = round((prompt * inputUsd/M + (output + thoughts) * outputUsd/M) * usdInr)
+ * costMicroInr = round(((prompt - cached) * inputUsd/M + cached * cachedInputUsd/M
+ *                        + (output + thoughts) * outputUsd/M) * usdInr)
  * — `tokens * usdPerMillion` is micro-dollars; times the rate it is micro-rupees.
+ * ★ CACHED INPUT AT THE CACHED RATE (METER-AUDIT-1). `cached` is usageMetadata.cachedContentTokenCount,
+ *   a SUBSET of promptTokenCount (clamped to it). A model with no cached rate in its price row keeps
+ *   the full input rate for those tokens — never a guessed discount. `promptTokens` stays the full prompt.
  * ★ THINKING IS COSTED AT THE OUTPUT RATE.
  * ★ THE PRICE IN FORCE AT `opts.nowMs` (the ledger's clock; Date.now() when absent), so a
  *   scheduled list-price change (modelPrices.cjs PRICE_CHANGES) is metered from its first minute.
@@ -250,12 +254,15 @@ function buildLedgerIncrement(record, opts = {}) {
   const promptTokens = toCount(r.promptTokenCount);
   const outputTokens = toCount(r.candidatesTokenCount);
   const thoughtsTokens = toCount(r.thoughtsTokenCount);
+  const cachedTokens = Math.min(promptTokens, toCount(r.cachedContentTokenCount));
   const atMs = Number.isFinite(opts.nowMs) ? opts.nowMs : Date.now();
   const price = priceFor(r.model, atMs);
   let costMicroInr = 0;
   if (price) {
+    const cachedRate = Number.isFinite(price.cachedInputUsdPerMillion) ? price.cachedInputUsdPerMillion : price.inputUsdPerMillion;
     const microUsd =
-      promptTokens * price.inputUsdPerMillion +
+      (promptTokens - cachedTokens) * price.inputUsdPerMillion +
+      cachedTokens * cachedRate +
       (outputTokens + thoughtsTokens) * price.outputUsdPerMillion;
     costMicroInr = Math.round(microUsd * usdInrRate(opts.env || process.env));
   }

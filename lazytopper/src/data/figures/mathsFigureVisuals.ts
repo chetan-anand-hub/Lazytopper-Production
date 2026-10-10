@@ -267,7 +267,7 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
   { id: "maths-circles-fig-pyq-m-2024-circ-010a", title: "Circle with centre O; diameter AB extended to P; tangent at Q passes through P; AQ and BQ drawn; angle BAQ marked 30°", chapter: "Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2024-CIRC-010a.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2024-CIRC-010a" }, // 30-2-1(Mathematics Standard).pdf p17 (embedded image)
   { id: "maths-circles-fig-pyq-m-2025-circ-006", title: "Circle with centre O; diameter AB extended to P; tangent PC touches the circle at C; CA, CB and OC drawn", chapter: "Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2025-CIRC-006.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2025-CIRC-006" }, // 30-3-1_Mathematics Standard.pdf p15
   { id: "maths-circles-fig-pyq-m-2025-circ-007", title: "Circle with centre O; chord AB with OM perpendicular to it at M; tangent PB touches the circle at B; OP drawn", chapter: "Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2025-CIRC-007.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2025-CIRC-007" }, // 30-3-3_Mathematics Standard.pdf p15
-  { id: "maths-triangles-fig-pyq-m-2026-tri-004", title: "Triangle with vertices A(1, 5), B(-2, 1) and C(4, 2); D on BC joined to A", chapter: "Triangles", subject: "maths", filePath: "/figures/pyq-maths/triangles/PYQ-M-2026-TRI-004.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2026-TRI-004" }, // 1172-3_30-5-3  (Mathematics Standard).pdf p13
+  { id: "maths-triangles-fig-pyq-m-2026-tri-004", title: "Triangle with vertices A(1, 5), B(-2, 1) and C(4, 2); D on BC joined to A", chapter: "Coordinate Geometry", subject: "maths", filePath: "/figures/pyq-maths/triangles/PYQ-M-2026-TRI-004.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2026-TRI-004" }, // 1172-3_30-5-3  (Mathematics Standard).pdf p13
   { id: "maths-circles-fig-pyq-m-2026-circ-002", title: "Circle with centre O; chord AB; angle AOB marked 120°; minor segment shaded", chapter: "Areas Related to Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2026-CIRC-002.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2026-CIRC-002" }, // 1171-1_30-4-1  (Mathematics Standard).pdf p15
   { id: "maths-circles-fig-pyq-m-2026-circ-005", title: "Circles with centres M and N; line T-A-P touches them at A and P; line T-B-Q touches them at B and Q; MQ = 13, NB = 8, QB = 35 cm; MN drawn; right angles marked", chapter: "Circles", subject: "maths", filePath: "/figures/pyq-maths/circles/PYQ-M-2026-CIRC-005.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2026-CIRC-005" }, // 1171-1_30-4-1  (Mathematics Standard).pdf p17
   { id: "maths-triangles-fig-apq-m-tri-001", title: "Triangle PQR with S on PQ and T on QR; ST drawn; angles at R and at T marked; PR = 20 cm", chapter: "Triangles", subject: "maths", filePath: "/figures/apq-maths/triangles/APQ-M-TRI-001.webp", keywords: [], isInteractive: false, questionId: "APQ-M-TRI-001" }, // Mathematics-PQ1.pdf p5
@@ -289,6 +289,21 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
   { id: "maths-triangles-fig-tri-n-exmplr-6-sa-011", title: "Triangle ABC with D on side AB; CD drawn", chapter: "Triangles", subject: "maths", filePath: "/figures/exemplar-maths/triangles/TRI-N-EXMPLR-6-SA-011.webp", keywords: [], isInteractive: false, questionId: "TRI-N-EXMPLR-6-SA-011" }, // jeep206.pdf p11 (vector figure rendered at 200 dpi with the NCERT watermark image layer removed; strokes untouched)
   { id: "maths-circles-fig-cir-m05", title: "Circle with centre O; parallel tangents XY and X'Y' touch it at P and Q; a third tangent touches it at C and meets XY at A and X'Y' at B; OA, OB and the line POQ drawn", chapter: "Circles", subject: "maths", filePath: "/figures/ncert-maths/circles/CIR-M05.webp", keywords: [], isInteractive: false, questionId: "CIR-M05" }, // jemh110.pdf p9 (vector figure rendered at 200 dpi with the NCERT watermark image layer removed; strokes untouched)
   // === DIAGRAMS-1 PR-1 — END ===
+  // === DIAGRAMS-1 PR-6 (Maths question figures: Trigonometry + Coordinate Geometry) — BEGIN ===
+  // Same standard as PR-1: official sources only (CBSE board papers, CBSE Additional Practice Questions, CBSE sample
+  // papers, NCERT, NCERT Exemplar), PyMuPDF 200 dpi render of the figure's own region (or, where the renderer mis-decodes
+  // an embedded image, that image's raw stream decoded as-is), white margins trimmed, WebP. Nothing drawn, traced,
+  // retouched or redrawn. Each binding was eye-confirmed against ITS row (crop opened beside the stem; every label / value
+  // / symbol the stem names checked present and uncontradicted). `title` is the <img alt>: it describes ONLY what the
+  // printed figure shows. Trailing comment = source PDF and 1-based page. Eye-confirm table: DIAGRAMS-1 PR-6 evidence.
+  { id: "maths-trigonometry-fig-apq-m-trig-003", title: "Worked simplification of (cosec θ + cot θ − 1)/(cosec θ − cot θ + 1) in four lines labelled step 1 to step 4, ending in cot θ + cosec θ", chapter: "Trigonometry", subject: "maths", filePath: "/figures/apq-maths/trigonometry/APQ-M-TRIG-003.webp", keywords: [], isInteractive: false, questionId: "APQ-M-TRIG-003" }, // Mathematics-PQ1.pdf p9
+  { id: "maths-trigonometry-fig-apq-m-trig-010", title: "Drone above and to the left of a tree top; horizontal line of 5√3 m from below the drone to the tree top; angle 30° at the tree top; right angle marked", chapter: "Trigonometry", subject: "maths", filePath: "/figures/apq-maths/trigonometry/APQ-M-TRIG-010.webp", keywords: [], isInteractive: false, questionId: "APQ-M-TRIG-010" }, // Mathematics-PQ1.pdf p26
+  { id: "maths-trigonometry-fig-apq-m-trig-010-2", title: "Jeep on the ground; dashed line of sight to the drone at an angle of 60°; drone's height 50√3 m; right angle marked below the drone", chapter: "Trigonometry", subject: "maths", filePath: "/figures/apq-maths/trigonometry/APQ-M-TRIG-010-2.webp", keywords: [], isInteractive: false, questionId: "APQ-M-TRIG-010" }, // Mathematics-PQ1.pdf p27
+  { id: "maths-trigonometry-fig-apq-m-trig-010-3", title: "Drone at height 54√3 m; lines from the drone to two tigers on the ground make 30° and 45° with the vertical; jeep on the left; right angle marked", chapter: "Trigonometry", subject: "maths", filePath: "/figures/apq-maths/trigonometry/APQ-M-TRIG-010-3.webp", keywords: [], isInteractive: false, questionId: "APQ-M-TRIG-010" }, // Mathematics-PQ1.pdf p27
+  { id: "maths-trigonometry-fig-apq-m-trig-017", title: "Planes A, B and C in the sky; Anuja and Sarthak on the ground 1365 m apart", chapter: "Trigonometry", subject: "maths", filePath: "/figures/apq-maths/trigonometry/APQ-M-TRIG-017.webp", keywords: [], isInteractive: false, questionId: "APQ-M-TRIG-017" }, // Mathematics-PQ_2022.pdf p19
+  { id: "maths-coordinate-geometry-fig-apq-m-cg-005", title: "Archery target on x- and y-axes: concentric circles of radius 1, 2, 3 and 4 centred at O; key: 30, 20, 10 and 5 points from the centre outwards", chapter: "Coordinate Geometry", subject: "maths", filePath: "/figures/apq-maths/coordinate-geometry/APQ-M-CG-005.webp", keywords: [], isInteractive: false, questionId: "APQ-M-CG-005" }, // Mathematics-PQ1.pdf p24
+  { id: "maths-coordinate-geometry-fig-pyq-m-2024-cg-006", title: "Rocket design drawn on graph paper with x-axis −6 to 6 and y-axis −5 to 5; vertices labelled A, B, C, D, E, F and G", chapter: "Coordinate Geometry", subject: "maths", filePath: "/figures/pyq-maths/coordinate-geometry/PYQ-M-2024-CG-006.webp", keywords: [], isInteractive: false, questionId: "PYQ-M-2024-CG-006" }, // 30-4-3(Mathematics Standard).pdf p23 (embedded images, 4 strips stacked)
+  // === DIAGRAMS-1 PR-6 — END ===
 ];
 
 // DIAGRAMS-1 PR-1 — rows that carry a bound figure above but are WITHHELD from the served bank (BANK-FIX-1 #1007
@@ -297,21 +312,14 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
 // withheld for a text defect BANK-FIX did not repair. The figure tests read this list: a row listed here that is in fact
 // served fails, so the list cannot go stale. NOT parsed by tutor_visual_catalogue_acceptance.mjs (no filePath here).
 export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
-  "SQP-M-TRI-003": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
-  "APQ-M-TRI-003": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
-  "APQ-M-TRI-009": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
-  "APQ-M-CIRC-010": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
-  "PYQ-M-CIRC-001": "withheld by BANK-FIX for its missing figure; stem clean, figure bound - un-withhold candidate (PR-1b)",
   "APQ-M-TRI-005": "stays withheld: solutionSteps[0] is a 'REQUIRES-FIGURE' placeholder",
-  "APQ-M-CIRC-009": "stays withheld: answer '(cannot be uniquely determined ...)' contradicts finalAnswer '(c) 80°'",
-  "PYQ-M-TRI-002": "stays withheld: stem 'AB PQ' lost its parallel sign",
-  "PYQ-M-TRI-003": "stays withheld: stem 'A = C' lost its angle signs",
-  "PYQ-M-TRI-004": "stays withheld: stem 'DE BC' lost its parallel sign",
-  "PYQ-M-CIRC-006": "stays withheld: '25o' / '65 o' degree signs garbled",
-  "PYQ-M-CIRC-007": "stays withheld: 'COD = 120 , then BAO' lost angle and degree signs",
-  "PYQ-M-CIRC-013": "stays withheld: 'QAP + APR = 90 .' lost angle and degree signs",
-  "PYQ-M-2024-CIRC-003": "stays withheld: run-together stem with the angle sign garbled to a stray glyph",
-  "PYQ-M-2024-CIRC-010a": "stays withheld: run-together garbled stem; answer and steps are digit garbage",
-  "PYQ-M-2026-TRI-004": "stays withheld: answer/steps glyph-garbled (also a coordinate-geometry item tagged triangles)",
+  "APQ-M-CIRC-009": "stays withheld (D37): the official APQ item is internally inconsistent - KL = 6, KM = LM = 5 force ∠K ≈ 53.13°, but the figure labels ∠K = 50° and the key 80° relies on that label",
   "PYQ-M-2026-CIRC-005": "stays withheld: mark residues inside the stem; finalAnswer covers part (ii) only",
+
+  // DIAGRAMS-1 PR-6 — maths rows BANK-FIX withheld for their missing figure, now bound.
+  "APQ-M-TRIG-003": "withheld by BANK-FIX for its missing figure (the worked steps); stem clean, figure bound - un-withhold candidate",
+  "APQ-M-TRIG-010": "withheld for its missing figure; all three printed figures bound (they carry the 50√3 m and 54√3 m heights the stem omits) - un-withhold candidate",
+  "APQ-M-TRIG-017": "withheld by BANK-FIX for its missing figure; figure bound - un-withhold ALSO needs a stem fix: (ii) and OR (iii) drop the source's 'landing formation' / 'during a maneuver', so 790 m vs ≈591 m reads as a contradiction",
+  "APQ-M-CG-005": "withheld by BANK-FIX for its missing figure (ring radii and points); stem clean, figure bound - un-withhold candidate",
+  "PYQ-M-2024-CG-006": "stays withheld: figure bound, but the answer lost its minus signs (row says D(2, 5); the figure prints D(-2, -5)) and `answer` reads '(3, 7 2)'",
 };

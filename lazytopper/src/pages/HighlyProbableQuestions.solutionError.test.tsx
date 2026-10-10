@@ -68,6 +68,10 @@ async function openSteps() {
     </MemoryRouter>,
   );
   await screen.findByText(/square root of 5 is irrational/);
+  // PRACTICE-HONESTY-1 — steps are locked until an attempt; this suite is about the error
+  // copy, so it unlocks the row the student-facing way ("Show all solutions"), then opens.
+  expect(screen.queryByRole("button", { name: /Show steps/i })).toBeNull();
+  fireEvent.click(screen.getByTestId("hpq-show-all-solutions"));
   fireEvent.click(screen.getByRole("button", { name: /Show steps/i }));
 }
 

@@ -63,9 +63,9 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-TRI-006", subject: "Maths", topicKey: "triangles", subtopic: "Similarity — Proof", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "In given figure, DB ⊥ BC, DE ⊥ AB and AC ⊥ BC. Prove that BE/DE = AC/BC. OR If AD and PM are the medians of triangles ABC and PQR respectively where ΔABC ~ ΔPQR, prove that AB/PQ = AD/PM.",
     answer: "Proved.",
-    solutionSteps: ["[Variant 1] ∠DEB = ∠ACB = 90°. ∠ABC = 90° − ∠DBE; ∠BDE = 90° − ∠DBE ⟹ ∠ABC = ∠BDE. So ΔBDE ~ ΔABC (AA) ⟹ BE/AC = DE/BC ⟹ BE/DE = AC/BC.", "[Variant 2] ΔABC ~ ΔPQR ⟹ AB/PQ = BC/QR. Medians AD = ½BC, PM = ½QR (wait, AD bisects BC at D, so BD = ½BC; similarly QM = ½QR). AB/PQ = 2BD/(2QM) = BD/QM. With ∠B = ∠Q (similar triangles), ΔABD ~ ΔPQM (SAS), hence AB/PQ = AD/PM."],
+    solutionSteps: ["[Variant 1] ∠DEB = ∠ACB = 90°. ∠ABC = 90° − ∠DBE; ∠BDE = 90° − ∠DBE ⟹ ∠ABC = ∠BDE. So ΔBDE ~ ΔABC (AA) ⟹ BE/AC = DE/BC ⟹ BE/DE = AC/BC.", "[Variant 2] ΔABC ~ ΔPQR ⟹ AB/PQ = BC/QR and ∠B = ∠Q. AD and PM are medians, so D and M are the mid-points of BC and QR: BD = ½BC and QM = ½QR ⟹ BD/QM = BC/QR = AB/PQ. In ΔABD and ΔPQM, AB/PQ = BD/QM and ∠B = ∠Q, so ΔABD ~ ΔPQM (SAS similarity), hence AB/PQ = AD/PM."],
     finalAnswer: "Both variants proved.",
-    ncertRef: "APQ PQ2 Q23", isCompetencyBased: true,
+    ncertRef: "APQ PQ2 Q23", isCompetencyBased: true, sourceOverride: "others",
     strategyHint: "REQUIRES-FIGURE for both variants." },
 
   // PQ2 Q33 (Section D, Long, 5 marks)

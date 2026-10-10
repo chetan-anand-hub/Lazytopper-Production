@@ -1926,6 +1926,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LTG-S-HERED-283", "LTG-S-HERED-286", "LTG-S-HERED-288", "LTG-S-HERED-289", "LTG-S-HERED-291",
   "LTG-S-HERED-292", "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297",
   "LTG-S-HERED-298", "LTG-S-HERED-299", // the two 5-mark sex-determination rows
+  // owner ruling 10:25Z (cap = A): the cap of 8 covers ALL generated rows, so the two GEN-THIN sex-determination rows
+  // are withheld too (official CBSE sex-determination questions are not capped) ----
+  "LTG-S-HERED-102", "LTG-S-HERED-106",
   // ---- BANK-FIX-1 PR-2 (2026-10-07): broken tagging, duplicates, missing figures, out-of-syllabus (withholds2.json) ----
   "PYQ-S-2026-ACID-012",        // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "PYQ-S-ACID-001",             // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
@@ -1946,15 +1949,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "CARB-EXMPLR-4-MCQ-024",      // figure: Structures (ii)-(iv) are a placeholder; answer depends on missing figure.
   "SCO-S-CARB-010",             // figure: Stem relies on 'structures of three hydrocarbons given below' which are absent; the answer cannot be determined without them.
   "PYQ-S-2026-CHEMRXN-013",     // figure: Part (i) asks to identify 'P' in a leaf cross-section diagram not present; answer fields are also truncated ('photosynthesis.'). Also mis-chaptered (Life Processes).
-  "APQ-M-CIRC-009",             // figure: Needs the figure: positions of P, Q, L, M are not recoverable from text; answer field contradicts finalAnswer (80°), and a text reconstruction gives neither key.
-  "APQ-M-CIRC-010",             // figure: Stem gives no angle; the 25° and the position of P exist only in the absent figure. Cannot be answered from text.
-  "PYQ-M-2024-CIRC-003",        // figure: ∠x is defined only in the absent figure; the stem cannot be answered from text and the garble cannot reveal what x is.
-  "PYQ-M-2024-CIRC-010a",       // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
-  "PYQ-M-CIRC-001",             // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
-  "PYQ-M-CIRC-006",             // figure: x is an angle defined only in the missing figure; cannot be stated without inventing the figure.
-  "PYQ-M-CIRC-007",             // figure: Point D and the angle COD are defined only by the figure; answer 30° cannot be reconstructed confidently from text.
+  "APQ-M-CIRC-009",             // figure: the official APQ item is internally inconsistent (D37): KL = 6, KM = LM = 5 force ∠K ≈ 53.13°, but the figure labels ∠K = 50° and the key 80° relies on that label.
   "PYQ-M-2026-CIRC-005",        // figure: Two-circle configuration (points P, A, S, positions of M,N,T) needs the figure; scheme itself notes ambiguity of TB (45 vs 56 cm).
-  "PYQ-M-CIRC-013",             // figure: Position of A and Q (and that A, O, Q are collinear, which the proof relies on) is fixed only by the figure; not stated in text.
   "CTRL-EXMPLR-6-SA-003",       // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "SCO-S-CTRL-012",             // figure: Positions of anaesthetic blocks X, Y, Z exist only in the missing figure; answer 'At Z' cannot be determined from text.
   "APQ-M-CG-005",               // figure: The ring radii and point values of the target board are figure-only. Parts (i)-(iii) depend on them, and the 2/3 boundary radii in the steps come from the unseen figure.
@@ -1968,12 +1964,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "HERED-EXMPLR-8-LA-002",      // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "SCO-S-REPR-014",             // figure: Options are numbered labels 1-5 of a carpel diagram that is not provided; unanswerable.
   "SCO-S-REPR-015",             // figure: Options are bare letters A-D referring to a missing table of conditions; option content not recoverable.
-  "APQ-S-LIFE-002",             // figure: Options are graphs P/Q/R/S not described anywhere in the row; cannot be answered without the figure.
-  "APQ-S-LIFE-012",             // figure: All parts rely on chamber numbers 6-9 and structure 12 of a heart diagram that is not provided or described.
   "PYQ-S-LIFE-002",             // figure: Asks to identify cells I-IV in a diagram that is not provided or described; option (d) also garbled.
   "SCO-S-LIFE-003",             // figure: Asks which numbered cells (1-4) of a leaf diagram contain chloroplasts; diagram neither provided nor described.
   "SCO-S-LIFE-020",             // figure: Labels W, X, Y, Z exist only in the missing diagram of the gas-exchange system; stem is also garbled. Cannot be answered without inventing the figure.
-  "PYQ-S-2025-LIGHT-005",       // figure: Options are angle numbers 1-7 marked on an undescribed prism figure; no text in the row identifies which number is which angle - unanswerable without the figure.
   "PYQ-S-2026-MAG-001",         // figure: Part (a)(i) depends on an undrawn diagram of magnets X and Y, and the OR block is Hindi-stripped garble. The answer only covers part of the question. Not authored.
   "PYQ-S-MAG-002",              // figure: Answer depends on the alpha particle's direction 'as shown' (no figure or text given). The options are also generic Assertion-Reason residue, so neither options nor ke...
   "PYQ-S-MAG-003",              // figure: The directions of the field and the particle's entry exist only in the absent figure ('as shown'), so the direction of force cannot be derived from the row text.
@@ -1988,21 +1981,14 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SQP-M-POLY-001",             // figure: Question is entirely about a graph not present in the text ('The given linear polynomial y = f(x)'); answer cannot be determined without it.
   "APQ-M-STAT-003",             // figure: Needs the weight frequency table, which is absent; the row carries no table data (steps say REQUIRES-FIGURE), so it cannot be answered or reconstructed.
   "APQ-M-STAT-008",             // figure: Needs the pyramid graph of MP ages; the row carries only Σf/Σfx totals, not the age-group data, so the figure cannot be reconstructed from the row.
-  "APQ-M-TRI-003",              // figure: Rod lengths/positions exist only in the figure; row's text carries no data (step says only 'Per MS: 111/7'). Cannot be answered or reconstructed.
   "APQ-M-TRI-005",              // figure: x and y are undefined in the stem and the row carries no figure description ('REQUIRES-FIGURE' placeholder). Unanswerable.
   "APQ-M-TRI-008",              // figure: Figure matches (right angle B, PT∥AB, SR∥BC, QT = 8 cm) but gives no AB/BC or position of P; with only AC = 25 and QT = 8 the area of ΔPQR is not determined. Steps' RC...
-  "APQ-M-TRI-009",              // figure: p and r are defined only in the figure; row text never defines r. Unanswerable from text.
-  "PYQ-M-2026-TRI-004",         // figure: Vertex coordinates exist only in the figure; stem gives none and the answer text is glyph-garbled, so B and C cannot be recovered with confidence. (Also belongs to coo...
-  "PYQ-M-TRI-002",              // figure: Position of O relative to A, B, P, Q is only in the figure; row text (answer/steps) carries no configuration, so the stem cannot be made self-contained.
-  "PYQ-M-TRI-003",              // figure: Positions of B, D, P relative to A and C are only in the figure; row text carries no configuration. Unanswerable from text.
-  "PYQ-M-TRI-004",              // figure: No lengths/expressions for x appear in the row; all data is in the missing figure.
-  "SQP-M-TRI-003",              // figure: Part (b) depends on an unprovided figure (positions of A,B,D,E,F,C); no diagramDescription and the steps do not fix the configuration reliably.
   "APQ-M-TRIG-003",             // figure: The 'solved problem shown below' (its steps) is not included in the row; question cannot be answered.
   "PYQ-M-2026-TRIG-002",        // figure: Refers to 'the diagram given above'; d, y, h, x and point X are defined only in the figure (none bound), sub-parts depend on them, and answer omits parts. Not reconstr...
   "APQ-M-TRIG-017",             // figure: Row itself says REQUIRES-FIGURE; positions of planes relative to Anuja/Sarthak (e.g. C between them) are not in the text, and OR (iii) altitude of plane A (≈591 m) con...
   "ARC-M06",                    // duplicate: Near-verbatim duplicate of ARC-M02 (same table cover, r = 28, ₹0.35). ARC-M02 is repaired and kept; this copy also depends on the missing figure.
   "CIR-M08",                    // duplicate: duplicate of CIRC-N-NCERT-10-SA-004 (kept): Same AB+CD=AD+BC proof; keep official NCERT over LT-authored (pending fix is a step edit, not a withhold).
-  "PYQ-M-2024-CIRC-011a",       // duplicate: Identical question to PYQ-M-2024-CIRC-010a (same garbled stem plus '3 OR' residue); 010a is repaired, this is the worse copy.
+  "PYQ-M-2024-CIRC-011a",       // duplicate: Identical question to PYQ-M-2024-CIRC-010a (CBSE 2024 30/2/2 Q26(a) = 30/2/1 Q28(a)); 010a is served with the bound figure, this copy has none.
   "LIFE-EXMPLR-5-MCQ-034",      // duplicate: Same item as LIFE-EXMPLR-5-MCQ-014 (path of urine, identical four options reordered, same answer). Keep MCQ-014 (now correctly tagged Excretion); withhold this later c...
   "LP2-054",                    // duplicate: Exact duplicate stem/options of LP2-001. Also weaker: 'Bacteria' distractor is arguable (some bacteria are autotrophic). Withhold this later copy, keep LP2-001.
   "PYQ-M-POLY-006",             // duplicate: Same question as PYQ-M-POLY-005 (other paper set) with SECTION–C header residue and the same truncated answer; 005 is the repaired copy, this is the worse duplicate.
@@ -2087,9 +2073,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCO-S-ENV-019",              // out-of-syllabus: Human impact on the nitrogen cycle (acid rain, greenhouse gas) is outside Class 10 Our Environment 2026-27; external row.
   "Z3-QE-003",                  // out-of-syllabus: Whole case is about a quadratic function's graph: y-/x-intercepts, vertex for maximum profit. Not 2026-27 Class 10 QE. Three of four answers are also 'pending verifica...
   "APQ-M-RN-002",               // out-of-syllabus: Requires proving √6 (composite-surd) irrational - composite-surd irrationality is OUT for 2026-27 per syllabusGuard; row is official APQ (not authored), so not repaired.
-  "SAV-N-EXEM2-12-LA-010",      // out-of-syllabus: Transferring a bowl's liquid into bottles is the deleted 'conversion of solids' type; exemplar (not authored) row, cannot be naturally kept within scope. Also mis-tagg...
-  "SAV2-R06",                   // out-of-syllabus: Cistern-and-porous-bricks problem is from the deleted optional exercise (conversion/volume-transfer type); it is an NCERT copy, not naturally repairable within the 202...
-  "SAV2P1-R02",                 // out-of-syllabus: Hemispherical bowl → cylindrical bottles is the deleted conversion-of-solids type (same item as SAV-N-EXEM2-12-LA-010); repairing it would remove its entire content.
   "TRI-N-NCERT-6-CB-002",       // out-of-syllabus: Built on NCERT Ex 6.5 Q10 (Pythagoras theorem section, deleted from 2026-27 Triangles); every part is pure Pythagoras with no Class 10 chapter home. Not LazyTopper-aut...
   "AR-TRI-009",                 // out-of-syllabus: Assertion–Reason on RHS congruence of right triangles is Class 9 congruence content, not in Class 10 2026-27 syllabus; no natural repair within Triangles (similarity/B...
   "PB-M-2-TRI-A-002",           // out-of-syllabus: Triangle-inequality / construction feasibility is Class 7/9 content with no home in the 2026-27 Class 10 syllabus; preboard row, not authored.
@@ -2119,8 +2102,20 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "2026-TRIG-P1-A-041",         // not-board-content: "from which side should you start a proof" is proof-writing advice, not a question on the syllabus
   "2026-TRIG-P1-A-043",         // not-board-content: "what final phrase ends a proof" (Hence proved) is exam etiquette, not syllabus content
   "2026-TRIG-P1-A-044",         // not-board-content: "what to do before part (i) of a case study" is exam technique, not syllabus content
+  // BANK-FIX-3 (2026-10-07): out of syllabus — the case asks for a MAXIMUM; 2026-27 Quadratic Equations has no maxima
+  "Z3-QE-005",                  // out-of-syllabus: maximisation (2026-27 QE has no maxima)
+  "Z3-QE-006",                  // out-of-syllabus: maximisation (2026-27 QE has no maxima)
+  "SAV2P1-R02",                 // duplicate: duplicate of SAV-N-EXEM2-12-LA-010 (official exemplar kept)
+  // BANK-FIX-3 PR-B (2026-10-07): nine figure-bound rows repaired to the official CBSE wording are served again after the
+  // bf3b blind re-solve agreed (ledger: bankFix3Ledger.ts); APQ-M-CIRC-009 and PYQ-M-2024-CIRC-011a stay withheld above.
   // ---- CBQ-1 C3 (owner ruling 2026-10-07, CI-1 13:0xZ) ----
   "LTG-M-QE-284",               // owner ruling 2026-10-07 (CI-1 13:0xZ): part (iii) 'greatest height' via equal roots = maxima, OUT (generated CBQ; withheld, not deleted)
+  // BANK-FIX-5 (2026-10-10): BANK-AUDIT-2 wrong-key rows that cannot be re-keyed from the row (ledger: bankFix5Ledger.ts)
+  "PYQ-S-2026-CHEMRXN-019",     // wrong-key: garbled multi-part item from another chapter that needs diagrams; the key covers only (B)(c)
+  "PYQ-S-2025-MAG-006",         // wrong-key: needs three unbound diagrams; the key carries heart-circulation text from another question
+  "SCQ-S-CTRL-029",             // wrong-key: the key and steps are only a table header; no answer to recover from the row
+  "SCQ-S-CTRL-037",             // wrong-key: the stored key and steps belong to another question
+  "SCO-S-CTRL-011",             // needs-figure: the stem needs a labelled diagram and no figure is bound (a later DIAGRAMS item)
 ]);
 
 /**

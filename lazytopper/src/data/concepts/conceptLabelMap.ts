@@ -332,6 +332,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Basic Proportionality Theorem (Statement, Proof and Application)": "BPT (Basic Proportionality Theorem)",
     "Basic Proportionality Theorem (Thales)": "BPT (Basic Proportionality Theorem)",
     "Basic Proportionality Theorem — Application": "BPT (Basic Proportionality Theorem)",
+    "Basic Proportionality Theorem — Statement, Proof, and Application": "BPT (Basic Proportionality Theorem)", // DIAGRAMS-1 PR-1b: SQP-M-TRI-003 served again
     "Basic Proportionality Theorem — Statement and Application": "BPT (Basic Proportionality Theorem)",
     "Board-style proof checking": "Similarity Criteria",
     "Converse of BPT": "BPT (Basic Proportionality Theorem)",
@@ -461,6 +462,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Bisecting Arc": "Tangent Theorems & Proofs",
     "Circle Inscribed in Two Squares — Radius": "Tangent Properties",
     "Circumscribed Quadrilateral": "Tangent Theorems & Proofs",
+    "Inscribed Angle and Tangent — ∠OQN": "Tangent Properties", // DIAGRAMS-1 PR-1b: APQ-M-CIRC-010 served again (radius ⊥ tangent, as "Angle at Centre and Tangent")
     "Common Tangent — Two Semicircles": "Tangent Properties",
     "Concentric Circles": "Tangent Properties",
     "Cyclic Quadrilateral PQOR": "Tangent Properties",
@@ -1247,7 +1249,6 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
   },
   "magnetic-effects-of-electric-current": {
     "Bar Magnet": "Right-hand Rules & Field Lines",
-    "Current-Carrying Conductors": "Right-hand Rules & Field Lines",
     "Electromagnet": "Right-hand Rules & Field Lines",
     "Electromagnets — core material": "Right-hand Rules & Field Lines",
     "Magnetic Field": "Right-hand Rules & Field Lines",
@@ -1316,6 +1317,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Gastric Glands": "Nutrition & Respiration (Human + Plants)",
     "Haemoglobin": "Transportation & Excretion in Humans",
     "Heart": "Transportation & Excretion in Humans",
+    "Heart Anatomy — Chambers and Vessels": "Transportation & Excretion in Humans", // DIAGRAMS-1 PR-1b: APQ-S-LIFE-012 served again
     "Heart Chambers": "Transportation & Excretion in Humans",
     "Heart — Oxygenated Blood Inlet and Septum Significance": "Transportation & Excretion in Humans",
     "Human Digestive System": "Nutrition & Respiration (Human + Plants)",
@@ -1336,6 +1338,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Nutrition — Photosynthesis": "Nutrition & Respiration (Human + Plants)",
     "Nutrition — Saprophytic Mode (External Digestion)": "Nutrition & Respiration (Human + Plants)",
     "Nutrition — Saprophytic Nutrition": "Nutrition & Respiration (Human + Plants)",
+    "Oxygen Saturation vs Altitude": "Transportation & Excretion in Humans", // DIAGRAMS-1 PR-1b: APQ-S-LIFE-002 served again (haemoglobin O2 binding, as "Haemoglobin" / "Transport of Oxygen in Blood")
     "Parasites": "Nutrition & Respiration (Human + Plants)",
     "Peristalsis": "Nutrition & Respiration (Human + Plants)",
     "Peristalsis in Alimentary Canal": "Nutrition & Respiration (Human + Plants)",
@@ -1691,8 +1694,6 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Quadratic Equations": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
     "Standard Form": { reason: "concept-gap", note: "audit (verified): identifying/reducing to standard form ax^2+bx+c=0 (propose concept \"Standard Form & Forming Quadratic Equations\")" },
     "Sum and Product of Roots": { reason: "other-chapter", note: "audit (verified): OTHER-CHAPTER: polynomials (zeroes-coefficient relation)" },
-    "Word Problems (Discriminant – Area Applications)": { reason: "off-syllabus", note: "off-syllabus: rows (Z3-QE-005/006) ask for MAXIMUM area — vertex/optimisation is outside 2026-27 QE" },
-    "Word Problems (Projectile Height)": { reason: "off-syllabus", note: "off-syllabus: row Z3-QE-002 part (iv) asks maximum height (vertex/optimisation)" },
   },
   "arithmetic-progression": {
     "Derivation of nth Term and Sum of n Terms": { reason: "spans-concepts", note: "spans-concepts: rows derive BOTH the nth-term and the sum formula (fix round 1, controller C1; same treatment as the other dual label)" },
