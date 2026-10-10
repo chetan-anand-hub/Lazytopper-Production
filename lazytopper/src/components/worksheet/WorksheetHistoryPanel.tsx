@@ -23,7 +23,7 @@ interface WorksheetHistoryPanelProps {
   pendingOnly: boolean;
   onClose: () => void;
   /** PENDING-UPLOAD-1: an ungraded row opens its upload step. */
-  onUpload?: (record: SessionRecord) => void;
+  onUpload?: (record: SessionRecord) => boolean | Promise<boolean>;
 }
 
 export default function WorksheetHistoryPanel({

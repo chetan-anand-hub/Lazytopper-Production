@@ -23,7 +23,6 @@ import type { WorksheetGradeResponse } from "../ai/aiClient";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import {
   buildWorksheetSessionRecord,
-  getSessionRecordsFromCloud,
   loadLocalSessionRecords,
   writeSessionRecord,
   type SessionRecord,
@@ -180,10 +179,19 @@ export async function recordWorksheetDownload(
 ): Promise<void> {
   const uid = cloudUid(user);
   if (!uid || !nomen.code) return;
+  // Read THIS record's own document, never the local mirror: a stale mirror must not let a
+  // pending write replace a grade made on another device. A read we cannot complete writes
+  // nothing (the download still works; the pending card appears on the next successful one).
   let existing: SessionRecord | undefined;
-  try {
-    existing = (await getSessionRecordsFromCloud(uid)).find((r) => r.id === nomen.code);
-  } catch {
+  if (firestoreDb) {
+    try {
+      const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "records", nomen.code.replace(/[/.#$[\]\s]/g, "_")));
+      existing = snap.exists() ? (snap.data() as SessionRecord) : undefined;
+    } catch (error) {
+      console.warn("[worksheetPaperStore] record read failed; pending record not written", error);
+      return;
+    }
+  } else {
     existing = loadLocalSessionRecords(uid).find((r) => r.id === nomen.code);
   }
   if (existing && existing.status !== "pending-upload") return;

@@ -78,7 +78,7 @@ interface SurfaceHistoryProps {
   pendingOnly?: boolean;
   /** PENDING-UPLOAD-1: when given, tapping an ungraded row opens its upload step instead of
    *  the read-only card. Absent -> every surface using this component is unchanged. */
-  onUpload?: (record: SessionRecord) => void;
+  onUpload?: (record: SessionRecord) => boolean | Promise<boolean>;
 }
 
 function formatDate(ms: number): string {
@@ -252,7 +252,14 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
                 <button
                   type="button"
                   className="lt-sh__row"
-                  onClick={() => (r.status !== "graded" && onUpload ? onUpload(r) : setReopen(r))}
+                  onClick={() => {
+                    if (r.status === "graded" || !onUpload) return setReopen(r);
+                    // The host returns false when it has no paper to upload against: the row then
+                    // keeps its read-only stored scorecard (a partial grade's marks stay reachable).
+                    void Promise.resolve(onUpload(r)).then((handled) => {
+                      if (!handled) setReopen(r);
+                    });
+                  }}
                   aria-label={`Re-open the ${r.title} scorecard`}
                 >
                   <span className="lt-sh__rmain">
@@ -290,7 +297,7 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
               onUpload && reopen.status !== "graded"
                 ? () => {
                     closeReopen();
-                    onUpload(reopen);
+                    void onUpload(reopen);
                   }
                 : undefined,
           })}

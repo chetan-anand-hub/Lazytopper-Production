@@ -20,7 +20,8 @@ vi.mock("./WorksheetGradePanel", () => ({
 }));
 
 const fs = vi.hoisted(() => ({
-  snapshot: null as unknown,
+  docs: {} as Record<string, unknown>,
+  failRecordRead: false,
   writes: [] as Array<{ path: string; data: unknown }>,
   deleted: [] as string[],
 }));
@@ -30,15 +31,26 @@ vi.mock("firebase/firestore", () => ({
   setDoc: vi.fn(async (ref: { path: string }, data: unknown) => {
     fs.writes.push({ path: ref.path, data });
   }),
-  getDoc: vi.fn(async () => ({ exists: () => fs.snapshot != null, data: () => fs.snapshot })),
+  getDoc: vi.fn(async (ref: { path: string }) => {
+    if (fs.failRecordRead && ref.path.includes("/records/")) throw new Error("offline");
+    const d = fs.docs[ref.path];
+    return { exists: () => d != null, data: () => d };
+  }),
   deleteDoc: vi.fn(async (ref: { path: string }) => {
     fs.deleted.push(ref.path);
   }),
 }));
-const cloud = vi.hoisted(() => ({ list: [] as unknown[] }));
+const cloud = vi.hoisted(() => ({ list: [] as unknown[], mirrorOnRead: false }));
 vi.mock("../../services/sessionRecords", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/sessionRecords")>();
-  return { ...actual, getSessionRecordsFromCloud: async () => cloud.list };
+  return {
+    ...actual,
+    // Like the real one: a successful cloud read refreshes the device mirror.
+    getSessionRecordsFromCloud: async (uid?: string | null) => {
+      if (cloud.mirrorOnRead) for (const r of cloud.list as SessionRecord[]) actual.writeSessionRecord({ uid: uid ?? "", isLocalSession: false } as never, r);
+      return cloud.list;
+    },
+  };
 });
 
 import WorksheetGenerator from "./WorksheetGenerator";
@@ -91,7 +103,9 @@ const gradedResponse = (p: PersistedWorksheet) => ({
 
 beforeEach(() => {
   localStorage.clear();
-  fs.snapshot = null;
+  fs.docs = {};
+  fs.failRecordRead = false;
+  cloud.mirrorOnRead = false;
   fs.writes = [];
   fs.deleted = [];
   cloud.list = [];
@@ -117,11 +131,26 @@ describe("PENDING-UPLOAD-1 PR-2 · download writes the pending record + snapshot
   it("★ a record that already carries a grade is NEVER replaced by a re-download", async () => {
     const p = paper("ws-2", "WS-M-REALNUMBERS-02");
     const graded = buildWorksheetSessionRecord(p, gradedResponse(p) as never, { code: p.code! }, "student-1") as SessionRecord;
-    cloud.list = [graded];
+    fs.docs[`sessionRecords/student-1/records/${p.code}`] = graded;
     writeSessionRecord(USER as never, graded);
     await seedPending(p);
     expect(loadLocalSessionRecords("student-1").find((r) => r.id === p.code)?.status).toBe("graded");
     expect(fs.writes.filter((w) => w.path.includes("worksheetPapers"))).toHaveLength(0);
+  });
+
+  it("★ a STALE local mirror cannot overwrite a grade made on another device: the graded cloud doc wins, and an unreadable doc writes nothing", async () => {
+    const p = paper("ws-5", "WS-M-REALNUMBERS-05");
+    const graded = buildWorksheetSessionRecord(p, gradedResponse(p) as never, { code: p.code! }, "student-1") as SessionRecord;
+    // this device's mirror still says "pending"; the cloud (the other device's grade) says graded
+    writeSessionRecord(USER as never, buildWorksheetSessionRecord(p, { ...gradedResponse(p), gradedCount: 0, pendingCount: 2 } as never, { code: p.code! }, "student-1") as SessionRecord);
+    fs.docs[`sessionRecords/student-1/records/${p.code}`] = graded;
+    const before = fs.writes.length;
+    await seedPending(p);
+    expect(fs.writes.length).toBe(before);
+    fs.docs = {};
+    fs.failRecordRead = true; // offline: cannot prove there is no grade -> write nothing
+    await seedPending(p);
+    expect(fs.writes.length).toBe(before);
   });
 
   it("signed-out / local sessions write nothing; a graded worksheet's snapshot is reaped", async () => {
@@ -162,10 +191,40 @@ describe("PENDING-UPLOAD-1 PR-2 · history row -> the same paper's upload step",
 
   it("★ this device's copy is gone -> the server snapshot opens the SAME paper and re-seeds the device", async () => {
     const { b } = await mountWithTwoPending();
-    fs.snapshot = { code: b.code, name: b.name, paper: b, savedAt: 1 };
+    fs.docs[`sessionRecords/student-1/worksheetPapers/${b.code}`] = { code: b.code, name: b.name, paper: b, savedAt: 1 };
     await openRow(b);
     await waitFor(() => expect(screen.getByTestId("grade-panel").textContent).toBe(b.code));
     expect(JSON.parse(localStorage.getItem("lazytopper.worksheets.v1") ?? "[]")[0].worksheetId).toBe("ws-b");
+  });
+
+  it("★ a PARTIAL row with no copy anywhere keeps its read-only stored scorecard (its marks stay reachable)", async () => {
+    const p = paper("ws-p", "WS-M-REALNUMBERS-0P");
+    const part = buildWorksheetSessionRecord(p, { ...gradedResponse(p), gradedCount: 1, pendingCount: 1, gradedMarksAwarded: 1, gradedMarksTotal: 1 } as never, { code: p.code! }, "student-1") as SessionRecord;
+    expect(part.status).toBe("partial");
+    const other = paper("ws-q", "WS-M-REALNUMBERS-0Q");
+    writeSessionRecord(USER as never, part);
+    await seedPending(other);
+    render(
+      <MemoryRouter initialEntries={["/practice/worksheets?subject=Maths&scope=topic&topic=real-numbers"]}>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /See all 2/ }));
+    fireEvent.click(await screen.findByRole("button", { name: new RegExp(`Re-open the ${p.title}`) }));
+    await screen.findByRole("button", { name: "Done" }); // the read-only stored scorecard
+    expect(document.body.textContent).not.toContain("couldn’t find the saved copy");
+  });
+
+  it("★ second device: a pending record that exists only in the cloud shows up (the mirror is refreshed on arrival)", async () => {
+    const p = paper("ws-c", "WS-M-REALNUMBERS-0C");
+    cloud.list = [buildWorksheetSessionRecord(p, { ...gradedResponse(p), gradedCount: 0, pendingCount: 2 } as never, { code: p.code! }, "student-1")];
+    cloud.mirrorOnRead = true;
+    render(
+      <MemoryRouter initialEntries={["/practice/worksheets?subject=Maths&scope=topic&topic=real-numbers"]}>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByText(/1 worksheet is awaiting your answer sheet/)).toBeInTheDocument();
   });
 
   it("★ neither copy -> the honest message, no paper opened", async () => {

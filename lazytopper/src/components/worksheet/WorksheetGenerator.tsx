@@ -24,7 +24,7 @@ import {
   type PersistedWorksheet,
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
-import { ensureWorksheetSessionCode, type SessionRecord } from "../../services/sessionRecords";
+import { ensureWorksheetSessionCode, getSessionRecordsFromCloud, type SessionRecord } from "../../services/sessionRecords";
 import { canonicalSlugMatches, resolveCanonicalSlug, resolveCanonicalSlugSet } from "../../data/syllabus/canonicalTopicSlug";
 import { getSurfaceHistory } from "../../services/progressStore";
 import { useBankChapters } from "../../data/bankChapters/useBankChapters";
@@ -618,6 +618,18 @@ function WorksheetGeneratorInner() {
     () => records.filter((r) => r.status === "pending-upload" || r.status === "partial"),
     [records],
   );
+  // PENDING-UPLOAD-1: on a second device the pending record lives only in the cloud until
+  // the mirror is refreshed - read it once on arrival so the banner / rows can show it.
+  useEffect(() => {
+    if (!user?.uid || user.isLocalSession) return;
+    let live = true;
+    void getSessionRecordsFromCloud(user.uid).then(() => {
+      if (live) setHistoryNonce((n) => n + 1);
+    });
+    return () => {
+      live = false;
+    };
+  }, [user?.uid, user?.isLocalSession]);
   // PENDING-UPLOAD-1: a worksheet that is now fully graded no longer needs its saved paper.
   useEffect(() => {
     reapGradedWorksheetSnapshots(user, records);
@@ -741,12 +753,11 @@ function WorksheetGeneratorInner() {
         // PENDING-UPLOAD-1: the downloaded paper becomes a pending card + a saved copy, so
         // "Upload later" can come back to it (this device or another). Never blocks the PDF.
         if (kind === "questions") {
-          try {
-            await recordWorksheetDownload(user, generated, nomen);
-            setHistoryNonce((n) => n + 1);
-          } catch {
-            /* best-effort */
-          }
+          void recordWorksheetDownload(user, generated, nomen)
+            .then(() => setHistoryNonce((n) => n + 1))
+            .catch(() => {
+              /* best-effort */
+            });
         }
       } catch {
         /* keep downloading without a code rather than fail the PDF */
@@ -764,7 +775,10 @@ function WorksheetGeneratorInner() {
   // same session record (frozen-code idempotency, #338), never creating a new one.
   // PENDING-UPLOAD-1: this device's copy first, else the server snapshot (other device /
   // evicted from the ring); neither -> an honest message, never a rebuilt paper.
-  async function openUploadFor(record: SessionRecord) {
+  // Returns true when it handled the tap (opened the paper, or told the student why it cannot);
+  // false when there is no paper AND the record already carries a grade - the caller then keeps
+  // the read-only stored scorecard so a partial grade's marks stay reachable.
+  async function openUploadFor(record: SessionRecord): Promise<boolean> {
     setUploadNotice(null);
     let ws = getWorksheetSession(record.worksheetId);
     if (!ws) {
@@ -774,15 +788,18 @@ function WorksheetGeneratorInner() {
         saveWorksheetSession(ws); // re-seed this device so the upload step behaves as on the sitting device
       }
     }
-    setHistoryOpen(false);
     if (ws) {
+      setHistoryOpen(false);
       setGenerated(ws);
       setView("generated");
-      return;
+      return true;
     }
+    if (record.status === "partial") return false;
+    setHistoryOpen(false);
     setUploadNotice(
       "We couldn’t find the saved copy of this worksheet on this device or online. Open it on the device you downloaded it on, or generate a new one.",
     );
+    return true;
   }
 
   function openHistory(pendingOnly = false) {
@@ -857,6 +874,10 @@ function WorksheetGeneratorInner() {
         </Link>
       )}
 
+      {uploadNotice && (
+        <div className="lt-ws__note lt-ws__note--err" role="alert">{uploadNotice}</div>
+      )}
+
       {view === "build" && (
         <>
           <header className="lt-ws__head">
@@ -870,9 +891,6 @@ function WorksheetGeneratorInner() {
             </div>
           </header>
 
-          {uploadNotice && (
-            <div className="lt-ws__note lt-ws__note--err" role="alert">{uploadNotice}</div>
-          )}
           {pending.length > 0 && !bannerDismissed && (
             <WorksheetPendingBanner
               pending={pending}
@@ -1330,7 +1348,7 @@ function WorksheetGeneratorInner() {
           count={records.length}
           pendingOnly={historyPendingOnly}
           onClose={() => setHistoryOpen(false)}
-          onUpload={(r) => void openUploadFor(r)}
+          onUpload={openUploadFor}
         />
       )}
     </div>
