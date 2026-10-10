@@ -5,9 +5,8 @@
 // Area Practice), so a wrong one shows up as a weakness in a chapter the student never practised.
 //
 // It may only FILL a gap, and only from vocabulary that belongs to ONE chapter:
-//   * the model gave NO chapter (null, or the literal "null"), or
-//   * the model's chapter is in the OTHER subject (a Science chapter for a trig identity).
-// It NEVER overrides a model answer inside the same subject, and it never fills an UNRESOLVABLE non-null
+//   * the model gave NO chapter (null, or the literal "null") - and did not name the OTHER subject.
+// It NEVER overrides a chapter the model named (same subject or not), and never fills an UNRESOLVABLE non-null
 // name (the caller decides what that means). A guard that second-guesses a confident answer is how a good
 // filing becomes a bad one - the first version of this file did exactly that on Science questions (the
 // verifier's findings are pinned as negative tests in topicGuard.test.ts).
@@ -28,13 +27,13 @@ export interface GuardRule {
 
 /** Words that mark a SCIENCE question: a Maths rule never fires on text carrying any of them. */
 const SCIENCE_MARKERS =
-  /\b(light|glass|water|medium|speed|wavelength|prism|dispersion|refraction|refractive|reflection|incidence|ray|lens|mirror|snell|optic|prism|eye|retina|current|charge|resistan\w*|ohm|circuit|joule|voltage|battery|heat produced|galvanometer|solenoid|magnet\w*|cross|F1|F2|gene|genes|trait|inherit\w*|mendel|chromosome|dominant|recessive|sex|child|children|son|daughter|boy|girl|offspring|acid|base|salt|metal|reaction|carbon|hormone|enzyme|digest\w*|photosynthesis|cell|plant|organism|ecosystem|food chains?)s?\b/i;
+  /\b(light|glass|water|medium|speed|wavelength|prism|dispersion|refraction|refractive|reflection|incidence|ray|lens|mirror|snell|optic|prism|eye|retina|current|charge|resistan\w*|ohm|circuit|joule|voltage|battery|heat produced|galvanometer|solenoid|magnet\w*|cross|F1|F2|gene|genes|trait|inherit\w*|mendel|chromosome|dominant|recessive|sex|child|children|son|daughter|boy|girl|offspring|acid|base|salt|metal|reaction|carbon|hormone|enzyme|digest\w*|photosynthesis|cell|plant|organism|ecosystem|food chains?|homologous|alkan\w*|alken\w*|alkyn\w*|CH2|CH3|molecular|media|slab|power|work|force|vector\w*|velocity|resultant|device|banked)s?\b/i;
 
 // A trig RATIO is a whole word (lower-case or Capitalised) followed by its ANGLE: a single capital letter or
 // a Greek letter ("sin θ", "tan A", "cos²A", "sec A"). A digit or a bracket is NOT enough - "sin 30" is Snell's
 // law, "5 sec (t = 5 s)" is seconds - and a ratio directly after a number is a unit, never a ratio.
 const TRIG_RATIO =
-  /(?<![\d.]\s?)\b(?:[Ss]in|[Cc]os|[Tt]an|[Cc]ot|sec|[Cc]osec|[Cc]sc)(?:[²³]|\^\s?\d)?\s?(?:[θαβ]|[A-Z]\b)/;
+  /(?<![\d.]\s?)\b(?:[Ss]in|[Cc]os|[Tt]an|[Cc]ot|sec|[Cc]osec|[Cc]sc)(?:[²³]|\^\s?\d)?\s?(?:[θαβ]|[ABCDEFGHPQXYZ]\b(?!\s+(?:has|have|is|are|of|was)\b))/;
 
 export const GUARD_RULES: readonly GuardRule[] = [
   // Trigonometry: a ratio + its angle, in an IDENTITY / PROOF context or with two DIFFERENT ratios (checked in
@@ -107,8 +106,11 @@ export function guardTopic(input: GuardInput): GuardResult {
 
   const model = String(input.detectedTopic ?? "").trim();
   const modelMissing = !model || model.toLowerCase() === "null";
-  const modelSubject = input.subjectOfDetectedTopic ?? null;
-  const otherSubject = !modelMissing && modelSubject !== null && modelSubject !== guardSubject;
-  if (!modelMissing && !otherSubject) return asIs;
+  // Fill a GAP only (verifier round 4): a Science stem can still look like a Maths one, so a chapter the model
+  // NAMED is never replaced - not even one from the other subject - and a model that said "Science" is not
+  // flipped to Maths.
+  const subj = String(input.detectedSubject ?? "").trim().toLowerCase();
+  const subjectConflict = (subj === "maths" || subj === "science") && subj !== guardSubject.toLowerCase();
+  if (!modelMissing || subjectConflict) return asIs;
   return { detectedTopic: slug, detectedSubject: guardSubject, overridden: true };
 }

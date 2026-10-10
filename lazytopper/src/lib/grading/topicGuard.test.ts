@@ -83,6 +83,22 @@ describe("topicGuard · rules", () => {
     expect(guardSlugFor("The pump runs for 10 sec A pipe delivers 4 litres.")).toBeNull();
     expect(guardSlugFor("If tan A = 3/4, find sin A and cos A.")).toBe("trigonometry");
   });
+  it("★★ round-4 verifier negatives: homologous-series 'common difference / nth term', capital-I/R Snell, physics cos θ, 'sec A has ...' never file as Maths", () => {
+    for (const t of [
+      "Members of a homologous series differ by CH2; what is the common difference in their molecular masses?",
+      "In the series of alkynes the nth term is CnH2n-2; write the 3rd member.",
+      "Write the general formula of alkanes. Show that the nth term differs from the previous by CH2.",
+      "Show that each successive member of a homologous series has a common difference of 14 u in molecular mass.",
+      "Show that sin I / sin R is a constant.",
+      "Show that sin I / sin R is constant for a pair of media.",
+      "For a slab, evaluate sin I/sin R when I = 60° and R = 35°.",
+      "Evaluate sin I / sin R for I = 45° and R = 30° at a rectangular slab.",
+      "Evaluate the power P of a device: P = V I cos θ",
+      "Show that the work done W = F d cos θ is zero for circular motion.",
+      "Evaluate tan θ = v²/rg for a banked road.",
+      "The marks: sec A has 20 MCQs, sec B has 5 VSA. Evaluate the total.",
+    ]) expect(guardSlugFor(t)).toBeNull();
+  });
   it("★ a question matching TWO rules is left to the model; empty text is null", () => {
     expect(guardSlugFor("Prove that sin A is an AP term with common difference 2 and tan A = 1")).toBeNull();
     expect(guardSlugFor("")).toBeNull();
@@ -102,9 +118,12 @@ describe("topicGuard · policy (fill a gap, never second-guess)", () => {
       expect(g).toMatchObject({ detectedTopic: "trigonometry", detectedSubject: "Maths", overridden: true });
     }
   });
-  it("★★ the model named a chapter from the OTHER subject -> replaced", () => {
-    const g = guardTopic({ detectedTopic: "electricity", detectedSubject: "Science", questionText: trig, subjectOfDetectedTopic: "Science" });
-    expect(g).toMatchObject({ detectedTopic: "trigonometry", overridden: true });
+  it("★★ round 4: a chapter the model NAMED is never replaced, even from the other subject; a null chapter under a 'Science' subject is not flipped to Maths", () => {
+    const named = guardTopic({ detectedTopic: "electricity", detectedSubject: "Science", questionText: trig, subjectOfDetectedTopic: "Science" });
+    expect(named).toEqual({ detectedTopic: "electricity", detectedSubject: "Science", overridden: false });
+    const flip = guardTopic({ detectedTopic: null, detectedSubject: "Science", questionText: trig });
+    expect(flip).toEqual({ detectedTopic: null, detectedSubject: "Science", overridden: false });
+    expect(guardTopic({ detectedTopic: null, detectedSubject: "Maths", questionText: trig })).toMatchObject({ detectedTopic: "trigonometry", overridden: true });
   });
   it("★★ the model named a chapter in the SAME subject -> left exactly as it came (even when the guard disagrees)", () => {
     const g = guardTopic({ detectedTopic: "polynomials", detectedSubject: "Maths", questionText: trig, subjectOfDetectedTopic: "Maths" });
