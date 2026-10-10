@@ -28,7 +28,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] At higher altitude, atmospheric pressure (and pO2) is lower ⟹ less O2 binds to haemoglobin ⟹ O2 saturation decreases as altitude increases. Graph Q shows a decreasing trend matching this physiology."],
     finalAnswer: "(b) Q",
     ncertRef: "APQ Science-PQ Q9", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: four graphs P, Q, R, S of saturation vs altitude." },
+  },
 
   // Science-PQ Q12 (Section A, MCQ, 1 mark)
   { id: "APQ-S-LIFE-003", competencyVerified: true, subject: "Science", topicKey: "life-processes", subtopic: "Digestion — Pancreas Function", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
@@ -131,7 +131,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) Chamber 7 = RIGHT VENTRICLE pumps deoxygenated blood to the lungs through the PULMONARY ARTERIES.", "[1 mark] (b) Structure 12 = valve(s); function: ensure that blood does not flow backwards when the atria or ventricles contract.", "[1 mark] (c) Chambers 6 and 7 = LEFT and RIGHT VENTRICLES; chambers 8 and 9 = LEFT and RIGHT ATRIA.", "[1 mark] (c) Ventricles have thicker muscular walls because they pump blood out of the heart at high pressure to reach all parts of the body, whereas the atria only push blood into the ventricles."],
     finalAnswer: "(a) Right ventricle → pulmonary arteries; (b) valves prevent backflow; (c) ventricles (6,7) thicker than atria (8,9) — pump at high pressure.",
     ncertRef: "APQ Science-PQ2 Q38 (first variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: labelled heart diagram with chambers 6-9 and structure 12." },
+  },
 
   // Science-PQ2 Q38 OR variant (Section E, Case-Based, 4 marks)
   { id: "APQ-S-LIFE-013", subject: "Science", topicKey: "life-processes", subtopic: "Heart — Oxygenated Blood Inlet and Septum Significance", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Understanding",
