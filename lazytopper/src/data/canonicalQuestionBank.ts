@@ -2124,7 +2124,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-CTRL-029",             // wrong-key: the key and steps are only a table header; no answer to recover from the row
   "SCQ-S-CTRL-037",             // wrong-key: the stored key and steps belong to another question
   "SCO-S-CTRL-011",             // needs-figure: the stem needs a labelled diagram and no figure is bound (a later DIAGRAMS item)
-  "PYQ-S-2025-REPR-008",        // ambiguous: both solves flag the two missing figures (X/Y flower parts; the (a)-(f) organism figure); cannot be re-keyed from the row
 ]);
 
 /**
