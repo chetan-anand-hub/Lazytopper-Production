@@ -86,8 +86,13 @@ describe("DIAGRAMS-1 PR-3 bindings (Light + Life Processes) are exactly the eye-
     expect(undeclared).toEqual([]);
     const stale = BOUND_BUT_WITHHELD.filter((q) => served.has(q) || !WITHHELD_QUESTION_IDS.has(q));
     expect(stale).toEqual([]); // declared withheld but actually served (or not withheld at all)
-    // every declared row is bound by PR-3 or PR-4 (the PR-4 rows are pinned in the PR-4 block below)
-    expect(BOUND_BUT_WITHHELD.filter((q) => ![...PR3_BINDINGS, ...PR4_BINDINGS].some(([b]) => b === q))).toEqual([]);
+    // every declared row is bound by PR-3 or PR-4 (the PR-4 rows are pinned in the PR-4 block below), or is a C3 PR-S1
+    // row pinned in scienceFigureVisuals.c3.test.ts. 2026-10-10 (B-21, LANE_RULES §8 amendment, +1 id):
+    // PYQ-S-2025-MAG-006, withheld by BANK-FIX-5 (#1041) after C3 bound it.
+    const C3_DECLARED = ["PYQ-S-2025-MAG-006"];
+    // 2026-10-10 (B-21, DIAGRAMS-RESUME-B step 3, +11 ids): the census rows are pinned in the CENSUS block at the end of
+    // this file (CENSUS_BINDINGS) and count as bound here.
+    expect(BOUND_BUT_WITHHELD.filter((q) => ![...PR3_BINDINGS, ...PR4_BINDINGS, ...CENSUS_BINDINGS].some(([b]) => b === q) && !C3_DECLARED.includes(q))).toEqual([]);
   });
 
   it("every binding's chapter matches its row's chapter and asset folder (served or withheld)", () => {
@@ -246,5 +251,111 @@ describe("DIAGRAMS-1 PR-4 bindings (C&C, Reproduction, Heredity, Our Environment
     expect([...pr4Paths].filter((p) => p.startsWith("/visuals/"))).toEqual([]);
     // an SCO/SCQ row may be bound only through an OFFICIAL paper's crop, never from the booklet folder
     expect(pr4Entries.filter((f) => /^SC[OQ]-/.test(f.questionId ?? "") && !/\/(pyq|sqp|other|exemplar|ncert|itembank|cfpq)-science\//.test(f.filePath)).map((f) => f.id)).toEqual([]);
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// DIAGRAMS-RESUME-B step 3 — Science census question figures (2026-10-10). Same contract as PR-3 / PR-4 above.
+// Every row bound here is WITHHELD for its missing figure and is declared in BOUND_BUT_WITHHELD (the un-withhold is a
+// later bank-file PR). Source + page + what was matched for every row: Desktop/diff/b21/sci-census/manifest.csv.
+// ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// [questionId, filePath] — one row per binding.
+const CENSUS_BINDINGS: ReadonlyArray<readonly [string, string]> = [
+  ["PYQ-S-ACID-001", "/figures/pyq-science/acids-bases-and-salts/PYQ-S-ACID-001.webp"], // 31_2_1_Science.pdf (2023) p5 Q2
+  ["APQ-S-CARB-005", "/figures/other-science/carbon-and-its-compounds/APQ-S-CARB-005.webp"], // Science-PQ2.pdf (APQ 2023-24) p2 Q5
+  ["CARB-EXMPLR-4-MCQ-005", "/figures/exemplar-science/carbon-and-its-compounds/CARB-EXMPLR-4-MCQ-005.webp"], // jeep104.pdf p2 Q5
+  ["CARB-EXMPLR-4-MCQ-010", "/figures/exemplar-science/carbon-and-its-compounds/CARB-EXMPLR-4-MCQ-010.webp"], // jeep104.pdf p3 Q10
+  ["CARB-EXMPLR-4-MCQ-016", "/figures/exemplar-science/carbon-and-its-compounds/CARB-EXMPLR-4-MCQ-016.webp"], // jeep104.pdf p4 Q16
+  ["CARB-EXMPLR-4-MCQ-022", "/figures/exemplar-science/carbon-and-its-compounds/CARB-EXMPLR-4-MCQ-022.webp"], // jeep104.pdf p5 Q22
+  ["CARB-EXMPLR-4-MCQ-023", "/figures/exemplar-science/carbon-and-its-compounds/CARB-EXMPLR-4-MCQ-023.webp"], // jeep104.pdf p5 Q23
+  ["CARB-EXMPLR-4-MCQ-024", "/figures/exemplar-science/carbon-and-its-compounds/CARB-EXMPLR-4-MCQ-024.webp"], // jeep104.pdf p5 Q24
+  ["PYQ-S-ELEC-003", "/figures/pyq-science/electricity/PYQ-S-ELEC-003.webp"], // 31_4_2_Science.pdf (2023) p17 Q34(iii)
+  ["PYQ-S-MAG-003", "/figures/pyq-science/magnetic-effects-of-electric-current/PYQ-S-MAG-003.webp"], // 31_4_3_Science.pdf (2023) p9 Q15
+  ["METAL-EXMPLR-3-MCQ-036", "/figures/exemplar-science/metals-and-non-metals/METAL-EXMPLR-3-MCQ-036.webp"], // jeep103.pdf p7 Q36 Fig. 3.1
+];
+
+// Census rows deliberately NOT bound — must resolve to no figure. Reasons in the manifest.
+const CENSUS_NOT_BOUND = [
+  "PYQ-S-2026-ELEC-010", // NO-FIGURE: 31-3-3.pdf (2026) p29 Q39 - the served part (a) prints no figure
+  "PYQ-S-2026-MAG-002", // NO-FIGURE: 31-3-1.pdf (2026) p31 Q39 - the served part (a) asks the student to DRAW
+  "PYQ-S-2024-LIGHT-009", // NO-FIGURE: 31_4_3_Science.pdf (2024) p21 Q36 prints no figure
+  "PYQ-S-2026-ACID-012", // SKIP-BROKEN: option (d) carries page residue '{ } of 32'
+  "PYQ-S-2026-CHEMRXN-013", // SKIP-OTHER-REASON: answer truncated, mis-chaptered (Life Processes)
+  "PYQ-S-ELEC-001", // SKIP-OTHER-REASON: answer mojibake-damaged
+  "PYQ-S-MAG-002", // SKIP-BROKEN: options are Assertion-Reason residue, not the paper's four directions
+  "PYQ-S-2026-MAG-001", // SKIP-BROKEN: OR block is Hindi-stripped garble; answer covers part only
+  "HERED-EXMPLR-8-LA-002", // NOT-FOUND (PR-4): no drawn figure exists
+];
+
+const CENSUS_CHAPTER_FOR_SLUG: Record<string, string> = {
+  "acids-bases-and-salts": "Acids, Bases and Salts",
+  "carbon-and-its-compounds": "Carbon and its Compounds",
+  "metals-and-non-metals": "Metals and Non-Metals",
+  electricity: "Electricity",
+  "magnetic-effects-of-electric-current": "Magnetic Effects of Electric Current",
+};
+
+const censusPaths = new Set(CENSUS_BINDINGS.map(([, p]) => p));
+const censusEntries = SCIENCE_FIGURE_VISUALS.filter((f) => censusPaths.has(f.filePath));
+const censusIds = [...new Set(CENSUS_BINDINGS.map(([q]) => q))];
+
+describe("DIAGRAMS-RESUME-B Science census bindings are exactly the eye-confirmed set", () => {
+  it("the pinned set is the size this PR shipped: 11 figures for 11 rows", () => {
+    expect(CENSUS_BINDINGS).toHaveLength(11);
+    expect(censusIds).toHaveLength(11);
+    expect(censusPaths.size).toBe(11); // no crop is reused for two bindings
+    expect(censusEntries).toHaveLength(11); // each pinned file is bound exactly once in the registry
+    expect(censusIds.filter((q) => [...PR3_BINDINGS, ...PR4_BINDINGS].some(([b]) => b === q))).toEqual([]);
+  });
+
+  it.each(CENSUS_BINDINGS)("%s resolves to exactly its pinned figure", (q, p) => {
+    expect(getFiguresForQuestion(q).map((f) => f.filePath)).toEqual([p]);
+  });
+
+  it.each(CENSUS_BINDINGS)("%s exists in the bank, is withheld, and is declared in BOUND_BUT_WITHHELD", (q) => {
+    expect(inBank.has(q)).toBe(true);
+    expect(served.has(q)).toBe(false);
+    expect(WITHHELD_QUESTION_IDS.has(q)).toBe(true);
+    expect(BOUND_BUT_WITHHELD).toContain(q);
+  });
+
+  it.each(CENSUS_BINDINGS)("%s asset exists under lazytopper/public, is a real WebP file, and is at most 80 KB", (_q, p) => {
+    const abs = path.join(PUBLIC, p.replace(/^\//, ""));
+    expect(fs.existsSync(abs)).toBe(true);
+    const buf = fs.readFileSync(abs);
+    expect(buf.subarray(0, 4).toString("latin1")).toBe("RIFF");
+    expect(buf.subarray(8, 12).toString("latin1")).toBe("WEBP");
+    expect(buf.length).toBeLessThanOrEqual(80 * 1024);
+  });
+
+  it("every binding's chapter matches its row's chapter and asset folder", () => {
+    const mismatched = censusEntries.filter((f) => {
+      const row = inBank.get(f.questionId ?? "");
+      if (!row) return true;
+      const s = resolveCanonicalSlug(row.topicKey);
+      return CENSUS_CHAPTER_FOR_SLUG[s] !== f.chapter || f.filePath.split("/")[3] !== s;
+    });
+    expect(mismatched.map((f) => `${f.questionId}:${f.chapter}:${f.filePath}`)).toEqual([]);
+  });
+
+  it("every entry has the registry's raster-figure shape and a descriptive alt text", () => {
+    const bad = censusEntries.filter(
+      (f) => f.subject !== "science" || f.isInteractive !== false || f.keywords.length !== 0 || !isDescriptiveAlt(f.title)
+        || !f.filePath.startsWith("/figures/") || !fileStemOk(f.questionId ?? "", f.filePath)
+        || !/\/(pyq|other|exemplar)-science\//.test(f.filePath),
+    );
+    expect(bad.map((f) => f.id)).toEqual([]);
+  });
+
+  it("rows deliberately left unbound resolve to no figure", () => {
+    expect(CENSUS_NOT_BOUND.filter((q) => getFiguresForQuestion(q).length > 0)).toEqual([]);
+    expect(CENSUS_NOT_BOUND.filter((q) => censusIds.includes(q))).toEqual([]);
+  });
+
+  it("no census binding re-binds a census WRONG id, a Z3 decorative row, or a booklet-only SCO/SCQ row", () => {
+    expect(censusIds.filter((q) => CENSUS_WRONG_IDS.includes(q))).toEqual([]);
+    expect(censusIds.filter((q) => /^(Z3|SC[OQ])-/.test(q))).toEqual([]);
+    expect([...censusPaths].filter((p) => p.startsWith("/visuals/"))).toEqual([]);
   });
 });
