@@ -371,8 +371,8 @@ export const META_EVENTS: Readonly<Partial<Record<"sign_up" | NamedAnalyticsEven
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
 
-/** `utm_*` and the ad click ids, plus `cbq` — the ad landing's boolean flag. Nothing else. */
-const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq)$/;
+/** `utm_*` and the ad click ids, plus `cbq` and `ct` — the CBQ and Chapter Test ad landings' boolean flags (META-CT-PARAM-1). Nothing else. */
+const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq|ct)$/;
 const HANDOFF_PATH = /^(?:\/app)?\/u(?:\/|$)/;
 
 function metaQueryAndHashAreClean(search: string, hash: string): boolean {
