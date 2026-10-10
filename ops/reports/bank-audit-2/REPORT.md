@@ -116,7 +116,7 @@ One separate Opus sub-agent (medium effort) that solved nothing in Phase B/C re-
 | phase | rows checked | flags by type | rows solved (running / cap 1,100) |
 |---|---|---|---|
 | A — scripted | 10,928 (all served) | 2,046 structure rows (details above) + 64 duplicate pairs; syllabus guard exit 0 | 0 / 1,100 |
-| B — #960 open findings | 55 | now-fine 50 · new-problem 4 · still-broken 1 | 55 / 1,100 |
+| B — BANK-AUDIT-1 open findings | 55 | now-fine 50 · new-problem 4 · still-broken 1 | 55 / 1,100 |
 | C1 — predicted + HPQ | 336 | pass 266 · flag 70 (wrong-key 13) | 391 / 1,100 |
 | C2 — written bank sample | 500 | pass 411 · flag 89 (wrong-key 23) | 891 / 1,100 |
 | D — verifier (re-solve) | 44 | 23/24 flags upheld (22 by the verifier, 1 by script); 20/20 passes agreed | 891 solved + 44 re-solved = 935 solve calls |
