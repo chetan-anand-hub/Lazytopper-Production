@@ -246,3 +246,64 @@ test('6 — index.cjs requires the helper and calls it at startup inside the DAT
   assert.match(branch[1], /ensureGeneratedQuestionsTable\(\)\.catch\(/, 'CONTROL: the matcher sees the sibling call');
   assert.match(branch[1], /ensureStepSolutionsTable\(\)\.catch\(/, 'the call is fail-open (.catch) and in this branch');
 });
+
+/* ── CI-CACHE-BANKMATCH-1 PR-1 · the normalised cache key ─────────────────────────────────────
+ * The same question with different spacing / Unicode forms / dash or multiplication glyphs /
+ * sentence case MUST share a key; a question that differs in a digit, decimal point, sign,
+ * variable, unit, exponent or word MUST NOT. RED before PR-1: every MUST-HIT row failed (the
+ * key was the exact text). Table-driven (LANE_RULES §3). */
+const KEY_MUST_HIT = [
+  ['Find the roots of x² − 5x + 6 = 0.', 'Find the roots of x² - 5x + 6 = 0.'], // minus sign vs hyphen
+  ['Find  the roots of\nx² - 5x + 6 = 0.', 'Find the roots of x² - 5x + 6 = 0.'], // whitespace runs / newline
+  ['  Prove that √2 is irrational.  ', 'Prove that √2 is irrational.'], // trim
+  ['Find the value of 3 × 4.', 'Find the value of 3 * 4.'], // × vs *
+  ['Find the value of 3 ⋅ 4.', 'Find the value of 3 × 4.'], // ⋅ vs ×
+  ['Find the HCF of 96 and 404.', 'find the HCF of 96 and 404.'], // sentence case; HCF kept
+  ['The resistance of a wire is 5 Ω.', 'the resistance of a wire is 5 Ω.'], // ohm sign vs Greek omega + case
+  ['Ｆind the value of ７ + ２.', 'Find the value of 7 + 2.'], // full-width forms (NFKC)
+  ['A current of 2 A flows for 5 s – find the charge.', 'A current of 2 A flows for 5 s - find the charge.'], // en dash
+  ['A current of 2 A flows for 5 s — find the charge.', 'A current of 2 A flows for 5 s - find the charge.'], // em dash
+  ['Calculate the Power of a lens of focal length 25 cm.', 'Calculate the power of a lens of focal length 25 cm.'],
+  ['Show that 5 − √3 is irrational.', 'Show that 5 - √3 is irrational.'],
+  ['Solve 2x + 3y = 11\tand 2x − 4y = −24.', 'Solve 2x + 3y = 11 and 2x - 4y = -24.'], // tab + two minus signs
+  ['An object is placed at 30 cm\u00A0from a concave mirror.', 'An object is placed at 30 cm from a concave mirror.'], // NBSP
+  ['Write the formula of ﬁnding the area of a sector.', 'Write the formula of finding the area of a sector.'], // fi ligature
+];
+const KEY_MUST_NOT_HIT = [
+  ['Find the roots of x² − 5x + 6 = 0.', 'Find the roots of x³ − 5x + 6 = 0.'], // exponent
+  ['Find the roots of x² + 5x + 6 = 0.', 'Find the roots of x2 + 5x + 6 = 0.'], // superscript is not a digit
+  ['Find x₂ if x₁ = 3.', 'Find x2 if x1 = 3.'], // subscript is not a digit
+  ['Find the HCF of 96 and 404.', 'Find the HCF of 96 and 405.'], // digit
+  ['A wire of length 2.5 m.', 'A wire of length 25 m.'], // decimal point
+  ['Solve x − 3 = 0.', 'Solve x + 3 = 0.'], // sign
+  ['A wire of length 2 cm.', 'A wire of length 2 m.'], // unit
+  ['A current of 5 mA flows.', 'A current of 5 MA flows.'], // unit prefix case (milli vs mega)
+  ['If R = 2r, find the area.', 'If R = 2R, find the area.'], // variable case
+  ['The speed v is 3 m/s and V is 3 V.', 'The speed v is 3 m/s and v is 3 V.'], // variable case
+  ['Which of these is a metal?', 'Which of these is not a metal?'], // "not" removed
+  ['Find the value of 3 × 4.', 'Find the value of 3 + 4.'], // operator
+  ['Find the value of ½ of 10.', 'Find the value of 1/2 of 10.'], // vulgar fraction kept out of NFKC
+  ['A signal of 5 MHz.', 'A signal of 5 mHz.'], // mixed-case unit
+  ['Find the area of triangle ABC.', 'Find the area of triangle abc.'], // all-caps labels keep case
+];
+
+test('PR-1 — MUST-HIT: the same question in a different form shares one cache key', () => {
+  for (const [a, b] of KEY_MUST_HIT) {
+    assert.equal(stepSolution.computeQuestionHash(a, 3), stepSolution.computeQuestionHash(b, 3), `${a}  ≡  ${b}`);
+  }
+  assert.equal(KEY_MUST_HIT.length, 15);
+});
+
+test('PR-1 — MUST-NOT-HIT: a different digit, sign, variable, unit, exponent or word never shares a key', () => {
+  for (const [a, b] of KEY_MUST_NOT_HIT) {
+    assert.notEqual(stepSolution.computeQuestionHash(a, 3), stepSolution.computeQuestionHash(b, 3), `${a}  ≠  ${b}`);
+  }
+  assert.equal(KEY_MUST_NOT_HIT.length, 15);
+});
+
+test('PR-1 — marks stay in the key, and the version is bumped so old v2 entries miss', () => {
+  assert.notEqual(stepSolution.computeQuestionHash('Prove that √2 is irrational.', 2), stepSolution.computeQuestionHash('Prove that √2 is irrational.', 3));
+  const crypto = require('node:crypto');
+  const v2 = crypto.createHash('sha256').update('v2|Prove that √2 is irrational.|3').digest('hex');
+  assert.notEqual(stepSolution.computeQuestionHash('Prove that √2 is irrational.', 3), v2);
+});

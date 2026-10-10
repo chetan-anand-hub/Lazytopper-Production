@@ -24,7 +24,42 @@ function __setPoolForTests(pool) {
 }
 
 // Increment this when the prompt structure changes to automatically bypass stale cache entries.
-const CACHE_VERSION = 'v2';
+// v3 (CI-CACHE-BANKMATCH-1 PR-1): the key text is normalised (normalizeQuestionForKey); old v2
+// entries simply miss and regenerate under the new key.
+const CACHE_VERSION = 'v3';
+
+// CI-CACHE-BANKMATCH-1 PR-1 — the same question typed or photographed with different spacing,
+// Unicode forms, dash/multiplication glyphs or sentence-case hits the same cache entry.
+// ★ It must NEVER merge two different questions: digits, decimal points, signs, variables,
+// units and exponents are never changed. Hence two deliberate departures from a naive
+// "NFKC + lower-case everything":
+//   * superscripts/subscripts and vulgar fractions are kept OUT of NFKC — NFKC turns x² and
+//     x₂ both into "x2", which would merge x² with x₂ (and with a literal x2);
+//   * only English-looking words (a capital followed by 2+ lower-case letters, e.g. "Find",
+//     "The") are lower-cased. Single letters and mixed-case tokens are variables or units —
+//     R vs r, V vs v, mA vs MA, MHz vs mHz — and keep their case.
+const KEY_PROTECTED_CHAR = /[²³¹¼-¾⁰-₟⅐-⅟]/;
+const KEY_DASHES = /[‐-―−﹘﹣－]/g; // hyphens, en/em dashes, minus sign → "-"
+const KEY_TIMES = /[*∗⋅✕✖]/g; // *, ∗, ⋅, ✕, ✖ → "×"
+function normalizeQuestionForKey(question) {
+  let out = '';
+  let run = '';
+  for (const ch of String(question == null ? '' : question)) {
+    if (KEY_PROTECTED_CHAR.test(ch)) {
+      out += run.normalize('NFKC') + ch;
+      run = '';
+    } else {
+      run += ch;
+    }
+  }
+  out += run.normalize('NFKC');
+  return out
+    .replace(KEY_DASHES, '-')
+    .replace(KEY_TIMES, '×')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b[A-Z][a-z]{2,}\b/g, (w) => w.toLowerCase());
+}
 
 // The version prefix applies to EVERY hash (objective and multi-mark alike) so a
 // CACHE_VERSION bump genuinely busts ALL stale entries. Pre-PR-3 only objective
@@ -32,7 +67,10 @@ const CACHE_VERSION = 'v2';
 // latent staleness bug. Extending it cold-starts the old unprefixed subjective
 // entries: they simply miss, regenerate and re-cache under the versioned key.
 function computeQuestionHash(question, marks) {
-  return crypto.createHash('sha256').update(CACHE_VERSION + '|' + question + '|' + marks).digest('hex');
+  return crypto
+    .createHash('sha256')
+    .update(CACHE_VERSION + '|' + normalizeQuestionForKey(question) + '|' + marks)
+    .digest('hex');
 }
 
 async function getCachedSolution(hash) {
@@ -628,6 +666,7 @@ module.exports = {
   saveSolutionForce,
   // C&I PR-3 — the shared solution-cache surface (grader hook + admin Gate-2b):
   computeQuestionHash,
+  normalizeQuestionForKey,
   getCachedSolution,
   saveSolution,
   deleteSolution,
