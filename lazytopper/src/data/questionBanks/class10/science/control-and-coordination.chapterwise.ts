@@ -298,15 +298,16 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq07 Q58 (Section D, 5mk)
   { id: "SCQ-S-CTRL-040", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Give the function(s) of the following plant hormones: a. Auxins b. Gibberellins c. Cytokinins d. Abscisic acid e. Ethylene",
-    answer: "a. Auxins promote cell elongation, root formation, cell division, etc. It also promote fruit growth. b. Gibberellins stimulate stem elongation, seed germination and flowering. c. Cytokinins help in breaking the dormancy of seeds and buds. They delay ageing in leaves. They also pr",
+    answer: "a. Auxins – promote cell elongation/growth at the shoot tip; responsible for bending of shoot towards light (phototropism). b. Gibberellins – promote growth (elongation) of the stem. c. Cytokinins – promote cell division (present in high concentration in fruits and seeds). d. Abscisic acid – inhibits growth; causes wilting of leaves (growth-inhibiting/stress hormone). e. Ethylene – promotes ripening of fruits (and abscission/falling of leaves).",
+    finalAnswer: "a. Auxins – promote cell elongation/growth at the shoot tip; responsible for bending of shoot towards light (phototropism). b. Gibberellins – promote growth (elongation) of the stem. c. Cytokinins – promote cell division (present in high concentration in fruits and seeds). d. Abscisic acid – inhibits growth; causes wilting of leaves (growth-inhibiting/stress hormone). e. Ethylene – promotes ripening of fruits (and abscission/falling of leaves).",
     solutionSteps: [
-      "[1 mark] a. Auxins: synthesized at the shoot tip, they promote cell elongation and growth towards light; they also help in root formation and cell division.",
-      "[1 mark] b. Gibberellins: stimulate stem/internode elongation, seed germination and flowering.",
-      "[1 mark] c. Cytokinins: promote cell division, help break the dormancy of seeds and buds, and delay the ageing of leaves.",
-      "[1 mark] d. Abscisic acid (a growth inhibitor): inhibits growth, causes wilting, closing of stomata and the falling (abscission) of leaves and fruits.",
-      "[1 mark] e. Ethylene: promotes the ripening of fruits."
+      "[1 mark] Auxins – cell elongation / shoot growth, phototropism.",
+      "[1 mark] Gibberellins – stem elongation/growth.",
+      "[1 mark] Cytokinins – promote cell division.",
+      "[1 mark] Abscisic acid – inhibits growth, wilting of leaves.",
+      "[1 mark] Ethylene – ripening of fruits."
     ],
-    ncertRef: "cbjesccq07 Q58", isCompetencyBased: false },
+    ncertRef: "cbjesccq07 Q58", isCompetencyBased: false, sourceOverride: "others" },
   // cbjesccq07 Q59 (Section D, 5mk)
   { id: "SCQ-S-CTRL-041", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "(a) Draw the structure of a neuron and label the following on it: Nucleus, Dendrite, Cell body and Axon. (b) Name the part of neuron (i) Where information is acquired. (ii) Through which information travels as an electrical impulse.",

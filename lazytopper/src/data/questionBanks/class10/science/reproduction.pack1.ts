@@ -168,9 +168,7 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
   },
   { id: "REP-M13", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Plants", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Seeds are formed after fertilisation.\nReason (R): The ovule develops into a seed after the zygote is formed.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Evaluate Assertion (A): Self-pollination involves pollen transfer within the same plant, leading to less genetic diversity. Thus, A is false.",
-      "Evaluate Reason (R): Cross-pollination is the transfer of pollen between flowers on different plants of the same species. Thus, R is true.",
-      "Since Assertion (A) is false and Reason (R) is true, the correct option is (D).",
+      "[1 mark] (a) — A is true: seeds form only after fertilisation. R is true and explains A: after fertilisation the zygote forms and the ovule develops into the seed.",
     ],
   },
   { id: "REP-M14", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Humans", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "What is the role of the placenta in human reproduction?", solutionSteps: [

@@ -2762,5 +2762,61 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     "shapedFrom": "CBE-S-HERD-D-001",
     "origin": "lt-generated",
     "modelledOn": "CBSE CBE Item Bank, Science Class 10 (CBE-S-HERD-D-001)"
+  },
+  {
+    "id": "LTG-S-HERED-307",
+    "subject": "Science",
+    "topicKey": "heredity",
+    "subtopic": "Laws of Inheritance",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Anjali, a horticulture student in Dharwad, works with okra (lady's finger) plants in which green pods (G) are dominant over red pods (g), and smooth pods (S) are dominant over hairy pods (s). She crossed a plant heterozygous for both genes (GgSs) with a plant having red, hairy pods, and raised 400 plants from the seeds obtained. If the two genes are inherited independently, about how many of these 400 plants are expected to have red, hairy pods?",
+    "options": [
+      "225",
+      "100",
+      "75",
+      "25"
+    ],
+    "answer": "100",
+    "solutionSteps": [
+      "[1 mark] The red, hairy parent is ggss and forms only gs gametes, while GgSs forms GS, Gs, gS and gs in equal numbers; so 1/4 of the offspring are ggss, i.e. 1/4 × 400 = 100. The tempting 25 uses the 1/16 of a GgSs × GgSs cross, which is not the cross made here."
+    ],
+    "finalAnswer": "100",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "PYQ-S-2026-HERED-002",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Board Examination 2026, Science (PYQ-S-2026-HERED-002)"
+  },
+  {
+    "id": "LTG-S-HERED-308",
+    "subject": "Science",
+    "topicKey": "heredity",
+    "subtopic": "Expression of Traits",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Guntur district in Andhra Pradesh is famous for its hot chillies. The heat (pungency) of a chilli comes from a substance made in the fruit with the help of an enzyme. In chilli plants, one gene carries the information for this enzyme: the allele H makes a working enzyme, while the allele h has an altered DNA sequence and makes no working enzyme. Plants with at least one H allele bear pungent fruits; hh plants bear sweet, non-pungent fruits. Treat pungency as controlled by this single gene.\nSrinivas, a farmer, bought seeds from two different sellers. He self-pollinated one pungent-fruited plant raised from each seller's seeds, covering its flowers so that no outside pollen could reach them, and recorded the fruits of the plants raised from the seeds formed:\nPlant X (pungent fruits) — 90 plants with pungent fruits, 30 plants with sweet fruits\nPlant Y (pungent fruits) — 120 plants with pungent fruits, 0 plants with sweet fruits\nHis daughter Keerthana, a Class 10 student, wants to help him obtain seed that will give only pungent-fruited plants year after year.\n(i) Using the sequence gene → enzyme → trait, explain why hh plants bear sweet fruits. [1 mark]\n(ii) Write the genotypes of Plant X and Plant Y, giving a reason for Plant X. [1 mark]\n(iii) Among the 90 pungent-fruited offspring of Plant X, how many are expected to be pure-breeding for pungency? Suggest a cross with a sweet-fruited plant that would tell Keerthana whether a given pungent-fruited plant is pure-breeding, stating the expected results. [2 marks]",
+    "options": [],
+    "answer": "(i) The h allele has an altered DNA sequence, so it gives no working enzyme; without the enzyme the pungent substance is not made, so hh fruits are sweet. (ii) Plant X is Hh (it produced hh sweet-fruited offspring, 90 : 30 = 3 : 1); Plant Y is HH. (iii) HH : Hh = 1 : 2 among pungent offspring, so about 30 of the 90 are pure-breeding; cross the pungent plant with a sweet-fruited (hh) plant — all offspring pungent means HH (pure-breeding), about half sweet-fruited means Hh.",
+    "solutionSteps": [
+      "[1 mark] (i) A gene (a segment of DNA) carries the information for a protein, here the enzyme; the altered h allele makes no working enzyme, so an hh plant cannot make the pungent substance and its fruits are sweet.",
+      "[1 mark] (ii) Plant X is Hh: its self-pollinated offspring include sweet-fruited (hh) plants in the ratio 90 : 30 = 3 : 1, so it carries h. Plant Y is HH, as none of its 120 offspring is sweet-fruited.",
+      "[1 mark] (iii) Hh × Hh gives HH : Hh : hh = 1 : 2 : 1, so among pungent offspring HH : Hh = 1 : 2; about 1/3 × 90 = 30 plants are expected to be pure-breeding (HH).",
+      "[1 mark] (iii) Cross the pungent plant with a sweet-fruited (hh) plant: if all offspring bear pungent fruits it is HH (pure-breeding); if about half bear sweet fruits (1 : 1) it is Hh."
+    ],
+    "finalAnswer": "(i) h makes no working enzyme, so no pungent substance — sweet fruits; (ii) X = Hh (3 : 1 with hh offspring), Y = HH; (iii) about 30 pure-breeding; cross with hh — all pungent means HH, 1 : 1 means Hh.",
+    "isCompetencyBased": true,
+    "competencyVerified": true,
+    "questionProvenance": "authored",
+    "shapedFrom": "APQ-S-HERED-004",
+    "origin": "lt-generated",
+    "modelledOn": "CBSE Additional Practice Questions 2023-24, Science (APQ-S-HERED-004)"
   }
 ];

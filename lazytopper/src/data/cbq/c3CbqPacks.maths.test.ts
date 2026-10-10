@@ -15,7 +15,7 @@
 import { describe, it, expect } from "vitest";
 
 import type { CanonicalQuestion } from "../predictionTypes";
-import { canonicalQuestionBank } from "../canonicalQuestionBank";
+import { canonicalQuestionBank, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 import { TRIGONOMETRY_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/trigonometry.cbq.ltgen";
 import { TRIANGLES_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/triangles.cbq.ltgen";
 import { STATISTICS_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/statistics.cbq.ltgen";
@@ -28,7 +28,7 @@ const PACKS = [
   { slug: "triangles", code: "TRI", rows: TRIANGLES_CBQ_LT_GENERATED, floor: { 1: 32, 2: 16, 3: 17, 4: 31, 5: 10 } },
   { slug: "statistics", code: "STAT", rows: STATISTICS_CBQ_LT_GENERATED, floor: { 1: 34, 2: 17, 3: 17, 4: 31, 5: 10 } },
   { slug: "pair-of-linear-equations", code: "PLE", rows: PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED, floor: { 1: 32, 2: 17, 3: 17, 4: 27, 5: 10 } },
-  { slug: "quadratic-equations", code: "QE", rows: QUADRATIC_EQUATIONS_CBQ_LT_GENERATED, floor: { 1: 33, 2: 23, 3: 17, 4: 24, 5: 10 } },
+  { slug: "quadratic-equations", code: "QE", rows: QUADRATIC_EQUATIONS_CBQ_LT_GENERATED, floor: { 1: 33, 2: 23, 3: 17, 4: 23, 5: 10 } }, // 4-mark 24 -> 23: LTG-M-QE-284 withheld (owner ruling 2026-10-07)
   // Coordinate Geometry has no 5-mark rows: the official papers carry none (top-up rows at 2/3 marks instead).
   { slug: "coordinate-geometry", code: "CG", rows: COORDINATE_GEOMETRY_CBQ_LT_GENERATED, floor: { 1: 32, 2: 21, 3: 24, 4: 28, 5: 0 } },
 ] as const;
@@ -43,7 +43,10 @@ describe("CBQ-1 C3 · Maths competency packs (Trigonometry, Triangles, Statistic
   it("every pack row is served, and served competency-verified counts per marks meet the shipped floor", () => {
     const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
     for (const p of PACKS) {
-      for (const q of p.rows) expect(served.has(q.id), `${q.id} is not in the served bank`).toBe(true);
+      for (const q of p.rows) {
+        if (WITHHELD_QUESTION_IDS.has(q.id)) { expect(served.has(q.id), `${q.id} is withheld`).toBe(false); continue; }
+        expect(served.has(q.id), `${q.id} is not in the served bank`).toBe(true);
+      }
       const cv = canonicalQuestionBank.filter((q: CanonicalQuestion) => q.topicKey === p.slug && q.competencyVerified === true);
       for (const marks of [1, 2, 3, 4, 5] as const) {
         expect(cv.filter((q) => q.marks === marks).length, `${p.slug} ${marks}-mark`).toBeGreaterThanOrEqual(p.floor[marks]);

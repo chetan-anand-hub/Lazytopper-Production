@@ -87,7 +87,11 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // upright seedling and no light source, so the item is undecidable). Crop kept on disk.
     // 100 -> 99 at DIAGRAMS-1 PR-3 (2026-10-07): CBE-S-LGHT-E-001 unbound (incomplete crop: two parallel arrows, no lens;
     // the stem is self-contained after BANK-FIX). Row stays served; crop kept on disk.
-    expect(batch1).toHaveLength(99);
+    // 99 -> 100 at DIAGRAMS-1 PR-4 (2026-10-07): +1 NCERT Exemplar crop (CTRL-EXMPLR-6-MCQ-025, bound but withheld).
+    // Each PR-4 binding is pinned one by one in scienceFigureVisuals.diagrams1.test.ts.
+    // 100 -> 102 at C3 DIAGRAMS PR-S1 (2026-10-07): +2 CFPQ Science crops (CFPQ-S-EYE-010, CFPQ-S-ABS-013), both rows
+    // served; pinned one by one in scienceFigureVisuals.c3.test.ts.
+    expect(batch1).toHaveLength(102);
     // 49 = 3 Foundation + 12 chapter-wise + 17 board-paper (16 rows, ELEC-011 twice) + 13 preboard + 2 SQP + 2 APQ (FIG-SCI-2)
     // 49 -> 46 at LIGHT-FIX-1 stage 2 (2026-09-11): the 3 Foundation rows (FND-L-SPX-003/-004/-043) are
     // withheld as out-of-syllabus (beyond-board tier) and their bindings removed
@@ -102,9 +106,14 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // BANK-FIX. 4 of the 9 are bound but withheld (BOUND_BUT_WITHHELD in scienceFigureVisuals.ts). Each binding is pinned
     // one by one in scienceFigureVisuals.diagrams1.test.ts.
     // 48 -> 39 at DIAGRAMS-1 PR-3 (2026-10-07): -9 at DIAGRAMS-1 PR-3 (2026-10-07): third-party chapter-wise booklet figures unbound (owner ruling)
-    expect(batch2).toHaveLength(39);
+    // 39 -> 40 at DIAGRAMS-1 PR-4 (2026-10-07): +1 board-paper crop (PYQ-S-2026-ENV-001, bound but withheld).
+    // 40 -> 49 at C3 DIAGRAMS PR-S1 (2026-10-07): +9 Electricity / Human Eye / Magnetic Effects crops (7 board-paper
+    // 2023-2026 under /figures/pyq-science/, 2 APQ 2023-24 under /figures/other-science/), all rows served; pinned one by
+    // one in scienceFigureVisuals.c3.test.ts.
+    expect(batch2).toHaveLength(49);
     // 147 -> 138: -9 at DIAGRAMS-1 PR-3 (2026-10-07): third-party chapter-wise booklet figures unbound (owner ruling)
-    expect(batch).toHaveLength(99 + 39);
+    // 140 -> 151: +11 at C3 DIAGRAMS PR-S1 (2026-10-07)
+    expect(batch).toHaveLength(102 + 49);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);

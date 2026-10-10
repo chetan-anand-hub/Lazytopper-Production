@@ -28,6 +28,12 @@ import { recordActivity } from "../services/activityClient";
  * indexHtml.guard.test.ts proves the two agree). What is sent is exactly what the Vercel
  * binding already sends — a redacted page view, or an event NAME — and nothing else: no
  * uid, no email, no question content, no other parameter. The Vercel binding is untouched.
+ *
+ * ★★ A SECOND, ON THE SAME TERMS — THE META PIXEL (META-PIXEL-1, owner request 2026-10-10).
+ * Ad conversions and remarketing for Meta ads; it sets cookies, and the Privacy Policy
+ * says so. Same mitigations as GA4 (nothing on `/u/`, no automatic page views, an event
+ * NAME only, no advanced matching), except that Meta's address cannot be rewritten — so
+ * from an address that would need redacting, nothing is sent at all (`sendToMeta`).
  */
 
 /**
@@ -203,6 +209,11 @@ function send(kind: "pageview" | "event", payload: Record<string, unknown>): voi
   } catch {
     /* analytics must never break the page */
   }
+  try {
+    sendToMeta(kind, payload);
+  } catch {
+    /* analytics must never break the page */
+  }
   // ★ STUDENT-ACTIVITY-1 (owner ruling 2026-10-01) — the FIRST-PARTY activity log, and
   // the one place this module deals with a signed-in student. It is NOT a vendor and
   // NOT an identify(): nothing is added to what GA4 or Vercel receive (above, unchanged).
@@ -318,6 +329,159 @@ function sendToGa4(kind: "pageview" | "event", payload: Record<string, unknown>)
   };
   gtag("set", page);
   gtag("event", name, { ...page });
+}
+
+/* ------------------------------------------------------------------------- *
+ * META (FACEBOOK) PIXEL — the third vendor binding (META-PIXEL-1, owner request
+ * 2026-10-10).
+ *
+ * `window.fbq` is defined ONLY by the inline block in index.html, which does nothing on
+ * a `/u/` hand-off link or in an automated context, so there — and wherever an ad
+ * blocker stopped it — this is a silent no-op, like GA4.
+ *
+ * ★★ NOTHING CAN BE REDACTED FOR META, SO NOTHING IS SENT FROM AN ADDRESS THAT NEEDS IT.
+ * Read out of the published fbevents.js: every request carries `dl` = `location.href`
+ * (read when the request is made, query and hash included) and `rl` =
+ * `document.referrer`, and there is no documented per-event override. GA4 gets a
+ * rewritten `page_location`; Meta cannot. So `sendToMeta` sends ONLY while the address
+ * is already exactly what the redactor would produce (`metaAddressIsClean`), and while
+ * a same-site referrer is too (a full navigation away from `/u/<token>` leaves that URL
+ * in `document.referrer`). Otherwise it sends nothing, AND it removes any `track` call
+ * still waiting in the stub queue: fbevents replays that queue with the address at the
+ * moment it arrives, which may no longer be the page the call was made on.
+ *
+ * What is sent is an event NAME, never a parameter: `PageView`, or the standard event
+ * `META_EVENTS` maps an app event to. No uid, no email, no advanced matching (the users
+ * are fifteen-year-olds). Any other app event is not sent to Meta.
+ * ------------------------------------------------------------------------- */
+
+type Fbq = ((...args: unknown[]) => void) & { queue?: unknown };
+
+function resolveFbq(): Fbq | null {
+  const w = window as unknown as { fbq?: Fbq };
+  return typeof w.fbq === "function" ? w.fbq : null;
+}
+
+type MetaCall = readonly ["track" | "trackCustom", string];
+
+export const META_EVENTS: Readonly<Partial<Record<"sign_up" | NamedAnalyticsEvent, MetaCall>>> = {
+  sign_up: ["track", "CompleteRegistration"],
+  trial_start: ["track", "StartTrial"],
+};
+
+const META_PAGEVIEW: MetaCall = ["track", "PageView"];
+
+/** `utm_*` and the ad click ids, plus `cbq` — the ad landing's boolean flag. Nothing else. */
+const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq)$/;
+const HANDOFF_PATH = /^(?:\/app)?\/u(?:\/|$)/;
+
+function metaQueryAndHashAreClean(search: string, hash: string): boolean {
+  if (hash && hash !== "#") return false;
+  for (const part of String(search || "").replace(/^\?/, "").split("&")) {
+    if (part && !META_QUERY_KEEP.test(part.split("=")[0])) return false;
+  }
+  return true;
+}
+
+function metaPathIsClean(pathname: string, basename: string): boolean {
+  const full = String(pathname || "/");
+  if (HANDOFF_PATH.test(full)) return false;
+  const routerPath = routerPathOf(full, basename);
+  return normalisePath(routerPath) === routerPath;
+}
+
+const siteOf = (host: string): string => String(host || "").toLowerCase().replace(/^www\./, "");
+
+/**
+ * The address is CLEAN when redaction would not change it: not a hand-off path,
+ * `normalisePath(path) === path` (no email or opaque-id segment, no trailing slash), no
+ * hash, and only `utm_*` / `fbclid` / `gclid` / `cbq` in the query. A same-site referrer
+ * (`www.` ignored) must pass the same test; a cross-site one may carry no other query
+ * parameter and no hash. An unparseable referrer is not clean.
+ */
+export function metaAddressIsClean(
+  loc: { pathname: string; search: string; hash: string; hostname: string },
+  referrer: string,
+  basename: string = appBasename(),
+): boolean {
+  if (!metaPathIsClean(loc.pathname, basename) || !metaQueryAndHashAreClean(loc.search, loc.hash)) {
+    return false;
+  }
+  const ref = String(referrer || "");
+  if (!ref) return true;
+  let url: URL;
+  try {
+    url = new URL(ref);
+  } catch {
+    return false;
+  }
+  if (!metaQueryAndHashAreClean(url.search, url.hash)) return false;
+  return siteOf(url.hostname) !== siteOf(loc.hostname) || metaPathIsClean(url.pathname, basename);
+}
+
+function dropQueuedMetaEvents(fbq: Fbq): void {
+  const queue = fbq.queue;
+  if (!Array.isArray(queue)) return;
+  for (let i = queue.length - 1; i >= 0; i--) {
+    const method = (queue[i] as ArrayLike<unknown> | undefined)?.[0];
+    if (method === "track" || method === "trackCustom") queue.splice(i, 1);
+  }
+}
+
+/**
+ * ★ BEFORE fbevents.js ARRIVES, A CALL WAITS HERE, NOT IN THE STUB QUEUE. The library
+ * replays its queue with the address at the moment it arrives, and the address can change
+ * with no route change (a query or hash), which never reaches this module. So a call made
+ * before the library loads is held, and sent on `lt:fbq-ready` (dispatched by the script
+ * tag's onload in index.html) only if the address is clean THEN; otherwise it is dropped.
+ * The library has loaded once it has put `callMethod` on the stub.
+ */
+const META_PENDING_CAP = 20;
+const metaPending: MetaCall[] = [];
+let metaReadyListening = false;
+
+function metaLibraryLoaded(fbq: Fbq): boolean {
+  return typeof (fbq as { callMethod?: unknown }).callMethod === "function";
+}
+
+function flushMetaPending(): void {
+  const calls = metaPending.splice(0);
+  try {
+    const fbq = resolveFbq();
+    if (!fbq || !metaAddressIsClean(window.location, document.referrer)) return;
+    for (const call of calls) fbq(call[0], call[1]);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+function holdMetaCall(call: MetaCall): void {
+  metaPending.push(call);
+  if (metaPending.length > META_PENDING_CAP) metaPending.shift();
+  if (!metaReadyListening) {
+    metaReadyListening = true;
+    window.addEventListener("lt:fbq-ready", flushMetaPending);
+  }
+}
+
+function sendToMeta(kind: "pageview" | "event", payload: Record<string, unknown>): void {
+  const fbq = resolveFbq();
+  if (!fbq) return;
+  if (!metaAddressIsClean(window.location, document.referrer)) {
+    metaPending.length = 0;
+    dropQueuedMetaEvents(fbq);
+    return;
+  }
+  const name = payload.name;
+  const call =
+    kind === "pageview"
+      ? META_PAGEVIEW
+      : typeof name === "string" && Object.prototype.hasOwnProperty.call(META_EVENTS, name)
+        ? META_EVENTS[name as keyof typeof META_EVENTS]
+        : undefined;
+  if (!call) return;
+  if (metaLibraryLoaded(fbq)) fbq(call[0], call[1]);
+  else holdMetaCall(call);
 }
 
 /**
