@@ -256,15 +256,15 @@ const hpqAdditions: HPQTopicBucket[] = [
         bloomSkill: "Applying",
         question:
           "The product of two consecutive odd integers is 99. Form a quadratic equation and find the integers.",
-        answer: "9 and 11.",
+        answer: "9 and 11, or −11 and −9",
         explanation:
-          "Let the smaller integer be n. Then n(n + 2) = 99 ⇒ n² + 2n − 99 = 0. Factorise to (n − 9)(n + 11) = 0 and take the positive solution n = 9.",
+          "Let the smaller odd integer be x. Then x(x + 2) = 99 ⇒ x² + 2x − 99 = 0. Factorise to (x − 9)(x + 11) = 0, so x = 9 or x = −11. Both values give consecutive odd integers with product 99: 9 and 11, or −11 and −9.",
         solutionSteps: [
-          "Let the first odd integer be x. Then the next consecutive odd integer will be x + 2.; According to the problem, their product is 99, so we form the equation x(x + 2) = 99. [1]",
-          "Expand and rearrange to form a quadratic equation: x² + 2x - 99 = 0.; Factorize the equation: (x + 11)(x - 9) = 0. This gives two possible values for x: x = -11 or x = 9. [1]",
-          "If x = 9, the integers are 9 and 9 + 2 = 11. If x = -11, the integers are -11 and -11 + 2 = -9. The positive integers are 9 and 11. [1]",
+          "[1 mark] Let the smaller odd integer be x; the next consecutive odd integer is x + 2. Then x(x + 2) = 99 ⇒ x² + 2x − 99 = 0.",
+          "[1 mark] Splitting the middle term: x² + 11x − 9x − 99 = 0 ⇒ (x + 11)(x − 9) = 0 ⇒ x = 9 or x = −11.",
+          "[1 mark] If x = 9, the integers are 9 and 11; if x = −11, the integers are −11 and −9. Both pairs have product 99, so the integers are 9 and 11, or −11 and −9.",
         ],
-        finalAnswer: "9 and 11.",
+        finalAnswer: "9 and 11, or −11 and −9",
       },
       {
         id: "qe-hpq-105",
@@ -1028,16 +1028,16 @@ const hpqAdditions: HPQTopicBucket[] = [
         question:
           "In an experiment, a leaf on a plant was partially covered with black paper and the plant was kept in sunlight for several hours. The leaf was then tested with iodine solution.\n(a) Which process was being investigated?\n(b) What will be the result of the iodine test on the covered and uncovered parts of the leaf?\n(c) What conclusion can be drawn from this experiment?",
         answer:
-          "(a) Photosynthesis. (b) The uncovered part turns blue‑black with iodine, indicating starch formation, while the covered part does not. (c) Chlorophyll and light are necessary for photosynthesis and starch formation.",
+          "(a) Photosynthesis (need of light for photosynthesis).\n(b) The uncovered part turns blue-black with iodine (starch present); the covered part does not turn blue-black (no starch).\n(c) Light is necessary for photosynthesis (starch formation).",
         explanation:
-          "The covered portion does not receive light and cannot photosynthesise, so starch is absent. The uncovered portion synthesises starch and gives a positive iodine test.",
+          "The covered portion does not receive light and cannot photosynthesise, so starch is absent. The uncovered portion synthesises starch and gives a positive iodine test. Since the only difference between the two parts is light, the experiment shows that light is necessary for photosynthesis.",
         solutionSteps: [
-          "(a) The process being investigated is Photosynthesis.; (b) The uncovered part of the leaf will turn blue-black with iodine solution. [1]",
-          "This indicates the presence of starch, formed during photosynthesis.; The covered part of the leaf will not turn blue-black. [1]",
-          "This shows that no starch was formed in the absence of light. [1]",
-          "(c) The conclusion is that light is essential for photosynthesis and starch formation. [1]",
+          "[1 mark] (a) The process being investigated is photosynthesis — specifically whether light is needed for it.",
+          "[1 mark] (b) The uncovered part turns blue-black with iodine solution, showing that starch was formed by photosynthesis.",
+          "[1 mark] (b) The covered part does not turn blue-black, showing that no starch was formed where light could not reach.",
+          "[1 mark] (c) Both parts had chlorophyll, CO₂ and water; only light differed. Hence light is necessary for photosynthesis (starch formation).",
         ],
-        finalAnswer: "(a) Photosynthesis. (b) The uncovered part turns blue‑black with iodine, indicating starch formation, while the covered part does not. (c) Chlorophyll and light are necessary for photosynthesis and starch formation.",
+        finalAnswer: "(a) Photosynthesis (need of light for photosynthesis).\n(b) The uncovered part turns blue-black with iodine (starch present); the covered part does not turn blue-black (no starch).\n(c) Light is necessary for photosynthesis (starch formation).",
       },
     ],
   },

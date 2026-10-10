@@ -87,7 +87,8 @@ describe("DIAGRAMS-1 PR-2a — computed solution figures reach every solution re
   const SURFACES: Array<[string, string]> = [
     ["components/practice/PracticeQuestionCard.tsx", "Solution steps (for comparison)"],
     ["pages/desktop/DesktopPracticePage.tsx", "Solution / explanation from the real question row"],
-    ["pages/HighlyProbableQuestions.tsx", "solutionOpen[q.id] && ("],
+    // PRACTICE-HONESTY-1: the HPQ solution block is also gated by the per-row steps lock.
+    ["pages/HighlyProbableQuestions.tsx", "solutionOpen[q.id] && !stepsLocked && ("],
   ];
   for (const [file, anchor] of SURFACES) {
     it(`${file} mounts <SolutionFigure questionId> inside its solution block, lazily`, () => {

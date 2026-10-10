@@ -121,13 +121,14 @@ export const ARC_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The area of a circular playground is 9856 m² (its radius is 56 m). Find the cost of fencing this ground at the rate of Rs 50 per m. (Use π = 22/7)",
     "options": [],
-    "answer": "Rs. 8800",
+    "answer": "Length of fencing = circumference = 2πr = 2 × 22/7 × 56 = 352 m. Cost of fencing = 352 × Rs 50 = Rs 17,600.",
     "solutionSteps": [
-      "[1 mark] Cost of fencing = perimeter × cost per m = 2πr × 50 = 2 × (22/7) × 56 × 50.",
-      "[1 mark] = 352 × 50 = Rs. 8800."
+      "[1 mark] Circumference = 2πr = 2 × 22/7 × 56 = 352 m.",
+      "[1 mark] Cost = 352 m × Rs 50 per m = Rs 17,600."
     ],
-    "finalAnswer": "Rs. 8800",
-    "isCompetencyBased": false
+    "finalAnswer": "Length of fencing = circumference = 2πr = 2 × 22/7 × 56 = 352 m. Cost of fencing = 352 × Rs 50 = Rs 17,600.",
+    "isCompetencyBased": false,
+    "sourceOverride": "others"
   },
   {
     "id": "CBE-M-ARC-C-001",

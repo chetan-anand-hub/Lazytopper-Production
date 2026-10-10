@@ -249,15 +249,14 @@
           ]
         },
         {
-          "id": "PYQ-M-2024-TRI-004a",
-          "questionText": "A circle is inscribed in a right-angled triangle ABC, right-angled at B. If BC = 7 cm and AB = 24 cm, find the radius of the circle.",
-          "marks": 3,
-          "section": "C",
+          "id": "PYQ-M-2024-CIRC-003",
+          "questionText": "In the given figure, if PT is a tangent to a circle with centre O and ∠TPO = 35°, then the measure of ∠x is :",
+          "marks": 1,
+          "section": "A",
           "solutionSteps": [
-            "[1 mark] AC = √(24² + 7²) = √625 = 25 cm. Let the radius be r cm.",
-            "[1 mark] Tangents from B are equal and the radii to the points of contact on AB and BC form a square with B, so the tangent lengths from B are r; tangent lengths from A = 24 − r and from C = 7 − r.",
-            "[1 mark] AC = (24 − r) + (7 − r) = 25 ⇒ 31 − 2r = 25 ⇒ r = 3 cm."
-          ]
+            "[1 mark] Correct option: (d) 125°. ∠OTP = 90° (radius ⊥ tangent at the point of contact); ∠x is the exterior angle of △OTP at O, so ∠x = 90° + 35° = 125°."
+          ],
+          "pyqYear": "2024"
         }
       ]
     },
@@ -1015,7 +1014,7 @@
           "marks": 1,
           "section": "A",
           "solutionSteps": [
-            "[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT = 90° − ∠UPQ, so sin ∠SPT = cos ∠UPQ = PU/PQ = 8/17."
+            "[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT + ∠UPQ = 90°; in right △PUQ, ∠PQU + ∠UPQ = 90°. So ∠SPT = ∠PQU, and sin ∠SPT = sin ∠PQU = PU/PQ = 8/17."
           ]
         },
         {
