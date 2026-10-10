@@ -1,0 +1,45 @@
+id,sample,solver_verdict,solver_flags,verifier_verdict,verifier_flags,verifier_confidence,agreement,verifier_correct_answer,verifier_detail
+2026-AB-CS-02,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key;wrong-steps,high,confirmed,,"Key correct but finalAnswer says 'Question text is missing'; steps about common salt and bleaching powder, not POP."
+2026-AP-SA-02,solver-wrong-key-high,flag,wrong-key;ambiguous-stem,pass,,high,"verifier-error; solver upheld by script (S9=153, S10=185, no n gives 155; D=3769 not a square)",,3n²+7n−310=0 gives n=10.
+2026-CCN-CS-02,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key;wrong-steps,high,confirmed,,"Key fine but finalAnswer/steps answer a different question (phototropism, growth hormone, goitre)."
+2026-MG-CS-01,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key;wrong-steps,high,confirmed,,"Key fine but finalAnswer/steps describe an electric bell, not the stem's crane/safety question."
+2026-MN-CS-02,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key;wrong-steps,high,confirmed,,"Key correct but finalAnswer is 'Question text is missing'; steps list painting, which stem excludes."
+2026-PLE-CASE-06,solver-wrong-key-high,flag,wrong-key,flag,wrong-key,high,confirmed,"x=100 samosas, y=20 idlis","Key 'x=60, y=60' gives 9(60)+6(60)=900≠1020; steps correctly reach 100, 20."
+2026-PLE-SA-03,solver-wrong-key-high,flag,wrong-key,flag,wrong-key,high,confirmed,"x=23/7, y=13/7","Key 'x=3, y=2' fails 3x−y=8 (9−2=7). 21−7y=8 → y=13/7."
+2026-QE-CASE-12,solver-wrong-key-high,flag,wrong-key,flag,wrong-key,high,confirmed,3.82 m,"x²−35x+119=0, x=(35−√749)/2=3.816 ≈ 3.82, not '3.81'. Equation correct."
+2026-SAV-CASE-09,solver-wrong-key-high,flag,wrong-key;wrong-steps;ambiguous-stem,flag,wrong-key,high,confirmed,≈₹13000 (34.5π m² × 120; π=3.14 gives ₹12999.6),"34.5π×120 = ₹12,999.6 (π=3.14) or ₹13,011 (22/7); stored '₹13,020' matches neither."
+CBE-M-ARC-B-001,solver-wrong-key-high,flag,wrong-key,flag,wrong-key;wrong-steps,high,confirmed,Rs 17600,"2πr=352 m; 352×50 = 17600, not 'Rs. 8800'."
+CBE-M-SAV-B-002,solver-wrong-key-high,flag,wrong-key,flag,wrong-key,medium,confirmed,4.17 m (416.67 cm),"3,000,000/7200=416.67 cm = 4.17 m; '4.16 m' is truncated, not rounded."
+PYQ-S-2025-CTRL-003,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key,high,confirmed,"(a) electrical-chemical signals cell to cell (b) change in water content/shape (c) nastic, growth-independent vs tropic, growth-dependent","Key is garbled tail 'It is also called as tropic movement (any other)'; answers to (a),(b) missing."
+PYQ-S-2025-MAG-006,solver-wrong-key-high,flag,wrong-key;wrong-steps;needs-figure,flag,wrong-key;needs-figure,high,confirmed,"(a) Fleming's left-hand rule (b) max when perpendicular, min (zero) when parallel","Key omits (a) and (b)(ii), contains heart-circulation debris; cases I–III need figure (not bound)."
+PYQ-S-2025-REPR-008,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key,high,confirmed,"X stigma, Y anther; pollen grains; pollination; fertilisation → ovule becomes seed",Key is marking-scheme debris '(Award marks if explained through labelled diagram)... 2 ½ ½ 1+1'.
+PYQ-S-2026-CHEMRXN-019,solver-wrong-key-high,flag,wrong-key;wrong-steps;ambiguous-stem,flag,wrong-key;wrong-steps,high,confirmed,,"Key answers only (B)(c); (A)/(B) other parts missing; steps garbled '(A) (a) (b)', '(c) OR 1 +'. Life-processes item in chemical-reactions chapter."
+PYQ-S-2026-ENV-009,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key,high,confirmed,(i) composting (ii) recycle (iii) recycle/reuse (iv) incineration,"Key truncated: starts 'recycle/reuse (iii)', omits (i) composting and (ii) label."
+SAV-M06,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-steps,medium,partial: verifier says 868.9 kg holds only with pi=22/7 (unstated); downgraded to wrong-steps,,"Final 868.9 kg valid only with π=22/7 (unstated); step (iii) 9047.8 uses π=3.1416, inconsistent with 99565.7 (22/7)."
+SCQ-S-CARB-038,solver-wrong-key-high,flag,wrong-key,flag,wrong-key,high,confirmed,"Five isomers: n-hexane, 2-methylpentane, 3-methylpentane, 2,2- and 2,3-dimethylbutane",Key garbled 'i. ii. Chap 4 ... Check Anser'; structures missing (steps are correct).
+SCQ-S-CTRL-029,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key,high,confirmed,"Plants: slow, no nervous system, growth/turgor; animals: fast, nervous/hormonal, muscle movement",Key truncated to table header 'Plants Animals'.
+SCQ-S-CTRL-037,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key,high,confirmed,"Diagram: auxin promotes shoot growth toward light (phototropism), root growth away (geotropism)","Key/steps are a different question (diabetes, insulin, growth hormone)."
+SCQ-S-HERED-022,solver-wrong-key-high,flag,wrong-key;wrong-steps,flag,wrong-key,high,confirmed,Dwarf (recessive) trait was present but unexpressed in F1; traits/factors segregate and are inherited,Key describes dihybrid independent assortment — answers a different question.
+SCQ-S-LIFE-041,solver-wrong-key-high,flag,wrong-key,flag,wrong-key,high,confirmed,"Aerobic: O2, mitochondria, CO2+H2O, more energy; anaerobic: no O2, cytoplasm, ethanol/lactic acid; e.g. yeast",Key is header debris '[All India 2008] Chap 6 : Life Process Aerobic respiration Anaerobic respiration'.
+SCQ-S-MAG-044,solver-wrong-key-high,flag,wrong-key,flag,wrong-key,high,confirmed,"I=1500/220≈6.8 A > 5 A, fuse blows / circuit overloads",Key truncated 'Given Power . P 1 5'; part (b) result missing (steps are correct).
+lp-hpq-105,solver-wrong-key-high,flag,wrong-key,flag,wrong-key,medium,confirmed,Light is necessary for photosynthesis (starch formation),"Conclusion 'Chlorophyll and light are necessary' — covering with black paper tests only light, not chlorophyll."
+CNC2-055,solver-pass,pass,,pass,,medium,agree,,"Neuron, synapse, reflex arc correct; no per-step mark allocation."
+BX-COORD-D-002,solver-pass,pass,,pass,,high,agree,,"Sides √10, √18; diagonals √52 and 2: parallelogram, not rectangle."
+2026-EL-SA-05b,solver-pass,pass,,pass,,high,agree,,"I≈0.27 A, R≈807 Ω."
+BX-PLE-E-022,solver-pass,pass,,pass,,high,agree,,All ratios 1/3; coincident; infinitely many solutions.
+CG-N-NCERT-7-EX-016,solver-pass,pass,,pass,,high,agree,,"AB=BC=√37, AC=2: isosceles."
+LPSE-001,solver-pass,pass,,pass,,high,agree,,"Pseudopodia; food vacuole; holozoic, egestion at surface."
+CG-N-EXMPLR-7-EX-023,solver-pass,pass,,pass,,high,agree,,"5,10,12; HO=11√5≈24.6; extra ≈2.4 km verified."
+EL2-016,solver-pass,pass,,pass,,high,agree,,"Parallel: same V, 60 W bulb dissipates more power."
+BX-PLE-D-014,solver-pass,pass,,pass,,high,agree,,"Checked: 3(250)+5(150)=1500, 5(250)+3(150)=1700."
+sci-env-comp-01,solver-pass,pass,,pass,,high,agree,,10000×0.1⁴=1 J; frog T3.
+AP-H05,solver-pass,pass,,pass,,high,agree,,π×45.5 = 22/7×45.5 = 143 cm.
+ABS-H05,solver-pass,pass,,pass,,medium,agree,,"Efflorescence, Na2CO3·H2O correct per NCERT."
+HEY-H04,solver-pass,pass,,pass,,medium,agree,,Tyndall effect answers correct.
+PROB-H09,solver-pass,pass,,pass,,high,agree,,"1/5, 1/4, 1/4 verified."
+2026-ABS-LA-06,solver-pass,pass,,pass,,high,agree,,"Equations, uses and dry HCl reasoning correct."
+circ-comp-01,solver-pass,pass,,pass,,high,agree,,Both true; reason does not explain equal tangent lengths: B.
+SP-M-2022-CG-B-001,solver-pass,pass,,pass,,high,agree,,"Medians 5, 5, √10 verified."
+BX-TRI-PF-012,solver-pass,pass,,pass,,high,agree,,BPT via diagonal AC proof correct.
+CG-N-NCERT-7-EX-002,solver-pass,pass,,pass,,high,agree,,"All sides √34, diagonals √68 verified."
+PLE-E18,solver-pass,pass,,pass,,high,agree,,Both reduce to 3x+2y=12; infinitely many solutions.
