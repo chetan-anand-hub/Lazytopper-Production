@@ -414,6 +414,8 @@ export function useTutorSession({
               content: res.reply,
               ...(res.offer ? { offer: res.offer } : {}),
               ...(res.figure ? { figure: res.figure } : {}),
+              // TUTOR-FIX-1: the server's honest cut-off signal rides on the turn.
+              ...(res.truncated === true ? { truncated: true as const } : {}),
             },
           ];
           persist(next, pendingRef.current);
