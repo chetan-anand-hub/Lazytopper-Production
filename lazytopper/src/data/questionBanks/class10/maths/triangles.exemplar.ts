@@ -196,9 +196,9 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
 
   // ===== Exercise 6.4 — Long Answer =====
   { id: "TRI-N-EXMPLR-6-LA-002", subject: "Maths", topicKey: "triangles", subtopic: "Criteria for Similarity", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Two line segments intersect at a point P, forming △APB and △CPD in which ∠APB and ∠CPD are vertically opposite angles. If ∠A = ∠C, AB = 6 cm, BP = 15 cm, AP = 12 cm and CP = 4 cm, find the lengths of PD and CD.",
+    questionText: "In Fig. 6.16, if ∠A = ∠C, AB = 6 cm, BP = 15 cm, AP = 12 cm and CP = 4 cm, then find the lengths of PD and CD.",
     answer: "In △APB and △CPD: ∠A = ∠C (given) and ∠APB = ∠CPD (vertically opposite angles). By AA similarity, △APB ~ △CPD. Hence AP/CP = AB/CD = BP/DP. From AP/CP = BP/DP: 12/4 = 15/DP ⇒ DP = 15 × 4/12 = 5 cm. From AP/CP = AB/CD: 12/4 = 6/CD ⇒ CD = 6 × 4/12 = 2 cm.",
-    solutionSteps: ["Given: ∠A = ∠C; AB = 6, BP = 15, AP = 12, CP = 4.", "In △APB and △CPD: ∠A = ∠C (given); ∠APB = ∠CPD (vertically opposite at P).", "By AA similarity, △APB ~ △CPD.", "Correspondence A↔C, P↔P, B↔D ⇒ AP/CP = AB/CD = BP/DP.", "12/4 = 15/DP ⇒ DP = 60/12 = 5 cm.", "12/4 = 6/CD ⇒ CD = 24/12 = 2 cm."],
+    solutionSteps: ["[1 mark] In Fig. 6.16, AC and BD intersect at P. In △APB and △CPD: ∠A = ∠C (given) and ∠APB = ∠CPD (vertically opposite angles), so △APB ~ △CPD (AA similarity), with A ↔ C, P ↔ P, B ↔ D.", "[1 mark] Hence AP/CP = AB/CD = BP/DP. From AP/CP = BP/DP: 12/4 = 15/DP ⇒ DP = (15 × 4)/12 = 5 cm.", "[1 mark] From AP/CP = AB/CD: 12/4 = 6/CD ⇒ CD = (6 × 4)/12 = 2 cm."],
     finalAnswer: "PD = 5 cm; CD = 2 cm.",
     ncertRef: "Exemplar Ex 6.4 Q1", isCompetencyBased: true,
     strategyHint: "Vertically opposite angles + given equal angle ⇒ AA similarity at the intersection point.",

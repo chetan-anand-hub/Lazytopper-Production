@@ -48,6 +48,7 @@ import { drawChapterTest } from "../components/chaptertest/chapterTestBlueprint"
 import { buildPracticeQuestionsFromEngine } from "../components/practice/practiceQuestionBuilder";
 import { chapterHasCbqs, practiceTopicLabel } from "../components/practice/cbqAvailability";
 import { buildUnionPool, drawFullMock, fullMockChapterWeights } from "../components/fullmock/fullMockBlueprint";
+import { needsMissingFigure } from "../lib/figureSafe";
 
 const T = { timeout: 120_000 };
 
@@ -352,7 +353,12 @@ describe("GEN-THIN-1 · thin concepts reach ≥ 10 and the surfaces really draw 
     for (const subject of ["Maths", "Science"] as const) {
       const slugs = new Set(fullMockChapterWeights(subject).map((c) => c.slug));
       const pool = new Set(buildUnionPool(subject, slugs).map((q) => q.id));
-      for (const q of GEN.filter((g) => g.subject === subject)) expect(pool.has(q.id), q.id).toBe(true);
+      // FIGURES-ALL-SURFACES-1 (2026-10-10): a generated row whose stem demands a supplied figure
+      // that no binder entry supplies is excluded from the pool (publishability Rule 5 via
+      // `needsMissingFigure`) — computed, never listed; every OTHER generated row must still be in.
+      for (const q of GEN.filter((g) => g.subject === subject)) {
+        expect(pool.has(q.id), q.id).toBe(!needsMissingFigure(q));
+      }
       let hits = 0;
       for (let seed = 1; seed <= 60 && hits === 0; seed++) {
         const paper = drawFullMock({ subject, worksheetId: `gen-fm-${seed}`, code: "X", name: "GEN", seed });

@@ -104,13 +104,14 @@ describe("why the LIVE signal keeps the legacy matcher — measured, not asserte
     return moved;
   }
 
-  it("the live HPQ set is 127 questions", () => {
+  it("the live HPQ set is 126 questions", () => {
     const total = highlyProbableQuestions.reduce((n, b) => n + b.questions.length, 0);
     // 140 -> 129 at SYLLABUS-FIX-CONTENT PR-1 (2026-10-06): 11 out-of-syllabus HPQ rows removed.
     // 129 -> 128 at QUICK-FIXES-1 PR-2 (owner ruling R1, 2026-10-06): rn-comp-02 removed.
     // 128 -> 127 at BANK-FIX-1 PR-2 (2026-10-07): sci-eye-comp-01 withheld (HPQ_WITHHELD_IDS; the independent
     // re-solve found two defensible answers — hypermetropia and presbyopia both fit the stem).
-    expect(total).toBe(127);
+    // 127 -> 126 at BANK-FIX-6 (2026-10-10): sci-chem-comp-02 withheld (HPQ_WITHHELD_IDS; A-R key ambiguous between A and B).
+    expect(total).toBe(126);
   });
 
   it("★ canonicalising BOTH dimensions moves a large share of the live HPQ set", () => {

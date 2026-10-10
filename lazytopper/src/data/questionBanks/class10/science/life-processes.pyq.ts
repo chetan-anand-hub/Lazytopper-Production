@@ -137,4 +137,11 @@ export const LIFE_PROCESSES_PYQ: CanonicalQuestion[] = [
     finalAnswer: "(any one) ½ ×",
     ncertRef: "PYQ 31/5/1 Q29", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
+  { id: "PYQ-S-2026-CHEMRXN-013", subject: "Science", topicKey: "life-processes", subtopic: "Photosynthesis", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Given below is a diagrammatic representation of cross-section of a leaf : (i) Identify 'P' in the given diagram and write down its role in plants. (ii) Write down a balanced equation of process of photo-synthesis.",
+    answer: "(i) P – Chloroplasts; they absorb light energy and help in photosynthesis. (ii) 6CO₂ + 12H₂O → (chlorophyll, sunlight) C₆H₁₂O₆ + 6O₂ + 6H₂O",
+    solutionSteps: ["[0.5 mark] (i) P – Chloroplasts.", "[0.5 mark] Role: chloroplasts contain chlorophyll, which absorbs light energy and helps in photosynthesis.", "[1 mark] (ii) 6CO₂ + 12H₂O → C₆H₁₂O₆ (glucose) + 6O₂ + 6H₂O, in the presence of chlorophyll and sunlight (C: 6 = 6, H: 24 = 12 + 12, O: 12 + 12 = 24 = 6 + 12 + 6)."],
+    finalAnswer: "P = chloroplasts (absorb light energy for photosynthesis); 6CO₂ + 12H₂O → C₆H₁₂O₆ + 6O₂ + 6H₂O (in presence of chlorophyll and sunlight).",
+    ncertRef: "PYQ 31/5/2 Q12", isCompetencyBased: true,
+    pyqYear: "2026", pyqSet: "2" },
 ];

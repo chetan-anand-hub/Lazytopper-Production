@@ -66,7 +66,7 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[Variant 1] ∠DEB = ∠ACB = 90°. ∠ABC = 90° − ∠DBE; ∠BDE = 90° − ∠DBE ⟹ ∠ABC = ∠BDE. So ΔBDE ~ ΔABC (AA) ⟹ BE/AC = DE/BC ⟹ BE/DE = AC/BC.", "[Variant 2] ΔABC ~ ΔPQR ⟹ AB/PQ = BC/QR and ∠B = ∠Q. AD and PM are medians, so D and M are the mid-points of BC and QR: BD = ½BC and QM = ½QR ⟹ BD/QM = BC/QR = AB/PQ. In ΔABD and ΔPQM, AB/PQ = BD/QM and ∠B = ∠Q, so ΔABD ~ ΔPQM (SAS similarity), hence AB/PQ = AD/PM."],
     finalAnswer: "Both variants proved.",
     ncertRef: "APQ PQ2 Q23", isCompetencyBased: true, sourceOverride: "others",
-    strategyHint: "REQUIRES-FIGURE for both variants." },
+ },
 
   // PQ2 Q33 (Section D, Long, 5 marks)
   { id: "APQ-M-TRI-007", subject: "Maths", topicKey: "triangles", subtopic: "Basic Proportionality Theorem — Statement and Application", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
@@ -116,5 +116,5 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["In ΔPQR and ΔSTR: ∠PRQ = ∠SRT (common); ∠PQR = ∠STR (corresponding angles, ST || PQ). So ΔPQR ~ ΔSTR by AA criterion.", "Area of ΔPQR = (1/2)·b·(H + h); Area of ΔSTR = (1/2)·a·H.", "Area of trapezium PQTS = ΔPQR − ΔSTR = (1/2)·b·(H + h) − (1/2)·a·H = (1/2)·[(b − a)H + b·h].", "From similarity: (H + h)/H = b/a ⟹ H = a·h/(b − a).", "Substitute: Area = (1/2)·[(b − a)·a·h/(b − a) + b·h] = (1/2)·[a·h + b·h] = (1/2)·(a + b)·h. QED."],
     finalAnswer: "Area of trapezium PQTS = (1/2)(a + b)h.",
     ncertRef: "APQ PQ_2022 Q34", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: triangle PQR with parallel line ST inside." },
+ },
 ];

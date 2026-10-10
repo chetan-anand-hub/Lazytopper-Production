@@ -78,6 +78,9 @@ const PR1_NOT_BOUND = [
 
 // C3 PR-D1 (B-21 census step, 2026-10-10): rows C3 binds while the bank withholds them. Pinned one by one in
 // mathsFigureVisuals.c3.test.ts; listed here only so the BOUND_BUT_WITHHELD closed-set check below accepts them.
+// 2026-10-10 BANK-FIX-6 (C2): two bound rows withheld because the answer is defined only by the image (no working derivable from the text);
+// B re-assesses them against the bound figure. Declared in BOUND_BUT_WITHHELD; bound by an earlier lane, so accepted here by name.
+const BANK_FIX_6_BOUND_BUT_WITHHELD: readonly string[] = ["APQ-M-TRIG-011", "APQ-M-TRIG-016"];
 const C3_D1_BOUND_BUT_WITHHELD: readonly string[] = [
   "APQ-M-ARC-001", "APQ-M-ARC-002", "APQ-M-ARC-003", "APQ-M-ARC-004", "APQ-M-ARC-006", "APQ-M-ARC-008", "APQ-M-ARC-010",
   "SQP-M-POLY-001", "APQ-M-POLY-001", "APQ-M-STAT-003", "APQ-M-STAT-008",
@@ -121,7 +124,7 @@ describe("DIAGRAMS-1 PR-1 bindings (Circles + Triangles) are exactly the eye-con
     // every declared row is bound by PR-1, by PR-6 (the PR-6 block below pins its own rows) or by C3 PR-D1 (pinned one by
     // one in mathsFigureVisuals.c3.test.ts; the table above lists its declared ids so this list stays closed)
     expect(BOUND_BUT_WITHHELD.filter((q) => !PR1_BINDINGS.some(([b]) => b === q) && !PR6_BINDINGS.some(([b]) => b === q)
-      && !C3_D1_BOUND_BUT_WITHHELD.includes(q))).toEqual([]);
+      && !C3_D1_BOUND_BUT_WITHHELD.includes(q) && !BANK_FIX_6_BOUND_BUT_WITHHELD.includes(q))).toEqual([]);
     expect(C3_D1_BOUND_BUT_WITHHELD.filter((q) => !BOUND_BUT_WITHHELD.includes(q) || getFiguresForQuestion(q).length === 0)).toEqual([]);
   });
 

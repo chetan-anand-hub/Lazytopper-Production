@@ -81,7 +81,7 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "Q: Brown; R: Brown",
     solutionSteps: ["[0.5 mark] Q is the part of the leaf inside the cut cork, so it gets no light and cannot photosynthesise; R is the part inside the flask, where the substance absorbs carbon dioxide, so it cannot photosynthesise either.", "[0.5 mark] The plant was destarched, so neither Q nor R contains starch: both stay brown with iodine. Correct option is (b) Brown, Brown."],
     finalAnswer: "(b) Q: Brown; R: Brown",
-    ncertRef: "cbjescco06 Q11", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram",
+    ncertRef: "cbjescco06 Q11", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjescco06 Q12
   { id: "SCO-S-LIFE-010", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -360,5 +360,5 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] Diagram: Labelled diagram of the human urinary system showing the two kidneys, the two ureters, the urinary bladder and the urethra.",
       "[1 mark] Labels: The kidneys produce urine, the ureters carry it to the urinary bladder, which stores it, and the urethra passes it out of the body."
     ],
-    ncertRef: "cbjesccq06 Q84", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references diagram" },
+    ncertRef: "cbjesccq06 Q84", isCompetencyBased: false, },
 ];

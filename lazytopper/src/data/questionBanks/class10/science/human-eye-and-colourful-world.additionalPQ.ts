@@ -27,7 +27,7 @@ export const HUMAN_EYE_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) Prism 1 disperses the white light into its seven constituent colours VIBGYOR (violet, indigo, blue, green, yellow, orange, red).", "[1 mark] (a) Prisms 2 and 3 (suitably inverted) recombine these colours, so the beam finally falling on the screen appears WHITE again (Newton's recombination experiment).", "[1 mark] (b) Diagram: the white beam enters Prism 1 and splits into the VIBGYOR spectrum.", "[1 mark] (b) Diagram: the spectrum passes through Prisms 2 and 3 and recombines into a single white beam falling on the screen.", "[1 mark] (c) Processes taking place: dispersion (splitting of white light), refraction (bending at each prism surface) and recombination of the colours."],
     finalAnswer: "(a) White (recombined VIBGYOR); (b) ray diagram; (c) dispersion + refraction.",
     ncertRef: "APQ Science-PQ Q36 (first variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: three-prism arrangement with screen." },
+ },
 
   // Science-PQ Q36 OR variant (Section D, Long, 5 marks)
   { id: "APQ-S-EYE-003", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Myopia, Lens Defects, Eye Anatomy", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
@@ -36,7 +36,7 @@ export const HUMAN_EYE_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) In myopia (short-sightedness), the image of a distant object forms in FRONT of the retina (eye lens too convergent / eyeball too long).", "[1 mark] (b) A concave (diverging) lens of suitable negative power is used to correct myopia, shifting the image back onto the retina.", "[1 mark] (c) With a fixed-focal-length artificial lens she loses the power of accommodation — the lens cannot change shape to focus on both near and distant objects (unlike the natural lens controlled by ciliary muscles).", "[1 mark] (d) (i) ciliary muscle — changes the focal length of the eye lens; (ii) cornea — causes most (~80%) of the refraction.", "[1 mark] (d) (iii) iris/pupil — controls the amount of light entering the eye; (iv) retina — acts as the light-sensitive screen."],
     finalAnswer: "(a) Front of retina; (b) concave; (c) no accommodation; (d) ciliary muscle / cornea / iris / retina.",
     ncertRef: "APQ Science-PQ Q36 (OR variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: labeled eye diagram." },
+ },
 
   // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
 
@@ -63,5 +63,5 @@ export const HUMAN_EYE_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) The focal length of the eye lens has a minimum limit — the ciliary muscles cannot curve the lens beyond a certain point.", "[1 mark] (a) For an object closer than 25 cm the image would form behind the retina, so a sharp image cannot be produced and the object appears blurred.", "[1 mark] (b) Diagram: white light passing through Prism 1 disperses into the VIBGYOR spectrum.", "[1 mark] (b) Diagram: a second identical, inverted prism (Prism 2) recombines the colours back into white light on the screen (Newton's two-prism recombination).", "[1 mark] (c) Two essential conditions for a rainbow: (i) presence of water droplets in the atmosphere (after rain); (ii) the Sun must be behind the observer (observer facing the droplets)."],
     finalAnswer: "(a) Eye-lens focal length has min limit; (b) two-prism recombination; (c) water droplets + Sun behind observer.",
     ncertRef: "APQ Science-PQ2 Q36 (OR variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: two-prism recombination diagram." },
+ },
 ];

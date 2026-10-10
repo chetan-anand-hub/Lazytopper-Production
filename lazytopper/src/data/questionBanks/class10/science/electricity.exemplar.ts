@@ -15,7 +15,6 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     answer: "the same in all the cases",
     solutionSteps: ["In a single-loop series circuit, the current is the same at every point regardless of the position of the ammeter.", "Rearranging the order of the cell, resistor, key and ammeter in a series loop does not change the total resistance.", "Hence the ammeter reading is the same in all the three arrangements."],
     finalAnswer: "Option (d) — same in all the cases",
-    strategyHint: "REQUIRES-FIGURE: three series circuits with the same components arranged in different orders.",
     ncertRef: "Exemplar MCQ Q1", isCompetencyBased: true },
 
   // REQUIRES-FIGURE
@@ -25,7 +24,6 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     answer: "maximum in case (iii)",
     solutionSteps: ["For the same supply voltage V = 12 V, heat produced per second is P = V²/R, so the lowest equivalent resistance gives the most heat.", "From the figure: (i) single 2 Ω → R = 2 Ω, P = 144/2 = 72 W; (ii) two 2 Ω in series → R = 4 Ω, P = 36 W; (iii) two 2 Ω in parallel → R = 1 Ω, P = 144 W.", "Hence heat produced is maximum in case (iii). Correct option (d)."],
     finalAnswer: "Option (d) — maximum in case (iii)",
-    strategyHint: "REQUIRES-FIGURE: three different resistor combinations (single, series, parallel) on a 12 V battery.",
     ncertRef: "Exemplar MCQ Q2", isCompetencyBased: true,
     sourceOverride: "others", },
 
@@ -52,7 +50,6 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     answer: "(ii)",
     solutionSteps: ["A correct circuit needs the ammeter in series with its + terminal towards the cell's + side, and the voltmeter in parallel across R with its + terminal towards the cell's + side.", "In the figure: (i) has the voltmeter in series - wrong; (iii) has the ammeter in parallel with R and the voltmeter in series - wrong; (iv) has the ammeter in series but with its polarity reversed - wrong.", "Only (ii) has the voltmeter across R and the ammeter in series, both with correct polarity. Correct option (b)."],
     finalAnswer: "Option (b) — circuit (ii)",
-    strategyHint: "REQUIRES-FIGURE: four candidate circuit diagrams with ammeter, voltmeter, resistor, key, cell.",
     ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true,
     sourceOverride: "others", },
 
@@ -79,7 +76,6 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     answer: "(i)",
     solutionSteps: ["[1 mark] For maximum potential difference the cells must be in series with the positive terminal of each cell joined to the negative terminal of the next, so that the EMFs add. In Figure 12.4 only arrangement (i) has every cell in the same sense (longer line +, shorter line −, joined head to tail); in (iii) the second cell is reversed, and in (ii) and (iv) the cells are not all in one sense. Correct option (a) — diagram (i)."],
     finalAnswer: "Option (a) — diagram (i)",
-    strategyHint: "REQUIRES-FIGURE: four arrangements of cells; only one has all + terminals joined to next − terminal.",
     ncertRef: "Exemplar MCQ Q8", isCompetencyBased: true },
 
   { id: "ELEC-EXMPLR-11-MCQ-009", subject: "Science", topicKey: "electricity", subtopic: "Volt Definition", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
@@ -105,7 +101,6 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     answer: "R₃ > R₂ > R₁",
     solutionSteps: ["[1 mark] In Figure 12.5 the current I is on the y-axis and V on the x-axis, so the slope of each line is I/V = 1/R: the LESS steep the line, the HIGHER the resistance. The line for R₁ is steepest and R₃ is least steep, with R₂ in between, so R₃ > R₂ > R₁. Correct option (c)."],
     finalAnswer: "Option (c) — R₃ > R₂ > R₁",
-    strategyHint: "REQUIRES-FIGURE: V–I straight-line graphs of three samples with different slopes.",
     ncertRef: "Exemplar MCQ Q11", isCompetencyBased: true },
 
   { id: "ELEC-EXMPLR-11-MCQ-012", subject: "Science", topicKey: "electricity", subtopic: "Power and Current", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
@@ -171,7 +166,6 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Corrections required: (i) the ammeter must be connected in SERIES with the resistor under study (so the same current passes through both), not in parallel; (ii) the voltmeter must be connected in PARALLEL across the resistor (to measure the potential difference across it), not in series; (iii) the positive terminals of the ammeter and voltmeter should be on the side of the positive terminal of the cell. The corrected circuit shows: cell + key in the main loop, with the ammeter in series with the resistor, and the voltmeter in parallel across the resistor.",
     solutionSteps: ["[1 mark] Ammeter measures current → it must be connected in series with the component whose current is to be measured.", "[1 mark] Voltmeter measures potential difference → it must be connected in parallel across the component.", "[0.5 mark] Ensure correct polarity: + terminal of meter towards the + terminal of the cell.", "[0.5 mark] Redraw: cell — key — ammeter — resistor — back to cell, with voltmeter in parallel across the resistor."],
     finalAnswer: "Ammeter in series; voltmeter in parallel across the resistor; correct polarities.",
-    strategyHint: "REQUIRES-FIGURE: original (incorrect) circuit drawn by the child.",
     ncertRef: "Exemplar SA Q19", isCompetencyBased: true },
 
   // REQUIRES-FIGURE
@@ -180,7 +174,6 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     answer: "From the figure, A is in series with the parallel combination of B and C. For each resistor: P = I²R ⇒ maximum permissible current in any single 2 Ω resistor = √(P_max/R) = √(18/2) = √9 = 3 A. Resistor A carries the full circuit current I, so its limit is I ≤ 3 A. Resistors B and C share the current equally (identical), so each carries I/2; their limit allows I ≤ 2 × 3 = 6 A. The binding constraint is A. Therefore the maximum current that can flow through the main circuit (through A) is 3 A; through each of B and C the current is 1.5 A.",
     solutionSteps: ["[1 mark] From P = I²R, the maximum current any single 2 Ω resistor can carry is I_max(one) = √(P/R) = √(18/2) = √9 = 3 A.", "[0.5 mark] Per the figure, A is in series with the parallel combination of B and C, so the current I through A is the total circuit current.", "[0.5 mark] Identical B and C each carry I/2.", "[0.5 mark] Limit from A: I ≤ 3 A. Limit from B (or C): I/2 ≤ 3 A ⇒ I ≤ 6 A. The tighter limit is from A.", "[0.5 mark] Hence maximum total current through the circuit is 3 A (with 1.5 A through each of B and C)."],
     finalAnswer: "Maximum total current = 3 A (1.5 A each through B and C).",
-    strategyHint: "REQUIRES-FIGURE: A in series with the parallel combination of B and C, all 2 Ω.",
     ncertRef: "Exemplar SA Q20", isCompetencyBased: true },
 
   { id: "ELEC-EXMPLR-11-SA-003", subject: "Science", topicKey: "electricity", subtopic: "Ammeter Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
@@ -195,7 +188,6 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Two 4 Ω resistors in parallel: R_p = (4 × 4)/(4 + 4) = 2 Ω. The 2 Ω resistor is in series with this 2 Ω parallel combination. The same current I flows through both, and they have equal resistance (2 Ω each). By V = IR, the potential differences across them are equal. So YES, the potential difference across the 2 Ω resistor equals that across the parallel combination.",
     solutionSteps: ["[1.5 marks] Draw: cell — key — ammeter — 2 Ω resistor — parallel block (two 4 Ω resistors) — back to cell. Connect voltmeter in parallel across the parallel block.", "[1 mark] Equivalent resistance of two 4 Ω in parallel: R_p = (4 × 4)/(4 + 4) = 16/8 = 2 Ω.", "[1 mark] Both the lone 2 Ω resistor and the parallel block (2 Ω) are in series, so they carry the same current I.", "[1 mark] By V = IR with equal resistance and equal current, V across 2 Ω = V across parallel block.", "[0.5 mark] Hence yes — the two potential differences are equal."],
     finalAnswer: "Yes — both have 2 Ω equivalent and carry the same current, so equal PDs.",
-    strategyHint: "REQUIRES-FIGURE: cell-key-ammeter-2Ω in series with (4Ω∥4Ω); voltmeter across the parallel block.",
     ncertRef: "Exemplar SA Q22", isCompetencyBased: true },
 
   { id: "ELEC-EXMPLR-11-SA-004", subject: "Science", topicKey: "electricity", subtopic: "Fuse Wire", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",

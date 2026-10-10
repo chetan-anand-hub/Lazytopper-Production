@@ -64,6 +64,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "A polynomial of degree n has at most n zeros. Since a quadratic has degree 2, it can have at most 2 zeros. The reason correctly explains why.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; a polynomial of degree n has at most n zeros, and since a quadratic has degree 2 it can have at most two zeros, so the Reason explains the Assertion.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
       {
         id: "poly-comp-02",
@@ -123,6 +127,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "S₂₀ = 20/2 [2(1) + 19(3)] = 10 × 59 = 590. The formula in the reason correctly computes this.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; with a = 1, d = 3, n = 20, S₂₀ = 20/2 [2(1) + 19(3)] = 10 × 59 = 590, so the Assertion is obtained by applying the formula stated in the Reason.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
       {
         id: "ap-comp-02",
@@ -211,6 +219,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer: "B",
         explanation:
           "Both statements are true. The equal tangent lengths are proved using OA = OB (radii), the common hypotenuse OP and the right angles at the points of contact (RHS congruence); the fact that a tangent meets the circle at only one point does not explain why the two tangent lengths are equal. So R is not the correct explanation of A.",
+        solutionSteps: [
+          "[1 mark] (B) Both Assertion and Reason are true but Reason is not the correct explanation; tangent lengths from an external point are equal (proved by RHS congruence using equal radii, common hypotenuse OP and right angles at the points of contact), and a tangent does meet the circle at exactly one point, but that fact does not explain why the two lengths are equal.",
+        ],
+        finalAnswer: "(B) Both Assertion and Reason are true but Reason is not the correct explanation.",
       },
     ],
   },
@@ -348,6 +360,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "Metals below hydrogen in the reactivity series cannot displace hydrogen from acids. Copper is less reactive than hydrogen, so it does not react with dilute HCl.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; copper is less reactive than hydrogen (below it in the reactivity series), so it cannot displace hydrogen from dilute HCl and therefore does not react with it.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -378,6 +394,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         explanation:
           "Tests understanding of homologous series through a structured case study.",
         solutionSteps: ["[1 mark] (a) Yes. Successive members differ by a –CH₂– unit (14 u) and have similar chemical properties, so they form a homologous series.", "[1 mark] (b) General formula: CₙH₂ₙ₊₂ (alkanes).", "[1 mark] (c) C₃H₈ is propane; structural formula CH₃–CH₂–CH₃ (each C forms 4 single bonds, 8 C–H bonds in total).", "[1 mark] (d) Next member (n = 4): C₄H₁₀, butane."],
+        finalAnswer: "(a) Yes, they differ by CH₂ and have similar chemical properties. (b) CₙH₂ₙ₊₂. (c) Propane; H₃C—CH₂—CH₃. (d) C₄H₁₀ (Butane).",
       },
     ],
   },
@@ -440,6 +457,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "Auxin moves to the shaded side, causing more cell elongation there, which bends the shoot towards light (phototropism).",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; when light falls from one side, auxin diffuses towards the shaded side of the shoot, so cells on that side elongate more and the shoot bends towards light (phototropism).",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -470,6 +491,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         explanation:
           "Standard CBSE case-based Mendelian genetics problem.",
         solutionSteps: ["(a) [1 mark] TT × tt: gametes T and t → F₁ all Tt (heterozygous); phenotype: all tall.", "(b) [1 mark] Tt × Tt: gametes T, t from each parent → Punnett square gives TT, Tt, Tt, tt.", "(c) [1 mark] Phenotypic ratio in F₂ = 3 tall : 1 dwarf (genotypic 1 TT : 2 Tt : 1 tt).", "(d) [1 mark] Law of Dominance (tall masks dwarf in F₁) and Law of Segregation (T and t separate in gametes and reappear in F₂)."],
+        finalAnswer: "(a) Genotype: Tt (all heterozygous); Phenotype: all tall. (b) TT : Tt : Tt : tt. (c) 3 tall : 1 dwarf. (d) Law of Dominance and Law of Segregation.",
       },
     ],
   },
@@ -532,6 +554,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "When light goes from denser to rarer medium, its speed increases, causing it to bend away from the normal. The reason correctly explains the assertion.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; refraction is caused by the change in speed of light, and since light speeds up on going from a denser to a rarer medium, it bends away from the normal.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -592,6 +618,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         explanation:
           "Parallel circuit case study testing Ohm's law and equivalent resistance calculations.",
         solutionSteps: ["[1 mark] (a) 1/R = 1/6 + 1/12 = 3/12 = 1/4 ⇒ R = 4 Ω.", "[1 mark] (b) I = V/R = 12 V / 4 Ω = 3 A.", "[1 mark] (c) Same 12 V across each: I₁ = 12/6 = 2 A; I₂ = 12/12 = 1 A (check: 2 + 1 = 3 A).", "[1 mark] (d) Only the 12 Ω resistor remains: I = 12 V / 12 Ω = 1 A."],
+        finalAnswer: "(a) 1/R = 1/6 + 1/12 = 3/12 ⇒ R = 4 Ω. (b) I = V/R = 12/4 = 3 A. (c) I₁ = 12/6 = 2 A; I₂ = 12/12 = 1 A. (d) I = 12/12 = 1 A.",
       },
     ],
   },
@@ -662,6 +689,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "Villi increase the surface area of the small intestine, making it the primary site for nutrient absorption.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; the small intestine is the main site of absorption of digested food because its inner lining has numerous finger-like villi that greatly increase the surface area for absorption.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -727,6 +758,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "AAA similarity confirms that equiangular triangles are always similar.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; the AAA similarity criterion states that equiangular triangles are similar, which is exactly why two triangles with equal corresponding angles are similar.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -810,6 +845,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "B",
         answer: "B",
         explanation: "Both facts are true but the impossibility axiom doesn't explain the complementary rule.",
+        solutionSteps: [
+          "[1 mark] (B) Both Assertion and Reason are true but Reason is not the correct explanation; P(E) + P(not E) = 1 because an event and its complement together cover all outcomes, while P(impossible event) = 0 is a separate true fact that does not explain the complement rule.",
+        ],
+        finalAnswer: "(B) Both Assertion and Reason are true but Reason is not the correct explanation.",
       },
     ],
   },
@@ -893,6 +932,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "1/2 = 1/2 = 5/10 = 1/2, so dependent system with infinite solutions.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; here a₁/a₂ = 1/2, b₁/b₂ = 1/2, c₁/c₂ = 5/10 = 1/2, so all three ratios are equal and the Reason's condition (consistent and dependent, i.e. coincident lines) directly shows the system has infinitely many solutions.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -929,6 +972,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "The functional group determines the chemical properties of a homologous series.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; chemical properties of a carbon compound are decided by its functional group, and since all members of a homologous series have the same functional group, they show similar chemical properties.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -958,6 +1005,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) All Tt (heterozygous tall). (b) 3:1 (tall:dwarf). (c) Tall is dominant, dwarf is recessive. (d) 25% (TT).",
         explanation: "Classic monohybrid cross — frequently asked as case-based in boards.",
         solutionSteps: ["(a) [1 mark] TT × tt → all F₁ are Tt; phenotype: all tall (heterozygous tall).", "(b) [1 mark] Tt × Tt → TT : Tt : tt = 1 : 2 : 1; phenotypic ratio 3 tall : 1 dwarf.", "(c) [1 mark] Tall is dominant (expressed in F₁); dwarf is recessive (masked in F₁, reappears in F₂).", "(d) [1 mark] Homozygous tall (TT) = 1 of 4 F₂ plants = 25%."],
+        finalAnswer: "(a) All Tt (heterozygous tall). (b) 3:1 (tall:dwarf). (c) Tall is dominant, dwarf is recessive. (d) 25% (TT).",
       },
     ],
   },
@@ -987,6 +1035,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           "(a) 1/R = 1/2 + 1/3 + 1/6 = 1, so R = 1Ω. (b) I = 12/1 = 12A. (c) I₃ = 12/3 = 4A. (d) P = V²/R = 144/6 = 24W.",
         explanation: "Parallel circuit analysis — extremely common case-based format.",
         solutionSteps: ["[1 mark] (a) 1/R = 1/2 + 1/3 + 1/6 = (3 + 2 + 1)/6 = 1 ⇒ R = 1 Ω.", "[1 mark] (b) I = V/R = 12 V / 1 Ω = 12 A.", "[1 mark] (c) Full 12 V across the 3 Ω resistor: I = 12/3 = 4 A.", "[1 mark] (d) P = V²/R = 12²/6 = 144/6 = 24 W."],
+        finalAnswer: "(a) 1/R = 1/2 + 1/3 + 1/6 = 1, so R = 1Ω. (b) I = 12/1 = 12A. (c) I₃ = 12/3 = 4A. (d) P = V²/R = 144/6 = 24W.",
       },
     ],
   },
@@ -1072,6 +1121,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "The Pythagorean identity is derived directly from the Pythagorean theorem.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; in right ΔABC with angle θ, AB² + BC² = AC² (Pythagoras theorem), and dividing by AC² gives (BC/AC)² + (AB/AC)² = 1, i.e. sin²θ + cos²θ = 1, so the identity follows from the Reason.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -1134,6 +1187,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "Using Sₙ = n/2 [2a + (n−1)d] with a = 1, d = 1 gives n(n+1)/2.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; since 1, 2, 3, …, n is an AP with a = 1 and d = 1, Sₙ = n/2 [2(1) + (n−1)(1)] = n(n+1)/2, so the Reason explains the Assertion.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -1170,6 +1227,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "Metals below hydrogen in the reactivity series cannot displace hydrogen from acids.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; copper is less reactive than hydrogen (below it in the reactivity series), so it cannot displace hydrogen from dilute HCl and therefore does not react with it.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -1206,6 +1267,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂ is a classic thermal decomposition reaction.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; on heating, 2Pb(NO₃)₂(s) → 2PbO(s) + 4NO₂(g) + O₂(g), a single reactant breaking down into simpler products due to heat, which is a thermal decomposition reaction as stated in the Reason.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -1240,6 +1305,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "Midpoint = ((2+4)/2, (3+7)/2) = (3, 5). Correct application of midpoint formula.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; by the midpoint formula ((x₁+x₂)/2, (y₁+y₂)/2), the midpoint is ((2+4)/2, (3+7)/2) = (3, 5), so the Reason gives the Assertion.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -1274,6 +1343,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "Both are true and the perpendicularity is key to proving equal tangent lengths via congruent triangles.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; since the tangent is perpendicular to the radius at the point of contact, ΔOAP and ΔOBP are right triangles with OA = OB and common OP, so they are congruent by RHS and PA = PB.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -1310,6 +1383,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "The shorter pathway via spinal cord explains the speed and involuntary nature of reflex actions.",
+        solutionSteps: [
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; in a reflex arc the impulse goes from receptor via sensory neuron to the spinal cord and straight back via motor neuron to the effector without waiting for the brain, which makes reflex actions quick and involuntary.",
+        ],
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -1376,6 +1453,10 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "D",
         answer: "D",
         explanation: "Assertion is false (concave mirrors can form virtual images too). Reason is true and actually disproves the assertion.",
+        solutionSteps: [
+          "[1 mark] (D) Assertion is false but Reason is true; a concave mirror does not always form a real, inverted image, because when the object is placed between the pole P and focus F the image is virtual, erect and enlarged, which is exactly what the true Reason states.",
+        ],
+        finalAnswer: "(D) Assertion is false but Reason is true.",
       },
     ],
   },
@@ -1389,6 +1470,9 @@ export const HPQ_WITHHELD_IDS: ReadonlySet<string> = new Set<string>([
   // ambiguous: "cannot see nearby objects" + a convex lens fits hypermetropia AND presbyopia, so part (b)'s
   // cause has two defensible answers (independent re-solve, phase B, b04)
   "sci-eye-comp-01",
+  // BANK-FIX-6 (2026-10-10, cofounder DECISION 45a): the blind solves disagreed on the key (one said B, a re-run said A; the stored key is A) because the
+  // reason only names the reaction type, so a CBSE key could be A or B. Disagreement after the extra round: withheld, not guessed.
+  "sci-chem-comp-02",
 ]);
 
 for (const bucket of hpqCompetencyAdditions) {

@@ -37,7 +37,9 @@ import {
 // The third C3 label was re-labelled to the existing "Acids with Metal Oxides"; reviewed max stays 458.
 // 2026-10-10 BANK-FIX-5 (owner ruling): 1517 -> 1516. 'Current-Carrying Conductors' is unmapped while PYQ-S-2025-MAG-006
 // is withheld (its figures are not bound); a DIAGRAMS lane that serves it again restores the line and 1517.
-const MIN_MAPPED_LABELS = 1516;
+// 2026-10-10 BANK-FIX-6 (C2): 1516 -> 1514. "Trig Identity Proof — Multi-step" and "cos θ from Similar Right Triangles" are unserved while
+// APQ-M-TRIG-016 and APQ-M-TRIG-011 are withheld (answer defined only by an image); B restores both lines and 1516 when it serves them again.
+const MIN_MAPPED_LABELS = 1514;
 const MAX_REVIEWED_LABELS = 458;
 /** served rows whose label resolves to a concept / all served rows: 7722 / 9823. */
 const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.7861;

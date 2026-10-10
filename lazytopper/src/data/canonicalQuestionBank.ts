@@ -2116,6 +2116,10 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-CTRL-029",             // wrong-key: the key and steps are only a table header; no answer to recover from the row
   "SCQ-S-CTRL-037",             // wrong-key: the stored key and steps belong to another question
   "SCO-S-CTRL-011",             // needs-figure: the stem needs a labelled diagram and no figure is bound (a later DIAGRAMS item)
+  // BANK-FIX-6 (2026-10-10): the official Exemplar wording was restored; it asks about "Fig. 6.16", which is not bound yet (ledger: bankFix6Ledger.ts)
+  "TRI-N-EXMPLR-6-LA-002",      // figure: restored Exemplar stem needs Fig. 6.16; B binds the figure, then un-withholds
+  "APQ-M-TRIG-011",             // figure: cos θ = c/b is defined only by lengths labelled in the figure; no working can be derived from the text
+  "APQ-M-TRIG-016",             // figure: the identity to prove exists only as an image in PQ_2022 Q30; the stem never states it
 ]);
 
 /**

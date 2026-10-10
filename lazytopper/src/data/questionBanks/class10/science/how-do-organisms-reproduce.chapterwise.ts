@@ -159,7 +159,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "The number of chromosomes in P and Q are same",
     solutionSteps: ["P and Q are haploid gametes of the same species, so they carry the same number of chromosomes; R (the zygote) is diploid. Gametes S, T, U and V formed later are again haploid, i.e. half of R and equal to Q — so (a), (c) and (d) are wrong. Correct option: (b)."],
     finalAnswer: "(b) The number of chromosomes in P and Q are same",
-    ncertRef: "cbjescco08 Q25", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram",
+    ncertRef: "cbjescco08 Q25", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjescco08 Q27
   { id: "SCO-S-REPR-020", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -316,7 +316,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] b. (iii) The part C is the pollen tube; it is important because it carries the male gametes down to the ovule in the ovary for fertilisation.",
       "[1 mark] b. (iv) After fertilisation, the part marked D (ovule) develops into the seed."
     ],
-    ncertRef: "cbjesccq08 Q120", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram" },
+    ncertRef: "cbjesccq08 Q120", isCompetencyBased: true, },
   // cbjesccq08 Q121 (Section D, 5mk)
   { id: "SCQ-S-REPR-042", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Identify the following methods and giving one example of each: a. Process in which reproduction takes place by breaking up of parent into fragments. b. Process of dividing of organisms into many cells simultaneously. c. Process of reproduction by formation of bud on parent body. d. Process of reproduction by formation of spores. e. Process used by multicellular organisms to reproduce by cutting into many pieces each piece forms a new individual.",

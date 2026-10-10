@@ -12,10 +12,10 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
     questionText: "Which of the following could be the graph of the polynomial (x − 1)^2(x + 2)?",
     options: ["Graph (a)", "Graph (b)", "Graph (c)", "Graph (d)"],
     answer: "Graph (c)",
-    solutionSteps: ["Zeroes of (x − 1)^2(x + 2): x = 1 (double, touches x-axis but does not cross) and x = −2 (simple, crosses x-axis).", "Leading coefficient is +1 (cubic, positive) → graph rises to +∞ as x → +∞ and falls to −∞ as x → −∞. Hence graph (c)."],
+    solutionSteps: ["[1 mark] Zeroes of (x − 1)²(x + 2) are x = 1 (repeated, so the graph touches the x-axis there without crossing) and x = −2 (crosses the x-axis); p(0) = (1)(2) = 2. Graph (a) crosses at both −2 and 1, graphs (b) and (d) touch the x-axis at a negative x and do not pass through (0, 2). Graph (c) crosses at −2, touches at 1 and passes through (0, 2), so it is the graph of the polynomial."],
     finalAnswer: "(c)",
     ncertRef: "APQ PQ1 Q1", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: 4 graph options shown in PDF. Choose the cubic touching x-axis at x=1 and crossing at x=−2." },
+ },
 
   // PQ2 Q1 (Section A, MCQ, 1 mark)
   { id: "APQ-M-POLY-002", subject: "Maths", topicKey: "polynomials", subtopic: "Quadratic from Zeroes", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
@@ -41,7 +41,6 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Let polynomial be ax^2 + bx + c with zeroes α, β. Given α + β = 1, α^2 + β^2 = 25. Use (α+β)^2 = α^2 + β^2 + 2αβ ⟹ 1 = 25 + 2αβ ⟹ αβ = −12.", "By relations: b/a = −(α+β) = −1, c/a = αβ = −12. Take a = 1: polynomial = x^2 − x − 12 = (x − 4)(x + 3). Zeroes: x = 4 and x = −3.", "So P = (4, 0) and Q = (−3, 0). From the graph, Riddhi stands at x = −2, and the stone lands at P, x = 4. Horizontal distance = 4 − (−2) = 6 units = 6 × 25 m = 150 m."],
     finalAnswer: "P = (4, 0), Q = (−3, 0); distance = 150 m.",
     ncertRef: "APQ PQ1 Q27", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Parabolic graph showing stone trajectory; Q is launch point, P is landing point.",
     sourceOverride: "others", },
 
   // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
