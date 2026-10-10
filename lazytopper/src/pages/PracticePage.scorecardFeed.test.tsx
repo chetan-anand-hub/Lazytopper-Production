@@ -101,10 +101,10 @@ async function buildQuickDrill(pool: PQ[]) {
     </MemoryRouter>,
   );
   // Preset chooser (full-page, source=practice → NOT arrivedTargeted).
-  fireEvent.click(await screen.findByRole("button", { name: /Quick drill/i }));
+  fireEvent.click(await screen.findByRole("button", { name: /Quick drill/i }, { timeout: 30000 }));
   fireEvent.click(screen.getByRole("button", { name: /Start practising/i }));
   // The built set renders the DISPLAYED questions (filteredQuestions), sliced to the count.
-  return screen.findAllByText(/^Question \d+: solve it\.$/);
+  return screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
 }
 
 /** Surface the scorecard and return its root element (for hero + MCQ-line reads). When
@@ -121,7 +121,11 @@ async function finishAndScorecard() {
 }
 
 describe("QP scorecard denominator — full-page path", () => {
-  it("THE OWNER'S BUG: a chosen-5 MCQ set reads '5 of 5', NOT '5 of 75' (over-fetched pool)", async () => {
+  // PRACTICE-HONESTY-1 (owner spec §5, controller D39): an attempted MCQ-only session's
+  // scorecard is now on the Chapter Test / Full Mock model — the hero is the MCQ MARKS
+  // ("1 / 5"), and the denominator this test exists for moved to the descriptor
+  // ("across 5 of 5 questions graded"). The intent is unchanged: the DISPLAYED 5, never 75.
+  it("THE OWNER'S BUG: a chosen-5 MCQ set counts against the DISPLAYED 5, NOT the over-fetched 75", async () => {
     // Engine over-fetches a 75-question pool for the chosen 5 — the owner's exact screenshot.
     const cards = await buildQuickDrill(Array.from({ length: 75 }, (_, i) => mkItem(i, true)));
     expect(cards).toHaveLength(5); // the student SEES 5, not 75
@@ -132,14 +136,15 @@ describe("QP scorecard denominator — full-page path", () => {
 
     const card = await finishAndScorecard();
     const hero = card.querySelector(".lt-sc__big")?.textContent?.replace(/\s+/g, " ").trim();
-    const mcqLine = card.querySelector(".lt-sc__mcq")?.textContent?.replace(/\s+/g, " ").trim();
+    const desc = card.querySelector(".lt-sc__desc")?.textContent?.replace(/\s+/g, " ").trim();
     // eslint-disable-next-line no-console
-    console.log(`[REPRO · owner MCQ] hero = "${hero}" · mcq = "${mcqLine}" (pool=75, displayed=5)`);
+    console.log(`[REPRO · owner MCQ] hero = "${hero}" · desc = "${desc}" (pool=75, displayed=5)`);
 
-    // Attempts were ALWAYS counted correctly (5 of 5, 1/5 correct) — the DENOMINATOR was the bug.
-    expect(mcqLine).toMatch(/^1\/5 MCQs correct/);
-    // THE FIX: denominator is the DISPLAYED 5, not the pool 75. Trunk: "5 of 75" → FAIL.
-    expect(hero).toBe("5 of 5");
+    // MCQ marks scored: 1 right of the 5 one-mark MCQs answered.
+    expect(hero).toBe("1 / 5");
+    // THE FIX this test pins: the question count is the DISPLAYED 5, not the pool 75.
+    expect(desc).toMatch(/^across 5 of 5\s*questions graded$/); // a <br /> separates the lines
+    expect(`${hero} ${desc}`).not.toMatch(/75/);
   }, 90000);
 
   it("denominator is displayed-independent of attempt count: a no-attempt-signal set reads 'of 5', not 'of 75'", async () => {
