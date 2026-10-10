@@ -21,8 +21,13 @@ export type FigureRole =
   | "path" // the dashed path of a moving thing (balloon, bird) or a rise
   | "construction" // a dashed helper (eye-level line, perpendicular)
   | "measure" // a dimension line that only carries a length label
+  // Geometry roles (DIAGRAMS-1 PR-2d): circles, triangles, coordinate plots.
+  | "tangent" // a tangent line / tangent segment
+  | "radius" // a radius or a line through the centre
+  | "chord" // a chord of a circle
+  | "edge" // a side of a triangle / polygon, a plotted segment
+  | "axis" // a coordinate axis or an axis tick; in ray optics (PR-2b), the principal axis
   // Ray optics (PR-2b) — additive; the H&D roles above are unchanged.
-  | "axis" // the principal axis
   | "ray" // a real light ray (solid)
   | "ray-virtual" // a backward extension of a ray, behind a mirror / lens (dashed)
   | "object" // the object arrow (solid, arrowhead at its tip)
@@ -42,7 +47,8 @@ export type FigureElement =
       a: string;
       b: string;
       role: FigureRole;
-      label?: { text: string; side: LabelSide };
+      /** `at`: where along a->b the label sits (0..1, default 0.5 — the midpoint). */
+      label?: { text: string; side: LabelSide; at?: number };
       /** Ray optics (PR-2b): "end" draws an arrowhead at b (object/image arrows); "mid" a
        *  direction chevron at the midpoint (the way the light travels, a -> b). */
       arrow?: "mid" | "end";
@@ -60,6 +66,16 @@ export type FigureElement =
   | { t: "right"; at: string; a: string; b: string }
   | { t: "label"; at: string; text: string; dx: number; dy: number }
   | { t: "dot"; at: string }
+  /** A circle about point `c` of radius `r` VIEW units (tests read r back through the transform). */
+  | { t: "circle"; c: string; r: number; role: "edge" | "construction" }
+  /**
+   * A SHADED region of the circle about `c` (radius `r`, view units): the part swept
+   * counter-clockwise IN THE WORLD from ray c->from to ray c->to through `ccwDeg`
+   * degrees. "sector" is bounded by the two radii; "segment" by the chord from->to.
+   */
+  | { t: "region"; kind: "sector" | "segment"; c: string; from: string; to: string; r: number; ccwDeg: number }
+  /** Plain (not italic) text: axis tick numbers, coordinates, ratio marks. */
+  | { t: "text"; at: string; text: string; dx: number; dy: number; kind: "tick" | "coord"; anchor?: "start" | "middle" | "end" }
   | {
       /** Ray optics (PR-2b): a spherical-mirror SYMBOL at the pole `at`. A shallow arc of
        *  half-height `half` whose edges are `sag` view units off the pole plane (towards
@@ -85,7 +101,7 @@ export interface FigureTransform {
   sy: number;
   ox: number;
   oy: number;
-  unit: "m" | "km" | "cm" | "none";
+  unit: "m" | "km" | "cm" | "mm" | "none";
 }
 
 export interface FigureSpec {
