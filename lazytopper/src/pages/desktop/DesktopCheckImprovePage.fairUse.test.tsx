@@ -3,13 +3,14 @@
 // real aiClient module, every other export kept). Each enforced case has a dark twin.
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor, act, within } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
 const H = vi.hoisted(() => ({
   detectQuestion: vi.fn(),
   checkSolutionImage: vi.fn(),
   gradeWorksheet: vi.fn(),
+  recordMistake: vi.fn(),
 }));
 
 vi.mock("../../context/AuthContext", () => ({
@@ -35,6 +36,35 @@ vi.mock("../../ai/aiClient", async (importOriginal) => {
     checkSolutionImage: (...a: unknown[]) => H.checkSolutionImage(...a),
     gradeWorksheet: (...a: unknown[]) => H.gradeWorksheet(...a),
   };
+});
+
+// TRIAL-PAPER-1: the account writes a SIGNED-IN grade makes — stubbed so no Firestore is
+// reached when a paper is actually graded (the FAIR-USE-UI-1 cases above never get there).
+vi.mock("../../services/mistakeIntelligence", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/mistakeIntelligence")>();
+  return {
+    ...actual,
+    recordMistake: (...a: unknown[]) => {
+      H.recordMistake(...a);
+      return Promise.resolve({ outcome: "logged", bridged: false });
+    },
+  };
+});
+vi.mock("../../services/practiceInsights", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/practiceInsights")>();
+  return { ...actual, recordAttempt: () => "recorded" };
+});
+vi.mock("../../services/sessionRecords", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/sessionRecords")>();
+  return {
+    ...actual,
+    ensureCheckImproveSessionCode: () => Promise.resolve({ code: "CI-M-REAL-02", name: "Real Numbers · Paper #2", sequence: 2 }),
+    getSessionRecordsFromCloud: () => Promise.resolve([]),
+  };
+});
+vi.mock("../../services/checkImproveGradeService", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/checkImproveGradeService")>();
+  return { ...actual, persistCheckImproveSession: () => "recorded" };
 });
 
 import DesktopCheckImprovePage from "./DesktopCheckImprovePage";
@@ -154,5 +184,136 @@ describe("FAIR-USE-UI-1 · Check & Improve", () => {
     fireEvent.click(grade);
     await waitFor(() => expect(document.body.textContent).toContain("Grading unavailable — please try again."));
     expect(screen.queryByTestId("fair-use-limit-panel")).toBeNull();
+  });
+});
+
+/* ── TRIAL-PAPER-1 (owner ruling 2026-10-07 e) ─────────────────────────────────
+ * A free (trial) student's whole C&I paper grades its FIRST questions — as many as
+ * today's checks allow (the server's checksPerDay, 5) — lists the rest as "Not graded"
+ * under an honest free-plan note, and links to the EXISTING plans route.
+ *   (1) 38-Q, 5 left -> Q1..Q5 sent; Q6..Q38 Not graded; head 5/38; scorecard 5 of 38;
+ *       nothing after Q5 recorded as a mistake; See plans -> /pricing.
+ *   (2) 3 left -> Q1..Q3 sent; the note names the real count.
+ *   (3) 0 left -> today's limit panel, nothing sent, no note (unchanged).
+ *   (4) premium -> the whole paper, no confirm, no note.   (5) DARK control -> whole paper, no note.
+ */
+const PAPER_38 = {
+  ok: true, detectedMarks: 2, detectedSubject: "Maths", detectedTopic: "real-numbers", marksSource: "stated",
+  questions: Array.from({ length: 38 }, (_, i) => ({
+    questionNumber: i + 1, questionText: `Question ${i + 1}`, marks: 2, marksSource: "stated",
+  })),
+};
+
+/** The grader's answer for exactly what was SENT: each sent question 1/2, one conceptual mistake. */
+function gradedFor(req: { questions: { qNumber: number }[] }) {
+  const results = req.questions.map((q) => ({
+    qNumber: q.qNumber, couldNotRead: false, totalMarks: 2, ok: true, marksAwarded: 1, percentage: 50,
+    annotatedSteps: [], mistakeSummary: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "",
+  }));
+  return {
+    ok: true, results, totalQuestions: results.length, gradedCount: results.length, pendingCount: 0,
+    gradedMarksAwarded: results.length, gradedMarksTotal: results.length * 2, worksheetTotalMarks: results.length * 2,
+  };
+}
+
+const PREMIUM_USAGE = {
+  enforced: true,
+  tier: "premium",
+  trial: null,
+  premium: { fiveHourPct: 10, dayPct: 10, weekPct: 10, resets: { fiveHour: MIDNIGHT, day: MIDNIGHT, week: MIDNIGHT } },
+};
+
+const range = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => from + i);
+const notGradedLabels = () =>
+  within(screen.getByTestId("trial-paper-not-graded"))
+    .getAllByRole("listitem")
+    .map((li) => li.querySelector(".lt-usage__notgraded-q")?.textContent);
+
+async function confirmFirst(n: number) {
+  const confirm = await screen.findByTestId("fair-use-confirm");
+  expect(confirm.textContent).toContain(`You have ${n} ${n === 1 ? "check" : "checks"} left today — we'll mark the first ${n}.`);
+  expect(H.gradeWorksheet).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByTestId("fair-use-confirm-yes"));
+  await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+}
+
+describe("TRIAL-PAPER-1 · a trial paper grades its FIRST questions, honestly", () => {
+  beforeEach(() => {
+    H.detectQuestion.mockResolvedValue(PAPER_38);
+    H.recordMistake.mockReset();
+    H.gradeWorksheet.mockImplementation(async (req: { questions: { qNumber: number }[] }) => gradedFor(req));
+  });
+
+  it("★★ 38-Q trial paper, 5 checks left -> Q1..Q5 sent; Q6..Q38 'Not graded' + the upgrade note", async () => {
+    stubUsage(usageBody(true, 5));
+    fireEvent.click(await readAndUpload());
+    await confirmFirst(5);
+    expect(sentQNumbers()).toEqual([1, 2, 3, 4, 5]);
+
+    const note = await screen.findByTestId("trial-paper-note");
+    expect(note.textContent).toContain("Free trial: we graded the first 5 questions.");
+    expect(note.textContent).toContain(
+      "The other 33 questions were not graded — no marks, and nothing added to your score, progress or mistakes.",
+    );
+    expect(note.textContent).toContain("Premium grades the whole paper.");
+    expect(notGradedLabels()).toEqual(range(6, 38).map((n) => `Q${n}`));
+    // Not-graded rows carry no mark: no "/2" and no mistake chip inside the note.
+    expect(note.textContent).not.toMatch(/\/2|Concept/);
+
+    // The head and the scorecard count the WHOLE paper: 5 of 38, never "5/5".
+    expect(document.body.textContent).toContain("5/38 graded");
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.textContent).toMatch(/5\s*of\s*38/);
+    expect(dialog.textContent).toContain("Free trial: we graded the first 5 questions. Premium grades the whole paper.");
+
+    // Nothing after Q5 is ever recorded as a mistake.
+    await waitFor(() => expect(H.recordMistake.mock.calls.length).toBeGreaterThan(0));
+    expect(H.recordMistake.mock.calls.length).toBeLessThanOrEqual(5);
+
+    // The upgrade link is the EXISTING plans route (no payment, no activation).
+    const plans = screen.getByTestId("trial-paper-see-plans");
+    expect(plans.getAttribute("href")).toBe("/pricing");
+  });
+
+  it("★★ 3 checks left -> Q1..Q3 sent, and the note names the real count", async () => {
+    stubUsage(usageBody(true, 3));
+    fireEvent.click(await readAndUpload());
+    await confirmFirst(3);
+    expect(sentQNumbers()).toEqual([1, 2, 3]);
+    const note = await screen.findByTestId("trial-paper-note");
+    expect(note.textContent).toContain("Free trial: you had 3 checks left today, so we graded the first 3 questions.");
+    expect(note.textContent).toContain("The other 35 questions were not graded");
+    expect(notGradedLabels()).toEqual(range(4, 38).map((n) => `Q${n}`));
+  });
+
+  it("★★ 0 checks left -> today's limit panel, nothing sent, no note", async () => {
+    stubUsage(usageBody(true, 0));
+    fireEvent.click(await readAndUpload());
+    const panel = await screen.findByTestId("fair-use-limit-panel");
+    expect(panel.textContent).toContain("You've used today's 5 answer checks.");
+    expect(H.gradeWorksheet).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("fair-use-confirm")).toBeNull();
+    expect(screen.queryByTestId("trial-paper-note")).toBeNull();
+  });
+
+  it("★★ premium -> the whole paper is sent, no confirm, no note", async () => {
+    stubUsage(PREMIUM_USAGE);
+    fireEvent.click(await readAndUpload());
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    expect(sentQNumbers()).toEqual(range(1, 38));
+    await screen.findByRole("dialog");
+    expect(screen.queryByTestId("fair-use-confirm")).toBeNull();
+    expect(screen.queryByTestId("trial-paper-note")).toBeNull();
+    expect(document.body.textContent).toContain("38/38 graded");
+    expect(document.body.textContent).not.toContain("Free trial");
+  });
+
+  it("★★ DARK control (enforced:false) -> the whole paper, no note", async () => {
+    stubUsage(usageBody(false, 5));
+    fireEvent.click(await readAndUpload());
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    expect(sentQNumbers()).toEqual(range(1, 38));
+    await screen.findByRole("dialog");
+    expect(screen.queryByTestId("trial-paper-note")).toBeNull();
   });
 });

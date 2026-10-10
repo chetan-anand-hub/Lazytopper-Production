@@ -535,7 +535,7 @@ describe("(b) Practice — Quick Practice batch: the mismatched answer is not gr
       notGradedAnswer("Question 2", marksDescriptor(3, false), { answerMismatch: out.entries[1].notGraded === "answer-mismatch" }),
     ];
     const variant = quickPracticeGradedScorecardVariant({ marksAwarded: 2, marksTotal: 3, gradedCount: 1, totalQuestions: 2, answers: sheet });
-    const { container } = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
+    const { baseElement: container } = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
     const q2 = gaCard(container, "Question 2");
     expect(text(q2.querySelector(".lt-sc__ga-ungraded b"))).toBe(COPY);
     expect(text(q2.querySelector(".lt-sc__ga-ungraded"))).toContain("Nothing has been marked, scored 0 or saved for it.");
@@ -616,7 +616,7 @@ describe("(d) Chapter Test — a written answer that does not match its question
     expect(miEntries().map((e) => e.questionId)).toEqual(["ct:ct-pr2-mm:q2"]);
 
     const variant = chapterTestScorecardVariant({ name: "Real Numbers · Test #1", code: "CT-M-RN-01", response: out.response, phase: "full", questions: CT_QS });
-    const { container } = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
+    const { baseElement: container } = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
     await assertTestScorecard(container);
   });
 });
@@ -641,13 +641,13 @@ describe("(d)/(e) the BY-SECTION lens never folds a not-graded question in as a 
     });
   it("Chapter Test: section C reads Q2's 2/3 — the mismatched Q3 (0 of 3) is not in it", () => {
     const variant = chapterTestScorecardVariant({ name: "T", code: "CT-L", response: response(), phase: "full", questions: CT_QS });
-    const rows = sectionRows(render(<ResultsScorecard variant={variant} onClose={() => {}} />).container);
+    const rows = sectionRows(render(<ResultsScorecard variant={variant} onClose={() => {}} />).baseElement);
     expect(Object.values(rows)).toContain("2/3");
     expect(Object.values(rows)).not.toContain("2/6");
   });
   it("Full Mock: section C reads Q2's 2/3 — the mismatched Q3 (0 of 3) is not in it", () => {
     const variant = fullMockScorecardVariant({ name: "M", code: "FM-L", response: response(), phase: "full", questions: CT_QS });
-    const rows = sectionRows(render(<ResultsScorecard variant={variant} onClose={() => {}} />).container);
+    const rows = sectionRows(render(<ResultsScorecard variant={variant} onClose={() => {}} />).baseElement);
     expect(Object.values(rows)).toContain("2/3");
     expect(Object.values(rows)).not.toContain("2/6");
   });
@@ -666,7 +666,7 @@ describe("(e) Full Mock — a written answer that does not match its question", 
     expect(miEntries().map((e) => e.questionId)).toEqual(["fm:fm-pr2-mm:q2"]);
 
     const variant = fullMockScorecardVariant({ name: "Maths · Mock #1", code: "FM-M-01", response: out.response, phase: "full", questions: CT_QS });
-    const { container } = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
+    const { baseElement: container } = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
     await assertTestScorecard(container);
   });
 });
@@ -685,8 +685,8 @@ describe("(f) Worksheets — an answer that does not match its question", () => 
     // the scorecard
     const variant = worksheetScorecardVariant({ name: "Real Numbers · Worksheet 1", code: "WS-M-RN-01", response: out.response, downloading: false, onRead: () => {}, onDownload: () => {} });
     const sc = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
-    expect(text(sc.container.querySelector(".lt-sc__big"))).toBe("2 / 3");
-    expect(Array.from(sc.container.querySelectorAll(".lt-sc__pend")).map((p) => text(p))).toEqual([`Q2: ${COPY}`]);
+    expect(text(sc.baseElement.querySelector(".lt-sc__big"))).toBe("2 / 3");
+    expect(Array.from(sc.baseElement.querySelectorAll(".lt-sc__pend")).map((p) => text(p))).toEqual([`Q2: ${COPY}`]);
     sc.unmount();
 
     // the graded PDF
@@ -763,7 +763,7 @@ const KS_NOT_GRADED: Array<[number, string, string]> = [
 describe("honest states — the scorecard's graded sheet", () => {
   const renderSheet = () => {
     const variant = chapterTestScorecardVariant({ name: "Real Numbers · Test #2", code: "CT-M-RN-02", response: KS, phase: "full", questions: KS_QS });
-    return render(<ResultsScorecard variant={variant} onClose={() => {}} />).container;
+    return render(<ResultsScorecard variant={variant} onClose={() => {}} />).baseElement;
   };
 
   it("couldNotRead / unread option / mismatch each say the owner's words, with no mark (R3: couldNotRead + objectiveResolved:false → 'retake the photo')", () => {
