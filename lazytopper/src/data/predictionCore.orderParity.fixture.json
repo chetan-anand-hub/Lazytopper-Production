@@ -119,8 +119,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 531,
-   "sha256": "9f4da4519bf033fec082453540bb3923c7eea56626c89f98c140ce8348a907c0",
+   "n": 530,
+   "sha256": "71776c80a53e2f73e4cfd0c1fd4c8a5ab3b7d2be9f89cc11b836b071ff48f6de",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -182,8 +182,8 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 276,
-   "sha256": "c36b5901ffcb729d0bb6088dd0be1c00a4f1d605e1c84226c2ac4a70b5c143e7",
+   "n": 275,
+   "sha256": "3ace0b4e62ef2bf109fa2cdb9b7a572e50bc347b5ff81421646d0b5aaf39918a",
    "head": [
     "LTG-S-MAG-253",
     "LTG-S-MAG-254",
@@ -200,8 +200,8 @@
    ]
   },
   "control-and-coordination": {
-   "n": 384,
-   "sha256": "e60f1fed036a2841bf35bdf45deb3882c1a571d8000f321d9c088b86aba08b33",
+   "n": 381,
+   "sha256": "547586384459cb03e9678e4ecbd37a3a311fee40b3ce1448bea73f07c84400eb",
    "head": [
     "LTG-S-CTRL-213",
     "LTG-S-CTRL-255",
@@ -356,7 +356,7 @@
   },
   "chemical-reactions-and-equations": {
    "n": 73,
-   "sha256": "2296fb93b33500879e992b43be2ee8667a79385727074b946ede5be188b5099a",
+   "sha256": "adbbac6498fd70ca9a462c6b1a5b08f7b7de674f46d59d2b291e6cc058672a3b",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
@@ -418,8 +418,8 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 55,
-   "sha256": "c82e991d9766b64e0c166891ed1f3aa2e8ddd7360cde5b13d0adb851bcf67c20",
+   "n": 54,
+   "sha256": "d2bff68becfd83655b6db58a77180c449fa6b2abed340d6350ff5e7f5092a78c",
    "head": [
     "AC Frequency\tLTG-S-MAG-296,LTG-S-MAG-005,LTG-S-MAG-002,LTG-S-MAG-003,LTG-S-MAG-283,LTG-S-MAG-001,LTG-S-MAG-006,LTG-S-MAG-008,LTG-S-MAG-009,LTG-S-MAG-288,LTG-S-MAG-010,LTG-S-MAG-004,LTG-S-MAG-007",
     "AC and DC\tLTG-S-MAG-292,PYQ-S-2026-ACID-018,ME2-048,ME2-017,ME2-039,ME2-041",
@@ -437,7 +437,7 @@
   },
   "control-and-coordination": {
    "n": 102,
-   "sha256": "6709be122379de63566ddefaec807c53f3cc1ad8c8587263ef026436c84fdd5b",
+   "sha256": "cca72412a1b1b1967ed606dc5772fd1086c6c73df142a80f3ca4a4592f55335a",
    "head": [
     "Abscisic Acid\tCFPQ-S-CTRL-011,CFPQ-S-CTRL-006,CTRL-EXMPLR-6-MCQ-011,CTRL-EXMPLR-6-MCQ-020",
     "Adrenaline\tCFPQ-S-CTRL-010,CBE-S-CTRL-A-008,CTRL-NCERT-6-SA-009,APQ-S-CTRL-005",

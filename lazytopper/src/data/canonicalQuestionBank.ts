@@ -2118,6 +2118,12 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // bf3b blind re-solve agreed (ledger: bankFix3Ledger.ts); APQ-M-CIRC-009 and PYQ-M-2024-CIRC-011a stay withheld above.
   // ---- CBQ-1 C3 (owner ruling 2026-10-07, CI-1 13:0xZ) ----
   "LTG-M-QE-284",               // owner ruling 2026-10-07 (CI-1 13:0xZ): part (iii) 'greatest height' via equal roots = maxima, OUT (generated CBQ; withheld, not deleted)
+  // BANK-FIX-5 (2026-10-10): BANK-AUDIT-2 wrong-key rows that cannot be re-keyed from the row (ledger: bankFix5Ledger.ts)
+  "PYQ-S-2026-CHEMRXN-019",     // wrong-key: garbled multi-part item from another chapter that needs diagrams; the key covers only (B)(c)
+  "PYQ-S-2025-MAG-006",         // wrong-key: needs three unbound diagrams; the key carries heart-circulation text from another question
+  "SCQ-S-CTRL-029",             // wrong-key: the key and steps are only a table header; no answer to recover from the row
+  "SCQ-S-CTRL-037",             // wrong-key: the stored key and steps belong to another question
+  "SCO-S-CTRL-011",             // needs-figure: the stem needs a labelled diagram and no figure is bound (a later DIAGRAMS item)
 ]);
 
 /**
