@@ -17,6 +17,7 @@ import { RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS, canonicalQuestionBa
 import { predictedQuestionsById } from "../predictedQuestions";
 import { predictedQuestionsScience } from "../predictedQuestionsScience";
 import { highlyProbableQuestions } from "../highlyProbableQuestions";
+import { HPQ_WITHHELD_IDS } from "../hpqCompetencyAdditions";
 import { BANK_FIX_6 } from "./bankFix6Ledger";
 
 type Row = Record<string, unknown> & { id: string };
@@ -41,12 +42,14 @@ const markValue = (t: string) => t.replace(/½/g, "0.5").split("+").reduce((a, x
 describe("BANK-FIX-6 ledger", () => {
   it("has unique entries and every id resolves on its surface", () => {
     expect(new Set(BANK_FIX_6.map((e) => e.id)).size).toBe(BANK_FIX_6.length);
-    expect(BANK_FIX_6.filter((e) => !rowOf(e)).map((e) => e.id)).toEqual([]);
+    expect(BANK_FIX_6.filter((e) => !rowOf(e) && !(e.surface === "hpq" && e.verdict === "withheld")).map((e) => e.id)).toEqual([]);
   });
 
   it("a withheld entry is in WITHHELD_QUESTION_IDS and not served; a fixed bank row is not silently withheld by this lane", () => {
     const withheld = BANK_FIX_6.filter((e) => e.verdict === "withheld");
-    expect(withheld.filter((e) => !WITHHELD_QUESTION_IDS.has(e.id) || servedIds.has(e.id)).map((e) => e.id)).toEqual([]);
+    expect(
+      withheld.filter((e) => (e.surface === "hpq" ? !HPQ_WITHHELD_IDS.has(e.id) || hpqById.has(e.id) : !WITHHELD_QUESTION_IDS.has(e.id) || servedIds.has(e.id))).map((e) => e.id),
+    ).toEqual([]);
     for (const id of ["TRI-N-EXMPLR-6-LA-002", "APQ-M-TRIG-011", "APQ-M-TRIG-016"]) {
       expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(true);
     }
@@ -54,7 +57,7 @@ describe("BANK-FIX-6 ledger", () => {
 });
 
 describe("BANK-FIX-6 groups A / B / C (HPQ)", () => {
-  it.each(group("A").map((e) => [e.id]))("A %s: one [1 mark] step and a finalAnswer", (id) => {
+  it.each(group("A").filter((e) => e.id !== "sci-chem-comp-02").map((e) => [e.id]))("A %s: one [1 mark] step and a finalAnswer", (id) => {
     const q = hpqById.get(id) as Row;
     expect(steps(q)).toHaveLength(1);
     expect(steps(q)[0].startsWith("[1 mark]")).toBe(true);
@@ -73,14 +76,13 @@ describe("BANK-FIX-6 groups A / B / C (HPQ)", () => {
     expect(/\(A\)|\(a\)/.test(String(q.question))).toBe(false);
   });
 
-  it.each(BANK_FIX_6.filter((e) => e.group === "C" || e.group === "A").map((e) => [e.id]))("C %s: finalAnswer is present", (id) => {
+  it.each(BANK_FIX_6.filter((e) => (e.group === "C" || e.group === "A") && e.id !== "sci-chem-comp-02").map((e) => [e.id]))("C %s: finalAnswer is present", (id) => {
     expect(String((hpqById.get(id) as Row).finalAnswer ?? "").trim().length).toBeGreaterThan(0);
   });
 
-  it("sci-chem-comp-02 is keyed B (the reason only names the reaction type)", () => {
-    const q = hpqById.get("sci-chem-comp-02") as Row;
-    expect(q.correctOption).toBe("B");
-    expect(String(q.finalAnswer).startsWith("(B)")).toBe(true);
+  it("sci-chem-comp-02 is withheld (three blind solves split A/B; cofounder DECISION 45a) and not served", () => {
+    expect(hpqById.has("sci-chem-comp-02")).toBe(false);
+    expect(HPQ_WITHHELD_IDS.has("sci-chem-comp-02")).toBe(true);
   });
 });
 
@@ -148,6 +150,15 @@ describe("BANK-FIX-6 placeholders and decisions", () => {
     const q = predictedById.get("2026-SAV-CASE-09") as Row;
     expect(String(q.questionText)).toContain("π = 3.14");
     expect(String(q.finalAnswer)).toContain("12,999.60");
+  });
+
+  it("rows marked 'figure binding needed' stay WITHHELD and are not served (DECISION 44b.3)", () => {
+    const NEEDS_FIGURE = [
+      "CARB-EXMPLR-4-MCQ-010", "CARB-EXMPLR-4-MCQ-016", "CARB-EXMPLR-4-MCQ-022", "CARB-EXMPLR-4-MCQ-023",
+      "PYQ-S-2026-ACID-012", "PYQ-S-MAG-002", "PYQ-S-ELEC-001", "PYQ-S-2026-MAG-001", "PYQ-S-2026-CHEMRXN-013",
+      "PYQ-M-2024-CG-007", "PYQ-M-2026-TRIG-002", "TRI-N-EXMPLR-6-LA-002", "APQ-M-TRIG-011", "APQ-M-TRIG-016",
+    ];
+    expect(NEEDS_FIGURE.filter((id) => !WITHHELD_QUESTION_IDS.has(id) || servedIds.has(id))).toEqual([]);
   });
 
   it("PYQ-M-2026-SAV-003 stays an Others row without pyqYear (BANK-FIX-1 ruling 2)", () => {

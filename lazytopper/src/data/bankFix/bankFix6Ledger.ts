@@ -32,7 +32,7 @@ export const BANK_FIX_6: readonly BankFix6Entry[] = [
   { group: "A", surface: "hpq", id: "cg-comp-03", verdict: "fixed", fields: ["solutionSteps","finalAnswer"], stemChanged: false, resolve: "agree", note: "" },
   { group: "A", surface: "hpq", id: "circ-comp-01", verdict: "fixed", fields: ["solutionSteps","finalAnswer"], stemChanged: false, resolve: "agree", note: "" },
   { group: "A", surface: "hpq", id: "circ-comp-02", verdict: "fixed", fields: ["solutionSteps","finalAnswer"], stemChanged: false, resolve: "agree", note: "" },
-  { group: "A", surface: "hpq", id: "sci-chem-comp-02", verdict: "fixed", fields: ["solutionSteps","finalAnswer","answer","correctOption"], stemChanged: false, resolve: "agree", note: "blind re-solve and the first fixer disagreed with key A; re-keyed to B (reason only names the reaction type)" },
+  { group: "A", surface: "hpq", id: "sci-chem-comp-02", verdict: "withheld", fields: ["solutionSteps","finalAnswer","answer","correctOption"], stemChanged: false, resolve: "agree", note: "blind solve 1 said B, blind solve 3 said A (stored key A): disagreement after the extra round, so HPQ_WITHHELD_IDS (cofounder DECISION 45a); steps/finalAnswer kept for the A key" },
   { group: "A", surface: "hpq", id: "sci-mnm-comp-01", verdict: "fixed", fields: ["solutionSteps","finalAnswer"], stemChanged: false, resolve: "agree", note: "" },
   { group: "A", surface: "hpq", id: "sci-metals-comp-02", verdict: "fixed", fields: ["solutionSteps","finalAnswer"], stemChanged: false, resolve: "agree", note: "" },
   { group: "A", surface: "hpq", id: "sci-carbon-comp-02", verdict: "fixed", fields: ["solutionSteps","finalAnswer"], stemChanged: false, resolve: "agree", note: "" },

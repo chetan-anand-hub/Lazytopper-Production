@@ -1264,13 +1264,13 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
           { label: "C", text: "Assertion is true but Reason is false." },
           { label: "D", text: "Assertion is false but Reason is true." },
         ],
-        correctOption: "B",
-        answer: "B",
-        explanation: "2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂ is a thermal decomposition reaction. The Assertion states the products; the Reason only names the reaction type and does not explain why these products form, so both are true but the Reason is not the explanation.",
+        correctOption: "A",
+        answer: "A",
+        explanation: "2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂ is a classic thermal decomposition reaction.",
         solutionSteps: [
-          "[1 mark] (B) Both Assertion and Reason are true but Reason is not the correct explanation: lead nitrate on heating gives PbO, NO₂ and O₂ (2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂), and heating-induced decomposition is called thermal decomposition, but that label only names the reaction type; it does not explain why these particular products form.",
+          "[1 mark] (A) Both Assertion and Reason are true and Reason is the correct explanation; on heating, 2Pb(NO₃)₂(s) → 2PbO(s) + 4NO₂(g) + O₂(g), a single reactant breaking down into simpler products due to heat, which is a thermal decomposition reaction as stated in the Reason.",
         ],
-        finalAnswer: "(B) Both Assertion and Reason are true but Reason is not the correct explanation.",
+        finalAnswer: "(A) Both Assertion and Reason are true and Reason is the correct explanation.",
       },
     ],
   },
@@ -1470,6 +1470,9 @@ export const HPQ_WITHHELD_IDS: ReadonlySet<string> = new Set<string>([
   // ambiguous: "cannot see nearby objects" + a convex lens fits hypermetropia AND presbyopia, so part (b)'s
   // cause has two defensible answers (independent re-solve, phase B, b04)
   "sci-eye-comp-01",
+  // BANK-FIX-6 (2026-10-10, cofounder DECISION 45a): the blind solves disagreed on the key (one said B, a re-run said A; the stored key is A) because the
+  // reason only names the reaction type, so a CBSE key could be A or B. Disagreement after the extra round: withheld, not guessed.
+  "sci-chem-comp-02",
 ]);
 
 for (const bucket of hpqCompetencyAdditions) {
