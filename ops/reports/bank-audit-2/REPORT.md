@@ -1,7 +1,7 @@
 # BANK-AUDIT-2 — re-audit of the served bank (report only, do not merge)
 
 Base: `base/approved-thru-437` @ `b50577836337f36466c95e1a93571558dd4769ef` (re-derived with `git ls-remote`; the tip did not move).
-Compared against BANK-AUDIT-1's SHA `613d8996f54137728d8e8c9f95042ffddc63baab`.
+Compared against BANK-AUDIT-1 ([chetan-anand-hub/Lazytopper-Production#960](https://github.com/chetan-anand-hub/Lazytopper-Production/pull/960)), audited at SHA `613d8996f54137728d8e8c9f95042ffddc63baab`.
 
 ## §0c.0 Premise gate
 
@@ -30,7 +30,7 @@ old  613d8996: {"raw":8748,"withheld":696,"served":8052,"servedNoSteps":0,"predi
 - **Served bank: 10,592** (11,491 raw − 899 withheld), all with `solutionSteps`. **Matches the P8 claim.**
 - **Predicted: 209**, all predicted-only (no id also in the bank), 0 without steps.
 - **HPQ: 127 questions in 26 buckets, 19 without steps.** **The P8 claim of "176 HPQ questions" does not reproduce**: the served export `highlyProbableQuestions` (`highlyProbableQuestions.ts:2705`) holds 127 unique ids (seed 49 + `hpqCompetencyAdditions` 43 + the inline `hpqAdditions`). The "19 without steps" part does reproduce.
-- The old-SHA dump reproduces BANK-AUDIT-1's own figures (8,052 / 209 / 128), so the method matches #960 §1.
+- The old-SHA dump reproduces BANK-AUDIT-1's own figures (8,052 / 209 / 128), so the method matches BANK-AUDIT-1 §1.
 
 ## P9 — rows added after `613d8996`
 
@@ -93,12 +93,12 @@ Two Opus solver sub-agents (medium effort) re-solved each row as stored now:
 | new-problem (old finding fixed, something else wrong) | **4** — `SQP-S-2023-CTRL-B-001` (½-marks unevenly split across brain parts), `PYQ-S-2026-ELEC-011` and `PYQ-S-2026-ELEC-012` (OR alternatives' step marks do not each total 5), `FND-L-QB-098` (low confidence: the step's justification may not match the bound figure) |
 | still-broken | **1** — `SCO-S-CTRL-011`: stem says "given diagram … labelled", no figure bound, unanswerable text-only; steps garbled → **withhold or bind the figure** |
 
-Most of the "fixed" rows were fixed by the DIAGRAMS / step-mark lanes after #960 (figures bound, `[N mark]` sums corrected); the CSV records each one.
+Most of the "fixed" rows were fixed by the DIAGRAMS / step-mark lanes after BANK-AUDIT-1 (figures bound, `[N mark]` sums corrected); the CSV records each one.
 
 ## Phase C — solve-check (complete)
 
-- **C1:** all 336 predicted + HPQ rows (10 batches). **C2:** 500 written bank rows (17 batches), stratified round-robin over 104 chapter × marks (2/3/4/5) cells, `random.seed(20261010)`, from a pool of 4,400 rows: served, marks ≥ 2, not MCQ/A-R, **not added after `613d8996` (P9)**, not one of the 55 Phase B ids, and not an id in #960's `wrong-answers.csv` / `broken-rows.csv`. Marks mix: 127 × 2, 126 × 3, 121 × 4, 126 × 5.
-- **#960's 390 sampled ids could not be excluded exactly:** BANK-AUDIT-1 published its seed and method (`random.seed(20261006)` round-robin) but not the id list or the script, and its CSVs only hold the rows it flagged. The ids it flagged are excluded; a sampled row that passed in #960 may have been re-solved here. Stated as a fact not established (§7).
+- **C1:** all 336 predicted + HPQ rows (10 batches). **C2:** 500 written bank rows (17 batches), stratified round-robin over 104 chapter × marks (2/3/4/5) cells, `random.seed(20261010)`, from a pool of 4,400 rows: served, marks ≥ 2, not MCQ/A-R, **not added after `613d8996` (P9)**, not one of the 55 Phase B ids, and not an id in BANK-AUDIT-1's `wrong-answers.csv` / `broken-rows.csv`. Marks mix: 127 × 2, 126 × 3, 121 × 4, 126 × 5.
+- **BANK-AUDIT-1's 390 sampled ids could not be excluded exactly:** BANK-AUDIT-1 published its seed and method (`random.seed(20261006)` round-robin) but not the id list or the script, and its CSVs only hold the rows it flagged. The ids it flagged are excluded; a sampled row that passed in BANK-AUDIT-1 may have been re-solved here. Stated as a fact not established (§7).
 - Solved: **836 rows** (C1 336 + C2 500); verdicts `pass` 677 / `flag` 159 (C1 266/70, C2 411/89). Coverage check: 500 of 500 C2 ids returned, 0 duplicate ids.
 - `wrong-answers.csv` = **36 rows** with `wrong-key` (24 high, 12 medium confidence). `broken-rows.csv` = **123 rows** flagged otherwise. Flag totals over both files: wrong-steps 125, wrong-key 36, ambiguous-stem 20, off-syllabus 4, needs-figure 3.
 - **Running total of rows solved: 55 (B) + 836 (C) = 891 of the 1,100 cap.**
@@ -157,10 +157,10 @@ Ordering: bank and predicted rows first (Practice, Chapter Test, Full Mock and W
 
 Also worth a fix lane (not individually ranked): **269 bank rows with no `finalAnswer`** (246 are `SCQ-*`), which the worksheet answer key reads (P4); **10 predicted 1-mark A-R rows** (e.g. `2026-POLY-AR-03`, `predictedQuestions.ts:744`) whose step marks ½+½+1 total 2 for a 1-mark item; **20 bank rows** whose `[N mark]` sums ≠ marks (e.g. `PYQ-S-CTRL-008`: 7 for 5); **4 off-syllabus flags** (`REP2-021` menopause/HRT; `SAV-N-EXEM2-12-LA-010` conversion of solids; `CFPQ-M-POLY-014` cubic division; `LP2-053` Cori cycle).
 
-## Phase B — #960's findings at the tip
+## Phase B — BANK-AUDIT-1's findings at the tip
 
 - **`wrong-answers.csv` (220 ids):** per the cofounder's runtime check, all are withheld (7) or in the BANK-FIX-1 ledger (184 + 29 non-bank). Not re-solved here.
-- **The 55 still-served `broken-rows.csv` ids:** **50 fixed** (now correct; mostly figures bound and step-mark sums corrected since #960), **0 withheld**, **5 still wrong**: 1 still-broken (`SCO-S-CTRL-011`) and 4 with a new problem (`SQP-S-2023-CTRL-B-001`, `PYQ-S-2026-ELEC-011`, `PYQ-S-2026-ELEC-012`, and `FND-L-QB-098` at low confidence).
+- **The 55 still-served `broken-rows.csv` ids:** **50 fixed** (now correct; mostly figures bound and step-mark sums corrected since BANK-AUDIT-1), **0 withheld**, **5 still wrong**: 1 still-broken (`SCO-S-CTRL-011`) and 4 with a new problem (`SQP-S-2023-CTRL-B-001`, `PYQ-S-2026-ELEC-011`, `PYQ-S-2026-ELEC-012`, and `FND-L-QB-098` at low confidence).
 
 ## Proposed fix list for BANK-FIX-5 (`bankfix5-proposal.csv`, 37 rows)
 
@@ -173,7 +173,7 @@ Rule: LazyTopper-authored rows are **fixed** with the correct key. Official or p
 
 ## §7 Facts not established · models · tokens
 
-- **#960's 390 sampled ids** are not published (seed only). C2 therefore excludes only the ids #960 *flagged*, so some of C2's 500 rows may overlap #960's sample.
+- **BANK-AUDIT-1's 390 sampled ids** are not published (seed only). C2 therefore excludes only the ids BANK-AUDIT-1 *flagged*, so some of C2's 500 rows may overlap BANK-AUDIT-1's sample.
 - **P8's "176 HPQ questions"** does not reproduce: the served `highlyProbableQuestions` export has **127**.
 - **Figures:** solvers cannot see bound images. For figure-bound rows they relied on the stem and `diagramDescription`, which students do not see. Phase B "now-fine" verdicts on figure rows (42) assume the bound figure matches its description.
 - The 12 medium-confidence wrong-key flags and all non-key flags (wrong-steps, ambiguous-stem, etc.) were **not** independently verified.
