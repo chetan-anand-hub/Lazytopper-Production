@@ -147,6 +147,9 @@ import { TRIAL_DAYS } from "../../services/subscriptionService";
 import FairUseLimitPanel from "../../components/usage/FairUseLimitPanel";
 import FairUseConfirm from "../../components/usage/FairUseConfirm";
 import { useFairUse } from "../../components/usage/useFairUse";
+// ALL-AI-METERING-1 - a question-detection refusal shows the limit panel by the Read button.
+import { limitFromAiRefusal, type LimitState } from "../../components/usage/fairUseGate";
+import { readFairUseLimit } from "../../services/usageClient";
 import { prefetchKatexWhenIdle } from "../../components/question/MathText";
 
 // CT-KATEX-2: KaTeX's background idle prefetch is no longer armed by MathText for every
@@ -1035,6 +1038,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   // correct it). `editing` toggles the inline correction.
   const [detecting, setDetecting] = useState<boolean>(false);
   const [detectError, setDetectError] = useState<string | null>(null);
+  // ALL-AI-METERING-1 - a fair-use refusal of detection (scope `checks`), shown in place of detectError.
+  const [detectLimit, setDetectLimit] = useState<LimitState | null>(null);
 
   // Picker refusals — DELIBERATELY separate from `errorMessage` (the grade-failure
   // channel). `errorMessage`'s surface hard-codes "No score has been generated. Press
@@ -1383,6 +1388,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (questionTab === "upload" && !qImageBase64) return;
     setDetecting(true);
     setDetectError(null);
+    setDetectLimit(null);
     try {
       const d = await detectQuestion({
         question: q || undefined,
@@ -1412,7 +1418,12 @@ const DesktopCheckImprovePageInner: React.FC<{
       setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
     } catch (e) {
       const refused = freeRefusalFor(e);
+      // ALL-AI-METERING-1: a detection limit is the limit panel, never "we couldn't read".
+      const limit = refused ? null : limitFromAiRefusal(readFairUseLimit(e), "checks", fairUse.snapshot);
       if (refused) setFreeRefusal(refused);
+      else if (limit) setDetectLimit(limit);
+      // ALL-AI-METERING-1: a signed-in free student's detection 402 reads the server's own plain copy.
+      else if (isPremiumRequiredError(e)) setDetectError(e.message);
       else setDetectError("We couldn't read the question — please try again.");
     } finally {
       setDetecting(false);
@@ -2614,6 +2625,7 @@ const DesktopCheckImprovePageInner: React.FC<{
               {detectError && (
                 <div style={{ fontSize: 12.5, color: DANGER_FG }}>{detectError}</div>
               )}
+              {detectLimit ? <FairUseLimitPanel limit={detectLimit} /> : null}
               {/* Picker refusal for the QUESTION photo — mirrors detectError's shape so
                   the two read as one voice. Deliberately NOT the grade-failure channel:
                   nothing was graded, so "Retry the grader" would be a lie. */}

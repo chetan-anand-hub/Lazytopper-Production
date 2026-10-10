@@ -703,6 +703,160 @@ function decide({ tier, surface, questionCount, days, nowMs, limits }) {
   return { allowed: true };
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   ALL-AI-METERING-1 · LIMITS FOR THE TUTOR, MORE-LIKE-THIS AND QUESTION DETECTION
+   ══════════════════════════════════════════════════════════════════════════
+
+   Every paid call was already COUNTED (usageLedger.cjs binds the verified uid on any
+   PAID_ENDPOINTS path), but only the two grading endpoints were ever REFUSED. This block
+   adds a decision for three more routes, for a VERIFIED uid only:
+
+     trial    — per IST day: Tutor 15, More-like-this 5, detection 10 (env-tunable:
+                FAIR_USE_TRIAL_TUTOR_PER_DAY / _MLT_PER_DAY / _DETECT_PER_DAY). Spent ->
+                409 { error: "trial_limit", remaining: 0, resetAt } (next IST midnight).
+     premium  — refused EXACTLY when grading would be: premiumState(...).atCap, the same
+                429 { error: "usage_limit", window, resetAt }.
+     free     — More-like-this and detection need trial or Premium: 402, the entitlement
+                gate's own `premium_required` body (entitlement.cjs AI_TIER_GATED_ROUTES).
+                The Tutor's free 402 stays entitlement.cjs's GATED_ROUTES, untouched.
+
+   ★ ITS OWN SWITCH. A refusal is sent ONLY when FAIR_USE_ENFORCE_ALL_AI is exactly "1".
+     Otherwise the call is served and counted as `fair_use.would_refuse.<rule>` — the same
+     dark path grading has. FAIR_USE_ENFORCE still governs grading alone, either way.
+   ★ A refused call reaches no model and charges nothing (it is answered before dispatch);
+     a trial counter moves only once the call was SERVED (2xx), like grading's.
+   ★ NOT HERE: /api/step-solution (Show steps — stored steps are free; never refused by
+     this lane), and an admitted anonymous free check (no verified uid, `freeCheck`).
+   ★ FAILS OPEN, like everything above: an unknown tier or an unreadable ledger serves.
+   The counters live on the SAME ledger day document (usageLedger/{uid}/days/{istDayKey}),
+   so DPDP erasure / export reach them with no new location. */
+
+const TUTOR_PATH = '/api/tutor';
+const MORE_LIKE_THIS_PATH = '/api/more-like-this';
+const DETECT_QUESTION_PATH = '/api/detect-question';
+
+/** The trial counters this block writes, on the ledger day document (never by usageLedger.cjs). */
+const AI_TRIAL_COUNTER_FIELDS = Object.freeze({
+  tutor: 'trialTutor',
+  moreLikeThis: 'trialMoreLikeThis',
+  detect: 'trialDetect',
+});
+
+/** Per route: its counter key, its rule suffix, its limit, and whether the free tier is refused. */
+const AI_ROUTES = Object.freeze({
+  [TUTOR_PATH]: Object.freeze({ key: 'tutor', rule: 'tutor', limit: 'tutorPerDay', freeGated: false }),
+  [MORE_LIKE_THIS_PATH]: Object.freeze({ key: 'moreLikeThis', rule: 'more_like_this', limit: 'moreLikeThisPerDay', freeGated: true }),
+  [DETECT_QUESTION_PATH]: Object.freeze({ key: 'detect', rule: 'detect', limit: 'detectPerDay', freeGated: true }),
+});
+
+/** Owner ruling (10 Oct): trial per IST day. Code defaults; env overrides. */
+const AI_DEFAULT_LIMITS = Object.freeze({
+  trialTutorPerDay: 15,
+  trialMoreLikeThisPerDay: 5,
+  trialDetectPerDay: 10,
+});
+
+const AI_LIMIT_ENV = Object.freeze({
+  trialTutorPerDay: 'FAIR_USE_TRIAL_TUTOR_PER_DAY',
+  trialMoreLikeThisPerDay: 'FAIR_USE_TRIAL_MLT_PER_DAY',
+  trialDetectPerDay: 'FAIR_USE_TRIAL_DETECT_PER_DAY',
+});
+
+const AI_ENFORCE_ENV = 'FAIR_USE_ENFORCE_ALL_AI';
+
+/** The three trial limits in force, from `env` ONLY. */
+function resolveAiLimits(env) {
+  const e = env || {};
+  const int = (key) => envPositive(e, AI_LIMIT_ENV[key], AI_DEFAULT_LIMITS[key], true);
+  return {
+    tutorPerDay: int('trialTutorPerDay'),
+    moreLikeThisPerDay: int('trialMoreLikeThisPerDay'),
+    detectPerDay: int('trialDetectPerDay'),
+  };
+}
+
+/** Refusals on the three AI routes only when FAIR_USE_ENFORCE_ALL_AI is exactly "1". */
+function isAiEnforced(env) {
+  return String((env && env[AI_ENFORCE_ENV]) || '').trim() === '1';
+}
+
+/** Today's three AI allowances for a trial caller (additive to trialState's view). */
+function aiTrialState(days, nowMs, aiLimits) {
+  const today = days.get(istDayKey(nowMs)) || {};
+  const left = (key, limitKey) => Math.max(0, aiLimits[limitKey] - num(today[AI_TRIAL_COUNTER_FIELDS[key]]));
+  const midnight = nextIstMidnightIso(nowMs);
+  return {
+    tutorLeftToday: left('tutor', 'tutorPerDay'),
+    moreLikeThisLeftToday: left('moreLikeThis', 'moreLikeThisPerDay'),
+    detectLeftToday: left('detect', 'detectPerDay'),
+    resets: { tutor: midnight, moreLikeThis: midnight, detect: midnight },
+    limits: {
+      tutorPerDay: aiLimits.tutorPerDay,
+      moreLikeThisPerDay: aiLimits.moreLikeThisPerDay,
+      detectPerDay: aiLimits.detectPerDay,
+    },
+  };
+}
+
+/** GET /api/usage/me: the grading trial view with the three AI allowances ADDED (nothing renamed or removed). */
+function withAiTrialState(trial, days, nowMs, env) {
+  const ai = aiTrialState(days, nowMs, resolveAiLimits(env));
+  return {
+    ...trial,
+    tutorLeftToday: ai.tutorLeftToday,
+    moreLikeThisLeftToday: ai.moreLikeThisLeftToday,
+    detectLeftToday: ai.detectLeftToday,
+    resets: { ...trial.resets, ...ai.resets },
+    limits: { ...trial.limits, ...ai.limits },
+  };
+}
+
+/**
+ * The pure AI decision. `reqPath` is one of AI_ROUTES. Returns { allowed, rule?, status?,
+ * body?, commit? } like decide(): `commit` is the trial counter to add once SERVED.
+ */
+function decideAi({ tier, reqPath, days, nowMs, limits, aiLimits, trialEndsAtMs = null }) {
+  const route = AI_ROUTES[reqPath];
+  if (!route) return { allowed: true };
+  if (tier === 'trial') {
+    const st = aiTrialState(days, nowMs, aiLimits);
+    const left = st[`${route.key}LeftToday`];
+    const commit = { [route.key]: 1 };
+    if (left < 1) {
+      return {
+        allowed: false,
+        rule: `trial_${route.rule}`,
+        status: 409,
+        body: { error: 'trial_limit', remaining: 0, resetAt: st.resets[route.key] },
+        commit,
+      };
+    }
+    return { allowed: true, commit };
+  }
+  if (tier === 'premium') {
+    const ps = premiumState(days, nowMs, limits);
+    if (ps.atCap) {
+      return {
+        allowed: false,
+        rule: `${PREMIUM_RULE[ps.atCap]}_${route.rule}`,
+        status: 429,
+        body: { error: 'usage_limit', window: ps.atCap, resetAt: ps.view.resets[ps.atCap] },
+      };
+    }
+    return { allowed: true };
+  }
+  if (tier === 'free' && route.freeGated) {
+    const { AI_TIER_GATED_ROUTES, premiumRequiredBody } = require('./entitlement.cjs');
+    return {
+      allowed: false,
+      rule: `free_${route.rule}`,
+      status: 402,
+      body: premiumRequiredBody(AI_TIER_GATED_ROUTES[reqPath], { tier: 'free', trialEndsAtMs }),
+    };
+  }
+  return { allowed: true };
+}
+
 /* ── The gate ──────────────────────────────────────────────────────────────── */
 
 const SILENT_LOGGER = Object.freeze({ warn() {}, info() {}, log() {}, error() {} });
@@ -766,11 +920,15 @@ function createFairUse(deps = {}) {
   }
 
   let tierOf = deps.tierOf;
+  // ALL-AI-METERING-1: the whole decision (tier + derived trial end, for the free 402's
+  // `trialEndedAt`); null when the tier is injected (tests), which then gives the tier only.
+  let tierDecisionOf = null;
   if (typeof tierOf !== 'function') {
     // A SEPARATE, SILENT entitlement gate: same derivation, same positive cache
     // behaviour, but its reads never touch the owner's entitlement counters.
     const { createEntitlementGate } = require('./entitlement.cjs');
     const tiers = createEntitlementGate({ adminFirestore, telemetry: null, sendJson: null, logger: SILENT_LOGGER });
+    tierDecisionOf = (uid, req) => tiers.resolve(uid, req);
     tierOf = async (uid, req) => (await tiers.resolve(uid, req)).tier;
   }
 
@@ -823,6 +981,8 @@ function createFairUse(deps = {}) {
    * entitlement. Returns true only when it has already answered (enforced refusal).
    */
   async function applyToRequest(req, res, reqPath, verifiedUid, options) {
+    // ALL-AI-METERING-1: the Tutor, More-like-this and detection have their own decision.
+    if (Object.prototype.hasOwnProperty.call(AI_ROUTES, reqPath)) return applyToAiRequest(req, res, reqPath, verifiedUid, options);
     if (!Object.prototype.hasOwnProperty.call(SURFACES_BY_PATH, reqPath)) return false;
     if (options && options.freeCheck === true) return false;
     const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
@@ -920,6 +1080,108 @@ function createFairUse(deps = {}) {
     return false;
   }
 
+  /** ALL-AI-METERING-1: { tier, trialEndsAtMs } for a verified uid. Never throws; an unknown tier is null. */
+  async function aiTierFor(uid, req) {
+    if (tierDecisionOf) {
+      try {
+        const d = await tierDecisionOf(uid, req);
+        const tier = d && typeof d.tier === 'string' ? d.tier : null;
+        return { tier, trialEndsAtMs: d && Number.isFinite(d.trialEndsAtMs) ? d.trialEndsAtMs : null };
+      } catch {
+        return { tier: null, trialEndsAtMs: null };
+      }
+    }
+    return { tier: await tierFor(uid, req), trialEndsAtMs: null };
+  }
+
+  /**
+   * ALL-AI-METERING-1: add a SERVED AI call to TODAY's ledger day document — the three
+   * AI_TRIAL_COUNTER_FIELDS only, with FieldValue.increment (no read, no race). Same
+   * contract as usageLedger.recordTrialUse: synchronous, never throws, never awaited by a
+   * request; the write is TRACKED so a redeploy's drain waits for it.
+   */
+  function recordAiTrialUse(uid, counts) {
+    try {
+      const fs = resolveFirestore();
+      if (!fs || !fs.db || !fs.FieldValue || typeof fs.FieldValue.increment !== 'function') {
+        emit('fair_use.ai_count_unavailable');
+        return null;
+      }
+      const data = {};
+      for (const [key, field] of Object.entries(AI_TRIAL_COUNTER_FIELDS)) {
+        const n = Math.floor(Number(counts && counts[key]) || 0);
+        if (n > 0) data[field] = fs.FieldValue.increment(n);
+      }
+      if (Object.keys(data).length === 0) return null;
+      const ref = ledgerDayRef(fs.db, uid, istDayKey(now()));
+      return trackWrite(Promise.resolve()
+        .then(() => ref.set(data, { merge: true }))
+        .then(() => true, () => {
+          emit('fair_use.ai_count_write_failed');
+          return false;
+        }));
+    } catch {
+      emit('fair_use.ai_count_write_failed');
+      return null;
+    }
+  }
+
+  /**
+   * ALL-AI-METERING-1: the route-boundary check for /api/tutor, /api/more-like-this and
+   * /api/detect-question. Returns true only when FAIR_USE_ENFORCE_ALL_AI=1 and it has
+   * already answered (402 / 409 / 429). See the block above AI_ROUTES.
+   */
+  async function applyToAiRequest(req, res, reqPath, verifiedUid, options) {
+    const route = AI_ROUTES[reqPath];
+    if (options && options.freeCheck === true) return false;
+    const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
+    if (!uid) return false;
+
+    const { tier, trialEndsAtMs } = await aiTierFor(uid, req);
+    if (tier === null) {
+      emit('fair_use.tier_unknown');
+      return false;
+    }
+    const metered = tier === 'trial' || tier === 'premium';
+    if (!metered && !(tier === 'free' && route.freeGated)) return false;
+
+    const nowMs = now();
+    let days = new Map();
+    let readable = true;
+    if (metered) {
+      try {
+        // A trial allowance is per IST day: today's document is all it needs.
+        days = await ledger.readDays(uid, tier === 'trial' ? [istDayKey(nowMs)] : windowDayKeys(nowMs));
+      } catch {
+        emit('fair_use.ledger_unreadable');
+        readable = false;
+      }
+    }
+
+    const decision = readable
+      ? decideAi({ tier, reqPath, days, nowMs, limits: resolveLimits(env), aiLimits: resolveAiLimits(env), trialEndsAtMs })
+      // Fail OPEN; the served call is still counted, so the count stays honest.
+      : { allowed: true, commit: tier === 'trial' ? { [route.key]: 1 } : undefined };
+
+    if (!decision.allowed) {
+      if (isAiEnforced(env)) {
+        emit(`fair_use.refused.${decision.rule}`);
+        if (typeof sendJson === 'function') sendJson(res, decision.status, decision.body);
+        return true;
+      }
+      emit(`fair_use.would_refuse.${decision.rule}`);
+    }
+
+    if (decision.commit && res && typeof res.once === 'function') {
+      const commit = decision.commit;
+      // Counted only once the call was SERVED (2xx): a failed or refused-downstream call costs nothing.
+      res.once('finish', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) recordAiTrialUse(uid, commit);
+      });
+    }
+    return false;
+  }
+
   /**
    * J1 (D12) — settle a background job's DEFERRED commit: exactly what the `finish` hooks above do
    * for a served synchronous grade with `graded` chargeable questions (servedCommit → recordTrialUse;
@@ -967,7 +1229,8 @@ function createFairUse(deps = {}) {
     const limits = resolveLimits(env);
     return sendJson(res, 200, {
       tier,
-      trial: tier === 'trial' ? trialState(days, nowMs, limits) : null,
+      // ALL-AI-METERING-1: + tutor / moreLikeThis / detect counts, resets and limits (additive).
+      trial: tier === 'trial' ? withAiTrialState(trialState(days, nowMs, limits), days, nowMs, env) : null,
       premium: tier === 'premium' ? premiumState(days, nowMs, limits).view : null,
       enforced,
     });
@@ -1474,4 +1737,18 @@ module.exports = {
   GRADING_RESULTS_COLLECTION,
   GRADING_RESULTS_SEGMENTS,
   GRADING_IN_PROGRESS_BODY,
+  // ALL-AI-METERING-1
+  decideAi,
+  resolveAiLimits,
+  isAiEnforced,
+  aiTrialState,
+  withAiTrialState,
+  AI_ROUTES,
+  AI_TRIAL_COUNTER_FIELDS,
+  AI_DEFAULT_LIMITS,
+  AI_LIMIT_ENV,
+  AI_ENFORCE_ENV,
+  TUTOR_PATH,
+  MORE_LIKE_THIS_PATH,
+  DETECT_QUESTION_PATH,
 };

@@ -818,8 +818,41 @@ export async function buildPracticeQuestionsWithAiTopup(
     const merged = [...mergedWithCanonical, ...cachedQuestions, ...aiQuestions];
     return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
   } catch (err) {
-    console.error("AI top-up failed for practice set:", err);
+    // ALL-AI-METERING-1: a fair-use refusal is expected operation, not a fault — the page is told
+    // (its limit panel) and the saved questions are returned exactly as on any other failure.
+    if (isMoreLikeThisLimit(err)) notifyMoreLikeThisLimit(err);
+    else console.error("AI top-up failed for practice set:", err);
     const merged = [...mergedWithCanonical, ...cachedQuestions];
     return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
   }
+}
+
+/* ── ALL-AI-METERING-1 · a More-like-this refusal reaches the page ─────────────────────────────
+   buildPracticeQuestionsWithAiTopup returns QUESTIONS (bank + cache), never an error, so a fair-use
+   refusal of the AI top-up would otherwise vanish into the catch above. The page subscribes once
+   and shows its More-like-this limit panel; the questions it already has are untouched. Read by
+   `name` ("FairUseLimitError"), never instanceof — several suites mock aiClient partially. */
+type MoreLikeThisLimitListener = (err: unknown) => void;
+const moreLikeThisLimitListeners = new Set<MoreLikeThisLimitListener>();
+
+function isMoreLikeThisLimit(err: unknown): boolean {
+  return !!err && typeof err === "object" && (err as { name?: unknown }).name === "FairUseLimitError";
+}
+
+function notifyMoreLikeThisLimit(err: unknown): void {
+  for (const listener of moreLikeThisLimitListeners) {
+    try {
+      listener(err);
+    } catch {
+      /* a listener must never break the practice set */
+    }
+  }
+}
+
+/** Subscribe to More-like-this fair-use refusals. Returns the unsubscribe. */
+export function subscribeMoreLikeThisLimit(listener: MoreLikeThisLimitListener): () => void {
+  moreLikeThisLimitListeners.add(listener);
+  return () => {
+    moreLikeThisLimitListeners.delete(listener);
+  };
 }

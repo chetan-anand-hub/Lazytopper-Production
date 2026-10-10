@@ -2017,3 +2017,45 @@ test('AG2-H5 · ★ over REAL HTTP: a refused call charges 0 — five refusals f
     const fourth = await post(port, '/api/more-like-this', body, { ...ip, [APPCHECK]: `${AC_GOOD}.slot3`, [UID_HEADER]: 'typed-3' });
     assert.equal(fourth.status, 429, `${fourth.status} ${fourth.text}`);
   });
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ALL-AI-METERING-1 — More-like-this and detection need trial or Premium. The
+   DECISION is fairUse.cjs's (behind FAIR_USE_ENFORCE_ALL_AI); only the COPY and the
+   402 body builder live here. Pinned: they are NOT always-on GATED_ROUTES, the copy
+   keeps the register, and the body is the gated routes' own shape.
+   ────────────────────────────────────────────────────────────────────────── */
+
+test('AAM1 · More-like-this and detection are NOT in GATED_ROUTES (an always-on 402 would refuse students while the switch is off)', () => {
+  assert.ok(ENT.AI_TIER_GATED_ROUTES, 'AI_TIER_GATED_ROUTES is exported');
+  for (const p of ['/api/more-like-this', '/api/detect-question']) {
+    assert.ok(Object.prototype.hasOwnProperty.call(ENT.AI_TIER_GATED_ROUTES, p), `${p} has its copy`);
+    assert.ok(!Object.prototype.hasOwnProperty.call(ENT.GATED_ROUTES, p), `${p} must not be an always-on gated route`);
+  }
+  assert.deepEqual(Object.keys(ENT.GATED_ROUTES).sort(), ['/api/check-solution', '/api/grade-worksheet', '/api/tutor'],
+    'the Tutor keeps its existing gate; nothing else joined it');
+});
+
+test('AAM1 · the More-like-this / detection 402 copy keeps the register — plain English, says Premium, no fault words', () => {
+  const entries = Object.entries(ENT.AI_TIER_GATED_ROUTES || {});
+  assert.equal(entries.length, 2, 'both routes carry copy (a loop over nothing proves nothing)');
+  for (const [p, spec] of entries) {
+    assert.ok(typeof spec.feature === 'string' && spec.feature, p);
+    assert.ok(!spec.message.includes('_'), `${p}: ${spec.message}`);
+    assert.doesNotMatch(spec.message, /denied|unauthori|forbidden|error|failed|invalid|402/i, `${p}: ${spec.message}`);
+    assert.match(spec.message, /Premium/, p);
+  }
+});
+
+test('AAM1 · premiumRequiredBody IS the gated routes\' 402 body (one builder, so the shapes cannot drift)', async () => {
+  assert.equal(typeof ENT.premiumRequiredBody, 'function');
+  const gate = createEntitlementGate({ adminFirestore: null, logger: { warn() {}, info() {} } });
+  const spec = ENT.GATED_ROUTES['/api/check-solution'];
+  const end = Date.UTC(2026, 8, 20);
+  assert.deepEqual(ENT.premiumRequiredBody(spec, { tier: 'free', trialEndsAtMs: end }), gate.denialBody(spec, { tier: 'free', trialEndsAtMs: end }));
+  assert.deepEqual(ENT.premiumRequiredBody(spec, { tier: 'free', trialEndsAtMs: end }), {
+    error: 'premium_required', feature: 'check-solution', tier: 'free', message: spec.message, trialEndedAt: new Date(end).toISOString(),
+  });
+  assert.deepEqual(ENT.premiumRequiredBody(ENT.AI_TIER_GATED_ROUTES['/api/detect-question'], null), {
+    error: 'premium_required', feature: 'detect-question', tier: 'free', message: ENT.AI_TIER_GATED_ROUTES['/api/detect-question'].message,
+  });
+});

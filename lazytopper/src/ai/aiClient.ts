@@ -388,8 +388,9 @@ export function isPremiumRequiredError(err: unknown): err is PremiumRequiredErro
 
 /** FAIR-USE-2 (F4): which fair-use refusal this is. */
 export type FairUseLimitKind = "trial_limit" | "usage_limit";
-/** The premium cost window that was reached (usage_limit only). */
-export type FairUseLimitWindow = "fiveHour" | "day" | "week";
+/** The premium cost window that was reached (usage_limit only). `thirtyDay` (ALL-AI-METERING-1): accepted
+ *  ahead of the 30-day window (#1037) so the client never drops it to null once that env is set. */
+export type FairUseLimitWindow = "fiveHour" | "day" | "week" | "thirtyDay";
 
 /**
  * A fair-use limit was reached (server fairUse.cjs, only when FAIR_USE_ENFORCE=1):
@@ -429,7 +430,7 @@ export function isFairUseLimitError(err: unknown): err is FairUseLimitError {
   return err instanceof FairUseLimitError;
 }
 
-const FAIR_USE_WINDOWS: ReadonlySet<string> = new Set(["fiveHour", "day", "week"]);
+const FAIR_USE_WINDOWS: ReadonlySet<string> = new Set(["fiveHour", "day", "week", "thirtyDay"]);
 
 async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text">): Promise<T> {
   const text = await res.text();

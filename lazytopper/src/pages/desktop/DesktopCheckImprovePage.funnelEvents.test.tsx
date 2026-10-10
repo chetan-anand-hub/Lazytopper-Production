@@ -373,3 +373,36 @@ describe("FUNNEL-EVENTS-1 — out of scope surfaces send nothing", () => {
     expect(funnelSent()).toEqual([]);
   });
 });
+
+/* ALL-AI-METERING-1 — the question-detection error path. A fair-use refusal of the read shows the
+   limit panel by the Read button, never "We couldn't read the question"; /api/usage/me is a 404 here
+   (no enforced snapshot), which is exactly the state the AI switch can refuse in. */
+describe("ALL-AI-METERING-1 — a refused question read shows the limit panel", () => {
+  it("★★ a FairUseLimitError from detection is the panel (scope checks), not 'couldn't read'; it sends no read event", async () => {
+    const { FairUseLimitError } = await import("../../ai/aiClient");
+    render(page());
+    H.detectQuestion.mockRejectedValueOnce(new FairUseLimitError("trial_limit", 0, "2099-03-14T18:30:00.000Z", null));
+    await typeAndReadQuestion();
+    const panel = await screen.findByTestId("fair-use-limit-panel");
+    expect(panel.textContent).toContain("You've used today's answer checks.");
+    expect(document.body.textContent).not.toContain("We couldn't read the question");
+    expect(funnelSent()).toEqual([]);
+    // The next successful read clears it.
+    await typeAndReadQuestion();
+    await waitFor(() => expect(screen.queryByTestId("fair-use-limit-panel")).toBeNull());
+  });
+
+  it("★ a signed-in free student's detection 402 reads the server's own copy; CONTROL: a network error is unchanged", async () => {
+    const { PremiumRequiredError } = await import("../../ai/aiClient");
+    render(page());
+    H.detectQuestion.mockRejectedValueOnce(
+      new PremiumRequiredError("Reading questions from your photo is a Premium feature.", "detect-question", "free", null),
+    );
+    await typeAndReadQuestion();
+    await waitFor(() => expect(document.body.textContent).toContain("Reading questions from your photo is a Premium feature."));
+    H.detectQuestion.mockRejectedValueOnce(new Error("network"));
+    await typeAndReadQuestion();
+    await waitFor(() => expect(document.body.textContent).toContain("We couldn't read the question — please try again."));
+    expect(screen.queryByTestId("fair-use-limit-panel")).toBeNull();
+  });
+});

@@ -8,8 +8,14 @@
 
 import type { FairUseLimitInfo, PremiumWindow, UsageSnapshot } from "../../services/usageClient";
 
-/** Which allowance a surface spends. Per-question surfaces spend `checks`. */
-export type LimitScope = "checks" | "chapter-test" | "full-mock" | "worksheet";
+/** Which allowance a surface spends. Per-question surfaces spend `checks`.
+ *  ALL-AI-METERING-1: `tutor` and `more-like-this` (question detection refusals use `checks`). */
+export type LimitScope = "checks" | "chapter-test" | "full-mock" | "worksheet" | "tutor" | "more-like-this";
+
+/** The three paper allowances (the scopes a paper start can be blocked on). */
+type PaperScope = "chapter-test" | "full-mock" | "worksheet";
+const isPaperScope = (scope: LimitScope): scope is PaperScope =>
+  scope === "chapter-test" || scope === "full-mock" || scope === "worksheet";
 
 /** What the limit panel needs. Built only from the server's own fields. */
 export interface LimitState {
@@ -58,9 +64,16 @@ export const PREMIUM_WINDOW_LABEL: Record<PremiumWindow, string> = {
   fiveHour: "5-hour",
   day: "day",
   week: "week",
+  thirtyDay: "30-day",
 };
 
-const PAPER_NOUN: Record<Exclude<LimitScope, "checks">, { when: string; one: string; many: string }> = {
+/** ALL-AI-METERING-1 — owner copy (owner approves later), word for word. Trial only: a Premium
+ *  refusal on these scopes reads the existing Premium window copy (a week cap is not "today's"). */
+export const TUTOR_TRIAL_LIMIT_COPY = "You've reached today's Tutor limit. It resets at midnight.";
+export const MORE_LIKE_THIS_TRIAL_LIMIT_COPY =
+  "You've reached today's limit for new practice questions. Your saved questions still work.";
+
+const PAPER_NOUN: Record<PaperScope, { when: string; one: string; many: string }> = {
   "chapter-test": { when: "today's", one: "chapter test", many: "chapter tests" },
   "full-mock": { when: "this week's", one: "full mock", many: "full mocks" },
   worksheet: { when: "this week's", one: "worksheet", many: "worksheets" },
@@ -81,6 +94,8 @@ export function trialUsedLine(scope: LimitScope, allowance: number | null | unde
     if (n === null) return "You've used today's answer checks.";
     return `You've used today's ${n} answer ${n === 1 ? "check" : "checks"}.`;
   }
+  if (scope === "tutor") return TUTOR_TRIAL_LIMIT_COPY;
+  if (scope === "more-like-this") return MORE_LIKE_THIS_TRIAL_LIMIT_COPY;
   const noun = PAPER_NOUN[scope];
   if (n === null || n === 1) return `You've used ${noun.when} ${noun.one}.`;
   return `You've used ${noun.when} ${n} ${noun.many}.`;
@@ -91,7 +106,13 @@ const TRIAL_PREMIUM_LINE: Record<LimitScope, string> = {
   "chapter-test": "Premium removes the daily limit.",
   "full-mock": "Premium removes the weekly limit.",
   worksheet: "Premium removes the weekly limit.",
+  // ALL-AI-METERING-1: the owner's sentence is the whole message — no follow-on line.
+  tutor: "",
+  "more-like-this": "",
 };
+
+/** ALL-AI-METERING-1: the owner's trial copy already says when it resets — no <time> sentence. */
+const SELF_CONTAINED_TRIAL_COPY: ReadonlySet<LimitScope> = new Set<LimitScope>(["tutor", "more-like-this"]);
 
 export interface LimitCopy {
   /** The used/limit sentence. */
@@ -116,12 +137,26 @@ export function limitCopy(limit: LimitState): LimitCopy {
       showPlans: false,
     };
   }
+  if (SELF_CONTAINED_TRIAL_COPY.has(limit.scope)) {
+    return { lead: trialUsedLine(limit.scope, limit.allowance), resetPrefix: null, tail: null, showPlans: true };
+  }
   return {
     lead: trialUsedLine(limit.scope, limit.allowance),
     resetPrefix: limit.resetAt ? (limit.scope === "checks" ? "They reset at" : "It resets at") : null,
     tail: TRIAL_PREMIUM_LINE[limit.scope],
     showPlans: true,
   };
+}
+
+/**
+ * PURE. ALL-AI-METERING-1 — the Tutor's INLINE message for a refusal (the Tutor has no panel):
+ *   trial   -> the owner's sentence, word for word;
+ *   premium -> the existing Premium window copy, with the server's reset time in IST.
+ */
+export function tutorLimitMessage(limit: LimitState, nowMs: number = Date.now()): string {
+  const copy = limitCopy(limit);
+  const when = copy.resetPrefix && limit.resetAt ? formatResetIst(limit.resetAt, nowMs) : "";
+  return when ? `${copy.lead} ${copy.resetPrefix} ${when}.` : copy.lead;
 }
 
 /** PURE. UI2's confirm sentence. The spec's copy, with the one grammatical change a
@@ -139,6 +174,10 @@ const inFuture = (iso: string | null, nowMs: number) => iso !== null && Date.par
 export function fullPremiumWindow(snapshot: UsageSnapshot): PremiumWindow | null {
   const p = snapshot.premium;
   if (!p) return null;
+  // ALL-AI-METERING-1: the 30-day window (#1037) is the longest, so it is checked FIRST. Read
+  // defensively: usageClient's PremiumUsage does not carry it until #1037 lands.
+  const thirtyDayPct = (p as { thirtyDayPct?: unknown }).thirtyDayPct;
+  if (typeof thirtyDayPct === "number" && thirtyDayPct >= 100) return "thirtyDay";
   if (p.weekPct >= 100) return "week";
   if (p.dayPct >= 100) return "day";
   if (p.fiveHourPct >= 100) return "fiveHour";
@@ -163,6 +202,10 @@ function trialScopeState(
       return { left: t.mocksLeft, resetAt: t.resets.mocks, allowance: limits.mocksPerWeek };
     case "worksheet":
       return { left: t.worksheetsLeft, resetAt: t.resets.worksheets, allowance: limits.worksheetsPerWeek };
+    case "tutor":
+    case "more-like-this":
+      // ALL-AI-METERING-1: decided from the refusal itself (limitFromAiRefusal), never pre-blocked.
+      return null;
   }
 }
 
@@ -201,7 +244,7 @@ export function paperStartBlock(
   scope: Exclude<LimitScope, "checks">,
   nowMs: number = Date.now(),
 ): LimitState | null {
-  if (!snapshot || snapshot.tier !== "trial") return null;
+  if (!snapshot || snapshot.tier !== "trial" || !isPaperScope(scope)) return null;
   const st = trialScopeState(snapshot, scope);
   if (!st || st.left > 0) return null;
   // A spent rolling allowance always carries its reset time; without one (or with one
@@ -236,7 +279,41 @@ export function limitFromRefusal(
   return {
     tier,
     scope,
-    resetAt: info.resetAt ?? snapshot.premium?.resets[window] ?? null,
+    resetAt: info.resetAt ?? premiumResetFor(snapshot, window),
     window,
   };
+}
+
+/** The snapshot's reset time for a premium window (the 30-day one only once #1037's snapshot carries it). */
+function premiumResetFor(snapshot: UsageSnapshot | null, window: PremiumWindow): string | null {
+  const resets = snapshot?.premium?.resets as Partial<Record<PremiumWindow, string | null>> | undefined;
+  return resets?.[window] ?? null;
+}
+
+/**
+ * PURE. ALL-AI-METERING-1 — the panel (or the Tutor's inline message) for a refusal on the Tutor,
+ * More-like-this or question detection.
+ *
+ * ★ NOT GATED ON AN ENFORCED SNAPSHOT, deliberately unlike limitFromRefusal. Those refusals sit
+ *   behind their OWN server switch (FAIR_USE_ENFORCE_ALL_AI), while `snapshot.enforced` follows
+ *   FAIR_USE_ENFORCE (grading). A typed 409/429 from these routes is itself the positive fact that
+ *   the server refused; requiring the grading switch too would show a generic error instead.
+ * ★ Only what the error carries (or the snapshot, when present) is used: a refusal whose kind is
+ *   unknown, or a Premium one whose window cannot be named, is null -> the existing error path.
+ */
+export function limitFromAiRefusal(
+  info: FairUseLimitInfo | null,
+  scope: LimitScope,
+  snapshot: UsageSnapshot | null = null,
+): LimitState | null {
+  if (!info) return null;
+  if (info.kind === "trial_limit") {
+    return { tier: "trial", scope, resetAt: info.resetAt, window: null, allowance: null };
+  }
+  if (info.kind === "usage_limit") {
+    const window = info.window ?? (snapshot ? fullPremiumWindow(snapshot) : null);
+    if (!window) return null;
+    return { tier: "premium", scope, resetAt: info.resetAt ?? premiumResetFor(snapshot, window), window };
+  }
+  return null;
 }

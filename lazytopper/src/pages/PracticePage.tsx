@@ -483,6 +483,9 @@ import { toSessionSubject } from "../services/checkImproveGradeService";
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
 import { useFairUse } from "../components/usage/useFairUse";
+// ALL-AI-METERING-1 - a More-like-this refusal shows its own panel; the saved questions stay.
+import { limitFromAiRefusal, type LimitState } from "../components/usage/fairUseGate";
+import { readFairUseLimit } from "../services/usageClient";
 import { useAuth } from "../context/AuthContext";
 import {
   type SubjectKey,
@@ -499,6 +502,7 @@ import {
   parsePositiveInt,
   parseFocusBankIds,
   parseBooleanFlag,
+  subscribeMoreLikeThisLimit,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
 import { isCbq } from "../lib/cbq/cbqClassification";
@@ -1267,6 +1271,12 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [signInToGrade, setSignInToGrade] = useState(false);
   /** FAIR-USE-UI-1 - fair limits on the batched grade (dark unless enforced). */
   const fairUse = useFairUse("checks", !!authUserForJourney?.uid && !authUserForJourney?.isLocalSession);
+  /** ALL-AI-METERING-1 - the More-like-this limit panel (the AI top-up was refused). */
+  const [moreLikeThisLimit, setMoreLikeThisLimit] = useState<LimitState | null>(null);
+  useEffect(
+    () => subscribeMoreLikeThisLimit((err) => setMoreLikeThisLimit(limitFromAiRefusal(readFairUseLimit(err), "more-like-this"))),
+    [],
+  );
   /** UI2 - R, while the student is being asked "we'll mark the first R". */
   const [fairUseConfirm, setFairUseConfirm] = useState<number | null>(null);
   // Which session identity has already been written. A one-shot latch: the scorecard
@@ -2681,6 +2691,10 @@ const packTopicKey = useMemo(() => {
           <span>Class {grade} - {subjectTitle}</span>
         </nav>
         )}
+
+        {moreLikeThisLimit ? (
+          <FairUseLimitPanel limit={moreLikeThisLimit} onDismiss={() => setMoreLikeThisLimit(null)} />
+        ) : null}
 
         {/* Applied-band indicator (PR-E1 amendment item 6/7) — concept-row entry
             ONLY: shown when this session arrived from the Topic Hub with an exact

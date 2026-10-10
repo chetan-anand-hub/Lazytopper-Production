@@ -662,7 +662,10 @@ test('U8 · FAIR_USE_ENFORCE=1 -> 409 (trial) and 429 (premium), refused telemet
 
 test('U6 · non-grading paths, free checks, unverified callers and the free tier are never touched', async () => {
   const days = { [TODAY]: { trialChecks: 99, costMicroInr: 999 * INR } };
-  for (const reqPath of ['/api/tutor', '/api/detect-question', '/api/step-solution', '/api/generate-visual']) {
+  // ALL-AI-METERING-1: /api/tutor and /api/detect-question (and /api/more-like-this) are now
+  // decided by their own switch — their table is fairUse.allAi.test.cjs, which pins the same
+  // "untouched" property for step-solution and the free check under BOTH switches.
+  for (const reqPath of ['/api/step-solution', '/api/generate-visual', '/api/generate-diagram']) {
     const r = rig({ days });
     assert.equal((await run(r, { path: reqPath })).answered, false, reqPath);
     assert.equal(r.tierReads(), 0, `${reqPath}: must not even read the tier`);
@@ -812,14 +815,24 @@ test('U5 · /api/usage/me — trial shape', async () => {
       chapterTestsLeftToday: 1,
       mocksLeft: 0,
       worksheetsLeft: 1,
+      // ALL-AI-METERING-1: the three AI allowances, added (nothing above renamed or removed).
+      tutorLeftToday: 15,
+      moreLikeThisLeftToday: 5,
+      detectLeftToday: 10,
       resets: {
         checks: NEXT_IST_MIDNIGHT,
         chapterTests: NEXT_IST_MIDNIGHT,
         mocks: '2026-10-01T18:30:00.000Z',
         worksheets: null,
+        tutor: NEXT_IST_MIDNIGHT,
+        moreLikeThis: NEXT_IST_MIDNIGHT,
+        detect: NEXT_IST_MIDNIGHT,
       },
       // FAIR-USE-3 R3: the limits in force (here the env defaults).
-      limits: { checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1 },
+      limits: {
+        checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1,
+        tutorPerDay: 15, moreLikeThisPerDay: 5, detectPerDay: 10,
+      },
     },
     premium: null,
     enforced: true,
@@ -1332,10 +1345,12 @@ test('R3 · /api/usage/me returns the limits in force, and they follow a CHANGED
   };
   const out = await usageMe(rig({ env, days: { [TODAY]: { trialChecks: 3 } } }));
   assert.equal(out.status, 200);
-  assert.deepEqual(out.body.trial.limits, { checksPerDay: 7, chapterTestsPerDay: 2, mocksPerWeek: 3, worksheetsPerWeek: 4 });
+  // ALL-AI-METERING-1: the AI limits ride alongside (defaults here; their own env test is in fairUse.allAi.test.cjs).
+  const AI_DEFAULTS = { tutorPerDay: 15, moreLikeThisPerDay: 5, detectPerDay: 10 };
+  assert.deepEqual(out.body.trial.limits, { checksPerDay: 7, chapterTestsPerDay: 2, mocksPerWeek: 3, worksheetsPerWeek: 4, ...AI_DEFAULTS });
   assert.equal(out.body.trial.checksLeftToday, 4);
   // CONTROL: the defaults when unset — the numbers are env's, never the client's.
-  assert.deepEqual((await usageMe(rig())).body.trial.limits, { checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1 });
+  assert.deepEqual((await usageMe(rig())).body.trial.limits, { checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1, ...AI_DEFAULTS });
   // Premium never receives trial limits (and never rupees); free receives nothing.
   const p = await usageMe(rig({ tier: 'premium' }));
   assert.equal(p.body.trial, null);
@@ -1560,8 +1575,11 @@ test('WIRING · REAL index.cjs, FAIR_USE_ENFORCE=1: 409 before Gemini, counted p
     const me = JSON.parse(res.text);
     assert.equal(me.tier, 'trial');
     assert.equal(me.premium, null);
-    assert.deepEqual(Object.keys(me.trial).sort(), ['chapterTestsLeftToday', 'checksLeftToday', 'limits', 'mocksLeft', 'resets', 'worksheetsLeft']);
-    assert.deepEqual(me.trial.limits, { checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1 }, 'R3: the limits in force reach the client');
+    assert.deepEqual(Object.keys(me.trial).sort(), ['chapterTestsLeftToday', 'checksLeftToday', 'detectLeftToday', 'limits', 'mocksLeft', 'moreLikeThisLeftToday', 'resets', 'tutorLeftToday', 'worksheetsLeft']);
+    assert.deepEqual(me.trial.limits, {
+      checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1,
+      tutorPerDay: 15, moreLikeThisPerDay: 5, detectPerDay: 10, // ALL-AI-METERING-1, additive
+    }, 'R3: the limits in force reach the client');
     assert.doesNotMatch(res.text, NO_RUPEES);
     assert.equal((await request(port, 'GET', '/api/usage/me', undefined, {})).status, 401);
 

@@ -8,6 +8,9 @@
 
 const API_BASE = "/api"; // Vite dev proxy or same origin in production
 import { paidJsonHeaders, SignInAgainError, REAUTH_MESSAGE } from "./paidCallHeaders";
+// ALL-AI-METERING-1: pure copy + decision (no fetch, no runtime edge into aiClient).
+import { limitFromAiRefusal, tutorLimitMessage } from "../components/usage/fairUseGate";
+import type { PremiumWindow } from "../services/usageClient";
 
 export const TUTOR_ENDPOINT = `${API_BASE}/tutor`;
 
@@ -158,6 +161,45 @@ export class TutorPremiumRequiredError extends Error {
   }
 }
 
+const TUTOR_LIMIT_WINDOWS: ReadonlySet<string> = new Set(["fiveHour", "day", "week", "thirtyDay"]);
+
+/**
+ * ALL-AI-METERING-1 — thrown when the tutor endpoint answers a fair-use refusal (server
+ * fairUse.cjs, only while FAIR_USE_ENFORCE_ALL_AI=1): 409 `trial_limit` or 429 `usage_limit`.
+ * NOT a fault — nothing reached the model and nothing was charged. `message` IS the Tutor's
+ * inline limit copy (fairUseGate.tutorLimitMessage), so the session's existing error line shows
+ * it as-is — never the raw `usage_limit` code. `name` is "FairUseLimitError" so every reader of
+ * that name (usageClient.readFairUseLimit) recognises it.
+ */
+export class TutorLimitError extends Error {
+  readonly kind: "trial_limit" | "usage_limit";
+  readonly resetAt: string | null;
+  readonly window: PremiumWindow | null;
+  readonly remaining: number | null;
+
+  constructor(kind: "trial_limit" | "usage_limit", resetAt: string | null, window: PremiumWindow | null) {
+    const limit = limitFromAiRefusal({ kind, remaining: null, resetAt, window }, "tutor");
+    super(limit ? tutorLimitMessage(limit) : "You've reached your Tutor limit for now. It opens again soon.");
+    this.name = "FairUseLimitError";
+    this.kind = kind;
+    this.resetAt = resetAt;
+    this.window = window;
+    this.remaining = null;
+  }
+}
+
+/** ALL-AI-METERING-1: the Tutor's fair-use refusal, or null for any other failure. */
+function tutorLimitFrom(status: number, details: unknown): TutorLimitError | null {
+  const d = (details && typeof details === "object" ? details : {}) as { error?: unknown; resetAt?: unknown; window?: unknown };
+  const resetAt = typeof d.resetAt === "string" && d.resetAt.trim() ? d.resetAt : null;
+  if (status === 409 && d.error === "trial_limit") return new TutorLimitError("trial_limit", resetAt, null);
+  if (status === 429 && d.error === "usage_limit") {
+    const window = typeof d.window === "string" && TUTOR_LIMIT_WINDOWS.has(d.window) ? (d.window as PremiumWindow) : null;
+    return new TutorLimitError("usage_limit", resetAt, window);
+  }
+  return null;
+}
+
 /**
  * Call the fresh tutor endpoint for the next turn. Throws a plain Error carrying the
  * server's message on a non-2xx or unparseable response (the UI surfaces it as an
@@ -218,6 +260,9 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
         details.trialEndedAt || null,
       );
     }
+    // ALL-AI-METERING-1: a fair-use refusal is the Tutor's limit copy, never the raw code.
+    const limitError = tutorLimitFrom(res.status, details);
+    if (limitError) throw limitError;
     // Every other failure: the server's student-facing `message` first, the machine
     // `error` code only when there is no message.
     throw new Error(details.message || details.error || "The tutor request failed.");
