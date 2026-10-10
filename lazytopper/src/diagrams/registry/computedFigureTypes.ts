@@ -12,6 +12,7 @@
  *     the question are right, not only the numbers.
  */
 import type { HdLabels, HdParams } from "../builders/heightsDistances";
+import type { OpticsCaseParams, OpticsImageParams } from "../builders/optics";
 
 export type FigureSlot = "solution" | "question";
 
@@ -39,13 +40,11 @@ export interface FigureExpectation {
   quote: string;
 }
 
-export interface ComputedFigureBinding {
+interface ComputedFigureBase {
   kind: "computed";
   /** Exact served row id. */
   questionId: string;
   slot: FigureSlot;
-  builder: "heightsDistances";
-  params: HdParams;
   /** Point letters matching the row's own solution, and unknown-length letters ("q.h"). */
   labels?: HdLabels;
   /** Set when the figure covers one part / one alternative of the row. */
@@ -56,6 +55,19 @@ export interface ComputedFigureBinding {
   /** Who read the row against the rendered figure, and when. */
   confirmedBy: string;
 }
+
+/**
+ * One computed figure. `builder` picks the pure builder; `params` is that builder's
+ * input (a discriminated union, so a binding can never hand one builder another's params).
+ *   - "heightsDistances": Trigonometry heights & distances (PR-2a).
+ *   - "opticsImage": a mirror / lens ray diagram from the row's own f, u, v, m (PR-2b).
+ *   - "opticsCase": the standard ray diagram for an object position the row STATES
+ *     (no numbers) — captioned as a standard construction, never as "from the numbers".
+ */
+export type ComputedFigureBinding =
+  | (ComputedFigureBase & { builder: "heightsDistances"; params: HdParams })
+  | (ComputedFigureBase & { builder: "opticsImage"; params: OpticsImageParams })
+  | (ComputedFigureBase & { builder: "opticsCase"; params: OpticsCaseParams });
 
 /**
  * An OFFICIAL raster crop bound to a solution (NCERT / CBSE answer figures). Never a
