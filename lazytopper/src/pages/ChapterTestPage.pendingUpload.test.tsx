@@ -120,6 +120,7 @@ beforeEach(() => {
   fs.snapshot = null;
   fs.deleted = [];
   records.list = [];
+  sessionPayload.response = null;
 });
 afterEach(() => cleanup());
 
