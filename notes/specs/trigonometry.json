@@ -630,43 +630,43 @@
     },
     "fig_angle_of_elevation_92": {
       "bucket": "ncert",
-      "tag": "NCERT Fig. 9.2 (redrawn)",
+      "tag": "NCERT Fig. 9.2",
       "caption": "Fig 9.2 — Angle of elevation: the object is above the horizontal level, so the line of sight rises from the eye. The angle is measured at the observer's eye, between the horizontal level and the line of sight.",
-      "legend": "The dashed ray is the horizontal level through the eye; the green arrow is the line of sight; the green arc is the angle to name. Elevation: head raised.",
+      "legend": "The dashed line is the horizontal level through the eye; the solid line is the line of sight up to the object; the arc between them is the angle of elevation. Elevation: head raised.",
       "source": {
         "pdf": "jemh109",
         "edition": "2026-27",
         "ncert_fig": "9.2",
         "page_printed": 134,
         "page_pdf_index": 1,
-        "crop": null,
-        "crop_units": null,
-        "render_matrix": null,
-        "clean": "none",
+        "crop": [145, 130, 337, 247],
+        "crop_units": "PDF points (page 468x684)",
+        "render_matrix": 4,
+        "clean": "watermark layer dropped in memory before rendering (the page's /Artifact /Watermark marked-content block removed from the content stream; PDF on disk untouched); no pixel cleaning",
         "refill": null,
-        "note": "NOT a crop: redrawn as a labelled single-panel SVG (QUICK-FIXES-1 owner follow-up: one image each for elevation and depression, as NCERT presents them) from NCERT Reprint 2026-27 jemh109.pdf, pdf index 1 (printed p.134), Fig. 9.2 'angle of elevation', confirmed on the page: observer on the ground, dashed horizontal level, line of sight with an arrowhead to the object, the angle arc at the eye, labels as NCERT's. Eye-confirmed at 350 px and 777 px."
+        "note": "crop from NCERT Reprint 2026-27 jemh109.pdf, pdf index 1 (printed p.134), Fig. 9.2 (NOTES-SVG-REPLACE-1: replaces the earlier hand-drawn SVG). Rendered at 4x with pymupdf, saved to WebP 768x468 (Pillow, q80). Figure only - the 'Fig. 9.2' line is below the clip, no body text. Eye-confirmed: the girl on the ground, the dashed horizontal level, the line of sight to the object above it, the angle arc at the eye, and the labels Object, Line of sight, Angle of elevation, Horizontal level."
       },
-      "asset": "trigonometry/fig_angle_of_elevation_92.svg"
+      "asset": "trigonometry/fig_angle_of_elevation_92.webp"
     },
     "fig_angle_of_depression_93": {
       "bucket": "ncert",
-      "tag": "NCERT Fig. 9.3 (redrawn)",
+      "tag": "NCERT Fig. 9.3",
       "caption": "Fig 9.3 — Angle of depression: the object is below the horizontal level, so the line of sight falls from the eye. The angle is measured at the observer's eye, between the horizontal level and the line of sight.",
-      "legend": "The dashed ray is the horizontal level through the eye; the green arrow is the line of sight; the green arc is the angle to name. Depression: head lowered — and alternate angles carry it to the far end of the right triangle.",
+      "legend": "The dashed line is the horizontal level through the girl's eye on the balcony; the solid line is the line of sight down to the object; the angle between them is the angle of depression. Depression: head lowered.",
       "source": {
         "pdf": "jemh109",
         "edition": "2026-27",
         "ncert_fig": "9.3",
         "page_printed": 134,
         "page_pdf_index": 1,
-        "crop": null,
-        "crop_units": null,
-        "render_matrix": null,
-        "clean": "none",
+        "crop": [79, 379, 376, 516],
+        "crop_units": "PDF points (page 468x684)",
+        "render_matrix": 3,
+        "clean": "watermark layer dropped in memory before rendering (the page's /Artifact /Watermark marked-content block removed from the content stream; PDF on disk untouched); no pixel cleaning",
         "refill": null,
-        "note": "NOT a crop: redrawn as a labelled single-panel SVG (QUICK-FIXES-1 owner follow-up: one image each for elevation and depression, as NCERT presents them) from NCERT Reprint 2026-27 jemh109.pdf, pdf index 1 (printed p.134), Fig. 9.3 'angle of depression', confirmed on the page: observer on a balcony, dashed horizontal level, line of sight with an arrowhead to the object, the angle arc at the eye, labels as NCERT's. Eye-confirmed at 350 px and 777 px."
+        "note": "crop from NCERT Reprint 2026-27 jemh109.pdf, pdf index 1 (printed p.134), Fig. 9.3 (NOTES-SVG-REPLACE-1: replaces the earlier hand-drawn SVG). Rendered at 3x with pymupdf, saved to WebP 891x411 (Pillow, q80). Figure only - the 'Fig. 9.3' line is below the clip, no body text. Eye-confirmed: the girl on the balcony, the dashed horizontal level, the line of sight down to the object below it, the angle mark at the eye, and the labels Horizontal level, Angle of depression, Line of sight, Object."
       },
-      "asset": "trigonometry/fig_angle_of_depression_93.svg"
+      "asset": "trigonometry/fig_angle_of_depression_93.webp"
     }
   },
   "source_ledger": [
