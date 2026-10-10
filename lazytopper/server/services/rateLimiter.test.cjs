@@ -275,12 +275,17 @@ test("the global ceiling 429s a caller who is still under their own per-uid cap"
   // "you've hit today's limit" (the student may have used nothing) and never a fault.
   assert.equal(blocked.status, 429);
   assert.equal(blocked.body.error, "busy_today", "the global ceiling refuses with busy_today");
-  assert.match(blocked.body.message, /^LazyTopper's free AI checking is very busy today, so it's paused for free accounts until tomorrow\. Practice, MCQs, CBQs, notes and saved solutions still work\.$/);
+  assert.equal(blocked.body.message, "LazyTopper is very busy today. Come back after midnight, or subscribe for priority access.");
   assert.equal(blocked.body.scope, "free");
   assert.equal(blocked.body.cta, "plans", "a signed-in caller is pointed to the plans");
   assert.ok(blocked.body.resetAt, "it carries the next IST midnight");
   assert.equal(telemetry.count("rate_limit.hard_block.global"), 1, "the breaker is loud");
   assert.equal(telemetry.count("rate_limit.soft_breach.global"), 1);
+  // a signed-out visitor: the same sentence WITHOUT the subscribe part, and no call to action (D59a)
+  const anon = rl.check({ headers: {} }, "/api/tutor");
+  assert.equal(anon.allowed, false);
+  assert.equal(anon.body.message, "LazyTopper is very busy today. Come back after midnight.");
+  assert.equal(anon.body.cta, null);
 });
 
 /* ── 8 · Provider-agnostic (§1.2) ─────────────────────────────────────────── */

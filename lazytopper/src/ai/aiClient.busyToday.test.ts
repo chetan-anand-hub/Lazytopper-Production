@@ -12,12 +12,8 @@ vi.mock("./paidCallHeaders", () => ({
 import { checkSolutionImage, isDailyLimitError, resetPaperPassCacheForTests } from "./aiClient";
 import { gradingErrorMessage } from "./gradingTransport";
 
-const BODY = (cta: string) => ({
-  error: "busy_today",
-  message:
-    "LazyTopper's free AI checking is very busy today, so it's paused for free accounts until tomorrow. Practice, MCQs, CBQs, notes and saved solutions still work.",
-  class: "global", scope: "free", cta, resetAt: "2026-10-11T18:30:00.000Z",
-});
+const MSG = "LazyTopper is very busy today. Come back after midnight, or subscribe for priority access.";
+const BODY = (cta: string | null, message = MSG) => ({ error: "busy_today", message, class: "global", scope: "free", cta, resetAt: "2026-10-11T18:30:00.000Z" });
 async function refused(body: unknown) {
   resetPaperPassCacheForTests();
   vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status: 429 })));
@@ -26,21 +22,18 @@ async function refused(body: unknown) {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("FU-GLOBAL-SHED · busy_today on the client", () => {
-  it("★★ signed-out (cta trial): the owner's sentence + 'Start your free 7-day trial.' as the student-facing limit error", async () => {
-    const err = await refused(BODY("trial"));
+  it("★★ signed-in free account (cta plans): the owner's sentence + 'See plans.' as the student-facing limit error", async () => {
+    const err = await refused(BODY("plans"));
     expect(isDailyLimitError(err)).toBe(true);
-    expect(err.message).toBe(`${BODY("trial").message} Start your free 7-day trial.`);
-    expect(gradingErrorMessage(err, "FALLBACK")).toBe(err.message); // kept verbatim, not the generic fallback
+    expect(err.message).toBe(`${MSG} See plans.`);
+    expect(gradingErrorMessage(err, "FALLBACK")).toBe(err.message);
     expect(err.message).not.toMatch(/AI API|failed|429|busy_today/i);
     expect(err.resetAt).toBe("2026-10-11T18:30:00.000Z");
   });
-  it("★★ everyone else (cta plans): '… See plans.'", async () => {
-    const err = await refused(BODY("plans"));
-    expect(err.message.endsWith(" See plans.")).toBe(true);
-  });
-  it("★ a null cta (premium past the margin) adds no call to action", async () => {
-    const err = await refused({ ...BODY("plans"), cta: null, scope: "all" });
-    expect(err.message).toBe(BODY("plans").message);
+  it("★★ signed-out / premium past the margin (cta null): the sentence alone, no 'Start your free trial', no 'See plans'", async () => {
+    const err = await refused(BODY(null, "LazyTopper is very busy today. Come back after midnight."));
+    expect(err.message).toBe("LazyTopper is very busy today. Come back after midnight.");
+    expect(err.message).not.toMatch(/trial|plans|subscribe/i);
   });
   it("CONTROL: the per-student daily_limit is untouched", async () => {
     const err = await refused({ error: "daily_limit", message: "You've hit today's limit for this. It resets tomorrow.", class: "vision", resetAt: null });

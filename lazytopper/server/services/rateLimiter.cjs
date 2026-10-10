@@ -245,14 +245,14 @@ const VISION_SHED_FRACTION = 0.8;
  */
 const PREMIUM_GLOBAL_OVERFLOW = 0.25;
 
-/** What the student reads when the site-wide ceiling refuses them (free / anonymous). Owner-approved wording. */
-const BUSY_TODAY_MESSAGE =
-  "LazyTopper's free AI checking is very busy today, so it's paused for free accounts until tomorrow. " +
-  "Practice, MCQs, CBQs, notes and saved solutions still work.";
-/** Premium past even the overflow margin (a far-from-normal day): never told it is a "free account" matter. */
-const BUSY_TODAY_MESSAGE_ALL =
-  "LazyTopper's AI checking has reached its limit for today and is paused until tomorrow. " +
-  "Practice, MCQs, CBQs, notes and saved solutions still work.";
+/**
+ * What the student reads when the site-wide ceiling refuses them (owner D59a): calm, not a fault, not their
+ * doing. A signed-in non-paying account is also pointed to the plans (a "See plans" link added by the client);
+ * a signed-out visitor gets the same sentence WITHOUT the subscribe part (a new trial would be refused that day
+ * too), and a premium caller past the margin gets it without any call to action.
+ */
+const BUSY_TODAY_MESSAGE = "LazyTopper is very busy today. Come back after midnight, or subscribe for priority access.";
+const BUSY_TODAY_MESSAGE_ALL = "LazyTopper is very busy today. Come back after midnight.";
 
 const DEFAULT_LIMITS = Object.freeze({
   // soft = alert only (request passes) · hard = 429
@@ -400,12 +400,11 @@ function createRateLimiter(options = {}) {
       status: 429,
       body: {
         error: "busy_today",
-        message: scope === "all" ? BUSY_TODAY_MESSAGE_ALL : BUSY_TODAY_MESSAGE,
+        message: scope === "all" || cta === null ? BUSY_TODAY_MESSAGE_ALL : BUSY_TODAY_MESSAGE,
         class: GLOBAL_CLASS,
         scope,
-        // Whom the refusal can still win: a signed-out visitor can start the free 7-day trial (every
-        // new account gets one at sign-up); anyone else is pointed to the plans.
-        // A premium caller past the margin is never pointed to "plans": no call to action at all.
+        // "plans" for a signed-in non-paying account; null for a signed-out visitor (a new trial would be
+        // refused that day too) and for a premium caller past the margin: no call to action at all.
         cta: scope === "all" ? null : cta,
         resetAt: nextIstMidnightIso(nowMs),
       },
@@ -545,7 +544,7 @@ function createRateLimiter(options = {}) {
         // The circuit breaker at 100%. Loud, because it means something is very
         // wrong: either far more students than expected, or something is scripting us.
         emit("rate_limit.hard_block.global");
-        return busyToday(nowMs, premiumShedExempt ? "all" : "free", caller.anonymous ? "trial" : "plans");
+        return busyToday(nowMs, premiumShedExempt ? "all" : "free", caller.anonymous ? null : "plans");
       }
     }
 
