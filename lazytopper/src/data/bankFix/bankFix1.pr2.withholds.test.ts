@@ -21,7 +21,8 @@ const blockIds = [...block.matchAll(/^\s+"([^"]+)",/gm)].map((m) => m[1]);
 
 describe("BANK-FIX-1 PR-2 · withhold categories", () => {
   it("the PR-2 blocks are non-empty and every id in them has a category (and vice versa)", () => {
-    expect(blockIds.length).toBeGreaterThan(180);
+    // 180 -> 172 at DIAGRAMS-1 PR-1b (2026-10-10): exactly the 8 figure rows it un-withholds (trunk 181 -> 173).
+    expect(blockIds.length).toBeGreaterThan(172);
     expect([...BANK_FIX_1_PR2_WITHHOLD_CATEGORY.keys()].sort()).toEqual([...blockIds].sort());
   });
 
