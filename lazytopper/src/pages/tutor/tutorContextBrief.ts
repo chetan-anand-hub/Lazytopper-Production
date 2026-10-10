@@ -110,7 +110,7 @@ export function briefFromModel(model: StudyReadModel, chapterKey: string): Tutor
   if (namingRung) {
     // ME-CONCEPT-1 — the chapter's weakest Exam Trends concepts from the model's per-concept
     // mistakes (the same rows Me's Concepts tab carries). Names only — no percentage, no mastery.
-    const weak = weakestExamConcepts(model.mistakes, chapterKey, MAX_WEAK_CONCEPTS);
+    const weak = weakestExamConcepts(model.mistakes, chapterKey, MAX_WEAK_CONCEPTS, model.progress.concepts);
     if (weak.length) brief.topic.weakConcepts = weak;
 
     if (model.progress.totals) {

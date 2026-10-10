@@ -467,11 +467,20 @@ export function buildConceptMistakes(
  * by the marks their live mistakes cost and have NOT been won back, most first (label breaks a
  * tie). Only Exam Trends concepts (a kept subtopic row is never named to the Tutor), only what
  * the model filled — which is nothing below Me's weakness gate. Names only, never a figure.
+ * STRICT (COFOUNDER DECISION 61a): when `rows` (Me's concept rows for the same subject and window) is given, only a concept
+ * that HAS a row there is named; a concept too thin for a Me row is below that row's gate, so Me == brief == model.
  */
-export function weakestExamConcepts(view: Pick<MistakeView, "byConcept">, chapterKey: string, max = 3): string[] {
+export function weakestExamConcepts(
+  view: Pick<MistakeView, "byConcept">,
+  chapterKey: string,
+  max = 3,
+  rows?: ReadonlyArray<{ key: string }>,
+): string[] {
   if (!chapterKey) return [];
-  return Object.values(view.byConcept)
-    .filter((r) => r.examConcept && r.chapter === chapterKey)
+  const rowKeys = rows ? new Set(rows.map((r) => r.key)) : null;
+  return Object.entries(view.byConcept)
+    .filter(([key, r]) => r.examConcept && r.chapter === chapterKey && (!rowKeys || rowKeys.has(key)))
+    .map(([, r]) => r)
     .map((r) => ({ label: r.label, open: round1(r.marksLost - r.wonBack.marks), live: r.live - r.wonBack.count }))
     .filter((r) => r.live > 0 && r.open > 0)
     .sort((a, b) => b.open - a.open || a.label.localeCompare(b.label))

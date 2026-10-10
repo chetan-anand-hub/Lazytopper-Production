@@ -355,6 +355,26 @@ describe("ME-CONCEPT-1 · ONE gate (Me's): below it nothing is named; above it M
     expect(Object.keys((await mathsModel()).mistakes.byConcept)).toEqual([`${RN}|${FTA}`]);
   });
 
+  it("★ S — STRICT (D61a): the brief names ONLY a concept that has a row on Me for the same subject and window", async () => {
+    const PO = "polynomials";
+    const other = Object.entries(CONCEPT_BY_LABEL[PO]).find(([, c]) => typeof c === "string");
+    expect(other, "precondition: a Polynomials concept exists").toBeDefined();
+    const [label, concept] = other as [string, string];
+    H.bank["zz-1"] = { subtopic: label, section: "B", topicKey: PO };
+    H.mistakes = [mistake("qp-z", "zz-1", 5, { marksLost: 3 })];
+    const key = `${PO}|${concept}`;
+    const thin = await mathsModel();
+    // the model HAS the per-concept mistake, but Me has no row for the concept (no graded answers) -> not named
+    expect(thin.mistakes.byConcept[key]).toBeDefined();
+    expect(thin.progress.concepts.some((r) => r.key === key)).toBe(false);
+    expect(briefFromModel(thin, PO).topic.weakConcepts).toBeUndefined();
+    // CONTROL - once the concept has a Me row (enough graded answers) the same mistake is named
+    H.attempts.push(...sixOn("zz-1", PO));
+    const rich = await mathsModel();
+    expect(rich.progress.concepts.some((r) => r.key === key)).toBe(true);
+    expect(briefFromModel(rich, PO).topic.weakConcepts).toContain(concept);
+  });
+
   it("★ B — a mistake with only a stored label (no resolvable questionId) names NOTHING — never the raw label", async () => {
     H.mistakes = [
       mistake("legacy-1", undefined, 5, { concept: "HCF and LCM", marksLost: 3 }),
@@ -389,6 +409,8 @@ describe("ME-CONCEPT-1 · ONE gate (Me's): below it nothing is named; above it M
       mistake("ap-u", "ap-unmapped", 4, { topic: AP, marksLost: 5 }),
       ...labels.map((_, i) => mistake(`ap-m${i}`, `ap-${i}`, 4, { topic: AP, marksLost: 4 - i * 0.5 })),
     ];
+    // D61a (strict): each concept needs a Me row, i.e. enough graded answers on its bank question.
+    labels.forEach((_, i) => H.attempts.push(...sixOn(`ap-${i}`, AP)));
     const m = await mathsModel();
     const brief = briefFromModel(m, AP);
     const expected = labels.map((l) => picked.get(l)!);
@@ -440,7 +462,7 @@ describe("ME-CONCEPT-1 · ONE gate (Me's): below it nothing is named; above it M
     // The brief: the model's weakest (FTA is fully won back, so only Irrationality Proofs remains).
     const brief = await assembleTutorBrief({ uid: UID, topicKey: RN, subject: "maths", window: "month", nowMs: NOW });
     expect(brief).toEqual(briefFromModel(m, RN));
-    expect(brief.topic.weakConcepts).toEqual(weakestExamConcepts(m.mistakes, RN));
+    expect(brief.topic.weakConcepts).toEqual(weakestExamConcepts(m.mistakes, RN, 3, m.progress.concepts));
     expect(brief.topic.weakConcepts).toEqual([IRR]);
   });
 });
