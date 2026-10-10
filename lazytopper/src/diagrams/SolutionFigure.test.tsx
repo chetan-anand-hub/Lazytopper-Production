@@ -26,6 +26,19 @@ describe("SolutionFigure", () => {
     expect(container.querySelector("figcaption")!.textContent).toContain(SOLUTION_FIGURE_CAPTION);
   });
 
+  it("a STATED-POSITION ray diagram (optics.case, no numbers) never claims to be drawn from the question's numbers", async () => {
+    const { SolutionFigure, SOLUTION_FIGURE_CAPTION, SOLUTION_CASE_CAPTION } = await import("./SolutionFigure");
+    const { container } = render(<SolutionFigure questionId="GDR-L-MER-04" />);
+    const cap = container.querySelector("figcaption")!.textContent!;
+    expect(cap).toContain(SOLUTION_CASE_CAPTION);
+    expect(cap).not.toContain(SOLUTION_FIGURE_CAPTION);
+    expect(cap).toMatch(/not to scale/);
+    cleanup();
+    // CONTROL: a numeric ray diagram keeps the "drawn from this question's numbers" caption.
+    const num = render(<SolutionFigure questionId="GDR-L-CBJ-031" />);
+    expect(num.container.querySelector("figcaption")!.textContent).toContain(SOLUTION_FIGURE_CAPTION);
+  });
+
   it("CONTROL: an unbound question renders nothing at all", async () => {
     const { SolutionFigure } = await import("./SolutionFigure");
     const { container } = render(<SolutionFigure questionId={UNBOUND} />);
