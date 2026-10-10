@@ -1,0 +1,1442 @@
+[
+ {
+  "dir": "g-ci-mobile-0",
+  "pageId": "ci",
+  "url": "https://www.lazytopper.com/check-improve",
+  "A.full": {
+   "fcp": 1829,
+   "lcp": 2241,
+   "tbt": 239
+  },
+  "A.netOnly": {
+   "fcp": 1829,
+   "lcp": 2059,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 4199,
+   "lcp": 4936,
+   "tbt": 197
+  },
+  "B.netOnly": {
+   "fcp": 4199,
+   "lcp": 4833,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 3149,
+   "lcp": 3903,
+   "tbt": 197
+  },
+  "LHmobile.netOnly": {
+   "fcp": 3149,
+   "lcp": 3783,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 375,
+   "lcp": 633,
+   "tbt": 285
+  }
+ },
+ {
+  "dir": "g-ci-mobile-1",
+  "pageId": "ci",
+  "url": "https://www.lazytopper.com/check-improve",
+  "A.full": {
+   "fcp": 1716,
+   "lcp": 2068,
+   "tbt": 268
+  },
+  "A.netOnly": {
+   "fcp": 1671,
+   "lcp": 1941,
+   "tbt": 11
+  },
+  "B.full": {
+   "fcp": 4001,
+   "lcp": 4961,
+   "tbt": 253
+  },
+  "B.netOnly": {
+   "fcp": 3956,
+   "lcp": 4871,
+   "tbt": 11
+  },
+  "LHmobile.full": {
+   "fcp": 3026,
+   "lcp": 3986,
+   "tbt": 253
+  },
+  "LHmobile.netOnly": {
+   "fcp": 2981,
+   "lcp": 3896,
+   "tbt": 11
+  },
+  "workOnly": {
+   "fcp": 169,
+   "lcp": 365,
+   "tbt": 268
+  }
+ },
+ {
+  "dir": "g-ci-mobile-2",
+  "pageId": "ci",
+  "url": "https://www.lazytopper.com/check-improve",
+  "A.full": {
+   "fcp": 1595,
+   "lcp": 2088,
+   "tbt": 303
+  },
+  "A.netOnly": {
+   "fcp": 1595,
+   "lcp": 1968,
+   "tbt": 2
+  },
+  "B.full": {
+   "fcp": 3965,
+   "lcp": 4999,
+   "tbt": 295
+  },
+  "B.netOnly": {
+   "fcp": 3965,
+   "lcp": 4898,
+   "tbt": 2
+  },
+  "LHmobile.full": {
+   "fcp": 2915,
+   "lcp": 4024,
+   "tbt": 295
+  },
+  "LHmobile.netOnly": {
+   "fcp": 2915,
+   "lcp": 3923,
+   "tbt": 2
+  },
+  "workOnly": {
+   "fcp": 124,
+   "lcp": 362,
+   "tbt": 382
+  }
+ },
+ {
+  "dir": "g-cya-mobile-0",
+  "pageId": "cya",
+  "url": "https://www.lazytopper.com/check-your-answer",
+  "A.full": {
+   "fcp": 1369,
+   "lcp": 1459,
+   "tbt": 326
+  },
+  "A.netOnly": {
+   "fcp": 1132,
+   "lcp": 1393,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 2019,
+   "lcp": 2303,
+   "tbt": 326
+  },
+  "B.netOnly": {
+   "fcp": 1782,
+   "lcp": 2303,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 1269,
+   "lcp": 1414,
+   "tbt": 326
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1032,
+   "lcp": 1403,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 519,
+   "lcp": 597,
+   "tbt": 326
+  }
+ },
+ {
+  "dir": "g-cya-mobile-1",
+  "pageId": "cya",
+  "url": "https://www.lazytopper.com/check-your-answer",
+  "A.full": {
+   "fcp": 1391,
+   "lcp": 1979,
+   "tbt": 377
+  },
+  "A.netOnly": {
+   "fcp": 1469,
+   "lcp": 1979,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 2379,
+   "lcp": 4179,
+   "tbt": 211
+  },
+  "B.netOnly": {
+   "fcp": 2379,
+   "lcp": 4179,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 1291,
+   "lcp": 3279,
+   "tbt": 377
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1329,
+   "lcp": 3279,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 541,
+   "lcp": 616,
+   "tbt": 347
+  }
+ },
+ {
+  "dir": "g-cya-mobile-2",
+  "pageId": "cya",
+  "url": "https://www.lazytopper.com/check-your-answer",
+  "A.full": {
+   "fcp": 2147,
+   "lcp": 2794,
+   "tbt": 448
+  },
+  "A.netOnly": {
+   "fcp": 2114,
+   "lcp": 2794,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 2894,
+   "lcp": 4994,
+   "tbt": 401
+  },
+  "B.netOnly": {
+   "fcp": 2894,
+   "lcp": 4994,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 2047,
+   "lcp": 4094,
+   "tbt": 448
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1994,
+   "lcp": 4094,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 1297,
+   "lcp": 1429,
+   "tbt": 437
+  }
+ },
+ {
+  "dir": "g-hpq-mobile-0",
+  "pageId": "hpq",
+  "url": "https://www.lazytopper.com/highly-probable/10/Maths",
+  "A.full": {
+   "fcp": 1589,
+   "lcp": 1652,
+   "tbt": 980
+  },
+  "A.netOnly": {
+   "fcp": 1422,
+   "lcp": 1559,
+   "tbt": 15
+  },
+  "B.full": {
+   "fcp": 2860,
+   "lcp": 3329,
+   "tbt": 553
+  },
+  "B.netOnly": {
+   "fcp": 2762,
+   "lcp": 3329,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 1960,
+   "lcp": 2129,
+   "tbt": 553
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1862,
+   "lcp": 2129,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 569,
+   "lcp": 632,
+   "tbt": 980
+  }
+ },
+ {
+  "dir": "g-hpq-mobile-1",
+  "pageId": "hpq",
+  "url": "https://www.lazytopper.com/highly-probable/10/Maths",
+  "A.full": {
+   "fcp": 1593,
+   "lcp": 1717,
+   "tbt": 1094
+  },
+  "A.netOnly": {
+   "fcp": 1421,
+   "lcp": 1561,
+   "tbt": 21
+  },
+  "B.full": {
+   "fcp": 3151,
+   "lcp": 3331,
+   "tbt": 526
+  },
+  "B.netOnly": {
+   "fcp": 3061,
+   "lcp": 3331,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 1951,
+   "lcp": 2131,
+   "tbt": 758
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1861,
+   "lcp": 2131,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 573,
+   "lcp": 697,
+   "tbt": 1094
+  }
+ },
+ {
+  "dir": "g-hpq-mobile-2",
+  "pageId": "hpq",
+  "url": "https://www.lazytopper.com/highly-probable/10/Maths",
+  "A.full": {
+   "fcp": 1571,
+   "lcp": 1634,
+   "tbt": 1042
+  },
+  "A.netOnly": {
+   "fcp": 1423,
+   "lcp": 1556,
+   "tbt": 9
+  },
+  "B.full": {
+   "fcp": 3174,
+   "lcp": 3326,
+   "tbt": 369
+  },
+  "B.netOnly": {
+   "fcp": 3063,
+   "lcp": 3326,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 1974,
+   "lcp": 2201,
+   "tbt": 569
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1863,
+   "lcp": 2126,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 551,
+   "lcp": 614,
+   "tbt": 1042
+  }
+ },
+ {
+  "dir": "g-landing-mobile-0",
+  "pageId": "landing",
+  "url": "https://www.lazytopper.com/",
+  "A.full": {
+   "fcp": 1681,
+   "lcp": 2263,
+   "tbt": 200
+  },
+  "A.netOnly": {
+   "fcp": 1583,
+   "lcp": 2263,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 2363,
+   "lcp": 4763,
+   "tbt": 168
+  },
+  "B.netOnly": {
+   "fcp": 2363,
+   "lcp": 4763,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 1581,
+   "lcp": 3863,
+   "tbt": 200
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1463,
+   "lcp": 3863,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 831,
+   "lcp": 851,
+   "tbt": 190
+  }
+ },
+ {
+  "dir": "g-landing-mobile-1",
+  "pageId": "landing",
+  "url": "https://www.lazytopper.com/",
+  "A.full": {
+   "fcp": 1168,
+   "lcp": 1250,
+   "tbt": 440
+  },
+  "A.netOnly": {
+   "fcp": 975,
+   "lcp": 1250,
+   "tbt": 15
+  },
+  "B.full": {
+   "fcp": 1818,
+   "lcp": 2460,
+   "tbt": 440
+  },
+  "B.netOnly": {
+   "fcp": 1625,
+   "lcp": 2460,
+   "tbt": 15
+  },
+  "LHmobile.full": {
+   "fcp": 1068,
+   "lcp": 1410,
+   "tbt": 440
+  },
+  "LHmobile.netOnly": {
+   "fcp": 875,
+   "lcp": 1410,
+   "tbt": 15
+  },
+  "workOnly": {
+   "fcp": 318,
+   "lcp": 338,
+   "tbt": 440
+  }
+ },
+ {
+  "dir": "g-landing-mobile-2",
+  "pageId": "landing",
+  "url": "https://www.lazytopper.com/",
+  "A.full": {
+   "fcp": 1398,
+   "lcp": 1422,
+   "tbt": 337
+  },
+  "A.netOnly": {
+   "fcp": 1115,
+   "lcp": 1360,
+   "tbt": 7
+  },
+  "B.full": {
+   "fcp": 2048,
+   "lcp": 2570,
+   "tbt": 354
+  },
+  "B.netOnly": {
+   "fcp": 1765,
+   "lcp": 2570,
+   "tbt": 7
+  },
+  "LHmobile.full": {
+   "fcp": 1298,
+   "lcp": 1520,
+   "tbt": 337
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1015,
+   "lcp": 1520,
+   "tbt": 7
+  },
+  "workOnly": {
+   "fcp": 548,
+   "lcp": 572,
+   "tbt": 337
+  }
+ },
+ {
+  "dir": "g-login-mobile-0",
+  "pageId": "login",
+  "url": "https://www.lazytopper.com/login",
+  "A.full": {
+   "fcp": 1580,
+   "lcp": 3437,
+   "tbt": 475
+  },
+  "A.netOnly": {
+   "fcp": 1580,
+   "lcp": 3211,
+   "tbt": 6
+  },
+  "B.full": {
+   "fcp": 3950,
+   "lcp": 6547,
+   "tbt": 475
+  },
+  "B.netOnly": {
+   "fcp": 3950,
+   "lcp": 6321,
+   "tbt": 6
+  },
+  "LHmobile.full": {
+   "fcp": 2900,
+   "lcp": 4597,
+   "tbt": 475
+  },
+  "LHmobile.netOnly": {
+   "fcp": 2900,
+   "lcp": 4371,
+   "tbt": 6
+  },
+  "workOnly": {
+   "fcp": 145,
+   "lcp": 705,
+   "tbt": 802
+  }
+ },
+ {
+  "dir": "g-login-mobile-1",
+  "pageId": "login",
+  "url": "https://www.lazytopper.com/login",
+  "A.full": {
+   "fcp": 1335,
+   "lcp": 1335,
+   "tbt": 368
+  },
+  "A.netOnly": {
+   "fcp": 993,
+   "lcp": 1219,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 1985,
+   "lcp": 2129,
+   "tbt": 368
+  },
+  "B.netOnly": {
+   "fcp": 1643,
+   "lcp": 2129,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 1235,
+   "lcp": 1235,
+   "tbt": 368
+  },
+  "LHmobile.netOnly": {
+   "fcp": 893,
+   "lcp": 1229,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 485,
+   "lcp": 485,
+   "tbt": 368
+  }
+ },
+ {
+  "dir": "g-login-mobile-2",
+  "pageId": "login",
+  "url": "https://www.lazytopper.com/login",
+  "A.full": {
+   "fcp": 1728,
+   "lcp": 1898,
+   "tbt": 252
+  },
+  "A.netOnly": {
+   "fcp": 1632,
+   "lcp": 1802,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 3798,
+   "lcp": 4098,
+   "tbt": 252
+  },
+  "B.netOnly": {
+   "fcp": 3702,
+   "lcp": 4002,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 2899,
+   "lcp": 3071,
+   "tbt": 252
+  },
+  "LHmobile.netOnly": {
+   "fcp": 2803,
+   "lcp": 3071,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 333,
+   "lcp": 333,
+   "tbt": 214
+  }
+ },
+ {
+  "dir": "g-notesElec-mobile-0",
+  "pageId": "notesElec",
+  "url": "https://www.lazytopper.com/notes/electricity",
+  "A.full": {
+   "fcp": 2128,
+   "lcp": 2455,
+   "tbt": 1336
+  },
+  "A.netOnly": {
+   "fcp": 1675,
+   "lcp": 1824,
+   "tbt": 81
+  },
+  "B.full": {
+   "fcp": 2908,
+   "lcp": 3444,
+   "tbt": 1336
+  },
+  "B.netOnly": {
+   "fcp": 2715,
+   "lcp": 3444,
+   "tbt": 95
+  },
+  "LHmobile.full": {
+   "fcp": 2008,
+   "lcp": 2378,
+   "tbt": 1336
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1665,
+   "lcp": 2244,
+   "tbt": 95
+  },
+  "workOnly": {
+   "fcp": 1108,
+   "lcp": 1435,
+   "tbt": 1336
+  }
+ },
+ {
+  "dir": "g-notesElec-mobile-1",
+  "pageId": "notesElec",
+  "url": "https://www.lazytopper.com/notes/electricity",
+  "A.full": {
+   "fcp": 1576,
+   "lcp": 1811,
+   "tbt": 1057
+  },
+  "A.netOnly": {
+   "fcp": 1181,
+   "lcp": 1560,
+   "tbt": 86
+  },
+  "B.full": {
+   "fcp": 2356,
+   "lcp": 3030,
+   "tbt": 1057
+  },
+  "B.netOnly": {
+   "fcp": 1961,
+   "lcp": 3030,
+   "tbt": 90
+  },
+  "LHmobile.full": {
+   "fcp": 1456,
+   "lcp": 1878,
+   "tbt": 1057
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1061,
+   "lcp": 1830,
+   "tbt": 90
+  },
+  "workOnly": {
+   "fcp": 556,
+   "lcp": 791,
+   "tbt": 1057
+  }
+ },
+ {
+  "dir": "g-notesElec-mobile-2",
+  "pageId": "notesElec",
+  "url": "https://www.lazytopper.com/notes/electricity",
+  "A.full": {
+   "fcp": 1948,
+   "lcp": 2234,
+   "tbt": 1100
+  },
+  "A.netOnly": {
+   "fcp": 1655,
+   "lcp": 1812,
+   "tbt": 49
+  },
+  "B.full": {
+   "fcp": 2733,
+   "lcp": 3432,
+   "tbt": 1095
+  },
+  "B.netOnly": {
+   "fcp": 2695,
+   "lcp": 3432,
+   "tbt": 59
+  },
+  "LHmobile.full": {
+   "fcp": 1828,
+   "lcp": 2241,
+   "tbt": 1100
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1645,
+   "lcp": 2232,
+   "tbt": 59
+  },
+  "workOnly": {
+   "fcp": 928,
+   "lcp": 1214,
+   "tbt": 1100
+  }
+ },
+ {
+  "dir": "g-notesStat-mobile-0",
+  "pageId": "notesStat",
+  "url": "https://www.lazytopper.com/notes/statistics",
+  "A.full": {
+   "fcp": 2027,
+   "lcp": 2370,
+   "tbt": 1209
+  },
+  "A.netOnly": {
+   "fcp": 1541,
+   "lcp": 1686,
+   "tbt": 80
+  },
+  "B.full": {
+   "fcp": 2807,
+   "lcp": 3754,
+   "tbt": 1209
+  },
+  "B.netOnly": {
+   "fcp": 2581,
+   "lcp": 3454,
+   "tbt": 87
+  },
+  "LHmobile.full": {
+   "fcp": 1907,
+   "lcp": 2499,
+   "tbt": 1209
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1531,
+   "lcp": 2404,
+   "tbt": 87
+  },
+  "workOnly": {
+   "fcp": 1007,
+   "lcp": 1350,
+   "tbt": 1209
+  }
+ },
+ {
+  "dir": "g-notesStat-mobile-1",
+  "pageId": "notesStat",
+  "url": "https://www.lazytopper.com/notes/statistics",
+  "A.full": {
+   "fcp": 2224,
+   "lcp": 2453,
+   "tbt": 1010
+  },
+  "A.netOnly": {
+   "fcp": 1714,
+   "lcp": 1875,
+   "tbt": 65
+  },
+  "B.full": {
+   "fcp": 3004,
+   "lcp": 3793,
+   "tbt": 1010
+  },
+  "B.netOnly": {
+   "fcp": 2754,
+   "lcp": 3643,
+   "tbt": 80
+  },
+  "LHmobile.full": {
+   "fcp": 2104,
+   "lcp": 2593,
+   "tbt": 1010
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1704,
+   "lcp": 2518,
+   "tbt": 80
+  },
+  "workOnly": {
+   "fcp": 1204,
+   "lcp": 1433,
+   "tbt": 1010
+  }
+ },
+ {
+  "dir": "g-notesStat-mobile-2",
+  "pageId": "notesStat",
+  "url": "https://www.lazytopper.com/notes/statistics",
+  "A.full": {
+   "fcp": 2018,
+   "lcp": 2331,
+   "tbt": 1344
+  },
+  "A.netOnly": {
+   "fcp": 1820,
+   "lcp": 2076,
+   "tbt": 71
+  },
+  "B.full": {
+   "fcp": 4920,
+   "lcp": 5671,
+   "tbt": 472
+  },
+  "B.netOnly": {
+   "fcp": 4920,
+   "lcp": 5521,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 3870,
+   "lcp": 4620,
+   "tbt": 472
+  },
+  "LHmobile.netOnly": {
+   "fcp": 3720,
+   "lcp": 4770,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 998,
+   "lcp": 1311,
+   "tbt": 1344
+  }
+ },
+ {
+  "dir": "g-notesTrig-mobile-0",
+  "pageId": "notesTrig",
+  "url": "https://www.lazytopper.com/notes/trigonometry",
+  "A.full": {
+   "fcp": 2235,
+   "lcp": 2580,
+   "tbt": 1142
+  },
+  "A.netOnly": {
+   "fcp": 1688,
+   "lcp": 2355,
+   "tbt": 82
+  },
+  "B.full": {
+   "fcp": 3015,
+   "lcp": 6185,
+   "tbt": 966
+  },
+  "B.netOnly": {
+   "fcp": 2585,
+   "lcp": 5735,
+   "tbt": 97
+  },
+  "LHmobile.full": {
+   "fcp": 2115,
+   "lcp": 4685,
+   "tbt": 1254
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1685,
+   "lcp": 4760,
+   "tbt": 97
+  },
+  "workOnly": {
+   "fcp": 1215,
+   "lcp": 1500,
+   "tbt": 1142
+  }
+ },
+ {
+  "dir": "g-notesTrig-mobile-1",
+  "pageId": "notesTrig",
+  "url": "https://www.lazytopper.com/notes/trigonometry",
+  "A.full": {
+   "fcp": 2120,
+   "lcp": 2390,
+   "tbt": 1275
+  },
+  "A.netOnly": {
+   "fcp": 1986,
+   "lcp": 2156,
+   "tbt": 106
+  },
+  "B.full": {
+   "fcp": 5086,
+   "lcp": 5836,
+   "tbt": 606
+  },
+  "B.netOnly": {
+   "fcp": 4786,
+   "lcp": 5536,
+   "tbt": 113
+  },
+  "LHmobile.full": {
+   "fcp": 4036,
+   "lcp": 4486,
+   "tbt": 567
+  },
+  "LHmobile.netOnly": {
+   "fcp": 3886,
+   "lcp": 4486,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 1100,
+   "lcp": 1352,
+   "tbt": 1275
+  }
+ },
+ {
+  "dir": "g-notesTrig-mobile-2",
+  "pageId": "notesTrig",
+  "url": "https://www.lazytopper.com/notes/trigonometry",
+  "A.full": {
+   "fcp": 2141,
+   "lcp": 2438,
+   "tbt": 1487
+  },
+  "A.netOnly": {
+   "fcp": 1808,
+   "lcp": 1978,
+   "tbt": 149
+  },
+  "B.full": {
+   "fcp": 4908,
+   "lcp": 5658,
+   "tbt": 620
+  },
+  "B.netOnly": {
+   "fcp": 4908,
+   "lcp": 5508,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 3858,
+   "lcp": 4308,
+   "tbt": 626
+  },
+  "LHmobile.netOnly": {
+   "fcp": 3708,
+   "lcp": 4383,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 1121,
+   "lcp": 1418,
+   "tbt": 1487
+  }
+ },
+ {
+  "dir": "g-practicehub-mobile-0",
+  "pageId": "practicehub",
+  "url": "https://www.lazytopper.com/practice-hub",
+  "A.full": {
+   "fcp": 2076,
+   "lcp": 2076,
+   "tbt": 174
+  },
+  "A.netOnly": {
+   "fcp": 2076,
+   "lcp": 2076,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 2986,
+   "lcp": 2986,
+   "tbt": 124
+  },
+  "B.netOnly": {
+   "fcp": 2986,
+   "lcp": 2986,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 1936,
+   "lcp": 1936,
+   "tbt": 213
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1936,
+   "lcp": 1936,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 1092,
+   "lcp": 1092,
+   "tbt": 177
+  }
+ },
+ {
+  "dir": "g-practicehub-mobile-1",
+  "pageId": "practicehub",
+  "url": "https://www.lazytopper.com/practice-hub",
+  "A.full": {
+   "fcp": 1369,
+   "lcp": 1401,
+   "tbt": 506
+  },
+  "A.netOnly": {
+   "fcp": 1369,
+   "lcp": 1454,
+   "tbt": 4
+  },
+  "B.full": {
+   "fcp": 2279,
+   "lcp": 2429,
+   "tbt": 323
+  },
+  "B.netOnly": {
+   "fcp": 2279,
+   "lcp": 2429,
+   "tbt": 4
+  },
+  "LHmobile.full": {
+   "fcp": 1260,
+   "lcp": 1379,
+   "tbt": 520
+  },
+  "LHmobile.netOnly": {
+   "fcp": 1229,
+   "lcp": 1379,
+   "tbt": 4
+  },
+  "workOnly": {
+   "fcp": 510,
+   "lcp": 546,
+   "tbt": 513
+  }
+ },
+ {
+  "dir": "g-practicehub-mobile-2",
+  "pageId": "practicehub",
+  "url": "https://www.lazytopper.com/practice-hub",
+  "A.full": {
+   "fcp": 1774,
+   "lcp": 1774,
+   "tbt": 562
+  },
+  "A.netOnly": {
+   "fcp": 1774,
+   "lcp": 1774,
+   "tbt": 18
+  },
+  "B.full": {
+   "fcp": 3974,
+   "lcp": 4124,
+   "tbt": 558
+  },
+  "B.netOnly": {
+   "fcp": 3974,
+   "lcp": 3974,
+   "tbt": 18
+  },
+  "LHmobile.full": {
+   "fcp": 2924,
+   "lcp": 3224,
+   "tbt": 558
+  },
+  "LHmobile.netOnly": {
+   "fcp": 2924,
+   "lcp": 3074,
+   "tbt": 18
+  },
+  "workOnly": {
+   "fcp": 587,
+   "lcp": 646,
+   "tbt": 802
+  }
+ },
+ {
+  "dir": "g-pricing-mobile-0",
+  "pageId": "pricing",
+  "url": "https://www.lazytopper.com/pricing",
+  "A.full": {
+   "fcp": 1560,
+   "lcp": 2056,
+   "tbt": 347
+  },
+  "A.netOnly": {
+   "fcp": 1560,
+   "lcp": 1812,
+   "tbt": 10
+  },
+  "B.full": {
+   "fcp": 3930,
+   "lcp": 4256,
+   "tbt": 347
+  },
+  "B.netOnly": {
+   "fcp": 3930,
+   "lcp": 4012,
+   "tbt": 10
+  },
+  "LHmobile.full": {
+   "fcp": 2880,
+   "lcp": 3206,
+   "tbt": 347
+  },
+  "LHmobile.netOnly": {
+   "fcp": 2730,
+   "lcp": 3082,
+   "tbt": 10
+  },
+  "workOnly": {
+   "fcp": 389,
+   "lcp": 743,
+   "tbt": 509
+  }
+ },
+ {
+  "dir": "g-pricing-mobile-1",
+  "pageId": "pricing",
+  "url": "https://www.lazytopper.com/pricing",
+  "A.full": {
+   "fcp": 1382,
+   "lcp": 1431,
+   "tbt": 669
+  },
+  "A.netOnly": {
+   "fcp": 983,
+   "lcp": 1191,
+   "tbt": 50
+  },
+  "B.full": {
+   "fcp": 2032,
+   "lcp": 2116,
+   "tbt": 669
+  },
+  "B.netOnly": {
+   "fcp": 1633,
+   "lcp": 2101,
+   "tbt": 50
+  },
+  "LHmobile.full": {
+   "fcp": 1282,
+   "lcp": 1331,
+   "tbt": 669
+  },
+  "LHmobile.netOnly": {
+   "fcp": 883,
+   "lcp": 1201,
+   "tbt": 50
+  },
+  "workOnly": {
+   "fcp": 532,
+   "lcp": 581,
+   "tbt": 670
+  }
+ },
+ {
+  "dir": "g-pricing-mobile-2",
+  "pageId": "pricing",
+  "url": "https://www.lazytopper.com/pricing",
+  "A.full": {
+   "fcp": 1332,
+   "lcp": 1345,
+   "tbt": 480
+  },
+  "A.netOnly": {
+   "fcp": 971,
+   "lcp": 1191,
+   "tbt": 17
+  },
+  "B.full": {
+   "fcp": 1982,
+   "lcp": 2101,
+   "tbt": 480
+  },
+  "B.netOnly": {
+   "fcp": 1621,
+   "lcp": 2101,
+   "tbt": 17
+  },
+  "LHmobile.full": {
+   "fcp": 1232,
+   "lcp": 1245,
+   "tbt": 480
+  },
+  "LHmobile.netOnly": {
+   "fcp": 871,
+   "lcp": 1201,
+   "tbt": 17
+  },
+  "workOnly": {
+   "fcp": 482,
+   "lcp": 495,
+   "tbt": 480
+  }
+ },
+ {
+  "dir": "g-topichub-mobile-0",
+  "pageId": "topichub",
+  "url": "https://www.lazytopper.com/topic-hub/trigonometry",
+  "A.full": {
+   "fcp": 2683,
+   "lcp": 2683,
+   "tbt": 367
+  },
+  "A.netOnly": {
+   "fcp": 2683,
+   "lcp": 2683,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 3593,
+   "lcp": 3593,
+   "tbt": 289
+  },
+  "B.netOnly": {
+   "fcp": 3593,
+   "lcp": 3593,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 2543,
+   "lcp": 2543,
+   "tbt": 407
+  },
+  "LHmobile.netOnly": {
+   "fcp": 2543,
+   "lcp": 2693,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 1745,
+   "lcp": 1745,
+   "tbt": 391
+  }
+ },
+ {
+  "dir": "g-topichub-mobile-1",
+  "pageId": "topichub",
+  "url": "https://www.lazytopper.com/topic-hub/trigonometry",
+  "A.full": {
+   "fcp": 2492,
+   "lcp": 2492,
+   "tbt": 173
+  },
+  "A.netOnly": {
+   "fcp": 2492,
+   "lcp": 2492,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 4992,
+   "lcp": 4992,
+   "tbt": 3
+  },
+  "B.netOnly": {
+   "fcp": 4992,
+   "lcp": 4992,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 3942,
+   "lcp": 4092,
+   "tbt": 6
+  },
+  "LHmobile.netOnly": {
+   "fcp": 3942,
+   "lcp": 4092,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 1207,
+   "lcp": 1207,
+   "tbt": 307
+  }
+ },
+ {
+  "dir": "g-topichub-mobile-2",
+  "pageId": "topichub",
+  "url": "https://www.lazytopper.com/topic-hub/trigonometry",
+  "A.full": {
+   "fcp": 1761,
+   "lcp": 1761,
+   "tbt": 262
+  },
+  "A.netOnly": {
+   "fcp": 1761,
+   "lcp": 1761,
+   "tbt": 0
+  },
+  "B.full": {
+   "fcp": 4261,
+   "lcp": 4261,
+   "tbt": 62
+  },
+  "B.netOnly": {
+   "fcp": 4261,
+   "lcp": 4261,
+   "tbt": 0
+  },
+  "LHmobile.full": {
+   "fcp": 3211,
+   "lcp": 3361,
+   "tbt": 150
+  },
+  "LHmobile.netOnly": {
+   "fcp": 3211,
+   "lcp": 3361,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 329,
+   "lcp": 340,
+   "tbt": 448
+  }
+ },
+ {
+  "dir": "g-trends-mobile-0",
+  "pageId": "trends",
+  "url": "https://www.lazytopper.com/exam-trends",
+  "A.full": {
+   "fcp": 1747,
+   "lcp": 1819,
+   "tbt": 392
+  },
+  "A.netOnly": {
+   "fcp": 1747,
+   "lcp": 1765,
+   "tbt": 25
+  },
+  "B.full": {
+   "fcp": 3947,
+   "lcp": 4247,
+   "tbt": 407
+  },
+  "B.netOnly": {
+   "fcp": 3947,
+   "lcp": 4247,
+   "tbt": 25
+  },
+  "LHmobile.full": {
+   "fcp": 3047,
+   "lcp": 3197,
+   "tbt": 307
+  },
+  "LHmobile.netOnly": {
+   "fcp": 3047,
+   "lcp": 3197,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 490,
+   "lcp": 611,
+   "tbt": 702
+  }
+ },
+ {
+  "dir": "g-trends-mobile-1",
+  "pageId": "trends",
+  "url": "https://www.lazytopper.com/exam-trends",
+  "A.full": {
+   "fcp": 1291,
+   "lcp": 1348,
+   "tbt": 623
+  },
+  "A.netOnly": {
+   "fcp": 991,
+   "lcp": 1231,
+   "tbt": 23
+  },
+  "B.full": {
+   "fcp": 1941,
+   "lcp": 2141,
+   "tbt": 623
+  },
+  "B.netOnly": {
+   "fcp": 1641,
+   "lcp": 2141,
+   "tbt": 23
+  },
+  "LHmobile.full": {
+   "fcp": 1191,
+   "lcp": 1273,
+   "tbt": 623
+  },
+  "LHmobile.netOnly": {
+   "fcp": 891,
+   "lcp": 1241,
+   "tbt": 23
+  },
+  "workOnly": {
+   "fcp": 441,
+   "lcp": 498,
+   "tbt": 623
+  }
+ },
+ {
+  "dir": "g-trends-mobile-2",
+  "pageId": "trends",
+  "url": "https://www.lazytopper.com/exam-trends",
+  "A.full": {
+   "fcp": 1756,
+   "lcp": 1835,
+   "tbt": 534
+  },
+  "A.netOnly": {
+   "fcp": 1756,
+   "lcp": 1776,
+   "tbt": 9
+  },
+  "B.full": {
+   "fcp": 3956,
+   "lcp": 4256,
+   "tbt": 464
+  },
+  "B.netOnly": {
+   "fcp": 3956,
+   "lcp": 4256,
+   "tbt": 9
+  },
+  "LHmobile.full": {
+   "fcp": 3056,
+   "lcp": 3281,
+   "tbt": 355
+  },
+  "LHmobile.netOnly": {
+   "fcp": 3056,
+   "lcp": 3206,
+   "tbt": 0
+  },
+  "workOnly": {
+   "fcp": 575,
+   "lcp": 689,
+   "tbt": 780
+  }
+ }
+]
