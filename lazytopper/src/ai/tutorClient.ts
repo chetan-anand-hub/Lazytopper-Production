@@ -32,6 +32,8 @@ export interface TutorTurn {
    *  explanation panel (`[[figure:<key>]]`, server-stripped + validated). Advisory chrome:
    *  it opens the panel to a real curated asset; never a grade, never invented. */
   figure?: string;
+  /** TUTOR-FIX-1 — present (true) on a tutor turn the model stopped at its token limit. */
+  truncated?: true;
 }
 
 /** Stage 3 — a concept in the current topic that has a curated diagram. Sent to the server
@@ -134,6 +136,8 @@ export interface TutorReply {
   /** Stage 3 — the curated conceptKey the model signalled for the explanation panel, or
    *  null/absent. Already validated server-side against the topic's curated set. */
   figure?: string | null;
+  /** TUTOR-FIX-1 — true when the server reports the reply was cut off at the token limit. */
+  truncated?: boolean;
   model?: string;
   provider?: string;
 }
