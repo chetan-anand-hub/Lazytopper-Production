@@ -168,15 +168,6 @@ const SPINE_CSS = `
 }
 .lt-spine__tip:last-child { border-bottom: none; }
 .lt-spine__tip-num { flex-shrink: 0; font-weight: 600; color: hsl(33, 70%, 38%); }
-.lt-spine__tips-soon {
-  display: flex;
-  gap: 10px;
-  padding: 9px 0;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: hsl(33, 35%, 40%);
-  font-style: italic;
-}
 
 /* ── Notes (single unified toggle) ─────────────────────────────────── */
 .lt-spine__notes-row {
@@ -583,35 +574,32 @@ export function ConceptSpine({
           </Link>
         )}
 
-        {/* Examiner's tips — clickable / expandable container (content = PR-F) */}
-        <button
-          type="button"
-          className="lt-spine__tips-toggle"
-          aria-expanded={tipsOpen}
-          aria-controls="lt-spine-tips-panel"
-          onClick={() => setTipsOpen((v) => !v)}
-        >
-          <span aria-hidden="true">★</span>
-          <span>Examiner&rsquo;s tips</span>
-          <span className="lt-spine__chev" aria-hidden="true">{tipsOpen ? "▲" : "▼"}</span>
-        </button>
-        {/* SEO-HUB-1 H2 — collapsed by the `hidden` attribute, never by not rendering:
-            the tip text stays in the DOM, so the static (prerendered) page carries it. */}
-        <div id="lt-spine-tips-panel" className="lt-spine__tips-panel" hidden={!tipsOpen}>
-          {seededTip && (
-            <div className="lt-spine__tip">
-              <span className="lt-spine__tip-num">1</span>
-              <span>{seededTip}</span>
+        {/* Examiner's tips — clickable / expandable container (content = PR-F).
+            SEO-NOTES-LINK-2 — rendered ONLY when the topic has a seeded tip: the old
+            "coming soon" line is gone, so a topic without one would open an EMPTY panel. */}
+        {seededTip && (
+          <>
+            <button
+              type="button"
+              className="lt-spine__tips-toggle"
+              aria-expanded={tipsOpen}
+              aria-controls="lt-spine-tips-panel"
+              onClick={() => setTipsOpen((v) => !v)}
+            >
+              <span aria-hidden="true">★</span>
+              <span>Examiner&rsquo;s tips</span>
+              <span className="lt-spine__chev" aria-hidden="true">{tipsOpen ? "▲" : "▼"}</span>
+            </button>
+            {/* SEO-HUB-1 H2 — collapsed by the `hidden` attribute, never by not rendering:
+                the tip text stays in the DOM, so the static (prerendered) page carries it. */}
+            <div id="lt-spine-tips-panel" className="lt-spine__tips-panel" hidden={!tipsOpen}>
+              <div className="lt-spine__tip">
+                <span className="lt-spine__tip-num">1</span>
+                <span>{seededTip}</span>
+              </div>
             </div>
-          )}
-          <div className="lt-spine__tips-soon">
-            <span aria-hidden="true">☆</span>
-            <span>
-              More examiner&rsquo;s tips for this topic are on the way — a curated
-              set of board do&rsquo;s and don&rsquo;ts is coming soon.
-            </span>
-          </div>
-        </div>
+          </>
+        )}
 
         {/* Notes — ONE unified toggle. When a note exists it opens as a POPUP over
             the hub (NoteModal); otherwise an inline honest "coming soon". */}
