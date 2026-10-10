@@ -107,7 +107,12 @@ function isBinaryScored(g: WorksheetQuestionGrade, q?: PersistedWorksheetQuestio
   return Number(q?.marks) === 1 || Number(g.totalMarks) === 1;
 }
 
+import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
+
 export interface WorksheetGradedPrintDocProps {
+  /** FIGURES-ALL-SURFACES-1 PR-2 — draws a question's solution figure in "Model answer". Injected by the PDF exporter
+   *  (loaded on demand); absent = no solution figures. */
+  renderSolutionFigure?: RenderSolutionFigure;
   ws: PersistedWorksheet;
   response: WorksheetGradeResponse;
   name: string;
@@ -116,7 +121,7 @@ export interface WorksheetGradedPrintDocProps {
   coaching: string;
 }
 
-export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: WorksheetGradedPrintDocProps) {
+export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, renderSolutionFigure }: WorksheetGradedPrintDocProps) {
   const byNumber = new Map<number, PersistedWorksheetQuestion>(
     ws.questions.map((q) => [q.qNumber, q]),
   );
@@ -147,7 +152,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
 
   return (
     <div className="lt-gp">
-      <style>{GRADED_CSS}</style>
+      <style>{GRADED_CSS + PRINT_FIGURE_CSS}</style>
 
       <div className="lt-gp__head">
         <div className="lt-gp__brand">
@@ -267,6 +272,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
                     {q?.questionText && (
                       <div className="lt-gp__qtext"><MathText text={q.questionText} /></div>
                     )}
+                    {q ? <PrintQuestionFigures questionId={q.id} /> : null}
                     <div className="lt-gp__pendnote" data-grade-state={state}>
                       ⚠ {gradeStateCopy(r)} — <b>not graded, not scored 0</b>
                       {state === "could-not-read" ? <>. Re-upload a clearer photo of Q{r.qNumber} to grade it.</> : "."}
@@ -294,6 +300,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
                   {q?.questionText && (
                     <div className="lt-gp__qtext"><MathText text={q.questionText} /></div>
                   )}
+                  {q ? <PrintQuestionFigures questionId={q.id} /> : null}
                   <div className="lt-gp__qrow">
                     <div className="lt-gp__qbox">
                       <div className="lt-gp__bl">Your result</div>
@@ -395,6 +402,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
                         ) : (
                           <div className="lt-gp__step">Worked solution not available for this question.</div>
                         )}
+                        {q ? renderSolutionFigure?.(q.id) : null}
                         {finalAns && (
                           <div className="lt-gp__final">Answer: <MathText text={finalAns} /></div>
                         )}
