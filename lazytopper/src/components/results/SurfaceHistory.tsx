@@ -76,6 +76,9 @@ interface SurfaceHistoryProps {
   embedded?: boolean;
   /** Show only ungraded rows (status ≠ graded) — the pending banner's "See all N →". */
   pendingOnly?: boolean;
+  /** PENDING-UPLOAD-1: when given, tapping an ungraded row opens its upload step instead of
+   *  the read-only card. Absent -> every surface using this component is unchanged. */
+  onUpload?: (record: SessionRecord) => void;
 }
 
 function formatDate(ms: number): string {
@@ -165,7 +168,7 @@ function TrendChip({ subject, trend }: { subject: SessionSubject; trend: Progres
   );
 }
 
-export default function SurfaceHistory({ surface, uid, embedded, pendingOnly }: SurfaceHistoryProps) {
+export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, onUpload }: SurfaceHistoryProps) {
   const [reopen, setReopen] = useState<SessionRecord | null>(null);
   const [downloading, setDownloading] = useState(false);
   const downloadingRef = useRef(false);
@@ -249,7 +252,7 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly }: 
                 <button
                   type="button"
                   className="lt-sh__row"
-                  onClick={() => setReopen(r)}
+                  onClick={() => (r.status !== "graded" && onUpload ? onUpload(r) : setReopen(r))}
                   aria-label={`Re-open the ${r.title} scorecard`}
                 >
                   <span className="lt-sh__rmain">
@@ -283,6 +286,13 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly }: 
             onDone: closeReopen,
             onDownload: gradedSheetHandler(reopen),
             downloading,
+            onUploadSheet:
+              onUpload && reopen.status !== "graded"
+                ? () => {
+                    closeReopen();
+                    onUpload(reopen);
+                  }
+                : undefined,
           })}
           onClose={closeReopen}
         />

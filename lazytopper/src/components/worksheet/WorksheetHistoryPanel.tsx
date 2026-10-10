@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import SurfaceHistory from "../results/SurfaceHistory";
+import type { SessionRecord } from "../../services/sessionRecords";
 
 /**
  * WorksheetHistoryPanel — Worksheet redesign FIX B: the OVERLAY container that
@@ -21,6 +22,8 @@ interface WorksheetHistoryPanelProps {
   /** Render only the ungraded (pending) rows — the banner's aggregate deep-link. */
   pendingOnly: boolean;
   onClose: () => void;
+  /** PENDING-UPLOAD-1: an ungraded row opens its upload step. */
+  onUpload?: (record: SessionRecord) => void;
 }
 
 export default function WorksheetHistoryPanel({
@@ -28,6 +31,7 @@ export default function WorksheetHistoryPanel({
   count,
   pendingOnly,
   onClose,
+  onUpload,
 }: WorksheetHistoryPanelProps) {
   // Escape closes — modal etiquette, mirroring ResultsScorecard.
   useEffect(() => {
@@ -60,7 +64,7 @@ export default function WorksheetHistoryPanel({
           </button>
         </div>
         <div className="lt-whp__body">
-          <SurfaceHistory surface="worksheet" uid={uid} embedded pendingOnly={pendingOnly} />
+          <SurfaceHistory surface="worksheet" uid={uid} embedded pendingOnly={pendingOnly} onUpload={onUpload} />
         </div>
       </div>
     </div>
