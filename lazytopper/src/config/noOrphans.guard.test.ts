@@ -37,15 +37,12 @@ const TEST_DIR = resolve(SRC, "test");
 // that lane closed, by owner ruling. Every src file must now be reachable from a live root.
 // The reason-required rule below still applies to any entry a future lane adds.
 export const ALLOWED_ORPHANS: Record<string, string> = {
-  // 2026-10-10 BREAK-REMINDER-OFF-1 (owner, D52): BreakReminder.tsx was this file's only importer (logBreakEvent) and now
-  // renders nothing. Removed together with the App.tsx mount in the next owner-authorised App.tsx PR [FU-BREAK-REMINDER-MOUNT-REMOVE].
   // 2026-10-11 ME-CONCEPT-1 PR-B: Weak Area Practice and the Learning Path now read the study model, so nothing live imports
   // getWeakAreas any more. The module is still read by the weakAreaAggregator.* tests and by the ops acceptance scripts
   // (check_improve_convergence_acceptance, topickey_guard_acceptance), so it is registered rather than deleted here.
   // Retire both together with those readers: [FU-WEAKAREA-AGGREGATOR-RETIRE].
   "src/services/weakAreaAggregator.ts": "orphaned by ME-CONCEPT-1 PR-B (no live importer; tests + ops guards still read it); retire with [FU-WEAKAREA-AGGREGATOR-RETIRE]",
   "src/services/attemptOutcome.ts": "its only live importer was weakAreaAggregator (orphaned by ME-CONCEPT-1 PR-B); retire with [FU-WEAKAREA-AGGREGATOR-RETIRE]",
-  "src/services/sessionLogger.ts": "orphaned by the retirement of BreakReminder (D52); deleted with its App.tsx mount",
 };
 
 const SKIP_DIRS = new Set(["node_modules", "dist", ".git"]);
