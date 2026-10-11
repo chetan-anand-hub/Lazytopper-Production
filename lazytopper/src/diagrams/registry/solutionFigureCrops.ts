@@ -28,7 +28,8 @@
  * REPR-EXMPLR-7-LA-003 (style, ovule unlabelled in Fig. 7.8), BX-REP-D-001 (epididymis
  * unlabelled in Fig. 7.10), SQP-S-2023-REPR-D-001 (hypha, sporangium unlabelled in
  * Fig. 7.6), sci-bio-repro-3m-2026-01 (Fig. 7.1(a) carries no labels), LPSD-018 (valves),
- * LP-H03 (still: its step 1 points at a labelled nephron; verifier FAIL 2026-10-11, bank NOTE). *
+ * LP-H03 (still: its step 1 points at a labelled nephron; verifier FAIL 2026-10-11, bank NOTE).
+ *
  * SOLUTION-FIGS-1 PR-2 (controller D) — Human Eye (jesc110.pdf) + Magnetic Effects
  * (jesc112.pdf), same rule. Ray diagrams are bound where the row demands no text label the
  * NCERT figure lacks. Not bound, with reason: EYE-EXMPLR-10-SA-001/-002 and
@@ -42,7 +43,8 @@
  * direction or viewing face), MAG-NCERT-12-SA-003 (no NCERT figure), PYQ-S-2026-MAG-002
  * (on B's question-figure list; left to B), SCQ-S-EYE-037 (its step 4 calls the normal near point
  * N; Fig. 10.3 keys it N') and EYE-EXMPLR-10-LA-005 (its answer orders the colours V..R from the
- * top; Fig. 10.5 has R at the top): verifier FAIL 2026-10-11, row text to the bank lane. *
+ * top; Fig. 10.5 has R at the top): verifier FAIL 2026-10-11, row text to the bank lane.
+ *
  * SOLUTION-FIGS-1 PR-3 (controller D) — Carbon (jesc104.pdf), Metals (jesc103.pdf) and one
  * Chemical Reactions row that asks for the NaCl electron transfer (Fig. 3.5), same rule. Not
  * bound, with reason: the NCERT electron-dot exercise rows (CO2, S8, cyclopentane, CCl4, C3H6O
@@ -52,7 +54,8 @@
  * galvanised iron), METAL-NCERT-3-LONG-001 / SCQ-S-METAL-040 / LTG-S-METAL-290 (Na2O, MgO,
  * CaCl2, CaO: NCERT draws NaCl and MgCl2 only), CBE-S-MNM-D-001 (alumina electrolysis: no
  * NCERT figure), MNM-M03 (its step asks to label the ionic bond; Fig. 3.5 does not; verifier
- * FAIL 2026-10-11). *
+ * FAIL 2026-10-11).
+ *
  * SOLUTION-FIGS-1 PR-4 (controller D) — Electricity (jesc111.pdf) + Heredity (jesc108.pdf),
  * same rule. Not bound, with reason: EL-H04 / SP-S-2023-ELEC-C-001 (answers include a
  * rheostat; Fig. 11.2 has none), the circuits with given resistor values
