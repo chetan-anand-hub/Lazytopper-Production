@@ -64,7 +64,8 @@
  * figure: B's Rule-5 lane), PYQ-S-ELEC-003 (B's list), sci-he-comp-01 / CBE-S-HERD-* /
  * sci-bio-heredity-3m-2026-01
  * (Punnett squares or other allele letters; NCERT draws neither), OE-C01 (Fig. 13.1 is
- * unlabelled). *
+ * unlabelled).
+ *
  * SOLUTION-FIGS-1 PR-5 (controller D) — Light rows the optics builder does not cover:
  * NCERT Fig. 9.10 (jesc109.pdf, glass slab) and the existing Fig. 10.4 prism crop. Not
  * bound, with reason: FND-L-SPQ-014 (asks angles i, r, e; Fig. 9.10 marks i1, r1, i2, r2),
