@@ -322,8 +322,8 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjesccq07 Q59", isCompetencyBased: false },
   // cbjesccq07 Q60 (Section D, 5mk)
   { id: "SCQ-S-CTRL-042", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Describe an activity to illustrate the phenomenon of Chap 7 : Control and Coordination phototropism and explain why does this occur.",
-    answer: "a. Take a plant and make such an arrangement that it receives the light coming from a window as shown in the figure and observe it for few days. b. Now, turn the flask so that the shoots are away from light and the roots towards light. Leave it undisturbed in this condition for a",
+    questionText: "Describe an activity to illustrate the phenomenon of phototropism and explain why does this occur.",
+    answer: "a. Take a plant and make such an arrangement that it receives the light coming from a window as shown in the figure and observe it for few days. b. Now, turn the flask so that the shoots are away from light and the roots towards light. Leave it undisturbed in this condition for a few days.",
     solutionSteps: [
       "[1 mark] Setup: place a potted plant near a window so that it receives light from one side only, and observe it for a few days.",
       "[1 mark] Observation: the shoot bends and grows towards the direction of light (positive phototropism), while the root grows away from light.",

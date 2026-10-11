@@ -47,8 +47,8 @@
    ]
   },
   "triangles": {
-   "n": 416,
-   "sha256": "b9fe793e827606735c59f7912050368b85a855205443e81bfe8e3a282bfbbc8a",
+   "n": 417,
+   "sha256": "1801213a603b39b18f3d7fa9eb546cfaa3e0ce75036f2f2d244c28f8eca81bae",
    "head": [
     "BX-TRI-E-028",
     "BX-TRI-E-036",
@@ -137,8 +137,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 519,
-   "sha256": "241448e7838d354b2f79bb473842110d67b97c63d5fcfe224199fc836e688266",
+   "n": 520,
+   "sha256": "4da60fdb87fbdfd93b1fed1883f1401af51cbf29686d7ffb7400df3573d564f7",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 403,
-   "sha256": "bba42962b04a0937bec217cc25c3ea8ae49473de8bde047a1500e1535d479f7e",
+   "n": 404,
+   "sha256": "b11d89dc62ecbcb8deaf04952ca50bae9152c7b5e14bc549c6d7336bade12539",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -284,7 +284,7 @@
   },
   "triangles": {
    "n": 39,
-   "sha256": "d6e318a62991802c6c0e2d3a130b4dec835362d02011b529cbd1840ad62561e1",
+   "sha256": "4b316feb7d5ea28bb1c24cd5d33e7b770aedbdb7e125afc5342e04f2ebc9c4e0",
    "head": [
     "BPT & Similar Triangles\tCBE-M-TRI-A-002,CBE-M-TRI-C-003,CBE-M-TRI-C-007,CBE-M-TRI-C-004,CBE-M-TRI-C-005,2026-TRIANGLE-LA-03",
     "BPT (Basic Proportionality Theorem)\tBX-TRI-E-028,BX-TRI-E-036,LTG-M-TRI-276,LTG-M-TRI-283,BX-TRI-E-012,BX-TRI-E-013,LTG-M-TRI-296,LTG-M-TRI-282,AR-TRI-007,AR-TRI-001,BX-TRI-EX-A-010,PYQ-M-2024-TRI-002,LTG-M-TRI-208,LTG-M-TRI-220,CBE-M-TRI-A-001,CBE-M-TRI-A-003,LTG-M-TRI-201,APQ-M-TRI-003,TRI-N-NCERT-6-LA-002,TRI-N-EXMPLR-6-LA-004,BX-TRI-D-042,LTG-M-TRI-306,TRI-PRF-D-001,TRI-PRF-D-005,BX-TRI-D-001,BX-TRI-D-002,BX-TRI-D-023,BX-TRI-PF-003,CBE-M-TRI-C-001,LTG-M-TRI-241,LTG-M-TRI-255,TRI-N-EXMPLR-6-SA-009,TRI-PRF-C-001,BX-TRI-EX-B-001,BX-TRI-EX-B-003,BX-TRI-PF-012,CBE-M-TRI-B-003,LTG-M-TRI-252,LTG-M-TRI-260,BX-TRI-EX-A-008,TRI-N-NCERT-6-SA-001,LTG-M-TRI-240,CBE-M-TRI-B-001,2026-TRI-SA-07,TR3-054,TR3-021,TR3-050,TR3-008,TR3-009,TR3-039,TR3-040,TR3-057,TR3-007,TR3-006,TR3-038",
@@ -374,7 +374,7 @@
   },
   "metals-and-non-metals": {
    "n": 113,
-   "sha256": "9100c1fbb2fd9ee0d70be500342ab52176073b0e084a23ce295ca3ee6b45ac58",
+   "sha256": "4329f673c9cbf0358a589d5aa51c349291c8c0efe16037aca9d853a6e98dd309",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
@@ -409,8 +409,8 @@
    ]
   },
   "electricity": {
-   "n": 147,
-   "sha256": "54af857e7f464913c515296af0f5a6d598802d7280cd74e6736bb8852bececa2",
+   "n": 148,
+   "sha256": "1822748bfb344343c5ebb914eff7f5b128f40dab3a43d39cc2037a144d1f33f3",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",

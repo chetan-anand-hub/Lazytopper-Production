@@ -2,7 +2,7 @@
 //
 // RULE5-BIND-1 (11 Oct, cofounder D68b/c) — pins the lane's decisions row by row:
 //   - the 3 official crops it bound (each row is SERVED and no longer needs a missing figure);
-//   - the 16 rows it withheld (no allowed figure source, a wrong key, or damaged text);
+//   - the rows it withheld (no allowed figure source, a wrong key, or damaged text): 16, then 13 after BANK-FIX-7 PR-2;
 //   - D68b's reviewed hold for clean-worded figure dependencies, which stays in force after a row is bound.
 // The reachability tests carry only the counts; this file carries the ids.
 import { describe, expect, it } from "vitest";
@@ -33,9 +33,11 @@ describe("RULE5-BIND-1 — the 3 bound official crops", () => {
   });
 });
 
-describe("RULE5-BIND-1 — the 16 withheld rows", () => {
-  it("withholds exactly 16 rows", () => {
-    expect(RULE5_BIND_1_WITHHOLD_CATEGORY.size).toBe(16);
+describe("RULE5-BIND-1 — the withheld rows", () => {
+  // 11 Oct BANK-FIX-7 PR-2 (D80b): 16 -> 13. ELEC-NCERT-11-LA-002, PYQ-M-TRI-005 and PYQ-S-2026-METAL-005 were repaired from their
+  // official sources and are served again (pinned in src/data/bankFix/bankFix7.pr2.test.ts).
+  it("withholds exactly 13 rows", () => {
+    expect(RULE5_BIND_1_WITHHOLD_CATEGORY.size).toBe(13);
   });
 
   it.each([...RULE5_BIND_1_WITHHOLD_CATEGORY])("%s (%s) is withheld: in the raw bank, absent from every served row", (id) => {
