@@ -329,8 +329,15 @@ describe("getWindowedProgress — concept + section rungs (bank-matched only)", 
     ];
     const wp = await getWindowedProgress("u1", "month", undefined, NOW);
     // Only the concept-grained subtopic survives; the echo + unknown id are silent.
-    expect(wp.concepts.map((c) => c.key)).toEqual(["HCF and LCM"]);
-    expect(wp.concepts[0]).toMatchObject({ before: 25, now: 75 });
+    // ME-CONCEPT-1: the mapped label rolls up to its (chapter, Exam Trends concept) row.
+    expect(wp.concepts.map((c) => c.key)).toEqual(["real-numbers|Fundamental Theorem of Arithmetic"]);
+    expect(wp.concepts[0]).toMatchObject({
+      label: "Fundamental Theorem of Arithmetic",
+      chapter: "real-numbers",
+      examConcept: true,
+      before: 25,
+      now: 75,
+    });
     // Section A resolves from the same b1 attempts.
     expect(wp.sections.map((s) => s.key)).toEqual(["A"]);
   });
@@ -359,8 +366,8 @@ describe("getWindowedProgress — concept + section rungs (bank-matched only)", 
       payload("ws:WS-6", [{ qNumber: 1, totalMarks: 4, marksAwarded: 3 }]),
     ];
     const wp = await getWindowedProgress("u1", "month", undefined, NOW);
-    expect(wp.concepts.map((c) => c.key)).toEqual(["Similar Triangles"]);
-    expect(wp.concepts[0]).toMatchObject({ before: 25, now: 75 });
+    expect(wp.concepts.map((c) => c.key)).toEqual(["triangles|Similarity Criteria"]);
+    expect(wp.concepts[0]).toMatchObject({ label: "Similarity Criteria", chapter: "triangles", before: 25, now: 75 });
     expect(wp.sections.map((s) => s.key)).toEqual(["C"]);
   });
 
@@ -398,7 +405,7 @@ describe("getWindowedProgress — concept + section rungs (bank-matched only)", 
     expect(scoped.concepts).toEqual([]);
     // Sanity: the SAME data, scoped to its OWN topic, does surface the concept.
     const own = await getWindowedProgress("u1", "month", { topicKey: "real-numbers" }, NOW);
-    expect(own.concepts.map((c) => c.key)).toEqual(["HCF and LCM"]);
+    expect(own.concepts.map((c) => c.key)).toEqual(["real-numbers|Fundamental Theorem of Arithmetic"]);
   });
 });
 

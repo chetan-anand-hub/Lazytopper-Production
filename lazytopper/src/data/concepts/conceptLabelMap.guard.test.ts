@@ -52,13 +52,17 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // unserved while SCO-S-ELEC-012 (garbled wiring text) is withheld, so its line is deleted: mapped 1822 -> 1821 (-1). Reviewed stays 164.
 // Rows with a concept 9716 of 10613 -> 9711 of 10597 (0.91639; the withheld rows leave the denominator), so that pin is tightened.
 // All three recomputed from the merged tip by runtime import.
+// Merged onto SQP-2026-27-Q10 (#1084, be60b739; trunk pin was 0.9153 for 9716 / 10614): +1 served row whose label is reviewed, so
+// rows with a concept are 9711 of 10598 (0.91630) by runtime import; the 0.9163 pin still holds and is kept.
 // 2026-10-11 BANK-FIX-7 PR-2 (cofounder D80b): 3 rows served again (ELEC-NCERT-11-LA-002, PYQ-M-TRI-005, PYQ-S-2026-METAL-005).
 // "Series Circuit Readings" is ELEC-NCERT-11-LA-002's label (served again, so its line is restored): mapped 1821 -> 1822 (+1).
-// Reviewed stays 164. Rows with a concept 9711 of 10597 -> 9713 of 10600 (0.91632), above the 0.9163 pin. By runtime import.
+// Reviewed stays 164. Two of the three rows carry a mapped concept; PYQ-M-TRI-005's label is the chapter-echo "General" (no concept),
+// so rows with a concept go 9711 of 10598 -> 9713 of 10601 (0.91623) and that pin moves 0.9163 -> 0.9162 by exactly that row.
+// All by runtime import on the merged tip (trunk d43f5234).
 const MIN_MAPPED_LABELS = 1822;
 const MAX_REVIEWED_LABELS = 164;
-/** served rows whose label resolves to a concept / all served rows: 9713 / 10600. */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9163;
+/** served rows whose label resolves to a concept / all served rows: 9713 / 10601. */
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9162;
 
 const isChapterEchoSubtopic = echoFromShape;
 
