@@ -17,10 +17,10 @@ export const CONTROL_COORDINATION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) Receptor organ — skin; effector — muscles of the arm. (ii) In the spinal cord. (iii) The response is a reflex action through a reflex arc in the spinal cord, without waiting for the thinking part of the brain; pain is felt only when the information reaches the brain later. Advantage: a very quick response that protects the body from injury.",
     "solutionSteps": [
-      "[1 mark] (i) Receptor organ — skin (heat-sensitive nerve endings in the skin) [0.5]; effector — muscles of the arm [0.5].",
+      "[1 mark] (i) Receptor organ — skin (heat-sensitive nerve endings in the skin) (0.5 mark); effector — muscles of the arm (0.5 mark).",
       "[1 mark] (ii) In the spinal cord — the sensory (input) nerve meets the motor (output) nerve through a relay neuron in the spinal cord; this pathway is the reflex arc.",
       "[1 mark] (iii) The response is a reflex action: the reflex arc in the spinal cord sends the instruction to the muscles directly without involving the thinking part of the brain, which is slower; the feeling of pain arises only when the information, sent up the spinal cord, reaches the brain a moment later.",
-      "[1 mark] (iii) Advantage: the reflex gives a very quick response, so the hand is withdrawn before serious burning — it protects the body from injury."
+      "[1 mark] (iii) Advantage: the reflex gives a very quick response, so the hand is withdrawn before serious burning — it protects the body from injury.",
     ],
     "finalAnswer": "(i) Skin; arm muscles; (ii) spinal cord; (iii) reflex arc bypasses the thinking brain — quick response that prevents injury.",
     "isCompetencyBased": true,
@@ -99,9 +99,9 @@ export const CONTROL_COORDINATION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "answer": "(i) Iodine is needed by the thyroid gland to make thyroxin; its deficiency causes goitre (swollen neck). (ii) Pituitary gland; dwarfism. (iii) Pancreas; insulin regulates blood sugar levels — when it is not secreted in proper amounts, blood sugar rises and causes harmful effects, so the hormone is supplied by injection.",
     "solutionSteps": [
       "[1 mark] (i) Iodine is essential for the thyroid gland to make thyroxin; deficiency of iodine may cause goitre (swollen neck), so iodised salt is advised.",
-      "[1 mark] (ii) Pituitary gland [0.5]; deficiency of growth hormone in childhood leads to dwarfism [0.5].",
+      "[1 mark] (ii) Pituitary gland (0.5 mark); deficiency of growth hormone in childhood leads to dwarfism (0.5 mark).",
       "[1 mark] (iii) Insulin is produced by the pancreas, and it helps in regulating blood sugar levels.",
-      "[1 mark] (iii) If insulin is not secreted in proper amounts, the sugar level in the blood rises, causing many harmful effects (diabetes); insulin injections supply the hormone and bring the blood sugar level under control."
+      "[1 mark] (iii) If insulin is not secreted in proper amounts, the sugar level in the blood rises, causing many harmful effects (diabetes); insulin injections supply the hormone and bring the blood sugar level under control.",
     ],
     "finalAnswer": "(i) Iodine → thyroxin, prevents goitre; (ii) pituitary, dwarfism; (iii) pancreas; injections make up for insufficient insulin to lower blood sugar.",
     "isCompetencyBased": true,
@@ -126,9 +126,9 @@ export const CONTROL_COORDINATION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "answer": "(i) Pancreas. (ii) Decreases, because the blood sugar level is falling (140 to 95 mg/dL). (iii) Feedback mechanism; it keeps the amount of each hormone within the required limits — too much or too little of a hormone has harmful effects (e.g. too little insulin raises blood sugar, as in diabetes).",
     "solutionSteps": [
       "[1 mark] (i) Pancreas.",
-      "[1 mark] (ii) It decreases [0.5], because the blood sugar level is falling from 140 mg/dL to 95 mg/dL, and the pancreas reduces insulin secretion as sugar level falls [0.5].",
+      "[1 mark] (ii) It decreases (0.5 mark), because the blood sugar level is falling from 140 mg/dL to 95 mg/dL, and the pancreas reduces insulin secretion as sugar level falls (0.5 mark).",
       "[1 mark] (iii) Feedback mechanism — a rise in blood sugar is detected by the pancreas, which secretes more insulin; as the sugar level falls, insulin secretion is reduced.",
-      "[1 mark] (iii) Importance: hormones must be secreted in precise quantities — too much or too little of a hormone has harmful effects on the body (for example, too little insulin lets blood sugar rise, as in diabetes); feedback keeps the level within the required limits."
+      "[1 mark] (iii) Importance: hormones must be secreted in precise quantities — too much or too little of a hormone has harmful effects on the body (for example, too little insulin lets blood sugar rise, as in diabetes); feedback keeps the level within the required limits.",
     ],
     "finalAnswer": "(i) Pancreas; (ii) decreases — blood sugar falling; (iii) feedback mechanism keeps hormone levels within required limits.",
     "isCompetencyBased": true,
@@ -237,9 +237,9 @@ export const CONTROL_COORDINATION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Testosterone, secreted by the testes. (b) Any one: hair appears in new areas such as the armpits and the genital area; the body becomes broader/more muscular. (c) It regulates the formation of sperms.",
     "solutionSteps": [
-      "[1 mark] (a) Testosterone [0.5]; secreted by the testes [0.5].",
+      "[1 mark] (a) Testosterone (0.5 mark); secreted by the testes (0.5 mark).",
       "[1 mark] (b) Any one: thick hair grows in new parts of the body such as the armpits and the genital area; the body becomes broader and more muscular.",
-      "[1 mark] (c) Testosterone regulates the formation of sperms in the testes."
+      "[1 mark] (c) Testosterone regulates the formation of sperms in the testes.",
     ],
     "finalAnswer": "(a) Testosterone, testes; (b) hair in armpits/genital area; (c) regulates sperm formation.",
     "isCompetencyBased": true,
@@ -264,11 +264,11 @@ export const CONTROL_COORDINATION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Fore-brain; cerebellum. (b) Receptors in the eyes → sensory neurons → brain (fore-brain) → motor neurons (via the spinal cord) → arm muscles. (c) Proteins in the muscle cells change their shape and arrangement in response to the electrical impulse, making the cells shorter so the muscle contracts. (d) Adrenaline; adrenal glands. (e) Hormonal signals travel through the blood and reach all cells of the body, while nerve impulses reach only cells connected by nervous tissue; nerve impulses are electrical and very fast, while hormonal action is chemical and slower.",
     "solutionSteps": [
-      "[1 mark] (a) Fore-brain (cerebrum is also accepted) — the main thinking part of the brain, which takes the decision [0.5]; cerebellum — maintains posture and balance of the body [0.5].",
+      "[1 mark] (a) Fore-brain (cerebrum is also accepted) — the main thinking part of the brain, which takes the decision (0.5 mark); cerebellum — maintains posture and balance of the body (0.5 mark).",
       "[1 mark] (b) Receptors in the eyes (photoreceptors) detect the ball → sensory neurons carry the impulse to the brain (fore-brain) → the decision is sent through motor neurons (via the spinal cord) → the muscles of the arms (effectors).",
       "[1 mark] (c) Muscle cells contain special proteins that change both their shape and their arrangement in the cell in response to the nervous electrical impulse; this gives the muscle cells a shorter form, so the muscle contracts and the arm moves.",
-      "[1 mark] (d) Adrenaline [0.5]; secreted by the adrenal glands [0.5].",
-      "[1 mark] (e) Any two: hormonal signals (chemical) travel through the blood and reach all cells of the body, whereas electrical impulses reach only cells connected by nervous tissue [0.5]; nervous control is very quick, whereas hormonal action is slower [0.5]."
+      "[1 mark] (d) Adrenaline (0.5 mark); secreted by the adrenal glands (0.5 mark).",
+      "[1 mark] (e) Any two: hormonal signals (chemical) travel through the blood and reach all cells of the body, whereas electrical impulses reach only cells connected by nervous tissue (0.5 mark); nervous control is very quick, whereas hormonal action is slower (0.5 mark).",
     ],
     "finalAnswer": "(a) Fore-brain; cerebellum. (b) Eye receptors → sensory neurons → brain → motor neurons → arm muscles. (c) Muscle proteins change shape/arrangement → cells shorten. (d) Adrenaline, adrenal glands. (e) Blood-borne, reaches all cells, slower vs electrical, nerve-connected cells only, fast.",
     "isCompetencyBased": true,

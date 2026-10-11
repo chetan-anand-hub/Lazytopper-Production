@@ -25,6 +25,7 @@ import { drawBalancedSet, type BalancedDrawResult } from "../../utils/balancedMo
 import { questionKey } from "../../utils/questionKey";
 import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { balanceCbqShare, type CbqShare } from "../../lib/cbq/cbqPaperBalance";
+import { needsMissingFigure } from "../../lib/figureSafe";
 import type {
   PersistedWorksheet,
   PersistedWorksheetQuestion,
@@ -77,9 +78,12 @@ const MIN_TEST_QUESTIONS = 6;
  *       totals and the grader, and the section's real marks are shown honestly.
  *   C — written, exactly 3.   D — written, 4–99 (5-mark LA + 4-mark case).
  *   null — an MCQ whose key does not resolve (excluded rather than guessed at),
- *       or a written row outside 1..99 marks.
+ *       or a written row outside 1..99 marks, or (FIGURES-ALL-SURFACES-1) a row
+ *       whose stem demands a supplied figure that no binder entry supplies —
+ *       publishability Rule 5 via `needsMissingFigure`, nothing more.
  */
 export function chapterTestSectionFor(q: CanonicalQuestion): BoardSection | null {
+  if (needsMissingFigure(q)) return null;
   if (isMcqShaped(q)) return isAutoGradeableObjective(q) ? "A" : null;
   const m = Number(q.marks);
   if (m >= 1 && m <= 2) return "B";

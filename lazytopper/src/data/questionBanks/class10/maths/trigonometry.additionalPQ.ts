@@ -23,7 +23,6 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT + ∠UPQ = 90°; in right △PUQ, ∠PQU + ∠UPQ = 90°. So ∠SPT = ∠PQU, and sin ∠SPT = sin ∠PQU = PU/PQ = 8/17."],
     finalAnswer: "(a) 8/17",
     ncertRef: "APQ PQ1 Q11", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: square PQRS with diagonals or auxiliary point T.",
     sourceOverride: "others", },
 
   // PQ1 Q12 (Section A, MCQ, 1 mark)
@@ -82,7 +81,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Draw radius OR with R on the diameter PQ. In ΔRPO: sin θ = RP/OR ⟹ RP = sin θ (since OR = 1).", "Also cos θ = PO/OR ⟹ PO = cos θ.", "Using these in ΔRPQ, the required relation follows by elementary trigonometry."],
     finalAnswer: "Relations sin θ = RP and cos θ = PO established in unit-radius semicircle.",
     ncertRef: "APQ PQ1 Q30", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: semicircle with radius 1 and constructed angle θ." },
+ },
 
   // PQ2 Q34 (Section D, Long, 5 marks)
   { id: "APQ-M-TRIG-009", competencyVerified: true, subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances — Angle of Depression", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
@@ -91,7 +90,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Let AB be the tower of height h and let the car move from D (angle of depression 30°) to C (angle of depression 45°) in 12 minutes; let the uniform speed give distance DC covered in 12 minutes.", "[1 mark] In ΔABC (depression 45°): tan 45° = AB/BC ⟹ BC = AB.", "[1 mark] In ΔABD (depression 30°): tan 30° = AB/BD ⟹ BD = √3·AB.", "[1 mark] DC = BD − BC = (√3 − 1)·AB, and this is covered in 12 minutes; time to cover BC = AB at the same speed = 12 × BC/DC = 12/(√3 − 1).", "[1 mark] Time = 12/(√3 − 1) = 6(√3 + 1) = 6(2.73) ≈ 16 minutes. [OR variant — cloud over a lake: observer 10 m above lake, horizontal distance x. tan 30° = (h − 10)/x and tan 60° = (h + 10)/x; dividing, 3 = (h + 10)/(h − 10) ⟹ 3h − 30 = h + 10 ⟹ h = 20 m.]"],
     finalAnswer: "~16 minutes [or] cloud height = 20 m.",
     ncertRef: "APQ PQ2 Q34", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE for both variants." },
+ },
 
   // PQ1 Q38 (Section E, Case-Based, 4 marks)
   { id: "APQ-M-TRIG-010", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances — Real-world Drone", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
@@ -131,7 +130,6 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["(cot θ · sec² θ)/cosec θ = (cos θ/sin θ) × (1/cos² θ) × sin θ = 1/cos θ = sec θ. So option (a) sec θ."],
     finalAnswer: "(a) sec θ",
     ncertRef: "APQ PQ_2022 Q16", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: trig expression shown in PDF only as image.",
     sourceOverride: "others", },
 
   // PQ_2022 Q24 first variant (Section B, Short, 2 marks)

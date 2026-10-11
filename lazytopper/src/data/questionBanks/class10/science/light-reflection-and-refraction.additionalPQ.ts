@@ -27,7 +27,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) Convex mirrors — they diverge light and provide a wider field of view than plane or concave mirrors.", "[1 mark] (b) Image formed by a convex mirror is always virtual, erect, and diminished. Ray diagram: object in front; one ray parallel to axis appears to diverge from focus behind mirror; another ray towards centre of curvature reflects back along itself. Image forms behind mirror, between pole and focus."],
     finalAnswer: "(a) Convex mirror; (b) virtual, erect, diminished.",
     ncertRef: "APQ Science-PQ Q24", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: ray diagram for convex mirror." },
+ },
 
   // Science-PQ Q31 (Section C, Short, 3 marks)
   { id: "APQ-S-LIGHT-003", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refractive Index — Speed of Light", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -77,5 +77,5 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[0.5 mark] Given: u = -60 cm, f = -30 cm (concave lens, negative focal length). Lens formula: 1/v - 1/u = 1/f.", "[1 mark] 1/v = 1/f + 1/u = -1/30 + (-1/60) = -2/60 - 1/60 = -3/60 = -1/20 ⟹ v = -20 cm.", "[0.5 mark] (a) Image distance is 20 cm on the SAME side as the object — a diminished, virtual, erect image.", "[1 mark] (b) Ray diagram: one ray parallel to principal axis diverges after passing through lens, appearing to come from focus on object side; another ray through optical centre passes undeviated. Their backward extensions meet on the object side, between optical centre and focus, giving a diminished virtual image."],
     finalAnswer: "(a) v = -20 cm; (b) ray diagram showing virtual, erect, diminished image on object side.",
     ncertRef: "APQ Science-PQ2 Q31 (OR variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: ray diagram for concave lens with object at 60 cm and focal length 30 cm." },
+ },
 ];

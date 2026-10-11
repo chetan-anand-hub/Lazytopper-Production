@@ -17,7 +17,6 @@ import { PracticeLimitGate } from "./components/auth/PracticeLimitGate";
 import { MockViewGate } from "./components/auth/MockViewGate";
 import RouteCanonical from "./components/seo/RouteCanonical";
 import { TrialBanner } from "./components/ux/TrialBanner";
-import { BreakReminder } from "./components/ux/BreakReminder";
 import { useAuth } from "./context/AuthContext";
 import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
@@ -1003,7 +1002,6 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
             onSelect={handleCommandSelect}
           />
           {!isDesktop && <TrialBanner />}
-          <BreakReminder />
         </>
       )}
       <ErrorBoundary level="global">

@@ -264,6 +264,9 @@ describe("Practice hub redesign — cut surfaces stay cut", () => {
       expect(screen.queryByRole("heading", { name: gone })).toBeNull();
     }
 
+    // CT-ENTRY-1 (2026-10-10): the Chapter Test ENTRY card (a button beside the CBQ card) is present; the retired mode-card heading above stays absent.
+    expect(screen.getByRole("button", { name: /chapter tests/i })).toBeInTheDocument();
+
     // Cut: every scrap of developer language the spec called out.
     for (const phrase of [
       /intent-first/i,

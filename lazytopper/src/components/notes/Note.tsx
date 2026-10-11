@@ -416,6 +416,11 @@ const NOTE_CSS = `
 .lt-note__ledger td b { color: var(--lt-note-navy); }
 .lt-note__ledger-src { white-space: nowrap; color: var(--lt-note-green-deep); font-weight: 600; }
 .lt-note__ledger-wrap { overflow-x: auto; }
+.lt-note__ledger-details { margin-top: 14px; }
+.lt-note__ledger-summary {
+  cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--lt-note-green-deep);
+  padding: 8px 0; list-style-position: inside;
+}
 .lt-note__footnote {
   text-align: center; font-size: 12px; color: var(--lt-note-ink-faint);
   font-style: italic; margin: 16px 0 2px;
@@ -472,6 +477,12 @@ const NOTE_CSS = `
   background: var(--lt-note-green-tint); color: var(--lt-note-green-deep);
 }
 .lt-note__bq-q { font-size: 0.95rem; line-height: 1.55; margin: 0 0 10px; white-space: pre-wrap; }
+.lt-note__bq-figs { margin: 0 0 10px; }
+.lt-note__bq-fig { margin: 0 0 8px; text-align: center; }
+.lt-note__bq-img { max-width: 100%; max-height: 260px; width: auto; height: auto; border: 1px solid var(--lt-note-line); border-radius: 8px; background: #fff; }
+.lt-note__bq-opts { list-style: none; margin: 0 0 10px; padding: 0; }
+.lt-note__bq-opts li { font-size: 0.9rem; line-height: 1.5; margin-bottom: 4px; white-space: pre-wrap; }
+.lt-note__bq-optl { font-weight: 700; color: var(--lt-note-green-deep); }
 .lt-note__bq-sol-label {
   font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.04em; color: var(--lt-note-green-deep); margin-bottom: 6px;
@@ -1080,6 +1091,21 @@ function ThirdTabPanel({
 
 /* ── the component ─────────────────────────────────────────────────── */
 
+/** Some bank rows store their options already lettered ("A. 6"). The panel adds its own (A)-(D), so when EVERY option carries
+ *  its own sequential label the label is dropped for display; any other option text is shown untouched. */
+export function stripOwnOptionLabels(options: readonly string[]): string[] {
+  const own = options.every((o, i) => new RegExp("^\\s*\\(?" + String.fromCharCode(65 + i) + "[.)]\\s+", "i").test(o));
+  return own ? options.map((o) => o.replace(/^\s*\(?[A-Da-d][.)]\s+/, "")) : [...options];
+}
+
+/** The registry's generic title tells a screen-reader user nothing; describe the figure by its question instead. */
+export function boardFigureAlt(alt: string, questionText: string): string {
+  return alt === "Source figure" ? `Figure from the question paper for: ${questionText.slice(0, 90).trim()}` : alt;
+}
+
+/** The app's base path, for the public figure files a board question can carry. */
+const BQ_BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+
 /**
  * BoardQuestionsPanel — the published board questions for this topic (CBQ-TAB-1).
  *
@@ -1149,6 +1175,26 @@ function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: str
           </div>
 
           <p className="lt-note__bq-q">{q.questionText}</p>
+
+          {q.figures && q.figures.length > 0 ? (
+            <div className="lt-note__bq-figs">
+              {q.figures.map((f) => (
+                <figure className="lt-note__bq-fig" key={f.src}>
+                  <img className="lt-note__bq-img" src={`${BQ_BASE}${f.src}`} alt={boardFigureAlt(f.alt, q.questionText)} loading="lazy" decoding="async" />
+                </figure>
+              ))}
+            </div>
+          ) : null}
+
+          {q.options && q.options.length > 0 ? (
+            <ol className="lt-note__bq-opts">
+              {stripOwnOptionLabels(q.options).map((opt, oi) => (
+                <li key={oi}>
+                  <span className="lt-note__bq-optl">({String.fromCharCode(65 + oi)})</span> {opt}
+                </li>
+              ))}
+            </ol>
+          ) : null}
 
           <div className="lt-note__bq-sol-label">Step-marked solution</div>
           <ol className="lt-note__bq-steps">
@@ -1492,8 +1538,12 @@ export function Note({ spec, initialTab }: NoteProps) {
         <BoardQuestionsPanel topicKey={meta.topic_key} title={meta.title} />
       </div>
 
-      {/* ── Source ledger — provenance, visible under every tab ── */}
+      {/* ── Source ledger — provenance, under every tab, CLOSED by default (NOTES-LEDGER-COLLAPSE-1).
+          A native <details>: the table stays in the DOM and in the prerendered HTML (crawlable, the
+          trust signal survives); only its visibility changes. No JS, same on mobile and desktop. ── */}
       {spec.source_ledger.length > 0 && (
+        <details className="lt-note__ledger-details">
+          <summary className="lt-note__ledger-summary">Sources: NCERT 2026-27 (tap to view)</summary>
         <section className="lt-note__block">
           <div className="lt-note__sec-label">
             Source ledger <span className="lt-note__tag-src">PROVENANCE</span>
@@ -1534,6 +1584,7 @@ export function Note({ spec, initialTab }: NoteProps) {
             </table>
           </div>
         </section>
+        </details>
       )}
 
       <p className="lt-note__footnote">

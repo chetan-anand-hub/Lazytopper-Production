@@ -23,6 +23,7 @@
  */
 
 import { isPublishable } from "../../../scripts/seo/publishability";
+import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
 // The ONE syllabus reference (owner ruling 6). `SYLLABUS_2026_27_SOURCE` is the scout JSON
 // verbatim, deep-equal to the transitional fixture it replaces (FU-B16-SYLLABUS-FIXTURE-SWITCH,
 // closed in SYLLABUS-FIX-CONTENT PR-3), so the item-index phrase table resolves identically.
@@ -64,6 +65,8 @@ export interface SelectableQuestion {
   marks: number;
   section: string;
   solutionSteps?: string[];
+  /** MCQ options, when the row has them (FIGURES-ALL-SURFACES-1 surface 7). */
+  options?: string[];
   pyqYear?: string;
   isCompetencyBased?: boolean;
   requiresDiagram?: boolean;
@@ -80,6 +83,12 @@ export interface BoardQuestionRow {
   marks: number;
   section: string;
   solutionSteps: readonly string[];
+  /** The four options of an MCQ row, in order. Absent for a written-answer row. Without them a notes page showed an MCQ stem
+   *  with nothing to choose from (FIGURES-ALL-SURFACES-1 surface 7, D43b). */
+  options?: readonly string[];
+  /** The official figure(s) bound to this row (`getFiguresForQuestion`), resolved at GENERATION time so the notes chunk never
+   *  imports the figure registry. `src` is the public path ("/figures/..."), `alt` the registry title. Absent when none is bound. */
+  figures?: readonly { src: string; alt: string }[];
   /** Present only where the row genuinely carries a board year. Measured
    *  2026-09-18: 3 of the 78 selected rows do. §2.2 renders it only when present. */
   pyqYear?: string;
@@ -286,6 +295,9 @@ export function selectBoardQuestions(
           section: q.section,
           solutionSteps: [...(q.solutionSteps ?? [])],
         };
+        if (Array.isArray(q.options) && q.options.length > 0) row.options = [...q.options];
+        const figs = getFiguresForQuestion(q.id);
+        if (figs.length > 0) row.figures = figs.map((f) => ({ src: f.filePath, alt: f.title }));
         // BANK-FIX-1 ruling 2: an overridden row is never shown with a year.
         if (q.pyqYear && q.sourceOverride !== "others") row.pyqYear = q.pyqYear;
         return row;

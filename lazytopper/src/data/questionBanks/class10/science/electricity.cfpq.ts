@@ -207,9 +207,9 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) Meter 2, because it is connected in series with the unknown resistor through which the current needs to be measured. (b) A circuit diagram with cell, rheostat, unknown resistor, ammeter in series and voltmeter across the resistor. (c) (i) a straight line through the origin; (ii) a curved line with an increasing slope.",
     solutionSteps: [
-      "[1 mark] (a) Meter 2 [0.5 marks]; because it is connected in series with the unknown resistor through which the current needs to be measured [0.5 marks].",
-      "[2 marks] (b) Correct connections for the cell, the unknown resistor and the rheostat in the diagram [0.5 marks]; correct connections for the two meters in the diagram [0.5 marks]; use of correct symbols for all components [1 mark].",
-      "[2 marks] (c)(i) straight line passing through origin [1 mark]; (ii) curved line with an increasing slope [1 mark].",
+      "[1 mark] (a) Meter 2 (0.5 mark); because it is connected in series with the unknown resistor through which the current needs to be measured (0.5 mark).",
+      "[2 marks] (b) Correct connections for the cell, the unknown resistor and the rheostat in the diagram (0.5 mark); correct connections for the two meters in the diagram (0.5 mark); use of correct symbols for all components (1 mark).",
+      "[2 marks] (c)(i) straight line passing through origin (1 mark); (ii) curved line with an increasing slope (1 mark).",
     ],
     finalAnswer:
       "(a) Meter 2 - it is in series with the resistor; (b) cell, rheostat, resistor and ammeter in series with the voltmeter in parallel across the resistor; (c) (i) straight line through the origin, (ii) upward-curving line.",

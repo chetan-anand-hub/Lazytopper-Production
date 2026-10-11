@@ -1,0 +1,94 @@
+/**
+ * FU-1038-PIN-BINDINGS — pins the EXACT set of official solution-figure crop bindings
+ * (questionId, part, filePath) and the exact caption SolutionFigure renders for each:
+ * "Official figure: <source.figure>" (+ " — <part>" when the binding has a part).
+ *
+ * The tuples are literals copied from trunk's solutionFigureCrops.ts (#1038). Adding,
+ * removing or re-pointing a crop must be a deliberate edit HERE as well; a silent change
+ * to the registry (or to the caption wording) turns this RED.
+ */
+import { cleanup, render } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { SOLUTION_FIGURE_CROPS } from "./solutionFigureCrops";
+import { SolutionFigure } from "../SolutionFigure";
+
+afterEach(cleanup);
+
+const DIR = "/figures/solutions/ncert-science/life-processes/";
+const CC = "/figures/solutions/ncert-science/control-and-coordination/";
+const RP = "/figures/solutions/ncert-science/how-do-organisms-reproduce/";
+const EYE = "/figures/solutions/ncert-science/human-eye-and-colourful-world/";
+const MAG = "/figures/solutions/ncert-science/magnetic-effects-of-electric-current/";
+
+/** [questionId, part, filePath, exact figcaption text] */
+const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string]> = [
+  ["LIFE-EXMPLR-5-LONG-005", undefined, `${DIR}ncert-fig-5-6-alimentary-canal.webp`, "Official figure: NCERT Class 10 Science, Fig. 5.6"],
+  ["sci-lp-hpq-3", "heart", `${DIR}ncert-fig-5-10-human-heart.webp`, "Official figure: NCERT Class 10 Science, Fig. 5.10 — heart"],
+  ["sci-lp-hpq-3", "double circulation", `${DIR}ncert-fig-5-11-double-circulation.webp`, "Official figure: NCERT Class 10 Science, Fig. 5.11 — double circulation"],
+  ["PYQ-S-2024-LIFEP-007", "(a) experiment", `${DIR}ncert-fig-5-4-koh-experiment.webp`, "Official figure: NCERT Class 10 Science, Fig. 5.4 — (a) experiment"],
+  ["PYQ-S-2024-LIFEP-007", "(b)(ii) open stomatal pore", `${DIR}ncert-fig-5-3a-open-stomatal-pore.webp`, "Official figure: NCERT Class 10 Science, Fig. 5.3 (a) — (b)(ii) open stomatal pore"],
+  // SOLUTION-FIGS-1 PR-1 (D39/40b, controller D, 2026-10-11): Biology.
+  ["SCQ-S-LIFE-043", "(c) excretory system", `${DIR}ncert-fig-5-13-excretory-system.webp`, "Official figure: NCERT Class 10 Science, Fig. 5.13 — (c) excretory system"],
+  ["SCQ-S-LIFE-044", "(b) urinary system", `${DIR}ncert-fig-5-13-excretory-system.webp`, "Official figure: NCERT Class 10 Science, Fig. 5.13 — (b) urinary system"],
+  ["SCQ-S-CTRL-041", "(a) neuron", `${CC}ncert-fig-6-1a-neuron.webp`, "Official figure: NCERT Class 10 Science, Fig. 6.1 (a) — (a) neuron"],
+  ["CNC2-040", undefined, `${CC}ncert-fig-6-2-reflex-arc.webp`, "Official figure: NCERT Class 10 Science, Fig. 6.2"],
+  ["sci-cc-hpq-2", undefined, `${CC}ncert-fig-6-2-reflex-arc.webp`, "Official figure: NCERT Class 10 Science, Fig. 6.2"],
+  ["sci-bio-cc-3m-2026-01", undefined, `${CC}ncert-fig-6-2-reflex-arc.webp`, "Official figure: NCERT Class 10 Science, Fig. 6.2"],
+  ["CC-H01", undefined, `${CC}ncert-fig-6-3-human-brain.webp`, "Official figure: NCERT Class 10 Science, Fig. 6.3"],
+  ["SCQ-S-CTRL-039", undefined, `${CC}ncert-fig-6-3-human-brain.webp`, "Official figure: NCERT Class 10 Science, Fig. 6.3"],
+  ["SCQ-S-CTRL-043", "(a) geotropism", `${CC}ncert-fig-6-6-geotropism.webp`, "Official figure: NCERT Class 10 Science, Fig. 6.6 — (a) geotropism"],
+  ["REP-M08", undefined, `${RP}ncert-fig-7-11-female-reproductive-system.webp`, "Official figure: NCERT Class 10 Science, Fig. 7.11"],
+  ["REP-H01", undefined, `${RP}ncert-fig-7-11-female-reproductive-system.webp`, "Official figure: NCERT Class 10 Science, Fig. 7.11"],
+  ["PYQ-S-2024-REPR-006", "(a) budding in Hydra", `${RP}ncert-fig-7-4-budding-hydra.webp`, "Official figure: NCERT Class 10 Science, Fig. 7.4 — (a) budding in Hydra"],
+  ["REPR-EXMPLR-7-LA-005", undefined, `${RP}ncert-fig-7-7-flower-ls.webp`, "Official figure: NCERT Class 10 Science, Fig. 7.7"],
+  // SOLUTION-FIGS-1 PR-2 (controller D, 2026-10-11): Human Eye + Magnetic Effects.
+  ["HEY-H01", undefined, `${EYE}ncert-fig-10-1-human-eye.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.1"],
+  ["HEY-M01", undefined, `${EYE}ncert-fig-10-2-myopia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.2"],
+  ["HEY-H05", "myopia", `${EYE}ncert-fig-10-2-myopia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.2 — myopia"],
+  ["HEY-H05", "hypermetropia", `${EYE}ncert-fig-10-3-hypermetropia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.3 — hypermetropia"],
+  ["HEY-D04", "myopia", `${EYE}ncert-fig-10-2-myopia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.2 — myopia"],
+  ["HEY-D04", "hypermetropia", `${EYE}ncert-fig-10-3-hypermetropia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.3 — hypermetropia"],
+  ["SCQ-S-EYE-031", "b. correction", `${EYE}ncert-fig-10-2-myopia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.2 — b. correction"],
+  ["EYE-NCERT-10-SA-007", "diagram", `${EYE}ncert-fig-10-3-hypermetropia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.3 — diagram"],
+  ["EYE-EXMPLR-10-LA-003", undefined, `${EYE}ncert-fig-10-4-prism-refraction.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.4"],
+  ["PYQ-S-EYE-003", "(A) dispersion", `${EYE}ncert-fig-10-5-dispersion.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.5 — (A) dispersion"],
+  ["HEY-H06", undefined, `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6"],
+  ["EYE-EXMPLR-10-SA-005", undefined, `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6"],
+  ["APQ-S-EYE-006", "(b) recombination", `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6 — (b) recombination"],
+  ["PYQ-S-2025-EYE-003", "(c)(i) recombination", `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6 — (c)(i) recombination"],
+  ["PYQ-S-EYE-001", "(a) rainbow", `${EYE}ncert-fig-10-8-rainbow.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.8 — (a) rainbow"],
+  ["PYQ-S-2026-EYE-004", undefined, `${EYE}ncert-fig-10-8-rainbow.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.8"],
+  ["SCQ-S-MAG-044", "(a) bar magnet", `${MAG}ncert-fig-12-4-bar-magnet-field-lines.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.4 — (a) bar magnet"],
+  ["PYQ-S-2026-MAG-003", "(A)(i) bar magnet", `${MAG}ncert-fig-12-4-bar-magnet-field-lines.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.4 — (A)(i) bar magnet"],
+  ["MAG-EXMPLR-12-LA-003", undefined, `${MAG}ncert-fig-12-8-circular-loop-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.8"],
+  ["PYQ-S-MAG-007", undefined, `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10"],
+  ["APQ-S-MAG-006", "(a) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (a) solenoid"],
+  ["PYQ-S-2024-MAG-003", "(b) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (b) solenoid"],
+  ["PYQ-S-2024-MAG-004", "(b) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (b) solenoid"],
+  ["PYQ-S-2026-MAG-003", "(B)(i) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (B)(i) solenoid"],
+  ["MAG-EXMPLR-12-LA-007", undefined, `${MAG}ncert-fig-12-15-domestic-circuit.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.15"],
+];
+
+const key = (q: string, part: string | undefined, file: string) => `${q} | ${part ?? "-"} | ${file}`;
+
+describe("solution-figure crop bindings are pinned (FU-1038-PIN-BINDINGS)", () => {
+  it("the registry holds EXACTLY the 43 pinned (questionId, part, filePath) tuples", () => {
+    const actual = SOLUTION_FIGURE_CROPS.map((c) => key(c.questionId, c.part, c.filePath)).sort();
+    const expected = PINNED.map(([q, part, file]) => key(q, part, file)).sort();
+    expect(actual).toEqual(expected);
+    expect(SOLUTION_FIGURE_CROPS).toHaveLength(43);
+  });
+
+  it.each(PINNED.map(([q, part, file, caption]) => ({ q, part, file, caption })))(
+    "$q $part renders its crop with the caption \"$caption\"",
+    ({ q, part, file, caption }) => {
+      const { container } = render(<SolutionFigure questionId={q} />);
+      const figs = Array.from(container.querySelectorAll("figure.lt-solfig[data-figure-kind='crop']"));
+      const fig = figs.find((f) => f.querySelector("img")?.getAttribute("src")?.endsWith(file));
+      expect(fig, `${q}: no crop figure for ${file}`).toBeTruthy();
+      expect(fig!.getAttribute("data-question-id")).toBe(q);
+      expect(fig!.querySelector("figcaption")!.textContent).toBe(caption);
+      if (part === undefined) expect(figs).toHaveLength(1);
+    },
+  );
+});

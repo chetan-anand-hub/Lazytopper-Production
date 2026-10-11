@@ -121,7 +121,7 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "Impulses cannot pass from P → R",
     solutionSteps: ["Correct option is (b) Impulses cannot pass from P → R.", "P is the sensory neurone, Q is the relay neurone and R is the motor neurone. The impulse travels P → Q → R; if Q is damaged, the impulse from the sensory neurone P cannot reach the motor neurone R."],
     finalAnswer: "(b) Impulses cannot pass from P → R",
-    ncertRef: "cbjescco07 Q16", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram",
+    ncertRef: "cbjescco07 Q16", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjescco07 Q17
   { id: "SCO-S-CTRL-015", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones in Animals", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -294,7 +294,7 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] Cerebellum: controls posture, balance of the body and the precision and coordination of voluntary movements (e.g. walking in a straight line, picking up a pencil).",
       "[1 mark] Medulla oblongata: controls involuntary actions such as heartbeat, blood pressure, breathing, salivation and vomiting."
     ],
-    ncertRef: "cbjesccq07 Q57", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram" },
+    ncertRef: "cbjesccq07 Q57", isCompetencyBased: true, },
   // cbjesccq07 Q58 (Section D, 5mk)
   { id: "SCQ-S-CTRL-040", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Give the function(s) of the following plant hormones: a. Auxins b. Gibberellins c. Cytokinins d. Abscisic acid e. Ethylene",
@@ -343,5 +343,5 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] b(i) Auxin: synthesized at the shoot tip, it promotes cell elongation and helps the shoot grow and bend towards light.",
       "[1 mark] b(ii) Abscisic acid: a growth inhibitor that inhibits growth and causes wilting, closing of stomata and the falling of leaves."
     ],
-    ncertRef: "cbjesccq07 Q61", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram" },
+    ncertRef: "cbjesccq07 Q61", isCompetencyBased: true, },
 ];

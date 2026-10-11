@@ -199,6 +199,8 @@ const POSITION = "(shown|given|above|below|alongside|opposite|attached)";
  * require POSITION, not by a constant nothing consumes.
  */
 const VISUAL_ONLY = "(figure|fig\\.?|diagram)";
+/** D68a — a deictic modifier that points at an exhibit the page must supply. */
+const DEICTIC = "(given|following|above|adjoining|below)";
 // ⚠ `circuit` is NOT visual-only. ELEC-NCERT-11-SA-027 says "the reading from the
 // circuit" meaning the circuit DESCRIBED in the stem — same trap as "image" in
 // Optics. A word that names the physics cannot be a visual-only token.
@@ -231,7 +233,35 @@ export const DEMANDS_SUPPLIED_FIGURE = [
   // BX-POLY-E-019 and it must publish. A bare `diagram` cannot: a diagram is
   // never prose. Requiring POSITION uniformly was the asymmetry v3 missed.
   new RegExp(`\\b(in|from)\\s+the\\s+${VISUAL_ONLY}\\b`, "i"),
+
+  // 6 ★ D68a (cofounder, 2026-10-10) — "in the GIVEN figure". Pattern 5 required the artefact right after "the", so
+  // "In the given figure, a ray of light ..." (SCO-S-LIGHT-005) and "as shown in the given figure" (SCO-S-ELEC-013) were
+  // served with no figure. A deictic modifier makes even `graph` and `circuit` a reference to something the PAGE must
+  // supply ("in the given circuit"), which a bare "from the circuit" is not (ELEC-NCERT-11-SA-027).
+  new RegExp(`\\b(in|from)\\s+the\\s+${DEICTIC}\\s+(figure|fig\\.?|diagram|graph|circuit)\\b`, "i"),
+
+  // 7 ★ a plural exhibit announced as "shown below": "Two electric circuits I and II are shown below" (SCQ-S-ELEC-041).
+  // Pattern 1 needs the singular artefact directly before the position word, so this shape slipped through.
+  new RegExp(`\\b(circuits|diagrams|figures|graphs)\\b[^.?!\\n]{0,30}\\b(are|is)\\s+shown\\s+(below|above)\\b`, "i"),
 ];
+
+/**
+ * ★ D68b (cofounder) — rows that depend on a figure although NO phrase says so. Rule 5 matches wording, and the wording of these
+ * is clean ("Find the length of PQ" where P and Q exist only in the figure; "Redraw the circuit of Question 1"). Each id was read
+ * by a reviewer; each is held back (requires-absent-figure) until a figure is bound to it. Add an id only with a dated reason.
+ * RULE5-BIND-1 (11 Oct): kept as the ONLY hold for a clean-worded dependency. APQ-M-CIRC-012 is now bound (so it serves:
+ * the binder is asked after this test) and ELEC-NCERT-11-LA-002 is withheld; both entries stay so a later unbind or
+ * un-withhold cannot silently serve them figure-less.
+ */
+export const FIGURE_DEPENDENT_BY_REVIEW: Readonly<Record<string, string>> = {
+  "APQ-M-CIRC-012": "2026-10-10 B/D68b: points P and Q (and the semicircles' touching points) are defined only by the official figure; the stem cannot be answered without it",
+  "ELEC-NCERT-11-LA-002": "2026-10-10 B/D68c: \"Redraw the circuit of Question 1\" - the circuit lives in another question; bind NCERT's Question 1 circuit or withhold",
+};
+
+/** True when the question demands a figure by wording (Rule 5 patterns) or by reviewed id. */
+export function demandsFigureForRow(id: string, text: string): boolean {
+  return Object.prototype.hasOwnProperty.call(FIGURE_DEPENDENT_BY_REVIEW, id) || demandsSuppliedFigure(text);
+}
 
 /**
  * ⚠ SCAN THE QUESTION, NOT THE SOLUTION — and this is not a style preference.
@@ -308,7 +338,7 @@ export function isPublishable(
   // The binder is asked AFTER the text test, so a row that demands nothing never
   // pays for a lookup and an unbound row's path is unchanged from before PR-3.
   const figureScan = `${q.questionText}\n${q.answer ?? ""}`;
-  if ((q.requiresDiagram || demandsSuppliedFigure(figureScan)) && !hasBoundFigure(q.id)) {
+  if ((q.requiresDiagram || demandsFigureForRow(q.id, figureScan)) && !hasBoundFigure(q.id)) {
     return { ok: false, reason: "requires-absent-figure", detail: q.id };
   }
 

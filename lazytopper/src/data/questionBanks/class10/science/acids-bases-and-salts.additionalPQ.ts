@@ -51,7 +51,7 @@ export const ACIDS_BASES_SALTS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) X = chlorine gas (Cl2) — used to disinfect water; Y = hydrogen gas (H2) — burns with pop sound. Z = sodium hydroxide (NaOH) — the chlor-alkali product.", "[1 mark] (b) Cl2 reacting with slaked lime gives bleaching powder: Ca(OH)2 + Cl2 → CaOCl2 + H2O. Substance A = bleaching powder (CaOCl2).", "[1 mark] (c)(i) Z (NaOH) is basic, so blue litmus does NOT turn red — colour remains blue.", "[1 mark] (c)(ii) Methyl orange in basic medium turns YELLOW."],
     finalAnswer: "(a) Cl2 and H2; (b) Ca(OH)2 + Cl2 → CaOCl2 + H2O; (c) blue litmus unchanged, methyl orange yellow.",
     ncertRef: "APQ Science-PQ2 Q37 (first variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: electrolysis set-up of brine showing X, Y and Z." },
+ },
 
   // Science-PQ2 Q37 OR variant (Section E, Case-Based, 4 marks)
   { id: "APQ-S-ACID-006", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reaction of H2 and Cl2; Acidic Nature of Wet HCl", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",

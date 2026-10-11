@@ -72,9 +72,9 @@ export const REPRODUCTION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "answer": "(i) Cross-pollination. (ii) Stigma; style. (iii) Bees transfer more pollen, so more flowers are pollinated; the pollen tube reaches the ovule and the male germ-cell fuses with the female germ-cell to form a zygote; each fertilised ovule develops into a seed, so more seeds are formed.",
     "solutionSteps": [
       "[1 mark] (i) Cross-pollination.",
-      "[1 mark] (ii) The pollen grain lands on the stigma [0.5]; the pollen tube grows through the style to reach the ovary/ovule [0.5].",
+      "[1 mark] (ii) The pollen grain lands on the stigma (0.5 mark); the pollen tube grows through the style to reach the ovary/ovule (0.5 mark).",
       "[1 mark] (iii) Honeybees act as pollinating agents and transfer pollen to many more flowers, so more flowers are pollinated; in each, the pollen tube reaches the ovule and the male germ-cell fuses with the female germ-cell (egg) — fertilisation — forming a zygote.",
-      "[1 mark] (iii) After fertilisation each ovule develops into a seed (and the ovary into the fruit), so more fertilised ovules in Field B means more seeds — a higher yield (15 versus 12 quintals per hectare)."
+      "[1 mark] (iii) After fertilisation each ovule develops into a seed (and the ovary into the fruit), so more fertilised ovules in Field B means more seeds — a higher yield (15 versus 12 quintals per hectare).",
     ],
     "finalAnswer": "(i) Cross-pollination; (ii) stigma, style; (iii) more pollination → more fertilisation → more ovules become seeds.",
     "isCompetencyBased": true,
@@ -264,9 +264,9 @@ export const REPRODUCTION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Male germ-cell: 12; zygote: 24. (b) Germ-cells are formed by a special type of cell division that halves the number of chromosomes and the amount of DNA; fusion of two germ-cells restores the original number. (c) The zygote combines DNA from two different individuals, creating new combinations, whereas asexual reproduction copies the DNA of a single parent.",
     "solutionSteps": [
-      "[1 mark] (a) Male germ-cell: 12 chromosomes [0.5]; zygote: 12 + 12 = 24 chromosomes [0.5].",
+      "[1 mark] (a) Male germ-cell: 12 chromosomes (0.5 mark); zygote: 12 + 12 = 24 chromosomes (0.5 mark).",
       "[1 mark] (b) Specialised lineages of cells form germ-cells (gametes) with only half the number of chromosomes and half the amount of DNA of non-reproductive cells; when two germ-cells fuse at fertilisation, the original number of chromosomes and amount of DNA is restored in the new generation.",
-      "[1 mark] (c) In sexual reproduction the zygote gets a combination of DNA from two different individuals, producing new combinations of characters; in asexual reproduction the DNA of a single parent is copied, so variation arises only from small copying errors."
+      "[1 mark] (c) In sexual reproduction the zygote gets a combination of DNA from two different individuals, producing new combinations of characters; in asexual reproduction the DNA of a single parent is copied, so variation arises only from small copying errors.",
     ],
     "finalAnswer": "(a) 12 and 24; (b) gametes carry half the DNA; fusion restores it; (c) DNA from two parents combines → more variation.",
     "isCompetencyBased": true,
@@ -293,9 +293,9 @@ export const REPRODUCTION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] (a) Sperms cannot reach the egg (and the egg cannot reach the uterus) through the blocked oviducts, so fertilisation cannot take place — pregnancy is prevented (a surgical method of contraception).",
       "[1 mark] (b) The thick, spongy, blood-rich lining is needed to receive the embryo and nourish it; without it the embryo cannot be implanted and nourished, so the pregnancy cannot continue.",
-      "[1 mark] (c) The copper-T placed in the uterus prevents pregnancy [0.5]; it may cause side effects due to irritation of the uterus [0.5].",
-      "[1 mark] (d) The person may get infected with HIV and develop HIV-AIDS, a viral disease transmitted through sexual contact [0.5]; using a condom (barrier) helps prevent its transmission [0.5].",
-      "[1 mark] (e) The child is born as a result of rhythmic contractions of the muscles of the uterus; without these contractions normal childbirth will not take place and medical help will be needed."
+      "[1 mark] (c) The copper-T placed in the uterus prevents pregnancy (0.5 mark); it may cause side effects due to irritation of the uterus (0.5 mark).",
+      "[1 mark] (d) The person may get infected with HIV and develop HIV-AIDS, a viral disease transmitted through sexual contact (0.5 mark); using a condom (barrier) helps prevent its transmission (0.5 mark).",
+      "[1 mark] (e) The child is born as a result of rhythmic contractions of the muscles of the uterus; without these contractions normal childbirth will not take place and medical help will be needed.",
     ],
     "finalAnswer": "(a) No fertilisation; (b) embryo not implanted/nourished; (c) pregnancy prevented, possible irritation of uterus; (d) risk of HIV-AIDS; (e) normal childbirth will not occur.",
     "isCompetencyBased": true,

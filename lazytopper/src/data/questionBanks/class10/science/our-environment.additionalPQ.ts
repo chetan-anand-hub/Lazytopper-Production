@@ -51,7 +51,7 @@ export const OUR_ENVIRONMENT_APQ: CanonicalQuestion[] = [
     solutionSteps: ["(a) Even with smaller MASS, phytoplankton (producers) capture maximum sunlight energy. Energy flow follows the 10% rule: producers always have the highest TOTAL energy captured from sunlight, decreasing with each higher level.", "(b) The low mass of producers means very limited food available to the higher trophic levels. Top consumers may exhaust the phytoplankton supply faster than it can regenerate ⟹ organisms at higher levels starve and die sooner ⟹ the ecosystem is not sustainable in the long term."],
     finalAnswer: "(a) Phytoplankton (highest energy); (b) limited food at bottom of inverted pyramid = unsustainable.",
     ncertRef: "APQ Science-PQ Q26", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: two food pyramids — land (traditional) and aquatic (inverted)." },
+ },
 
   // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
 

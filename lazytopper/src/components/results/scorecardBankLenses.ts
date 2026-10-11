@@ -239,9 +239,11 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
  */
 export function storedChapterTestScorecardVariant(
   record: SessionRecord,
-  input: StoredChapterTestVariantInput,
+  // PENDING-UPLOAD-1: `onUploadSheet` is optional and local to this variant, so every
+  // other caller of the stored chapter-test variant is unchanged.
+  input: StoredChapterTestVariantInput & { onUploadSheet?: () => void; awaitingDetail?: string },
 ): ScorecardVariant {
-  const { gradedDateLabel, response, onDone, onDownloadGraded, onDownloadSolution, downloading = false } = input;
+  const { gradedDateLabel, response, onDone, onDownloadGraded, onDownloadSolution, onUploadSheet, awaitingDetail, downloading = false } = input;
   const doneAction: ScorecardAction = { label: "Done", tone: "ghost", onClick: onDone };
   const pendingUpload = record.status === "pending-upload";
   const awaitingWritten = record.status === "partial" && !response;
@@ -253,12 +255,15 @@ export function storedChapterTestScorecardVariant(
       subtitle: `${record.id} · ${gradedDateLabel}`,
       score: { kind: "marks", awarded: record.marksAwarded, total: record.marksTotal },
       message:
+        awaitingDetail ??
         "Objective section scored — upload your written answers (Sections B–D) to complete this test.",
       fourType: null,
       sectionLens: null,
       pending: null,
       allPending: null,
-      actions: [doneAction],
+      actions: onUploadSheet
+        ? [{ label: "Upload answer sheet", tone: "primary", onClick: onUploadSheet }, doneAction]
+        : [doneAction],
     };
   }
 

@@ -27,7 +27,7 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Analysing",
         question:
-          "For the system 5x − 2y = 1 and 10x − 4y = 2, the lines are: (A) intersecting (unique solution) (B) parallel (no solution) (C) coincident (infinitely many solutions) (D) cannot be determined",
+          "For the system 5x − 2y = 1 and 10x − 4y = 2, the lines are:",
         answer: "coincident (infinitely many solutions)",
         explanation:
           "The second equation is a multiple of the first; hence the pair represents the same line.",
@@ -37,6 +37,13 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Since a1/a2 = b1/b2 = c1/c2, the lines are coincident, having infinitely many solutions.",
         ],
         finalAnswer: "coincident (infinitely many solutions)",
+        options: [
+          "intersecting (unique solution)",
+          "parallel (no solution)",
+          "coincident (infinitely many solutions)",
+          "cannot be determined",
+        ],
+        correctOption: "C",
       },
       {
         id: "ple-hpq-102",
@@ -170,7 +177,7 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Understanding",
         question:
-          "What is the value of the discriminant for 4x² + 4x + 1 = 0 and what does it tell about the roots? (A) 0, two equal real roots (B) 8, two distinct real roots (C) 0, no real roots (D) 4, complex roots",
+          "What is the value of the discriminant for 4x² + 4x + 1 = 0 and what does it tell about the roots?",
         answer: "0, two equal real roots",
         explanation:
           "D = b² − 4ac = 16 − 16 = 0; a zero discriminant implies real and equal roots.",
@@ -180,6 +187,13 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Since the discriminant D = 0, the quadratic equation has two equal real roots.",
         ],
         finalAnswer: "0, two equal real roots",
+        options: [
+          "0, two equal real roots",
+          "8, two distinct real roots",
+          "0, no real roots",
+          "4, complex roots",
+        ],
+        correctOption: "A",
       },
       {
         id: "qe-hpq-102",
@@ -314,7 +328,7 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Understanding",
         question:
-          "In ΔPQR and ΔXYZ, if ∠P = ∠X, ∠Q = ∠Y and PQ = XY, which similarity criterion verifies ΔPQR ∼ ΔXYZ? (A) SSS (B) SAS (C) AA (D) RHS",
+          "In ΔPQR and ΔXYZ, if ∠P = ∠X, ∠Q = ∠Y and PQ = XY, which similarity criterion verifies ΔPQR ∼ ΔXYZ?",
         answer: "AA",
         explanation:
           "Two equal angles guarantee similarity by AA, regardless of the included side.",
@@ -324,6 +338,13 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Therefore, ΔPQR ~ ΔXYZ by AA similarity. The condition PQ = XY is not required for similarity.",
         ],
         finalAnswer: "AA",
+        options: [
+          "SSS",
+          "SAS",
+          "AA",
+          "RHS",
+        ],
+        correctOption: "C",
       },
     ],
   },
@@ -346,7 +367,7 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Understanding",
         question:
-          "If cos θ = 5/13 for an acute angle θ, what is sin θ? (A) 5/12 (B) 12/13 (C) 3/5 (D) 13/5",
+          "If cos θ = 5/13 for an acute angle θ, what is sin θ?",
         answer: "12/13",
         explanation:
           "sin θ = √(1 − cos² θ) = √(1 − 25/169) = √(144/169) = 12/13.",
@@ -356,6 +377,13 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Solve for sin θ: sin² θ = 1 - 25/169 = 144/169. Since θ is acute, sin θ = sqrt(144/169) = 12/13.",
         ],
         finalAnswer: "12/13",
+        options: [
+          "5/12",
+          "12/13",
+          "3/5",
+          "13/5",
+        ],
+        correctOption: "B",
       },
       {
         id: "trig-hpq-102",
@@ -492,7 +520,7 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Understanding",
         question:
-          "For the grouped data: class 10–20 (4), 20–30 (9), 30–40 (6), identify the modal class. (A) 10–20 (B) 20–30 (C) 30–40 (D) all classes",
+          "For the grouped data: class 10–20 (4), 20–30 (9), 30–40 (6), identify the modal class.",
         answer: "20–30",
         explanation:
           "The modal class is the one with the highest frequency. Here it is 20–30 with frequency 9.",
@@ -502,6 +530,13 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Comparing the frequencies, 9 is the highest, which corresponds to the class 20-30.",
         ],
         finalAnswer: "20–30",
+        options: [
+          "10–20",
+          "20–30",
+          "30–40",
+          "all classes",
+        ],
+        correctOption: "B",
       },
       {
         id: "stat-hpq-102",
@@ -637,7 +672,7 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "A card is drawn from a standard deck of 52 cards. What is the probability of drawing the queen of hearts? (A) 1/13 (B) 1/52 (C) 1/4 (D) 1/26",
+          "A card is drawn from a standard deck of 52 cards. What is the probability of drawing the queen of hearts?",
         answer: "1/52",
         explanation:
           "There are 52 cards and only one queen of hearts, so the probability is 1/52.",
@@ -647,6 +682,13 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Calculate the probability: P(Queen of Hearts) = (Number of favorable outcomes) / (Total number of outcomes) = 1/52.",
         ],
         finalAnswer: "1/52",
+        options: [
+          "1/13",
+          "1/52",
+          "1/4",
+          "1/26",
+        ],
+        correctOption: "B",
       },
       {
         id: "prob-hpq-102",
@@ -756,7 +798,7 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "Which of the following metals is the most reactive? (A) copper (B) iron (C) sodium (D) silver",
+          "Which of the following metals is the most reactive?",
         answer: "sodium",
         explanation:
           "Sodium is near the top of the reactivity series, whereas copper and silver are far below iron.",
@@ -766,6 +808,13 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Sodium is an alkali metal and is positioned highest in the reactivity series among the given options, indicating it is the most reactive.",
         ],
         finalAnswer: "sodium",
+        options: [
+          "copper",
+          "iron",
+          "sodium",
+          "silver",
+        ],
+        correctOption: "C",
       },
       {
         id: "mnm-hpq-102",
@@ -909,7 +958,7 @@ const hpqAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "Which organelle is known as the powerhouse of the cell? (A) nucleus (B) mitochondrion (C) chloroplast (D) ribosome",
+          "Which organelle is known as the powerhouse of the cell?",
         answer: "mitochondrion",
         explanation:
           "Mitochondria oxidise food molecules to release energy in the form of ATP.",
@@ -919,6 +968,13 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Because they produce the majority of the cell's energy, mitochondria are known as the powerhouse of the cell.",
         ],
         finalAnswer: "mitochondrion",
+        options: [
+          "nucleus",
+          "mitochondrion",
+          "chloroplast",
+          "ribosome",
+        ],
+        correctOption: "B",
       },
       {
         id: "lp-hpq-102",
@@ -1089,6 +1145,8 @@ export interface HPQQuestion {
   // Question layout
   kind?: "normal" | "assertion-reason"; // for AR style
   question: string;
+  /** Option texts for a 4-option MCQ (labels A-D follow array order); `correctOption` names the key. */
+  options?: string[];
 
   // Assertion–Reason specific fields
   assertion?: string;
@@ -1403,7 +1461,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "Which of the following is the correctly balanced equation for the formation of iron(III) oxide from iron and oxygen (Fe + O₂ → Fe₂O₃)?\n(a) 2Fe + O₂ → Fe₂O₃\n(b) 4Fe + 3O₂ → 2Fe₂O₃\n(c) 2Fe + 3O₂ → Fe₂O₃\n(d) 4Fe + 2O₂ → 2Fe₂O₃",
+          "Which of the following is the correctly balanced equation for the formation of iron(III) oxide from iron and oxygen (Fe + O₂ → Fe₂O₃)?",
         answer: "(b) 4Fe + 3O₂ → 2Fe₂O₃",
         explanation:
           "Total Fe atoms and O atoms on both sides must be equal; 4Fe + 3O₂ → 2Fe₂O₃ balances the equation.",
@@ -1414,6 +1472,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "To balance iron, multiply Fe by 4: 4Fe + 3O₂ → 2Fe₂O₃. This is the correctly balanced equation.",
         ],
         finalAnswer: "(b) 4Fe + 3O₂ → 2Fe₂O₃",
+        options: [
+          "2Fe + O₂ → Fe₂O₃",
+          "4Fe + 3O₂ → 2Fe₂O₃",
+          "2Fe + 3O₂ → Fe₂O₃",
+          "4Fe + 2O₂ → 2Fe₂O₃",
+        ],
+        correctOption: "B",
       },
       {
         id: "sci-cre-hpq-2",
@@ -1497,7 +1562,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Remembering",
         question:
-          "A solution turns blue litmus red and has a pH of 2. This solution is most likely: (A) Strong acid (B) Weak acid (C) Strong base (D) Neutral",
+          "A solution turns blue litmus red and has a pH of 2. This solution is most likely:",
         answer: "Strong acid",
         explanation:
           "pH 2 is highly acidic and such a solution turns blue litmus red.",
@@ -1508,6 +1573,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Therefore, a solution with these properties is most likely a strong acid.",
         ],
         finalAnswer: "Strong acid",
+        options: [
+          "Strong acid",
+          "Weak acid",
+          "Strong base",
+          "Neutral",
+        ],
+        correctOption: "A",
       },
       {
         id: "sci-abs-hpq-2",
@@ -1591,7 +1663,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Remembering",
         question:
-          "Which metal is softest? (A) Sodium (B) Iron (C) Zinc (D) Copper",
+          "Which metal is softest?",
         answer: "Sodium",
         explanation: "Sodium is so soft that it can be easily cut with a knife.",
         policyTag: "MCQ/Fact",
@@ -1602,6 +1674,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Therefore, Sodium is the softest metal among the given options.",
         ],
         finalAnswer: "Sodium",
+        options: [
+          "Sodium",
+          "Iron",
+          "Zinc",
+          "Copper",
+        ],
+        correctOption: "A",
       },
       {
         id: "2026-MNM-02",
@@ -1618,7 +1697,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Understanding",
         question:
-          "How do non-metals generally react with water? (A) Vigorously (B) Slowly (C) Not at all (D) Explosively",
+          "How do non-metals generally react with water?",
         answer: "Not at all",
         explanation: "Non-metals usually do not react with water directly.",
         policyTag: "Board MCQ trend",
@@ -1629,6 +1708,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Hence, non-metals generally do not react with water.",
         ],
         finalAnswer: "Not at all",
+        options: [
+          "Vigorously",
+          "Slowly",
+          "Not at all",
+          "Explosively",
+        ],
+        correctOption: "C",
       },
       {
         id: "2026-MNM-03",
@@ -1756,7 +1842,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "The bond formed between two carbon atoms in ethane (C₂H₆) is: (A) Ionic (B) Double covalent (C) Single covalent (D) Triple covalent",
+          "The bond formed between two carbon atoms in ethane (C₂H₆) is:",
         answer: "Single covalent",
         explanation:
           "In ethane, each carbon is sp³ hybridised and shares a single covalent bond with the other carbon.",
@@ -1767,6 +1853,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "The bond between the two carbon atoms involves the sharing of one pair of electrons, which constitutes a single covalent bond.",
         ],
         finalAnswer: "Single covalent",
+        options: [
+          "Ionic",
+          "Double covalent",
+          "Single covalent",
+          "Triple covalent",
+        ],
+        correctOption: "C",
       },
       {
         id: "sci-cic-hpq-2",
@@ -1877,7 +1970,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "In humans, the mode of nutrition is: (A) Autotrophic (B) Heterotrophic–saprophytic (C) Heterotrophic–holozoic (D) Parasitic",
+          "In humans, the mode of nutrition is:",
         answer: "Heterotrophic–holozoic",
         explanation:
           "Humans ingest, digest, absorb and assimilate food – holozoic nutrition.",
@@ -1888,6 +1981,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Therefore, the mode of nutrition in humans is Heterotrophic–holozoic.",
         ],
         finalAnswer: "Heterotrophic–holozoic",
+        options: [
+          "Autotrophic",
+          "Heterotrophic–saprophytic",
+          "Heterotrophic–holozoic",
+          "Parasitic",
+        ],
+        correctOption: "C",
       },
       {
         id: "sci-lp-hpq-2",
@@ -1972,7 +2072,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Remembering",
         question:
-          "Binary fission is commonly seen in: (A) Amoeba (B) Hydra (C) Planaria (D) Spirogyra",
+          "Binary fission is commonly seen in:",
         answer: "Amoeba",
         explanation:
           "Amoeba reproduces by binary fission; Hydra uses budding and Planaria regeneration.",
@@ -1983,6 +2083,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Hydra reproduces by budding, Planaria by regeneration, and Spirogyra by fragmentation.",
         ],
         finalAnswer: "Amoeba",
+        options: [
+          "Amoeba",
+          "Hydra",
+          "Planaria",
+          "Spirogyra",
+        ],
+        correctOption: "A",
       },
       {
         id: "sci-hdor-hpq-2",
@@ -2037,7 +2144,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "Which mirror is used by dentists to see an enlarged image of teeth? (A) Plane mirror (B) Convex mirror (C) Concave mirror (D) Any mirror",
+          "Which mirror is used by dentists to see an enlarged image of teeth?",
         answer: "Concave mirror",
         explanation:
           "Concave mirrors can form erect, enlarged images of objects placed between the pole and focus.",
@@ -2048,6 +2155,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Convex mirrors always form diminished images, and plane mirrors form same-sized images.",
         ],
         finalAnswer: "Concave mirror",
+        options: [
+          "Plane mirror",
+          "Convex mirror",
+          "Concave mirror",
+          "Any mirror",
+        ],
+        correctOption: "C",
       },
       {
         id: "sci-light-hpq-2",
@@ -2132,7 +2246,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Remembering",
         question:
-          "Which lens is used to correct hypermetropia? (A) Concave lens (B) Convex lens (C) Cylindrical lens (D) Bifocal lens",
+          "Which lens is used to correct hypermetropia?",
         answer: "Convex lens",
         explanation:
           "Hypermetropia (long-sightedness) is corrected using a converging (convex) lens.",
@@ -2143,6 +2257,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "A convex lens is a converging lens, which provides the necessary converging power to correct hypermetropia.",
         ],
         finalAnswer: "Convex lens",
+        options: [
+          "Concave lens",
+          "Convex lens",
+          "Cylindrical lens",
+          "Bifocal lens",
+        ],
+        correctOption: "B",
       },
       {
         id: "sci-eye-hpq-2",
@@ -2196,7 +2317,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "According to Ohm’s law, the V–I graph for a metallic conductor at constant temperature is: (A) A curve (B) A straight line through origin (C) A circle (D) A parabola",
+          "According to Ohm’s law, the V–I graph for a metallic conductor at constant temperature is:",
         answer: "A straight line through origin",
         explanation:
           "V ∝ I at constant temperature; hence the graph is a straight line through origin.",
@@ -2207,6 +2328,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "This implies a direct proportionality between V and I, which is represented by a straight line passing through the origin.",
         ],
         finalAnswer: "A straight line through origin",
+        options: [
+          "A curve",
+          "A straight line through origin",
+          "A circle",
+          "A parabola",
+        ],
+        correctOption: "B",
       },
       {
         id: "sci-elec-hpq-2",
@@ -2319,7 +2447,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Remembering",
         question:
-          "Right-hand thumb rule gives the direction of: (A) Force on a conductor (B) Magnetic field around a straight conductor (C) Current in a coil (D) Resistance of a conductor",
+          "Right-hand thumb rule gives the direction of:",
         answer: "Magnetic field around a straight conductor",
         explanation:
           "Right-hand thumb rule relates current direction (thumb) to magnetic field direction (curling fingers).",
@@ -2330,6 +2458,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Therefore, it gives the direction of the magnetic field around a straight conductor.",
         ],
         finalAnswer: "Magnetic field around a straight conductor",
+        options: [
+          "Force on a conductor",
+          "Magnetic field around a straight conductor",
+          "Current in a coil",
+          "Resistance of a conductor",
+        ],
+        correctOption: "B",
       },
       {
         id: "sci-mec-hpq-2",
@@ -2418,7 +2553,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Understanding",
         question:
-          "Which of the following is an arithmetic progression (AP)? (A) 2, 4, 8, 16 (B) 3, 6, 9, 12 (C) 1, 3, 6, 10 (D) 1, 2, 4, 7",
+          "Which of the following is an arithmetic progression (AP)?",
         answer: "3, 6, 9, 12 (common difference 3)",
         solutionSteps: [
           "In an AP, the difference between consecutive terms is constant.",
@@ -2427,6 +2562,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         finalAnswer: "Option (B): 3, 6, 9, 12 is an AP with common difference d = 3",
         explanation:
           "Simple identification of AP and common difference is a standard 1-mark question.",
+        options: [
+          "2, 4, 8, 16",
+          "3, 6, 9, 12",
+          "1, 3, 6, 10",
+          "1, 2, 4, 7",
+        ],
+        correctOption: "B",
       },
       {
         id: "math-ap-hpq-2",
@@ -2500,7 +2642,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "If two angles of one triangle are equal to two angles of another triangle, then the triangles are: (A) Congruent (B) Isosceles (C) Similar (D) Right-angled",
+          "If two angles of one triangle are equal to two angles of another triangle, then the triangles are:",
         answer: "Similar",
         solutionSteps: [
           "AA (Angle-Angle) criterion states: if two angles of one triangle are equal to two angles of another triangle, the triangles are similar.",
@@ -2508,6 +2650,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         finalAnswer: "The triangles are similar (by AA criterion)",
         explanation:
           "Direct AA similarity recall is a frequently asked 1-mark question.",
+        options: [
+          "Congruent",
+          "Isosceles",
+          "Similar",
+          "Right-angled",
+        ],
+        correctOption: "C",
       },
       {
         id: "math-tri-hpq-2",
@@ -2560,7 +2709,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Remembering",
         question:
-          "Which plant hormone is responsible for cell elongation in stem? (A) Auxin (B) Cytokinin (C) Ethylene (D) Abscisic acid",
+          "Which plant hormone is responsible for cell elongation in stem?",
         answer: "Auxin",
         explanation:
           "Auxin promotes cell elongation and is concentrated on the shaded side of a plant shoot.",
@@ -2570,6 +2719,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Therefore, Auxin is responsible for cell elongation in the stem.",
         ],
         finalAnswer: "Auxin",
+        options: [
+          "Auxin",
+          "Cytokinin",
+          "Ethylene",
+          "Abscisic acid",
+        ],
+        correctOption: "A",
       },
       {
         id: "sci-cc-hpq-2",
@@ -2650,7 +2806,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         tier: "high-roi",
         bloomSkill: "Remembering",
         question:
-          "In Mendel’s monohybrid cross of tall and dwarf pea plants, F₁ generation had: (A) all tall plants (B) all dwarf plants (C) 3 tall : 1 dwarf (D) 1 tall : 3 dwarf",
+          "In Mendel’s monohybrid cross of tall and dwarf pea plants, F₁ generation had:",
         answer: "all tall plants",
         explanation:
           "Tallness is dominant over dwarfness, so all F₁ plants are tall.",
@@ -2660,6 +2816,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Therefore, all plants in the F₁ generation were tall.",
         ],
         finalAnswer: "all tall plants",
+        options: [
+          "all tall plants",
+          "all dwarf plants",
+          "3 tall : 1 dwarf",
+          "1 tall : 3 dwarf",
+        ],
+        correctOption: "A",
       },
       {
         id: "sci-he-hpq-2",

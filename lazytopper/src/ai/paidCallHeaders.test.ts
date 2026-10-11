@@ -220,7 +220,9 @@ describe("every PAID endpoint's client call site attaches identity", () => {
     "src/ai/tutorClient.ts": ["/api/tutor"],
     // src/components/VisualExplainer.tsx left with its file (deleted by FRICTION-FIX-1 PR-1 —
     // no live importer). /api/generate-visual stays covered by aiClient.ts above.
-    "src/components/question/QuestionVisualAid.tsx": ["/api/generate-diagram"],
+    // 2026-10-11 HARDEN-1 PR-1: QuestionVisualAid.tsx no longer calls /api/generate-diagram — its
+    // AiDiagramFallback was dead heuristic code (D75/D8) and was deleted with it. The endpoint stays
+    // covered by the two admin diagram pages below.
     "src/pages/DiagramComparePage.tsx": ["/api/generate-diagram"],
     "src/pages/DiagramQualityPage.tsx": ["/api/generate-diagram"],
   };

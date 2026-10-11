@@ -27,7 +27,6 @@ export const MAGNETIC_EFFECTS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["(a) The helical coil acts as a solenoid. Inside a solenoid (length >> diameter), the magnetic field is UNIFORM and consists of parallel straight lines. So magnetic field at P = magnetic field at Q.", "(b) To change the strength: (i) increase/decrease the number of turns per unit length, OR (ii) increase/decrease the current through the coil. (Also: insert an iron core to dramatically increase B.)"],
     finalAnswer: "(a) Same; (b) change turns or current.",
     ncertRef: "APQ Science-PQ Q25 (OR variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: helical coil/solenoid with points P, Q labelled.",
     sourceOverride: "others", },
 
   // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
@@ -69,5 +68,5 @@ export const MAGNETIC_EFFECTS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["(a) Magnetic field of a solenoid: INSIDE the solenoid, magnetic field lines are PARALLEL straight lines (uniform, strong field). OUTSIDE, the lines curve and run from one end (north pole) to the other (south pole) — similar to a bar magnet's field pattern. Mark direction of current and direction of field lines.", "(b) Precaution 1: Do NOT connect too many devices in the same socket — avoids drawing excessive current through one circuit.", "(b) Precaution 2: Do NOT connect faulty appliances in the socket. (Also valid: do not run multiple high-power devices simultaneously on the same circuit.)"],
     finalAnswer: "(a) Solenoid field — parallel inside, looped outside like bar magnet; (b) avoid overloading single socket and avoid faulty appliances.",
     ncertRef: "APQ Science-PQ2 Q33", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: solenoid magnetic-field-line pattern with current and field directions." },
+ },
 ];
