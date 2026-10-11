@@ -28,7 +28,8 @@
  * REPR-EXMPLR-7-LA-003 (style, ovule unlabelled in Fig. 7.8), BX-REP-D-001 (epididymis
  * unlabelled in Fig. 7.10), SQP-S-2023-REPR-D-001 (hypha, sporangium unlabelled in
  * Fig. 7.6), sci-bio-repro-3m-2026-01 (Fig. 7.1(a) carries no labels), LPSD-018 (valves),
- * LP-H03 (still: its step 1 points at a labelled nephron; verifier FAIL 2026-10-11, bank NOTE). *
+ * LP-H03 (still: its step 1 points at a labelled nephron; verifier FAIL 2026-10-11, bank NOTE).
+ *
  * SOLUTION-FIGS-1 PR-2 (controller D) — Human Eye (jesc110.pdf) + Magnetic Effects
  * (jesc112.pdf), same rule. Ray diagrams are bound where the row demands no text label the
  * NCERT figure lacks. Not bound, with reason: EYE-EXMPLR-10-SA-001/-002 and
