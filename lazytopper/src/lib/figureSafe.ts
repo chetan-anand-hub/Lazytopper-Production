@@ -15,7 +15,7 @@
 
 import {
   defaultHasBoundFigure,
-  demandsSuppliedFigure,
+  demandsFigureForRow,
 } from "../../scripts/seo/publishability";
 
 /**
@@ -62,5 +62,5 @@ export function needsMissingFigure(
 ): boolean {
   if (Object.prototype.hasOwnProperty.call(RULE5_REVIEWED_NOT_NEEDED, q.id)) return false; // D47c: reviewed false positive
   const figureScan = `${q.questionText}\n${q.answer ?? ""}`;
-  return Boolean(q.requiresDiagram || demandsSuppliedFigure(figureScan)) && !hasBoundFigure(q.id);
+  return Boolean(q.requiresDiagram || demandsFigureForRow(q.id, figureScan)) && !hasBoundFigure(q.id);
 }

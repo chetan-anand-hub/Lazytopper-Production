@@ -14,7 +14,7 @@
 import { describe, expect, it } from "vitest";
 import "../test/preloadBankChapters";
 import { needsMissingFigure } from "./figureSafe";
-import { canonicalQuestionBank } from "../data/canonicalQuestionBank";
+import { RAW_CANONICAL_QUESTION_BANK, canonicalQuestionBank } from "../data/canonicalQuestionBank";
 import { highlyProbableQuestions } from "../data/highlyProbableQuestions";
 import { HPQ_WITHHELD_IDS } from "../data/hpqCompetencyAdditions";
 import { predictedQuestions } from "../data/predictedQuestions";
@@ -65,6 +65,15 @@ describe("D68d — no served row on any surface needs a figure it lacks", () => 
   it("CONTROL: the check can fail — a row that says 'in the given figure' with no bound figure is caught", () => {
     expect(needsMissingFigure({ id: "NO-SUCH-ROW", questionText: "In the given figure, find x." })).toBe(true);
     expect(needsMissingFigure({ id: "NO-SUCH-ROW", questionText: "Find x if 2x = 6." })).toBe(false);
+  });
+
+  it("CONTROL on a REAL row: a withheld figure-needing row, mapped and filtered exactly like the served rows, is caught", () => {
+    // RULE5-BIND-1 verifier FU (c), 11 Oct: SCO-S-LIGHT-005 ("In the given figure, a ray of light ...") is withheld; were it served,
+    // the same mapping + filter the canonical source goes through above would flag it.
+    const q = (RAW_CANONICAL_QUESTION_BANK as any[]).find((x) => x.id === "SCO-S-LIGHT-005");
+    expect(q, "control row must exist in the raw bank").toBeDefined();
+    const asServed: Served[] = [...served, { source: "canonical", id: q.id, questionText: q.questionText ?? "", answer: q.answer, requiresDiagram: q.requiresDiagram }];
+    expect(asServed.filter((r) => needsMissingFigure(r)).map((r) => `${r.source}:${r.id}`)).toEqual(["canonical:SCO-S-LIGHT-005"]);
   });
 
   it("every notes-page board question is a served canonical row (the notes surface adds no row of its own)", () => {
