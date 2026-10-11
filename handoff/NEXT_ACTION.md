@@ -1,3 +1,41 @@
+## ★★★ 2026-10-12 — NEXT ACTION AFTER THE 2026-10-11 DAY CLOSE (docs lane D100, written by C2) — THE DEFERRED LIST, THE OWNER-BATCH, THE STANDING RULES THE DAY ADDED
+
+*(The owner items of every block below stand unchanged, except the items this block names.)*
+
+**TRUNK AT DRAFTING: `2d7cc83c`** (`#1082`); the SHA at this PR's merge is the next one in `git log`. Re-derive trunk with `git fetch` + `git rev-parse origin/base/approved-thru-437` before anything.
+
+★ **STANDING FOR EVERY CONTROLLER FROM NOW ON (each from a DECISION in `DECISION_LOG.md`):**
+- **Merge a green, CLEAN, next-in-order PR in the SAME turn you see it** (D90) and **always have a loop or a background watcher armed** (D98); post `<X> BLOCKED: <reason>` at once if you cannot.
+- **Update a branch only when you are next in the single MERGE-ORDER** (D87.5); the strict up-to-date rule makes every needless update-branch a full CI cycle.
+- **Server-side merges one at a time, at least 20 minutes apart, with `/api/health` and LIVE between** (D88d). Graceful drain exists; do not stack restarts.
+- **A proof must run the real page path** (D92a) and **a button never promises what the session does not serve** (D85a).
+- **Tracking sends names only**; Meta advanced matching stays OFF; no uid, email, score or question text (D93c).
+- **A forbidden file (CLAUDE.md §4) is edited only inside an exact owner authorisation** with the no-breakage proofs and revert-on-breakage (D76, D81).
+- **Routine git / gh commands are pre-approved in your own worktree** (D91); force-push, reset --hard, deleting a branch, rebasing an open PR and any platform setting are not.
+- **Hand over at about 25% context, no exceptions**: push everything, update `Desktop\diff\HANDOFF_<X>_<date>.md` with PR, head SHA, state and next command, post `<X> HANDOVER-READY` (D88b).
+- **A pickup is mechanical only** (update-branch, regenerate generated files, green, board tail, `--match-head-commit`, MERGE + LIVE); it never answers its own AUDIT gate.
+
+### NEXT — DEFERRED TO 2026-10-12 (D99 / D100), in order
+1. **C2: `#1088` META-PIXEL-1 PR-2a** (head `8d6ee251` at drafting, PASS D94a, green and CLEAN, branch pushed, worktree `LT-worktrees/c2-meta-pr2a`). First action: trunk in, `node lazytopper/scripts/testClock/dateSensitive.mjs --write`, merge on green + CLEAN. Then **PR-2b** (`practice_started`, `cbq_practice_started`, `PracticePage.tsx`) after `#1076`. Owner check after PR-2a: Meta Events Manager, Test events — start a Chapter Test, a Full Mock, ask the Tutor, download a worksheet, upload a worksheet photo, open a notes page and the pricing page; each shows its event ONCE.
+2. **A: `#1086` TOPUP-1 PR-1** (head `9d7f1dcf`, PASS D97b; server, money path, dark). Server-side: merge, then `/api/health` + LIVE; it stays dark (`PAYMENTS_ENABLED && TOPUP_ENABLED`). Then **TOPUP-1 PR-2** (client sheet; "about", no per-paper count). `[FU-TOPUP-RACE]` goes with it.
+3. **E: `#1013` LOW-END-3 PR-3** (`DesktopShell.tsx`, authorised by D76b). Needs mobile Lighthouse before/after and the D76b proofs (before/after screenshots at 1280 and 390, every sidebar link, LCP not worse, independent verifier, AUDIT-REQUEST). The stale `BreakReminder` comment at `DesktopShell.tsx:434` goes with it.
+4. **The follow-ups** in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` (2026-10-11 section): `[FU-EXACT-SET-TOPUP]`, `[FU-EXACT-SET-REFRESH]`, `[FU-HARDEN-VISUAL-RESIDUE]`, `[FU-TOPUP-RACE]`, `[FU-WAP-SAVED-PATH-STALE]`, `[FU-SHARED-REPORT-STALE]`, `[FU-WEAKAREA-AGGREGATOR-RETIRE]`, `[FU-NOTES-CAPTION-DOUBLED]`, `[FU-NCERT-CROP-WATERMARK]`, `[FU-COST-CHUNK-TELEMETRY]`, `[FU-RULE5-PRECISION]`, `[ADMIN-QLOOKUP-1]`, `[FU-ME-CONSISTENCY-CLOCK-FLAKE]`, `[FU-30DAY-WARN-BANNER]`.
+5. **A later docs lane:** document 2026-10-07 to 2026-10-10 18:00Z (waves A-17/A-18, B-19..B-22 and the figure, bank and syllabus lanes), which this PR does not cover.
+6. **Pending at drafting — confirm each merged and was LIVE before relying on it:** `#1087`, `#1076`, `#1090`, `#1089`, SOLUTION-FIGS-1 PR-4 and PR-5 (the `CURRENT_STATE.md` table marks them ‹PENDING› until filled).
+
+### NEXT — OWNER (OWNER-BATCH; none of these was run on a real signed-in phone by a controller)
+1. **Fair-use banner (`#1060`), Premium account:** no banner below 75%; a reading of 75% or more shows it at 390 px; Me/Progress sentence + "See usage" lands on the usage card; the trial pop-up at the daily limit (bold "You've used today's N answer checks. Premium removes the daily limit.", grey "Come back after midnight for N more...").
+2. **Me + Weak Area (`#1065`, `#1085`):** Me, Concepts shows board names (e.g. "Trig Identities/Proofs"); the Tutor on a weak chapter names at most 3 concepts, no %; a Quick Practice correct answer on a DIFFERENT question of a concept you lost marks on shows as "won back"; Weak Area Practice on a second device (or after clearing site data) shows the same list as Me; the button reads "Practise {chapter}"; the Learning Path tab is never blank.
+3. **Check & Improve topic guard (`#1063`, D59b):** 3 fresh trig proofs — typed, photo, multi-question upload.
+4. **Worksheets (`#1070`):** one real PDF download in the signed-in app — the figure is on the page; the answer key shows a solution figure for a Triangles BPT question.
+5. **Chapter Test (`#1067`, `#1081`):** a 30-minute Chapter Test shows no break pop-up; the signed-in 6-route smoke (`/`, `/practice-hub`, `/chapter-test`, `/worksheets`, `/me`, `/tutor`).
+6. **Figures and notes:** APQ-M-CIRC-012 shows its two-semicircle figure in the app (`#1074`); Tutor panel "Atmospheric refraction" shows NCERT Fig 10.9 and "Scattering of light" the honest gap (`#1079`); screenshots from `Desktop\diff\notes-ledger-collapse-1-shots\`, `b22\figprint-shots\`, `b22\live-1066\`, `b23\live-1078\`, `b23\live-1083\`.
+7. **When you flip `FAIR_USE_ENFORCE_ALL_AI` on:** live-verify on at least two surfaces (Tutor, More-like-this, Read question) — owed THEN, not before.
+8. **Decisions:** the Me/Progress decision named in D100; the Razorpay / Railway values (external, guided).
+
+### NEXT — CI-1
+Keep the watchdog (D98d) and the single MERGE-ORDER; mirror the DECISION text into `BOARD.md`; keep the CS-1 table with each controller's context % and "blocked on prompt?".
+
 ## ★★★ 2026-10-07 — WAVE B-18 (GRADING CLIENT + PROGRESS, CONTROLLER B) — J2 COMPLETE: `#979` + `#980` LIVE BEHIND THE OFF SWITCH, `#995` (TWO-PHOTO RACE) AND `#997` (NO WEAKNESS, FIGURE OR STATUS BEFORE EVIDENCE) MERGED; PRODUCTION AI RESTORED (docs) — THIS BLOCK SUPERSEDES THE ME-ENGINE-1 BLOCK BELOW ON TRUNK SHA, ON J2 AND ON `[PROD-AI-500]`
 *(The owner items of the ME-ENGINE-1, CI1 NIGHTLY-RESTORE, CI-SPEED-1, WAVE B-17, A-16 CLOSE, B-16, A-15 CLOSE, B-15, B-14, A-13 and every older block below stand unchanged, except the items this block names.)*
 
