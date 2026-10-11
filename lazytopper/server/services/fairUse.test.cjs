@@ -807,7 +807,9 @@ test('U4 / FU-GLOBAL-SHED · the premium margin needs a VERIFIED caller (a heade
 
 test('U4 / FU-GLOBAL-SHED · the tier is read for EVERY paid class at or past 80% (Gap 2), and for none below it', () => {
   const at85 = limiterAt(85).limiter;
-  for (const path of ['/api/tutor', '/api/check-solution', '/api/grade-worksheet', '/api/generate-visual']) {
+  // 2026-10-11 HARDEN-1 PR-2: /api/generate-visual (the "visual" class) was removed from the server;
+  // /api/step-solution stands in for the remaining "practice" class, so every paid class is still probed.
+  for (const path of ['/api/tutor', '/api/check-solution', '/api/grade-worksheet', '/api/step-solution']) {
     assert.equal(at85.needsTierRead(path), true, path);
   }
   assert.equal(at85.needsTierRead('/api/health'), false, 'an unpaid path never needs a tier read');
