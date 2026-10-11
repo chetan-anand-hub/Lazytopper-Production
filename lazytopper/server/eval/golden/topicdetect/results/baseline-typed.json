@@ -1,0 +1,891 @@
+{
+ "label": "baseline-typed",
+ "model": "gemini-3.8-flash",
+ "at": "2026-10-10T17:47:12.210Z",
+ "overall": {
+  "n": 74,
+  "right": 71,
+  "null": 0,
+  "wrong": 3,
+  "subjectRight": 74
+ },
+ "byKind": {
+  "chapter": {
+   "n": 52,
+   "right": 51,
+   "null": 0,
+   "wrong": 1,
+   "subjectRight": 52
+  },
+  "confusable": {
+   "n": 12,
+   "right": 10,
+   "null": 0,
+   "wrong": 2,
+   "subjectRight": 12
+  },
+  "trig-identity": {
+   "n": 10,
+   "right": 10,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 10
+  }
+ },
+ "byChapter": {
+  "acids-bases-and-salts": {
+   "n": 3,
+   "right": 2,
+   "null": 0,
+   "wrong": 1,
+   "subjectRight": 3
+  },
+  "areas-related-to-circles": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "arithmetic-progression": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "carbon-and-its-compounds": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "chemical-reactions-and-equations": {
+   "n": 3,
+   "right": 1,
+   "null": 0,
+   "wrong": 2,
+   "subjectRight": 3
+  },
+  "circles": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "control-and-coordination": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "coordinate-geometry": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "electricity": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "heredity": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "how-do-organisms-reproduce": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "human-eye-and-colourful-world": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "life-processes": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "light-reflection-and-refraction": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "magnetic-effects-of-electric-current": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "metals-and-non-metals": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "our-environment": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "pair-of-linear-equations": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "polynomials": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "probability": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "quadratic-equations": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "real-numbers": {
+   "n": 3,
+   "right": 3,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 3
+  },
+  "statistics": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "surface-areas-and-volumes": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "triangles": {
+   "n": 2,
+   "right": 2,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 2
+  },
+  "trigonometry": {
+   "n": 12,
+   "right": 12,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 12
+  }
+ },
+ "latencyMs": {
+  "p50": 2369,
+  "p95": 3354
+ },
+ "results": [
+  {
+   "id": "PYQ-M-2024-REALNUM-002",
+   "kind": "chapter",
+   "want": "real-numbers",
+   "got": "real-numbers",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2774
+  },
+  {
+   "id": "Z3-RN-001",
+   "kind": "chapter",
+   "want": "real-numbers",
+   "got": "real-numbers",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2563
+  },
+  {
+   "id": "PYQ-M-2024-POLY-005a",
+   "kind": "chapter",
+   "want": "polynomials",
+   "got": "polynomials",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2087
+  },
+  {
+   "id": "POLY-N-EXEM-2-SA-001",
+   "kind": "chapter",
+   "want": "polynomials",
+   "got": "polynomials",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2509
+  },
+  {
+   "id": "BX-PLE-D-038",
+   "kind": "chapter",
+   "want": "pair-of-linear-equations",
+   "got": "pair-of-linear-equations",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2389
+  },
+  {
+   "id": "Z3-PLE-006",
+   "kind": "chapter",
+   "want": "pair-of-linear-equations",
+   "got": "pair-of-linear-equations",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2437
+  },
+  {
+   "id": "BX-QUAD-D-030",
+   "kind": "chapter",
+   "want": "quadratic-equations",
+   "got": "quadratic-equations",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2688
+  },
+  {
+   "id": "PYQ-M-QE-005",
+   "kind": "chapter",
+   "want": "quadratic-equations",
+   "got": "quadratic-equations",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2436
+  },
+  {
+   "id": "BX-AP-E-010",
+   "kind": "chapter",
+   "want": "arithmetic-progression",
+   "got": "arithmetic-progression",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 4153
+  },
+  {
+   "id": "BX-AP-E-041",
+   "kind": "chapter",
+   "want": "arithmetic-progression",
+   "got": "arithmetic-progression",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2413
+  },
+  {
+   "id": "TRI-N-EXMPLR-6-SA-006",
+   "kind": "chapter",
+   "want": "triangles",
+   "got": "triangles",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2441
+  },
+  {
+   "id": "TRI-N-NCERT-6-LA-002",
+   "kind": "chapter",
+   "want": "triangles",
+   "got": "triangles",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2264
+  },
+  {
+   "id": "PYQ-M-2025-CG-005",
+   "kind": "chapter",
+   "want": "coordinate-geometry",
+   "got": "coordinate-geometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2085
+  },
+  {
+   "id": "Z3-CG-006",
+   "kind": "chapter",
+   "want": "coordinate-geometry",
+   "got": "coordinate-geometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2860
+  },
+  {
+   "id": "TRIG-N-NCERT-9-LA-002",
+   "kind": "chapter",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2036
+  },
+  {
+   "id": "TRIG-N-EXMPLR-9-SA-004",
+   "kind": "chapter",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2129
+  },
+  {
+   "id": "PYQ-M-2026-CIRC-006",
+   "kind": "chapter",
+   "want": "circles",
+   "got": "circles",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2322
+  },
+  {
+   "id": "CIRC-N-EXEM-10-SA-005",
+   "kind": "chapter",
+   "want": "circles",
+   "got": "circles",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2504
+  },
+  {
+   "id": "ARC-N-EXEM-11-SA-005",
+   "kind": "chapter",
+   "want": "areas-related-to-circles",
+   "got": "areas-related-to-circles",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2287
+  },
+  {
+   "id": "ARC-N-EXEM-11-LA-002",
+   "kind": "chapter",
+   "want": "areas-related-to-circles",
+   "got": "areas-related-to-circles",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2299
+  },
+  {
+   "id": "SAV-N-EXMPLR-12-VSA-001",
+   "kind": "chapter",
+   "want": "surface-areas-and-volumes",
+   "got": "surface-areas-and-volumes",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2088
+  },
+  {
+   "id": "SAV-N-NCERT-12-CB-002",
+   "kind": "chapter",
+   "want": "surface-areas-and-volumes",
+   "got": "surface-areas-and-volumes",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2251
+  },
+  {
+   "id": "PYQ-M-2026-STAT-002",
+   "kind": "chapter",
+   "want": "statistics",
+   "got": "statistics",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2250
+  },
+  {
+   "id": "STAT-N-EXEM-13-CRE-001",
+   "kind": "chapter",
+   "want": "statistics",
+   "got": "statistics",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2289
+  },
+  {
+   "id": "PROB-N-EXEM-14-LA-001",
+   "kind": "chapter",
+   "want": "probability",
+   "got": "probability",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2820
+  },
+  {
+   "id": "PYQ-M-2024-PROB-003",
+   "kind": "chapter",
+   "want": "probability",
+   "got": "probability",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2459
+  },
+  {
+   "id": "PYQ-S-CHEM-011",
+   "kind": "chapter",
+   "want": "chemical-reactions-and-equations",
+   "got": "acids-bases-and-salts",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2555
+  },
+  {
+   "id": "CHEM-EXMPLR-1-SA-013",
+   "kind": "chapter",
+   "want": "chemical-reactions-and-equations",
+   "got": "chemical-reactions-and-equations",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2922
+  },
+  {
+   "id": "BX-ABS-EX-C-002",
+   "kind": "chapter",
+   "want": "acids-bases-and-salts",
+   "got": "acids-bases-and-salts",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2211
+  },
+  {
+   "id": "BX-ABS-EX-B-004",
+   "kind": "chapter",
+   "want": "acids-bases-and-salts",
+   "got": "acids-bases-and-salts",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2315
+  },
+  {
+   "id": "METAL-EXMPLR-3-SA-012",
+   "kind": "chapter",
+   "want": "metals-and-non-metals",
+   "got": "metals-and-non-metals",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2796
+  },
+  {
+   "id": "BX-MNM-E-037",
+   "kind": "chapter",
+   "want": "metals-and-non-metals",
+   "got": "metals-and-non-metals",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2385
+  },
+  {
+   "id": "CARB-NCERT-4-VSA-004",
+   "kind": "chapter",
+   "want": "carbon-and-its-compounds",
+   "got": "carbon-and-its-compounds",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2265
+  },
+  {
+   "id": "SCQ-S-CARB-023",
+   "kind": "chapter",
+   "want": "carbon-and-its-compounds",
+   "got": "carbon-and-its-compounds",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2353
+  },
+  {
+   "id": "FND-L-SPX-035",
+   "kind": "chapter",
+   "want": "light-reflection-and-refraction",
+   "got": "light-reflection-and-refraction",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2061
+  },
+  {
+   "id": "GDR-L-CBJ-009",
+   "kind": "chapter",
+   "want": "light-reflection-and-refraction",
+   "got": "light-reflection-and-refraction",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 1902
+  },
+  {
+   "id": "EYE-EXMPLR-10-SA-007",
+   "kind": "chapter",
+   "want": "human-eye-and-colourful-world",
+   "got": "human-eye-and-colourful-world",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2369
+  },
+  {
+   "id": "SCQ-S-EYE-027",
+   "kind": "chapter",
+   "want": "human-eye-and-colourful-world",
+   "got": "human-eye-and-colourful-world",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2316
+  },
+  {
+   "id": "APQ-S-ELEC-002",
+   "kind": "chapter",
+   "want": "electricity",
+   "got": "electricity",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 3329
+  },
+  {
+   "id": "ELEC-NCERT-11-LA-015",
+   "kind": "chapter",
+   "want": "electricity",
+   "got": "electricity",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2819
+  },
+  {
+   "id": "SCQ-S-MAG-033",
+   "kind": "chapter",
+   "want": "magnetic-effects-of-electric-current",
+   "got": "magnetic-effects-of-electric-current",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2165
+  },
+  {
+   "id": "MAG-EXMPLR-12-SA-007",
+   "kind": "chapter",
+   "want": "magnetic-effects-of-electric-current",
+   "got": "magnetic-effects-of-electric-current",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 3502
+  },
+  {
+   "id": "SCQ-S-LIFE-025",
+   "kind": "chapter",
+   "want": "life-processes",
+   "got": "life-processes",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2047
+  },
+  {
+   "id": "PYQ-S-2026-LIFEP-014",
+   "kind": "chapter",
+   "want": "life-processes",
+   "got": "life-processes",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 3165
+  },
+  {
+   "id": "CTRL-NCERT-6-LA-001",
+   "kind": "chapter",
+   "want": "control-and-coordination",
+   "got": "control-and-coordination",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2046
+  },
+  {
+   "id": "CTRL-EXMPLR-6-LA-003",
+   "kind": "chapter",
+   "want": "control-and-coordination",
+   "got": "control-and-coordination",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2433
+  },
+  {
+   "id": "CFPQ-S-REPR-010",
+   "kind": "chapter",
+   "want": "how-do-organisms-reproduce",
+   "got": "how-do-organisms-reproduce",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2139
+  },
+  {
+   "id": "REPR-NCERT-7-SA-003",
+   "kind": "chapter",
+   "want": "how-do-organisms-reproduce",
+   "got": "how-do-organisms-reproduce",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2067
+  },
+  {
+   "id": "SCQ-S-HERED-038",
+   "kind": "chapter",
+   "want": "heredity",
+   "got": "heredity",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 3553
+  },
+  {
+   "id": "SCQ-S-HERED-035",
+   "kind": "chapter",
+   "want": "heredity",
+   "got": "heredity",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2268
+  },
+  {
+   "id": "PYQ-S-2026-ENV-015",
+   "kind": "chapter",
+   "want": "our-environment",
+   "got": "our-environment",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 1774
+  },
+  {
+   "id": "APQ-S-ENV-008",
+   "kind": "chapter",
+   "want": "our-environment",
+   "got": "our-environment",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2215
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-LA-002",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2448
+  },
+  {
+   "id": "APQ-M-TRIG-007",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2500
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-LA-001",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2386
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-SA-003",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 1914
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-014",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2210
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-015",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2502
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-018",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2218
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-020",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2189
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-016",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2347
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-SA-004",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2070
+  },
+  {
+   "id": "BX-POLY-E-025",
+   "kind": "confusable",
+   "want": "polynomials",
+   "got": "polynomials",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2493
+  },
+  {
+   "id": "BX-QUAD-D-049",
+   "kind": "confusable",
+   "want": "quadratic-equations",
+   "got": "quadratic-equations",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2369
+  },
+  {
+   "id": "BX-AP-EX-B-002",
+   "kind": "confusable",
+   "want": "arithmetic-progression",
+   "got": "arithmetic-progression",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 1838
+  },
+  {
+   "id": "RN-N-NCERT-1-SA-007",
+   "kind": "confusable",
+   "want": "real-numbers",
+   "got": "real-numbers",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2789
+  },
+  {
+   "id": "GDR-L-CBJ-006",
+   "kind": "confusable",
+   "want": "light-reflection-and-refraction",
+   "got": "light-reflection-and-refraction",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2745
+  },
+  {
+   "id": "SCQ-S-EYE-026",
+   "kind": "confusable",
+   "want": "human-eye-and-colourful-world",
+   "got": "human-eye-and-colourful-world",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2486
+  },
+  {
+   "id": "BX-ABS-EX-C-001",
+   "kind": "confusable",
+   "want": "acids-bases-and-salts",
+   "got": "metals-and-non-metals",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2270
+  },
+  {
+   "id": "CHEM-EXMPLR-1-SA-015",
+   "kind": "confusable",
+   "want": "chemical-reactions-and-equations",
+   "got": "metals-and-non-metals",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2640
+  },
+  {
+   "id": "PYQ-S-2026-HERED-005",
+   "kind": "confusable",
+   "want": "heredity",
+   "got": "heredity",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 3354
+  },
+  {
+   "id": "REPR-EXMPLR-7-SA-001",
+   "kind": "confusable",
+   "want": "how-do-organisms-reproduce",
+   "got": "how-do-organisms-reproduce",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 2535
+  },
+  {
+   "id": "CIRC-N-EXEM-10-SA-002",
+   "kind": "confusable",
+   "want": "circles",
+   "got": "circles",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 1998
+  },
+  {
+   "id": "ARC-N-EXEM2-11-VSA-006",
+   "kind": "confusable",
+   "want": "areas-related-to-circles",
+   "got": "areas-related-to-circles",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2593
+  }
+ ]
+}

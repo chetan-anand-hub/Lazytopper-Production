@@ -69,7 +69,13 @@ export interface PremiumUsage {
   fiveHourPct: number;
   dayPct: number;
   weekPct: number;
-  resets: { fiveHour: string | null; day: string | null; week: string | null };
+  /**
+   * CAP-30DAY — the rolling 30-IST-day window, in the same shape as the others. Null when
+   * the server did not send it (an older server, or a malformed field): no bar is shown,
+   * never a guessed one.
+   */
+  thirtyDayPct: number | null;
+  resets: { fiveHour: string | null; day: string | null; week: string | null; thirtyDay: string | null };
 }
 
 /** Exists ONLY for an enforced response. `trial`/`premium` are null when the server
@@ -130,7 +136,14 @@ function parsePremium(raw: unknown): PremiumUsage | null {
     fiveHourPct,
     dayPct,
     weekPct,
-    resets: { fiveHour: isoOrNull(r.fiveHour), day: isoOrNull(r.day), week: isoOrNull(r.week) },
+    // CAP-30DAY: optional, so a server without it still parses exactly as before.
+    thirtyDayPct: isPct(p.thirtyDayPct) ? p.thirtyDayPct : null,
+    resets: {
+      fiveHour: isoOrNull(r.fiveHour),
+      day: isoOrNull(r.day),
+      week: isoOrNull(r.week),
+      thirtyDay: isoOrNull(r.thirtyDay),
+    },
   };
 }
 
@@ -256,7 +269,7 @@ export interface FairUseLimitInfo {
 
 export const FAIR_USE_LIMIT_ERROR_NAME = "FairUseLimitError";
 
-const WINDOWS: readonly PremiumWindow[] = ["fiveHour", "day", "week"];
+const WINDOWS: readonly PremiumWindow[] = ["fiveHour", "day", "week", "thirtyDay"];
 
 /** PURE. The refusal's fields, or null when `err` is not a fair-use refusal. Accepts a
  *  thrown error, or a `{ name }`-only record (a service that carried only the name). */

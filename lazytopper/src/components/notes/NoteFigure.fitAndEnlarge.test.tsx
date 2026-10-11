@@ -167,8 +167,9 @@ describe("trigonometry: elevation and depression are two separate NCERT figures"
     const f93 = spec.figures["fig_angle_of_depression_93"];
     expect(f92.caption || "").toMatch(/^Fig 9\.2 /);
     expect(f93.caption || "").toMatch(/^Fig 9\.3 /);
-    expect(f92.asset).toBe("trigonometry/fig_angle_of_elevation_92.svg");
-    expect(f93.asset).toBe("trigonometry/fig_angle_of_depression_93.svg");
+    // 2026-10-10 NOTES-SVG-REPLACE-1: the hand-drawn SVGs were replaced by official NCERT 2026-27 crops (.webp).
+    expect(f92.asset).toBe("trigonometry/fig_angle_of_elevation_92.webp");
+    expect(f93.asset).toBe("trigonometry/fig_angle_of_depression_93.webp");
     expect(f92.asset).not.toBe(f93.asset);
 
     // No figure combines the two any more.

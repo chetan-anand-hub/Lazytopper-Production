@@ -103,6 +103,7 @@ import FullMockPendingBanner from "../components/fullmock/FullMockPendingBanner"
 // FAIR-USE-UI-1 — the fair-use panel (UI1 at grading, UI3 before the mock starts).
 // Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
+import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
 import { gradingErrorMessage } from "../ai/gradingTransport";
 import { resumableJob, type GradingJobInterruptedError } from "../ai/gradingJobs";
@@ -849,6 +850,7 @@ export default function FullMockPage() {
     <div className="lt-ct lt-fm">
       <style>{CT_CSS}</style>
       <style>{FM_CSS}</style>
+      <UsageWarning scope="full-mock" snapshot={fairUse.snapshot} />
 
       {/* Read-only re-open scorecard (history card / cross-device pending). */}
       {reopen && (

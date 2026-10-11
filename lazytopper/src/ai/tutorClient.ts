@@ -264,6 +264,12 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
         details.trialEndedAt || null,
       );
     }
+    // FU-GLOBAL-SHED (D58b-2) - the site-wide ceiling is its own calm message, not a fault: the server's
+    // sentence (no "free AI checking" wording on the Tutor) + "See plans." when the server chose that call to action.
+    if (res.status === 429 && details?.error === "busy_today") {
+      const cta = (details as { cta?: unknown }).cta === "plans" ? " See plans." : "";
+      throw new Error(`${details.message || "LazyTopper is very busy today. Come back after midnight."}${cta}`);
+    }
     // ALL-AI-METERING-1: a fair-use refusal is the Tutor's limit copy, never the raw code.
     const limitError = tutorLimitFrom(res.status, details);
     if (limitError) throw limitError;

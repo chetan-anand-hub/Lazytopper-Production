@@ -1,0 +1,213 @@
+{
+ "label": "baseline-photo",
+ "model": "gemini-3.8-flash",
+ "at": "2026-10-10T17:48:13.813Z",
+ "overall": {
+  "n": 15,
+  "right": 15,
+  "null": 0,
+  "wrong": 0,
+  "subjectRight": 15
+ },
+ "byKind": {
+  "confusable": {
+   "n": 5,
+   "right": 5,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 5
+  },
+  "trig-identity": {
+   "n": 10,
+   "right": 10,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 10
+  }
+ },
+ "byChapter": {
+  "arithmetic-progression": {
+   "n": 1,
+   "right": 1,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 1
+  },
+  "light-reflection-and-refraction": {
+   "n": 1,
+   "right": 1,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 1
+  },
+  "polynomials": {
+   "n": 1,
+   "right": 1,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 1
+  },
+  "quadratic-equations": {
+   "n": 1,
+   "right": 1,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 1
+  },
+  "real-numbers": {
+   "n": 1,
+   "right": 1,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 1
+  },
+  "trigonometry": {
+   "n": 10,
+   "right": 10,
+   "null": 0,
+   "wrong": 0,
+   "subjectRight": 10
+  }
+ },
+ "latencyMs": {
+  "p50": 3076,
+  "p95": 4073
+ },
+ "results": [
+  {
+   "id": "TRIG-N-EXMPLR-8-LA-002",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 3108
+  },
+  {
+   "id": "APQ-M-TRIG-007",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2857
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-LA-001",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 3351
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-SA-003",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2847
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-014",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 3357
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-015",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 3127
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-018",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 3042
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-020",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2761
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-016",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 3000
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-SA-004",
+   "kind": "trig-identity",
+   "want": "trigonometry",
+   "got": "trigonometry",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 2674
+  },
+  {
+   "id": "BX-POLY-E-025",
+   "kind": "confusable",
+   "want": "polynomials",
+   "got": "polynomials",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 3055
+  },
+  {
+   "id": "BX-QUAD-D-049",
+   "kind": "confusable",
+   "want": "quadratic-equations",
+   "got": "quadratic-equations",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 3453
+  },
+  {
+   "id": "BX-AP-EX-B-002",
+   "kind": "confusable",
+   "want": "arithmetic-progression",
+   "got": "arithmetic-progression",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 3130
+  },
+  {
+   "id": "RN-N-NCERT-1-SA-007",
+   "kind": "confusable",
+   "want": "real-numbers",
+   "got": "real-numbers",
+   "subjectGot": "Maths",
+   "subjectWant": "Maths",
+   "wallMs": 4073
+  },
+  {
+   "id": "GDR-L-CBJ-006",
+   "kind": "confusable",
+   "want": "light-reflection-and-refraction",
+   "got": "light-reflection-and-refraction",
+   "subjectGot": "Science",
+   "subjectWant": "Science",
+   "wallMs": 3076
+  }
+ ]
+}

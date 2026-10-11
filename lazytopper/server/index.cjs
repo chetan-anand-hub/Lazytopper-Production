@@ -513,7 +513,9 @@ async function handleRequest(req, res) {
     // FAIR-USE-1 (U4): a PREMIUM caller is never paused by the day's budget. The tier
     // is read ONLY when the 80% vision shed is about to fire, so every other request
     // pays nothing for it; a non-premium caller gets exactly the previous call.
-    const premiumShedExempt = !freeCheckAdmitted && rateLimiter.wouldShed(reqPath)
+    // FU-GLOBAL-SHED: the tier is now read for EVERY paid class at or past the 80% line (was
+    // vision-only), because a verified premium caller also rides the margin above the hard ceiling.
+    const premiumShedExempt = !freeCheckAdmitted && rateLimiter.needsTierRead(reqPath)
       && await fairUse.isPremium(verifiedUid, req);
 
     const verdict = freeCheckAdmitted
