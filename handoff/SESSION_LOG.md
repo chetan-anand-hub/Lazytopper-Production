@@ -9,7 +9,7 @@
 4. **A proof that runs the builder, not the page, proves nothing.** `#1076`'s "exact set" proof passed while the Hub URL took the blueprint branch (D92a). The same shape was caught on `#1085`: a button that promised "starting with {concept}" while the engine served none of the focus ids (0 of 15, measured).
 5. **A guard can fail the PR that earns it.** `#1085` removed the last live importer of `weakAreaAggregator.ts` and tripped `noOrphans`; a new test importing a gated page tripped `entitlementGating`. Both were fixed in the PR (dated `ALLOWED_ORPHANS`, a gate stub) rather than by weakening a guard.
 
-**Lanes (the table is the PRs; SHAs and times docs-builder-verified, ‹PENDING› rows were not merged when this was drafted).**
+**Lanes (the table is the PRs; SHAs and times docs-builder-verified from `git log`; all six D100 product items are merged).**
 
 | PR | merge SHA | merged (UTC) | what it changed |
 |---|---|---|---|
@@ -45,7 +45,7 @@
 | `#1090` BANK-FIX-7 PR-2 | `86b3b1e2` | 10-11 08:49 | `PYQ-M-TRI-005` key corrected (△CBA ~ △CAD); `PYQ-S-2026-METAL-005` is the official 4-mark Section E case; `ELEC-NCERT-11-LA-002` carries NCERT Q1; 3 rows served again |
 | `#1089` SOLUTION-FIGS-1 PR-3 | `9dac281b` | 10-11 09:00 | Carbon, Metals and Chemical Reactions solution figures |
 | `#1091` SOLUTION-FIGS-1 PR-4 | `74bb6423` | 10-11 09:10 | Electricity and Heredity solution figures |
-| `#1092` SOLUTION-FIGS-1 PR-5 | ‹PENDING› | ‹PENDING› | Light (glass slab, prism) solution figures |
+| `#1092` SOLUTION-FIGS-1 PR-5 | `20d031d1` | 10-11 09:20 | Light (glass slab, prism) solution figures |
 
 **Reviews on file (cofounder byte-review PASS, by head):** `#1069` `0489cbd` (D77a) · `#1046` `366ee605` then `28de14ac` (D78b, D89b) · `#1074` `20947e4f` (D84b) · `#1081` `fcaf7ce3` (D84a) · `#1065` `908fce8c` (D82a) · `#1085` `25cdb5b9` (D86a) · `#1088` `fa6e47e2` (D94a, not merged) · `#1087` `bc39a553` (D95) · `#1076` `fd77c140` (D96) · `#1090` `0509dab2` (D97a) · `#1086` `9d7f1dcf` (D97b, not merged). Independent Opus verifiers: `#1085` found the over-promising button copy and two real defects (a blank Learning Path tab, an order-only regression the old fixture let through).
 

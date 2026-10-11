@@ -6,11 +6,11 @@
 
 ★ **SCOPE.** Written by C2 (docs lane, D100) from the board `#973` (DECISIONs 75–100 and the controllers' MERGE / LIVE posts) and `git log origin/base/approved-thru-437`. **This block covers 2026-10-10 18:00Z to the close of 2026-10-11.** The commits between the J2 block (2026-10-07) and 2026-10-10 18:00Z (waves A-17/A-18, B-19..B-22 and the figure, bank and syllabus lanes) are in `git log` and on the board; **this docs PR does not re-document them** — a later docs lane should. Count the rows below rather than trusting a number written here.
 
-★ **TRUNK AT DRAFTING: `2d7cc83c`** (`#1082`, 2026-10-11 07:43Z). The trunk SHA at this PR's own merge is the next SHA in `git log` (this is the last item of the day, D100). Trunk moved after almost every merge, so each open PR was BEHIND again and the strict up-to-date merge rule made the one-at-a-time queue (D90, D98, CI-1's MERGE-ORDER) the throughput limit, not CI.
+★ **TRUNK AT DRAFTING: `20d031d1`** (`#1092`, 2026-10-11 09:20Z, the last of the six D100 product items). The trunk SHA at this PR's own merge is the next SHA in `git log` (this is the last item of the day, D100). Trunk moved after almost every merge, so each open PR was BEHIND again and the strict up-to-date merge rule made the one-at-a-time queue (D90, D98, CI-1's MERGE-ORDER) the throughput limit, not CI.
 
 ★ **PROVENANCE.** Controllers: A (fair-use, grading client, top-ups), B (question figures, bank fixes), C1 (concepts, notes, break reminder), C2 (Me / Weak Area, fair-use warnings, Meta pixel PR-2), D (solution figures), E (cost + hardening), CI-1 (coordinator) and the cofounder (every DECISION). Tags: *(controller-reported)* = the merger's MERGE / LIVE post on `#973`; *(docs-builder-verified)* = SHA and merge time re-read from `git log` while writing this block.
 
-### What merged (oldest first; SHAs and times docs-builder-verified; ‹PENDING› rows were not merged when this was drafted)
+### What merged (oldest first; SHAs and times docs-builder-verified from `git log`; all six D100 product items are merged)
 | PR | merge SHA | merged (UTC) | what it changed |
 |---|---|---|---|
 | `#1062` PENDING-UPLOAD-1 PR-2 | `543177db` | 10-10 18:34 | A downloaded worksheet gets a pending record + a saved paper; "Upload later" works from the banner |
@@ -45,7 +45,7 @@
 | `#1090` BANK-FIX-7 PR-2 | `86b3b1e2` | 10-11 08:49 | `PYQ-M-TRI-005` key corrected (△CBA ~ △CAD); `PYQ-S-2026-METAL-005` is the official 4-mark Section E case; `ELEC-NCERT-11-LA-002` carries NCERT Q1; 3 rows served again |
 | `#1089` SOLUTION-FIGS-1 PR-3 | `9dac281b` | 10-11 09:00 | Carbon, Metals and Chemical Reactions solution figures |
 | `#1091` SOLUTION-FIGS-1 PR-4 | `74bb6423` | 10-11 09:10 | Electricity and Heredity solution figures |
-| `#1092` SOLUTION-FIGS-1 PR-5 | ‹PENDING› | ‹PENDING› | Light (glass slab, prism) solution figures |
+| `#1092` SOLUTION-FIGS-1 PR-5 | `20d031d1` | 10-11 09:20 | Light (glass slab, prism) solution figures |
 
 ### What is DARK (built, merged, switched off) — do not call it live
 | item | the switch | state |

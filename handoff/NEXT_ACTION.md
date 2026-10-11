@@ -2,7 +2,7 @@
 
 *(The owner items of every block below stand unchanged, except the items this block names.)*
 
-**TRUNK AT DRAFTING: `2d7cc83c`** (`#1082`); the SHA at this PR's merge is the next one in `git log`. Re-derive trunk with `git fetch` + `git rev-parse origin/base/approved-thru-437` before anything.
+**TRUNK AT DRAFTING: `20d031d1`** (`#1092`); the SHA at this PR's merge is the next one in `git log`. Re-derive trunk with `git fetch` + `git rev-parse origin/base/approved-thru-437` before anything.
 
 ★ **STANDING FOR EVERY CONTROLLER FROM NOW ON (each from a DECISION in `DECISION_LOG.md`):**
 - **Merge a green, CLEAN, next-in-order PR in the SAME turn you see it** (D90) and **always have a loop or a background watcher armed** (D98); post `<X> BLOCKED: <reason>` at once if you cannot.
@@ -21,7 +21,7 @@
 3. **E: `#1013` LOW-END-3 PR-3** (`DesktopShell.tsx`, authorised by D76b). Needs mobile Lighthouse before/after and the D76b proofs (before/after screenshots at 1280 and 390, every sidebar link, LCP not worse, independent verifier, AUDIT-REQUEST). The stale `BreakReminder` comment at `DesktopShell.tsx:434` goes with it.
 4. **The follow-ups** in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` (2026-10-11 section): `[FU-EXACT-SET-TOPUP]`, `[FU-EXACT-SET-REFRESH]`, `[FU-HARDEN-VISUAL-RESIDUE]`, `[FU-TOPUP-RACE]`, `[FU-WAP-SAVED-PATH-STALE]`, `[FU-SHARED-REPORT-STALE]`, `[FU-WEAKAREA-AGGREGATOR-RETIRE]`, `[FU-NOTES-CAPTION-DOUBLED]`, `[FU-NCERT-CROP-WATERMARK]`, `[FU-COST-CHUNK-TELEMETRY]`, `[FU-RULE5-PRECISION]`, `[ADMIN-QLOOKUP-1]`, `[FU-ME-CONSISTENCY-CLOCK-FLAKE]`, `[FU-30DAY-WARN-BANNER]`.
 5. **A later docs lane:** document 2026-10-07 to 2026-10-10 18:00Z (waves A-17/A-18, B-19..B-22 and the figure, bank and syllabus lanes), which this PR does not cover.
-6. **Pending at drafting — confirm each merged and was LIVE before relying on it:** `#1087`, `#1076`, `#1090`, `#1089`, SOLUTION-FIGS-1 PR-4 and PR-5 (the `CURRENT_STATE.md` table marks them ‹PENDING› until filled).
+6. **All six D100 product items merged** (`#1087`, `#1076`, `#1090`, `#1089`, `#1091`, `#1092`); each carries a LIVE line on `#973` from A or CI-1. Re-read `/version.json` before relying on a figure here.
 
 ### NEXT — OWNER (OWNER-BATCH; none of these was run on a real signed-in phone by a controller)
 1. **Fair-use banner (`#1060`), Premium account:** no banner below 75%; a reading of 75% or more shows it at 390 px; Me/Progress sentence + "See usage" lands on the usage card; the trial pop-up at the daily limit (bold "You've used today's N answer checks. Premium removes the daily limit.", grey "Come back after midnight for N more...").
