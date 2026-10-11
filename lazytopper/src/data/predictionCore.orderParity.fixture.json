@@ -47,8 +47,8 @@
    ]
   },
   "triangles": {
-   "n": 417,
-   "sha256": "1801213a603b39b18f3d7fa9eb546cfaa3e0ce75036f2f2d244c28f8eca81bae",
+   "n": 416,
+   "sha256": "b9fe793e827606735c59f7912050368b85a855205443e81bfe8e3a282bfbbc8a",
    "head": [
     "BX-TRI-E-028",
     "BX-TRI-E-036",
@@ -83,8 +83,8 @@
    ]
   },
   "areas-related-to-circles": {
-   "n": 300,
-   "sha256": "b9d9eef53cea40353a5925d9f7a555b75bd936fd7d00cce5f8f42c4d8b6ba744",
+   "n": 301,
+   "sha256": "ae434df925e0832ac65671a631ffbc07f368d7aec3ee75447a0c008aac079578",
    "head": [
     "Z3-ARC-001",
     "LTG-M-ARC-297",
@@ -137,8 +137,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 521,
-   "sha256": "1fc8f5a5b12dd85b59e2ea5529b6b39e8c9119576302994f02ada5fc2762f2ea",
+   "n": 519,
+   "sha256": "241448e7838d354b2f79bb473842110d67b97c63d5fcfe224199fc836e688266",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
@@ -155,8 +155,8 @@
    ]
   },
   "light-reflection-and-refraction": {
-   "n": 796,
-   "sha256": "347abc0cae57f96f6b3da67c960e1d064e78a798349feaf793fb022713b50aeb",
+   "n": 795,
+   "sha256": "d362580b1c1238156bd847ebac89007c39888a34a57245bf5e43076c9c6e95ea",
    "head": [
     "LTG-S-LIGHT-253",
     "LTG-S-LIGHT-257",
@@ -164,8 +164,8 @@
    ]
   },
   "human-eye-and-colourful-world": {
-   "n": 304,
-   "sha256": "8dac48ff3291e12052be47c810d163f4e72d71357d9a5254f7bd754bbfd5e9bb",
+   "n": 303,
+   "sha256": "90afff4f32044116584da6a6d2993d7fd0eaf13f3d21ae456591844e8d1eb66a",
    "head": [
     "LTG-S-EYE-104",
     "LTG-S-EYE-233",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 408,
-   "sha256": "84f55884724f60a896d01de14ee06834104404eec715f6e9bf9f9567b14f8a53",
+   "n": 403,
+   "sha256": "bba42962b04a0937bec217cc25c3ea8ae49473de8bde047a1500e1535d479f7e",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -182,8 +182,8 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 276,
-   "sha256": "c36b5901ffcb729d0bb6088dd0be1c00a4f1d605e1c84226c2ac4a70b5c143e7",
+   "n": 274,
+   "sha256": "025a3f1bb84c9d4a9be19d4542561a87463e1b7d666592fc41a4b254a9af8cea",
    "head": [
     "LTG-S-MAG-253",
     "LTG-S-MAG-254",
@@ -191,8 +191,8 @@
    ]
   },
   "life-processes": {
-   "n": 592,
-   "sha256": "8b50ca65e7e9a708710b0493fb06656254e0202897fde854640499d6d534a8b8",
+   "n": 590,
+   "sha256": "afd26d917a05e6838836c60f26707a8c28e04e1887fa3b65db2ac51ea2526d09",
    "head": [
     "LTG-S-LIFE-257",
     "LTG-S-LIFE-216",
@@ -200,8 +200,8 @@
    ]
   },
   "control-and-coordination": {
-   "n": 381,
-   "sha256": "547586384459cb03e9678e4ecbd37a3a311fee40b3ce1448bea73f07c84400eb",
+   "n": 380,
+   "sha256": "1e8aacd251b7c2863a294c8f8e50824e9c90b7f1462bbdf36f97f7eff8dd18a2",
    "head": [
     "LTG-S-CTRL-213",
     "LTG-S-CTRL-255",
@@ -209,8 +209,8 @@
    ]
   },
   "how-do-organisms-reproduce": {
-   "n": 525,
-   "sha256": "803cf2634010e0d1d8813349c5a05cdcf7600efcb8e95baf41ec29f26b16d24d",
+   "n": 524,
+   "sha256": "1cc2f20ba0cd991e49af5ab47a73f3a4524114b52b20ab838de101aef3d3c550",
    "head": [
     "LTG-S-REPR-254",
     "LTG-S-REPR-256",
@@ -284,7 +284,7 @@
   },
   "triangles": {
    "n": 39,
-   "sha256": "4b316feb7d5ea28bb1c24cd5d33e7b770aedbdb7e125afc5342e04f2ebc9c4e0",
+   "sha256": "d6e318a62991802c6c0e2d3a130b4dec835362d02011b529cbd1840ad62561e1",
    "head": [
     "BPT & Similar Triangles\tCBE-M-TRI-A-002,CBE-M-TRI-C-003,CBE-M-TRI-C-007,CBE-M-TRI-C-004,CBE-M-TRI-C-005,2026-TRIANGLE-LA-03",
     "BPT (Basic Proportionality Theorem)\tBX-TRI-E-028,BX-TRI-E-036,LTG-M-TRI-276,LTG-M-TRI-283,BX-TRI-E-012,BX-TRI-E-013,LTG-M-TRI-296,LTG-M-TRI-282,AR-TRI-007,AR-TRI-001,BX-TRI-EX-A-010,PYQ-M-2024-TRI-002,LTG-M-TRI-208,LTG-M-TRI-220,CBE-M-TRI-A-001,CBE-M-TRI-A-003,LTG-M-TRI-201,APQ-M-TRI-003,TRI-N-NCERT-6-LA-002,TRI-N-EXMPLR-6-LA-004,BX-TRI-D-042,LTG-M-TRI-306,TRI-PRF-D-001,TRI-PRF-D-005,BX-TRI-D-001,BX-TRI-D-002,BX-TRI-D-023,BX-TRI-PF-003,CBE-M-TRI-C-001,LTG-M-TRI-241,LTG-M-TRI-255,TRI-N-EXMPLR-6-SA-009,TRI-PRF-C-001,BX-TRI-EX-B-001,BX-TRI-EX-B-003,BX-TRI-PF-012,CBE-M-TRI-B-003,LTG-M-TRI-252,LTG-M-TRI-260,BX-TRI-EX-A-008,TRI-N-NCERT-6-SA-001,LTG-M-TRI-240,CBE-M-TRI-B-001,2026-TRI-SA-07,TR3-054,TR3-021,TR3-050,TR3-008,TR3-009,TR3-039,TR3-040,TR3-057,TR3-007,TR3-006,TR3-038",
@@ -320,7 +320,7 @@
   },
   "areas-related-to-circles": {
    "n": 90,
-   "sha256": "395e7865f3dd925279bb17f47de0d579593018becece93513020d1ddda0fa9b3",
+   "sha256": "7f62b5f7db549a0cc04fb0e2a05a0745622deec2566f306564c5d48ac28f82ef",
    "head": [
     "Arc Length\tLTG-M-ARC-300,LTG-M-ARC-278,LTG-M-ARC-224,LTG-M-ARC-230,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,LTG-M-ARC-204,LTG-M-ARC-208,LTG-M-ARC-218,LTG-M-ARC-201,LTG-M-ARC-207,LTG-M-ARC-241,LTG-M-ARC-249,LTG-M-ARC-264,LTG-M-ARC-267,LTG-M-ARC-268,ARC-N-NCERT-11-SA-001,ARC-N-EXEM-11-SA-006,APQ-M-ARC-009,PYQ-M-2024-ARC-006b,LTG-M-ARC-234,LTG-M-ARC-238,LTG-M-ARC-239,LTG-M-ARC-240,LTG-M-ARC-257,LTG-M-ARC-258,LTG-M-ARC-272,ARC-N-EXEM2-11-SA-006,LTG-M-ARC-231,LTG-M-ARC-233,LTG-M-ARC-266,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
     "Arc Length from Bent Wire\tLTG-M-ARC-300,LTG-M-ARC-278,LTG-M-ARC-224,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,LTG-M-ARC-208,LTG-M-ARC-218,LTG-M-ARC-201,LTG-M-ARC-207,ARC-N-EXEM-11-SA-006,PYQ-M-2024-ARC-006b,LTG-M-ARC-234,LTG-M-ARC-239,LTG-M-ARC-240,LTG-M-ARC-257,LTG-M-ARC-258,LTG-M-ARC-272,LTG-M-ARC-231,LTG-M-ARC-233,LTG-M-ARC-266,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
@@ -374,7 +374,7 @@
   },
   "metals-and-non-metals": {
    "n": 113,
-   "sha256": "dcffad6155d9ce95b10392b254655ada571c6d24e4656daa03bf43b10c67dade",
+   "sha256": "9100c1fbb2fd9ee0d70be500342ab52176073b0e084a23ce295ca3ee6b45ac58",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
@@ -392,7 +392,7 @@
   },
   "light-reflection-and-refraction": {
    "n": 165,
-   "sha256": "70e1401091126bb839839c8b98a365ae4dd05bf4c8bfc90c559a78b2295b4472",
+   "sha256": "0a790b5a3ec11827e1ec271c31f1ee48fdba2c281c863367ba9ba6245f55b683",
    "head": [
     "Always Erect Image\tLIGHT-NCERT-9-MCQ-005",
     "Cause of Refraction\tLTG-S-LIGHT-255,LTG-S-LIGHT-244,2026-LIGHT-MCQ-02,CBE-S-LGHT-B-008,LT-M08,LT2-042,LT-H04,LT-M04,LT2-035,LT-E11,LT-M10,LT-M15,LT2-034,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-010,LT2-022,LT2-033,LT2-050,LT2-054,LT2-057,LT-E13,LT-E09",
@@ -401,7 +401,7 @@
   },
   "human-eye-and-colourful-world": {
    "n": 50,
-   "sha256": "3a273245be8b9e27d9e3218be6ef64daa75be0e8945aee477a7b8e6c412eba25",
+   "sha256": "09e96784b41e00af928c3d9011ce0e082499e5405609671a836da9825710b088",
    "head": [
     "Accommodation of Eye\tPYQ-S-2024-EYE-004",
     "Accommodation of the Eye\tCFPQ-S-EYE-008,CFPQ-S-EYE-002",
@@ -409,8 +409,8 @@
    ]
   },
   "electricity": {
-   "n": 148,
-   "sha256": "f79f3d26f27beba3b47a342c0e3c4191d2fdbf255d3dab479b36eae2b180d151",
+   "n": 147,
+   "sha256": "54af857e7f464913c515296af0f5a6d598802d7280cd74e6736bb8852bececa2",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
@@ -419,7 +419,7 @@
   },
   "magnetic-effects-of-electric-current": {
    "n": 55,
-   "sha256": "c82e991d9766b64e0c166891ed1f3aa2e8ddd7360cde5b13d0adb851bcf67c20",
+   "sha256": "00dbfc3ca871e7c110fc71c3a87a0000ba43574c50088042bfa0a5de1e1f53f7",
    "head": [
     "AC Frequency\tLTG-S-MAG-296,LTG-S-MAG-005,LTG-S-MAG-002,LTG-S-MAG-003,LTG-S-MAG-283,LTG-S-MAG-001,LTG-S-MAG-006,LTG-S-MAG-008,LTG-S-MAG-009,LTG-S-MAG-288,LTG-S-MAG-010,LTG-S-MAG-004,LTG-S-MAG-007",
     "AC and DC\tLTG-S-MAG-292,PYQ-S-2026-ACID-018,ME2-048,ME2-017,ME2-039,ME2-041",
@@ -428,7 +428,7 @@
   },
   "life-processes": {
    "n": 133,
-   "sha256": "235c99205ced4a38db8b8c0704ccf5d448f4969cb890d03812123d1e06d8e66b",
+   "sha256": "e035d1ac08cd9e0a5fd980264dd6ef80fe1a8b92e662ba9654b94a2913834662",
    "head": [
     "ATP\tLIFE-EXMPLR-5-SA-026",
     "Acidity in Stomach\tLIFE-EXMPLR-5-MCQ-006,LIFE-NCERT-5-VSA-005",
@@ -437,7 +437,7 @@
   },
   "control-and-coordination": {
    "n": 102,
-   "sha256": "cca72412a1b1b1967ed606dc5772fd1086c6c73df142a80f3ca4a4592f55335a",
+   "sha256": "8fcdabdb7a5e2a6c5df5d7ec6c1247a54eb72c75b1ecb8912e8083db3d6c29a6",
    "head": [
     "Abscisic Acid\tCFPQ-S-CTRL-011,CFPQ-S-CTRL-006,CTRL-EXMPLR-6-MCQ-011,CTRL-EXMPLR-6-MCQ-020",
     "Adrenaline\tCFPQ-S-CTRL-010,CBE-S-CTRL-A-008,CTRL-NCERT-6-SA-009,APQ-S-CTRL-005",
@@ -446,7 +446,7 @@
   },
   "how-do-organisms-reproduce": {
    "n": 151,
-   "sha256": "8f386124abcdfccddf027803c40ac95894356176d711f54f80d9d5b6d3a41a29",
+   "sha256": "96b96d47d334eca9869daa1608135d80a1d3d91bc5fd60deb620f131ff315a8a",
    "head": [
     "Artificial Vegetative Propagation\tLTG-S-REPR-102,LTG-S-REPR-233,LTG-S-REPR-235,LTG-S-REPR-236,LTG-S-REPR-225,CFPQ-S-REPR-008,LTG-S-REPR-222,PYQ-S-2025-REPR-002,PYQ-S-2024-REPR-001,LTG-S-REPR-107,LTG-S-REPR-221,LTG-S-REPR-224,LTG-S-REPR-239,BX-REP-EX-A-005,REPR-EXMPLR-7-MCQ-013,LTG-S-REPR-229,LTG-S-REPR-231,LTG-S-REPR-232,LTG-S-REPR-230,CFPQ-S-REPR-009,LTG-S-REPR-227,LTG-S-REPR-228,LTG-S-REPR-238,BX-REP-EX-A-004,PYQ-S-REPR-004,BX-REP-EX-B-013,BX-REP-EX-C-009,BX-REP-EX-B-001,REPR-NCERT-7-SA-006,BX-REP-D-023,BX-REP-D-002",
     "Asexual Modes\tREPR-EXMPLR-7-LA-001,REPR-EXMPLR-7-MCQ-001",

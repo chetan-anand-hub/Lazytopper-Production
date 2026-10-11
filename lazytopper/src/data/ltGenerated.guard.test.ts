@@ -34,6 +34,7 @@ import {
 } from "./canonicalQuestionBank";
 import type { CanonicalQuestion } from "./predictionTypes";
 import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix/bankFix1Pr2Withholds";
+import { RULE5_BIND_1_WITHHOLD_CATEGORY } from "./bankFix/rule5Bind1Withholds"; // RULE5-BIND-1 (11 Oct): its category also feeds the template rule
 import { BANK_FIX_5, type BankFix5Entry } from "./bankFix/bankFix5Ledger";
 import { resolveCanonicalSlug } from "./syllabus/canonicalTopicSlug";
 import { PredictionCore } from "./predictionCore";
@@ -87,7 +88,7 @@ export const LIMIT_TEMPLATE_REVIEWED: ReadonlySet<string> = new Set(["LTG-M-TRIG
 const templateOf = (q: CanonicalQuestion, ledger: readonly BankFix5Entry[] = BANK_FIX_5): CanonicalQuestion | undefined => {
   const id = String(q.shapedFrom);
   if (BANK_BY_ID.has(id)) return BANK_BY_ID.get(id);
-  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id) ?? ledger.find((e) => e.id === id && e.verdict === "withheld")?.category;
+  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id) ?? RULE5_BIND_1_WITHHOLD_CATEGORY.get(id) ?? ledger.find((e) => e.id === id && e.verdict === "withheld")?.category;
   const allowed = cat !== undefined && (TEMPLATE_MAY_BE_WITHHELD.has(cat) || (cat === "limit" && LIMIT_TEMPLATE_REVIEWED.has(q.id)));
   return allowed && WITHHELD_QUESTION_IDS.has(id) ? RAW_BY_ID.get(id) : undefined;
 };

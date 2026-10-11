@@ -48,10 +48,16 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // (1514 / 458 / 0.7861) sat below the tip by 4 / 2 / 0.013; they are tightened to the exact new numbers.
 // Rebased onto BANK-UNWITHHOLD-1 (#1066) at a863452f: B's +11 mapped and +1 reviewed ('Benzene') are added, so the final pins are
 // mapped 1822, reviewed 164, rows with a concept 9716 of 10613 (0.91548), recomputed from the merged tip by runtime import.
-const MIN_MAPPED_LABELS = 1822;
+// 2026-10-11 RULE5-BIND-1 (cofounder D68b, D74; merged onto CONCEPT-MAP-FILL-1 at 2b31f74a): 16 rows withheld. "Series Circuit Readings" is
+// unserved while SCO-S-ELEC-012 (garbled wiring text) is withheld, so its line is deleted: mapped 1822 -> 1821 (-1). Reviewed stays 164.
+// Rows with a concept 9716 of 10613 -> 9711 of 10597 (0.91639; the withheld rows leave the denominator), so that pin is tightened.
+// All three recomputed from the merged tip by runtime import.
+// Merged onto SQP-2026-27-Q10 (#1084, be60b739; trunk pin was 0.9153 for 9716 / 10614): +1 served row whose label is reviewed, so
+// rows with a concept are 9711 of 10598 (0.91630) by runtime import; the 0.9163 pin still holds and is kept.
+const MIN_MAPPED_LABELS = 1821;
 const MAX_REVIEWED_LABELS = 164;
-/** served rows whose label resolves to a concept / all served rows: 9697+19 / 10613 = 9716 / 10613. */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9154;
+/** served rows whose label resolves to a concept / all served rows: 9711 / 10598. */
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9163;
 
 const isChapterEchoSubtopic = echoFromShape;
 

@@ -15,6 +15,7 @@ import {
   demandsSuppliedFigure,
 } from "../../scripts/seo/publishability";
 import { getBankRowsForSubject } from "../data/bankChapters/loader";
+import { RAW_CANONICAL_QUESTION_BANK } from "../data/canonicalQuestionBank";
 import { predictedQuestions } from "../data/predictedQuestions";
 import { sciencePredictedQuestions } from "../data/predictedQuestionsScience";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
@@ -43,9 +44,12 @@ const bankBySubject = Object.fromEntries(
   SUBJECTS.map((s) => [s, getBankRowsForSubject(s)]),
 ) as Record<(typeof SUBJECTS)[number], CanonicalQuestion[]>;
 
-/** Canonical rows that demand a figure and have none bound — computed, never listed. */
+/** Canonical rows that demand a figure and have none bound — computed, never listed.
+ *  RULE5-BIND-1 (11 Oct): read from the RAW bank. Those rows are now WITHHELD from the live bank (no served row may need a figure it
+ *  lacks - figureSafe.allSurfaces.test.ts), so the live bank holds none; the selectors' own filters are still proven here by feeding
+ *  them the rows the bank used to carry. */
 const RULE5 = Object.fromEntries(
-  SUBJECTS.map((s) => [s, bankBySubject[s].filter((q) => needsMissingFigure(q))]),
+  SUBJECTS.map((s) => [s, RAW_CANONICAL_QUESTION_BANK.filter((q) => String(q.subject) === s && needsMissingFigure(q))]),
 ) as Record<(typeof SUBJECTS)[number], CanonicalQuestion[]>;
 const RULE5_IDS = new Set(SUBJECTS.flatMap((s) => RULE5[s].map((q) => q.id)));
 
