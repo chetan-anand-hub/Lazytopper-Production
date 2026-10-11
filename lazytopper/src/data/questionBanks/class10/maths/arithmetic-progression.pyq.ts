@@ -19,7 +19,7 @@ export const ARITHMETIC_PROGRESSION_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-AP-002", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "(A) How many terms are there in an A.P. whose first and fifth terms are −14 and 2 respectively, and the last term is 62?\nOR\n(B) Which term of the A.P. 65, 61, 57, 53, … is the first negative term?",
     answer: "(A) 20 terms. OR (B) The 18th term (a₁₈ = −3) is the first negative term.",
-    solutionSteps: ["[1 mark] (A) a = −14, a₅ = a + 4d = 2 ⇒ 4d = 16 ⇒ d = 4.", "[1 mark] aₙ = 62 ⇒ −14 + (n − 1) × 4 = 62 ⇒ n − 1 = 19.", "[1 mark] n = 20, so there are 20 terms.", "OR (B) [1 mark] a = 65, d = −4; for the first negative term aₙ < 0 ⇒ 65 + (n − 1)(−4) < 0 ⇒ 69 − 4n < 0.", "[1 mark] n > 69/4 = 17.25, so the least integer n = 18.", "[1 mark] a₁₈ = 65 − 17 × 4 = −3; the 18th term is the first negative term."],
+    solutionSteps: ["[2 marks] (A) a = −14, a₅ = a + 4d = 2 ⇒ 4d = 16 ⇒ d = 4.", "[1 mark] aₙ = 62 ⇒ −14 + (n − 1) × 4 = 62 ⇒ n − 1 = 19. n = 20, so there are 20 terms.", "[1.5 marks] OR (B) a = 65, d = −4; for the first negative term aₙ < 0 ⇒ 65 + (n − 1)(−4) < 0 ⇒ 69 − 4n < 0.", "[1 mark] OR n > 69/4 = 17.25, so the least integer n = 18.", "[½ mark] OR a₁₈ = 65 − 17 × 4 = −3; the 18th term is the first negative term."],
     finalAnswer: "(A) 20 terms OR (B) 18th term (= −3)",
     ncertRef: "PYQ 30/4/1 Q26", isCompetencyBased: true,
     sourceOverride: "others",

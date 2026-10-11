@@ -59,7 +59,11 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // mathsFigureVisuals.diagrams1.test.ts. APQ-M-CIRC-007 carries two figures (main + OR part).
     // 116 -> 123 at DIAGRAMS-1 PR-6 (2026-10-07): +7 Trigonometry / Coordinate Geometry crops for 5 rows (APQ, board paper),
     // pinned one by one in mathsFigureVisuals.diagrams1.test.ts. APQ-M-TRIG-010 carries three figures (parts i, iii, OR iii).
-    expect(batch).toHaveLength(123); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
+    // 123 -> 127 at DIAGRAMS-1 C3 PR-D1 (2026-10-07): +4 Surface Areas and Volumes / Arithmetic Progression crops for 4
+    // served rows (APQ, board paper 2026), pinned one by one in mathsFigureVisuals.c3.test.ts.
+    // 127 -> 140 at the C3 PR-D1 B-21 census step (2026-10-10): +13 crops for 11 WITHHELD rows (APQ, SQP), each declared
+    // in BOUND_BUT_WITHHELD and pinned in mathsFigureVisuals.c3.test.ts. APQ-M-ARC-004 and APQ-M-POLY-001 carry two each.
+    expect(batch).toHaveLength(140); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {
@@ -102,7 +106,8 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // Declared exception (DIAGRAMS-1 PR-1): APQ-M-CIRC-007's stem carries an OR part with its own printed figure, so
     // it binds two DIFFERENT crops in source order. Any other multi-figure row must be declared here deliberately.
     // DIAGRAMS-1 PR-6: APQ-M-TRIG-010 prints a separate figure for part (i), part (iii) and the OR part (iii).
-    const MULTI_FIGURE: Record<string, number> = { "APQ-M-CIRC-007": 2, "APQ-M-TRIG-010": 3 };
+    // C3 PR-D1: APQ-M-ARC-004 (main + OR part) and APQ-M-POLY-001 (option graphs a-b, c-d) print two figures each.
+    const MULTI_FIGURE: Record<string, number> = { "APQ-M-CIRC-007": 2, "APQ-M-TRIG-010": 3, "APQ-M-ARC-004": 2, "APQ-M-POLY-001": 2 };
     const dup = batch.filter((f) => getFiguresForQuestion(f.questionId).length !== (MULTI_FIGURE[f.questionId ?? ""] ?? 1));
     expect(dup.map((f) => f.questionId)).toEqual([]);
     for (const qid of Object.keys(MULTI_FIGURE)) {

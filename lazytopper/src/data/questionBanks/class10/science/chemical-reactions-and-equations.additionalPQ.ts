@@ -41,7 +41,7 @@ export const CHEMICAL_REACTIONS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[0.5 mark] When copper is heated strongly in air, it combines with atmospheric oxygen — this is an oxidation reaction: 2 Cu + O2 → 2 CuO.", "[0.5 mark] The product CuO (copper(II) oxide) is BLACK in colour. Reddish-brown copper is converted to black CuO; the metal undergoes oxidation (gain of oxygen)."],
     finalAnswer: "(d) Red-coloured copper is oxidized to black-coloured copper(II) oxide",
     ncertRef: "APQ Science-PQ2 Q1", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: experimental set-up of copper being heated in air over a flame." },
+ },
 
   // Science-PQ2 Q2 (Section A, MCQ, 1 mark)
   { id: "APQ-S-CHEM-004", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Balancing Chemical Equations", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",

@@ -36,7 +36,11 @@ const TEST_DIR = resolve(SRC, "test");
 // BANK-SPLIT-1 ran (Daily Mix, the old Worksheets pages and their helpers) were deleted once
 // that lane closed, by owner ruling. Every src file must now be reachable from a live root.
 // The reason-required rule below still applies to any entry a future lane adds.
-export const ALLOWED_ORPHANS: Record<string, string> = {};
+export const ALLOWED_ORPHANS: Record<string, string> = {
+  // 2026-10-10 BREAK-REMINDER-OFF-1 (owner, D52): BreakReminder.tsx was this file's only importer (logBreakEvent) and now
+  // renders nothing. Removed together with the App.tsx mount in the next owner-authorised App.tsx PR [FU-BREAK-REMINDER-MOUNT-REMOVE].
+  "src/services/sessionLogger.ts": "orphaned by the retirement of BreakReminder (D52); deleted with its App.tsx mount",
+};
 
 const SKIP_DIRS = new Set(["node_modules", "dist", ".git"]);
 const CODE = /\.(ts|tsx|js|jsx|mjs|cjs|mts|cts)$/;

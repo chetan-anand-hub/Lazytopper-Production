@@ -73,6 +73,16 @@ export const TUTOR_TRIAL_LIMIT_COPY = "You've reached today's Tutor limit. It re
 export const MORE_LIKE_THIS_TRIAL_LIMIT_COPY =
   "You've reached today's limit for new practice questions. Your saved questions still work.";
 
+/** ALL-AI-METERING-1 (DECISION 29d, owner-approved wording) - a FREE signed-in student's More-like-this call is a
+ *  402 premium_required. It is a plan fact, not a limit: no reset time, a link to the free trial. */
+export const MORE_LIKE_THIS_PREMIUM_ONLY_COPY = "More practice like this is part of Premium. Try it free for 7 days.";
+export const START_TRIAL_LABEL = "Start free trial";
+
+/** True for the typed error aiClient throws on a 402 premium_required. Read by name (suites mock aiClient partially). */
+export function isPremiumRequiredRefusal(err: unknown): boolean {
+  return !!err && typeof err === "object" && (err as { name?: unknown }).name === "PremiumRequiredError";
+}
+
 const PAPER_NOUN: Record<PaperScope, { when: string; one: string; many: string }> = {
   "chapter-test": { when: "today's", one: "chapter test", many: "chapter tests" },
   "full-mock": { when: "this week's", one: "full mock", many: "full mocks" },
@@ -316,4 +326,67 @@ export function limitFromAiRefusal(
     return { tier: "premium", scope, resetAt: info.resetAt ?? premiumResetFor(snapshot, window), window };
   }
   return null;
+}
+
+/* ── TRIAL-PAPER-1: a trial paper graded only up to today's checks ───────────
+ * Owner ruling 2026-10-07 (e): a free (trial) student's multi-question Check & Improve
+ * paper grades its FIRST questions — as many as today's checks allow (the server's
+ * checksPerDay, 5 by default) — and says so honestly, with an upgrade note. The
+ * questions after the cut are NEVER sent: never graded, never charged, never given a
+ * mark, never counted as a mistake / weak area / progress. Nothing here grants or
+ * implies premium; the server stays the authority on what is graded (409 over-send). */
+
+export interface TrialPaperCut {
+  /** How many questions, from the TOP of the paper (paper order), were sent to be graded. */
+  graded: number;
+  /** The paper's own detected question count. */
+  total: number;
+  /** Paper-order indices of the questions NOT sent (always graded..total-1, never a chosen subset). */
+  notGradedIndices: number[];
+}
+
+/**
+ * PURE. The cut a grade was sent with, or null when the whole paper was sent (premium,
+ * an un-metered student, or a trial paper that fits today's checks). `limitTo` is the R
+ * the student confirmed ("we'll mark the first R"); null means the whole paper.
+ *
+ * MUTATION TP-MUT-1 target ("a chosen subset" / off-by-one) -> the 38-Q pin goes RED.
+ */
+export function trialPaperCut(total: number, limitTo: number | null): TrialPaperCut | null {
+  if (limitTo === null || !Number.isFinite(limitTo) || !Number.isInteger(total) || total <= 0) return null;
+  const graded = Math.max(0, Math.min(Math.floor(limitTo), total));
+  if (graded >= total) return null;
+  const notGradedIndices: number[] = [];
+  for (let i = graded; i < total; i++) notGradedIndices.push(i);
+  return { graded, total, notGradedIndices };
+}
+
+export interface TrialPaperNoteCopy {
+  /** What was graded, and why only that much. */
+  lead: string;
+  /** What happened to the rest (honest: nothing). */
+  body: string;
+  /** The upgrade line. No urgency, no discount, no premium claimed. */
+  upgrade: string;
+}
+
+const questionsPhrase = (n: number) => (n === 1 ? "question" : `${n} questions`);
+
+/**
+ * PURE. The note's sentences. `allowance` is the server's checksPerDay (/api/usage/me
+ * `trial.limits`); when fewer checks than that were left today the lead says so with
+ * the real number. Unknown allowance -> the plain sentence, never a guessed number.
+ *
+ * MUTATION TP-MUT-2 target (drop the "checks left" branch) -> the checksLeft-3 pin RED.
+ */
+export function trialPaperNoteCopy(cut: TrialPaperCut, allowance: number | null | undefined): TrialPaperNoteCopy {
+  const n = typeof allowance === "number" && Number.isInteger(allowance) && allowance > 0 ? allowance : null;
+  const g = cut.graded;
+  const lead =
+    n !== null && g < n
+      ? `Free trial: you had ${g} ${g === 1 ? "check" : "checks"} left today, so we graded the first ${questionsPhrase(g)}.`
+      : `Free trial: we graded the first ${questionsPhrase(g)}.`;
+  const rest = cut.total - g;
+  const body = `The other ${rest} ${rest === 1 ? "question was" : "questions were"} not graded — no marks, and nothing added to your score, progress or mistakes.`;
+  return { lead, body, upgrade: "Premium grades the whole paper." };
 }

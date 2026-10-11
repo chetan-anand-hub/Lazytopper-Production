@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "triangles" (Maths): 409 served rows from 23 source arrays, 120 withheld.
+// Chapter "triangles" (Maths): 411 served rows from 23 source arrays, 118 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -106,6 +106,7 @@ export default defineChapter("triangles", [
   "TRI-N-NCERT-6-CB-002",
   "TRI-N-EXMPLR-6-MCQ-008",
   "TRI-N-EXMPLR-6-SA-001",
+  "TRI-N-EXMPLR-6-LA-002",
   "AR-TRI-004",
   "AR-TRI-005",
   "AR-TRI-008",
@@ -161,7 +162,6 @@ export default defineChapter("triangles", [
   "BX-TRI-E-045",
   "CASE-MATHS-TRI-001",
   "CASE-MATHS-TRI-002",
-  "SQP-M-TRI-003",
   "CBE-M-TRI-A-004",
   "CBE-M-TRI-C-006",
   "SP-M-2022-TRI-A-001",
@@ -170,9 +170,7 @@ export default defineChapter("triangles", [
   "PB-M-1-TRI-C-001",
   "PB-M-2-TRI-A-001",
   "PB-M-2-TRI-A-002",
-  "APQ-M-TRI-003",
   "APQ-M-TRI-005",
   "APQ-M-TRI-008",
-  "APQ-M-TRI-009",
   "PYQ-M-TRI-001",
 ]);

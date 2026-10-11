@@ -20,6 +20,12 @@
             "[1 mark] (c) Cu is BELOW H in the reactivity series → Cu cannot displace H from dilute acids. No H₂ evolved, no reaction.",
             "[1 mark] (d) Zinc is amphoteric (reacts with both acid and strong base). With hot NaOH: Zn(s) + 2NaOH(aq) → Na₂ZnO₂(aq) + H₂(g)↑. H₂ is evolved.",
             "[1 mark] Summary: (a) faster; (b) yes H₂; (c) no reaction; (d) yes H₂ (different reaction with sodium zincate formation)."
+          ],
+          "figures": [
+            {
+              "src": "/figures/exemplar-science/acids-bases-and-salts/ACID-EXMPLR-2-LONG-001.webp",
+              "alt": "Source figure"
+            }
           ]
         },
         {
@@ -55,42 +61,65 @@
       "subject": "maths",
       "questions": [
         {
-          "id": "ARC-N-EXEM-11-LA-001",
-          "questionText": "A chord of a circle of radius 10 cm subtends an angle of 90° at the centre. Find the area of the corresponding major segment. (Use π = 3.14.)",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-ARC-002",
+          "questionText": "A regular pentagon is inscribed in a circle with centre O, of radius 5 cm. What is the area of the shaded part of the circle?",
+          "marks": 1,
+          "section": "A",
           "solutionSteps": [
-            "[1 mark] Setup: chord AB subtends 90° at centre O, radius r = 10 cm, so the major sector angle = 360° − 90° = 270°.",
-            "[1 mark] Area of major sector = (270/360) × πr² = (3/4) × π × 100.",
-            "[1 mark] = (3/4) × 3.14 × 100 = 235.5 cm².",
-            "[1 mark] Triangle OAB (right-angled at O): area = (1/2) × 10 × 10 = 50 cm².",
-            "[1 mark] Area of major segment = area of major sector + area of triangle = 235.5 + 50 = 285.5 cm²."
+            "[1 mark] The radii to the 5 vertices of the regular pentagon divide the circle into 5 congruent sectors, each of area (1/5)·π·5² = 5π cm². From the figure, the shaded part is one complete sector, plus the triangle of a second sector and the segment of a third sector; a triangle and a segment from congruent sectors together make one full sector. So shaded area = 2 × 5π = 10π cm²."
+          ],
+          "options": [
+            "2π cm^2",
+            "4π cm^2",
+            "5π cm^2",
+            "10π cm^2"
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-002.webp",
+              "alt": "Regular pentagon inscribed in a circle with centre O; two triangles from O to pentagon sides and two segments of the circle shaded"
+            }
           ]
         },
         {
-          "id": "ARC-N-EXEM-11-LA-002",
-          "questionText": "With vertices A, B and C of a right triangle ABC (right-angled at B) as centres, arcs of radius 5 cm each are drawn. If AB = 14 cm, BC = 48 cm and CA = 50 cm, find the area of the shaded region inside the triangle but outside the three sectors.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-ARC-003",
+          "questionText": "In the given figure, the area of the segment ACB is",
+          "marks": 1,
+          "section": "A",
           "solutionSteps": [
-            "[1 mark] Verification: 14² + 48² = 196 + 2304 = 2500 = 50², so ΔABC is right-angled at B.",
-            "[1 mark] Area of ΔABC = (1/2) × AB × BC = (1/2) × 14 × 48 = 336 cm².",
-            "[1 mark] Each sector contributes (∠/360) × π × 5², and the total angle = ∠A + ∠B + ∠C = 180° (angle sum of a triangle).",
-            "[1 mark] Total sector area = (180/360) × π × 25 = (1/2) × π × 25 = 12.5 × 3.14 = 39.25 cm².",
-            "[1 mark] Shaded area = area of triangle − total sector area = 336 − 39.25 = 296.75 cm²."
+            "[1 mark] From the figure, ∠AOB = 90° and OA = OB = r. Area of segment ACB = area of sector OACB − area of △OAB = (90°/360°)πr² − (1/2)·r·r = πr²/4 − r²/2 = (r²/4)(π − 2)."
+          ],
+          "options": [
+            "r^2/4 (π − 2)",
+            "r^2/4 (π + 2)",
+            "r^2/4 (π − 1)",
+            "r^2/4 (π + 1)"
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-003.webp",
+              "alt": "Circle with centre O; radii OA and OB, each r, at right angles (90 degrees marked); segment ACB between chord AB and the arc shaded"
+            }
           ]
         },
         {
-          "id": "ARC-N-EXEM2-11-LA-002",
-          "questionText": "The central angles of two sectors of circles of radii 7 cm and 21 cm are respectively 120° and 40°. Find the areas of the two sectors as well as the lengths of the corresponding arcs. What do you observe?",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-ARC-004",
+          "questionText": "ABCD is a rhombus with side 3 cm. Two arcs are drawn from points A and C respectively such that the radius equals the side of the rhombus. If BD is a line of symmetry for the figure, then find the area of the shaded part of the figure in terms of π. OR Wasim made a model of Pac-Man with area 120π cm^2 and mouth angle 60° at the centre. Find the minimum length of ribbon needed for the entire boundary in terms of π.",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] Sector 1 (r = 7, 120°) area = (120/360) × (22/7) × 7² = (1/3) × 154 = 154/3 cm².",
-            "[1 mark] Sector 2 (r = 21, 40°) area = (40/360) × (22/7) × 21² = (1/9) × 1386 = 154 cm².",
-            "[1 mark] Arc 1 = (120/360) × 2 × (22/7) × 7 = (1/3) × 44 = 44/3 cm.",
-            "[1 mark] Arc 2 = (40/360) × 2 × (22/7) × 21 = (1/9) × 132 = 44/3 cm.",
-            "[1 mark] Observation: the two arc lengths are equal (44/3 cm each) although the sector areas (154/3 cm² and 154 cm²) are different — equal arcs need not give equal areas."
+            "[1 mark] From the figure, ∠DAB = 60° and the arc through D and B is drawn with centre A, radius 3 cm. Area of sector ABD = (60/360) × π × 3² = 3π/2 cm²; △ABD has AB = AD = 3 cm and ∠A = 60°, so it is equilateral: area = (√3/4) × 3² = 9√3/4 cm². [OR Let the radius be r cm; the model is a sector of angle 360° − 60° = 300°: 120π = (300/360) × π × r² ⇒ r² = 144 ⇒ r = 12 cm.]",
+            "[1 mark] BD is a line of symmetry, so the shaded part = 2 × (area of sector ABD − area of △ABD) = 2 × (3π/2 − 9√3/4) = (3π − 9√3/2) cm². [OR Ribbon length = arc length + 2 radii = (300/360) × 2 × π × 12 + 24 = (20π + 24) cm.]"
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-004.webp",
+              "alt": "Rhombus ABCD with side 3 cm and angle A marked 60 degrees; arcs from A and C meet at D and B with the lens between them shaded; BD dashed"
+            },
+            {
+              "src": "/figures/apq-maths/areas-related-to-circles/APQ-M-ARC-004-2.webp",
+              "alt": "Shaded circle with a sector cut out at the centre, its angle marked 60 degrees"
+            }
           ]
         }
       ]
@@ -192,6 +221,12 @@
           "solutionSteps": [
             "[0.5 mark] Single displacement: R displaces Q from PQ ⟹ R bonds with P. For R to displace Q, R must form a more stable compound (PR) than PQ.",
             "[0.5 mark] R in original was free element; after reaction in PR, P is the cation (metal) and R becomes the anion (gained electrons from displacement). So R = anion, PR more stable."
+          ],
+          "options": [
+            "R forms the cation in the product, and PR is more stable than PQ.",
+            "R forms the cation in the product, and PR is less stable than PQ.",
+            "R forms the anion in the product, and PR is more stable than PQ.",
+            "R forms the anion in the product, and PR is less stable than PQ."
           ]
         },
         {
@@ -202,6 +237,12 @@
           "solutionSteps": [
             "[0.5 mark] When copper is heated strongly in air, it combines with atmospheric oxygen — this is an oxidation reaction: 2 Cu + O2 → 2 CuO.",
             "[0.5 mark] The product CuO (copper(II) oxide) is BLACK in colour. Reddish-brown copper is converted to black CuO; the metal undergoes oxidation (gain of oxygen)."
+          ],
+          "options": [
+            "Red-coloured copper is reduced to black-coloured copper(I) oxide",
+            "Red-coloured copper is oxidized to red-coloured copper(I) oxide",
+            "Red-coloured copper is reduced to black-coloured copper(II) oxide",
+            "Red-coloured copper is oxidized to black-coloured copper(II) oxide"
           ]
         },
         {
@@ -233,6 +274,12 @@
             "[1 mark] Using Heron's formula with semi-perimeter s = (28 + x): ar(△ABC) = √[s(s−a)(s−b)(s−c)] = √[(28 + x) · x · 12 · 16] = 4√[(28 + x) · x · 12] sq m. … (2)",
             "[1 mark] Equate (1) and (2): 8(28 + x) = 4√[(28 + x) · x · 12]; squaring gives 4(28 + x)² = 12x(28 + x) → (28 + x)(28 + x − 3x) = 0 → x = 14 (reject x = −28). So perimeter = 2(28 + x) = 84 m.",
             "[1 mark] Cost of fencing = Rs 55 × 84 = Rs 4620."
+          ],
+          "figures": [
+            {
+              "src": "/figures/itembank-maths/circles/CBE-M-CIRC-D-001.webp",
+              "alt": "Source figure"
+            }
           ]
         },
         {
@@ -255,6 +302,18 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] Correct option: (d) 125°. ∠OTP = 90° (radius ⊥ tangent at the point of contact); ∠x is the exterior angle of △OTP at O, so ∠x = 90° + 35° = 125°."
+          ],
+          "options": [
+            "110°",
+            "115°",
+            "120°",
+            "125°"
+          ],
+          "figures": [
+            {
+              "src": "/figures/pyq-maths/circles/PYQ-M-2024-CIRC-003.webp",
+              "alt": "Circle with centre O; tangent from P touches it at T; angle TPO marked 35°; angle x marked at O"
+            }
           ],
           "pyqYear": "2024"
         }
@@ -294,6 +353,12 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] Correct option: (2) insufficient production of insulin in her body. Insulin lowers blood glucose; too little of it leaves the blood sugar persistently high, which is what her reading shows. Excess insulin would lower it, and thyroxine regulates metabolism rather than blood glucose directly."
+          ],
+          "options": [
+            "insufficient production of thyroxine in her body",
+            "insufficient production of insulin in her body",
+            "excess production of thyroxine in her body",
+            "excess production of insulin in her body"
           ]
         }
       ]
@@ -301,6 +366,21 @@
     "coordinate-geometry": {
       "subject": "maths",
       "questions": [
+        {
+          "id": "APQ-M-CG-003",
+          "questionText": "The distance between two points A and B, on a graph is given as √(10^2 + 7^2). The coordinates of A are (−4, 3). Given that the point B lies in the first quadrant, then all the possible x-coordinates of point B are",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] AB² = 10² + 7² = 149, and for grid points the only way to write 149 as a sum of two squares is 10² + 7². So for B(x, y), (x + 4)² + (y − 3)² = 149 means the gaps from A(−4, 3) are 10 and 7 in some order: x + 4 = ±10 or ±7. In the first quadrant x > 0, so x = 6 (then y − 3 = 7, y = 10) or x = 3 (then y − 3 = 10, y = 13). Both possible x-coordinates, 3 and 6, are multiples of 3 (3 is not a multiple of 2, 5 or 6). Hence option (b)."
+          ],
+          "options": [
+            "multiple of 2",
+            "multiple of 3",
+            "multiple of 5",
+            "multiple of 6"
+          ]
+        },
         {
           "id": "APQ-M-CG-009",
           "questionText": "Raycasting is a technique used in computer games. A snooker game in creation stage is drawn on a coordinate map. It has six pockets P1–P6 and balls including a white ball W(−3, −2) and a green ball G(7, 1). The top rail joining pockets P4 and P6 lies along the line y = 3.\n(i) How much distance will a ray travel from the green ball to the nearest pocket P4(9, 3)?\n(ii) A yellow ball is placed at the midpoint of WG. Find its coordinates.\n(iii) The white ball is hit, rebounds off the rail P4P6 and lands in pocket P2(2, −4). On its way it crosses the x-axis at X(2/7, 0), which divides the path from the striking point on the rail to P2 in the ratio 3 : 4. Find the coordinates of the point on the rail where the ball struck.",
@@ -322,19 +402,6 @@
             "[1 mark] Diagonals of a parallelogram bisect each other ⇒ midpoint of AC = midpoint of BD. Midpoint of AC = ((1 + 6)/2, (2 + 6)/2) = (7/2, 4).",
             "[1 mark] Let D = (x, y). Midpoint of BD = ((4 + x)/2, (3 + y)/2).",
             "[1 mark] (4 + x)/2 = 7/2 ⇒ x = 3; (3 + y)/2 = 4 ⇒ y = 5. Hence D = (3, 5)."
-          ]
-        },
-        {
-          "id": "BX-COORD-D-002",
-          "questionText": "Verify that the points A(−2, −1), B(1, 0), C(4, 3) and D(1, 2), taken in order, form a parallelogram. Using the lengths of the diagonals, decide further whether it is a rectangle.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] AB = √[(1+2)²+(0+1)²] = √10 and CD = √[(1−4)²+(2−3)²] = √10.",
-            "[1 mark] BC = √[(4−1)²+(3−0)²] = √18 and DA = √[(−2−1)²+(−1−2)²] = √18.",
-            "[1 mark] AB = CD and BC = DA ⇒ both pairs of opposite sides equal ⇒ ABCD is a parallelogram.",
-            "[1 mark] Diagonal AC = √[(4+2)²+(3+1)²] = √52; diagonal BD = √[(1−1)²+(2−0)²] = 2.",
-            "[1 mark] AC ≠ BD, so the diagonals are unequal ⇒ ABCD is a parallelogram but NOT a rectangle."
           ]
         }
       ]
@@ -401,6 +468,12 @@
           "solutionSteps": [
             "[1 mark] Select the parents bb (brown) and WW (white) so that all F1 are white.",
             "[1 mark] The Punnett square gives four Wb crosses — all offspring are Wb (white fur)."
+          ],
+          "figures": [
+            {
+              "src": "/figures/itembank-science/heredity/CBE-S-HERD-B-003.webp",
+              "alt": "Source figure"
+            }
           ]
         },
         {
@@ -450,6 +523,12 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] Correct option: (1) Both A and R are true and R is the correct explanation of A. Neither pills nor copper-T forms a barrier at the mucous membranes, and it is exactly that contact route named in R which explains why these methods cannot prevent transmission."
+          ],
+          "options": [
+            "Both A and R are true and R is the correct explanation of A.",
+            "Both A and R are true but R is not the correct explanation of A.",
+            "A is true but R is false.",
+            "A is false but R is true."
           ]
         }
       ]
@@ -468,6 +547,12 @@
             "[1 mark] (b) Diagram: the white beam enters Prism 1 and splits into the VIBGYOR spectrum.",
             "[1 mark] (b) Diagram: the spectrum passes through Prisms 2 and 3 and recombines into a single white beam falling on the screen.",
             "[1 mark] (c) Processes taking place: dispersion (splitting of white light), refraction (bending at each prism surface) and recombination of the colours."
+          ],
+          "figures": [
+            {
+              "src": "/figures/other-science/human-eye-and-colourful-world/APQ-S-EYE-002.webp",
+              "alt": "Beam of white light falling on Prism 1, followed by an inverted Prism 2 and Prism 3, with a screen beyond"
+            }
           ]
         },
         {
@@ -481,6 +566,12 @@
             "[1 mark] (c) With a fixed-focal-length artificial lens she loses the power of accommodation — the lens cannot change shape to focus on both near and distant objects (unlike the natural lens controlled by ciliary muscles).",
             "[1 mark] (d) (i) ciliary muscle — changes the focal length of the eye lens; (ii) cornea — causes most (~80%) of the refraction.",
             "[1 mark] (d) (iii) iris/pupil — controls the amount of light entering the eye; (iv) retina — acts as the light-sensitive screen."
+          ],
+          "figures": [
+            {
+              "src": "/figures/other-science/human-eye-and-colourful-world/APQ-S-EYE-003.webp",
+              "alt": "Source figure"
+            }
           ]
         },
         {
@@ -502,12 +593,39 @@
       "subject": "science",
       "questions": [
         {
+          "id": "APQ-S-LIFE-002",
+          "questionText": "Oxygen saturation levels refer to the extent haemoglobin is bound to oxygen. As altitude increases, the atmospheric pressure decreases. Which of the following graphs correctly represents the oxygen saturation levels as altitude increases?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] At higher altitude, atmospheric pressure (and pO2) is lower ⟹ less O2 binds to haemoglobin ⟹ O2 saturation decreases as altitude increases. Graph Q shows a decreasing trend matching this physiology."
+          ],
+          "options": [
+            "P",
+            "Q",
+            "R",
+            "S"
+          ],
+          "figures": [
+            {
+              "src": "/figures/other-science/life-processes/APQ-S-LIFE-002.webp",
+              "alt": "Four graphs P, Q, R and S of oxygen saturation against altitude"
+            }
+          ]
+        },
+        {
           "id": "APQ-S-LIFE-003",
           "questionText": "Patient X was suffering from a pancreatic condition due to which the pancreas was not functioning adequately. Which of the following is a doctor likely to suggest to such an individual?",
           "marks": 1,
           "section": "A",
           "solutionSteps": [
             "[1 mark] Pancreas secretes lipase (digests fats) along with amylase, trypsin. If pancreas malfunctions, fat digestion is impaired ⟹ low-fat diet recommended."
+          ],
+          "options": [
+            "including a large amount of protein in the diet",
+            "eating a diet with low-fat content",
+            "eating only carbohydrates",
+            "including only liquid foods"
           ]
         },
         {
@@ -518,16 +636,6 @@
           "solutionSteps": [
             "[1 mark] Lizards respire and release CO2 inside the jar, increasing CO2 concentration around plant X.",
             "[1 mark] Higher CO2 availability + adequate light ⟹ higher rate of photosynthesis in X compared to Y (which has limited CO2 in the closed jar)."
-          ]
-        },
-        {
-          "id": "APQ-S-LIFE-005",
-          "questionText": "Proteinuria is a condition in which significant amounts of protein can be detected in urine. Which process in the nephron is likely to be affected causing proteinuria? Justify.",
-          "marks": 2,
-          "section": "B",
-          "solutionSteps": [
-            "[1 mark] Filtration: normally large proteins are too big to pass through the glomerular filter. If filtration becomes leaky, proteins enter the filtrate.",
-            "[1 mark] Selective reabsorption: even if small amounts pass through, they're normally reabsorbed back into blood. If reabsorption fails, proteins remain in urine ⟹ proteinuria."
           ]
         }
       ]
@@ -580,6 +688,12 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] The magnetic field lines of a current-carrying solenoid emerge from one end and enter the other, exactly like a bar magnet; one end acts as a north pole and the other as a south pole. Hence (c) a solenoid."
+          ],
+          "options": [
+            "A straight conductor",
+            "A circular loop",
+            "A solenoid",
+            "A circular coil"
           ]
         },
         {
@@ -623,6 +737,12 @@
           "solutionSteps": [
             "[0.5 mark] Q correct: zinc coating blocks air/moisture from iron surface.",
             "[0.5 mark] R correct: zinc is more reactive than iron (sacrificial anode), so it corrodes preferentially. P false: oxidation still occurs but on zinc, not iron."
+          ],
+          "options": [
+            "only P",
+            "only Q",
+            "only P and Q",
+            "only Q and R"
           ]
         },
         {
@@ -632,6 +752,12 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] Sodium is the most reactive among the four (highest in reactivity series). It rapidly reacts with O2 and moisture in air, forming a dull oxide layer fastest. (Sodium is stored under kerosene to prevent this.)"
+          ],
+          "options": [
+            "aluminium",
+            "sodium",
+            "copper",
+            "iron"
           ]
         },
         {
@@ -642,6 +768,12 @@
           "solutionSteps": [
             "[0.5 mark] A is true: ZnO + C → Zn + CO (carbon reduces ZnO to Zn at high temperature).",
             "[0.5 mark] R is false: carbon is MORE reactive than zinc in the reactivity context — that's why it can reduce ZnO."
+          ],
+          "options": [
+            "Both A and R are true, and R is the correct explanation of A.",
+            "Both A and R are true, and R is not the correct explanation of A.",
+            "A is true but R is false.",
+            "A is false but R is true."
           ]
         }
       ]
@@ -656,6 +788,18 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] Spinach → Human — the shortest chain has the fewest trophic levels, so the least energy is lost before reaching the human."
+          ],
+          "options": [
+            "Spinach → Human",
+            "Spinach → Goat → Human",
+            "Spinach → Chicken → Human",
+            "Human → Spinach"
+          ],
+          "figures": [
+            {
+              "src": "/figures/itembank-science/our-environment/CBE-S-ENVI-A-004.webp",
+              "alt": "Source figure"
+            }
           ]
         },
         {
@@ -679,6 +823,12 @@
             "[1 mark] With fewer insects there is less food for the scorpion / large lizard, so these secondary consumers decline, giving less food for the fox / falcon.",
             "[1 mark] The pesticide passes along the chain and bioaccumulates in the top predators (falcon / fox), reaching toxic levels that can damage them and their offspring.",
             "[1 mark] Removing insects also means less damage to the cacti and more plant food for small lizards / rats, so populations of consumers across the web change."
+          ],
+          "figures": [
+            {
+              "src": "/figures/itembank-science/our-environment/CBE-S-ENVI-E-002.webp",
+              "alt": "Source figure"
+            }
           ]
         }
       ]
@@ -731,6 +881,31 @@
       "subject": "maths",
       "questions": [
         {
+          "id": "APQ-M-POLY-001",
+          "questionText": "Which of the following could be the graph of the polynomial (x − 1)^2(x + 2)?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Zeroes of (x − 1)²(x + 2) are x = 1 (repeated, so the graph touches the x-axis there without crossing) and x = −2 (crosses the x-axis); p(0) = (1)(2) = 2. Graph (a) crosses at both −2 and 1, graphs (b) and (d) touch the x-axis at a negative x and do not pass through (0, 2). Graph (c) crosses at −2, touches at 1 and passes through (0, 2), so it is the graph of the polynomial."
+          ],
+          "options": [
+            "Graph (a)",
+            "Graph (b)",
+            "Graph (c)",
+            "Graph (d)"
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/polynomials/APQ-M-POLY-001.webp",
+              "alt": "Option graphs (a) and (b): two polynomial curves drawn on x-y axes, each meeting the x-axis"
+            },
+            {
+              "src": "/figures/apq-maths/polynomials/APQ-M-POLY-001-2.webp",
+              "alt": "Option graphs (c) and (d): two polynomial curves drawn on x-y axes, each meeting the x-axis"
+            }
+          ]
+        },
+        {
           "id": "BX-POLY-D-001",
           "questionText": "One condition on the zeroes α and β of p(x) = x² − 6x + k is that the sum of their squares (α² + β²) equals 20. Determine the value of k, then obtain the two zeroes.",
           "marks": 5,
@@ -755,19 +930,6 @@
             "[1 mark] Cross-multiply: 2k = 24 ⇒ k = 12.",
             "[1 mark] Then p(x) = x² − 8x + 12 = (x − 2)(x − 6), zeroes 2 and 6; check 1/2 + 1/6 = 2/3. ✓"
           ]
-        },
-        {
-          "id": "BX-POLY-D-003",
-          "questionText": "The zeroes α, β of p(x) = x² − 5x + k, where k is an integer, satisfy 1/α² + 1/β² = 13/36 — the sum of the reciprocals of their squares. Calculate k and identify the zeroes.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] For x² − 5x + k: α + β = 5 and αβ = k; and 1/α² + 1/β² = (α² + β²)/(αβ)².",
-            "[1 mark] α² + β² = (α + β)² − 2αβ = 25 − 2k, so the expression = (25 − 2k)/k².",
-            "[1 mark] Set (25 − 2k)/k² = 13/36 ⇒ 36(25 − 2k) = 13k².",
-            "[1 mark] 13k² + 72k − 900 = 0 ⇒ (k − 6)(13k + 150) = 0 ⇒ k = 6 or k = −150/13; since k is an integer, k = 6.",
-            "[1 mark] Then p(x) = x² − 5x + 6 = (x − 2)(x − 3), zeroes 2 and 3; check 1/4 + 1/9 = 13/36. ✓"
-          ]
         }
       ]
     },
@@ -782,6 +944,12 @@
           "solutionSteps": [
             "[1 mark] Identify perfect squares among 2, 5, 7, 9, 12, 16: these are 9 and 16 → 2 favourable out of 6.",
             "[1 mark] P(perfect square) = 2/6 = 1/3 (or 0.33)."
+          ],
+          "figures": [
+            {
+              "src": "/figures/itembank-maths/probability/CBE-M-PROB-B-002.webp",
+              "alt": "Source figure"
+            }
           ]
         },
         {
@@ -861,6 +1029,12 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] Maximum guests = HCF(36, 60, 42) = 6. Answer: A."
+          ],
+          "options": [
+            "A. 6",
+            "B. 12",
+            "C. 120",
+            "D. 180"
           ]
         },
         {
@@ -870,6 +1044,12 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] 336 = 56 × 6 and 54 = 9 × 6, so HCF(336, 54) = 6 = maximum guests. Answer: A."
+          ],
+          "options": [
+            "A. 6",
+            "B. 9",
+            "C. 56",
+            "D. 3024"
           ]
         },
         {
@@ -879,6 +1059,12 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] LCM(2, 3, 5, 6, 10) = 30, so the bells toll together every 30 minutes. From 10:00 AM to 8:00 PM is 10 hours = 600 minutes; 600 ÷ 30 = 20 more times. Answer: B."
+          ],
+          "options": [
+            "A. 10",
+            "B. 20",
+            "C. 30",
+            "D. 60"
           ]
         }
       ]
@@ -886,6 +1072,27 @@
     "statistics": {
       "subject": "maths",
       "questions": [
+        {
+          "id": "APQ-M-STAT-003",
+          "questionText": "The table depicts the weight of the students of class 6. There are 18 students that weigh above the median weight. If there are no students with the same weight as median weight, how many students weigh between the range of 37 - 40 kgs?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] No student weighs exactly the median weight and 18 students weigh above it, so 18 weigh below it: total = 36 students. From the table, 25-28: 6, 28-31: 8, 31-34: 7, 34-37: 10, so 6 + 8 + 7 + 10 = 31 students weigh 25-37 kg. Students weighing 37-40 kg = 36 − 31 = 5."
+          ],
+          "options": [
+            "5",
+            "7",
+            "18",
+            "31"
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/statistics/APQ-M-STAT-003.webp",
+              "alt": "Table of weight in kg against number of students: 25-28: 6, 28-31: 8, 31-34: 7, 34-37: 10, 37-40: ?"
+            }
+          ]
+        },
         {
           "id": "APQ-M-STAT-004",
           "questionText": "A car assembly unit assembles a limited number of cars daily, depending on the prevailing demand. The table presents an analysis: cars assembled per day (0-4: 33 days, 4-8: 18 days, 8-12: 21 days, 12-16: 11 days, 16-20: 7 days). (i) If the demand of the cars is doubled, estimate how many cars on an average should be assembled per day to meet the increased demand? (ii) At least on how many days, less than average number of cars were assembled?",
@@ -900,22 +1107,24 @@
           ]
         },
         {
-          "id": "CBE-M-STAT-A-001",
-          "questionText": "The Indian Council of Medical Research wants to analyse the age group of people affected by a certain disease. The table below shows the age distribution of patients with a certain disease admitted to a hospital.\nAge (in years) : Number of cases\n5–14 : 6\n15–24 : 11\n25–34 : 21\n35–44 : 23\n45–54 : 14\n55–64 : 5\nThe most highly affected age group is:",
+          "id": "APQ-M-STAT-007",
+          "questionText": "The heights of plants in Dipti's garden are recorded in the table given below. Classes: 0-20 (2x), 20-40 (4), 40-60 (4x), 60-80 (8), 80-100 (4). Median = 55 cm. Which of the following is the value of x?",
           "marks": 1,
           "section": "A",
           "solutionSteps": [
-            "[1 mark] The most highly affected age group is the class with the highest frequency. The class 35–44 has the highest frequency (23), so the answer is (iii) 35–44."
-          ]
-        },
-        {
-          "id": "CBE-M-STAT-B-002",
-          "questionText": "Given below is a table of marks obtained by 85 students in a class in a Mathematics assessment.\nMarks obtained by a student : Number of students\nBelow 10 : 5\nBelow 20 : 9\nBelow 30 : 17\nBelow 40 : 29\nBelow 50 : 45\nBelow 60 : 60\nBelow 70 : 70\nBelow 80 : 78\nBelow 90 : 83\nBelow 100 : 85\nFind the median marks.",
-          "marks": 2,
-          "section": "B",
-          "solutionSteps": [
-            "[1 mark] N = 85, so N/2 = 42.5. Cumulative frequencies give the median class 40–50 (cf 45 is the first greater than 42.5); l = 40, cf = 29, f = 45 − 29 = 16, h = 10.",
-            "[1 mark] Median = 40 + ((42.5 − 29) / 16) × 10 = 40 + 8.44 = 48.44 (approx.)."
+            "[1 mark] N = 2x + 4 + 4x + 8 + 4 = 6x + 16, so N/2 = 3x + 8. Median 55 lies in class 40–60: l = 40, cf = 2x + 4, f = 4x, h = 20. Median = l + ((N/2 − cf)/f) × h gives 55 = 40 + ((3x + 8 − 2x − 4)/4x) × 20, so 15 = 5(x + 4)/x, 15x = 5x + 20, x = 2. Hence option (b)."
+          ],
+          "options": [
+            "1",
+            "2",
+            "8",
+            "(the value of x cannot be found without knowing the total number of plants)"
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/statistics/APQ-M-STAT-007.webp",
+              "alt": "Source figure"
+            }
           ]
         }
       ]
@@ -931,6 +1140,12 @@
           "solutionSteps": [
             "[1 mark] Volume = (1/3)πr²h = (1/3)(3)(20)²h = 400h = 13600 ⟹ h = 34 cm.",
             "[1 mark] tan θ = h/r = 34/20 = 1.7 = √3 ⟹ θ = 60°."
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/surface-areas-and-volumes/APQ-M-SAV-004.webp",
+              "alt": "Right circular cone with its height dashed to the centre of the base; base radius 20 cm; right angle at the centre; angle between slant height and base radius marked"
+            }
           ]
         },
         {
@@ -965,6 +1180,27 @@
       "subject": "maths",
       "questions": [
         {
+          "id": "APQ-M-TRI-003",
+          "questionText": "Harsha made a wind chime using a frame and metal rods. She punched 8 holes in the frame, each 2 cm apart, and then hung 6 metal rods from the frame. The ends of the metal rods are aligned over a line shown by the dotted line. If all of the rods are straight and not swaying, then what is the length of Rod P?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] The 8 holes are 2 cm apart, so the first and last holes are 7 × 2 = 14 cm apart: the 29 cm rod hangs from the first hole, the 6 cm rod from the last, and Rod P from the 5th hole, 4 × 2 = 8 cm from the first. The rods hang from the straight frame edge and their ends lie on the straight dotted line, so by similar triangles (BPT) the length falls evenly across the frame: Rod P = 29 − (29 − 6) × 8/14 = 29 − 92/7 = 111/7 cm. Answer: (d) 111/7 cm."
+          ],
+          "options": [
+            "69/7 cm",
+            "53/5 cm",
+            "76/5 cm",
+            "111/7 cm"
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/triangles/APQ-M-TRI-003.webp",
+              "alt": "Wind chime: triangular frame with 8 holes and 6 hanging rods whose ends lie on a dotted line; longest rod 29 cm, shortest 6 cm; Rod P marked"
+            }
+          ]
+        },
+        {
           "id": "APQ-M-TRI-007",
           "questionText": "State and prove Basic proportionality theorem. In ΔABC, if DE ∥ BC, AD = x, DB = x − 2, AE = x + 2 and EC = x − 1, then using the above result, find the value of x.",
           "marks": 5,
@@ -989,19 +1225,6 @@
             "[1 mark] The x² terms cancel: x = 2x − 3 ⇒ x = 3.",
             "[1 mark] Hence AD = x + 1 = 4 cm and AE = x + 3 = 6 cm (with DB = 2 cm, EC = 3 cm; ratios 4/2 = 6/3 ✓)."
           ]
-        },
-        {
-          "id": "BX-TRI-D-002",
-          "questionText": "In △PQR, points A and B lie on PQ (A between P and B) and points C and D lie on PR such that AC ∥ BD ∥ QR. Given PA = 2 cm, AB = 3 cm, BQ = 4 cm and PC = 3 cm, find the lengths CD and DR.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] Parallel lines cut the two transversals PQ and PR in the same ratio (BPT applied repeatedly).",
-            "[1 mark] Along PQ the intercepts are PA : AB : BQ = 2 : 3 : 4.",
-            "[1 mark] Hence along PR, PC : CD : DR = 2 : 3 : 4.",
-            "[1 mark] PC corresponds to 2 parts and PC = 3 cm, so one part = 1.5 cm.",
-            "[1 mark] Therefore CD = 3 × 1.5 = 4.5 cm and DR = 4 × 1.5 = 6 cm."
-          ]
         }
       ]
     },
@@ -1015,6 +1238,18 @@
           "section": "A",
           "solutionSteps": [
             "[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT + ∠UPQ = 90°; in right △PUQ, ∠PQU + ∠UPQ = 90°. So ∠SPT = ∠PQU, and sin ∠SPT = sin ∠PQU = PU/PQ = 8/17."
+          ],
+          "options": [
+            "8/17",
+            "8/15",
+            "15/17",
+            "(cannot be found with the given information)"
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/trigonometry/APQ-M-TRIG-002.webp",
+              "alt": "Source figure"
+            }
           ]
         },
         {
@@ -1038,6 +1273,12 @@
           "solutionSteps": [
             "[1 mark] tan 45° = opposite/adjacent = (height of flagpole)/25.",
             "[1 mark] 1 = (height of flagpole)/25 → height of flagpole = 25 m."
+          ],
+          "figures": [
+            {
+              "src": "/figures/itembank-maths/trigonometry/CBE-M-TRIG-B-005.webp",
+              "alt": "Source figure"
+            }
           ]
         }
       ]

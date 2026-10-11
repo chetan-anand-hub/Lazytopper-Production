@@ -42,11 +42,14 @@ import {
   PREMIUM_WINDOW_LABEL,
   TUTOR_TRIAL_LIMIT_COPY,
   MORE_LIKE_THIS_TRIAL_LIMIT_COPY,
+  MORE_LIKE_THIS_PREMIUM_ONLY_COPY,
+  START_TRIAL_LABEL,
+  isPremiumRequiredRefusal,
   type LimitState,
 } from "./fairUseGate";
 import { readFairUseLimit, type UsageSnapshot } from "../../services/usageClient";
 import { callTutor, type TutorRequest } from "../../ai/tutorClient";
-import { FairUseLimitError } from "../../ai/aiClient";
+import { FairUseLimitError, PremiumRequiredError } from "../../ai/aiClient";
 import { buildPracticeQuestionsWithAiTopup, subscribeMoreLikeThisLimit } from "../practice/practiceQuestionBuilder";
 
 // A reset far in the future, so no assertion here depends on what "today" is.
@@ -197,5 +200,33 @@ describe("ALL-AI-METERING-1 · More-like-this — a refused top-up reaches the p
     vi.spyOn(console, "error").mockImplementation(() => {});
     await buildPracticeQuestionsWithAiTopup(ARGS);
     expect(seen).toEqual([]);
+  });
+});
+
+describe("ALL-AI-METERING-1 · DECISION 29d — a FREE student's More-like-this 402 is told to the page, with the owner copy", () => {
+  const ARGS = { grade: "10", subjectKey: "Maths" as const, topicLabel: "zz-no-such-topic-aam1", packTopicKey: "polynomials", count: 60, difficulty: "All" as const };
+
+  it("★★ the owner-approved wording and link label are exact", () => {
+    expect(MORE_LIKE_THIS_PREMIUM_ONLY_COPY).toBe("More practice like this is part of Premium. Try it free for 7 days.");
+    expect(START_TRIAL_LABEL).toBe("Start free trial");
+  });
+
+  it("★★ a PremiumRequiredError reaches the subscriber (not swallowed, not console.error) and the saved questions are still returned", async () => {
+    H.moreLikeThis = () => Promise.reject(new PremiumRequiredError("Premium feature.", "more_like_this", "free", null));
+    const seen: unknown[] = [];
+    const off = subscribeMoreLikeThisLimit((e) => seen.push(e));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const out = await buildPracticeQuestionsWithAiTopup(ARGS);
+    off();
+    expect(seen).toHaveLength(1);
+    expect(isPremiumRequiredRefusal(seen[0])).toBe(true);
+    expect(consoleError).not.toHaveBeenCalled();
+    expect(out.length).toBeGreaterThan(0);
+  });
+
+  it("★ CONTROL: a trial cap is NOT a premium-only refusal, and a plain Error is neither", () => {
+    expect(isPremiumRequiredRefusal(new FairUseLimitError("trial_limit", 0, RESET, null))).toBe(false);
+    expect(isPremiumRequiredRefusal(new Error("network"))).toBe(false);
+    expect(isPremiumRequiredRefusal(null)).toBe(false);
   });
 });

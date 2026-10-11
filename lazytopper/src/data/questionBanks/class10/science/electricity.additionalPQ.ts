@@ -30,7 +30,7 @@ export const ELECTRICITY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) In case II, the connecting wire between points across Q offers a much lower resistance path than bulb Q itself. Current bypasses Q through this short circuit ⟹ Q doesn't glow.", "[1 mark] (b) Let resistances be R1, R2. Series: R1 + R2 = 15. Parallel: (R1·R2)/(R1+R2) = 10/3 ⟹ R1·R2 = 50.", "[1 mark] From these: R1 and R2 are roots of x^2 − 15x + 50 = 0 ⟹ (x − 5)(x − 10) = 0 ⟹ R1 = 5 Ω, R2 = 10 Ω."],
     finalAnswer: "(a) Short-circuit wire bypasses Q; (b) 5 Ω and 10 Ω.",
     ncertRef: "APQ Science-PQ Q33", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: two circuit diagrams (case I + case II)." },
+ },
 
   // Science-PQ Q39 (Section E, Case-Based, 4 marks)
   { id: "APQ-S-ELEC-004", subject: "Science", topicKey: "electricity", subtopic: "Resistor Networks — Mixed Series and Parallel", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
@@ -39,7 +39,7 @@ export const ELECTRICITY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) R2 || R3 = (30 × 15)/(30 + 15) = 450/45 = 10 Ω. Net R = R1 + 10 + R4 = 15 + 10 + 15 = 40 Ω.", "[1 mark] (b) Total I = V/R = 20/40 = 0.5 A. Voltmeter across R4: V4 = I × R4 = 0.5 × 15 = 7.5 V.", "[1 mark] [OR] Power dissipated by R1 = I^2 × R1 = (0.5)^2 × 15 = 0.25 × 15 = 3.75 W.", "[1 mark] (c) Removing R3: the parallel block becomes just R2 = 30 Ω (instead of 10 Ω). Net R goes UP (15 + 30 + 15 = 60 Ω). Since I = V/R and R increased, net current DECREASES."],
     finalAnswer: "(a) 40 Ω; (b) 7.5 V [or] 3.75 W; (c) decreases.",
     ncertRef: "APQ Science-PQ Q39", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: 4-resistor circuit." },
+ },
 
   // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
 
@@ -50,7 +50,7 @@ export const ELECTRICITY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a)(i) Given I = 10 A, t = 2 min = 120 s. Charge Q = I × t = 10 × 120 = 1200 C.", "[1 mark] (a)(ii) Number of electrons n = Q / e = 1200 / (1.6 × 10^-19) = 7.5 × 10^21 electrons.", "[1 mark] (b) A straight-line V-I graph passing through the origin shows V ∝ I — confirming Ohm's law. The slope V/I = R is constant, so the conductor has a constant resistance (ohmic conductor)."],
     finalAnswer: "(a)(i) 1200 C; (ii) 7.5 × 10^21 electrons; (b) V ∝ I ⟹ constant R (Ohm's law verified).",
     ncertRef: "APQ Science-PQ2 Q32", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: V-I straight-line graph through origin." },
+ },
 
   // Science-PQ2 Q39 first variant (Section E, Case-Based, 4 marks)
   { id: "APQ-S-ELEC-006", subject: "Science", topicKey: "electricity", subtopic: "Resistance and Length — Parallel Resistors and Ammeters", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
@@ -59,7 +59,7 @@ export const ELECTRICITY_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) Net resistance from V = IR: R = V/I = 12 / 6 = 2 Ω.", "[1 mark] (b) For two resistors of the same material and thickness, R ∝ length. So RA = 2 × RB. In parallel: 1/R = 1/RA + 1/RB ⟹ 1/2 = 1/(2RB) + 1/RB = 3/(2 RB) ⟹ RB = 3 Ω, RA = 6 Ω. (Check via V/I: RA = 12/2 = 6, RB = 12/4 = 3.)", "[1 mark] (c) Current through A (RA = 6 Ω): IA = V/RA = 12/6 = 2 A. Current through B (RB = 3 Ω): IB = V/RB = 12/3 = 4 A.", "[1 mark] (c) The currents are NOT the same — current is inversely proportional to resistance (V common in parallel). Length-ratio 2:1 produces resistance-ratio 2:1, hence current-ratio 1:2 (IA : IB = 1 : 2)."],
     finalAnswer: "(a) 2 Ω; (b) RA = 6 Ω, RB = 3 Ω; (c) IA = 2 A, IB = 4 A — not equal (current ∝ 1/R).",
     ncertRef: "APQ Science-PQ2 Q39 (first variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: parallel-resistor circuit with two ammeters A1 (in A's branch) and A2 (in B's branch) + 12 V battery." },
+ },
 
   // Science-PQ2 Q39 OR variant (Section E, Case-Based, 4 marks)
   { id: "APQ-S-ELEC-007", subject: "Science", topicKey: "electricity", subtopic: "Resistivity — Definition and Affecting Factors", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",

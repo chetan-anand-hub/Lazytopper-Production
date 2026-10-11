@@ -60,6 +60,7 @@ import { drawBalancedSet, mulberry32 } from "../../utils/balancedMockDraw";
 import { questionKey } from "../../utils/questionKey";
 import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { cbqFlagOf } from "../../lib/cbq/cbqClassification";
+import { needsMissingFigure } from "../../lib/figureSafe";
 import { balanceCbqShare } from "../../lib/cbq/cbqPaperBalance";
 import type {
   PersistedWorksheet,
@@ -435,10 +436,17 @@ export function sectionPool(pool: FMPoolQuestion[], section: FMSection): FMPoolQ
  */
 export function buildUnionPool(subject: FMSubject, chapterSlugs: Set<string>): FMPoolQuestion[] {
   // Same rows, same order as `canonicalQuestionBank.filter((q) => q.subject === subject)`.
-  const canonical = getBankRowsForSubject(subject).map(fromCanonical);
+  // FIGURES-ALL-SURFACES-1: a row whose stem demands a supplied figure that no binder
+  // entry supplies is never drawn. Filtered on the SOURCE rows, before the mapping —
+  // `fromCanonical` drops `requiresDiagram`, so the pool item could not be checked.
+  const canonical = getBankRowsForSubject(subject)
+    .filter((q) => !needsMissingFigure(q))
+    .map(fromCanonical);
   const predicted = (
     subject === "Science" ? sciencePredictedQuestions : predictedQuestions
-  ).map(fromPredicted);
+  )
+    .filter((q) => !needsMissingFigure(q))
+    .map(fromPredicted);
 
   // NO REPEATS IN A SET (BANK-SPLIT-1): dedupe by id and by questionKey (stem AND
   // option set, so different MCQs sharing a generic stem both stay). When rows share

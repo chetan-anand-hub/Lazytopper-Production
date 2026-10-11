@@ -14,7 +14,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Both (3, 0) and (4, 1) lie on line k3. Check each option: x − y = 3 gives 3 − 0 = 3 ✓ and 4 − 1 = 3 ✓. Both points satisfy."],
     finalAnswer: "(a) x − y = 3",
     ncertRef: "APQ PQ1 Q2", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: graph of three lines k1, k2, k3 with intersection points marked." },
+ },
 
   // PQ2 Q3 (Section A, MCQ, 1 mark)
   { id: "APQ-M-PLE-002", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Consistency from Coefficients", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
@@ -85,7 +85,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["(i) From the graph, the line passes through (e.g.) (4, 0). Substituting: 4a + 0 + 8 = 0 ⟹ a = −2.", "(ii) Equations: −2x + y + 8 = 0, i.e., y = 2x − 8; and 4x − 3y − 14 = 0. Substitute y: 4x − 3(2x − 8) − 14 = 0 ⟹ 4x − 6x + 24 − 14 = 0 ⟹ −2x = −10 ⟹ x = 5. y = 2(5) − 8 = 2.", "Point of intersection: (5, 2)."],
     finalAnswer: "(i) a = −2; (ii) (5, 2).",
     ncertRef: "APQ PQ_2022 Q28 (first variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: graph showing the line ax + y + 8 = 0." },
+ },
 
   // PQ_2022 Q28 OR variant (Section C, Short, 3 marks)
   { id: "APQ-M-PLE-010", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problem — Combo Prices", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

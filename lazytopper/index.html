@@ -235,6 +235,76 @@
         else window.addEventListener("load", afterLoad);
       })();
     </script>
+    <!-- META (FACEBOOK) PIXEL (META-PIXEL-1, owner request 2026-10-10). Measures ad
+         conversions and feeds Meta remarketing. It sets cookies; the Privacy Policy says so.
+
+         ★ ON A /u/ HAND-OFF LINK (/u/... or /app/u/...) AND IN AN AUTOMATED CONTEXT THIS
+         DOES NOTHING AT ALL, exactly like the GA4 block above: no Meta script, no fbq.
+
+         Meta's fbevents.js stamps the LIVE page address (dl) and document.referrer (rl) on
+         every request and offers no per-event override, so nothing here is redacted.
+         Instead src/analytics/analytics.ts (sendToMeta) sends NOTHING while the address or
+         a same-site referrer is not already clean. This block therefore sends nothing
+         itself: no PageView (page views come from src/analytics/), no user data on init
+         (no advanced matching), automatic setup off, and the library's own history hook
+         off (disablePushState) so it cannot send a PageView of its own on a route change.
+         allowDuplicatePageViews lets the second and later in-app page views through
+         (fbevents otherwise keeps ONE PageView per pixel per document load).
+
+         The queue and init run at once; the library waits, like gtag.js: first interaction,
+         or idle after load, never later than 4 s after load.
+         src/analytics/indexHtml.guard.test.ts runs this block and pins all of it. -->
+    <script>
+      (function () {
+        var loc = window.location;
+        if (/^(?:\/app)?\/u(?:\/|$)/.test(loc.pathname || "/")) return;
+        var host = loc.hostname;
+        if (
+          host === "127.0.0.1" ||
+          host === "localhost" ||
+          host === "::1" ||
+          host === "[::1]" ||
+          host === "0.0.0.0" ||
+          /\.local$/.test(host) ||
+          window.navigator.webdriver === true
+        )
+          return;
+        var n = (window.fbq = function () {
+          if (n.callMethod) n.callMethod.apply(n, arguments);
+          else n.queue.push(arguments);
+        });
+        if (!window._fbq) window._fbq = n;
+        n.push = n;
+        n.loaded = true;
+        n.version = "2.0";
+        n.queue = [];
+        n.disablePushState = true;
+        n.allowDuplicatePageViews = true;
+        n("set", "autoConfig", false, "2018097265518900");
+        n("init", "2018097265518900");
+        var loaded = false;
+        var cues = ["pointerdown", "keydown", "touchstart", "scroll"];
+        function loadFbq() {
+          if (loaded) return;
+          loaded = true;
+          for (var c = 0; c < cues.length; c++) window.removeEventListener(cues[c], loadFbq, true);
+          var tag = document.createElement("script");
+          tag.async = true;
+          tag.src = "https://connect.facebook.net/en_US/fbevents.js";
+          tag.onload = function () {
+            window.dispatchEvent(new Event("lt:fbq-ready"));
+          };
+          document.head.appendChild(tag);
+        }
+        function afterLoad() {
+          window.setTimeout(loadFbq, 4000);
+          if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(loadFbq, { timeout: 4000 });
+        }
+        for (var e = 0; e < cues.length; e++) window.addEventListener(cues[e], loadFbq, { capture: true, passive: true });
+        if (document.readyState === "complete") afterLoad();
+        else window.addEventListener("load", afterLoad);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

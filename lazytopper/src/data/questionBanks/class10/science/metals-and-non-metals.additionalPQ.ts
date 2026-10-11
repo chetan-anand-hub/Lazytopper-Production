@@ -68,7 +68,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Iron oxidises on exposure to air and moisture, forming rust (Fe2O3·xH2O). The rust layer is porous and allows air/moisture to penetrate to fresh metal beneath, so corrosion continues progressively.", "[1 mark] Aluminium also oxidises but forms a thin, IMPERMEABLE Al2O3 layer on the surface that PROTECTS the metal beneath. Further corrosion is blocked.", "[1 mark] Hence iron corrodes till the marked level FIRST while aluminium remains intact."],
     finalAnswer: "Iron corrodes first (rust is porous; Al2O3 is protective).",
     ncertRef: "APQ Science-PQ Q27", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: two bars (Al + Fe) exposed to environment with marked line." },
+ },
 
   // Science-PQ Q28 first variant (Section C, Short, 3 marks)
   { id: "APQ-S-METAL-007", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Electronic Configuration — Ionic Compounds", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -110,7 +110,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[0.5 mark] Metals (above H in reactivity series) react with dilute acid to release hydrogen gas: M + 2 HCl → MCl2 + H2↑.", "[0.5 mark] H2 gas is identified by the 'pop' sound test: when a burning matchstick is brought near the gas, it burns rapidly with a characteristic pop and the flame is then extinguished."],
     finalAnswer: "(c) Burning matchstick produces a pop sound and the flame puts off",
     ncertRef: "APQ Science-PQ2 Q7", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: set-up of metal + dilute acid in a test tube with gas X collected/tested." },
+ },
 
   // Science-PQ2 Q17 (Section A, Assertion-Reasoning, 1 mark)
   { id: "APQ-S-METAL-011", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Electrorefining of Copper", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
@@ -133,7 +133,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) Most vigorous reaction is in TEST TUBE B (CuSO4 solution).", "[1 mark] (b) Iron (Fe) is more reactive than copper (Cu) — Cu lies BELOW Fe in the reactivity series. Hence Fe displaces Cu from CuSO4. Fe cannot displace Zn or Al (more reactive than Fe), and FeSO4 has no displacement.", "[1 mark] (c) Balanced equation: Fe(s) + CuSO4(aq) → FeSO4(aq) + Cu(s). Blue colour of CuSO4 fades; reddish Cu deposits on iron filings."],
     finalAnswer: "(a) Test tube B; (b) Cu < Fe in reactivity; (c) Fe + CuSO4 → FeSO4 + Cu.",
     ncertRef: "APQ Science-PQ2 Q27", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: four labelled test tubes A, B, C, D with iron filings added." },
+ },
 
   // Science-PQ2 Q28 first variant (Section C, Short, 3 marks)
   { id: "APQ-S-METAL-013", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Amphoteric Oxides — Aluminium and Thermite", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",

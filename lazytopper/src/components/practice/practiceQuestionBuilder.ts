@@ -836,7 +836,10 @@ type MoreLikeThisLimitListener = (err: unknown) => void;
 const moreLikeThisLimitListeners = new Set<MoreLikeThisLimitListener>();
 
 function isMoreLikeThisLimit(err: unknown): boolean {
-  return !!err && typeof err === "object" && (err as { name?: unknown }).name === "FairUseLimitError";
+  if (!err || typeof err !== "object") return false;
+  const name = (err as { name?: unknown }).name;
+  // FairUseLimitError = a trial/Premium cap; PremiumRequiredError = a FREE student's 402 (DECISION 29d).
+  return name === "FairUseLimitError" || name === "PremiumRequiredError";
 }
 
 function notifyMoreLikeThisLimit(err: unknown): void {

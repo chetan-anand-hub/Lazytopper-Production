@@ -1,0 +1,643 @@
+/**
+ * Triangles — computed SOLUTION figures (DIAGRAMS-1 PR-2d).
+ *
+ * One entry per served row whose solution is a figure the row's OWN numbers fix
+ * exactly (tangents from an external point, concentric circles, an inscribed circle,
+ * BPT, plotted points, a sector or segment). Every row was read in full (question,
+ * steps, answer) and its rendered figure eye-checked. Rows read and REFUSED (not fixed
+ * by the row, no builder template, an official question figure already bound, the
+ * row's own solution inconsistent, ...) are listed in the PR, not here — an unbound
+ * row shows no figure, never a lookalike.
+ *
+ * `params` holds only numbers read from the row (each quoted in `provenance`, an exact
+ * substring of the served row); `draw` holds display choices; `expect` is the row's own
+ * answer. computedFigures.provenance.test.ts enforces both.
+ *
+ * GENERATED from the PR-2d decision table; edit the decisions, not this file by hand.
+ */
+import type { ComputedFigureBinding } from "./computedFigureTypes";
+
+export const TRIANGLES_SOLUTION_FIGURES: ComputedFigureBinding[] = [
+  {
+    kind: "computed",
+    questionId: "2026-TRI-P1-B-005",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "4", "DB": "6", "AE": "5"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 4 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 6 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 5 cm"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 7.5, "tolPct": 0.5, "quote": "EC = 7.5 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "2026-TRI-P1-B-008",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AB": "15", "AD": "9", "AC": "20"},
+    provenance: [
+      {"param": "AB", "field": "questionText", "quote": "AB = 15 cm"},
+      {"param": "AD", "field": "questionText", "quote": "AD = 9 cm"},
+      {"param": "AC", "field": "questionText", "quote": "AC = 20 cm"},
+    ],
+    expect: [
+      {"quantity": "AE", "value": 12, "tolPct": 0.5, "quote": "AE = 12 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "2026-TRI-P1-C-001",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "6", "AB": "9", "AE": "8"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 6 cm"},
+      {"param": "AB", "field": "questionText", "quote": "AB = 9 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 8 cm"},
+    ],
+    expect: [
+      {"quantity": "AC", "value": 12, "tolPct": 0.5, "quote": "AC = 12 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "2026-TRI-P1-E-002",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "3", "DB": "2", "AE": "4.5"},
+    part: "(ii)",
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 3 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 2 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 4.5 cm"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 3, "tolPct": 0.5, "quote": "(ii) EC = 3 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "2026-TRI-P1-E-005",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "m", "AD": "5", "DB": "3", "AE": "7.5"},
+    part: "(ii)",
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 5 m"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 3 m"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 7.5 m"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 4.5, "tolPct": 0.5, "quote": "(ii) EC = 4.5 m"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TRI2-E10",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "none", "AD": "3", "DB": "6", "AE": "2"},
+    labels: {"A": "P", "B": "Q", "C": "R", "D": "S", "E": "T"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "PS = 3"},
+      {"param": "DB", "field": "questionText", "quote": "SQ = 6"},
+      {"param": "AE", "field": "questionText", "quote": "PT = 2"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 4, "tolPct": 0.5, "quote": "TR = 4"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TRI2-M02",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "3", "AB": "7.5", "AE": "4"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 3 cm"},
+      {"param": "AB", "field": "questionText", "quote": "AB = 7.5 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 4 cm"},
+    ],
+    expect: [
+      {"quantity": "AC", "value": 10, "tolPct": 0.5, "quote": "AC = 10 cm"},
+      {"quantity": "k", "value": 0.4, "tolPct": 0.5, "quote": "DE/BC = 2/5"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TRI2-M09",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AB": "12", "AD": "8", "AE": "12", "AC": "18"},
+    provenance: [
+      {"param": "AB", "field": "questionText", "quote": "AB = 12 cm"},
+      {"param": "AD", "field": "questionText", "quote": "AD = 8 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 12 cm"},
+      {"param": "AC", "field": "questionText", "quote": "AC = 18 cm"},
+    ],
+    expect: [
+      {"quantity": "ratio", "value": 2, "tolPct": 0.5, "quote": "AD/DB = 8/4 = 2"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TR3-008",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "4", "DB": "6", "AE": "3"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 4 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 6 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 3 cm"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 4.5, "tolPct": 0.5, "quote": "EC = 4.5 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TR3-009",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "2", "DB": "4", "AE": "1.5"},
+    labels: {"A": "A", "B": "B", "C": "C", "D": "P", "E": "Q"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AP = 2 cm"},
+      {"param": "DB", "field": "questionText", "quote": "PB = 4 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AQ = 1.5 cm"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 3, "tolPct": 0.5, "quote": "QC = 3 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TR3-026",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "2", "DB": "3", "AE": "1.5", "BC": "5"},
+    part: "(i), (iii)",
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 2 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 3 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 1.5 cm"},
+      {"param": "BC", "field": "questionText", "quote": "BC = 5 cm"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 2.25, "tolPct": 0.5, "quote": "(i) 2.25 cm"},
+      {"quantity": "DE", "value": 2, "tolPct": 0.5, "quote": "DE = 2 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TR3-039",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "4", "DB": "6", "AE": "5"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 4 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 6 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 5 cm"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 7.5, "tolPct": 0.5, "quote": "EC = 7.5 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TR3-040",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "3", "DB": "6", "AE": "4"},
+    labels: {"A": "A", "B": "B", "C": "C", "D": "P", "E": "Q"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AP = 3 cm"},
+      {"param": "DB", "field": "questionText", "quote": "PB = 6 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AQ = 4 cm"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 8, "tolPct": 0.5, "quote": "QC = 8 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TR3-057",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "3", "DB": "6", "AE": "2", "EC": "4"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 3 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 6 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 2 cm"},
+      {"param": "EC", "field": "questionText", "quote": "EC = 4 cm"},
+    ],
+    expect: [
+      {"quantity": "ratio", "value": 0.5, "tolPct": 0.5, "quote": "AD/DB = AE/EC = 1/2"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TRI-N-NCERT-6-SA-001",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "1.5", "DB": "3", "AE": "1"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 1.5 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 3 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 1 cm"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 2, "tolPct": 0.5, "quote": "EC = 2 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TRI-N-NCERT-6-SA-003",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "4", "DB": "4.5", "AE": "8", "EC": "9"},
+    labels: {"A": "P", "B": "Q", "C": "R", "D": "E", "E": "F"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "PE = 4 cm"},
+      {"param": "DB", "field": "questionText", "quote": "QE = 4.5 cm"},
+      {"param": "AE", "field": "questionText", "quote": "PF = 8 cm"},
+      {"param": "EC", "field": "questionText", "quote": "RF = 9 cm"},
+    ],
+    expect: [
+      {"quantity": "ratio", "value": 0.8889, "tolPct": 0.5, "quote": "PF/FR = 8/9"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TRI-N-EXMPLR-6-SA-003",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AB": "12.5", "AD": "5", "EC": "6", "AE": "4"},
+    labels: {"A": "P", "B": "Q", "C": "R", "D": "A", "E": "B"},
+    provenance: [
+      {"param": "AB", "field": "questionText", "quote": "PQ = 12.5 cm"},
+      {"param": "AD", "field": "questionText", "quote": "PA = 5 cm"},
+      {"param": "EC", "field": "questionText", "quote": "BR = 6 cm"},
+      {"param": "AE", "field": "questionText", "quote": "PB = 4 cm"},
+    ],
+    expect: [
+      {"quantity": "ratio", "value": 0.6667, "tolPct": 0.5, "quote": "PA/AQ = 5/7.5 = 2/3"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TRI-PRF-D-001",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "4", "DB": "6", "AE": "3.2"},
+    part: "find EC",
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 4 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 6 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 3.2 cm"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 4.8, "tolPct": 0.5, "quote": "EC = 4.8 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "TRI-PRF-D-005",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "3", "AB": "9", "AE": "4", "BC": "12"},
+    part: "find AC and DE",
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 3 cm"},
+      {"param": "AB", "field": "questionText", "quote": "AB = 9 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 4 cm"},
+      {"param": "BC", "field": "questionText", "quote": "BC = 12 cm"},
+    ],
+    expect: [
+      {"quantity": "AC", "value": 12, "tolPct": 0.5, "quote": "AC = 12 cm"},
+      {"quantity": "DE", "value": 4, "tolPct": 0.5, "quote": "DE = 4 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "BX-TRI-D-001",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "x + 1", "DB": "x − 1", "AE": "x + 3", "EC": "x", "x": "3"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = (x + 1) cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = (x − 1) cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = (x + 3) cm"},
+      {"param": "EC", "field": "questionText", "quote": "EC = x cm"},
+      {"param": "x", "field": "finalAnswer", "quote": "x = 3", "derived": "the row's own solution solves x"},
+    ],
+    expect: [
+      {"quantity": "AD", "value": 4, "tolPct": 0.5, "quote": "AD = 4 cm"},
+      {"quantity": "AE", "value": 6, "tolPct": 0.5, "quote": "AE = 6 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "BX-TRI-E-012",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "m", "AD": "1.2", "DB": "0.8", "AE": "1.5", "DE": "1.8"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 1.2 m"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 0.8 m"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 1.5 m"},
+      {"param": "DE", "field": "questionText", "quote": "the batten DE is 1.8 m long"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 1, "tolPct": 0.5, "quote": "(ii) 1 m"},
+      {"quantity": "BC", "value": 3, "tolPct": 0.5, "quote": "(iv) 3 m"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "BX-TRI-E-013",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "60", "AB": "150", "AC": "150", "BC": "90"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 60 cm"},
+      {"param": "AB", "field": "questionText", "quote": "the whole leg AB = 150 cm"},
+      {"param": "AC", "field": "questionText", "quote": "the whole leg AB = 150 cm", "derived": "the legs AB and AC are equal"},
+      {"param": "BC", "field": "questionText", "quote": "BC = 90 cm"},
+    ],
+    expect: [
+      {"quantity": "DE", "value": 36, "tolPct": 0.5, "quote": "(iv) 36 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "BX-TRI-E-028",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "x", "DB": "x - 3", "AE": "x + 2", "EC": "x - 2", "x": "6"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = x"},
+      {"param": "DB", "field": "questionText", "quote": "DB = x - 3"},
+      {"param": "AE", "field": "questionText", "quote": "AE = x + 2"},
+      {"param": "EC", "field": "questionText", "quote": "EC = x - 2"},
+      {"param": "x", "field": "finalAnswer", "quote": "x = 6", "derived": "the row's own solution solves x"},
+    ],
+    expect: [
+      {"quantity": "AD", "value": 6, "tolPct": 0.5, "quote": "AD = 6 cm"},
+      {"quantity": "DB", "value": 3, "tolPct": 0.5, "quote": "DB = 3 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "APQ-M-TRI-007",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "none", "AD": "x", "DB": "x − 2", "AE": "x + 2", "EC": "x − 1", "x": "4"},
+    part: "find x",
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = x"},
+      {"param": "DB", "field": "questionText", "quote": "DB = x − 2"},
+      {"param": "AE", "field": "questionText", "quote": "AE = x + 2"},
+      {"param": "EC", "field": "questionText", "quote": "EC = x − 1"},
+      {"param": "x", "field": "finalAnswer", "quote": "x = 4", "derived": "the row's own solution solves x"},
+    ],
+    expect: [
+      {"quantity": "x", "value": 4, "tolPct": 0.5, "quote": "x = 4"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-201",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "m", "AD": "1.8", "DB": "2.7", "AE": "2"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 1.8 m"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 2.7 m"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 2 m"},
+    ],
+    expect: [
+      {"quantity": "EC", "value": 3, "tolPct": 0.5, "quote": "EC = 3 m"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-208",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "x + 1", "DB": "3x − 1", "AE": "x + 3", "EC": "3x + 4", "x": "7"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = (x + 1) cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = (3x − 1) cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = (x + 3) cm"},
+      {"param": "EC", "field": "questionText", "quote": "EC = (3x + 4) cm"},
+      {"param": "x", "field": "finalAnswer", "quote": "x = 7", "derived": "the row's own solution solves x"},
+    ],
+    expect: [
+      {"quantity": "ratio", "value": 0.4, "tolPct": 0.5, "quote": "8/20 = 10/25 = 2/5"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-221",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "m", "AD": "1.2", "DB": "1.8", "AE": "1.6", "EC": "2.4"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 1.2 m"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 1.8 m"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 1.6 m"},
+      {"param": "EC", "field": "questionText", "quote": "EC = 2.4 m"},
+    ],
+    expect: [
+      {"quantity": "ratio", "value": 0.6667, "tolPct": 0.5, "quote": "AD/DB = 1.2/1.8 = 2/3"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-240",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AB": "75", "AC": "100", "AD": "30"},
+    provenance: [
+      {"param": "AB", "field": "questionText", "quote": "one leg is 75 cm long"},
+      {"param": "AC", "field": "questionText", "quote": "the other is 100 cm long"},
+      {"param": "AD", "field": "questionText", "quote": "30 cm from the hinge"},
+    ],
+    expect: [
+      {"quantity": "AE", "value": 40, "tolPct": 0.5, "quote": "40 cm from the hinge"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-252",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "3", "DB": "5", "AC": "12"},
+    caption: "Lengths as on the map (scale 1 : 50000).",
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 3 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 5 cm"},
+      {"param": "AC", "field": "questionText", "quote": "AC = 12 cm"},
+    ],
+    expect: [
+      {"quantity": "AE", "value": 4.5, "tolPct": 0.5, "quote": "AE = (3/8) × 12 = 4.5 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-255",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "m", "AD": "2.4", "DB": "3.6", "AC": "7.5"},
+    part: "(a)",
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 2.4 m"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 3.6 m"},
+      {"param": "AC", "field": "questionText", "quote": "AC = 7.5 m"},
+    ],
+    expect: [
+      {"quantity": "AE", "value": 3, "tolPct": 0.5, "quote": "(a) 3 m"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-260",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "km", "AB": "10", "AC": "15", "AD": "4"},
+    labels: {"A": "J"},
+    provenance: [
+      {"param": "AB", "field": "questionText", "quote": "along the first road it is 10 km from J"},
+      {"param": "AC", "field": "questionText", "quote": "along the second road it is 15 km from J"},
+      {"param": "AD", "field": "questionText", "quote": "it crosses the first road 4 km from J"},
+    ],
+    expect: [
+      {"quantity": "AE", "value": 30, "tolPct": 0.5, "quote": "(a) 30 minutes", "factor": 5},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-267",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "20", "DB": "30", "AE": "24", "EC": "36", "BC": "90"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 20 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 30 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 24 cm"},
+      {"param": "EC", "field": "questionText", "quote": "EC = 36 cm"},
+      {"param": "BC", "field": "questionText", "quote": "The bottom edge BC is 90 cm long"},
+    ],
+    expect: [
+      {"quantity": "DE", "value": 36, "tolPct": 0.5, "quote": "(iii) DE = 36 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-268",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "m", "AD": "150", "AB": "400", "AE": "180", "DE": "120"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 150 m"},
+      {"param": "AB", "field": "questionText", "quote": "AB = 400 m"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 180 m"},
+      {"param": "DE", "field": "questionText", "quote": "The first pipeline DE is 120 m long"},
+    ],
+    expect: [
+      {"quantity": "AC", "value": 480, "tolPct": 0.5, "quote": "(i) AC = 480 m"},
+      {"quantity": "EC", "value": 300, "tolPct": 0.5, "quote": "(ii) EC = 300 m"},
+      {"quantity": "BC", "value": 320, "tolPct": 0.5, "quote": "(iii) BC = 320 m"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-282",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "m", "AB": "80", "BC": "100", "AC": "120", "AD": "40"},
+    provenance: [
+      {"param": "AB", "field": "questionText", "quote": "AB = 80 m"},
+      {"param": "BC", "field": "questionText", "quote": "BC = 100 m"},
+      {"param": "AC", "field": "questionText", "quote": "AC = 120 m"},
+      {"param": "AD", "field": "questionText", "quote": "the midpoint D of AB", "derived": "D is the midpoint of AB = 80 m"},
+    ],
+    expect: [
+      {"quantity": "DE", "value": 50, "tolPct": 0.5, "quote": "(ii) DE = 50 m"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "LTG-M-TRI-306",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "45", "DB": "75", "AE": "54", "EC": "90", "BC": "96"},
+    part: "(a), (b)",
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 45 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 75 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 54 cm"},
+      {"param": "EC", "field": "questionText", "quote": "EC = 90 cm"},
+      {"param": "BC", "field": "questionText", "quote": "BC = 96 cm"},
+    ],
+    expect: [
+      {"quantity": "DE", "value": 36, "tolPct": 0.5, "quote": "DE = 36 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+  {
+    kind: "computed",
+    questionId: "math-tri-hpq-2",
+    slot: "solution",
+    builder: "triangleBpt",
+    params: {"template": "bpt", "unit": "cm", "AD": "3", "DB": "5", "AE": "4.5"},
+    provenance: [
+      {"param": "AD", "field": "questionText", "quote": "AD = 3 cm"},
+      {"param": "DB", "field": "questionText", "quote": "DB = 5 cm"},
+      {"param": "AE", "field": "questionText", "quote": "AE = 4.5 cm"},
+    ],
+    expect: [
+      {"quantity": "AC", "value": 12, "tolPct": 0.5, "quote": "AC = 12 cm"},
+    ],
+    confirmedBy: "opus-5.5 builder (PR-2d): row read in full + rendered figure eye-checked 2026-10-07",
+  },
+];

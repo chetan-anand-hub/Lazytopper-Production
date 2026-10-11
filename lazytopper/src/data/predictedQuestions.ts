@@ -2593,7 +2593,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "A cylindrical water tank of radius 1.5 m and height 5 m has to be painted both inside and outside, leaving the top open. The cost of painting is ₹120 per square metre. Calculate the total cost.",
+      "A cylindrical water tank of radius 1.5 m and height 5 m has to be painted both inside and outside, leaving the top open. The cost of painting is ₹120 per square metre. (Use π = 3.14.) Calculate the total cost.",
     answer: "Total area = 34.5π ≈ 108.33 m²; cost ≈ ₹13,000 (₹12,999.60, taking π = 3.14).",
     explanation:
       "Outer curved surface + base = 2πrh + πr² = 17.25π m²; inner curved surface + base = 17.25π m². Total = 34.5π m² ≈ 108.33 m² (π = 3.14). Cost = 108.33 × 120 ≈ ₹13,000.",

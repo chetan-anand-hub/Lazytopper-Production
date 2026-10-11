@@ -137,6 +137,8 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Real-World HCF and LCM Application": "Fundamental Theorem of Arithmetic",
   },
   "polynomials": {
+    "Zeroes of a Linear Polynomial": "Graph & Type of Polynomial", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Graph of Polynomial": "Graph & Type of Polynomial", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Coefficient–root Relations": "Coefficient–root Relations",
     "Constructing a Polynomial": "Coefficient–root Relations",
     "Counting Polynomials with Given Zeroes": "Coefficient–root Relations",
@@ -332,6 +334,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Basic Proportionality Theorem (Statement, Proof and Application)": "BPT (Basic Proportionality Theorem)",
     "Basic Proportionality Theorem (Thales)": "BPT (Basic Proportionality Theorem)",
     "Basic Proportionality Theorem — Application": "BPT (Basic Proportionality Theorem)",
+    "Basic Proportionality Theorem — Statement, Proof, and Application": "BPT (Basic Proportionality Theorem)", // DIAGRAMS-1 PR-1b: SQP-M-TRI-003 served again
     "Basic Proportionality Theorem — Statement and Application": "BPT (Basic Proportionality Theorem)",
     "Board-style proof checking": "Similarity Criteria",
     "Converse of BPT": "BPT (Basic Proportionality Theorem)",
@@ -439,7 +442,6 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Standard values and quick recall": "Trig Ratios/Values",
     "Trig Equations — Standard Angles": "Trig Ratios/Values",
     "Trig Identity Proof": "Trig Identities/Proofs",
-    "Trig Identity Proof — Multi-step": "Trig Identities/Proofs",
     "Trig Ratios Manipulation": "Trig Ratios/Values",
     "Trigonometric Identities": "Trig Identities/Proofs",
     "Trigonometric Identities (Proofs)": "Trig Identities/Proofs",
@@ -453,7 +455,6 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Trigonometric identities": "Trig Identities/Proofs",
     "True/False Trig Statements with Justification": "Trig Ratios/Values",
     "Values of Standard Angles": "Trig Ratios/Values",
-    "cos θ from Similar Right Triangles": "Trig Ratios/Values",
   },
   "circles": {
     "Angle Between Tangents": "Tangent Properties",
@@ -461,6 +462,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Bisecting Arc": "Tangent Theorems & Proofs",
     "Circle Inscribed in Two Squares — Radius": "Tangent Properties",
     "Circumscribed Quadrilateral": "Tangent Theorems & Proofs",
+    "Inscribed Angle and Tangent — ∠OQN": "Tangent Properties", // DIAGRAMS-1 PR-1b: APQ-M-CIRC-010 served again (radius ⊥ tangent, as "Angle at Centre and Tangent")
     "Common Tangent — Two Semicircles": "Tangent Properties",
     "Concentric Circles": "Tangent Properties",
     "Cyclic Quadrilateral PQOR": "Tangent Properties",
@@ -516,6 +518,11 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Two Concentric Circles": "Tangent Properties",
   },
   "areas-related-to-circles": {
+    "Area of Circular Sectors — Inscribed Polygon": "Composite Figures", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Sector and Triangle Areas — Rhombus": "Composite Figures", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Segment Area — Semicircle in Semicircle": "Composite Figures", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Sector — Length Calculation": "Sectors and Segments", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Sector Area — Fibonacci Grid": "Sectors and Segments", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Arc Length": "Sectors and Segments",
     "Arc Length from Bent Wire": "Sectors and Segments",
     "Arc Length — Chord Subtending 60°": "Sectors and Segments",
@@ -620,6 +627,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Water Left after Immersing Cone": "Combination of Solids",
   },
   "statistics": {
+    "Median and Class Frequencies": "Median of Grouped Data", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Assumed Mean Choice": "Mean (Step Deviation)",
     "Assumed Mean Deviations": "Mean (Step Deviation)",
     "Class Frequency from Cumulative": "Median of Grouped Data",
@@ -913,6 +921,8 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Thermite Reaction — Reactivity Series Application": "Reactivity Series & Displacement",
   },
   "carbon-and-its-compounds": {
+    "Identifying Unsaturated Hydrocarbons — Ethene": "Homologous Series & Nomenclature", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Unsaturated Hydrocarbons": "Homologous Series & Nomenclature", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Acid Properties": "Properties of Ethanol & Ethanoic Acid",
     "Alcohols": "Properties of Ethanol & Ethanoic Acid",
     "Alcohols, Esterification, Dehydration": "Properties of Ethanol & Ethanoic Acid",
@@ -1246,6 +1256,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Voltmeter Connection": "Ohm’s Law & Circuit Numericals",
   },
   "magnetic-effects-of-electric-current": {
+    "Current-Carrying Conductors": "Right-hand Rules & Field Lines", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Bar Magnet": "Right-hand Rules & Field Lines",
     "Electromagnet": "Right-hand Rules & Field Lines",
     "Electromagnets — core material": "Right-hand Rules & Field Lines",
@@ -1315,6 +1326,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Gastric Glands": "Nutrition & Respiration (Human + Plants)",
     "Haemoglobin": "Transportation & Excretion in Humans",
     "Heart": "Transportation & Excretion in Humans",
+    "Heart Anatomy — Chambers and Vessels": "Transportation & Excretion in Humans", // DIAGRAMS-1 PR-1b: APQ-S-LIFE-012 served again
     "Heart Chambers": "Transportation & Excretion in Humans",
     "Heart — Oxygenated Blood Inlet and Septum Significance": "Transportation & Excretion in Humans",
     "Human Digestive System": "Nutrition & Respiration (Human + Plants)",
@@ -1335,6 +1347,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Nutrition — Photosynthesis": "Nutrition & Respiration (Human + Plants)",
     "Nutrition — Saprophytic Mode (External Digestion)": "Nutrition & Respiration (Human + Plants)",
     "Nutrition — Saprophytic Nutrition": "Nutrition & Respiration (Human + Plants)",
+    "Oxygen Saturation vs Altitude": "Transportation & Excretion in Humans", // DIAGRAMS-1 PR-1b: APQ-S-LIFE-002 served again (haemoglobin O2 binding, as "Haemoglobin" / "Transport of Oxygen in Blood")
     "Parasites": "Nutrition & Respiration (Human + Plants)",
     "Peristalsis": "Nutrition & Respiration (Human + Plants)",
     "Peristalsis in Alimentary Canal": "Nutrition & Respiration (Human + Plants)",
@@ -1924,6 +1937,7 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Sodium Chemistry": { reason: "concept-gap", note: "audit (verified): physical/chemical properties of metals & non-metals — propose 'Properties of Metals and Non-metals'" },
   },
   "carbon-and-its-compounds": {
+    "Benzene": { reason: "concept-gap", note: "concept-gap: in-syllabus Exemplar item on ring structures; no Exam Trends concept of this chapter covers it (consistent with sibling Isomers / Hydrocarbons labels)" }, // BANK-UNWITHHOLD-1 (2026-10-10)
     "Action of Soap in Hard Water": { reason: "concept-gap", note: "audit (verified): propose \"Soaps & Detergents (Micelles)\"" },
     "Addition Reaction": { reason: "concept-gap", note: "concept-gap: in-syllabus but no Exam Trends concept of this chapter covers bonding/isomerism/hydrocarbon reactions (consistent with sibling labels)" },
     "Addition Reactions": { reason: "concept-gap", note: "audit (verified): propose \"Chemical Properties of Carbon Compounds (combustion, oxidation, addition, substitution)\"" },

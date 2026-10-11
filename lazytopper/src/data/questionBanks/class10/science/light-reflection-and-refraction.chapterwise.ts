@@ -47,7 +47,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "55°, 55°",
     solutionSteps: ["[1 mark] (b) 55°, 55° — in the diagram the incident ray makes 35° with the mirror surface, so the angle of incidence (measured from the normal) is 90° − 35° = 55°; by the law of reflection the angle of reflection is also 55°."],
     finalAnswer: "(b) 55°, 55°",
-    ncertRef: "cbjescco10 Q7", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram",
+    ncertRef: "cbjescco10 Q7", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjescco10 Q9
   { id: "SCO-S-LIGHT-006", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -235,7 +235,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "Name the type of lens that can be used . as magnifying glass. Give reason(s) and draw a ray diagram to support your answer.",
     answer: "A convex lens of smaller focal length can be used as magnifying glass. When an object is placed between the optical centre and the focus of the convex lens, an enlarged, erect image is formed on the same side as the object.",
     solutionSteps: ["[2 marks] A convex lens of smaller focal length can be used as a magnifying glass. When an object is placed between the optical centre and the principal focus of the convex lens, a virtual, enlarged and erect image is formed on the same side as the object (ray diagram: object between O and F; the refracted rays diverge and appear to come from the enlarged image behind the object)."],
-    ncertRef: "cbjesccq10 Q23", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq10 Q23", isCompetencyBased: true, },
   // cbjesccq10 Q24 (Section B, 2mk)
   { id: "SCQ-S-LIGHT-032", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "An object is placed at the following distances from a concave mirror of focal length 15 cm. (a) 10 cm (b) 20 cm (c) 30 cm (d) 40 cm Which position of the object will produce: (i) Virtual image (ii) A diminished real image (iii) An enlarged real image (iv) An image of same size.",
@@ -247,7 +247,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "A ray of light is incident obliquely on a glass slab. Draw a ray diagram showing the path of the light ray. Clearly, mark angle of incidence, angle of refraction, angle of emergence and lateral displacement of the ray. Give a formula to find refractive index of glass slab in terms of angle of incidence and angle of refraction.",
     answer: "Ray diagram of refraction through a glass slab with ∠i, ∠r, ∠e and the lateral displacement d marked; refractive index of glass n = sin i / sin r.",
     solutionSteps: ["[3 marks] When a ray passes from an optically rarer to a denser medium it bends towards the normal, and vice versa. Ray diagram: the ray bends towards the normal on entering the slab and away from the normal on leaving it, emerging parallel to the incident ray; ∠i = angle of incidence, ∠r = angle of refraction, ∠e = angle of emergence, d = lateral displacement. Refractive index of glass: n = sin i / sin r."],
-    ncertRef: "cbjesccq10 Q46", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq10 Q46", isCompetencyBased: false, },
   // cbjesccq10 Q47 (Section C, 3mk)
   { id: "SCQ-S-LIGHT-034", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) For the same angle of incidence 45°, the angle of refraction in two transparent media; I and II is 20° and 30° respectively. Out of I and II, which medium is optically denser and why? (b) Light enters from air to diamond which has refractive index of 2.42. Calculate the speed of light in diamond, if speed of light in air is ms 3 108 1 # - .",
@@ -277,7 +277,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "(a) Water has refractive index 1.33 and alcohol has refractive index 1.36. Which of the two medium is optically denser? Give reason for your answer. Draw a ray diagram to show the path of a ray of light passing obliquely from water to alcohol. (b) The absolute refractive index of diamond is 2.42 and the absolute refractive index of glass is 1.50. Find the refractive index of diamond with respect to glass.",
     answer: "a. Alcohol (n = 1.36) is optically denser than water (n = 1.33); a ray passing obliquely from water into alcohol bends towards the normal. b. n(diamond w.r.t. glass) = 2.42/1.50 = 1.61",
     solutionSteps: ["[3 marks] a. A higher refractive index means an optically denser medium. Here the refractive index of water is 1.33 and of alcohol is 1.36, so n(alcohol) > n(water): alcohol is optically denser than water. Ray diagram: a ray passing obliquely from water to alcohol bends towards the normal. b. ᵃn(d) = 2.42, ᵃn(g) = 1.50; refractive index of diamond with respect to glass ᵍn(d) = ᵃn(d)/ᵃn(g) = 2.42/1.50 = 1.61."],
-    ncertRef: "cbjesccq10 Q51", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq10 Q51", isCompetencyBased: true, },
   // cbjesccq10 Q65 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-039", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "An object of height 4.0 cm is placed at a distance of 30 cm from the optical centre 'O' of a convex lens of focal length 20 cm. Draw a ray diagram to find the position and size of the image formed. Mark optical centre 'O' and principal focus 'F' on the diagram. Also find the approximate ratio of size of the image to the size of the object.",
@@ -289,7 +289,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] Image height hᵢ = m × hₒ = −2 × 4.0 = −8.0 cm (negative sign ⟹ image is real and inverted).",
       "[1 mark] Ray diagram: mark optical centre O and principal focus F; the image is real, inverted and magnified. Ratio of image size to object size = 8:4 = 2:1."
     ],
-    ncertRef: "cbjesccq10 Q65", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq10 Q65", isCompetencyBased: true, },
   // cbjesccq10 Q66 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-040", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Define real image of an object. (b) Name the mirror that: - can give real as well as virtual image of an object. - will always give virtual image of same size of an object. - will always give virtual and diminished image of an object. - is used by a doctor in examining teeth, (b) With the help of a ray diagram explain the use of concave mirror as solar concentrators.",
@@ -301,7 +301,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] (c) Ray diagram: parallel rays coming from the Sun fall on a large concave mirror and converge at its principal focus F, where the material to be heated is placed.",
       "[1 mark] (c) Since the Sun's rays are parallel to the principal axis, all the solar heat is concentrated at the focus, producing a very high temperature (solar concentrator/furnace)."
     ],
-    ncertRef: "cbjesccq10 Q66", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq10 Q66", isCompetencyBased: true, },
   // cbjesccq10 Q67 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-041", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Name the type of mirror used in the following: a. Solar furnace b. Side/rear - view mirror of a vehicle. Draw a labelled ray diagram to show the formation of image in each of the above two cases. Which of these mirrors could also form a magnified and virtual image of an object? Illustrate with the help of a ray diagram.",
@@ -313,7 +313,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] Ray diagram (convex, rear-view): an object in front gives an erect, virtual, diminished image behind the mirror, providing a wide field of view.",
       "[1 mark] The concave mirror can also form a magnified virtual image: when the object is placed between the pole P and focus F, the image is virtual, erect and enlarged, formed behind the mirror. Diagram."
     ],
-    ncertRef: "cbjesccq10 Q67", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq10 Q67", isCompetencyBased: true, },
   // cbjesccq10 Q68 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-042", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) A thin converging lens forms a - Real magnified image. - Virtual magnified image of an object placed in front of it. Write the positions of the objects in each case. (b) Draw labelled ray diagrams to show the image formation in each case. (c) How will the following be affected on cutting this lens into two halves along the principal axis? - Focal length - Intensity of the image formed by half lens.",
@@ -325,7 +325,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] (b) Ray diagram: object between F and O → virtual, erect, magnified image formed on the same side as the object.",
       "[1 mark] (c) On cutting the lens into two halves along the principal axis: the focal length remains the same, but the intensity of the image is reduced (each half gathers less light)."
     ],
-    ncertRef: "cbjesccq10 Q68", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq10 Q68", isCompetencyBased: true, },
   // cbjesccq10 Q69 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-043", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Define principal focus of a spherical mirror. (b) For what position of the object does a concave mirror form a real, inverted and diminished image of the object? Draw the ray diagram. (c) An object 4 cm high is placed at a distance of 6 cm in front of a concave mirror of focal length 12 cm. Find the position of the image formed.",
@@ -337,7 +337,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] (c) 1/v = 1/f − 1/u = 1/(−12) − 1/(−6) = −1/12 + 1/6 = 1/12.",
       "[1 mark] (c) v = +12 cm — the image is formed 12 cm behind the mirror (virtual and erect)."
     ],
-    ncertRef: "cbjesccq10 Q69", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq10 Q69", isCompetencyBased: true, },
   // cbjesccq10 Q70 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-044", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "(a) Define optical centre of a spherical lens. (b) You are given a convex lens of focal length 30 cm. Where would you place an object to get a real, inverted and highly enlarged image of the object? Draw a ray diagram showing the image formation, (c) A concave lens has a focal length of 20 cm. At what distance an object should be placed so that it forms an image at 15 cm away from the lens?",
@@ -349,5 +349,5 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
       "[1 mark] (c) 1/u = 1/v − 1/f = 1/(−15) − 1/(−20) = −1/15 + 1/20 = (−4 + 3)/60 = −1/60.",
       "[1 mark] (c) u = −60 cm — the object must be placed 60 cm in front of the concave lens."
     ],
-    ncertRef: "cbjesccq10 Q70", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
+    ncertRef: "cbjesccq10 Q70", isCompetencyBased: false, },
 ];

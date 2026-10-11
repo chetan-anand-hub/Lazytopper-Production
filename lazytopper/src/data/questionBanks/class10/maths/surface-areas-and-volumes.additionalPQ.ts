@@ -81,7 +81,7 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Volume of box = 30 × 40 × 115 = 1,38,000 cm^3.", "Volume of cone = (1/3)·π·r^2·h = (1/3)·(22/7)·12.25·12 = 154 cm^3.", "Volume of hemisphere = (2/3)·π·r^3 = (2/3)·(22/7)·42.875 ≈ 89.83 cm^3.", "Per serving = 154 + 89.83 ≈ 243.83 cm^3 ≈ 244 cm^3.", "Servings = 1,38,000 / 244 ≈ 565.57 ⟹ 565 desserts."],
     finalAnswer: "≈ 565 desserts.",
     ncertRef: "APQ PQ_2022 Q33 (first variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: cuboidal box + ice-cream cone with hemispherical scoop." },
+ },
 
   // PQ_2022 Q33 OR variant (Section D, Long, 5 marks)
   { id: "APQ-M-SAV-009", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Volume — Tanker, Cuboidal Tank, Spherical Matka", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
@@ -90,5 +90,5 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Tanker volume = π·r²·h = (22/7)·1²·70 = 220 m³; cuboidal tank volume = 7·2·3 = 42 m³.", "[1 mark] (i) Number of colonies = 220 ÷ 42 = 5.23, so 5 colonies can be supplied completely.", "[1 mark] Matka (sphere) volume = (4/3)·π·r³ = (4/3)·(22/7)·(21)³ = 38,808 cm³ ≈ 0.0388 m³.", "[1 mark] (ii) Water for 3 colonies = 3 × 42 = 126 m³; water for 400 matkas = 400 × 0.0388 ≈ 16 m³.", "[1 mark] (ii) Total water supplied = 126 + 16 = 142 m³ (approx)."],
     finalAnswer: "(i) 5 colonies; (ii) ≈ 142 m^3.",
     ncertRef: "APQ PQ_2022 Q33 (OR variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: tanker + cuboidal tank + spherical matka." },
+ },
 ];

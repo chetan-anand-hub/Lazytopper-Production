@@ -12,7 +12,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-import { Note } from "./Note";
+import { Note, boardFigureAlt, stripOwnOptionLabels } from "./Note";
 import { ensureAllNoteSpecs, getNoteSpecForTopic } from "./noteSpecRegistry";
 
 // LOW-END-1 (L4): specs are per-chapter chunks now; this suite reads them synchronously.
@@ -197,5 +197,85 @@ describe("content completeness", () => {
       ).toBeGreaterThan(0);
     }
     expect(panel.textContent || "").toMatch(/\d+ marks?/);
+  });
+});
+
+// FIGURES-ALL-SURFACES-1 surface 7 (cofounder D43b): a board question on a notes page shows what the student needs to
+// answer it — the MCQ options and the official figure bound to the row. Before this lane 23 of the 78 published rows were
+// MCQ stems with no options and 20 had a bound figure that was never drawn. The artifact (generated from the live bank)
+// now carries both, and the panel renders them in the DOM on load (crawlable, like the solution).
+describe("Competency-based questions tab — options and figures reach the page", () => {
+  const rowsOf = (topic: string) => BOARD_QUESTIONS[topic].questions;
+
+  it("an MCQ row shows its options in order, lettered, and a written row shows none", () => {
+    const topic = "areas-related-to-circles";
+    const { container } = mountNote(topic);
+    const mcq = rowsOf(topic).find((q) => q.options && q.options.length > 0);
+    const written = rowsOf(topic).find((q) => !q.options);
+    expect(mcq, "premise: this chapter publishes an MCQ row").toBeDefined();
+    expect(written, "premise: and a written-answer row").toBeDefined();
+    const articles = Array.from(container.querySelectorAll<HTMLElement>("article.lt-note__bq-item"));
+    const mcqArticle = articles.find((a) => (a.textContent || "").includes(mcq!.questionText.slice(0, 40)))!;
+    const lis = Array.from(mcqArticle.querySelectorAll("ol.lt-note__bq-opts li")).map((li) => (li.textContent || "").trim());
+    expect(lis).toEqual(mcq!.options!.map((o, i) => `(${String.fromCharCode(65 + i)}) ${o}`));
+    const writtenArticle = articles.find((a) => (a.textContent || "").includes(written!.questionText.slice(0, 40)))!;
+    expect(writtenArticle.querySelector("ol.lt-note__bq-opts")).toBeNull();
+  });
+
+  it("a row with a bound official figure draws it (src under the base path, descriptive alt); an unbound row draws none", () => {
+    const topic = "areas-related-to-circles";
+    const { container } = mountNote(topic);
+    const withFig = rowsOf(topic).find((q) => q.figures && q.figures.length > 0)!;
+    expect(withFig, "premise: this chapter publishes a figure row").toBeDefined();
+    const articles = Array.from(container.querySelectorAll<HTMLElement>("article.lt-note__bq-item"));
+    const art = articles.find((a) => (a.textContent || "").includes(withFig.questionText.slice(0, 40)))!;
+    const imgs = Array.from(art.querySelectorAll<HTMLImageElement>("img.lt-note__bq-img"));
+    expect(imgs).toHaveLength(withFig.figures!.length);
+    expect(imgs[0].getAttribute("src")!.endsWith(withFig.figures![0].src)).toBe(true);
+    expect(imgs[0].getAttribute("alt")).toBe(withFig.figures![0].alt);
+    expect(imgs[0].getAttribute("alt")!.length).toBeGreaterThan(10);
+    // CONTROL: the same chapter's published rows without a bound figure have no image block.
+    const without = rowsOf(topic).find((q) => !q.figures);
+    if (without) {
+      const a2 = articles.find((a) => (a.textContent || "").includes(without.questionText.slice(0, 40)))!;
+      expect(a2.querySelector(".lt-note__bq-figs")).toBeNull();
+    }
+  });
+
+  it("across all 26 topics the panel renders every artifact option and figure (no row loses them)", () => {
+    for (const topic of Object.keys(BOARD_QUESTIONS)) {
+      const { container, unmount } = mountNote(topic);
+      const opts = container.querySelectorAll(".lt-note__bq-opts li").length;
+      const figs = container.querySelectorAll("img.lt-note__bq-img").length;
+      expect(opts, `${topic} options`).toBe(rowsOf(topic).reduce((n, q) => n + (q.options?.length ?? 0), 0));
+      expect(figs, `${topic} figures`).toBe(rowsOf(topic).reduce((n, q) => n + (q.figures?.length ?? 0), 0));
+      unmount();
+    }
+  });
+});
+
+describe("board question options and figure alt — display polish", () => {
+  it("drops a label the bank row already carries only when EVERY option has its own sequential one", () => {
+    expect(stripOwnOptionLabels(["A. 6", "B. 12", "C. 18", "D. 24"])).toEqual(["6", "12", "18", "24"]);
+    expect(stripOwnOptionLabels(["(a) x", "(b) y", "(c) z", "(d) w"])).toEqual(["x", "y", "z", "w"]);
+    // CONTROL: mixed or out-of-order labels, and ordinary options, are untouched.
+    expect(stripOwnOptionLabels(["A. 6", "12", "C. 18", "24"])).toEqual(["A. 6", "12", "C. 18", "24"]);
+    expect(stripOwnOptionLabels(["B. 6", "A. 12", "C. 18", "D. 24"])).toEqual(["B. 6", "A. 12", "C. 18", "D. 24"]);
+    expect(stripOwnOptionLabels(["Ravi", "Anita", "Charu", "Dev"])).toEqual(["Ravi", "Anita", "Charu", "Dev"]);
+  });
+
+  it("a row stored with lettered options renders one label, not two ('(A) 6', never '(A) A. 6')", () => {
+    const hit = Object.entries(BOARD_QUESTIONS).flatMap(([topic, t]) => t.questions.filter((q) => q.options?.[0] && /^A\.\s/.test(q.options[0])).map((q) => ({ topic, q })))[0];
+    expect(hit, "premise: a published row stores lettered options (real-numbers CBE-M-RN-A-xxx)").toBeDefined();
+    const { container } = mountNote(hit.topic);
+    const li = container.querySelector(".lt-note__bq-opts li")!;
+    expect((li.textContent || "").trim()).toMatch(/^\(A\) \S/);
+    expect(container.textContent).not.toMatch(/\(A\) A\. /);
+  });
+
+  it("the generic registry title is replaced by a description of the question; a descriptive alt is kept", () => {
+    expect(boardFigureAlt("Source figure", "In the given figure, find the area")).toContain("In the given figure");
+    expect(boardFigureAlt("Source figure", "x")).not.toBe("Source figure");
+    expect(boardFigureAlt("Regular pentagon inscribed in a circle", "x")).toBe("Regular pentagon inscribed in a circle");
   });
 });
