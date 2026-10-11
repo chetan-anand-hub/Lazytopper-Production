@@ -117,8 +117,8 @@ describe("1 · premium window choice — highest percent; tie → the LONGER win
     for (const s of scopes) expect(usageWarning(premium(80, 10, 10), NOW, s)).not.toBeNull();
   });
 
-  it("the window list is data (three windows today; a fourth is one more row)", () => {
-    expect(PREMIUM_WARN_WINDOWS.map((w) => w.key)).toEqual(["fiveHour", "day", "week"]);
+  it("the window list is data (four windows since CAP-30DAY, 2026-10-11 [FU-30DAY-WARN-BANNER]; a fifth is one more row)", () => {
+    expect(PREMIUM_WARN_WINDOWS.map((w) => w.key)).toEqual(["fiveHour", "day", "week", "thirtyDay"]);
   });
 
   it.each([
