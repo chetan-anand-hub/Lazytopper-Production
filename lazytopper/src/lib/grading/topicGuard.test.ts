@@ -170,6 +170,10 @@ describe("topicGuard · round-5 verifier negatives", () => {
 describe("topicGuard · round-6 verifier negatives", () => {
   it("★★ pendulum / wave / sound stems and an arc-subtended stem with sin/tan never fire as trigonometry; real proofs still do", () => {
     for (const t of [
+      "A body oscillates with angle θ; show that sin θ ≈ θ.",
+      "An oscillating spring: prove that cos θ and sin θ alternate.",
+      "A system oscillated through angle θ; prove that sin θ and cos θ vary.",
+      "Damped oscillations: show that cos θ decays as sin θ grows.",
       "A pendulum swings through an angle θ; show that the time period does not depend on θ for small swings, given sin θ ≈ θ.",
       "A pendulum bob is displaced through angle θ; show that the restoring term contains sin θ.",
       "A radio wave enters the ionosphere at angle θ; prove that sin θ and tan θ change.",
