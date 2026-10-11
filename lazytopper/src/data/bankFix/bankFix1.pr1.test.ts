@@ -59,7 +59,12 @@ describe("BANK-FIX-1 PR-1 · ids unchanged", () => {
     expect(missing).toEqual([]);
     // BANK-FIX-1 adds and removes no row. The count is pinned on the rows that existed when the
     // lane measured it: GEN-THIN-1's 50 `origin: "lt-generated"` rows (#961) merged after that.
-    const preexisting = RAW_CANONICAL_QUESTION_BANK.filter((q) => (q as CanonicalQuestion).origin !== "lt-generated");
+    // 2026-10-11 CONCEPT-MAP-FILL-1 (D79b): rows ADDED after this lane measured its count are excluded by id, one dated entry each,
+    // so the pin keeps meaning "BANK-FIX-1 added/removed nothing". SQP-M-2026-ARC-001 = the official CBSE SQP 2026-27 Maths Q10 (car wheel).
+    const ADDED_AFTER_BANK_FIX_1 = new Set(["SQP-M-2026-ARC-001"]);
+    const preexisting = RAW_CANONICAL_QUESTION_BANK.filter(
+      (q) => (q as CanonicalQuestion).origin !== "lt-generated" && !ADDED_AFTER_BANK_FIX_1.has(q.id),
+    );
     expect(preexisting.length).toBe(BANK_FIX_1_RAW_COUNT);
     expect(new Set(RAW_CANONICAL_QUESTION_BANK.map((q) => q.id)).size).toBeGreaterThan(0);
   });
