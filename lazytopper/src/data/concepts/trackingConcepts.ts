@@ -45,7 +45,7 @@ export const TRACKING_CONCEPT_SOURCES: Readonly<
     "Understanding the Chemical Properties of Acids and Bases":
       "NCERT Sc Ch2 s2.1 pp.18-22 (metals Activity 2.3 p.20, neutralisation Activity 2.6 p.21, carbonates p.22)",
     "What All Acids and All Bases Have in Common":
-      "NCERT Sc Ch2 s2.2 pp.22-24 (ions in water, conductivity, dilution p.24)",
+      "NCERT Sc Ch2 s2.2-2.3 pp.22-24 (ions in water, conductivity, dilution p.24)",
     "Examples and Uses of Acids and Bases":
       "CBSE Sc (086) 2026-27 Unit 1 'Acids, bases and salts: ... General properties, examples and uses'",
   },
@@ -61,7 +61,7 @@ export const TRACKING_CONCEPT_SOURCES: Readonly<
     "Refining of Metals":
       "NCERT Sc Ch3 'Refining of Metals' pp.53-54 (Fig 3.13 p.53)",
     "Alloys":
-      "NCERT Sc Ch3 'Alloys' p.54",
+      "NCERT Sc Ch3 'Corrosion and its prevention' — alloys, p.54",
   },
   "carbon-and-its-compounds": {
     "Bonding in Carbon: The Covalent Bond":
