@@ -1,5 +1,20 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-11 — DAY CLOSE: **FIGURES, CONCEPT MODEL, FAIR-USE, HARDENING** (PRs in the table of `CURRENT_STATE.md`) — trunk `20d031d1` at drafting (all six D100 product items merged) — ✅ COMPLETE for the seven items of D100; ⏳ the deferred items below wait for 2026-10-12
+
+- ✅ **Question figures on every surface** — worksheet print docs, the answer key and graded sheet (`#1070`); notes-page board questions with MCQ options + official figure (`#1072`); the figure rule widened (`#1073`), allow-listed (`#1071`), bound (`#1074`: 3 official crops, 16 withheld, a permanent "no served row needs a figure it lacks" guard); 21 questions restored (`#1066`).
+- ✅ **Solution figures** — Biology (`#1078`), Human Eye + Magnetic (`#1083`); Carbon / Metals / Chemical Reactions (`#1089`), Electricity / Heredity (`#1091`), Light (`#1092`) — SOLUTION-FIGS-1 complete: 58 NCERT crop bindings on 51 served Science rows (D's count).
+- ✅ **Hand-drawn SVGs retired** — four notes figures (`#1075`), five Tutor panel figures (`#1079`); honest gaps where NCERT has no figure.
+- ✅ **Me + Weak Area on one concept model** — tracking concepts (`#1069`), Me's concept rows + won-back + the Tutor's concept brief (`#1065`), Weak Area Practice and the Learning Path from the same model (`#1085`). ✅ `#1076` (Hub concept cards, exact-set Practise).
+- ✅ **Fair-use** — usage banner (`#1060`), 30-day cap dark (`#1037`), global-ceiling margin (`#1064`), ALL-AI metering dark (`#1046`).
+- ✅ **Check & Improve topic detection** — deterministic fill-only chapter guard (`#1063`); owner trig proofs owed (D59b).
+- ✅ **Bank** — BANK-FIX-7 PR-1 (`#1080`), the official 2026-27 SQP Q10 row (`#1084`); ✅ BANK-FIX-7 PR-2 (`#1090`).
+- ✅ **Retirements** — break reminder (`#1067`, `#1081`: `App.tsx` -2 lines); dead heuristic figure code (`#1077`); ✅ the unprotected `/api/generate-diagram` + `/api/generate-visual` and their admin pages (`#1087`, `App.tsx` -4 lines).
+- ✅ **Notes** — 26 pages linked into the site (`#1055`), source ledger a closed disclosure (`#1082`).
+- ⏳ **Deferred to 2026-10-12 (D99):** META-PIXEL-1 PR-2a `#1088` (PASS D94a) then PR-2b (`practice_started` / `cbq_practice_started`, `PracticePage.tsx`, after `#1076`); TOPUP-1 PR-1 `#1086` (PASS D97b) then PR-2 (client sheet; says "about", no per-paper count until the ledger export confirms the estimates); `#1013` LOW-END-3 PR-3 (`DesktopShell.tsx`, needs mobile Lighthouse before/after and the D76b proofs).
+- ⏳ **External, not finishable by a controller:** Razorpay go-live (Ayush); the Railway values (owner, guided). Top-ups and payments stay DARK until then.
+- ⏳ **Owner decisions:** the Me/Progress decision (named in D100) and the OWNER-BATCH phone checks.
+
 ## 2026-10-07 — GRADING CLIENT + PROGRESS: **WAVE B-18 — J2a + J2b + FLAKE-PDF + ME PR-2d** (`#979` + `#980` + `#995` + `#997`) — trunk `d8a7d2f4` — ✅ COMPLETE (J2 dark behind `GRADING_JOBS` OFF until J3; `#995` live PASS; `#970` L1 live PASS; `#997` live PENDING; `[PROD-AI-500]` resolved)
 
 - ✅ **Background-grading client (J2)** — shared `src/ai/gradingJobs.ts`, rows one by one, provisional until final, resume after a reload, today's path when jobs are off or fail. Surfaces: Check & Improve papers + Worksheets (`#979`); Chapter Test, Full Mock, Quick Practice batch > 1 (`#980`). Unchanged: single checks, HPQ, the signed-out free check.

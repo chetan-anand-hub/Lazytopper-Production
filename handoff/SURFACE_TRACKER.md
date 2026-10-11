@@ -1,5 +1,21 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-11 — DAY CLOSE (C2, docs lane D100): surfaces moved by the day's PRs (table of PRs in `CURRENT_STATE.md`). The cells below are NOT re-flipped one by one in the large per-surface sections further down; THIS block is the authority for the surfaces it names until a later docs lane merges it in. No surface changed Scope to Settling today; no new scope was discovered.**
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Me / Progress | concept rows on Exam Trends names, per-concept mistakes, "won back" (`#1065`); a "Last 30 days" bar (`#1037`, dark until the value is set) | 🟢 live | owner phone: Concepts show board names; won back on a DIFFERENT question of a lost concept (re-answering the SAME question clears the mistake but does not win its concept back — spec rule) |
+| Tutor | brief names at most 3 weakest concepts that have a Me row, no % (`#1065`); five panel figures retired (`#1079`); trial allowances + Premium cap stops (`#1046`) | 🟢 live; metering 🔴 DARK | owner: Tutor on a weak chapter names at most 3 concepts; Tutor panel "Atmospheric refraction" shows NCERT Fig 10.9, "Scattering of light" shows the honest gap; live-verify of metering when the switch is flipped (Tutor + More-like-this + Read question) |
+| Weak Area Practice / Learning Path | same list and order as Me; honest empty state; "Practise {chapter}" (`#1085`) | 🟢 live | owner: same list as Me on a second device or after clearing site data; Learning Path never blank. `#1076` (merged) restores "starting with {concept}" only when the first served question belongs to that concept (pinned on the real page path, D96) |
+| Quick Practice, Chapter Test, Full Mock, Worksheets, HPQ (figure rule) | rule widened, allow-listed, bound (`#1073`, `#1071`, `#1074`); 21 rows restored (`#1066`); a served-row-needs-a-figure guard on every surface | 🟢 live | owner: APQ-M-CIRC-012 figure in the app; the 16 withheld rows absent |
+| Worksheets (print) | question figure in the questions PDF; solution figure in the answer key and graded sheet (`#1070`); pending upload (`#1062`) | 🟢 live | owner: one real PDF download in the signed-in app |
+| Notes pages | board-question options + figure (`#1072`); official figures replace four SVGs (`#1075`); closed source ledger (`#1082`); 26 pages linked (`#1055`) | 🟢 live | owner screenshots; the doubled caption `[FU-NOTES-CAPTION-DOUBLED]` |
+| Fair-use warnings (all AI surfaces) | 75% / 90% banner, trial "come back after midnight" dialog, "See usage" to `/me#usage` (`#1060`); global-ceiling margin (`#1064`) | 🟢 live | owner (Premium account): no banner below 75%; at 75% or more the banner shows at 390 px; "See usage" lands on the card; trial pop-up at the daily limit |
+| Check & Improve (topic detection) | fill-only deterministic chapter guard (`#1063`) | 🟢 live | owner D59b: 3 fresh trig proofs, typed / photo / multi-question |
+| Chapter Test / Break reminder | break pop-up gone (`#1067`, `#1081`) | 🟢 live | owner: a 30-minute Chapter Test shows no pop-up; the signed-in 6-route smoke |
+| Pricing / checkout / top-ups | NOT moved to live (`#1086`, `#1088` deferred) | 🔴 dark / unmerged | Razorpay go-live (external) |
+| Admin diagram tools | `/admin/diagram-compare`, `/admin/diagram-quality` and the two paid routes removed by `#1087` | 🟢 removed | `#1087` (`0588b591`); E, A and CI-1 each reported both routes 404 after Railway rolled (about 5 minutes after Vercel) |
+
 > **2026-10-07 — WAVE B-18 (GRADING CLIENT + PROGRESS, CONTROLLER B): J2a (`#979` `678b9811`), J2b (`#980` `480b619c`), FLAKE-PDF (`#995` `67b2873c`), ME PR-2d (`#997` `d8a7d2f4`); trunk `d8a7d2f4`. J2 is LIVE ON DEPLOY BUT DARK: `GRADING_JOBS` is OFF in production until Controller A's J3; `#995` and `#997` are live on deploy (no flag).**
 > ★ **FIVE SURFACES CAN NOW GRADE IN THE BACKGROUND (Check & Improve papers, Worksheets, Chapter Test, Full Mock, Quick Practice batch > 1) WHEN THE SERVER SWITCH IS ON; UNTIL THEN EVERY SUBMIT IS TODAY'S PATH.** Cells below flip only where a surface moved; Scope stays Settling for the grading surfaces (J3 and its live measurement are still to come). Rollouts and live records: `CURRENT_STATE.md`.
 

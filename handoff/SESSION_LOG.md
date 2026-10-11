@@ -1,3 +1,60 @@
+## 2026-10-11 — DAY CLOSE (SEVEN PARALLEL CONTROLLERS: A, B, C1, C2, D, E, CI-1; COFOUNDER DECISIONS 75–100) — **FIGURES ON EVERY SURFACE, ME + WEAK AREA ON ONE CONCEPT MODEL, FAIR-USE WARNINGS LIVE, ALL-AI METERING + TOP-UPS BUILT DARK, THE UNPROTECTED DIAGRAM ENDPOINTS REMOVED**
+
+★ **PROVENANCE.** Written by C2 (docs lane, D100) from `#973` and `git log`. Window: 2026-10-10 18:00Z to the close of 2026-10-11. Sessions swapped mid-day (old B and old C1 handed over at about 25% context to fresh sessions; a duplicate older A window was stood down by D73a). Builders and verifiers are Opus sub-agents per lane; the cofounder byte-reviewed every AUDIT-REQUEST within about one poll.
+
+**How the day ran (what to learn from it, in order of cost).**
+1. **The strict up-to-date merge rule, not CI, set the pace.** Trunk moved after nearly every merge, so each open PR went BEHIND again and its ~15-minute CI restarted. C2's `#1088` was green on a head, lost its turn to a PR merged out of order, and had to re-run. The fixes were D90 (merge in the same turn), D87 (update a branch only when next) and CI-1's single queue (D99 / D100).
+2. **Idle sessions cost more than slow CI.** Between 06:19Z and 06:41Z two PRs sat green and CLEAN with nobody merging; earlier C1 and A each went silent for over an hour because no loop was running (D83a, D98). A loop that fires only while the session is idle never fires during a long blocking wait; use a background watcher.
+3. **Permission prompts froze windows** (E on `App.tsx`, D on `gh pr merge`); D91 pre-approved the routine commands and left the dangerous ones forbidden.
+4. **A proof that runs the builder, not the page, proves nothing.** `#1076`'s "exact set" proof passed while the Hub URL took the blueprint branch (D92a). The same shape was caught on `#1085`: a button that promised "starting with {concept}" while the engine served none of the focus ids (0 of 15, measured).
+5. **A guard can fail the PR that earns it.** `#1085` removed the last live importer of `weakAreaAggregator.ts` and tripped `noOrphans`; a new test importing a gated page tripped `entitlementGating`. Both were fixed in the PR (dated `ALLOWED_ORPHANS`, a gate stub) rather than by weakening a guard.
+
+**Lanes (the table is the PRs; SHAs and times docs-builder-verified from `git log`; all six D100 product items are merged).**
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1062` PENDING-UPLOAD-1 PR-2 | `543177db` | 10-10 18:34 | A downloaded worksheet gets a pending record + a saved paper; "Upload later" works from the banner |
+| `#1055` SEO-NOTES-LINK-2 | `b44d2339` | 10-10 21:15 | The 26 notes pages are linked into the site (Exam Trends to notes, related + previous/next links, notes JSON-LD, the NCERT file code) |
+| `#1070` FIGURES-ALL-SURFACES-1 PR-2 | `97eead7f` | 10-10 21:51 | A downloaded worksheet shows its question figure; the answer key and the graded sheet show the solution figure |
+| `#1071` RULE5-ALLOWLIST-1 (D47c) | `ada15df9` | 10-10 22:23 | 10 reviewed false positives of the figure rule are served again in Worksheets, Chapter Tests and Full Mocks (12 stay blocked) |
+| `#1066` BANK-UNWITHHOLD-1 | `aa11658e` | 10-10 22:54 | 21 figure-bound questions served again after a blind re-solve (21/21); `PYQ-S-MAG-003` stays held (D58c, official-key mismatch) |
+| `#1067` BREAK-REMINDER-OFF-1 (D52) | `1c6462e2` | 10-10 23:27 | The break pop-up is retired (the component renders nothing) |
+| `#1072` FIGURES-ALL-SURFACES-1 surface 7 (D43b) | `9136bb7b` | 10-11 00:05 | A notes-page board question shows its MCQ options and its official figure |
+| `#1073` RULE5-WIDEN-1 (D68a/b) | `a863452f` | 10-11 00:47 | The figure rule also catches "in the given figure" and "circuits ... shown below" (38 new hits across 11,210 served rows, all canonical; 3 unbound) |
+| `#1068` D54b pin (test only) | `ec0260cc` | 10-11 01:21 | Submit then upload immediately is graded on the same record; no product file |
+| `#1075` NOTES-SVG-REPLACE-1 (D34) | `d85470a5` | 10-11 01:51 | Four hand-drawn notes figures replaced by the official NCERT 2026-27 figures |
+| `#1077` HARDEN-1 PR-1 | `d3787481` | 10-11 02:01 | Dead heuristic figure code deleted from `QuestionVisualAid.tsx` (-1,367 lines, no runtime change) |
+| `#1079` TUTOR-SVG-REPLACE-1 (D47b) | `fb762b77` | 10-11 02:17 | The Tutor panel's five hand-drawn figures retired: two new NCERT crops, one existing NCERT crop, three honest gaps |
+| `#1060` FAIR-USE-WARN-1 | `4e38e4e5` | 10-11 02:45 | A 75% / 90% usage banner on every AI surface; the trial "come back after midnight" dialog; "See usage" goes to `/me#usage` |
+| `#1078` SOLUTION-FIGS-1 PR-1 | `963b6f31` | 10-11 03:02 | Biology solution figures from NCERT (Life Processes, Control and Coordination, Reproduction), 13 rows |
+| `#1069` CONCEPT-MAP-FILL-1 PR-1 | `2b31f74a` | 10-11 03:27 | Tracking concepts for 293 concept-gap labels (`trackingConcepts.ts`); the Exam Trends concept list is untouched |
+| `#1065` ME-CONCEPT-1 PR-A | `4bb41659` | 10-11 04:02 | Me's concept rows speak the Exam Trends names; per-concept mistakes and "won back"; the Tutor names at most 3 weakest concepts, only ones that have a Me row |
+| `#1037` CAP-30DAY | `7e7772d5` | 10-11 04:31 | An optional rolling 30-day Premium rupee cap (`FAIR_USE_PREMIUM_30DAY_INR`, unset = no limit) and a "Last 30 days" bar on Me/Progress |
+| `#1063` TOPIC-FIX-1 | `d4973a83` | 10-11 04:46 | Flipping the subject no longer seeds a guessed chapter; a fill-only deterministic chapter guard (trig, AP) in Check & Improve detection |
+| `#1080` BANK-FIX-7 PR-1 (D80b) | `34abf246` | 10-11 05:02 | Three served solutions now agree with the NCERT figure they cite (prism spectrum order, normal near point N', the nephron step) |
+| `#1064` FU-GLOBAL-SHED | `43a89da0` | 10-11 05:31 | A Premium margin above the global ceiling (P = 0.25) and `busy_today` for the site-wide refusal |
+| `#1081` FU-BREAK-REMINDER-MOUNT-REMOVE (D76a) | `81db9d14` | 10-11 05:51 | `App.tsx` loses exactly two lines (import + mount); `BreakReminder.tsx` and `sessionLogger.ts` deleted |
+| `#1085` ME-CONCEPT-1 PR-B | `11e7614c` | 10-11 06:31 | Weak Area Practice and the Learning Path read the same study model as Me; the button says "Practise {chapter}" (D85a) |
+| `#1084` SQP-2026-27-Q10 | `be60b739` | 10-11 06:41 | The official 2026-27 SQP Q10 (car wheel) as one official row; served 10,613 to 10,614 |
+| `#1046` ALL-AI-METERING-1 | `dbefa15f` | 10-11 06:54 | Tutor, More-like-this and question detection get trial allowances (15 / 5 / 10 a day) and stop at Premium caps; DARK behind `FAIR_USE_ENFORCE_ALL_AI` |
+| `#1083` SOLUTION-FIGS-1 PR-2 | `86e76dea` | 10-11 07:13 | Human Eye and Magnetic Effects solution figures (25 bindings on 22 rows) |
+| `#1074` RULE5-BIND-1 (D68b/c/d) | `d43f5234` | 10-11 07:23 | Three official crops bound; 16 figure-less or text-damaged rows withheld on every surface; a permanent guard: no served row on any surface needs a figure it lacks. Served 10,614 to 10,598 |
+| `#1082` NOTES-LEDGER-COLLAPSE-1 | `2d7cc83c` | 10-11 07:43 | The notes source ledger is a closed disclosure (content unchanged) |
+| `#1087` HARDEN-1 PR-2 | `0588b591` | 10-11 08:21 | Removes `/api/generate-diagram` and `/api/generate-visual`, their two admin pages and four `App.tsx` lines (D81a); both routes fall to the 404 |
+| `#1076` CONCEPT-MAP-FILL-1 PR-2 | `ce1425f9` | 10-11 08:32 | Hub concept cards; an exact-set Practise path (`buildExactFocusPool`) |
+| `#1090` BANK-FIX-7 PR-2 | `86b3b1e2` | 10-11 08:49 | `PYQ-M-TRI-005` key corrected (△CBA ~ △CAD); `PYQ-S-2026-METAL-005` is the official 4-mark Section E case; `ELEC-NCERT-11-LA-002` carries NCERT Q1; 3 rows served again |
+| `#1089` SOLUTION-FIGS-1 PR-3 | `9dac281b` | 10-11 09:00 | Carbon, Metals and Chemical Reactions solution figures |
+| `#1091` SOLUTION-FIGS-1 PR-4 | `74bb6423` | 10-11 09:10 | Electricity and Heredity solution figures |
+| `#1092` SOLUTION-FIGS-1 PR-5 | `20d031d1` | 10-11 09:20 | Light (glass slab, prism) solution figures |
+
+**Reviews on file (cofounder byte-review PASS, by head):** `#1069` `0489cbd` (D77a) · `#1046` `366ee605` then `28de14ac` (D78b, D89b) · `#1074` `20947e4f` (D84b) · `#1081` `fcaf7ce3` (D84a) · `#1065` `908fce8c` (D82a) · `#1085` `25cdb5b9` (D86a) · `#1088` `fa6e47e2` (D94a, not merged) · `#1087` `bc39a553` (D95) · `#1076` `fd77c140` (D96) · `#1090` `0509dab2` (D97a) · `#1086` `9d7f1dcf` (D97b, not merged). Independent Opus verifiers: `#1085` found the over-promising button copy and two real defects (a blank Learning Path tab, an order-only regression the old fixture let through).
+
+**Controller C2's day (this session).** Took over at 01:02Z with a queue of `#1060` → `#1065` → PR-B: merged `#1060` (`4e38e4e5`), `#1065` (`4bb41659`) and `#1085` (`11e7614c`); opened `#1088` (META-PIXEL-1 PR-2a) and parked it by D99; wrote this docs PR. Net effect on the product: the usage banner and "See usage" card link (`#1060`), Me's concept rows and per-concept mistakes with "won back", the Tutor naming at most 3 weakest concepts that have a Me row (`#1065`), Weak Area Practice and the Learning Path from the same model as Me with an honest empty state (`#1085`).
+
+**Owner checks still owed** are listed in `NEXT_ACTION.md` (OWNER-BATCH); none was run by a controller on a real signed-in phone.
+
+**Not done today, by decision (D99).** `#1088` META-PIXEL-1 PR-2a (PASS D94a), META PR-2b, `#1086` TOPUP-1 PR-1 (PASS D97b), TOPUP-1 PR-2, `#1013` LOW-END-3 PR-3, and every follow-up in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-07 — WAVE B-18 (GRADING CLIENT + PROGRESS, CONTROLLER B) — **J2: PAPERS, TESTS, MOCKS, WORKSHEETS AND MULTI-QUESTION PRACTICE CAN GRADE IN THE BACKGROUND (SWITCH OFF UNTIL J3); THE TWO-PHOTO UPLOAD RACE FIXED; NO WEAKNESS, FIGURE OR STATUS BEFORE EVIDENCE** — `#979` + `#980` + `#995` + `#997` MERGED — trunk `d8a7d2f4`
 
 ★ **PROVENANCE.** Controller B, wave B-18 (same session as B-17 / ME-ENGINE-1; owner-assigned). Builders claude-opus-5-5 (J2 split into J2a / J2b by the controller), an independent read-only verifier sub-agent before every merge (owner Round 4), OR-LIVE / smoke agents after. Written by a separate docs builder in `C:/Projects/LT-worktrees/b18-j2-docs` from `WAVE_STATE_B18.md` (D30–D79), `OWNER_RULINGS_B18_ME.md` (Rounds 4–9), `COORD/BOARD.md` and the builder / verifier / live reports; every merge SHA and time re-checked with `gh pr view`.
