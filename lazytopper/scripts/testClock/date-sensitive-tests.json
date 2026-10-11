@@ -319,6 +319,7 @@
     "src/services/mistakeLogService.history.test.ts",
     "src/services/mistakeRetry.test.ts",
     "src/services/oldRecords.compat.test.tsx",
+    "src/services/paperRebuild.test.ts",
     "src/services/practiceInsights.contract.test.ts",
     "src/services/practiceInsights.durable.test.ts",
     "src/services/practiceInsights.loopclose.test.ts",
