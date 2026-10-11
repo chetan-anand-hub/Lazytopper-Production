@@ -52,9 +52,11 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // unserved while SCO-S-ELEC-012 (garbled wiring text) is withheld, so its line is deleted: mapped 1822 -> 1821 (-1). Reviewed stays 164.
 // Rows with a concept 9716 of 10613 -> 9711 of 10597 (0.91639; the withheld rows leave the denominator), so that pin is tightened.
 // All three recomputed from the merged tip by runtime import.
+// Merged onto SQP-2026-27-Q10 (#1084, be60b739; trunk pin was 0.9153 for 9716 / 10614): +1 served row whose label is reviewed, so
+// rows with a concept are 9711 of 10598 (0.91630) by runtime import; the 0.9163 pin still holds and is kept.
 const MIN_MAPPED_LABELS = 1821;
 const MAX_REVIEWED_LABELS = 164;
-/** served rows whose label resolves to a concept / all served rows: 9711 / 10597. */
+/** served rows whose label resolves to a concept / all served rows: 9711 / 10598. */
 const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9163;
 
 const isChapterEchoSubtopic = echoFromShape;

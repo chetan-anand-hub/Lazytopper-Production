@@ -6,6 +6,10 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
  * Extracted: 2026-05-24 (P2 SQP-only scope; APQ deferred to follow-up PR)
  * topicKey: "areas-related-to-circles"
  * Section distribution: A=2, B=1
+ *
+ * 2026-10-11 (CONCEPT-MAP-FILL-1 / D79b): + SQP-M-2026-ARC-001, the OFFICIAL CBSE Sample Question Paper 2026-27 Mathematics Standard (041)
+ * Q10 (car wheel). Source: cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf p.2 and -MS.pdf p.2; the options' exponents
+ * (10^4 .. 10^7) and the key (B) 10^5 were eye-checked on the rendered PDF pages. Wording verbatim; relabelled "others" (LANE_RULES §8).
  */
 export const AREAS_RELATED_TO_CIRCLES_SQP: CanonicalQuestion[] = [
   {
@@ -76,5 +80,31 @@ export const AREAS_RELATED_TO_CIRCLES_SQP: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Main: 308 cm². OR Alt: (16 + 8π) cm².",
     "isCompetencyBased": true
+  },
+  {
+    "id": "SQP-M-2026-ARC-001",
+    "subject": "Maths",
+    "topicKey": "areas-related-to-circles",
+    "subtopic": "Distance Covered by a Wheel",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "The diameter of a car wheel is 21 cm. The number of complete revolutions it will make in moving 66 km is:",
+    "options": [
+      "(A) 10⁴",
+      "(B) 10⁵",
+      "(C) 10⁶",
+      "(D) 10⁷"
+    ],
+    "answer": "(B) 10⁵",
+    "solutionSteps": [
+      "Circumference of the wheel = π × d = (22/7) × 21 = 66 cm. Distance = 66 km = 66 × 10⁵ cm. Total revolutions = (66 × 10⁵ × 7) / (22 × 21) = 10⁵. Answer: (B)."
+    ],
+    "finalAnswer": "(B) 10⁵",
+    "ncertRef": "CBSE Sample Question Paper 2026-27, Mathematics Standard (041), Q10",
+    "sourceOverride": "others",
+    "isCompetencyBased": false
   }
 ];
