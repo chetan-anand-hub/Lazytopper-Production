@@ -362,8 +362,10 @@ test('a responseMimeType retry is also labelled as a retry', async () => {
 });
 
 /* ── 5 · Call-class labels join to the rate limiter ──────────────────────── */
-test('the call-class vocabulary is exactly the rate limiter\'s four classes', () => {
-  assert.deepEqual(CALL_CLASSES.slice().sort(), ['practice', 'tutor', 'vision', 'visual']);
+// 2026-10-11 HARDEN-1 PR-2: four classes -> three; 'visual' went with /api/generate-diagram +
+// /api/generate-visual (D8/D75), the only two endpoints that mapped to it.
+test('the call-class vocabulary is exactly the rate limiter\'s three classes', () => {
+  assert.deepEqual(CALL_CLASSES.slice().sort(), ['practice', 'tutor', 'vision']);
   assert.equal(UNCLASSIFIED_CALL_CLASS, 'unclassified');
   assert.equal(
     CALL_CLASSES.includes(UNCLASSIFIED_CALL_CLASS),
@@ -394,8 +396,7 @@ test('every paid endpoint maps to the same class in BOTH modules', () => {
     '/api/tutor': 'handleTutorRequest',
     '/api/step-solution': 'handleStepSolution',
     '/api/more-like-this': 'handleMoreLikeThis',
-    '/api/generate-diagram': 'handleGenerateDiagram',
-    '/api/generate-visual': 'handleGenerateVisual',
+    // 2026-10-11 HARDEN-1 PR-2: generate-diagram / generate-visual removed with routes/diagrams.cjs.
   };
 
   // Every paid endpoint must be covered — a new one added by a future lane fails
@@ -425,7 +426,8 @@ test('every paid endpoint maps to the same class in BOTH modules', () => {
 
 /* ── 6 · Classification ──────────────────────────────────────────────────── */
 test('classifyCall prefers an explicit config.callClass', () => {
-  assert.equal(classifyCall({ callClass: 'visual' }, ''), 'visual');
+  // 2026-10-11 HARDEN-1 PR-2: was callClass 'visual' (removed); 'practice' exercises the same path.
+  assert.equal(classifyCall({ callClass: 'practice' }, ''), 'practice');
   assert.equal(classifyCall({ callClass: '  tutor  ' }, ''), 'tutor');
 });
 
@@ -447,8 +449,7 @@ test('classifyCall falls back to the nearest route handler on the stack', () => 
   const cases = [
     ['handleStepSolution', 'routes/stepSolution.cjs:514:9', 'practice'],
     ['handleMoreLikeThis', 'routes/moreLikeThis.cjs:80:9', 'practice'],
-    ['handleGenerateDiagram', 'routes/diagrams.cjs:104:9', 'visual'],
-    ['handleGenerateVisual', 'routes/diagrams.cjs:236:9', 'visual'],
+    // 2026-10-11 HARDEN-1 PR-2: the two routes/diagrams.cjs handler cases removed with the file.
     ['handleTutorRequest', 'routes/tutor.cjs:188:9', 'tutor'],
     ['handleGradeWorksheet', 'routes/checkSolution.cjs:1053:9', 'vision'],
   ];
@@ -816,10 +817,11 @@ const {
 
 // MUTATION VERIFIED: add any workload label to CALL_CLASSES => §5 goes RED.
 test('§9.1 ★★ the two axes are SEPARATE — widening callClass is not how this is done', () => {
-  assert.deepEqual(CALL_CLASSES.slice().sort(), ['practice', 'tutor', 'vision', 'visual'],
+  // 2026-10-11 HARDEN-1 PR-2: 'visual' removed from the expected join (see §5).
+  assert.deepEqual(CALL_CLASSES.slice().sort(), ['practice', 'tutor', 'vision'],
     'the rate-limiter join is unchanged by this lane');
   for (const w of WORKLOAD_CLASSES) {
-    if (['tutor', 'visual'].includes(w)) continue; // names that legitimately collide
+    if (['tutor'].includes(w)) continue; // names that legitimately collide (2026-10-11 HARDEN-1 PR-2: 'visual' gone from both lists)
     assert.equal(CALL_CLASSES.includes(w), false,
       `"${w}" must NOT be in CALL_CLASSES — that list is pinned to PAID_ENDPOINTS' values`);
   }

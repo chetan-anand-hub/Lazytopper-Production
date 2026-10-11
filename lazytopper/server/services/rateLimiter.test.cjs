@@ -68,7 +68,7 @@ const TEST_LIMITS = Object.freeze({
   vision: { soft: 2, hard: 4 },
   tutor: { soft: 2, hard: 4 },
   practice: { soft: 2, hard: 4 },
-  visual: { soft: 2, hard: 4 },
+  // 2026-10-11 HARDEN-1 PR-2: `visual` removed — the class went with /api/generate-diagram + /api/generate-visual.
   anonymous: { soft: 1, hard: 2 },
   global: { soft: 1000, hard: 1000 }, // effectively off unless a test says otherwise
 });
@@ -141,7 +141,7 @@ test("exhausting the vision class does not block the tutor class", () => {
 
   assert.equal(rl.check(reqWithUid("u1"), "/api/tutor").allowed, true);
   assert.equal(rl.check(reqWithUid("u1"), "/api/step-solution").allowed, true);
-  assert.equal(rl.check(reqWithUid("u1"), "/api/generate-diagram").allowed, true);
+  // 2026-10-11 HARDEN-1 PR-2: the /api/generate-diagram ("visual") probe removed with the route.
 });
 
 /* ── 4 · Day rollover ─────────────────────────────────────────────────────── */
@@ -210,8 +210,7 @@ test("non-paid endpoints are never limited, at any count", () => {
     [
       "/api/check-solution",
       "/api/detect-question",
-      "/api/generate-diagram",
-      "/api/generate-visual",
+      // 2026-10-11 HARDEN-1 PR-2: /api/generate-diagram + /api/generate-visual removed (D8/D75).
       "/api/grade-worksheet",
       "/api/more-like-this",
       "/api/step-solution",
@@ -337,12 +336,14 @@ test("every allowed paid call emits a per-class calibration counter", () => {
 
   rl.check(reqWithUid("u1"), "/api/check-solution");
   rl.check(reqWithUid("u1"), "/api/tutor");
-  rl.check(reqWithUid("u1"), "/api/generate-visual");
+  // 2026-10-11 HARDEN-1 PR-2: the third class probed is now practice (/api/step-solution) —
+  // /api/generate-visual and the "visual" class were removed.
+  rl.check(reqWithUid("u1"), "/api/step-solution");
   rl.check(reqWithUid("u1"), "/api/user/progress/sync"); // not paid — no counter
 
   assert.equal(telemetry.count("rate_limit.call.vision"), 1);
   assert.equal(telemetry.count("rate_limit.call.tutor"), 1);
-  assert.equal(telemetry.count("rate_limit.call.visual"), 1);
+  assert.equal(telemetry.count("rate_limit.call.practice"), 1);
   assert.equal(telemetry.count("rate_limit.call.total"), 3, "unpaid calls are not counted");
 });
 
@@ -434,8 +435,8 @@ test("one uid's hard ceilings together stay under a fifth of the global day", ()
   const perUidTotal =
     DEFAULT_LIMITS.vision.hard +
     DEFAULT_LIMITS.tutor.hard +
-    DEFAULT_LIMITS.practice.hard +
-    DEFAULT_LIMITS.visual.hard;
+    DEFAULT_LIMITS.practice.hard;
+  // 2026-10-11 HARDEN-1 PR-2: `+ DEFAULT_LIMITS.visual.hard` removed — the class no longer exists.
 
   const budget = DEFAULT_LIMITS.global.hard * MAX_SINGLE_UID_SHARE_OF_GLOBAL;
 
@@ -579,6 +580,8 @@ test("every shipped class has hard strictly above soft", () => {
    ──────────────────────────────────────────────────────────────────────────── */
 
 /** A signed-out caller arriving WITH a client address forwarded through the hops. */
+// 2026-10-11 HARDEN-1 PR-2: the anon-key probes below used /api/generate-visual; that route was
+// removed (D8/D75), so they use /api/step-solution — any paid endpoint reaches the anonymous bucket.
 function reqAnonForwarded(clientIp = "203.0.113.55", proxyIp = "127.0.0.1") {
   return {
     headers: { "x-forwarded-for": `${clientIp}, 10.0.0.1` },
@@ -588,7 +591,7 @@ function reqAnonForwarded(clientIp = "203.0.113.55", proxyIp = "127.0.0.1") {
 
 test("an anonymous caller WITH x-forwarded-for reports the `client` shape", () => {
   const { rl, telemetry } = limiter();
-  rl.check(reqAnonForwarded(), "/api/generate-visual");
+  rl.check(reqAnonForwarded(), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.client"), 1);
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 0);
 });
@@ -597,7 +600,7 @@ test("an anonymous caller WITHOUT x-forwarded-for reports the `loopback` shape",
   // The alarm case: no XFF means resolveCaller falls back to remoteAddress, which
   // behind the proxy is the api-server — one bucket for every signed-out student.
   const { rl, telemetry } = limiter();
-  rl.check(reqAnon("127.0.0.1"), "/api/generate-visual");
+  rl.check(reqAnon("127.0.0.1"), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 1);
   assert.equal(telemetry.count("rate_limit.anon_key.client"), 0);
 });
@@ -606,7 +609,7 @@ test("a SIGNED-IN caller reports no anon-key shape at all", () => {
   // The uid keys the bucket; XFF is irrelevant, so an emit here would be noise
   // that makes the loopback/client ratio unreadable.
   const { rl, telemetry } = limiter();
-  rl.check(reqWithUid("uid-1"), "/api/generate-visual");
+  rl.check(reqWithUid("uid-1"), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.client"), 0);
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 0);
 });
@@ -626,7 +629,7 @@ test("the shape is reported per request, including the ones that get 429'd", () 
   // wrong key shape is the likeliest reason a signed-out caller is being denied
   // at all, so this is precisely when the diagnostic matters most.
   const { rl, telemetry } = limiter();
-  for (let i = 0; i < 4; i++) rl.check(reqAnon("127.0.0.1"), "/api/generate-visual");
+  for (let i = 0; i < 4; i++) rl.check(reqAnon("127.0.0.1"), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 4);
 });
 
@@ -642,8 +645,8 @@ test("the emitted shape agrees with the key resolveCaller actually builds", () =
   assert.ok(resolveCaller(forwarded).anonymous && resolveCaller(bare).anonymous);
 
   const { rl, telemetry } = limiter();
-  rl.check(forwarded, "/api/generate-visual");
-  rl.check(bare, "/api/generate-visual");
+  rl.check(forwarded, "/api/step-solution");
+  rl.check(bare, "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.client"), 1);
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 1);
 });
@@ -652,7 +655,7 @@ test("the shape emit carries no IP and no PII", () => {
   // SHAPE ONLY. The whole point is that the answer is obtainable without ever
   // putting a student's address into telemetry.
   const { rl, telemetry } = limiter();
-  rl.check(reqAnonForwarded("203.0.113.55"), "/api/generate-visual");
+  rl.check(reqAnonForwarded("203.0.113.55"), "/api/step-solution");
   const serialised = JSON.stringify(telemetry.events);
   assert.ok(!serialised.includes("203.0.113.55"), "an IP reached telemetry");
   assert.ok(!serialised.includes("10.0.0.1"), "a proxy hop reached telemetry");

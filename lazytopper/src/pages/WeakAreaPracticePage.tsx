@@ -165,15 +165,38 @@ export function pickTargetedIds(
   return [...conceptIds, ...chapterIds].slice(0, Math.max(0, count));
 }
 
+/** The targeted session: its ids, and whether the chosen concept's row LEADS it. */
+export interface TargetedSession {
+  ids: string[];
+  /**
+   * CONCEPT-MAP-FILL-1 PR-2 (D85a, D92a) — true only when the ids cover the whole count (so Practice
+   * serves exactly them, in this order: `isExactFocusSet`) AND the first id resolves to the chosen
+   * concept. Only then may the button say "starting with {concept}".
+   */
+  conceptLeads: boolean;
+}
+
 /** `pickTargetedIds` over the served bank index and the app's concept resolver, both loaded on
  *  demand (BANK-LEAN-1: neither enters this page's static chunk). */
-export async function targetedSessionIds(chapterKey: string, conceptRowKey: string | null): Promise<string[]> {
+export async function targetedSession(chapterKey: string, conceptRowKey: string | null): Promise<TargetedSession> {
   const [{ bankIndexEntries }, { loadExamConceptResolvers }] = await Promise.all([
     import("../data/bankChapters/bankIdIndex"),
     import("../services/mistakeConcept"),
   ]);
   const { conceptRowForBankQuestionId } = await loadExamConceptResolvers();
-  return pickTargetedIds(bankIndexEntries(), chapterKey, conceptRowKey, conceptRowForBankQuestionId);
+  const ids = pickTargetedIds(bankIndexEntries(), chapterKey, conceptRowKey, conceptRowForBankQuestionId);
+  const conceptLeads =
+    !!conceptRowKey &&
+    ids.length >= TARGETED_SESSION_COUNT &&
+    conceptRowForBankQuestionId(ids[0])?.key === conceptRowKey;
+  return { ids, conceptLeads };
+}
+
+/** The targeted button's words: the concept is named only when it provably leads (D85a, D92a). */
+export function targetedSessionLabel(chapterName: string, conceptLabel: string | null, conceptLeads: boolean): string {
+  return conceptLabel && conceptLeads
+    ? `Practise ${chapterName}, starting with ${conceptLabel}`
+    : `Practise ${chapterName}`;
 }
 
 /** A weak area's evidence from the shared model, or null below Me's threshold (show no number). */
@@ -593,6 +616,26 @@ export default function WeakAreaPracticePage() {
   const shownAreas = useMemo(() => weakAreasFromModel(model, subjectFilter), [model, subjectFilter]);
   const pathAreas = useMemo(() => learningPathAreas(model, shownAreas), [model, shownAreas]);
 
+  // CONCEPT-MAP-FILL-1 PR-2 (D85a, D92a) — the weakest chapter's session, computed ahead so the
+  // button can name its concept only when that concept provably leads the served set.
+  const targetedChapter = shownAreas[0]?.topicKey ?? "";
+  const targetedConcept = shownAreas[0]?.weakConcepts[0]?.key ?? null;
+  const [targeted, setTargeted] = useState<{ chapter: string; concept: string | null; session: TargetedSession } | null>(null);
+  useEffect(() => {
+    if (!targetedChapter) return;
+    let live = true;
+    targetedSession(targetedChapter, targetedConcept)
+      .then((session) => {
+        if (live) setTargeted({ chapter: targetedChapter, concept: targetedConcept, session });
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [targetedChapter, targetedConcept]);
+  const targetedNow =
+    targeted && targeted.chapter === targetedChapter && targeted.concept === targetedConcept ? targeted.session : null;
+
   // The stored path is SHOWN as it is; it is re-tuned (and re-saved) only from model-backed areas
   // above the gate — `checkAndAdaptPath(null)` changes and saves nothing.
   useEffect(() => {
@@ -612,17 +655,20 @@ export default function WeakAreaPracticePage() {
 
   /**
    * ME-CONCEPT-1 PR-B (step 7) — the weakest chapter's session: its weakest Exam Trends concept's
-   * served rows first, then the chapter's (`targetedSessionIds`), handed to Practice through its
+   * served rows first, then the chapter's (`targetedSession`), handed to Practice through its
    * existing `focusBankIds` + `strictFocus` parameters. No difficulty is forced: an "Easy" filter
    * would drop the chosen rows of any other difficulty. A failed id load starts the chapter
-   * session without ids (the chapter, never a guess).
+   * session without ids (the chapter, never a guess). The ids are the ones the label was computed
+   * from when they are ready, so the words and the session cannot disagree.
    */
   const handleStartTargetedSession = async () => {
     const weakest = shownAreas[0];
     if (!weakest) return;
     let ids: string[] = [];
     try {
-      ids = await targetedSessionIds(weakest.topicKey, weakest.weakConcepts[0]?.key ?? null);
+      ids = targetedNow
+        ? targetedNow.ids
+        : (await targetedSession(weakest.topicKey, weakest.weakConcepts[0]?.key ?? null)).ids;
     } catch {
       ids = [];
     }
@@ -808,8 +854,12 @@ export default function WeakAreaPracticePage() {
                   boxShadow: "0 4px 12px rgba(255,150,0,0.3)",
                 }}
               >
-                {/* DECISION 85a — the concept ids ride the URL best-effort (the engine only reorders inside its own draw), so the copy names the chapter only; C1's #1076 restores "starting with {concept}" once the exact filter is live. */}
-                {`Practise ${shownAreas[0]?.topicName ?? ""}`}
+                {/* DECISION 85a / 92a — "starting with {concept}" only when Practice serves the ids exactly, in order (isExactFocusSet) and the concept's row is first; otherwise the chapter only. */}
+                {targetedSessionLabel(
+                  shownAreas[0]?.topicName ?? "",
+                  shownAreas[0]?.weakConcepts[0]?.label ?? null,
+                  targetedNow?.conceptLeads ?? false,
+                )}
               </button>
               {shownAreas.map((area) => (
                 <WeakAreaCard

@@ -33,7 +33,10 @@ export const TRACKING_CONCEPT_SOURCES: Readonly<
   "coordinate-geometry": {},
   "trigonometry": {},
   "circles": {},
-  "areas-related-to-circles": {},
+  "areas-related-to-circles": {
+    "Perimeter and Area of a Circle — A Review":
+      "NCERT Mathematics 'Perimeter and Area of a Circle — A Review' (the review section of the earlier Class 10 Areas Related to Circles chapter); still ASSESSED in 2026-27: CBSE Sample Question Paper 2026-27 Mathematics Standard Q10 (cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf p.2); cofounder D79b",
+  },
   "surface-areas-and-volumes": {},
   "statistics": {
     "Empirical Relationship between Mean, Median and Mode":

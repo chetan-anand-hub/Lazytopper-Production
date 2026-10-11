@@ -308,6 +308,12 @@ const SPINE_CSS = `
 .lt-spine__btn--practise:hover { background: hsl(152, 55%, 92%); }
 /* Concept-level "Stuck? Ask" -> the /tutor route. Solid green so it reads as the
    primary — and now sole — concept-level tutor entry. */
+.lt-spine__note {
+  font-size: 12px;
+  line-height: 1.4;
+  color: hsl(220, 12%, 42%);
+  max-width: 190px;
+}
 .lt-spine__btn--stuck {
   background: hsl(152, 55%, 45%);
   color: #ffffff;
@@ -448,8 +454,9 @@ export interface ConceptSpineProps {
   practiceAllHref: string;
   /** Existing Chapter Test route for this topic — powers "Chapter test" in the band (PR-E1). */
   chapterTestHref: string;
-  /** Builds the existing per-concept (concept + mark band) practice route. */
-  practiceHrefForConcept: (concept: BoardConcept) => string;
+  /** Builds the per-concept practice route. `null` = the concept has too few served questions to
+   *  practise on its own (CONCEPT-MAP-FILL-1 PR-2): the row then shows an honest note, not a button. */
+  practiceHrefForConcept: (concept: BoardConcept) => string | null;
   /** Topic-level tutor entry ("Ask the tutor") -> the /tutor route.
    *  Additive/optional: the sticky Ask renders only when supplied. */
   askTutorHref?: string;
@@ -740,14 +747,23 @@ export function ConceptSpine({
                       Stuck? Ask
                     </Link>
                   )}
-                  {/* Concept-filtered practice (concept + mark band) — built by the page */}
-                  <Link
-                    to={practiceHrefForConcept(concept)}
-                    className="lt-spine__btn lt-spine__btn--practise"
-                    title={`Practise ${concept.name}`}
-                  >
-                    Practise
-                  </Link>
+                  {/* Concept-filtered practice — built by the page; null = honest note instead */}
+                  {(() => {
+                    const practiseHref = practiceHrefForConcept(concept);
+                    return practiseHref === null ? (
+                      <span className="lt-spine__note">
+                        Not enough questions on this concept yet to practise it on its own.
+                      </span>
+                    ) : (
+                      <Link
+                        to={practiseHref}
+                        className="lt-spine__btn lt-spine__btn--practise"
+                        title={`Practise ${concept.name}`}
+                      >
+                        Practise
+                      </Link>
+                    );
+                  })()}
                 </div>
               </div>
             </Card>
