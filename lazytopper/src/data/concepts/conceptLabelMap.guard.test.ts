@@ -62,10 +62,15 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // 2026-10-11 CONCEPT-MAP-FILL-1 PR-2 merged onto RULE5-BIND-1 (#1074, trunk 2d7cc83c): Areas maps (+28 mapped, -28 reviewed) on top of
 // #1074's -1 mapped; final pins measured by runtime import: mapped 1849,
 // reviewed 136, rows with a concept 9755 of 10598 (0.92046) -> pin 0.9204.
-const MIN_MAPPED_LABELS = 1849;
+// 2026-10-11 BANK-FIX-7 PR-2 (cofounder D80b; merged onto #1076, trunk ce1425f9): 3 rows served again (ELEC-NCERT-11-LA-002,
+// PYQ-M-TRI-005, PYQ-S-2026-METAL-005). "Series Circuit Readings" is ELEC-NCERT-11-LA-002's label (served again, so its line is
+// restored): mapped 1849 -> 1850 (+1). Reviewed stays 136. Two of the three rows carry a mapped concept; PYQ-M-TRI-005's label is the
+// chapter-echo "General" (no concept), so rows with a concept go 9755 of 10598 -> 9757 of 10601 (0.92038) and the pin moves
+// 0.9204 -> 0.9203 by exactly that row. All by runtime import on the merged tip.
+const MIN_MAPPED_LABELS = 1850;
 const MAX_REVIEWED_LABELS = 136;
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9204;
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9203;
 
 const isChapterEchoSubtopic = echoFromShape;
 
