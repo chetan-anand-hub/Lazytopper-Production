@@ -24,7 +24,7 @@
  *     candidate text, or the raw response — see the call site, which passes only
  *     `data.usageMetadata`.
  *  4. THE CALL-CLASS LABELS MATCH THE RATE LIMITER'S. `vision` / `tutor` /
- *     `practice` / `visual` are the exact strings `rateLimiter.cjs` keys its
+ *     `practice` are the exact strings `rateLimiter.cjs` keys its
  *     `rate_limit.call.<class>` counters on, so the two datasets join on class:
  *     "how many calls" (rate limiter) against "how many tokens per call" (here).
  */
@@ -76,7 +76,9 @@
    an unattributed call costs the analysis one row, a MISattributed one corrupts
    two classes at once.
    ──────────────────────────────────────────────────────────────────────────── */
-const CALL_CLASSES = Object.freeze(['vision', 'tutor', 'practice', 'visual']);
+// 2026-10-11 HARDEN-1 PR-2: 'visual' removed with /api/generate-diagram + /api/generate-visual
+// (D8/D75) — it was the rate limiter's class for those two routes only.
+const CALL_CLASSES = Object.freeze(['vision', 'tutor', 'practice']);
 const UNCLASSIFIED_CALL_CLASS = 'unclassified';
 
 const CALL_CLASS_BY_HANDLER = Object.freeze({
@@ -90,9 +92,6 @@ const CALL_CLASS_BY_HANDLER = Object.freeze({
   // routes/stepSolution.cjs + routes/moreLikeThis.cjs
   handleStepSolution: 'practice',
   handleMoreLikeThis: 'practice',
-  // routes/diagrams.cjs
-  handleGenerateDiagram: 'visual',
-  handleGenerateVisual: 'visual',
 });
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -136,8 +135,6 @@ const WORKLOAD_CLASSES = Object.freeze([
   'tutor',
   'step-solution',
   'more-like-this',
-  'diagram',
-  'visual',
   'warm-pool',
 ]);
 const UNCLASSIFIED_WORKLOAD = 'unclassified';
@@ -147,9 +144,6 @@ const WORKLOAD_BY_HANDLER = Object.freeze({
   handleTutorRequest: 'tutor',
   // routes/moreLikeThis.cjs
   handleMoreLikeThis: 'more-like-this',
-  // routes/diagrams.cjs
-  handleGenerateDiagram: 'diagram',
-  handleGenerateVisual: 'visual',
   // routes/stepSolution.cjs — mapped by FUNCTION, see the note above. Innermost
   // frame wins, so this beats whichever route handler is further out.
   generateModelSolution: 'step-solution',
@@ -570,7 +564,7 @@ function createGeminiClient(cfg) {
     // `config.timeoutMs` (per HTTP attempt) and `config.deadlineAt` (absolute epoch ms) are
     // passed by the GRADING core only; like `workloadClass`/`marks` they are read here and
     // never reach the wire (buildBody reads a closed key set). Absent — every non-grading
-    // call: detect, the tutor, step solution, more-like-this, diagrams, the warm pool — each
+    // call: detect, the tutor, step solution, more-like-this, the warm pool — each
     // HTTP attempt keeps GEMINI_TIMEOUT_MS exactly as before (controller decision D15: that
     // env var stays an emergency override for non-grading calls). Present, every attempt
     // (429 back-off, the structured-output retry and the proxy hop included) is clamped to
@@ -607,7 +601,7 @@ function createGeminiClient(cfg) {
       // Constrained decoding (additive, opt-in — PR-C2). Forwarded ONLY when the
       // caller passes a responseSchema object. INVARIANT, identical to the
       // thinkingConfig one above: when no responseSchema is supplied (the tutor,
-      // diagrams, the warm pool — every caller but the three grading paths) the body
+      // the warm pool — every caller but the three grading paths) the body
       // is byte-identical to before; this only ever ADDS the key.
       //
       // ★ WHY IT SHARES THE `includeStructuredOutput` GATE WITH responseMimeType, AND
@@ -635,7 +629,7 @@ function createGeminiClient(cfg) {
       // a thinkingConfig object — e.g. the detect-question call sets
       // { thinkingBudget: 0 } to stop gemini-2.5-flash's thinking tokens from
       // eating its tiny maxOutputTokens budget. INVARIANT: when no thinkingConfig
-      // is supplied (grade, tutor, diagrams, warm-pool — every other call) the body
+      // is supplied (grade, tutor, warm-pool — every other call) the body
       // is byte-identical to before; this only ever ADDS the key.
       if (config && config.thinkingConfig && typeof config.thinkingConfig === 'object') {
         body.generationConfig.thinkingConfig = config.thinkingConfig;

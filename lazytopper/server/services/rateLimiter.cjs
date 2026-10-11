@@ -83,9 +83,8 @@ const PAID_ENDPOINTS = Object.freeze({
   // affordance are untouched. VISION_CALLS_PER_OFFERED_CHECK below is asserted
   // against this classification, so moving it back turns the suite red.
   "/api/detect-question": "practice",
-  // Diagram / visual generation.
-  "/api/generate-diagram": "visual",
-  "/api/generate-visual": "visual",
+  // 2026-10-11 HARDEN-1 PR-2 (D8/D75): /api/generate-diagram and /api/generate-visual were
+  // removed from the server, and with them the "visual" class — nothing else mapped to it.
 });
 
 /**
@@ -241,7 +240,6 @@ const DEFAULT_LIMITS = Object.freeze({
   vision: Object.freeze({ soft: envInt("LT_CAP_VISION_SOFT", 20), hard: envInt("LT_CAP_VISION_HARD", 30) }),
   tutor: Object.freeze({ soft: envInt("LT_CAP_TUTOR_SOFT", 40), hard: envInt("LT_CAP_TUTOR_HARD", 60) }),
   practice: Object.freeze({ soft: envInt("LT_CAP_PRACTICE_SOFT", 40), hard: envInt("LT_CAP_PRACTICE_HARD", 80) }),
-  visual: Object.freeze({ soft: envInt("LT_CAP_VISUAL_SOFT", 10), hard: envInt("LT_CAP_VISUAL_HARD", 25) }),
   // Signed-out callers, keyed on IP, ONE bucket across all paid endpoints.
   // The owner set this as a single number (3) rather than a soft/hard pair: an
   // anonymous caller has no account to lose and no trial to protect, so blocking
@@ -457,7 +455,7 @@ function createRateLimiter(options = {}) {
        If XFF is ever absent, EVERY signed-out caller collapses into one shared
        3/day bucket. It fails CLOSED, so there is no billing risk — but it is an
        invisible outage for signed-out visitors, who can legitimately reach
-       generate-visual / generate-diagram from the free practice surfaces. Nothing
+       the free check and detect-question from the free practice surfaces. Nothing
        in the system would report it; the students would simply see 429s.
 
        ★ EMITTED HERE, not from index.cjs, on purpose. This is the exact point

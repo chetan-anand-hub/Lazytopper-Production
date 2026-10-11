@@ -614,8 +614,8 @@ function createAdminTelemetryRoutes(deps) {
         // x-forwarded-for did NOT survive the Vercel -> Railway -> proxy hops, so
         // every signed-out caller collapsed into ONE shared 3/day bucket. It fails
         // CLOSED, so there is no billing risk — but it is an invisible outage for
-        // signed-out visitors, who can legitimately reach generate-visual and
-        // generate-diagram from the free practice surfaces.
+        // signed-out visitors, who can legitimately reach the free check and
+        // detect-question from the free practice surfaces.
         //
         // This is reported HERE on purpose: a diagnostic with no reader is the
         // exact failure this whole endpoint exists to fix.

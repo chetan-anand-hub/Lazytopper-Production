@@ -662,7 +662,8 @@ test('U8 · FAIR_USE_ENFORCE=1 -> 409 (trial) and 429 (premium), refused telemet
 
 test('U6 · non-grading paths, free checks, unverified callers and the free tier are never touched', async () => {
   const days = { [TODAY]: { trialChecks: 99, costMicroInr: 999 * INR } };
-  for (const reqPath of ['/api/tutor', '/api/detect-question', '/api/step-solution', '/api/generate-visual']) {
+  // 2026-10-11 HARDEN-1 PR-2: '/api/generate-visual' dropped — the route was removed from the server.
+  for (const reqPath of ['/api/tutor', '/api/detect-question', '/api/step-solution']) {
     const r = rig({ days });
     assert.equal((await run(r, { path: reqPath })).answered, false, reqPath);
     assert.equal(r.tierReads(), 0, `${reqPath}: must not even read the tier`);

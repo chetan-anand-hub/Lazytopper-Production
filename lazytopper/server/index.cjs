@@ -119,7 +119,6 @@ const { createHttpUtils, readJson, extractJsonObjectFromText } = require('./serv
 const { createStubHandlers } = require('./services/stubHandlers.cjs');
 const { getCbseExamDateInfo } = require('./services/cbseExamDate.cjs');
 const { createShareRoutes } = require('./routes/share.cjs');
-const { createDiagramRoutes } = require('./routes/diagrams.cjs');
 const { createQuestionRoutes } = require('./routes/questions.cjs');
 // RETIREMENT PR-2: /api/mentor is deleted. Its route module also re-exported two
 // helpers used by LIVE surfaces, so they are now required from where they are
@@ -326,7 +325,6 @@ const routeDeps = {
   firebaseAdmin, adminFirestore,
 };
 const shareRoutes = createShareRoutes(routeDeps);
-const diagramRoutes = createDiagramRoutes(routeDeps);
 const aiQuestionsRoute = createAiQuestionsRoute(routeDeps);
 const questionRoutes = createQuestionRoutes(routeDeps);
 const questionReportRoutes = createQuestionReportRoutes({ sendJson, readJson });
@@ -407,8 +405,6 @@ async function handleRequest(req, res) {
       reqPath === '/api/detect-question' ||
       reqPath === '/api/grade-worksheet' ||
       reqPath === '/api/tutor-feedback' ||
-      reqPath === '/api/generate-diagram' ||
-      reqPath === '/api/generate-visual' ||
       reqPath === '/api/session/start' ||
       reqPath === '/api/share-token' ||
       reqPath === '/api/admin/warm-question-pool' ||
@@ -452,7 +448,7 @@ async function handleRequest(req, res) {
   // Placed AFTER the CORS preflight (a 429'd OPTIONS would break the browser
   // before it ever sent the real request) and BEFORE every route dispatch.
   //
-  // Scoped to POST because all eight paid endpoints are POST-only — a stray GET
+  // Scoped to POST because all six paid endpoints are POST-only (eight until 2026-10-11 HARDEN-1 PR-2) — a stray GET
   // 404s without reaching a model, and must not burn a student's allowance.
   //
   // `check` returns allowed:true for every non-paid path, so progress sync,
@@ -477,7 +473,7 @@ async function handleRequest(req, res) {
     if (entitlementGate.rejectUnverifiedToken(req, res, reqPath, verification)) return;
 
     // ── A verified caller, or App Check (AUTHGATE-2, HARDEN-1 PR-1) ─────────────
-    // detect-question, more-like-this, generate-visual, generate-diagram: a token that
+    // detect-question, more-like-this: a token that
     // did not verify is 401, and a signed-out caller needs a valid App Check token
     // (401 missing / 403 invalid). Refused HERE, before idempotency, the free check,
     // the limiter and dispatch, so a refused call reaches no model and spends nothing.
@@ -671,9 +667,9 @@ async function handleRequest(req, res) {
     }
   }
 
-  if (req.method === "POST" && reqPath === "/api/generate-diagram") {
-    return diagramRoutes.handleGenerateDiagram(req, res);
-  }
+  // 2026-10-11 HARDEN-1 PR-2 (D8/D75): /api/generate-diagram and /api/generate-visual are
+  // REMOVED — freehand AI SVG/HTML is banned and the last student caller went in #1077. Both
+  // paths now fall through to the 404 below and never reach a model.
 
   if (req.method === "POST" && reqPath === "/api/session/start") {
     let reqJson;
@@ -746,10 +742,6 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && reqPath === '/api/ai-questions') {
     return aiQuestionsRoute.handlePost(req, res);
-  }
-
-  if (req.method === 'POST' && reqPath === '/api/generate-visual') {
-    return diagramRoutes.handleGenerateVisual(req, res);
   }
 
   if (req.method === 'POST' && reqPath === '/api/questions/report') {
@@ -880,7 +872,7 @@ server.listen(config.PORT, () => {
     `Claude: ${config.HAS_ANTHROPIC_PROXY ? 'ON' : 'OFF'} (sonnet=${config.CLAUDE_MODEL_SONNET}, haiku=${config.CLAUDE_MODEL_HAIKU}) | Auth: ${config.HAS_ANTHROPIC_PROXY ? 'replit-proxy' : 'none'}`
   );
   console.log(
-    `Routing: visual→${config.HAS_ANTHROPIC_PROXY ? 'claude-sonnet' : 'gemini'} | chat→gemini | diagram-compare→claude+gemini | MaxHistory: ${config.MAX_HISTORY_TURNS} turns`
+    `Routing: visual→${config.HAS_ANTHROPIC_PROXY ? 'claude-sonnet' : 'gemini'} | chat→gemini | MaxHistory: ${config.MAX_HISTORY_TURNS} turns`
   );
   if (envUsedLabel) console.log(`EnvUsed: ${envUsedLabel}`);
 

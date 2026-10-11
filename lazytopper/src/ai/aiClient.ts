@@ -1079,13 +1079,6 @@ async function pollGradingJob(pollPath: string): Promise<Pick<Response, "ok" | "
   return again;
 }
 
-export interface GenerateVisualRequest {
-  topic: string;
-  concept?: string;
-  subject?: string;
-  grade?: number;
-}
-
 // ─── AI Questions Cache ───────────────────────────────────────────────────────
 
 export interface CachedAiQuestion {
@@ -1143,21 +1136,5 @@ export async function saveAiGeneratedQuestions(params: {
   }).catch(() => {});
 }
 
-export interface GenerateVisualResponse {
-  ok: boolean;
-  html: string | null;
-  provider?: string;
-  model?: string;
-  error?: string;
-}
-
-export async function generateVisual(
-  req: GenerateVisualRequest
-): Promise<GenerateVisualResponse> {
-  const res = await sendWithTokenRefresh(
-    await paidJsonHeaders(),
-    (headers) => fetch(`${API_BASE}/generate-visual`, { method: "POST", headers, body: JSON.stringify(req) }),
-    refreshedPaidHeaders(),
-  );
-  return handleJsonResponse<GenerateVisualResponse>(res);
-}
+// 2026-10-11 HARDEN-1 PR-2 (D8/D75): generateVisual() and its request/response types are
+// removed — /api/generate-visual no longer exists on the server, and nothing called them.
