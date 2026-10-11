@@ -40,7 +40,9 @@
  * SCQ-S-MAG-042 / PYQ-S-2025-MAG-007 (poles or the uniform region marked; Fig. 12.10 does
  * not), PYQ-S-MAG-006 / SCQ-S-MAG-033 / PYQ-S-2025-MAG-005 / PYQ-S-MAG-009 (a specific current
  * direction or viewing face), MAG-NCERT-12-SA-003 (no NCERT figure), PYQ-S-2026-MAG-002
- * (on B's question-figure list; left to B).
+ * (on B's question-figure list; left to B), SCQ-S-EYE-037 (its step 4 calls the normal near point
+ * N; Fig. 10.3 keys it N') and EYE-EXMPLR-10-LA-005 (its answer orders the colours V..R from the
+ * top; Fig. 10.5 has R at the top): verifier FAIL 2026-10-11, row text to the bank lane.
  */
 import type { CropFigureBinding } from "./computedFigureTypes";
 
@@ -334,16 +336,7 @@ export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
     eyeConfirm: "asked: a diagram showing how hypermetropia is corrected; answer: convex lens; Fig. 10.3 (c) correction for hypermetropic eye",
     confirmedBy: BY_D,
   },
-  {
-    kind: "crop",
-    questionId: "SCQ-S-EYE-037",
-    slot: "solution",
-    filePath: `${EYE_DIR}ncert-fig-10-3-hypermetropia.webp`,
-    alt: "Hypermetropia: (a) near point N of a hypermetropic eye, (b) rays from N' focused behind the retina, (c) correction with a convex lens",
-    source: { file: NCERT_EYE, page: 3, figure: "NCERT Class 10 Science, Fig. 10.3" },
-    eyeConfirm: "asked: labelled ray diagram of the defect (hypermetropia) and its correction; answer: rays from N converge behind the retina, convex lens brings the image onto the retina; Fig. 10.3 (b), (c) with N, N' labelled",
-    confirmedBy: BY_D,
-  },
+
   {
     kind: "crop",
     questionId: "EYE-EXMPLR-10-LA-003",
@@ -354,16 +347,7 @@ export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
     eyeConfirm: "asked: labelled ray diagram of refraction through a prism and the angle of deviation; answer names PE, EF, FS, angles i, r, e, A and D at the same letters; Fig. 10.4 labels all",
     confirmedBy: BY_D,
   },
-  {
-    kind: "crop",
-    questionId: "EYE-EXMPLR-10-LA-005",
-    slot: "solution",
-    filePath: `${EYE_DIR}ncert-fig-10-5-dispersion.webp`,
-    alt: "Dispersion of a white light beam by a glass prism into a spectrum, red at the top and violet at the bottom",
-    source: { file: NCERT_EYE, page: 7, figure: "NCERT Class 10 Science, Fig. 10.5" },
-    eyeConfirm: "asked: dispersion through a glass prism with a ray diagram; the row's own step cites NCERT Fig. 10.5",
-    confirmedBy: BY_D,
-  },
+
   {
     kind: "crop",
     questionId: "PYQ-S-EYE-003",

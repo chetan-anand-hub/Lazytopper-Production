@@ -50,9 +50,7 @@ const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string
   ["HEY-D04", "hypermetropia", `${EYE}ncert-fig-10-3-hypermetropia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.3 — hypermetropia"],
   ["SCQ-S-EYE-031", "b. correction", `${EYE}ncert-fig-10-2-myopia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.2 — b. correction"],
   ["EYE-NCERT-10-SA-007", "diagram", `${EYE}ncert-fig-10-3-hypermetropia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.3 — diagram"],
-  ["SCQ-S-EYE-037", undefined, `${EYE}ncert-fig-10-3-hypermetropia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.3"],
   ["EYE-EXMPLR-10-LA-003", undefined, `${EYE}ncert-fig-10-4-prism-refraction.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.4"],
-  ["EYE-EXMPLR-10-LA-005", undefined, `${EYE}ncert-fig-10-5-dispersion.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.5"],
   ["PYQ-S-EYE-003", "(A) dispersion", `${EYE}ncert-fig-10-5-dispersion.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.5 — (A) dispersion"],
   ["HEY-H06", undefined, `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6"],
   ["EYE-EXMPLR-10-SA-005", undefined, `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6"],
@@ -74,11 +72,11 @@ const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string
 const key = (q: string, part: string | undefined, file: string) => `${q} | ${part ?? "-"} | ${file}`;
 
 describe("solution-figure crop bindings are pinned (FU-1038-PIN-BINDINGS)", () => {
-  it("the registry holds EXACTLY the 45 pinned (questionId, part, filePath) tuples", () => {
+  it("the registry holds EXACTLY the 43 pinned (questionId, part, filePath) tuples", () => {
     const actual = SOLUTION_FIGURE_CROPS.map((c) => key(c.questionId, c.part, c.filePath)).sort();
     const expected = PINNED.map(([q, part, file]) => key(q, part, file)).sort();
     expect(actual).toEqual(expected);
-    expect(SOLUTION_FIGURE_CROPS).toHaveLength(45);
+    expect(SOLUTION_FIGURE_CROPS).toHaveLength(43);
   });
 
   it.each(PINNED.map(([q, part, file, caption]) => ({ q, part, file, caption })))(
