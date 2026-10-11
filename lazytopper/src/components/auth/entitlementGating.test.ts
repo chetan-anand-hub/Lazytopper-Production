@@ -121,7 +121,7 @@ describe("entitlement gating is wired at the component, not the route", () => {
    finding is pinned instead: the protection now cannot be removed silently.
    MUTATION: delete <RequireAuth> from either page ⇒ RED.
 
-   2026-10-11 HARDEN-1 PR-2 (D81a): both pages were DELETED together with the paid
+   HARDEN-1 PR-2 (D81a, Oct 2026): both pages were DELETED together with the paid
    /api/generate-diagram route they called. RequireAuth alone (not an admin check)
    let any signed-in user trigger paid calls. The auth pins are replaced by a pin
    that the pages and their routes cannot silently come back.
