@@ -13,8 +13,7 @@
  *      counts a caller whose bearer token FAILED to verify, and entitlement.cjs
  *      fails that caller OPEN. A marker on a failed-bearer caller is never admitted.
  *   2. The path is one of FREE_CHECK_PATHS. The client sends paid headers from 11
- *      call sites, including generate-visual and generate-diagram, so the marker
- *      alone must never be enough.
+ *      call sites, so the marker alone must never be enough.
  *   3. The marker header FREE_CHECK_MARKER_HEADER carries FREE_CHECK_MARKER_VALUE.
  *   4. `FREE_CHECK_ENABLED` is on.
  * Then `admit` decides, in this order, each refusal carrying its own reason:
