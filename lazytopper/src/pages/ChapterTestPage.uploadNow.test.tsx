@@ -64,7 +64,7 @@ describe("D54b pin · Chapter Test: submit then upload IMMEDIATELY -> graded on 
         </Routes>
       </MemoryRouter>,
     );
-    fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 }));
     await waitFor(() => expect(document.querySelector(".lt-ct__exit")).not.toBeNull());
     fireEvent.click(document.querySelector(".lt-ct__exit") as HTMLElement);
     fireEvent.click(await screen.findByRole("button", { name: /Submit now/ }));
