@@ -681,3 +681,27 @@ describe("ConceptSpine — arrival concept marker (?concept= lands here)", () =>
     expect(container.querySelectorAll(".lt-spine__row-use")).toHaveLength(withUse);
   });
 });
+
+describe("ConceptSpine — a concept with too few questions shows an honest note, not a Practise button (CONCEPT-MAP-FILL-1 PR-2)", () => {
+  it("practiseHref null: the note replaces the button on THAT row only", () => {
+    const names = trigContent.boardEssentials.map((c) => c.name);
+    const { container } = render(
+      <MemoryRouter>
+        <ConceptSpine
+          topic={trig}
+          actionable={trigContent}
+          backHref="/exam-trends"
+          backLabel="Back"
+          practiceAllHref="/practice-hub"
+          chapterTestHref="/chapter-test/10/Maths/trigonometry"
+          practiceHrefForConcept={(c) => (c.name === names[0] ? null : "/practice/10/Maths")}
+        />
+      </MemoryRouter>,
+    );
+    const rows = container.querySelectorAll(".lt-spine__row");
+    expect(rows[0].querySelector("a.lt-spine__btn--practise")).toBeNull();
+    expect(rows[0].textContent).toMatch(/Not enough questions on this concept yet/);
+    expect(rows[1].querySelector("a.lt-spine__btn--practise")).not.toBeNull();
+    expect(rows[1].textContent).not.toMatch(/Not enough questions/);
+  });
+});
