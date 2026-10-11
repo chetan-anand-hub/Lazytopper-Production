@@ -161,6 +161,23 @@ describe("PENDING-UPLOAD-1 · Chapter Test pending card -> upload step", () => {
     expect(screen.queryByRole("button", { name: /Upload answer sheet/ })).toBeNull();
   });
 
+  it("★ (c) PAPER-REBUILD-1 D103a: no snapshot -> the owner's honest line, 'Start a new test' + Done, NO upload", async () => {
+    records.list = [submittedRecord()];
+    await mount();
+    fireEvent.click(await screen.findByText(/Awaiting sheet/));
+    await waitFor(() =>
+      expect(document.body.textContent).toContain(
+        "This test was taken before papers were saved, so it can't be uploaded. Start a new test to practise this chapter.",
+      ),
+    );
+    expect(screen.queryByRole("button", { name: /Upload answer sheet/ })).toBeNull();
+    expect(screen.getByRole("button", { name: "Done" })).toBeTruthy();
+    // The way forward starts a NEW test of this chapter (the paper view), not the old record.
+    fireEvent.click(screen.getByRole("button", { name: "Start a new test" }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__exit")).not.toBeNull());
+    expect(document.body.textContent).not.toContain("This test was taken before papers were saved");
+  });
+
   it("★ a partial record that already has graded written work still opens read-only", async () => {
     records.list = [submittedRecord()];
     sessionPayload.response = { ...buildChapterTestResponse({ paper, objective, subjectiveQuestions: [], subjectiveResponse: null }) };

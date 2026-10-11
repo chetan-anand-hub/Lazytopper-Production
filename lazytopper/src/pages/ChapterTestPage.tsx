@@ -580,8 +580,11 @@ export default function ChapterTestPage() {
         record,
         response: null,
         noPaper: true,
+        // PAPER-REBUILD-1 (D103a, owner copy verbatim): without the paper snapshot the Section A
+        // result frozen at submit is gone, so the test cannot be rebuilt without inventing grade
+        // inputs — it cannot be uploaded (FU-CT-FM-LEGACY-OBJECTIVE).
         awaitingDetail:
-          "We couldn’t find the saved copy of this paper on this device or online. Open it on the device you sat it on, or start a new one.",
+          "This test was taken before papers were saved, so it can't be uploaded. Start a new test to practise this chapter.",
       });
     },
     [user],
@@ -635,6 +638,14 @@ export default function ChapterTestPage() {
               reopen.record.status !== "graded" && !reopen.response && !reopen.noPaper
                 ? () => void openPendingUpload(reopen.record)
                 : undefined,
+            // The no-paper state's way forward (D103a): a new test of this chapter, through the
+            // same start as the setup button (fair-use gate included).
+            onStartNew: reopen.noPaper
+              ? () => {
+                  setReopen(null);
+                  void startTest();
+                }
+              : undefined,
             onDone: () => setReopen(null),
           })}
           onClose={() => setReopen(null)}

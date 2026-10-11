@@ -335,6 +335,8 @@ export default function FullMockPage() {
     record: SessionRecord;
     response: WorksheetGradeResponse | null;
     awaitingDetail?: string;
+    /** PAPER-REBUILD-1 (D103a): the paper lookup failed; the scorecard offers "Start a new test". */
+    noPaper?: boolean;
   } | null>(null);
 
   // ── History panel + banner ───────────────────────────────────────────────────
@@ -724,12 +726,16 @@ export default function FullMockPage() {
         // The paper is genuinely unavailable (pre-snapshot mock, offline, or a
         // failed snapshot write) — say so plainly; never fabricate a paper to
         // grade against (owner-ratified).
+        // PAPER-REBUILD-1 (D103a): the Section A result frozen at submit lives only with the paper,
+        // so a mock cannot be rebuilt here; the way forward is a new mock. The sitting device may
+        // still hold its local copy (§8a), so the line says "here", not "never".
         setReopen({
           record,
           response: null,
+          noPaper: true,
           awaitingDetail:
-            "This mock was sat on another device (or its saved paper is gone from this one). " +
-            "Open LazyTopper on the device you used to upload its answer sheet — nothing has been lost.",
+            "This mock's saved paper isn't on this device or online, so it can't be uploaded here. " +
+            "If you sat it on another device, open LazyTopper there; otherwise start a new mock.",
         });
       }
     },
@@ -864,6 +870,13 @@ export default function FullMockPage() {
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
             onDone: () => setReopen(null),
+            // PAPER-REBUILD-1 (D103a): the no-paper state's way forward, through the setup's own start.
+            onStartNew: reopen.noPaper
+              ? () => {
+                  setReopen(null);
+                  startTest();
+                }
+              : undefined,
           })}
           onClose={() => setReopen(null)}
         />

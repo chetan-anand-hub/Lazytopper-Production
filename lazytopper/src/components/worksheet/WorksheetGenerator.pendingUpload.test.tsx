@@ -103,6 +103,7 @@ import {
   type SessionRecord,
 } from "../../services/sessionRecords";
 import { recordWorksheetDownload, reapGradedWorksheetSnapshots } from "../../services/worksheetPaperStore";
+import { bankIndexEntries } from "../../data/bankChapters/bankIdIndex";
 
 function paper(id: string, code: string): PersistedWorksheet {
   return {
@@ -322,4 +323,87 @@ describe("PENDING-UPLOAD-1 PR-2 · D56a pin: generate -> download -> upload IMME
     expect(gradeCalls.reqs).toHaveLength(1);
     expect(gradeCalls.reqs[0].worksheetId).toBe(worksheetId);
   }, 120000);
+});
+
+// PAPER-REBUILD-1 (cofounder D102/D103b-c): a pending worksheet with NO copy on this device or online
+// is rebuilt from its record's own questionIds — exactly those ids, in that order, through the
+// generator's own bank-row map — and both stores are seeded. One id that no longer resolves -> the
+// honest message, never a partial paper. A snapshot, when present, still wins.
+describe("PAPER-REBUILD-1 · a pending worksheet with no saved copy", () => {
+  /** Real served Real Numbers ids, deliberately NOT in bank order (the rebuild must keep the record's order). */
+  function realIds(n: number): string[] {
+    const ids: string[] = [];
+    for (const [id, meta] of bankIndexEntries()) {
+      if (meta.topicKey === "real-numbers") ids.push(id);
+      if (ids.length >= n) break;
+    }
+    return ids.reverse();
+  }
+  /** The record an old download wrote, with its paper on NO store (pre-#1062 / failed snapshot write). */
+  function writeOrphanPending(code: string, wsId: string, ids: string[]): SessionRecord {
+    const p: PersistedWorksheet = {
+      ...paper(wsId, code),
+      questions: ids.map((id, i) => ({ qNumber: i + 1, id, subject: "Maths", topicKey: "real-numbers", topicLabel: "Real Numbers", section: "A", marks: 1, questionText: "x" })),
+    };
+    const rec = buildWorksheetSessionRecord(
+      p,
+      { ...gradedResponse(p), gradedCount: 0, pendingCount: ids.length, gradedMarksAwarded: 0, gradedMarksTotal: 0 } as never,
+      { code },
+      "student-1",
+    ) as SessionRecord;
+    expect(rec.status).toBe("pending-upload");
+    writeSessionRecord(USER as never, rec);
+    return rec;
+  }
+  async function openFromHistory(title: string) {
+    render(
+      <MemoryRouter initialEntries={["/practice/worksheets?subject=Maths&scope=topic&topic=real-numbers"]}>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /See all 2/ }));
+    fireEvent.click(await screen.findByRole("button", { name: new RegExp(`Re-open the ${title}`) }));
+  }
+  const seededPaper = () => JSON.parse(localStorage.getItem("lazytopper.worksheets.v1") ?? "[]")[0] as PersistedWorksheet | undefined;
+  const snapshotWrites = () => fs.writes.filter((w) => w.path.includes("worksheetPapers"));
+
+  it("★ (b) rebuilt EXACTLY from the record's ids (same ids, same order), opens on the SAME code, and seeds both stores", async () => {
+    const ids = realIds(4);
+    expect(ids).toHaveLength(4);
+    const rec = writeOrphanPending("WS-M-REALNUMBERS-0R", "ws-r", ids);
+    writeOrphanPending("WS-M-REALNUMBERS-0S", "ws-s", realIds(2));
+    await openFromHistory(rec.title);
+    await waitFor(() => expect(screen.getByTestId("grade-panel").textContent).toBe(rec.id));
+    const seeded = seededPaper();
+    expect(seeded?.worksheetId, "the SAME worksheetId, so the grade attaches to the same record").toBe("ws-r");
+    expect(seeded?.code).toBe(rec.id);
+    expect(seeded?.questions.map((q) => q.id), "exact ids, record order").toEqual(ids);
+    expect(seeded?.questions.map((q) => q.qNumber)).toEqual([1, 2, 3, 4]);
+    expect(seeded?.questions.every((q) => q.questionText && q.questionText !== "x"), "today's bank text").toBe(true);
+    expect(snapshotWrites().map((w) => w.path)).toEqual([`sessionRecords/student-1/worksheetPapers/${rec.id}`]);
+    expect(((snapshotWrites()[0].data as { paper: PersistedWorksheet }).paper.questions).map((q) => q.id)).toEqual(ids);
+  });
+
+  it("★ (c) one id that no longer resolves -> the honest message, NO paper, nothing seeded", async () => {
+    const ids = [...realIds(3), "RETIRED-OR-WITHHELD-ID"];
+    const rec = writeOrphanPending("WS-M-REALNUMBERS-0U", "ws-u", ids);
+    writeOrphanPending("WS-M-REALNUMBERS-0V", "ws-v", realIds(2));
+    await openFromHistory(rec.title);
+    await waitFor(() => expect(document.body.textContent).toContain("We couldn’t find the saved copy of this worksheet"));
+    expect(screen.queryByTestId("grade-panel")).toBeNull();
+    expect(snapshotWrites()).toHaveLength(0);
+    expect(seededPaper()).toBeUndefined();
+  });
+
+  it("★ (d) CONTROL: when a snapshot exists it wins — the rebuild is not used", async () => {
+    const ids = realIds(3);
+    const rec = writeOrphanPending("WS-M-REALNUMBERS-0W", "ws-w", ids);
+    writeOrphanPending("WS-M-REALNUMBERS-0X", "ws-x", realIds(2));
+    const snapPaper = { ...paper("ws-w", rec.id) }; // the sat paper (its own two questions)
+    fs.docs[`sessionRecords/student-1/worksheetPapers/${rec.id}`] = { code: rec.id, name: "n", paper: snapPaper, savedAt: 1 };
+    await openFromHistory(rec.title);
+    await waitFor(() => expect(screen.getByTestId("grade-panel").textContent).toBe(rec.id));
+    expect(seededPaper()?.questions.map((q) => q.id)).toEqual(snapPaper.questions.map((q) => q.id));
+    expect(snapshotWrites()).toHaveLength(0);
+  });
 });
