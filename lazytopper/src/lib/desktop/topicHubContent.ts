@@ -665,7 +665,7 @@ const SEEDED: Record<string, ActionableSeed> = {
     boardEssentials: [
       { name: "Properties of acids and bases", oneLineUse: "List two distinguishing properties each (taste, indicator, conduction).", marks: "1–2", conceptKeys: ["Understanding the Chemical Properties of Acids and Bases"] },
       { name: "What All Acids and All Bases Have in Common", oneLineUse: "Explain why acids give H⁺ (H₃O⁺) and bases OH⁻ only in water, and why such solutions conduct while glucose and alcohol do not.", marks: "1–5", conceptKeys: ["What All Acids and All Bases Have in Common"] },
-      { name: "Examples and Uses of Acids and Bases", oneLineUse: "Name common acids and bases, their natural sources and one use of each (e.g. citric acid in lemon, antacids for acidity).", marks: "1–4", conceptKeys: ["Examples and Uses of Acids and Bases"] },
+      { name: "Examples and Uses of Acids and Bases", oneLineUse: "Name common acids with their natural sources (e.g. citric acid in lemon) and common bases with one use (e.g. milk of magnesia as an antacid).", marks: "1–4", conceptKeys: ["Examples and Uses of Acids and Bases"] },
       { name: "pH scale (0–14)", oneLineUse: "Interpret a given pH value as acidic / neutral / basic with strength.", marks: "1–2" },
       { name: "Acid + base → salt + water (neutralisation)", oneLineUse: "Write the balanced equation and identify products.", marks: "2–3" },
       { name: "Common salts (NaCl, NaOH, NaHCO₃, Na₂CO₃, bleaching powder, plaster of Paris)", oneLineUse: "Recall preparation and one industrial use of each.", marks: "2–3" },
