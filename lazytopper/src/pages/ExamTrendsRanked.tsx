@@ -21,6 +21,7 @@ import {
   type HPQTopicBucket,
 } from "../data/highlyProbableQuestions";
 import MobileShell from "../components/mobile/MobileShell";
+import { notesHref } from "../seo/notesLinks";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 
 /**
@@ -907,6 +908,20 @@ const STYLES = `
 .lt-et-all-list a { color: var(--muted); text-decoration: none; }
 .lt-et-all-list a:hover,
 .lt-et-all-list a:focus-visible { color: hsl(152,60%,30%); text-decoration: underline; }
+.lt-et-all-list .lt-et-all-notes { margin-left: 4px; opacity: 0.85; }
+.lt-et-notes {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+.lt-et-notes:hover,
+.lt-et-notes:focus-visible { color: hsl(152,60%,30%); text-decoration: underline; }
 
 .lt-et-foot {
   margin-top: 18px;
@@ -1122,6 +1137,7 @@ function TopicCard({
   const barPct = Math.min(100, (topic.weight / maxWeight) * 100);
   // SEO-NOTES-AND-LINKS-1 — Learn is a real anchor; see the onClick below.
   const learnHref = useHref(`/topic-hub/${topic.slug}`);
+  const notesLink = notesHref(topic.slug);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [flipUp, setFlipUp] = useState(false);
 
@@ -1221,6 +1237,13 @@ function TopicCard({
             <IconBook />
             Learn
           </a>
+          {/* SEO-NOTES-LINK-2 — the chapter's notes beside its hub action: a small secondary
+              text link on a clean path (no query), named for the chapter. */}
+          {notesLink && (
+            <Link to={notesLink} className="lt-et-notes" aria-label={`${topic.name} notes`}>
+              Notes
+            </Link>
+          )}
           {/* position:relative wrapper — without it the absolute menu falls back
               to its static position, i.e. below the whole card (§5 cause 2). */}
           <span className="lt-et-mwrap" data-lt-et-menu-wrap="">
@@ -1363,11 +1386,22 @@ function AllChapters() {
         <div className="lt-et-all-group" key={s}>
           <h3 className="lt-et-all-subject">{s}</h3>
           <ul className="lt-et-all-list">
-            {desktopTopicsBySubject(s).map((t) => (
-              <li key={t.slug}>
-                <Link to={`/topic-hub/${t.slug}`}>{t.name}</Link>
-              </li>
-            ))}
+            {desktopTopicsBySubject(s).map((t) => {
+              const notes = notesHref(t.slug);
+              return (
+                <li key={t.slug}>
+                  <Link to={`/topic-hub/${t.slug}`}>{t.name}</Link>
+                  {/* SEO-NOTES-LINK-2 — the chapter's notes, a second plain link on a clean
+                      path (no query). Named for the chapter: 26 links all called "Notes"
+                      would be indistinguishable to a screen reader. */}
+                  {notes && (
+                    <Link to={notes} className="lt-et-all-notes" aria-label={`${t.name} notes`}>
+                      Notes
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       ))}

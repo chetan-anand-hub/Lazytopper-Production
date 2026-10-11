@@ -1,4 +1,5 @@
 import { MathText } from "../question/MathText";
+import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 
 /**
@@ -89,9 +90,12 @@ export interface WorksheetPrintDocProps {
    *  each solved worksheet carries its ID (the same id it will be graded under).
    *  Optional/read-guarded: honest-empty when absent (never a fabricated placeholder). */
   code?: string;
+  /** FIGURES-ALL-SURFACES-1 PR-2 — draws a question's solution figure in the answer key. Injected by the PDF exporter
+   *  (loaded on demand) so the diagrams registry is not part of this chunk; absent = no solution figures. */
+  renderSolutionFigure?: RenderSolutionFigure;
 }
 
-export function WorksheetPrintDoc({ ws, kind, code }: WorksheetPrintDocProps) {
+export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure }: WorksheetPrintDocProps) {
   const isAnswers = kind === "answers";
   const groups = groupBySection(ws.questions);
   // Enough watermark tiles to cover a multi-page worksheet (overflow clips extras).
@@ -99,7 +103,7 @@ export function WorksheetPrintDoc({ ws, kind, code }: WorksheetPrintDocProps) {
 
   return (
     <div className="lt-wsp" data-kind={kind} data-question-count={ws.questions.length}>
-      <style>{PRINT_CSS}</style>
+      <style>{PRINT_CSS + PRINT_FIGURE_CSS}</style>
 
       {/* Subtle tiled diagonal watermark — absolute, BEHIND content (z-index 0). */}
       <div className={`lt-wsp__wm ${isAnswers ? "lt-wsp__wm--key" : "lt-wsp__wm--light"}`} aria-hidden="true">
@@ -161,7 +165,7 @@ export function WorksheetPrintDoc({ ws, kind, code }: WorksheetPrintDocProps) {
 
             {qs.map((q) =>
               isAnswers ? (
-                <AnswerBlock key={q.qNumber} q={q} />
+                <AnswerBlock key={q.qNumber} q={q} renderSolutionFigure={renderSolutionFigure} />
               ) : (
                 <QuestionBlock key={q.qNumber} q={q} />
               ),
@@ -185,6 +189,7 @@ function QuestionBlock({ q }: { q: PersistedWorksheetQuestion }) {
           <MathText text={q.questionText} />
           <span className="lt-wsp__qmarks">[{marks}]</span>
         </div>
+        <PrintQuestionFigures questionId={q.id} />
         {hasOptions ? (
           <ol className="lt-wsp__opts">
             {q.options!.map((opt, oi) => (
@@ -206,7 +211,7 @@ function QuestionBlock({ q }: { q: PersistedWorksheetQuestion }) {
   );
 }
 
-function AnswerBlock({ q }: { q: PersistedWorksheetQuestion }) {
+function AnswerBlock({ q, renderSolutionFigure }: { q: PersistedWorksheetQuestion; renderSolutionFigure?: RenderSolutionFigure }) {
   const marks = Number(q.marks) || 1;
   const steps = Array.isArray(q.solutionSteps) ? q.solutionSteps.filter(Boolean) : [];
   const finalAns = q.finalAnswer || q.answer || "";
@@ -235,6 +240,7 @@ function AnswerBlock({ q }: { q: PersistedWorksheetQuestion }) {
           })}
         </ol>
       )}
+      {renderSolutionFigure?.(q.id)}
       {finalAns ? (
         <div className="lt-wsp__final">
           Answer: <MathText text={finalAns} />

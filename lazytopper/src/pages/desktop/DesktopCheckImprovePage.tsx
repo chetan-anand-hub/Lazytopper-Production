@@ -145,6 +145,7 @@ import { TRIAL_DAYS } from "../../services/subscriptionService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
 // Dark unless /api/usage/me says `enforced: true`; never asked in free-check mode.
 import FairUseLimitPanel from "../../components/usage/FairUseLimitPanel";
+import UsageWarning from "../../components/usage/UsageWarning";
 import FairUseConfirm from "../../components/usage/FairUseConfirm";
 import { useFairUse } from "../../components/usage/useFairUse";
 // TRIAL-PAPER-1 - a trial paper graded only up to today's checks: the rest listed as
@@ -2331,6 +2332,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           minWidth: 0,
         }}
       >
+        <UsageWarning scope="check-improve" snapshot={fairUse.snapshot} />
         {/* The return ticket's contextual strip (Section C) — a quiet line, never a
             modal, never blocking. Renders nothing on a direct visit. */}
         <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
