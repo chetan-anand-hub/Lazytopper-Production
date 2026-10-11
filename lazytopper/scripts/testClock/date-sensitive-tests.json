@@ -254,6 +254,7 @@
     "src/pages/PracticePage.scorecardFeed.test.tsx",
     "src/pages/PracticePage.solutionError.test.tsx",
     "src/pages/PracticePage.strategyLazy.test.tsx",
+    "src/pages/PracticePage.strictFocusExact.test.tsx",
     "src/pages/PricingPage.backnav.test.tsx",
     "src/pages/PricingPage.paycopy.test.tsx",
     "src/pages/PricingPage.pricing.test.tsx",

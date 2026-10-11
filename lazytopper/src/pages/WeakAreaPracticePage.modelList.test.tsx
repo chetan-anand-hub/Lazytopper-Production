@@ -333,9 +333,14 @@ describe("D3 — the targeted session: the chosen concept's served rows first, t
     const fx = aboveGateFixture();
     device("B");
     await renderPage();
-    // DECISION 85a (amends 61b) — the exact label: the chapter only; no count, no difficulty order, no concept claim.
-    const button = await screen.findByRole("button", { name: "Practise Arithmetic Progression" });
-    expect(button.textContent).toBe("Practise Arithmetic Progression"); // D85a: no promise about the concept
+    // DECISION 85a / 92a (amended 2026-10-11, CONCEPT-MAP-FILL-1 PR-2 #1076): the concept is named
+    // because Practice now serves these 15 ids exactly, in order (isExactFocusSet), and the first is
+    // the concept's (pinned on the real page path in PracticePage.strictFocusExact.test.tsx). Still no
+    // count and no difficulty order.
+    const apWeakLabel = conceptGroups(AP).find((g) => g.key === fx.apWeak)!.label;
+    const label = `Practise Arithmetic Progression, starting with ${apWeakLabel}`;
+    const button = await screen.findByRole("button", { name: label });
+    expect(button.textContent).toBe(label);
     expect(document.body.textContent ?? "").not.toMatch(/\b15 questions\b|\(\d+ questions\)|Easy\s*(→|->)\s*Hard|Start Targeted Session/);
     fireEvent.click(button);
     await waitFor(() => expect(H.navigate.length).toBe(1));
@@ -350,6 +355,7 @@ describe("D3 — the targeted session: the chosen concept's served rows first, t
     const conceptRows = conceptGroups(AP).find((g) => g.key === fx.apWeak)!.ids;
     const head = Math.min(15, conceptRows.length);
     expect(ids.slice(0, head)).toEqual(conceptRows.slice(0, head));
+    expect(R.conceptRowForBankQuestionId(ids[0])?.key, "the named concept leads the session").toBe(fx.apWeak);
     const served = new Map(entries);
     const banned = bannedSubtopics();
     expect(banned.size).toBeGreaterThan(20); // precondition: the guard list was read
