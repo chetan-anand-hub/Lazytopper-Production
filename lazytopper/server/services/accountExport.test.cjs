@@ -181,6 +181,9 @@ function realSeed(uid = UID) {
     'payOrders/order_A': { uid, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'paid', paymentId: 'pay_A' },
     // Another student's order — must never appear in this student's export.
     'payOrders/order_Z': { uid: OTHER, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'created' },
+    // TOPUP-1: the student's extra-usage credit and its per-payment grant record (server-only; dark until TOPUP_ENABLED).
+    [`usageCredits/${uid}`]: { balanceMicroInr: 20000000, boughtMicroInr: 20000000, spentMicroInr: 0 },
+    [`usageCredits/${uid}/grants/pay_T1`]: { productKey: 'topup_49', pricePaidInr: 49, baseMicroInr: 20000000, bonusMicroInr: 0, grantedAt: '2026-09-27T06:30:00.000Z' },
     // METER-1. The parent is seeded only so the map-driven "every location carries data"
     // test has a row to find; production never writes it (see the phantom-parent test).
     [`usageLedger/${uid}`]: {},
