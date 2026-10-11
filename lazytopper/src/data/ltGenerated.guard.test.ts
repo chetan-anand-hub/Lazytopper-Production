@@ -184,15 +184,19 @@ describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped"
     expect(templateOf({ id: "LTG-M-TRIG-251", shapedFrom: "PB-M-2-TRIG-C-001" } as CanonicalQuestion)?.id).toBe("PB-M-2-TRIG-C-001");
     expect(templateOf({ id: "LTG-M-TRIG-999", shapedFrom: "PB-M-2-TRIG-C-001" } as CanonicalQuestion)).toBeUndefined();
     expect(templateOf({ shapedFrom: oos } as CanonicalQuestion)).toBeUndefined();
-    // BANK-FIX-5 (2026-10-10): the ledger's category feeds the SAME allowed set. Its "figure" withhold is accepted
-    // (PYQ-S-2025-MAG-006, template of LTG-S-MAG-277); a "wrong-key" withhold, or a made-up out-of-syllabus one, is a red.
-    const f5 = BANK_FIX_5.find((e) => e.verdict === "withheld" && e.category === "figure")!.id;
-    expect(f5).toBe("PYQ-S-2025-MAG-006");
-    expect(templateOf({ shapedFrom: f5 } as CanonicalQuestion)?.id).toBe(f5);
-    const wk = BANK_FIX_5.find((e) => e.verdict === "withheld" && e.category === "wrong-key")!.id;
+    // BANK-FIX-5 (2026-10-10): the ledger's category feeds the SAME allowed set; a "wrong-key" withhold, or a made-up
+    // out-of-syllabus one, is a red. BANK-UNWITHHOLD-1 (2026-10-10): PYQ-S-2025-MAG-006 (BANK-FIX-5's only "figure" withhold, the
+    // template of LTG-S-MAG-277) is served again, so it now resolves as an ordinary served template, and the ledger path is
+    // exercised with an injected entry: a still-withheld "wrong-key" row relabelled "figure" is accepted, as "out-of-syllabus" it is not.
+    expect(templateOf({ shapedFrom: "PYQ-S-2025-MAG-006" } as CanonicalQuestion)?.id).toBe("PYQ-S-2025-MAG-006");
+    expect(WITHHELD_QUESTION_IDS.has("PYQ-S-2025-MAG-006")).toBe(false);
+    const wkEntry = BANK_FIX_5.find((e) => e.verdict === "withheld" && e.category === "wrong-key")!;
+    const wk = wkEntry.id;
     expect(templateOf({ shapedFrom: wk } as CanonicalQuestion)).toBeUndefined();
-    const madeUp: readonly BankFix5Entry[] = [{ ...BANK_FIX_5.find((e) => e.id === f5)!, category: "out-of-syllabus" }];
-    expect(templateOf({ shapedFrom: f5 } as CanonicalQuestion, madeUp)).toBeUndefined();
+    const asFigure: readonly BankFix5Entry[] = [{ ...wkEntry, category: "figure" }];
+    expect(templateOf({ shapedFrom: wk } as CanonicalQuestion, asFigure)?.id).toBe(wk);
+    const madeUp: readonly BankFix5Entry[] = [{ ...wkEntry, category: "out-of-syllabus" }];
+    expect(templateOf({ shapedFrom: wk } as CanonicalQuestion, madeUp)).toBeUndefined();
     // every categorised id IS withheld (the map and the withhold block agree)
     expect([...BANK_FIX_1_PR2_WITHHOLD_CATEGORY.keys()].filter((id) => !WITHHELD_QUESTION_IDS.has(id))).toEqual([]);
   });
