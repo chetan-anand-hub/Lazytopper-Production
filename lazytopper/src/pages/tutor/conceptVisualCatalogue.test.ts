@@ -115,6 +115,7 @@ describe("★ TUTOR-SVG-REPLACE-1 (D47b, 2026-10-11) — official figures only",
     const row = conceptFigureCatalogue.find((r) => r.conceptKey === conceptKey)!;
     expect(row.best.ref).toBe(ref);
     expect(row.gap).toBe(gap);
+    expect(row.best.kind).toBe(gap ? "none" : "notes-figure");
     if (ref) expect(getNoteAssetUrl(ref)).toBeTruthy();
   });
 
