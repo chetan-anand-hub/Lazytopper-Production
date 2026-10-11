@@ -858,6 +858,20 @@ export default function WeakAreaPracticePage() {
         </div>
       )}
 
+      {/* ME-CONCEPT-1 PR-B — past the gate but nothing lost marks: no path to build, said honestly. */}
+      {tab === "learning-path" && gateMet && !learningPath && (
+        <div className="wap-empty" data-testid="wap-path-none">
+          <div className="wap-empty__icon" aria-hidden="true">&#128218;</div>
+          <h3 className="wap-empty__title">No Weak Chapter Right Now</h3>
+          <p className="wap-empty__text">
+            Nothing in your graded answers is losing marks, so there is no path to plan yet. Keep practising and it will appear when a chapter needs work.
+          </p>
+          <button type="button" className="wap-empty__cta" onClick={() => navigate("/practice-hub")}>
+            Go to Practice
+          </button>
+        </div>
+      )}
+
       {tab === "learning-path" && gateMet && learningPath && (
         <LearningPathView
           path={learningPath}

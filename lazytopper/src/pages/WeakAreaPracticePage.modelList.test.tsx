@@ -154,6 +154,8 @@ function device(name: "A" | "B"): void {
     // Device A carries DEVICE-LOCAL weak-area evidence the model does not have (Triangles wrongs);
     // the old `getWeakAreas` list would have named Triangles here, and nothing on device B.
     for (let i = 0; i < 4; i += 1) recordWrongAnswer(`tri-local-${i}`, TRI, "Similarity", "Easy");
+    // …and heavy local wrongs on a MODEL-LISTED chapter (QE), so the old local rank would reorder the list.
+    for (let i = 0; i < 12; i += 1) recordWrongAnswer(`qe-local-${i}`, QE, "Roots", "Easy");
   }
 }
 
@@ -291,6 +293,23 @@ describe("D2 — below Me's gate: the honest empty state, and NO Learning Path b
     await settle();
     expect(screen.getByText("Day 1 of 14")).toBeTruthy();
     expect(savedPaths().length).toBe(1);
+  });
+});
+
+describe("E1 — past the gate but nothing has lost marks: an honest Learning Path state, never a blank tab", () => {
+  it("★ every answer full marks → the list is empty, the Learning Path tab says so, nothing is saved", async () => {
+    const [ca] = conceptGroups(AP);
+    const [cq] = conceptGroups(QE);
+    H.attempts = [...eight(ca.ids, AP, () => 2), ...eight(cq.ids, QE, () => 2), ...eight(chapterIds(TRI), TRI, () => 2)];
+    device("B");
+    await renderPage();
+    expect(listedChapters()).toEqual([]);
+    fireEvent.click(screen.getByRole("button", { name: /^Learning Path/ }));
+    await settle();
+    expect(screen.queryByTestId("wap-path-none")).not.toBeNull();
+    expect(screen.queryByTestId("wap-path-thin")).toBeNull();
+    expect(screen.queryByText(/Day 1 of/)).toBeNull();
+    expect(savedPaths()).toEqual([]);
   });
 });
 
