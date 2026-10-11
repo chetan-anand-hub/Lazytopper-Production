@@ -51,7 +51,8 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 const MIN_MAPPED_LABELS = 1822;
 const MAX_REVIEWED_LABELS = 164;
 /** served rows whose label resolves to a concept / all served rows: 9697+19 / 10613 = 9716 / 10613. */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9154;
+// 2026-10-11 SQP-2026-27-Q10 (#1084): +1 served row (SQP-M-2026-ARC-001, label 'Distance Covered by a Wheel' still reviewed until CONCEPT-MAP-FILL-1 PR-2 maps it): 9716 / 10614 = 0.91539; pin 0.9154 -> 0.9153, exactly what the one added row explains.
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9153;
 
 const isChapterEchoSubtopic = echoFromShape;
 

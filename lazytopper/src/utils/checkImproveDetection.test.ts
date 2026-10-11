@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 import {
   resolveDetectedGradeTopic,
   buildConfirmedDetection,
+  withSubjectCorrected,
   clampDetectedMarks,
 } from "./checkImproveDetection";
 
@@ -110,5 +111,23 @@ describe("buildConfirmedDetection — detection → confirmed state for grading"
     expect(c.topicSlug).toBe(""); // full-subject, not invented
     expect(c.subject).toBe("Maths");
     expect(c.marksSource).toBe("inferred");
+  });
+});
+
+describe("TOPIC-FIX-1 · the guard is wired into the detected chapter", () => {
+  const trig = "Prove that (1 + tan²A)/(1 + cot²A) = tan²A";
+  it("★★ buildConfirmedDetection: a null chapter on a trig proof files under Trigonometry; a same-subject model answer is kept", () => {
+    const base = { detectedMarks: 3, detectedSubject: "Maths" as const, marksSource: "inferred" as const };
+    expect(buildConfirmedDetection({ ...base, detectedTopic: null }, trig)).toMatchObject({ subject: "Maths", topicSlug: "trigonometry" });
+    expect(buildConfirmedDetection({ ...base, detectedTopic: "polynomials" }, trig)).toMatchObject({ topicSlug: "polynomials" });
+    expect(buildConfirmedDetection({ ...base, detectedTopic: null }, "Find the area of a sector")).toMatchObject({ topicSlug: "" });
+  });
+});
+
+describe("TOPIC-FIX-1 · flipping the subject never seeds a guessed chapter", () => {
+  it("★★ the chapter becomes empty (filed subject-only); the marks and their source are kept", () => {
+    const c = { marks: 3, subject: "Maths" as const, topicName: "Polynomials", topicSlug: "polynomials", marksSource: "stated" as const };
+    expect(withSubjectCorrected(c, "Science")).toEqual({ marks: 3, subject: "Science", topicName: "", topicSlug: "", marksSource: "stated" });
+    expect(withSubjectCorrected(c, "Maths").topicSlug).toBe("");
   });
 });
