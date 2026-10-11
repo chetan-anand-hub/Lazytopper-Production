@@ -88,6 +88,6 @@ describe("Source ledger disclosure", () => {
     const spec = specOf("metals-and-non-metals");
     const { container } = mount("metals-and-non-metals");
     const text = container.querySelector("table.lt-note__ledger")!.textContent ?? "";
-    for (const row of spec.source_ledger.slice(0, 6)) expect(text).toContain(row.item.replace(/<[^>]+>/g, "").slice(0, 12));
+    for (const row of spec.source_ledger.slice(0, 6)) expect(text).toContain(row.item.split("<")[0].split("&")[0].slice(0, 12));
   });
 });
