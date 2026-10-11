@@ -94,6 +94,38 @@ describe("catalogue integrity — every curated best ref resolves to a real asse
   }
 });
 
+describe("★ TUTOR-SVG-REPLACE-1 (D47b, 2026-10-11) — official figures only", () => {
+  // Figures come only from official crops or repo builders; the five hand-drawn notes SVGs
+  // were retired. Every notes-figure ref (best AND alternates) must be an official raster crop.
+  const notesRefs = conceptFigureCatalogue.flatMap((r) =>
+    [r.best, ...(r.alternates ?? [])].filter((f) => f.kind === "notes-figure").map((f) => f.ref),
+  );
+
+  it("no catalogue row references a hand-drawn .svg", () => {
+    expect(notesRefs.filter((ref) => ref.endsWith(".svg"))).toEqual([]);
+  });
+
+  it.each([
+    ["length-of-tangent-from-external-point", "circles/fig_equal_tangents_107.webp", false],
+    ["lens-power-dioptre", "", true],
+    ["atmospheric-refraction", "human-eye-and-colourful-world/fig_atmospheric_refraction_109.webp", false],
+    ["scattering-of-light", "", true],
+    ["reactions-of-ethanol-and-ethanoic-acid", "", true],
+  ])("%s -> best %s (gap %s)", (conceptKey, ref, gap) => {
+    const row = conceptFigureCatalogue.find((r) => r.conceptKey === conceptKey)!;
+    expect(row.best.ref).toBe(ref);
+    expect(row.gap).toBe(gap);
+    if (ref) expect(getNoteAssetUrl(ref)).toBeTruthy();
+  });
+
+  it("atmospheric refraction offers NCERT Fig 10.10 (sunrise and sunset) as its alternate", () => {
+    const row = conceptFigureCatalogue.find((r) => r.conceptKey === "atmospheric-refraction")!;
+    const alt = row.alternates?.[0]?.ref ?? "";
+    expect(alt).toBe("human-eye-and-colourful-world/fig_atmospheric_refraction_1010.webp");
+    expect(getNoteAssetUrl(alt)).toBeTruthy();
+  });
+});
+
 describe("resolveConceptVisual — exact-match-or-nothing (D-TUT-15), never a guess", () => {
   const triSimilar = conceptFigureCatalogue.find(
     (r) => r.topicKey === "triangles" && r.best.kind === "notes-figure",
