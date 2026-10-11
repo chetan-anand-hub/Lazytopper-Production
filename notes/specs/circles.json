@@ -526,22 +526,22 @@
     },
     "fig_tangent_radius_105": {
       "bucket": "ncert",
-      "tag": "NCERT Fig. 10.5 (redrawn)",
-      "caption": "Theorem 10.1 set-up: tangent XY touches the circle at P and OP is the radius through the point of contact. Any other point Q of XY lies outside the circle, and OQ crosses the circle at R — so OQ = OR + RQ > OR = OP.",
-      "legend": "Solid green OP is the radius to the point of contact; dashed OQ is the construction. OP is the shortest segment from O to XY, so OP ⟂ XY — the 90° at P is the theorem's conclusion, not a given. NCERT's figure labels O, P, Q, X, Y; R is added here to name where OQ meets the circle.",
+      "tag": "NCERT Fig. 10.5",
+      "caption": "Theorem 10.1 set-up: tangent XY touches the circle at P and OP is the radius through the point of contact. Any other point Q of XY lies outside the circle, so OQ > OP.",
+      "legend": "Solid OP is the radius to the point of contact; dotted OQ joins O to another point Q of the tangent. OP is the shortest segment from O to XY, so OP ⟂ XY — the 90° at P is the theorem's conclusion, not a given (NCERT's figure carries no right-angle mark).",
       "source": {
         "pdf": "jemh110",
         "edition": "2026-27",
         "ncert_fig": "10.5",
         "page_pdf": 3,
         "page_printed": 147,
-        "clip_pts": null,
-        "render_matrix": null,
-        "clean": "none",
+        "clip_pts": [272, 128, 416, 242],
+        "render_matrix": "4x",
+        "clean": "watermark layer dropped in memory before rendering (the page's /Artifact /Watermark marked-content block removed from the content stream; PDF on disk untouched); no pixel cleaning",
         "refill": null,
-        "note": "NOT a crop: redrawn as a labelled SVG (QUICK-FIXES-1 Q4) from NCERT Reprint 2026-27 jemh110.pdf, page_pdf 3 (0-indexed, as the other figures here), printed p.147, Fig. 10.5 — confirmed on the page: circle centre O, tangent XY (Y left, X right, arrowheads both ends), P at the point of contact, solid OP, Q on XY to the right of P, dotted OQ. NCERT's figure carries no R and no right-angle mark; both are added, labelled as the proof's reading aid. Eye-confirmed at 390 px and 1440 px."
+        "note": "crop from NCERT Reprint 2026-27 jemh110.pdf, page_pdf 3 (0-indexed, as the other figures here), printed p.147, Fig. 10.5 (NOTES-SVG-REPLACE-1: replaces the earlier hand-drawn SVG). Rendered with pymupdf at 4x, saved WebP 576x456 q80. Figure only — the 'Fig. 10.5' line is below the clip. Eye-confirmed: circle with centre O, tangent XY (arrowheads both ends), P at the point of contact, solid OP, Q on XY right of P, dotted OQ; no body text."
       },
-      "asset": "circles/fig_tangent_radius_105.svg"
+      "asset": "circles/fig_tangent_radius_105.webp"
     }
   },
   "source_ledger": [

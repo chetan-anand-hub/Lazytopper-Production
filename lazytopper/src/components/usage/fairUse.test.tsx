@@ -291,17 +291,15 @@ describe("5 · copy (owner rulings, word for word)", () => {
 const NO_CODES = /trial_limit|usage_limit|fiveHour|₹|INR|rupee|\b409\b|\b429\b/i;
 
 describe("6 · UI1 panel", () => {
-  it("★★ trial: the whole sentence, a <time>, and See plans -> the internal pricing route", () => {
+  it("★★ trial: the bold sentence (no reset time repeated), the grey come-back line, and See plans -> the internal pricing route", () => {
     render(
       <MemoryRouter>
         <FairUseLimitPanel limit={{ tier: "trial", scope: "checks", resetAt: MIDNIGHT, window: null, allowance: 5 }} />
       </MemoryRouter>,
     );
     const panel = screen.getByTestId("fair-use-limit-panel");
-    expect(panel.querySelector("p")?.textContent).toMatch(
-      /^You've used today's 5 answer checks\. They reset at 12:00 am on (Mon|Tue|Wed|Thu|Fri|Sat|Sun) \d+ \w{3}\. Premium removes the daily limit\.$/,
-    );
-    expect(panel.querySelector("time")?.getAttribute("dateTime")).toBe(MIDNIGHT);
+    expect(panel.querySelector("p")?.textContent).toBe("You've used today's 5 answer checks. Premium removes the daily limit.");
+    expect(screen.getByTestId("fair-use-come-back").textContent).toBe("Come back after midnight for 5 more. Practice, MCQs, CBQs and notes still work now.");
     const plans = screen.getByTestId("fair-use-see-plans");
     expect(plans.getAttribute("href")).toBe("/pricing");
     expect(plans.getAttribute("href")).not.toMatch(/^\/app\//);
@@ -443,7 +441,7 @@ describe("8 · R3 limit copy follows the server's (env-tunable) limits", () => {
     fireEvent.click(screen.getByText("refuse"));
     await waitFor(() => expect(document.body.dataset.refusal).toBe("true"));
     const lead = screen.getByTestId("fair-use-limit-panel").querySelector("p")?.textContent ?? "";
-    expect(lead).toMatch(/^You've used today's 7 answer checks\. They reset at /);
+    expect(lead).toMatch(/^You've used today's 7 answer checks\. Premium removes the daily limit.$/);
     expect(lead).not.toMatch(/\b5\b/);
     delete document.body.dataset.refusal;
   });
