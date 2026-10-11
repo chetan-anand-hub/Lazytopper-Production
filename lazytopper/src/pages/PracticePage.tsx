@@ -482,8 +482,13 @@ import { toSessionSubject } from "../services/checkImproveGradeService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R) on
 // the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
+import UsageWarning from "../components/usage/UsageWarning";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
 import { useFairUse } from "../components/usage/useFairUse";
+// ALL-AI-METERING-1 - a More-like-this refusal shows its own panel; the saved questions stay.
+import { isPremiumRequiredRefusal, limitFromAiRefusal, moreLikeThisPremiumNoteCopy, type LimitState } from "../components/usage/fairUseGate";
+import MoreLikeThisPremiumNote from "../components/usage/MoreLikeThisPremiumNote";
+import { readFairUseLimit } from "../services/usageClient";
 import { useAuth } from "../context/AuthContext";
 import {
   type SubjectKey,
@@ -500,6 +505,7 @@ import {
   parsePositiveInt,
   parseFocusBankIds,
   parseBooleanFlag,
+  subscribeMoreLikeThisLimit,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
 import { isCbq } from "../lib/cbq/cbqClassification";
@@ -1296,6 +1302,18 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   }, [isGuest]);
   /** FAIR-USE-UI-1 - fair limits on the batched grade (dark unless enforced). */
   const fairUse = useFairUse("checks", !!authUserForJourney?.uid && !authUserForJourney?.isLocalSession);
+  /** ALL-AI-METERING-1 - the More-like-this limit panel (the AI top-up was refused). */
+  const [moreLikeThisLimit, setMoreLikeThisLimit] = useState<LimitState | null>(null);
+  /** DECISION 29d - a FREE student's 402 premium_required: a plan note with a trial link, not a limit. */
+  const [moreLikeThisPremiumOnly, setMoreLikeThisPremiumOnly] = useState<{ trialUsed: boolean } | null>(null);
+  useEffect(
+    () =>
+      subscribeMoreLikeThisLimit((err) => {
+        if (isPremiumRequiredRefusal(err)) setMoreLikeThisPremiumOnly({ trialUsed: moreLikeThisPremiumNoteCopy(err, Date.now()).trialUsed });
+        else setMoreLikeThisLimit(limitFromAiRefusal(readFairUseLimit(err), "more-like-this"));
+      }),
+    [],
+  );
   /** UI2 - R, while the student is being asked "we'll mark the first R". */
   const [fairUseConfirm, setFairUseConfirm] = useState<number | null>(null);
   // Which session identity has already been written. A one-shot latch: the scorecard
@@ -2692,6 +2710,7 @@ const packTopicKey = useMemo(() => {
     >
       {/* J2 — a background grade of the last practice set, still running after a reload. */}
       <QuickPracticeJobResume user={authUserForJourney} />
+      <UsageWarning scope="practice" snapshot={fairUse.snapshot} />
       {/* QP-GUEST-SIGNIN-1 — the set's score from before a same-tab sign-in, shown once. */}
       {restoredGuestScore && (
         <div className="lt-qp-signin lt-qp-signin--restored" data-testid="qp-guest-score-restored">
@@ -2770,6 +2789,13 @@ const packTopicKey = useMemo(() => {
           <span>Class {grade} - {subjectTitle}</span>
         </nav>
         )}
+
+        {moreLikeThisLimit ? (
+          <FairUseLimitPanel limit={moreLikeThisLimit} onDismiss={() => setMoreLikeThisLimit(null)} />
+        ) : null}
+        {moreLikeThisPremiumOnly ? (
+          <MoreLikeThisPremiumNote trialUsed={moreLikeThisPremiumOnly.trialUsed} onDismiss={() => setMoreLikeThisPremiumOnly(null)} />
+        ) : null}
 
         {/* Applied-band indicator (PR-E1 amendment item 6/7) — concept-row entry
             ONLY: shown when this session arrived from the Topic Hub with an exact

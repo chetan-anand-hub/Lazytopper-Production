@@ -29,8 +29,10 @@ import {
   EXAM_TRENDS_CONCEPTS,
   UNMAPPED_LABELS_REVIEWED,
   conceptForSubtopic,
+  conceptKindOf,
   type UnmappedLabelReview,
 } from "./conceptLabelMap";
+import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts";
 
 // ── RATCHET PINS (fix round 1, on trunk f52f8116). Improve them; never loosen them. ─────────────────────────
 // CBQ-1 C3 (2026-10-07): two NEW served acids labels from the C3 science CBQs, both mapped (+2 -> 1517, tightened).
@@ -41,10 +43,16 @@ import {
 // APQ-M-TRIG-016 and APQ-M-TRIG-011 are withheld (answer defined only by an image); B restores both lines and 1516 when it serves them again.
 // 2026-10-10 BANK-UNWITHHOLD-1 (B): 1514 -> 1525 (+11). 21 figure rows served again bring 12 new labels: 11 mapped to existing Exam Trends
 // concepts (incl. 'Current-Carrying Conductors', restored for PYQ-S-2025-MAG-006) and 1 reviewed concept-gap ('Benzene'; reviewed 456 -> 457, max stays 458).
-const MIN_MAPPED_LABELS = 1525;
-const MAX_REVIEWED_LABELS = 458;
-/** served rows whose label resolves to a concept / all served rows: 7722 / 9823. */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.7861;
+// 2026-10-10 CONCEPT-MAP-FILL-1: 293 `concept-gap` labels (1,232 rows) now map to 33 TRACKING concepts (trackingConcepts.ts):
+// mapped 1518 -> 1811, reviewed 456 -> 163, rows with a concept 8465 -> 9697 of 10592 (0.7992 -> 0.9155). The old pins
+// (1514 / 458 / 0.7861) sat below the tip by 4 / 2 / 0.013; they are tightened to the exact new numbers.
+// Rebased onto BANK-UNWITHHOLD-1 (#1066) at a863452f: B's +11 mapped and +1 reviewed ('Benzene') are added, so the final pins are
+// mapped 1822, reviewed 164, rows with a concept 9716 of 10613 (0.91548), recomputed from the merged tip by runtime import.
+const MIN_MAPPED_LABELS = 1822;
+const MAX_REVIEWED_LABELS = 164;
+/** served rows whose label resolves to a concept / all served rows: 9697+19 / 10613 = 9716 / 10613. */
+// 2026-10-11 SQP-2026-27-Q10 (#1084): +1 served row (SQP-M-2026-ARC-001, label 'Distance Covered by a Wheel' still reviewed until CONCEPT-MAP-FILL-1 PR-2 maps it): 9716 / 10614 = 0.91539; pin 0.9154 -> 0.9153, exactly what the one added row explains.
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9153;
 
 const isChapterEchoSubtopic = echoFromShape;
 
@@ -105,6 +113,14 @@ function auditMap(
 
 const SERVED = servedLabels();
 
+/** The vocabulary a label may map to: the chapter's Exam Trends concepts PLUS its tracking concepts. */
+const ALL_CONCEPTS: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
+  Object.keys(EXAM_TRENDS_CONCEPTS).map((ch) => [
+    ch,
+    [...EXAM_TRENDS_CONCEPTS[ch as keyof typeof EXAM_TRENDS_CONCEPTS], ...TRACKING_CONCEPTS[ch as keyof typeof TRACKING_CONCEPTS]],
+  ]),
+);
+
 describe("conceptLabelMap — vocabulary", () => {
   it("covers exactly the 26 bank chapters, each with at least one concept", () => {
     const want = [...BANK_CHAPTER_SLUGS].sort();
@@ -134,7 +150,7 @@ describe("conceptLabelMap — vocabulary", () => {
 
 describe("conceptLabelMap — ratchet over the served bank", () => {
   it("every served label is mapped, chapter-echo, or reviewed; nothing stale; concepts verbatim", () => {
-    expect(auditMap(SERVED, EXAM_TRENDS_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED)).toEqual([]);
+    expect(auditMap(SERVED, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED)).toEqual([]);
   });
 
   it("counts only improve", () => {
@@ -159,7 +175,7 @@ describe("conceptLabelMap — mutation controls (each check can fail)", () => {
   it("a NEW served label with no entry is RED", () => {
     const s = clone(SERVED);
     s.get("electricity")!.set("Fake New Label", 1);
-    expect(auditMap(s, EXAM_TRENDS_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED)).toEqual([
+    expect(auditMap(s, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED)).toEqual([
       { kind: "unclassified", chapter: "electricity", label: "Fake New Label" },
     ]);
   });
@@ -167,7 +183,7 @@ describe("conceptLabelMap — mutation controls (each check can fail)", () => {
   it("a mapped concept that does not exist in the chapter is RED", () => {
     const [label] = Object.keys(CONCEPT_BY_LABEL.electricity);
     const mapped = { ...CONCEPT_BY_LABEL, electricity: { ...CONCEPT_BY_LABEL.electricity, [label]: "Not A Concept" } };
-    expect(auditMap(SERVED, EXAM_TRENDS_CONCEPTS, mapped, UNMAPPED_LABELS_REVIEWED)).toEqual([
+    expect(auditMap(SERVED, ALL_CONCEPTS, mapped, UNMAPPED_LABELS_REVIEWED)).toEqual([
       { kind: "not-a-concept", chapter: "electricity", label, detail: "Not A Concept" },
     ]);
   });
@@ -176,7 +192,7 @@ describe("conceptLabelMap — mutation controls (each check can fail)", () => {
     const [label] = Object.keys(CONCEPT_BY_LABEL.electricity);
     const other = EXAM_TRENDS_CONCEPTS["life-processes"][0];
     const mapped = { ...CONCEPT_BY_LABEL, electricity: { ...CONCEPT_BY_LABEL.electricity, [label]: other } };
-    expect(auditMap(SERVED, EXAM_TRENDS_CONCEPTS, mapped, UNMAPPED_LABELS_REVIEWED).map((p) => p.kind)).toEqual([
+    expect(auditMap(SERVED, ALL_CONCEPTS, mapped, UNMAPPED_LABELS_REVIEWED).map((p) => p.kind)).toEqual([
       "not-a-concept",
     ]);
   });
@@ -185,7 +201,7 @@ describe("conceptLabelMap — mutation controls (each check can fail)", () => {
     const s = clone(SERVED);
     const [label] = Object.keys(CONCEPT_BY_LABEL.electricity);
     s.get("electricity")!.delete(label);
-    expect(auditMap(s, EXAM_TRENDS_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED)).toEqual([
+    expect(auditMap(s, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED)).toEqual([
       { kind: "stale-mapped", chapter: "electricity", label },
     ]);
   });
@@ -196,7 +212,7 @@ describe("conceptLabelMap — mutation controls (each check can fail)", () => {
       ...CONCEPT_BY_LABEL,
       electricity: { ...CONCEPT_BY_LABEL.electricity, [label]: EXAM_TRENDS_CONCEPTS.electricity[0] },
     };
-    expect(auditMap(SERVED, EXAM_TRENDS_CONCEPTS, mapped, UNMAPPED_LABELS_REVIEWED).map((p) => p.kind)).toEqual([
+    expect(auditMap(SERVED, ALL_CONCEPTS, mapped, UNMAPPED_LABELS_REVIEWED).map((p) => p.kind)).toEqual([
       "mapped-and-reviewed",
     ]);
   });
@@ -225,5 +241,100 @@ describe("conceptForSubtopic — verbatim lookup", () => {
     expect(conceptForSubtopic("constructor", "toString")).toBeUndefined();
     expect(conceptForSubtopic("electricity", "")).toBeUndefined();
     expect(conceptForSubtopic(null, label)).toBeUndefined();
+  });
+});
+
+describe("tracking concepts (CONCEPT-MAP-FILL-1)", () => {
+  const pairs = Object.entries(TRACKING_CONCEPTS).flatMap(([ch, names]) => names.map((n) => [ch, n] as const));
+
+  it("covers the 26 bank chapters, at most 8 per chapter, and never repeats an Exam Trends name", () => {
+    expect(Object.keys(TRACKING_CONCEPTS).sort()).toEqual([...BANK_CHAPTER_SLUGS].sort());
+    for (const [ch, names] of Object.entries(TRACKING_CONCEPTS)) {
+      expect(names.length, ch).toBeLessThanOrEqual(8);
+      expect(new Set(names).size, `${ch}: each tracking concept appears once`).toBe(names.length);
+      for (const n of names) expect(EXAM_TRENDS_CONCEPTS[ch as keyof typeof EXAM_TRENDS_CONCEPTS], `${ch}/${n}`).not.toContain(n);
+    }
+    expect(pairs.length).toBe(33);
+  });
+
+  it.each(pairs)("%s / %s carries a cited source and at least one mapped label", (ch, name) => {
+    expect(TRACKING_CONCEPT_SOURCES[ch as keyof typeof TRACKING_CONCEPT_SOURCES][name]).toMatch(/NCERT|CBSE|Owner ruling/);
+    const mapped = Object.values(CONCEPT_BY_LABEL[ch as keyof typeof CONCEPT_BY_LABEL]).filter((c) => c === name);
+    expect(mapped.length).toBeGreaterThan(0);
+  });
+
+  it("a tracking concept shows its kind; an Exam Trends concept shows its own; nothing else has one", () => {
+    expect(conceptKindOf("metals-and-non-metals", "Alloys")).toBe("tracking");
+    expect(conceptKindOf("metals-and-non-metals", EXAM_TRENDS_CONCEPTS["metals-and-non-metals"][0])).toBe("exam-trends");
+    expect(conceptKindOf("metals-and-non-metals", "Not A Concept")).toBeUndefined();
+    expect(conceptKindOf("electricity", "Alloys")).toBeUndefined();
+    expect(conceptKindOf("not-a-chapter", "Alloys")).toBeUndefined();
+    expect(conceptKindOf(null, "Alloys")).toBeUndefined();
+  });
+
+  // 3 labels per newly covered chapter. Before this lane each of these returned undefined (reviewed concept-gap).
+  const PINS: ReadonlyArray<readonly [string, string, string]> = [
+    ["metals-and-non-metals", "Extraction of Metals", "Basic Metallurgical Processes"],
+    ["metals-and-non-metals", "Chemical Properties", "Chemical Properties of Metals and Non-metals"],
+    ["metals-and-non-metals", "Physical Properties", "Physical Properties of Metals and Non-metals"],
+    ["acids-bases-and-salts", "Neutralisation", "Understanding the Chemical Properties of Acids and Bases"],
+    ["acids-bases-and-salts", "Reactions of Acids and Bases", "Understanding the Chemical Properties of Acids and Bases"],
+    ["acids-bases-and-salts", "Reactions", "Understanding the Chemical Properties of Acids and Bases"],
+    ["carbon-and-its-compounds", "Soaps and Detergents", "Soaps and Detergents"],
+    ["carbon-and-its-compounds", "Chemical Properties", "Chemical Properties of Carbon Compounds"],
+    ["carbon-and-its-compounds", "Covalent Bonding", "Bonding in Carbon: The Covalent Bond"],
+    ["magnetic-effects-of-electric-current", "AC Frequency", "Direct Current and Alternating Current"],
+    ["magnetic-effects-of-electric-current", "Advantages of AC over DC", "Direct Current and Alternating Current"],
+    ["magnetic-effects-of-electric-current", "Force on Current-carrying Conductor", "Force on a Current-carrying Conductor in a Magnetic Field"],
+    ["control-and-coordination", "Hormones in Animals", "Hormones in Animals"],
+    ["control-and-coordination", "Hormones", "Hormones in Animals"],
+    ["control-and-coordination", "Endocrine Glands", "Hormones in Animals"],
+    ["electricity", "Electric Current", "Electric Current and Circuit"],
+    ["electricity", "Factors Affecting Resistance", "Factors on Which the Resistance of a Conductor Depends"],
+    ["electricity", "Resistivity", "Factors on Which the Resistance of a Conductor Depends"],
+    ["human-eye-and-colourful-world", "Dispersion of Light", "Dispersion of White Light by a Glass Prism"],
+    ["human-eye-and-colourful-world", "Dispersion", "Dispersion of White Light by a Glass Prism"],
+    ["human-eye-and-colourful-world", "Refraction through a Prism", "Refraction of Light through a Prism"],
+    ["light-reflection-and-refraction", "Laws of Reflection", "Reflection of Light"],
+    ["light-reflection-and-refraction", "Plane Mirror", "Reflection of Light"],
+    ["light-reflection-and-refraction", "Plane Mirrors", "Reflection of Light"],
+    ["life-processes", "Plant Transport", "Transportation in Plants"],
+    ["life-processes", "Plant Excretion", "Excretion in Plants"],
+    ["life-processes", "Transpiration", "Transportation in Plants"],
+    ["how-do-organisms-reproduce", "DNA Copying", "Do Organisms Create Exact Copies of Themselves?"],
+    ["how-do-organisms-reproduce", "DNA Copying and Variation", "Do Organisms Create Exact Copies of Themselves?"],
+    ["how-do-organisms-reproduce", "Variation", "Do Organisms Create Exact Copies of Themselves?"],
+    ["heredity", "Variation", "Accumulation of Variation during Reproduction"],
+    ["heredity", "Genes and Chromosomes", "How Traits Get Expressed"],
+    ["heredity", "Expression of Traits", "How Traits Get Expressed"],
+    ["our-environment", "Ecological Systems", "Ecosystem and Its Components"],
+    ["our-environment", "Ecosystem — producers, consumers, decomposers", "Ecosystem and Its Components"],
+    ["our-environment", "Decomposers", "Ecosystem and Its Components"],
+    ["triangles", "Right-Triangle Lengths (a² + b² = c² as a tool)", "Right-Triangle Lengths (a² + b² = c² as a tool)"],
+    ["statistics", "Empirical Relationship", "Empirical Relationship between Mean, Median and Mode"],
+    ["statistics", "Empirical Relation between Mean, Median and Mode", "Empirical Relationship between Mean, Median and Mode"],
+    ["statistics", "Empirical Relationship Between Mean, Median and Mode", "Empirical Relationship between Mean, Median and Mode"],
+  ];
+  it.each(PINS)("%s: %j resolves to the tracking concept %j", (ch, label, concept) => {
+    expect(conceptForSubtopic(ch, label)).toBe(concept);
+    expect(conceptKindOf(ch, concept)).toBe("tracking");
+  });
+
+  it("no chapter is below 90% of its non-echo served rows mapped (target of the lane)", () => {
+    const tot = new Map<string, { rows: number; mapped: number }>();
+    for (const [, t, sIdx] of BANK_ID_INDEX_ROWS) {
+      const ch = BANK_ID_INDEX_TOPIC_KEYS[t];
+      const label = BANK_ID_INDEX_SUBTOPICS[sIdx].trim();
+      if (isChapterEchoSubtopic(label)) continue;
+      const x = tot.get(ch) ?? { rows: 0, mapped: 0 };
+      x.rows++;
+      if (conceptForSubtopic(ch, label)) x.mapped++;
+      tot.set(ch, x);
+    }
+    // areas-related-to-circles stays at ~85% (floor 0.84): the independent reviewer found its 28 `concept-gap` labels (circle area /
+    // circumference / wheel revolutions) are the deleted NCERT 'Perimeter and Area of a Circle - A Review' content, outside the
+    // 2026-27 syllabus, so no concept is built for them (a bank lane decides whether those rows are served).
+    const BELOW_TARGET: Record<string, number> = { "areas-related-to-circles": 0.84 };
+    for (const [ch, x] of tot) expect(x.mapped / x.rows, ch).toBeGreaterThanOrEqual(BELOW_TARGET[ch] ?? 0.9);
   });
 });
