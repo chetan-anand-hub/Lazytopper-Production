@@ -146,16 +146,19 @@ describe("PENDING-UPLOAD-1 · Chapter Test pending card -> upload step", () => {
     expect(JSON.parse(window.localStorage.getItem("lazytopper.ct.papers.v1.student-1") ?? "[]")).toHaveLength(1);
   });
 
-  it("★ no copy anywhere -> the honest message, never a rebuilt paper", async () => {
+  // AMENDED 2026-10-11 PAPER-REBUILD-1 (cofounder D102, test (e)): this used to pin the modal's
+  // "Upload answer sheet" as a RETRY of the same lookup. Live, that was the owner's dead loop: the
+  // button re-ran a lookup that had just failed and the same message came back. After a failed
+  // lookup the modal now offers no upload action at all.
+  it("★ (e) no copy anywhere -> no 'Upload answer sheet' that re-runs the failed lookup", async () => {
+    const { getDoc } = await import("firebase/firestore");
     records.list = [submittedRecord()];
     await mount();
+    const calls = vi.mocked(getDoc).mock.calls.length;
     fireEvent.click(await screen.findByText(/Awaiting sheet/));
-    await waitFor(() => expect(document.body.textContent).toContain("We couldn’t find the saved copy of this paper"));
-    // The action is a retry: once the copy exists, it opens the upload step.
-    saveChapterTestPaper(USER as never, snap());
-    fireEvent.click(await screen.findByRole("button", { name: /Upload answer sheet/ }));
-    await waitFor(() => expect(screen.queryByRole("button", { name: "Done" })).toBeNull());
-    expect(document.body.textContent).toContain(CODE);
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Done" })).not.toBeNull());
+    expect(vi.mocked(getDoc).mock.calls.length - calls, "exactly one snapshot lookup").toBe(1);
+    expect(screen.queryByRole("button", { name: /Upload answer sheet/ })).toBeNull();
   });
 
   it("★ a partial record that already has graded written work still opens read-only", async () => {

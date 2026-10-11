@@ -252,6 +252,8 @@ export default function ChapterTestPage() {
     record: SessionRecord;
     response: WorksheetGradeResponse | null;
     awaitingDetail?: string;
+    /** PAPER-REBUILD-1 (D102): the paper lookup already failed, so the modal offers no upload action. */
+    noPaper?: boolean;
   } | null>(null);
 
   // GRADING-JOBS-1 J2 — a background grade of this chapter's test survives a reload: the paper,
@@ -577,6 +579,7 @@ export default function ChapterTestPage() {
       setReopen({
         record,
         response: null,
+        noPaper: true,
         awaitingDetail:
           "We couldn’t find the saved copy of this paper on this device or online. Open it on the device you sat it on, or start a new one.",
       });
@@ -626,9 +629,10 @@ export default function ChapterTestPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
-            // Awaiting-sheet records offer "Upload answer sheet" (also a retry after a failed read).
+            // Awaiting-sheet records offer "Upload answer sheet" — never after the lookup just failed
+            // (PAPER-REBUILD-1, D102: re-running it was the owner's dead loop).
             onUploadSheet:
-              reopen.record.status !== "graded" && !reopen.response
+              reopen.record.status !== "graded" && !reopen.response && !reopen.noPaper
                 ? () => void openPendingUpload(reopen.record)
                 : undefined,
             onDone: () => setReopen(null),
