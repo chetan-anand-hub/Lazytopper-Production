@@ -21,6 +21,8 @@ const EYE = "/figures/solutions/ncert-science/human-eye-and-colourful-world/";
 const MAG = "/figures/solutions/ncert-science/magnetic-effects-of-electric-current/";
 const CARB = "/figures/solutions/ncert-science/carbon-and-its-compounds/";
 const MET = "/figures/solutions/ncert-science/metals-and-non-metals/";
+const ELEC = "/figures/solutions/ncert-science/electricity/";
+const HER = "/figures/solutions/ncert-science/heredity/";
 
 /** [questionId, part, filePath, exact figcaption text] */
 const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string]> = [
@@ -77,16 +79,21 @@ const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string
   ["SCQ-S-CARB-028", "benzene", `${CARB}ncert-fig-4-10-benzene.webp`, "Official figure: NCERT Class 10 Science, Fig. 4.10 — benzene"],
   ["CR2-049", "(a) electron transfer", `${MET}ncert-fig-3-5-sodium-chloride.webp`, "Official figure: NCERT Class 10 Science, Fig. 3.5 — (a) electron transfer"],
   ["METAL-EXMPLR-3-LONG-004", "(ii) electrolytic refining", `${MET}ncert-fig-3-12-electrolytic-refining.webp`, "Official figure: NCERT Class 10 Science, Fig. 3.12 — (ii) electrolytic refining"],
+  // SOLUTION-FIGS-1 PR-4 (controller D, 2026-10-11): Electricity + Heredity.
+  ["PYQ-S-2026-ELEC-004", "(b) V-I graph", `${ELEC}ncert-fig-11-3-v-i-graph.webp`, "Official figure: NCERT Class 10 Science, Fig. 11.3 — (b) V-I graph"],
+  ["SCQ-S-ELEC-028", "(b) battery", `${ELEC}ncert-table-11-1-battery.webp`, "Official figure: NCERT Class 10 Science, Table 11.1 (row 2) — (b) battery"],
+  ["SCQ-S-ELEC-028", "(b) rheostat", `${ELEC}ncert-table-11-1-rheostat.webp`, "Official figure: NCERT Class 10 Science, Table 11.1 (row 9) — (b) rheostat"],
+  ["SCQ-S-HERED-034", undefined, `${HER}ncert-fig-8-6-sex-determination.webp`, "Official figure: NCERT Class 10 Science, Fig. 8.6"],
 ];
 
 const key = (q: string, part: string | undefined, file: string) => `${q} | ${part ?? "-"} | ${file}`;
 
 describe("solution-figure crop bindings are pinned (FU-1038-PIN-BINDINGS)", () => {
-  it("the registry holds EXACTLY the 50 pinned (questionId, part, filePath) tuples", () => {
+  it("the registry holds EXACTLY the 54 pinned (questionId, part, filePath) tuples", () => {
     const actual = SOLUTION_FIGURE_CROPS.map((c) => key(c.questionId, c.part, c.filePath)).sort();
     const expected = PINNED.map(([q, part, file]) => key(q, part, file)).sort();
     expect(actual).toEqual(expected);
-    expect(SOLUTION_FIGURE_CROPS).toHaveLength(50);
+    expect(SOLUTION_FIGURE_CROPS).toHaveLength(54);
   });
 
   it.each(PINNED.map(([q, part, file, caption]) => ({ q, part, file, caption })))(
