@@ -180,6 +180,12 @@ export interface BoardConcept {
   oneLineUse: string;
   /** Marks band string ("1–2", "2–3", etc.) — display only, no probability claim. */
   marks: string;
+  /**
+   * CONCEPT-MAP-FILL-1 PR-2 (data only): the concept(s) this card stands for — Exam Trends or tracking
+   * concept names from conceptLabelMap.ts, verbatim. When present, the card's Practise serves EXACTLY the
+   * served bank rows that resolve to these concepts (conceptPractice.ts) instead of the name + mark band.
+   */
+  conceptKeys?: string[];
 }
 
 export type FormulaUseCardKind =
@@ -294,8 +300,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Marks come from clean unit work, the right combination formula and explicit final units.",
     },
     boardEssentials: [
+      { name: "Electric Current and Circuit", oneLineUse: "Use I = Q/t, the ammeter in series and the + to − direction of conventional current in a closed circuit.", marks: "1–4", conceptKeys: ["Electric Current and Circuit"] },
+      { name: "Electric Potential and Potential Difference", oneLineUse: "Use V = W/Q (1 volt = 1 joule per coulomb) and place the voltmeter in parallel across the part measured.", marks: "1–5", conceptKeys: ["Electric Potential and Potential Difference"] },
       { name: "Ohm's law V = IR", oneLineUse: "Bridge any two of V, I, R when the third is known.", marks: "1–3" },
-      { name: "Resistivity ρ and the factors resistance depends on (R = ρl/A)", oneLineUse: "Scale R with length, cross-section area and material, and compute ρ with its unit Ω m.", marks: "2–3" },
+      { name: "Resistivity ρ and the factors resistance depends on (R = ρl/A)", oneLineUse: "Scale R with length, cross-section area and material, and compute ρ with its unit Ω m.", marks: "2–3", conceptKeys: ["Factors on Which the Resistance of a Conductor Depends"] },
       { name: "Resistors in series (R = R₁ + R₂ + …)", oneLineUse: "Collapse a chain into one equivalent resistor before applying Ohm's law.", marks: "2–3" },
       { name: "Resistors in parallel (1/R = 1/R₁ + 1/R₂ + …)", oneLineUse: "Find equivalent resistance and branch currents.", marks: "3–5" },
       { name: "Electrical power (P = VI = I²R = V²/R)", oneLineUse: "Pick the form that matches the two known quantities.", marks: "2–3" },
@@ -359,9 +367,9 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Respiration (aerobic vs anaerobic + alveoli exchange)", oneLineUse: "Compare end-products and write the gas-exchange equation.", marks: "2–3" },
       { name: "Transportation (heart chambers + double circulation)", oneLineUse: "Label the four chambers and trace blood flow with arrows.", marks: "3–5" },
       { name: "Excretion (nephron + filtration → reabsorption → urine)", oneLineUse: "Describe each step and name the structure responsible.", marks: "3–5" },
-      { name: "Transport in plants (xylem vs phloem)", oneLineUse: "State what each transports and the driving force.", marks: "1–2" },
+      { name: "Transport in plants (xylem vs phloem)", oneLineUse: "State what each transports and the driving force.", marks: "1–2", conceptKeys: ["Transportation in Plants"] },
       { name: "Photosynthesis — autotrophic nutrition in plants", oneLineUse: "Write CO₂ + H₂O → glucose + O₂ (sunlight, chlorophyll) and explain the role of stomata and guard cells.", marks: "2–3" },
-      { name: "Excretion in plants", oneLineUse: "List how plants shed waste: O₂ from photosynthesis, excess water by transpiration, wastes stored in leaves that fall or as resins and gums, or released into the soil.", marks: "1–2" },
+      { name: "Excretion in plants", oneLineUse: "List how plants shed waste: O₂ from photosynthesis, excess water by transpiration, wastes stored in leaves that fall or as resins and gums, or released into the soil.", marks: "1–2", conceptKeys: ["Excretion in Plants"] },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -540,6 +548,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Diagram marks require labelled object, mirror/lens, principal axis, focus, and image with clear arrows.",
     },
     boardEssentials: [
+      { name: "Reflection of Light", oneLineUse: "Apply the laws of reflection and state the image a plane mirror forms — virtual, erect, same size, as far behind as the object is in front.", marks: "1–4", conceptKeys: ["Reflection of Light"] },
       { name: "Mirror formula 1/v + 1/u = 1/f and magnification m = −v/u", oneLineUse: "Solve image-position numericals for spherical mirrors.", marks: "2–3" },
       { name: "Lens formula 1/v − 1/u = 1/f and m = v/u", oneLineUse: "Solve image-position numericals for thin lenses.", marks: "2–3" },
       { name: "Sign convention (New Cartesian)", oneLineUse: "Decide signs of u, v, f, h before substituting.", marks: "1–2" },
@@ -592,9 +601,9 @@ const SEEDED: Record<string, ActionableSeed> = {
     boardEssentials: [
       { name: "Right-hand thumb rule (field around a straight conductor)", oneLineUse: "Find direction of magnetic field from current direction.", marks: "1–2" },
       { name: "Solenoid as a bar magnet", oneLineUse: "Use the right-hand grip rule to identify N and S poles of a current-carrying solenoid.", marks: "2–3" },
-      { name: "Force on a current-carrying conductor (Fleming's left-hand rule)", oneLineUse: "Find direction of force on a conductor in a magnetic field.", marks: "2–3" },
-      { name: "Direct current vs alternating current (AC frequency in India 50 Hz; advantage of AC over DC)", oneLineUse: "Contrast one-way DC with periodically reversing AC and state why AC is transmitted over long distances.", marks: "1–2" },
-      { name: "Domestic electric circuits (live / neutral / earth wires, fuse, earthing, overloading and short-circuit)", oneLineUse: "Name each wire by colour and job, and explain the two safety devices — earthing and the fuse.", marks: "2–3" },
+      { name: "Force on a current-carrying conductor (Fleming's left-hand rule)", oneLineUse: "Find direction of force on a conductor in a magnetic field.", marks: "2–3", conceptKeys: ["Force on a Current-carrying Conductor in a Magnetic Field"] },
+      { name: "Direct current vs alternating current (AC frequency in India 50 Hz; advantage of AC over DC)", oneLineUse: "Contrast one-way DC with periodically reversing AC and state why AC is transmitted over long distances.", marks: "1–2", conceptKeys: ["Direct Current and Alternating Current"] },
+      { name: "Domestic electric circuits (live / neutral / earth wires, fuse, earthing, overloading and short-circuit)", oneLineUse: "Name each wire by colour and job, and explain the two safety devices — earthing and the fuse.", marks: "2–3", conceptKeys: ["Domestic Electric Circuits"] },
     ],
     formulaUsePreview: {
       kind: "law",
@@ -654,7 +663,9 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "pH questions reward the right inequality direction (acidic <7, neutral =7, basic >7) and one example.",
     },
     boardEssentials: [
-      { name: "Properties of acids and bases", oneLineUse: "List two distinguishing properties each (taste, indicator, conduction).", marks: "1–2" },
+      { name: "Properties of acids and bases", oneLineUse: "List two distinguishing properties each (taste, indicator, conduction).", marks: "1–2", conceptKeys: ["Understanding the Chemical Properties of Acids and Bases"] },
+      { name: "What All Acids and All Bases Have in Common", oneLineUse: "Explain why acids give H⁺ (H₃O⁺) and bases OH⁻ only in water, and why such solutions conduct while glucose and alcohol do not.", marks: "1–5", conceptKeys: ["What All Acids and All Bases Have in Common"] },
+      { name: "Examples and Uses of Acids and Bases", oneLineUse: "Name common acids and bases, their natural sources and one use of each (e.g. citric acid in lemon, antacids for acidity).", marks: "1–4", conceptKeys: ["Examples and Uses of Acids and Bases"] },
       { name: "pH scale (0–14)", oneLineUse: "Interpret a given pH value as acidic / neutral / basic with strength.", marks: "1–2" },
       { name: "Acid + base → salt + water (neutralisation)", oneLineUse: "Write the balanced equation and identify products.", marks: "2–3" },
       { name: "Common salts (NaCl, NaOH, NaHCO₃, Na₂CO₃, bleaching powder, plaster of Paris)", oneLineUse: "Recall preparation and one industrial use of each.", marks: "2–3" },
@@ -692,12 +703,15 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Naming and structural formula questions reward exact spelling and correct bond count.",
     },
     boardEssentials: [
-      { name: "Covalent bonds — formation and properties of covalent compounds", oneLineUse: "Show electron sharing (single, double, triple bonds) and explain the low melting points and poor conductivity.", marks: "2–3" },
-      { name: "Tetravalency and catenation of carbon", oneLineUse: "Explain why carbon forms so many compounds.", marks: "1–2" },
+      { name: "Covalent bonds — formation and properties of covalent compounds", oneLineUse: "Show electron sharing (single, double, triple bonds) and explain the low melting points and poor conductivity.", marks: "2–3", conceptKeys: ["Bonding in Carbon: The Covalent Bond"] },
+      { name: "Tetravalency and catenation of carbon", oneLineUse: "Explain why carbon forms so many compounds.", marks: "1–2", conceptKeys: ["Versatile Nature of Carbon"] },
+      { name: "Saturated and Unsaturated Carbon Compounds", oneLineUse: "Tell alkanes (only single bonds) from alkenes and alkynes (double / triple bonds) and write their structures.", marks: "1–5", conceptKeys: ["Saturated and Unsaturated Carbon Compounds"] },
+      { name: "Chains, Branches and Rings", oneLineUse: "Draw straight-chain, branched and ring skeletons, and the structural isomers of a formula such as C₄H₁₀.", marks: "1–5", conceptKeys: ["Chains, Branches and Rings"] },
       { name: "Homologous series (general formula, e.g. CₙH₂ₙ₊₂)", oneLineUse: "Predict the next member's formula and properties trend.", marks: "2–3" },
       { name: "Functional groups (–OH, –CHO, –COOH, >C=O, –Cl, –Br)", oneLineUse: "Identify and name the group; predict typical reactions.", marks: "2–3" },
+      { name: "Chemical Properties of Carbon Compounds", oneLineUse: "Write combustion, oxidation, addition (hydrogenation) and substitution reactions, and tell the clean flame of saturated from the sooty flame of unsaturated.", marks: "1–5", conceptKeys: ["Chemical Properties of Carbon Compounds"] },
       { name: "Reactions of ethanol and ethanoic acid", oneLineUse: "Write esterification and oxidation equations precisely.", marks: "2–3" },
-      { name: "Soaps vs detergents (cleansing action)", oneLineUse: "Describe micelle formation and hard-water behaviour.", marks: "2–3" },
+      { name: "Soaps vs detergents (cleansing action)", oneLineUse: "Describe micelle formation and hard-water behaviour.", marks: "2–3", conceptKeys: ["Soaps and Detergents"] },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -730,8 +744,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Diagram-based answers (Punnett squares with parents, gametes, F₁, F₂) earn step marks.",
     },
     boardEssentials: [
+      { name: "Accumulation of Variation during Reproduction", oneLineUse: "Explain why imperfect DNA copying brings small variations, why sexual reproduction adds more, and that they pass to the next generation.", marks: "1–5", conceptKeys: ["Accumulation of Variation during Reproduction"] },
       { name: "Mendel's monohybrid cross (3:1 phenotypic ratio in F₂)", oneLineUse: "Set up parents and gametes, then a 2×2 Punnett square.", marks: "3–5" },
       { name: "Dominant vs recessive traits", oneLineUse: "Identify which trait expresses in the F₁ generation.", marks: "1–2" },
+      { name: "How Traits Get Expressed", oneLineUse: "Link gene → protein (enzyme) → trait, and explain why both parents contribute equally through paired chromosomes.", marks: "1–5", conceptKeys: ["How Traits Get Expressed"] },
       { name: "Sex determination in humans (XX vs XY)", oneLineUse: "Show that the father determines the sex of the child.", marks: "2–3" },
       { name: "Genotype vs phenotype", oneLineUse: "Distinguish the genetic makeup from the observable trait.", marks: "1–2" },
     ],
@@ -768,7 +784,7 @@ const SEEDED: Record<string, ActionableSeed> = {
     boardEssentials: [
       { name: "Reflex arc (sensory → spinal cord → motor)", oneLineUse: "Trace the pathway with arrows; explain why the brain is bypassed.", marks: "3–5" },
       { name: "Structure of a neuron (dendrite, cell body, axon, synapse)", oneLineUse: "Label the parts and state the direction of impulse flow.", marks: "2–3" },
-      { name: "Human endocrine glands and their hormones", oneLineUse: "Match gland → hormone → one function for each major gland.", marks: "2–3" },
+      { name: "Human endocrine glands and their hormones", oneLineUse: "Match gland → hormone → one function for each major gland.", marks: "2–3", conceptKeys: ["Hormones in Animals"] },
       { name: "Tropisms in plants (phototropism, geotropism, hydrotropism, chemotropism)", oneLineUse: "Identify the stimulus and the direction of growth.", marks: "1–2" },
       { name: "Plant hormones (auxin, gibberellin, cytokinin, abscisic acid) and their roles", oneLineUse: "Match each hormone to growth, cell division or inhibition, and explain how auxin bends a shoot towards light.", marks: "2–3" },
       { name: "Voluntary, involuntary and reflex actions", oneLineUse: "State which part of the nervous system controls each and why a reflex bypasses the brain.", marks: "2–3" },
@@ -1097,7 +1113,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Mean of grouped data — direct, assumed-mean & step-deviation (x̄ = Σfᵢxᵢ/Σfᵢ)", oneLineUse: "Compute the average from a frequency table — pick the method that keeps the arithmetic lightest.", marks: "2–3" },
       { name: "Median of grouped data: Median = l + ((n/2 − cf)/f)×h", oneLineUse: "Find the middle value from the cumulative-frequency table in one substitution.", marks: "3–5" },
       { name: "Mode of grouped data: Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂))×h", oneLineUse: "Locate the most frequent value using the modal (highest-frequency) class.", marks: "2–3" },
-      { name: "Empirical relationship: Mode = 3 Median − 2 Mean", oneLineUse: "Recover the third measure when two are already known, with no fresh table.", marks: "1–2" },
+      { name: "Empirical relationship: Mode = 3 Median − 2 Mean", oneLineUse: "Recover the third measure when two are already known, with no fresh table.", marks: "1–2", conceptKeys: ["Empirical Relationship between Mean, Median and Mode"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -1193,12 +1209,13 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward balanced equations with state symbols, a correctly ordered reactivity series, and a clean roasting-vs-calcination distinction; marks are lost for unbalanced equations and missing conditions (heat, catalyst, state symbols).",
     },
     boardEssentials: [
-      { name: "Physical properties of metals vs non-metals (lustre, malleability, ductility, conduction — with the exceptions)", oneLineUse: "Differentiate the two classes and quote an exception (mercury is liquid, iodine is lustrous, graphite conducts).", marks: "1–2" },
+      { name: "Physical properties of metals vs non-metals (lustre, malleability, ductility, conduction — with the exceptions)", oneLineUse: "Differentiate the two classes and quote an exception (mercury is liquid, iodine is lustrous, graphite conducts).", marks: "1–2", conceptKeys: ["Physical Properties of Metals and Non-metals"] },
       { name: "Reactivity series (K > Na > Ca > Mg > Al > Zn > Fe > Pb > H > Cu > Ag > Au)", oneLineUse: "Predict displacement and decide reaction with water/acids and extraction route.", marks: "1–3" },
-      { name: "Reactions of metals — with O₂, water, acids & salt solutions (displacement)", oneLineUse: "Write balanced equations and predict products in reaction-based questions.", marks: "2–3" },
-      { name: "Ionic (electrovalent) bond & properties of ionic compounds (e.g. Na → Na⁺ + e⁻)", oneLineUse: "Explain electron transfer and justify high melting point / conductivity in molten state.", marks: "2–3" },
-      { name: "Extraction of metals — roasting, calcination, reduction, electrolytic refining", oneLineUse: "Sequence the metallurgy steps for a given ore and its reactivity.", marks: "3–5" },
+      { name: "Reactions of metals — with O₂, water, acids & salt solutions (displacement)", oneLineUse: "Write balanced equations and predict products in reaction-based questions.", marks: "2–3", conceptKeys: ["Chemical Properties of Metals and Non-metals"] },
+      { name: "Ionic (electrovalent) bond & properties of ionic compounds (e.g. Na → Na⁺ + e⁻)", oneLineUse: "Explain electron transfer and justify high melting point / conductivity in molten state.", marks: "2–3", conceptKeys: ["Formation and Properties of Ionic Compounds"] },
+      { name: "Extraction of metals — roasting, calcination, reduction, electrolytic refining", oneLineUse: "Sequence the metallurgy steps for a given ore and its reactivity.", marks: "3–5", conceptKeys: ["Basic Metallurgical Processes", "Refining of Metals"] },
       { name: "Corrosion & its prevention (rusting needs both air and moisture)", oneLineUse: "State rusting conditions and prevention methods (galvanisation, painting, oiling).", marks: "1–3" },
+      { name: "Alloys", oneLineUse: "State what an alloy is and why metals are alloyed — steel (iron + carbon), stainless steel (+ nickel, chromium); an amalgam when mercury is one metal.", marks: "1–5", conceptKeys: ["Alloys"] },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -1249,7 +1266,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Power of accommodation (ciliary muscles vary focal length; near point 25 cm, far point ∞)", oneLineUse: "Explain how a normal eye focuses near and distant objects on the retina.", marks: "1–3" },
       { name: "Defects of vision and correction — myopia (concave, −P), hypermetropia (convex, +P), presbyopia", oneLineUse: "Name the defect, pick the corrective lens and justify its sign of power.", marks: "3–5" },
       { name: "Lens power P = 1/f (dioptre) for the corrective lens", oneLineUse: "Compute the lens needed once the required focal length is fixed.", marks: "2–3" },
-      { name: "Refraction through a prism and dispersion of white light (VIBGYOR spectrum)", oneLineUse: "Explain the spectrum and angle of deviation on a prism diagram.", marks: "2–3" },
+      { name: "Refraction through a prism and dispersion of white light (VIBGYOR spectrum)", oneLineUse: "Explain the spectrum and angle of deviation on a prism diagram.", marks: "2–3", conceptKeys: ["Refraction of Light through a Prism", "Dispersion of White Light by a Glass Prism"] },
       { name: "Atmospheric refraction (twinkling of stars, advance sunrise, delayed sunset)", oneLineUse: "Give the refraction-based cause for everyday sky phenomena.", marks: "2–3" },
       { name: "Scattering of light (Tyndall effect, blue sky, red danger signals)", oneLineUse: "Use wavelength-dependent scattering to explain the sky's colour and why red signals carry far.", marks: "2–3" },
     ],
@@ -1303,7 +1320,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Sexual reproduction in a flower — parts of a flower, pollination, fertilisation", oneLineUse: "Label the L.S. of a flower and trace pollen → pollen tube → zygote.", marks: "3–5" },
       { name: "Human reproductive system (male & female) and its functions", oneLineUse: "Name each organ and state its one function in a labelled-diagram answer.", marks: "3–5" },
       { name: "Reproductive health — contraception / family planning and STD (HIV/AIDS) prevention", oneLineUse: "Classify contraceptive methods and link barrier methods to STD prevention.", marks: "2–3" },
-      { name: "Variation and the role of DNA copying in reproduction", oneLineUse: "Explain why DNA copying with slight variation helps a species survive.", marks: "1–3" },
+      { name: "Variation and the role of DNA copying in reproduction", oneLineUse: "Explain why DNA copying with slight variation helps a species survive.", marks: "1–3", conceptKeys: ["Do Organisms Create Exact Copies of Themselves?"] },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -1349,7 +1366,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward correctly directed food-chain arrows (energy flow), a clean statement of the 10% law with a worked energy figure, and exact examples for each waste category; vague 'harmful chemicals' answers on biomagnification and ozone lose marks.",
     },
     boardEssentials: [
-      { name: "Ecosystem components — biotic (producers, consumers, decomposers) & abiotic", oneLineUse: "Classify any given organism/factor and define an ecosystem in short-answer questions.", marks: "1–3" },
+      { name: "Ecosystem components — biotic (producers, consumers, decomposers) & abiotic", oneLineUse: "Classify any given organism/factor and define an ecosystem in short-answer questions.", marks: "1–3", conceptKeys: ["Ecosystem and Its Components"] },
       { name: "Food chains, food webs and trophic levels", oneLineUse: "Build or read a chain, assign trophic levels, and tell a chain from a web.", marks: "1–3" },
       { name: "Ten percent law of energy flow (only ~10% passes to the next level)", oneLineUse: "Calculate energy available up a chain and explain why chains are short (3–4 levels).", marks: "1–3" },
       { name: "Biological magnification", oneLineUse: "Explain why non-biodegradable toxins concentrate most in top consumers.", marks: "2–3" },
