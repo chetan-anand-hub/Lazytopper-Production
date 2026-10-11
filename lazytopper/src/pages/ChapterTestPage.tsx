@@ -76,6 +76,7 @@ import { useBankChapters } from "../data/bankChapters/useBankChapters";
 // FAIR-USE-UI-1 — the fair-use panel (UI1 at grading, UI3 before the test starts).
 // Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
+import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
 import { gradingErrorMessage } from "../ai/gradingTransport";
 import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../ai/gradingJobs";
@@ -612,6 +613,7 @@ export default function ChapterTestPage() {
   return (
     <div className="lt-ct">
       <style>{CT_CSS}</style>
+      <UsageWarning scope="chapter-test" snapshot={fairUse.snapshot} />
 
       {/* Read-only re-open scorecard (from a history card), any phase. */}
       {reopen && (

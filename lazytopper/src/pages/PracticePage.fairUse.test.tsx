@@ -226,3 +226,20 @@ describe("FAIR-USE-UI-1 · Quick Practice", () => {
     expect(screen.queryByTestId("fair-use-limit-panel")).toBeNull();
   });
 });
+
+describe("FAIR-USE-WARN-1 · the usage banner is mounted on Practice", () => {
+  it("★★ enforced trial, 4 of 5 checks used → the banner with the server's counts", async () => {
+    stubUsage(usageBody(true, 1));
+    await buildSet();
+    const banner = await screen.findByTestId("usage-warning");
+    expect(banner.textContent).toContain("You've used 4 of today's 5 answer checks. They reset at midnight.");
+    expect(screen.getByTestId("usage-warning-link").getAttribute("href")).toBe("/pricing");
+  });
+  it("★ DARK: enforced:false → no banner", async () => {
+    stubUsage(usageBody(false, 1));
+    await buildSet();
+    await waitFor(() => expect(usageFetch).toHaveBeenCalled());
+    await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+    expect(screen.queryByTestId("usage-warning")).toBeNull();
+  });
+});
