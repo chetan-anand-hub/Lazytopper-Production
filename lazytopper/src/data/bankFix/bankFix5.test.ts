@@ -44,6 +44,13 @@ describe("BANK-FIX-5 · ledger pins", () => {
 
   it.each(BANK_FIX_5.map((e) => [e.id, e] as const))("%s", (id, e) => {
     if (e.surface === "bank") expect(rawIds.has(id), "id unchanged in the raw bank").toBe(true);
+    // BANK-UNWITHHOLD-1 (2026-10-10): PYQ-S-2025-MAG-006 was withheld here for a wrong key + unbound figures; BANK-FIX-6 re-keyed
+    // it, its figure is bound, and a blind re-solve agreed, so it is served again (the ledger stays the record of the withhold).
+    if (id === "PYQ-S-2025-MAG-006") {
+      expect(WITHHELD_QUESTION_IDS.has(id), "served again").toBe(false);
+      expect(servedById.has(id), "served").toBe(true);
+      return;
+    }
     if (e.verdict === "withheld") {
       expect(WITHHELD_QUESTION_IDS.has(id), "withheld").toBe(true);
       expect(servedById.has(id), "not served").toBe(false);

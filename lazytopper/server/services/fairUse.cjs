@@ -11,7 +11,8 @@
  *                and 1 worksheet grading. A request needing more than remain -> 409
  *                { error: "trial_limit", remaining, resetAt } and NOTHING is graded.
  *   U3 premium — real cost from the METER-1 ledger: ₹84 per rolling 7 IST days, ₹38
- *                per IST day, ₹25 per rolling 5 IST hours. At a cap -> 429
+ *                per IST day, ₹25 per rolling 5 IST hours, and (CAP-30DAY) an OPTIONAL cap per
+ *                rolling 30 IST days — OFF unless FAIR_USE_PREMIUM_30DAY_INR is set. At a cap -> 429
  *                { error: "usage_limit", window, resetAt }. Checked BEFORE the model
  *                call, so one request may overrun a cap by its own cost, never more.
  *   U5         — GET /api/usage/me: remaining allowances and PERCENTAGES. Never rupees.
@@ -156,6 +157,11 @@ const DAY_MS = 24 * HOUR_MS;
 /** Rolling windows, in whole IST buckets: today + the 6 days before it; this hour + the 4 before it. */
 const WEEK_DAYS = 7;
 const FIVE_HOURS = 5;
+/**
+ * CAP-30DAY — the rolling 30-IST-day premium window: today + the 29 days before it, the SAME
+ * day-bucket mechanism as the week. Only a PREMIUM read covers it; a trial read stays 7 days.
+ */
+const THIRTY_DAYS = 30;
 
 /* ── Surfaces (U1) ─────────────────────────────────────────────────────────── */
 
@@ -231,6 +237,13 @@ const DEFAULT_LIMITS = Object.freeze({
   premiumWeekInr: 84,
   premiumDayInr: 38,
   premiumFiveHourInr: 25,
+  /**
+   * CAP-30DAY — NO DEFAULT (owner + cofounder ruling 2026-10-07 19:17Z). FAIR_USE_PREMIUM_30DAY_INR
+   * unset, empty or invalid means NO 30-day limit at all: no refusal is possible, /api/usage/me
+   * omits thirtyDayPct / resets.thirtyDay (so no bar), and a premium read stays 7 day documents —
+   * zero behaviour change. Only a positive value turns the window on.
+   */
+  premiumThirtyDayInr: null,
 });
 
 const LIMIT_ENV = Object.freeze({
@@ -241,6 +254,7 @@ const LIMIT_ENV = Object.freeze({
   premiumWeekInr: 'FAIR_USE_PREMIUM_WEEK_INR',
   premiumDayInr: 'FAIR_USE_PREMIUM_DAY_INR',
   premiumFiveHourInr: 'FAIR_USE_PREMIUM_FIVE_HOUR_INR',
+  premiumThirtyDayInr: 'FAIR_USE_PREMIUM_30DAY_INR',
 });
 
 const ENFORCE_ENV = 'FAIR_USE_ENFORCE';
@@ -251,6 +265,18 @@ function envPositive(env, name, fallback, integer) {
   const n = Number(raw);
   if (!Number.isFinite(n) || n <= 0) return fallback;
   return integer ? Math.floor(n) : n;
+}
+
+/** CAP-30DAY: the 30-day cap in micro-rupees from env, or null (OFF) when unset / empty / not a positive number. */
+function thirtyDayMicroInrFrom(env) {
+  const v = envPositive(env, LIMIT_ENV.premiumThirtyDayInr, null, false);
+  return v === null ? null : Math.round(v * 1e6);
+}
+
+/** CAP-30DAY: is the 30-day window ON for these limits? */
+function thirtyDayOn(limits) {
+  const cap = limits && limits.premium ? limits.premium.thirtyDayMicroInr : null;
+  return typeof cap === 'number' && cap > 0;
 }
 
 /** The limits in force, from `env` ONLY. Rupee caps are returned in micro-rupees (the ledger's unit). */
@@ -269,6 +295,8 @@ function resolveLimits(env) {
       weekMicroInr: inr('premiumWeekInr'),
       dayMicroInr: inr('premiumDayInr'),
       fiveHourMicroInr: inr('premiumFiveHourInr'),
+      // CAP-30DAY: null = no 30-day limit (env unset / empty / invalid). Never a default.
+      thirtyDayMicroInr: thirtyDayMicroInrFrom(e),
     },
   };
 }
@@ -474,11 +502,19 @@ function istBucketStartMs(ms, sizeMs) {
   return Math.floor((ms + IST_OFFSET_MS) / sizeMs) * sizeMs - IST_OFFSET_MS;
 }
 
-/** Today's IST day key and the six before it, oldest first. */
-function windowDayKeys(nowMs) {
+/**
+ * Today's IST day key and the `spanDays - 1` before it, oldest first. Default 7 (the trial
+ * and paper-pass reads, unchanged); a PREMIUM read with the 30-day window ON passes THIRTY_DAYS.
+ */
+function windowDayKeys(nowMs, spanDays = WEEK_DAYS) {
   const keys = [];
-  for (let k = WEEK_DAYS - 1; k >= 0; k -= 1) keys.push(istDayKey(nowMs - k * DAY_MS));
+  for (let k = spanDays - 1; k >= 0; k -= 1) keys.push(istDayKey(nowMs - k * DAY_MS));
   return keys;
+}
+
+/** CAP-30DAY: the day documents a decision needs — 30 for premium with the 30-day window ON, 7 otherwise. */
+function windowDayKeysFor(tier, nowMs, limits) {
+  return windowDayKeys(nowMs, tier === 'premium' && thirtyDayOn(limits) ? THIRTY_DAYS : WEEK_DAYS);
 }
 
 function num(v) {
@@ -486,10 +522,10 @@ function num(v) {
   return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
-/** Day buckets for a field, oldest first: { startMs, value }. */
-function dayBuckets(days, nowMs, field) {
+/** Day buckets for a field over the last `spanDays` IST days (default 7), oldest first: { startMs, value }. */
+function dayBuckets(days, nowMs, field, spanDays = WEEK_DAYS) {
   const out = [];
-  for (let k = WEEK_DAYS - 1; k >= 0; k -= 1) {
+  for (let k = spanDays - 1; k >= 0; k -= 1) {
     const t = nowMs - k * DAY_MS;
     const data = days.get(istDayKey(t)) || {};
     out.push({ startMs: istBucketStartMs(t, DAY_MS), value: num(data[field]) });
@@ -615,29 +651,36 @@ function premiumState(days, nowMs, limits) {
   const p = limits.premium;
   const five = hourBuckets(days, nowMs);
   const week = dayBuckets(days, nowMs, 'costMicroInr');
+  // CAP-30DAY: the same day buckets over 30 IST days — only when the window is ON (env set).
+  const on = thirtyDayOn(limits);
+  const thirty = on ? dayBuckets(days, nowMs, 'costMicroInr', THIRTY_DAYS) : [];
   const dayUsed = num((days.get(istDayKey(nowMs)) || {}).costMicroInr);
   const fiveUsed = sum(five);
   const weekUsed = sum(week);
+  const thirtyUsed = sum(thirty);
   const resets = {
     fiveHour: rollingResetAt(five, p.fiveHourMicroInr, FIVE_HOURS * HOUR_MS),
     day: nextIstMidnightIso(nowMs),
     week: rollingResetAt(week, p.weekMicroInr, WEEK_DAYS * DAY_MS),
   };
+  if (on) resets.thirtyDay = rollingResetAt(thirty, p.thirtyDayMicroInr, THIRTY_DAYS * DAY_MS);
   // Longest window first: when more than one cap is reached, the one reported is the
   // one that actually decides when the student is served again.
   let atCap = null;
-  if (weekUsed >= p.weekMicroInr) atCap = 'week';
+  if (on && thirtyUsed >= p.thirtyDayMicroInr) atCap = 'thirtyDay';
+  else if (weekUsed >= p.weekMicroInr) atCap = 'week';
   else if (dayUsed >= p.dayMicroInr) atCap = 'day';
   else if (fiveUsed >= p.fiveHourMicroInr) atCap = 'fiveHour';
-  return {
-    view: {
-      fiveHourPct: pct(fiveUsed, p.fiveHourMicroInr),
-      dayPct: pct(dayUsed, p.dayMicroInr),
-      weekPct: pct(weekUsed, p.weekMicroInr),
-      resets,
-    },
-    atCap,
+  const view = {
+    fiveHourPct: pct(fiveUsed, p.fiveHourMicroInr),
+    dayPct: pct(dayUsed, p.dayMicroInr),
+    weekPct: pct(weekUsed, p.weekMicroInr),
+    resets,
   };
+  // CAP-30DAY: additive and ONLY when ON (an old client ignores it); OFF -> the view is
+  // byte-for-byte what it was before this lane (no key at all, so no bar).
+  if (on) view.thirtyDayPct = pct(thirtyUsed, p.thirtyDayMicroInr);
+  return { view, atCap };
 }
 
 /** The trial counters one served grade adds: per QUESTION for a per-question surface, one paper otherwise. */
@@ -649,7 +692,12 @@ function trialCommitFor(surface, questionCount) {
   return undefined;
 }
 
-const PREMIUM_RULE = Object.freeze({ fiveHour: 'premium_five_hour', day: 'premium_day', week: 'premium_week' });
+const PREMIUM_RULE = Object.freeze({
+  fiveHour: 'premium_five_hour',
+  day: 'premium_day',
+  week: 'premium_week',
+  thirtyDay: 'premium_thirty_day',
+});
 
 /**
  * The pure decision. `days` is the ledger read (Map dayKey -> data); `limits` came from
@@ -895,9 +943,10 @@ function createFairUse(deps = {}) {
       return false;
     }
 
+    const limitsNow = resolveLimits(env);
     let days;
     try {
-      days = await ledger.readDays(uid, windowDayKeys(nowMs));
+      days = await ledger.readDays(uid, windowDayKeysFor(tier, nowMs, limitsNow));
     } catch {
       emit('fair_use.ledger_unreadable');
       days = null;
@@ -911,7 +960,7 @@ function createFairUse(deps = {}) {
         questionCount: countQuestions(reqPath, body),
         days,
         nowMs,
-        limits: resolveLimits(env),
+        limits: limitsNow,
       });
     } else {
       // Fail OPEN: an unreadable ledger is not a positive read of a spent allowance.
@@ -982,14 +1031,14 @@ function createFairUse(deps = {}) {
     if (tier !== 'trial' && tier !== 'premium') return sendJson(res, 200, { tier, trial: null, premium: null, enforced });
 
     const nowMs = now();
+    const limits = resolveLimits(env);
     let days;
     try {
-      days = await ledger.readDays(uid, windowDayKeys(nowMs));
+      days = await ledger.readDays(uid, windowDayKeysFor(tier, nowMs, limits));
     } catch {
       emit('fair_use.ledger_unreadable');
       return sendJson(res, 503, { error: 'usage_unavailable' });
     }
-    const limits = resolveLimits(env);
     return sendJson(res, 200, {
       tier,
       trial: tier === 'trial' ? trialState(days, nowMs, limits) : null,
@@ -1466,6 +1515,8 @@ module.exports = {
   trialState,
   premiumState,
   windowDayKeys,
+  windowDayKeysFor,
+  THIRTY_DAYS,
   readPassEntry,
   SURFACES,
   SURFACE_HEADER,
