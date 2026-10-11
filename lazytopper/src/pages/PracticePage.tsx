@@ -485,7 +485,7 @@ import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
 import { useFairUse } from "../components/usage/useFairUse";
 // ALL-AI-METERING-1 - a More-like-this refusal shows its own panel; the saved questions stay.
-import { isPremiumRequiredRefusal, limitFromAiRefusal, type LimitState } from "../components/usage/fairUseGate";
+import { isPremiumRequiredRefusal, limitFromAiRefusal, moreLikeThisPremiumNoteCopy, type LimitState } from "../components/usage/fairUseGate";
 import MoreLikeThisPremiumNote from "../components/usage/MoreLikeThisPremiumNote";
 import { readFairUseLimit } from "../services/usageClient";
 import { useAuth } from "../context/AuthContext";
@@ -1304,11 +1304,11 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   /** ALL-AI-METERING-1 - the More-like-this limit panel (the AI top-up was refused). */
   const [moreLikeThisLimit, setMoreLikeThisLimit] = useState<LimitState | null>(null);
   /** DECISION 29d - a FREE student's 402 premium_required: a plan note with a trial link, not a limit. */
-  const [moreLikeThisPremiumOnly, setMoreLikeThisPremiumOnly] = useState(false);
+  const [moreLikeThisPremiumOnly, setMoreLikeThisPremiumOnly] = useState<{ trialUsed: boolean } | null>(null);
   useEffect(
     () =>
       subscribeMoreLikeThisLimit((err) => {
-        if (isPremiumRequiredRefusal(err)) setMoreLikeThisPremiumOnly(true);
+        if (isPremiumRequiredRefusal(err)) setMoreLikeThisPremiumOnly({ trialUsed: moreLikeThisPremiumNoteCopy(err, Date.now()).trialUsed });
         else setMoreLikeThisLimit(limitFromAiRefusal(readFairUseLimit(err), "more-like-this"));
       }),
     [],
@@ -2791,7 +2791,9 @@ const packTopicKey = useMemo(() => {
         {moreLikeThisLimit ? (
           <FairUseLimitPanel limit={moreLikeThisLimit} onDismiss={() => setMoreLikeThisLimit(null)} />
         ) : null}
-        {moreLikeThisPremiumOnly ? <MoreLikeThisPremiumNote onDismiss={() => setMoreLikeThisPremiumOnly(false)} /> : null}
+        {moreLikeThisPremiumOnly ? (
+          <MoreLikeThisPremiumNote trialUsed={moreLikeThisPremiumOnly.trialUsed} onDismiss={() => setMoreLikeThisPremiumOnly(null)} />
+        ) : null}
 
         {/* Applied-band indicator (PR-E1 amendment item 6/7) — concept-row entry
             ONLY: shown when this session arrived from the Topic Hub with an exact

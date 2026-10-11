@@ -44,6 +44,9 @@ import {
   MORE_LIKE_THIS_TRIAL_LIMIT_COPY,
   MORE_LIKE_THIS_PREMIUM_ONLY_COPY,
   START_TRIAL_LABEL,
+  SEE_PLANS_LABEL,
+  MORE_LIKE_THIS_PREMIUM_ONLY_TRIAL_USED_COPY,
+  moreLikeThisPremiumNoteCopy,
   isPremiumRequiredRefusal,
   type LimitState,
 } from "./fairUseGate";
@@ -228,5 +231,29 @@ describe("ALL-AI-METERING-1 · DECISION 29d — a FREE student's More-like-this 
     expect(isPremiumRequiredRefusal(new FairUseLimitError("trial_limit", 0, RESET, null))).toBe(false);
     expect(isPremiumRequiredRefusal(new Error("network"))).toBe(false);
     expect(isPremiumRequiredRefusal(null)).toBe(false);
+  });
+});
+
+describe("ALL-AI-METERING-1 · D78b — a student whose trial is USED is never offered one", () => {
+  const NOW = Date.parse("2026-10-11T06:00:00Z");
+  const err = (trialEndedAt: string | null) => new PremiumRequiredError("Premium feature.", "more-like-this", "free", trialEndedAt);
+
+  it("★★ no trialEndedAt (a trial can still be started) -> the approved offer + Start free trial", () => {
+    const c = moreLikeThisPremiumNoteCopy(err(null), NOW);
+    expect(c).toEqual({ lead: MORE_LIKE_THIS_PREMIUM_ONLY_COPY, linkLabel: START_TRIAL_LABEL, trialUsed: false });
+  });
+
+  it("★★ a past trialEndedAt (trial used) -> the Premium sentence + See plans, and NO trial wording", () => {
+    const c = moreLikeThisPremiumNoteCopy(err("2026-10-01T00:00:00.000Z"), NOW);
+    expect(c).toEqual({ lead: "More practice like this is part of Premium.", linkLabel: "See plans", trialUsed: true });
+    expect(c.lead).toBe(MORE_LIKE_THIS_PREMIUM_ONLY_TRIAL_USED_COPY);
+    expect(c.linkLabel).toBe(SEE_PLANS_LABEL);
+    expect(c.lead + " " + c.linkLabel).not.toMatch(/trial|free for/i);
+  });
+
+  it("★ CONTROL: an unparseable trialEndedAt counts as used (never offer what may not be takeable); a non-refusal value offers the trial", () => {
+    expect(moreLikeThisPremiumNoteCopy(err("not-a-date"), NOW).trialUsed).toBe(true);
+    expect(moreLikeThisPremiumNoteCopy(new Error("x"), NOW).trialUsed).toBe(false);
+    expect(moreLikeThisPremiumNoteCopy(null, NOW).trialUsed).toBe(false);
   });
 });

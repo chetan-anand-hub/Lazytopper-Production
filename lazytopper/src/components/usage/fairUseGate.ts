@@ -77,6 +77,30 @@ export const MORE_LIKE_THIS_TRIAL_LIMIT_COPY =
  *  402 premium_required. It is a plan fact, not a limit: no reset time, a link to the free trial. */
 export const MORE_LIKE_THIS_PREMIUM_ONLY_COPY = "More practice like this is part of Premium. Try it free for 7 days.";
 export const START_TRIAL_LABEL = "Start free trial";
+/** Cofounder D78b - a student whose trial is ALREADY USED must not be offered one (no fake offers). */
+export const MORE_LIKE_THIS_PREMIUM_ONLY_TRIAL_USED_COPY = "More practice like this is part of Premium.";
+export const SEE_PLANS_LABEL = "See plans";
+
+/**
+ * PURE. The note's sentence and link label for a free student's More-like-this 402. The server puts
+ * `trialEndedAt` on the 402 body only when it derived a trial end for this account (entitlement.cjs
+ * premiumRequiredBody), so its presence - at or before now, or unparseable - means the trial is used.
+ * No trialEndedAt = a trial can still be started: the approved offer wording.
+ */
+export function moreLikeThisPremiumNoteCopy(
+  err: unknown,
+  nowMs: number,
+): { lead: string; linkLabel: string; trialUsed: boolean } {
+  const raw = err && typeof err === "object" ? (err as { trialEndedAt?: unknown }).trialEndedAt : null;
+  let trialUsed = false;
+  if (typeof raw === "string" && raw !== "") {
+    const t = Date.parse(raw);
+    trialUsed = Number.isNaN(t) || t <= nowMs;
+  }
+  return trialUsed
+    ? { lead: MORE_LIKE_THIS_PREMIUM_ONLY_TRIAL_USED_COPY, linkLabel: SEE_PLANS_LABEL, trialUsed }
+    : { lead: MORE_LIKE_THIS_PREMIUM_ONLY_COPY, linkLabel: START_TRIAL_LABEL, trialUsed };
+}
 
 /** True for the typed error aiClient throws on a 402 premium_required. Read by name (suites mock aiClient partially). */
 export function isPremiumRequiredRefusal(err: unknown): boolean {

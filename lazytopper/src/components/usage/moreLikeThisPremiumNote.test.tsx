@@ -17,4 +17,17 @@ describe("MoreLikeThisPremiumNote", () => {
     expect(link.getAttribute("href")).toBe("/pricing");
     expect(document.body.textContent ?? "").not.toMatch(/premium_required|resets|midnight/i);
   });
+
+  it("★★ D78b: trialUsed -> no trial offer; the Premium sentence and a 'See plans' link to /pricing", () => {
+    render(
+      <MemoryRouter>
+        <MoreLikeThisPremiumNote trialUsed onDismiss={() => {}} />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText("More practice like this is part of Premium.")).toBeTruthy();
+    const link = screen.getByRole("link", { name: "See plans" });
+    expect(link.getAttribute("href")).toBe("/pricing");
+    expect(document.body.textContent ?? "").not.toMatch(/free trial|free for 7/i);
+    expect(screen.queryByRole("link", { name: "Start free trial" })).toBeNull();
+  });
 });
