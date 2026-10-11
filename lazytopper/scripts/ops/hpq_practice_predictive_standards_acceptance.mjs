@@ -142,18 +142,16 @@ async function run() {
   );
 
   // 5) Visual aid coverage hooks across HPQ/Practice/MockPaper.
+  // 2026-10-11 HARDEN-1 PR-1: this check used to require the topic words of the synthetic-SVG
+  // heuristic ("triangle", "circuit", "heart", ...) in QuestionVisualAid.tsx. That heuristic was dead
+  // at runtime (FIGURE-HONESTY-1) and has been deleted (D75/D8), so the check now pins what the
+  // component actually does: render the question's id-keyed bound figures.
   addCheck(
     checks,
-    "visual_aid_component_has_context_aware_topics",
-    visualAid.includes("triangle") &&
-      visualAid.includes("coordinate") &&
-      visualAid.includes("circle") &&
-      visualAid.includes("ray") &&
-      visualAid.includes("circuit") &&
-      visualAid.includes("magnetic") &&
-      visualAid.includes("heart") &&
-      visualAid.includes("nephron"),
-    "Visual aid component should support key Maths/Science diagram contexts."
+    "visual_aid_component_renders_bound_figures",
+    visualAid.includes("getFiguresForQuestion(props.questionId)") &&
+      visualAid.includes("<SourceFigures"),
+    "Visual aid component should render the question's id-keyed bound figures."
   );
 
   addCheck(
