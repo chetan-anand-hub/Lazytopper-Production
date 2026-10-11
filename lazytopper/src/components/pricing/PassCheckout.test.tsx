@@ -305,6 +305,32 @@ describe("buyPass", () => {
     expect(verify).not.toHaveBeenCalled();
   });
 
+  // META-PIXEL-1 PR-2 — checkout_started: the hook runs once, the moment Razorpay's window opens.
+  it("★ onCheckoutOpen fires ONCE when the window opens (paid or dismissed), and not when nothing opened", async () => {
+    for (const behaviour of ["pay", "dismiss"] as const) {
+      const rz = fakeRazorpay(behaviour);
+      const opened = vi.fn();
+      await buyPass("month", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify: vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" })) }, opened);
+      expect(opened).toHaveBeenCalledTimes(1);
+    }
+    const rz = fakeRazorpay("pay");
+    const boom = async () => { throw new Error("x"); };
+    const never = vi.fn();
+    await buyPass("month", { createOrder: boom, loadScript: async () => rz.Ctor, verify: vi.fn() }, never);
+    await buyPass("month", { createOrder: async () => order, loadScript: boom, verify: vi.fn() }, never);
+    expect(never).not.toHaveBeenCalled();
+  });
+
+  it("a throwing reporting hook never stops the checkout", async () => {
+    const rz = fakeRazorpay("pay");
+    const out = await buyPass(
+      "month",
+      { createOrder: async () => order, loadScript: async () => rz.Ctor, verify: vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" })) },
+      () => { throw new Error("hook down"); },
+    );
+    expect(out.status).toBe("paid");
+  });
+
   it("any failure (order, script, verify) -> failed, never a thrown error and never paid", async () => {
     const rz = fakeRazorpay("pay");
     const boom = async () => { throw new Error("x"); };

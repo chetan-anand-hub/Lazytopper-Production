@@ -9,7 +9,7 @@ vi.mock("firebase/auth", () => ({ getAdditionalUserInfo }));
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
 import { META_EVENTS, metaAddressIsClean, trackNamedEvent, trackPageview, trackSignUp } from "./analytics";
-import type { NamedAnalyticsEvent } from "./analytics";
+import type { NamedAnalyticsEvent, TrackableEvent } from "./analytics";
 
 /** The retired base (ROOT-URL-1), read from vercel.json's redirect to the root so this file holds no literal of it. */
 const RETIRED_BASE: string = (
@@ -223,17 +223,46 @@ describe("Meta — before the library loads", () => {
   });
 });
 
+/**
+ * META-PIXEL-1 PR-2 — the spec's mapping table, written out here by hand so the test is not a mirror of
+ * the code under test: app event name -> exactly one Meta call, two arguments, no parameters.
+ */
+const SPEC_MAPPING: ReadonlyArray<readonly [string, "track" | "trackCustom", string]> = [
+  ["sign_up", "track", "CompleteRegistration"],
+  ["trial_start", "track", "StartTrial"],
+  ["practice_started", "trackCustom", "PracticeStarted"],
+  ["cbq_practice_started", "trackCustom", "CBQPracticeStarted"],
+  ["chapter_test_started", "trackCustom", "ChapterTestStarted"],
+  ["full_mock_started", "trackCustom", "FullMockStarted"],
+  ["tutor_asked", "trackCustom", "TutorAsked"],
+  ["worksheet_downloaded", "trackCustom", "WorksheetDownloaded"],
+  ["worksheet_uploaded", "trackCustom", "WorksheetUploaded"],
+  ["check_graded", "trackCustom", "AnswerChecked"],
+  ["notes_opened", "track", "ViewContent"],
+  ["pricing_viewed", "trackCustom", "PricingViewed"],
+  ["checkout_started", "track", "InitiateCheckout"],
+];
+
 describe("Meta — named events", () => {
-  it("maps exactly the two PR-1 events", () => {
-    expect(Object.keys(META_EVENTS).sort()).toEqual(["sign_up", "trial_start"]);
+  it("maps exactly the thirteen events of the spec table (PR-1's two + PR-2's eleven), nothing else", () => {
+    expect(Object.keys(META_EVENTS).sort()).toEqual(SPEC_MAPPING.map(([n]) => n).sort());
   });
 
-  it.each(Object.entries(META_EVENTS))("fires %s as one two-argument entry", (name, [method, metaName]) => {
+  it.each(SPEC_MAPPING)("%s -> exactly one Meta %s(%s) call with no parameters", (name, method, metaName) => {
     if (name === "sign_up") trackSignUp();
-    else trackNamedEvent(name as NamedAnalyticsEvent);
+    else trackNamedEvent(name as TrackableEvent);
     const entries = added();
     expect(entries).toEqual([[method, metaName]]);
     expect(entries[0]).toHaveLength(2);
+  });
+
+  it("★ the conversion events are NOT in the first-party activity-log union (no server allow-list change)", () => {
+    const src = readFileSync(resolve(__dirname, "analytics.ts"), "utf-8");
+    const union = /export type NamedAnalyticsEvent =([\s\S]*?);/.exec(src)![1];
+    for (const [name] of SPEC_MAPPING) {
+      if (["sign_up", "trial_start", "check_graded"].includes(name)) continue;
+      expect(union, name).not.toContain(`"${name}"`);
+    }
   });
 
   it.each([
@@ -242,7 +271,6 @@ describe("Meta — named events", () => {
     "free_check_trial_start",
     "check_question_read",
     "check_answer_added",
-    "check_graded",
   ] as NamedAnalyticsEvent[])("sends nothing to Meta for %s", (name) => {
     trackNamedEvent(name);
     expect(added()).toEqual([]);

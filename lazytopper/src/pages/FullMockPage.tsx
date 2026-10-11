@@ -21,6 +21,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { trackNamedEvent } from "../analytics/analytics";
 import { MathText } from "../components/question/MathText";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
 import "../components/question/katexEager";
@@ -517,6 +518,8 @@ export default function FullMockPage() {
     focusRef.current = { ...EMPTY_FOCUS };
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
+    // META-PIXEL-1 PR-2: a paper STARTS here; resumeMock is a separate function and never reaches it.
+    trackNamedEvent("full_mock_started");
   }, [draw, nomen, subject, fairUse.blockPaperStart]);
 
   const resumeMock = useCallback(() => {

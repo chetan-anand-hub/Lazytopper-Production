@@ -37,6 +37,7 @@ import {
   type MistakeSection,
 } from "./worksheetMiSelector";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
+import { trackNamedEvent } from "../../analytics/analytics";
 import WorksheetGradePanel from "./WorksheetGradePanel";
 import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
 import {
@@ -764,6 +765,8 @@ function WorksheetGeneratorInner() {
         /* keep downloading without a code rather than fail the PDF */
       }
       await exportWorksheetPdf(generated, kind, code);
+      // META-PIXEL-1 PR-2: the QUESTIONS pdf built and handed over (the answer key is not the conversion).
+      if (kind === "questions") trackNamedEvent("worksheet_downloaded");
     } catch {
       setDownloadError("Couldn’t build the PDF — please try again.");
     } finally {

@@ -20,6 +20,7 @@ import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolv
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { trackNamedEvent } from "../analytics/analytics";
 import { MathText, loadKatex } from "../components/question/MathText";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
@@ -408,6 +409,8 @@ export default function ChapterTestPage() {
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
+    // META-PIXEL-1 PR-2: a paper STARTS here (the Start button; a resume never reaches this function).
+    trackNamedEvent("chapter_test_started");
   }, [topicKey, subject, fairUse.blockPaperStart]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {

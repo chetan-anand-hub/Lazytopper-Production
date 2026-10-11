@@ -199,7 +199,12 @@ const DEFAULT_DEPS: BuyDeps = {
  * The whole purchase: order -> Razorpay's checkout -> server verify. Never throws;
  * every failure is `{ status: "failed" }`, and closing the checkout is `dismissed`.
  */
-export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS): Promise<BuyOutcome> {
+export async function buyPass(
+  passType: PassType,
+  deps: BuyDeps = DEFAULT_DEPS,
+  /** META-PIXEL-1 PR-2: called the moment Razorpay's window opens (an optional hook; this file stays import-free). */
+  onCheckoutOpen?: () => void,
+): Promise<BuyOutcome> {
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(passType), deps.loadScript()]);
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
@@ -214,6 +219,11 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });
+      try {
+        onCheckoutOpen?.();
+      } catch {
+        /* a reporting hook must never stop the checkout */
+      }
       checkout.open();
     });
     if (!success) return { status: "dismissed" };

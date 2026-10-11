@@ -15,6 +15,7 @@
 // computed here.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { trackNamedEvent } from "../../analytics/analytics";
 import { callTutor, type TutorBrief, type TutorTurn, type TutorReturnedWork } from "../../ai/tutorClient";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { assembleTutorBrief } from "./tutorContextBrief";
@@ -212,6 +213,12 @@ export function useTutorSession({
     loadTutorSessionLocal(uid, topicKey)?.coverage ?? { ...EMPTY_COVERAGE },
   );
   const sendingRef = useRef(false);
+  // META-PIXEL-1 PR-2: tutor_asked fires once per topic conversation per visit (the first message the
+  // student sends); a retry and every later message never count. Reset when the topic changes.
+  const askedRef = useRef(false);
+  useEffect(() => {
+    askedRef.current = false;
+  }, [topicKey]);
   const resolvingRef = useRef(false);
   const mountedRef = useRef(true);
 
@@ -437,6 +444,10 @@ export function useTutorSession({
     (text: string) => {
       const clean = text.trim();
       if (!clean || sendingRef.current) return;
+      if (!askedRef.current) {
+        askedRef.current = true;
+        trackNamedEvent("tutor_asked");
+      }
       setReturnFollow(null);
       // Fix 2: re-engaging IS the return signal — sending any new message clears a pending
       // holding marker (the banner never blocks a student who is back and typing).

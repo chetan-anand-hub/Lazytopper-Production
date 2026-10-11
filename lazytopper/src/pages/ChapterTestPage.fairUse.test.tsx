@@ -11,6 +11,12 @@ vi.mock("../context/AuthContext", () => ({
 }));
 vi.mock("../services/firebaseClient", () => ({ firestoreDb: null }));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: () => {} }));
+// META-PIXEL-1 PR-2: chapter_test_started is observed through the real call site.
+const { trackNamedEvent } = vi.hoisted(() => ({ trackNamedEvent: vi.fn() }));
+vi.mock("../analytics/analytics", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../analytics/analytics")>()),
+  trackNamedEvent,
+}));
 vi.mock("../ai/paidCallHeaders", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../ai/paidCallHeaders")>();
   return {
@@ -49,7 +55,10 @@ function stubUsage(body: unknown) {
   vi.stubGlobal("fetch", usageFetch);
 }
 
-beforeEach(() => __resetUsageClientForTests());
+beforeEach(() => {
+  __resetUsageClientForTests();
+  trackNamedEvent.mockClear();
+});
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
@@ -63,7 +72,8 @@ async function mountSetup() {
       </Routes>
     </MemoryRouter>,
   );
-  const start = await screen.findByRole("button", { name: /Start the test/ });
+  // A cold first mount can exceed the 1 s default while the bank loads (the same idiom as #1068's timeout).
+  const start = await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60_000 });
   await waitFor(() => expect(usageFetch).toHaveBeenCalled());
   await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
   return start;
@@ -80,6 +90,8 @@ describe("FAIR-USE-UI-1 · UI3 on the Chapter Test page", () => {
     expect(panel.textContent).toContain("You've used today's chapter test.");
     expect(panel.textContent).toContain("Premium removes the daily limit.");
     expect(paperBegan()).toBe(false);
+    // META-PIXEL-1 PR-2: a start that was BLOCKED is not a start.
+    expect(trackNamedEvent).not.toHaveBeenCalledWith("chapter_test_started");
   });
 
   it("★★ DARK: the SAME student with enforced:false starts the paper, no panel", async () => {
@@ -88,6 +100,8 @@ describe("FAIR-USE-UI-1 · UI3 on the Chapter Test page", () => {
     fireEvent.click(start);
     await waitFor(() => expect(paperBegan()).toBe(true));
     expect(screen.queryByTestId("fair-use-limit-panel")).toBeNull();
+    // META-PIXEL-1 PR-2: the paper began -> exactly one chapter_test_started, no other conversion event.
+    expect(trackNamedEvent.mock.calls.filter(([n]) => n === "chapter_test_started")).toHaveLength(1);
   });
 
   it("★ CONTROL: enforced with a chapter test left starts the paper", async () => {
@@ -96,5 +110,6 @@ describe("FAIR-USE-UI-1 · UI3 on the Chapter Test page", () => {
     fireEvent.click(start);
     await waitFor(() => expect(paperBegan()).toBe(true));
     expect(screen.queryByTestId("fair-use-limit-panel")).toBeNull();
+    expect(trackNamedEvent.mock.calls.filter(([n]) => n === "chapter_test_started")).toHaveLength(1);
   });
 });

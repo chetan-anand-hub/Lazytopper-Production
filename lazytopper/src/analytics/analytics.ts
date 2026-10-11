@@ -364,9 +364,22 @@ function resolveFbq(): Fbq | null {
 
 type MetaCall = readonly ["track" | "trackCustom", string];
 
-export const META_EVENTS: Readonly<Partial<Record<"sign_up" | NamedAnalyticsEvent, MetaCall>>> = {
+export const META_EVENTS: Readonly<Partial<Record<"sign_up" | TrackableEvent, MetaCall>>> = {
   sign_up: ["track", "CompleteRegistration"],
   trial_start: ["track", "StartTrial"],
+  // META-PIXEL-1 PR-2 — the student-action events. NAME ONLY: every entry is a bare call, no
+  // parameter of any kind (DPDP §9(3)). Standard Meta events where one exists, else custom.
+  practice_started: ["trackCustom", "PracticeStarted"],
+  cbq_practice_started: ["trackCustom", "CBQPracticeStarted"],
+  chapter_test_started: ["trackCustom", "ChapterTestStarted"],
+  full_mock_started: ["trackCustom", "FullMockStarted"],
+  tutor_asked: ["trackCustom", "TutorAsked"],
+  worksheet_downloaded: ["trackCustom", "WorksheetDownloaded"],
+  worksheet_uploaded: ["trackCustom", "WorksheetUploaded"],
+  check_graded: ["trackCustom", "AnswerChecked"],
+  notes_opened: ["track", "ViewContent"],
+  pricing_viewed: ["trackCustom", "PricingViewed"],
+  checkout_started: ["track", "InitiateCheckout"],
 };
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
@@ -547,7 +560,41 @@ export type NamedAnalyticsEvent =
   | "check_answer_added"
   | "check_graded";
 
-export function trackNamedEvent(name: NamedAnalyticsEvent): void {
+/**
+ * META-PIXEL-1 PR-2 — the student-action conversion events (GA4 + Meta, name only).
+ *
+ * Deliberately NOT part of `NamedAnalyticsEvent`: that union is pinned, name for name, to the
+ * first-party student-activity allow-list (`ACTIVITY_EVENTS`, mirrored by the server's
+ * `studentActivity.cjs`; `activityClient.test.ts` fails on any drift). These events are for the
+ * two ad/analytics vendors; they are not added to the activity log, and `recordActivity` drops a
+ * name it does not list, so nothing reaches the server and no server file changes.
+ *
+ *   practice_started        first answer submitted in a Quick Practice set
+ *   cbq_practice_started    the same, when the set is a CBQ set
+ *   chapter_test_started    a Chapter Test paper starts (not a resume)
+ *   full_mock_started       a Full Mock paper starts (not a resume)
+ *   tutor_asked             the FIRST Tutor message of a topic conversation
+ *   worksheet_downloaded    the worksheet QUESTIONS pdf was built and handed over
+ *   worksheet_uploaded      a worksheet answer photo was submitted for grading (once per worksheet)
+ *   notes_opened            a notes page was opened (once per page per visit)
+ *   pricing_viewed          the pricing page was opened
+ *   checkout_started        the Razorpay checkout opened (dark until payments go live)
+ */
+export type ConversionEvent =
+  | "practice_started"
+  | "cbq_practice_started"
+  | "chapter_test_started"
+  | "full_mock_started"
+  | "tutor_asked"
+  | "worksheet_downloaded"
+  | "worksheet_uploaded"
+  | "notes_opened"
+  | "pricing_viewed"
+  | "checkout_started";
+
+export type TrackableEvent = NamedAnalyticsEvent | ConversionEvent;
+
+export function trackNamedEvent(name: TrackableEvent): void {
   send("event", { name });
 }
 

@@ -129,6 +129,16 @@ describe("T2 · signed out — the render is unchanged", () => {
   });
 });
 
+describe("META-PIXEL-1 PR-2 · pricing_viewed", () => {
+  const viewed = () => track.mock.calls.filter(([n]) => n === "pricing_viewed").length;
+  it("★ fires once when the page opens, and a re-render or a tap on the page does not count again", () => {
+    renderPricing();
+    expect(viewed()).toBe(1);
+    fireEvent.click(trialButton()!);
+    expect(viewed()).toBe(1);
+  });
+});
+
 describe("T2 · signed in", () => {
   it("★ eligible: the click calls startTrial EXACTLY once, fires trial_start once, and does NOT go to sign-in", async () => {
     cloudEchoesDevice();

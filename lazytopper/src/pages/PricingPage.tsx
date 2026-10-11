@@ -955,6 +955,13 @@ function trialEndsOn(trialStartDate: string | null): string | null {
 
 export default function PricingPage() {
   const navigate = useNavigate();
+  // META-PIXEL-1 PR-2: pricing_viewed — once per mount (the ref also absorbs StrictMode's double effect).
+  const pricingViewedRef = useRef(false);
+  useEffect(() => {
+    if (pricingViewedRef.current) return;
+    pricingViewedRef.current = true;
+    trackNamedEvent("pricing_viewed");
+  }, []);
   // PAYCOPY-1 — read once per render; drives the subtitle, the pay FAQ and the fine print.
   const paymentsOn = isPaymentsClientEnabled();
   const [searchParams] = useSearchParams();

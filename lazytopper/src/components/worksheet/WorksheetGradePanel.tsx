@@ -37,6 +37,7 @@ import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../..
 import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../../ai/gradingJobs";
 import GradingJobRows from "../grading/GradingJobRows";
 import { useGradingJob } from "../grading/useGradingJob";
+import { trackNamedEvent } from "../../analytics/analytics";
 import {
   gradeWorksheetAndRecord,
   type WorksheetGradeOutcome,
@@ -409,9 +410,16 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     }
   }, [imageBase64, imageMimeType, grading, user, ws, jobStore, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
 
+  // META-PIXEL-1 PR-2: worksheet_uploaded fires on the student's tap (not on the auto-resume in runGrade),
+  // only when a photo is attached and no grade is running, and once per worksheet (a retry never recounts).
+  const uploadedRef = useRef<Set<string>>(new Set());
   const handleGrade = useCallback(() => {
+    if (imageBase64 && !grading && !uploadedRef.current.has(ws.worksheetId)) {
+      uploadedRef.current.add(ws.worksheetId);
+      trackNamedEvent("worksheet_uploaded");
+    }
     void runGrade();
-  }, [runGrade]);
+  }, [runGrade, imageBase64, grading, ws.worksheetId]);
 
   // J2 — resume after a reload: a background grade of THIS worksheet is still stored, so poll
   // it (never re-submit). Once per mount.

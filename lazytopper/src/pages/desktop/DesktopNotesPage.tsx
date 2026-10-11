@@ -1,4 +1,7 @@
+import { useEffect, useRef } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+
+import { trackNamedEvent } from "../../analytics/analytics";
 
 import { Card } from "../../components/grammar/Card";
 import { useReturnTicket } from "../../components/navigation/ReturnTicket";
@@ -191,6 +194,15 @@ export default function DesktopNotesPage() {
   const ticket = useReturnTicket();
   const topic = topicSlug ? desktopTopicBySlug(topicSlug) : undefined;
   const { spec, ready, error } = useNoteSpec(topic?.slug);
+  // META-PIXEL-1 PR-2: notes_opened — a notes page whose note actually loaded, once per page per visit.
+  // (The ConceptSpine modal is not a page open; it does not count.)
+  const notesOpenedRef = useRef<string | null>(null);
+  const openedSlug = topic?.slug && spec ? topic.slug : null;
+  useEffect(() => {
+    if (!openedSlug || notesOpenedRef.current === openedSlug) return;
+    notesOpenedRef.current = openedSlug;
+    trackNamedEvent("notes_opened");
+  }, [openedSlug]);
 
   if (!topic || (ready && !spec)) {
     return (

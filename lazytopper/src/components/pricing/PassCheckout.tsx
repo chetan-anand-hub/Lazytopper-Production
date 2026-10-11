@@ -13,6 +13,7 @@
  * no caller-supplied destination ever reaches the redirect.
  */
 import { useState } from "react";
+import { trackNamedEvent } from "../../analytics/analytics";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -142,7 +143,8 @@ function PassCheckoutConnected() {
       activePassEnd={activePassEnd}
       onSignIn={() => navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH))}
       onBuy={async (passType) => {
-        const outcome = await buyPass(passType);
+        // META-PIXEL-1 PR-2: checkout_started when Razorpay's window opens (dark until payments go live).
+        const outcome = await buyPass(passType, undefined, () => trackNamedEvent("checkout_started"));
         // Refresh the cached entitlement from the SERVER record the grant just wrote.
         if (outcome.status === "paid" && uid) void hydrateSubscriptionFromCloud(uid).catch(() => undefined);
         return outcome;

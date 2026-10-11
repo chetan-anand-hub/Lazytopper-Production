@@ -8,6 +8,13 @@ import { desktopTopicBySlug, desktopTopicsBySubject } from "../../lib/desktop/to
 import { related } from "../../seo/notesLinks";
 import { ensureAllNoteSpecs } from "../../components/notes/noteSpecRegistry";
 
+// META-PIXEL-1 PR-2: notes_opened is observed through the real call site.
+const { trackNamedEvent } = vi.hoisted(() => ({ trackNamedEvent: vi.fn() }));
+vi.mock("../../analytics/analytics", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../analytics/analytics")>()),
+  trackNamedEvent,
+}));
+
 // LOW-END-1 (L4): each spec is its own chunk now. These cases assert the LOADED page, so
 // the specs are loaded first; the in-flight state is pinned in noteSpecRegistry.test.tsx.
 await ensureAllNoteSpecs();
@@ -179,5 +186,29 @@ describe("DesktopNotesPage — the return ticket", () => {
       expect(backLink(), evil).toHaveAttribute("href", "/topic-hub/trigonometry");
       cleanup();
     }
+  });
+});
+
+describe("META-PIXEL-1 PR-2 · notes_opened", () => {
+  const opened = () => trackNamedEvent.mock.calls.filter(([n]) => n === "notes_opened").length;
+
+  it("★ a real notes page fires notes_opened ONCE, and a re-render of the same page does not count again", () => {
+    trackNamedEvent.mockClear();
+    const { rerender } = renderAt("/notes/trigonometry");
+    expect(opened()).toBe(1);
+    rerender(
+      <MemoryRouter initialEntries={["/notes/trigonometry"]}>
+        <Routes>
+          <Route path="/notes/:topicSlug" element={<DesktopNotesPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(opened()).toBe(1);
+  });
+
+  it("★ CONTROL — an unknown slug (the not-found card) is not a notes open", () => {
+    trackNamedEvent.mockClear();
+    renderAt("/notes/not-a-real-chapter");
+    expect(opened()).toBe(0);
   });
 });
