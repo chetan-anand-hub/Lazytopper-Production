@@ -17,6 +17,8 @@ afterEach(cleanup);
 const DIR = "/figures/solutions/ncert-science/life-processes/";
 const CC = "/figures/solutions/ncert-science/control-and-coordination/";
 const RP = "/figures/solutions/ncert-science/how-do-organisms-reproduce/";
+const EYE = "/figures/solutions/ncert-science/human-eye-and-colourful-world/";
+const MAG = "/figures/solutions/ncert-science/magnetic-effects-of-electric-current/";
 
 /** [questionId, part, filePath, exact figcaption text] */
 const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string]> = [
@@ -39,16 +41,42 @@ const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string
   ["REP-H01", undefined, `${RP}ncert-fig-7-11-female-reproductive-system.webp`, "Official figure: NCERT Class 10 Science, Fig. 7.11"],
   ["PYQ-S-2024-REPR-006", "(a) budding in Hydra", `${RP}ncert-fig-7-4-budding-hydra.webp`, "Official figure: NCERT Class 10 Science, Fig. 7.4 — (a) budding in Hydra"],
   ["REPR-EXMPLR-7-LA-005", undefined, `${RP}ncert-fig-7-7-flower-ls.webp`, "Official figure: NCERT Class 10 Science, Fig. 7.7"],
+  // SOLUTION-FIGS-1 PR-2 (controller D, 2026-10-11): Human Eye + Magnetic Effects.
+  ["HEY-H01", undefined, `${EYE}ncert-fig-10-1-human-eye.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.1"],
+  ["HEY-M01", undefined, `${EYE}ncert-fig-10-2-myopia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.2"],
+  ["HEY-H05", "myopia", `${EYE}ncert-fig-10-2-myopia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.2 — myopia"],
+  ["HEY-H05", "hypermetropia", `${EYE}ncert-fig-10-3-hypermetropia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.3 — hypermetropia"],
+  ["HEY-D04", "myopia", `${EYE}ncert-fig-10-2-myopia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.2 — myopia"],
+  ["HEY-D04", "hypermetropia", `${EYE}ncert-fig-10-3-hypermetropia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.3 — hypermetropia"],
+  ["SCQ-S-EYE-031", "b. correction", `${EYE}ncert-fig-10-2-myopia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.2 — b. correction"],
+  ["EYE-NCERT-10-SA-007", "diagram", `${EYE}ncert-fig-10-3-hypermetropia.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.3 — diagram"],
+  ["EYE-EXMPLR-10-LA-003", undefined, `${EYE}ncert-fig-10-4-prism-refraction.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.4"],
+  ["PYQ-S-EYE-003", "(A) dispersion", `${EYE}ncert-fig-10-5-dispersion.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.5 — (A) dispersion"],
+  ["HEY-H06", undefined, `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6"],
+  ["EYE-EXMPLR-10-SA-005", undefined, `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6"],
+  ["APQ-S-EYE-006", "(b) recombination", `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6 — (b) recombination"],
+  ["PYQ-S-2025-EYE-003", "(c)(i) recombination", `${EYE}ncert-fig-10-6-recombination.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.6 — (c)(i) recombination"],
+  ["PYQ-S-EYE-001", "(a) rainbow", `${EYE}ncert-fig-10-8-rainbow.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.8 — (a) rainbow"],
+  ["PYQ-S-2026-EYE-004", undefined, `${EYE}ncert-fig-10-8-rainbow.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.8"],
+  ["SCQ-S-MAG-044", "(a) bar magnet", `${MAG}ncert-fig-12-4-bar-magnet-field-lines.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.4 — (a) bar magnet"],
+  ["PYQ-S-2026-MAG-003", "(A)(i) bar magnet", `${MAG}ncert-fig-12-4-bar-magnet-field-lines.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.4 — (A)(i) bar magnet"],
+  ["MAG-EXMPLR-12-LA-003", undefined, `${MAG}ncert-fig-12-8-circular-loop-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.8"],
+  ["PYQ-S-MAG-007", undefined, `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10"],
+  ["APQ-S-MAG-006", "(a) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (a) solenoid"],
+  ["PYQ-S-2024-MAG-003", "(b) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (b) solenoid"],
+  ["PYQ-S-2024-MAG-004", "(b) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (b) solenoid"],
+  ["PYQ-S-2026-MAG-003", "(B)(i) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (B)(i) solenoid"],
+  ["MAG-EXMPLR-12-LA-007", undefined, `${MAG}ncert-fig-12-15-domestic-circuit.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.15"],
 ];
 
 const key = (q: string, part: string | undefined, file: string) => `${q} | ${part ?? "-"} | ${file}`;
 
 describe("solution-figure crop bindings are pinned (FU-1038-PIN-BINDINGS)", () => {
-  it("the registry holds EXACTLY the 18 pinned (questionId, part, filePath) tuples", () => {
+  it("the registry holds EXACTLY the 43 pinned (questionId, part, filePath) tuples", () => {
     const actual = SOLUTION_FIGURE_CROPS.map((c) => key(c.questionId, c.part, c.filePath)).sort();
     const expected = PINNED.map(([q, part, file]) => key(q, part, file)).sort();
     expect(actual).toEqual(expected);
-    expect(SOLUTION_FIGURE_CROPS).toHaveLength(18);
+    expect(SOLUTION_FIGURE_CROPS).toHaveLength(43);
   });
 
   it.each(PINNED.map(([q, part, file, caption]) => ({ q, part, file, caption })))(
