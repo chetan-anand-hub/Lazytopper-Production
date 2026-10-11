@@ -93,6 +93,13 @@ export interface DesktopConceptPracticePathInput extends DesktopRouteContext {
   subtopicHint?: string;   // concept one-line use / hint
   markBand?: string;       // concept mark band (e.g. "1-2") -> exact marksMin/marksMax
   backLabel?: string;      // e.g. "Back to Trigonometry" — specific Topic Hub topic
+  /**
+   * CONCEPT-MAP-FILL-1 PR-2: serve EXACTLY these bank ids (the rows that resolve to the concept).
+   * Sent as `focusBankIds` + `strictFocus=true` + `count`, which PracticePage already honours; the
+   * mark band is then NOT sent (the ids are the concept, whatever their marks).
+   */
+  focusBankIds?: readonly string[];
+  count?: number;
 }
 
 /**
@@ -122,10 +129,17 @@ export const buildDesktopConceptPracticePath = (
   params.set("topic", input.topic);
   if (input.focus) params.set("focus", input.focus);
   if (input.subtopicHint) params.set("subtopicHint", input.subtopicHint);
-  const range = parseMarkBandRange(input.markBand);
-  if (range) {
-    params.set("marksMin", String(range.min));
-    params.set("marksMax", String(range.max));
+  const exactIds = input.focusBankIds && input.focusBankIds.length > 0 ? input.focusBankIds : null;
+  if (exactIds) {
+    params.set("focusBankIds", exactIds.join(","));
+    params.set("strictFocus", "true");
+    params.set("count", String(input.count ?? exactIds.length));
+  } else {
+    const range = parseMarkBandRange(input.markBand);
+    if (range) {
+      params.set("marksMin", String(range.min));
+      params.set("marksMax", String(range.max));
+    }
   }
   if (input.backLabel) params.set("backLabel", input.backLabel);
   addContext(params, input);
