@@ -44,6 +44,11 @@ function isTopupFlagOn(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.TOPUP_ENABLED) || '').trim());
 }
 
+/** Payments AND top-ups both on (the same grammar as routes/payments.cjs isPaymentsEnabled + isTopupEnabled). */
+function isTopupLive(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.PAYMENTS_ENABLED) || '').trim()) && isTopupFlagOn(env);
+}
+
 /** The instant credit bought at `nowMs` stops counting: the end of the predicted board day (IST). */
 function creditExpiryMs(nowMs) {
   const iso = predictBoardDateIso(nowMs);
@@ -67,6 +72,24 @@ function describeCredit(stored, nowMs) {
     boughtBonusMicroInr: num(d.boughtBonusMicroInr),
     spentMicroInr: num(d.spentMicroInr),
     expiresAtMs,
+  };
+}
+
+/**
+ * The student-facing view of live credit: percentages and counts only - NEVER a rupee figure (TOPUP-1 §2.5).
+ * `leftPct` is the share of everything bought that is still unspent (0-100); `aboutChecks` / `aboutTutorMessages`
+ * come from the same cost constants as the pack sheet. Null when nothing was ever bought.
+ */
+function creditView(live) {
+  if (!live || !(num(live.boughtMicroInr) > 0)) return null;
+  const { TOPUP_ACTIVITIES, MICRO_INR_PER_INR } = require('./passPricing.cjs');
+  const per = (a) => Math.floor(live.balanceMicroInr / (TOPUP_ACTIVITIES[a].costInr * MICRO_INR_PER_INR));
+  return {
+    leftPct: Math.max(0, Math.min(100, Math.floor((live.balanceMicroInr / live.boughtMicroInr) * 100))),
+    aboutChecks: per('answer_check'),
+    aboutTutorMessages: per('tutor_message'),
+    expiresAt: live.expiresAtMs !== null ? new Date(live.expiresAtMs).toISOString() : null,
+    expired: live.expired,
   };
 }
 
@@ -195,9 +218,11 @@ module.exports = {
   CREDIT_SEGMENTS,
   TopupInputError,
   isTopupFlagOn,
+  isTopupLive,
   creditExpiryMs,
   describeCredit,
   creditCovers,
+  creditView,
   grantTopup,
   readCredit,
   chargeCredit,

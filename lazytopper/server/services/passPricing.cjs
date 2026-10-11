@@ -207,6 +207,49 @@ function topupCreditFor(key, nowMs, bonus) {
   return { baseMicroInr, bonusMicroInr, totalMicroInr: baseMicroInr + bonusMicroInr, bonusPercent: pct };
 }
 
+/**
+ * What ONE activity costs, in rupees of AI cost, for the pack breakdown and the admission estimate (TOPUP-1 §2.5).
+ * ★ P12 is UNVERIFIED for the paper rows: the first four are METER-AUDIT-2's measured figures (Desktop\\diff\\a17\\
+ * report-meter-audit-2-2026-10-07.md §1-§2, ₹ at 96.5/$); the three paper rows are ESTIMATES (₹0.11 per graded question =
+ * METER-AUDIT-2's 38-question paper ≈ ₹4.1, times a typical paper size) until the owner-run ledger export (P12) replaces them.
+ * The sheet's "about N" is floor(credit / cost), computed here - never typed into the client.
+ */
+const TOPUP_ACTIVITIES = Object.freeze({
+  answer_check: Object.freeze({ label: "answer checks", costInr: 2.05, source: "METER-AUDIT-2" }),
+  tutor_message: Object.freeze({ label: "Tutor messages", costInr: 0.357, source: "METER-AUDIT-2" }),
+  question_detection: Object.freeze({ label: "question readings", costInr: 0.1, source: "METER-AUDIT-2" }),
+  more_like_this: Object.freeze({ label: "More like this sets", costInr: 0.5, source: "METER-AUDIT-2" }),
+  chapter_test_grading: Object.freeze({ label: "Chapter Test gradings", costInr: 1.65, source: "ESTIMATE (15 Q x 0.11)" }),
+  full_mock_grading: Object.freeze({ label: "Full Mock gradings", costInr: 4.18, source: "ESTIMATE (38 Q x 0.11)" }),
+  worksheet_grading: Object.freeze({ label: "Worksheet gradings", costInr: 1.1, source: "ESTIMATE (10 Q x 0.11)" }),
+});
+/** Per graded question, for the admission estimate of a paper (ESTIMATE, see above). */
+const TOPUP_PER_QUESTION_COST_INR = 0.11;
+
+/** What a request is expected to cost in micro-INR, to decide whether credit COVERS it (the actual metered cost is what is charged). */
+function creditEstimateMicroInr(activity, questionCount) {
+  if (activity === "papers") {
+    return Math.ceil(TOPUP_PER_QUESTION_COST_INR * Math.max(1, Math.floor(Number(questionCount) || 1)) * MICRO_INR_PER_INR);
+  }
+  const a = Object.prototype.hasOwnProperty.call(TOPUP_ACTIVITIES, activity) ? TOPUP_ACTIVITIES[activity] : TOPUP_ACTIVITIES.answer_check;
+  return Math.ceil(a.costInr * MICRO_INR_PER_INR);
+}
+
+/**
+ * The honest breakdown of one pack at `nowMs`: for every activity, "about N" = floor(credit / that activity's cost).
+ * Null for an unknown product. The bonus (0 at launch) is included when running, so the numbers follow it.
+ */
+function topupBreakdownFor(key, nowMs, bonus) {
+  const credit = topupCreditFor(key, nowMs, bonus);
+  if (!credit) return null;
+  const rows = Object.entries(TOPUP_ACTIVITIES).map(([activity, a]) => ({
+    activity,
+    label: a.label,
+    about: Math.floor(credit.totalMicroInr / (a.costInr * MICRO_INR_PER_INR)),
+  }));
+  return { key, priceInr: TOPUP_PRODUCTS[key].priceInr, bonusPercent: credit.bonusPercent, rows };
+}
+
 /** True for a key of the closed top-up table. */
 function isTopupProduct(key) {
   return typeof key === 'string' && Object.prototype.hasOwnProperty.call(TOPUP_PRODUCTS, key);
@@ -219,6 +262,10 @@ module.exports = {
   TOPUP_BONUS_ENDS_ISO,
   topupBonusActive,
   topupCreditFor,
+  TOPUP_ACTIVITIES,
+  TOPUP_PER_QUESTION_COST_INR,
+  creditEstimateMicroInr,
+  topupBreakdownFor,
   isTopupProduct,
   PRICE_MONTHLY_LIST_INR,
   PRICE_MONTHLY_FOUNDING_INR,
