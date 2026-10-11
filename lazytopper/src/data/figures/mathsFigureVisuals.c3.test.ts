@@ -47,10 +47,8 @@ const C3_BINDINGS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 // C3 rows bound while withheld (each must also be a key of the shared BOUND_BUT_WITHHELD).
-const C3_BOUND_BUT_WITHHELD: readonly string[] = [
-  "APQ-M-ARC-001", "APQ-M-ARC-002", "APQ-M-ARC-003", "APQ-M-ARC-004", "APQ-M-ARC-006", "APQ-M-ARC-008", "APQ-M-ARC-010",
-  "SQP-M-POLY-001", "APQ-M-POLY-001", "APQ-M-STAT-003", "APQ-M-STAT-008",
-];
+// B (2026-10-10, BANK-UNWITHHOLD-1): the other 10 rows are served again (blind re-solve agreed); only APQ-M-ARC-001 (blank official stem) stays withheld.
+const C3_BOUND_BUT_WITHHELD: readonly string[] = ["APQ-M-ARC-001"];
 
 // Looked at and deliberately NOT bound in PR-D1 — must keep resolving to NO figure.
 const C3_NOT_BOUND = [
@@ -75,7 +73,7 @@ describe("DIAGRAMS-1 C3 PR-D1 bindings are exactly the eye-confirmed set", () =>
   it("the pinned set is the size this PR shipped: 17 figures for 15 rows (4 served + 11 withheld)", () => {
     expect(C3_BINDINGS).toHaveLength(17);
     expect(new Set(C3_BINDINGS.map(([q]) => q)).size).toBe(15);
-    expect(C3_BOUND_BUT_WITHHELD).toHaveLength(11);
+    expect(C3_BOUND_BUT_WITHHELD).toHaveLength(1);
     expect(c3Paths.size).toBe(C3_BINDINGS.length); // no crop is reused for two bindings
     expect(c3Entries).toHaveLength(C3_BINDINGS.length); // each pinned file is bound exactly once in the registry
   });

@@ -454,9 +454,12 @@ describe("static heads — the writer refuses to no-op silently", () => {
       const topic = allDesktopTopics().find((t) => t.slug === slug);
       const head = headForPath(path);
       expect(head, `${path} has no head`).not.toBeNull();
-      expect(head?.title).toBe(
-        `${ncertLabel(slug)} — Class 10 Notes & Board Questions | LazyTopper`,
-      );
+      // SEO-NOTES-LINK-2 — the title adds the NCERT file code after the chapter number. Checked
+      // independently of the code under test: the chapter from NCERT_CHAPTER_PIN and the code
+      // rebuilt from subject + chapter (pinnedFileCode), never from ncertTitleLabel.
+      const titlePrefix = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} (${pinnedFileCode(slug)}) · `;
+      expect(head?.title.startsWith(titlePrefix), `${path} title: ${head?.title}`).toBe(true);
+      expect(head?.title.endsWith(" — Class 10 Notes & Board Questions | LazyTopper")).toBe(true);
       // Two blurbs are shortened for the 155 cap (NOTES_BLURB_SHORTENED); each shortened
       // text must be the original with words DELETED, never added (checked below).
       const shortened = NOTES_BLURB_SHORTENED[slug];
@@ -500,6 +503,12 @@ describe("static heads — the writer refuses to no-op silently", () => {
  *   2. a pinned table of the NCERT 2026-27 chapter numbers (rationalised Class 10
  *      Mathematics and Science textbooks), which the spec must agree with.
  */
+/** SEO-NOTES-LINK-2 — the NCERT file code rebuilt from the pin alone (jemh1NN Maths, jesc1NN Science). */
+function pinnedFileCode(slug: string): string {
+  const subject = allDesktopTopics().find((t) => t.slug === slug)?.subject;
+  return `${subject === "Maths" ? "jemh1" : "jesc1"}${String(NCERT_CHAPTER_PIN[slug]).padStart(2, "0")}`;
+}
+
 const NCERT_CHAPTER_PIN: Readonly<Record<string, number>> = {
   "real-numbers": 1,
   polynomials: 2,
@@ -551,7 +560,8 @@ describe("SEO-4 S2 — every notes page title and description names its NCERT ch
       const expected = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} · ${spec.meta.title}`;
       const head = headForPath(path);
       expect(head, `${path} has no head`).not.toBeNull();
-      expect(head?.title.startsWith(`${expected} — `), `${path} title: ${head?.title}`).toBe(true);
+      const expectedTitle = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} (${pinnedFileCode(slug)}) · ${spec.meta.title}`;
+      expect(head?.title.startsWith(`${expectedTitle} — `), `${path} title: ${head?.title}`).toBe(true);
       expect(head?.description.startsWith(`${expected} — `), `${path} desc: ${head?.description}`).toBe(true);
 
       const html = applyHead(SHELL, {
@@ -570,8 +580,8 @@ describe("SEO-4 S2 — every notes page title and description names its NCERT ch
 
   it("CONTROL — a wrong chapter number is caught", () => {
     const head = headForPath("/notes/trigonometry");
-    expect(head?.title.startsWith("NCERT Ch. 9 · ")).toBe(false);
-    expect(head?.title.startsWith("NCERT Ch. 8 · Trigonometry: ratios, identities and heights & distances — ")).toBe(true);
+    expect(head?.title.startsWith("NCERT Ch. 9 ")).toBe(false);
+    expect(head?.title.startsWith("NCERT Ch. 8 (jemh108) · Trigonometry: ratios, identities and heights & distances — ")).toBe(true);
   });
 
   it("ncertLabel throws for a slug with no spec, rather than dropping the chapter", () => {
