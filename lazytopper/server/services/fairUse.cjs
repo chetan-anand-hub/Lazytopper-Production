@@ -11,7 +11,8 @@
  *                and 1 worksheet grading. A request needing more than remain -> 409
  *                { error: "trial_limit", remaining, resetAt } and NOTHING is graded.
  *   U3 premium — real cost from the METER-1 ledger: ₹84 per rolling 7 IST days, ₹38
- *                per IST day, ₹25 per rolling 5 IST hours. At a cap -> 429
+ *                per IST day, ₹25 per rolling 5 IST hours, and (CAP-30DAY) an OPTIONAL cap per
+ *                rolling 30 IST days — OFF unless FAIR_USE_PREMIUM_30DAY_INR is set. At a cap -> 429
  *                { error: "usage_limit", window, resetAt }. Checked BEFORE the model
  *                call, so one request may overrun a cap by its own cost, never more.
  *   U5         — GET /api/usage/me: remaining allowances and PERCENTAGES. Never rupees.
@@ -156,6 +157,11 @@ const DAY_MS = 24 * HOUR_MS;
 /** Rolling windows, in whole IST buckets: today + the 6 days before it; this hour + the 4 before it. */
 const WEEK_DAYS = 7;
 const FIVE_HOURS = 5;
+/**
+ * CAP-30DAY — the rolling 30-IST-day premium window: today + the 29 days before it, the SAME
+ * day-bucket mechanism as the week. Only a PREMIUM read covers it; a trial read stays 7 days.
+ */
+const THIRTY_DAYS = 30;
 
 /* ── Surfaces (U1) ─────────────────────────────────────────────────────────── */
 
@@ -231,6 +237,13 @@ const DEFAULT_LIMITS = Object.freeze({
   premiumWeekInr: 84,
   premiumDayInr: 38,
   premiumFiveHourInr: 25,
+  /**
+   * CAP-30DAY — NO DEFAULT (owner + cofounder ruling 2026-10-07 19:17Z). FAIR_USE_PREMIUM_30DAY_INR
+   * unset, empty or invalid means NO 30-day limit at all: no refusal is possible, /api/usage/me
+   * omits thirtyDayPct / resets.thirtyDay (so no bar), and a premium read stays 7 day documents —
+   * zero behaviour change. Only a positive value turns the window on.
+   */
+  premiumThirtyDayInr: null,
 });
 
 const LIMIT_ENV = Object.freeze({
@@ -241,6 +254,7 @@ const LIMIT_ENV = Object.freeze({
   premiumWeekInr: 'FAIR_USE_PREMIUM_WEEK_INR',
   premiumDayInr: 'FAIR_USE_PREMIUM_DAY_INR',
   premiumFiveHourInr: 'FAIR_USE_PREMIUM_FIVE_HOUR_INR',
+  premiumThirtyDayInr: 'FAIR_USE_PREMIUM_30DAY_INR',
 });
 
 const ENFORCE_ENV = 'FAIR_USE_ENFORCE';
@@ -251,6 +265,18 @@ function envPositive(env, name, fallback, integer) {
   const n = Number(raw);
   if (!Number.isFinite(n) || n <= 0) return fallback;
   return integer ? Math.floor(n) : n;
+}
+
+/** CAP-30DAY: the 30-day cap in micro-rupees from env, or null (OFF) when unset / empty / not a positive number. */
+function thirtyDayMicroInrFrom(env) {
+  const v = envPositive(env, LIMIT_ENV.premiumThirtyDayInr, null, false);
+  return v === null ? null : Math.round(v * 1e6);
+}
+
+/** CAP-30DAY: is the 30-day window ON for these limits? */
+function thirtyDayOn(limits) {
+  const cap = limits && limits.premium ? limits.premium.thirtyDayMicroInr : null;
+  return typeof cap === 'number' && cap > 0;
 }
 
 /** The limits in force, from `env` ONLY. Rupee caps are returned in micro-rupees (the ledger's unit). */
@@ -269,6 +295,8 @@ function resolveLimits(env) {
       weekMicroInr: inr('premiumWeekInr'),
       dayMicroInr: inr('premiumDayInr'),
       fiveHourMicroInr: inr('premiumFiveHourInr'),
+      // CAP-30DAY: null = no 30-day limit (env unset / empty / invalid). Never a default.
+      thirtyDayMicroInr: thirtyDayMicroInrFrom(e),
     },
   };
 }
@@ -474,11 +502,19 @@ function istBucketStartMs(ms, sizeMs) {
   return Math.floor((ms + IST_OFFSET_MS) / sizeMs) * sizeMs - IST_OFFSET_MS;
 }
 
-/** Today's IST day key and the six before it, oldest first. */
-function windowDayKeys(nowMs) {
+/**
+ * Today's IST day key and the `spanDays - 1` before it, oldest first. Default 7 (the trial
+ * and paper-pass reads, unchanged); a PREMIUM read with the 30-day window ON passes THIRTY_DAYS.
+ */
+function windowDayKeys(nowMs, spanDays = WEEK_DAYS) {
   const keys = [];
-  for (let k = WEEK_DAYS - 1; k >= 0; k -= 1) keys.push(istDayKey(nowMs - k * DAY_MS));
+  for (let k = spanDays - 1; k >= 0; k -= 1) keys.push(istDayKey(nowMs - k * DAY_MS));
   return keys;
+}
+
+/** CAP-30DAY: the day documents a decision needs — 30 for premium with the 30-day window ON, 7 otherwise. */
+function windowDayKeysFor(tier, nowMs, limits) {
+  return windowDayKeys(nowMs, tier === 'premium' && thirtyDayOn(limits) ? THIRTY_DAYS : WEEK_DAYS);
 }
 
 function num(v) {
@@ -486,10 +522,10 @@ function num(v) {
   return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
-/** Day buckets for a field, oldest first: { startMs, value }. */
-function dayBuckets(days, nowMs, field) {
+/** Day buckets for a field over the last `spanDays` IST days (default 7), oldest first: { startMs, value }. */
+function dayBuckets(days, nowMs, field, spanDays = WEEK_DAYS) {
   const out = [];
-  for (let k = WEEK_DAYS - 1; k >= 0; k -= 1) {
+  for (let k = spanDays - 1; k >= 0; k -= 1) {
     const t = nowMs - k * DAY_MS;
     const data = days.get(istDayKey(t)) || {};
     out.push({ startMs: istBucketStartMs(t, DAY_MS), value: num(data[field]) });
@@ -615,29 +651,36 @@ function premiumState(days, nowMs, limits) {
   const p = limits.premium;
   const five = hourBuckets(days, nowMs);
   const week = dayBuckets(days, nowMs, 'costMicroInr');
+  // CAP-30DAY: the same day buckets over 30 IST days — only when the window is ON (env set).
+  const on = thirtyDayOn(limits);
+  const thirty = on ? dayBuckets(days, nowMs, 'costMicroInr', THIRTY_DAYS) : [];
   const dayUsed = num((days.get(istDayKey(nowMs)) || {}).costMicroInr);
   const fiveUsed = sum(five);
   const weekUsed = sum(week);
+  const thirtyUsed = sum(thirty);
   const resets = {
     fiveHour: rollingResetAt(five, p.fiveHourMicroInr, FIVE_HOURS * HOUR_MS),
     day: nextIstMidnightIso(nowMs),
     week: rollingResetAt(week, p.weekMicroInr, WEEK_DAYS * DAY_MS),
   };
+  if (on) resets.thirtyDay = rollingResetAt(thirty, p.thirtyDayMicroInr, THIRTY_DAYS * DAY_MS);
   // Longest window first: when more than one cap is reached, the one reported is the
   // one that actually decides when the student is served again.
   let atCap = null;
-  if (weekUsed >= p.weekMicroInr) atCap = 'week';
+  if (on && thirtyUsed >= p.thirtyDayMicroInr) atCap = 'thirtyDay';
+  else if (weekUsed >= p.weekMicroInr) atCap = 'week';
   else if (dayUsed >= p.dayMicroInr) atCap = 'day';
   else if (fiveUsed >= p.fiveHourMicroInr) atCap = 'fiveHour';
-  return {
-    view: {
-      fiveHourPct: pct(fiveUsed, p.fiveHourMicroInr),
-      dayPct: pct(dayUsed, p.dayMicroInr),
-      weekPct: pct(weekUsed, p.weekMicroInr),
-      resets,
-    },
-    atCap,
+  const view = {
+    fiveHourPct: pct(fiveUsed, p.fiveHourMicroInr),
+    dayPct: pct(dayUsed, p.dayMicroInr),
+    weekPct: pct(weekUsed, p.weekMicroInr),
+    resets,
   };
+  // CAP-30DAY: additive and ONLY when ON (an old client ignores it); OFF -> the view is
+  // byte-for-byte what it was before this lane (no key at all, so no bar).
+  if (on) view.thirtyDayPct = pct(thirtyUsed, p.thirtyDayMicroInr);
+  return { view, atCap };
 }
 
 /** The trial counters one served grade adds: per QUESTION for a per-question surface, one paper otherwise. */
@@ -649,7 +692,12 @@ function trialCommitFor(surface, questionCount) {
   return undefined;
 }
 
-const PREMIUM_RULE = Object.freeze({ fiveHour: 'premium_five_hour', day: 'premium_day', week: 'premium_week' });
+const PREMIUM_RULE = Object.freeze({
+  fiveHour: 'premium_five_hour',
+  day: 'premium_day',
+  week: 'premium_week',
+  thirtyDay: 'premium_thirty_day',
+});
 
 /**
  * The pure decision. `days` is the ledger read (Map dayKey -> data); `limits` came from
@@ -699,6 +747,160 @@ function decide({ tier, surface, questionCount, days, nowMs, limits }) {
       };
     }
     return { allowed: true };
+  }
+  return { allowed: true };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ALL-AI-METERING-1 · LIMITS FOR THE TUTOR, MORE-LIKE-THIS AND QUESTION DETECTION
+   ══════════════════════════════════════════════════════════════════════════
+
+   Every paid call was already COUNTED (usageLedger.cjs binds the verified uid on any
+   PAID_ENDPOINTS path), but only the two grading endpoints were ever REFUSED. This block
+   adds a decision for three more routes, for a VERIFIED uid only:
+
+     trial    — per IST day: Tutor 15, More-like-this 5, detection 10 (env-tunable:
+                FAIR_USE_TRIAL_TUTOR_PER_DAY / _MLT_PER_DAY / _DETECT_PER_DAY). Spent ->
+                409 { error: "trial_limit", remaining: 0, resetAt } (next IST midnight).
+     premium  — refused EXACTLY when grading would be: premiumState(...).atCap, the same
+                429 { error: "usage_limit", window, resetAt }.
+     free     — More-like-this and detection need trial or Premium: 402, the entitlement
+                gate's own `premium_required` body (entitlement.cjs AI_TIER_GATED_ROUTES).
+                The Tutor's free 402 stays entitlement.cjs's GATED_ROUTES, untouched.
+
+   ★ ITS OWN SWITCH. A refusal is sent ONLY when FAIR_USE_ENFORCE_ALL_AI is exactly "1".
+     Otherwise the call is served and counted as `fair_use.would_refuse.<rule>` — the same
+     dark path grading has. FAIR_USE_ENFORCE still governs grading alone, either way.
+   ★ A refused call reaches no model and charges nothing (it is answered before dispatch);
+     a trial counter moves only once the call was SERVED (2xx), like grading's.
+   ★ NOT HERE: /api/step-solution (Show steps — stored steps are free; never refused by
+     this lane), and an admitted anonymous free check (no verified uid, `freeCheck`).
+   ★ FAILS OPEN, like everything above: an unknown tier or an unreadable ledger serves.
+   The counters live on the SAME ledger day document (usageLedger/{uid}/days/{istDayKey}),
+   so DPDP erasure / export reach them with no new location. */
+
+const TUTOR_PATH = '/api/tutor';
+const MORE_LIKE_THIS_PATH = '/api/more-like-this';
+const DETECT_QUESTION_PATH = '/api/detect-question';
+
+/** The trial counters this block writes, on the ledger day document (never by usageLedger.cjs). */
+const AI_TRIAL_COUNTER_FIELDS = Object.freeze({
+  tutor: 'trialTutor',
+  moreLikeThis: 'trialMoreLikeThis',
+  detect: 'trialDetect',
+});
+
+/** Per route: its counter key, its rule suffix, its limit, and whether the free tier is refused. */
+const AI_ROUTES = Object.freeze({
+  [TUTOR_PATH]: Object.freeze({ key: 'tutor', rule: 'tutor', limit: 'tutorPerDay', freeGated: false }),
+  [MORE_LIKE_THIS_PATH]: Object.freeze({ key: 'moreLikeThis', rule: 'more_like_this', limit: 'moreLikeThisPerDay', freeGated: true }),
+  [DETECT_QUESTION_PATH]: Object.freeze({ key: 'detect', rule: 'detect', limit: 'detectPerDay', freeGated: true }),
+});
+
+/** Owner ruling (10 Oct): trial per IST day. Code defaults; env overrides. */
+const AI_DEFAULT_LIMITS = Object.freeze({
+  trialTutorPerDay: 15,
+  trialMoreLikeThisPerDay: 5,
+  trialDetectPerDay: 10,
+});
+
+const AI_LIMIT_ENV = Object.freeze({
+  trialTutorPerDay: 'FAIR_USE_TRIAL_TUTOR_PER_DAY',
+  trialMoreLikeThisPerDay: 'FAIR_USE_TRIAL_MLT_PER_DAY',
+  trialDetectPerDay: 'FAIR_USE_TRIAL_DETECT_PER_DAY',
+});
+
+const AI_ENFORCE_ENV = 'FAIR_USE_ENFORCE_ALL_AI';
+
+/** The three trial limits in force, from `env` ONLY. */
+function resolveAiLimits(env) {
+  const e = env || {};
+  const int = (key) => envPositive(e, AI_LIMIT_ENV[key], AI_DEFAULT_LIMITS[key], true);
+  return {
+    tutorPerDay: int('trialTutorPerDay'),
+    moreLikeThisPerDay: int('trialMoreLikeThisPerDay'),
+    detectPerDay: int('trialDetectPerDay'),
+  };
+}
+
+/** Refusals on the three AI routes only when FAIR_USE_ENFORCE_ALL_AI is exactly "1". */
+function isAiEnforced(env) {
+  return String((env && env[AI_ENFORCE_ENV]) || '').trim() === '1';
+}
+
+/** Today's three AI allowances for a trial caller (additive to trialState's view). */
+function aiTrialState(days, nowMs, aiLimits) {
+  const today = days.get(istDayKey(nowMs)) || {};
+  const left = (key, limitKey) => Math.max(0, aiLimits[limitKey] - num(today[AI_TRIAL_COUNTER_FIELDS[key]]));
+  const midnight = nextIstMidnightIso(nowMs);
+  return {
+    tutorLeftToday: left('tutor', 'tutorPerDay'),
+    moreLikeThisLeftToday: left('moreLikeThis', 'moreLikeThisPerDay'),
+    detectLeftToday: left('detect', 'detectPerDay'),
+    resets: { tutor: midnight, moreLikeThis: midnight, detect: midnight },
+    limits: {
+      tutorPerDay: aiLimits.tutorPerDay,
+      moreLikeThisPerDay: aiLimits.moreLikeThisPerDay,
+      detectPerDay: aiLimits.detectPerDay,
+    },
+  };
+}
+
+/** GET /api/usage/me: the grading trial view with the three AI allowances ADDED (nothing renamed or removed). */
+function withAiTrialState(trial, days, nowMs, env) {
+  const ai = aiTrialState(days, nowMs, resolveAiLimits(env));
+  return {
+    ...trial,
+    tutorLeftToday: ai.tutorLeftToday,
+    moreLikeThisLeftToday: ai.moreLikeThisLeftToday,
+    detectLeftToday: ai.detectLeftToday,
+    resets: { ...trial.resets, ...ai.resets },
+    limits: { ...trial.limits, ...ai.limits },
+  };
+}
+
+/**
+ * The pure AI decision. `reqPath` is one of AI_ROUTES. Returns { allowed, rule?, status?,
+ * body?, commit? } like decide(): `commit` is the trial counter to add once SERVED.
+ */
+function decideAi({ tier, reqPath, days, nowMs, limits, aiLimits, trialEndsAtMs = null }) {
+  const route = AI_ROUTES[reqPath];
+  if (!route) return { allowed: true };
+  if (tier === 'trial') {
+    const st = aiTrialState(days, nowMs, aiLimits);
+    const left = st[`${route.key}LeftToday`];
+    const commit = { [route.key]: 1 };
+    if (left < 1) {
+      return {
+        allowed: false,
+        rule: `trial_${route.rule}`,
+        status: 409,
+        body: { error: 'trial_limit', remaining: 0, resetAt: st.resets[route.key] },
+        commit,
+      };
+    }
+    return { allowed: true, commit };
+  }
+  if (tier === 'premium') {
+    const ps = premiumState(days, nowMs, limits);
+    if (ps.atCap) {
+      return {
+        allowed: false,
+        rule: `${PREMIUM_RULE[ps.atCap]}_${route.rule}`,
+        status: 429,
+        body: { error: 'usage_limit', window: ps.atCap, resetAt: ps.view.resets[ps.atCap] },
+      };
+    }
+    return { allowed: true };
+  }
+  if (tier === 'free' && route.freeGated) {
+    const { AI_TIER_GATED_ROUTES, premiumRequiredBody } = require('./entitlement.cjs');
+    return {
+      allowed: false,
+      rule: `free_${route.rule}`,
+      status: 402,
+      body: premiumRequiredBody(AI_TIER_GATED_ROUTES[reqPath], { tier: 'free', trialEndsAtMs }),
+    };
   }
   return { allowed: true };
 }
@@ -766,11 +968,15 @@ function createFairUse(deps = {}) {
   }
 
   let tierOf = deps.tierOf;
+  // ALL-AI-METERING-1: the whole decision (tier + derived trial end, for the free 402's
+  // `trialEndedAt`); null when the tier is injected (tests), which then gives the tier only.
+  let tierDecisionOf = null;
   if (typeof tierOf !== 'function') {
     // A SEPARATE, SILENT entitlement gate: same derivation, same positive cache
     // behaviour, but its reads never touch the owner's entitlement counters.
     const { createEntitlementGate } = require('./entitlement.cjs');
     const tiers = createEntitlementGate({ adminFirestore, telemetry: null, sendJson: null, logger: SILENT_LOGGER });
+    tierDecisionOf = (uid, req) => tiers.resolve(uid, req);
     tierOf = async (uid, req) => (await tiers.resolve(uid, req)).tier;
   }
 
@@ -791,11 +997,36 @@ function createFairUse(deps = {}) {
     }
   }
 
-  /** U4: is this VERIFIED caller premium? Asked by index.cjs only when the shed is about to fire. */
+  /**
+   * FU-GLOBAL-SHED (D58b-4): the tier is now read for EVERY paid class once the day is at 80%, so a busy day
+   * would otherwise read one Firestore doc per free-student request (the entitlement gate caches only
+   * ENTITLED answers, on purpose - nobody who just paid should wait out a TTL there). A NOT-premium verdict
+   * (free or trial) is remembered here for 5 minutes, ONLY for this shed/overflow question, never for
+   * entitlement itself. Cost of being wrong: a student who upgrades within 5 minutes of a busy-day refusal
+   * is refused for up to 5 more minutes at the SITE-WIDE ceiling; every per-student limit is unaffected.
+   * An unknown tier (null) is never cached. Bounded; a hit adds no read.
+   */
+  const NOT_PREMIUM_TTL_MS = 5 * 60 * 1000;
+  const NOT_PREMIUM_MAX = 5000;
+  const notPremiumUntil = new Map();
+
+  /** U4: is this VERIFIED caller premium? Asked by index.cjs only when a tier read is needed (>= 80%). */
   async function isPremium(verifiedUid, req) {
     const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
     if (!uid) return false;
-    return (await tierFor(uid, req)) === 'premium';
+    const nowMs = now();
+    const until = notPremiumUntil.get(uid);
+    if (until !== undefined) {
+      if (until > nowMs) return false;
+      notPremiumUntil.delete(uid);
+    }
+    const tier = await tierFor(uid, req);
+    if (tier === 'premium') return true;
+    if (tier === 'free' || tier === 'trial') {
+      if (notPremiumUntil.size >= NOT_PREMIUM_MAX) notPremiumUntil.delete(notPremiumUntil.keys().next().value);
+      notPremiumUntil.set(uid, nowMs + NOT_PREMIUM_TTL_MS);
+    }
+    return false;
   }
 
   /**
@@ -823,6 +1054,8 @@ function createFairUse(deps = {}) {
    * entitlement. Returns true only when it has already answered (enforced refusal).
    */
   async function applyToRequest(req, res, reqPath, verifiedUid, options) {
+    // ALL-AI-METERING-1: the Tutor, More-like-this and detection have their own decision.
+    if (Object.prototype.hasOwnProperty.call(AI_ROUTES, reqPath)) return applyToAiRequest(req, res, reqPath, verifiedUid, options);
     if (!Object.prototype.hasOwnProperty.call(SURFACES_BY_PATH, reqPath)) return false;
     if (options && options.freeCheck === true) return false;
     const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
@@ -870,9 +1103,10 @@ function createFairUse(deps = {}) {
       return false;
     }
 
+    const limitsNow = resolveLimits(env);
     let days;
     try {
-      days = await ledger.readDays(uid, windowDayKeys(nowMs));
+      days = await ledger.readDays(uid, windowDayKeysFor(tier, nowMs, limitsNow));
     } catch {
       emit('fair_use.ledger_unreadable');
       days = null;
@@ -886,7 +1120,7 @@ function createFairUse(deps = {}) {
         questionCount: countQuestions(reqPath, body),
         days,
         nowMs,
-        limits: resolveLimits(env),
+        limits: limitsNow,
       });
     } else {
       // Fail OPEN: an unreadable ledger is not a positive read of a spent allowance.
@@ -917,6 +1151,108 @@ function createFairUse(deps = {}) {
     // J1 (D12): what a background job settles at its end instead of the hook above (a premium
     // caller has no commit: its cost is the meter, carried in the job's own async context).
     setDeferredCommit(res, { uid, tier, surface, commit: decision.commit || null });
+    return false;
+  }
+
+  /** ALL-AI-METERING-1: { tier, trialEndsAtMs } for a verified uid. Never throws; an unknown tier is null. */
+  async function aiTierFor(uid, req) {
+    if (tierDecisionOf) {
+      try {
+        const d = await tierDecisionOf(uid, req);
+        const tier = d && typeof d.tier === 'string' ? d.tier : null;
+        return { tier, trialEndsAtMs: d && Number.isFinite(d.trialEndsAtMs) ? d.trialEndsAtMs : null };
+      } catch {
+        return { tier: null, trialEndsAtMs: null };
+      }
+    }
+    return { tier: await tierFor(uid, req), trialEndsAtMs: null };
+  }
+
+  /**
+   * ALL-AI-METERING-1: add a SERVED AI call to TODAY's ledger day document — the three
+   * AI_TRIAL_COUNTER_FIELDS only, with FieldValue.increment (no read, no race). Same
+   * contract as usageLedger.recordTrialUse: synchronous, never throws, never awaited by a
+   * request; the write is TRACKED so a redeploy's drain waits for it.
+   */
+  function recordAiTrialUse(uid, counts) {
+    try {
+      const fs = resolveFirestore();
+      if (!fs || !fs.db || !fs.FieldValue || typeof fs.FieldValue.increment !== 'function') {
+        emit('fair_use.ai_count_unavailable');
+        return null;
+      }
+      const data = {};
+      for (const [key, field] of Object.entries(AI_TRIAL_COUNTER_FIELDS)) {
+        const n = Math.floor(Number(counts && counts[key]) || 0);
+        if (n > 0) data[field] = fs.FieldValue.increment(n);
+      }
+      if (Object.keys(data).length === 0) return null;
+      const ref = ledgerDayRef(fs.db, uid, istDayKey(now()));
+      return trackWrite(Promise.resolve()
+        .then(() => ref.set(data, { merge: true }))
+        .then(() => true, () => {
+          emit('fair_use.ai_count_write_failed');
+          return false;
+        }));
+    } catch {
+      emit('fair_use.ai_count_write_failed');
+      return null;
+    }
+  }
+
+  /**
+   * ALL-AI-METERING-1: the route-boundary check for /api/tutor, /api/more-like-this and
+   * /api/detect-question. Returns true only when FAIR_USE_ENFORCE_ALL_AI=1 and it has
+   * already answered (402 / 409 / 429). See the block above AI_ROUTES.
+   */
+  async function applyToAiRequest(req, res, reqPath, verifiedUid, options) {
+    const route = AI_ROUTES[reqPath];
+    if (options && options.freeCheck === true) return false;
+    const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
+    if (!uid) return false;
+
+    const { tier, trialEndsAtMs } = await aiTierFor(uid, req);
+    if (tier === null) {
+      emit('fair_use.tier_unknown');
+      return false;
+    }
+    const metered = tier === 'trial' || tier === 'premium';
+    if (!metered && !(tier === 'free' && route.freeGated)) return false;
+
+    const nowMs = now();
+    let days = new Map();
+    let readable = true;
+    if (metered) {
+      try {
+        // A trial allowance is per IST day: today's document is all it needs.
+        days = await ledger.readDays(uid, tier === 'trial' ? [istDayKey(nowMs)] : windowDayKeys(nowMs));
+      } catch {
+        emit('fair_use.ledger_unreadable');
+        readable = false;
+      }
+    }
+
+    const decision = readable
+      ? decideAi({ tier, reqPath, days, nowMs, limits: resolveLimits(env), aiLimits: resolveAiLimits(env), trialEndsAtMs })
+      // Fail OPEN; the served call is still counted, so the count stays honest.
+      : { allowed: true, commit: tier === 'trial' ? { [route.key]: 1 } : undefined };
+
+    if (!decision.allowed) {
+      if (isAiEnforced(env)) {
+        emit(`fair_use.refused.${decision.rule}`);
+        if (typeof sendJson === 'function') sendJson(res, decision.status, decision.body);
+        return true;
+      }
+      emit(`fair_use.would_refuse.${decision.rule}`);
+    }
+
+    if (decision.commit && res && typeof res.once === 'function') {
+      const commit = decision.commit;
+      // Counted only once the call was SERVED (2xx): a failed or refused-downstream call costs nothing.
+      res.once('finish', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) recordAiTrialUse(uid, commit);
+      });
+    }
     return false;
   }
 
@@ -957,17 +1293,18 @@ function createFairUse(deps = {}) {
     if (tier !== 'trial' && tier !== 'premium') return sendJson(res, 200, { tier, trial: null, premium: null, enforced });
 
     const nowMs = now();
+    const limits = resolveLimits(env);
     let days;
     try {
-      days = await ledger.readDays(uid, windowDayKeys(nowMs));
+      days = await ledger.readDays(uid, windowDayKeysFor(tier, nowMs, limits));
     } catch {
       emit('fair_use.ledger_unreadable');
       return sendJson(res, 503, { error: 'usage_unavailable' });
     }
-    const limits = resolveLimits(env);
     return sendJson(res, 200, {
       tier,
-      trial: tier === 'trial' ? trialState(days, nowMs, limits) : null,
+      // ALL-AI-METERING-1: + tutor / moreLikeThis / detect counts, resets and limits (additive).
+      trial: tier === 'trial' ? withAiTrialState(trialState(days, nowMs, limits), days, nowMs, env) : null,
       premium: tier === 'premium' ? premiumState(days, nowMs, limits).view : null,
       enforced,
     });
@@ -1441,6 +1778,8 @@ module.exports = {
   trialState,
   premiumState,
   windowDayKeys,
+  windowDayKeysFor,
+  THIRTY_DAYS,
   readPassEntry,
   SURFACES,
   SURFACE_HEADER,
@@ -1474,4 +1813,18 @@ module.exports = {
   GRADING_RESULTS_COLLECTION,
   GRADING_RESULTS_SEGMENTS,
   GRADING_IN_PROGRESS_BODY,
+  // ALL-AI-METERING-1
+  decideAi,
+  resolveAiLimits,
+  isAiEnforced,
+  aiTrialState,
+  withAiTrialState,
+  AI_ROUTES,
+  AI_TRIAL_COUNTER_FIELDS,
+  AI_DEFAULT_LIMITS,
+  AI_LIMIT_ENV,
+  AI_ENFORCE_ENV,
+  TUTOR_PATH,
+  MORE_LIKE_THIS_PATH,
+  DETECT_QUESTION_PATH,
 };

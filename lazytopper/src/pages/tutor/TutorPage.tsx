@@ -28,6 +28,7 @@ import TutorCheckImproveOverlay from "./TutorCheckImproveOverlay";
 import TutorQuickPracticeOverlay from "./TutorQuickPracticeOverlay";
 import { safeInternalReturnTo } from "./tutorPath";
 import ExplanationPanel from "./ExplanationPanel";
+import UsageWarning from "../../components/usage/UsageWarning";
 import {
   resolveConceptVisual,
   conceptKeyForLabel,
@@ -294,6 +295,7 @@ function TutorSession() {
       <div className="lt-tutor__body">
         {/* Chat panel — primary, full-width when the explanation panel is closed */}
         <section className="lt-tutor__chat">
+          <UsageWarning scope="tutor" selfRead refreshKey={status === "sending" ? null : messages.length} />
           <div className="lt-tutor__stream" ref={streamRef} role="log" aria-live="polite">
             {/* Opener shows only for a fresh session (no persisted thread) */}
             {messages.length === 0 && (
