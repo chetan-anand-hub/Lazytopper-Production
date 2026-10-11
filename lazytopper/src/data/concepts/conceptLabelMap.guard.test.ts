@@ -50,12 +50,12 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // mapped 1822, reviewed 164, rows with a concept 9716 of 10613 (0.91548), recomputed from the merged tip by runtime import.
 // 2026-10-11 CONCEPT-MAP-FILL-1 PR-2 (D79b): Areas Related to Circles is IN (SQP 2026-27 Q10) - its 28 `concept-gap` labels (43 rows) map to
 // the tracking concept "Perimeter and Area of a Circle — A Review": mapped 1822 -> 1850, reviewed 164 -> 136, rows with a concept
-// 9716 -> 9759 of 10613 (0.91548 -> 0.91953); with SQP-M-2026-ARC-001 (#1084) 9760 of 10614 (0.91953).
+// 9716 -> 9759 of 10613 (0.91548 -> 0.91953); with SQP-M-2026-ARC-001 (#1084) 9760 of 10614 (0.91954).
 const MIN_MAPPED_LABELS = 1850;
 const MAX_REVIEWED_LABELS = 136;
 /** served rows whose label resolves to a concept / all served rows: 9697+19 / 10613 = 9716 / 10613. */
 // 2026-10-11 SQP-2026-27-Q10 (#1084): +1 served row (SQP-M-2026-ARC-001, label 'Distance Covered by a Wheel' still reviewed until CONCEPT-MAP-FILL-1 PR-2 maps it): 9716 / 10614 = 0.91539; pin 0.9154 -> 0.9153, exactly what the one added row explains.
-// 2026-10-11 CONCEPT-MAP-FILL-1 PR-2 merged onto #1084 (trunk dbefa15f): the Areas labels map, so 9760 / 10614 = 0.91955 -> pin 0.9195.
+// 2026-10-11 CONCEPT-MAP-FILL-1 PR-2 merged onto #1084 (trunk dbefa15f): the Areas labels map, so 9760 / 10614 = 0.91954 -> pin 0.9195.
 const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9195;
 
 const isChapterEchoSubtopic = echoFromShape;
