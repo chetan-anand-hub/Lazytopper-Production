@@ -47,6 +47,8 @@ export const PREMIUM_WARN_WINDOWS: readonly PremiumWindowDef[] = [
   { key: "fiveHour", rank: 1, phrase: "your 5-hour", pct: (p) => p.fiveHourPct, resetAt: (p) => p.resets.fiveHour },
   { key: "day", rank: 2, phrase: "today's", pct: (p) => p.dayPct, resetAt: (p) => p.resets.day },
   { key: "week", rank: 3, phrase: "this week's", pct: (p) => p.weekPct, resetAt: (p) => p.resets.week },
+  // CAP-30DAY [FU-30DAY-WARN-BANNER]: null (the server has no 30-day value set) reads as 0 -> never the warning.
+  { key: "thirtyDay", rank: 4, phrase: "your 30-day", pct: (p) => p.thirtyDayPct ?? 0, resetAt: (p) => p.resets.thirtyDay },
 ];
 
 export type UsageWarningState =
