@@ -81,7 +81,9 @@ const AI = AI_GENERATED_QUESTION_IDS;
  * All ids below were verified present in the assembled bank at trunk a95493a1.
  */
 function row(id: string) {
-  const q = canonicalQuestionBank.find((x) => x.id === id);
+  // RULE5-BIND-1 (11 Oct): the figure-demanding FIXTURES (SCQ-S-CTRL-042 ...) are withheld from the live bank now that no served
+  // row may need a figure it lacks, so fixtures fall back to the RAW bank, which still holds them.
+  const q = canonicalQuestionBank.find((x) => x.id === id) ?? RAW_CANONICAL_QUESTION_BANK.find((x) => x.id === id);
   if (!q) throw new Error(`fixture row absent from bank: ${id}`);
   return q;
 }
@@ -616,7 +618,7 @@ describe("no pattern in DEMANDS_SUPPLIED_FIGURE is dead", () => {
    * delete the dead one.
    */
   it("every pattern is the sole matcher for at least one real bank row", () => {
-    const texts = canonicalQuestionBank.map(
+    const texts = RAW_CANONICAL_QUESTION_BANK.map( // RULE5-BIND-1 (11 Oct): RAW - a pattern's sole real row may now be withheld
       (q) => `${q.questionText}\n${q.answer ?? ""}`,
     );
 
@@ -633,7 +635,7 @@ describe("no pattern in DEMANDS_SUPPLIED_FIGURE is dead", () => {
   /** No pattern may be wholly subsumed by another, independent of what the bank
    *  happens to contain today. This is the structural form of the same check. */
   it("no pattern is wholly subsumed by another", () => {
-    const texts = canonicalQuestionBank.map(
+    const texts = RAW_CANONICAL_QUESTION_BANK.map( // RULE5-BIND-1 (11 Oct): RAW - a pattern's sole real row may now be withheld
       (q) => `${q.questionText}\n${q.answer ?? ""}`,
     );
     for (let i = 0; i < DEMANDS_SUPPLIED_FIGURE.length; i++) {
