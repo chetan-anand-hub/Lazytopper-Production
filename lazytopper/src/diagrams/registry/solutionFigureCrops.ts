@@ -54,7 +54,8 @@
  * galvanised iron), METAL-NCERT-3-LONG-001 / SCQ-S-METAL-040 / LTG-S-METAL-290 (Na2O, MgO,
  * CaCl2, CaO: NCERT draws NaCl and MgCl2 only), CBE-S-MNM-D-001 (alumina electrolysis: no
  * NCERT figure), MNM-M03 (its step asks to label the ionic bond; Fig. 3.5 does not; verifier
- * FAIL 2026-10-11). *
+ * FAIL 2026-10-11).
+ *
  * SOLUTION-FIGS-1 PR-4 (controller D) — Electricity (jesc111.pdf) + Heredity (jesc108.pdf),
  * same rule. Not bound, with reason: EL-H04 / SP-S-2023-ELEC-C-001 (answers include a
  * rheostat; Fig. 11.2 has none), the circuits with given resistor values
