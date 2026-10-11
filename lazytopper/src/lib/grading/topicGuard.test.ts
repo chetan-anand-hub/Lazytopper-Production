@@ -1,5 +1,5 @@
-// TOPIC-FIX-1 (c) - the deterministic chapter guard. Each rule is pinned; the policy (fill a MISSING chapter or
-// replace one from the OTHER subject, never second-guess a same-subject answer) is pinned; and the guard is
+// TOPIC-FIX-1 (c) - the deterministic chapter guard. Each rule is pinned; the policy (fill a MISSING chapter, never
+// replace or second-guess one the model named) is pinned; and the guard is
 // held to PRECISION 1.0 on the eval set (every fire is the bank's own chapter).
 
 import { describe, it, expect } from "vitest";
@@ -164,5 +164,19 @@ describe("topicGuard · round-5 verifier negatives", () => {
       "From a point Q, the length of the tangent to a circle is 24 cm. Show that sin Q = 7/25.",
     ]) expect(guardSlugFor(t)).toBeNull();
     expect(guardSlugFor("Prove that (1 + tan²A)/(1 + cot²A) = tan²A")).toBe("trigonometry");
+  });
+});
+
+describe("topicGuard · round-6 verifier negatives", () => {
+  it("★★ pendulum / wave / sound stems and an arc-subtended stem with sin/tan never fire as trigonometry; real proofs still do", () => {
+    for (const t of [
+      "A pendulum swings through an angle θ; show that the time period does not depend on θ for small swings, given sin θ ≈ θ.",
+      "A pendulum bob is displaced through angle θ; show that the restoring term contains sin θ.",
+      "A radio wave enters the ionosphere at angle θ; prove that sin θ and tan θ change.",
+      "Show that the angle subtended by an arc at the centre is double; tan A and sin A are not needed.",
+      "An arc of radius 21 cm subtended an angle θ = 60° at O; show that the area of the triangle OAB is ½ r² sin θ and evaluate cos θ.",
+    ]) expect(guardSlugFor(t)).toBeNull();
+    expect(guardSlugFor("Prove that sin²θ + cos²θ = 1")).toBe("trigonometry");
+    expect(guardSlugFor("Prove that tan θ + cot θ = sec θ cosec θ")).toBe("trigonometry");
   });
 });

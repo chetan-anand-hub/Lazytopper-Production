@@ -27,13 +27,13 @@ export interface GuardRule {
 
 /** Words that mark a SCIENCE question: a Maths rule never fires on text carrying any of them. */
 const SCIENCE_MARKERS =
-  /\b(light|glass|water|medium|speed|wavelength|prism|dispersion|refraction|refractive|reflection|incidence|ray|lens|mirror|snell|optic|prism|eye|retina|current|charge|resistan\w*|ohm|circuit|joule|voltage|battery|heat produced|galvanometer|solenoid|magnet\w*|cross|F1|F2|gene|genes|trait|inherit\w*|mendel|chromosome|dominant|recessive|sex|child|children|son|daughter|boy|girl|offspring|acid|base|salt|metal|reaction|carbon|hormone|enzyme|digest\w*|photosynthesis|cell|plant|organism|ecosystem|food chains?|homologous|alkan\w*|alken\w*|alkyn\w*|CH2|CH3|molecular|media|slab|power|work|force|vector\w*|velocity|resultant|device|banked|beam|index|hydrocarbonw*|methane|ethane|propane)s?\b/i;
+  /\b(light|glass|water|medium|speed|wavelength|prism|dispersion|refraction|refractive|reflection|incidence|ray|lens|mirror|snell|optic|prism|eye|retina|current|charge|resistan\w*|ohm|circuit|joule|voltage|battery|heat produced|galvanometer|solenoid|magnet\w*|cross|F1|F2|gene|genes|trait|inherit\w*|mendel|chromosome|dominant|recessive|sex|child|children|son|daughter|boy|girl|offspring|acid|base|salt|metal|reaction|carbon|hormone|enzyme|digest\w*|photosynthesis|cell|plant|organism|ecosystem|food chains?|homologous|alkan\w*|alken\w*|alkyn\w*|CH2|CH3|molecular|media|slab|power|work|force|vector\w*|velocity|resultant|device|banked|beam|index|hydrocarbon[a-z]*|waves?|sound|frequency|pendulum|period|oscillatw*|ionosphere|methane|ethane|propane)s?\b/i;
 
 // A trig RATIO is a whole word (lower-case or Capitalised) followed by its ANGLE: a single capital letter or
 // a Greek letter ("sin θ", "tan A", "cos²A", "sec A"). A digit or a bracket is NOT enough - "sin 30" is Snell's
 // law, "5 sec (t = 5 s)" is seconds - and a ratio directly after a number is a unit, never a ratio.
 /** Words of other MATHS chapters that use sin/cos with an angle (segment area, tangents, similar triangles): the trig rule steps aside. */
-const OTHER_CHAPTER_MARKERS = new RegExp(SCIENCE_MARKERS.source + String.raw`|\b(segments?|sectors?|chords?|circles?|tangents?|subtends?|similar)\b|~`, "i");
+const OTHER_CHAPTER_MARKERS = new RegExp(SCIENCE_MARKERS.source + String.raw`|\b(segments?|sectors?|chords?|circles?|tangents?|subtend[a-z]*|arcs?|similar)\b|~`, "i");
 
 const TRIG_RATIO =
   /(?<![\d.]\s?)\b(?:[Ss]in|[Cc]os|[Tt]an|[Cc]ot|sec|[Cc]osec|[Cc]sc)(?:[²³]|\^\s?\d)?\s?(?:[θαβ]|[ABCDEFGHPQXYZ]\b(?!\s+(?:has|have|is|are|of|was)\b))/;
