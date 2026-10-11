@@ -249,6 +249,9 @@ export const DEMANDS_SUPPLIED_FIGURE = [
  * ★ D68b (cofounder) — rows that depend on a figure although NO phrase says so. Rule 5 matches wording, and the wording of these
  * is clean ("Find the length of PQ" where P and Q exist only in the figure; "Redraw the circuit of Question 1"). Each id was read
  * by a reviewer; each is held back (requires-absent-figure) until a figure is bound to it. Add an id only with a dated reason.
+ * RULE5-BIND-1 (11 Oct): kept as the ONLY hold for a clean-worded dependency. APQ-M-CIRC-012 is now bound (so it serves:
+ * the binder is asked after this test) and ELEC-NCERT-11-LA-002 is withheld; both entries stay so a later unbind or
+ * un-withhold cannot silently serve them figure-less.
  */
 export const FIGURE_DEPENDENT_BY_REVIEW: Readonly<Record<string, string>> = {
   "APQ-M-CIRC-012": "2026-10-10 B/D68b: points P and Q (and the semicircles' touching points) are defined only by the official figure; the stem cannot be answered without it",
