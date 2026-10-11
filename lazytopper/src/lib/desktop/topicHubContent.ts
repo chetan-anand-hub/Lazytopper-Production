@@ -1060,6 +1060,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward the correct θ/360 fraction, keeping π symbolic until the last step (then substituting 22/7 or 3.14 exactly as told), subtracting the triangle for a minor segment, and clean cm² units.",
     },
     boardEssentials: [
+      { name: "Perimeter and Area of a Circle — A Review", oneLineUse: "Use C = 2πr and A = πr² for circle and wheel problems — the distance covered in one revolution is the circumference, so revolutions = distance ÷ circumference.", marks: "1–4", conceptKeys: ["Perimeter and Area of a Circle — A Review"] },
       { name: "Radius from a given circumference, diameter or area", oneLineUse: "Convert a given circumference, diameter or area into the radius you actually need.", marks: "1–2" },
       { name: "Length of an arc of a sector (l = (θ/360)×2πr)", oneLineUse: "Find arc length or the sector's perimeter (arc + two radii) in one step.", marks: "1–3" },
       { name: "Area of a sector (A = (θ/360)×πr²)", oneLineUse: "Turn a central angle and radius straight into the sector's area.", marks: "2–3" },
