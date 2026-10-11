@@ -314,18 +314,19 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   //   2026-10-10 BANK-FIX-6 (C2): APQ-M-TRIG-011 and APQ-M-TRIG-016 are defined only by an image (figure); no working can be derived from the text.
   //   11 Oct RULE5-BIND-1 (cofounder D68b/c): 16 rows with no allowed figure source, or with damaged text, are withheld on every
   //   surface (categories: rule5Bind1Withholds.ts); three official crops are bound instead.
+  //   11 Oct BANK-FIX-7 PR-2 (cofounder D80b): ELEC-NCERT-11-LA-002, PYQ-M-TRI-005 and PYQ-S-2026-METAL-005 were repaired from their
+  //   official sources and are served again (pinned in bankFix7.pr2.test.ts), so they leave this list: 16 -> 13 RULE5-BIND-1 rows.
   const LATER_WITHHOLDS: Record<string, readonly string[]> = {
     "trigonometry": ["APQ-M-TRIG-011", "APQ-M-TRIG-016"],
     "quadratic-equations": ["LTG-M-QE-284"],
     "control-and-coordination": ["SCQ-S-CTRL-029", "SCQ-S-CTRL-037", "SCO-S-CTRL-011", "SCQ-S-CTRL-042"],
     "light-reflection-and-refraction": ["SCO-S-LIGHT-005"],
-    "electricity": ["SCO-S-ELEC-013", "SCQ-S-ELEC-041", "SCQ-S-ELEC-032", "ELEC-NCERT-11-LA-002", "SCO-S-ELEC-012"],
+    "electricity": ["SCO-S-ELEC-013", "SCQ-S-ELEC-041", "SCQ-S-ELEC-032", "SCO-S-ELEC-012"],
     "life-processes": ["SCO-S-LIFE-009", "LP-M11"],
     "how-do-organisms-reproduce": ["SCQ-S-REPR-041"],
     "human-eye-and-colourful-world": ["SCQ-S-EYE-036"],
     "magnetic-effects-of-electric-current": ["SCQ-S-MAG-029", "SCQ-S-MAG-040"],
-    "metals-and-non-metals": ["METAL-NCERT-3-VSA-006", "PYQ-S-2026-METAL-005"],
-    "triangles": ["PYQ-M-TRI-005"],
+    "metals-and-non-metals": ["METAL-NCERT-3-VSA-006"],
   };
   it("every later-lane withhold is withheld, not served, and in its chapter", () => {
     const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>

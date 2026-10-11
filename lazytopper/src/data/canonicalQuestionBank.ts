@@ -2109,14 +2109,12 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-EYE-036",              // needs-figure-no-source: the diagram and the questions are missing; booklet credits Delhi 2016, no allowed source on disk
   "SCQ-S-ELEC-032",             // needs-figure-no-source: the V-I graph slopes are only in the figure; booklet-only (cbjesccq12 Q65), no allowed source prints this question
   "SCQ-S-MAG-029",              // needs-figure-no-source: field and particle directions are only in the figure; booklet-only (cbjesccq13 Q33), no allowed source prints this question
-  "METAL-NCERT-3-VSA-006",      // official-key-mismatch: the stem points at an NCERT in-text grid (Zn/Mg/Cu with their oxides) but the stored key answers a different question (Zn + CuSO4, Cu + AgNO3); fix in a bank lane
-  "ELEC-NCERT-11-LA-002",       // needs-figure-no-source: 'Redraw the circuit of Question 1' - NCERT's Question 1 is words only and is not in this row; context-dependent, fix in a bank lane
+  "METAL-NCERT-3-VSA-006",      // official-key-mismatch: the stem points at an NCERT in-text grid (Zn/Mg/Cu with their oxides) but the stored key answers a different question (Zn + CuSO4, Cu + AgNO3). BANK-FIX-7 PR-2 (11 Oct): stays withheld as a DUPLICATE of METAL-NCERT-3-SA-004 (same NCERT p.55 item, keyed correctly)
+  // ELEC-NCERT-11-LA-002, PYQ-M-TRI-005, PYQ-S-2026-METAL-005: repaired from their official sources and served again by BANK-FIX-7 PR-2 (11 Oct, D80b)
   "LP-M11",                     // needs-figure-no-source: 'Study the diagram of the human heart' with no diagram on the page (answerable, but the stem refers to a missing diagram)
-  "SCQ-S-MAG-040",              // text-damaged: stem typo ('field fines') and the stored answer is cut off mid-word, no finalAnswer; bank repair lane
-  "SCQ-S-CTRL-042",             // text-damaged: stray page text inside the sentence; bank repair lane
-  "SCO-S-ELEC-012",             // text-damaged: garbled wiring description (ideal cells have to be assumed); bank repair lane
-  "PYQ-M-TRI-005",              // text-damaged: OCR damage ('CA2', flattened fraction); bank repair lane
-  "PYQ-S-2026-METAL-005",       // text-damaged: the later parts of the question are corrupted; bank repair lane
+  "SCQ-S-MAG-040",              // text repaired by BANK-FIX-7 PR-2 (typo + truncated answer); still withheld: its answer cites the booklet's own figure ('as shown in figure') and booklet figures may not be bound
+  "SCQ-S-CTRL-042",             // text repaired by BANK-FIX-7 PR-2 (stray header + truncated answer); still withheld: its answer cites the booklet's own diagram and booklet figures may not be bound
+  "SCO-S-ELEC-012",             // text-damaged: garbled wiring description, printed so in the booklet (cbjescco12 Q17); no allowed source to restore it from (BANK-FIX-7 PR-2)
 ]);
 
 /**

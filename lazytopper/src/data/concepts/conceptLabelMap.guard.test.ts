@@ -52,9 +52,12 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // unserved while SCO-S-ELEC-012 (garbled wiring text) is withheld, so its line is deleted: mapped 1822 -> 1821 (-1). Reviewed stays 164.
 // Rows with a concept 9716 of 10613 -> 9711 of 10597 (0.91639; the withheld rows leave the denominator), so that pin is tightened.
 // All three recomputed from the merged tip by runtime import.
-const MIN_MAPPED_LABELS = 1821;
+// 2026-10-11 BANK-FIX-7 PR-2 (cofounder D80b): 3 rows served again (ELEC-NCERT-11-LA-002, PYQ-M-TRI-005, PYQ-S-2026-METAL-005).
+// "Series Circuit Readings" is ELEC-NCERT-11-LA-002's label (served again, so its line is restored): mapped 1821 -> 1822 (+1).
+// Reviewed stays 164. Rows with a concept 9711 of 10597 -> 9713 of 10600 (0.91632), above the 0.9163 pin. By runtime import.
+const MIN_MAPPED_LABELS = 1822;
 const MAX_REVIEWED_LABELS = 164;
-/** served rows whose label resolves to a concept / all served rows: 9711 / 10597. */
+/** served rows whose label resolves to a concept / all served rows: 9713 / 10600. */
 const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9163;
 
 const isChapterEchoSubtopic = echoFromShape;
