@@ -126,16 +126,15 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     topicKey: "circles",
     subject: "maths",
     conceptLabel: "Length of tangent from external point: ℓ = √(d² − r²)",
-    // Gap-filled 2026-07-16 (owner-approved). ADAPTED from NCERT Maths ch.10 Fig. 10.7 (p149):
-    // the single right triangle OQP isolated from that figure, with the r/l/d labels added.
-    // NCERT states the relation as PQ^2 = OP^2 - OQ^2 (Remark, p149) and never writes the sqrt
-    // form — the figure shows both so they read as one fact.
-    best: { kind: "notes-figure", ref: "circles/fig_tangent_length.svg", why: "The right triangle OQP — radius r to the point of contact, tangent length l, distance d — which is exactly what the formula describes." },
-    alternates: [
-      { kind: "notes-figure", ref: "circles/fig_equal_tangents_107.webp", why: "Contains the radius-tangent right triangle OQP but is not labelled for the length formula — weak." },
-    ],
+    // 2026-10-11 TUTOR-SVG-REPLACE-1 (D47b): the hand-drawn r/l/d adaptation is retired (figures
+    // come only from official crops or repo builders). NCERT has no figure labelled r/l/d; the
+    // official Fig. 10.7 (p149) holds the right triangle OQP, and NCERT states the relation as
+    // PQ^2 = OP^2 - OQ^2 in its Remark, not in a figure.
+    best: { kind: "notes-figure", ref: "circles/fig_equal_tangents_107.webp", why: "NCERT Fig 10.7 — the radius-tangent right triangle OQP: the radius to the point of contact, the tangent PQ and the line OP are the r, l and d of the formula." },
+    alternates: [],
     gap: false,
     vocabSource: "boardEssentials",
+    scopeCaveat: "NCERT's figure is not labelled r, l, d: read OQ as r, PQ as l and OP as d.",
     ncertPage: { subject: "maths", chapter: 10, page: 148 },
   },
   {
@@ -422,12 +421,13 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     topicKey: "human-eye-and-colourful-world",
     subject: "science",
     conceptLabel: "Lens power P = 1/f (dioptre) for the corrective lens",
-    // Gap-filled 2026-07-16 (owner-approved). ORIGINAL diagram — NCERT defines power in
-    // running text with no figure (Light ch.9, p157-158: "P = 1/f" eq 9.11; "1 dioptre is the
-    // power of a lens whose focal length is 1 metre. 1D = 1m^-1"). Draws only what that names.
-    best: { kind: "notes-figure", ref: "human-eye-and-colourful-world/fig_lens_power.svg", why: "A converging lens with its focal length f marked, the reciprocal P = 1/f, and the dioptre unit — the quantities the definition names." },
+    // 2026-10-11 TUTOR-SVG-REPLACE-1 (D47b): the original hand-drawn diagram is retired (figures
+    // come only from official crops or repo builders). NCERT defines power in running text with
+    // no figure (Light ch.9, p157-158, eq 9.11), so this row is an honest gap; the NCERT page
+    // reference below still offers the source page.
+    best: { kind: "none", ref: "", why: "NCERT defines lens power in running text (P = 1/f, eq 9.11) with no figure; no official figure marks f, P or the dioptre." },
     alternates: [],
-    gap: false,
+    gap: true,
     vocabSource: "boardEssentials",
     ncertPage: { subject: "physics", chapter: 9, page: 157 },
   },
@@ -449,14 +449,14 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     topicKey: "human-eye-and-colourful-world",
     subject: "science",
     conceptLabel: "Atmospheric refraction (twinkling of stars, advance sunrise, delayed sunset)",
-    // Gap-filled 2026-07-16 (owner-approved). TRACED from NCERT Science ch.10 Fig. 10.9
-    // ("Apparent star position due to atmospheric refraction") + Fig. 10.10 ("Atmospheric
-    // refraction effects at sunrise and sunset"), both p168 — a two-panel figure, because the
-    // concept names all three effects and NCERT splits them across those two figures.
-    // NB the previous `why` here asserted "No NCERT figure" — that was a claim about OUR
-    // catalogue, not about NCERT; both figures exist in the textbook and are now traced.
-    best: { kind: "notes-figure", ref: "human-eye-and-colourful-world/fig_atmospheric_refraction.svg", why: "NCERT's own two figures traced: the raised apparent star (twinkling) and the Earth-and-atmosphere construction that puts the Sun above the horizon while it is really below it." },
-    alternates: [],
+    // 2026-10-11 TUTOR-SVG-REPLACE-1 (D47b): the traced two-panel SVG is replaced by the two
+    // official crops it was traced from — NCERT Science 2026-27 ch.10 Fig. 10.9 ("Apparent star
+    // position due to atmospheric refraction") and Fig. 10.10 ("Atmospheric refraction effects
+    // at sunrise and sunset"), both printed p168, eye-checked against the page.
+    best: { kind: "notes-figure", ref: "human-eye-and-colourful-world/fig_atmospheric_refraction_109.webp", why: "NCERT Fig 10.9 — the star's light bends through air of increasing refractive index, so the star appears raised; the flickering of that apparent position is twinkling." },
+    alternates: [
+      { kind: "notes-figure", ref: "human-eye-and-colourful-world/fig_atmospheric_refraction_1010.webp", why: "NCERT Fig 10.10 — the Sun is seen above the horizon while it is really below it: advance sunrise and delayed sunset." },
+    ],
     gap: false,
     vocabSource: "boardEssentials",
     ncertPage: { subject: "physics", chapter: 10, page: 168 },
@@ -466,14 +466,12 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     topicKey: "human-eye-and-colourful-world",
     subject: "science",
     conceptLabel: "Scattering of light (Tyndall effect, blue sky, red danger signals)",
-    // Gap-filled 2026-07-16 (owner-approved). ORIGINAL diagram — NCERT ch.10 §10.6 (p169) has
-    // NO scattering figure (the chapter's last figure is 10.10). It draws only NCERT's own
-    // sentence: "Very fine particles scatter mainly blue light while particles of larger size
-    // scatter light of longer wavelengths." NB NCERT's rule is particle-SIZE based, and
-    // reddening of the Sun has no subsection and no figure — so it is not featured here.
-    best: { kind: "notes-figure", ref: "human-eye-and-colourful-world/fig_scattering.svg", why: "Fine particles scattering blue (why the clear sky is blue) versus larger particles scattering longer wavelengths — NCERT's size-based rule, drawn." },
+    // 2026-10-11 TUTOR-SVG-REPLACE-1 (D47b): the original hand-drawn diagram is retired (figures
+    // come only from official crops or repo builders). NCERT ch.10 §10.6 (p169) has NO
+    // scattering figure (the chapter's last figure is 10.10), so this row is an honest gap.
+    best: { kind: "none", ref: "", why: "NCERT §10.6 explains scattering in text only (fine particles scatter mainly blue light); the chapter has no scattering figure." },
     alternates: [],
-    gap: false,
+    gap: true,
     vocabSource: "boardEssentials",
     ncertPage: { subject: "physics", chapter: 10, page: 169 },
   },
@@ -634,14 +632,13 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     topicKey: "carbon-and-its-compounds",
     subject: "science",
     conceptLabel: "Reactions of ethanol and ethanoic acid",
-    // Gap-filled 2026-07-16 (owner-approved). ORIGINAL diagram setting NCERT's VERBATIM
-    // equations (ch.4: oxidation p71, esterification p73). Two fidelity points the trace fixed:
-    // NCERT's esterification arrow reads "Acid" (an acid catalyst) — conc. H2SO4 appears only
-    // in Activity 4.8's reagent list, never in the equation — and the reaction is REVERSIBLE.
-    // (Fig. 4.11 "Formation of ester" is the Activity apparatus, not a reaction diagram.)
-    best: { kind: "notes-figure", ref: "carbon-and-its-compounds/fig_ethanol_ethanoic_reactions.svg", why: "Both named reactions as NCERT writes them: oxidation of ethanol over alkaline KMnO4/acidified K2Cr2O7, and the reversible acid-catalysed esterification." },
+    // 2026-10-11 TUTOR-SVG-REPLACE-1 (D47b): the original hand-drawn diagram is retired (figures
+    // come only from official crops or repo builders). NCERT writes these reactions as typeset
+    // equations (ch.4: oxidation p71, esterification p73), not figures, and Fig. 4.11
+    // "Formation of ester" is the Activity apparatus, not a reaction diagram — so an honest gap.
+    best: { kind: "none", ref: "", why: "NCERT gives the oxidation and esterification reactions as equations in the text (p71, p73); its only figure here, Fig 4.11, shows apparatus, not the reactions." },
     alternates: [],
-    gap: false,
+    gap: true,
     vocabSource: "boardEssentials",
     ncertPage: { subject: "chemistry", chapter: 4, page: 71 },
   },
