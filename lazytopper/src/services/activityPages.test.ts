@@ -96,8 +96,8 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   // would need the server's drift-tested page list (server/** is out of that lane's scope).
   "/check-your-answer": [["/check-your-answer", null]],
   "/admin/funnel": [["/admin/funnel", null]],
-  "/admin/diagram-compare": [["/admin/diagram-compare", null]],
-  "/admin/diagram-quality": [["/admin/diagram-quality", null]],
+  // 2026-10-11 HARDEN-1 PR-2 (D81a): /admin/diagram-compare and /admin/diagram-quality removed
+  // from App.tsx together with their pages.
   "/admin/visual-audit": [["/admin/visual-audit", null]],
   "/admin/cache-stats": [["/admin/cache-stats", null]],
   "/admin/difficulty-breakdown": [["/admin/difficulty-breakdown", null]],

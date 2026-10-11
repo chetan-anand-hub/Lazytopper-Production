@@ -304,3 +304,34 @@ describe("★ CONTROL — the concept param is confined to the Topic Hub builder
     expect(new URLSearchParams(href.split("?")[1]).get("mistakeAware")).toBe("1");
   });
 });
+
+describe("buildDesktopConceptPracticePath — exact concept ids (CONCEPT-MAP-FILL-1 PR-2)", () => {
+  it("emits focusBankIds + strictFocus + count and NO mark band when given the concept's ids", () => {
+    const href = buildDesktopConceptPracticePath({
+      subject: "Science",
+      topic: "metals-and-non-metals",
+      focus: "Alloys",
+      markBand: "1–5",
+      focusBankIds: ["A-1", "B-2", "C-3"],
+      count: 3,
+    });
+    const p = new URL(href, "http://x").searchParams;
+    expect(p.get("focusBankIds")).toBe("A-1,B-2,C-3");
+    expect(p.get("strictFocus")).toBe("true");
+    expect(p.get("count")).toBe("3");
+    expect(p.get("marksMin")).toBeNull();
+    expect(p.get("marksMax")).toBeNull();
+    expect(p.get("focus")).toBe("Alloys");
+  });
+
+  it("CONTROL: without ids it is the old band route, unchanged", () => {
+    const p = new URL(
+      buildDesktopConceptPracticePath({ subject: "Science", topic: "metals-and-non-metals", focus: "x", markBand: "2–3" }),
+      "http://x",
+    ).searchParams;
+    expect(p.get("marksMin")).toBe("2");
+    expect(p.get("marksMax")).toBe("3");
+    expect(p.get("focusBankIds")).toBeNull();
+    expect(p.get("strictFocus")).toBeNull();
+  });
+});

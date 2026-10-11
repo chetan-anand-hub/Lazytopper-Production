@@ -48,11 +48,29 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // (1514 / 458 / 0.7861) sat below the tip by 4 / 2 / 0.013; they are tightened to the exact new numbers.
 // Rebased onto BANK-UNWITHHOLD-1 (#1066) at a863452f: B's +11 mapped and +1 reviewed ('Benzene') are added, so the final pins are
 // mapped 1822, reviewed 164, rows with a concept 9716 of 10613 (0.91548), recomputed from the merged tip by runtime import.
-const MIN_MAPPED_LABELS = 1822;
-const MAX_REVIEWED_LABELS = 164;
-/** served rows whose label resolves to a concept / all served rows: 9697+19 / 10613 = 9716 / 10613. */
+// 2026-10-11 RULE5-BIND-1 (cofounder D68b, D74; merged onto CONCEPT-MAP-FILL-1 at 2b31f74a): 16 rows withheld. "Series Circuit Readings" is
+// unserved while SCO-S-ELEC-012 (garbled wiring text) is withheld, so its line is deleted: mapped 1822 -> 1821 (-1). Reviewed stays 164.
+// Rows with a concept 9716 of 10613 -> 9711 of 10597 (0.91639; the withheld rows leave the denominator), so that pin is tightened.
+// All three recomputed from the merged tip by runtime import.
+// Merged onto SQP-2026-27-Q10 (#1084, be60b739; trunk pin was 0.9153 for 9716 / 10614): +1 served row whose label is reviewed, so
+// rows with a concept are 9711 of 10598 (0.91630) by runtime import; the 0.9163 pin still holds and is kept.
+// 2026-10-11 CONCEPT-MAP-FILL-1 PR-2 (D79b): Areas Related to Circles is IN (SQP 2026-27 Q10) - its 28 `concept-gap` labels (43 rows) map to
+// the tracking concept "Perimeter and Area of a Circle — A Review": mapped 1822 -> 1850, reviewed 164 -> 136, rows with a concept
+// 9716 -> 9759 of 10613 (0.91548 -> 0.91953); with SQP-M-2026-ARC-001 (#1084) 9760 of 10614 (0.91954).
 // 2026-10-11 SQP-2026-27-Q10 (#1084): +1 served row (SQP-M-2026-ARC-001, label 'Distance Covered by a Wheel' still reviewed until CONCEPT-MAP-FILL-1 PR-2 maps it): 9716 / 10614 = 0.91539; pin 0.9154 -> 0.9153, exactly what the one added row explains.
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9153;
+// 2026-10-11 CONCEPT-MAP-FILL-1 PR-2 merged onto #1084 (trunk dbefa15f): the Areas labels map, so 9760 / 10614 = 0.91954 -> pin 0.9195.
+// 2026-10-11 CONCEPT-MAP-FILL-1 PR-2 merged onto RULE5-BIND-1 (#1074, trunk 2d7cc83c): Areas maps (+28 mapped, -28 reviewed) on top of
+// #1074's -1 mapped; final pins measured by runtime import: mapped 1849,
+// reviewed 136, rows with a concept 9755 of 10598 (0.92046) -> pin 0.9204.
+// 2026-10-11 BANK-FIX-7 PR-2 (cofounder D80b; merged onto #1076, trunk ce1425f9): 3 rows served again (ELEC-NCERT-11-LA-002,
+// PYQ-M-TRI-005, PYQ-S-2026-METAL-005). "Series Circuit Readings" is ELEC-NCERT-11-LA-002's label (served again, so its line is
+// restored): mapped 1849 -> 1850 (+1). Reviewed stays 136. Two of the three rows carry a mapped concept; PYQ-M-TRI-005's label is the
+// chapter-echo "General" (no concept), so rows with a concept go 9755 of 10598 -> 9757 of 10601 (0.92038) and the pin moves
+// 0.9204 -> 0.9203 by exactly that row. All by runtime import on the merged tip.
+const MIN_MAPPED_LABELS = 1850;
+const MAX_REVIEWED_LABELS = 136;
+/** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9203;
 
 const isChapterEchoSubtopic = echoFromShape;
 
@@ -254,7 +272,7 @@ describe("tracking concepts (CONCEPT-MAP-FILL-1)", () => {
       expect(new Set(names).size, `${ch}: each tracking concept appears once`).toBe(names.length);
       for (const n of names) expect(EXAM_TRENDS_CONCEPTS[ch as keyof typeof EXAM_TRENDS_CONCEPTS], `${ch}/${n}`).not.toContain(n);
     }
-    expect(pairs.length).toBe(33);
+    expect(pairs.length).toBe(34);
   });
 
   it.each(pairs)("%s / %s carries a cited source and at least one mapped label", (ch, name) => {
@@ -274,6 +292,9 @@ describe("tracking concepts (CONCEPT-MAP-FILL-1)", () => {
 
   // 3 labels per newly covered chapter. Before this lane each of these returned undefined (reviewed concept-gap).
   const PINS: ReadonlyArray<readonly [string, string, string]> = [
+    ["areas-related-to-circles", "Area of a Circle", "Perimeter and Area of a Circle — A Review"],
+    ["areas-related-to-circles", "Circumference of a Circle", "Perimeter and Area of a Circle — A Review"],
+    ["areas-related-to-circles", "Wheels and Revolutions", "Perimeter and Area of a Circle — A Review"],
     ["metals-and-non-metals", "Extraction of Metals", "Basic Metallurgical Processes"],
     ["metals-and-non-metals", "Chemical Properties", "Chemical Properties of Metals and Non-metals"],
     ["metals-and-non-metals", "Physical Properties", "Physical Properties of Metals and Non-metals"],
@@ -331,10 +352,7 @@ describe("tracking concepts (CONCEPT-MAP-FILL-1)", () => {
       if (conceptForSubtopic(ch, label)) x.mapped++;
       tot.set(ch, x);
     }
-    // areas-related-to-circles stays at ~85% (floor 0.84): the independent reviewer found its 28 `concept-gap` labels (circle area /
-    // circumference / wheel revolutions) are the deleted NCERT 'Perimeter and Area of a Circle - A Review' content, outside the
-    // 2026-27 syllabus, so no concept is built for them (a bank lane decides whether those rows are served).
-    const BELOW_TARGET: Record<string, number> = { "areas-related-to-circles": 0.84 };
-    for (const [ch, x] of tot) expect(x.mapped / x.rows, ch).toBeGreaterThanOrEqual(BELOW_TARGET[ch] ?? 0.9);
+    // (areas-related-to-circles was the one exception, ~85%, until D79b ruled the review content IN and PR-2 built its concept.)
+    for (const [ch, x] of tot) expect(x.mapped / x.rows, ch).toBeGreaterThanOrEqual(0.9);
   });
 });

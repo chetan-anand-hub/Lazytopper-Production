@@ -283,6 +283,20 @@ export const selectInRangeFromPool = (
   // `available` is untouched and the invariant holds exactly as before.
   return { available, displayed: ordered.slice(0, committedCount) };
 };
+/**
+ * CONCEPT-MAP-FILL-1 PR-2 (D92a) — a STRICT focus id list that covers the whole count, with no marks
+ * filter: the set is exactly those ids, in their order. Every other case (no strictFocus, a shorter
+ * list, any marks value or range) keeps its existing path byte-for-byte.
+ */
+export const isExactFocusSet = (
+  strictFocus: boolean,
+  focusBankIds: readonly string[] | undefined,
+  count: number,
+  marks: string,
+  range: MarksRange | null,
+): boolean =>
+  strictFocus && !!focusBankIds && focusBankIds.length >= count && marks === "all" && !range;
+
 const uiMarksToSectionScope = (ui: string): "A" | "B" | "C" | "D" | "E" | "All" => {
   if (ui === "1") return "A";
   if (ui === "5") return "D";
@@ -1201,6 +1215,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     // exact concept range) is active so the random-sample bias toward the
     // Easy/Section-A bucket doesn't starve other sections. We narrow client-side
     // and trim to the committed count so the rendered list matches the request.
+    // CONCEPT-MAP-FILL-1 PR-2 (D92a) — an exact id set keeps its given order: no seen-first
+    // reorder and no rotation (the first id is the one the entry chose to lead with).
+    const exact = isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange);
     return selectInRangeFromPool(
       questions,
       committedMarks,
@@ -1209,10 +1226,10 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       committedDifficulty,
       committedMarksRange,
       committedCount,
-      seenQuestionIds,
-      rotationOffset,
+      exact ? undefined : seenQuestionIds,
+      exact ? undefined : rotationOffset,
     );
-  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset]);
+  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
 
   const filteredQuestions = committedPoolSelection.displayed;
 
@@ -1775,6 +1792,25 @@ const packTopicKey = useMemo(() => {
             ]);
             next = mergeMultiTopicDeep({ pools, offset: rotationOffset });
           }
+        } else if (isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange)) {
+          // CONCEPT-MAP-FILL-1 PR-2 (D92a) — a strict id list that covers the whole count (a Topic Hub
+          // concept's Practise, Weak Area's targeted session, a shared exact-set link) is served from
+          // those ids themselves, in their order. The blueprint below would split it by section share
+          // and change the set (probe: Alloys 26 requested -> 22 served, 4 outside the concept).
+          next = await Promise.race([
+            buildPracticeQuestionsWithAiTopup({
+              grade,
+              subjectKey,
+              topicLabel,
+              packTopicKey,
+              count: questionCount,
+              difficulty,
+              subtopicHint,
+              focusBankIds,
+              strictFocus,
+            }),
+            timeout,
+          ]);
         } else if (committedMarks === "all") {
           // CBSE Class 10 board paper blueprint:
           //   Section A (1mk) 30% · B (2mk) 20% · C (3mk) 20% · D (5mk) 20% · E (4mk) 10%

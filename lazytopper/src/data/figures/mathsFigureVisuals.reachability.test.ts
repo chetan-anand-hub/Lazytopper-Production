@@ -63,7 +63,9 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // served rows (APQ, board paper 2026), pinned one by one in mathsFigureVisuals.c3.test.ts.
     // 127 -> 140 at the C3 PR-D1 B-21 census step (2026-10-10): +13 crops for 11 WITHHELD rows (APQ, SQP), each declared
     // in BOUND_BUT_WITHHELD and pinned in mathsFigureVisuals.c3.test.ts. APQ-M-ARC-004 and APQ-M-POLY-001 carry two each.
-    expect(batch).toHaveLength(140); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
+    // 140 -> 141 at RULE5-BIND-1 (11 Oct): +1 APQ PQ_2022 Q29 (OR) crop (APQ-M-CIRC-012, two semicircles and the common tangent),
+    // a served row, pinned in rule5Bind.test.ts.
+    expect(batch).toHaveLength(141); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {
