@@ -81,10 +81,8 @@ const PR1_NOT_BOUND = [
 // 2026-10-10 BANK-FIX-6 (C2): two bound rows withheld because the answer is defined only by the image (no working derivable from the text);
 // B re-assesses them against the bound figure. Declared in BOUND_BUT_WITHHELD; bound by an earlier lane, so accepted here by name.
 const BANK_FIX_6_BOUND_BUT_WITHHELD: readonly string[] = ["APQ-M-TRIG-011", "APQ-M-TRIG-016"];
-const C3_D1_BOUND_BUT_WITHHELD: readonly string[] = [
-  "APQ-M-ARC-001", "APQ-M-ARC-002", "APQ-M-ARC-003", "APQ-M-ARC-004", "APQ-M-ARC-006", "APQ-M-ARC-008", "APQ-M-ARC-010",
-  "SQP-M-POLY-001", "APQ-M-POLY-001", "APQ-M-STAT-003", "APQ-M-STAT-008",
-];
+// B (2026-10-10, BANK-UNWITHHOLD-1): 10 of the 11 are served again; APQ-M-ARC-001 stays withheld (its official stem is blank).
+const C3_D1_BOUND_BUT_WITHHELD: readonly string[] = ["APQ-M-ARC-001"];
 
 // Census 2026-10-07 Appendix 3: bound figures BANK-FIX-1 PR-2 found WRONG. PR-1 must never bind any of them.
 const CENSUS_WRONG_IDS = [

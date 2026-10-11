@@ -41,13 +41,17 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // is withheld (its figures are not bound); a DIAGRAMS lane that serves it again restores the line and 1517.
 // 2026-10-10 BANK-FIX-6 (C2): 1516 -> 1514. "Trig Identity Proof — Multi-step" and "cos θ from Similar Right Triangles" are unserved while
 // APQ-M-TRIG-016 and APQ-M-TRIG-011 are withheld (answer defined only by an image); B restores both lines and 1516 when it serves them again.
+// 2026-10-10 BANK-UNWITHHOLD-1 (B): 1514 -> 1525 (+11). 21 figure rows served again bring 12 new labels: 11 mapped to existing Exam Trends
+// concepts (incl. 'Current-Carrying Conductors', restored for PYQ-S-2025-MAG-006) and 1 reviewed concept-gap ('Benzene'; reviewed 456 -> 457, max stays 458).
 // 2026-10-10 CONCEPT-MAP-FILL-1: 293 `concept-gap` labels (1,232 rows) now map to 33 TRACKING concepts (trackingConcepts.ts):
 // mapped 1518 -> 1811, reviewed 456 -> 163, rows with a concept 8465 -> 9697 of 10592 (0.7992 -> 0.9155). The old pins
 // (1514 / 458 / 0.7861) sat below the tip by 4 / 2 / 0.013; they are tightened to the exact new numbers.
-const MIN_MAPPED_LABELS = 1811;
-const MAX_REVIEWED_LABELS = 163;
-/** served rows whose label resolves to a concept / all served rows: 9697 / 10592. */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9155;
+// Rebased onto BANK-UNWITHHOLD-1 (#1066) at a863452f: B's +11 mapped and +1 reviewed ('Benzene') are added, so the final pins are
+// mapped 1822, reviewed 164, rows with a concept 9716 of 10613 (0.91548), recomputed from the merged tip by runtime import.
+const MIN_MAPPED_LABELS = 1822;
+const MAX_REVIEWED_LABELS = 164;
+/** served rows whose label resolves to a concept / all served rows: 9697+19 / 10613 = 9716 / 10613. */
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9154;
 
 const isChapterEchoSubtopic = echoFromShape;
 

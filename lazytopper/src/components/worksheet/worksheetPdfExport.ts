@@ -20,6 +20,7 @@ import { createRoot } from "react-dom/client";
 import { WorksheetPrintDoc } from "./WorksheetPrintDoc";
 import { WorksheetGradedPrintDoc } from "./WorksheetGradedPrintDoc";
 import { loadKatex } from "../question/MathText";
+import type { RenderSolutionFigure } from "./printFigures";
 import {
   CheckImproveGradedPrintDoc,
   type CheckImproveGradedPrintDocProps,
@@ -52,6 +53,26 @@ function codeToken(code: string | undefined | null): string {
   if (!code) return "";
   const t = String(code).replace(/[^A-Za-z0-9-]+/g, "").replace(/(^-|-$)/g, "");
   return t ? `${t}-` : "";
+}
+
+/** FIGURES-ALL-SURFACES-1 PR-2 — html2canvas rasterises whatever is loaded at that instant, so every <img> in the
+ *  host (official question / solution figures) must have loaded first. A broken or slow image is given up on after
+ *  `timeoutMs` and the PDF is still produced (the figure is then missing, never the whole download). */
+export async function waitForImages(host: HTMLElement, timeoutMs = 8000): Promise<void> {
+  const pending = Array.from(host.querySelectorAll("img")).filter((img) => !(img.complete && img.naturalWidth > 0));
+  if (pending.length === 0) return;
+  await Promise.race([
+    Promise.all(
+      pending.map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            img.addEventListener("load", () => resolve(), { once: true });
+            img.addEventListener("error", () => resolve(), { once: true });
+          }),
+      ),
+    ),
+    new Promise<void>((resolve) => window.setTimeout(resolve, timeoutMs)),
+  ]);
 }
 
 async function waitForRenderReady(): Promise<void> {
@@ -114,6 +135,7 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
     await loadKatex();
     root.render(element);
     await waitForRenderReady();
+    await waitForImages(host);
 
     const canvas = await html2canvas(host, {
       scale: 2,
@@ -161,6 +183,15 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
   }
 }
 
+/** The diagrams registry loads only when a PDF with solutions is actually produced. */
+async function loadSolutionFigureRenderer(): Promise<RenderSolutionFigure | undefined> {
+  try {
+    return (await import("../../diagrams/printSolutionFigure")).renderPrintSolutionFigure;
+  } catch {
+    return undefined; // honest: no solution figures rather than no PDF
+  }
+}
+
 /**
  * Render + download one worksheet PDF (questions-only or answer-key) as a real
  * file. Returns the filename saved (handy for tests / telemetry).
@@ -172,7 +203,8 @@ export async function exportWorksheetPdf(
 ): Promise<string> {
   const suffix = kind === "answers" ? "answer-key" : "questions";
   const filename = `lazytopper-${slug(ws.title)}-${codeToken(code)}${suffix}.pdf`;
-  return renderElementToPdf(createElement(WorksheetPrintDoc, { ws, kind, code }), filename);
+  const renderSolutionFigure = kind === "answers" ? await loadSolutionFigureRenderer() : undefined;
+  return renderElementToPdf(createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure }), filename);
 }
 
 /**
@@ -191,7 +223,7 @@ export async function exportGradedWorksheetPdf(args: {
   const { ws, response, name, code, coaching } = args;
   const filename = `lazytopper-${slug(name || ws.title)}-${codeToken(code)}graded.pdf`;
   return renderElementToPdf(
-    createElement(WorksheetGradedPrintDoc, { ws, response, name, code, coaching }),
+    createElement(WorksheetGradedPrintDoc, { ws, response, name, code, coaching, renderSolutionFigure: await loadSolutionFigureRenderer() }),
     filename,
   );
 }

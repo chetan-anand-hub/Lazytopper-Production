@@ -143,6 +143,8 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Real-World HCF and LCM Application": "Fundamental Theorem of Arithmetic",
   },
   "polynomials": {
+    "Zeroes of a Linear Polynomial": "Graph & Type of Polynomial", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Graph of Polynomial": "Graph & Type of Polynomial", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Coefficient–root Relations": "Coefficient–root Relations",
     "Constructing a Polynomial": "Coefficient–root Relations",
     "Counting Polynomials with Given Zeroes": "Coefficient–root Relations",
@@ -524,6 +526,11 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Two Concentric Circles": "Tangent Properties",
   },
   "areas-related-to-circles": {
+    "Area of Circular Sectors — Inscribed Polygon": "Composite Figures", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Sector and Triangle Areas — Rhombus": "Composite Figures", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Segment Area — Semicircle in Semicircle": "Composite Figures", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Sector — Length Calculation": "Sectors and Segments", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Sector Area — Fibonacci Grid": "Sectors and Segments", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Arc Length": "Sectors and Segments",
     "Arc Length from Bent Wire": "Sectors and Segments",
     "Arc Length — Chord Subtending 60°": "Sectors and Segments",
@@ -628,6 +635,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Water Left after Immersing Cone": "Combination of Solids",
   },
   "statistics": {
+    "Median and Class Frequencies": "Median of Grouped Data", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Assumed Mean Choice": "Mean (Step Deviation)",
     "Assumed Mean Deviations": "Mean (Step Deviation)",
     "Class Frequency from Cumulative": "Median of Grouped Data",
@@ -1040,6 +1048,8 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Sodium Chemistry": "Chemical Properties of Metals and Non-metals",
   },
   "carbon-and-its-compounds": {
+    "Identifying Unsaturated Hydrocarbons — Ethene": "Homologous Series & Nomenclature", // BANK-UNWITHHOLD-1 (2026-10-10)
+    "Unsaturated Hydrocarbons": "Homologous Series & Nomenclature", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Acid Properties": "Properties of Ethanol & Ethanoic Acid",
     "Alcohols": "Properties of Ethanol & Ethanoic Acid",
     "Alcohols, Esterification, Dehydration": "Properties of Ethanol & Ethanoic Acid",
@@ -1466,6 +1476,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Work and Voltage": "Electric Potential and Potential Difference",
   },
   "magnetic-effects-of-electric-current": {
+    "Current-Carrying Conductors": "Right-hand Rules & Field Lines", // BANK-UNWITHHOLD-1 (2026-10-10)
     "Bar Magnet": "Right-hand Rules & Field Lines",
     "Electromagnet": "Right-hand Rules & Field Lines",
     "Electromagnets — core material": "Right-hand Rules & Field Lines",
@@ -2122,6 +2133,7 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Role of Cryolite in Aluminium Extraction": { reason: "concept-gap", note: "audit (verified): metallurgy — propose 'Occurrence & Extraction of Metals (Metallurgy)'" },
   },
   "carbon-and-its-compounds": {
+    "Benzene": { reason: "concept-gap", note: "concept-gap: in-syllabus Exemplar item on ring structures; no Exam Trends concept of this chapter covers it (consistent with sibling Isomers / Hydrocarbons labels)" }, // BANK-UNWITHHOLD-1 (2026-10-10)
     "Carbon Compounds": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
     "Carbon Compounds (Oxides)": { reason: "concept-gap", note: "audit (verified): propose \"Chemical Properties of Carbon Compounds (combustion, oxidation, addition, substitution)\"" },
     "Carbon and its Compounds": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
