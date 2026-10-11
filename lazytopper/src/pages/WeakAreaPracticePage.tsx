@@ -808,8 +808,8 @@ export default function WeakAreaPracticePage() {
                   boxShadow: "0 4px 12px rgba(255,150,0,0.3)",
                 }}
               >
-                {/* DECISION 61b — the session is best-effort (focusBankIds): the copy promises no count and no difficulty order. */}
-                {`Practise ${shownAreas[0]?.topicName ?? ""}${shownAreas[0]?.weakConcepts[0] ? `, starting with ${shownAreas[0].weakConcepts[0].label}` : ""}`}
+                {/* DECISION 85a — the concept ids ride the URL best-effort (the engine only reorders inside its own draw), so the copy names the chapter only; C1's #1076 restores "starting with {concept}" once the exact filter is live. */}
+                {`Practise ${shownAreas[0]?.topicName ?? ""}`}
               </button>
               {shownAreas.map((area) => (
                 <WeakAreaCard

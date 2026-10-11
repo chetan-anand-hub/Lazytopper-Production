@@ -56,6 +56,11 @@ vi.mock("../services/tutorSessionStore", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../services/tutorSessionStore")>()),
   getTutorTurnsFromCloud: async () => ({ events: [], complete: true }),
 }));
+// The test imports Me's list builders from MeProgressPage (a gated file); it renders only WeakAreaPracticePage, so the gate is inert here.
+vi.mock("../components/auth/RequireAuth", () => ({
+  RequireAuth: ({ children }: { children: unknown }) => children,
+  RequirePremium: ({ children }: { children: unknown }) => children,
+}));
 vi.mock("../context/AuthContext", () => ({
   useAuth: () => ({ user: { uid: UID }, loading: false, mistakeLogsHydrated: 0 }),
 }));
@@ -328,10 +333,9 @@ describe("D3 — the targeted session: the chosen concept's served rows first, t
     const fx = aboveGateFixture();
     device("B");
     await renderPage();
-    // DECISION 61b — the exact label: chapter + weakest concept, no count, no difficulty order.
-    const weakLabel = conceptGroups(AP).find((g) => g.key === fx.apWeak)!.label;
-    const button = await screen.findByRole("button", { name: `Practise Arithmetic Progression, starting with ${weakLabel}` });
-    expect(button.textContent).toBe(`Practise Arithmetic Progression, starting with ${weakLabel}`);
+    // DECISION 85a (amends 61b) — the exact label: the chapter only; no count, no difficulty order, no concept claim.
+    const button = await screen.findByRole("button", { name: "Practise Arithmetic Progression" });
+    expect(button.textContent).toBe("Practise Arithmetic Progression"); // D85a: no promise about the concept
     expect(document.body.textContent ?? "").not.toMatch(/\b15 questions\b|\(\d+ questions\)|Easy\s*(→|->)\s*Hard|Start Targeted Session/);
     fireEvent.click(button);
     await waitFor(() => expect(H.navigate.length).toBe(1));

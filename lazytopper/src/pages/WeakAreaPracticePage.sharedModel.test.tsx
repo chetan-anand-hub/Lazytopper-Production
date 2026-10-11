@@ -340,9 +340,9 @@ describe("Weak Area Practice — nothing named, counted or labelled before there
     device("B");
     await renderAndSettle();
     await screen.findByText("Arithmetic Progression");
-    // DECISION 61b — "Practise {chapter}, starting with {concept}": no count, no difficulty order.
-    const start = screen.getByRole("button", { name: /^Practise Arithmetic Progression(, starting with [^()]+)?$/ });
-    expect(start.textContent).toMatch(/^Practise Arithmetic Progression(, starting with [^()]+)?$/);
+    // DECISION 85a (amends 61b) — "Practise {chapter}": no count, no difficulty order, no claim about the concept.
+    const start = screen.getByRole("button", { name: /^Practise Arithmetic Progression$/ });
+    expect(start.textContent).toMatch(/^Practise Arithmetic Progression$/);
     expect(document.body.textContent ?? "").not.toMatch(/\b15 questions\b|\(\d+ questions\)|Easy\s*(→|->)\s*Hard/);
     expect(document.body.textContent).toMatch(/1Weak Areas/);
   });
