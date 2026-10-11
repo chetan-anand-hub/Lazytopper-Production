@@ -19,9 +19,7 @@
  * SOLUTION-FIGS-1 PR-1 (D39/40b, controller D) — Biology. NCERT Class 10 Science
  * (Reprint 2026-27, jesc105/106/107.pdf from ncert.nic.in) figures, bound under the same
  * rule: every label the question AND its own answer ask for is labelled in the figure.
- * Also binds Fig. 5.13 (already on trunk) to LP-H03 (its own step draws "both kidneys,
- * ureters, urinary bladder" — bound as the excretory-system part only) and to the kept
- * booklet rows SCQ-S-LIFE-043/-044 (BOOKLET-WITHHOLD-1 was cancelled, D21; the figure is
+ * Also binds Fig. 5.13 (already on trunk) to the kept booklet rows SCQ-S-LIFE-043/-044 (BOOKLET-WITHHOLD-1 was cancelled, D21; the figure is
  * NCERT's, not the booklet's). Not bound, with reason: CC-M01 / CTRL-EXMPLR-6-LA-001
  * (answer labels myelin sheath / nodes of Ranvier; Fig. 6.1 does not), CC-M07 (asks a
  * flowchart), CNC2-047 (blink reflex via the brainstem; Fig. 6.2 is a spinal arm reflex),
@@ -29,7 +27,8 @@
  * REPR-NCERT-7-LA-001 (answer labels ovule / receptacle; Fig. 7.7 does not),
  * REPR-EXMPLR-7-LA-003 (style, ovule unlabelled in Fig. 7.8), BX-REP-D-001 (epididymis
  * unlabelled in Fig. 7.10), SQP-S-2023-REPR-D-001 (hypha, sporangium unlabelled in
- * Fig. 7.6), sci-bio-repro-3m-2026-01 (Fig. 7.1(a) carries no labels), LPSD-018 (valves).
+ * Fig. 7.6), sci-bio-repro-3m-2026-01 (Fig. 7.1(a) carries no labels), LPSD-018 (valves),
+ * LP-H03 (still: its step 1 points at a labelled nephron; verifier FAIL 2026-10-11, bank NOTE).
  */
 import type { CropFigureBinding } from "./computedFigureTypes";
 
@@ -97,17 +96,7 @@ export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
     eyeConfirm: "asked (b)(ii): open stomatal pore labelled (I) Guard cells (II) Chloroplast; Fig. 5.3(a) labels guard cells, stomatal pore and chloroplast",
     confirmedBy: BY,
   },
-  {
-    kind: "crop",
-    questionId: "LP-H03",
-    slot: "solution",
-    part: "excretory system",
-    filePath: `${LP_DIR}ncert-fig-5-13-excretory-system.webp`,
-    alt: "Human excretory system: kidneys, ureters, urinary bladder and urethra, with the aorta, vena cava and renal vessels",
-    source: { file: NCERT_LP, page: 18, figure: "NCERT Class 10 Science, Fig. 5.13" },
-    eyeConfirm: "asked: Kidney, Ureter, Urinary bladder, Urethra; Fig. 5.13 labels left kidney, left ureter, urinary bladder, urethra. The nephron its urine-formation step names is NOT drawn (Fig. 5.14 lacks loop of Henle / tubules), so only this part is bound",
-    confirmedBy: BY_D,
-  },
+
   {
     kind: "crop",
     questionId: "SCQ-S-LIFE-043",
