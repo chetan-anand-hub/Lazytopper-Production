@@ -416,6 +416,11 @@ const NOTE_CSS = `
 .lt-note__ledger td b { color: var(--lt-note-navy); }
 .lt-note__ledger-src { white-space: nowrap; color: var(--lt-note-green-deep); font-weight: 600; }
 .lt-note__ledger-wrap { overflow-x: auto; }
+.lt-note__ledger-details { margin-top: 14px; }
+.lt-note__ledger-summary {
+  cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--lt-note-green-deep);
+  padding: 8px 0; list-style-position: inside;
+}
 .lt-note__footnote {
   text-align: center; font-size: 12px; color: var(--lt-note-ink-faint);
   font-style: italic; margin: 16px 0 2px;
@@ -1533,8 +1538,12 @@ export function Note({ spec, initialTab }: NoteProps) {
         <BoardQuestionsPanel topicKey={meta.topic_key} title={meta.title} />
       </div>
 
-      {/* ── Source ledger — provenance, visible under every tab ── */}
+      {/* ── Source ledger — provenance, under every tab, CLOSED by default (NOTES-LEDGER-COLLAPSE-1).
+          A native <details>: the table stays in the DOM and in the prerendered HTML (crawlable, the
+          trust signal survives); only its visibility changes. No JS, same on mobile and desktop. ── */}
       {spec.source_ledger.length > 0 && (
+        <details className="lt-note__ledger-details">
+          <summary className="lt-note__ledger-summary">Sources: NCERT 2026-27 (tap to view)</summary>
         <section className="lt-note__block">
           <div className="lt-note__sec-label">
             Source ledger <span className="lt-note__tag-src">PROVENANCE</span>
@@ -1575,6 +1584,7 @@ export function Note({ spec, initialTab }: NoteProps) {
             </table>
           </div>
         </section>
+        </details>
       )}
 
       <p className="lt-note__footnote">
