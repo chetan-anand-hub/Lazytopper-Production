@@ -30,6 +30,12 @@ describe("BANK-FIX-7 PR-1 - solution text agrees with the NCERT figure it cites"
     expect(q.answer).not.toMatch(/V, I, B, G, Y, O, R from top/);
   });
 
+  it("EYE-EXMPLR-10-SA-006 (verifier FU): the labelling step gives ONE order, red at the top and violet at the bottom", () => {
+    const steps = get("EYE-EXMPLR-10-SA-006").solutionSteps ?? [];
+    expect(steps.join("\n")).toContain("Label the colours from top to bottom: R, O, Y, G, B, I, V");
+    expect(steps.join("\n")).not.toContain("V, I, B, G, Y, O, R (or R, O, Y, G, B, I, V");
+  });
+
   it("SCQ-S-EYE-037: the 25 cm point is N' (normal eye), not N", () => {
     const steps = get("SCQ-S-EYE-037").solutionSteps ?? [];
     expect(steps.join("\n")).toContain("N′, the near point of a normal eye");
@@ -44,7 +50,7 @@ describe("BANK-FIX-7 PR-1 - solution text agrees with the NCERT figure it cites"
   });
 
   it("no row was withheld by this fix (each id is in the raw bank AND served)", () => {
-    for (const id of ["EYE-EXMPLR-10-LA-005", "SCQ-S-EYE-037", "LP-H03"]) {
+    for (const id of ["EYE-EXMPLR-10-LA-005", "EYE-EXMPLR-10-SA-006", "SCQ-S-EYE-037", "LP-H03"]) {
       expect(raw.has(id), id).toBe(true);
       expect(served.has(id), id).toBe(true);
     }
