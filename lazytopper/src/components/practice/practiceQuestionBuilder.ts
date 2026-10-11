@@ -305,6 +305,25 @@ export function buildCbqPracticePool(args: {
   return buildPracticeQuestionsFromEngineRows(interleaveCbqsByMarks(cbqs) as unknown as RawQuestion[]);
 }
 
+/**
+ * CONCEPT-MAP-FILL-1 PR-2 — the served rows of one chapter whose id is in `ids`, in the order of `ids`
+ * (no engine draw). `generatePracticeSet` draws a random-ish `count` from the chapter and a focus list can
+ * only REORDER that draw, so ids outside it were never served; a Topic Hub concept's Practise needs the
+ * concept's own rows, so it reads them from the same served pool (PredictionCore) directly, like the CBQ pool.
+ * The chapter must already be loaded (ensureBankChapters).
+ */
+export function buildExactFocusPool(topicKey: string, ids: readonly string[]): PracticeQuestion[] {
+  const order = new Map<string, number>();
+  ids.forEach((id, i) => {
+    if (!order.has(String(id))) order.set(String(id), i);
+  });
+  const idOf = (q: unknown) => String((q as { id?: unknown }).id ?? "");
+  const rows = PredictionCore.getLikelyQuestionsForConcept(topicKey)
+    .filter((q) => order.has(idOf(q)))
+    .sort((a, b) => (order.get(idOf(a)) ?? 0) - (order.get(idOf(b)) ?? 0));
+  return buildPracticeQuestionsFromEngineRows(rows as unknown as RawQuestion[]);
+}
+
 /** The engine's row -> PracticeQuestion mapping, over a given row list (no draw, no slice). */
 function buildPracticeQuestionsFromEngineRows(rows: RawQuestion[]): PracticeQuestion[] {
   const seenTexts = new Set<string>();
@@ -517,20 +536,31 @@ export async function buildPracticeQuestionsWithAiTopup(
 ): Promise<PracticeQuestion[]> {
   const safeCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
 
-  const engineQuestions = buildPracticeQuestionsFromEngine({
-    subjectKey: args.subjectKey,
-    topicKey: args.topicLabel,
-    count: safeCount,
-    difficulty: args.difficulty,
-    subtopicHint: args.subtopicHint,
-    focusBankIds: args.focusBankIds,
-    boardPattern: args.sectionFilter,
-    adaptiveMix: args.adaptiveMix,
-    priorityConceptKeys: args.priorityConceptKeys,
-    marksFilter: args.marksFilter,
-    pyqOnly: args.pyqOnly,
-    seenQuestionIds: args.seenQuestionIds,
-  });
+  // CONCEPT-MAP-FILL-1 PR-2: a STRICT focus whose id list already covers the whole requested count is
+  // served from those ids themselves (the engine's draw cannot be relied on to contain them). A strict
+  // list SHORTER than the count keeps the old behaviour (ids first, topped up from the draw). If the ids
+  // resolve to no served row, fall through to the engine exactly as before.
+  const exactPool =
+    args.strictFocus && args.focusBankIds && args.focusBankIds.length >= safeCount
+      ? buildExactFocusPool(args.topicLabel, args.focusBankIds)
+      : [];
+  const engineQuestions =
+    exactPool.length > 0
+      ? exactPool
+      : buildPracticeQuestionsFromEngine({
+          subjectKey: args.subjectKey,
+          topicKey: args.topicLabel,
+          count: safeCount,
+          difficulty: args.difficulty,
+          subtopicHint: args.subtopicHint,
+          focusBankIds: args.focusBankIds,
+          boardPattern: args.sectionFilter,
+          adaptiveMix: args.adaptiveMix,
+          priorityConceptKeys: args.priorityConceptKeys,
+          marksFilter: args.marksFilter,
+          pyqOnly: args.pyqOnly,
+          seenQuestionIds: args.seenQuestionIds,
+        });
 
   const subjectLower = args.subjectKey.toLowerCase() as "maths" | "science";
   const packMap = promptDPracticePacks[subjectLower];
@@ -818,8 +848,44 @@ export async function buildPracticeQuestionsWithAiTopup(
     const merged = [...mergedWithCanonical, ...cachedQuestions, ...aiQuestions];
     return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
   } catch (err) {
-    console.error("AI top-up failed for practice set:", err);
+    // ALL-AI-METERING-1: a fair-use refusal is expected operation, not a fault — the page is told
+    // (its limit panel) and the saved questions are returned exactly as on any other failure.
+    if (isMoreLikeThisLimit(err)) notifyMoreLikeThisLimit(err);
+    else console.error("AI top-up failed for practice set:", err);
     const merged = [...mergedWithCanonical, ...cachedQuestions];
     return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
   }
+}
+
+/* ── ALL-AI-METERING-1 · a More-like-this refusal reaches the page ─────────────────────────────
+   buildPracticeQuestionsWithAiTopup returns QUESTIONS (bank + cache), never an error, so a fair-use
+   refusal of the AI top-up would otherwise vanish into the catch above. The page subscribes once
+   and shows its More-like-this limit panel; the questions it already has are untouched. Read by
+   `name` ("FairUseLimitError"), never instanceof — several suites mock aiClient partially. */
+type MoreLikeThisLimitListener = (err: unknown) => void;
+const moreLikeThisLimitListeners = new Set<MoreLikeThisLimitListener>();
+
+function isMoreLikeThisLimit(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const name = (err as { name?: unknown }).name;
+  // FairUseLimitError = a trial/Premium cap; PremiumRequiredError = a FREE student's 402 (DECISION 29d).
+  return name === "FairUseLimitError" || name === "PremiumRequiredError";
+}
+
+function notifyMoreLikeThisLimit(err: unknown): void {
+  for (const listener of moreLikeThisLimitListeners) {
+    try {
+      listener(err);
+    } catch {
+      /* a listener must never break the practice set */
+    }
+  }
+}
+
+/** Subscribe to More-like-this fair-use refusals. Returns the unsubscribe. */
+export function subscribeMoreLikeThisLimit(listener: MoreLikeThisLimitListener): () => void {
+  moreLikeThisLimitListeners.add(listener);
+  return () => {
+    moreLikeThisLimitListeners.delete(listener);
+  };
 }

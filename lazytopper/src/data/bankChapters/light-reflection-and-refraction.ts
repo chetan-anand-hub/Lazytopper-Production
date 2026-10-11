@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "light-reflection-and-refraction" (Science): 781 served rows from 22 source arrays, 74 withheld.
+// Chapter "light-reflection-and-refraction" (Science): 780 served rows from 22 source arrays, 75 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -57,6 +57,7 @@ export default defineChapter("light-reflection-and-refraction", [
   "LT2-025",
   "LIGHT-EXMPLR-9-MCQ-004",
   "SCO-S-LIGHT-002",
+  "SCO-S-LIGHT-005",
   "SCO-S-LIGHT-008",
   "SCO-S-LIGHT-009",
   "SCO-S-LIGHT-010",

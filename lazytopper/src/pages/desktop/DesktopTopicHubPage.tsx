@@ -17,6 +17,7 @@ import {
   type ActionableTopicHubContent,
   type BoardConcept,
 } from "../../lib/desktop/topicHubContent";
+import { conceptPractiseTarget } from "../../lib/desktop/conceptPractice";
 import { Card } from "../../components/grammar/Card";
 import { ConceptSpine } from "../../components/topichub/ConceptSpine";
 import { TopicProgressTrend } from "../../components/progress/TopicProgressTrend";
@@ -194,7 +195,11 @@ export default function DesktopTopicHubPage() {
   const arrivalConceptName = useMemo(() => {
     const raw = queryParams.get("concept")?.trim();
     if (!raw || !actionable) return null;
-    return actionable.boardEssentials.find((c) => c.name === raw)?.name ?? null;
+    // A tracking / Exam Trends concept name (from Me, the Tutor brief) also resolves to the card that
+    // stands for it (`conceptKeys`, CONCEPT-MAP-FILL-1 PR-2); a card's own name still wins.
+    const byName = actionable.boardEssentials.find((c) => c.name === raw);
+    if (byName) return byName.name;
+    return actionable.boardEssentials.find((c) => c.conceptKeys?.includes(raw))?.name ?? null;
   }, [queryParams, actionable]);
 
   // In-page back button: honour an explicit (safe) returnTo, else go to Exam Trends.
@@ -251,16 +256,25 @@ export default function DesktopTopicHubPage() {
   // the PATH-CONDITIONAL concept entry: the range is pre-applied ONLY here; the
   // hub-entry path forces no range. `backLabel` + the topic-hub `returnTo` (in
   // routeContext) send "Back" to THIS specific topic page (item 4).
-  const practiceHrefForConcept = (concept: BoardConcept): string =>
-    buildDesktopConceptPracticePath({
+  //
+  // CONCEPT-MAP-FILL-1 PR-2: a card that carries `conceptKeys` practises EXACTLY the served rows that
+  // resolve to its concept (focusBankIds + strictFocus; the mark band is not sent). With fewer than
+  // MIN_CONCEPT_PRACTISE_ROWS rows it has no Practise button (null -> an honest note). A card without
+  // `conceptKeys` is unchanged.
+  const practiceHrefForConcept = (concept: BoardConcept): string | null => {
+    const target = conceptPractiseTarget(topic.slug, concept);
+    if (target.kind === "too-few") return null;
+    return buildDesktopConceptPracticePath({
       subject: topic.subject,
       topic: topic.slug,
       focus: concept.name,
       subtopicHint: concept.oneLineUse || concept.name,
       markBand: concept.marks,
+      ...(target.kind === "exact" ? { focusBankIds: target.ids, count: target.count } : {}),
       backLabel: `Back to ${topic.name}`,
       ...routeContext,
     });
+  };
 
   // Tutor entries (Stage 1) — the fresh /tutor route. Topic-level "Ask the tutor"
   // (cold entry -> continuity + fork) + per-concept "Stuck? Ask" (concept pre-loaded).

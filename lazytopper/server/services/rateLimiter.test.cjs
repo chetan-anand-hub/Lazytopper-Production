@@ -20,6 +20,7 @@ const {
   SPEND_MODEL,
   OFFERED_VISION_DAILY_SUBCAP,
   VISION_SHED_FRACTION,
+  PREMIUM_GLOBAL_OVERFLOW,
   MAX_SINGLE_UID_SHARE_OF_GLOBAL,
   CHECK_IMPROVE_FLOW_ENDPOINTS,
   VISION_CALLS_PER_OFFERED_CHECK,
@@ -67,7 +68,7 @@ const TEST_LIMITS = Object.freeze({
   vision: { soft: 2, hard: 4 },
   tutor: { soft: 2, hard: 4 },
   practice: { soft: 2, hard: 4 },
-  visual: { soft: 2, hard: 4 },
+  // 2026-10-11 HARDEN-1 PR-2: `visual` removed — the class went with /api/generate-diagram + /api/generate-visual.
   anonymous: { soft: 1, hard: 2 },
   global: { soft: 1000, hard: 1000 }, // effectively off unless a test says otherwise
 });
@@ -140,7 +141,7 @@ test("exhausting the vision class does not block the tutor class", () => {
 
   assert.equal(rl.check(reqWithUid("u1"), "/api/tutor").allowed, true);
   assert.equal(rl.check(reqWithUid("u1"), "/api/step-solution").allowed, true);
-  assert.equal(rl.check(reqWithUid("u1"), "/api/generate-diagram").allowed, true);
+  // 2026-10-11 HARDEN-1 PR-2: the /api/generate-diagram ("visual") probe removed with the route.
 });
 
 /* ── 4 · Day rollover ─────────────────────────────────────────────────────── */
@@ -209,8 +210,7 @@ test("non-paid endpoints are never limited, at any count", () => {
     [
       "/api/check-solution",
       "/api/detect-question",
-      "/api/generate-diagram",
-      "/api/generate-visual",
+      // 2026-10-11 HARDEN-1 PR-2: /api/generate-diagram + /api/generate-visual removed (D8/D75).
       "/api/grade-worksheet",
       "/api/more-like-this",
       "/api/step-solution",
@@ -270,8 +270,21 @@ test("the global ceiling 429s a caller who is still under their own per-uid cap"
   const blocked = rl.check(reqWithUid("d"), "/api/tutor");
   assert.equal(blocked.allowed, false, "the circuit breaker fires regardless of per-uid state");
   assert.equal(blocked.body.class, "global");
+  // FU-GLOBAL-SHED: the site-wide ceiling is its own error - never the generic per-student
+  // "you've hit today's limit" (the student may have used nothing) and never a fault.
+  assert.equal(blocked.status, 429);
+  assert.equal(blocked.body.error, "busy_today", "the global ceiling refuses with busy_today");
+  assert.equal(blocked.body.message, "LazyTopper is very busy today. Come back after midnight, or subscribe for priority access.");
+  assert.equal(blocked.body.scope, "free");
+  assert.equal(blocked.body.cta, "plans", "a signed-in caller is pointed to the plans");
+  assert.ok(blocked.body.resetAt, "it carries the next IST midnight");
   assert.equal(telemetry.count("rate_limit.hard_block.global"), 1, "the breaker is loud");
   assert.equal(telemetry.count("rate_limit.soft_breach.global"), 1);
+  // a signed-out visitor: the same sentence WITHOUT the subscribe part, and no call to action (D59a)
+  const anon = rl.check({ headers: {} }, "/api/tutor");
+  assert.equal(anon.allowed, false);
+  assert.equal(anon.body.message, "LazyTopper is very busy today. Come back after midnight.");
+  assert.equal(anon.body.cta, null);
 });
 
 /* ── 8 · Provider-agnostic (§1.2) ─────────────────────────────────────────── */
@@ -323,12 +336,14 @@ test("every allowed paid call emits a per-class calibration counter", () => {
 
   rl.check(reqWithUid("u1"), "/api/check-solution");
   rl.check(reqWithUid("u1"), "/api/tutor");
-  rl.check(reqWithUid("u1"), "/api/generate-visual");
+  // 2026-10-11 HARDEN-1 PR-2: the third class probed is now practice (/api/step-solution) —
+  // /api/generate-visual and the "visual" class were removed.
+  rl.check(reqWithUid("u1"), "/api/step-solution");
   rl.check(reqWithUid("u1"), "/api/user/progress/sync"); // not paid — no counter
 
   assert.equal(telemetry.count("rate_limit.call.vision"), 1);
   assert.equal(telemetry.count("rate_limit.call.tutor"), 1);
-  assert.equal(telemetry.count("rate_limit.call.visual"), 1);
+  assert.equal(telemetry.count("rate_limit.call.practice"), 1);
   assert.equal(telemetry.count("rate_limit.call.total"), 3, "unpaid calls are not counted");
 });
 
@@ -378,6 +393,21 @@ test("a full day at the effective ceiling costs less than the budget, even at th
   // tightest case the FX headroom exists to survive.
   const stressedBudget = SPEND_MODEL.dailyUsdAt(SPEND_MODEL.FX_STRESS_INR_PER_USD);
 
+  // FU-GLOBAL-SHED - amended by EXACTLY P (owner 0.25): a verified premium caller may pass the ceiling
+  // up to floor(hard x (1 + P)), so a full overflow day costs more than the daily budget by at most P of
+  // it. The non-premium assertion below is unchanged; this one bounds the overflow.
+  const overflowCalls = Math.floor(effectiveCeiling * (1 + PREMIUM_GLOBAL_OVERFLOW));
+  const overflowSpend = overflowCalls * SPEND_MODEL.BLENDED_USD_PER_CALL;
+  assert.equal(PREMIUM_GLOBAL_OVERFLOW, 0.25, "P is the owner's money call (DECISION 32d)");
+  // Honest scope: this bounds the overflow day by (1 + P) x the daily budget, which follows from the
+  // non-premium assertion below times (1 + P). What it ADDS is the pin: P cannot be raised (the equality
+  // above) and the overflow arithmetic cannot drift without this test going red.
+  assert.ok(
+    overflowSpend - stressedBudget <= PREMIUM_GLOBAL_OVERFLOW * stressedBudget,
+    `a full premium-overflow day (${overflowCalls} calls, $${overflowSpend.toFixed(2)}) must overshoot the stressed ` +
+      `daily budget ($${stressedBudget.toFixed(2)}) by at most P x that budget.`,
+  );
+
   assert.ok(
     worstCaseSpend <= stressedBudget,
     `a full day at the ceiling (${effectiveCeiling} calls) costs $${worstCaseSpend.toFixed(2)}, ` +
@@ -405,8 +435,8 @@ test("one uid's hard ceilings together stay under a fifth of the global day", ()
   const perUidTotal =
     DEFAULT_LIMITS.vision.hard +
     DEFAULT_LIMITS.tutor.hard +
-    DEFAULT_LIMITS.practice.hard +
-    DEFAULT_LIMITS.visual.hard;
+    DEFAULT_LIMITS.practice.hard;
+  // 2026-10-11 HARDEN-1 PR-2: `+ DEFAULT_LIMITS.visual.hard` removed — the class no longer exists.
 
   const budget = DEFAULT_LIMITS.global.hard * MAX_SINGLE_UID_SHARE_OF_GLOBAL;
 
@@ -550,6 +580,8 @@ test("every shipped class has hard strictly above soft", () => {
    ──────────────────────────────────────────────────────────────────────────── */
 
 /** A signed-out caller arriving WITH a client address forwarded through the hops. */
+// 2026-10-11 HARDEN-1 PR-2: the anon-key probes below used /api/generate-visual; that route was
+// removed (D8/D75), so they use /api/step-solution — any paid endpoint reaches the anonymous bucket.
 function reqAnonForwarded(clientIp = "203.0.113.55", proxyIp = "127.0.0.1") {
   return {
     headers: { "x-forwarded-for": `${clientIp}, 10.0.0.1` },
@@ -559,7 +591,7 @@ function reqAnonForwarded(clientIp = "203.0.113.55", proxyIp = "127.0.0.1") {
 
 test("an anonymous caller WITH x-forwarded-for reports the `client` shape", () => {
   const { rl, telemetry } = limiter();
-  rl.check(reqAnonForwarded(), "/api/generate-visual");
+  rl.check(reqAnonForwarded(), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.client"), 1);
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 0);
 });
@@ -568,7 +600,7 @@ test("an anonymous caller WITHOUT x-forwarded-for reports the `loopback` shape",
   // The alarm case: no XFF means resolveCaller falls back to remoteAddress, which
   // behind the proxy is the api-server — one bucket for every signed-out student.
   const { rl, telemetry } = limiter();
-  rl.check(reqAnon("127.0.0.1"), "/api/generate-visual");
+  rl.check(reqAnon("127.0.0.1"), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 1);
   assert.equal(telemetry.count("rate_limit.anon_key.client"), 0);
 });
@@ -577,7 +609,7 @@ test("a SIGNED-IN caller reports no anon-key shape at all", () => {
   // The uid keys the bucket; XFF is irrelevant, so an emit here would be noise
   // that makes the loopback/client ratio unreadable.
   const { rl, telemetry } = limiter();
-  rl.check(reqWithUid("uid-1"), "/api/generate-visual");
+  rl.check(reqWithUid("uid-1"), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.client"), 0);
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 0);
 });
@@ -597,7 +629,7 @@ test("the shape is reported per request, including the ones that get 429'd", () 
   // wrong key shape is the likeliest reason a signed-out caller is being denied
   // at all, so this is precisely when the diagnostic matters most.
   const { rl, telemetry } = limiter();
-  for (let i = 0; i < 4; i++) rl.check(reqAnon("127.0.0.1"), "/api/generate-visual");
+  for (let i = 0; i < 4; i++) rl.check(reqAnon("127.0.0.1"), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 4);
 });
 
@@ -613,8 +645,8 @@ test("the emitted shape agrees with the key resolveCaller actually builds", () =
   assert.ok(resolveCaller(forwarded).anonymous && resolveCaller(bare).anonymous);
 
   const { rl, telemetry } = limiter();
-  rl.check(forwarded, "/api/generate-visual");
-  rl.check(bare, "/api/generate-visual");
+  rl.check(forwarded, "/api/step-solution");
+  rl.check(bare, "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.anon_key.client"), 1);
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 1);
 });
@@ -623,7 +655,7 @@ test("the shape emit carries no IP and no PII", () => {
   // SHAPE ONLY. The whole point is that the answer is obtainable without ever
   // putting a student's address into telemetry.
   const { rl, telemetry } = limiter();
-  rl.check(reqAnonForwarded("203.0.113.55"), "/api/generate-visual");
+  rl.check(reqAnonForwarded("203.0.113.55"), "/api/step-solution");
   const serialised = JSON.stringify(telemetry.events);
   assert.ok(!serialised.includes("203.0.113.55"), "an IP reached telemetry");
   assert.ok(!serialised.includes("10.0.0.1"), "a proxy hop reached telemetry");

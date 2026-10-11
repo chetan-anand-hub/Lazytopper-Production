@@ -8,16 +8,18 @@ import "../test/preloadBankChapters";
 import { RULE5_REVIEWED_NOT_NEEDED, needsMissingFigure } from "./figureSafe";
 import { defaultHasBoundFigure, demandsSuppliedFigure } from "../../scripts/seo/publishability";
 import { getBankRowsForSubject } from "../data/bankChapters/loader";
+import { RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS } from "../data/canonicalQuestionBank";
 import type { CanonicalQuestion } from "../data/predictionTypes";
 
 const BANK: CanonicalQuestion[] = [...getBankRowsForSubject("Maths"), ...getBankRowsForSubject("Science")];
 const BY_ID = new Map(BANK.map((q) => [q.id, q]));
+const RAW_BY_ID = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
 const flagsByText = (q: CanonicalQuestion) =>
   Boolean((q as { requiresDiagram?: boolean }).requiresDiagram || demandsSuppliedFigure(`${q.questionText}\n${q.answer ?? ""}`));
 
 /** Reviewed and KEPT blocked: the question really depends on a figure (or its text is damaged) — a blind re-solve could not
  *  answer it from the printed text, or the printed text is not complete. They stay out of Worksheets, Chapter Tests, Full Mocks. */
-const STILL_BLOCKED = [
+const STILL_BLOCKED = [ // RULE5-BIND-1: all ten (twelve before BANK-FIX-7 PR-2) are WITHHELD from the live bank, so the rule is read from the RAW bank
   "LP-M11", // answerable, but the stem says "Study the diagram of the human heart" with no diagram on the page (verifier, 10 Oct)
   "SCQ-S-MAG-040", // answerable, but the stem has a typo ("field fines") and the stored answer is cut off mid-word, no finalAnswer (verifier, 10 Oct)
   "METAL-NCERT-3-VSA-006", // NCERT metal/salt-solution table not printed
@@ -28,8 +30,8 @@ const STILL_BLOCKED = [
   "SCQ-S-MAG-029", // field and particle directions only in the figure
   "SCQ-S-CTRL-042", // answerable, but stray page text inside the sentence (not complete as printed)
   "SCO-S-ELEC-012", // garbled wiring description; ideal cells have to be assumed
-  "PYQ-M-TRI-005", // OCR damage ("CA2", flattened fraction)
-  "PYQ-S-2026-METAL-005", // later parts of the question are corrupted
+  // 11 Oct BANK-FIX-7 PR-2 (D80b): PYQ-M-TRI-005 and PYQ-S-2026-METAL-005 were restored from their official papers and are served
+  // again; with the OCR damage gone Rule 5 no longer flags them, so they leave this list (twelve -> ten).
 ];
 
 describe("D47c — Rule 5 reviewed allow-list", () => {
@@ -58,10 +60,11 @@ describe("D47c — Rule 5 reviewed allow-list", () => {
     }
   });
 
-  it("the twelve reviewed-and-kept rows stay blocked (and are not on the list)", () => {
+  it("the ten reviewed-and-kept rows stay blocked (and are not on the list)", () => {
     for (const id of STILL_BLOCKED) {
       expect(ids.includes(id), id).toBe(false);
-      expect(needsMissingFigure(BY_ID.get(id)!), id).toBe(true);
+      expect(needsMissingFigure(RAW_BY_ID.get(id)!), id).toBe(true);
+      expect(WITHHELD_QUESTION_IDS.has(id), `${id} is withheld from the live bank (RULE5-BIND-1)`).toBe(true);
     }
   });
 });

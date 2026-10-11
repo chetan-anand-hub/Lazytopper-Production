@@ -172,10 +172,13 @@ test("a genuinely signed-out caller is still anonymous", () => {
 });
 
 /* ── 5 · Through the limiter — the bucket actually keys on the verified uid ── */
+// 2026-10-11 HARDEN-1 PR-2: these probes used /api/generate-visual (class "visual"); that route
+// and its class were removed (D8/D75), so they use /api/step-solution (class "practice", the
+// same 2/4 test caps). Every assertion is otherwise unchanged.
 
 const TEST_LIMITS = Object.freeze({
   vision: { soft: 2, hard: 4 }, tutor: { soft: 2, hard: 4 },
-  practice: { soft: 2, hard: 4 }, visual: { soft: 2, hard: 4 },
+  practice: { soft: 2, hard: 4 },
   anonymous: { soft: 1, hard: 2 }, global: { soft: 1000, hard: 1000 },
 });
 
@@ -189,10 +192,10 @@ test("two callers spoofing ONE header but holding DIFFERENT tokens get SEPARATE 
   // have shared "u1" and the second would have been throttled by the first.
   const { rl } = limiter();
   const spoofed = req({ "x-lazytopper-uid": "u1" });
-  for (let i = 0; i < 4; i++) rl.check(spoofed, "/api/generate-visual", "alice");
-  const fifthForAlice = rl.check(spoofed, "/api/generate-visual", "alice");
+  for (let i = 0; i < 4; i++) rl.check(spoofed, "/api/step-solution", "alice");
+  const fifthForAlice = rl.check(spoofed, "/api/step-solution", "alice");
   assert.equal(fifthForAlice.allowed, false, "alice must hit her own hard cap");
-  const firstForBob = rl.check(spoofed, "/api/generate-visual", "bob");
+  const firstForBob = rl.check(spoofed, "/api/step-solution", "bob");
   assert.equal(firstForBob.allowed, true, "bob must not inherit alice's count");
 });
 
@@ -200,23 +203,23 @@ test("ONE caller cannot buy a fresh allowance by changing the header", () => {
   // The spoof that made the caps advisory. With a verified uid it does nothing.
   const { rl } = limiter();
   for (let i = 0; i < 4; i++) {
-    rl.check(req({ "x-lazytopper-uid": `disguise-${i}` }), "/api/generate-visual", "alice");
+    rl.check(req({ "x-lazytopper-uid": `disguise-${i}` }), "/api/step-solution", "alice");
   }
-  const v = rl.check(req({ "x-lazytopper-uid": "yet-another" }), "/api/generate-visual", "alice");
+  const v = rl.check(req({ "x-lazytopper-uid": "yet-another" }), "/api/step-solution", "alice");
   assert.equal(v.allowed, false, "the cap must follow the VERIFIED identity, not the header");
 });
 
 test("the uid-source diagnostic reports verified vs header", () => {
   const { rl, telemetry } = limiter();
-  rl.check(req({ "x-lazytopper-uid": "u1" }), "/api/generate-visual", "alice");
-  rl.check(req({ "x-lazytopper-uid": "u1" }), "/api/generate-visual");
+  rl.check(req({ "x-lazytopper-uid": "u1" }), "/api/step-solution", "alice");
+  rl.check(req({ "x-lazytopper-uid": "u1" }), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.uid_source.verified"), 1);
   assert.equal(telemetry.count("rate_limit.uid_source.header"), 1);
 });
 
 test("an ANONYMOUS caller reports no uid-source (it has no uid to source)", () => {
   const { rl, telemetry } = limiter();
-  rl.check(req(), "/api/generate-visual");
+  rl.check(req(), "/api/step-solution");
   assert.equal(telemetry.count("rate_limit.uid_source.verified"), 0);
   assert.equal(telemetry.count("rate_limit.uid_source.header"), 0);
   assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 1);
@@ -233,14 +236,14 @@ test("check() called with TWO arguments behaves exactly as before", () => {
   // The 27 pre-existing tests all call it this way; the third parameter must be
   // purely additive.
   const { rl } = limiter();
-  const v = rl.check(req({ "x-lazytopper-uid": "u1" }), "/api/generate-visual");
+  const v = rl.check(req({ "x-lazytopper-uid": "u1" }), "/api/step-solution");
   assert.equal(v.allowed, true);
-  assert.equal(v.class, "visual");
+  assert.equal(v.class, "practice");
 });
 
 test("the uid-source events carry no PII", () => {
   const { rl, telemetry } = limiter();
-  rl.check(req({ "x-lazytopper-uid": "u1" }), "/api/generate-visual", "alice@example.com");
+  rl.check(req({ "x-lazytopper-uid": "u1" }), "/api/step-solution", "alice@example.com");
   const serialised = JSON.stringify(telemetry.events);
   assert.ok(!serialised.includes("alice@example.com"), "a uid reached telemetry");
   for (const e of telemetry.events) assert.match(e.event, /^[a-z0-9._]+$/);

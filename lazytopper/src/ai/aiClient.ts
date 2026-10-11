@@ -325,6 +325,8 @@ export const MENTOR_ENDPOINT = `${API_BASE}/mentor`;
  * resets tomorrow", and for an Indian student that is only true on an IST
  * boundary.
  */
+const BUSY_TODAY_FALLBACK = "LazyTopper is very busy today. Come back after midnight.";
+
 export class DailyLimitError extends Error {
   readonly limitClass: string;
   readonly resetAt: string | null;
@@ -389,7 +391,7 @@ export function isPremiumRequiredError(err: unknown): err is PremiumRequiredErro
 /** FAIR-USE-2 (F4): which fair-use refusal this is. */
 export type FairUseLimitKind = "trial_limit" | "usage_limit";
 /** The premium cost window that was reached (usage_limit only). */
-export type FairUseLimitWindow = "fiveHour" | "day" | "week";
+export type FairUseLimitWindow = "fiveHour" | "day" | "week" | "thirtyDay";
 
 /**
  * A fair-use limit was reached (server fairUse.cjs, only when FAIR_USE_ENFORCE=1):
@@ -429,7 +431,7 @@ export function isFairUseLimitError(err: unknown): err is FairUseLimitError {
   return err instanceof FairUseLimitError;
 }
 
-const FAIR_USE_WINDOWS: ReadonlySet<string> = new Set(["fiveHour", "day", "week"]);
+const FAIR_USE_WINDOWS: ReadonlySet<string> = new Set(["fiveHour", "day", "week", "thirtyDay"]);
 
 async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text">): Promise<T> {
   const text = await res.text();
@@ -454,6 +456,20 @@ async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text
       throw new DailyLimitError(
         details.message || "You've hit today's limit for this. It resets tomorrow.",
         details.class || "unknown",
+        details.resetAt || null,
+      );
+    }
+
+    // ── Site-wide ceiling (FU-GLOBAL-SHED). A 429 whose body says `busy_today` is NOT a fault and not the
+    //    student's doing: it becomes the SAME typed limit error every surface already renders (name
+    //    "DailyLimitError", so gradingErrorMessage keeps the server's own words), with the owner's
+    //    sentence + the one call to action the server chose. Never the generic "AI API request failed".
+    if (res.status === 429 && details?.error === "busy_today") {
+      const rawCta = (details as { cta?: unknown }).cta;
+      const cta = rawCta === "plans" ? " See plans." : "";
+      throw new DailyLimitError(
+        `${details.message || BUSY_TODAY_FALLBACK}${cta}`,
+        details.class || "global",
         details.resetAt || null,
       );
     }
@@ -1079,13 +1095,6 @@ async function pollGradingJob(pollPath: string): Promise<Pick<Response, "ok" | "
   return again;
 }
 
-export interface GenerateVisualRequest {
-  topic: string;
-  concept?: string;
-  subject?: string;
-  grade?: number;
-}
-
 // ─── AI Questions Cache ───────────────────────────────────────────────────────
 
 export interface CachedAiQuestion {
@@ -1143,21 +1152,5 @@ export async function saveAiGeneratedQuestions(params: {
   }).catch(() => {});
 }
 
-export interface GenerateVisualResponse {
-  ok: boolean;
-  html: string | null;
-  provider?: string;
-  model?: string;
-  error?: string;
-}
-
-export async function generateVisual(
-  req: GenerateVisualRequest
-): Promise<GenerateVisualResponse> {
-  const res = await sendWithTokenRefresh(
-    await paidJsonHeaders(),
-    (headers) => fetch(`${API_BASE}/generate-visual`, { method: "POST", headers, body: JSON.stringify(req) }),
-    refreshedPaidHeaders(),
-  );
-  return handleJsonResponse<GenerateVisualResponse>(res);
-}
+// 2026-10-11 HARDEN-1 PR-2 (D8/D75): generateVisual() and its request/response types are
+// removed — /api/generate-visual no longer exists on the server, and nothing called them.

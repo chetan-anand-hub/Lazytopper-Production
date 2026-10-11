@@ -559,7 +559,6 @@ function domainRows(fileSet, routes) {
         "src/pages/TopicHubHome.tsx",
         "src/services/topicHubMastery.ts",
         "src/services/mentorServerGate.ts",
-        "src/services/sessionLogger.ts",
         "server/index.cjs",
         "server/tutorOrchestrator.cjs",
       ],
