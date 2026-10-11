@@ -343,6 +343,9 @@ function TutorSession() {
                   className={m.kind === "return-result" ? "lt-tutor__t lt-tutor__t--return" : "lt-tutor__t"}
                 >
                   <MathText text={m.content} />
+                  {m.truncated && (
+                    <p className="lt-tutor__cutnote">This answer was cut short. Ask me to continue.</p>
+                  )}
                   {m.figure && (
                     <button
                       type="button"
@@ -826,6 +829,14 @@ const TUTOR_CSS = `
   cursor: pointer;
 }
 .lt-tutor__refchip:hover { background: var(--lt-green-tint); }
+
+/* TUTOR-FIX-1: honest note under a tutor turn the model stopped at its token limit. */
+.lt-tutor__cutnote {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--lt-soft);
+}
 
 /* KaTeX: keep long display math from forcing a horizontal page scroll on mobile. */
 .lt-tutor__t .katex-display { overflow-x: auto; overflow-y: hidden; margin: 0.4em 0; }

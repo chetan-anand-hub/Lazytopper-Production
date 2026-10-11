@@ -1,0 +1,97 @@
+{
+  "note": "TUTOR-FIX-1 eval set: 15 Maths + 15 Science, real student phrasing. kind = concept | explain-step | numerical | diagram | follow-up. sample=true marks the 10-prompt stratified sample (1 per kind per subject). Syllabus: CBSE 2026-27 retained chapters only.",
+  "prompts": [
+    { "id": "M01", "sample": true, "subject": "maths", "kind": "concept", "topicKey": "real-numbers", "topicLabel": "Real Numbers", "concept": "Fundamental Theorem of Arithmetic",
+      "messages": [{ "role": "student", "content": "what is fundamental theorem of arithmetic and why do we even need it for hcf lcm?" }] },
+    { "id": "M02", "subject": "maths", "kind": "concept", "topicKey": "polynomials", "topicLabel": "Polynomials", "concept": "Relationship between zeroes and coefficients",
+      "messages": [{ "role": "student", "content": "sir how is sum of zeroes = -b/a? i just memorised it but dont understand where it comes from" }] },
+    { "id": "M03", "subject": "maths", "kind": "concept", "topicKey": "arithmetic-progressions", "topicLabel": "Arithmetic Progressions", "concept": "nth term of an AP",
+      "messages": [{ "role": "student", "content": "why is it a + (n-1)d and not a + nd for the nth term?" }] },
+    { "id": "M04", "subject": "maths", "kind": "concept", "topicKey": "probability", "topicLabel": "Probability", "concept": "Probability of an event",
+      "messages": [{ "role": "student", "content": "can probability ever be more than 1? my friend says yes for sure events" }] },
+    { "id": "M05", "sample": true, "subject": "maths", "kind": "explain-step", "topicKey": "pair-of-linear-equations-in-two-variables", "topicLabel": "Pair of Linear Equations in Two Variables", "concept": "Elimination method",
+      "messages": [{ "role": "student", "content": "Question: solve 2x + 3y = 11 and 2x - 4y = -24. Step 1: subtract the equations. Step 2: 7y = 35. Step 3: y = 5, then x = -2. I don't get step 2 — how did they get 7y = 35? explain step 2" }] },
+    { "id": "M06", "subject": "maths", "kind": "explain-step", "topicKey": "triangles", "topicLabel": "Triangles", "concept": "Basic Proportionality Theorem (BPT)",
+      "messages": [{ "role": "student", "content": "In the BPT proof, step 3 says ar(ADE)/ar(BDE) = AD/DB. why is that true? explain step 3 please" }] },
+    { "id": "M07", "subject": "maths", "kind": "explain-step", "topicKey": "introduction-to-trigonometry", "topicLabel": "Introduction to Trigonometry", "concept": "Trigonometric identities",
+      "messages": [{ "role": "student", "content": "Prove (1 + tan²A)/(1 + cot²A) = tan²A. The solution's step 2 writes sec²A/cosec²A. how did that come? explain step 2" }] },
+    { "id": "M08", "sample": true, "subject": "maths", "kind": "numerical", "topicKey": "quadratic-equations", "topicLabel": "Quadratic Equations", "concept": "Solution by factorisation",
+      "messages": [{ "role": "student", "content": "Solve 2x² − 7x + 3 = 0 by splitting the middle term, all steps." }] },
+    { "id": "M09", "subject": "maths", "kind": "numerical", "topicKey": "arithmetic-progressions", "topicLabel": "Arithmetic Progressions", "concept": "Sum of first n terms",
+      "messages": [{ "role": "student", "content": "find the sum of first 40 positive integers divisible by 6. show working" }] },
+    { "id": "M10", "subject": "maths", "kind": "numerical", "topicKey": "statistics", "topicLabel": "Statistics", "concept": "Mean of grouped data",
+      "messages": [{ "role": "student", "content": "class 0-10 f 5, 10-20 f 8, 20-30 f 15, 30-40 f 16, 40-50 f 6. find mean by direct method, step by step" }] },
+    { "id": "M11", "subject": "maths", "kind": "numerical", "topicKey": "coordinate-geometry", "topicLabel": "Coordinate Geometry", "concept": "Section formula (internal division)",
+      "figures": [{ "key": "section-formula-internal-division", "label": "Section formula (internal division)" }],
+      "messages": [{ "role": "student", "content": "find the point dividing the join of (4, -3) and (8, 5) in ratio 3:1 internally" }] },
+    { "id": "M12", "sample": true, "subject": "maths", "kind": "diagram", "topicKey": "circles", "topicLabel": "Circles", "concept": "Two tangents from an external point are equal (PA = PB)",
+      "figures": [
+        { "key": "tangent-perp-radius-at-point-of-contact", "label": "Tangent ⟂ radius at the point of contact (∠ between radius and tangent = 90°)" },
+        { "key": "two-tangents-from-external-point-equal", "label": "Two tangents from an external point are equal (PA = PB)" },
+        { "key": "length-of-tangent-from-external-point", "label": "Length of tangent from external point: ℓ = √(d² − r²)" }
+      ],
+      "messages": [{ "role": "student", "content": "prove that tangents drawn from an external point to a circle are equal. i can't picture the figure, can you show me" }] },
+    { "id": "M13", "subject": "maths", "kind": "diagram", "topicKey": "some-applications-of-trigonometry", "topicLabel": "Some Applications of Trigonometry", "concept": "Heights & distances setup (angle of elevation / depression)",
+      "figures": [{ "key": "heights-and-distances-setup", "label": "Heights & distances setup (angle of elevation / depression)" }],
+      "messages": [{ "role": "student", "content": "a tower stands vertically, from a point 15 m away on the ground the angle of elevation of the top is 60 degree. find height. how do i draw the diagram for this" }] },
+    { "id": "M14", "sample": true, "subject": "maths", "kind": "follow-up", "topicKey": "areas-related-to-circles", "topicLabel": "Areas Related to Circles", "concept": "Area of a segment (sector area − area of triangle)",
+      "messages": [
+        { "role": "student", "content": "how do i find area of minor segment?" },
+        { "role": "tutor", "content": "Area of the minor segment = area of the sector − area of the triangle formed by the two radii and the chord. For angle θ at the centre: (θ/360)·πr² − area of ΔOAB." },
+        { "role": "student", "content": "ok so for r = 21 cm and θ = 60°, what is the answer? use π = 22/7" }
+      ] },
+    { "id": "M15", "subject": "maths", "kind": "follow-up", "topicKey": "surface-areas-and-volumes", "topicLabel": "Surface Areas and Volumes", "concept": "Combinations of solids (cone on cylinder, hemisphere on cube, …)",
+      "messages": [
+        { "role": "student", "content": "a toy is a cone on a hemisphere, radius 3.5 cm, total height 15.5 cm. find total surface area" },
+        { "role": "tutor", "content": "TSA = CSA of hemisphere + CSA of cone. The cone's height is 15.5 − 3.5 = 12 cm, so its slant height l = √(12² + 3.5²) = 12.5 cm." },
+        { "role": "student", "content": "why don't we add the base area of the cone?" }
+      ] },
+    { "id": "S01", "sample": true, "subject": "science", "kind": "concept", "topicKey": "electricity", "topicLabel": "Electricity", "concept": "Ohm's law V = IR",
+      "messages": [{ "role": "student", "content": "Explain why the resistance of a wire doubles when its length doubles." }] },
+    { "id": "S02", "subject": "science", "kind": "concept", "topicKey": "chemical-reactions-and-equations", "topicLabel": "Chemical Reactions and Equations", "concept": "Oxidation and reduction",
+      "messages": [{ "role": "student", "content": "in CuO + H2 → Cu + H2O which is oxidised and which is reduced? i always mix up" }] },
+    { "id": "S03", "subject": "science", "kind": "concept", "topicKey": "life-processes", "topicLabel": "Life Processes", "concept": "Double circulation",
+      "messages": [{ "role": "student", "content": "what is double circulation and why do humans need it but fish dont" }] },
+    { "id": "S04", "subject": "science", "kind": "concept", "topicKey": "heredity", "topicLabel": "Heredity", "concept": "Sex determination",
+      "messages": [{ "role": "student", "content": "how is the sex of a child decided in humans? is it the mother?" }] },
+    { "id": "S05", "sample": true, "subject": "science", "kind": "explain-step", "topicKey": "acids-bases-and-salts", "topicLabel": "Acids, Bases and Salts", "concept": "Reaction of metal carbonates with acids",
+      "messages": [{ "role": "student", "content": "Solution says: Step 1 Na2CO3 + 2HCl → 2NaCl + H2O + CO2. Step 2 pass the gas through lime water, it turns milky. Explain step 2, why milky?" }] },
+    { "id": "S06", "subject": "science", "kind": "explain-step", "topicKey": "carbon-and-its-compounds", "topicLabel": "Carbon and its Compounds", "concept": "Homologous series",
+      "messages": [{ "role": "student", "content": "the answer says step 3: each member differs by CH2, so molecular mass differs by 14 u. how is it 14? explain step 3" }] },
+    { "id": "S07", "subject": "science", "kind": "explain-step", "topicKey": "magnetic-effects-of-electric-current", "topicLabel": "Magnetic Effects of Electric Current", "concept": "Right-hand thumb rule",
+      "messages": [{ "role": "student", "content": "step 2 of the solution uses right hand thumb rule to say field is anticlockwise when current flows towards me. can you explain that step" }] },
+    { "id": "S08", "sample": true, "subject": "science", "kind": "numerical", "topicKey": "light-reflection-and-refraction", "topicLabel": "Light – Reflection and Refraction", "concept": "Mirror formula 1/v + 1/u = 1/f and magnification m = −v/u",
+      "figures": [
+        { "key": "mirror-formula-and-magnification", "label": "Mirror formula 1/v + 1/u = 1/f and magnification m = −v/u" },
+        { "key": "sign-convention-new-cartesian", "label": "Sign convention (New Cartesian)" }
+      ],
+      "messages": [{ "role": "student", "content": "an object is placed 30 cm in front of a concave mirror of focal length 15 cm. find image position and nature, with sign convention" }] },
+    { "id": "S09", "subject": "science", "kind": "numerical", "topicKey": "electricity", "topicLabel": "Electricity", "concept": "Resistors in parallel (1/R = 1/R₁ + 1/R₂ + …)",
+      "messages": [{ "role": "student", "content": "three resistors 2 ohm, 3 ohm and 6 ohm are in parallel across a 6 V battery. find total resistance and total current" }] },
+    { "id": "S10", "subject": "science", "kind": "numerical", "topicKey": "human-eye-and-colourful-world", "topicLabel": "The Human Eye and the Colourful World", "concept": "Lens power P = 1/f (dioptre) for the corrective lens",
+      "messages": [{ "role": "student", "content": "a myopic person has far point 80 cm. what lens and what power is needed to correct? show steps" }] },
+    { "id": "S11", "subject": "science", "kind": "numerical", "topicKey": "electricity", "topicLabel": "Electricity", "concept": "Electrical power (P = VI = I²R = V²/R)",
+      "messages": [{ "role": "student", "content": "an electric heater of 1500 W runs 2 hours a day for 30 days. find energy in kWh and cost at ₹6 per unit" }] },
+    { "id": "S12", "sample": true, "subject": "science", "kind": "diagram", "topicKey": "human-eye-and-colourful-world", "topicLabel": "The Human Eye and the Colourful World", "concept": "Refraction through a prism and dispersion of white light (VIBGYOR spectrum)",
+      "figures": [
+        { "key": "prism-refraction-and-dispersion", "label": "Refraction through a prism and dispersion of white light (VIBGYOR spectrum)" },
+        { "key": "scattering-of-light", "label": "Scattering of light (Tyndall effect, blue sky, red danger signals)" }
+      ],
+      "messages": [{ "role": "student", "content": "why does white light split into colours in a prism? and which colour bends most? diagram please" }] },
+    { "id": "S13", "subject": "science", "kind": "diagram", "topicKey": "light-reflection-and-refraction", "topicLabel": "Light – Reflection and Refraction", "concept": "Ray diagrams (concave/convex mirror & lens)",
+      "figures": [{ "key": "ray-diagrams-mirror-and-lens", "label": "Ray diagrams (concave/convex mirror & lens)" }],
+      "messages": [{ "role": "student", "content": "how do i draw ray diagram for object between F and 2F of a convex lens. which rays do i use" }] },
+    { "id": "S14", "sample": true, "subject": "science", "kind": "follow-up", "topicKey": "metals-and-non-metals", "topicLabel": "Metals and Non-metals", "concept": "Reactivity series",
+      "messages": [
+        { "role": "student", "content": "why does iron displace copper from copper sulphate solution?" },
+        { "role": "tutor", "content": "Because iron is more reactive than copper — it is higher in the reactivity series — so it pushes copper out: Fe + CuSO₄ → FeSO₄ + Cu. The blue solution turns pale green and a reddish-brown coat forms on the iron." },
+        { "role": "student", "content": "then will copper displace iron from iron sulphate?" }
+      ] },
+    { "id": "S15", "subject": "science", "kind": "follow-up", "topicKey": "our-environment", "topicLabel": "Our Environment", "concept": "Ten percent law",
+      "messages": [
+        { "role": "student", "content": "what is the 10 percent law?" },
+        { "role": "tutor", "content": "At each trophic level only about 10% of the energy is passed on to the next level; the rest is lost mainly as heat and used for life processes." },
+        { "role": "student", "content": "so if producers have 10000 J, how much reaches the tertiary consumer? and why are food chains short then" }
+      ] }
+  ]
+}

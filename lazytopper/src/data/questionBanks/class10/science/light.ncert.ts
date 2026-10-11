@@ -202,7 +202,7 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] A concave mirror forms an erect image ONLY when the object is between its pole (P) and principal focus (F).", "[1 mark] Given f = 15 cm; therefore object distance must be 0 < u < 15 cm (i.e., less than 15 cm in front of the mirror).", "[1 mark] Image formed is virtual, erect and ENLARGED (magnified).", "[1 mark] It is located BEHIND the mirror.", "[1 mark] Ray diagram: one ray from object parallel to principal axis reflects through F; another ray from object towards C reflects back along itself. Extend reflected rays backward; they meet behind the mirror to form a virtual, erect, enlarged image."],
     finalAnswer: "Object between 0 and 15 cm from mirror; image virtual, erect, enlarged, behind the mirror.",
     ncertRef: "Exercise Q7", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: concave mirror ray diagram with object between P and F producing virtual erect enlarged image behind the mirror." },
+ },
 
   { id: "LIGHT-NCERT-9-LA-008", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Uses of Spherical Mirrors", section: "D", marks: 5, format: "Long", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Name the type of mirror used in the following situations. (a) Headlights of a car. (b) Side/rear-view mirror of a vehicle. (c) Solar furnace. Support your answer with reason.",
@@ -225,7 +225,7 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Given: h = +5 cm, u = −25 cm, f = +10 cm (convex).", "[1 mark] Lens formula: 1/v − 1/u = 1/f ⇒ 1/v = 1/f + 1/u = 1/10 + 1/(−25) = 1/10 − 1/25.", "[1 mark] 1/v = (5 − 2)/50 = 3/50 ⇒ v = 50/3 ≈ +16.67 cm. Image is on the opposite side, real.", "[1 mark] Magnification m = v/u = (50/3)/(−25) = −2/3. Image height h' = m × h = (−2/3) × 5 = −3.33 cm.", "[1 mark] Image: real, inverted, diminished, 3.33 cm tall, formed 16.67 cm from the lens on the opposite side. Ray diagram: the object (u = 25 cm > 2f = 20 cm) lies beyond 2F₁, so the image is formed between F₂ and 2F₂ — diminished, real and inverted, matching the calculation."],
     finalAnswer: "v ≈ +16.67 cm; h' ≈ −3.33 cm; real, inverted, diminished.",
     ncertRef: "Exercise Q10", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: convex lens with object beyond 2F₁ → diminished real inverted image between F₂ and 2F₂." },
+ },
 
   { id: "LIGHT-NCERT-9-LA-011", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Concave Lens Numerical", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A concave lens of focal length 15 cm forms an image 10 cm from the lens. How far is the object placed from the lens? Draw the ray diagram.",
@@ -233,7 +233,7 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] A concave lens always forms a virtual, erect image on the same side as the object. Given v = −10 cm, f = −15 cm.", "[1 mark] Lens formula: 1/v − 1/u = 1/f ⇒ 1/u = 1/v − 1/f = 1/(−10) − 1/(−15) = −1/10 + 1/15.", "[1 mark] 1/u = (−3 + 2)/30 = −1/30 ⇒ u = −30 cm. Object 30 cm in front of the lens.", "[1 mark] Image is virtual, erect and diminished.", "[1 mark] Ray diagram: parallel ray refracts to appear to come from F (same side as object); ray through optical centre passes undeviated; backward extensions meet on the same side to form virtual erect diminished image."],
     finalAnswer: "u = −30 cm; image virtual, erect, diminished, on same side as object.",
     ncertRef: "Exercise Q11", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: concave lens ray diagram — virtual erect diminished image on object side." },
+ },
 
   { id: "LIGHT-NCERT-9-LA-012", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Convex Mirror Numerical", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An object is placed at a distance of 10 cm from a convex mirror of focal length 15 cm. Find the position and nature of the image.",

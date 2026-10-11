@@ -721,6 +721,12 @@ export async function gradeQuickPracticeBatch(args: {
   /** GRADING-JOBS-1 J2 — a background job, used ONLY for a batch of MORE THAN ONE question
    *  (contract §11: a one-question batch is graded exactly as today). */
   job?: GradingJobOptions;
+  /** PRACTICE-REVIEW-HONEST-1 (DECISION 27a / 30b) — whether a graded answer is fed to
+   *  Mistake Intelligence (`recordMistake` + `recordAttempt`). Omitted / true ⇒ unchanged.
+   *  false ⇒ nothing is recorded; the grades are still returned. A predicate decides per
+   *  answer — a batch can mix answers saved before Finish (real attempts) with answers
+   *  saved in review mode, after the steps were seen (not attempts). */
+  record?: boolean | ((answer: QuickPracticeSavedAnswer) => boolean);
 }): Promise<QuickPracticeBatchResult> {
   const { worksheetId, subject, answers, user } = args;
   const grade = args.grade ?? gradeWorksheet;
@@ -806,6 +812,9 @@ export async function gradeQuickPracticeBatch(args: {
     // Unresolvable objective pick ⇒ no grade ⇒ NO MI WRITE, exactly as couldNotRead does.
     // Recording a 0 would be the fabrication this module's header forbids.
     if (!csr) return;
+    // PRACTICE-REVIEW-HONEST-1 — a review-mode answer is graded and shown, never recorded.
+    const record = args.record ?? true;
+    if (typeof record === "function" ? !record(answer) : !record) return;
     const questionId = String(answer.questionId);
     const topic = String(answer.topicLabel || "");
     // eslint-disable-next-line no-await-in-loop

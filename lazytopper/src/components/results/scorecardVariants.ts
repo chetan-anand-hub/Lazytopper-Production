@@ -794,6 +794,8 @@ export interface StoredWorksheetVariantInput {
    *  otherwise, so the affordance never promises a sheet it can't produce (honest, §3a). */
   onDownload?: () => void;
   downloading?: boolean;
+  /** PENDING-UPLOAD-1: a pending record offers "Upload answer sheet" when the host can open it. */
+  onUploadSheet?: () => void;
 }
 
 /**
@@ -809,7 +811,7 @@ export function storedWorksheetScorecardVariant(
   record: SessionRecord,
   input: StoredWorksheetVariantInput,
 ): ScorecardVariant {
-  const { gradedDateLabel, onDone, onDownload, downloading = false } = input;
+  const { gradedDateLabel, onDone, onDownload, onUploadSheet, downloading = false } = input;
   const totalQuestions = record.questionIds?.length ?? 0;
   const pendingUpload = record.status === "pending-upload";
   const partial = record.status === "partial";
@@ -827,12 +829,20 @@ export function storedWorksheetScorecardVariant(
       score: { kind: "marks", awarded: 0, total: 0 }, // not rendered — allPending below
       fourType: null,
       pending: null,
-      allPending: {
-        title: "We couldn’t read any answers",
-        detail:
-          "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
-      },
-      actions: [doneAction],
+      allPending: onUploadSheet
+        ? {
+            title: "Waiting for your answer sheet",
+            detail:
+              "Upload photos or a PDF of your written work and we’ll grade it. Nothing has been scored 0.",
+          }
+        : {
+            title: "We couldn’t read any answers",
+            detail:
+              "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
+          },
+      actions: onUploadSheet
+        ? [{ label: "Upload answer sheet", tone: "primary", onClick: onUploadSheet }, doneAction]
+        : [doneAction],
     };
   }
 
@@ -1489,6 +1499,11 @@ export interface CheckImproveVariantInput {
    *  free-check save line. Omitted — every signed-in grade — the variant is
    *  byte-identical to before. */
   signUpToSave?: { label: string; footnote: string; onSignUp: () => void };
+  /** TRIAL-PAPER-1 (optional, additive): a trial paper graded only up to today's checks.
+   *  `total` is the paper's own question count (the head then reads "5 of 38 graded"),
+   *  `line` the honest free-plan sentence shown as the scorecard's message. Omitted —
+   *  every whole-paper grade — the variant is byte-identical to before. */
+  trialPaper?: { total: number; line: string };
 }
 
 /** The return-ticket row. `tone: "secondary"` deliberately: the what-next menu's
@@ -1594,9 +1609,11 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
       awarded: response.gradedMarksAwarded,
       total: response.gradedMarksTotal,
       gradedCount: response.gradedCount,
-      totalQuestions: response.totalQuestions,
+      totalQuestions: input.trialPaper ? input.trialPaper.total : response.totalQuestions,
     },
-    message: mixed ? CI_MIXED_MESSAGE : null,
+    message: input.trialPaper
+      ? [mixed ? CI_MIXED_MESSAGE : null, input.trialPaper.line].filter(Boolean).join(" ")
+      : mixed ? CI_MIXED_MESSAGE : null,
     note: ciProvenanceLine(topicSource),
     // By-topic lens (spec §5 lens 1) — reuses the shell's chapter-lens slot, exactly
     // like Full Mock. Null (single-topic / unresolved) → the shell omits it.

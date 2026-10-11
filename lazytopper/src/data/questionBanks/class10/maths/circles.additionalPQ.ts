@@ -38,7 +38,7 @@ export const CIRCLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Tangent property: OA ⊥ AT, so ∠OAT = 90°.", "In right ΔOAT: cos 30° = AT/OT ⟹ AT = OT · cos 30° = 4 · (√3/2) = 2√3 cm."],
     finalAnswer: "(c) 2√3 cm",
     ncertRef: "APQ PQ2 Q9", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: tangent AT to circle with centre O." },
+ },
 
   // PQ2 Q24 (Section B, Short, 2 marks)
   { id: "APQ-M-CIRC-004", subject: "Maths", topicKey: "circles", subtopic: "Tangents to Incircle of Quadrilateral", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -56,7 +56,7 @@ export const CIRCLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Tangent at A is perpendicular to radius OA. Tangent at E is perpendicular to radius OE.", "Since AE is a diameter, OA and OE are collinear ⟹ the two tangents (AB and ED) are both perpendicular to the same line AE ⟹ AB ∥ ED. So opposite sides AB and ED of quadrilateral AEDB are parallel — statement TRUE."],
     finalAnswer: "True — AB ∥ ED (both perpendicular to diameter AE).",
     ncertRef: "APQ PQ1 Q23", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: circle with tangents at A, E, C and intersection points B, D." },
+ },
 
   // PQ2 Q28 (Section C, Short, 3 marks)
   { id: "APQ-M-CIRC-006", subject: "Maths", topicKey: "circles", subtopic: "Tangents from External Point — Angle", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
@@ -110,7 +110,7 @@ export const CIRCLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Inscribed-angle theorem: angle at centre = 2 × angle at circumference. So ∠NOP = 2 × 25° = 50°.", "Radius ⊥ tangent: ∠ONQ = 90°. In ΔONQ: ∠OQN = 180° − (50° + 90°) = 40°."],
     finalAnswer: "∠OQN = 40°.",
     ncertRef: "APQ PQ_2022 Q22", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: circle with tangent NQ and angle 25° at circumference." },
+  },
 
   // PQ_2022 Q29 first variant (Section C, Short, 3 marks)
   { id: "APQ-M-CIRC-011", subject: "Maths", topicKey: "circles", subtopic: "Circle Inscribed in Two Squares — Radius", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
@@ -119,7 +119,7 @@ export const CIRCLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Let radius = x cm. With NVUW = square: WU = UV = x cm.", "In ΔSUT (right): ST = √(20^2 + 10^2) = √500 = 10√5 cm.", "VT = 10 − x; by tangent property YT = VT. Also SY = SW: 20 − x = 10√5 − (10 − x).", "Solve: 20 − x = 10√5 − 10 + x ⟹ 30 − 10√5 = 2x ⟹ x = 15 − 5√5 cm."],
     finalAnswer: "r = 15 − 5√5 cm.",
     ncertRef: "APQ PQ_2022 Q29 (first variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: two congruent squares with inscribed circle and tangents." },
+ },
 
   // PQ_2022 Q29 OR variant (Section C, Short, 3 marks)
   { id: "APQ-M-CIRC-012", subject: "Maths", topicKey: "circles", subtopic: "Common Tangent — Two Semicircles", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
@@ -128,5 +128,5 @@ export const CIRCLES_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Join MP, NQ — both perpendicular to tangent at points of contact. Draw MR ∥ PQ inside the trapezium MPQN.", "RN = NQ − MR = 16 − 9 = 7 cm; MN = 9 + 16 = 25 cm (sum of radii since tangent is between).", "In right ΔMRN by Pythagoras: MR = √(MN^2 − RN^2) = √(625 − 49) = √576 = 24 cm.", "Since MRQP is a rectangle: PQ = MR = 24 cm."],
     finalAnswer: "PQ = 24 cm.",
     ncertRef: "APQ PQ_2022 Q29 (OR variant)", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: two semicircles with common tangent ST and chord PQ." },
+ },
 ];

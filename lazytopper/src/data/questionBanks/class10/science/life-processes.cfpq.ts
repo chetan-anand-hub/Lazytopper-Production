@@ -247,7 +247,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) First circulation: oxygenated blood from lungs comes to the left atrium then the left ventricle to pass to the body. Second circulation: deoxygenated blood from the body comes to the right atrium and then the right ventricle to pass for oxygenation to the lungs again. It allows for separation of oxygenated and deoxygenated blood in the body. (b)(i) pulmonary vein (ii) pulmonary artery",
     solutionSteps: [
-      "[2 marks] (a) During first circulation: oxygenated blood from lungs come to the left atrium to left ventricle to pass to the body. During second circulation: deoxygenated blood from body comes to right atrium and then right ventricle to pass for oxygenation to the lungs again. [0.5 marks for each point] Allows for separation of oxygenated and deoxygenated blood in the body. [1 mark]",
+      "[2 marks] (a) During first circulation: oxygenated blood from lungs come to the left atrium to left ventricle to pass to the body. During second circulation: deoxygenated blood from body comes to right atrium and then right ventricle to pass for oxygenation to the lungs again. (0.5 mark for each point) Allows for separation of oxygenated and deoxygenated blood in the body. (1 mark)",
       "[1 mark] (b) 0.5 marks for each correct answer: (i) pulmonary vein; (ii) pulmonary artery",
     ],
     finalAnswer:
@@ -373,7 +373,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) Respiration is mostly aerobic in the first 20 minutes, and mostly anaerobic after the first 20 minutes, because lactic acid is a product of anaerobic respiration and its concentration rises sharply after 20 minutes. (b) Most of the energy needed for swimming is produced by the muscles, and since most of the blood does not reach the muscles during a dive, the oxygen stored in the blood is not as useful for swimming as the oxygen stored in the muscles.",
     solutionSteps: [
-      "[3 marks] (a) Respiration is mostly aerobic in the first 20 minutes, and mostly anaerobic after the first 20 minutes. [1 mark] Justification: Lactic acid is a product of anaerobic respiration. [1 mark] The sharp rise in lactic acid concentration after 20 minutes indicates anaerobic respiration happening after 20 minutes. [1 mark]",
+      "[3 marks] (a) Respiration is mostly aerobic in the first 20 minutes, and mostly anaerobic after the first 20 minutes. (1 mark) Justification: Lactic acid is a product of anaerobic respiration. (1 mark) The sharp rise in lactic acid concentration after 20 minutes indicates anaerobic respiration happening after 20 minutes. (1 mark)",
       "[2 marks] (b) 1 mark for each point: Most of the energy needed for swimming is produced by the muscles. Since most of the blood does not reach the muscles during a dive, the oxygen stored in the blood is not as useful for swimming as the oxygen stored in the muscles.",
     ],
     finalAnswer:

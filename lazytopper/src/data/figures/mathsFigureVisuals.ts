@@ -336,6 +336,8 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
 // withheld for a text defect BANK-FIX did not repair. The figure tests read this list: a row listed here that is in fact
 // served fails, so the list cannot go stale. NOT parsed by tutor_visual_catalogue_acceptance.mjs (no filePath here).
 export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
+  "APQ-M-TRIG-011": "withheld by BANK-FIX-6 (2026-10-10): the answer is defined only by lengths labelled in the figure; no working could be derived from the text. Un-withhold candidate for B once real working is written against the bound figure",
+  "APQ-M-TRIG-016": "withheld by BANK-FIX-6 (2026-10-10): the identity to prove exists only as an image in PQ_2022 Q30 and the stem does not state it. Un-withhold candidate for B once the stem carries the identity from the bound figure",
   "APQ-M-TRI-005": "stays withheld: solutionSteps[0] is a 'REQUIRES-FIGURE' placeholder",
   "APQ-M-CIRC-009": "stays withheld (D37): the official APQ item is internally inconsistent - KL = 6, KM = LM = 5 force ∠K ≈ 53.13°, but the figure labels ∠K = 50° and the key 80° relies on that label",
   "PYQ-M-2026-CIRC-005": "stays withheld: mark residues inside the stem; finalAnswer covers part (ii) only",
@@ -349,14 +351,4 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
 
   // DIAGRAMS-1 C3 PR-D1 (B-21 census step) — maths rows BANK-FIX withheld for their missing figure, now bound.
   "APQ-M-ARC-001": "stays withheld: the stem reads '(some fraction)' - the official APQ PDF itself prints no fraction there, so the row is unanswerable; 'REQUIRES-FIGURE' placeholder in strategyHint",
-  "APQ-M-ARC-002": "stays withheld: stem and key (d) 10π agree with the MS, but solutionSteps[0] is a 'Per MS' placeholder and strategyHint a 'REQUIRES-FIGURE' placeholder",
-  "APQ-M-ARC-003": "withheld for its missing figure; stem clean, key (a) agrees with the MS - un-withhold needs only the 'REQUIRES-FIGURE' strategyHint placeholder replaced",
-  "APQ-M-ARC-004": "withheld for its missing figure (both figures bound); key agrees with the MS - un-withhold needs only the 'REQUIRES-FIGURE' strategyHint placeholder replaced",
-  "APQ-M-ARC-006": "stays withheld: the stored key (c) 4 cm is WRONG - the official MS key is (D) 4.5 cm (PE = 6 × 3/4 from the figure); 'Per MS' placeholder step",
-  "APQ-M-ARC-008": "stays withheld: key (b) 16π agrees with the MS, but solutionSteps[0] opens 'Per MS answer key' and strategyHint is a 'REQUIRES-FIGURE' placeholder",
-  "APQ-M-ARC-010": "withheld for its missing figure; stem (the OR part) clean, key 9(π − 2) agrees with the MS - un-withhold needs only the 'REQUIRES-FIGURE' strategyHint placeholder replaced",
-  "SQP-M-POLY-001": "withheld by BANK-FIX for its missing figure; stem clean, key (b) agrees with the SQP MS, figure bound - un-withhold candidate",
-  "APQ-M-POLY-001": "stays withheld: key (c) agrees with the MS, but strategyHint is a 'REQUIRES-FIGURE' placeholder that also states the answer",
-  "APQ-M-STAT-003": "stays withheld: solutionSteps[0] is a 'REQUIRES-FIGURE' placeholder (key (a) 5 agrees with the MS)",
-  "APQ-M-STAT-008": "withheld for its missing figure; key ≈ 6 years agrees with the MS - un-withhold needs only the 'REQUIRES-FIGURE' strategyHint placeholder replaced",
 };

@@ -126,13 +126,23 @@ describe("Meta — page views", () => {
     "/notes/circles#t=1",
     "/pricing?next=%2Fhome",
     "/me/a@b.com",
+    // META-CT-PARAM-1 (DECISION 33): `ct` is allowed, but it does not launder another parameter.
+    "/practice-hub?ct=1&x=1",
   ])("skips the current address %s", (address) => {
     setLocation(address);
     trackPageview(new URL(address, "https://x.test").pathname);
     expect(added().filter((e) => e[0] === "track")).toEqual([]);
   });
 
-  it.each(["/", "/practice-hub?cbq=1&utm_source=fb&fbclid=x", "/pricing?gclid=G1", "/notes/areas-related-to-circles"])(
+  it.each([
+    "/",
+    "/practice-hub?cbq=1&utm_source=fb&fbclid=x",
+    "/pricing?gclid=G1",
+    "/notes/areas-related-to-circles",
+    // META-CT-PARAM-1 (DECISION 33): the Chapter Test ad landing (#1043's `?ct=1`, a boolean flag like cbq).
+    "/practice-hub?ct=1",
+    "/practice-hub?ct=1&utm_source=fb&fbclid=x",
+  ])(
     "sends for the current address %s",
     (address) => {
       setLocation(address);

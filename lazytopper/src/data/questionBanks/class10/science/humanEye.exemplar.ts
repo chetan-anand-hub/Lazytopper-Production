@@ -135,7 +135,7 @@ export const EYE_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["(i) MYOPIC EYE: Draw parallel rays from a distant object entering the eye → refract through the eye lens → converge to a focal point in FRONT of the retina → blurred image on retina.", "Label: 'image formed in front of retina' (Fig. 10.2(b) of NCERT).", "(ii) HYPERMETROPIC EYE: Draw rays from a nearby object (at 25 cm) entering the eye → refract through the lens → would converge to a focal point BEHIND the retina.", "Label: 'image formed behind the retina' (Fig. 10.3(b) of NCERT).", "Both diagrams should clearly mark eye lens, retina, and image position."],
     finalAnswer: "Myopic eye: image of distant object forms in front of retina. Hypermetropic eye: image of nearby object forms behind retina.",
     ncertRef: "Exemplar SA Q15", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Two ray diagrams — (i) myopic eye (image in front of retina); (ii) hypermetropic eye (image behind retina)." },
+ },
 
   // REQUIRES-FIGURE
   { id: "EYE-EXMPLR-10-SA-002", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Myopia", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -144,7 +144,7 @@ export const EYE_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Symptoms: cannot read distant blackboard → defect = myopia (near-sightedness).", "Advice: wear spectacles with a CONCAVE (diverging) lens of appropriate power.", "Ray diagram: Parallel rays from a distant object hit the concave lens → diverge → appear to come from the eye's far point → eye lens focuses them on the retina.", "Label clearly: distant object → concave lens → diverged rays → eye lens → image on retina.", "This is the correction shown in NCERT Fig. 10.2(c)."],
     finalAnswer: "Defect: myopia; Correction: spectacles with concave lens of appropriate focal length.",
     ncertRef: "Exemplar SA Q16", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Ray diagram of myopic eye corrected by a concave lens (NCERT Fig 10.2c)." },
+ },
 
   { id: "EYE-EXMPLR-10-SA-003", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Power of Accommodation", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "How are we able to see nearby and also the distant objects clearly?",
@@ -168,7 +168,7 @@ export const EYE_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Place the first prism upright (base down). White light → first prism → dispersion into VIBGYOR spectrum.", "Place a SECOND identical prism INVERTED (base up) immediately after the first.", "The seven colours from the first prism pass into the second prism, refract again, and recombine.", "White light emerges from the second prism.", "Diagram: Newton's two-prism experiment (NCERT Fig. 10.6) — first prism splits white light, second inverted prism recombines colours into white."],
     finalAnswer: "Place the second prism inverted relative to the first; the second prism recombines the colours into white light (Newton's two-prism experiment).",
     ncertRef: "Exemplar SA Q19", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Two prisms — first upright (disperses), second inverted (recombines) → emerging white light." },
+ },
 
   // REQUIRES-FIGURE
   { id: "EYE-EXMPLR-10-SA-006", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Dispersion of Light", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
@@ -177,7 +177,7 @@ export const EYE_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Draw a triangular glass prism with apex pointing up.", "Mark a narrow beam of WHITE LIGHT incident on one refracting surface.", "After two refractions (entry + exit), the white light splits into seven colours emerging at different angles.", "Show the emerging spectrum: red bends the least, violet the most.", "Label the colours: V, I, B, G, Y, O, R (or R, O, Y, G, B, I, V — top to bottom). Mention VIBGYOR (NCERT Fig. 10.5)."],
     finalAnswer: "White light splits into VIBGYOR (Violet bent most, Red bent least) on passing through a prism.",
     ncertRef: "Exemplar SA Q20", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: Prism dispersion diagram — incident white light + emerging VIBGYOR spectrum (NCERT Fig 10.5)." },
+ },
 
   { id: "EYE-EXMPLR-10-SA-007", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Atmospheric Refraction", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Is the position of a star as seen by us its true position? Justify your answer.",
@@ -216,7 +216,7 @@ export const EYE_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["STRUCTURE: cornea (entry, most refraction); iris (controls pupil); pupil (regulates light); eye lens (fine focal-length adjustment); ciliary muscles (change lens curvature); retina (image formed here, light-sensitive cells); optic nerve (carries signals to brain).", "FUNCTIONING: Light enters via cornea → refracted at cornea (most refraction) and eye lens → forms inverted real image on retina → photoreceptors generate electrical signals → optic nerve carries them to brain → brain interprets and we 'see'.", "ACCOMMODATION for distant objects: ciliary muscles RELAX → lens THIN → focal length LARGE → distant image on retina.", "ACCOMMODATION for near objects: ciliary muscles CONTRACT → lens THICK → focal length SMALL → near image on retina.", "Limit: focal length cannot decrease below a minimum, so near point is about 25 cm. Far point of a normal eye = infinity. Thus a normal eye can see clearly between 25 cm and infinity."],
     finalAnswer: "Eye = cornea + iris + pupil + lens + ciliary muscles + retina + optic nerve. The ciliary muscles change the focal length of the lens (accommodation), so the image always forms on the retina for both near and far objects.",
     ncertRef: "Exemplar LA Q25", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Labelled diagram of the human eye (cornea, iris, pupil, lens, ciliary muscles, retina, optic nerve)." },
+ },
 
   { id: "EYE-EXMPLR-10-LA-002", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Defects of Vision", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "When do we consider a person to be myopic or hypermetropic? Explain using diagrams how the defects associated with myopic and hypermetropic eye can be corrected?",
@@ -224,7 +224,7 @@ export const EYE_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["MYOPIA: a person can see nearby clearly but not distant objects; far point < infinity; image of distant object forms IN FRONT of retina.", "Causes of myopia: excessive curvature of eye lens OR elongated eyeball.", "Correction of myopia (NCERT Fig. 10.2c): concave (diverging) lens placed in front of the eye → forms virtual image of distant object at the eye's far point → eye lens focuses it on retina.", "HYPERMETROPIA: a person can see distant clearly but not nearby objects; near point > 25 cm; image of near object forms BEHIND retina.", "Causes of hypermetropia: focal length of eye lens too long OR eyeball too small. Correction (NCERT Fig. 10.3c): convex (converging) lens → forms a virtual image of an object at 25 cm at the eye's actual near point → image then forms on retina."],
     finalAnswer: "Myopia: far point < ∞ → corrected by concave lens. Hypermetropia: near point > 25 cm → corrected by convex lens.",
     ncertRef: "Exemplar LA Q26", isCompetencyBased: true,
-    strategyHint: "REQUIRES-FIGURE: Four ray diagrams — myopic eye + concave correction; hypermetropic eye + convex correction (NCERT Figs 10.2 and 10.3)." },
+ },
 
   { id: "EYE-EXMPLR-10-LA-003", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Refraction through Prism", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Explain the refraction of light through a triangular glass prism using a labelled ray diagram. Hence define the angle of deviation.",
@@ -232,7 +232,7 @@ export const EYE_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Draw a triangular glass prism ABC, with BC as base and angle A between refracting faces AB and AC.", "Draw an incident ray PE striking AB. Draw the normal at E; mark angle of incidence ∠i.", "Light bends towards the normal on entering the prism (denser medium) → refracted ray EF inside the prism with angle of refraction ∠r.", "EF strikes AC; light goes from glass to air → bends away from normal → emergent ray FS at angle of emergence ∠e.", "Produce PE forward and produce FS backward; the angle between them = ∠D, the angle of deviation. Definition: angle of deviation is the angle between the original direction of the incident ray and the final direction of the emergent ray. (NCERT Fig. 10.4)"],
     finalAnswer: "Light bends twice (towards normal at entry, away from normal at exit). The angle between the original incident ray's direction and the emergent ray's direction is the angle of deviation (∠D).",
     ncertRef: "Exemplar LA Q27", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: Prism refraction diagram with PE, EF, FS, ∠i, ∠r, ∠e, ∠A, ∠D (NCERT Fig 10.4)." },
+ },
 
   { id: "EYE-EXMPLR-10-LA-004", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Scattering of Light", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "How can we explain the reddish appearance of sun at sunrise or sunset? Why does it not appear red at noon?",
@@ -248,7 +248,7 @@ export const EYE_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["White light = mixture of seven colours, each with a different wavelength.", "The refractive index of the glass is slightly different for each colour.", "When white light enters the prism, each colour refracts by a different angle.", "Violet (shortest wavelength) bends the most; red (longest wavelength) bends the least.", "After two refractions, the colours emerge along different paths → form the VIBGYOR spectrum on a screen. Ray diagram: NCERT Fig. 10.5."],
     finalAnswer: "Dispersion = splitting of white light into seven colours (VIBGYOR) by a prism, because different colours refract by different angles (violet most, red least).",
     ncertRef: "Exemplar LA Q29", isCompetencyBased: false,
-    strategyHint: "REQUIRES-FIGURE: Prism dispersion ray diagram showing VIBGYOR spectrum (NCERT Fig 10.5)." },
+ },
 
   { id: "EYE-EXMPLR-10-LA-006", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Atmospheric Refraction", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "How does refraction take place in the atmosphere? Why do stars twinkle but not the planets?",
