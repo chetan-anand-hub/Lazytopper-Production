@@ -665,7 +665,9 @@ test('U6 · non-grading paths, free checks, unverified callers and the free tier
   // ALL-AI-METERING-1: /api/tutor and /api/detect-question (and /api/more-like-this) are now
   // decided by their own switch — their table is fairUse.allAi.test.cjs, which pins the same
   // "untouched" property for step-solution and the free check under BOTH switches.
-  for (const reqPath of ['/api/step-solution', '/api/generate-visual', '/api/generate-diagram']) {
+  // 2026-10-11 HARDEN-1 PR-2: /api/generate-visual and /api/generate-diagram dropped from this list:
+  // both routes were removed from the server.
+  for (const reqPath of ['/api/step-solution']) {
     const r = rig({ days });
     assert.equal((await run(r, { path: reqPath })).answered, false, reqPath);
     assert.equal(r.tierReads(), 0, `${reqPath}: must not even read the tier`);
@@ -809,7 +811,9 @@ test('U4 / FU-GLOBAL-SHED · the premium margin needs a VERIFIED caller (a heade
 
 test('U4 / FU-GLOBAL-SHED · the tier is read for EVERY paid class at or past 80% (Gap 2), and for none below it', () => {
   const at85 = limiterAt(85).limiter;
-  for (const path of ['/api/tutor', '/api/check-solution', '/api/grade-worksheet', '/api/generate-visual']) {
+  // 2026-10-11 HARDEN-1 PR-2: /api/generate-visual (the "visual" class) was removed from the server;
+  // /api/step-solution stands in for the remaining "practice" class, so every paid class is still probed.
+  for (const path of ['/api/tutor', '/api/check-solution', '/api/grade-worksheet', '/api/step-solution']) {
     assert.equal(at85.needsTierRead(path), true, path);
   }
   assert.equal(at85.needsTierRead('/api/health'), false, 'an unpaid path never needs a tier read');
