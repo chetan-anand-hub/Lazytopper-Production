@@ -246,6 +246,21 @@ export const DEMANDS_SUPPLIED_FIGURE = [
 ];
 
 /**
+ * ★ D68b (cofounder) — rows that depend on a figure although NO phrase says so. Rule 5 matches wording, and the wording of these
+ * is clean ("Find the length of PQ" where P and Q exist only in the figure; "Redraw the circuit of Question 1"). Each id was read
+ * by a reviewer; each is held back (requires-absent-figure) until a figure is bound to it. Add an id only with a dated reason.
+ */
+export const FIGURE_DEPENDENT_BY_REVIEW: Readonly<Record<string, string>> = {
+  "APQ-M-CIRC-012": "2026-10-10 B/D68b: points P and Q (and the semicircles' touching points) are defined only by the official figure; the stem cannot be answered without it",
+  "ELEC-NCERT-11-LA-002": "2026-10-10 B/D68c: \"Redraw the circuit of Question 1\" - the circuit lives in another question; bind NCERT's Question 1 circuit or withhold",
+};
+
+/** True when the question demands a figure by wording (Rule 5 patterns) or by reviewed id. */
+export function demandsFigureForRow(id: string, text: string): boolean {
+  return Object.prototype.hasOwnProperty.call(FIGURE_DEPENDENT_BY_REVIEW, id) || demandsSuppliedFigure(text);
+}
+
+/**
  * ⚠ SCAN THE QUESTION, NOT THE SOLUTION — and this is not a style preference.
  *
  * Trunk's own `dependsOnSuppliedFigure` scans `[questionText, ...solutionSteps,
@@ -320,7 +335,7 @@ export function isPublishable(
   // The binder is asked AFTER the text test, so a row that demands nothing never
   // pays for a lookup and an unbound row's path is unchanged from before PR-3.
   const figureScan = `${q.questionText}\n${q.answer ?? ""}`;
-  if ((q.requiresDiagram || demandsSuppliedFigure(figureScan)) && !hasBoundFigure(q.id)) {
+  if ((q.requiresDiagram || demandsFigureForRow(q.id, figureScan)) && !hasBoundFigure(q.id)) {
     return { ok: false, reason: "requires-absent-figure", detail: q.id };
   }
 
