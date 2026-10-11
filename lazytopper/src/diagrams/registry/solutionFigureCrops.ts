@@ -65,6 +65,13 @@
  * sci-bio-heredity-3m-2026-01
  * (Punnett squares or other allele letters; NCERT draws neither), OE-C01 (Fig. 13.1 is
  * unlabelled).
+ *
+ * SOLUTION-FIGS-1 PR-5 (controller D) — Light rows the optics builder does not cover:
+ * NCERT Fig. 9.10 (jesc109.pdf, glass slab) and the existing Fig. 10.4 prism crop. Not
+ * bound, with reason: FND-L-SPQ-014 (asks angles i, r, e; Fig. 9.10 marks i1, r1, i2, r2),
+ * SCQ-S-LIGHT-033 / GDR-L-NUM-071 (lateral displacement marked; Fig. 9.10 does not),
+ * sci-light-hpq-3 (a single glass-to-air interface), PYQ-S-2024-LIGHT-009 (B's list), and the
+ * Light MCQs / CBE / CFPQ rows whose figure is part of the question.
  */
 import type { CropFigureBinding } from "./computedFigureTypes";
 
@@ -88,6 +95,8 @@ const NCERT_ELEC = "NCERT Class 10 Science (Reprint 2026-27) jesc111.pdf";
 const NCERT_HER = "NCERT Class 10 Science (Reprint 2026-27) jesc108.pdf";
 const ELEC_DIR = "/figures/solutions/ncert-science/electricity/";
 const HER_DIR = "/figures/solutions/ncert-science/heredity/";
+const NCERT_LIGHT = "NCERT Class 10 Science (Reprint 2026-27) jesc109.pdf";
+const LIGHT_DIR = "/figures/solutions/ncert-science/light-reflection-and-refraction/";
 
 export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
   {
@@ -665,6 +674,49 @@ export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
     alt: "Sex determination in human beings: the father's X or Y gamete with the mother's X gives an XX girl or an XY boy",
     source: { file: NCERT_HER, page: 5, figure: "NCERT Class 10 Science, Fig. 8.6" },
     eyeConfirm: "asked: a flow chart justifying that a boy or a girl is a matter of chance; answer: the mother gives X, the father X or Y with equal chance; Fig. 8.6 draws XY male / XX female, gametes X, Y, X, zygotes XX and XY, offspring female and male",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "LIGHT-EXMPLR-9-LA-003",
+    slot: "solution",
+    filePath: `${LIGHT_DIR}ncert-fig-9-10-glass-slab.webp`,
+    alt: "Refraction through a rectangular glass slab: incident ray EO bends towards the normal NN' at O (angles i1, r1), emerges at O' away from the normal MM' (i2, r2), parallel to the incident direction, shifted sideways",
+    source: { file: NCERT_LIGHT, page: 14, figure: "NCERT Class 10 Science, Fig. 9.10" },
+    eyeConfirm: "asked: laws of refraction with a ray diagram through a rectangular glass slab; answer: i1 and the normal at the first face, r1 < i1 inside, i2 = r1 and r2 = i1 at the second face, emergent ray parallel and laterally displaced; Fig. 9.10 marks i1, r1, i2, r2, both normals and the displaced parallel ray",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SP-S-2023-LGHT-D-001",
+    slot: "solution",
+    part: "(b) glass slab",
+    filePath: `${LIGHT_DIR}ncert-fig-9-10-glass-slab.webp`,
+    alt: "Refraction through a rectangular glass slab: incident ray EO bends towards the normal NN' at O (angles i1, r1), emerges at O' away from the normal MM' (i2, r2), parallel to the incident direction, shifted sideways",
+    source: { file: NCERT_LIGHT, page: 14, figure: "NCERT Class 10 Science, Fig. 9.10" },
+    eyeConfirm: "asked (b): ray diagram of refraction through a rectangular glass slab; answer: bends towards the normal at the first surface, emerges parallel with a lateral displacement; Fig. 9.10",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "GDR-L-CBJ-016",
+    slot: "solution",
+    part: "(b) glass slab",
+    filePath: `${LIGHT_DIR}ncert-fig-9-10-glass-slab.webp`,
+    alt: "Refraction through a rectangular glass slab: incident ray EO bends towards the normal NN' at O (angles i1, r1), emerges at O' away from the normal MM' (i2, r2), parallel to the incident direction, shifted sideways",
+    source: { file: NCERT_LIGHT, page: 14, figure: "NCERT Class 10 Science, Fig. 9.10" },
+    eyeConfirm: "asked (b): ray diagram showing the emergent ray parallel to the incident ray but shifted sideways; answer: towards the normal on entering, away on leaving, parallel and laterally displaced; Fig. 9.10",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-2026-LIGHT-015",
+    slot: "solution",
+    part: "(a) prism",
+    filePath: `${EYE_DIR}ncert-fig-10-4-prism-refraction.webp`,
+    alt: "Refraction through a triangular glass prism: incident ray PE, refracted ray EF, emergent ray FS, angles i, r, e, A and the angle of deviation D",
+    source: { file: NCERT_EYE, page: 6, figure: "NCERT Class 10 Science, Fig. 10.4" },
+    eyeConfirm: "asked (a): ray diagram for refraction through a glass prism, marking the angle of refraction and the angle of deviation; Fig. 10.4 marks r at the first face and D, with i, e and A",
     confirmedBy: BY_D,
   },
 ];
