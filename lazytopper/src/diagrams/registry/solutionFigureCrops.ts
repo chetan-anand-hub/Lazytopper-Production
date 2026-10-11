@@ -52,7 +52,16 @@
  * galvanised iron), METAL-NCERT-3-LONG-001 / SCQ-S-METAL-040 / LTG-S-METAL-290 (Na2O, MgO,
  * CaCl2, CaO: NCERT draws NaCl and MgCl2 only), CBE-S-MNM-D-001 (alumina electrolysis: no
  * NCERT figure), MNM-M03 (its step asks to label the ionic bond; Fig. 3.5 does not; verifier
- * FAIL 2026-10-11).
+ * FAIL 2026-10-11). *
+ * SOLUTION-FIGS-1 PR-4 (controller D) — Electricity (jesc111.pdf) + Heredity (jesc108.pdf),
+ * same rule. Not bound, with reason: EL-H04 / SP-S-2023-ELEC-C-001 (answers include a
+ * rheostat; Fig. 11.2 has none), the circuits with given resistor values
+ * (ELEC-NCERT-11-SA-017, ELEC-NCERT-11-LA-002, ELEC-EXMPLR-11-LA-001, PYQ-S-2025-ELEC-007:
+ * no NCERT figure draws them; no circuit builder yet), SCQ-S-ELEC-041 (needs a question
+ * figure: B's Rule-5 lane), PYQ-S-ELEC-003 (B's list), sci-he-comp-01 / CBE-S-HERD-* /
+ * sci-bio-heredity-3m-2026-01
+ * (Punnett squares or other allele letters; NCERT draws neither), OE-C01 (Fig. 13.1 is
+ * unlabelled).
  */
 import type { CropFigureBinding } from "./computedFigureTypes";
 
@@ -72,6 +81,10 @@ const NCERT_CARB = "NCERT Class 10 Science (Reprint 2026-27) jesc104.pdf";
 const NCERT_MET = "NCERT Class 10 Science (Reprint 2026-27) jesc103.pdf";
 const CARB_DIR = "/figures/solutions/ncert-science/carbon-and-its-compounds/";
 const MET_DIR = "/figures/solutions/ncert-science/metals-and-non-metals/";
+const NCERT_ELEC = "NCERT Class 10 Science (Reprint 2026-27) jesc111.pdf";
+const NCERT_HER = "NCERT Class 10 Science (Reprint 2026-27) jesc108.pdf";
+const ELEC_DIR = "/figures/solutions/ncert-science/electricity/";
+const HER_DIR = "/figures/solutions/ncert-science/heredity/";
 
 export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
   {
@@ -606,6 +619,49 @@ export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
     alt: "Electrolytic refining of copper: impure copper anode, pure copper cathode, acidified copper sulphate solution in a tank, key and battery, anode mud below the anode",
     source: { file: NCERT_MET, page: 16, figure: "NCERT Class 10 Science, Fig. 3.12" },
     eyeConfirm: "asked (ii): a neat, well-labelled diagram of electrolytic refining of copper; answer: tank, impure Cu anode (+), pure Cu cathode (-), CuSO4 electrolyte, switch, battery, anode mud; Fig. 3.12 labels anode, cathode, acidified copper sulphate solution, tank, key, impurities (anode mud)",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-2026-ELEC-004",
+    slot: "solution",
+    part: "(b) V-I graph",
+    filePath: `${ELEC_DIR}ncert-fig-11-3-v-i-graph.webp`,
+    alt: "V-I graph for a nichrome wire: potential difference (V) against current (A), a straight line through the origin",
+    source: { file: NCERT_ELEC, page: 6, figure: "NCERT Class 10 Science, Fig. 11.3" },
+    eyeConfirm: "asked (b): V-I graph for a conductor obeying Ohm's law; answer: V directly proportional to I at constant temperature; Fig. 11.3 is a straight line through the origin with labelled axes",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-ELEC-028",
+    slot: "solution",
+    part: "(b) battery",
+    filePath: `${ELEC_DIR}ncert-table-11-1-battery.webp`,
+    alt: "Circuit symbol for a battery or a combination of cells: cells in series, long line +, short line -",
+    source: { file: NCERT_ELEC, page: 4, figure: "NCERT Class 10 Science, Table 11.1 (row 2)" },
+    eyeConfirm: "asked (b): symbol of a battery; answer: cells in series, long line +, short line -; Table 11.1 row 2 draws exactly that",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-ELEC-028",
+    slot: "solution",
+    part: "(b) rheostat",
+    filePath: `${ELEC_DIR}ncert-table-11-1-rheostat.webp`,
+    alt: "Circuit symbol for a variable resistance or rheostat: a resistor with an arrow across it, or with a sliding contact",
+    source: { file: NCERT_ELEC, page: 5, figure: "NCERT Class 10 Science, Table 11.1 (row 9)" },
+    eyeConfirm: "asked (b): symbol of a rheostat; answer: a zigzag resistor with an arrow drawn diagonally across it; Table 11.1 row 9 draws it (and the sliding-contact alternative)",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-HERED-034",
+    slot: "solution",
+    filePath: `${HER_DIR}ncert-fig-8-6-sex-determination.webp`,
+    alt: "Sex determination in human beings: the father's X or Y gamete with the mother's X gives an XX girl or an XY boy",
+    source: { file: NCERT_HER, page: 5, figure: "NCERT Class 10 Science, Fig. 8.6" },
+    eyeConfirm: "asked: a flow chart justifying that a boy or a girl is a matter of chance; answer: the mother gives X, the father X or Y with equal chance; Fig. 8.6 draws XY male / XX female, gametes X, Y, X, zygotes XX and XY, offspring female and male",
     confirmedBy: BY_D,
   },
 ];
