@@ -199,7 +199,7 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
       "Produces lactic acid → causes muscle cramps/fatigue [1]",
     ], finalAnswer: "More O₂ needed for energy; without O₂ → anaerobic → lactic acid → cramps" , isCompetencyBased: true },
   { id: "LP-H03", subject: "Science", topicKey: "life-processes", subtopic: "Transportation", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Draw a neat diagram of the human excretory system and label: (i) Kidney (ii) Ureter (iii) Urinary bladder (iv) Urethra. Explain the process of urine formation.", solutionSteps: [
-      "Refer to the labelled diagram of the nephron showing: Bowman's capsule, glomerulus, proximal convoluted tubule, loop of Henle, distal convoluted tubule, and collecting duct.; Diagram with both kidneys, ureters, urinary bladder, urethra, renal artery/vein [1]",
+      "Diagram: the human excretory system — both kidneys (with renal artery and vein), the ureters, the urinary bladder and the urethra; label (i) Kidney (ii) Ureter (iii) Urinary bladder (iv) Urethra [1]",
       "Filtration: blood filtered at glomerulus in Bowman's capsule [1]",
       "Reabsorption: useful substances (glucose, salts, water) reabsorbed in tubules [1]",
       "Secretion: additional wastes secreted into tubular fluid [1]",

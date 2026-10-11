@@ -234,6 +234,25 @@ const OFFERED_VISION_DAILY_SUBCAP = 25;
  */
 const VISION_SHED_FRACTION = 0.8;
 
+/**
+ * FU-GLOBAL-SHED (owner P = 0.25, DECISION 32d) - a VERIFIED Premium caller may pass the global HARD
+ * ceiling up to floor(hard x (1 + P)). Free and trial traffic can fill the ceiling; a paying student
+ * must not be refused because of it. Non-premium behaviour is exactly as before. The worst-case
+ * daily spend rises by exactly P, and the budget stress test is amended by exactly P (it asserts
+ * the overspend of a full overflow day against the daily budget is at most P x that budget).
+ * A constant, not an env var: P is a money call the owner set.
+ */
+const PREMIUM_GLOBAL_OVERFLOW = 0.25;
+
+/**
+ * What the student reads when the site-wide ceiling refuses them (owner D59a): calm, not a fault, not their
+ * doing. A signed-in non-paying account is also pointed to the plans (a "See plans" link added by the client);
+ * a signed-out visitor gets the same sentence WITHOUT the subscribe part (a new trial would be refused that day
+ * too), and a premium caller past the margin gets it without any call to action.
+ */
+const BUSY_TODAY_MESSAGE = "LazyTopper is very busy today. Come back after midnight, or subscribe for priority access.";
+const BUSY_TODAY_MESSAGE_ALL = "LazyTopper is very busy today. Come back after midnight.";
+
 const DEFAULT_LIMITS = Object.freeze({
   // soft = alert only (request passes) · hard = 429
   // vision hard MUST stay above OFFERED_VISION_DAILY_SUBCAP — see the guard.
@@ -367,6 +386,29 @@ function createRateLimiter(options = {}) {
     return limits[klass] || null;
   }
 
+  /**
+   * FU-GLOBAL-SHED: the SITE-WIDE ceiling's refusal is its own error, `busy_today`. It must not
+   * read as a fault or blame the student (they may have used nothing). Still a 429 with the same
+   * `class` + `resetAt` keys; `scope` says whom it pauses: "free" (the normal case) or "all"
+   * (a premium caller past the overflow margin).
+   */
+  function busyToday(nowMs, scope, cta) {
+    return {
+      allowed: false,
+      status: 429,
+      body: {
+        error: "busy_today",
+        message: scope === "all" || cta === null ? BUSY_TODAY_MESSAGE_ALL : BUSY_TODAY_MESSAGE,
+        class: GLOBAL_CLASS,
+        scope,
+        // "plans" for a signed-in non-paying account; null for a signed-out visitor (a new trial would be
+        // refused that day too) and for a premium caller past the margin: no call to action at all.
+        cta: scope === "all" ? null : cta,
+        resetAt: nextIstMidnightIso(nowMs),
+      },
+    };
+  }
+
   function denial(klass, nowMs, message) {
     return {
       allowed: false,
@@ -408,8 +450,8 @@ function createRateLimiter(options = {}) {
    * included — was read as `premium` for a VERIFIED uid. It is honoured only for a
    * VERIFIED caller (a spoofable header uid can never earn it), and it skips exactly
    * one thing: the 80% vision shed. A paying student is never paused by the day's
-   * budget. The per-caller hard caps and the global HARD ceiling still apply, and the
-   * request still commits to `global:<day>`. Free and trial callers never carry it,
+   * budget. The per-caller hard caps still apply. FU-GLOBAL-SHED: it also lets a verified
+   * premium caller pass the global HARD ceiling up to floor(hard x 1.25); the request still commits to `global:<day>`. Free and trial callers never carry it,
    * so they keep the shed exactly as before.
    */
   function check(req, reqPath, verifiedUid, options) {
@@ -492,10 +534,16 @@ function createRateLimiter(options = {}) {
       return denial(klass, nowMs);
     }
     if (globalRules && globalSoFar + 1 > globalRules.hard) {
-      // The circuit breaker at 100%. Loud, because it means something is very
-      // wrong: either far more students than expected, or something is scripting us.
-      emit("rate_limit.hard_block.global");
-      return denial(GLOBAL_CLASS, nowMs);
+      // FU-GLOBAL-SHED: a VERIFIED premium caller rides the overflow margin above the ceiling.
+      const overflowTop = Math.floor(globalRules.hard * (1 + PREMIUM_GLOBAL_OVERFLOW));
+      if (premiumShedExempt && globalSoFar + 1 <= overflowTop) {
+        emit("rate_limit.global_overflow.premium");
+      } else {
+        // The circuit breaker at 100%. Loud, because it means something is very
+        // wrong: either far more students than expected, or something is scripting us.
+        emit("rate_limit.hard_block.global");
+        return busyToday(nowMs, premiumShedExempt ? "all" : "free", caller.anonymous ? null : "plans");
+      }
     }
 
     // ── CLASS-AWARE SHED at 80% of the global ceiling.
@@ -572,6 +620,19 @@ function createRateLimiter(options = {}) {
   }
 
   /**
+   * FU-GLOBAL-SHED (fixes "Gap 2"): must index.cjs read the caller's tier for this request? True for
+   * ANY paid class once today's global count is at or past the 80% line - a premium Tutor or practice
+   * call is otherwise never recognised near the ceiling. Read-only: commits and emits nothing, so
+   * every request below 80% still pays nothing for it.
+   */
+  function needsTierRead(reqPath) {
+    if (!classify(reqPath)) return false;
+    const globalRules = limitsFor(GLOBAL_CLASS);
+    if (!globalRules) return false;
+    return globalCountToday() + 1 > Math.floor(globalRules.hard * VISION_SHED_FRACTION);
+  }
+
+  /**
    * FAIR-USE-1 (U4): would a `vision` request on `reqPath` be SHED right now? Read-only
    * — commits nothing, emits nothing. index.cjs asks this BEFORE check() so that the
    * caller's tier is read (a Firestore read) only on the rare request the shed would
@@ -584,7 +645,7 @@ function createRateLimiter(options = {}) {
     return globalCountToday() + 1 > Math.floor(globalRules.hard * VISION_SHED_FRACTION);
   }
 
-  return { check, snapshot, globalCountToday, wouldShed, limits, paidEndpoints };
+  return { check, snapshot, globalCountToday, wouldShed, needsTierRead, limits, paidEndpoints };
 }
 
 module.exports = {
@@ -595,6 +656,8 @@ module.exports = {
   EXPECTED_DAILY_STUDENTS,
   OFFERED_VISION_DAILY_SUBCAP,
   VISION_SHED_FRACTION,
+  PREMIUM_GLOBAL_OVERFLOW,
+  BUSY_TODAY_MESSAGE,
   MAX_SINGLE_UID_SHARE_OF_GLOBAL,
   CHECK_IMPROVE_FLOW_ENDPOINTS,
   VISION_CALLS_PER_OFFERED_CHECK,

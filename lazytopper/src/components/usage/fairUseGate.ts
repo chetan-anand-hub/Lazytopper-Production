@@ -58,6 +58,8 @@ export const PREMIUM_WINDOW_LABEL: Record<PremiumWindow, string> = {
   fiveHour: "5-hour",
   day: "day",
   week: "week",
+  // CAP-30DAY: only ever sent when the server has the optional 30-day cap switched on.
+  thirtyDay: "30-day",
 };
 
 const PAPER_NOUN: Record<Exclude<LimitScope, "checks">, { when: string; one: string; many: string }> = {
@@ -124,6 +126,26 @@ export function limitCopy(limit: LimitState): LimitCopy {
   };
 }
 
+/** PURE. True when a reset instant is midnight IST (00:00 on any day). */
+export function isMidnightIst(resetAt: string): boolean {
+  const ms = Date.parse(resetAt);
+  if (Number.isNaN(ms)) return false;
+  const ist = new Date(ms + IST_OFFSET_MS);
+  return ist.getUTCHours() === 0 && ist.getUTCMinutes() === 0;
+}
+
+/**
+ * PURE. DECISION 32e (owner copy change, 10 Oct): the grey second sentence of the trial daily-checks dialog.
+ * The bold first sentence (the used line + "Premium removes the daily limit.") already says the allowance, so the
+ * reset time is said ONCE: "after midnight" when the reset is midnight IST, the exact time only when it is not.
+ * `allowance` is the server's checksPerDay; unknown -> the number is omitted, never guessed. No rupees.
+ */
+export function trialComeBackLine(resetAt: string, when: string, allowance?: number | null): string {
+  const more = typeof allowance === "number" && allowance > 0 ? `${allowance} more` : "more";
+  const lead = isMidnightIst(resetAt) ? "Come back after midnight" : `Come back at ${when}`;
+  return `${lead} for ${more}. Practice, MCQs, CBQs and notes still work now.`;
+}
+
 /** PURE. UI2's confirm sentence. The spec's copy, with the one grammatical change a
  *  single check needs ("1 check", not "1 checks"). */
 export function confirmCopy(remaining: number): string {
@@ -139,6 +161,7 @@ const inFuture = (iso: string | null, nowMs: number) => iso !== null && Date.par
 export function fullPremiumWindow(snapshot: UsageSnapshot): PremiumWindow | null {
   const p = snapshot.premium;
   if (!p) return null;
+  if (p.thirtyDayPct !== null && p.thirtyDayPct >= 100) return "thirtyDay";
   if (p.weekPct >= 100) return "week";
   if (p.dayPct >= 100) return "day";
   if (p.fiveHourPct >= 100) return "fiveHour";
