@@ -51,7 +51,8 @@
  * PYQ-S-CARB-003 (a)(i) (Fig. 4.8 (b) draws both C4H10 isomers), MNM2-047 (no NCERT figure of
  * galvanised iron), METAL-NCERT-3-LONG-001 / SCQ-S-METAL-040 / LTG-S-METAL-290 (Na2O, MgO,
  * CaCl2, CaO: NCERT draws NaCl and MgCl2 only), CBE-S-MNM-D-001 (alumina electrolysis: no
- * NCERT figure).
+ * NCERT figure), MNM-M03 (its step asks to label the ionic bond; Fig. 3.5 does not; verifier
+ * FAIL 2026-10-11).
  */
 import type { CropFigureBinding } from "./computedFigureTypes";
 
@@ -584,16 +585,7 @@ export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
     eyeConfirm: "asked: compare benzene and cyclohexane by drawing them; answer: benzene has 3 double bonds; Fig. 4.10 draws them",
     confirmedBy: BY_D,
   },
-  {
-    kind: "crop",
-    questionId: "MNM-M03",
-    slot: "solution",
-    filePath: `${MET_DIR}ncert-fig-3-5-sodium-chloride.webp`,
-    alt: "Formation of sodium chloride: Na (2,8,1) loses an electron to Cl (2,8,7), shown with dots and crosses, giving Na+ and Cl- ions",
-    source: { file: NCERT_MET, page: 11, figure: "NCERT Class 10 Science, Fig. 3.5" },
-    eyeConfirm: "asked: formation of NaCl from sodium and chlorine atoms with electron dot structures; answer: Na gives its one valence electron to Cl (7), forming Na+ and Cl-; Fig. 3.5 draws exactly that transfer",
-    confirmedBy: BY_D,
-  },
+
   {
     kind: "crop",
     questionId: "CR2-049",

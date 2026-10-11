@@ -75,7 +75,6 @@ const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string
   ["CARB-EXMPLR-4-LONG-005", undefined, `${CARB}ncert-fig-4-11-ester-formation.webp`, "Official figure: NCERT Class 10 Science, Fig. 4.11"],
   ["SCQ-S-CARB-028", "cyclohexane", `${CARB}ncert-fig-4-9-cyclohexane.webp`, "Official figure: NCERT Class 10 Science, Fig. 4.9 — cyclohexane"],
   ["SCQ-S-CARB-028", "benzene", `${CARB}ncert-fig-4-10-benzene.webp`, "Official figure: NCERT Class 10 Science, Fig. 4.10 — benzene"],
-  ["MNM-M03", undefined, `${MET}ncert-fig-3-5-sodium-chloride.webp`, "Official figure: NCERT Class 10 Science, Fig. 3.5"],
   ["CR2-049", "(a) electron transfer", `${MET}ncert-fig-3-5-sodium-chloride.webp`, "Official figure: NCERT Class 10 Science, Fig. 3.5 — (a) electron transfer"],
   ["METAL-EXMPLR-3-LONG-004", "(ii) electrolytic refining", `${MET}ncert-fig-3-12-electrolytic-refining.webp`, "Official figure: NCERT Class 10 Science, Fig. 3.12 — (ii) electrolytic refining"],
 ];
@@ -83,11 +82,11 @@ const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string
 const key = (q: string, part: string | undefined, file: string) => `${q} | ${part ?? "-"} | ${file}`;
 
 describe("solution-figure crop bindings are pinned (FU-1038-PIN-BINDINGS)", () => {
-  it("the registry holds EXACTLY the 51 pinned (questionId, part, filePath) tuples", () => {
+  it("the registry holds EXACTLY the 50 pinned (questionId, part, filePath) tuples", () => {
     const actual = SOLUTION_FIGURE_CROPS.map((c) => key(c.questionId, c.part, c.filePath)).sort();
     const expected = PINNED.map(([q, part, file]) => key(q, part, file)).sort();
     expect(actual).toEqual(expected);
-    expect(SOLUTION_FIGURE_CROPS).toHaveLength(51);
+    expect(SOLUTION_FIGURE_CROPS).toHaveLength(50);
   });
 
   it.each(PINNED.map(([q, part, file, caption]) => ({ q, part, file, caption })))(
