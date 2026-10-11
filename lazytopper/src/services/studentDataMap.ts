@@ -488,7 +488,7 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     mechanism: "admin-sdk-required",
     exportable: true,
     notes:
-      "★ Doc id = the Razorpay payment id. Same accounting character as `subscriptions.payments`. " +
+      "★ Doc id = the Razorpay payment id. Same accounting character as the payments ledger. " +
       "Student data: erased with the account and included in the export.",
   },
 
