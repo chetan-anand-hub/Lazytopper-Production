@@ -367,7 +367,7 @@ describe("PAPER-REBUILD-1 · a pending worksheet with no saved copy", () => {
   const seededPaper = () => JSON.parse(localStorage.getItem("lazytopper.worksheets.v1") ?? "[]")[0] as PersistedWorksheet | undefined;
   const snapshotWrites = () => fs.writes.filter((w) => w.path.includes("worksheetPapers"));
 
-  it("★ (b) rebuilt EXACTLY from the record's ids (same ids, same order), opens on the SAME code, and seeds both stores", async () => {
+  it("★ (b) rebuilt EXACTLY from the record's ids (same ids, same order), opens on the SAME code, seeds the device copy and does NOT write the server snapshot", async () => {
     const ids = realIds(4);
     expect(ids).toHaveLength(4);
     const rec = writeOrphanPending("WS-M-REALNUMBERS-0R", "ws-r", ids);
@@ -380,8 +380,8 @@ describe("PAPER-REBUILD-1 · a pending worksheet with no saved copy", () => {
     expect(seeded?.questions.map((q) => q.id), "exact ids, record order").toEqual(ids);
     expect(seeded?.questions.map((q) => q.qNumber)).toEqual([1, 2, 3, 4]);
     expect(seeded?.questions.every((q) => q.questionText && q.questionText !== "x"), "today's bank text").toBe(true);
-    expect(snapshotWrites().map((w) => w.path)).toEqual([`sessionRecords/student-1/worksheetPapers/${rec.id}`]);
-    expect(((snapshotWrites()[0].data as { paper: PersistedWorksheet }).paper.questions).map((q) => q.id)).toEqual(ids);
+    // D105a: the device copy is seeded; the server snapshot (the frozen truth) is NEVER written by a rebuild.
+    expect(snapshotWrites(), "no server snapshot write").toHaveLength(0);
   });
 
   it("★ (c) one id that no longer resolves -> the honest message, NO paper, nothing seeded", async () => {

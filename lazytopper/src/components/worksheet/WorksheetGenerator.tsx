@@ -43,7 +43,6 @@ import {
   recordWorksheetDownload,
   fetchWorksheetPaperSnapshot,
   reapGradedWorksheetSnapshots,
-  saveWorksheetPaperSnapshot,
 } from "../../services/worksheetPaperStore";
 import { loadWorksheetRebuild, worksheetQuestionFromBankRow } from "../../services/paperRebuild";
 import WorksheetPendingBanner from "./WorksheetPendingBanner";
@@ -786,12 +785,12 @@ function WorksheetGeneratorInner() {
     }
     if (!ws) {
       // PAPER-REBUILD-1 (D102/D103b): no copy anywhere -> the EXACT paper from the record's own ids
-      // (every id resolves, same order, same count), then seed both stores so the next open uses them.
+      // (every id resolves, same order, same count), then seed THIS DEVICE's copy only. D105a: the
+      // server snapshot is the frozen truth — a transient read failure must never overwrite it.
       const rebuilt = await loadWorksheetRebuild(record, (key) => labelForTopic(record.subject, key)).catch(() => null);
       if (rebuilt) {
         ws = rebuilt;
         saveWorksheetSession(ws);
-        saveWorksheetPaperSnapshot(user, { code: record.id, name: record.title, paper: ws });
       }
     }
     if (ws) {
