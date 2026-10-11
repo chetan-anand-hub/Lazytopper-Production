@@ -32,6 +32,7 @@ import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
   buildConfirmedDetection,
+  withSubjectCorrected,
   ciQuestionIds,
   clampDetectedMarks,
   isMixedPaper,
@@ -145,8 +146,12 @@ import { TRIAL_DAYS } from "../../services/subscriptionService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
 // Dark unless /api/usage/me says `enforced: true`; never asked in free-check mode.
 import FairUseLimitPanel from "../../components/usage/FairUseLimitPanel";
+import UsageWarning from "../../components/usage/UsageWarning";
 import FairUseConfirm from "../../components/usage/FairUseConfirm";
 import { useFairUse } from "../../components/usage/useFairUse";
+// ALL-AI-METERING-1 - a question-detection refusal shows the limit panel by the Read button.
+import { limitFromAiRefusal, type LimitState } from "../../components/usage/fairUseGate";
+import { readFairUseLimit } from "../../services/usageClient";
 // TRIAL-PAPER-1 - a trial paper graded only up to today's checks: the rest listed as
 // not graded, with an honest upgrade note.
 import TrialPaperNote from "../../components/usage/TrialPaperNote";
@@ -1039,6 +1044,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   // correct it). `editing` toggles the inline correction.
   const [detecting, setDetecting] = useState<boolean>(false);
   const [detectError, setDetectError] = useState<string | null>(null);
+  // ALL-AI-METERING-1 - a fair-use refusal of detection (scope `checks`), shown in place of detectError.
+  const [detectLimit, setDetectLimit] = useState<LimitState | null>(null);
 
   // Picker refusals — DELIBERATELY separate from `errorMessage` (the grade-failure
   // channel). `errorMessage`'s surface hard-codes "No score has been generated. Press
@@ -1389,6 +1396,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (questionTab === "upload" && !qImageBase64) return;
     setDetecting(true);
     setDetectError(null);
+    setDetectLimit(null);
     try {
       const d = await detectQuestion({
         question: q || undefined,
@@ -1401,7 +1409,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         setDetectError(d?.error ?? "We couldn't read the question — please try again.");
         return;
       }
-      const cd = buildConfirmedDetection(d);
+      const cd = buildConfirmedDetection(d, q || d.questions?.[0]?.questionText);
       setDetected(cd);
       setConfirmed(cd);
       const image = questionTab === "upload" ? qImageBase64 : null;
@@ -1418,7 +1426,12 @@ const DesktopCheckImprovePageInner: React.FC<{
       setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
     } catch (e) {
       const refused = freeRefusalFor(e);
+      // ALL-AI-METERING-1: a detection limit is the limit panel, never "we couldn't read".
+      const limit = refused ? null : limitFromAiRefusal(readFairUseLimit(e), "checks", fairUse.snapshot);
       if (refused) setFreeRefusal(refused);
+      else if (limit) setDetectLimit(limit);
+      // ALL-AI-METERING-1: a signed-in free student's detection 402 reads the server's own plain copy.
+      else if (isPremiumRequiredError(e)) setDetectError(e.message);
       else setDetectError("We couldn't read the question — please try again.");
     } finally {
       setDetecting(false);
@@ -1426,14 +1439,10 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
 
   // Constrained corrections — topic stays a canonical key; marks 1–6; subject
-  // toggle re-seeds the topic. A corrected mark is flagged marksSource "user".
+  // toggle CLEARS the topic ("(no specific topic)" - TOPIC-FIX-1: it used to seed the subject's FIRST chapter, a
+  // guess the student never made, filed as their weak area). A corrected mark is flagged marksSource "user".
   function correctSubject(next: DesktopSubject) {
-    const first = CANONICAL_TOPIC_VOCAB.find((t) => t.subject === next);
-    setConfirmed((c) =>
-      c
-        ? { ...c, subject: next, topicSlug: first?.slug ?? "", topicName: first?.name ?? "" }
-        : c,
-    );
+    setConfirmed((c) => (c ? withSubjectCorrected(c, next) : c));
     setTopicTouched(true); // provenance tag: the student engaged the topic (C&I PR-1)
   }
   function correctTopic(slug: string) {
@@ -2331,6 +2340,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           minWidth: 0,
         }}
       >
+        <UsageWarning scope="check-improve" snapshot={fairUse.snapshot} />
         {/* The return ticket's contextual strip (Section C) — a quiet line, never a
             modal, never blocking. Renders nothing on a direct visit. */}
         <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
@@ -2621,6 +2631,7 @@ const DesktopCheckImprovePageInner: React.FC<{
               {detectError && (
                 <div style={{ fontSize: 12.5, color: DANGER_FG }}>{detectError}</div>
               )}
+              {detectLimit ? <FairUseLimitPanel limit={detectLimit} /> : null}
               {/* Picker refusal for the QUESTION photo — mirrors detectError's shape so
                   the two read as one voice. Deliberately NOT the grade-failure channel:
                   nothing was graded, so "Retry the grader" would be a lie. */}

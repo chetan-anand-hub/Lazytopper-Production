@@ -215,14 +215,17 @@ describe("every PAID endpoint's client call site attaches identity", () => {
       "/api/check-solution",
       "/api/detect-question",
       "/api/grade-worksheet",
-      "/api/generate-visual",
+      // 2026-10-11 HARDEN-1 PR-2: "/api/generate-visual" removed — the server route and
+      // aiClient.generateVisual() were deleted (D8/D75), so it is no longer a paid endpoint.
     ],
     "src/ai/tutorClient.ts": ["/api/tutor"],
     // src/components/VisualExplainer.tsx left with its file (deleted by FRICTION-FIX-1 PR-1 —
-    // no live importer). /api/generate-visual stays covered by aiClient.ts above.
-    "src/components/question/QuestionVisualAid.tsx": ["/api/generate-diagram"],
-    "src/pages/DiagramComparePage.tsx": ["/api/generate-diagram"],
-    "src/pages/DiagramQualityPage.tsx": ["/api/generate-diagram"],
+    // no live importer). (2026-10-11 HARDEN-1 PR-2: /api/generate-visual itself is now removed.)
+    // 2026-10-11 HARDEN-1 PR-1: QuestionVisualAid.tsx no longer calls /api/generate-diagram — its
+    // AiDiagramFallback was dead heuristic code (D75/D8) and was deleted with it.
+    // 2026-10-11 HARDEN-1 PR-2 (D81a): the two admin diagram pages (DiagramComparePage.tsx,
+    // DiagramQualityPage.tsx) were deleted with the /api/generate-diagram route, so their entries
+    // are gone too. Every endpoint the server still bills for remains covered (test below).
   };
 
   it("covers every endpoint the server bills for", () => {

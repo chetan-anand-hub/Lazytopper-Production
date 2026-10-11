@@ -1,0 +1,598 @@
+{
+ "_readme": "TOPIC-FIX-1 eval set: 74 typed stems from served OFFICIAL bank rows at baseSha. FROZEN - the baselines in results/ were measured on exactly these ids; buildItems.mts only checks them against the bank.",
+ "baseSha": "1ee42404",
+ "items": [
+  {
+   "id": "PYQ-M-2024-REALNUM-002",
+   "kind": "chapter",
+   "topicKey": "real-numbers",
+   "subject": "Maths",
+   "marks": 2,
+   "text": "Find the smallest number that is divisible by each of 8, 9 and 10."
+  },
+  {
+   "id": "Z3-RN-001",
+   "kind": "chapter",
+   "topicKey": "real-numbers",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "You have a piece of construction paper that measures 32 cm by 48 cm. You want to cut it into squares of equal size.\n(i) What will be the dimensions of the largest possible square?\n(ii) How many such squares will you have?"
+  },
+  {
+   "id": "PYQ-M-2024-POLY-005a",
+   "kind": "chapter",
+   "topicKey": "polynomials",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "If α and β are the zeroes of the quadratic polynomial f(x) = 6x² + 11x − 10, find the value of α/β + β/α."
+  },
+  {
+   "id": "POLY-N-EXEM-2-SA-001",
+   "kind": "chapter",
+   "topicKey": "polynomials",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Find the zeroes of 4x² – 3x – 1 by factorisation and verify the relationship between zeroes and coefficients."
+  },
+  {
+   "id": "BX-PLE-D-038",
+   "kind": "chapter",
+   "topicKey": "pair-of-linear-equations",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "The sum of two numbers is 85. When the larger number is divided by the smaller, the quotient is 3 and the remainder is 5. Find the two numbers."
+  },
+  {
+   "id": "Z3-PLE-006",
+   "kind": "chapter",
+   "topicKey": "pair-of-linear-equations",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "Shalvi wants to use milk and orange juice to increase calcium and vitamin A in her diet. One ounce of milk contains 38 mg of calcium and 56 micrograms of vitamin A. One ounce of orange juice contains 5 mg of calcium and 60 micrograms of vitamin A. How many ounces of milk and orange juice should she drink each day to provide exactly 550 mg of calcium and 1200 micrograms of vitamin A?"
+  },
+  {
+   "id": "BX-QUAD-D-030",
+   "kind": "chapter",
+   "topicKey": "quadratic-equations",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "A two-digit number is four times the sum of its digits and also twice the product of its digits. Find the number."
+  },
+  {
+   "id": "PYQ-M-QE-005",
+   "kind": "chapter",
+   "topicKey": "quadratic-equations",
+   "subject": "Maths",
+   "marks": 2,
+   "text": "(A) Find the sum and product of the roots of the quadratic equation 2x2 – 9x + 4 = 0. 2 OR (B) Find the discriminant of the quadratic equation 4x2 – 5 = 0 and hence comment on the nature of roots of the equation."
+  },
+  {
+   "id": "BX-AP-E-010",
+   "kind": "chapter",
+   "topicKey": "arithmetic-progression",
+   "subject": "Maths",
+   "marks": 4,
+   "text": "A machine bought for ₹1,00,000 loses a fixed ₹8,000 of value every year. Its values at the end of years 1, 2, 3, … are ₹92000, ₹84000, ₹76000, …\n(i) What is the common difference of the value AP?\n(ii) What is the machine's value at the end of year 5?\n(iii) At the end of which year is the value ₹36,000?\n(iv) By how much does the year-2 value exceed the year-6 value?"
+  },
+  {
+   "id": "BX-AP-E-041",
+   "kind": "chapter",
+   "topicKey": "arithmetic-progression",
+   "subject": "Maths",
+   "marks": 4,
+   "text": "Potted plants are arranged in 12 rows on a stepped stand: 3 pots in row 1 and 4 more in each higher row: 3, 7, 11, …\n(i) What is the common difference of the pots AP?\n(ii) How many pots are in row 10?\n(iii) Given the top (12th) row, find the total number of pots on the stand.\n(iv) Which row has exactly 27 pots?"
+  },
+  {
+   "id": "TRI-N-EXMPLR-6-SA-006",
+   "kind": "chapter",
+   "topicKey": "triangles",
+   "subject": "Maths",
+   "marks": 2,
+   "text": "If in two right triangles one of the acute angles of one triangle is equal to an acute angle of the other triangle, can the two triangles be similar? Why?"
+  },
+  {
+   "id": "TRI-N-NCERT-6-LA-002",
+   "kind": "chapter",
+   "topicKey": "triangles",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "ABCD is a trapezium in which AB ∥ DC and its diagonals intersect at the point O. Show that AO/BO = CO/DO."
+  },
+  {
+   "id": "PYQ-M-2025-CG-005",
+   "kind": "chapter",
+   "topicKey": "coordinate-geometry",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Find the ratio in which the y-axis divides the line segment joining the points (5, −6) and (−1, −4). Also find the point of intersection."
+  },
+  {
+   "id": "Z3-CG-006",
+   "kind": "chapter",
+   "topicKey": "coordinate-geometry",
+   "subject": "Maths",
+   "marks": 4,
+   "text": "In a school morning assembly, students stand in rows and columns forming a coordinate grid. Four friends Amar(A), Bharat(B), Colin(C) and Dravid(D) stand at A(3, 4), B(6, 7), C(9, 4) and D(6, 1).\n(i) What is the distance between A and B?\n(ii) What is the distance between C and D?\n(iii) What is the distance between A and C?\n(iv) What is the distance between D and B?"
+  },
+  {
+   "id": "TRIG-N-NCERT-9-LA-002",
+   "kind": "chapter",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "The shadow of a tower standing on level ground is 40 m longer when the Sun's altitude is 30° than when it is 60°. Find the height of the tower."
+  },
+  {
+   "id": "TRIG-N-EXMPLR-9-SA-004",
+   "kind": "chapter",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 2,
+   "text": "Find the angle of elevation of the Sun when the shadow of a pole h metres high is √3 h metres long."
+  },
+  {
+   "id": "PYQ-M-2026-CIRC-006",
+   "kind": "chapter",
+   "topicKey": "circles",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "PQ and PR are two tangents to a circle with centre O and radius 5 cm. AB is another tangent to the circle at C which lies on OP. If OP = 13 cm, then find the length AB and PA."
+  },
+  {
+   "id": "CIRC-N-EXEM-10-SA-005",
+   "kind": "chapter",
+   "topicKey": "circles",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "If d₁ and d₂ (with d₂ > d₁) are the diameters of two concentric circles and c is the length of a chord of the larger circle that is tangent to the smaller circle, prove that d₂² = c² + d₁²."
+  },
+  {
+   "id": "ARC-N-EXEM-11-SA-005",
+   "kind": "chapter",
+   "topicKey": "areas-related-to-circles",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Find the area of the minor segment of a circle of radius 14 cm, when the angle of the corresponding sector is 60°."
+  },
+  {
+   "id": "ARC-N-EXEM-11-LA-002",
+   "kind": "chapter",
+   "topicKey": "areas-related-to-circles",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "With vertices A, B and C of a right triangle ABC (right-angled at B) as centres, arcs of radius 5 cm each are drawn. If AB = 14 cm, BC = 48 cm and CA = 50 cm, find the area of the shaded region inside the triangle but outside the three sectors."
+  },
+  {
+   "id": "SAV-N-EXMPLR-12-VSA-001",
+   "kind": "chapter",
+   "topicKey": "surface-areas-and-volumes",
+   "subject": "Maths",
+   "marks": 2,
+   "text": "State whether true or false and justify: 'Two identical solid hemispheres of equal base radius r cm are stuck together along their bases. The total surface area of the combination is 6πr².'"
+  },
+  {
+   "id": "SAV-N-NCERT-12-CB-002",
+   "kind": "chapter",
+   "topicKey": "surface-areas-and-volumes",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "A vessel is in the form of an inverted cone of height 8 cm and top radius 5 cm, open at the top and filled with water to the brim. Lead shots — each a sphere of radius 0.5 cm — are dropped in, and one-fourth of the water flows out. Find the number of lead shots dropped into the vessel. (Take π = 22/7.)"
+  },
+  {
+   "id": "PYQ-M-2026-STAT-002",
+   "kind": "chapter",
+   "topicKey": "statistics",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Compute the median of the following data:\nMid-value : Frequency\n115 : 12\n125 : 15\n135 : 20\n145 : 16\n155 : 10\n165 : 16\n175 : 11"
+  },
+  {
+   "id": "STAT-N-EXEM-13-CRE-001",
+   "kind": "chapter",
+   "topicKey": "statistics",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Design a grouped frequency distribution over four equal classes of width 10 (starting at 0) such that the mode is exactly 25. Specify the frequencies and verify using the mode formula."
+  },
+  {
+   "id": "PROB-N-EXEM-14-LA-001",
+   "kind": "chapter",
+   "topicKey": "probability",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "In a game the entry fee is ₹5. The game consists of tossing a coin 3 times. If one or two heads show, Sweta gets her entry fee back; if she throws 3 heads she gets double the entry fee; otherwise she loses. For tossing a coin three times, find the probability that she (i) loses the entry fee, (ii) gets double the entry fee, (iii) just gets her entry fee back."
+  },
+  {
+   "id": "PYQ-M-2024-PROB-003",
+   "kind": "chapter",
+   "topicKey": "probability",
+   "subject": "Maths",
+   "marks": 2,
+   "text": "The king, queen and ace of clubs and diamonds are removed from a deck of 52 playing cards and the remaining cards are shuffled. A card is randomly drawn from the remaining cards. Find the probability of getting (i) a card of clubs. (ii) a red coloured card."
+  },
+  {
+   "id": "PYQ-S-CHEM-011",
+   "kind": "chapter",
+   "topicKey": "chemical-reactions-and-equations",
+   "subject": "Science",
+   "marks": 3,
+   "text": "(i) Why is acidified water considered to be a good conductor of electricity ? (ii) Write a chemical equation showing the ionic products formed on dissolving potassium hydroxide in water. (iii) Care must be taken while diluting concentrated nitric acid with water. Why ? 3 3 3 3 3 16"
+  },
+  {
+   "id": "CHEM-EXMPLR-1-SA-013",
+   "kind": "chapter",
+   "topicKey": "chemical-reactions-and-equations",
+   "subject": "Science",
+   "marks": 3,
+   "text": "Grapes hanging on the plant do not ferment but after being plucked from the plant can be fermented. Under what conditions do these grapes ferment? Is it a chemical or a physical change?"
+  },
+  {
+   "id": "BX-ABS-EX-C-002",
+   "kind": "chapter",
+   "topicKey": "acids-bases-and-salts",
+   "subject": "Science",
+   "marks": 3,
+   "text": "Describe an activity to illustrate that the reaction of a metal carbonate or hydrogencarbonate with an acid produces carbon dioxide. Write the equations and name two forms in which calcium carbonate occurs in nature."
+  },
+  {
+   "id": "BX-ABS-EX-B-004",
+   "kind": "chapter",
+   "topicKey": "acids-bases-and-salts",
+   "subject": "Science",
+   "marks": 2,
+   "text": "Arrange the following in increasing order of their pH values: NaOH solution, blood, lemon juice."
+  },
+  {
+   "id": "METAL-EXMPLR-3-SA-012",
+   "kind": "chapter",
+   "topicKey": "metals-and-non-metals",
+   "subject": "Science",
+   "marks": 3,
+   "text": "Give the formulae of the stable binary compounds that would be formed by the combination of following pairs of elements.\n(a) Mg and N₂\n(b) Li and O₂\n(c) Al and Cl₂\n(d) K and O₂"
+  },
+  {
+   "id": "BX-MNM-E-037",
+   "kind": "chapter",
+   "topicKey": "metals-and-non-metals",
+   "subject": "Science",
+   "marks": 4,
+   "text": "Three oxides are tested with litmus dissolved in water: sodium oxide (Na2O) turns red litmus blue; carbon dioxide (CO2) turns blue litmus red; aluminium oxide (Al2O3) reacts with both an acid and a base.\n(i) Classify Na2O as acidic, basic or amphoteric.\n(ii) Classify CO2.\n(iii) Classify Al2O3.\n(iv) In general, metal oxides are of which nature and non-metal oxides of which nature?"
+  },
+  {
+   "id": "CARB-NCERT-4-VSA-004",
+   "kind": "chapter",
+   "topicKey": "carbon-and-its-compounds",
+   "subject": "Science",
+   "marks": 2,
+   "text": "What are the two properties of carbon which lead to the huge number of carbon compounds we see around us?"
+  },
+  {
+   "id": "SCQ-S-CARB-023",
+   "kind": "chapter",
+   "topicKey": "carbon-and-its-compounds",
+   "subject": "Science",
+   "marks": 2,
+   "text": "Write the molecular formula of 2nd and the 3rd member of homologous series whose first member is methane."
+  },
+  {
+   "id": "FND-L-SPX-035",
+   "kind": "chapter",
+   "topicKey": "light-reflection-and-refraction",
+   "subject": "Science",
+   "marks": 2,
+   "text": "When sunlight is concentrated at a paper placed at the principal focus of a convex lens, what happens to the paper? Why?"
+  },
+  {
+   "id": "GDR-L-CBJ-009",
+   "kind": "chapter",
+   "topicKey": "light-reflection-and-refraction",
+   "subject": "Science",
+   "marks": 2,
+   "text": "Differentiate between reflection and refraction of light."
+  },
+  {
+   "id": "EYE-EXMPLR-10-SA-007",
+   "kind": "chapter",
+   "topicKey": "human-eye-and-colourful-world",
+   "subject": "Science",
+   "marks": 3,
+   "text": "Is the position of a star as seen by us its true position? Justify your answer."
+  },
+  {
+   "id": "SCQ-S-EYE-027",
+   "kind": "chapter",
+   "topicKey": "human-eye-and-colourful-world",
+   "subject": "Science",
+   "marks": 2,
+   "text": "Mention the factor on which scattering of light depends. Why does the sky appear dark in space?"
+  },
+  {
+   "id": "APQ-S-ELEC-002",
+   "kind": "chapter",
+   "topicKey": "electricity",
+   "subject": "Science",
+   "marks": 3,
+   "text": "Kaveri connected a bulb A (100 Ω) to a 240 V supply. (a) How much energy will be consumed if it is kept ON for 4 hours each day for a week? Express in kJ. (b) She then connects another similar bulb B in series with A across 240 V. Will the brightness of A change? Explain mathematically."
+  },
+  {
+   "id": "ELEC-NCERT-11-LA-015",
+   "kind": "chapter",
+   "topicKey": "electricity",
+   "subject": "Science",
+   "marks": 5,
+   "text": "Compare the power used in the 2 Ω resistor in each of the following circuits: (i) a 6 V battery in series with 1 Ω and 2 Ω resistors, and (ii) a 4 V battery in parallel with 12 Ω and 2 Ω resistors."
+  },
+  {
+   "id": "SCQ-S-MAG-033",
+   "kind": "chapter",
+   "topicKey": "magnetic-effects-of-electric-current",
+   "subject": "Science",
+   "marks": 3,
+   "text": "A circular coil carries a current that flows anticlockwise when the coil is viewed from its front face. Draw the magnetic field lines for this coil. Decide which of its faces behaves as the North pole and which face as the South pole. Give reason to justify your answer."
+  },
+  {
+   "id": "MAG-EXMPLR-12-SA-007",
+   "kind": "chapter",
+   "topicKey": "magnetic-effects-of-electric-current",
+   "subject": "Science",
+   "marks": 2,
+   "text": "Meena draws magnetic field lines of field close to the axis of a current carrying circular loop. As she moves away from the centre of the circular loop she observes that the lines keep on diverging. How will you explain her observation."
+  },
+  {
+   "id": "SCQ-S-LIFE-025",
+   "kind": "chapter",
+   "topicKey": "life-processes",
+   "subject": "Science",
+   "marks": 2,
+   "text": "How is nutrition in a fungus different from that in a tapeworm?"
+  },
+  {
+   "id": "PYQ-S-2026-LIFEP-014",
+   "kind": "chapter",
+   "topicKey": "life-processes",
+   "subject": "Science",
+   "marks": 5,
+   "text": "() () : () (i) (ii) , (iii) () () (i) , (ii) (iii) - - - (b) In which case : (i) is aerobic respiration taking place ? (ii) is fermentation taking place ?"
+  },
+  {
+   "id": "CTRL-NCERT-6-LA-001",
+   "kind": "chapter",
+   "topicKey": "control-and-coordination",
+   "subject": "Science",
+   "marks": 5,
+   "text": "Design an experiment to demonstrate hydrotropism."
+  },
+  {
+   "id": "CTRL-EXMPLR-6-LA-003",
+   "kind": "chapter",
+   "topicKey": "control-and-coordination",
+   "subject": "Science",
+   "marks": 5,
+   "text": "What constitutes the central and peripheral nervous systems? How are the components of central nervous system protected?"
+  },
+  {
+   "id": "CFPQ-S-REPR-010",
+   "kind": "chapter",
+   "topicKey": "how-do-organisms-reproduce",
+   "subject": "Science",
+   "marks": 2,
+   "text": "What could be the TWO most likely reasons for unicellular organisms to reproduce only through asexual reproduction?"
+  },
+  {
+   "id": "REPR-NCERT-7-SA-003",
+   "kind": "chapter",
+   "topicKey": "how-do-organisms-reproduce",
+   "subject": "Science",
+   "marks": 3,
+   "text": "How does binary fission differ from multiple fission?"
+  },
+  {
+   "id": "SCQ-S-HERED-038",
+   "kind": "chapter",
+   "topicKey": "heredity",
+   "subject": "Science",
+   "marks": 3,
+   "text": "An angiosperm plant having red coloured flowers when crossed with the other having the same colour produced 40 progenies, out of which 30 plants were with red coloured flowers, 10 plants were with white coloured flowers. Find out: a. What is the possible genotype of parent plants? b. Which trait is dominant and recessive? c. What is this cross called as and what is its phenotypic ratio?"
+  },
+  {
+   "id": "SCQ-S-HERED-035",
+   "kind": "chapter",
+   "topicKey": "heredity",
+   "subject": "Science",
+   "marks": 3,
+   "text": "How do Mendel's experiments show that the a. traits may be dominant or recessive, b. traits are inherited independently?"
+  },
+  {
+   "id": "PYQ-S-2026-ENV-015",
+   "kind": "chapter",
+   "topicKey": "our-environment",
+   "subject": "Science",
+   "marks": 2,
+   "text": "What are decomposers ? List two important roles they play in the environment."
+  },
+  {
+   "id": "APQ-S-ENV-008",
+   "kind": "chapter",
+   "topicKey": "our-environment",
+   "subject": "Science",
+   "marks": 2,
+   "text": "Marked decline in the thickness of ozone layer was noticed in the 1980s. Which human activity can be held accountable for this change? What is the possible effect of this on human health?"
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-LA-002",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "If cosec θ + cot θ = p, prove that cos θ = (p² − 1)/(p² + 1)."
+  },
+  {
+   "id": "APQ-M-TRIG-007",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Prove that: (sin^4 θ − cos^4 θ + 1) cosec^2 θ = 2. OR If sin x + cosec x = 2, then find the value of sin^19 x + cosec^20 x."
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-LA-001",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "Prove the identity: sec²θ + cosec²θ · √(... )  ⇒ Prove that sec²θ + cosec²θ ≥ tan θ + cot θ, equivalently establish that sec²θ + cosec²θ = (tan θ + cot θ)² · 1 …  [Actually prove:]  Prove √(sec²θ + cosec²θ) = tan θ + cot θ."
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-SA-003",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Prove that sin θ/(1 + cos θ) + (1 + cos θ)/sin θ = 2 cosec θ."
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-014",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Prove that : θ θ – tan 1 cot + θ θ – cot 1 tan = 1 + tan θ + cot θ"
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-015",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Prove that: sin⁶θ + cos⁶θ = 1 − 3 sin²θ cos²θ."
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-018",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Prove that q q = q + q + q q tan – sec 1 1 – cos sin 1 cos – sin"
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-020",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Prove that : A tan – 1 A cot A cot – 1 A tan + = 1 + sec A cosec A"
+  },
+  {
+   "id": "PYQ-M-2024-TRIG-016",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Prove that (cosec²θ − sec²θ)/(cosec²θ + sec²θ) = 3/4, if tan θ = 1/√7."
+  },
+  {
+   "id": "TRIG-N-EXMPLR-8-SA-004",
+   "kind": "trig-identity",
+   "topicKey": "trigonometry",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "If tan A = 3/4, show that sin A · cos A = 12/25."
+  },
+  {
+   "id": "BX-POLY-E-025",
+   "kind": "confusable",
+   "topicKey": "polynomials",
+   "subject": "Maths",
+   "marks": 4,
+   "text": "Two square tiles have side lengths (in cm) equal to the zeros of x² − 7x + 10. A new pattern uses tiles whose sides equal the AREAS of the original tiles (i.e. the squares of the original zeros).\n(i) Find the original side lengths (the zeros).\n(ii) Write the new side lengths (the squares of the zeros).\n(iii) State the sum and product of the new zeros.\n(iv) Form a quadratic whose zeros are the squared values."
+  },
+  {
+   "id": "BX-QUAD-D-049",
+   "kind": "confusable",
+   "topicKey": "quadratic-equations",
+   "subject": "Maths",
+   "marks": 5,
+   "text": "A train covers a distance of 300 km at a uniform speed. On a foggy day it travelled 10 km/h slower than usual and therefore took 1 hour longer for the journey. Find the train's usual speed."
+  },
+  {
+   "id": "BX-AP-EX-B-002",
+   "kind": "confusable",
+   "topicKey": "arithmetic-progression",
+   "subject": "Maths",
+   "marks": 2,
+   "text": "The 5th term of an AP is 20 and the sum of its 7th and 11th terms is 64. Find the common difference."
+  },
+  {
+   "id": "RN-N-NCERT-1-SA-007",
+   "kind": "confusable",
+   "topicKey": "real-numbers",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "There is a circular path around a sports field. Sonia takes 18 minutes to drive one round of the field, while Ravi takes 12 minutes for the same. Suppose they both start at the same point and at the same time, and go in the same direction. After how many minutes will they meet again at the starting point?"
+  },
+  {
+   "id": "GDR-L-CBJ-006",
+   "kind": "confusable",
+   "topicKey": "light-reflection-and-refraction",
+   "subject": "Science",
+   "marks": 3,
+   "text": "Define absolute refractive index. Absolute refractive indices of medium A and medium B are n_a and n_b respectively. What is the refractive index of medium B with respect to medium A? How does the velocity of light vary with change in the optical density of the media?"
+  },
+  {
+   "id": "SCQ-S-EYE-026",
+   "kind": "confusable",
+   "topicKey": "human-eye-and-colourful-world",
+   "subject": "Science",
+   "marks": 2,
+   "text": "Which liquid fills the space between eye lens and retina?"
+  },
+  {
+   "id": "BX-ABS-EX-C-001",
+   "kind": "confusable",
+   "topicKey": "acids-bases-and-salts",
+   "subject": "Science",
+   "marks": 3,
+   "text": "Using magnesium ribbon and sulphur powder, describe an activity to show that metal oxides are basic and oxides of non-metals are acidic in nature."
+  },
+  {
+   "id": "CHEM-EXMPLR-1-SA-015",
+   "kind": "confusable",
+   "topicKey": "chemical-reactions-and-equations",
+   "subject": "Science",
+   "marks": 3,
+   "text": "During the reaction of some metals with dilute hydrochloric acid, following observations were made.\n(a) Silver metal does not show any change\n(b) The temperature of the reaction mixture rises when aluminium (Al) is added.\n(c) The reaction of sodium metal is found to be highly explosive\n(d) Some bubbles of a gas are seen when lead (Pb) is reacted with the acid.\nExplain these observations giving suitable reasons."
+  },
+  {
+   "id": "PYQ-S-2026-HERED-005",
+   "kind": "confusable",
+   "topicKey": "heredity",
+   "subject": "Science",
+   "marks": 3,
+   "text": "(a) Giving two examples, justify the statement that the sex of the offspring in all animals is not always genetically determined. (b) Differentiate between the sex chromosomes of male and female human beings."
+  },
+  {
+   "id": "REPR-EXMPLR-7-SA-001",
+   "kind": "confusable",
+   "topicKey": "how-do-organisms-reproduce",
+   "subject": "Science",
+   "marks": 2,
+   "text": "In a bisexual flower inspite of the young stamens being removed artificially, the flower produces fruit. Provide a suitable explanation for the above situation."
+  },
+  {
+   "id": "CIRC-N-EXEM-10-SA-002",
+   "kind": "confusable",
+   "topicKey": "circles",
+   "subject": "Maths",
+   "marks": 3,
+   "text": "Two tangents PQ and PR are drawn from an external point P to a circle with centre O. Prove that QORP is a cyclic quadrilateral."
+  },
+  {
+   "id": "ARC-N-EXEM2-11-VSA-006",
+   "kind": "confusable",
+   "topicKey": "areas-related-to-circles",
+   "subject": "Maths",
+   "marks": 2,
+   "text": "Areas of two circles are equal. Is it necessary that their circumferences are equal? Why?"
+  }
+ ]
+}

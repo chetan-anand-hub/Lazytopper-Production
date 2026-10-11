@@ -379,8 +379,9 @@ test('§3D ★ the 402 message is plain English — no underscore, no error code
 test('A10 · ungated endpoints are untouched and cost no Firestore read', async () => {
   const { gate, store } = gateFor({ tier: 'free' });
   for (const p of [
-    '/api/questions', '/api/detect-question', '/api/generate-visual',
-    '/api/generate-diagram', '/api/ai-questions', '/api/more-like-this',
+    // 2026-10-11 HARDEN-1 PR-2: '/api/generate-visual' and '/api/generate-diagram' dropped —
+    // the routes no longer exist (§13 pins them as unrouted).
+    '/api/questions', '/api/detect-question', '/api/ai-questions', '/api/more-like-this',
     '/api/qr-upload/new', '/api/share-token', '/api/health',
   ]) {
     const res = resStub();
@@ -1251,7 +1252,8 @@ test('FC-E8 · ★ OR-13 replay protection at the edge: consume:true on EACH fre
 });
 
 test('FC-E4 · ★ the marker on a NON-free-check path is never admitted (paid headers go out from 11 call sites)', async () => {
-  for (const p of ['/api/tutor', '/api/generate-visual', '/api/generate-diagram', '/api/step-solution', '/api/more-like-this']) {
+  // 2026-10-11 HARDEN-1 PR-2: '/api/generate-visual' and '/api/generate-diagram' dropped (routes removed).
+  for (const p of ['/api/tutor', '/api/step-solution', '/api/more-like-this']) {
     const e = freeEdgeFor({ tier: 'free' });
     assert.equal(e.free.isFreeCheckRequest(reqMarked(), p, ''), false, `${p} must not be a free-check path`);
     const r = await e.run(reqMarked(), p);
@@ -1651,7 +1653,8 @@ test('AG-H1 · ★ over REAL HTTP: a token that does not verify gets 401 on ever
 
 /* ══════════════════════════════════════════════════════════════════════════
    §12 · AUTHGATE-2 (HARDEN-1 §2 PR-1) — a verified caller, or App Check, on
-   detect-question, more-like-this, generate-visual and generate-diagram.
+   detect-question and more-like-this. (2026-10-11 HARDEN-1 PR-2: generate-visual and
+   generate-diagram were the other two of the original four; both routes are removed.)
    Pins (spec §2 PR-1 / controller D53), each with the mutation that reddens it:
      invalid bearer on each route → 401, no model call ...................... AG2-1, AG2-H1
      signed-out without App Check (missing / invalid) → refused ............. AG2-2, AG2-H2
@@ -1665,8 +1668,9 @@ test('AG-H1 · ★ over REAL HTTP: a token that does not verify gets 401 on ever
 const AI_ROUTES = ENT.AI_CALLER_ROUTES;
 const reqSignedOut = (extra = {}) => ({ method: 'POST', headers: { ...extra }, socket: { remoteAddress: '203.0.113.70' } });
 
-test('AG2-0 · the four routes, the header name and the wire constants are exactly the spec\'s', () => {
-  assert.deepEqual([...AI_ROUTES].sort(), ['/api/detect-question', '/api/generate-diagram', '/api/generate-visual', '/api/more-like-this']);
+// 2026-10-11 HARDEN-1 PR-2: four routes -> two; /api/generate-diagram and /api/generate-visual removed.
+test('AG2-0 · the two routes, the header name and the wire constants are exactly the spec\'s', () => {
+  assert.deepEqual([...AI_ROUTES].sort(), ['/api/detect-question', '/api/more-like-this']);
   assert.deepEqual([...ENT.NON_CONSUMING_APP_CHECK_ROUTES], ['/api/detect-question']);
   assert.equal(ENT.AI_APP_CHECK_HEADER, FC.APP_CHECK_HEADER, 'one App Check header name, server-wide');
   const clientHeader = /export const APP_CHECK_HEADER = "([^"]+)"/
@@ -1781,7 +1785,7 @@ test('AG2-4 · ★ an App-Check-only caller is keyed to the ANONYMOUS bucket —
   assert.ok(Object.keys(e.limiter.snapshot()).every((k) => !k.startsWith('typed-')), 'no bucket keyed on the typed header');
 });
 
-test('AG2-5 · routes outside the four are untouched by the AI-route gate; the verifier UNAVAILABLE is served as on the entitlement routes', async () => {
+test('AG2-5 · routes outside the AI routes are untouched by the AI-route gate; the verifier UNAVAILABLE is served as on the entitlement routes', async () => {
   const g = gateFor({ tier: 'free' }, { firebaseAdmin: freeAdmin() });
   for (const p of ['/api/check-solution', '/api/grade-worksheet', '/api/tutor', '/api/step-solution', '/api/activity']) {
     const res = resStub();
@@ -1882,8 +1886,7 @@ function bootAuthGate2Server(port) {
 const AG2_BODIES = {
   '/api/detect-question': { question: 'Find the resistance of a 2 m wire of resistivity 1.6e-8.' },
   '/api/more-like-this': { subject: 'Maths', seedQuestion: { question: 'Solve x^2 - 5x + 6 = 0.', marks: 2 } },
-  '/api/generate-visual': { topic: 'Triangles', concept: 'Basic proportionality theorem' },
-  '/api/generate-diagram': { questionText: 'Draw a triangle ABC with AB = 5 cm and BC = 6 cm.' },
+  // 2026-10-11 HARDEN-1 PR-2: generate-visual / generate-diagram bodies removed with the routes (see §13).
 };
 const modelCalls = (log) => (log.match(/MODEL_FETCH/g) || []).length;
 const charges = (log) => (log.match(/LEDGER_SET/g) || []).length;
@@ -1893,7 +1896,7 @@ let ag2Ip = 10;
 const fromNewIp = (h = {}) => ({ 'x-forwarded-for': `198.51.100.${(ag2Ip += 1)}`, ...h });
 
 // MUTATION AG2-M6 (index.cjs never calls the AI-route gate) ⇒ RED here.
-test('AG2-H1 · ★ over REAL HTTP: an invalid bearer on EACH of the four routes is 401 with ZERO model calls and ZERO charges',
+test('AG2-H1 · ★ over REAL HTTP: an invalid bearer on EACH of the AI routes is 401 with ZERO model calls and ZERO charges',
   { timeout: 120000 }, async (t) => {
     const port = await freePort();
     const srv = bootAuthGate2Server(port);
@@ -1966,7 +1969,7 @@ test('AG2-H3 · ★ over REAL HTTP: the signed-out FREE CHECK works end to end, 
     assert.equal(p2.status, 200, `detect must not consume the App Check token: ${p2.status} ${p2.text}`);
   });
 
-test('AG2-H4 · ★ over REAL HTTP: a signed-in Premium student is unchanged on all four routes — served, reaches the model, never asked for App Check',
+test('AG2-H4 · ★ over REAL HTTP: a signed-in Premium student is unchanged on all AI routes — served, reaches the model, never asked for App Check',
   { timeout: 120000 }, async (t) => {
     const port = await freePort();
     const srv = bootAuthGate2Server(port);
@@ -2017,3 +2020,90 @@ test('AG2-H5 · ★ over REAL HTTP: a refused call charges 0 — five refusals f
     const fourth = await post(port, '/api/more-like-this', body, { ...ip, [APPCHECK]: `${AC_GOOD}.slot3`, [UID_HEADER]: 'typed-3' });
     assert.equal(fourth.status, 429, `${fourth.status} ${fourth.text}`);
   });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §13 · 2026-10-11 HARDEN-1 PR-2 (cofounder D8 / D75) — the freehand AI diagram
+   routes are GONE. /api/generate-diagram and /api/generate-visual were removed from
+   index.cjs (routes/diagrams.cjs deleted). Decision pinned over REAL HTTP: even a
+   verified Premium caller — the caller who would have been served on trunk — gets
+   the server's ordinary unknown-route response, and NO model call is made.
+   MUTATION (re-wire either handler in index.cjs) ⇒ RED here: a 200 plus MODEL_FETCH.
+   ══════════════════════════════════════════════════════════════════════════ */
+test('HARDEN1-PR2 · ★ over REAL HTTP: POST /api/generate-diagram and /api/generate-visual are not routed — the normal 404 Not Found, ZERO model calls, ZERO charges — CONTROL: the same Premium caller reaches the model on /api/detect-question',
+  { timeout: 120000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootAuthGate2Server(port);
+    t.after(() => srv.child.kill());
+    await srv.ready;
+    const premium = () => fromNewIp({ authorization: 'Bearer good-token', [UID_HEADER]: 'premium-student' });
+
+    // The server's normal unknown-route answer, read off the server rather than restated.
+    const unknown = await post(port, '/api/harden-1-no-such-route', {}, premium());
+    assert.equal(unknown.status, 404, `${unknown.status} ${unknown.text}`);
+
+    const removed = {
+      '/api/generate-diagram': { questionText: 'Draw a triangle ABC with AB = 5 cm and BC = 6 cm.' },
+      '/api/generate-visual': { topic: 'Triangles', concept: 'Basic proportionality theorem' },
+    };
+    for (const [p, body] of Object.entries(removed)) {
+      for (const headers of [premium(), fromNewIp({ [APPCHECK]: `${AC_GOOD}.${p}` })]) {
+        const before = srv.log().length;
+        const r = await post(port, p, body, headers);
+        await settle();
+        const delta = srv.log().slice(before);
+        assert.equal(r.status, unknown.status, `${p}: expected the unknown-route ${unknown.status}, got ${r.status} ${r.text}`);
+        assert.deepEqual(r.json, unknown.json, `${p}: the body is the ordinary unknown-route body`);
+        assert.equal(modelCalls(delta), 0, `${p}: a removed route reached the model\n${delta}`);
+        assert.equal(charges(delta), 0, `${p}: a removed route was charged\n${delta}`);
+      }
+    }
+
+    // CONTROL: the harness really witnesses model calls for this caller.
+    const before = srv.log().length;
+    const ok = await post(port, '/api/detect-question', { question: 'Find the resistance of a 2 m wire of resistivity 1.6e-8.' }, premium());
+    await settle();
+    assert.equal(ok.status, 200, `${ok.status} ${ok.text}`);
+    assert.ok(modelCalls(srv.log().slice(before)) >= 1, 'CONTROL: a live route reaches the model');
+  });
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ALL-AI-METERING-1 — More-like-this and detection need trial or Premium. The
+   DECISION is fairUse.cjs's (behind FAIR_USE_ENFORCE_ALL_AI); only the COPY and the
+   402 body builder live here. Pinned: they are NOT always-on GATED_ROUTES, the copy
+   keeps the register, and the body is the gated routes' own shape.
+   ────────────────────────────────────────────────────────────────────────── */
+
+test('AAM1 · More-like-this and detection are NOT in GATED_ROUTES (an always-on 402 would refuse students while the switch is off)', () => {
+  assert.ok(ENT.AI_TIER_GATED_ROUTES, 'AI_TIER_GATED_ROUTES is exported');
+  for (const p of ['/api/more-like-this', '/api/detect-question']) {
+    assert.ok(Object.prototype.hasOwnProperty.call(ENT.AI_TIER_GATED_ROUTES, p), `${p} has its copy`);
+    assert.ok(!Object.prototype.hasOwnProperty.call(ENT.GATED_ROUTES, p), `${p} must not be an always-on gated route`);
+  }
+  assert.deepEqual(Object.keys(ENT.GATED_ROUTES).sort(), ['/api/check-solution', '/api/grade-worksheet', '/api/tutor'],
+    'the Tutor keeps its existing gate; nothing else joined it');
+});
+
+test('AAM1 · the More-like-this / detection 402 copy keeps the register — plain English, says Premium, no fault words', () => {
+  const entries = Object.entries(ENT.AI_TIER_GATED_ROUTES || {});
+  assert.equal(entries.length, 2, 'both routes carry copy (a loop over nothing proves nothing)');
+  for (const [p, spec] of entries) {
+    assert.ok(typeof spec.feature === 'string' && spec.feature, p);
+    assert.ok(!spec.message.includes('_'), `${p}: ${spec.message}`);
+    assert.doesNotMatch(spec.message, /denied|unauthori|forbidden|error|failed|invalid|402/i, `${p}: ${spec.message}`);
+    assert.match(spec.message, /Premium/, p);
+  }
+});
+
+test('AAM1 · premiumRequiredBody IS the gated routes\' 402 body (one builder, so the shapes cannot drift)', async () => {
+  assert.equal(typeof ENT.premiumRequiredBody, 'function');
+  const gate = createEntitlementGate({ adminFirestore: null, logger: { warn() {}, info() {} } });
+  const spec = ENT.GATED_ROUTES['/api/check-solution'];
+  const end = Date.UTC(2026, 8, 20);
+  assert.deepEqual(ENT.premiumRequiredBody(spec, { tier: 'free', trialEndsAtMs: end }), gate.denialBody(spec, { tier: 'free', trialEndsAtMs: end }));
+  assert.deepEqual(ENT.premiumRequiredBody(spec, { tier: 'free', trialEndsAtMs: end }), {
+    error: 'premium_required', feature: 'check-solution', tier: 'free', message: spec.message, trialEndedAt: new Date(end).toISOString(),
+  });
+  assert.deepEqual(ENT.premiumRequiredBody(ENT.AI_TIER_GATED_ROUTES['/api/detect-question'], null), {
+    error: 'premium_required', feature: 'detect-question', tier: 'free', message: ENT.AI_TIER_GATED_ROUTES['/api/detect-question'].message,
+  });
+});

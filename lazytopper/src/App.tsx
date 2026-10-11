@@ -16,7 +16,6 @@ import { PracticeLimitGate } from "./components/auth/PracticeLimitGate";
 import { MockViewGate } from "./components/auth/MockViewGate";
 import RouteCanonical from "./components/seo/RouteCanonical";
 import { TrialBanner } from "./components/ux/TrialBanner";
-import { BreakReminder } from "./components/ux/BreakReminder";
 import { useAuth } from "./context/AuthContext";
 import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
@@ -64,8 +63,6 @@ const PricingPage = lazy(() => import("./pages/PricingPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
-const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
-const DiagramQualityPage = lazy(() => import("./pages/DiagramQualityPage"));
 const VisualAuditPage = lazy(() => import("./pages/VisualAuditPage"));
 const CacheStatsPage = lazy(() => import("./pages/CacheStatsPage"));
 const DifficultyBreakdownPage = lazy(() => import("./pages/DifficultyBreakdownPage"));
@@ -963,7 +960,6 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
             onSelect={handleCommandSelect}
           />
           {!isDesktop && <TrialBanner />}
-          <BreakReminder />
         </>
       )}
       <ErrorBoundary level="global">
@@ -1014,8 +1010,6 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/cbse/class-10" element={withRouteSuspense(<Cbse2027Page />)} />
           <Route path="/check-your-answer" element={withRouteSuspense(<CheckYourAnswerPage />)} />
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
-          <Route path="/admin/diagram-compare" element={withRouteSuspense(<DiagramComparePage />)} />
-          <Route path="/admin/diagram-quality" element={withRouteSuspense(<DiagramQualityPage />)} />
           <Route path="/admin/visual-audit" element={withRouteSuspense(<VisualAuditPage />)} />
           <Route path="/admin/cache-stats" element={<RequireAuth>{withRouteSuspense(<CacheStatsPage />)}</RequireAuth>} />
           <Route path="/admin/difficulty-breakdown" element={<RequireAuth>{withRouteSuspense(<DifficultyBreakdownPage />)}</RequireAuth>} />

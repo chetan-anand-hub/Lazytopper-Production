@@ -609,13 +609,17 @@ function createAdminTelemetryRoutes(deps) {
       rateLimit: {
         byClass: rateLimitByClass,
         shedVision: toNumber(counters['rate_limit.shed.vision']),
+        // FU-GLOBAL-SHED: how much of the P = 0.25 margin paying students actually used, and how often the
+        // site-wide ceiling refused anyone (busy_today). Read these before raising the monthly budget.
+        globalOverflowPremium: toNumber(counters['rate_limit.global_overflow.premium']),
+        hardBlockGlobal: toNumber(counters['rate_limit.hard_block.global']),
         totalCalls: toNumber(counters['rate_limit.call.total']),
         // ★ The anon-key shape diagnostic (see rateLimiter.cjs). `loopback` means
         // x-forwarded-for did NOT survive the Vercel -> Railway -> proxy hops, so
         // every signed-out caller collapsed into ONE shared 3/day bucket. It fails
         // CLOSED, so there is no billing risk — but it is an invisible outage for
-        // signed-out visitors, who can legitimately reach generate-visual and
-        // generate-diagram from the free practice surfaces.
+        // signed-out visitors, who can legitimately reach the free check and
+        // detect-question from the free practice surfaces.
         //
         // This is reported HERE on purpose: a diagnostic with no reader is the
         // exact failure this whole endpoint exists to fix.

@@ -283,6 +283,20 @@ export const selectInRangeFromPool = (
   // `available` is untouched and the invariant holds exactly as before.
   return { available, displayed: ordered.slice(0, committedCount) };
 };
+/**
+ * CONCEPT-MAP-FILL-1 PR-2 (D92a) — a STRICT focus id list that covers the whole count, with no marks
+ * filter: the set is exactly those ids, in their order. Every other case (no strictFocus, a shorter
+ * list, any marks value or range) keeps its existing path byte-for-byte.
+ */
+export const isExactFocusSet = (
+  strictFocus: boolean,
+  focusBankIds: readonly string[] | undefined,
+  count: number,
+  marks: string,
+  range: MarksRange | null,
+): boolean =>
+  strictFocus && !!focusBankIds && focusBankIds.length >= count && marks === "all" && !range;
+
 const uiMarksToSectionScope = (ui: string): "A" | "B" | "C" | "D" | "E" | "All" => {
   if (ui === "1") return "A";
   if (ui === "5") return "D";
@@ -482,8 +496,13 @@ import { toSessionSubject } from "../services/checkImproveGradeService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R) on
 // the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
+import UsageWarning from "../components/usage/UsageWarning";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
 import { useFairUse } from "../components/usage/useFairUse";
+// ALL-AI-METERING-1 - a More-like-this refusal shows its own panel; the saved questions stay.
+import { isPremiumRequiredRefusal, limitFromAiRefusal, moreLikeThisPremiumNoteCopy, type LimitState } from "../components/usage/fairUseGate";
+import MoreLikeThisPremiumNote from "../components/usage/MoreLikeThisPremiumNote";
+import { readFairUseLimit } from "../services/usageClient";
 import { useAuth } from "../context/AuthContext";
 import {
   type SubjectKey,
@@ -500,6 +519,7 @@ import {
   parsePositiveInt,
   parseFocusBankIds,
   parseBooleanFlag,
+  subscribeMoreLikeThisLimit,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
 import { isCbq } from "../lib/cbq/cbqClassification";
@@ -1195,6 +1215,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     // exact concept range) is active so the random-sample bias toward the
     // Easy/Section-A bucket doesn't starve other sections. We narrow client-side
     // and trim to the committed count so the rendered list matches the request.
+    // CONCEPT-MAP-FILL-1 PR-2 (D92a) — an exact id set keeps its given order: no seen-first
+    // reorder and no rotation (the first id is the one the entry chose to lead with).
+    const exact = isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange);
     return selectInRangeFromPool(
       questions,
       committedMarks,
@@ -1203,10 +1226,10 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       committedDifficulty,
       committedMarksRange,
       committedCount,
-      seenQuestionIds,
-      rotationOffset,
+      exact ? undefined : seenQuestionIds,
+      exact ? undefined : rotationOffset,
     );
-  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset]);
+  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
 
   const filteredQuestions = committedPoolSelection.displayed;
 
@@ -1296,6 +1319,18 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   }, [isGuest]);
   /** FAIR-USE-UI-1 - fair limits on the batched grade (dark unless enforced). */
   const fairUse = useFairUse("checks", !!authUserForJourney?.uid && !authUserForJourney?.isLocalSession);
+  /** ALL-AI-METERING-1 - the More-like-this limit panel (the AI top-up was refused). */
+  const [moreLikeThisLimit, setMoreLikeThisLimit] = useState<LimitState | null>(null);
+  /** DECISION 29d - a FREE student's 402 premium_required: a plan note with a trial link, not a limit. */
+  const [moreLikeThisPremiumOnly, setMoreLikeThisPremiumOnly] = useState<{ trialUsed: boolean } | null>(null);
+  useEffect(
+    () =>
+      subscribeMoreLikeThisLimit((err) => {
+        if (isPremiumRequiredRefusal(err)) setMoreLikeThisPremiumOnly({ trialUsed: moreLikeThisPremiumNoteCopy(err, Date.now()).trialUsed });
+        else setMoreLikeThisLimit(limitFromAiRefusal(readFairUseLimit(err), "more-like-this"));
+      }),
+    [],
+  );
   /** UI2 - R, while the student is being asked "we'll mark the first R". */
   const [fairUseConfirm, setFairUseConfirm] = useState<number | null>(null);
   // Which session identity has already been written. A one-shot latch: the scorecard
@@ -1757,6 +1792,25 @@ const packTopicKey = useMemo(() => {
             ]);
             next = mergeMultiTopicDeep({ pools, offset: rotationOffset });
           }
+        } else if (isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange)) {
+          // CONCEPT-MAP-FILL-1 PR-2 (D92a) — a strict id list that covers the whole count (a Topic Hub
+          // concept's Practise, Weak Area's targeted session, a shared exact-set link) is served from
+          // those ids themselves, in their order. The blueprint below would split it by section share
+          // and change the set (probe: Alloys 26 requested -> 22 served, 4 outside the concept).
+          next = await Promise.race([
+            buildPracticeQuestionsWithAiTopup({
+              grade,
+              subjectKey,
+              topicLabel,
+              packTopicKey,
+              count: questionCount,
+              difficulty,
+              subtopicHint,
+              focusBankIds,
+              strictFocus,
+            }),
+            timeout,
+          ]);
         } else if (committedMarks === "all") {
           // CBSE Class 10 board paper blueprint:
           //   Section A (1mk) 30% · B (2mk) 20% · C (3mk) 20% · D (5mk) 20% · E (4mk) 10%
@@ -2692,6 +2746,7 @@ const packTopicKey = useMemo(() => {
     >
       {/* J2 — a background grade of the last practice set, still running after a reload. */}
       <QuickPracticeJobResume user={authUserForJourney} />
+      <UsageWarning scope="practice" snapshot={fairUse.snapshot} />
       {/* QP-GUEST-SIGNIN-1 — the set's score from before a same-tab sign-in, shown once. */}
       {restoredGuestScore && (
         <div className="lt-qp-signin lt-qp-signin--restored" data-testid="qp-guest-score-restored">
@@ -2770,6 +2825,13 @@ const packTopicKey = useMemo(() => {
           <span>Class {grade} - {subjectTitle}</span>
         </nav>
         )}
+
+        {moreLikeThisLimit ? (
+          <FairUseLimitPanel limit={moreLikeThisLimit} onDismiss={() => setMoreLikeThisLimit(null)} />
+        ) : null}
+        {moreLikeThisPremiumOnly ? (
+          <MoreLikeThisPremiumNote trialUsed={moreLikeThisPremiumOnly.trialUsed} onDismiss={() => setMoreLikeThisPremiumOnly(null)} />
+        ) : null}
 
         {/* Applied-band indicator (PR-E1 amendment item 6/7) — concept-row entry
             ONLY: shown when this session arrived from the Topic Hub with an exact
