@@ -44,8 +44,8 @@
 | `#1076` CONCEPT-MAP-FILL-1 PR-2 | `ce1425f9` | 10-11 08:32 | Hub concept cards; an exact-set Practise path (`buildExactFocusPool`) |
 | `#1090` BANK-FIX-7 PR-2 | `86b3b1e2` | 10-11 08:49 | `PYQ-M-TRI-005` key corrected (△CBA ~ △CAD); `PYQ-S-2026-METAL-005` is the official 4-mark Section E case; `ELEC-NCERT-11-LA-002` carries NCERT Q1; 3 rows served again |
 | `#1089` SOLUTION-FIGS-1 PR-3 | `9dac281b` | 10-11 09:00 | Carbon, Metals and Chemical Reactions solution figures |
-| `#1091` SOLUTION-FIGS-1 PR-4 | ‹PENDING› | ‹PENDING› | Electricity and Heredity solution figures |
-| SOLUTION-FIGS-1 PR-5 (`da8beccb`) | ‹PENDING› | ‹PENDING› | Light (glass slab, prism) solution figures |
+| `#1091` SOLUTION-FIGS-1 PR-4 | `74bb6423` | 10-11 09:10 | Electricity and Heredity solution figures |
+| `#1092` SOLUTION-FIGS-1 PR-5 | ‹PENDING› | ‹PENDING› | Light (glass slab, prism) solution figures |
 
 ### What is DARK (built, merged, switched off) — do not call it live
 | item | the switch | state |
