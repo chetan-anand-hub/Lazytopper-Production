@@ -1238,7 +1238,6 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Same Voltage in Parallel": "Ohm’s Law & Circuit Numericals",
     "Series Circuit": "Ohm’s Law & Circuit Numericals",
     "Series Circuit Diagram": "Ohm’s Law & Circuit Numericals",
-    "Series Circuit Readings": "Ohm’s Law & Circuit Numericals",
     "Series Circuits and Current": "Ohm’s Law & Circuit Numericals",
     "Series and Parallel": "Ohm’s Law & Circuit Numericals",
     "Series and Parallel Circuits": "Ohm’s Law & Circuit Numericals",
