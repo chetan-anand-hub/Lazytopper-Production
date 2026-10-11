@@ -38,6 +38,10 @@
 const crypto = require('node:crypto');
 const { grantPass, computeGrant, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter } = require('../services/rateLimiter.cjs');
+// TOPUP-1 (DARK): the extra-usage packs. Everything below is behind PAYMENTS_ENABLED AND TOPUP_ENABLED.
+const { TOPUP_PRODUCTS, isTopupProduct } = require('../services/passPricing.cjs');
+const { grantTopup, TopupInputError, isTopupFlagOn } = require('../services/usageCredit.cjs');
+const { deriveEffectiveTier } = require('../services/entitlement.cjs');
 
 const PAY_ORDER_PATH = '/api/pay/order';
 const PAY_VERIFY_PATH = '/api/pay/verify';
@@ -64,6 +68,11 @@ const ERASED_UID = 'erased';
 /** Same truthy grammar as the gateway's other server switches (FREE_CHECK_ENABLED). */
 function isPaymentsEnabled(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.PAYMENTS_ENABLED) || '').trim());
+}
+
+/** TOPUP-1: top-up packs exist only when payments are on AND the owner has turned TOPUP_ENABLED on. */
+function isTopupEnabled(env = process.env) {
+  return isPaymentsEnabled(env) && isTopupFlagOn(env);
 }
 
 function readKeys(env = process.env) {
@@ -173,6 +182,7 @@ function createPaymentRoutes(deps = {}) {
     fetchImpl = typeof fetch === 'function' ? fetch : null,
     now = () => Date.now(),
     foundingOfferOpen,
+    topupBonus, // test seam only: { percent, endsIso }; production passes nothing (the constants decide)
   } = deps;
 
   const rateLimiter =
@@ -205,6 +215,10 @@ function createPaymentRoutes(deps = {}) {
 
   function enabled() {
     return isPaymentsEnabled(env);
+  }
+
+  function topupEnabled() {
+    return isTopupEnabled(env);
   }
 
   function razorpayAuthHeader(keys) {
@@ -271,7 +285,10 @@ function createPaymentRoutes(deps = {}) {
     const body = await readJsonBody(req, res);
     if (!body) return undefined;
     const passType = body.passType;
-    if (!Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {
+    const isTopup = isTopupProduct(passType);
+    // TOPUP-1 dark proof: with TOPUP_ENABLED unset a top-up key is answered exactly like an unknown route.
+    if (isTopup && !topupEnabled()) return sendJson(res, 404, NOT_FOUND_BODY);
+    if (!isTopup && !Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {
       return sendJson(res, 400, { ok: false, error: 'passType must be "month" or "till_boards"' });
     }
 
@@ -279,7 +296,18 @@ function createPaymentRoutes(deps = {}) {
     try {
       const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
       const stored = snap && snap.exists ? snap.data() || {} : {};
-      quote = quotePass(stored, passType, now(), { foundingOfferOpen });
+      if (isTopup) {
+        // Premium only (a trial or free student at a limit sees "Upgrade"). The tier is the SERVER's own
+        // derivation from the stored subscription; the amount is ALWAYS the server table, never the body's.
+        if (deriveEffectiveTier(stored, now()).tier !== 'premium') {
+          emit('payments.order.topup_not_premium');
+          return sendJson(res, 403, { ok: false, error: 'premium_required' });
+        }
+        const price = TOPUP_PRODUCTS[passType].priceInr;
+        quote = { pricePaidInr: price, amountPaise: price * 100, offerKey: null };
+      } else {
+        quote = quotePass(stored, passType, now(), { foundingOfferOpen });
+      }
     } catch (e) {
       emit('payments.order.quote_failed');
       console.error('[pay/order] quote failed:', e && e.message);
@@ -291,7 +319,7 @@ function createPaymentRoutes(deps = {}) {
       created = await razorpay(keys, 'POST', '/orders', {
         amount: quote.amountPaise,
         currency: CURRENCY,
-        notes: { uid, passType, offerKey: quote.offerKey },
+        notes: { uid, passType, ...(quote.offerKey ? { offerKey: quote.offerKey } : {}) },
       });
     } catch (e) {
       emit('payments.order.razorpay_unreachable');
@@ -416,6 +444,22 @@ function createPaymentRoutes(deps = {}) {
   }
 
   async function grantAndRespond(res, scope, { uid, passType, paymentId, orderId }) {
+    if (isTopupProduct(passType)) {
+      // A paid top-up is always credited, even if TOPUP_ENABLED was switched off after the order was made.
+      try {
+        const granted = await grantTopup(
+          { uid, productKey: passType, paymentRef: paymentId, orderId, nowMs: now(), ...(topupBonus ? { bonus: topupBonus } : {}) },
+          { firestore: adminFirestore },
+        );
+        emit(granted.replayed ? `payments.${scope}.topup_replayed` : `payments.${scope}.topup_granted`);
+        return sendJson(res, 200, { ok: true, replayed: granted.replayed, topup: true });
+      } catch (e) {
+        if (e instanceof TopupInputError) return reject(res, scope, 'grant_refused');
+        emit(`payments.${scope}.grant_failed`);
+        console.error(`[pay/${scope}] top-up grant failed:`, e && e.message);
+        return sendJson(res, 500, { ok: false, error: 'Top-up grant failed' });
+      }
+    }
     try {
       const granted = await grantPass(
         { uid, passType, paymentRef: paymentId, now: now() },
@@ -504,12 +548,13 @@ function createPaymentRoutes(deps = {}) {
     return grantAndRespond(res, 'webhook', { uid: order.uid, passType: order.passType, paymentId, orderId });
   }
 
-  return { handleOrder, handleVerify, handleWebhook, isEnabled: enabled };
+  return { handleOrder, handleVerify, handleWebhook, isEnabled: enabled, isTopupEnabled: topupEnabled };
 }
 
 module.exports = {
   createPaymentRoutes,
   isPaymentsEnabled,
+  isTopupEnabled,
   isCheckoutSignatureValid,
   isWebhookSignatureValid,
   timingSafeHexEqual,

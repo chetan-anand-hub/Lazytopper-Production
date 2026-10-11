@@ -182,6 +182,18 @@ function captureRequestContext() {
   return (fn) => requestContext.run(store, fn);
 }
 
+/**
+ * TOPUP-1 - mark THIS request as served from extra-usage CREDIT (its plan window was at cap). Every model
+ * call it makes (and every grading job that captured its context) is then charged to credit, not to the window.
+ * Returns true when a request context exists.
+ */
+function markCreditMode() {
+  const store = requestContext.getStore();
+  if (!store) return false;
+  store.creditMode = true;
+  return true;
+}
+
 /** The uid bound to the current async chain, or '' outside a bound request. */
 function currentUid() {
   const store = requestContext.getStore();
@@ -341,15 +353,16 @@ function createUsageLedger(deps = {}) {
       // A17 ruling 5: a grading call inside a meter group is held until its share is known.
       const store = requestContext.getStore();
       const meter = store && store.meter;
+      const credit = Boolean(store && store.creditMode);
       if (meter) {
         writeSpend(uid, record);
         if (!meter.settled) {
-          meter.held.push((fraction) => writeUsage(uid, record, fraction));
+          meter.held.push((fraction) => writeUsage(uid, record, fraction, credit));
           return null;
         }
-        return writeUsage(uid, record, meter.fraction);
+        return writeUsage(uid, record, meter.fraction, credit);
       }
-      return writeUsage(uid, record, 1);
+      return writeUsage(uid, record, 1, credit);
     } catch {
       count(TELEMETRY.ERROR);
       return null;
@@ -357,7 +370,7 @@ function createUsageLedger(deps = {}) {
   }
 
   /** Write one call's usage for `uid`, its cost and tokens scaled by `fraction` (0 writes nothing). */
-  function writeUsage(uid, record, fraction) {
+  function writeUsage(uid, record, fraction, credit = false) {
     try {
       if (!(fraction > 0)) return null;
       const nowMs = now();
@@ -379,11 +392,22 @@ function createUsageLedger(deps = {}) {
         promptTokens: FieldValue.increment(increment.promptTokens),
         outputTokens: FieldValue.increment(increment.outputTokens),
         thoughtsTokens: FieldValue.increment(increment.thoughtsTokens),
-        costMicroInr: FieldValue.increment(increment.costMicroInr),
+      };
+      if (credit) {
+        // TOPUP-1: served from extra-usage credit. The window bars stay as they are (the cost is NOT added to
+        // costMicroInr or the hour bucket); the same cost goes to the credit balance instead.
+        if (increment.costMicroInr > 0) {
+          const amountMicroInr = increment.costMicroInr;
+          trackWrite(Promise.resolve()
+            .then(() => require('./usageCredit.cjs').chargeCredit({ uid, amountMicroInr, nowMs }, { firestore: db }))
+            .then(() => true, () => { count(TELEMETRY.WRITE_FAILED); return false; }));
+        }
+      } else {
+        data.costMicroInr = FieldValue.increment(increment.costMicroInr);
         // FAIR-USE-1: the same cost, bucketed by IST hour for the rolling 5-hour cap.
         // Same instant as the day key above, so the bucket always sits in its own day.
-        [LEDGER_HOUR_FIELD]: { [istHourKey(nowMs)]: FieldValue.increment(increment.costMicroInr) },
-      };
+        data[LEDGER_HOUR_FIELD] = { [istHourKey(nowMs)]: FieldValue.increment(increment.costMicroInr) };
+      }
 
       // ★ NOT AWAITED. Promise.resolve().then() also moves a synchronously-throwing
       // `set` off this stack, so it lands in the same counted rejection path.
@@ -507,6 +531,7 @@ module.exports = {
   buildLedgerIncrement,
   runWithRequestContext,
   bindRequestUid,
+  markCreditMode,
   currentUid,
   captureRequestContext,
   createMeterGroup,
