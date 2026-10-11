@@ -236,6 +236,42 @@ const GATED_ROUTES = {
 };
 
 /**
+ * ALL-AI-METERING-1 — More-like-this and question detection need trial or Premium.
+ *
+ * ★ NOT IN GATED_ROUTES, ON PURPOSE. This gate does NOT decide them: fairUse.cjs does, at
+ * the same route boundary, behind its OWN switch (FAIR_USE_ENFORCE_ALL_AI === "1"). While
+ * that switch is off a free caller is SERVED exactly as today (and counted as
+ * `fair_use.would_refuse.free_<route>`), so adding them to GATED_ROUTES — an always-on 402 —
+ * would refuse students the day this merges. Only the COPY lives here, in the register
+ * above, and the 402 body is built by the same `premiumRequiredBody` every gated route uses.
+ * An admitted anonymous free check never reaches that decision (no verified uid).
+ */
+const AI_TIER_GATED_ROUTES = Object.freeze({
+  '/api/more-like-this': Object.freeze({
+    feature: 'more-like-this',
+    message: "New practice questions like this are a Premium feature. You can unlock them whenever you're ready.",
+  }),
+  '/api/detect-question': Object.freeze({
+    feature: 'detect-question',
+    message: "Reading questions from your photo is a Premium feature. You can unlock it whenever you're ready.",
+  }),
+});
+
+/** The 402 body. `error` is for the client to branch on; `message` is for the student. PURE. */
+function premiumRequiredBody(featureSpec, decision) {
+  const body = {
+    error: 'premium_required',
+    feature: featureSpec.feature,
+    tier: (decision && decision.tier) || 'free',
+    message: featureSpec.message,
+  };
+  if (decision && decision.trialEndsAtMs) {
+    body.trialEndedAt = new Date(decision.trialEndsAtMs).toISOString();
+  }
+  return body;
+}
+
+/**
  * ★ /api/step-solution IS DELIBERATELY ABSENT FROM GATED_ROUTES.
  *
  * "Show steps" is mostly FREE and must stay free: `PracticeQuestionCard` renders
@@ -617,16 +653,7 @@ function createEntitlementGate(deps = {}) {
 
   /** The 402 body. `error` is for the client to branch on; `message` is for the student. */
   function denialBody(featureSpec, decision) {
-    const body = {
-      error: 'premium_required',
-      feature: featureSpec.feature,
-      tier: (decision && decision.tier) || 'free',
-      message: featureSpec.message,
-    };
-    if (decision && decision.trialEndsAtMs) {
-      body.trialEndedAt = new Date(decision.trialEndsAtMs).toISOString();
-    }
-    return body;
+    return premiumRequiredBody(featureSpec, decision);
   }
 
   /** The 401 body for a token that did not verify. Plain English for any client that shows it. */
@@ -779,6 +806,8 @@ module.exports = {
   isServerPinnedStart,
   toMillis,
   GATED_ROUTES,
+  AI_TIER_GATED_ROUTES,
+  premiumRequiredBody,
   STEP_SOLUTION_PATH,
   STEP_SOLUTION_FEATURE,
   TRIAL_DAYS,
