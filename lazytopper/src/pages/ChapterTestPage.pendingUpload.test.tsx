@@ -146,16 +146,36 @@ describe("PENDING-UPLOAD-1 · Chapter Test pending card -> upload step", () => {
     expect(JSON.parse(window.localStorage.getItem("lazytopper.ct.papers.v1.student-1") ?? "[]")).toHaveLength(1);
   });
 
-  it("★ no copy anywhere -> the honest message, never a rebuilt paper", async () => {
+  // AMENDED 2026-10-11 PAPER-REBUILD-1 (cofounder D102, test (e)): this used to pin the modal's
+  // "Upload answer sheet" as a RETRY of the same lookup. Live, that was the owner's dead loop: the
+  // button re-ran a lookup that had just failed and the same message came back. After a failed
+  // lookup the modal now offers no upload action at all.
+  it("★ (e) no copy anywhere -> no 'Upload answer sheet' that re-runs the failed lookup", async () => {
+    const { getDoc } = await import("firebase/firestore");
+    records.list = [submittedRecord()];
+    await mount();
+    const calls = vi.mocked(getDoc).mock.calls.length;
+    fireEvent.click(await screen.findByText(/Awaiting sheet/));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Done" })).not.toBeNull());
+    expect(vi.mocked(getDoc).mock.calls.length - calls, "exactly one snapshot lookup").toBe(1);
+    expect(screen.queryByRole("button", { name: /Upload answer sheet/ })).toBeNull();
+  });
+
+  it("★ (c) PAPER-REBUILD-1 D103a: no snapshot -> the owner's honest line, 'Start a new test' + Done, NO upload", async () => {
     records.list = [submittedRecord()];
     await mount();
     fireEvent.click(await screen.findByText(/Awaiting sheet/));
-    await waitFor(() => expect(document.body.textContent).toContain("We couldn’t find the saved copy of this paper"));
-    // The action is a retry: once the copy exists, it opens the upload step.
-    saveChapterTestPaper(USER as never, snap());
-    fireEvent.click(await screen.findByRole("button", { name: /Upload answer sheet/ }));
-    await waitFor(() => expect(screen.queryByRole("button", { name: "Done" })).toBeNull());
-    expect(document.body.textContent).toContain(CODE);
+    await waitFor(() =>
+      expect(document.body.textContent).toContain(
+        "This test was taken before papers were saved, so it can't be uploaded. Start a new test to practise this chapter.",
+      ),
+    );
+    expect(screen.queryByRole("button", { name: /Upload answer sheet/ })).toBeNull();
+    expect(screen.getByRole("button", { name: "Done" })).toBeTruthy();
+    // The way forward starts a NEW test of this chapter (the paper view), not the old record.
+    fireEvent.click(screen.getByRole("button", { name: "Start a new test" }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__exit")).not.toBeNull());
+    expect(document.body.textContent).not.toContain("This test was taken before papers were saved");
   });
 
   it("★ a partial record that already has graded written work still opens read-only", async () => {

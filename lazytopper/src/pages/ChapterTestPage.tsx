@@ -252,6 +252,8 @@ export default function ChapterTestPage() {
     record: SessionRecord;
     response: WorksheetGradeResponse | null;
     awaitingDetail?: string;
+    /** PAPER-REBUILD-1 (D102): the paper lookup already failed, so the modal offers no upload action. */
+    noPaper?: boolean;
   } | null>(null);
 
   // GRADING-JOBS-1 J2 — a background grade of this chapter's test survives a reload: the paper,
@@ -577,8 +579,12 @@ export default function ChapterTestPage() {
       setReopen({
         record,
         response: null,
+        noPaper: true,
+        // PAPER-REBUILD-1 (D103a, owner copy verbatim): without the paper snapshot the Section A
+        // result frozen at submit is gone, so the test cannot be rebuilt without inventing grade
+        // inputs — it cannot be uploaded (FU-CT-FM-LEGACY-OBJECTIVE).
         awaitingDetail:
-          "We couldn’t find the saved copy of this paper on this device or online. Open it on the device you sat it on, or start a new one.",
+          "This test was taken before papers were saved, so it can't be uploaded. Start a new test to practise this chapter.",
       });
     },
     [user],
@@ -626,11 +632,20 @@ export default function ChapterTestPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
-            // Awaiting-sheet records offer "Upload answer sheet" (also a retry after a failed read).
+            // Awaiting-sheet records offer "Upload answer sheet" — never after the lookup just failed
+            // (PAPER-REBUILD-1, D102: re-running it was the owner's dead loop).
             onUploadSheet:
-              reopen.record.status !== "graded" && !reopen.response
+              reopen.record.status !== "graded" && !reopen.response && !reopen.noPaper
                 ? () => void openPendingUpload(reopen.record)
                 : undefined,
+            // The no-paper state's way forward (D103a): a new test of this chapter, through the
+            // same start as the setup button (fair-use gate included).
+            onStartNew: reopen.noPaper
+              ? () => {
+                  setReopen(null);
+                  void startTest();
+                }
+              : undefined,
             onDone: () => setReopen(null),
           })}
           onClose={() => setReopen(null)}
