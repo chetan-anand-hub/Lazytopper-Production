@@ -42,7 +42,16 @@
  * direction or viewing face), MAG-NCERT-12-SA-003 (no NCERT figure), PYQ-S-2026-MAG-002
  * (on B's question-figure list; left to B), SCQ-S-EYE-037 (its step 4 calls the normal near point
  * N; Fig. 10.3 keys it N') and EYE-EXMPLR-10-LA-005 (its answer orders the colours V..R from the
- * top; Fig. 10.5 has R at the top): verifier FAIL 2026-10-11, row text to the bank lane.
+ * top; Fig. 10.5 has R at the top): verifier FAIL 2026-10-11, row text to the bank lane. *
+ * SOLUTION-FIGS-1 PR-3 (controller D) — Carbon (jesc104.pdf), Metals (jesc103.pdf) and one
+ * Chemical Reactions row that asks for the NaCl electron transfer (Fig. 3.5), same rule. Not
+ * bound, with reason: the NCERT electron-dot exercise rows (CO2, S8, cyclopentane, CCl4, C3H6O
+ * isomers, ethanoic acid / H2S / propanone / F2, ethyne, Cl2: NCERT prints no figure of these
+ * answers), CARB-EXMPLR-4-MCQ-010/-022 and APQ-S-CARB-006 (MCQs: the options are the figures),
+ * PYQ-S-CARB-003 (a)(i) (Fig. 4.8 (b) draws both C4H10 isomers), MNM2-047 (no NCERT figure of
+ * galvanised iron), METAL-NCERT-3-LONG-001 / SCQ-S-METAL-040 / LTG-S-METAL-290 (Na2O, MgO,
+ * CaCl2, CaO: NCERT draws NaCl and MgCl2 only), CBE-S-MNM-D-001 (alumina electrolysis: no
+ * NCERT figure).
  */
 import type { CropFigureBinding } from "./computedFigureTypes";
 
@@ -58,6 +67,10 @@ const NCERT_EYE = "NCERT Class 10 Science (Reprint 2026-27) jesc110.pdf";
 const NCERT_MAG = "NCERT Class 10 Science (Reprint 2026-27) jesc112.pdf";
 const EYE_DIR = "/figures/solutions/ncert-science/human-eye-and-colourful-world/";
 const MAG_DIR = "/figures/solutions/ncert-science/magnetic-effects-of-electric-current/";
+const NCERT_CARB = "NCERT Class 10 Science (Reprint 2026-27) jesc104.pdf";
+const NCERT_MET = "NCERT Class 10 Science (Reprint 2026-27) jesc103.pdf";
+const CARB_DIR = "/figures/solutions/ncert-science/carbon-and-its-compounds/";
+const MET_DIR = "/figures/solutions/ncert-science/metals-and-non-metals/";
 
 export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
   {
@@ -516,6 +529,91 @@ export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
     alt: "Schematic domestic circuit: earth, live and neutral wires, electricity board's fuse, meter, distribution box with main switch and fuses, sockets in parallel at 220 V",
     source: { file: NCERT_MAG, page: 11, figure: "NCERT Class 10 Science, Fig. 12.15" },
     eyeConfirm: "asked: schematic diagram of common domestic circuits; answer: live (red) and neutral (black) at 220 V through the main fuse, meter and distribution box, appliances in parallel, earth wire; Fig. 12.15 labels all",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "CARB-H03",
+    slot: "solution",
+    filePath: `${CARB_DIR}ncert-fig-4-12-micelle.webp`,
+    alt: "Formation of micelles: soap molecules arranged around an oil droplet, ionic (Na+) ends facing outward into water, carbon chains pointing inward",
+    source: { file: NCERT_CARB, page: 17, figure: "NCERT Class 10 Science, Fig. 4.12" },
+    eyeConfirm: "asked: cleansing action of soap with a diagram of micelle formation; answer: ionic heads outward into water, carbon-chain tails inward around the oil droplet; Fig. 4.12 draws exactly that, labelling Na+ and the oil droplet",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-CARB-003",
+    slot: "solution",
+    part: "(b)(ii) micelle",
+    filePath: `${CARB_DIR}ncert-fig-4-12-micelle.webp`,
+    alt: "Formation of micelles: soap molecules arranged around an oil droplet, ionic (Na+) ends facing outward into water, carbon chains pointing inward",
+    source: { file: NCERT_CARB, page: 17, figure: "NCERT Class 10 Science, Fig. 4.12" },
+    eyeConfirm: "asked (b)(ii): formation of micelles between oily dirt and soap, with its diagram; answer: the chain end towards the oil droplet, the ionic end facing outside; Fig. 4.12",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "CARB-EXMPLR-4-LONG-005",
+    slot: "solution",
+    filePath: `${CARB_DIR}ncert-fig-4-11-ester-formation.webp`,
+    alt: "Formation of ester: a test tube containing the reaction mixture warmed in a beaker of water on a wire gauze, tripod stand and burner",
+    source: { file: NCERT_CARB, page: 16, figure: "NCERT Class 10 Science, Fig. 4.11" },
+    eyeConfirm: "asked: activity for preparing an ester with a well labelled diagram; answer: the test tube warmed in a water-bath beaker; Fig. 4.11 labels test tube containing reaction mixture, water, beaker, wire gauze, tripod stand, burner",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-CARB-028",
+    slot: "solution",
+    part: "cyclohexane",
+    filePath: `${CARB_DIR}ncert-fig-4-9-cyclohexane.webp`,
+    alt: "Structure of cyclohexane: (a) the six-carbon ring skeleton, (b) the complete molecule, every carbon bonded to two hydrogens by single bonds",
+    source: { file: NCERT_CARB, page: 8, figure: "NCERT Class 10 Science, Fig. 4.9" },
+    eyeConfirm: "asked: compare benzene and cyclohexane by drawing them; answer: cyclohexane has all single bonds; Fig. 4.9 (b) draws the complete molecule",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-CARB-028",
+    slot: "solution",
+    part: "benzene",
+    filePath: `${CARB_DIR}ncert-fig-4-10-benzene.webp`,
+    alt: "Structure of benzene, C6H6: a six-carbon ring with three alternating double bonds, one hydrogen on each carbon",
+    source: { file: NCERT_CARB, page: 8, figure: "NCERT Class 10 Science, Fig. 4.10" },
+    eyeConfirm: "asked: compare benzene and cyclohexane by drawing them; answer: benzene has 3 double bonds; Fig. 4.10 draws them",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "MNM-M03",
+    slot: "solution",
+    filePath: `${MET_DIR}ncert-fig-3-5-sodium-chloride.webp`,
+    alt: "Formation of sodium chloride: Na (2,8,1) loses an electron to Cl (2,8,7), shown with dots and crosses, giving Na+ and Cl- ions",
+    source: { file: NCERT_MET, page: 11, figure: "NCERT Class 10 Science, Fig. 3.5" },
+    eyeConfirm: "asked: formation of NaCl from sodium and chlorine atoms with electron dot structures; answer: Na gives its one valence electron to Cl (7), forming Na+ and Cl-; Fig. 3.5 draws exactly that transfer",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "CR2-049",
+    slot: "solution",
+    part: "(a) electron transfer",
+    filePath: `${MET_DIR}ncert-fig-3-5-sodium-chloride.webp`,
+    alt: "Formation of sodium chloride: Na (2,8,1) loses an electron to Cl (2,8,7), shown with dots and crosses, giving Na+ and Cl- ions",
+    source: { file: NCERT_MET, page: 11, figure: "NCERT Class 10 Science, Fig. 3.5" },
+    eyeConfirm: "asked (a): electron-dot structures showing the transfer of electrons in 2Na + Cl2 -> 2NaCl; Fig. 3.5 draws the Na -> Cl electron transfer with dots and crosses",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "METAL-EXMPLR-3-LONG-004",
+    slot: "solution",
+    part: "(ii) electrolytic refining",
+    filePath: `${MET_DIR}ncert-fig-3-12-electrolytic-refining.webp`,
+    alt: "Electrolytic refining of copper: impure copper anode, pure copper cathode, acidified copper sulphate solution in a tank, key and battery, anode mud below the anode",
+    source: { file: NCERT_MET, page: 16, figure: "NCERT Class 10 Science, Fig. 3.12" },
+    eyeConfirm: "asked (ii): a neat, well-labelled diagram of electrolytic refining of copper; answer: tank, impure Cu anode (+), pure Cu cathode (-), CuSO4 electrolyte, switch, battery, anode mud; Fig. 3.12 labels anode, cathode, acidified copper sulphate solution, tank, key, impurities (anode mud)",
     confirmedBy: BY_D,
   },
 ];
