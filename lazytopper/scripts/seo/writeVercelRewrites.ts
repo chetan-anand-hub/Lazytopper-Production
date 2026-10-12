@@ -8,7 +8,8 @@
  * from `src/config/routeRewrites.ts`; `soft404Routes.guard.test.ts` runs the same comparison in CI.
  * Only the rewrites whose destination is `/__shell.html` are touched; the redirects, the API
  * proxies, the asset rules, the headers and `ignoreCommand` are re-serialised unchanged.
- * `vercel.json` is CRLF; the output keeps that.
+ * The output keeps the file's own line endings (the committed blob is LF; a Windows checkout
+ * with autocrlf shows CRLF), so --check agrees on every platform.
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -20,10 +21,11 @@ const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../.."
 const VERCEL_JSON = resolve(LAZYTOPPER_ROOT, "../vercel.json");
 const APP_TSX = resolve(LAZYTOPPER_ROOT, "src/App.tsx");
 
-/** The `vercel.json` text that `--write` produces (2-space JSON, CRLF, trailing newline). */
+/** The `vercel.json` text that `--write` produces (2-space JSON, trailing newline, the file's own EOL). */
 export function generatedVercelJson(currentText: string, appSource: string): string {
   const next = withGeneratedRewrites(JSON.parse(currentText), appSource);
-  return JSON.stringify(next, null, 2).replace(/\n/g, "\r\n") + "\r\n";
+  const eol = currentText.includes("\r\n") ? "\r\n" : "\n";
+  return JSON.stringify(next, null, 2).replace(/\n/g, eol) + eol;
 }
 
 function main(): void {

@@ -117,6 +117,14 @@ describe("SOFT404-1 — the shell rules are generated from the router", () => {
     expect(shellRules.map((r) => r.source)).toEqual(shellRewrites(appSource).map((r) => r.source));
   });
 
+  it("★ DRIFT is line-ending-proof — the committed blob is LF, a Windows checkout is CRLF, both are stable", () => {
+    // CI on Linux failed once because the generator forced CRLF while the blob is LF.
+    const lf = vercelText.replace(/\r\n/g, "\n");
+    const crlf = lf.replace(/\n/g, "\r\n");
+    expect(generatedVercelJson(lf, appSource) === lf, "LF").toBe(true);
+    expect(generatedVercelJson(crlf, appSource) === crlf, "CRLF").toBe(true);
+  });
+
   it("★ MUTATION — a route removed from the router makes the check RED, and an added route is picked up", () => {
     // Removing: rename one route so the router no longer has /pricing.
     const without = appSource.replace('path="/pricing"', 'path="/pricing-removed-by-mutation"');
