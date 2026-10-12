@@ -118,6 +118,14 @@ export const CBSE_SUBJECTS: readonly CbseSubject[] = [
         href: "https://cbseacademic.nic.in/cbe/documents/SAS_Science-Class-10.pdf",
         kind: "pdf",
       },
+      // D111 (12 Oct 2026, HEAD 200): Science's item bank, matching Maths's row below.
+      {
+        id: "science-item-bank",
+        title: "Item bank",
+        blurb: "CBSE's competency item bank for Class 10 Science",
+        href: "https://cbseacademic.nic.in/cbe/documents/Item-Bank---Science-Class-10.pdf",
+        kind: "pdf",
+      },
       {
         id: "science-question-bank",
         title: "Question bank",
@@ -182,6 +190,14 @@ export const CBSE_SUBJECTS: readonly CbseSubject[] = [
         href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsBasic-MS.pdf",
         kind: "pdf",
       },
+      // D111 (12 Oct 2026, HEAD 200): Maths's CFPQ manual, matching Science's row above.
+      {
+        id: "maths-competency-answers",
+        title: "Competency questions, with answers",
+        blurb: "Case-based practice for half your paper",
+        href: "https://cbseacademic.nic.in/web_material/Manuals/CFPQ_Maths10.pdf",
+        kind: "pdf",
+      },
       {
         id: "maths-competency-items",
         title: "Competency test items",
@@ -231,6 +247,14 @@ export const CBSE_SUBJECTS: readonly CbseSubject[] = [
     ],
   },
 ];
+
+/**
+ * D111 (12 Oct 2026). CBSE's competency question sets and item banks (the CFPQ manuals,
+ * Dec 2022; the CBE item banks, Sep 2021) predate the 2026-27 syllabus, and CBSE has
+ * published no newer set. Each subject's panel says so in this one line.
+ */
+export const CBSE_OLDER_SETS_NOTE =
+  "Older CBSE sets: skip any question on a topic not in the 2026-27 syllabus.";
 
 /** The marks every subject's units must add up to, before the 20 internal marks. */
 export const CBSE_THEORY_MARKS = 80;

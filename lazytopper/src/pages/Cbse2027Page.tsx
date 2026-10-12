@@ -12,6 +12,7 @@ import {
 import {
   CBSE_CIRCULARS,
   CBSE_CIRCULARS_CHECKED_ON,
+  CBSE_OLDER_SETS_NOTE,
   CBSE_SUBJECTS,
   CBSE_THEORY_MARKS,
   CBSE_TIMELINE,
@@ -187,6 +188,7 @@ const CBSE_CSS = `
 
 /* SOURCE ROWS — every control reads "Open" (ruling b) */
 .lt-cbse__dl{display:grid;gap:9px}
+.lt-cbse__pnote{margin:2px 2px 0;font-size:12.5px;line-height:1.45;color:var(--ink3)}
 .lt-cbse__dl a{display:flex;align-items:center;gap:12px;background:var(--card);
   border:1px solid var(--line);border-radius:12px;padding:12px 13px;
   text-decoration:none;color:inherit;box-shadow:var(--sh);min-height:62px}
@@ -523,6 +525,8 @@ export default function Cbse2027Page() {
                       </a>
                     );
                   })}
+                  {/* D111: the competency sets and item banks predate the 2026-27 syllabus. */}
+                  <p className="lt-cbse__pnote">{CBSE_OLDER_SETS_NOTE}</p>
                 </div>
               ))}
             </div>

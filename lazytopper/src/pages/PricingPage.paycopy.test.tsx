@@ -21,8 +21,8 @@ import { resolve } from "node:path";
 // With the switch ON the page mounts PassCheckout, which calls these hooks.
 // SEO-PAGES-1: the user is a hoisted holder (null by default, reset after each test), so
 // the free-check block at the end can render a signed-in control.
-const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
-vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user }) }));
+const auth = vi.hoisted(() => ({ user: null as null | { uid: string }, loading: false }));
+vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: auth.loading }) }));
 vi.mock("../hooks/useSubscription", () => ({
   useSubscription: () => ({
     status: { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd: null },
@@ -57,6 +57,7 @@ afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
   auth.user = null;
+  auth.loading = false;
 });
 
 function staticPricing(flag: string): string {
@@ -192,11 +193,19 @@ describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for wo
 describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
   const FREE_CHECK_LINE = "Not signed in? Your first answer check on Check & Improve is free.";
 
-  function freeCheckLine(opts: { freeCheck: string; signedIn: boolean }): Element | null {
+  function freeCheckLine(opts: { freeCheck: string; signedIn: boolean; authLoading?: boolean }): Element | null {
     vi.stubEnv("VITE_FREE_CHECK_ENABLED", opts.freeCheck);
     auth.user = opts.signedIn ? { uid: "u1" } : null;
+    auth.loading = opts.authLoading === true;
     return pricingDom("").querySelector('[data-testid="pricing-free-check-line"]');
   }
+
+  it("★ auth still loading ⇒ no line yet, so a signed-in student never sees it flash", () => {
+    // While auth loads, `user` is null for EVERY visitor, signed in or not.
+    expect(freeCheckLine({ freeCheck: "1", signedIn: false, authLoading: true })).toBeNull();
+    // CONTROL: the same render once auth has resolved signed-out shows the line.
+    expect(freeCheckLine({ freeCheck: "1", signedIn: false, authLoading: false })).not.toBeNull();
+  });
 
   it("★ signed out, free check on ⇒ the line, in the Basic card, linking /check-improve", () => {
     const el = freeCheckLine({ freeCheck: "1", signedIn: false });

@@ -1003,7 +1003,7 @@ export default function PricingPage() {
   // rules then refuse). The eligibility MEANING is unchanged. startTrial() returns
   // nothing, so this guard is the whole evidence that the call takes effect, and so
   // it is what gates trial_start.
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const subscription = useSubscription();
   const [trialStartedHere, setTrialStartedHere] = useState(false);
   const trialStartFired = useRef(false);
@@ -1134,8 +1134,10 @@ export default function PricingPage() {
             {/* SEO-PAGES-1 (D): the one free signed-out answer check. It is NOT a
                 FREE_FEATURES row, because those are what a signed-in free student gets,
                 and they do not get this. Shown only to a signed-out visitor, and only
-                when this build has the free check on. */}
-            {!user && isFreeCheckClientEnabled() && (
+                when this build has the free check on. It also waits for auth to resolve:
+                while it is loading, `user` is null even for a signed-in student, and the
+                line would flash. */}
+            {!authLoading && !user && isFreeCheckClientEnabled() && (
               <p className="lt-pricing-freecheck" data-testid="pricing-free-check-line">
                 Not signed in? Your first answer check on{" "}
                 <Link to="/check-improve">Check &amp; Improve</Link> is free.
