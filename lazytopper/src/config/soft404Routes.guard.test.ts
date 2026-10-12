@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 // ★ THE APP'S OWN MATCHER. The generated Vercel rules are compared with React Router's
 // `matchPath` on a corpus, so the guard cannot agree with a model that disagrees with the router.
 import { matchPath } from "react-router-dom";
+import ts from "typescript";
 import { generatedVercelJson } from "../../scripts/seo/writeVercelRewrites";
 import {
   SHELL_DESTINATION,
@@ -83,6 +84,28 @@ describe("SOFT404-1 — the shell rules are generated from the router", () => {
     expect(patterns).toContain("/login/*");
     expect(patterns, "the catch-all is the one path that is NOT a rewrite").not.toContain("*");
     expect(new Set(patterns).size, "distinct").toBe(patterns.length);
+  });
+
+  it("★ INDEPENDENT PARSE — a TypeScript-AST read of App.tsx finds exactly the generator's paths (the comment stripper cannot hide a <Route>)", () => {
+    const sf = ts.createSourceFile("App.tsx", appSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const found: string[] = [];
+    let tags = 0;
+    const visit = (n: ts.Node): void => {
+      if ((ts.isJsxSelfClosingElement(n) || ts.isJsxOpeningElement(n)) && n.tagName.getText(sf) === "Route") {
+        tags++;
+        const attr = n.attributes.properties.find(
+          (a): a is ts.JsxAttribute => ts.isJsxAttribute(a) && a.name.getText(sf) === "path",
+        );
+        const init = attr?.initializer;
+        if (init && ts.isStringLiteral(init)) found.push(init.text);
+      }
+      ts.forEachChild(n, visit);
+    };
+    visit(sf);
+    expect(tags, "AST <Route> count equals the text parser's").toBe(parseRoutePaths(appSource).routeTags);
+    expect(found.length, "every AST <Route> has a literal path").toBe(tags);
+    const distinct = [...new Set(found.filter((p) => p !== "*"))];
+    expect(distinct).toEqual(patterns);
   });
 
   it("★ DRIFT — vercel.json's rewrites are exactly what the generator produces from App.tsx", () => {
