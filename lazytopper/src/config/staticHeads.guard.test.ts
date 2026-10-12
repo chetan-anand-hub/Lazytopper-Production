@@ -475,7 +475,9 @@ describe("static heads — the writer refuses to no-op silently", () => {
       // Two blurbs are shortened for the 155 cap (NOTES_BLURB_SHORTENED); each shortened
       // text must be the original with words DELETED, never added (checked below).
       const shortened = NOTES_BLURB_SHORTENED[slug];
-      expect(head?.description).toBe(`${ncertLabel(slug)} — ${shortened ?? topic?.blurb}`);
+      // SEO-LLM-1 — the description carries the file code too, rebuilt from the pin (not from the writer).
+      const labelWithCode = ncertLabel(slug).replace(/^(NCERT Ch\. \d+) · /, `$1 (${pinnedFileCode(slug)}) · `);
+      expect(head?.description).toBe(`${labelWithCode} — ${shortened ?? topic?.blurb}`);
       if (shortened) {
         const original = (topic?.blurb ?? "").toLowerCase().replace(/[.,]/g, "").split(/\s+/);
         for (const word of shortened.toLowerCase().replace(/[.,]/g, "").split(/\s+/)) {
@@ -569,12 +571,11 @@ describe("SEO-4 S2 — every notes page title and description names its NCERT ch
       expect(spec.meta.chapter_no, `${slug}: spec disagrees with the NCERT pin`).toBe(
         NCERT_CHAPTER_PIN[slug],
       );
-      const expected = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} · ${spec.meta.title}`;
       const head = headForPath(path);
       expect(head, `${path} has no head`).not.toBeNull();
       const expectedTitle = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} (${pinnedFileCode(slug)}) · ${spec.meta.title}`;
       expect(head?.title.startsWith(`${expectedTitle} — `), `${path} title: ${head?.title}`).toBe(true);
-      expect(head?.description.startsWith(`${expected} — `), `${path} desc: ${head?.description}`).toBe(true);
+      expect(head?.description.startsWith(`${expectedTitle} — `), `${path} desc: ${head?.description}`).toBe(true);
 
       const html = applyHead(SHELL, {
         path,

@@ -56,6 +56,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { canonicalFor } from "../../src/config/canonicalUrl";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
 import { allDesktopTopics } from "../../src/lib/desktop/topics";
+import { ncertFileCodeFromSpec } from "../../src/lib/ncertFileCode";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const LAZYTOPPER_ROOT = resolve(here, "..", "..");
@@ -263,7 +264,8 @@ export function headForPath(path: string): PageHead | null {
     if (!topic || topic.blurb.trim().length === 0) return null;
     // ROOT-URL-1 PR-2 (SEO-4, S2) — the title and description both lead with the
     // NCERT chapter the note covers, read from the note's own spec (see ncertLabel).
-    const label = ncertLabel(slug);
+    // SEO-LLM-1 — and its NCERT file code (ncertTitleLabel), the string people search.
+    const label = ncertTitleLabel(slug);
     const description = `${label} — ${NOTES_BLURB_SHORTENED[slug] ?? topic.blurb}`;
     if (description.length > NOTES_DESCRIPTION_CAP) {
       throw new Error(
@@ -288,18 +290,22 @@ export function headForPath(path: string): PageHead | null {
 const NOTES_DESCRIPTION_CAP = 155;
 
 /**
- * ROOT-URL-1 PR-2 (SEO-4, S2) — the TWO notes pages whose `NCERT Ch. N · <title> — <blurb>`
- * would exceed the 155 cap (163 and 175 characters). The owner's ruling is shorter text,
- * never a cap exception, so the topic blurb (`src/lib/desktop/topics.ts`) is COMPRESSED
- * here by DELETING words from it ("Structure of"; "in a magnetic field"): nothing is
- * added. Used for the head only; the blurb is unchanged everywhere else it renders.
+ * The notes pages whose `NCERT Ch. N (code) · <title> — <blurb>` would exceed the 155 cap.
+ * The owner's ruling is shorter text, never a cap exception, so the topic blurb
+ * (`src/lib/desktop/topics.ts`) is COMPRESSED here by DELETING words from it: nothing is
+ * added (`staticHeads.guard` checks each word is in the original). ROOT-URL-1 PR-2 shortened
+ * three ("Structure of"; "in a magnetic field"; "together"); SEO-LLM-1 put the NCERT file
+ * code in the description (+10 characters), which shortens those three further and adds
+ * `pair-of-linear-equations` (", including word problems"). Used for the head only; the
+ * blurb is unchanged everywhere else it renders.
  */
 export const NOTES_BLURB_SHORTENED: Readonly<Record<string, string>> = {
+  "pair-of-linear-equations": "Solving pairs of linear equations by substitution and elimination.",
   "human-eye-and-colourful-world":
-    "The human eye, defects of vision and their correction, plus dispersion and scattering of light.",
+    "The human eye, defects of vision and their correction, dispersion and scattering of light.",
   "magnetic-effects-of-electric-current":
-    "Magnetic field due to current-carrying conductors, the right-hand rule, and the force on a conductor.",
-  trigonometry: "Trigonometric ratios and identities with heights and distances applications.",
+    "Magnetic field due to current-carrying conductors, right-hand rule and force on conductor.",
+  trigonometry: "Trigonometric ratios and identities with heights and distances.",
 };
 
 /** Where the note specs live: `<repo>/notes/specs/<slug>.json`. */
@@ -335,68 +341,18 @@ export function ncertLabel(slug: string, specsDir: string = NOTE_SPECS_DIR): str
   return `NCERT Ch. ${chapter} · ${title.trim()}`;
 }
 
-/** NCERT 2026-27 Class 10 file-name prefixes, keyed by the book named in `source_edition`. */
-const NCERT_FILE_PREFIX: Readonly<Record<string, string>> = {
-  Mathematics: "jemh",
-  Science: "jesc",
-};
-
-/** Every string value under a `pdf` key, anywhere in a parsed spec. */
-function citationPdfs(value: unknown, out: string[] = []): string[] {
-  if (Array.isArray(value)) value.forEach((v) => citationPdfs(v, out));
-  else if (value && typeof value === "object") {
-    for (const [key, v] of Object.entries(value)) {
-      if (key === "pdf" && typeof v === "string") out.push(v);
-      else citationPdfs(v, out);
-    }
-  }
-  return out;
-}
-
 /**
  * SEO-NOTES-LINK-2 — the NCERT file code of the chapter a note covers, e.g. `jemh102`.
- *
- * ★ READ FROM THE NOTE'S OWN SPEC, never restated (the same source as ncertLabel):
- *   1. the `(jXXX1NN.pdf` code in `meta.source_edition`, when it names one;
- *   2. otherwise the ONE distinct `j(emh|esc)1NN` code in the spec's citation `pdf`
- *      fields.
- * Either way the code must equal the book's prefix (Mathematics → jemh, Science → jesc)
- * + "1" + the 2026-27 chapter number `source_edition` names first ("Ch N"), zero-padded.
- *
- * ⚠ ANYTHING ELSE THROWS — no code, two codes, or a code for another chapter. A title
- * naming the wrong NCERT file is worse than none, so this never guesses.
+ * SEO-LLM-1 — the resolution logic moved to `src/lib/ncertFileCode.ts`, so the notes page
+ * reads the SAME code for its visible link; this reads the spec file and delegates.
+ * Anything unresolvable THROWS (never guesses).
  */
 export function ncertFileCode(slug: string, specsDir: string = NOTE_SPECS_DIR): string {
   const file = join(specsDir, `${slug}.json`);
   if (!existsSync(file)) {
     throw new Error(`writeStaticHeads: no note spec at ${file} for /notes/${slug}`);
   }
-  const spec = JSON.parse(readFileSync(file, "utf8")) as { meta?: Record<string, unknown> };
-  const edition = spec.meta?.source_edition;
-  const fail = (why: string): never => {
-    throw new Error(`writeStaticHeads: ${file} has no resolvable NCERT file code (${why})`);
-  };
-  if (typeof edition !== "string") return fail("no meta.source_edition");
-  const book = /Class 10 (Mathematics|Science)\b/.exec(edition)?.[1];
-  const chapter = /\bCh (\d{1,2})\b/.exec(edition)?.[1];
-  if (!book || !chapter) return fail(`source_edition names no Class 10 book + "Ch N": ${edition}`);
-  const expected = `${NCERT_FILE_PREFIX[book]}1${chapter.padStart(2, "0")}`;
-
-  const fromEdition = /\((j(?:emh|esc)1\d{2})\.pdf/.exec(edition)?.[1];
-  if (fromEdition) {
-    if (fromEdition !== expected) return fail(`source_edition code ${fromEdition} is not ${expected}`);
-    return fromEdition;
-  }
-  const codes = [
-    ...new Set(
-      citationPdfs(spec)
-        .map((p) => /j(?:emh|esc)1\d{2}/.exec(p)?.[0])
-        .filter((c): c is string => Boolean(c)),
-    ),
-  ];
-  if (codes.length !== 1) return fail(`${codes.length} distinct citation codes: ${codes.join(", ")}`);
-  if (codes[0] !== expected) return fail(`citation code ${codes[0]} is not ${expected}`);
-  return codes[0];
+  return ncertFileCodeFromSpec(JSON.parse(readFileSync(file, "utf8")), `writeStaticHeads: ${file}`);
 }
 
 /** "NCERT Ch. 2 (jemh102) · Polynomials" — ncertLabel with the file code; the TITLE only. */

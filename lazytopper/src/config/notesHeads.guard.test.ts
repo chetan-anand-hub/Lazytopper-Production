@@ -83,7 +83,7 @@ describe("SEO-NOTES-LINK-2 — notes titles carry the NCERT file code", () => {
     expect(Object.keys(CODE_PIN).sort()).toEqual(notes.map((p) => p.slice(7)).sort());
   });
 
-  it.each(notes.map((p) => [p]))("%s: code resolves, title contains it, description cap unchanged", (path) => {
+  it.each(notes.map((p) => [p]))("%s: code resolves, title and description contain it, description cap held", (path) => {
     const slug = path.slice("/notes/".length);
     expect(ncertFileCode(slug)).toBe(CODE_PIN[slug]);
     const head = headForPath(path)!;
@@ -91,9 +91,9 @@ describe("SEO-NOTES-LINK-2 — notes titles carry the NCERT file code", () => {
     const label = ncertLabel(slug); // "NCERT Ch. N · <title>" — unchanged
     const withCode = label.replace(/^(NCERT Ch\. \d+) · /, `$1 (${CODE_PIN[slug]}) · `);
     expect(head.title).toBe(`${withCode} — Class 10 Notes & Board Questions | LazyTopper`);
-    // The description is untouched by this lane: no code, still ≤ 155.
-    expect(head.description.startsWith(`${label} — `)).toBe(true);
-    expect(head.description).not.toContain(CODE_PIN[slug]);
+    // SEO-LLM-1 — the description carries the same code, "NCERT Ch. N (code) · <title> — …", still ≤ 155.
+    expect(head.description.startsWith(`${withCode} — `)).toBe(true);
+    expect(head.description).toContain(`(${CODE_PIN[slug]})`);
     expect(head.description.length).toBeLessThanOrEqual(155);
   });
 
