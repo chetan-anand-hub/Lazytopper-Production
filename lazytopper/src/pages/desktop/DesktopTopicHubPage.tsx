@@ -213,7 +213,7 @@ export default function DesktopTopicHubPage() {
   const backHref = safeReturnTo || "/exam-trends";
   const backLabel = safeReturnTo
     ? navState.backLabel ||
-      (querySource === "hpq" ? "Back to Predicted Questions" : "Back")
+      (querySource === "hpq" ? "Back to Important Questions" : "Back")
     : backSubject
       ? `Back to ${backSubject} on Exam Trends`
       : "Back to Exam Trends";

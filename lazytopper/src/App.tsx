@@ -1140,7 +1140,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route
             path="/highly-probable/:grade/:subject"
             element={
-              <MobileSelfChrome title="Predicted Questions">
+              <MobileSelfChrome title="Important Questions">
                 {withRouteSuspense(<HighlyProbableQuestions />)}
               </MobileSelfChrome>
             }
@@ -1149,7 +1149,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route
             path="/highly-probable"
             element={
-              <MobileSelfChrome title="Predicted Questions">
+              <MobileSelfChrome title="Important Questions">
                 {withRouteSuspense(<HighlyProbableQuestions />)}
               </MobileSelfChrome>
             }

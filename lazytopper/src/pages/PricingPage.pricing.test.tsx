@@ -335,7 +335,7 @@ describe("PricingPage — premium feature ordering (test 2)", () => {
     "Your AI tutor that actually knows you",
     "Mistake Intelligence",
     "Check & Improve",
-    "Full mocks and predicted-question papers",
+    "Full mocks and important-question sets",
     "Progress that tells you what to fix next",
   ];
 

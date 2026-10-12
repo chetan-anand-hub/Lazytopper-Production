@@ -26,7 +26,7 @@ import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/
 
 const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), "utf8");
 // D114 (12 Oct 2026): the row says what the limit is, an OPEN/DOWNLOAD allowance, not checked mocks.
-const ROW = "Open or download 3 chapter tests or mocks a day (1 when signed out) — answers not checked";
+const ROW = "Open or download 3 chapter tests or mocks a day (1 when signed out) — written answers not checked"; // D117
 
 afterEach(() => cleanup());
 

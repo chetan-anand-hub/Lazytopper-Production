@@ -37,8 +37,8 @@ export const defaultQuickActions: QuickAction[] = [
   },
   {
     id: 'practice-hpq',
-    label: 'Practice Predicted Questions',
-    description: 'Predicted questions for fast marks gain',
+    label: 'Practise Important Questions',
+    description: 'Chapter-wise important questions',
     handler: 'navigateToHPQ',
   },
   {

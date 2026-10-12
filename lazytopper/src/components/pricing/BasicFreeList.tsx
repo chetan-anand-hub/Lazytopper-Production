@@ -57,7 +57,7 @@ export const FREE_FEATURES = [
   // D114 (owner ruling, 12 Oct 2026): wording only. The limit is a per-day OPEN/DOWNLOAD
   // allowance for chapter tests AND full mocks; the answers are not checked on Basic.
   {
-    label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — answers not checked`,
+    label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — written answers not checked`,
     included: true,
   },
   { label: "Richer Me / Progress recommendations", included: false },

@@ -1095,7 +1095,7 @@ function SelectedTopicTray({
         </button>
         <button type="button" className="lt-et-btn lt-et-btn--ghost" onClick={onPredicted}>
           <IconSparkles />
-          Predicted Qs
+          Important Qs
         </button>
         <button type="button" className="lt-et-btn lt-et-btn--ghost" onClick={onClear}>
           <IconTrash />
@@ -1171,7 +1171,7 @@ function TopicCard({
             {/* HPQ chip — the real count only; no bucket match renders nothing. */}
             {hpqCount > 0 && (
               <span className="lt-et-hpq">
-                {hpqCount} predicted Q{hpqCount === 1 ? "" : "s"}
+                {hpqCount} important Q{hpqCount === 1 ? "" : "s"}
               </span>
             )}
           </div>
@@ -1275,7 +1275,7 @@ function TopicCard({
                 </button>
                 <button type="button" role="menuitem" onClick={onPredicted}>
                   <IconSparkles />
-                  Predicted questions
+                  Important questions
                 </button>
               </div>
             )}
