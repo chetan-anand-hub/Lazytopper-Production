@@ -268,7 +268,7 @@ export function saveCiDraft(
 
 /**
  * Take the draft back, once. Returns null when there is none or it is older than 30 minutes
- * (an expired draft is cleared). A valid draft is CLEARED as it is returned — restore is
+ * (an expired draft is cleared). A valid draft is CLEARED as it is returned (unless `opts.keep`, where the caller clears it once applied) — restore is
  * one-shot, so it can never reappear after the student edits, submits or leaves.
  */
 export async function takeCiDraft(

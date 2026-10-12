@@ -1115,9 +1115,13 @@ const DesktopCheckImprovePageInner: React.FC<{
   const isMultiDetected = (detectedQuestions?.length ?? 0) > 1;
   const pendingDraftSave = useRef<(() => void) | null>(null);
   useEffect(() => {
-    if (user || funnelOff) return;
-    if (status !== "idle") return;
+    // Every early return drops any queued flush: a stale snapshot must never be written back.
+    if (user || funnelOff || status !== "idle") {
+      pendingDraftSave.current = null;
+      return;
+    }
     if (isMultiDetected) {
+      pendingDraftSave.current = null;
       clearCiDraft();
       return;
     }
@@ -1163,6 +1167,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     let cancelled = false;
     void takeCiDraft(undefined, { keep: true }).then((d) => {
       if (cancelled || !d) return;
+      pendingDraftSave.current = null;
       clearCiDraft();
       setQuestionTab(d.fields.questionTab);
       setQuestion(d.fields.question);
