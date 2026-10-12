@@ -16,12 +16,12 @@
     "lastmod": "2026-10-10"
   },
   "/highly-probable/10/Maths": {
-    "sha256": "ff335f2923d6a6fe5e5e8fa253a44bb33c4aad9ff88028f6064ce58016212720",
-    "lastmod": "2026-10-10"
+    "sha256": "e96cf1edc0003a19ce0be8d251f2d929f2beb04f67b1cbaa97ea4e6f47913497",
+    "lastmod": "2026-10-12"
   },
   "/highly-probable/10/Science": {
-    "sha256": "9ef58d5b124b5ad35db3458b094145f0f01034186966f35390bdddb7a9664860",
-    "lastmod": "2026-10-10"
+    "sha256": "1f3865ad3a00587a627fb9c8524aed332fbf6da60afa4069617d78f912debaa5",
+    "lastmod": "2026-10-12"
   },
   "/legal/privacy": {
     "sha256": "66efbb36e7662b75e4351f705350ae6def725182a1276ae7fb5c65441af468b7",
@@ -32,8 +32,8 @@
     "lastmod": "2026-10-06"
   },
   "/legal/terms": {
-    "sha256": "9139ef1eb615c2b0569c4f1d2665f3e499c100bb48d863f1a3d5bc9c6c3992ef",
-    "lastmod": "2026-10-06"
+    "sha256": "64d355741a571b3cf442b37cd3685cf470f2241859a705323b54b18f7957ed4d",
+    "lastmod": "2026-10-12"
   },
   "/notes/acids-bases-and-salts": {
     "sha256": "9e1d247dfaf0bc518082528c96dba422ef25501b712eb327873cca9ae22a249f",
@@ -140,11 +140,11 @@
     "lastmod": "2026-10-11"
   },
   "/practice-hub": {
-    "sha256": "5bc7cabdba7e5cfd6ff5fcac2af8ea7f31ad78e820d571bb7b132ad9e34fc126",
-    "lastmod": "2026-10-10"
+    "sha256": "ecda68ff96dd5e5c312d6f0afd457a5bbfd4a2a8415a3e1fc5a8cc146236d530",
+    "lastmod": "2026-10-12"
   },
   "/pricing": {
-    "sha256": "ad520bf19569f7383ec894d1eb1bca8a5f672f6980f3b79cec9c4c043e8d3c01",
+    "sha256": "78a7174cb174c6bfdb70ef9e403a37384bbf53a4599d3150bfb336ab5e573614",
     "lastmod": "2026-10-12"
   },
   "/topic-hub/acids-bases-and-salts": {
