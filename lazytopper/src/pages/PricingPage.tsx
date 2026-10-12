@@ -32,6 +32,7 @@ import { predictCbseExamDate } from "../services/cbseExamDate";
 import PassCheckout from "../components/pricing/PassCheckout";
 import { FREE_FEATURES } from "../components/pricing/BasicFreeList";
 import { isPaymentsClientEnabled } from "../services/checkout";
+import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -340,6 +341,18 @@ const PRICING_CSS = `
     flex-direction: column;
     gap: 10px;
     flex: 1;
+  }
+
+  .lt-pricing-freecheck {
+    margin: -10px 0 20px;
+    color: var(--lt-muted);
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .lt-pricing-freecheck a {
+    color: var(--lt-green);
+    font-weight: 700;
   }
 
   .lt-pricing-feature {
@@ -1118,6 +1131,16 @@ export default function PricingPage() {
                 </li>
               ))}
             </ul>
+            {/* SEO-PAGES-1 (D): the one free signed-out answer check. It is NOT a
+                FREE_FEATURES row, because those are what a signed-in free student gets,
+                and they do not get this. Shown only to a signed-out visitor, and only
+                when this build has the free check on. */}
+            {!user && isFreeCheckClientEnabled() && (
+              <p className="lt-pricing-freecheck" data-testid="pricing-free-check-line">
+                Not signed in? Your first answer check on{" "}
+                <Link to="/check-improve">Check &amp; Improve</Link> is free.
+              </p>
+            )}
             <button
               type="button"
               className="lt-pricing-cta lt-pricing-cta--secondary"

@@ -177,6 +177,12 @@ const CBSE_CSS = `
   padding:11px 10px;font:inherit;font-size:14px;font-weight:600;color:var(--ink2);
   cursor:pointer;min-height:44px}
 .lt-cbse__sub[aria-selected="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.lt-cbse__try{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;background:var(--gw);
+  border:1px solid var(--gl);border-radius:12px;padding:11px 13px;margin:0 0 15px;
+  font-size:13.5px;color:var(--ink2)}
+.lt-cbse__try[hidden]{display:none}
+.lt-cbse__try p{margin:0;flex:1 1 100%}
+.lt-cbse__try a{font-weight:600;color:var(--gt)}
 .lt-cbse__panel[hidden]{display:none}
 
 /* SOURCE ROWS — every control reads "Open" (ruling b) */
@@ -344,7 +350,8 @@ export default function Cbse2027Page() {
   const anyDownload = CBSE_SUBJECTS.some((subject) =>
     subject.papers.some((paper) => cbsePaperLink(paper, manifest).label === "Download"),
   );
-  // CA-3 — the sample-paper pill follows the mirror; no manifest ⇒ today's "awaited" pill.
+  // CA-3 — the sample-paper pill follows the mirror. SEO-PAGES-1: it also reads the
+  // committed hrefs' session, so the prerendered (no-manifest) page is honest too.
   const samplePapersOut = cbseSamplePapersOut(
     manifest,
     CBSE_SUBJECTS.flatMap((subject) => subject.papers),
@@ -463,6 +470,25 @@ export default function Cbse2027Page() {
               </button>
             ))}
           </div>
+
+          {/* SEO-PAGES-1 · "Practise it": one line and two links under the tabs. Both
+              subjects' lines stay mounted and toggle `hidden`, like the panels below, so a
+              crawler reads both Full Mock links. */}
+          {CBSE_SUBJECTS.map((subject) => (
+            <div
+              key={subject.key}
+              className="lt-cbse__try"
+              data-testid={`cbse-practise-${subject.key}`}
+              hidden={subject.key !== subjectKey}
+            >
+              <p>
+                Sat the sample paper? Try a full mock in the same pattern, or upload an answer
+                and see where the marks go.
+              </p>
+              <Link to={`/full-mock/10/${subject.label}`}>Practise this paper</Link>
+              <Link to="/check-improve">Get your answer checked</Link>
+            </div>
+          ))}
 
           <div className="lt-cbse__split">
             <div>

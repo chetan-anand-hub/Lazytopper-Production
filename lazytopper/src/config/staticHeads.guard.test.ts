@@ -14,6 +14,7 @@ import {
   templateTitle,
 } from "../../scripts/seo/writeStaticHeads";
 import { canonicalFor } from "./canonicalUrl";
+import { EVIDENCE_BASE_YEARS } from "./evidenceBase";
 import { sitemapPaths } from "./sitemapUrls";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { readFileSync } from "node:fs";
@@ -435,6 +436,18 @@ describe("static heads — the writer refuses to no-op silently", () => {
     expect(renderedLength("a &amp; b")).toBe(5);
     expect(renderedLength("&quot;x&quot;")).toBe(3);
     expect(renderedLength("plain")).toBe(5);
+  });
+
+  it("★ SEO-PAGES-1 (B) — /highly-probable titles say 'Important Questions', never 'Predicted', and promise no paper", () => {
+    for (const subject of ["Maths", "Science"]) {
+      const head = headForPath(`/highly-probable/10/${subject}`);
+      expect(head?.title).toBe(`Class 10 ${subject} Important Questions for Boards 2027 | LazyTopper`);
+      expect(head?.title).not.toMatch(/predicted/i);
+      expect(head?.description).toContain("Patterns to practise, not the 2027 paper.");
+      // The years come from the one evidence constant, not a literal.
+      expect(head?.description).toContain(`from ${EVIDENCE_BASE_YEARS} years of papers`);
+      expect(renderedLength(head?.description ?? "")).toBeLessThanOrEqual(155);
+    }
   });
 
   it("headForPath returns null for a path it has no honest copy for", () => {
