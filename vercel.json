@@ -30,7 +30,203 @@
       "destination": "/__asset-not-found__"
     },
     {
-      "source": "/:path((?!_vercel/|__asset-not-found__).*)",
+      "source": "/",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(welcome/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(browse/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(login/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(login(?:/.*)?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(sign-up/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(sign-up(?:/.*)?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(legal/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(pricing/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(cbse/class-10/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(check-your-answer/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(admin/funnel/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(admin/visual-audit/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(admin/cache-stats/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(admin/difficulty-breakdown/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(admin/question-reports/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(admin/students/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(teacher/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(onboarding/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(topic-hub/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(topic-hub/[^/]+/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(topic-hub/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(mock-paper/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(topic-mock/[^/]+/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(chapter-test/[^/]+/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(full-mock/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(tutor/[^/]+/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(tutor/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(mock-builder/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(mock-builder/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(highly-probable/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(highly-probable/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(exam-simulation/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(practice/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(ai-mentor/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(ai-mentor/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(mentor/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(mentor/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(weak-area-practice/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(profile/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(intent/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(practice-hub/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(practice/worksheets/ready/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(practice/worksheets/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(check-improve/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(exam-trends/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(topic-hub/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(notes/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(me/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(u/[^/]+/?)",
       "destination": "/__shell.html"
     }
   ],
