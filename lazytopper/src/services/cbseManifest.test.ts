@@ -239,7 +239,7 @@ describe("cbseSamplePapersOut — CA-3's input", () => {
     ...p,
     href: p.href.replace("ClassX_2026_27/", "ClassX_2025_26/"),
   }));
-  const sqp =(sessionYear: string | null, status: "ok" | "source-missing" | "stale", storagePath: string | null = "cbse/files/maths-standard-sqp.pdf") =>
+  const sqp = (sessionYear: string | null, status: "ok" | "source-missing" | "stale", storagePath: string | null = "cbse/files/maths-standard-sqp.pdf") =>
     manifestFixture({
       papers: [
         { id: "maths-standard-sqp", sourceUrl: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf", storagePath, sessionYear, status },
