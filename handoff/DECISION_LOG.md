@@ -1,3 +1,25 @@
+## 2026-10-12 — ACTIVATION-1 (COFOUNDER DECISIONS 107–120 AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** These are the decisions that shaped `#1097` and `#1100`, numbered as on `#973`. SOURCE-1's own decisions (112, 114, 120 as they concern `#1096` / `#1101`) belong to A's docs.
+
+| D | decision | the reason given |
+|---|---|---|
+| **107** | Owner rulings 12 Oct 13:16 IST: (a) new email accounts start straight away and verify later with a non-blocking reminder; (b) protected-file edits approved, line-scoped (`App.tsx:934`; `Welcome.tsx:187` only if P10 needs it); (c) single-visit source capture allowed (SOURCE-1) | 58 YouTube sign-ups in 30 days but 2 `check_graded`: the verify wall lost the account after `sign_up` had fired |
+| **108** | The independent verifier runs on **Opus** as a separate agent for every lane today; quote model, verdict line and reviewed head; re-verify if the head moves for lane code | Controllers run on Sonnet; correctness judgements stay on Opus |
+| **109a** | Approved §1 amendment: one additive line in server `studentActivity.cjs` plus its test for `practice_graded` | The three allowlists (client, `analytics.ts`, server) are drift-pinned by `activityClient.test.ts`; the event cannot exist without it |
+| **109b** | Reminder mounted on Check & Improve and Practice only; no Home files | New email sign-ups from ads land on those two pages |
+| **109c** | P9 store accepted: text in `sessionStorage` `lazytopper.ci.draft.v1`, photos in IndexedDB keyed by the draft id; both in `studentDataMap` (device-local); cleared on restore / submit / 30 min; expired photos swept on next load | No store for an un-graded upload existed; a photo does not fit sessionStorage |
+| **109d** | Referral crediting and the `start-trial` intent are released immediately for unverified email users; stated in the PR body | Consistent with the owner's verify-later ruling |
+| **112 / 113** | `#1096` merges first; A temp-closes `#1086` and `#1097` (heads and branches untouched) so its required `lane-overlap` can go green; C2 reopens/rebases after A's MERGE | `lane-overlap` counts drafts and compares exact paths; the overlapping hunks did not conflict |
+| **114** | The Basic mock row on `/pricing` states the real limit | The old row read as three CHECKED mocks; the limit is `MockViewGate`'s open/download allowance |
+| **115** | Early byte-review of `#1097`: the code passes; the merge is gated on green CI (it was red) | The red run was the label guard and the clock guard, not a merge interaction |
+| **117** | C1's point accepted: a Basic student's Chapter Test still auto-scores its MCQ section, so the row's tail becomes "— written answers not checked", folded into IMPQ-RENAME-1 | Wording must not understate what Basic gets |
+| **118** | `#1097` `0cf0b83b` PASS: the diff since the reviewed head is one admin label line and 2 manifest lines; no verifier re-run | No L1–L4 logic changed (D108/D115) |
+| **119** | The cofounder merges `#1097` itself on the owner's instruction ("finish all the tasks"); C2 stands down and writes the §10 docs | Owner asked for the day's tasks to be finished |
+| **(lane) 1** | `isSafeInternalPath` moved to `utils/safeInternalPath.ts` instead of being exported from `Login.tsx` | Several tests mock `./pages/Login` with only a default export; a named import from it from `App.tsx` would break them |
+| **(lane) 2** | The draft autosaves while signed out (debounced, flushed on unmount) instead of saving on a click | The exits to sign-in are the shell and mobile HEADER buttons, outside the page; a page-button save would miss them |
+| **(lane) 3** | Restore reads with `keep` and clears only after it has applied the draft | A remount between the read and the apply (StrictMode) otherwise loses the draft |
+
 ## 2026-10-12 — SEO-PAGES-1 (COFOUNDER DECISIONS 106, 110, 111 AND 112 AS THEY BEAR ON IT; RECORDED BY C1 UNDER §10)
 
 > ⚠ **SCOPE.** These are the decisions that shaped `#1095` / `#1098`, numbered as on `#973`. DECISIONs 107–109 (ACTIVATION-1, SOURCE-1, verifier model) belong to other lanes' docs, apart from D108's verifier rule, which this lane followed.
