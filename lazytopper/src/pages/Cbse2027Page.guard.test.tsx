@@ -236,6 +236,49 @@ describe("the subject switcher", () => {
       }
     }
   });
+
+  it("★ D111 — both subjects carry CFPQ + item bank, and the older-sets note is in BOTH panels", () => {
+    const byId = new Map(CBSE_SUBJECTS.flatMap((s) => s.papers).map((p) => [p.id, p]));
+    expect(byId.get("maths-competency-answers")?.href).toBe("https://cbseacademic.nic.in/web_material/Manuals/CFPQ_Maths10.pdf");
+    expect(byId.get("maths-competency-answers")?.title).toBe("Competency questions, with answers");
+    expect(byId.get("science-item-bank")?.href).toBe("https://cbseacademic.nic.in/cbe/documents/Item-Bank---Science-Class-10.pdf");
+    expect(byId.get("science-item-bank")?.title).toBe("Item bank");
+    const { container } = renderPage();
+    for (const key of ["science", "maths"]) {
+      const panel = container.querySelector(`#lt-cbse-panel-${key}`) as HTMLElement;
+      // PRECONDITION: the panel rendered its source links.
+      expect(panel.querySelectorAll("a").length, key).toBeGreaterThan(0);
+      const notes = panel.querySelectorAll(".lt-cbse__pnote");
+      expect(notes, key).toHaveLength(1);
+      expect(notes[0].textContent, key).toBe(
+        "Older CBSE sets: skip any question on a topic not in the 2026-27 syllabus.",
+      );
+      // Placement: directly under that subject's last older set (its item bank), not at
+      // the end of the list after the toppers and syllabus rows.
+      const itemBank = byId.get(`${key}-item-bank`)!;
+      expect(notes[0].previousElementSibling?.getAttribute("href"), key).toBe(itemBank.href);
+      expect(notes[0].nextElementSibling, key).not.toBeNull();
+    }
+  });
+
+  it("★ SEO-PAGES-1 (c) — 'Practise it': each subject links its Full Mock and the answer check, both kept in the DOM", async () => {
+    const { container } = renderPage();
+    for (const [key, subject] of [["maths", "Maths"], ["science", "Science"]] as const) {
+      const block = container.querySelector(`[data-testid="cbse-practise-${key}"]`);
+      expect(block, key).not.toBeNull();
+      const practise = within(block as HTMLElement).getByText("Practise this paper");
+      expect(practise.getAttribute("href")).toBe(`/full-mock/10/${subject}`);
+      const check = within(block as HTMLElement).getByText("Get your answer checked");
+      expect(check.getAttribute("href")).toBe("/check-improve");
+    }
+    // Only the open subject's line is visible; the other is hidden but still in the DOM.
+    expect(container.querySelector('[data-testid="cbse-practise-science"]')?.hasAttribute("hidden")).toBe(false);
+    expect(container.querySelector('[data-testid="cbse-practise-maths"]')?.hasAttribute("hidden")).toBe(true);
+    // CONTROL — switching the tab switches which line shows.
+    await userEvent.click(screen.getByRole("tab", { name: "Maths" }));
+    expect(container.querySelector('[data-testid="cbse-practise-maths"]')?.hasAttribute("hidden")).toBe(false);
+    expect(container.querySelector('[data-testid="cbse-practise-science"]')?.hasAttribute("hidden")).toBe(true);
+  });
 });
 
 describe("★ the trap cards are crawlable", () => {
@@ -580,7 +623,8 @@ describe("★ C11 — the mirror's manifest overlays the page, and its failure c
 
   it("the ids the mirror keys on are unique and kebab-case (C2)", () => {
     const ids = CBSE_SUBJECTS.flatMap((s) => s.papers.map((p) => p.id));
-    expect(ids.length).toBe(15);
+    // SEO-PAGES-1 (12 Oct 2026): 15 → 16 (maths-basic-ms); D111: 16 → 18 (science-item-bank, maths-competency-answers).
+    expect(ids.length).toBe(18);
     expect(new Set(ids).size).toBe(ids.length);
     for (const id of ids) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
   });
@@ -591,7 +635,7 @@ describe("★ C11 — the mirror's manifest overlays the page, and its failure c
     const committedHtml = base.innerHTML;
     const committedLinks = links(base);
     // PRECONDITION: the committed page is what we think it is.
-    expect(committedLinks).toHaveLength(15);
+    expect(committedLinks).toHaveLength(18); // SEO-PAGES-1 + D111
     expect(committedLinks.every((l) => l.endsWith("| Open"))).toBe(true);
     expect(visibleText(base)).toContain(`Checked against CBSE’s circulars pages on ${CBSE_CIRCULARS_CHECKED_ON}`);
     cleanup();
@@ -668,11 +712,16 @@ describe("★ C11 — the mirror's manifest overlays the page, and its failure c
     );
   }
 
-  it("★ CA-3 — no manifest ⇒ the pill reads today's text, unchanged", () => {
+  // SEO-PAGES-1 (owner ruling, 12 Oct 2026) extends CA-3. The pill also reads the
+  // COMMITTED hrefs, which are now 2026-27, so the no-manifest page (the one the prerender
+  // captures and crawlers read) says "out". The pure rule and its 2025-26 control are
+  // pinned in `services/cbseManifest.test.ts`.
+  it("★ CA-3 + SEO-PAGES-1 — no manifest, 2026-27 committed hrefs ⇒ the pill reads 'Sample papers out'", () => {
     const { container } = renderPage();
     const pill = samplePill(container);
-    expect(pill?.textContent).toBe("Sample papers awaited");
-    expect(pill?.className).toBe("lt-cbse__pill lt-cbse__pill--wait");
+    expect(pill?.textContent).toBe("Sample papers out");
+    expect(pill?.className).toBe("lt-cbse__pill lt-cbse__pill--ok");
+    expect(pill?.innerHTML).toContain("Sample papers <b>out</b>");
   });
 
   it("★ CA-3 — a mirrored 2026-27 SQP ⇒ the pill reads 'Sample papers out' in the ok style", async () => {
@@ -686,11 +735,11 @@ describe("★ C11 — the mirror's manifest overlays the page, and its failure c
     expect(pill?.className).toBe("lt-cbse__pill lt-cbse__pill--ok");
   });
 
-  it("CA-3 — a mirrored SQP that is still 2025-26 ⇒ the pill stays 'awaited'", async () => {
+  it("CA-3 + SEO-PAGES-1 — a mirrored SQP still at 2025-26 cannot pull the pill back to 'awaited' while the committed hrefs are 2026-27", async () => {
     const old = { ...manifest, papers: [{ ...manifest.papers[0], sessionYear: "2025-26", status: "ok" }] };
     const { container } = await renderWithFetch(async () => new Response(JSON.stringify(old), { status: 200 }));
     // PRECONDITION: the manifest DID load — the SQP row downloads.
     expect(links(container).some((l) => l.endsWith("| Download"))).toBe(true);
-    expect(samplePill(container)?.textContent).toBe("Sample papers awaited");
+    expect(samplePill(container)?.textContent).toBe("Sample papers out");
   });
 });

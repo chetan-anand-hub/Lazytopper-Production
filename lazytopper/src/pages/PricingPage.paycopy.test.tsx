@@ -19,7 +19,10 @@ import { resolve } from "node:path";
  */
 
 // With the switch ON the page mounts PassCheckout, which calls these hooks.
-vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null }) }));
+// SEO-PAGES-1: the user is a hoisted holder (null by default, reset after each test), so
+// the free-check block at the end can render a signed-in control.
+const auth = vi.hoisted(() => ({ user: null as null | { uid: string }, loading: false }));
+vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: auth.loading }) }));
 vi.mock("../hooks/useSubscription", () => ({
   useSubscription: () => ({
     status: { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd: null },
@@ -34,6 +37,8 @@ vi.mock("../services/firebaseClient", () => ({
 }));
 
 import PricingPage from "./PricingPage";
+import { BASIC_FREE_LABELS, FREE_FEATURES } from "../components/pricing/BasicFreeList";
+import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../config/mockViewLimits";
 
 // ── OFF: today's copy (P1, P2, P3) ────────────────────────────────────────────
 const P1_OFF =
@@ -51,6 +56,8 @@ const K3 = "No credit card needed for the trial. Passes are one-time payments an
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
+  auth.user = null;
+  auth.loading = false;
 });
 
 function staticPricing(flag: string): string {
@@ -168,5 +175,76 @@ describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for wo
     const inner = pricingDom("1");
     expect(textOf(inner, ".lt-pricing-subtitle")).toContain("workflows — pay");
     expect(faqAnswer(inner, "Can I pay here?")).toContain("Razorpay's");
+  });
+});
+
+/**
+ * SEO-PAGES-1 (D) — the Basic card tells a SIGNED-OUT visitor about the one free answer
+ * check on Check & Improve (server `server/services/freeCheck.cjs`; client switch
+ * `isFreeCheckClientEnabled()`, VITE_FREE_CHECK_ENABLED, which the prerender capture sets).
+ * Each assertion has its CONTROL:
+ * - a signed-in student does NOT see it, because they do not get the free check;
+ * - a build with the free check off does NOT see it;
+ * - FREE_FEATURES / BASIC_FREE_LABELS are unchanged. Those are the "Free on Basic:" locks a
+ *   signed-in free student sees, so the free check must never join them. The excluded
+ *   "Solution Checker / Check & Improve" row stays;
+ * - the payments-OFF copy is unchanged with the line present.
+ */
+describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
+  const FREE_CHECK_LINE = "Not signed in? Your first answer check on Check & Improve is free.";
+
+  function freeCheckLine(opts: { freeCheck: string; signedIn: boolean; authLoading?: boolean }): Element | null {
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", opts.freeCheck);
+    auth.user = opts.signedIn ? { uid: "u1" } : null;
+    auth.loading = opts.authLoading === true;
+    return pricingDom("").querySelector('[data-testid="pricing-free-check-line"]');
+  }
+
+  it("★ auth still loading ⇒ no line yet, so a signed-in student never sees it flash", () => {
+    // While auth loads, `user` is null for EVERY visitor, signed in or not.
+    expect(freeCheckLine({ freeCheck: "1", signedIn: false, authLoading: true })).toBeNull();
+    // CONTROL: the same render once auth has resolved signed-out shows the line.
+    expect(freeCheckLine({ freeCheck: "1", signedIn: false, authLoading: false })).not.toBeNull();
+  });
+
+  it("★ signed out, free check on ⇒ the line, in the Basic card, linking /check-improve", () => {
+    const el = freeCheckLine({ freeCheck: "1", signedIn: false });
+    expect(el?.textContent).toBe(FREE_CHECK_LINE);
+    expect(el?.querySelector("a")?.getAttribute("href")).toBe("/check-improve");
+    expect(el?.closest(".lt-pricing-card")?.querySelector(".lt-pricing-plan-label")?.textContent).toBe("Basic");
+  });
+
+  it("CONTROL — a signed-in student does not see it", () => {
+    expect(freeCheckLine({ freeCheck: "1", signedIn: true })).toBeNull();
+  });
+
+  it("CONTROL — a build with the free check off does not see it", () => {
+    expect(freeCheckLine({ freeCheck: "", signedIn: false })).toBeNull();
+  });
+
+  it("CONTROL — the payments-OFF copy is unchanged with the line present", () => {
+    expect(freeCheckLine({ freeCheck: "1", signedIn: false })).not.toBeNull();
+    const inner = pricingDom("");
+    expect(textOf(inner, ".lt-pricing-subtitle")).toBe(P1_OFF);
+    expect(faqAnswer(inner, "Can I pay here?")).toBe(P2_OFF);
+    expect(textOf(inner, ".lt-pricing-fine-print")).toBe(P3_OFF);
+  });
+
+  it("CONTROL — FREE_FEATURES and BASIC_FREE_LABELS are unchanged; the free check is not a lock", () => {
+    expect(FREE_FEATURES).toEqual([
+      { label: "Browse Home, Exam Trends, and topic surfaces", included: true },
+      { label: "Practice picker and limited practice", included: true },
+      { label: "Limited worksheet generation", included: true },
+      { label: "Basic topic insights", included: true },
+      { label: "Solution Checker / Check & Improve", included: false },
+      { label: "Deep Mistake Intelligence", included: false },
+      {
+        label: `Mock papers: ${ANON_DAILY_MOCK_LIMIT} a day signed out, ${SIGNED_IN_DAILY_MOCK_LIMIT} a day with a free account`,
+        included: true,
+      },
+      { label: "Richer Me / Progress recommendations", included: false },
+    ]);
+    expect(BASIC_FREE_LABELS).toEqual(FREE_FEATURES.filter((f) => f.included).map((f) => f.label));
+    expect(BASIC_FREE_LABELS.some((l) => /free check|answer check/i.test(l))).toBe(false);
   });
 });

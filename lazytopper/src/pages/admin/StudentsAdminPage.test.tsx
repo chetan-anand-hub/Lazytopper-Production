@@ -199,11 +199,43 @@ describe("StudentsAdminPage — list", () => {
     render(<StudentsAdminPage />);
     const [r] = await screen.findAllByTestId("sa-row");
     const cells = r.querySelectorAll("td");
-    expect(cells[4].textContent).toBe("—No data before 2 Oct 2026");
-    expect(cells[5].textContent).toBe("—No data before 6 Jul 2026");
-    expect(cells[6].textContent).toBe("2since 6 Jul 2026");
-    expect(cells[7].textContent).toBe("— (no data before 2 Oct 2026)");
+    // cells[0..3] = Signed up, Email, Method, Source (SOURCE-1) — the numbers start at Plan + 1
+    expect(cells[5].textContent).toBe("—No data before 2 Oct 2026");
+    expect(cells[6].textContent).toBe("—No data before 6 Jul 2026");
+    expect(cells[7].textContent).toBe("2since 6 Jul 2026");
+    expect(cells[8].textContent).toBe("— (no data before 2 Oct 2026)");
     expect(coveredCount(0, "full", "2026-10-02").text).toBe("0"); // a FULL-coverage zero is a real zero
+  });
+
+  it("★ SOURCE-1: a Source column after Method, with the label rules, campaign text, and '—' for a missing doc", async () => {
+    const src = (extra: Record<string, unknown>) => ({
+      ref: null, utm_source: null, utm_medium: null, utm_campaign: null, utm_content: null, landing: "/", gclid: false, fbclid: false, ...extra,
+    });
+    const cases: Array<[string, unknown, string]> = [
+      ["yt", src({ utm_source: "youtube", utm_medium: "paid", utm_campaign: "test", ref: "www.youtube.com" }), "YouTube ad (test)"],
+      ["gg", src({ utm_source: "google", utm_medium: "paid", utm_campaign: "brand" }), "Google ad (brand)"],
+      ["gorg", src({ utm_source: "google", utm_medium: "organic", ref: "www.google.com" }), "From www.google.com"],
+      ["mt", src({ utm_source: "meta" }), "Meta ad"],
+      ["fb", src({ utm_source: "facebook", utm_campaign: "c1" }), "Meta ad (c1)"],
+      ["ig", src({ utm_source: "instagram" }), "Meta ad"],
+      ["fbc", src({ fbclid: true }), "Meta ad"],
+      ["ref", src({ ref: "news.example.org" }), "From news.example.org"],
+      ["dir", src({}), "Direct"],
+      ["old", null, "—"],
+    ];
+    routeFn = (url) => ({
+      status: 200,
+      body: url.includes("/summary") ? SUMMARY : listBody(cases.map(([id, source]) => row(id, { source }))),
+    });
+    render(<StudentsAdminPage />);
+    const rows = await screen.findAllByTestId("sa-row");
+    const heads = [...document.querySelectorAll("th")].map((th) => th.textContent);
+    expect(heads.indexOf("Source")).toBe(heads.indexOf("Method") + 1);
+    cases.forEach(([id, , label], i) => {
+      expect(rows[i].querySelectorAll("td")[3].textContent, id).toBe(label);
+    });
+    // hover text names the campaign exactly
+    expect(rows[0].querySelectorAll("td")[3].getAttribute("title")).toContain("campaign: test");
   });
 
   it("filters refetch with period and plan; an empty result says so", async () => {

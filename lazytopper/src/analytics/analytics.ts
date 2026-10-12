@@ -1,5 +1,6 @@
 import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
 import { recordActivity } from "../services/activityClient";
+import { rememberVisitSourceOnce } from "./visitSource";
 
 /**
  * THE ONE ANALYTICS ENTRY POINT. Nothing else initialises a vendor, and nothing else
@@ -16,6 +17,14 @@ import { recordActivity } from "../services/activityClient";
  * localStorage key, no persistent id, no uid, nothing that links one visit to the next.
  * ⚠ DO NOT add an `identify()` call here. That is not a feature request, it is a
  * different legal posture, and it belongs to a lane with a consent design.
+ *
+ * ★★ A NARROW EXCEPTION TO "NO localStorage KEY" — SOURCE-1 (owner ruling 12 Oct 2026,
+ * 13:16 IST, "Source capture yes allowed"; DECISION 107c): a SINGLE-VISIT SOURCE CAPTURE
+ * is allowed as a narrow exception to the cookieless rule. Tab-scoped `sessionStorage`
+ * only (never localStorage, never a cookie, never across visits); coarse fields only;
+ * sent once, at sign-up, to OUR server only; nothing goes to any vendor. Everything it
+ * keeps and every limit is in visitSource.ts — `trackPageview` below only asks it to look
+ * at the landing, once per document load.
  *
  * ★★ ONE OWNER-APPROVED EXCEPTION — GOOGLE ANALYTICS 4 (GA4-1, owner ruling 2026-09-29).
  * The owner chose GA4 to measure ad conversions, knowing it sets a persistent cookie id,
@@ -499,6 +508,14 @@ function sendToMeta(kind: "pageview" | "event", payload: Record<string, unknown>
  * would drift. Per-path rows are what "which pages are they using" actually means here.
  */
 export function trackPageview(path: string): void {
+  // SOURCE-1 — the first page view of a document load is the one moment the landing URL
+  // still has its query: RouteAnalytics' effect runs before App's `<Navigate>` redirects
+  // (e.g. `/` -> `/welcome`, which drops it). Once per load; never throws; reads no vendor.
+  try {
+    rememberVisitSourceOnce({ pathname: path, search: window.location.search });
+  } catch {
+    /* a source is never worth a broken page view */
+  }
   const clean = normalisePath(path);
   send("pageview", { route: clean, path: clean });
 }

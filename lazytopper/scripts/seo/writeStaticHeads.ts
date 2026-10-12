@@ -117,19 +117,20 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "worksheets, or predicted-question mocks.",
   },
   // SEO-3 — owner text (titles: SEO-3 §2 S2; descriptions: owner ruling D2, which
-  // fits them inside the 155 cap). "Predicted" is said honestly in the
-  // description: patterns to practise, not the 2027 paper.
+  // fits them inside the 155 cap). The description says honestly what the page is:
+  // patterns to practise, not the 2027 paper.
+  // SEO-PAGES-1 (owner ruling, 12 Oct 2026) REVERSES SEO-3's WORDING ONLY: the titles say
+  // "Important Questions" instead of "Predicted Questions". Canonicals and self-canonical
+  // behaviour are unchanged. The in-app labels (App.tsx etc.) are out of scope.
+  // The descriptions are the owner's D106a text, word for word (DECISION 110 on #973;
+  // #1095 missed them). They name no paper and no year count.
   "/highly-probable/10/Maths": {
-    title: "Class 10 Maths Predicted Questions for Boards 2027 | LazyTopper",
-    description:
-      "Question patterns that recur most in CBSE Class 10 Maths boards, chapter by " +
-      "chapter, from 10 years of papers. Patterns to practise, not the 2027 paper.",
+    title: "Class 10 Maths Important Questions for Boards 2027 | LazyTopper",
+    description: "Important questions for CBSE Class 10 Maths boards 2027, chapter by chapter.",
   },
   "/highly-probable/10/Science": {
-    title: "Class 10 Science Predicted Questions for Boards 2027 | LazyTopper",
-    description:
-      "Question patterns that recur most in CBSE Class 10 Science boards, chapter by " +
-      "chapter, from 10 years of papers. Patterns to practise, not the 2027 paper.",
+    title: "Class 10 Science Important Questions for Boards 2027 | LazyTopper",
+    description: "Important questions for CBSE Class 10 Science boards 2027, chapter by chapter.",
   },
   // SEO-5 PR-3 — the answer-writing guide. Both strings restate the page's own h1 and
   // section headings (src/pages/CheckYourAnswerPage.tsx); nothing is added.
