@@ -1113,6 +1113,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // cleared on restore, on submit (any status past "idle") and after 30 minutes, and is never sent
   // anywhere. Multi-question uploads are not preserved (they clear the draft instead).
   const isMultiDetected = (detectedQuestions?.length ?? 0) > 1;
+  const pendingDraftSave = useRef<(() => void) | null>(null);
   useEffect(() => {
     if (user || funnelOff) return;
     if (status !== "idle") return;
@@ -1120,7 +1121,8 @@ const DesktopCheckImprovePageInner: React.FC<{
       clearCiDraft();
       return;
     }
-    const t = window.setTimeout(() => {
+    const flush = () => {
+      pendingDraftSave.current = null;
       saveCiDraft(
         {
           questionTab,
@@ -1136,14 +1138,21 @@ const DesktopCheckImprovePageInner: React.FC<{
         },
         { qImageBase64, imageBase64 },
       );
-    }, 800);
+    };
+    pendingDraftSave.current = flush;
+    const t = window.setTimeout(flush, 800);
     return () => window.clearTimeout(t);
   }, [
     user, funnelOff, status, isMultiDetected, questionTab, question, qImageBase64, qImageMime,
     qImageName, tab, textAnswer, imageBase64, imageMime, imageName, detected, confirmed,
   ]);
+  // Leaving the page (the sign-in navigation) flushes an edit still inside the debounce window.
+  useEffect(() => () => pendingDraftSave.current?.(), []);
   useEffect(() => {
-    if (status !== "idle") clearCiDraft();
+    if (status !== "idle") {
+      pendingDraftSave.current = null;
+      clearCiDraft();
+    }
   }, [status]);
   // A photo left by a tab that died mid-draft is swept on the next load once it has expired.
   useEffect(() => {
@@ -1152,8 +1161,9 @@ const DesktopCheckImprovePageInner: React.FC<{
   useEffect(() => {
     if (!user || funnelOff) return;
     let cancelled = false;
-    void takeCiDraft().then((d) => {
+    void takeCiDraft(undefined, { keep: true }).then((d) => {
       if (cancelled || !d) return;
+      clearCiDraft();
       setQuestionTab(d.fields.questionTab);
       setQuestion(d.fields.question);
       setQImageBase64(d.images.qImageBase64);

@@ -237,4 +237,34 @@ describe("ACTIVATION-1 · the in-progress answer survives sign-up in this tab", 
     });
     expect(window.sessionStorage.getItem(CI_DRAFT_KEY)).toBeNull();
   });
+
+  it("★ the last edit inside the 800 ms debounce is saved when the student leaves for sign-in", async () => {
+    const view = renderPage();
+    fireEvent.change(screen.getByLabelText("Type the question"), { target: { value: QUESTION } });
+    // no wait: unmount (the sign-in navigation) before the debounce fires
+    view.unmount();
+    expect(window.sessionStorage.getItem(CI_DRAFT_KEY)).toContain("root 2");
+  });
+
+  it("★ a remount between the read and the apply (StrictMode) still restores the draft", async () => {
+    await typeQuestionAndAnswerSignedOut();
+    cleanup();
+    H.auth = { user: STUDENT, loading: false };
+    H.activeUid = STUDENT.uid;
+    H.sub.isPremium = true;
+    const { StrictMode } = await import("react");
+    render(
+      <StrictMode>
+        <MemoryRouter initialEntries={["/check-improve"]}>
+          <Routes>
+            <Route path="/check-improve" element={<DesktopCheckImprovePage />} />
+          </Routes>
+        </MemoryRouter>
+      </StrictMode>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText("Type your answer") as HTMLTextAreaElement).value).toBe(ANSWER),
+    );
+    expect(window.sessionStorage.getItem(CI_DRAFT_KEY)).toBeNull();
+  });
 });

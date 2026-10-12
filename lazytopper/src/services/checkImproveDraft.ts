@@ -271,7 +271,10 @@ export function saveCiDraft(
  * (an expired draft is cleared). A valid draft is CLEARED as it is returned — restore is
  * one-shot, so it can never reappear after the student edits, submits or leaves.
  */
-export async function takeCiDraft(nowArg?: number): Promise<RestoredCiDraft | null> {
+export async function takeCiDraft(
+  nowArg?: number,
+  opts: { keep?: boolean } = {},
+): Promise<RestoredCiDraft | null> {
   const s = storage();
   if (!s) return null;
   const d = parse(s.getItem(CI_DRAFT_KEY));
@@ -294,7 +297,9 @@ export async function takeCiDraft(nowArg?: number): Promise<RestoredCiDraft | nu
   } catch {
     /* IndexedDB unavailable: the text still restores, the photos are honestly absent */
   }
-  clearCiDraft();
+  // `keep`: the caller clears AFTER it has applied the draft, so a remount between the read and
+  // the apply (React StrictMode's double effect) finds it still there instead of losing it.
+  if (!opts.keep) clearCiDraft();
   const fields: CiDraftFields = {
     questionTab: d.questionTab,
     question: d.question,
