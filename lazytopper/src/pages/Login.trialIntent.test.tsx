@@ -240,14 +240,15 @@ describe("T1 — an ineligible account is not changed", () => {
     expect(trialStarts()).toBe(0);
   });
 
-  it("an address still awaiting verification is held at the gate — nothing starts before sign-up is finished", async () => {
+  it("ACTIVATION-1 · an address still awaiting verification is no longer held: the explicit trial tap is honoured once", async () => {
+    // The verify wall used to hold this account here, so nothing started (and the student never
+    // reached the product). Verification is now a non-blocking reminder; the student's own tap on
+    // a trial CTA is still the only trigger, still guarded by the same eligibility rule.
     cloudHolds(FREE);
     authState.user = { ...VERIFIED, emailVerified: false } as AuthUser;
     renderDoorAt(INTENT_URL);
-    await waitFor(() => expect(hydrate).toHaveBeenCalled());
-    await act(async () => {});
-    expect(screen.queryByText("LANDED ON PRICING")).toBeNull();
-    expect(activate).not.toHaveBeenCalled();
-    expect(trialStarts()).toBe(0);
+    expect(await screen.findByText("LANDED ON PRICING")).toBeTruthy();
+    expect(activate).toHaveBeenCalledTimes(1);
+    expect(trialStarts()).toBe(1);
   });
 });

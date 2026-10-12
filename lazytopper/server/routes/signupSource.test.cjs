@@ -11,6 +11,7 @@
  *   M1  drop the 15-minute account-age check            -> "an account older than 15 minutes -> 409, no write"
  *   M2  overwrite instead of create-only (`set`)        -> "a second call does not overwrite"
  *   M3  accept a gclid VALUE (string)                   -> "a gclid VALUE in the body -> 400"
+ *   M5  drop the post-write account re-check            -> "ERASURE RACE" (both tests)
  */
 
 const test = require('node:test');
@@ -62,8 +63,9 @@ function sendJson(res, status, body) {
   res.body = body;
 }
 
-/** accounts: uid -> creationTime ms. tokens: uid per Bearer token. */
-function makeWorld({ accounts = { u1: NOW - 60 * 1000 }, verified = { 'tok-u1': 'u1', 'tok-old': 'old' } } = {}) {
+/** accounts: uid -> creationTime ms. tokens: uid per Bearer token.
+ *  eraseDuringWrite: uids whose Auth account "an erasure" deletes while the write is in flight. */
+function makeWorld({ accounts = { u1: NOW - 60 * 1000 }, verified = { 'tok-u1': 'u1', 'tok-old': 'old' }, eraseDuringWrite = [] } = {}) {
   const store = new Map();
   const writes = [];
   const accountMap = { old: NOW - 60 * 60 * 1000, ...accounts };
@@ -95,8 +97,14 @@ function makeWorld({ accounts = { u1: NOW - 60 * 1000 }, verified = { 'tok-u1': 
         doc(id) {
           const p = `${name}/${id}`;
           return {
+            async delete() {
+              writes.push({ op: 'delete', path: p });
+              store.delete(p);
+            },
             async create(data) {
               writes.push({ op: 'create', path: p, data });
+              // the erasure lands AFTER the age check and while this write is in flight
+              if (eraseDuringWrite.includes(id)) delete accountMap[id];
               if (store.has(p)) {
                 const e = new Error('6 ALREADY_EXISTS: Document already exists');
                 e.code = 6;
@@ -254,4 +262,47 @@ test('a Firestore failure other than "already exists" is a 500, not a 204', asyn
   const res = makeRes();
   await boom.handleSignupSource(makeReq(GOOD, { authorization: 'Bearer t' }), res);
   assert.equal(res.statusCode, 500);
+});
+
+test('★ ERASURE RACE: an account erased between the age check and the write leaves NO document behind (204)', async () => {
+  const w = makeWorld({ eraseDuringWrite: ['u1'] });
+  const res = await call(w, GOOD);
+  assert.equal(res.statusCode, 204, 'the student asked to be forgotten: nothing to retry');
+  assert.equal(w.writes.filter((x) => x.op === 'create').length, 1, 'CONTROL: the write really happened first');
+  assert.deepEqual(w.writes.filter((x) => x.op === 'delete').map((x) => x.path), ['signupSources/u1']);
+  assert.equal(w.store.has('signupSources/u1'), false, 'an orphan signupSources doc survived the erasure');
+});
+
+test('ERASURE RACE control: an account that still exists after the write keeps its document and is never deleted', async () => {
+  const w = makeWorld();
+  assert.equal((await call(w, GOOD)).statusCode, 204);
+  assert.equal(w.writes.filter((x) => x.op === 'delete').length, 0);
+  assert.equal(w.store.has('signupSources/u1'), true);
+});
+
+test('ERASURE RACE: a lookup failure other than user-not-found after the write leaves the document alone', async () => {
+  let n = 0;
+  const store = new Map();
+  const routes = createSignupSourceRoutes({
+    sendJson,
+    verifiedCaller: { resolveVerifiedCaller: async () => ({ uid: 'u1', reason: 'verified' }) },
+    firebaseAdmin: {
+      auth: () => ({
+        getUser: async () => {
+          n += 1;
+          if (n === 1) return { metadata: { creationTime: iso(NOW - 1000) } };
+          const e = new Error('network');
+          e.code = 'auth/internal-error';
+          throw e;
+        },
+      }),
+      firestore: { FieldValue: { serverTimestamp: () => 1 } },
+    },
+    adminFirestore: { collection: () => ({ doc: (id) => ({ create: async (d) => { store.set(id, d); }, delete: async () => { store.delete(id); } }) }) },
+    now: () => NOW,
+  });
+  const res = makeRes();
+  await routes.handleSignupSource(makeReq(GOOD, { authorization: 'Bearer t' }), res);
+  assert.equal(res.statusCode, 204);
+  assert.equal(store.has('u1'), true, 'a blip must not delete a good source');
 });

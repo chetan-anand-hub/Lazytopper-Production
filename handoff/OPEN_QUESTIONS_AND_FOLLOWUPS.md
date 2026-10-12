@@ -23,6 +23,28 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-12 — ACTIVATION-1 (C2, §10 for `#1097`): FOLLOW-UPS RAISED
+
+### [FU-MOBILE-SELFCHROME-NO-SIGNED-OUT-LOGIN] — OPEN (found while building L3)
+On mobile, `/practice-hub`, `/check-improve`, `/me`, `/browse`, `/exam-trends`, `/cbse/class-10` and the other "self-chromed" routes (`isMobileSelfChromedRoute`) render the `MobileShell` header, whose `MobileAccountMenu` returns `null` without a user. So a signed-out student on the routes that matter most for acquisition has NO header Log in at all; the `App.tsx:934` button (fixed in `#1097`) only shows on the other mobile routes. The pages' own sign-in links already pass `state.from`.
+- **Fix shape:** a signed-out "Log in" in `MobileAccountMenu` / `MobileShell` carrying the same safe return path (`utils/safeInternalPath.ts`). Outside ACTIVATION-1's allowlist.
+- **Why it matters:** ad traffic lands on `/check-improve` and `/practice-hub?cbq=1` on phones.
+
+### [FU-ACT1-LOGIN-VERIFY-MAIL-PIN] — OPEN, small (Opus verifier minor)
+No Login test asserts that the verification email is sent once for an unverified email account; every Login test mocks `sendEmailVerification` but none checks it, so deleting `sendVerificationToCurrentUser()` in `Login.tsx` would stay green. Needs `authClient` mocked in the Login tests.
+
+### [FU-ACT1-STALE-FLUSH-PATH-TESTS] — OPEN, small (Opus verifier note)
+`pendingDraftSave` is nulled on every early return (signed in, overlay, status past idle, multi-question) and before the restore clears. No test drives "edit inside the 800 ms debounce, then sign-in without leaving the page" or "then a multi-question detect". The unmount flush and the StrictMode restore ARE pinned.
+
+### [FU-ACT1-DRAFT-ERASURE-SWEEP] — OPEN, low
+Account erasure's device sweep covers `localStorage['lazytopper.*']`; the tab's `sessionStorage['lazytopper.ci.draft.v1']` and the IndexedDB `lazytopper.ciDraft` photos are not touched by it. They live at most 30 minutes, in one tab, are swept on the next Check & Improve load once expired, and are cleared on restore and submit. Register-only in `studentDataMap.ts` (the `local-storage` entry's text); extend the sweep if the owner wants it.
+
+### [FU-ACT1-MULTIQ-DRAFT] — OPEN, NOTE
+A multi-question upload is not preserved across sign-up by design: detecting more than one question clears the single-question draft.
+
+### [FU-IMPQ-WRITTEN-ANSWERS-WORDING] — OPEN, in flight (D117)
+Folded into IMPQ-RENAME-1 `#1102`: `BasicFreeList.tsx` row tail "— answers not checked" → "— written answers not checked", because a Basic student's Chapter Test still auto-scores its MCQ section.
+
 ## 2026-10-12 — SEO-PAGES-1 (C1, §10 for `#1095` + `#1098`): FOLLOW-UPS RAISED
 
 ### [FU-CHECKIMPROVE-OWN-TITLE] — OPEN (from the SEO-PAGES-1 spec, D106)

@@ -39,6 +39,17 @@ vi.mock("../hooks/useSubscription", () => ({
 }));
 vi.mock("../services/firebaseClient", () => ({ firestoreDb: null }));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: () => {} }));
+// ACTIVATION-1 · L4 — record the practice_graded calls the page makes (everything else stays real).
+const practiceGradedCalls = vi.hoisted(() => [] as string[]);
+vi.mock("../analytics/analytics", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../analytics/analytics")>();
+  return {
+    ...actual,
+    trackPracticeGraded: (attemptKey: string) => {
+      practiceGradedCalls.push(attemptKey);
+    },
+  };
+});
 vi.mock("../services/adaptivePracticeEngine", () => ({
   computeAdaptiveDifficultyMix: () => undefined,
   getWrongConceptsForTopic: () => [],
@@ -178,6 +189,7 @@ const okBatch = (results: ReturnType<typeof okGrade>[]) => ({
 });
 
 afterEach(() => {
+  practiceGradedCalls.length = 0;
   // ★ Restore the signed-in student. Without this a single §8 test would silently sign
   // out every test that ran after it, and the "grader was not called" assertions
   // scattered through this file would start passing for the WRONG reason.
@@ -397,6 +409,25 @@ describe("4-6 · confirm once, call once", () => {
     for (const r of okBatch([okGrade(1), okGrade(2), okGrade(3)]).results) {
       expect(sent.has(r.qNumber)).toBe(true);
     }
+  });
+
+  it("★★ ACTIVATION-1 · practice_graded fires ONCE for a graded set — and not before the grade", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1), okGrade(2)]));
+    await buildSet([mkItem(1, false), mkItem(2, false)]);
+    await saveAPhotoFor(1);
+    await saveAPhotoFor(2);
+    finish();
+    const cta = await screen.findByTestId("qp-grade-batch");
+    // CONTROL: nothing has been graded yet, so the event has not fired.
+    expect(practiceGradedCalls).toEqual([]);
+    fireEvent.click(cta);
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(practiceGradedCalls).toHaveLength(1));
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 200));
+    });
+    expect(practiceGradedCalls).toHaveLength(1);
+    expect(practiceGradedCalls[0]).toBeTruthy(); // keyed by the set's own id
   });
 
   it("★★ ZERO grade calls when nothing has written working", async () => {

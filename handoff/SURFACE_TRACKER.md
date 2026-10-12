@@ -1,5 +1,16 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-12 — ACTIVATION-1 (C2, §10 for `#1097`) and `#1100`.** No surface's Scope changed and no new scope was discovered. The surfaces moved are below. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/login` + `/sign-up` door (email) | the verify wall is gone; the verification email is sent once and the student goes to `nextPath` (`#1097`) | 🟢 live | owner phone check |
+| `EmailVerifyReminder` strip (Check & Improve, Practice) | new: unverified email accounts only, dismissible per session, Resend link (`#1097`) | 🟢 live | owner phone check |
+| Check & Improve (signed-out → signed-in) | the in-progress question + answer (text, photos) restored once, un-submitted (`#1097`) | 🟢 live | owner phone check |
+| Mobile header Log in (`App.tsx:934`) | carries `?redirect=<current page>` (`#1097`); self-chromed routes have none | 🟢 live / 🟡 partial | `[FU-MOBILE-SELFCHROME-NO-SIGNED-OUT-LOGIN]` |
+| Quick Practice / CBQ practice analytics | `practice_graded` once per graded set; admin label "Graded a practice set" (`#1097`) | 🟢 live | — |
+| `/pricing` + every Premium lock (Basic card) | mock row reads "Open or download 3 chapter tests or mocks a day (1 when signed out) — answers not checked" (`#1100`) | 🟢 live | "written answers" tail in `#1102` |
+
 > **2026-10-12 — SEO-PAGES-1 (C1, §10 for `#1095` + `#1098`).** No surface's Scope changed and no new scope was discovered. The surfaces moved are below. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |
