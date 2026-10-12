@@ -1,3 +1,11 @@
+## 2026-10-12 — SEO-LLM-1 (COFOUNDER DECISION 121 AS IT BEARS ON IT; RECORDED BY C1 UNDER §10)
+
+| D | decision | the reason given |
+|---|---|---|
+| **121** | `/check-improve` and `/practice-hub?cbq=1` stay OUT of `llms.txt`; the spec's "Start here" addition is amended to no new URLs (mention check-and-improve and the free first check in prose only); the four over-length descriptions get shorter `NOTES_BLURB_SHORTENED` text with before / after in the PR body; the P12 plan (pure `ncertFileCodeFromSpec` in `src/lib/ncertFileCode.ts`, script delegates, `Note.tsx` try/catch) is approved | `/check-improve` is noindex by design, so `llms.txt` must not advertise a page crawlers are told not to index, and `llmsTxt.guard` keeps the llms set equal to the sitemap set. Owner rule: shorter text, never a cap exception |
+| *(C1, in-lane)* | The guard reads the title / description from `headForPath` and the link from the prerendered fragment | The prerendered files are body fragments with no `<head>` |
+| *(C1, in-lane)* | Trigonometry links `jemh108` only | The resolver and the title are single-code by design; `jemh109` raised as `[FU-NOTES-TRIG-SECOND-NCERT-FILE]` |
+
 ## 2026-10-12 — IMPQ-RENAME-1 (COFOUNDER DECISIONS 116 AND 117 AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The decisions that shaped `#1102`, numbered as on `#973`. D117 is also recorded in the ACTIVATION-1 block below (it came from `#1100`'s verifier); it is repeated here because it landed in `#1102`.

@@ -1,5 +1,14 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-12 — SEO-LLM-1 (C1, §10 for `#1106`).** No surface's Scope changed and no new scope was discovered. Wording / head only; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/llms.txt` | "Important Questions" wording; sample papers line; URL set unchanged (`#1106`) | 🟢 live | — |
+| Shell link previews (`index.html` og / twitter description) | "important questions" (`#1106`) | 🟢 live | owner WhatsApp check |
+| `/notes/<slug>` x26 | official NCERT chapter PDF link on the page; file code in the meta description (`#1106`) | 🟢 live | — |
+| `/practice-hub` meta description | still "...predicted-question mocks." | 🟡 partial | `[FU-PRACTICEHUB-DESC-PREDICTED]` |
+
 > **2026-10-12 — IMPQ-RENAME-1 (C2, §10 for `#1102`).** No surface's Scope changed and no new scope was discovered. The surfaces moved are below (wording only). The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |

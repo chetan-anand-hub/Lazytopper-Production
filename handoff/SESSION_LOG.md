@@ -1,3 +1,15 @@
+## 2026-10-12 — SEO-LLM-1 (C1): `#1106` `e62a0e1a` — LIVE
+
+★ **PROVENANCE.** Written by C1 (§10) from `#973`, the `#1106` comments and `git log`. Window: 12:52Z (queued) to 14:16Z (cofounder re-verify).
+
+- **12:52Z QUEUED** for 13 Oct; started the same afternoon on the cofounder's instruction. Spec `SEO-LLM-1.md` sha256 `c2d5b9509ead`; §0c.0 premise gate PASS, exit 0 (13 premises, 9/9 anchors resolved, 4 open by design). Trunk `5e6fcdbd`.
+- **13:06Z CLAIM + P9 / P12–P14** answered before any edit. P9: `crawlerReachability.guard` accepts a query (it resolves `URL.pathname`), but `llmsTxt.guard` (b)+(e) pin `llms.txt` to the sitemap URL set by exact string, so `?cbq=1` is out. Found a spec defect: the mandatory `/check-improve` link has the same problem (not in the sitemap). P12: no shared module, so a pure `src/lib/ncertFileCode.ts`. P14: all 26 resolve; four descriptions overflow 155 once the code is in.
+- **13:22Z D121 (cofounder):** `/check-improve` and `?cbq=1` stay OUT (noindex by design; llms set == sitemap set); the "Start here" addition becomes "no new URLs"; before / after for the four shortened blurbs goes in the PR body; the P12 plan is approved.
+- **Build:** RED on trunk with the new guard (`55 failed | 4 passed`). After the CI artifact was applied, 52 cases stayed red: the prerendered files are body fragments with no `<head>`, so the guard was reading titles from the wrong place; it now reads title and description from `headForPath` and the link from the fragment (fixed in `9ac7baa3`). Local gates all PASS (root matrix `# tests 460 # fail 0 # skipped 0`; lazytopper matrix exit 0; build + verify-production-build PASS).
+- **Verifier (Opus 5.5):** PASS-WITH-FOLLOW-UP for `9ac7baa3`; it checked all 26 link codes against NCERT 2026-27 numbering independently of the author's resolver.
+- **14:02:11Z MERGE `#1106` -> `e62a0e1a`** (REST squash, head pinned; the branch was behind trunk only by the 7-file docs merge `#1104`). **14:05Z LIVE.** **14:16Z** the cofounder re-verified.
+- **Lessons.** (1) A guard that reads "the shipped page" must know WHAT the artifact is: the prerendered files are body fragments, so a head assertion on them fails for the wrong reason (52 reds that looked like the artifact not landing). Read the head from the writer that stamps it. (2) Before adding a URL to `llms.txt`, check it against `sitemapUrls.ts` and the canonical ruling: `llmsTxt.guard` makes the two sets equal, and a noindex page belongs in neither. (3) Mutate the SHIPPED artifact (a prerendered file), not only the source, to prove the guard reads what a crawler gets.
+
 ## 2026-10-12 — IMPQ-RENAME-1 (C1): `#1102` `5e6fcdbd` — LIVE
 
 ★ **PROVENANCE.** Written by C2 (§10) from `#973`, the `#1102` PR comments and `git log`; C1 was told to stop after its LIVE post, so it did not write this. Window: 09:59Z (D116) to 11:23Z (LIVE).

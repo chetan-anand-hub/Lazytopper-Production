@@ -1,3 +1,12 @@
+## ★ 2026-10-12 — AFTER SEO-LLM-1 (`#1106`) (written by C1 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone):** share `https://www.lazytopper.com/check-improve?v=2` on WhatsApp (a fresh `?v=` because WhatsApp caches previews). The preview text must say "important questions", not "predicted".
+- **Cofounder:** tell the owner and the growth session that `llms.txt`, the link-preview descriptions and the notes pages (NCERT file code in the snippet, official PDF link on the page) are LIVE. Ask the growth session to watch the notes pages' clicks for the NCERT-code queries (jemh111, jemh105.pdf).
+- **Next copy item (needs a ruling):** `scripts/seo/writeStaticHeads.ts:118` still says "...or predicted-question mocks." in the `/practice-hub` meta description; that string was outside SEO-LLM-1's scope. See `[FU-PRACTICEHUB-DESC-PREDICTED]`.
+- **Optional lane:** the trigonometry spec covers NCERT Ch 8 (`jemh108`) and Ch 9 (`jemh109`); only `jemh108` is linked. See `[FU-NOTES-TRIG-SECOND-NCERT-FILE]`.
+
 ## ★ 2026-10-12 — AFTER IMPQ-RENAME-1 (`#1102`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
