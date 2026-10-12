@@ -1,6 +1,7 @@
 import type React from "react";
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
 import Login from "./pages/Login";
+import { isSafeInternalPath } from "./utils/safeInternalPath";
 import SignUpPage from "./pages/SignUpPage";
 import Welcome from "./pages/Welcome";
 
@@ -931,7 +932,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           ) : !location.pathname.startsWith("/login") ? (
             <button
               type="button"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate(`/login?redirect=${encodeURIComponent(isSafeInternalPath(`${location.pathname}${location.search}`) ? `${location.pathname}${location.search}` : "/")}`)}
               style={{
                 border: "1px solid var(--bg-card-border)",
                 borderRadius: 12,

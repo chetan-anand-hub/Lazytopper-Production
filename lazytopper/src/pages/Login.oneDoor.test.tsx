@@ -408,18 +408,18 @@ describe("the email flow — one declared branch, one call", () => {
 // 3 · The verification block — scope is narrow and each boundary is checked
 // ---------------------------------------------------------------------------
 
-describe("blocking verification — only a new email/password account", () => {
-  it("BLOCKS an unverified password account instead of letting it into the product", async () => {
+describe("verification no longer blocks — Google, phone and verified accounts are unchanged", () => {
+  it("ACTIVATION-1 · an unverified password account is NAVIGATED to where it was going, not held", async () => {
+    // RED on trunk: the wall set step "verify" and never navigated (58 sign-ups, 2 graded checks).
     authState.user = user({
-      email: "typo@gmial.com",
+      email: "new@example.com",
       providerIds: ["password"],
       emailVerified: false,
     });
     renderDoor();
 
-    expect(await screen.findByTestId("lt-verify-gate")).toBeTruthy();
-    expect(screen.getByTestId("lt-verify-address")).toHaveTextContent("typo@gmial.com");
-    expect(screen.queryByText("LANDED ON HOME")).toBeNull();
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+    expect(screen.queryByTestId("lt-verify-gate")).toBeNull();
   });
 
   it("lets a GOOGLE account straight through — Google has already proven the address", async () => {
@@ -499,17 +499,16 @@ describe("the `from` round-trip survives the redesign", () => {
     expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
   });
 
-  it("an UNVERIFIED student is held at the gate even when a `from` is waiting", async () => {
-    // The redirect must not outrank the block, or the gate is decorative.
+  it("an UNVERIFIED student still lands on the `from` page (ACTIVATION-1: verify no longer outranks the redirect)", async () => {
     authState.user = user({
-      email: "typo@gmial.com",
+      email: "new@example.com",
       providerIds: ["password"],
       emailVerified: false,
     });
     renderDoor({ pathname: "/login", state: { from: "/check-improve" } });
 
-    expect(await screen.findByTestId("lt-verify-gate")).toBeTruthy();
-    expect(screen.queryByText("LANDED ON CHECK AND IMPROVE")).toBeNull();
+    expect(await screen.findByText("LANDED ON CHECK AND IMPROVE")).toBeTruthy();
+    expect(screen.queryByTestId("lt-verify-gate")).toBeNull();
   });
 });
 

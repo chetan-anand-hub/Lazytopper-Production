@@ -395,7 +395,7 @@ describe("★★ neither branch discloses whether an address is registered", () 
 // ---------------------------------------------------------------------------
 
 describe("the surrounding contracts survive", () => {
-  it("the verification gate still fires for the account this flow creates", async () => {
+  it("ACTIVATION-1 · the account this flow creates is NAVIGATED on, not held at a verification wall", async () => {
     const view = renderDoor();
     const u = await openEmailStep();
     await createAccount(u, { name: REAL_NAME });
@@ -418,8 +418,8 @@ describe("the surrounding contracts survive", () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByTestId("lt-verify-gate")).toBeTruthy();
-    expect(screen.queryByText("LANDED ON HOME")).toBeNull();
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+    expect(screen.queryByTestId("lt-verify-gate")).toBeNull();
   });
 
   it("the `from` round-trip still lands a signed-in student back where they were gated", async () => {

@@ -568,10 +568,13 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
   {
     id: "local-storage",
     kind: "local-storage",
-    path: "localStorage['lazytopper.*']",
+    path: "localStorage['lazytopper.*']; sessionStorage['lazytopper.ci.draft.v1']; IndexedDB 'lazytopper.ciDraft'",
     holds:
       "★ Cached mistake logs, check results, attempt dedup keys, progress, streaks and " +
-      "auth state mirrored on the device.",
+      "auth state mirrored on the device. ACTIVATION-1: plus an in-progress Check & Improve " +
+      "question and answer (text in sessionStorage, photos in IndexedDB) held for THIS TAB " +
+      "only, for at most 30 minutes, across a sign-in — cleared on restore, on submit and on " +
+      "expiry, and never sent to any server before the student submits.",
     mechanism: "client-local",
     exportable: true,
     notes:

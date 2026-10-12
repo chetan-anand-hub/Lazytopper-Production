@@ -118,6 +118,8 @@ import {
 // FREE-CHECK-1b — one free marked upload for a signed-out visitor. Every import below is
 // reached only when VITE_FREE_CHECK_ENABLED is on and nobody is signed in (or a signed-in
 // student has a free result waiting to be saved); with the flag off none of it renders.
+import { clearCiDraft, saveCiDraft, sweepExpiredCiDraftImages, takeCiDraft } from "../../services/checkImproveDraft";
+import EmailVerifyReminder from "../../components/auth/EmailVerifyReminder";
 import {
   FREE_CHECK_COPY,
   FREE_CHECK_SIGNIN_PATH,
@@ -1102,6 +1104,75 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Every question read from the upload. `length > 1` switches the UI to the
   // multi-question grade path (grade ALL via the worksheet structured grader).
   const [detectedQuestions, setDetectedQuestions] = useState<DetectedQuestion[] | null>(null);
+
+  // ── ACTIVATION-1 · L2 — the in-progress question + answer survive sign-in (THIS TAB only) ──
+  // A signed-out visitor's input is autosaved (debounced) to the tab's sessionStorage + IndexedDB
+  // (services/checkImproveDraft.ts), so EVERY way out to sign-in — the shell's header button, the
+  // mobile header, a /login link — finds it saved, not just the buttons on this page. A signed-in
+  // student gets it back ONCE, un-submitted, at the step they left; the student taps Check. It is
+  // cleared on restore, on submit (any status past "idle") and after 30 minutes, and is never sent
+  // anywhere. Multi-question uploads are not preserved (they clear the draft instead).
+  const isMultiDetected = (detectedQuestions?.length ?? 0) > 1;
+  useEffect(() => {
+    if (user || funnelOff) return;
+    if (status !== "idle") return;
+    if (isMultiDetected) {
+      clearCiDraft();
+      return;
+    }
+    const t = window.setTimeout(() => {
+      saveCiDraft(
+        {
+          questionTab,
+          question,
+          qImageMime,
+          qImageName,
+          tab,
+          textAnswer,
+          imageMime,
+          imageName,
+          detected,
+          confirmed,
+        },
+        { qImageBase64, imageBase64 },
+      );
+    }, 800);
+    return () => window.clearTimeout(t);
+  }, [
+    user, funnelOff, status, isMultiDetected, questionTab, question, qImageBase64, qImageMime,
+    qImageName, tab, textAnswer, imageBase64, imageMime, imageName, detected, confirmed,
+  ]);
+  useEffect(() => {
+    if (status !== "idle") clearCiDraft();
+  }, [status]);
+  // A photo left by a tab that died mid-draft is swept on the next load once it has expired.
+  useEffect(() => {
+    void sweepExpiredCiDraftImages();
+  }, []);
+  useEffect(() => {
+    if (!user || funnelOff) return;
+    let cancelled = false;
+    void takeCiDraft().then((d) => {
+      if (cancelled || !d) return;
+      setQuestionTab(d.fields.questionTab);
+      setQuestion(d.fields.question);
+      setQImageBase64(d.images.qImageBase64);
+      setQImageMime(d.fields.qImageMime);
+      setQImageName(d.fields.qImageName);
+      setTab(d.fields.tab as AnswerTab);
+      setTextAnswer(d.fields.textAnswer);
+      setImageBase64(d.images.imageBase64);
+      setImageMime(d.fields.imageMime);
+      setImageName(d.fields.imageName);
+      setDetected(d.fields.detected);
+      setConfirmed(d.fields.confirmed);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // Once per sign-in: the draft is cleared as it is taken, so a re-run finds nothing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid, funnelOff]);
   // The whole-paper grade result + its session code (CI-{S}-{TOPIC}-{NN}).
   const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
   const [ciCode, setCiCode] = useState<string | null>(null);
@@ -2341,6 +2412,8 @@ const DesktopCheckImprovePageInner: React.FC<{
         }}
       >
         <UsageWarning scope="check-improve" snapshot={fairUse.snapshot} />
+        {/* ACTIVATION-1 · L1 — the non-blocking "verify your email" strip (unverified email accounts only). */}
+        {!overlay && <EmailVerifyReminder />}
         {/* The return ticket's contextual strip (Section C) — a quiet line, never a
             modal, never blocking. Renders nothing on a direct visit. */}
         <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />

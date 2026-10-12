@@ -537,6 +537,11 @@ export function trackSignUp(): void {
  *                           sign-in door's trial intent, the RequirePremium lock, the C&I
  *                           offer). Fired ONLY where the call site's eligibility guard held, so
  *                           a repeated or ineligible tap is never counted. The ads conversion.
+ *   practice_graded         ACTIVATION-1 · L4 — a Quick Practice / CBQ practice set was graded
+ *                           (the bare name only; once per graded attempt via
+ *                           trackPracticeGraded). The CBQ ad's landing is /practice-hub?cbq=1
+ *                           and graded practice fired nothing, so that campaign's real use
+ *                           was invisible next to check_graded.
  */
 export type NamedAnalyticsEvent =
   | "free_check_used_block"
@@ -545,10 +550,30 @@ export type NamedAnalyticsEvent =
   | "trial_start"
   | "check_question_read"
   | "check_answer_added"
-  | "check_graded";
+  | "check_graded"
+  | "practice_graded";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
+}
+
+/** Attempts already counted in THIS page load — a graded attempt is counted once. */
+const practiceGradedSent = new Set<string>();
+
+/**
+ * ACTIVATION-1 · L4 — `practice_graded`, ONCE per graded practice attempt (the same
+ * at-most-once-per-attempt rule as the Check & Improve funnel). `attemptKey` is the set's
+ * own id and stays here: the payload is the bare event name, no id, no text, no marks.
+ */
+export function trackPracticeGraded(attemptKey: string): void {
+  if (!attemptKey || practiceGradedSent.has(attemptKey)) return;
+  practiceGradedSent.add(attemptKey);
+  trackNamedEvent("practice_graded");
+}
+
+/** Test seam: forget which attempts were counted. */
+export function __resetPracticeGradedForTests(): void {
+  practiceGradedSent.clear();
 }
 
 /**
