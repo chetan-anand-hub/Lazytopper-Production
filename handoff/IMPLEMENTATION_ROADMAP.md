@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-12 — ACTIVATION-1 (`#1097` `a99dec7b`) + `#1100` (`d53a5e79`) — ✅ COMPLETE (owner phone check owed)
+
+- ✅ New email accounts start straight away; the verification email is still sent; a dismissible reminder on Check & Improve and Practice (D107a).
+- ✅ The in-progress Check & Improve question and answer survive sign-up in the same tab and come back un-submitted.
+- ✅ The mobile header Log in returns the student to the page they were on (routes with the global header only; see the FU below).
+- ✅ `practice_graded` counts graded Quick Practice / CBQ sets (the CBQ ad's landing was invisible next to `check_graded`).
+- ✅ `/pricing` Basic mock row says what the limit is (D114); the "written answers" tail follows in IMPQ-RENAME-1 (D117).
+- ⏳ The owner's phone check. `[FU-MOBILE-SELFCHROME-NO-SIGNED-OUT-LOGIN]` and the four ACTIVATION-1 follow-ups are open.
+
 ## 2026-10-12 — SEO-PAGES-1 (`#1095` `0d43bf22` + `#1098` `1564c225`) — ✅ COMPLETE (owner phone check owed)
 
 - ✅ `/cbse/class-10` on CBSE's 2026-27 sample papers and marking schemes, including the Maths Basic MS. The pill is honest in the prerender. The circulars are re-checked (12 Oct 2026). Practise-it links.

@@ -1,5 +1,22 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-12 · ACTIVATION-1] A NEW EMAIL SIGN-UP IS NO LONGER HELD AT "VERIFY YOUR EMAIL"; THE IN-PROGRESS CHECK & IMPROVE ANSWER SURVIVES SIGN-UP; THE HEADER LOG IN RETURNS THE STUDENT; PRACTICE GRADING IS COUNTED — `#1097` MERGED — LIVE
+
+*(This block adds to the SEO-PAGES-1 block directly below, which stays current for everything this block does not name. Written by C2 under §10 for `#1097` (ACTIVATION-1) and `#1100` (C1's `fix/basic-mock-wording`), from `#973` (DECISIONs 107–120) and `git log`. SOURCE-1 `#1096` (`5156e002`) is A's lane and is NOT covered here.)*
+
+★ **TRUNK:** `a99dec7b` (`#1097`, 2026-10-12 10:28:34Z). Re-derive it with `git rev-parse origin/base/approved-thru-437`; `#1101` (A) and `#1102` (C1, IMPQ-RENAME-1) were open while this was written.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1097` ACTIVATION-1 | `a99dec7b` | 10-12 10:28:34 | **L1** `Login.tsx` no longer holds a new email account on the verify wall: the verification email is still sent (once per mount) and the student goes straight to `nextPath`; a dismissible `EmailVerifyReminder` shows for signed-in email accounts with `emailVerified === false` only (never Google / phone / local session / unknown flag), on Check & Improve and Practice. **L2** a signed-out visitor's question, confirmed detection and answer are autosaved to THIS TAB (`sessionStorage['lazytopper.ci.draft.v1']` + IndexedDB photos), restored once and UN-SUBMITTED after sign-in, cleared on restore / submit / 30 min, expired photos swept on page load. **L3** `App.tsx:934` header Log in carries `?redirect=<current path>` through `isSafeInternalPath` (now `utils/safeInternalPath.ts`). **L4** `practice_graded`, once per graded Quick Practice / CBQ set, bare name only, in all three mirrored allowlists incl. server `studentActivity.cjs`. |
+| `#1100` D114 (C1) | `d53a5e79` | 10-12 10:09:08 | The Basic mock row on `/pricing` and every Premium lock reads "Open or download 3 chapter tests or mocks a day (1 when signed out) — answers not checked" (wording only; the constants are unchanged). |
+
+- **Verifier (D108), `#1097`:** model **Opus**, separate agent. `PASS` on `bdacf64a`, `PASS` on `c9f919cc`, `VERDICT: PASS for head 9c220070`. Merged head `8335b5a0` = the `0cf0b83b` PASS head plus a trunk merge-in of `#1100` only (cofounder D118/D119: the diff since the reviewed head was one admin label line and 2 clock-manifest lines, no L1–L4 logic).
+- **Six surfaces (CLAUDE.md §4a):** grading behaviour is **untouched** on all six (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice). The restored answer goes through the existing Check button unchanged; `practice_graded` fires after `gradeQuickPracticeBatch` returns.
+- **Side effect accepted (D109d):** referral crediting and the `reason=start-trial` intent used to wait behind the verify wall; they now run immediately for unverified email users. `sign_up` / `trial_start` call sites are unchanged.
+- **LIVE `#1097`** (cofounder, 10:33Z): `/version.json` = `a99dec7b`; Vercel and the Railway backend both `success`; `/`, `/check-improve`, `/practice-hub`, `/login`, `/pricing`, `/api/health` all 200. **Owed:** the owner's phone checks (NEXT_ACTION).
+- **Protected files:** `App.tsx` changed only by the import and line 935 (the shifted :934), per the owner's line-scoped grant (D107b). `Welcome.tsx` was NOT touched: the live bundle bakes `VITE_FREE_CHECK_ENABLED` on (P10).
+
 ## [CURRENT · 2026-10-12 · SEO-PAGES-1] /cbse/class-10 ON CBSE'S 2026-27 SAMPLE PAPERS, AN HONEST PRERENDERED PILL, "IMPORTANT QUESTIONS" HPQ HEADS, THE FREE ANSWER CHECK NAMED ON PRICING — `#1095` + `#1098` MERGED — LIVE
 
 *(This block adds to the DAY CLOSE 2026-10-11 block directly below, which stays current for everything this block does not name. Written by C1 under §10 for `#1095` and `#1098`, from `#973` (DECISIONs 106, 110, 111, 112) and `git log`.)*

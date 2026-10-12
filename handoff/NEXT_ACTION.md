@@ -1,3 +1,15 @@
+## ★ 2026-10-12 — AFTER ACTIVATION-1 (`#1097`) AND `#1100` (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone, after the cold reads) — spec §5, with one correction:**
+  - Signed out at `/check-improve`: type or photograph a question, attach an answer photo, tap sign up and create a NEW email account. You should land back on Check & Improve with the question and answer still there, plus the "Verify your email to keep your account safe" strip. Tap Check: it grades.
+  - ⚠ **Correction to §5 item 2:** on mobile the header "Log in" does NOT exist on `/practice-hub`, `/check-improve`, `/me`, `/browse`, `/exam-trends` or `/cbse/class-10` (their MobileShell header renders nothing for a signed-out student). Test the header on **`/check-your-answer`** (signed out, mobile): Log in → sign in → you return to `/check-your-answer`. On `/practice-hub` the page's own "Sign in" link already carries the page.
+  - A Google sign-up behaves as before (no strip).
+- **Cofounder:** the one-line server allowlist change for `practice_graded` rode with `#1097`; Railway reported `success`. If a client ran ahead of the server, an unknown event name refuses the whole activity batch for that interval (existing behaviour); nothing to do now.
+- **Next product lane:** `[FU-MOBILE-SELFCHROME-NO-SIGNED-OUT-LOGIN]` (below) is the one finding that changes what a student can do; it needs `MobileAccountMenu` / `MobileShell`, which ACTIVATION-1 did not own.
+- **`#1086` (TOPUP-1)** is closed and is reopened and rebased by A after `#1101` (D113/D120).
+
 ## ★ 2026-10-12 — AFTER SEO-PAGES-1 (`#1095` + `#1098`, written by C1 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
