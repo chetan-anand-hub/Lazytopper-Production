@@ -144,6 +144,21 @@ function createSignupSourceRoutes(deps = {}) {
     return entry.count > MAX_CALLS_PER_WINDOW;
   }
 
+  /**
+   * Is the Auth account still there AFTER the write? If it was erased while this request
+   * was in flight, delete the document just written. Any lookup failure other than
+   * `auth/user-not-found` leaves the write alone (it cannot tell "erased" from a network
+   * blip, and the document is created only for a verified, <= 15-minute-old account).
+   */
+  async function undoIfAccountErased(uid, ref) {
+    try {
+      await firebaseAdmin.auth().getUser(uid);
+    } catch (e) {
+      if (!e || e.code !== 'auth/user-not-found') return;
+      await ref.delete();
+    }
+  }
+
   async function handleSignupSource(req, res) {
     try {
       if (!verifiedCaller || !firebaseAdmin || typeof firebaseAdmin.auth !== 'function' || !adminFirestore) {
@@ -177,15 +192,19 @@ function createSignupSourceRoutes(deps = {}) {
 
       const FieldValue = firebaseAdmin.firestore && firebaseAdmin.firestore.FieldValue;
       if (!FieldValue) throw new Error('firestore FieldValue unavailable');
+      const ref = adminFirestore.collection(SIGNUP_SOURCES_COLLECTION).doc(uid);
       try {
         // ★ CREATE-ONLY: an existing doc is never overwritten.
-        await adminFirestore
-          .collection(SIGNUP_SOURCES_COLLECTION)
-          .doc(uid)
-          .create({ ...checked.data, capturedAt: FieldValue.serverTimestamp() });
+        await ref.create({ ...checked.data, capturedAt: FieldValue.serverTimestamp() });
       } catch (e) {
         if (!isAlreadyExists(e)) throw e;
       }
+      // ★ THE ERASURE RACE (FU-SIGNUPSOURCE-ERASURE-RACE). The account was checked BEFORE
+      // the write; an erasure that completes in between (Auth account included) would leave
+      // this document behind. Re-check AFTER the write and, if the account is gone, delete
+      // what was just written — the same shape as studentActivity.cjs `undoIfAccountErased`.
+      // The student asked to be forgotten, so the answer is still 204: nothing to retry.
+      await undoIfAccountErased(uid, ref);
       res.statusCode = 204;
       return res.end();
     } catch {
