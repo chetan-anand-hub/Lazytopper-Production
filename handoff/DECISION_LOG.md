@@ -1,3 +1,19 @@
+## 2026-10-12 — SEO-PAGES-1 (COFOUNDER DECISIONS 106, 110, 111 AND 112 AS THEY BEAR ON IT; RECORDED BY C1 UNDER §10)
+
+> ⚠ **SCOPE.** These are the decisions that shaped `#1095` / `#1098`, numbered as on `#973`. DECISIONs 107–109 (ACTIVATION-1, SOURCE-1, verifier model) belong to other lanes' docs, apart from D108's verifier rule, which this lane followed.
+
+| D | decision | the reason given |
+|---|---|---|
+| **106** | SEO-PAGES-1 is the day's first product lane. In order, A: the 2026-27 SQP/MS + Basic MS, the honest pill, the date only after a real check, Practise-it. B: the HPQ wording "Important Questions" (reverses SEO-3's wording only). D: the Pricing free-check line. `/check-improve` title out of scope. | "sample paper class 10 cbse 2026 27" is the top Ads search term; the live page linked 2025-26 papers and said "awaited"; the sample-paper ads were blocked on it |
+| **106 (lane)** | CA-3 extended: the pill is also READY when a committed `-SQP.pdf` href names a session ≥ 2026-27. The manifest rule is unchanged. | The prerendered page has no manifest, so crawlers always read "awaited" |
+| **108** | The independent verifier runs on Opus as a separate agent; quote its model, verdict and head; re-verify if the head moves for lane code | Controllers run on Sonnet; correctness judgements stay on Opus |
+| **110** | The D106a descriptions were missed in `#1095`; a one-commit follow-up sets them to the owner's exact text | The cofounder's live curl found the old "Question patterns… not the 2027 paper" text |
+| **111** | Add the Maths CFPQ manual and the Science item bank, with one "older CBSE sets" note | CBSE has published no 2026-27 competency set; the latest are Dec 2022 / Sep 2021; two matching rows were missing |
+| **111 (lane correction)** | The "update `cbseMirrorFeeds.test.ts` 6→8" premise does NOT apply. That pin maps only CBSE's sample-paper index, and the CFPQ / item-bank files are not on it. The root matrix stayed `# fail 0` with the test unchanged; the Opus verifier agreed independently. | Changing a passing test to match a wrong premise would pin a false fact |
+| **112** | Merge order: A's `#1096` first; `#1098` shares no files and merges whenever green, one at a time | `#1096` was reviewed and green first |
+| **(lane)** | The Pricing line waits for `!authLoading`; the prerendered copy stays crawlable (owner call logged) | It stops the client flash without losing the crawler copy that SEO-PAGES-1 §5 requires |
+
+
 ## 2026-10-11 — DAY CLOSE (COFOUNDER DECISIONS 75–100, RECORDED BY C2, DOCS LANE D100)
 
 > ⚠ **SCOPE.** These are the cofounder's DECISIONs 75–100 on `#973`, numbered as there and never renumbered here, each with its reason. Owner words are quoted only where the board quotes them (all relayed by the cofounder; IST times are the owner's clock). DECISIONs 1–74 are in the blocks below and in earlier docs; D61–D74 (the ME-CONCEPT-1 and CONCEPT-MAP-FILL-1 decisions) are summarised where this block depends on them.

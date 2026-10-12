@@ -1,3 +1,25 @@
+## 2026-10-12 — SEO-PAGES-1 (C1): `#1095` `0d43bf22` + `#1098` `1564c225` — LIVE
+
+★ **PROVENANCE.** Written by C1 (§10 for its own lane) from `#973` and `git log`. Window: 07:33Z (D106) to 08:58Z.
+
+- **07:33Z D106 → 07:37Z.**
+  - Spec hash checked; premise gate PASS, exit 0 (19/19).
+  - P20–P23 posted before any edit. P22 is a live read of cbse.gov.in: 3 new Class X circulars. P23: the mirror's C7 had already moved the five existing papers to 2026-27; step 2 follows `prior.sourceUrl`.
+- **07:50Z DRAFT `#1095` (`cff728d3`).** Locally RED on trunk 12/104, GREEN 104/104. The **Opus verifier FAILED it**: a root-matrix pin (`cbseMirrorFeeds.test.ts`, five C7-mapped ids) that the P21 grep missed, because it pins a *mapped set*, not a literal. Fixed as a §1 amendment, together with the prerender from the PR's own artifact (`b3355bdc`). The verifier then PASSED. CI was all green (`capture`: "committed artifact matches a fresh capture").
+- **08:07:54Z MERGE `#1095`.** LIVE 08:09:20Z, 5/5 cold reads, all §5 curls pass.
+- **08:13Z D110:** the D106a descriptions were missed. **08:25Z D111:** two competency resources. Owner: the Pricing flash.
+- **08:33Z DRAFT `#1098` (`499fdf97`).**
+  - D111's "6→8" mirror-test premise did not hold; the test was left unchanged, root matrix `# fail 0`.
+  - Verifier PASS-WITH-FOLLOW-UP: note placement; the prerender was still owed.
+  - Fixed in `172804fa` and `397d07bc`; the verifier PASSED. CI all green.
+- **08:54:06Z MERGE `#1098`** (D112: no shared files, merge when green). LIVE 08:57:23Z, 5/5 cold reads. Both `<meta name="description">` tags carry the D106a text.
+
+**Lessons:**
+1. A "which tests pin X" hunt must cover importers in OTHER workspaces (the root `scripts/` mirror imports the page data). Run the root matrix locally.
+2. A cofounder premise in a DECISION is still a premise; check it before editing a passing test (D111 "6→8").
+3. HPQ `<title>` and description are stamped at build by `writeStaticHeads`, so a head-only change leaves the prerender artifact unchanged.
+
+
 ## 2026-10-11 — DAY CLOSE (SEVEN PARALLEL CONTROLLERS: A, B, C1, C2, D, E, CI-1; COFOUNDER DECISIONS 75–100) — **FIGURES ON EVERY SURFACE, ME + WEAK AREA ON ONE CONCEPT MODEL, FAIR-USE WARNINGS LIVE, ALL-AI METERING + TOP-UPS BUILT DARK, THE UNPROTECTED DIAGRAM ENDPOINTS REMOVED**
 
 ★ **PROVENANCE.** Written by C2 (docs lane, D100) from `#973` and `git log`. Window: 2026-10-10 18:00Z to the close of 2026-10-11. Sessions swapped mid-day (old B and old C1 handed over at about 25% context to fresh sessions; a duplicate older A window was stood down by D73a). Builders and verifiers are Opus sub-agents per lane; the cofounder byte-reviewed every AUDIT-REQUEST within about one poll.

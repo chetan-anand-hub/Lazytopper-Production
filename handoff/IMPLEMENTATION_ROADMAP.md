@@ -1,5 +1,13 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-12 — SEO-PAGES-1 (`#1095` `0d43bf22` + `#1098` `1564c225`) — ✅ COMPLETE (owner phone check owed)
+
+- ✅ `/cbse/class-10` on CBSE's 2026-27 sample papers and marking schemes, including the Maths Basic MS. The pill is honest in the prerender. The circulars are re-checked (12 Oct 2026). Practise-it links.
+- ✅ The `/highly-probable` heads say "Important Questions" (title and description, D106a / D110). Canonicals are unchanged; in-app labels are out of scope.
+- ✅ The Pricing Basic card names the one free signed-out answer check. It waits for auth.
+- ✅ The Maths CFPQ manual and the Science item bank, with the older-sets note (D111).
+- ⏳ The owner's 390 px check. `[FU-CHECKIMPROVE-OWN-TITLE]` and `[FU-PRICING-PRERENDER-FREECHECK-FLASH]` are open.
+
 ## 2026-10-11 — DAY CLOSE: **FIGURES, CONCEPT MODEL, FAIR-USE, HARDENING** (PRs in the table of `CURRENT_STATE.md`) — trunk `20d031d1` at drafting (all six D100 product items merged) — ✅ COMPLETE for the seven items of D100; ⏳ the deferred items below wait for 2026-10-12
 
 - ✅ **Question figures on every surface** — worksheet print docs, the answer key and graded sheet (`#1070`); notes-page board questions with MCQ options + official figure (`#1072`); the figure rule widened (`#1073`), allow-listed (`#1071`), bound (`#1074`: 3 official crops, 16 withheld, a permanent "no served row needs a figure it lacks" guard); 21 questions restored (`#1066`).
