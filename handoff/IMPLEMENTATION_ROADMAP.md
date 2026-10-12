@@ -1,5 +1,11 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-12 — SEO-LLM-1 (`#1106` `e62a0e1a`) — ✅ COMPLETE (owner WhatsApp check owed)
+
+- ✅ `llms.txt` and the `index.html` link-preview descriptions say "Important Questions"; no "predicted" / "high-probability" copy remains in them.
+- ✅ Every notes page links the official NCERT chapter PDF (visible, prerendered) and carries the NCERT file code in its description.
+- ⏳ The owner's WhatsApp preview check. `[FU-PRACTICEHUB-DESC-PREDICTED]` is narrowed to the `/practice-hub` meta description.
+
 ## 2026-10-12 — IMPQ-RENAME-1 (`#1102` `5e6fcdbd`) — ✅ COMPLETE (owner phone check owed)
 
 - ✅ "Predicted Questions" / HPQ is **Important Questions** on every student-visible surface (page, Practice hub, Exam Trends, scorecard, Topic Hub, palette, empty state, Pricing, Terms). URLs and identifiers unchanged.
