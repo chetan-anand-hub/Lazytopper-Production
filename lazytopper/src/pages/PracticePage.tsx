@@ -496,7 +496,9 @@ import { toSessionSubject } from "../services/checkImproveGradeService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R) on
 // the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
+import { trackPracticeGraded } from "../analytics/analytics";
 import UsageWarning from "../components/usage/UsageWarning";
+import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
 import { useFairUse } from "../components/usage/useFairUse";
 // ALL-AI-METERING-1 - a More-like-this refusal shows its own panel; the saved questions stay.
@@ -2592,7 +2594,11 @@ const packTopicKey = useMemo(() => {
       return;
     }
     setBatchResult(result);
-    if (result.outcome === "graded") fairUse.noteGraded();
+    if (result.outcome === "graded") {
+      fairUse.noteGraded();
+      // ACTIVATION-1 · L4 — once per graded set; the bare event name only.
+      trackPracticeGraded(worksheetId);
+    }
     // J2 §6 — interrupted: the marked rows stay on screen with "grade the remaining N"; the
     // free MCQ marks still feed today's record (the result above), and no error box.
     if (result.jobInterrupted) {
@@ -2747,6 +2753,8 @@ const packTopicKey = useMemo(() => {
       {/* J2 — a background grade of the last practice set, still running after a reload. */}
       <QuickPracticeJobResume user={authUserForJourney} />
       <UsageWarning scope="practice" snapshot={fairUse.snapshot} />
+      {/* ACTIVATION-1 · L1 — the non-blocking "verify your email" strip (unverified email accounts only). */}
+      <EmailVerifyReminder />
       {/* QP-GUEST-SIGNIN-1 — the set's score from before a same-tab sign-in, shown once. */}
       {restoredGuestScore && (
         <div className="lt-qp-signin lt-qp-signin--restored" data-testid="qp-guest-score-restored">

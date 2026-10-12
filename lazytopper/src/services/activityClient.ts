@@ -91,6 +91,7 @@ export const ACTIVITY_EVENTS = [
   "check_question_read",
   "check_answer_added",
   "check_graded",
+  "practice_graded",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

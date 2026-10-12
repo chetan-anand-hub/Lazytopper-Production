@@ -5,6 +5,8 @@ import { useSubscription } from "../hooks/useSubscription";
 import { trackNamedEvent } from "../analytics/analytics";
 import OfferStrip from "../components/auth/OfferStrip";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
+import { isSafeInternalPath } from "../utils/safeInternalPath";
+import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyReminder";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
@@ -13,18 +15,6 @@ type LocationState = { from?: string };
 
 /** TRIAL-CTA-1 — how long the trial-intent step waits for hydration before moving on. */
 export const TRIAL_INTENT_HYDRATION_WAIT_MS = 8000;
-
-function isSafeInternalPath(path: string | null | undefined): path is string {
-  if (!path) return false;
-  const trimmed = path.trim();
-  if (!trimmed.startsWith("/")) return false;
-  if (trimmed.startsWith("//")) return false;
-  if (trimmed.startsWith("/\\")) return false;
-  if (trimmed.startsWith("\\")) return false;
-  if (trimmed.includes("\\")) return false;
-  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
-  return true;
-}
 
 const LOGIN_CSS = `
   .lt-login-page,
@@ -1624,6 +1614,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   // answers must not strand the student on the door.
   const subscription = useSubscription();
   const trialIntentConsumed = useRef(false);
+  const verifyMailSent = useRef(false);
   const [trialWaitExpired, setTrialWaitExpired] = useState(false);
   const awaitingTrialHydration =
     isStartTrial && Boolean(user) && !subscription.hydrated && !trialWaitExpired;
@@ -1640,13 +1631,15 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     trackUxEvent("login_complete", "login", {
       reason: reason ?? "unspecified",
     });
-    // ⚠ THE BLOCK GOES BEFORE THE NAVIGATION, and before the referral credit.
-    // A student whose address is unverified has not finished signing up, so
-    // nothing downstream of entry should fire for them yet.
-    if (!verificationCleared && needsEmailVerification(user)) {
-      setStep("verify");
-      setBusy(false);
-      return;
+    // ACTIVATION-1 · L1 — verification no longer BLOCKS. The wall held a new email account
+    // on this step and never navigated it (58 sign-ups, 2 graded checks). The verification
+    // email is still sent, once, and the student goes on to `nextPath`; a dismissible
+    // reminder (EmailVerifyReminder) on the page they land on asks them to verify. Nothing
+    // server-side reads `emailVerified`, so no entitlement changes. A Google or phone
+    // account never reaches this branch (`needsEmailVerification` is false for both).
+    if (!verificationCleared && needsEmailVerification(user) && !verifyMailSent.current) {
+      verifyMailSent.current = true;
+      void sendVerificationToCurrentUser();
     }
     // Referral crediting — relocated here from the retired Onboarding page, which
     // was its only caller. Capture still happens at App.tsx (`?ref=` -> pending key);
