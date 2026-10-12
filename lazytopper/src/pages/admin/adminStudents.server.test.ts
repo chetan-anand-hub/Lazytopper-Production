@@ -471,6 +471,39 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       expect(row.email).toBe("stu000@example.com");
     });
 
+    it("★ SOURCE-1: each row carries the coarse source from signupSources/{uid}; a missing doc is null (an account from before the lane)", async () => {
+      const world = listWorld();
+      world.store["signupSources/stu000"] = {
+        ref: "www.youtube.com",
+        utm_source: "youtube",
+        utm_medium: "paid",
+        utm_campaign: "test",
+        utm_content: null,
+        landing: "/",
+        gclid: true,
+        fbclid: false,
+        capturedAt: ts(NOW - 3600_000),
+        email: "must-not-leak@example.com", // a stray field in the doc never reaches the page
+      };
+      const w = buildRoutes(world);
+      const r = await w.get("/api/admin/students", "admin-token");
+      const withDoc = r.body.rows.find((x: { uid: string }) => x.uid === "stu000");
+      const without = r.body.rows.find((x: { uid: string }) => x.uid === "stu001");
+      expect(withDoc.source).toEqual({
+        ref: "www.youtube.com",
+        utm_source: "youtube",
+        utm_medium: "paid",
+        utm_campaign: "test",
+        utm_content: null,
+        landing: "/",
+        gclid: true,
+        fbclid: false,
+      });
+      expect(JSON.stringify(r.body)).not.toContain("must-not-leak");
+      expect(without.source).toBeNull();
+      expect(w.fs.writes).toEqual([]); // still read-only
+    });
+
     it("★ HONEST DATA: a student who signed up before activityLog existed is 'partial', never a bare 0", async () => {
       const w = buildRoutes(listWorld());
       const r = await w.get("/api/admin/students?page=2", "admin-token");
