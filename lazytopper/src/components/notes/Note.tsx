@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useHref } from "react-router-dom";
 import type {
   NoteConcept,
@@ -18,6 +18,7 @@ import { NoteGeneratedFigure, hasGeneratedRenderer } from "./NoteGeneratedFigure
 import NcertPageModal, { type NcertPageRef } from "./NcertPageModal";
 import { NoteFigureLightbox } from "./NoteFigureLightbox";
 import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
+import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncertFileCode";
 
 /**
  * <Note spec={…}/> — renders one note-spec (schema v1.1) inside the app.
@@ -417,6 +418,8 @@ const NOTE_CSS = `
 .lt-note__ledger-src { white-space: nowrap; color: var(--lt-note-green-deep); font-weight: 600; }
 .lt-note__ledger-wrap { overflow-x: auto; }
 .lt-note__ledger-details { margin-top: 14px; }
+.lt-note__ncert-pdf { margin: 14px 0 0; font-size: 12.5px; font-weight: 600; }
+.lt-note__ncert-pdf a { color: var(--lt-note-green-deep); text-decoration: underline; }
 .lt-note__ledger-summary {
   cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--lt-note-green-deep);
   padding: 8px 0; list-style-position: inside;
@@ -1244,6 +1247,8 @@ export function Note({ spec, initialTab }: NoteProps) {
   const [pageRef, setPageRef] = useState<NcertPageRef | null>(null);
 
   const { meta, figures } = spec;
+  // SEO-LLM-1 — null when the spec resolves no NCERT file code (no link is then shown).
+  const ncertCode = useMemo(() => tryNcertFileCode(spec, `notes/specs/${spec.meta.topic_key}.json`), [spec]);
   const headlineDefs = spec.definitions.filter((d) => d.tier !== "key-term");
   const keyTerms = spec.definitions.filter((d) => d.tier === "key-term");
   const hasBigIdea = !!(spec.big_idea?.tagline || spec.big_idea?.body);
@@ -1541,6 +1546,18 @@ export function Note({ spec, initialTab }: NoteProps) {
       {/* ── Source ledger — provenance, under every tab, CLOSED by default (NOTES-LEDGER-COLLAPSE-1).
           A native <details>: the table stays in the DOM and in the prerendered HTML (crawlable, the
           trust signal survives); only its visibility changes. No JS, same on mobile and desktop. ── */}
+      {/* SEO-LLM-1 — the official NCERT chapter file, visible WITHOUT opening the ledger below
+          and in the prerendered HTML. The code is resolved from this note's own spec by the
+          same module the page <title>/<meta description> use (src/lib/ncertFileCode.ts);
+          a spec that resolves no code gets no link — never a guessed one. */}
+      {ncertCode && (
+        <p className="lt-note__ncert-pdf">
+          <a href={ncertPdfHref(ncertCode)} target="_blank" rel="noopener">
+            {ncertPdfLinkText(ncertCode)}
+          </a>
+        </p>
+      )}
+
       {spec.source_ledger.length > 0 && (
         <details className="lt-note__ledger-details">
           <summary className="lt-note__ledger-summary">Sources: NCERT 2026-27 (tap to view)</summary>
