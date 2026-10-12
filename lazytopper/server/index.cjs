@@ -598,6 +598,7 @@ async function handleRequest(req, res) {
     return accountExportRoutes.handleExport(req, res);
   }
   if (req.method === 'POST' && reqPath === '/api/activity') return require('./routes/studentActivity.cjs').handleStudentActivity(req, res, { sendJson, firebaseAdmin, adminFirestore }); // STUDENT-ACTIVITY-1: signed-in students' section/event counts (first-party, admin-only; see the module)
+  if (req.method === 'POST' && reqPath === '/api/signup-source') return require('./routes/signupSource.cjs').handleSignupSourceRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // SOURCE-1: a NEW account's one-visit source, once, create-only, server-only (see the module)
 
   // ── Payments (RAZORPAY-1) ────────────────────────────────────────────────────
   // Self-gating: each handler answers 404 while PAYMENTS_ENABLED is off, resolves the

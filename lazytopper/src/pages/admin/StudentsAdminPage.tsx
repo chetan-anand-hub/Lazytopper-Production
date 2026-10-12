@@ -122,6 +122,50 @@ function Contact({ row, revealed, onToggle }: { row: StudentRow; revealed: boole
   );
 }
 
+/**
+ * SOURCE-1 — the coarse source `adminStudents.cjs` reads from `signupSources/{uid}`, or
+ * null for an account from before SOURCE-1 (no doc) or a failed read. The row type in
+ * studentsAdminModel.ts is deliberately not widened; this is the page's own view of it.
+ */
+interface RowSource {
+  ref: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_content: string | null;
+  landing: string | null;
+  gclid: boolean;
+  fbclid: boolean;
+}
+
+/** The Source column's text. A missing doc is "—": never a guess, never "Direct". */
+function sourceLabel(source: RowSource | null | undefined): string {
+  if (!source) return "—";
+  const src = (source.utm_source ?? "").toLowerCase();
+  const medium = (source.utm_medium ?? "").toLowerCase();
+  let label: string;
+  if (src === "youtube") label = "YouTube ad";
+  else if (src === "google" && medium === "paid") label = "Google ad";
+  else if (src === "meta" || src === "facebook" || src === "instagram" || source.fbclid) label = "Meta ad";
+  else if (source.ref) label = `From ${source.ref}`;
+  else label = "Direct";
+  return source.utm_campaign ? `${label} (${source.utm_campaign})` : label;
+}
+
+/** Hover text: every coarse field, so a campaign can be read exactly. */
+function sourceTitle(source: RowSource | null | undefined): string | undefined {
+  if (!source) return "No source recorded (account created before source capture)";
+  const parts = [
+    source.utm_source && `source: ${source.utm_source}`,
+    source.utm_medium && `medium: ${source.utm_medium}`,
+    source.utm_campaign && `campaign: ${source.utm_campaign}`,
+    source.utm_content && `content: ${source.utm_content}`,
+    source.ref && `referrer: ${source.ref}`,
+    source.landing && `landed on: ${source.landing}`,
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(" · ") : undefined;
+}
+
 function Covered({ count, coverage, since }: { count: number | null; coverage: "full" | "partial"; since?: string }) {
   const c = coveredCount(count, coverage, since);
   return (
@@ -268,6 +312,7 @@ export default function StudentsAdminPage() {
                         <th scope="col">Signed up</th>
                         <th scope="col">Email</th>
                         <th scope="col">Method</th>
+                        <th scope="col">Source</th>
                         <th scope="col">Plan</th>
                         <th scope="col">Days active</th>
                         <th scope="col">C&amp;I sessions</th>
@@ -296,6 +341,9 @@ export default function StudentsAdminPage() {
                             />
                           </td>
                           <td data-label="Method">{methodLabel(row.signInMethods)}</td>
+                          <td data-label="Source" title={sourceTitle((row as { source?: RowSource | null }).source)}>
+                            {sourceLabel((row as { source?: RowSource | null }).source)}
+                          </td>
                           <td data-label="Plan">
                             <span className={`sa-plan sa-plan-${row.plan.kind}`}>{planLabel(row.plan)}</span>
                           </td>

@@ -492,6 +492,29 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "collection group `activityDays`. Erased with the account and included in the export.",
   },
 
+  // ── Firestore: where a new account came from (server-only, SOURCE-1) ───────────────
+  {
+    id: "signupSources",
+    kind: "firestore-collection",
+    path: "signupSources/{uid}",
+    holds:
+      "Where the student's visit that created this account came from, kept ONCE at " +
+      "sign-up: the referring site's hostname (only if it was another site), up to four " +
+      "ad-campaign tags (source, medium, campaign, content), the page they landed on " +
+      "(no query), and whether an ad click id was present (yes or no only — never the id), " +
+      "plus when it was recorded.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★★ Written ONLY by server/routes/signupSource.cjs (POST /api/signup-source) through " +
+      "the Admin SDK: the VERIFIED uid, a create-only write, accepted only while the Auth " +
+      "account is <= 15 minutes old. Owner ruling 12 Oct 2026 13:16 IST (DECISION 107c): a " +
+      "single-visit source capture is a narrow exception to the cookieless rule. Read by the " +
+      "admin Students page only. NOT declared in firestore.rules — browsers fall through to " +
+      "the deny-all catch-all. Erased with the account and included in the export. The " +
+      "device half of the same capture is the sessionStorage key listed under `local-storage`.",
+  },
+
   // ── Firestore: stored grading results for retries (server-only, LOW-END-1 R4) ──────
   {
     id: "gradingResults",
@@ -571,7 +594,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     path: "localStorage['lazytopper.*']",
     holds:
       "★ Cached mistake logs, check results, attempt dedup keys, progress, streaks and " +
-      "auth state mirrored on the device.",
+      "auth state mirrored on the device. Plus, in THIS TAB's sessionStorage only " +
+      "(`lazytopper.visitSource`, SOURCE-1): the coarse source of the current visit, held " +
+      "until sign-up sends it once to our server and deletes it, or until the tab closes.",
     mechanism: "client-local",
     exportable: true,
     notes:
