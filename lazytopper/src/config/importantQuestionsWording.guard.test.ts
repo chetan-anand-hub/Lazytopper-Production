@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 
 /**
@@ -33,6 +34,12 @@ const OLD_NAMES: readonly RegExp[] = [
   /Predicted Qs/,
   /high-probability question/i,
   /highly probable/i,
+  // Verifier finding on #1102: JSX can split the copy, as in `{n} predicted Q{n === 1 ? "" : "s"}`
+  // on the Exam Trends chip, so "predicted Q" is matched on its own.
+  /\bpredicted Q\b/i,
+  // The short tag "HPQ" as a WHOLE string or JSX text, upper case only. The lower-case
+  // "hpq" ids, route sources and event names are identifiers and stay.
+  /["'`>]\s*HPQs?\s*["'`<]/,
 ];
 
 /**
@@ -119,6 +126,24 @@ describe("★ IMPQ-RENAME-1 — the feature is 'Important Questions' in every st
     expect(OLD_NAMES.some((re) => re.test(lines[0]))).toBe(true);
     expect(OLD_NAMES.some((re) => re.test(lines[1]))).toBe(false);
     expect(OLD_NAMES.some((re) => re.test(lines[2]))).toBe(false);
+  });
+
+  it("CONTROL: offenders() itself reports a real file that carries the old copy, split JSX and the HPQ tag included", () => {
+    const dir = mkdtempSync(join(tmpdir(), "impq-guard-"));
+    const file = join(dir, "Probe.tsx");
+    writeFileSync(
+      file,
+      [
+        "// Predicted Questions in a comment is fine",
+        "export const a = <span>{n} predicted Q{n === 1 ? \"\" : \"s\"}</span>;",
+        'export const b = { predicted: "HPQ" };',
+        'export const c = { source: "hpq" };',
+      ].join("\n"),
+    );
+    const found = offenders([file]);
+    expect(found).toHaveLength(2);
+    expect(found[0]).toContain("predicted Q");
+    expect(found[1]).toContain('"HPQ"');
   });
 
   it("the new names are in place where the owner named them", () => {

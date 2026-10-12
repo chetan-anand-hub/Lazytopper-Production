@@ -1171,7 +1171,7 @@ function TopicCard({
             {/* HPQ chip — the real count only; no bucket match renders nothing. */}
             {hpqCount > 0 && (
               <span className="lt-et-hpq">
-                {hpqCount} predicted Q{hpqCount === 1 ? "" : "s"}
+                {hpqCount} important Q{hpqCount === 1 ? "" : "s"}
               </span>
             )}
           </div>
