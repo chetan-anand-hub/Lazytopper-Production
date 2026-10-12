@@ -14,7 +14,6 @@ import {
   templateTitle,
 } from "../../scripts/seo/writeStaticHeads";
 import { canonicalFor } from "./canonicalUrl";
-import { EVIDENCE_BASE_YEARS } from "./evidenceBase";
 import { sitemapPaths } from "./sitemapUrls";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { readFileSync } from "node:fs";
@@ -438,14 +437,14 @@ describe("static heads — the writer refuses to no-op silently", () => {
     expect(renderedLength("plain")).toBe(5);
   });
 
-  it("★ SEO-PAGES-1 (B) — /highly-probable titles say 'Important Questions', never 'Predicted', and promise no paper", () => {
+  it("★ SEO-PAGES-1 (B) — /highly-probable titles and descriptions are the owner's 'Important Questions' text, never 'Predicted'", () => {
     for (const subject of ["Maths", "Science"]) {
       const head = headForPath(`/highly-probable/10/${subject}`);
       expect(head?.title).toBe(`Class 10 ${subject} Important Questions for Boards 2027 | LazyTopper`);
       expect(head?.title).not.toMatch(/predicted/i);
-      expect(head?.description).toContain("Patterns to practise, not the 2027 paper.");
-      // The years come from the one evidence constant, not a literal.
-      expect(head?.description).toContain(`from ${EVIDENCE_BASE_YEARS} years of papers`);
+      // D106a (DECISION 110 on #973): the owner's exact description text.
+      expect(head?.description).toBe(`Important questions for CBSE Class 10 ${subject} boards 2027, chapter by chapter.`);
+      expect(head?.description).not.toMatch(/predicted/i);
       expect(renderedLength(head?.description ?? "")).toBeLessThanOrEqual(155);
     }
   });
