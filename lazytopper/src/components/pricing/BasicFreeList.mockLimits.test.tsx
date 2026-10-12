@@ -25,7 +25,8 @@ import { BasicFreeList, BASIC_FREE_LABELS, FREE_FEATURES } from "./BasicFreeList
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 
 const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), "utf8");
-const ROW = "Mock papers: 1 a day signed out, 3 a day with a free account";
+// D114 (12 Oct 2026): the row says what the limit is, an OPEN/DOWNLOAD allowance, not checked mocks.
+const ROW = "Open or download 3 chapter tests or mocks a day (1 when signed out) — answers not checked";
 
 afterEach(() => cleanup());
 
@@ -42,7 +43,7 @@ describe("F2 — the mock-papers row, with MockViewGate loaded first", () => {
   });
 
   it("the row is included, and the lock list carries it", () => {
-    const row = FREE_FEATURES.find((f) => f.label.startsWith("Mock papers"));
+    const row = FREE_FEATURES.find((f) => f.label.startsWith("Open or download"));
     expect(row).toEqual({ label: ROW, included: true });
     expect(BASIC_FREE_LABELS).toContain(ROW);
     expect(FREE_FEATURES.some((f) => /Full mocks and predicted-question execution/.test(f.label))).toBe(false);
@@ -69,7 +70,7 @@ describe("F2 — one source, no literal, no cycle", () => {
     const src = read("src/components/pricing/BasicFreeList.tsx");
     expect(src).toMatch(/from "\.\.\/\.\.\/config\/mockViewLimits";/);
     expect(src).not.toMatch(/from "\.\.\/auth\//);
-    const at = src.indexOf("Mock papers:");
+    const at = src.indexOf("Open or download");
     const line = src.slice(at, src.indexOf("\n", at));
     expect(line).toContain("${ANON_DAILY_MOCK_LIMIT}");
     expect(line).toContain("${SIGNED_IN_DAILY_MOCK_LIMIT}");
