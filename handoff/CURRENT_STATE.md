@@ -1,5 +1,20 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-12 · SEO-PAGES-1] /cbse/class-10 ON CBSE'S 2026-27 SAMPLE PAPERS, AN HONEST PRERENDERED PILL, "IMPORTANT QUESTIONS" HPQ HEADS, THE FREE ANSWER CHECK NAMED ON PRICING — `#1095` + `#1098` MERGED — LIVE
+
+*(This block adds to the DAY CLOSE 2026-10-11 block directly below, which stays current for everything this block does not name. Written by C1 under §10 for `#1095` and `#1098`, from `#973` (DECISIONs 106, 110, 111, 112) and `git log`.)*
+
+★ **TRUNK:** `1564c225` (`#1098`, 2026-10-12 08:54:06Z). Re-derive it with `git rev-parse origin/base/approved-thru-437`; other lanes (A SOURCE-1 `#1096`, C2 ACTIVATION-1 `#1097`) were open while this was written.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1095` SEO-PAGES-1 | `0d43bf22` | 10-12 08:07:54 | `/cbse/class-10`: the six SQP/MS links point at CBSE's `ClassX_2026_27/`, and the Maths Basic marking scheme row is new. The "Sample papers" pill also reads the committed hrefs (CA-3 extended), so the prerendered page says **out**. Three Class X circulars were added and the checked date is 12 October 2026. "Practise this paper" → `/full-mock/10/<Subject>` and "Get your answer checked" → `/check-improve`. The `/highly-probable` `<title>`s say "Important Questions". The Pricing Basic card names the one free signed-out answer check. |
+| `#1098` SEO-PAGES-1 follow-up | `1564c225` | 10-12 08:54:06 | The `/highly-probable` descriptions use the owner's exact D106a text (D110). Two official competency resources were added: the Maths CFPQ manual and the Science item bank, with an "older CBSE sets" note under them (D111). The Pricing free-check line waits for auth to resolve. |
+
+- **LIVE `#1095`:** 5/5 cold reads of `/version.json` = `0d43bf22`. All §5 curls pass; the cofounder's own curl is in D110.
+- **LIVE `#1098`:** see `SESSION_LOG.md` (the curl of both `<meta name="description">` tags).
+- **Owed:** the owner's 390 px phone check (SEO-PAGES-1 §5 last box).
+
 ## [CURRENT · DAY CLOSE 2026-10-11] A DAY OF SEVEN PARALLEL CONTROLLERS — FIGURES ON EVERY SURFACE, ME + WEAK AREA ON ONE CONCEPT MODEL, FAIR-USE WARNINGS LIVE, ALL-AI METERING AND TOP-UPS BUILT DARK, THE UNPROTECTED DIAGRAM ENDPOINTS REMOVED
 
 *(Supersedes the WAVE B-18 J2 block directly below on trunk SHA and on every item this block names. That block is demoted to previous; the owner items of every block below stand unless this block names them.)*

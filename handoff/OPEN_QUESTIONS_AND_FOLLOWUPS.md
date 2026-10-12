@@ -23,6 +23,23 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-12 — SEO-PAGES-1 (C1, §10 for `#1095` + `#1098`): FOLLOW-UPS RAISED
+
+### [FU-CHECKIMPROVE-OWN-TITLE] — OPEN (from the SEO-PAGES-1 spec, D106)
+`/check-improve` has no `<title>` of its own. The route is served by the shell catch-all in the protected `vercel.json` and is `noindex` by design. Giving it a title needs a `vercel.json` change, which was out of scope. Ads keep landing on `/check-improve`.
+
+### [FU-PRICING-PRERENDER-FREECHECK-FLASH] — OPEN, owner call (raised by the `#1095` verifier; partly fixed in `#1098`)
+`#1098` stops the CLIENT flash: the line waits for `!authLoading`, so a signed-in student is not shown it while auth loads.
+- **What remains:** the PRERENDERED `/pricing` HTML (captured signed out) still contains the line. `main.tsx` keeps the prerendered route markup until the route chunk mounts, so a signed-in visitor can see it until the Pricing JS loads.
+- **The trade-off:** removing it from the prerender also removes it for crawlers, against SEO-PAGES-1 §5.
+- **Options:** (a) keep, the current state; (b) exclude it from the capture.
+- **Do not duplicate:** this is also listed in `NEXT_ACTION.md` as an owner call.
+
+### [FU-MIRROR-STEP2-FOLLOWS-PRIOR-SOURCE] — OPEN, NOTE (P23 of SEO-PAGES-1)
+`scripts/cbse-mirror/mirror.ts` step 2 fetches `prior.sourceUrl` (`base = prior ?? emptyEntry(paper)`), NOT the committed `paper.href`. So a committed href change for an EXISTING manifest entry is not picked up; only the C7 new-session probe or a first seed changes it.
+- **SEO-PAGES-1 was not affected:** C7 had already moved all five existing papers to 2026-27 (manifest 2026-10-12 06:13Z).
+- **When it would bite:** a future in-session URL correction would need a manual manifest step or a code change.
+
 ## 2026-10-11 — DAY CLOSE (C2, docs lane D100): FOLLOW-UPS RAISED OR CLOSED BETWEEN 2026-10-10 18:00Z AND THE CLOSE OF 2026-10-11
 
 *(Newest first at the top of the dated sections, per standing rule 1: every ID below has its own heading and body. Owners are the controller who raised it; "tomorrow" = 2026-10-12. Sources: `#973` DECISIONs 75–100 and the PRs' own bodies.)*
