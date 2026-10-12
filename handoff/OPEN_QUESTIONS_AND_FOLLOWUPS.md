@@ -23,6 +23,76 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-12 — SEO-PAGES-1 (C1, §10 for `#1095` + `#1098`): FOLLOW-UPS RAISED
+
+### [FU-CHECKIMPROVE-OWN-TITLE] — OPEN (from the SEO-PAGES-1 spec, D106)
+`/check-improve` has no `<title>` of its own. The route is served by the shell catch-all in the protected `vercel.json` and is `noindex` by design. Giving it a title needs a `vercel.json` change, which was out of scope. Ads keep landing on `/check-improve`.
+
+### [FU-PRICING-PRERENDER-FREECHECK-FLASH] — OPEN, owner call (raised by the `#1095` verifier; partly fixed in `#1098`)
+`#1098` stops the CLIENT flash: the line waits for `!authLoading`, so a signed-in student is not shown it while auth loads.
+- **What remains:** the PRERENDERED `/pricing` HTML (captured signed out) still contains the line. `main.tsx` keeps the prerendered route markup until the route chunk mounts, so a signed-in visitor can see it until the Pricing JS loads.
+- **The trade-off:** removing it from the prerender also removes it for crawlers, against SEO-PAGES-1 §5.
+- **Options:** (a) keep, the current state; (b) exclude it from the capture.
+- **Do not duplicate:** this is also listed in `NEXT_ACTION.md` as an owner call.
+
+### [FU-MIRROR-STEP2-FOLLOWS-PRIOR-SOURCE] — OPEN, NOTE (P23 of SEO-PAGES-1)
+`scripts/cbse-mirror/mirror.ts` step 2 fetches `prior.sourceUrl` (`base = prior ?? emptyEntry(paper)`), NOT the committed `paper.href`. So a committed href change for an EXISTING manifest entry is not picked up; only the C7 new-session probe or a first seed changes it.
+- **SEO-PAGES-1 was not affected:** C7 had already moved all five existing papers to 2026-27 (manifest 2026-10-12 06:13Z).
+- **When it would bite:** a future in-session URL correction would need a manual manifest step or a code change.
+
+## 2026-10-11 — DAY CLOSE (C2, docs lane D100): FOLLOW-UPS RAISED OR CLOSED BETWEEN 2026-10-10 18:00Z AND THE CLOSE OF 2026-10-11
+
+*(Newest first at the top of the dated sections, per standing rule 1: every ID below has its own heading and body. Owners are the controller who raised it; "tomorrow" = 2026-10-12. Sources: `#973` DECISIONs 75–100 and the PRs' own bodies.)*
+
+### OPEN — raised today
+
+**`[FU-EXACT-SET-TOPUP]`** — *raised by the cofounder in D96 on `#1076`.* A short exact pool (fewer served rows than the requested count) can be topped up with rows outside the chosen concept. It happens only with duplicate-text rows. Not a blocker. Owner: C1 (next C1 session).
+
+**`[FU-EXACT-SET-REFRESH]`** — *D96.* "Build a fresh set" on a strict-focus link returns the identical set. On that path rename or hide the button. Owner: C1, follow-up to `#1076`.
+
+**`[FU-HARDEN-VISUAL-RESIDUE]`** — *D95 on `#1087`.* `adminTelemetry.cjs` still lists `visual` in `REPORTED_CALL_CLASSES` / `RATE_LIMIT_CLASSES` (it will read 0 forever) and `claudeClient.selectModelForRequest` keeps dead `visual` / `diagram` modes. Cosmetic clean-up. Owner: E.
+
+**`[FU-TOPUP-RACE]`** — *D97b on `#1086`.* Two concurrent requests can each pass `creditCovers` against the same balance; the overshoot is at most one request's cost. Make `chargeCredit` floor at 0 (verify that it does) and pin it. Owner: A, with TOPUP-1.
+
+**`[FU-WAP-SAVED-PATH-STALE]`** — *D86a on `#1085`.* A Learning Path saved before `#1085` was built from the device-local list and still shows until it is regenerated. It is the student's own saved plan, so it is not invented data, but when a saved path names no chapter that is in today's list, offer "Rebuild plan". Owner: next C2 / Weak Area session.
+
+**`[FU-SHARED-REPORT-STALE]`** — *C2, answered D85b on `#1085`.* `GET /api/shared-report` (`server/index.cjs:570/581`, `routes/share.cjs`) reads the Firestore docs `weakAreaSummary/{uid}` and `topicMastery/{uid}`. They stop updating now that Weak Area Practice no longer calls `getWeakAreas`. **No live UI reaches the route** (`git grep` over `src`, `public`, `vercel.json`: only the server route), so nothing student-facing shows the stale numbers today. Retire the endpoint or re-source it from the study model. Owner: unassigned.
+
+**`[FU-WEAKAREA-AGGREGATOR-RETIRE]`** — *C2, approved D86a.* `weakAreaAggregator.ts` and `attemptOutcome.ts` have no live importer; they are registered as dated `ALLOWED_ORPHANS` in `noOrphans.guard.test.ts` because three `weakAreaAggregator.*` tests and two ops acceptance scripts (`check_improve_convergence_acceptance`, `topickey_guard_acceptance`) still read them. Retire the modules together with those readers. Do not retire today (D86a). Owner: unassigned.
+
+**`[FU-NOTES-CAPTION-DOUBLED]`** — *B's note, D79h / D100.* The trigonometry notes caption reads "NCERT FIG. 9.2 Fig 9.2 —": the renderer prefix and the spec caption both carry the label. Fix in one place and pin it. Owner: B / C1 (notes).
+
+**`[FU-NCERT-CROP-WATERMARK]`** — *B's 07:40Z note on `#1083`.* A faint diagonal NCERT watermark is still visible on the Magnetic crops (Fig 12.4, 12.10) and may be on the PR-3..5 crops. Re-cut cleaner. Owner: D.
+
+**`[FU-COST-CHUNK-TELEMETRY]`** — *D79d.* Store `chunkCount` and `cachedContentTokenCount` per graded paper so any COST-1 revisit is measured. COST-1's caching and image right-sizing levers were DROPPED (accuracy wins; implicit caching already collects about 46%). Not today. Owner: E.
+
+**`[FU-RULE5-PRECISION]`** — *B's verifier FU on `#1073`.* `PYQ-S-2024-ELEC-002` describes its circuit in prose and is flagged by pattern 6 although it has a bound figure, so no surface changes today. Tighten the pattern. Owner: B.
+
+**`[ADMIN-QLOOKUP-1]`** — *named in D100's tomorrow list.* An admin question lookup by id (B's BANK-FIX-7 live checks needed "the id lookup"). Spec not on the board today; scope it before building. Owner: unassigned.
+
+**`[FU-ME-CONSISTENCY-CLOCK-FLAKE]`** — *C2, raised during `#1088`.* `progressReadModel.consistency.test.tsx:331` (the `waitFor` on the concept note, already 8 s) failed once in the `clock (2030 1/2)` shard at the instant `2026-10-07T18:29:59Z` and passed on a re-run; the previous head had passed every clock shard. Read as a slow-runner flake, not root-caused. If it recurs, find the load-time cause. Owner: C2.
+
+**`[FU-30DAY-WARN-BANNER]`** — *D83a.* Add the 30-day window to `#1060`'s banner list. The value is UNSET so no banner is owed yet. Owner: A.
+
+**`[FU-USAGE-NOTE-MOUNT]`** — *D45c, carried.* `UsageNote` is built and unmounted. Parked.
+
+**Verifier notes carried by merged PRs (not blockers):** `#1085` — the Weak Area "starting with {concept}" wording returns only with `#1076` and its first-question pin (D85a); `#1087` — see `[FU-HARDEN-VISUAL-RESIDUE]`; `#1046` — switch DARK, live-verify owed when the owner flips it; `#1063` — owner trig proofs D59b.
+
+### CLOSED today
+
+**`[FU-BREAK-REMINDER-MOUNT-REMOVE]`** — CLOSED by `#1081` (`81db9d14`): `App.tsx` lost exactly two lines; `BreakReminder.tsx`, its test and `sessionLogger.ts` deleted; the `repo_deep_audit.mjs:562` line dropped. One stale comment remains at `DesktopShell.tsx:434` and goes with `#1013`.
+
+**`[FU-ARC-REVIEW-SYLLABUS]`** — CLOSED by D79b: Areas Related to Circles circumference/area is IN (the NCERT deleted list drops the review section 12.2, not the skill; the current official 2026-27 SQP Q10 assesses it). All 43 rows stay served; the official SQP Q10 row landed in `#1084`.
+
+**Polynomials maximum / minimum parts** — D79a said OUT; **REVERSED by the owner in D80a**: not explicitly excluded by CBSE, so they stay as HOTS / hard (`syllabusGuard.ts` bans only the division algorithm and cubic zeroes-coefficients for Polynomials; the rows use symmetry, not completing the square). No rewrite, no withhold, no extremum guard rule. Recorded in sweep #2 as "IN by owner ruling 2026-10-11".
+
+**`[FU-TARGETED-FOCUS-IDS]`** — folded into `#1076` (exact filter). CLOSES when `#1076` merges; the D85a wording is restored only with the first-question pin.
+
+**GEMINI-PARAMS-1** — PARKED inside MODEL-SWITCH-1 (D79c): 2.5-flash returns 404 for new keys and detect still runs on 2.5 with thinking off, so the change is unmeasurable now. **COST-1** — CLOSED / DROPPED (D79d).
+
+### Standing rule check (rule 1)
+Every `[FU-...]` named in this section has its own heading above. The two names this section only cross-refers (`[FU-TARGETED-FOCUS-IDS]`, GEMINI-PARAMS-1) have a CLOSED / PARKED entry above as well.
+
 ## 2026-10-07 — WAVE B-18 (CONTROLLER B): J2 (`#979` `678b9811`, `#980` `480b619c`), FLAKE-PDF (`#995` `67b2873c`), ME PR-2d (`#997` `d8a7d2f4`) — 8 closed, 3 new named, 3 older ids kept open (2 extended); `[PROD-AI-500]` resolved
 
 Sources: `Desktop/diff/WAVE_STATE_B18.md` (D30–D79, FU ENTRIES), the builder reports `report-j2-2026-10-06.md`, `report-flake-pdf-2026-10-07.md`, `report-me-engine-1-pr2d-2026-10-07.md`, the verifier records `verify-979-6ec3492d.md` / `verify-980-0a0c5484.md` / `verify-995-467d21ba.md` / `verify-997-a843f5d7.md`, the live records `live-970-L1-2026-10-07.md` / `live-995-2026-10-07.md`, and the board. **Bodies come from those sources; nothing is invented.** No dated entry below is edited (standing rule 3): the older headings for the closed ids still read OPEN where they were written; this section is where they close. The `live-997` record did not exist when this was written.

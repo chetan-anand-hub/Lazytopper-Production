@@ -44,6 +44,7 @@ import {
   fetchWorksheetPaperSnapshot,
   reapGradedWorksheetSnapshots,
 } from "../../services/worksheetPaperStore";
+import { loadWorksheetRebuild, worksheetQuestionFromBankRow } from "../../services/paperRebuild";
 import WorksheetPendingBanner from "./WorksheetPendingBanner";
 // FAIR-USE-UI-1 (UI3) — dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
@@ -151,6 +152,11 @@ interface EntryContext {
   /** true when the URL carries a valid subject + topic(s) (or full-subject) to build
    *  from — the builder opens autofiltered. false → the caller redirects once to the hub. */
   hasContext: boolean;
+}
+
+/** PAPER-REBUILD-1 — the generator's topic label for a key (the same catalogue `labelFor` reads). */
+function labelForTopic(subject: string, key: string): string {
+  return getTopics(subject === "science" ? "Science" : "Maths", "All").find((t) => t.key === key)?.label ?? key;
 }
 
 /**
@@ -530,20 +536,8 @@ function WorksheetGeneratorInner() {
     const ordered = [...generateFromPlan({ ...plan, sectionBoosts, topicSectionBoosts: perTopicSectionBoosts })].sort(
       (a, b) => (SECTION_RANK[a.section] ?? 9) - (SECTION_RANK[b.section] ?? 9),
     );
-    return ordered.map((q, i) => ({
-      qNumber: i + 1,
-      id: q.id,
-      subject: String(q.subject),
-      topicKey: q.topicKey,
-      topicLabel: labelFor(q.topicKey),
-      section: String(q.section || "").toUpperCase(),
-      marks: Number(q.marks) || 1,
-      questionText: q.questionText,
-      options: q.options,
-      solutionSteps: q.solutionSteps,
-      finalAnswer: q.finalAnswer,
-      answer: q.answer,
-    }));
+    // PAPER-REBUILD-1 (P12): the ONE bank-row -> question map, shared with the rebuild.
+    return ordered.map((q, i) => worksheetQuestionFromBankRow(q, i + 1, labelFor(q.topicKey)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan, blocker, drawNonce, JSON.stringify(sectionBoosts), JSON.stringify(perTopicSectionBoosts)]);
 
@@ -787,6 +781,16 @@ function WorksheetGeneratorInner() {
       if (snap) {
         ws = snap.paper;
         saveWorksheetSession(ws); // re-seed this device so the upload step behaves as on the sitting device
+      }
+    }
+    if (!ws) {
+      // PAPER-REBUILD-1 (D102/D103b): no copy anywhere -> the EXACT paper from the record's own ids
+      // (every id resolves, same order, same count), then seed THIS DEVICE's copy only. D105a: the
+      // server snapshot is the frozen truth — a transient read failure must never overwrite it.
+      const rebuilt = await loadWorksheetRebuild(record, (key) => labelForTopic(record.subject, key)).catch(() => null);
+      if (rebuilt) {
+        ws = rebuilt;
+        saveWorksheetSession(ws);
       }
     }
     if (ws) {

@@ -241,9 +241,10 @@ export function storedChapterTestScorecardVariant(
   record: SessionRecord,
   // PENDING-UPLOAD-1: `onUploadSheet` is optional and local to this variant, so every
   // other caller of the stored chapter-test variant is unchanged.
-  input: StoredChapterTestVariantInput & { onUploadSheet?: () => void; awaitingDetail?: string },
+  // PAPER-REBUILD-1 (D103d): `onStartNew` is optional too — the no-paper state's "Start a new test".
+  input: StoredChapterTestVariantInput & { onUploadSheet?: () => void; awaitingDetail?: string; onStartNew?: () => void },
 ): ScorecardVariant {
-  const { gradedDateLabel, response, onDone, onDownloadGraded, onDownloadSolution, onUploadSheet, awaitingDetail, downloading = false } = input;
+  const { gradedDateLabel, response, onDone, onDownloadGraded, onDownloadSolution, onUploadSheet, awaitingDetail, onStartNew, downloading = false } = input;
   const doneAction: ScorecardAction = { label: "Done", tone: "ghost", onClick: onDone };
   const pendingUpload = record.status === "pending-upload";
   const awaitingWritten = record.status === "partial" && !response;
@@ -263,7 +264,9 @@ export function storedChapterTestScorecardVariant(
       allPending: null,
       actions: onUploadSheet
         ? [{ label: "Upload answer sheet", tone: "primary", onClick: onUploadSheet }, doneAction]
-        : [doneAction],
+        : onStartNew
+          ? [{ label: "Start a new test", tone: "primary", onClick: onStartNew }, doneAction]
+          : [doneAction],
     };
   }
 
@@ -386,7 +389,9 @@ export function storedFullMockScorecardVariant(
       chapterLensNote: null,
       pending: null,
       allPending: null,
-      actions: [doneAction],
+      actions: input.onStartNew
+        ? [{ label: "Start a new test", tone: "primary", onClick: input.onStartNew }, doneAction]
+        : [doneAction],
     };
   }
 

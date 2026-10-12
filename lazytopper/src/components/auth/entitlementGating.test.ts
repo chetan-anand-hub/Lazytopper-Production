@@ -120,22 +120,25 @@ describe("entitlement gating is wired at the component, not the route", () => {
    prescribes. Editing them would have been a no-op dressed as a fix, so the
    finding is pinned instead: the protection now cannot be removed silently.
    MUTATION: delete <RequireAuth> from either page ⇒ RED.
+
+   HARDEN-1 PR-2 (D81a, Oct 2026): both pages were DELETED together with the paid
+   /api/generate-diagram route they called. RequireAuth alone (not an admin check)
+   let any signed-in user trigger paid calls. The auth pins are replaced by a pin
+   that the pages and their routes cannot silently come back.
+   MUTATION: restore either page file, or a /admin/diagram-* route ⇒ RED.
    ══════════════════════════════════════════════════════════════════════════ */
 
-describe("admin diagram pages already require auth (pinned, not added)", () => {
+describe("admin diagram pages are deleted (HARDEN-1 PR-2, D81a)", () => {
   for (const page of ["pages/DiagramComparePage.tsx", "pages/DiagramQualityPage.tsx"]) {
-    it(`${page} wraps its default export in RequireAuth`, () => {
-      const text = src(page);
-      expect(text).toMatch(/import \{ RequireAuth \} from/);
-      expect(text).toMatch(/<RequireAuth>/);
-      expect(text).toMatch(/<\/RequireAuth>/);
+    it(`${page} no longer exists`, () => {
+      expect(fs.existsSync(resolve(process.cwd(), "src", page))).toBe(false);
     });
   }
 
-  it("both call generate-diagram, which is why auth is required at all", () => {
-    const compare = src("pages/DiagramComparePage.tsx");
-    const quality = src("pages/DiagramQualityPage.tsx");
-    expect(compare + quality).toMatch(/generate-diagram|generateDiagram/);
+  it("App.tsx has no import or route for them", () => {
+    const app = src("App.tsx");
+    expect(app).not.toMatch(/DiagramComparePage|DiagramQualityPage/);
+    expect(app).not.toMatch(/\/admin\/diagram-(compare|quality)/);
   });
 });
 

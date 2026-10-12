@@ -1,3 +1,68 @@
+## 2026-10-12 — SEO-PAGES-1 (COFOUNDER DECISIONS 106, 110, 111 AND 112 AS THEY BEAR ON IT; RECORDED BY C1 UNDER §10)
+
+> ⚠ **SCOPE.** These are the decisions that shaped `#1095` / `#1098`, numbered as on `#973`. DECISIONs 107–109 (ACTIVATION-1, SOURCE-1, verifier model) belong to other lanes' docs, apart from D108's verifier rule, which this lane followed.
+
+| D | decision | the reason given |
+|---|---|---|
+| **106** | SEO-PAGES-1 is the day's first product lane. In order, A: the 2026-27 SQP/MS + Basic MS, the honest pill, the date only after a real check, Practise-it. B: the HPQ wording "Important Questions" (reverses SEO-3's wording only). D: the Pricing free-check line. `/check-improve` title out of scope. | "sample paper class 10 cbse 2026 27" is the top Ads search term; the live page linked 2025-26 papers and said "awaited"; the sample-paper ads were blocked on it |
+| **106 (lane)** | CA-3 extended: the pill is also READY when a committed `-SQP.pdf` href names a session ≥ 2026-27. The manifest rule is unchanged. | The prerendered page has no manifest, so crawlers always read "awaited" |
+| **108** | The independent verifier runs on Opus as a separate agent; quote its model, verdict and head; re-verify if the head moves for lane code | Controllers run on Sonnet; correctness judgements stay on Opus |
+| **110** | The D106a descriptions were missed in `#1095`; a one-commit follow-up sets them to the owner's exact text | The cofounder's live curl found the old "Question patterns… not the 2027 paper" text |
+| **111** | Add the Maths CFPQ manual and the Science item bank, with one "older CBSE sets" note | CBSE has published no 2026-27 competency set; the latest are Dec 2022 / Sep 2021; two matching rows were missing |
+| **111 (lane correction)** | The "update `cbseMirrorFeeds.test.ts` 6→8" premise does NOT apply. That pin maps only CBSE's sample-paper index, and the CFPQ / item-bank files are not on it. The root matrix stayed `# fail 0` with the test unchanged; the Opus verifier agreed independently. | Changing a passing test to match a wrong premise would pin a false fact |
+| **112** | Merge order: A's `#1096` first; `#1098` shares no files and merges whenever green, one at a time | `#1096` was reviewed and green first |
+| **(lane)** | The Pricing line waits for `!authLoading`; the prerendered copy stays crawlable (owner call logged) | It stops the client flash without losing the crawler copy that SEO-PAGES-1 §5 requires |
+
+
+## 2026-10-11 — DAY CLOSE (COFOUNDER DECISIONS 75–100, RECORDED BY C2, DOCS LANE D100)
+
+> ⚠ **SCOPE.** These are the cofounder's DECISIONs 75–100 on `#973`, numbered as there and never renumbered here, each with its reason. Owner words are quoted only where the board quotes them (all relayed by the cofounder; IST times are the owner's clock). DECISIONs 1–74 are in the blocks below and in earlier docs; D61–D74 (the ME-CONCEPT-1 and CONCEPT-MAP-FILL-1 decisions) are summarised where this block depends on them.
+
+### OWNER rulings relayed today (verbatim where quoted)
+- **06:46 IST (D75):** finish everything today, in parallel across seven sessions; quality gates are not lowered.
+- **06:55 IST (D76):** *"yes to both, but ensure that nothing in the product breaks"* — the two forbidden files, `App.tsx` and `DesktopShell.tsx`.
+- **08:0x IST (D80a):** the Polynomials maximum / minimum parts stay (not explicitly excluded by CBSE → keep as HOTS / hard).
+- **08:08 IST (D81):** *"yes delete the two admin pages, but ensure that nothing in the product working or quality is affected"* — `App.tsx` 4 lines for HARDEN-1 PR-2.
+- **12:07 IST (D91):** routine git commands run without asking, in the controller's own worktree.
+- **13:25 IST (D98):** no idle sessions. **13:29 IST (D99) and 13:32 IST (D100):** ship only what improves students' experience or correctness today; seven items; the rest tomorrow.
+
+### The decisions
+| D | decision | the reason given |
+|---|---|---|
+| **75** | Seven controllers in parallel (new D = solution figures, new E = cost + hardening); every controller on `/loop`; draft is not done (merged + live, or merged dark); owner checks batched at ~13:00 / 17:00 / 21:00 IST | The owner wanted everything finished in a day; gates (golden eval, verifier, byte-review) are not lowered |
+| **76** | Two forbidden files authorised with exact scope: `App.tsx` 2 lines (BreakReminder import + mount) and `DesktopShell.tsx` for `#1013` only; revert at once on any breakage | CLAUDE.md §4 makes them globally forbidden; the owner said yes with "nothing breaks", so each carries a no-breakage proof list |
+| **77** | `#1069` byte-review PASS (3 files; tracking concepts cite NCERT or the 086 unit wording; none is a banned sub-topic); `#1076` needs its own AUDIT-REQUEST | A change to practice selection is reviewed before merge |
+| **78** | `#1046` PASS with ONE condition: a free student whose trial is used must not be told "Try it free for 7 days"; `#1077` needs no audit; `#1075` acknowledged | Offering a trial the student cannot take is a false offer (owner doctrine) |
+| **79** | (a) Polynomials max/min OUT [reversed by D80a]; (b) Areas Related to Circles IN; (c) GEMINI-PARAMS-1 parked in MODEL-SWITCH-1; (d) COST-1 dropped; (e) App.tsx 4 lines asked of the owner; (f) E owns `#1013`; (g) B is D's merge proxy; (h) BANK-FIX-7 collected | (b) the current-year SQP Q10 assesses the skill and outranks an older deletion booklet; (c) 2.5-flash is 404 for new keys so the change cannot be measured; (d) accuracy wins and implicit caching already collects about 46% |
+| **80** | (a) D79a REVERSED: Polynomials max/min stay; (b) BANK-FIX-7 runs today, wrong answers first (EYE-EXMPLR-10-LA-005 colour order); (c) D's diagrams "are not lost and are merged" | (a) the owner's standing rule: OUT only when the official text excludes it; (b) a wrong answer shown to students goes first |
+| **81** | `App.tsx` 4 lines authorised for HARDEN-1 PR-2 (two lazy imports + two routes) with seven proofs; delete the two admin pages | Both pages sit behind `RequireAuth` only, not an admin check: any signed-in user who types the URL can trigger paid `/api/generate-diagram` calls |
+| **82** | `#1065` byte-review PASS; App.tsx order: `#1081` first, E's PR-2 after; SQP Q10 plan approved (exponent options eye-checked against the page image) | Won-back is computed at read time only, needs a later, different-question, different-attempt, fully-correct answer; nothing writes `resolvedAt` |
+| **83** | A silent 77 min: RESUME, not a fresh session; fallback: E may be the mechanical proxy for `#1037` and `#1064` after 03:50Z | The silence was an idle session with no `/loop`; a mechanical proxy never adds lane content |
+| **84** | `#1081` PASS (App.tsx exactly 2 deletions; `sessionLogger.ts` had no other importer); `#1074` PASS (3 crops bound, 16 withheld, a non-vacuous permanent guard) | Each ratchet moved by exactly the change |
+| **85** | (a) Ship PR-B with the button "Practise {chapter}"; (b) before the AUDIT-REQUEST answer whether `/api/shared-report` is reachable from any live UI | C2's measurement: 0 of the 15 focus ids were drawn and the concept led 3 of 9 times, so "starting with {concept}" was a promise the session did not keep; (b) a stale shared report would be a fake-data risk — answered NO (`[FU-SHARED-REPORT-STALE]`) |
+| **86** | `#1085` PASS; the two `ALLOWED_ORPHANS` entries approved, do not retire today; FU `[FU-WAP-SAVED-PATH-STALE]`; BANK-FIX-7 PR-2 must quote the marking-scheme page for each key change | An answer-key change is checked against the official page, not memory |
+| **87** | Token and cost discipline: model by task (Opus medium for code, Sonnet low for mechanical work, a verifier only where a rule requires one, once per head); `?since=` reads; update a branch only when next in order; posts under about 12 lines; hand over at about 25% | Seven sessions draw on one 5-hour window and a weekly cap |
+| **88** | Owner away about 2 h: keep moving; a handing-over controller passes its queue to a named PICKUP; a pickup is mechanical only; server-side merges one at a time at least 20 min apart | No new sessions can be opened while the owner is away; live students are on the site, and restarts must not stack |
+| **89** | The fresh C1 (not E) takes over from old C1; `#1046`'s four trunk-in resolutions PASS (busy_today before the typed limit error; copy split intact) | The owner pasted the fresh-C1 message before leaving |
+| **90** | Pace: merge a green, CLEAN, next-in-order PR in the same turn; poll every 10 min | Two PRs sat green for over 10 min with nobody merging |
+| **91** | Routine git / gh commands pre-approved in the controller's own worktree; still forbidden: force-push, reset --hard, deleting a branch, merging out of order, any platform setting | Sessions froze on permission prompts and a frozen session's loop never fires |
+| **92** | `#1076` APPROVED with four conditions: skip the blueprint branch only for `strictFocus` + full-count ids; the proof runs the REAL page path, RED on trunk; the D85a label returns only with a first-question pin; `#1076` after `#1046`. C2 takes META PR-2 from C1 | C1's probe: the Hub URL runs the `marks="all"` blueprint branch, so the builder-only proof was vacuous (Alloys 22 of 26 served, 4 outside) |
+| **93** | `#1046` merged; META PR-2 split (2a now, 2b after `#1076`) approved with conditions: advanced matching OFF, no PII, names only, `checkout.ts` stays dark, an allow-list pin, AUDIT-REQUEST | Users are minors; tracking is user-visible |
+| **94** | `#1088` PASS; the separate `ConversionEvent` union deviation APPROVED | It leaves the server activity allow-list and the admin log unchanged, `activityClient` drops unknown names, and a pin proves the separation |
+| **95** | `#1087` PASS (App.tsx exactly 4 deletions; both routes 404; no model call); FU `[FU-HARDEN-VISUAL-RESIDUE]` | Closes an unprotected paid AI endpoint |
+| **96** | `#1076` PASS; FUs `[FU-EXACT-SET-TOPUP]` / `[FU-EXACT-SET-REFRESH]` | `isExactFocusSet` is the only path that skips the blueprint; the D85a label returns only when `conceptLeads` holds, pinned on the real path |
+| **97** | `#1090` PASS (`PYQ-M-TRI-005` key re-derived independently; `PYQ-S-2026-METAL-005` is the official 4-mark Section E case, MS line quoted); `#1086` PASS (dark, server-priced, premium-only, idempotent grant, `FU-TOPUP-RACE`) | Per-paper top-up figures are ESTIMATES, so the client sheet must say "about" and show no per-paper count until the owner's ledger export confirms them |
+| **98** | No idle sessions: a loop is always armed; wait on events with a watcher; act on merge-readiness within 10 min; CI-1 posts STALLED | Between 06:19Z and 06:41Z two PRs were green with nobody merging |
+| **99** | Priority reset: today only what improves students' experience or correctness; DEFERRED to tomorrow: `#1088`, META PR-2b, `#1086`, TOPUP-1 PR-2, `#1013` | Ad measurement and a dark top-up server have no student effect today; skipping `#1086` avoids a server restart while students are online |
+| **100** | Finish line: seven items in one fixed order (`#1087`, `#1076`, `#1090`, `#1089`, D PR-4, D PR-5, this docs PR); redistributed jobs (E proxy for D, A the LIVE checker, C2 this PR) | Nobody should wait on its own LIVE checks |
+
+### C2's own decisions this day (reasons)
+- **`#1085` copy "Practise {chapter}".** The independent verifier measured the engine drawing none of the focus ids; the cofounder agreed (D85a). The concept ids stay in the URL best-effort and say nothing.
+- **`#1088` uses a separate `ConversionEvent` union.** The spec said to add the names to `NamedAnalyticsEvent`, but that union is pinned name for name to the server activity allow-list (`activityClient.test.ts` drift guard); adding there needs a server change and writes the new events into the admin log. Approved D94a.
+- **`checkout_started` goes through an optional `onCheckoutOpen` hook** because `checkout.ts` is deliberately import-free (it also runs under plain Node).
+- **`worksheet_downloaded` fires for the questions PDF only**, `worksheet_uploaded` on the student's tap (never the auto-resume) and once per worksheet, `notes_opened` once per page per visit (the ConceptSpine modal does not count), `tutor_asked` once per topic conversation per visit.
+- **Premise-gate honesty.** For `#1085` and `#1088` the gate was re-run on the post-change tree, exited 1 with the cited lines ROTTED (the code those PRs replace, or lines an earlier PR moved), and the PR bodies said so instead of quoting an old PASS.
+
 ## 2026-10-07 — WAVE B-18 (GRADING CLIENT + PROGRESS, CONTROLLER B): J2 — PRs `#979` `678b9811`, `#980` `480b619c`, `#995` `67b2873c`, `#997` `d8a7d2f4` merged — trunk `d8a7d2f4` — J2 DARK (`GRADING_JOBS` OFF until J3); `#995` / `#997` LIVE
 
 > ⚠ **SCOPE.** Decisions are Controller B-18's, from `Desktop/diff/WAVE_STATE_B18.md` (DECISIONS D30–D79, numbered as there; never renumbered by this docs builder; D0–D43 are in the `#990` block below). Owner words are quoted verbatim from `Desktop/diff/OWNER_RULINGS_B18_ME.md`. Rounds 4 and 5 (autonomy; plan incl. the J2 rules) are already quoted verbatim in the ME-ENGINE-1 block below and are not repeated; Rounds 6–9 follow. CI-1 DECISIONs are Controller C's, relayed on `Desktop/diff/COORD/BOARD.md`; A-17's J2 CLIENT CONTRACT v1.0 is A-17-authored, not owner-authored.

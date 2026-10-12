@@ -437,6 +437,18 @@ describe("static heads — the writer refuses to no-op silently", () => {
     expect(renderedLength("plain")).toBe(5);
   });
 
+  it("★ SEO-PAGES-1 (B) — /highly-probable titles and descriptions are the owner's 'Important Questions' text, never 'Predicted'", () => {
+    for (const subject of ["Maths", "Science"]) {
+      const head = headForPath(`/highly-probable/10/${subject}`);
+      expect(head?.title).toBe(`Class 10 ${subject} Important Questions for Boards 2027 | LazyTopper`);
+      expect(head?.title).not.toMatch(/predicted/i);
+      // D106a (DECISION 110 on #973): the owner's exact description text.
+      expect(head?.description).toBe(`Important questions for CBSE Class 10 ${subject} boards 2027, chapter by chapter.`);
+      expect(head?.description).not.toMatch(/predicted/i);
+      expect(renderedLength(head?.description ?? "")).toBeLessThanOrEqual(155);
+    }
+  });
+
   it("headForPath returns null for a path it has no honest copy for", () => {
     expect(headForPath("/topic-hub/not-a-real-chapter")).toBeNull();
     expect(headForPath("/some-unrouted-path")).toBeNull();

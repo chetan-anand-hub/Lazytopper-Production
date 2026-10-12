@@ -305,6 +305,25 @@ export function buildCbqPracticePool(args: {
   return buildPracticeQuestionsFromEngineRows(interleaveCbqsByMarks(cbqs) as unknown as RawQuestion[]);
 }
 
+/**
+ * CONCEPT-MAP-FILL-1 PR-2 — the served rows of one chapter whose id is in `ids`, in the order of `ids`
+ * (no engine draw). `generatePracticeSet` draws a random-ish `count` from the chapter and a focus list can
+ * only REORDER that draw, so ids outside it were never served; a Topic Hub concept's Practise needs the
+ * concept's own rows, so it reads them from the same served pool (PredictionCore) directly, like the CBQ pool.
+ * The chapter must already be loaded (ensureBankChapters).
+ */
+export function buildExactFocusPool(topicKey: string, ids: readonly string[]): PracticeQuestion[] {
+  const order = new Map<string, number>();
+  ids.forEach((id, i) => {
+    if (!order.has(String(id))) order.set(String(id), i);
+  });
+  const idOf = (q: unknown) => String((q as { id?: unknown }).id ?? "");
+  const rows = PredictionCore.getLikelyQuestionsForConcept(topicKey)
+    .filter((q) => order.has(idOf(q)))
+    .sort((a, b) => (order.get(idOf(a)) ?? 0) - (order.get(idOf(b)) ?? 0));
+  return buildPracticeQuestionsFromEngineRows(rows as unknown as RawQuestion[]);
+}
+
 /** The engine's row -> PracticeQuestion mapping, over a given row list (no draw, no slice). */
 function buildPracticeQuestionsFromEngineRows(rows: RawQuestion[]): PracticeQuestion[] {
   const seenTexts = new Set<string>();
@@ -517,20 +536,31 @@ export async function buildPracticeQuestionsWithAiTopup(
 ): Promise<PracticeQuestion[]> {
   const safeCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
 
-  const engineQuestions = buildPracticeQuestionsFromEngine({
-    subjectKey: args.subjectKey,
-    topicKey: args.topicLabel,
-    count: safeCount,
-    difficulty: args.difficulty,
-    subtopicHint: args.subtopicHint,
-    focusBankIds: args.focusBankIds,
-    boardPattern: args.sectionFilter,
-    adaptiveMix: args.adaptiveMix,
-    priorityConceptKeys: args.priorityConceptKeys,
-    marksFilter: args.marksFilter,
-    pyqOnly: args.pyqOnly,
-    seenQuestionIds: args.seenQuestionIds,
-  });
+  // CONCEPT-MAP-FILL-1 PR-2: a STRICT focus whose id list already covers the whole requested count is
+  // served from those ids themselves (the engine's draw cannot be relied on to contain them). A strict
+  // list SHORTER than the count keeps the old behaviour (ids first, topped up from the draw). If the ids
+  // resolve to no served row, fall through to the engine exactly as before.
+  const exactPool =
+    args.strictFocus && args.focusBankIds && args.focusBankIds.length >= safeCount
+      ? buildExactFocusPool(args.topicLabel, args.focusBankIds)
+      : [];
+  const engineQuestions =
+    exactPool.length > 0
+      ? exactPool
+      : buildPracticeQuestionsFromEngine({
+          subjectKey: args.subjectKey,
+          topicKey: args.topicLabel,
+          count: safeCount,
+          difficulty: args.difficulty,
+          subtopicHint: args.subtopicHint,
+          focusBankIds: args.focusBankIds,
+          boardPattern: args.sectionFilter,
+          adaptiveMix: args.adaptiveMix,
+          priorityConceptKeys: args.priorityConceptKeys,
+          marksFilter: args.marksFilter,
+          pyqOnly: args.pyqOnly,
+          seenQuestionIds: args.seenQuestionIds,
+        });
 
   const subjectLower = args.subjectKey.toLowerCase() as "maths" | "science";
   const packMap = promptDPracticePacks[subjectLower];

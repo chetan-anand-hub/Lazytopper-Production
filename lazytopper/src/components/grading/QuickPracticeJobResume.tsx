@@ -17,6 +17,7 @@ import {
   type QuickPracticeSavedAnswer,
 } from "../../services/quickPracticeSessionService";
 import type { SessionSubject } from "../../services/sessionRecords";
+import { trackPracticeGraded } from "../../analytics/analytics";
 import GradingJobRows from "./GradingJobRows";
 import { useGradingJob } from "./useGradingJob";
 import "./gradingJobRows.css";
@@ -87,6 +88,7 @@ export default function QuickPracticeJobResume({ user }: { user: AuthUser | null
         job: { store, paperKey: rec.paperKey, resumeOnly: true, onProgress: jobUi.onProgress },
       });
       if (result.outcome === "graded") {
+        trackPracticeGraded(ctx.worksheetId); // ACTIVATION-1 · L4 — a resumed set that finishes grading
         persistQuickPracticeSession({ user, ...ctx.persist, entries: result.entries });
         setPhase("done");
         setMessage("Your last practice set is graded — it is saved in your history and your Mistake Intelligence is updated.");

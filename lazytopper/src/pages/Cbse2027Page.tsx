@@ -12,11 +12,13 @@ import {
 import {
   CBSE_CIRCULARS,
   CBSE_CIRCULARS_CHECKED_ON,
+  CBSE_OLDER_SETS_NOTE,
   CBSE_SUBJECTS,
   CBSE_THEORY_MARKS,
   CBSE_TIMELINE,
   CBSE_TRAPS,
   CBSE_2027_MAIN_EXAM_WINDOW,
+  type CbsePaper,
   type CbseSubjectKey,
 } from "./cbse2027Sources";
 
@@ -106,6 +108,18 @@ import {
  * identical to a user and is invisible to Google.
  */
 
+/**
+ * D111: the index of a subject's last competency or item-bank row (the older CBSE sets).
+ * The older-sets note renders directly under it. Returns -1 when a subject has none.
+ */
+function lastOlderSetIndex(papers: readonly CbsePaper[]): number {
+  let last = -1;
+  papers.forEach((paper, index) => {
+    if (/-(competency-answers|competency-items|item-bank)$/.test(paper.id)) last = index;
+  });
+  return last;
+}
+
 const CBSE_CSS = `
 .lt-cbse{
   --bg:#f4f7fb; --card:#fff; --ink:#0f2038; --ink2:#4d647e; --ink3:#71879f;
@@ -177,10 +191,17 @@ const CBSE_CSS = `
   padding:11px 10px;font:inherit;font-size:14px;font-weight:600;color:var(--ink2);
   cursor:pointer;min-height:44px}
 .lt-cbse__sub[aria-selected="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.lt-cbse__try{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;background:var(--gw);
+  border:1px solid var(--gl);border-radius:12px;padding:11px 13px;margin:0 0 15px;
+  font-size:13.5px;color:var(--ink2)}
+.lt-cbse__try[hidden]{display:none}
+.lt-cbse__try p{margin:0;flex:1 1 100%}
+.lt-cbse__try a{font-weight:600;color:var(--gt)}
 .lt-cbse__panel[hidden]{display:none}
 
 /* SOURCE ROWS — every control reads "Open" (ruling b) */
 .lt-cbse__dl{display:grid;gap:9px}
+.lt-cbse__pnote{margin:2px 2px 0;font-size:12.5px;line-height:1.45;color:var(--ink3)}
 .lt-cbse__dl a{display:flex;align-items:center;gap:12px;background:var(--card);
   border:1px solid var(--line);border-radius:12px;padding:12px 13px;
   text-decoration:none;color:inherit;box-shadow:var(--sh);min-height:62px}
@@ -344,7 +365,8 @@ export default function Cbse2027Page() {
   const anyDownload = CBSE_SUBJECTS.some((subject) =>
     subject.papers.some((paper) => cbsePaperLink(paper, manifest).label === "Download"),
   );
-  // CA-3 — the sample-paper pill follows the mirror; no manifest ⇒ today's "awaited" pill.
+  // CA-3 — the sample-paper pill follows the mirror. SEO-PAGES-1: it also reads the
+  // committed hrefs' session, so the prerendered (no-manifest) page is honest too.
   const samplePapersOut = cbseSamplePapersOut(
     manifest,
     CBSE_SUBJECTS.flatMap((subject) => subject.papers),
@@ -464,6 +486,25 @@ export default function Cbse2027Page() {
             ))}
           </div>
 
+          {/* SEO-PAGES-1 · "Practise it": one line and two links under the tabs. Both
+              subjects' lines stay mounted and toggle `hidden`, like the panels below, so a
+              crawler reads both Full Mock links. */}
+          {CBSE_SUBJECTS.map((subject) => (
+            <div
+              key={subject.key}
+              className="lt-cbse__try"
+              data-testid={`cbse-practise-${subject.key}`}
+              hidden={subject.key !== subjectKey}
+            >
+              <p>
+                Sat the sample paper? Try a full mock in the same pattern, or upload an answer
+                and see where the marks go.
+              </p>
+              <Link to={`/full-mock/10/${subject.label}`}>Practise this paper</Link>
+              <Link to="/check-improve">Get your answer checked</Link>
+            </div>
+          ))}
+
           <div className="lt-cbse__split">
             <div>
               {/* Both panels stay mounted and toggle `hidden`: a crawler reads
@@ -477,9 +518,13 @@ export default function Cbse2027Page() {
                   aria-labelledby={`lt-cbse-tab-${subject.key}`}
                   hidden={subject.key !== subjectKey}
                 >
-                  {subject.papers.map((paper) => {
+                  {subject.papers.flatMap((paper, index) => {
                     const link = cbsePaperLink(paper, manifest);
-                    return (
+                    // D111: the competency sets and item banks predate the 2026-27 syllabus.
+                    // The note sits directly under the LAST of those rows, so it reads as
+                    // being about them.
+                    const isLastOlderSet = index === lastOlderSetIndex(subject.papers);
+                    const row = (
                       <a
                         key={paper.href}
                         href={link.href}
@@ -496,6 +541,9 @@ export default function Cbse2027Page() {
                         <span className="lt-cbse__open">{link.label}</span>
                       </a>
                     );
+                    return isLastOlderSet
+                      ? [row, <p key={`${paper.id}-note`} className="lt-cbse__pnote">{CBSE_OLDER_SETS_NOTE}</p>]
+                      : [row];
                   })}
                 </div>
               ))}

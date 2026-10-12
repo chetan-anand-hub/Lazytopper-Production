@@ -139,9 +139,11 @@ const REAUTH_ERROR = 'reauth_required';
 const REAUTH_MESSAGE = 'Please sign in again to continue.';
 
 /* ────────────────────────────────────────────────────────────────────────────
-   AUTHGATE-2 (HARDEN-1 PR-1) — a verified caller, or App Check, on four AI routes.
+   AUTHGATE-2 (HARDEN-1 PR-1) — a verified caller, or App Check, on two AI routes.
    ────────────────────────────────────────────────────────────────────────────
-   These four routes call a model but are not premium features, so GATED_ROUTES does
+   2026-10-11 HARDEN-1 PR-2: four routes until /api/generate-visual and
+   /api/generate-diagram were removed from the server (D8/D75); they are now 404s.
+   These routes call a model but are not premium features, so GATED_ROUTES does
    not decide them. Until AUTHGATE-2 they served whoever asked: a bearer token that did
    not verify was keyed on the IP, and a request with no token at all went to the
    anonymous bucket. Now, at the route boundary, BEFORE idempotency, the free check,
@@ -156,7 +158,7 @@ const REAUTH_MESSAGE = 'Please sign in again to continue.';
    A refused call never reaches the limiter, the meter or a handler: it costs nothing.
 
    ★ detect-question verifies WITHOUT consuming the token (spec §2 PR-1), so a token
-   verified here is still fresh for any later consuming check. The other three consume
+   verified here is still fresh for any later consuming check. more-like-this consumes
    it: one attestation, one call. A MARKED free-check request is not decided here at
    all — freeCheck.cjs already requires App Check for it, fail-closed and consuming,
    behind its own wire contract, which this lane must not change (P6).
@@ -164,8 +166,6 @@ const REAUTH_MESSAGE = 'Please sign in again to continue.';
 const AI_CALLER_ROUTES = Object.freeze([
   '/api/detect-question',
   '/api/more-like-this',
-  '/api/generate-visual',
-  '/api/generate-diagram',
 ]);
 /** Routes whose App Check verify must not consume the token. */
 const NON_CONSUMING_APP_CHECK_ROUTES = Object.freeze(['/api/detect-question']);
@@ -693,7 +693,7 @@ function createEntitlementGate(deps = {}) {
   }
 
   /**
-   * AUTHGATE-2 (HARDEN-1 PR-1): on the four AI_CALLER_ROUTES, require a verified caller
+   * AUTHGATE-2 (HARDEN-1 PR-1): on the AI_CALLER_ROUTES, require a verified caller
    * or, for a signed-out caller, a valid App Check token. See the block above
    * AI_CALLER_ROUTES. Called by index.cjs straight after rejectUnverifiedToken, before
    * idempotency, the free check, the limiter and dispatch.

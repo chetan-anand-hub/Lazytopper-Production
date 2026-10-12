@@ -54,8 +54,10 @@ export const FREE_FEATURES = [
   { label: "Deep Mistake Intelligence", included: false },
   // FRICTION-FIX-1 · F2 (P7) — mock papers ARE free, within MockViewGate's daily limits,
   // which are imported (config/mockViewLimits.ts), never typed here.
+  // D114 (owner ruling, 12 Oct 2026): wording only. The limit is a per-day OPEN/DOWNLOAD
+  // allowance for chapter tests AND full mocks; the answers are not checked on Basic.
   {
-    label: `Mock papers: ${ANON_DAILY_MOCK_LIMIT} a day signed out, ${SIGNED_IN_DAILY_MOCK_LIMIT} a day with a free account`,
+    label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — answers not checked`,
     included: true,
   },
   { label: "Richer Me / Progress recommendations", included: false },

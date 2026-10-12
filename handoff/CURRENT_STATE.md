@@ -1,6 +1,89 @@
 # LazyTopper — Current State
 
-## [CURRENT · GRADING CLIENT + PROGRESS] WAVE B-18 — J2 — **PAPERS, WORKSHEETS, CHAPTER TESTS, FULL MOCKS AND MULTI-QUESTION QUICK PRACTICE CAN NOW GRADE IN THE BACKGROUND (POLL, ROWS ONE BY ONE, PROVISIONAL UNTIL FINAL, RESUME AFTER A RELOAD, TODAY'S PATH WHEN JOBS ARE OFF) — THE SWITCH IS OFF UNTIL CONTROLLER A'S J3; THE TWO-PHOTO UPLOAD RACE IS FIXED (`#995`); NO WEAKNESS, FIGURE OR STATUS IS SHOWN BEFORE THERE IS EVIDENCE FOR IT (`#997`)
+## [CURRENT · 2026-10-12 · SEO-PAGES-1] /cbse/class-10 ON CBSE'S 2026-27 SAMPLE PAPERS, AN HONEST PRERENDERED PILL, "IMPORTANT QUESTIONS" HPQ HEADS, THE FREE ANSWER CHECK NAMED ON PRICING — `#1095` + `#1098` MERGED — LIVE
+
+*(This block adds to the DAY CLOSE 2026-10-11 block directly below, which stays current for everything this block does not name. Written by C1 under §10 for `#1095` and `#1098`, from `#973` (DECISIONs 106, 110, 111, 112) and `git log`.)*
+
+★ **TRUNK:** `1564c225` (`#1098`, 2026-10-12 08:54:06Z). Re-derive it with `git rev-parse origin/base/approved-thru-437`; other lanes (A SOURCE-1 `#1096`, C2 ACTIVATION-1 `#1097`) were open while this was written.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1095` SEO-PAGES-1 | `0d43bf22` | 10-12 08:07:54 | `/cbse/class-10`: the six SQP/MS links point at CBSE's `ClassX_2026_27/`, and the Maths Basic marking scheme row is new. The "Sample papers" pill also reads the committed hrefs (CA-3 extended), so the prerendered page says **out**. Three Class X circulars were added and the checked date is 12 October 2026. "Practise this paper" → `/full-mock/10/<Subject>` and "Get your answer checked" → `/check-improve`. The `/highly-probable` `<title>`s say "Important Questions". The Pricing Basic card names the one free signed-out answer check. |
+| `#1098` SEO-PAGES-1 follow-up | `1564c225` | 10-12 08:54:06 | The `/highly-probable` descriptions use the owner's exact D106a text (D110). Two official competency resources were added: the Maths CFPQ manual and the Science item bank, with an "older CBSE sets" note under them (D111). The Pricing free-check line waits for auth to resolve. |
+
+- **LIVE `#1095`:** 5/5 cold reads of `/version.json` = `0d43bf22`. All §5 curls pass; the cofounder's own curl is in D110.
+- **LIVE `#1098`:** see `SESSION_LOG.md` (the curl of both `<meta name="description">` tags).
+- **Owed:** the owner's 390 px phone check (SEO-PAGES-1 §5 last box).
+
+## [CURRENT · DAY CLOSE 2026-10-11] A DAY OF SEVEN PARALLEL CONTROLLERS — FIGURES ON EVERY SURFACE, ME + WEAK AREA ON ONE CONCEPT MODEL, FAIR-USE WARNINGS LIVE, ALL-AI METERING AND TOP-UPS BUILT DARK, THE UNPROTECTED DIAGRAM ENDPOINTS REMOVED
+
+*(Supersedes the WAVE B-18 J2 block directly below on trunk SHA and on every item this block names. That block is demoted to previous; the owner items of every block below stand unless this block names them.)*
+
+★ **SCOPE.** Written by C2 (docs lane, D100) from the board `#973` (DECISIONs 75–100 and the controllers' MERGE / LIVE posts) and `git log origin/base/approved-thru-437`. **This block covers 2026-10-10 18:00Z to the close of 2026-10-11.** The commits between the J2 block (2026-10-07) and 2026-10-10 18:00Z (waves A-17/A-18, B-19..B-22 and the figure, bank and syllabus lanes) are in `git log` and on the board; **this docs PR does not re-document them** — a later docs lane should. Count the rows below rather than trusting a number written here.
+
+★ **TRUNK AT DRAFTING: `20d031d1`** (`#1092`, 2026-10-11 09:20Z, the last of the six D100 product items). The trunk SHA at this PR's own merge is the next SHA in `git log` (this is the last item of the day, D100). Trunk moved after almost every merge, so each open PR was BEHIND again and the strict up-to-date merge rule made the one-at-a-time queue (D90, D98, CI-1's MERGE-ORDER) the throughput limit, not CI.
+
+★ **PROVENANCE.** Controllers: A (fair-use, grading client, top-ups), B (question figures, bank fixes), C1 (concepts, notes, break reminder), C2 (Me / Weak Area, fair-use warnings, Meta pixel PR-2), D (solution figures), E (cost + hardening), CI-1 (coordinator) and the cofounder (every DECISION). Tags: *(controller-reported)* = the merger's MERGE / LIVE post on `#973`; *(docs-builder-verified)* = SHA and merge time re-read from `git log` while writing this block.
+
+### What merged (oldest first; SHAs and times docs-builder-verified from `git log`; all six D100 product items are merged)
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1062` PENDING-UPLOAD-1 PR-2 | `543177db` | 10-10 18:34 | A downloaded worksheet gets a pending record + a saved paper; "Upload later" works from the banner |
+| `#1055` SEO-NOTES-LINK-2 | `b44d2339` | 10-10 21:15 | The 26 notes pages are linked into the site (Exam Trends to notes, related + previous/next links, notes JSON-LD, the NCERT file code) |
+| `#1070` FIGURES-ALL-SURFACES-1 PR-2 | `97eead7f` | 10-10 21:51 | A downloaded worksheet shows its question figure; the answer key and the graded sheet show the solution figure |
+| `#1071` RULE5-ALLOWLIST-1 (D47c) | `ada15df9` | 10-10 22:23 | 10 reviewed false positives of the figure rule are served again in Worksheets, Chapter Tests and Full Mocks (12 stay blocked) |
+| `#1066` BANK-UNWITHHOLD-1 | `aa11658e` | 10-10 22:54 | 21 figure-bound questions served again after a blind re-solve (21/21); `PYQ-S-MAG-003` stays held (D58c, official-key mismatch) |
+| `#1067` BREAK-REMINDER-OFF-1 (D52) | `1c6462e2` | 10-10 23:27 | The break pop-up is retired (the component renders nothing) |
+| `#1072` FIGURES-ALL-SURFACES-1 surface 7 (D43b) | `9136bb7b` | 10-11 00:05 | A notes-page board question shows its MCQ options and its official figure |
+| `#1073` RULE5-WIDEN-1 (D68a/b) | `a863452f` | 10-11 00:47 | The figure rule also catches "in the given figure" and "circuits ... shown below" (38 new hits across 11,210 served rows, all canonical; 3 unbound) |
+| `#1068` D54b pin (test only) | `ec0260cc` | 10-11 01:21 | Submit then upload immediately is graded on the same record; no product file |
+| `#1075` NOTES-SVG-REPLACE-1 (D34) | `d85470a5` | 10-11 01:51 | Four hand-drawn notes figures replaced by the official NCERT 2026-27 figures |
+| `#1077` HARDEN-1 PR-1 | `d3787481` | 10-11 02:01 | Dead heuristic figure code deleted from `QuestionVisualAid.tsx` (-1,367 lines, no runtime change) |
+| `#1079` TUTOR-SVG-REPLACE-1 (D47b) | `fb762b77` | 10-11 02:17 | The Tutor panel's five hand-drawn figures retired: two new NCERT crops, one existing NCERT crop, three honest gaps |
+| `#1060` FAIR-USE-WARN-1 | `4e38e4e5` | 10-11 02:45 | A 75% / 90% usage banner on every AI surface; the trial "come back after midnight" dialog; "See usage" goes to `/me#usage` |
+| `#1078` SOLUTION-FIGS-1 PR-1 | `963b6f31` | 10-11 03:02 | Biology solution figures from NCERT (Life Processes, Control and Coordination, Reproduction), 13 rows |
+| `#1069` CONCEPT-MAP-FILL-1 PR-1 | `2b31f74a` | 10-11 03:27 | Tracking concepts for 293 concept-gap labels (`trackingConcepts.ts`); the Exam Trends concept list is untouched |
+| `#1065` ME-CONCEPT-1 PR-A | `4bb41659` | 10-11 04:02 | Me's concept rows speak the Exam Trends names; per-concept mistakes and "won back"; the Tutor names at most 3 weakest concepts, only ones that have a Me row |
+| `#1037` CAP-30DAY | `7e7772d5` | 10-11 04:31 | An optional rolling 30-day Premium rupee cap (`FAIR_USE_PREMIUM_30DAY_INR`, unset = no limit) and a "Last 30 days" bar on Me/Progress |
+| `#1063` TOPIC-FIX-1 | `d4973a83` | 10-11 04:46 | Flipping the subject no longer seeds a guessed chapter; a fill-only deterministic chapter guard (trig, AP) in Check & Improve detection |
+| `#1080` BANK-FIX-7 PR-1 (D80b) | `34abf246` | 10-11 05:02 | Three served solutions now agree with the NCERT figure they cite (prism spectrum order, normal near point N', the nephron step) |
+| `#1064` FU-GLOBAL-SHED | `43a89da0` | 10-11 05:31 | A Premium margin above the global ceiling (P = 0.25) and `busy_today` for the site-wide refusal |
+| `#1081` FU-BREAK-REMINDER-MOUNT-REMOVE (D76a) | `81db9d14` | 10-11 05:51 | `App.tsx` loses exactly two lines (import + mount); `BreakReminder.tsx` and `sessionLogger.ts` deleted |
+| `#1085` ME-CONCEPT-1 PR-B | `11e7614c` | 10-11 06:31 | Weak Area Practice and the Learning Path read the same study model as Me; the button says "Practise {chapter}" (D85a) |
+| `#1084` SQP-2026-27-Q10 | `be60b739` | 10-11 06:41 | The official 2026-27 SQP Q10 (car wheel) as one official row; served 10,613 to 10,614 |
+| `#1046` ALL-AI-METERING-1 | `dbefa15f` | 10-11 06:54 | Tutor, More-like-this and question detection get trial allowances (15 / 5 / 10 a day) and stop at Premium caps; DARK behind `FAIR_USE_ENFORCE_ALL_AI` |
+| `#1083` SOLUTION-FIGS-1 PR-2 | `86e76dea` | 10-11 07:13 | Human Eye and Magnetic Effects solution figures (25 bindings on 22 rows) |
+| `#1074` RULE5-BIND-1 (D68b/c/d) | `d43f5234` | 10-11 07:23 | Three official crops bound; 16 figure-less or text-damaged rows withheld on every surface; a permanent guard: no served row on any surface needs a figure it lacks. Served 10,614 to 10,598 |
+| `#1082` NOTES-LEDGER-COLLAPSE-1 | `2d7cc83c` | 10-11 07:43 | The notes source ledger is a closed disclosure (content unchanged) |
+| `#1087` HARDEN-1 PR-2 | `0588b591` | 10-11 08:21 | Removes `/api/generate-diagram` and `/api/generate-visual`, their two admin pages and four `App.tsx` lines (D81a); both routes fall to the 404 |
+| `#1076` CONCEPT-MAP-FILL-1 PR-2 | `ce1425f9` | 10-11 08:32 | Hub concept cards; an exact-set Practise path (`buildExactFocusPool`) |
+| `#1090` BANK-FIX-7 PR-2 | `86b3b1e2` | 10-11 08:49 | `PYQ-M-TRI-005` key corrected (△CBA ~ △CAD); `PYQ-S-2026-METAL-005` is the official 4-mark Section E case; `ELEC-NCERT-11-LA-002` carries NCERT Q1; 3 rows served again |
+| `#1089` SOLUTION-FIGS-1 PR-3 | `9dac281b` | 10-11 09:00 | Carbon, Metals and Chemical Reactions solution figures |
+| `#1091` SOLUTION-FIGS-1 PR-4 | `74bb6423` | 10-11 09:10 | Electricity and Heredity solution figures |
+| `#1092` SOLUTION-FIGS-1 PR-5 | `20d031d1` | 10-11 09:20 | Light (glass slab, prism) solution figures |
+
+### What is DARK (built, merged, switched off) — do not call it live
+| item | the switch | state |
+|---|---|---|
+| ALL-AI-METERING-1 (`#1046`) | `FAIR_USE_ENFORCE_ALL_AI === "1"` | Off. Off means "serve and count `would_refuse`", no new refusal. The owner flips it; live-verify (Tutor, More-like-this, Read question: at least two surfaces) is owed THEN |
+| CAP-30DAY (`#1037`) | `FAIR_USE_PREMIUM_30DAY_INR` | Unset = no limit, no banner owed yet (`[FU-30DAY-WARN-BANNER]` is A's) |
+| Top-ups (`#1086`, TOPUP-1 PR-1) | `PAYMENTS_ENABLED && TOPUP_ENABLED` | NOT MERGED (deferred to 2026-10-12, PASS D97b stands). Server, money path, dark |
+| Razorpay checkout (`checkout_started`, `#1088`) | `VITE_PAYMENTS_ENABLED` | NOT MERGED (deferred). Razorpay go-live (Ayush) and the Railway values (owner, guided) are external and not finishable |
+| Background grading (J2) | `GRADING_JOBS` | Unchanged by this day (see the J2 block below) |
+
+### Live state, in one paragraph
+Production serves trunk as of the last LIVE post on `#973`; each merge above carries a LIVE line (5 cold reads of `/version.json` plus a smoke) from its merger or from CI-1's independent read. **Phone / signed-in checks are NOT done** — they are on the OWNER-BATCH (see `NEXT_ACTION.md`). The served bank is 10,598 rows after `#1074` (10,613 before it; +1 from `#1084`, then -16 withholds) — a dated reading from the board, re-read it from `bankIdIndex` before quoting it.
+
+### Doctrine this day reaffirmed (each is also in `DECISION_LOG.md`)
+- **No fake claims.** A button never promises what the session does not serve (D85a: "Practise {chapter}", not "starting with {concept}", until the exact filter and a first-question pin exist); a free student whose trial is used is never offered a trial (D78b).
+- **Tracking sends names only.** Meta advanced matching stays OFF (users are minors); no uid, email, score or question text in any event (D93c, D94a).
+- **A proof must run the real path.** `#1076` was caught proving "exact set" through the builder only; the Hub URL shape runs the blueprint branch (D92a). `#1085` was caught shipping a claim the session did not keep.
+- **Owner authorised three forbidden-file scopes** (CLAUDE.md §4), each scoped to an exact line count with proofs and a revert-on-breakage rule: `App.tsx` 2 lines (`#1081`), `App.tsx` 4 lines (`#1087`), `DesktopShell.tsx` for `#1013` (still tomorrow).
+
+### Known open on this state
+Every follow-up this day raised or closed is defined, with its own heading and body, in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` (section "2026-10-11 — DAY CLOSE"). The deferred PRs and the OWNER-BATCH are in `NEXT_ACTION.md`.
+
+## [PREVIOUS · GRADING CLIENT + PROGRESS] WAVE B-18 — J2 — **PAPERS, WORKSHEETS, CHAPTER TESTS, FULL MOCKS AND MULTI-QUESTION QUICK PRACTICE CAN NOW GRADE IN THE BACKGROUND (POLL, ROWS ONE BY ONE, PROVISIONAL UNTIL FINAL, RESUME AFTER A RELOAD, TODAY'S PATH WHEN JOBS ARE OFF) — THE SWITCH IS OFF UNTIL CONTROLLER A'S J3; THE TWO-PHOTO UPLOAD RACE IS FIXED (`#995`); NO WEAKNESS, FIGURE OR STATUS IS SHOWN BEFORE THERE IS EVIDENCE FOR IT (`#997`)
 *(Supersedes the WAVE B-18 ME-ENGINE-1 block directly below on trunk SHA, on the J2 / production-AI items and on the "L1 owed" item only. That block is demoted to previous on trunk SHA; everything else in it, and the owner items of every block below, stand as written, except where this block names an item as resolved. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 
 ★ **ORDER (handoff lock held by B-18, board 2026-10-07T05:18Z; no other handoff PR open when this was cut).** The previous handoff PR was B-18's own `#990` (`45608c5e`, ME-ENGINE-1). **This block describes `#979`, `#980`, `#995` and `#997` ONLY.** Other lanes write their own docs: the commits on trunk since `#990` that this block does NOT describe are `#986`, `#987`, `#991`, `#992`, `#993`, `#994`, `#996`, `#972`, `#998`, `#999`, `#1001` (Controller A, C1, C2, C3 and CI-1 lanes). Already described at the tip before this PR: the PR numbers `#979` and `#980` appear in the `#990` block only as "J2a held / J2b local-ready" — that text is superseded here; `#995` and `#997` were not described. Trunk when this block was written: `d8a7d2f4` (`#997`).

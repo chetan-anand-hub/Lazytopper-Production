@@ -197,6 +197,11 @@ function realSeed(uid = UID) {
       firstSeenMs: 1790000000000, lastSeenMs: 1790000600000,
       sections: { practice: 2 }, events: { check_graded: 1 },
     },
+    // SOURCE-1. A single server-only document per uid (create-only, written at sign-up).
+    [`signupSources/${uid}`]: {
+      ref: 'www.youtube.com', utm_source: 'youtube', utm_medium: 'paid', utm_campaign: 'test',
+      utm_content: null, landing: '/', gclid: false, fbclid: false,
+    },
     // LOW-END-1 R4. The parent is seeded only so the map-driven test has a row to find;
     // production writes only the attempt documents (a stored grade, kept 24 h).
     [`gradingResults/${uid}`]: {},
@@ -717,6 +722,23 @@ test('★ STUDENT-ACTIVITY-1: the activity log is exported — EVERY day, under 
     expireAt: '2026-12-25T18:30:00.000Z',
   });
   assert.ok(!JSON.stringify(result).includes(OTHER), "another student's activity leaked into this export");
+});
+
+/* SOURCE-1 — where the account came from is student data, so it is IN the export, and
+   another student's source never is.
+   MUTATION: drop the `signupSources` entry from studentDataMap.ts => RED. */
+test('★ SOURCE-1: signupSources/{uid} is exported, and only this one', async () => {
+  const seed = {
+    [`signupSources/${UID}`]: { ref: null, utm_source: 'google', utm_medium: 'paid', landing: '/', gclid: true, fbclid: false },
+    [`signupSources/${OTHER}`]: { ref: 'other.example', utm_source: null, landing: '/x', gclid: false, fbclid: false },
+  };
+  const { service } = makeService({ seed, files: [], users: {} });
+  const result = await service.exportAccount(UID);
+  const row = byId(result, 'signupSources');
+  assert.ok(row, 'signupSources is missing from the export entirely');
+  assert.equal(row.status, EXPORT_STATUS.EXPORTED);
+  assert.equal(row.records[0].data.utm_source, 'google');
+  assert.ok(!JSON.stringify(result).includes('other.example'), "another student's source leaked into this export");
 });
 
 /* METER-1 (M4/M5) — the usage ledger is student data, so it is IN the export.

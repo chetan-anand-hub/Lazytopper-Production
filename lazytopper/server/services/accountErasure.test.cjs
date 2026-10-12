@@ -528,6 +528,30 @@ test('★ STUDENT-ACTIVITY-1: erasure deletes EVERY activity day — under a mis
   assert.deepEqual([...store.docs.keys()].filter((p) => p.startsWith(`activityLog/${UID}`)), []);
 });
 
+/* SOURCE-1 — signupSources/{uid} is a single server-only document keyed on the uid. The
+   map entry is all erasure needs (it walks STUDENT_DATA_MAP); this proves it is deleted
+   and that another student's document survives.
+   MUTATION: drop the `signupSources` entry from studentDataMap.ts => RED. */
+test('★ SOURCE-1: erasure deletes signupSources/{uid}, and only that one', async () => {
+  const seed = {
+    [`signupSources/${UID}`]: { ref: 'www.youtube.com', utm_source: 'youtube', landing: '/', gclid: false, fbclid: false },
+    [`signupSources/${OTHER}`]: { ref: null, utm_source: 'google', landing: '/', gclid: true, fbclid: false },
+  };
+  const { service, store } = makeService({ seed, files: [], users: [] });
+  const result = await service.eraseAccount(UID);
+
+  assert.ok(store.deleted.includes(`signupSources/${UID}`), 'the source document was never targeted');
+  assert.equal(store.docs.has(`signupSources/${UID}`), false, 'the source is still readable after erasure');
+  assert.equal(byId(result, 'signupSources').status, STATUS.DELETED);
+  assert.equal(store.docs.has(`signupSources/${OTHER}`), true, "another student's source was touched");
+});
+
+test('SOURCE-1: an account with no source document (before the lane) erases cleanly as notFound', async () => {
+  const { service } = makeService({ seed: {}, files: [], users: [] });
+  const result = await service.eraseAccount(UID);
+  assert.equal(byId(result, 'signupSources').status, STATUS.NOT_FOUND);
+});
+
 test('★ STUDENT-ACTIVITY-1: a WRITTEN activityLog parent is deleted too, AFTER its days', async () => {
   const seed = {
     [`activityLog/${UID}`]: { note: 'a parent some future writer created' },

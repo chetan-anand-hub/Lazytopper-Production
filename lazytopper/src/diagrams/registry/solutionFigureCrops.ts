@@ -44,6 +44,34 @@
  * (on B's question-figure list; left to B), SCQ-S-EYE-037 (its step 4 calls the normal near point
  * N; Fig. 10.3 keys it N') and EYE-EXMPLR-10-LA-005 (its answer orders the colours V..R from the
  * top; Fig. 10.5 has R at the top): verifier FAIL 2026-10-11, row text to the bank lane.
+ *
+ * SOLUTION-FIGS-1 PR-3 (controller D) — Carbon (jesc104.pdf), Metals (jesc103.pdf) and one
+ * Chemical Reactions row that asks for the NaCl electron transfer (Fig. 3.5), same rule. Not
+ * bound, with reason: the NCERT electron-dot exercise rows (CO2, S8, cyclopentane, CCl4, C3H6O
+ * isomers, ethanoic acid / H2S / propanone / F2, ethyne, Cl2: NCERT prints no figure of these
+ * answers), CARB-EXMPLR-4-MCQ-010/-022 and APQ-S-CARB-006 (MCQs: the options are the figures),
+ * PYQ-S-CARB-003 (a)(i) (Fig. 4.8 (b) draws both C4H10 isomers), MNM2-047 (no NCERT figure of
+ * galvanised iron), METAL-NCERT-3-LONG-001 / SCQ-S-METAL-040 / LTG-S-METAL-290 (Na2O, MgO,
+ * CaCl2, CaO: NCERT draws NaCl and MgCl2 only), CBE-S-MNM-D-001 (alumina electrolysis: no
+ * NCERT figure), MNM-M03 (its step asks to label the ionic bond; Fig. 3.5 does not; verifier
+ * FAIL 2026-10-11).
+ *
+ * SOLUTION-FIGS-1 PR-4 (controller D) — Electricity (jesc111.pdf) + Heredity (jesc108.pdf),
+ * same rule. Not bound, with reason: EL-H04 / SP-S-2023-ELEC-C-001 (answers include a
+ * rheostat; Fig. 11.2 has none), the circuits with given resistor values
+ * (ELEC-NCERT-11-SA-017, ELEC-NCERT-11-LA-002, ELEC-EXMPLR-11-LA-001, PYQ-S-2025-ELEC-007:
+ * no NCERT figure draws them; no circuit builder yet), SCQ-S-ELEC-041 (needs a question
+ * figure: B's Rule-5 lane), PYQ-S-ELEC-003 (B's list), sci-he-comp-01 / CBE-S-HERD-* /
+ * sci-bio-heredity-3m-2026-01
+ * (Punnett squares or other allele letters; NCERT draws neither), OE-C01 (Fig. 13.1 is
+ * unlabelled).
+ *
+ * SOLUTION-FIGS-1 PR-5 (controller D) — Light rows the optics builder does not cover:
+ * NCERT Fig. 9.10 (jesc109.pdf, glass slab) and the existing Fig. 10.4 prism crop. Not
+ * bound, with reason: FND-L-SPQ-014 (asks angles i, r, e; Fig. 9.10 marks i1, r1, i2, r2),
+ * SCQ-S-LIGHT-033 / GDR-L-NUM-071 (lateral displacement marked; Fig. 9.10 does not),
+ * sci-light-hpq-3 (a single glass-to-air interface), PYQ-S-2024-LIGHT-009 (B's list), and the
+ * Light MCQs / CBE / CFPQ rows whose figure is part of the question.
  */
 import type { CropFigureBinding } from "./computedFigureTypes";
 
@@ -59,6 +87,16 @@ const NCERT_EYE = "NCERT Class 10 Science (Reprint 2026-27) jesc110.pdf";
 const NCERT_MAG = "NCERT Class 10 Science (Reprint 2026-27) jesc112.pdf";
 const EYE_DIR = "/figures/solutions/ncert-science/human-eye-and-colourful-world/";
 const MAG_DIR = "/figures/solutions/ncert-science/magnetic-effects-of-electric-current/";
+const NCERT_CARB = "NCERT Class 10 Science (Reprint 2026-27) jesc104.pdf";
+const NCERT_MET = "NCERT Class 10 Science (Reprint 2026-27) jesc103.pdf";
+const CARB_DIR = "/figures/solutions/ncert-science/carbon-and-its-compounds/";
+const MET_DIR = "/figures/solutions/ncert-science/metals-and-non-metals/";
+const NCERT_ELEC = "NCERT Class 10 Science (Reprint 2026-27) jesc111.pdf";
+const NCERT_HER = "NCERT Class 10 Science (Reprint 2026-27) jesc108.pdf";
+const ELEC_DIR = "/figures/solutions/ncert-science/electricity/";
+const HER_DIR = "/figures/solutions/ncert-science/heredity/";
+const NCERT_LIGHT = "NCERT Class 10 Science (Reprint 2026-27) jesc109.pdf";
+const LIGHT_DIR = "/figures/solutions/ncert-science/light-reflection-and-refraction/";
 
 export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
   {
@@ -517,6 +555,168 @@ export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
     alt: "Schematic domestic circuit: earth, live and neutral wires, electricity board's fuse, meter, distribution box with main switch and fuses, sockets in parallel at 220 V",
     source: { file: NCERT_MAG, page: 11, figure: "NCERT Class 10 Science, Fig. 12.15" },
     eyeConfirm: "asked: schematic diagram of common domestic circuits; answer: live (red) and neutral (black) at 220 V through the main fuse, meter and distribution box, appliances in parallel, earth wire; Fig. 12.15 labels all",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "CARB-H03",
+    slot: "solution",
+    filePath: `${CARB_DIR}ncert-fig-4-12-micelle.webp`,
+    alt: "Formation of micelles: soap molecules arranged around an oil droplet, ionic (Na+) ends facing outward into water, carbon chains pointing inward",
+    source: { file: NCERT_CARB, page: 17, figure: "NCERT Class 10 Science, Fig. 4.12" },
+    eyeConfirm: "asked: cleansing action of soap with a diagram of micelle formation; answer: ionic heads outward into water, carbon-chain tails inward around the oil droplet; Fig. 4.12 draws exactly that, labelling Na+ and the oil droplet",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-CARB-003",
+    slot: "solution",
+    part: "(b)(ii) micelle",
+    filePath: `${CARB_DIR}ncert-fig-4-12-micelle.webp`,
+    alt: "Formation of micelles: soap molecules arranged around an oil droplet, ionic (Na+) ends facing outward into water, carbon chains pointing inward",
+    source: { file: NCERT_CARB, page: 17, figure: "NCERT Class 10 Science, Fig. 4.12" },
+    eyeConfirm: "asked (b)(ii): formation of micelles between oily dirt and soap, with its diagram; answer: the chain end towards the oil droplet, the ionic end facing outside; Fig. 4.12",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "CARB-EXMPLR-4-LONG-005",
+    slot: "solution",
+    filePath: `${CARB_DIR}ncert-fig-4-11-ester-formation.webp`,
+    alt: "Formation of ester: a test tube containing the reaction mixture warmed in a beaker of water on a wire gauze, tripod stand and burner",
+    source: { file: NCERT_CARB, page: 16, figure: "NCERT Class 10 Science, Fig. 4.11" },
+    eyeConfirm: "asked: activity for preparing an ester with a well labelled diagram; answer: the test tube warmed in a water-bath beaker; Fig. 4.11 labels test tube containing reaction mixture, water, beaker, wire gauze, tripod stand, burner",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-CARB-028",
+    slot: "solution",
+    part: "cyclohexane",
+    filePath: `${CARB_DIR}ncert-fig-4-9-cyclohexane.webp`,
+    alt: "Structure of cyclohexane: (a) the six-carbon ring skeleton, (b) the complete molecule, every carbon bonded to two hydrogens by single bonds",
+    source: { file: NCERT_CARB, page: 8, figure: "NCERT Class 10 Science, Fig. 4.9" },
+    eyeConfirm: "asked: compare benzene and cyclohexane by drawing them; answer: cyclohexane has all single bonds; Fig. 4.9 (b) draws the complete molecule",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-CARB-028",
+    slot: "solution",
+    part: "benzene",
+    filePath: `${CARB_DIR}ncert-fig-4-10-benzene.webp`,
+    alt: "Structure of benzene, C6H6: a six-carbon ring with three alternating double bonds, one hydrogen on each carbon",
+    source: { file: NCERT_CARB, page: 8, figure: "NCERT Class 10 Science, Fig. 4.10" },
+    eyeConfirm: "asked: compare benzene and cyclohexane by drawing them; answer: benzene has 3 double bonds; Fig. 4.10 draws them",
+    confirmedBy: BY_D,
+  },
+
+  {
+    kind: "crop",
+    questionId: "CR2-049",
+    slot: "solution",
+    part: "(a) electron transfer",
+    filePath: `${MET_DIR}ncert-fig-3-5-sodium-chloride.webp`,
+    alt: "Formation of sodium chloride: Na (2,8,1) loses an electron to Cl (2,8,7), shown with dots and crosses, giving Na+ and Cl- ions",
+    source: { file: NCERT_MET, page: 11, figure: "NCERT Class 10 Science, Fig. 3.5" },
+    eyeConfirm: "asked (a): electron-dot structures showing the transfer of electrons in 2Na + Cl2 -> 2NaCl; Fig. 3.5 draws the Na -> Cl electron transfer with dots and crosses",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "METAL-EXMPLR-3-LONG-004",
+    slot: "solution",
+    part: "(ii) electrolytic refining",
+    filePath: `${MET_DIR}ncert-fig-3-12-electrolytic-refining.webp`,
+    alt: "Electrolytic refining of copper: impure copper anode, pure copper cathode, acidified copper sulphate solution in a tank, key and battery, anode mud below the anode",
+    source: { file: NCERT_MET, page: 16, figure: "NCERT Class 10 Science, Fig. 3.12" },
+    eyeConfirm: "asked (ii): a neat, well-labelled diagram of electrolytic refining of copper; answer: tank, impure Cu anode (+), pure Cu cathode (-), CuSO4 electrolyte, switch, battery, anode mud; Fig. 3.12 labels anode, cathode, acidified copper sulphate solution, tank, key, impurities (anode mud)",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-2026-ELEC-004",
+    slot: "solution",
+    part: "(b) V-I graph",
+    filePath: `${ELEC_DIR}ncert-fig-11-3-v-i-graph.webp`,
+    alt: "V-I graph for a nichrome wire: potential difference (V) against current (A), a straight line through the origin",
+    source: { file: NCERT_ELEC, page: 6, figure: "NCERT Class 10 Science, Fig. 11.3" },
+    eyeConfirm: "asked (b): V-I graph for a conductor obeying Ohm's law; answer: V directly proportional to I at constant temperature; Fig. 11.3 is a straight line through the origin with labelled axes",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-ELEC-028",
+    slot: "solution",
+    part: "(b) battery",
+    filePath: `${ELEC_DIR}ncert-table-11-1-battery.webp`,
+    alt: "Circuit symbol for a battery or a combination of cells: cells in series, long line +, short line -",
+    source: { file: NCERT_ELEC, page: 4, figure: "NCERT Class 10 Science, Table 11.1 (row 2)" },
+    eyeConfirm: "asked (b): symbol of a battery; answer: cells in series, long line +, short line -; Table 11.1 row 2 draws exactly that",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-ELEC-028",
+    slot: "solution",
+    part: "(b) rheostat",
+    filePath: `${ELEC_DIR}ncert-table-11-1-rheostat.webp`,
+    alt: "Circuit symbol for a variable resistance or rheostat: a resistor with an arrow across it, or with a sliding contact",
+    source: { file: NCERT_ELEC, page: 5, figure: "NCERT Class 10 Science, Table 11.1 (row 9)" },
+    eyeConfirm: "asked (b): symbol of a rheostat; answer: a zigzag resistor with an arrow drawn diagonally across it; Table 11.1 row 9 draws it (and the sliding-contact alternative)",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SCQ-S-HERED-034",
+    slot: "solution",
+    filePath: `${HER_DIR}ncert-fig-8-6-sex-determination.webp`,
+    alt: "Sex determination in human beings: the father's X or Y gamete with the mother's X gives an XX girl or an XY boy",
+    source: { file: NCERT_HER, page: 5, figure: "NCERT Class 10 Science, Fig. 8.6" },
+    eyeConfirm: "asked: a flow chart justifying that a boy or a girl is a matter of chance; answer: the mother gives X, the father X or Y with equal chance; Fig. 8.6 draws XY male / XX female, gametes X, Y, X, zygotes XX and XY, offspring female and male",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "LIGHT-EXMPLR-9-LA-003",
+    slot: "solution",
+    filePath: `${LIGHT_DIR}ncert-fig-9-10-glass-slab.webp`,
+    alt: "Refraction through a rectangular glass slab: incident ray EO bends towards the normal NN' at O (angles i1, r1), emerges at O' away from the normal MM' (i2, r2), parallel to the incident direction, shifted sideways",
+    source: { file: NCERT_LIGHT, page: 14, figure: "NCERT Class 10 Science, Fig. 9.10" },
+    eyeConfirm: "asked: laws of refraction with a ray diagram through a rectangular glass slab; answer: i1 and the normal at the first face, r1 < i1 inside, i2 = r1 and r2 = i1 at the second face, emergent ray parallel and laterally displaced; Fig. 9.10 marks i1, r1, i2, r2, both normals and the displaced parallel ray",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "SP-S-2023-LGHT-D-001",
+    slot: "solution",
+    part: "(b) glass slab",
+    filePath: `${LIGHT_DIR}ncert-fig-9-10-glass-slab.webp`,
+    alt: "Refraction through a rectangular glass slab: incident ray EO bends towards the normal NN' at O (angles i1, r1), emerges at O' away from the normal MM' (i2, r2), parallel to the incident direction, shifted sideways",
+    source: { file: NCERT_LIGHT, page: 14, figure: "NCERT Class 10 Science, Fig. 9.10" },
+    eyeConfirm: "asked (b): ray diagram of refraction through a rectangular glass slab; answer: bends towards the normal at the first surface, emerges parallel with a lateral displacement; Fig. 9.10",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "GDR-L-CBJ-016",
+    slot: "solution",
+    part: "(b) glass slab",
+    filePath: `${LIGHT_DIR}ncert-fig-9-10-glass-slab.webp`,
+    alt: "Refraction through a rectangular glass slab: incident ray EO bends towards the normal NN' at O (angles i1, r1), emerges at O' away from the normal MM' (i2, r2), parallel to the incident direction, shifted sideways",
+    source: { file: NCERT_LIGHT, page: 14, figure: "NCERT Class 10 Science, Fig. 9.10" },
+    eyeConfirm: "asked (b): ray diagram showing the emergent ray parallel to the incident ray but shifted sideways; answer: towards the normal on entering, away on leaving, parallel and laterally displaced; Fig. 9.10",
+    confirmedBy: BY_D,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-2026-LIGHT-015",
+    slot: "solution",
+    part: "(a) prism",
+    filePath: `${EYE_DIR}ncert-fig-10-4-prism-refraction.webp`,
+    alt: "Refraction through a triangular glass prism: incident ray PE, refracted ray EF, emergent ray FS, angles i, r, e, A and the angle of deviation D",
+    source: { file: NCERT_EYE, page: 6, figure: "NCERT Class 10 Science, Fig. 10.4" },
+    eyeConfirm: "asked (a): ray diagram for refraction through a glass prism, marking the angle of refraction and the angle of deviation; Fig. 10.4 marks r at the first face and D, with i, e and A",
     confirmedBy: BY_D,
   },
 ];

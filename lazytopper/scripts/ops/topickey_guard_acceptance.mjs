@@ -117,6 +117,9 @@ const B_ALLOW = new Set([
   "data/class10TopicRegistry.ts",               // :110 registry self-lookup (both sides registry keys)
   "services/learningPathGenerator.ts",          // :72/:367 learning-path area self-match (one vocabulary)
   "services/topicHubMastery.ts",                // :166 persistence guard vs its own normalizeTopicKeyForStorage
+  // 2026-10-11 CONCEPT-MAP-FILL-1 PR-2: the id index stores bank-chapter slugs and the caller passes a bank-chapter slug (topics.ts slug === chapter slug,
+  // asserted by the Hub tests): same-provenance compare, no free-text topic involved.
+  "lib/desktop/conceptPractice.ts",
 ]);
 const bViolations = [];
 for (const rel of walk("").filter((r) => !/\.test\.|\.spec\./.test(r))) {

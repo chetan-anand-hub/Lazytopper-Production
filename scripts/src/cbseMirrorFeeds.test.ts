@@ -382,13 +382,16 @@ describe("C7 — the next-session sample-paper index", () => {
     assert.equal(nextSessionIndexUrl(new Date("2027-04-02T00:00:00Z")).url, "https://cbseacademic.nic.in/SQP_CLASSX_2027-28.html");
   });
 
-  it("maps the real 2026-27 index to exactly the five sample-paper ids", () => {
+  // SEO-PAGES-1 (Oct 2026): the page gained a `maths-basic-ms` row, so the index maps SIX
+  // ids (was five) and MathsBasic-MS.pdf is now MAPPED, no longer "the MS with no paper".
+  it("maps the real 2026-27 index to exactly the six sample-paper and marking-scheme ids", () => {
     const { url } = nextSessionIndexUrl(NOW);
     const links = parseSqpIndexLinks(SQP_2627_HTML, url);
     const { mapped, unmapped } = mapSqpLinks(links, MIRROR_PAPERS);
     assert.deepEqual(
       mapped.map((m) => `${m.paperId} ${m.url}`).sort(),
       [
+        "maths-basic-ms https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsBasic-MS.pdf",
         "maths-basic-sqp https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsBasic-SQP.pdf",
         "maths-standard-ms https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-MS.pdf",
         "maths-standard-sqp https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf",
@@ -396,8 +399,8 @@ describe("C7 — the next-session sample-paper index", () => {
         "science-sqp https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf",
       ],
     );
-    // ★ never ingested: the VIC variants, the Hindi papers, the MS with no paper
-    for (const name of ["MathsStandardVIC-SQP.pdf", "MathsBasicVIC-MS.pdf", "Science-SQP_hi.pdf", "MathsBasic-MS.pdf"]) {
+    // ★ never ingested: the VIC variants and the Hindi papers
+    for (const name of ["MathsStandardVIC-SQP.pdf", "MathsBasicVIC-MS.pdf", "Science-SQP_hi.pdf"]) {
       assert.ok(unmapped.some((u) => u.endsWith(`/${name}`)), `${name} should be reported as unmapped`);
       assert.equal(mapped.some((m) => m.url.endsWith(`/${name}`)), false, `${name} was mapped`);
     }

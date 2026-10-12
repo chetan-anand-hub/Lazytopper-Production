@@ -183,3 +183,27 @@ describe("T4 — owner rulings: catalogue carries no OUT concept; applications r
     expect(hub("coordinate-geometry").examinerWarning).not.toMatch(/area|units²/i);
   });
 });
+
+// ── CONCEPT-MAP-FILL-1 PR-2 — every card that stands for a tracking / Exam Trends concept ──────────────
+// Table-driven over the keyed cards. The terms are the deleted 2026-27 Science sub-topics from
+// scripts/src/syllabusGuard.ts (re-read for this PR) that a card in these chapters could plausibly name.
+describe("PR-2 cards — no deleted 2026-27 sub-topic in any concept-keyed card", () => {
+  const DELETED = /\b(evolution|natural selection|speciation|fossils?|periodic classification|newlands|dobereiner|mendeleev|sources of energy|biogas|hydropower|natural resources management|conservation of natural resources|water harvesting|chipko|darwin)\b/i;
+  const keyedCards = ["metals-and-non-metals", "acids-bases-and-salts", "carbon-and-its-compounds", "magnetic-effects-of-electric-current",
+    "control-and-coordination", "electricity", "human-eye-and-colourful-world", "light-reflection-and-refraction", "life-processes",
+    "how-do-organisms-reproduce", "heredity", "our-environment", "statistics"].flatMap((slug) =>
+    hub(slug).boardEssentials.filter((c) => c.conceptKeys?.length).map((c) => [slug, c.name, JSON.stringify(c)] as const));
+
+  it("CONTROL: the matcher fires on a deleted sub-topic", () => {
+    expect(DELETED.test("Natural Selection and speciation")).toBe(true);
+    expect(DELETED.test("Heredity and Mendel's contribution")).toBe(false);
+  });
+
+  it.each(keyedCards)("%s / %s", (_slug, _name, json) => {
+    expect(json).not.toMatch(DELETED);
+  });
+
+  it("the Triangles hub still carries no Pythagoras row (a keyed card there would break T1)", () => {
+    expect(hub("triangles").boardEssentials.some((c) => c.conceptKeys?.length)).toBe(false);
+  });
+});

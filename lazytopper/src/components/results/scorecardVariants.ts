@@ -1357,6 +1357,8 @@ export interface StoredFullMockVariantInput {
   /** Override for the awaiting-sheet detail — the host sets the honest
    *  cross-device line when this device has no cached paper to grade against. */
   awaitingDetail?: string;
+  /** PAPER-REBUILD-1 (D103d): the no-paper state's "Start a new test". */
+  onStartNew?: () => void;
 }
 
 // BANK-LEAN-1 (C3): `storedFullMockScorecardVariant` (it needs the bank-backed chapter

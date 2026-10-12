@@ -2099,6 +2099,22 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "TRI-N-EXMPLR-6-LA-002",      // figure: restored Exemplar stem needs Fig. 6.16; B binds the figure, then un-withholds
   "APQ-M-TRIG-011",             // figure: cos θ = c/b is defined only by lengths labelled in the figure; no working can be derived from the text
   "APQ-M-TRIG-016",             // figure: the identity to prove exists only as an image in PQ_2022 Q30; the stem never states it
+  // RULE5-BIND-1 (11 Oct, cofounder D68b/c): no served row may need a figure it lacks. Official crops bound: APQ-M-CIRC-012,
+  // SQP-S-HER-003, APQ-S-ELEC-006. Everything below has no allowed figure source (booklet-only) or damaged text, and is withheld on every surface.
+  "SCO-S-LIGHT-005",            // needs-figure-no-source: 'In the given figure' - the angle is only in the figure; the only source is a chapter-wise booklet (cbjescco10 Q7), not an allowed figure source
+  "SCO-S-ELEC-013",             // needs-figure-no-source: the current-time graph is only in the figure; booklet-only (cbjescco12 Q18), no allowed source prints it
+  "SCQ-S-ELEC-041",             // needs-figure-no-source: circuits I and II 'shown below' are not supplied; booklet-only (cbjesccq12 Q102)
+  "SCO-S-LIFE-009",             // needs-figure-no-source: parts Q and R are only in the diagram; booklet-only (cbjescco06 Q11)
+  "SCQ-S-REPR-041",             // needs-figure-no-source: part (b) labels A-D are only in the diagram; booklet credits All India 2016, no allowed source on disk
+  "SCQ-S-EYE-036",              // needs-figure-no-source: the diagram and the questions are missing; booklet credits Delhi 2016, no allowed source on disk
+  "SCQ-S-ELEC-032",             // needs-figure-no-source: the V-I graph slopes are only in the figure; booklet-only (cbjesccq12 Q65), no allowed source prints this question
+  "SCQ-S-MAG-029",              // needs-figure-no-source: field and particle directions are only in the figure; booklet-only (cbjesccq13 Q33), no allowed source prints this question
+  "METAL-NCERT-3-VSA-006",      // official-key-mismatch: the stem points at an NCERT in-text grid (Zn/Mg/Cu with their oxides) but the stored key answers a different question (Zn + CuSO4, Cu + AgNO3). BANK-FIX-7 PR-2 (11 Oct): stays withheld as a DUPLICATE of METAL-NCERT-3-SA-004 (same NCERT p.55 item, keyed correctly)
+  // ELEC-NCERT-11-LA-002, PYQ-M-TRI-005, PYQ-S-2026-METAL-005: repaired from their official sources and served again by BANK-FIX-7 PR-2 (11 Oct, D80b)
+  "LP-M11",                     // needs-figure-no-source: 'Study the diagram of the human heart' with no diagram on the page (answerable, but the stem refers to a missing diagram)
+  "SCQ-S-MAG-040",              // text repaired by BANK-FIX-7 PR-2 (typo + truncated answer); still withheld: its answer cites the booklet's own figure ('as shown in figure') and booklet figures may not be bound
+  "SCQ-S-CTRL-042",             // text repaired by BANK-FIX-7 PR-2 (stray header + truncated answer); still withheld: its answer cites the booklet's own diagram and booklet figures may not be bound
+  "SCO-S-ELEC-012",             // text-damaged: garbled wiring description, printed so in the booklet (cbjescco12 Q17); no allowed source to restore it from (BANK-FIX-7 PR-2)
 ]);
 
 /**

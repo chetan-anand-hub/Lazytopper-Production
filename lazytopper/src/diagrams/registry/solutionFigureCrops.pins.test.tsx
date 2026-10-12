@@ -19,6 +19,11 @@ const CC = "/figures/solutions/ncert-science/control-and-coordination/";
 const RP = "/figures/solutions/ncert-science/how-do-organisms-reproduce/";
 const EYE = "/figures/solutions/ncert-science/human-eye-and-colourful-world/";
 const MAG = "/figures/solutions/ncert-science/magnetic-effects-of-electric-current/";
+const CARB = "/figures/solutions/ncert-science/carbon-and-its-compounds/";
+const MET = "/figures/solutions/ncert-science/metals-and-non-metals/";
+const ELEC = "/figures/solutions/ncert-science/electricity/";
+const HER = "/figures/solutions/ncert-science/heredity/";
+const LIGHT = "/figures/solutions/ncert-science/light-reflection-and-refraction/";
 
 /** [questionId, part, filePath, exact figcaption text] */
 const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string]> = [
@@ -67,16 +72,34 @@ const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string
   ["PYQ-S-2024-MAG-004", "(b) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (b) solenoid"],
   ["PYQ-S-2026-MAG-003", "(B)(i) solenoid", `${MAG}ncert-fig-12-10-solenoid-field.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.10 — (B)(i) solenoid"],
   ["MAG-EXMPLR-12-LA-007", undefined, `${MAG}ncert-fig-12-15-domestic-circuit.webp`, "Official figure: NCERT Class 10 Science, Fig. 12.15"],
+  // SOLUTION-FIGS-1 PR-3 (controller D, 2026-10-11): Carbon + Metals + Chemical Reactions.
+  ["CARB-H03", undefined, `${CARB}ncert-fig-4-12-micelle.webp`, "Official figure: NCERT Class 10 Science, Fig. 4.12"],
+  ["PYQ-S-CARB-003", "(b)(ii) micelle", `${CARB}ncert-fig-4-12-micelle.webp`, "Official figure: NCERT Class 10 Science, Fig. 4.12 — (b)(ii) micelle"],
+  ["CARB-EXMPLR-4-LONG-005", undefined, `${CARB}ncert-fig-4-11-ester-formation.webp`, "Official figure: NCERT Class 10 Science, Fig. 4.11"],
+  ["SCQ-S-CARB-028", "cyclohexane", `${CARB}ncert-fig-4-9-cyclohexane.webp`, "Official figure: NCERT Class 10 Science, Fig. 4.9 — cyclohexane"],
+  ["SCQ-S-CARB-028", "benzene", `${CARB}ncert-fig-4-10-benzene.webp`, "Official figure: NCERT Class 10 Science, Fig. 4.10 — benzene"],
+  ["CR2-049", "(a) electron transfer", `${MET}ncert-fig-3-5-sodium-chloride.webp`, "Official figure: NCERT Class 10 Science, Fig. 3.5 — (a) electron transfer"],
+  ["METAL-EXMPLR-3-LONG-004", "(ii) electrolytic refining", `${MET}ncert-fig-3-12-electrolytic-refining.webp`, "Official figure: NCERT Class 10 Science, Fig. 3.12 — (ii) electrolytic refining"],
+  // SOLUTION-FIGS-1 PR-4 (controller D, 2026-10-11): Electricity + Heredity.
+  ["PYQ-S-2026-ELEC-004", "(b) V-I graph", `${ELEC}ncert-fig-11-3-v-i-graph.webp`, "Official figure: NCERT Class 10 Science, Fig. 11.3 — (b) V-I graph"],
+  ["SCQ-S-ELEC-028", "(b) battery", `${ELEC}ncert-table-11-1-battery.webp`, "Official figure: NCERT Class 10 Science, Table 11.1 (row 2) — (b) battery"],
+  ["SCQ-S-ELEC-028", "(b) rheostat", `${ELEC}ncert-table-11-1-rheostat.webp`, "Official figure: NCERT Class 10 Science, Table 11.1 (row 9) — (b) rheostat"],
+  ["SCQ-S-HERED-034", undefined, `${HER}ncert-fig-8-6-sex-determination.webp`, "Official figure: NCERT Class 10 Science, Fig. 8.6"],
+  // SOLUTION-FIGS-1 PR-5 (controller D, 2026-10-11): Light (glass slab, prism).
+  ["LIGHT-EXMPLR-9-LA-003", undefined, `${LIGHT}ncert-fig-9-10-glass-slab.webp`, "Official figure: NCERT Class 10 Science, Fig. 9.10"],
+  ["SP-S-2023-LGHT-D-001", "(b) glass slab", `${LIGHT}ncert-fig-9-10-glass-slab.webp`, "Official figure: NCERT Class 10 Science, Fig. 9.10 — (b) glass slab"],
+  ["GDR-L-CBJ-016", "(b) glass slab", `${LIGHT}ncert-fig-9-10-glass-slab.webp`, "Official figure: NCERT Class 10 Science, Fig. 9.10 — (b) glass slab"],
+  ["PYQ-S-2026-LIGHT-015", "(a) prism", `${EYE}ncert-fig-10-4-prism-refraction.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.4 — (a) prism"],
 ];
 
 const key = (q: string, part: string | undefined, file: string) => `${q} | ${part ?? "-"} | ${file}`;
 
 describe("solution-figure crop bindings are pinned (FU-1038-PIN-BINDINGS)", () => {
-  it("the registry holds EXACTLY the 43 pinned (questionId, part, filePath) tuples", () => {
+  it("the registry holds EXACTLY the 58 pinned (questionId, part, filePath) tuples", () => {
     const actual = SOLUTION_FIGURE_CROPS.map((c) => key(c.questionId, c.part, c.filePath)).sort();
     const expected = PINNED.map(([q, part, file]) => key(q, part, file)).sort();
     expect(actual).toEqual(expected);
-    expect(SOLUTION_FIGURE_CROPS).toHaveLength(43);
+    expect(SOLUTION_FIGURE_CROPS).toHaveLength(58);
   });
 
   it.each(PINNED.map(([q, part, file, caption]) => ({ q, part, file, caption })))(

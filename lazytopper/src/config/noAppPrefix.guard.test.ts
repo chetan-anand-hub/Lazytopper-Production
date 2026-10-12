@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { createRequire } from "node:module";
 import { extname, join, resolve } from "node:path";
 
 /**
@@ -40,6 +39,8 @@ import { extname, join, resolve } from "node:path";
  *
  * ★ MUTATION (ROOT-URL-1 M6): re-adding P10's literal to `server/routes/diagrams.cjs`
  * (`const filePathUrl = '/app/visuals/' + ...`) turns "no /app literal" RED.
+ * 2026-10-11 HARDEN-1 PR-2: that file is DELETED (with /api/generate-visual, D8/D75); the
+ * same mutation on any surviving server file is still caught by the "no /app literal" scan.
  */
 
 const LAZYTOPPER_ROOT = resolve(__dirname, "../..");
@@ -307,12 +308,13 @@ describe("ROOT-URL-1 M6 — no literal points at the retired /app base", () => {
     expect(mw).toContain(`"/app/check-improve"`);
   });
 
-  it("server/routes/diagrams.cjs builds its visual URL from the Vite base, not a literal", () => {
-    const req = createRequire(__filename);
-    const { publicBase } = req(join(LAZYTOPPER_ROOT, "server/routes/diagrams.cjs")) as { publicBase: () => string };
+  // 2026-10-11 HARDEN-1 PR-2: server/routes/diagrams.cjs (and its publicBase()) was deleted with
+  // the /api/generate-visual route (D8/D75), so there is no server-built visual URL left to check.
+  // The Vite-base half of this assertion is kept unchanged; the deletion is pinned instead.
+  it("server/routes/diagrams.cjs is deleted, and the Vite base is still \"/\"", () => {
+    expect(existsSync(join(LAZYTOPPER_ROOT, "server/routes/diagrams.cjs"))).toBe(false);
     const viteConfig = readFileSync(join(LAZYTOPPER_ROOT, "vite.config.ts"), "utf8");
     const declared = /^\s*base:\s*"([^"]+)"/m.exec(viteConfig)?.[1];
     expect(declared).toBe("/");
-    expect(publicBase()).toBe(declared);
   });
 });

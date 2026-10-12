@@ -275,6 +275,12 @@ describe("studentDataMap — drift guard", () => {
     // ADMIN-ONLY, so no client rule may match it (deny-all catch-all). It IS student data
     // (uid-keyed) — in the map, erased and exported, not exempted.
     //
+    // ★ `signupSources` JOINED this set with SOURCE-1. Written only by
+    // server/routes/signupSource.cjs through the Admin SDK (create-only, verified uid); no
+    // client may read or write it, so it is undeclared on purpose (deny-all catch-all).
+    // `firestore.rules` is deliberately NOT edited. It IS student data (a doc per uid) — in
+    // the map, erased and exported, not exempted.
+    //
     // ★ `gradingResults` JOINED this set with LOW-END-1 R4. Written only by
     // server/services/fairUse.cjs (createGradingIdempotency) through the Admin SDK; no client
     // reads or writes it, so it is undeclared on purpose (deny-all catch-all). It IS student
@@ -283,7 +289,7 @@ describe("studentDataMap — drift guard", () => {
     // ★ `usageCredits` JOINED this set with TOPUP-1. Written only by server/services/usageCredit.cjs
     // through the Admin SDK; no client reads or writes it, so it is undeclared on purpose (deny-all
     // catch-all). It IS student data (uid-keyed balance + grants) - in the map, erased and exported.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "payOrders", "qrUploadSlots", "usageCredits", "usageLedger"]);
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "payOrders", "qrUploadSlots", "signupSources", "usageCredits", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -395,6 +401,39 @@ describe("studentDataMap — the activity log is STUDENT data (STUDENT-ACTIVITY-
   });
 });
 
+describe("studentDataMap — where a new account came from is STUDENT data (SOURCE-1)", () => {
+  // ★★ signupSources/{uid} holds the coarse landing source of the visit that created the
+  // account (server/routes/signupSource.cjs). One document per uid, written create-only
+  // through the Admin SDK, read only by the admin Students page. Student data: it is
+  // mapped, erased and exported, never exempted.
+  it("★★ signupSources is mapped, uid-keyed, exportable, admin-sdk-only and NOT exempted", () => {
+    const loc = STUDENT_DATA_MAP.find((l) => l.id === "signupSources");
+    expect(loc, "signupSources missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(loc!.kind).toBe("firestore-collection");
+    expect(loc!.path).toBe("signupSources/{uid}");
+    expect(loc!.mechanism).toBe("admin-sdk-required");
+    expect(loc!.exportable).toBe(true);
+    expect(NON_STUDENT_COLLECTIONS).not.toContain("signupSources");
+  });
+
+  it("★ CONTROL: the source scan really finds signupSources (the writer is live)", () => {
+    expect(scanCollectionsFromSource().has("signupSources")).toBe(true);
+  });
+
+  it("★★ firestore.rules never names signupSources — default-deny covers it, and firestore.rules is not edited", () => {
+    expect(scanCollectionsFromRules().has("signupSources")).toBe(false);
+    const rules = readFileSync(RULES, "utf8");
+    expect(rules).not.toMatch(/signupSources/);
+  });
+
+  it("★ the device half is listed under the existing local-storage entry, not as a new location", () => {
+    const local = STUDENT_DATA_MAP.find((l) => l.id === "local-storage");
+    expect(local!.holds).toContain("lazytopper.visitSource");
+    expect(local!.holds).toContain("sessionStorage");
+    expect(STUDENT_DATA_MAP.filter((l) => l.kind === "local-storage")).toHaveLength(1);
+  });
+});
+
 describe("studentDataMap — stored grading results are STUDENT data (LOW-END-1 R4)", () => {
   // ★★ A retried check is answered from a stored result (fairUse.cjs createGradingIdempotency).
   // That result is the student's graded work, keyed on their uid, so it must be erased with
@@ -468,6 +507,7 @@ describe("studentDataMap — per-location properties", () => {
     "activityLog.activityDays",
     "gradingResults",
     "gradingResults.attempts",
+    "signupSources",
     "qrUploadSlots",
     "storage.qr-uploads",
     "local-storage",

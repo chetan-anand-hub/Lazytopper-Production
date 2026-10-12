@@ -32,7 +32,8 @@
  *
  * ★ BOUNDED READS (worst case per request, Firestore document reads; a query that matches
  * nothing still bills 1, a count() bills 1 per 1000 index entries):
- *   list    : 50 rows x 5 = 250            (+ up to MAX_PLAN_SCAN = 1000 with a plan filter)
+ *   list    : 50 rows x 6 = 300            (+ up to MAX_PLAN_SCAN = 1000 with a plan filter)
+ *             (the 6th is signupSources/{uid} — SOURCE-1, one getAll document read per row)
  *   summary : up to MAX_SUMMARY_STUDENTS = 500 subscriptions + 3 per eligible student
  *             = at most 2000
  *   detail  : 1 + 20 + 120 + 120 + 100 + 200 + 50 = 611
@@ -56,6 +57,7 @@ const {
   TRIAL_COUNTER_FIELDS,
   LEDGER_SPEND_FIELD,
 } = require('../services/usageLedger.cjs');
+const { SIGNUP_SOURCES_COLLECTION } = require('./signupSource.cjs');
 
 const ADMIN_STUDENTS_PATH = '/api/admin/students';
 const ADMIN_STUDENTS_SUMMARY_PATH = '/api/admin/students/summary';
@@ -328,6 +330,42 @@ function createAdminStudentsRoutes(deps = {}) {
     return out;
   }
 
+  /** The coarse fields of signupSources/{uid} the Source column shows; nothing else leaves. */
+  function sourceFields(data) {
+    const d = data || {};
+    const str = (v) => (typeof v === 'string' ? v : null);
+    return {
+      ref: str(d.ref),
+      utm_source: str(d.utm_source),
+      utm_medium: str(d.utm_medium),
+      utm_campaign: str(d.utm_campaign),
+      utm_content: str(d.utm_content),
+      landing: str(d.landing),
+      gclid: d.gclid === true,
+      fbclid: d.fbclid === true,
+    };
+  }
+
+  /** signupSources/{uid} for many uids: { uid: fields | null } — null = no doc (an account
+   *  from before SOURCE-1) OR a failed read; the page shows both as "—", never a guess. */
+  async function readSignupSources(uids) {
+    const out = Object.create(null);
+    for (let i = 0; i < uids.length; i += GET_ALL_CHUNK) {
+      const chunk = uids.slice(i, i + GET_ALL_CHUNK);
+      const refs = chunk.map((uid) => db().collection(SIGNUP_SOURCES_COLLECTION).doc(uid));
+      try {
+        const snaps = await db().getAll(...refs);
+        chunk.forEach((uid, j) => {
+          const snap = snaps[j];
+          out[uid] = snap && snap.exists ? sourceFields(snap.data()) : null;
+        });
+      } catch {
+        for (const uid of chunk) out[uid] = null;
+      }
+    }
+    return out;
+  }
+
   function activityDays(uid) {
     return db().collection(ACTIVITY_COLLECTION).doc(uid).collection(ACTIVITY_SEGMENTS.days);
   }
@@ -405,10 +443,12 @@ function createAdminStudentsRoutes(deps = {}) {
       Object.assign(subs, more);
     }
 
+    const sources = await readSignupSources(pageRows.map((r) => r.uid));
     const rows = await Promise.all(
       pageRows.map(async (r) => ({
         ...r,
         plan: planOf(subs[r.uid], nowMs),
+        source: sources[r.uid] || null,
         ...(await rowActivity(r)),
       }))
     );

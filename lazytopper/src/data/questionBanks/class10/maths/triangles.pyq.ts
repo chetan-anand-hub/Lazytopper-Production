@@ -41,13 +41,13 @@ export const TRIANGLES_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/5/1 Q4", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-TRI-005", subject: "Maths", topicKey: "triangles", subtopic: "General", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "(A) D is a point on the side BC of a triangle ABC such that ∠ADC = ∠BAC, prove that CA2 = CB.CD 5 OR (B) If AD and PM are medians of triangles ABC and PQR, respectively where ∆ABC ~ ∆PQR, prove that AB AD PQ PM = .",
-    answer: "Sol. Δ ABC ∼ Δ PQR 1 mark for correct figure 17  AD and AM are medians of Δ ABC and Δ PQR respectively. Δ ABC ∼ Δ PQR ∴ PQ AB = QR BC PQ AB = QM 2 BD 2 PQ AB = QM BD Also ∠ B = ∠ Q (Δ ABC ∼ Δ PQR) ⇒ Δ ABD ∼ Δ PQM (SAS similarly) ⇒ 𝑨𝑩 𝑷𝑸= 𝑨𝑫 𝑷𝑴",
+    questionText: "(A) D is a point on the side BC of a triangle ABC such that ∠ADC = ∠BAC, prove that CA² = CB.CD\nOR\n(B) If AD and PM are medians of triangles ABC and PQR, respectively where ∆ABC ~ ∆PQR, prove that AB/PQ = AD/PM.",
+    answer: "(A) In △CBA and △CAD: ∠C = ∠C (common), ∠BAC = ∠ADC (given) ⇒ △CBA ~ △CAD (AA similarity) ⇒ CB/CA = CA/CD ⇒ CA² = CB.CD. OR (B) △ABC ~ △PQR ⇒ AB/PQ = BC/QR = 2BD/2QM = BD/QM; also ∠B = ∠Q ⇒ △ABD ~ △PQM (SAS similarity) ⇒ AB/PQ = AD/PM.",
     solutionSteps: [
       "[1 mark] (A) Diagram: triangle ABC with D a point on side BC such that ∠ADC = ∠BAC; given figure drawn correctly.",
-      "[1 mark] In △CBA and △CDA: ∠C = ∠C (common) and ∠BAC = ∠ADC (given).",
-      "[1 mark] Therefore △CBA ~ △CDA by the AA similarity criterion.",
-      "[1 mark] Corresponding sides of similar triangles are proportional: CA/CD = CB/CA.",
+      "[1 mark] In △CBA and △CAD: ∠C = ∠C (common) and ∠BAC = ∠ADC (given).",
+      "[1 mark] Therefore △CBA ~ △CAD by the AA similarity criterion.",
+      "[1 mark] Corresponding sides of similar triangles are proportional: CB/CA = CA/CD.",
       "[1 mark] Cross-multiplying, CA² = CB · CD. Hence proved. [OR (B): since △ABC ~ △PQR, AB/PQ = BC/QR = 2BD/2QM = BD/QM; also ∠B = ∠Q, so △ABD ~ △PQM (SAS similarity), giving AB/PQ = AD/PM. Hence proved.]"
     ],
     finalAnswer: "(A) CA² = CB·CD, proved by AA similarity. [OR (B) AB/PQ = AD/PM, proved via SAS similarity of △ABD and △PQM.]",
