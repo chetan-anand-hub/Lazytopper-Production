@@ -684,14 +684,22 @@ describe("crawler reachability — every URL the app advertises resolves to some
     const robots = resolvePath("/robots.txt");
     expect(robots.kind === "file" && robots.path).toBe("/robots.txt");
 
-    // The SPA catch-all still works for a route with no file behind it.
-    const spa = resolvePath("/some-client-route");
+    // A ROUTED path with no file behind it still reaches the shell (SOFT404-1: the shell
+    // rules are generated from the router's table).
+    const spa = resolvePath("/login");
     expect(spa.kind === "file" && spa.path).toBe(SPA_SHELL_SERVED);
 
-    // Known-UNSERVED: proves the resolver can actually say no. With a root catch-all
-    // almost every path reaches the shell; a missing hashed asset is the one class
-    // that must NOT, and the 404 sentinel itself is served by nothing.
-    for (const unserved of ["/assets/definitely-not-a-real-chunk.js", "/__asset-not-found__"]) {
+    // Known-UNSERVED: proves the resolver can actually say no. SOFT404-1 removed the root
+    // catch-all, so a path the app does not route is unserved (HTTP 404 + 404.html), as is
+    // a missing hashed asset and the 404 sentinel itself.
+    for (const unserved of [
+      "/assets/definitely-not-a-real-chunk.js",
+      "/__asset-not-found__",
+      "/some-client-route",
+      "/this-does-not-exist-xyz",
+      "/llms-full.txt",
+      "/cbse/class-99",
+    ]) {
       expect(resolvePath(unserved).kind, unserved).toBe("unreachable");
       expect(isReachable(resolvePath(unserved)), unserved).toBe(false);
     }
@@ -804,52 +812,35 @@ describe("crawler reachability — every URL the app advertises resolves to some
     }
   });
 
-  it("★★ the root catch-all matches a TRAILING SLASH — the (.*) form, not :path*", () => {
-    // SLASH-1. `/app/:path*` compiles to SEGMENTS and does not match a path ending
-    // in "/", so every SPA deep link 404d when written with a trailing slash.
-    // Measured live 2026-08-31 on www.lazytopper.com: /app/pricing/ and
-    // /app/exam-trends/ — two of this domain's three indexable URLs — both 404,
-    // while their slashless twins returned 200. The cure is the SAME construction
-    // first proven live by the `/questions/:path(.*)` rewrite shipped in #714. That
-    // rewrite has since been removed with the static arc (RETIRE-1), but the `(.*)`
-    // form it validated is exactly what the root catch-all below still relies on.
+  it("★★ a routed path matches WITH a trailing slash (SLASH-1, kept by SOFT404-1)", () => {
+    // SLASH-1. `/app/:path*` compiled to SEGMENTS and did not match a path ending in "/", so
+    // every SPA deep link 404d when written with a trailing slash (measured live 2026-08-31).
+    // The cure was the `(.*)` form. SOFT404-1 replaced the catch-all with one rule per
+    // ROUTER path, each ending `/?)`, so the trailing slash must still resolve.
     //
-    // ★ The destination could not have been at fault: the shell is a LITERAL,
-    // always-present file that cannot fail to resolve. If the destination cannot fail
-    // and the request still 404s, the SOURCE is what failed to match.
-    //
-    // ROOT-URL-1: the catch-all moved to the root. Its `(.*)` carries a lookahead that
-    // keeps it off Vercel's own `/_vercel/*` paths and off the asset-404 sentinel
-    // (Vercel CONTINUES through the rewrites when a destination has no file, so a
-    // catch-all that matched the sentinel would turn every missing chunk into the shell).
-    const { rewrites } = readVercelConfig();
-    const appRule = rewrites.find((w) => w.destination === SPA_SHELL_SERVED);
-    expect(appRule, "the root catch-all rewrite is gone").toBeDefined();
-    expect(
-      (appRule as Rule).source,
-      "the root catch-all must use the (.*) form — `:path*` does not match a trailing slash",
-    ).toBe("/:path((?!_vercel/|__asset-not-found__).*)");
-    for (const excluded of ["/_vercel/insights/script.js", "/__asset-not-found__"]) {
-      expect(matchSource((appRule as Rule).source, excluded), excluded).toBeNull();
-    }
-
-    // ★ RED/GREEN: with `:path*` these three resolve nowhere at all.
-    for (const probe of ["/pricing/", "/exam-trends/", "/practice/"]) {
+    // ★ The destination could not have been at fault: the shell is a LITERAL, always-present
+    // file. If it cannot fail and the request still 404s, the SOURCE failed to match.
+    for (const probe of ["/pricing/", "/exam-trends/", "/practice-hub/", "/me/"]) {
       const r = resolvePath(probe);
-      expect(
-        r.kind === "file" && r.path,
-        `${probe} must resolve to the SPA shell`,
-      ).toBe(SPA_SHELL_SERVED);
+      expect(r.kind === "file", `${probe} must resolve to a file`).toBe(true);
+    }
+    // The ones with no prerendered file land on the clean shell.
+    for (const probe of ["/me/", "/login/", "/tutor/10/Maths/"]) {
+      const r = resolvePath(probe);
+      expect(r.kind === "file" && r.path, `${probe} must resolve to the SPA shell`).toBe(SPA_SHELL_SERVED);
     }
 
     // ★ CONTROL — the slashless twins already worked and must NOT regress. Without
     // this, a rule that matched nothing would still fail the loop above for the
     // wrong reason, and a rule that matched everything would look like a fix.
-    for (const probe of ["/pricing", "/exam-trends", "/practice"]) {
+    for (const probe of ["/me", "/login", "/tutor/10/Maths"]) {
       const r = resolvePath(probe);
-      expect(r.kind === "file" && r.path, `CONTROL ${probe} regressed`).toBe(
-        SPA_SHELL_SERVED,
-      );
+      expect(r.kind === "file" && r.path, `CONTROL ${probe} regressed`).toBe(SPA_SHELL_SERVED);
+    }
+
+    // ★ CONTROL THE OTHER WAY — a trailing slash must not rescue a path the app does not route.
+    for (const probe of ["/this-does-not-exist-xyz/", "/practice/", "/notes/"]) {
+      expect(isReachable(resolvePath(probe)), probe).toBe(false);
     }
   });
 });
@@ -1525,23 +1516,30 @@ describe("vercel.json — the SPA fallback is the clean shell (OR-A1-1)", () => 
     rewrites: Rule[];
     headers?: Array<{ source: string; headers: Array<{ key: string; value: string }> }>;
   };
-  const CATCH_ALL_SOURCE = "/:path((?!_vercel/|__asset-not-found__).*)";
+  // SOFT404-1: the root catch-all is GONE. The shell rules are generated from the router
+  // (soft404Routes.guard.test.ts pins them to App.tsx); here they are located by DESTINATION.
+  const shellRules = raw.rewrites.filter((w) => w.destination === "/__shell.html");
 
-  it("the root catch-all's destination is /__shell.html — and nothing rewrites to index.html", () => {
-    const catchAll = raw.rewrites.find((w) => w.source === CATCH_ALL_SOURCE);
-    expect(catchAll, "the root catch-all is gone").toBeDefined();
-    expect((catchAll as Rule).destination).toBe("/__shell.html");
+  it("every rewrite to the shell is a router-derived rule — there is no catch-all — and nothing rewrites to index.html", () => {
+    expect(shellRules.length, "no rewrite reaches /__shell.html").toBeGreaterThan(0);
+    // The old catch-all matched every path. A rule that matches an arbitrary unknown path is it.
+    for (const unknown of ["/this-does-not-exist-xyz", "/llms-full.txt", "/cbse/class-99", "/zz/yy/xx/ww"]) {
+      expect(
+        shellRules.filter((w) => matchSource(w.source, unknown)),
+        `${unknown} must not reach the shell`,
+      ).toEqual([]);
+    }
     expect(raw.rewrites.filter((w) => w.destination === "/index.html")).toEqual([]);
-    // It is the LAST rewrite: anything after it would be dead code.
-    expect(raw.rewrites[raw.rewrites.length - 1]).toEqual(catchAll);
+    // The shell rules are the LAST rewrites: anything after them would be dead code.
+    expect(raw.rewrites.slice(raw.rewrites.length - shellRules.length)).toEqual(shellRules);
   });
 
-  it("the ASSET-404 rules and BOTH API proxies precede the catch-all", () => {
-    const catchAllIdx = raw.rewrites.findIndex((w) => w.source === CATCH_ALL_SOURCE);
+  it("the ASSET-404 rules and BOTH API proxies precede the shell rules", () => {
+    const catchAllIdx = raw.rewrites.findIndex((w) => w.destination === "/__shell.html");
     for (const source of ["/api/:path*", "/shared-api/:path*", "/assets/:path(.*)", `${RETIRED_BASE}/assets/:path(.*)`]) {
       const idx = raw.rewrites.findIndex((w) => w.source === source);
       expect(idx, source).toBeGreaterThanOrEqual(0);
-      expect(idx, `${source} must come before the catch-all`).toBeLessThan(catchAllIdx);
+      expect(idx, `${source} must come before the shell rules`).toBeLessThan(catchAllIdx);
     }
     for (const source of ["/assets/:path(.*)", `${RETIRED_BASE}/assets/:path(.*)`]) {
       expect(raw.rewrites.find((w) => w.source === source)?.destination).toBe("/__asset-not-found__");

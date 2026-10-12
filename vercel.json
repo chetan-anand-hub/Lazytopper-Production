@@ -30,7 +30,203 @@
       "destination": "/__asset-not-found__"
     },
     {
-      "source": "/:path((?!_vercel/|__asset-not-found__).*)",
+      "source": "/",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([wW][eE][lL][cC][oO][mM][eE]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([bB][rR][oO][wW][sS][eE]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([lL][oO][gG][iI][nN]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([lL][oO][gG][iI][nN](?:/.*)?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([sS][iI][gG][nN]-[uU][pP]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([sS][iI][gG][nN]-[uU][pP](?:/.*)?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([lL][eE][gG][aA][lL]/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([pP][rR][iI][cC][iI][nN][gG]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([cC][bB][sS][eE]/[cC][lL][aA][sS][sS]-10/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([cC][hH][eE][cC][kK]-[yY][oO][uU][rR]-[aA][nN][sS][wW][eE][rR]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([aA][dD][mM][iI][nN]/[fF][uU][nN][nN][eE][lL]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([aA][dD][mM][iI][nN]/[vV][iI][sS][uU][aA][lL]-[aA][uU][dD][iI][tT]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([aA][dD][mM][iI][nN]/[cC][aA][cC][hH][eE]-[sS][tT][aA][tT][sS]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([aA][dD][mM][iI][nN]/[dD][iI][fF][fF][iI][cC][uU][lL][tT][yY]-[bB][rR][eE][aA][kK][dD][oO][wW][nN]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([aA][dD][mM][iI][nN]/[qQ][uU][eE][sS][tT][iI][oO][nN]-[rR][eE][pP][oO][rR][tT][sS]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([aA][dD][mM][iI][nN]/[sS][tT][uU][dD][eE][nN][tT][sS]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([tT][eE][aA][cC][hH][eE][rR]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([oO][nN][bB][oO][aA][rR][dD][iI][nN][gG]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([tT][oO][pP][iI][cC]-[hH][uU][bB]/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([tT][oO][pP][iI][cC]-[hH][uU][bB]/[^/]+/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([tT][oO][pP][iI][cC]-[hH][uU][bB]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([mM][oO][cC][kK]-[pP][aA][pP][eE][rR]/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([tT][oO][pP][iI][cC]-[mM][oO][cC][kK]/[^/]+/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([cC][hH][aA][pP][tT][eE][rR]-[tT][eE][sS][tT]/[^/]+/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([fF][uU][lL][lL]-[mM][oO][cC][kK]/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([tT][uU][tT][oO][rR]/[^/]+/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([tT][uU][tT][oO][rR]/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([mM][oO][cC][kK]-[bB][uU][iI][lL][dD][eE][rR]/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([mM][oO][cC][kK]-[bB][uU][iI][lL][dD][eE][rR]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([hH][iI][gG][hH][lL][yY]-[pP][rR][oO][bB][aA][bB][lL][eE]/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([hH][iI][gG][hH][lL][yY]-[pP][rR][oO][bB][aA][bB][lL][eE]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([eE][xX][aA][mM]-[sS][iI][mM][uU][lL][aA][tT][iI][oO][nN]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([pP][rR][aA][cC][tT][iI][cC][eE]/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([aA][iI]-[mM][eE][nN][tT][oO][rR]/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([aA][iI]-[mM][eE][nN][tT][oO][rR]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([mM][eE][nN][tT][oO][rR]/[^/]+/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([mM][eE][nN][tT][oO][rR]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([wW][eE][aA][kK]-[aA][rR][eE][aA]-[pP][rR][aA][cC][tT][iI][cC][eE]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([pP][rR][oO][fF][iI][lL][eE]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([iI][nN][tT][eE][nN][tT]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([pP][rR][aA][cC][tT][iI][cC][eE]-[hH][uU][bB]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([pP][rR][aA][cC][tT][iI][cC][eE]/[wW][oO][rR][kK][sS][hH][eE][eE][tT][sS]/[rR][eE][aA][dD][yY]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([pP][rR][aA][cC][tT][iI][cC][eE]/[wW][oO][rR][kK][sS][hH][eE][eE][tT][sS]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([cC][hH][eE][cC][kK]-[iI][mM][pP][rR][oO][vV][eE]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([eE][xX][aA][mM]-[tT][rR][eE][nN][dD][sS]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([tT][oO][pP][iI][cC]-[hH][uU][bB]/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([nN][oO][tT][eE][sS]/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([mM][eE]/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path([uU]/[^/]+/?)",
       "destination": "/__shell.html"
     }
   ],
