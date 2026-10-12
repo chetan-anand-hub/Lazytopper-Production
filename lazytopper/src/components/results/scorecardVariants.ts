@@ -558,14 +558,14 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     keep: "Keep practicing this set",
     fresh: "Build a fresh set",
     chapter: "Chapter Test",
-    predicted: "Predicted Questions",
+    predicted: "Important Questions",
     study: "Study this chapter",
   };
   const floorTags: Record<MenuId, string> = {
     keep: "Back",
     fresh: "New",
     chapter: "Test",
-    predicted: "HPQ",
+    predicted: "Important Qs",
     study: "Hub",
   };
   const handlers: Record<MenuId, (() => void) | undefined> = {

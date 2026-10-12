@@ -68,7 +68,7 @@ const PREMIUM_FEATURES = [
   { label: "Your AI tutor that actually knows you — your chapters, your mistakes, your pace", included: true },
   { label: "Mistake Intelligence — why you lose marks, not just where", included: true },
   { label: "Check & Improve — photograph your handwritten solution, graded like a board examiner", included: true },
-  { label: "Full mocks and predicted-question papers — real board blueprint", included: true },
+  { label: "Full mocks and important-question sets — real board blueprint", included: true },
   { label: "Progress that tells you what to fix next", included: true },
 ];
 

@@ -927,7 +927,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
               {hpqBack.label}
             </button>
             <span style={{ fontWeight: 700, color: "hsl(220, 25%, 12%)" }}>
-              High-Probability Question Patterns
+              Important Questions
             </span>
             <span>Class {grade} - {subjectKey}</span>
           </div>
@@ -975,7 +975,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
               marginBottom: 8,
             }}
             >
-              Class {grade} - {subjectKey} - High-Probability Question Patterns
+              Class {grade} · {subjectKey} · Important Questions
             </div>
             <h1
             style={{
@@ -987,7 +987,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
               marginBottom: 10,
             }}
           >
-              High-Probability Question Patterns
+              Important Questions
             </h1>
             <p
             style={{
@@ -1012,7 +1012,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                 lineHeight: 1.45,
               }}
             >
-              These represent high-probability question patterns to prioritise — not predictions of the exact 2027 paper. Full preparation still matters.
+              These are important question patterns to prioritise — not predictions of the exact 2027 paper. Full preparation still matters.
             </div>
             {topicFilter !== "all" ? (
               <div
@@ -1130,8 +1130,8 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                 }}
               >
                 {topicFilter === "all"
-                  ? "Showing all predicted questions across all topics."
-                  : `Showing predicted questions for ${topicFilter}.`}
+                  ? "Showing all important questions across all topics."
+                  : `Showing important questions for ${topicFilter}.`}
               </p>
             </div>
 

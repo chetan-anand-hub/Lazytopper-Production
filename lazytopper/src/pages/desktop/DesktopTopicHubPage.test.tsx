@@ -194,7 +194,7 @@ describe("DesktopTopicHubPage — the existing params still work (shared parsing
         "/highly-probable",
       )}&concept=${encodeURIComponent(conceptNames[0])}`,
     );
-    const back = screen.getByText("Back to Predicted Questions").closest("a");
+    const back = screen.getByText("Back to Important Questions").closest("a");
     expect(back?.getAttribute("href")).toBe("/highly-probable");
   });
 

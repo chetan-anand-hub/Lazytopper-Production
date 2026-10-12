@@ -45,6 +45,7 @@ import {
   type LearningSignalMode,
 } from "../../lib/desktop/learningSignals";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
+import { EVIDENCE_BASE_YEARS } from "../../config/evidenceBase";
 // DIAGRAMS-1 PR-2a — solution figure drawn from the question's own numbers (lazy; null when unbound).
 const SolutionFigure = lazyWithRetry(() => import("../../diagrams/SolutionFigure"));
 
@@ -2249,7 +2250,7 @@ export default function DesktopPracticePage() {
           </h1>
           <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>
             Pick what to work on, then choose how — a quick set, a worksheet, the
-            predicted questions, or a full paper.
+            important questions, or a full paper.
           </p>
         </div>
 
@@ -2440,10 +2441,10 @@ export default function DesktopPracticePage() {
                 <ModeCard
                   accent="hpq"
                   icon={<IconSparkles />}
-                  title="Predicted (HPQs)"
-                  desc="The questions most likely to appear — from the highly-probable catalogue."
-                  chips={["Most likely", "Board-pattern"]}
-                  cta="Open highly probable"
+                  title="Important Questions"
+                  desc={`Chapter-wise important questions from ${EVIDENCE_BASE_YEARS} years of CBSE papers.`}
+                  chips={["Chapter-wise", "Board-pattern"]}
+                  cta="Open important questions"
                   to={buildPredictedPath()}
                   onActivate={(to) => navigate(to)}
                 />

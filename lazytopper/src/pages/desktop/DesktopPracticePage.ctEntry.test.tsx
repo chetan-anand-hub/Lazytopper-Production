@@ -104,7 +104,7 @@ describe("Practice hub — Chapter Tests entry (CT-ENTRY-1)", () => {
 
   it("keeps the four mode cards and exactly four carousel dots", async () => {
     await renderHub(HUB);
-    for (const name of ["Quick Practice", "Worksheet", "Predicted (HPQs)", "Full Test"]) {
+    for (const name of ["Quick Practice", "Worksheet", "Important Questions", "Full Test"]) {
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
     }
     expect(document.querySelectorAll(".lt-mode-dots > span")).toHaveLength(4);

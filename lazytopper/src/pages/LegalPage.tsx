@@ -306,7 +306,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <h2>Acceptance of Terms</h2>
         <p>By using LazyTopper, you agree to these terms. LazyTopper is an educational tool for CBSE Class 10 exam preparation.</p>
         <h2>Service Description</h2>
-        <p>LazyTopper provides AI-powered exam preparation including trend analysis, predicted questions, mock tests, and AI tutoring based on 10 years of CBSE board exam data.</p>
+        <p>LazyTopper provides AI-powered exam preparation including trend analysis, important questions, mock tests, and AI tutoring based on 10 years of CBSE board exam data.</p>
         <h2>Disclaimer</h2>
         <p>LazyTopper provides data-driven predictions based on historical CBSE patterns. These are not guaranteed exam questions. We do not guarantee any specific exam results or scores.</p>
         <h2>User Accounts</h2>

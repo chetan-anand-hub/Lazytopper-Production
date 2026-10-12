@@ -393,7 +393,7 @@ describe("ExamTrendsRanked — the ⋯ menu (§5 regression guard)", () => {
       Array.from(menu.querySelectorAll('[role="menuitem"]')).map((b) =>
         b.textContent?.trim(),
       ),
-    ).toEqual(["Practice this chapter", "Build a worksheet", "Predicted questions"]);
+    ).toEqual(["Practice this chapter", "Build a worksheet", "Important questions"]);
   });
 
   it("opening another card's menu closes the first; an outside click closes all", async () => {
@@ -440,7 +440,7 @@ describe("ExamTrendsRanked — the ⋯ menu (§5 regression guard)", () => {
       fireEvent.click(within(card).getByRole("button", { name: /More actions/ }));
     });
     await act(async () => {
-      fireEvent.click(screen.getByRole("menuitem", { name: /Predicted questions/ }));
+      fireEvent.click(screen.getByRole("menuitem", { name: /Important questions/ }));
     });
     expect(screen.getByTestId("probe").getAttribute("data-url")).toBe(
       "/highly-probable/10/Maths?topic=circles&source=trends&returnTo=%2Fexam-trends",
@@ -459,7 +459,7 @@ describe("ExamTrendsRanked — multi-select tray", () => {
 
     expect(screen.getByText(/Selected/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Practice selected/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Predicted Qs/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Important Qs/ })).toBeInTheDocument();
   });
 });
 

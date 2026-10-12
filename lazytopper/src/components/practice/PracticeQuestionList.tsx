@@ -135,7 +135,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
                 textDecoration: "none", display: "block",
               }}
             >
-              Try Predicted Questions instead
+              Try Important Questions instead
             </Link>
           </div>
         </div>

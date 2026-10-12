@@ -77,7 +77,7 @@ function fireAndCapture(name: RegExp): string {
 const CTA = {
   quick: /start quick practice/i,
   worksheet: /open worksheet builder/i,
-  hpq: /open highly probable/i,
+  hpq: /open important questions/i, // IMPQ-RENAME-1: was /open highly probable/i
   fulltest: /open full test/i,
   drill: /run targeted drill/i,
 };
@@ -247,7 +247,7 @@ describe("Practice hub redesign — cut surfaces stay cut", () => {
     // Kept: the two steps and all four mode cards.
     expect(screen.getByRole("heading", { name: "What to work on" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "How to practise" })).toBeInTheDocument();
-    for (const name of ["Quick Practice", "Worksheet", "Predicted (HPQs)", "Full Test"]) {
+    for (const name of ["Quick Practice", "Worksheet", "Important Questions", "Full Test"]) {
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
     }
 

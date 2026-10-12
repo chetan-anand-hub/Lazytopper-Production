@@ -231,7 +231,7 @@ export const PRIMARY_CARDS: QuickCard[] = [
     to: `/practice-hub${HOME_QS_LEAD}`,
     icon: LayersIcon,
     label: "Practise it",
-    sub: "Quick sets, worksheets, predicted papers or a full mock.",
+    sub: "Quick sets, worksheets, important questions or a full mock.",
     go: "Practice →",
     accent: "navy",
   },
