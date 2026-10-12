@@ -46,11 +46,19 @@ const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content"] as 
 const UTM_MAX = 64;
 const UTM_CHARSET = /^[A-Za-z0-9_.\-{}]+$/;
 const HOST_CHARSET = /^[a-z0-9.-]{1,253}$/;
+// Must match the server's landing charset (server/routes/signupSource.cjs): a path outside
+// it would be refused 400 and the account's whole source silently lost, so it falls back to "/".
+const LANDING_CHARSET = /^\/[A-Za-z0-9_\-./:]*$/;
 
 function cleanUtm(raw: string | null): string | null {
   if (raw === null) return null;
   const value = raw.trim().slice(0, UTM_MAX);
   return value.length > 0 && UTM_CHARSET.test(value) ? value : null;
+}
+
+function cleanLanding(pathname: string): string {
+  const path = normalisePath(pathname);
+  return LANDING_CHARSET.test(path) ? path : "/";
 }
 
 function bareHost(host: string): string {
@@ -108,7 +116,7 @@ export function captureVisitSource(
   const fbclid = (params.get("fbclid") ?? "") !== "";
   const tagged = ref !== null || gclid || fbclid || Object.values(utm).some((v) => v !== null);
   if (referrerKind.kind === "same" && !tagged) return null;
-  return { ref, ...utm, landing: normalisePath(location.pathname), gclid, fbclid };
+  return { ref, ...utm, landing: cleanLanding(location.pathname), gclid, fbclid };
 }
 
 /**

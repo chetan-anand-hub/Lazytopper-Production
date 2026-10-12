@@ -241,7 +241,6 @@ test('an unavailable verifier / Admin SDK answers 503, never a silent success', 
 });
 
 test('a Firestore failure other than "already exists" is a 500, not a 204', async () => {
-  const w = makeWorld();
   const boom = createSignupSourceRoutes({
     sendJson,
     verifiedCaller: { resolveVerifiedCaller: async () => ({ uid: 'u1', reason: 'verified' }) },
@@ -255,5 +254,4 @@ test('a Firestore failure other than "already exists" is a 500, not a 204', asyn
   const res = makeRes();
   await boom.handleSignupSource(makeReq(GOOD, { authorization: 'Bearer t' }), res);
   assert.equal(res.statusCode, 500);
-  assert.equal(w.writes.length, 0);
 });

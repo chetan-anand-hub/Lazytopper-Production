@@ -154,7 +154,7 @@ function sourceLabel(source: RowSource | null | undefined): string {
 
 /** Hover text: every coarse field, so a campaign can be read exactly. */
 function sourceTitle(source: RowSource | null | undefined): string | undefined {
-  if (!source) return "No source recorded (account created before source capture)";
+  if (!source) return "No source recorded";
   const parts = [
     source.utm_source && `source: ${source.utm_source}`,
     source.utm_medium && `medium: ${source.utm_medium}`,

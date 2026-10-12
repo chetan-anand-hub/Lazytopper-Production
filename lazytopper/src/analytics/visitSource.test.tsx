@@ -119,6 +119,13 @@ describe("captureVisitSource", () => {
     expect(captureVisitSource({ pathname: "/notes/", search: "?a=1" }, "", OWN)?.landing).toBe("/notes");
   });
 
+  it("a landing path the server would refuse (%, space, ~, +) falls back to '/', so the source is not lost", () => {
+    for (const pathname of ["/notes/caf%C3%A9", "/a b", "/~x", "/a+b", "/x(1)", "/a,b"]) {
+      expect(captureVisitSource({ pathname, search: "?utm_source=youtube" }, "", OWN)?.landing, pathname).toBe("/");
+    }
+    expect(captureVisitSource({ pathname: "/class-10/maths:ch1", search: "" }, "", OWN)?.landing).toBe("/class-10/maths:ch1");
+  });
+
   it("junk or non-http referrers are ignored", () => {
     expect(captureVisitSource({ pathname: "/", search: "" }, "android-app://com.google.android.gm", OWN)?.ref).toBeNull();
     expect(captureVisitSource({ pathname: "/", search: "" }, "not a url", OWN)?.ref).toBeNull();
