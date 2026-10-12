@@ -83,6 +83,7 @@ const EVENT_LABELS: Record<string, string> = {
   check_question_read: "Read a question to check",
   check_answer_added: "Added an answer",
   check_graded: "Checked an answer",
+  practice_graded: "Graded a practice set",
 };
 
 /** A recorded event name in plain words, e.g. "check_graded" -> "Checked an answer". */

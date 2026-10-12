@@ -323,6 +323,14 @@ test('★★ M2: an unknown name refuses the WHOLE batch — nothing is written'
   assert.equal(t.db.docs.size, 0);
 });
 
+test('ACTIVATION-1 · practice_graded is an accepted event name (a graded practice set is counted)', async () => {
+  assert.ok(ACTIVITY_EVENTS.includes('practice_graded'));
+  const t = makeRoutes();
+  const r = await t.post({ token: 'tok-u1', body: { events: { practice_graded: 1 } } });
+  assert.equal(r.status, 200);
+  assert.deepEqual(t.db.docs.get(dayPath('u1', '2030-06-15')).events, { practice_graded: 1 });
+});
+
 test('every allowlisted section and event IS accepted (the allowlist is not dead)', async () => {
   const t = makeRoutes();
   const sections = Object.fromEntries(ACTIVITY_SECTIONS.map((n) => [n, 1]));
