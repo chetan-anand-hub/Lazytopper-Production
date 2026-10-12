@@ -18,6 +18,7 @@ import {
   CBSE_TIMELINE,
   CBSE_TRAPS,
   CBSE_2027_MAIN_EXAM_WINDOW,
+  type CbsePaper,
   type CbseSubjectKey,
 } from "./cbse2027Sources";
 
@@ -106,6 +107,18 @@ import {
  * That is this page's entire SEO purpose; a card that unmounts its answer looks
  * identical to a user and is invisible to Google.
  */
+
+/**
+ * D111: the index of a subject's last competency or item-bank row (the older CBSE sets).
+ * The older-sets note renders directly under it. Returns -1 when a subject has none.
+ */
+function lastOlderSetIndex(papers: readonly CbsePaper[]): number {
+  let last = -1;
+  papers.forEach((paper, index) => {
+    if (/-(competency-answers|competency-items|item-bank)$/.test(paper.id)) last = index;
+  });
+  return last;
+}
 
 const CBSE_CSS = `
 .lt-cbse{
@@ -505,9 +518,13 @@ export default function Cbse2027Page() {
                   aria-labelledby={`lt-cbse-tab-${subject.key}`}
                   hidden={subject.key !== subjectKey}
                 >
-                  {subject.papers.map((paper) => {
+                  {subject.papers.flatMap((paper, index) => {
                     const link = cbsePaperLink(paper, manifest);
-                    return (
+                    // D111: the competency sets and item banks predate the 2026-27 syllabus.
+                    // The note sits directly under the LAST of those rows, so it reads as
+                    // being about them.
+                    const isLastOlderSet = index === lastOlderSetIndex(subject.papers);
+                    const row = (
                       <a
                         key={paper.href}
                         href={link.href}
@@ -524,9 +541,10 @@ export default function Cbse2027Page() {
                         <span className="lt-cbse__open">{link.label}</span>
                       </a>
                     );
+                    return isLastOlderSet
+                      ? [row, <p key={`${paper.id}-note`} className="lt-cbse__pnote">{CBSE_OLDER_SETS_NOTE}</p>]
+                      : [row];
                   })}
-                  {/* D111: the competency sets and item banks predate the 2026-27 syllabus. */}
-                  <p className="lt-cbse__pnote">{CBSE_OLDER_SETS_NOTE}</p>
                 </div>
               ))}
             </div>

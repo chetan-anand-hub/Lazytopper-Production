@@ -248,9 +248,16 @@ describe("the subject switcher", () => {
       const panel = container.querySelector(`#lt-cbse-panel-${key}`) as HTMLElement;
       // PRECONDITION: the panel rendered its source links.
       expect(panel.querySelectorAll("a").length, key).toBeGreaterThan(0);
-      expect(panel.querySelector(".lt-cbse__pnote")?.textContent, key).toBe(
+      const notes = panel.querySelectorAll(".lt-cbse__pnote");
+      expect(notes, key).toHaveLength(1);
+      expect(notes[0].textContent, key).toBe(
         "Older CBSE sets: skip any question on a topic not in the 2026-27 syllabus.",
       );
+      // Placement: directly under that subject's last older set (its item bank), not at
+      // the end of the list after the toppers and syllabus rows.
+      const itemBank = byId.get(`${key}-item-bank`)!;
+      expect(notes[0].previousElementSibling?.getAttribute("href"), key).toBe(itemBank.href);
+      expect(notes[0].nextElementSibling, key).not.toBeNull();
     }
   });
 
