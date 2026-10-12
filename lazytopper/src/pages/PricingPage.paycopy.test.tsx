@@ -239,7 +239,7 @@ describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
       { label: "Solution Checker / Check & Improve", included: false },
       { label: "Deep Mistake Intelligence", included: false },
       {
-        label: `Mock papers: ${ANON_DAILY_MOCK_LIMIT} a day signed out, ${SIGNED_IN_DAILY_MOCK_LIMIT} a day with a free account`,
+        label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — answers not checked`,
         included: true,
       },
       { label: "Richer Me / Progress recommendations", included: false },

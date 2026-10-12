@@ -41,7 +41,7 @@ const PRICING_BASIC_ROWS_BEFORE_THE_MOVE = [
   "✓Basic topic insights",
   "—Solution Checker / Check & Improve",
   "—Deep Mistake Intelligence",
-  "✓Mock papers: 1 a day signed out, 3 a day with a free account",
+  "✓Open or download 3 chapter tests or mocks a day (1 when signed out) — answers not checked", // D114 wording
   "—Richer Me / Progress recommendations",
 ];
 
