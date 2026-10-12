@@ -23,6 +23,17 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-12 — SEO-LLM-1 (C1, §10 for `#1106`): FOLLOW-UPS RAISED
+
+### [FU-PRACTICEHUB-DESC-PREDICTED] — NARROWED, STILL OPEN (update to the entry below)
+`#1106` fixed `llms.txt` and `index.html:35,47`. Still open: `scripts/seo/writeStaticHeads.ts:118` (the `/practice-hub` meta description, "...or predicted-question mocks."). It needs a cofounder ruling because that string was outside SEO-LLM-1's scope. The older entry is left as written (dated entries are not rewritten).
+
+### [FU-NOTES-TRIG-SECOND-NCERT-FILE] — OPEN, NOTE (verifier follow-up on `#1106`)
+The trigonometry note covers Ch 8 (`jemh108`) and Ch 9 (`jemh109`) but links and titles only `jemh108`. A searcher for "jemh109" gets no link. A second link needs a ruling on title / description wording (the resolver throws on two distinct codes by design), so it is a separate small lane.
+
+### [FU-SEO-LLM-1-SECTION5-VOID] — CLOSED (recorded)
+Spec §5 checkbox 1 expected `/check-improve` in `llms.txt`; D121 removed it (noindex, sitemap-equality guard). The LIVE post says so.
+
 ## 2026-10-12 — IMPQ-RENAME-1 (C2, §10 for `#1102`): FOLLOW-UPS RAISED
 
 ### [FU-PRACTICEHUB-DESC-PREDICTED] — OPEN (C1, outside `#1102`'s allowlist; verifier's follow-up)

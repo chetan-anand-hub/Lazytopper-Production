@@ -1,5 +1,25 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-12 · SEO-LLM-1] WHAT AI TOOLS, LINK PREVIEWS AND NCERT-CODE SEARCHERS READ ABOUT LAZYTOPPER NOW SAYS "IMPORTANT QUESTIONS"; EVERY NOTES PAGE OFFERS THE OFFICIAL NCERT CHAPTER PDF — `#1106` MERGED — LIVE
+
+*(Adds to the IMPQ-RENAME-1 block directly below, which stays current for everything this block does not name. Written by C1 under §10 for `#1106` (`feat/seo-llm-1`), from `#973` (DECISION 121, and 87/90/91/98/108/116 as they bear on it) and `git log`. Copy + head lane: no routes, no grading, no auth, no server.)*
+
+★ **TRUNK:** `e62a0e1a` (`#1106`, 2026-10-12 14:02:11Z). Re-derive it with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1106` SEO-LLM-1 | `e62a0e1a` | 10-12 14:02:11 | `public/llms.txt`: "Important Questions" wording, no "predicted" / "high-probability", the `/cbse/class-10` line names the official 2026-27 sample papers and marking schemes; all 63 URLs unchanged. `index.html` lines 35 and 47: "predicted questions" becomes "important questions" (og + twitter descriptions, so WhatsApp / social previews of every client-rendered route, incl. `/check-improve`). Notes: every `/notes/<slug>` shows "Official NCERT chapter PDF (code) — ncert.nic.in" linking `https://ncert.nic.in/textbook/pdf/<code>.pdf` (`target=_blank rel=noopener`, before the closed Sources block, in the prerendered HTML), and the meta description now carries the file code: `NCERT Ch. 11 (jemh111) · <chapter> — <blurb>`. |
+
+- **ONE copy of the code logic:** new `lazytopper/src/lib/ncertFileCode.ts` (`ncertFileCodeFromSpec`, pure). `scripts/seo/writeStaticHeads.ts` reads the spec file and delegates (it still THROWS on a missing / ambiguous / wrong-chapter code); `Note.tsx` uses `tryNcertFileCode` (no link, never a guess). All 26 notes resolve a code.
+- **Four blurbs shortened (deletions only)** to hold the 155 cap with the code in: pair-of-linear-equations, trigonometry, human-eye-and-colourful-world, magnetic-effects-of-electric-current (before / after in the `#1106` body). The longest description is 155.
+- **NOT added (D121):** no new URLs in `llms.txt`. `/check-improve` is noindex by design and `llmsTxt.guard` pins `llms.txt` URLs to the sitemap set; `/practice-hub?cbq=1` is not a sitemap URL. `sitemapUrls.ts`, the canonical ruling and `llmsTxt.guard` were not touched. The spec's "Start here" addition was amended to nothing, and its §5 first checkbox ("contains `/check-improve`") is void.
+- **New guards:** `config/llmSurfaces.guard.test.ts` (llms.txt and the three `index.html` description tags free of the old wording; for both prerendered variants of all 26 notes, exactly one ncert.nic.in PDF link whose code equals the code in the shipped title and description; controls; RED on trunk) and `components/notes/Note.ncertPdfLink.test.tsx` (28 cases). `notesHeads.guard` and `staticHeads.guard` were updated to expect the code in the description. Mutations (a wrong chapter code in the component; in a shipped HTML file) went RED and were restored byte-exact.
+- **Prerendered:** `prerendered/**`, `lastmod.json`, `public/sitemap.xml` came from the PR's own CI capture artifact (run 38256995328). The prerendered files are body fragments, so the title / description codes are read from `headForPath`, not from the files.
+- **Verifier (D108):** model **Claude Opus 5.5**, independent subagent, `VERDICT: PASS-WITH-FOLLOW-UP for head 9ac7baa3`. 259/259 on its guard set. Merged head = that head (REST squash, sha pinned; `gh pr merge` is blocked by a GraphQL 403). CI: all required checks green; only the non-required Vercel PREVIEW failed; production `success`.
+- **Six surfaces (CLAUDE.md §4a):** grading behaviour is **untouched** on all six (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice).
+- **LIVE `#1106`** (C1, 14:05Z; the cofounder re-verified 14:16Z): 5/5 cold reads of `/version.json` = `e62a0e1a`; `/llms.txt` 0 predicted / 0 high-probability, "Important Questions" x3; `/check-improve` og + twitter descriptions say "important questions"; `/notes/areas-related-to-circles` has the `jemh111` link and `(jemh111)` in title + description; `ncert.nic.in/textbook/pdf/jemh111.pdf` HEAD 200.
+- **Owed:** the owner's WhatsApp preview check on `/check-improve?v=2` (NEXT_ACTION). `[FU-PRACTICEHUB-DESC-PREDICTED]` is narrowed, not closed (OPEN_QUESTIONS).
+
 ## [CURRENT · 2026-10-12 · IMPQ-RENAME-1] EVERY STUDENT-VISIBLE "PREDICTED QUESTIONS" / HPQ NAME IS NOW "IMPORTANT QUESTIONS"; THE BASIC MOCK ROW SAYS "WRITTEN ANSWERS NOT CHECKED" — `#1102` MERGED — LIVE
 
 *(This block adds to the ACTIVATION-1 block directly below, which stays current for everything this block does not name. Written by C2 under §10 for `#1102` (C1's `feat/impq-rename-1`), from `#973` (DECISIONs 116 and 117) and `git log`. Wording only: no route, identifier, event name or storage key changed.)*
