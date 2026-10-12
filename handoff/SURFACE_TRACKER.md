@@ -1,5 +1,14 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-12 — SEO-PAGES-1 (C1, §10 for `#1095` + `#1098`).** No surface's Scope changed and no new scope was discovered. The surfaces moved are below. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/cbse/class-10` (public SEO page) | 2026-27 SQP/MS links + the Basic MS row; honest pill in the prerender; +3 circulars and the date 12 Oct 2026; Practise-it links (`#1095`). Maths CFPQ + Science item bank + the older-sets note (`#1098`) | 🟢 live | owner 390 px check |
+| `/highly-probable/10/{Maths,Science}` (heads only) | `<title>` and description say "Important Questions" (`#1095`, `#1098`); canonicals unchanged | 🟢 live | — |
+| `/pricing` | Basic card: the one free signed-out answer check, linking `/check-improve`; waits for auth (`#1095`, `#1098`) | 🟢 live | owner call `[FU-PRICING-PRERENDER-FREECHECK-FLASH]` |
+
+
 > **2026-10-11 — DAY CLOSE (C2, docs lane D100): surfaces moved by the day's PRs (table of PRs in `CURRENT_STATE.md`). The cells below are NOT re-flipped one by one in the large per-surface sections further down; THIS block is the authority for the surfaces it names until a later docs lane merges it in. No surface changed Scope to Settling today; no new scope was discovered.**
 
 | surface | what moved (PR) | state | owed |

@@ -1,3 +1,16 @@
+## ★ 2026-10-12 — AFTER SEO-PAGES-1 (`#1095` + `#1098`, written by C1 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone, 390 px):**
+  - On `/cbse/class-10` → Maths, open "Sample paper — Basic" and "Marking scheme — Basic" (CBSE 2026-27 PDFs).
+  - Check that "Practise this paper" opens the Maths full mock.
+  - Check that the Science tab shows "Item bank" and the "Older CBSE sets…" note under it.
+- **OWNER CALL (non-blocking), `[FU-PRICING-PRERENDER-FREECHECK-FLASH]`:** the prerendered `/pricing` still carries the free-check line, so it stays crawlable. A signed-in visitor can briefly see it before the Pricing JS loads. Choose: keep it (current, recommended) or hide it from the prerender, at the cost of crawler visibility.
+- **Growth:** sample-paper ads were unblocked by `#1095` (D106). The cofounder tells the growth session.
+- **Mirror:** the daily 06:00 IST run seeds `maths-basic-ms`, `maths-competency-answers` and `science-item-bank` from their committed hrefs (no prior manifest entry). Until then they read "Open" (CBSE original, HEAD 200).
+- **Standing lesson (P21-style pin hunts):** `scripts/cbse-mirror/papers.ts` imports `CBSE_SUBJECTS`, so a page-row change can move ROOT `scripts/src/cbseMirror*.test.ts`. Run the root `test:matrix:all` locally before pushing. `#1095`'s first verifier pass FAILED on exactly this.
+
 ## ★★★ 2026-10-12 — NEXT ACTION AFTER THE 2026-10-11 DAY CLOSE (docs lane D100, written by C2) — THE DEFERRED LIST, THE OWNER-BATCH, THE STANDING RULES THE DAY ADDED
 
 *(The owner items of every block below stand unchanged, except the items this block names.)*

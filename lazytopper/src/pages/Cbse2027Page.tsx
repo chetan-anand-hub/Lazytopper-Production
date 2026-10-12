@@ -12,11 +12,13 @@ import {
 import {
   CBSE_CIRCULARS,
   CBSE_CIRCULARS_CHECKED_ON,
+  CBSE_OLDER_SETS_NOTE,
   CBSE_SUBJECTS,
   CBSE_THEORY_MARKS,
   CBSE_TIMELINE,
   CBSE_TRAPS,
   CBSE_2027_MAIN_EXAM_WINDOW,
+  type CbsePaper,
   type CbseSubjectKey,
 } from "./cbse2027Sources";
 
@@ -106,6 +108,18 @@ import {
  * identical to a user and is invisible to Google.
  */
 
+/**
+ * D111: the index of a subject's last competency or item-bank row (the older CBSE sets).
+ * The older-sets note renders directly under it. Returns -1 when a subject has none.
+ */
+function lastOlderSetIndex(papers: readonly CbsePaper[]): number {
+  let last = -1;
+  papers.forEach((paper, index) => {
+    if (/-(competency-answers|competency-items|item-bank)$/.test(paper.id)) last = index;
+  });
+  return last;
+}
+
 const CBSE_CSS = `
 .lt-cbse{
   --bg:#f4f7fb; --card:#fff; --ink:#0f2038; --ink2:#4d647e; --ink3:#71879f;
@@ -187,6 +201,7 @@ const CBSE_CSS = `
 
 /* SOURCE ROWS — every control reads "Open" (ruling b) */
 .lt-cbse__dl{display:grid;gap:9px}
+.lt-cbse__pnote{margin:2px 2px 0;font-size:12.5px;line-height:1.45;color:var(--ink3)}
 .lt-cbse__dl a{display:flex;align-items:center;gap:12px;background:var(--card);
   border:1px solid var(--line);border-radius:12px;padding:12px 13px;
   text-decoration:none;color:inherit;box-shadow:var(--sh);min-height:62px}
@@ -503,9 +518,13 @@ export default function Cbse2027Page() {
                   aria-labelledby={`lt-cbse-tab-${subject.key}`}
                   hidden={subject.key !== subjectKey}
                 >
-                  {subject.papers.map((paper) => {
+                  {subject.papers.flatMap((paper, index) => {
                     const link = cbsePaperLink(paper, manifest);
-                    return (
+                    // D111: the competency sets and item banks predate the 2026-27 syllabus.
+                    // The note sits directly under the LAST of those rows, so it reads as
+                    // being about them.
+                    const isLastOlderSet = index === lastOlderSetIndex(subject.papers);
+                    const row = (
                       <a
                         key={paper.href}
                         href={link.href}
@@ -522,6 +541,9 @@ export default function Cbse2027Page() {
                         <span className="lt-cbse__open">{link.label}</span>
                       </a>
                     );
+                    return isLastOlderSet
+                      ? [row, <p key={`${paper.id}-note`} className="lt-cbse__pnote">{CBSE_OLDER_SETS_NOTE}</p>]
+                      : [row];
                   })}
                 </div>
               ))}
