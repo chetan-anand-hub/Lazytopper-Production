@@ -1,5 +1,18 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-12 — IMPQ-RENAME-1 (C2, §10 for `#1102`).** No surface's Scope changed and no new scope was discovered. The surfaces moved are below (wording only). The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/highly-probable/<grade>/<subject>` | top bar, h1, eyebrow, honesty line and filter line read "Important Questions" (`#1102`); route unchanged | 🟢 live | — |
+| Practice hub + desktop Practice page | card "Important Questions", chips *Chapter-wise · Board-pattern*, CTA "Open important questions", lede (`#1102`) | 🟢 live | owner phone check |
+| Exam Trends | button, menu item and chip say Important Qs (`#1102`) | 🟢 live | — |
+| Scorecard floor label / chip | "Important Questions" / "Important Qs" (`#1102`) | 🟢 live | — |
+| Topic Hub, command palette, Practice empty state, desktop Home sub | renamed (`#1102`); palette aliases kept | 🟢 live | — |
+| `/pricing` + Terms | Premium line "important-question sets"; Terms "important questions"; Basic mock row "— written answers not checked" (`#1102`, D117) | 🟢 live | — |
+| Mobile `MobileSelfChrome` titles (`App.tsx`) | "Important Questions" (two lines, owner grant) | 🟢 live | owner phone check |
+| `/practice-hub` meta, `index.html` descriptions, `llms.txt` | still say predicted / high-probability | 🟡 partial | `[FU-PRACTICEHUB-DESC-PREDICTED]` |
+
 > **2026-10-12 — ACTIVATION-1 (C2, §10 for `#1097`) and `#1100`.** No surface's Scope changed and no new scope was discovered. The surfaces moved are below. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |

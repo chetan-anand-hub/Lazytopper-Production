@@ -1,3 +1,15 @@
+## 2026-10-12 — IMPQ-RENAME-1 (C1): `#1102` `5e6fcdbd` — LIVE
+
+★ **PROVENANCE.** Written by C2 (§10) from `#973`, the `#1102` PR comments and `git log`; C1 was told to stop after its LIVE post, so it did not write this. Window: 09:59Z (D116) to 11:23Z (LIVE).
+
+- **09:59Z D116** (owner rulings, 12 Oct): every student-visible name of the Predicted Questions / HPQ feature becomes "Important Questions"; promissory copy ("most likely to appear") becomes "chapter-wise … from 10 years of CBSE papers". URLs, canonicals, query keys, identifiers, event names and storage keys stay. Owner grant 15:28 IST: `App.tsx` lines 1142 and 1151 only. Spec `IMPQ-RENAME-1` sha256 `B7D0F5F98093`.
+- **10:13Z D117:** C1's `#1100` note accepted and folded in: a Basic student's Chapter Test still auto-scores its MCQ section, so the Basic row's tail becomes "— written answers not checked" (`BasicFreeList.tsx` added to the allowlist; constants unchanged).
+- **10:17Z CLAIM + P16–P18** at `d53a5e79`: premise gate PASS, exit 0 (15/15 anchors resolved, 3 open by design). P16 listed the other student-visible names of the feature (HPQ top bar and honesty line, the Practice hub lede, the scorecard chip, the palette description, the desktop Home sub); P18: `featureGates.predicted_questions`, `vibeCommandBadgeCopy`'s HPQ entries and the paceProfile tagline are not rendered.
+- **Build:** one more live string turned up (the filtered-view line "Showing predicted questions for ${topic}") and was renamed. RED on trunk with the lane's tests: `Tests 11 failed | 66 passed (77)`; GREEN: 46 related files, `725 passed (725)`. `App.tsx` diff = exactly two one-line hunks.
+- **Verifier (Opus):** `2609f53f` FAIL on a P16 miss, the Exam Trends chip `{n} predicted Q(s)` (JSX split across lines, invisible to the first sweep). Fixed; the guard learned split-JSX matches, the `HPQ` tag and an `offenders()` control. `44b3c31e` PASS-WITH-FOLLOW-UP.
+- **11:20Z** C1 merged trunk in (`e45800ba`); **11:21:00Z MERGE `#1102` → `5e6fcdbd`** (squash, `--match-head-commit e45800ba`). The Vercel preview on `e45800ba` had failed 2 s after start (platform); production deployed `success` 11:22:05Z. **11:23Z LIVE**, 5/5 cold reads and the §5 curls.
+- **Lessons.** (1) A "find every student-visible name" sweep must read JSX across line breaks and tag-style chips, not only string literals: the first sweep missed `predicted Q` split over two JSX lines and the independent verifier caught it. (2) When two wording lanes touch the same file (`PricingPage.tsx`, `BasicFreeList.tsx`), sequence them; D116 started this lane only after `#1100` was LIVE.
+
 ## 2026-10-12 — ACTIVATION-1 (C2): `#1097` `a99dec7b` — LIVE; plus C1's `#1100` `d53a5e79`
 
 ★ **PROVENANCE.** Written by C2 (§10 for its own lane and for `#1100`) from `#973` and `git log`. Window: 07:48Z (D107) to 10:33Z (LIVE).

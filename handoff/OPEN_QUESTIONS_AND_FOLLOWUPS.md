@@ -23,6 +23,22 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-12 — IMPQ-RENAME-1 (C2, §10 for `#1102`): FOLLOW-UPS RAISED
+
+### [FU-PRACTICEHUB-DESC-PREDICTED] — OPEN (C1, outside `#1102`'s allowlist; verifier's follow-up)
+The old name survives in copy that `#1102` could not edit: `scripts/seo/writeStaticHeads.ts:117` (the `/practice-hub` meta description "…or predicted-question mocks"), `index.html:35,47` (default meta and social descriptions "…predicted questions…") and `public/llms.txt:11` ("High-probability questions…").
+- **Status:** SEO-LLM-1 (queued for C1 on `#973`) covers `llms.txt` and `index.html`. The `writeStaticHeads.ts` line is on the read-only list and needs a cofounder ruling.
+- **Why it matters:** the "Important Questions" ads land on pages whose search snippet still says predicted.
+
+### [FU-IMPQ-NOT-RENAMED] — OPEN, NOTE (by design)
+Left alone, each for a stated reason: the Home "Predicted" kickers (`MobileHome.tsx:581`, `DesktopHome.tsx:743`; they link to Exam Trends, a different feature); `MockPaper.tsx` (dead route, unreachable); admin `activityDetailModel.ts` (staff only).
+
+### [FU-FEATUREGATES-MOCK-PAPERS-STALE] — OPEN, UNVERIFIED (verifier NOTE 7 on `#1100`)
+`services/featureGates.ts:52` `mock_papers: { freeLimit: 1 }` may be stale against the Basic allowance of 3 chapter tests or mocks a day. It was not checked further; confirm whether the gate is read anywhere a student sees it before changing it.
+
+### [FU-IMPQ-SWEEP-SPLIT-JSX] — CLOSED in `#1102`
+The first P16 sweep missed the Exam Trends chip `{n} predicted Q(s)` because the words sat on separate JSX lines. The guard now matches split-JSX, the `HPQ` tag and has an `offenders()` control. Recorded so the next wording lane sweeps JSX, not only string literals.
+
 ## 2026-10-12 — ACTIVATION-1 (C2, §10 for `#1097`): FOLLOW-UPS RAISED
 
 ### [FU-MOBILE-SELFCHROME-NO-SIGNED-OUT-LOGIN] — OPEN (found while building L3)

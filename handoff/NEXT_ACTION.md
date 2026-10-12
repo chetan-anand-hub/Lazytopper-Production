@@ -1,3 +1,12 @@
+## ★ 2026-10-12 — AFTER IMPQ-RENAME-1 (`#1102`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone):** open the Practice hub. The card reads **Important Questions**. Tap it: the page opens and its mobile title reads **Important Questions** (the two `App.tsx` strings). Also glance at `/pricing`: the Basic mock row ends "— written answers not checked".
+- **Next SEO-copy lane (already queued on `#973`):** `[FU-PRACTICEHUB-DESC-PREDICTED]`. The old name is still in text that `#1102` could not touch: the `/practice-hub` meta description (`scripts/seo/writeStaticHeads.ts:117`), the default meta / social descriptions (`index.html:35,47`) and `public/llms.txt:11`. SEO-LLM-1 (C1) covers `llms.txt` and `index.html`; the `writeStaticHeads.ts` line is a protected-file question for the cofounder.
+- **Cofounder:** tell the owner and the growth session that the "Important Questions" ads now land on pages that say "Important Questions" (C1's request, LIVE post on `#973`).
+- **Check, do not assume:** `services/featureGates.ts:52` `mock_papers: { freeLimit: 1 }` may disagree with the 3-a-day Basic allowance (verifier note on `#1100`, never checked). See `[FU-FEATUREGATES-MOCK-PAPERS-STALE]`.
+
 ## ★ 2026-10-12 — AFTER ACTIVATION-1 (`#1097`) AND `#1100` (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

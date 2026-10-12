@@ -1,5 +1,12 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-12 — IMPQ-RENAME-1 (`#1102` `5e6fcdbd`) — ✅ COMPLETE (owner phone check owed)
+
+- ✅ "Predicted Questions" / HPQ is **Important Questions** on every student-visible surface (page, Practice hub, Exam Trends, scorecard, Topic Hub, palette, empty state, Pricing, Terms). URLs and identifiers unchanged.
+- ✅ Basic mock row on `/pricing`: "— written answers not checked" (D117).
+- ✅ A wording guard pins the new names and the unchanged `/highly-probable/` route.
+- ⏳ The owner's phone check. `[FU-PRACTICEHUB-DESC-PREDICTED]` (meta / social / `llms.txt` copy) is the next SEO-copy lane.
+
 ## 2026-10-12 — ACTIVATION-1 (`#1097` `a99dec7b`) + `#1100` (`d53a5e79`) — ✅ COMPLETE (owner phone check owed)
 
 - ✅ New email accounts start straight away; the verification email is still sent; a dismissible reminder on Check & Improve and Practice (D107a).
