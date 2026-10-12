@@ -1,3 +1,14 @@
+## 2026-10-12 — IMPQ-RENAME-1 (COFOUNDER DECISIONS 116 AND 117 AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The decisions that shaped `#1102`, numbered as on `#973`. D117 is also recorded in the ACTIVATION-1 block below (it came from `#1100`'s verifier); it is repeated here because it landed in `#1102`.
+
+| D | decision | the reason given |
+|---|---|---|
+| **116** | Owner rulings 12 Oct: every student-visible name of the Predicted Questions / HPQ feature becomes "Important Questions"; promissory copy becomes "chapter-wise … from 10 years of CBSE papers". URLs, canonicals, query keys, identifiers, event names and storage keys unchanged. Owner grant (15:28 IST): `App.tsx` lines 1142 and 1151 only. Opus verifier (D108), merge on green, LIVE with the §5 curl proof; no cofounder audit unless something outside §1 must change. Start after `#1100` is LIVE | The ads say "Important Questions"; the pages must too. "Most likely to appear" promises something the product cannot honestly promise. `PricingPage.tsx` is shared with `#1100` |
+| **117** | C1's point accepted: a Basic student's Chapter Test still auto-scores its MCQ section, so `BasicFreeList.tsx` joins the allowlist and the row's tail becomes "— written answers not checked"; constants unchanged; the same `/pricing` prerender covers both | Wording must not understate what Basic gets (`ChapterTestPage.tsx:305` `scoreObjectiveSection`) |
+| *(C1, in-lane)* | The first verifier FAIL (`2609f53f`, a missed `{n} predicted Q(s)` chip) was fixed in-lane and the guard tightened, rather than carved out as an exception | A sweep that misses a visible string is the lane's defect, not a follow-up |
+| *(C1, in-lane)* | Left unrenamed: Home "Predicted" kickers (they link to Exam Trends), dead `MockPaper`, admin `activityDetailModel.ts`; copy in `writeStaticHeads.ts`, `index.html` and `llms.txt` reported as `[FU-PRACTICEHUB-DESC-PREDICTED]` | Each is outside §1's allowlist or a different feature; reporting beats widening scope |
+
 ## 2026-10-12 — ACTIVATION-1 (COFOUNDER DECISIONS 107–120 AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** These are the decisions that shaped `#1097` and `#1100`, numbered as on `#973`. SOURCE-1's own decisions (112, 114, 120 as they concern `#1096` / `#1101`) belong to A's docs.

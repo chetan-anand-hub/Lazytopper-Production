@@ -1,5 +1,24 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-12 · IMPQ-RENAME-1] EVERY STUDENT-VISIBLE "PREDICTED QUESTIONS" / HPQ NAME IS NOW "IMPORTANT QUESTIONS"; THE BASIC MOCK ROW SAYS "WRITTEN ANSWERS NOT CHECKED" — `#1102` MERGED — LIVE
+
+*(This block adds to the ACTIVATION-1 block directly below, which stays current for everything this block does not name. Written by C2 under §10 for `#1102` (C1's `feat/impq-rename-1`), from `#973` (DECISIONs 116 and 117) and `git log`. Wording only: no route, identifier, event name or storage key changed.)*
+
+★ **TRUNK:** `5e6fcdbd` (`#1102`, 2026-10-12 11:21:00Z). Re-derive it with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1102` IMPQ-RENAME-1 | `5e6fcdbd` | 10-12 11:21:00 | The HPQ feature is named **Important Questions** wherever a student reads it: the `/highly-probable/<grade>/<subject>` page (top bar, h1, eyebrow, honesty line, filter line); the Practice hub card (title, "Chapter-wise important questions from `EVIDENCE_BASE_YEARS` years of CBSE papers.", chips *Chapter-wise · Board-pattern*, CTA "Open important questions") and its lede; the Exam Trends button / menu item and the `{n} predicted Q(s)` chip; the scorecard floor label and chip; the Topic Hub back link; the command palette entry; the Practice empty state; the desktop Home "Practise it" sub; the Pricing Premium line; and the Terms sentence. **D117:** the Basic mock row on `/pricing` and every Premium lock now ends "— **written** answers not checked". |
+
+- **Unchanged on purpose:** every URL (`/highly-probable/...`), canonicals, `source=hpq`, identifiers, event names, storage keys, `writeStaticHeads.ts`, and the Home "Predicted" kickers (they link to Exam Trends, a different feature). The command-palette search aliases (`hpq`, `highly probable`) are kept.
+- **Protected file:** `App.tsx` changed only the two `MobileSelfChrome title` strings (now at 1143 / 1152 after ACTIVATION-1 added an import above them), under the owner's line-scoped grant of 12 Oct 15:28 IST (D116).
+- **New guard:** `config/importantQuestionsWording.guard.test.ts` scans `src/pages`, `src/components`, `App.tsx`, the command-palette config and `homeDestinations` with comments stripped, with a scan-coverage precondition and a control that fires on copy but not on comments or identifiers. Two reasoned exclusions: the dead `MockPaper.tsx` and admin `activityDetailModel.ts`.
+- **Verifier (D108):** model **Opus**, separate agent. `2609f53f` **FAILED** on a P16 miss (the Exam Trends chip `{n} predicted Q(s)`, split across JSX); fixed and the guard tightened (split-JSX `predicted Q`, the `HPQ` tag, an `offenders()` control). Re-verify: `VERDICT: PASS-WITH-FOLLOW-UP for head 44b3c31e`. Merged head `e45800ba` = that head plus a trunk merge-in only.
+- **CI on `e45800ba`:** capture "committed artifact matches a fresh capture"; vitest 1774 / 1465 / 3485 / 1824 passed; static `# fail 0`. The Vercel **preview** failed 2 s after start (platform failure; the same code's preview on `44b3c31e` deployed); Vercel is not a required check. Production built and deployed `success` at 11:22:05Z.
+- **Six surfaces (CLAUDE.md §4a):** grading behaviour is **untouched** on all six (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice). The scorecard label is display-only.
+- **LIVE `#1102`** (C1, 11:23Z): 5/5 cold reads of `/version.json` = `5e6fcdbd`; the §5 curls pass (`/highly-probable/10/Maths` and `/Science` h1 "Important Questions", 0 old strings; `/pricing` "important-question sets" and "written answers not checked"; `/exam-trends`, `/practice-hub`, `/legal/terms` clean); `/`, `/highly-probable/10/Maths`, `/pricing`, `/exam-trends`, `/practice-hub` all 200.
+- **Owed:** the owner's phone check (NEXT_ACTION). `[FU-PRACTICEHUB-DESC-PREDICTED]` is open (OPEN_QUESTIONS).
+
 ## [CURRENT · 2026-10-12 · ACTIVATION-1] A NEW EMAIL SIGN-UP IS NO LONGER HELD AT "VERIFY YOUR EMAIL"; THE IN-PROGRESS CHECK & IMPROVE ANSWER SURVIVES SIGN-UP; THE HEADER LOG IN RETURNS THE STUDENT; PRACTICE GRADING IS COUNTED — `#1097` MERGED — LIVE
 
 *(This block adds to the SEO-PAGES-1 block directly below, which stays current for everything this block does not name. Written by C2 under §10 for `#1097` (ACTIVATION-1) and `#1100` (C1's `fix/basic-mock-wording`), from `#973` (DECISIONs 107–120) and `git log`. SOURCE-1 `#1096` (`5156e002`) is A's lane and is NOT covered here.)*
