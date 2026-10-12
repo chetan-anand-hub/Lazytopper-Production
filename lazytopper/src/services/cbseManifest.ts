@@ -244,20 +244,57 @@ export function cbsePaperLink(
 export const CBSE_SQP_READY_FROM_SESSION = 2026;
 
 /**
+ * The session a CBSE URL names, from its path. This is the SAME rule as the mirror's
+ * `parseSessionYear` (`scripts/cbse-mirror/guards.ts`):
+ * - `ClassX_2026_27/` → "2026-27"
+ * - `..._2026-27.pdf` → "2026-27"
+ * - a bare `2025` → "2025"
+ *
+ * A pair counts only when its second half is the next year. The rule is restated here
+ * because that module imports `node:zlib` and cannot ship to the browser.
+ * `cbseManifest.test.ts` runs one shared vector through both, so the two cannot drift.
+ */
+export function cbseSessionYearOf(url: string): string | null {
+  let path: string;
+  try {
+    path = decodeURIComponent(new URL(url).pathname);
+  } catch {
+    path = url;
+  }
+  for (const match of path.matchAll(/(?<!\d)(20\d\d)[-_](\d\d)(?!\d)/g)) {
+    const first = Number(match[1]);
+    const second = Number(match[2]);
+    if ((first + 1) % 100 === second) return `${match[1]}-${match[2]}`;
+  }
+  const single = path.match(/(?<!\d)(20\d\d)(?!\d)/);
+  return single ? single[1] : null;
+}
+
+/**
  * CA-3 (owner ruling, AUDIT HOLD on #824) — the hero's "Sample papers" pill reads the
- * manifest. It is READY only when a mirrored sample-paper row (a committed paper whose
- * href is a `-SQP.pdf` under CBSE's `/SQP/` folder) has status `ok` or `source-missing`,
- * a storagePath, and a sessionYear of 2026-27 or later. Everything else — including no
- * manifest at all — keeps today's "awaited" pill exactly.
+ * manifest. It is READY when a mirrored sample-paper row (a committed paper whose href
+ * is a `-SQP.pdf` under CBSE's `/SQP/` folder) has status `ok` or `source-missing`, a
+ * storagePath, and a sessionYear of 2026-27 or later.
+ *
+ * SEO-PAGES-1 (owner ruling, 12 Oct 2026) EXTENDS CA-3 with a second input, OR-ed with
+ * the first. The pill is also READY when a COMMITTED sample-paper href names a session
+ * (its `ClassX_YYYY_YY` folder) of 2026-27 or later. The prerendered page has no
+ * manifest, so before this change every crawler read "awaited" even after CBSE had
+ * published the papers. The manifest rule is unchanged. Everything else, including no
+ * manifest with 2025-26 committed hrefs, still reads "awaited".
  */
 export function cbseSamplePapersOut(
   manifest: CbseManifest | null,
   papers: readonly CbsePaper[],
 ): boolean {
+  const sqpPapers = papers.filter((p) => /\/SQP\/.*-SQP\.pdf$/i.test(p.href));
+  const committedReady = sqpPapers.some((p) => {
+    const start = cbseSessionYearOf(p.href)?.match(/^(\d{4})-\d{2}$/)?.[1];
+    return start !== undefined && Number(start) >= CBSE_SQP_READY_FROM_SESSION;
+  });
+  if (committedReady) return true;
   if (!manifest) return false;
-  const sqpIds = new Set(
-    papers.filter((p) => /\/SQP\/.*-SQP\.pdf$/i.test(p.href)).map((p) => p.id),
-  );
+  const sqpIds = new Set(sqpPapers.map((p) => p.id));
   return manifest.papers.some((entry) => {
     if (!sqpIds.has(entry.id)) return false;
     if (!SERVED_FROM_MIRROR.includes(entry.status) || !entry.storagePath) return false;

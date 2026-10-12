@@ -3,7 +3,10 @@
  *
  * ★ EVERY URL IN THIS FILE WAS HEADed LIVE ON 18 SEPTEMBER 2026 and returned 200
  * with a PDF or ZIP content-type. That is the lane's shipping rule: a link that
- * does not resolve does not ship. CBSE links four `*VIC*` sample-paper variants
+ * does not resolve does not ship. SEO-PAGES-1 re-HEADed them on 12 OCTOBER 2026:
+ * the six sample-paper and marking-scheme hrefs now point at CBSE's 2026-27 folder
+ * (`ClassX_2026_27/`, published 23 Sep), including the added Maths Basic marking
+ * scheme, and every committed circular href (three added) returned 200. CBSE links four `*VIC*` sample-paper variants
  * from its own 2025-26 Class X index that are dead today (404, 624-byte HTML
  * body) — they are deliberately absent, and the page's guard test pins the fact
  * so a future edit cannot quietly reintroduce them.
@@ -91,14 +94,14 @@ export const CBSE_SUBJECTS: readonly CbseSubject[] = [
         id: "science-sqp",
         title: "Sample paper",
         blurb: "The closest thing to your real February paper",
-        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/Science-SQP.pdf",
+        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf",
         kind: "pdf",
       },
       {
         id: "science-ms",
         title: "Marking scheme",
         blurb: "Mark by mark — where each one is awarded",
-        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/Science-MS.pdf",
+        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf",
         kind: "pdf",
       },
       {
@@ -155,21 +158,28 @@ export const CBSE_SUBJECTS: readonly CbseSubject[] = [
         id: "maths-standard-sqp",
         title: "Sample paper — Standard",
         blurb: "The closest thing to your real February paper",
-        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/MathsStandard-SQP.pdf",
+        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf",
         kind: "pdf",
       },
       {
         id: "maths-basic-sqp",
         title: "Sample paper — Basic",
         blurb: "If you're taking Maths Basic",
-        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/MathsBasic-SQP.pdf",
+        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsBasic-SQP.pdf",
         kind: "pdf",
       },
       {
         id: "maths-standard-ms",
-        title: "Marking scheme",
+        title: "Marking scheme — Standard",
         blurb: "Mark by mark — where each one is awarded",
-        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/MathsStandard-MS.pdf",
+        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-MS.pdf",
+        kind: "pdf",
+      },
+      {
+        id: "maths-basic-ms",
+        title: "Marking scheme — Basic",
+        blurb: "How the Basic paper is marked, step by step",
+        href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsBasic-MS.pdf",
         kind: "pdf",
       },
       {
@@ -313,9 +323,36 @@ export type CbseCircular = {
  * manifest's `circularsCheckedAt` date instead; otherwise these rows and this date
  * render unchanged. This array is now the honest FALLBACK, and stays hand-checked.
  */
-export const CBSE_CIRCULARS_CHECKED_ON = "18 September 2026";
+export const CBSE_CIRCULARS_CHECKED_ON = "12 October 2026";
 
 export const CBSE_CIRCULARS: readonly CbseCircular[] = [
+  // SEO-PAGES-1 (P22): the three Class X circulars on cbse.gov.in's examination page
+  // after the 18 September check, read live on 12 October 2026. Left out: the 9 Oct LOC
+  // reminder (to schools, repeating 21 Sep) and the Class XII / West Asia items.
+  {
+    date: "7 Oct",
+    title: "Exam forms for private candidates, Class X 2026-27",
+    href: "https://www.cbse.gov.in/cbsenew/documents/SUBMISSION_FORMS_PRIVATE_X_2627_07102026.pdf",
+    source: "document",
+    important: false,
+    headline: "Private candidates can now apply for the 2027 Class X exam",
+  },
+  {
+    date: "23 Sep",
+    title: "Correcting a student's name and other details — the new process",
+    href: "https://www.cbse.gov.in/cbsenew/documents/Streamling_Process_Corrections_23092026.pdf",
+    source: "document",
+    important: false,
+    headline: "How a mistake in your name or details gets corrected",
+  },
+  {
+    date: "21 Sep",
+    title: "List of Candidates for 2026-27 — schools submit it now",
+    href: "https://www.cbse.gov.in/cbsenew/documents/LOC_2627_21092026.pdf",
+    source: "document",
+    important: false,
+    headline: "Your school is registering you for the 2027 boards — check your details",
+  },
   {
     date: "10 Sep",
     title: "List of Candidates for 2026-27 — prior intimation to schools",
