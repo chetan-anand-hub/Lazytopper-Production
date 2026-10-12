@@ -5,6 +5,7 @@ import {
   cbseCircularFeed,
   cbsePaperLink,
   cbseSamplePapersOut,
+  cbseSessionYearOf,
   cbseStorageUrl,
   fetchCbseManifest,
   formatCheckedOn,
@@ -13,7 +14,9 @@ import {
   parseCbseManifest,
   type CbseManifest,
 } from "./cbseManifest";
-import { CBSE_CIRCULARS, CBSE_CIRCULARS_CHECKED_ON, CBSE_SUBJECTS } from "../pages/cbse2027Sources";
+import { CBSE_CIRCULARS, CBSE_CIRCULARS_CHECKED_ON, CBSE_SUBJECTS, type CbsePaper } from "../pages/cbse2027Sources";
+// The mirror's own parser (repo-root `scripts/`), for the shared session-year vector.
+import { parseSessionYear } from "../../../scripts/cbse-mirror/guards";
 
 /**
  * GUARD — the client side of the CBSE mirror (CBSE-AUTO-1 C11).
@@ -228,7 +231,14 @@ describe("the circular feed and its dates", () => {
 });
 
 describe("cbseSamplePapersOut — CA-3's input", () => {
-  const PAPERS = CBSE_SUBJECTS.flatMap((s) => s.papers);
+  // SEO-PAGES-1: the committed hrefs are now 2026-27, which makes the pill READY on their
+  // own (the second input, tested below). These manifest-rule cases therefore run against
+  // the same papers with their pre-SEO-PAGES-1 2025-26 hrefs, so the manifest is the only
+  // thing that can make them READY.
+  const PAPERS = CBSE_SUBJECTS.flatMap((s) => s.papers).map((p) => ({
+    ...p,
+    href: p.href.replace("ClassX_2026_27/", "ClassX_2025_26/"),
+  }));
   const sqp = (sessionYear: string | null, status: "ok" | "source-missing" | "stale", storagePath: string | null = "cbse/files/maths-standard-sqp.pdf") =>
     manifestFixture({
       papers: [
@@ -257,6 +267,62 @@ describe("cbseSamplePapersOut — CA-3's input", () => {
       papers: [{ id: "science-ms", sourceUrl: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf", storagePath: "cbse/files/science-ms.pdf", sessionYear: "2026-27", status: "ok" }],
     });
     expect(cbseSamplePapersOut(ms, PAPERS)).toBe(false);
+  });
+});
+
+describe("★ SEO-PAGES-1 — the pill also reads the COMMITTED hrefs (CA-3 extended, owner 12 Oct)", () => {
+  const COMMITTED = CBSE_SUBJECTS.flatMap((s) => s.papers);
+  const as2526 = (papers: readonly CbsePaper[]) =>
+    papers.map((p) => ({ ...p, href: p.href.replace("ClassX_2026_27/", "ClassX_2025_26/") }));
+
+  it("(a) every committed SQP / MS href is in CBSE's 2026-27 folder, and Maths has a Basic marking scheme", () => {
+    const sqpMs = COMMITTED.filter((p) => /\/SQP\//.test(p.href));
+    expect(sqpMs.map((p) => p.id).sort()).toEqual(
+      ["maths-basic-ms", "maths-basic-sqp", "maths-standard-ms", "maths-standard-sqp", "science-ms", "science-sqp"],
+    );
+    for (const p of sqpMs) {
+      expect(p.href, p.id).toMatch(/^https:\/\/cbseacademic\.nic\.in\/web_material\/SQP\/ClassX_2026_27\/[A-Za-z]+-(SQP|MS)\.pdf$/);
+    }
+    const basicMs = COMMITTED.find((p) => p.id === "maths-basic-ms");
+    expect(basicMs?.title).toBe("Marking scheme — Basic");
+    expect(basicMs?.href).toBe("https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsBasic-MS.pdf");
+    expect(COMMITTED.find((p) => p.id === "maths-standard-ms")?.title).toBe("Marking scheme — Standard");
+  });
+
+  it("(b) no manifest + 2026-27 committed hrefs ⇒ READY — the prerendered page reads 'out'", () => {
+    expect(cbseSamplePapersOut(null, COMMITTED)).toBe(true);
+  });
+
+  it("CONTROL — no manifest + 2025-26 committed hrefs ⇒ NOT READY", () => {
+    expect(cbseSamplePapersOut(null, as2526(COMMITTED))).toBe(false);
+  });
+
+  it("CONTROL — a 2026-27 MARKING SCHEME alone does not make it READY; only a sample paper does", () => {
+    const onlyMs = as2526(COMMITTED).map((p) =>
+      p.id === "science-ms" ? { ...p, href: p.href.replace("ClassX_2025_26/", "ClassX_2026_27/") } : p,
+    );
+    expect(cbseSamplePapersOut(null, onlyMs)).toBe(false);
+    const oneSqp = as2526(COMMITTED).map((p) =>
+      p.id === "maths-basic-sqp" ? { ...p, href: p.href.replace("ClassX_2025_26/", "ClassX_2026_27/") } : p,
+    );
+    expect(cbseSamplePapersOut(null, oneSqp)).toBe(true);
+  });
+
+  it("★ cbseSessionYearOf agrees with the mirror's parseSessionYear on one shared vector", () => {
+    const VECTOR: ReadonlyArray<readonly [string, string | null]> = [
+      ["https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf", "2026-27"],
+      ["https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/MathsBasic-SQP.pdf", "2025-26"],
+      ["https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Science_SecP1_2026-27.pdf", "2026-27"],
+      ["https://www.cbse.gov.in/cbsenew/model-answer/2025/X/Science.zip", "2025"],
+      ["https://www.cbse.gov.in/cbsenew/documents/Circular_2026_01.pdf", "2026"],
+      ["https://cbseacademic.nic.in/web_material/QuestionBank/ClassX/ScienceX.pdf", null],
+      ["https://cbseacademic.nic.in/web_material/SQP/ClassX_2027%5F28/Science-SQP.pdf", "2027-28"],
+      ["not a url ClassX_2026_27", "2026-27"],
+    ];
+    for (const [url, want] of VECTOR) {
+      expect(cbseSessionYearOf(url), url).toBe(want);
+      expect(parseSessionYear(url), url).toBe(want);
+    }
   });
 });
 
