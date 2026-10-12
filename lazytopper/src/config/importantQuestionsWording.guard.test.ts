@@ -68,7 +68,9 @@ function walk(dir: string, out: string[] = []): string[] {
 
 /** Source text with block and line comments removed (a `//` inside `https://` is kept). */
 function codeOnly(source: string): string {
-  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  // A block comment keeps its newlines, so a reported line number is the real one.
+  return source.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^
+]/g, "")).replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
 function offenders(files: readonly string[]): string[] {
