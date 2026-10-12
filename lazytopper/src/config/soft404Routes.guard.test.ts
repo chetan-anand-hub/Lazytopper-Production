@@ -67,7 +67,7 @@ function ruleMatches(source: string, pathname: string): boolean {
 }
 const reachesShell = (pathname: string): boolean => shellRules.some((r) => ruleMatches(r.source, pathname));
 const routerRoutes = (pathname: string): boolean =>
-  patterns.some((p) => matchPath({ path: p, end: true }, pathname) !== null);
+  patterns.some((p) => matchPath({ path: p, end: true, caseSensitive: true }, pathname) !== null);
 
 /** A concrete URL path that the router pattern accepts. */
 function sample(pattern: string): string {
@@ -209,9 +209,15 @@ describe("SOFT404-1 — a request reaches the shell if and only if the router ro
     expect(disagreements).toEqual([]);
   });
 
-  it("CONTROL — case and trailing slash are preserved for routed paths (today's behaviour)", () => {
-    for (const p of ["/PRICING", "/Pricing", "/pricing/", "/Highly-Probable/10/Maths/", "/NOTES/real-numbers", "/ME"]) {
+  it("CONTROL — a trailing slash and param case are kept for routed paths", () => {
+    for (const p of ["/pricing/", "/highly-probable/10/Maths/", "/highly-probable/10/SCIENCE", "/notes/Real-Numbers", "/full-mock/10/science"]) {
       expect(reachesShell(p), p).toBe(true);
+    }
+  });
+
+  it("★ D122 — case variants of a static segment are duplicate URLs and are NOT sent to the shell", () => {
+    for (const p of ["/PRICING", "/Pricing", "/Highly-Probable/10/Maths", "/NOTES/real-numbers", "/ME", "/Practice-Hub", "/LOGIN"]) {
+      expect(reachesShell(p), p).toBe(false);
     }
   });
 
@@ -244,9 +250,9 @@ describe("SOFT404-1 — every advertised URL still reaches the shell", () => {
 
   it("sourceFor is the single place a pattern becomes a source (spot checks)", () => {
     expect(sourceFor("/")).toBe("/");
-    expect(sourceFor("/pricing")).toBe("/:path([pP][rR][iI][cC][iI][nN][gG]/?)");
-    expect(sourceFor("/notes/:topicSlug")).toBe("/:path([nN][oO][tT][eE][sS]/[^/]+/?)");
-    expect(sourceFor("/login/*")).toBe("/:path([lL][oO][gG][iI][nN](?:/.*)?)");
+    expect(sourceFor("/pricing")).toBe("/:path(pricing/?)");
+    expect(sourceFor("/notes/:topicSlug")).toBe("/:path(notes/[^/]+/?)");
+    expect(sourceFor("/login/*")).toBe("/:path(login(?:/.*)?)");
   });
 });
 

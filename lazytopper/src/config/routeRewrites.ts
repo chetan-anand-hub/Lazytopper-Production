@@ -18,11 +18,13 @@
  * entries" and `/login/*` contains a literal `/*`), and `paths.length === routeTags` is
  * asserted by the caller, so a `<Route>` this parser cannot read is RED rather than absent.
  *
- * ★ CASE. Vercel matches `source` case-SENSITIVELY; React Router matches case-INSENSITIVELY,
- * and production serves `/PRICING` (the shell, 200) today. "Every routed path keeps today's
- * behaviour" therefore needs each static letter as a `[Pp]` class. Parameters are `[^/]+`
- * (one segment, as React Router's `:param`), a trailing `*` is `(?:/.*)?`, and an optional
- * trailing slash is allowed (React Router ignores it).
+ * ★ CASE (DECISION 122). Static segments are emitted LOWERCASE, exactly as the router writes
+ * them. Vercel matches `source` case-sensitively, React Router does not, so `/PRICING` used
+ * to reach the shell and now falls through to the 404 page: a case variant is a duplicate URL
+ * that nothing links, and simple rules are easier to audit. Parameters are `[^/]+` (one
+ * segment, as React Router's `:param`, so `/highly-probable/10/Maths` still matches), a
+ * trailing `*` is `(?:/.*)?`, and an optional trailing slash is allowed (React Router
+ * ignores it).
  *
  * Only `:path(<regex>)` is emitted, because the guard's model of Vercel's matcher
  * (`crawlerReachability.guard`) understands literal, `:p`, `:p*` and `:p(pattern)` only,
@@ -90,9 +92,8 @@ export function routerPatterns(appSource: string): string[] {
 
 const REGEX_META = /[.*+?^${}()|[\]\\\/]/;
 
-/** One literal character, case-insensitively and regex-safe. */
+/** One literal character, regex-safe, case as written in the router. */
 function literalChar(c: string): string {
-  if (/[A-Za-z]/.test(c)) return `[${c.toLowerCase()}${c.toUpperCase()}]`;
   return REGEX_META.test(c) ? `\\${c}` : c;
 }
 
@@ -105,9 +106,9 @@ function segmentRegex(seg: string): string {
 /**
  * The `vercel.json` `source` for one router path.
  *   "/"                 -> "/"                      (the root is a file; the literal documents it)
- *   "/pricing"          -> "/:path([Pp][Rr]…/?)"
- *   "/notes/:topicSlug" -> "/:path([Nn]…/[^/]+/?)"
- *   "/login/*"          -> "/:path([Ll]…(?:/.*)?)"
+ *   "/pricing"          -> "/:path(pricing/?)"
+ *   "/notes/:topicSlug" -> "/:path(notes/[^/]+/?)"
+ *   "/login/*"          -> "/:path(login(?:/.*)?)"
  */
 export function sourceFor(pattern: string): string {
   if (!pattern.startsWith("/")) {
