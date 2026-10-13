@@ -150,25 +150,30 @@ const NAVY_LINE = "hsl(222, 35%, 84%)";
 type ModeAccent = "quick" | "worksheet" | "hpq" | "full";
 const MODE_ACCENT: Record<
   ModeAccent,
-  { accent: string; tint: string; line: string }
+  { accent: string; ink: string; tint: string; line: string }
 > = {
+  // `ink` is the accent's text-safe tone (PERF-1 F4): the 10.5px chips sit on `tint` and need 4.5:1.
   quick: {
     accent: PRIMARY_GREEN,
+    ink: "hsl(152, 60%, 26%)",
     tint: "hsl(152, 55%, 92%)",
     line: "hsl(152, 50%, 80%)",
   },
   worksheet: {
     accent: "hsl(205, 70%, 52%)",
+    ink: "hsl(205, 80%, 28%)",
     tint: "hsl(205, 70%, 92%)",
     line: "hsl(205, 60%, 80%)",
   },
   hpq: {
     accent: "hsl(255, 50%, 58%)",
+    ink: "hsl(255, 45%, 42%)",
     tint: "hsl(255, 60%, 93%)",
     line: "hsl(255, 50%, 83%)",
   },
   full: {
     accent: "hsl(340, 62%, 56%)",
+    ink: "hsl(340, 62%, 38%)",
     tint: "hsl(340, 70%, 93%)",
     line: "hsl(340, 60%, 84%)",
   },
@@ -797,7 +802,7 @@ function ModeCard({
                 padding: "4px 9px",
                 borderRadius: 7,
                 background: tone.tint,
-                color: tone.accent,
+                color: tone.ink,
               }}
             >
               {c}
@@ -890,9 +895,9 @@ function PillButton({
         appearance: "none",
         WebkitAppearance: "none",
         cursor: disabled ? "not-allowed" : "pointer",
-        background: active ? PRIMARY_GREEN : CARD_BG,
+        background: active ? PRIMARY_GREEN_DARK : CARD_BG,
         color: active ? "#fff" : disabled ? TEXT_MUTED : TEXT_FG,
-        border: `1px solid ${active ? PRIMARY_GREEN : BORDER}`,
+        border: `1px solid ${active ? PRIMARY_GREEN_DARK : BORDER}`,
         padding: "6px 12px",
         borderRadius: 8,
         fontSize: 12,
@@ -1353,7 +1358,7 @@ function MistakeIntelligencePanel({
           to={loginUrl("mistake-aware", currentPracticeUrl)}
           style={{
             alignSelf: "flex-start",
-            background: PRIMARY_GREEN,
+            background: PRIMARY_GREEN_DARK,
             color: "#fff",
             padding: "8px 14px",
             borderRadius: 10,
@@ -2840,7 +2845,7 @@ export default function DesktopPracticePage() {
                                 appearance: "none",
                                 WebkitAppearance: "none",
                                 border: "none",
-                                background: PRIMARY_GREEN,
+                                background: PRIMARY_GREEN_DARK,
                                 color: "#fff",
                                 padding: "8px 12px",
                                 borderRadius: 10,
@@ -3055,7 +3060,7 @@ export default function DesktopPracticePage() {
                         )
                       }
                       style={{
-                        background: PRIMARY_GREEN,
+                        background: PRIMARY_GREEN_DARK,
                         color: "#fff",
                         padding: "8px 14px",
                         borderRadius: 10,
