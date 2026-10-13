@@ -1154,6 +1154,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                 {showAdvancedFilters ? "Hide filters" : "Refine predictions"}
               </button>
               <label
+                htmlFor="hpq-topic-filter"
                 style={{
                   display: "block",
                   fontSize: "0.78rem",
@@ -1165,6 +1166,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                 Topic:
               </label>
               <select
+                id="hpq-topic-filter"
                 value={topicFilter}
                 onChange={(e) => {
                   const next = e.target.value as TopicFilter;
@@ -1506,7 +1508,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                               color: "hsl(220, 25%, 12%)",
                               fontWeight: 700,
                             }}
-                            aria-label={expanded ? "Collapse chapter" : "Expand chapter"}
+                            aria-label={expanded ? "Hide stack for this chapter" : "Show stack for this chapter"}
                           >
                             {expanded ? "Hide stack" : "Show stack"}
                           </button>
