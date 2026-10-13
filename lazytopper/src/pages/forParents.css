@@ -200,3 +200,37 @@
     padding: 28px 30px;
   }
 }
+
+/*
+ * THE VIDEO FACADE'S BOX, reserved here on purpose. The `TestimonialVideo` component's own
+ * stylesheet (`.lt-tv*`) is a shared lazy file that is NOT inlined with this page's CSS
+ * (only the route's own CSS is, D63a/D137), so on /for-parents, where the video sits above the
+ * fold at desktop width, the frame was laid out without its 16:9 box and jumped when that file
+ * arrived (CLS 0.11 at 1440 px after the page CSS was inlined). These four rules repeat ONLY the
+ * geometry (never colours or type), so the first paint already holds the final box. They are the
+ * component's own values; keep them equal to `components/marketing/testimonialVideo.css`.
+ */
+.lt-fp .lt-tv {
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+}
+.lt-fp .lt-tv__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.lt-fp .lt-tv__thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.lt-fp .lt-tv__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

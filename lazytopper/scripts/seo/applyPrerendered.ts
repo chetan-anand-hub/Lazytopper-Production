@@ -432,8 +432,8 @@ export function dynamicImportCssOf(entryCode: string, chunkFile: string): string
  *
  * ★ WHY AN ALLOWLIST. Inlining every route's CSS also put `katex-*.css` (~8 KB br) into each
  * Notes and HPQ page and measurably delayed their first paint (B FCP +0.18–0.30 s, C FCP
- * +0.02–0.08 s). /check-your-answer is the one page whose layout shifts without its route CSS
- * (#963 §4.5), so it is the one page that gets it.
+ * +0.02–0.08 s). /check-your-answer (#963 §4.5) and /for-parents are the pages whose layout shifts
+ * without their route CSS, so they are the pages that get it.
  */
 export const INLINE_ROUTE_CSS_MODULES: readonly string[] = ["CheckYourAnswerPage", "ForParentsPage"];
 
