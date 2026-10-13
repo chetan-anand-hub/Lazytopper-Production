@@ -1,3 +1,19 @@
+## 2026-10-13 — PARENTS-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1121`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| *(owner rulings 12–13 Oct, in the spec)* | The share link is `/check-improve?utm_source=parent_share&utm_medium=whatsapp`, NOT `?ref=parent`; NO parent sign-up CTA in v1; no price; "Can I see my child's progress?" answers "Not yet"; grants: the `App.tsx` route line, one `Welcome.tsx` link line, the footer link | `ref` is already two things here; a parent who signs up on their own phone is the dead-account pattern the page exists to stop; payments are not live; no promise |
+| **130** | PARENTS-1 queued for C2 after ORG-SAMEAS-1 is LIVE; verifier PASS plus cofounder APPROVE (routing + protected files); `vercel.json` changes only through the generator | The page touches `App.tsx`, `Welcome.tsx` and routing |
+| **137** | P11–P14 accepted: the mirror list; the FAQ claims as proved; "no ads inside the app" plus the privacy link, never "no tracking"; the four one-line `parent_share_click` additions with the label "Tapped Send to my child"; `INLINE_ROUTE_CSS_MODULES` pre-approved for `"ForParentsPage"` ONLY if the preview shows a layout shift without it | The analytics pixels are not ads; a one-entry list change needs evidence |
+| **142** | Option (b): measure `/for-parents` on the preview and, if it shifts, add the entry in THIS PR and amend the D63a pin; post CLS before → after. Copy extras kept (eyebrow, closing card, not-affiliated line); the 41-character title is fine. APPROVED for `fc79080e` plus that delta, on CI green and an Opus delta PASS | The page is a paid-ad landing; measure before ads point at it |
+| **146** | The handoff lock goes to C1 first (for `#1122`); C2 takes it after, once `#1121` is LIVE | `#1121`'s §10 was not ready |
+| *(C2, in-lane)* | The verifier's two SHOULD-FIXes were fixed in the PR and re-verified on the new head, not logged as follow-ups | The `placement` value the spec asked for was being thrown away, and the FAQ lost its disclosure arrow on Android Chrome |
+| *(C2, in-lane)* | The residual shift (the TestimonialVideo frame) was closed by repeating the facade's four GEOMETRY rules in `forParents.css`, not by widening `routeCssFor` to inline the shared stylesheet | D137 pre-approved ONE array entry and "nothing else in that file"; the page's own CSS is C2's file; the duplicate is flagged `[FU-FOR-PARENTS-VIDEO-CSS-DUPLICATE]` |
+| *(C2, in-lane)* | A one-sentence edit of the stale doc comment above `INLINE_ROUTE_CSS_MODULES` was made alongside the array entry (text only) | The comment said "the ONLY route"; leaving it would mislead the next reader |
+| *(C2, in-lane)* | The Welcome parent-line render check lives in `Welcome.legalFooter.test.tsx`, and the `trackParentShareClick` tests in `analytics.practiceGraded.test.ts`; the new guard checks `Welcome.tsx` as text | Rendering Welcome or importing the activity client reads the clock, and `CLOCK_GUARD` allows only the files in `date-sensitive-tests.json`, which C2 was not granted to edit |
+
 ## 2026-10-13 — UPLOAD-READ-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C1 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped PR-A, `#1120` and `#1122`, plus the decisions C1 itself made, with reasons.
