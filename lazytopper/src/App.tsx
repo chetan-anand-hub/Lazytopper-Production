@@ -27,8 +27,23 @@ import MobileShell from "./components/mobile/MobileShell";
 // Desktop Phase 1 — locked desktop baseline Home (rendered inside DesktopShell)
 // PERF-2 PR-B2: the login / sign-up door (~14 KB gz with its auth UI) is its own chunk. A public page
 // never renders it, so it no longer ships in every page's entry chunk.
-const Login = lazy(() => import("./pages/Login"));
+const loadLoginDoor = () => import("./pages/Login");
+const Login = lazy(loadLoginDoor);
 const SignUpPage = lazy(() => import("./pages/SignUpPage"));
+// The chunk must be as early as it was when Login sat in the entry. (1) A direct visit to /login or
+// /sign-up starts the fetch the moment the entry evaluates, in parallel with React's first render.
+// (2) Anywhere else, pointing at or focusing a sign-in / sign-up link starts it before the tap lands.
+// Both are no-ops after the first call (the module is cached).
+const LOGIN_DOOR_PATH = /^\/(login|sign-up)(\/|$)/;
+if (typeof window !== "undefined") {
+  if (LOGIN_DOOR_PATH.test(window.location.pathname)) void loadLoginDoor();
+  const warmLoginDoor = (event: Event) => {
+    const link = (event.target as Element | null)?.closest?.("a[href]");
+    const href = link?.getAttribute("href") ?? "";
+    if (LOGIN_DOOR_PATH.test(href.split("?")[0].split("#")[0])) void loadLoginDoor();
+  };
+  for (const type of ["pointerover", "focusin", "touchstart"]) document.addEventListener(type, warmLoginDoor, { passive: true });
+}
 const DesktopHome = lazy(() => import("./pages/desktop/DesktopHome"));
 // Desktop Phase 2 — locked Practice hub surface. PR #73 repair keeps this
 // same scope-builder experience available at mobile width too.
@@ -235,6 +250,11 @@ function withRouteSuspense(node: React.ReactNode) {
       <RouteBoundaryMark edge="end" />
     </Suspense>
   );
+}
+
+/** The login door's boundary: no "Loading..." card. The shell it is served from is empty, so an empty wait is what a visitor saw before. */
+function withBareSuspense(node: React.ReactNode) {
+  return <Suspense fallback={null}>{node}</Suspense>;
 }
 
 function MentorRedirect() {
@@ -999,10 +1019,10 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
                 : withRouteSuspense(<MobileHome />)
             }
           />
-          <Route path="/login" element={withRouteSuspense(<Login />)} />
-          <Route path="/login/*" element={withRouteSuspense(<Login />)} />
-          <Route path="/sign-up" element={withRouteSuspense(<SignUpPage />)} />
-          <Route path="/sign-up/*" element={withRouteSuspense(<SignUpPage />)} />
+          <Route path="/login" element={withBareSuspense(<Login />)} />
+          <Route path="/login/*" element={withBareSuspense(<Login />)} />
+          <Route path="/sign-up" element={withBareSuspense(<SignUpPage />)} />
+          <Route path="/sign-up/*" element={withBareSuspense(<SignUpPage />)} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
           {/* CBSE 2027 — a PUBLIC, signed-out page: official CBSE papers, unit marks,
