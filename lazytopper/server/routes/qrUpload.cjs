@@ -114,6 +114,16 @@ function createQrUploadRoutes(deps) {
       return sendJson(res, 404, { ok: false, reason: 'expired' });
     }
 
+    // UPLOAD-READ-1 PR-B (D141 F2): this route is unauthenticated, so the slot is checked BEFORE the body is
+    // read: an unknown or expired slot is refused without ever buffering up to 10 MiB.
+    try {
+      const slot = await qrUploadChannel.peekSlot(uploadToken);
+      if (!slot.ok) return sendJson(res, 404, { ok: false, reason: slot.reason });
+    } catch (e) {
+      console.warn('[qr-upload] slot check failed:', e && e.message);
+      return unavailable(res);
+    }
+
     let payload;
     try {
       payload = await readJson(req, FILE_ROUTE_MAX_BODY_BYTES);

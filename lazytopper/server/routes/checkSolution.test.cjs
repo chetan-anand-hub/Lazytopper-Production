@@ -2812,6 +2812,39 @@ test('§23.5 only the file routes name the file cap: qrUpload (the phone upload,
   }
 });
 
+test('§23.6 ★ (D141 F2) the phone upload checks its slot BEFORE it reads the body: an unknown slot never buffers 10 MiB; a good one still does', async () => {
+  const { createQrUploadRoutes } = require('./qrUpload.cjs');
+  const token = 'A'.repeat(43);
+  const build = (peek) => {
+    const calls = { read: 0, put: 0, status: null };
+    const routes = createQrUploadRoutes({
+      sendJson: (res, status, body) => { calls.status = status; calls.body = body; },
+      readJson: async () => { calls.read += 1; return { imageBase64: 'x', imageMimeType: 'image/png' }; },
+      firebaseAdmin: null,
+      qrUploadChannel: {
+        isAvailable: () => true,
+        peekSlot: peek,
+        putBlob: async () => { calls.put += 1; return { ok: true }; },
+      },
+    });
+    return { routes, calls };
+  };
+  const bad = build(async () => ({ ok: false, reason: 'expired' }));
+  await bad.routes.handleUpload({}, {}, token);
+  assert.equal(bad.calls.read, 0, 'an unknown slot is refused WITHOUT reading the body');
+  assert.equal(bad.calls.put, 0);
+  assert.equal(bad.calls.status, 404);
+  const broken = build(async () => { throw new Error('store down'); });
+  await broken.routes.handleUpload({}, {}, token);
+  assert.equal(broken.calls.read, 0);
+  assert.equal(broken.calls.status, 503);
+  const good = build(async () => ({ ok: true, state: 'waiting', variant: 'a' }));
+  await good.routes.handleUpload({}, {}, token);
+  assert.equal(good.calls.read, 1, 'CONTROL: a valid slot reads the body and stores the file');
+  assert.equal(good.calls.put, 1);
+  assert.equal(good.calls.status, 200);
+});
+
 // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on this route — the submit's async
 // branch, the job runner, the poll route and the deferred fair-use commit (grading/jobs.suite.cjs:
 // a *.suite.cjs run from here, so it is part of test:server:check-solution in CI).

@@ -86,6 +86,7 @@ export interface MoreLikeThisResponse {
 
 import { paidJsonHeaders, UID_HEADER, SignInAgainError, REAUTH_MESSAGE } from "./paidCallHeaders";
 import type { GradingHttpResponse, GradingStageListener } from "./gradingTransport";
+import { requestBodyTooLarge, FILES_TOO_LARGE_TOGETHER_MESSAGE } from "../services/uploadLimits";
 import type { GradingJobOptions } from "./gradingJobs";
 
 /* ── AUTHGATE-FIX-1: one silent token refresh ─────────────────────────────────
@@ -197,6 +198,13 @@ async function postGrading(
   // (AUTHGATE-FIX-1) carries the SAME key as the first send and as every network retry.
   const idempotencyKey = keyOverride ?? newIdempotencyKey();
   const payload = JSON.stringify(body);
+  // UPLOAD-READ-1 PR-B (D141 F1): the TOTAL body is checked here, before any send, so an oversized batch is a
+  // friendly sentence and never the edge's bare 413 (a single file is already capped by checkUploadFile).
+  if (requestBodyTooLarge(payload)) {
+    const err = new Error(FILES_TOO_LARGE_TOGETHER_MESSAGE);
+    err.name = "UploadTooLargeError";
+    throw err;
+  }
   const sendOpts = {
     idempotencyKey,
     // ★ A FREE CHECK IS NEVER RE-SENT AUTOMATICALLY. Its App Check token is LIMITED-USE

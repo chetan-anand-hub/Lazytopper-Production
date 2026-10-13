@@ -75,6 +75,24 @@ export const EDGE_MAX_BODY_BYTES = 10 * 1024 * 1024;
  *  measured at 0.10 MB for the heaviest 38-question draw), doubled for headroom. */
 export const NON_FILE_PAYLOAD_ALLOWANCE_BYTES = 200 * 1024;
 
+/** UPLOAD-READ-1 PR-B (D141 F1): the most a grading REQUEST (every file's base64 + the JSON around it) may weigh.
+ *  The edge refuses anything over 10 MiB with a bare 413, and one 7 MB PDF plus a photo in the same batch is
+ *  ~13 MB, so the TOTAL is checked on the device before sending (never a raw 413). The 256 KiB margin covers
+ *  headers and framing. Anything that was accepted before this PR (the old caps were 5 and 8 MiB) is under it. */
+export const REQUEST_BODY_BUDGET_BYTES = EDGE_MAX_BODY_BYTES - 256 * 1024;
+
+/** What a student reads when the files in one request are too large together. */
+export const FILES_TOO_LARGE_TOGETHER_MESSAGE =
+  "These files are too large together. Upload fewer pages or files at a time.";
+
+/** True when a serialised request body is over the total budget. UTF-8 bytes, not characters, so a body full of
+ *  non-ASCII question text is not under-counted; the cheap length test settles the common cases without an encode. */
+export function requestBodyTooLarge(serialised: string): boolean {
+  if (serialised.length > REQUEST_BODY_BUDGET_BYTES) return true;
+  if (serialised.length * 3 <= REQUEST_BODY_BUDGET_BYTES) return false;
+  return new TextEncoder().encode(serialised).length > REQUEST_BODY_BUDGET_BYTES;
+}
+
 /** Several photos of one answer are assembled ON THE DEVICE into one PDF (UPLOAD-2 R6).
  *  The assembled PDF aims under this, well below the PDF ceiling, so a photo-built PDF never
  *  lands on the wall that a scanned PDF is refused at AND stays quick to send from a phone.
