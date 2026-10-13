@@ -13,6 +13,8 @@
  * progressBankIndex trims them.
  */
 import { describe, it, expect } from "vitest";
+import { RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
+import { resolveCanonicalSlug } from "../syllabus/canonicalTopicSlug";
 
 import {
   BANK_ID_INDEX_ROWS,
@@ -69,10 +71,16 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // 0.9204 -> 0.9203 by exactly that row. All by runtime import on the merged tip.
 // 13 Oct BANK-STEPS-1 PR-1 (cofounder D126): 183 paused rows leave the served bank (10601 -> 10418). They carried a concept more often than the rest,
 // so rows with a concept go 9757 of 10601 (0.92038) -> 9576 of 10418 (0.91918): the pin moves 0.9203 -> 0.9191 (a repaired id returns to the count).
+// 13 Oct BANK-STEPS-1 PR-2 (follow-up PAUSE, 73 more paused rows; cofounder D143): the two generic reviewed labels that no row serves any more
+// (pair-of-linear-equations / acids-bases-and-salts) leave the reviewed list; the MAPPED label "Roots by Formula" STAYS in the map (mistakeConcept.ts resolves a
+// stored mistake through it at read time) and is allowed to be un-served ONLY through PAUSED_LABELS below. Coverage pin 0.9191 -> 0.9189 (measured 0.91899).
+// [FU-CONCEPTLABEL-RATCHET-RESTORE-BANKSTEPS]: each REPAIR PR that serves one of these rows again restores its reviewed label here, drops the PAUSED_LABELS entry and raises the pin back.
 const MIN_MAPPED_LABELS = 1850;
+/** Labels whose every row is paused by BANK-STEPS-1: allowed to be mapped while served by nothing. Pinned both ways in the tests below. */
+const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [{ chapter: "quadratic-equations", label: "Roots by Formula" }];
 const MAX_REVIEWED_LABELS = 136;
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9191;
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9189;
 
 const isChapterEchoSubtopic = echoFromShape;
 
@@ -97,6 +105,7 @@ function auditMap(
   concepts: Readonly<Record<string, readonly string[]>>,
   mapped: Readonly<Record<string, Readonly<Record<string, string>>>>,
   reviewed: Readonly<Record<string, Readonly<Record<string, UnmappedLabelReview>>>>,
+  paused: ReadonlyArray<{ chapter: string; label: string }> = PAUSED_LABELS,
 ): Problem[] {
   const problems: Problem[] = [];
   const has = (o: object | undefined, k: string) =>
@@ -117,7 +126,10 @@ function auditMap(
   ] as const) {
     for (const [chapter, byLabel] of Object.entries(table)) {
       for (const label of Object.keys(byLabel)) {
-        if (!served.get(chapter)?.has(label)) problems.push({ kind, chapter, label });
+        const isServed = !!served.get(chapter)?.has(label);
+        const isPaused = paused.some((p) => p.chapter === chapter && p.label === label);
+        if (!isServed && !isPaused) problems.push({ kind, chapter, label });
+        if (isServed && isPaused) problems.push({ kind: "paused-but-served", chapter, label });
         if (isChapterEchoSubtopic(label)) problems.push({ kind: "echo-entry", chapter, label });
       }
     }
@@ -189,7 +201,33 @@ describe("conceptLabelMap — ratchet over the served bank", () => {
   });
 });
 
+describe("conceptLabelMap — PAUSED_LABELS (BANK-STEPS-1)", () => {
+  it("each paused label is carried ONLY by withheld ids, and by at least one", () => {
+    for (const { chapter, label } of PAUSED_LABELS) {
+      const carriers = (RAW_CANONICAL_QUESTION_BANK as unknown as Array<{ id: string; topicKey: string; subtopic: string }>).filter(
+        (q) => resolveCanonicalSlug(q.topicKey) === chapter && String(q.subtopic).trim() === label,
+      );
+      expect(carriers.length, `${chapter} / ${label}`).toBeGreaterThan(0);
+      expect(carriers.filter((q) => !WITHHELD_QUESTION_IDS.has(q.id)).map((q) => q.id), `${chapter} / ${label}`).toEqual([]);
+    }
+  });
+
+  it("a paused label is still mapped (the read-time lookup keeps working)", () => {
+    for (const { chapter, label } of PAUSED_LABELS) expect(conceptForSubtopic(chapter, label), label).toBeTruthy();
+  });
+});
+
 describe("conceptLabelMap — mutation controls (each check can fail)", () => {
+  it("removing a label from PAUSED_LABELS is RED (stale-mapped)", () => {
+    expect(auditMap(SERVED, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED, []).map((p) => p.kind)).toEqual(["stale-mapped"]);
+  });
+
+  it("a paused label that is served again is RED (paused-but-served): the cue to remove it from PAUSED_LABELS", () => {
+    const s = new Map([...SERVED].map(([k, v]) => [k, new Map(v)]));
+    s.get("quadratic-equations")!.set("Roots by Formula", 1);
+    expect(auditMap(s, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED).map((p) => p.kind)).toEqual(["paused-but-served"]);
+  });
+
   const clone = (s: Served): Served => new Map([...s].map(([k, v]) => [k, new Map(v)]));
 
   it("a NEW served label with no entry is RED", () => {

@@ -2038,7 +2038,6 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
   "polynomials": {
   },
   "pair-of-linear-equations": {
-    "Pair of Linear Equations in Two Variables": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
   },
   "quadratic-equations": {
     "Assertion-Reasoning": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
@@ -2110,7 +2109,6 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Hydrated Salts (Copper Sulfate)": { reason: "concept-gap", note: "concept-gap: water of crystallisation of CuSO4 — not one of the Important Salts concept's named salts, not pH (fix round 1)" },
     "Identifying Salts": { reason: "spans-concepts", note: "spans-concepts: 1 of 2 rows identifies baking soda -> washing soda (Important Salts), 1 of 2 asks parent acid/base of salts (neutralisation / pH) (fix round 1)" },
     "Acids and Bases": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
-    "Acids, Bases and Salts": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
     "Amphoteric Oxides": { reason: "other-chapter", note: "audit (verified): OTHER-CHAPTER: metals-and-non-metals" },
     "Classification of Acids": { reason: "concept-gap", note: "audit (verified): sources/types/everyday examples of acids & bases — propose concept \"Acids & Bases: Sources, Types & Everyday Examples\"" },
     "Reasoning on Acids, Bases and Salts": { reason: "generic", note: "audit (verified): generic catch-all label, not a concept — re-tag per row" },
