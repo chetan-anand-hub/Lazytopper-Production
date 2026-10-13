@@ -54,14 +54,36 @@
         "@graph": [
           {
             "@type": "Organization",
+            "@id": "https://www.lazytopper.com/#organization",
             "name": "LazyTopper",
+            "alternateName": ["Lazy Topper", "lazytopper"],
             "url": "https://www.lazytopper.com/",
-            "logo": "https://www.lazytopper.com/og-image.png"
+            "logo": "https://www.lazytopper.com/logo-square.png",
+            "description": "CBSE Class 10 Maths and Science board-exam preparation: step-marked answer checking, worksheets, chapter tests and full mock papers.",
+            "email": "support@lazytopper.com",
+            "contactPoint": [
+              {
+                "@type": "ContactPoint",
+                "contactType": "customer support",
+                "email": "support@lazytopper.com",
+                "url": "https://wa.me/919714568948",
+                "areaServed": "IN",
+                "availableLanguage": ["en", "hi"]
+              }
+            ],
+            "sameAs": [
+              "https://www.youtube.com/@Lazytopper_CBSE",
+              "https://www.instagram.com/lazy_topper_/",
+              "https://www.facebook.com/lazytoppercbse",
+              "https://x.com/lazy_topper_",
+              "https://www.linkedin.com/company/146258133"
+            ]
           },
           {
             "@type": "WebSite",
             "name": "LazyTopper",
-            "url": "https://www.lazytopper.com/"
+            "url": "https://www.lazytopper.com/",
+            "publisher": { "@id": "https://www.lazytopper.com/#organization" }
           }
         ]
       }
