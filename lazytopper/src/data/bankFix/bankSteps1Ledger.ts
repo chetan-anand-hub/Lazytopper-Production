@@ -4,7 +4,7 @@
 // question than the row's own stem (found by BANK-STEPS-SCOUT, #973 comment 6141462325; each verdict read by a fresh-context Opus judge, with one sentence of evidence).
 // Generated from the scout CSV by script - the ids are never typed by hand. States: "paused" (in the BANK-STEPS-1 PAUSE block of WITHHELD_QUESTION_IDS),
 // "found" (FIND hit, still served: e.g. NO-ANSWER rows), "paused" (in the PAUSE block), "repaired" (new steps written, re-solve agreed, id removed from the block) or "dropped" (cannot be repaired: moved to the UNREPAIRABLE block with a reason). A row's state only moves forward (D143).
-// Row ids, questionText, options and answer/finalAnswer are never changed by this lane.
+// Row ids, questionText and options are never changed by this lane. answer/finalAnswer only change by cofounder ruling on the board (D170: the keys of CR-M04 and ABS-E06 became option (b); noted on their ledger rows).
 
 export type BankSteps1State = "found" | "paused" | "repaired" | "dropped";
 
