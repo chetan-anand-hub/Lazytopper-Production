@@ -1046,6 +1046,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   // correct it). `editing` toggles the inline correction.
   const [detecting, setDetecting] = useState<boolean>(false);
   const [detectError, setDetectError] = useState<string | null>(null);
+  // UPLOAD-READ-1 - how many questions a CUT-OFF read recovered (null on a complete read).
+  const [detectPartialCount, setDetectPartialCount] = useState<number | null>(null);
   // ALL-AI-METERING-1 - a fair-use refusal of detection (scope `checks`), shown in place of detectError.
   const [detectLimit, setDetectLimit] = useState<LimitState | null>(null);
 
@@ -1482,6 +1484,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (questionTab === "upload" && !qImageBase64) return;
     setDetecting(true);
     setDetectError(null);
+    setDetectPartialCount(null);
     setDetectLimit(null);
     try {
       const d = await detectQuestion({
@@ -1510,6 +1513,8 @@ const DesktopCheckImprovePageInner: React.FC<{
       // Multi-question: keep every detected question. A single-item (or absent)
       // array leaves the existing single-question flow exactly as before.
       setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
+      // UPLOAD-READ-1: a cut-off read keeps every complete question and says how many it got.
+      setDetectPartialCount(d.partial === true && d.questions && d.questions.length > 0 ? d.questions.length : null);
     } catch (e) {
       const refused = freeRefusalFor(e);
       // ALL-AI-METERING-1: a detection limit is the limit panel, never "we couldn't read".
@@ -2725,6 +2730,27 @@ const DesktopCheckImprovePageInner: React.FC<{
                   nothing was graded, so "Retry the grader" would be a lie. */}
               {questionFileError && (
                 <div style={{ fontSize: 12.5, color: DANGER_FG }}>{questionFileError}</div>
+              )}
+
+              {/* UPLOAD-READ-1 — the read was CUT OFF: say how many questions we got and what to do.
+                  Same note style as the sibling chips; shown for one question or many. */}
+              {confirmed && detectPartialCount !== null && (
+                <div
+                  data-testid="ci-partial-read"
+                  role="status"
+                  style={{
+                    background: MUTED_BG,
+                    border: `1px solid ${BORDER}`,
+                    borderRadius: 10,
+                    padding: "10px 14px",
+                    fontSize: 13,
+                    color: TEXT_FG,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  We read the first {detectPartialCount} {detectPartialCount === 1 ? "question" : "questions"} of this
+                  paper. Upload the remaining pages separately to check them.
+                </div>
               )}
 
               {/* Multi-question summary chip — N questions detected; grade the whole

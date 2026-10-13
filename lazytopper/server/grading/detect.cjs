@@ -208,6 +208,95 @@ function isDetectRetryableError(err) {
   return status === 429 || (status >= 500 && status !== 504);
 }
 
+
+/**
+ * UPLOAD-READ-1 PR-A — recover what a CUT-OFF detect reply still holds.
+ *
+ * A full board paper's questions-as-JSON can be longer than the model's output budget; the reply is
+ * then cut mid-object and does not parse, and the student used to lose the whole read. This is a
+ * string-aware bracket scan over the reply: it finds the root `"questions"` array and returns every
+ * COMPLETE question object that parsed as JSON on its own. It NEVER repairs, completes or invents
+ * text: an object that was cut mid-way is dropped, and a fragment that does not parse is dropped.
+ *
+ * @returns {{ questions: object[], prefix: object|null, truncated: boolean }}
+ *   questions — the complete question objects, in order
+ *   prefix    — the root-level fields emitted BEFORE the array (detectedMarks, …) when they parse, else null
+ *   truncated — the reply starts like a JSON object and ends before it closes (cut off), as opposed to
+ *               an empty or non-JSON reply
+ */
+function salvageDetectQuestions(text) {
+  const s = String(text == null ? '' : text);
+  const out = { questions: [], prefix: null, truncated: false };
+  const rootAt = s.indexOf('{');
+  if (rootAt < 0) return out;
+  // whole-reply scan: is the root object ever closed?
+  let depth = 0;
+  let inStr = false;
+  let esc = false;
+  let closed = false;
+  for (let i = rootAt; i < s.length; i += 1) {
+    const c = s[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === '\\') esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === '{' || c === '[') depth += 1;
+    else if (c === '}' || c === ']') {
+      depth -= 1;
+      if (depth === 0) { closed = true; break; }
+    }
+  }
+  out.truncated = !closed;
+
+  const key = /"questions"\s*:\s*\[/g;
+  key.lastIndex = rootAt;
+  const m = key.exec(s);
+  if (!m) return out;
+  // root-level fields before the array: close the object after the last complete pair
+  try {
+    const head = s.slice(rootAt, m.index).replace(/[\s,]+$/, '');
+    const parsedHead = JSON.parse(head + '}');
+    if (parsedHead && typeof parsedHead === 'object') out.prefix = parsedHead;
+  } catch (_e) { /* no usable prefix: the caller derives the top-level fields from the first question */ }
+
+  // the array: collect each complete top-level object
+  let i = m.index + m[0].length;
+  depth = 0;
+  inStr = false;
+  esc = false;
+  let objStart = -1;
+  for (; i < s.length; i += 1) {
+    const c = s[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === '\\') esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') { inStr = true; continue; }
+    if (c === '{') {
+      if (depth === 0) objStart = i;
+      depth += 1;
+    } else if (c === '}') {
+      depth -= 1;
+      if (depth === 0 && objStart >= 0) {
+        try {
+          const q = JSON.parse(s.slice(objStart, i + 1));
+          if (q && typeof q === 'object' && !Array.isArray(q)) out.questions.push(q);
+        } catch (_e) { /* a malformed fragment is dropped, never repaired */ }
+        objStart = -1;
+      } else if (depth < 0) break;
+    } else if (c === ']' && depth === 0) break;
+  }
+  return out;
+}
+
+/** Shown when a reply was cut off and not one complete question could be recovered. */
+const DETECT_LONG_PAPER_MESSAGE = 'This paper is long — try uploading fewer pages at a time.';
+
 module.exports = {
   DETECT_FENCE_KIND,
   TEXT_LAYER_FENCE_KIND,
@@ -220,5 +309,7 @@ module.exports = {
   restoreSymbols,
   normaliseDetectedQuestions,
   isDetectRetryableError,
+  salvageDetectQuestions,
+  DETECT_LONG_PAPER_MESSAGE,
   anchorsOf,
 };

@@ -858,6 +858,10 @@ export interface DetectQuestionResponse {
   /** Every question read from the upload. A single-question read yields a
    *  single-item array; `length > 1` drives the multi-question grade path. */
   questions?: DetectedQuestion[];
+  /** UPLOAD-READ-1 — true when the model's reply was CUT OFF and `questions` holds only the complete
+   *  questions before the cut (absent on a complete read). `readCount` is how many. */
+  partial?: boolean;
+  readCount?: number;
   error?: string;
 }
 
