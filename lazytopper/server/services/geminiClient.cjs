@@ -989,19 +989,36 @@ function createGeminiClient(cfg) {
     // UPLOAD-READ-1 PR-A2 (D136 b): a STREAMED reply whose stream carried no usageMetadata is metered from an
     // ESTIMATE (numbers only: char counts, never content), flagged `estimated`. A non-streaming call, and a
     // stream WITH usage, pass `data.usageMetadata` exactly as before.
-    const streamUsageMissing =
-      streamDeadlineMs > 0 &&
-      !(
-        data &&
-        data.usageMetadata &&
-        typeof data.usageMetadata === 'object' &&
-        (Number(data.usageMetadata.totalTokenCount) > 0 ||
-          Number(data.usageMetadata.promptTokenCount) > 0 ||
-          Number(data.usageMetadata.candidatesTokenCount) > 0)
-      );
+    // PER FIELD, not all-or-nothing (verifier M2): a stream's intermediate chunks may carry the prompt count
+    // and a total but NO candidate count, so "any count > 0" would meter 0 output tokens for a reply that
+    // streamed for up to 50 s. A measured count is always kept; only a missing/zero prompt count, or a
+    // missing/zero candidate count when text was received, is filled from the estimate, and the record is
+    // flagged `estimated`.
+    let usageForRecord = data && data.usageMetadata;
+    let usageEstimated = false;
+    if (streamDeadlineMs > 0) {
+      const measured = usageForRecord && typeof usageForRecord === 'object' ? usageForRecord : {};
+      const est = estimateStreamUsage(finalContents, text);
+      const merged = { ...measured };
+      if (!(Number(measured.promptTokenCount) > 0)) {
+        merged.promptTokenCount = est.promptTokenCount;
+        usageEstimated = true;
+      }
+      if (!(Number(measured.candidatesTokenCount) > 0) && text) {
+        merged.candidatesTokenCount = est.candidatesTokenCount;
+        usageEstimated = true;
+      }
+      if (usageEstimated) {
+        merged.totalTokenCount =
+          (Number(merged.promptTokenCount) || 0) +
+          (Number(merged.candidatesTokenCount) || 0) +
+          (Number(merged.thoughtsTokenCount) || 0);
+        usageForRecord = merged;
+      }
+    }
     const tokenRecord = buildTokenTelemetryRecord({
-        usageMetadata: streamUsageMissing ? estimateStreamUsage(finalContents, text) : data && data.usageMetadata,
-        estimated: streamUsageMissing,
+        usageMetadata: usageForRecord,
+        estimated: usageEstimated,
         model,
         callClass: classifyCall(config, telemetryCallerStack),
         workloadClass: classifyWorkload(config, telemetryCallerStack),

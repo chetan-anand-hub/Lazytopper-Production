@@ -1448,3 +1448,66 @@ test('§11.14 the grading call sites never carry the stream flag: grep the route
   const core = fs.readFileSync(path.join(root, 'grading', 'core.cjs'), 'utf8');
   assert.equal(core.includes('streamDeadlineMs'), false);
 });
+
+/* ── §11.15-18 · verifier M2 / P1-P3: the estimate is PER FIELD and covers the shapes production really sends ── */
+
+test('§11.15 ★ M2: a stream whose last-seen usage holds ONLY the prompt count (candidates missing) is cut at the deadline — the measured prompt count is KEPT, the output tokens are ESTIMATED (never 0), the record is flagged', async () => {
+  const { res } = sseResponse([sseChunk('z'.repeat(400), { usageMetadata: { promptTokenCount: 900, totalTokenCount: 900 } })], { holdOpen: true });
+  const f = stubFetch([() => res]);
+  const origWarn = console.warn; console.warn = () => {};
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 80, workloadClass: 'detect-question' });
+    assert.equal(out.deadlineHit, true);
+    const rec = client.getTokenTelemetry()[0];
+    assert.equal(rec.promptTokenCount, 900, 'a measured count is never overwritten');
+    assert.equal(rec.candidatesTokenCount, 100, 'received chars / 4, not 0');
+    assert.equal(rec.totalTokenCount, 1000, 'total recomputed from the parts');
+    assert.equal(rec.estimated, true);
+  } finally { console.warn = origWarn; f.restore(); }
+});
+
+test('§11.16 P1: the PDF/image part production really sends is `inline_data` (mentorImageSupport.buildGeminiImagePart) — the estimate counts it, and also the camelCase form', async () => {
+  const { estimateStreamUsage } = require('./geminiClient.cjs');
+  const snake = [{ role: 'user', parts: [{ text: 'a'.repeat(40) }, { inline_data: { mime_type: 'application/pdf', data: 'QUJD' } }] }];
+  const camel = [{ role: 'user', parts: [{ text: 'a'.repeat(40) }, { inlineData: { mimeType: 'application/pdf', data: 'QUJD' } }] }];
+  assert.equal(estimateStreamUsage(snake, '').promptTokenCount, 10 + 1000);
+  assert.equal(estimateStreamUsage(camel, '').promptTokenCount, 10 + 1000);
+  // and end to end, through the real production part builder
+  const { buildGeminiImagePart } = require('../mentorImageSupport.cjs');
+  const part = buildGeminiImagePart({ mimeType: 'application/pdf', base64: 'QUJD' });
+  const { res } = sseResponse([sseChunk('y'.repeat(40))]);
+  const f = stubFetch([() => res]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', [{ role: 'user', parts: [{ text: 'a'.repeat(40) }, part] }], { streamDeadlineMs: 5000 });
+    assert.equal(client.getTokenTelemetry()[0].promptTokenCount, 10 + 1000, 'the real part shape is counted');
+  } finally { f.restore(); }
+});
+
+test('§11.17 P2: a NORMAL (non-streaming) call whose reply carries no usage is NOT estimated — it keeps its zeros and has no `estimated` key (the estimate is for streams only)', async () => {
+  const f = stubFetch([jsonResponse({ candidates: [{ content: { parts: [{ text: '{}' }] } }] })]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, {});
+    const rec = client.getTokenTelemetry()[0];
+    assert.equal(rec.totalTokenCount, 0);
+    assert.equal(rec.promptTokenCount, 0);
+    assert.equal('estimated' in rec, false);
+  } finally { f.restore(); }
+});
+
+test('§11.18 P3: a stream whose usageMetadata is present but EMPTY or all zeros is treated as missing: estimated, not zeros', async () => {
+  for (const usage of [{}, { promptTokenCount: 0, candidatesTokenCount: 0, totalTokenCount: 0 }]) {
+    const { res } = sseResponse([sseChunk('q'.repeat(80), { usageMetadata: usage })]);
+    const f = stubFetch([() => res]);
+    try {
+      const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+      await client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 5000 });
+      const rec = client.getTokenTelemetry()[0];
+      assert.equal(rec.estimated, true);
+      assert.equal(rec.candidatesTokenCount, 20);
+      assert.ok(rec.promptTokenCount > 0 && rec.totalTokenCount > 0);
+    } finally { f.restore(); }
+  }
+});
