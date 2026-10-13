@@ -85,6 +85,7 @@ const EVENT_LABELS: Record<string, string> = {
   check_graded: "Checked an answer",
   practice_graded: "Graded a practice set",
   testimonial_play: "Played the testimonial video",
+  parent_share_click: "Tapped Send to my child",
 };
 
 /** A recorded event name in plain words, e.g. "check_graded" -> "Checked an answer". */

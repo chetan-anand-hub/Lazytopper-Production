@@ -74,6 +74,10 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(for-parents/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(admin/funnel/?)",
       "destination": "/__shell.html"
     },

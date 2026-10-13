@@ -154,6 +154,7 @@ describe("the footer links to Exam Trends (the chapter index) on every public su
       "Chapters",
       "CBSE 2027",
       "How CBSE marks answers",
+      "For parents", // PARENTS-1
       ...FOOTER_LINKS.map(([label]) => label),
       ...FOOTER_SOCIAL.map((s) => s.label), // ORG-SAMEAS-1
     ]);
@@ -205,6 +206,7 @@ describe("every slug a legal link points at renders real policy content", () => 
       "/exam-trends",
       "/cbse/class-10",
       "/check-your-answer",
+      "/for-parents", // PARENTS-1 — the fourth internal page link, before the social row
       ...hrefs,
       // ORG-SAMEAS-1 — the fourth kind of link: our own profiles, external, in config order.
       ...FOOTER_SOCIAL.map((s) => s.href),
