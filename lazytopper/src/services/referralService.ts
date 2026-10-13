@@ -1,4 +1,3 @@
-
 const REFERRAL_KEY = "lazytopper.referral.v1";
 const PENDING_REFERRAL_KEY = "lazytopper.pending_referral";
 const REFERRAL_CREDITED_KEY = "lazytopper.referral_credited";
