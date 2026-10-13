@@ -1,3 +1,15 @@
+## ★ 2026-10-13 — AFTER VIDEO-EMBED-1 (`#1111`) (written by C1 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone):** open `https://www.lazytopper.com/check-your-answer`, scroll to "See it on a real answer sheet", tap play: the video plays with captions. Then `https://www.lazytopper.com/cbse/class-10`: the sample-paper links come first, "How a Class 10 student checks his answers" sits below them. Nothing should load from YouTube until you tap.
+- **GROWTH SESSION:** Google Rich Results Test on both URLs (expect "Video" detected, 3 key moments/Clips); Lighthouse mobile LCP / CLS on `/check-your-answer` (the spec says no worse than before); request indexing for both URLs.
+- **COFOUNDER (next lanes):** WORKSHEET-SCOUT (read-only, assigned to C1 by D126, starts after this block's PR merges). PARENTS-1 reuses `TestimonialVideo` (`heading`, `lede`, optional `headingAs` / `headingId`); give it a different `headingId`, and note `testimonial_play` is already once-per-page-load across all players on a page.
+- **ANY LANE THAT TOUCHES THE ACTIVITY EVENT NAMES:** a new `NamedAnalyticsEvent` needs FOUR lines in step: the union, `ACTIVITY_EVENTS` in `activityClient.ts`, the server allowlist `server/routes/studentActivity.cjs`, and a label in `activityDetailModel.ts`. `activityClient.test.ts` and `StudentDetailPanel.activity.test.tsx` go RED otherwise. Put all four in the spec's §1.
+- **ANY LANE THAT ADDS A `<details>` TO `/cbse/class-10`:** `Cbse2027Page.guard.test.tsx` counts the six trap cards; the testimonial's transcript is excluded by class, so a new `<details>` needs its own exclusion or a deliberate count change.
+- **Cofounder / owner:** decide on `[FU-TESTIMONIAL-NAME-DESC-UNCONFIRMED]` (confirm the JSON-LD `name` / `description` against growth doc §4 — the doc was never in the repo).
+- **If the page or the player misbehaves:** revert with the one-commit revert in CURRENT_STATE, then report on `#973`.
+
 ## ★ 2026-10-13 — AFTER SOFT404-1 (`#1105`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

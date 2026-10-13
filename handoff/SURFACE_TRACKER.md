@@ -1,5 +1,14 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-13 — VIDEO-EMBED-1 (C1, §10 for `#1111`).** No surface's Scope changed and no new scope was discovered. Marketing pages + one analytics name; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/check-your-answer` | "See it on a real answer sheet": click-to-play testimonial + transcript + `VideoObject` (`#1111`) | 🟢 live | owner phone check; Rich Results Test; Lighthouse LCP/CLS no worse |
+| `/cbse/class-10` | "How a Class 10 student checks his answers" below the sample papers (`#1111`) | 🟢 live | owner phone check; Rich Results Test |
+| Student activity log (admin Students page) | new event "Played the testimonial video" (`testimonial_play`) | 🟡 partial | a first event seen in a real student's log (allowlist is live, not exercised signed-in) |
+| `/for-parents` (PARENTS-1) | not started; will reuse `TestimonialVideo` | ⚪ not started | spec after this merge |
+
 > **2026-10-13 — SOFT404-1 (C2, §10 for `#1105`).** No surface's Scope changed and no new scope was discovered. Hosting / routing only; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |

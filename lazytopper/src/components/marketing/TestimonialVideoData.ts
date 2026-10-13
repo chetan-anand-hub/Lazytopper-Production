@@ -19,8 +19,14 @@ export const TESTIMONIAL_YT_THUMB_URL = `https://i.ytimg.com/vi/${TESTIMONIAL_VI
 
 export const TESTIMONIAL_TITLE = "Where did my ½ mark go? — student testimonial";
 export const TESTIMONIAL_PLAY_LABEL = "Play video: Where did my ½ mark go?";
+/**
+ * The VideoObject `name` and `description` (DECISION 129): the growth doc §4's own strings, verbatim. Google matches
+ * the `name` against the video's YouTube title, so it is NOT the iframe title above. The visible heading and hook
+ * line on the pages are literals in the page files and do not read these.
+ */
+export const TESTIMONIAL_VIDEO_NAME = "CBSE Class 10 Answer Checking: Where Did My ½ Mark Go? | Step Marking Explained";
 export const TESTIMONIAL_DESCRIPTION =
-  "A Class 10 student photographs his written answer and sees exactly where he lost ½ mark.";
+  "Swajeet, a CBSE Class 10 student, photographs his handwritten answers and has them step-marked against the CBSE marking scheme on LazyTopper. He sees exactly where he lost half a mark: he solved the problem without writing the formula.";
 
 export const TESTIMONIAL_UPLOAD_DATE = "2026-10-12T20:00:00+05:30";
 export const TESTIMONIAL_DURATION = "PT38S";
