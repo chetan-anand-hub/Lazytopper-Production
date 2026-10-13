@@ -557,6 +557,12 @@ function createCheckSolutionRoute(deps) {
         // defaulted — a detect call attributed to a made-up band would pollute the
         // one input SERVER-2 is meant to read.
         workloadClass: 'detect-question',
+        // ── UPLOAD-READ-1 PR-A2 · stream the reply, stop at the deadline, salvage what arrived ──
+        // Read as a server-sent-event stream; at DETECT_STREAM_DEADLINE_MS the read stops and the text so
+        // far comes back (callGemini returns `deadlineHit`), so a long paper that would have run into the
+        // 55 s whole-call timeout and returned NOTHING is salvaged to its complete questions below. Never
+        // on the wire (a hint like `workloadClass`); a reply that finishes in time is unchanged.
+        streamDeadlineMs: D.DETECT_STREAM_DEADLINE_MS,
       };
       // C10 · ONE bounded retry: a reply that does not parse (incl. a MAX_TOKENS degeneration,
       // golden D.ITEM.GS-S05), a 429, a 5xx other than a timeout, or a network failure — and
