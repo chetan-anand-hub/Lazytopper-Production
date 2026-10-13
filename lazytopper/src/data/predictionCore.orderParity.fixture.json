@@ -164,8 +164,8 @@
    ]
   },
   "human-eye-and-colourful-world": {
-   "n": 291,
-   "sha256": "34b330bdf7fbf4a11dc63b2ce5b2461db71c79c8f28bb8702f137a7a00307af3",
+   "n": 292,
+   "sha256": "f6309f4c912fcc68f7fd1cb3c3c03ea7f7250afcaea97a80ead5070752bdc2fd",
    "head": [
     "LTG-S-EYE-104",
     "LTG-S-EYE-233",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 383,
-   "sha256": "a5a838cdd31674da8f3456381d58dd0b1a7505b79a01b24245a00a44fa045cf9",
+   "n": 384,
+   "sha256": "77fd2ff439f37f8923265681024dbf7671266feb22ab1adfd3033ac0a03075af",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -401,7 +401,7 @@
   },
   "human-eye-and-colourful-world": {
    "n": 50,
-   "sha256": "79447bf328c70cd5f7798d946b1aa4154b0c20b3a3f6236999cb3c060524c7f1",
+   "sha256": "a86e4d734989d67e644b10c3987c0719fd1efc75851e51037bdc8961c06790b0",
    "head": [
     "Accommodation of Eye\tPYQ-S-2024-EYE-004",
     "Accommodation of the Eye\tCFPQ-S-EYE-008,CFPQ-S-EYE-002",
@@ -409,8 +409,8 @@
    ]
   },
   "electricity": {
-   "n": 147,
-   "sha256": "b587c8fcb3de97911b23bec2a52b582afb63502069c0d33a35078c6e50011c59",
+   "n": 148,
+   "sha256": "96185079914b0be6667f69dfccc252f37c7a3f463b4c6c2dac858bb344483126",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
