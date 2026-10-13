@@ -2686,6 +2686,59 @@ test('§21.7 the salvage runs only on the DETECT route: marks and the grading pr
   assert.equal(h.body().readCount, undefined);
 });
 
+/* ═════════════════════════════════════════════════════════════════════════════
+   §22 · UPLOAD-READ-1 PR-A2 — detect streams its reply and stops at a deadline
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+test('§22.1 detect asks for a streamed read with a 50 s deadline (a CODE constant), and every other config key is exactly as in PR-A', async () => {
+  const h = buildRoute({ replies: [{ detectedMarks: 3 }] });
+  await h.route.handleDetectQuestion({ question: 'What is x?' }, {});
+  const cfg = h.calls[0].genConfig;
+  assert.equal(cfg.streamDeadlineMs, 50000);
+  assert.equal(DET.DETECT_STREAM_DEADLINE_MS, 50000);
+  assert.equal(cfg.maxOutputTokens, 16384);
+  assert.deepEqual(cfg.thinkingConfig, { thinkingBudget: 0 });
+  assert.equal(cfg.responseMimeType, 'application/json');
+  assert.equal(cfg.workloadClass, 'detect-question');
+  // the other model calls (grade / worksheet) do not stream
+  const grade = buildRoute({ replies: [GOOD_GRADE] });
+  await grade.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(grade.calls[0].genConfig.streamDeadlineMs, undefined, 'grading never streams');
+});
+
+test('§22.2 ★ a read stopped at the deadline (deadlineHit) with complete questions before the cut is a partial read: salvaged, partial + readCount, not retried', async () => {
+  const cut = FULL_PAPER.slice(0, FULL_PAPER.indexOf('Q27. ') + 40);
+  let n = 0;
+  const h = buildRoute({ replies: [cut], depOverrides: {
+    callGemini: async () => { n += 1; return { text: cut, raw: {}, finishReason: 'STREAM_DEADLINE', deadlineHit: true }; },
+  } });
+  await h.route.handleDetectQuestion({ imageBase64: 'BASE64', imageMimeType: 'application/pdf' }, {});
+  const b = h.body();
+  assert.equal(b.ok, true);
+  assert.equal(b.partial, true);
+  assert.equal(b.readCount, 26);
+  assert.equal(n, 1, 'no second 50 s read');
+});
+
+test('§22.3 a deadline read with a PDF that held NO complete question says the paper is long; the same for a single photo keeps "try again"', async () => {
+  const cutInFirst = FULL_PAPER.slice(0, FULL_PAPER.indexOf('Q1. ') + 30);
+  const reply = async () => ({ text: cutInFirst, raw: {}, finishReason: 'STREAM_DEADLINE', deadlineHit: true });
+  const pdf = buildRoute({ replies: [cutInFirst], depOverrides: { callGemini: reply } });
+  await pdf.route.handleDetectQuestion({ imageBase64: 'BASE64', imageMimeType: 'application/pdf' }, {});
+  assert.equal(pdf.body().error, 'This paper is long — try uploading fewer pages at a time.');
+  const photo = buildRoute({ replies: [cutInFirst], depOverrides: { callGemini: reply } });
+  await photo.route.handleDetectQuestion({ imageBase64: 'BASE64', imageMimeType: 'image/jpeg' }, {});
+  assert.equal(photo.body().error, "We couldn't read the question this time — please try again.");
+});
+
+test('§22.4 a read that finishes before the deadline is unchanged: a complete reply with no deadlineHit has no partial / readCount', async () => {
+  const h = buildRoute({ replies: [FULL_PAPER] });
+  await h.route.handleDetectQuestion({ question: 'paper' }, {});
+  assert.equal(h.body().ok, true);
+  assert.equal(h.body().questions.length, 38);
+  assert.equal('partial' in h.body(), false);
+});
+
 // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on this route — the submit's async
 // branch, the job runner, the poll route and the deferred fair-use commit (grading/jobs.suite.cjs:
 // a *.suite.cjs run from here, so it is part of test:server:check-solution in CI).

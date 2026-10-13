@@ -346,7 +346,122 @@ function buildTokenTelemetryRecord(input) {
     usedFallback: Boolean(input && input.usedFallback),
   };
   if (marksBand !== null) record.marksBand = marksBand;
+  // UPLOAD-READ-1 PR-A2 (D136 b): present ONLY when the usage numbers are an ESTIMATE (a stream that carried
+  // no usageMetadata). Absent on every measured record, so nothing existing changes shape.
+  if (input && input.estimated === true) record.estimated = true;
   return record;
+}
+
+/** A rough per-attachment prompt cost (a PDF / image part has no countable text). Deliberately a round
+ *  number, flagged as an estimate wherever it is used. */
+const ESTIMATED_TOKENS_PER_INLINE_PART = 1000;
+
+/**
+ * UPLOAD-READ-1 PR-A2 (D136 b) · an HONEST ESTIMATE of a call's token usage, for a STREAMED reply whose
+ * stream carried no `usageMetadata` (e.g. one stopped at its deadline before the final chunk). A gap is
+ * not acceptable for a metered AI call; a flagged estimate is. input = prompt text chars / 4 plus a
+ * fixed cost per inline PDF/image part; output = the received chars / 4; thinking = 0 (the detect call
+ * disables it). Never used when real usageMetadata is present.
+ */
+function estimateStreamUsage(contents, outputText) {
+  let promptChars = 0;
+  let inlineParts = 0;
+  for (const c of Array.isArray(contents) ? contents : []) {
+    for (const p of c && Array.isArray(c.parts) ? c.parts : []) {
+      if (p && typeof p.text === 'string') promptChars += p.text.length;
+      else if (p && (p.inlineData || p.inline_data)) inlineParts += 1;
+    }
+  }
+  const promptTokenCount = Math.ceil(promptChars / 4) + inlineParts * ESTIMATED_TOKENS_PER_INLINE_PART;
+  const candidatesTokenCount = Math.ceil(String(outputText || '').length / 4);
+  return {
+    promptTokenCount,
+    candidatesTokenCount,
+    thoughtsTokenCount: 0,
+    totalTokenCount: promptTokenCount + candidatesTokenCount,
+  };
+}
+
+/**
+ * UPLOAD-READ-1 PR-A2 · the streaming URL for a `…:generateContent` URL. Only reached when a caller opts
+ * in with `config.streamDeadlineMs`; every other call keeps its URL byte-identical.
+ */
+function toStreamUrl(url) {
+  return String(url).replace(/:generateContent$/, ':streamGenerateContent') + '?alt=sse';
+}
+
+/**
+ * UPLOAD-READ-1 PR-A2 · read a Gemini `alt=sse` response body to its end, or to `deadlineMs`, whichever
+ * comes first, and return what arrived. Text parts are concatenated in order; the LAST `usageMetadata`
+ * and the last `finishReason` seen are kept (usage is cumulative per chunk, so the last chunk is the
+ * best count even on a stream that was stopped early). At the deadline the reader is cancelled (the
+ * connection is released) and `deadlineHit` is true. A malformed chunk is skipped, never thrown on.
+ * An abort of the surrounding request (the attempt timeout) rejects out of `reader.read()` and is the
+ * caller's to map, exactly as for a non-streaming call.
+ *
+ * @returns {Promise<{ text: string, usageMetadata: object|null, finishReason: string|null, deadlineHit: boolean }>}
+ */
+async function readGeminiSseUntilDeadline(body, deadlineMs) {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let text = '';
+  let usageMetadata = null;
+  let finishReason = null;
+  let deadlineHit = false;
+  const timer = setTimeout(() => {
+    deadlineHit = true;
+    // Resolves the pending read() with done:true; never throws into this timer.
+    reader.cancel().catch(() => {});
+  }, deadlineMs);
+  const take = (line) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith(':') || !trimmed.startsWith('data:')) return;
+    const jsonStr = trimmed.slice(5).trim();
+    if (!jsonStr || jsonStr === '[DONE]') return;
+    let chunk;
+    try {
+      chunk = JSON.parse(jsonStr);
+    } catch {
+      return; // a malformed chunk is skipped
+    }
+    const cand = chunk && chunk.candidates && chunk.candidates[0];
+    const parts = cand && cand.content && Array.isArray(cand.content.parts) ? cand.content.parts : [];
+    for (const part of parts) {
+      if (part && part.text) text += String(part.text);
+    }
+    if (cand && cand.finishReason) finishReason = String(cand.finishReason);
+    if (chunk && chunk.usageMetadata && typeof chunk.usageMetadata === 'object') usageMetadata = chunk.usageMetadata;
+  };
+  try {
+    while (true) {
+      let chunk;
+      try {
+        chunk = await reader.read();
+      } catch (err) {
+        // The surrounding request was ABORTED mid-stream (the attempt timeout). If text already arrived it
+        // is NOT thrown away: it is returned as a deadline read, so a slow start can never cost the student
+        // the questions that were already read. With no text, the error propagates as a timeout, as before.
+        if (err && err.name === 'AbortError' && text) {
+          deadlineHit = true;
+          break;
+        }
+        throw err;
+      }
+      const { done, value } = chunk;
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) take(line);
+    }
+    // A final line with no trailing newline (a stream that ends mid-event, or a deadline cancel).
+    if (buffer) take(buffer);
+  } finally {
+    clearTimeout(timer);
+    try { reader.releaseLock(); } catch { /* ignore */ }
+  }
+  return { text, usageMetadata, finishReason, deadlineHit };
 }
 
 function createGeminiClient(cfg) {
@@ -449,6 +564,8 @@ function createGeminiClient(cfg) {
         sink.increment(`gemini_tokens.model.${record.model}`, 1);
         if (record.retry) sink.increment(`gemini_tokens.retry.${klass}`, 1);
         if (record.usedFallback) sink.increment(`gemini_tokens.fallback.${klass}`, 1);
+        // UPLOAD-READ-1 PR-A2: how many calls were metered from an ESTIMATE (a stream with no usage).
+        if (record.estimated) sink.increment(`gemini_tokens.estimated.${klass}`, 1);
 
         // The workload axis, keyed `gemini_workload.<metric>.<workload>` so it
         // sits alongside the transport axis without colliding with it.
@@ -576,6 +693,22 @@ function createGeminiClient(cfg) {
       callDeadlineAt === null ? perCallTimeoutMs : Math.min(perCallTimeoutMs, callDeadlineAt - Date.now());
     const retry429 = (fn) => (callDeadlineAt === null ? withRetry(fn) : withRetryBefore(fn, callDeadlineAt));
 
+    // ── UPLOAD-READ-1 PR-A2 · OPT-IN STREAMING WITH A READ DEADLINE ────────────────────
+    // `config.streamDeadlineMs` (detect only today) reads the reply as a server-sent-event STREAM and,
+    // at the deadline, stops reading and returns what has arrived (`deadlineHit: true`) instead of
+    // letting the whole non-streaming call time out with NOTHING. Like `workloadClass`, `marks` and
+    // `timeoutMs` it is read here and never reaches the wire (buildBody reads a closed key set), and
+    // when it is absent — every other caller — the request, the URL and the body are byte-identical to
+    // before. The SAME buildBody is used (responseMimeType / responseSchema / thinkingConfig all hold),
+    // the same 429 / structured-output / proxy-fallback ladder runs, and the stream is folded back into
+    // the SAME response envelope below, so token telemetry and the usage ledger see it exactly as a
+    // non-streaming call. The attempt timeout (GEMINI_TIMEOUT_MS) stays the outer bound.
+    const streamDeadlineMs =
+      config && Number.isFinite(config.streamDeadlineMs) && config.streamDeadlineMs > 0
+        ? Math.floor(config.streamDeadlineMs)
+        : 0;
+    let streamDeadlineHit = false;
+
     const buildBody = (includeStructuredOutput) => {
       const body = {
         contents: finalContents,
@@ -658,17 +791,58 @@ function createGeminiClient(cfg) {
       telemetryAttempts += 1;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), thisAttemptMs);
+      // UPLOAD-READ-1 PR-A2: the read deadline is counted from the START of the attempt, the same clock
+      // as the attempt abort above. Counting it from when the headers arrive let a slow start push the
+      // deadline past the abort, which then threw every received character away.
+      const attemptStartedAt = Date.now();
       try {
-        const response = await fetch(reqUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey,
+        const response = await fetch(
+          streamDeadlineMs > 0 ? toStreamUrl(reqUrl) : reqUrl,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey,
+            },
+            body: JSON.stringify(buildBody(includeStructuredOutput)),
+            signal: controller.signal,
           },
-          body: JSON.stringify(buildBody(includeStructuredOutput)),
-          signal: controller.signal,
-        });
-        const rawText = await response.text();
+        );
+        let rawText;
+        if (streamDeadlineMs > 0 && response.ok && response.body) {
+          // A good streaming response: read it to the end or to the deadline, then fold it into the
+          // single-response envelope the rest of callGemini already understands.
+          const sse = await readGeminiSseUntilDeadline(
+            response.body,
+            Math.max(0, streamDeadlineMs - (Date.now() - attemptStartedAt)),
+          );
+          if (sse.deadlineHit) {
+            if (!sse.text) {
+              // Nothing arrived: the same 504 a timed-out call gives today. No ledger record is written for
+              // this path (it throws before the tail of callGemini), exactly as for any timed-out call.
+              console.warn(`[callGemini] stream deadline hit after ${streamDeadlineMs}ms with no text read`);
+              const noText = new Error(`Gemini stream timed out after ${streamDeadlineMs}ms with no text`);
+              noText.status = 504;
+              throw noText;
+            }
+            streamDeadlineHit = true;
+            // Names the fact, never the content. `usage` says whether the ledger got real token counts.
+            console.warn(
+              `[callGemini] stream deadline hit after ${streamDeadlineMs}ms: ${sse.text.length} chars read, usage ${sse.usageMetadata ? 'present' : 'ABSENT (metered from a flagged ESTIMATE)'}`
+            );
+          }
+          rawText = JSON.stringify({
+            candidates: [
+              {
+                content: { parts: [{ text: sse.text }] },
+                finishReason: sse.finishReason || (sse.deadlineHit ? 'STREAM_DEADLINE' : null),
+              },
+            ],
+            usageMetadata: sse.usageMetadata || undefined,
+          });
+        } else {
+          rawText = await response.text();
+        }
         if (response.status === 429) {
           const err = new Error(`Gemini rate limited (429): ${rawText}`);
           err.status = 429;
@@ -812,8 +986,39 @@ function createGeminiClient(cfg) {
     // all in scope right here and NONE of them is passed. That is the content
     // firewall, and the "no prompt or response content is logged" test asserts it
     // against a payload whose prompt and candidate text are unique sentinels.
+    // UPLOAD-READ-1 PR-A2 (D136 b): a STREAMED reply whose stream carried no usageMetadata is metered from an
+    // ESTIMATE (numbers only: char counts, never content), flagged `estimated`. A non-streaming call, and a
+    // stream WITH usage, pass `data.usageMetadata` exactly as before.
+    // PER FIELD, not all-or-nothing (verifier M2): a stream's intermediate chunks may carry the prompt count
+    // and a total but NO candidate count, so "any count > 0" would meter 0 output tokens for a reply that
+    // streamed for up to 50 s. A measured count is always kept; only a missing/zero prompt count, or a
+    // missing/zero candidate count when text was received, is filled from the estimate, and the record is
+    // flagged `estimated`.
+    let usageForRecord = data && data.usageMetadata;
+    let usageEstimated = false;
+    if (streamDeadlineMs > 0) {
+      const measured = usageForRecord && typeof usageForRecord === 'object' ? usageForRecord : {};
+      const est = estimateStreamUsage(finalContents, text);
+      const merged = { ...measured };
+      if (!(Number(measured.promptTokenCount) > 0)) {
+        merged.promptTokenCount = est.promptTokenCount;
+        usageEstimated = true;
+      }
+      if (!(Number(measured.candidatesTokenCount) > 0) && text) {
+        merged.candidatesTokenCount = est.candidatesTokenCount;
+        usageEstimated = true;
+      }
+      if (usageEstimated) {
+        merged.totalTokenCount =
+          (Number(merged.promptTokenCount) || 0) +
+          (Number(merged.candidatesTokenCount) || 0) +
+          (Number(merged.thoughtsTokenCount) || 0);
+        usageForRecord = merged;
+      }
+    }
     const tokenRecord = buildTokenTelemetryRecord({
-        usageMetadata: data && data.usageMetadata,
+        usageMetadata: usageForRecord,
+        estimated: usageEstimated,
         model,
         callClass: classifyCall(config, telemetryCallerStack),
         workloadClass: classifyWorkload(config, telemetryCallerStack),
@@ -836,7 +1041,8 @@ function createGeminiClient(cfg) {
     const finishReason =
       (data && data.candidates && data.candidates[0] && data.candidates[0].finishReason) || null;
 
-    return { text, raw: data, finishReason };
+    // UPLOAD-READ-1 PR-A2: ADDITIVE and present ONLY on a streaming read that was stopped at its deadline.
+    return { text, raw: data, finishReason, ...(streamDeadlineHit ? { deadlineHit: true } : {}) };
   }
 
   async function* callGeminiStream(model, finalContents, config) {
@@ -1001,6 +1207,10 @@ function createGeminiClient(cfg) {
 
 module.exports = {
   createGeminiClient,
+  // UPLOAD-READ-1 PR-A2 — exported for the stream tests.
+  toStreamUrl,
+  readGeminiSseUntilDeadline,
+  estimateStreamUsage,
   // Exported for the token-instrumentation tests, and for any future reader that
   // needs the label vocabulary without re-declaring it.
   CALL_CLASSES,

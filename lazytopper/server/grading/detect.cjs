@@ -202,6 +202,11 @@ function normaliseDetectedQuestions(rawQuestions, o) {
  *  failure — and only while the first attempt was quick (a timed-out read is not repeated:
  *  that would double the wait, and detection keeps GEMINI_TIMEOUT_MS per attempt, D15). */
 const DETECT_RETRY_WINDOW_MS = 30000;
+/** UPLOAD-READ-1 PR-A2 · how long detect reads a streamed reply before it stops and salvages what has
+ *  arrived. A CODE constant, not an env var (cofounder D135): GEMINI_TIMEOUT_MS (55 s) stays the outer
+ *  bound for the whole attempt, so a full paper that needs longer than this is returned as a
+ *  "first n questions" read instead of timing out with nothing. */
+const DETECT_STREAM_DEADLINE_MS = 50000;
 function isDetectRetryableError(err) {
   const status = Number(err && (err.status || err.statusCode));
   if (!Number.isFinite(status) || status === 0) return !/timed out/i.test(String((err && err.message) || ''));
@@ -311,6 +316,7 @@ module.exports = {
   DETECT_SUBPART_RULE,
   DETECT_PER_QUESTION_RULE,
   DETECT_RETRY_WINDOW_MS,
+  DETECT_STREAM_DEADLINE_MS,
   detectFencePrompt,
   textLayerBlock,
   restoreSymbols,

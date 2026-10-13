@@ -62,12 +62,14 @@ import {
   BANK_FIX_1_PR2_SERVED_COUNTS,
   type BankFix1Pr2Entry,
 } from "./bankFix1Ledger";
+import { BANK_STEPS_1 } from "./bankSteps1Ledger";
 import { BANK_FIX_3_OFFICIAL_RESOURCED_IDS, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
 
 type Row = Record<string, unknown> & { id: string };
 const bankById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q as unknown as Row]));
 const served = canonicalQuestionBank as unknown as Row[];
 const servedIds = new Set(served.map((q) => q.id));
+const STEPS1_PAUSED_IDS: ReadonlySet<string> = new Set(BANK_STEPS_1.filter((e) => e.state === "paused").map((e) => e.id));
 const predicted = [...predictedQuestions, ...predictedQuestionsScience] as unknown as Row[];
 const predictedById = new Map(predicted.map((q) => [q.id, q]));
 const hpqById = new Map(
@@ -281,7 +283,8 @@ describe("BANK-FIX-1 PR-2 · the audit checks, re-run over the whole served set"
     expect(BANK_FIX_1_PR2_DUPLICATE_PAIRS.length).toBeGreaterThan(40);
     const both = BANK_FIX_1_PR2_DUPLICATE_PAIRS.filter(([a, b]) => servedIds.has(a) && servedIds.has(b));
     expect(both).toEqual([]);
-    expect(BANK_FIX_1_PR2_DUPLICATE_PAIRS.filter(([, keep]) => !servedIds.has(keep)).map(([, k]) => k)).toEqual([]);
+    // 13 Oct BANK-STEPS-1 PR-1: a kept twin whose steps answer another question is paused until its repair PR, so it is not served meanwhile.
+    expect(BANK_FIX_1_PR2_DUPLICATE_PAIRS.filter(([, keep]) => !servedIds.has(keep) && !STEPS1_PAUSED_IDS.has(keep)).map(([, k]) => k)).toEqual([]);
   });
   it("every promptD fallback row is served with a non-empty stem and an answer", () => {
     expect(promptDRows.length).toBeGreaterThan(200);
@@ -316,7 +319,14 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   //   surface (categories: rule5Bind1Withholds.ts); three official crops are bound instead.
   //   11 Oct BANK-FIX-7 PR-2 (cofounder D80b): ELEC-NCERT-11-LA-002, PYQ-M-TRI-005 and PYQ-S-2026-METAL-005 were repaired from their
   //   official sources and are served again (pinned in bankFix7.pr2.test.ts), so they leave this list: 16 -> 13 RULE5-BIND-1 rows.
-  const LATER_WITHHOLDS: Record<string, readonly string[]> = {
+  //   13 Oct BANK-STEPS-1 PR-1 (cofounder D126): every row of the ledger still `paused` is withheld on every surface until its steps are rewritten.
+  //   Read from the ledger by chapter (never retyped); a repaired id leaves the ledger's `paused` state and so returns to the floor.
+  const STEPS1_PAUSED_BY_CHAPTER: Record<string, string[]> = {};
+  for (const e of BANK_STEPS_1.filter((x) => x.state === "paused")) {
+    const chapter = String(bankById.get(e.id)?.topicKey);
+    (STEPS1_PAUSED_BY_CHAPTER[chapter] ??= []).push(e.id);
+  }
+  const LATER_WITHHOLDS_BASE: Record<string, readonly string[]> = {
     "trigonometry": ["APQ-M-TRIG-011", "APQ-M-TRIG-016"],
     "quadratic-equations": ["LTG-M-QE-284"],
     "control-and-coordination": ["SCQ-S-CTRL-029", "SCQ-S-CTRL-037", "SCO-S-CTRL-011", "SCQ-S-CTRL-042"],
@@ -328,6 +338,9 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
     "magnetic-effects-of-electric-current": ["SCQ-S-MAG-029", "SCQ-S-MAG-040"],
     "metals-and-non-metals": ["METAL-NCERT-3-VSA-006"],
   };
+  const LATER_WITHHOLDS: Record<string, readonly string[]> = Object.fromEntries(
+    [...new Set([...Object.keys(LATER_WITHHOLDS_BASE), ...Object.keys(STEPS1_PAUSED_BY_CHAPTER)])].map((c) => [c, [...(LATER_WITHHOLDS_BASE[c] ?? []), ...(STEPS1_PAUSED_BY_CHAPTER[c] ?? [])]]),
+  );
   it("every later-lane withhold is withheld, not served, and in its chapter", () => {
     const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>
       ids.filter((id) => !WITHHELD_QUESTION_IDS.has(id) || servedIds.has(id) || String(bankById.get(id)?.topicKey) !== chapter));
