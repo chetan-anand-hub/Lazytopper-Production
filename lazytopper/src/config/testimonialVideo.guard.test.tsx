@@ -146,9 +146,16 @@ describe("VIDEO-EMBED-1 (c) — consent and naming", () => {
     expect(/swajeet/i.test(readFileSync(resolve(LAZYTOPPER, "src/components/marketing/TestimonialVideoData.ts"), "utf8"))).toBe(true);
   });
 
-  it("the rendered pages carry no surname, school or city beyond the first name", () => {
+  it("the rendered pages and the JSON-LD name only the first name: no capitalised word follows it, and no 'our student'", () => {
+    const SURNAME = /Swajeet\s+(?!and\b)[A-Z]/;
+    // CONTROL: the detector fires on a surname and stays quiet on the real transcript wording.
+    expect(SURNAME.test("Swajeet Kumar")).toBe(true);
+    expect(SURNAME.test("My name is Swajeet and I'm studying in Class 10.")).toBe(false);
     for (const path of PAGES) {
-      expect(body(path)).not.toMatch(/\bour student/i);
+      const html = served(path);
+      expect(html, `${path}: precondition — the first name is on the page`).toContain("Swajeet");
+      expect(html).not.toMatch(SURNAME);
+      expect(html).not.toMatch(/\bour student/i);
     }
   });
 });
