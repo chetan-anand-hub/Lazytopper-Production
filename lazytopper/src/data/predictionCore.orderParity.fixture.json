@@ -119,8 +119,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 526,
-   "sha256": "55c74f9974238fdc3c660170b2a55cf7bc565a1a5d8f6978646d4a748770f0f6",
+   "n": 525,
+   "sha256": "ca9efef7cdcd0b9decefe0f4d02ac206a93d90ab6bf2bce4235b89ebc41250b4",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -137,8 +137,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 520,
-   "sha256": "4da60fdb87fbdfd93b1fed1883f1401af51cbf29686d7ffb7400df3573d564f7",
+   "n": 519,
+   "sha256": "9482db701e517a6c791fba957d64d4535ea2b2deb3f89c7e56de8ccc4fd32472",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
@@ -146,8 +146,8 @@
    ]
   },
   "carbon-and-its-compounds": {
-   "n": 347,
-   "sha256": "fcc972f5a4a68346853f7f2ca671e9e5650303bc45aac273d7fea0dd6bc628ba",
+   "n": 345,
+   "sha256": "93b3251581c74c1faa35b1afefd7c163f839b769cb1c1f3e54a82ee9c7d77770",
    "head": [
     "LTG-S-CARB-274",
     "LTG-S-CARB-273",
@@ -227,8 +227,8 @@
    ]
   },
   "our-environment": {
-   "n": 340,
-   "sha256": "9bf50855a9567ef133f81d99fea75e163be2fcf8c961a1680eafd163569695b3",
+   "n": 339,
+   "sha256": "8852684fa96defebd959675d97c124fb384be47d8aa7d9d84d191e2bc16a89f5",
    "head": [
     "LTG-S-ENV-235",
     "LTG-S-ENV-236",
@@ -356,7 +356,7 @@
   },
   "chemical-reactions-and-equations": {
    "n": 73,
-   "sha256": "69504ce26ff67ae51e66db8fa9af729d62e99399f89aed17c8df8319463b5549",
+   "sha256": "dc9fac14969eea24ff281db2dc71b648286419548154fc8486b7ca14038b790a",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
@@ -374,7 +374,7 @@
   },
   "metals-and-non-metals": {
    "n": 113,
-   "sha256": "4329f673c9cbf0358a589d5aa51c349291c8c0efe16037aca9d853a6e98dd309",
+   "sha256": "27bb5601f3f7a6fba637a8ed235615909c4c47a876703dbf11a2a30aeefffcc3",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
@@ -383,7 +383,7 @@
   },
   "carbon-and-its-compounds": {
    "n": 111,
-   "sha256": "269c933e67ec1a37ae1d151315faa42bea61b3973de2a8baf86f504259746a72",
+   "sha256": "73cc13bbb4d58c70f6d6acbcdefeff9f68393074c5a0bca01cb8b0f3e668e69a",
    "head": [
     "Acid Properties\tCARB-EXMPLR-4-LONG-001",
     "Action of Soap in Hard Water\tCBE-S-CARB-C-005",
@@ -464,7 +464,7 @@
   },
   "our-environment": {
    "n": 71,
-   "sha256": "c8b9c4d1d7f1c58f2fe2e58379ac3fdaa984f767096a88f9418dea27abb23f75",
+   "sha256": "52a74392e9102b3e4bfe74df5f941605ebc1229d54b9452d16ac5fffa192031b",
    "head": [
     "Biodegradability\tOE-E01a,OE2-036,OE2-011,OE2-017,OE2-030,OE-E06,OE-E07,OE2-005,OE2-007,OE-D03,OE2-034,OE-B04,OE2-028,OE-B01,OE2-021",
     "Biodegradable and Non-biodegradable\tLTG-S-ENV-296,LTG-S-ENV-297,LTG-S-ENV-109,LTG-S-ENV-293,LTG-S-ENV-295,OEX-A-033,LTG-S-ENV-281,PYQ-S-2026-ENV-005,PYQ-S-2026-ENV-007,CFPQ-S-ENV-006,PYQ-S-2024-ENV-001,LTG-S-ENV-282,LTG-S-ENV-287,LTG-S-ENV-290,PYQ-S-ENV-006,PYQ-S-2024-ENV-003,OEX-A-001,OEX-A-024,LTG-S-ENV-283,LTG-S-ENV-299,LTG-S-ENV-288,LTG-S-ENV-292,OESE-024,OESE-009,OESE-017,OESE-020",

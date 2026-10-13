@@ -1174,6 +1174,12 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
   "PYQ-M-2024-TRIG-018",     // garbled-extraction: theta rendered as q, fractions flattened
   "PYQ-M-2024-TRIG-020",     // garbled-extraction: fractions flattened (tan/cot proof)
+  // ---- GARBLE-1 WRONG-CONTENT PAUSE (D178/D179): booklet rows found scientifically wrong or garbled while splitting steps ----
+  "SCQ-S-CHEM-033",               // wrong-content (D178): the 'change in state' example is a precipitate reaction, not a change of state
+  "SCQ-S-METAL-036",              // wrong-content (D178): lead named the poor heat conductor next to copper as the best (silver is); answer text garbled
+  "SCQ-S-CARB-032",               // wrong-content (D178): the stored equations and key text are garbled at extraction (C H OH CH CH H O K Conc H SO ...)
+  "SCQ-S-ENV-037",                // wrong-content (D178): ozone 'height from the equator 10 to 16 km' is not the NCERT figure; 'Global wanning'
+  "SCQ-S-CARB-036",               // wrong-content (D178): C4H3 is not a possible hydrocarbon formula
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
   "PYQ-M-AP-004",                 // garbled-extraction: operator lost in the statement (p + q n)
   "PYQ-M-STAT-008",               // garbled-extraction: class-interval dashes lost in the table
