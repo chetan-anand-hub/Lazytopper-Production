@@ -1,3 +1,16 @@
+## 2026-10-14 — PERF-1 PR-3 / PERF-2 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1139` `#1140` `#1141`, plus the decisions C2 itself made, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **175** | `#1140` APPROVED at `6423da0c`: (1) fixing the wordmark stretch (same width, true height); (2) lossless WebP twins only. Merge on green, then LIVE with 5 cold reads and a `/` check. The owner glances at the before/after sheet; if he prefers the old look the revert is one CSS rule | The spec says "keep the true aspect ratio"; a logo drawn at 4.33:1 from a 3.5:1 file was a distortion, so correcting it restores the brand. Lossless twins are zero pixel change; a resized variant is a follow-up behind a screenshot gate (`[FU-PERF2-WEBP-RESIZE]`) |
+| **179 §3** | `#1141`: drop the lazy Login/SignUp, keep only the on-demand QR code | The door to `/login` and `/sign-up` arrived +150–270 ms later; sign-in is the conversion step and the owner's condition is "no quality degradation" (D161). A slower login is a regression even though the 29.5 KB entry saving is real. The qrcode half reaches no door, so its cost is zero |
+| **182** | The new C2 does NOT run the photo-quality grid; C1 keeps it. C2's queue: `#1140`, then `#1141` qrcode-only + AUDIT-REQUEST, then idle-heartbeat. PERF-3 waits for the owner | C1 is alive; the D173 transfer was superseded. The 3.8-flash grid is DEV evidence only; the saved key cannot call `gemini-2.5-flash` (`[FU-GEMINI-25-FLASH-AVAILABILITY]`) |
+| **185** | `#1141` APPROVED at `a944933a`, conditional on the fresh Opus verifier posting PASS. Slot order: `#1144` (D), then `#1141` (C2), then `#1145` (B after rebase). The size-comment nit is not blocking | The diff is one already-async function plus a guard with a CONTROL; no protected file. The cofounder asked that the measured number go in the LIVE post and the comment fix go in the next PR (no head change) |
+| **C2 (no D)** | After `#1144` went LIVE, `update-branch` once on `#1141`, then proved the 2 lane files byte-identical to `a944933a` and waited for CI again | The branch was BEHIND trunk and a green result on a stale base is not evidence about the merged tree; the cofounder allowed either the approved head or the update-branch head with the lane files proven byte-identical |
+| **C2 (no D)** | Launched a FRESH Opus verifier for `#1141` | The old C2's verifier reported to its own (ending) session and no VERDICT was on the board when the new C2 took over (the old C2's PASS arrived later, so there are two) |
+
 ## 2026-10-14 — BANK-STEPS-1 + GARBLE-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY A UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1116` `#1123` `#1125` `#1130` `#1131` `#1136`, plus the decisions A itself made, with reasons. Read the numbered posts on `#973` for the full text.

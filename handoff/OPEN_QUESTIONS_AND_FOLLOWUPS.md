@@ -23,6 +23,29 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-14 — PERF-1 PR-3 / PERF-2 FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-QR-BUNDLE-PROOF]
+`#1141` proved `qrcode` left the entry chunk on a build at `db47f8b8` (entry gz9 400,775 → 390,366 B; `qrcode` its own `browser-*.js`, 10,120 B gz9), not on a rebuild at the merge SHA `bb853239`. Re-run the size check at the next PERF build and keep the chunk citation. CLOSED when a build at or after `bb853239` shows `qrcode` absent from `index-*.js`.
+
+### [FU-QR-GUARD-HARDEN]
+`referralService.qrLazy.test.ts` uses `/^import\s[^;]*from\s+["']qrcode["']/m` and scans only `referralService.ts`. It misses `export … from "qrcode"`, an indented `import`, a side-effect `import "qrcode"`, and a static import added in any OTHER file. Extend to `^\s*(import|export)\s[^;]*from\s+["']qrcode["']` plus the bare form, and scan all of `src`, keeping the control.
+
+### [FU-QR-COMMENT-SIZE]
+`referralService.ts:178` says `~7 KB gz` and the test header says `~10 KB gz`. The measured chunk is 10,120 B gz9. Make both say ~10 KB. The cofounder asked that it go in the next PR (no head change on `#1141`).
+
+### [FU-LOGIN-DOOR-LAZY]
+Making `/login` and `/sign-up` lazy would save 29.5 KB gz of entry, but React 19 holds a Suspense reveal ~300 ms after its fallback commits, so the form arrived +230–330 ms later on a direct visit (parity only on slow 4G + 4× CPU), and the sign-in BUTTONS (`PricingPage` "Start free", `RequireAuth`, the header "Sign in", `DesktopShell`) never warm the chunk (+480 ms click-to-form on slow 4G). It would need the first render held until the chunk resolves on `/login` and `/sign-up` (`main.tsx`) plus intent warming on the buttons. Parked by D179 §3.
+
+### [FU-PERF2-WEBP-RESIZE]
+`#1140` shipped LOSSLESS twins only (8–10% lighter). A resized 2× variant is a follow-up with a screenshot gate (D175).
+
+### [FU-NOTES-TBT-MOUNT]
+`hydrateRoot` fails with React error #418 on every prerendered route (the prerender is a DOM capture of a client render, not React server output); notes cost = 1.5 s first layout of the prerendered HTML + a ~2 s React mount at 4× CPU. Candidates and their cost are in NEXT_ACTION.
+
+### [FU-PERF2-WORDMARK-OWNER]
+The wordmark keeps its width (so it still lines up with the tagline: 90.536 / 99.589 px) and takes its true height (25.9 / 28.4 px). `Welcome.addendumA.test.tsx` pins the hard-coded widths to the tagline height. Owner glance owed; revert = one CSS rule.
+
 ## 2026-10-14 — BANK-STEPS-1 / GARBLE-1 FOLLOW-UPS (recorded by A under §10)
 
 ### [FU-BANKSTEPS-OVERPAUSED-2] — HEY-D04 and EL-AR05 were paused though their steps fit the stem — CLOSED
