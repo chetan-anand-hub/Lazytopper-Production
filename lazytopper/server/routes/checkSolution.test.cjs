@@ -2609,15 +2609,25 @@ test('§21.2 a valid FULL reply is unchanged: no partial / readCount keys, every
   assert.equal(h.calls.length, 1);
 });
 
-test('§21.3 a cut reply with ZERO complete questions says the paper is long — it does not say "please try again"', async () => {
+test('§21.3 a PDF whose cut reply has ZERO complete questions says the paper is long — it does not say "please try again"', async () => {
   const cutInFirst = FULL_PAPER.slice(0, FULL_PAPER.indexOf('Q1. ') + 30);
   const h = buildRoute({ replies: [cutInFirst, cutInFirst] });
-  await h.route.handleDetectQuestion({ question: 'paper' }, {});
+  await h.route.handleDetectQuestion({ imageBase64: 'BASE64', imageMimeType: 'application/pdf' }, {});
   const b = h.body();
   assert.equal(b.ok, false);
   assert.equal(b.error, 'This paper is long — try uploading fewer pages at a time.');
   assert.doesNotMatch(b.error, /try again/);
   assert.equal(h.calls.length, 2, 'nothing recoverable: the existing one bounded retry still runs');
+});
+
+test('§21.3b ★ the "paper is long" message is for PDFs ONLY: a cut-off reply for a single photo / typed question keeps "please try again" (golden D.ITEM.GS-S05 is exactly this shape)', async () => {
+  const cutInFirst = FULL_PAPER.slice(0, FULL_PAPER.indexOf('Q1. ') + 30);
+  for (const payload of [{ question: 'What is the value of x?' }, { imageBase64: 'BASE64', imageMimeType: 'image/jpeg' }]) {
+    const h = buildRoute({ replies: [cutInFirst, cutInFirst] });
+    await h.route.handleDetectQuestion(payload, {});
+    assert.equal(h.body().ok, false);
+    assert.equal(h.body().error, "We couldn't read the question this time — please try again.");
+  }
 });
 
 test('§21.4 a reply that is NOT JSON (not a cut-off) keeps the transient "try again" wording', async () => {

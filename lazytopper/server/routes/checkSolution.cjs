@@ -615,12 +615,15 @@ function createCheckSolutionRoute(deps) {
           };
           partialRead = true;
         } else {
-          // Nothing recoverable. A reply that was CUT OFF means the paper is long: say so. Anything else
-          // (empty, not JSON) stays the transient "try again".
+          // Nothing recoverable. A reply that was CUT OFF *of a PDF upload* means the paper is long: say so.
+          // ★ ONLY FOR A PDF. The golden gate (D.ITEM.GS-S05) holds a stored ONE-question photo whose reply
+          // looped to the output cap: "this paper is long" would be false for a student who sent one short
+          // question, and would change that baseline. A cut-off single photo / typed question, an empty
+          // reply and non-JSON all keep the transient "try again".
           const cutOff = unparsedReplies.some((t) => D.salvageDetectQuestions(t).truncated);
           return sendJson(res, 200, {
             ok: false,
-            error: cutOff
+            error: cutOff && isPdf
               ? D.DETECT_LONG_PAPER_MESSAGE
               : "We couldn't read the question this time — please try again.",
           });
@@ -683,7 +686,10 @@ function createCheckSolutionRoute(deps) {
 
       // UPLOAD-READ-1 · a salvaged read that normalised to nothing is no read at all.
       if (partialRead && questions.length === 0) {
-        return sendJson(res, 200, { ok: false, error: D.DETECT_LONG_PAPER_MESSAGE });
+        return sendJson(res, 200, {
+          ok: false,
+          error: isPdf ? D.DETECT_LONG_PAPER_MESSAGE : "We couldn't read the question this time — please try again.",
+        });
       }
 
       return sendJson(res, 200, {
