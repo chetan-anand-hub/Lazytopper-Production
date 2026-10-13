@@ -286,7 +286,8 @@ describe("★ the trap cards are crawlable", () => {
     const { container } = renderPage();
     // ⚠ SCOPED TO THE PAGE. The route is now shell-wrapped at desktop width and the
     // shell carries a <details> of its own, so an unscoped query would count 7.
-    const details = Array.from(container.querySelectorAll("main.lt-cbse details"));
+    // VIDEO-EMBED-1: the testimonial's transcript is a <details> too, but it is not a trap card.
+    const details = Array.from(container.querySelectorAll("main.lt-cbse details:not(.lt-tv__transcript)"));
 
     expect(details).toHaveLength(6);
 
