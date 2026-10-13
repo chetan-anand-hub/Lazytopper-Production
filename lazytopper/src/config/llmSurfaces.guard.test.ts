@@ -78,6 +78,12 @@ describe("SEO-LLM-1 — llms.txt and the shell descriptions use the Important Qu
 const CODE_IN_HEAD = /\((j(?:emh|esc)1\d{2})\)/;
 const NCERT_HREFS = /href="(https:\/\/ncert\.nic\.in\/textbook\/pdf\/(j(?:emh|esc)1\d{2})\.pdf)"/g;
 
+/** The page's `<a>` to the official NCERT PDF for `expectedCode`, or "" if there is none. The dots are literal. */
+function ncertLinkTag(body: string, expectedCode: string): string {
+  // `\\.` inside the template: a single `\.` collapses to `.` there and would match any character
+  return new RegExp(`<a [^>]*href="https://ncert\\.nic\\.in/textbook/pdf/${expectedCode}\\.pdf"[^>]*>`).exec(body)?.[0] ?? "";
+}
+
 /** Problems with one notes page: its prerendered body fragment vs the head that ships for it. */
 function ncertLinkProblems(body: string, head: { title: string; description: string }, expectedCode: string): string[] {
   const problems: string[] = [];
@@ -88,7 +94,7 @@ function ncertLinkProblems(body: string, head: { title: string; description: str
   if (descCode !== expectedCode) problems.push(`description code ${descCode} != ${expectedCode}`);
   if (hrefs.length !== 1) problems.push(`${hrefs.length} ncert.nic.in PDF links (want exactly 1)`);
   else if (hrefs[0] !== titleCode) problems.push(`link code ${hrefs[0]} != title code ${titleCode}`);
-  const linkTag = new RegExp(`<a [^>]*href="https://ncert\.nic\.in/textbook/pdf/${expectedCode}\.pdf"[^>]*>`).exec(body)?.[0] ?? "";
+  const linkTag = ncertLinkTag(body, expectedCode);
   if (!/target="_blank"/.test(linkTag) || !/rel="noopener"/.test(linkTag)) problems.push("link lacks target=_blank rel=noopener");
   if (!body.includes(`Official NCERT chapter PDF (${expectedCode}) — ncert.nic.in`)) problems.push("link text missing");
   return problems;
@@ -124,5 +130,17 @@ describe("SEO-LLM-1 — every notes page offers the official NCERT chapter PDF, 
     expect(ncertLinkProblems(wrong, head, "jemh111").length).toBeGreaterThan(0);
     expect(ncertLinkProblems(good.replace("ncert.nic.in/textbook", "example.com/textbook"), head, "jemh111").length).toBeGreaterThan(0);
     expect(ncertLinkProblems(good, { ...head, description: "no code here" }, "jemh111").length).toBeGreaterThan(0);
+  });
+
+  it("CONTROL — the link-tag matcher's dots are literal: href=\"https://ncertXnicXin/...\" is NOT the NCERT link", () => {
+    const real = '<a href="https://ncert.nic.in/textbook/pdf/jemh111.pdf" target="_blank" rel="noopener">x</a>';
+    expect(ncertLinkTag(real, "jemh111")).toContain("ncert.nic.in/textbook/pdf/jemh111.pdf"); // the positive control
+    for (const bad of [
+      'https://ncertXnicXin/textbook/pdf/jemh111.pdf', // `.` in the host
+      'https://ncert.nic.in/textbook/pdf/jemh111Xpdf', // `.` before pdf
+      'https://ncert-nic-in/textbook/pdf/jemh111.pdf',
+    ]) {
+      expect(ncertLinkTag(`<a href="${bad}" target="_blank" rel="noopener">x</a>`, "jemh111"), bad).toBe("");
+    }
   });
 });
