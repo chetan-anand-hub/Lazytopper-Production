@@ -1,4 +1,15 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
+
+> **2026-10-14 — BANK-STEPS-1 + GARBLE-1 (A, §10 for `#1116` `#1123` `#1125` `#1130` `#1136`, with B's `#1131`).** Content only; no surface's code or Scope changed. **Scope WAS discovered:** a second bank-defect class, PDF-extraction garble (a stem unreadable or unsolvable as printed), found after a student saw it live in a Chapter Test. It is logged in DECISION_LOG (D152/D154/D169) and tracked here; the six grading surfaces are untouched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Chapter Test, Worksheet, Full Mock, Quick Practice (draw) | 333 step-mismatched rows and 3 garbled-stem rows withheld (`#1116` `#1123` `#1125` `#1130`); one withhold reaches all four; 2 rows restored (`#1131`) | 🟢 live | a live draw of the restored EL-AR05/HEY-D04 on one structured surface |
+| Check & Improve (single and multi) | the same withholds (a withheld id is not drawn as a question to check); no grading code changed | 🟢 live | — |
+| Bank guards | `bankGarble.guard.test.ts` + a SINGLE-STEP ratchet pinned at 55 (`#1136`) | 🟢 live (tests) | `[FU-GARBLE-GUARD-COVERAGE]` |
+| Garble FIND-2 pause | 31 ids + 4 entangled (`#1135`) | 🟡 not merged | merge slot after B's `#1133` |
+| Worked-step quality | 55 single-step rows served; 2 clean-stem rows with a flattened step | 🟡 partial | `[FU-SINGLE-STEP-REPAIR]`, `[FU-GARBLE-STEP-TEXT]` |
+
 > **2026-10-13 — WS-DRAW-1 (C2, §10 for `#1134`).** One surface moved: the WORKSHEET draw (and one new selector option). Scope did not change. The other grading surfaces were not touched: C&I single, C&I multi, Chapter Test, Full Mock, Quick Practice. Worksheet GRADING is untouched.
 
 | surface | what moved (PR) | state | owed |
