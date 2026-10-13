@@ -63,7 +63,7 @@ const FOOTER_CSS = `
     font-family: var(--font-body);
     font-size: 12px;
     line-height: 1.5;
-    color: hsl(220, 12%, 52%);
+    color: hsl(220, 14%, 38%);
     text-align: center;
   }
   .lt-public-legal a {

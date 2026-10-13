@@ -9,11 +9,11 @@
   border-radius: 8px;
   border: 1px dashed hsl(220, 14%, 82%);
   background: hsl(220, 20%, 97%);
-  color: hsl(220, 12%, 46%);
+  color: hsl(220, 13%, 34%);
   font-size: 0.76rem;
   font-weight: 600;
   line-height: 1.45;
-  opacity: 0.85;
+  opacity: 1;
 }
 .lt-steps-locked__icon {
   flex: none;

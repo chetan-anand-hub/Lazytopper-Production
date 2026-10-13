@@ -850,7 +850,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
             backgroundColor: "hsl(43, 90%, 94%)",
             border: "1px solid hsl(38, 75%, 78%)",
             fontSize: "0.7rem",
-            color: "hsl(35, 80%, 35%)",
+            color: "hsl(35, 80%, 28%)",
             fontWeight: 700,
           }}
         >
@@ -877,6 +877,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
 
   return (
     <div
+      className="lt-hpq-page"
       style={{
         "--bg": "hsl(210, 40%, 98%)",
         "--bg-card": "#ffffff",
@@ -1072,7 +1073,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                       fontSize: "0.8rem",
                       fontWeight: active ? 800 : 600,
                       cursor: "pointer",
-                      background: active ? "hsl(152, 55%, 42%)" : "transparent",
+                      background: active ? "hsl(152, 60%, 28%)" : "transparent",
                       color: active ? "#ffffff" : "hsl(220, 15%, 42%)",
                       boxShadow: active
                         ? "0 8px 18px rgba(22, 163, 74, 0.22)"
@@ -1478,7 +1479,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                 fontSize: "0.75rem",
                                 backgroundColor: "hsl(43, 90%, 94%)",
                                 border: "1px solid hsl(38, 75%, 78%)",
-                                color: "hsl(35, 80%, 35%)",
+                                color: "hsl(35, 80%, 28%)",
                                 fontWeight: 700,
                               }}
                             >
@@ -1796,12 +1797,12 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                   onClick={() => handleToggleAnswerCheck(q.id)}
                                   style={{
                                     borderRadius: 8,
-                                    border: "1px solid hsl(152, 55%, 45%)",
+                                    border: "1px solid hsl(152, 60%, 28%)",
                                     padding: "8px 14px",
                                     fontSize: "0.78rem",
                                     background: answerCheckOpen[q.id]
                                       ? "hsl(152, 55%, 95%)"
-                                      : "hsl(152, 55%, 45%)",
+                                      : "hsl(152, 60%, 28%)",
                                     color: answerCheckOpen[q.id] ? "hsl(152, 55%, 28%)" : "#ffffff",
                                     cursor: "pointer",
                                     fontWeight: 800,
