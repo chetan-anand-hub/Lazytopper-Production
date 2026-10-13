@@ -1,3 +1,15 @@
+## 2026-10-13 — SOURCE-2 (C2): `#1109` `3a947162` — LIVE; `#1110` `b5721ea0`
+
+★ **PROVENANCE.** Written by C2 (§10) from `#973`, the `#1109` / `#1110` PR comments and `git log`. Window: 05:00Z (dispatch) to 08:58Z (`#1110` merged), 13 Oct. Spec `SOURCE-2.md` sha256 `2C79D89C10CC`.
+
+- **Dispatch:** the growth session asked to separate organic links (`utm_medium=organic`, used on YouTube / Facebook / Instagram posts) from paid ads and to add a "Parent share" label; the cofounder ruled the parent link is `utm_source=parent_share&utm_medium=whatsapp`, not `?ref=parent`. A second small PR carries `[FU-LLMSURFACES-REGEX-ESCAPE]` (CodeQL #80–#82).
+- **Order of work:** the §10 docs for `#1105` first (`#1108`, merged 08:18:46Z), then SOURCE-2 PR-A, then PR-B.
+- **§0c.0** premise gate PASS, exit 0 (7 premises, 6/6 anchors resolved, 1 open by design: P7). **P7** answered on `#973` before any edit: the label is rendered nowhere else; edit in place.
+- **PR-A `#1109`:** `af74c49f` built; Opus verifier first pass `PASS-WITH-FOLLOW-UP` with one SHOULD-FIX (inherited object keys read as a platform); fixed in `dea88945`; re-verify `PASS`. CI 22/22; merged by REST with the head SHA pinned at 08:46:30Z after a separate board-tail read (no HOLD). **LIVE** 08:48Z: 5/5 cold reads, plus the shipped chunk checked for the new strings.
+- **PR-B `#1110`:** `8cc31948`; the first draft of the negative case would not have gone RED before the fix (a separate `NCERT_HREFS` literal already rejects a bad host), so the matcher was pulled into a helper and tested directly (RED `1 failed | 59 passed` with collapsed escapes). Opus `PASS`. Trunk moved when `#1109` merged (D124: re-verify on the new tip): `gh pr update-branch`, file byte-identical, CI 22/22, merged 08:58:06Z.
+- **Tooling note:** vitest on this Windows box needs `@rollup/rollup-win32-x64-msvc` copied into `node_modules/.pnpm/rollup@4.59.0/node_modules/@rollup/` of each fresh worktree (the repo strips it). Two verifiers mutated the same worktree a matrix run was using; the matrices still passed, but run mutations in a separate worktree.
+- **Lessons.** (1) A lookup table keyed by an untrusted string needs an own-key check; `{}[user_input]` finds `constructor`. The independent verifier found it, the author's tests did not. (2) A negative test must isolate the thing it claims to test: through the wrapper function it would have gone green before the fix. (3) When the label rules change what OLD data reads as, say so to the owner in the LIVE post, even though no data moved.
+
 ## 2026-10-13 — VIDEO-EMBED-1 (C1): `#1111` `d4109710` — LIVE
 
 ★ **PROVENANCE.** Written by C1 (§10) from `#973`, the `#1111` PR comments and `git log`. Window: 08:12Z (scope-gap post) to 09:21Z (LIVE), 13 Oct. Spec `VIDEO-EMBED-1.md` sha256 `50D8F6820E16`.
