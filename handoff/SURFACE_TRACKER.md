@@ -1,5 +1,16 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-13 — PARENTS-1 (C2, §10 for `#1121`).** One new public surface; no surface's Scope changed. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/for-parents` | new public page: H1, WhatsApp share, video, tiles, FAQ (`#1121`) | 🟢 live | owner phone checks; growth: re-point `yt_parents` ads |
+| Home (`Welcome.tsx`) | one "Are you a parent?" line after the guide link (`#1121`) | 🟢 live | — |
+| Public legal footer | "For parents" link before the social row (`#1121`) | 🟢 live | — |
+| Admin Source column | "Parent share" is now reachable from a real link (SOURCE-2 label, `#1121` link) | 🟢 live | owner: sign up via the shared link |
+| Layout shift on `/for-parents` | route CSS inlined + video box reserved; 1440 px CLS 0.388 → 0.002 (`#1121`) | 🟢 live | — |
+| Signed-out free check promise on the page | server path on; end-to-end not completed by a controller | 🟡 partial | `[FU-FREE-CHECK-LIVE-E2E]` |
+
 > **2026-10-13 — UPLOAD-READ-1 (C1, §10 for PR-A `00badaab`, `#1120`, `#1122`).** No surface's Scope changed and no new scope was discovered. The Check & Improve upload ceiling changed (3.5 MB client / 5 MB server → 7 MB on every file route), but grading behaviour did not: the six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) keep their marks, prompts, mistake types, departure handling and objective clamp. No surface cell was flipped.
 
 | surface | what moved (PR) | state | owed |

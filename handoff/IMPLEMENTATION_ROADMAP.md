@@ -1,5 +1,11 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-13 — PARENTS-1 (`#1121` `59d139ff`) — ✅ COMPLETE (owner phone checks owed)
+
+- ✅ `/for-parents` is live: public, indexable, in the sitemap and `llms.txt`, with the WhatsApp share (UTM-tagged `parent_share`), the video, the FAQ, a Home line and a footer link. No sign-up CTA, no price.
+- ✅ Layout shift measured and closed (1440 px CLS 0.388 → 0.002).
+- ⏳ The owner's phone checks and the growth session's `yt_parents` ads re-point. `[FU-FREE-CHECK-LIVE-E2E]` and three smaller follow-ups are open.
+
 ## 2026-10-13 — UPLOAD-READ-1 (PR-A `00badaab`, `#1120` `9cb41def`, `#1122` `122b220a`) — ✅ COMPLETE (answer-PDF live-verify owed)
 
 - ✅ A long question paper is read: detect output cap 16384, a cut-off reply is salvaged to its complete questions with a "We read the first n questions" notice, and detect streams with a 50 s deadline instead of timing out empty at 55 s.

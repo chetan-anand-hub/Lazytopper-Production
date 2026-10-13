@@ -23,6 +23,24 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-13 — PARENTS-1 (C2, §10 for `#1121`): FOLLOW-UPS RAISED
+
+### [FU-FOR-PARENTS-VIDEO-CSS-DUPLICATE] — OPEN (C2, in-lane decision)
+The last four rules in `src/pages/forParents.css` (`.lt-fp .lt-tv`, `__frame`, `__thumb`, `__play`) repeat the geometry of `components/marketing/testimonialVideo.css`, so the video facade's box is in the first paint of `/for-parents`. Only a comment says the two must stay equal; no guard pins them, and the verifier noted the drift risk.
+- **Status:** a small lane: either a guard that reads both files and compares those four rules, or let `routeCssFor` also inline the shared `TestimonialVideo-*.css` for the page (needs a cofounder ruling because it changes the D63a allowlist's meaning).
+
+### [FU-INLINE-ROUTE-CSS-GUARD-FIXTURE] — OPEN (verifier note on `#1121`)
+`firstPaintNoHops.guard.test.ts` pins the `INLINE_ROUTE_CSS_MODULES` list and exercises a synthetic fixture for `CheckYourAnswerPage` only; nothing asserts that a `/for-parents` page actually gets its CSS inlined (the proof is the built output, checked by the verifier). Add a `ForParentsPage` fixture so a regression in the second entry goes RED.
+
+### [FU-PARENT-SHARE-PLACEMENT-GA4] — OPEN, NOTE
+`parent_share_click`'s `placement` (hero / footer) reaches the Vercel vendor as `data` only. GA4 receives the event name (`sendToGa4` takes the name only) and the first-party activity log never records a signed-out parent. If the growth session wants the hero / footer split in GA4, pass it as an event parameter in `sendToGa4` (touches the analytics privacy rules; a cofounder call).
+
+### [FU-FREE-CHECK-LIVE-E2E] — OPEN, OWED TO THE OWNER (phone)
+The page tells a parent "the first answer check is free, without an account". The server side is on (a bare signed-out POST with the free-check header returns `403 free_check_refused / app_check_missing`, i.e. it reached the free-check logic and refused only for the missing browser App Check token), but no controller can complete a real signed-out check without a browser token. The owner should do one from a phone.
+
+### [FU-FOR-PARENTS-COPY-EXTRAS] — CLOSED (D142)
+The eyebrow, the closing "Hand it to your child" card and the not-affiliated-with-CBSE line go beyond the spec's DISPATCH; the cofounder kept all three. Recorded so the next copy edit knows they are intentional.
+
 ## 2026-10-13 — UPLOAD-READ-1 (C1, §10 for PR-A, `#1120`, `#1122`): FOLLOW-UPS RAISED
 
 *(Source: `#973`, the `#1120` and `#1122` verifier reports. The first two are the lane's own; the rest are the verifiers' findings, each with its own heading per standing rule 1.)*

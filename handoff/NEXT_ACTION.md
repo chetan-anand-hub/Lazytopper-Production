@@ -1,3 +1,13 @@
+## ★ 2026-10-13 — AFTER PARENTS-1 (`#1121`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone):** (1) open `https://www.lazytopper.com/for-parents` and tap **"Send LazyTopper to my child"**: WhatsApp opens with the message and a link; the link opens `/check-improve`. (2) In a private window open that shared link and sign up a NEW test account: Admin, Students, shows Source **"Parent share"**. (3) Do one signed-out free answer check from a phone (the page promises "the first answer check is free, without an account"; the controller could only prove the server path is on, not complete a check without a browser token).
+- **GROWTH SESSION:** point the `yt_parents` ads at `https://www.lazytopper.com/for-parents?utm_source=youtube&utm_medium=paid&utm_campaign=yt_parents` and request indexing for `/for-parents`. Tag every parent link with a medium (`paid` for ads); an untagged link reads "(untagged)" in the admin list.
+- **Any lane that adds a footer link:** the footer pins now read Chapters, CBSE 2027, How CBSE marks answers, **For parents**, the legal links, then the four social links. Add a new internal link before the legal links and extend BOTH pin files in the same PR.
+- **Any lane that changes the TestimonialVideo facade's geometry** (`components/marketing/testimonialVideo.css`): update the four duplicated rules at the end of `src/pages/forParents.css` too (`[FU-FOR-PARENTS-VIDEO-CSS-DUPLICATE]`), or `/for-parents` shifts again at desktop width.
+- **If a page needs its route CSS inlined:** measure CLS first (throttled preview, both 390 and 1440 px), then add its module to `INLINE_ROUTE_CSS_MODULES` and amend the D63a pin; a page whose video sits above the fold needs the facade box reserved in its own CSS as well.
+
 ## ★ 2026-10-13 — AFTER UPLOAD-READ-1 (PR-A `00badaab`, `#1120`, `#1122`) (written by C1 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
