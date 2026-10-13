@@ -257,7 +257,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "[Delhi 2015, All India 2014] Three techniques to prevent pregnancy: a. Mechanical barrier — male or female. b. Taking oral pills/i-pill/saheli - changing the hormonal balance of the body so that eggs are not released. c. Use of the loop or the Copper-T. d. Surgical method - tubec",
     solutionSteps: [
       "[1 mark] Techniques to prevent pregnancy: a. Mechanical barrier — male or female. b. Taking oral pills/i-pill/saheli - changing the hormonal balance of the body so that eggs are not released. c. Use of the loop or the Copper-T. d. Surgical method - tubectomy / vasectomy.",
-      "[1 mark] Use of hormonal preparations (oral pills) is not meant for males.",
+      "[1 mark] Use of hormonal preparations is not meant for males.",
       "[1 mark] Effect on health and prosperity: a. Health of women is maintained. b. Parents can give more attention to children. c. More resources can be made available.",
     ],
     ncertRef: "cbjesccq08 Q72", isCompetencyBased: true },
