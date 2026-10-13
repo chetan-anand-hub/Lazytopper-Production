@@ -23,6 +23,20 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-13 — ORG-SAMEAS-1 (C2, §10 for `#1112`): FOLLOW-UPS RAISED
+
+### [FU-FOOTER-SOCIAL-A11Y-SEPARATOR] — OPEN (verifier SHOULD-FIX on `#1112`, minor)
+The four social links wrap in the same flex row as the legal links with nothing to tell them apart, and nothing tells a screen-reader user that they open in a new tab (WCAG G201 advisory). Add a visual separator via `FOOTER_CSS` and a visually-hidden "(opens in a new tab)" on the four links. Footer-only, test pins in `PublicLegalFooter.reach.test.tsx` and `Welcome.legalFooter.test.tsx` need the visible text unchanged.
+
+### [FU-SOCIAL-START-HUB] — OPEN, NOT STARTED (cofounder ruling in the spec)
+An optional `/start` link hub for the social bios. It needs a protected-file route (`App.tsx`) and the SOFT404 generator, and `/check-improve?utm_…` already serves as the bio link. Not in `#1112`; revisit if the growth session asks.
+
+### [FU-SPEC-ASSET-STAGING-PATH] — OPEN, NOTE (C1 first raised it on VIDEO-EMBED-1; C2 hit it again)
+A spec that says an asset is "staged" at `ops/.specs/<file>` pointed at a path that did not exist in the controller's worktree (the thumbnail for VIDEO-EMBED-1; `logo-square.png` here). The owner's real files were under `Desktop\diff\final tasks\`. Fix at the spec level: the §0c step should `ls` the asset and the dispatch should say the Desktop path; a missing asset is a BLOCKED, not a silent wait.
+
+### [FU-NOTES-PROVIDER-ORG-ID] — OPEN (recorded in the SOURCE-2 follow-ups; now live-relevant)
+With `#1112` LIVE the shell carries the identified Organization (`…/#organization`) and every `/notes/*` page also carries `notesJsonLd`'s anonymous `provider` Organization. Point `provider` at `{"@id": "https://www.lazytopper.com/#organization"}` in `scripts/seo/writeStaticHeads.ts` (read-only in `#1112`) in a separate lane, then re-run the capture.
+
 ## 2026-10-13 — WORKSHEET-SCOUT (read-only) + VIDEO-EMBED-1 name fix: follow-ups recorded by C1 under §10
 
 *(Source: `Desktop\diff\report-worksheet-scout-2026-10-13.md` and its CSVs, measured at trunk `585e2bb1` by C1 with two read-only sub-agents; the scout opened no PR. Everything below is a MEASURED finding with a file:line or a row id; the fix lanes are the cofounder's to spec after the audit. Frequencies are from 440 seeded worksheets generated with the real planner, signed-out, MI weighting off.)*

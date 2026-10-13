@@ -1,3 +1,12 @@
+## ★ 2026-10-13 — AFTER ORG-SAMEAS-1 (`#1112`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **GROWTH SESSION:** run the Google Rich Results Test on `https://www.lazytopper.com/` (it should detect Organization with the five `sameAs` profiles and the square logo); request indexing on `/`; recheck "lazy topper" (two words) brand searches in 2 to 4 weeks. The `sameAs` list and the footer row are the profiles in `src/config/socialProfiles.ts`; a new or renamed profile means editing that file AND the Organization node in `index.html` (the guard fails until both agree).
+- **OWNER (phone):** open Home and `/pricing` and look at the bottom row: YouTube, Instagram, Facebook, "WhatsApp: ask a doubt". Tap each; they open in a new tab. (There is no separator between the legal links and these four, see `[FU-FOOTER-SOCIAL-A11Y-SEPARATOR]`.)
+- **Next lane that adds a footer link:** PARENTS-1 (D130 put its `/for-parents` footer link in `PublicLegalFooter.tsx`, so it needs one fewer protected-file edit). The footer's link-list pins now end with the four social links; add the new internal link BEFORE them in the expected lists.
+- **Cofounder:** the `/start` bio-link hub is not built (`[FU-SOCIAL-START-HUB]`); `/check-improve?utm_…` remains the bio link.
+
 ## ★ 2026-10-13 — AFTER SOURCE-2 (`#1109`, `#1110`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

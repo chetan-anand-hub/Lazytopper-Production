@@ -1,5 +1,15 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-13 — ORG-SAMEAS-1 (C2, §10 for `#1112`).** No surface's Scope changed and no new scope was discovered. Head and footer markup only; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Shell Organization JSON-LD (every page) | `@id`, `alternateName`, `description`, `email`, `contactPoint`, `sameAs` ×5, square `logo`; WebSite `publisher` (`#1112`) | 🟢 live | growth: Rich Results Test, request indexing |
+| Public legal footer (Home, `/check-your-answer`, `/pricing`) | YouTube · Instagram · Facebook · WhatsApp row, `rel="me noopener"` (`#1112`) | 🟢 live | owner phone look |
+| `/logo-square.png` | new 1200×1200 PNG served from `public/` (`#1112`) | 🟢 live | — |
+| `/notes/*` second ld+json block | its `provider` Organization still has no `@id` | 🟡 partial | `[FU-NOTES-PROVIDER-ORG-ID]` |
+| `/start` social hub | not built | ⚪ not started | `[FU-SOCIAL-START-HUB]` |
+
 > **2026-10-13 — SOURCE-2 (C2, §10 for `#1109` and `#1110`).** No surface's Scope changed and no new scope was discovered. Admin display only; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |
