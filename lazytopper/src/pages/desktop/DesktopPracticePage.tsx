@@ -822,7 +822,7 @@ function ModeCard({
               gap: 6,
               fontSize: 12.5,
               fontWeight: 600,
-              color: tone.accent,
+              color: tone.ink,
               background: tone.tint,
               padding: "6px 12px",
               borderRadius: 9,
@@ -847,7 +847,7 @@ function ModeCard({
               gap: 6,
               fontSize: 12.5,
               fontWeight: 600,
-              color: tone.accent,
+              color: tone.ink,
               cursor: "pointer",
             }}
           >
@@ -1425,7 +1425,7 @@ function MistakeIntelligencePanel({
               Grade an answer in{" "}
               <Link
                 to={checkPath}
-                style={{ color: PRIMARY_GREEN, fontWeight: 600, textDecoration: "none" }}
+                style={{ color: PRIMARY_GREEN_DARK, fontWeight: 600, textDecoration: "none" }}
               >
                 Check &amp; Improve
               </Link>{" "}
