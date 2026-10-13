@@ -135,6 +135,12 @@
   --color-light-green: #15803d;
 }
 
+/* PERF-1 F4: the navbar's Search / Log in buttons read --text-muted on white (3.0:1). Darken it
+   inside the navbar only; the 175 other uses of the token keep their tone. */
+[data-theme="light"] .navbar {
+  --text-muted: rgba(30,41,59,0.7);
+}
+
 [data-theme="light"] .glass-card {
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
@@ -6614,6 +6620,12 @@ input::placeholder {
   padding: var(--lt-ux-return-back-padding);
   cursor: pointer;
 }
+/* PERF-1 F4: the bar's default Back button is white-on-dark. The Important Questions page is light,
+   where it was white on near-white (1.03:1); that page alone gets a dark-on-light pill. */
+.lt-hpq-page .ux-return-bar__back {
+  background: rgba(255,255,255,0.92);
+  color: #1e293b;
+}
 .ux-return-bar__chips {
   display: flex;
   flex-wrap: wrap;
@@ -6623,14 +6635,14 @@ input::placeholder {
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.1);
   background: rgba(255, 255, 255, 0.82);
-  color: #777777;
+  color: #595959;
   font-size: var(--lt-ux-chip-font-size);
   padding: var(--lt-ux-chip-padding);
   cursor: pointer;
 }
 .ux-return-bar__chip[data-active="true"] {
   border-color: rgba(255,255,255,0.85);
-  background: #58cc02;
+  background: #2e7d02;
   color: #ffffff;
   font-weight: 700;
 }

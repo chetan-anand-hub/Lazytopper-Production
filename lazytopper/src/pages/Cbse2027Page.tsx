@@ -123,9 +123,9 @@ function lastOlderSetIndex(papers: readonly CbsePaper[]): number {
 
 const CBSE_CSS = `
 .lt-cbse{
-  --bg:#f4f7fb; --card:#fff; --ink:#0f2038; --ink2:#4d647e; --ink3:#71879f;
+  --bg:#f4f7fb; --card:#fff; --ink:#0f2038; --ink2:#4d647e; --ink3:#566b83;
   --line:#dde5ef; --line2:#eef3f8;
-  --g:#0b8f50; --gt:#06663a; --gw:#e6f4ec; --gl:#bfe3ce;
+  --g:#087a43; --gt:#06663a; --gw:#e6f4ec; --gl:#bfe3ce;
   --am:#9a5800; --amw:#fdf1e0; --aml:#f0d8ae;
   --navy:#132c4d;
   --c1:#2f7fd4; --c2:#0d8a7a; --c3:#7a5bbd; --c4:#c2622e;
