@@ -67,10 +67,12 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // restored): mapped 1849 -> 1850 (+1). Reviewed stays 136. Two of the three rows carry a mapped concept; PYQ-M-TRI-005's label is the
 // chapter-echo "General" (no concept), so rows with a concept go 9755 of 10598 -> 9757 of 10601 (0.92038) and the pin moves
 // 0.9204 -> 0.9203 by exactly that row. All by runtime import on the merged tip.
+// 13 Oct BANK-STEPS-1 PR-1 (cofounder D126): 183 paused rows leave the served bank (10601 -> 10418). They carried a concept more often than the rest,
+// so rows with a concept go 9757 of 10601 (0.92038) -> 9576 of 10418 (0.91918): the pin moves 0.9203 -> 0.9191 (a repaired id returns to the count).
 const MIN_MAPPED_LABELS = 1850;
 const MAX_REVIEWED_LABELS = 136;
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9203;
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9191;
 
 const isChapterEchoSubtopic = echoFromShape;
 

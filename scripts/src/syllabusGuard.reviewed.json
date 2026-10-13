@@ -32,24 +32,6 @@
     {
       "rule": "G3-TEXT",
       "surface": "bank",
-      "rowId": "EL-E14",
-      "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
-      "verdict": "review",
-      "reason": "\"electric motor\" appears only as a WRONG option (distractor); the key is an IN answer, so the row asks nothing beyond the syllabus and teaches nothing about the term.",
-      "evidence": "lazytopper/src/config/syllabus2026-27.ts magnetic-effects formative[0]; key 'Electric iron' (heating effect, Electricity, IN)"
-    },
-    {
-      "rule": "G3-TEXT",
-      "surface": "bank",
-      "rowId": "EL-M13",
-      "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
-      "verdict": "hit",
-      "reason": "Names the electric motor only as a NON-example of the heating effect (Joule's law question); it does not teach the motor's principle or working, which is the FORMATIVE item.",
-      "evidence": "lazytopper/src/config/syllabus2026-27.ts magnetic-effects formative[0] ('Electric motor; electromagnetic induction ...; electric generator')"
-    },
-    {
-      "rule": "G3-TEXT",
-      "surface": "bank",
       "rowId": "ELEC-NCERT-11-LA-009",
       "matched": "magnetic-effects-of-electric-current/formative[0]: \"electric motor\"",
       "verdict": "hit",
