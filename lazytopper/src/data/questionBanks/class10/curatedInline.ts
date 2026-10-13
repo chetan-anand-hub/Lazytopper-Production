@@ -20,7 +20,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "From the top of a 20 m high building, the angle of depression of a car on the road is 30°. Find the distance of the car from the foot of the building. (Use √3 ≈ 1.732.)",
     "options": [],
-    "answer": "",
+    "answer": "The car is approximately 34.6 m from the foot of the building.",
     "explanation": "",
     "solutionSteps": [
       "Let the height of the building be AB = 20 m and the car be at point C on the road, with B as the foot of the building.",
@@ -32,7 +32,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Use √3 ≈ 1.732 to get BC ≈ 20 × 1.732 = 34.64 m.",
       "Therefore, the car is approximately 34.6 m from the foot of the building."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "The car is approximately 34.6 m from the foot of the building.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": true
@@ -49,7 +49,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the area of a sector of a circle of radius 7 cm and central angle 90°. Use π = 22/7.",
     "options": [],
-    "answer": "",
+    "answer": "Area of the sector = 38.5 cm²",
     "explanation": "",
     "solutionSteps": [
       "Recall the formula for the area of a sector with angle θ (in degrees): Area = (θ/360°) × πr².",
@@ -60,7 +60,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Compute (22/7) × 49 = 22 × 7 = 154.",
       "Hence Area = (1/4) × 154 = 38.5 cm²."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "Area of the sector = 38.5 cm²",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -77,7 +77,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The sum of the first 20 terms of an AP is 210 and the first term is 3. Find the 20th term of the AP.",
     "options": [],
-    "answer": "",
+    "answer": "The 20th term of the AP is 18.",
     "explanation": "",
     "solutionSteps": [
       "Let the AP have first term a and common difference d.",
@@ -88,7 +88,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Use the nth term formula aₙ = a + (n − 1)d with n = 20: a₂₀ = 3 + 19(d) = 3 + 19×(15/19) = 3 + 15 = 18.",
       "Hence, the 20th term of the AP is 18."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "The 20th term of the AP is 18.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -105,7 +105,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Two tangents PA and PB are drawn from an external point P to a circle with centre O, touching the circle at A and B respectively. Prove that PA = PB.",
     "options": [],
-    "answer": "",
+    "answer": "PA = PB (corresponding sides of congruent triangles ΔOPA and ΔOPB).",
     "explanation": "",
     "solutionSteps": [
       "Draw circle with centre O and tangents PA and PB from external point P touching at A and B.",
@@ -116,7 +116,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Thus, triangles ΔOPA and ΔOPB are congruent by RHS congruence criterion.",
       "Hence, PA = PB as corresponding sides of congruent triangles."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "PA = PB (corresponding sides of congruent triangles ΔOPA and ΔOPB).",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -133,7 +133,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the distance between the points A(3, 4) and B(7, 1). Also find the coordinates of the midpoint of the line segment AB.",
     "options": [],
-    "answer": "",
+    "answer": "AB = 5 units; midpoint M = (5, 2.5)",
     "explanation": "",
     "solutionSteps": [
       "Write the coordinates of A and B as A(x₁, y₁) = (3, 4) and B(x₂, y₂) = (7, 1).",
@@ -144,7 +144,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Substitute to get M = ((3 + 7)/2, (4 + 1)/2) = (10/2, 5/2) = (5, 2.5).",
       "Thus, the distance AB is 5 units and midpoint M is (5, 2.5)."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "AB = 5 units; midpoint M = (5, 2.5)",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -161,7 +161,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "If sin θ = 3/5 and θ is acute, find cos θ and tan θ.",
     "options": [],
-    "answer": "",
+    "answer": "cos θ = 4/5 and tan θ = 3/4",
     "explanation": "",
     "solutionSteps": [
       "Given sin θ = 3/5, interpret this as opposite side / hypotenuse = 3/5.",
@@ -172,7 +172,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "tan θ = perpendicular / base = 3k / 4k = 3/4.",
       "Thus, cos θ = 4/5 and tan θ = 3/4."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "cos θ = 4/5 and tan θ = 3/4",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -219,7 +219,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A card is drawn at random from a well-shuffled deck of 52 playing cards. Find the probability that the card drawn is:\n(i) a king of red colour\n(ii) a card which is not a face card.",
     "options": [],
-    "answer": "",
+    "answer": "(i) P(king of red colour) = 1/26; (ii) P(not a face card) = 10/13",
     "explanation": "",
     "solutionSteps": [
       "Recall that probability of an event = (number of favourable outcomes) / (total number of outcomes).",
@@ -228,7 +228,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "(ii) There are 12 face cards in a deck (J, Q, K of each suit). So non-face cards = 52 − 12 = 40.",
       "Therefore P(not a face card) = 40/52 = 10/13."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(i) P(king of red colour) = 1/26; (ii) P(not a face card) = 10/13",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -245,7 +245,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Solve the quadratic equation 2x² − 5x + 3 = 0 using the quadratic formula.",
     "options": [],
-    "answer": "",
+    "answer": "x = 3/2 and x = 1",
     "explanation": "",
     "solutionSteps": [
       "Write the given equation 2x² − 5x + 3 = 0 in standard form ax² + bx + c = 0, so a = 2, b = −5, c = 3.",
@@ -255,7 +255,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Find the two roots: x₁ = (5 + 1)/4 = 6/4 = 3/2 and x₂ = (5 − 1)/4 = 4/4 = 1.",
       "Conclude that the roots of the equation are x = 3/2 and x = 1."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "x = 3/2 and x = 1",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -332,7 +332,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A cylindrical tank has radius 3.5 m and height 10 m. Find the volume of the tank. (Use π = 22/7.)",
     "options": [],
-    "answer": "",
+    "answer": "The volume of the tank is 385 m³.",
     "explanation": "",
     "solutionSteps": [
       "Write the formula for the volume of a cylinder: V = πr²h.",
@@ -343,7 +343,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Simplify: (22/7) × 49 = 22 × 7 = 154, so V = 154 × 10 / 4 = 1540 / 4 = 385.",
       "Therefore, the volume of the tank is 385 m³."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "The volume of the tank is 385 m³.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
