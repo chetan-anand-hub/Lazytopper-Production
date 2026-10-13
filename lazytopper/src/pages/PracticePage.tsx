@@ -2613,7 +2613,7 @@ const packTopicKey = useMemo(() => {
       // `errorName`) shows its own sign-in-again message; every other failure keeps
       // today's copy.
       setBatchError(
-        result.errorName === "SignInAgainError" && result.error
+        (result.errorName === "SignInAgainError" || result.errorName === "UploadTooLargeError") && result.error
           ? result.error
           : "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
       );

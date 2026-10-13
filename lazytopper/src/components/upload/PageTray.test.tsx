@@ -278,7 +278,7 @@ describe("(b)(c) PDFs and wrong types; the honest degrade", () => {
   it("(b) an oversized PDF is still refused with its message", async () => {
     render(<Host />);
     pick([new File([new Uint8Array(MAX_UPLOAD_PDF_BYTES + 10)], "big.pdf", { type: "application/pdf" })]);
-    await waitFor(() => expect(screen.getByTestId("host-error").textContent).toMatch(/the limit is 3\.5 MB/));
+    await waitFor(() => expect(screen.getByTestId("host-error").textContent).toMatch(/the limit is 7 MB/));
     expect(screen.getByTestId("host-payload").textContent).toBe("none");
   });
 

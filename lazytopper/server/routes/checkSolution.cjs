@@ -27,6 +27,8 @@ const { createGradingCore } = require('../grading/core.cjs');
 const { chargeableCount, isChargeable, setChargeableCount } = require('../grading/charge.cjs');
 // PR-3 (C10): detection's rules + post-processing, and the typed-PDF text layer (no new deps).
 const D = require('../grading/detect.cjs');
+// UPLOAD-READ-1 PR-B (D138): the ONE file ceiling and the largest body that reaches the app (see mentorImageSupport.cjs).
+const { FILE_ROUTE_MAX_BODY_BYTES, MAX_MENTOR_PDF_BYTES, formatLimitMb } = require('../mentorImageSupport.cjs');
 const { extractPdfText, usableQuestionText } = require('../grading/pdfTextLayer.cjs');
 const { chooseNonce, fence } = require('../grading/fence.cjs');
 // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on this same URL (opt-in, switch-gated).
@@ -249,7 +251,8 @@ function createCheckSolutionRoute(deps) {
     const startedAt = nowMs();
     let payload;
     try {
-      payload = await readJson(req);
+      // A file route (single / multi-question grade carries the answer PDF): see FILE_ROUTE_MAX_BODY_BYTES.
+      payload = await readJson(req, FILE_ROUTE_MAX_BODY_BYTES);
     } catch (e) {
       return sendJson(res, 400, { error: 'Invalid JSON' });
     }
@@ -434,7 +437,8 @@ function createCheckSolutionRoute(deps) {
   async function handleDetectQuestion(req, res) {
     let payload;
     try {
-      payload = await readJson(req);
+      // A file route: a 7 MB PDF is 9.79 MB of base64 (UPLOAD-READ-1 PR-B), so the default 5 MB cap would refuse it.
+      payload = await readJson(req, FILE_ROUTE_MAX_BODY_BYTES);
     } catch (e) {
       return sendJson(res, 400, { error: 'Invalid JSON' });
     }
@@ -817,11 +821,11 @@ function createCheckSolutionRoute(deps) {
     const startedAt = nowMs(); // C8: the deadline runs from handler entry, before the body is read
     let payload;
     try {
-      // A 5 MB PDF base64-inflates to ~6.7 MB, plus the question-set JSON — raise
-      // the body cap above the default 5 MB so a full-size scan is accepted.
-      payload = await readJson(req, 8 * 1024 * 1024);
+      // A 7 MB PDF base64-inflates to ~9.8 MB, plus the question-set JSON (~0.1 MB): the cap is the largest body
+      // that reaches the app at all (10 MiB, measured), never the default 5 MB.
+      payload = await readJson(req, FILE_ROUTE_MAX_BODY_BYTES);
     } catch (e) {
-      return sendJson(res, 400, { ok: false, error: 'Upload too large or invalid. Keep the PDF under 5 MB.' });
+      return sendJson(res, 400, { ok: false, error: `Upload too large or invalid. Keep the PDF under ${formatLimitMb(MAX_MENTOR_PDF_BYTES)}.` });
     }
 
     const worksheetId = String(payload.worksheetId || '').trim();
