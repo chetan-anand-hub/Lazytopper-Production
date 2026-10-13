@@ -2068,7 +2068,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       // J2b (verifier N2): a background grade that is gone (404 / past 24 h after a reload) says
       // so in its own honest sentence (isGradingJobGone), as Worksheets does.
       setErrorMessage(
-        e instanceof Error && (e.name === "GradingNetworkError" || isGradingJobGone(e))
+        e instanceof Error && (e.name === "GradingNetworkError" || e.name === "UploadTooLargeError" || isGradingJobGone(e))
           ? e.message
           : "Grading unavailable — please try again.",
       );
@@ -2291,7 +2291,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       // so in a plain sentence; everything else keeps today's copy.
       setGradeStage(null);
       setErrorMessage(
-        e instanceof Error && e.name === "GradingNetworkError"
+        e instanceof Error && (e.name === "GradingNetworkError" || e.name === "UploadTooLargeError")
           ? e.message
           : "Grading unavailable — please try again.",
       );

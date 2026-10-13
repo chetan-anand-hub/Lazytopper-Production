@@ -193,10 +193,20 @@ async function postGrading(
   keyOverride?: string,
 ): Promise<GradingHttpResponse> {
   const { sendGradingRequest, newIdempotencyKey } = await import("./gradingTransport");
+  // Loaded here, not at the top: the server suites transpile this file standalone (entitlement.test.cjs A11), where a
+  // top-level relative import of a sibling module cannot resolve.
+  const { requestBodyTooLarge, FILES_TOO_LARGE_TOGETHER_MESSAGE } = await import("../services/uploadLimits");
   // ONE key for this check attempt — made once, here, so the token-refresh re-send
   // (AUTHGATE-FIX-1) carries the SAME key as the first send and as every network retry.
   const idempotencyKey = keyOverride ?? newIdempotencyKey();
   const payload = JSON.stringify(body);
+  // UPLOAD-READ-1 PR-B (D141 F1): the TOTAL body is checked here, before any send, so an oversized batch is a
+  // friendly sentence and never the edge's bare 413 (a single file is already capped by checkUploadFile).
+  if (requestBodyTooLarge(payload)) {
+    const err = new Error(FILES_TOO_LARGE_TOGETHER_MESSAGE);
+    err.name = "UploadTooLargeError";
+    throw err;
+  }
   const sendOpts = {
     idempotencyKey,
     // ★ A FREE CHECK IS NEVER RE-SENT AUTOMATICALLY. Its App Check token is LIMITED-USE

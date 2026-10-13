@@ -663,7 +663,7 @@ export function SolutionChecker({
   // old inline wall here ("File must be under 3 MB" on a raw 6 MB camera shot) is gone,
   // converged into the one guard (`checkUploadFile`). Several photos become ONE PDF —
   // except in COLLECT mode, whose answers ride a shared Quick Practice batch body with
-  // up to 12 others, where a 3.5 MB PDF per question cannot be guaranteed to fit.
+  // up to 12 others, where a 7 MB PDF per question cannot be guaranteed to fit.
   const applyUpload = useCallback((p: TrayPayload | null) => {
     if (!p) {
       setImagePreview(null);
