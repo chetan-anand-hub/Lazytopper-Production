@@ -86,7 +86,6 @@ export interface MoreLikeThisResponse {
 
 import { paidJsonHeaders, UID_HEADER, SignInAgainError, REAUTH_MESSAGE } from "./paidCallHeaders";
 import type { GradingHttpResponse, GradingStageListener } from "./gradingTransport";
-import { requestBodyTooLarge, FILES_TOO_LARGE_TOGETHER_MESSAGE } from "../services/uploadLimits";
 import type { GradingJobOptions } from "./gradingJobs";
 
 /* ── AUTHGATE-FIX-1: one silent token refresh ─────────────────────────────────
@@ -194,6 +193,9 @@ async function postGrading(
   keyOverride?: string,
 ): Promise<GradingHttpResponse> {
   const { sendGradingRequest, newIdempotencyKey } = await import("./gradingTransport");
+  // Loaded here, not at the top: the server suites transpile this file standalone (entitlement.test.cjs A11), where a
+  // top-level relative import of a sibling module cannot resolve.
+  const { requestBodyTooLarge, FILES_TOO_LARGE_TOGETHER_MESSAGE } = await import("../services/uploadLimits");
   // ONE key for this check attempt — made once, here, so the token-refresh re-send
   // (AUTHGATE-FIX-1) carries the SAME key as the first send and as every network retry.
   const idempotencyKey = keyOverride ?? newIdempotencyKey();
