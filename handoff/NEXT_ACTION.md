@@ -1,3 +1,15 @@
+## ★ 2026-10-14 — AFTER BANK-STEPS-1 / GARBLE-1 (`#1116` `#1123` `#1125` `#1130` `#1131` `#1136`) (written by A under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **MERGE ORDER (D171), serial, each rebases and regenerates:** B `#1133` → A FIND-2 pause `#1135` → D PR-1 → B PR-3 → D PR-2. Post `MERGE-SLOT <lane> <PR>` before merging. A PR out of the slot TEMP-CLOSEs (lane-overlap counts drafts). A closed PR whose head was force-pushed cannot be reopened: take trunk by merge-in, never force-push.
+- **`#1135` (A):** reopen at its slot; merge trunk in; add the 4 entangled ids (AP-004, STAT-008, 2025-STAT-006, 2025-TRIG-005) under the two-file grant of D171 (`data/cbq/officialCbqTags.maths.ts`: remove STAT-006 and 2025-TRIG-005; `data/figures/mathsFigureVisuals.ts`: remove the STAT-008 and STAT-006 bindings), each removed line ledgered `restore-on-repair: <file> <line>`; pin the counts (CBQ tags −2, figure bindings −2) with a dated comment; mutation: re-serve STAT-006 → RED.
+- **Any REPAIR PR** must: keep the stem; write steps per CLAUDE.md §13 (step counts by section, [mark] tags, units, exact CBSE terms; chemistry balanced equation and state symbols as separate steps); make answer/finalAnswer agree with the last step; delete the id from `WITHHELD_QUESTION_IDS` AND, for a GARBLE-1 id, from `bankFix/garble1Withholds.ts` once that file is on trunk; move the ledger `paused → repaired`; restore any reviewed label or drop its `PAUSED_LABELS` entry and raise the coverage pin. Opus verifier, then the cofounder's 10% byte-review + APPROVE.
+- **Whoever repairs `PYQ-M-RN-003` or `PYQ-M-CG-003`:** both are reviewed exceptions in `bankGarble.guard.test.ts` (flattened worked STEP). CG-003's STEM also lost a minus (not a right triangle as printed): `#1135` withholds it and drops the exception.
+- **D (Maths):** the 20 Maths NO-ANSWER rows (answer = the row's own final step), re-pairs with a known `likelyTrueOwnerId`, Maths chapters (≤60 rows a PR), the 3 Maths SINGLE-STEP rows, the Maths GARBLE-1 rewrites. **B (Science):** the same for Science, including the 52 SINGLE-STEP rows; `sci-chem-acids-2m-2022-01` stays paused (no answer); `2026-STAT-SA-03` is unsolvable as printed (state `dropped` until the source data is found).
+- **FIND-2 text-clean list (not paused, still readable):** the 22 rows with a stray marks digit / page number / legitimate OR (report: `Desktop\diff\report-garble1-find2-2026-10-14.md`).
+- **FIND-2 judged all 1,067 served PDF-extracted rows but only a 5% sample (203) of the 4,055 LLM-generated rows** (0 true hits). Judge the rest only if a student reports a generated row.
+
 ## ★ 2026-10-13 — AFTER WS-DRAW-1 (`#1134` `4339d57c`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
