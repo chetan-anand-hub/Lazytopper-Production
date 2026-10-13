@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { statSync } from "node:fs";
+import { resolve } from "node:path";
 
 const { trackNamedEvent } = vi.hoisted(() => ({ trackNamedEvent: vi.fn() }));
 vi.mock("../../analytics/analytics", () => ({ trackNamedEvent }));
@@ -28,6 +30,29 @@ describe("TestimonialVideo", () => {
     expect(screen.getByText("Read the transcript").closest("details")).not.toBeNull();
     expect(container.textContent).toContain("I solved a problem without writing the formula");
     expect(trackNamedEvent).not.toHaveBeenCalled();
+  });
+
+  it("PERF-1 F3: the thumbnail is a responsive picture (WebP + JPEG at 640/960/1280), jpg fallback unchanged", () => {
+    const { container } = render(<TestimonialVideo heading="See it" lede="Lede line." />);
+    const source = container.querySelector("picture > source") as HTMLSourceElement;
+    expect(source.getAttribute("type")).toBe("image/webp");
+    expect(source.getAttribute("srcset")).toBe(
+      "/media/swajeet-testimonial-640x360.webp 640w, /media/swajeet-testimonial-960x540.webp 960w, /media/swajeet-testimonial-1280x720.webp 1280w",
+    );
+    const img = container.querySelector("picture > img") as HTMLImageElement;
+    expect(img.getAttribute("srcset")).toBe(
+      "/media/swajeet-testimonial-640x360.jpg 640w, /media/swajeet-testimonial-960x540.jpg 960w, /media/swajeet-testimonial-1280x720.jpg 1280w",
+    );
+    expect(img.getAttribute("sizes")).toBe(source.getAttribute("sizes"));
+    expect(img.getAttribute("sizes")).toContain("760px");
+    // CONTROL: every file the markup names exists, and the WebP is lighter than the JPEG it replaces.
+    const dir = resolve(__dirname, "../../../public/media");
+    for (const w of [640, 960, 1280]) {
+      const h = Math.round((w * 9) / 16);
+      const webp = statSync(resolve(dir, `swajeet-testimonial-${w}x${h}.webp`)).size;
+      const jpg = statSync(resolve(dir, `swajeet-testimonial-${w}x${h}.jpg`)).size;
+      expect(webp).toBeLessThan(jpg);
+    }
   });
 
   it("swaps in the youtube-nocookie iframe on click and counts the play once", () => {
