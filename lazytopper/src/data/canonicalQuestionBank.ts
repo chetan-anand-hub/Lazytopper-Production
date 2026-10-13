@@ -1184,6 +1184,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2026-QE-001",            // garbled-extraction: exponent flattened ((p-q)x2)
   "PYQ-M-2025-SAV-005",           // garbled-extraction: pi symbol dropped (Take = 3.14)
   "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
+  "2026-STAT-SA-03",              // unsolvable-as-printed (D170): mean 18 with f: 3, f, 7, 5 gives 3f = 25; the row's own last step says 'adjust numbers accordingly'
   // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
   "PYQ-M-CG-003",                 // garbled-extraction: sign lost in a vertex; not right-angled as printed
   "PYQ-M-2026-REALNUM-005",       // garbled-extraction: fraction bar lost (2 + 3√5 7)

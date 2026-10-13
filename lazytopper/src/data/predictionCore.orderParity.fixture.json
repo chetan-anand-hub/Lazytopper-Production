@@ -101,8 +101,8 @@
    ]
   },
   "statistics": {
-   "n": 310,
-   "sha256": "7192b47a5d0f0c1b415cf67253721e648b18eaa57516bbb53f267be1725d54f7",
+   "n": 309,
+   "sha256": "8d77af730f49a929009da0444b6aa1d31918222dd3905fec50ac9df9a20a33b2",
    "head": [
     "LTG-M-STAT-271",
     "LTG-M-STAT-282",
@@ -337,8 +337,8 @@
    ]
   },
   "statistics": {
-   "n": 65,
-   "sha256": "5cc6da8b6fcd03d20cb8544da23a20d38823b9e3cffdc8f9a30139ff1020bcfb",
+   "n": 64,
+   "sha256": "71baa17871e95a9f6b19fc12f84d335014d8459dbaa8a2c2fd3e24e59262a55a",
    "head": [
     "Assumed Mean Choice\tLTG-M-STAT-234,PYQ-M-STAT-006,PYQ-M-2026-STAT-001,PYQ-M-2024-STAT-001,PYQ-M-2024-STAT-003,STAT-N-EXEM-13-VSA-002",
     "Assumed Mean Deviations\tPYQ-M-STAT-006,PYQ-M-2026-STAT-001,PYQ-M-2024-STAT-001,PYQ-M-2024-STAT-003,STAT-N-EXEM2-13-MCQ-001",
