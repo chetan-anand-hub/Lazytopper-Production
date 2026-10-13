@@ -338,8 +338,23 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
     "magnetic-effects-of-electric-current": ["SCQ-S-MAG-029", "SCQ-S-MAG-040"],
     "metals-and-non-metals": ["METAL-NCERT-3-VSA-006"],
   };
+  // GARBLE-1 PR-3 (FIND-2, 13-14 Oct 2026): 21 PYQ rows whose stems lost symbols / fractions / structures at extraction are withheld until rewritten from the paper.
+  const GARBLE1_PR3: Record<string, readonly string[]> = {
+    "coordinate-geometry": ["PYQ-M-CG-003"],
+    "real-numbers": ["PYQ-M-2026-REALNUM-005", "PYQ-M-RN-004"],
+    "statistics": ["PYQ-M-STAT-009", "PYQ-M-2025-STAT-003"],
+    "triangles": ["PYQ-M-2026-TRI-003", "PYQ-M-2026-TRI-005"],
+    "trigonometry": ["PYQ-M-TRIG-010"],
+    "quadratic-equations": ["PYQ-M-2024-QE-004b", "PYQ-M-2024-QE-006a"],
+    "polynomials": ["PYQ-M-2025-POLY-002"],
+    "acids-bases-and-salts": ["PYQ-S-2025-ACID-010", "PYQ-S-2026-ACID-019"],
+    "carbon-and-its-compounds": ["PYQ-S-2024-CARB-002", "PYQ-S-2025-CARB-001"],
+    "chemical-reactions-and-equations": ["PYQ-S-2026-CHEMRXN-020"],
+    "how-do-organisms-reproduce": ["PYQ-S-2025-REPR-007", "PYQ-S-2026-REPR-005"],
+    "life-processes": ["PYQ-S-LIFE-013", "PYQ-S-2024-LIFEP-008", "PYQ-S-2026-LIFEP-014"],
+  };
   const LATER_WITHHOLDS: Record<string, readonly string[]> = Object.fromEntries(
-    [...new Set([...Object.keys(LATER_WITHHOLDS_BASE), ...Object.keys(STEPS1_PAUSED_BY_CHAPTER)])].map((c) => [c, [...(LATER_WITHHOLDS_BASE[c] ?? []), ...(STEPS1_PAUSED_BY_CHAPTER[c] ?? [])]]),
+    [...new Set([...Object.keys(LATER_WITHHOLDS_BASE), ...Object.keys(STEPS1_PAUSED_BY_CHAPTER), ...Object.keys(GARBLE1_PR3)])].map((c) => [c, [...(LATER_WITHHOLDS_BASE[c] ?? []), ...(STEPS1_PAUSED_BY_CHAPTER[c] ?? []), ...(GARBLE1_PR3[c] ?? [])]]),
   );
   it("every later-lane withhold is withheld, not served, and in its chapter", () => {
     const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>

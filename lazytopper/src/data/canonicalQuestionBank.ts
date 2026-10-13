@@ -1174,6 +1174,28 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
   "PYQ-M-2024-TRIG-018",     // garbled-extraction: theta rendered as q, fractions flattened
   "PYQ-M-2024-TRIG-020",     // garbled-extraction: fractions flattened (tan/cot proof)
+  // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
+  "PYQ-M-CG-003",                 // garbled-extraction: sign lost in a vertex; not right-angled as printed
+  "PYQ-M-2026-REALNUM-005",       // garbled-extraction: fraction bar lost (2 + 3√5 7)
+  "PYQ-M-STAT-009",               // garbled-extraction: class-interval dashes lost; wording broken
+  "PYQ-M-2025-STAT-003",          // garbled-extraction: class-interval dashes lost in the table
+  "PYQ-M-2026-TRI-003",           // garbled-extraction: triangle/angle/product symbols lost
+  "PYQ-M-2026-TRI-005",           // garbled-extraction: angle symbols lost
+  "PYQ-M-TRIG-010",               // garbled-extraction: degree signs lost
+  "PYQ-M-2024-QE-004b",           // garbled-extraction: not-equal sign damaged (c ¹ -1)
+  "PYQ-M-2024-QE-006a",           // garbled-extraction: not-equal sign damaged (k ¹ -1)
+  "PYQ-M-RN-004",                 // garbled-extraction: exponent lost (4n for 4^n)
+  "PYQ-M-2025-POLY-002",          // garbled-extraction: exponents flattened (12a2 = 49b ambiguous)
+  "PYQ-S-2025-ACID-010",          // garbled-extraction: parts (b)/(c) reduced to residue
+  "PYQ-S-2026-ACID-019",          // garbled-extraction: stripped Hindi block left residue
+  "PYQ-S-2024-CARB-002",          // garbled-extraction: structural formulas flattened
+  "PYQ-S-2025-CARB-001",          // garbled-extraction: structural formulas flattened
+  "PYQ-S-2026-CHEMRXN-020",       // garbled-extraction: structures damaged, triple bond lost
+  "PYQ-S-2025-REPR-007",          // garbled-extraction: OR alternative reduced to residue
+  "PYQ-S-2026-REPR-005",          // garbled-extraction: OR alternative reduced to residue
+  "PYQ-S-LIFE-013",               // garbled-extraction: empty dangling sub-parts
+  "PYQ-S-2024-LIFEP-008",         // garbled-extraction: words dropped from the stem
+  "PYQ-S-2026-LIFEP-014",         // garbled-extraction: stem reduced to empty brackets
   "PYQ-M-AP-003",            // mojibake — part (B) Hindi gibberish (dup of clean AP-002)
   // ---- [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — objective rows whose answer key resolves to
   //      NO option under the grader contract (server/routes/objectiveScoring.cjs:
