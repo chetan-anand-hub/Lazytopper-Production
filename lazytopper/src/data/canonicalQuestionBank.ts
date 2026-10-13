@@ -1174,6 +1174,16 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
   "PYQ-M-2024-TRIG-018",     // garbled-extraction: theta rendered as q, fractions flattened
   "PYQ-M-2024-TRIG-020",     // garbled-extraction: fractions flattened (tan/cot proof)
+  // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
+  "PYQ-M-QE-003",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
+  "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
+  "PYQ-M-QE-008",                 // garbled-extraction: exponent flattened (px2)
+  "PYQ-M-2024-QE-001",            // garbled-extraction: exponent flattened (x2 + x - p(p+1) = 0)
+  "PYQ-M-2024-QE-002",            // garbled-extraction: exponent flattened (5x2 - 6x + 21 = 0)
+  "PYQ-M-2024-QE-005a",           // garbled-extraction: exponent flattened ((k+1)x2)
+  "PYQ-M-2026-QE-001",            // garbled-extraction: exponent flattened ((p-q)x2)
+  "PYQ-M-2025-SAV-005",           // garbled-extraction: pi symbol dropped (Take = 3.14)
+  "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
   // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
   "PYQ-M-CG-003",                 // garbled-extraction: sign lost in a vertex; not right-angled as printed
   "PYQ-M-2026-REALNUM-005",       // garbled-extraction: fraction bar lost (2 + 3√5 7)
