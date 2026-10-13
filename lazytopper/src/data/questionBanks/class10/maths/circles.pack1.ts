@@ -60,10 +60,7 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
   },
   { id: "CIR-E13", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Two tangents from an external point to a circle subtend equal angles at the centre.\nReason (R): The tangent segments from an external point are equal.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A) states that the tangent at any point of a circle is perpendicular to the radius through the point of contact. This is a true statement (Tangent-Radius Theorem).",
-      "Reason (R) states that the lengths of tangents drawn from an external point to a circle are equal. This is also a true statement (Tangent Length Theorem).",
-      "However, Reason (R) describes a property of tangent lengths from an external point, which is not the explanation for why a tangent is perpendicular to the radius at the point of contact. Thus, R is not the correct explanation of A.",
-      "Therefore, both A and R are true, but R is not the correct explanation of A.",
+      "Tangent segments from an external point are equal (PA = PB), so triangles OAP and OBP are congruent by SSS (OA = OB, OP common), giving ∠AOP = ∠BOP: A and R are both true, and R explains A. [1]",
     ],
   },
   { id: "CIR-E14", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "If the angle between two tangents drawn from an external point P to a circle of radius r and centre O is 60°, find the length of OP.", solutionSteps: [
@@ -73,20 +70,13 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "OP = 2r" , isCompetencyBased: true },
   { id: "CIR-E15", subject: "Maths", topicKey: "circles", subtopic: "Tangent Theorems & Proofs", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A line that has two common points with a circle is called:", options: ["Tangent", "Secant", "Chord", "Radius"], answer: "Secant", explanation: "The correct answer is Secant. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Secant" , isCompetencyBased: false,
     solutionSteps: [
-      "Let O be the centre of the circle, P be the external point, and T be the point of tangency.",
-      "According to the Tangent-Radius Theorem, the radius OT is perpendicular to the tangent PT at the point of contact T. Thus, triangle OTP is a right-angled triangle at T.",
-      "Given: Radius (OT) = 5 cm, Length of tangent (PT) = 12 cm. We need to find the distance of P from the centre (OP).",
-      "Using the Pythagorean theorem in triangle OTP: OP^2 = OT^2 + PT^2.",
-      "Substitute the values: OP^2 = 5^2 + 12^2 = 25 + 144 = 169.",
-      "Therefore, OP = sqrt(169) = 13 cm.",
+      "A line that meets a circle at two points is called a secant. [1]",
     ],
   },
   { id: "CIR-E16", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "PQ is a tangent drawn from point P at Q to a circle with centre O. If OQ = 5 cm and OP = 13 cm, then PQ =", options: ["12 cm", "8 cm", "10 cm", "18 cm"], answer: "12 cm", explanation: "PQ = √(13² − 5²) = √144 = 12. Therefore, the correct answer is 12 cm.", solutionSteps: ["PQ = √(13² − 5²) = √144 = 12"], finalAnswer: "12 cm" , isCompetencyBased: true },
   { id: "CIR-E17", subject: "Maths", topicKey: "circles", subtopic: "Number/Type of Tangents", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "A point on the circle has how many tangent(s)?", options: ["0", "1", "2", "Infinite"], answer: "1", explanation: "The correct answer is 1. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1" , isCompetencyBased: false,
     solutionSteps: [
-      "Consider a point P lying outside a circle with centre O.",
-      "From an external point P, we can draw exactly two tangents to the circle.",
-      "These two tangents will touch the circle at two distinct points, say A and B, and their lengths (PA and PB) will be equal.",
+      "Through a point on a circle there is exactly one tangent, so the number of tangents is 1. [1]",
     ],
   },
   { id: "CIR-E18", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Prove that the tangents drawn at the ends of a diameter are parallel.", solutionSteps: [
@@ -147,10 +137,7 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "AB + CD = AD + BC (proved)" , visualExplainerId: "maths-circles-tangent-to-a-circle", isCompetencyBased: true },
   { id: "CIR-M09", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The angle between two tangents from an external point is supplementary to the angle subtended by the line segment joining the points of contact at the centre.\nReason (R): OAPB is a cyclic quadrilateral where ∠OAP = ∠OBP = 90°.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A) is true: From an external point, exactly two tangents can be drawn to a circle.",
-      "Reason (R) is true: The lengths of tangents drawn from an external point to a circle are equal, which is a proven theorem.",
-      "However, Reason (R) describes a property of the tangents, not the explanation for why two tangents can be drawn. Thus, R is not the correct explanation for A.",
-      "Therefore, both A and R are true, but R is not the correct explanation of A, making option B correct.",
+      "In quadrilateral OAPB, ∠OAP = ∠OBP = 90°, so ∠AOB + ∠APB = 360° − 180° = 180° (A is true), and since the opposite angles at A and B are each 90° and sum to 180°, OAPB is cyclic (R is true), which gives the supplementary relation: R explains A. [1]",
     ],
   },
   { id: "CIR-M10", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.", solutionSteps: [

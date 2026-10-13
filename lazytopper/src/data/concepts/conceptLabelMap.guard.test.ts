@@ -81,7 +81,6 @@ const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
   { chapter: "quadratic-equations", label: "Roots by Formula" },
   // 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3, 71 more paused rows): every row of these four mapped labels is now paused (same D143 shape).
   { chapter: "polynomials", label: "Degree of Polynomial" },
-  { chapter: "surface-areas-and-volumes", label: "Curved Surface Area" },
   { chapter: "surface-areas-and-volumes", label: "Total Surface Area" },
   // 13 Oct GARBLE-1 PR-1 (D152): its last served carrier PYQ-M-2024-TRIG-020 (flattened-fraction stem) is paused (-006/-007 were already withheld; -014/-018 carry another subtopic).
   { chapter: "trigonometry", label: "Trigonometric Identity Proofs" },
