@@ -1170,6 +1170,10 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-010b",    // mojibake
   "PYQ-M-2024-TRIG-013",     // mojibake
   "PYQ-M-2024-TRIG-019",     // mojibake
+  // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
+  "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
+  "PYQ-M-2024-TRIG-018",     // garbled-extraction: theta rendered as q, fractions flattened
+  "PYQ-M-2024-TRIG-020",     // garbled-extraction: fractions flattened (tan/cot proof)
   "PYQ-M-AP-003",            // mojibake — part (B) Hindi gibberish (dup of clean AP-002)
   // ---- [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — objective rows whose answer key resolves to
   //      NO option under the grader contract (server/routes/objectiveScoring.cjs:
@@ -2428,7 +2432,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "ARC-E11",                      // spliced-solution: the steps answer another question
   "TRI2-H08",                     // spliced-solution: part of the steps answer another question
   "ARC2-047",                     // spliced-solution: part of the steps answer another question
-  "CNC2-041",                     // spliced-solution: the steps answer another question (refusal text)
+  "CNC2-041",                     // spliced-solution: content-free outline, not a worked solution (no-answer)
   "CARB-E13",                     // spliced-solution: the steps answer another question
   "PLE2-R09",                     // spliced-solution: the steps answer another question (different numbers)
   "MNM-E18",                      // spliced-solution: the steps answer another question

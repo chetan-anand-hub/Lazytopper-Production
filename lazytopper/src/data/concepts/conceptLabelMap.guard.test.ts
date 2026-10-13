@@ -83,6 +83,8 @@ const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
   { chapter: "polynomials", label: "Degree of Polynomial" },
   { chapter: "surface-areas-and-volumes", label: "Curved Surface Area" },
   { chapter: "surface-areas-and-volumes", label: "Total Surface Area" },
+  // 13 Oct GARBLE-1 PR-1 (D152): the last three served rows of this label (PYQ-M-2024-TRIG-014/018/020, flattened-fraction stems) are paused.
+  { chapter: "trigonometry", label: "Trigonometric Identity Proofs" },
 ];
 const MAX_REVIEWED_LABELS = 136;
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
