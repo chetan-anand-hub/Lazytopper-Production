@@ -2095,7 +2095,6 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Mean of Ungrouped Observations": { reason: "concept-gap", note: "audit (verified): ungrouped mean (prerequisite); propose \"Mean of Ungrouped Data\"" },
     "Mean, Median and Mode of Grouped Data (Applications)": { reason: "concept-gap", note: "audit (verified): spans mean/median/mode; propose \"Mean, Median & Mode — Combined Applications\"" },
     "Mean, Median, Mode": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
-    "Statistics": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
   },
   "probability": {
     "Probability": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },

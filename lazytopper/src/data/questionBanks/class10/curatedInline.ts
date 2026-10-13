@@ -385,7 +385,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is a homologous series? State any two characteristics of a homologous series of carbon compounds with an example.",
     "options": [],
-    "answer": "",
+    "answer": "A homologous series is a group of organic compounds with the same functional group and similar chemical properties, in which successive members differ by a –CH₂– group (14 u). Characteristics: successive members differ by 14 u and have similar chemical properties. Example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀.",
     "explanation": "",
     "solutionSteps": [
       "Define homologous series as a group of organic compounds having the same functional group and similar chemical properties, in which any two successive members differ by a –CH₂– group.",
@@ -394,7 +394,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Mention that they show a gradual change in physical properties such as boiling point as molecular mass increases.",
       "Give an example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀, etc. form a homologous series."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "A homologous series is a group of organic compounds with the same functional group and similar chemical properties, in which successive members differ by a –CH₂– group (14 u). Characteristics: successive members differ by 14 u and have similar chemical properties. Example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -433,7 +433,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is a reflex action? Describe the pathway of a reflex arc in humans with the help of a labelled diagram.",
     "options": [],
-    "answer": "",
+    "answer": "A reflex action is an automatic, rapid response to a stimulus that is not under conscious control. Reflex arc: receptor → sensory neuron → spinal cord (relay neuron) → motor neuron → effector (muscle or gland), giving a quick response without conscious thinking.",
     "explanation": "",
     "solutionSteps": [
       "Define reflex action as an automatic, rapid response to a stimulus that is not under conscious control.",
@@ -444,7 +444,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "The effector responds (e.g., withdrawing hand from a hot object).",
       "Mention that this pathway allows quick response without waiting for conscious thinking."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "A reflex action is an automatic, rapid response to a stimulus that is not under conscious control. Reflex arc: receptor → sensory neuron → spinal cord (relay neuron) → motor neuron → effector (muscle or gland), giving a quick response without conscious thinking.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -487,7 +487,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In pea plants, the trait of tallness (T) is dominant over dwarfness (t). Draw a cross between two heterozygous tall plants (Tt × Tt). Find the phenotypic ratio of tall and dwarf plants in the F₂ generation.",
     "options": [],
-    "answer": "",
+    "answer": "The phenotypic ratio in F₂ is 3 tall : 1 dwarf.",
     "explanation": "",
     "solutionSteps": [
       "State that tallness (T) is dominant and dwarfness (t) is recessive.",
@@ -498,7 +498,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Determine phenotypes: TT and Tt are tall, tt is dwarf.",
       "So the phenotypic ratio in F₂ is 3 tall : 1 dwarf."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "The phenotypic ratio in F₂ is 3 tall : 1 dwarf.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -515,7 +515,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain the process of binary fission in Amoeba with the help of labelled diagrams.",
     "options": [],
-    "answer": "",
+    "answer": "In binary fission of Amoeba the nucleus first elongates and divides into two, the cytoplasm then constricts in the middle, and the parent splits into two similar-sized daughter Amoebae, each with one nucleus.",
     "explanation": "",
     "solutionSteps": [
       "State that binary fission is a type of asexual reproduction in which a single parent cell divides into two daughter cells.",
@@ -524,7 +524,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Finally, the parent cell splits into two separate, similar-sized daughter Amoebae, each with one nucleus.",
       "Mention that binary fission usually occurs in favourable conditions such as sufficient food and optimum temperature."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "In binary fission of Amoeba the nucleus first elongates and divides into two, the cytoplasm then constricts in the middle, and the parent splits into two similar-sized daughter Amoebae, each with one nucleus.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -541,7 +541,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is myopia? State its two causes. Draw a ray diagram to show how myopia is corrected using a suitable lens.",
     "options": [],
-    "answer": "",
+    "answer": "Myopia (short-sightedness) is the defect in which nearby objects are seen clearly but distant objects are not. Causes: the eyeball becomes too long, or the focal length of the eye lens decreases. It is corrected by a concave (diverging) lens of suitable focal length.",
     "explanation": "",
     "solutionSteps": [
       "Define myopia (short-sightedness) as the defect in which a person can see nearby objects clearly but cannot see distant objects distinctly.",
@@ -551,7 +551,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "The concave lens diverges the incoming parallel rays so that after refraction by the eye lens, the image forms exactly on the retina.",
       "Draw a labelled ray diagram showing a distant object, concave lens in front of the myopic eye, and the final image on the retina."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "Myopia (short-sightedness) is the defect in which nearby objects are seen clearly but distant objects are not. Causes: the eyeball becomes too long, or the focal length of the eye lens decreases. It is corrected by a concave (diverging) lens of suitable focal length.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -568,7 +568,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain the process of aerobic respiration in humans. Why is it considered more efficient than anaerobic respiration?",
     "options": [],
-    "answer": "",
+    "answer": "In aerobic respiration glucose is completely oxidised in the presence of oxygen (C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energy), mainly in the mitochondria, releasing about 38 ATP; anaerobic respiration only partially breaks glucose down (lactic acid or ethanol) and releases about 2 ATP, so aerobic respiration is more efficient.",
     "explanation": "",
     "solutionSteps": [
       "State that respiration is the process of releasing energy from food (glucose) in cells.",
@@ -579,7 +579,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "In anaerobic respiration, glucose is only partially broken down, producing lactic acid or ethanol and much less energy (about 2 ATP).",
       "Therefore, aerobic respiration is considered more efficient than anaerobic respiration."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "In aerobic respiration glucose is completely oxidised in the presence of oxygen (C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energy), mainly in the mitochondria, releasing about 38 ATP; anaerobic respiration only partially breaks glucose down (lactic acid or ethanol) and releases about 2 ATP, so aerobic respiration is more efficient.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -596,7 +596,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "An object is placed 30 cm in front of a concave mirror of focal length 15 cm. Using the mirror formula, find the position and nature of the image formed.",
     "options": [],
-    "answer": "",
+    "answer": "v = −30 cm: the image is real, inverted and equal in size to the object, formed 30 cm in front of the mirror.",
     "explanation": "",
     "solutionSteps": [
       "Write the mirror formula: 1/f = 1/v + 1/u.",
@@ -606,7 +606,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Thus, v = −30 cm, meaning the image is formed 30 cm in front of the mirror (on the same side as the object).",
       "Since v is negative and the image is formed in front of the mirror, it is real and inverted; here its size is equal to the object (because |u| = |v|)."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "v = −30 cm: the image is real, inverted and equal in size to the object, formed 30 cm in front of the mirror.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -623,7 +623,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "State Fleming’s left-hand rule. Explain how it is used to find the direction of force on a current-carrying conductor placed in a magnetic field.",
     "options": [],
-    "answer": "",
+    "answer": "Fleming’s left-hand rule: stretch the thumb, forefinger and middle finger of the left hand mutually perpendicular; the forefinger shows the direction of the magnetic field, the middle finger the direction of current, and the thumb the direction of force (motion) on the conductor.",
     "explanation": "",
     "solutionSteps": [
       "State Fleming’s left-hand rule: If the thumb, forefinger and middle finger of the left hand are stretched mutually perpendicular, then the forefinger indicates the direction of magnetic field, the middle finger the direction of current, and the thumb gives the direction of force (motion) on the conductor.",
@@ -631,7 +631,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "To use the rule, align the forefinger along the magnetic field direction and the middle finger along the current direction.",
       "The thumb then automatically points in the direction of motion or force on the conductor."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "Fleming’s left-hand rule: stretch the thumb, forefinger and middle finger of the left hand mutually perpendicular; the forefinger shows the direction of the magnetic field, the middle finger the direction of current, and the thumb the direction of force (motion) on the conductor.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -672,7 +672,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain the term corrosion. How can rusting of iron be prevented? State any two methods.",
     "options": [],
-    "answer": "",
+    "answer": "Corrosion is the slow eating up of metals by the action of air, moisture or chemicals on their surface. Rusting of iron is prevented by (i) painting or coating with oil/grease and (ii) galvanisation (coating with a thin layer of zinc).",
     "explanation": "",
     "solutionSteps": [
       "[1 mark] Define corrosion as the slow eating up of metals by the action of air, moisture or chemicals on their surface.",
@@ -681,7 +681,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "[0.5 mark] (ii) Galvanisation: coating iron with a thin layer of zinc to protect it.",
       "[0.5 mark] Other accepted methods: alloying iron to form stainless steel or using plastic coating."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "Corrosion is the slow eating up of metals by the action of air, moisture or chemicals on their surface. Rusting of iron is prevented by (i) painting or coating with oil/grease and (ii) galvanisation (coating with a thin layer of zinc).",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -698,7 +698,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is a food chain? Explain why the flow of energy in an ecosystem is unidirectional, using a simple food chain as an example.",
     "options": [],
-    "answer": "",
+    "answer": "A food chain is a sequence of organisms in which each feeds on the previous one (e.g. grass → grasshopper → frog → snake → eagle). Only about 10% of the energy passes to the next trophic level and the rest is lost as heat, so energy cannot flow back and its flow is unidirectional—from the sun to producers and then to consumers.",
     "explanation": "",
     "solutionSteps": [
       "Define a food chain as a sequence of organisms in which each organism feeds on the previous one and provides food for the next.",
@@ -708,7 +708,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Due to this continuous loss, energy cannot flow back from consumers to producers.",
       "Therefore, the flow of energy in an ecosystem is unidirectional—from the sun to producers and then to various levels of consumers, not in reverse."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "A food chain is a sequence of organisms in which each feeds on the previous one (e.g. grass → grasshopper → frog → snake → eagle). Only about 10% of the energy passes to the next trophic level and the rest is lost as heat, so energy cannot flow back and its flow is unidirectional—from the sun to producers and then to consumers.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
