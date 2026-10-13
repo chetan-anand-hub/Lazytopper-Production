@@ -232,6 +232,8 @@ describe("StudentsAdminPage — list", () => {
       ["ig", src({ utm_source: "instagram" }), "Instagram (untagged)"],
       ["fbc", src({ fbclid: true }), "Facebook/Instagram (untagged)"],
       ["other-fbc", src({ utm_source: "newsletter", fbclid: true, ref: "l.facebook.com" }), "From l.facebook.com"],
+      ["proto", src({ utm_source: "constructor", ref: "news.example.org" }), "From news.example.org"],
+      ["proto2", src({ utm_source: "__proto__" }), "Direct"],
       ["ref", src({ ref: "news.example.org" }), "From news.example.org"],
       ["dir", src({}), "Direct"],
       ["old", null, "—"],

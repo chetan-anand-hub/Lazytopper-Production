@@ -156,7 +156,8 @@ function sourceLabel(source: RowSource | null | undefined): string {
   if (!source) return "—";
   const src = (source.utm_source ?? "").toLowerCase();
   const medium = (source.utm_medium ?? "").toLowerCase();
-  const platform = SOURCE_PLATFORM[src];
+  // own keys only: a crafted utm_source such as "constructor" must not read as a platform
+  const platform = Object.prototype.hasOwnProperty.call(SOURCE_PLATFORM, src) ? SOURCE_PLATFORM[src] : undefined;
   let label: string;
   if (src === "parent_share") label = "Parent share";
   else if (platform && (medium === "paid" || medium === "cpc")) label = src === "meta" ? "Meta ad" : `${platform} ad`;
