@@ -1,3 +1,21 @@
+## 2026-10-13 — VIDEO-EMBED-1 (COFOUNDER DECISIONS 124-128 AS THEY BEAR ON IT; RECORDED BY C1 UNDER §10)
+
+> ⚠ **SCOPE.** The decisions that shaped `#1111`, numbered as on `#973`, plus the decisions C1 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **124** | Run unattended, self-paced; C1 is LEAD controller (merge order, handoff lock, peer clashes, chasing silent controllers); heartbeats; `BLOCKED` / `QUESTION` the moment anything stops a lane. | The owner was away; the lead has the lightest lane load. |
+| **125** | VIDEO-EMBED-1 scope gap resolved with option (a): §1 widened by exactly two lines (`ACTIVITY_EVENTS` in `activityClient.ts`; the server allowlist in `studentActivity.cjs`). Option (b), a gate exemption, refused. Thumbnail hash confirmed. P12 accepted: shared builder in `scripts/seo/`, two ld+json blocks are fine. | The drift guard (`activityClient.test.ts`) requires client == server == union; the ACTIVATION-1 precedent added `practice_graded` the same way. A gate exemption would weaken the guard. |
+| **126** | Bank steps are REPAIRED, not discarded; C1 → WORKSHEET-SCOUT after VIDEO-EMBED-1 is LIVE (read-only; C1 stays LEAD while running it). | Owner rulings 13 Oct 14:07 / 14:10 IST. |
+| **127** | `hasPart` clips given verbatim from growth doc §4; do not omit `hasPart`; `EVENT_LABELS` line APPROVED (§1 widened by one more line); publisher logo `og-image.png` for now, ORG-SAMEAS-1 owns the change. | The doc was not available to C1; inventing offsets was refused. The label is forced by `StudentDetailPanel.activity.test.tsx`. |
+| **128** | Heartbeat every 20 min; a real 15-20 min wakeup at the end of EVERY turn; silence over 20 min is pinged by the lead. | A controller's loop did not wake at its stated time. |
+| **C1 / LEAD-RULING 1** | Handoff lock order: C1 now (`#1111`), then C2 for SOURCE-2 and ORG-SAMEAS-1; A's BANK-STEPS-1 is a product lane, not a docs claimant yet. | First claim on the board; earlier claim merges first. |
+| **C1** | Used the same-named thumbnail from `Desktop\diff\final tasks\` after the dispatch's `ops/.specs/` path proved empty, and checked its sha256 against the board before copying. | The hash matched the cofounder's `8547A9324B62`; a mismatch would have been a STOP. |
+| **C1** | Built the facade's heading as a prop-driven `h2`/`h3` with an optional `headingId`, and put the `<section aria-labelledby>` in the host page. | PARENTS-1 reuses the component; the host owns its landmark. |
+| **C1** | Narrowed the existing trap-card pin in `Cbse2027Page.guard.test.tsx` to `details:not(.lt-tv__transcript)` rather than raising the count. | The transcript is not a trap card; the count of six is the guard's actual subject. The verifier judged it legitimate. |
+| **C1** | Fixed the verifier's SHOULD-FIX (a test title promising a surname check) with a real assertion plus a control, instead of only renaming it. | A title that promises a check the body does not make is a silent gap. |
+| **C1** | Used `gh pr update-branch` once (heads-up first, no `--admin`) and proved the lane files byte-identical afterwards; merged by REST with the head SHA pinned after reading the board tail in a separate call. | `strict` branch protection; standing merge procedure. |
+
 ## 2026-10-13 — SOFT404-1 (COFOUNDER DECISIONS 122 AND 123 AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The decisions that shaped `#1105`, numbered as on `#973`.

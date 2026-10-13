@@ -1,3 +1,19 @@
+## 2026-10-13 — VIDEO-EMBED-1 (C1): `#1111` `d4109710` — LIVE
+
+★ **PROVENANCE.** Written by C1 (§10) from `#973`, the `#1111` PR comments and `git log`. Window: 08:12Z (scope-gap post) to 09:21Z (LIVE), 13 Oct. Spec `VIDEO-EMBED-1.md` sha256 `50D8F6820E16`.
+
+- **08:12Z §0c.0 + P12-P15 + STOP.** Spec hash ✔, premise gate `PASS (15 premises, 11/11 anchors, 4 open by design) EXIT=0` at base `24f8b638`. P12 answered from the build order (`writeStaticHeads` then `applyPrerendered`), P14 listed the pins, P13/P15 left to the preview. The thumbnail was not at the dispatch's `ops/.specs/` path; the same-named file was in `Desktop\diff\final tasks\` (sha256 `8547a932…`). **Stopped on a scope gap:** adding `testimonial_play` to the union turns `activityClient.test.ts` RED unless `activityClient.ts` and the read-only `studentActivity.cjs` also change. Nothing edited.
+- **08:22Z D125:** option (a), one allowlist line in each of the two files. **08:12Z D124:** C1 is LEAD, loops on, heartbeats. ACK posted; loop started.
+- **08:33Z QUESTION (clips):** the spec's `hasPart` points at growth doc §4, which was not in the repo or on the machine; offsets would have had to be invented. **08:35Z QUESTION (third line):** `StudentDetailPanel.activity.test.tsx` also needs an `EVENT_LABELS` entry. **08:46Z D127:** both answered (clips verbatim; label approved; logo `og-image.png`).
+- **08:45Z-08:53Z build.** Component, data module, CSS, thumbnail, builder, `writeStaticHeads` hook (`pageJsonLd`), both placements, the union + three single lines. Two bugs of my own caught by the tests before the PR: a guard regex that matched "your students" as "our student" (added `\b`), and the Cbse trap-card count (a seventh `<details>`). Local pnpm install took ~4 min; vitest needed the rollup win32 binary dropped in from another worktree.
+- **08:53Z DRAFT #1111** at `938b464b`. Local: tsc app 0, `typecheck:test` 0, mojibake `enforced_hits=0`, `git diff --check` clean, `scope:guard --mode mixed` OK (`--mode product` flags the two `scripts/seo` tooling files the spec scopes in), `build` exit 0 + `verify-production-build` "All checks passed"; both `test:matrix:all` exit 0 (root `# tests 460 # fail 0 # skipped 0`; lazytopper 1195 tests, fail 0, skipped 0). RED `4 failed | 7 passed` on trunk behaviour; mutation (eager iframe) RED.
+- **~08:56Z Verifier (D108, Opus):** `PASS-WITH-FOLLOW-UP @ 938b464b`, 0 MUST-FIX, 1 SHOULD-FIX fixed in `e7db2e59`. CI first run: all green except `capture` = the designed stale-artifact failure; artifact `prerendered-1111` (exactly the six expected files) applied verbatim in `16bd5939`; P13 proven on the four captured files.
+- **09:03Z Preview curls** on the head's Vercel preview (`/version.json` = `16bd5939`): both pages 200, one VideoObject, 3 Clips, 0 youtube in any `src`, 0 iframes, thumbnail 200 `image/jpeg`. P12 and P15 closed. **09:08Z** the cofounder's independent check passed at `16bd5939`.
+- **09:10Z update-branch** (BEHIND by C2's `#1109` / `#1110`): heads-up posted, lane files proven byte-identical, CI 22/22 on `bce99401`.
+- **09:18:22Z MERGED** `d4109710` (REST, `sha=bce99401` pinned; `mergedAt` per `gh`) after the board tail was read in its own call (no HOLD). **09:19:59Z** production serves it; 09:20:07-09:20:57Z 5/5 cold reads; §5 curls green; Vercel and Railway `success`. LIVE posted 09:21Z.
+- **09:22Z** handoff lock taken for this PR (LEAD-RULING 1: C1 now, then C2's SOURCE-2 / ORG-SAMEAS-1 docs).
+- **Rule that nearly bit and did not:** a stale base. `strict` branch protection needed the update-branch above; the lane files and the artifact were unaffected because C2's two PRs touched neither.
+
 ## 2026-10-13 — SOFT404-1 (C2): `#1105` `24f8b638` — LIVE
 
 ★ **PROVENANCE.** Written by C2 (§10) from `#973`, the `#1105` PR comments and `git log`. Window: 12:52Z (queued) to 15:42Z (cofounder re-verify), 12 Oct. Spec `SOFT404-1.md` sha256 `fbce3998c1f4`.
