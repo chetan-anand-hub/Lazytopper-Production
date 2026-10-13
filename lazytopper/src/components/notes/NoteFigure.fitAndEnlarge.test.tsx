@@ -98,14 +98,22 @@ describe("tap a notes figure to enlarge it", () => {
       const btn = img.closest("button");
       expect(btn, img.alt).not.toBeNull();
       expect(btn!.className).toContain("lt-note__fzoom");
-      expect(btn!.getAttribute("aria-label") || "").toMatch(/^Enlarge figure: /);
+      expect(btn!.getAttribute("aria-label") || "").toMatch(/^Tap to enlarge figure: /);
+      // PERF-1 F4 (label-content-name-mismatch): the button's visible text is in its accessible name.
+      const visible = btn!.querySelector(".lt-note__fzoom-badge")?.textContent ?? "";
+      expect(visible).toBe("Tap to enlarge");
+      expect((btn!.getAttribute("aria-label") || "").toLowerCase()).toContain(visible.toLowerCase());
+      // PERF-1 F3: the figure keeps its space (width/height) and loads lazily.
+      expect(Number(img.getAttribute("width"))).toBeGreaterThan(0);
+      expect(Number(img.getAttribute("height"))).toBeGreaterThan(0);
+      expect(img.getAttribute("loading")).toBe("lazy");
     }
   });
 
   it("opens a full-screen dialog and closes it by ✕, tap, Escape and Back", async () => {
     mountNote("trigonometry");
     const open = () =>
-      fireEvent.click(screen.getByRole("button", { name: /Enlarge figure: NCERT Fig\. 9\.2/ }));
+      fireEvent.click(screen.getByRole("button", { name: /Tap to enlarge figure: NCERT Fig\. 9\.2/ }));
 
     expect(screen.queryByRole("dialog")).toBeNull();
 
@@ -116,7 +124,7 @@ describe("tap a notes figure to enlarge it", () => {
     const img = within(dialog).getByRole("img");
     // The enlarged image is the same asset as the card's (small SVGs are inlined as data URIs).
     const cardImg = screen
-      .getByRole("button", { name: /Enlarge figure: NCERT Fig\. 9\.2/ })
+      .getByRole("button", { name: /Tap to enlarge figure: NCERT Fig\. 9\.2/ })
       .querySelector("img");
     expect(img.getAttribute("src")).toBeTruthy();
     expect(img.getAttribute("src")).toBe(cardImg?.getAttribute("src"));

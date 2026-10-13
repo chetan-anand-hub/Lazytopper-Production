@@ -11,7 +11,7 @@ import type {
   RulesBlock,
   ThirdTabContent,
 } from "./noteSpec.types";
-import { getNoteAssetUrl } from "./noteSpecRegistry";
+import { getNoteAssetSize, getNoteAssetUrl } from "./noteSpecRegistry";
 import { NoteRichText } from "./NoteRichText";
 import { NoteMindmapTree } from "./NoteMindmapTree";
 import { NoteGeneratedFigure, hasGeneratedRenderer } from "./NoteGeneratedFigure";
@@ -737,6 +737,7 @@ function LedgerSource({
 
 function FigureCard({ figure }: { figure: NoteFigure }) {
   const assetUrl = getNoteAssetUrl(figure.asset);
+  const size = getNoteAssetSize(figure.asset);
   const generated = hasGeneratedRenderer(figure);
   const [enlarged, setEnlarged] = useState(false);
   const alt = figure.caption || figure.tag || "Note figure";
@@ -756,10 +757,18 @@ function FigureCard({ figure }: { figure: NoteFigure }) {
         <button
           type="button"
           className="lt-note__fzoom"
-          aria-label={`Enlarge figure: ${figure.tag || alt}`}
+          aria-label={`Tap to enlarge figure: ${figure.tag || alt}`}
           onClick={() => setEnlarged(true)}
         >
-          <img className="lt-note__fimg" src={assetUrl} alt={alt} />
+          <img
+            className="lt-note__fimg"
+            src={assetUrl}
+            alt={alt}
+            width={size?.width}
+            height={size?.height}
+            loading="lazy"
+            decoding="async"
+          />
           <span className="lt-note__fzoom-badge" aria-hidden="true">Tap to enlarge</span>
         </button>
       ) : (

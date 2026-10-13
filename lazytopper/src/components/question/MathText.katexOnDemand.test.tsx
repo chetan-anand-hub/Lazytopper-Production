@@ -57,7 +57,7 @@ describe("L6 — KaTeX on demand", () => {
     expect(imports.static.filter((m) => m.startsWith("katex"))).toEqual([]);
     expect(imports.dynamic).toEqual(expect.arrayContaining(["katex", "katex/dist/katex.min.css"]));
     // CONTROL — the reader does see a static katex import where one exists.
-    expect(runtimeImports("../notes/NoteRichText.tsx").static).toContain("katex");
+    expect(runtimeImports("./katexEager.ts").static).toContain("katex");
   });
 
   it("(b) prose renders at once and does not fetch KaTeX", async () => {

@@ -15,6 +15,18 @@ import "./testimonialVideo.css";
 
 const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
 
+/**
+ * PERF-1 (F3): the thumbnail ships at 640 / 960 / 1280 px in WebP and JPEG, picked by the
+ * browser from `sizes` (the frame is at most 760 CSS px wide, full width less the gutters
+ * on a phone). The 1280 JPEG stays the `<img src>` fallback and the JSON-LD `thumbnailUrl`.
+ */
+const THUMB_WIDTHS = [640, 960, 1280] as const;
+const THUMB_SIZES = "(min-width: 800px) 760px, calc(100vw - 32px)";
+const thumbVariant = (width: number, ext: "jpg" | "webp") =>
+  `${BASE}${TESTIMONIAL_THUMB_PATH.replace("1280x720.jpg", `${width}x${Math.round((width * 9) / 16)}.${ext}`)}`;
+const thumbSrcSet = (ext: "jpg" | "webp") =>
+  THUMB_WIDTHS.map((w) => `${thumbVariant(w, ext)} ${w}w`).join(", ");
+
 /** `testimonial_play` is counted once per page load, however many players or clicks. */
 let playCounted = false;
 
@@ -67,14 +79,20 @@ export default function TestimonialVideo({ heading, lede, headingAs = "h2", head
           />
         ) : (
           <>
-            <img
-              className="lt-tv__thumb"
-              src={`${BASE}${TESTIMONIAL_THUMB_PATH}`}
-              width={TESTIMONIAL_THUMB_WIDTH}
-              height={TESTIMONIAL_THUMB_HEIGHT}
-              alt={TESTIMONIAL_THUMB_ALT}
-              loading="lazy"
-            />
+            <picture>
+              <source type="image/webp" srcSet={thumbSrcSet("webp")} sizes={THUMB_SIZES} />
+              <img
+                className="lt-tv__thumb"
+                src={`${BASE}${TESTIMONIAL_THUMB_PATH}`}
+                srcSet={thumbSrcSet("jpg")}
+                sizes={THUMB_SIZES}
+                width={TESTIMONIAL_THUMB_WIDTH}
+                height={TESTIMONIAL_THUMB_HEIGHT}
+                alt={TESTIMONIAL_THUMB_ALT}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
             <button type="button" className="lt-tv__play" aria-label={TESTIMONIAL_PLAY_LABEL} onClick={play}>
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M8 5v14l11-7z" />
