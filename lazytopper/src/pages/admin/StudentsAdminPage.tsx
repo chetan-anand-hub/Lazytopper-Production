@@ -138,15 +138,31 @@ interface RowSource {
   fbclid: boolean;
 }
 
-/** The Source column's text. A missing doc is "—": never a guess, never "Direct". */
+/** SOURCE-2 — the platforms the Source column names, by `utm_source`. */
+const SOURCE_PLATFORM: Record<string, string> = {
+  youtube: "YouTube",
+  google: "Google",
+  meta: "Facebook",
+  facebook: "Facebook",
+  instagram: "Instagram",
+};
+
+/**
+ * The Source column's text. A missing doc is "—": never a guess, never "Direct".
+ * SOURCE-2: `utm_medium` tells a paid ad from an organic post from an untagged link.
+ * Facebook and Instagram add `fbclid` to every outbound link, so `fbclid` alone is not an ad.
+ */
 function sourceLabel(source: RowSource | null | undefined): string {
   if (!source) return "—";
   const src = (source.utm_source ?? "").toLowerCase();
   const medium = (source.utm_medium ?? "").toLowerCase();
+  const platform = SOURCE_PLATFORM[src];
   let label: string;
-  if (src === "youtube") label = "YouTube ad";
-  else if (src === "google" && medium === "paid") label = "Google ad";
-  else if (src === "meta" || src === "facebook" || src === "instagram" || source.fbclid) label = "Meta ad";
+  if (src === "parent_share") label = "Parent share";
+  else if (platform && (medium === "paid" || medium === "cpc")) label = src === "meta" ? "Meta ad" : `${platform} ad`;
+  else if (platform && medium === "organic" && src !== "google") label = `${platform} post`;
+  else if (platform && medium !== "organic") label = `${platform} (untagged)`;
+  else if (!src && source.fbclid) label = "Facebook/Instagram (untagged)";
   else if (source.ref) label = `From ${source.ref}`;
   else label = "Direct";
   return source.utm_campaign ? `${label} (${source.utm_campaign})` : label;
