@@ -230,10 +230,10 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "HEY-D04", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Defects of Vision", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain myopia and hypermetropia. What causes each? How are they corrected? Include ray diagrams description.", solutionSteps: [
-      "Ray Diagram: Draw the defective eye (myopia: parallel rays focus in front of retina; hypermetropia: rays focus behind retina). Show the corrective lens and corrected image on the retina.; Myopia (near-sightedness): cannot see distant objects clearly; image of distant object forms in FRONT of retina [1]",
+      "Ray Diagram: Draw the defective eye (myopia: parallel rays focus in front of retina; hypermetropia: rays focus behind retina). Show the corrective lens and corrected image on the retina. [1]",
+      "Myopia (near-sightedness): cannot see distant objects clearly; image of distant object forms in FRONT of retina [1]",
       "Cause: eyeball too long OR lens too convex; Correction: concave (diverging) lens — diverges rays so image forms on retina [1]",
       "Hypermetropia (far-sightedness): cannot see near objects clearly; image of near object forms BEHIND retina; Cause: eyeball too short OR lens too flat [1]",
       "Correction: convex (converging) lens — converges rays so image falls on retina [1]",
-      "Presbyopia: old age; loss of accommodation (both near and far affected); corrected with bifocal lenses [1]",
     ], explanation: "Refer to solution steps.", finalAnswer: "Myopia: image before retina; corrected with concave lens. Hypermetropia: image behind retina; corrected with convex lens.", visualExplainerId: "science-human-eye-defects-of-vision-and-correction", isCompetencyBased: true }
 ];
