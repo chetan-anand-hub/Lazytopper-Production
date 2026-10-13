@@ -59,6 +59,12 @@ function allIn(text: string, pattern: RegExp): string[] {
   return out;
 }
 
+/** The value of the `const NAME = "…"` whose NAME the pattern captures (reads what a use site really references). */
+function constNamedBy(text: string, pattern: RegExp): string {
+  const name = tokenIn(text, pattern);
+  return tokenIn(text, new RegExp(`const ${name} = "([^"]+)"`));
+}
+
 interface Case {
   name: string;
   fg: string;
@@ -102,7 +108,10 @@ const CASES: Case[] = [
   ...allIn(HPQ, /color: "(hsl\(35, 80%, \d+%\))"/).map((fg, i) => ({ name: `hpq competency chip #${i + 1}`, fg, bg: "hsl(43, 90%, 94%)", old: "hsl(35, 80%, 35%)" })),
   ...allIn(HPQ, /: "(hsl\(152, \d+%, \d+%\))",\n\s+color: answerCheckOpen/).map((bg, i) => ({ name: `hpq Check my answer button #${i + 1}`, fg: "#ffffff", bg, old: "hsl(152, 55%, 45%)" })),
   ...(["quick", "worksheet", "hpq", "full"] as const).map((k) => ({ name: `mode CTA / hint ink on white: ${k}`, fg: accent(k, "ink"), bg: "#ffffff", alreadyAA: k === "hpq", old: { quick: "hsl(152, 55%, 45%)", worksheet: "hsl(205, 70%, 52%)", hpq: "hsl(255, 50%, 58%)", full: "hsl(340, 62%, 56%)" }[k] })),
-  { name: "Check & Improve link on white", fg: tokenIn(PRACTICE, /const PRIMARY_GREEN_DARK = "([^"]+)"/), bg: "#ffffff", old: "hsl(152, 55%, 45%)" },
+  { name: "Check & Improve link on white (the const the link names)", fg: constNamedBy(PRACTICE, /to=\{checkPath\}\s+style=\{\{ color: (\w+),/), bg: "#ffffff", old: "hsl(152, 55%, 45%)" },
+  ...allIn(PRACTICE, /background: `linear-gradient\(135deg, \$\{(PRIMARY_GREEN_DARK)\}, (hsl\([^)]+\))\)`,\n\s+color: "#fff",\n\s+fontSize: 13\.5/).slice(0, 1).map(() => ({ name: "Run targeted drill gradient, light end", fg: "#ffffff", bg: tokenIn(PRACTICE, /const PRIMARY_GREEN_DARK = "([^"]+)"/), old: "hsl(152, 55%, 45%)" })),
+  { name: "Run targeted drill gradient, dark end", fg: "#ffffff", bg: tokenIn(PRACTICE, /\$\{PRIMARY_GREEN_DARK\}, (hsl\([^)]+\))\)`,\n\s+color: "#fff",\n\s+fontSize: 13\.5/), old: "hsl(152, 55%, 45%)" },
+  { name: "HPQ step-number badge", fg: "#ffffff", bg: tokenIn(HPQ, /background: "(hsl\(152, \d+%, \d+%\))",\n\s+color: "#ffffff",\n\s+display: "flex",\n\s+alignItems: "center",\n\s+justifyContent: "center",\n\s+fontSize: "0\.75rem"/), old: "hsl(152, 55%, 45%)" },
   { name: "hpq active subject pill", fg: "#ffffff", bg: tokenIn(HPQ, /background: active \? "(hsl\(152, \d+%, \d+%\))" : "transparent"/), old: "hsl(152, 55%, 42%)" },
 ];
 
@@ -111,7 +120,7 @@ describe("PERF-1 F4 contrast tokens", () => {
     it(`${c.name}: at least 4.5:1`, () => {
       expect(ratio(c.fg, c.bg), `${c.fg} on ${c.bg}`).toBeGreaterThanOrEqual(4.5);
     });
-    it(`CONTROL ${c.name}: the previous value fails the same check`, () => {
+    it(`CONTROL ${c.name}: ${c.alreadyAA ? "the previous value was already AA (asserted, not skipped)" : "the previous value fails the same check"}`, () => {
       if (c.alreadyAA) {
         // already AA before PERF-1: assert that fact instead of skipping, so the case still runs
         expect(ratio(c.old, c.bg)).toBeGreaterThanOrEqual(4.5);
@@ -125,7 +134,7 @@ describe("PERF-1 F4 contrast tokens", () => {
 
   it("PR-3: no raw accent text is left in the Practice Hub cards, and the link is not the old green", () => {
     expect(PRACTICE).not.toMatch(/color: tone\.accent,\n\s+(background: tone\.tint|cursor)/);
-    expect(PRACTICE).not.toContain("style={{ color: PRIMARY_GREEN, fontWeight: 600");
+    expect(PRACTICE).not.toMatch(/to=\{checkPath\}\s+style=\{\{ color: PRIMARY_GREEN,/);
     expect(PRACTICE).toContain("color: tone.ink,");
   });
 

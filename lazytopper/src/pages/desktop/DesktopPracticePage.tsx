@@ -1619,7 +1619,7 @@ function MistakeIntelligencePanel({
           alignItems: "center",
           justifyContent: "center",
           gap: 7,
-          background: `linear-gradient(135deg, ${PRIMARY_GREEN}, ${PRIMARY_GREEN_DARK})`,
+          background: `linear-gradient(135deg, ${PRIMARY_GREEN_DARK}, hsl(152, 60%, 25%))`,
           color: "#fff",
           fontSize: 13.5,
           fontWeight: 600,
