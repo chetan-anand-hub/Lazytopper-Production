@@ -376,3 +376,14 @@ export const BANK_STEPS_1: readonly BankSteps1Entry[] = [
   { id: "OE-M04", file: "class10/science/ourEnvironment.pack1.ts", verdict: "PARTIAL", evidence: "Stem asserts \"Food chains ... rarely have more than four trophic levels\" with a 10% reason, but steps say \"Assertion (A) states energy flow is unidirectional\" and \"energy captured by autotrophs does not revert to solar input\", while only the explanation addresses \"a fifth trophic level\".", likelyTrueOwnerId: null, state: "paused" },
   { id: "LP-AR05", file: "class10/science/lifeProcesses.pack1.ts", verdict: "MISPAIRED", evidence: "Stem is about \"Aerobic respiration produces more energy than anaerobic respiration\" but steps discuss \"trachea walls are indeed supported by C-shaped cartilaginous rings\".", likelyTrueOwnerId: null, state: "paused" },
 ];
+
+/**
+ * GARBLE-1 (D171, 14 Oct 2026): pins removed from other data files while their row is withheld. The REPAIR PR that serves the row again puts the
+ * exact line back. A declared figure binding (BOUND_BUT_WITHHELD) is not removed, only declared: the repair PR deletes the declaration.
+ */
+export const RESTORE_ON_REPAIR: ReadonlyArray<{ id: string; file: string; restore: string }> = [
+  { id: "PYQ-M-2025-STAT-006", file: "data/cbq/officialCbqTags.maths.ts", restore: '  "PYQ-M-2025-STAT-006",   // in OFFICIAL_CBQ_MATHS_IDS, between "PYQ-M-2025-PROB-008" and "SAV-N-EXEM2-12-LA-002"' },
+  { id: "PYQ-M-2025-TRIG-005", file: "data/cbq/officialCbqTags.maths.ts", restore: '  "PYQ-M-2025-TRIG-005",   // same list, directly after "PYQ-M-2025-STAT-006"' },
+  { id: "PYQ-M-STAT-008", file: "data/figures/mathsFigureVisuals.ts", restore: "delete the BOUND_BUT_WITHHELD entry (the binding maths-statistics-fig-pyq-m-stat-008 is still in place)" },
+  { id: "PYQ-M-2025-STAT-006", file: "data/figures/mathsFigureVisuals.ts", restore: "delete the BOUND_BUT_WITHHELD entry (the binding maths-statistics-fig-pyq-m-2025-stat-006 is still in place)" },
+];

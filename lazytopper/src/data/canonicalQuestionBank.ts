@@ -1174,6 +1174,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
   "PYQ-M-2024-TRIG-018",     // garbled-extraction: theta rendered as q, fractions flattened
   "PYQ-M-2024-TRIG-020",     // garbled-extraction: fractions flattened (tan/cot proof)
+  // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
+  "PYQ-M-AP-004",                 // garbled-extraction: operator lost in the statement (p + q n)
+  "PYQ-M-STAT-008",               // garbled-extraction: class-interval dashes lost in the table
+  "PYQ-M-2025-STAT-006",          // garbled-extraction: class-interval dashes lost in the table
+  "PYQ-M-2025-TRIG-005",          // garbled-extraction: degree/angle signs lost, marks digits inline
   // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
   "PYQ-M-QE-003",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
   "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options

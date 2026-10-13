@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Served bank id -> {topicKey, subtopic, section} for 10234 rows, in aggregator order.
+// Served bank id -> {topicKey, subtopic, section} for 10230 rows, in aggregator order.
 // Ids and tags only, never question content. Read through ./bankIdIndex.ts.
 
 export const BANK_ID_INDEX_TOPIC_KEYS: readonly string[] = [
@@ -8470,7 +8470,6 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["PYQ-M-QE-006", 5, 9, 2],
   ["PYQ-M-AP-001", 6, 52, 0],
   ["PYQ-M-AP-002", 6, 9, 2],
-  ["PYQ-M-AP-004", 6, 52, 2],
   ["PYQ-M-AP-005", 6, 53, 2],
   ["PYQ-M-AP-006", 6, 873, 2],
   ["PYQ-M-TRI-002", 0, 9, 0],
@@ -8513,7 +8512,6 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["PYQ-M-STAT-003", 11, 1729, 0],
   ["PYQ-M-STAT-005", 11, 1729, 0],
   ["PYQ-M-STAT-006", 11, 1730, 2],
-  ["PYQ-M-STAT-008", 11, 1729, 3],
   ["PYQ-M-STAT-010", 11, 1729, 3],
   ["PYQ-M-PROB-001", 12, 1731, 0],
   ["PYQ-M-PROB-004", 12, 9, 0],
@@ -8646,7 +8644,6 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["PYQ-M-2025-CG-007", 7, 59, 2],
   ["PYQ-M-2025-TRIG-002", 1, 1241, 1],
   ["PYQ-M-2025-TRIG-003", 1, 1241, 1],
-  ["PYQ-M-2025-TRIG-005", 1, 10, 4],
   ["PYQ-M-2025-CIRC-001", 8, 9, 0],
   ["PYQ-M-2025-CIRC-002", 8, 9, 1],
   ["PYQ-M-2025-CIRC-003", 8, 1726, 1],
@@ -8665,7 +8662,6 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["PYQ-M-2025-SAV-006", 10, 78, 4],
   ["PYQ-M-2025-STAT-001", 11, 1746, 3],
   ["PYQ-M-2025-STAT-002", 11, 1746, 3],
-  ["PYQ-M-2025-STAT-006", 11, 1729, 4],
   ["PYQ-M-2025-PROB-001", 12, 9, 0],
   ["PYQ-M-2025-PROB-002", 12, 1733, 2],
   ["PYQ-M-2025-PROB-003", 12, 1733, 2],
