@@ -257,7 +257,11 @@ function salvageDetectQuestions(text) {
   if (!m) return out;
   // root-level fields before the array: close the object after the last complete pair
   try {
-    const head = s.slice(rootAt, m.index).replace(/[\s,]+$/, '');
+    // A backwards character scan, NOT a `/[\s,]+$/` regex: that regex is quadratic on a long run of
+    // spaces/commas inside the prefix (a 160k-char run took ~50 s and blocked the event loop).
+    let end = m.index;
+    while (end > rootAt && (s[end - 1] === ',' || s[end - 1] === ' ' || s[end - 1] === '\n' || s[end - 1] === '\r' || s[end - 1] === '\t')) end -= 1;
+    const head = s.slice(rootAt, end);
     const parsedHead = JSON.parse(head + '}');
     if (parsedHead && typeof parsedHead === 'object') out.prefix = parsedHead;
   } catch (_e) { /* no usable prefix: the caller derives the top-level fields from the first question */ }
@@ -283,10 +287,13 @@ function salvageDetectQuestions(text) {
     } else if (c === '}') {
       depth -= 1;
       if (depth === 0 && objStart >= 0) {
-        try {
-          const q = JSON.parse(s.slice(objStart, i + 1));
-          if (q && typeof q === 'object' && !Array.isArray(q)) out.questions.push(q);
-        } catch (_e) { /* a malformed fragment is dropped, never repaired */ }
+        // ★ CONTIGUOUS PREFIX ONLY: stop at the first object that does not parse. Skipping it and carrying
+        // on would return [Q1, Q3] and the client would say "we read the first 2 questions" while Q2 was
+        // silently missing. A malformed fragment is never repaired, and nothing after it is trusted.
+        let q = null;
+        try { q = JSON.parse(s.slice(objStart, i + 1)); } catch (_e) { q = null; }
+        if (q && typeof q === 'object' && !Array.isArray(q)) out.questions.push(q);
+        else break;
         objStart = -1;
       } else if (depth < 0) break;
     } else if (c === ']' && depth === 0) break;

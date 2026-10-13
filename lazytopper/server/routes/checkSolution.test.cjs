@@ -2661,6 +2661,24 @@ test('§21.6 the salvage never invents: a question cut mid-way is dropped whole,
   assert.equal(DET.salvageDetectQuestions('').truncated, false);
 });
 
+test('§21.6b ★ the salvage returns a CONTIGUOUS prefix only: a malformed object in the middle stops it, so "the first n questions" is always true', () => {
+  const BS = String.fromCharCode(92); // a lone backslash + q is an invalid JSON escape
+  const mid = '{"questions":[{"questionNumber":1,"questionText":"one"},{"questionNumber":2,"questionText":"bad ' + BS + 'q escape"},{"questionNumber":3,"questionText":"three"}]}';
+  assert.throws(() => JSON.parse(mid), 'precondition: the reply does not parse');
+  const s = DET.salvageDetectQuestions(mid);
+  assert.deepEqual(s.questions.map((q) => q.questionNumber), [1], 'Q3 is NOT returned past the broken Q2: no silent gap');
+});
+
+test('§21.6c the prefix trim is LINEAR: a 160k-character run of spaces and commas before the array does not stall the event loop', () => {
+  // the run sits in the MIDDLE of the prefix, followed by more text: that is what made `/[\s,]+$/` quadratic
+  const junk = '{"detectedMarks":1,' + ' '.repeat(80000) + '"detectedSubject":"Maths", "questions":[{"questionNumber":1,"questionText":"a"}]}';
+  const t0 = Date.now();
+  const s = DET.salvageDetectQuestions(junk);
+  assert.equal(s.questions.length, 1);
+  assert.equal(s.prefix.detectedSubject, 'Maths');
+  assert.ok(Date.now() - t0 < 1000, 'was ~50 s with a quadratic regex; took ' + (Date.now() - t0) + ' ms');
+});
+
 test('§21.7 the salvage runs only on the DETECT route: marks and the grading prompt are untouched (a grade reply that does not parse is still a parse miss)', async () => {
   const h = buildRoute({ replies: [PARSE_MISS] });
   await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
