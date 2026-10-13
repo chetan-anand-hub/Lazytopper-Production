@@ -23,6 +23,8 @@
 
 // 256-bit tokens, base64url-encoded => 43 chars of [A-Za-z0-9_-]. The bound is
 // generous but keeps absurd inputs from ever reaching Firestore.
+// UPLOAD-READ-1 PR-B (D138): the phone's upload carries a PDF up to 7 MB (9.79 MB of base64): read it with the file-route cap.
+const { FILE_ROUTE_MAX_BODY_BYTES } = require('../mentorImageSupport.cjs');
 const TOKEN_RE = /^[A-Za-z0-9_-]{20,100}$/;
 
 function createQrUploadRoutes(deps) {
@@ -114,7 +116,7 @@ function createQrUploadRoutes(deps) {
 
     let payload;
     try {
-      payload = await readJson(req);
+      payload = await readJson(req, FILE_ROUTE_MAX_BODY_BYTES);
     } catch (_e) {
       return sendJson(res, 400, { ok: false, reason: 'invalid', error: 'Invalid JSON' });
     }

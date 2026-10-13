@@ -91,6 +91,8 @@ const {
 // GRADER-CORE-1 PR-3 (C9): the grading handler records how many questions it actually GRADED
 // (a non-enumerable count on `res`, set before it sends). Absent → the requested count, as before.
 const { chargeableCountOf } = require('../grading/charge.cjs');
+// UPLOAD-READ-1 PR-B (D138): the grade-worksheet pre-read uses the same file-route cap as the handler.
+const { FILE_ROUTE_MAX_BODY_BYTES } = require('../mentorImageSupport.cjs');
 
 /**
  * C9 — the trial counters a SERVED (2xx) grading response actually spends. `charged` is the
@@ -225,7 +227,7 @@ const SURFACES_BY_PATH = Object.freeze({
 });
 
 /** Mirrors handleGradeWorksheet's own body cap (checkSolution.cjs), so the pre-read refuses nothing the handler would accept. */
-const GRADE_WORKSHEET_MAX_BYTES = 8 * 1024 * 1024;
+const GRADE_WORKSHEET_MAX_BYTES = FILE_ROUTE_MAX_BODY_BYTES;
 
 /* ── Limits (every one env-tunable; the spec's numbers are the defaults) ───── */
 

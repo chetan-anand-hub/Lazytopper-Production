@@ -4,35 +4,45 @@
 // path (desktop file picker, QR phone handoff), so the number and the words a student
 // reads can never drift apart again.
 //
-// ── WHY THESE NUMBERS, AND WHY "5 MB" WAS ALWAYS FALSE ───────────────────────────
+// ── WHY THESE NUMBERS ─────────────────────────────────────────────────────────────
 // An upload does not travel as bytes. It travels as base64 inside a JSON body, and
 // base64 inflates by ~4/3. The grade request also carries the whole questions array
-// alongside the image. The backend caps the WHOLE body at 5 MB
-// (`server/services/httpUtils.cjs` readJson, default maxBytes = 5 * 1024 * 1024) and
-// on excess it destroys the request: "Request body too large".
+// alongside the file. Two walls bound the body, and the TIGHTER one is the contract:
 //
-//   a 5.00 MB PDF -> 6.67 MB of base64  ->  ALREADY over a 5 MB body cap, alone.
+//   1. The EDGE in front of the app refuses any request body over EXACTLY 10 MiB
+//      (EDGE_MAX_BODY_BYTES below). MEASURED against production on 13 Oct 2026 by
+//      POSTing 'A' bytes to www /api/health, a route that never reads its body:
+//      10,485,760 bytes is answered by the app (400); 10,485,761 gets 413 from the
+//      edge. No setting in this repo can move it.
+//   2. The app's own file routes read their body with FILE_ROUTE_MAX_BODY_BYTES
+//      (server/mentorImageSupport.cjs), set to that same 10 MiB; every other route
+//      keeps the 5 MB default (server/services/httpUtils.cjs).
 //
-// So the old "PDF up to 5 MB" was arithmetically unspendable on EVERY path. A student
-// who attached a 4-5 MB PDF passed the picker's check and then died at the grader —
-// the exact "uploaded, then dead" failure the product forbids. This was live on the
-// desktop path long before the QR handoff existed.
+// So the honest PDF ceiling is what still fits under 10 MiB after base64 and the
+// questions payload:
+//
+//   7.0 MB PDF -> 9.79 MB base64 + 0.10 MB questions = 9.89 MB   ✅ fits, ~0.6 MB spare
+//   7.5 MB PDF -> 10.00 MiB base64 alone                          ❌ no room for anything
+//   8.0 MB PDF -> 11.18 MB base64                                 ❌ can NEVER arrive
 //
 // MEASURED (against the assembled 8,584-row bank, transpile-then-require — not a text
 // scan): the questions array is small — 0.10 MB for the heaviest 38-question draw,
-// median row ~1,005 bytes. That puts the true ceiling at ~3.68 MB of raw file.
+// median row ~1,005 bytes. The 0.6 MB left over is deliberate headroom: the payload
+// varies per paper and must never be the thing that silently pushes a real student
+// over. History: "PDF up to 5 MB" was arithmetically unspendable against the old 5 MB
+// body cap (5 MB -> 6.67 MB of base64, over the cap alone); 3.5 MB was the honest
+// ceiling for that cap; UPLOAD-READ-1 PR-B (cofounder D138) raised the body cap to the
+// edge's 10 MiB and the ceiling to 7 MB, for question AND answer/solution uploads on
+// every surface. Anything of 8 MB or more needs a different transport (a direct-to-
+// storage upload or PDF re-compression), not a bigger number here
+// ([FU-UPLOAD-OVER-10MIB-EDGE]).
+// `scripts/ops/qr_upload_channel_acceptance.mjs` and `uploadLimits.edge.test.ts` assert
+// this arithmetic on every PR — if someone raises these, the matrix goes red rather
+// than students hitting a wall at the grader.
 //
-//   3.50 MB PDF -> 4.67 MB base64 + 0.10 MB questions = 4.76 MB  ✅ fits, ~0.5 MB spare
-//
-// 3.5 MB is therefore the honest PDF ceiling, with headroom left deliberately: the
-// questions payload varies per paper and must never be the thing that silently pushes
-// a real student over. `scripts/ops/qr_upload_channel_acceptance.mjs` asserts this
-// arithmetic on every PR — if someone raises these, the matrix goes red rather than
-// students hitting a wall at the grader.
-//
-// The server keeps its own, looser backstop (mentorImageSupport.cjs: 5 MB PDF / 3 MB
-// image). That is deliberate and is NOT the contract: it is a last-ditch guard the
-// client never reaches. The limits below are what the product promises, and what the
+// The server keeps its own, equal backstop (mentorImageSupport.cjs: 7 MB PDF / 3 MB
+// image; pinned equal to the constants below by a test). The limits below are what the
+// product promises, and what the
 // copy must say.
 
 /** The image ceiling the SERVER enforces (mentorImageSupport.cjs, 3 MB decoded).
@@ -53,11 +63,22 @@ export const PHOTO_TARGET_BYTES = 2.5 * 1024 * 1024;
 /** A PDF CANNOT be downscaled the way an image can (there is no canvas for it), so this
  *  IS a wall — and it must therefore be enforced early and refused honestly, in the
  *  picker or on the phone, never after the student believes they are done. */
-export const MAX_UPLOAD_PDF_BYTES = 3.5 * 1024 * 1024;
+export const MAX_UPLOAD_PDF_BYTES = 7 * 1024 * 1024;
+
+/** The largest request body that reaches the app at all: exactly 10 MiB, MEASURED against production
+ *  (see the header). A file's base64 + the JSON around it must stay under this; `uploadLimits.edge.test.ts`
+ *  fails if `MAX_UPLOAD_PDF_BYTES` ever stops fitting. Mirrors `FILE_ROUTE_MAX_BODY_BYTES` in
+ *  server/mentorImageSupport.cjs (pinned equal). */
+export const EDGE_MAX_BODY_BYTES = 10 * 1024 * 1024;
+
+/** Worst-case size of everything in the grade request that is NOT the file (the questions array,
+ *  measured at 0.10 MB for the heaviest 38-question draw), doubled for headroom. */
+export const NON_FILE_PAYLOAD_ALLOWANCE_BYTES = 200 * 1024;
 
 /** Several photos of one answer are assembled ON THE DEVICE into one PDF (UPLOAD-2 R6).
- *  The assembled PDF aims under this — the PDF ceiling less 0.3 MB of headroom — so a
- *  photo-built PDF never lands on the wall that a scanned PDF is refused at. */
+ *  The assembled PDF aims under this, well below the PDF ceiling, so a photo-built PDF never
+ *  lands on the wall that a scanned PDF is refused at AND stays quick to send from a phone.
+ *  (UPLOAD-READ-1 PR-B raised the ceiling to 7 MB and left this target at 3.2 MB on purpose.) */
 export const PAGES_PDF_TARGET_BYTES = 3.2 * 1024 * 1024;
 
 /** At most this many photos make one upload (R6). */
@@ -88,7 +109,7 @@ export const UPLOAD_LIMIT_SENTENCE = `PDF up to ${formatUploadLimit(MAX_UPLOAD_P
 // ── THE PICKER GUARD ─────────────────────────────────────────────────────────────
 //
 // The server accepts EXACTLY {image/jpeg, image/png, application/pdf}
-// (`server/mentorImageSupport.cjs` ALLOWED_MIME_TYPES) and caps the body at 5 MB.
+// (`server/mentorImageSupport.cjs` ALLOWED_MIME_TYPES) and caps a file route's body at 10 MiB.
 // Every picker in the product must therefore refuse the same two things — a wrong
 // TYPE and an oversized FILE — *before* the student believes they are done.
 //

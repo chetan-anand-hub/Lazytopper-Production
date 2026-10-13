@@ -342,7 +342,7 @@ describe("(b)(c) PDFs keep their hard wall; a wrong type gets the type message",
     const big = new File([new Uint8Array(MAX_UPLOAD_PDF_BYTES + 1)], "scan.pdf", { type: "application/pdf" });
     const c = checkUploadFile(big, "answers");
     expect(c.ok).toBe(false);
-    expect(!c.ok && c.message).toMatch(/the limit is 3\.5 MB\. Try scanning at a lower quality/);
+    expect(!c.ok && c.message).toMatch(/the limit is 7 MB\. Try scanning at a lower quality/);
   });
 
   it("(c) a non-image, non-PDF gets the type message", () => {
