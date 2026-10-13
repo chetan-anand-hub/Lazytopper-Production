@@ -95,20 +95,20 @@ describe("PERF-1 F1 — NoteRichText behaviour", () => {
     return { store, NoteRichText };
   }
 
-  const TEXT = "so $\sin^2\theta$ plus prose";
-  const HTML = katex.renderToString("\sin^2\theta", { ...OLD_OPTIONS });
+  const TEXT = "so $\\sin^2\\theta$ plus prose";
+  const HTML = katex.renderToString("\\sin^2\\theta", { ...OLD_OPTIONS });
   const EXPECTED = `<span><span>so </span><span>${HTML}</span><span> plus prose</span></span>`;
 
   it("(d1) a mapped formula renders at once, to exactly today's markup", async () => {
     const { store, NoteRichText } = await load();
-    store.registerNoteMath({ "\sin^2\theta": HTML });
+    store.registerNoteMath({ "\\sin^2\\theta": HTML });
     const { container } = render(<NoteRichText text={TEXT} />);
     expect(container.innerHTML).toBe(EXPECTED);
   });
 
   it("(d2) CONTROL: the map is what is rendered (a different entry shows)", async () => {
     const { store, NoteRichText } = await load();
-    store.registerNoteMath({ "\sin^2\theta": "<b>mapped</b>" });
+    store.registerNoteMath({ "\\sin^2\\theta": "<b>mapped</b>" });
     const { container } = render(<NoteRichText text={TEXT} />);
     expect(container.innerHTML).toContain("<b>mapped</b>");
     expect(container.querySelector(".katex")).toBeNull();

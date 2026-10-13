@@ -13,8 +13,8 @@
  *
  * REGENERATE WITH (from `lazytopper/`), after any change to a spec's formulas:
  *
- *     pnpm run gen:note-math            (writes)
- *     pnpm run gen:note-math -- --check (exit 1 if any file would change)
+ *     npx tsx scripts/genNoteMath.ts            (writes)
+ *     npx tsx scripts/genNoteMath.ts --check (exit 1 if any file would change)
  *
  * Tooling only: not imported by the app, never ships.
  */
@@ -116,7 +116,7 @@ function main(): void {
     if (!check) writeFileSync(FIGURE_SIZES_FILE, sizesNext);
   }
   if (check && stale.length > 0) {
-    console.error(`note math maps out of date: ${stale.join(", ")} — run pnpm run gen:note-math`);
+    console.error(`note math maps out of date: ${stale.join(", ")} — run npx tsx scripts/genNoteMath.ts`);
     process.exit(1);
   }
   console.log(check ? "note math maps up to date" : `wrote ${stale.length} note math maps`);
