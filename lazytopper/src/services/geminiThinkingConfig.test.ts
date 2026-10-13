@@ -171,11 +171,11 @@ describe("detect-question call site sends thinkingBudget:0", () => {
     expect(capturedConfig).not.toBeNull();
     expect(capturedConfig.thinkingConfig).toEqual({ thinkingBudget: 0 });
     // The rest of the detect config is untouched, EXCEPT maxOutputTokens which was
-    // raised (400 → 4096) so multi-question detect can return every question's full
-    // text without truncating — including a full paper whose later questions are
-    // long-answers (thinking is off, so the whole budget is the JSON).
+    // raised (400 → 4096 → 16384) so multi-question detect can return every question's full
+    // text without truncating — including a full 38-question paper (UPLOAD-READ-1: 4096 cut a
+    // board paper off mid-JSON; thinking is off, so the whole budget is the JSON).
     expect(capturedConfig.temperature).toBe(0.1);
-    expect(capturedConfig.maxOutputTokens).toBe(4096);
+    expect(capturedConfig.maxOutputTokens).toBe(16384);
     expect(capturedConfig.responseMimeType).toBe("application/json");
     // Route still responded ok.
     expect(captured?.status).toBe(200);

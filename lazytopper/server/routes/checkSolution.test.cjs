@@ -203,11 +203,11 @@ test('§3.1 the GRADING call: maxOutputTokens 16000, JSON mime, and NO thinking 
     'grading thinking is deliberately dynamic/uncapped — see [FU-EFF-THINKING-BUDGET]');
 });
 
-test('§3.2 the DETECT call: maxOutputTokens 4096 AND thinkingBudget 0 (a different fix, different cause)', async () => {
+test('§3.2 the DETECT call: maxOutputTokens 16384 (UPLOAD-READ-1: was 4096, which cut a full 38-question paper off) AND thinkingBudget 0 (a different fix, different cause)', async () => {
   const h = buildRoute({ replies: [{ detectedMarks: 3, marksSource: 'stated', detectedSubject: 'Maths' }] });
   await h.route.handleDetectQuestion({ question: 'What is the value of x?' }, {});
   const cfg = h.calls[0].genConfig;
-  assert.equal(cfg.maxOutputTokens, 4096);
+  assert.equal(cfg.maxOutputTokens, 16384);
   assert.deepEqual(cfg.thinkingConfig, { thinkingBudget: 0 },
     'thinking off here: at a 400-token cap the thoughts ate the budget and the JSON truncated');
 });
@@ -2567,6 +2567,123 @@ test('§20.9 ★ OWNER-ANOMALY-02 (live AFTER-PR2: detect returned "x² 5x + 6")
   assert.equal(qs[1].questionText, 'Find the distance between the points (3, 4) and (−1, 1).');
   assert.match(qs[2].questionText, /1 × 10⁻⁶ m²\. The resistivity of copper is 1\.6 × 10⁻⁸ Ω m\./);
   assert.ok(detectPrompt(h).includes('the test for the gas evolved — is metals-and-non-metals'), 'the per-question chapter rule (Q17 was filed under chemical reactions live)');
+});
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   §21 · UPLOAD-READ-1 PR-A — a FULL paper can be read; a cut-off reply is salvaged, not thrown away
+   ★ A live student could not read a CBSE paper in Check & Improve: the detect reply (the FULL text of every
+     question, as JSON) was capped at 4096 tokens, a 38-question paper is longer, the JSON was cut off, did
+     not parse, the one retry hit the same cap, and the student saw "couldn't read the question".
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+// A realistic 38-question reply (long enough to be cut), as the string a capped model would emit.
+const paperQs = (n) => Array.from({ length: n }, (_, i) => DQ(i + 1,
+  'Q' + (i + 1) + '. A cylindrical tank of radius 3.5 m and height ' + (i + 4) + ' m is filled with water; find its volume and the cost of filling it at the given rate. Show every step.',
+  { marks: i < 20 ? 1 : 3, objective: i < 20 }));
+const FULL_PAPER = JSON.stringify(DREPLY(paperQs(38)));
+
+test('§21.1 ★ RED-on-trunk: a 38-question reply CUT OFF mid-question salvages exactly the complete questions, partial + readCount, and is NOT retried', async () => {
+  const cutAt = FULL_PAPER.indexOf('Q27. ') + 40; // inside question 27's text
+  const cut = FULL_PAPER.slice(0, cutAt);
+  assert.throws(() => JSON.parse(cut), 'precondition: the cut reply does not parse (this is what used to lose the whole read)');
+  const h = buildRoute({ replies: [cut] });
+  await h.route.handleDetectQuestion({ question: 'paper' }, {});
+  const b = h.body();
+  assert.equal(b.ok, true);
+  assert.equal(b.partial, true);
+  assert.equal(b.readCount, 26, 'Q1..Q26 were complete; Q27 was cut mid-text and is dropped, never completed');
+  assert.equal(b.questions.length, 26);
+  assert.deepEqual(b.questions.map((q) => q.questionNumber), Array.from({ length: 26 }, (_, i) => i + 1));
+  assert.ok(b.questions[25].questionText.startsWith('Q26. A cylindrical tank'), 'recovered text is the model own text, verbatim');
+  assert.equal(h.calls.length, 1, 'a cut reply that already holds complete questions is not retried: the same cap would cut it again');
+});
+
+test('§21.2 a valid FULL reply is unchanged: no partial / readCount keys, every question', async () => {
+  const h = buildRoute({ replies: [FULL_PAPER] });
+  await h.route.handleDetectQuestion({ question: 'paper' }, {});
+  const b = h.body();
+  assert.equal(b.ok, true);
+  assert.equal(b.questions.length, 38);
+  assert.equal('partial' in b, false);
+  assert.equal('readCount' in b, false);
+  assert.equal(h.calls.length, 1);
+});
+
+test('§21.3 a PDF whose cut reply has ZERO complete questions says the paper is long — it does not say "please try again"', async () => {
+  const cutInFirst = FULL_PAPER.slice(0, FULL_PAPER.indexOf('Q1. ') + 30);
+  const h = buildRoute({ replies: [cutInFirst, cutInFirst] });
+  await h.route.handleDetectQuestion({ imageBase64: 'BASE64', imageMimeType: 'application/pdf' }, {});
+  const b = h.body();
+  assert.equal(b.ok, false);
+  assert.equal(b.error, 'This paper is long — try uploading fewer pages at a time.');
+  assert.doesNotMatch(b.error, /try again/);
+  assert.equal(h.calls.length, 2, 'nothing recoverable: the existing one bounded retry still runs');
+});
+
+test('§21.3b ★ the "paper is long" message is for PDFs ONLY: a cut-off reply for a single photo / typed question keeps "please try again" (golden D.ITEM.GS-S05 is exactly this shape)', async () => {
+  const cutInFirst = FULL_PAPER.slice(0, FULL_PAPER.indexOf('Q1. ') + 30);
+  for (const payload of [{ question: 'What is the value of x?' }, { imageBase64: 'BASE64', imageMimeType: 'image/jpeg' }]) {
+    const h = buildRoute({ replies: [cutInFirst, cutInFirst] });
+    await h.route.handleDetectQuestion(payload, {});
+    assert.equal(h.body().ok, false);
+    assert.equal(h.body().error, "We couldn't read the question this time — please try again.");
+  }
+});
+
+test('§21.4 a reply that is NOT JSON (not a cut-off) keeps the transient "try again" wording', async () => {
+  const h = buildRoute({ replies: ['not json at all', 'still not json'] });
+  await h.route.handleDetectQuestion({ question: 'What is x?' }, {});
+  assert.equal(h.body().ok, false);
+  assert.match(h.body().error, /couldn't read the question this time — please try again/);
+});
+
+test('§21.5 a 429 still retries once (the salvage did not touch the transient path)', async () => {
+  let n = 0;
+  const err = new Error('rate limited'); err.status = 429;
+  const r = buildRoute({ replies: [DREPLY([DQ(1, 'What is x?')])], depOverrides: {
+    callGemini: async () => { n += 1; if (n === 1) throw err; return { text: JSON.stringify(DREPLY([DQ(1, 'What is x?')])), raw: {} }; },
+  } });
+  await r.route.handleDetectQuestion({ question: 'What is x?' }, {});
+  assert.equal(n, 2);
+  assert.equal(r.body().ok, true);
+});
+
+test('§21.6 the salvage never invents: a question cut mid-way is dropped whole, quotes / brackets / backslashes inside text survive, and a fenced reply works', () => {
+  const tricky = DQ(1, 'Find "x" where {a} ] [ , and a back\\slash');
+  const t = JSON.stringify(DREPLY([tricky, DQ(2, 'second whole question'), DQ(3, 'third cut here')]));
+  const cut = '```json\n' + t.slice(0, t.indexOf('third cut') + 5);
+  const s = DET.salvageDetectQuestions(cut);
+  assert.equal(s.truncated, true);
+  assert.deepEqual(s.questions.map((q) => q.questionText), [tricky.questionText, 'second whole question']);
+  assert.equal(s.prefix.detectedSubject, 'Maths', 'root fields emitted before the array are kept');
+  const none = DET.salvageDetectQuestions('not json at all');
+  assert.deepEqual(none, { questions: [], prefix: null, truncated: false });
+  assert.equal(DET.salvageDetectQuestions('').truncated, false);
+});
+
+test('§21.6b ★ the salvage returns a CONTIGUOUS prefix only: a malformed object in the middle stops it, so "the first n questions" is always true', () => {
+  const BS = String.fromCharCode(92); // a lone backslash + q is an invalid JSON escape
+  const mid = '{"questions":[{"questionNumber":1,"questionText":"one"},{"questionNumber":2,"questionText":"bad ' + BS + 'q escape"},{"questionNumber":3,"questionText":"three"}]}';
+  assert.throws(() => JSON.parse(mid), 'precondition: the reply does not parse');
+  const s = DET.salvageDetectQuestions(mid);
+  assert.deepEqual(s.questions.map((q) => q.questionNumber), [1], 'Q3 is NOT returned past the broken Q2: no silent gap');
+});
+
+test('§21.6c the prefix trim is LINEAR: a 160k-character run of spaces and commas before the array does not stall the event loop', () => {
+  // the run sits in the MIDDLE of the prefix, followed by more text: that is what made `/[\s,]+$/` quadratic
+  const junk = '{"detectedMarks":1,' + ' '.repeat(80000) + '"detectedSubject":"Maths", "questions":[{"questionNumber":1,"questionText":"a"}]}';
+  const t0 = Date.now();
+  const s = DET.salvageDetectQuestions(junk);
+  assert.equal(s.questions.length, 1);
+  assert.equal(s.prefix.detectedSubject, 'Maths');
+  assert.ok(Date.now() - t0 < 1000, 'was ~50 s with a quadratic regex; took ' + (Date.now() - t0) + ' ms');
+});
+
+test('§21.7 the salvage runs only on the DETECT route: marks and the grading prompt are untouched (a grade reply that does not parse is still a parse miss)', async () => {
+  const h = buildRoute({ replies: [PARSE_MISS] });
+  await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(h.body().partial, undefined);
+  assert.equal(h.body().readCount, undefined);
 });
 
 // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on this route — the submit's async

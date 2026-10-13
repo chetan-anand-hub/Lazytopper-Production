@@ -530,12 +530,14 @@ function createCheckSolutionRoute(deps) {
         temperature: 0.1,
         // Multi-question detect returns the FULL text of every question in the
         // upload, so the JSON can be far larger than a single-question read. With
-        // thinking disabled (below) the whole budget is available for that JSON;
-        // 4096 gives safe headroom for a full paper whose later questions are
-        // 5-mark long-answers with lengthy text (2048 could clip Q4/Q5). (A
-        // single-question read returns the same small JSON — the cap is only an
-        // upper bound.)
-        maxOutputTokens: 4096,
+        // thinking disabled (below) the whole budget is available for that JSON.
+        // ★ UPLOAD-READ-1 · 4096 -> 16384. 4096 was sized for a 5-question upload (2048 clipped
+        // Q4/Q5); a full CBSE board paper is 38 questions, whose text as JSON is ~5-9k tokens
+        // (measured on the public 2026-27 Maths SQP: 18,241 chars = ~5.2-6.1k tokens at 3-3.5
+        // chars/token), so the reply was cut off, did not parse, and the student saw "couldn't
+        // read the question". The cap is only an upper bound: a single-question read returns the
+        // same small JSON. A reply that STILL hits it is salvaged below, never thrown away.
+        maxOutputTokens: 16384,
         responseMimeType: 'application/json',
         // Constrained decoding (PR-C2) — DETECT_RESPONSE_SCHEMA, derived from this
         // handler's own parser, which is far looser than the grader's: a bare `{}` is an
@@ -564,26 +566,68 @@ function createCheckSolutionRoute(deps) {
       const t0 = nowMs();
       let parsed = null;
       let lastErr = null;
+      // UPLOAD-READ-1 · every reply text that did not parse, kept so a cut-off one can be salvaged.
+      const unparsedReplies = [];
+      const bestSalvage = () => {
+        let best = null;
+        for (const t of unparsedReplies) {
+          const s = D.salvageDetectQuestions(t);
+          if (!best || s.questions.length > best.questions.length) best = s;
+        }
+        return best;
+      };
       for (let attempt = 1; attempt <= 2 && !parsed; attempt += 1) {
         if (attempt === 2) {
           if (lastErr && !D.isDetectRetryableError(lastErr)) break;
           if (nowMs() - t0 > D.DETECT_RETRY_WINDOW_MS) break;
+          // UPLOAD-READ-1 · a reply that was cut off but already holds complete questions is NOT
+          // retried: the same cap would cut it again, and a second full-length call doubles the wait.
+          if (!lastErr && bestSalvage() && bestSalvage().questions.length > 0) break;
           console.warn('[detect-question] attempt 1 ' + (lastErr ? 'failed (HTTP ' + (lastErr.status || '?') + ')' : 'did not parse') + ' — retrying once.');
         }
         try {
           const reply = await callGemini(GEMINI_MODEL, [{ role: 'user', parts }], { ...detectConfig, attempt });
           parsed = extractJsonObjectFromText(reply && reply.text);
+          if (!parsed && reply && typeof reply.text === 'string' && reply.text) unparsedReplies.push(reply.text);
           lastErr = null;
         } catch (err) {
           lastErr = err;
         }
       }
       if (!parsed && lastErr) throw lastErr;
+      // UPLOAD-READ-1 · SALVAGE. A reply that was cut off still holds every COMPLETE question before the
+      // cut. Return those (never repaired or completed — see D.salvageDetectQuestions) and tell the client
+      // how many were read; the top-level fields come from the model's own prefix, else from its first question.
+      let partialRead = false;
       if (!parsed) {
-        return sendJson(res, 200, {
-          ok: false,
-          error: "We couldn't read the question this time — please try again.",
-        });
+        const best = bestSalvage();
+        if (best && best.questions.length > 0) {
+          const q0 = best.questions[0];
+          const pre = best.prefix || {};
+          parsed = {
+            detectedMarks: pre.detectedMarks != null ? pre.detectedMarks : q0.marks,
+            marksSource: pre.marksSource != null ? pre.marksSource : q0.marksSource,
+            detectedSubject: pre.detectedSubject != null ? pre.detectedSubject : q0.subject,
+            detectedTopic: pre.detectedTopic != null ? pre.detectedTopic : q0.chapter,
+            detectedObjective: pre.detectedObjective != null ? pre.detectedObjective : q0.objective,
+            detectedAnswer: pre.detectedAnswer != null ? pre.detectedAnswer : q0.answer,
+            questions: best.questions,
+          };
+          partialRead = true;
+        } else {
+          // Nothing recoverable. A reply that was CUT OFF *of a PDF upload* means the paper is long: say so.
+          // ★ ONLY FOR A PDF. The golden gate (D.ITEM.GS-S05) holds a stored ONE-question photo whose reply
+          // looped to the output cap: "this paper is long" would be false for a student who sent one short
+          // question, and would change that baseline. A cut-off single photo / typed question, an empty
+          // reply and non-JSON all keep the transient "try again".
+          const cutOff = unparsedReplies.some((t) => D.salvageDetectQuestions(t).truncated);
+          return sendJson(res, 200, {
+            ok: false,
+            error: cutOff && isPdf
+              ? D.DETECT_LONG_PAPER_MESSAGE
+              : "We couldn't read the question this time — please try again.",
+          });
+        }
       }
 
       // Validate identically to the grader's auto-detect block.
@@ -640,6 +684,14 @@ function createCheckSolutionRoute(deps) {
         sources: [question, layerText].filter(Boolean),
       });
 
+      // UPLOAD-READ-1 · a salvaged read that normalised to nothing is no read at all.
+      if (partialRead && questions.length === 0) {
+        return sendJson(res, 200, {
+          ok: false,
+          error: isPdf ? D.DETECT_LONG_PAPER_MESSAGE : "We couldn't read the question this time — please try again.",
+        });
+      }
+
       return sendJson(res, 200, {
         ok: true,
         detectedMarks,
@@ -649,6 +701,9 @@ function createCheckSolutionRoute(deps) {
         detectedObjective,
         detectedAnswer,
         questions,
+        // UPLOAD-READ-1 · ADDITIVE and absent on a complete read: the reply was cut off and these are
+        // the complete questions before the cut. The client says "We read the first n questions".
+        ...(partialRead ? { partial: true, readCount: questions.length } : {}),
         provider: ACTIVE_PROVIDER,
         model: GEMINI_MODEL,
       });
