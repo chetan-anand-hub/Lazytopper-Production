@@ -95,6 +95,7 @@ describe("ORG-SAMEAS-1 (a) — the shell's Organization sameAs equals config/soc
     const org = organizationNode(html)!;
     expect(org["@id"]).toBe("https://www.lazytopper.com/#organization");
     expect(org.alternateName).toEqual(["Lazy Topper", "lazytopper"]);
+    expect(org.logo).toBe(LOGO_URL);
     expect(org.email).toBe("support@lazytopper.com");
     expect(org.contactPoint).toEqual([
       {
@@ -109,6 +110,46 @@ describe("ORG-SAMEAS-1 (a) — the shell's Organization sameAs equals config/soc
     const graph = (JSON.parse(ldJsonBlocks(html)[0]) as { "@graph": Array<Record<string, unknown>> })["@graph"];
     const site = graph.find((n) => n["@type"] === "WebSite")!;
     expect(site.publisher).toEqual({ "@id": "https://www.lazytopper.com/#organization" });
+  });
+});
+
+/** [width, height] of a PNG buffer, or null if it is not one. */
+function pngSize(buf: Buffer): [number, number] | null {
+  const SIG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  if (buf.length < 24 || !SIG.every((b, i) => buf[i] === b)) return null;
+  return [buf.readUInt32BE(16), buf.readUInt32BE(20)];
+}
+
+const LOGO_URL = "https://www.lazytopper.com/logo-square.png";
+
+describe("ORG-SAMEAS-1 (a2) — the Organization logo is a real, square PNG that the site serves", () => {
+  const html = readFileSync(INDEX_HTML, "utf8");
+
+  it("the logo URL is the square logo, a file in public/, and og:image / twitter:image are untouched", () => {
+    expect(organizationNode(html)!.logo).toBe(LOGO_URL);
+    const file = resolve(ROOT, "public", new URL(LOGO_URL).pathname.slice(1));
+    const size = pngSize(readFileSync(file));
+    expect(size, `${file} is not a PNG`).not.toBeNull();
+    const [w, h] = size!;
+    expect(w, "the logo must be square").toBe(h);
+    expect(w, "Google's Organization-logo minimum is 112 px").toBeGreaterThanOrEqual(112);
+    expect([...html.matchAll(/(?:og|twitter):image"\s+content="([^"]*)"/g)].map((m) => m[1])).toEqual([
+      "https://www.lazytopper.com/og-image.png",
+      "https://www.lazytopper.com/og-image.png",
+    ]);
+  });
+
+  it("CONTROL — pngSize reads a real header and rejects a non-PNG and a non-square image", () => {
+    const hdr = (w: number, h: number) => {
+      const b = Buffer.alloc(24);
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(b);
+      b.writeUInt32BE(w, 16);
+      b.writeUInt32BE(h, 20);
+      return b;
+    };
+    expect(pngSize(hdr(1200, 1200))).toEqual([1200, 1200]);
+    expect(pngSize(hdr(1200, 630))).toEqual([1200, 630]); // the caller's width === height check is what rejects this
+    expect(pngSize(Buffer.from("<svg></svg>".padEnd(30, " ")))).toBeNull();
   });
 });
 
