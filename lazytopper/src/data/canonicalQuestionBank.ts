@@ -2120,6 +2120,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-CTRL-042",             // text repaired by BANK-FIX-7 PR-2 (stray header + truncated answer); still withheld: its answer cites the booklet's own diagram and booklet figures may not be bound
   "SCO-S-ELEC-012",             // text-damaged: garbled wiring description, printed so in the booklet (cbjescco12 Q17); no allowed source to restore it from (BANK-FIX-7 PR-2)
   // BANK-STEPS-1 PAUSE — spliced-solution; each id leaves this block in the PR that repairs it
+  // EL-AR05, HEY-D04: over-paused (D153), steps repaired and served again by BANK-STEPS-1 REPAIR PR-1 (13 Oct)
   "TRI2-E01",                     // spliced-solution: the steps answer another question
   "TRI2-E02",                     // spliced-solution: the steps answer another question
   "TRI2-E03",                     // spliced-solution: the steps answer another question
@@ -2389,7 +2390,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "AP2-052",                      // spliced-solution: the steps answer another question (different numbers)
   "TRI2-E04",                     // spliced-solution: the steps answer another question (different numbers)
   "TRIG2-M02",                    // spliced-solution: part of the steps answer another question
-  "EL-AR05",                      // spliced-solution: part of the steps answer another question
   "ABS-E12",                      // spliced-solution: the steps answer another question
   "PL2-R14",                      // spliced-solution: the steps answer another question (different numbers)
   "PR2-048",                      // spliced-solution: the steps answer another question (different numbers)
@@ -2432,7 +2432,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "ARC-E11",                      // spliced-solution: the steps answer another question
   "TRI2-H08",                     // spliced-solution: part of the steps answer another question
   "ARC2-047",                     // spliced-solution: part of the steps answer another question
-  "HEY-D04",                      // spliced-solution: part of the steps answer another question
   "CNC2-041",                     // spliced-solution: content-free outline, not a worked solution (no-answer)
   "CARB-E13",                     // spliced-solution: the steps answer another question
   "PLE2-R09",                     // spliced-solution: the steps answer another question (different numbers)
