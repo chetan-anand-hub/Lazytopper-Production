@@ -266,6 +266,7 @@ export const CONCEPT_BY_LABEL: Readonly<Record<ChapterSlug, Readonly<Record<stri
     "Quadratic Functions (Projectile Height Applications)": "Word/Application Problems",
     "Real-Life Quadratic Problems": "Word/Application Problems",
     "Roots by Factorisation": "Algebraic Solution",
+    "Roots by Formula": "Algebraic Solution",
     "Roots of Quadratic": "Algebraic Solution",
     "Roots of a Quadratic Equation": "Algebraic Solution",
     "Solution by Factorisation": "Algebraic Solution",

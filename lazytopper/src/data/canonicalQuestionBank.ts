@@ -2372,6 +2372,12 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "MNM-E05",                      // spliced-solution: the steps answer another question
   "HEY-AR05",                     // spliced-solution: part of the steps answer another question
   "PLE2-R14",                     // spliced-solution: the steps answer another question (refusal text)
+  "ARC2-055",                     // spliced-solution: refusal text instead of working
+  "ARC2-056",                     // spliced-solution: refusal text instead of working
+  "ARC2-057",                     // spliced-solution: refusal text instead of working
+  "SAV2-R19",                     // spliced-solution: refusal text instead of working
+  "LT-AR05",                      // spliced-solution: refusal text instead of working
+  "CARB-E17",                     // spliced-solution: the steps answer another question
 ]);
 
 /**
