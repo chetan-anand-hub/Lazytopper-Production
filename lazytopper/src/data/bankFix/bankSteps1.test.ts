@@ -33,7 +33,10 @@ describe("BANK-STEPS-1 ledger", () => {
     expect(new Set(BANK_STEPS_1.map((e) => e.id)).size).toBe(BANK_STEPS_1.length);
     expect(BANK_STEPS_1.filter((e) => !rawIds.has(e.id)).map((e) => e.id)).toEqual([]);
     expect(BANK_STEPS_1.filter((e) => !e.evidence.trim() || !e.file.trim()).map((e) => e.id)).toEqual([]);
-    expect(BANK_STEPS_1.every((e) => e.verdict === "MISPAIRED" || e.verdict === "PARTIAL")).toBe(true);
+    expect(BANK_STEPS_1.every((e) => e.verdict === "MISPAIRED" || e.verdict === "PARTIAL" || e.verdict === "NO-ANSWER")).toBe(true);
+    // a NO-ANSWER row is incomplete, not wrong (D143): it is logged `found` and stays served until its answer-fill PR.
+    expect(BANK_STEPS_1.filter((e) => e.verdict === "NO-ANSWER").every((e) => e.state === "found")).toBe(true);
+    expect(BANK_STEPS_1.filter((e) => e.verdict !== "NO-ANSWER").every((e) => e.state !== "found")).toBe(true);
   });
 
   it("(a) every paused id is withheld and is served by no path", () => {
@@ -50,6 +53,12 @@ describe("BANK-STEPS-1 ledger", () => {
       const served = new Set(selectBankQuestions({ topicKeys: [topicKey] }).map((q) => q.id));
       expect(ids.filter((id) => served.has(id)), topicKey).toEqual([]);
     }
+  });
+
+  it("a `found` id is NOT withheld: it is still served", () => {
+    const found = BANK_STEPS_1.filter((e) => e.state === "found");
+    expect(found.length).toBeGreaterThan(0);
+    expect(found.filter((e) => WITHHELD_QUESTION_IDS.has(e.id) || !servedIds.has(e.id)).map((e) => e.id)).toEqual([]);
   });
 
   it("(c) the paused count equals the size of the PAUSE block", () => {

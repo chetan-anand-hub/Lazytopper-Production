@@ -2299,6 +2299,85 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "OE-M03",                       // spliced-solution: the steps answer another question
   "OE-M05",                       // spliced-solution: the steps answer another question
   "OE-M07",                       // spliced-solution: the steps answer another question
+  "PR2-049",                      // spliced-solution: the steps answer another question (refusal text)
+  "ARC2-058",                     // spliced-solution: the steps answer another question (refusal text)
+  "TRI2-E21",                     // spliced-solution: the steps answer another question (refusal text)
+  "STAT-M10",                     // spliced-solution: the steps answer another question (refusal text)
+  "TRI2-E14",                     // spliced-solution: the steps answer another question (refusal text)
+  "PLE-E17",                      // spliced-solution: the steps answer another question (refusal text)
+  "QE-N02",                       // spliced-solution: the steps answer another question (refusal text)
+  "PR2-051",                      // spliced-solution: the steps answer another question (refusal text)
+  "STAT-N02",                     // spliced-solution: the steps answer another question (refusal text)
+  "2026-STAT-SA-02",              // spliced-solution: the steps answer another question (different numbers)
+  "2026-PLE-SA-02",               // spliced-solution: the steps answer another question (different numbers)
+  "sci-chem-acids-2m-2022-01",    // spliced-solution: the steps answer another question
+  "ABS-D03",                      // spliced-solution: part of the steps answer another question
+  "EL-M15",                       // spliced-solution: the steps answer another question
+  "EL-E02",                       // spliced-solution: the steps answer another question (different numbers)
+  "AP2-049",                      // spliced-solution: the steps answer another question (different numbers)
+  "ARC-E07",                      // spliced-solution: the steps answer another question
+  "ARC-M17",                      // spliced-solution: the steps answer another question
+  "SAV-E13",                      // spliced-solution: the steps answer another question
+  "QE-E16",                       // spliced-solution: the steps answer another question
+  "QE-M10",                       // spliced-solution: the steps answer another question
+  "AP2-046",                      // spliced-solution: the steps answer another question
+  "ARC-E17",                      // spliced-solution: the steps answer another question
+  "QE2-057",                      // spliced-solution: the steps answer another question (different numbers)
+  "SAV2-042",                     // spliced-solution: part of the steps answer another question
+  "SAV2-019",                     // spliced-solution: part of the steps answer another question
+  "CG2-049",                      // spliced-solution: the steps answer another question (different numbers)
+  "QE-N01",                       // spliced-solution: the steps answer another question (different numbers)
+  "AP2-048",                      // spliced-solution: the steps answer another question
+  "CR-D03",                       // spliced-solution: part of the steps answer another question
+  "ABS-E14",                      // spliced-solution: the steps answer another question
+  "MNM-E17",                      // spliced-solution: the steps answer another question
+  "CR-E17",                       // spliced-solution: the steps answer another question
+  "HE2-066",                      // spliced-solution: part of the steps answer another question
+  "CIR-E13",                      // spliced-solution: the steps answer another question
+  "LP-E11",                       // spliced-solution: the steps answer another question
+  "ABS-M09",                      // spliced-solution: part of the steps answer another question
+  "CG2-054",                      // spliced-solution: the steps answer another question (different numbers)
+  "QE2-050",                      // spliced-solution: the steps answer another question (different numbers)
+  "TRI2-AR02",                    // spliced-solution: part of the steps answer another question
+  "CG-N02",                       // spliced-solution: part of the steps answer another question
+  "PLE2-R12",                     // spliced-solution: the steps answer another question (different numbers)
+  "CG-N04",                       // spliced-solution: the steps answer another question (different numbers)
+  "REP-E14",                      // spliced-solution: part of the steps answer another question
+  "QE-E11",                       // spliced-solution: the steps answer another question (different numbers)
+  "LP-E15",                       // spliced-solution: the steps answer another question
+  "QE2-055",                      // spliced-solution: the steps answer another question
+  "LP-E14",                       // spliced-solution: the steps answer another question
+  "ARC2-052",                     // spliced-solution: the steps answer another question (different numbers)
+  "MNM-E16",                      // spliced-solution: the steps answer another question
+  "HE2-055",                      // spliced-solution: part of the steps answer another question
+  "QE2-049",                      // spliced-solution: the steps answer another question
+  "ARC2-048",                     // spliced-solution: the steps answer another question (different numbers)
+  "QE2-051",                      // spliced-solution: part of the steps answer another question
+  "STAT-N01",                     // spliced-solution: the steps answer another question
+  "CI2-049",                      // spliced-solution: the steps answer another question
+  "TRIG2-M03",                    // spliced-solution: part of the steps answer another question
+  "CI2-018",                      // spliced-solution: part of the steps answer another question
+  "CARB-E14",                     // spliced-solution: the steps answer another question
+  "CR-E04",                       // spliced-solution: part of the steps answer another question
+  "OE-M02",                       // spliced-solution: part of the steps answer another question
+  "PLE2-037",                     // spliced-solution: part of the steps answer another question
+  "CARB-E16",                     // spliced-solution: part of the steps answer another question
+  "OE-H01",                       // spliced-solution: the steps answer another question
+  "QE-E08",                       // spliced-solution: the steps answer another question
+  "CARB-E18",                     // spliced-solution: the steps answer another question
+  "CR-E08",                       // spliced-solution: the steps answer another question
+  "OE-M06",                       // spliced-solution: part of the steps answer another question
+  "PLE2-R13",                     // spliced-solution: the steps answer another question (different numbers)
+  "CG-E18",                       // spliced-solution: part of the steps answer another question
+  "MNM-E05",                      // spliced-solution: the steps answer another question
+  "HEY-AR05",                     // spliced-solution: part of the steps answer another question
+  "PLE2-R14",                     // spliced-solution: the steps answer another question (refusal text)
+  "ARC2-055",                     // spliced-solution: refusal text instead of working
+  "ARC2-056",                     // spliced-solution: refusal text instead of working
+  "ARC2-057",                     // spliced-solution: refusal text instead of working
+  "SAV2-R19",                     // spliced-solution: refusal text instead of working
+  "LT-AR05",                      // spliced-solution: refusal text instead of working
+  "CARB-E17",                     // spliced-solution: the steps answer another question
 ]);
 
 /**
