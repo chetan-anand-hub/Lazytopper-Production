@@ -1,3 +1,36 @@
+## ★ 2026-10-14 — AFTER BANK-STEPS-1 / GARBLE-1 (`#1116` `#1123` `#1125` `#1130` `#1131` `#1136`) (written by A under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **MERGE ORDER (D171), serial, each rebases and regenerates:** B `#1133` → A FIND-2 pause `#1135` → D PR-1 → B PR-3 → D PR-2. Post `MERGE-SLOT <lane> <PR>` before merging. A PR out of the slot TEMP-CLOSEs (lane-overlap counts drafts). A closed PR whose head was force-pushed cannot be reopened: take trunk by merge-in, never force-push.
+- **`#1135` (A):** reopen at its slot; merge trunk in; add the 4 entangled ids (AP-004, STAT-008, 2025-STAT-006, 2025-TRIG-005) under the two-file grant of D171 (`data/cbq/officialCbqTags.maths.ts`: remove STAT-006 and 2025-TRIG-005; `data/figures/mathsFigureVisuals.ts`: remove the STAT-008 and STAT-006 bindings), each removed line ledgered `restore-on-repair: <file> <line>`; pin the counts (CBQ tags −2, figure bindings −2) with a dated comment; mutation: re-serve STAT-006 → RED.
+- **Any REPAIR PR** must: keep the stem; write steps per CLAUDE.md §13 (step counts by section, [mark] tags, units, exact CBSE terms; chemistry balanced equation and state symbols as separate steps); make answer/finalAnswer agree with the last step; delete the id from `WITHHELD_QUESTION_IDS` AND, for a GARBLE-1 id, from `bankFix/garble1Withholds.ts` once that file is on trunk; move the ledger `paused → repaired`; restore any reviewed label or drop its `PAUSED_LABELS` entry and raise the coverage pin. Opus verifier, then the cofounder's 10% byte-review + APPROVE.
+- **Whoever repairs `PYQ-M-RN-003` or `PYQ-M-CG-003`:** both are reviewed exceptions in `bankGarble.guard.test.ts` (flattened worked STEP). CG-003's STEM also lost a minus (not a right triangle as printed): `#1135` withholds it and drops the exception.
+- **D (Maths):** the 20 Maths NO-ANSWER rows (answer = the row's own final step), re-pairs with a known `likelyTrueOwnerId`, Maths chapters (≤60 rows a PR), the 3 Maths SINGLE-STEP rows, the Maths GARBLE-1 rewrites. **B (Science):** the same for Science, including the 52 SINGLE-STEP rows; `sci-chem-acids-2m-2022-01` stays paused (no answer); `2026-STAT-SA-03` is unsolvable as printed (state `dropped` until the source data is found).
+- **FIND-2 text-clean list (not paused, still readable):** the 22 rows with a stray marks digit / page number / legitimate OR (report: `Desktop\diff\report-garble1-find2-2026-10-14.md`).
+- **FIND-2 judged all 1,067 served PDF-extracted rows but only a 5% sample (203) of the 4,055 LLM-generated rows** (0 true hits). Judge the rest only if a student reports a generated row.
+
+## ★ 2026-10-13 — AFTER WS-DRAW-1 (`#1134` `4339d57c`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (signed in, phone):** (1) with some checked answers behind you, open a worksheet builder, leave "Personalise this worksheet" ON, preview a Board exam mix and check the "Enriched: N of M, target Section X" line against the section counts it shows. (2) Generate one **Board exam mix** and one **CBQ mix** (Customise → Build mode → CBQ mix): the Board mix reads like a board paper (mostly 1-mark first, a few long ones, case studies last) and about half the questions are scenarios; the CBQ mix is scenarios throughout.
+- **Any lane that changes how a worksheet is drawn:** `worksheetDraw.guard.test.ts` sweeps 568 real sheets; read its `WS_DRAW_REPORT` lines (`aiOverCap`, `shortSheets`, CBQ share, `reallocSheets`). A new preset is a new entry in `PRESETS` and in the guard's `PRESETS` (the guard copies the UI's presets by hand).
+- **Any lane that names the CBQ flag:** read it through `lib/cbq/cbqClassification.isCbq` (the GEN-THIN-1 guard in `ltGenerated.guard.test.ts` fails otherwise). Never read `isCompetencyBased` for CBQ purposes (P14: ≈ 66% precise).
+- **Any lane that changes a bank pause or repair:** the worksheet draws only from the SERVED bank, so every pause already reaches it; do not add a second filter. A chapter whose 5-mark CBQ supply is 0 (real-numbers, coordinate-geometry, areas-related-to-circles) borrows from Section C, recorded in `plan.draw.reallocations`; adding verified 5-mark CBQs there removes the borrowing.
+- **Next product lanes (C2):** PERF-1 PR-3 (`[FU-PERF1-CONTRAST-RESIDUAL]`), then PERF-2 (`hydrateRoot`, the Firebase / `re2js` split).
+
+## ★ 2026-10-13 — AFTER PERF-1 (`#1128` `29c2c2cf`, `#1129` `f9b447b0`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone):** (1) open `https://www.lazytopper.com/notes/trigonometry`: the formulas look exactly as before and the page scrolls; print one note (Share → Print) and check its figures appear. (2) Open `https://www.lazytopper.com/highly-probable/10/Maths` on a phone: the "← Back" button at the top is now a readable light pill with dark text (it was white on near-white). Open a dark page such as `/pricing`: its Back button is unchanged.
+- **GROWTH SESSION:** re-run Lighthouse mobile (3-run median) on `/notes/trigonometry`, `/notes/real-numbers`, `/notes/electricity`, `/cbse/class-10`, `/check-your-answer`, `/highly-probable/10/Maths`, `/practice-hub`. Expect: no `katex-*.js` on notes pages, A11y up on the five pages named in `#1129`; the notes TBT target is NOT met by PERF-1 (see PERF-2).
+- **PERF-2 (next performance lane; owner-granted protected files, cofounder APPROVE before merge):** takes `[FU-NOTES-TBT-MOUNT]`. The hypothesis to test is `hydrateRoot` for prerendered routes instead of `createRoot` (it reuses the prerendered DOM and skips the 1.5 s re-layout and the commit); prove zero hydration warnings on every prerendered route and fall back to `createRoot` per route on a known mismatch. Its P6 table is on `#973`: Firebase ≈ 155 KB gz, `re2js` 43 KB gz (importer not yet found), Login 14, syllabus 14, `qrcode` 7 are not needed on a public page.
+- **Any lane that adds colour to a surface PERF-1 touched:** `config/perf1Contrast.guard.test.ts` reads the tokens from their source files and fails below 4.5:1; raise the new colour, do not lower the guard. A new accent for the Practice Hub mode cards needs an `ink` tone (the chips sit on the tint).
+- **Any lane that edits a note spec's formulas:** run `npx tsx scripts/genNoteMath.ts` (add `--check` to verify) and commit the changed `noteMath/<slug>.json`; the guard fails until the map matches. The same command regenerates `noteFigureSizes.generated.json` after a figure asset is added.
+- **Any lane that changes `TestimonialVideo`'s thumbnail:** the `<picture>` names `…-640x360`, `…-960x540`, `…-1280x720` in `.webp` and `.jpg`; `TestimonialVideo.test.tsx` pins the exact srcset and that each WebP is lighter than its JPEG.
+
 ## ★ 2026-10-13 — AFTER PARENTS-1 (`#1121`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

@@ -42,6 +42,15 @@ import { class10TopicByName } from "../../data/class10MathTopicWeights";
 import { class10ScienceTopicTrends } from "../../data/class10ScienceTopicTrends";
 import { questionKey } from "../../utils/questionKey";
 import { needsMissingFigure } from "../../lib/figureSafe";
+import { isAiGeneratedBankId } from "../../data/bankChapters/loader";
+import { isCbq } from "../../lib/cbq/cbqClassification";
+import {
+  SECTION_LETTERS,
+  drawFromSpec,
+  isShaped,
+  planDraw,
+  type DrawSpec,
+} from "./worksheetShape";
 
 export type PaperScope = "topic" | "multi-topic" | "full-subject";
 export type ScienceStream = "All" | "Physics" | "Chemistry" | "Biology";
@@ -403,6 +412,12 @@ export interface WorksheetPlanParams {
    * → no filter, the pools are byte-identical.
    */
   focus?: string;
+  /**
+   * WS-DRAW-1 ("CBQ mix", D158): every row of the sheet is a competency-based question
+   * (the CBQ flag), spread across the board's section shape where supply allows.
+   * Never padded with non-CBQ rows: a thin chapter yields a short sheet that says so.
+   */
+  cbqOnly?: boolean;
 }
 
 export interface WorksheetPlan {
@@ -418,6 +433,13 @@ export interface WorksheetPlan {
   /** FIX-3 — per-topic within-topic section-skew (multi/full scope); topic key → its
    *  own section-boost map. Takes precedence over `sectionBoosts` for that topic. */
   topicSectionBoosts?: Record<string, Record<string, number>> | null;
+  /**
+   * WS-DRAW-1 — how the sheet is drawn: the topic × section cells, the AI cap and the CBQ target,
+   * with `aiOverCap` / `cbqUnder` / `reallocations` recorded. Absent on a plan built by hand
+   * (older tests) and on an un-shaped sheet that carries an MI section skew; `generateFromPlan`
+   * then uses the original per-topic draw.
+   */
+  draw?: DrawSpec | null;
 }
 
 const POOL_OVERSAMPLE = 999;
@@ -459,7 +481,9 @@ function buildPools(params: WorksheetPlanParams): Map<string, PracticeQuestion[]
           : undefined,
       sections: params.sections,
       allowRepeats: false,
-    }).filter((q) => !needsMissingFigure(q)); // FIGURES-ALL-SURFACES-1: no unbound demanded figure
+    })
+      .filter((q) => !needsMissingFigure(q)) // FIGURES-ALL-SURFACES-1: no unbound demanded figure
+      .filter((q) => !params.cbqOnly || isCbq(q)); // WS-DRAW-1: CBQ mix
     // ADDITIVE (Stage-2 P-A): narrow toward the concept focus when the tutor supplies
     // one; a no-op (pool unchanged) for every existing worksheet entry.
     pools.set(t.key, narrowToConcept(pool, params.focus));
@@ -507,6 +531,28 @@ export function planWorksheet(params: WorksheetPlanParams): WorksheetPlan {
     rows = allocateCounts(inputs, params.requested);
   }
   const totalAvailable = baseInputs.reduce((s, r) => s + r.available, 0);
+
+  // WS-DRAW-1 — decide HOW the sheet is drawn (section shape, AI cap, CBQ target). The topic-level
+  // allocation above stays the input budget; the draw plan returns the per-topic counts it can
+  // really deliver, which become the rows (the shown number is the number generated).
+  const sections = resolveSections(params.sections);
+  const boosts = boostsFor(params.topics.map((t) => t.key), params.topicSectionBoosts, params.sectionBoosts);
+  const hasSkew = hasSkewIn(boosts);
+  const useLegacyDraw = !params.cbqOnly && !isShaped(sections, params.requested) && hasSkew;
+  let draw: DrawSpec | null = null;
+  if (!useLegacyDraw) {
+    const planned = planDraw({
+      pools,
+      topics: rows.map((r) => ({ key: r.key, allocated: r.allocated })),
+      sections,
+      requested: params.requested,
+      cbqOnly: !!params.cbqOnly,
+      tools: DRAW_TOOLS,
+      boosts,
+    });
+    draw = planned.spec;
+    rows = rows.map((r) => ({ ...r, allocated: planned.allocatedByTopic[r.key] ?? 0 }));
+  }
   const totalAllocated = rows.reduce((s, r) => s + r.allocated, 0);
 
   return {
@@ -517,7 +563,41 @@ export function planWorksheet(params: WorksheetPlanParams): WorksheetPlan {
     pools,
     sectionBoosts: params.sectionBoosts ?? null,
     topicSectionBoosts: params.topicSectionBoosts ?? null,
+    draw,
   };
+}
+
+// ── WS-DRAW-1: the draw's inputs ─────────────────────────────────────────────
+const DRAW_TOOLS = {
+  isAi: (q: PracticeQuestion): boolean => isAiGeneratedBankId(q.id),
+  /** CBQ-1's single CBQ flag. The legacy `isCompetencyBased` is not read (P14: ~45% precise). */
+  isCbq: (q: PracticeQuestion): boolean => isCbq(q),
+  shuffle: <T,>(arr: T[]): T[] => shuffleInPlace(arr),
+};
+
+/** "All" (undefined) → every section; otherwise the valid letters asked for, in order. */
+function resolveSections(sections?: string[]): string[] {
+  if (!sections) return [...SECTION_LETTERS];
+  const wanted = sections.map((s) => String(s).toUpperCase());
+  return SECTION_LETTERS.filter((s) => wanted.includes(s));
+}
+
+/** Topic key → section letter → boost, from the per-topic map or the shared single-topic map. */
+function boostsFor(
+  topicKeys: string[],
+  topicSectionBoosts?: Record<string, Record<string, number>> | null,
+  sectionBoosts?: Record<string, number> | null,
+): Record<string, Record<string, number>> {
+  const out: Record<string, Record<string, number>> = {};
+  for (const key of topicKeys) {
+    const m = topicSectionBoosts?.[key] ?? sectionBoosts ?? null;
+    if (m) out[key] = m;
+  }
+  return out;
+}
+
+function hasSkewIn(boosts: Record<string, Record<string, number>>): boolean {
+  return Object.values(boosts).some((m) => Object.values(m).some((w) => Number(w) > 1));
 }
 
 // ── PR-A: worksheet nomenclature (code + friendly name) ──────────────────────
@@ -602,6 +682,27 @@ function orderPoolBySectionBoost(
  * otherwise the draw is the original uniform pool sample (unchanged behaviour).
  */
 export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
+  // WS-DRAW-1: a plan that carries a draw spec is drawn by it (section shape, verified rows
+  // before AI rows, CBQ target, no repeats). Plans without one use the original per-topic draw.
+  if (plan.draw) {
+    // The generator hands the student's section boosts to THIS call (they are not part of the plan
+    // it previews). A shaped sheet is re-planned with them, so the weak sections get a larger share
+    // of the blueprint shape; an un-shaped sheet falls through to the original skewed draw below.
+    const boosts = boostsFor(plan.rows.map((r) => r.key), plan.topicSectionBoosts, plan.sectionBoosts);
+    if (!hasSkewIn(boosts)) return drawFromSpec(plan.draw, plan.pools, DRAW_TOOLS);
+    if (plan.draw.mode !== "free") {
+      const replanned = planDraw({
+        pools: plan.pools,
+        topics: plan.rows.map((r) => ({ key: r.key, allocated: r.allocated })),
+        sections: plan.draw.sections,
+        requested: plan.requested,
+        cbqOnly: plan.draw.mode === "cbq-mix",
+        tools: DRAW_TOOLS,
+        boosts,
+      });
+      return drawFromSpec(replanned.spec, plan.pools, DRAW_TOOLS);
+    }
+  }
   const seen = new Set<string>();
   // NO REPEATS IN A SET (BANK-SPLIT-1): the id check stays; the questionKey check
   // catches the same question filed under two ids.
