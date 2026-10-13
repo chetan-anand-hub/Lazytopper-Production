@@ -1,5 +1,11 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-13 — ORG-SAMEAS-1 (`#1112` `4fd187c7`) — ✅ COMPLETE (growth session's search checks owed)
+
+- ✅ The Organization JSON-LD carries `@id`, `alternateName`, `description`, `email`, `contactPoint`, the five `sameAs` profiles and the square logo; the WebSite points at it as `publisher`.
+- ✅ The public footer links YouTube, Instagram, Facebook and WhatsApp (`rel="me noopener"`, no `nofollow`, no UTM); one source of truth plus a drift guard.
+- ⏳ Rich Results Test, request indexing on `/`, brand-search recheck in 2 to 4 weeks. `[FU-SOCIAL-START-HUB]` and `[FU-FOOTER-SOCIAL-A11Y-SEPARATOR]` are open.
+
 ## 2026-10-13 — SOURCE-2 (`#1109` `3a947162`, `#1110` `b5721ea0`) — ✅ COMPLETE (owner sign-up check owed)
 
 - ✅ The admin Source column separates paid ads, organic posts, untagged links and parent shares (`utm_medium`-driven).

@@ -1,3 +1,19 @@
+## 2026-10-13 — ORG-SAMEAS-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1112`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| *(cofounder, 13 Oct, in the spec)* | Extend the EXISTING Organization node of the shell's one ld+json block (never a second block); the footer social row goes in `PublicLegalFooter.tsx` with `rel="me noopener"`, no `nofollow`, no UTM; X and LinkedIn are `sameAs` only; one source of truth `socialProfiles.ts` + a drift guard; not in scope: the `/start` hub, `DesktopShell`, the mobile menu | `head.guard` pins exactly one ld+json block; a `sameAs` or `rel="me"` link is an identity claim, not an ad click; the shell and the mobile menu are protected files |
+| *(cofounder, 13 Oct 07:54Z)* | **v1.1 supersedes v1.0**: Facebook is `https://www.facebook.com/lazytoppercbse` and `lazytopperindia` must appear nowhere (a guard checks it); the square logo is REQUIRED (`logo-square.png`) | The growth session corrected the Facebook handle; Google's Organization logo should be a square image |
+| **124** | Run unattended; loops on, no silence, C1 is lead; the handoff lock and merge order are the lead's to rule (LEAD-RULING 1) | The owner was away |
+| **130** | PARENTS-1 queued for C2 after ORG-SAMEAS-1 is LIVE; if the logo has not arrived, park `#1112` as DRAFT with everything else green and do SOURCE-2's handoff docs first | The logo was owed by the owner; the lock was free; idle time is waste |
+| *(cofounder, 13 Oct 09:46Z, owner-staged)* | The logo is `Desktop\diff\final tasks\logo-square.png`; copy byte-for-byte, do not resize; any square of at least 112×112 is accepted; post sha256, size and dimensions; over 500 KB is noted but ships | Google's Organization-logo minimum is 112×112; the spec's 1080×1080 was the owner's intent, not a rule |
+| *(C2, in-lane)* | BLOCKED was posted at once when the staged logo was missing, the older 1200×1200 square logo found on disk was NOT substituted, and the rest of the lane was built | The spec said STOP if the logo is missing; a similar-looking file is not the named artwork; D124 §3 says carry on with whatever is not blocked |
+| *(C2, in-lane)* | The dispatch named the superseded v1.0 hash `BC4A9C63F6CF`; C2 built v1.1 (`BDF9F164B6A7`, the file on disk) after finding the 07:54Z post, and said so on `#973` | The "hash must match → STOP" rule exists to stop the wrong spec being built; the board post named which spec was right |
+| *(C2, in-lane)* | The prerender artifact was taken from the PR's own CI run after the trunk merge-in, not hand-edited; the guard's retired-handle scan covers `index.html`, `src` (not `src/data`), `public`, `scripts` | The artifact is derived content; a scan of the diff alone cannot see an old file that reintroduces the handle |
+| *(C2, in-lane)* | The verifier's follow-ups (footer separator, new-tab cue, notes `provider` `@id`) were logged, not built | Each is outside the spec's §1 (or a read-only file) and none is a MUST-FIX |
+
 ## 2026-10-13 — SOURCE-2 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1109` and `#1110`, plus the decisions C2 itself made, with reasons.
