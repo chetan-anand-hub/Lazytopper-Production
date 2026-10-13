@@ -2002,7 +2002,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                             minWidth: 28,
                                             height: 28,
                                             borderRadius: 8,
-                                            background: "hsl(152, 55%, 45%)",
+                                            background: "hsl(152, 60%, 28%)",
                                             color: "#ffffff",
                                             display: "flex",
                                             alignItems: "center",
