@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "trigonometry" (Maths): 483 served rows from 20 source arrays, 53 withheld.
+// Chapter "trigonometry" (Maths): 480 served rows from 20 source arrays, 56 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -61,8 +61,11 @@ export default defineChapter("trigonometry", [
   "TRIG2-H06",
   "TRIG2-H09",
   "TRIG2-E12",
+  "TG3-017",
   "TG3-019",
+  "TG3-020",
   "TG3-023",
+  "TG3-044",
   "TG3-047",
   "TRIG-N-NCERT-8-SA-009",
   "TRIG-N-NCERT-8-SA-010",
