@@ -1299,3 +1299,63 @@ test('§11.9 the SSE reader: split lines, CRLF-free partial chunks, a malformed 
   assert.equal(out.finishReason, 'STOP');
   assert.equal(out.deadlineHit, false);
 });
+
+/* ── §11.10-11 · the verifier's MUST-FIX (M1): the read deadline runs on the ATTEMPT clock ─────────────── */
+
+/** A fetch stub with a header delay and an abort-aware body, like real undici: the stream ERRORS with an
+ *  AbortError when the request's signal aborts, and the headers (the fetch promise) arrive late. */
+function slowHeadersFetch({ headerDelayMs, chunks, onSignal }) {
+  const seen = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = async (url, opts) => {
+    seen.push({ url: String(url), at: Date.now() });
+    if (onSignal) onSignal(opts.signal);
+    await new Promise((r) => setTimeout(r, headerDelayMs));
+    const enc = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        for (const c of chunks) controller.enqueue(enc.encode('data: ' + JSON.stringify(c) + '\n\n'));
+        if (opts.signal) {
+          const abort = () => { const e = new Error('aborted'); e.name = 'AbortError'; controller.error(e); };
+          if (opts.signal.aborted) abort(); else opts.signal.addEventListener('abort', abort);
+        }
+      },
+    });
+    return new Response(stream, { status: 200 });
+  };
+  return { seen, restore: () => { globalThis.fetch = original; } };
+}
+
+test('§11.10 ★ M1: SLOW HEADERS do not push the read deadline past the attempt abort — the deadline is counted from the START of the attempt, and the text that arrived is returned', async () => {
+  // attempt timeout 600 ms; stream deadline 300 ms; the headers take 200 ms. Counted from the headers the
+  // deadline would be at 500 ms; counted from the attempt start it is at 300 ms, well before the 600 ms abort.
+  const f = slowHeadersFetch({ headerDelayMs: 200, chunks: [sseChunk('{"questions":[{"questionNumber":1}', { usageMetadata: OK_USAGE })] });
+  const origWarn = console.warn; console.warn = () => {};
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, GEMINI_TIMEOUT_MS: 600, telemetry: recorder() });
+    const t0 = Date.now();
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 300 });
+    const took = Date.now() - t0;
+    assert.equal(out.deadlineHit, true);
+    assert.equal(out.text, '{"questions":[{"questionNumber":1}');
+    assert.ok(took >= 280 && took < 420, 'returned at the ~300 ms attempt-clock deadline, not at ~500 ms (headers + deadline) — took ' + took + ' ms');
+  } finally { console.warn = origWarn; f.restore(); }
+});
+
+test('§11.11 ★ M1: if the ATTEMPT abort lands mid-stream after text arrived, the text is RETURNED as a deadline read, not thrown away; with no text it is still the 504 timeout', async () => {
+  // deadline (5 s) is LATER than the attempt timeout (150 ms): the abort fires first, mid-stream.
+  const withText = slowHeadersFetch({ headerDelayMs: 10, chunks: [sseChunk('{"questions":[{"questionNumber":1}', { usageMetadata: OK_USAGE })] });
+  const origWarn = console.warn; console.warn = () => {};
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, GEMINI_TIMEOUT_MS: 150, telemetry: recorder() });
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 5000 });
+    assert.equal(out.deadlineHit, true, 'the abort mid-stream with text is a deadline read');
+    assert.equal(out.text, '{"questions":[{"questionNumber":1}');
+    assert.equal(client.getTokenTelemetry()[0].totalTokenCount, 2691, 'and the call is still metered');
+  } finally { withText.restore(); }
+  const noText = slowHeadersFetch({ headerDelayMs: 10, chunks: [] });
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, GEMINI_TIMEOUT_MS: 150, telemetry: recorder() });
+    await assert.rejects(client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 5000 }), (e) => e.status === 504);
+  } finally { console.warn = origWarn; noText.restore(); }
+});

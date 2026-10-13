@@ -402,7 +402,20 @@ async function readGeminiSseUntilDeadline(body, deadlineMs) {
   };
   try {
     while (true) {
-      const { done, value } = await reader.read();
+      let chunk;
+      try {
+        chunk = await reader.read();
+      } catch (err) {
+        // The surrounding request was ABORTED mid-stream (the attempt timeout). If text already arrived it
+        // is NOT thrown away: it is returned as a deadline read, so a slow start can never cost the student
+        // the questions that were already read. With no text, the error propagates as a timeout, as before.
+        if (err && err.name === 'AbortError' && text) {
+          deadlineHit = true;
+          break;
+        }
+        throw err;
+      }
+      const { done, value } = chunk;
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split('\n');
@@ -743,6 +756,10 @@ function createGeminiClient(cfg) {
       telemetryAttempts += 1;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), thisAttemptMs);
+      // UPLOAD-READ-1 PR-A2: the read deadline is counted from the START of the attempt, the same clock
+      // as the attempt abort above. Counting it from when the headers arrive let a slow start push the
+      // deadline past the abort, which then threw every received character away.
+      const attemptStartedAt = Date.now();
       try {
         const response = await fetch(
           streamDeadlineMs > 0 ? toStreamUrl(reqUrl) : reqUrl,
@@ -760,18 +777,24 @@ function createGeminiClient(cfg) {
         if (streamDeadlineMs > 0 && response.ok && response.body) {
           // A good streaming response: read it to the end or to the deadline, then fold it into the
           // single-response envelope the rest of callGemini already understands.
-          const sse = await readGeminiSseUntilDeadline(response.body, streamDeadlineMs);
+          const sse = await readGeminiSseUntilDeadline(
+            response.body,
+            Math.max(0, streamDeadlineMs - (Date.now() - attemptStartedAt)),
+          );
           if (sse.deadlineHit) {
+            if (!sse.text) {
+              // Nothing arrived: the same 504 a timed-out call gives today. No ledger record is written for
+              // this path (it throws before the tail of callGemini), exactly as for any timed-out call.
+              console.warn(`[callGemini] stream deadline hit after ${streamDeadlineMs}ms with no text read`);
+              const noText = new Error(`Gemini stream timed out after ${streamDeadlineMs}ms with no text`);
+              noText.status = 504;
+              throw noText;
+            }
             streamDeadlineHit = true;
             // Names the fact, never the content. `usage` says whether the ledger got real token counts.
             console.warn(
               `[callGemini] stream deadline hit after ${streamDeadlineMs}ms: ${sse.text.length} chars read, usage ${sse.usageMetadata ? 'present' : 'ABSENT (ledger records zeros for this call)'}`
             );
-            if (!sse.text) {
-              const noText = new Error(`Gemini stream timed out after ${streamDeadlineMs}ms with no text`);
-              noText.status = 504;
-              throw noText;
-            }
           }
           rawText = JSON.stringify({
             candidates: [
