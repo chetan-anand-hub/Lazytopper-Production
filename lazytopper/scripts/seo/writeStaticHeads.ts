@@ -57,6 +57,7 @@ import { canonicalFor } from "../../src/config/canonicalUrl";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
 import { allDesktopTopics } from "../../src/lib/desktop/topics";
 import { ncertFileCodeFromSpec } from "../../src/lib/ncertFileCode";
+import { testimonialVideoJsonLdFor } from "./testimonialVideoJsonLd";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const LAZYTOPPER_ROOT = resolve(here, "..", "..");
@@ -417,6 +418,15 @@ export function notesJsonLd(path: string, basename: string): Record<string, unkn
 }
 
 /**
+ * The JSON-LD a stamped page carries, or `null`: the notes pages' BreadcrumbList + LearningResource
+ * (SEO-NOTES-LINK-2), or — VIDEO-EMBED-1 — the testimonial `VideoObject` on the two pages that carry
+ * the video, from one shared builder. Exported so the guard exercises the SAME composition the build runs.
+ */
+export function pageJsonLd(path: string, basename: string, hasHead: boolean): Record<string, unknown> | null {
+  return (hasHead ? notesJsonLd(path, basename) : null) ?? testimonialVideoJsonLdFor(path, canonicalFor("/", basename));
+}
+
+/**
  * Insert one `<script type="application/ld+json">` block just before `</head>`.
  * `<` is written as `<`, so no value can close the script element early. Throws
  * unless the html has exactly one `</head>`.
@@ -647,7 +657,7 @@ async function main(): Promise<void> {
       description: head ? head.description : templateDescription(template),
     });
     // SEO-NOTES-LINK-2 — notes pages also carry their BreadcrumbList + LearningResource.
-    const jsonLd = head ? notesJsonLd(path, basename) : null;
+    const jsonLd = pageJsonLd(path, basename, head !== null);
     const html = jsonLd ? applyJsonLd(stamped, jsonLd, path) : stamped;
 
     const relative = path.replace(/^\//, "");

@@ -1,0 +1,86 @@
+/*
+ * TestimonialVideo (VIDEO-EMBED-1). EVERY selector is scoped under `.lt-tv`: a stylesheet
+ * imported by a lazy route is global once loaded. Navy, white and green, as the host pages.
+ */
+.lt-tv {
+  --tv-ink: #0f2038;
+  --tv-ink2: #4d647e;
+  --tv-navy: #132c4d;
+  --tv-g: #0b8f50;
+  --tv-line: #dde5ef;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+}
+.lt-tv * {
+  box-sizing: border-box;
+}
+.lt-tv__title {
+  margin: 0 0 6px;
+  color: var(--tv-ink);
+}
+.lt-tv__lede {
+  margin: 0 0 14px;
+  color: var(--tv-ink2);
+}
+.lt-tv__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--tv-navy);
+  border: 1px solid var(--tv-line);
+}
+.lt-tv__thumb,
+.lt-tv__iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+.lt-tv__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--tv-g);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(15, 32, 56, 0.35);
+}
+.lt-tv__play svg {
+  width: 34px;
+  height: 34px;
+  fill: currentColor;
+  margin-left: 3px;
+}
+.lt-tv__play:hover {
+  background: #06663a;
+}
+.lt-tv__play:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+.lt-tv__transcript {
+  margin-top: 12px;
+  color: var(--tv-ink);
+}
+.lt-tv__transcript summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--tv-g);
+}
+.lt-tv__transcript p {
+  margin: 8px 0 0;
+  line-height: 1.6;
+}

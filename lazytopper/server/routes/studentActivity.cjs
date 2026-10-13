@@ -98,6 +98,7 @@ const ACTIVITY_EVENTS = Object.freeze([
   'check_answer_added',
   'check_graded',
   'practice_graded',
+  'testimonial_play',
 ]);
 
 /**

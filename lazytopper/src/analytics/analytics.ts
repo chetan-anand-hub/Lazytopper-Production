@@ -568,7 +568,8 @@ export type NamedAnalyticsEvent =
   | "check_question_read"
   | "check_answer_added"
   | "check_graded"
-  | "practice_graded";
+  | "practice_graded"
+  | "testimonial_play";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });

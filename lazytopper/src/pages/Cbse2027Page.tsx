@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 
+import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import { useReturnTicket } from "../components/navigation/ReturnTicket";
 import {
   cbseCircularFeed,
@@ -578,6 +579,14 @@ export default function Cbse2027Page() {
               </p>
             </div>
           </div>
+        </section>
+
+        <section id="student-video" aria-labelledby="cbse-student-video">
+          <TestimonialVideo
+            headingId="cbse-student-video"
+            heading="How a Class 10 student checks his answers"
+            lede="A Class 10 student photographs his written answer and sees exactly where he lost ½ mark."
+          />
         </section>
 
         <section id="exams">
