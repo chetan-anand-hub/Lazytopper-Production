@@ -268,7 +268,7 @@ console.log('\nQR upload channel — acceptance\n');
   check('variant: peek still leaks NO image (write-only intact)', !('imageBase64' in peeked));
 }
 
-// 11 · ★ CAP ARITHMETIC — the guard that makes "PDF up to 5 MB" impossible to reintroduce.
+// 11 · ★ CAP ARITHMETIC — the guard that makes an UNSPENDABLE PDF limit ("up to 5 MB" once, "up to 8 MB" now) impossible to reintroduce.
 //      Imports the REAL client constant (transpile-then-require, never a text scan) and
 //      proves it can actually fit the backend body cap. base64 inflates ~4/3, so an
 //      advertised limit that ignores that is a promise the channel cannot keep — a
@@ -285,20 +285,27 @@ console.log('\nQR upload channel — acceptance\n');
   writeFileSync(path.join(out, 'package.json'), '{"type":"commonjs"}');
   const limits = require(path.join(out, 'services/uploadLimits.js'));
 
-  // readJson's default cap — server/services/httpUtils.cjs.
-  const READ_JSON_CAP = 5 * 1024 * 1024;
+  // UPLOAD-READ-1 PR-B (D138): the wall is the EDGE in front of the app — exactly 10 MiB, MEASURED against
+  // production (10,485,760 bytes passes, +1 byte gets 413). The file routes read their body with the same cap
+  // (mentorImageSupport.FILE_ROUTE_MAX_BODY_BYTES); every other route keeps readJson's 5 MB default.
+  const mis = require(path.join(LAZY, 'server/mentorImageSupport.cjs'));
+  const READ_JSON_CAP = limits.EDGE_MAX_BODY_BYTES;
+  check('cap arithmetic: client and server agree on the wall and the ceiling',
+    limits.EDGE_MAX_BODY_BYTES === mis.FILE_ROUTE_MAX_BODY_BYTES && limits.MAX_UPLOAD_PDF_BYTES === mis.MAX_MENTOR_PDF_BYTES &&
+    limits.MAX_UPLOAD_IMAGE_BYTES === mis.MAX_MENTOR_IMAGE_BYTES && READ_JSON_CAP === 10 * 1024 * 1024,
+    JSON.stringify({ edgeClient: limits.EDGE_MAX_BODY_BYTES, edgeServer: mis.FILE_ROUTE_MAX_BODY_BYTES, pdfClient: limits.MAX_UPLOAD_PDF_BYTES, pdfServer: mis.MAX_MENTOR_PDF_BYTES }));
   // Worst-case questions payload measured against the assembled 8,584-row bank:
   // 0.10 MB for the heaviest 38-question draw. Doubled here as headroom.
-  const QUESTIONS_WORST = 200 * 1024;
+  const QUESTIONS_WORST = limits.NON_FILE_PAYLOAD_ALLOWANCE_BYTES;
   const b64 = (raw) => Math.ceil(raw / 3) * 4;
   const mb = (b) => `${(b / 1024 / 1024).toFixed(2)} MB`;
 
   const pdfWire = b64(limits.MAX_UPLOAD_PDF_BYTES) + QUESTIONS_WORST;
-  check(`cap arithmetic: a max-size PDF fits the 5 MB body cap (${mb(pdfWire)})`,
+  check(`cap arithmetic: a max-size PDF fits the 10 MiB edge (${mb(pdfWire)} of ${mb(READ_JSON_CAP)})`,
     pdfWire < READ_JSON_CAP, `${mb(pdfWire)} >= ${mb(READ_JSON_CAP)} — the advertised PDF limit is UNSPENDABLE`);
 
   const imgWire = b64(limits.MAX_UPLOAD_IMAGE_BYTES) + QUESTIONS_WORST;
-  check(`cap arithmetic: a max-size image fits the 5 MB body cap (${mb(imgWire)})`,
+  check(`cap arithmetic: a max-size image fits the 10 MiB edge (${mb(imgWire)})`,
     imgWire < READ_JSON_CAP, `${mb(imgWire)} >= ${mb(READ_JSON_CAP)}`);
 
   check('cap arithmetic: the copy sentence states the enforced numbers',
@@ -306,9 +313,13 @@ console.log('\nQR upload channel — acceptance\n');
     limits.UPLOAD_LIMIT_SENTENCE.includes(limits.formatUploadLimit(limits.MAX_UPLOAD_IMAGE_BYTES)),
     limits.UPLOAD_LIMIT_SENTENCE);
 
-  // The historical bug, pinned so it can never come back.
-  check('cap arithmetic: the old "5 MB" PDF promise is proven unspendable',
-    b64(5 * 1024 * 1024) > READ_JSON_CAP);
+  // The historical bugs, pinned so they can never come back: a PDF limit the wall cannot carry.
+  check('cap arithmetic: an 8 MB PDF (11.18 MB of base64) is proven unspendable at the 10 MiB edge',
+    b64(8 * 1024 * 1024) > READ_JSON_CAP);
+  check('cap arithmetic: even 7.5 MB leaves no room (base64 alone = the whole wall)',
+    b64(7.5 * 1024 * 1024) + QUESTIONS_WORST > READ_JSON_CAP);
+  check('cap arithmetic: the old default 5 MB body cap could never carry a 5 MB PDF',
+    b64(5 * 1024 * 1024) > 5 * 1024 * 1024);
 }
 
 console.log('');

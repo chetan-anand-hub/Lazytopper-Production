@@ -318,6 +318,7 @@ export function gradingStageLabel(stage: GradingStage): string {
 /** Errors whose `message` is already written for a student (each class sets its `name`). */
 const STUDENT_FACING_ERRORS: ReadonlySet<string> = new Set([
   "GradingNetworkError",
+  "UploadTooLargeError",
   "DailyLimitError",
   "FairUseLimitError",
   "PremiumRequiredError",

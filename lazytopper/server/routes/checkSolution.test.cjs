@@ -2739,6 +2739,112 @@ test('§22.4 a read that finishes before the deadline is unchanged: a complete r
   assert.equal('partial' in h.body(), false);
 });
 
+/* ═════════════════════════════════════════════════════════════════════════════
+   §23 · UPLOAD-READ-1 PR-B (D138) — a 7 MB PDF can reach every file route; nothing else loosens
+   ★ The edge in front of the app refuses bodies over EXACTLY 10 MiB (measured: 10,485,760 B passes, +1 B gets 413).
+     A PDF rides as base64 inside a JSON body, so the file routes must read up to that wall and no route may
+     promise more. Every other route keeps the 5 MB default.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+const MIS = require('../mentorImageSupport.cjs');
+const HTTP_UTILS = require('../services/httpUtils.cjs');
+const MIB = 1024 * 1024;
+
+test('§23.1 ★ the file routes read their body with the file-route cap (10 MiB = the measured edge), not the 5 MB default', async () => {
+  assert.equal(MIS.FILE_ROUTE_MAX_BODY_BYTES, 10 * MIB);
+  assert.equal(MIS.MAX_MENTOR_PDF_BYTES, 7 * MIB, 'the one PDF ceiling');
+  const caps = [];
+  const spy = { readJson: async (req, maxBytes) => { caps.push(maxBytes); return req; } };
+  const detect = buildRoute({ replies: [{ detectedMarks: 3 }], depOverrides: spy });
+  await detect.route.handleDetectQuestion({ question: 'What is x?' }, {});
+  const grade = buildRoute({ replies: [GOOD_GRADE], depOverrides: spy });
+  await grade.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  const ws = buildRoute({ replies: [WS_GOOD], depOverrides: spy });
+  await ws.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: 'Q1' }]), {});
+  assert.deepEqual(caps, [10 * MIB, 10 * MIB, 10 * MIB], 'detect, single/multi grade and structured grade all read up to the wall');
+  // the fair-use pre-read of the grade-worksheet body uses the same number (a mismatch would refuse what the handler accepts)
+  assert.equal(require('../services/fairUse.cjs').GRADE_WORKSHEET_MAX_BYTES, MIS.FILE_ROUTE_MAX_BODY_BYTES);
+});
+
+test('§23.2 the stale "Keep the PDF under 5 MB" is gone: the structured-grade refusal names the real ceiling, derived from the constant', async () => {
+  const h = buildRoute({ replies: [WS_GOOD], depOverrides: { readJson: async () => { throw new Error('Request body too large'); } } });
+  await h.route.handleGradeWorksheet({}, {});
+  assert.equal(h.status(), 400);
+  assert.equal(h.body().error, 'Upload too large or invalid. Keep the PDF under 7 MB.');
+  assert.doesNotMatch(h.body().error, /5 MB/);
+});
+
+test('§23.3 a 7 MB PDF passes the server gate; one byte over is refused with the 7 MB message (images stay 3 MB)', () => {
+  const ok = Buffer.alloc(7 * MIB, 1).toString('base64');
+  assert.equal(MIS.validateMentorImagePayload({ imageBase64: ok, imageMimeType: 'application/pdf' }).ok, true);
+  const over = MIS.validateMentorImagePayload({ imageBase64: Buffer.alloc(7 * MIB + 1, 1).toString('base64'), imageMimeType: 'application/pdf' });
+  assert.equal(over.ok, false);
+  assert.equal(over.error, 'PDF is too large. Max size is 7 MB.');
+  const img = MIS.validateMentorImagePayload({ imageBase64: Buffer.alloc(3 * MIB + 1, 1).toString('base64'), imageMimeType: 'image/jpeg' });
+  assert.equal(img.error, 'Image is too large. Max size is 3 MB.');
+});
+
+test('§23.4 ★ CONTROL: a body between 5 and 10 MiB is read with the file cap and REFUSED with the default one — nothing loosened for non-file routes', async () => {
+  const { Readable } = require('node:stream');
+  const bigJson = JSON.stringify({ imageBase64: 'A'.repeat(6 * MIB) });
+  const mk = () => { const r = Readable.from([Buffer.from(bigJson)]); return r; };
+  await assert.rejects(HTTP_UTILS.readJson(mk()), /too large/, 'the default cap (5 MB) still refuses a 6 MB body');
+  const parsed = await HTTP_UTILS.readJson(mk(), MIS.FILE_ROUTE_MAX_BODY_BYTES);
+  assert.equal(parsed.imageBase64.length, 6 * MIB, 'the file-route cap reads it');
+  // and at the wall: exactly 10 MiB passes, one byte over is refused
+  const exact = Buffer.concat([Buffer.from('{"a":"'), Buffer.alloc(10 * MIB - 8, 0x41), Buffer.from('"}')]);
+  assert.equal(exact.length, 10 * MIB);
+  assert.ok((await HTTP_UTILS.readJson(Readable.from([exact]), MIS.FILE_ROUTE_MAX_BODY_BYTES)).a.length > 0);
+  await assert.rejects(HTTP_UTILS.readJson(Readable.from([Buffer.concat([exact, Buffer.from(' ')])]), MIS.FILE_ROUTE_MAX_BODY_BYTES), /too large/);
+});
+
+test('§23.5 only the file routes name the file cap: qrUpload (the phone upload, not the mint) and tutor do; stepSolution, moreLikeThis, aiQuestions, share and questionReport keep the default', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const src = (f) => fs.readFileSync(path.join(__dirname, f), 'utf8');
+  const uses = (f) => (src(f).match(/readJson\(req, FILE_ROUTE_MAX_BODY_BYTES\)/g) || []).length;
+  assert.equal(uses('qrUpload.cjs'), 1, 'only handleUpload');
+  assert.equal((src('qrUpload.cjs').match(/readJson\(req\)/g) || []).length, 1, 'the mint keeps the default');
+  assert.equal(uses('tutor.cjs'), 1);
+  assert.equal(uses('checkSolution.cjs'), 3);
+  for (const f of ['stepSolution.cjs', 'moreLikeThis.cjs', 'aiQuestions.cjs', 'share.cjs', 'questionReport.cjs']) {
+    assert.equal(src(f).includes('FILE_ROUTE_MAX_BODY_BYTES'), false, f + ' must keep the 5 MB default');
+  }
+});
+
+test('§23.6 ★ (D141 F2) the phone upload checks its slot BEFORE it reads the body: an unknown slot never buffers 10 MiB; a good one still does', async () => {
+  const { createQrUploadRoutes } = require('./qrUpload.cjs');
+  const token = 'A'.repeat(43);
+  const build = (peek) => {
+    const calls = { read: 0, put: 0, status: null };
+    const routes = createQrUploadRoutes({
+      sendJson: (res, status, body) => { calls.status = status; calls.body = body; },
+      readJson: async () => { calls.read += 1; return { imageBase64: 'x', imageMimeType: 'image/png' }; },
+      firebaseAdmin: null,
+      qrUploadChannel: {
+        isAvailable: () => true,
+        peekSlot: peek,
+        putBlob: async () => { calls.put += 1; return { ok: true }; },
+      },
+    });
+    return { routes, calls };
+  };
+  const bad = build(async () => ({ ok: false, reason: 'expired' }));
+  await bad.routes.handleUpload({}, {}, token);
+  assert.equal(bad.calls.read, 0, 'an unknown slot is refused WITHOUT reading the body');
+  assert.equal(bad.calls.put, 0);
+  assert.equal(bad.calls.status, 404);
+  const broken = build(async () => { throw new Error('store down'); });
+  await broken.routes.handleUpload({}, {}, token);
+  assert.equal(broken.calls.read, 0);
+  assert.equal(broken.calls.status, 503);
+  const good = build(async () => ({ ok: true, state: 'waiting', variant: 'a' }));
+  await good.routes.handleUpload({}, {}, token);
+  assert.equal(good.calls.read, 1, 'CONTROL: a valid slot reads the body and stores the file');
+  assert.equal(good.calls.put, 1);
+  assert.equal(good.calls.status, 200);
+});
+
 // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on this route — the submit's async
 // branch, the job runner, the poll route and the deferred fair-use commit (grading/jobs.suite.cjs:
 // a *.suite.cjs run from here, so it is part of test:server:check-solution in CI).

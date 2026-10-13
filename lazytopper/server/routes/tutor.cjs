@@ -14,6 +14,8 @@
 'use strict';
 
 const { buildTutorSystemPrompt } = require('../prompts/tutorSystemPrompt.cjs');
+// UPLOAD-READ-1 PR-B (D138): the tutor takes a student's image/PDF (validateMentorImagePayload), so it reads its body with the file-route cap.
+const { FILE_ROUTE_MAX_BODY_BYTES } = require('../mentorImageSupport.cjs');
 
 // Cap conversation history sent to the model (cost + latency). A tutor session is
 // short and targeted by design (Flow v2 §3G cost discipline).
@@ -198,7 +200,7 @@ function createTutorRoute(deps) {
   async function handleTutorRequest(req, res) {
     let payload;
     try {
-      payload = await readJson(req);
+      payload = await readJson(req, FILE_ROUTE_MAX_BODY_BYTES);
     } catch (e) {
       return sendJson(res, 400, { error: 'Invalid JSON' });
     }
