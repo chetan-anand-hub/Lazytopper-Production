@@ -427,14 +427,15 @@ export function dynamicImportCssOf(entryCode: string, chunkFile: string): string
 }
 
 /**
- * LOW-END-3 PR-1 (d), controller D63a: the ONLY route whose own CSS is inlined.
+ * LOW-END-3 PR-1 (d), controller D63a: the ONLY routes whose own CSS is inlined (D137/D142 added
+ * `ForParentsPage`: its hero shifted by CLS 0.388 at 1440 px without it, 0 with it).
  *
  * ★ WHY AN ALLOWLIST. Inlining every route's CSS also put `katex-*.css` (~8 KB br) into each
  * Notes and HPQ page and measurably delayed their first paint (B FCP +0.18–0.30 s, C FCP
  * +0.02–0.08 s). /check-your-answer is the one page whose layout shifts without its route CSS
  * (#963 §4.5), so it is the one page that gets it.
  */
-export const INLINE_ROUTE_CSS_MODULES: readonly string[] = ["CheckYourAnswerPage"];
+export const INLINE_ROUTE_CSS_MODULES: readonly string[] = ["CheckYourAnswerPage", "ForParentsPage"];
 
 /** The allowlisted route's own CSS files (never shared deps such as KaTeX) for `path`, in order. */
 export function routeCssFor(
