@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { FOOTER_SOCIAL } from "../../config/socialProfiles";
 
 /**
  * PublicLegalFooter — a slim, persistent legal row for the SIGNED-OUT public
@@ -116,6 +117,14 @@ export default function PublicLegalFooter({ className }: { className?: string })
         <Link key={slug} to={`/legal/${slug}`}>
           {label}
         </Link>
+      ))}
+      {/* ORG-SAMEAS-1 — our own profiles, the same URLs the Organization `sameAs` declares
+          (config/socialProfiles.ts is the one list). `rel="me"` says these are ours; there
+          is deliberately no `nofollow` and no UTM tag on an identity link. */}
+      {FOOTER_SOCIAL.map(({ label, href }) => (
+        <a key={href} href={href} target="_blank" rel="me noopener">
+          {label}
+        </a>
       ))}
     </footer>
   );

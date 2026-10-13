@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import type { ReactElement } from "react";
 import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { FOOTER_SOCIAL } from "../../config/socialProfiles";
 
 /**
  * [FU-LEGAL-FOOTER-LINK] — legal reachability on the SIGNED-OUT public surfaces.
@@ -154,6 +155,7 @@ describe("the footer links to Exam Trends (the chapter index) on every public su
       "CBSE 2027",
       "How CBSE marks answers",
       ...FOOTER_LINKS.map(([label]) => label),
+      ...FOOTER_SOCIAL.map((s) => s.label), // ORG-SAMEAS-1
     ]);
   });
 
@@ -204,6 +206,8 @@ describe("every slug a legal link points at renders real policy content", () => 
       "/cbse/class-10",
       "/check-your-answer",
       ...hrefs,
+      // ORG-SAMEAS-1 — the fourth kind of link: our own profiles, external, in config order.
+      ...FOOTER_SOCIAL.map((s) => s.href),
     ]);
     // ...and the ticket really is on it, so stripping the query cannot hide its loss.
     expect(allHrefs.find((h) => h.startsWith("/cbse/class-10"))).toContain("returnTo=");

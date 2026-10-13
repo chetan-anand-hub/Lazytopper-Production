@@ -42,6 +42,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 import Welcome from "./Welcome";
 import LegalPage from "./LegalPage";
+import { FOOTER_SOCIAL } from "../config/socialProfiles";
 
 afterEach(() => cleanup());
 
@@ -238,6 +239,8 @@ describe("every slug the landing's legal links point at renders real policy cont
       "/cbse/class-10",
       "/check-your-answer",
       ...hrefs,
+      // ORG-SAMEAS-1 — the fourth kind of link: our own profiles, external, in config order.
+      ...FOOTER_SOCIAL.map((s) => s.href),
     ]);
     expect(allHrefs.find((h) => h.startsWith("/cbse/class-10"))).toContain("returnTo=");
   });
