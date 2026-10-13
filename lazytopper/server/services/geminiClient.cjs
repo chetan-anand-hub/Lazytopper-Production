@@ -349,6 +349,75 @@ function buildTokenTelemetryRecord(input) {
   return record;
 }
 
+/**
+ * UPLOAD-READ-1 PR-A2 · the streaming URL for a `…:generateContent` URL. Only reached when a caller opts
+ * in with `config.streamDeadlineMs`; every other call keeps its URL byte-identical.
+ */
+function toStreamUrl(url) {
+  return String(url).replace(/:generateContent$/, ':streamGenerateContent') + '?alt=sse';
+}
+
+/**
+ * UPLOAD-READ-1 PR-A2 · read a Gemini `alt=sse` response body to its end, or to `deadlineMs`, whichever
+ * comes first, and return what arrived. Text parts are concatenated in order; the LAST `usageMetadata`
+ * and the last `finishReason` seen are kept (usage is cumulative per chunk, so the last chunk is the
+ * best count even on a stream that was stopped early). At the deadline the reader is cancelled (the
+ * connection is released) and `deadlineHit` is true. A malformed chunk is skipped, never thrown on.
+ * An abort of the surrounding request (the attempt timeout) rejects out of `reader.read()` and is the
+ * caller's to map, exactly as for a non-streaming call.
+ *
+ * @returns {Promise<{ text: string, usageMetadata: object|null, finishReason: string|null, deadlineHit: boolean }>}
+ */
+async function readGeminiSseUntilDeadline(body, deadlineMs) {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let text = '';
+  let usageMetadata = null;
+  let finishReason = null;
+  let deadlineHit = false;
+  const timer = setTimeout(() => {
+    deadlineHit = true;
+    // Resolves the pending read() with done:true; never throws into this timer.
+    reader.cancel().catch(() => {});
+  }, deadlineMs);
+  const take = (line) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith(':') || !trimmed.startsWith('data:')) return;
+    const jsonStr = trimmed.slice(5).trim();
+    if (!jsonStr || jsonStr === '[DONE]') return;
+    let chunk;
+    try {
+      chunk = JSON.parse(jsonStr);
+    } catch {
+      return; // a malformed chunk is skipped
+    }
+    const cand = chunk && chunk.candidates && chunk.candidates[0];
+    const parts = cand && cand.content && Array.isArray(cand.content.parts) ? cand.content.parts : [];
+    for (const part of parts) {
+      if (part && part.text) text += String(part.text);
+    }
+    if (cand && cand.finishReason) finishReason = String(cand.finishReason);
+    if (chunk && chunk.usageMetadata && typeof chunk.usageMetadata === 'object') usageMetadata = chunk.usageMetadata;
+  };
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) take(line);
+    }
+    // A final line with no trailing newline (a stream that ends mid-event, or a deadline cancel).
+    if (buffer) take(buffer);
+  } finally {
+    clearTimeout(timer);
+    try { reader.releaseLock(); } catch { /* ignore */ }
+  }
+  return { text, usageMetadata, finishReason, deadlineHit };
+}
+
 function createGeminiClient(cfg) {
   const {
     GEMINI_API_KEY,
@@ -576,6 +645,22 @@ function createGeminiClient(cfg) {
       callDeadlineAt === null ? perCallTimeoutMs : Math.min(perCallTimeoutMs, callDeadlineAt - Date.now());
     const retry429 = (fn) => (callDeadlineAt === null ? withRetry(fn) : withRetryBefore(fn, callDeadlineAt));
 
+    // ── UPLOAD-READ-1 PR-A2 · OPT-IN STREAMING WITH A READ DEADLINE ────────────────────
+    // `config.streamDeadlineMs` (detect only today) reads the reply as a server-sent-event STREAM and,
+    // at the deadline, stops reading and returns what has arrived (`deadlineHit: true`) instead of
+    // letting the whole non-streaming call time out with NOTHING. Like `workloadClass`, `marks` and
+    // `timeoutMs` it is read here and never reaches the wire (buildBody reads a closed key set), and
+    // when it is absent — every other caller — the request, the URL and the body are byte-identical to
+    // before. The SAME buildBody is used (responseMimeType / responseSchema / thinkingConfig all hold),
+    // the same 429 / structured-output / proxy-fallback ladder runs, and the stream is folded back into
+    // the SAME response envelope below, so token telemetry and the usage ledger see it exactly as a
+    // non-streaming call. The attempt timeout (GEMINI_TIMEOUT_MS) stays the outer bound.
+    const streamDeadlineMs =
+      config && Number.isFinite(config.streamDeadlineMs) && config.streamDeadlineMs > 0
+        ? Math.floor(config.streamDeadlineMs)
+        : 0;
+    let streamDeadlineHit = false;
+
     const buildBody = (includeStructuredOutput) => {
       const body = {
         contents: finalContents,
@@ -659,16 +744,47 @@ function createGeminiClient(cfg) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), thisAttemptMs);
       try {
-        const response = await fetch(reqUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey,
+        const response = await fetch(
+          streamDeadlineMs > 0 ? toStreamUrl(reqUrl) : reqUrl,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey,
+            },
+            body: JSON.stringify(buildBody(includeStructuredOutput)),
+            signal: controller.signal,
           },
-          body: JSON.stringify(buildBody(includeStructuredOutput)),
-          signal: controller.signal,
-        });
-        const rawText = await response.text();
+        );
+        let rawText;
+        if (streamDeadlineMs > 0 && response.ok && response.body) {
+          // A good streaming response: read it to the end or to the deadline, then fold it into the
+          // single-response envelope the rest of callGemini already understands.
+          const sse = await readGeminiSseUntilDeadline(response.body, streamDeadlineMs);
+          if (sse.deadlineHit) {
+            streamDeadlineHit = true;
+            // Names the fact, never the content. `usage` says whether the ledger got real token counts.
+            console.warn(
+              `[callGemini] stream deadline hit after ${streamDeadlineMs}ms: ${sse.text.length} chars read, usage ${sse.usageMetadata ? 'present' : 'ABSENT (ledger records zeros for this call)'}`
+            );
+            if (!sse.text) {
+              const noText = new Error(`Gemini stream timed out after ${streamDeadlineMs}ms with no text`);
+              noText.status = 504;
+              throw noText;
+            }
+          }
+          rawText = JSON.stringify({
+            candidates: [
+              {
+                content: { parts: [{ text: sse.text }] },
+                finishReason: sse.finishReason || (sse.deadlineHit ? 'STREAM_DEADLINE' : null),
+              },
+            ],
+            usageMetadata: sse.usageMetadata || undefined,
+          });
+        } else {
+          rawText = await response.text();
+        }
         if (response.status === 429) {
           const err = new Error(`Gemini rate limited (429): ${rawText}`);
           err.status = 429;
@@ -836,7 +952,8 @@ function createGeminiClient(cfg) {
     const finishReason =
       (data && data.candidates && data.candidates[0] && data.candidates[0].finishReason) || null;
 
-    return { text, raw: data, finishReason };
+    // UPLOAD-READ-1 PR-A2: ADDITIVE and present ONLY on a streaming read that was stopped at its deadline.
+    return { text, raw: data, finishReason, ...(streamDeadlineHit ? { deadlineHit: true } : {}) };
   }
 
   async function* callGeminiStream(model, finalContents, config) {
@@ -1001,6 +1118,9 @@ function createGeminiClient(cfg) {
 
 module.exports = {
   createGeminiClient,
+  // UPLOAD-READ-1 PR-A2 — exported for the stream tests.
+  toStreamUrl,
+  readGeminiSseUntilDeadline,
   // Exported for the token-instrumentation tests, and for any future reader that
   // needs the label vocabulary without re-declaring it.
   CALL_CLASSES,

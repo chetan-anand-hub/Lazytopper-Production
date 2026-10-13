@@ -1115,3 +1115,187 @@ test('TUTOR-FIX-1: callGemini returns the candidate finishReason, null when abse
     f.restore();
   }
 });
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   §11 · UPLOAD-READ-1 PR-A2 — opt-in STREAMING with a read deadline (detect)
+   ★ A full board paper's reply can outlast the 55 s whole-call timeout, and a timed-out non-streaming call
+     returns NOTHING. With `config.streamDeadlineMs` the reply is read as an SSE stream and, at the deadline,
+     whatever arrived is returned (`deadlineHit`), so the detect handler can salvage the complete questions.
+     Telemetry and the usage ledger see the stream through the SAME envelope as a normal call.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+function sseResponse(chunks, { holdOpen = false, status = 200, gapMs = 0 } = {}) {
+  const enc = new TextEncoder();
+  const state = { cancelled: false };
+  const stream = new ReadableStream({
+    async start(controller) {
+      for (const c of chunks) {
+        controller.enqueue(enc.encode('data: ' + JSON.stringify(c) + '\n\n'));
+        if (gapMs) await new Promise((r) => setTimeout(r, gapMs));
+      }
+      if (!holdOpen) controller.close();
+    },
+    cancel() { state.cancelled = true; },
+  });
+  const res = new Response(stream, { status });
+  return { res, state };
+}
+
+const sseChunk = (text, extra = {}) => ({ candidates: [{ content: { parts: [{ text }] }, ...(extra.finishReason ? { finishReason: extra.finishReason } : {}) }], ...(extra.usageMetadata ? { usageMetadata: extra.usageMetadata } : {}) });
+
+test('§11.1 ★ a streamed reply is folded into the SAME envelope: text joined in order, usage + finishReason from the stream, the SAME structured-output body, and streamDeadlineMs never on the wire', async () => {
+  const { res } = sseResponse([
+    sseChunk('{"a":', { usageMetadata: { promptTokenCount: 1234, candidatesTokenCount: 3, totalTokenCount: 1237 } }),
+    sseChunk('1}', { finishReason: 'STOP', usageMetadata: OK_USAGE }),
+  ]);
+  const f = stubFetch([() => res]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    const schema = { type: 'OBJECT', properties: { a: { type: 'NUMBER' } } };
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, {
+      temperature: 0.1, maxOutputTokens: 16384, responseMimeType: 'application/json', responseSchema: schema,
+      thinkingConfig: { thinkingBudget: 0 }, workloadClass: 'detect-question', streamDeadlineMs: 5000,
+    });
+    assert.equal(out.text, '{"a":1}');
+    assert.equal(out.finishReason, 'STOP');
+    assert.equal(out.deadlineHit, undefined, 'no deadline hit: the key is absent');
+    assert.equal(f.seen.length, 1);
+    assert.match(f.seen[0].url, /:streamGenerateContent\?alt=sse$/);
+    const gc = f.seen[0].body.generationConfig;
+    assert.equal(gc.responseMimeType, 'application/json', 'JSON mode holds on the stream');
+    assert.deepEqual(gc.responseSchema, schema);
+    assert.deepEqual(gc.thinkingConfig, { thinkingBudget: 0 });
+    assert.equal(gc.maxOutputTokens, 16384);
+    assert.equal(JSON.stringify(f.seen[0].body).includes('streamDeadlineMs'), false, 'a hint, never on the wire');
+    const rec = client.getTokenTelemetry()[0];
+    assert.equal(rec.totalTokenCount, 2691, 'the LAST chunk usage is the one recorded');
+    assert.equal(rec.thoughtsTokenCount, 890);
+    assert.equal(rec.workloadClass, 'detect-question');
+  } finally {
+    f.restore();
+  }
+});
+
+test('§11.2 ★ METERING PARITY: the same usage through the stream and through a normal call produces the SAME token record', async () => {
+  const f1 = stubFetch([jsonResponse(okBody(OK_USAGE, '{"a":1}'))]);
+  let plain;
+  try {
+    const c1 = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await c1.callGemini('gemini-2.5-flash', CONTENTS, { workloadClass: 'detect-question' });
+    plain = c1.getTokenTelemetry()[0];
+  } finally { f1.restore(); }
+  const { res } = sseResponse([sseChunk('{"a":', { usageMetadata: OK_USAGE }), sseChunk('1}', { usageMetadata: OK_USAGE, finishReason: 'STOP' })]);
+  const f2 = stubFetch([() => res]);
+  try {
+    const c2 = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await c2.callGemini('gemini-2.5-flash', CONTENTS, { workloadClass: 'detect-question', streamDeadlineMs: 5000 });
+    const streamed = c2.getTokenTelemetry()[0];
+    for (const k of ['promptTokenCount', 'candidatesTokenCount', 'thoughtsTokenCount', 'totalTokenCount', 'model', 'callClass', 'workloadClass', 'attempts', 'retry']) {
+      assert.equal(streamed[k], plain[k], k + ' differs between a streamed and a normal call');
+    }
+  } finally { f2.restore(); }
+});
+
+test('§11.3 ★ AT THE DEADLINE the read stops, the connection is released, and what arrived comes back with deadlineHit (usage = the last chunk seen)', async () => {
+  const { res, state } = sseResponse([
+    sseChunk('{"questions":[{"questionNumber":1}', { usageMetadata: { promptTokenCount: 900, candidatesTokenCount: 10, totalTokenCount: 910 } }),
+    sseChunk(',{"questionNumber":2}', { usageMetadata: { promptTokenCount: 900, candidatesTokenCount: 22, totalTokenCount: 922 } }),
+  ], { holdOpen: true });
+  const f = stubFetch([() => res]);
+  const origWarn = console.warn; const warned = []; console.warn = (...a) => warned.push(a.join(' '));
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, GEMINI_TIMEOUT_MS: 10000, telemetry: recorder() });
+    const t0 = Date.now();
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, { workloadClass: 'detect-question', streamDeadlineMs: 120 });
+    assert.ok(Date.now() - t0 < 3000, 'returned at the ~120 ms deadline, not at the 10 s attempt timeout');
+    assert.equal(out.deadlineHit, true);
+    assert.equal(out.text, '{"questions":[{"questionNumber":1},{"questionNumber":2}');
+    assert.equal(out.finishReason, 'STREAM_DEADLINE');
+    assert.equal(state.cancelled, true, 'the reader was cancelled: the connection is not left open');
+    const rec = client.getTokenTelemetry()[0];
+    assert.equal(rec.candidatesTokenCount, 22, 'usage is the last chunk seen: the call is still metered');
+    assert.ok(warned.some((w) => /stream deadline hit after 120ms/.test(w) && /usage present/.test(w)), 'the deadline is visible in the logs');
+    assert.ok(!warned.some((w) => w.includes('questionNumber')), 'the log names the fact, never the content');
+  } finally { console.warn = origWarn; f.restore(); }
+});
+
+test('§11.4 at the deadline with NO text at all: the same 504 a timed-out call gives today (nothing to salvage)', async () => {
+  const { res } = sseResponse([], { holdOpen: true });
+  const f = stubFetch([() => res]);
+  const origWarn = console.warn; console.warn = () => {};
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await assert.rejects(
+      client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 80 }),
+      (e) => e.status === 504 && /no text/.test(e.message),
+    );
+  } finally { console.warn = origWarn; f.restore(); }
+});
+
+test('§11.5 a deadline with the stream carrying NO usage is visible: the log says ABSENT (the ledger gap is named, not hidden)', async () => {
+  const { res } = sseResponse([sseChunk('{"x":')], { holdOpen: true });
+  const f = stubFetch([() => res]);
+  const origWarn = console.warn; const warned = []; console.warn = (...a) => warned.push(a.join(' '));
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 80 });
+    assert.equal(out.deadlineHit, true);
+    assert.ok(warned.some((w) => /usage ABSENT/.test(w)));
+  } finally { console.warn = origWarn; f.restore(); }
+});
+
+test('§11.6 ★ CONTROL: without streamDeadlineMs the request is exactly what it was — the :generateContent URL and a normal body — and the result has no deadlineHit', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, { temperature: 0.1, maxOutputTokens: 400, responseMimeType: 'application/json' });
+    assert.match(f.seen[0].url, /:generateContent$/);
+    assert.equal(f.seen[0].url.includes('alt=sse'), false);
+    assert.equal('deadlineHit' in out, false);
+    assert.equal(out.text, '{}');
+  } finally { f.restore(); }
+});
+
+test('§11.7 a 429 on a streaming call still retries (the ladder is shared, not re-implemented), and the retry is streamed', async () => {
+  const rateLimited = {
+    ok: false, status: 429, statusText: 'Too Many Requests',
+    headers: { get: (h) => (h === 'Retry-After' ? '0' : null) },
+    text: async () => 'rate limited',
+  };
+  const { res } = sseResponse([sseChunk('{"ok":true}', { usageMetadata: OK_USAGE, finishReason: 'STOP' })]);
+  const f = stubFetch([rateLimited, () => res]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 5000 });
+    assert.equal(out.text, '{"ok":true}');
+    assert.equal(f.seen.length, 2);
+    assert.ok(f.seen.every((s) => /:streamGenerateContent\?alt=sse$/.test(s.url)));
+    assert.equal(client.getTokenTelemetry()[0].attempts, 2);
+  } finally { f.restore(); }
+});
+
+test('§11.8 a non-OK streaming response keeps the error path: the status and body surface as before', async () => {
+  const bad = { ok: false, status: 400, statusText: 'Bad Request', headers: { get: () => null }, text: async () => '{"error":{"message":"bad"}}' };
+  const f = stubFetch([bad]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await assert.rejects(client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 5000 }), (e) => e.status === 400);
+  } finally { f.restore(); }
+});
+
+test('§11.9 the SSE reader: split lines, CRLF-free partial chunks, a malformed chunk and a [DONE] are all handled; toStreamUrl only touches :generateContent URLs', async () => {
+  const { toStreamUrl, readGeminiSseUntilDeadline } = require('./geminiClient.cjs');
+  assert.equal(toStreamUrl('https://x/v1beta/models/m:generateContent'), 'https://x/v1beta/models/m:streamGenerateContent?alt=sse');
+  const enc = new TextEncoder();
+  const body = new ReadableStream({
+    start(c) {
+      const whole = 'data: ' + JSON.stringify(sseChunk('he')) + '\n\n' + ': keep-alive\n' + 'data: {not json}\n\n' + 'data: ' + JSON.stringify(sseChunk('llo', { finishReason: 'STOP' }));
+      // split mid-line on purpose, and leave the last event without a trailing newline
+      c.enqueue(enc.encode(whole.slice(0, 20))); c.enqueue(enc.encode(whole.slice(20))); c.close();
+    },
+  });
+  const out = await readGeminiSseUntilDeadline(body, 5000);
+  assert.equal(out.text, 'hello');
+  assert.equal(out.finishReason, 'STOP');
+  assert.equal(out.deadlineHit, false);
+});
