@@ -1,4 +1,26 @@
 # LazyTopper — Current State
+
+## [CURRENT · 2026-10-14 · BANK-STEPS-1 + GARBLE-1] QUESTIONS WHOSE WORKED STEPS ANSWER ANOTHER QUESTION, OR WHOSE STEM WAS DAMAGED AT PDF EXTRACTION, ARE WITHHELD UNTIL REPAIRED — `#1116` `#1123` `#1125` `#1130` `#1131` `#1136` MERGED
+
+*(Adds to the blocks directly below, which stay current for everything this block does not name. Written by A under §10 from `#973` (DECISIONS 126, 131, 143, 152–154, 156–157, 159, 165, 169–171), `gh pr view` and `git log`. Content only: no grading code, route or prompt changed.)*
+
+★ **TRUNK at writing:** `f713f558` (`#1136`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1116` BANK-STEPS-1 PR-1 | `e6068484` | 10-13 12:07:45 | 183 served questions whose `solutionSteps` answer a DIFFERENT question than the stem (found by BANK-STEPS-SCOUT, `#973` 6141462325) are withheld in a `BANK-STEPS-1 PAUSE` block of `WITHHELD_QUESTION_IDS`; new ledger `bankFix/bankSteps1Ledger.ts` |
+| `#1123` PR-2 follow-up PAUSE | `be955f6c` | 10-13 14:32:54 | +79 → 262 paused; the two generic reviewed labels no row serves leave the reviewed list; the MAPPED label "Roots by Formula" stays mapped and is allowed un-served only through `PAUSED_LABELS` (D143) |
+| `#1125` PR-3 PAUSE-3 | `1d3046fc` | 10-13 17:01:47 | +71 → **333 paused** (FIND complete: 3,163 rows judged, 171 bad); four more labels behind `PAUSED_LABELS`; coverage pin 0.9189 → 0.9185. The Opus delta verifier FAILED on precision only (HEY-D04, EL-AR05 over-paused); overruled by D153 option 1 |
+| `#1130` GARBLE-1 PR-1 | `fd536961` | 10-13 17:50:07 | `PYQ-M-2024-TRIG-014/-018/-020` (flattened-fraction stems; a student saw -014 and -020 in a Chapter Test) withheld, tag `garbled-extraction`; ledger verdict `OVER-PAUSED` for HEY-D04 + EL-AR05; CNC2-041 comment fixed |
+| `#1131` B REPAIR PR-1 | `e851aabf` | 10-13 19:23:46 | EL-AR05 and HEY-D04 repaired (steps rewritten, key unchanged) and served again — the first rows to go `paused → repaired` |
+| `#1136` GARBLE-1 PR-2 | `f713f558` | 10-13 20:09:48 | `bankGarble.guard.test.ts` (bank-wide garble guard with controls); verdict `SINGLE-STEP`: the 55 served ≥3-mark rows with ONE solution step ledgered `found` (52 Science, 3 Maths) under a ratchet pinned at 55. Tests + ledger only |
+
+- **One withhold reaches every surface** (`defineChapter.ts:50`): Chapter Test, Worksheet, Full Mock, Quick Practice and Check & Improve all stop drawing a withheld id. Pausing is the safe direction: a withheld row only leaves the draw.
+- **Counts (read them off a run, do not copy):** BANK-STEPS-1 paused = 331 after `#1131` (333 − 2). `WITHHELD_QUESTION_IDS` also holds the 3 GARBLE-1 ids.
+- **Not yet merged (do not assume):** the FIND-2 pause (`#1135`, branch `fix/garble-1-pause-2`, 31 ids + the 4 entangled ids D171 approved), B's chapter repairs (`#1133` and later), D's NO-ANSWER fills.
+- **Ledger states:** `found | paused | repaired | dropped`, one field; `verdict` is separate (`MISPAIRED | PARTIAL | NO-ANSWER | OVER-PAUSED | SINGLE-STEP`). A state only moves forward.
+- **Owner-visible:** nothing to do. A live check on one structured surface is owed for the two rows `#1131` restored.
+
 ## [CURRENT · 2026-10-13 · WS-DRAW-1] A WORKSHEET IS DRAWN LIKE A BOARD PAPER: SECTION SHAPE, AT MOST 30% AI-PACK ROWS, AT LEAST 50% COMPETENCY-BASED IN A BOARD EXAM MIX, NO REPEATS; NEW "CBQ MIX" TYPE — `#1134` MERGED — LIVE
 
 *(Adds to the blocks directly below, which stay current for everything this block does not name. Written by C2 under §10 for `#1134` (`feat/ws-draw-1`), from `#973` (DECISIONS 132, 155, 157, 158, 164) and `git log`. Worksheet generation only: no grading, no PDF, no other surface.)*

@@ -23,6 +23,35 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-14 — BANK-STEPS-1 / GARBLE-1 FOLLOW-UPS (recorded by A under §10)
+
+### [FU-BANKSTEPS-OVERPAUSED-2] — HEY-D04 and EL-AR05 were paused though their steps fit the stem — CLOSED
+`#1125`'s Opus delta verifier found them over-paused (HEY-D04: extra, correct presbyopia content in step 5; EL-AR05: step 1 paraphrased a sibling's assertion, 1-mark objective). D153 merged anyway and recorded the verdict `OVER-PAUSED`; B's `#1131` (`e851aabf`) rewrote their steps and served them again. **Closed.** Lesson kept: a PARTIAL verdict ("part of the steps answer another question") over-pauses rows whose working is sound; the repair queue is where they come back.
+
+### [FU-SINGLE-STEP-REPAIR] — 55 served ≥3-mark rows have ONE solution step, so the structured grader has no step marking
+Found by the GARBLE-1 scan; the question and key are correct (so not paused). Ledgered `found / SINGLE-STEP` by `#1136` (52 Science → B, 3 Maths → D) under a ratchet pinned at 55 in `bankGarble.guard.test.ts`: the count may only fall, a new one is RED, and a repaired row must flip to `repaired`. Fix: split each into §13 steps with [mark] tags, keeping the content.
+
+### [FU-GARBLE-STEP-TEXT] — served rows whose STEM is clean but whose stored worked STEP was flattened at extraction
+`PYQ-M-RN-003` (step 1 reads "q q 2 – p p" and lost its √) and `PYQ-M-CG-003` (flattened distances) are reviewed exceptions in `bankGarble.guard.test.ts`. Four more are legible math-italic only (PYQ-M-2025-SAV-003, PYQ-M-2026-STAT-001, PYQ-M-2024-AP-002a, PYQ-S-2025-HERED-006) and are not flagged. Fix: rewrite the step text from the official marking scheme; remove the exception in the same PR. Owner: D (Maths).
+
+### [FU-GARBLE-TEXT-CLEAN] — 22 FIND-2 "MERGED" rows are still served with a stray marks digit or page number in the stem
+E.g. "… 2 OR (b)", "… 3 18 34". Readable, so not paused (D169): a text-clean repair strips the stray digit and keeps a legitimate CBSE internal-choice "OR". List: `Desktop\diff\report-garble1-find2-2026-10-14.md`.
+
+### [FU-GARBLE-GUARD-COVERAGE] — the garble guard has no pattern for a DROPPED minus or √
+Found by the `#1136` verifier: `PYQ-M-CG-003`'s stem lost a minus ("( 2, 3)", not a right triangle as printed) and no pattern caught it (the FIND-2 judge did). Add patterns for a bare "( 2," after a bracket and a "2 + 3 is rational" √ loss; fix the comment "Empty today" in the exceptions list (it holds two entries); drop the CG-003 exception when `#1135` withholds it.
+
+### [FU-FIND2-LTGEN-REST] — only 5% (203) of the 4,055 served LLM-generated rows were judged for readability
+All 1,067 served PDF-extracted rows were judged. The generated sample had 0 true hits, so the class is judged clean on a sample, not exhaustively. Judge the rest only if a student reports one.
+
+### [FU-GARBLE-TEMPLATE-CATEGORY] — withheld garbled rows are the *templates* of generated rows
+Many LTG rows are `shapedFrom` a PYQ row that GARBLE-1 withholds. The GEN-THIN-1 template rule accepts a withheld template only by category; `#1135` adds `bankFix/garble1Withholds.ts` (category `garbled`) to that rule. Each REPAIR that serves one of those ids again must remove it from the map in the same PR.
+
+### [FU-TRIG-001-DEGREE-SIGN] — `PYQ-M-2024-TRIG-001` steps and finalAnswer lost the degree sign ("(d) 60")
+From the `#1130` verifier. The answer field ("60°") and the options are right, so the mark is unaffected. Cosmetic: restore the "°" in the step and finalAnswer in a text-clean PR.
+
+### [FU-NO-FORCE-PUSH-ON-PR-BRANCH] — a force-pushed PR branch cannot be reopened
+`#1132` was TEMP-CLOSED for lane-overlap, then its branch was rebased and pushed with `--force-with-lease`; GitHub refused `gh pr reopen`, so the content moved to `#1136`. Standing rule: bring a TEMP-CLOSED branch up to date by merging trunk in (a normal push), never by rebase + force. The ruleset also blocks merging a BEHIND branch, so `gh pr update-branch` (one-line heads-up, prove the lane files byte-identical) is the route.
+
 ## 2026-10-13 — WS-DRAW-1 FOLLOW-UPS (recorded by C2 under §10)
 
 ### [FU-WSDRAW-TOPUP-SECTION] — the dedupe top-up can refill one short section from another's neighbour (owner: C2, with PERF-1 PR-3 or the next worksheet lane)
