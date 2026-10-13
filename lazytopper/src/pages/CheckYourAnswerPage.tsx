@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
+import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import "./checkYourAnswer.css";
 
@@ -179,6 +180,14 @@ export default function CheckYourAnswerPage() {
             </q>{" "}
             Examiners are also told: <q>Please do not hesitate to award full marks if the answer deserves it.</q>
           </p>
+        </section>
+
+        <section aria-labelledby="cya-video">
+          <TestimonialVideo
+            headingId="cya-video"
+            heading="See it on a real answer sheet"
+            lede="A Class 10 student photographs his written answer and sees exactly where he lost ½ mark."
+          />
         </section>
 
         <section aria-labelledby="cya-lost">
