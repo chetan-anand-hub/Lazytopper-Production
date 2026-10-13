@@ -1,3 +1,13 @@
+## ★ 2026-10-13 — AFTER UPLOAD-READ-1 (PR-A `00badaab`, `#1120`, `#1122`) (written by C1 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER / COFOUNDER (live-verify still owed):** upload a 6 to 7 MB ANSWER PDF on Check & Improve and on a worksheet, signed in on www. It should be accepted and graded; an 8 MB file should be refused with the size message. Your 14:23Z PASS covered the question paper only.
+- **Next C1 lanes:** UPLOAD-SHRINK-1 (in progress, comment 6145819440, sha256 `DAE85C1FBC72`, D144/D145: PR-1 shrinks big scanned PDFs on the student's device, trigger 3 MB), then WS-DRAW-1 (comment 6143420082). Other lanes: C2 PARENTS-1 `#1121` then PERF-1; A: BANK-STEPS-1.
+- **Draft `#1086` (TOPUP-1) must rebase onto trunk before it is ever un-drafted** (`[FU-1086-REBASE-AFTER-1122]`): `#1122` changed `fairUse.cjs`'s pre-read constant and the lane-overlap check was waived for `#1122` only.
+- **Watch:** `clock (ist-midnight 1/2)` flaked once on `#1120`; a repeat on any PR is an FU, not a re-run (`[FU-CLOCK-IST-MIDNIGHT-FLAKE-1120]`).
+- **Do not raise the 7 MB ceiling:** bodies over 10 MiB never reach the app. A larger file needs `[FU-UPLOAD-OVER-10MIB-EDGE]` (direct-to-storage upload or PDF re-compression).
+
 ## ★ 2026-10-13 — AFTER ORG-SAMEAS-1 (`#1112`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

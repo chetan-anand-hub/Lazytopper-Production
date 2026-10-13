@@ -1,5 +1,14 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-13 — UPLOAD-READ-1 (C1, §10 for PR-A `00badaab`, `#1120`, `#1122`).** No surface's Scope changed and no new scope was discovered. The Check & Improve upload ceiling changed (3.5 MB client / 5 MB server → 7 MB on every file route), but grading behaviour did not: the six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) keep their marks, prompts, mistake types, departure handling and objective clamp. No surface cell was flipped.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Check & Improve, question detection (single / multi upload) | output cap 16384, salvage with "We read the first n questions", streamed with a 50 s deadline (PR-A, `#1120`) | 🟢 live | — |
+| Upload ceiling: C&I single/multi, Worksheet, Chapter Test, Full Mock, Quick Practice (collect mode) | 7 MB raw PDF, 10 MiB body cap, client total-body budget message (`#1122`) | 🟢 live | live-verify of a 6 to 7 MB ANSWER PDF on C&I and on a worksheet |
+| Files over 10 MiB (or scans too big to send) | refused with the size message; no path to accept them | 🟡 partial | `[FU-UPLOAD-OVER-10MIB-EDGE]`; UPLOAD-SHRINK-1 PR-1 |
+| Draft `#1086` (TOPUP-1) | conflicts with `#1122` in `fairUse.cjs`; lane-overlap waived once (D141) | 🟡 partial | `[FU-1086-REBASE-AFTER-1122]` |
+
 > **2026-10-13 — ORG-SAMEAS-1 (C2, §10 for `#1112`).** No surface's Scope changed and no new scope was discovered. Head and footer markup only; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |
