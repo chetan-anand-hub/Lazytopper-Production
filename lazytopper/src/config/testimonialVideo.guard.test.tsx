@@ -61,6 +61,11 @@ describe("VIDEO-EMBED-1 (a) — the served HTML carries the VideoObject and the 
       expect(videoBlocks.length, `${path}: VideoObject blocks`).toBe(1);
       const video = JSON.parse(videoBlocks[0]) as Record<string, unknown>;
       expect(String(video.embedUrl)).toMatch(/\/embed\/LN5CqyYDpGQ$/);
+      // DECISION 129: the growth doc §4's own strings, verbatim (Google matches the name to the YouTube title).
+      expect(video.name).toBe("CBSE Class 10 Answer Checking: Where Did My ½ Mark Go? | Step Marking Explained");
+      expect(video.description).toBe(
+        "Swajeet, a CBSE Class 10 student, photographs his handwritten answers and has them step-marked against the CBSE marking scheme on LazyTopper. He sees exactly where he lost half a mark: he solved the problem without writing the formula.",
+      );
       expect(video.duration).toBe("PT38S");
       expect(video.uploadDate).toBe("2026-10-12T20:00:00+05:30");
       expect(video.inLanguage).toBe("en-IN");

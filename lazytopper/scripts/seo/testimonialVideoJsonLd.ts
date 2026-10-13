@@ -12,9 +12,9 @@ import {
   TESTIMONIAL_EMBED_URL,
   TESTIMONIAL_LANGUAGE,
   TESTIMONIAL_THUMB_PATH,
-  TESTIMONIAL_TITLE,
   TESTIMONIAL_TRANSCRIPT,
   TESTIMONIAL_UPLOAD_DATE,
+  TESTIMONIAL_VIDEO_NAME,
   TESTIMONIAL_VIDEO_ID,
   TESTIMONIAL_YT_THUMB_URL,
 } from "../../src/components/marketing/TestimonialVideoData";
@@ -30,7 +30,7 @@ export function testimonialVideoJsonLd(home: string): Record<string, unknown> {
   const data: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "VideoObject",
-    name: TESTIMONIAL_TITLE,
+    name: TESTIMONIAL_VIDEO_NAME,
     description: TESTIMONIAL_DESCRIPTION,
     thumbnailUrl: [new URL(TESTIMONIAL_THUMB_PATH, home).href, TESTIMONIAL_YT_THUMB_URL],
     uploadDate: TESTIMONIAL_UPLOAD_DATE,
