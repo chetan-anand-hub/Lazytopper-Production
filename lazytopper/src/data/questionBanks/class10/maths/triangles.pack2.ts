@@ -33,10 +33,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
   },
   { id: "TRI2-E05", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is NOT a criterion for similarity of triangles?", options: ["AAA", "SSS", "SAS", "ASA"], answer: "ASA", explanation: "The correct answer is ASA. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "ASA",
     solutionSteps: [
-      "Identify given conditions: For example, if angle A = angle P and angle B = angle Q in triangles ABC and PQR.",
-      "Apply AA similarity criterion: If two angles of one triangle are respectively equal to two angles of another triangle, then the triangles are similar.",
-      "Determine correct correspondence: The vertices must correspond in the order of equal angles (A to P, B to Q, C to R).",
-      "Conclude similarity: Therefore, triangle ABC ~ triangle PQR.",
+      "AAA (equivalently AA), SSS and SAS are the criteria for similarity of triangles; ASA is a congruence criterion, not a similarity criterion, so the answer is ASA. [1]",
     ], isCompetencyBased: false,
   },
   { id: "TRI2-E06", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "In △ABC, DE ∥ BC. If AD = 4 cm and AB = 12 cm, find DB and the ratio AD:DB.", solutionSteps: [

@@ -1283,10 +1283,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   },
   { id: "QE2-048", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation x² + 4x + 4 = 0, the nature of roots is:", options: ["Two equal real roots","Two distinct real roots","No real roots","Complex roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 16−16 = 0 → two equal roots: x = −2.", finalAnswer: "D = 16−16 = 0 → two equal roots: x = −2.", isCompetencyBased: false,
     solutionSteps: [
-      "The given quadratic equation is 2x^2 - 4x + 3 = 0. Comparing with ax^2 + bx + c = 0, we have a = 2, b = -4, c = 3.",
-      "Calculate the discriminant D = b^2 - 4ac.",
-      "Substitute the values: D = (-4)^2 - 4(2)(3) = 16 - 24 = -8.",
-      "Since the discriminant D < 0 (D = -8), the quadratic equation has no real roots.",
+      "For x² + 4x + 4 = 0, D = b² − 4ac = 16 − 16 = 0, so the roots are real and equal (x = −2): two equal real roots. [1]",
     ],
   },
   { id: "QE2-049", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Roots by Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of 2x² − 7x + 3 = 0 are:", options: ["3 and 1/2","3 and 2","1/2 and −3","−3 and 1/2"], answer: "3 and 1/2", explanation: "The correct answer is 3 and 1/2. x = (7 ± √(49−24))/4 = (7 ± 5)/4. x = 3 or x = 1/2.", finalAnswer: "x = (7 ± √(49−24))/4 = (7 ± 5)/4. x = 3 or x = 1/2.", isCompetencyBased: false,

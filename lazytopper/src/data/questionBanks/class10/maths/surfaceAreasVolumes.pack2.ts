@@ -824,9 +824,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   },
   { id: "SAV2-R18", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Curved Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The curved surface area of a hemisphere of radius r is:", options: ["2πr²","4πr²","πr²","3πr²"], answer: "2πr²", explanation: "The correct answer is 2πr². CSA of hemisphere = 2πr².", finalAnswer: "CSA of hemisphere = 2πr².", isCompetencyBased: false,
     solutionSteps: [
-      "Identify the formula for Curved Surface Area (CSA) of a cylinder: CSA = 2 * pi * r * h.",
-      "Substitute the given values: r = 7 cm, h = 10 cm, and pi = 22/7.",
-      "Calculate: CSA = 2 * (22/7) * 7 * 10 = 2 * 22 * 10 = 440 cm^2.",
+      "A hemisphere is half of a sphere, whose surface area is 4πr², so its curved surface area is 2πr². [1]",
     ],
   },
   { id: "SAV2-R19", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): When a cone is placed on a cylinder with the same base radius, the CSA of the solid is πrl + 2πrh.\nReason (R): The total curved surface area is obtained by adding the lateral surface areas of the individual solids.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "CSA of combined solid = CSA of cone + CSA of cylinder = πrl + 2πrh. R explains the additive method used in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
