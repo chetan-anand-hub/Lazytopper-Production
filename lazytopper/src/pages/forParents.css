@@ -157,8 +157,7 @@
 .lt-fp__faq summary {
   cursor: pointer;
   min-height: 44px;
-  display: flex;
-  align-items: center;
+  padding: 10px 0;
   font-weight: 600;
 }
 .lt-fp__faq details p {

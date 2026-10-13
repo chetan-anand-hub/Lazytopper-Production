@@ -125,6 +125,19 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
     expect(html).toContain('data-testid="fp-share-footer"');
   });
 
+  it("the share message is exactly the spec's, and the cost / progress / routine copy is verbatim", () => {
+    const message = decodeURIComponent(shareHrefs(html)[0].slice("https://wa.me/?text=".length));
+    expect(message).toBe(
+      "Try this for your Class 10 board prep: photograph a written answer and see the marks for every step, " +
+        "the way a CBSE examiner marks it. " +
+        "https://www.lazytopper.com/check-improve?utm_source=parent_share&utm_medium=whatsapp",
+    );
+    expect(html).toContain("The first answer check is free, without an account. A new account gets a 7-day Premium trial.");
+    expect(html).toContain("Not yet. A weekly parent summary is planned.");
+    expect(html).toContain("15–20 minutes a day, on the phone or the laptop, up to the February 2027 boards.");
+    expect((html.match(/<details>/g) ?? []).length).toBe(5);
+  });
+
   it("the video facade is present and nothing loads from youtube before a click", () => {
     expect(html).toContain("See it on a real answer sheet");
     expect(mediaProblems(html)).toEqual([]);

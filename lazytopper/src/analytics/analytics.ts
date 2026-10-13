@@ -582,11 +582,13 @@ export type ParentSharePlacement = "hero" | "footer";
 /**
  * PARENTS-1 — `parent_share_click`: a parent tapped "Send LazyTopper to my child". The
  * payload is the event name plus a two-value placement, never an id, text or contact.
- * GA4 and the first-party log take the name only (`sendToGa4`, `recordActivity`); the
- * placement rides to the cookieless vendor.
+ * The placement travels as `data`, the shape Vercel's custom events read (see the call
+ * shapes above); a top-level `placement` would be dropped. GA4 and the first-party log
+ * take the name only (`sendToGa4`, `recordActivity`), and a signed-out parent is never
+ * recorded by the latter.
  */
 export function trackParentShareClick(placement: ParentSharePlacement): void {
-  send("event", { name: "parent_share_click", placement });
+  send("event", { name: "parent_share_click", data: { placement } });
 }
 
 /** Attempts already counted in THIS page load — a graded attempt is counted once. */
