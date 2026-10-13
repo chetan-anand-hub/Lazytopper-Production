@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   __resetPracticeGradedForTests,
+  trackParentShareClick,
   trackPracticeGraded,
   type NamedAnalyticsEvent,
 } from "./analytics";
@@ -59,5 +60,29 @@ describe("trackPracticeGraded — once per graded attempt, bare name only", () =
   it("the name is in the client activity allowlist (the server's mirror is pinned by activityClient.test)", () => {
     const name: NamedAnalyticsEvent = "practice_graded";
     expect(ACTIVITY_EVENTS).toContain(name);
+  });
+});
+
+// PARENTS-1 — `parent_share_click` carries its placement in the shape the vendor reads.
+describe("trackParentShareClick — the placement reaches the vendor as `data`, nothing else is added", () => {
+  it("sends a custom event in the vendor's `{ name, data }` shape, with the placement inside `data`", () => {
+    trackParentShareClick("hero");
+    expect(sent).toEqual([{ kind: "event", payload: { name: "parent_share_click", data: { placement: "hero" } } }]);
+  });
+
+  it("CONTROL: the footer placement is reported as footer (the value is not a constant)", () => {
+    trackParentShareClick("footer");
+    expect(sent[0].payload).toEqual({ name: "parent_share_click", data: { placement: "footer" } });
+  });
+
+  it("no id, text, contact or message body is in the payload", () => {
+    trackParentShareClick("hero");
+    const json = JSON.stringify(sent);
+    expect(json).not.toMatch(/wa\.me|utm_|lazytopper\.com|http/i);
+  });
+
+  it("the name is a NamedAnalyticsEvent and in the client activity allowlist", () => {
+    const name: NamedAnalyticsEvent = "parent_share_click";
+    expect(ACTIVITY_EVENTS as readonly string[]).toContain(name);
   });
 });

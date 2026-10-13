@@ -93,6 +93,7 @@ export const ACTIVITY_EVENTS = [
   "check_graded",
   "practice_graded",
   "testimonial_play",
+  "parent_share_click",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 
