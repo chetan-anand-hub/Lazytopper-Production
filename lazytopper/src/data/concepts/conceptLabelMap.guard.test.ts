@@ -83,7 +83,6 @@ const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
   { chapter: "polynomials", label: "Degree of Polynomial" },
   { chapter: "surface-areas-and-volumes", label: "Curved Surface Area" },
   { chapter: "surface-areas-and-volumes", label: "Total Surface Area" },
-  { chapter: "electricity", label: "Resistance and Ohm's Law" },
 ];
 const MAX_REVIEWED_LABELS = 136;
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
