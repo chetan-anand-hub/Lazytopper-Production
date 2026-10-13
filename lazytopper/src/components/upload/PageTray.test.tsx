@@ -55,7 +55,7 @@ function fakePrepared(file: File, opts: { crop?: unknown; rotation?: number } = 
 
 const sourceName = (b64: string) => atob(b64.slice(0, 64)).split("|")[0];
 
-let seams: Required<Pick<UsePageTrayOptions, "decode" | "prepare" | "thumb" | "assemble" | "renderPreview">>;
+let seams: Required<Pick<UsePageTrayOptions, "decode" | "prepare" | "thumb" | "assemble" | "renderPreview" | "shrink">>;
 let assembled: PdfPageInput[][];
 
 beforeEach(() => {
@@ -71,6 +71,8 @@ beforeEach(() => {
       return { base64: b64, bytes: atob(b64).length, pageCount: pages.length, pages: [] };
     }),
     renderPreview: vi.fn(() => ({ url: "data:image/jpeg;base64,PREVIEW" })),
+    // UPLOAD-SHRINK-1: the real shrink needs pdf.js + a canvas; every existing test sees a PDF come back untouched.
+    shrink: vi.fn(async (f: File) => f),
   };
 });
 
@@ -78,7 +80,15 @@ const payloads: Array<TrayPayload | null> = [];
 const errors: Array<string | null> = [];
 const checked: File[] = [];
 
-function Host({ allowMultiPage = true, failDecode = false }: { allowMultiPage?: boolean; failDecode?: boolean }) {
+function Host({
+  allowMultiPage = true,
+  failDecode = false,
+  shrink,
+}: {
+  allowMultiPage?: boolean;
+  failDecode?: boolean;
+  shrink?: UsePageTrayOptions["shrink"];
+}) {
   const [last, setLast] = useState<TrayPayload | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const tray = usePageTray({
@@ -97,6 +107,7 @@ function Host({ allowMultiPage = true, failDecode = false }: { allowMultiPage?: 
     allowMultiPage,
     ...seams,
     ...(failDecode ? { decode: async () => Promise.reject(new Error("no canvas")) } : {}),
+    ...(shrink ? { shrink } : {}),
   });
   return (
     <div>
@@ -287,6 +298,58 @@ describe("(b)(c) PDFs and wrong types; the honest degrade", () => {
     pick([new File([new Uint8Array(1024)], "scan.pdf", { type: "application/pdf" })]);
     await waitFor(() => expect(screen.getByTestId("host-payload").textContent).toBe("application/pdf|0|scan.pdf"));
     expect(screen.queryByTestId("photo-crop-step")).toBeNull();
+  });
+
+  it("UPLOAD-SHRINK-1: the guard runs on the SHRUNK file: an 8 MB scan that shrinks to 1.5 MB is accepted", async () => {
+    const original = new File([new Uint8Array(8 * 1024 * 1024)], "paper.pdf", { type: "application/pdf" });
+    const shrunk = new File([new Uint8Array(1.5 * 1024 * 1024)], "paper.pdf", { type: "application/pdf" });
+    const shrink = vi.fn(async () => shrunk);
+    render(<Host shrink={shrink} />);
+    pick([original]);
+    await waitFor(() => expect(screen.getByTestId("host-payload").textContent).toBe("application/pdf|0|paper.pdf"));
+    expect(shrink).toHaveBeenCalledTimes(1);
+    expect(checked).toContain(shrunk);
+    expect(checked).not.toContain(original);
+    expect(screen.getByTestId("host-error").textContent).toBe("");
+  });
+
+  it("UPLOAD-SHRINK-1: while it works the student reads 'Optimising your PDF for upload…' with the page count", async () => {
+    let release: (f: File) => void = () => {};
+    const original = new File([new Uint8Array(4 * 1024 * 1024)], "paper.pdf", { type: "application/pdf" });
+    const shrink = vi.fn(
+      (_f: File, onProgress: (d: number, t: number) => void) =>
+        new Promise<File>((resolve) => {
+          onProgress(2, 5);
+          release = resolve;
+        }),
+    );
+    render(<Host shrink={shrink} />);
+    pick([original]);
+    await waitFor(() => expect(screen.getByText("Optimising your PDF for upload… page 2 of 5")).toBeTruthy());
+    expect(screen.getByTestId("host-payload").textContent).toBe("none");
+    await act(async () => release(original));
+    await waitFor(() => expect(screen.getByTestId("host-payload").textContent).toBe("application/pdf|0|paper.pdf"));
+    expect(screen.queryByText(/Optimising/)).toBeNull();
+  });
+
+  it("UPLOAD-SHRINK-1: a shrink that throws never blocks: the original reaches the guard (refused when over 7 MB, accepted when under)", async () => {
+    const shrink = vi.fn(async () => {
+      throw new Error("pdf.js failed to load");
+    });
+    render(<Host shrink={shrink} />);
+    pick([new File([new Uint8Array(MAX_UPLOAD_PDF_BYTES + 10)], "big.pdf", { type: "application/pdf" })]);
+    await waitFor(() => expect(screen.getByTestId("host-error").textContent).toMatch(/the limit is 7 MB/));
+    pick([new File([new Uint8Array(2048)], "ok.pdf", { type: "application/pdf" })]);
+    await waitFor(() => expect(screen.getByTestId("host-payload").textContent).toBe("application/pdf|0|ok.pdf"));
+  });
+
+  it("UPLOAD-SHRINK-1: photos never go through the PDF shrink", async () => {
+    const shrink = vi.fn(async (f: File) => f);
+    render(<Host shrink={shrink} />);
+    pick([photo("only.jpg")]);
+    await confirmWhole();
+    await screen.findByTestId("page-tray");
+    expect(shrink).not.toHaveBeenCalled();
   });
 
   it("(c) a non-image, non-PDF gets the type message", async () => {

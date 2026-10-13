@@ -85,6 +85,8 @@ export interface UsePageTrayOptions {
   prepare?: (photo: DecodedPhoto, opts: PreparePhotoOptions) => Promise<PreparedPhoto>;
   thumb?: (photo: DecodedPhoto, opts: { crop?: CropFraction; rotation?: PhotoRotation }) => string;
   assemble?: (pages: PdfPageInput[]) => Promise<AssembledPdf>;
+  /** UPLOAD-SHRINK-1: shrink a picked PDF before the guard sees it. Default: `shrinkPdf` (loaded lazily). */
+  shrink?: (file: File, onProgress: (done: number, total: number) => void) => Promise<File>;
   renderPreview?: (photo: DecodedPhoto, rotation: PhotoRotation) => { url: string };
 }
 
@@ -125,6 +127,28 @@ async function readFileBase64(file: File): Promise<string> {
   });
 }
 
+/** UPLOAD-SHRINK-1: the shrink module (and, behind it, pdf.js) is fetched only when a picked PDF is big enough to
+ *  be worth shrinking: a small PDF never downloads any of it. */
+async function defaultShrink(file: File, onProgress: (done: number, total: number) => void): Promise<File> {
+  const { SHRINK_TRIGGER_BYTES, shrinkPdf } = await import("../../services/shrinkPdf");
+  if (file.size <= SHRINK_TRIGGER_BYTES) return file;
+  const { trackUxEvent } = await import("../../services/uxTelemetry");
+  const { file: out } = await shrinkPdf(file, {
+    onProgress,
+    onReport: (r) => {
+      trackUxEvent(r.outcome === "timeout" ? "shrink_timeout" : "pdf_shrink", "upload", {
+        outcome: r.outcome,
+        before: r.beforeBytes,
+        after: r.afterBytes,
+        pages: r.pages,
+        ms: r.ms,
+        textLayerDropped: r.textLayerDropped,
+      });
+    },
+  });
+  return out;
+}
+
 async function defaultAssemble(pages: PdfPageInput[]): Promise<AssembledPdf> {
   // The module (and with it jspdf) is fetched only when a SECOND page exists.
   const { assemblePagesPdf } = await import("../../services/assemblePagesPdf");
@@ -149,6 +173,9 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
   const [assembling, setAssembling] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [assemblyNote, setAssemblyNote] = useState<string | null>(null);
+  /** "Optimising your PDF for upload… page n of N" while a big scanned PDF is being shrunk (UPLOAD-SHRINK-1). */
+  const [optimiseNote, setOptimiseNote] = useState<string | null>(null);
+  const shrinkSeqRef = useRef(0);
   const hadPagesRef = useRef(false);
   const generationRef = useRef(0);
   const mountedRef = useRef(true);
@@ -178,7 +205,25 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
   );
 
   /** Send a file through the guard UNCHANGED — a PDF, or the honest-degrade original. */
-  const sendAsIs = useCallback(async (file: File) => {
+  const sendAsIs = useCallback(async (original: File) => {
+    let file = original;
+    if (isPdf(original)) {
+      // UPLOAD-SHRINK-1: a big SCANNED PDF is shrunk on the device first; anything else (small, typed, a failure)
+      // comes back as the very same file, and the guard below runs on whatever will actually be sent.
+      const seq = (shrinkSeqRef.current += 1);
+      try {
+        file = await (optsRef.current.shrink ?? defaultShrink)(original, (done, total) => {
+          if (mountedRef.current && seq === shrinkSeqRef.current) {
+            setOptimiseNote(`Optimising your PDF for upload… page ${done} of ${total}`);
+          }
+        });
+      } catch {
+        file = original;
+      } finally {
+        if (mountedRef.current && seq === shrinkSeqRef.current) setOptimiseNote(null);
+      }
+      if (!mountedRef.current || seq !== shrinkSeqRef.current) return;
+    }
     const check = optsRef.current.check(file);
     if (!check.ok) {
       optsRef.current.onError(check.message);
@@ -390,6 +435,8 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
     setNotice(null);
     hadPagesRef.current = false;
     generationRef.current += 1;
+    shrinkSeqRef.current += 1;
+    setOptimiseNote(null);
     setPages([]);
   }, []);
 
@@ -472,8 +519,8 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
   return {
     pages,
     cropSession,
-    busy: working || assembling,
-    notice: notice ?? assemblyNote,
+    busy: working || assembling || optimiseNote !== null,
+    notice: notice ?? assemblyNote ?? optimiseNote,
     allowMultiPage,
     addFiles,
     canAddPage,
@@ -682,7 +729,7 @@ export default function PageTray({ tray, disabled = false, inlineCrop = false }:
             ))}
 
       {busy && !cropSession && pages.length === 0 && (
-        <p className="lt-pt__status" role="status">Preparing your photo…</p>
+        <p className="lt-pt__status" role="status">{notice ?? "Preparing your photo…"}</p>
       )}
 
       {pages.length > 0 && (
