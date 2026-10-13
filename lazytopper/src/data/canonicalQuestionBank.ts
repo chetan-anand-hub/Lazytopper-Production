@@ -1174,6 +1174,44 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
   "PYQ-M-2024-TRIG-018",     // garbled-extraction: theta rendered as q, fractions flattened
   "PYQ-M-2024-TRIG-020",     // garbled-extraction: fractions flattened (tan/cot proof)
+  // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
+  "PYQ-M-AP-004",                 // garbled-extraction: operator lost in the statement (p + q n)
+  "PYQ-M-STAT-008",               // garbled-extraction: class-interval dashes lost in the table
+  "PYQ-M-2025-STAT-006",          // garbled-extraction: class-interval dashes lost in the table
+  "PYQ-M-2025-TRIG-005",          // garbled-extraction: degree/angle signs lost, marks digits inline
+  // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
+  "PYQ-M-QE-003",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
+  "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
+  "PYQ-M-QE-008",                 // garbled-extraction: exponent flattened (px2)
+  "PYQ-M-2024-QE-001",            // garbled-extraction: exponent flattened (x2 + x - p(p+1) = 0)
+  "PYQ-M-2024-QE-002",            // garbled-extraction: exponent flattened (5x2 - 6x + 21 = 0)
+  "PYQ-M-2024-QE-005a",           // garbled-extraction: exponent flattened ((k+1)x2)
+  "PYQ-M-2026-QE-001",            // garbled-extraction: exponent flattened ((p-q)x2)
+  "PYQ-M-2025-SAV-005",           // garbled-extraction: pi symbol dropped (Take = 3.14)
+  "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
+  "2026-STAT-SA-03",              // unsolvable-as-printed (D170): mean 18 with f: 3, f, 7, 5 gives 3f = 25; the row's own last step says 'adjust numbers accordingly'
+  // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
+  "PYQ-M-CG-003",                 // garbled-extraction: sign lost in a vertex; not right-angled as printed
+  "PYQ-M-2026-REALNUM-005",       // garbled-extraction: fraction bar lost (2 + 3√5 7)
+  "PYQ-M-STAT-009",               // garbled-extraction: class-interval dashes lost; wording broken
+  "PYQ-M-2025-STAT-003",          // garbled-extraction: class-interval dashes lost in the table
+  "PYQ-M-2026-TRI-003",           // garbled-extraction: triangle/angle/product symbols lost
+  "PYQ-M-2026-TRI-005",           // garbled-extraction: angle symbols lost
+  "PYQ-M-TRIG-010",               // garbled-extraction: degree signs lost
+  "PYQ-M-2024-QE-004b",           // garbled-extraction: not-equal sign damaged (c ¹ -1)
+  "PYQ-M-2024-QE-006a",           // garbled-extraction: not-equal sign damaged (k ¹ -1)
+  "PYQ-M-RN-004",                 // garbled-extraction: exponent lost (4n for 4^n)
+  "PYQ-M-2025-POLY-002",          // garbled-extraction: exponents flattened (12a2 = 49b ambiguous)
+  "PYQ-S-2025-ACID-010",          // garbled-extraction: parts (b)/(c) reduced to residue
+  "PYQ-S-2026-ACID-019",          // garbled-extraction: stripped Hindi block left residue
+  "PYQ-S-2024-CARB-002",          // garbled-extraction: structural formulas flattened
+  "PYQ-S-2025-CARB-001",          // garbled-extraction: structural formulas flattened
+  "PYQ-S-2026-CHEMRXN-020",       // garbled-extraction: structures damaged, triple bond lost
+  "PYQ-S-2025-REPR-007",          // garbled-extraction: OR alternative reduced to residue
+  "PYQ-S-2026-REPR-005",          // garbled-extraction: OR alternative reduced to residue
+  "PYQ-S-LIFE-013",               // garbled-extraction: empty dangling sub-parts
+  "PYQ-S-2024-LIFEP-008",         // garbled-extraction: words dropped from the stem
+  "PYQ-S-2026-LIFEP-014",         // garbled-extraction: stem reduced to empty brackets
   "PYQ-M-AP-003",            // mojibake — part (B) Hindi gibberish (dup of clean AP-002)
   // ---- [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — objective rows whose answer key resolves to
   //      NO option under the grader contract (server/routes/objectiveScoring.cjs:
@@ -2120,6 +2158,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-CTRL-042",             // text repaired by BANK-FIX-7 PR-2 (stray header + truncated answer); still withheld: its answer cites the booklet's own diagram and booklet figures may not be bound
   "SCO-S-ELEC-012",             // text-damaged: garbled wiring description, printed so in the booklet (cbjescco12 Q17); no allowed source to restore it from (BANK-FIX-7 PR-2)
   // BANK-STEPS-1 PAUSE — spliced-solution; each id leaves this block in the PR that repairs it
+  // BANK-STEPS-1 REPAIR PR-2 (lane B, 13 Oct): 49 Science rows repaired (new steps from each row's own stem + key) and served again
   // EL-AR05, HEY-D04: over-paused (D153), steps repaired and served again by BANK-STEPS-1 REPAIR PR-1 (13 Oct)
   "TRI2-E01",                     // spliced-solution: the steps answer another question
   "TRI2-E02",                     // spliced-solution: the steps answer another question
@@ -2170,41 +2209,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PR2-046",                      // spliced-solution: the steps answer another question
   "PR2-047",                      // spliced-solution: the steps answer another question
   "PR2-055",                      // spliced-solution: the steps answer another question
-  "CR-E01",                       // spliced-solution: the steps answer another question
-  "CR-E03",                       // spliced-solution: the steps answer another question
-  "CR-E05",                       // spliced-solution: the steps answer another question
-  "CR-E07",                       // spliced-solution: the steps answer another question
-  "CR-E09",                       // spliced-solution: the steps answer another question
-  "CR-E11",                       // spliced-solution: the steps answer another question
-  "CR-E12",                       // spliced-solution: the steps answer another question
-  "CR-E15",                       // spliced-solution: the steps answer another question
   "CR-M04",                       // spliced-solution: the steps answer another question
-  "CR-M11",                       // spliced-solution: the steps answer another question
-  "CR-AR06",                      // spliced-solution: the steps answer another question
-  "ABS-E01",                      // spliced-solution: the steps answer another question
-  "ABS-E02",                      // spliced-solution: the steps answer another question
-  "ABS-E05",                      // spliced-solution: the steps answer another question
-  "ABS-E08",                      // spliced-solution: the steps answer another question
-  "ABS-E09",                      // spliced-solution: the steps answer another question
-  "ABS-E11",                      // spliced-solution: the steps answer another question
-  "ABS-E13",                      // spliced-solution: the steps answer another question
-  "ABS-M04",                      // spliced-solution: the steps answer another question
-  "ABS-M14",                      // spliced-solution: the steps answer another question
-  "ABS-M15",                      // spliced-solution: the steps answer another question
-  "ABS-E16",                      // spliced-solution: the steps answer another question
-  "ABS-E17",                      // spliced-solution: the steps answer another question
-  "ABS-E18",                      // spliced-solution: the steps answer another question
-  "MNM-E01",                      // spliced-solution: the steps answer another question
-  "MNM-E02",                      // spliced-solution: the steps answer another question
-  "MNM-E06",                      // spliced-solution: the steps answer another question
-  "MNM-E08",                      // spliced-solution: the steps answer another question
-  "MNM-E10",                      // spliced-solution: the steps answer another question
-  "MNM-E13",                      // spliced-solution: the steps answer another question
-  "MNM-E14",                      // spliced-solution: the steps answer another question
-  "MNM-M04",                      // spliced-solution: the steps answer another question
-  "MNM-M09",                      // spliced-solution: the steps answer another question
-  "MNM-M12",                      // spliced-solution: the steps answer another question
-  "MNM-M14",                      // spliced-solution: the steps answer another question
   "CARB-E01",                     // spliced-solution: the steps answer another question
   "CARB-E02",                     // spliced-solution: the steps answer another question
   "CARB-E03",                     // spliced-solution: the steps answer another question
@@ -2316,7 +2321,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "2026-STAT-SA-02",              // spliced-solution: the steps answer another question (different numbers)
   "2026-PLE-SA-02",               // spliced-solution: the steps answer another question (different numbers)
   "sci-chem-acids-2m-2022-01",    // spliced-solution: the steps answer another question
-  "ABS-D03",                      // spliced-solution: part of the steps answer another question
   "EL-M15",                       // spliced-solution: the steps answer another question
   "EL-E02",                       // spliced-solution: the steps answer another question (different numbers)
   "AP2-049",                      // spliced-solution: the steps answer another question (different numbers)
@@ -2333,14 +2337,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "CG2-049",                      // spliced-solution: the steps answer another question (different numbers)
   "QE-N01",                       // spliced-solution: the steps answer another question (different numbers)
   "AP2-048",                      // spliced-solution: the steps answer another question
-  "CR-D03",                       // spliced-solution: part of the steps answer another question
-  "ABS-E14",                      // spliced-solution: the steps answer another question
-  "MNM-E17",                      // spliced-solution: the steps answer another question
-  "CR-E17",                       // spliced-solution: the steps answer another question
   "HE2-066",                      // spliced-solution: part of the steps answer another question
   "CIR-E13",                      // spliced-solution: the steps answer another question
   "LP-E11",                       // spliced-solution: the steps answer another question
-  "ABS-M09",                      // spliced-solution: part of the steps answer another question
   "CG2-054",                      // spliced-solution: the steps answer another question (different numbers)
   "QE2-050",                      // spliced-solution: the steps answer another question (different numbers)
   "TRI2-AR02",                    // spliced-solution: part of the steps answer another question
@@ -2353,7 +2352,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "QE2-055",                      // spliced-solution: the steps answer another question
   "LP-E14",                       // spliced-solution: the steps answer another question
   "ARC2-052",                     // spliced-solution: the steps answer another question (different numbers)
-  "MNM-E16",                      // spliced-solution: the steps answer another question
   "HE2-055",                      // spliced-solution: part of the steps answer another question
   "QE2-049",                      // spliced-solution: the steps answer another question
   "ARC2-048",                     // spliced-solution: the steps answer another question (different numbers)
@@ -2363,18 +2361,15 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "TRIG2-M03",                    // spliced-solution: part of the steps answer another question
   "CI2-018",                      // spliced-solution: part of the steps answer another question
   "CARB-E14",                     // spliced-solution: the steps answer another question
-  "CR-E04",                       // spliced-solution: part of the steps answer another question
   "OE-M02",                       // spliced-solution: part of the steps answer another question
   "PLE2-037",                     // spliced-solution: part of the steps answer another question
   "CARB-E16",                     // spliced-solution: part of the steps answer another question
   "OE-H01",                       // spliced-solution: the steps answer another question
   "QE-E08",                       // spliced-solution: the steps answer another question
   "CARB-E18",                     // spliced-solution: the steps answer another question
-  "CR-E08",                       // spliced-solution: the steps answer another question
   "OE-M06",                       // spliced-solution: part of the steps answer another question
   "PLE2-R13",                     // spliced-solution: the steps answer another question (different numbers)
   "CG-E18",                       // spliced-solution: part of the steps answer another question
-  "MNM-E05",                      // spliced-solution: the steps answer another question
   "HEY-AR05",                     // spliced-solution: part of the steps answer another question
   "PLE2-R14",                     // spliced-solution: the steps answer another question (refusal text)
   "ARC2-055",                     // spliced-solution: refusal text instead of working
@@ -2390,7 +2385,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "AP2-052",                      // spliced-solution: the steps answer another question (different numbers)
   "TRI2-E04",                     // spliced-solution: the steps answer another question (different numbers)
   "TRIG2-M02",                    // spliced-solution: part of the steps answer another question
-  "ABS-E12",                      // spliced-solution: the steps answer another question
   "PL2-R14",                      // spliced-solution: the steps answer another question (different numbers)
   "PR2-048",                      // spliced-solution: the steps answer another question (different numbers)
   "AP2-053",                      // spliced-solution: part of the steps answer another question
@@ -2403,7 +2397,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "CI2-055",                      // spliced-solution: the steps answer another question
   "LT-H07",                       // spliced-solution: part of the steps answer another question
   "TG3-065",                      // spliced-solution: the steps answer another question
-  "CR-E02",                       // spliced-solution: part of the steps answer another question
   "AP2-054",                      // spliced-solution: the steps answer another question (refusal text)
   "CI2-054",                      // spliced-solution: the steps answer another question
   "EL-E12",                       // spliced-solution: the steps answer another question
@@ -2413,7 +2406,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "ARC2-049",                     // spliced-solution: the steps answer another question (different numbers)
   "SAV-E15",                      // spliced-solution: the steps answer another question
   "CG2-055",                      // spliced-solution: the steps answer another question (different numbers)
-  "CR-E16",                       // spliced-solution: the steps answer another question
   "CC-AR05",                      // spliced-solution: part of the steps answer another question
   "SAV2-R16",                     // spliced-solution: the steps answer another question (different numbers)
   "CIR-H12",                      // spliced-solution: part of the steps answer another question
@@ -2435,7 +2427,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "CNC2-041",                     // spliced-solution: content-free outline, not a worked solution (no-answer)
   "CARB-E13",                     // spliced-solution: the steps answer another question
   "PLE2-R09",                     // spliced-solution: the steps answer another question (different numbers)
-  "MNM-E18",                      // spliced-solution: the steps answer another question
   "REP-E11",                      // spliced-solution: part of the steps answer another question
   "PL2-R13",                      // spliced-solution: the steps answer another question (refusal text)
   "HE-H08",                       // spliced-solution: part of the steps answer another question
@@ -2445,7 +2436,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PL2-R17",                      // spliced-solution: the steps answer another question
   "PLE2-R11",                     // spliced-solution: the steps answer another question
   "LT-E14",                       // spliced-solution: the steps answer another question
-  "ABS-E03",                      // spliced-solution: the steps answer another question
   "EL-E05",                       // spliced-solution: the steps answer another question
   "EL-E08",                       // spliced-solution: part of the steps answer another question
   "EL2-047",                      // spliced-solution: part of the steps answer another question

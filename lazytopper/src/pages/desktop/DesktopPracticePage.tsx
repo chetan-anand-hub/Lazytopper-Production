@@ -822,7 +822,7 @@ function ModeCard({
               gap: 6,
               fontSize: 12.5,
               fontWeight: 600,
-              color: tone.accent,
+              color: tone.ink,
               background: tone.tint,
               padding: "6px 12px",
               borderRadius: 9,
@@ -847,7 +847,7 @@ function ModeCard({
               gap: 6,
               fontSize: 12.5,
               fontWeight: 600,
-              color: tone.accent,
+              color: tone.ink,
               cursor: "pointer",
             }}
           >
@@ -1425,7 +1425,7 @@ function MistakeIntelligencePanel({
               Grade an answer in{" "}
               <Link
                 to={checkPath}
-                style={{ color: PRIMARY_GREEN, fontWeight: 600, textDecoration: "none" }}
+                style={{ color: PRIMARY_GREEN_DARK, fontWeight: 600, textDecoration: "none" }}
               >
                 Check &amp; Improve
               </Link>{" "}
@@ -1619,7 +1619,7 @@ function MistakeIntelligencePanel({
           alignItems: "center",
           justifyContent: "center",
           gap: 7,
-          background: `linear-gradient(135deg, ${PRIMARY_GREEN}, ${PRIMARY_GREEN_DARK})`,
+          background: `linear-gradient(135deg, ${PRIMARY_GREEN_DARK}, hsl(152, 60%, 25%))`,
           color: "#fff",
           fontSize: 13.5,
           fontWeight: 600,

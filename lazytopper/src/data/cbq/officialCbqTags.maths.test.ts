@@ -17,7 +17,7 @@ import "../../test/preloadBankChapters";
 
 import { describe, it, expect } from "vitest";
 
-import { canonicalQuestionBank, AI_GENERATED_QUESTION_IDS } from "../canonicalQuestionBank";
+import { canonicalQuestionBank, AI_GENERATED_QUESTION_IDS, RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 import { getFiguresForQuestion } from "../visualConceptRegistry";
 import { OFFICIAL_CBQ_MATHS_IDS } from "./officialCbqTags.maths";
 
@@ -29,6 +29,9 @@ const stepSum = (steps: readonly string[]) =>
   }, 0);
 const OFFICIAL_ID = /^(CFPQ|CBE|APQ|SQP|SP-|PYQ)|ncert|exem|exmplr|-n-/i;
 
+// GARBLE-1 (D171, 14 Oct 2026): withheld rows that keep `competencyVerified: true` but are out of the pinned list until a REPAIR PR serves them again.
+const RESTORE_ON_REPAIR: readonly string[] = ["PYQ-M-2025-STAT-006", "PYQ-M-2025-TRIG-005"];
+
 describe("CBQ-1 · official Maths CBQ tags", () => {
   const byId = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
   const tagged = canonicalQuestionBank.filter(
@@ -38,6 +41,18 @@ describe("CBQ-1 · official Maths CBQ tags", () => {
   it("the tagged official Maths set equals the pinned list exactly (no stray tag, none dropped)", () => {
     expect(new Set(OFFICIAL_CBQ_MATHS_IDS).size).toBe(OFFICIAL_CBQ_MATHS_IDS.length);
     expect(tagged.map((q) => q.id).sort()).toEqual([...OFFICIAL_CBQ_MATHS_IDS].sort());
+  });
+
+  it("RESTORE_ON_REPAIR: each is withheld, still tagged in the raw bank, and absent from the pinned list; re-serving one would be RED (mutation)", () => {
+    const raw = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
+    for (const id of RESTORE_ON_REPAIR) {
+      expect(WITHHELD_QUESTION_IDS.has(id), `${id} must be withheld`).toBe(true);
+      expect(raw.get(id)?.competencyVerified, `${id} keeps its tag`).toBe(true);
+      expect(OFFICIAL_CBQ_MATHS_IDS.includes(id), `${id} is not in the pinned list`).toBe(false);
+    }
+    // mutation: serve STAT-006 again and the tagged-set pin must go RED
+    const served = [...tagged.map((q) => q.id), "PYQ-M-2025-STAT-006"].sort();
+    expect(served).not.toEqual([...OFFICIAL_CBQ_MATHS_IDS].sort());
   });
 
   it("every listed row is served, Maths, official (or pyqYear), not AI, step-marked to its marks, figure bound if needed", () => {
