@@ -33,7 +33,7 @@ describe("BANK-STEPS-1 ledger", () => {
     expect(new Set(BANK_STEPS_1.map((e) => e.id)).size).toBe(BANK_STEPS_1.length);
     expect(BANK_STEPS_1.filter((e) => !rawIds.has(e.id)).map((e) => e.id)).toEqual([]);
     expect(BANK_STEPS_1.filter((e) => !e.evidence.trim() || !e.file.trim()).map((e) => e.id)).toEqual([]);
-    expect(BANK_STEPS_1.every((e) => e.verdict === "MISPAIRED" || e.verdict === "PARTIAL" || e.verdict === "NO-ANSWER")).toBe(true);
+    expect(BANK_STEPS_1.every((e) => e.verdict === "MISPAIRED" || e.verdict === "PARTIAL" || e.verdict === "NO-ANSWER" || e.verdict === "OVER-PAUSED")).toBe(true);
     // a NO-ANSWER row is incomplete, not wrong (D143): it is logged `found` and stays served until its answer-fill PR.
     expect(BANK_STEPS_1.filter((e) => e.verdict === "NO-ANSWER").every((e) => e.state === "found")).toBe(true);
     expect(BANK_STEPS_1.filter((e) => e.verdict !== "NO-ANSWER").every((e) => e.state !== "found")).toBe(true);
