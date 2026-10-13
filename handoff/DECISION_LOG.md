@@ -1,3 +1,18 @@
+## 2026-10-13 — UPLOAD-READ-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C1 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped PR-A, `#1120` and `#1122`, plus the decisions C1 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **138** | ONE upload ceiling: **7 MB raw PDF** for question AND answer uploads on every file route; `FILE_ROUTE_MAX_BODY_BYTES` = 10 MiB; client `MAX_UPLOAD_PDF_BYTES` and server `MAX_MENTOR_PDF_BYTES` pinned equal; every other route keeps the 5 MB default. Also: the streaming change is opt-in, so every other Gemini caller is unchanged | The edge in front of the app refuses bodies over EXACTLY 10 MiB (10,485,760 B passes, +1 B gets 413; measured by POSTing `A` bytes to www `/api/health`), so the cofounder's earlier 12 MB was unreachable. 7 MB = 9,786,712 B base64 + about 0.2 MB allowance fits with about 0.49 MB spare; 8 MB (11.18 MB base64) can never arrive. One ceiling means one message and one test |
+| **141** | Fix the verifier's F1 (client total-body budget) and F2 (QR `peekSlot` before reading the body) INSIDE `#1122`, and WAIVE the lane-overlap check for `#1122` only; record `[FU-1086-REBASE-AFTER-1122]` | F1 is how a student with several large files would otherwise meet a raw 413, and F2 is an unauthenticated route reading a body before checking the slot. The lane-overlap RED came solely from draft `#1086` (TOPUP-1, `fairUse.cjs`), which is dormant, so the waiver costs nothing now; `#1086` must rebase onto trunk before it is ever un-drafted |
+| *(LEAD-RULING 1)* | `#1122` merges before `#1086` | A live student was blocked; hotfix priority over a draft |
+| *(cofounder, in the spec, comment 6143700233 v1.0)* | The failure is the detect output cap; fix it at the cap and salvage a partial reply instead of refusing | 38 questions need about 6 to 9k tokens against a 4096 cap |
+| *(C1, in-lane)* | The budget check in `postGrading` imports lazily | `entitlement.test.cjs` A11 transpiles `aiClient.ts` standalone and a top-level relative import broke CI |
+| *(C1, in-lane)* | Merged `#1122` by REST squash with `sha=0d0b1c4d` pinned, after the verifier's PASS on that head | Pinning the head means nothing pushed after the verifier's review can ride in |
+| *(C1, in-lane)* | The `#1120` metering records a flagged ESTIMATE per field, never zeros | A zero reads as "free"; an estimate that errs low is honest if flagged (follow-up (a) and (b)) |
+| *(C1, in-lane)* | The verifier items that are not MUST-FIX (detect / QR / tutor absent from the budget, no C&I UI test for the message, no byte-aware Quick Practice batch) were logged, not built | Each is outside the hotfix and none can reach the wall (see the follow-ups) |
+
 ## 2026-10-13 — ORG-SAMEAS-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1112`, plus the decisions C2 itself made, with reasons.
