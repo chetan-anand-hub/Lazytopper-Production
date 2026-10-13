@@ -23,6 +23,17 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-13 — WS-DRAW-1 FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-WSDRAW-TOPUP-SECTION] — the dedupe top-up can refill one short section from another's neighbour (owner: C2, with PERF-1 PR-3 or the next worksheet lane)
+`worksheetShape.ts` `drawFromSpec`: `fillFrom(k)` keeps taking rows until the whole SHEET is full, not until section `s` is back to target. With two short sections (two dedupe skips in one sheet), the first section's neighbour fill also covers the second one's gap: a made-up case (targets A2 B2 C1 D2, B and D one short) gives A4 B1 C1 D1. The count stays exact. Rare on the real bank (the 568-sheet sweep never triggers it). Fix: stop each `fillFrom` once that section's gap is closed.
+
+### [FU-WSDRAW-FREE-MODE-AI-CAP] — an un-shaped sheet with an MI boost takes the original draw, which has no AI cap (owner: the next worksheet lane)
+A custom sheet of fewer than 10 rows, or one section, with a weak-section boost, falls through to the original skewed draw: no AI cap, no stem dedupe, no `aiOverCap` record (triangles, 8 rows, `{C:5}`: over the cap on 2 of 12 seeds). Same as trunk before WS-DRAW-1, so not a regression; the single-section case cannot reach it from the UI (the skew needs more than one section). Fix: apply the cap and the dedupe inside the skewed draw.
+
+### [FU-WSDRAW-FULLSUBJECT-TILT] — in full-subject scope the section tilt is the MEAN over all topics (owner: the next worksheet lane)
+`planDraw` tilts the blueprint share by the mean boost over the topics in scope, so two weak topics out of 13 barely move the section counts (Science full, 2 boosted topics: A13 B3 C4 D3 E2 unchanged). Those topics still supply more of the rows and the "Enriched" line counts weak-topic rows, so the copy stays true. Revisit if the owner wants full-subject sheets to lean toward weak sections.
+
 ## 2026-10-13 — PERF-1 FOLLOW-UPS (recorded by C2 under §10)
 
 ### [FU-NOTES-TBT-MOUNT] — notes pages are slow because of the MOUNT, not KaTeX (owner: PERF-2)

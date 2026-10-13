@@ -1,3 +1,17 @@
+## 2026-10-13 — WS-DRAW-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1134`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **132** | C1 builds WS-DRAW-1: Board mix matches the CBSE section shape, AI-written rows capped at 30%, a Board mix includes CBQs; QUESTION if the CBQ target and the AI cap collide in more than 5 topics | Owner rulings 13 Oct ~15:45–15:50 IST; WORKSHEET-SCOUT |
+| **155** | WS-DRAW-1 moves to C2; the worksheet draws only from the SERVED bank (no second filter); both subjects and every worksheet type stated per type | Student-facing correctness work, the owner asked for it today; PERF-2 is speed |
+| **157** | PERF-2 parked after its P6 table; WS-DRAW-1 first | Order |
+| **158** | The 50% target is competency-based (any mark, not only the 4-mark case study); NEW worksheet type "CBQ mix"; measure the CBQ flag's precision FIRST (P14) and QUESTION if it is below 90% | CBSE's own competency-focused booklet mixes 1-mark MCQs, A-R, 2/3-mark and 4/5-mark items; the flag was seen set on plain recall |
+| **164** | CBQ = the verified flag; the AI cap counts AI-pack ids only; D-section shortfalls borrow, are recorded, never padded | C2's P14: the legacy flag was right on 9 of 20 and set on 75% of the bank; the verified flag was right on 20 of 20 and sits entirely outside the AI pack |
+| *(C2, in-lane)* | The student's MI boost TILTS the Board-mix shape (section weight × boost) rather than being dropped | The "Personalise" toggle promises a weighting; a silent no-op is forbidden; signed-out sheets stay exactly 13/3/4/3/2 |
+| *(C2, in-lane)* | `#1134` merged on `PASS-WITH-FOLLOW-UP`; the top-up flaw, the free-mode AI cap and the full-subject tilt are follow-ups, the signed-in MI live run is NEEDS-OWNER | 0 MUST-FIX after the fixes; the owner is away |
+
 ## 2026-10-13 — PERF-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1128` and `#1129`, plus the decisions C2 itself made, with reasons.

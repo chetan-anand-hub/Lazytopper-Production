@@ -1,4 +1,13 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
+> **2026-10-13 — WS-DRAW-1 (C2, §10 for `#1134`).** One surface moved: the WORKSHEET draw (and one new selector option). Scope did not change. The other grading surfaces were not touched: C&I single, C&I multi, Chapter Test, Full Mock, Quick Practice. Worksheet GRADING is untouched.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Worksheet: Board exam mix | shaped by section (25 → 13/3/4/3/2), ≤ 30% AI-pack rows, ≥ 50% competency-based, no repeats (`#1134`) | 🟢 live | owner signed-in MI run, phone glance |
+| Worksheet: Quick drill, High-marks focus | same section ratios, AI cap, no repeats; no CBQ target (`#1134`) | 🟢 live | — |
+| Worksheet: "CBQ mix" (new type) | every row competency-based across the section shape; honest short sheet, never padded (`#1134`) | 🟢 live | phone glance |
+| Worksheet: MI personalisation | the section boost tilts the shaped sheet; un-shaped boosted sheets keep the original skewed draw (`#1134`) | 🟡 partial | signed-in live run; `[FU-WSDRAW-FREE-MODE-AI-CAP]`, `[FU-WSDRAW-FULLSUBJECT-TILT]` |
+
 > **2026-10-13 — PERF-1 (C2, §10 for `#1128` + `#1129`).** Display and styling only; no surface's Scope changed. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |

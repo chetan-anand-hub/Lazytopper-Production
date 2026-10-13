@@ -1,3 +1,13 @@
+## ★ 2026-10-13 — AFTER WS-DRAW-1 (`#1134` `4339d57c`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (signed in, phone):** (1) with some checked answers behind you, open a worksheet builder, leave "Personalise this worksheet" ON, preview a Board exam mix and check the "Enriched: N of M, target Section X" line against the section counts it shows. (2) Generate one **Board exam mix** and one **CBQ mix** (Customise → Build mode → CBQ mix): the Board mix reads like a board paper (mostly 1-mark first, a few long ones, case studies last) and about half the questions are scenarios; the CBQ mix is scenarios throughout.
+- **Any lane that changes how a worksheet is drawn:** `worksheetDraw.guard.test.ts` sweeps 568 real sheets; read its `WS_DRAW_REPORT` lines (`aiOverCap`, `shortSheets`, CBQ share, `reallocSheets`). A new preset is a new entry in `PRESETS` and in the guard's `PRESETS` (the guard copies the UI's presets by hand).
+- **Any lane that names the CBQ flag:** read it through `lib/cbq/cbqClassification.isCbq` (the GEN-THIN-1 guard in `ltGenerated.guard.test.ts` fails otherwise). Never read `isCompetencyBased` for CBQ purposes (P14: ≈ 66% precise).
+- **Any lane that changes a bank pause or repair:** the worksheet draws only from the SERVED bank, so every pause already reaches it; do not add a second filter. A chapter whose 5-mark CBQ supply is 0 (real-numbers, coordinate-geometry, areas-related-to-circles) borrows from Section C, recorded in `plan.draw.reallocations`; adding verified 5-mark CBQs there removes the borrowing.
+- **Next product lanes (C2):** PERF-1 PR-3 (`[FU-PERF1-CONTRAST-RESIDUAL]`), then PERF-2 (`hydrateRoot`, the Firebase / `re2js` split).
+
 ## ★ 2026-10-13 — AFTER PERF-1 (`#1128` `29c2c2cf`, `#1129` `f9b447b0`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
