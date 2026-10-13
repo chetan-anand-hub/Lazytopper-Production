@@ -1,3 +1,23 @@
+## ★ 2026-10-13 — AFTER PARENTS-1 (`#1121`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone):** (1) open `https://www.lazytopper.com/for-parents` and tap **"Send LazyTopper to my child"**: WhatsApp opens with the message and a link; the link opens `/check-improve`. (2) In a private window open that shared link and sign up a NEW test account: Admin, Students, shows Source **"Parent share"**. (3) Do one signed-out free answer check from a phone (the page promises "the first answer check is free, without an account"; the controller could only prove the server path is on, not complete a check without a browser token).
+- **GROWTH SESSION:** point the `yt_parents` ads at `https://www.lazytopper.com/for-parents?utm_source=youtube&utm_medium=paid&utm_campaign=yt_parents` and request indexing for `/for-parents`. Tag every parent link with a medium (`paid` for ads); an untagged link reads "(untagged)" in the admin list.
+- **Any lane that adds a footer link:** the footer pins now read Chapters, CBSE 2027, How CBSE marks answers, **For parents**, the legal links, then the four social links. Add a new internal link before the legal links and extend BOTH pin files in the same PR.
+- **Any lane that changes the TestimonialVideo facade's geometry** (`components/marketing/testimonialVideo.css`): update the four duplicated rules at the end of `src/pages/forParents.css` too (`[FU-FOR-PARENTS-VIDEO-CSS-DUPLICATE]`), or `/for-parents` shifts again at desktop width.
+- **If a page needs its route CSS inlined:** measure CLS first (throttled preview, both 390 and 1440 px), then add its module to `INLINE_ROUTE_CSS_MODULES` and amend the D63a pin; a page whose video sits above the fold needs the facade box reserved in its own CSS as well.
+
+## ★ 2026-10-13 — AFTER UPLOAD-READ-1 (PR-A `00badaab`, `#1120`, `#1122`) (written by C1 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER / COFOUNDER (live-verify still owed):** upload a 6 to 7 MB ANSWER PDF on Check & Improve and on a worksheet, signed in on www. It should be accepted and graded; an 8 MB file should be refused with the size message. Your 14:23Z PASS covered the question paper only.
+- **Next C1 lanes:** UPLOAD-SHRINK-1 (in progress, comment 6145819440, sha256 `DAE85C1FBC72`, D144/D145: PR-1 shrinks big scanned PDFs on the student's device, trigger 3 MB), then WS-DRAW-1 (comment 6143420082). Other lanes: C2 PARENTS-1 `#1121` then PERF-1; A: BANK-STEPS-1.
+- **Draft `#1086` (TOPUP-1) must rebase onto trunk before it is ever un-drafted** (`[FU-1086-REBASE-AFTER-1122]`): `#1122` changed `fairUse.cjs`'s pre-read constant and the lane-overlap check was waived for `#1122` only.
+- **Watch:** `clock (ist-midnight 1/2)` flaked once on `#1120`; a repeat on any PR is an FU, not a re-run (`[FU-CLOCK-IST-MIDNIGHT-FLAKE-1120]`).
+- **Do not raise the 7 MB ceiling:** bodies over 10 MiB never reach the app. A larger file needs `[FU-UPLOAD-OVER-10MIB-EDGE]` (direct-to-storage upload or PDF re-compression).
+
 ## ★ 2026-10-13 — AFTER ORG-SAMEAS-1 (`#1112`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

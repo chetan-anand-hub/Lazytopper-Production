@@ -54,6 +54,14 @@ function renderWelcome() {
   );
 }
 
+describe("Welcome — PARENTS-1 · the parent line", () => {
+  it("shows 'Are you a parent?' linking to /for-parents", () => {
+    renderWelcome();
+    const link = screen.getByRole("link", { name: /Are you a parent\? See how LazyTopper helps your child/ });
+    expect(link.getAttribute("href")).toBe("/for-parents");
+  });
+});
+
 /** Mirrors the labels PublicLegalFooter renders. Hrefs are NOT re-stated here — see below. */
 const EXPECTED_LABELS = ["Privacy", "Terms", "Cancellation & Refunds"]; // COPY-2 · K6
 
@@ -238,6 +246,7 @@ describe("every slug the landing's legal links point at renders real policy cont
       "/exam-trends",
       "/cbse/class-10",
       "/check-your-answer",
+      "/for-parents", // PARENTS-1 — the fourth internal page link, before the social row
       ...hrefs,
       // ORG-SAMEAS-1 — the fourth kind of link: our own profiles, external, in config order.
       ...FOOTER_SOCIAL.map((s) => s.href),

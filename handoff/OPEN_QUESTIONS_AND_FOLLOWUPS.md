@@ -23,6 +23,70 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-13 — PARENTS-1 (C2, §10 for `#1121`): FOLLOW-UPS RAISED
+
+### [FU-FOR-PARENTS-VIDEO-CSS-DUPLICATE] — OPEN (C2, in-lane decision)
+The last four rules in `src/pages/forParents.css` (`.lt-fp .lt-tv`, `__frame`, `__thumb`, `__play`) repeat the geometry of `components/marketing/testimonialVideo.css`, so the video facade's box is in the first paint of `/for-parents`. Only a comment says the two must stay equal; no guard pins them, and the verifier noted the drift risk.
+- **Status:** a small lane: either a guard that reads both files and compares those four rules, or let `routeCssFor` also inline the shared `TestimonialVideo-*.css` for the page (needs a cofounder ruling because it changes the D63a allowlist's meaning).
+
+### [FU-INLINE-ROUTE-CSS-GUARD-FIXTURE] — OPEN (verifier note on `#1121`)
+`firstPaintNoHops.guard.test.ts` pins the `INLINE_ROUTE_CSS_MODULES` list and exercises a synthetic fixture for `CheckYourAnswerPage` only; nothing asserts that a `/for-parents` page actually gets its CSS inlined (the proof is the built output, checked by the verifier). Add a `ForParentsPage` fixture so a regression in the second entry goes RED.
+
+### [FU-PARENT-SHARE-PLACEMENT-GA4] — OPEN, NOTE
+`parent_share_click`'s `placement` (hero / footer) reaches the Vercel vendor as `data` only. GA4 receives the event name (`sendToGa4` takes the name only) and the first-party activity log never records a signed-out parent. If the growth session wants the hero / footer split in GA4, pass it as an event parameter in `sendToGa4` (touches the analytics privacy rules; a cofounder call).
+
+### [FU-FREE-CHECK-LIVE-E2E] — OPEN, OWED TO THE OWNER (phone)
+The page tells a parent "the first answer check is free, without an account". The server side is on (a bare signed-out POST with the free-check header returns `403 free_check_refused / app_check_missing`, i.e. it reached the free-check logic and refused only for the missing browser App Check token), but no controller can complete a real signed-out check without a browser token. The owner should do one from a phone.
+
+### [FU-FOR-PARENTS-COPY-EXTRAS] — CLOSED (D142)
+The eyebrow, the closing "Hand it to your child" card and the not-affiliated-with-CBSE line go beyond the spec's DISPATCH; the cofounder kept all three. Recorded so the next copy edit knows they are intentional.
+
+## 2026-10-13 — UPLOAD-READ-1 (C1, §10 for PR-A, `#1120`, `#1122`): FOLLOW-UPS RAISED
+
+*(Source: `#973`, the `#1120` and `#1122` verifier reports. The first two are the lane's own; the rest are the verifiers' findings, each with its own heading per standing rule 1.)*
+
+### [FU-UPLOAD-OVER-10MIB-EDGE] — OPEN
+A body over 10 MiB never reaches the app: the edge in front of it answers 413 at exactly 10 MiB, so a scan that is still too big at 7 MB raw is refused. Fix is either direct-to-storage upload (the file goes to storage, the app receives a reference) or PDF re-compression. UPLOAD-SHRINK-1 PR-1 (on-device shrink, trigger 3 MB) covers the re-compression half for scanned PDFs.
+
+### [FU-1086-REBASE-AFTER-1122] — OPEN (D141)
+Draft `#1086` (TOPUP-1, `fairUse.cjs`) overlaps `#1122`, which changed the fairUse pre-read constant. The lane-overlap check was waived for `#1122` only. `#1086` must rebase onto trunk before it is ever un-drafted, and its lane-overlap check must then be green on its own merits.
+
+### [FU-A2-PDF-TOKEN-ESTIMATE] — OPEN (`#1120` follow-up a)
+The PDF token estimate of 1000 per inline part is a flagged placeholder and errs low (about 258 per page). Estimate by page count instead.
+
+### [FU-A2-LEDGER-ESTIMATED-VS-MEASURED] — OPEN (`#1120` follow-up b)
+The ledger cannot tell estimated from measured tokens; the only trace is the `gemini_tokens.estimated.<class>` counter. Add a flag to the ledger row.
+
+### [FU-A2-LIVE-EVAL-BUFFERS-SSE] — OPEN (`#1120` follow-up c)
+`eval/golden/lib/live.cjs:81` buffers the whole SSE body, so a LIVE golden detect eval cannot hit the 50 s deadline. The gate and replay modes are fine.
+
+### [FU-A2-DEADLINE-ZERO-NO-RETRY-PIN] — OPEN (`#1120` follow-up d)
+Sections 22.2 to 22.4 are composition tests over PR-A's salvage, and no test pins "a zero-question deadline read is not retried". Add that test.
+
+### [FU-A2-LATE-TEXT-DROPPED] — OPEN (`#1120` follow-up e)
+Text that arrives after the headers at 50 to 55 s is not kept. Decide whether to extend the read window or accept the loss.
+
+### [FU-A2-PARTIAL-NOTICE-NOT-CARRIED] — OPEN (`#1120` follow-up f)
+The "We read the first n questions" notice is not carried into the scorecard or the job-resume context, and `partial` is set on any salvage, not only a deadline cut.
+
+### [FU-A2-LOOPING-REPLY-55S] — OPEN (`#1120` follow-up g)
+A looping reply now runs to the 55 s timeout instead of the old 4096-cap retry. Measure how often this happens before deciding on a loop guard.
+
+### [FU-CLOCK-IST-MIDNIGHT-FLAKE-1120] — OPEN, WATCH (`#1120` follow-up h)
+`clock (ist-midnight 1/2)` flaked once on `#1120` (a `waitFor` timeout in `progressReadModel.consistency.test.tsx`, files the PR did not touch). A repeat on any PR becomes a fix lane.
+
+### [FU-BUDGET-NOT-ON-SINGLE-FILE-ROUTES] — OPEN, NOTE (`#1122` verifier, logged for consistency)
+detect-question, the QR phone upload and the tutor are not covered by the client total-body budget. Each carries one capped file and cannot reach 10 MiB, so nothing is wrong today; if a route ever carries two files, add it to the budget.
+
+### [FU-CI-UPLOADTOOLARGE-UI-TEST] — OPEN (`#1122` verifier)
+There is no Check & Improve UI test for the `UploadTooLargeError` message, only one-line name checks (the same pattern as `GradingNetworkError`). `b48c2176` showed the message can be swallowed at a catch site while unit tests stay green; add a mounted test.
+
+### [FU-QP-BATCH-NOT-BYTE-AWARE] — OPEN (`#1122` verifier F1)
+A Quick Practice collect-mode batch with several large PDFs is now protected by the budget message but has no byte-aware batch selection: `selectQuickPracticeBatch` counts uploads, not bytes. The student sees the friendly message and must upload fewer files; a byte-aware selector would split the batch for them.
+
+### [FU-UPLOAD-ANSWER-PDF-LIVE-VERIFY] — OPEN (owed)
+Live-verify a 6 to 7 MB ANSWER PDF on Check & Improve and on a worksheet. The owner's 14:23Z PASS covered the question paper only.
+
 ## 2026-10-13 — ORG-SAMEAS-1 (C2, §10 for `#1112`): FOLLOW-UPS RAISED
 
 ### [FU-FOOTER-SOCIAL-A11Y-SEPARATOR] — OPEN (verifier SHOULD-FIX on `#1112`, minor)

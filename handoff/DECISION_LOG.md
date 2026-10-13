@@ -1,3 +1,34 @@
+## 2026-10-13 — PARENTS-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1121`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| *(owner rulings 12–13 Oct, in the spec)* | The share link is `/check-improve?utm_source=parent_share&utm_medium=whatsapp`, NOT `?ref=parent`; NO parent sign-up CTA in v1; no price; "Can I see my child's progress?" answers "Not yet"; grants: the `App.tsx` route line, one `Welcome.tsx` link line, the footer link | `ref` is already two things here; a parent who signs up on their own phone is the dead-account pattern the page exists to stop; payments are not live; no promise |
+| **130** | PARENTS-1 queued for C2 after ORG-SAMEAS-1 is LIVE; verifier PASS plus cofounder APPROVE (routing + protected files); `vercel.json` changes only through the generator | The page touches `App.tsx`, `Welcome.tsx` and routing |
+| **137** | P11–P14 accepted: the mirror list; the FAQ claims as proved; "no ads inside the app" plus the privacy link, never "no tracking"; the four one-line `parent_share_click` additions with the label "Tapped Send to my child"; `INLINE_ROUTE_CSS_MODULES` pre-approved for `"ForParentsPage"` ONLY if the preview shows a layout shift without it | The analytics pixels are not ads; a one-entry list change needs evidence |
+| **142** | Option (b): measure `/for-parents` on the preview and, if it shifts, add the entry in THIS PR and amend the D63a pin; post CLS before → after. Copy extras kept (eyebrow, closing card, not-affiliated line); the 41-character title is fine. APPROVED for `fc79080e` plus that delta, on CI green and an Opus delta PASS | The page is a paid-ad landing; measure before ads point at it |
+| **146** | The handoff lock goes to C1 first (for `#1122`); C2 takes it after, once `#1121` is LIVE | `#1121`'s §10 was not ready |
+| *(C2, in-lane)* | The verifier's two SHOULD-FIXes were fixed in the PR and re-verified on the new head, not logged as follow-ups | The `placement` value the spec asked for was being thrown away, and the FAQ lost its disclosure arrow on Android Chrome |
+| *(C2, in-lane)* | The residual shift (the TestimonialVideo frame) was closed by repeating the facade's four GEOMETRY rules in `forParents.css`, not by widening `routeCssFor` to inline the shared stylesheet | D137 pre-approved ONE array entry and "nothing else in that file"; the page's own CSS is C2's file; the duplicate is flagged `[FU-FOR-PARENTS-VIDEO-CSS-DUPLICATE]` |
+| *(C2, in-lane)* | A one-sentence edit of the stale doc comment above `INLINE_ROUTE_CSS_MODULES` was made alongside the array entry (text only) | The comment said "the ONLY route"; leaving it would mislead the next reader |
+| *(C2, in-lane)* | The Welcome parent-line render check lives in `Welcome.legalFooter.test.tsx`, and the `trackParentShareClick` tests in `analytics.practiceGraded.test.ts`; the new guard checks `Welcome.tsx` as text | Rendering Welcome or importing the activity client reads the clock, and `CLOCK_GUARD` allows only the files in `date-sensitive-tests.json`, which C2 was not granted to edit |
+
+## 2026-10-13 — UPLOAD-READ-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C1 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped PR-A, `#1120` and `#1122`, plus the decisions C1 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **138** | ONE upload ceiling: **7 MB raw PDF** for question AND answer uploads on every file route; `FILE_ROUTE_MAX_BODY_BYTES` = 10 MiB; client `MAX_UPLOAD_PDF_BYTES` and server `MAX_MENTOR_PDF_BYTES` pinned equal; every other route keeps the 5 MB default. Also: the streaming change is opt-in, so every other Gemini caller is unchanged | The edge in front of the app refuses bodies over EXACTLY 10 MiB (10,485,760 B passes, +1 B gets 413; measured by POSTing `A` bytes to www `/api/health`), so the cofounder's earlier 12 MB was unreachable. 7 MB = 9,786,712 B base64 + about 0.2 MB allowance fits with about 0.49 MB spare; 8 MB (11.18 MB base64) can never arrive. One ceiling means one message and one test |
+| **141** | Fix the verifier's F1 (client total-body budget) and F2 (QR `peekSlot` before reading the body) INSIDE `#1122`, and WAIVE the lane-overlap check for `#1122` only; record `[FU-1086-REBASE-AFTER-1122]` | F1 is how a student with several large files would otherwise meet a raw 413, and F2 is an unauthenticated route reading a body before checking the slot. The lane-overlap RED came solely from draft `#1086` (TOPUP-1, `fairUse.cjs`), which is dormant, so the waiver costs nothing now; `#1086` must rebase onto trunk before it is ever un-drafted |
+| *(LEAD-RULING 1)* | `#1122` merges before `#1086` | A live student was blocked; hotfix priority over a draft |
+| *(cofounder, in the spec, comment 6143700233 v1.0)* | The failure is the detect output cap; fix it at the cap and salvage a partial reply instead of refusing | 38 questions need about 6 to 9k tokens against a 4096 cap |
+| *(C1, in-lane)* | The budget check in `postGrading` imports lazily | `entitlement.test.cjs` A11 transpiles `aiClient.ts` standalone and a top-level relative import broke CI |
+| *(C1, in-lane)* | Merged `#1122` by REST squash with `sha=0d0b1c4d` pinned, after the verifier's PASS on that head | Pinning the head means nothing pushed after the verifier's review can ride in |
+| *(C1, in-lane)* | The `#1120` metering records a flagged ESTIMATE per field, never zeros | A zero reads as "free"; an estimate that errs low is honest if flagged (follow-up (a) and (b)) |
+| *(C1, in-lane)* | The verifier items that are not MUST-FIX (detect / QR / tutor absent from the budget, no C&I UI test for the message, no byte-aware Quick Practice batch) were logged, not built | Each is outside the hotfix and none can reach the wall (see the follow-ups) |
+
 ## 2026-10-13 — ORG-SAMEAS-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1112`, plus the decisions C2 itself made, with reasons.

@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-13 — PARENTS-1 (`#1121` `59d139ff`) — ✅ COMPLETE (owner phone checks owed)
+
+- ✅ `/for-parents` is live: public, indexable, in the sitemap and `llms.txt`, with the WhatsApp share (UTM-tagged `parent_share`), the video, the FAQ, a Home line and a footer link. No sign-up CTA, no price.
+- ✅ Layout shift measured and closed (1440 px CLS 0.388 → 0.002).
+- ⏳ The owner's phone checks and the growth session's `yt_parents` ads re-point. `[FU-FREE-CHECK-LIVE-E2E]` and three smaller follow-ups are open.
+
+## 2026-10-13 — UPLOAD-READ-1 (PR-A `00badaab`, `#1120` `9cb41def`, `#1122` `122b220a`) — ✅ COMPLETE (answer-PDF live-verify owed)
+
+- ✅ A long question paper is read: detect output cap 16384, a cut-off reply is salvaged to its complete questions with a "We read the first n questions" notice, and detect streams with a 50 s deadline instead of timing out empty at 55 s.
+- ✅ One 7 MB raw-PDF ceiling for question and answer uploads on every file route, set under the measured 10 MiB edge wall; a client total-body budget gives a friendly "too large together" message, never a raw 413. The owner's PASS (14:23Z) read the student's original 6 MB paper.
+- ⏳ Live-verify of a 6 to 7 MB ANSWER PDF on Check & Improve and on a worksheet. `[FU-UPLOAD-OVER-10MIB-EDGE]`, `[FU-1086-REBASE-AFTER-1122]` and the PR-A2 follow-ups are open. Next: UPLOAD-SHRINK-1 (PR-1, on-device shrink, trigger 3 MB), then WS-DRAW-1.
+
 ## 2026-10-13 — ORG-SAMEAS-1 (`#1112` `4fd187c7`) — ✅ COMPLETE (growth session's search checks owed)
 
 - ✅ The Organization JSON-LD carries `@id`, `alternateName`, `description`, `email`, `contactPoint`, the five `sameAs` profiles and the square logo; the WebSite points at it as `publisher`.

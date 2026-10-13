@@ -88,6 +88,8 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   // mark Class 10 answers". Public and signed-out readable. `/check-improve` (the free check
   // it links to) is deliberately NOT here: it stays noindex and falls to the root.
   "/check-your-answer",
+  // PARENTS-1 — the parent landing page: public, indexable, signed-out readable.
+  "/for-parents",
 ];
 
 /**

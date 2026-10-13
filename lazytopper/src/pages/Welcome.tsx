@@ -634,6 +634,7 @@ export default function Welcome() {
             {/* SEO-5 PR-4 — beside "Check my answer": how that marking works, on the
                 indexed answer-marking guide. */}
             <Link to="/check-your-answer">How do examiners mark answers? &rarr; Read the guide</Link>
+            <Link to="/for-parents">Are you a parent? See how LazyTopper helps your child &rarr;</Link>
             {/* ★ OWNER INSTRUCTION — this REPLACES the prototype's "Just looking?
                 Explore the product" line, which pointed at /app/. The page argues
                 that marks are lost step by step; the notes pages carry real board
