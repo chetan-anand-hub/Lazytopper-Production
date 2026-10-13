@@ -1,5 +1,12 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-14 — PERF-1 PR-3 (`#1139` `66a68ef1`) + PERF-2 (`#1140` `1e5119d9`, `#1141` `bb853239`) — ✅ COMPLETE AS SCOPED · PERF-2 TARGET NOT MET · PERF-3 WAITS FOR THE OWNER
+
+- ✅ PERF-1 PR-3: contrast guard pins every occurrence; Practice Hub card text and the Check & Improve link reach 4.5:1.
+- ✅ PERF-2 PR-A: home brand images as lossless WebP twins with true dimensions; the stretched wordmark fixed (owner glance owed).
+- ✅ PERF-2 PR-B2 (reduced): `qrcode` on demand, entry gz −10.4 KB. The lazy `/login` `/sign-up` half was dropped (it made the sign-in form later).
+- ⏳ PERF-3: Firestore lazy (the only route to ≤150 KB gz for `/` and `/check-your-answer`) waits for the owner's ruling; `[FU-NOTES-TBT-MOUNT]` (`hydrateRoot` #418) is a separate investigation.
+
 ## 2026-10-14 — BANK-STEPS-1 PAUSE (`#1116` `#1123` `#1125`) + GARBLE-1 PR-1/PR-2 (`#1130` `#1136`) — ✅ FIND COMPLETE · PAUSE IN PROGRESS · REPAIR QUEUE OPEN
 
 - ✅ FIND complete: 3,163 rows judged for step↔stem pairing, 171 bad; 333 paused across `#1116/#1123/#1125`, 331 after `#1131` restored two.
