@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "human-eye-and-colourful-world" (Science): 294 served rows from 25 source arrays, 48 withheld.
+// Chapter "human-eye-and-colourful-world" (Science): 293 served rows from 25 source arrays, 49 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -72,6 +72,7 @@ export default defineChapter("human-eye-and-colourful-world", [
   "HEY-M15",
   "HEY-H03",
   "HEY-H07",
+  "HEY-AR05",
   "HEC2-007",
   "HEC2-013",
   "HEC2-021",

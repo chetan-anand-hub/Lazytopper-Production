@@ -69,10 +69,13 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // 0.9204 -> 0.9203 by exactly that row. All by runtime import on the merged tip.
 // 13 Oct BANK-STEPS-1 PR-1 (cofounder D126): 183 paused rows leave the served bank (10601 -> 10418). They carried a concept more often than the rest,
 // so rows with a concept go 9757 of 10601 (0.92038) -> 9576 of 10418 (0.91918): the pin moves 0.9203 -> 0.9191 (a repaired id returns to the count).
-const MIN_MAPPED_LABELS = 1850;
+// 13 Oct BANK-STEPS-1 PR-2 (follow-up PAUSE, 73 more paused rows): "Roots by Formula" (quadratic-equations) is served by no row, so its mapping leaves the map and the floor 1850 -> 1849;
+// the two generic reviewed labels with no served row (pair-of-linear-equations / acids-bases-and-salts) leave too, and the coverage pin 0.9191 -> 0.9189 (measured 0.91899).
+// [FU-CONCEPTLABEL-RATCHET-RESTORE-BANKSTEPS]: each REPAIR PR that serves one of these rows again restores its label here and raises the floor back.
+const MIN_MAPPED_LABELS = 1849;
 const MAX_REVIEWED_LABELS = 136;
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9191;
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9189;
 
 const isChapterEchoSubtopic = echoFromShape;
 
