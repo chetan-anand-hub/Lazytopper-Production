@@ -23,6 +23,20 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-13 — VIDEO-EMBED-1 (`#1111`): follow-ups recorded by C1 under §10
+
+### [FU-TESTIMONIAL-NAME-DESC-UNCONFIRMED] — the JSON-LD `name` and `description` were never checked against growth doc §4
+`name` is the spec's iframe title ("Where did my ½ mark go? — student testimonial"); `description` is the section's lede sentence ("A Class 10 student photographs his written answer and sees exactly where he lost ½ mark."). The growth doc `claude/VIDEO_EMBED_REQUEST_2026-10-12.md` was not in the repo or on the controller's machine; DECISION 127 restated the other fields and the Clips only. The verifier flagged it as a NOTE. **Fix:** the cofounder compares the two strings with §4; if they differ, change the two constants in `src/components/marketing/TestimonialVideoData.ts` (one place; the JSON-LD and the page both read it). Owner: cofounder. Opened by C1.
+
+### [FU-TESTIMONIAL-FOCUS-AFTER-PLAY] — keyboard focus drops to the body when the play button is replaced by the iframe
+The facade button is removed on click and focus is not moved to the iframe, so a keyboard user loses their place. Minor accessibility gap (verifier NOTE). **Fix:** move focus to the iframe (`tabIndex={-1}` + a ref + `focus()` in an effect) in `TestimonialVideo.tsx`, with a test. Owner: next lane touching the component (PARENTS-1 is the natural one). Opened by C1.
+
+### [FU-CYA-WORDS-HEADROOM] — `/check-your-answer` is now close to its word-count ceiling
+`CheckYourAnswerPage.test.tsx` pins the page's word count in a band (600-900); the testimonial section (heading, lede, "Read the transcript", the transcript) takes it to `CYA_WORDS: 875` of 900, so any later copy added to that page will trip the cap. **Fix:** a deliberate decision at the next copy change — raise the cap, or exclude the transcript from the count (it is a quotation, not guide copy). Owner: cofounder. Opened by C1.
+
+### [FU-SPEC-ASSET-STAGING-PATH] — a spec said an asset was staged in the repo; it was elsewhere
+The VIDEO-EMBED-1 dispatch said the thumbnail was at `ops/.specs/swajeet-testimonial-1280x720.jpg`; `ops/.specs/` is gitignored and per-worktree, so a new controller worktree never contains it. The file was found on the owner's desktop and its hash matched the board. **Fix (process):** when a spec stages an asset, name the absolute path it was copied from and its sha256 in the dispatch; the controller then copies and checks the hash. Owner: cofounder. Opened by C1.
+
 ## 2026-10-13 — SOFT404-1 (C2, §10 for `#1105`): FOLLOW-UPS RAISED
 
 ### [FU-DEAD-INAPP-LINKS-SOFT404] — OPEN (D122 §3; D123)

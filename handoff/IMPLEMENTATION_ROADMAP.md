@@ -1,5 +1,12 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-13 — VIDEO-EMBED-1 (`#1111` `d4109710`) — ✅ COMPLETE (owner phone check + growth checks owed)
+
+- ✅ The 38-second student testimonial plays on `/check-your-answer` and `/cbse/class-10` as a click-to-play facade; nothing loads from YouTube or Google before the click.
+- ✅ Both pages' served HTML carries one `VideoObject` (3 Clips) and the visible transcript, from one shared builder; the prerender proves the facade and transcript are in the file.
+- ✅ `testimonial_play` is counted once per page load (client + server allowlists + admin label).
+- ⏳ The owner's phone tap-to-play check; the growth session's Rich Results Test, Lighthouse and indexing requests; a first `testimonial_play` seen in a student's activity log. `[FU-TESTIMONIAL-NAME-DESC-UNCONFIRMED]`, `[FU-TESTIMONIAL-FOCUS-AFTER-PLAY]`, `[FU-CYA-WORDS-HEADROOM]` and `[FU-SPEC-ASSET-STAGING-PATH]` are open.
+
 ## 2026-10-13 — SOFT404-1 (`#1105` `24f8b638`) — ✅ COMPLETE (owner phone check owed)
 
 - ✅ An address the router does not declare is HTTP 404 with a "Page not found" page (`noindex`), not the app shell with 200. Every routed path, every sitemap URL, `/api` and the static files are unchanged (0 differential).
