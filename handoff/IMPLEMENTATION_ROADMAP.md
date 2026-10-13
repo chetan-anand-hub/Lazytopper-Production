@@ -1,5 +1,11 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-13 — SOURCE-2 (`#1109` `3a947162`, `#1110` `b5721ea0`) — ✅ COMPLETE (owner sign-up check owed)
+
+- ✅ The admin Source column separates paid ads, organic posts, untagged links and parent shares (`utm_medium`-driven).
+- ✅ The NCERT link-tag guard's dots are literal; CodeQL #80–#82 fixed.
+- ⏳ The owner's sign-up check. `[FU-SOURCE-HISTORIC-UNTAGGED]` is open. PARENTS-1 uses the "Parent share" label.
+
 ## 2026-10-13 — VIDEO-EMBED-1 (`#1111` `d4109710`) — ✅ COMPLETE (owner phone check + growth checks owed)
 
 - ✅ The 38-second student testimonial plays on `/check-your-answer` and `/cbse/class-10` as a click-to-play facade; nothing loads from YouTube or Google before the click.

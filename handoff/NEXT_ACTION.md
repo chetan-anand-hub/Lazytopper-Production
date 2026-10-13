@@ -1,3 +1,12 @@
+## ★ 2026-10-13 — AFTER SOURCE-2 (`#1109`, `#1110`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (sign-up check):** in a private window open `https://www.lazytopper.com/?utm_source=youtube&utm_medium=organic&utm_campaign=test_post` and sign up a NEW test account. Admin, Students, shows Source **"YouTube post (test_post)"**. Rows from real ads that carried `utm_medium=paid` still read "YouTube ad (…)".
+- **Tag every outbound link from now on.** The column only calls something an ad when `utm_medium` is `paid` or `cpc`, and a post when it is `organic`. A YouTube / Facebook / Instagram link with NO medium reads "(untagged)". The parent WhatsApp link is `?utm_source=parent_share&utm_medium=whatsapp` (reads "Parent share"; PARENTS-1 uses it).
+- **Growth session:** earlier paid links that were posted without `utm_medium` now read "YouTube (untagged)" / "Facebook (untagged)" in the admin list. The stored data is unchanged; if those links must read as ads, re-tag the links going forward (see `[FU-SOURCE-HISTORIC-UNTAGGED]`).
+- **Note:** the capture strips `www.` from the referrer, so organic Google reads "From google.com", not "From www.google.com".
+
 ## ★ 2026-10-13 — AFTER VIDEO-EMBED-1 (`#1111`) (written by C1 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

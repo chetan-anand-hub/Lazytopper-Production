@@ -1,5 +1,13 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-13 — SOURCE-2 (C2, §10 for `#1109` and `#1110`).** No surface's Scope changed and no new scope was discovered. Admin display only; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Admin, Students, Source column | paid / organic / untagged / parent-share labels from `utm_medium` (`#1109`) | 🟢 live | owner sign-up check |
+| Historic rows captured with no `utm_medium` | now read "(untagged)" instead of "ad" (`#1109`) | 🟡 partial | `[FU-SOURCE-HISTORIC-UNTAGGED]` |
+| `llmSurfaces.guard` (NCERT link) | literal dots; negative case (`#1110`) | 🟢 merged | — |
+
 > **2026-10-13 — VIDEO-EMBED-1 (C1, §10 for `#1111`).** No surface's Scope changed and no new scope was discovered. Marketing pages + one analytics name; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |

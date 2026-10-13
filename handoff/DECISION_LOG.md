@@ -1,3 +1,17 @@
+## 2026-10-13 — SOURCE-2 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1109` and `#1110`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| *(cofounder, 12 Oct 23:54 IST, in the spec)* | The parent link is `utm_source=parent_share&utm_medium=whatsapp`, NOT `?ref=parent`; the label is "Parent share" | `ref` already means two things here (`referralService` reads `?ref=` as a referral code; `visitSource.ref` is the referrer HOST); UTMs are already captured by SOURCE-1 with no new code |
+| *(cofounder, spec rules)* | Label code only: capture, server route and stored data unchanged. Six rules in a fixed order; google + organic keeps falling to the referrer rule; `meta` stays "Meta ad" in rule 2 only | The Source column is the owner's per-campaign sign-up count; organic posts must not be counted as ad sign-ups |
+| *(cofounder, spec)* | Two small PRs, each DRAFT → independent Opus verifier (D108) → merge on green + PASS; no cofounder audit | Admin display and one test file only |
+| **124** | Run unattended: loops on, no silence, C1 is lead; merge order and the handoff lock are the lead's to rule; resolve among controllers first | The owner was away |
+| *(C2, in-lane)* | The verifier's SHOULD-FIX (inherited keys) was fixed in the PR rather than logged as a follow-up, and re-verified on the new head before the merge | A crafted `utm_source` stored by any visitor would have printed "function Object() { [native code] }" in the admin list; the fix was one line and the exact-head PASS rule applies |
+| *(C2, in-lane)* | The `#1110` negative case tests a new helper `ncertLinkTag` directly instead of going through `ncertLinkProblems` | Through the wrapper, a separate correctly-escaped regex already rejects a bad host, so the case would have been green before the fix and proved nothing |
+| *(C2, in-lane)* | `#1110` was brought up to the new trunk with `gh pr update-branch` after `#1109` merged, and merged only after proving the file byte-identical and CI green on the new head | D124: the next lane re-verifies on the new tip before it merges |
+
 ## 2026-10-13 — VIDEO-EMBED-1 (COFOUNDER DECISIONS 124-128 AS THEY BEAR ON IT; RECORDED BY C1 UNDER §10)
 
 > ⚠ **SCOPE.** The decisions that shaped `#1111`, numbered as on `#973`, plus the decisions C1 itself made, with reasons.

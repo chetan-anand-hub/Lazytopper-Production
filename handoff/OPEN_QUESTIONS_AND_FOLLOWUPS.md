@@ -23,6 +23,21 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-13 — SOURCE-2 (C2, §10 for `#1109` / `#1110`): FOLLOW-UPS RAISED
+
+### [FU-LLMSURFACES-REGEX-ESCAPE] — CLOSED in `#1110`
+CodeQL alerts #80–#82 ("useless regular-expression character escape", `llmSurfaces.guard.test.ts:91`). The dots are now literal and a negative case pins `ncertXnicXin` as rejected. Recorded so the next test that builds a `RegExp` from a template literal writes `\\.`, not `\.`.
+
+### [FU-SOURCE-HISTORIC-UNTAGGED] — OPEN, NOTE (C2, LIVE post on `#973`)
+A YouTube / Facebook / Instagram visit captured WITHOUT `utm_medium` used to read "YouTube ad" / "Meta ad". Since `#1109` it reads "YouTube (untagged)" / "Facebook (untagged)" / "Instagram (untagged)". Stored data is unchanged and nothing was migrated; if the earlier paid links were posted with no medium, the admin list now under-counts "ad" for them.
+- **Status:** by design (the spec: only `paid` / `cpc` is an ad). Re-tag links going forward; no code change planned.
+
+### [FU-SOURCE-REF-WWW-STRIPPED] — OPEN, NOTE (verifier note on `#1109`)
+`visitSource.ts` strips `www.` from the referrer, so organic Google reads "From google.com", while the test fixture and the spec text say "From www.google.com". Pre-existing; the label logic is unaffected.
+
+### [FU-NOTES-PROVIDER-ORG-ID] — OPEN (ORG-SAMEAS-1 verifier follow-up; recorded here because the lock order put this docs PR first)
+`scripts/seo/writeStaticHeads.ts` stamps a second ld+json block on `/notes/*` pages whose `provider` Organization has no `@id`. Once ORG-SAMEAS-1 ships the shell's identified Organization (`…/#organization`), notes pages carry two nodes for one entity. Set `provider` to `{"@id": "https://www.lazytopper.com/#organization"}`. `writeStaticHeads.ts` is read-only in ORG-SAMEAS-1, so this is a separate lane.
+
 ## 2026-10-13 — VIDEO-EMBED-1 (`#1111`): follow-ups recorded by C1 under §10
 
 ### [FU-TESTIMONIAL-NAME-DESC-UNCONFIRMED] — the JSON-LD `name` and `description` were never checked against growth doc §4
