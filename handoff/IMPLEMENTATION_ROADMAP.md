@@ -1,5 +1,11 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-13 — SOFT404-1 (`#1105` `24f8b638`) — ✅ COMPLETE (owner phone check owed)
+
+- ✅ An address the router does not declare is HTTP 404 with a "Page not found" page (`noindex`), not the app shell with 200. Every routed path, every sitemap URL, `/api` and the static files are unchanged (0 differential).
+- ✅ The rules are generated from the `<Route path>` literals in `App.tsx`; a drift guard keeps `vercel.json` honest.
+- ⏳ The owner's phone check, and the growth session's Search Console "Validate fix". `[FU-DEAD-INAPP-LINKS-SOFT404]`, `[FU-DYNAMIC-ROUTE-BAD-PARAM-200]`, `[FU-LEGACY-PATH-308S]` and `[FU-VERCEL-STATUS-MISSING-24F8]` are open.
+
 ## 2026-10-12 — SEO-LLM-1 (`#1106` `e62a0e1a`) — ✅ COMPLETE (owner WhatsApp check owed)
 
 - ✅ `llms.txt` and the `index.html` link-preview descriptions say "Important Questions"; no "predicted" / "high-probability" copy remains in them.

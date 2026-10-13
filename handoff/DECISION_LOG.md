@@ -1,3 +1,14 @@
+## 2026-10-13 — SOFT404-1 (COFOUNDER DECISIONS 122 AND 123 AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The decisions that shaped `#1105`, numbered as on `#973`.
+
+| D | decision | the reason given |
+|---|---|---|
+| **122** | Mechanism approved: a positive list of router paths generated from the `App.tsx` Routes text, a `--check` drift test, `public/404.html`, everything else in `vercel.json` byte-identical. **(1)** Drop the `[Pp][Rr]…` case classes: emit lowercase static segments as written; params `[^/]+`; splat `(?:/.*)?`; `/PRICING` is added to the sweep as a 404. **(2)** Non-route paths (`/practice`, `/worksheets`, `/chapter-test`, `/notes`, `/topic-mock`) 404 as intended; `/app/practice` (308 → `/practice` → 404) is in the sweep; no redirect is added in this lane. **(3)** The `/dashboard` and `/trends/10/Maths` in-app links are logged as `[FU-DEAD-INAPP-LINKS-SOFT404]`, not edited. **(4)** `/__/auth/*` 404 has no effect: the live `authDomain` is `lazzyy-topper.firebaseapp.com`. **(5)** The unknown-asset body may become `404.html`; the status stays 404 and the content-type must not be JavaScript. **(6)** The six bad-param routes are `[FU-DYNAMIC-ROUTE-BAD-PARAM-200]`, not in this lane | Case variants are duplicate URLs we never link, and simpler rules are easier to audit and less likely to mis-match. No ad, sitemap or llms URL uses the non-route paths (the cofounder checked the ads brief). Both in-app links are already broken today. The asset status, not the body, is what stops a broken-chunk confusion |
+| **123** | `#1105` APPROVE, conditional, on head `1eb40397`: merge that head ONLY (REST, SHA pinned) after an Opus verifier PASS / PASS-WITH-FOLLOW-UP on that exact head; any new commit voids it; after deploy, 5 cold reads and the same sweep against www; on ANY unexpected 404 revert at once (one commit) and post; log `[FU-DEAD-INAPP-LINKS-SOFT404]` and `[FU-DYNAMIC-ROUTE-BAD-PARAM-200]` in the handoff | The cofounder audited the preview itself first (63 sitemap URLs, ~40 app routes, the 404 rows, the 308s) |
+| *(cofounder, 15:30Z, unnumbered)* | Vercel posted no status on `24f8b638`: do NOT push an empty commit or a revert to force a deploy; the owner looks at the dashboard; hold the LIVE sweep until `/version.json` shows `24f8b638` | Nothing was broken for students (www still served the previous build), and Vercel settings and redeploys are the owner's call |
+| *(C2, in-lane)* | The CI-only failure (generator emitted CRLF, the repo blob is LF) was fixed in-lane, and the guard now pins LF, rather than relaxing the comparison to ignore line endings | A drift check that tolerates the wrong line ending would let a CRLF `vercel.json` land on trunk |
+
 ## 2026-10-12 — SEO-LLM-1 (COFOUNDER DECISION 121 AS IT BEARS ON IT; RECORDED BY C1 UNDER §10)
 
 | D | decision | the reason given |

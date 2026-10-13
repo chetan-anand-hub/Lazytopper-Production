@@ -1,5 +1,16 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-13 — SOFT404-1 (C2, §10 for `#1105`).** No surface's Scope changed and no new scope was discovered. Hosting / routing only; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Any address the router does not declare | HTTP 404 + "Page not found" page (`public/404.html`, `noindex`) instead of the shell with 200 (`#1105`) | 🟢 live | growth: Search Console "Soft 404" Validate fix |
+| Every routed path and every sitemap URL | unchanged (200); rules generated from `App.tsx` (`#1105`) | 🟢 live | — |
+| Unknown static asset paths | still 404; body is now the HTML page, never JavaScript (`#1105`, D122 §5) | 🟢 live | — |
+| Case variants of a static segment (`/PRICING`) | now 404 by ruling (D122 §1) | 🟢 live | — |
+| In-app links to unrouted paths (`/dashboard`, `/trends/10/Maths`) | still bounce home client-side; a hard reload now shows the 404 page | 🟡 partial | `[FU-DEAD-INAPP-LINKS-SOFT404]` |
+| Dynamic routes with a bad param | still 200 | 🟡 partial | `[FU-DYNAMIC-ROUTE-BAD-PARAM-200]` |
+
 > **2026-10-12 — SEO-LLM-1 (C1, §10 for `#1106`).** No surface's Scope changed and no new scope was discovered. Wording / head only; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |
