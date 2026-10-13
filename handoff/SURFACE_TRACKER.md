@@ -1,4 +1,25 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
+> **2026-10-13 — WS-DRAW-1 (C2, §10 for `#1134`).** One surface moved: the WORKSHEET draw (and one new selector option). Scope did not change. The other grading surfaces were not touched: C&I single, C&I multi, Chapter Test, Full Mock, Quick Practice. Worksheet GRADING is untouched.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Worksheet: Board exam mix | shaped by section (25 → 13/3/4/3/2), ≤ 30% AI-pack rows, ≥ 50% competency-based, no repeats (`#1134`) | 🟢 live | owner signed-in MI run, phone glance |
+| Worksheet: Quick drill, High-marks focus | same section ratios, AI cap, no repeats; no CBQ target (`#1134`) | 🟢 live | — |
+| Worksheet: "CBQ mix" (new type) | every row competency-based across the section shape; honest short sheet, never padded (`#1134`) | 🟢 live | phone glance |
+| Worksheet: MI personalisation | the section boost tilts the shaped sheet; un-shaped boosted sheets keep the original skewed draw (`#1134`) | 🟡 partial | signed-in live run; `[FU-WSDRAW-FREE-MODE-AI-CAP]`, `[FU-WSDRAW-FULLSUBJECT-TILT]` |
+
+> **2026-10-13 — PERF-1 (C2, §10 for `#1128` + `#1129`).** Display and styling only; no surface's Scope changed. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Notes pages (`/notes/*`, Topic Hub notes modal) | formulas precomputed, no KaTeX JS; figures sized + lazy; enlarge-figure name; faint ink 4.5:1 (`#1128`, `#1129`) | 🟢 live | www Lighthouse; owner phone glance; TBT target → PERF-2 |
+| `/cbse/class-10`, `/check-your-answer`, `/for-parents` | testimonial thumbnail is a responsive `<picture>` (`#1128`); CBSE / cya muted ink and green raised (`#1129`, not `/for-parents`) | 🟢 live | `[FU-FORPARENTS-CONTRAST]` |
+| Important Questions (`/highly-probable/*`) | labelled chapter select, button names (`#1128`); amber chips, pill, Check button, chip ink, Back button readable (`#1129`) | 🟢 live | owner glance at the Back button |
+| Practice Hub (`/practice-hub`) | solid green buttons and the four mode chips ≥ 4.5:1 (`#1129`) | 🟡 partial | `[FU-PERF1-CONTRAST-RESIDUAL]` (ModeCard CTA/hint text, Check & Improve link) |
+| Navbar Search / Log in (light theme) | `--text-muted` darkened inside `.navbar` only (`#1129`) | 🟢 live | — |
+| Shared return bar (`ux-return-bar`) | chip ink and active chip raised; default Back button unchanged (`#1129`) | 🟢 live | — |
+| Bottom-nav "Practice" label, Home contrast | not changed (protected files) | 🔴 open | PERF-2 |
+
 
 > **2026-10-13 — PARENTS-1 (C2, §10 for `#1121`).** One new public surface; no surface's Scope changed. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
