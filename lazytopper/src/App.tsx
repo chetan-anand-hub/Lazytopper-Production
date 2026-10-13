@@ -1,8 +1,6 @@
 import type React from "react";
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
-import Login from "./pages/Login";
 import { isSafeInternalPath } from "./utils/safeInternalPath";
-import SignUpPage from "./pages/SignUpPage";
 import Welcome from "./pages/Welcome";
 
 // Import the new Vibe toggle and command palette components.
@@ -27,6 +25,10 @@ import { DesktopShell } from "./components/desktop/DesktopShell";
 import MobileShell from "./components/mobile/MobileShell";
 
 // Desktop Phase 1 — locked desktop baseline Home (rendered inside DesktopShell)
+// PERF-2 PR-B2: the login / sign-up door (~14 KB gz with its auth UI) is its own chunk. A public page
+// never renders it, so it no longer ships in every page's entry chunk.
+const Login = lazy(() => import("./pages/Login"));
+const SignUpPage = lazy(() => import("./pages/SignUpPage"));
 const DesktopHome = lazy(() => import("./pages/desktop/DesktopHome"));
 // Desktop Phase 2 — locked Practice hub surface. PR #73 repair keeps this
 // same scope-builder experience available at mobile width too.
@@ -997,10 +999,10 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
                 : withRouteSuspense(<MobileHome />)
             }
           />
-          <Route path="/login" element={<Login />} />
-          <Route path="/login/*" element={<Login />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
-          <Route path="/sign-up/*" element={<SignUpPage />} />
+          <Route path="/login" element={withRouteSuspense(<Login />)} />
+          <Route path="/login/*" element={withRouteSuspense(<Login />)} />
+          <Route path="/sign-up" element={withRouteSuspense(<SignUpPage />)} />
+          <Route path="/sign-up/*" element={withRouteSuspense(<SignUpPage />)} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
           {/* CBSE 2027 — a PUBLIC, signed-out page: official CBSE papers, unit marks,

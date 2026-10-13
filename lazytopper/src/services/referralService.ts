@@ -1,4 +1,3 @@
-import QRCode from "qrcode";
 
 const REFERRAL_KEY = "lazytopper.referral.v1";
 const PENDING_REFERRAL_KEY = "lazytopper.pending_referral";
@@ -177,6 +176,8 @@ export function creditPendingReferral(newUserIdentifier: string): void {
 }
 
 export async function generateQRDataUrl(text: string, width: number = 200): Promise<string> {
+  // PERF-2 PR-B2: `qrcode` (~7 KB gz) loads when a QR is first drawn, not with the entry chunk.
+  const QRCode = (await import("qrcode")).default;
   return QRCode.toDataURL(text, {
     width,
     margin: 2,
