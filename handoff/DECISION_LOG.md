@@ -1,3 +1,24 @@
+## 2026-10-14 — BANK-STEPS-1 + GARBLE-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY A UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1116` `#1123` `#1125` `#1130` `#1131` `#1136`, plus the decisions A itself made, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **143** | `conceptLabelMap.ts`: delete the two REVIEWED-generic lines no row serves; NOT the MAPPED line "Roots by Formula" — keep it and add a pinned `PAUSED_LABELS` allowance (pins both ways, mutation per label). The 21 NO-ANSWER rows stay SERVED, logged `found`, filled later (answer = the row's own final result). Ledger states `found / paused / repaired / dropped`, one field, `verdict` separate | A stored mistake resolves its subtopic through the map at READ time; deleting the line would drop its Exam Trends concept. NO-ANSWER rows are incomplete, not wrong, and their steps are the marking scheme |
+| **152** | New lane GARBLE-1: hotfix PAUSE of the unreadable trig PYQ-2024 stems, then a deterministic scan, a FIND-2 readability judge, REPAIR from the official paper | A student saw flattened fractions in a Chapter Test; a DIFFERENT defect class from step↔stem pairing |
+| **153** | `#1125`: option 1 — merge as is despite the verifier's precision FAIL; HEY-D04 + EL-AR05 `OVER-PAUSED`; the first repair restores them; fix the CNC2-041 comment | Over-pausing is the safe direction (a withheld row only leaves the draw); re-cutting costs a full regeneration while live students keep meeting the other 69 bad rows |
+| **154** | The garble guard (`bankGarble.guard.test.ts`) ships with the scan; scope = EVERY served row, both subjects; no silent allowlist (a reviewed exceptions list with reasons); mutation: re-serve `PYQ-M-2024-TRIG-014` → RED; per-chapter before→after table | So the class cannot come back; a chapter running thin must be seen |
+| **156 / 165** | Repairs split by subject: B = Science, D = Maths (the second B session became D); A = finding only (scan, FIND-2, ledger schema, paused list, bank docs); shared files, so merges are SERIAL (`MERGE-SLOT`, rebase, regenerate) | Two controllers never edit the same chapter files |
+| **157** | `#1130` approved at `1ca02d65` after a byte-read | — |
+| **159** | The cofounder's "73 hits" was a bug in the cofounder's own script; A's count stands. The 55 served ≥3-mark ONE-step rows: REPAIR not pause, ledgered `found / SINGLE-STEP`, ratchet pinned at 55 | The question and key are right; on the structured path the steps ARE the marking scheme, so one step means no step marking |
+| **169** | FIND-2 PAUSE (25 rows) approved on a 5-row spot-read; RULE CHANGE: also pause flattened-exponent rows (`x2`), π dropped, arrows lost; the 22 stray-digit MERGED rows are a text-clean repair, served meanwhile. Merge order #1131 → #1132 → #1133 → FIND-2 PAUSE → D PR-1; the PR not in the slot TEMP-CLOSEs | A student can read "x2" as x×2 and the grader's steps inherit the ambiguity; pausing is cheap and safe |
+| **170** | `2026-STAT-SA-03` (mean 18 gives 3f = 25) is unsolvable as printed → into the FIND-2 PAUSE, tag `unsolvable-as-printed` (ledger state `dropped`); the handoff lock order C2 → A → C1 → C2 | — |
+| **171** | The 4 entangled ids (AP-004, STAT-008, 2025-STAT-006, 2025-TRIG-005) are paused in the same PR; A may edit exactly `data/cbq/officialCbqTags.maths.ts` (remove STAT-006, 2025-TRIG-005) and `data/figures/mathsFigureVisuals.ts` (remove STAT-008, STAT-006 bindings), each removed line ledgered `restore-on-repair`, counts pinned, mutation RED | The edits are inert for students (a withheld row is never drawn) and keep the guards honest |
+| *(A, in-lane)* | Triage of FIND-2: pause only stems unreadable or unsolvable as printed; leave still-readable stray digits and legitimate "OR" served | Pausing a readable row costs supply for no student benefit |
+| *(A, in-lane)* | A `bankFix/garble1Withholds.ts` category map (`garbled`) feeds the GEN-THIN-1 template rule instead of loosening that guard | Generated rows shaped from a withheld PYQ stay valid under the existing rule; same shape as RULE5-BIND-1 |
+| *(A, in-lane)* | `PYQ-M-RN-003` and `PYQ-M-CG-003` entered the garble guard as reviewed exceptions, each with a reason | The guard's first run found them (clean stem, flattened worked step); the verifier later showed CG-003's stem is NOT clean, so `#1135` withholds it and drops the exception |
+| *(A, in-lane)* | `#1132` was rebased and force-pushed, then re-opened as `#1136` (disclosed on the board) | Slip, not a decision: recorded as `[FU-NO-FORCE-PUSH-ON-PR-BRANCH]` |
+
 ## 2026-10-13 — WS-DRAW-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1134`, plus the decisions C2 itself made, with reasons.
