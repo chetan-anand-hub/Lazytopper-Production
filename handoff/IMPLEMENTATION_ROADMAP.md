@@ -1,4 +1,18 @@
 # LazyTopper Implementation Roadmap
+## 2026-10-13 — WS-DRAW-1 (`#1134` `4339d57c`) — ✅ COMPLETE (owner signed-in MI run and phone glance owed)
+
+- ✅ A worksheet is drawn like a board paper: Board exam mix 25 = A13 B3 C4 D3 E2 (Quick drill and High-marks in the same ratios), borrowing recorded, never padded.
+- ✅ At most 30% AI-pack rows (verified first), at least 50% competency-based rows in a Board exam mix, no repeats (id, `questionKey`, long normalised stem).
+- ✅ New "CBQ mix" worksheet type: every row competency-based, across the section shape.
+- ⏳ The owner's signed-in Mistake-Intelligence run and a phone glance; three small follow-ups.
+
+## 2026-10-13 — PERF-1 (`#1128` `29c2c2cf`, `#1129` `f9b447b0`) — ✅ COMPLETE (www Lighthouse and owner phone checks owed)
+
+- ✅ Note pages load no KaTeX: the formulas of all 26 notes are precomputed at build, byte-identical to the old render, and travel with the chapter's spec.
+- ✅ The testimonial thumbnail is responsive (WebP + JPEG, three widths); notes figures carry width/height and load lazily; the Important Questions chapter select and two button names are accessible.
+- ✅ Low-contrast text on notes, CBSE, check-your-answer, the Practice Hub and Important Questions raised to 4.5:1 with hues kept; the Important Questions Back button is readable.
+- ⏳ The notes TBT / Perf target (TBT < 600 ms, Perf ≥ 70) is NOT met and moved to PERF-2 (`[FU-NOTES-TBT-MOUNT]`). The www Lighthouse table and the owner's phone checks are owed. PERF-1 PR-3 (guard holes + residual Practice Hub text) is queued.
+
 
 ## 2026-10-13 — PARENTS-1 (`#1121` `59d139ff`) — ✅ COMPLETE (owner phone checks owed)
 

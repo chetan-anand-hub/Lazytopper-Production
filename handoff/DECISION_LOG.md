@@ -1,3 +1,31 @@
+## 2026-10-13 — WS-DRAW-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1134`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **132** | C1 builds WS-DRAW-1: Board mix matches the CBSE section shape, AI-written rows capped at 30%, a Board mix includes CBQs; QUESTION if the CBQ target and the AI cap collide in more than 5 topics | Owner rulings 13 Oct ~15:45–15:50 IST; WORKSHEET-SCOUT |
+| **155** | WS-DRAW-1 moves to C2; the worksheet draws only from the SERVED bank (no second filter); both subjects and every worksheet type stated per type | Student-facing correctness work, the owner asked for it today; PERF-2 is speed |
+| **157** | PERF-2 parked after its P6 table; WS-DRAW-1 first | Order |
+| **158** | The 50% target is competency-based (any mark, not only the 4-mark case study); NEW worksheet type "CBQ mix"; measure the CBQ flag's precision FIRST (P14) and QUESTION if it is below 90% | CBSE's own competency-focused booklet mixes 1-mark MCQs, A-R, 2/3-mark and 4/5-mark items; the flag was seen set on plain recall |
+| **164** | CBQ = the verified flag; the AI cap counts AI-pack ids only; D-section shortfalls borrow, are recorded, never padded | C2's P14: the legacy flag was right on 9 of 20 and set on 75% of the bank; the verified flag was right on 20 of 20 and sits entirely outside the AI pack |
+| *(C2, in-lane)* | The student's MI boost TILTS the Board-mix shape (section weight × boost) rather than being dropped | The "Personalise" toggle promises a weighting; a silent no-op is forbidden; signed-out sheets stay exactly 13/3/4/3/2 |
+| *(C2, in-lane)* | `#1134` merged on `PASS-WITH-FOLLOW-UP`; the top-up flaw, the free-mode AI cap and the full-subject tilt are follow-ups, the signed-in MI live run is NEEDS-OWNER | 0 MUST-FIX after the fixes; the owner is away |
+
+## 2026-10-13 — PERF-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1128` and `#1129`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| *(spec, 13 Oct)* | PERF-1 = F1 (notes math without the re-render cost), F3 (non-protected images), F4 (accessibility). The notes target is TBT < 600 ms and Perf ≥ 70; F2 and the home brand images are PERF-2 (protected files) | Lighthouse 12.2.1 mobile, growth session `claude/PAGESPEED_FIX_REQUEST_2026-10-13.md` |
+| **149** | Option 1: this PR ships F1(a) precomputed math (byte-identical guard + mutation mandatory), F3 and F4; the notes targets move to PERF-2 with `[FU-NOTES-TBT-MOUNT]` and the `hydrateRoot` hypothesis; the Lighthouse table stays same-machine ratios | C2 measured first (P6) and found KaTeX is ~4% of the cost; option 2 (mount only the active tab) changes the client DOM and is a PERF-2 fallback |
+| **150** | Record `[FU-NOTES-TBT-MOUNT]` in `#1128`; post 390/1280 before/after screenshots of the return-bar Back button for Important Questions and a dark page; approved only if dark pages look unchanged or better | The Back-button restyle is a visible change on every page that uses the shared bar |
+| *(C2, in-lane)* | Dropped option (b) (formulas enter the DOM near the viewport) before any merge | Removed two thirds of the DOM and moved TBT by nothing measurable; the SEO capture needs every formula in the DOM and `navigator.webdriver` cannot distinguish it from Lighthouse |
+| *(C2, in-lane)* | The Back-button restyle was scoped to `.lt-hpq-page` and the dark default restored | The first version made dark pages' Back button a bright pill |
+| *(C2, in-lane)* | The `gen:note-math` `package.json` script was dropped; the generator runs as `npx tsx scripts/genNoteMath.ts` | `package.json` overlapped two open drafts (lane-overlap) |
+| *(C2, in-lane)* | `#1129` merged on `PASS-WITH-FOLLOW-UP`, the guard holes and the Practice Hub residual text logged as `[FU-PERF1-CONTRAST-RESIDUAL]` for a PR-3 | 0 MUST-FIX; the cofounder had asked for `#1129` to merge before WS-DRAW-1 was pushed |
+
 ## 2026-10-13 — PARENTS-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1121`, plus the decisions C2 itself made, with reasons.
