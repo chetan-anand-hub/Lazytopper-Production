@@ -25,7 +25,7 @@
 //
 // PRIORITY WHEN SUPPLY CONFLICTS (spec rule 5): exact count › section shape › CBQ ≥ 50% › AI cap.
 //
-// "COMPETENCY-BASED" MEANS `competencyVerified === true` — CBQ-1's single CBQ flag. The legacy
+// "COMPETENCY-BASED" MEANS the CBQ flag read by lib/cbq/cbqClassification (CBQ-1's single flag). The legacy
 // `isCompetencyBased` is set on 75% of the served bank and is correct on fewer than half of the
 // rows it flags (WS-DRAW-1 P14: 9/20 sampled), so it is NOT read here.
 //
@@ -128,9 +128,17 @@ function largestRemainder(keys: string[], weights: number[], n: number): number[
 }
 
 /** Section targets for `n` rows over `sections`, in blueprint proportions. */
-export function sectionCounts(sections: readonly string[], n: number): Record<string, number> {
+export function sectionCounts(
+  sections: readonly string[],
+  n: number,
+  boosts?: Readonly<Record<string, number>> | null,
+): Record<string, number> {
   const keys = [...sections];
-  const counts = largestRemainder(keys, keys.map((s) => SHAPE_WEIGHTS[s] ?? 1), n);
+  const counts = largestRemainder(
+    keys,
+    keys.map((s) => (SHAPE_WEIGHTS[s] ?? 1) * (Number(boosts?.[s]) > 1 ? Number(boosts?.[s]) : 1)),
+    n,
+  );
   return Object.fromEntries(keys.map((s, i) => [s, counts[i]]));
 }
 
@@ -263,7 +271,13 @@ export function planDraw(input: PlanDrawInput): PlannedDraw {
   let targets: Record<string, number>;
   let reallocations: Reallocation[] = [];
   if (shaped) {
-    const raw = sectionCounts(sections, N);
+    // The student's weak-section boost (MI) tilts the blueprint share; mean over the topics in scope.
+    const tilt: Record<string, number> = {};
+    for (const s of sections) {
+      const per = topics.map((t) => Number(input.boosts?.[t.key]?.[s]) || 1);
+      tilt[s] = per.reduce((a, b) => a + b, 0) / (per.length || 1);
+    }
+    const raw = sectionCounts(sections, N, tilt);
     const b = borrowShortfalls(raw, supplyBySection, sections);
     targets = b.targets;
     reallocations = b.reallocations;
@@ -468,20 +482,35 @@ export function drawFromSpec(
     pick(ai, c.n);
   }
 
-  // Top-up: dedupe skips (or a pool that shrank) can leave the sheet short.
+  // Top-up: a dedupe skip (or a pool that shrank) can leave a section short. Fill it from the SAME
+  // section first (any topic), then its neighbours (A↔B, C↔D, E→C, D), so the shape moves as little
+  // as the neighbour rule allows; the sheet keeps its exact count whenever the pools hold enough.
   if (out.length < total) {
-    const sectionsOrder = spec.mode === "free" ? ["*"] : [...spec.sections];
-    for (const s of sectionsOrder) {
-      if (out.length >= total) break;
+    const drawn: Record<string, number> = {};
+    for (const q of out) drawn[spec.mode === "free" ? "*" : sectionOf(q)] = (drawn[spec.mode === "free" ? "*" : sectionOf(q)] ?? 0) + 1;
+    const want = spec.mode === "free" ? { "*": total } : spec.sectionTargets;
+    const short = Object.keys(want).filter((s) => (drawn[s] ?? 0) < (want[s] ?? 0));
+    const fillFrom = (s: string) => {
       const { cbq, ver, ai } = candidates(null, s);
       const lists = spec.mode === "cbq-mix" ? [cbq] : [tools.shuffle([...ver, ...cbq]), ai];
       for (const list of lists) {
         for (const q of list) {
-          if (out.length >= total) break;
+          if (out.length >= total) return;
           if (fresh(q)) take(q);
         }
       }
+    };
+    for (const s of short) {
+      for (const k of [s, ...(NEIGHBOURS[s] ?? [])]) {
+        if (out.length < total && (drawn[s] ?? 0) < (want[s] ?? 0)) {
+          const before = out.length;
+          fillFrom(k);
+          drawn[s] = (drawn[s] ?? 0) + (out.length - before);
+        }
+      }
     }
+    // last resort: anything in scope (never leaves the sheet short while the pools hold rows)
+    if (out.length < total) for (const s of spec.mode === "free" ? ["*"] : spec.sections) fillFrom(s);
   }
   return tools.shuffle(out);
 }

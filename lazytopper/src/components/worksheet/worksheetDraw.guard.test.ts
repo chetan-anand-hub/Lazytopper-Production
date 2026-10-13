@@ -245,6 +245,33 @@ describe("WS-DRAW-1 worksheet draw over the real bank", () => {
   });
 });
 
+describe("MI section skew still reaches the draw on the UI path (boosts are handed to generateFromPlan, not planWorksheet)", () => {
+  const draw = (sections: string[] | undefined, count: number, boosts: Record<string, number> | null, seed: number) => {
+    Math.random = mulberry32(seed);
+    const topics = getTopics("Maths", "All").filter((t) => t.key === "triangles");
+    const plan = planWorksheet({ subject: "Maths", scope: "topic", topics, sections, difficulty: "All", requested: count });
+    return generateFromPlan({ ...plan, sectionBoosts: boosts });
+  };
+  const meanC = (sections: string[] | undefined, count: number, boosts: Record<string, number> | null) => {
+    let c = 0;
+    const seeds = [3, 5, 7, 9, 13, 17, 19, 23];
+    for (const sd of seeds) {
+      const rows = draw(sections, count, boosts, sd);
+      expect(rows.length).toBe(count);
+      expect(repeats(rows)).toBe(0);
+      c += rows.filter((q) => sectionOf(q) === "C").length;
+    }
+    return c / seeds.length;
+  };
+  it("a shaped Board mix tilts toward the boosted section (C: 4 → more) and stays 25 unique rows", () => {
+    expect(meanC(undefined, 25, null)).toBe(4);
+    expect(meanC(undefined, 25, { C: 3 })).toBeGreaterThan(5);
+  });
+  it("an un-shaped sheet (8 rows, all sections) still takes the original skewed draw", () => {
+    expect(meanC(undefined, 8, { C: 5 })).toBeGreaterThan(meanC(undefined, 8, null));
+  });
+});
+
 describe("CONTROLS — each detector fires on a sheet built to violate it", () => {
   const mk = (id: string, section: string, text: string): PracticeQuestion =>
     ({ id, section, topicKey: "t", subject: "Maths", marks: 1, questionText: text, options: [] }) as unknown as PracticeQuestion;
