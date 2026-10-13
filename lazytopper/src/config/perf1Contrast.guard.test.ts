@@ -69,7 +69,7 @@ const PRACTICE = read("pages/desktop/DesktopPracticePage.tsx");
 const HPQ = read("pages/HighlyProbableQuestions.tsx");
 
 const accent = (key: string, field: string) =>
-  tokenIn(PRACTICE, new RegExp(`${key}: \{[^}]*?${field}: "([^"]+)"`));
+  tokenIn(PRACTICE, new RegExp(`${key}: [{][^}]*?${field}: "([^"]+)"`));
 const tint = (key: string) => accent(key, "tint");
 
 const CASES: Case[] = [
