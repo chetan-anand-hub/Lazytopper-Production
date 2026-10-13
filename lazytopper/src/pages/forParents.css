@@ -1,0 +1,203 @@
+/*
+ * ForParentsPage (`/for-parents`, PARENTS-1; the CheckYourAnswerPage treatment, copied) — mobile-first, responsive by
+ * CSS alone. EVERY selector is scoped under `.lt-fp`: a stylesheet imported by a lazy
+ * route is global once loaded, so a bare `h2` or `a` here would restyle the whole app.
+ * House visual grammar: deep navy hero, soft white page, green accent (the same token
+ * values as `.lt-cbse` in Cbse2027Page, scoped under their own names).
+ */
+.lt-fp {
+  --fp-bg: #f4f7fb;
+  --fp-card: #fff;
+  --fp-ink: #0f2038;
+  --fp-ink2: #4d647e;
+  --fp-ink3: #71879f;
+  --fp-line: #dde5ef;
+  --fp-g: #0b8f50;
+  --fp-gt: #06663a;
+  --fp-gw: #e6f4ec;
+  --fp-navy: #132c4d;
+  --fp-serif: Fraunces, Georgia, serif;
+  --fp-sans: Inter, system-ui, -apple-system, sans-serif;
+  --fp-sh: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
+  display: block;
+  background: var(--fp-bg);
+  color: var(--fp-ink);
+  font-family: var(--fp-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.lt-fp * {
+  box-sizing: border-box;
+}
+.lt-fp h1,
+.lt-fp h2,
+.lt-fp h3 {
+  font-family: var(--fp-serif);
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.lt-fp a {
+  color: var(--fp-gt);
+}
+.lt-fp :focus-visible {
+  outline: 2px solid var(--fp-g);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.lt-fp q {
+  quotes: "\201C" "\201D";
+}
+
+/* Column: 16px gutter on a phone, a readable measure on desktop. */
+.lt-fp__w {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* HERO — deep navy band */
+.lt-fp__hero {
+  background: var(--fp-navy);
+  color: #eaf2fb;
+  padding: 28px 0 26px;
+}
+.lt-fp__eyebrow {
+  font-size: 12px;
+  color: #8fb3d9;
+  margin: 0 0 10px;
+}
+.lt-fp__hero h1 {
+  font-size: clamp(26px, 7vw, 40px);
+  line-height: 1.12;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+  max-width: 18ch;
+}
+.lt-fp__sub {
+  color: #b9d0e8;
+  font-size: 15px;
+  margin: 0 0 20px;
+  max-width: 56ch;
+}
+
+/* CTA — the green accent; a full-width tap target on a phone */
+.lt-fp .lt-fp__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: var(--fp-g);
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+}
+.lt-fp .lt-fp__cta:hover {
+  background: var(--fp-gt);
+}
+
+/* BODY */
+.lt-fp__body {
+  padding-top: 30px;
+  padding-bottom: 40px;
+}
+.lt-fp section {
+  margin-bottom: 38px;
+}
+.lt-fp h2 {
+  font-size: clamp(21px, 5vw, 26px);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.lt-fp section > p {
+  margin: 0 0 12px;
+  color: var(--fp-ink);
+}
+.lt-fp__lede {
+  color: var(--fp-ink2);
+}
+
+/* WHAT YOUR CHILD GETS */
+.lt-fp__tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.lt-fp__tiles li {
+  background: var(--fp-card);
+  border: 1px solid var(--fp-line);
+  border-left: 4px solid var(--fp-g);
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: var(--fp-sh);
+  font-weight: 600;
+}
+.lt-fp__tiles a {
+  text-decoration: none;
+}
+.lt-fp__tiles a:hover {
+  text-decoration: underline;
+}
+
+/* FAQ — plain <details> */
+.lt-fp__faq details {
+  background: var(--fp-card);
+  border: 1px solid var(--fp-line);
+  border-radius: 10px;
+  padding: 0 14px;
+  margin-bottom: 8px;
+}
+.lt-fp__faq summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+.lt-fp__faq details p {
+  margin: 0 0 12px;
+  color: var(--fp-ink2);
+}
+
+/* THE SEND — the closing call to action */
+.lt-fp__send {
+  background: var(--fp-navy);
+  color: #eaf2fb;
+  border-radius: 16px;
+  padding: 22px 18px;
+}
+.lt-fp__send h2 {
+  color: #fff;
+}
+.lt-fp .lt-fp__send > p {
+  color: #b9d0e8;
+  margin-bottom: 16px;
+}
+.lt-fp__fine {
+  font-size: 13px;
+  color: var(--fp-ink3);
+  margin: 0;
+}
+
+/* Tablet and up: the CTA sizes to its label instead of spanning the column. */
+@media (min-width: 760px) {
+  .lt-fp__hero {
+    padding: 44px 0 40px;
+  }
+  .lt-fp .lt-fp__cta {
+    display: inline-flex;
+  }
+  .lt-fp__ex {
+    padding: 20px 22px;
+  }
+  .lt-fp__send {
+    padding: 28px 30px;
+  }
+}
