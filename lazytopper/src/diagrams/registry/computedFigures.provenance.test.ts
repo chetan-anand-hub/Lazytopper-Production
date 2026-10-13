@@ -19,6 +19,7 @@ import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 import { highlyProbableQuestions } from "../../data/highlyProbableQuestions";
 import { ALL_COMPUTED_FIGURE_BINDINGS, ALL_CROP_FIGURE_BINDINGS, ALL_SOLUTION_FIGURE_BINDINGS, buildComputedFigure } from "./index";
 import type { CropFigureBinding, ProvenanceField } from "./computedFigureTypes";
+import { BANK_STEPS_1 } from "../../data/bankFix/bankSteps1Ledger";
 
 type Row = Record<string, unknown>;
 
@@ -55,7 +56,16 @@ describe("computed figures — provenance against the served rows", () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  for (const b of ALL_COMPUTED_FIGURE_BINDINGS) {
+  // 13 Oct BANK-STEPS-1 PR-1: a row whose steps answer another question is withheld until its repair PR, so it is not served; its figure binding
+  // is kept for the repair and is checked again the moment the id leaves the ledger's `paused` state.
+  const STEPS1_PAUSED = new Set(BANK_STEPS_1.filter((e) => e.state === "paused").map((e) => e.id));
+  it("a binding is skipped only while its row is paused, and a paused row is not served", () => {
+    for (const b of ALL_COMPUTED_FIGURE_BINDINGS.filter((x) => STEPS1_PAUSED.has(x.questionId))) {
+      expect(served.has(b.questionId), `${b.questionId} is paused but served`).toBe(false);
+    }
+  });
+
+  for (const b of ALL_COMPUTED_FIGURE_BINDINGS.filter((x) => !STEPS1_PAUSED.has(x.questionId))) {
     describe(b.questionId, () => {
       const row = served.get(b.questionId);
 
