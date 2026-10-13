@@ -4,10 +4,7 @@ export const ARITHMETIC_PROGRESSION_PACK1: CanonicalQuestion[] = [
   { id: "AP-E01", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The 10th term of the AP 2, 7, 12, 17, ... is:", options: ["45", "47", "50", "52"], answer: "47", explanation: "a=2, d=5, a₁₀ = 2 + 9(5) = 47. Therefore, the correct answer is 47.", solutionSteps: ["a=2, d=5, a₁₀ = 2 + 9(5) = 47"], finalAnswer: "47" , isCompetencyBased: false },
   { id: "AP-E02", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The common difference of the AP 1/3, 5/3, 9/3, 13/3, ... is:", options: ["4/3", "2/3", "1/3", "5/3"], answer: "4/3", explanation: "The correct answer is 4/3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "4/3" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify the first term a = 2 and common difference d = 7 - 2 = 5.",
-      "Use the formula for the nth term of an AP: an = a + (n-1)d.",
-      "Substitute n=10: a10 = 2 + (10-1) * 5 = 2 + 9 * 5 = 2 + 45 = 47.",
-      "The 10th term is 47. Therefore, option (A) is correct.",
+      "Common difference d = 5/3 − 1/3 = 4/3 (check: 9/3 − 5/3 = 4/3), so d = 4/3. [1]",
     ],
   },
   { id: "AP-E03", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of first 10 natural numbers is:", options: ["45", "55", "50", "100"], answer: "55", explanation: "S = n(n+1)/2 = 10×11/2 = 55. Therefore, the correct answer is 55.", solutionSteps: ["S = n(n+1)/2 = 10×11/2 = 55"], finalAnswer: "55" , isCompetencyBased: false },
