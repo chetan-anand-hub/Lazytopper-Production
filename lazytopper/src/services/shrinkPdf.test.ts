@@ -8,8 +8,15 @@ import { describe, it, expect, vi } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import {
-  SHRINK_BUDGET_MS,
+  SHRINK_ASSUMED_MBPS,
   SHRINK_FLOOR_LONG_EDGE,
+  SHRINK_HARD_CEILING_MS,
+  SHRINK_KEEP_BYTES,
+  SHRINK_MIN_BUDGET_MS,
+  SHRINK_PROJECTION_FACTOR,
+  SHRINK_TIME_SHARE,
+  TEXT_PROBE_PAGES,
+  shrinkBudgetMs,
   SHRINK_FLOOR_QUALITY,
   SHRINK_RUNGS,
   SHRINK_TARGET_BYTES,
@@ -43,7 +50,7 @@ function pdf(size: number, marker: "scan" | "typed" | "objstm", name = "paper.pd
 function engine(over: Partial<PdfDocumentHandle> = {}, pages = 4) {
   const handle: PdfDocumentHandle = {
     numPages: pages,
-    firstPageHasText: async () => false,
+    pagesHaveText: async () => false,
     renderPage: async () => ({ base64: "AAAA", mimeType: "image/jpeg", width: 1700, height: 2400 }),
     destroy: vi.fn(),
     ...over,
@@ -79,7 +86,7 @@ describe("untouched cases: the original goes up exactly as picked", () => {
   });
 
   it("a PDF whose bytes hide the fonts (object streams) is probed: a text layer on page 1 leaves it untouched", async () => {
-    const e = engine({ firstPageHasText: async () => true });
+    const e = engine({ pagesHaveText: async () => true });
     const f = pdf(5 * MB, "objstm");
     const out = await run(f, { open: e.open });
     expect(out.file).toBe(f);
@@ -121,8 +128,8 @@ describe("a scanned PDF is shrunk on the stricter ladder", () => {
     expect(e.handle.destroy).toHaveBeenCalled();
   });
 
-  it("the ladder starts at 2400 px / 0.85 and NEVER goes below the floor (CONTROL: the page tray's ladder does)", async () => {
-    expect(SHRINK_RUNGS[0]).toEqual([2400, 0.85]);
+  it("the ladder starts at 2400 px / 0.92 and NEVER goes below the measured floor (CONTROL: the page tray's ladder does)", async () => {
+    expect(SHRINK_RUNGS[0]).toEqual([2400, 0.92]);
     for (const [edge, quality] of SHRINK_RUNGS) {
       expect(edge).toBeGreaterThanOrEqual(SHRINK_FLOOR_LONG_EDGE);
       expect(quality).toBeGreaterThanOrEqual(SHRINK_FLOOR_QUALITY);
@@ -239,14 +246,14 @@ describe("it never blocks an upload", () => {
     expect(out.file).toBe(f);
     expect(out.report.outcome).toBe("timeout");
     expect(reports).toEqual(["timeout"]);
-    expect(3000 * 10).toBeGreaterThan(SHRINK_BUDGET_MS);
+    expect(3000 * 10 * SHRINK_PROJECTION_FACTOR).toBeGreaterThan(shrinkBudgetMs(6 * MB));
   });
 
   it("the hard budget stops a re-encode that runs long", async () => {
     let clock = 0;
     const e = engine({}, 2);
     const reencode = vi.fn(async () => {
-      clock += SHRINK_BUDGET_MS + 1;
+      clock += shrinkBudgetMs(6 * MB) + 1;
       return { base64: "AAAA", width: 1, height: 1 };
     });
     const assemble = vi.fn(async (_pages: unknown, o: { reencode: (p: never, e: number, q: number) => Promise<unknown> }) => {
@@ -271,6 +278,156 @@ describe("it never blocks an upload", () => {
       },
     });
     expect(out.file).toBe(f);
+  });
+});
+
+describe("D148: the text-layer probe reads the first 3 pages, not page 1 only", () => {
+  /** A fake engine whose pages carry text or not; `pagesHaveText(n)` looks at the first n only. */
+  const textOn = (pages: boolean[]) =>
+    engine({ numPages: pages.length, pagesHaveText: async (n: number) => pages.slice(0, n).some(Boolean) }, pages.length);
+
+  it("★ page 1 empty (image-only cover), page 2 has text -> the PDF is typed and untouched", async () => {
+    const e = textOn([false, true, true, true]);
+    const f = pdf(5 * MB, "objstm");
+    const out = await run(f, { open: e.open, assemble: vi.fn(async () => assembled(MB)) });
+    expect(out.file).toBe(f);
+    expect(out.report.outcome).toBe("typed");
+  });
+
+  it("text on page 3 still counts; text only from page 4 does not (the probe is the first TEXT_PROBE_PAGES)", async () => {
+    expect(TEXT_PROBE_PAGES).toBe(3);
+    const third = await run(pdf(5 * MB, "objstm"), { open: textOn([false, false, true, false]).open });
+    expect(third.report.outcome).toBe("typed");
+    const fourth = await run(pdf(5 * MB, "objstm"), {
+      open: textOn([false, false, false, true]).open,
+      assemble: vi.fn(async () => assembled(MB)),
+    });
+    expect(fourth.report.outcome).toBe("shrunk");
+  });
+
+  it("CONTROL: no text on any probed page -> it is a scan and is shrunk", async () => {
+    const out = await run(pdf(5 * MB, "objstm"), {
+      open: textOn([false, false, false, false]).open,
+      assemble: vi.fn(async () => assembled(MB)),
+    });
+    expect(out.report.outcome).toBe("shrunk");
+  });
+
+  it("the probe is asked for min(3, pages) pages", async () => {
+    const probe = vi.fn(async () => false);
+    await run(pdf(5 * MB, "objstm"), { open: engine({ pagesHaveText: probe }, 2).open, assemble: vi.fn(async () => assembled(MB)) });
+    expect(probe).toHaveBeenCalledWith(2);
+  });
+});
+
+describe("D150: the time budget weighs the shrink against the upload time it saves", () => {
+  it("the arithmetic: 0.8 x ((size - 1.6 MB) / link), assume 1 Mbps, ceiling 60 s", () => {
+    const savingMs = (bytes: number, mbps: number) => (((bytes - SHRINK_KEEP_BYTES) * 8) / (mbps * 1_000_000)) * 1000;
+    expect(SHRINK_ASSUMED_MBPS).toBe(1);
+    expect(shrinkBudgetMs(6 * MB)).toBeCloseTo(SHRINK_TIME_SHARE * savingMs(6 * MB, 1), 3); // no downlink -> 1 Mbps
+    expect(shrinkBudgetMs(6 * MB, 0)).toBe(shrinkBudgetMs(6 * MB));
+    expect(shrinkBudgetMs(6 * MB, 2)).toBeCloseTo(SHRINK_TIME_SHARE * savingMs(6 * MB, 2), 3);
+    expect(shrinkBudgetMs(6 * MB, 0.05)).toBe(SHRINK_HARD_CEILING_MS); // very slow link: capped at 60 s
+    expect(shrinkBudgetMs(1 * MB, 1)).toBe(0); // nothing to save
+  });
+
+  it("★ CONTROL fast link: a 6 MB scan on 50 Mbps saves ~0.7 s, so the shrink is skipped and pdf.js is never loaded", async () => {
+    expect(shrinkBudgetMs(6 * MB, 50)).toBeLessThan(SHRINK_MIN_BUDGET_MS);
+    const e = engine();
+    const f = pdf(6 * MB, "scan");
+    const out = await run(f, { open: e.open, downlinkMbps: 50 });
+    expect(out.file).toBe(f);
+    expect(out.report.outcome).toBe("fast-link");
+    expect(e.open).not.toHaveBeenCalled();
+  });
+
+  it("★ slow link: the same 6 MB scan on 1 Mbps (or no reading) is shrunk", async () => {
+    for (const downlinkMbps of [1, null, 0.4]) {
+      const e = engine();
+      const out = await run(pdf(6 * MB, "scan"), { open: e.open, downlinkMbps, assemble: vi.fn(async () => assembled(MB)) });
+      expect(out.report.outcome).toBe("shrunk");
+    }
+  });
+
+  it("a slower phone is given a longer budget: 3 s/page x 10 pages times out at 2 Mbps but fits at 0.5 Mbps", async () => {
+    const slowPhone = () => {
+      let clock = 0;
+      const e = engine(
+        { renderPage: async () => { clock += 3000; return { base64: "AAAA", mimeType: "image/jpeg", width: 1, height: 1 }; } },
+        10,
+      );
+      return { e, now: () => clock };
+    };
+    const fast = slowPhone();
+    const quickLink = await run(pdf(6 * MB, "scan"), { open: fast.e.open, now: fast.now, downlinkMbps: 2, assemble: vi.fn(async () => assembled(MB)) });
+    expect(quickLink.report.outcome).toBe("timeout");
+    const slow = slowPhone();
+    const slowLink = await run(pdf(6 * MB, "scan"), { open: slow.e.open, now: slow.now, downlinkMbps: 0.5, assemble: vi.fn(async () => assembled(MB)) });
+    expect(slowLink.report.outcome).toBe("shrunk");
+  });
+
+  it("a typed PDF over the 7 MB ceiling is shrunk even on a fast link (the alternative is a refusal)", async () => {
+    const out = await run(pdf(MAX_UPLOAD_PDF_BYTES + MB, "typed"), {
+      open: engine().open,
+      downlinkMbps: 100,
+      assemble: vi.fn(async () => assembled(2 * MB)),
+    });
+    expect(out.report.outcome).toBe("typed-rasterised");
+  });
+});
+
+describe("D150: the student can always skip", () => {
+  it("★ aborting during the render stops at the next page and returns the original, reported as skipped", async () => {
+    const ctl = new AbortController();
+    let rendered = 0;
+    const e = engine(
+      {
+        renderPage: async () => {
+          rendered += 1;
+          if (rendered === 2) ctl.abort();
+          return { base64: "AAAA", mimeType: "image/jpeg", width: 1, height: 1 };
+        },
+      },
+      6,
+    );
+    const f = pdf(6 * MB, "scan");
+    const out = await run(f, { open: e.open, signal: ctl.signal });
+    expect(out.file).toBe(f);
+    expect(out.report.outcome).toBe("skipped");
+    expect(rendered).toBe(2);
+    expect(e.handle.destroy).toHaveBeenCalled();
+  });
+
+  it("already aborted before it starts: no pdf.js, the original", async () => {
+    const ctl = new AbortController();
+    ctl.abort();
+    const e = engine();
+    const f = pdf(6 * MB, "scan");
+    const out = await run(f, { open: e.open, signal: ctl.signal });
+    expect(out.file).toBe(f);
+    expect(out.report.outcome).toBe("skipped");
+    expect(e.open).not.toHaveBeenCalled();
+  });
+});
+
+describe("the quality floor is the one the live grader A/B measured (13 Oct 2026)", () => {
+  // Original vs shrunk, same model + prompt, the six hardest synthetic handwriting sheets, 4-6 reads each:
+  // only 2400 px at q >= 0.90 held (36/36). q0.85/0.80/0.70 (at 2400, 3000 and native px), q0.88 and 2200/2000 px
+  // at q0.90 all lost readability on at least one sheet. The spec's own floor (2000 px / q0.75) is therefore unsafe.
+  it("floor = 2400 px / q0.90, and every rung is at or above it", () => {
+    expect(SHRINK_FLOOR_LONG_EDGE).toBe(2400);
+    expect(SHRINK_FLOOR_QUALITY).toBe(0.9);
+    expect(SHRINK_RUNGS).toEqual([[2400, 0.92], [2400, 0.9]]);
+    for (const [edge, q] of SHRINK_RUNGS) {
+      expect(edge).toBeGreaterThanOrEqual(2400);
+      expect(q).toBeGreaterThanOrEqual(0.9);
+    }
+  });
+  it("CONTROL: the settings the eval REJECTED are all below this floor", () => {
+    const rejected: Array<[number, number]> = [[2000, 0.75], [2400, 0.85], [2400, 0.8], [2400, 0.7], [3000, 0.85], [3508, 0.8], [2400, 0.88], [2200, 0.9], [2000, 0.9]];
+    for (const [edge, q] of rejected) {
+      expect(edge < SHRINK_FLOOR_LONG_EDGE || q < SHRINK_FLOOR_QUALITY).toBe(true);
+    }
   });
 });
 

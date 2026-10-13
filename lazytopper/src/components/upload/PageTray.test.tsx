@@ -332,6 +332,42 @@ describe("(b)(c) PDFs and wrong types; the honest degrade", () => {
     expect(screen.queryByText(/Optimising/)).toBeNull();
   });
 
+  it("UPLOAD-SHRINK-1 / D150: 'Skip — upload as it is' sends the ORIGINAL at once, without waiting for the shrink", async () => {
+    const original = new File([new Uint8Array(4 * 1024 * 1024)], "paper.pdf", { type: "application/pdf" });
+    let signal: AbortSignal | null = null;
+    const lateResult = new File([new Uint8Array(1024)], "late.pdf", { type: "application/pdf" });
+    let finishLate: (f: File) => void = () => {};
+    const shrink = vi.fn(
+      (_f: File, onProgress: (d: number, t: number) => void, sig: AbortSignal) =>
+        new Promise<File>((resolve) => {
+          signal = sig;
+          onProgress(1, 9);
+          finishLate = resolve;
+        }),
+    );
+    render(<Host shrink={shrink} />);
+    pick([original]);
+    const skip = await screen.findByTestId("pdf-optimise-skip");
+    expect(skip.textContent).toBe("Skip — upload as it is");
+    expect(screen.getByText("Optimising your PDF for upload… page 1 of 9")).toBeTruthy();
+    fireEvent.click(skip);
+    await waitFor(() => expect(screen.getByTestId("host-payload").textContent).toBe("application/pdf|0|paper.pdf"));
+    expect(signal!.aborted).toBe(true);
+    expect(checked).toContain(original);
+    expect(screen.queryByTestId("pdf-optimise")).toBeNull();
+    // the shrink finishing late must change nothing
+    await act(async () => finishLate(lateResult));
+    expect(screen.getByTestId("host-payload").textContent).toBe("application/pdf|0|paper.pdf");
+    expect(checked).not.toContain(lateResult);
+  });
+
+  it("no Skip button when nothing is being shrunk", async () => {
+    render(<Host />);
+    pick([new File([new Uint8Array(2048)], "ok.pdf", { type: "application/pdf" })]);
+    await waitFor(() => expect(screen.getByTestId("host-payload").textContent).toBe("application/pdf|0|ok.pdf"));
+    expect(screen.queryByTestId("pdf-optimise-skip")).toBeNull();
+  });
+
   it("UPLOAD-SHRINK-1: a shrink that throws never blocks: the original reaches the guard (refused when over 7 MB, accepted when under)", async () => {
     const shrink = vi.fn(async () => {
       throw new Error("pdf.js failed to load");
