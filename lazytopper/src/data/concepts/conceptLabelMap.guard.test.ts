@@ -77,10 +77,18 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // [FU-CONCEPTLABEL-RATCHET-RESTORE-BANKSTEPS]: each REPAIR PR that serves one of these rows again restores its reviewed label here, drops the PAUSED_LABELS entry and raises the pin back.
 const MIN_MAPPED_LABELS = 1850;
 /** Labels whose every row is paused by BANK-STEPS-1: allowed to be mapped while served by nothing. Pinned both ways in the tests below. */
-const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [{ chapter: "quadratic-equations", label: "Roots by Formula" }];
+const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
+  { chapter: "quadratic-equations", label: "Roots by Formula" },
+  // 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3, 71 more paused rows): every row of these four mapped labels is now paused (same D143 shape).
+  { chapter: "polynomials", label: "Degree of Polynomial" },
+  { chapter: "surface-areas-and-volumes", label: "Curved Surface Area" },
+  { chapter: "surface-areas-and-volumes", label: "Total Surface Area" },
+  { chapter: "electricity", label: "Resistance and Ohm's Law" },
+];
 const MAX_REVIEWED_LABELS = 136;
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9189;
+// 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3): 10268 served rows, measured 0.91858 -> pin 0.9189 -> 0.9185 (each REPAIR PR re-measures and raises it back).
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9185;
 
 const isChapterEchoSubtopic = echoFromShape;
 
@@ -219,7 +227,11 @@ describe("conceptLabelMap — PAUSED_LABELS (BANK-STEPS-1)", () => {
 
 describe("conceptLabelMap — mutation controls (each check can fail)", () => {
   it("removing a label from PAUSED_LABELS is RED (stale-mapped)", () => {
-    expect(auditMap(SERVED, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED, []).map((p) => p.kind)).toEqual(["stale-mapped"]);
+    expect(auditMap(SERVED, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED, []).map((p) => p.kind)).toEqual(PAUSED_LABELS.map(() => "stale-mapped"));
+    for (const one of PAUSED_LABELS) {
+      const rest = PAUSED_LABELS.filter((x) => x !== one);
+      expect(auditMap(SERVED, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED, rest).map((p) => p.label), one.label).toEqual([one.label]);
+    }
   });
 
   it("a paused label that is served again is RED (paused-but-served): the cue to remove it from PAUSED_LABELS", () => {
