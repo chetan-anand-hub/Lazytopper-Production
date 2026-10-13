@@ -84,7 +84,7 @@ describe("the grading transport refuses an oversized TOTAL before sending", () =
     expect(sent).toBe(1);
   });
 
-  it("★ CONTROL: a batch that passed before still passes (4.67 MB PDF + 3.33 MB photo ≈ 8.0 MB, the old worksheet cap)", async () => {
+  it("★ CONTROL: a batch that passed before still passes (3.5 MB PDF + 3 MB photo ≈ 8.7 MiB of body, above the old 8 MiB worksheet cap)", async () => {
     const req = {
       worksheetId: "w", questions: [],
       uploads: [

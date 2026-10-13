@@ -1070,6 +1070,20 @@ describe("15 · BUGFIX-1 · a failed grade is retryable", () => {
     // any other error still reads "could not grade your answers".
   });
 
+  it("★★ D141 F1 · an UploadTooLargeError at grade time shows its own sentence (a retry can never work), not the generic 'try again'", async () => {
+    const TOO_LARGE = "These files are too large together. Upload fewer pages or files at a time.";
+    const e = new Error(TOO_LARGE);
+    e.name = "UploadTooLargeError";
+    gradeWorksheet.mockRejectedValueOnce(e);
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toBe(TOO_LARGE);
+    expect(alert.textContent).not.toMatch(/could not grade your answers|try grading again/i);
+  });
+
   it("★ CONTROL: a GRADED result is not re-sent — the flow after success is unchanged", async () => {
     gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
     await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
