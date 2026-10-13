@@ -104,10 +104,10 @@ describe("GARBLE-1 · controls (each pattern can fail)", () => {
 });
 
 describe("GARBLE-1 · single-step ratchet (D159)", () => {
-  const SINGLE_STEP_PIN = 55;
+  const SINGLE_STEP_PIN = 19; // 14 Oct B SINGLE-STEP repair: 36 Science rows split into 3 steps (55 -> 19)
   const singleStep = served.filter((q) => (q.marks ?? 0) >= 3 && Array.isArray(q.solutionSteps) && q.solutionSteps.length === 1);
   const ledgered = new Set(BANK_STEPS_1.filter((e) => e.verdict === "SINGLE-STEP").map((e) => e.id));
-  it("the count of served >=3-mark one-step rows may only fall (pin 55)", () => {
+  it("the count of served >=3-mark one-step rows may only fall (pin 19)", () => {
     expect(singleStep.length).toBeLessThanOrEqual(SINGLE_STEP_PIN);
   });
   it("every such row is ledgered found/SINGLE-STEP: no NEW one may appear", () => {

@@ -86,7 +86,11 @@ export const ACIDS_BASES_SALTS_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-S-ACID-010", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "pH Scale", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Consider the following salts : (i) YCl (ii) NH4X (iii) ZCO3 (a) What would be the pH of the salt solution if in YCl, Y is sodium ? Give reason for your answer. (b) If in salt NH4X, X is nitrate, then its solution will give what colour with universal indicator ? Why ? (c) What would be the change in colour in blue litmus solution if ZCO3 is added to it and Z is potassium ?",
     answer: "(a) •7 • salt of strong acid and strong base (b) • Pink / orange • salt of weak base and strong acid (c) • No change / remain blue",
-    solutionSteps: ["[3 marks] (a) •7 • salt of strong acid and strong base (b) • Pink / orange • salt of weak base and strong acid (c) • No change / remain blue"],
+    solutionSteps: [
+      "[1 mark] (a) pH 7; salt of strong acid and strong base.",
+      "[1 mark] (b) Pink / orange; salt of weak base and strong acid.",
+      "[1 mark] (c) No change / remains blue.",
+    ],
     finalAnswer: "(a) •7 • salt of strong acid and strong base (b) • Pink / orange • salt of weak base and strong acid (c) • No change / remain blue",
     ncertRef: "PYQ 31/4/3 Q27", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "3" },

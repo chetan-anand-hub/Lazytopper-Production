@@ -217,25 +217,41 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CHEM-029", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Decomposition reactions require energy either in the form of heat, light or electricity for breaking down the reactants. Write an equation each for decomposition reactions where energy is supplied in the form of heat, light and electricity.",
     answer: "a. CaCO3(s) Heat CaO(s) + CO2(g) b. 2AgBr(s) sunlight 2Ag(s) + Br2(g) c. 2H2O(l) Electricity 2H2(g) + O2(g)",
-    solutionSteps: ["[3 marks] a. CaCO3(s) Heat CaO(s) + CO2(g) b. 2AgBr(s) sunlight 2Ag(s) + Br2(g) c. 2H2O(l) Electricity 2H2(g) + O2(g)"],
+    solutionSteps: [
+      "[1 mark] Energy as heat: CaCO₃(s) → CaO(s) + CO₂(g) (heat)",
+      "[1 mark] Energy as light: 2AgBr(s) → 2Ag(s) + Br₂(g) (sunlight)",
+      "[1 mark] Energy as electricity: 2H₂O(l) → 2H₂(g) + O₂(g) (electricity)",
+    ],
     ncertRef: "cbjesccq01 Q85", isCompetencyBased: false },
   // cbjesccq01 Q86 (Section C, 3mk)
   { id: "SCQ-S-CHEM-030", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "In the electrolysis of water: a. Name the gas collected at the cathode and anode respectively. b. Why is volume of gas collected at one electrode double than that at the other? Name this gas. c. How will you test this gas?",
     answer: "a. Hydrogen is collected at the cathode, oxygen is collected at the anode. b. It is because H2O contains hydrogen and oxygen in the ratio 2 : 1. c. Bring a burning matchstick near the gas, if the gas burns with 'pop' sound, the gas is H2.",
-    solutionSteps: ["[3 marks] a. Hydrogen is collected at the cathode, oxygen is collected at the anode. b. It is because H2O contains hydrogen and oxygen in the ratio 2 : 1. c. Bring a burning matchstick near the gas, if the gas burns with 'pop' sound, the gas is H2."],
+    solutionSteps: [
+      "[1 mark] a. Hydrogen is collected at the cathode, oxygen is collected at the anode.",
+      "[1 mark] b. It is because H₂O contains hydrogen and oxygen in the ratio 2 : 1.",
+      "[1 mark] c. Bring a burning matchstick near the gas; if the gas burns with 'pop' sound, the gas is H₂.",
+    ],
     ncertRef: "cbjesccq01 Q86", isCompetencyBased: true },
   // cbjesccq01 Q87 (Section C, 3mk)
   { id: "SCQ-S-CHEM-031", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Define the term decomposition reaction. Give one example each of thermal decomposition and electrolytic decomposition reactions.",
     answer: "Decomposition reaction: The reaction in which a compound is broken down into simpler elements or compounds: a. CaCO3(s) Heat CaO(s) + CO2(g) b. 2H2O(l) Electricity 2H2(g) + O2(g)",
-    solutionSteps: ["[3 marks] Decomposition reaction: The reaction in which a compound is broken down into simpler elements or compounds: a. CaCO3(s) Heat CaO(s) + CO2(g) b. 2H2O(l) Electricity 2H2(g) + O2(g)"],
+    solutionSteps: [
+      "[1 mark] Decomposition reaction: The reaction in which a compound is broken down into simpler elements or compounds.",
+      "[1 mark] Thermal decomposition: CaCO₃(s) → CaO(s) + CO₂(g) (heat)",
+      "[1 mark] Electrolytic decomposition: 2H₂O(l) → 2H₂(g) + O₂(g) (electricity)",
+    ],
     ncertRef: "cbjesccq01 Q87", isCompetencyBased: false },
   // cbjesccq01 Q88 (Section C, 3mk)
   { id: "SCQ-S-CHEM-032", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Name two salts that are used in black and white photography. Give equations for the reactions when these are exposed to sunlight.",
     answer: "AgBr (Silver bromide) and AgI (Silver iodide) are used in black and white photography. 2AgBr(s) sunlight 2Ag(s) + Br2(g) 2AgI(s) sunlight 2Ag(s) + I2(g)",
-    solutionSteps: ["[3 marks] AgBr (Silver bromide) and AgI (Silver iodide) are used in black and white photography. 2AgBr(s) sunlight 2Ag(s) + Br2(g) 2AgI(s) sunlight 2Ag(s) + I2(g)"],
+    solutionSteps: [
+      "[1 mark] AgBr (Silver bromide) and AgI (Silver iodide) are used in black and white photography.",
+      "[1 mark] 2AgBr(s) → 2Ag(s) + Br₂(g) (sunlight)",
+      "[1 mark] 2AgI(s) → 2Ag(s) + I₂(g) (sunlight)",
+    ],
     ncertRef: "cbjesccq01 Q88", isCompetencyBased: false },
   // cbjesccq01 Q89 (Section C, 3mk)
   { id: "SCQ-S-CHEM-033", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
@@ -247,7 +263,11 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CHEM-034", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Name the type of reactions represented by the following equations: a. CaO + H2O $ Ca(OH)2 b. 3BaCl2 + Al2(SO4) $ 3BaSO4 + 2AlCl3 c. 2FeSO4 Heat Fe2O3 + SO2 + SO3",
     answer: "a. Combination reaction, b. Double displacement reaction, c. Decomposition reaction.",
-    solutionSteps: ["[3 marks] a. Combination reaction, b. Double displacement reaction, c. Decomposition reaction."],
+    solutionSteps: [
+      "[1 mark] a. Combination reaction.",
+      "[1 mark] b. Double displacement reaction.",
+      "[1 mark] c. Decomposition reaction.",
+    ],
     ncertRef: "cbjesccq01 Q90", isCompetencyBased: false },
   // cbjesccq01 Q105 (Section D, 5mk)
   { id: "SCQ-S-CHEM-035", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",

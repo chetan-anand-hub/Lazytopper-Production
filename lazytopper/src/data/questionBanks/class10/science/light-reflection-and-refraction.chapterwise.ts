@@ -246,7 +246,11 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-LIGHT-033", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "A ray of light is incident obliquely on a glass slab. Draw a ray diagram showing the path of the light ray. Clearly, mark angle of incidence, angle of refraction, angle of emergence and lateral displacement of the ray. Give a formula to find refractive index of glass slab in terms of angle of incidence and angle of refraction.",
     answer: "Ray diagram of refraction through a glass slab with ∠i, ∠r, ∠e and the lateral displacement d marked; refractive index of glass n = sin i / sin r.",
-    solutionSteps: ["[3 marks] When a ray passes from an optically rarer to a denser medium it bends towards the normal, and vice versa. Ray diagram: the ray bends towards the normal on entering the slab and away from the normal on leaving it, emerging parallel to the incident ray; ∠i = angle of incidence, ∠r = angle of refraction, ∠e = angle of emergence, d = lateral displacement. Refractive index of glass: n = sin i / sin r."],
+    solutionSteps: [
+      "[1 mark] When a ray passes from an optically rarer to a denser medium it bends towards the normal, and vice versa. Ray diagram: the ray bends towards the normal on entering the slab and away from the normal on leaving it, emerging parallel to the incident ray.",
+      "[1 mark] In the ray diagram mark ∠i = angle of incidence, ∠r = angle of refraction, ∠e = angle of emergence and d = lateral displacement.",
+      "[1 mark] Refractive index of glass: n = sin i / sin r.",
+    ],
     ncertRef: "cbjesccq10 Q46", isCompetencyBased: false, },
   // cbjesccq10 Q47 (Section C, 3mk)
   { id: "SCQ-S-LIGHT-034", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -276,7 +280,11 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-LIGHT-038", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Water has refractive index 1.33 and alcohol has refractive index 1.36. Which of the two medium is optically denser? Give reason for your answer. Draw a ray diagram to show the path of a ray of light passing obliquely from water to alcohol. (b) The absolute refractive index of diamond is 2.42 and the absolute refractive index of glass is 1.50. Find the refractive index of diamond with respect to glass.",
     answer: "a. Alcohol (n = 1.36) is optically denser than water (n = 1.33); a ray passing obliquely from water into alcohol bends towards the normal. b. n(diamond w.r.t. glass) = 2.42/1.50 = 1.61",
-    solutionSteps: ["[3 marks] a. A higher refractive index means an optically denser medium. Here the refractive index of water is 1.33 and of alcohol is 1.36, so n(alcohol) > n(water): alcohol is optically denser than water. Ray diagram: a ray passing obliquely from water to alcohol bends towards the normal. b. ᵃn(d) = 2.42, ᵃn(g) = 1.50; refractive index of diamond with respect to glass ᵍn(d) = ᵃn(d)/ᵃn(g) = 2.42/1.50 = 1.61."],
+    solutionSteps: [
+      "[1 mark] a. A higher refractive index means an optically denser medium. Refractive index of water is 1.33 and of alcohol is 1.36, so n(alcohol) > n(water): alcohol is optically denser than water.",
+      "[1 mark] Ray diagram: a ray passing obliquely from water to alcohol bends towards the normal.",
+      "[1 mark] b. ᵃn(d) = 2.42, ᵃn(g) = 1.50; refractive index of diamond with respect to glass ᵍn(d) = ᵃn(d)/ᵃn(g) = 2.42/1.50 = 1.61.",
+    ],
     ncertRef: "cbjesccq10 Q51", isCompetencyBased: true, },
   // cbjesccq10 Q65 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-039", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",

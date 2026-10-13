@@ -68,7 +68,11 @@ export const CHEMICAL_REACTIONS_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-S-CHEM-008", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Silver chloride kept in a china dish turns grey in sunlight. (a) Write the colour of silver chloride when it was kept in the china dish. (b) Name the type of chemical reaction taking place and write the chemical equation for the reaction. (c) State one use of the reaction. Name one more chemical which can be used for the same purpose.",
     answer: "(a) White (b) Decomposition reaction / Photolytic decomposition 2AgCl —Sunlight→ 2Ag + Cl2 (c) used in black and white photography ; AgBr / Silver Bromide",
-    solutionSteps: ["[3 marks] (a) White (b) Decomposition reaction / Photolytic decomposition 2AgCl —Sunlight→ 2Ag + Cl2 (c) used in black and white photography ; AgBr / Silver Bromide"],
+    solutionSteps: [
+      "[1 mark] (a) White.",
+      "[1 mark] (b) Decomposition reaction / Photolytic decomposition: 2AgCl → 2Ag + Cl₂ (sunlight).",
+      "[1 mark] (c) Used in black and white photography; AgBr / Silver bromide.",
+    ],
     finalAnswer: "(a) White (b) Decomposition reaction / Photolytic decomposition 2AgCl —Sunlight→ 2Ag + Cl2 (c) used in black and white photography ; AgBr / Silver Bromide",
     ncertRef: "PYQ 31/2/1 Q27", isCompetencyBased: false,
     pyqYear: "2023", pyqSet: "1" },

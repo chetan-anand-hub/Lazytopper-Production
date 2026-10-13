@@ -11,7 +11,11 @@ export const METALS_NON_METALS_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-S-METAL-001", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Write down the balanced chemical equations for the following reactions and identify the type of reaction in each case. (a) Nitrogen gas is treated with hydrogen gas to form ammonia gas. (b) Lead nitrate is heated strongly to form lead monoxide, nitrogen dioxide and oxygen. (c) A copper wire is dipped in silver nitrate solution and a shining deposit of silver is produced.",
     answer: "(a) Combination reaction; N2 + 3H2 → 2NH3 (b) Decomposition reaction / Thermal Decomposition 2Pb(NO3)2 —Heat→ 2PbO + 4NO2 + O2 (c) Displacement reaction; Cu + 2AgNO3 → Cu(NO3)2 + 2Ag",
-    solutionSteps: ["[3 marks] (a) Combination reaction; N2 + 3H2 → 2NH3 (b) Decomposition reaction / Thermal Decomposition 2Pb(NO3)2 —Heat→ 2PbO + 4NO2 + O2 (c) Displacement reaction; Cu + 2AgNO3 → Cu(NO3)2 + 2Ag"],
+    solutionSteps: [
+      "[1 mark] (a) Combination reaction: N₂ + 3H₂ → 2NH₃",
+      "[1 mark] (b) Decomposition reaction / Thermal decomposition: 2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂ (heat)",
+      "[1 mark] (c) Displacement reaction: Cu + 2AgNO₃ → Cu(NO₃)₂ + 2Ag",
+    ],
     finalAnswer: "(a) Combination reaction; N2 + 3H2 → 2NH3 (b) Decomposition reaction / Thermal Decomposition 2Pb(NO3)2 —Heat→ 2PbO + 4NO2 + O2 (c) Displacement reaction; Cu + 2AgNO3 → Cu(NO3)2 + 2Ag",
     ncertRef: "PYQ 31/2/2 Q27", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "2" },

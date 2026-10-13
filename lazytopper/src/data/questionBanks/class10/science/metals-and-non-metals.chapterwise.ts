@@ -262,7 +262,11 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-METAL-035", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Explain the following statements: a. Most metal oxides are insoluble in water but some of these dissolve in water. What are these oxides and their solution in water called? b. At ordinary temperature the surface of metals such as magnesium, aluminium, zinc etc. is covered with a thin layer. What is the composition of this layer? State its importance. c. Some alkali metals can be cut with knife.",
     answer: "a. These oxides are basic in nature and their solution are called alkalies. b. The composition of this layer is metal oxide. It prevents the metal from corrosion. c. Sodium can be cut with a knife because it is a very soft metal.",
-    solutionSteps: ["[3 marks] a. These oxides are basic in nature and their solution are called alkalies. b. The composition of this layer is metal oxide. It prevents the metal from corrosion. c. Sodium can be cut with a knife because it is a very soft metal."],
+    solutionSteps: [
+      "[1 mark] a. These oxides are basic in nature and their solution are called alkalies.",
+      "[1 mark] b. The composition of this layer is metal oxide. It prevents the metal from corrosion.",
+      "[1 mark] c. Sodium can be cut with a knife because it is a very soft metal.",
+    ],
     ncertRef: "cbjesccq03 Q95", isCompetencyBased: true },
   // cbjesccq03 Q96 (Section C, 3mk)
   { id: "SCQ-S-METAL-036", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
@@ -274,7 +278,11 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-METAL-037", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Aluminium oxide and zinc oxide react with both acids and bases to produce salt and water. What are these oxides called? Write chemical equations in each case.",
     answer: "These are called amphoteric oxides: Al2O3 + 2NaOH → 2NaAlO2 + H2O ZnO + 2NaOH → Na2ZnO2 + H2O ZnO + 2HCl → ZnCl2 + H2O Al2O3 + 6HCl → 2AlCl3 + 3H2O",
-    solutionSteps: ["[3 marks] These are called amphoteric oxides: Al2O3 + 2NaOH → 2NaAlO2 + H2O ZnO + 2NaOH → Na2ZnO2 + H2O ZnO + 2HCl → ZnCl2 + H2O Al2O3 + 6HCl → 2AlCl3 + 3H2O"],
+    solutionSteps: [
+      "[1 mark] These are called amphoteric oxides.",
+      "[1 mark] Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O; Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O",
+      "[1 mark] ZnO + 2NaOH → Na₂ZnO₂ + H₂O; ZnO + 2HCl → ZnCl₂ + H₂O",
+    ],
     ncertRef: "cbjesccq03 Q97", isCompetencyBased: false },
   // cbjesccq03 Q98 (Section C, 3mk)
   { id: "SCQ-S-METAL-038", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
