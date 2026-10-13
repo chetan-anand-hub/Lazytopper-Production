@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -88,14 +88,59 @@ describe("the mark's source selection", () => {
   it("the large file is offered only at >= 1000px; the fallback is the lockup's file", () => {
     const { container } = renderWelcome();
     const picture = container.querySelector("picture");
-    const sources = picture?.querySelectorAll("source") ?? [];
-    expect(sources.length).toBe(1);
-    expect(sources[0].getAttribute("media")).toBe("(min-width: 1000px)");
-    expect(sources[0].getAttribute("srcset")).toMatch(/lazytopper-fingerprint-mark\.png$/);
+    const sources = Array.from(picture?.querySelectorAll("source") ?? []);
+    // PERF-2 PR-A: a lossless WebP twin comes first for each file, the PNG stays as the fallback.
+    expect(sources.map((x) => [x.getAttribute("media"), x.getAttribute("type"), (x.getAttribute("srcset") ?? "").split("/").pop()])).toEqual([
+      ["(min-width: 1000px)", "image/webp", "lazytopper-fingerprint-mark.webp"],
+      ["(min-width: 1000px)", null, "lazytopper-fingerprint-mark.png"],
+      [null, "image/webp", "lazytopper-fingerprint.webp"],
+    ]);
     const img = picture?.querySelector("img.lt-landing-bgmark");
     const lockup = container.querySelector("img.fp");
     expect(img?.getAttribute("src")).toBe(lockup?.getAttribute("src"));
     expect(img?.getAttribute("src")).toMatch(/lazytopper-fingerprint\.png$/);
+  });
+});
+
+/**
+ * PERF-2 PR-A — every brand image carries its file's TRUE width/height (the box the browser
+ * reserves) and has a lossless WebP twin on disk that is lighter than its PNG. CSS still sets the
+ * displayed size, so the attributes never stretch an image.
+ */
+describe("brand images: true dimensions and a lighter lossless twin", () => {
+  const NATURAL: Record<string, [number, number]> = {
+    "lazytopper-fingerprint.png": [240, 332],
+    "lazytopper-wordmark.png": [700, 200],
+    "lazytopper-tagline.png": [507, 56],
+  };
+  it("each lockup <img> has its natural width/height, and each twin exists and is smaller", () => {
+    const { container } = renderWelcome();
+    const brand = resolve(__dirname, "../../public/brand");
+    for (const img of Array.from(container.querySelectorAll("img.fp, img.word, img.tag, img.lt-landing-bgmark"))) {
+      const file = (img.getAttribute("src") ?? "").split("/").pop() ?? "";
+      const [w, h] = NATURAL[file];
+      expect([Number(img.getAttribute("width")), Number(img.getAttribute("height"))]).toEqual([w, h]);
+      const twin = statSync(resolve(brand, file.replace(/\.png$/, ".webp"))).size;
+      expect(twin).toBeLessThan(statSync(resolve(brand, file)).size);
+    }
+    // the faint mark's own file too (offered at >= 1000px)
+    expect(statSync(resolve(brand, "lazytopper-fingerprint-mark.webp")).size).toBeLessThan(statSync(resolve(brand, "lazytopper-fingerprint-mark.png")).size);
+  });
+  it("the wordmark is no longer stretched: it keeps the tagline's width (10px/11px high tagline = 90.536/99.589px) and takes its true height", () => {
+    renderWelcome();
+    const css = Array.from(document.querySelectorAll("style")).map((x) => x.textContent).join("\n");
+    // tagline file 507x56 drawn 10px (phone) / 11px (>= 640px) high: width = h * 507/56
+    expect(css).toContain(".lt-landing-brand .word{height:auto;width:90.536px;display:block}");
+    expect(css).toContain(".lt-landing-brand .word{height:auto;width:99.589px}");
+    expect(10 * (507 / 56)).toBeCloseTo(90.536, 3);
+    expect(11 * (507 / 56)).toBeCloseTo(99.589, 3);
+    // CONTROL: the old rule (fixed 21px / 24px height) is gone
+    expect(css).not.toMatch(/\.lt-landing-brand \.word\{height:2[14]px/);
+  });
+  it("CONTROL: the background mark is sized by CSS width with height:auto, so its height attribute cannot stretch it", () => {
+    renderWelcome();
+    const css = Array.from(document.querySelectorAll("style")).map((x) => x.textContent).join("\n");
+    expect(css).toMatch(/\.lt-landing-bgmark\{[^}]*width:82vw[^}]*height:auto/);
   });
 });
 
