@@ -23,6 +23,33 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-13 — SOFT404-1 (C2, §10 for `#1105`): FOLLOW-UPS RAISED
+
+### [FU-DEAD-INAPP-LINKS-SOFT404] — OPEN (D122 §3; D123)
+Two in-app links point at paths with no route. Client-side they still bounce home through the router's `*` (`HomeRedirect`); on a hard reload, since `#1105`, they show the 404 page. Both were already broken before the lane.
+- `lazytopper/src/pages/VisualAuditPage.tsx:47` `<Navigate to="/dashboard" replace />` (admin tool).
+- `lazytopper/src/pages/TeacherDashboardPage.tsx`: the "Trends" link `to: "/trends/10/Maths"` (line 282), and `backTo="/dashboard"` (lines 168 and 278).
+- **Status:** not edited (outside `#1105`'s allowlist). A small product lane: point them at real routes or remove them.
+
+### [FU-DYNAMIC-ROUTE-BAD-PARAM-200] — OPEN (D122 §6; D123)
+A bad dynamic segment still returns HTTP 200 with a normal-looking page, because the page normalises the param instead of showing a not-found state. The rewrite rules match `[^/]+`, so the host cannot tell. Soft-404 candidates:
+- `/highly-probable/:grade/:subject` (`normaliseSubject` falls to Maths), `/chapter-test/:g/:s/:topicKey` and `/full-mock/:g/:s` (`subjectFromParam` falls to Maths), `/practice/:g/:s` (falls to Maths), `/topic-hub/:grade/:subject` (invalid subject).
+- `/ai-mentor/:g/:s`, `/mentor/:g/:s`, `/topic-mock/...` (`Navigate`), and the dead but routed `/mock-paper/:slug`.
+- **Already correct (in-page not-found):** `/notes/:topicSlug`, `/legal/:slug`, `/topic-hub/:topicName` and `/topic-hub/:grade/:subject/:topicKey`, `/tutor/:grade/:subject/:topicKey`, `/u/:token`.
+- **Status:** not fixed. Separate lane; it needs a product call per route (not-found state vs. redirect).
+
+### [FU-LEGACY-PATH-308S] — OPEN (verifier SHOULD-FIX; cofounder 15:42Z)
+`/dashboard`, `/home` and `/worksheets` returned 200 (the shell) before `#1105` and are 404 now. If the Vercel logs show real traffic on them, a separate lane adds 308 redirects to the current routes. The cofounder's LIVE post and C2's LIVE post named this `[FU-SOFT404-LEGACY-PATH-LOGS]` in one place; this is the same follow-up.
+- **Status:** unmeasured. Step one is to read the logs; no redirect is added until a path shows traffic.
+
+### [FU-VERCEL-STATUS-MISSING-24F8] — OPEN, FOR THE RECORD (cofounder 15:30Z and 18:21Z)
+Vercel posted no commit status of any kind on `24f8b638` (not even pending), 8 minutes after the merge, although every earlier merge got `pending` within seconds. Production nonetheless served `24f8b638` from 15:39:34Z. A second platform-side blip: the Vercel preview of `#1106` head `9ac7baa3` failed 6 s after start, before any build, while the earlier head previewed fine and the squash `e62a0e1a` deployed.
+- **Rule that came out of it:** a missing Vercel status is not proof the deploy failed. Check `/version.json` on the live host; do not push an empty commit or a revert to force a deploy; the owner's Redeploy is the owner's call. (Memory note: no status 15 minutes after a trunk merge means ask the owner to redeploy.)
+- **Status:** no action needed; recorded so the next missing status is recognised as a known pattern.
+
+### [FU-SOFT404-DIRECT-404HTML-200] — OPEN, NOTE (C2, 14:17Z and 15:40Z)
+A direct request for `/404.html` returns 200: the file exists in the output root and Vercel serves it as a static file. The page carries `noindex` and nothing links it. Left as is.
+
 ## 2026-10-12 — SEO-LLM-1 (C1, §10 for `#1106`): FOLLOW-UPS RAISED
 
 ### [FU-PRACTICEHUB-DESC-PREDICTED] — NARROWED, STILL OPEN (update to the entry below)

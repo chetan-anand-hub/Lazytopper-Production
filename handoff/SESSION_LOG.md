@@ -1,3 +1,18 @@
+## 2026-10-13 — SOFT404-1 (C2): `#1105` `24f8b638` — LIVE
+
+★ **PROVENANCE.** Written by C2 (§10) from `#973`, the `#1105` PR comments and `git log`. Window: 12:52Z (queued) to 15:42Z (cofounder re-verify), 12 Oct. Spec `SOFT404-1.md` sha256 `fbce3998c1f4`.
+
+- **12:52Z QUEUED** (growth session's SEO/LLM requests; the cofounder curl-verified that `/this-does-not-exist-xyz`, `/llms-full.txt` and `/cbse/class-99` were 200 with the app shell on www).
+- **13:14Z CLAIM + P5–P10** at trunk `a8749218`: §0c.0 premise gate PASS, exit 0 (10 premises, 4/4 claim rows' anchors resolved, 6 open by design). P5: one `<Routes>` block, `<Route path>` string literals only, 51 tags. P6: in-page not-found exists for six dynamic routes and not for six others. P7: Vercel serves the filesystem before rewrites, and `404.html` in the output root is served with 404 when nothing matches. P8: `__asset-not-found__` falls through to the platform 404. P9: the tests that read `vercel.json`. P10: `vercel.json` and `public/404.html` are shipping paths for `vercel_ignore_build.mjs`.
+- **13:22Z D122:** mechanism approved (positive list generated from the `App.tsx` Routes text, a `--check` drift test, `404.html`, everything else byte-identical); **drop the `[Pp]` case classes**; non-route paths 404 as intended and `/app/practice` joins the sweep; the dead in-app links and the six bad-param routes become follow-ups; `/__/auth/*` is unused (authDomain); the unknown-asset body may become `404.html` but must not be JavaScript.
+- **13:27Z–14:16Z build:** CI went red on a CRLF-emitting generator (Windows-green, Linux-red); fixed to LF and pinned in the guard. The cofounder twice flagged D122 §1 as not yet applied (49 case-class sources still in `vercel.json`) and made it a **blocking audit item**; it was applied, and the verifier was re-run on the new head.
+- **14:17Z AUDIT-REQUEST** at `0670503a` (214-probe preview sweep, 0 differential on routed paths).
+- **15:11Z D123:** conditional APPROVE on head `1eb40397`, after the cofounder's own preview audit. Conditions: merge that head only, via REST with the SHA pinned, after an Opus verifier PASS on that exact head; 5 cold reads and the same sweep against www after deploy; revert at once on any unexpected 404.
+- **15:23Z** Opus `PASS-WITH-FOLLOW-UP` on `1eb40397`; board tail read in a separate call (no HOLD); **15:23:14Z MERGE `#1105` → `24f8b638`**.
+- **15:30Z deploy watch:** Vercel posted no status on `24f8b638`; www still served `e62a0e1a` (the old catch-all), so nothing was broken for students. Instruction: no empty commit, no revert; the owner looks at the dashboard. **15:39:34Z** production served `24f8b638` anyway.
+- **15:40Z LIVE `#1105`:** 5/5 cold reads; the 218-probe sweep against www; no unexpected 404. **15:42Z** the cofounder re-verified independently.
+- **Lessons.** (1) A hosting change that replaces a catch-all must be proved by a differential sweep of every routed shape against production, not by tests alone: the sweep, not the guard, is what shows nothing routed changed. (2) A generator that writes a file the repo stores with LF must emit LF; a Windows checkout hides the difference and only the Linux runner shows it. (3) Vercel's matcher is case-sensitive and React Router is not: duplicate-case URLs are a ruling to make explicitly (D122 §1), not a thing to preserve by default. (4) A missing Vercel commit status is not proof the deploy failed; check `/version.json` on the live host before acting, and never push to force a deploy.
+
 ## 2026-10-12 — SEO-LLM-1 (C1): `#1106` `e62a0e1a` — LIVE
 
 ★ **PROVENANCE.** Written by C1 (§10) from `#973`, the `#1106` comments and `git log`. Window: 12:52Z (queued) to 14:16Z (cofounder re-verify).

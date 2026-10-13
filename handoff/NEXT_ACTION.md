@@ -1,3 +1,14 @@
+## ★ 2026-10-13 — AFTER SOFT404-1 (`#1105`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone):** open Home, the Practice hub, a notes page, Check & Improve and (signed in) the admin Students page. All load normally. Then open `https://www.lazytopper.com/this-does-not-exist-xyz`: it reads "Page not found" and links Home, CBSE Class 10 and the Practice hub. (C2 did not run a signed-in or Google click-path: a controller browser cannot reach the Google popup.)
+- **GROWTH SESSION (about a week):** Search Console, Pages, "Soft 404", **Validate fix**. The count should trend down.
+- **EVERY CONTROLLER'S SMOKE LIST:** `/practice`, `/worksheets`, `/chapter-test`, `/notes`, `/dashboard` are now 404. Use `/practice-hub`, `/practice/worksheets`, `/chapter-test/10/Maths/real-numbers`, `/notes/real-numbers`. Case matters for static segments (`/PRICING` is 404).
+- **ANY LANE THAT ADDS A ROUTE** (PARENTS-1's `/for-parents` is next): add the `<Route path>` string literal in `App.tsx`, then run `writeVercelRewrites.ts --write` and commit the regenerated `vercel.json`. The drift test goes RED otherwise. A non-literal `path={...}` is refused by the parser on purpose.
+- **Cofounder / owner:** decide on `[FU-LEGACY-PATH-308S]` (do `/dashboard`, `/home`, `/worksheets` carry traffic in the Vercel logs? If yes, a separate lane adds 308s) and look at the Vercel dashboard for `[FU-VERCEL-STATUS-MISSING-24F8]` (the owner's Redeploy is the owner's call; never an empty commit).
+- **If anything that should be 200 turns out to be 404:** revert at once with the one-commit revert in CURRENT_STATE, then report on `#973`.
+
 ## ★ 2026-10-12 — AFTER SEO-LLM-1 (`#1106`) (written by C1 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
