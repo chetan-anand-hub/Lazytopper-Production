@@ -3,16 +3,12 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
   { id: "MNM-E01", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Physical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following metals is the best conductor of electricity?", options: ["Iron", "Copper", "Silver", "Aluminium"], answer: "Silver", explanation: "The correct answer is Silver. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Silver" , isCompetencyBased: false,
     solutionSteps: [
-      "Recall the physical properties of metals, specifically malleability and ductility.",
-      "Gold is known to be the most malleable and ductile metal, allowing it to be drawn into very thin wires and beaten into extremely thin sheets.",
-      "Therefore, among the given options, Gold exhibits the highest malleability and ductility.",
+      "Correct answer: Silver. Silver and copper are the best conductors of electricity, with silver the best of all metals.",
     ],
   },
   { id: "MNM-E02", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Physical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The most ductile metal is:", options: ["Iron", "Copper", "Gold", "Silver"], answer: "Gold", explanation: "The correct answer is Gold. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Gold" , isCompetencyBased: false,
     solutionSteps: [
-      "Recall that non-metals are generally poor conductors of electricity.",
-      "Identify exceptions to this rule. Graphite, an allotrope of carbon, has a layered structure with delocalized electrons.",
-      "These free electrons allow graphite to conduct electricity, making it a good conductor among non-metals.",
+      "Correct answer: Gold. Gold is the most ductile metal; a single gram of gold can be drawn into a wire about 2 km long.",
     ],
   },
   { id: "MNM-E03", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "When metals react with oxygen, they form:", options: ["Acidic oxides", "Basic oxides", "Neutral oxides", "No oxides"], answer: "Basic oxides", explanation: "The correct answer is Basic oxides. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Basic oxides" , isCompetencyBased: false,
@@ -31,16 +27,12 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
   },
   { id: "MNM-E05", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Sodium is stored under kerosene.\nReason (R): Sodium is highly reactive with air and water.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A) states that Aluminium is a highly reactive metal yet used for utensils, which is true.",
-      "Reason (R) states that Aluminium forms a thin, strong, and protective layer of aluminium oxide, which is also true.",
-      "The protective oxide layer prevents further reaction and corrosion, making Aluminium suitable for utensils. Thus, R is the correct explanation for A.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: sodium is kept immersed in kerosene oil. R is true: sodium reacts so vigorously with oxygen and moisture that it catches fire if kept in the open. Kerosene keeps air and water away from it, so R explains A.",
     ],
   },
   { id: "MNM-E06", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Physical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which non-metal is a liquid at room temperature?", options: ["Phosphorus", "Sulphur", "Bromine", "Iodine"], answer: "Bromine", explanation: "The correct answer is Bromine. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Bromine" , isCompetencyBased: false,
     solutionSteps: [
-      "Recall that non-metals are generally poor conductors of electricity.",
-      "Graphite is an allotrope of carbon and is an exception, possessing free electrons in its structure.",
-      "Therefore, Graphite is a good conductor of electricity among the given non-metals.",
+      "Correct answer: Bromine. Bromine is the only non-metal that is a liquid at room temperature.",
     ],
   },
   { id: "MNM-E07", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Why does aluminium not corrode even though it is reactive?", solutionSteps: [
@@ -49,9 +41,7 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Protective Al₂O₃ layer prevents further reaction" , isCompetencyBased: false },
   { id: "MNM-E08", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Ionic Bonding", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "An ionic compound is formed by the transfer of:", options: ["Protons", "Neutrons", "Electrons", "Photons"], answer: "Electrons", explanation: "The correct answer is Electrons. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Electrons" , isCompetencyBased: false,
     solutionSteps: [
-      "Sodium (Na) is a metal and tends to lose electrons to achieve a stable electron configuration.",
-      "Chlorine (Cl) is a non-metal and tends to gain electrons to achieve a stable electron configuration.",
-      "In ionic bond formation, sodium loses an electron to form Na+ ion, and chlorine gains that electron to form Cl- ion.",
+      "Correct answer: Electrons. An ionic compound forms when a metal atom transfers electrons to a non-metal atom, producing oppositely charged ions held by electrostatic attraction.",
     ],
   },
   { id: "MNM-E09", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Physical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Which of the following is a non-metal that is lustrous?", options: ["Sulphur", "Bromine", "Iodine", "Phosphorus"], answer: "Iodine", explanation: "Iodine is a non-metal but it is lustrous (NCERT exception). Sulphur, phosphorus and bromine are not lustrous. Therefore, the correct answer is Iodine.", finalAnswer: "Iodine" , isCompetencyBased: false,
@@ -64,9 +54,7 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
   },
   { id: "MNM-E10", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Extraction/Metallurgy", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The process of extracting metal from its ore is called:", options: ["Corrosion", "Metallurgy", "Alloy making", "Galvanisation"], answer: "Metallurgy", explanation: "The correct answer is Metallurgy. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Metallurgy" , isCompetencyBased: false,
     solutionSteps: [
-      "Highly reactive metals like sodium and aluminium have a strong affinity for oxygen and are difficult to reduce.",
-      "They cannot be reduced by common reducing agents like carbon, as they are more reactive than carbon.",
-      "Therefore, these metals are extracted by the electrolytic reduction of their molten chlorides or oxides.",
+      "Correct answer: Metallurgy. The various steps involved in extracting pure metals from their ores are together called metallurgy.",
     ],
   },
   { id: "MNM-E11", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Write the reaction of sodium with water. Why is this reaction vigorous?", solutionSteps: [
@@ -83,16 +71,12 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
   },
   { id: "MNM-E13", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Ionic Bonding", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The formula of magnesium chloride is:", options: ["MgCl", "Mg₂Cl", "MgCl₂", "Mg₂Cl₃"], answer: "MgCl₂", explanation: "The correct answer is MgCl₂. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "MgCl₂" , isCompetencyBased: false,
     solutionSteps: [
-      "Ionic compounds have strong electrostatic forces holding ions in a fixed lattice structure in the solid state.",
-      "Due to fixed positions, ions cannot move freely in the solid state, preventing electrical conduction.",
-      "In molten state or aqueous solution, ions are mobile and can conduct electricity.",
+      "Correct answer: MgCl₂. Magnesium forms Mg²⁺ and chlorine forms Cl⁻, so two chloride ions balance one magnesium ion, giving MgCl₂.",
     ],
   },
   { id: "MNM-E14", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Physical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which metal can be cut with a knife?", options: ["Iron", "Sodium", "Copper", "Aluminium"], answer: "Sodium", explanation: "The correct answer is Sodium. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Sodium" , isCompetencyBased: false,
     solutionSteps: [
-      "Most metals are solid at room temperature, for example, Sodium, Calcium, and Gold.",
-      "Mercury is an exception among metals.",
-      "Mercury exists in a liquid state at room temperature.",
+      "Correct answer: Sodium. Sodium (like lithium and potassium) is so soft that it can be cut with a knife.",
     ],
   },
   { id: "MNM-E15", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Write the reaction when iron reacts with steam. Name the product.", solutionSteps: [
@@ -116,9 +100,7 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Na→Na⁺+e⁻; Cl+e⁻→Cl⁻; ionic bond between Na⁺ and Cl⁻" , visualExplainerId: "science-metals-nonmetals-ionic-bonding", isCompetencyBased: false },
   { id: "MNM-M04", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Gold and platinum are used in jewellery.\nReason (R): They are least reactive metals and do not tarnish easily.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Analyze Assertion: Zinc is above copper in the reactivity series, so it can displace copper from its salt solution. Assertion is true.",
-      "Analyze Reason: Zinc is indeed placed above copper in the reactivity series, indicating it is more reactive. Reason is true.",
-      "Conclusion: Reason correctly explains why zinc, being more reactive, displaces copper.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: gold and platinum are used to make jewellery. R is true: they are among the least reactive metals, so they are not attacked by air and moisture and keep their lustre. This is why they are chosen for jewellery, so R explains A.",
     ],
   },
   { id: "MNM-M05", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing", questionText: "What is an alloy? Why are alloys made? Give two examples with their composition.", solutionSteps: [
@@ -144,9 +126,7 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Zinc coating on iron to prevent rusting" , isCompetencyBased: false },
   { id: "MNM-M09", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Extraction/Metallurgy", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Aluminium is extracted by electrolytic reduction.\nReason (R): Aluminium is too reactive to be reduced by carbon.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Analyze Assertion: Roasting is the process of heating sulphide ores strongly in the presence of air to convert them to oxides. Assertion is true.",
-      "Analyze Reason: Roasting requires heating in the presence of air, not absence. Heating in absence of air is calcination. Reason is false.",
-      "Conclusion: Assertion is true, but Reason is false.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: aluminium is obtained by electrolytic reduction of its molten oxide. R is true: aluminium is high in the reactivity series and has more affinity for oxygen than carbon, so carbon cannot reduce its oxide. R therefore explains A.",
     ],
   },
   { id: "MNM-M10", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "An ore was heated strongly. A gas was produced that turned lime water milky. The residue was then reduced with carbon.\n(i) What type of ore is this?\n(ii) Write the equation for thermal decomposition (e.g., for ZnCO₃).\n(iii) Write the reduction equation.\n(iv) Name the process of heating the ore.", solutionSteps: [
@@ -162,9 +142,7 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Na > Zn > Fe > Cu > Au" , isCompetencyBased: true },
   { id: "MNM-M12", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Ionic Bonding", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "Ionic compounds are generally:", options: ["Soluble in organic solvents", "Good conductors in solid state", "Have low melting points", "Soluble in water"], answer: "Soluble in water", explanation: "The correct answer is Soluble in water. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Soluble in water" , isCompetencyBased: true,
     solutionSteps: [
-      "Define ionic bonding: It involves the complete transfer of electrons, typically between a metal and a non-metal.",
-      "Evaluate options: CH4, HCl, O2 are formed by sharing electrons (covalent bonding) between non-metals.",
-      "Identify ionic compound: NaCl is formed by transfer of electrons from Na (metal) to Cl (non-metal), hence it is ionic.",
+      "Correct answer: Soluble in water. Ionic compounds are generally soluble in water (and insoluble in solvents such as kerosene and petrol) because water molecules separate their ions.",
     ],
   },
   { id: "MNM-M13", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Extraction/Metallurgy", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "What is thermite reaction? Where is it used? Write the equation.", solutionSteps: [
@@ -174,9 +152,7 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Fe₂O₃ + 2Al → Al₂O₃ + 2Fe; used in railway track welding" , isCompetencyBased: false },
   { id: "MNM-M14", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Iron objects are galvanised to prevent rusting.\nReason (R): Zinc is more reactive than iron and acts as a sacrificial anode.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): Aluminium is a highly reactive metal, yet it is used to make utensils. This statement is true because aluminium forms a protective oxide layer.",
-      "Reason (R): Aluminium forms a thin, strong, and protective layer of aluminium oxide which prevents further corrosion. This statement is also true.",
-      "The reason (R) correctly explains why reactive aluminium is used for making utensils, as the oxide layer makes it resistant to corrosion.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: galvanisation, coating iron with zinc, protects it from rusting. R is true: zinc is more reactive than iron, so it corrodes in preference to iron and protects it even if the coating is broken. R therefore explains A.",
     ],
   },
   { id: "MNM-M15", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Physical Properties", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Give reasons: (i) Platinum, gold and silver are used to make jewellery. (ii) Copper and aluminium are used to make electric wires.", solutionSteps: [
@@ -244,16 +220,12 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "(i) No reaction (Cu < Fe) (ii) Fe displaces Cu; blue → green" , isCompetencyBased: true },
   { id: "MNM-E16", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Physical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is a property of non-metals?", options: ["Malleability","Ductility","Poor conductor of electricity","High melting point"], answer: "Poor conductor of electricity", explanation: "The correct answer is Poor conductor of electricity. Non-metals are poor conductors of heat and electricity (except graphite).", finalAnswer: "Non-metals are poor conductors of heat and electricity (except graphite).", isCompetencyBased: false,
     solutionSteps: [
-      "Recall the general physical properties of non-metals: they are typically non-lustrous.",
-      "Identify exceptions to this rule: Iodine is a non-metal that exhibits a metallic lustre.",
-      "Therefore, among the given options (Sulphur, Oxygen, Iodine, Carbon as coal), Iodine is the lustrous non-metal.",
+      "Correct answer: Poor conductor of electricity. Non-metals are generally poor conductors of heat and electricity; graphite is the only exception.",
     ],
   },
   { id: "MNM-E17", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following metals does not react with dilute acids?", options: ["Zinc","Iron","Copper","Aluminium"], answer: "Copper", explanation: "The correct answer is Copper. Copper is below hydrogen in reactivity series; does not displace H from dilute acids.", finalAnswer: "Copper is below hydrogen in reactivity series; does not displace H from dilute acids.", isCompetencyBased: false,
     solutionSteps: [
-      "Analyze the reactivity of metals with water: Sodium reacts vigorously with cold water, Calcium reacts less violently, and Iron reacts with steam.",
-      "Consider Copper's reactivity: Copper is less reactive than hydrogen and does not react with cold water or steam.",
-      "Therefore, the statement 'Copper reacts with cold water to produce copper hydroxide and hydrogen gas' is incorrect.",
+      "Correct answer: Copper. Copper is less reactive than hydrogen (below it in the reactivity series), so it cannot displace hydrogen from dilute acids.",
     ],
   },
   { id: "MNM-AR06", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Sodium is kept in kerosene oil.\nReason (R): Sodium is highly reactive and reacts vigorously with moisture and oxygen in air, and kerosene prevents contact with these.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Na is highly reactive (R) so stored in kerosene to prevent air/water contact (A).", isCompetencyBased: true,
@@ -265,10 +237,7 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
   },
   { id: "MNM-E18", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following metals is used to coat iron to prevent corrosion (galvanisation)?", options: ["Copper","Tin","Zinc","Silver"], answer: "Zinc", explanation: "The correct answer is Zinc. Galvanisation: iron coated with zinc; zinc is more reactive (sacrificial anode) and protects iron.", finalAnswer: "Galvanisation: iron coated with zinc; zinc is more reactive (sacrificial anode) and protects iron.", isCompetencyBased: false,
     solutionSteps: [
-      "Recall the reactivity series of metals, which lists metals in decreasing order of their reactivity.",
-      "Identify the positions of the given metals (Copper, Iron, Zinc, Potassium) in the reactivity series.",
-      "Potassium is placed highest in the reactivity series among Copper, Iron, and Zinc.",
-      "Therefore, the metal highest in the reactivity series is the most reactive.",
+      "Correct answer: Zinc. Galvanisation is coating iron or steel with a thin layer of zinc; zinc is more reactive than iron, so it protects iron from rusting even if the coating is scratched.",
     ],
   },
   { id: "MNM-D03", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Describe the reactivity series of metals. Explain with reactions how reactivity affects: (i) reaction with oxygen, (ii) reaction with water, (iii) displacement of metals from salt solutions.", answer: "Reactivity series: K>Na>Mg>Al>Zn>Fe>Cu>Ag>Au; determines reactions with O2, water, and acid; more reactive displaces less reactive", solutionSteps: [
