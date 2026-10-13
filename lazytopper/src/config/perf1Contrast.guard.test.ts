@@ -51,11 +51,27 @@ function tokenIn(text: string, pattern: RegExp): string {
   return m[1].trim();
 }
 
+/** EVERY value captured by the pattern's first group (a first-match guard pins only one occurrence). */
+function allIn(text: string, pattern: RegExp): string[] {
+  const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
+  const out = [...text.matchAll(new RegExp(pattern.source, flags))].map((m) => m[1].trim());
+  if (out.length === 0) throw new Error(`token not found: ${pattern}`);
+  return out;
+}
+
+/** The value of the `const NAME = "…"` whose NAME the pattern captures (reads what a use site really references). */
+function constNamedBy(text: string, pattern: RegExp): string {
+  const name = tokenIn(text, pattern);
+  return tokenIn(text, new RegExp(`const ${name} = "([^"]+)"`));
+}
+
 interface Case {
   name: string;
   fg: string;
   bg: string;
   old: string;
+  /** The previous value already cleared 4.5:1 (nothing to fail), so there is no control for it. */
+  alreadyAA?: boolean;
 }
 
 const NOTE = read("components/notes/Note.tsx");
@@ -77,7 +93,7 @@ const CASES: Case[] = [
   { name: "cya muted text", fg: tokenIn(CYA, /--cya-ink3:\s*(#[0-9a-f]{6})/i), bg: "#f4f7fb", old: "#71879f" },
   { name: "cya green button (white text)", fg: "#ffffff", bg: tokenIn(CYA, /--cya-g:\s*(#[0-9a-f]{6})/i), old: "#0b8f50" },
   { name: "cbse muted text", fg: tokenIn(CBSE, /--ink3:\s*(#[0-9a-f]{6})/i), bg: "#f4f7fb", old: "#71879f" },
-  { name: "cbse green text", fg: tokenIn(CBSE, /--g:\s*(#[0-9a-f]{6})/i), bg: "#f4f7fb", old: "#0b8f50" },
+  { name: "cbse green (outline / marker colour; also AA as text)", fg: tokenIn(CBSE, /--g:\s*(#[0-9a-f]{6})/i), bg: "#f4f7fb", old: "#0b8f50" },
   { name: "testimonial summary", fg: tokenIn(TV, /--tv-g:\s*(#[0-9a-f]{6})/i), bg: "#f4f7fb", old: "#0b8f50" },
   { name: "locked-steps note", fg: tokenIn(LOCKED, /^\s*color:\s*(hsl\([^)]+\))/m), bg: "hsl(220, 20%, 97%)", old: "#7e8696" /* the rendered colour of 46% lightness at opacity 0.85, as axe measured it */ },
   { name: "public legal footer", fg: tokenIn(LEGAL, /\.lt-public-legal \{[^}]*?color:\s*(hsl\([^)]+\))/), bg: "#f4f7fb", old: "hsl(220, 12%, 52%)" },
@@ -89,7 +105,13 @@ const CASES: Case[] = [
   { name: "mode chip: worksheet", fg: accent("worksheet", "ink"), bg: tint("worksheet"), old: "hsl(205, 70%, 52%)" },
   { name: "mode chip: hpq", fg: accent("hpq", "ink"), bg: tint("hpq"), old: "hsl(255, 50%, 58%)" },
   { name: "mode chip: full", fg: accent("full", "ink"), bg: tint("full"), old: "hsl(340, 62%, 56%)" },
-  { name: "hpq competency chip", fg: tokenIn(HPQ, /color: "(hsl\(35, 80%, \d+%\))"/), bg: "hsl(43, 90%, 94%)", old: "hsl(35, 80%, 35%)" },
+  ...allIn(HPQ, /color: "(hsl\(35, 80%, \d+%\))"/).map((fg, i) => ({ name: `hpq competency chip #${i + 1}`, fg, bg: "hsl(43, 90%, 94%)", old: "hsl(35, 80%, 35%)" })),
+  ...allIn(HPQ, /: "(hsl\(152, \d+%, \d+%\))",\n\s+color: answerCheckOpen/).map((bg, i) => ({ name: `hpq Check my answer button #${i + 1}`, fg: "#ffffff", bg, old: "hsl(152, 55%, 45%)" })),
+  ...(["quick", "worksheet", "hpq", "full"] as const).map((k) => ({ name: `mode CTA / hint ink on white: ${k}`, fg: accent(k, "ink"), bg: "#ffffff", alreadyAA: k === "hpq", old: { quick: "hsl(152, 55%, 45%)", worksheet: "hsl(205, 70%, 52%)", hpq: "hsl(255, 50%, 58%)", full: "hsl(340, 62%, 56%)" }[k] })),
+  { name: "Check & Improve link on white (the const the link names)", fg: constNamedBy(PRACTICE, /to=\{checkPath\}\s+style=\{\{ color: (\w+),/), bg: "#ffffff", old: "hsl(152, 55%, 45%)" },
+  ...allIn(PRACTICE, /background: `linear-gradient\(135deg, \$\{(PRIMARY_GREEN_DARK)\}, (hsl\([^)]+\))\)`,\n\s+color: "#fff",\n\s+fontSize: 13\.5/).slice(0, 1).map(() => ({ name: "Run targeted drill gradient, light end", fg: "#ffffff", bg: tokenIn(PRACTICE, /const PRIMARY_GREEN_DARK = "([^"]+)"/), old: "hsl(152, 55%, 45%)" })),
+  { name: "Run targeted drill gradient, dark end", fg: "#ffffff", bg: tokenIn(PRACTICE, /\$\{PRIMARY_GREEN_DARK\}, (hsl\([^)]+\))\)`,\n\s+color: "#fff",\n\s+fontSize: 13\.5/), old: "hsl(152, 55%, 45%)" },
+  { name: "HPQ step-number badge", fg: "#ffffff", bg: tokenIn(HPQ, /background: "(hsl\(152, \d+%, \d+%\))",\n\s+color: "#ffffff",\n\s+display: "flex",\n\s+alignItems: "center",\n\s+justifyContent: "center",\n\s+fontSize: "0\.75rem"/), old: "hsl(152, 55%, 45%)" },
   { name: "hpq active subject pill", fg: "#ffffff", bg: tokenIn(HPQ, /background: active \? "(hsl\(152, \d+%, \d+%\))" : "transparent"/), old: "hsl(152, 55%, 42%)" },
 ];
 
@@ -98,12 +120,30 @@ describe("PERF-1 F4 contrast tokens", () => {
     it(`${c.name}: at least 4.5:1`, () => {
       expect(ratio(c.fg, c.bg), `${c.fg} on ${c.bg}`).toBeGreaterThanOrEqual(4.5);
     });
-    it(`CONTROL ${c.name}: the previous value fails the same check`, () => {
+    it(`CONTROL ${c.name}: ${c.alreadyAA ? "the previous value was already AA (asserted, not skipped)" : "the previous value fails the same check"}`, () => {
+      if (c.alreadyAA) {
+        // already AA before PERF-1: assert that fact instead of skipping, so the case still runs
+        expect(ratio(c.old, c.bg)).toBeGreaterThanOrEqual(4.5);
+        return;
+      }
       const oldFg = c.fg === "#ffffff" ? "#ffffff" : c.old;
       const oldBg = c.fg === "#ffffff" ? c.old : c.bg;
       expect(ratio(oldFg, oldBg)).toBeLessThan(4.5);
     });
   }
+
+  it("PR-3: no raw accent text is left in the Practice Hub cards, and the link is not the old green", () => {
+    expect(PRACTICE).not.toMatch(/color: tone\.accent,\n\s+(background: tone\.tint|cursor)/);
+    expect(PRACTICE).not.toMatch(/to=\{checkPath\}\s+style=\{\{ color: PRIMARY_GREEN,/);
+    expect(PRACTICE).toContain("color: tone.ink,");
+  });
+
+  it("PR-3: the locked-steps note is not dimmed below its own colour (opacity 1)", () => {
+    expect(LOCKED).toMatch(/opacity:\s*1;/);
+    expect(LOCKED).not.toMatch(/opacity:\s*0\.8/);
+    // CONTROL: the detector sees the old dimming
+    expect("opacity: 0.85;").toMatch(/opacity:\s*0\.8/);
+  });
 
   it("the navbar's muted token is darkened inside the navbar only", () => {
     const m = /\[data-theme="light"\] \.navbar \{\s*--text-muted:\s*rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/.exec(STYLES);
