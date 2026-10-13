@@ -23,6 +23,20 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-13 — PERF-1 FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-NOTES-TBT-MOUNT] — notes pages are slow because of the MOUNT, not KaTeX (owner: PERF-2)
+`/notes/trigonometry`: `renderToString` ≈ 366 ms (~4% of ~8.6 s active at 4× CPU); one layout of 4,076 / 4,076 objects (3,289 ms) is the PRERENDERED HTML laid out before any JS (1.5 s after PERF-1); a second layout of 854 ms; one `setTimeout`-scheduled React render + commit task of ~2 s (Lighthouse trace, unthrottled). `/cbse/class-10` has no long task above 0.72 s. Hypothesis for PERF-2 (D149): `hydrateRoot` for prerendered routes instead of `createRoot`; prove zero hydration warnings on every prerendered route and fall back per route on a known mismatch; fallback option: mount only the active tab. Rejected in PERF-1: deferring off-screen formulas (DOM 4,177 → 1,408, TBT unchanged within noise).
+
+### [FU-PERF1-CONTRAST-RESIDUAL] — contrast guard holes and Practice Hub text still under 4.5:1 (owner: C2, PERF-1 PR-3)
+(1) `perf1Contrast.guard.test.ts` matches the FIRST HPQ amber only (reverting the second at `HighlyProbableQuestions.tsx` stays green), and does not guard the "Check my answer" background or the locked-steps `opacity: 1`: match every occurrence and add those cases. (2) The Practice Hub ModeCard CTA and disabled-hint text use `tone.accent` on white (quick 2.70, worksheet 3.33, full 4.17) and the "Check & Improve" link is `PRIMARY_GREEN` (2.70): use `tone.ink` / `PRIMARY_GREEN_DARK`. (3) The guard case "cbse green text" reads `--g`, which `.lt-cbse` uses only for outline/dot/marker: relabel. (4) `App.tsx` bottom-nav "Practice" label (`#34b277` on white, 2.69:1) and `Welcome.tsx` home contrast need protected files: PERF-2.
+
+### [FU-FORPARENTS-CONTRAST] — `/for-parents` carries the two old tokens (owner: C2 or the next lane that touches `forParents.css`)
+`src/pages/forParents.css` declares `--fp-ink3: #71879f` (3.4:1 on `#f4f7fb`) and `--fp-g: #0b8f50` (white on it 4.15:1), the same values `#1129` raised on `/cbse/class-10` and `/check-your-answer`. Not changed in PERF-1 (another lane's file).
+
+### [FU-KATEXEAGER-COMMENT-STALE] — two comments still say `NoteRichText` imports KaTeX statically (owner: any lane touching them)
+`src/components/question/katexEager.ts:13-14` ("Notes … already load KaTeX statically through NoteRichText") and the header of `MathText.katexOnDemand.test.tsx:7-8` (describes the control as reading `NoteRichText`'s static import; line 60 now reads `katexEager.ts`). Comment-only.
+
 ## 2026-10-13 — PARENTS-1 (C2, §10 for `#1121`): FOLLOW-UPS RAISED
 
 ### [FU-FOR-PARENTS-VIDEO-CSS-DUPLICATE] — OPEN (C2, in-lane decision)

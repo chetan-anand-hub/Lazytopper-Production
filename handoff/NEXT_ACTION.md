@@ -1,3 +1,14 @@
+## ★ 2026-10-13 — AFTER PERF-1 (`#1128` `29c2c2cf`, `#1129` `f9b447b0`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **OWNER (phone):** (1) open `https://www.lazytopper.com/notes/trigonometry`: the formulas look exactly as before and the page scrolls; print one note (Share → Print) and check its figures appear. (2) Open `https://www.lazytopper.com/highly-probable/10/Maths` on a phone: the "← Back" button at the top is now a readable light pill with dark text (it was white on near-white). Open a dark page such as `/pricing`: its Back button is unchanged.
+- **GROWTH SESSION:** re-run Lighthouse mobile (3-run median) on `/notes/trigonometry`, `/notes/real-numbers`, `/notes/electricity`, `/cbse/class-10`, `/check-your-answer`, `/highly-probable/10/Maths`, `/practice-hub`. Expect: no `katex-*.js` on notes pages, A11y up on the five pages named in `#1129`; the notes TBT target is NOT met by PERF-1 (see PERF-2).
+- **PERF-2 (next performance lane; owner-granted protected files, cofounder APPROVE before merge):** takes `[FU-NOTES-TBT-MOUNT]`. The hypothesis to test is `hydrateRoot` for prerendered routes instead of `createRoot` (it reuses the prerendered DOM and skips the 1.5 s re-layout and the commit); prove zero hydration warnings on every prerendered route and fall back to `createRoot` per route on a known mismatch. Its P6 table is on `#973`: Firebase ≈ 155 KB gz, `re2js` 43 KB gz (importer not yet found), Login 14, syllabus 14, `qrcode` 7 are not needed on a public page.
+- **Any lane that adds colour to a surface PERF-1 touched:** `config/perf1Contrast.guard.test.ts` reads the tokens from their source files and fails below 4.5:1; raise the new colour, do not lower the guard. A new accent for the Practice Hub mode cards needs an `ink` tone (the chips sit on the tint).
+- **Any lane that edits a note spec's formulas:** run `npx tsx scripts/genNoteMath.ts` (add `--check` to verify) and commit the changed `noteMath/<slug>.json`; the guard fails until the map matches. The same command regenerates `noteFigureSizes.generated.json` after a figure asset is added.
+- **Any lane that changes `TestimonialVideo`'s thumbnail:** the `<picture>` names `…-640x360`, `…-960x540`, `…-1280x720` in `.webp` and `.jpg`; `TestimonialVideo.test.tsx` pins the exact srcset and that each WebP is lighter than its JPEG.
+
 ## ★ 2026-10-13 — AFTER PARENTS-1 (`#1121`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

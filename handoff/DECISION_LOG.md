@@ -1,3 +1,17 @@
+## 2026-10-13 — PERF-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1128` and `#1129`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| *(spec, 13 Oct)* | PERF-1 = F1 (notes math without the re-render cost), F3 (non-protected images), F4 (accessibility). The notes target is TBT < 600 ms and Perf ≥ 70; F2 and the home brand images are PERF-2 (protected files) | Lighthouse 12.2.1 mobile, growth session `claude/PAGESPEED_FIX_REQUEST_2026-10-13.md` |
+| **149** | Option 1: this PR ships F1(a) precomputed math (byte-identical guard + mutation mandatory), F3 and F4; the notes targets move to PERF-2 with `[FU-NOTES-TBT-MOUNT]` and the `hydrateRoot` hypothesis; the Lighthouse table stays same-machine ratios | C2 measured first (P6) and found KaTeX is ~4% of the cost; option 2 (mount only the active tab) changes the client DOM and is a PERF-2 fallback |
+| **150** | Record `[FU-NOTES-TBT-MOUNT]` in `#1128`; post 390/1280 before/after screenshots of the return-bar Back button for Important Questions and a dark page; approved only if dark pages look unchanged or better | The Back-button restyle is a visible change on every page that uses the shared bar |
+| *(C2, in-lane)* | Dropped option (b) (formulas enter the DOM near the viewport) before any merge | Removed two thirds of the DOM and moved TBT by nothing measurable; the SEO capture needs every formula in the DOM and `navigator.webdriver` cannot distinguish it from Lighthouse |
+| *(C2, in-lane)* | The Back-button restyle was scoped to `.lt-hpq-page` and the dark default restored | The first version made dark pages' Back button a bright pill |
+| *(C2, in-lane)* | The `gen:note-math` `package.json` script was dropped; the generator runs as `npx tsx scripts/genNoteMath.ts` | `package.json` overlapped two open drafts (lane-overlap) |
+| *(C2, in-lane)* | `#1129` merged on `PASS-WITH-FOLLOW-UP`, the guard holes and the Practice Hub residual text logged as `[FU-PERF1-CONTRAST-RESIDUAL]` for a PR-3 | 0 MUST-FIX; the cofounder had asked for `#1129` to merge before WS-DRAW-1 was pushed |
+
 ## 2026-10-13 — PARENTS-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1121`, plus the decisions C2 itself made, with reasons.
