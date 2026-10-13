@@ -1359,3 +1359,92 @@ test('§11.11 ★ M1: if the ATTEMPT abort lands mid-stream after text arrived, 
     await assert.rejects(client.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 5000 }), (e) => e.status === 504);
   } finally { console.warn = origWarn; noText.restore(); }
 });
+
+/* ── §11.12-14 · D136 (b) no metering zeros; D136 (a) the non-stream path is byte-identical ───────────────── */
+
+test('§11.12 ★ D136(b): a stream that carries NO usageMetadata is metered from a flagged ESTIMATE, never zeros; a stream WITH usage and a normal call are NOT flagged', async () => {
+  const PROMPT = [{ role: 'user', parts: [{ text: 'x'.repeat(400) }, { inlineData: { mimeType: 'application/pdf', data: 'QUJD' } }] }];
+  const { res } = sseResponse([sseChunk('y'.repeat(200))]); // no usageMetadata anywhere
+  const f = stubFetch([() => res]);
+  try {
+    const sink = recorder();
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: sink });
+    const out = await client.callGemini('gemini-2.5-flash', PROMPT, { streamDeadlineMs: 5000, workloadClass: 'detect-question' });
+    assert.equal(out.text.length, 200);
+    const rec = client.getTokenTelemetry()[0];
+    assert.equal(rec.estimated, true, 'flagged as an estimate');
+    assert.equal(rec.promptTokenCount, 100 + 1000, 'prompt text chars / 4 + 1000 per inline PDF/image part');
+    assert.equal(rec.candidatesTokenCount, 50, 'received chars / 4');
+    assert.equal(rec.thoughtsTokenCount, 0);
+    assert.equal(rec.totalTokenCount, 1150);
+    assert.ok(rec.promptTokenCount > 0 && rec.candidatesTokenCount > 0, 'never zeros');
+    assert.ok(sink.events.some((e) => /^gemini_tokens\.estimated\./.test(e.event)), 'telemetry counts how many calls were estimated');
+    // no content in the record
+    assert.equal(JSON.stringify(rec).includes('xxxx'), false);
+    assert.equal(JSON.stringify(rec).includes('yyyy'), false);
+  } finally { f.restore(); }
+  // CONTROLS: measured usage on a stream, and a normal call, carry no `estimated` key at all
+  const { res: res2 } = sseResponse([sseChunk('{}', { usageMetadata: OK_USAGE, finishReason: 'STOP' })]);
+  const f2 = stubFetch([() => res2]);
+  try {
+    const c2 = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await c2.callGemini('gemini-2.5-flash', CONTENTS, { streamDeadlineMs: 5000 });
+    const r2 = c2.getTokenTelemetry()[0];
+    assert.equal('estimated' in r2, false);
+    assert.equal(r2.totalTokenCount, 2691, 'measured usage is used as is');
+  } finally { f2.restore(); }
+  const f3 = stubFetch([jsonResponse(okBody())]);
+  try {
+    const c3 = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await c3.callGemini('gemini-2.5-flash', CONTENTS, {});
+    assert.equal('estimated' in c3.getTokenTelemetry()[0], false);
+  } finally { f3.restore(); }
+});
+
+test('§11.13 ★ D136(a): WITHOUT streamDeadlineMs the outgoing request is BYTE-IDENTICAL — exact URL, exact headers, exact body string — and the result has exactly {text, raw, finishReason}', async () => {
+  const original = globalThis.fetch;
+  const wire = [];
+  globalThis.fetch = async (url, opts) => { wire.push({ url: String(url), method: opts.method, headers: opts.headers, body: opts.body }); return jsonResponse(okBody(OK_USAGE, '{"a":1}')); };
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    const schema = { type: 'OBJECT', properties: { a: { type: 'NUMBER' } } };
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, {
+      temperature: 0.1, maxOutputTokens: 4096, responseMimeType: 'application/json', responseSchema: schema,
+      thinkingConfig: { thinkingBudget: 0 }, workloadClass: 'detect-question', callClass: 'tutor', marks: 3,
+    });
+    assert.equal(wire.length, 1);
+    assert.equal(wire[0].url, 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+    assert.equal(wire[0].method, 'POST');
+    assert.deepEqual(wire[0].headers, { 'Content-Type': 'application/json', 'x-goog-api-key': 'test-key' });
+    assert.equal(
+      wire[0].body,
+      '{"contents":[{"role":"user","parts":[{"text":"hi"}]}],"generationConfig":{"temperature":0.1,"maxOutputTokens":4096,"responseMimeType":"application/json","responseSchema":{"type":"OBJECT","properties":{"a":{"type":"NUMBER"}}},"thinkingConfig":{"thinkingBudget":0}}}',
+      'the request body bytes are exactly what they were before PR-A2',
+    );
+    assert.deepEqual(Object.keys(out).sort(), ['finishReason', 'raw', 'text']);
+    assert.equal(out.text, '{"a":1}');
+    // and a plain tutor-style call (no structured output, no thinking): the minimal body
+    wire.length = 0;
+    await client.callGemini('gemini-2.5-flash', CONTENTS, { temperature: 0.6, maxOutputTokens: 900 });
+    assert.equal(wire[0].body, '{"contents":[{"role":"user","parts":[{"text":"hi"}]}],"generationConfig":{"temperature":0.6,"maxOutputTokens":900}}');
+    assert.match(wire[0].url, /:generateContent$/);
+  } finally { globalThis.fetch = original; }
+});
+
+test('§11.14 the grading call sites never carry the stream flag: grep the route/grading sources for streamDeadlineMs — only detect and the client may name it', () => {
+  const root = path.join(__dirname, '..');
+  const hits = [];
+  const walk = (dir) => {
+    for (const name of fs.readdirSync(dir)) {
+      const p = path.join(dir, name);
+      if (name === 'node_modules' || name === 'eval') continue;
+      const st = fs.statSync(p);
+      if (st.isDirectory()) walk(p);
+      else if (/\.cjs$/.test(name) && !/\.test\.cjs$|\.suite\.cjs$/.test(name) && fs.readFileSync(p, 'utf8').includes('streamDeadlineMs')) hits.push(path.relative(root, p).replace(/\\/g, '/'));
+    }
+  };
+  walk(root);
+  assert.deepEqual(hits.sort(), ['routes/checkSolution.cjs', 'services/geminiClient.cjs'], 'streamDeadlineMs appears only in the detect config and the client; grading (grading/core.cjs, handleCheckSolution, gradeStructuredSet, worksheet) never names it');
+  const core = fs.readFileSync(path.join(root, 'grading', 'core.cjs'), 'utf8');
+  assert.equal(core.includes('streamDeadlineMs'), false);
+});

@@ -346,7 +346,40 @@ function buildTokenTelemetryRecord(input) {
     usedFallback: Boolean(input && input.usedFallback),
   };
   if (marksBand !== null) record.marksBand = marksBand;
+  // UPLOAD-READ-1 PR-A2 (D136 b): present ONLY when the usage numbers are an ESTIMATE (a stream that carried
+  // no usageMetadata). Absent on every measured record, so nothing existing changes shape.
+  if (input && input.estimated === true) record.estimated = true;
   return record;
+}
+
+/** A rough per-attachment prompt cost (a PDF / image part has no countable text). Deliberately a round
+ *  number, flagged as an estimate wherever it is used. */
+const ESTIMATED_TOKENS_PER_INLINE_PART = 1000;
+
+/**
+ * UPLOAD-READ-1 PR-A2 (D136 b) · an HONEST ESTIMATE of a call's token usage, for a STREAMED reply whose
+ * stream carried no `usageMetadata` (e.g. one stopped at its deadline before the final chunk). A gap is
+ * not acceptable for a metered AI call; a flagged estimate is. input = prompt text chars / 4 plus a
+ * fixed cost per inline PDF/image part; output = the received chars / 4; thinking = 0 (the detect call
+ * disables it). Never used when real usageMetadata is present.
+ */
+function estimateStreamUsage(contents, outputText) {
+  let promptChars = 0;
+  let inlineParts = 0;
+  for (const c of Array.isArray(contents) ? contents : []) {
+    for (const p of c && Array.isArray(c.parts) ? c.parts : []) {
+      if (p && typeof p.text === 'string') promptChars += p.text.length;
+      else if (p && (p.inlineData || p.inline_data)) inlineParts += 1;
+    }
+  }
+  const promptTokenCount = Math.ceil(promptChars / 4) + inlineParts * ESTIMATED_TOKENS_PER_INLINE_PART;
+  const candidatesTokenCount = Math.ceil(String(outputText || '').length / 4);
+  return {
+    promptTokenCount,
+    candidatesTokenCount,
+    thoughtsTokenCount: 0,
+    totalTokenCount: promptTokenCount + candidatesTokenCount,
+  };
 }
 
 /**
@@ -531,6 +564,8 @@ function createGeminiClient(cfg) {
         sink.increment(`gemini_tokens.model.${record.model}`, 1);
         if (record.retry) sink.increment(`gemini_tokens.retry.${klass}`, 1);
         if (record.usedFallback) sink.increment(`gemini_tokens.fallback.${klass}`, 1);
+        // UPLOAD-READ-1 PR-A2: how many calls were metered from an ESTIMATE (a stream with no usage).
+        if (record.estimated) sink.increment(`gemini_tokens.estimated.${klass}`, 1);
 
         // The workload axis, keyed `gemini_workload.<metric>.<workload>` so it
         // sits alongside the transport axis without colliding with it.
@@ -793,7 +828,7 @@ function createGeminiClient(cfg) {
             streamDeadlineHit = true;
             // Names the fact, never the content. `usage` says whether the ledger got real token counts.
             console.warn(
-              `[callGemini] stream deadline hit after ${streamDeadlineMs}ms: ${sse.text.length} chars read, usage ${sse.usageMetadata ? 'present' : 'ABSENT (ledger records zeros for this call)'}`
+              `[callGemini] stream deadline hit after ${streamDeadlineMs}ms: ${sse.text.length} chars read, usage ${sse.usageMetadata ? 'present' : 'ABSENT (metered from a flagged ESTIMATE)'}`
             );
           }
           rawText = JSON.stringify({
@@ -951,8 +986,22 @@ function createGeminiClient(cfg) {
     // all in scope right here and NONE of them is passed. That is the content
     // firewall, and the "no prompt or response content is logged" test asserts it
     // against a payload whose prompt and candidate text are unique sentinels.
+    // UPLOAD-READ-1 PR-A2 (D136 b): a STREAMED reply whose stream carried no usageMetadata is metered from an
+    // ESTIMATE (numbers only: char counts, never content), flagged `estimated`. A non-streaming call, and a
+    // stream WITH usage, pass `data.usageMetadata` exactly as before.
+    const streamUsageMissing =
+      streamDeadlineMs > 0 &&
+      !(
+        data &&
+        data.usageMetadata &&
+        typeof data.usageMetadata === 'object' &&
+        (Number(data.usageMetadata.totalTokenCount) > 0 ||
+          Number(data.usageMetadata.promptTokenCount) > 0 ||
+          Number(data.usageMetadata.candidatesTokenCount) > 0)
+      );
     const tokenRecord = buildTokenTelemetryRecord({
-        usageMetadata: data && data.usageMetadata,
+        usageMetadata: streamUsageMissing ? estimateStreamUsage(finalContents, text) : data && data.usageMetadata,
+        estimated: streamUsageMissing,
         model,
         callClass: classifyCall(config, telemetryCallerStack),
         workloadClass: classifyWorkload(config, telemetryCallerStack),
@@ -1144,6 +1193,7 @@ module.exports = {
   // UPLOAD-READ-1 PR-A2 — exported for the stream tests.
   toStreamUrl,
   readGeminiSseUntilDeadline,
+  estimateStreamUsage,
   // Exported for the token-instrumentation tests, and for any future reader that
   // needs the label vocabulary without re-declaring it.
   CALL_CLASSES,
