@@ -2096,7 +2096,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                                   marginBottom: 2,
                                                 }}
                                               >
-                                                • {m}
+                                                • <MathText text={m} />
                                               </div>
                                             )
                                           )}
@@ -2116,7 +2116,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                         }}
                                       >
                                         <strong>Marking note:</strong>{" "}
-                                        {solution.examTip}
+                                        <MathText text={solution.examTip} />
                                       </div>
                                     )}
 
