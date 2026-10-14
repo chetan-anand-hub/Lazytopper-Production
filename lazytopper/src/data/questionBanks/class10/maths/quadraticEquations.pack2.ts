@@ -1337,11 +1337,9 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Setting each factor to zero, we get x - 2 = 0 or x - 3 = 0, which gives roots x = 2 and x = 3.",
     ],
   },
-  { id: "QE2-056", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Standard Form", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The equation (x+2)² = 2(x+3) in standard form is:", options: ["x²+2x−2=0","x²+2x+2=0","x²−2x−2=0","x²−2x+2=0"], answer: "x²+2x−2=0", explanation: "The correct answer is x²+2x−2=0. x²+4x+4 = 2x+6 → x²+2x−2 = 0.", finalAnswer: "x²+4x+4 = 2x+6 → x²+2x−2 = 0.", isCompetencyBased: false,
+  { id: "QE2-056", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Standard Form", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The equation (x+2)² = 2(x+3) in standard form is:", options: ["x²+2x−2=0","x²+2x+2=0","x²−2x−2=0","x²−2x+2=0"], answer: "x²+2x−2=0", explanation: "The correct answer is x²+2x−2=0. x²+4x+4 = 2x+6 → x²+2x−2 = 0.", finalAnswer: "x² + 2x − 2 = 0", isCompetencyBased: false,
     solutionSteps: [
-      "A quadratic equation is of the form ax^2 + bx + c = 0, where a is non-zero.",
-      "Consider option (C): (x+2)^3 = x^3 - 4. Expanding the LHS gives x^3 + 6x^2 + 12x + 8.",
-      "Substituting and simplifying: x^3 + 6x^2 + 12x + 8 = x^3 - 4 => 6x^2 + 12x + 12 = 0. This is a quadratic equation.",
+      "[1 mark] Option (A) x^2 + 2x − 2 = 0: expanding, x^2 + 4x + 4 = 2x + 6; bringing all terms to the left gives x^2 + 2x − 2 = 0.",
     ],
   },
   { id: "QE2-057", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The equation 2x² + 3x + 1 = 0 has two distinct real roots.\nReason (R): A quadratic equation has two distinct real roots when its discriminant is positive.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "D = 9−8 = 1 > 0, so two distinct real roots exist. R gives the condition that confirms A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
