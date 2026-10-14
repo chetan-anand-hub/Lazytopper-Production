@@ -2196,48 +2196,10 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "STAT-E17",                     // spliced-solution: the steps answer another question
   "STAT-E18",                     // spliced-solution: part of the steps answer another question
   "PR2-047",                      // spliced-solution: the steps answer another question
-  "PR2-049",                      // spliced-solution: the steps answer another question (refusal text)
-  "TRI2-E21",                     // spliced-solution: the steps answer another question (refusal text)
-  "STAT-M10",                     // spliced-solution: the steps answer another question (refusal text)
-  "TRI2-E14",                     // spliced-solution: the steps answer another question (refusal text)
-  "PR2-051",                      // spliced-solution: the steps answer another question (refusal text)
-  "STAT-N02",                     // spliced-solution: the steps answer another question (refusal text)
   "2026-STAT-SA-02",              // spliced-solution: the steps answer another question (different numbers)
   "2026-PLE-SA-02",               // spliced-solution: the steps answer another question (different numbers)
   "sci-chem-acids-2m-2022-01",    // spliced-solution: the steps answer another question
-  "SAV-E13",                      // spliced-solution: the steps answer another question
-  "SAV2-042",                     // spliced-solution: part of the steps answer another question
-  "SAV2-019",                     // spliced-solution: part of the steps answer another question
-  "CG2-049",                      // spliced-solution: the steps answer another question (different numbers)
-  "CG2-054",                      // spliced-solution: the steps answer another question (different numbers)
-  "TRI2-AR02",                    // spliced-solution: part of the steps answer another question
-  "CG-N02",                       // spliced-solution: part of the steps answer another question
-  "CG-N04",                       // spliced-solution: the steps answer another question (different numbers)
-  "STAT-N01",                     // spliced-solution: the steps answer another question
-  "CI2-049",                      // spliced-solution: the steps answer another question
-  "TRIG2-M03",                    // spliced-solution: part of the steps answer another question
-  "CI2-018",                      // spliced-solution: part of the steps answer another question
   "PLE2-037",                     // spliced-solution: part of the steps answer another question
-  "CG-E18",                       // spliced-solution: part of the steps answer another question
-  "SAV2-R19",                     // spliced-solution: refusal text instead of working
-  "TRI2-E04",                     // spliced-solution: the steps answer another question (different numbers)
-  "TRIG2-M02",                    // spliced-solution: part of the steps answer another question
-  "PL2-R14",                      // spliced-solution: the steps answer another question (different numbers)
-  "PR2-048",                      // spliced-solution: the steps answer another question (different numbers)
-  "CI2-055",                      // spliced-solution: the steps answer another question
-  "TG3-065",                      // spliced-solution: the steps answer another question
-  "CI2-054",                      // spliced-solution: the steps answer another question
-  "CG-N06",                       // spliced-solution: the steps answer another question
-  "SAV-E15",                      // spliced-solution: the steps answer another question
-  "CG2-055",                      // spliced-solution: the steps answer another question (different numbers)
-  "SAV2-R16",                     // spliced-solution: the steps answer another question (different numbers)
-  "CIR-H12",                      // spliced-solution: part of the steps answer another question
-  "TRIG2-H11",                    // spliced-solution: part of the steps answer another question
-  "TG3-021",                      // spliced-solution: part of the steps answer another question
-  "CI2-051",                      // spliced-solution: the steps answer another question
-  "TRI2-H08",                     // spliced-solution: part of the steps answer another question
-  "PL2-R13",                      // spliced-solution: the steps answer another question (refusal text)
-  "PL2-R17",                      // spliced-solution: the steps answer another question
   // wrong-content rows (D178/D179, found by B while splitting single-step rows; rewrite owner: A, from NCERT)
   "SCQ-S-CHEM-033",               // wrong-content (D178): the 'change in state' example is a precipitate reaction, not a change of state
   "SCQ-S-METAL-036",              // wrong-content (D178): silver, the best heat conductor, is missing and the answer text is garbled ('...of heat copper') - NCERT does name lead as a poor conductor

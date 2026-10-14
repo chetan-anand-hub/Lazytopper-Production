@@ -45,14 +45,14 @@ export const trigonometryPack2Questions: CanonicalQuestion[] = [
       "= (1/cos²A)/(1/sin²A) = sin²A/cos²A = tan²A = RHS [1]",
     ], finalAnswer: "Proved", visualExplainerId: "maths-trigonometry-trigonometric-identities" , isCompetencyBased: false},
   { id: "TRIG2-M02", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A kite is flying at a height of 30 m from the ground. The string attached to the kite is temporarily tied to a point on the ground. The inclination of the string with the ground is 60°. Find the length of the string (√3 = 1.73).", solutionSteps: [
-      "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances.; sin 60° = height/string length = 30/L [1]",
-      "√3/2 = 30/L → L = 60/√3 = 20√3 [1]",
-      "= 20 × 1.73 = 34.6 m [1]",
+      "[1 mark] Let the kite be at A, its foot-point on the ground B and the tied point C. Then AB = 30 m, ∠ACB = 60°, ∠ABC = 90°, and the string AC is the hypotenuse; use sin 60° = AB/AC.",
+      "[1 mark] √3/2 = 30/AC ⇒ AC = 60/√3 = 20√3 m.",
+      "[1 mark] AC = 20 × 1.73 = 34.6 m. Length of the string = 34.6 m.",
     ], finalAnswer: "20√3 ≈ 34.6 m", visualExplainerId: "maths-trigonometry-height-and-distance-problems" , isCompetencyBased: true},
   { id: "TRIG2-M03", subject: "Maths", topicKey: "trigonometry", subtopic: "Identities and simplification", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Prove that: (sin θ − cos θ + 1)/(sin θ + cos θ − 1) = 1/(sec θ − tan θ).", solutionSteps: [
-      "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.; Divide numerator and denominator by cos θ:; = (tan θ − 1 + sec θ)/(tan θ + 1 − sec θ) [1]",
-      "Numerator = (sec θ + tan θ − 1), Denominator = (tan θ − sec θ + 1) = −(sec θ − tan θ − 1); Multiply numerator and denominator by (sec θ − tan θ):; Numerator: (sec θ + tan θ − 1)(sec θ − tan θ) = (sec²θ − tan²θ) − (sec θ − tan θ) = 1 − sec θ + tan θ [1]",
-      "Denominator: −(sec θ − tan θ − 1)(sec θ − tan θ) = −(sec²θ − tan²θ − sec θ + tan θ) = −(1 − sec θ + tan θ); = (1 − sec θ + tan θ)/(−1 + sec θ − tan θ) ... Using identity sec²θ − tan²θ = 1 and algebraic simplification:; RHS = 1/(sec θ − tan θ) = (sec θ + tan θ)/1. The result follows by rationalisation. [1]",
+      "[1 mark] Divide numerator and denominator of the LHS by cos θ: LHS = (tan θ − 1 + sec θ)/(tan θ + 1 − sec θ) = [(tan θ + sec θ) − 1]/(tan θ − sec θ + 1).",
+      "[1 mark] Replace 1 in the numerator by sec²θ − tan²θ = (sec θ + tan θ)(sec θ − tan θ): numerator = (sec θ + tan θ) − (sec θ + tan θ)(sec θ − tan θ) = (sec θ + tan θ)(1 − sec θ + tan θ).",
+      "[1 mark] The factor (tan θ − sec θ + 1) cancels with the denominator, so LHS = sec θ + tan θ = (sec θ + tan θ)(sec θ − tan θ)/(sec θ − tan θ) = (sec²θ − tan²θ)/(sec θ − tan θ) = 1/(sec θ − tan θ) = RHS. Hence proved.",
     ], finalAnswer: "Proved", visualExplainerId: "maths-trigonometry-trigonometric-identities" , isCompetencyBased: false},
   { id: "TRIG2-M04", subject: "Maths", topicKey: "trigonometry", subtopic: "Identities and simplification", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Simplify: (1 − sin²θ) sec²θ.", solutionSteps: [
       "1 − sin²θ = cos²θ [1]",
@@ -139,9 +139,9 @@ export const trigonometryPack2Questions: CanonicalQuestion[] = [
       "= (cosec A − 1)/(cosec A + 1) = RHS [1]",
     ], finalAnswer: "Proved", visualExplainerId: "maths-trigonometry-trigonometric-identities" , isCompetencyBased: true},
   { id: "TRIG2-H11", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "A tree breaks due to storm and the broken part bends so that the top of the tree touches the ground making an angle 30° with it. The distance between the foot of the tree to the point where the top touches the ground is 8 m. Find the height of the tree.", solutionSteps: [
-      "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances.; Let broken part = L (hypotenuse), standing part = h [1]",
-      "cos 30° = 8/L → L = 8/cos 30° = 16/√3 m; sin 30° = h/L → h = L × sin 30° = (16/√3)(1/2) = 8/√3 m [1]",
-      "Total height = h + L = 8/√3 + 16/√3 = 24/√3 = 8√3 m [1]",
+      "[1 mark] Let A be the foot, B the point of break and C where the top touches the ground. Standing part AB ⊥ AC, AC = 8 m, ∠ACB = 30°, broken part BC is the hypotenuse; height of tree = AB + BC.",
+      "[1 mark] tan 30° = AB/AC ⇒ 1/√3 = AB/8 ⇒ AB = 8/√3 m; cos 30° = AC/BC ⇒ √3/2 = 8/BC ⇒ BC = 16/√3 m.",
+      "[1 mark] Height = AB + BC = 8/√3 + 16/√3 = 24/√3 = 8√3 m ≈ 13.86 m.",
     ], finalAnswer: "8√3 ≈ 13.86 m", visualExplainerId: "maths-trigonometry-height-and-distance-problems" , isCompetencyBased: true},
   { id: "TRIG2-H12", subject: "Maths", topicKey: "trigonometry", subtopic: "Identities and simplification", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "If cos θ + sin θ = √2 cos θ, prove that cos θ − sin θ = √2 sin θ.", solutionSteps: [
       "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.; Given: cos θ + sin θ = √2 cos θ → sin θ = (√2 − 1) cos θ; Squaring: sin²θ = (3 − 2√2) cos²θ [1]",

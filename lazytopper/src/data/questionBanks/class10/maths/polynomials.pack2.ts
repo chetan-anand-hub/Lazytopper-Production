@@ -1101,18 +1101,14 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": false,
     "ncertRef": "Ex 2.2"
   },
-  { id: "PL2-R13", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The zeros of the polynomial x² − 3x + 2 are:", options: ["1 and 2","−1 and −2","2 and −1","−2 and 1"], answer: "1 and 2", explanation: "The correct answer is 1 and 2. x²−3x+2 = (x−1)(x−2). Zeros: x=1 and x=2.", finalAnswer: "x²−3x+2 = (x−1)(x−2). Zeros: x=1 and x=2.", isCompetencyBased: false,
+  { id: "PL2-R13", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The zeros of the polynomial x² − 3x + 2 are:", options: ["1 and 2","−1 and −2","2 and −1","−2 and 1"], answer: "1 and 2", explanation: "The correct answer is 1 and 2. x²−3x+2 = (x−1)(x−2). Zeros: x=1 and x=2.", finalAnswer: "1 and 2", isCompetencyBased: false,
     solutionSteps: [
-      "To find a zero of a polynomial P(x), we set P(x) = 0.",
-      "For a generic polynomial like P(x) = x - k, setting P(x) = 0 gives x - k = 0.",
-      "Solving for x, we find x = k. Thus, k is a zero of the polynomial.",
+      "[1 mark] Factorise: x² − 3x + 2 = x² − x − 2x + 2 = (x − 1)(x − 2). Setting each factor to 0 gives x = 1 and x = 2, so the zeros are 1 and 2.",
     ],
   },
-  { id: "PL2-R14", subject: "Maths", topicKey: "polynomials", subtopic: "Degree of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The degree of the polynomial 2x³ − x² + 5x − 3 is:", options: ["3","2","1","4"], answer: "3", explanation: "The correct answer is 3. The highest power of x is 3, so the degree is 3.", finalAnswer: "The highest power of x is 3, so the degree is 3.", isCompetencyBased: false,
+  { id: "PL2-R14", subject: "Maths", topicKey: "polynomials", subtopic: "Degree of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The degree of the polynomial 2x³ − x² + 5x − 3 is:", options: ["3","2","1","4"], answer: "3", explanation: "The correct answer is 3. The highest power of x is 3, so the degree is 3.", finalAnswer: "3", isCompetencyBased: false,
     solutionSteps: [
-      "The degree of a polynomial is the highest power of the variable in the polynomial.",
-      "For example, in a polynomial like 5x^3 + 2x^2 - 7, the powers of x are 3, 2, and 0 (for the constant term).",
-      "The highest power among these is 3, so the degree of the polynomial is 3.",
+      "[1 mark] The degree is the highest power of x with a non-zero coefficient. In 2x³ − x² + 5x − 3 the highest power is x³ (coefficient 2), so the degree is 3.",
     ],
   },
   { id: "PL2-R15", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If α and β are zeros of 2x² − 5x + 3, then α + β equals:", options: ["5/2","3/2","5","−5/2"], answer: "5/2", explanation: "The correct answer is 5/2. Sum of zeros = −b/a = −(−5)/2 = 5/2.", finalAnswer: "Sum of zeros = −b/a = −(−5)/2 = 5/2.", isCompetencyBased: false,
