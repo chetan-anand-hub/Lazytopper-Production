@@ -90,6 +90,8 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   "/check-your-answer",
   // PARENTS-1 — the parent landing page: public, indexable, signed-out readable.
   "/for-parents",
+  // NCERT-BOOKS-1 (lane G, D210/D213) — the NCERT Class 10 books, chapter-wise: public, indexable.
+  "/ncert-class-10",
 ];
 
 /**

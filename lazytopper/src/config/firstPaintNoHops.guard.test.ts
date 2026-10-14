@@ -173,8 +173,9 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
         expect(read(out, file), file).not.toContain("KaTeX_Main");
         expect(read(out, file), file).not.toContain(".lt-notes-own");
       }
-      // D63a, amended by D137/D142 (PARENTS-1): the two pages whose layout shifts without their route CSS.
-      expect(INLINE_ROUTE_CSS_MODULES).toEqual(["CheckYourAnswerPage", "ForParentsPage"]);
+      // D63a, amended by D137/D142 (PARENTS-1) and NCERT-BOOKS-1 (G, CLS 0.46 at 1366 px without it):
+      // the three pages whose layout shifts without their route CSS.
+      expect(INLINE_ROUTE_CSS_MODULES).toEqual(["CheckYourAnswerPage", "ForParentsPage", "NcertBooksPage"]);
       expect(inlinedStylesIn(read(out, "index.html"))).toEqual([]);
       expect(inlinedStylesIn(read(out, "__shell.html"))).toEqual([]);
       expect(verifyBuiltPages(out, PATHS).failures).toEqual([]);
