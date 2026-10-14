@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-14 — BANK-STEPS-1 REPAIR (`#1142` `#1143` `#1144`, B's `#1145`) · GARBLE-1 PAUSE (`#1146` `#1149` `#1153`) · GARBLE-1 REWRITE-1/2 (`#1156` `#1164`) · MATH-RENDER-1/1b/2/3 (`#1150` `#1155` `#1152` `#1162`) — ✅ MERGED · REPAIR / REWRITE QUEUE STILL OPEN · OWNER DRAWS OWED
+
+- ✅ NO-ANSWER fills: 10 Science + 9 Maths curated rows carry their own final result (`#1142` `#1143`). ✅ 19 Maths MISPAIRED rows (`#1144`) and 53 Science rows (`#1145`) served again with steps for their own stem.
+- ✅ Wrong or garbled `SCQ-S-*` rows withheld: 5 (`#1146`), the 19 FIND-3 WRONG (`#1149`), METAL-040/041 (`#1153`); text-fault rows ledgered `found / TEXT-FAULT` and still served (`#1149`).
+- ✅ REWRITE-1 (TRIG-018/-020) and REWRITE-2 (QE-002/-004b/-006a) served again under the D209 provenance standard.
+- ✅ Maths shorthand and word subscripts render as maths in questions (`#1150` `#1162`) and in grader feedback on all six grading surfaces and both graded PDFs (`#1152`); `MathText` never throws on a non-string (`#1155`).
+- ⏳ REWRITE-3 (approved, slot), REWRITE-4 (approved D241, slot), the rest of the FIND-2 rows from the official CBSE ZIPs (D239), SCI-BACKLOG-1 (D244), D2's two approved branches (now A2's), D3 TEXT-CLEAN-1.
+- ⏳ Owner / human draws on a structured surface for the repaired and withheld rows (see CURRENT_STATE); `[FU-MATHTEXT-LOWERCASE-BASE-SUBSCRIPT]`.
+
 ## 2026-10-14 — FU-SAVE-SYNC-QUOTA + FU-SAVESTATUS-INLINE-STYLE (`#1168` `85cdc8a9`) — ✅ COMPLETE (owner round-trip owed)
 
 - ✅ Outbox capped; a result that cannot be queued says so (D234 copy) and keeps `beforeunload` armed; the `gradedAt` stamp guards the mirror fallback; the toast CSS is a file.
