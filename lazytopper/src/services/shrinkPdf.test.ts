@@ -73,7 +73,7 @@ describe("untouched cases: the original goes up exactly as picked", () => {
     expect(e.open).not.toHaveBeenCalled();
   });
 
-  it("a TYPED PDF (a /Font in its bytes) under the ceiling is untouched and pdf.js is never loaded", async () => {
+  it("a TYPED PDF (a /Font in its bytes) is untouched and pdf.js is never loaded", async () => {
     const e = engine();
     const f = pdf(OVER, "typed");
     const out = await run(f, { open: e.open });
@@ -276,6 +276,24 @@ describe("it never blocks an upload", () => {
       },
     });
     expect(out.file).toBe(f);
+  });
+});
+
+describe("memory guard: too many source bytes held -> the original, never a tab kill", () => {
+  it("stops rendering once the held pages pass the cap and sends the original", async () => {
+    const render = vi.fn(async () => ({ base64: "A".repeat(1000), mimeType: "image/jpeg", width: 1, height: 1 }));
+    const e = engine({ renderPage: render }, 10);
+    const f = pdf(OVER, "scan");
+    const out = await run(f, { open: e.open, maxSourceBytes: 2500, assemble: vi.fn(async () => assembled(MB)) });
+    expect(out.file).toBe(f);
+    expect(out.report.outcome).toBe("kept-original");
+    expect(render).toHaveBeenCalledTimes(3);
+    expect(e.handle.destroy).toHaveBeenCalled();
+  });
+  it("CONTROL: under the cap the same job shrinks", async () => {
+    const e = engine({ renderPage: async () => ({ base64: "A".repeat(1000), mimeType: "image/jpeg", width: 1, height: 1 }) }, 3);
+    const out = await run(pdf(OVER, "scan"), { open: e.open, maxSourceBytes: 5000, assemble: vi.fn(async () => assembled(MB)) });
+    expect(out.report.outcome).toBe("shrunk");
   });
 });
 

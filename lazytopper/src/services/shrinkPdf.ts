@@ -76,6 +76,9 @@ const SOURCE_LONG_EDGE = 3000;
 const SOURCE_QUALITY = 0.95;
 /** A paper longer than this is not shrunk (memory on a cheap phone): the original is sent. */
 export const SHRINK_MAX_PAGES = 40;
+/** The rendered source pages (base64) are all held in memory while the ladder runs. Past this the original is sent rather
+ *  than risk an out-of-memory tab kill on a cheap phone (which no catch can recover from). */
+export const SHRINK_MAX_SOURCE_BYTES = 96 * 1024 * 1024;
 /** How many leading pages are probed for a text layer (cofounder D148). */
 export const TEXT_PROBE_PAGES = 3;
 
@@ -128,6 +131,7 @@ export interface ShrinkOptions {
   budgetMs?: number;
   /** EVAL HOOKS (never set by the app): a different source resolution / ladder / target, to find the safe setting. */
   sourceLongEdge?: number;
+  maxSourceBytes?: number;
   rungs?: ReadonlyArray<readonly [number, number]>;
   targetBytes?: number;
   /** Aborted by the student's "Skip — upload as it is": stops at the next page and returns the original. */
@@ -275,10 +279,14 @@ export async function shrinkPdf(file: File, opts: ShrinkOptions = {}): Promise<S
     // Render once at the top of the ladder. After page 1 project the whole job and give up early if it cannot
     // finish inside the budget (a slow phone must never be made to wait for a shrink).
     const sources: PdfPageInput[] = [];
+    let sourceBytes = 0;
     for (let i = 0; i < handle.numPages; i += 1) {
       check();
       const t0 = now();
-      sources.push(await handle.renderPage(i, opts.sourceLongEdge ?? SOURCE_LONG_EDGE, SOURCE_QUALITY));
+      const rendered = await handle.renderPage(i, opts.sourceLongEdge ?? SOURCE_LONG_EDGE, SOURCE_QUALITY);
+      sources.push(rendered);
+      sourceBytes += rendered.base64.length;
+      if (sourceBytes > (opts.maxSourceBytes ?? SHRINK_MAX_SOURCE_BYTES)) return finish("kept-original", file);
       if (i === 0) {
         const projected = (now() - t0) * handle.numPages * SHRINK_PROJECTION_FACTOR;
         if (projected > budget) throw new ShrinkTimeout();

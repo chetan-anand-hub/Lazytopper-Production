@@ -40,6 +40,7 @@ import {
 import type { AssembledPdf, PdfPageInput } from "../../services/assemblePagesPdf";
 import {
   MAX_UPLOAD_PAGES,
+  MAX_UPLOAD_PDF_BYTES,
   TOO_MANY_PAGES_MESSAGE,
   type UploadCheck,
 } from "../../services/uploadLimits";
@@ -130,15 +131,16 @@ async function readFileBase64(file: File): Promise<string> {
   });
 }
 
-/** UPLOAD-SHRINK-1: the shrink module (and, behind it, pdf.js) is fetched only when a picked PDF is big enough to
- *  be worth shrinking: a small PDF never downloads any of it. */
+/** UPLOAD-SHRINK-1: the shrink module (and, behind it, pdf.js) is fetched only when a picked PDF is over the upload
+ *  ceiling: any other PDF never downloads any of it. */
 async function defaultShrink(
   file: File,
   onProgress: (done: number, total: number) => void,
   signal: AbortSignal,
 ): Promise<File> {
-  const { SHRINK_TRIGGER_BYTES, shrinkPdf } = await import("../../services/shrinkPdf");
-  if (file.size <= SHRINK_TRIGGER_BYTES) return file;
+  // D223: only a file the server would refuse is ever shrunk, so a PDF at or under the ceiling must not even fetch the module.
+  if (file.size <= MAX_UPLOAD_PDF_BYTES) return file;
+  const { shrinkPdf } = await import("../../services/shrinkPdf");
   const { trackUxEvent } = await import("../../services/uxTelemetry");
   const { file: out } = await shrinkPdf(file, {
     onProgress,
@@ -220,6 +222,8 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
       // UPLOAD-SHRINK-1: a big SCANNED PDF is shrunk on the device first; anything else (small, typed, a failure)
       // comes back as the very same file, and the guard below runs on whatever will actually be sent.
       const seq = (shrinkSeqRef.current += 1);
+      // A second pick while a shrink runs: stop the first one (its result is ignored by the seq check), never two renders at once.
+      skipRef.current?.();
       const ctl = new AbortController();
       // The student is always in control: "Skip" resolves THIS promise at once with the original, so the upload
       // goes ahead without waiting for a page that pdf.js is still drawing (its late result is ignored).
