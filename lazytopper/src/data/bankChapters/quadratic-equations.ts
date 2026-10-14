@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "quadratic-equations" (Maths): 414 served rows from 22 source arrays, 25 withheld.
+// Chapter "quadratic-equations" (Maths): 394 served rows from 22 source arrays, 45 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -53,21 +53,32 @@ export default defineChapter("quadratic-equations", [
   [415, CURATED_INLINE_QUESTIONS, false],
   [453, QUADRATIC_EQUATIONS_CBQ_LT_GENERATED, false],
 ], [
-  "QE-E05",
+  "QE-E08",
+  "QE-E11",
   "QE-E13",
+  "QE-E16",
   "QE-E18",
   "QE-M05",
   "QE-M06",
+  "QE-M10",
   "QE-M12",
   "QE-M13",
   "QE-M16",
+  "QE-N01",
+  "QE-N02",
   "QE2-004",
   "QE2-005",
   "QE2-017",
   "QE2-033",
   "QE2-043",
-  "QE2-048",
+  "QE2-049",
+  "QE2-050",
+  "QE2-051",
+  "QE2-052",
+  "QE2-054",
+  "QE2-055",
   "QE2-056",
+  "QE2-057",
   "QE-N-NCERT-4-SH-003",
   "QE-N-EXMPLR-4-MCQ-005",
   "QE-N-EXMPLR-4-MCQ-007",
@@ -75,7 +86,16 @@ export default defineChapter("quadratic-equations", [
   "Z3-QE-005",
   "Z3-QE-006",
   "PYQ-M-QE-001",
+  "PYQ-M-QE-003",
+  "PYQ-M-QE-004",
   "PYQ-M-QE-007",
+  "PYQ-M-QE-008",
+  "PYQ-M-2026-QE-001",
+  "PYQ-M-2024-QE-001",
+  "PYQ-M-2024-QE-002",
+  "PYQ-M-2024-QE-004b",
+  "PYQ-M-2024-QE-005a",
+  "PYQ-M-2024-QE-006a",
   "PYQ-M-2025-QE-001",
   "LTG-M-QE-284",
 ]);

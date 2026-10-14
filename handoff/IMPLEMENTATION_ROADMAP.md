@@ -1,5 +1,55 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-14 — NOTES-FORMULA-1 (`#1148` `9ed656ec`) · SAVE-SYNC-1 (`#1151` `168e47a9`) · NOTES-FORMULA-2 (`#1154` `a2927d28`) — ✅ COMPLETE (owner round-trip and phone glance owed)
+
+- ✅ The Formulae card sits after The Big Idea and atop the "Formulae & Mindmap" tab; an empty strip shows no card.
+- ✅ A graded result is tracked from the moment it is queued: outbox, retry, a 12 s offline watchdog, re-send on next load / `online`, never over a newer cloud copy, an honest status line.
+- ✅ 33 Science formula items are TeX with state symbols and conditions; an atom + charge balance guard keeps them right.
+- ⏳ Owner: the SAVE-SYNC-1 persistence round-trip; a phone glance at the Formulae cards.
+- ⏳ `[FU-SAVE-SYNC-QUOTA]` (priority), PERF-3a, NOTES-FORMULA-3 (the cards as an SEO surface; the rest-of-spec chemistry).
+
+## 2026-10-14 — PERF-1 PR-3 (`#1139` `66a68ef1`) + PERF-2 (`#1140` `1e5119d9`, `#1141` `bb853239`) — ✅ COMPLETE AS SCOPED · PERF-2 TARGET NOT MET · PERF-3 WAITS FOR THE OWNER
+
+- ✅ PERF-1 PR-3: contrast guard pins every occurrence; Practice Hub card text and the Check & Improve link reach 4.5:1.
+- ✅ PERF-2 PR-A: home brand images as lossless WebP twins with true dimensions; the stretched wordmark fixed (owner glance owed).
+- ✅ PERF-2 PR-B2 (reduced): `qrcode` on demand, entry gz −10.4 KB. The lazy `/login` `/sign-up` half was dropped (it made the sign-in form later).
+- ⏳ PERF-3: Firestore lazy (the only route to ≤150 KB gz for `/` and `/check-your-answer`) waits for the owner's ruling; `[FU-NOTES-TBT-MOUNT]` (`hydrateRoot` #418) is a separate investigation.
+
+## 2026-10-14 — BANK-STEPS-1 PAUSE (`#1116` `#1123` `#1125`) + GARBLE-1 PR-1/PR-2 (`#1130` `#1136`) — ✅ FIND COMPLETE · PAUSE IN PROGRESS · REPAIR QUEUE OPEN
+
+- ✅ FIND complete: 3,163 rows judged for step↔stem pairing, 171 bad; 333 paused across `#1116/#1123/#1125`, 331 after `#1131` restored two.
+- ✅ GARBLE-1 PR-1 (`#1130`): the three unreadable trig PYQ-2024 stems withheld. ✅ PR-2 (`#1136`): bank-wide garble guard + the 55 single-step rows ledgered under a ratchet.
+- ✅ GARBLE-1 step 3 (the FIND-2 readability judge) has run; ⏳ its pause (`#1135`, 31 ids + 4 entangled) waits for its merge slot.
+- ⏳ **REPAIR queue (owner ruling "correct, don't discard"):** NO-ANSWER fills (D, B), re-pairs, chapter repairs ≤60 rows a PR, the 55 SINGLE-STEP rows, GARBLE rewrites from the official paper. Each REPAIR needs an Opus verifier and the cofounder's 10% byte-review.
+- ⏳ Text-clean of ~22 readable-but-dirty FIND-2 rows. The follow-ups are in OPEN_QUESTIONS_AND_FOLLOWUPS.
+
+## 2026-10-13 — WS-DRAW-1 (`#1134` `4339d57c`) — ✅ COMPLETE (owner signed-in MI run and phone glance owed)
+
+- ✅ A worksheet is drawn like a board paper: Board exam mix 25 = A13 B3 C4 D3 E2 (Quick drill and High-marks in the same ratios), borrowing recorded, never padded.
+- ✅ At most 30% AI-pack rows (verified first), at least 50% competency-based rows in a Board exam mix, no repeats (id, `questionKey`, long normalised stem).
+- ✅ New "CBQ mix" worksheet type: every row competency-based, across the section shape.
+- ⏳ The owner's signed-in Mistake-Intelligence run and a phone glance; three small follow-ups.
+
+## 2026-10-13 — PERF-1 (`#1128` `29c2c2cf`, `#1129` `f9b447b0`) — ✅ COMPLETE (www Lighthouse and owner phone checks owed)
+
+- ✅ Note pages load no KaTeX: the formulas of all 26 notes are precomputed at build, byte-identical to the old render, and travel with the chapter's spec.
+- ✅ The testimonial thumbnail is responsive (WebP + JPEG, three widths); notes figures carry width/height and load lazily; the Important Questions chapter select and two button names are accessible.
+- ✅ Low-contrast text on notes, CBSE, check-your-answer, the Practice Hub and Important Questions raised to 4.5:1 with hues kept; the Important Questions Back button is readable.
+- ⏳ The notes TBT / Perf target (TBT < 600 ms, Perf ≥ 70) is NOT met and moved to PERF-2 (`[FU-NOTES-TBT-MOUNT]`). The www Lighthouse table and the owner's phone checks are owed. PERF-1 PR-3 (guard holes + residual Practice Hub text) is queued.
+
+
+## 2026-10-13 — PARENTS-1 (`#1121` `59d139ff`) — ✅ COMPLETE (owner phone checks owed)
+
+- ✅ `/for-parents` is live: public, indexable, in the sitemap and `llms.txt`, with the WhatsApp share (UTM-tagged `parent_share`), the video, the FAQ, a Home line and a footer link. No sign-up CTA, no price.
+- ✅ Layout shift measured and closed (1440 px CLS 0.388 → 0.002).
+- ⏳ The owner's phone checks and the growth session's `yt_parents` ads re-point. `[FU-FREE-CHECK-LIVE-E2E]` and three smaller follow-ups are open.
+
+## 2026-10-13 — UPLOAD-READ-1 (PR-A `00badaab`, `#1120` `9cb41def`, `#1122` `122b220a`) — ✅ COMPLETE (answer-PDF live-verify owed)
+
+- ✅ A long question paper is read: detect output cap 16384, a cut-off reply is salvaged to its complete questions with a "We read the first n questions" notice, and detect streams with a 50 s deadline instead of timing out empty at 55 s.
+- ✅ One 7 MB raw-PDF ceiling for question and answer uploads on every file route, set under the measured 10 MiB edge wall; a client total-body budget gives a friendly "too large together" message, never a raw 413. The owner's PASS (14:23Z) read the student's original 6 MB paper.
+- ⏳ Live-verify of a 6 to 7 MB ANSWER PDF on Check & Improve and on a worksheet. `[FU-UPLOAD-OVER-10MIB-EDGE]`, `[FU-1086-REBASE-AFTER-1122]` and the PR-A2 follow-ups are open. Next: UPLOAD-SHRINK-1 (PR-1, on-device shrink, trigger 3 MB), then WS-DRAW-1.
+
 ## 2026-10-13 — ORG-SAMEAS-1 (`#1112` `4fd187c7`) — ✅ COMPLETE (growth session's search checks owed)
 
 - ✅ The Organization JSON-LD carries `@id`, `alternateName`, `description`, `email`, `contactPoint`, the five `sameAs` profiles and the square logo; the WebSite points at it as `publisher`.

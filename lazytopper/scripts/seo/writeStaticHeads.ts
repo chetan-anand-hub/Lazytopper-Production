@@ -142,6 +142,14 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "How CBSE examiners mark Class 10 Maths and Science answers: step marks, where marks " +
       "are lost, and worked examples from past board papers.",
   },
+  // PARENTS-1 — the parent landing page. Both strings restate the page's own h1 and sub-line
+  // (src/pages/ForParentsPage.tsx); nothing is added. Title kept to 60 characters or fewer.
+  "/for-parents": {
+    title: "CBSE Class 10 Help for Parents | LazyTopper",
+    description:
+      "Your child photographs a written answer; LazyTopper marks every step the way a CBSE " +
+      "examiner does and shows what to fix. First check free.",
+  },
   "/legal/privacy": {
     title: "Privacy Policy | LazyTopper",
     description:
@@ -195,6 +203,7 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/practice-hub", exact: true, modules: ["DesktopPracticePage"] },
   { prefix: "/cbse/class-10", exact: true, modules: ["Cbse2027Page"] },
   { prefix: "/check-your-answer", exact: true, modules: ["CheckYourAnswerPage"] },
+  { prefix: "/for-parents", exact: true, modules: ["ForParentsPage"] },
   { prefix: "/highly-probable/", exact: false, modules: ["HighlyProbableQuestions"] },
   { prefix: "/legal/", exact: false, modules: ["LegalPage"] },
   { prefix: "/topic-hub/", exact: false, modules: ["DesktopTopicHubPage"] },

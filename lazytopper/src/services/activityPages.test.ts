@@ -95,6 +95,7 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   // SEO-5 PR-3 — the public answer-writing guide. Records no page name (null): naming it
   // would need the server's drift-tested page list (server/** is out of that lane's scope).
   "/check-your-answer": [["/check-your-answer", null]],
+  "/for-parents": [["/for-parents", null]], // PARENTS-1 — public, like the guide: not an activity page
   "/admin/funnel": [["/admin/funnel", null]],
   // 2026-10-11 HARDEN-1 PR-2 (D81a): /admin/diagram-compare and /admin/diagram-quality removed
   // from App.tsx together with their pages.

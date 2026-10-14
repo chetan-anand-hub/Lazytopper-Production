@@ -167,6 +167,11 @@ const FINGERPRINT = `${ASSET_BASE}/brand/lazytopper-fingerprint.png`;
 const FINGERPRINT_MARK = `${ASSET_BASE}/brand/lazytopper-fingerprint-mark.png`;
 const WORDMARK = `${ASSET_BASE}/brand/lazytopper-wordmark.png`;
 const TAGLINE = `${ASSET_BASE}/brand/lazytopper-tagline.png`;
+// PERF-2 (PR-A): each brand PNG has a LOSSLESS WebP twin (decoded pixels identical to the PNG,
+// 8-10% lighter) and the <img> carries the file's true width/height so the browser reserves the
+// right box. The PNG stays the <img src> fallback. Natural sizes: fingerprint 240x332, mark 555x768,
+// wordmark 700x200, tagline 507x56. CSS keeps setting the displayed size, so nothing moves.
+const webp = (png: string): string => png.replace(/\.png$/, ".webp");
 
 /**
  * ⚠ "Check my answer" lands on `/`, NOT on Check & Improve — §2.4, and it is a
@@ -240,7 +245,7 @@ const CSS = `
 .lt-landing a{color:var(--gd)}
 .lt-landing :focus-visible{outline:2px solid var(--g);outline-offset:3px;border-radius:5px}
 .lt-landing-wrap{max-width:1040px;margin:0 auto;position:relative;z-index:1}
-.lt-landing-bgmark{position:fixed;right:-22vw;top:6vh;width:82vw;max-width:640px;opacity:.065;pointer-events:none;z-index:0}
+.lt-landing-bgmark{position:fixed;right:-22vw;top:6vh;width:82vw;max-width:640px;height:auto;opacity:.065;pointer-events:none;z-index:0}
 
 .lt-landing .btn{font:inherit;font-weight:700;font-size:15.5px;padding:15px 26px;border-radius:14px;
   text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:54px;
@@ -252,9 +257,11 @@ const CSS = `
 
 .lt-landing-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px var(--pad)}
 .lt-landing-brand{display:flex;align-items:center;gap:10px}
+.lt-landing-brand picture{display:block;flex:0 0 auto}
 .lt-landing-brand .fp{height:42px;width:auto;display:block;flex:0 0 auto}
 .lt-landing-brand .col{display:flex;flex-direction:column;gap:3px}
-.lt-landing-brand .word{height:21px;width:auto;display:block}
+/* PERF-2 PR-A: the wordmark used to be stretched (height:21px + the column's stretch = 90.5 x 21 for a 700 x 200 file, 3.5:1 drawn as 4.3:1; Lighthouse 'incorrect aspect ratio'). It keeps the SAME WIDTH as before (so it still lines up with the tagline: 10px-high tagline = 90.536px, 11px = 99.589px) and takes its true height from the file's ratio. */
+.lt-landing-brand .word{height:auto;width:90.536px;display:block}
 .lt-landing-brand .tag{height:10px;width:auto;display:block;opacity:.95}
 /* ADDENDUM-A A3 — "Log in" is a solid green button, matching every other CTA.
    The (0,2,1) selector outranks ".lt-landing a{color:var(--gd)}", which would
@@ -366,7 +373,7 @@ const CSS = `
   .lt-landing-bgmark{right:-8vw;width:52vw;opacity:.075}
   .lt-landing-plans{grid-template-columns:1fr 1fr;max-width:none}
   .lt-landing-brand .fp{height:48px}
-  .lt-landing-brand .word{height:24px}
+  .lt-landing-brand .word{height:auto;width:99.589px}
   .lt-landing-brand .tag{height:11px}
   /* ADDENDUM-A A3 — the class row aligns right beneath Log in from 700px up. */
   .lt-landing-cls{justify-content:flex-end}
@@ -565,11 +572,16 @@ export default function Welcome() {
           same small file as the lockup (already fetched), exactly as production
           did; only a viewport >= 1000px selects FINGERPRINT_MARK. */}
       <picture>
+        <source media="(min-width: 1000px)" type="image/webp" srcSet={webp(FINGERPRINT_MARK)} />
         <source media="(min-width: 1000px)" srcSet={FINGERPRINT_MARK} />
+        <source type="image/webp" srcSet={webp(FINGERPRINT)} />
         <img
           ref={markRef}
           className={"lt-landing-bgmark" + (markQuiet ? " is-quiet" : "")}
           src={FINGERPRINT}
+          width={240}
+          height={332}
+          decoding="async"
           alt=""
           aria-hidden="true"
         />
@@ -578,10 +590,19 @@ export default function Welcome() {
       <div className="lt-landing-wrap">
         <div className="lt-landing-top">
           <div className="lt-landing-brand">
-            <img className="fp" src={FINGERPRINT} alt="" aria-hidden="true" />
+            <picture>
+              <source type="image/webp" srcSet={webp(FINGERPRINT)} />
+              <img className="fp" src={FINGERPRINT} width={240} height={332} alt="" aria-hidden="true" />
+            </picture>
             <span className="col">
-              <img className="word" src={WORDMARK} alt="LazyTopper" />
-              <img className="tag" src={TAGLINE} alt="One Size Fits One." />
+              <picture>
+                <source type="image/webp" srcSet={webp(WORDMARK)} />
+                <img className="word" src={WORDMARK} width={700} height={200} alt="LazyTopper" />
+              </picture>
+              <picture>
+                <source type="image/webp" srcSet={webp(TAGLINE)} />
+                <img className="tag" src={TAGLINE} width={507} height={56} alt="One Size Fits One." />
+              </picture>
             </span>
           </div>
           <Link className="lt-landing-login" to={SIGN_IN_URL}>
@@ -634,6 +655,7 @@ export default function Welcome() {
             {/* SEO-5 PR-4 — beside "Check my answer": how that marking works, on the
                 indexed answer-marking guide. */}
             <Link to="/check-your-answer">How do examiners mark answers? &rarr; Read the guide</Link>
+            <Link to="/for-parents">Are you a parent? See how LazyTopper helps your child &rarr;</Link>
             {/* ★ OWNER INSTRUCTION — this REPLACES the prototype's "Just looking?
                 Explore the product" line, which pointed at /app/. The page argues
                 that marks are lost step by step; the notes pages carry real board

@@ -30,6 +30,8 @@
 
 import { useEffect, useReducer, useState } from "react";
 import type { NoteSpec } from "./noteSpec.types";
+import { ensureNoteMath } from "./noteMathStore";
+import figureSizes from "./noteFigureSizes.generated.json";
 
 const specLoaders = import.meta.glob("../../../../notes/specs/*.json", {
   import: "default",
@@ -92,8 +94,10 @@ export function ensureNoteSpec(topicKey: string): Promise<NoteSpec | null> {
   if (!load) return Promise.resolve(null);
   let pending = inflight.get(topicKey);
   if (!pending) {
-    pending = load().then(
-      (value) => {
+    // PERF-1: the chapter's precomputed formula map lands WITH its spec (it never rejects), so
+    // the first render of a note already has every formula's HTML and needs no katex.
+    pending = Promise.all([load(), ensureNoteMath(topicKey)]).then(
+      ([value]) => {
         const spec = isNoteSpec(value) && value.meta.topic_key === topicKey ? value : null;
         loaded.set(topicKey, spec);
         inflight.delete(topicKey);
@@ -176,4 +180,15 @@ export function getNoteAssetUrl(assetPath: string | null | undefined): string | 
     if (modulePath.endsWith(suffix)) return url;
   }
   return null;
+}
+
+/**
+ * Pixel size of a spec figure asset (PERF-1 F3), from the generated `noteFigureSizes` table, so the
+ * <img> can carry width/height and keep its space before the file arrives. Null for an asset the
+ * table does not know (then the <img> simply has no intrinsic size, as before).
+ */
+export function getNoteAssetSize(assetPath: string | null | undefined): { width: number; height: number } | null {
+  if (!assetPath) return null;
+  const size = (figureSizes as unknown as Record<string, [number, number] | undefined>)[assetPath];
+  return size ? { width: size[0], height: size[1] } : null;
 }

@@ -63,7 +63,7 @@ const FOOTER_CSS = `
     font-family: var(--font-body);
     font-size: 12px;
     line-height: 1.5;
-    color: hsl(220, 12%, 52%);
+    color: hsl(220, 14%, 38%);
     text-align: center;
   }
   .lt-public-legal a {
@@ -113,6 +113,8 @@ export default function PublicLegalFooter({ className }: { className?: string })
       <Link to={`/cbse/class-10?returnTo=${encodeURIComponent(pathname)}`}>CBSE 2027</Link>
       {/* SEO-5 PR-4 — the answer-marking guide, for the same crawl-path reason. */}
       <Link to="/check-your-answer">How CBSE marks answers</Link>
+      {/* PARENTS-1 — the parent landing page, same crawl-path reason as the guide above. */}
+      <Link to="/for-parents">For parents</Link>
       {LEGAL_LINKS.map(({ label, slug }) => (
         <Link key={slug} to={`/legal/${slug}`}>
           {label}

@@ -20,7 +20,7 @@ import {
 } from "../../src/components/marketing/TestimonialVideoData";
 
 /** The only pages that carry the video, and therefore the only pages that get its JSON-LD. */
-export const TESTIMONIAL_VIDEO_PATHS: readonly string[] = ["/check-your-answer", "/cbse/class-10"];
+export const TESTIMONIAL_VIDEO_PATHS: readonly string[] = ["/check-your-answer", "/cbse/class-10", "/for-parents"];
 
 /**
  * @param home the canonical home URL (e.g. `https://www.lazytopper.com/`), from `canonicalFor("/", basename)`.

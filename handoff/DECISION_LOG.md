@@ -1,3 +1,114 @@
+## 2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1148` `#1151` `#1154`, plus the decisions C2 itself made, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **189 §1** | NOTES-FORMULA-1: render the existing `formula_strip` card after The Big Idea (Note tab) and at the top of the Mindmap tab, rename the tab "Formulae & Mindmap" and the label "Formulae"; an empty strip keeps "Mindmap" with no card; all four panels stay in the prerendered HTML; layout only | owner: "keep in both"; the card is the formula answer students search for |
+| **190** | SAVE-SYNC-1: an outbox so a graded result is never silently lost; retry; re-send on next load / `online`; honest wording (explain, never force, never alarm, never "lost"); no new Firestore path, no rules/schema change | owner: "losing a student's test result is the worst thing that can happen to trust"; the writer only `console.warn`ed a failed `setDoc` and nothing ever re-sent a local-only record |
+| **192 / 206** | `#1148` and `#1151` APPROVED; `[FU-SAVE-SYNC-QUOTA]` is priority next for whoever touches saving; add `[FU-SAVESTATUS-INLINE-STYLE]`; the owner round-trip is the merge's closing step | the verifier + mutation evidence cover `sessionRecordsOutbox.ts`; the copy matches the owner's rules word for word |
+| **193** | PERF-3a plan approved in outline: reproduce the baseline with Lighthouse 12.2.1 mobile (3 pages × 5 runs, median), option A first (`Note.tsx` only, inactive panels mounted after first paint), B/C only if A misses; steps 0–2 only after SAVE-SYNC-1 reached AUDIT-REQUEST | the growth workspace's ~4.0 s notes TBT is a Lighthouse number; grader quality and trust outrank speed |
+| **198 / 200** | NOTES-FORMULA-2: rewrite the plain-text chemistry/unit formula items as TeX; remove the author note; correctness gate = every equation balanced atom by atom with its atom count listed; **D200: state symbols (s)/(l)/(g)/(aq) on every element-formula equation, conditions over the arrow, none on generic templates** | CLAUDE.md §13: the CBSE scheme pays 0.5 for the balanced equation and 0.5 for state symbols/conditions, so the card must model the full-marks form |
+| **214 / 215** | `#1154` moved up the slot order and pre-approved on four conditions (green CI, the atom-count table, no `katex-*.js` on three notes pages, before/after screenshots); the owner is away: keep merging in order, park owner checks as NEEDS-OWNER (later) | the owner saw the cards still plain text on www |
+| **C2 (no D)** | After the verifier's FAIL on `#1151`, treat an offline write that never answers as device-only after 12 s (keep the chain and the entry alive) rather than wait for a rejection | the Firestore web SDK queues an offline write and never rejects; waiting for a rejection leaves "Saving…" up for the whole outage |
+| **C2 (no D)** | Store the queued BODY inside the outbox entry instead of trusting the localStorage mirror | the mirror is capped (25 payloads / 200 records) and the cloud-wins read rewrites it, so a queued re-grade could be replaced by an older copy |
+| **C2 (no D)** | A re-send that had nothing to send, a superseded re-send, and a quiet (`pending-upload` download) write never earn the "Saved ✓" tick | a status line that claims "saved" when nothing was written is exactly the false comfort this lane exists to remove |
+| **C2 (no D)** | The acids "Metal carbonate / hydrogencarbonate + Acid → …" item is plain text with `&rarr;`, not TeX; the guard caps `\text{}` runs at 30 chars on Science cards | KaTeX cannot wrap inside `\text{}`: the item was 325 px in a 258 px card at 390 and 360 px; an element screenshot had hidden the overflow |
+| **C2 (no D)** | `#1154` leaves the rest-of-spec plain chemistry (counts per chapter) for NOTES-FORMULA-3 | D198 §5: report, do not fix in the same PR |
+
+## 2026-10-14 — PERF-1 PR-3 / PERF-2 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1139` `#1140` `#1141`, plus the decisions C2 itself made, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **175** | `#1140` APPROVED at `6423da0c`: (1) fixing the wordmark stretch (same width, true height); (2) lossless WebP twins only. Merge on green, then LIVE with 5 cold reads and a `/` check. The owner glances at the before/after sheet; if he prefers the old look the revert is one CSS rule | The spec says "keep the true aspect ratio"; a logo drawn at 4.33:1 from a 3.5:1 file was a distortion, so correcting it restores the brand. Lossless twins are zero pixel change; a resized variant is a follow-up behind a screenshot gate (`[FU-PERF2-WEBP-RESIZE]`) |
+| **179 §3** | `#1141`: drop the lazy Login/SignUp, keep only the on-demand QR code | The door to `/login` and `/sign-up` arrived +150–270 ms later; sign-in is the conversion step and the owner's condition is "no quality degradation" (D161). A slower login is a regression even though the 29.5 KB entry saving is real. The qrcode half reaches no door, so its cost is zero |
+| **182** | The new C2 does NOT run the photo-quality grid; C1 keeps it. C2's queue: `#1140`, then `#1141` qrcode-only + AUDIT-REQUEST, then idle-heartbeat. PERF-3 waits for the owner | C1 is alive; the D173 transfer was superseded. The 3.8-flash grid is DEV evidence only; the saved key cannot call `gemini-2.5-flash` (`[FU-GEMINI-25-FLASH-AVAILABILITY]`) |
+| **185** | `#1141` APPROVED at `a944933a`, conditional on the fresh Opus verifier posting PASS. Slot order: `#1144` (D), then `#1141` (C2), then `#1145` (B after rebase). The size-comment nit is not blocking | The diff is one already-async function plus a guard with a CONTROL; no protected file. The cofounder asked that the measured number go in the LIVE post and the comment fix go in the next PR (no head change) |
+| **C2 (no D)** | After `#1144` went LIVE, `update-branch` once on `#1141`, then proved the 2 lane files byte-identical to `a944933a` and waited for CI again | The branch was BEHIND trunk and a green result on a stale base is not evidence about the merged tree; the cofounder allowed either the approved head or the update-branch head with the lane files proven byte-identical |
+| **C2 (no D)** | Launched a FRESH Opus verifier for `#1141` | The old C2's verifier reported to its own (ending) session and no VERDICT was on the board when the new C2 took over (the old C2's PASS arrived later, so there are two) |
+
+## 2026-10-14 — BANK-STEPS-1 + GARBLE-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY A UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1116` `#1123` `#1125` `#1130` `#1131` `#1136`, plus the decisions A itself made, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **143** | `conceptLabelMap.ts`: delete the two REVIEWED-generic lines no row serves; NOT the MAPPED line "Roots by Formula" — keep it and add a pinned `PAUSED_LABELS` allowance (pins both ways, mutation per label). The 21 NO-ANSWER rows stay SERVED, logged `found`, filled later (answer = the row's own final result). Ledger states `found / paused / repaired / dropped`, one field, `verdict` separate | A stored mistake resolves its subtopic through the map at READ time; deleting the line would drop its Exam Trends concept. NO-ANSWER rows are incomplete, not wrong, and their steps are the marking scheme |
+| **152** | New lane GARBLE-1: hotfix PAUSE of the unreadable trig PYQ-2024 stems, then a deterministic scan, a FIND-2 readability judge, REPAIR from the official paper | A student saw flattened fractions in a Chapter Test; a DIFFERENT defect class from step↔stem pairing |
+| **153** | `#1125`: option 1 — merge as is despite the verifier's precision FAIL; HEY-D04 + EL-AR05 `OVER-PAUSED`; the first repair restores them; fix the CNC2-041 comment | Over-pausing is the safe direction (a withheld row only leaves the draw); re-cutting costs a full regeneration while live students keep meeting the other 69 bad rows |
+| **154** | The garble guard (`bankGarble.guard.test.ts`) ships with the scan; scope = EVERY served row, both subjects; no silent allowlist (a reviewed exceptions list with reasons); mutation: re-serve `PYQ-M-2024-TRIG-014` → RED; per-chapter before→after table | So the class cannot come back; a chapter running thin must be seen |
+| **156 / 165** | Repairs split by subject: B = Science, D = Maths (the second B session became D); A = finding only (scan, FIND-2, ledger schema, paused list, bank docs); shared files, so merges are SERIAL (`MERGE-SLOT`, rebase, regenerate) | Two controllers never edit the same chapter files |
+| **157** | `#1130` approved at `1ca02d65` after a byte-read | — |
+| **159** | The cofounder's "73 hits" was a bug in the cofounder's own script; A's count stands. The 55 served ≥3-mark ONE-step rows: REPAIR not pause, ledgered `found / SINGLE-STEP`, ratchet pinned at 55 | The question and key are right; on the structured path the steps ARE the marking scheme, so one step means no step marking |
+| **169** | FIND-2 PAUSE (25 rows) approved on a 5-row spot-read; RULE CHANGE: also pause flattened-exponent rows (`x2`), π dropped, arrows lost; the 22 stray-digit MERGED rows are a text-clean repair, served meanwhile. Merge order #1131 → #1132 → #1133 → FIND-2 PAUSE → D PR-1; the PR not in the slot TEMP-CLOSEs | A student can read "x2" as x×2 and the grader's steps inherit the ambiguity; pausing is cheap and safe |
+| **170** | `2026-STAT-SA-03` (mean 18 gives 3f = 25) is unsolvable as printed → into the FIND-2 PAUSE, tag `unsolvable-as-printed` (ledger state `dropped`); the handoff lock order C2 → A → C1 → C2 | — |
+| **171** | The 4 entangled ids (AP-004, STAT-008, 2025-STAT-006, 2025-TRIG-005) are paused in the same PR; A may edit exactly `data/cbq/officialCbqTags.maths.ts` (remove STAT-006, 2025-TRIG-005) and `data/figures/mathsFigureVisuals.ts` (remove STAT-008, STAT-006 bindings), each removed line ledgered `restore-on-repair`, counts pinned, mutation RED | The edits are inert for students (a withheld row is never drawn) and keep the guards honest |
+| *(A, in-lane)* | Triage of FIND-2: pause only stems unreadable or unsolvable as printed; leave still-readable stray digits and legitimate "OR" served | Pausing a readable row costs supply for no student benefit |
+| *(A, in-lane)* | A `bankFix/garble1Withholds.ts` category map (`garbled`) feeds the GEN-THIN-1 template rule instead of loosening that guard | Generated rows shaped from a withheld PYQ stay valid under the existing rule; same shape as RULE5-BIND-1 |
+| *(A, in-lane)* | `PYQ-M-RN-003` and `PYQ-M-CG-003` entered the garble guard as reviewed exceptions, each with a reason | The guard's first run found them (clean stem, flattened worked step); the verifier later showed CG-003's stem is NOT clean, so `#1135` withholds it and drops the exception |
+| *(A, in-lane)* | `#1132` was rebased and force-pushed, then re-opened as `#1136` (disclosed on the board) | Slip, not a decision: recorded as `[FU-NO-FORCE-PUSH-ON-PR-BRANCH]` |
+
+## 2026-10-13 — WS-DRAW-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1134`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **132** | C1 builds WS-DRAW-1: Board mix matches the CBSE section shape, AI-written rows capped at 30%, a Board mix includes CBQs; QUESTION if the CBQ target and the AI cap collide in more than 5 topics | Owner rulings 13 Oct ~15:45–15:50 IST; WORKSHEET-SCOUT |
+| **155** | WS-DRAW-1 moves to C2; the worksheet draws only from the SERVED bank (no second filter); both subjects and every worksheet type stated per type | Student-facing correctness work, the owner asked for it today; PERF-2 is speed |
+| **157** | PERF-2 parked after its P6 table; WS-DRAW-1 first | Order |
+| **158** | The 50% target is competency-based (any mark, not only the 4-mark case study); NEW worksheet type "CBQ mix"; measure the CBQ flag's precision FIRST (P14) and QUESTION if it is below 90% | CBSE's own competency-focused booklet mixes 1-mark MCQs, A-R, 2/3-mark and 4/5-mark items; the flag was seen set on plain recall |
+| **164** | CBQ = the verified flag; the AI cap counts AI-pack ids only; D-section shortfalls borrow, are recorded, never padded | C2's P14: the legacy flag was right on 9 of 20 and set on 75% of the bank; the verified flag was right on 20 of 20 and sits entirely outside the AI pack |
+| *(C2, in-lane)* | The student's MI boost TILTS the Board-mix shape (section weight × boost) rather than being dropped | The "Personalise" toggle promises a weighting; a silent no-op is forbidden; signed-out sheets stay exactly 13/3/4/3/2 |
+| *(C2, in-lane)* | `#1134` merged on `PASS-WITH-FOLLOW-UP`; the top-up flaw, the free-mode AI cap and the full-subject tilt are follow-ups, the signed-in MI live run is NEEDS-OWNER | 0 MUST-FIX after the fixes; the owner is away |
+
+## 2026-10-13 — PERF-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1128` and `#1129`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| *(spec, 13 Oct)* | PERF-1 = F1 (notes math without the re-render cost), F3 (non-protected images), F4 (accessibility). The notes target is TBT < 600 ms and Perf ≥ 70; F2 and the home brand images are PERF-2 (protected files) | Lighthouse 12.2.1 mobile, growth session `claude/PAGESPEED_FIX_REQUEST_2026-10-13.md` |
+| **149** | Option 1: this PR ships F1(a) precomputed math (byte-identical guard + mutation mandatory), F3 and F4; the notes targets move to PERF-2 with `[FU-NOTES-TBT-MOUNT]` and the `hydrateRoot` hypothesis; the Lighthouse table stays same-machine ratios | C2 measured first (P6) and found KaTeX is ~4% of the cost; option 2 (mount only the active tab) changes the client DOM and is a PERF-2 fallback |
+| **150** | Record `[FU-NOTES-TBT-MOUNT]` in `#1128`; post 390/1280 before/after screenshots of the return-bar Back button for Important Questions and a dark page; approved only if dark pages look unchanged or better | The Back-button restyle is a visible change on every page that uses the shared bar |
+| *(C2, in-lane)* | Dropped option (b) (formulas enter the DOM near the viewport) before any merge | Removed two thirds of the DOM and moved TBT by nothing measurable; the SEO capture needs every formula in the DOM and `navigator.webdriver` cannot distinguish it from Lighthouse |
+| *(C2, in-lane)* | The Back-button restyle was scoped to `.lt-hpq-page` and the dark default restored | The first version made dark pages' Back button a bright pill |
+| *(C2, in-lane)* | The `gen:note-math` `package.json` script was dropped; the generator runs as `npx tsx scripts/genNoteMath.ts` | `package.json` overlapped two open drafts (lane-overlap) |
+| *(C2, in-lane)* | `#1129` merged on `PASS-WITH-FOLLOW-UP`, the guard holes and the Practice Hub residual text logged as `[FU-PERF1-CONTRAST-RESIDUAL]` for a PR-3 | 0 MUST-FIX; the cofounder had asked for `#1129` to merge before WS-DRAW-1 was pushed |
+
+## 2026-10-13 — PARENTS-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1121`, plus the decisions C2 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| *(owner rulings 12–13 Oct, in the spec)* | The share link is `/check-improve?utm_source=parent_share&utm_medium=whatsapp`, NOT `?ref=parent`; NO parent sign-up CTA in v1; no price; "Can I see my child's progress?" answers "Not yet"; grants: the `App.tsx` route line, one `Welcome.tsx` link line, the footer link | `ref` is already two things here; a parent who signs up on their own phone is the dead-account pattern the page exists to stop; payments are not live; no promise |
+| **130** | PARENTS-1 queued for C2 after ORG-SAMEAS-1 is LIVE; verifier PASS plus cofounder APPROVE (routing + protected files); `vercel.json` changes only through the generator | The page touches `App.tsx`, `Welcome.tsx` and routing |
+| **137** | P11–P14 accepted: the mirror list; the FAQ claims as proved; "no ads inside the app" plus the privacy link, never "no tracking"; the four one-line `parent_share_click` additions with the label "Tapped Send to my child"; `INLINE_ROUTE_CSS_MODULES` pre-approved for `"ForParentsPage"` ONLY if the preview shows a layout shift without it | The analytics pixels are not ads; a one-entry list change needs evidence |
+| **142** | Option (b): measure `/for-parents` on the preview and, if it shifts, add the entry in THIS PR and amend the D63a pin; post CLS before → after. Copy extras kept (eyebrow, closing card, not-affiliated line); the 41-character title is fine. APPROVED for `fc79080e` plus that delta, on CI green and an Opus delta PASS | The page is a paid-ad landing; measure before ads point at it |
+| **146** | The handoff lock goes to C1 first (for `#1122`); C2 takes it after, once `#1121` is LIVE | `#1121`'s §10 was not ready |
+| *(C2, in-lane)* | The verifier's two SHOULD-FIXes were fixed in the PR and re-verified on the new head, not logged as follow-ups | The `placement` value the spec asked for was being thrown away, and the FAQ lost its disclosure arrow on Android Chrome |
+| *(C2, in-lane)* | The residual shift (the TestimonialVideo frame) was closed by repeating the facade's four GEOMETRY rules in `forParents.css`, not by widening `routeCssFor` to inline the shared stylesheet | D137 pre-approved ONE array entry and "nothing else in that file"; the page's own CSS is C2's file; the duplicate is flagged `[FU-FOR-PARENTS-VIDEO-CSS-DUPLICATE]` |
+| *(C2, in-lane)* | A one-sentence edit of the stale doc comment above `INLINE_ROUTE_CSS_MODULES` was made alongside the array entry (text only) | The comment said "the ONLY route"; leaving it would mislead the next reader |
+| *(C2, in-lane)* | The Welcome parent-line render check lives in `Welcome.legalFooter.test.tsx`, and the `trackParentShareClick` tests in `analytics.practiceGraded.test.ts`; the new guard checks `Welcome.tsx` as text | Rendering Welcome or importing the activity client reads the clock, and `CLOCK_GUARD` allows only the files in `date-sensitive-tests.json`, which C2 was not granted to edit |
+
+## 2026-10-13 — UPLOAD-READ-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C1 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped PR-A, `#1120` and `#1122`, plus the decisions C1 itself made, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **138** | ONE upload ceiling: **7 MB raw PDF** for question AND answer uploads on every file route; `FILE_ROUTE_MAX_BODY_BYTES` = 10 MiB; client `MAX_UPLOAD_PDF_BYTES` and server `MAX_MENTOR_PDF_BYTES` pinned equal; every other route keeps the 5 MB default. Also: the streaming change is opt-in, so every other Gemini caller is unchanged | The edge in front of the app refuses bodies over EXACTLY 10 MiB (10,485,760 B passes, +1 B gets 413; measured by POSTing `A` bytes to www `/api/health`), so the cofounder's earlier 12 MB was unreachable. 7 MB = 9,786,712 B base64 + about 0.2 MB allowance fits with about 0.49 MB spare; 8 MB (11.18 MB base64) can never arrive. One ceiling means one message and one test |
+| **141** | Fix the verifier's F1 (client total-body budget) and F2 (QR `peekSlot` before reading the body) INSIDE `#1122`, and WAIVE the lane-overlap check for `#1122` only; record `[FU-1086-REBASE-AFTER-1122]` | F1 is how a student with several large files would otherwise meet a raw 413, and F2 is an unauthenticated route reading a body before checking the slot. The lane-overlap RED came solely from draft `#1086` (TOPUP-1, `fairUse.cjs`), which is dormant, so the waiver costs nothing now; `#1086` must rebase onto trunk before it is ever un-drafted |
+| *(LEAD-RULING 1)* | `#1122` merges before `#1086` | A live student was blocked; hotfix priority over a draft |
+| *(cofounder, in the spec, comment 6143700233 v1.0)* | The failure is the detect output cap; fix it at the cap and salvage a partial reply instead of refusing | 38 questions need about 6 to 9k tokens against a 4096 cap |
+| *(C1, in-lane)* | The budget check in `postGrading` imports lazily | `entitlement.test.cjs` A11 transpiles `aiClient.ts` standalone and a top-level relative import broke CI |
+| *(C1, in-lane)* | Merged `#1122` by REST squash with `sha=0d0b1c4d` pinned, after the verifier's PASS on that head | Pinning the head means nothing pushed after the verifier's review can ride in |
+| *(C1, in-lane)* | The `#1120` metering records a flagged ESTIMATE per field, never zeros | A zero reads as "free"; an estimate that errs low is honest if flagged (follow-up (a) and (b)) |
+| *(C1, in-lane)* | The verifier items that are not MUST-FIX (detect / QR / tutor absent from the budget, no C&I UI test for the message, no byte-aware Quick Practice batch) were logged, not built | Each is outside the hotfix and none can reach the wall (see the follow-ups) |
+
 ## 2026-10-13 — ORG-SAMEAS-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1112`, plus the decisions C2 itself made, with reasons.

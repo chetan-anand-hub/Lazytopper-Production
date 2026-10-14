@@ -133,7 +133,15 @@ function cropProblems(c: CropFigureBinding): string[] {
 }
 
 describe("solution figure CROPS — file and row checks", () => {
-  for (const c of ALL_CROP_FIGURE_BINDINGS) {
+  // 13 Oct BANK-STEPS-1 PR-3: a crop bound to a row whose steps are paused (withheld until its repair PR) is skipped while paused and checked again the
+  // moment the id leaves the ledger's `paused` state; the control proves a paused crop's row is genuinely not served.
+  const CROP_PAUSED = new Set(BANK_STEPS_1.filter((e) => e.state === "paused").map((e) => e.id));
+  it("a crop is skipped only while its row is paused, and a paused row is not served", () => {
+    for (const c of ALL_CROP_FIGURE_BINDINGS.filter((x) => CROP_PAUSED.has(x.questionId))) {
+      expect(cropProblems(c), `${c.questionId} is paused`).toContain("row not served");
+    }
+  });
+  for (const c of ALL_CROP_FIGURE_BINDINGS.filter((x) => !CROP_PAUSED.has(x.questionId))) {
     it(`${c.questionId}: served, WebP under /figures/solutions/, ≤ 80 KB, alt + eye-confirm`, () => {
       expect(cropProblems(c)).toEqual([]);
     });

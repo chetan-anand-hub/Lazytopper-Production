@@ -83,6 +83,8 @@ const PR1_NOT_BOUND = [
 const BANK_FIX_6_BOUND_BUT_WITHHELD: readonly string[] = ["APQ-M-TRIG-011", "APQ-M-TRIG-016"];
 // B (2026-10-10, BANK-UNWITHHOLD-1): 10 of the 11 are served again; APQ-M-ARC-001 stays withheld (its official stem is blank).
 const C3_D1_BOUND_BUT_WITHHELD: readonly string[] = ["APQ-M-ARC-001"];
+// GARBLE-1 (D171, 14 Oct 2026): two statistics rows whose stem lost its class-interval dashes are withheld; their figure bindings are kept and declared.
+const GARBLE_1_BOUND_BUT_WITHHELD: readonly string[] = ["PYQ-M-STAT-008", "PYQ-M-2025-STAT-006"];
 
 // Census 2026-10-07 Appendix 3: bound figures BANK-FIX-1 PR-2 found WRONG. PR-1 must never bind any of them.
 const CENSUS_WRONG_IDS = [
@@ -122,8 +124,10 @@ describe("DIAGRAMS-1 PR-1 bindings (Circles + Triangles) are exactly the eye-con
     // every declared row is bound by PR-1, by PR-6 (the PR-6 block below pins its own rows) or by C3 PR-D1 (pinned one by
     // one in mathsFigureVisuals.c3.test.ts; the table above lists its declared ids so this list stays closed)
     expect(BOUND_BUT_WITHHELD.filter((q) => !PR1_BINDINGS.some(([b]) => b === q) && !PR6_BINDINGS.some(([b]) => b === q)
-      && !C3_D1_BOUND_BUT_WITHHELD.includes(q) && !BANK_FIX_6_BOUND_BUT_WITHHELD.includes(q))).toEqual([]);
+      && !C3_D1_BOUND_BUT_WITHHELD.includes(q) && !BANK_FIX_6_BOUND_BUT_WITHHELD.includes(q) && !GARBLE_1_BOUND_BUT_WITHHELD.includes(q))).toEqual([]);
     expect(C3_D1_BOUND_BUT_WITHHELD.filter((q) => !BOUND_BUT_WITHHELD.includes(q) || getFiguresForQuestion(q).length === 0)).toEqual([]);
+    // each GARBLE-1 declaration is withheld, keeps its figure (the repair PR only un-withholds), and re-serving it would be RED via the `stale` pin above
+    expect(GARBLE_1_BOUND_BUT_WITHHELD.filter((q) => !BOUND_BUT_WITHHELD.includes(q) || !WITHHELD_QUESTION_IDS.has(q) || getFiguresForQuestion(q).length === 0)).toEqual([]);
   });
 
   it("every binding's chapter matches its row's chapter (served or withheld)", () => {

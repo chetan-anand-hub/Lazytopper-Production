@@ -63,6 +63,7 @@ import { captureIncomingReferral } from "./services/referralService";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
+const ForParentsPage = lazy(() => import("./pages/ForParentsPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const VisualAuditPage = lazy(() => import("./pages/VisualAuditPage"));
 const CacheStatsPage = lazy(() => import("./pages/CacheStatsPage"));
@@ -1010,6 +1011,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
               never signed in. */}
           <Route path="/cbse/class-10" element={withRouteSuspense(<Cbse2027Page />)} />
           <Route path="/check-your-answer" element={withRouteSuspense(<CheckYourAnswerPage />)} />
+          <Route path="/for-parents" element={withRouteSuspense(<ForParentsPage />)} />
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
           <Route path="/admin/visual-audit" element={withRouteSuspense(<VisualAuditPage />)} />
           <Route path="/admin/cache-stats" element={<RequireAuth>{withRouteSuspense(<CacheStatsPage />)}</RequireAuth>} />

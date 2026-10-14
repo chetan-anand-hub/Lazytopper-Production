@@ -1,5 +1,67 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 (C2, §10 for `#1148` `#1151` `#1154`).** Scope did not change. **One cross-cutting thing moved: PERSISTENCE of a graded result on all six grading surfaces** (Check & Improve single, Check & Improve multi, Worksheet, Chapter Test, Full Mock, Quick Practice) through the single writer `services/sessionRecords.ts` (`#1151`): outbox, retry, re-send on next load / `online`, a status line mounted once by `AuthProvider`; no grading, marks or prompt change. The notes surface moved too (`#1148`: the Formulae card in two places; `#1154`: chemistry as chemistry on 7 Science chapters).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| All six grading surfaces (persistence only) | a result is queued in a per-uid outbox before the cloud write, retried, re-sent on next load / `online`, never over a newer cloud copy; "Saving…" / "Saved ✓" / "Saved on this device…" (`#1151`) | 🟢 live | the owner's signed-in round-trip, ≥ 2 surfaces: offline grade → device-only line → online → saved → history on a second device; offline grade + close tab + reopen |
+| Notes pages (26 chapters) | the Formulae card after The Big Idea and atop "Formulae & Mindmap" (`#1148`) | 🟢 live | a phone glance; the print duplicate (`[FU-NOTES-FORMULA-PRINT-DUPLICATE]`) |
+| Notes pages (7 Science chapters) | formula cards as TeX with state symbols (`#1154`) | 🟢 live | `[FU-NOTES-FORMULA-3-PLAIN-CHEMISTRY]` (the fields outside the strips) |
+
+> **2026-10-14 — PERF-1 PR-3 + PERF-2 (C2, §10 for `#1139` `#1140` `#1141`).** No surface moved and Scope did not change. Presentation only: the Practice Hub cards and the Check & Improve link text colour (`#1139`), the home brand images and the wordmark's height (`#1140`), and where the QR library loads from (`#1141`). The six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) were not touched. Owed: the owner's wordmark glance and one desktop QR draw.
+
+> **2026-10-14 — BANK-STEPS-1 + GARBLE-1 (A, §10 for `#1116` `#1123` `#1125` `#1130` `#1136`, with B's `#1131`).** Content only; no surface's code or Scope changed. **Scope WAS discovered:** a second bank-defect class, PDF-extraction garble (a stem unreadable or unsolvable as printed), found after a student saw it live in a Chapter Test. It is logged in DECISION_LOG (D152/D154/D169) and tracked here; the six grading surfaces are untouched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Chapter Test, Worksheet, Full Mock, Quick Practice (draw) | 333 step-mismatched rows and 3 garbled-stem rows withheld (`#1116` `#1123` `#1125` `#1130`); one withhold reaches all four; 2 rows restored (`#1131`) | 🟢 live | a live draw of the restored EL-AR05/HEY-D04 on one structured surface |
+| Check & Improve (single and multi) | the same withholds (a withheld id is not drawn as a question to check); no grading code changed | 🟢 live | — |
+| Bank guards | `bankGarble.guard.test.ts` + a SINGLE-STEP ratchet pinned at 55 (`#1136`) | 🟢 live (tests) | `[FU-GARBLE-GUARD-COVERAGE]` |
+| Garble FIND-2 pause | 31 ids + 4 entangled (`#1135`) | 🟡 not merged | merge slot after B's `#1133` |
+| Worked-step quality | 55 single-step rows served; 2 clean-stem rows with a flattened step | 🟡 partial | `[FU-SINGLE-STEP-REPAIR]`, `[FU-GARBLE-STEP-TEXT]` |
+
+> **2026-10-13 — WS-DRAW-1 (C2, §10 for `#1134`).** One surface moved: the WORKSHEET draw (and one new selector option). Scope did not change. The other grading surfaces were not touched: C&I single, C&I multi, Chapter Test, Full Mock, Quick Practice. Worksheet GRADING is untouched.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Worksheet: Board exam mix | shaped by section (25 → 13/3/4/3/2), ≤ 30% AI-pack rows, ≥ 50% competency-based, no repeats (`#1134`) | 🟢 live | owner signed-in MI run, phone glance |
+| Worksheet: Quick drill, High-marks focus | same section ratios, AI cap, no repeats; no CBQ target (`#1134`) | 🟢 live | — |
+| Worksheet: "CBQ mix" (new type) | every row competency-based across the section shape; honest short sheet, never padded (`#1134`) | 🟢 live | phone glance |
+| Worksheet: MI personalisation | the section boost tilts the shaped sheet; un-shaped boosted sheets keep the original skewed draw (`#1134`) | 🟡 partial | signed-in live run; `[FU-WSDRAW-FREE-MODE-AI-CAP]`, `[FU-WSDRAW-FULLSUBJECT-TILT]` |
+
+> **2026-10-13 — PERF-1 (C2, §10 for `#1128` + `#1129`).** Display and styling only; no surface's Scope changed. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Notes pages (`/notes/*`, Topic Hub notes modal) | formulas precomputed, no KaTeX JS; figures sized + lazy; enlarge-figure name; faint ink 4.5:1 (`#1128`, `#1129`) | 🟢 live | www Lighthouse; owner phone glance; TBT target → PERF-2 |
+| `/cbse/class-10`, `/check-your-answer`, `/for-parents` | testimonial thumbnail is a responsive `<picture>` (`#1128`); CBSE / cya muted ink and green raised (`#1129`, not `/for-parents`) | 🟢 live | `[FU-FORPARENTS-CONTRAST]` |
+| Important Questions (`/highly-probable/*`) | labelled chapter select, button names (`#1128`); amber chips, pill, Check button, chip ink, Back button readable (`#1129`) | 🟢 live | owner glance at the Back button |
+| Practice Hub (`/practice-hub`) | solid green buttons and the four mode chips ≥ 4.5:1 (`#1129`) | 🟡 partial | `[FU-PERF1-CONTRAST-RESIDUAL]` (ModeCard CTA/hint text, Check & Improve link) |
+| Navbar Search / Log in (light theme) | `--text-muted` darkened inside `.navbar` only (`#1129`) | 🟢 live | — |
+| Shared return bar (`ux-return-bar`) | chip ink and active chip raised; default Back button unchanged (`#1129`) | 🟢 live | — |
+| Bottom-nav "Practice" label, Home contrast | not changed (protected files) | 🔴 open | PERF-2 |
+
+
+> **2026-10-13 — PARENTS-1 (C2, §10 for `#1121`).** One new public surface; no surface's Scope changed. The grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/for-parents` | new public page: H1, WhatsApp share, video, tiles, FAQ (`#1121`) | 🟢 live | owner phone checks; growth: re-point `yt_parents` ads |
+| Home (`Welcome.tsx`) | one "Are you a parent?" line after the guide link (`#1121`) | 🟢 live | — |
+| Public legal footer | "For parents" link before the social row (`#1121`) | 🟢 live | — |
+| Admin Source column | "Parent share" is now reachable from a real link (SOURCE-2 label, `#1121` link) | 🟢 live | owner: sign up via the shared link |
+| Layout shift on `/for-parents` | route CSS inlined + video box reserved; 1440 px CLS 0.388 → 0.002 (`#1121`) | 🟢 live | — |
+| Signed-out free check promise on the page | server path on; end-to-end not completed by a controller | 🟡 partial | `[FU-FREE-CHECK-LIVE-E2E]` |
+
+> **2026-10-13 — UPLOAD-READ-1 (C1, §10 for PR-A `00badaab`, `#1120`, `#1122`).** No surface's Scope changed and no new scope was discovered. The Check & Improve upload ceiling changed (3.5 MB client / 5 MB server → 7 MB on every file route), but grading behaviour did not: the six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) keep their marks, prompts, mistake types, departure handling and objective clamp. No surface cell was flipped.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Check & Improve, question detection (single / multi upload) | output cap 16384, salvage with "We read the first n questions", streamed with a 50 s deadline (PR-A, `#1120`) | 🟢 live | — |
+| Upload ceiling: C&I single/multi, Worksheet, Chapter Test, Full Mock, Quick Practice (collect mode) | 7 MB raw PDF, 10 MiB body cap, client total-body budget message (`#1122`) | 🟢 live | live-verify of a 6 to 7 MB ANSWER PDF on C&I and on a worksheet |
+| Files over 10 MiB (or scans too big to send) | refused with the size message; no path to accept them | 🟡 partial | `[FU-UPLOAD-OVER-10MIB-EDGE]`; UPLOAD-SHRINK-1 PR-1 |
+| Draft `#1086` (TOPUP-1) | conflicts with `#1122` in `fairUse.cjs`; lane-overlap waived once (D141) | 🟡 partial | `[FU-1086-REBASE-AFTER-1122]` |
+
 > **2026-10-13 — ORG-SAMEAS-1 (C2, §10 for `#1112`).** No surface's Scope changed and no new scope was discovered. Head and footer markup only; the grading surfaces were not touched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |

@@ -11,7 +11,7 @@ import type {
   RulesBlock,
   ThirdTabContent,
 } from "./noteSpec.types";
-import { getNoteAssetUrl } from "./noteSpecRegistry";
+import { getNoteAssetSize, getNoteAssetUrl } from "./noteSpecRegistry";
 import { NoteRichText } from "./NoteRichText";
 import { NoteMindmapTree } from "./NoteMindmapTree";
 import { NoteGeneratedFigure, hasGeneratedRenderer } from "./NoteGeneratedFigure";
@@ -26,7 +26,7 @@ import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncer
  * Visual gold standard: the locked v2 note prototypes in `notes/`
  * (esp. `light_note_ENRICHED_v2_2026-06-21.html`) — 3 tabs
  * (Note / Mindmap / [third]), the 7-part spine (Big Idea → Definitions →
- * Concepts → Worked examples → Strategies → Pitfalls → Formula strip),
+ * Concepts → Worked examples → Strategies → Pitfalls; the Formulae card (NOTES-FORMULA-1) follows Big Idea and heads the Mindmap tab),
  * Fraunces + Inter, brand green hsl(152,55%,45%), KaTeX math. This component
  * reproduces that grammar; it does NOT redesign it.
  *
@@ -66,7 +66,7 @@ const NOTE_CSS = `
   --lt-note-navy: #0f2444;
   --lt-note-ink: #1a2433;
   --lt-note-ink-soft: #566173;
-  --lt-note-ink-faint: #8b94a3;
+  --lt-note-ink-faint: #5f6b7d;
   --lt-note-bg: #f6f8fa;
   --lt-note-line: #e7ebf0;
   --lt-note-amber-tint: #fdf6e9;
@@ -737,6 +737,7 @@ function LedgerSource({
 
 function FigureCard({ figure }: { figure: NoteFigure }) {
   const assetUrl = getNoteAssetUrl(figure.asset);
+  const size = getNoteAssetSize(figure.asset);
   const generated = hasGeneratedRenderer(figure);
   const [enlarged, setEnlarged] = useState(false);
   const alt = figure.caption || figure.tag || "Note figure";
@@ -756,10 +757,18 @@ function FigureCard({ figure }: { figure: NoteFigure }) {
         <button
           type="button"
           className="lt-note__fzoom"
-          aria-label={`Enlarge figure: ${figure.tag || alt}`}
+          aria-label={`Tap to enlarge figure: ${figure.tag || alt}`}
           onClick={() => setEnlarged(true)}
         >
-          <img className="lt-note__fimg" src={assetUrl} alt={alt} />
+          <img
+            className="lt-note__fimg"
+            src={assetUrl}
+            alt={alt}
+            width={size?.width}
+            height={size?.height}
+            loading="lazy"
+            decoding="async"
+          />
           <span className="lt-note__fzoom-badge" aria-hidden="true">Tap to enlarge</span>
         </button>
       ) : (
@@ -897,6 +906,31 @@ function ExampleCard({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * NOTES-FORMULA-1 — the formula strip as ONE card, rendered in two places (owner: "keep in both"):
+ * directly after "The Big Idea" in the Note tab, and at the top of the Mindmap tab. Both panels are
+ * always in the DOM (and the prerendered HTML), so the text is present twice. An empty strip renders
+ * nothing — no empty card.
+ */
+function FormulaeCard({ items }: { items: NoteSpec["formula_strip"] }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <section className="lt-note__block">
+      <div className="lt-note__sec-label">Formulae</div>
+      <div className="lt-note__frow">
+        {items.map((item, i) => (
+          <div key={i} className="lt-note__fitem">
+            <div className="lt-note__flabel"><NoteRichText text={item.label} /></div>
+            <div className="lt-note__fval">
+              <NoteRichText text={item.math} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -1303,7 +1337,7 @@ export function Note({ spec, initialTab }: NoteProps) {
           className={`lt-note__tab${tab === "mind" ? " lt-note__tab--active" : ""}`}
           onClick={() => setTab("mind")}
         >
-          Mindmap
+          {spec.formula_strip.length > 0 ? "Formulae & Mindmap" : "Mindmap"}
         </button>
         <button
           type="button"
@@ -1357,6 +1391,8 @@ export function Note({ spec, initialTab }: NoteProps) {
               )}
             </section>
           )}
+
+          <FormulaeCard items={spec.formula_strip} />
 
           {spec.definitions.length > 0 && (
             <section className="lt-note__block">
@@ -1505,27 +1541,12 @@ export function Note({ spec, initialTab }: NoteProps) {
               ))}
             </section>
           )}
-
-          {spec.formula_strip.length > 0 && (
-            <section className="lt-note__block">
-              <div className="lt-note__sec-label">Formula strip</div>
-              <div className="lt-note__frow">
-                {spec.formula_strip.map((item, i) => (
-                  <div key={i} className="lt-note__fitem">
-                    <div className="lt-note__flabel"><NoteRichText text={item.label} /></div>
-                    <div className="lt-note__fval">
-                      <NoteRichText text={item.math} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
         </div>
       </div>
 
       {/* ── Mindmap tab ── */}
       <div className={"lt-note__panel" + (tab === "mind" ? " lt-note__panel--active" : "")}>
+        <FormulaeCard items={spec.formula_strip} />
         <MindmapPanel mindmap={spec.mindmap} />
       </div>
 

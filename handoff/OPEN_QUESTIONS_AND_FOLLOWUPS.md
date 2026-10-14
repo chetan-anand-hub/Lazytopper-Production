@@ -23,6 +23,182 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-SAVE-SYNC-QUOTA]
+Pending bodies are stored twice (the localStorage mirror and the outbox entry) and one JSON key per uid is rewritten on every upsert. When the outbox write hits the quota the entry is NOT stored: today that is a `console.warn` only, and a CLOSED tab then loses that result. Priority next for whoever touches saving again (D206): cap the outbox by count/size and show the device-only line when the outbox write fails. CLOSED when both are in and tested.
+
+### [FU-SAVE-SYNC-REMOUNT]
+`resetOutboxSession()` runs on ANY change of the signed-in uid (also a StrictMode remount or a brief null uid). Harmless: the fresh drain may repeat a write the SDK is still flushing, which is an identical full replace guarded by the newer-cloud check. Noted so a future change does not make it destructive.
+
+### [FU-SAVE-SYNC-FIRESTORE-PERSISTENCE]
+Firestore's own persistent cache would make an offline write survive a reload by itself. It is a client-config change in `firebaseClient.ts` (PERF-3b territory), not done in `#1151`; the outbox covers the reload case meanwhile.
+
+### [FU-SAVESTATUS-INLINE-STYLE]
+`SaveStatusToast.tsx` carries its CSS in a `<style>` block inside the component (D206, §7: no inline styling in new components). Move it to a CSS file.
+
+### [FU-NOTES-FORMULA-PRINT-DUPLICATE]
+The PDF/print shows every panel (`.lt-note__panel{display:block!important}`), so the Formulae card prints TWICE per note (after The Big Idea and again above the mind-map). It follows the owner's "keep in both"; hiding the Mindmap-panel copy in print is a one-class change. Waits for the cofounder's word.
+
+### [FU-NOTES-PROBABILITY-FRAC-OVERFLOW]
+`/notes/probability` formula item 0 contains two long `\text{…}` runs inside a `\frac` ("Number of outcomes favourable to E", "Number of all possible outcomes") and measures 300 px in a 258 px card on www at 390 and 360 px (found while measuring `#1154`; pre-existing). KaTeX cannot wrap inside `\text{}`: shorten the words or stack them.
+
+### [FU-NOTES-REALNUMBERS-TEXTBF]
+`notes/specs/real-numbers.json` items 1 and 2 hold `\textbf{smallest}`, `\textbf{common}`, `\textbf{greatest}`, `\textbf{every}` OUTSIDE `$…$`; `NoteRichText` puts non-math text straight into HTML, so the literal backslash text is on the page and in `prerendered/notes/real-numbers.html`. Use `<b>` or `$…$`. Maths lane.
+
+### [FU-NOTES-MATH-ARIA]
+Note math renders with `output:"html"` (no MathML), so the formula HTML is `aria-hidden` and a screen reader hears nothing for a formula; the two heredity labels that became `$\text{F}_2$` now read as "Monohybrid  ratio". True of all note math already; `#1154` extends it to Science and to a label.
+
+### [FU-NOTES-FORMULA-SEPARATOR]
+Two equations on one card are separated by a spaced " . " (D214 nit). Use " · " (U+00B7) or a line break in a later touch.
+
+### [FU-NOTES-FORMULA-3-PLAIN-CHEMISTRY]
+Plain-text chemistry/unit patterns OUTSIDE the formula strips, counted per field (scan: capital+digit subscripts, ASCII arrows, flat unit powers, over `examples`, `mindmap`, `third_tab_content`, `concepts`, `definitions`, `figures` alt text): acids-bases-and-salts 57, metals-and-non-metals 51, chemical-reactions-and-equations 46, carbon-and-its-compounds 35, heredity 35, our-environment 5, life-processes 2; other Science chapters: electricity 5, magnetic-effects 6, how-do-organisms-reproduce 4, human-eye 2, light 1, control-and-coordination 0. Some are false positives (alt text, figure ids). Example: carbon `examples[]` `equation` `CH4 + 2O2 -> CO2 + 2H2O + heat and light`. This is NOTES-FORMULA-3 material (D198 §5: report, do not fix in `#1154`).
+
+### [FU-NOTES-OXIDATION-AGENT]
+The carbon oxidation card keeps `[O]` over the arrow; a CBSE answer names the agent (alkaline KMnO₄ or acidified K₂Cr₂O₇, with heat). A long `\text{}` would overflow a 258 px card (see the `\text{}` ≤ 30 chars guard): needs a short form or a line break. Optional.
+
+## 2026-10-14 — PERF-1 PR-3 / PERF-2 FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-QR-BUNDLE-PROOF]
+`#1141` proved `qrcode` left the entry chunk on a build at `db47f8b8` (entry gz9 400,775 → 390,366 B; `qrcode` its own `browser-*.js`, 10,120 B gz9), not on a rebuild at the merge SHA `bb853239`. Re-run the size check at the next PERF build and keep the chunk citation. CLOSED when a build at or after `bb853239` shows `qrcode` absent from `index-*.js`.
+
+### [FU-QR-GUARD-HARDEN]
+`referralService.qrLazy.test.ts` uses `/^import\s[^;]*from\s+["']qrcode["']/m` and scans only `referralService.ts`. It misses `export … from "qrcode"`, an indented `import`, a side-effect `import "qrcode"`, and a static import added in any OTHER file. Extend to `^\s*(import|export)\s[^;]*from\s+["']qrcode["']` plus the bare form, and scan all of `src`, keeping the control.
+
+### [FU-QR-COMMENT-SIZE]
+`referralService.ts:178` says `~7 KB gz` and the test header says `~10 KB gz`. The measured chunk is 10,120 B gz9. Make both say ~10 KB. The cofounder asked that it go in the next PR (no head change on `#1141`).
+
+### [FU-LOGIN-DOOR-LAZY]
+Making `/login` and `/sign-up` lazy would save 29.5 KB gz of entry, but React 19 holds a Suspense reveal ~300 ms after its fallback commits, so the form arrived +230–330 ms later on a direct visit (parity only on slow 4G + 4× CPU), and the sign-in BUTTONS (`PricingPage` "Start free", `RequireAuth`, the header "Sign in", `DesktopShell`) never warm the chunk (+480 ms click-to-form on slow 4G). It would need the first render held until the chunk resolves on `/login` and `/sign-up` (`main.tsx`) plus intent warming on the buttons. Parked by D179 §3.
+
+### [FU-PERF2-WEBP-RESIZE]
+`#1140` shipped LOSSLESS twins only (8–10% lighter). A resized 2× variant is a follow-up with a screenshot gate (D175).
+
+### [FU-NOTES-TBT-MOUNT]
+`hydrateRoot` fails with React error #418 on every prerendered route (the prerender is a DOM capture of a client render, not React server output); notes cost = 1.5 s first layout of the prerendered HTML + a ~2 s React mount at 4× CPU. Candidates and their cost are in NEXT_ACTION.
+
+### [FU-PERF2-WORDMARK-OWNER]
+The wordmark keeps its width (so it still lines up with the tagline: 90.536 / 99.589 px) and takes its true height (25.9 / 28.4 px). `Welcome.addendumA.test.tsx` pins the hard-coded widths to the tagline height. Owner glance owed; revert = one CSS rule.
+
+## 2026-10-14 — BANK-STEPS-1 / GARBLE-1 FOLLOW-UPS (recorded by A under §10)
+
+### [FU-BANKSTEPS-OVERPAUSED-2] — HEY-D04 and EL-AR05 were paused though their steps fit the stem — CLOSED
+`#1125`'s Opus delta verifier found them over-paused (HEY-D04: extra, correct presbyopia content in step 5; EL-AR05: step 1 paraphrased a sibling's assertion, 1-mark objective). D153 merged anyway and recorded the verdict `OVER-PAUSED`; B's `#1131` (`e851aabf`) rewrote their steps and served them again. **Closed.** Lesson kept: a PARTIAL verdict ("part of the steps answer another question") over-pauses rows whose working is sound; the repair queue is where they come back.
+
+### [FU-SINGLE-STEP-REPAIR] — 55 served ≥3-mark rows have ONE solution step, so the structured grader has no step marking
+Found by the GARBLE-1 scan; the question and key are correct (so not paused). Ledgered `found / SINGLE-STEP` by `#1136` (52 Science → B, 3 Maths → D) under a ratchet pinned at 55 in `bankGarble.guard.test.ts`: the count may only fall, a new one is RED, and a repaired row must flip to `repaired`. Fix: split each into §13 steps with [mark] tags, keeping the content.
+
+### [FU-GARBLE-STEP-TEXT] — served rows whose STEM is clean but whose stored worked STEP was flattened at extraction
+`PYQ-M-RN-003` (step 1 reads "q q 2 – p p" and lost its √) and `PYQ-M-CG-003` (flattened distances) are reviewed exceptions in `bankGarble.guard.test.ts`. Four more are legible math-italic only (PYQ-M-2025-SAV-003, PYQ-M-2026-STAT-001, PYQ-M-2024-AP-002a, PYQ-S-2025-HERED-006) and are not flagged. Fix: rewrite the step text from the official marking scheme; remove the exception in the same PR. Owner: D (Maths).
+
+### [FU-GARBLE-TEXT-CLEAN] — 22 FIND-2 "MERGED" rows are still served with a stray marks digit or page number in the stem
+E.g. "… 2 OR (b)", "… 3 18 34". Readable, so not paused (D169): a text-clean repair strips the stray digit and keeps a legitimate CBSE internal-choice "OR". List: `Desktop\diff\report-garble1-find2-2026-10-14.md`.
+
+### [FU-GARBLE-GUARD-COVERAGE] — the garble guard has no pattern for a DROPPED minus or √
+Found by the `#1136` verifier: `PYQ-M-CG-003`'s stem lost a minus ("( 2, 3)", not a right triangle as printed) and no pattern caught it (the FIND-2 judge did). Add patterns for a bare "( 2," after a bracket and a "2 + 3 is rational" √ loss; fix the comment "Empty today" in the exceptions list (it holds two entries); drop the CG-003 exception when `#1135` withholds it.
+
+### [FU-FIND2-LTGEN-REST] — only 5% (203) of the 4,055 served LLM-generated rows were judged for readability
+All 1,067 served PDF-extracted rows were judged. The generated sample had 0 true hits, so the class is judged clean on a sample, not exhaustively. Judge the rest only if a student reports one.
+
+### [FU-GARBLE-TEMPLATE-CATEGORY] — withheld garbled rows are the *templates* of generated rows
+Many LTG rows are `shapedFrom` a PYQ row that GARBLE-1 withholds. The GEN-THIN-1 template rule accepts a withheld template only by category; `#1135` adds `bankFix/garble1Withholds.ts` (category `garbled`) to that rule. Each REPAIR that serves one of those ids again must remove it from the map in the same PR.
+
+### [FU-TRIG-001-DEGREE-SIGN] — `PYQ-M-2024-TRIG-001` steps and finalAnswer lost the degree sign ("(d) 60")
+From the `#1130` verifier. The answer field ("60°") and the options are right, so the mark is unaffected. Cosmetic: restore the "°" in the step and finalAnswer in a text-clean PR.
+
+### [FU-NO-FORCE-PUSH-ON-PR-BRANCH] — a force-pushed PR branch cannot be reopened
+`#1132` was TEMP-CLOSED for lane-overlap, then its branch was rebased and pushed with `--force-with-lease`; GitHub refused `gh pr reopen`, so the content moved to `#1136`. Standing rule: bring a TEMP-CLOSED branch up to date by merging trunk in (a normal push), never by rebase + force. The ruleset also blocks merging a BEHIND branch, so `gh pr update-branch` (one-line heads-up, prove the lane files byte-identical) is the route.
+
+## 2026-10-13 — WS-DRAW-1 FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-WSDRAW-TOPUP-SECTION] — the dedupe top-up can refill one short section from another's neighbour (owner: C2, with PERF-1 PR-3 or the next worksheet lane)
+`worksheetShape.ts` `drawFromSpec`: `fillFrom(k)` keeps taking rows until the whole SHEET is full, not until section `s` is back to target. With two short sections (two dedupe skips in one sheet), the first section's neighbour fill also covers the second one's gap: a made-up case (targets A2 B2 C1 D2, B and D one short) gives A4 B1 C1 D1. The count stays exact. Rare on the real bank (the 568-sheet sweep never triggers it). Fix: stop each `fillFrom` once that section's gap is closed.
+
+### [FU-WSDRAW-FREE-MODE-AI-CAP] — an un-shaped sheet with an MI boost takes the original draw, which has no AI cap (owner: the next worksheet lane)
+A custom sheet of fewer than 10 rows, or one section, with a weak-section boost, falls through to the original skewed draw: no AI cap, no stem dedupe, no `aiOverCap` record (triangles, 8 rows, `{C:5}`: over the cap on 2 of 12 seeds). Same as trunk before WS-DRAW-1, so not a regression; the single-section case cannot reach it from the UI (the skew needs more than one section). Fix: apply the cap and the dedupe inside the skewed draw.
+
+### [FU-WSDRAW-FULLSUBJECT-TILT] — in full-subject scope the section tilt is the MEAN over all topics (owner: the next worksheet lane)
+`planDraw` tilts the blueprint share by the mean boost over the topics in scope, so two weak topics out of 13 barely move the section counts (Science full, 2 boosted topics: A13 B3 C4 D3 E2 unchanged). Those topics still supply more of the rows and the "Enriched" line counts weak-topic rows, so the copy stays true. Revisit if the owner wants full-subject sheets to lean toward weak sections.
+
+## 2026-10-13 — PERF-1 FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-NOTES-TBT-MOUNT] — notes pages are slow because of the MOUNT, not KaTeX (owner: PERF-2)
+`/notes/trigonometry`: `renderToString` ≈ 366 ms (~4% of ~8.6 s active at 4× CPU); one layout of 4,076 / 4,076 objects (3,289 ms) is the PRERENDERED HTML laid out before any JS (1.5 s after PERF-1); a second layout of 854 ms; one `setTimeout`-scheduled React render + commit task of ~2 s (Lighthouse trace, unthrottled). `/cbse/class-10` has no long task above 0.72 s. Hypothesis for PERF-2 (D149): `hydrateRoot` for prerendered routes instead of `createRoot`; prove zero hydration warnings on every prerendered route and fall back per route on a known mismatch; fallback option: mount only the active tab. Rejected in PERF-1: deferring off-screen formulas (DOM 4,177 → 1,408, TBT unchanged within noise).
+
+### [FU-PERF1-CONTRAST-RESIDUAL] — contrast guard holes and Practice Hub text still under 4.5:1 (owner: C2, PERF-1 PR-3)
+(1) `perf1Contrast.guard.test.ts` matches the FIRST HPQ amber only (reverting the second at `HighlyProbableQuestions.tsx` stays green), and does not guard the "Check my answer" background or the locked-steps `opacity: 1`: match every occurrence and add those cases. (2) The Practice Hub ModeCard CTA and disabled-hint text use `tone.accent` on white (quick 2.70, worksheet 3.33, full 4.17) and the "Check & Improve" link is `PRIMARY_GREEN` (2.70): use `tone.ink` / `PRIMARY_GREEN_DARK`. (3) The guard case "cbse green text" reads `--g`, which `.lt-cbse` uses only for outline/dot/marker: relabel. (4) `App.tsx` bottom-nav "Practice" label (`#34b277` on white, 2.69:1) and `Welcome.tsx` home contrast need protected files: PERF-2.
+
+### [FU-FORPARENTS-CONTRAST] — `/for-parents` carries the two old tokens (owner: C2 or the next lane that touches `forParents.css`)
+`src/pages/forParents.css` declares `--fp-ink3: #71879f` (3.4:1 on `#f4f7fb`) and `--fp-g: #0b8f50` (white on it 4.15:1), the same values `#1129` raised on `/cbse/class-10` and `/check-your-answer`. Not changed in PERF-1 (another lane's file).
+
+### [FU-KATEXEAGER-COMMENT-STALE] — two comments still say `NoteRichText` imports KaTeX statically (owner: any lane touching them)
+`src/components/question/katexEager.ts:13-14` ("Notes … already load KaTeX statically through NoteRichText") and the header of `MathText.katexOnDemand.test.tsx:7-8` (describes the control as reading `NoteRichText`'s static import; line 60 now reads `katexEager.ts`). Comment-only.
+
+## 2026-10-13 — PARENTS-1 (C2, §10 for `#1121`): FOLLOW-UPS RAISED
+
+### [FU-FOR-PARENTS-VIDEO-CSS-DUPLICATE] — OPEN (C2, in-lane decision)
+The last four rules in `src/pages/forParents.css` (`.lt-fp .lt-tv`, `__frame`, `__thumb`, `__play`) repeat the geometry of `components/marketing/testimonialVideo.css`, so the video facade's box is in the first paint of `/for-parents`. Only a comment says the two must stay equal; no guard pins them, and the verifier noted the drift risk.
+- **Status:** a small lane: either a guard that reads both files and compares those four rules, or let `routeCssFor` also inline the shared `TestimonialVideo-*.css` for the page (needs a cofounder ruling because it changes the D63a allowlist's meaning).
+
+### [FU-INLINE-ROUTE-CSS-GUARD-FIXTURE] — OPEN (verifier note on `#1121`)
+`firstPaintNoHops.guard.test.ts` pins the `INLINE_ROUTE_CSS_MODULES` list and exercises a synthetic fixture for `CheckYourAnswerPage` only; nothing asserts that a `/for-parents` page actually gets its CSS inlined (the proof is the built output, checked by the verifier). Add a `ForParentsPage` fixture so a regression in the second entry goes RED.
+
+### [FU-PARENT-SHARE-PLACEMENT-GA4] — OPEN, NOTE
+`parent_share_click`'s `placement` (hero / footer) reaches the Vercel vendor as `data` only. GA4 receives the event name (`sendToGa4` takes the name only) and the first-party activity log never records a signed-out parent. If the growth session wants the hero / footer split in GA4, pass it as an event parameter in `sendToGa4` (touches the analytics privacy rules; a cofounder call).
+
+### [FU-FREE-CHECK-LIVE-E2E] — OPEN, OWED TO THE OWNER (phone)
+The page tells a parent "the first answer check is free, without an account". The server side is on (a bare signed-out POST with the free-check header returns `403 free_check_refused / app_check_missing`, i.e. it reached the free-check logic and refused only for the missing browser App Check token), but no controller can complete a real signed-out check without a browser token. The owner should do one from a phone.
+
+### [FU-FOR-PARENTS-COPY-EXTRAS] — CLOSED (D142)
+The eyebrow, the closing "Hand it to your child" card and the not-affiliated-with-CBSE line go beyond the spec's DISPATCH; the cofounder kept all three. Recorded so the next copy edit knows they are intentional.
+
+## 2026-10-13 — UPLOAD-READ-1 (C1, §10 for PR-A, `#1120`, `#1122`): FOLLOW-UPS RAISED
+
+*(Source: `#973`, the `#1120` and `#1122` verifier reports. The first two are the lane's own; the rest are the verifiers' findings, each with its own heading per standing rule 1.)*
+
+### [FU-UPLOAD-OVER-10MIB-EDGE] — OPEN
+A body over 10 MiB never reaches the app: the edge in front of it answers 413 at exactly 10 MiB, so a scan that is still too big at 7 MB raw is refused. Fix is either direct-to-storage upload (the file goes to storage, the app receives a reference) or PDF re-compression. UPLOAD-SHRINK-1 PR-1 (on-device shrink, trigger 3 MB) covers the re-compression half for scanned PDFs.
+
+### [FU-1086-REBASE-AFTER-1122] — OPEN (D141)
+Draft `#1086` (TOPUP-1, `fairUse.cjs`) overlaps `#1122`, which changed the fairUse pre-read constant. The lane-overlap check was waived for `#1122` only. `#1086` must rebase onto trunk before it is ever un-drafted, and its lane-overlap check must then be green on its own merits.
+
+### [FU-A2-PDF-TOKEN-ESTIMATE] — OPEN (`#1120` follow-up a)
+The PDF token estimate of 1000 per inline part is a flagged placeholder and errs low (about 258 per page). Estimate by page count instead.
+
+### [FU-A2-LEDGER-ESTIMATED-VS-MEASURED] — OPEN (`#1120` follow-up b)
+The ledger cannot tell estimated from measured tokens; the only trace is the `gemini_tokens.estimated.<class>` counter. Add a flag to the ledger row.
+
+### [FU-A2-LIVE-EVAL-BUFFERS-SSE] — OPEN (`#1120` follow-up c)
+`eval/golden/lib/live.cjs:81` buffers the whole SSE body, so a LIVE golden detect eval cannot hit the 50 s deadline. The gate and replay modes are fine.
+
+### [FU-A2-DEADLINE-ZERO-NO-RETRY-PIN] — OPEN (`#1120` follow-up d)
+Sections 22.2 to 22.4 are composition tests over PR-A's salvage, and no test pins "a zero-question deadline read is not retried". Add that test.
+
+### [FU-A2-LATE-TEXT-DROPPED] — OPEN (`#1120` follow-up e)
+Text that arrives after the headers at 50 to 55 s is not kept. Decide whether to extend the read window or accept the loss.
+
+### [FU-A2-PARTIAL-NOTICE-NOT-CARRIED] — OPEN (`#1120` follow-up f)
+The "We read the first n questions" notice is not carried into the scorecard or the job-resume context, and `partial` is set on any salvage, not only a deadline cut.
+
+### [FU-A2-LOOPING-REPLY-55S] — OPEN (`#1120` follow-up g)
+A looping reply now runs to the 55 s timeout instead of the old 4096-cap retry. Measure how often this happens before deciding on a loop guard.
+
+### [FU-CLOCK-IST-MIDNIGHT-FLAKE-1120] — OPEN, WATCH (`#1120` follow-up h)
+`clock (ist-midnight 1/2)` flaked once on `#1120` (a `waitFor` timeout in `progressReadModel.consistency.test.tsx`, files the PR did not touch). A repeat on any PR becomes a fix lane.
+
+### [FU-BUDGET-NOT-ON-SINGLE-FILE-ROUTES] — OPEN, NOTE (`#1122` verifier, logged for consistency)
+detect-question, the QR phone upload and the tutor are not covered by the client total-body budget. Each carries one capped file and cannot reach 10 MiB, so nothing is wrong today; if a route ever carries two files, add it to the budget.
+
+### [FU-CI-UPLOADTOOLARGE-UI-TEST] — OPEN (`#1122` verifier)
+There is no Check & Improve UI test for the `UploadTooLargeError` message, only one-line name checks (the same pattern as `GradingNetworkError`). `b48c2176` showed the message can be swallowed at a catch site while unit tests stay green; add a mounted test.
+
+### [FU-QP-BATCH-NOT-BYTE-AWARE] — OPEN (`#1122` verifier F1)
+A Quick Practice collect-mode batch with several large PDFs is now protected by the budget message but has no byte-aware batch selection: `selectQuickPracticeBatch` counts uploads, not bytes. The student sees the friendly message and must upload fewer files; a byte-aware selector would split the batch for them.
+
+### [FU-UPLOAD-ANSWER-PDF-LIVE-VERIFY] — OPEN (owed)
+Live-verify a 6 to 7 MB ANSWER PDF on Check & Improve and on a worksheet. The owner's 14:23Z PASS covered the question paper only.
+
 ## 2026-10-13 — ORG-SAMEAS-1 (C2, §10 for `#1112`): FOLLOW-UPS RAISED
 
 ### [FU-FOOTER-SOCIAL-A11Y-SEPARATOR] — OPEN (verifier SHOULD-FIX on `#1112`, minor)

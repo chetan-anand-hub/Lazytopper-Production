@@ -48,7 +48,7 @@ describe("Competency-based questions tab — structure", () => {
     expect(tabs).toHaveLength(4);
     const labels = tabs.map((t) => (t.textContent || "").trim());
     expect(labels[0]).toBe("Note");
-    expect(labels[1]).toBe("Mindmap");
+    expect(labels[1]).toBe("Formulae & Mindmap");
     expect(labels[3]).toBe("Competency-based questions");
     // The note tab is still the one selected on load; the new tab is NOT.
     expect(tabs[0].getAttribute("aria-selected")).toBe("true");

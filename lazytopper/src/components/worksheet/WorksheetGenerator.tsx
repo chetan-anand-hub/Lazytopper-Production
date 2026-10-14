@@ -37,6 +37,7 @@ import {
   type MistakeSection,
 } from "./worksheetMiSelector";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
+import { MathText } from "../question/MathText";
 import WorksheetGradePanel from "./WorksheetGradePanel";
 import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
 import {
@@ -87,12 +88,15 @@ interface PresetConfig {
   sections: SectionScope;
   difficulty: DifficultyChoice;
   count: number;
+  /** WS-DRAW-1 ("CBQ mix"): every row is a competency-based question. */
+  cbqOnly?: boolean;
 }
 
 const PRESETS: PresetConfig[] = [
   { key: "board-mix", label: "Board exam mix", desc: "All sections A–E · all difficulty · 25 questions", sections: "All", difficulty: "All", count: 25 },
   { key: "quick-drill", label: "Quick drill", desc: "Sections A–B · all difficulty · 15 questions", sections: ["A", "B"], difficulty: "All", count: 15 },
   { key: "marks-focus", label: "High-marks focus", desc: "Sections C–E · hard · 20 questions", sections: ["C", "D", "E"], difficulty: "Hard", count: 20 },
+  { key: "cbq-mix", label: "CBQ mix", desc: "Competency-based questions across all marks, like the board paper.", sections: "All", difficulty: "All", count: 25, cbqOnly: true },
 ];
 
 const ALL_SECTIONS = ["A", "B", "C", "D", "E"] as const;
@@ -435,9 +439,10 @@ function WorksheetGeneratorInner() {
       miTopicWeights,
       miCapFraction,
       focus, // ADDITIVE (Stage-2 P-A) — undefined for every non-tutor entry → no-op
+      cbqOnly: usingCustom ? undefined : activePreset.cbqOnly, // WS-DRAW-1 "CBQ mix"
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subject, scope, inScopeTopics, JSON.stringify(sectionsArg), effDifficulty, effCount, JSON.stringify(miTopicWeights), miCapFraction, focus, blocker, bank.ready]);
+  }, [subject, scope, inScopeTopics, JSON.stringify(sectionsArg), effDifficulty, effCount, JSON.stringify(miTopicWeights), miCapFraction, focus, blocker, bank.ready, usingCustom, activePreset.cbqOnly]);
 
   // ── FIX A — WITHIN-topic section skew, GATED ON THE REAL DRAWABLE POOL ───────
   // Section weighting is only honest when the topic's filtered pool actually holds
@@ -1246,7 +1251,7 @@ function WorksheetGeneratorInner() {
                   <span>Q{q.qNumber} · Section {q.section}</span>
                   <span>{q.marks} mark{q.marks === 1 ? "" : "s"}</span>
                 </div>
-                <div className="lt-ws__qprevtext">{q.questionText}</div>
+                <div className="lt-ws__qprevtext"><MathText text={q.questionText} /></div>
               </div>
             ))}
             {totalCount > previewSamples.length && (
