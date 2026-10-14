@@ -1172,8 +1172,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-019",     // mojibake
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
   "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
-  "PYQ-M-2024-TRIG-018",     // garbled-extraction: theta rendered as q, fractions flattened
-  "PYQ-M-2024-TRIG-020",     // garbled-extraction: fractions flattened (tan/cot proof)
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
   "PYQ-M-AP-004",                 // garbled-extraction: operator lost in the statement (p + q n)
   "PYQ-M-STAT-008",               // garbled-extraction: class-interval dashes lost in the table
