@@ -1151,7 +1151,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "tan² θ + 1 = sec² θ",
     "solutionSteps": [
-      "[1 mark] Option (c) tan^2 θ + 1 = sec^2 θ is correct: subtracting tan^2 θ from both sides gives sec^2 θ - tan^2 θ = 1 directly; options (a) and (b) need further division, and (d) is false.",
+      "[1 mark] Option (c) tan^2 θ + 1 = sec^2 θ is correct: subtracting tan^2 θ from both sides gives sec^2 θ - tan^2 θ = 1 directly; option (a) gives it only after dividing by cos^2 θ, option (b) is the cot and cosec identity, and (d) is false.",
     ],
     "finalAnswer": "tan² θ + 1 = sec² θ",
     "explanation": "From tan² θ + 1 = sec² θ. Rearranging: sec² θ - tan² θ = 1. Therefore, the correct answer is tan² θ + 1 = sec² θ.",
