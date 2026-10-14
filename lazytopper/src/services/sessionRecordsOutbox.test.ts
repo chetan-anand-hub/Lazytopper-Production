@@ -333,7 +333,7 @@ describe("SAVE-SYNC-1 — the outbox", () => {
     expect(h.store.get(REC_PATH)).toMatchObject({ marksAwarded: 9, gradedAt: 2000 });
   });
 
-  it("(k2) an entry with no body AND no mirror copy is settled WITHOUT claiming 'saved'", async () => {
+  it("(k2) an entry with no body AND no mirror copy is settled WITHOUT claiming 'saved'; it is SURFACED (the manual line), not dropped quietly (FU-SAVE-SYNC-QUOTA)", async () => {
     localStorage.setItem(
       `lazytopper.sessionOutbox.v1:${UID}`,
       JSON.stringify([{ kind: "record", id: "GONE-01", queuedAt: new Date().toISOString() }]),
@@ -343,7 +343,7 @@ describe("SAVE-SYNC-1 — the outbox", () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(h.sends).toEqual([]);
     expect(readOutbox(UID)).toEqual([]);
-    expect(getSaveStatus().phase).toBe("idle");
+    expect(getSaveStatus().phase).toBe("device-only-manual");
   });
 
   it("(l) a re-grade queued while the re-send awaits its cloud read supersedes it: the older body is never written", async () => {

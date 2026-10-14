@@ -40,7 +40,7 @@ vi.mock("firebase/firestore", () => ({
   },
 }));
 
-import { writeSessionRecord, type SessionRecord } from "./sessionRecords";
+import { writeSessionRecord, writeSessionPerQuestion, type SessionRecord } from "./sessionRecords";
 import {
   MAX_OUTBOX_BYTES,
   MAX_OUTBOX_ENTRIES,
@@ -150,19 +150,77 @@ describe("FU-SAVE-SYNC-QUOTA — a result that could not be queued is never sile
     expect(askUnload()).toBe(false);
   });
 
-  it("(e2) a storage that refuses the bodies but has room for ids: the entry IS stored (ids only) and the line stays the normal offline one", async () => {
+  it("(e2) a storage that refuses the NEW entry with its body is NEVER given an ids-only copy of it (its mirror copy may have failed too): unpersisted, keep-open", async () => {
     const real = Storage.prototype.setItem;
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, k: string, v: string) {
       if (k.includes("sessionOutbox") && v.length > 1500) throw new DOMException("quota", "QuotaExceededError");
       return real.call(this, k, v);
     });
     h.mode = "hang";
-    writeSessionRecord(user, mk(7, 3000)); // body > 3 KB: refused with the body, accepted as an id
-    const entries = readOutbox(UID);
-    expect(entries).toHaveLength(1);
-    expect(entries[0].body).toBeUndefined();
+    writeSessionRecord(user, mk(7, 3000)); // a >3 KB body: refused
+    expect(readOutbox(UID)).toEqual([]); // no body-less stand-in that would later settle as "no copy"
     await vi.advanceTimersByTimeAsync(SLOW_AFTER_MS + 1000);
-    expect(getSaveStatus().phase).toBe("device-only");
+    expect(getSaveStatus().phase).toBe("keep-open");
+    expect(askUnload()).toBe(true);
+  });
+
+  it("(e3) a storage that has room only after the OTHER records' bodies are stripped: the new entry is stored WITH its body, older ones are ids-only", async () => {
+    const real = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, k: string, v: string) {
+      if (k.includes("sessionOutbox") && v.length > 2600) throw new DOMException("quota", "QuotaExceededError");
+      return real.call(this, k, v);
+    });
+    h.mode = "hang";
+    for (let i = 0; i < 3; i++) writeSessionRecord(user, mk(i, 300));
+    expect(readOutbox(UID).every((e) => e.body !== undefined)).toBe(true);
+    writeSessionRecord(user, mk(3, 300)); // the 4th does not fit with 4 bodies, fits with 3 stripped
+    const entries = readOutbox(UID);
+    expect(entries).toHaveLength(4);
+    expect(entries.slice(0, 3).every((e) => e.body === undefined)).toBe(true);
+    expect(entries[3].body).toBeDefined();
+    await vi.advanceTimersByTimeAsync(SLOW_AFTER_MS + 1000);
+    expect(getSaveStatus().phase).toBe("device-only"); // it WAS stored: the normal offline line
+  });
+
+  it("(h) per-question bodies are never stripped (the mirror keeps only 25): over the cap the new entry is refused instead", async () => {
+    h.mode = "hang";
+    const big = (n: number) => ({ ref: `ct:pq${n}`, gradedAt: 5000 + n, pad: "x".repeat(Math.floor(MAX_OUTBOX_BYTES / 3)) }) as never;
+    for (let i = 0; i < 4; i++) writeSessionPerQuestion(user, big(i));
+    const entries = readOutbox(UID);
+    expect(entries.length).toBeLessThan(4); // the one that did not fit was refused, not squeezed in
+    expect(entries.every((e) => e.body !== undefined)).toBe(true); // nobody was stripped
+    await vi.advanceTimersByTimeAsync(SLOW_AFTER_MS + 1000);
+    expect(getSaveStatus().phase).toBe("keep-open");
+  });
+
+  it("(i) a stripped entry re-sends from the mirror ONLY if it is the same grade; a different one (cloud-wins read) is surfaced, not sent", async () => {
+    h.mode = "hang";
+    const pad = Math.floor(MAX_OUTBOX_BYTES / 4);
+    for (let i = 0; i < 6; i++) writeSessionRecord(user, mk(i, pad));
+    expect(readOutbox(UID)[0].body).toBeUndefined();
+    // the mirror now holds an OLDER grade of record 0 (as a cloud-wins read would leave it)
+    const key = `lazytopper.user.${UID}.sessionRecords.v1`;
+    const mirror = JSON.parse(localStorage.getItem(key)!) as SessionRecord[];
+    localStorage.setItem(key, JSON.stringify(mirror.map((r) => (r.id === mk(0).id ? { ...r, gradedAt: 1 } : r))));
+    __resetOutboxForTests();
+    h.mode = "ok";
+    h.sends.length = 0;
+    await drainOutbox(UID);
+    await vi.waitFor(() => expect(h.sends.length).toBe(5)); // records 1..5 sent, record 0 NOT sent
+    expect(h.store.has(`sessionRecords/${UID}/records/${mk(0).id}`)).toBe(false);
+    await vi.waitFor(() => expect(getSaveStatus().phase).toBe("device-only-manual")); // surfaced, not settled quietly
+  });
+
+  it("(e4) CONTROL: a mirror copy with the SAME gradedAt is re-sent (the strip is safe when the mirror agrees)", async () => {
+    h.mode = "hang";
+    const pad = Math.floor(MAX_OUTBOX_BYTES / 4);
+    for (let i = 0; i < 6; i++) writeSessionRecord(user, mk(i, pad));
+    __resetOutboxForTests();
+    h.mode = "ok";
+    h.sends.length = 0;
+    await drainOutbox(UID);
+    await vi.waitFor(() => expect(h.sends.length).toBe(6));
+    expect(h.store.has(`sessionRecords/${UID}/records/${mk(0).id}`)).toBe(true);
   });
 
   it("(f) an unpersisted write that ends in a final failure says device-only-manual (nothing will retry by itself)", async () => {
