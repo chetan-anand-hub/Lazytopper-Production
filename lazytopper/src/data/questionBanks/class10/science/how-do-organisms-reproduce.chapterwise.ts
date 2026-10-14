@@ -244,11 +244,11 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq08 Q71 (Section C, 3mk)
   { id: "SCQ-S-REPR-033", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "What is vegetative propagation? List two advantages and two disadvantages of vegetative propagation.",
-    answer: "Method of producing new plants from vegetative parts like roots, stem and leaves is called vegetative propagation. Advantages are: a. The plants bear flowers and fruits earlier than those propagated sexually. b. Plants have lost capacity to form seeds hence they are propagated vegetatively. Disadvantages are: a. Such plants are genetically similar to parent plants and are vulnerable to infections and diseases. b. They do not have variations therefore do not adapt well to changing environment, the plant species does not evolve.",
+    answer: "Method of producing new plants from vegetative parts like roots, stem and leaves is called vegetative propagation. Advantages are: a. The plants bear flowers and fruits earlier than those propagated sexually. b. Plants have lost capacity to form seeds hence they are propagated vegetatively. Disadvantages are: a. Such plants are genetically similar to parent plants and are vulnerable to infections and diseases. b. They do not have variations therefore do not adapt well to changing environment.",
     solutionSteps: [
       "[1 mark] Method of producing new plants from vegetative parts like roots, stem and leaves is called vegetative propagation.",
       "[1 mark] Advantages are: a. The plants bear flowers and fruits earlier than those propagated sexually. b. Plants have lost capacity to form seeds hence they are propagated vegetatively.",
-      "[1 mark] Disadvantages are: a. Such plants are genetically similar to parent plants and are vulnerable to infections and diseases. b. They do not have variations therefore do not adapt well to changing environment, the plant species does not evolve.",
+      "[1 mark] Disadvantages are: a. Such plants are genetically similar to parent plants and are vulnerable to infections and diseases. b. They do not have variations therefore do not adapt well to changing environment.",
     ],
     ncertRef: "cbjesccq08 Q71", isCompetencyBased: false },
   // cbjesccq08 Q72 (Section C, 3mk)
@@ -264,11 +264,11 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq08 Q73 (Section C, 3mk)
   { id: "SCQ-S-REPR-035", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Reproduction is one of the most important characteristics of the living beings. Give three reasons in support of your answer. [All India 2017] or Define reproduction. How does it help in providing stability to the population of species?",
-    answer: "a. Reproduction is the process of producing individuals of its own kind. Through reproduction, the continuity is maintained. b. Members of population are eliminated due to old age, disease, accidents and other reasons. They have to be replaced by new members in order to maintain a stable population. c. Reproduction brings variation so that population may adapt better and evolution in species takes place. Ultimately new species originate from pre-existing ones.",
+    answer: "a. Reproduction is the process of producing individuals of its own kind. Through reproduction, the continuity is maintained. b. Members of population are eliminated due to old age, disease, accidents and other reasons. They have to be replaced by new members in order to maintain a stable population. c. Reproduction brings variation so that the population may adapt better and survive in changing conditions.",
     solutionSteps: [
       "[1 mark] a. Reproduction is the process of producing individuals of its own kind. Through reproduction, the continuity is maintained.",
       "[1 mark] b. Members of population are eliminated due to old age, disease, accidents and other reasons. They have to be replaced by new members in order to maintain a stable population.",
-      "[1 mark] c. Reproduction brings variation so that population may adapt better and evolution in species takes place. Ultimately new species originate from pre-existing ones.",
+      "[1 mark] c. Reproduction brings variation so that the population may adapt better and survive in changing conditions.",
     ],
     ncertRef: "cbjesccq08 Q73", isCompetencyBased: true },
   // cbjesccq08 Q74 (Section C, 3mk)
@@ -282,11 +282,11 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq08 Q75 (Section C, 3mk)
   { id: "SCQ-S-REPR-037", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "State the basic requirement for sexual reproduction. Write the importance of such reproduction in nature.",
-    answer: "Basic requirement: sexual reproduction takes place in multicellular organisms with complex body design, having specialized (sex) organs in which, through a special type of cell division, the number of chromosomes is reduced to half and male and female germ cells/gametes form. These gametes fuse to form a zygote on fertilization, thus the characteristic number of chromosomes and the normal DNA content for a cell is regained. Importance: sexual reproduction gives rise to more variations which are essential for evolution as well as survival of species under unfavourable conditions.",
+    answer: "Basic requirement: sexual reproduction takes place in multicellular organisms with complex body design, having specialized (sex) organs in which, through a special type of cell division, the number of chromosomes is reduced to half and male and female germ cells/gametes form. These gametes fuse to form a zygote on fertilization, thus the characteristic number of chromosomes and the normal DNA content for a cell is regained. Importance: sexual reproduction gives rise to more variations which are essential for survival of species under unfavourable conditions.",
     solutionSteps: [
       "[1 mark] Basic requirement: sexual reproduction takes place in multicellular organisms with complex body design, having specialized (sex) organs in which, through a special type of cell division, the number of chromosomes is reduced to half and male and female germ cells/gametes form.",
       "[1 mark] These gametes fuse to form a zygote on fertilization, thus the characteristic number of chromosomes and the normal DNA content for a cell is regained.",
-      "[1 mark] Importance: sexual reproduction gives rise to more variations which are essential for evolution as well as survival of species under unfavourable conditions.",
+      "[1 mark] Importance: sexual reproduction gives rise to more variations which are essential for survival of species under unfavourable conditions.",
     ],
     ncertRef: "cbjesccq08 Q75", isCompetencyBased: false },
   // cbjesccq08 Q76 (Section C, 3mk)
