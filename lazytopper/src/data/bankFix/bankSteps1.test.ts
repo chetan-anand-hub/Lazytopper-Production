@@ -33,12 +33,15 @@ describe("BANK-STEPS-1 ledger", () => {
     expect(new Set(BANK_STEPS_1.map((e) => e.id)).size).toBe(BANK_STEPS_1.length);
     expect(BANK_STEPS_1.filter((e) => !rawIds.has(e.id)).map((e) => e.id)).toEqual([]);
     expect(BANK_STEPS_1.filter((e) => !e.evidence.trim() || !e.file.trim()).map((e) => e.id)).toEqual([]);
-    expect(BANK_STEPS_1.every((e) => e.verdict === "MISPAIRED" || e.verdict === "PARTIAL" || e.verdict === "NO-ANSWER" || e.verdict === "OVER-PAUSED" || e.verdict === "SINGLE-STEP")).toBe(true);
+    expect(BANK_STEPS_1.every((e) => e.verdict === "MISPAIRED" || e.verdict === "PARTIAL" || e.verdict === "NO-ANSWER" || e.verdict === "OVER-PAUSED" || e.verdict === "SINGLE-STEP" || e.verdict === "WRONG-CONTENT" || e.verdict === "TEXT-FAULT")).toBe(true);
     // a NO-ANSWER row is incomplete, not wrong (D143): it is logged `found` and stays served until its answer-fill PR.
     expect(BANK_STEPS_1.filter((e) => e.verdict === "NO-ANSWER").every((e) => e.state === "found" || e.state === "repaired" || e.state === "dropped")).toBe(true); // dropped: 2026-STAT-SA-03, unsolvable as printed (D170)
     // a SINGLE-STEP row (GARBLE-1, D159) is correct and served with one step: logged `found` until its chapter repair.
     expect(BANK_STEPS_1.filter((e) => e.verdict === "SINGLE-STEP").every((e) => e.state === "found" || e.state === "repaired" || e.state === "dropped" || e.state === "paused")).toBe(true);
-    expect(BANK_STEPS_1.filter((e) => e.verdict !== "NO-ANSWER" && e.verdict !== "SINGLE-STEP").every((e) => e.state !== "found")).toBe(true);
+    // GARBLE-1 FIND-3 (D189): a TEXT-FAULT row is correct science with a truncated/garbled text, served and ledgered `found` until its text-clean repair; a WRONG-CONTENT row is withheld (`paused`).
+    expect(BANK_STEPS_1.filter((e) => e.verdict === "TEXT-FAULT").every((e) => e.state === "found" || e.state === "repaired")).toBe(true);
+    expect(BANK_STEPS_1.filter((e) => e.verdict === "WRONG-CONTENT").every((e) => e.state === "paused" || e.state === "repaired")).toBe(true);
+    expect(BANK_STEPS_1.filter((e) => e.verdict !== "NO-ANSWER" && e.verdict !== "SINGLE-STEP" && e.verdict !== "TEXT-FAULT").every((e) => e.state !== "found")).toBe(true);
   });
 
   it("(a) every paused id is withheld and is served by no path", () => {
