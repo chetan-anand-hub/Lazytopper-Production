@@ -1,3 +1,12 @@
+## ★ 2026-10-14 — AFTER PERF-1 PR-3 / PERF-2 (`#1139` `#1140` `#1141`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner:** glance at the home wordmark (`Desktop\diff\perf2a-shots\`, D175; if the old look is preferred the revert is one CSS rule); one real desktop QR draw (the phone-upload handoff) now that `qrcode` is lazy.
+- **PERF-3 (waits for the owner's ruling, QUESTION 6155055299 / 6155074123).** Firestore lazy is the only step that reaches ≤150 KB gz for `/` and `/check-your-answer` (Firestore + `re2js` + webchannel ≈ 166 KB gz). 8 modules import `firebase/firestore` directly (`studentProgressStore`, `studentCloudStore`, `subscriptionService`, `mistakeLogService`, `tutorSessionStore`, `practiceInsights`, `sessionRecords`, `firebaseClient`). Plan: a `firestoreSdk.ts` that `await import`s the SDK and owns the client; the 7 services take `doc/getDoc/setDoc/…/db` from it at call time. **`sessionRecords.ts` is held at ZERO DIFF by `check_improve_overlay_additive_acceptance.mjs`** (an owner decision to amend). Needs a guard that `firebase/firestore` is absent from the entry chunk, live-verify on two grading surfaces (one structured) + sign-in + persistence, an Opus verifier and the cofounder's APPROVE. The signed-in header must not get worse (today a signed-in visitor sees "Log in" on non-landing public pages until `onAuthStateChanged`).
+- **`[FU-NOTES-TBT-MOUNT]`:** `hydrateRoot` FAILS as the prerender is built (React error #418 on every prerendered route): the prerender is a Playwright DOM capture of a client render, not React server output. Cheaper candidates, unmeasured: `content-visibility:auto` on the prerendered fragment only, mount only the active tab's panels (needs a ruling), chunked/`startTransition` mount.
+- **Next small C2 PR:** fix the size comment `[FU-QR-COMMENT-SIZE]` and harden the QR guard `[FU-QR-GUARD-HARDEN]` (see OPEN_QUESTIONS); product files `referralService.ts` and `referralService.qrLazy.test.ts` only.
+
 ## ★ 2026-10-14 — AFTER BANK-STEPS-1 / GARBLE-1 (`#1116` `#1123` `#1125` `#1130` `#1131` `#1136`) (written by A under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

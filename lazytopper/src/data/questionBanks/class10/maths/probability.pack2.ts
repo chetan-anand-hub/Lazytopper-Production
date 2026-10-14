@@ -1239,9 +1239,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   },
   { id: "PR2-046", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A die is thrown once. The probability of getting a prime number is:", options: ["1/2","1/3","2/3","1/6"], answer: "1/2", explanation: "The correct answer is 1/2. Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", finalAnswer: "Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", isCompetencyBased: false,
     solutionSteps: [
-      "Identify the total number of possible outcomes. Total balls = 3 (red) + 5 (blue) = 8.",
-      "Identify the number of favorable outcomes. Number of red balls = 3.",
-      "Calculate the probability: P(red ball) = (Favorable outcomes) / (Total outcomes) = 3/8.",
+      "The prime numbers on a die are 2, 3 and 5, so P(prime) = 3/6 = 1/2. [1]",
     ],
   },
   { id: "PR2-047", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A card is drawn from a pack of 52 cards. The probability of drawing a spade is:", options: ["1/4","1/13","1/52","3/4"], answer: "1/4", explanation: "The correct answer is 1/4. There are 13 spades in 52 cards. P = 13/52 = 1/4.", finalAnswer: "There are 13 spades in 52 cards. P = 13/52 = 1/4.", isCompetencyBased: false,
@@ -1301,9 +1299,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   },
   { id: "PR2-055", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The probability of getting a number greater than 3 when a die is thrown is 1/2.\nReason (R): Numbers greater than 3 on a die are 4, 5, 6 — which are 3 out of 6 outcomes.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "P(>3) = 3/6 = 1/2. R identifies the favorable outcomes, explaining A correctly.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): The probability of an event E is always between 0 and 1, inclusive. This statement is true, as 0 <= P(E) <= 1 for any event E.",
-      "Reason (R): The number of favorable outcomes for an event E is always less than or equal to the total number of possible outcomes. This statement is also true, as n(E) <= n(S).",
-      "Since P(E) = n(E)/n(S), and n(E) >= 0, n(S) > 0, and n(E) <= n(S), it follows that 0 <= P(E) <= 1. Thus, Reason (R) correctly explains Assertion (A).",
+      "The numbers greater than 3 on a die are 4, 5 and 6, which are 3 of the 6 equally likely outcomes, so P = 3/6 = 1/2: A and R are both true, and R explains A. [1]",
     ],
   }
 ];

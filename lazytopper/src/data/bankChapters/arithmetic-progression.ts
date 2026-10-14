@@ -53,7 +53,6 @@ export default defineChapter("arithmetic-progression", [
   [416, AP_LT_GENERATED, false],
   [438, ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED, false],
 ], [
-  "AP-E02",
   "AP-E12",
   "AP-M09",
   "AP2-017",
@@ -72,5 +71,6 @@ export default defineChapter("arithmetic-progression", [
   "AP-N-EXEM2-5-MCQ-006",
   "APQ-M-AP-002",
   "PYQ-M-AP-003",
+  "PYQ-M-AP-004",
   "PYQ-M-AP-007",
 ]);

@@ -25,9 +25,7 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
   },
   { id: "QE-E05", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: x² − 9 = 0", options: ["±3", "3 only", "−3 only", "±9"], answer: "±3", explanation: "The correct answer is ±3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "±3" , isCompetencyBased: true,
     solutionSteps: [
-      "Given quadratic equation: x^2 - 5x + 6 = 0.",
-      "Factorize the equation: (x - 2)(x - 3) = 0.",
-      "Setting each factor to zero gives x = 2 or x = 3.",
+      "x² − 9 = 0 gives x² = 9, so x = ±3. [1]",
     ],
   },
   { id: "QE-E06", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve by factorisation: x² − 7x + 12 = 0.", solutionSteps: [

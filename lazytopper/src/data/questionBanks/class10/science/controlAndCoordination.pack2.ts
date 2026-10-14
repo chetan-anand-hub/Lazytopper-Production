@@ -1162,13 +1162,12 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Name the three main regions of the human brain and state one function of each.",
     "options": [],
-    "answer": "1. Cerebrum: Controls voluntary movements, thought, memory, and intelligence. 2. Cerebellum: Coordinates movements and maintains balance. 3. Brainstem (Medulla oblongata): Controls involuntary functions like breathing and heart rate.",
+    "answer": "The three main regions of the human brain are the fore-brain, the mid-brain and the hind-brain. Fore-brain: the main thinking part of the brain; it receives sensory impulses, stores memory and controls voluntary actions. Mid-brain: controls involuntary actions, e.g. reflex movements of the head, neck and eyes. Hind-brain: the cerebellum maintains posture and balance of the body (the medulla controls involuntary actions such as blood pressure, salivation and vomiting).",
     "solutionSteps": [
-      "Identify the three main brain regions",
-      "State one important function for each region",
-      "Ensure functions are distinct and accurate"
+      "[1 mark] The three main regions of the human brain are the fore-brain, the mid-brain and the hind-brain.",
+      "[1 mark] One function of each: fore-brain — the main thinking part (thinking, memory, receives sensory impulses, controls voluntary actions); mid-brain — controls involuntary actions, e.g. reflex movements of the head, neck and eyes; hind-brain — the cerebellum maintains posture and balance (the medulla controls involuntary actions such as blood pressure, salivation and vomiting)."
     ],
-    "finalAnswer": "1. Cerebrum: Controls voluntary movements, thought, memory, and intelligence. 2. Cerebellum: Coordinates movements and maintains balance. 3. Brainstem (Medulla oblongata): Controls involuntary functions like breathing and heart rate.",
+    "finalAnswer": "The three main regions of the human brain are the fore-brain, the mid-brain and the hind-brain. Fore-brain: the main thinking part of the brain; it receives sensory impulses, stores memory and controls voluntary actions. Mid-brain: controls involuntary actions, e.g. reflex movements of the head, neck and eyes. Hind-brain: the cerebellum maintains posture and balance of the body (the medulla controls involuntary actions such as blood pressure, salivation and vomiting).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
