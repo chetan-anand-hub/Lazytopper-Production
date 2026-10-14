@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { MistakeIntelCard } from "./MistakeIntelCard";
 import { TutorPickerModal } from "../../lib/desktop/homeDestinations";
+import { NcertChapterPicker } from "../ncert/NcertChapterPicker";
 
 /**
  * DesktopShell — locked desktop AppShell parity build (Desktop Phase 1).
@@ -46,6 +47,11 @@ interface NavLinkItem {
   label: string;
   end?: boolean;
   icon: React.ReactNode;
+  /**
+   * NCERT-BOOKS-1b — a routed entry that ALSO has a picker: it stays a real link (crawlable,
+   * middle-click / new-tab / Ctrl-click open the page), and a plain left click opens the picker.
+   */
+  picker?: "ncert";
 }
 
 interface NavActionItem {
@@ -144,6 +150,19 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
+    // NCERT-BOOKS-1b (owner 14 Oct): the NCERT Class 10 books, chapter-wise, read on site.
+    to: "/ncert-class-10",
+    label: "NCERT Books",
+    picker: "ncert",
+    // BookOpen
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 7v14" />
+        <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+      </svg>
+    ),
+  },
+  {
     to: "/check-improve",
     label: "Check & Improve",
     // ScanLine
@@ -208,6 +227,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
   const [accountOpen, setAccountOpen] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
+  const [ncertOpen, setNcertOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   const initials = user
@@ -388,6 +408,18 @@ export function DesktopShell({ children }: DesktopShellProps) {
                 to={!user && n.to === "/" ? "/browse" : n.to}
                 end={n.end}
                 style={({ isActive }) => navItemStyle(isActive)}
+                {...(n.picker === "ncert"
+                  ? {
+                      "aria-haspopup": "dialog" as const,
+                      onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+                        // A plain left click opens the subject / chapter picker; any modified or
+                        // non-primary click keeps the link's own behaviour (open the page).
+                        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                        e.preventDefault();
+                        setNcertOpen(true);
+                      },
+                    }
+                  : {})}
               >
                 {n.icon}
                 <span>{n.label}</span>
@@ -778,6 +810,10 @@ export function DesktopShell({ children }: DesktopShellProps) {
         onClose={() => setTutorOpen(false)}
         isSignedIn={!!user}
       />
+
+      {/* NCERT-BOOKS-1b — the rail's NCERT Books picker, mounted at the shell root for the same
+          stacking / containing-block reason as TutorPickerModal. Renders null while closed. */}
+      <NcertChapterPicker open={ncertOpen} onClose={() => setNcertOpen(false)} />
 
       {/* Mounted at the SHELL ROOT for the same reason TutorPickerModal is: the
           header creates a stacking context AND, via backdrop-filter, is a
