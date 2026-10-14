@@ -35,12 +35,7 @@ const trianglesHubSurfaces: Record<string, unknown> = {
   "topicHubContent[triangles]": topicHubContent.find((b) => b.topicKey === "triangles"),
   "topicHubV2Full[triangles]": (topicHubV2Content as Record<string, unknown>)["triangles"],
   "topicHubV2Enrichment[triangles]": (topicHubV2Enrichment as Record<string, unknown>)["triangles"],
-  trianglesGuidedMindmap_minusAreaNode: {
-    ...trianglesGuidedMindmap,
-    // gArea is still referenced by the "Area Ratio" question family (contentStrategy/triangles); flagged as a follow-up.
-    nodes: trianglesGuidedMindmap.nodes.filter((n) => n.id !== "gArea"),
-    coreByNodeId: Object.fromEntries(Object.entries(trianglesGuidedMindmap.coreByNodeId).filter(([k]) => k !== "gArea")),
-  },
+  trianglesGuidedMindmap,
   trianglesTopicHubPack,
   "visualConceptRegistry[triangles]": MATHS_VISUALS.filter((c) => c.chapterKey === "Triangles").map((c) => c.concepts.map((x) => x.title)),
 };
