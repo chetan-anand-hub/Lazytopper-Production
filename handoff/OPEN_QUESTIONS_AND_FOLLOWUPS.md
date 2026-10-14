@@ -23,6 +23,13 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-14 — SOLUTIONS-1 / LEGAL-ENTITY-1 (LANE G) FOLLOW-UPS (recorded by G under §10)
+
+### [FU-SOLUTIONS-UNKNOWN-CHAPTER-404] — OPEN (G): `/ncert-solutions/<chapter>` and `/ncert-exemplar/<chapter>` for a chapter not yet published get the shell (200, home canonical) and redirect in-app to `/ncert-class-10`; the spec asked for a server 404. Cause: `vercel.json` is generated from the router (`soft404Routes.guard`), which emits a one-segment wildcard for a param route, as for `/notes/:topicSlug`. Fix options: a per-chapter exact rewrite list in the generator, or static routes per published chapter
+### [FU-ORG-LEGALNAME] — OPEN (own lane): add `"legalName": "P&CGOLDDUST_TECH PRIVATE LIMITED"` to the Organization JSON-LD in `index.html` (changes every prerendered head)
+### [PASS-STATUS-1] — OPEN (after Razorpay go-live): "Manage your pass" lands on the sales page; add a "Your pass" box (type, end date, "granted" for admin grants) and relabel the buy buttons "Extend your pass"
+### [FU-LEGAL-REGISTERED-OFFICE] — OPTIONAL (owner): a registered-office city on the legal pages (LEGAL-ENTITY-1 §2 follow-up)
+
 ## 2026-10-14 — NCERT WAVE (LANE G) FOLLOW-UPS (recorded by G under §10)
 
 ### [FU-NCERT-PICKER-FOCUS-TRAP] — OPEN (G, one small PR): the rail picker has no focus trap and does not return focus to the rail link on close (D258 nit)

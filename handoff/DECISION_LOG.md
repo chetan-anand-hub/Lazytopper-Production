@@ -1,3 +1,14 @@
+## 2026-10-14 — SOLUTIONS-1 (`#1186`) AND LEGAL-ENTITY-1 (`#1187`): OWNER RULINGS AS THEY BEAR ON THEM (RECORDED BY G UNDER §10)
+
+> ⚠ **SCOPE.** No new D number is minted here; these are owner rulings given in chat and relayed on `#973`. D259–D261 (the solutions rulings) are recorded in the block below.
+
+| ruling | what it says | the reason given |
+|---|---|---|
+| **Owner, 14 Oct ~22:35 IST** | "I approve, merge on green CI" for `#1186`: merge on all-green CI without waiting for the cofounder's APPROVED; the audit follows LIVE | the owner wanted to check the live page himself that night |
+| **Owner, 14 Oct 23:07 IST** | "we dont need cofounders audit, you audit it": G audits `#1186`'s App.tsx and `studentActivity.cjs` diffs itself | owner direction; G's audit: APPROVED (scope exactly 1 lazy import + 2 shell matchers + 2 Routes; 7 additive names) |
+| **Owner via cofounder, 14 Oct 23:00 IST** | LEGAL-ENTITY-1's company name is exactly "P&CGOLDDUST_TECH PRIVATE LIMITED" (underscore, all caps, as on the Certificate of Incorporation); L1–L4 unchanged; run it before anything but lane-overlap; G picks the order | the owner was submitting Razorpay KYC; Razorpay reviews the website shortly after |
+| **G, 14 Oct ~23:10 IST** | Order chosen: LEGAL-ENTITY-1 before the SOLUTIONS-1 docs PR; one docs PR records both | SOLUTIONS-1 was already LIVE and the Razorpay review is time-sensitive; no shared files with any open PR |
+
 ## 2026-10-14 (D195–D261) — LANE G AND THE NCERT WAVE (DECISIONS AS THEY BEAR ON IT; RECORDED BY G UNDER §10)
 
 > ⚠ **SCOPE.** Only the decisions that bear on lane G, `#1171`, `#1182`, `#1184` and the SOLUTIONS-1 lane that follows. Others are recorded by the lanes they bear on.

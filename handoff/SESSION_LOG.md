@@ -1,3 +1,17 @@
+## 2026-10-14 — SOLUTIONS-1 (`#1186` `3cdbed4b`) and LEGAL-ENTITY-1 (`#1187` `294e472a`) — LIVE (lane G)
+
+★ **PROVENANCE.** Written by G under §10 from `#973`, `gh pr view`, `git log` and `claude/GROWTH_LOG.md`. Facts only. Written at trunk `294e472a`. Both merge commits verified on trunk (`#1187`: trunk tree == head tree `c8853fed`).
+
+### SOLUTIONS-1 `#1186` (→ `3cdbed4b`)
+- **Spec** `claude/LazyTopper_SOLUTIONS-1_v1.0_2026-10-14.md` (D259–D261). Branch `feat/growth-solutions-1`; feature `3403492`, the CI artifact `59509f7c`, trunk `e46bf772` merged in (`73b5aa21`), `vercel.json` fix `f9f6737d`.
+- **CI history:** run 1 red everywhere from one cause (`applyPrerendered: artifact does not match the advertised set`): fixed by committing `prerendered-1186`. Run 2: vitest 1/4 red in `soft404Routes.guard` ("vercel.json is out of date with the router"): the hand-written exact rewrites were replaced by the generator's output (`scripts/seo/writeVercelRewrites.ts --write`). Run 3 all green, CLEAN.
+- **Merge:** owner override "merge on green CI"; squash `--match-head-commit f9f6737d`. LIVE 23:00 IST (`#973` issuecomment-6174343551). G's audit APPROVED at the owner's instruction (issuecomment-6174761591).
+
+### LEGAL-ENTITY-1 `#1187` (→ `294e472a`)
+- **Spec** `claude/LazyTopper_LEGAL-ENTITY-1_v1.0_2026-10-14.md`; premise gate PASS on `3cdbed4b` (anchors unmoved). P8 = 20 prerendered files (10 pages × phone + `__desktop`).
+- **Tests:** NEW `src/config/legalEntity.guard.test.tsx` (31: L1, L2 × 3, L3, L4, L6 × 20 + a CONTROL that P8 = every prerendered file with a copyright line). Mutations: a hard-coded name in `PublicLegalFooter.tsx` → 2 red; dropping the L2 line → 3 red.
+- **CI:** first run capture red (stale prerender, expected) → `prerendered-1187` committed (`bad19022`: exactly P8 + `lastmod.json` + sitemap lastmod dates). One `build-ops` runner hung at "Use Node.js 22" for 10+ minutes; cancelled and re-run, green. Squash `--match-head-commit bad19022`. LIVE 23:41 IST (issuecomment-6175098453).
+
 ## 2026-10-14 — NCERT-BOOKS-1 (`#1171` `9f04eb02`), NCERT-BOOKS-1b (`#1182` `1afc7020`), NCERT-ENTRY-1 (`#1184` `2da27ae4`) — LIVE (lane G)
 
 ★ **PROVENANCE.** Written by G under §10 from `#973` (the CLAIM / AUDIT-REQUEST / MERGE-SLOT / LIVE posts; D195, D196, D210, D211, D213, D221, D232, D234, D235, D258), `gh pr view`, `git log` and `claude/GROWTH_LOG.md`. Facts only; nothing here changes a ruling. Written at trunk `2da27ae4`. All three merge commits verified ancestors of trunk (`git merge-base --is-ancestor`, exit 0).

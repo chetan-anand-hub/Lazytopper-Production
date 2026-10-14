@@ -1,3 +1,12 @@
+## ★ 2026-10-14 — AFTER SOLUTIONS-1 (`#1186`) AND LEGAL-ENTITY-1 (`#1187`) (written by G under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner check (LEGAL-ENTITY-1 §4):** www.lazytopper.com/legal/terms, /legal/privacy and /legal/refund each show "LazyTopper is operated by P&CGOLDDUST_TECH PRIVATE LIMITED."; the Terms open with the new paragraph and say "Last updated: October 2026"; the landing and pricing footers read "© 2026 P&CGOLDDUST_TECH PRIVATE LIMITED"; Ctrl+U on /legal/terms shows the name in the HTML.
+- **Owner check (SOLUTIONS-1):** open /ncert-solutions/triangles and /ncert-exemplar/triangles on a phone; reveal a hint, answer an MCQ, type an answer; the solution opens after the attempt.
+- **Razorpay:** if the review asks for a Contact Us page or a delivery policy, tell the cofounder (a spec amendment follows); nothing is built before that. Go-live steps: `claude/RAZORPAY_GO_LIVE_HANDOFF_2026-10-14.md`.
+- **G next:** GSC + Bing indexing for the two solutions URLs; the 14 remaining notes pages in GSC (15 Oct); the parents YouTube campaign's two video ads (owner decides ₹300 vs Google's ₹416/day minimum).
+
 ## ★ 2026-10-14 — AFTER NCERT-BOOKS-1 / 1b / NCERT-ENTRY-1 (`#1171` `#1182` `#1184`) (written by G under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
