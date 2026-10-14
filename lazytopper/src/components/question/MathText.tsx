@@ -356,12 +356,14 @@ function promotePowersAndSubscripts(text: string): string {
   result = outsideSpans(result, (p) =>
     p.replace(/(?<![A-Za-z_])([A-Za-z])_([a-z])(?![A-Za-z_])/g, (m, b: string, sub: string) => wrapSub(b, sub, m)),
   );
-  // MATH-RENDER-3: V_cyl, R_eq. ONE capital + 2-4 lowercase letters, a whole token (never snake_case,
-  // never a file name or path). A word subscript is upright, as in a printed paper.
+  // MATH-RENDER-3: V_cyl, R_total. ONE capital + 2-9 lowercase letters, a whole token (never snake_case,
+  // never a file name or path). A word subscript is upright, as in a printed paper. One lowercase letter
+  // doubled (yy, vv, bb) is genotype notation (R_yy = "R-blank, homozygous recessive yy"), not a subscript: left as written (D225).
   result = outsideSpans(result, (p) =>
     p.replace(
-      /(?<![A-Za-z0-9_/\\.])([A-Z])_([a-z]{2,4})(?![A-Za-z0-9_])(?!\.[A-Za-z0-9])/g,
+      /(?<![A-Za-z0-9_/\\.])([A-Z])_([a-z]{2,9})(?![A-Za-z0-9_])(?!\.[A-Za-z0-9])/g,
       (m, b: string, sub: string) => {
+        if (/^([a-z])\1+$/.test(sub)) return m;
         const latex = `${b}_{\\mathrm{${sub}}}`;
         return katexCanRender(latex) ? `\\(${latex}\\)` : m;
       },
