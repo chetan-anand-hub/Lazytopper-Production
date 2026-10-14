@@ -370,27 +370,169 @@
   "formula_strip": [
     {
       "label": "Mirror formula",
-      "math": "$\\dfrac{1}{v} + \\dfrac{1}{u} = \\dfrac{1}{f}$"
+      "math": "$\\dfrac{1}{v} + \\dfrac{1}{u} = \\dfrac{1}{f}$",
+      "id": "mirror-formula",
+      "heading": "Mirror Formula",
+      "tip": "Write u, v, f WITH signs before substituting."
     },
     {
       "label": "Lens formula",
-      "math": "$\\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{f}$"
+      "math": "$\\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{f}$",
+      "id": "lens-formula",
+      "heading": "Lens Formula",
+      "tip": "The only change from the mirror formula is the minus sign; magnification differs too (mirror m = −v/u, lens m = v/u)."
     },
     {
       "label": "Magnification",
-      "math": "mirror $m=-\\dfrac{v}{u}$ · lens $m=\\dfrac{v}{u}$"
+      "math": "mirror $m=-\\dfrac{v}{u}$ · lens $m=\\dfrac{v}{u}$",
+      "id": "magnification",
+      "heading": "Magnification of Mirrors and Lenses",
+      "tip": "Negative m means real and inverted, positive m virtual and erect."
     },
     {
       "label": "Refractive index",
-      "math": "$n = \\dfrac{c}{v} = \\dfrac{\\sin i}{\\sin r}$"
+      "math": "$n = \\dfrac{c}{v} = \\dfrac{\\sin i}{\\sin r}$",
+      "id": "refractive-index",
+      "tip": "Absolute refractive index n ≥ 1; higher n means slower light."
     },
     {
       "label": "Power of lens",
-      "math": "$P = \\dfrac{1}{f\\,(\\text{m})}$ &nbsp;(dioptre, D) · lenses in contact: $P = P_1 + P_2 + \\dots$"
+      "math": "$P = \\dfrac{1}{f\\,(\\text{m})}$ &nbsp;(dioptre, D) · lenses in contact: $P = P_1 + P_2 + \\dots$",
+      "id": "power-of-a-lens",
+      "heading": "Power of a Lens (Dioptre)",
+      "tip": "f in METRES; +D convex, −D concave."
     },
     {
       "label": "Mirror relation",
-      "math": "$R = 2f$"
+      "math": "$R = 2f$",
+      "id": "radius-of-curvature-and-focal-length",
+      "tip": "For a spherical mirror of small aperture only."
+    },
+    {
+      "label": "Rules and signs at a glance",
+      "math": "(i) The object is always placed to the left of the mirror or lens, so light falls on it from the left.<br>(ii) All distances parallel to the principal axis are measured from the pole of the mirror (or the optical centre of the lens).<br>(iii) Distances to the right of the origin (along +x) are positive; distances to the left (along −x) are negative.<br>(iv) Distances above the principal axis (along +y) are positive.<br>(v) Distances below the principal axis (along −y) are negative.<br><br><b>Signs at a glance.</b> Object distance $u$ is always negative.<br>Mirror: $f$ is negative for a concave mirror and positive for a convex mirror; $v$ is negative for a real image and positive for a virtual image; $m$ is negative for a real image and positive for a virtual image.<br>Lens: $f$ is positive for a convex lens and negative for a concave lens; $v$ is positive for a real image and negative for a virtual image; $m$ is negative for a real (inverted) image and positive for a virtual (erect) image.",
+      "id": "new-cartesian-sign-convention",
+      "heading": "New Cartesian Sign Convention"
+    },
+    {
+      "label": "Position of object → position, size and nature of image",
+      "math": "At infinity → at the focus F; highly diminished, point-sized; real and inverted<br>Beyond C → between F and C; diminished; real and inverted<br>At C → at C; same size; real and inverted<br>Between C and F → beyond C; enlarged; real and inverted<br>At F → at infinity; image would not be formed<br>Between P and F → behind the mirror; enlarged; virtual and erect",
+      "id": "image-formation-concave-mirror",
+      "heading": "Image Formation by a Concave Mirror (Table)"
+    },
+    {
+      "label": "Position of object → position, size and nature of image",
+      "math": "At infinity → at the focus F, behind the mirror; highly diminished, point-sized; virtual and erect<br>Between infinity and the pole P → between P and F, behind the mirror; diminished; virtual and erect",
+      "id": "image-formation-convex-mirror",
+      "heading": "Image Formation by a Convex Mirror (Table)"
+    },
+    {
+      "label": "Position of object → position, size and nature of image",
+      "math": "At infinity → at focus F₂; highly diminished, point-sized; real and inverted<br>Beyond 2F₁ → between F₂ and 2F₂; diminished; real and inverted<br>At 2F₁ → at 2F₂; same size; real and inverted<br>Between F₁ and 2F₁ → beyond 2F₂; enlarged; real and inverted<br>At focus F₁ → at infinity; image would not be formed<br>Between focus F₁ and optical centre O → on the same side of the lens as the object; enlarged; virtual and erect",
+      "id": "image-formation-convex-lens",
+      "heading": "Image Formation by a Convex Lens (Table)"
+    },
+    {
+      "label": "Position of object → position, size and nature of image",
+      "math": "At infinity → at focus F₁; highly diminished, point-sized; virtual and erect<br>Between infinity and optical centre O → between F₁ and O; diminished; virtual and erect<br>A concave lens always gives a virtual, erect and diminished image, whatever the position of the object.",
+      "id": "image-formation-concave-lens",
+      "heading": "Image Formation by a Concave Lens (Table)"
+    },
+    {
+      "label": "Laws of Refraction (Snell's Law)",
+      "math": "(i) The incident ray, the refracted ray and the normal to the interface at the point of incidence all lie in the same plane. (ii) For light of a given colour and a given pair of media, $\\dfrac{\\sin i}{\\sin r}=\\text{constant}$ (Snell's law). Going from an optically rarer to an optically denser medium, light slows down and bends towards the normal; going from denser to rarer, it speeds up and bends away from the normal.",
+      "id": "laws-of-refraction"
+    },
+    {
+      "label": "Laws of Reflection",
+      "math": "(i) The angle of incidence equals the angle of reflection. (ii) The incident ray, the reflected ray and the normal at the point of incidence all lie in the same plane. The image formed by a plane mirror is virtual, erect and the same size as the object.",
+      "id": "laws-of-reflection"
+    },
+    {
+      "label": "Refraction through a Rectangular Glass Slab",
+      "math": "For a rectangular glass slab the emergent ray is parallel to the incident ray, but it is displaced sideways (lateral displacement).",
+      "id": "refraction-through-glass-slab"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "real-is-inverted-virtual-is-erect",
+      "text": "In every NCERT table: real image ⇒ inverted; virtual image ⇒ erect.",
+      "use": "mcq-check",
+      "source": "NCERT Tables 9.1, 9.2, 9.4, 9.5"
+    },
+    {
+      "id": "sign-of-m-tells-the-image",
+      "text": "m negative ⇒ real, inverted. m positive ⇒ virtual, erect. A positive m of ½ with a mirror ⇒ convex mirror.",
+      "use": "mcq-check",
+      "source": "NCERT 9.2.4, 9.3.7; PYQ-S-LIGHT-008"
+    },
+    {
+      "id": "always-virtual-diminished",
+      "text": "A convex mirror and a concave lens ALWAYS give a virtual, erect, diminished image.",
+      "use": "mcq-check",
+      "source": "NCERT Tables 9.2, 9.5"
+    },
+    {
+      "id": "same-size-at-c-and-2f",
+      "text": "Same-size image: concave mirror, object at C ⇒ image at C; convex lens, object at 2F₁ ⇒ image at 2F₂. In both, the image is real and inverted with m = −1.",
+      "use": "mcq-check",
+      "source": "NCERT Tables 9.1, 9.4"
+    },
+    {
+      "id": "write-the-signs-first",
+      "text": "Write the given values WITH signs (u −, f + or −) as the first line.",
+      "use": "written-ok",
+      "source": "NCERT 9.2.3; PYQ-S-LIGHT-009"
+    },
+    {
+      "id": "power-from-f-metres",
+      "text": "P = 1/f with f in METRES. Convex lens, f = +25 cm = +0.25 m ⇒ P = 1/(+0.25) = +4 D.",
+      "use": "written-ok",
+      "source": "NCERT 9.3.8; PYQ-S-LIGHT-006 (+4 D)"
+    },
+    {
+      "id": "sign-convention-trick",
+      "text": "Object hamesha <b>Left</b>. Doori <b>pole/centre se naapo</b>. <b>Right = Plus, Left = Minus</b>, <b>Upar = Plus, Neeche = Minus</b>.",
+      "gloss": "New Cartesian rules. Left → rule (i) object on the left; pole/centre se naapo → rule (ii); Right+/Left− → rule (iii); Upar+/Neeche− → rules (iv), (v).",
+      "use": "memory-aid",
+      "source": "NCERT 9.2.3",
+      "heading": "New Cartesian Sign Convention Trick"
+    },
+    {
+      "id": "convex-plus-concave-minus",
+      "text": "<b>Convex mein Add (+), Concave mein Ghata (−)</b>, chahe mirror ho ya lens.",
+      "gloss": "Sign of f. Convex mirror f +, convex lens f +; concave mirror f −, concave lens f − (NCERT sign convention).",
+      "use": "memory-aid",
+      "source": "NCERT 9.2.3, 9.3.6"
+    },
+    {
+      "id": "formula-sign-trick",
+      "text": "<b>Mirror = Milao (+)</b>, <b>Lens = Less (−)</b>.",
+      "gloss": "1/v + 1/u = 1/f (mirror); 1/v − 1/u = 1/f (lens). M↔Milao: plus; L↔Less: minus.",
+      "use": "memory-aid",
+      "source": "NCERT 9.2.4, 9.3.7"
+    },
+    {
+      "id": "real-virtual-trick",
+      "text": "<b>Real = Ulta</b>, <b>Virtual = Seedha</b>.",
+      "gloss": "Real inverted; virtual erect. R-U, V-S (matches all four tables).",
+      "use": "memory-aid",
+      "source": "NCERT Tables 9.1, 9.2, 9.4, 9.5"
+    },
+    {
+      "id": "object-position-order",
+      "text": "<b>A</b>nil <b>B</b>hai <b>C</b>hai <b>B</b>anao <b>F</b>ir <b>P</b>ilao.",
+      "gloss": "Object positions in Table 9.1 order. A = At infinity · B = Beyond C · C = At C · B = Between C and F · F = At F · P = Between P and F.",
+      "use": "memory-aid",
+      "source": "NCERT Table 9.1"
+    },
+    {
+      "id": "refraction-bend-trick",
+      "text": "<b>Optically halka se optically bhaari</b>: dheemi chaal, <b>normal ki taraf</b>. <b>Optically bhaari se halka</b>: tez chaal, <b>normal se door</b>.",
+      "gloss": "Refraction bending (optical density = refractive index, not weight). optically rarer→denser: slows, bends towards normal; denser→rarer: speeds up, away.",
+      "use": "memory-aid",
+      "source": "NCERT 9.3.2"
     }
   ],
   "third_tab_content": {
