@@ -633,7 +633,7 @@ button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a
 
 /* ── print: isolate the note, show every tab, drop app chrome (Part 3) ── */
 @media print {
-  .lt-note__fcard--second { display: none !important; }
+  .lt-note__fcard--second, .lt-note__tricks-link { display: none !important; }
   @page { margin: 14mm; }
   body { background: #fff !important; }
   body * { visibility: hidden !important; }
