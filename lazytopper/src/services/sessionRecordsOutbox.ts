@@ -9,9 +9,10 @@
 // never local → cloud). On bad mobile data a result could miss the student's account for good.
 //
 // WHAT THIS ADDS (and nothing else — no new Firestore path, no rules change, no schema change):
-//   1. an OUTBOX per uid in localStorage: the record IDS still to be confirmed in the cloud
-//      (the bodies are already mirrored by `sessionRecords.ts`). The entry is written BEFORE
-//      the first send, so a tab closed mid-save leaves it behind;
+//   1. an OUTBOX per uid in localStorage: the writes still to be confirmed in the cloud, each
+//      WITH the body that was queued (the mirror in `sessionRecords.ts` is capped and is
+//      rewritten by the cloud-wins read, so it is not trusted to hold it). The entry is written
+//      BEFORE the first send, so a tab closed mid-save leaves it behind;
 //   2. in-session RETRY with backoff (3 retries);
 //   3. a DRAIN on the next app load for that uid and on the browser `online` event;
 //   4. a tiny STATUS store the UI reads (saving / saved / device-only) and a `beforeunload`
@@ -221,7 +222,10 @@ export function trackCloudWrite(
         // Only a write that really reached the cloud (or found it already there, newer) earns the tick:
         // a re-send that had nothing to send must not claim "Saved to your account".
         const sentNothing = value === "no-local-copy" || value === "no-cloud" || value === "superseded" || opts.quiet === true;
-        if (!sentNothing && inflight.size === 0 && failed.size === 0) savedFlash = true;
+        // "all done" is about the writes the student is told about: a quiet download in flight, or a
+        // quiet failure, must not silence the tick for a graded result that really landed
+        const loudLeft = (s: Iterable<string>) => Array.from(s).some((k) => !quiet.has(k));
+        if (!sentNothing && !loudLeft(inflight.keys()) && !loudLeft(failed)) savedFlash = true;
         publish();
       },
       (error) => {
@@ -255,9 +259,9 @@ export function trackCloudWrite(
 let draining = false;
 
 /**
- * Re-send every outbox entry that has no live attempt chain. The bodies come from the
- * localStorage mirror via `resendOutboxEntry` (loaded on demand: nothing is imported unless
- * the outbox has an entry). Safe to call repeatedly.
+ * Re-send every outbox entry that has no live attempt chain, from the body stored with the entry
+ * (`resendOutboxEntry`, loaded on demand: nothing is imported unless the outbox has an entry).
+ * Safe to call repeatedly.
  */
 export async function drainOutbox(uid: string): Promise<void> {
   if (draining || !uid) return;
