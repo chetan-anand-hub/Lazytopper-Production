@@ -680,10 +680,26 @@ function parseTextToSegments(text: string): Segment[] {
   return segments;
 }
 
+let warnedPlainObject = false;
+/**
+ * MATHTEXT-OBJECT (FU-MATHTEXT-OBJECT): a number or an array still renders as text ("42", "a,b"); a NON-ARRAY OBJECT (`{ a: 1 }`; a Date, Map or
+ * class instance is caught too, none of which JSON can produce; an ARRAY of objects still stringifies: `[FU-MATHTEXT-OBJECT-ARRAY]`) must not show "[object Object]" to a student: it renders nothing and warns once.
+ */
+function textOfNonString(value: unknown): string {
+  if (typeof value === "object" && !Array.isArray(value)) {
+    if (!warnedPlainObject) {
+      warnedPlainObject = true;
+      console.warn("[MathText] a non-array object was passed as text; rendering nothing instead of \"[object Object]\"");
+    }
+    return "";
+  }
+  return String(value);
+}
+
 export function MathText({ text: rawText, style, className }: MathTextProps) {
   // MATH-RENDER-1b: a stored or model-produced value that is not a string (a number, an array) must render as
   // text, never throw inside the string rules and white-screen a result page. Typed `string`; guarded anyway.
-  const text = typeof rawText === "string" ? rawText : rawText == null ? "" : String(rawText);
+  const text = typeof rawText === "string" ? rawText : rawText == null ? "" : textOfNonString(rawText);
   // LOW-END-1 (L6): wait for KaTeX only when this text can contain maths.
   const needsKatex = !!text && textNeedsKatex(text);
   const ready = !needsKatex || katex !== null;
