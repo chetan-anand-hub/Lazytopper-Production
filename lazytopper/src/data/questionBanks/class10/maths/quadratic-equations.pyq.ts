@@ -26,7 +26,7 @@ export const QUADRATIC_EQUATIONS_PYQ: CanonicalQuestion[] = [
     sourceOverride: "others",
   },
   { id: "PYQ-M-QE-003", subject: "Maths", topicKey: "quadratic-equations", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    // REWRITE-3 (A2): options restored (x2 -> x²) from the row's own key + Vedantu reproduction of CBSE 2023 set 30/5/1 Q5 (options (a) x² – 4x + 1 = 0, (b) x² + 4x + 1 = 0, (c) 4x² – 3 = 0, (d) x² – 1 = 0; answer (a)); official PDF not available to the controller.
+    // REWRITE-3 (A2): options restored (x2 -> x²) from the row's own key + Vedantu reproduction of CBSE 2023 set 30/5/1 Q5 (options (a) x² – 4x + 1 = 0, (b) x² + 4x + 1 = 0, (c) 4x² – 3 = 0, (d) x² – 1 = 0; answer (a)); official PDF not available to the controller (the older comment below cites the original extraction source).
     questionText: "A quadratic equation whose roots are (2 + √3) and (2 – √3) is :",
     // options + answer recovered verbatim from QP 30_5_1_Maths Standard.pdf Q5 (2023); each
     // option had lost its minus sign and its trailing "= 0". Correct option per MS 30-5-1 p.4.
