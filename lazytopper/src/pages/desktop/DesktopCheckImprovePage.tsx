@@ -3407,7 +3407,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           ) : null}
           {ws.summary && (
             <p style={{ margin: "12px 0 0", fontSize: 13.5, color: TEXT_FG, lineHeight: 1.6 }}>
-              {ws.summary}
+              <EquationRender text={ws.summary} />
             </p>
           )}
         </div>
@@ -3539,7 +3539,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                 <GradeStateNotice question={g} />
                 {graded && g.teacherNote && (
                   <p style={{ margin: "10px 0 0", fontSize: 13, color: TEXT_MUTED, lineHeight: 1.55 }}>
-                    {g.teacherNote}
+                    <EquationRender text={g.teacherNote} />
                   </p>
                 )}
                 {canExpand && !open && (
@@ -3854,7 +3854,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                   whiteSpace: "pre-wrap",
                 }}
               >
-                {result.teacherNote}
+                <EquationRender text={result.teacherNote} />
               </p>
             </div>
           )}
@@ -4097,7 +4097,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                     <strong>Step {s.stepNumber}:</strong>{" "}
                     {stepDisplay(s.status, s.mistakeType).kind === "not-attempted"
                       ? NOT_ATTEMPTED.label
-                      : s.teacherAnnotation || s.description || "Marks deducted"}
+                      : <EquationRender text={s.teacherAnnotation || s.description || "Marks deducted"} />}
                     {s.marksDeducted > 0 && stepDisplay(s.status, s.mistakeType).showDeduction && (
                       <span style={{ color: DANGER_FG }}> · −{s.marksDeducted}</span>
                     )}
