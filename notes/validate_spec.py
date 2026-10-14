@@ -54,6 +54,8 @@ SUBJECT_EXAMPLE_KINDS = {
     "biology": {"process", "numerical"},
 }
 VALID_FIGURE_BUCKETS = {"ncert", "authored_svg", "generated"}
+# Rule 11 (NOTES-FORMULA-3a): where a shortcut is safe (CLAUDE.md §13: never teach a student to skip a paid step).
+VALID_SHORTCUT_USES = {"mcq-check", "written-ok", "memory-aid"}
 # Mojibake / encoding-corruption markers (rule 6).
 MOJIBAKE_MARKERS = ["(cid:", "�", "Ã", "Â", "â€"]
 
@@ -342,6 +344,62 @@ def validate(spec, banned_phrases, topic_keys):
                  f"per-step marks sum to {running:g} but marks_total is {total:g} "
                  f"(CBSE step marks must sum to the example total)")
 
+    # ── Rule 11 (NOTES-FORMULA-3a, D208): anchors, headings, tips and shortcuts ──
+    id_re = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+    reserved = {"formulae", "shortcuts", "memory-tricks", "mindmap", "diagrams"}
+    seen_ids = {}
+
+    def take_id(val, path):
+        if val is None:
+            return
+        if not isinstance(val, str) or not id_re.match(val):
+            fail(11, path, f"id {val!r} must be lower-kebab (a-z, 0-9, single hyphens)")
+        elif val in reserved:
+            fail(11, path, f"id {val!r} is a reserved section anchor")
+        elif val in seen_ids:
+            fail(11, path, f"id {val!r} duplicates {seen_ids[val]} (ids are unique per page)")
+        else:
+            seen_ids[val] = path
+
+    def need_text(obj, key, path, required=False):
+        val = obj.get(key)
+        if val is None:
+            if required:
+                fail(11, f"{path}.{key}", f"'{key}' is required")
+            return
+        if not isinstance(val, str) or not val.strip():
+            fail(11, f"{path}.{key}", f"'{key}' must be a non-empty string")
+
+    for i, item in enumerate(spec.get("formula_strip") or []):
+        p = f"$.formula_strip[{i}]"
+        take_id(item.get("id"), f"{p}.id")
+        need_text(item, "heading", p)
+        need_text(item, "tip", p)
+
+    shortcuts = spec.get("shortcuts")
+    if shortcuts is not None and not isinstance(shortcuts, list):
+        fail(11, "$.shortcuts", "shortcuts must be a list")
+        shortcuts = []
+    for i, s in enumerate(shortcuts or []):
+        p = f"$.shortcuts[{i}]"
+        need_text(s, "id", p, required=True)
+        take_id(s.get("id"), f"{p}.id")
+        need_text(s, "text", p, required=True)
+        need_text(s, "heading", p)
+        need_text(s, "gloss", p)
+        need_text(s, "source", p, required=True)
+        if s.get("use") not in VALID_SHORTCUT_USES:
+            fail(11, f"{p}.use", f"use must be one of {sorted(VALID_SHORTCUT_USES)}, got {s.get('use')!r}")
+
+    tt = spec.get("third_tab_content") or {}
+    diagram_refs = (tt.get("diagrams") or []) if tt.get("kind") == "diagrams" else []
+    for ref in diagram_refs:
+        fig = figures.get(ref) or {}
+        if "id" in fig:
+            take_id(fig.get("id"), f"$.figures.{ref}.id")
+            need_text(fig, "heading", f"$.figures.{ref}", required=True)
+            need_text(fig, "alt", f"$.figures.{ref}", required=True)
+
     return v
 
 
@@ -359,6 +417,7 @@ RULES = {
     8: "figure manifest buckets + required keys are valid",
     9: "required keys present + every figure_ref resolves",
     10: "per-step marks (when present) sum to the example's marks_total",
+    11: "anchor ids lower-kebab + unique + not reserved; shortcuts have id/text/use/source; diagram ids carry heading + alt",
 }
 
 
