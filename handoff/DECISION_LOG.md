@@ -1,3 +1,24 @@
+## 2026-10-14 (D183–D251) — UPLOAD-SHRINK-1 / PYTHAGORAS-HUB (DECISIONS AS THEY BEAR ON THEM; RECORDED BY C1b UNDER §10)
+
+> ⚠ **SCOPE.** Only the decisions that bear on `#1126`, `#1174`, `#1178` and the C1/C1b lanes. Others are recorded by the lanes they bear on.
+
+| D | decision | the reason given |
+|---|---|---|
+| **183** | Production grades on `gemini-3.8-flash`, not 2.5-flash (supersedes D182 §3–4); the 2.5-flash run stopped and relabelled FALLBACK-2.5; the gate re-run on 3.8; `[FU-SERVER-IMAGE-3MB-CAP]` its own item; `[FU-GEMINI-25-FLASH-AVAILABILITY]` re-scoped | `modelConfig.cjs:24` "THE CODE DEFAULT IS WHAT PRODUCTION RUNS"; `/api/health` reports the chat model, not the grader |
+| **199** | No production photo defect (shipped 2000 px/q0.85 = 0.900 vs the originals' floor 0.907, 60 reads); #1126 pass rule restated as noise-floor-relative; `[FU-GRADER-SELF-CONSISTENCY]` (the grader gives the same marks to the same image ~91% of the time); no hand-over to C2 | the earlier 0.889-vs-1.0 was a small-sample artefact; a flat ≥95% rule fails a design whose own floor is lower |
+| **219** | C1b's queue: multi-page PDF control first (may be live), then the 24-sheet re-measure, then #1126 only if both pass; ≤ ~250 calls | the control might be a live production issue |
+| **222** | C1b to post CLAIM now | nothing from C1b was on the board |
+| **223 §2** | **#1126 re-scoped: shrink only when the upload would otherwise be refused; ≤ ceiling the original goes up unchanged; above it, start at the GENTLEST rung and step down only until it fits; typed PDFs and failures unchanged**; gate = a byte-identical test ≤ ceiling + an eval on over-ceiling sheets (≤ 120 calls); `[FU-SYN08-HARD-SHEET]` logged, `[FU-MULTIPAGE-REAL-ANSWER]` open | SYN-08 is a consistent 3 → 2 shift (3/3 reads), a real loss; a 10 MB PDF is refused outright, so a shrunk file that grades is strictly better |
+| **229 §3** | #1126 @ `bd2e26e0` APPROVED on the code; merge held for the owner's call on #1086 | `lane-overlap` on `package.json` with the owner's parked money-path draft |
+| **233 §3** | PYTHAGORAS-RULING-SCOUT (report only) | owner ruling 1 vs ~34 raw "converse of Pythagoras" mentions |
+| **235 / 236 §2** | PYTHAGORAS-HUB-1 (hub pack only), D2 rewords the 7 rows, the 58 tool citations stay | owner ruling 1: stating/proving is OUT, numeric tool IN |
+| **242 §1** | GRADER-CONSEQUENTIAL-1 (B2, top priority): a typeless deducting step inherits the nearest earlier typed lost step's type in a non-objective question; remainder to a single typed origin; marks never change; objective questions unchanged; the arrow glyph in the same PR | the owner's live paper showed "Marks lost, reason not recorded": "we can't afford misses in the grader anywhere"; the type describes the ERROR and a consequential loss is its cost (CLAUDE.md §13) |
+| **248** | `#1175` APPROVED: `presentation` is never an origin; a `missing` step inherits only with no fully-credited step in between (control + mutation); remainder stays question-wide; 1-based `consequentialOf`; golden `conseqViolations` gains "moved bucket = pointed-to type" | an omission after correct working is a separate loss; an Opus review found `presentation` as an origin broke the A17 cap |
+| **236 §1** | #1086 CLOSED (branch kept); #1126 unblocked | TOPUP-1 depends on Razorpay, still being integrated |
+| **245** | #1174 APPROVED; PYTHAGORAS-HUB-2 scoped (hub-visible files, area theorem OUT, Angle Bisector Theorem OUT, per-row check) | the verifier showed #1174 changed almost nothing a student sees; the fix goes where it renders |
+| **249** | #1178 APPROVED + one in-PR fix (`findVisualForQuestion` returns null below the threshold) | bank rows still point at the removed visual ids and would be handed a wrong visual |
+| **251** | #1178 is next in the slot | #1175 LIVE |
+
 ## 2026-10-14 (D217–D244) — BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER (DECISIONS AS THEY BEAR ON IT; RECORDED BY A2 UNDER §10)
 
 > ⚠ **SCOPE.** D243 §1 asks `DECISION_LOG.md` to record D217–D243 with their reasons. This table records those of D217–D244 that bear on the D, D2, A and A2 lanes and on `#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`. Decisions that concern only another lane (C2's notes and saving work, E's formula content, G's NCERT page, C1b's upload shrink, B2's own repair PRs) are left to those lanes' §10, except the follow-ups D243 lists. Where a decision gives no reason, the cell says so. Read the numbered posts on `#973` for the full text.

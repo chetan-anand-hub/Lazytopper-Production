@@ -1,5 +1,13 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-14 — UPLOAD-SHRINK-1 / PYTHAGORAS-HUB-1/-2 (C1b, §10 for `#1126` `#1174` `#1178`).** Scope: the Triangles hub lost three OUT topics (owner ruling 1; area theorem; Angle Bisector Theorem, D245). No grading behaviour changed for any upload ≤ 7 MiB (byte-identical file); above 7 MiB the only reachable change is "refused" → "graded", on every surface whose picker is `PageTray`.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| PDF upload on Check & Improve (single + multi), Worksheet, Chapter Test, Full Mock, Quick Practice (all `PageTray`) | a scanned PDF > 7 MiB is shrunk on the device (`#1126`); ≤ 7 MiB unchanged; typed PDFs unchanged | 🟢 live (merged `cdfb6fea`) | owner live-verify: a > 7 MB scanned PDF on 2 surfaces + the two controls (NEXT_ACTION); §4a PARTIAL until then |
+| Check & Improve (single + multi), Worksheet, Chapter Test, Full Mock, Quick Practice (grading result) + the graded PDFs | a consequential mark loss is attributed to its origin's mistake type instead of "reason not recorded"; the `↳` glyph is an inline-SVG arrow (`#1175`) | 🟢 live (`31f9f426`) | owner re-check on two surfaces; §4a PARTIAL until then |
+| Triangles topic hub | Pythagoras / converse, area-of-similar-triangles and Angle Bisector items removed (`#1174` `#1178`) | 🟢 live | owner glance; `[FU-TRIANGLES-ORPHANS]` |
+
 > **2026-10-14 — BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER (A2, §10 for `#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`).** Scope did not change and no grading behaviour changed. Two things moved: the bank CONTENT drawn by Worksheet, Chapter Test, Full Mock and Quick Practice (rows restored, rows withheld), and the DISPLAY of maths in question text and in grader feedback on all six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice). The BANK-STEPS-1 block below lists the FIND-2 pause `#1135` as 🟡 not merged; it merged at `8742eb45` (10-13 21:51:58Z), before this window.
 
 | surface | what moved (PR) | state | owed |

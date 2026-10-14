@@ -1173,12 +1173,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
   "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
-  "PYQ-M-AP-004",                 // garbled-extraction: operator lost in the statement (p + q n)
-  "PYQ-M-STAT-008",               // garbled-extraction: class-interval dashes lost in the table
   "PYQ-M-2025-STAT-006",          // garbled-extraction: class-interval dashes lost in the table
   "PYQ-M-2025-TRIG-005",          // garbled-extraction: degree/angle signs lost, marks digits inline
   // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
-  "PYQ-M-QE-003",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
   "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
   "PYQ-M-QE-008",                 // garbled-extraction: exponent flattened (px2)
   "PYQ-M-2024-QE-001",            // garbled-extraction: exponent flattened (x2 + x - p(p+1) = 0)
@@ -1188,7 +1185,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
   "2026-STAT-SA-03",              // unsolvable-as-printed (D170): mean 18 with f: 3, f, 7, 5 gives 3f = 25; the row's own last step says 'adjust numbers accordingly'
   // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
-  "PYQ-M-CG-003",                 // garbled-extraction: sign lost in a vertex; not right-angled as printed
   "PYQ-M-2026-REALNUM-005",       // garbled-extraction: fraction bar lost (2 + 3√5 7)
   "PYQ-M-STAT-009",               // garbled-extraction: class-interval dashes lost; wording broken
   "PYQ-M-2025-STAT-003",          // garbled-extraction: class-interval dashes lost in the table
