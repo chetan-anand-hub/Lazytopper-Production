@@ -391,7 +391,7 @@
     },
     {
       "label": "Ozone formation",
-      "math": "O2 --(UV)--&gt; O + O (free oxygen atoms); then O + O2 --&gt; O3 (ozone)"
+      "math": "$\\text{O}_2 \\xrightarrow{\\text{UV}} \\text{O} + \\text{O}$ (free oxygen atoms); then $\\text{O} + \\text{O}_2 \\rightarrow \\text{O}_3$ (ozone)"
     }
   ],
   "third_tab_content": {

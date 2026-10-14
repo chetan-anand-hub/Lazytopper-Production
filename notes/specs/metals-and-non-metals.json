@@ -559,19 +559,19 @@
   "formula_strip": [
     {
       "label": "Metal + Oxygen",
-      "math": "Metal + Oxygen -> Metal oxide  (mostly basic; Al2O3 and ZnO are amphoteric)"
+      "math": "$\\text{Metal} + \\text{Oxygen} \\rightarrow \\text{Metal oxide}$  (mostly basic; $\\text{Al}_2\\text{O}_3$ and $\\text{ZnO}$ are amphoteric)"
     },
     {
       "label": "Metal + Water",
-      "math": "Metal + Water -> Metal oxide + Hydrogen  .  Metal oxide + Water -> Metal hydroxide"
+      "math": "$\\text{Metal} + \\text{Water} \\rightarrow \\text{Metal oxide} + \\text{Hydrogen}$  .  $\\text{Metal oxide} + \\text{Water} \\rightarrow \\text{Metal hydroxide}$"
     },
     {
       "label": "Metal + Acid",
-      "math": "Metal + Dilute acid -> Salt + Hydrogen"
+      "math": "$\\text{Metal} + \\text{Dilute acid} \\rightarrow \\text{Salt} + \\text{Hydrogen}$"
     },
     {
       "label": "Displacement",
-      "math": "Metal A + Salt solution of B -> Salt solution of A + Metal B  (A more reactive than B)"
+      "math": "$\\text{Metal A} + \\text{Salt solution of B} \\rightarrow \\text{Salt solution of A} + \\text{Metal B}$  (A more reactive than B)"
     },
     {
       "label": "Activity series",
@@ -579,11 +579,11 @@
     },
     {
       "label": "Roasting / Calcination",
-      "math": "Roasting: sulphide ore + excess air -> oxide  .  Calcination: carbonate ore + limited air -> oxide"
+      "math": "Roasting: sulphide ore + excess air $\\rightarrow$ oxide  .  Calcination: carbonate ore + limited air $\\rightarrow$ oxide"
     },
     {
       "label": "Thermit reaction",
-      "math": "Fe2O3 + 2Al -> 2Fe + Al2O3 + Heat  (aluminium reduces iron(III) oxide)"
+      "math": "$\\text{Fe}_2\\text{O}_3 + 2\\text{Al} \\rightarrow 2\\text{Fe} + \\text{Al}_2\\text{O}_3 + \\text{Heat}$  (aluminium reduces iron(III) oxide)"
     }
   ],
   "mindmap": {

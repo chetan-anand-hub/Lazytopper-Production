@@ -523,11 +523,11 @@
   "formula_strip": [
     {
       "label": "Photosynthesis (standard equation)",
-      "math": "6CO2 + 6H2O --(sunlight, chlorophyll)--&gt; C6H12O6 + 6O2 &nbsp;(standard CBSE equation - NCERT states the three events, not this balanced line)"
+      "math": "$6\\text{CO}_2 + 6\\text{H}_2\\text{O} \\xrightarrow{\\text{sunlight, chlorophyll}} \\text{C}_6\\text{H}_{12}\\text{O}_6 + 6\\text{O}_2$"
     },
     {
       "label": "Glucose breakdown",
-      "math": "Glucose (6C) to Pyruvate (3C) in cytoplasm; then aerobic to CO2 + H2O + energy, or anaerobic - yeast to ethanol + CO2, muscle to lactic acid"
+      "math": "Glucose (6C) to Pyruvate (3C) in cytoplasm; then aerobic to $\\text{CO}_2 + \\text{H}_2\\text{O}$ + energy, or anaerobic - yeast to ethanol + $\\text{CO}_2$, muscle to lactic acid"
     },
     {
       "label": "ATP",
@@ -543,7 +543,7 @@
     },
     {
       "label": "Alveolar surface",
-      "math": "Spread out, the alveolar surface would cover about 80 m2 - maximising gas exchange"
+      "math": "Spread out, the alveolar surface would cover about $80\\ \\text{m}^2$ - maximising gas exchange"
     },
     {
       "label": "Kidney filtrate",
