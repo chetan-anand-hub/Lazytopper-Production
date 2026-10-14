@@ -208,9 +208,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "20 V",
     "solutionSteps": [
-      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
-      "In series: R_total = R₁ + R₂ + R₃ = 2 + 3 + 5 = 10 Ω",
-      "V_total = I × R_total = 2 × 10 = 20 V"
+      "In series Rs = 2 Ω + 3 Ω + 5 Ω = 10 Ω, so V = IR = 2 A × 10 Ω = 20 V.",
     ],
     "finalAnswer": "20 V",
     "explanation": "In series: R_total = R₁ + R₂ + R₃ = 2 + 3 + 5 = 10 Ω. V_total = I × R_total = 2 × 10 = 20 V. Therefore, the correct answer is 20 V.",
@@ -239,9 +237,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Less than the smallest individual resistance",
     "solutionSteps": [
-      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
-      "In parallel: 1/R_total = 1/R₁ + 1/R₂ + ...",
-      "The reciprocals add up, making R_total smaller than any individual resistance"
+      "For resistors in parallel, 1/Rp = 1/R1 + 1/R2 + ..., so 1/Rp is greater than the reciprocal of any single resistance; hence the total resistance is less than the smallest individual resistance.",
     ],
     "finalAnswer": "Less than the smallest individual resistance",
     "explanation": "In parallel: 1/R_total = 1/R₁ + 1/R₂ + .. The reciprocals add up, making R_total smaller than any individual resistance. Therefore, the correct answer is Less than the smallest individual resistance.",
@@ -1199,12 +1195,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
-      "Fuse is a safety device that protects circuits from overcurrent",
-      "When current exceeds safe limit, fuse wire melts due to heating (H = I²Rt)",
-      "Low melting point ensures it melts quickly at high currents",
-      "This breaks the circuit, preventing damage to appliances",
-      "R correctly explains why A is important"
+      "A is true: a fuse wire is made of a material with a low melting point. R is true: the fuse must melt quickly when excess current heats it, breaking the circuit and protecting the appliances. A low melting point is needed precisely so that it melts in time, so both A and R are true, and R is the correct explanation of A.",
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1233,12 +1224,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
-      "Parallel circuit has multiple branches with independent paths",
-      "If one path is broken, other paths remain intact",
-      "Current can choose alternative routes",
-      "This is the defining characteristic of parallel connections",
-      "R correctly explains the reason for A"
+      "A is true: if one branch of a parallel circuit breaks, current still flows in the other branches. R is true: a parallel circuit provides a separate path through each branch. Because the paths are independent, breaking one does not stop the others, so both A and R are true, and R is the correct explanation of A.",
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
