@@ -492,7 +492,7 @@
     },
     {
       "label": "Combustion",
-      "math": "$\\text{carbon compound} + \\text{O}_2 \\rightarrow \\text{CO}_2 + \\text{H}_2\\text{O} + \\text{heat and light}$"
+      "math": "$\\text{carbon compound} + \\text{O}_2(g) \\rightarrow \\text{CO}_2(g) + \\text{H}_2\\text{O} + \\text{heat and light}$"
     },
     {
       "label": "Oxidation",
@@ -500,11 +500,11 @@
     },
     {
       "label": "Addition (hydrogenation)",
-      "math": "unsaturated + $\\text{H}_2 \\xrightarrow{\\text{Ni}}$ saturated"
+      "math": "unsaturated + $\\text{H}_2(g) \\xrightarrow{\\text{Ni}}$ saturated"
     },
     {
       "label": "Substitution",
-      "math": "$\\text{CH}_4 + \\text{Cl}_2 \\xrightarrow{\\text{sunlight}} \\text{CH}_3\\text{Cl} + \\text{HCl}$"
+      "math": "$\\text{CH}_4(g) + \\text{Cl}_2(g) \\xrightarrow{\\text{sunlight}} \\text{CH}_3\\text{Cl}(g) + \\text{HCl}(g)$"
     },
     {
       "label": "Esterification / saponification",

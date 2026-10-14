@@ -386,7 +386,7 @@
     },
     {
       "label": "Acids / bases in water",
-      "math": "$\\text{HCl} + \\text{H}_2\\text{O} \\rightarrow \\text{H}_3\\text{O}^+ + \\text{Cl}^-$   .   $\\text{NaOH} \\rightarrow \\text{Na}^+(\\text{aq}) + \\text{OH}^-(\\text{aq})$"
+      "math": "$\\text{HCl}(g) + \\text{H}_2\\text{O}(l) \\rightarrow \\text{H}_3\\text{O}^+(\\text{aq}) + \\text{Cl}^-(\\text{aq})$   .   $\\text{NaOH}(s) \\xrightarrow{\\text{water}} \\text{Na}^+(\\text{aq}) + \\text{OH}^-(\\text{aq})$"
     },
     {
       "label": "pH scale",
@@ -402,7 +402,7 @@
     },
     {
       "label": "Plaster of Paris",
-      "math": "$\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O} + \\tfrac{3}{2}\\text{H}_2\\text{O} \\rightarrow \\text{CaSO}_4 \\cdot 2\\text{H}_2\\text{O}$ (gypsum)"
+      "math": "$\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O}(s) + \\tfrac{3}{2}\\text{H}_2\\text{O}(l) \\rightarrow \\text{CaSO}_4 \\cdot 2\\text{H}_2\\text{O}(s)$ (gypsum)"
     }
   ],
   "mindmap": {

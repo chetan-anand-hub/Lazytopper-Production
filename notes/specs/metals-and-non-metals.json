@@ -583,7 +583,7 @@
     },
     {
       "label": "Thermit reaction",
-      "math": "$\\text{Fe}_2\\text{O}_3 + 2\\text{Al} \\rightarrow 2\\text{Fe} + \\text{Al}_2\\text{O}_3 + \\text{Heat}$  (aluminium reduces iron(III) oxide)"
+      "math": "$\\text{Fe}_2\\text{O}_3(s) + 2\\text{Al}(s) \\rightarrow 2\\text{Fe}(l) + \\text{Al}_2\\text{O}_3(s) + \\text{Heat}$  (aluminium reduces iron(III) oxide; the iron is molten)"
     }
   ],
   "mindmap": {

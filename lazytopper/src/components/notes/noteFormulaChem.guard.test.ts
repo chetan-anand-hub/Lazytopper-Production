@@ -11,7 +11,12 @@
  *       no ASCII arrow, no letter-digit subscript (CO2, H2O, Fe2O3), no `m2`;
  *   (c) the life-processes card carries no author note;
  *   (d) every formula in every committed noteMath map rendered (no `katex-error`);
- *   (e) CONTROL: the balancer rejects an unbalanced equation and the plain-text detector fires on the old text.
+ *   (e) STATE SYMBOLS (D200, CLAUDE.md §13: balanced equation 0.5 + states/conditions 0.5): every species of every
+ *       element-formula equation carries (s) / (l) / (g) / (aq); generic templates ("Acid + Metal → …") take none;
+ *   (f) CONTROL: the balancer rejects an unbalanced equation and the plain-text detector fires on the old text.
+ *
+ * NOTE FOR A FUTURE CARD: rule (b) is deliberately blunt (a capital letter followed by a digit outside \$…\$ is
+ * flagged), so prose such as "F1 generation" or "Q1" must be written as TeX (\$\\text{F}_1\$) or reworded.
  *
  * Generic reaction patterns ("Metal + Acid → Salt + Hydrogen", "A + B → AB", genotypes) are words and symbols, not
  * element formulas: the parser declines them (it only checks species made of real element symbols).
@@ -49,10 +54,11 @@ function takeCoefficient(s: string): { coef: number; rest: string } {
   return { coef: 1, rest: s };
 }
 
-interface Species { atoms: Atoms; charge: number }
+interface Species { atoms: Atoms; charge: number; stated: boolean }
 
 function parseSpecies(raw: string): Species | null {
   let s = raw.trim().replace(/\\ /g, " ").replace(/\\text\{([^{}]*)\}/g, "$1");
+  const stated = /\((aq|l|g|s)\)/.test(s);
   s = s.replace(/\((aq|l|g|s)\)/g, "").trim(); // state symbols
   let charge = 0;
   const ch = s.match(/\^\{?(\d*)([+-])\}?$/);
@@ -68,7 +74,7 @@ function parseSpecies(raw: string): Species | null {
     if (!f) return null;
     for (const [el, n] of Object.entries(f)) total[el] = (total[el] ?? 0) + n * coef;
   }
-  return { atoms: total, charge };
+  return { atoms: total, charge, stated };
 }
 
 function side(text: string): Species[] | null {
@@ -78,7 +84,7 @@ function side(text: string): Species[] | null {
     const { coef, rest } = takeCoefficient(raw.trim());
     const sp = parseSpecies(rest);
     if (!sp) return null;
-    out.push({ atoms: Object.fromEntries(Object.entries(sp.atoms).map(([k, v]) => [k, v * coef])), charge: sp.charge * coef });
+    out.push({ atoms: Object.fromEntries(Object.entries(sp.atoms).map(([k, v]) => [k, v * coef])), charge: sp.charge * coef, stated: sp.stated });
   }
   return out;
 }
@@ -93,7 +99,7 @@ const sum = (list: Species[]): { atoms: Atoms; charge: number } => {
   return { atoms, charge };
 };
 
-type Verdict = { kind: "generic" } | { kind: "balanced" } | { kind: "unbalanced"; left: Atoms; right: Atoms; lc: number; rc: number };
+type Verdict = { kind: "generic" } | { kind: "balanced"; stated: boolean } | { kind: "unbalanced"; left: Atoms; right: Atoms; lc: number; rc: number };
 
 /** One `$…$` TeX segment: balanced / unbalanced / generic (not made of element formulas). */
 function checkSegment(tex: string): Verdict {
@@ -106,7 +112,7 @@ function checkSegment(tex: string): Verdict {
   const l = sum(L), r = sum(R);
   const els = new Set([...Object.keys(l.atoms), ...Object.keys(r.atoms)]);
   const same = [...els].every((e) => Math.abs((l.atoms[e] ?? 0) - (r.atoms[e] ?? 0)) < 1e-9) && l.charge === r.charge;
-  return same ? { kind: "balanced" } : { kind: "unbalanced", left: l.atoms, right: r.atoms, lc: l.charge, rc: r.charge };
+  return same ? { kind: "balanced", stated: [...L, ...R].every((s) => s.stated) } : { kind: "unbalanced", left: l.atoms, right: r.atoms, lc: l.charge, rc: r.charge };
 }
 
 interface Strip { slug: string; i: number; label: string; math: string }
@@ -120,14 +126,23 @@ function allStrips(): Strip[] {
 }
 
 /** The text of a card outside its `$…$` formulas, entities decoded the way the page shows them. */
-const outsideMath = (s: string) => s.replace(NOTE_MATH_RE, " ").replace(/&[a-z]+;/g, " ");
+const outsideMath = (s: string) => s.replace(NOTE_MATH_RE, " ");
 
 const PLAIN_CHEM = [
-  /-{1,2}>|-{2}&gt;|-{2}[[(]|[\])]-{2}/, // an ASCII arrow: -> , --> , --&gt; , --[O]-- , --(UV)--
+  /-{1,2}(?:>|&gt;)|-{2}[[(]|[\])]-{2}/, // an ASCII arrow: -> , --> , --&gt; , --[O]-- , --(UV)--
   /[A-Z][a-z]?\d/, // a letter-digit subscript: CO2, H2O, Fe2O3, F2
   /\b[a-z]{0,2}m\d\b/, // a unit power typed flat: m2
 ];
-const plainChemistry = (s: string) => PLAIN_CHEM.some((re) => re.test(outsideMath(s)));
+/** Chemistry typed flat INSIDE a formula: \text{CO2} renders as "CO2", not CO₂. */
+const FLAT_IN_TEXT = /\\text\{[^{}]*[A-Z][a-z]?\d[^{}]*\}/;
+const plainChemistry = (s: string) => {
+  const out = outsideMath(s);
+  // the arrow is looked for on the raw text (an entity-encoded --&gt; is still an ASCII arrow); the
+  // subscript/unit patterns run after entities are blanked so "&amp;" / "&rarr;" do not read as letters
+  if (PLAIN_CHEM[0].test(out)) return true;
+  const spaced = out.replace(/&[a-z]+;/g, " ");
+  return PLAIN_CHEM.slice(1).some((re) => re.test(spaced)) || [...s.matchAll(NOTE_MATH_RE)].some((m) => FLAT_IN_TEXT.test(m[1]));
+};
 
 /** The real equations that MUST be seen and balanced (an id here that the parser skipped fails the test). */
 const MUST_BE_CHECKED: Array<[string, number, number]> = [
@@ -149,14 +164,17 @@ describe("NOTES-FORMULA-2 — chemistry on the formula cards", () => {
   it("(a) every element-formula equation is balanced in atoms and charge; the named ones are really checked", () => {
     const checked = new Map<string, number>();
     const bad: string[] = [];
+    const unstated: string[] = [];
     for (const s of strips) {
       for (const m of s.math.matchAll(NOTE_MATH_RE)) {
         const v = checkSegment(m[1]);
+        if (v.kind === "balanced" && !v.stated) unstated.push(`${s.slug}#${s.i}: ${m[1]}`);
         if (v.kind === "balanced") checked.set(`${s.slug}#${s.i}`, (checked.get(`${s.slug}#${s.i}`) ?? 0) + 1);
         if (v.kind === "unbalanced") bad.push(`${s.slug}#${s.i} ${JSON.stringify(v)}`);
       }
     }
     expect(bad).toEqual([]);
+    expect(unstated, "every species of an element-formula equation carries a state symbol (D200)").toEqual([]);
     for (const [slug, i, n] of MUST_BE_CHECKED) expect(checked.get(`${slug}#${i}`) ?? 0, `${slug}#${i}`).toBe(n);
     expect([...checked.values()].reduce((a, b) => a + b, 0)).toBeGreaterThanOrEqual(10);
   });
@@ -190,6 +208,12 @@ describe("NOTES-FORMULA-2 — chemistry on the formula cards", () => {
     expect(plainChemistry("6CO2 + 6H2O --(sunlight, chlorophyll)--&gt; C6H12O6 + 6O2")).toBe(true);
     expect(plainChemistry("Acid + Metal -> Salt + Hydrogen gas")).toBe(true);
     expect(plainChemistry("about 80 m2")).toBe(true);
+    expect(plainChemistry("Acid + Metal --&gt; Salt")).toBe(true); // an entity-encoded arrow is still an ASCII arrow
+    expect(plainChemistry("Acid -&gt; Salt")).toBe(true);
+    expect(plainChemistry("--[O]--> and --(UV)--")).toBe(true);
+    expect(plainChemistry("$\\text{CO2} + \\text{H}_2\\text{O}$")).toBe(true); // flat subscript inside \text{}
+    expect(checkSegment("2\\text{H}_2(g) + \\text{O}_2(g) \\rightarrow 2\\text{H}_2\\text{O}(l)")).toEqual({ kind: "balanced", stated: true });
+    expect(checkSegment("2\\text{H}_2 + \\text{O}_2(g) \\rightarrow 2\\text{H}_2\\text{O}(l)")).toEqual({ kind: "balanced", stated: false }); // states missing
     expect(plainChemistry("$6\\text{CO}_2 \\rightarrow \\text{C}_6\\text{H}_{12}\\text{O}_6$")).toBe(false);
   });
 });

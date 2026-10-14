@@ -523,7 +523,7 @@
   "formula_strip": [
     {
       "label": "Photosynthesis (standard equation)",
-      "math": "$6\\text{CO}_2 + 6\\text{H}_2\\text{O} \\xrightarrow{\\text{sunlight, chlorophyll}} \\text{C}_6\\text{H}_{12}\\text{O}_6 + 6\\text{O}_2$"
+      "math": "$6\\text{CO}_2(g) + 6\\text{H}_2\\text{O}(l) \\xrightarrow{\\text{sunlight, chlorophyll}} \\text{C}_6\\text{H}_{12}\\text{O}_6(\\text{aq}) + 6\\text{O}_2(g)$"
     },
     {
       "label": "Glucose breakdown",
