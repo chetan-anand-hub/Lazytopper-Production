@@ -420,11 +420,19 @@ export function writeSessionRecord(
     // network stayed down. The first attempt still runs synchronously, as before.
     const db = firestoreDb;
     const queuedAt = new Date().toISOString();
-    trackCloudWrite(uid, "record", record.id, queuedAt, () =>
-      setDoc(
-        doc(db, "sessionRecords", uid, "records", sanitizeDocId(record.id)),
-        stripUndefined({ ...record, updatedAt: queuedAt }),
-      ),
+    trackCloudWrite(
+      uid,
+      "record",
+      record.id,
+      queuedAt,
+      () =>
+        setDoc(
+          doc(db, "sessionRecords", uid, "records", sanitizeDocId(record.id)),
+          stripUndefined({ ...record, updatedAt: queuedAt }),
+        ),
+      // the body travels WITH the entry (the mirror is capped and cloud-wins on read); a record that is
+      // not yet a graded result (a worksheet download, status "pending-upload") is tracked but never announced
+      { body: record, quiet: record.status === "pending-upload" },
     );
   }
   return "recorded";
@@ -474,11 +482,17 @@ export function writeSessionPerQuestion(
     // SAVE-SYNC-1 (D190): tracked like the record write above.
     const db = firestoreDb;
     const queuedAt = new Date().toISOString();
-    trackCloudWrite(uid, "perQuestion", payload.ref, queuedAt, () =>
-      setDoc(
-        doc(db, "sessionRecords", uid, "perQuestion", sanitizeDocId(payload.ref)),
-        stripUndefined({ ...payload, updatedAt: queuedAt }),
-      ),
+    trackCloudWrite(
+      uid,
+      "perQuestion",
+      payload.ref,
+      queuedAt,
+      () =>
+        setDoc(
+          doc(db, "sessionRecords", uid, "perQuestion", sanitizeDocId(payload.ref)),
+          stripUndefined({ ...payload, updatedAt: queuedAt }),
+        ),
+      { body: payload },
     );
   }
 }
@@ -490,12 +504,19 @@ export function writeSessionPerQuestion(
  * (another device re-graded the same id meanwhile). Throws on a network failure so the outbox
  * keeps the entry.
  */
-export async function resendOutboxEntry(uid: string, entry: OutboxEntry): Promise<ResendOutcome> {
+export async function resendOutboxEntry(
+  uid: string,
+  entry: OutboxEntry,
+  isCurrent: () => boolean = () => true,
+): Promise<ResendOutcome> {
   if (!firestoreDb || !uid || uid === "anonymous") return "no-cloud";
-  const body: SessionRecord | SessionPerQuestionPayload | undefined =
-    entry.kind === "record"
+  // The queued body first (it is exactly what was graded when the write was queued); the mirror only
+  // for an entry that carries none. A re-grade that overwrote the mirror, a trimmed mirror, or a cloud
+  // read that put an older copy back can no longer change what is re-sent.
+  const body = (entry.body ??
+    (entry.kind === "record"
       ? loadLocalSessionRecords(uid).find((r) => r.id === entry.id)
-      : readLocalPayloads(uid)[entry.id];
+      : readLocalPayloads(uid)[entry.id])) as SessionRecord | SessionPerQuestionPayload | undefined;
   if (!body) return "no-local-copy";
   const ref = doc(
     firestoreDb,
@@ -507,6 +528,8 @@ export async function resendOutboxEntry(uid: string, entry: OutboxEntry): Promis
   const existing = await getDoc(ref);
   const cloudAt = existing.exists() ? (existing.data() as { updatedAt?: unknown } | undefined)?.updatedAt : undefined;
   if (typeof cloudAt === "string" && cloudAt > entry.queuedAt) return "cloud-newer";
+  // a re-grade of this id may have been queued while we awaited the read: its chain owns the id now
+  if (!isCurrent()) return "superseded";
   await setDoc(ref, stripUndefined({ ...body, updatedAt: entry.queuedAt }));
   return "sent";
 }

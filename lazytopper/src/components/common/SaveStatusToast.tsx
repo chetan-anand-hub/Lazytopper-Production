@@ -44,6 +44,7 @@ const CSS = `
   flex: 0 0 auto; border: 0; border-radius: 8px; padding: 2px 10px;
   background: rgba(255, 255, 255, 0.14); color: inherit; font: inherit; font-weight: 600; cursor: pointer;
 }
+@media print { .lt-savestatus { display: none; } }
 @media (min-width: 1000px) {
   .lt-savestatus { bottom: 24px; left: auto; right: 24px; transform: none; }
 }

@@ -29,15 +29,33 @@ export interface OutboxEntry {
   id: string;
   /** ISO time the write was queued; it is also the `updatedAt` the cloud doc carries. */
   queuedAt: string;
+  /**
+   * The body to send, kept WITH the entry. The localStorage mirror is capped (25 payloads / 200
+   * records) and the cloud read rewrites it (cloud wins), so it cannot be trusted to still hold the
+   * result that was queued: a re-grade queued offline must re-send ITSELF, not whatever the mirror
+   * holds by then. Absent only on an entry written without one.
+   */
+  body?: unknown;
+  /** True for a write that is not a graded result (a worksheet download): tracked, never announced. */
+  quiet?: boolean;
 }
 
 /** What `sessionRecords.ts` reports for a re-send. Every outcome but a throw settles the entry. */
-export type ResendOutcome = "sent" | "cloud-newer" | "no-local-copy" | "no-cloud";
+export type ResendOutcome = "sent" | "cloud-newer" | "no-local-copy" | "no-cloud" | "superseded";
 
 export type SavePhase = "idle" | "saving" | "saved" | "device-only";
 export interface SaveStatusSnapshot {
   phase: SavePhase;
 }
+
+/**
+ * The Firestore web SDK does NOT reject an offline write: it queues it and the promise stays pending
+ * until the server acknowledges. So "no answer in this long" is what offline looks like. After this
+ * the line stops claiming it is saving (device-only) and the `beforeunload` prompt is dropped; the
+ * attempt itself stays alive (the SDK flushes its queue when the network returns) and the outbox
+ * entry stays, so a closed tab is still covered by the next load.
+ */
+export const SLOW_AFTER_MS = 12000;
 
 /** In-session retries after the first attempt. */
 export const RETRY_DELAYS_MS: readonly number[] = [1000, 3000, 8000];
@@ -62,18 +80,22 @@ export function readOutbox(uid: string): OutboxEntry[] {
   }
 }
 
-function writeOutbox(uid: string, list: OutboxEntry[]): void {
-  if (typeof window === "undefined" || !uid) return;
+function writeOutbox(uid: string, list: OutboxEntry[]): boolean {
+  if (typeof window === "undefined" || !uid) return false;
   try {
     if (list.length === 0) window.localStorage.removeItem(STORAGE_PREFIX + uid);
     else window.localStorage.setItem(STORAGE_PREFIX + uid, JSON.stringify(list));
-  } catch {
-    /* quota / private mode — the in-memory retry still runs; the mirror is the local copy */
+    return true;
+  } catch (error) {
+    // quota / private mode: the in-memory retry still runs for this session, but a CLOSED tab then has
+    // nothing to re-send. Said out loud, never swallowed.
+    console.warn("[sessionRecords] outbox could not be persisted; this result is only retried while the tab stays open", error);
+    return false;
   }
 }
 
 function upsertEntry(uid: string, entry: OutboxEntry): void {
-  writeOutbox(uid, [...readOutbox(uid).filter((e) => keyOf(e.kind, e.id) !== keyOf(entry.kind, entry.id)), entry]);
+  void writeOutbox(uid, [...readOutbox(uid).filter((e) => keyOf(e.kind, e.id) !== keyOf(entry.kind, entry.id)), entry]);
 }
 
 function removeEntry(uid: string, kind: OutboxKind, id: string): void {
@@ -84,14 +106,24 @@ function removeEntry(uid: string, kind: OutboxKind, id: string): void {
 
 const inflight = new Map<string, number>(); // key -> generation of the live attempt chain
 const failed = new Set<string>(); // keys whose last chain ended in a failure (entry stays queued)
+const quiet = new Set<string>(); // keys of writes that are not graded results: never announced
+const slow = new Set<string>(); // keys still unanswered after SLOW_AFTER_MS (alive, but not "saving" any more)
 let savedFlash = false;
 let failedAcknowledged = false; // the student pressed OK on the device-only line
 let snapshot: SaveStatusSnapshot = { phase: "idle" };
 const listeners = new Set<() => void>();
 
+/** Chains the student should still wait for: alive and not yet slow. */
+function activeCount(): number {
+  let n = 0;
+  for (const k of inflight.keys()) if (!slow.has(k) && !quiet.has(k)) n++;
+  return n;
+}
+
 function computePhase(): SavePhase {
-  if (inflight.size > 0) return "saving";
-  if (failed.size > 0 && !failedAcknowledged) return "device-only";
+  if (activeCount() > 0) return "saving";
+  const loud = (s: Set<string>) => Array.from(s).some((k) => !quiet.has(k));
+  if ((loud(failed) || loud(slow)) && !failedAcknowledged) return "device-only";
   return savedFlash ? "saved" : "idle";
 }
 
@@ -120,7 +152,7 @@ export function dismissSaveStatus(): void {
   publish();
 }
 export function pendingCount(): number {
-  return inflight.size;
+  return activeCount();
 }
 
 // ── beforeunload: ONLY while a write is pending ──────────────────────────────────────────
@@ -133,7 +165,7 @@ function onBeforeUnload(e: BeforeUnloadEvent): void {
 }
 function syncBeforeUnload(): void {
   if (typeof window === "undefined") return;
-  const want = inflight.size > 0;
+  const want = activeCount() > 0;
   if (want && !unloadAttached) {
     window.addEventListener("beforeunload", onBeforeUnload);
     unloadAttached = true;
@@ -157,13 +189,17 @@ export function trackCloudWrite(
   kind: OutboxKind,
   id: string,
   queuedAt: string,
-  send: () => Promise<unknown>,
+  send: (isCurrent: () => boolean) => Promise<unknown>,
+  opts: { body?: unknown; quiet?: boolean } = {},
 ): void {
   const key = keyOf(kind, id);
   const gen = ++generation;
-  upsertEntry(uid, { kind, id, queuedAt });
+  upsertEntry(uid, { kind, id, queuedAt, body: opts.body, quiet: opts.quiet });
+  if (opts.quiet) quiet.add(key);
+  else quiet.delete(key);
   inflight.set(key, gen);
   failed.delete(key);
+  slow.delete(key);
   savedFlash = false;
   failedAcknowledged = false;
   publish();
@@ -171,16 +207,21 @@ export function trackCloudWrite(
   const run = (retry: number): void => {
     let p: Promise<unknown>;
     try {
-      p = Promise.resolve(send());
+      p = Promise.resolve(send(() => inflight.get(key) === gen));
     } catch (error) {
       p = Promise.reject(error);
     }
     p.then(
-      () => {
+      (value) => {
         if (inflight.get(key) !== gen) return; // a newer write took over this id
         inflight.delete(key);
+        slow.delete(key);
+        quiet.delete(key);
         removeEntry(uid, kind, id);
-        if (inflight.size === 0 && failed.size === 0) savedFlash = true;
+        // Only a write that really reached the cloud (or found it already there, newer) earns the tick:
+        // a re-send that had nothing to send must not claim "Saved to your account".
+        const sentNothing = value === "no-local-copy" || value === "no-cloud" || value === "superseded" || opts.quiet === true;
+        if (!sentNothing && inflight.size === 0 && failed.size === 0) savedFlash = true;
         publish();
       },
       (error) => {
@@ -193,6 +234,7 @@ export function trackCloudWrite(
         }
         console.warn("[sessionRecords] cloud write failed; kept in the outbox for the next load / online", { kind, id, error });
         inflight.delete(key);
+        slow.delete(key);
         failed.add(key);
         failedAcknowledged = false;
         publish();
@@ -200,6 +242,12 @@ export function trackCloudWrite(
     );
   };
   run(0);
+  setTimeout(() => {
+    if (inflight.get(key) === gen) {
+      slow.add(key);
+      publish();
+    }
+  }, SLOW_AFTER_MS);
 }
 
 // ── drain: next app load for the uid, and the browser `online` event ────────────────────
@@ -220,10 +268,17 @@ export async function drainOutbox(uid: string): Promise<void> {
     const { resendOutboxEntry } = await import("./sessionRecords");
     for (const entry of entries) {
       if (inflight.has(keyOf(entry.kind, entry.id))) continue;
-      trackCloudWrite(uid, entry.kind, entry.id, entry.queuedAt, async () => {
-        const outcome: ResendOutcome = await resendOutboxEntry(uid, entry);
-        return outcome;
-      });
+      trackCloudWrite(
+        uid,
+        entry.kind,
+        entry.id,
+        entry.queuedAt,
+        async (isCurrent) => {
+          const outcome: ResendOutcome = await resendOutboxEntry(uid, entry, isCurrent);
+          return outcome;
+        },
+        { body: entry.body, quiet: entry.quiet },
+      );
     }
   } catch (error) {
     console.warn("[sessionRecords] outbox drain could not start", error);
@@ -232,19 +287,40 @@ export async function drainOutbox(uid: string): Promise<void> {
   }
 }
 
+/**
+ * Forget every in-memory chain and status: a different student is about to use this tab. The
+ * running attempts finish on their own (their results are ignored: the generation no longer
+ * matches), the localStorage entries stay under the uid they belong to, and the next student
+ * starts with an idle line and no leave-page prompt that belongs to someone else.
+ */
+export function resetOutboxSession(): void {
+  inflight.clear();
+  failed.clear();
+  slow.clear();
+  quiet.clear();
+  savedFlash = false;
+  failedAcknowledged = false;
+  publish();
+}
+
 /** Start the sync for a signed-in uid: drain now, and again on every `online`. Returns the cleanup. */
 export function startOutboxSync(uid: string): () => void {
   if (typeof window === "undefined" || !uid) return () => {};
   void drainOutbox(uid);
   const onOnline = () => void drainOutbox(uid);
   window.addEventListener("online", onOnline);
-  return () => window.removeEventListener("online", onOnline);
+  return () => {
+    window.removeEventListener("online", onOnline);
+    resetOutboxSession();
+  };
 }
 
 /** Test seam: forget all in-memory state (the localStorage outbox is the test's to clear). */
 export function __resetOutboxForTests(): void {
   inflight.clear();
   failed.clear();
+  slow.clear();
+  quiet.clear();
   savedFlash = false;
   failedAcknowledged = false;
   snapshot = { phase: "idle" };

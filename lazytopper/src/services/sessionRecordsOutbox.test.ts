@@ -22,6 +22,9 @@ const h = vi.hoisted(() => ({
   store: new Map<string, Record<string, unknown>>(),
   mode: "ok" as "ok" | "fail" | "hang",
   sends: [] as string[],
+  releasers: [] as Array<() => void>,
+  gate: null as Promise<void> | null,
+  getDocCalls: 0,
 }));
 
 vi.mock("./firebaseClient", () => ({ firestoreDb: { __fake: true } }));
@@ -30,11 +33,18 @@ vi.mock("firebase/firestore", () => ({
   doc: (_db: unknown, ...segs: string[]) => ({ path: segs.join("/") }),
   collection: (_db: unknown, ...segs: string[]) => ({ path: segs.join("/") }),
   getDocs: async () => ({ docs: [] }),
-  getDoc: async (ref: { path: string }) => ({ exists: () => h.store.has(ref.path), data: () => h.store.get(ref.path) }),
+  getDoc: async (ref: { path: string }) => {
+    h.getDocCalls++;
+    // the read is TAKEN now: a write that lands while the caller waits is not in this snapshot (as in Firestore)
+    const present = h.store.has(ref.path);
+    const data = h.store.get(ref.path);
+    if (h.gate) await h.gate;
+    return { exists: () => present, data: () => data };
+  },
   setDoc: (ref: { path: string }, data: Record<string, unknown>) => {
     h.sends.push(ref.path);
     if (h.mode === "fail") return Promise.reject(new Error("offline"));
-    if (h.mode === "hang") return new Promise<void>(() => {});
+    if (h.mode === "hang") return new Promise<void>((resolve) => h.releasers.push(() => { h.store.set(ref.path, { ...data }); resolve(); }));
     h.store.set(ref.path, { ...data });
     return Promise.resolve();
   },
@@ -48,6 +58,8 @@ import {
 } from "./sessionRecords";
 import {
   RETRY_DELAYS_MS,
+  SLOW_AFTER_MS,
+  resetOutboxSession,
   __resetOutboxForTests,
   drainOutbox,
   getSaveStatus,
@@ -87,6 +99,9 @@ const flush = async () => {
 beforeEach(() => {
   h.store.clear();
   h.sends.length = 0;
+  h.releasers.length = 0;
+  h.gate = null;
+  h.getDocCalls = 0;
   h.mode = "ok";
   localStorage.clear();
   __resetOutboxForTests();
@@ -272,6 +287,109 @@ describe("SAVE-SYNC-1 — the outbox", () => {
     await vi.advanceTimersByTimeAsync(20000);
     await flush();
     expect(ask()).toBe(false);
+  });
+
+  it("(j) OFFLINE looks like a write that never answers (the SDK queues it): after 12 s the line says device-only and beforeunload is dropped; when the network returns the SDK flushes it and the line says saved", async () => {
+    expect(SLOW_AFTER_MS).toBe(12000);
+    h.mode = "hang";
+    writeSessionRecord(user, rec);
+    const ask = () => {
+      const e = new Event("beforeunload", { cancelable: true });
+      window.dispatchEvent(e);
+      return e.defaultPrevented;
+    };
+    await vi.advanceTimersByTimeAsync(11_000);
+    expect(getSaveStatus().phase).toBe("saving");
+    expect(ask()).toBe(true);
+    await vi.advanceTimersByTimeAsync(2_000);
+    expect(getSaveStatus().phase).toBe("device-only");
+    expect(ask()).toBe(false); // the student may leave; the outbox entry covers the reload
+    expect(readOutbox(UID)).toHaveLength(1);
+    // a drain during the wait does not send a second copy (the chain is alive)
+    h.sends.length = 0;
+    await drainOutbox(UID);
+    expect(h.sends).toEqual([]);
+    // the network returns: the queued write is acknowledged
+    h.releasers.forEach((r) => r());
+    await flush();
+    expect(h.store.has(REC_PATH)).toBe(true);
+    expect(readOutbox(UID)).toEqual([]);
+    expect(getSaveStatus().phase).toBe("saved");
+  });
+
+  it("(k) the queued body is what is re-sent: a re-grade queued offline is not replaced by an older copy the mirror (or a cloud read) put back", async () => {
+    h.mode = "hang";
+    writeSessionRecord(user, { ...rec, marksAwarded: 9, gradedAt: 2000 }); // the re-grade, v2
+    __resetOutboxForTests();
+    // the cloud-wins read (or a cap trim) leaves the OLDER v1 in the mirror
+    localStorage.setItem(
+      `lazytopper.user.${UID}.sessionRecords.v1`,
+      JSON.stringify([{ ...rec, marksAwarded: 3, gradedAt: 1000 }]),
+    );
+    expect(JSON.parse(localStorage.getItem(`lazytopper.user.${UID}.sessionRecords.v1`)!)[0].marksAwarded).toBe(3); // the trap is set
+    h.mode = "ok";
+    await drainOutbox(UID);
+    await vi.waitFor(() => expect(h.store.has(REC_PATH)).toBe(true));
+    expect(h.store.get(REC_PATH)).toMatchObject({ marksAwarded: 9, gradedAt: 2000 });
+  });
+
+  it("(k2) an entry with no body AND no mirror copy is settled WITHOUT claiming 'saved'", async () => {
+    localStorage.setItem(
+      `lazytopper.sessionOutbox.v1:${UID}`,
+      JSON.stringify([{ kind: "record", id: "GONE-01", queuedAt: new Date().toISOString() }]),
+    );
+    await drainOutbox(UID);
+    await flush();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(h.sends).toEqual([]);
+    expect(readOutbox(UID)).toEqual([]);
+    expect(getSaveStatus().phase).toBe("idle");
+  });
+
+  it("(l) a re-grade queued while the re-send awaits its cloud read supersedes it: the older body is never written", async () => {
+    h.mode = "hang";
+    writeSessionRecord(user, { ...rec, marksAwarded: 3 });
+    __resetOutboxForTests();
+    h.mode = "ok";
+    h.sends.length = 0;
+    let open!: () => void;
+    h.gate = new Promise<void>((r) => (open = r));
+    const draining = drainOutbox(UID); // its getDoc now waits on the gate
+    await vi.waitFor(() => expect(h.getDocCalls).toBe(1)); // really inside the read, not before it
+    writeSessionRecord(user, { ...rec, marksAwarded: 9, gradedAt: 2000 }); // the re-grade lands in the gap
+    open();
+    await draining;
+    await flush();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(h.sends.filter((x) => x === REC_PATH)).toHaveLength(1); // the re-grade's own write only
+    expect(h.store.get(REC_PATH)).toMatchObject({ marksAwarded: 9 });
+  });
+
+  it("(m) a different student on the same tab starts clean: no 'saving' line, no leave-page prompt that belongs to the last one", async () => {
+    h.mode = "hang";
+    const stop = startOutboxSync(UID);
+    writeSessionRecord(user, rec);
+    expect(getSaveStatus().phase).toBe("saving");
+    stop(); // sign-out / another account: AuthProvider's effect cleanup
+    expect(getSaveStatus().phase).toBe("idle");
+    const e = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(e);
+    expect(e.defaultPrevented).toBe(false);
+    expect(readOutbox(UID)).toHaveLength(1); // the first student's entry stays under THEIR uid
+    resetOutboxSession();
+  });
+
+  it("(n) a write that is not a graded result (a worksheet download, status pending-upload) is tracked but never announced", async () => {
+    h.mode = "hang";
+    writeSessionRecord(user, { ...rec, status: "pending-upload" });
+    expect(readOutbox(UID)).toHaveLength(1); // still covered by the outbox
+    expect(getSaveStatus().phase).toBe("idle");
+    await vi.advanceTimersByTimeAsync(20_000);
+    expect(getSaveStatus().phase).toBe("idle");
+    h.releasers.forEach((r) => r());
+    await flush();
+    expect(getSaveStatus().phase).toBe("idle"); // no tick for a download either
+    expect(readOutbox(UID)).toEqual([]);
   });
 
   it("(i) CONTROL: with the drain switched off (trunk behaviour) the record that missed the cloud stays missing", async () => {
