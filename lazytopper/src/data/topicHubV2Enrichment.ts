@@ -501,8 +501,8 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
     competencies: [
       { id: "M10-triangles-C1", description: "Identify similar triangles using AA, SAS or SSS criteria.", bloomLevel: "Understand" },
       { id: "M10-triangles-C2", description: "Apply the Basic Proportionality Theorem (Thales) to find unknown lengths in triangles.", bloomLevel: "Apply" },
-      { id: "M10-triangles-C3", description: "Use the Pythagoras theorem and its converse to verify right‑angled triangles and solve for sides.", bloomLevel: "Apply" },
-      { id: "M10-triangles-C4", description: "Relate the ratios of corresponding sides of similar triangles to ratios of areas and perimeters.", bloomLevel: "Analyze" }
+      { id: "M10-triangles-C3", description: "Use a² + b² = c² as a numeric tool to find a missing side of a right‑angled triangle.", bloomLevel: "Apply" },
+      { id: "M10-triangles-C4", description: "Relate the ratios of corresponding sides of similar triangles to the ratio of their perimeters.", bloomLevel: "Analyze" }
     ],
     misconceptions: [
       {
@@ -511,13 +511,8 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
         correction: "When stating ΔABC ∼ ΔDEF, ensure that A corresponds to D, B to E and C to F consistently throughout the proof." 
       },
       {
-        concept: "Area ratio",
-        commonError: "Taking the ratio of areas as the same as the ratio of corresponding sides, forgetting to square the side ratio.",
-        correction: "Area ratio of similar triangles is equal to the square of the ratio of their corresponding sides: (AB/DE)² = Area(ΔABC)/Area(ΔDEF)." 
-      },
-      {
         concept: "Theorem citation",
-        commonError: "Not citing the name of the theorem used (BPT, Pythagoras) in solutions.",
+        commonError: "Not citing the name of the theorem or criterion used (BPT, AA, SAS, SSS) in solutions.",
         correction: "Always mention the theorem or criterion you are applying; this fetches method marks and clarifies reasoning." 
       }
     ],

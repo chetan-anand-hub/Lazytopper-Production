@@ -108,8 +108,6 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
     concepts: [
       c("maths", "triangles", "Similar Triangles and Criteria", ["similar", "AA", "SSS", "SAS", "criteria"]),
       c("maths", "triangles", "Basic Proportionality Theorem", ["BPT", "thales", "parallel", "ratio", "proportionality"]),
-      c("maths", "triangles", "Pythagoras Theorem Visual Proof", ["pythagoras", "right", "triangle", "hypotenuse", "proof"]),
-      c("maths", "triangles", "Areas of Similar Triangles", ["area", "ratio", "square", "sides", "similar"]),
     ],
   },
   {

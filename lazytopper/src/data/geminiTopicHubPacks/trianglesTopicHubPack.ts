@@ -30,11 +30,6 @@ export const trianglesTopicHubPack = {
       "title": "Similarity Criteria",
       "detail": "Triangles are similar if any of the following holds: two angles are equal (AA), the ratios of all three pairs of corresponding sides are equal (SSS), or the ratios of two pairs of sides are equal and the included angles are equal (SAS).",
       "examTip": "State which criterion (AA, SSS or SAS) you are using when proving similarity."
-    },
-    {
-      "title": "Angle Bisector Theorem",
-      "detail": "In a triangle, the internal bisector of an angle divides the opposite side internally in the ratio of the adjacent sides.",
-      "examTip": "Mention that the segment is the angle bisector and write the ratio of adjacent sides correctly."
     }
   ],
   "examPatterns": [],
@@ -58,12 +53,7 @@ export const trianglesTopicHubPack = {
     {
       "title": "Construct logical geometric proofs",
       "detail": "1. Draw a neat figure and label all known quantities.\n2. Write down the ‘given’ and ‘to prove’ statements.\n3. Use appropriate theorems like BPT or similarity criteria with justification.\n4. Sequence your steps logically and cite reasons for each.\n5. Conclude with a clear statement of what has been proven.",
-      "examTip": "Prove that the ratio of the areas of two similar triangles equals the square of the ratio of their corresponding sides."
-    },
-    {
-      "title": "Use the Angle Bisector theorem",
-      "detail": "1. Identify the bisected angle and draw the bisector.\n2. Apply BD/DC = AB/AC to relate side segments.\n3. Represent unknown segments as multiples of a common variable if needed.\n4. Solve for the unknowns and check your ratio.",
-      "examTip": "In ΔABC, AD bisects ∠A with AB = 8 cm, AC = 6 cm and BD = 4 cm. Find DC."
+      "examTip": "Prove that a line drawn parallel to one side of a triangle divides the other two sides in the same ratio."
     }
   ],
   "markingTips": [
@@ -131,28 +121,6 @@ export const trianglesTopicHubPack = {
       "examinerNotes": [
         "Identify the hypotenuse before substituting.",
         "Show the squares explicitly and give the unit in the final answer."
-      ]
-    },
-    {
-      "id": "we4",
-      "title": "Using the Angle Bisector theorem to find segment lengths",
-      "difficulty": "Hard",
-      "marks": 5,
-      "question": "In ΔABC, AB = 9 cm and AC = 6 cm. The bisector of ∠A meets BC at D. Prove that BD/DC = AB/AC and find BD and DC if BC = 15 cm.",
-      "solutionSteps": [
-        "Draw ΔABC and the angle bisector AD.",
-        "By the Angle Bisector theorem, BD/DC = AB/AC.",
-        "Substitute the given side lengths: BD/DC = 9/6 = 3/2.",
-        "Let BD = 3k and DC = 2k (a common multiple for the 3:2 ratio).",
-        "Since BD + DC = BC, write 3k + 2k = 15 cm.",
-        "Combine like terms: 5k = 15, so k = 3.",
-        "Calculate BD = 3 × 3 = 9 cm and DC = 2 × 3 = 6 cm."
-      ],
-      "finalAnswer": "BD = 9 cm and DC = 6 cm.",
-      "examinerNotes": [
-        "State the Angle Bisector theorem clearly before using it.",
-        "Introduce a common variable for the ratio to avoid arithmetic errors.",
-        "Check that the sum of BD and DC matches the given BC."
       ]
     }
   ],
@@ -250,16 +218,6 @@ export const trianglesTopicHubPack = {
         "description": "Proportional division implies parallel lines."
       },
       {
-        "id": "n8",
-        "label": "Angle Bisector",
-        "description": "Relates the bisected angle to side segments."
-      },
-      {
-        "id": "n9",
-        "label": "Area Ratio",
-        "description": "Area comparison of similar triangles."
-      },
-      {
         "id": "n10",
         "label": "Applications",
         "description": "Real‑life uses like measuring heights and distances."
@@ -302,11 +260,6 @@ export const trianglesTopicHubPack = {
         "label": "converse of"
       },
       {
-        "from": "n2",
-        "to": "n9",
-        "label": "implies"
-      },
-      {
         "from": "n4",
         "to": "n2",
         "label": "used to show"
@@ -315,16 +268,6 @@ export const trianglesTopicHubPack = {
         "from": "n5",
         "to": "n4",
         "label": "requires"
-      },
-      {
-        "from": "n8",
-        "to": "n2",
-        "label": "used in"
-      },
-      {
-        "from": "n8",
-        "to": "n5",
-        "label": "similar to"
       },
       {
         "from": "n2",
@@ -340,11 +283,6 @@ export const trianglesTopicHubPack = {
         "from": "n11",
         "to": "n13",
         "label": "leads to"
-      },
-      {
-        "from": "n9",
-        "to": "n10",
-        "label": "applied in"
       },
       {
         "from": "n3",
@@ -399,18 +337,6 @@ export const trianglesTopicHubPack = {
       "title": "Right-angled triangle relation (numeric tool)",
       "formula": "a² + b² = c², where c is the hypotenuse.",
       "whenToUse": "To find a missing side in a right-angled triangle in height, distance and tangent-length problems."
-    },
-    {
-      "id": "for_angle_bisector",
-      "title": "Angle Bisector Theorem",
-      "formula": "In ΔABC, if AD bisects ∠A, then BD/DC = AB/AC.",
-      "whenToUse": "To relate segments created by an angle bisector to the adjacent sides."
-    },
-    {
-      "id": "for_area_ratio",
-      "title": "Area Ratio of Similar Triangles",
-      "formula": "Area(ΔABC) / Area(ΔDEF) = (AB/DE)².",
-      "whenToUse": "To compare areas of two similar triangles based on side ratios."
     }
   ],
   "videos": [
@@ -425,12 +351,6 @@ export const trianglesTopicHubPack = {
       "title": "Similarity Criteria of Triangles | AA, SSS, SAS",
       "url": "https://www.youtube.com/watch?v=XX0P1dP7X6s",
       "whyThis": "It explains the three criteria for triangle similarity with worked examples, making it easier to remember when to use each."
-    },
-    {
-      "id": "vid4",
-      "title": "Angle Bisector Theorem | Proof and Applications",
-      "url": "https://www.youtube.com/watch?v=hrJUgV5CLz8",
-      "whyThis": "It demonstrates the angle bisector theorem step by step and shows how to use it to solve side‑segment problems."
     }
   ]
 } as const;
