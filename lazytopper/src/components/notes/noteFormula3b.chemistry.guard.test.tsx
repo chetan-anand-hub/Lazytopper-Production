@@ -37,6 +37,8 @@ const BANNED = [...new Set([...GUARD.matchAll(/^\s*"([^"]{3,80})",?\s*$/gm)].map
 const bannedHits = (text: string): string[] =>
   BANNED.filter((b) => new RegExp("(?<![A-Za-z])" + b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/'/g, "['\u2019]") + "(?![A-Za-z])", "i").test(text));
 const INTERNAL = /PYQ-|SQP-|\bSP-[MS]-|CLAUDE|\b[BCP]-F\d|\bD2\d\d\b|\bE\d–E\d/;
+/** Things the owner has ruled OUT in src/config/syllabus2026-27.ts that the exact-string guard does not carry (R5 rancidity, R6 carboxylic-acid naming, pH via logarithm). */
+const OUT_BY_RULING = [/rancid|antioxidant|nitrogen flush/i, /[–-]oic( acid)?|propanoic|butanoic/i, /pH ?= ?[−-]? ?log|logarithm/i];
 const WATER_74 = /pure water[^.;]*7\.4/i;
 
 const visible = (s: NoteSpec): string[] => [
@@ -108,6 +110,7 @@ describe("NOTES-FORMULA-3b CHEMISTRY — what a student can see", () => {
     const text = visible(spec(slug)).join("\n");
     expect(bannedHits(text)).toEqual([]);
     expect(INTERNAL.test(text)).toBe(false);
+    expect(OUT_BY_RULING.filter((re) => re.test(text)).map(String)).toEqual([]);
   });
 
   it("(d) the source column never reaches the student DOM", () => {
@@ -134,5 +137,8 @@ describe("NOTES-FORMULA-3b CHEMISTRY — what a student can see", () => {
     expect(WATER_74.test("pure water and blood (labelled 7.4)")).toBe(true);
     expect(WATER_74.test("pure water 7 (neutral); blood about 7.4")).toBe(false);
     expect(bannedHits("Periodic table of the elements today")).toEqual([]);
+    expect(OUT_BY_RULING.some((re) => re.test("Rancidity and its prevention"))).toBe(true);
+    expect(OUT_BY_RULING.some((re) => re.test("carboxylic acid → –oic acid"))).toBe(true);
+    expect(OUT_BY_RULING.some((re) => re.test("ethanoic acid reacts with bases"))).toBe(false);
   });
 });

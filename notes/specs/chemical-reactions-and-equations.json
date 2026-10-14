@@ -554,11 +554,6 @@
       "id": "precipitation-reaction"
     },
     {
-      "label": "Rancidity and its Prevention",
-      "math": "When fats and oils are oxidised they become rancid, and their smell and taste change. It is slowed by adding antioxidants, by keeping food in air-tight containers, and by flushing bags of chips with nitrogen.",
-      "id": "rancidity"
-    },
-    {
       "label": "Colour Changes in Reactions (Observations)",
       "math": "Iron nail in copper sulphate: the blue solution turns pale green and the nail becomes brownish. Silver chloride: white, turns grey in sunlight. Copper powder heated in air turns black (copper(II) oxide). Lead nitrate on heating gives brown fumes of nitrogen dioxide. Crystals of ferrous sulphate are green.",
       "id": "colour-changes-in-reactions"
@@ -642,13 +637,6 @@
       "gloss": "BaSO₄ precipitate is white. Ba + SO₄ → white precipitate.",
       "use": "memory-aid",
       "source": "NCERT 1.2.4"
-    },
-    {
-      "id": "rancidity-trick",
-      "text": "<b>A</b>loo-<b>A</b>ur-<b>N</b>amkeen: <b>A</b>ntioxidant, <b>A</b>ir-tight dabba, <b>N</b>itrogen bhara packet.",
-      "gloss": "Three ways to slow rancidity. A = antioxidants · A = air-tight containers · N = flushing with nitrogen.",
-      "use": "memory-aid",
-      "source": "NCERT 1.3.2"
     }
   ],
   "mindmap": {

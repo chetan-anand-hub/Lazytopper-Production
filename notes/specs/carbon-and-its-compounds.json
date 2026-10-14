@@ -540,7 +540,7 @@
     },
     {
       "label": "Nomenclature of Carbon Compounds (Steps and Table)",
-      "math": "(1) Count the carbon atoms and use the root word: meth (1), eth (2), prop (3), but (4), pent (5), hex (6). (2) Show the functional group as a prefix or a suffix: halo → prefix chloro-, bromo-; alcohol → suffix –ol; aldehyde → –al; ketone → –one; carboxylic acid → –oic acid. (3) If the suffix begins with a vowel, drop the final 'e' of the chain name (propane + ol → propanol). (4) A double bond is shown by –ene and a triple bond by –yne.",
+      "math": "(1) Count the carbon atoms and use the root word: meth (1), eth (2), prop (3), but (4), pent (5), hex (6). (2) Show the functional group as a prefix or a suffix: halo → prefix chloro-, bromo-; alcohol → suffix –ol; aldehyde → –al; ketone → –one. (3) If the suffix begins with a vowel, drop the final 'e' of the chain name (propane + ol → propanol). (4) A double bond is shown by –ene and a triple bond by –yne.",
       "id": "nomenclature-of-carbon-compounds"
     },
     {
@@ -578,7 +578,7 @@
     },
     {
       "id": "name-from-suffix",
-      "text": "–ol alcohol, –al aldehyde, –one ketone, –oic acid carboxylic acid; –ene double bond, –yne triple bond.",
+      "text": "–ol alcohol, –al aldehyde, –one ketone; –ene double bond, –yne triple bond.",
       "use": "mcq-check",
       "source": "NCERT Table 4.4"
     },
@@ -622,8 +622,8 @@
     },
     {
       "id": "suffix-trick",
-      "text": "<b>Alcohol ka ol, Aldehyde ka al, Ketone ka one, Carboxylic ka oic.</b>",
-      "gloss": "Suffixes. –ol, –al, –one, –oic acid.",
+      "text": "<b>Alcohol ka ol, Aldehyde ka al, Ketone ka one.</b>",
+      "gloss": "Suffixes. –ol, –al, –one.",
       "use": "memory-aid",
       "source": "NCERT Table 4.4"
     },
