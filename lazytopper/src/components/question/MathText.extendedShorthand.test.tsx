@@ -27,10 +27,10 @@ describe("MathText extended shorthand — what the student now sees", () => {
     }
   });
 
-  it("a_n and a_{12} render as subscripts, snake_case is left as written", () => {
+  it("a_n and a_{12} render as subscripts, snake_case (my_var_name) is left as written", () => {
     expect(shown("a_n = a + (n-1)d").katex).toBeGreaterThanOrEqual(1);
     expect(shown("a_{12}").katex).toBe(1);
-    expect(shown("R_total").visible).toBe("R_total");
+    expect(shown("my_var_name").visible).toBe("my_var_name"); // R_total is now a word subscript (MATH-RENDER-3, D225)
   });
 
   it("comparison stand-ins become glyphs", () => {
