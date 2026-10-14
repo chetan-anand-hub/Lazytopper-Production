@@ -1,5 +1,18 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-14 · FU-SAVE-SYNC-QUOTA] `#1168` MERGED — the outbox is capped and a result that cannot be queued is never silent
+
+*(Adds to the blocks below. Written by C2 under §10 from `#973` (D206, D231, D234), `gh pr view` and `git log`.)*
+
+★ **TRUNK at writing:** `85cdc8a9` (`#1168`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1168` FU-SAVE-SYNC-QUOTA | `85cdc8a9` | 10-14 08:24:35 | outbox cap (1,000,000 chars / 500 entries; oldest `record` bodies stripped, never per-question or the new entry's body); `unpersisted` results keep `beforeunload` armed and show the `keep-open` / `device-only-manual` lines (D234 copy); `gradedAt` stamp guards the mirror fallback; toast CSS in `SaveStatusToast.css` |
+
+- **Six grading surfaces:** persistence + status line only; no grading behaviour changed.
+- **Owed (owner, later):** the SAVE-SYNC-1 round-trip (offline grade → device-only line → online → saved → second device; offline grade + close tab + reopen). The storage-full path is covered by tests only.
+
 ## [CURRENT · 2026-10-14 · NOTES-FORMULA-3a] `#1160` MERGED (+ docs `#1161`) — notes pages have a "Formulae & Tricks" tab (when tricks exist), stable anchors that open the tab, and the optional shortcuts/id/heading/tip schema
 
 *(Adds to the blocks below, which stay current for everything this block does not name. Written by C2 under §10 from `#973` (D208, D221, D228), `gh pr view` and `git log`.)*

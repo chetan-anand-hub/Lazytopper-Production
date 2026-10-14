@@ -23,6 +23,17 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-14 — FU-SAVE-SYNC-QUOTA FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-SAVE-SYNC-QUOTA] — CLOSED by `#1168`
+The outbox is capped and a result that cannot be queued is never silent (see SESSION_LOG). Two items stay: the copy of the normal `deviceOnly` line ("Saved on this device. We'll add it to your account automatically next time you're online.") is true only when a body is stored, which is the only case it is shown in now; the storage-full path is covered by tests, not by a manual run.
+
+### [FU-SAVESTATUS-INLINE-STYLE] — CLOSED by `#1168`
+`SaveStatusToast.tsx` imports `SaveStatusToast.css`; the `<style>` block is gone (D206, §7).
+
+### [FU-CI-ISTMIDNIGHT-FLAKE]
+`progressReadModel.istMidnight.test.ts` ("G3 consistency pin across an IST midnight: the consistency file passes at every instant, with nothing skipped") failed once on `#1168`'s first CI run (vitest shard 1/4, 23 s, `AssertionError: expected {…(3)} to deeply equal {…(3)}`) and passed on the rerun with no change to its inputs. A 23 s test under shard load is a timing smell; the owner of `progressReadModel` should check whether its clock mocking or its 23 s budget is the cause.
+
 ## 2026-10-14 — NOTES-FORMULA-3a / PERF-3a FOLLOW-UPS (recorded by C2 under §10)
 
 ### [FU-NOTES-ANCHOR-FOCUS]

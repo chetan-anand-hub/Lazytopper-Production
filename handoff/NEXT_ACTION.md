@@ -1,3 +1,11 @@
+## ★ 2026-10-14 — AFTER FU-SAVE-SYNC-QUOTA (`#1168`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **`[FU-SAVE-SYNC-QUOTA]` and `[FU-SAVESTATUS-INLINE-STYLE]` are CLOSED.** Anyone touching saving next: `[FU-SAVE-SYNC-FIRESTORE-PERSISTENCE]` (a persistent Firestore cache would make an offline write survive a reload by itself; `firebaseClient.ts`, PERF-3b territory) is the remaining saving follow-up; `[FU-SAVE-SYNC-REMOUNT]` stands.
+- **If you change what the outbox stores,** keep the `gradedAt` stamp through EVERY re-write of an entry (the drain re-upserts it) and never degrade the NEW entry to an ids-only stand-in.
+- **`[FU-CI-ISTMIDNIGHT-FLAKE]`:** `progressReadModel.istMidnight.test.ts` ("G3 consistency pin", 23 s) failed once in vitest shard 1/4 and passed on rerun; whoever owns it should look at its timing under shard load.
+
 ## ★ 2026-10-14 — AFTER NOTES-FORMULA-3a (`#1160` `#1161`) AND PERF-3a-OUTLIER (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
