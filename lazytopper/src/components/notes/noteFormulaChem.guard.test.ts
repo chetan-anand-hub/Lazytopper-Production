@@ -165,15 +165,18 @@ describe("NOTES-FORMULA-2 — chemistry on the formula cards", () => {
     const checked = new Map<string, number>();
     const bad: string[] = [];
     const unstated: string[] = [];
+    const genericWithState: string[] = [];
     for (const s of strips) {
       for (const m of s.math.matchAll(NOTE_MATH_RE)) {
         const v = checkSegment(m[1]);
+        if (v.kind === "generic" && /\\rightarrow|\\xrightarrow/.test(m[1]) && /\((?:aq|l|g|s)\)|\(\\text\{aq\}\)/.test(m[1])) genericWithState.push(`${s.slug}#${s.i}: ${m[1]}`);
         if (v.kind === "balanced" && !v.stated) unstated.push(`${s.slug}#${s.i}: ${m[1]}`);
         if (v.kind === "balanced") checked.set(`${s.slug}#${s.i}`, (checked.get(`${s.slug}#${s.i}`) ?? 0) + 1);
         if (v.kind === "unbalanced") bad.push(`${s.slug}#${s.i} ${JSON.stringify(v)}`);
       }
     }
     expect(bad).toEqual([]);
+    expect(genericWithState, "a generic template (a word species such as 'carbon compound') takes no state symbols (D200)").toEqual([]);
     expect(unstated, "every species of an element-formula equation carries a state symbol (D200)").toEqual([]);
     for (const [slug, i, n] of MUST_BE_CHECKED) expect(checked.get(`${slug}#${i}`) ?? 0, `${slug}#${i}`).toBe(n);
     expect([...checked.values()].reduce((a, b) => a + b, 0)).toBeGreaterThanOrEqual(10);
