@@ -439,8 +439,8 @@
       "heading": "Image Formation by a Concave Lens (Table)"
     },
     {
-      "label": "Laws of Refraction (Snell's Law)",
-      "math": "(i) The incident ray, the refracted ray and the normal to the interface at the point of incidence all lie in the same plane. (ii) For light of a given colour and a given pair of media, $\\dfrac{\\sin i}{\\sin r}=\\text{constant}$ (Snell's law). Going from an optically rarer to an optically denser medium, light slows down and bends towards the normal; going from denser to rarer, it speeds up and bends away from the normal.",
+      "label": "Laws of Refraction",
+      "math": "(i) The incident ray, the refracted ray and the normal to the interface at the point of incidence all lie in the same plane. (ii) For light of a given colour and a given pair of media, $\\dfrac{\\sin i}{\\sin r}=\\text{constant}$. Going from an optically rarer to an optically denser medium, light slows down and bends towards the normal; going from denser to rarer, it speeds up and bends away from the normal.",
       "id": "laws-of-refraction"
     },
     {

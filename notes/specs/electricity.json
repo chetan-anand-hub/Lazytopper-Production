@@ -456,7 +456,7 @@
       "label": "Joule's heating",
       "math": "$H=I^2Rt$",
       "id": "heating-effect-of-current",
-      "heading": "Heating Effect of Electric Current (Joule's Law)",
+      "heading": "Heating Effect of Electric Current",
       "tip": "Also H = VIt."
     },
     {

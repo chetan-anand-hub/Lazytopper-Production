@@ -34,7 +34,7 @@ const GUARD = readFileSync(resolve(__dirname, "../../../../scripts/src/syllabusG
 const BANNED = [...new Set([...GUARD.matchAll(/^\s*"([^"]{3,80})",?\s*$/gm)].map((m) => m[1]))];
 const bannedHits = (text: string): string[] =>
   BANNED.filter((b) => new RegExp("(?<![A-Za-z])" + b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/'/g, "['\u2019]") + "(?![A-Za-z])", "i").test(text));
-const INTERNAL = /PYQ-|SQP-|\bSP-[MS]-|CLAUDE|\b[BCP]-F\d|\bD2\d\d\b|\bE\d–E\d/;
+const INTERNAL = /PYQ-|SQP-|\bSP-[MS]-|CLAUDE|\b[BCP]-F\d|\bD2\d\d\b|\bE\d–E\d|\bruling\b|\bR\d\b|TODO/;
 
 const visible = (s: NoteSpec): string[] => [
   ...s.formula_strip.flatMap((f) => [f.label, f.math, f.heading ?? "", f.tip ?? ""]),
@@ -79,8 +79,8 @@ describe("NOTES-FORMULA-3b PHYSICS — what a student can see", () => {
     expect(INTERNAL.test(text)).toBe(false);
   });
 
-  it("(d) the source column never reaches the student DOM", () => {
-    const s = spec("light-reflection-and-refraction");
+  it.each(PHYS)("(d) %s: the source column never reaches the student DOM", (slug) => {
+    const s = spec(slug);
     const { container } = render(
       <MemoryRouter>
         <Note spec={s} />
@@ -100,6 +100,8 @@ describe("NOTES-FORMULA-3b PHYSICS — what a student can see", () => {
   it("(e) CONTROL: the scans do flag a banned phrase and an internal id", () => {
     expect(bannedHits("Volume of a Frustum of Cone")).toContain("Frustum of Cone");
     expect(INTERNAL.test("see PYQ-M-2024-TRI-001")).toBe(true);
+    expect(INTERNAL.test("owner ruling R1")).toBe(true);
+    expect(INTERNAL.test("TODO later")).toBe(true);
     expect(bannedHits("Volume of a cone")).toEqual([]);
     expect(INTERNAL.test("Sa-Sa-Sa")).toBe(false);
   });
