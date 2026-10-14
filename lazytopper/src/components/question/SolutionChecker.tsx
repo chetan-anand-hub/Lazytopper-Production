@@ -1469,7 +1469,7 @@ export function SolutionChecker({
                 Examiner note
               </div>
               <div style={{ fontSize: "0.78rem", color: "var(--text)", lineHeight: 1.6 }}>
-                {result.teacherNote}
+                <EquationRender text={result.teacherNote} />
               </div>
             </div>
           )}

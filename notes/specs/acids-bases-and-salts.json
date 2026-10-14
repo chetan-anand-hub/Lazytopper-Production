@@ -374,35 +374,35 @@
   "formula_strip": [
     {
       "label": "Acid + Metal",
-      "math": "Acid + Metal -> Salt + Hydrogen gas"
+      "math": "$\\text{Acid} + \\text{Metal} \\rightarrow \\text{Salt} + \\text{Hydrogen gas}$"
     },
     {
       "label": "Carbonate / bicarbonate + Acid",
-      "math": "Metal carbonate / hydrogencarbonate + Acid -> Salt + Carbon dioxide + Water"
+      "math": "Metal carbonate / hydrogencarbonate + Acid &rarr; Salt + Carbon dioxide + Water"
     },
     {
       "label": "Neutralisation",
-      "math": "Base + Acid -> Salt + Water   .   H+(aq) + OH-(aq) -> H2O(l)"
+      "math": "$\\text{Base} + \\text{Acid} \\rightarrow \\text{Salt} + \\text{Water}$   .   $\\text{H}^+(\\text{aq}) + \\text{OH}^-(\\text{aq}) \\rightarrow \\text{H}_2\\text{O}(l)$"
     },
     {
       "label": "Acids / bases in water",
-      "math": "HCl + H2O -> H3O+ + Cl-   .   NaOH -> Na+(aq) + OH-(aq)"
+      "math": "$\\text{HCl}(g) + \\text{H}_2\\text{O}(l) \\rightarrow \\text{H}_3\\text{O}^+(\\text{aq}) + \\text{Cl}^-(\\text{aq})$   .   $\\text{NaOH}(s) \\xrightarrow{\\text{water}} \\text{Na}^+(\\text{aq}) + \\text{OH}^-(\\text{aq})$"
     },
     {
       "label": "pH scale",
-      "math": "0 (very acidic) --- 7 (neutral) --- 14 (very alkaline) ; lower pH = more H+"
+      "math": "0 (very acidic) &mdash; 7 (neutral) &mdash; 14 (very alkaline) ; lower pH = more $\\text{H}^+$"
     },
     {
       "label": "Chlor-alkali",
-      "math": "2NaCl(aq) + 2H2O(l) -> 2NaOH(aq) + Cl2(g) + H2(g)"
+      "math": "$2\\text{NaCl}(\\text{aq}) + 2\\text{H}_2\\text{O}(l) \\rightarrow 2\\text{NaOH}(\\text{aq}) + \\text{Cl}_2(g) + \\text{H}_2(g)$"
     },
     {
       "label": "Baking / washing soda",
-      "math": "NaHCO3 (baking soda)   .   Na2CO3.10H2O (washing soda)"
+      "math": "$\\text{NaHCO}_3$ (baking soda)   .   $\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$ (washing soda)"
     },
     {
       "label": "Plaster of Paris",
-      "math": "CaSO4.(1/2)H2O + (3/2)H2O -> CaSO4.2H2O (gypsum)"
+      "math": "$\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O}(s) + \\tfrac{3}{2}\\text{H}_2\\text{O}(l) \\rightarrow \\text{CaSO}_4 \\cdot 2\\text{H}_2\\text{O}(s)$ (gypsum)"
     }
   ],
   "mindmap": {
