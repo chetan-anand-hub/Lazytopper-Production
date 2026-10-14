@@ -65,6 +65,7 @@ const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
 const ForParentsPage = lazy(() => import("./pages/ForParentsPage"));
 const NcertBooksPage = lazy(() => import("./pages/NcertBooksPage"));
+const SolutionsPage = lazy(() => import("./pages/SolutionsPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const VisualAuditPage = lazy(() => import("./pages/VisualAuditPage"));
 const CacheStatsPage = lazy(() => import("./pages/CacheStatsPage"));
@@ -339,7 +340,10 @@ export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): 
     // width, which is exactly the straggler defect the sweep above closed.
     pathname === "/cbse/class-10" ||
     // NCERT-BOOKS-1b — mirrors isDesktopShellRoute, the same as CBSE-PAGE-1.
-    pathname === "/ncert-class-10"
+    pathname === "/ncert-class-10" ||
+    // SOLUTIONS-1 — mirrors isDesktopShellRoute (the solutions route family).
+    pathname.startsWith("/ncert-solutions/") ||
+    pathname.startsWith("/ncert-exemplar/")
   ) {
     return true;
   }
@@ -652,6 +656,8 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   // NCERT-BOOKS-1b — exact "/ncert-class-10", the same bucket as /cbse/class-10: a
   // student reading a chapter keeps the sidebar (which links back here as "NCERT Books").
   if (pathname === "/ncert-class-10") return true;
+  // SOLUTIONS-1 — the NCERT / Exemplar solutions pages sit in the same bucket as the books page.
+  if (pathname.startsWith("/ncert-solutions/") || pathname.startsWith("/ncert-exemplar/")) return true;
   // PR-K2F repair — HPQ uses the desktop shell at desktop width while mobile
   // continues through the existing legacy route surface.
   if (pathname === "/highly-probable" || pathname.startsWith("/highly-probable/")) return true;
@@ -1019,6 +1025,9 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/check-your-answer" element={withRouteSuspense(<CheckYourAnswerPage />)} />
           <Route path="/for-parents" element={withRouteSuspense(<ForParentsPage />)} />
           <Route path="/ncert-class-10" element={withRouteSuspense(<NcertBooksPage />)} />
+          {/* SOLUTIONS-1 (G, D259-D261): one route family; the page serves the pilot chapters only. */}
+          <Route path="/ncert-solutions/:chapter" element={withRouteSuspense(<SolutionsPage />)} />
+          <Route path="/ncert-exemplar/:chapter" element={withRouteSuspense(<SolutionsPage />)} />
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
           <Route path="/admin/visual-audit" element={withRouteSuspense(<VisualAuditPage />)} />
           <Route path="/admin/cache-stats" element={<RequireAuth>{withRouteSuspense(<CacheStatsPage />)}</RequireAuth>} />

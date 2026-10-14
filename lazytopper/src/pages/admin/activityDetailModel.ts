@@ -86,6 +86,14 @@ const EVENT_LABELS: Record<string, string> = {
   practice_graded: "Graded a practice set",
   testimonial_play: "Played the testimonial video",
   parent_share_click: "Tapped Send to my child",
+  // SOLUTIONS-1 (lane G) — the public NCERT / Exemplar solutions pages.
+  sol_hint: "Opened a solutions hint",
+  sol_attempt_mcq: "Answered a solutions MCQ",
+  sol_attempt_typed_right: "Typed a right answer (solutions)",
+  sol_attempt_typed_wrong: "Typed a wrong answer (solutions)",
+  sol_attempt_no_verdict: "Typed an answer (solutions, no verdict)",
+  sol_unlock: "Unlocked a solution",
+  sol_check_start: "Tapped Check my answer (solutions)",
 };
 
 /** A recorded event name in plain words, e.g. "check_graded" -> "Checked an answer". */

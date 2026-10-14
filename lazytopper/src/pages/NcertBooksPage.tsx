@@ -13,6 +13,7 @@ import {
   type NcertBook,
   type NcertBookChapter,
 } from "../config/ncertBooks";
+import { solutionsChapter, solutionsPath } from "../config/solutionsPublishSafe";
 import "./ncertBooks.css";
 
 /**
@@ -77,6 +78,12 @@ function ChapterRow({
           <Link to={`/notes/${row.slug}#formulae`}>Formulae</Link>
           <Link to={ncertPracticePath(row)}>Practice</Link>
           <Link to="/check-improve">Check my answer</Link>
+          {/* SOLUTIONS-1 — only where a solutions page exists (the pilot list), never a placeholder. */}
+          {solutionsChapter(row.slug)?.chapter === row.chapter && row.book === "Maths" ? (
+            <Link to={solutionsPath("ncert", row.slug)} data-testid={`nb-solutions-${code}`}>
+              Solutions
+            </Link>
+          ) : null}
         </span>
       </div>
       <p className="lt-nb__credit">

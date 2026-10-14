@@ -13,6 +13,7 @@ import {
 } from "./ncertBooks";
 import { SELF_CANONICAL_EXACT, canonicalPathFor } from "./canonicalUrl";
 import { sitemapPaths } from "./sitemapUrls";
+import { solutionsChapter, solutionsPaths } from "./solutionsPublishSafe";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { ncertPickerChapters, ncertReadPath, NCERT_SCIENCE_BRANCHES } from "../components/ncert/NcertChapterPicker";
 import { ncertFileCodeFromSpec } from "../lib/ncertFileCode";
@@ -59,6 +60,16 @@ const FORBIDDEN: ReadonlyArray<[string, RegExp]> = [
 ];
 function copyProblems(text: string): string[] {
   return FORBIDDEN.filter(([, re]) => re.test(text)).map(([name]) => name);
+}
+
+/** SOLUTIONS-1 — drop only the row links to a PUBLISHED solutions page; every other "solution" stays. */
+function withoutPublishedSolutionsLinks(html: string): string {
+  const published = new Set(solutionsPaths());
+  return html.replace(/<a\b([^>]*)>Solutions<\/a>/g, (whole, attrs: string) => {
+    const href = /\bhref="([^"]+)"/.exec(attrs)?.[1];
+    const isRowLink = /\bdata-testid="nb-solutions-[a-z0-9]+"/.test(attrs);
+    return isRowLink && href && published.has(href) ? "" : whole;
+  });
 }
 
 function loadProblems(html: string): string[] {
@@ -171,9 +182,20 @@ describe("NCERT-BOOKS-1 (c) — the page carries all 27 rows with honest links",
   });
 
   it("no solutions text, no placeholder, no forbidden copy, and nothing PDF-shaped loads with the page", () => {
-    const text = html.replace(/<[^>]+>/g, " ");
+    // SOLUTIONS-1 narrows the "solutions" rule to ONE allowed shape: a row's `nb-solutions-*` link
+    // to a PUBLISHED solutions page. Anything else saying "solution" stays a failure.
+    const text = withoutPublishedSolutionsLinks(html).replace(/<[^>]+>/g, " ");
     expect(copyProblems(text)).toEqual([]);
     expect(loadProblems(html)).toEqual([]);
+  });
+
+  it("SOLUTIONS-1 — exactly the pilot chapters' rows link their solutions page", () => {
+    const linked = [...html.matchAll(/data-testid="nb-solutions-([a-z0-9]+)"/g)].map((m) => m[1]);
+    const pilot = rows.filter((r) => solutionsChapter(r.slug)?.chapter === r.chapter && r.book === "Maths").map(ncertCode);
+    expect(linked).toEqual(pilot);
+    expect(pilot).toEqual(["jemh106"]);
+    const link = /<a\b[^>]*data-testid="nb-solutions-jemh106"[^>]*>Solutions<\/a>/.exec(html)?.[0] ?? "";
+    expect(link).toContain('href="/ncert-solutions/triangles"');
   });
 
   it("the committed prerender (once captured) carries all 27 rows too", () => {
@@ -312,6 +334,16 @@ function readerProblems(raw: string): string[] {
 describe("NCERT-BOOKS-1b (g) — phones read the chapter in the page (owner reproduced the new tab)", () => {
   it("the reader draws pages on canvas with a lazily loaded pdf.js; no iframe, no pdfViewerEnabled fallback", () => {
     expect(readerProblems(read("src/components/ncert/NcertChapterReader.tsx"))).toEqual([]);
+  });
+});
+
+describe("CONTROLS — the SOLUTIONS-1 narrowing removes only a published link", () => {
+  it("a link to an unpublished chapter, or loose 'solutions' copy, is still caught", () => {
+    const unpublished = '<a href="/ncert-solutions/circles" data-testid="nb-solutions-jemh110">Solutions</a>';
+    expect(copyProblems(withoutPublishedSolutionsLinks(unpublished).replace(/<[^>]+>/g, " "))).toEqual(["solutions"]);
+    expect(copyProblems(withoutPublishedSolutionsLinks("<p>NCERT solutions coming</p>"))).toContain("solutions");
+    const published = '<a href="/ncert-solutions/triangles" data-testid="nb-solutions-jemh106">Solutions</a>';
+    expect(withoutPublishedSolutionsLinks(published)).toBe("");
   });
 });
 

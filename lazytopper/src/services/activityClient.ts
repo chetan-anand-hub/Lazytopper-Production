@@ -94,6 +94,14 @@ export const ACTIVITY_EVENTS = [
   "practice_graded",
   "testimonial_play",
   "parent_share_click",
+  // SOLUTIONS-1 (lane G, D260) — the public solutions pages.
+  "sol_hint",
+  "sol_attempt_mcq",
+  "sol_attempt_typed_right",
+  "sol_attempt_typed_wrong",
+  "sol_attempt_no_verdict",
+  "sol_unlock",
+  "sol_check_start",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 
