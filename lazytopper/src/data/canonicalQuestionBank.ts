@@ -2449,6 +2449,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-HERED-026",              // wrong-content (FIND-3, D179): Key reason 'variations caused by environmental changes ... do not change DNA' is not why; NCERT: survival depends on whether a variation is advantageo
   "SCQ-S-HERED-040",              // wrong-content (FIND-3, D179): Key: 'A dihybrid cross is a cross between two heterozygous parents'; it is between parents differing in two contrasting traits (Mendel used pure/homoz
   "SCQ-S-ENV-028",                // wrong-content (FIND-3, D179): 'CFCs which release fluorine which react with ozone' is wrong: UV splits CFCs releasing CHLORINE atoms, which destroy ozone in a chain reaction.
+  "SCQ-S-METAL-040",              // wrong-content (D197): the stem is garbled: it begins with leftover text from the previous question's answer ('Painting, 2. Oiling and greasing, 3. Galvanisation, 4. By forming its alloys. 131.') and the stored key is 'a. b.'. The steps are right.
+  "SCQ-S-METAL-041",              // wrong-content (D197): the stem is garbled: it begins with the previous answer's list ('It is soluble in water. 2. It conducts electricity... 3. It is a hard solid. 132.'). The science in the steps is right.
 ]);
 
 /**
