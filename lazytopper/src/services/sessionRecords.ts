@@ -518,6 +518,11 @@ export async function resendOutboxEntry(
       ? loadLocalSessionRecords(uid).find((r) => r.id === entry.id)
       : readLocalPayloads(uid)[entry.id])) as SessionRecord | SessionPerQuestionPayload | undefined;
   if (!body) return "no-local-copy";
+  // a mirror fallback (the entry's own body was stripped) is used ONLY if it is the same grade: the cloud-wins read can have put an
+  // older copy back, and re-sending it stamped with the new queued time would overwrite the re-grade
+  if (entry.body === undefined && entry.gradedAt !== undefined && (body as { gradedAt?: unknown }).gradedAt !== entry.gradedAt) {
+    return "no-local-copy";
+  }
   const ref = doc(
     firestoreDb,
     "sessionRecords",

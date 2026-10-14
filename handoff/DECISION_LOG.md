@@ -1,3 +1,30 @@
+## 2026-10-14 — FU-SAVE-SYNC-QUOTA (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1168`, plus C2's own decisions, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **206** | `[FU-SAVE-SYNC-QUOTA]` is priority next for whoever touches saving; add `[FU-SAVESTATUS-INLINE-STYLE]` | a closed tab loses a result when the outbox write hits the quota; §7 says no inline styling |
+| **231 / 234** | `#1168` approved WITH a copy condition: `keepOpen` / `deviceOnlyManual` must not start "Saved on this device" (the unpersisted path is exactly when storage refused the write); exact strings given; "you logged it as a follow-up, but it is a condition" | the line must not claim a copy that may not exist |
+| **C2 (no D)** | Never strip the NEW entry's body, only OLDER `record` bodies; per-question bodies are never stripped | under a real quota failure the mirror write fails too, so an ids-only stand-in later settles as "no copy": a silent loss (verifier round 1) |
+| **C2 (no D)** | A body-less entry re-sends from the mirror only if `gradedAt` matches; the stamp is kept through every re-write | the cloud-wins read can put an older grade back; re-sending it stamped with the new queued time would overwrite a re-grade (verifier round 2) |
+| **C2 (no D)** | A graded result whose copy is gone (`no-local-copy`) is surfaced (manual line), not settled quietly | a quiet settle is a silent loss |
+| **C2 (no D)** | `+5` lines in `resendOutboxEntry` (`sessionRecords.ts`) despite the claim saying I would not touch it | the `gradedAt` guard lives where the mirror fallback is read; outside the additive-only frozen set; the 3 ops gates exit 0 |
+
+## 2026-10-14 — NOTES-FORMULA-3a / PERF-3a (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1160` `#1161` and PERF-3a, plus C2's own decisions, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **204 / 208** | Second tab "Formulae & Tricks" in the order Formulae → Shortcuts & Tricks → Memory Tricks → Mindmap; optional `id/heading/tip`, `shortcuts[]`, diagram `{id,heading,alt}`; section anchors and `#<id>` open the tab and scroll; ids lower-kebab, page-unique, stable (pinned by a guard) | the cards are an SEO surface: students search "formulas", "table", "theorem", "diagram"; a stable link per card |
+| **217** | PERF-3a steps 0–2 accepted; the < 600 ms target is MET at the median; Option A parked, B/C closed; 3a before everything else | the measurement showed the "~4 s" was an intermittent outlier, not the steady cost; hydration cannot succeed on a DOM-capture prerender |
+| **221 / 227** | Only heading / body / tip / trick text renders; `source` and mapping are internal and never reach the student DOM | provenance is for reviewers, not students |
+| **228** | `#1160` APPROVED; label "Formulae & Tricks" only when tricks exist; the safe-use tag stays | a "Tricks" tab with no tricks is a false label; the tag protects step marks (CLAUDE.md §13) |
+| **C2 (no D)** | Split the validator + schema doc into docs PR `#1161` | `scope:guard` classes `notes/` as the docs lane; a product PR must contain zero docs files (§8) |
+| **C2 (no D)** | The in-page tricks link does NOT write the URL (no `pushState`) | the verifier found a stale Back tab and Topic Hub URL pollution when `<Note>` is inside `NoteModal` |
+| **C2 (no D)** | ids/section anchors live only on the canonical copy (second-tab Formulae, diagrams-tab figure) | 5 diagrams chapters reuse body figures; a duplicate id makes an anchor ambiguous |
+
 ## 2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1148` `#1151` `#1154`, plus the decisions C2 itself made, with reasons. Read the numbered posts on `#973` for the full text.

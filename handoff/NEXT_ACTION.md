@@ -1,3 +1,20 @@
+## ★ 2026-10-14 — AFTER FU-SAVE-SYNC-QUOTA (`#1168`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **`[FU-SAVE-SYNC-QUOTA]` and `[FU-SAVESTATUS-INLINE-STYLE]` are CLOSED.** Anyone touching saving next: `[FU-SAVE-SYNC-FIRESTORE-PERSISTENCE]` (a persistent Firestore cache would make an offline write survive a reload by itself; `firebaseClient.ts`, PERF-3b territory) is the remaining saving follow-up; `[FU-SAVE-SYNC-REMOUNT]` stands.
+- **If you change what the outbox stores,** keep the `gradedAt` stamp through EVERY re-write of an entry (the drain re-upserts it) and never degrade the NEW entry to an ids-only stand-in.
+- **`[FU-CI-ISTMIDNIGHT-FLAKE]`:** `progressReadModel.istMidnight.test.ts` ("G3 consistency pin", 23 s) failed once in vitest shard 1/4 and passed on rerun; whoever owns it should look at its timing under shard load.
+
+## ★ 2026-10-14 — AFTER NOTES-FORMULA-3a (`#1160` `#1161`) AND PERF-3a-OUTLIER (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **NOTES-FORMULA-3b (E, owner GO 10:33 IST):** content PRs per subject (Maths, Physics, Biology, Chemistry) on the 3a schema, each with an Opus verifier and the cofounder's APPROVE. Standing rule: only heading / body / gloss / tip and the safe-use tag render; `source` and mapping are internal and never reach the student DOM. Append every shipped id to `noteAnchorIds.pinned.json`. KaTeX cannot wrap inside `\text{}` (keep runs ≤ 30 chars, see `noteFormulaChem.guard.test.ts`).
+- **PERF-3a:** parked (D217). If the intermittent 4–5 s `index-*.js` task is ever caught on a trace, report the owning function; do not fix it in a notes lane (auth / persistence territory).
+- **Still owed (owner, later):** the SAVE-SYNC-1 round-trip; a phone glance at the Formulae cards and, once 3b content lands, the "Formulae & Tricks" tab and a hash link.
+- **Priority next for whoever touches saving:** `[FU-SAVE-SYNC-QUOTA]` (D206).
+
 ## ★ 2026-10-14 — AFTER NOTES-FORMULA-1/2 + SAVE-SYNC-1 (`#1148` `#1151` `#1154`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

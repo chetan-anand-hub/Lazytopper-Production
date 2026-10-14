@@ -39,6 +39,10 @@
     "sha256": "64d355741a571b3cf442b37cd3685cf470f2241859a705323b54b18f7957ed4d",
     "lastmod": "2026-10-12"
   },
+  "/ncert-class-10": {
+    "sha256": "d4d0264b95f6a84e82f613a79b2ad26871b82a2282492665ba4103aa33983024",
+    "lastmod": "2026-10-14"
+  },
   "/notes/acids-bases-and-salts": {
     "sha256": "4934dd2f068cfc927c4c10977e71f6144bc5bd014859a530737aa03f27d813f4",
     "lastmod": "2026-10-14"
@@ -216,8 +220,8 @@
     "lastmod": "2026-10-14"
   },
   "/topic-hub/our-environment": {
-    "sha256": "933a303007378fa2004c87811e49b81435aded181ecae50e959b9208c0140d9f",
-    "lastmod": "2026-10-13"
+    "sha256": "f22b80efc5a33d44d01f7b5a71db6cfcf6f6ea882cf9e972d9501fc02a8cdf28",
+    "lastmod": "2026-10-14"
   },
   "/topic-hub/pair-of-linear-equations": {
     "sha256": "d5911b1844e6709e411e892548d91379986ccad6d39f9f8de034bccd91100a22",

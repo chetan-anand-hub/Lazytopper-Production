@@ -1,5 +1,13 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-14 — FU-SAVE-SYNC-QUOTA (C2, §10 for `#1168`).** No surface moved and Scope did not change. PERSISTENCE of a graded result on all six grading surfaces (through the single writer `services/sessionRecords.ts`) is more robust: the outbox is capped and a result that cannot be queued tells the student (`keep-open` / `device-only-manual` lines) and keeps `beforeunload` armed; no grading behaviour changed. Owed: the owner's signed-in round-trip (≥ 2 surfaces).
+
+> **2026-10-14 — NOTES-FORMULA-3a (C2, §10 for `#1160` `#1161`) and PERF-3a.** One surface moved: the NOTES pages (26 chapters). Scope did not change. The six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) were not touched. With no shortcuts in any spec yet the visible change is only the section anchors, the print fix and the (empty) schema.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Notes pages | optional shortcuts/id/heading/tip schema; "Formulae & Tricks" tab when tricks exist; stable anchors that open the tab and scroll; second-tab Formulae copy hidden in print (`#1160`) | 🟢 live | 3b content (E); a phone glance when content lands |
+
 > **2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 (C2, §10 for `#1148` `#1151` `#1154`).** Scope did not change. **One cross-cutting thing moved: PERSISTENCE of a graded result on all six grading surfaces** (Check & Improve single, Check & Improve multi, Worksheet, Chapter Test, Full Mock, Quick Practice) through the single writer `services/sessionRecords.ts` (`#1151`): outbox, retry, re-send on next load / `online`, a status line mounted once by `AuthProvider`; no grading, marks or prompt change. The notes surface moved too (`#1148`: the Formulae card in two places; `#1154`: chemistry as chemistry on 7 Science chapters).
 
 | surface | what moved (PR) | state | owed |

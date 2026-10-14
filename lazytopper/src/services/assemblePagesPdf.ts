@@ -121,12 +121,18 @@ export async function assemblePagesPdf(
   pages: PdfPageInput[],
   opts: {
     capBytes?: number;
+    /** UPLOAD-SHRINK-1: a different ladder (the PDF shrink's stricter floor). Absent = the page tray's `PDF_RUNGS`,
+     *  unchanged. A custom ladder also skips the "as prepared" rung 0 (its pages are not tray photos). */
+    rungs?: ReadonlyArray<readonly [number, number]>;
+    /** UPLOAD-SHRINK-1: page limit for a rebuilt picked PDF (a board paper runs past the tray's 8). Absent = MAX_UPLOAD_PAGES. */
+    maxPages?: number;
     reencode?: PageReencoder;
     loadJsPdf?: () => Promise<JsPdfModule>;
   } = {},
 ): Promise<AssembledPdf> {
   if (pages.length === 0) throw new Error("Add a page first.");
-  if (pages.length > MAX_UPLOAD_PAGES) throw new Error(`At most ${MAX_UPLOAD_PAGES} pages per upload.`);
+  const maxPages = opts.maxPages ?? MAX_UPLOAD_PAGES;
+  if (pages.length > maxPages) throw new Error(`At most ${maxPages} pages per upload.`);
   const capBytes = opts.capBytes ?? PAGES_PDF_TARGET_BYTES;
   const reencode = opts.reencode ?? canvasReencoder;
   const loadJsPdf = opts.loadJsPdf ?? (() => import("jspdf"));
@@ -134,7 +140,7 @@ export async function assemblePagesPdf(
   // Rung 0: every page exactly as the photo step prepared it (no second encode) — as
   // long as it is a JPEG within the long-edge cap. A PNG screenshot is re-encoded: a PDF
   // page is a JPEG.
-  const asPrepared = pages.every((p) => p.mimeType === "image/jpeg" && longEdgeOf(p) <= PHOTO_MAX_LONG_EDGE);
+  const asPrepared = !opts.rungs && pages.every((p) => p.mimeType === "image/jpeg" && longEdgeOf(p) <= PHOTO_MAX_LONG_EDGE);
   const candidates: Array<() => Promise<{ encoded: EncodedPage[]; quality: number | null }>> = [];
   if (asPrepared) {
     candidates.push(async () => ({
@@ -142,7 +148,7 @@ export async function assemblePagesPdf(
       quality: null,
     }));
   }
-  for (const [edge, quality] of PDF_RUNGS) {
+  for (const [edge, quality] of opts.rungs ?? PDF_RUNGS) {
     candidates.push(async () => {
       const encoded: EncodedPage[] = [];
       // One page at a time: never more than one decoded page in memory.
