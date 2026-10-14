@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "quadratic-equations" (Maths): 397 served rows from 22 source arrays, 42 withheld.
+// Chapter "quadratic-equations" (Maths): 400 served rows from 22 source arrays, 39 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -89,10 +89,7 @@ export default defineChapter("quadratic-equations", [
   "PYQ-M-QE-008",
   "PYQ-M-2026-QE-001",
   "PYQ-M-2024-QE-001",
-  "PYQ-M-2024-QE-002",
-  "PYQ-M-2024-QE-004b",
   "PYQ-M-2024-QE-005a",
-  "PYQ-M-2024-QE-006a",
   "PYQ-M-2025-QE-001",
   "LTG-M-QE-284",
 ]);
