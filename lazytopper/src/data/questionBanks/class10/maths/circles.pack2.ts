@@ -1348,7 +1348,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, r = sqrt(100) = 10 cm.",
     ],
   },
-  { id: "CI2-053", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA = 5 cm is a tangent to a circle of radius 3 cm, the distance OP (O = centre) is:", options: ["√34 cm","4 cm","√5 cm","8 cm"], answer: "√34 cm", explanation: "The correct answer is √34 cm. OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", finalAnswer: "OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", isCompetencyBased: false,
+  { id: "CI2-053", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA = 5 cm is a tangent to a circle of radius 3 cm, the distance OP (O = centre) is:", options: ["√34 cm","4 cm","√5 cm","8 cm"], answer: "√34 cm", explanation: "The correct answer is √34 cm. OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", finalAnswer: "OP = √34 cm.", isCompetencyBased: false,
     solutionSteps: [
       "The tangent is perpendicular to the radius at the point of contact, so OP² = OA² + PA² = 3² + 5² = 34, hence OP = √34 cm. [1]",
     ],

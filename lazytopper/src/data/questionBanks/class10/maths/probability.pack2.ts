@@ -1249,7 +1249,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Calculate the probability: P(even number) = (Favorable outcomes) / (Total outcomes) = 3/6 = 1/2.",
     ],
   },
-  { id: "PR2-048", subject: "Maths", topicKey: "probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If P(E) = 0.3, then P(Ē) is:", options: ["0.7","0.3","0","1"], answer: "0.7", explanation: "The correct answer is 0.7. P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", finalAnswer: "P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", isCompetencyBased: false,
+  { id: "PR2-048", subject: "Maths", topicKey: "probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If P(E) = 0.3, then P(Ē) is:", options: ["0.7","0.3","0","1"], answer: "0.7", explanation: "The correct answer is 0.7. P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", finalAnswer: "0.7", isCompetencyBased: false,
     solutionSteps: [
       "Let E be the event that it will rain tomorrow. Given P(E) = 0.75.",
       "The event that it will not rain tomorrow is the complementary event, E'.",

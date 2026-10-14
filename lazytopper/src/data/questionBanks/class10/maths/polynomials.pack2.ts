@@ -1131,7 +1131,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Therefore, the value of alpha + beta is 5/2.",
     ],
   },
-  { id: "PL2-R17", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic polynomial whose zeros are 3 and −2 is:", options: ["x²−x−6","x²+x−6","x²−x+6","x²+x+6"], answer: "x²−x−6", explanation: "The correct answer is x²−x−6. Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", finalAnswer: "Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", isCompetencyBased: false,
+  { id: "PL2-R17", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic polynomial whose zeros are 3 and −2 is:", options: ["x²−x−6","x²+x−6","x²−x+6","x²+x+6"], answer: "x²−x−6", explanation: "The correct answer is x²−x−6. Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", finalAnswer: "x² − x − 6", isCompetencyBased: false,
     solutionSteps: [
       "To find the zero of the polynomial P(x) = 5x - 10, set P(x) = 0.",
       "So, 5x - 10 = 0.",

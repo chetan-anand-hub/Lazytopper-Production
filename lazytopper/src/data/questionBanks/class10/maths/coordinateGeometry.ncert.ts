@@ -12,11 +12,11 @@ export const CG_NCERT: CanonicalQuestion[] = [
   // ===== Examples (worked) =====
   { id: "CG-N-NCERT-7-EX-001", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Do the points (3, 2), (−2, −3) and (2, 3) form a triangle? If so, name the type of triangle formed.",
-    answer: "Let P(3, 2), Q(−2, −3), R(2, 3). PQ = √[(3−(−2))² + (2−(−3))²] = √(25+25) = √50. QR = √[(−2−2)² + (−3−3)²] = √(16+36) = √52. PR = √[(3−2)² + (2−3)²] = √(1+1) = √2. Since the sum of any two distances exceeds the third, P, Q, R form a triangle. Also PQ² + PR² = 50 + 2 = 52 = QR², so by the converse of Pythagoras, ∠P = 90°. Hence △PQR is a right triangle.",
-    solutionSteps: ["Apply distance formula d = √[(x₂−x₁)² + (y₂−y₁)²] to each pair.", "PQ = √[(3+2)² + (2+3)²] = √(25+25) = √50.", "QR = √[(−2−2)² + (−3−3)²] = √(16+36) = √52.", "PR = √[(3−2)² + (2−3)²] = √(1+1) = √2.", "Check triangle inequality: PQ + PR > QR (since √50 + √2 > √52). Hence a triangle is formed.", "Test right angle: PQ² + PR² = 50 + 2 = 52 = QR² → ∠P = 90° (converse of Pythagoras).", "Therefore △PQR is a right-angled triangle."],
+    answer: "Let P(3, 2), Q(−2, −3), R(2, 3). PQ = √[(3−(−2))² + (2−(−3))²] = √(25+25) = √50. QR = √[(−2−2)² + (−3−3)²] = √(16+36) = √52. PR = √[(3−2)² + (2−3)²] = √(1+1) = √2. Since the sum of any two distances exceeds the third, P, Q, R form a triangle. Also PQ² + PR² = 50 + 2 = 52 = QR², i.e. QR² = PQ² + PR², so ∠P = 90°. Hence △PQR is a right triangle.",
+    solutionSteps: ["Apply distance formula d = √[(x₂−x₁)² + (y₂−y₁)²] to each pair.", "PQ = √[(3+2)² + (2+3)²] = √(25+25) = √50.", "QR = √[(−2−2)² + (−3−3)²] = √(16+36) = √52.", "PR = √[(3−2)² + (2−3)²] = √(1+1) = √2.", "Check triangle inequality: PQ + PR > QR (since √50 + √2 > √52). Hence a triangle is formed.", "Test right angle: PQ² + PR² = 50 + 2 = 52 = QR², i.e. QR² = PQ² + PR², so ∠P = 90°.", "Therefore △PQR is a right-angled triangle."],
     finalAnswer: "Yes — a right-angled triangle with the right angle at P.",
     ncertRef: "NCERT Example 1", isCompetencyBased: true,
-    strategyHint: "Compute all three side-lengths, then check (a) triangle inequality and (b) Pythagoras converse for a right angle." },
+    strategyHint: "Compute all three side-lengths, then check (a) the triangle inequality and (b) whether the square of the longest side equals the sum of the squares of the other two, which gives a right angle." },
 
   { id: "CG-N-NCERT-7-EX-002", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Show that the points (1, 7), (4, 2), (−1, −1) and (−4, 4) are the vertices of a square.",

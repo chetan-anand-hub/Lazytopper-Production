@@ -115,7 +115,7 @@ export const CG_PREBOARD: CanonicalQuestion[] = [
     "answer": "AB = CA = 5, BC = 5√2 and AB² + CA² = BC²; hence right-angled isosceles.",
     "solutionSteps": [
       "[1 mark] Let A(3,0), B(6,4), C(−1,3). AB = √[(6−3)² + (4−0)²] = √(9+16) = √25 = 5. CA = √[(3−(−1))² + (0−3)²] = √(16+9) = √25 = 5. BC = √[(6−(−1))² + (4−3)²] = √(49+1) = √50 = 5√2.",
-      "[1 mark] Since AB = CA = 5, the triangle is isosceles. Also AB² + CA² = 25 + 25 = 50 = BC², so by the converse of the Pythagoras theorem the angle at A is 90°. Hence the triangle is right-angled isosceles."
+      "[1 mark] Since AB = CA = 5, the triangle is isosceles. Also AB² + CA² = 25 + 25 = 50 = BC², i.e. BC² = AB² + CA², so the angle at A is 90°. Hence the triangle is right-angled isosceles."
     ],
     "finalAnswer": "AB = CA = 5, BC = 5√2; right-angled isosceles triangle (right angle at A).",
     "isCompetencyBased": false

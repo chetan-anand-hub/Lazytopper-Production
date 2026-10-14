@@ -46,9 +46,9 @@ export const QUADRATIC_EQUATIONS_PYQ: CanonicalQuestion[] = [
     pyqYear: "2023", pyqSet: "3" },
   { id: "PYQ-M-QE-005", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     // Recovered from MS 041_30-4-1 Mathematics 2022-23, p.8 (both 23(A) and 23(B)). The stored answer covered only option (B); the stem offers (A) OR (B), so (A) is restored.
-    questionText: "(A) Find the sum and product of the roots of the quadratic equation 2x2 – 9x + 4 = 0. 2 OR (B) Find the discriminant of the quadratic equation 4x2 – 5 = 0 and hence comment on the nature of roots of the equation.",
-    answer: "(A) 2x2 – 9x + 4 = 0, a = 2, b = – 9, c = 4. Let α, β be roots of 2x2 – 9x + 4 = 0. Sum = α + β = – b/a = 9/2. Product of roots = αβ = c/a = 4/2 = 2. OR (B) 4x2 – 5 = 0, a = 4, b = 0, c = – 5. Discriminant = b2 – 4ac = 0 – 4 (4) (– 5) = 80 > 0 ⇒ roots are real and distinct.",
-    solutionSteps: ["(A) 2x2 – 9x + 4 = 0, so a = 2, b = – 9, c = 4. Let α, β be its roots.", "Sum = α + β = – b/a = 9/2 and Product = αβ = c/a = 4/2 = 2.", "OR (B) 4x2 – 5 = 0, so a = 4, b = 0, c = – 5.", "Discriminant = b2 – 4ac = 0 – 4 (4) (– 5) = 80 > 0 ⇒ roots are real and distinct."],
+    questionText: "(A) Find the sum and product of the roots of the quadratic equation 2x² – 9x + 4 = 0.\nOR\n(B) Find the discriminant of the quadratic equation 4x² – 5 = 0 and hence comment on the nature of roots of the equation.",
+    answer: "(A) 2x² – 9x + 4 = 0, a = 2, b = – 9, c = 4. Let α, β be roots of 2x² – 9x + 4 = 0. Sum = α + β = – b/a = 9/2. Product of roots = αβ = c/a = 4/2 = 2. OR (B) 4x² – 5 = 0, a = 4, b = 0, c = – 5. Discriminant = b² – 4ac = 0 – 4 (4) (– 5) = 80 > 0 ⇒ roots are real and distinct.",
+    solutionSteps: ["(A) 2x² – 9x + 4 = 0, so a = 2, b = – 9, c = 4. Let α, β be its roots.", "Sum = α + β = – b/a = 9/2 and Product = αβ = c/a = 4/2 = 2.", "OR (B) 4x² – 5 = 0, so a = 4, b = 0, c = – 5.", "Discriminant = b² – 4ac = 0 – 4 (4) (– 5) = 80 > 0 ⇒ roots are real and distinct."],
     finalAnswer: "(A) Sum = 9/2, Product = 2 OR (B) Discriminant = 80 > 0, so the roots are real and distinct.",
     ncertRef: "PYQ 30/4/1 Q23", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
