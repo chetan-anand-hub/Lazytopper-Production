@@ -1,6 +1,6 @@
 {
   "/": {
-    "sha256": "c8de7544496400f61459113230270cbffec4946af1fbf99b67b7bd8be4480b79",
+    "sha256": "67f9396b52da1d5e1aceb482b7467d9fa8e3ec13e0258ac4b325cb2acd6efb47",
     "lastmod": "2026-10-14"
   },
   "/cbse/class-10": {
@@ -8,16 +8,16 @@
     "lastmod": "2026-10-13"
   },
   "/check-your-answer": {
-    "sha256": "77ea1af795cd4249edc4f1c68f8f062140f18a2404f5928d365145a7ba30d54e",
-    "lastmod": "2026-10-13"
+    "sha256": "50a8ebbfec1e547f46e027dc95b11d7e3f152caf9083669cb1f1ac002bc40919",
+    "lastmod": "2026-10-14"
   },
   "/exam-trends": {
     "sha256": "6d1caddfbb5cc0f09c434f5e451724cfb60d85e535a0cf6d3575bb4eef432d2b",
     "lastmod": "2026-10-14"
   },
   "/for-parents": {
-    "sha256": "d442c8682f57a6535df9d00a78e1a0c72712aaff5afb3cf64f0c5eed2486aaa9",
-    "lastmod": "2026-10-13"
+    "sha256": "c3f1e086fc1d37ed19399ba8470690d120a34a11270d2dc5ca7bac3c7b29721c",
+    "lastmod": "2026-10-14"
   },
   "/highly-probable/10/Maths": {
     "sha256": "4388b205bb1c68fba77b53dab066f3244d0543f145fe993904da546dcd7080cc",
@@ -28,27 +28,27 @@
     "lastmod": "2026-10-13"
   },
   "/legal/privacy": {
-    "sha256": "66efbb36e7662b75e4351f705350ae6def725182a1276ae7fb5c65441af468b7",
-    "lastmod": "2026-10-10"
+    "sha256": "bd2615c9a3910ee2cfaa48aa398e379ca7d0b3ae0f11169d10d265c27d3eff9a",
+    "lastmod": "2026-10-14"
   },
   "/legal/refund": {
-    "sha256": "4fbcc45430c77f40cb00694b3b147e5271eb0443a6faf3aca2f9f0adf417c76e",
-    "lastmod": "2026-10-06"
+    "sha256": "4efcd7df499587c82a5d5d6d64b84f91d92800a02b5d0c12011c77a95e774d6e",
+    "lastmod": "2026-10-14"
   },
   "/legal/terms": {
-    "sha256": "64d355741a571b3cf442b37cd3685cf470f2241859a705323b54b18f7957ed4d",
-    "lastmod": "2026-10-12"
+    "sha256": "4a43ff0059e2f891728fc6697c23aa9138bed1dbd350407e1677c68547d0ac36",
+    "lastmod": "2026-10-14"
   },
   "/ncert-class-10": {
-    "sha256": "dc2a90f90adf4c1e1a4972b4bc0b967b2aa6f7701c8f563136017f944a738904",
+    "sha256": "08c133884148d965deebe681fa266d17d2a09c672c0b5fd619196a500c3a9f3f",
     "lastmod": "2026-10-14"
   },
   "/ncert-exemplar/triangles": {
-    "sha256": "f4d9b4ede3433a57ca9cbba7345a1dc72cc4e1dea363295a742d1da38b35625c",
+    "sha256": "806a6a0701ce63248544b9b2f2fcd6d3c85c85d41d4618b579ca4d7db2ce75c9",
     "lastmod": "2026-10-14"
   },
   "/ncert-solutions/triangles": {
-    "sha256": "cd8bf1edc4dd3ffbbbb4ed985f99aad525747952d505c00d2f31d52a40f2b09f",
+    "sha256": "4ec7d945044e51c0aaa18845126eb98ec7e60fbd93974f295d01e504460d6cf2",
     "lastmod": "2026-10-14"
   },
   "/notes/acids-bases-and-salts": {
@@ -160,8 +160,8 @@
     "lastmod": "2026-10-14"
   },
   "/pricing": {
-    "sha256": "ffdf137280df02d02457e1059ab41ced122d7f6648376ea220ad1927a6b3f012",
-    "lastmod": "2026-10-13"
+    "sha256": "303ac4f78c5e8794ecd32b70fd66fd8345f348b9576dfbb1675c283d8e15191a",
+    "lastmod": "2026-10-14"
   },
   "/topic-hub/acids-bases-and-salts": {
     "sha256": "457f108940cfa119b72fe65a02a4ea5d0e296b0496bcc115b358356a9ca689ab",

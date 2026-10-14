@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { FOOTER_SOCIAL } from "../../config/socialProfiles";
+import { LEGAL_ENTITY_NAME } from "../../config/legalEntity";
 
 /**
  * PublicLegalFooter — a slim, persistent legal row for the SIGNED-OUT public
@@ -102,7 +103,8 @@ export default function PublicLegalFooter({ className }: { className?: string })
       aria-label="Legal"
     >
       <style>{FOOTER_CSS}</style>
-      <span>&copy; 2026 LazyTopper</span>
+      {/* LEGAL-ENTITY-1 (L4) — the operating company, from the one constant. */}
+      <span>{`© 2026 ${LEGAL_ENTITY_NAME}`}</span>
       {/* SEO-NOTES-AND-LINKS-1 — the one crawl path Google has demonstrably followed
           on this site is this footer. Exam Trends lists every chapter, so this single
           link opens all 26 topic hubs to a signed-out crawler. An in-app route, so a
