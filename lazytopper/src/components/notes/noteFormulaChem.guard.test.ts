@@ -123,7 +123,7 @@ function allStrips(): Strip[] {
 const outsideMath = (s: string) => s.replace(NOTE_MATH_RE, " ").replace(/&[a-z]+;/g, " ");
 
 const PLAIN_CHEM = [
-  /-->|--\[|\]-->|--\(|\)-->|->|--&gt;/, // an ASCII arrow
+  /-{1,2}>|-{2}&gt;|-{2}[[(]|[\])]-{2}/, // an ASCII arrow: -> , --> , --&gt; , --[O]-- , --(UV)--
   /[A-Z][a-z]?\d/, // a letter-digit subscript: CO2, H2O, Fe2O3, F2
   /\b[a-z]{0,2}m\d\b/, // a unit power typed flat: m2
 ];
