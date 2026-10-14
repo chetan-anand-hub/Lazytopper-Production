@@ -2150,8 +2150,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCO-S-ELEC-012",             // text-damaged: garbled wiring description, printed so in the booklet (cbjescco12 Q17); no allowed source to restore it from (BANK-FIX-7 PR-2)
   // BANK-STEPS-1 PAUSE — spliced-solution; each id leaves this block in the PR that repairs it
   // BANK-STEPS-1 REPAIR PR-5 (lane B, 14 Oct): 36 Science rows repaired (new steps from each row's own stem + key) and served again
-  // EL-E14 stays withheld: its options include "Electric motor" (formative-only per syllabusGuard); options are not this lane's to change, awaiting a cofounder ruling
-  "EL-E14",                       // spliced-solution: the steps answer another question (steps now correct; withheld for the 'Electric motor' option)
   // BANK-STEPS-1 REPAIR PR-4 (lane B, 14 Oct): 50 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-3 (lane B, 14 Oct; CR-M04 + ABS-E06 keys changed per D170): 53 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-2 (lane B, 13 Oct): 49 Science rows repaired (new steps from each row's own stem + key) and served again
@@ -2167,7 +2165,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "STAT-N02",                     // spliced-solution: the steps answer another question (refusal text)
   "2026-STAT-SA-02",              // spliced-solution: the steps answer another question (different numbers)
   "2026-PLE-SA-02",               // spliced-solution: the steps answer another question (different numbers)
-  "sci-chem-acids-2m-2022-01",    // spliced-solution: the steps answer another question
   "AP2-049",                      // spliced-solution: the steps answer another question (different numbers)
   "ARC-E07",                      // spliced-solution: the steps answer another question
   "ARC-M17",                      // spliced-solution: the steps answer another question

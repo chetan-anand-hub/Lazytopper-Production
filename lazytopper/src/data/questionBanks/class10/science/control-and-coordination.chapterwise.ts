@@ -256,20 +256,32 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq07 Q35 (Section C, 3mk)
   { id: "SCQ-S-CTRL-034", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "State how concentration of auxins stimulates the cells to grow longer on the side of shoot which is away from light?",
-    answer: "Auxin form in the shoot tip but diffuse toward the part which is in shade/away from the light. The concentration on shady part increase stimulation cells in this part to elongate. The side of shoot on this side grows longer than the part in light hence bend towards light.",
-    solutionSteps: ["Auxin form in the shoot tip but diffuse toward the part which is in shade/away from the light. The concentration on shady part increase stimulation cells in this part to elongate. The side of shoot on this side grows longer than the part in light hence bend towards light."],
+    answer: "Auxin forms in the shoot tip but diffuses toward the part which is in shade/away from the light. The concentration on the shady part increases, stimulating cells in this part to elongate. The side of the shoot on this side grows longer than the part in light, hence the shoot bends towards light.",
+    solutionSteps: [
+      "[1 mark] Auxin forms in the shoot tip but diffuses toward the part which is in shade/away from the light.",
+      "[1 mark] The concentration on the shady part increases, stimulating cells in this part to elongate.",
+      "[1 mark] The side of the shoot on this side grows longer than the part in light, hence the shoot bends towards light.",
+    ],
     ncertRef: "cbjesccq07 Q35", isCompetencyBased: true },
   // cbjesccq07 Q36 (Section C, 3mk)
   { id: "SCQ-S-CTRL-035", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Name the hormone which is secreted by the adrenal gland. How does this hormone help to deal with the scary situations?",
-    answer: "Adrenaline. It increase the heart rate, breathing rate so that more blood can be pumped and oxygen can be supplied to the muscles. Blood supply is cut off from skin and sent to muscles. The action of this hormone prepares the person to face the situation so that either he/she may",
-    solutionSteps: ["Adrenaline. It increase the heart rate, breathing rate so that more blood can be pumped and oxygen can be supplied to the muscles. Blood supply is cut off from skin and sent to muscles. The action of this hormone prepares the person to face the situation so that either he/she may run away or fight."],
+    answer: "Adrenaline. It increases the heart rate and breathing rate so that more blood can be pumped and oxygen can be supplied to the muscles. Blood supply is cut off from skin and sent to muscles. The action of this hormone prepares the person to face the situation so that either he/she may run away or fight.",
+    solutionSteps: [
+      "[1 mark] Adrenaline.",
+      "[1 mark] It increases the heart rate and breathing rate so that more blood can be pumped and oxygen can be supplied to the muscles.",
+      "[1 mark] Blood supply is cut off from skin and sent to muscles. The action of this hormone prepares the person to face the situation so that either he/she may run away or fight.",
+    ],
     ncertRef: "cbjesccq07 Q36", isCompetencyBased: true },
   // cbjesccq07 Q37 (Section C, 3mk)
   { id: "SCQ-S-CTRL-036", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "How does chemical coordination occur in plants? Explain with the help of three examples.",
-    answer: "In plants, chemical coordination occurs through various phytohormones. a. Auxins secreted by growing tissues. They provide growth of plants. b. Gibberelins cause stem elongation, seed germination and flowering. c. Cytokinins present in areas of actively dividing cells like fruits",
-    solutionSteps: ["In plants, chemical coordination occurs through various phytohormones. a. Auxins secreted by growing tissues. They provide growth of plants. b. Gibberelins cause stem elongation, seed germination and flowering. c. Cytokinins present in areas of actively dividing cells like fruits, seeds. Promote cell division. d. Abscisic acid inhibits growth and respond to environmental stress."],
+    answer: "In plants, chemical coordination occurs through various phytohormones. a. Auxins are secreted by growing tissues. They provide growth of plants. b. Gibberellins cause stem elongation, seed germination and flowering. c. Cytokinins are present in areas of actively dividing cells like fruits, seeds; they promote cell division. d. Abscisic acid inhibits growth and responds to environmental stress.",
+    solutionSteps: [
+      "[1 mark] In plants, chemical coordination occurs through various phytohormones. a. Auxins are secreted by growing tissues. They provide growth of plants.",
+      "[1 mark] b. Gibberellins cause stem elongation, seed germination and flowering.",
+      "[1 mark] c. Cytokinins are present in areas of actively dividing cells like fruits, seeds; they promote cell division. d. Abscisic acid inhibits growth and responds to environmental stress.",
+    ],
     ncertRef: "cbjesccq07 Q37", isCompetencyBased: true },
   // cbjesccq07 Q38 (Section C, 3mk)
   { id: "SCQ-S-CTRL-037", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -280,8 +292,12 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq07 Q40 (Section C, 3mk)
   { id: "SCQ-S-CTRL-038", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "a. Give the functions of cerebellum (any two). b. Name the components of central nervous system.",
-    answer: "a. (i) Cerebellum is responsible for precision of voluntary action. (ii) It maintains the posture and balance of the body. b. The components of central nervous system are: (i) Brain (ii) Spinal cord.",
-    solutionSteps: ["a. (i) Cerebellum is responsible for precision of voluntary action. (ii) It maintains the posture and balance of the body. b. The components of central nervous system are: (i) Brain (ii) Spinal cord."],
+    answer: "a. (i) Cerebellum is responsible for precision of voluntary action. a. (ii) It maintains the posture and balance of the body. b. The components of central nervous system are: (i) Brain (ii) Spinal cord.",
+    solutionSteps: [
+      "[1 mark] a. (i) Cerebellum is responsible for precision of voluntary action.",
+      "[1 mark] a. (ii) It maintains the posture and balance of the body.",
+      "[1 mark] b. The components of central nervous system are: (i) Brain (ii) Spinal cord.",
+    ],
     ncertRef: "cbjesccq07 Q40", isCompetencyBased: false },
   // cbjesccq07 Q57 (Section D, 5mk)
   { id: "SCQ-S-CTRL-039", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",

@@ -360,15 +360,13 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "A few drops of universal indicator are added to solution Y and it turns deep purple.\n(a) What does this tell you about the nature of solution Y?\n(b) Predict the approximate pH range of Y.",
     "options": [],
-    "answer": "",
-    "explanation": "",
+    "answer": "(a) Solution Y is strongly basic (alkaline). (b) The pH of Y is well above 7 (towards the basic end of the pH scale).",
+    "explanation": "(a) Solution Y is strongly basic (alkaline). (b) The pH of Y is well above 7 (towards the basic end of the pH scale).",
     "solutionSteps": [
-      "[0.5 mark] Recall the universal indicator colour scale for strong acids, weak acids, neutral solutions, weak bases, and strong bases.",
-      "[0.5 mark] Red colour indicates a strongly acidic solution.",
-      "[0.5 mark] Strong acids typically have pH values between 1 and 3.",
-      "[0.5 mark] Therefore, solution X is a strong acid with approximate pH between 1 and 3."
+      "[1 mark] (a) From the universal indicator colour chart, deep purple is the colour of a strongly basic (alkaline) solution, so solution Y is strongly basic.",
+      "[1 mark] (b) A basic solution has a pH above 7, and a strongly basic one is well above 7 (towards the basic end of the scale)."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(a) Solution Y is strongly basic (alkaline). (b) The pH of Y is well above 7 (towards the basic end of the pH scale).",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false

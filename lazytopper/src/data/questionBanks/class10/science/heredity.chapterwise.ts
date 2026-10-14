@@ -249,8 +249,12 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq09 Q63 (Section C, 3mk)
   { id: "SCQ-S-HERED-033", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Explain how gene expresses itself in a cell? Why are we somewhat similar to our parents yet not identical to them?",
-    answer: "Genes are functional segments of DNA. They are units of heredity that gets passed on through reproduction from parents to progeny. It is the blue print of life. DNA expresses itself through synthesis of proteins. Proteins make structures in our body and also controls the function",
-    solutionSteps: ["Genes are functional segments of DNA. They are units of heredity that gets passed on through reproduction from parents to progeny. It is the blue print of life. DNA expresses itself through synthesis of proteins. Proteins make structures in our body and also controls the functioning. In other words cells, tissues, organs and hence a living body expresses the traits inherited as genes/ DNA. Since we inherit the DNA, half from one and half from other parents, hence we somewhat resemble them. At the same time we show mixed traits of both so can not be identical to either of them."],
+    answer: "Genes are functional segments of DNA. They are units of heredity that get passed on through reproduction from parents to progeny; it is the blue print of life. DNA expresses itself through synthesis of proteins. Proteins make structures in our body and also control the functioning; cells, tissues, organs and hence a living body express the traits inherited as genes/DNA. Since we inherit the DNA half from one and half from the other parent, we somewhat resemble them. At the same time we show mixed traits of both, so we cannot be identical to either of them.",
+    solutionSteps: [
+      "[1 mark] Genes are functional segments of DNA. They are units of heredity that get passed on through reproduction from parents to progeny; it is the blue print of life.",
+      "[1 mark] DNA expresses itself through synthesis of proteins. Proteins make structures in our body and also control the functioning; cells, tissues, organs and hence a living body express the traits inherited as genes/DNA.",
+      "[1 mark] Since we inherit the DNA half from one and half from the other parent, we somewhat resemble them. At the same time we show mixed traits of both, so we cannot be identical to either of them.",
+    ],
     ncertRef: "cbjesccq09 Q63", isCompetencyBased: true },
   // cbjesccq09 Q64 (Section C, 3mk)
   { id: "SCQ-S-HERED-034", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -281,7 +285,11 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-HERED-038", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "An angiosperm plant having red coloured flowers when crossed with the other having the same colour produced 40 progenies, out of which 30 plants were with red coloured flowers, 10 plants were with white coloured flowers. Find out: a. What is the possible genotype of parent plants? b. Which trait is dominant and recessive? c. What is this cross called as and what is its phenotypic ratio?",
     answer: "a. Rr and Rr. b. Red colour of flowers is the dominant trait while white colour is the recessive trait. c. Monohybrid cross, phenotypic ratio is 3 : 1.",
-    solutionSteps: ["a. Rr and Rr. b. Red colour of flowers is the dominant trait while white colour is the recessive trait. c. Monohybrid cross, phenotypic ratio is 3 : 1."],
+    solutionSteps: [
+      "[1 mark] a. Rr and Rr.",
+      "[1 mark] b. Red colour of flowers is the dominant trait while white colour is the recessive trait.",
+      "[1 mark] c. Monohybrid cross, phenotypic ratio is 3 : 1.",
+    ],
     ncertRef: "cbjesccq09 Q73", isCompetencyBased: false },
   // cbjesccq09 Q109 (Section D, 5mk)
   { id: "SCQ-S-HERED-039", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
