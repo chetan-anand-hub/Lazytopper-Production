@@ -2153,6 +2153,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-CTRL-042",             // text repaired by BANK-FIX-7 PR-2 (stray header + truncated answer); still withheld: its answer cites the booklet's own diagram and booklet figures may not be bound
   "SCO-S-ELEC-012",             // text-damaged: garbled wiring description, printed so in the booklet (cbjescco12 Q17); no allowed source to restore it from (BANK-FIX-7 PR-2)
   // BANK-STEPS-1 PAUSE — spliced-solution; each id leaves this block in the PR that repairs it
+  // SCI-BACKLOG-1 batch 3 (F, 14 Oct, D252): GDR-L-CBJ-011 paused, repair is a diagrams-plus-text change [FU-GDR-L-CBJ-011-OBJECT-AT-F]
+  "GDR-L-CBJ-011",                // wrong-content vs NCERT 2026-27: key says object at F gives a real, inverted, highly enlarged image at infinity; the 2026-27 table says "image would not be formed". Its computed figure (diagrams/registry/lightSolutionFigures.ts, opticsCase) expects an enlarged real image, so text and figure are repaired together later
   // BANK-STEPS-1 REPAIR PR-5 (lane B, 14 Oct): 36 Science rows repaired (new steps from each row's own stem + key) and served again
   // EL-E14 stays withheld: its options include "Electric motor" (formative-only per syllabusGuard); options are not this lane's to change, awaiting a cofounder ruling
   "EL-E14",                       // spliced-solution: the steps answer another question (steps now correct; withheld for the 'Electric motor' option)
