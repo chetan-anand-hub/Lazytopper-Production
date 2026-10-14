@@ -71,10 +71,10 @@ const BUCKETS = ['conceptual', 'calculation', 'silly', 'presentation', 'unattemp
 /** g-conseq-1 rule violations for ONE delta (see the header). Independent of the A17 classes. */
 function conseqViolations(delta, toBody) {
   const out = [];
-  const perResult = new Map(); // result key -> { buckets: {bucket: move}, steps: n }
+  const perResult = new Map(); // result key -> { buckets: {bucket: move}, steps: n, pointed: Set(types of the steps pointed at) }
   for (const [p, from, to] of delta) {
     const at = p[0] === 'results' && Number.isInteger(p[1]) ? { key: JSON.stringify(p.slice(0, 2)), rest: p.slice(2) } : { key: '[]', rest: p };
-    if (!perResult.has(at.key)) perResult.set(at.key, { buckets: {}, steps: 0 });
+    if (!perResult.has(at.key)) perResult.set(at.key, { buckets: {}, steps: 0, pointed: new Set() });
     const pr = perResult.get(at.key);
     if (at.rest[0] === 'marksLostByType' && at.rest.length === 2 && BUCKETS.includes(at.rest[1])) {
       pr.buckets[at.rest[1]] = (Number(to) || 0) - (Number(from) || 0);
@@ -86,6 +86,10 @@ function conseqViolations(delta, toBody) {
       if (from.consequentialOf !== undefined) { out.push(p.join('.') + ': the step already carried consequentialOf'); continue; }
       if (!Number.isInteger(consequentialOf) || consequentialOf < 1 || consequentialOf > k) { out.push(p.join('.') + ': consequentialOf must name an EARLIER step'); continue; }
       if (JSON.stringify(from) !== JSON.stringify(toRest)) { out.push(p.join('.') + ': the step changed by more than the new consequentialOf key'); continue; }
+      // D248: the loss moves to the type of the step it points at - that step must exist in the body and be typed
+      const origin = getAt(toBody, at.key === '[]' ? [] : JSON.parse(at.key).concat(['annotatedSteps', consequentialOf - 1]));
+      if (!isObj(origin) || typeof origin.mistakeType !== 'string' || !BUCKETS.includes(origin.mistakeType)) { out.push(p.join('.') + ': consequentialOf points at a step with no type'); continue; }
+      pr.pointed.add(origin.mistakeType);
       pr.steps += 1;
       continue;
     }
@@ -99,6 +103,10 @@ function conseqViolations(delta, toBody) {
     for (const b of BUCKETS) if (b !== 'untyped' && (pr.buckets[b] || 0) < -1e-9) out.push(key + ': ' + b + ' went down');
     if (pr.steps === 0 && moves.some((m) => Math.abs(m) > 1e-9)) out.push(key + ': buckets moved but no step carries consequentialOf');
     if (pr.steps > 0 && !(pr.buckets.untyped < -1e-9)) out.push(key + ': a step is consequential but no untyped loss moved');
+    // D248: the buckets that gained are exactly the types of the steps pointed at
+    const gained = BUCKETS.filter((b) => b !== 'untyped' && (pr.buckets[b] || 0) > 1e-9);
+    for (const b of gained) if (!pr.pointed.has(b)) out.push(key + ': ' + b + ' gained but no consequential step points at a ' + b + ' step');
+    for (const b of pr.pointed) if (!gained.includes(b)) out.push(key + ': a consequential step points at a ' + b + ' step but ' + b + ' did not gain');
   }
   return out;
 }

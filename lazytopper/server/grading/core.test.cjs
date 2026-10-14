@@ -1927,6 +1927,26 @@ test('§CONSEQ.8 CONTROL: a PRESENTATION step is never an origin - later untyped
   assert.equal(t2.marksLostByType.untyped, 0);
 });
 
+test('§CONSEQ.9 (D248) a `missing` step inherits ONLY if no fully-credited step lies between it and the origin; lost working steps keep the nearest-earlier rule', async () => {
+  const origin = S({ description: 'Wrong method', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'conceptual' });
+  const credited = S({ description: 'Correct working', marksAwarded: 1, marksDeducted: 0 });
+  const omitted = S({ description: 'Omitted line', studentWork: '', status: 'missing', marksAwarded: 0, marksDeducted: 1 });
+  const lostWorking = S({ description: 'Lost working', status: 'incorrect', marksAwarded: 0, marksDeducted: 1 });
+  const run = async (steps) => (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 3, acceptsV2: true }))).body;
+  // [error][correct][omitted]: a separate loss - NOT consequential
+  const a = await run([origin, credited, omitted]);
+  assert.equal(a.annotatedSteps[2].consequentialOf, undefined);
+  assert.equal(a.marksLostByType.untyped, 1, 'stays untyped (honest), not filed under conceptual');
+  // CONTROL: [error][omitted] with nothing credited between: consequential
+  const b = await run([origin, S({ ...omitted, marksDeducted: 1 })]);
+  assert.equal(b.annotatedSteps[1].consequentialOf, 1);
+  assert.equal(b.marksLostByType.untyped, 0);
+  // CONTROL: ordinary lost working after correct working still follows the error (consequential error carries through working)
+  const c = await run([origin, credited, lostWorking]);
+  assert.equal(c.annotatedSteps[2].consequentialOf, 1);
+  assert.equal(c.marksLostByType.untyped, 0);
+});
+
 /* ══ A17 OWNER RULINGS 1-5 ON EVERY GRADING SURFACE (GRADING-JOBS-1 J0) ══════════════
    The per-surface proofs live beside this file; loading them here runs them in CI under
    test:server:grading-core (package.json is outside the J0 lane). */

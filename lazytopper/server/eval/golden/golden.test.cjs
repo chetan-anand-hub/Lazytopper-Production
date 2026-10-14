@@ -467,20 +467,29 @@ test('§J1 GOLDEN JOB CASE — job final body == sync body for every stored pape
 });
 
 // ── §11c GRADER-CONSEQUENTIAL-1: the g-conseq-1 class can FAIL ───────────────
-test('§11c ★ g-conseq-1 accepts exactly the consequential change and REFUSES anything else (a mark moved, a total moved, a forward pointer, a rewritten type)', () => {
+test('§11c ★ g-conseq-1 accepts exactly the consequential change and REFUSES anything else (a mark moved, a total moved, a forward pointer, a rewritten type, a bucket that is not the pointed-to step type)', async () => {
   const { conseqViolations } = require('./lib/rebaselineClasses.cjs');
   const rb = JSON.parse(fs.readFileSync(path.join(GOLDEN, 'runs', floor.runId, 'rebaseline.json'), 'utf8'));
   const keys = Object.keys(rb.entries).filter((k) => rb.entries[k].conseq);
   assert.ok(keys.length > 0, 'CONTROL: the owner anomaly paper (V2.W.CIM.OA-01, Q4) is re-baselined under g-conseq-1');
   const delta = rb.entries[keys[0]].conseq.delta;
+  const { loadRun, replayJob } = require('./lib/replay.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const R = loadRun(path.join(GOLDEN, 'runs', floor.runId));
+  const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
+  const byKey = {};
+  for (const run of Object.keys(R.runs)) for (const rec of R.runs[run]) byKey['run' + run + ':' + rec.jobKey] = rec;
+  const body = (await replayJob(plan[byKey[keys[0]].jobKey], byKey[keys[0]], { config: R.manifest && R.manifest.config })).body;
   const stepIdx = delta.findIndex(([p]) => p.includes('annotatedSteps'));
   const bucketIdx = delta.findIndex(([p]) => p.includes('marksLostByType'));
   assert.ok(stepIdx >= 0 && bucketIdx >= 0);
-  assert.deepStrictEqual(conseqViolations(delta, {}), [], 'the real delta is accepted');
-  const mut = (fn) => { const d = JSON.parse(JSON.stringify(delta)); fn(d); return conseqViolations(d, {}); };
+  assert.deepStrictEqual(conseqViolations(delta, body), [], 'the real delta is accepted');
+  const mut = (fn) => { const d = JSON.parse(JSON.stringify(delta)); fn(d); return conseqViolations(d, body); };
   assert.ok(mut((d) => { d[bucketIdx][2] = d[bucketIdx][2] + 0.5; }).some((v) => /total moved/.test(v)), 'a moved total is refused');
   assert.ok(mut((d) => { d[stepIdx][2].marksAwarded = (d[stepIdx][2].marksAwarded || 0) + 0.5; }).some((v) => /more than the new consequentialOf/.test(v)), 'a mark moved on a step is refused');
   assert.ok(mut((d) => { d[stepIdx][2].mistakeType = 'silly'; }).some((v) => /more than the new consequentialOf/.test(v)), 'a rewritten type is refused');
   assert.ok(mut((d) => { d[stepIdx][2].consequentialOf = 99; }).some((v) => /EARLIER step/.test(v)), 'a forward pointer is refused');
   assert.ok(mut((d) => { d.push([['results', 3, 'marksAwarded'], 2, 3]); }).some((v) => /outside the g-conseq-1 rules/.test(v)), 'any other node is refused');
+  // D248: the bucket that gained must be the pointed-to step's type (here conceptual); moving the gain to silly is refused
+  assert.ok(mut((d) => { d[bucketIdx][0] = d[bucketIdx][0].slice(0, -1).concat(['silly']); }).length > 0, 'a gain in a bucket other than the pointed-to step type is refused');
 });

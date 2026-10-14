@@ -1313,8 +1313,13 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       && t.status !== 'unattempted' && t.status !== 'withdrawn';
     steps.forEach((s, i) => {
       if (zeroedBy.has(i) || s._ecf || s.mistakeType || !(s.marksDeducted > 0) || s.status === 'unattempted' || s.status === 'withdrawn') return;
+      // D248 ruling 1: an omitted line (`missing`) follows an earlier error ONLY if no fully-credited step of the part lies
+      // between them - an omission after correct working is a separate loss. Lost working steps keep the nearest-earlier rule.
+      let creditedBetween = false;
       for (let j = i - 1; j >= 0; j -= 1) {
-        if (partKey(steps[j].part) === partKey(s.part) && isTypedOrigin(steps[j], j)) { s._consequentialOrigin = steps[j]; break; }
+        if (partKey(steps[j].part) !== partKey(s.part)) continue;
+        if (isTypedOrigin(steps[j], j)) { if (!(s.status === 'missing' && creditedBetween)) s._consequentialOrigin = steps[j]; break; }
+        if (steps[j].status === 'correct' && steps[j]._available > 0 && steps[j].marksAwarded >= steps[j]._available) creditedBetween = true;
       }
     });
     steps.forEach((s, i) => {
