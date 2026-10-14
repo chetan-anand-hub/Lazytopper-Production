@@ -36,7 +36,7 @@ const GUARD = readFileSync(resolve(__dirname, "../../../../scripts/src/syllabusG
 const BANNED = [...new Set([...GUARD.matchAll(/^\s*"([^"]{3,80})",?\s*$/gm)].map((m) => m[1]))];
 const bannedHits = (text: string): string[] =>
   BANNED.filter((b) => new RegExp("(?<![A-Za-z])" + b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/'/g, "['\u2019]") + "(?![A-Za-z])", "i").test(text));
-const INTERNAL = /PYQ-|SQP-|\bSP-[MS]-|CLAUDE|\b[BCP]-F\d|\bD2\d\d\b|\bE\d–E\d/;
+const INTERNAL = /PYQ-|SQP-|\bSP-[MS]-|CLAUDE|\b[BCP]-F\d|\bD2\d\d\b|\bE\d–E\d|\bruling\b|\bR\d\b|TODO/;
 /** Things the owner has ruled OUT in src/config/syllabus2026-27.ts that the exact-string guard does not carry (R5 rancidity, R6 carboxylic-acid naming, pH via logarithm). */
 const OUT_BY_RULING = [/rancid|antioxidant|nitrogen flush/i, /[–-]oic( acid)?|propanoic|butanoic/i, /pH ?= ?[−-]? ?log|logarithm/i];
 const WATER_74 = /pure water[^.;]*7\.4/i;
@@ -113,8 +113,8 @@ describe("NOTES-FORMULA-3b CHEMISTRY — what a student can see", () => {
     expect(OUT_BY_RULING.filter((re) => re.test(text)).map(String)).toEqual([]);
   });
 
-  it("(d) the source column never reaches the student DOM", () => {
-    const s = spec("metals-and-non-metals");
+  it.each(CHEM)("(d) %s: the source column never reaches the student DOM", (slug) => {
+    const s = spec(slug);
     const { container } = render(
       <MemoryRouter>
         <Note spec={s} />
@@ -134,6 +134,8 @@ describe("NOTES-FORMULA-3b CHEMISTRY — what a student can see", () => {
   it("(e) CONTROL: the scans do flag a banned phrase, an internal id and a wrong pH", () => {
     expect(bannedHits("Newlands Octaves")).toContain("Newlands Octaves");
     expect(INTERNAL.test("see PYQ-S-2024-ACID-004")).toBe(true);
+    expect(INTERNAL.test("owner ruling R1")).toBe(true);
+    expect(INTERNAL.test("TODO later")).toBe(true);
     expect(WATER_74.test("pure water and blood (labelled 7.4)")).toBe(true);
     expect(WATER_74.test("pure water 7 (neutral); blood about 7.4")).toBe(false);
     expect(bannedHits("Periodic table of the elements today")).toEqual([]);
