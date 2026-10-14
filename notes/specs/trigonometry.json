@@ -575,7 +575,7 @@
     },
     {
       "id": "soh-cah-toa-names",
-      "text": "<b>S</b>onu <b>O</b>ye <b>H</b>ari! · <b>C</b>handu <b>A</b>aya <b>H</b>ai! · <b>T</b>ina <b>O</b>ffice <b>A</b>ayi.",
+      "text": "<b>S</b>onu <b>O</b>ye <b>H</b>arsh! · <b>C</b>handu <b>A</b>aya <b>H</b>ai! · <b>T</b>ina <b>O</b>ffice <b>A</b>ayi.",
       "gloss": "sin = opposite/hypotenuse; cos = adjacent/hypotenuse; tan = opposite/adjacent. S-O-H = sin, opposite, hypotenuse · C-A-H = cos, adjacent, hypotenuse · T-O-A = tan, opposite, adjacent.",
       "use": "memory-aid",
       "source": "NCERT 8.2",

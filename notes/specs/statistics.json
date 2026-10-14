@@ -498,7 +498,7 @@
   "shortcuts": [
     {
       "id": "empirical-quick-mode",
-      "text": "Mode = 3 Median − 2 Mean.",
+      "text": "Mode = 3 Median − 2 Mean. Use it only when the question gives the mean and the median, or asks for this relation; otherwise use the grouped-mode formula.",
       "use": "written-ok",
       "source": "PYQ-M-STAT-003, -005"
     },
@@ -535,14 +535,14 @@
     },
     {
       "id": "mode-trick",
-      "text": "<b>Lower limit (l)</b> mein: <b>apna</b> minus <b>pehle wala</b>, upar; neeche <b>do apna</b> minus pehle minus baad wala; sab <b>h</b> se guna.",
+      "text": "<b>Lower limit (l) plus</b>: <b>apna</b> minus <b>pehle wala</b>, upar; neeche <b>do apna</b> minus pehle minus baad wala; sab <b>h</b> se guna.",
       "gloss": "l + (f₁ − f₀)/(2f₁ − f₀ − f₂) × h; f₁ = apna, f₀ = pehle, f₂ = baad.",
       "use": "memory-aid",
       "source": "NCERT 13.3"
     },
     {
       "id": "median-trick",
-      "text": "<b>Lower limit (l)</b> mein: <b>aadha n</b> minus <b>cf</b>, <b>f</b> se bhaag, <b>h</b> se guna.",
+      "text": "<b>Lower limit (l) plus</b>: <b>aadha n</b> minus <b>cf</b>, <b>f</b> se bhaag, <b>h</b> se guna.",
       "gloss": "l + ((n/2 − cf)/f) × h.",
       "use": "memory-aid",
       "source": "NCERT 13.4"

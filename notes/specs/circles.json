@@ -409,7 +409,7 @@
     },
     {
       "id": "cite-the-theorem",
-      "text": "In proofs write \"Theorem 10.1\" / \"radii of the same circle are equal\".",
+      "text": "In proofs state the reason in words: the tangent is perpendicular to the radius at the point of contact; radii of the same circle are equal.",
       "use": "written-ok",
       "source": "NCERT 10.2"
     },

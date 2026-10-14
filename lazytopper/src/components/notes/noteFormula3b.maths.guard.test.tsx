@@ -41,9 +41,9 @@ const bannedHits = (text: string): string[] =>
 const OUT_BY_RULING = [
   /\\sqrt\{p\}|for any prime|square root of every prime/i, // R1: the general-prime irrationality statement
   /converse of (the )?Pythagoras|Pythagoras(’|')? theorem/i, // ruling 1: stating Pythagoras or its converse (numeric use as a tool is IN)
-  /complementary angle|sin ?\(90|\sin ?\(90/i, // trigonometric ratios of complementary angles
+  /complementary angle|sin ?\(90/i, // trigonometric ratios of complementary angles
 ];
-const INTERNAL = /PYQ-|SQP-|\bSP-[MS]-|CLAUDE|\b[BCP]-F\d|\bD2\d\d\b|\bE\d–E\d/;
+const INTERNAL = /PYQ-|SQP-|\bSP-[MS]-|CLAUDE|\b[BCP]-F\d|\bD2\d\d\b|\bE\d–E\d|\bruling\b|\bR\d\b|TODO/;
 
 const visible = (s: NoteSpec): string[] => [
   ...s.formula_strip.flatMap((f) => [f.label, f.math, f.heading ?? "", f.tip ?? ""]),
@@ -102,8 +102,8 @@ describe("NOTES-FORMULA-3b MATHS — what a student can see", () => {
     expect(bad).toEqual([]);
   });
 
-  it("(d) the source column never reaches the student DOM", () => {
-    const s = spec("trigonometry");
+  it.each(MATHS)("(d) %s: the source column never reaches the student DOM", (slug) => {
+    const s = spec(slug);
     const { container } = render(
       <MemoryRouter>
         <Note spec={s} />
@@ -125,6 +125,8 @@ describe("NOTES-FORMULA-3b MATHS — what a student can see", () => {
     expect(INTERNAL.test("see PYQ-M-2024-TRI-001")).toBe(true);
     expect(bannedHits("Volume of a cone")).toEqual([]);
     expect(INTERNAL.test("Sa-Sa-Sa")).toBe(false);
+    expect(INTERNAL.test("owner ruling R1")).toBe(true);
+    expect(INTERNAL.test("TODO later")).toBe(true);
     expect(OUT_BY_RULING.some((re) => re.test("works for \\sqrt{p} for any prime p"))).toBe(true);
     expect(OUT_BY_RULING.some((re) => re.test("the converse of Pythagoras theorem"))).toBe(true);
     expect(OUT_BY_RULING.some((re) => re.test("check a^2+b^2=c^2 numerically"))).toBe(false);

@@ -378,8 +378,8 @@
       "label": "Basic Proportionality Theorem",
       "math": "$DE \\parallel BC \\Rightarrow \\dfrac{AD}{DB}=\\dfrac{AE}{EC}$",
       "id": "basic-proportionality-theorem",
-      "heading": "Basic Proportionality Theorem (Thales Theorem)",
-      "tip": "Name the parallel pair first. The ratio is part:part (AD/DB), not part:whole, unless you add."
+      "heading": "Basic Proportionality Theorem",
+      "tip": "AD/DB = AE/EC. For AD/AB use the similar-triangles form."
     },
     {
       "label": "Similar triangles - sides",
