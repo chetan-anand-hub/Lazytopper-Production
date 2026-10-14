@@ -363,12 +363,12 @@
   ],
   "formula_strip": [
     {
-      "label": "Monohybrid F2 ratio",
-      "math": "Tt x Tt -> 1 TT : 2 Tt : 1 tt = 3 tall : 1 short (phenotype 3:1, genotype 1:2:1)"
+      "label": "Monohybrid $\\text{F}_2$ ratio",
+      "math": "$\\text{Tt} \\times \\text{Tt} \\rightarrow 1\\ \\text{TT} : 2\\ \\text{Tt} : 1\\ \\text{tt}$ = 3 tall : 1 short (phenotype 3:1, genotype 1:2:1)"
     },
     {
-      "label": "Dihybrid F2 ratio",
-      "math": "Rr Yy x Rr Yy -> 9 round-yellow : 3 round-green : 3 wrinkled-yellow : 1 wrinkled-green (9:3:3:1)"
+      "label": "Dihybrid $\\text{F}_2$ ratio",
+      "math": "$\\text{Rr Yy} \\times \\text{Rr Yy} \\rightarrow$ 9 round-yellow : 3 round-green : 3 wrinkled-yellow : 1 wrinkled-green (9:3:3:1)"
     },
     {
       "label": "Mendel's dihybrid count",
@@ -376,7 +376,7 @@
     },
     {
       "label": "Human sex chromosomes",
-      "math": "Female = XX (all eggs X) . Male = XY (sperm X or Y) -> the father determines the sex"
+      "math": "Female = $\\text{XX}$ (all eggs X) . Male = $\\text{XY}$ (sperm X or Y) $\\rightarrow$ the father determines the sex"
     },
     {
       "label": "Gene copies",
