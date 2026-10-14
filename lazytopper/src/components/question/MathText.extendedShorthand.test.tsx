@@ -119,6 +119,16 @@ describe("MathText extended shorthand — review findings (adversarial verifier,
   });
 });
 
+describe("MathText — a non-string value never throws (MATH-RENDER-1b, D203 condition 1)", () => {
+  it("renders numbers, arrays, null and undefined as text instead of crashing", () => {
+    const cases: Array<[unknown, string]> = [[42, "42"], [["a", "b"], "a,b"], [null, ""], [undefined, ""], [true, "true"]];
+    for (const [value, expected] of cases) {
+      const { container } = render(<MathText text={value as unknown as string} />);
+      expect(container.textContent, String(value)).toBe(expected);
+    }
+  });
+});
+
 describe("MathText extended shorthand — the KaTeX cue stays a superset", () => {
   it("every rule that emits \\(..\\) is covered by textNeedsKatex", () => {
     for (const t of ["sqrt(4)", "a^(n-1)", "x^{2}", "10^-8", "m^-1", "a_n", "a_{12}"]) {
