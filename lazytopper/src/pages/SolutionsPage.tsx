@@ -351,7 +351,7 @@ export default function SolutionsPage() {
   const parsed = parseSolutionsPath(pathname);
   const ch = parsed ? solutionsChapter(parsed.slug) : null;
   // Only the pilot chapters exist. Anything else goes to the NCERT books page in the app
-  // (the server already answers it with a real 404: vercel.json rewrites the exact paths only).
+  // (vercel.json is generated from the router, so like /notes/:topicSlug any one-segment chapter reaches the shell; this redirect handles non-pilot chapters, FU-SOLUTIONS-UNKNOWN-CHAPTER-404).
   if (!parsed || !ch) return <Navigate to="/ncert-class-10" replace />;
   return <ChapterSolutions book={parsed.book} ch={ch} />;
 }

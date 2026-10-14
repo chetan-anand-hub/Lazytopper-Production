@@ -275,14 +275,18 @@ describe("(e) registered everywhere a public page must be", () => {
       expect(canonicalPathFor(`${p}?x=1`), p).toBe(p);
     }
   });
-  it("llms.txt lists both; the Vercel rewrites are exact paths (any other chapter stays a real 404)", () => {
+  it("llms.txt lists both; the Vercel rewrites are the GENERATED route-family rules (SOFT404-1)", () => {
     const llms = read("public/llms.txt");
     for (const p of paths) expect(llms).toContain(`(https://www.lazytopper.com${p}):`);
     const sources: string[] = JSON.parse(readFileSync(resolve(ROOT, "..", "vercel.json"), "utf8")).rewrites.map(
       (r: { source: string }) => r.source,
     );
-    expect(sources).toContain("/:path(ncert-solutions/triangles/?)");
-    expect(sources).toContain("/:path(ncert-exemplar/triangles/?)");
+    // vercel.json is generated from App.tsx (scripts/seo/writeVercelRewrites.ts; soft404Routes.guard
+    // enforces "a request reaches the shell iff the router routes it"). A `:chapter` route therefore
+    // reaches the shell for any one segment, exactly as `/notes/:topicSlug` does; the page itself
+    // redirects a non-pilot chapter to /ncert-class-10 (see "(b) an unknown chapter").
+    expect(sources).toContain("/:path(ncert-solutions/[^/]+/?)");
+    expect(sources).toContain("/:path(ncert-exemplar/[^/]+/?)");
     expect(sources.filter((s) => /ncert-(solutions|exemplar)/.test(s))).toHaveLength(2);
   });
   it("chunk map + static heads within the limits; each title is the page's h1", () => {
