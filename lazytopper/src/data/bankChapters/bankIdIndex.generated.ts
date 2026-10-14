@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Served bank id -> {topicKey, subtopic, section} for 10419 rows, in aggregator order.
+// Served bank id -> {topicKey, subtopic, section} for 10425 rows, in aggregator order.
 // Ids and tags only, never question content. Read through ./bankIdIndex.ts.
 
 export const BANK_ID_INDEX_TOPIC_KEYS: readonly string[] = [
@@ -8184,6 +8184,7 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["SCQ-S-CHEM-030", 13, 1685, 2],
   ["SCQ-S-CHEM-031", 13, 1685, 2],
   ["SCQ-S-CHEM-032", 13, 1685, 2],
+  ["SCQ-S-CHEM-033", 13, 1685, 2],
   ["SCQ-S-CHEM-034", 13, 1685, 2],
   ["SCQ-S-CHEM-035", 13, 1685, 3],
   ["SCQ-S-CHEM-036", 13, 1685, 3],
@@ -8257,7 +8258,9 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["SCQ-S-METAL-032", 15, 1691, 1],
   ["SCQ-S-METAL-033", 15, 1691, 2],
   ["SCQ-S-METAL-035", 15, 1691, 2],
+  ["SCQ-S-METAL-036", 15, 1691, 2],
   ["SCQ-S-METAL-037", 15, 1691, 2],
+  ["SCQ-S-METAL-038", 15, 1691, 2],
   ["SCQ-S-METAL-039", 15, 1691, 3],
   ["SCQ-S-METAL-042", 15, 1691, 3],
   ["SCQ-S-METAL-043", 15, 1691, 3],
@@ -8285,8 +8288,11 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["SCQ-S-CARB-028", 16, 1692, 1],
   ["SCQ-S-CARB-029", 16, 1692, 1],
   ["SCQ-S-CARB-030", 16, 1692, 1],
+  ["SCQ-S-CARB-032", 16, 1692, 2],
   ["SCQ-S-CARB-033", 16, 1692, 2],
+  ["SCQ-S-CARB-034", 16, 1692, 2],
   ["SCQ-S-CARB-035", 16, 1692, 2],
+  ["SCQ-S-CARB-036", 16, 1692, 2],
   ["SCQ-S-CARB-037", 16, 1692, 2],
   ["SCQ-S-CARB-038", 16, 1692, 3],
   ["SCQ-S-CARB-039", 16, 1692, 3],

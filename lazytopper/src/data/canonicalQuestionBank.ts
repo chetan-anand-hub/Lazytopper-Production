@@ -2153,6 +2153,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-CTRL-042",             // text repaired by BANK-FIX-7 PR-2 (stray header + truncated answer); still withheld: its answer cites the booklet's own diagram and booklet figures may not be bound
   "SCO-S-ELEC-012",             // text-damaged: garbled wiring description, printed so in the booklet (cbjescco12 Q17); no allowed source to restore it from (BANK-FIX-7 PR-2)
   // BANK-STEPS-1 PAUSE — spliced-solution; each id leaves this block in the PR that repairs it
+  // SCI-BACKLOG-1 batch 2 (F, 14 Oct, D244): 6 SINGLE-STEP Science rows rewritten from NCERT 2026-27 and served again (ids leave this block)
   // BANK-STEPS-1 REPAIR PR-5 (lane B, 14 Oct): 36 Science rows repaired (new steps from each row's own stem + key) and served again
   // EL-E14 stays withheld: its options include "Electric motor" (formative-only per syllabusGuard); options are not this lane's to change, awaiting a cofounder ruling
   "EL-E14",                       // spliced-solution: the steps answer another question (steps now correct; withheld for the 'Electric motor' option)
@@ -2283,19 +2284,13 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PL2-R17",                      // spliced-solution: the steps answer another question
   "PLE2-R11",                     // spliced-solution: the steps answer another question
   // wrong-content rows (D178/D179, found by B while splitting single-step rows; rewrite owner: A, from NCERT)
-  "SCQ-S-CHEM-033",               // wrong-content (D178): the 'change in state' example is a precipitate reaction, not a change of state
-  "SCQ-S-METAL-036",              // wrong-content (D178): silver, the best heat conductor, is missing and the answer text is garbled ('...of heat copper') - NCERT does name lead as a poor conductor
-  "SCQ-S-CARB-032",               // wrong-content (D178): the stored equations and key text are garbled at extraction (C H OH CH CH H O K Conc H SO ...)
   "SCQ-S-ENV-037",                // wrong-content (D178): ozone 'height from the equator 10 to 16 km' is not the NCERT figure; 'Global wanning' is not the effect of depletion
-  "SCQ-S-CARB-036",               // wrong-content (D178): C4H3 is not a possible hydrocarbon formula; no addition equation given
   // FIND-3 (D179, D189): SCQ-S booklet rows judged WRONG (scientific error, empty or mismatched key, garbled stem); rewrite owner A, from NCERT
   "SCQ-S-CHEM-019",               // wrong-content (FIND-3, D179): 'ZnO(s) + C(s) Heat Zn(s) + CO2(g)' is unbalanced (O 1 vs 2); NCERT equation is ZnO + C -> Zn + CO.
   "SCQ-S-METAL-030",              // wrong-content (FIND-3, D179): Stem says 'formation of HgCl2 from magnesium' - should be MgCl2. Key/steps part (b) is empty: '(b)' with no electron-transfer answer.
-  "SCQ-S-METAL-038",              // wrong-content (FIND-3, D179): Key/steps are only the title 'Activity: To show metals are good conductors of electricity.' - no activity (circuit, bulb glows) described; no answer f
   "SCQ-S-CARB-025",               // wrong-content (FIND-3, D179): Stem garbled: 'Ethanal 6. ...functional group is .' (group missing). Key '1. 2-Propanone' gives only one member; second (butanone, CH3COC2H5) and form
   "SCQ-S-CARB-026",               // wrong-content (FIND-3, D179): Key/steps answer a different question: '72. Explain why cannot we have isomers of first three members of alkane family...'. No C3H6O isomers (propanal
   "SCQ-S-CARB-031",               // wrong-content (FIND-3, D179): Part b empty ('b.' with no name/structure) - should be propene, CH3-CH=CH2. Definition also omits 'successive members differ by -CH2-'.
-  "SCQ-S-CARB-034",               // wrong-content (FIND-3, D179): Key/steps are only a chapter header 'Chap 4 : Carbon and Its Compounds' - no isomers or structures. Should be propanal and propanone.
   "SCQ-S-LIFE-027",               // wrong-content (FIND-3, D179): Key/steps end with the garbled table header 'Blood Lymph' and give no difference from blood, so half the question is unanswered.
   "SCQ-S-LIFE-028",               // wrong-content (FIND-3, D179): Stem is garbled (blood/lymph table rows + '22.'); key ends with stray word 'Saprophytic'. Fat-digestion content itself is right.
   "SCQ-S-LIFE-029",               // wrong-content (FIND-3, D179): Key is only the garbled header 'S a p r o p hy t i c Nutrition Parasitic Nutrition' with no content.
