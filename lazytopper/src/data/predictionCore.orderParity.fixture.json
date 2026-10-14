@@ -137,8 +137,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 517,
-   "sha256": "e1b9abe11a5b63cf06e86b0eb75a3d9a48cafee116733ff66741fb2abc9d97ee",
+   "n": 515,
+   "sha256": "bc268d64c0205f3557fd49933bbd91e2b79abc903eb2a7ad6a17d9e45dc5e861",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
@@ -374,7 +374,7 @@
   },
   "metals-and-non-metals": {
    "n": 113,
-   "sha256": "81a74b4d98f09f2fb711067794b7c1e00d4d0af7ae51afe133ac2eaaa7aa226e",
+   "sha256": "2dcfb3bf28896ab0beb654882caacfa3ce2eb08e674f0728334b5699c7e53565",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
