@@ -40,7 +40,15 @@
     "lastmod": "2026-10-12"
   },
   "/ncert-class-10": {
-    "sha256": "348d26b45f80476ceac4ff485c35b6b52f58d467307b9704727add2e5288cc70",
+    "sha256": "dc2a90f90adf4c1e1a4972b4bc0b967b2aa6f7701c8f563136017f944a738904",
+    "lastmod": "2026-10-14"
+  },
+  "/ncert-exemplar/triangles": {
+    "sha256": "f4d9b4ede3433a57ca9cbba7345a1dc72cc4e1dea363295a742d1da38b35625c",
+    "lastmod": "2026-10-14"
+  },
+  "/ncert-solutions/triangles": {
+    "sha256": "cd8bf1edc4dd3ffbbbb4ed985f99aad525747952d505c00d2f31d52a40f2b09f",
     "lastmod": "2026-10-14"
   },
   "/notes/acids-bases-and-salts": {
